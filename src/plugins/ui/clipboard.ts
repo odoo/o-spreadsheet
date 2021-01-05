@@ -1,4 +1,4 @@
-import { clip, toXC } from "../../helpers/index";
+import { clip } from "../../helpers/index";
 import { Mode } from "../../model";
 import {
   CancelledReason,
@@ -78,9 +78,21 @@ export class ClipboardPlugin extends UIPlugin {
         }
         break;
       case "PASTE_CELL":
-        const xc = toXC(cmd.originCol, cmd.originRow);
-        if (this.getters.getMainCell(cmd.originSheet, xc) === xc) {
-          this.pasteMerge(xc, cmd.col, cmd.row, cmd.originSheet, cmd.sheetId, cmd.cut);
+        const [mainCellCol, mainCellRow] = this.getters.getMainCell(
+          cmd.originSheet,
+          cmd.originCol,
+          cmd.originRow
+        );
+        if (mainCellCol == cmd.originCol && mainCellRow == cmd.originRow) {
+          this.pasteMerge(
+            cmd.originCol,
+            cmd.originRow,
+            cmd.col,
+            cmd.row,
+            cmd.originSheet,
+            cmd.sheetId,
+            cmd.cut
+          );
         }
         this.pasteCell(
           cmd.originSheet,
@@ -357,14 +369,15 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   private pasteMerge(
-    xc: string,
+    originCol: number,
+    originRow: number,
     col: number,
     row: number,
     originSheet: UID,
     sheetId: UID,
     cut?: boolean
   ) {
-    const merge = this.getters.getMerge(originSheet, xc);
+    const merge = this.getters.getMerge(originSheet, originCol, originRow);
     const sheet = this.getters.getSheet(sheetId);
     if (!merge || !sheet) return;
     if (cut) {

@@ -190,8 +190,8 @@ export class SelectionPlugin extends UIPlugin {
 
   getActiveCell(): Cell | undefined {
     const sheetId = this.getters.getActiveSheetId();
-    const xc = this.getters.getMainCell(sheetId, this.activeXc);
-    return this.getters.getCellByXc(sheetId, xc);
+    const [mainCol, mainRow] = this.getters.getMainCell(sheetId, this.activeCol, this.activeRow);
+    return this.getters.getCell(sheetId, mainCol, mainRow);
   }
 
   getActiveCols(): Set<number> {
@@ -349,12 +349,11 @@ export class SelectionPlugin extends UIPlugin {
    */
   movePosition(deltaX: number, deltaY: number) {
     const [refCol, refRow] = this.getReferenceCoords();
-    const activeReference = toXC(refCol, refRow);
     const sheetId = this.getters.getActiveSheetId();
-    if (this.getters.isInMerge(sheetId, activeReference)) {
+    if (this.getters.isInMerge(sheetId, refCol, refRow)) {
       let targetCol = refCol;
       let targetRow = refRow;
-      while (this.getters.isInSameMerge(sheetId, activeReference, toXC(targetCol, targetRow))) {
+      while (this.getters.isInSameMerge(sheetId, refCol, refRow, targetCol, targetRow)) {
         targetCol += deltaX;
         targetRow += deltaY;
       }
@@ -509,13 +508,12 @@ export class SelectionPlugin extends UIPlugin {
     // active zone
     const activeSheet = this.getters.getActiveSheetId();
     const [col, row] = this.getPosition();
-    const activeXc = toXC(col, row);
 
     ctx.strokeStyle = "#3266ca";
     ctx.lineWidth = 3 * thinLineWidth;
     let zone: Zone;
-    if (this.getters.isInMerge(activeSheet, activeXc)) {
-      zone = this.getters.getMerge(activeSheet, activeXc)!;
+    if (this.getters.isInMerge(activeSheet, col, row)) {
+      zone = this.getters.getMerge(activeSheet, col, row)!;
     } else {
       zone = {
         top: row,

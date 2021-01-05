@@ -20,6 +20,7 @@ import {
   Border,
   BorderCommand,
   ColorScaleMidPointThreshold,
+  Position,
 } from "../src/types";
 import "./canvas.mock";
 import { MergePlugin } from "../src/plugins/core/merge";
@@ -465,16 +466,38 @@ export function getMerges(model: Model): Record<number, Merge> {
     : {};
 }
 
-export function getMergeCellMap(model: Model): Record<UID, number> {
+export function getMergeCellMap(model: Model): Record<number, Record<number, number | undefined>> {
   const mergePlugin = model["handlers"].find(
     (handler) => handler instanceof MergePlugin
   )! as MergePlugin;
   const sheetCellMap = mergePlugin["mergeCellMap"][model.getters.getActiveSheetId()];
   return sheetCellMap
     ? (Object.fromEntries(
-        Object.entries(sheetCellMap).filter(([mergeId, merge]) => merge !== undefined)
-      ) as Record<UID, number>)
+        Object.entries(sheetCellMap).filter(
+          ([col, row]) => row !== undefined && Array.isArray(row) && row.some((x) => x)
+        )
+      ) as Record<number, Record<number, number | undefined>>)
     : {};
+}
+
+export function XCToMergeCellMap(
+  model: Model,
+  mergeXCList: string[]
+): Record<number, Record<number, number | undefined>> {
+  const mergeCellMap = {};
+  const sheetId = model.getters.getActiveSheetId();
+  for (const mergeXC of mergeXCList) {
+    const [col, row] = toCartesian(mergeXC);
+    const merge = model.getters.getMerge(sheetId, col, row);
+    if (!mergeCellMap[col]) mergeCellMap[col] = [];
+    mergeCellMap[col][row] = merge ? merge.id : undefined;
+  }
+  return mergeCellMap;
+}
+
+export function toPosition(xc: string): Position {
+  const [col, row] = toCartesian(xc);
+  return { col: col, row: row };
 }
 
 export function zone(str: string): Zone {

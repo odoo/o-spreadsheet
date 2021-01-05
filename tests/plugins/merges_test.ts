@@ -1,4 +1,4 @@
-import { toXC, toZone } from "../../src/helpers/index";
+import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Style, CancelledReason } from "../../src/types/index";
 import "../canvas.mock";
@@ -11,6 +11,8 @@ import {
   getMerges,
   setCellContent,
   target,
+  XCToMergeCellMap,
+  toPosition,
 } from "../helpers";
 
 function getCellsXC(model: Model): string[] {
@@ -33,9 +35,9 @@ describe("merges", () => {
 
     expect(getCellsXC(model)).toEqual(["B2"]);
     expect(getCellContent(model, "B2", sheet1)).toBe("b2");
-    expect(Object.keys(getMergeCellMap(model))).toEqual(["B2", "B3"]);
+    expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["B2", "B3"]));
     expect(getMerges(model)).toEqual({
-      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: toPosition("B2") },
     });
   });
 
@@ -50,9 +52,9 @@ describe("merges", () => {
         },
       ],
     });
-    expect(Object.keys(getMergeCellMap(model))).toEqual(["B2", "B3"]);
+    expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["B2", "B3"]));
     expect(getMerges(model)).toEqual({
-      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: toPosition("B2") },
     });
     const sheet1 = model.getters.getVisibleSheets()[0];
 
@@ -87,7 +89,7 @@ describe("merges", () => {
     });
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:C3") });
-    expect(model.getters.getMerge(sheetId, "A1")).toMatchObject(toZone("A1:B2"));
+    expect(model.getters.getMerge(sheetId, ...toCartesian("A1"))).toMatchObject(toZone("A1:B2"));
   });
 
   test("editing a merge cell actually edits the top left", () => {
@@ -453,9 +455,9 @@ describe("merges", () => {
 
     //merging
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:A3") });
-    const mergeId = getMergeCellMap(model).A1;
+    const mergeId = getMergeCellMap(model)[0][0];
     expect(mergeId).toBeGreaterThan(0);
-    expect(getMergeCellMap(model).A2).toBe(mergeId);
+    expect(getMergeCellMap(model)[0][1]).toBe(mergeId);
 
     // unmerge. there should not be any merge left
     model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:A3") });
@@ -470,9 +472,9 @@ describe("merges", () => {
     // select B2:B3 and merge
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
 
-    expect(Object.keys(getMergeCellMap(model))).toEqual(["B2", "B3"]);
+    expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["B2", "B3"]));
     expect(getMerges(model)).toEqual({
-      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: toPosition("B2") },
     });
 
     // undo
@@ -482,9 +484,9 @@ describe("merges", () => {
 
     // redo
     model.dispatch("REDO");
-    expect(Object.keys(getMergeCellMap(model))).toEqual(["B2", "B3"]);
+    expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["B2", "B3"]));
     expect(getMerges(model)).toEqual({
-      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: toPosition("B2") },
     });
   });
 
@@ -541,8 +543,8 @@ describe("merges", () => {
       borders: { 1: { top: ["thin", "#000"] } },
     });
     const sheetId = model.getters.getActiveSheetId();
-    expect(model.getters.getMerge(sheetId, "B4")).toBeTruthy();
-    expect(model.getters.getMerge(sheetId, "C4")).toBeTruthy();
+    expect(model.getters.getMerge(sheetId, ...toCartesian("B4"))).toBeTruthy();
+    expect(model.getters.getMerge(sheetId, ...toCartesian("C4"))).toBeTruthy();
     expect(getCell(model, "B4")!.style).toEqual({ textColor: "#fe0000" });
     expect(getBorder(model, "B4")).toEqual({ top: ["thin", "#000"] });
     model.dispatch("REMOVE_MERGE", { sheetId, zone: toZone("B4:C5") });

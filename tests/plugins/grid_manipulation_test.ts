@@ -9,6 +9,8 @@ import {
   getMerges,
   makeTestFixture,
   mockUuidV4To,
+  toPosition,
+  XCToMergeCellMap,
 } from "../helpers";
 import { Border, CancelledReason, CellType, UID } from "../../src/types";
 import { lettersToNumber, toXC, toZone } from "../../src/helpers";
@@ -336,49 +338,33 @@ describe("Columns", () => {
     test("On deletion", () => {
       removeColumns([1, 3]);
       expect(getMerges(model)).toEqual({
-        5: { id: 5, topLeft: "A1", top: 0, bottom: 0, left: 0, right: 2 },
-        6: { id: 6, topLeft: "B2", top: 1, bottom: 1, left: 1, right: 2 },
-        7: { id: 7, topLeft: "B3", top: 2, bottom: 2, left: 1, right: 2 },
+        5: { id: 5, topLeft: toPosition("A1"), top: 0, bottom: 0, left: 0, right: 2 },
+        6: { id: 6, topLeft: toPosition("B2"), top: 1, bottom: 1, left: 1, right: 2 },
+        7: { id: 7, topLeft: toPosition("B3"), top: 2, bottom: 2, left: 1, right: 2 },
       });
-      expect(getMergeCellMap(model)).toEqual({
-        A1: 5,
-        B1: 5,
-        C1: 5,
-        B2: 6,
-        C2: 6,
-        B3: 7,
-        C3: 7,
-      });
+      expect(getMergeCellMap(model)).toEqual(
+        XCToMergeCellMap(model, ["A1", "B1", "C1", "B2", "C2", "B3", "C3"])
+      );
     });
 
     test("On addition", () => {
       addColumns(1, "before", 1);
       addColumns(0, "after", 1);
       expect(getMerges(model)).toEqual({
-        9: { id: 9, topLeft: "A1", top: 0, bottom: 0, left: 0, right: 6 },
-        10: { id: 10, topLeft: "D2", top: 1, bottom: 1, left: 3, right: 6 },
-        11: { id: 11, topLeft: "E3", top: 2, bottom: 2, left: 4, right: 6 },
-        12: { id: 12, topLeft: "D4", top: 3, bottom: 3, left: 3, right: 5 },
+        9: { id: 9, topLeft: toPosition("A1"), top: 0, bottom: 0, left: 0, right: 6 },
+        10: { id: 10, topLeft: toPosition("D2"), top: 1, bottom: 1, left: 3, right: 6 },
+        11: { id: 11, topLeft: toPosition("E3"), top: 2, bottom: 2, left: 4, right: 6 },
+        12: { id: 12, topLeft: toPosition("D4"), top: 3, bottom: 3, left: 3, right: 5 },
       });
-      expect(getMergeCellMap(model)).toEqual({
-        A1: 9,
-        B1: 9,
-        C1: 9,
-        D1: 9,
-        E1: 9,
-        F1: 9,
-        G1: 9,
-        D2: 10,
-        E2: 10,
-        F2: 10,
-        G2: 10,
-        E3: 11,
-        F3: 11,
-        G3: 11,
-        D4: 12,
-        E4: 12,
-        F4: 12,
-      });
+      // prettier-ignore
+      expect(getMergeCellMap(model)).toEqual(
+        XCToMergeCellMap(model, [
+          "A1", "B1", "C1", "D1", "E1", "F1", "G1",
+                            "D2", "E2", "F2", "G2",
+                                  "E3", "F3", "G3",
+                            "D4", "E4", "F4",
+        ])
+      );
     });
   });
 
@@ -612,7 +598,7 @@ describe("Columns", () => {
       expect(Object.values(getMerges(model))[0]).toMatchObject({
         left: 2,
         right: 5,
-        topLeft: "C4",
+        topLeft: toPosition("C4"),
       });
     });
   });
@@ -1135,48 +1121,35 @@ describe("Rows", () => {
     test("On deletion", () => {
       removeRows([1, 3]);
       expect(getMerges(model)).toEqual({
-        5: { id: 5, topLeft: "A1", top: 0, bottom: 2, left: 0, right: 0 },
-        6: { id: 6, topLeft: "B2", top: 1, bottom: 2, left: 1, right: 1 },
-        7: { id: 7, topLeft: "C2", top: 1, bottom: 2, left: 2, right: 2 },
+        5: { id: 5, topLeft: toPosition("A1"), top: 0, bottom: 2, left: 0, right: 0 },
+        6: { id: 6, topLeft: toPosition("B2"), top: 1, bottom: 2, left: 1, right: 1 },
+        7: { id: 7, topLeft: toPosition("C2"), top: 1, bottom: 2, left: 2, right: 2 },
       });
-      expect(getMergeCellMap(model)).toEqual({
-        A1: 5,
-        A2: 5,
-        A3: 5,
-        B2: 6,
-        B3: 6,
-        C2: 7,
-        C3: 7,
-      });
+      expect(getMergeCellMap(model)).toEqual(
+        XCToMergeCellMap(model, ["A1", "A2", "A3", "B2", "B3", "C2", "C3"])
+      );
     });
     test("On addition", () => {
       addRows(1, "before", 1);
       addRows(0, "after", 1);
       expect(getMerges(model)).toEqual({
-        9: { id: 9, topLeft: "A1", top: 0, bottom: 6, left: 0, right: 0 },
-        10: { id: 10, topLeft: "B4", top: 3, bottom: 6, left: 1, right: 1 },
-        11: { id: 11, topLeft: "C5", top: 4, bottom: 6, left: 2, right: 2 },
-        12: { id: 12, topLeft: "D4", top: 3, bottom: 5, left: 3, right: 3 },
+        9: { id: 9, topLeft: toPosition("A1"), top: 0, bottom: 6, left: 0, right: 0 },
+        10: { id: 10, topLeft: toPosition("B4"), top: 3, bottom: 6, left: 1, right: 1 },
+        11: { id: 11, topLeft: toPosition("C5"), top: 4, bottom: 6, left: 2, right: 2 },
+        12: { id: 12, topLeft: toPosition("D4"), top: 3, bottom: 5, left: 3, right: 3 },
       });
-      expect(getMergeCellMap(model)).toEqual({
-        A1: 9,
-        A2: 9,
-        A3: 9,
-        A4: 9,
-        A5: 9,
-        A6: 9,
-        A7: 9,
-        B4: 10,
-        B5: 10,
-        B6: 10,
-        B7: 10,
-        C5: 11,
-        C6: 11,
-        C7: 11,
-        D4: 12,
-        D5: 12,
-        D6: 12,
-      });
+      // prettier-ignore
+      expect(getMergeCellMap(model)).toEqual(
+        XCToMergeCellMap(model, [
+          "A1",
+          "A3",
+          "A2",
+          "A4", "B4",       "D4",
+          "A5", "B5", "C5", "D5",
+          "A6", "B6", "C6", "D6",
+          "A7", "B7", "C7",
+        ])
+      );
     });
   });
 
@@ -1274,7 +1247,7 @@ describe("Rows", () => {
       expect(Object.values(getMerges(model))[0]).toMatchObject({
         top: 2,
         bottom: 5,
-        topLeft: "D3",
+        topLeft: toPosition("D3"),
       });
     });
 

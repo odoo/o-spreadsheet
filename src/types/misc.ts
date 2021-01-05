@@ -134,9 +134,13 @@ export interface Row extends Header {
 
 export type Col = Header;
 
+export interface Position {
+  col: number;
+  row: number;
+}
 export interface Merge extends Zone {
   id: number;
-  topLeft: string;
+  topLeft: Position;
 }
 
 export interface Highlight {

@@ -11,6 +11,8 @@ import {
   getMergeCellMap,
   getMerges,
   setCellContent,
+  toPosition,
+  XCToMergeCellMap,
 } from "../helpers";
 
 let autoFill: AutofillPlugin;
@@ -390,11 +392,13 @@ describe("Autofill", () => {
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:A2") });
     setCellContent(model, "A1", "1");
     autofill("A1:A3", "A9");
-    expect(Object.keys(getMergeCellMap(model))).toEqual(["A1", "A2", "A4", "A5", "A7", "A8"]);
+    expect(getMergeCellMap(model)).toEqual(
+      XCToMergeCellMap(model, ["A1", "A2", "A4", "A5", "A7", "A8"])
+    );
     expect(getMerges(model)).toEqual({
-      "1": { bottom: 1, id: 1, left: 0, right: 0, top: 0, topLeft: "A1" },
-      "2": { bottom: 4, id: 2, left: 0, right: 0, top: 3, topLeft: "A4" },
-      "3": { bottom: 7, id: 3, left: 0, right: 0, top: 6, topLeft: "A7" },
+      "1": { bottom: 1, id: 1, left: 0, right: 0, top: 0, topLeft: toPosition("A1") },
+      "2": { bottom: 4, id: 2, left: 0, right: 0, top: 3, topLeft: toPosition("A4") },
+      "3": { bottom: 7, id: 3, left: 0, right: 0, top: 6, topLeft: toPosition("A7") },
     });
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCellContent(model, "A4")).toBe("2");
@@ -413,10 +417,10 @@ describe("Autofill", () => {
     const sheet1 = model.getters.getActiveSheetId();
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:A2") });
     autofill("A1:A2", "A5");
-    expect(Object.keys(getMergeCellMap(model))).toEqual(["A1", "A2", "A3", "A4"]);
+    expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["A1", "A2", "A3", "A4"]));
     expect(getMerges(model)).toEqual({
-      "1": { bottom: 1, id: 1, left: 0, right: 0, top: 0, topLeft: "A1" },
-      "2": { bottom: 3, id: 2, left: 0, right: 0, top: 2, topLeft: "A3" },
+      "1": { bottom: 1, id: 1, left: 0, right: 0, top: 0, topLeft: toPosition("A1") },
+      "2": { bottom: 3, id: 2, left: 0, right: 0, top: 2, topLeft: toPosition("A3") },
     });
   });
 

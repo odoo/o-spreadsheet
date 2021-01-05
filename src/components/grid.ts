@@ -6,7 +6,7 @@ import {
   SCROLLBAR_WIDTH,
   HEADER_HEIGHT,
 } from "../constants";
-import { isEqual, isInside, toXC, toCartesian } from "../helpers/index";
+import { isEqual, isInside } from "../helpers/index";
 import { Model } from "../model";
 import { SpreadsheetEnv, Viewport } from "../types/index";
 import { GridComposer } from "./composer/grid_composer";
@@ -96,8 +96,8 @@ function useErrorTooltip(env: SpreadsheetEnv, getViewPort: () => Viewport): Erro
           return;
         }
         const sheetId = getters.getActiveSheetId();
-        const mainXc = getters.getMainCell(sheetId, toXC(col, row));
-        const cell = getters.getCell(sheetId, ...toCartesian(mainXc));
+        const [mainCol, mainRow] = getters.getMainCell(sheetId, col, row);
+        const cell = getters.getCell(sheetId, mainCol, mainRow);
         if (cell && cell.error) {
           tooltip.isOpen = true;
           tooltip.text = cell.error;

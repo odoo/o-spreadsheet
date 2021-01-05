@@ -5,7 +5,6 @@
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE, DEFAULT_FONT_WEIGHT } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { Style } from "../types";
-
 /**
  * Stringify an object, like JSON.stringify, except that the first level of keys
  * is ordered.

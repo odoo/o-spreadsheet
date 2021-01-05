@@ -1,5 +1,5 @@
 import { tokenize, composerTokenize, rangeReference, EnrichedToken } from "../../formulas/index";
-import { toXC, toCartesian, colors, getComposerSheetName } from "../../helpers/index";
+import { colors, getComposerSheetName } from "../../helpers/index";
 import { Command, LAYERS, CancelledReason, CommandResult, CellType, Cell } from "../../types/index";
 import { Mode } from "../../model";
 import { UIPlugin } from "../ui_plugin";
@@ -231,8 +231,7 @@ export class EditionPlugin extends UIPlugin {
     if (this.mode !== "inactive") {
       this.cancelEdition();
       const sheetId = this.getters.getActiveSheetId();
-      const xc = this.getters.getMainCell(sheetId, toXC(this.col, this.row));
-      const [col, row] = toCartesian(xc);
+      const [col, row] = this.getters.getMainCell(sheetId, this.col, this.row);
       let content = this.currentContent;
       this.setContent("");
       const didChange = this.initialContent !== content;
@@ -395,8 +394,11 @@ export class EditionPlugin extends UIPlugin {
 
   private setActiveContent() {
     const sheetId = this.getters.getActiveSheetId();
-    const mainCell = this.getters.getMainCell(sheetId, toXC(...this.getters.getPosition()));
-    const anchor = this.getters.getCell(this.getters.getActiveSheetId(), ...toCartesian(mainCell));
+    const [mainCellCol, mainCellRow] = this.getters.getMainCell(
+      sheetId,
+      ...this.getters.getPosition()
+    );
+    const anchor = this.getters.getCell(this.getters.getActiveSheetId(), mainCellCol, mainCellRow);
     if (anchor) {
       const { col, row } = this.getters.getCellPosition(anchor.id);
       this.col = col;
