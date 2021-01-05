@@ -1,6 +1,5 @@
 import { CorePlugin } from "../core_plugin";
 import {
-  toXC,
   toZone,
   updateAddColumns,
   updateAddRows,
@@ -134,7 +133,7 @@ export class ConditionalFormatPlugin
     const ruleIds: Set<string> = new Set();
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
-        const cellRules = this.getRulesByCell(sheetId, toXC(col, row));
+        const cellRules = this.getRulesByCell(sheetId, col, row);
         cellRules.forEach((rule) => {
           ruleIds.add(rule.id);
         });
@@ -142,15 +141,14 @@ export class ConditionalFormatPlugin
     }
     return ruleIds;
   }
-  getRulesByCell(sheetId: UID, cellXc: string): Set<ConditionalFormat> {
+  getRulesByCell(sheetId: UID, cellCol: number, cellRow: number): Set<ConditionalFormat> {
     const rulesId: Set<ConditionalFormat> = new Set();
     for (let cf of this.cfRules[sheetId]) {
       for (let ref of cf.ranges) {
         const zone: Zone = toZone(ref);
         for (let row = zone.top; row <= zone.bottom; row++) {
           for (let col = zone.left; col <= zone.right; col++) {
-            let xc = toXC(col, row);
-            if (cellXc == xc) {
+            if (cellCol === col && cellRow === row) {
               rulesId.add(cf);
             }
           }

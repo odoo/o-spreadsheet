@@ -42,7 +42,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
 
       case "AUTOFILL_CELL":
         const sheetId = this.getters.getActiveSheetId();
-        const cfOrigin = this.getters.getRulesByCell(sheetId, toXC(cmd.originCol, cmd.originRow));
+        const cfOrigin = this.getters.getRulesByCell(sheetId, cmd.originCol, cmd.originRow);
         for (const cf of cfOrigin) {
           this.adaptRules(sheetId, cf, [toXC(cmd.col, cmd.row)], []);
         }
