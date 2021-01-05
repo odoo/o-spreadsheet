@@ -2,9 +2,14 @@ import { parseDateTime } from "../functions/dates";
 import { _lt } from "../translation";
 import { AddFunctionDescription } from "../types";
 import { args } from "./arguments";
-import { toJsDate, toNumber, toString, visitAny } from "./helpers";
+import { assert, toJsDate, toNumber, toString, visitAny } from "./helpers";
 
 const INITIAL_1900_DAY = new Date(1899, 11, 30);
+
+function isLeapYear(year: number): boolean {
+  const _year = Math.trunc(year);
+  return (_year % 4 === 0 && _year % 100 != 0) || _year % 400 == 0;
+}
 
 // -----------------------------------------------------------------------------
 // DATE
@@ -725,5 +730,164 @@ export const YEAR: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (date: any): number {
     return toJsDate(date).getFullYear();
+  },
+};
+
+// -----------------------------------------------------------------------------
+// YEARFRAC
+// -----------------------------------------------------------------------------
+export const YEARFRAC: AddFunctionDescription = {
+  description: _lt("Exact number of years between two dates."),
+  args: args(`
+    start_date (date) ${_lt(
+      "The start date to consider in the calculation. Must be a reference to a cell containing a date, a function returning a date type, or a number."
+    )}
+    end_date (date) ${_lt(
+      "The end date to consider in the calculation. Must be a reference to a cell containing a date, a function returning a date type, or a number."
+    )}
+    day_count_convention (number, default=0) ${_lt("An indicator of what day count method to use.")}
+    `),
+  returns: ["NUMBER"],
+  compute: function (startDate: any, endDate: any, dayCountConvention: any): number {
+    let _startDate = Math.trunc(toNumber(startDate));
+    let _endDate = Math.trunc(toNumber(endDate));
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));
+
+    assert(
+      () => _startDate >= 0,
+      _lt("The start_date (%s) must be positive or null.", _startDate.toString())
+    );
+    assert(
+      () => _endDate >= 0,
+      _lt("The end_date (%s) must be positive or null.", _endDate.toString())
+    );
+    assert(
+      () => 0 <= _dayCountConvention && _dayCountConvention <= 4,
+      _lt(
+        "The day_count_convention (%s) must be between 0 and 4 inclusive.",
+        _dayCountConvention.toString()
+      )
+    );
+
+    if (_startDate === _endDate) {
+      return 0;
+    }
+
+    if (_startDate > _endDate) {
+      const stack = _endDate;
+      _endDate = _startDate;
+      _startDate = stack;
+    }
+
+    const jsStartDate = toJsDate(_startDate);
+    const jsEndDate = toJsDate(_endDate);
+    let dayStart = jsStartDate.getDate();
+    let dayEnd = jsEndDate.getDate();
+    const monthStart = jsStartDate.getMonth(); // january is 0
+    const monthEnd = jsEndDate.getMonth(); // january is 0
+    const yearStart = jsStartDate.getFullYear();
+    const yearEnd = jsEndDate.getFullYear();
+
+    let yearsStart = 0;
+    let yearsEnd = 0;
+
+    switch (_dayCountConvention) {
+      // 30/360 US convention --------------------------------------------------
+      case 0:
+        if (dayStart === 31) dayStart = 30;
+        if (dayStart === 30 && dayEnd === 31) dayEnd = 30;
+        // If jsStartDate is the last day of February
+        if (monthStart === 1 && dayStart === (isLeapYear(yearStart) ? 29 : 28)) {
+          dayStart = 30;
+          // If jsEndDate is the last day of February
+          if (monthEnd === 1 && dayEnd === (isLeapYear(yearEnd) ? 29 : 28)) {
+            dayEnd = 30;
+          }
+        }
+        yearsStart = yearStart + (monthStart * 30 + dayStart) / 360;
+        yearsEnd = yearEnd + (monthEnd * 30 + dayEnd) / 360;
+        break;
+
+      // actual/actual convention ----------------------------------------------
+      case 1:
+        let daysInYear = 365;
+
+        const isSameYear = yearStart === yearEnd;
+        const isOneDeltaYear = yearStart + 1 === yearEnd;
+        const isMonthEndBiger = monthStart < monthEnd;
+        const isSameMonth = monthStart === monthEnd;
+        const isDayEndBiger = dayStart < dayEnd;
+
+        // |-----|  <-- one Year
+        // 'A' is start date
+        // 'B' is end date
+
+        if (
+          (!isSameYear && !isOneDeltaYear) ||
+          (!isSameYear && isMonthEndBiger) ||
+          (!isSameYear && isSameMonth && isDayEndBiger)
+        ) {
+          // |---A-|-----|-B---|  <-- !isSameYear && !isOneDeltaYear
+          // |---A-|----B|-----|  <-- !isSameYear && isMonthEndBiger
+          // |---A-|---B-|-----|  <-- !isSameYear && isSameMonth && isDayEndBiger
+
+          let countYears = 0;
+          let countDaysInYears = 0;
+          for (let y = yearStart; y <= yearEnd; y++) {
+            countYears++;
+            countDaysInYears += isLeapYear(y) ? 366 : 365;
+          }
+          daysInYear = countDaysInYears / countYears;
+        } else if (!isSameYear) {
+          // |-AF--|B----|-----|
+          if (isLeapYear(yearStart) && monthStart < 2) {
+            daysInYear = 366;
+          }
+
+          // |--A--|FB---|-----|
+          if (isLeapYear(yearEnd) && (monthEnd > 1 || (monthEnd === 1 && dayEnd === 29))) {
+            daysInYear = 366;
+          }
+        } else {
+          // remaining cases:
+          //
+          // |-F-AB|-----|-----|
+          // |AB-F-|-----|-----|
+          // |A-F-B|-----|-----|
+
+          // if February 29 occurs between date1 (exclusive) and date2 (inclusive)
+          // daysInYear --> 366
+
+          if (isLeapYear(yearStart)) {
+            daysInYear = 366;
+          }
+        }
+
+        yearsStart = _startDate / daysInYear;
+        yearsEnd = _endDate / daysInYear;
+        break;
+
+      // actual/360 convention -------------------------------------------------
+      case 2:
+        yearsStart = _startDate / 360;
+        yearsEnd = _endDate / 360;
+        break;
+
+      // actual/365 convention -------------------------------------------------
+      case 3:
+        yearsStart = _startDate / 365;
+        yearsEnd = _endDate / 365;
+        break;
+
+      // 30/360 European convention --------------------------------------------
+      case 4:
+        if (dayStart === 31) dayStart = 30;
+        if (dayEnd === 31) dayEnd = 30;
+        yearsStart = yearStart + (monthStart * 30 + dayStart) / 360;
+        yearsEnd = yearEnd + (monthEnd * 30 + dayEnd) / 360;
+        break;
+    }
+
+    return yearsEnd - yearsStart;
   },
 };

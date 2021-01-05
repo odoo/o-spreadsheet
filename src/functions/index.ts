@@ -3,6 +3,7 @@ import { AddFunctionDescription, FunctionDescription } from "../types";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
 import * as database from "./module_database";
 import * as date from "./module_date";
+import * as financial from "./module_financial";
 import * as info from "./module_info";
 import * as logical from "./module_logical";
 import * as lookup from "./module_lookup";
@@ -16,6 +17,7 @@ export { args } from "./arguments";
 const functions: { [category: string]: { [name: string]: AddFunctionDescription } } = {
   database,
   date,
+  financial,
   info,
   lookup,
   logical,

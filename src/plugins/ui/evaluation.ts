@@ -236,6 +236,8 @@ export class EvaluationPlugin extends UIPlugin {
         cell.value = LOADING;
       } else if (!cell.error) {
         cell.value = "#ERROR";
+
+        // apply function name
         const __lastFnCalled = params[2].__lastFnCalled || "";
         cell.error = e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled);
       }
