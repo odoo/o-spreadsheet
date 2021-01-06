@@ -1,4 +1,4 @@
-import { isEqual, toXC, union, clip, formatStandardNumber } from "../../helpers/index";
+import { isEqual, union, clip, formatStandardNumber } from "../../helpers/index";
 import {
   Command,
   Zone,
@@ -22,7 +22,6 @@ interface SheetInfo {
   selection: Selection;
   activeCol: number;
   activeRow: number;
-  activeXc: string;
 }
 
 export enum SelectionMode {
@@ -58,7 +57,6 @@ export class SelectionPlugin extends UIPlugin {
   };
   private activeCol: number = 0;
   private activeRow: number = 0;
-  private activeXc: string = "A1";
   private mode = SelectionMode.idle;
   private sheetsData: { [sheet: string]: SheetInfo } = {};
 
@@ -119,7 +117,6 @@ export class SelectionPlugin extends UIPlugin {
           selection: JSON.parse(JSON.stringify(this.selection)),
           activeCol: this.activeCol,
           activeRow: this.activeRow,
-          activeXc: this.activeXc,
         };
         if (cmd.sheetIdTo in this.sheetsData) {
           Object.assign(this, this.sheetsData[cmd.sheetIdTo]);
@@ -327,7 +324,6 @@ export class SelectionPlugin extends UIPlugin {
    * range in the selection.
    */
   private selectCell(col: number, row: number) {
-    const xc = toXC(col, row);
     const sheetId = this.getters.getActiveSheetId();
     let zone = this.getters.expandZone(sheetId, { left: col, right: col, top: row, bottom: row });
 
@@ -340,7 +336,6 @@ export class SelectionPlugin extends UIPlugin {
     if (!this.getters.isSelectingForComposer()) {
       this.activeCol = col;
       this.activeRow = row;
-      this.activeXc = xc;
     }
   }
 
