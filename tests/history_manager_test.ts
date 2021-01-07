@@ -16,11 +16,11 @@ class MiniEditor {
 
   private apply = (command: Command) => {
     const { position, value } = command;
-    this.state = this.state.slice(0, position) + value + this.state.slice(position);
+    this.state = this.state.slice(0, position + 1) + value + this.state.slice(position + 1);
   };
   private revert = (command: Command) => {
     const { position, value } = command;
-    this.state = this.state.slice(0, position) + this.state.slice(position + value.length);
+    this.state = this.state.slice(0, position + 1) + this.state.slice(position + value.length +1);
   };
   private history = new History(this.apply, this.revert);
 
@@ -28,20 +28,24 @@ class MiniEditor {
     if (commandId in this.commands) {
       throw new Error(`Duplicate command id: ${commandId}`);
     }
-    const command = {
+    const command: Command = {
       value: text,
-      position,
+      position: position - 1,
     };
     this.commands[commandId] = command;
-    this.history.addStep(commandId, command);
+    this.history.addStep(commandId, command, (cmd) => undoTransformation(cmd, command));
   }
 
   undo(commandId: UID) {
     const commandToCancel = this.commands[commandId];
     this.history.undo(
       commandId,
-      (command) => undoTransformation(command, commandToCancel),
-      (command) => redoTransformation(command, commandToCancel)
+      (command) => {
+        console.log("REDO", commandId)
+        console.log(command, '//', commandToCancel)
+        console.log("=>", redoTransformation(command, commandToCancel))
+        return redoTransformation(command, commandToCancel)
+      },
     );
   }
 
@@ -98,6 +102,15 @@ describe("Undo/Redo manager", () => {
     expect(editor.text).toBe("AC");
   });
 
+  test("undo step with transformation", () => {
+    const editor = new MiniEditor();
+    editor.add("1", "A", 0);
+    editor.add("2", "BB", 1);
+    editor.add("3", "CCC", 3);
+    editor.undo("2");
+    expect(editor.text).toBe("ACCC");
+  });
+
   test("undos last two steps in execution order", () => {
     const editor = new MiniEditor();
     editor.add("1", "A", 0);
@@ -146,20 +159,67 @@ describe("Undo/Redo manager", () => {
     expect(editor.text).toBe("A");
   });
 
-  test("redo a single step", () => {
-    const editor = new MiniEditor();
-    editor.add("1", "A", 0);
-    editor.undo("1");
-    editor.redo("1");
-    expect(editor.text).toBe("A");
+  describe("redo", () => {
+    test("redo a single step", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.undo("1");
+      editor.redo("1");
+      expect(editor.text).toBe("A");
+    });
+
+    test("redo last step", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "B", 1);
+      editor.undo("2");
+      editor.redo("2");
+      expect(editor.text).toBe("AB");
+    });
+
+    test("redo first step", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "B", 1);
+      editor.undo("1");
+      editor.redo("1");
+      expect(editor.text).toBe("AB");
+    });
+
+    test("redo middle step", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "BB", 1);
+      editor.add("3", "CCC", 3);
+      editor.undo("2");
+      editor.redo("2");
+      expect(editor.text).toBe("ABBCCC");
+    });
+
+    test("redo after two reverse undos", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "BB", 1);
+      editor.add("3", "CCC", 3);
+      editor.undo("2");
+      editor.undo("1");
+      expect(editor.text).toBe("CCC");
+      editor.redo("2");
+      expect(editor.text).toBe("BBCCC");
+    });
+
+    test("redo after two undos", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "BB", 1);
+      editor.add("3", "CCC", 3);
+      editor.undo("1");
+      editor.undo("2");
+      expect(editor.text).toBe("CCC");
+      editor.redo("2");
+      expect(editor.text).toBe("BBCCC");
+    });
+
   });
 
-  test("redo first step", () => {
-    const editor = new MiniEditor();
-    editor.add("1", "A", 0);
-    editor.add("2", "B", 1);
-    editor.undo("1");
-    editor.redo("1");
-    expect(editor.text).toBe("AB");
-  });
 });
