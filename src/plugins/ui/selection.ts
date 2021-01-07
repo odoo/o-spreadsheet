@@ -4,6 +4,7 @@ import {
   formatStandardNumber,
   isEqual,
   union,
+  uniqueZones,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
@@ -490,6 +491,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     } else {
       this.selection.zones = [zone];
     }
+    this.selection.zones = uniqueZones(this.selection.zones);
     this.selection.anchor = [col, row];
     if (!this.getters.isSelectingForComposer()) {
       this.activeCol = col;
@@ -535,6 +537,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       const sheetId = this.getters.getActiveSheetId();
       this.selection.zones = zones.map((zone: Zone) => this.getters.expandZone(sheetId, zone));
     }
+    this.selection.zones = uniqueZones(this.selection.zones);
     this.selection.anchor = anchor;
   }
 

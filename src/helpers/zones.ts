@@ -401,3 +401,18 @@ export function createAdaptedZone(
   newZone[end] += by;
   return newZone;
 }
+
+// returns an Zone array with unique occurence of eah zone
+export function uniqueZones(zones: Zone[]): Zone[] {
+  return zones.filter(
+    (zone, index, self) =>
+      index ===
+      self.findIndex(
+        (z) =>
+          z.top === zone.top &&
+          z.bottom === zone.bottom &&
+          z.left === zone.left &&
+          z.right === zone.right
+      )
+  );
+}
