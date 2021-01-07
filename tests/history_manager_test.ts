@@ -190,6 +190,19 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("A");
     });
 
+    test("undo&redo a single step twice with new step in between", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.undo("1");
+      editor.redo("1");
+      expect(editor.text).toBe("A");
+      editor.add("2", "B", 1);
+      editor.undo("1");
+      expect(editor.text).toBe("B");
+      editor.redo("1");
+      expect(editor.text).toBe("AB");
+    });
+
     test("redo last step", () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
@@ -206,6 +219,20 @@ describe("Undo/Redo manager", () => {
       editor.undo("1");
       editor.redo("1");
       expect(editor.text).toBe("AB");
+    });
+
+    test("undo&redo redo first step twice with new step in between", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "B", 1);
+      editor.undo("1");
+      editor.redo("1");
+      expect(editor.text).toBe("AB");
+      editor.add("3", "C", 2);
+      expect(editor.text).toBe("ABC");
+      editor.undo("1");
+      editor.redo("1");
+      expect(editor.text).toBe("ABC");
     });
 
     test("redo middle step", () => {
@@ -229,19 +256,7 @@ describe("Undo/Redo manager", () => {
       editor.redo("2");
       expect(editor.text).toBe("BBCCC");
     });
-    /*
-    A(a1,a-1)     B(b1,b-1)     C(c1,c-1)
-                  >             C2()                    C2: C//b-1
 
-    A(a1,a-1)     B(b1,b-1)     C(c1,c-1)
-    >             B2()          C2()                     B2: B//a-1             C2: C//a-1
-                  >             C3()                     C3: C2//a-1
-
-    A(a1,a-1)     B(b1,b-1)     C(c1,c-1)
-    (>            B2()          C2()                    B2: B(b,b-1)//a-1             C2: C//a-1)
-                  >             C3()                    C3: C2//a-1
-                  >             C4()                    C4: C3//(b//a-1)
-  */
     test("redo after two undos", () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
