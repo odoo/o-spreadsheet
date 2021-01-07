@@ -396,44 +396,8 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         }
       }
     }
-    this.updateMergesStyles(sheetId, isCol);
     this.removeAllMerges(sheetId);
     this.pending = { sheet: sheetId, merges: updatedMerges };
-  }
-
-  private updateMergesStyles(sheetId: string, isColumn: boolean) {
-    const merges = Object.values(this.merges[sheetId] || {}).filter(isDefined);
-    for (let merge of merges) {
-      const xc = merge.topLeft;
-      const topLeft = this.getters.getCellByXc(sheetId, xc);
-      if (!topLeft) {
-        continue;
-      }
-      let [x, y] = toCartesian(xc);
-      if (isColumn && merge.left !== merge.right) {
-        x += 1;
-      }
-      if (!isColumn && merge.top !== merge.bottom) {
-        y += 1;
-      }
-      const [col, row] = toCartesian(xc);
-      const border = this.getters.getCellBorder(sheetId, col, row);
-      if (border) {
-        this.dispatch("SET_BORDER", {
-          sheetId,
-          col,
-          row,
-          border,
-        });
-      }
-      this.dispatch("UPDATE_CELL", {
-        sheetId,
-        col: x,
-        row: y,
-        style: topLeft.style,
-        format: topLeft.format,
-      });
-    }
   }
 
   // ---------------------------------------------------------------------------
