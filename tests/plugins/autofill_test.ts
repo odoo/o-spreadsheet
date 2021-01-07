@@ -158,15 +158,23 @@ describe("Autofill", () => {
       cf,
       sheetId: model.getters.getActiveSheetId(),
     });
-    expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
-    expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#FF0000" });
-    expect(model.getters.getConditionalStyle("A3")).toBeFalsy();
-    expect(model.getters.getConditionalStyle("A4")).toBeFalsy();
+    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+      fillColor: "#FF0000",
+    });
+    expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toEqual({
+      fillColor: "#FF0000",
+    });
+    expect(model.getters.getConditionalStyle(...toCartesian("A3"))).toBeFalsy();
+    expect(model.getters.getConditionalStyle(...toCartesian("A4"))).toBeFalsy();
     autofill("A1:A4", "A8");
-    expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#FF0000" });
-    expect(model.getters.getConditionalStyle("A6")).toEqual({ fillColor: "#FF0000" });
-    expect(model.getters.getConditionalStyle("A7")).toBeFalsy();
-    expect(model.getters.getConditionalStyle("A8")).toBeFalsy();
+    expect(model.getters.getConditionalStyle(...toCartesian("A5"))).toEqual({
+      fillColor: "#FF0000",
+    });
+    expect(model.getters.getConditionalStyle(...toCartesian("A6"))).toEqual({
+      fillColor: "#FF0000",
+    });
+    expect(model.getters.getConditionalStyle(...toCartesian("A7"))).toBeFalsy();
+    expect(model.getters.getConditionalStyle(...toCartesian("A8"))).toBeFalsy();
   });
 
   describe("Autofill multiple values", () => {

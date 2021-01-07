@@ -13,7 +13,7 @@ import {
   TEXT_HEADER_COLOR,
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { overlap, toXC } from "../../helpers/index";
+import { overlap } from "../../helpers/index";
 import {
   Box,
   Cell,
@@ -442,8 +442,7 @@ export class RendererPlugin extends UIPlugin {
         let cell = row.cells[colNumber];
         const border = this.getters.getCellBorder(sheetId, colNumber, rowNumber);
         const col = cols[colNumber];
-        let xc = toXC(colNumber, rowNumber);
-        const conditionalStyle = this.getters.getConditionalStyle(xc);
+        const conditionalStyle = this.getters.getConditionalStyle(colNumber, rowNumber);
         if (!this.getters.isInMerge(sheetId, colNumber, rowNumber)) {
           if (cell) {
             const text = this.getters.getCellText(cell, sheetId, showFormula);
@@ -528,7 +527,8 @@ export class RendererPlugin extends UIPlugin {
           text = refCell ? this.getters.getCellText(refCell, activeSheetId, showFormula) : "";
           textWidth = refCell ? this.getters.getCellWidth(refCell) : null;
           const conditionalStyle = this.getters.getConditionalStyle(
-            toXC(merge.topLeft.col, merge.topLeft.row)
+            merge.topLeft.col,
+            merge.topLeft.row
           );
           if (conditionalStyle) {
             style = Object.assign({}, style, conditionalStyle);

@@ -25,8 +25,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   static getters = ["getConditionalStyle"];
   static modes: Mode[] = ["normal", "readonly"];
   private isStale: boolean = true;
-  // stores the computed styles in the format of computedStyles.sheetName.cellXC = Style
-  private computedStyles: { [sheet: string]: { [cellXc: string]: Style } } = {};
+  // stores the computed styles in the format of computedStyles.sheetName[col][row] = Style
+  private computedStyles: { [sheet: string]: { [col: number]: (Style | undefined)[] } } = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -93,10 +93,10 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
    * Returns the conditional style property for a given cell reference in the active sheet or
    * undefined if this cell doesn't have a conditional style set.
    */
-  getConditionalStyle(xc: string): Style | undefined {
+  getConditionalStyle(col: number, row: number): Style | undefined {
     const activeSheet = this.getters.getActiveSheetId();
     const styles = this.computedStyles[activeSheet];
-    return styles && styles[xc];
+    return styles && styles[col]?.[row];
   }
 
   // ---------------------------------------------------------------------------
@@ -116,6 +116,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   private computeStyles() {
     const activeSheetId = this.getters.getActiveSheetId();
     this.computedStyles[activeSheetId] = {};
+    const computedStyle = this.computedStyles[activeSheetId];
+    debugger;
     for (let cf of this.getters.getConditionalFormats(activeSheetId)) {
       try {
         switch (cf.rule.type) {
@@ -131,11 +133,11 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
                 for (let col = zone.left; col <= zone.right; col++) {
                   const pr = this.rulePredicate[cf.rule.type];
                   let cell = this.getters.getCell(activeSheetId, col, row);
-                  let xc = toXC(col, row);
                   if (pr && pr(cell, cf.rule)) {
+                    if (!computedStyle[col]) computedStyle[col] = [];
                     // we must combine all the properties of all the CF rules applied to the given cell
-                    this.computedStyles[activeSheetId][xc] = Object.assign(
-                      this.computedStyles[activeSheetId][xc] || {},
+                    computedStyle[col][row] = Object.assign(
+                      computedStyle[col]?.[row] || {},
                       cf.rule.style
                     );
                   }
@@ -272,9 +274,10 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
                 colorCellArgs[0].colorDiffUnit
               );
             }
-            const xc = toXC(col, row);
-            computedStyle[xc] = computedStyle[xc] || {};
-            computedStyle[xc].fillColor = "#" + colorNumberString(color);
+            debugger;
+            if (!computedStyle[col]) computedStyle[col] = [];
+            computedStyle[col][row] = computedStyle[col]?.[row] || {};
+            computedStyle[col][row]!.fillColor = "#" + colorNumberString(color);
           }
         }
       }
