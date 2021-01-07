@@ -30,5 +30,6 @@ const patch = {
     return (new MockCanvasRenderingContext2D() as any) as CanvasRenderingContext2D;
   },
 };
+
 /* js-ignore */
 Object.assign(HTMLCanvasElement.prototype, patch);
