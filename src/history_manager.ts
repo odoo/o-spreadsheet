@@ -1,8 +1,21 @@
 import { UID } from "./types";
 
-type TransformationFunction = (data: any) => any;
+type TransformationFunction<T = unknown> = (dataToTransform: T) => T;
 
-const identityTransformation = (data: any) => data; // TODO remove me
+const identityTransformation: TransformationFunction = (dataToTransform: any) => dataToTransform; // TODO remove me
+
+interface TransformationFactory<T = unknown> {
+  /**
+   * Build a transformation function to transform any command as if the execution of
+   * a previous `command` was omitted.
+   */
+  buildTransformationWithout: (command: T) => TransformationFunction<T>;
+  /**
+   * Build a transformation function to transform any command as if a new `command` was
+   * executed before.
+   */
+  buildTransformationWith: (command: T) => TransformationFunction<T>;
+}
 
 interface Instruction {
   step: Step;
@@ -16,20 +29,13 @@ interface Instruction {
 
 type Execution = Instruction[];
 
-// function* emptyExecution(): Generator<Instruction, void, undefined> {
-//   yield* [];
-// }
-
 class Layer {
   public previous?: Layer; // TODO private
   private isDeleted = false; // TODO rename
   private branchingStepId?: UID;
   private next?: Layer;
 
-  constructor(
-    private inverseTransformation: TransformationFunction,
-    private steps: Step[] = []
-  ) {}
+  constructor(private inverseTransformation: TransformationFunction, private steps: Step[] = []) {}
 
   // TODO naming is not good
   get lastStep(): Step {
@@ -39,7 +45,7 @@ class Layer {
 
   get cancelledStep(): Step {
     // TODO optional previous only make sense for the first layer
-    return this.previous?.steps.find((step) => step.id === this.previous?.branchingStepId)!
+    return this.previous?.steps.find((step) => step.id === this.previous?.branchingStepId)!;
   }
 
   private get lastLayer(): Layer {
@@ -183,9 +189,9 @@ class Layer {
 
   delete() {
     this.isDeleted = true;
-    // transform
-    const lastLayer = this.lastLayer;
-    lastLayer.transformed(this.inverseTransformation, identityTransformation).insertAfter(lastLayer);
+    // // transform
+    // const lastLayer = this.lastLayer;
+    // lastLayer.transformed(this.inverseTransformation).insertAfter(lastLayer);
   }
 
   /**
@@ -204,23 +210,24 @@ class Layer {
 
   // clean this optional inverse transformation
   transformed(
-    transformation: TransformationFunction,
-    inverseTransformation: TransformationFunction,
+    transformation: TransformationFunction
+    // inverseTransformation: TransformationFunction,
     // deleted layers are never removed and therefore does not need an inverse transformation
   ): Layer {
     const layer = new Layer(
-      inverseTransformation,
+      this.inverseTransformation,
       this.steps.map((step) => step.transformed(transformation))
     );
     // 🤔 are the transformation of `next` still valid?
     // probably not
     //
     this.next
-    ?.transformed(
-      transformation,
-      // transform the transformation ! 🤯
-      (command) => this.next?.inverseTransformation(inverseTransformation(command))
-    ).insertAfter(layer, this.branchingStepId!);
+      ?.transformed(
+        transformation
+        // transform the transformation ! 🤯
+        // (command) => this.next?.inverseTransformation(inverseTransformation(command))
+      )
+      .insertAfter(layer, this.branchingStepId!);
     return layer;
   }
 
@@ -235,20 +242,14 @@ class Layer {
     }
     return this.steps.slice(stepIndex + 1);
   }
-
 }
 
 class Step {
-  constructor(
-    readonly id: UID,
-    readonly data: any,
-    readonly inverseTransformation: TransformationFunction,
-    readonly nextLayer?: Layer
-  ) {}
+  constructor(readonly id: UID, readonly data: any, readonly nextLayer?: Layer) {}
 
   transformed(transformation: TransformationFunction): Step {
     // Hmm 🤔 inverse still valid ?
-    return new Step(this.id, transformation(this.data), this.inverseTransformation);
+    return new Step(this.id, transformation(this.data));
   }
 }
 
@@ -256,35 +257,47 @@ export class History {
   HEAD_LAYER: Layer = new Layer(identityTransformation); // the first layer is never redone
   HEAD: Step | null = null;
 
-  constructor(private applyStep: (data) => void, private revertStep: (data) => void) {}
+  constructor(
+    private applyStep: (data) => void,
+    private revertStep: (data) => void,
+    private readonly transformationFactory: TransformationFactory
+  ) {}
 
-  addStep(id: UID, data: any, inverseTransformation: TransformationFunction) {
-    const step = new Step(id, data, inverseTransformation);
+  addStep(id: UID, data: any) {
+    const step = new Step(id, data);
     this.HEAD_LAYER.addStep(step);
     this.HEAD = step;
     this.applyStep(data); // checkout ?
   }
 
-  undo(
-    stepId: UID,
-    inverseTransformation: TransformationFunction // used to redo the undo ^^
-  ) {
+  undo(stepId: UID) {
     const { layer, step } = this.HEAD_LAYER.findInstruction(stepId);
     this.revertBefore(stepId);
-    const newLayer = layer.copyAfter(stepId).transformed(step.inverseTransformation, inverseTransformation);
+
+    const newLayer = layer
+      .copyAfter(stepId)
+      .transformed(this.transformationFactory.buildTransformationWithout(step.data));
     newLayer.insertAfter(layer, stepId);
     this.checkoutEnd();
   }
 
   redo(stepId: UID) {
     const layer = this.HEAD_LAYER.findUndoLayer(stepId);
+    const { step } = this.HEAD_LAYER.findInstruction(stepId);
     if (!layer) {
       throw new Error(`Step ${stepId} cannot be redone since it was never undone`);
     }
     // layer.
+    const currentLayer = this.HEAD_LAYER;
     this.revertBefore(stepId);
     layer.delete();
+    // transform
+    // const lastLayer = this.lastLayer;
+    // lastLayer.transformed(this.inverseTransformation).insertAfter(lastLayer);
     // transform hein dis!
+    currentLayer
+      .transformed(this.transformationFactory.buildTransformationWith(step.data))
+      .insertAfter(currentLayer);
     this.checkoutEnd();
   }
 

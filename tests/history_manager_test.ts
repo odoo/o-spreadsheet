@@ -18,11 +18,26 @@ class MiniEditor {
     const { position, value } = command;
     this.state = this.state.slice(0, position + 1) + value + this.state.slice(position + 1);
   };
+
   private revert = (command: Command) => {
     const { position, value } = command;
-    this.state = this.state.slice(0, position + 1) + this.state.slice(position + value.length +1);
+    this.state = this.state.slice(0, position + 1) + this.state.slice(position + value.length + 1);
   };
-  private history = new History(this.apply, this.revert);
+
+  private history = new History(this.apply, this.revert, {
+    /**
+     * Build a transformation function to transform any command as if the execution of
+     * a previous `command` was omitted.
+     */
+    buildTransformationWithout: (command) => (commandToTransform) =>
+      undoTransformation(commandToTransform as Command, command as Command),
+    /**
+     * Build a transformation function to transform any command as if a new `command` was
+     * executed before.
+     */
+    buildTransformationWith: (command) => (commandToTransform) =>
+      redoTransformation(commandToTransform as Command, command as Command),
+  });
 
   add(commandId, text, position) {
     if (commandId in this.commands) {
@@ -33,19 +48,26 @@ class MiniEditor {
       position: position - 1,
     };
     this.commands[commandId] = command;
-    this.history.addStep(commandId, command, (cmd) => undoTransformation(cmd, command));
+    this.history.addStep(commandId, command);
+
+    // this.history.addStep(commandId, command, (cmd) => transform(cmd, inverse(command)));
+    // this.history.undo(commandId, command, (cmd) => transform(cmd, command));
   }
 
   undo(commandId: UID) {
-    const commandToCancel = this.commands[commandId];
+    // new History(transformationFactory)
     this.history.undo(
-      commandId,
-      (command) => {
-        console.log("REDO", commandId)
-        console.log(command, '//', commandToCancel)
-        console.log("=>", redoTransformation(command, commandToCancel))
-        return redoTransformation(command, commandToCancel)
-      },
+      commandId
+      // (command: Command, cancelledCommand: Command) => {
+      //   console.log("REDO", commandId)
+      //   console.log(command, '//', cancelledCommand)
+      //   console.log("=>", redoTransformation(command, cancelledCommand))
+      //   return redoTransformation(command, cancelledCommand)
+      // },
+      //a-1
+      // (command: Command) => redoTransformation(command, cancelledCommand)
+      // (cmd: Command, command: Command) => undoTransformation(cancelledCommand, command));
+      // (command: Command) => redoTransformation(command, cancelledCommand),
     );
   }
 
@@ -54,7 +76,7 @@ class MiniEditor {
   }
 }
 
-function redoTransformation(toTransform: Command, cancelled: Command) {
+function redoTransformation(toTransform: Command, cancelled: Command): Command {
   if (cancelled.position <= toTransform.position) {
     return {
       ...toTransform,
@@ -64,7 +86,7 @@ function redoTransformation(toTransform: Command, cancelled: Command) {
   return toTransform;
 }
 
-function undoTransformation(toTransform: Command, cancelled: Command) {
+function undoTransformation(toTransform: Command, cancelled: Command): Command {
   if (cancelled.position <= toTransform.position) {
     return {
       ...toTransform,
@@ -207,7 +229,19 @@ describe("Undo/Redo manager", () => {
       editor.redo("2");
       expect(editor.text).toBe("BBCCC");
     });
+    /*
+    A(a1,a-1)     B(b1,b-1)     C(c1,c-1)
+                  >             C2()                    C2: C//b-1
 
+    A(a1,a-1)     B(b1,b-1)     C(c1,c-1)
+    >             B2()          C2()                     B2: B//a-1             C2: C//a-1
+                  >             C3()                     C3: C2//a-1
+
+    A(a1,a-1)     B(b1,b-1)     C(c1,c-1)
+    (>            B2()          C2()                    B2: B(b,b-1)//a-1             C2: C//a-1)
+                  >             C3()                    C3: C2//a-1
+                  >             C4()                    C4: C3//(b//a-1)
+  */
     test("redo after two undos", () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
@@ -219,7 +253,5 @@ describe("Undo/Redo manager", () => {
       editor.redo("2");
       expect(editor.text).toBe("BBCCC");
     });
-
   });
-
 });
