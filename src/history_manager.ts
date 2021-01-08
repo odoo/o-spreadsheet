@@ -31,11 +31,15 @@ type Execution = Iterable<Instruction>;
 
 class Layer {
   public previous?: Layer; // TODO private
-  private isDeleted = false; // TODO rename
   private branchingStepId?: UID;
   private next?: Layer;
+  private isDeleted = false; // TODO rename
 
   constructor(private inverseTransformation: TransformationFunction, private steps: Step[] = []) {}
+
+  private get stepIds(): UID[] {
+    return this.steps.map((step) => step.id);
+  }
 
   // TODO naming is not good
   // get lastStep(): Step {
@@ -48,11 +52,16 @@ class Layer {
   //   return this.previous?.steps.find((step) => step.id === this.previous?.branchingStepId)!
   // }
 
-  // private get lastLayer(): Layer {
-  //   return this.next ? this.next.lastLayer : this;
-  // }
+  /** I don't like this being public */
+  get lastLayer(): Layer {
+    return this.next ? this.next.lastLayer : this;
+  }
 
   private *_revertedExecution(): Generator<Omit<Instruction, "next">, void, undefined> {
+    if (this.isDeleted) {
+      yield* this.previous?._revertedExecution() || [];
+      return;
+    }
     let afterBranchingPoint = !!this.branchingStepId;
     // use while?
     for (let i = this.steps.length - 1; i >= 0; i--) {
@@ -64,7 +73,7 @@ class Layer {
         yield {
           step,
           layer: this,
-          isCancelled: step.id === this.branchingStepId,
+          isCancelled: !this.shouldExecute(step.id),
         };
       }
     }
@@ -84,13 +93,48 @@ class Layer {
       yield {
         step,
         layer: this,
-        isCancelled: !this.next?.isDeleted && step.id === this.branchingStepId,
+        isCancelled: !this.shouldExecute(step.id),
       };
       if (step.id === this.branchingStepId) {
         yield* this.next?._execution() || [];
         return;
       }
     }
+    if (!this.branchingStepId) {
+      yield* this.next?._execution() || [];
+    }
+  }
+
+  /**
+   * TODO
+   */
+  private shouldExecute(stepId: UID): boolean {
+    return (
+      !this.next?.executes(stepId) &&
+      !this.isDeleted &&
+      this.stepIds.includes(stepId) &&
+      (stepId !== this.branchingStepId || !!this.next?.isDeleted)
+    );
+    // return this.stepIds.includes(stepId)
+    // && (stepId !== this.branchingStepId || !!this.next?.isDeleted)
+    // && ((!this.next && !this.isDeleted) || !this.next?.shouldExecute(stepId))
+  }
+
+  // private isShadowed(stepId: UID) {
+
+  // }
+
+  /**
+   * Return true if this layer or lower layers execute
+   * the given step.
+   */
+  private executes(stepId: UID) {
+    return (
+      this.next?.executes(stepId) ||
+      (!this.isDeleted &&
+        this.stepIds.includes(stepId) &&
+        (stepId !== this.branchingStepId || !!this.next?.isDeleted))
+    );
   }
 
   *execution(): Generator<Instruction, void, undefined> {
@@ -152,9 +196,6 @@ class Layer {
   }
 
   addStep(step: Step) {
-    // if (this.steps.length) {
-    //   this.lastStep.next = step;
-    // }
     this.steps.push(step);
   }
 
@@ -203,20 +244,36 @@ class Layer {
     const layer = new Layer(this.inverseTransformation, this.stepsAfter(stepId));
     // If there is a next, there is always a branchingStepId.
     // This should be ensured however
-    // this is mutating next!
-    this.next?.insertAfter(layer, this.branchingStepId!);
+    // the above is not true
+    this.next?.copy().insertAfter(layer, this.branchingStepId!);
+
+    // should not be managed here
+    if (layer.branchingStepId && !layer.stepIds.includes(layer.branchingStepId)) {
+      layer.branchingStepId = undefined;
+    }
     return layer;
   }
 
-  // clean this optional inverse transformation
   transformed(transformation: TransformationFunction): Layer {
-    const layer = new Layer(
-      this.inverseTransformation, // ?
-      this.steps.map((step) => step.transformed(transformation))
-    );
+    // const layer = new Layer(
+    //   this.inverseTransformation, // ?
+    //   this.steps.map((step) => step.transformed(transformation))
+    // );
+    const layer = this.copy();
+    layer.steps = this.steps.map((step) => step.transformed(transformation));
     // 🤔 are the transformation of `next` still valid?
     // probably not
-    this.next?.transformed(transformation).insertAfter(layer, this.branchingStepId!);
+    this.next?.copy().transformed(transformation).insertAfter(layer, this.branchingStepId!);
+    return layer;
+  }
+
+  private copy(): Layer {
+    const layer = new Layer(this.inverseTransformation, this.steps);
+    // arf, this is null
+    layer.next = this.next;
+    layer.branchingStepId = this.branchingStepId;
+    layer.isDeleted = this.isDeleted;
+    layer.previous = this.previous;
     return layer;
   }
 
@@ -254,7 +311,8 @@ export class History {
 
   addStep(id: UID, data: any) {
     const step = new Step(id, data);
-    this.HEAD_LAYER.addStep(step);
+    this.HEAD_LAYER.lastLayer.addStep(step);
+    this.HEAD_LAYER = this.HEAD_LAYER.lastLayer;
     this.HEAD = step;
     this.applyStep(data); // checkout ?
   }
@@ -275,12 +333,12 @@ export class History {
     if (!layer) {
       throw new Error(`Step ${stepId} cannot be redone since it was never undone`);
     }
-    const currentLayer = this.HEAD_LAYER;
+    const currentLayer = this.HEAD_LAYER.lastLayer; // this may not be the last layer! (the last layer might be empty)
     this.revertBefore(stepId);
-    layer.delete();
     currentLayer
       .transformed(this.transformationFactory.buildTransformationWith(step.data))
       .insertAfter(currentLayer);
+    layer.delete();
     this.checkoutEnd();
   }
 

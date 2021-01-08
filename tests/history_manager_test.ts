@@ -190,6 +190,16 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("A");
     });
 
+    test("undo&redo a single step then add a new step", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.undo("1");
+      editor.redo("1");
+      expect(editor.text).toBe("A");
+      editor.add("2", "B", 1);
+      expect(editor.text).toBe("AB");
+    });
+
     test("undo&redo a single step twice with new step in between", () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
@@ -231,6 +241,7 @@ describe("Undo/Redo manager", () => {
       editor.add("3", "C", 2);
       expect(editor.text).toBe("ABC");
       editor.undo("1");
+      expect(editor.text).toBe("BC");
       editor.redo("1");
       expect(editor.text).toBe("ABC");
     });
