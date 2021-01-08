@@ -117,7 +117,6 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     const activeSheetId = this.getters.getActiveSheetId();
     this.computedStyles[activeSheetId] = {};
     const computedStyle = this.computedStyles[activeSheetId];
-    debugger;
     for (let cf of this.getters.getConditionalFormats(activeSheetId)) {
       try {
         switch (cf.rule.type) {
@@ -274,7 +273,6 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
                 colorCellArgs[0].colorDiffUnit
               );
             }
-            debugger;
             if (!computedStyle[col]) computedStyle[col] = [];
             computedStyle[col][row] = computedStyle[col]?.[row] || {};
             computedStyle[col][row]!.fillColor = "#" + colorNumberString(color);
