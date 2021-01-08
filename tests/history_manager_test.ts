@@ -48,7 +48,7 @@ class MiniEditor {
       position: position - 1,
     };
     this.commands[commandId] = command;
-    this.history.addStep(commandId, command);
+    this.history.addInstruction(commandId, command);
 
     // this.history.addStep(commandId, command, (cmd) => transform(cmd, inverse(command)));
     // this.history.undo(commandId, command, (cmd) => transform(cmd, command));
@@ -278,6 +278,37 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("CCC");
       editor.redo("2");
       expect(editor.text).toBe("BBCCC");
+    });
+
+    test("", () => {
+      /**
+ Initial    A      B     C     D     E
+               |
+ Undo B        ------->  C2    D2    E2
+                             |
+ Undo D                      ----->  E3
+
+
+
+ Initial    A      B     C     D     E
+               |
+ Undo B        (-------> C2    D2    E2)
+                             |
+ Undo D                      ----->  E3
+ Redo B                      ----->  E4
+ */
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "B", 1);
+      editor.add("3", "C", 2);
+      editor.add("4", "D", 3);
+      expect(editor.text).toBe("ABCD");
+      editor.undo("1");
+      expect(editor.text).toBe("BCD");
+      editor.undo("3");
+      expect(editor.text).toBe("BD");
+      editor.redo("1");
+      expect(editor.text).toBe("ABD");
     });
   });
 });
