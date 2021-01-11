@@ -238,7 +238,6 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         if (cell) {
           switch (cell.type) {
             case CellType.formula:
-            case CellType.date:
             case CellType.number:
             case CellType.text:
               value = cell.value;
@@ -322,7 +321,6 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       if (cell) {
         switch (cell.type) {
           case CellType.formula:
-          case CellType.date:
           case CellType.number:
           case CellType.text:
             value = cell.value;

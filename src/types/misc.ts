@@ -87,7 +87,6 @@ export enum CellType {
   number = "number",
   formula = "formula",
   empty = "empty",
-  date = "date",
   invalidFormula = "invalidFormula",
 }
 
@@ -101,7 +100,7 @@ export interface CellBase {
 }
 
 export interface OtherCell extends CellBase {
-  type: CellType.date | CellType.number | CellType.text | CellType.invalidFormula;
+  type: CellType.number | CellType.text | CellType.invalidFormula;
   content: string;
 }
 
