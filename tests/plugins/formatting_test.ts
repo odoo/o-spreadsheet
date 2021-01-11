@@ -375,7 +375,7 @@ describe("formatting values (when change decimal)", () => {
     expect(getCell(model, "C3")!.format).toBe("0.0000");
   });
 
-  test("Change decimal format on a range does nothing if there is't 'number' type", () => {
+  test("Change decimal format on a range does nothing if there isn't 'number' type", () => {
     const model = new Model();
 
     // give values ​​with different formats

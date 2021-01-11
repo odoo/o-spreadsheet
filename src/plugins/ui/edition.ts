@@ -1,8 +1,10 @@
 import { tokenize, composerTokenize, rangeReference, EnrichedToken } from "../../formulas/index";
+import { formatDateTime } from "../../functions/dates";
 import { colors, getComposerSheetName } from "../../helpers/index";
 import { Command, LAYERS, CancelledReason, CommandResult, CellType, Cell } from "../../types/index";
 import { Mode } from "../../model";
 import { UIPlugin } from "../ui_plugin";
+import { DATETIME_FORMAT } from "../../constants";
 
 export type EditionMode = "editing" | "selecting" | "inactive" | "resettingPosition";
 
@@ -201,8 +203,10 @@ export class EditionPlugin extends UIPlugin {
         return this.getters.getFormulaCellContent(this.getters.getActiveSheetId(), cell);
       case CellType.empty:
         return "";
-      case CellType.date:
       case CellType.number:
+        return cell.format?.match(DATETIME_FORMAT)
+          ? formatDateTime({ value: (cell.value || 0) as number, format: cell.format! })
+          : cell.content;
       case CellType.text:
       case CellType.invalidFormula:
         return cell.content;

@@ -32,6 +32,7 @@ import {
   Zone,
 } from "../../types/index";
 import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
+import { DATETIME_FORMAT } from "../../constants";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 
@@ -163,7 +164,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           if (
             cell &&
             (cell.type === CellType.number ||
-              (cell.type === CellType.formula && typeof cell.value === "number"))
+              (cell.type === CellType.formula && typeof cell.value === "number")) &&
+            !cell.format?.match(DATETIME_FORMAT) // reject dates
           ) {
             return cell.format || this.setDefaultNumberFormat(cell.value as any);
           }
@@ -383,7 +385,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
                 cell.dependencies?.map((d) => this.getters.getRangeString(d, _sheet.id)) || [],
             };
             break;
-          case CellType.date:
           case CellType.number:
           case CellType.text:
           case CellType.invalidFormula:
@@ -676,8 +677,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         if (internaldate !== null) {
           cell = {
             id: cellId,
-            type: CellType.date,
-            content: formatDateTime(internaldate),
+            type: CellType.number,
+            content: internaldate.value.toString(),
             value: internaldate.value,
           };
           if (!format) {

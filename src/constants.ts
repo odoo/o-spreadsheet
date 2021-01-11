@@ -37,3 +37,6 @@ export const DEFAULT_STYLE: Style = {
   textColor: "black",
   fontSize: DEFAULT_FONT_SIZE,
 };
+
+// DateTimeRegex
+export const DATETIME_FORMAT = /[ymd:]/;

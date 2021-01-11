@@ -1,5 +1,6 @@
 import { Cell, AutofillModifier, FormulaCell, OtherCell, CellType } from "../types/index";
 import { Registry } from "../registry";
+import { DATETIME_FORMAT } from "../constants";
 
 /**
  * An AutofillRule is used to generate what to do when we need to autofill
@@ -27,7 +28,7 @@ function getGroup(cell: Cell, cells: (Cell | undefined)[]): number[] {
     if (x === cell) {
       found = true;
     }
-    if (x && [CellType.number, CellType.date].includes(x.type)) {
+    if (x && x.type === CellType.number) {
       if (typeof x!.value === "number") {
         group.push(x!.value);
       }
@@ -58,7 +59,11 @@ function getAverageIncrement(group: number[]) {
 autofillRulesRegistry
   .add("simple_value_copy", {
     condition: (cell: Cell, cells: (Cell | undefined)[]) => {
-      return cells.length === 1 && [CellType.text, CellType.number].includes(cell.type);
+      return (
+        cells.length === 1 &&
+        [CellType.text, CellType.number].includes(cell.type) &&
+        !cell.format?.match(DATETIME_FORMAT)
+      );
     },
     generateRule: () => {
       return { type: "COPY_MODIFIER" };
@@ -80,7 +85,7 @@ autofillRulesRegistry
     sequence: 30,
   })
   .add("increment_number", {
-    condition: (cell: Cell) => [CellType.number, CellType.date].includes(cell.type),
+    condition: (cell: Cell) => cell.type === CellType.number,
     generateRule: (cell: Cell, cells: (OtherCell | undefined)[]) => {
       const group = getGroup(cell, cells);
       let increment: number = 1;
