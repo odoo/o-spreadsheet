@@ -5,6 +5,7 @@ import { clearCell, createSheet, setCellContent, undo } from "../commands_helper
 import { MockNetwork } from "../__mocks__/network";
 import "../canvas.mock";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
+import { toPosition } from "../helpers";
 
 describe("Multi users synchronisation", () => {
   let network: MockNetwork;
@@ -202,13 +203,13 @@ describe("Multi users synchronisation", () => {
 
     expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "B3"), undefined);
     expect(alice.getters.getMerges(sheetId)).toMatchObject([
-      { bottom: 2, left: 0, top: 0, right: 1, topLeft: "A1" },
+      { bottom: 2, left: 0, top: 0, right: 1, topLeft: toPosition("A1") },
     ]);
     expect(bob.getters.getMerges(sheetId)).toMatchObject([
-      { bottom: 2, left: 0, top: 0, right: 1, topLeft: "A1" },
+      { bottom: 2, left: 0, top: 0, right: 1, topLeft: toPosition("A1") },
     ]);
     expect(charly.getters.getMerges(sheetId)).toMatchObject([
-      { bottom: 2, left: 0, top: 0, right: 1, topLeft: "A1" },
+      { bottom: 2, left: 0, top: 0, right: 1, topLeft: toPosition("A1") },
     ]);
   });
 

@@ -338,7 +338,6 @@ export class SelectionPlugin extends UIPlugin {
   private selectCell(col: number, row: number) {
     const sheetId = this.getters.getActiveSheetId();
     this.history.selectCell(sheetId, col, row);
-    const xc = toXC(col, row);
     let zone = this.getters.expandZone(sheetId, { left: col, right: col, top: row, bottom: row });
 
     if (this.mode === SelectionMode.expanding) {
