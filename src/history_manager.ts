@@ -69,7 +69,7 @@ class Execution implements Iterable<ExecutionStep> {
    * Start the instruction sequence at a given instruction
    * @param instructionId excluded
    */
-  startAt(instructionId: UID): Execution {
+  startAfter(instructionId: UID): Execution {
     function* filter(execution: Iterable<ExecutionStep>, instructionId: UID) {
       let skip = true;
       for (const step of execution) {
@@ -149,7 +149,7 @@ export class History<T = unknown> {
 
   private checkoutEnd() {
     const steps = this.HEAD
-      ? this.HEAD_LAYER.execution().startAt(this.HEAD.id)
+      ? this.HEAD_LAYER.execution().startAfter(this.HEAD.id)
       : this.HEAD_LAYER.execution();
     for (const { instruction: step, layer, isCancelled } of steps) {
       if (!isCancelled) {

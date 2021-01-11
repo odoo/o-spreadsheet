@@ -149,7 +149,7 @@ describe("Collaborative global history", () => {
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test.skip("Concurrent redo, undo first", () => {
+  test("Concurrent redo, undo first", () => {
     setCellContent(alice, "A1", "hello");
     setCellContent(bob, "B1", "hello");
     undo(alice);
