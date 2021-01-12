@@ -1,5 +1,5 @@
-import { History } from "../history";
 import { Mode, ModelConfig } from "../model";
+import { StateObserver } from "../state_observer";
 import { CommandDispatcher, CommandHandler, CommandResult, WorkbookHistory } from "../types/index";
 
 /**
@@ -22,10 +22,14 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
   protected dispatch: CommandDispatcher["dispatch"];
   protected currentMode: Mode;
 
-  constructor(history: History, dispatch: CommandDispatcher["dispatch"], config: ModelConfig) {
-    this.history = Object.assign(Object.create(history), {
-      update: history.updateStateFromRoot.bind(history, this),
-      selectCell: history.selectCell.bind(history), // TODO this is louche that this is linked to history
+  constructor(
+    stateObserver: StateObserver,
+    dispatch: CommandDispatcher["dispatch"],
+    config: ModelConfig
+  ) {
+    this.history = Object.assign(Object.create(stateObserver), {
+      update: stateObserver.addChange.bind(stateObserver, this),
+      selectCell: () => {},
     });
     this.dispatch = dispatch;
     this.currentMode = config.mode;

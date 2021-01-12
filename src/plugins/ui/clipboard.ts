@@ -534,7 +534,6 @@ export class ClipboardPlugin extends UIPlugin {
     ) {
       return;
     }
-    ctx.save();
     ctx.setLineDash([8, 5]);
     ctx.strokeStyle = "#3266ca";
     ctx.lineWidth = 3.3 * thinLineWidth;
@@ -544,6 +543,5 @@ export class ClipboardPlugin extends UIPlugin {
         ctx.strokeRect(x, y, width, height);
       }
     }
-    ctx.restore();
   }
 }

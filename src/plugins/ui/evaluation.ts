@@ -1,6 +1,5 @@
 import { functionRegistry } from "../../functions/index";
 import { mapCellsInZone, toXC, toZone } from "../../helpers/index";
-import { History } from "../../history";
 import { Mode, ModelConfig } from "../../model";
 import {
   Cell,
@@ -18,6 +17,7 @@ import {
 import { _lt } from "../../translation";
 import { compile, normalize } from "../../formulas/index";
 import { UIPlugin } from "../ui_plugin";
+import { StateObserver } from "../../state_observer";
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {
     yield obj[i];
@@ -75,11 +75,11 @@ export class EvaluationPlugin extends UIPlugin {
 
   constructor(
     getters: Getters,
-    history: History,
+    state: StateObserver,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    super(getters, history, dispatch, config);
+    super(getters, state, dispatch, config);
     this.evalContext = config.evalContext;
   }
 

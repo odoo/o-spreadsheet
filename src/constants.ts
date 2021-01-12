@@ -46,3 +46,5 @@ export const MAX_HISTORY_STEPS = 99;
 
 // Id of the first revision
 export const DEFAULT_REVISION_ID = "START_REVISION";
+
+export const DEBOUNCE_TIME = 1000;

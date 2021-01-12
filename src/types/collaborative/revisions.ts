@@ -1,4 +1,4 @@
-import { UID, CoreCommand, HistoryStep, HistoryChange } from "..";
+import { UID, CoreCommand, HistoryChange } from "..";
 import { uuidv4 } from "../../helpers";
 import { ClientId } from "./session";
 
@@ -11,11 +11,10 @@ export interface RevisionData {
 export class Revision implements RevisionData {
   public readonly id: UID;
   public readonly clientId: ClientId;
-  protected _commands: CoreCommand[] = [];
+  private _commands: readonly CoreCommand[] = [];
+  private _changes: readonly HistoryChange[] = [];
 
-  protected isSync: boolean;
   public isSent: boolean = false;
-  protected _changes: HistoryStep = [];
 
   /**
    * A revision represents a whole client action (Create a sheet, merge a Zone, Undo, ...).
@@ -29,49 +28,38 @@ export class Revision implements RevisionData {
   constructor(
     id: UID = uuidv4(),
     clientId: ClientId,
-    { isSync, commands }: { isSync?: boolean; commands?: readonly CoreCommand[] } = {}
+    commands: readonly CoreCommand[],
+    changes?: readonly HistoryChange[]
   ) {
     this.id = id;
     this.clientId = clientId;
-    this.isSync = isSync || false;
-    this._commands = commands ? [...commands] : [];
+    this._commands = [...commands];
+    this._changes = changes ? [...changes] : [];
   }
 
   get isUndo(): boolean {
-    return this._commands.length === 1 && this._commands[0].type === "UNDO";
+    return false;
+    // return this._commands.length === 1 && this._commands[0].type === "UNDO";
   }
 
   get isRedo(): boolean {
-    return this._commands.length === 1 && this._commands[0].type === "REDO";
+    return false;
+    // return this._commands.length === 1 && this._commands[0].type === "REDO";
+  }
+
+  setCommands(commands: readonly CoreCommand[]) {
+    this._commands = commands;
+  }
+
+  setChanges(changes: readonly HistoryChange[]) {
+    this._changes = changes;
   }
 
   get commands(): readonly CoreCommand[] {
     return this._commands;
   }
 
-  get changes() {
-    return [...this._changes];
-  }
-
-  acknowledge() {
-    this.isSync = true;
-  }
-
-  isSynchronized(): boolean {
-    return this.isSync;
-  }
-}
-
-export class DraftRevision extends Revision {
-  addCommand(command: CoreCommand) {
-    this._commands.push(command);
-  }
-
-  addChange(change: HistoryChange) {
-    this._changes.push(change);
-  }
-
-  hasChanges(): boolean {
-    return this._changes.length > 0;
+  get changes(): readonly HistoryChange[] {
+    return this._changes;
   }
 }

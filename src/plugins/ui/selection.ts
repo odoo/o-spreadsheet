@@ -8,10 +8,16 @@ import {
   CommandResult,
   CancelledReason,
   Style,
+  Getters,
+  CommandDispatcher,
+  ClientPosition,
+  AddColumnsCommand,
+  AddRowsCommand,
 } from "../../types/index";
-import { Mode } from "../../model";
+import { Mode, ModelConfig } from "../../model";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { UIPlugin } from "../ui_plugin";
+import { StateObserver } from "../../state_observer";
 
 export interface Selection {
   anchor: [number, number];
@@ -61,6 +67,17 @@ export class SelectionPlugin extends UIPlugin {
   private activeRow: number = 0;
   private mode = SelectionMode.idle;
   private sheetsData: { [sheet: string]: SheetInfo } = {};
+  private moveClient: (position: ClientPosition) => void;
+
+  constructor(
+    getters: Getters,
+    state: StateObserver,
+    dispatch: CommandDispatcher["dispatch"],
+    config: ModelConfig
+  ) {
+    super(getters, state, dispatch, config);
+    this.moveClient = config.moveClient;
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -174,14 +191,10 @@ export class SelectionPlugin extends UIPlugin {
         this.updateSelection();
         break;
       case "ADD_COLUMNS":
-        if (cmd.position === "before") {
-          this.onAddColumns(cmd.quantity);
-        }
+        this.onAddColumns(cmd);
         break;
       case "ADD_ROWS":
-        if (cmd.position === "before") {
-          this.onAddRows(cmd.quantity);
-        }
+        this.onAddRows(cmd);
         break;
       case "SELECT_FIGURE":
         this.selectedFigureId = cmd.id;
@@ -337,7 +350,7 @@ export class SelectionPlugin extends UIPlugin {
    */
   private selectCell(col: number, row: number) {
     const sheetId = this.getters.getActiveSheetId();
-    this.history.selectCell(sheetId, col, row);
+    this.moveClient({ sheetId, col, row });
     let zone = this.getters.expandZone(sheetId, { left: col, right: col, top: row, bottom: row });
 
     if (this.mode === SelectionMode.expanding) {
@@ -451,6 +464,24 @@ export class SelectionPlugin extends UIPlugin {
     this.dispatch("SET_SELECTION", { zones, anchor: [anchorCol, anchorRow] });
   }
 
+  private updateSelectionOnInsertion(
+    selection: Zone,
+    start: "left" | "top",
+    base: number,
+    position: "after" | "before",
+    quantity: number
+  ): Zone {
+    const baseElement = position === "before" ? base - 1 : base;
+    const end = start === "left" ? "right" : "bottom";
+    if (selection[start] <= baseElement && selection[end] > baseElement) {
+      selection[end] += quantity;
+    } else if (baseElement < selection[start]) {
+      selection[start] += quantity;
+      selection[end] += quantity;
+    }
+    return selection;
+  }
+
   private updateSelection() {
     const activeSheet = this.getters.getActiveSheet();
     const cols = activeSheet.cols.length - 1;
@@ -466,25 +497,27 @@ export class SelectionPlugin extends UIPlugin {
     this.setSelection([anchorCol, anchorRow], zones);
   }
 
-  private onAddColumns(quantity: number) {
+  private onAddColumns(cmd: AddColumnsCommand) {
     const selection = this.getSelectedZone();
-    const zone = {
-      left: selection.left + quantity,
-      right: selection.right + quantity,
-      top: selection.top,
-      bottom: selection.bottom,
-    };
+    const zone = this.updateSelectionOnInsertion(
+      selection,
+      "left",
+      cmd.column,
+      cmd.position,
+      cmd.quantity
+    );
     this.setSelection([zone.left, zone.top], [zone], true);
   }
 
-  private onAddRows(quantity: number) {
+  private onAddRows(cmd: AddRowsCommand) {
     const selection = this.getSelectedZone();
-    const zone = {
-      left: selection.left,
-      right: selection.right,
-      top: selection.top + quantity,
-      bottom: selection.bottom + quantity,
-    };
+    const zone = this.updateSelectionOnInsertion(
+      selection,
+      "top",
+      cmd.row,
+      cmd.position,
+      cmd.quantity
+    );
     this.setSelection([zone.left, zone.top], [zone], true);
   }
 

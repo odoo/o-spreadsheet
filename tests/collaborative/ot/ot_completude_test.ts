@@ -52,8 +52,6 @@ function only(types: CoreCommandTypes[]): Set<CoreCommandTypes> {
 
 const STYLE_COMMANDS = ["SET_FORMATTING", "CLEAR_FORMATTING", "SET_BORDER", "SET_DECIMAL"] as const;
 const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
-  UNDO: none(),
-  REDO: none(),
   /** CELLS */
   UPDATE_CELL: none(),
   UPDATE_CELL_POSITION: none(),
@@ -114,14 +112,7 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
 
   /** SHEETS MANIPULATION */
   CREATE_SHEET: none(),
-  DELETE_SHEET: allExcept([
-    "CREATE_SHEET",
-    "DELETE_FIGURE",
-    "UPDATE_FIGURE",
-    "UPDATE_CHART",
-    "UNDO",
-    "REDO",
-  ]),
+  DELETE_SHEET: allExcept(["CREATE_SHEET", "DELETE_FIGURE", "UPDATE_FIGURE", "UPDATE_CHART"]),
   DUPLICATE_SHEET: none(),
   MOVE_SHEET: none(),
   RENAME_SHEET: none(),

@@ -1,6 +1,7 @@
+import { expandZoneOnInsertion } from "../../helpers";
 import { otRegistry } from "../../registries";
 import { AddColumnsCommand, AddMergeCommand, Zone } from "../../types";
-import { ColumnsCommand, PositionalCommand, TargetCommand } from "./ot_types";
+import { ColumnsCommand, PositionalCommand, TargetCommand } from "../../types/ot_types";
 
 /*
  * This file contains the transformations when an AddColumnsCommand is executed
@@ -9,33 +10,26 @@ import { ColumnsCommand, PositionalCommand, TargetCommand } from "./ot_types";
  * position of the added columns
  */
 
-otRegistry.addTransformation("UPDATE_CELL", "ADD_COLUMNS", cellCommand);
-otRegistry.addTransformation("UPDATE_CELL_POSITION", "ADD_COLUMNS", cellCommand);
-otRegistry.addTransformation("CLEAR_CELL", "ADD_COLUMNS", cellCommand);
-otRegistry.addTransformation("SET_BORDER", "ADD_COLUMNS", cellCommand);
+otRegistry.addTransformation(
+  "ADD_COLUMNS",
+  ["UPDATE_CELL", "UPDATE_CELL_POSITION", "CLEAR_CELL", "SET_BORDER"],
+  cellCommand
+);
 
-otRegistry.addTransformation("DELETE_CONTENT", "ADD_COLUMNS", targetCommand);
-otRegistry.addTransformation("SET_FORMATTING", "ADD_COLUMNS", targetCommand);
-otRegistry.addTransformation("CLEAR_FORMATTING", "ADD_COLUMNS", targetCommand);
-otRegistry.addTransformation("SET_DECIMAL", "ADD_COLUMNS", targetCommand);
+otRegistry.addTransformation(
+  "ADD_COLUMNS",
+  ["DELETE_CONTENT", "SET_FORMATTING", "CLEAR_FORMATTING", "SET_DECIMAL"],
+  targetCommand
+);
 
-otRegistry.addTransformation("RESIZE_COLUMNS", "ADD_COLUMNS", columnsCommand);
-otRegistry.addTransformation("REMOVE_COLUMNS", "ADD_COLUMNS", columnsCommand);
+otRegistry.addTransformation("ADD_COLUMNS", ["RESIZE_COLUMNS", "REMOVE_COLUMNS"], columnsCommand);
 
-otRegistry.addTransformation("ADD_COLUMNS", "ADD_COLUMNS", addColumnsCommand);
+otRegistry.addTransformation("ADD_COLUMNS", ["ADD_COLUMNS"], addColumnsCommand);
 
-otRegistry.addTransformation("ADD_MERGE", "ADD_COLUMNS", mergeCommand);
-otRegistry.addTransformation("REMOVE_MERGE", "ADD_COLUMNS", mergeCommand);
+otRegistry.addTransformation("ADD_COLUMNS", ["ADD_MERGE", "REMOVE_MERGE"], mergeCommand);
 
 function transformZone(zone: Zone, executed: AddColumnsCommand) {
-  const baseColumn = executed.position === "before" ? executed.column - 1 : executed.column;
-  if (zone.left <= baseColumn && zone.right >= baseColumn) {
-    zone.right += executed.quantity;
-  } else if (baseColumn < zone.left) {
-    zone.left += executed.quantity;
-    zone.right += executed.quantity;
-  }
-  return zone;
+  return expandZoneOnInsertion(zone, "left", executed.column, executed.position, executed.quantity);
 }
 
 function cellCommand(

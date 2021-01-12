@@ -1,7 +1,7 @@
-import { isDefined } from "../../helpers/index";
+import { isDefined, reduceZoneOnDeletion } from "../../helpers/index";
 import { otRegistry } from "../../registries";
 import { Zone, RemoveColumnsCommand, AddColumnsCommand, AddMergeCommand } from "../../types";
-import { ColumnsCommand, PositionalCommand, TargetCommand } from "./ot_types";
+import { ColumnsCommand, PositionalCommand, TargetCommand } from "../../types/ot_types";
 
 /*
  * This file contains the transformations when an RemoveColumnsCommand is executed
@@ -10,40 +10,30 @@ import { ColumnsCommand, PositionalCommand, TargetCommand } from "./ot_types";
  * position of the removed columns
  */
 
-otRegistry.addTransformation("UPDATE_CELL", "REMOVE_COLUMNS", cellCommand);
-otRegistry.addTransformation("UPDATE_CELL_POSITION", "REMOVE_COLUMNS", cellCommand);
-otRegistry.addTransformation("CLEAR_CELL", "REMOVE_COLUMNS", cellCommand);
-otRegistry.addTransformation("SET_BORDER", "REMOVE_COLUMNS", cellCommand);
+otRegistry.addTransformation(
+  "REMOVE_COLUMNS",
+  ["UPDATE_CELL", "UPDATE_CELL_POSITION", "CLEAR_CELL", "SET_BORDER"],
+  cellCommand
+);
 
-otRegistry.addTransformation("DELETE_CONTENT", "REMOVE_COLUMNS", targetCommand);
-otRegistry.addTransformation("SET_FORMATTING", "REMOVE_COLUMNS", targetCommand);
-otRegistry.addTransformation("CLEAR_FORMATTING", "REMOVE_COLUMNS", targetCommand);
-otRegistry.addTransformation("SET_DECIMAL", "REMOVE_COLUMNS", targetCommand);
+otRegistry.addTransformation(
+  "REMOVE_COLUMNS",
+  ["DELETE_CONTENT", "SET_FORMATTING", "CLEAR_FORMATTING", "SET_DECIMAL"],
+  targetCommand
+);
 
-otRegistry.addTransformation("ADD_COLUMNS", "REMOVE_COLUMNS", addColumnsCommand);
+otRegistry.addTransformation("REMOVE_COLUMNS", ["ADD_COLUMNS"], addColumnsCommand);
 
-otRegistry.addTransformation("REMOVE_COLUMNS", "REMOVE_COLUMNS", columnsCommand);
-otRegistry.addTransformation("RESIZE_COLUMNS", "REMOVE_COLUMNS", columnsCommand);
+otRegistry.addTransformation(
+  "REMOVE_COLUMNS",
+  ["REMOVE_COLUMNS", "RESIZE_COLUMNS"],
+  columnsCommand
+);
 
-otRegistry.addTransformation("ADD_MERGE", "REMOVE_COLUMNS", mergeCommand);
-otRegistry.addTransformation("REMOVE_MERGE", "REMOVE_COLUMNS", mergeCommand);
+otRegistry.addTransformation("REMOVE_COLUMNS", ["ADD_MERGE", "REMOVE_MERGE"], mergeCommand);
 
 function transformZone(zone: Zone, executed: RemoveColumnsCommand): Zone | undefined {
-  let left = zone.left;
-  let right = zone.right;
-  for (let removedColumn of executed.columns.sort((a, b) => b - a)) {
-    if (zone.left > removedColumn) {
-      left--;
-      right--;
-    }
-    if (zone.left <= removedColumn && zone.right >= removedColumn) {
-      right--;
-    }
-  }
-  if (left > right) {
-    return undefined;
-  }
-  return { ...zone, left, right };
+  return reduceZoneOnDeletion(zone, "left", executed.columns);
 }
 
 function cellCommand(

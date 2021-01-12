@@ -23,7 +23,7 @@ export class WebsocketTransport {
   }
 
   sendMessage(message) {
-    const msg = JSON.stringify({ type: "multiuser_command", payload: message });
+    const msg = JSON.stringify(message);
     this.queue.push(msg);
     this.processQueue();
   }

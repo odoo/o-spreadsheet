@@ -4,7 +4,6 @@ import { addColumns, selectCell } from "../commands_helpers";
 import "../jest_extend";
 import "../canvas.mock";
 import { MockTransportService } from "../__mocks__/transport_service";
-import { CollaborativeSession } from "../../src/collaborative/collaborative_session";
 
 describe("Collaborative selection", () => {
   let alice: Model;
@@ -176,8 +175,10 @@ describe("Collaborative selection", () => {
         },
       ])
     );
-    const session = new CollaborativeSession(network, { id: "david", name: "David" });
-    const david = new Model(alice.exportData(), { collaborativeSession: session });
+    const david = new Model(alice.exportData(), {
+      transportService: network,
+      client: { id: "david", name: "David" },
+    });
     expect([alice, bob, charly, david]).toHaveSynchronizedValue(
       (user) => user.getters.getConnectedClients(),
       new Set([
@@ -203,7 +204,7 @@ describe("Collaborative selection", () => {
         },
       ])
     );
-    session.leave();
+    david.leaveSession();
     expect([alice, bob, charly]).toHaveSynchronizedValue(
       (user) => user.getters.getConnectedClients(),
       new Set([

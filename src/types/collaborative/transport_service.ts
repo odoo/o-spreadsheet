@@ -1,17 +1,31 @@
 import { RevisionData } from "..";
 import { UID } from "../misc";
-import { Client, ClientPosition, ClientId } from "./session";
+import { Client, ClientId } from "./session";
 
 export interface RemoteRevisionMessage {
   type: "REMOTE_REVISION";
   revision: RevisionData;
-  revisionId: UID;
+  nextRevisionId: UID;
+  serverRevisionId: UID;
+}
+
+export interface RevisionUndoneMessage {
+  type: "REVISION_UNDONE";
+  undoneRevisionId: UID;
+  nextRevisionId: UID;
+  serverRevisionId: UID;
+}
+
+export interface RevisionRedoneMessage {
+  type: "REVISION_REDONE";
+  redoneRevisionId: UID;
+  nextRevisionId: UID;
+  serverRevisionId: UID;
 }
 
 export interface ClientJoinedMessage {
   type: "CLIENT_JOINED";
-  position: ClientPosition;
-  client: Client;
+  client: Required<Client>;
 }
 
 export interface ClientLeftMessage {
@@ -21,15 +35,18 @@ export interface ClientLeftMessage {
 
 export interface ClientMovedMessage {
   type: "CLIENT_MOVED";
-  client: Client;
-  position: ClientPosition;
+  client: Required<Client>;
 }
 
 export type CollaborationMessage =
+  | RevisionUndoneMessage
+  | RevisionRedoneMessage
   | RemoteRevisionMessage
   | ClientMovedMessage
   | ClientJoinedMessage
   | ClientLeftMessage;
+
+export type StateUpdateMessage = Extract<CollaborationMessage, { nextRevisionId: UID }>;
 
 export type NewMessageCallback<T = any> = (message: T) => void;
 

@@ -36,8 +36,8 @@ export interface BaseCommand {
 
 export const coreTypes = new Set<CoreCommandTypes>([
   /** History */
-  "UNDO",
-  "REDO",
+  // "UNDO",
+  // "REDO",
 
   /** CELLS */
   "UPDATE_CELL",
@@ -586,6 +586,16 @@ export interface RedoCommand extends BaseCommand {
   type: "REDO";
 }
 
+// export interface SelectiveUndoCommand extends BaseCommand {
+//   type: "SELECTIVE_UNDO";
+//   revisionId: UID;
+// }
+
+// export interface SelectiveRedoCommand extends BaseCommand {
+//   type: "SELECTIVE_REDO";
+//   revisionId: UID;
+// }
+
 export interface StartCommand extends BaseCommand {
   type: "START";
 }
@@ -721,9 +731,9 @@ export interface ReplaceAllSearchCommand extends BaseCommand {
 }
 
 export type CoreCommand =
-  /** History */
-  | UndoCommand
-  | RedoCommand
+  // /** History */
+  // | SelectiveUndoCommand
+  // | SelectiveRedoCommand
 
   /** CELLS */
   | UpdateCellCommand
@@ -770,6 +780,8 @@ export type CoreCommand =
   | UpdateChartCommand;
 
 export type LocalCommand =
+  | UndoCommand
+  | RedoCommand
   | NewInputCommand
   | RemoveInputCommand
   | FocusInputCommand
@@ -870,7 +882,7 @@ export const enum CancelledReason {
   MinInvalidFormula,
   MidInvalidFormula,
   MaxInvalidFormula,
-  WaitingForNetwork,
+  WaitingSessionConfirmation,
 }
 
 export type CommandResult = CommandSuccess | CommandCancelled;

@@ -1,4 +1,4 @@
-import { CoreCommand, UID, Zone } from "../../types";
+import { CoreCommand, UID, Zone } from ".";
 
 export type SheetyCommand = Extract<CoreCommand, { sheetId: UID }>;
 

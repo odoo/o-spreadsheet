@@ -32,6 +32,7 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
+  parent.destroy();
   fixture.remove();
 });
 

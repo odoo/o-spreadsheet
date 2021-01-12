@@ -482,10 +482,10 @@ describe("merges", () => {
     expect(Object.keys(getMerges(model))).toEqual([]);
 
     // redo
-    model.dispatch("REDO");
+    redo(model);
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["B2", "B3"]));
     expect(getMerges(model)).toEqual({
-      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: toPosition("B2") },
+      "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: toPosition("B2") },
     });
   });
 

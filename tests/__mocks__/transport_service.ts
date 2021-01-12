@@ -9,30 +9,28 @@ export class MockTransportService implements TransportService<CollaborationMessa
   private listeners: NewMessageCallback[] = [];
   private pendingMessages: CollaborationMessage[] = [];
   private isConcurrent: boolean = false;
-  private updates: CollaborationMessage[] = [];
-  private revision: string = DEFAULT_REVISION_ID;
+  private serverRevisionId: string = DEFAULT_REVISION_ID;
 
   onNewMessage(callback: NewMessageCallback) {
     this.listeners.push(callback);
   }
 
   sendMessage(message: CollaborationMessage) {
-    if (message.type === "REMOTE_REVISION") {
-      if (this.revision === message.revisionId) {
-        this.revision = message.revision.id;
-        this.updates.push(JSON.parse(JSON.stringify(message)));
-        if (this.isConcurrent) {
-          this.pendingMessages.push(message);
-        } else {
-          this.notifyListeners(this.listeners, message);
+    const msg = JSON.parse(JSON.stringify(message));
+    switch (msg.type) {
+      case "REMOTE_REVISION":
+      case "REVISION_UNDONE":
+      case "REVISION_REDONE":
+        if (this.serverRevisionId === msg.serverRevisionId) {
+          this.serverRevisionId = msg.nextRevisionId;
+          this.broadcast(msg);
         }
-      }
-    } else {
-      if (this.isConcurrent) {
-        this.pendingMessages.push(message);
-      } else {
-        this.notifyListeners(this.listeners, message);
-      }
+        break;
+      case "CLIENT_JOINED":
+      case "CLIENT_LEFT":
+      case "CLIENT_MOVED":
+        this.broadcast(msg);
+        break;
     }
   }
 
@@ -49,6 +47,14 @@ export class MockTransportService implements TransportService<CollaborationMessa
   notifyListeners(listeners: NewMessageCallback[], message: CollaborationMessage) {
     for (let callback of listeners) {
       callback(JSON.parse(JSON.stringify(message)));
+    }
+  }
+
+  private broadcast(message: CollaborationMessage) {
+    if (this.isConcurrent) {
+      this.pendingMessages.push(message);
+    } else {
+      this.notifyListeners(this.listeners, message);
     }
   }
 }

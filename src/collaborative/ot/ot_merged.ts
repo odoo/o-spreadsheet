@@ -1,7 +1,7 @@
 import { toXC, isInside, overlap } from "../../helpers/index";
 import { otRegistry } from "../../registries";
 import { AddMergeCommand } from "../../types";
-import { PositionalCommand } from "./ot_types";
+import { PositionalCommand } from "../../types/ot_types";
 
 /*
  * This file contains the transformations when an AddMergeCommand is executed
@@ -10,13 +10,13 @@ import { PositionalCommand } from "./ot_types";
  * the merge
  */
 
-otRegistry.addTransformation("UPDATE_CELL", "ADD_MERGE", cellCommand);
-otRegistry.addTransformation("UPDATE_CELL_POSITION", "ADD_MERGE", cellCommand);
-otRegistry.addTransformation("CLEAR_CELL", "ADD_MERGE", cellCommand);
-otRegistry.addTransformation("SET_BORDER", "ADD_MERGE", cellCommand);
+otRegistry.addTransformation(
+  "ADD_MERGE",
+  ["UPDATE_CELL", "UPDATE_CELL_POSITION", "CLEAR_CELL", "SET_BORDER"],
+  cellCommand
+);
 
-otRegistry.addTransformation("ADD_MERGE", "ADD_MERGE", mergeCommand);
-otRegistry.addTransformation("REMOVE_MERGE", "ADD_MERGE", mergeCommand);
+otRegistry.addTransformation("ADD_MERGE", ["ADD_MERGE", "REMOVE_MERGE"], mergeCommand);
 
 function cellCommand(
   toTransform: PositionalCommand,

@@ -1,5 +1,5 @@
-import { History } from "../history";
 import { ModelConfig, Mode } from "../model";
+import { StateObserver } from "../state_observer";
 import { CoreCommand, CoreCommandDispatcher, WorkbookData } from "../types";
 import { CoreGetters } from "../types/getters";
 import { BasePlugin } from "./base_plugin";
@@ -7,7 +7,7 @@ import { BasePlugin } from "./base_plugin";
 export interface CorePluginConstructor {
   new (
     getters: CoreGetters,
-    history: History,
+    stateObserver: StateObserver,
     dispatch: CoreCommandDispatcher["dispatch"],
     config: ModelConfig
   ): CorePlugin;
@@ -26,11 +26,11 @@ export class CorePlugin<State = any, C = CoreCommand> extends BasePlugin<State, 
 
   constructor(
     getters: CoreGetters,
-    history: History,
+    stateObserver: StateObserver,
     protected dispatch: CoreCommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    super(history, dispatch, config);
+    super(stateObserver, dispatch, config);
     this.getters = getters;
   }
 

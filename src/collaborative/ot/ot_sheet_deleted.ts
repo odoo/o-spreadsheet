@@ -1,6 +1,6 @@
 import { otRegistry } from "../../registries";
 import { DeleteSheetCommand, DuplicateSheetCommand } from "../../types";
-import { SheetyCommand } from "./ot_types";
+import { SheetyCommand } from "../../types/ot_types";
 
 /*
  * This file contains the transformations when an DeleteSheetCommand is executed
@@ -9,31 +9,37 @@ import { SheetyCommand } from "./ot_types";
  * deleted sheet
  */
 
-otRegistry.addTransformation("UPDATE_CELL", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("UPDATE_CELL_POSITION", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("CLEAR_CELL", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("DELETE_CONTENT", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("ADD_COLUMNS", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("ADD_ROWS", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("REMOVE_COLUMNS", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("REMOVE_ROWS", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("ADD_MERGE", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("REMOVE_MERGE", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("MOVE_SHEET", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("RENAME_SHEET", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("ADD_CONDITIONAL_FORMAT", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("CREATE_FIGURE", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("SET_FORMATTING", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("CLEAR_FORMATTING", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("SET_BORDER", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("SET_DECIMAL", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("CREATE_CHART", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("RESIZE_COLUMNS", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("RESIZE_ROWS", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("REMOVE_CONDITIONAL_FORMAT", "DELETE_SHEET", sheetDeleted);
-otRegistry.addTransformation("DELETE_SHEET", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation(
+  "DELETE_SHEET",
+  [
+    "UPDATE_CELL",
+    "UPDATE_CELL_POSITION",
+    "CLEAR_CELL",
+    "DELETE_CONTENT",
+    "ADD_COLUMNS",
+    "ADD_ROWS",
+    "REMOVE_COLUMNS",
+    "REMOVE_ROWS",
+    "ADD_MERGE",
+    "REMOVE_MERGE",
+    "MOVE_SHEET",
+    "RENAME_SHEET",
+    "ADD_CONDITIONAL_FORMAT",
+    "CREATE_FIGURE",
+    "SET_FORMATTING",
+    "CLEAR_FORMATTING",
+    "SET_BORDER",
+    "SET_DECIMAL",
+    "CREATE_CHART",
+    "RESIZE_COLUMNS",
+    "RESIZE_ROWS",
+    "REMOVE_CONDITIONAL_FORMAT",
+    "DELETE_SHEET",
+  ],
+  sheetDeleted
+);
 
-otRegistry.addTransformation("DUPLICATE_SHEET", "DELETE_SHEET", duplicateCommand);
+otRegistry.addTransformation("DELETE_SHEET", ["DUPLICATE_SHEET"], duplicateCommand);
 
 function sheetDeleted(
   toTransform: SheetyCommand,

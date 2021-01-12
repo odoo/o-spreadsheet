@@ -1,9 +1,10 @@
 import { Model } from "../../src";
 import { getCell } from "../getters_helpers";
-import { createSheet } from "../commands_helpers";
+import { addColumns, addRows, createSheet, selectCell } from "../commands_helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 import "../canvas.mock";
+import { toZone } from "../../src/helpers";
 
 describe("Collaborative Sheet manipulation", () => {
   let network: MockTransportService;
@@ -150,4 +151,67 @@ describe("Collaborative Sheet manipulation", () => {
       `Invalid sheet name: ${sheetName}`
     );
   });
+
+  test("adding columns after adapts selection", () => {
+    selectCell(alice, "B1");
+    selectCell(bob, "A1");
+    selectCell(charly, "F1");
+    addColumns(alice, "after", "B", 2);
+    expect(bob.getters.getSelectedZone()).toEqual(toZone("A1"));
+    expect(charly.getters.getSelectedZone()).toEqual(toZone("H1"));
+    expect(alice.getters.getSelectedZone()).toEqual(toZone("B1"));
+  });
+
+  test("adding columns before adapts selection", () => {
+    selectCell(alice, "B1");
+    selectCell(bob, "A1");
+    selectCell(charly, "F1");
+    addColumns(alice, "before", "B", 2);
+    expect(bob.getters.getSelectedZone()).toEqual(toZone("A1"));
+    expect(charly.getters.getSelectedZone()).toEqual(toZone("H1"));
+    expect(alice.getters.getSelectedZone()).toEqual(toZone("D1"));
+  });
+
+  test("adding rows after adapts selection", () => {
+    selectCell(alice, "A3");
+    selectCell(bob, "A1");
+    selectCell(charly, "A10");
+    addRows(alice, "after", 2, 2);
+    expect(bob.getters.getSelectedZone()).toEqual(toZone("A1"));
+    expect(charly.getters.getSelectedZone()).toEqual(toZone("A12"));
+    expect(alice.getters.getSelectedZone()).toEqual(toZone("A3"));
+  });
+
+  test("adding rows before adapts selection", () => {
+    selectCell(alice, "A3");
+    selectCell(bob, "A1");
+    selectCell(charly, "A10");
+    addRows(alice, "before", 2, 2);
+    expect(bob.getters.getSelectedZone()).toEqual(toZone("A1"));
+    expect(charly.getters.getSelectedZone()).toEqual(toZone("A12"));
+    expect(alice.getters.getSelectedZone()).toEqual(toZone("A5"));
+  });
+
+  // test("removing rows adapts selection", () => {
+  //   selectCell(alice, "A3");
+  //   selectCell(bob, "A1");
+  //   selectCell(charly, "A10");
+  //   alice.dispatch("REMOVE_ROWS", {
+  //     sheetId: alice.getters.getActiveSheetId(),
+  //     rows: [1]
+  //   })
+  //   expect(bob.getters.getSelectedZone()).toEqual(toZone("A1"));
+  //   expect(charly.getters.getSelectedZone()).toEqual(toZone("A12"));
+  //   expect(alice.getters.getSelectedZone()).toEqual(toZone("A3"));
+  // });
+
+  // test("removing columns adapts selection", () => {
+  //   selectCell(alice, "A3");
+  //   selectCell(bob, "A1");
+  //   selectCell(charly, "A10");
+  //   addRows(alice, "before", 2, 2);
+  //   expect(bob.getters.getSelectedZone()).toEqual(toZone("A1"));
+  //   expect(charly.getters.getSelectedZone()).toEqual(toZone("A12"));
+  //   expect(alice.getters.getSelectedZone()).toEqual(toZone("A5"));
+  // });
 });

@@ -1,6 +1,6 @@
 import { colors } from "../../helpers/index";
 import { Mode } from "../../model";
-import { UID, LAYERS, GridRenderingContext } from "../../types";
+import { UID, LAYERS, GridRenderingContext, ClientPosition } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 function randomChoice(arr: string[]): string {
@@ -12,14 +12,20 @@ export class SelectionMultiuserPlugin extends UIPlugin {
   static modes: Mode[] = ["normal", "readonly"];
   private colors: Record<UID, string> = {};
 
+  private isPositionValid(position: ClientPosition): boolean {
+    const sheet = this.getters.getSheet(position.sheetId);
+    return position.row <= sheet.rows.length && position.col <= sheet.cols.length;
+  }
+
   drawGrid(renderingContext: GridRenderingContext) {
     const { viewport, ctx, thinLineWidth } = renderingContext;
     const activeSheetId = this.getters.getActiveSheetId();
     for (const client of this.getters.getConnectedClients()) {
       if (
-        client.id === this.getters.getUserId() ||
+        client.id === this.getters.getClient().id ||
         !client.position ||
-        client.position.sheetId !== activeSheetId
+        client.position.sheetId !== activeSheetId ||
+        !this.isPositionValid(client.position) //TODOMulti Write a test for this condition
       ) {
         continue;
       }

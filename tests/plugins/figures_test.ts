@@ -15,7 +15,7 @@ const viewport: Viewport = {
 };
 
 describe("figure plugin", () => {
-  test("can create a figure", () => {
+  test("can create a simple figure", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),

@@ -9,11 +9,8 @@ import { SelectionMode } from "../plugins/ui/selection";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ComposerFocusedEvent } from "./composer/composer";
 import { Client } from "../types/collaborative/session";
-import { CollaborativeSession } from "../collaborative/collaborative_session";
 import { _lt } from "../translation";
-import { uuidv4 } from "../helpers/index";
-import { RevisionData } from "../types";
-import { TransportService } from "../types/collaborative/transport_service";
+import { StateUpdateMessage, TransportService } from "../types/collaborative/transport_service";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -74,7 +71,7 @@ const CSS = css/* scss */ `
 interface Props {
   data?: any;
   transportService?: TransportService;
-  revisions?: RevisionData[];
+  stateUpdateMessages?: StateUpdateMessage[];
   client?: Client;
 }
 
@@ -86,13 +83,6 @@ export class Spreadsheet extends Component<Props> {
   static components = { TopBar, Grid, BottomBar, SidePanel };
   static _t = t;
 
-  collaborativeSession?: CollaborativeSession = this.props.transportService
-    ? new CollaborativeSession(
-        this.props.transportService,
-        this.props.client || { id: uuidv4(), name: _lt("Anonymous").toString() }
-      )
-    : undefined;
-
   model = new Model(
     this.props.data,
     {
@@ -103,9 +93,9 @@ export class Spreadsheet extends Component<Props> {
         this.trigger("edit-text", { title, placeholder, callback }),
       openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
       evalContext: { env: this.env },
-      collaborativeSession: this.collaborativeSession,
+      transportService: this.props.transportService,
     },
-    this.props.revisions
+    this.props.stateUpdateMessages
   );
   grid = useRef("grid");
 
@@ -166,7 +156,7 @@ export class Spreadsheet extends Component<Props> {
   }
 
   private leaveCollaborativeSession() {
-    this.collaborativeSession?.leave();
+    this.model.leaveSession();
   }
 
   destroy() {

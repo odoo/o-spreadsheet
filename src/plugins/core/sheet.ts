@@ -141,7 +141,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           cmd.rows || 100,
           cmd.position
         );
-        this.sheetIds[sheet.name] = sheet.id;
+        this.history.update("sheetIds", sheet.name, sheet.id);
         break;
       case "RESIZE_COLUMNS":
         for (let col of cmd.columns) {
@@ -166,6 +166,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         this.duplicateSheet(cmd.sheetIdFrom, cmd.sheetIdTo, cmd.name);
         break;
       case "DELETE_SHEET":
+        const bla = this.sheets[cmd.sheetId];
+        if (!bla) {
+          console.log("Mais non");
+        }
         this.deleteSheet(this.sheets[cmd.sheetId]!);
         break;
 

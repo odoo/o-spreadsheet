@@ -29,9 +29,7 @@ expect.extend({
       return {
         pass: this.isNot,
         message: () =>
-          `Received: ${this.utils.printReceived(exportData)}\nExpected: ${this.utils.printExpected(
-            expected
-          )}`,
+          `Diff: ${this.utils.printDiffOrStringify(expected, exportData, "Expected", "Received", false)}`
       };
     }
     return { pass: !this.isNot, message: () => "" };
@@ -40,7 +38,7 @@ expect.extend({
     for (let user of users) {
       const result = callback(user);
       if (!this.equals(result, expected)) {
-        const userId = user.getters.getUserId();
+        const userId = user.getters.getClient().name;
         return {
           pass: this.isNot,
           message: () =>
@@ -61,8 +59,8 @@ expect.extend({
         const exportA = a.exportData();
         const exportB = b.exportData();
         if (!this.equals(exportA, exportB)) {
-          const clientA = a.getters.getUserId();
-          const clientB = b.getters.getUserId();
+          const clientA = a.getters.getClient().id;
+          const clientB = b.getters.getClient().id;
           return {
             pass: this.isNot,
             message: () =>

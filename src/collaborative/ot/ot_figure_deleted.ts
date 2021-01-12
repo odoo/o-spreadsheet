@@ -8,8 +8,7 @@ import { UpdateFigureCommand, UpdateChartCommand, DeleteFigureCommand } from "..
  * deleted figure
  */
 
-otRegistry.addTransformation("UPDATE_FIGURE", "DELETE_FIGURE", updateChartFigure);
-otRegistry.addTransformation("UPDATE_CHART", "DELETE_FIGURE", updateChartFigure);
+otRegistry.addTransformation("DELETE_FIGURE", ["UPDATE_FIGURE", "UPDATE_CHART"], updateChartFigure);
 
 function updateChartFigure(
   toTransform: UpdateFigureCommand | UpdateChartCommand,

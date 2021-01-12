@@ -1,6 +1,5 @@
-import { EventBus } from "../../helpers/event_bus";
+import { CoreCommand } from "../commands";
 import { UID } from "../misc";
-import { Revision } from "./revisions";
 
 export type ClientId = string;
 
@@ -16,50 +15,46 @@ export interface ClientPosition {
   row: number;
 }
 
-/**
- * Manages the collaboration between multiple users on the same spreadsheet.
- * It can forward local state changes to other users to ensure they all eventually
- * reach the same state.
- * It also manages the positions of each clients in the spreadsheet to provide
- * a visual indication of what other users are doing in the spreadsheet.
- */
-export interface Session extends EventBus<CollaborativeEvent> {
-  /**
-   * Add a new revision to the collaborative session.
-   * It will be transmitted to all other connected clients.
-   */
-  addRevision: (revision: Revision) => void;
-
-  /**
-   * Notify that the position of the client has changed
-   */
-  move: (position: ClientPosition) => void;
-
-  /**
-   * Notify the server that the user client left the collaborative session
-   */
-  leave: () => void;
-  getClient: () => Client;
-  getConnectedClients: () => Set<Client>;
-  setRevisionId: (id: UID) => void;
-  getRevisionId: () => UID;
-}
-
-export interface RemoteRevisionReceivedEvent extends Revision {
+export interface RemoteRevisionReceivedEvent {
   type: "remote-revision-received";
+  commands: readonly CoreCommand[];
 }
 
-export interface RevisionAcknowledgedEvent extends Revision {
+export interface RevisionAcknowledgedEvent {
   type: "revision-acknowledged";
+  revisionId: UID;
+}
+
+export interface RevisionUndone {
+  type: "revision-undone";
+  revisionId: UID;
+}
+
+export interface RevisionRedone {
+  type: "revision-redone";
+  revisionId: UID;
 }
 
 export interface CollaborativeEventReceived {
   type: "collaborative-event-received";
 }
 
+export interface UnexpectedRevisionIdEvent {
+  type: "unexpected-revision-id";
+}
+
+export interface NewLocalStateUpdateEvent {
+  type: "new-local-state-update";
+  id: UID;
+}
+
 export type CollaborativeEvent =
+  | NewLocalStateUpdateEvent
+  | UnexpectedRevisionIdEvent
   | RemoteRevisionReceivedEvent
   | RevisionAcknowledgedEvent
+  | RevisionUndone
+  | RevisionRedone
   | CollaborativeEventReceived;
 
 export type CollaborativeEventTypes = CollaborativeEvent["type"];

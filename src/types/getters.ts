@@ -5,7 +5,7 @@ import { CellPlugin } from "../plugins/core/cell";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { RendererPlugin } from "../plugins/ui/renderer";
 import { BordersPlugin } from "../plugins/core/borders";
-import { History } from "../history";
+import { LocalHistory } from "../history/local_history";
 import { RangePlugin } from "../plugins/core/range";
 import { EvaluationPlugin } from "../plugins/ui/evaluation";
 import { EditionPlugin } from "../plugins/ui/edition";
@@ -20,17 +20,15 @@ import { UIOptionsPlugin } from "../plugins/ui/ui_options";
 import { EvaluationChartPlugin } from "../plugins/ui/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "../plugins/ui/evaluation_conditional_format";
 import { ChartPlugin } from "../plugins/core/chart";
+import { Session } from "../collaborative/session";
 
 // -----------------------------------------------------------------------------
 // Getters
 // -----------------------------------------------------------------------------
 
 export interface CoreGetters {
-  canUndo: History["canUndo"];
-  canRedo: History["canRedo"];
-  getUserId: History["getUserId"];
-  getConnectedClients: History["getConnectedClients"];
-  getRevisionLogs: History["getRevisionLogs"];
+  canUndo: LocalHistory["canUndo"];
+  canRedo: LocalHistory["canRedo"];
 
   applyOffset: SheetPlugin["applyOffset"];
   getEvaluationSheets: SheetPlugin["getEvaluationSheets"];
@@ -97,6 +95,10 @@ export type Getters = CoreGetters & {
   getAggregate: SelectionPlugin["getAggregate"];
   getSelectionMode: SelectionPlugin["getSelectionMode"];
   isSelected: SelectionPlugin["isSelected"];
+
+  getClient: Session["getClient"];
+  getConnectedClients: Session["getConnectedClients"];
+  // getRevisionLogs: Clients["getRevisionLogs"];
 
   getActiveSheetId: SheetUIPlugin["getActiveSheetId"];
   getActiveSheet: SheetUIPlugin["getActiveSheet"];

@@ -145,6 +145,7 @@ describe("Multi users synchronisation", () => {
 
   test("Merge a cell and update a cell concurrently", () => {
     const sheetId = alice.getters.getActiveSheetId();
+    setCellContent(bob, "C1", "hello");
     network.concurrent(() => {
       alice.dispatch("ADD_MERGE", {
         sheetId,
@@ -163,6 +164,12 @@ describe("Multi users synchronisation", () => {
     expect(charly.getters.getMerges(sheetId)).toMatchObject([
       { bottom: 2, left: 0, top: 0, right: 1, topLeft: toPosition("A1") },
     ]);
+    undo(bob);
+    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "B3"), undefined);
+    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCellContent(user, "C1"), "hello");
+    undo(bob);
+    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "B3"), undefined);
+    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "C1"), undefined);
   });
 
   test("2-Merge a cell and update a cell concurrently, then remove the merge", () => {
@@ -296,26 +303,11 @@ describe("Multi users synchronisation", () => {
   });
 
   describe("Export data", () => {
-    test("Can export without pending revisions", () => {
-      setCellContent(alice, "A1", "salut");
-      expect(alice["history"]["pendingRevisions"]).toHaveLength(0);
-      const exportedData = alice.exportData();
-      expect(exportedData.sheets[0].cells.A1?.content).toBe("salut");
-    });
-
-    test("Can export with pending revisions by reverting to last shared revision", () => {
-      setCellContent(alice, "A1", "salut");
+    test("exportData throws if there are pending revisions", () => {
       network.concurrent(() => {
-        setCellContent(bob, "A1", "coucou");
-        setCellContent(alice, "A1", "Hi");
-        const exportedData = alice.exportData();
-        expect(exportedData.sheets[0].cells.A1?.content).toBe("salut");
-        expect([alice, bob, charly]).toHaveSynchronizedExportedData();
+        setCellContent(alice, "A1", "hello");
+        expect(() => alice.exportData()).toThrow();
       });
-      expect([alice, bob, charly]).toHaveSynchronizedValue(
-        (user) => getCellContent(user, "A1"),
-        "Hi"
-      );
     });
   });
 
