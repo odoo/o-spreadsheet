@@ -107,27 +107,27 @@ export class History<T = unknown> {
   }
 
   undo(instructionId: UID) {
-    const { layer, instruction: step } = this.HEAD_LAYER.findInstruction(instructionId);
+    const { layer, instruction } = this.HEAD_LAYER.findInstruction(instructionId);
     this.revertBefore(instructionId);
     layer
       .copyAfter(instructionId)
-      .transformed(this.transformationFactory.buildTransformationWithout(step.data))
+      .transformed(this.transformationFactory.buildTransformationWithout(instruction.data))
       .insertAfter(layer, instructionId);
     this.checkoutEnd();
   }
 
-  redo(stepId: UID) {
-    const layer = this.HEAD_LAYER.findUndoLayer(stepId);
-    const { instruction: step } = this.HEAD_LAYER.findInstruction(stepId);
+  redo(instructionId: UID) {
+    const layer = this.HEAD_LAYER.findUndoLayer(instructionId);
+    const { instruction } = this.HEAD_LAYER.findInstruction(instructionId);
     if (!layer) {
-      throw new Error(`Step ${stepId} cannot be redone since it was never undone`);
+      return
+      throw new Error(`Instruction ${instructionId} cannot be redone since it was never undone`);
     }
-    const currentLayer = this.HEAD_LAYER.lastLayer; // HEAD_LAYER may not be the last layer! (the last layer might be empty)
-    this.revertBefore(stepId);
-    currentLayer
-      .transformed(this.transformationFactory.buildTransformationWith(step.data))
-      .insertAfter(currentLayer);
-    layer.delete();
+    this.revertBefore(instructionId);
+    layer
+      .transformed(this.transformationFactory.buildTransformationWith(instruction.data))
+      .insertAfter(this.HEAD_LAYER);
+    // layer.delete();
     this.checkoutEnd();
   }
 
@@ -169,7 +169,7 @@ class Layer {
   private previous?: Layer;
   private branchingInstructionId?: UID;
   private next?: Layer;
-  private isDeleted = false; // TODO rename
+  // private isDeleted = false; // TODO rename
 
   constructor(private instructions: Instruction[] = []) {}
 
@@ -186,10 +186,6 @@ class Layer {
    * Yields the sequence of instructions to execute, in reverse order.
    */
   private *_revertedExecution(): Generator<Omit<ExecutionStep, "next">, void, undefined> {
-    if (this.isDeleted) {
-      yield* this.previous?._revertedExecution() || [];
-      return;
-    }
     let afterBranchingPoint = !!this.branchingInstructionId;
     // use while?
     for (let i = this.instructions.length - 1; i >= 0; i--) {
@@ -214,10 +210,6 @@ class Layer {
    * Yields the sequence of instructions to execute
    */
   private *_execution(): Generator<Omit<ExecutionStep, "next">, void, undefined> {
-    if (this.isDeleted) {
-      yield* this.next?._execution() || [];
-      return;
-    }
     // use while?
     for (const step of this.instructions) {
       yield {
@@ -258,9 +250,8 @@ class Layer {
    */
   private isMainLayerOf(instructionId: UID): boolean {
     return (
-      !this.isDeleted &&
       this.stepIds.includes(instructionId) &&
-      (instructionId !== this.branchingInstructionId || !!this.next?.isDeleted)
+      (instructionId !== this.branchingInstructionId)
     );
   }
 
@@ -316,12 +307,9 @@ class Layer {
     throw new Error(`Instruction ${instructionId} was not found in any layer`);
   }
 
+  /** TODO rename */
   findUndoLayer(instructionId: UID): Layer | undefined {
-    return this.findLayer(instructionId).next;
-  }
-
-  delete() {
-    this.isDeleted = true;
+    return this.findLayer(instructionId).next?.next;
   }
 
   /**
@@ -363,7 +351,6 @@ class Layer {
     // arf, this is null
     layer.next = this.next;
     layer.branchingInstructionId = this.branchingInstructionId;
-    layer.isDeleted = this.isDeleted;
     layer.previous = this.previous;
     return layer;
   }

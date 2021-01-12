@@ -97,88 +97,90 @@ function undoTransformation(toTransform: Command, cancelled: Command): Command {
 }
 
 describe("Undo/Redo manager", () => {
-  test("undo a single step", () => {
-    const editor = new MiniEditor();
-    editor.add("1", "A", 0);
-    expect(editor.text).toBe("A");
-    editor.undo("1");
-    expect(editor.text).toBe("");
-  });
+  describe("Undo", () => {
+    test("undo a single step", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      expect(editor.text).toBe("A");
+      editor.undo("1");
+      expect(editor.text).toBe("");
+    });
 
-  test("undo first step", () => {
-    const editor = new MiniEditor();
-    editor.add("1", "A", 0);
-    editor.add("2", "B", 1);
-    expect(editor.text).toBe("AB");
-    editor.undo("1");
-    expect(editor.text).toBe("B");
-  });
+    test("undo first step", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "B", 1);
+      expect(editor.text).toBe("AB");
+      editor.undo("1");
+      expect(editor.text).toBe("B");
+    });
 
-  test("undo step in the middle", () => {
-    const editor = new MiniEditor();
-    editor.add("1", "A", 0);
-    editor.add("2", "BBB", 1);
-    editor.add("3", "C", 4);
-    expect(editor.text).toBe("ABBBC");
-    editor.undo("2");
-    expect(editor.text).toBe("AC");
-  });
+    test("undo step in the middle", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "BBB", 1);
+      editor.add("3", "C", 4);
+      expect(editor.text).toBe("ABBBC");
+      editor.undo("2");
+      expect(editor.text).toBe("AC");
+    });
 
-  test("undo step with transformation", () => {
-    const editor = new MiniEditor();
-    editor.add("1", "A", 0);
-    editor.add("2", "BB", 1);
-    editor.add("3", "CCC", 3);
-    editor.undo("2");
-    expect(editor.text).toBe("ACCC");
-  });
+    test("undo step with transformation", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "BB", 1);
+      editor.add("3", "CCC", 3);
+      editor.undo("2");
+      expect(editor.text).toBe("ACCC");
+    });
 
-  test("undos last two steps in execution order", () => {
-    const editor = new MiniEditor();
-    editor.add("1", "A", 0);
-    editor.add("2", "B", 1);
-    editor.add("3", "C", 2);
-    expect(editor.text).toBe("ABC");
-    editor.undo("2");
-    expect(editor.text).toBe("AC");
-    editor.undo("3");
-    expect(editor.text).toBe("A");
-  });
+    test("undos last two steps in execution order", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "B", 1);
+      editor.add("3", "C", 2);
+      expect(editor.text).toBe("ABC");
+      editor.undo("2");
+      expect(editor.text).toBe("AC");
+      editor.undo("3");
+      expect(editor.text).toBe("A");
+    });
 
-  test("undo first two steps in execution order", () => {
-    const editor = new MiniEditor();
-    editor.add("1", "A", 0);
-    editor.add("2", "B", 1);
-    editor.add("3", "C", 2);
-    expect(editor.text).toBe("ABC");
-    editor.undo("1");
-    expect(editor.text).toBe("BC");
-    editor.undo("2");
-    expect(editor.text).toBe("C");
-  });
+    test("undo first two steps in execution order", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "B", 1);
+      editor.add("3", "C", 2);
+      expect(editor.text).toBe("ABC");
+      editor.undo("1");
+      expect(editor.text).toBe("BC");
+      editor.undo("2");
+      expect(editor.text).toBe("C");
+    });
 
-  test("undo first two steps in reverse execution order", () => {
-    const editor = new MiniEditor();
-    editor.add("1", "A", 0);
-    editor.add("2", "B", 1);
-    editor.add("3", "C", 2);
-    expect(editor.text).toBe("ABC");
-    editor.undo("2");
-    expect(editor.text).toBe("AC");
-    editor.undo("1");
-    expect(editor.text).toBe("C");
-  });
+    test("undo first two steps in reverse execution order", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "B", 1);
+      editor.add("3", "C", 2);
+      expect(editor.text).toBe("ABC");
+      editor.undo("2");
+      expect(editor.text).toBe("AC");
+      editor.undo("1");
+      expect(editor.text).toBe("C");
+    });
 
-  test("undo last two steps in reverse execution order", () => {
-    const editor = new MiniEditor();
-    editor.add("1", "A", 0);
-    editor.add("2", "B", 1);
-    editor.add("3", "C", 2);
-    expect(editor.text).toBe("ABC");
-    editor.undo("3");
-    expect(editor.text).toBe("AB");
-    editor.undo("2");
-    expect(editor.text).toBe("A");
+    test("undo last two steps in reverse execution order", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "B", 1);
+      editor.add("3", "C", 2);
+      expect(editor.text).toBe("ABC");
+      editor.undo("3");
+      expect(editor.text).toBe("AB");
+      editor.undo("2");
+      expect(editor.text).toBe("A");
+    });
   });
 
   describe("redo", () => {
