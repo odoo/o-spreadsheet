@@ -49,26 +49,10 @@ class MiniEditor {
     };
     this.commands[commandId] = command;
     this.history.addInstruction(commandId, command);
-
-    // this.history.addStep(commandId, command, (cmd) => transform(cmd, inverse(command)));
-    // this.history.undo(commandId, command, (cmd) => transform(cmd, command));
   }
 
   undo(commandId: UID) {
-    // new History(transformationFactory)
-    this.history.undo(
-      commandId
-      // (command: Command, cancelledCommand: Command) => {
-      //   console.log("REDO", commandId)
-      //   console.log(command, '//', cancelledCommand)
-      //   console.log("=>", redoTransformation(command, cancelledCommand))
-      //   return redoTransformation(command, cancelledCommand)
-      // },
-      //a-1
-      // (command: Command) => redoTransformation(command, cancelledCommand)
-      // (cmd: Command, command: Command) => undoTransformation(cancelledCommand, command));
-      // (command: Command) => redoTransformation(command, cancelledCommand),
-    );
+    this.history.undo(commandId);
   }
 
   redo(commandId: UID) {
@@ -282,23 +266,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("BBCCC");
     });
 
-    test("", () => {
-      /**
- Initial    A      B     C     D     E
-               |
- Undo B        ------->  C2    D2    E2
-                             |
- Undo D                      ----->  E3
-
-
-
- Initial    A      B     C     D     E
-               |
- Undo B        (-------> C2    D2    E2)
-                             |
- Undo D                      ----->  E3
- Redo B                      ----->  E4
- */
+    test("Two undo, redo the first undone", () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);

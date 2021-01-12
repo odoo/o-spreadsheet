@@ -18,7 +18,7 @@ interface TransformationFactory<T = unknown> {
 /**
  * An Instruction can be executed to change a data structure from state A
  * to state B.
- * It should hold the necesarry data used to perform this transition.
+ * It should hold the necessary data used to perform this transition.
  * It should be possible to revert the changes made by this instruction.
  *
  * In the context of o-spreadsheet, the data from an instruction would
@@ -89,7 +89,7 @@ class Execution implements Iterable<ExecutionStep> {
  *
  */
 export class History<T = unknown> {
-  private HEAD_LAYER: Layer = new Layer(); // the first layer is never redone
+  private HEAD_LAYER: Layer = new Layer(); // the first layer is never deleted
   private HEAD: Instruction | null = null;
 
   constructor(
@@ -99,10 +99,10 @@ export class History<T = unknown> {
   ) {}
 
   addInstruction(id: UID, data: any) {
-    const step = new Instruction(id, data);
-    this.HEAD_LAYER.lastLayer.addInstruction(step);
+    const instruction = new Instruction(id, data);
+    this.HEAD_LAYER.lastLayer.addInstruction(instruction);
     this.HEAD_LAYER = this.HEAD_LAYER.lastLayer;
-    this.HEAD = step;
+    this.HEAD = instruction;
     this.applyStep(data); // checkout ?
   }
 
@@ -117,17 +117,9 @@ export class History<T = unknown> {
   }
 
   redo(instructionId: UID) {
-    const layer = this.HEAD_LAYER.findUndoLayer(instructionId);
-    const { instruction } = this.HEAD_LAYER.findInstruction(instructionId);
-    if (!layer) {
-      return
-      throw new Error(`Instruction ${instructionId} cannot be redone since it was never undone`);
-    }
+    const { instruction, layer } = this.HEAD_LAYER.findInstruction(instructionId);
     this.revertBefore(instructionId);
-    layer
-      .transformed(this.transformationFactory.buildTransformationWith(instruction.data))
-      .insertAfter(this.HEAD_LAYER);
-    // layer.delete();
+    layer.removeNextLayer(this.transformationFactory.buildTransformationWith(instruction!.data));
     this.checkoutEnd();
   }
 
@@ -148,14 +140,14 @@ export class History<T = unknown> {
   }
 
   private checkoutEnd() {
-    const steps = this.HEAD
+    const instructions = this.HEAD
       ? this.HEAD_LAYER.execution().startAfter(this.HEAD.id)
       : this.HEAD_LAYER.execution();
-    for (const { instruction: step, layer, isCancelled } of steps) {
+    for (const { instruction, layer, isCancelled } of instructions) {
       if (!isCancelled) {
-        this.applyStep(step.data);
+        this.applyStep(instruction.data);
       }
-      this.HEAD = step;
+      this.HEAD = instruction;
       this.HEAD_LAYER = layer;
     }
   }
@@ -169,7 +161,6 @@ class Layer {
   private previous?: Layer;
   private branchingInstructionId?: UID;
   private next?: Layer;
-  // private isDeleted = false; // TODO rename
 
   constructor(private instructions: Instruction[] = []) {}
 
@@ -211,13 +202,13 @@ class Layer {
    */
   private *_execution(): Generator<Omit<ExecutionStep, "next">, void, undefined> {
     // use while?
-    for (const step of this.instructions) {
+    for (const instruction of this.instructions) {
       yield {
-        instruction: step,
+        instruction: instruction,
         layer: this,
-        isCancelled: !this.shouldExecute(step),
+        isCancelled: !this.shouldExecute(instruction),
       };
-      if (step.id === this.branchingInstructionId) {
+      if (instruction.id === this.branchingInstructionId) {
         yield* this.next?._execution() || [];
         return;
       }
@@ -249,10 +240,7 @@ class Layer {
    * TODO: what is a "main layer" ???
    */
   private isMainLayerOf(instructionId: UID): boolean {
-    return (
-      this.stepIds.includes(instructionId) &&
-      (instructionId !== this.branchingInstructionId)
-    );
+    return this.stepIds.includes(instructionId) && instructionId !== this.branchingInstructionId;
   }
 
   /**
@@ -298,18 +286,14 @@ class Layer {
     throw new Error(`Instruction ${instructionId} not found`);
   }
 
-  findLayer(instructionId: UID): Layer {
-    for (const { instruction: step, layer } of this._revertedExecution()) {
-      if (step.id === instructionId) {
-        return layer;
-      }
+  removeNextLayer(transformation: Transformation) {
+    const undoLayer = this.next;
+    if (!undoLayer) {
+      return;
     }
-    throw new Error(`Instruction ${instructionId} was not found in any layer`);
-  }
-
-  /** TODO rename */
-  findUndoLayer(instructionId: UID): Layer | undefined {
-    return this.findLayer(instructionId).next?.next;
+    this.next = undefined;
+    this.branchingInstructionId = undefined;
+    undoLayer.next?.transformed(transformation).insertAfter(this, undoLayer.branchingInstructionId);
   }
 
   /**
