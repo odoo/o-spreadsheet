@@ -44,6 +44,7 @@ interface ExecutionStep {
 }
 
 class Execution implements Iterable<ExecutionStep> {
+  // Generator or array ? what about garbage collection with arrays ?
   constructor(private readonly instructions: Generator<ExecutionStep, void, undefined>) {}
   [Symbol.iterator](): Iterator<ExecutionStep, void, undefined> {
     return this.instructions;
@@ -60,6 +61,22 @@ class Execution implements Iterable<ExecutionStep> {
         if (step.instruction.id === instructionId) {
           return;
         }
+      }
+    }
+    return new Execution(filter(this.instructions, instructionId));
+  }
+
+  /**
+   * Stop the instruction sequence before a given instruction
+   * @param instructionId excluded
+   */
+  stopBefore(instructionId: UID): Execution {
+    function* filter(execution: Iterable<ExecutionStep>, instructionId: UID) {
+      for (const step of execution) {
+        if (step.instruction.id === instructionId) {
+          return;
+        }
+        yield step;
       }
     }
     return new Execution(filter(this.instructions, instructionId));
@@ -106,13 +123,28 @@ export class History<T = unknown> {
     this.applyStep(data); // checkout ?
   }
 
+  insertExternalInstruction(id: UID, data: any, insertAfter: UID | null) {
+    const instruction = new Instruction(id, data);
+    this.revertTo(insertAfter);
+    // insert to layer where it first was executed!
+    const layer = insertAfter ? this.HEAD_LAYER.findFirstLayer(insertAfter) : this.HEAD_LAYER;
+    layer.insertInstruction(
+      instruction,
+      insertAfter,
+      // transformation for undo layer !!
+      this.transformationFactory.buildTransformationWith(instruction.data)
+    );
+    this.checkoutEnd();
+  }
+
   undo(instructionId: UID) {
     const { layer, instruction } = this.HEAD_LAYER.findInstruction(instructionId);
     this.revertBefore(instructionId);
-    layer
-      .copyAfter(instructionId)
-      .transformed(this.transformationFactory.buildTransformationWithout(instruction.data))
-      .insertAfter(layer, instructionId);
+    layer.branch(
+      instructionId,
+      this.transformationFactory.buildTransformationWithout(instruction.data)
+    );
+
     this.checkoutEnd();
   }
 
@@ -139,6 +171,20 @@ export class History<T = unknown> {
     }
   }
 
+  private revertTo(instructionId: UID | null) {
+    const execution = instructionId
+      ? this.HEAD_LAYER.revertedExecution().stopBefore(instructionId)
+      : this.HEAD_LAYER.revertedExecution();
+    // duplicated code with revertBefore
+    for (const { next, instruction: step, isCancelled } of execution) {
+      if (!isCancelled) {
+        this.revertStep(step.data);
+      }
+      this.HEAD_LAYER = next.layer;
+      this.HEAD = next.instruction;
+    }
+  }
+
   private checkoutEnd() {
     const instructions = this.HEAD
       ? this.HEAD_LAYER.execution().startAfter(this.HEAD.id)
@@ -151,6 +197,16 @@ export class History<T = unknown> {
       this.HEAD_LAYER = layer;
     }
   }
+
+  // private runExecution(execution: Execution, execFunction: (data: any) => void) {
+  //   for (const { instruction, layer, isCancelled } of execution) {
+  //     if (!isCancelled) {
+  //       execFunction(instruction.data);
+  //     }
+  //     this.HEAD = instruction;
+  //     this.HEAD_LAYER = layer;
+  //   }
+  // }
 }
 
 /**
@@ -161,10 +217,11 @@ class Layer {
   private previous?: Layer;
   private branchingInstructionId?: UID;
   private next?: Layer;
+  private branchingTransformation?: Transformation;
 
   constructor(private instructions: Instruction[] = []) {}
 
-  private get stepIds(): UID[] {
+  private get instructionIds(): UID[] {
     return this.instructions.map((step) => step.id);
   }
 
@@ -240,7 +297,9 @@ class Layer {
    * TODO: what is a "main layer" ???
    */
   private isMainLayerOf(instructionId: UID): boolean {
-    return this.stepIds.includes(instructionId) && instructionId !== this.branchingInstructionId;
+    return (
+      this.instructionIds.includes(instructionId) && instructionId !== this.branchingInstructionId
+    );
   }
 
   /**
@@ -271,6 +330,49 @@ class Layer {
     this.instructions.push(instruction);
   }
 
+  branch(instructionId: UID, transformation: Transformation) {
+    this.copyAfter(instructionId).transformed(transformation).insertAfter(this, instructionId);
+    this.branchingTransformation = transformation;
+  }
+
+  /**
+   * TODO
+   * @param newInstruction
+   * @param insertAfter
+   * @param transformation
+   */
+  insertInstruction(
+    newInstruction: Instruction,
+    insertAfter: UID | null,
+    transformation: Transformation
+  ) {
+    if (insertAfter !== null && this.instructionIds.includes(insertAfter)) {
+      const { instructionsBefore, instruction, instructionsAfter } = this.locateInstruction(
+        insertAfter
+      );
+      this.instructions = [
+        ...instructionsBefore,
+        instruction,
+        newInstruction,
+        ...instructionsAfter.map((instruction) => instruction.transformed(transformation)),
+      ];
+    } else {
+      this.instructions = [
+        newInstruction,
+        ...this.instructions.map((instruction) => instruction.transformed(transformation)),
+      ];
+    }
+    if (insertAfter && this.next?.instructionIds.includes(insertAfter)) {
+      this.next?.insertInstruction(
+        newInstruction.transformed(this.branchingTransformation!),
+        insertAfter,
+        transformation
+      );
+    } else {
+      this.next = this.next?.transformed(transformation);
+    }
+  }
+
   insertAfter(upperLayer: Layer, branchingInstructionId?: UID) {
     this.previous = upperLayer;
     upperLayer.next = this;
@@ -284,6 +386,14 @@ class Layer {
       }
     }
     throw new Error(`Instruction ${instructionId} not found`);
+  }
+
+  findFirstLayer(instructionId: UID): Layer {
+    let layer: Layer | undefined = this;
+    while (layer.previous?.instructionIds.includes(instructionId)) {
+      layer = layer?.previous;
+    }
+    return layer;
   }
 
   removeNextLayer(transformation: Transformation) {
@@ -302,21 +412,39 @@ class Layer {
    * @param stepId excluded
    */
   copyAfter(stepId: UID): Layer {
-    const instructionIndex = this.instructions.findIndex((step) => step.id === stepId);
-    if (instructionIndex === -1) {
-      throw new Error(`Step ${stepId} not found`);
-    }
-    const layer = new Layer(this.instructions.slice(instructionIndex + 1));
+    const { instructionsAfter } = this.locateInstruction(stepId);
+    const layer = new Layer(instructionsAfter);
     // If there is a next, there is always a branchingStepId.
     // This should be ensured however
     // the above is not true
     this.next?.copy().insertAfter(layer, this.branchingInstructionId!);
 
     // manage this here?
-    if (layer.branchingInstructionId && !layer.stepIds.includes(layer.branchingInstructionId)) {
+    if (
+      layer.branchingInstructionId &&
+      !layer.instructionIds.includes(layer.branchingInstructionId)
+    ) {
       layer.branchingInstructionId = undefined;
     }
     return layer;
+  }
+
+  private locateInstruction(
+    instructionId: UID
+  ): {
+    instruction: Instruction;
+    instructionsBefore: Instruction[];
+    instructionsAfter: Instruction[];
+  } {
+    const instructionIndex = this.instructions.findIndex((step) => step.id === instructionId);
+    if (instructionIndex === -1) {
+      throw new Error(`Instruction ${instructionId} not found`);
+    }
+    return {
+      instruction: this.instructions[instructionIndex],
+      instructionsAfter: this.instructions.slice(instructionIndex + 1),
+      instructionsBefore: this.instructions.slice(0, instructionIndex),
+    };
   }
 
   /**

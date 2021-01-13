@@ -39,7 +39,22 @@ class MiniEditor {
       redoTransformation(commandToTransform as Command, command as Command),
   });
 
-  add(commandId, text, position) {
+  execAfter(insertAfter: UID | null, instruction: [UID, string, number]) {
+    const [commandId, text, position] = instruction;
+    if (insertAfter !== null && !(insertAfter in this.commands)) {
+      throw new Error(`Cannot inster after command ${commandId}: the command cannot be found`);
+    }
+    if (commandId in this.commands) {
+      throw new Error(`Duplicate command id: ${commandId}`);
+    }
+    const command: Command = {
+      value: text,
+      position: position - 1,
+    };
+    this.history.insertExternalInstruction(commandId, command, insertAfter);
+  }
+
+  add(commandId: UID, text: string, position: number) {
     if (commandId in this.commands) {
       throw new Error(`Duplicate command id: ${commandId}`);
     }
@@ -167,7 +182,7 @@ describe("Undo/Redo manager", () => {
     });
   });
 
-  describe("redo", () => {
+  describe("Redo", () => {
     test("redo a single step", () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
@@ -279,6 +294,98 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("BD");
       editor.redo("1");
       expect(editor.text).toBe("ABD");
+    });
+  });
+
+  describe("External instruction insertion", () => {
+    test("insert after a single instruction", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.execAfter("1", ["2", "B", 1]);
+      expect(editor.text).toBe("AB");
+    });
+
+    test("insert before a single instruction", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.execAfter(null, ["2", "B", 0]);
+      expect(editor.text).toBe("BA");
+    });
+
+    test("insert between two instructions", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "B", 1);
+      editor.execAfter("1", ["3", "C", 1]);
+      expect(editor.text).toBe("ACB");
+    });
+
+    test("insert before first cancelled", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "B", 1);
+      editor.undo("1");
+      editor.execAfter(null, ["3", "C", 0]);
+      expect(editor.text).toBe("CB");
+    });
+
+    test("insert before cancelled", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "B", 1);
+      editor.add("3", "C", 2);
+      editor.undo("2");
+      editor.execAfter("1", ["4", "D", 1]);
+      expect(editor.text).toBe("ADC");
+    });
+
+    test("insert after a transformed command", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "B", 1);
+      editor.add("3", "C", 2);
+
+      editor.undo("2");
+      editor.execAfter("3", ["4", "D", 3]);
+      expect(editor.text).toBe("ACD");
+      editor.undo("1");
+      expect(editor.text).toBe("CD");
+    });
+
+    test("insert last then redo previous instruction", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "B", 1);
+      editor.add("3", "C", 2);
+      editor.undo("2");
+      editor.execAfter("3", ["4", "D", 3]);
+      expect(editor.text).toBe("ACD");
+      editor.redo("2");
+      expect(editor.text).toBe("ABCD");
+    });
+
+    test("insert before cancelled, then redo ", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "B", 1);
+      editor.add("3", "C", 2);
+      editor.undo("2");
+      editor.execAfter("1", ["4", "D", 1]);
+      expect(editor.text).toBe("ADC");
+      editor.redo("2");
+      expect(editor.text).toBe("ADBC");
+    });
+
+    test("undo/redo external ", () => {
+      const editor = new MiniEditor();
+      editor.add("1", "A", 0);
+      editor.add("2", "B", 1);
+      editor.add("3", "C", 2);
+      editor.execAfter("1", ["4", "D", 1]);
+      editor.undo("4");
+      expect(editor.text).toBe("ABC");
+      editor.redo("4");
+      expect(editor.text).toBe("ADBC");
     });
   });
 });
