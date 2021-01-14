@@ -106,13 +106,6 @@ export class EditionPlugin extends UIPlugin {
       case "REPLACE_COMPOSER_SELECTION":
         this.replaceSelection(cmd.text);
         break;
-      case "UPDATE_CELL":
-        const [col, row] = this.getters.getPosition();
-        if (col === this.col && row === this.row) {
-          this.setActiveContent();
-          this.mode = "inactive";
-        }
-        break;
       case "ACTIVATE_SHEET":
         if (this.mode === "inactive") {
           this.setActiveContent();
@@ -143,6 +136,11 @@ export class EditionPlugin extends UIPlugin {
   }
 
   getCurrentContent(): string {
+    if (this.mode === "inactive") {
+      const cell = this.getters.getActiveCell();
+      const activeSheetId = this.getters.getActiveSheetId();
+      return cell ? this.getters.getCellText(cell, activeSheetId, true) : "";
+    }
     return this.currentContent;
   }
 
