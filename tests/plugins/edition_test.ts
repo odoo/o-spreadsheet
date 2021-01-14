@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
-import { getCell, getCellContent, getCellText, setCellContent } from "../helpers";
+import { getCell, getCellContent, getCellText, setCellContent, target } from "../helpers";
 import { CancelledReason } from "../../src/types";
 import { toZone, toCartesian } from "../../src/helpers";
 
@@ -246,6 +246,7 @@ describe("edition", () => {
 
   test("replace selection with smaller text", () => {
     const model = new Model();
+    model.dispatch("START_EDITION");
     model.dispatch("SET_CURRENT_CONTENT", {
       content: "12345",
     });
@@ -265,6 +266,7 @@ describe("edition", () => {
 
   test("replace selection with longer text", () => {
     const model = new Model();
+    model.dispatch("START_EDITION");
     model.dispatch("SET_CURRENT_CONTENT", {
       content: "12345",
     });
@@ -417,6 +419,19 @@ describe("edition", () => {
           cells: { A1: { content: "Hello" } },
         },
       ],
+    });
+    expect(model.getters.getCurrentContent()).toBe("Hello");
+  });
+
+  test("Paste a cell updates the topbar composer", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "Hello");
+    model.dispatch("COPY", {
+      target: target("A1"),
+    });
+    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
+    model.dispatch("PASTE", {
+      target: target("B1"),
     });
     expect(model.getters.getCurrentContent()).toBe("Hello");
   });
