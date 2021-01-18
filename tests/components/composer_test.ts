@@ -501,6 +501,21 @@ describe("composer", () => {
     expect(composerEl.textContent).toBe("=Sheet2!C8");
   });
 
+  test("type '=', select a cell in another sheet which contains spaces", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet 2", position: 1 });
+    setCellContent(model, "C8", "1", "42");
+    await typeInComposer("=");
+    expect(model.getters.getEditionMode()).toBe("selecting");
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: "42"});
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    await nextTick();
+    expect(composerEl.textContent).toBe("='Sheet 2'!C8");
+    model.dispatch("STOP_EDITION");
+    expect(getCellContent(model, "A1", sheetId)).toBe("1");
+  });
+
   test("Home key sets cursor at the begining", async () => {
     await typeInComposer("Hello");
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });

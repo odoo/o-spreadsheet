@@ -6,6 +6,7 @@ import {
   toZone,
   uuidv4,
   groupConsecutive,
+  getUnquotedSheetName,
 } from "../../helpers/index";
 import { CorePlugin } from "../core_plugin";
 
@@ -196,7 +197,7 @@ export class RangePlugin extends CorePlugin<RangeState> {
     if (sheetXC.includes("!")) {
       [xc, sheetName] = sheetXC.split("!").reverse();
       if (sheetName) {
-        sheetId = this.getters.getSheetIdByName(sheetName);
+        sheetId = this.getters.getSheetIdByName(getUnquotedSheetName(sheetName));
         prefixSheet = true;
         if (!sheetId) {
           invalidSheetName = sheetName;
