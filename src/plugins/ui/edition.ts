@@ -13,7 +13,7 @@ export interface ComposerSelection {
   end: number;
 }
 
-export const SelectionIndicator = "ⵌ";
+export const SelectionIndicator = "␣";
 
 export class EditionPlugin extends UIPlugin {
   static layers = [LAYERS.Highlights];

@@ -18,7 +18,7 @@ export const OperatorColor = "#3da4ab";
 export const StringColor = "#f6cd61";
 export const NumberColor = "#02c39a";
 export const MatchingParenColor = "pink";
-export const SelectionIndicatorColor = "#e8e8e8";
+export const SelectionIndicatorColor = "lightgrey";
 
 interface ComposerFocusedEventData {
   content?: string;
@@ -49,6 +49,7 @@ const TEMPLATE = xml/* xml */ `
 
       t-on-keydown="onKeydown"
       t-on-beforeinput="onBeforeinput"
+      t-on-mousedown="onMousedown"
       t-on-input="onInput"
       t-on-keyup="onKeyup"
 
@@ -299,6 +300,14 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
 
     this.dispatch("CHANGE_COMPOSER_SELECTION", this.contentHelper.getCurrentSelection());
     this.processTokenAtCursor();
+  }
+
+  onMousedown(ev: MouseEvent) {
+    if (ev.button > 0) {
+      // not main button, probably a context menu
+      return;
+    }
+    this.contentHelper.removeSelection();
   }
 
   onClick() {

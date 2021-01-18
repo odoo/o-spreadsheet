@@ -107,7 +107,7 @@ describe("ranges and highlights", () => {
     await keydown("ArrowDown");
     expect(model.getters.getCurrentContent()).toBe("=A2");
     await typeInComposer("+", false);
-    expect(model.getters.getCurrentContent()).toBe("=A2+ⵌ");
+    expect(model.getters.getCurrentContent()).toBe("=A2+␣");
     expect(model.getters.getEditionMode()).toBe("selecting");
     await keydown("ArrowDown");
     expect(model.getters.getCurrentContent()).toBe("=A2+A2");
@@ -212,7 +212,7 @@ describe("composer", () => {
 
   test("starting the edition with a key stroke =, the composer should have the focus after the key input", async () => {
     composerEl = await startComposition("=");
-    expect(composerEl.textContent).toBe("=ⵌ");
+    expect(composerEl.textContent).toBe("=␣");
   });
 
   test("starting the edition with a key stroke B, the composer should have the focus after the key input", async () => {
@@ -237,7 +237,7 @@ describe("composer", () => {
 
   test("type '=' in the sheet and select a cell", async () => {
     composerEl = await startComposition("=");
-    expect(composerEl.textContent).toBe("=ⵌ");
+    expect(composerEl.textContent).toBe("=␣");
     expect(model.getters.getEditionMode()).toBe("selecting");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
@@ -334,7 +334,7 @@ describe("composer", () => {
           await startComposition();
           await typeInComposer(content);
           expect(model.getters.getEditionMode()).toBe("selecting");
-          expect(model.getters.getCurrentContent()).toBe(content + "ⵌ");
+          expect(model.getters.getCurrentContent()).toBe(content + "␣");
         }
       );
 
@@ -356,7 +356,7 @@ describe("composer", () => {
           await startComposition();
           await typeInComposer(content + "   ");
           expect(model.getters.getEditionMode()).toBe("selecting");
-          expect(model.getters.getCurrentContent()).toBe(content + "   ⵌ");
+          expect(model.getters.getCurrentContent()).toBe(content + "   ␣");
         }
       );
 
@@ -390,7 +390,7 @@ describe("composer", () => {
           await moveToStart();
           await typeInComposer(formula + ",");
           expect(model.getters.getEditionMode()).toBe("selecting");
-          expect(model.getters.getCurrentContent()).toBe(formula + ",ⵌ" + matchingValue);
+          expect(model.getters.getCurrentContent()).toBe(formula + ",␣" + matchingValue);
         }
       );
 
@@ -421,7 +421,7 @@ describe("composer", () => {
           await moveToStart();
           await typeInComposer(formula + ",  ");
           expect(model.getters.getEditionMode()).toBe("selecting");
-          expect(model.getters.getCurrentContent()).toBe(formula + ",  ⵌ" + matchingValue);
+          expect(model.getters.getCurrentContent()).toBe(formula + ",  ␣" + matchingValue);
         }
       );
 
@@ -445,7 +445,7 @@ describe("composer", () => {
           await moveToStart();
           await typeInComposer(formula + ",");
           expect(model.getters.getEditionMode()).toBe("selecting");
-          expect(model.getters.getCurrentContent()).toBe(formula + ",ⵌ   " + matchingValue);
+          expect(model.getters.getCurrentContent()).toBe(formula + ",␣   " + matchingValue);
         }
       );
 
@@ -476,14 +476,14 @@ describe("composer", () => {
       await startComposition();
       await typeInComposer("=");
       expect(model.getters.getEditionMode()).toBe("selecting");
-      expect(model.getters.getCurrentContent()).toBe("=ⵌ");
+      expect(model.getters.getCurrentContent()).toBe("=␣");
     });
 
     test("typing '=' & spaces --> activate 'selecting' mode", async () => {
       await startComposition();
       await typeInComposer("=   ");
       expect(model.getters.getEditionMode()).toBe("selecting");
-      expect(model.getters.getCurrentContent()).toBe("=   ⵌ");
+      expect(model.getters.getCurrentContent()).toBe("=   ␣");
     });
   });
 
@@ -507,7 +507,7 @@ describe("composer", () => {
     setCellContent(model, "C8", "1", "42");
     await typeInComposer("=");
     expect(model.getters.getEditionMode()).toBe("selecting");
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: "42"});
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: "42" });
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();

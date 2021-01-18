@@ -84,18 +84,18 @@ describe("Functions autocomplete", () => {
       expect(fixture.querySelectorAll(".o-autocomplete-value")[1].textContent).toBe("SZZ");
     });
 
-    test("=S+TAB complete the function --> =sum(ⵌ", async () => {
+    test("=S+TAB complete the function --> =sum(␣", async () => {
       await typeInComposer("=S");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
-      expect(model.getters.getCurrentContent()).toBe("=SUM(ⵌ");
+      expect(model.getters.getCurrentContent()).toBe("=SUM(␣");
     });
 
-    test("=S+ENTER complete the function --> =sum(ⵌ", async () => {
+    test("=S+ENTER complete the function --> =sum(␣", async () => {
       await typeInComposer("=S");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       await nextTick();
-      expect(model.getters.getCurrentContent()).toBe("=SUM(ⵌ");
+      expect(model.getters.getCurrentContent()).toBe("=SUM(␣");
     });
 
     test("=SX not show autocomplete (nothing matches SX)", async () => {
@@ -176,7 +176,7 @@ describe("Functions autocomplete", () => {
         .querySelector(".o-autocomplete-dropdown")!
         .children[1].dispatchEvent(new MouseEvent("click"));
       await nextTick();
-      expect(composerEl.textContent).toBe("=SZZ(ⵌ");
+      expect(composerEl.textContent).toBe("=SZZ(␣");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
@@ -210,7 +210,7 @@ describe("Functions autocomplete", () => {
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
-      expect(model.getters.getCurrentContent()).toBe("=IF(ⵌ");
+      expect(model.getters.getCurrentContent()).toBe("=IF(␣");
     });
     test("= and CTRL+Space & DOWN move to next autocomplete", async () => {
       await typeInComposer("=");
@@ -292,7 +292,7 @@ describe("Autocomplete parenthesis", () => {
     // select the SUM function
     fixture.querySelector(".o-autocomplete-value-focus")!.dispatchEvent(new MouseEvent("click"));
     await nextTick();
-    expect(model.getters.getCurrentContent()).toBe("=SUM(ⵌ");
+    expect(model.getters.getCurrentContent()).toBe("=SUM(␣");
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
   });
 
