@@ -463,7 +463,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         return value ? "TRUE" : "FALSE";
       case "number":
         const shouldFormat = (value || value === 0) && cell.format && !cell.error;
-        const dateTimeFormat = shouldFormat && cell.format!.match(/[ymd:]/);
+        const dateTimeFormat = shouldFormat && cell.format!.match(DATETIME_FORMAT);
         if (dateTimeFormat) {
           return formatDateTime({ value, format: cell.format! });
         }
