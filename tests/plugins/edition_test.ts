@@ -1,8 +1,8 @@
+import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
+import { CancelledReason } from "../../src/types";
 import "../helpers"; // to have getcontext mocks
 import { getCell, getCellContent, getCellText, setCellContent, target } from "../helpers";
-import { CancelledReason } from "../../src/types";
-import { toZone, toCartesian } from "../../src/helpers";
 
 describe("edition", () => {
   test("adding and removing a cell (by setting its content to empty string", () => {

@@ -4,13 +4,13 @@ import { Model } from "../../src/model";
 import { BorderDescr } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
 import {
-  setBorder,
-  getBorder,
-  getCell,
-  setCellContent,
   addColumns,
   addRows,
+  getBorder,
+  getCell,
   getCellContent,
+  setBorder,
+  setCellContent,
 } from "../helpers";
 
 describe("borders", () => {

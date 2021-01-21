@@ -1,9 +1,9 @@
-import { CancelledReason, Command, CommandResult, Sheet, UID, Cell, Zone } from "../../types";
-import { UIPlugin } from "../ui_plugin";
 import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { _lt } from "../../translation";
 import { computeTextWidth } from "../../helpers/index";
+import { _lt } from "../../translation";
+import { CancelledReason, Cell, Command, CommandResult, Sheet, UID, Zone } from "../../types";
+import { UIPlugin } from "../ui_plugin";
 
 interface UIState {
   activeSheet: Sheet;

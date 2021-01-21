@@ -1,17 +1,17 @@
-import { args } from "./arguments";
+import { isNumber } from "../helpers/index";
+import { _lt } from "../translation";
 import { AddFunctionDescription, ReturnFormatType } from "../types";
+import { args } from "./arguments";
 import {
-  toNumber,
-  reduceNumbers,
-  visitAny,
-  reduceArgs,
   dichotomicPredecessorSearch,
+  reduceArgs,
+  reduceNumbers,
   reduceNumbersTextAs0,
+  toNumber,
+  visitAny,
   visitMatchingRanges,
   visitNumbers,
 } from "./helpers";
-import { isNumber } from "../helpers/index";
-import { _lt } from "../translation";
 
 // Note: dataY and dataX may not have the same dimension
 function covariance(dataY: any[], dataX: any[], isSample: boolean): number {

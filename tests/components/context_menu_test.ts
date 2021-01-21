@@ -1,20 +1,20 @@
+import { Component, hooks, tags } from "@odoo/owl";
+import { Menu } from "../../src/components/menu";
+import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
+import { createFullMenuItem, FullMenuItem } from "../../src/registries";
+import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
+import { ConditionalFormat, SpreadsheetEnv } from "../../src/types";
+import { simulateClick, triggerMouseEvent } from "../dom_helper";
 import {
+  getCell,
+  getCellContent,
   GridParent,
   makeTestFixture,
   nextTick,
-  getCell,
-  Touch,
   setCellContent,
-  getCellContent,
+  Touch,
 } from "../helpers";
-import { simulateClick, triggerMouseEvent } from "../dom_helper";
-import { toXC } from "../../src/helpers";
-import { Menu } from "../../src/components/menu";
-import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
-import { Component, tags, hooks } from "@odoo/owl";
-import { SpreadsheetEnv, ConditionalFormat } from "../../src/types";
-import { FullMenuItem, createFullMenuItem } from "../../src/registries";
 
 const { xml } = tags;
 const { useSubEnv } = hooks;

@@ -1,9 +1,9 @@
-import { args } from "./arguments";
+import { _lt } from "../translation";
 import { AddFunctionDescription, ReturnFormatType } from "../types";
+import { args } from "./arguments";
+import { InternalDate } from "./dates";
 import { toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
-import { InternalDate } from "./dates";
-import { _lt } from "../translation";
 
 // -----------------------------------------------------------------------------
 // ADD

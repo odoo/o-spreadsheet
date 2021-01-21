@@ -1,9 +1,9 @@
-import { compile, normalize } from "../../src/formulas/index";
 import { functionCache } from "../../src/formulas/compiler";
+import { compile, normalize } from "../../src/formulas/index";
 import { functionRegistry } from "../../src/functions";
-import { evaluateCell } from "../helpers";
-import { NormalizedFormula, Range, CompiledFormula, ReturnFormatType } from "../../src/types";
 import { toZone } from "../../src/helpers";
+import { CompiledFormula, NormalizedFormula, Range, ReturnFormatType } from "../../src/types";
+import { evaluateCell } from "../helpers";
 
 function compiledBaseFunction(formula: string): CompiledFormula {
   for (let f in functionCache) {

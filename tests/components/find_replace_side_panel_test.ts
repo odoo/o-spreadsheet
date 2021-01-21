@@ -1,8 +1,8 @@
-import { GridParent, makeTestFixture, nextTick } from "../helpers";
-import "../canvas.mock";
 import { Model } from "../../src";
-import { setInputValueAndTrigger, triggerMouseEvent } from "../dom_helper";
 import { CommandResult } from "../../src/types/commands";
+import "../canvas.mock";
+import { setInputValueAndTrigger, triggerMouseEvent } from "../dom_helper";
+import { GridParent, makeTestFixture, nextTick } from "../helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 jest.useFakeTimers();
 

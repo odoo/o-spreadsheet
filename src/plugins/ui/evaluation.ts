@@ -1,22 +1,22 @@
+import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { mapCellsInZone, toXC, toZone } from "../../helpers/index";
 import { WHistory } from "../../history";
 import { Mode, ModelConfig } from "../../model";
+import { _lt } from "../../translation";
 import {
   Cell,
+  CellType,
   Command,
   CommandDispatcher,
+  EnsureRange,
   EvalContext,
   Getters,
-  UID,
-  ReferenceDenormalizer,
-  EnsureRange,
   NormalizedFormula,
   Range,
-  CellType,
+  ReferenceDenormalizer,
+  UID,
 } from "../../types/index";
-import { _lt } from "../../translation";
-import { compile, normalize } from "../../formulas/index";
 import { UIPlugin } from "../ui_plugin";
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {

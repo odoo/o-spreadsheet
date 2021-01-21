@@ -1,8 +1,8 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { CURRENT_VERSION } from "../../src/data";
 import { Model } from "../../src/model";
 import { BorderDescr } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
-import { CURRENT_VERSION } from "../../src/data";
 import { getMerges, mockUuidV4To, toPosition } from "../helpers";
 
 describe("data", () => {

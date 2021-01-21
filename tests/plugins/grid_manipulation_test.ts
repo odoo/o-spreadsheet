@@ -1,5 +1,7 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { lettersToNumber, toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
+import { Border, CancelledReason, CellType, UID } from "../../src/types";
 import {
   getBorder,
   getCell,
@@ -12,8 +14,6 @@ import {
   toPosition,
   XCToMergeCellMap,
 } from "../helpers";
-import { Border, CancelledReason, CellType, UID } from "../../src/types";
-import { lettersToNumber, toXC, toZone } from "../../src/helpers";
 let model: Model;
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 

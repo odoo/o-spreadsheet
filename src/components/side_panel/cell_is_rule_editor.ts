@@ -1,9 +1,8 @@
 import * as owl from "@odoo/owl";
-import * as icons from "../icons";
-import { ColorPicker } from "../color_picker";
 import { CellIsRule, ConditionalFormat, SpreadsheetEnv, Style } from "../../types";
-import { _lt } from "../../translation";
-import { conditionalFormatingTerms, cellIsOperators } from "./translations_terms";
+import { ColorPicker } from "../color_picker";
+import * as icons from "../icons";
+import { cellIsOperators, conditionalFormatingTerms } from "./translations_terms";
 
 const { Component, useState, hooks } = owl;
 const { useExternalListener } = hooks;

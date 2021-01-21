@@ -1,5 +1,5 @@
-import { normalize, parse } from "../../src/formulas";
 import { astToFormula } from "../../src";
+import { normalize, parse } from "../../src/formulas";
 
 describe("parser", () => {
   test("can parse a function call with no argument", () => {

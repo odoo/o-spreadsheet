@@ -1,3 +1,4 @@
+import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import {
   GridParent,
@@ -6,7 +7,6 @@ import {
   resetFunctions,
   typeInComposer as typeInComposerHelper,
 } from "../helpers";
-import { args, functionRegistry } from "../../src/functions/index";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );

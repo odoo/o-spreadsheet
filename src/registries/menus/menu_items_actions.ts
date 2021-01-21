@@ -1,6 +1,6 @@
-import { Style, SpreadsheetEnv } from "../../types/index";
 import { numberToLetters, uuidv4 } from "../../helpers/index";
 import { _lt } from "../../translation";
+import { SpreadsheetEnv, Style } from "../../types/index";
 
 //------------------------------------------------------------------------------
 // Helpers

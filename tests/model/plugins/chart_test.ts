@@ -1,5 +1,5 @@
 import { Model } from "../../../src";
-import { Viewport, CancelledReason } from "../../../src/types";
+import { CancelledReason, Viewport } from "../../../src/types";
 import "../../canvas.mock";
 import { setCellContent, testUndoRedo } from "../../helpers";
 

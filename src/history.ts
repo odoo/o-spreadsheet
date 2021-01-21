@@ -1,4 +1,4 @@
-import { Command, CommandHandler, CommandResult, CancelledReason } from "./types/index";
+import { CancelledReason, Command, CommandHandler, CommandResult } from "./types/index";
 
 /**
  * History Management System

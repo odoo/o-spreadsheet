@@ -1,13 +1,11 @@
-import { Model } from "../../src/model";
-import { getCell, getCellContent } from "../helpers";
-
-import "../canvas.mock";
-import { setCellContent } from "../helpers";
-import { PADDING_AUTORESIZE, DEFAULT_FONT_SIZE } from "../../src/constants";
+import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";
-import { CancelledReason, UID, Cell } from "../../src/types";
+import { Model } from "../../src/model";
 import { SheetUIPlugin } from "../../src/plugins/ui/ui_sheet";
+import { CancelledReason, Cell, UID } from "../../src/types";
+import "../canvas.mock";
+import { getCell, getCellContent, setCellContent } from "../helpers";
 
 function setFormat(model: Model, format: string) {
   model.dispatch("SET_FORMATTER", {

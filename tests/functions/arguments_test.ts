@@ -1,4 +1,4 @@
-import { args, validateArguments, addMetaInfoFromArg } from "../../src/functions/arguments";
+import { addMetaInfoFromArg, args, validateArguments } from "../../src/functions/arguments";
 import { AddFunctionDescription } from "../../src/types";
 
 describe("args", () => {

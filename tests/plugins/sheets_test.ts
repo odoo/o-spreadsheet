@@ -1,15 +1,15 @@
+import { toCartesian, toZone, uuidv4 } from "../../src/helpers";
 import { Model } from "../../src/model";
+import { CancelledReason } from "../../src/types";
 import "../helpers"; // to have getcontext mocks
 import {
-  getCell,
   createEqualCF,
-  testUndoRedo,
-  setCellContent,
+  getCell,
   getCellContent,
   getCellText,
+  setCellContent,
+  testUndoRedo,
 } from "../helpers";
-import { uuidv4, toZone, toCartesian } from "../../src/helpers";
-import { CancelledReason } from "../../src/types";
 
 describe("sheets", () => {
   test("can create a new sheet, then undo, then redo", () => {

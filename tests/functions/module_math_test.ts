@@ -1,5 +1,5 @@
-import { evaluateCell, evaluateCellText, evaluateGrid } from "../helpers";
 import { toNumber } from "../../src/functions/helpers";
+import { evaluateCell, evaluateCellText, evaluateGrid } from "../helpers";
 
 describe("ACOS formula", () => {
   test.each([

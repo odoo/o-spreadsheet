@@ -1,10 +1,10 @@
-import { tokenize } from "./tokenizer";
 import {
-  mergeSymbolsIntoRanges,
   EnrichedToken,
   enrichTokens,
   FunctionContext,
+  mergeSymbolsIntoRanges,
 } from "./range_tokenizer";
+import { tokenize } from "./tokenizer";
 
 /**
  * Take the result of the tokenizer and transform it to be usable in the composer.

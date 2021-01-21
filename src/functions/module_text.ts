@@ -1,7 +1,7 @@
-import { args } from "./arguments";
-import { AddFunctionDescription } from "../types";
-import { toNumber, toString, reduceArgs, toBoolean } from "./helpers";
 import { _lt } from "../translation";
+import { AddFunctionDescription } from "../types";
+import { args } from "./arguments";
+import { reduceArgs, toBoolean, toNumber, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // CHAR

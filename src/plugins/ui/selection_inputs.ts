@@ -1,9 +1,9 @@
-import { Command, LAYERS, Highlight, CancelledReason, CommandResult } from "../../types/index";
-import { Mode } from "../../model";
-import { uuidv4, getNextColor } from "../../helpers/index";
-import { SelectionMode } from "./selection";
 import { rangeReference } from "../../formulas/index";
+import { getNextColor, uuidv4 } from "../../helpers/index";
+import { Mode } from "../../model";
+import { CancelledReason, Command, CommandResult, Highlight, LAYERS } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
+import { SelectionMode } from "./selection";
 
 interface RangeInputValue {
   id: string;

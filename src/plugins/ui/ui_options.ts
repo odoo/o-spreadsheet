@@ -1,6 +1,6 @@
-import { UIPlugin } from "../ui_plugin";
-import { Command } from "../../types/index";
 import { Mode } from "../../model";
+import { Command } from "../../types/index";
+import { UIPlugin } from "../ui_plugin";
 
 export class UIOptionsPlugin extends UIPlugin {
   static modes: Mode[] = ["normal", "readonly"];

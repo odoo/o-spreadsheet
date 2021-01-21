@@ -1,4 +1,4 @@
-import { recomputeZones, overlap, toZone } from "../../src/helpers/index";
+import { overlap, recomputeZones, toZone } from "../../src/helpers/index";
 import { Zone } from "../../src/types";
 
 describe("overlap", () => {

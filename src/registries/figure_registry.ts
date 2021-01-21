@@ -1,6 +1,6 @@
-import { Registry } from "../registry";
-import { TextFigure } from "../components/figures/text_figure";
 import { ChartFigure } from "../components/figures/chart";
+import { TextFigure } from "../components/figures/text_figure";
+import { Registry } from "../registry";
 
 //------------------------------------------------------------------------------
 // Figure Registry

@@ -1,19 +1,19 @@
-import { Model, Mode } from "../src/model";
-import "./canvas.mock";
 import { WHistory } from "../src/history";
-import { CellPlugin } from "../src/plugins/core/cell";
-import { MergePlugin } from "../src/plugins/core/merge";
+import { Mode, Model } from "../src/model";
 import { BordersPlugin } from "../src/plugins/core/borders";
-import { ConditionalFormatPlugin } from "../src/plugins/core/conditional_format";
-import { corePluginRegistry, uiPluginRegistry } from "../src/plugins/index";
-import { FigurePlugin } from "../src/plugins/core/figures";
+import { CellPlugin } from "../src/plugins/core/cell";
 import { ChartPlugin } from "../src/plugins/core/chart";
-import { getCell, setCellContent } from "./helpers";
+import { ConditionalFormatPlugin } from "../src/plugins/core/conditional_format";
+import { FigurePlugin } from "../src/plugins/core/figures";
+import { MergePlugin } from "../src/plugins/core/merge";
+import { RangePlugin } from "../src/plugins/core/range";
 import { SheetPlugin } from "../src/plugins/core/sheet";
+import { corePluginRegistry, uiPluginRegistry } from "../src/plugins/index";
 import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
 import { UIPlugin } from "../src/plugins/ui_plugin";
-import { RangePlugin } from "../src/plugins/core/range";
+import "./canvas.mock";
+import { getCell, setCellContent } from "./helpers";
 
 function getNbrPlugin(mode: Mode): number {
   return (

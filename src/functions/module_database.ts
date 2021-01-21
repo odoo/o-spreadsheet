@@ -1,9 +1,9 @@
-import { args } from "./arguments";
-import { AddFunctionDescription } from "../types";
-import { visitMatchingRanges, toString } from "./helpers";
-import { COUNT, AVERAGE, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
-import { PRODUCT, SUM } from "./module_math";
 import { _lt } from "../translation";
+import { AddFunctionDescription } from "../types";
+import { args } from "./arguments";
+import { toString, visitMatchingRanges } from "./helpers";
+import { PRODUCT, SUM } from "./module_math";
+import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
 
 function getMatchingCells(database: any, field: any, criteria: any): any[] {
   // Exemple :

@@ -2,7 +2,7 @@ import { Model } from "../src";
 import { fontSizes } from "../src/fonts";
 import { FullMenuItem, topbarMenuRegistry } from "../src/registries/index";
 import { CommandResult, SpreadsheetEnv } from "../src/types";
-import { GridParent, makeTestFixture, nextTick, mockUuidV4To } from "./helpers";
+import { GridParent, makeTestFixture, mockUuidV4To, nextTick } from "./helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
 function getNode(_path: string[]): FullMenuItem {

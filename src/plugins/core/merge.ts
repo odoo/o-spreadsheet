@@ -1,4 +1,3 @@
-import { CorePlugin } from "../core_plugin";
 import {
   updateAddColumns,
   updateAddRows,
@@ -18,6 +17,7 @@ import {
   WorkbookData,
   Zone,
 } from "../../types/index";
+import { CorePlugin } from "../core_plugin";
 
 interface PendingMerges {
   sheet: string;

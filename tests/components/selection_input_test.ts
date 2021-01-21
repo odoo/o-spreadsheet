@@ -1,8 +1,8 @@
-import { makeTestFixture, nextTick } from "../helpers";
+import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { SelectionInput } from "../../src/components/selection_input";
-import { Component, tags, hooks } from "@odoo/owl";
 import { simulateClick } from "../dom_helper";
+import { makeTestFixture, nextTick } from "../helpers";
 
 const { xml } = tags;
 const { useSubEnv, useRef } = hooks;

@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
-import "../canvas.mock";
 import { Viewport } from "../../src/types";
+import "../canvas.mock";
 
 const viewport: Viewport = {
   left: 0,

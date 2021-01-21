@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { toCartesian } from "../../src/helpers";
-import { SearchOptions, ReplaceOptions } from "../../src/plugins/ui/find_and_replace";
+import { ReplaceOptions, SearchOptions } from "../../src/plugins/ui/find_and_replace";
 import "../canvas.mock";
 import { getCellContent, getCellText } from "../helpers";
 

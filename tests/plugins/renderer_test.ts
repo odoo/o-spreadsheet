@@ -1,8 +1,8 @@
-import { Model } from "../../src/model";
-import { MockCanvasRenderingContext2D } from "../canvas.mock";
-import { Viewport, GridRenderingContext } from "../../src/types";
 import { toZone } from "../../src/helpers";
-import { setCellContent, mockUuidV4To, createEqualCF } from "../helpers";
+import { Model } from "../../src/model";
+import { GridRenderingContext, Viewport } from "../../src/types";
+import { MockCanvasRenderingContext2D } from "../canvas.mock";
+import { createEqualCF, mockUuidV4To, setCellContent } from "../helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {
   return { width: 100 };

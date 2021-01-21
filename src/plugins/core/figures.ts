@@ -1,6 +1,6 @@
+import { isDefined, uuidv4 } from "../../helpers/index";
+import { Command, Figure, UID, Viewport, WorkbookData } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
-import { Command, WorkbookData, Figure, Viewport, UID } from "../../types/index";
-import { uuidv4, isDefined } from "../../helpers/index";
 
 interface FigureState {
   readonly figures: Record<UID, Figure<any> | undefined>;

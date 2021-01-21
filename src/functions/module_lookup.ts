@@ -1,13 +1,13 @@
-import { args } from "./arguments";
+import { toZone } from "../helpers/index";
+import { _lt } from "../translation";
 import { AddFunctionDescription } from "../types";
+import { args } from "./arguments";
 import {
-  toNumber,
-  toBoolean,
   dichotomicPredecessorSearch,
   dichotomicSuccessorSearch,
+  toBoolean,
+  toNumber,
 } from "./helpers";
-import { _lt } from "../translation";
-import { toZone } from "../helpers/index";
 
 /**
  * Perform a linear search and return the index of the perfect match.

@@ -1,6 +1,6 @@
-import { Command, LAYERS, Zone, GridRenderingContext, Highlight } from "../../types/index";
-import { toZone, getNextColor, isEqual } from "../../helpers/index";
+import { getNextColor, isEqual, toZone } from "../../helpers/index";
 import { Mode } from "../../model";
+import { Command, GridRenderingContext, Highlight, LAYERS, Zone } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 /**

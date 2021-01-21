@@ -1,4 +1,4 @@
-import { range, groupConsecutive } from "../../src/helpers/misc";
+import { groupConsecutive, range } from "../../src/helpers/misc";
 
 describe("Misc", () => {
   test("range", () => {
