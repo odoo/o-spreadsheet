@@ -1,4 +1,4 @@
-import { CorePlugin } from "../core_plugin";
+import { compile, normalize } from "../../formulas/index";
 import {
   toZone,
   updateAddColumns,
@@ -7,20 +7,19 @@ import {
   updateRemoveRows,
 } from "../../helpers/index";
 import {
+  CancelledReason,
+  ColorScaleMidPointThreshold,
+  ColorScaleRule,
+  ColorScaleThreshold,
   Command,
+  CommandResult,
   ConditionalFormat,
+  SingleColorRules,
+  UID,
   WorkbookData,
   Zone,
-  UID,
-  CancelledReason,
-  ColorScaleRule,
-  SingleColorRules,
-  CommandResult,
-  ColorScaleThreshold,
-  ColorScaleMidPointThreshold,
 } from "../../types/index";
-import { _lt } from "../../translation";
-import { compile, normalize } from "../../formulas/index";
+import { CorePlugin } from "../core_plugin";
 
 // -----------------------------------------------------------------------------
 // Constants

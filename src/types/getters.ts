@@ -1,25 +1,25 @@
-import { MergePlugin } from "../plugins/core/merge";
-import { ClipboardPlugin } from "../plugins/ui/clipboard";
-import { SelectionPlugin } from "../plugins/ui/selection";
-import { CellPlugin } from "../plugins/core/cell";
-import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
-import { RendererPlugin } from "../plugins/ui/renderer";
-import { BordersPlugin } from "../plugins/core/borders";
 import { WHistory } from "../history";
-import { RangePlugin } from "../plugins/core/range";
-import { EvaluationPlugin } from "../plugins/ui/evaluation";
-import { EditionPlugin } from "../plugins/ui/edition";
-import { AutofillPlugin } from "../plugins/ui/autofill";
-import { HighlightPlugin } from "../plugins/ui/highlight";
-import { SelectionInputPlugin } from "../plugins/ui/selection_inputs";
+import { BordersPlugin } from "../plugins/core/borders";
+import { CellPlugin } from "../plugins/core/cell";
+import { ChartPlugin } from "../plugins/core/chart";
+import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { FigurePlugin } from "../plugins/core/figures";
+import { MergePlugin } from "../plugins/core/merge";
+import { RangePlugin } from "../plugins/core/range";
 import { SheetPlugin } from "../plugins/core/sheet";
-import { FindAndReplacePlugin } from "../plugins/ui/find_and_replace";
-import { SheetUIPlugin } from "../plugins/ui/ui_sheet";
-import { UIOptionsPlugin } from "../plugins/ui/ui_options";
+import { AutofillPlugin } from "../plugins/ui/autofill";
+import { ClipboardPlugin } from "../plugins/ui/clipboard";
+import { EditionPlugin } from "../plugins/ui/edition";
+import { EvaluationPlugin } from "../plugins/ui/evaluation";
 import { EvaluationChartPlugin } from "../plugins/ui/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "../plugins/ui/evaluation_conditional_format";
-import { ChartPlugin } from "../plugins/core/chart";
+import { FindAndReplacePlugin } from "../plugins/ui/find_and_replace";
+import { HighlightPlugin } from "../plugins/ui/highlight";
+import { RendererPlugin } from "../plugins/ui/renderer";
+import { SelectionPlugin } from "../plugins/ui/selection";
+import { SelectionInputPlugin } from "../plugins/ui/selection_inputs";
+import { UIOptionsPlugin } from "../plugins/ui/ui_options";
+import { SheetUIPlugin } from "../plugins/ui/ui_sheet";
 
 // -----------------------------------------------------------------------------
 // Getters

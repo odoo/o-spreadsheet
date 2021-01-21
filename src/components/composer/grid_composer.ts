@@ -1,8 +1,7 @@
 import * as owl from "@odoo/owl";
-import { SpreadsheetEnv, Zone, Rect, Viewport } from "../../types/index";
-
-import { Composer } from "./composer";
 import { fontSizeMap } from "../../fonts";
+import { Rect, SpreadsheetEnv, Viewport, Zone } from "../../types/index";
+import { Composer } from "./composer";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;

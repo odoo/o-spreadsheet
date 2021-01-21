@@ -1,6 +1,6 @@
-import { SheetData, WorkbookData } from "./types/index";
-import { uuidv4 } from "./helpers/index";
 import { normalize } from "./formulas/index";
+import { uuidv4 } from "./helpers/index";
+import { SheetData, WorkbookData } from "./types/index";
 
 /**
  * This is the current state version number. It should be incremented each time

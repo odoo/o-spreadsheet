@@ -1,16 +1,16 @@
-import { isEqual, union, clip, formatStandardNumber } from "../../helpers/index";
-import {
-  Command,
-  Zone,
-  Cell,
-  LAYERS,
-  GridRenderingContext,
-  CommandResult,
-  CancelledReason,
-  Style,
-} from "../../types/index";
-import { Mode } from "../../model";
 import { SELECTION_BORDER_COLOR } from "../../constants";
+import { clip, formatStandardNumber, isEqual, union } from "../../helpers/index";
+import { Mode } from "../../model";
+import {
+  CancelledReason,
+  Cell,
+  Command,
+  CommandResult,
+  GridRenderingContext,
+  LAYERS,
+  Style,
+  Zone,
+} from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 export interface Selection {

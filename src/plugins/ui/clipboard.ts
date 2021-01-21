@@ -1,6 +1,8 @@
 import { clip } from "../../helpers/index";
 import { Mode } from "../../model";
+import { _lt } from "../../translation";
 import {
+  Border,
   CancelledReason,
   Cell,
   CellType,
@@ -11,9 +13,7 @@ import {
   Sheet,
   UID,
   Zone,
-  Border,
 } from "../../types/index";
-import { _lt } from "../../translation";
 import { UIPlugin } from "../ui_plugin";
 
 interface ClipboardCell {

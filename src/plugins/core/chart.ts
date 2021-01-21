@@ -1,15 +1,15 @@
+import { rangeReference } from "../../formulas/parser";
+import { toXC, toZone, zoneToXc } from "../../helpers/index";
 import {
-  Command,
+  CancelledReason,
   ChartDefinition,
+  Command,
+  CommandResult,
   CreateChartDefinition,
   DataSet,
-  Zone,
-  CommandResult,
-  CancelledReason,
   WorkbookData,
+  Zone,
 } from "../../types/index";
-import { toXC, toZone, zoneToXc } from "../../helpers/index";
-import { rangeReference } from "../../formulas/parser";
 import { CorePlugin } from "../core_plugin";
 
 /**

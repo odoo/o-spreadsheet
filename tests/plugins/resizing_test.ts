@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
-import "../canvas.mock";
 import { CancelledReason } from "../../src/types";
+import "../canvas.mock";
 
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {

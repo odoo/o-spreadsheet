@@ -1,8 +1,8 @@
-import { Zone, Style, BorderCommand, ConditionalFormat, CreateChartDefinition } from "./index";
+import { ComposerSelection } from "../plugins/ui/edition";
+import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
+import { BorderCommand, ConditionalFormat, CreateChartDefinition, Style, Zone } from "./index";
 import { Border, Cell, UID } from "./misc";
 import { Figure } from "./workbook_data";
-import { ComposerSelection } from "../plugins/ui/edition";
-import { SearchOptions, ReplaceOptions } from "../plugins/ui/find_and_replace";
 
 // -----------------------------------------------------------------------------
 // Grid commands

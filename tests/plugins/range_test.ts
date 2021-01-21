@@ -1,10 +1,10 @@
-import "../canvas.mock";
 import { Model } from "../../src";
-import { corePluginRegistry } from "../../src/plugins";
-import { BaseCommand, Command, Range } from "../../src/types";
-import { CorePlugin } from "../../src/plugins/core_plugin";
-import { INCORRECT_RANGE_STRING } from "../../src/plugins/core/range";
 import { toZone } from "../../src/helpers";
+import { corePluginRegistry } from "../../src/plugins";
+import { INCORRECT_RANGE_STRING } from "../../src/plugins/core/range";
+import { CorePlugin } from "../../src/plugins/core_plugin";
+import { BaseCommand, Command, Range } from "../../src/types";
+import "../canvas.mock";
 
 let m;
 let notificationSpy;

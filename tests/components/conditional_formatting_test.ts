@@ -1,16 +1,16 @@
+import { Model } from "../../src";
 import { CommandResult } from "../../src/types";
-import { triggerMouseEvent, setInputValueAndTrigger } from "../dom_helper";
+import "../canvas.mock";
+import { setInputValueAndTrigger, triggerMouseEvent } from "../dom_helper";
 import {
+  createColorScale,
+  createEqualCF,
   GridParent,
   makeTestFixture,
-  createEqualCF,
-  createColorScale,
   mockUuidV4To,
-  target,
   nextTick,
+  target,
 } from "../helpers";
-import "../canvas.mock";
-import { Model } from "../../src";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;

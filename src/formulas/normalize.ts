@@ -1,6 +1,6 @@
 import { NormalizedFormula } from "../types";
-import { rangeTokenize } from "./range_tokenizer";
 import { cellReference } from "./parser";
+import { rangeTokenize } from "./range_tokenizer";
 import { FORMULA_REF_IDENTIFIER } from "./tokenizer";
 
 /**

@@ -1,8 +1,8 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
+import { CancelledReason } from "../../src/types";
 import "../canvas.mock";
 import { getActiveXc } from "../helpers";
-import { CancelledReason } from "../../src/types";
 
 describe("selection", () => {
   test("if A1 is in a merge, it is initially properly selected", () => {

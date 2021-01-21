@@ -1,7 +1,7 @@
-import { FORMULA_REF_IDENTIFIER, Token, tokenize } from "./tokenizer";
 import { functionRegistry } from "../functions/index";
 import { parseNumber } from "../helpers/index";
 import { _lt } from "../translation";
+import { FORMULA_REF_IDENTIFIER, Token, tokenize } from "./tokenizer";
 
 const functions = functionRegistry.content;
 

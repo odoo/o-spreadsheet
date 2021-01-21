@@ -1,18 +1,18 @@
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { Style, CancelledReason } from "../../src/types/index";
+import { CancelledReason, Style } from "../../src/types/index";
 import "../canvas.mock";
 import {
   getActiveXc,
-  getCellContent,
   getBorder,
   getCell,
+  getCellContent,
   getMergeCellMap,
   getMerges,
   setCellContent,
   target,
-  XCToMergeCellMap,
   toPosition,
+  XCToMergeCellMap,
 } from "../helpers";
 
 function getCellsXC(model: Model): string[] {

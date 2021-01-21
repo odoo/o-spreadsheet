@@ -1,10 +1,10 @@
-import { tokenize, composerTokenize, rangeReference, EnrichedToken } from "../../formulas/index";
+import { DATETIME_FORMAT } from "../../constants";
+import { composerTokenize, EnrichedToken, rangeReference, tokenize } from "../../formulas/index";
 import { formatDateTime } from "../../functions/dates";
 import { colors, getComposerSheetName } from "../../helpers/index";
-import { Command, LAYERS, CancelledReason, CommandResult, CellType, Cell } from "../../types/index";
 import { Mode } from "../../model";
+import { CancelledReason, Cell, CellType, Command, CommandResult, LAYERS } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
-import { DATETIME_FORMAT } from "../../constants";
 
 export type EditionMode = "editing" | "selecting" | "inactive" | "resettingPosition";
 

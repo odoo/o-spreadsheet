@@ -1,17 +1,17 @@
 import { Component, hooks, tags } from "@odoo/owl";
+import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
-import {
-  makeTestFixture,
-  nextTick,
-  MockClipboard,
-  typeInComposer,
-  setCellContent,
-} from "../helpers";
-import { Model } from "../../src";
+import { DEBUG } from "../../src/helpers";
 import { SelectionMode } from "../../src/plugins/ui/selection";
 import { triggerMouseEvent } from "../dom_helper";
-import { DEBUG } from "../../src/helpers";
+import {
+  makeTestFixture,
+  MockClipboard,
+  nextTick,
+  setCellContent,
+  typeInComposer,
+} from "../helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );

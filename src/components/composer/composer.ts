@@ -1,12 +1,12 @@
 import * as owl from "@odoo/owl";
-import { EnrichedToken, composerTokenize, rangeReference } from "../../formulas/index";
-import { SpreadsheetEnv, FunctionDescription } from "../../types/index";
-import { TextValueProvider } from "./autocomplete_dropdown";
-import { FunctionDescriptionProvider } from "./formula_assistant";
-import { ContentEditableHelper } from "./content_editable_helper";
-import { zoneToXc, DEBUG } from "../../helpers/index";
-import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
+import { composerTokenize, EnrichedToken, rangeReference } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
+import { DEBUG, zoneToXc } from "../../helpers/index";
+import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
+import { FunctionDescription, SpreadsheetEnv } from "../../types/index";
+import { TextValueProvider } from "./autocomplete_dropdown";
+import { ContentEditableHelper } from "./content_editable_helper";
+import { FunctionDescriptionProvider } from "./formula_assistant";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;

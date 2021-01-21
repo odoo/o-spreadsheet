@@ -1,13 +1,13 @@
 import * as owl from "@odoo/owl";
 import { BOTTOMBAR_HEIGHT, TOPBAR_HEIGHT } from "../constants";
 import { Model } from "../model";
+import { ComposerSelection } from "../plugins/ui/edition";
+import { SelectionMode } from "../plugins/ui/selection";
 import { BottomBar } from "./bottom_bar";
+import { ComposerFocusedEvent } from "./composer/composer";
 import { Grid } from "./grid";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
-import { SelectionMode } from "../plugins/ui/selection";
-import { ComposerSelection } from "../plugins/ui/edition";
-import { ComposerFocusedEvent } from "./composer/composer";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;

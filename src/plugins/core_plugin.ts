@@ -1,5 +1,5 @@
 import { WHistory } from "../history";
-import { ModelConfig, Mode } from "../model";
+import { Mode, ModelConfig } from "../model";
 import { CommandDispatcher, WorkbookData } from "../types";
 import { CoreGetters } from "../types/getters";
 import { BasePlugin } from "./base_plugin";

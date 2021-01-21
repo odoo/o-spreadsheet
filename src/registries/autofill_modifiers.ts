@@ -1,14 +1,14 @@
-import {
-  Getters,
-  DIRECTION,
-  AutofillModifier,
-  IncrementModifier,
-  CopyModifier,
-  FormulaModifier,
-  Tooltip,
-  AutofillCellData,
-} from "../types/index";
 import { Registry } from "../registry";
+import {
+  AutofillCellData,
+  AutofillModifier,
+  CopyModifier,
+  DIRECTION,
+  FormulaModifier,
+  Getters,
+  IncrementModifier,
+  Tooltip,
+} from "../types/index";
 
 /**
  * An AutofillModifierImplementation is used to describe how to handle a

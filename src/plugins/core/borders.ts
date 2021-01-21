@@ -1,18 +1,18 @@
 import { DEFAULT_BORDER_DESC } from "../../constants";
-import { stringify, toXC, toZone, range, toCartesian } from "../../helpers/index";
+import { range, stringify, toCartesian, toXC, toZone } from "../../helpers/index";
 import {
+  AddColumnsCommand,
+  AddRowsCommand,
   Border,
   BorderCommand,
+  BorderDescription,
+  CancelledReason,
   Command,
+  CommandResult,
+  Sheet,
   UID,
   WorkbookData,
   Zone,
-  Sheet,
-  CommandResult,
-  CancelledReason,
-  BorderDescription,
-  AddRowsCommand,
-  AddColumnsCommand,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 

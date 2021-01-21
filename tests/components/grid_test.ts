@@ -1,17 +1,17 @@
+import { Grid } from "../../src/components/grid";
+import { toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
+import { simulateClick, triggerMouseEvent } from "../dom_helper";
 import {
-  makeTestFixture,
-  GridParent,
-  nextTick,
   getActiveXc,
   getCell,
-  Touch,
-  setCellContent,
   getCellContent,
+  GridParent,
+  makeTestFixture,
+  nextTick,
+  setCellContent,
+  Touch,
 } from "../helpers";
-import { toZone } from "../../src/helpers/index";
-import { triggerMouseEvent, simulateClick } from "../dom_helper";
-import { Grid } from "../../src/components/grid";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );

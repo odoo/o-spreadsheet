@@ -1,10 +1,10 @@
 import * as owl from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../constants";
-import { SpreadsheetEnv } from "../types";
-import { PLUS, LIST, TRIANGLE_DOWN_ICON } from "./icons";
-import { MenuState, Menu } from "./menu";
-import { sheetMenuRegistry, MenuItemRegistry } from "../registries/index";
 import { uuidv4 } from "../helpers/index";
+import { MenuItemRegistry, sheetMenuRegistry } from "../registries/index";
+import { SpreadsheetEnv } from "../types";
+import { LIST, PLUS, TRIANGLE_DOWN_ICON } from "./icons";
+import { Menu, MenuState } from "./menu";
 const { Component } = owl;
 const { xml, css } = owl.tags;
 const { useState } = owl.hooks;

@@ -1,22 +1,22 @@
+import { clip, isInside, toCartesian, toXC, union } from "../../helpers/index";
 import { Mode } from "../../model";
+import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
 import {
+  AutofillCellData,
   AutofillModifier,
+  AutofillResult,
+  CancelledReason,
   Cell,
   Command,
+  CommandResult,
   DIRECTION,
+  GeneratorCell,
   Getters,
   GridRenderingContext,
   LAYERS,
-  Zone,
-  CancelledReason,
-  CommandResult,
   Tooltip,
-  GeneratorCell,
-  AutofillResult,
-  AutofillCellData,
+  Zone,
 } from "../../types/index";
-import { union, toCartesian, toXC, isInside, clip } from "../../helpers/index";
-import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
 import { UIPlugin } from "../ui_plugin";
 
 /**

@@ -1,18 +1,18 @@
+import { toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CancelledReason, Zone, ConditionalFormat, Style } from "../../src/types/index";
-import "../canvas.mock";
 import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
+import { CancelledReason, ConditionalFormat, Style, Zone } from "../../src/types/index";
+import "../canvas.mock";
 import {
+  getBorder,
   getCell,
   getCellContent,
   getCellText,
-  getBorder,
   getGrid,
   setCellContent,
   target,
   zone,
 } from "../helpers";
-import { toCartesian } from "../../src/helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);

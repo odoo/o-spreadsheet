@@ -1,7 +1,7 @@
 import { Model } from "../../src/model";
-import { waitForRecompute, getCell, setCellContent, getCellContent } from "../helpers";
 import { LOADING } from "../../src/plugins/ui/evaluation";
 import { CancelledReason } from "../../src/types";
+import { getCell, getCellContent, setCellContent, waitForRecompute } from "../helpers";
 
 describe("core", () => {
   describe("aggregate", () => {

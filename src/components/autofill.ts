@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
-import { SpreadsheetEnv, Viewport } from "../types";
 import { clip } from "../helpers/misc";
+import { SpreadsheetEnv, Viewport } from "../types";
 import { startDnd } from "./helpers/drag_and_drop";
 
 const { Component } = owl;

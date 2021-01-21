@@ -1,4 +1,13 @@
-import { CorePlugin } from "../core_plugin";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
+import { cellReference, rangeTokenize } from "../../formulas/index";
+import {
+  getComposerSheetName,
+  groupConsecutive,
+  isDefined,
+  numberToLetters,
+  toCartesian,
+} from "../../helpers/index";
+import { _lt } from "../../translation";
 import {
   CancelledReason,
   Cell,
@@ -16,16 +25,7 @@ import {
   WorkbookData,
   Zone,
 } from "../../types/index";
-import { _lt } from "../../translation";
-import {
-  getComposerSheetName,
-  groupConsecutive,
-  isDefined,
-  numberToLetters,
-  toCartesian,
-} from "../../helpers/index";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
-import { cellReference, rangeTokenize } from "../../formulas/index";
+import { CorePlugin } from "../core_plugin";
 import { INCORRECT_RANGE_STRING } from "./range";
 
 export interface SheetState {

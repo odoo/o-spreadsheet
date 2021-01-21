@@ -14,6 +14,7 @@ import {
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { overlap } from "../../helpers/index";
+import { Mode } from "../../model";
 import {
   Box,
   Cell,
@@ -25,7 +26,6 @@ import {
   Viewport,
   Zone,
 } from "../../types/index";
-import { Mode } from "../../model";
 import { UIPlugin } from "../ui_plugin";
 
 // -----------------------------------------------------------------------------

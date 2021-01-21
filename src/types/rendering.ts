@@ -1,4 +1,4 @@
-import { Style, Border, Zone, Align } from "./misc";
+import { Align, Border, Style, Zone } from "./misc";
 
 export type Rect = [number, number, number, number];
 

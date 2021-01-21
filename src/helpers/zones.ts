@@ -1,4 +1,4 @@
-import { Zone, Sheet, Cell } from "../types";
+import { Cell, Sheet, Zone } from "../types";
 import { toCartesian, toXC } from "./coordinates";
 
 /**

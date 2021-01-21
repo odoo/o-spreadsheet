@@ -1,22 +1,22 @@
 import * as owl from "@odoo/owl";
 import { createEmptyWorkbookData, load } from "./data";
-import { WHistory } from "./history";
-import {
-  CommandDispatcher,
-  CommandHandler,
-  Getters,
-  Command,
-  WorkbookData,
-  GridRenderingContext,
-  LAYERS,
-  CommandSuccess,
-  EvalContext,
-} from "./types/index";
-import { _lt } from "./translation";
 import { DEBUG, setIsFastStrategy } from "./helpers/index";
+import { WHistory } from "./history";
+import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
-import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
+import { _lt } from "./translation";
+import {
+  Command,
+  CommandDispatcher,
+  CommandHandler,
+  CommandSuccess,
+  EvalContext,
+  Getters,
+  GridRenderingContext,
+  LAYERS,
+  WorkbookData,
+} from "./types/index";
 
 /**
  * Model

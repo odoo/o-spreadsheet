@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
-import { SpreadsheetEnv } from "../types";
 import { uuidv4 } from "../helpers/index";
+import { SpreadsheetEnv } from "../types";
 
 const { Component } = owl;
 

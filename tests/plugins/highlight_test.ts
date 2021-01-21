@@ -1,7 +1,7 @@
 import { Model } from "../../src";
-import "../canvas.mock";
-import { HighlightPlugin } from "../../src/plugins/ui/highlight";
 import { toZone } from "../../src/helpers";
+import { HighlightPlugin } from "../../src/plugins/ui/highlight";
+import "../canvas.mock";
 
 let model: Model;
 

@@ -1,11 +1,11 @@
-import { UIPlugin } from "../ui_plugin";
-import { Command } from "../../types/commands";
 import { ChartConfiguration, ChartType } from "chart.js";
-import { ChartDefinition } from "../../types/chart";
 import { chartTerms } from "../../components/side_panel/translations_terms";
-import { UID } from "../../types/misc";
 import { isInside, toZone } from "../../helpers/index";
 import { Mode } from "../../model";
+import { ChartDefinition } from "../../types/chart";
+import { Command } from "../../types/commands";
+import { UID } from "../../types/misc";
+import { UIPlugin } from "../ui_plugin";
 
 const GraphColors = [
   // the same colors as those used in odoo reporting

@@ -1,7 +1,7 @@
 import { toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
-import { createEqualCF, createColorScale, setCellContent } from "../helpers";
+import { createColorScale, createEqualCF, setCellContent } from "../helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;

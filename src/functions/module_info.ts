@@ -1,6 +1,6 @@
-import { args } from "./arguments";
-import { AddFunctionDescription } from "../types";
 import { _lt } from "../translation";
+import { AddFunctionDescription } from "../types";
+import { args } from "./arguments";
 
 // -----------------------------------------------------------------------------
 // ISERROR

@@ -1,6 +1,6 @@
-import { Cell, AutofillModifier, FormulaCell, OtherCell, CellType } from "../types/index";
-import { Registry } from "../registry";
 import { DATETIME_FORMAT } from "../constants";
+import { Registry } from "../registry";
+import { AutofillModifier, Cell, CellType, FormulaCell, OtherCell } from "../types/index";
 
 /**
  * An AutofillRule is used to generate what to do when we need to autofill

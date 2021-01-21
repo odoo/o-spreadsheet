@@ -1,10 +1,10 @@
 import {
-  parseNumber,
-  isNumber,
-  formatStandardNumber,
   formatDecimal,
-  formatPercent,
   formatNumber,
+  formatPercent,
+  formatStandardNumber,
+  isNumber,
+  parseNumber,
 } from "../../src/helpers/index";
 
 describe("isNumber", () => {

@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { sidePanelRegistry, SidePanelContent } from "../../registries/side_panel_registry";
+import { SidePanelContent, sidePanelRegistry } from "../../registries/side_panel_registry";
 import { SpreadsheetEnv } from "../../types";
 
 const { Component } = owl;

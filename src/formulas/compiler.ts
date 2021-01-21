@@ -1,7 +1,7 @@
 import { functionRegistry } from "../functions/index";
-import { CompiledFormula, NormalizedFormula, FunctionDescription } from "../types/index";
-import { AST, ASTAsyncFuncall, ASTFuncall, parse } from "./parser";
 import { _lt } from "../translation";
+import { CompiledFormula, FunctionDescription, NormalizedFormula } from "../types/index";
+import { AST, ASTAsyncFuncall, ASTFuncall, parse } from "./parser";
 
 const functions = functionRegistry.content;
 

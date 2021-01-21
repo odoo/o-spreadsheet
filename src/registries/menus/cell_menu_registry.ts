@@ -1,7 +1,7 @@
 import { _lt } from "../../translation";
+import { SpreadsheetEnv } from "../../types";
 import { MenuItemRegistry } from "../menu_items_registry";
 import * as ACTIONS from "./menu_items_actions";
-import { SpreadsheetEnv } from "../../types";
 
 //------------------------------------------------------------------------------
 // Context Menu Registry

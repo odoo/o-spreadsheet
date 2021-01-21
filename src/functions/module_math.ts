@@ -1,14 +1,14 @@
-import { args } from "./arguments";
+import { _lt } from "../translation";
 import { AddFunctionDescription, ReturnFormatType } from "../types";
+import { args } from "./arguments";
 import {
-  toNumber,
-  strictToNumber,
-  toString,
   reduceArgs,
   reduceNumbers,
+  strictToNumber,
+  toNumber,
+  toString,
   visitMatchingRanges,
 } from "./helpers";
-import { _lt } from "../translation";
 
 // -----------------------------------------------------------------------------
 // ACOS

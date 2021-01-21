@@ -1,6 +1,6 @@
-import { Component, tags, hooks } from "@odoo/owl";
-import { Figure, SpreadsheetEnv, ChartDefinition } from "../../types";
+import { Component, hooks, tags } from "@odoo/owl";
 import Chart from "chart.js";
+import { ChartDefinition, Figure, SpreadsheetEnv } from "../../types";
 
 const { xml, css } = tags;
 const { useRef } = hooks;

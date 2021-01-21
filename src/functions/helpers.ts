@@ -1,7 +1,7 @@
 // HELPERS
 
-import { parseNumber, isNumber } from "../helpers/numbers";
-import { parseDateTime, numberToJsDate } from "../functions/dates";
+import { numberToJsDate, parseDateTime } from "../functions/dates";
+import { isNumber, parseNumber } from "../helpers/numbers";
 import { _lt } from "../translation";
 
 const expectNumberValueError = (value: string) =>

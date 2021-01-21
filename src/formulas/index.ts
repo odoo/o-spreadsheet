@@ -7,9 +7,9 @@
  * - compiler (getting an executable function representing a formula)
  */
 
-export { tokenize, Token } from "./tokenizer";
-export { composerTokenize } from "./composer_tokenizer";
-export { rangeTokenize, EnrichedToken, FunctionContext } from "./range_tokenizer";
-export { parse, rangeReference, cellReference } from "./parser";
 export { compile } from "./compiler";
+export { composerTokenize } from "./composer_tokenizer";
 export { normalize } from "./normalize";
+export { cellReference, parse, rangeReference } from "./parser";
+export { EnrichedToken, FunctionContext, rangeTokenize } from "./range_tokenizer";
+export { Token, tokenize } from "./tokenizer";

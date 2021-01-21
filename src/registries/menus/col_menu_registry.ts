@@ -1,6 +1,6 @@
+import { _lt } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
 import * as ACTIONS from "./menu_items_actions";
-import { _lt } from "../../translation";
 
 export const colMenuRegistry = new MenuItemRegistry();
 

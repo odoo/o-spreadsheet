@@ -1,21 +1,21 @@
-import { UIPlugin } from "../ui_plugin";
+import { colorNumberString, isInside, recomputeZones, toXC, toZone } from "../../helpers/index";
+import { clip } from "../../helpers/misc";
+import { Mode } from "../../model";
+import { _lt } from "../../translation";
 import {
   Cell,
   CellIsRule,
   CellType,
+  ColorScaleMidPointThreshold,
   ColorScaleRule,
+  ColorScaleThreshold,
   Command,
   ConditionalFormat,
-  ColorScaleThreshold,
-  ColorScaleMidPointThreshold,
   Style,
   UID,
   Zone,
 } from "../../types/index";
-import { _lt } from "../../translation";
-import { clip } from "../../helpers/misc";
-import { toXC, toZone, colorNumberString, recomputeZones, isInside } from "../../helpers/index";
-import { Mode } from "../../model";
+import { UIPlugin } from "../ui_plugin";
 
 // -----------------------------------------------------------------------------
 // Constants

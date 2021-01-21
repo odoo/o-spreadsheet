@@ -1,20 +1,19 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { TopBar } from "../../src/components/top_bar";
+import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { Model } from "../../src/model";
+import { topbarComponentRegistry } from "../../src/registries";
+import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
+import { ConditionalFormat } from "../../src/types";
+import { triggerMouseEvent } from "../dom_helper";
 import {
+  getBorder,
   getCell,
+  GridParent,
   makeTestFixture,
   nextTick,
-  GridParent,
   setCellContent,
-  getBorder,
 } from "../helpers";
-import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
-import { triggerMouseEvent } from "../dom_helper";
-import { DEFAULT_FONT_SIZE } from "../../src/constants";
-import { ConditionalFormat } from "../../src/types";
-import { _lt } from "../../src/translation";
-import { topbarComponentRegistry } from "../../src/registries";
 
 const { xml } = tags;
 const { useSubEnv } = hooks;

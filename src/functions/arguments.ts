@@ -1,5 +1,5 @@
-import { ArgType, Arg, AddFunctionDescription, FunctionDescription } from "../types";
 import { _lt } from "../translation";
+import { AddFunctionDescription, Arg, ArgType, FunctionDescription } from "../types";
 
 //------------------------------------------------------------------------------
 // Arg description DSL

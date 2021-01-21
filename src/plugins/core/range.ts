@@ -1,13 +1,13 @@
-import { ChangeType, Command, onRangeChange, Range, RangePart, UID } from "../../types/index";
 import {
   getComposerSheetName,
+  getUnquotedSheetName,
+  groupConsecutive,
   isDefined,
   numberToLetters,
   toZone,
   uuidv4,
-  groupConsecutive,
-  getUnquotedSheetName,
 } from "../../helpers/index";
+import { ChangeType, Command, onRangeChange, Range, RangePart, UID } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
 interface RangeState {

@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
-import { SelectionInput } from "../selection_input";
-import { ChartTypes, SpreadsheetEnv, ChartFigure, CreateChartDefinition } from "../../types/index";
 import { uuidv4 } from "../../helpers/index";
+import { ChartFigure, ChartTypes, CreateChartDefinition, SpreadsheetEnv } from "../../types/index";
+import { SelectionInput } from "../selection_input";
 import { chartTerms } from "./translations_terms";
 
 const { Component, useState } = owl;
