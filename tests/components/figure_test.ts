@@ -1,11 +1,11 @@
+import { Component, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { corePluginRegistry } from "../../src/plugins";
 import { CorePlugin } from "../../src/plugins/core_plugin";
+import { figureRegistry } from "../../src/registries/figure_registry";
 import { BaseCommand, Command, Figure, SpreadsheetEnv, UID } from "../../src/types";
 import { simulateClick } from "../dom_helper";
-import { nextTick, getCellContent, GridParent, setCellContent, makeTestFixture } from "../helpers";
-import { Component, tags } from "@odoo/owl";
-import { figureRegistry } from "../../src/registries/figure_registry";
+import { getCellContent, GridParent, makeTestFixture, nextTick, setCellContent } from "../helpers";
 
 jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
@@ -159,5 +159,54 @@ describe("figures", () => {
     });
     await nextTick();
     expect(fixture.querySelectorAll(".o-figure")).toHaveLength(1);
+  });
+
+  test("Can move a figure with keyboard", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_TEXT_FIGURE", {
+      sheetId,
+      id: "someuuid",
+      text: "Hello",
+    });
+    let figure = model.getters.getFigure(sheetId, "someuuid");
+    expect(figure).toMatchObject({ id: "someuuid", x: 1, y: 1 });
+    await nextTick();
+    const figureContainer = fixture.querySelector(".o-figure")!;
+    await simulateClick(".o-figure");
+    await nextTick();
+    const selectedFigure = model.getters.getSelectedFigureId();
+    expect(selectedFigure).toBe("someuuid");
+    //down
+    figureContainer.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })
+    );
+    figureContainer.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })
+    );
+    await nextTick();
+    figure = model.getters.getFigure(sheetId, "someuuid");
+    expect(figure).toMatchObject({ id: "someuuid", x: 1, y: 3 });
+    //right
+    figureContainer.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
+    );
+    figureContainer.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
+    );
+    await nextTick();
+    figure = model.getters.getFigure(sheetId, "someuuid");
+    expect(figure).toMatchObject({ id: "someuuid", x: 3, y: 3 });
+    //left
+    figureContainer.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true })
+    );
+    await nextTick();
+    figure = model.getters.getFigure(sheetId, "someuuid");
+    expect(figure).toMatchObject({ id: "someuuid", x: 2, y: 3 });
+    //up
+    figureContainer.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
+    await nextTick();
+    figure = model.getters.getFigure(sheetId, "someuuid");
+    expect(figure).toMatchObject({ id: "someuuid", x: 2, y: 2 });
   });
 });
