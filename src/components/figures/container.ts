@@ -279,15 +279,29 @@ export class FiguresContainer extends Component<
   }
 
   onKeyDown(figure: Figure, ev: KeyboardEvent) {
+    ev.preventDefault();
     switch (ev.key) {
       case "Delete":
-        ev.preventDefault();
         this.dispatch("DELETE_FIGURE", { sheetId: this.getters.getActiveSheetId(), id: figure.id });
         this.trigger("figure-deleted");
-        if (this.props.sidePanelIsOpen) {
-          this.env.toggleSidePanel("ChartPanel", { figure });
-        }
         break;
+      case "ArrowDown":
+      case "ArrowLeft":
+      case "ArrowRight":
+      case "ArrowUp":
+        const deltaMap = {
+          ArrowDown: [0, 1],
+          ArrowLeft: [-1, 0],
+          ArrowRight: [1, 0],
+          ArrowUp: [0, -1],
+        };
+        const delta = deltaMap[ev.key];
+        this.dispatch("UPDATE_FIGURE", {
+          sheetId: this.getters.getActiveSheetId(),
+          id: figure.id,
+          x: figure.x + delta[0],
+          y: figure.y + delta[1],
+        });
     }
   }
 }
