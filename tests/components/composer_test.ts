@@ -677,6 +677,13 @@ describe("composer", () => {
     await nextTick();
     expect(model.getters.getEditionMode()).toBe("editing");
   });
+
+  test("The composer should be closed before opening the context menu", async () => {
+    await typeInComposer("=");
+    triggerMouseEvent("canvas", "contextmenu", 300, 200);
+    await nextTick();
+    expect(model.getters.getEditionMode()).toBe("inactive");
+  });
 });
 
 describe("composer highlights color", () => {
