@@ -608,6 +608,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     const lastZone = zones[zones.length - 1];
     let type: ContextMenuType = "CELL";
     if (!isInside(col, row, lastZone)) {
+      this.dispatch("STOP_EDITION");
       this.dispatch("SELECT_CELL", { col, row });
     } else {
       if (this.getters.getActiveCols().has(col)) {
