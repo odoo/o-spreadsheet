@@ -21,6 +21,7 @@ async function writeInput(index: number, text: string) {
   input.value = text;
   input.dispatchEvent(new Event("input"));
   input.dispatchEvent(new Event("change"));
+  await nextTick();
 }
 
 interface SelectionInputTestConfig {
@@ -290,5 +291,19 @@ describe("Selection Input", () => {
     expect(model.getters.getActiveSheetId()).toBe(sheet1Id);
     model.dispatch("UNDO");
     expect(model.getters.getActiveSheetId()).toBe(sheet1Id);
+  });
+  test("show red border if and only if invalid range", async () => {
+    await createSelectionInput();
+    await writeInput(0, "A1");
+    expect(fixture.querySelectorAll("input")[0].value).toBe("A1");
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #0074d9");
+    await writeInput(0, "aaaaa");
+    expect(fixture.querySelectorAll("input")[0].value).toBe("aaaaa");
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe(
+      "color: #000; border-color: red"
+    );
+    await writeInput(0, "B1");
+    expect(fixture.querySelectorAll("input")[0].value).toBe("B1");
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #ffdc00");
   });
 });

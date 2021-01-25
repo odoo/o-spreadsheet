@@ -16,7 +16,7 @@ const TEMPLATE = xml/* xml */ `
         t-on-change="onInputChanged(range.id)"
         t-on-focus="focus(range.id)"
         t-att-value="range.xc"
-        t-attf-style="color: {{range.color || '#000'}}"
+        t-att-style="getStyle(range)"
         t-att-class="range.isFocused ? 'o-focused' : ''"
       />
       <button
@@ -96,7 +96,7 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
   private dispatch = this.env.dispatch;
   private originSheet = this.env.getters.getActiveSheetId();
 
-  get ranges(): (RangeInputValue & { isFocused: boolean })[] {
+  get ranges(): (RangeInputValue & { isFocused: boolean; isValidRange?: boolean })[] {
     const ranges = this.getters.getSelectionInput(this.id);
     return ranges.length
       ? ranges
@@ -134,6 +134,15 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
     if (this.previousRanges.join() !== value.join()) {
       this.triggerChange();
     }
+  }
+
+  getStyle(range: RangeInputValue & { isFocused: boolean; isValidRange?: boolean }) {
+    const color = range.color || "#000";
+    let style = "color: " + color;
+    if (range.isValidRange !== undefined && !range.isValidRange) {
+      style = style + "; border-color: red";
+    }
+    return style;
   }
 
   private triggerChange() {

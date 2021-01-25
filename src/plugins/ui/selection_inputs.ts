@@ -9,6 +9,7 @@ export interface RangeInputValue {
   id: UID;
   xc: string;
   color?: string | null;
+  validRange?: boolean;
 }
 
 /**
@@ -281,6 +282,7 @@ export class SelectionInputPlugin extends UIPlugin {
       valuesNotHighlighted.map((value) => ({
         id: uuidv4(),
         xc: value,
+        isValidRange: this.isRangeValid(value),
       }))
     );
   }
