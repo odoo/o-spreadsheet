@@ -132,6 +132,7 @@ export type Getters = CoreGetters & {
 
   getSelectionInput: SelectionInputPlugin["getSelectionInput"];
   getSelectionInputValue: SelectionInputPlugin["getSelectionInputValue"];
+  isRangeValid: SelectionInputPlugin["isRangeValid"];
 
   getSearchMatches: FindAndReplacePlugin["getSearchMatches"];
   getCurrentSelectedMatchIndex: FindAndReplacePlugin["getCurrentSelectedMatchIndex"];

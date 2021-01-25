@@ -92,6 +92,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
         chartTerms.Errors[result.reason] || chartTerms.Errors.unexpected
       );
     } else {
+      this.state.error = undefined;
       this.trigger("close-side-panel");
     }
   }
@@ -107,6 +108,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
         chartTerms.Errors[result.reason] || chartTerms.Errors.unexpected
       );
     } else {
+      this.state.error = undefined;
       this.trigger("close-side-panel");
     }
   }
