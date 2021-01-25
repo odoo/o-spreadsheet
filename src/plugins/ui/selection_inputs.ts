@@ -21,7 +21,7 @@ export interface RangeInputValue {
 export class SelectionInputPlugin extends UIPlugin {
   static modes: Mode[] = ["normal", "readonly"];
   static layers = [LAYERS.Highlights];
-  static getters = ["getSelectionInput", "getSelectionInputValue"];
+  static getters = ["getSelectionInput", "getSelectionInputValue", "isRangeValid"];
 
   private inputs: Record<UID, RangeInputValue[]> = {};
   private activeSheets: Record<UID, UID> = {};
@@ -130,8 +130,23 @@ export class SelectionInputPlugin extends UIPlugin {
     );
   }
 
+  isRangeValid(xc: string): boolean {
+    if (!xc) {
+      return false;
+    }
+    const [rangeXc, sheetName] = xc.split("!").reverse();
+    return (
+      rangeXc.match(rangeReference) !== null &&
+      (sheetName === undefined || this.getters.getSheetIdByName(sheetName) !== undefined)
+    );
+  }
+
   getSelectionInputValue(id: UID): string[] {
-    return this.cleanInputs(this.inputs[id].map((range) => range.xc));
+    return this.cleanInputs(
+      this.inputs[id].map((range) => {
+        return range.xc ? range.xc : "";
+      })
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -344,14 +359,6 @@ export class SelectionInputPlugin extends UIPlugin {
       highlights[range] = getNextColor();
     }
     return highlights;
-  }
-
-  private isRangeValid(xc: string): boolean {
-    const [rangeXc, sheetName] = xc.split("!").reverse();
-    return (
-      rangeXc.match(rangeReference) !== null &&
-      (sheetName === undefined || this.getters.getSheetIdByName(sheetName) !== undefined)
-    );
   }
 
   private cleanInputs(ranges: string[]): string[] {

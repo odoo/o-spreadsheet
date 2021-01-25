@@ -16,7 +16,7 @@ const TEMPLATE = xml/* xml */ `
         t-on-change="onInputChanged(range.id)"
         t-on-focus="focus(range.id)"
         t-att-value="range.xc"
-        t-attf-style="color: {{range.color || '#000'}}"
+        t-att-style="getStyle(range)"
         t-att-class="range.isFocused ? 'o-focused' : ''"
       />
       <button
@@ -79,6 +79,10 @@ interface Props {
   maximumRanges?: number;
 }
 
+interface SelectionRange extends RangeInputValue {
+  isFocused: boolean;
+  isValidRange: boolean;
+}
 /**
  * This component can be used when the user needs to input some
  * ranges. He can either input the ranges with the regular DOM `<input/>`
@@ -96,10 +100,10 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
   private dispatch = this.env.dispatch;
   private originSheet = this.env.getters.getActiveSheetId();
 
-  get ranges(): (RangeInputValue & { isFocused: boolean })[] {
-    const ranges = this.getters.getSelectionInput(this.id);
-    return ranges.length
-      ? ranges
+  get ranges(): SelectionRange[] {
+    const existingSelectionRange = this.getters.getSelectionInput(this.id);
+    const ranges = existingSelectionRange.length
+      ? existingSelectionRange
       : this.props.ranges
       ? this.props.ranges.map((xc) => ({
           xc,
@@ -107,6 +111,10 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
           isFocused: false,
         }))
       : [];
+    return ranges.map((range) => ({
+      ...range,
+      isValidRange: range.xc === "" || this.getters.isRangeValid(range.xc),
+    }));
   }
 
   get hasFocus(): boolean {
@@ -134,6 +142,15 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
     if (this.previousRanges.join() !== value.join()) {
       this.triggerChange();
     }
+  }
+
+  getStyle(range: SelectionRange) {
+    const color = range.color || "#000";
+    let style = "color: " + color + ";";
+    if (!range.isValidRange) {
+      return style + "border-color: red;";
+    }
+    return style;
   }
 
   private triggerChange() {
