@@ -113,9 +113,9 @@ export const DELETE_CONTENT_ROWS_NAME = (env: SpreadsheetEnv) => {
     last = zone.bottom;
   }
   if (first === last) {
-    return _lt(`Clear row ${first + 1}`);
+    return _lt("Clear row %s", (first + 1).toString());
   }
-  return _lt(`Clear rows ${first + 1} - ${last + 1}`);
+  return _lt("Clear rows %s - %s", (first + 1).toString(), (last + 1).toString());
 };
 
 export const DELETE_CONTENT_ROWS_ACTION = (env: SpreadsheetEnv) => {
@@ -142,9 +142,9 @@ export const DELETE_CONTENT_COLUMNS_NAME = (env: SpreadsheetEnv) => {
     last = zone.right;
   }
   if (first === last) {
-    return _lt(`Clear column ${numberToLetters(first)}`);
+    return _lt("Clear column %s", numberToLetters(first));
   }
-  return _lt(`Clear columns ${numberToLetters(first)} - ${numberToLetters(last)}`);
+  return _lt("Clear columns %s - %s", numberToLetters(first), numberToLetters(last));
 };
 
 export const DELETE_CONTENT_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
@@ -171,9 +171,9 @@ export const REMOVE_ROWS_NAME = (env: SpreadsheetEnv) => {
     last = zone.bottom;
   }
   if (first === last) {
-    return _lt(`Delete row ${first + 1}`);
+    return _lt("Delete row %s", (first + 1).toString());
   }
-  return _lt(`Delete rows ${first + 1} - ${last + 1}`);
+  return _lt("Delete rows %s - %s", (first + 1).toString(), (last + 1).toString());
 };
 
 export const REMOVE_ROWS_ACTION = (env: SpreadsheetEnv) => {
@@ -203,9 +203,9 @@ export const REMOVE_COLUMNS_NAME = (env: SpreadsheetEnv) => {
     last = zone.right;
   }
   if (first === last) {
-    return _lt(`Delete column ${numberToLetters(first)}`);
+    return _lt("Delete column %s", numberToLetters(first));
   }
-  return _lt(`Delete columns ${numberToLetters(first)} - ${numberToLetters(last)}`);
+  return _lt("Delete columns %s - %s", numberToLetters(first), numberToLetters(last));
 };
 
 export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
@@ -227,12 +227,12 @@ export const MENU_INSERT_ROWS_BEFORE_NAME = (env: SpreadsheetEnv) => {
   if (number === 1) {
     return _lt("Row above");
   }
-  return _lt(`${number} Rows above`);
+  return _lt("%s Rows above", number.toString());
 };
 
 export const ROW_INSERT_ROWS_BEFORE_NAME = (env: SpreadsheetEnv) => {
   const number = getRowsNumber(env);
-  return number === 1 ? _lt("Insert row above") : _lt(`Insert ${number} rows above`);
+  return number === 1 ? _lt("Insert row above") : _lt("Insert %s rows above", number.toString());
 };
 
 export const CELL_INSERT_ROWS_BEFORE_NAME = (env: SpreadsheetEnv) => {
@@ -240,7 +240,7 @@ export const CELL_INSERT_ROWS_BEFORE_NAME = (env: SpreadsheetEnv) => {
   if (number === 1) {
     return _lt("Insert row");
   }
-  return _lt(`Insert ${number} rows`);
+  return _lt("Insert %s rows", number.toString());
 };
 
 export const INSERT_ROWS_BEFORE_ACTION = (env: SpreadsheetEnv) => {
@@ -268,12 +268,12 @@ export const MENU_INSERT_ROWS_AFTER_NAME = (env: SpreadsheetEnv) => {
   if (number === 1) {
     return _lt("Row below");
   }
-  return _lt(`${number} Rows below`);
+  return _lt("%s Rows below", number.toString());
 };
 
 export const ROW_INSERT_ROWS_AFTER_NAME = (env: SpreadsheetEnv) => {
   const number = getRowsNumber(env);
-  return number === 1 ? _lt("Insert row below") : _lt(`Insert ${number} rows below`);
+  return number === 1 ? _lt("Insert row below") : _lt("Insert %s rows below", number.toString());
 };
 
 export const INSERT_ROWS_AFTER_ACTION = (env: SpreadsheetEnv) => {
@@ -301,12 +301,14 @@ export const MENU_INSERT_COLUMNS_BEFORE_NAME = (env: SpreadsheetEnv) => {
   if (number === 1) {
     return _lt("Column left");
   }
-  return _lt(`${number} Columns left`);
+  return _lt("%s Columns left", number.toString());
 };
 
 export const COLUMN_INSERT_COLUMNS_BEFORE_NAME = (env: SpreadsheetEnv) => {
   const number = getColumnsNumber(env);
-  return number === 1 ? _lt("Insert column left") : _lt(`Insert ${number} columns left`);
+  return number === 1
+    ? _lt("Insert column left")
+    : _lt("Insert %s columns left", number.toString());
 };
 
 export const CELL_INSERT_COLUMNS_BEFORE_NAME = (env: SpreadsheetEnv) => {
@@ -314,7 +316,7 @@ export const CELL_INSERT_COLUMNS_BEFORE_NAME = (env: SpreadsheetEnv) => {
   if (number === 1) {
     return _lt("Insert column");
   }
-  return _lt(`Insert ${number} columns`);
+  return _lt("Insert %s columns", number.toString());
 };
 
 export const INSERT_COLUMNS_BEFORE_ACTION = (env: SpreadsheetEnv) => {
@@ -342,12 +344,14 @@ export const MENU_INSERT_COLUMNS_AFTER_NAME = (env: SpreadsheetEnv) => {
   if (number === 1) {
     return _lt("Column right");
   }
-  return _lt(`${number} Columns right`);
+  return _lt("%s Columns right", number.toString());
 };
 
 export const COLUMN_INSERT_COLUMNS_AFTER_NAME = (env: SpreadsheetEnv) => {
   const number = getColumnsNumber(env);
-  return number === 1 ? _lt("Insert column right") : _lt(`Insert ${number} columns right`);
+  return number === 1
+    ? _lt("Insert column right")
+    : _lt("Insert %s columns right", number.toString());
 };
 
 export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetEnv) => {

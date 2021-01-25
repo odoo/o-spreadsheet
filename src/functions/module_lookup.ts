@@ -154,7 +154,10 @@ export const LOOKUP: AddFunctionDescription = {
     if (nbCol > 1) {
       if (nbCol - 1 < index) {
         throw new Error(
-          _lt(`[[FUNCTION_NAME]] evaluates to an out of range row value ${index + 1}.`)
+          _lt(
+            "[[FUNCTION_NAME]] evaluates to an out of range row value %s.",
+            (index + 1).toString()
+          )
         );
       }
       return resultRange[index][0];
@@ -162,7 +165,10 @@ export const LOOKUP: AddFunctionDescription = {
 
     if (nbRow - 1 < index) {
       throw new Error(
-        _lt(`[[FUNCTION_NAME]] evaluates to an out of range column value ${index + 1}.`)
+        _lt(
+          "[[FUNCTION_NAME]] evaluates to an out of range column value %s.",
+          (index + 1).toString()
+        )
       );
     }
     return resultRange[0][index];
@@ -207,7 +213,7 @@ export const MATCH: AddFunctionDescription = {
     if (index > -1) {
       return index + 1;
     } else {
-      throw new Error(_lt(`Did not find value '${searchKey}' in [[FUNCTION_NAME]] evaluation.`));
+      throw new Error(_lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", searchKey));
     }
   },
 };
@@ -292,7 +298,7 @@ export const VLOOKUP: AddFunctionDescription = {
     if (rowIndex > -1) {
       return range[_index - 1][rowIndex];
     } else {
-      throw new Error(_lt(`Did not find value '${searchKey}' in [[FUNCTION_NAME]] evaluation.`));
+      throw new Error(_lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", searchKey));
     }
   },
 };

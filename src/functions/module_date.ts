@@ -64,7 +64,7 @@ export const DATEVALUE: AddFunctionDescription = {
     const internalDate = parseDateTime(_dateString);
     if (internalDate === null) {
       throw new Error(
-        _lt(`[[FUNCTION_NAME]] parameter '${_dateString}' cannot be parsed to date/time.`)
+        _lt("[[FUNCTION_NAME]] parameter '%s' cannot be parsed to date/time.", _dateString)
       );
     }
     return Math.trunc(internalDate.value);
@@ -348,7 +348,8 @@ function weekendToDayNumber(weekend: any): number[] {
           default:
             throw new Error(
               _lt(
-                `Function [[FUNCTION_NAME]] parameter 3 requires a string composed of 0 or 1. Actual string is '${weekend}'.`
+                "Function [[FUNCTION_NAME]] parameter 3 requires a string composed of 0 or 1. Actual string is '%s'.",
+                weekend
               )
             );
         }
@@ -357,7 +358,8 @@ function weekendToDayNumber(weekend: any): number[] {
     }
     throw new Error(
       _lt(
-        `Function [[FUNCTION_NAME]] parameter 3 requires a string with 7 characters. Actual string is '${weekend}'.`
+        "Function [[FUNCTION_NAME]] parameter 3 requires a string with 7 characters. Actual string is '%s'.",
+        weekend
       )
     );
   }
@@ -379,7 +381,8 @@ function weekendToDayNumber(weekend: any): number[] {
     }
     throw new Error(
       _lt(
-        `Function [[FUNCTION_NAME]] parameter 3 requires a string or a number in the range 1-7 or 11-17. Actual number is ${weekend}.`
+        "Function [[FUNCTION_NAME]] parameter 3 requires a string or a number in the range 1-7 or 11-17. Actual number is %s.",
+        weekend.toString()
       )
     );
   }
@@ -521,7 +524,7 @@ export const TIMEVALUE: AddFunctionDescription = {
     const internalDate = parseDateTime(_timeString);
     if (internalDate === null) {
       throw new Error(
-        _lt(`[[FUNCTION_NAME]] parameter '${_timeString}' cannot be parsed to date/time.`)
+        _lt("[[FUNCTION_NAME]] parameter '%s' cannot be parsed to date/time.", _timeString)
       );
     }
     const result = internalDate.value - Math.trunc(internalDate.value);
@@ -572,7 +575,9 @@ export const WEEKDAY: AddFunctionDescription = {
       case 3:
         return m === 0 ? 6 : m - 1;
     }
-    throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 2 value ${_type} is out of range.`));
+    throw new Error(
+      _lt("Function [[FUNCTION_NAME]] parameter 2 value %s is out of range.", _type.toString())
+    );
   },
 };
 
@@ -604,7 +609,7 @@ export const WEEKNUM: AddFunctionDescription = {
       return ISOWEEKNUM.compute(date);
     } else {
       throw new Error(
-        _lt(`Function [[FUNCTION_NAME]] parameter 2 value ${_type} is out of range.`)
+        _lt("Function [[FUNCTION_NAME]] parameter 2 value %s is out of range.", _type.toString())
       );
     }
 
