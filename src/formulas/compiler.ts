@@ -1,7 +1,7 @@
 import { functionRegistry } from "../functions/index";
-import { CompiledFormula, Arg } from "../types/index";
-import { AST, ASTAsyncFuncall, ASTFuncall, parse } from "./parser";
 import { _lt } from "../translation";
+import { Arg, CompiledFormula } from "../types/index";
+import { AST, ASTAsyncFuncall, ASTFuncall, parse } from "./parser";
 
 const functions = functionRegistry.content;
 
@@ -101,9 +101,12 @@ export function compile(
     }
     if (result.length < minArg || result.length > maxArg) {
       throw new Error(
-        _lt(`
-          Invalid number of arguments for the ${ast.value.toUpperCase()} function.
-          Expected ${fn.args.length}, but got ${result.length} instead.`)
+        _lt(
+          "Invalid number of arguments for the %s function. Expected %s, but got %s instead.",
+          ast.value.toUpperCase(),
+          fn.args.length.toString(),
+          result.length.toString()
+        )
       );
     }
     return result;

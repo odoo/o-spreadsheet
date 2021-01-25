@@ -1,8 +1,8 @@
-import { args } from "./arguments";
-import { FunctionDescription } from "../types";
-import { toNativeDate, InternalDate, parseDateTime } from "../functions/dates";
-import { toNumber, toString, visitAny } from "./helpers";
+import { InternalDate, parseDateTime, toNativeDate } from "../functions/dates";
 import { _lt } from "../translation";
+import { FunctionDescription } from "../types";
+import { args } from "./arguments";
+import { toNumber, toString, visitAny } from "./helpers";
 
 const INITIAL_1900_DAY = new Date(1899, 11, 30);
 
@@ -62,7 +62,7 @@ export const DATEVALUE: FunctionDescription = {
     const _dateString = toString(date_string);
     const datetime = parseDateTime(_dateString);
     if (datetime === null) {
-      throw new Error(_lt(`DATEVALUE parameter '${_dateString}' cannot be parsed to date/time.`));
+      throw new Error(_lt("DATEVALUE parameter '%s' cannot be parsed to date/time.", _dateString));
     }
     return Math.trunc(datetime.value);
   },
@@ -351,7 +351,8 @@ function weekendToDayNumber(weekend: any): number[] {
           default:
             throw new Error(
               _lt(
-                `Function [[FUNCTION_NAME]] parameter 3 requires a string composed of 0 or 1. Actual string is '${weekend}'.`
+                "Function [[FUNCTION_NAME]] parameter 3 requires a string composed of 0 or 1. Actual string is '%s'.",
+                weekend
               )
             );
         }
@@ -360,7 +361,8 @@ function weekendToDayNumber(weekend: any): number[] {
     }
     throw new Error(
       _lt(
-        `Function [[FUNCTION_NAME]] parameter 3 requires a string with 7 characters. Actual string is '${weekend}'.`
+        "Function [[FUNCTION_NAME]] parameter 3 requires a string with 7 characters. Actual string is '%s'.",
+        weekend
       )
     );
   }
@@ -382,7 +384,8 @@ function weekendToDayNumber(weekend: any): number[] {
     }
     throw new Error(
       _lt(
-        `Function [[FUNCTION_NAME]] parameter 3 requires a string or a number in the range 1-7 or 11-17. Actual number is ${weekend}.`
+        "Function [[FUNCTION_NAME]] parameter 3 requires a string or a number in the range 1-7 or 11-17. Actual number is %s.",
+        weekend.toString()
       )
     );
   }
@@ -531,7 +534,7 @@ export const TIMEVALUE: FunctionDescription = {
     const _timeString = toString(time_string);
     const datetime = parseDateTime(_timeString);
     if (datetime === null) {
-      throw new Error(_lt(`TIMEVALUE parameter '${_timeString}' cannot be parsed to date/time.`));
+      throw new Error(_lt("TIMEVALUE parameter '%s' cannot be parsed to date/time.", _timeString));
     }
     const result = datetime.value - Math.trunc(datetime.value);
 
@@ -584,7 +587,9 @@ export const WEEKDAY: FunctionDescription = {
       case 3:
         return m === 0 ? 6 : m - 1;
     }
-    throw new Error(_lt(`Function WEEKDAY parameter 2 value ${_type} is out of range.`));
+    throw new Error(
+      _lt("Function WEEKDAY parameter 2 value %s is out of range.", _type.toString())
+    );
   },
 };
 
@@ -615,7 +620,9 @@ export const WEEKNUM: FunctionDescription = {
     } else if (_type === 21) {
       return ISOWEEKNUM.compute(date);
     } else {
-      throw new Error(_lt(`Function WEEKNUM parameter 2 value ${_type} is out of range.`));
+      throw new Error(
+        _lt("Function WEEKNUM parameter 2 value %s is out of range.", _type.toString())
+      );
     }
 
     const y = _date.getFullYear();

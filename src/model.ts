@@ -1,22 +1,22 @@
 import * as owl from "@odoo/owl";
 import { BasePlugin } from "./base_plugin";
 import { createEmptyWorkbook, createEmptyWorkbookData, load } from "./data";
+import { DEBUG } from "./helpers/index";
 import { WHistory } from "./history";
 import { pluginRegistry } from "./plugins/index";
+import { _lt } from "./translation";
 import {
+  Command,
   CommandDispatcher,
   CommandHandler,
-  Getters,
-  Command,
-  Workbook,
-  WorkbookData,
-  GridRenderingContext,
-  LAYERS,
   CommandSuccess,
   EvalContext,
+  Getters,
+  GridRenderingContext,
+  LAYERS,
+  Workbook,
+  WorkbookData,
 } from "./types/index";
-import { _lt } from "./translation";
-import { DEBUG } from "./helpers/index";
 
 /**
  * Model
@@ -149,7 +149,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       plugin.import(data);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
-          throw new Error(_lt(`Invalid getter name: ${name} for plugin ${plugin.constructor}`));
+          throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
         }
         this.getters[name] = plugin[name].bind(plugin);
       }

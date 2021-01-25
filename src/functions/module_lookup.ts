@@ -1,12 +1,12 @@
-import { args } from "./arguments";
+import { _lt } from "../translation";
 import { FunctionDescription } from "../types";
+import { args } from "./arguments";
 import {
-  toNumber,
-  toBoolean,
   dichotomicPredecessorSearch,
   dichotomicSuccessorSearch,
+  toBoolean,
+  toNumber,
 } from "./helpers";
-import { _lt } from "../translation";
 
 /**
  * Perform a linear search and return the index of the perfect match.
@@ -64,13 +64,17 @@ export const LOOKUP: FunctionDescription = {
 
     if (nbCol > 1) {
       if (nbCol - 1 < index) {
-        throw new Error(_lt(`LOOKUP evaluates to an out of range row value ${index + 1}.`));
+        throw new Error(
+          _lt("LOOKUP evaluates to an out of range row value %s.", (index + 1).toString())
+        );
       }
       return result_range[index][0];
     }
 
     if (nbRow - 1 < index) {
-      throw new Error(_lt(`LOOKUP evaluates to an out of range column value ${index + 1}.`));
+      throw new Error(
+        _lt("LOOKUP evaluates to an out of range column value %s.", (index + 1).toString())
+      );
     }
     return result_range[0][index];
   },
@@ -114,7 +118,7 @@ export const MATCH: FunctionDescription = {
     if (index > -1) {
       return index + 1;
     } else {
-      throw new Error(_lt(`Did not find value '${search_key}' in MATCH evaluation.`));
+      throw new Error(_lt("Did not find value '%s' in MATCH evaluation.", search_key));
     }
   },
 };
@@ -156,7 +160,7 @@ export const VLOOKUP: FunctionDescription = {
     if (lineIndex > -1) {
       return range[_index - 1][lineIndex];
     } else {
-      throw new Error(_lt(`Did not find value '${search_key}' in VLOOKUP evaluation.`));
+      throw new Error(_lt("Did not find value '%s' in VLOOKUP evaluation.", search_key));
     }
   },
 };

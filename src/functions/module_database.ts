@@ -1,9 +1,9 @@
-import { args } from "./arguments";
-import { FunctionDescription } from "../types";
-import { visitMatchingRanges, toString } from "./helpers";
-import { COUNT, AVERAGE, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
-import { PRODUCT, SUM } from "./module_math";
 import { _lt } from "../translation";
+import { FunctionDescription } from "../types";
+import { args } from "./arguments";
+import { toString, visitMatchingRanges } from "./helpers";
+import { PRODUCT, SUM } from "./module_math";
+import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
 
 function getMatchingCells(database: any, field: any, criteria: any): any[] {
   // Exemple :
@@ -34,7 +34,9 @@ function getMatchingCells(database: any, field: any, criteria: any): any[] {
     if (index < 0 || index > dimRowDB - 1) {
       throw new Error(
         _lt(
-          `Function [[FUNCTION_NAME]] parameter 2 value is ${field}. Valid values are between 1 and ${dimRowDB} inclusive.`
+          "Function [[FUNCTION_NAME]] parameter 2 value is %s. Valid values are between 1 and %s inclusive.",
+          field,
+          dimRowDB
         )
       );
     }
@@ -44,11 +46,9 @@ function getMatchingCells(database: any, field: any, criteria: any): any[] {
     if (index === undefined) {
       throw new Error(
         _lt(
-          `Function [[FUNCTION_NAME]] parameter 2 value is ${field}. It should be one of: ${[
-            ...indexColNameDB.keys(),
-          ]
-            .map((v) => "'" + v + "'")
-            .join(", ")}.`
+          "Function [[FUNCTION_NAME]] parameter 2 value is %s. It should be one of: %s.",
+          field,
+          [...indexColNameDB.keys()].map((v) => "'" + v + "'").join(", ")
         )
       );
     }

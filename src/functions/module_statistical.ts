@@ -1,16 +1,16 @@
-import { args } from "./arguments";
-import { FunctionDescription } from "../types";
-import {
-  toNumber,
-  reduceNumbers,
-  visitAny,
-  reduceArgs,
-  dichotomicPredecessorSearch,
-  reduceNumbersTextAs0,
-  visitMatchingRanges,
-} from "./helpers";
 import { isNumber } from "../helpers/index";
 import { _lt } from "../translation";
+import { FunctionDescription } from "../types";
+import { args } from "./arguments";
+import {
+  dichotomicPredecessorSearch,
+  reduceArgs,
+  reduceNumbers,
+  reduceNumbersTextAs0,
+  toNumber,
+  visitAny,
+  visitMatchingRanges,
+} from "./helpers";
 
 // Note: dataY and dataX may not have the same dimension
 function covariance(dataY: any[], dataX: any[], isSample: boolean): number {
@@ -30,7 +30,13 @@ function covariance(dataY: any[], dataX: any[], isSample: boolean): number {
   });
 
   if (lenY !== lenX) {
-    throw new Error(_lt(`[[FUNCTION_NAME]] has mismatched argument count ${lenY} vs ${lenX}.`));
+    throw new Error(
+      _lt(
+        "[[FUNCTION_NAME]] has mismatched argument count %s vs %s.",
+        lenY.toString(),
+        lenX.toString()
+      )
+    );
   }
 
   let count = 0;
@@ -464,7 +470,7 @@ export const LARGE: FunctionDescription = {
       throw new Error(_lt(`LARGE has no valid input data.`));
     }
     if (count < n) {
-      throw new Error(_lt(`Function LARGE parameter 2 value ${n} is out of range.`));
+      throw new Error(_lt("Function LARGE parameter 2 value %s is out of range.", n.toString()));
     }
     return result;
   },
@@ -687,7 +693,7 @@ export const SMALL: FunctionDescription = {
       throw new Error(_lt(`SMALL has no valid input data.`));
     }
     if (count < n) {
-      throw new Error(_lt(`Function SMALL parameter 2 value ${n} is out of range.`));
+      throw new Error(_lt("Function SMALL parameter 2 value %s is out of range.", n.toString()));
     }
     return result;
   },

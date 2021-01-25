@@ -1,7 +1,7 @@
-import { args } from "./arguments";
-import { FunctionDescription } from "../types";
-import { toNumber, toString, reduceArgs, toBoolean } from "./helpers";
 import { _lt } from "../translation";
+import { FunctionDescription } from "../types";
+import { args } from "./arguments";
+import { reduceArgs, toBoolean, toNumber, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // CHAR
@@ -17,7 +17,9 @@ export const CHAR: FunctionDescription = {
   compute: function (table_number: any): string {
     const _tableNumber = Math.trunc(toNumber(table_number));
     if (_tableNumber < 1) {
-      throw new Error(_lt(`Function CHAR parameter 1 value ${_tableNumber} is out of range.`));
+      throw new Error(
+        _lt("Function CHAR parameter 1 value %s is out of range.", _tableNumber.toString())
+      );
     }
     return String.fromCharCode(_tableNumber);
   },
@@ -85,7 +87,11 @@ export const FIND: FunctionDescription = {
     const result = _textToSearch.indexOf(_searchFor, _startingAt - 1);
     if (result < 0) {
       throw new Error(
-        _lt(`In FIND evaluation, cannot find '${_searchFor}' within '${_textToSearch}'.`)
+        _lt(
+          "In FIND evaluation, cannot find '%s' within '%s'.",
+          _searchFor.toString(),
+          _textToSearch
+        )
       );
     }
     return result + 1;
@@ -252,7 +258,7 @@ export const SEARCH: FunctionDescription = {
     const result = _textToSearch.indexOf(_searchFor, _startingAt - 1);
     if (result < 0) {
       throw new Error(
-        _lt(`In SEARCH evaluation, cannot find '${_searchFor}' within '${_textToSearch}'.`)
+        _lt("In SEARCH evaluation, cannot find '%s' within '%s'.", _searchFor, _textToSearch)
       );
     }
     return result + 1;

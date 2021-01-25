@@ -31,7 +31,7 @@ export class Registry<T> {
    */
   get(key: string): T {
     if (!(key in this.content)) {
-      throw new Error(_lt(`Cannot find ${key} in this registry!`));
+      throw new Error(`Cannot find ${key} in this registry!`);
     }
     return this.content[key];
   }

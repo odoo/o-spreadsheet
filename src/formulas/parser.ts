@@ -105,7 +105,7 @@ function bindingPower(token: Token): number {
     case "OPERATOR":
       return OP_PRIORITY[token.value] || 15;
   }
-  throw new Error(_lt("?"));
+  throw new Error("?");
 }
 
 export const cellReference = new RegExp(/\$?[A-Z]+\$?[0-9]+/, "i");
