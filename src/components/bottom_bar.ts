@@ -137,11 +137,12 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
   }
 
   addSheet() {
+    const activeSheetId = this.env.getters.getActiveSheetId();
     const position =
-      this.env.getters
-        .getVisibleSheets()
-        .findIndex((sheetId) => sheetId === this.env.getters.getActiveSheetId()) + 1;
-    this.env.dispatch("CREATE_SHEET", { activate: true, sheetId: uuidv4(), position });
+      this.env.getters.getVisibleSheets().findIndex((sheetId) => sheetId === activeSheetId) + 1;
+    const sheetId = uuidv4();
+    this.env.dispatch("CREATE_SHEET", { sheetId, position });
+    this.env.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
   }
 
   listSheets(ev: MouseEvent) {

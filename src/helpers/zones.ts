@@ -52,6 +52,115 @@ export function zoneToXc(zone: Zone): string {
 }
 
 /**
+ * Expand a zone after inserting columns or rows.
+ *
+ * @param zone Zone to expand
+ * @param start "left" is columns have been inserted, "top" otherwise
+ * @param base Index at which the first element has been inserted
+ * @param position "after" or "before"
+ * @param quantity Number of elements added
+ *
+ * @returns Updated zone
+ */
+export function expandZoneOnInsertion(
+  zone: Zone,
+  start: "left" | "top",
+  base: number,
+  position: "after" | "before",
+  quantity: number
+): Zone {
+  const baseElement = position === "before" ? base - 1 : base;
+  const end = start === "left" ? "right" : "bottom";
+  let newStart = zone[start];
+  let newEnd = zone[end];
+  if (zone[start] <= baseElement && zone[end] >= baseElement) {
+    newEnd += quantity;
+  } else if (baseElement < zone[start]) {
+    newStart += quantity;
+    newEnd += quantity;
+  }
+  return { ...zone, [start]: newStart, [end]: newEnd };
+}
+
+export function updateSelectionOnInsertion(
+  selection: Zone,
+  start: "left" | "top",
+  base: number,
+  position: "after" | "before",
+  quantity: number
+): Zone {
+  const baseElement = position === "before" ? base - 1 : base;
+  const end = start === "left" ? "right" : "bottom";
+  if (selection[start] <= baseElement && selection[end] > baseElement) {
+    selection[end] += quantity;
+  } else if (baseElement < selection[start]) {
+    selection[start] += quantity;
+    selection[end] += quantity;
+  }
+  return selection;
+}
+/**
+ * TODOMultiDOODODOD
+ *
+ * @param zone Zone to reduce
+ * @param start "left" if columns have been removed, "top" for rows
+ * @param elements Index of removed elements
+ *
+ * @returns Zone updated
+ */
+export function updateSelectionOnDeletion(
+  zone: Zone,
+  start: "left" | "top",
+  elements: number[]
+): Zone {
+  const end = start === "left" ? "right" : "bottom";
+  let newStart = zone[start];
+  let newEnd = zone[end];
+  for (let removedElement of elements.sort((a, b) => b - a)) {
+    if (zone[start] >= removedElement) {
+      newStart--;
+      newEnd--;
+    }
+    if (zone[start] <= removedElement && zone[end] >= removedElement) {
+      newEnd--;
+    }
+  }
+  return { ...zone, [start]: newStart, [end]: newEnd };
+}
+
+/**
+ * Reduce a zone after deletion of elements
+ *
+ * @param zone Zone to reduce
+ * @param start "left" if columns have been removed, "top" for rows
+ * @param elements Index of removed elements
+ *
+ * @returns Zone updated or undefined if the zone is no longer valid.
+ */
+export function reduceZoneOnDeletion(
+  zone: Zone,
+  start: "left" | "top",
+  elements: number[]
+): Zone | undefined {
+  const end = start === "left" ? "right" : "bottom";
+  let newStart = zone[start];
+  let newEnd = zone[end];
+  for (let removedElement of elements.sort((a, b) => b - a)) {
+    if (zone[start] > removedElement) {
+      newStart--;
+      newEnd--;
+    }
+    if (zone[start] <= removedElement && zone[end] >= removedElement) {
+      newEnd--;
+    }
+  }
+  if (newStart > newEnd) {
+    return undefined;
+  }
+  return { ...zone, [start]: newStart, [end]: newEnd };
+}
+
+/**
  * Compute the union of two zones. It is the smallest zone which contains the
  * two arguments.
  */

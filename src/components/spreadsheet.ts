@@ -3,6 +3,8 @@ import { BOTTOMBAR_HEIGHT, TOPBAR_HEIGHT } from "../constants";
 import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { SelectionMode } from "../plugins/ui/selection";
+import { Client } from "../types/collaborative/session";
+import { StateUpdateMessage, TransportService } from "../types/collaborative/transport_service";
 import { BottomBar } from "./bottom_bar";
 import { ComposerFocusedEvent } from "./composer/composer";
 import { Grid } from "./grid";
@@ -67,7 +69,10 @@ const CSS = css/* scss */ `
 `;
 
 interface Props {
+  client?: Client;
   data?: any;
+  stateUpdateMessages?: StateUpdateMessage[];
+  transportService?: TransportService;
 }
 
 const t = (s: string): string => s;
@@ -78,15 +83,21 @@ export class Spreadsheet extends Component<Props> {
   static components = { TopBar, Grid, BottomBar, SidePanel };
   static _t = t;
 
-  model = new Model(this.props.data, {
-    notifyUser: (content: string) => this.trigger("notify-user", { content }),
-    askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
-      this.trigger("ask-confirmation", { content, confirm, cancel }),
-    editText: (title: string, placeholder: string, callback: (text: string | null) => any) =>
-      this.trigger("edit-text", { title, placeholder, callback }),
-    openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
-    evalContext: { env: this.env },
-  });
+  model = new Model(
+    this.props.data,
+    {
+      notifyUser: (content: string) => this.trigger("notify-user", { content }),
+      askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
+        this.trigger("ask-confirmation", { content, confirm, cancel }),
+      editText: (title: string, placeholder: string, callback: (text: string | null) => any) =>
+        this.trigger("edit-text", { title, placeholder, callback }),
+      openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
+      evalContext: { env: this.env },
+      transportService: this.props.transportService,
+      client: this.props.client,
+    },
+    this.props.stateUpdateMessages
+  );
   grid = useRef("grid");
 
   sidePanel = useState({ isOpen: false, panelProps: {} } as {
@@ -125,6 +136,7 @@ export class Spreadsheet extends Component<Props> {
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
+    useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
   }
 
   get focusTopBarComposer(): boolean {
@@ -140,7 +152,12 @@ export class Spreadsheet extends Component<Props> {
   }
 
   willUnmount() {
+    this.leaveCollaborativeSession();
     this.model.off("update", this);
+  }
+
+  private leaveCollaborativeSession() {
+    this.model.leaveSession();
   }
 
   destroy() {

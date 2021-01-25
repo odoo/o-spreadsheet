@@ -11,6 +11,7 @@ import {
   GridRenderingContext,
   LAYERS,
   Sheet,
+  Style,
   UID,
   Zone,
 } from "../../types/index";
@@ -435,7 +436,7 @@ export class ClipboardPlugin extends UIPlugin {
       this.dispatch("SET_BORDER", { sheetId, col, row, border: originBorder || undefined });
     }
     if (origin) {
-      let style = origin.style;
+      let style: Style | undefined | null = origin.style || null;
       let format = origin.format;
       let content: string = this.getters.getCellValue(origin, originSheet, true) || "";
 
@@ -477,8 +478,8 @@ export class ClipboardPlugin extends UIPlugin {
           sheetId: sheetId,
           col,
           row,
-          style: undefined,
-          format: undefined,
+          style: null,
+          format: "",
         });
       } else {
         this.dispatch("CLEAR_CELL", {
@@ -533,7 +534,6 @@ export class ClipboardPlugin extends UIPlugin {
     ) {
       return;
     }
-    ctx.save();
     ctx.setLineDash([8, 5]);
     ctx.strokeStyle = "#3266ca";
     ctx.lineWidth = 3.3 * thinLineWidth;
@@ -543,6 +543,5 @@ export class ClipboardPlugin extends UIPlugin {
         ctx.strokeRect(x, y, width, height);
       }
     }
-    ctx.restore();
   }
 }

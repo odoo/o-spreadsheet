@@ -13,8 +13,8 @@ import {
   Cell,
   CellPosition,
   Col,
-  Command,
   CommandResult,
+  CoreCommand,
   HeaderData,
   RenameSheetCommand,
   Row,
@@ -64,7 +64,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command): CommandResult {
+  allowDispatch(cmd: CoreCommand): CommandResult {
     switch (cmd.type) {
       case "REMOVE_COLUMNS":
       case "REMOVE_ROWS":
@@ -72,14 +72,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       case "ADD_COLUMNS":
       case "RESIZE_COLUMNS":
       case "RESIZE_ROWS":
-      case "AUTORESIZE_COLUMNS":
-      case "AUTORESIZE_ROWS":
       case "UPDATE_CELL":
       case "CLEAR_CELL":
       case "RENAME_SHEET":
       case "DELETE_SHEET":
-      case "DELETE_CONTENT":
-      case "DELETE_SHEET_CONFIRMATION":
         if (this.sheets[cmd.sheetId] === undefined) {
           return {
             status: "CANCELLED",
@@ -114,7 +110,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           : { status: "SUCCESS" };
       case "RENAME_SHEET":
         return this.isRenameAllowed(cmd);
-      case "DELETE_SHEET_CONFIRMATION":
       case "DELETE_SHEET":
         return this.visibleSheets.length > 1
           ? { status: "SUCCESS" }
@@ -133,7 +128,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
-  handle(cmd: Command) {
+  handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheetId, cmd.target);
@@ -146,7 +141,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           cmd.rows || 100,
           cmd.position
         );
-        this.sheetIds[sheet.name] = sheet.id;
+        this.history.update("sheetIds", sheet.name, sheet.id);
         break;
       case "RESIZE_COLUMNS":
         for (let col of cmd.columns) {
@@ -618,7 +613,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * @param quantity Number of columns to add
    */
   private moveCellOnColumnsAddition(sheet: Sheet, addedColumn: number, quantity: number) {
-    const commands: Command[] = [];
+    const commands: CoreCommand[] = [];
     for (let [index, row] of Object.entries(sheet.rows)) {
       const rowIndex = parseInt(index, 10);
       for (let i in row.cells) {

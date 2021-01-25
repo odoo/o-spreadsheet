@@ -27,6 +27,7 @@ import {
   cellMenuRegistry,
   colMenuRegistry,
   createFullMenuItem,
+  otRegistry,
   rowMenuRegistry,
   sheetMenuRegistry,
   sidePanelRegistry,
@@ -52,6 +53,7 @@ export { Model } from "./model";
 export { CorePlugin } from "./plugins/core_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";
 export { setTranslationMethod } from "./translation";
+export { coreTypes } from "./types/commands";
 export const SPREADSHEET_DIMENSIONS = {
   MIN_ROW_HEIGHT,
   MIN_COL_WIDTH,
@@ -77,6 +79,7 @@ export const registries = {
   sheetMenuRegistry,
   topbarMenuRegistry,
   topbarComponentRegistry,
+  otRegistry,
 };
 
 export const helpers = {
