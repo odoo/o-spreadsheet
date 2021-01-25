@@ -26,7 +26,8 @@ export const ACOS: AddFunctionDescription = {
     if (Math.abs(_value) > 1) {
       throw new Error(
         _lt(
-          `Function [[FUNCTION_NAME]] parameter 1 value is ${_value}. Valid values are between -1 and 1 inclusive.`
+          "Function [[FUNCTION_NAME]] parameter 1 value is %s. Valid values are between -1 and 1 inclusive.",
+          _value.toString()
         )
       );
     }
@@ -50,7 +51,8 @@ export const ACOSH: AddFunctionDescription = {
     if (_value < 1) {
       throw new Error(
         _lt(
-          `Function [[FUNCTION_NAME]] parameter 1 value is ${_value}. It should be greater than or equal to 1.`
+          "Function [[FUNCTION_NAME]] parameter 1 value is %s. It should be greater than or equal to 1.",
+          _value.toString()
         )
       );
     }
@@ -93,7 +95,8 @@ export const ACOTH: AddFunctionDescription = {
     if (Math.abs(_value) <= 1) {
       throw new Error(
         _lt(
-          `Function [[FUNCTION_NAME]] parameter 1 value is ${_value}. Valid values cannot be between -1 and 1 inclusive.`
+          "Function [[FUNCTION_NAME]] parameter 1 value is %s. Valid values cannot be between -1 and 1 inclusive.",
+          _value.toString()
         )
       );
     }
@@ -117,7 +120,8 @@ export const ASIN: AddFunctionDescription = {
     if (Math.abs(_value) > 1) {
       throw new Error(
         _lt(
-          `Function [[FUNCTION_NAME]] parameter 1 value is ${_value}. Valid values are between -1 and 1 inclusive.`
+          "Function [[FUNCTION_NAME]] parameter 1 value is %S. Valid values are between -1 and 1 inclusive.",
+          _value.toString()
         )
       );
     }
@@ -193,7 +197,8 @@ export const ATANH: AddFunctionDescription = {
     if (Math.abs(_value) >= 1) {
       throw new Error(
         _lt(
-          `Function [[FUNCTION_NAME]] parameter 1 value is ${_value}. Valid values are between -1 and 1 exclusive.`
+          "Function [[FUNCTION_NAME]] parameter 1 value is %s. Valid values are between -1 and 1 exclusive.",
+          _value.toString()
         )
       );
     }
@@ -219,7 +224,11 @@ export const CEILING: AddFunctionDescription = {
     if (_value > 0 && _factor < 0) {
       throw new Error(
         _lt(
-          `Function [[FUNCTION_NAME]] expects the parameter '${CEILING.args[1].name}' to be positive when parameter '${CEILING.args[0].name}' is positive. Change '${CEILING.args[1].name}' from [${_factor}] to a positive value.`
+          "Function [[FUNCTION_NAME]] expects the parameter '%s' to be positive when parameter '%s' is positive. Change '%s' from [%s] to a positive value.",
+          CEILING.args[1].name,
+          CEILING.args[0].name,
+          CEILING.args[1].name,
+          _factor.toString()
         )
       );
     }
@@ -513,7 +522,12 @@ export const CSCH: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 const decimalErrorParameter2 = (parameterName, base, value) =>
   _lt(
-    `Function DECIMAL expects the parameter '${parameterName}' to be a valid base ${base} representation. Change '${parameterName}' from [${value}] to a valid base ${base} representation.`
+    "Function DECIMAL expects the parameter '%s' to be a valid base %s representation. Change '%s' from [%s] to a valid base %s representation.",
+    parameterName,
+    base,
+    parameterName,
+    value,
+    base
   );
 
 export const DECIMAL: AddFunctionDescription = {
@@ -529,7 +543,10 @@ export const DECIMAL: AddFunctionDescription = {
     if (_base < 2 || _base > 36) {
       throw new Error(
         _lt(
-          `Function [[FUNCTION_NAME]] expects the parameter '${DECIMAL.args[1].name}' to be between 2 and 36 inclusive. Change '${DECIMAL.args[1].name}' from [${_base}] to a value between 2 and 36.`
+          "Function [[FUNCTION_NAME]] expects the parameter '%s' to be between 2 and 36 inclusive. Change '%s' from [%s] to a value between 2 and 36.",
+          DECIMAL.args[1].name,
+          DECIMAL.args[1].name,
+          _base.toString()
         )
       );
     }
@@ -602,7 +619,11 @@ export const FLOOR: AddFunctionDescription = {
     if (_value > 0 && _factor < 0) {
       throw new Error(
         _lt(
-          `Function [[FUNCTION_NAME]] expects the parameter '${FLOOR.args[1].name}' to be positive when parameter '${FLOOR.args[0].name}' is positive. Change '${FLOOR.args[1].name}' from [${_factor}] to a positive value.`
+          "Function [[FUNCTION_NAME]] expects the parameter '%s' to be positive when parameter '%s' is positive. Change '%s' from [%s] to a positive value.",
+          FLOOR.args[1].name,
+          FLOOR.args[0].name,
+          FLOOR.args[1].name,
+          _factor.toString()
         )
       );
     }
@@ -732,7 +753,8 @@ export const LN: AddFunctionDescription = {
     if (_value <= 0) {
       throw new Error(
         _lt(
-          `Function [[FUNCTION_NAME]] parameter 1 value is ${_value}. It should be greater than 0.`
+          "Function [[FUNCTION_NAME]] parameter 1 value is %s. It should be greater than 0.",
+          _value.toString()
         )
       );
     }
@@ -757,7 +779,9 @@ export const MOD: AddFunctionDescription = {
     if (_divisor === 0) {
       throw new Error(
         _lt(
-          `Function [[FUNCTION_NAME]] expects the parameter '${MOD.args[1].name}' to be different from 0. Change '${MOD.args[1].name}' to a value other than 0.`
+          "Function [[FUNCTION_NAME]] expects the parameter '%s' to be different from 0. Change '%s' to a value other than 0.",
+          MOD.args[1].name,
+          MOD.args[1].name
         )
       );
     }
@@ -823,7 +847,11 @@ export const POWER: AddFunctionDescription = {
     if (!Number.isInteger(_exponent)) {
       throw new Error(
         _lt(
-          `Function [[FUNCTION_NAME]] expects the parameter '${POWER.args[1].name}' to be an integer when parameter '${POWER.args[0].name}' is negative. Change '${POWER.args[1].name}' from [${_exponent}] to an integer value.`
+          "Function [[FUNCTION_NAME]] expects the parameter '%s' to be an integer when parameter '%s' is negative. Change '%s' from [%s] to an integer value.",
+          POWER.args[1].name,
+          POWER.args[0].name,
+          POWER.args[1].name,
+          _exponent.toString()
         )
       );
     }
@@ -908,7 +936,10 @@ export const RANDBETWEEN: AddFunctionDescription = {
     if (_high < _low) {
       throw new Error(
         _lt(
-          `Function [[FUNCTION_NAME]] parameter '${RANDBETWEEN.args[1].name}' value is ${_high}. It should be greater than or equal to [${_low}].`
+          "Function [[FUNCTION_NAME]] parameter '%s' value is %s. It should be greater than or equal to [%s].",
+          RANDBETWEEN.args[1].name,
+          _high.toString(),
+          _low.toString()
         )
       );
     }
@@ -1075,7 +1106,10 @@ export const SQRT: AddFunctionDescription = {
     if (_value < 0) {
       throw new Error(
         _lt(
-          `Function [[FUNCTION_NAME]] parameter '${SQRT.args[0].name}' value is negative. It should be positive or zero. Change '${SQRT.args[0].name}' from [${_value}] to a positive value.`
+          "Function [[FUNCTION_NAME]] parameter '%s' value is negative. It should be positive or zero. Change '%s' from [%s] to a positive value.",
+          SQRT.args[0].name,
+          SQRT.args[0].name,
+          _value.toString()
         )
       );
     }

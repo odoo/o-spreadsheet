@@ -18,7 +18,10 @@ export const CHAR: AddFunctionDescription = {
     const _tableNumber = Math.trunc(toNumber(tableNumber));
     if (_tableNumber < 1) {
       throw new Error(
-        _lt(`Function [[FUNCTION_NAME]] parameter 1 value ${_tableNumber} is out of range.`)
+        _lt(
+          "Function [[FUNCTION_NAME]] parameter 1 value %s is out of range.",
+          _tableNumber.toString()
+        )
       );
     }
     return String.fromCharCode(_tableNumber);
@@ -88,7 +91,9 @@ export const FIND: AddFunctionDescription = {
     if (result < 0) {
       throw new Error(
         _lt(
-          `In [[FUNCTION_NAME]] evaluation, cannot find '${_searchFor}' within '${_textToSearch}'.`
+          "In [[FUNCTION_NAME]] evaluation, cannot find '%s' within '%s'.",
+          _searchFor.toString(),
+          _textToSearch
         )
       );
     }
@@ -259,7 +264,9 @@ export const SEARCH: AddFunctionDescription = {
     if (result < 0) {
       throw new Error(
         _lt(
-          `In [[FUNCTION_NAME]] evaluation, cannot find '${_searchFor}' within '${_textToSearch}'.`
+          "In [[FUNCTION_NAME]] evaluation, cannot find '%s' within '%s'.",
+          _searchFor,
+          _textToSearch
         )
       );
     }

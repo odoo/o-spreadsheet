@@ -10,7 +10,7 @@ import {
   Sheet,
   SortDirection,
   UID,
-  Zone
+  Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 

@@ -31,7 +31,13 @@ function covariance(dataY: any[], dataX: any[], isSample: boolean): number {
   });
 
   if (lenY !== lenX) {
-    throw new Error(_lt(`[[FUNCTION_NAME]] has mismatched argument count ${lenY} vs ${lenX}.`));
+    throw new Error(
+      _lt(
+        "[[FUNCTION_NAME]] has mismatched argument count %s vs %s.",
+        lenY.toString(),
+        lenX.toString()
+      )
+    );
   }
 
   let count = 0;
@@ -502,7 +508,9 @@ export const LARGE: AddFunctionDescription = {
       throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
     }
     if (count < n) {
-      throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 2 value ${n} is out of range.`));
+      throw new Error(
+        _lt("Function [[FUNCTION_NAME]] parameter 2 value %s is out of range.", n.toString())
+      );
     }
     return result;
   },
@@ -848,7 +856,9 @@ export const SMALL: AddFunctionDescription = {
       throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
     }
     if (count < n) {
-      throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 2 value ${n} is out of range.`));
+      throw new Error(
+        _lt("Function [[FUNCTION_NAME]] parameter 2 value %s is out of range.", n.toString())
+      );
     }
     return result;
   },

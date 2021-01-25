@@ -6,7 +6,8 @@ import { _lt } from "../translation";
 
 const expectNumberValueError = (value: string) =>
   _lt(
-    `The function [[FUNCTION_NAME]] expects a number value, but '${value}' is a string, and cannot be coerced to a number.`
+    "The function [[FUNCTION_NAME]] expects a number value, but '%s' is a string, and cannot be coerced to a number.",
+    value
   );
 
 export function toNumber(value: any): number {
@@ -157,7 +158,8 @@ export function toString(value: any): string {
 
 const expectBooleanValueError = (value: string) =>
   _lt(
-    `The function [[FUNCTION_NAME]] expects a boolean value, but '${value}' is a text, and cannot be coerced to a number.`
+    "The function [[FUNCTION_NAME]] expects a boolean value, but '%s' is a text, and cannot be coerced to a number.",
+    value
   );
 
 export function toBoolean(value: any): boolean {
