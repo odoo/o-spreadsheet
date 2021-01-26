@@ -1,7 +1,7 @@
 import { _lt } from "../translation";
 import { AddFunctionDescription } from "../types";
 import { args } from "./arguments";
-import { toBoolean, visitBooleans } from "./helpers";
+import { conditionalVisitBoolean, toBoolean } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // WAIT
@@ -35,17 +35,18 @@ export const AND: AddFunctionDescription = {
     `),
   returns: ["BOOLEAN"],
   compute: function (): boolean {
-    let result = true;
     let foundBoolean = false;
-    visitBooleans(arguments, (b) => {
-      result = result && b;
+    let acc = true;
+    conditionalVisitBoolean(arguments, (arg) => {
       foundBoolean = true;
-      return result;
+      acc = acc && arg;
+      return acc;
     });
+
     if (!foundBoolean) {
       throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
     }
-    return result;
+    return acc;
   },
 };
 
@@ -162,17 +163,17 @@ export const OR: AddFunctionDescription = {
     `),
   returns: ["BOOLEAN"],
   compute: function (): boolean {
-    let result = false;
     let foundBoolean = false;
-    visitBooleans(arguments, (b) => {
-      result = result || b;
+    let acc = false;
+    conditionalVisitBoolean(arguments, (arg) => {
       foundBoolean = true;
-      return !result;
+      acc = acc || arg;
+      return !acc;
     });
     if (!foundBoolean) {
       throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
     }
-    return result;
+    return acc;
   },
 };
 
@@ -191,16 +192,16 @@ export const XOR: AddFunctionDescription = {
     `),
   returns: ["BOOLEAN"],
   compute: function (): boolean {
-    let result = false;
     let foundBoolean = false;
-    visitBooleans(arguments, (b) => {
-      result = result ? !b : b;
+    let acc = false;
+    conditionalVisitBoolean(arguments, (arg) => {
       foundBoolean = true;
-      return true;
+      acc = acc ? !arg : arg;
+      return true; // no stop condition
     });
     if (!foundBoolean) {
       throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
     }
-    return result;
+    return acc;
   },
 };

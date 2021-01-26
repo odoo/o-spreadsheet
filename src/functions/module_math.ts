@@ -2,7 +2,7 @@ import { _lt } from "../translation";
 import { AddFunctionDescription, ReturnFormatType } from "../types";
 import { args } from "./arguments";
 import {
-  reduceArgs,
+  reduceAny,
   reduceNumbers,
   strictToNumber,
   toNumber,
@@ -384,7 +384,7 @@ export const COUNTBLANK: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (): number {
-    return reduceArgs(
+    return reduceAny(
       arguments,
       (acc, a) => (a === null || a === undefined || a === "" ? acc + 1 : acc),
       0
@@ -459,7 +459,7 @@ export const COUNTUNIQUE: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (): number {
-    return reduceArgs(arguments, (acc, a) => (isDefined(a) ? acc.add(a) : acc), new Set()).size;
+    return reduceAny(arguments, (acc, a) => (isDefined(a) ? acc.add(a) : acc), new Set()).size;
   },
 };
 

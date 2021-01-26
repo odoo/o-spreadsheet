@@ -419,7 +419,7 @@ export const NETWORKDAYS_INTL: AddFunctionDescription = {
     const daysWeekend = weekendToDayNumber(weekend);
     let timesHoliday = new Set();
     if (holidays !== undefined) {
-      visitAny(holidays, (h) => {
+      visitAny([holidays], (h) => {
         const holiday = toJsDate(h);
         timesHoliday.add(holiday.getTime());
       });
@@ -688,7 +688,7 @@ export const WORKDAY_INTL: AddFunctionDescription = {
 
     let timesHoliday = new Set();
     if (holidays !== undefined) {
-      visitAny(holidays, (h) => {
+      visitAny([holidays], (h) => {
         const holiday = toJsDate(h);
         timesHoliday.add(holiday.getTime());
       });
