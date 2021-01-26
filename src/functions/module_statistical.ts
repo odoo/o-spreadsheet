@@ -4,7 +4,7 @@ import { AddFunctionDescription, ReturnFormatType } from "../types";
 import { args } from "./arguments";
 import {
   dichotomicPredecessorSearch,
-  reduceArgs,
+  reduceAny,
   reduceNumbers,
   reduceNumbersTextAs0,
   toNumber,
@@ -20,12 +20,12 @@ function covariance(dataY: any[], dataX: any[], isSample: boolean): number {
   let lenY = 0;
   let lenX = 0;
 
-  visitAny(dataY, (y) => {
+  visitAny([dataY], (y) => {
     flatDataY.push(y);
     lenY += 1;
   });
 
-  visitAny(dataX, (x) => {
+  visitAny([dataX], (x) => {
     flatDataX.push(x);
     lenX += 1;
   });
@@ -105,7 +105,7 @@ function centile(data: any, percent: any, isInclusive: boolean): number {
   let sortedArray: number[] = [];
   let index: number;
   let count = 0;
-  visitAny(data, (d) => {
+  visitAny([data], (d) => {
     if (typeof d === "number") {
       index = dichotomicPredecessorSearch(sortedArray, d);
       sortedArray.splice(index + 1, 0, d);
@@ -175,7 +175,7 @@ export const AVERAGE: AddFunctionDescription = {
         "The first value or range to consider when calculating the average value."
       )}
       value2 (number, range<number>, repeating) ${_lt(
-        "Additional values or ranges to consider when calculating the average value."
+        "Additional vlues or ranges to consider when calculating the average value."
       )}
     `),
   returns: ["NUMBER"],
@@ -424,7 +424,7 @@ export const COUNTA: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (): number {
-    return reduceArgs(arguments, (acc, a) => (a !== undefined && a !== null ? acc + 1 : acc), 0);
+    return reduceAny(arguments, (acc, a) => (a !== undefined && a !== null ? acc + 1 : acc), 0);
   },
 };
 
@@ -492,7 +492,7 @@ export const LARGE: AddFunctionDescription = {
     let largests: number[] = [];
     let index: number;
     let count = 0;
-    visitAny(data, (d) => {
+    visitAny([data], (d) => {
       if (typeof d === "number") {
         index = dichotomicPredecessorSearch(largests, d);
         largests.splice(index + 1, 0, d);
@@ -814,7 +814,7 @@ export const SMALL: AddFunctionDescription = {
     let largests: number[] = [];
     let index: number;
     let count = 0;
-    visitAny(data, (d) => {
+    visitAny([data], (d) => {
       if (typeof d === "number") {
         index = dichotomicPredecessorSearch(largests, d);
         largests.splice(index + 1, 0, d);

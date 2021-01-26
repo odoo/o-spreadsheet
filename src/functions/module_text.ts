@@ -1,7 +1,7 @@
 import { _lt } from "../translation";
 import { AddFunctionDescription } from "../types";
 import { args } from "./arguments";
-import { reduceArgs, toBoolean, toNumber, toString } from "./helpers";
+import { reduceAny, toBoolean, toNumber, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // CHAR
@@ -39,7 +39,7 @@ export const CONCATENATE: AddFunctionDescription = {
   `),
   returns: ["STRING"],
   compute: function (): string {
-    return reduceArgs(arguments, (acc, a) => acc + toString(a), "");
+    return reduceAny(arguments, (acc, a) => acc + toString(a), "");
   },
 };
 
@@ -118,7 +118,7 @@ export const JOIN: AddFunctionDescription = {
   returns: ["STRING"],
   compute: function (delimiter: any, ...valuesOrArrays: any): string {
     const _delimiter = toString(delimiter);
-    return reduceArgs(valuesOrArrays, (acc, a) => (acc ? acc + _delimiter : "") + toString(a), "");
+    return reduceAny(valuesOrArrays, (acc, a) => (acc ? acc + _delimiter : "") + toString(a), "");
   },
 };
 
@@ -343,7 +343,7 @@ export const TEXTJOIN: AddFunctionDescription = {
     const _delimiter = toString(delimiter);
     const _ignoreEmpty = toBoolean(ignoreEmpty);
     let n = 0;
-    return reduceArgs(
+    return reduceAny(
       textsOrArrays,
       (acc, a) =>
         !(_ignoreEmpty && toString(a) === "") ? (n++ ? acc + _delimiter : "") + toString(a) : acc,

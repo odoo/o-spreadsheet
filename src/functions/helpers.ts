@@ -4,13 +4,17 @@ import { numberToJsDate, parseDateTime } from "../functions/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _lt } from "../translation";
 
+// -----------------------------------------------------------------------------
+// FORMAT FUNCTIONS
+// -----------------------------------------------------------------------------
+
 const expectNumberValueError = (value: string) =>
   _lt(
     "The function [[FUNCTION_NAME]] expects a number value, but '%s' is a string, and cannot be coerced to a number.",
     value
   );
 
-export function toNumber(value: any): number {
+export function toNumber(value: unknown): number {
   switch (typeof value) {
     case "number":
       return value;
@@ -26,121 +30,15 @@ export function toNumber(value: any): number {
       }
       throw new Error(expectNumberValueError(value));
     default:
-      return value || 0;
+      return 0;
   }
 }
 
-export function strictToNumber(value: any): number {
+export function strictToNumber(value: unknown): number {
   if (value === "") {
     throw new Error(expectNumberValueError(value));
   }
   return toNumber(value);
-}
-
-export function visitNumbers(args: IArguments | any[], cb: (arg: number) => void): void {
-  for (let n of args) {
-    if (Array.isArray(n)) {
-      for (let i of n) {
-        for (let j of i) {
-          if (typeof j === "number") {
-            cb(j);
-          }
-        }
-      }
-    } else {
-      cb(strictToNumber(n));
-    }
-  }
-}
-
-function visitNumbersTextAs0(args: IArguments | any[], cb: (arg: number) => void): void {
-  for (let n of args) {
-    if (Array.isArray(n)) {
-      for (let i of n) {
-        for (let j of i) {
-          if (j !== undefined && j !== null) {
-            if (typeof j === "number") {
-              cb(j);
-            } else if (typeof j === "boolean") {
-              cb(toNumber(j));
-            } else {
-              cb(0);
-            }
-          }
-        }
-      }
-    } else {
-      cb(toNumber(n));
-    }
-  }
-}
-
-export function visitAny(arg: any, cb: (a: any) => void): void {
-  if (Array.isArray(arg)) {
-    for (let col of arg) {
-      for (let cell of col) {
-        cb(cell);
-      }
-    }
-  } else {
-    cb(arg);
-  }
-}
-
-export function visitAnys(
-  args: IArguments | any[],
-  rangeCb: (a: any) => boolean,
-  argCb: (a: any) => boolean
-): void {
-  for (let arg of args) {
-    if (Array.isArray(arg)) {
-      for (let col of arg) {
-        for (let cell of col) {
-          if (!rangeCb(cell)) return;
-        }
-      }
-    } else {
-      if (!argCb(arg)) return;
-    }
-  }
-}
-
-export function reduceArgs<T>(
-  args: IArguments | any[],
-  cb: (acc: T, a: any) => T,
-  initialValue: T
-): T {
-  let val = initialValue;
-  for (let arg of args) {
-    visitAny(arg, (a) => {
-      val = cb(val, a);
-    });
-  }
-  return val;
-}
-
-export function reduceNumbers<T>(
-  args: IArguments | any[],
-  cb: (acc: T, a: any) => T,
-  initialValue: T
-): T {
-  let val = initialValue;
-  visitNumbers(args, (a) => {
-    val = cb(val, a);
-  });
-  return val;
-}
-
-export function reduceNumbersTextAs0<T>(
-  args: IArguments | any[],
-  cb: (acc: T, a: any) => T,
-  initialValue: T
-): T {
-  let val = initialValue;
-  visitNumbersTextAs0(args, (a) => {
-    val = cb(val, a);
-  });
-  return val;
 }
 
 export function toString(value: any): string {
@@ -162,7 +60,7 @@ const expectBooleanValueError = (value: string) =>
     value
   );
 
-export function toBoolean(value: any): boolean {
+export function toBoolean(value: unknown): boolean {
   switch (typeof value) {
     case "boolean":
       return value;
@@ -186,31 +84,208 @@ export function toBoolean(value: any): boolean {
   }
 }
 
-export function strictToBoolean(value: any): boolean {
+export function strictToBoolean(value: unknown): boolean {
   if (value === "") {
     throw new Error(expectBooleanValueError(value));
   }
   return toBoolean(value);
 }
 
-export function visitBooleans(args: IArguments, cb: (a: boolean) => boolean): void {
-  visitAnys(
+export function toJsDate(value: unknown): Date {
+  return numberToJsDate(toNumber(value));
+}
+
+// -----------------------------------------------------------------------------
+// VISIT FUNCTIONS
+// -----------------------------------------------------------------------------
+function visitArgs(
+  args: IArguments | any[],
+  cellCb: (a: unknown) => void,
+  dataCb: (a: unknown) => void
+): void {
+  for (let arg of args) {
+    if (Array.isArray(arg)) {
+      // arg is ref to a Cell/Range
+      for (let col of arg) {
+        for (let cell of col) {
+          cellCb(cell);
+        }
+      }
+    } else {
+      // arg is set directly in the formula function
+      dataCb(arg);
+    }
+  }
+}
+
+export function visitAny(args: IArguments | unknown[], cb: (a: any) => void): void {
+  visitArgs(args, cb, cb);
+}
+
+export function visitNumbers(args: IArguments | unknown[], cb: (arg: number) => void): void {
+  visitArgs(
     args,
-    (cell) => {
-      if (typeof cell === "boolean") {
-        return cb(cell);
+    (cellValue) => {
+      if (typeof cellValue === "number") {
+        cb(cellValue);
       }
-      if (typeof cell === "number") {
-        return cb(cell ? true : false);
-      }
-      return true;
     },
-    (arg) => (arg !== null ? cb(strictToBoolean(arg)) : true)
+    (argValue) => {
+      cb(strictToNumber(argValue));
+    }
   );
 }
 
-export function toJsDate(value: any): Date {
-  return numberToJsDate(toNumber(value));
+export function visitBooleans(args: IArguments | unknown[], cb: (a: boolean) => void): void {
+  visitArgs(
+    args,
+    (cellValue) => {
+      if (typeof cellValue === "boolean") {
+        cb(cellValue);
+      }
+      if (typeof cellValue === "number") {
+        cb(cellValue ? true : false);
+      }
+    },
+    (argValue) => {
+      if (argValue !== null) {
+        cb(strictToBoolean(argValue));
+      }
+    }
+  );
+}
+
+// -----------------------------------------------------------------------------
+// REDUCE FUNCTIONS
+// -----------------------------------------------------------------------------
+
+function reduceArgs<T>(
+  args: IArguments | any[],
+  cellCb: (acc: T, a: any) => T,
+  dataCb: (acc: T, a: any) => T,
+  initialValue: T
+): T {
+  let val = initialValue;
+  for (let arg of args) {
+    if (Array.isArray(arg)) {
+      // arg is ref to a Cell/Range
+      for (let col of arg) {
+        for (let cell of col) {
+          val = cellCb(val, cell);
+        }
+      }
+    } else {
+      // arg is set directly in the formula function
+      val = dataCb(val, arg);
+    }
+  }
+  return val;
+}
+
+export function reduceAny(
+  args: IArguments | any[],
+  cb: (acc: any, a: any) => any,
+  initialValue: any
+): any {
+  return reduceArgs(args, cb, cb, initialValue);
+}
+
+export function reduceNumbers(
+  args: IArguments | any[],
+  cb: (acc: number, a: any) => number,
+  initialValue: number
+): number {
+  return reduceArgs(
+    args,
+    (acc, cellValue) => {
+      if (typeof cellValue === "number") {
+        return cb(acc, cellValue);
+      }
+      return acc;
+    },
+    (acc, argValue) => {
+      return cb(acc, strictToNumber(argValue));
+    },
+    initialValue
+  );
+}
+
+export function reduceNumbersTextAs0(
+  args: IArguments | any[],
+  cb: (acc: number, a: any) => number,
+  initialValue: number
+): number {
+  return reduceArgs(
+    args,
+    (acc, cellValue) => {
+      if (cellValue !== undefined && cellValue !== null) {
+        if (typeof cellValue === "number") {
+          return cb(acc, cellValue);
+        } else if (typeof cellValue === "boolean") {
+          return cb(acc, toNumber(cellValue));
+        } else {
+          return cb(acc, 0);
+        }
+      }
+      return acc;
+    },
+    (acc, argValue) => {
+      return cb(acc, toNumber(argValue));
+    },
+    initialValue
+  );
+}
+
+// -----------------------------------------------------------------------------
+// CONDITIONAL EXPLORE FUNCTIONS
+// -----------------------------------------------------------------------------
+
+/**
+ * This function allows to visit arguments and stop the visit if necessary.
+ * It is mainly used to bypass argument evaluation for functions like OR or AND.
+ */
+function conditionalVisitArgs(
+  args: IArguments | any[],
+  cellCb: (a: unknown) => boolean,
+  dataCb: (a: unknown) => boolean
+): void {
+  for (let arg of args) {
+    if (Array.isArray(arg)) {
+      // arg is ref to a Cell/Range
+      for (let col of arg) {
+        for (let cell of col) {
+          if (!cellCb(cell)) return;
+        }
+      }
+    } else {
+      // arg is set directly in the formula function
+      if (!dataCb(arg)) return;
+    }
+  }
+}
+
+export function conditionalVisitBoolean(
+  args: IArguments | any[],
+  cb: (a: boolean) => boolean
+): void {
+  return conditionalVisitArgs(
+    args,
+    (cellValue) => {
+      if (typeof cellValue === "boolean") {
+        return cb(cellValue);
+      }
+      if (typeof cellValue === "number") {
+        return cb(cellValue ? true : false);
+      }
+      return true;
+    },
+    (argValue) => {
+      if (argValue !== null) {
+        return cb(strictToBoolean(argValue));
+      }
+      return true;
+    }
+  );
 }
 
 // -----------------------------------------------------------------------------
