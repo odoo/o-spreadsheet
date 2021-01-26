@@ -1,5 +1,5 @@
 const express = require("express");
-const cors = require("cors")
+const cors = require("cors");
 const fs = require("fs");
 const expressWS = require("express-ws")(express());
 const app = expressWS.app;
@@ -7,13 +7,34 @@ const app = expressWS.app;
 app.use(cors());
 app.use(express.json());
 
-const aWss = expressWS.getWss("/");
-const messages = [];
+let messages = [];
 
+// Creating the log file for this specific session
+if (!fs.existsSync("./logs/")) {
+  fs.mkdirSync("./logs/");
+}
 const logFile = fs.createWriteStream(`./logs/log-${Date.now()}`);
 
+// restoring the messages of the previous sessions
+const currentSessionFile = "./logs/session.json";
+if (fs.existsSync(currentSessionFile)) {
+  messages = JSON.parse(fs.readFileSync(currentSessionFile));
+  log(`loaded ${messages.length} messages from ${currentSessionFile}`);
+}
+
+// save the messages before exiting gracefully
+[`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `SIGTERM`].forEach((eventType) => {
+  process.on(eventType, () => {
+    log(`writing ${messages.length} messages to ${currentSessionFile}`);
+    fs.writeFileSync(currentSessionFile, JSON.stringify(messages));
+    process.exit();
+  });
+});
+
+// setup the socket connection for the clients to connect
 let serverRevisionId = "START_REVISION";
 
+const aWss = expressWS.getWss("/");
 expressWS.getWss().on("connection", (ws) => {
   log(`Connection: ${messages.length} messages have been sent`);
 });
@@ -21,11 +42,11 @@ expressWS.getWss().on("connection", (ws) => {
 function log(message) {
   const msg = `[${new Date().toLocaleTimeString()}]: ${message}`;
   console.log(msg);
-  logFile.write(msg+"\r\n");
-
+  logFile.write(msg + "\r\n");
 }
 
 function logMessage(msg) {
+  log(msg.type);
   switch (msg.type) {
     case "REMOTE_REVISION":
       log(`Revision: ${msg.nextRevisionId} : ${JSON.stringify(msg.revision.commands)}`);
@@ -45,9 +66,9 @@ function broadcast(message) {
   });
 }
 
-app.get("/", function(req, res) {
+app.get("/", function (req, res) {
   res.send(messages);
-})
+});
 
 app.ws("/", function (ws, req) {
   ws.on("message", function (message) {
@@ -90,4 +111,6 @@ app.ws("/", function (ws, req) {
   });
 });
 
-app.listen(9000);
+app.listen(9000, () => {
+  console.log("connected to :9000");
+});
