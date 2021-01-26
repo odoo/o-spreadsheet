@@ -112,7 +112,7 @@ export const HLOOKUP: AddFunctionDescription = {
     if (colIndex > -1) {
       return range[colIndex][_index - 1];
     } else {
-      throw new Error(_lt(`Did not find value '${searchKey}' in [[FUNCTION_NAME]] evaluation.`));
+      throw new Error(_lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", searchKey));
     }
   },
 };
@@ -139,7 +139,7 @@ export const LOOKUP: AddFunctionDescription = {
 
     const index = dichotomicPredecessorSearch(searchRange, searchKey);
     if (index === -1) {
-      throw new Error(_lt(`Did not find value '${searchKey}' in [[FUNCTION_NAME]] evaluation.`));
+      throw new Error(_lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", searchKey));
     }
     if (resultRange === undefined) {
       return verticalSearch ? searchArray.pop()[index] : searchArray[index].pop();

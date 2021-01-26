@@ -381,7 +381,7 @@ export class EvaluationPlugin extends UIPlugin {
         return evalContext.getters.getRangeString(range, sheetId);
       }
       if (range.invalidSheetName) {
-        throw new Error(_lt(`Invalid sheet name: ${range.invalidSheetName}`));
+        throw new Error(_lt("Invalid sheet name: %s", range.invalidSheetName));
       }
       if (range.zone.left !== range.zone.right || range.zone.top !== range.zone.bottom) {
         // it's a range
