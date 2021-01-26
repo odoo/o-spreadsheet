@@ -85,15 +85,23 @@ export function compile(str: NormalizedFormula): CompiledFormula {
 
       if (nbrArg < functionDefinition.minArgRequired) {
         throw new Error(
-          _lt(`Invalid number of arguments for the ${ast.value.toUpperCase()} function.
-          Expected ${functionDefinition.minArgRequired} minimum, but got ${nbrArg} instead.`)
+          _lt(
+            "Invalid number of arguments for the %s function. Expected %s minimum, but got %s instead.",
+            ast.value.toUpperCase(),
+            functionDefinition.minArgRequired.toString(),
+            nbrArg.toString()
+          )
         );
       }
 
       if (nbrArg > functionDefinition.maxArgPossible) {
         throw new Error(
-          _lt(`Invalid number of arguments for the ${ast.value.toUpperCase()} function.
-          Expected ${functionDefinition.maxArgPossible} maximum, but got ${nbrArg} instead.`)
+          _lt(
+            "Invalid number of arguments for the %s function. Expected %s maximum, but got %s instead.",
+            ast.value.toUpperCase(),
+            functionDefinition.maxArgPossible.toString(),
+            nbrArg.toString()
+          )
         );
       }
 
@@ -103,8 +111,12 @@ export function compile(str: NormalizedFormula): CompiledFormula {
         const nbrRepeatingArg = nbrArg - argBeforeRepeat;
         if (nbrRepeatingArg % repeatingArg !== 0) {
           throw new Error(
-            _lt(`Invalid number of arguments for the ${ast.value.toUpperCase()} function.
-            Expected all arguments after position ${argBeforeRepeat} to be supplied by groups of ${repeatingArg} arguments`)
+            _lt(
+              "Invalid number of arguments for the %s function. Expected all arguments after position %s to be supplied by groups of %s arguments",
+              ast.value.toUpperCase(),
+              argBeforeRepeat.toString(),
+              repeatingArg.toString()
+            )
           );
         }
       }
