@@ -106,9 +106,11 @@ function visitArgs(
   for (let arg of args) {
     if (Array.isArray(arg)) {
       // arg is ref to a Cell/Range
-      for (let col of arg) {
-        for (let cell of col) {
-          cellCb(cell);
+      const lenRow = arg.length;
+      const lenCol = arg[0].length;
+      for (let y = 0; y < lenCol; y++) {
+        for (let x = 0; x < lenRow; x++) {
+          cellCb(arg[x][y]);
         }
       }
     } else {
@@ -169,9 +171,11 @@ function reduceArgs<T>(
   for (let arg of args) {
     if (Array.isArray(arg)) {
       // arg is ref to a Cell/Range
-      for (let col of arg) {
-        for (let cell of col) {
-          val = cellCb(val, cell);
+      const lenRow = arg.length;
+      const lenCol = arg[0].length;
+      for (let y = 0; y < lenCol; y++) {
+        for (let x = 0; x < lenRow; x++) {
+          val = cellCb(val, arg[x][y]);
         }
       }
     } else {
@@ -252,9 +256,11 @@ function conditionalVisitArgs(
   for (let arg of args) {
     if (Array.isArray(arg)) {
       // arg is ref to a Cell/Range
-      for (let col of arg) {
-        for (let cell of col) {
-          if (!cellCb(cell)) return;
+      const lenRow = arg.length;
+      const lenCol = arg[0].length;
+      for (let y = 0; y < lenCol; y++) {
+        for (let x = 0; x < lenRow; x++) {
+          if (!cellCb(arg[x][y])) return;
         }
       }
     } else {
