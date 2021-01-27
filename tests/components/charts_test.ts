@@ -338,3 +338,63 @@ describe("figures", () => {
     expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe("A2:A4");
   });
 });
+describe("charts with multiple sheets", () => {
+  beforeEach(async () => {
+    fixture = makeTestFixture();
+    mockChartData = mockChart();
+    model = new Model({
+      sheets: [
+        {
+          name: "Sheet1",
+          cells: {
+            B1: { content: "first dataset" },
+            B2: { content: "12" },
+            B3: { content: "13" },
+            B4: { content: "14" },
+            C1: { content: "second dataset" },
+            C2: { content: "2" },
+            C3: { content: "3" },
+            C4: { content: "4" },
+            A2: { content: "Emily Anderson (Emmy)" },
+            A3: { content: "Sophie Allen (Saffi)" },
+            A4: { content: "Chloe Adams" },
+          },
+        },
+        {
+          name: "Sheet2",
+          figures: [
+            {
+              id: "1",
+              tag: "chart",
+              width: 400,
+              height: 300,
+              x: 100,
+              y: 100,
+              data: {
+                type: "line",
+                title: "demo chart",
+                labelRange: "Sheet1!A2:A4",
+                dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+                dataSetsHaveTitle: true,
+              },
+            },
+          ],
+        },
+      ],
+    });
+    parent = new GridParent(model);
+    await parent.mount(fixture);
+    await nextTick();
+  });
+  afterEach(() => {
+    fixture.remove();
+  });
+  test("delete sheet containing chart data doesnt crash", async () => {
+    expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
+    model.dispatch("DELETE_SHEET", { sheetId: model.getters.getActiveSheetId() });
+    const runtimeChart = model.getters.getChartRuntime("1");
+    expect(runtimeChart).toBeDefined();
+    await nextTick();
+    expect(fixture.querySelector(".o-chart-container")).toBeDefined();
+  });
+});

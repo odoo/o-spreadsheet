@@ -555,6 +555,7 @@ describe("history", () => {
       expect(model.getters.getRangeValues("Sheet1!B2", sheet1Id)).toEqual([[true]]);
       expect(model.getters.getRangeValues("Sheet2!B2", sheet2Id)).toEqual([[true]]);
       expect(model.getters.getRangeValues("Sheet2!B2", sheet1Id)).toEqual([[true]]);
+      expect(model.getters.getRangeValues("B2", "invalidSheetId")).toEqual([[]]);
     });
   });
 });

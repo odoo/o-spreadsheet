@@ -31,6 +31,7 @@ export interface CoreGetters {
   applyOffset: SheetPlugin["applyOffset"];
   getEvaluationSheets: SheetPlugin["getEvaluationSheets"];
   getSheet: SheetPlugin["getSheet"];
+  tryGetSheet: SheetPlugin["tryGetSheet"];
   getSheetName: SheetPlugin["getSheetName"];
   getSheetIdByName: SheetPlugin["getSheetIdByName"];
   getSheets: SheetPlugin["getSheets"];

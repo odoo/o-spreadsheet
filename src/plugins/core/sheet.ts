@@ -40,6 +40,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "applyOffset",
     "getSheetName",
     "getSheet",
+    "tryGetSheet",
     "getSheetIdByName",
     "getSheets",
     "getVisibleSheets",
@@ -266,6 +267,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   // Getters
   // ---------------------------------------------------------------------------
 
+  tryGetSheet(sheetId: UID): Sheet | undefined {
+    return this.sheets[sheetId];
+  }
+
   getSheet(sheetId: UID): Sheet {
     const sheet = this.sheets[sheetId];
     if (!sheet) {
@@ -320,7 +325,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   getCell(sheetId: UID, col: number, row: number): Cell | undefined {
-    const sheet = this.getSheet(sheetId);
+    const sheet = this.tryGetSheet(sheetId);
     return (sheet && sheet.rows[row] && sheet.rows[row].cells[col]) || undefined;
   }
 
@@ -912,7 +917,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const freezeRow = symbol.includes("$", 1);
     x += freezeCol && updateFreeze ? 0 : offsetX;
     y += freezeRow && updateFreeze ? 0 : offsetY;
-    const sheet = this.getters.getSheet(referenceSheetId || sheetId);
+    const sheet = this.getSheet(referenceSheetId || sheetId);
     if (!sheet || x < 0 || x >= sheet.cols.length || y < 0 || y >= sheet.rows.length) {
       return INCORRECT_RANGE_STRING;
     }

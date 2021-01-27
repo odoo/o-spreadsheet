@@ -724,7 +724,7 @@ describe.skip("multiple sheets", function () {
 test.skip("select a graph, it should have the  resize handles", () => {});
 describe.skip("size and position", function () {
   test("resize columns before a graph, it should move", () => {});
-  test("resize columns before within graph, it should resize and rerender at the correct size", () => {});
+  test("resize columns within graph, it should resize and rerender at the correct size", () => {});
   test("delete a column before a graph, it should move", () => {});
   test("delete a columns within graph, it should resize and rerender at the size-sizeOfRemovedColumn", () => {});
   test("delete all columns that a graph is defined on, it should remove the graph", () => {});
