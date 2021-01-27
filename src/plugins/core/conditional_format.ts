@@ -179,11 +179,23 @@ export class ConditionalFormatPlugin
     switch (rule.type) {
       case "CellIsRule":
         if (rule.operator === "Between" || rule.operator === "NotBetween") {
-          if (rule.values.length !== 2) {
+          if (rule.values.length !== 2 || rule.values.some((x) => x === "")) {
             return CancelledReason.InvalidNumberOfArgs;
           }
         } else {
-          if (rule.values.length !== 1) {
+          if (
+            [
+              "BeginsWith",
+              "ContainsText",
+              "EndsWith",
+              "GreaterThan",
+              "GreaterThanOrEqual",
+              "LessThan",
+              "LessThanOrEqual",
+              "NotContains",
+            ].includes(rule.operator) &&
+            (rule.values[0] === "" || rule.values[0] === undefined)
+          ) {
             return CancelledReason.InvalidNumberOfArgs;
           }
         }

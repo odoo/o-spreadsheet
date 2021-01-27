@@ -1,6 +1,6 @@
 import { toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CancelledReason } from "../../src/types";
+import { CancelledReason, ConditionalFormattingOperatorValues } from "../../src/types";
 import { createColorScale, createEqualCF, setCellContent } from "../helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -60,7 +60,7 @@ describe("conditional format", () => {
     });
   });
 
-  test("Add conditional formating on inactive sheet", () => {
+  test("Add conditional formatting on inactive sheet", () => {
     model = new Model();
     model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
     const [activeSheet, sheet] = model.getters.getSheets();
@@ -339,10 +339,11 @@ describe("conditional format", () => {
   });
 
   test("Set conditionalFormat on empty cell", () => {
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1"], "", { fillColor: "#FF0000" }, "1"),
       sheetId: model.getters.getActiveSheetId(),
     });
+    expect(result).toEqual({ status: "SUCCESS" });
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
       fillColor: "#FF0000",
     });
@@ -825,6 +826,50 @@ describe("conditional formats types", () => {
       setCellContent(model, "A1", "qsdf");
       expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
     });
+
+    test.each([
+      ["GreaterThan", []],
+      ["GreaterThan", [""]],
+      ["GreaterThanOrEqual", []],
+      ["GreaterThanOrEqual", [""]],
+      ["LessThan", []],
+      ["LessThan", [""]],
+      ["LessThanOrEqual", []],
+      ["LessThanOrEqual", [""]],
+      ["BeginsWith", []],
+      ["BeginsWith", [""]],
+      ["ContainsText", []],
+      ["ContainsText", [""]],
+      ["EndsWith", []],
+      ["EndsWith", [""]],
+      ["NotContains", []],
+      ["NotContains", [""]],
+      ["Between", ["1"]],
+      ["Between", ["1", ""]],
+      ["NotBetween", ["1"]],
+      ["NotBetween", ["1", ""]],
+    ])(
+      "operators with invalid number of arguments",
+      (operator: ConditionalFormattingOperatorValues, values: []) => {
+        let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: operator,
+              values: values,
+              style: { fillColor: "#ff0f0f" },
+            },
+            ranges: ["A1"],
+            id: "11",
+          },
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        expect(result).toEqual({
+          status: "CANCELLED",
+          reason: CancelledReason.InvalidNumberOfArgs,
+        });
+      }
+    );
   });
 
   describe("color scale", () => {
