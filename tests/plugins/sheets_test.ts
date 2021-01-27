@@ -148,11 +148,17 @@ describe("sheets", () => {
     expect(getCell(model, "A1")!.value).toBe(3);
   });
 
-  test("throw if invalid sheet name", () => {
+  test("show #ERROR if invalid sheet name in content", () => {
     const model = new Model();
     setCellContent(model, "A1", "=Sheet133!A1");
 
     expect(getCell(model, "A1")!.value).toBe("#ERROR");
+  });
+
+  test("does not throw if invalid sheetId", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "hello");
+    expect(getCell(model, "A1", "invalidSheetId")!).toBe(undefined);
   });
 
   test("cannot activate an invalid sheet", () => {

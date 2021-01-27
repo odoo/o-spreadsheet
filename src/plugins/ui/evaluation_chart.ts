@@ -175,14 +175,13 @@ export class EvaluationChartPlugin extends UIPlugin {
   }
 
   private mapDefinitionToRuntime(definition: ChartDefinition): ChartConfiguration {
-    const labels = definition.labelRange
-      ? this.getters
-          .getRangeFormattedValues(
-            this.getters.getRangeString(definition.labelRange, definition.sheetId),
-            definition.sheetId
-          )
-          .flat(1)
-      : [];
+    let labels: string[] = [];
+    if (definition.labelRange) {
+      const rangeString = this.getters.getRangeString(definition.labelRange, definition.sheetId);
+      if (rangeString !== "#REF") {
+        labels = this.getters.getRangeFormattedValues(rangeString, definition.sheetId).flat(1);
+      }
+    }
     const runtime = this.getDefaultConfiguration(definition.type, definition.title, labels);
 
     let graphColorIndex = 0;

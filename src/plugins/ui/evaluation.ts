@@ -175,7 +175,7 @@ export class EvaluationPlugin extends UIPlugin {
   getRangeValues(reference: string, defaultSheetId: UID): any[][] {
     const [range, sheetName] = reference.split("!").reverse();
     const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : defaultSheetId;
-    const sheet = sheetId ? this.getters.getSheet(sheetId) : undefined;
+    const sheet = sheetId ? this.getters.tryGetSheet(sheetId) : undefined;
     if (sheet === undefined) return [[]];
     return mapCellsInZone(toZone(range), sheet, (cell) => cell.value);
   }
