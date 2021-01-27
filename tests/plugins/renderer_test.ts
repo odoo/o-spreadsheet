@@ -475,10 +475,11 @@ describe("renderer", () => {
     model.drawGrid(ctx);
     expect(fillStyle).toEqual([]);
     fillStyle = [];
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1"], "", { fillColor: "#DC6CDF" }, "1"),
       sheetId: model.getters.getActiveSheetId(),
     });
+    expect(result).toEqual({ status: "SUCCESS" });
     model.drawGrid(ctx);
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 48, y: 26 }]);
   });
