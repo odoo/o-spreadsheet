@@ -1,9 +1,10 @@
 import { toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
-import { CancelledReason, ConditionalFormat, Style, Zone } from "../../src/types/index";
+import { CancelledReason, CommandSuccess, Zone } from "../../src/types/index";
 import "../canvas.mock";
 import {
+  createEqualCF,
   getBorder,
   getCell,
   getCellContent,
@@ -17,19 +18,6 @@ import {
 function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
   return clipboardPlugin.status === "visible" ? clipboardPlugin.zones : [];
-}
-
-function createEqualCF(
-  ranges: string[],
-  value: string,
-  style: Style,
-  id: string
-): ConditionalFormat {
-  return {
-    ranges,
-    id,
-    rule: { values: [value], operator: "Equal", type: "CellIsRule", style },
-  };
 }
 
 describe("clipboard", () => {
@@ -823,10 +811,12 @@ describe("clipboard", () => {
     setCellContent(model, "A2", "2");
     setCellContent(model, "C1", "1");
     setCellContent(model, "C2", "2");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
       sheetId: model.getters.getActiveSheetId(),
     });
+
+    expect(result).toEqual({ status: "SUCCESS" } as CommandSuccess);
     model.dispatch("COPY", { target: target("A1") });
     model.dispatch("PASTE", { target: target("C1"), onlyValue: true });
     model.dispatch("COPY", { target: target("A2") });
