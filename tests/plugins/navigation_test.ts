@@ -1,3 +1,4 @@
+import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { Viewport } from "../../src/types";
 import "../canvas.mock";
@@ -179,5 +180,27 @@ describe("navigation", () => {
     viewport = model.getters.adjustViewportPosition(viewport);
     expect(viewport.top).toBe(1);
     expect(viewport.bottom).toBe(12);
+  });
+
+  test("move top from top row (of the viewport) with a merge", () => {
+    const model = new Model();
+    let viewport = getViewport(model, 600, 300, 0, 60);
+    expect(viewport.top).toBe(2);
+    expect(viewport.bottom).toBe(14);
+
+    model.dispatch("ADD_MERGE", {
+      sheetId: model.getters.getActiveSheetId(),
+      zone: toZone("A1:A2"),
+    });
+
+    model.dispatch("SELECT_CELL", { col: 0, row: 2 });
+    viewport = model.getters.adjustViewportPosition(viewport);
+    expect(viewport.top).toBe(2);
+    expect(viewport.bottom).toBe(14);
+
+    model.dispatch("SELECT_CELL", { col: 0, row: 1 });
+    viewport = model.getters.adjustViewportPosition(viewport);
+    expect(viewport.top).toBe(0);
+    expect(viewport.bottom).toBe(11);
   });
 });
