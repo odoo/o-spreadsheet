@@ -68,12 +68,28 @@ export class SelectionPlugin extends UIPlugin {
     switch (cmd.type) {
       case "MOVE_POSITION": {
         const [refCol, refRow] = this.getReferenceCoords();
-        const { cols, rows } = this.getters.getActiveSheet();
+        const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
+        let targetCol = refCol;
+        let targetRow = refRow;
+        if (this.getters.isInMerge(sheetId, refCol, refRow)) {
+          while (
+            this.getters.isInSameMerge(
+              sheetId,
+              refCol,
+              refRow,
+              targetCol + cmd.deltaX,
+              targetRow + cmd.deltaY
+            )
+          ) {
+            targetCol += cmd.deltaX;
+            targetRow += cmd.deltaY;
+          }
+        }
         const outOfBound =
-          (cmd.deltaY < 0 && refRow === 0) ||
-          (cmd.deltaY > 0 && refRow === rows.length - 1) ||
-          (cmd.deltaX < 0 && refCol === 0) ||
-          (cmd.deltaX > 0 && refCol === cols.length - 1);
+          (cmd.deltaY < 0 && targetRow === 0) ||
+          (cmd.deltaY > 0 && targetRow === rows.length - 1) ||
+          (cmd.deltaX < 0 && targetCol === 0) ||
+          (cmd.deltaX > 0 && targetCol === cols.length - 1);
         if (outOfBound) {
           return {
             status: "CANCELLED",
