@@ -60,6 +60,34 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([0, rowNumber - 1]);
   });
 
+  test("move bottom from merge in last postition", () => {
+    const model = new Model();
+    const activeSheet = model.getters.getActiveSheet();
+    const rowNumber = activeSheet.rows.length;
+    model.dispatch("ADD_MERGE", {
+      sheetId: activeSheet.id,
+      zone: { top: rowNumber - 2, bottom: rowNumber - 1, left: 0, right: 0 },
+    });
+    model.dispatch("SELECT_CELL", { col: 0, row: rowNumber - 2 });
+    expect(model.getters.getPosition()).toEqual([0, rowNumber - 2]);
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    expect(model.getters.getPosition()).toEqual([0, rowNumber - 2]);
+  });
+
+  test("move right from merge in last postition", () => {
+    const model = new Model();
+    const activeSheet = model.getters.getActiveSheet();
+    const colNumber = activeSheet.cols.length;
+    model.dispatch("ADD_MERGE", {
+      sheetId: activeSheet.id,
+      zone: { top: 0, bottom: 0, left: colNumber - 2, right: colNumber - 1 },
+    });
+    model.dispatch("SELECT_CELL", { col: colNumber - 2, row: 0 });
+    expect(model.getters.getPosition()).toEqual([colNumber - 2, 0]);
+    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    expect(model.getters.getPosition()).toEqual([colNumber - 2, 0]);
+  });
+
   test("move in and out of a merge", () => {
     const model = new Model({
       sheets: [
