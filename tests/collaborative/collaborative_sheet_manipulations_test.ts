@@ -47,6 +47,7 @@ describe("Collaborative Sheet manipulation", () => {
       (user) => user.getters.getVisibleSheets(),
       [sheet1, "3", "2"]
     );
+    expect(alice.getters.getSheetName("2")).not.toEqual(alice.getters.getSheetName("3"));
     expect([alice, bob, charly]).toHaveSynchronizedExportedData();
   });
 

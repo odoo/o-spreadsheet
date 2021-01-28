@@ -81,6 +81,31 @@ export function groupConsecutive(numbers: number[]): number[][] {
 }
 
 /**
+ * Create one generator from two generators by linking
+ * each item of the first generator to the next item of
+ * the second generator.
+ *
+ * Let's say generator G1 yields A, B, C and generator G2 yields X, Y, Z.
+ * The resulting generator of `linkNext(G1, G2)` will yield A', B', C'
+ * where `A' = A & {next: Y}`, `B' = B & {next: Z}` and `C' = C & {next: undefined}`
+ * @param generator
+ * @param nextGenerator
+ */
+export function* linkNext<T>(
+  generator: Generator<T>,
+  nextGenerator: Generator<T>
+): Generator<T & { next?: T }> {
+  nextGenerator.next();
+  for (const item of generator) {
+    const nextItem = nextGenerator.next();
+    yield {
+      ...item,
+      next: nextItem.done ? undefined : nextItem.value,
+    };
+  }
+}
+
+/**
  * This helper function can be used as a type guard when filtering arrays.
  * const foo: number[] = [1, 2, undefined, 4].filter(isDefined)
  */

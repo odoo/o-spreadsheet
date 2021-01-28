@@ -27,6 +27,7 @@ import {
   cellMenuRegistry,
   colMenuRegistry,
   createFullMenuItem,
+  inverseCommandRegistry,
   otRegistry,
   rowMenuRegistry,
   sheetMenuRegistry,
@@ -44,6 +45,17 @@ import {
 
 export const __info__ = {};
 export { Spreadsheet } from "./components/index";
+export {
+  TransportService,
+  CollaborationMessage,
+  ClientJoinedMessage,
+  ClientLeftMessage,
+  ClientMovedMessage,
+  RemoteRevisionMessage,
+  RevisionRedoneMessage,
+  RevisionUndoneMessage,
+} from "./types/collaborative/transport_service";
+export { Client } from "./types/collaborative/session";
 export { DATETIME_FORMAT } from "./constants";
 export { functionCache } from "./formulas/compiler";
 export { normalize } from "./formulas/index";
@@ -80,6 +92,7 @@ export const registries = {
   topbarMenuRegistry,
   topbarComponentRegistry,
   otRegistry,
+  inverseCommandRegistry,
 };
 
 export const helpers = {

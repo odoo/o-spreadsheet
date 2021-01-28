@@ -149,14 +149,15 @@ export class Spreadsheet extends Component<Props> {
 
   mounted() {
     this.model.on("update", this, this.render);
+    this.model.on("unexpected-revision-id", this, () => this.trigger("unexpected-revision-id"));
   }
 
   willUnmount() {
     this.leaveCollaborativeSession();
-    this.model.off("update", this);
   }
 
   private leaveCollaborativeSession() {
+    this.model.off("update", this);
     this.model.leaveSession();
   }
 

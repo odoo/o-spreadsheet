@@ -5,7 +5,7 @@ import { args, functionRegistry } from "../../src/functions";
 import { DEBUG } from "../../src/helpers";
 import { SelectionMode } from "../../src/plugins/ui/selection";
 import { Client } from "../../src/types";
-import { setCellContent } from "../commands_helpers";
+import { createSheet, setCellContent } from "../commands_helpers";
 import { triggerMouseEvent } from "../dom_helper";
 import { makeTestFixture, MockClipboard, nextTick, typeInComposer } from "../helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
@@ -326,5 +326,14 @@ describe("Composer interactions", () => {
     parent.model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     await nextTick();
     expect(spy).not.toHaveBeenCalled();
+  });
+
+  test("The spreadsheet does not render after onbeforeunload", async () => {
+    window.dispatchEvent(new Event("beforeunload", { bubbles: true }));
+    await nextTick();
+    createSheet(parent.model, {});
+    await nextTick();
+    const sheets = document.querySelectorAll(".o-all-sheets .o-sheet");
+    expect(sheets).toHaveLength(parent.model.getters.getVisibleSheets().length - 1);
   });
 });

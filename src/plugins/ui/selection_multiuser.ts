@@ -25,7 +25,7 @@ export class SelectionMultiuserPlugin extends UIPlugin {
         client.id === this.getters.getClient().id ||
         !client.position ||
         client.position.sheetId !== activeSheetId ||
-        !this.isPositionValid(client.position) //TODOMulti Write a test for this condition
+        !this.isPositionValid(client.position)
       ) {
         continue;
       }

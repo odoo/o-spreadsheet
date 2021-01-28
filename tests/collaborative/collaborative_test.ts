@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { DEFAULT_REVISION_ID } from "../../src/constants";
+import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { CoreCommand } from "../../src/types";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
@@ -131,12 +131,14 @@ describe("Multi users synchronisation", () => {
     };
     const catchupMessage: CollaborationMessage = {
       type: "REMOTE_REVISION",
+      version: MESSAGE_VERSION,
       nextRevisionId: "1",
       serverRevisionId: DEFAULT_REVISION_ID,
       revision: { clientId: "alice", commands: [command], id: "1" },
     };
     const nextMessage: CollaborationMessage = {
       type: "REMOTE_REVISION",
+      version: MESSAGE_VERSION,
       nextRevisionId: "2",
       serverRevisionId: "1",
       revision: {
@@ -544,6 +546,7 @@ describe("Multi users synchronisation", () => {
     ];
     const message: CollaborationMessage = {
       type: "REMOTE_REVISION",
+      version: MESSAGE_VERSION,
       nextRevisionId: "42",
       serverRevisionId,
       revision: { clientId: "alice", commands, id: "42" },
@@ -552,15 +555,6 @@ describe("Multi users synchronisation", () => {
     const david = new Model(data, { transportService: network }, [message]);
     network.sendMessage(message);
     expect(david.getters.getActiveSheet().cols.length).toBe(length + 50);
-  });
-
-  describe("Export data", () => {
-    test("exportData throws if there are pending revisions", () => {
-      network.concurrent(() => {
-        setCellContent(alice, "A1", "hello");
-        expect(() => alice.exportData()).toThrow();
-      });
-    });
   });
 
   describe("Evaluation", () => {

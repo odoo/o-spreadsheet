@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { Session } from "../../src/collaborative/session";
-import { DEBOUNCE_TIME } from "../../src/constants";
+import { DEBOUNCE_TIME, MESSAGE_VERSION } from "../../src/constants";
 import { buildRevisionLog } from "../../src/history/factory";
 import { Client } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -41,6 +41,7 @@ describe("Collaborative session", () => {
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_MOVED",
+      version: MESSAGE_VERSION,
       client: { ...client, position: { sheetId: "sheetId", col: 1, row: 2 } },
     });
 
@@ -54,6 +55,7 @@ describe("Collaborative session", () => {
     session.leave();
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_LEFT",
+      version: MESSAGE_VERSION,
       clientId: client.id,
     });
     expect(session.getConnectedClients()).toEqual(new Set());
@@ -62,6 +64,7 @@ describe("Collaborative session", () => {
   test("remote client move", () => {
     transport.sendMessage({
       type: "CLIENT_MOVED",
+      version: MESSAGE_VERSION,
       client: { id: "bob", name: "Bob", position: { sheetId: "sheetId", col: 1, row: 2 } },
     });
     expect(session.getConnectedClients()).toEqual(
@@ -76,6 +79,7 @@ describe("Collaborative session", () => {
     );
     transport.sendMessage({
       type: "CLIENT_LEFT",
+      version: MESSAGE_VERSION,
       clientId: "bob",
     });
     expect(session.getConnectedClients()).toEqual(new Set([client]));
@@ -87,10 +91,12 @@ describe("Collaborative session", () => {
     const spy = jest.spyOn(transport, "sendMessage");
     transport.sendMessage({
       type: "CLIENT_JOINED",
+      version: MESSAGE_VERSION,
       client: { id: "bob", name: "Bob", position: { sheetId: "sheetId", col: 1, row: 2 } },
     });
     expect(spy).toHaveBeenNthCalledWith(2, {
       type: "CLIENT_MOVED",
+      version: MESSAGE_VERSION,
       client: { ...client, position: { sheetId: "sheetId", col: 0, row: 0 } },
     });
   });
@@ -101,6 +107,7 @@ describe("Collaborative session", () => {
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_JOINED",
+      version: MESSAGE_VERSION,
       client: { ...client, position: { sheetId: "sheetId", col: 1, row: 2 } },
     });
   });
@@ -115,9 +122,10 @@ describe("Collaborative session", () => {
     const spy = jest.spyOn(session, "trigger");
     // simulate a revision not in sync with the server
     // e.g. the session missed a revision
-    session["serverRevisionId"] = "invalid";
+    transport["serverRevisionId"] = "invalid";
     transport.sendMessage({
       type: "REMOTE_REVISION",
+      version: MESSAGE_VERSION,
       nextRevisionId: "42",
       revision: {
         clientId: "client_42",
@@ -126,6 +134,38 @@ describe("Collaborative session", () => {
       },
       serverRevisionId: transport["serverRevisionId"],
     });
-    expect(spy).toHaveBeenNthCalledWith(1, "unexpected-revision-id");
+    expect(spy).toHaveBeenNthCalledWith(1, "unexpected-revision-id", {
+      revisionId: "invalid",
+    });
+    expect(spy).not.toHaveBeenCalledWith("remote-revision-received");
+  });
+
+  test("Receiving bad initial revisions should throw", () => {
+    expect(() => {
+      session.join([
+        {
+          type: "REMOTE_REVISION",
+          version: MESSAGE_VERSION,
+          nextRevisionId: "42",
+          revision: {
+            clientId: "client_42",
+            commands: [],
+            id: "42",
+          },
+          serverRevisionId: transport["serverRevisionId"],
+        },
+        {
+          type: "REMOTE_REVISION",
+          version: MESSAGE_VERSION,
+          nextRevisionId: "43",
+          revision: {
+            clientId: "client_43",
+            commands: [],
+            id: "43",
+          },
+          serverRevisionId: "not 42",
+        },
+      ]);
+    }).toThrow();
   });
 });

@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { DEFAULT_REVISION_ID } from "../../src/constants";
+import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { CancelledReason } from "../../src/types";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
@@ -148,6 +148,7 @@ describe("Collaborative local history", () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
+        version: MESSAGE_VERSION,
         nextRevisionId: "1",
         revision: {
           clientId: "bob",
@@ -177,6 +178,7 @@ describe("Collaborative local history", () => {
       {
         type: "REMOTE_REVISION",
         nextRevisionId: "1",
+        version: MESSAGE_VERSION,
         revision: {
           clientId: "bob",
           id: "1",
@@ -186,6 +188,7 @@ describe("Collaborative local history", () => {
       },
       {
         type: "REVISION_UNDONE",
+        version: MESSAGE_VERSION,
         nextRevisionId: "2",
         serverRevisionId: "1",
         undoneRevisionId: "1",
@@ -210,6 +213,7 @@ describe("Collaborative local history", () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
+        version: MESSAGE_VERSION,
         nextRevisionId: "1",
         revision: {
           clientId: "bob",
@@ -220,12 +224,14 @@ describe("Collaborative local history", () => {
       },
       {
         type: "REVISION_UNDONE",
+        version: MESSAGE_VERSION,
         nextRevisionId: "2",
         serverRevisionId: "1",
         undoneRevisionId: "1",
       },
       {
         type: "REVISION_REDONE",
+        version: MESSAGE_VERSION,
         nextRevisionId: "3",
         serverRevisionId: "2",
         redoneRevisionId: "1",

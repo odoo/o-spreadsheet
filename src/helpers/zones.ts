@@ -53,14 +53,6 @@ export function zoneToXc(zone: Zone): string {
 
 /**
  * Expand a zone after inserting columns or rows.
- *
- * @param zone Zone to expand
- * @param start "left" is columns have been inserted, "top" otherwise
- * @param base Index at which the first element has been inserted
- * @param position "after" or "before"
- * @param quantity Number of elements added
- *
- * @returns Updated zone
  */
 export function expandZoneOnInsertion(
   zone: Zone,
@@ -82,6 +74,9 @@ export function expandZoneOnInsertion(
   return { ...zone, [start]: newStart, [end]: newEnd };
 }
 
+/**
+ * Update the selection after column/row addition
+ */
 export function updateSelectionOnInsertion(
   selection: Zone,
   start: "left" | "top",
@@ -100,13 +95,7 @@ export function updateSelectionOnInsertion(
   return selection;
 }
 /**
- * TODOMultiDOODODOD
- *
- * @param zone Zone to reduce
- * @param start "left" if columns have been removed, "top" for rows
- * @param elements Index of removed elements
- *
- * @returns Zone updated
+ * Update the selection after column/row deletion
  */
 export function updateSelectionOnDeletion(
   zone: Zone,
@@ -130,12 +119,6 @@ export function updateSelectionOnDeletion(
 
 /**
  * Reduce a zone after deletion of elements
- *
- * @param zone Zone to reduce
- * @param start "left" if columns have been removed, "top" for rows
- * @param elements Index of removed elements
- *
- * @returns Zone updated or undefined if the zone is no longer valid.
  */
 export function reduceZoneOnDeletion(
   zone: Zone,

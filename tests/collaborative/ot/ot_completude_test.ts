@@ -1,4 +1,5 @@
 import { coreTypes } from "../../../src";
+import { inverseCommandRegistry } from "../../../src/registries";
 import { otRegistry } from "../../../src/registries/ot_registry";
 import { CoreCommandTypes } from "../../../src/types";
 
@@ -32,7 +33,53 @@ describe("Completude", () => {
     const missingTransformations: string | undefined = msg && msg.join("\n");
     expect(missingTransformations).toBeUndefined();
   });
+
+  test("All inverses are written", () => {
+    const commandList = coreTypes;
+    let msg: string[] | undefined = undefined;
+    for (let toInverse of commandList.values()) {
+      if (inverseWhitelist.includes(toInverse)) {
+        continue;
+      }
+      try {
+        inverseCommandRegistry.get(toInverse);
+      } catch (_) {
+        if (!msg) {
+          msg = ["Missing inverses:"];
+          msg.push(`${toInverse}`);
+        }
+      }
+    }
+    let missingInverses: string | undefined = msg && msg.join("\n");
+    if (missingInverses) {
+      missingInverses += "\nPlease implement them or add them explicitly to the whitelist.";
+    }
+    expect(missingInverses).toBeUndefined();
+  });
 });
+
+/**
+ * Commands that do not need an inverse function
+ */
+const inverseWhitelist: CoreCommandTypes[] = [
+  "UPDATE_CELL",
+  "UPDATE_CELL_POSITION",
+  "CLEAR_CELL",
+  "DELETE_CONTENT",
+  "RESIZE_COLUMNS",
+  "RESIZE_ROWS",
+  "MOVE_SHEET",
+  "RENAME_SHEET",
+  "ADD_CONDITIONAL_FORMAT",
+  "REMOVE_CONDITIONAL_FORMAT",
+  "DELETE_FIGURE",
+  "UPDATE_FIGURE",
+  "SET_FORMATTING",
+  "CLEAR_FORMATTING",
+  "SET_BORDER",
+  "SET_DECIMAL",
+  "UPDATE_CHART",
+];
 
 function none(): Set<CoreCommandTypes> {
   return new Set();

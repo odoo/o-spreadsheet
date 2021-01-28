@@ -101,7 +101,7 @@ export type Getters = CoreGetters & {
 
   getClient: Session["getClient"];
   getConnectedClients: Session["getConnectedClients"];
-  // getRevisionLogs: Clients["getRevisionLogs"];
+  isFullySynchronized: Session["isFullySynchronized"];
 
   getActiveSheetId: SheetUIPlugin["getActiveSheetId"];
   getActiveSheet: SheetUIPlugin["getActiveSheet"];

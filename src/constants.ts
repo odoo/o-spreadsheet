@@ -48,3 +48,5 @@ export const MAX_HISTORY_STEPS = 99;
 export const DEFAULT_REVISION_ID = "START_REVISION";
 
 export const DEBOUNCE_TIME = 1000;
+
+export const MESSAGE_VERSION = 1;

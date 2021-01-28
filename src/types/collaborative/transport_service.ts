@@ -2,38 +2,42 @@ import { RevisionData } from "..";
 import { UID } from "../misc";
 import { Client, ClientId } from "./session";
 
-export interface RemoteRevisionMessage {
+export interface AbstractMessage {
+  version: number;
+}
+
+export interface RemoteRevisionMessage extends AbstractMessage {
   type: "REMOTE_REVISION";
   revision: RevisionData;
   nextRevisionId: UID;
   serverRevisionId: UID;
 }
 
-export interface RevisionUndoneMessage {
+export interface RevisionUndoneMessage extends AbstractMessage {
   type: "REVISION_UNDONE";
   undoneRevisionId: UID;
   nextRevisionId: UID;
   serverRevisionId: UID;
 }
 
-export interface RevisionRedoneMessage {
+export interface RevisionRedoneMessage extends AbstractMessage {
   type: "REVISION_REDONE";
   redoneRevisionId: UID;
   nextRevisionId: UID;
   serverRevisionId: UID;
 }
 
-export interface ClientJoinedMessage {
+export interface ClientJoinedMessage extends AbstractMessage {
   type: "CLIENT_JOINED";
   client: Required<Client>;
 }
 
-export interface ClientLeftMessage {
+export interface ClientLeftMessage extends AbstractMessage {
   type: "CLIENT_LEFT";
   clientId: ClientId;
 }
 
-export interface ClientMovedMessage {
+export interface ClientMovedMessage extends AbstractMessage {
   type: "CLIENT_MOVED";
   client: Required<Client>;
 }
@@ -65,16 +69,17 @@ export interface TransportService<T = any> {
    * a new message is received.
    * The new message is given to the callback.
    *
-   * ```
+   * ```js
    * transportService.onNewMessage(id, (message) => {
    *   // ... handle the new message
    * })
    * ```
+   * The `id` is used to unregister this callback when the session is closed.
    */
-  onNewMessage: (id: UID, callback: NewMessageCallback) => void;
+  onNewMessage: (id: UID, callback: NewMessageCallback<T>) => void;
 
   /**
-   * Unregister the callback linked to the given id
+   * Unregister a callback linked to the given id
    */
   leave: (id: UID) => void;
 }

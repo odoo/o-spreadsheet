@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { DEBOUNCE_TIME, DEFAULT_REVISION_ID } from "../constants";
+import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
 import { uuidv4 } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
 import { isDefined } from "../helpers/misc";
@@ -78,6 +78,7 @@ export class Session extends EventBus<CollaborativeEvent> {
     this.trigger("new-local-state-update", { id: revision.id });
     this.sendUpdateMessage({
       type: "REMOTE_REVISION",
+      version: MESSAGE_VERSION,
       serverRevisionId: this.serverRevisionId,
       nextRevisionId: revision.id,
       revision: {
@@ -91,6 +92,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   undo(revisionId: UID) {
     this.sendUpdateMessage({
       type: "REVISION_UNDONE",
+      version: MESSAGE_VERSION,
       serverRevisionId: this.serverRevisionId,
       nextRevisionId: uuidv4(),
       undoneRevisionId: revisionId,
@@ -100,6 +102,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   redo(revisionId: UID) {
     this.sendUpdateMessage({
       type: "REVISION_REDONE",
+      version: MESSAGE_VERSION,
       serverRevisionId: this.serverRevisionId,
       nextRevisionId: uuidv4(),
       redoneRevisionId: revisionId,
@@ -114,9 +117,13 @@ export class Session extends EventBus<CollaborativeEvent> {
   }
 
   join(messages: StateUpdateMessage[]) {
+    this.on("unexpected-revision-id", this, ({ revisionId }) => {
+      throw new Error(`The spreadsheet could not be loaded. Revision ${revisionId} is corrupted.`);
+    });
     for (const message of messages) {
       this.onMessageReceived(message);
     }
+    this.off("unexpected-revision-id", this);
     this.transportService.onNewMessage(this.clientId, this.onMessageReceived.bind(this));
   }
 
@@ -126,7 +133,11 @@ export class Session extends EventBus<CollaborativeEvent> {
   leave() {
     delete this.clients[this.clientId];
     this.transportService.leave(this.clientId);
-    this.transportService.sendMessage({ type: "CLIENT_LEFT", clientId: this.clientId });
+    this.transportService.sendMessage({
+      type: "CLIENT_LEFT",
+      clientId: this.clientId,
+      version: MESSAGE_VERSION,
+    });
   }
 
   getClient(): Client {
@@ -164,7 +175,11 @@ export class Session extends EventBus<CollaborativeEvent> {
     const type = currentPosition ? "CLIENT_MOVED" : "CLIENT_JOINED";
     const client = this.getClient();
     this.clients[this.clientId] = { ...client, position };
-    this.transportService.sendMessage({ type, client: { ...client, position } });
+    this.transportService.sendMessage({
+      type,
+      version: MESSAGE_VERSION,
+      client: { ...client, position },
+    });
   }
 
   /**
@@ -197,7 +212,8 @@ export class Session extends EventBus<CollaborativeEvent> {
       case "REMOTE_REVISION":
         this.waitingAck = false;
         if (message.serverRevisionId !== this.serverRevisionId) {
-          this.trigger("unexpected-revision-id");
+          this.trigger("unexpected-revision-id", { revisionId: message.serverRevisionId });
+          return;
         }
         const { id, clientId, commands } = message.revision;
         const revision = new Revision(id, clientId, commands);
@@ -230,6 +246,7 @@ export class Session extends EventBus<CollaborativeEvent> {
         if (position) {
           this.transportService.sendMessage({
             type: "CLIENT_MOVED",
+            version: MESSAGE_VERSION,
             client: { ...client, position },
           });
         }

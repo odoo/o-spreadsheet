@@ -49,7 +49,7 @@ export class OTRegistry extends Registry<
     executed: U,
     toTransforms: V[],
     fn: TransformationFunction<CoreCommandTypes, CoreCommandTypes>
-  ) {
+  ): this {
     for (let toTransform of toTransforms) {
       if (!this.content[toTransform]) {
         this.content[toTransform] = new Map<
@@ -59,6 +59,7 @@ export class OTRegistry extends Registry<
       }
       this.content[toTransform].set(executed, fn);
     }
+    return this;
   }
 
   /**

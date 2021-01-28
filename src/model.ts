@@ -132,16 +132,12 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
     this.history = new LocalHistory(this.dispatchFromCorePlugin, this.session);
 
-    // This should be done after construction of LocalHistory due to order of
-    // events
-    this.setupSessionEvents();
-
     this.getters = {
       canUndo: this.history.canUndo.bind(this.history),
       canRedo: this.history.canRedo.bind(this.history),
       getClient: this.session.getClient.bind(this.session),
       getConnectedClients: this.session.getConnectedClients.bind(this.session),
-      // getRevisionLogs: this.history.getRevisionLogs.bind(this.history),
+      isFullySynchronized: this.session.isFullySynchronized.bind(this.session),
     } as Getters;
 
     setIsFastStrategy(true);
@@ -161,6 +157,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
     // Load the initial revisions
     this.session.join(stateUpdateMessages);
+
+    // This should be done after construction of LocalHistory due to order of
+    // events
+    this.setupSessionEvents();
   }
 
   get handlers(): CommandHandler<Command>[] {
@@ -236,9 +236,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     this.session.on("remote-revision-received", this, this.onRemoteRevisionReceived);
     this.session.on("revision-redone", this, this.finalize);
     this.session.on("revision-undone", this, this.finalize);
-    this.session.on("unexpected-revision-id", this, () =>
-      this.config.notifyUser(_lt("Connection lost. Please reload the document."))
-    );
+    this.session.on("unexpected-revision-id", this, () => this.trigger("unexpected-revision-id"));
     this.session.on("collaborative-event-received", this, () => {
       this.trigger("update");
     });
@@ -397,9 +395,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * export date out of the model.
    */
   exportData(): WorkbookData {
-    if (!this.session.isFullySynchronized()) {
-      throw new Error("Cannot export right now: the session is not fully synchronized");
-    }
     let data = createEmptyWorkbookData();
     for (let handler of this.handlers) {
       if (handler instanceof CorePlugin) {

@@ -1,35 +1,36 @@
+import { linkNext } from "../helpers";
 import { UID } from "../types";
 
 type Transformation<T = unknown> = (dataToTransform: T) => T;
 
 interface TransformationFactory<T = unknown> {
   /**
-   * Build a transformation function to transform any command as if the execution of
-   * a previous `command` was omitted.
+   * Build a transformation function to transform any operation as if the execution of
+   * a previous `operation` was omitted.
    */
-  without: (command: T) => Transformation<T>;
+  without: (operation: T) => Transformation<T>;
   /**
-   * Build a transformation function to transform any command as if a new `command` was
+   * Build a transformation function to transform any operation as if a new `operation` was
    * executed before.
    */
-  with: (command: T) => Transformation<T>;
+  with: (operation: T) => Transformation<T>;
 }
 
 /**
- * An Instruction can be executed to change a data structure from state A
+ * An Operation can be executed to change a data structure from state A
  * to state B.
  * It should hold the necessary data used to perform this transition.
- * It should be possible to revert the changes made by this instruction.
+ * It should be possible to revert the changes made by this operation.
  *
- * In the context of o-spreadsheet, the data from an instruction would
+ * In the context of o-spreadsheet, the data from an operation would
  * be a revision (the commands are used to execute it, the `changes` are used
  * to revert it).
  */
-class Instruction<T> {
+class Operation<T> {
   constructor(readonly id: UID, readonly data: T, public readonly isOriginal = true) {}
 
-  transformed(transformation: Transformation<T>, isOriginal?: boolean): Instruction<T> {
-    return new Instruction(
+  transformed(transformation: Transformation<T>, isOriginal?: boolean): Operation<T> {
+    return new Operation(
       this.id,
       transformation(this.data),
       isOriginal !== undefined ? isOriginal : this.isOriginal
@@ -38,183 +39,194 @@ class Instruction<T> {
 }
 
 interface ExecutionStep<T> {
-  instruction: Instruction<T>;
+  operation: Operation<T>;
   layer: Layer<T>;
   isCancelled: boolean;
-  next: {
-    instruction: Instruction<T>;
+  next?: {
+    operation: Operation<T>;
     layer: Layer<T>;
   };
 }
 
-// Generator or array ? what about garbage collection with arrays ?
-// use arrays for now => it's simple
 /**
- * An execution object is a sequence of instruction.
+ * An execution object is a sequence of operation.
+ *
+ * You can iterate over operations of an execution
+ * ```js
+ * for (const operation of execution) {
+ *   // ... do something
+ * }
+ * ```
  */
 class Execution<T> implements Iterable<ExecutionStep<T>> {
-  constructor(private readonly instructions: Generator<ExecutionStep<T>, void, undefined>) {}
+  constructor(private readonly operations: Iterable<ExecutionStep<T>>) {}
   [Symbol.iterator](): Iterator<ExecutionStep<T>, void, undefined> {
-    return this.instructions;
+    return this.operations[Symbol.iterator]();
   }
 
   /**
-   * Stop the instruction sequence at a given instruction
-   * @param instructionId included
+   * Stop the operation sequence at a given operation
+   * @param operationId included
    */
-  stopWith(instructionId: UID): Execution<T> {
-    function* filter(execution: Iterable<ExecutionStep<T>>, instructionId: UID) {
+  stopWith(operationId: UID): Execution<T> {
+    function* filter(execution: Iterable<ExecutionStep<T>>, operationId: UID) {
       for (const step of execution) {
         yield step;
-        if (step.instruction.id === instructionId) {
+        if (step.operation.id === operationId) {
           return;
         }
       }
     }
-    return new Execution(filter(this.instructions, instructionId));
+    return new Execution(filter(this.operations, operationId));
   }
 
   /**
-   * Stop the instruction sequence before a given instruction
-   * @param instructionId excluded
+   * Stop the operation sequence before a given operation
+   * @param operationId excluded
    */
-  stopBefore(instructionId: UID): Execution<T> {
-    function* filter(execution: Iterable<ExecutionStep<T>>, instructionId: UID) {
+  stopBefore(operationId: UID): Execution<T> {
+    function* filter(execution: Iterable<ExecutionStep<T>>, operationId: UID) {
       for (const step of execution) {
-        if (step.instruction.id === instructionId) {
+        if (step.operation.id === operationId) {
           return;
         }
         yield step;
       }
     }
-    return new Execution(filter(this.instructions, instructionId));
+    return new Execution(filter(this.operations, operationId));
   }
 
   /**
-   * Start the instruction sequence at a given instruction
-   * @param instructionId excluded
+   * Start the operation sequence at a given operation
+   * @param operationId excluded
    */
-  startAfter(instructionId: UID): Execution<T> {
-    function* filter(execution: Iterable<ExecutionStep<T>>, instructionId: UID) {
+  startAfter(operationId: UID): Execution<T> {
+    function* filter(execution: Iterable<ExecutionStep<T>>, operationId: UID) {
       let skip = true;
       for (const step of execution) {
         if (!skip) {
           yield step;
         }
-        if (step.instruction.id === instructionId) {
+        if (step.operation.id === operationId) {
           skip = false;
         }
       }
     }
-    return new Execution(filter(this.instructions, instructionId));
+    return new Execution(filter(this.operations, operationId));
   }
 }
 
 export class SelectiveHistory<T = unknown> {
-  private HEAD_LAYER: Layer<T> = new Layer<T>(this.buildTransformation); // the first layer is never deleted
-  private HEAD: Instruction<T>;
+  private HEAD_LAYER: Layer<T> = new Layer<T>(this.buildTransformation);
+  private HEAD: Operation<T>;
 
   /**
    * The selective history is a data structure used to register changes/updates of a state.
-   * The data structure allows to easily cancel (and redo) any update individually.
-   * An "update" can be represented by any data structure. It can be a "command", a "diff", etc.
+   * Each change/update is called an "operation".
+   * The data structure allows to easily cancel (and redo) any operation individually.
+   * An operation can be represented by any data structure. It can be a "command", a "diff", etc.
    * However it must have the following properties:
    * - it can be applied to modify the state
    * - it can be reverted on the state such that it was never executed.
-   * - it can be transformed given other updates (Operationnal Transformation)
+   * - it can be transformed given other operation (Operationnal Transformation)
    *
    * Since this data structure doesn't know anything about the state nor the structure of
-   * "updates", the actual work must be performed by external functions given as parameters.
-   * @param initialInstructionId
-   * @param applyInstruction a function which can apply a change to the state
-   * @param revertInstruction  a function which can revert a change from the state
-   * @param buildEmpty  a function returning an "empty" change.
-   *                    i.e a change that leaves the state unmodified once applied or reverted
+   * operations, the actual work must be performed by external functions given as parameters.
+   * @param initialOperationId
+   * @param applyOperation a function which can apply an operation to the state
+   * @param revertOperation  a function which can revert an operation from the state
+   * @param buildEmpty  a function returning an "empty" operation.
+   *                    i.e an operation that leaves the state unmodified once applied or reverted
    *                    (used for internal implementation)
-   * @param buildTransformation Used to build transformations
+   * @param buildTransformation Factory used to build transformations
    */
   constructor(
-    initialInstructionId: UID,
-    private applyInstruction: (data: T) => void,
-    private revertInstruction: (data: T) => void,
+    initialOperationId: UID,
+    private applyOperation: (data: T) => void,
+    private revertOperation: (data: T) => void,
     private buildEmpty: (id: UID) => T,
     private readonly buildTransformation: TransformationFactory<T>
   ) {
-    const initial = new Instruction(initialInstructionId, buildEmpty(initialInstructionId));
+    const initial = new Operation(initialOperationId, buildEmpty(initialOperationId));
     // TODOMulti initialise HEAD_LAYER with initial isntruction in constructor
-    this.HEAD_LAYER.lastLayer.addInstruction(initial);
+    this.HEAD_LAYER.lastLayer.addOperation(initial);
     this.HEAD = initial;
-    // this.add(initialInstructionId, initial);
   }
 
   /**
-   * Return
+   * Return the operation identified by its id.
    */
-  get(id: UID) {
-    return this.HEAD_LAYER.findInstruction(id).instruction.data;
+  get(operationId: UID): T {
+    return this.HEAD_LAYER.findOperation(operationId).operation.data;
   }
 
-  add(id: UID, data: T) {
-    const instruction = new Instruction(id, data);
-    const { layer } = this.HEAD_LAYER.findInstruction(this.HEAD.id);
-    layer.insertInstruction(instruction, this.HEAD.id);
+  /**
+   * Append a new operation
+   */
+  add(operationId: UID, data: T) {
+    const operation = new Operation(operationId, data);
+    const { layer } = this.HEAD_LAYER.findOperation(this.HEAD.id);
+    layer.insertOperation(operation, this.HEAD.id);
     this.HEAD_LAYER = this.HEAD_LAYER.lastLayer;
-    this.HEAD = instruction;
+    this.HEAD = operation;
   }
 
-  insertExternal(id: UID, data: T, insertAfter: UID) {
-    const instruction = new Instruction<T>(id, data);
+  /**
+   * Insert a new operation after a another operation.
+   * Following operations will be transformed according
+   * to the new operation.
+   */
+  insertExternal(operationId: UID, data: T, insertAfter: UID) {
+    const operation = new Operation<T>(operationId, data);
     this.revertTo(insertAfter);
     // insert to layer where it first was executed!
-    // const { layer } = this.HEAD_LAYER.findInstruction(insertAfter);
     const layer = this.HEAD_LAYER.findOriginLayer(insertAfter);
-    layer.insertInstruction(instruction, insertAfter);
+    layer.insertOperation(operation, insertAfter);
     this.checkoutEnd();
   }
 
   /**
-   * @param instructionId instruction to undo
-   * @param undoId the id of the "undo instruction"
+   * @param operationId operation to undo
+   * @param undoId the id of the "undo operation"
    */
-  undo(instructionId: UID, undoId: UID) {
-    const { layer, instruction } = this.HEAD_LAYER.findInstruction(instructionId);
-    this.revertBefore(instructionId);
-    layer.branch(instruction);
+  undo(operationId: UID, undoId: UID) {
+    const { layer, operation: operation } = this.HEAD_LAYER.findOperation(operationId);
+    this.revertBefore(operationId);
+    layer.branch(operation);
     this.checkoutEnd();
     const lastLayer = this.HEAD_LAYER.lastLayer;
-    const undoInstruction = new Instruction(undoId, this.buildEmpty(undoId));
-    lastLayer.addInstruction(undoInstruction);
+    const undoOperation = new Operation(undoId, this.buildEmpty(undoId));
+    lastLayer.addOperation(undoOperation);
     this.HEAD_LAYER = lastLayer;
-    this.HEAD = undoInstruction;
+    this.HEAD = undoOperation;
   }
 
   /**
-   * TODOMulti
-   * @param instructionId
-   * @param redoId
+   * @param operationId opertation to redo
+   * @param redoId the if of the "redo operation"
    */
-  redo(instructionId: UID, redoId: UID) {
-    const { instruction, layer } = this.HEAD_LAYER.findInstruction(instructionId);
-    this.revertBefore(instructionId);
-    layer.removeNextLayer(this.buildTransformation.with(instruction!.data));
+  redo(operationId: UID, redoId: UID) {
+    const { operation: operation, layer } = this.HEAD_LAYER.findOperation(operationId);
+    this.revertBefore(operationId);
+    layer.removeNextLayer(this.buildTransformation.with(operation!.data));
     this.checkoutEnd();
     this.add(redoId, this.buildEmpty(redoId));
   }
 
   /**
-   * Revert the state as it was *before* the given instruction was executed.
+   * Revert the state as it was *before* the given operation was executed.
    */
-  private revertBefore(instructionId: UID) {
-    const execution = this.HEAD_LAYER.revertedExecution().stopWith(instructionId);
+  private revertBefore(operationId: UID) {
+    const execution = this.HEAD_LAYER.revertedExecution().stopWith(operationId);
     this.revert(execution);
   }
 
   /**
-   * Revert the state as it was *after* the given instruction was executed.
+   * Revert the state as it was *after* the given operation was executed.
    */
-  private revertTo(instructionId: UID | null) {
-    const execution = instructionId
-      ? this.HEAD_LAYER.revertedExecution().stopBefore(instructionId)
+  private revertTo(operationId: UID | null) {
+    const execution = operationId
+      ? this.HEAD_LAYER.revertedExecution().stopBefore(operationId)
       : this.HEAD_LAYER.revertedExecution();
     this.revert(execution);
   }
@@ -223,12 +235,14 @@ export class SelectiveHistory<T = unknown> {
    * Revert an execution
    */
   private revert(execution: Execution<T>) {
-    for (const { next, instruction: step, isCancelled } of execution) {
+    for (const { next, operation: step, isCancelled } of execution) {
       if (!isCancelled) {
-        this.revertInstruction(step.data);
+        this.revertOperation(step.data);
       }
-      this.HEAD_LAYER = next.layer;
-      this.HEAD = next.instruction;
+      if (next) {
+        this.HEAD_LAYER = next.layer;
+        this.HEAD = next.operation;
+      }
     }
   }
 
@@ -236,78 +250,84 @@ export class SelectiveHistory<T = unknown> {
    * TODOMulti + rename?
    */
   private checkoutEnd() {
-    const instructions = this.HEAD
+    const operations = this.HEAD
       ? this.HEAD_LAYER.execution().startAfter(this.HEAD.id)
       : this.HEAD_LAYER.execution();
-    for (const { instruction, layer, isCancelled } of instructions) {
+    for (const { operation: operation, layer, isCancelled } of operations) {
       if (!isCancelled) {
-        this.applyInstruction(instruction.data);
+        this.applyOperation(operation.data);
       }
-      this.HEAD = instruction;
+      this.HEAD = operation;
       this.HEAD_LAYER = layer;
     }
   }
 }
 
 /**
- * A layer holds a sequence of instructions.
+ * A layer holds a sequence of operations.
  * It can be represented as "A    B   C   D" if A, B, C and D are executed one
  * after the other.
  *
- * Layers can be "stacked" on each other. An execution path can be derived
+ * Layers can be "stacked" on each other and an execution path can be derived
  * from any stack of layers. The rules to derive this path is explained below.
  *
- * An instruction can be cancelled/undone by inserting a new layer below
- * this instruction.
+ * An operation can be cancelled/undone by inserting a new layer below
+ * this operation.
  * e.g
  *    Given the layer A    B   C
- *    To undo B, a new branching layer is inserted at instruction B.
+ *    To undo B, a new branching layer is inserted at operation B.
  *    ```txt
  *    A   B   C   D
  *        >   C'  D'
  *    ```
- *    A new execution path can now be derived. At each instruction:
- *    - if there is a lower layer, don't execute it and go to the instruction below
- *    - if not, execute it and go to the instruction on the right.
+ *    A new execution path can now be derived. At each operation:
+ *    - if there is a lower layer, don't execute it and go to the operation below
+ *    - if not, execute it and go to the operation on the right.
  *    The execution path is   A   C'    D'
- *    Instruction C and D have been adatapted (transformed) in the lower layer
- *    since instruction B is not executed in this branch.
+ *    Operation C and D have been adatapted (transformed) in the lower layer
+ *    since operation B is not executed in this branch.
  *
  * @param buildTransformation Factory to build transformations
- * @param instructions initial instructions
+ * @param operations initial operations
  */
 class Layer<T> {
   private previous?: Layer<T>;
-  private branchingInstructionId?: UID;
+  private branchingOperationId?: UID;
   private next?: Layer<T>;
 
   constructor(
     private readonly buildTransformation: TransformationFactory<T>,
-    private instructions: Instruction<T>[] = []
+    private operations: Operation<T>[] = []
   ) {}
 
-  private get instructionIds(): UID[] {
-    return this.instructions.map((step) => step.id);
+  /**
+   * Operation ids of this layer
+   */
+  private get operationIds(): UID[] {
+    return this.operations.map((step) => step.id);
   }
 
+  /**
+   * Last layer of the entire stack of layers.
+   * TODO find a way to make it private
+   */
   get lastLayer(): Layer<T> {
     return this.next ? this.next.lastLayer : this;
   }
 
   /**
-   * Yields the sequence of instructions to execute, in reverse order.
+   * Yields the sequence of operations to execute, in reverse order.
    */
   private *_revertedExecution(): Generator<Omit<ExecutionStep<T>, "next">, void, undefined> {
-    let afterBranchingPoint = !!this.branchingInstructionId;
-    // use while?
-    for (let i = this.instructions.length - 1; i >= 0; i--) {
-      const step = this.instructions[i];
-      if (step.id === this.branchingInstructionId) {
+    let afterBranchingPoint = !!this.branchingOperationId;
+    for (let i = this.operations.length - 1; i >= 0; i--) {
+      const step = this.operations[i];
+      if (step.id === this.branchingOperationId) {
         afterBranchingPoint = false;
       }
       if (!afterBranchingPoint) {
         yield {
-          instruction: step,
+          operation: step,
           layer: this,
           isCancelled: !this.shouldExecute(step),
         };
@@ -319,246 +339,260 @@ class Layer<T> {
   }
 
   /**
-   * Yields the sequence of instructions to execute
+   * Yields the sequence of operations to execute
    */
   private *_execution(): Generator<Omit<ExecutionStep<T>, "next">, void, undefined> {
-    for (const instruction of this.instructions) {
+    for (const operation of this.operations) {
       yield {
-        instruction: instruction,
+        operation: operation,
         layer: this,
-        isCancelled: !this.shouldExecute(instruction),
+        isCancelled: !this.shouldExecute(operation),
       };
-      if (instruction.id === this.branchingInstructionId) {
+      if (operation.id === this.branchingOperationId) {
         yield* this.next?._execution() || [];
         return;
       }
     }
-    if (!this.branchingInstructionId) {
+    if (!this.branchingOperationId) {
       yield* this.next?._execution() || [];
     }
   }
 
+  /**
+   * Return the sequence of operations from this layer
+   * until the very last layer.
+   */
   execution(): Execution<T> {
-    return new Execution(this.linkNextInstruction(this._execution(), this._execution()));
+    return new Execution(linkNext(this._execution(), this._execution()));
   }
 
+  /**
+   * Return the sequence of operations from this layer
+   * to the very first layer.
+   */
   revertedExecution(): Execution<T> {
-    return new Execution(
-      this.linkNextInstruction(this._revertedExecution(), this._revertedExecution())
-    );
+    return new Execution(linkNext(this._revertedExecution(), this._revertedExecution()));
   }
 
   /**
-   * Check if this layer should execute the given instruction.
+   * Check if this layer should execute the given operation.
+   * i.e. If the operation is not cancelled by a branching layer.
    */
-  private shouldExecute(instruction: Instruction<T>): boolean {
-    return instruction.id !== this.branchingInstructionId;
+  private shouldExecute(operation: Operation<T>): boolean {
+    return operation.id !== this.branchingOperationId;
   }
 
-  private *linkNextInstruction<T>(
-    generator: Generator<T>,
-    nextGenerator: Generator<T>
-  ): Generator<T & { next: T }> {
-    nextGenerator.next();
-    for (const instruction of generator) {
-      const nextInstruction = nextGenerator.next();
-      yield {
-        ...instruction,
-        // Typescript does not capte bien le null :/
-        // And this is half generic: <T> but we talk about `instruction`
-        next: nextInstruction.done ? { ...instruction, instruction: null } : nextInstruction.value,
-      };
-    }
-  }
-
-  addInstruction(instruction: Instruction<T>) {
-    const insertAfter: string | undefined = this.instructionIds[this.instructionIds.length - 1];
-    this.instructions.push(instruction);
+  /**
+   * Append an operation to the end of this layer.
+   * Also insert the (transfomed) operation in previous layers.
+   *
+   * Adding operation `D` to the last layer
+   * ```txt
+   *  A1   B1   C1
+   *  >    B2   C2
+   * ```
+   * will give
+   * ```txt
+   *  A1   B1   C1   D'   with D' = D transformed with A1
+   *  >    B2   C2   D
+   * ```
+   */
+  addOperation(operation: Operation<T>) {
+    const insertAfter: string | undefined = this.operationIds[this.operationIds.length - 1];
+    this.operations.push(operation);
     if (!insertAfter) {
-      this.previous?.addInstruction(instruction);
+      this.previous?.addOperation(operation);
     } else {
-      this.insertPrevious(instruction, insertAfter);
+      this.insertPrevious(operation, insertAfter);
     }
   }
 
   /**
-   * Create a new branching layer at the given instruction.
-   * This cancels the instruction from the execution path.
+   * Create a new branching layer at the given operation.
+   * This cancels the operation from the execution path.
    */
-  branch(instruction: Instruction<T>) {
-    const transformation = this.buildTransformation.without(instruction.data);
-    this.copyAfter(instruction.id)
-      .transformed(transformation)
-      .asBranchingLayerTo(this, instruction.id);
+  branch(operation: Operation<T>) {
+    const transformation = this.buildTransformation.without(operation.data);
+    this.after(operation.id).transformed(transformation).asBranchingLayerTo(this, operation.id);
   }
 
   /**
-   * Insert a new instruction after an other instruction.
-   * The instruction will be inserted in this layer, in next layers (transformed)
+   * Insert a new operation after an other operation.
+   * The operation will be inserted in this layer, in next layers (transformed)
    * and in previous layers (also transformed).
    *
    * Given
    * ```txt
-   *  A1   B1   C1
-   *  >    B2   C2
-   *       >    C3
+   *  1: A1   B1   C1
+   *  2: >    B2   C2
+   *  3:      >    C3
    * ```
-   * Inserting D after C2 gives
+   * Inserting D to layer 2 gives
    * ```txt
-   *  A1   B1   C1   D1          D1 = D transformed with A1
-   *  >    B2   C2   D     with  D  = D
-   *       >    C3   D2          D2 = D transformed without B2 (B2⁻¹)
+   *  1: A1   B1   C1   D1          D1 = D transformed with A1
+   *  2: >    B2   C2   D     with  D  = D
+   *  3:      >    C3   D2          D2 = D transformed without B2 (B2⁻¹)
    * ```
    */
-  insertInstruction(newInstruction: Instruction<T>, insertAfter: UID) {
-    if (!this.instructionIds.includes(insertAfter)) {
+  insertOperation(newOperation: Operation<T>, insertAfter: UID) {
+    if (!this.operationIds.includes(insertAfter)) {
       throw new Error(
-        `Cannot insert after instruction ${insertAfter}: not found. Instruction: ${JSON.stringify(
-          newInstruction.data
+        `Cannot insert after operation ${insertAfter}: not found. Operation: ${JSON.stringify(
+          newOperation.data
         )}`
       );
     }
-    const { instructionsBefore, instruction, instructionsAfter } = this.locateInstruction(
-      insertAfter
-    );
-    const transformation = this.buildTransformation.with(newInstruction.data);
+    const { operationsBefore, operation, operationsAfter } = this.locateOperation(insertAfter);
+    const transformation = this.buildTransformation.with(newOperation.data);
 
-    this.instructions = [
-      ...instructionsBefore,
-      instruction,
-      newInstruction,
-      ...instructionsAfter.map((instruction) => instruction.transformed(transformation)),
+    this.operations = [
+      ...operationsBefore,
+      operation,
+      newOperation,
+      ...operationsAfter.map((operation) => operation.transformed(transformation)),
     ];
 
-    this.updateNextWith(newInstruction, insertAfter);
-    this.insertPrevious(newInstruction, insertAfter);
+    this.updateNextWith(newOperation, insertAfter);
+    this.insertPrevious(newOperation, insertAfter);
   }
 
   /**
    * Update the branching layer of this layer, either by (1) inserting the new
-   * instruction in it or (2) by transforming it.
-   * (1) If the instruction is positionned before the branching layer, the branching
-   *     layer should be transformed with this instruction.
-   * (2) If it's positionned after, the instruction should be inserted in the
+   * operation in it or (2) by transforming it.
+   * (1) If the operation is positionned before the branching layer, the branching
+   *     layer should be transformed with this operation.
+   * (2) If it's positionned after, the operation should be inserted in the
    *     branching layer.
    */
-  private updateNextWith(newInstruction: Instruction<T>, insertAfter: UID) {
-    if (!this.branchingInstructionId || !this.next) return;
+  private updateNextWith(newOperation: Operation<T>, insertAfter: UID) {
+    if (!this.branchingOperationId || !this.next) return;
     if (this.shouldInsertInNext(insertAfter)) {
-      const { instruction: branchingInstruction } = this.next.findInstruction(
-        this.branchingInstructionId
-      );
-      const branchingTransformation = this.buildTransformation.without(branchingInstruction.data);
-      const transformedInstruction = newInstruction.transformed(branchingTransformation, false);
-      const transformationAfter = this.buildTransformation.with(transformedInstruction.data);
-      // If the instruction is inserted after the branching instruction, it should
+      const { operation: branchingOperation } = this.next.findOperation(this.branchingOperationId);
+      const branchingTransformation = this.buildTransformation.without(branchingOperation.data);
+      const transformedOperation = newOperation.transformed(branchingTransformation, false);
+      const transformationAfter = this.buildTransformation.with(transformedOperation.data);
+      // If the operation is inserted after the branching operation, it should
       // be positionned first.
-      if (insertAfter === this.branchingInstructionId) {
-        this.next.instructions = [
-          transformedInstruction,
-          ...this.next.instructions.map((instruction) =>
-            instruction.transformed(transformationAfter)
-          ),
+      if (insertAfter === this.branchingOperationId) {
+        this.next.operations = [
+          transformedOperation,
+          ...this.next.operations.map((operation) => operation.transformed(transformationAfter)),
         ];
       } else {
-        const index = this.next?.instructionIds.includes(insertAfter)
+        const index = this.next?.operationIds.includes(insertAfter)
           ? insertAfter
-          : this.next.instructionIds[this.next.instructionIds.length - 1];
-        const { instructionsBefore, instruction, instructionsAfter } = this.next.locateInstruction(
-          index
-        );
-        this.next.instructions = [
-          ...instructionsBefore,
-          instruction,
-          transformedInstruction,
-          ...instructionsAfter.map((instruction) => instruction.transformed(transformationAfter)),
+          : this.next.operationIds[this.next.operationIds.length - 1];
+        const { operationsBefore, operation, operationsAfter } = this.next.locateOperation(index);
+        this.next.operations = [
+          ...operationsBefore,
+          operation,
+          transformedOperation,
+          ...operationsAfter.map((operation) => operation.transformed(transformationAfter)),
         ];
       }
-      this.next.updateNextWith(transformedInstruction, insertAfter);
+      this.next.updateNextWith(transformedOperation, insertAfter);
     } else {
-      const transformation = this.buildTransformation.with(newInstruction.data);
+      const transformation = this.buildTransformation.with(newOperation.data);
       this.next = this.next?.transformed(transformation);
     }
   }
 
   /**
-   * Insert a new instruction in previous layers. The instructions which are
-   * positionned after the inserted instructions are transformed with the newly
-   * inserted instructions. This one is also transformed, with the branching
-   * instruction.
+   * Insert a new operation in previous layers. The operations which are
+   * positionned after the inserted operations are transformed with the newly
+   * inserted operations. This one is also transformed, with the branching
+   * operation.
    */
-  private insertPrevious(newInstruction: Instruction<T>, insertAfter: UID) {
+  private insertPrevious(newOperation: Operation<T>, insertAfter: UID) {
     if (!this.previous) return;
-    if (!this.previous.branchingInstructionId) {
-      throw new Error("At this point, the branchingInstructionId should always be set");
+    if (!this.previous.branchingOperationId) {
+      throw new Error("At this point, the branchingOperationId should always be set");
     }
-    const { instruction: branchingInstruction } = this.previous.findInstruction(
-      this.previous.branchingInstructionId
+    const { operation: branchingOperation } = this.previous.findOperation(
+      this.previous.branchingOperationId
     );
-    const { instructionsBefore, instruction, instructionsAfter } = this.previous.locateInstruction(
+    const { operationsBefore, operation, operationsAfter } = this.previous.locateOperation(
       insertAfter
     );
-    const transformation = this.previous.buildTransformation.with(branchingInstruction.data);
-    const transformedInstruction = newInstruction.transformed(transformation, false);
-    const transformationAfter = this.previous.buildTransformation.with(transformedInstruction.data);
-    this.previous.instructions = [
-      ...instructionsBefore,
-      instruction,
-      transformedInstruction,
-      ...instructionsAfter.map((instruction) => instruction.transformed(transformationAfter)),
+    const transformation = this.previous.buildTransformation.with(branchingOperation.data);
+    const transformedOperation = newOperation.transformed(transformation, false);
+    const transformationAfter = this.previous.buildTransformation.with(transformedOperation.data);
+    this.previous.operations = [
+      ...operationsBefore,
+      operation,
+      transformedOperation,
+      ...operationsAfter.map((operation) => operation.transformed(transformationAfter)),
     ];
-    this.previous.insertPrevious(transformedInstruction, insertAfter);
+    this.previous.insertPrevious(transformedOperation, insertAfter);
   }
   /**
-   * Check if the given instruction id should be inserted in the branching layer
+   * Check if the given operation id should be inserted in the branching layer
    * of this layer.
-   * If the given instruction id is positionned before the branching instruction,
-   * the instruction should not be inserted (the instruction is already in the
+   * If the given operation id is positionned before the branching operation,
+   * the operation should not be inserted (the operation is already in the
    * execution). Otherwise, it should be inserted.
    */
-  private shouldInsertInNext(instructionToInsert: UID): boolean {
-    const instructionIndex = this.instructionIds.findIndex((id) => id === instructionToInsert);
-    const branchingIndex = this.instructionIds.findIndex(
-      (id) => id === this.branchingInstructionId
-    );
-    return instructionIndex >= branchingIndex;
+  private shouldInsertInNext(operationToInsert: UID): boolean {
+    const operationIndex = this.operationIds.findIndex((id) => id === operationToInsert);
+    const branchingIndex = this.operationIds.findIndex((id) => id === this.branchingOperationId);
+    return operationIndex >= branchingIndex;
   }
 
   /**
    * Insert this layer after a given layer
    */
-  private asBranchingLayerTo(layer: Layer<T>, branchingInstructionId?: UID) {
+  private asBranchingLayerTo(layer: Layer<T>, branchingOperationId?: UID) {
     this.previous = layer;
     layer.next = this;
-    layer.branchingInstructionId = branchingInstructionId;
+    layer.branchingOperationId = branchingOperationId;
   }
 
-  findInstruction(instructionId: UID): ExecutionStep<T> {
-    for (const instruction of this.revertedExecution()) {
-      if (instruction.instruction.id === instructionId) {
-        return instruction;
+  /**
+   * Find the operation in the execution path.
+   */
+  findOperation(operationId: UID): ExecutionStep<T> {
+    for (const operation of this.revertedExecution()) {
+      if (operation.operation.id === operationId) {
+        return operation;
       }
     }
-    throw new Error(`Instruction ${instructionId} not found`);
+    throw new Error(`Operation ${operationId} not found`);
   }
 
-  findOriginLayer(instructionId: UID): Layer<T> {
+  /**
+   * Find the layer in which the operation was first inserted.
+   */
+  findOriginLayer(operationId: UID): Layer<T> {
     let layer: Layer<T> | undefined = this;
-    while (layer && layer.instructionIds.includes(instructionId)) {
-      const instruction = layer.instructions.find((i) => i.id === instructionId);
-      if (instruction && instruction.isOriginal) {
+    while (layer && layer.operationIds.includes(operationId)) {
+      const operation = layer.operations.find((i) => i.id === operationId);
+      if (operation && operation.isOriginal) {
         return layer;
       }
       layer = layer?.previous;
     }
     if (!layer) {
-      throw new Error(`Origin layer of instruction ${instructionId} not found`);
+      throw new Error(`Origin layer of operation ${operationId} not found`);
     }
     return layer;
   }
 
   /**
+   * Remove the layer just after this one. This un-cancels (redo) the branching
+   * operation. Lower layers will be transformed accordingly.
    *
+   * Given
+   * ```txt
+   *  1: A1   B1   C1
+   *  2: >    B2   C2
+   *  3:      >    C3
+   * ```
+   * removing the next layer of 1 gives
+   *
+   * ```txt
+   *  1: A1   B1   C1
+   *  2:      >    C3'   with  C3' = C1 transformed without B1 (B1⁻¹)
+   * ```
    */
   removeNextLayer(transformation: Transformation<T>) {
     const undoLayer = this.next;
@@ -566,113 +600,111 @@ class Layer<T> {
       return;
     }
     this.next = undefined;
-    this.branchingInstructionId = undefined;
-    const last = this.instructions[this.instructions.length - 1];
-    const index = undoLayer.instructions.findIndex((instruction) => instruction.id === last.id);
-    this.instructions = this.instructions.concat(
-      undoLayer.instructions
+    this.branchingOperationId = undefined;
+    const last = this.operations[this.operations.length - 1];
+    const index = undoLayer.operations.findIndex((operation) => operation.id === last.id);
+    this.operations = this.operations.concat(
+      undoLayer.operations
         .slice(index + 1)
-        .map((instruction) => instruction.transformed(transformation))
+        .map((operation) => operation.transformed(transformation))
     );
-    undoLayer.next?.asBranchingLayerTo(this, undoLayer.branchingInstructionId);
+    undoLayer.next?.asBranchingLayerTo(this, undoLayer.branchingOperationId);
     undoLayer.next?.rebaseUp();
   }
 
   /**
-   * Rebuild transformed instructions of this layer based on the upper layer.
-   * TODOMulti update this
+   * Rebuild transformed operations of this layer based on the upper layer.
    *
    * Given the following structure:
-   *  1: A1  B1
-   *  2: >   B2  C2
-   *  3:     >   C3
-   * Rebasing layer "2" with an argument transformation T gives:
-   *  1: A1  B1
-   *  2: >   B2' C2'  With  B2' = B1//A1-1  C2' = C2//T
-   *  3:     >   C3'        C3' = C2'//B2'-1
-   *
+   * ```txt
+   *  1: A1   B1    C1
+   *  2: >    B2    C2
+   *  3:      >     C3
+   * ```
+   * Rebasing layer "2" gives
+   * ```txt
+   *  1: A1   B1    C1
+   *  2: >    B2'   C2'  With  B2' = B1 transformed without A1 and C2' = C1 transformed without A1
+   *  3:      >     C3'        C3' = C2' transformed without B2'
+   * ```
    */
   private rebaseUp() {
-    if (!this.previous?.branchingInstructionId) return;
-    const B = this.getOriginal(this.previous?.branchingInstructionId);
-    if (!B) {
-      throw new Error("oh oh not good");
-    }
-    const rebaseTransformation = this.buildTransformation.without(B.data);
-    this.instructions = this.instructions.map((instruction) => {
-      const original = this.getOriginal(instruction.id);
-      if (!original) {
-        throw new Error("Don't do that");
-      }
-      return original.transformed(rebaseTransformation);
-    });
+    if (!this.previous?.branchingOperationId) return;
+    const rebaseTransformation = this.buildTransformation.without(
+      this.getPrevious(this.previous?.branchingOperationId).data
+    );
+    this.operations = this.operations.map((operation) =>
+      this.getPrevious(operation.id).transformed(rebaseTransformation)
+    );
     this.next?.rebaseUp();
   }
 
-  private getOriginal(instructionId: UID): Instruction<T> | undefined {
-    return this.previous?.instructions.find((instruction) => instruction.id === instructionId);
+  /**
+   * Find the operation in the previous layer
+   */
+  private getPrevious(operationId: UID): Operation<T> {
+    const original = this.previous?.operations.find((operation) => operation.id === operationId);
+    if (!original) {
+      throw new Error(`Original operation ${operationId} not found`);
+    }
+    return original;
   }
 
   /**
-   * TODOMulti
-   * this is not really a copy since it moves the next layer
-   * @param stepId excluded
+   * Return a copy of this layer but starting after the given
+   * operation.
    */
-  private copyAfter(stepId: UID): Layer<T> {
-    const { instructionsAfter } = this.locateInstruction(stepId);
-    const layer = new Layer(this.buildTransformation, instructionsAfter);
-    // If there is a next, there is always a branchingStepId.
-    // This should be ensured however
-    // the above is not true
-    this.next?.copy().asBranchingLayerTo(layer, this.branchingInstructionId!);
-
-    // manage this here?
-    if (
-      layer.branchingInstructionId &&
-      !layer.instructionIds.includes(layer.branchingInstructionId)
-    ) {
-      layer.branchingInstructionId = undefined;
+  private after(operationId: UID): Layer<T> {
+    const { operationsAfter } = this.locateOperation(operationId);
+    const layer = new Layer(this.buildTransformation, operationsAfter);
+    this.next?.copy().asBranchingLayerTo(layer, this.branchingOperationId);
+    if (layer.branchingOperationId && !layer.operationIds.includes(layer.branchingOperationId)) {
+      layer.branchingOperationId = undefined;
     }
     return layer;
   }
 
-  private locateInstruction(
-    instructionId: UID
+  /**
+   * Find an operation in this layer based on its id.
+   * This returns the operation itself, operations which comes before it
+   * and operation which comes after it.
+   */
+  private locateOperation(
+    operationId: UID
   ): {
-    instruction: Instruction<T>;
-    instructionsBefore: Instruction<T>[];
-    instructionsAfter: Instruction<T>[];
+    operation: Operation<T>;
+    operationsBefore: Operation<T>[];
+    operationsAfter: Operation<T>[];
   } {
-    const instructionIndex = this.instructions.findIndex((step) => step.id === instructionId);
-    if (instructionIndex === -1) {
-      throw new Error(`Instruction ${instructionId} not found`);
+    const operationIndex = this.operations.findIndex((step) => step.id === operationId);
+    if (operationIndex === -1) {
+      throw new Error(`Operation ${operationId} not found`);
     }
     return {
-      instruction: this.instructions[instructionIndex],
-      instructionsAfter: this.instructions.slice(instructionIndex + 1),
-      instructionsBefore: this.instructions.slice(0, instructionIndex),
+      operation: this.operations[operationIndex],
+      operationsAfter: this.operations.slice(operationIndex + 1),
+      operationsBefore: this.operations.slice(0, operationIndex),
     };
   }
 
   /**
-   * Return a new layer where the instructions have been transformed
+   * Return a new layer where the operations have been transformed
    * using the given transformation
    */
   transformed(transformation: Transformation<T>): Layer<T> {
     const layer = this.copy();
-    layer.instructions = this.instructions.map((step) => step.transformed(transformation, false));
+    layer.operations = this.operations.map((step) => step.transformed(transformation, false));
     this.next
       ?.copy()
       .transformed(transformation)
-      .asBranchingLayerTo(layer, this.branchingInstructionId!);
+      .asBranchingLayerTo(layer, this.branchingOperationId!);
     return layer;
   }
 
   private copy(): Layer<T> {
-    const layer = new Layer(this.buildTransformation, this.instructions);
-    // arf, this is null
+    const layer = new Layer(this.buildTransformation, this.operations);
     layer.next = this.next;
-    layer.branchingInstructionId = this.branchingInstructionId;
+    layer.branchingOperationId = this.branchingOperationId;
     layer.previous = this.previous;
     return layer;
   }

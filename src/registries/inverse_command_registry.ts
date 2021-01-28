@@ -20,40 +20,17 @@ type InverseFunction = (cmd: CoreCommand) => CoreCommand[];
 
 export const inverseCommandRegistry = new Registry<InverseFunction>()
 
-  .add("UPDATE_CELL", identity)
-  .add("UPDATE_CELL_POSITION", identity)
-  .add("CLEAR_CELL", identity)
-  .add("DELETE_CONTENT", identity)
   .add("ADD_COLUMNS", inverseAddColumns)
   .add("ADD_ROWS", inverseAddRows)
   .add("REMOVE_COLUMNS", inverseRemoveColumns)
   .add("REMOVE_ROWS", inverseRemoveRows)
-  .add("RESIZE_COLUMNS", identity)
-  .add("RESIZE_ROWS", identity)
   .add("ADD_MERGE", inverseAddMerge)
   .add("REMOVE_MERGE", inverseRemoveMerge)
   .add("CREATE_SHEET", inverseCreateSheet)
   .add("DELETE_SHEET", inverseDeleteSheet)
   .add("DUPLICATE_SHEET", inverseDuplicateSheet)
-  .add("MOVE_SHEET", identity)
-  .add("RENAME_SHEET", identity)
-
-  // Conditional_format is not used in the transformations, we can let them
-  .add("ADD_CONDITIONAL_FORMAT", identity)
-  .add("REMOVE_CONDITIONAL_FORMAT", identity)
-  .add("DELETE_FIGURE", identity)
   .add("CREATE_FIGURE", inverseCreateFigure)
-  .add("UPDATE_FIGURE", identity)
-  .add("SET_FORMATTING", identity)
-  .add("CLEAR_FORMATTING", identity)
-  .add("SET_BORDER", identity)
-  .add("SET_DECIMAL", identity)
-  .add("CREATE_CHART", inverseCreateChart)
-  .add("UPDATE_CHART", identity);
-
-function identity(cmd: CoreCommand): CoreCommand[] {
-  return [cmd];
-}
+  .add("CREATE_CHART", inverseCreateChart);
 
 function inverseAddColumns(cmd: AddColumnsCommand): RemoveColumnsCommand[] {
   const columns: number[] = [];
