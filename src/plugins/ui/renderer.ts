@@ -137,8 +137,8 @@ export class RendererPlugin extends UIPlugin {
    */
   adjustViewportPosition(viewport: Viewport): Viewport {
     const adjustedViewport = Object.assign({}, viewport);
-    const { cols, rows } = this.getters.getActiveSheet();
-    const [col, row] = this.getters.getPosition();
+    const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
+    const [col, row] = this.getters.getMainCell(sheetId, ...this.getters.getPosition());
     while (col >= adjustedViewport.right && col !== cols.length - 1) {
       adjustedViewport.offsetX = cols[adjustedViewport.left].end;
       this.adjustViewportZoneX(adjustedViewport);
