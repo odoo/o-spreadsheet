@@ -4,15 +4,18 @@ import { formulaAssistantTerms } from "./translation_terms";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
+const { useState } = owl.hooks;
 
 // -----------------------------------------------------------------------------
 // Formula Assistant component
 // -----------------------------------------------------------------------------
 
 const TEMPLATE = xml/* xml */ `
-  <div>
+  <div class="o-formula-assistant-container"
+       t-att-class="{'o-formula-assistant-event-none': assistantState.allowCellSelectionBehind}">
     <t t-set="context" t-value="getContext()"/>
-    <div class="o-formula-assistant" t-if="context.functionName" >
+    <div class="o-formula-assistant" t-if="context.functionName" t-on-mousemove="onMouseMove"
+         t-att-class="{'o-formula-assistant-transparency': assistantState.allowCellSelectionBehind}">
 
       <div class="o-formula-assistant-head">
         <span t-esc="context.functionName"/> (
@@ -95,6 +98,16 @@ const CSS = css/* scss */ `
       color: gray;
     }
   }
+  .o-formula-assistant-container {
+    position: absolute;
+    user-select: none;
+  }
+  .o-formula-assistant-event-none {
+    pointer-events: none;
+  }
+  .o-formula-assistant-transparency {
+    opacity: 0.3;
+  }
 `;
 
 interface Props {
@@ -103,11 +116,37 @@ interface Props {
   argToFocus: number;
 }
 
+interface AssistantState {
+  allowCellSelectionBehind: boolean;
+}
+
 export class FunctionDescriptionProvider extends Component<Props> {
   static template = TEMPLATE;
   static style = CSS;
 
+  assistantState: AssistantState = useState({
+    allowCellSelectionBehind: false,
+  });
+
+  private timeOutId = 0;
+
+  willUnmount() {
+    if (this.timeOutId) {
+      clearTimeout(this.timeOutId);
+    }
+  }
+
   getContext(): Props {
     return this.props;
+  }
+
+  onMouseMove() {
+    this.assistantState.allowCellSelectionBehind = true;
+    if (this.timeOutId) {
+      clearTimeout(this.timeOutId);
+    }
+    this.timeOutId = (setTimeout(() => {
+      this.assistantState.allowCellSelectionBehind = false;
+    }, 2000) as unknown) as number;
   }
 }
