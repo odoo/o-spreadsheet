@@ -124,6 +124,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       this.setupUiPlugin(Plugin);
     }
 
+    setIsFastStrategy(false);
+
     // starting plugins
     this.dispatch("START");
   }
