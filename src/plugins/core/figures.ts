@@ -93,7 +93,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
 
   getVisibleFigures(sheetId: UID, viewport: Viewport): Figure[] {
     const result: Figure[] = [];
-    const figures = Object.values(this.figures[sheetId]!) || [];
+    const figures = Object.values(this.figures[sheetId] || {});
     const { offsetX, offsetY, width, height } = viewport;
     for (let figure of figures) {
       if (!figure) {
