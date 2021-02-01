@@ -85,7 +85,7 @@ describe("range plugin", () => {
       });
 
       test("in the start", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [2] });
+        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [1] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
       });
 
@@ -112,7 +112,7 @@ describe("range plugin", () => {
       });
 
       test("in the start", () => {
-        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [2] });
+        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [1] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
       });
 
