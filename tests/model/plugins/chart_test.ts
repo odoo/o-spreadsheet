@@ -702,6 +702,50 @@ describe("datasource tests", function () {
   });
   test.skip("extend data source to new values manually", () => {});
   test.skip("extend data set labels to new values manually", () => {});
+
+  test("duplicate a sheet with and without a chart", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "1",
+          colNumber: 2,
+          rowNumber: 2,
+        },
+        {
+          id: "2",
+          colNumber: 2,
+          rowNumber: 2,
+          cells: { B1: 0, B2: 1 },
+        },
+      ],
+    });
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: "2",
+      definition: {
+        title: "test 1",
+        dataSets: ["B1:B2"],
+        dataSetsHaveTitle: true,
+        labelRange: "A1:A2",
+        type: "line",
+      },
+    });
+    model.dispatch("DUPLICATE_SHEET", {
+      name: "SheetNoFigure",
+      sheetIdFrom: "1",
+      sheetIdTo: "SheetNoFigure",
+    });
+    expect(model.getters.getVisibleFigures("SheetNoFigure", viewport)).toEqual([]);
+    model.dispatch("DUPLICATE_SHEET", {
+      name: "SheetWithFigure",
+      sheetIdFrom: "2",
+      sheetIdTo: "SheetWithFigure",
+    });
+    const { x, y, height, width, tag } = model.getters.getVisibleFigures("2", viewport)[0];
+    expect(model.getters.getVisibleFigures("SheetWithFigure", viewport)).toMatchObject([
+      { x, y, height, width, tag },
+    ]);
+  });
 });
 
 describe.skip("title", function () {
