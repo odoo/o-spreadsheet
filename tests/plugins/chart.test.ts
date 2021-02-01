@@ -23,17 +23,20 @@ beforeEach(() => {
         rowNumber: 10,
         rows: {},
         cells: {
-          B1: { content: "first column dataset" },
-          C1: { content: "second column dataset" },
-          B2: { content: "10" },
-          B3: { content: "11" },
-          B4: { content: "12" },
-          C2: { content: "20" },
-          C3: { content: "19" },
-          C4: { content: "18" },
           A2: { content: "P1" },
           A3: { content: "P2" },
           A4: { content: "P3" },
+          A5: { content: "P4" },
+          B1: { content: "first column dataset" },
+          B2: { content: "10" },
+          B3: { content: "11" },
+          B4: { content: "12" },
+          B5: { content: "13" },
+          C1: { content: "second column dataset" },
+          C2: { content: "20" },
+          C3: { content: "19" },
+          C4: { content: "18" },
+          C5: { content: "17" },
 
           A8: { content: "first row dataset" },
           A9: { content: "second row dataset" },
@@ -511,11 +514,13 @@ describe("datasource tests", function () {
       },
     });
     deleteColumns(model, ["B"]);
-    expect(model.getters.getChartRuntime("1")!.data!.datasets).toHaveLength(1);
-    expect(model.getters.getChartRuntime("1")!.data!.datasets![0].data).toEqual([20, 19, 18]);
+    let chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets![0].data).toEqual([20, 19, 18]);
+    expect(chart.data!.datasets![1].data).toBe(undefined);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
   });
 
-  test.skip("delete a data set labels column", () => {
+  test("delete a data set labels column", () => {
     model.dispatch("CREATE_CHART", {
       id: "1",
       sheetId: model.getters.getActiveSheetId(),
@@ -527,9 +532,13 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    deleteColumns(model, ["A1"]);
+    deleteColumns(model, ["A"]);
     // dataset in col B becomes labels in col A
     expect(model.getters.getChartRuntime("1")!.data!.labels).toBeUndefined();
+    let chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
+    expect(chart.data!.labels).toEqual([]);
   });
 
   test("update dataset cell updates chart runtime", () => {
@@ -716,9 +725,6 @@ describe("datasource tests", function () {
     });
     expect(result).toBeCancelled(CancelledReason.InvalidLabelRange);
   });
-  test.skip("extend data source to new values manually", () => {});
-  test.skip("extend data set labels to new values manually", () => {});
-
   test("duplicate a sheet with and without a chart", () => {
     const model = createModelWithViewport({
       sheets: [
@@ -762,32 +768,255 @@ describe("datasource tests", function () {
       { x, y, height, width, tag },
     ]);
   });
+  test("extend data source to new values manually", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("UPDATE_CHART", {
+      id: "1",
+      sheetId,
+      definition: {
+        title: "hello1",
+        dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A5",
+        type: "bar",
+      },
+    });
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13]);
+    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18, 17]);
+  });
+  test("extend data set labels to new values manually", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("UPDATE_CHART", {
+      id: "1",
+      sheetId,
+      definition: {
+        title: "hello1",
+        dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A5",
+        type: "bar",
+      },
+    });
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+  });
 });
 
-describe.skip("title", function () {
-  test("delete a title column", () => {});
-  test("change title manually", () => {});
-  test("change title reference cell", () => {});
-  test("change content of title reference cell", () => {});
+describe("title", function () {
+  test("change title manually", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("UPDATE_CHART", {
+      id: "1",
+      sheetId,
+      definition: {
+        title: "newTitle",
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "bar",
+      },
+    });
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(chart.options!.title!.text).toEqual("newTitle");
+  });
 });
 
-describe.skip("multiple sheets", function () {
-  test("create a chart on a sheet with data from another sheet", () => {});
-  test("create a chart on a sheet with dataset label from another sheet", () => {});
-  test("create a chart on a sheet with title from another sheet", () => {});
-
-  test("change source data then activate the chart sheet (it should be up-to-date)", () => {});
-  test("change dataset label then activate the chart sheet (it should be up-to-date)", () => {});
-  test("change title then activate the chart sheet (it should be up-to-date)", () => {});
-});
-
-test.skip("select a graph, it should have the  resize handles", () => {});
-describe.skip("size and position", function () {
-  test("resize columns before a graph, it should move", () => {});
-  test("resize columns within graph, it should resize and rerender at the correct size", () => {});
-  test("delete a column before a graph, it should move", () => {});
-  test("delete a columns within graph, it should resize and rerender at the size-sizeOfRemovedColumn", () => {});
-  test("delete all columns that a graph is defined on, it should remove the graph", () => {});
+describe("multiple sheets", function () {
+  test("create a chart on a sheet with data from another sheet", () => {
+    model.dispatch("CREATE_SHEET", { name: "hello", activate: true, sheetId: "42", position: 1 });
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId,
+      definition: {
+        title: "title",
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "bar",
+      },
+    });
+    const chart = model.getters.getChartRuntime("1")!;
+    const chartDefinition = model.getters.getChartDefinition("1");
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
+    expect(chartDefinition).toMatchObject({
+      dataSets: [
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("B1:B4"),
+          },
+          labelCell: {
+            invalidSheetName: undefined,
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("B1"),
+          },
+        },
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("C1:C4"),
+          },
+          labelCell: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("C1"),
+          },
+        },
+      ],
+      sheetId: "42",
+    });
+  });
+  test("create a chart on a sheet with dataset label from another sheet", () => {
+    model.dispatch("CREATE_SHEET", { name: "hello", activate: true, sheetId: "42", position: 1 });
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId,
+      definition: {
+        title: "title",
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "bar",
+      },
+    });
+    const chart = model.getters.getChartRuntime("1")!;
+    const chartDefinition = model.getters.getChartDefinition("1");
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
+    expect(chartDefinition).toMatchObject({
+      labelRange: {
+        prefixSheet: true,
+        sheetId: "2",
+        zone: toZone("A2:A4"),
+      },
+      sheetId: "42",
+    });
+  });
+  test("change source data then activate the chart sheet (it should be up-to-date)", () => {
+    model.dispatch("CREATE_SHEET", { name: "hello", activate: true, sheetId: "42", position: 1 });
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId,
+      definition: {
+        title: "title",
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "bar",
+      },
+    });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: "2" });
+    model.dispatch("UPDATE_CELL", {
+      col: 1,
+      row: 1,
+      sheetId: "2",
+      content: "99",
+    });
+    const chart = model.getters.getChartRuntime("1")!;
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: "2" });
+    expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
+  });
+  test("change dataset label then activate the chart sheet (it should be up-to-date)", () => {
+    model.dispatch("CREATE_SHEET", { name: "hello", activate: true, sheetId: "42", position: 1 });
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId,
+      definition: {
+        title: "title",
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "bar",
+      },
+    });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: "2" });
+    model.dispatch("UPDATE_CELL", {
+      col: 0,
+      row: 2,
+      sheetId: "2",
+      content: "miam",
+    });
+    const chart = model.getters.getChartRuntime("1")!;
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: "2" });
+    expect(chart.data!.labels).toEqual(["P1", "miam", "P3"]);
+  });
+  test("create a chart on a sheet with data from another sheet", () => {
+    model.dispatch("CREATE_SHEET", { name: "hello", activate: true, sheetId: "42", position: 1 });
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId,
+      definition: {
+        title: "title",
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "bar",
+      },
+    });
+    const chart = model.getters.getChartRuntime("1")!;
+    const chartDefinition = model.getters.getChartDefinition("1");
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
+    expect(chartDefinition).toMatchObject({
+      dataSets: [
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("B1:B4"),
+          },
+          labelCell: {
+            invalidSheetName: undefined,
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("B1"),
+          },
+        },
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("C1:C4"),
+          },
+          labelCell: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("C1"),
+          },
+        },
+      ],
+      sheetId: "42",
+    });
+  });
+  test("export with chart data from a sheet that was deleted, than import data doesn't crash", () => {
+    const originSheet = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_SHEET", { name: "hello", activate: true, sheetId: "42", position: 1 });
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: "42",
+      definition: {
+        title: "title",
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "bar",
+      },
+    });
+    model.dispatch("DELETE_SHEET", { sheetId: originSheet });
+    const exportedData = model.exportData();
+    const newModel = new Model(exportedData);
+    const chart = newModel.getters.getChartRuntime("1")!;
+    expect(chart).toBeDefined();
+  });
 });
 
 describe("undo/redo", () => {
@@ -804,5 +1033,34 @@ describe("undo/redo", () => {
       },
     });
   });
-  test("undo/redo chart dataset rebuild the chart runtime", () => {});
+  test("undo/redo chart dataset rebuild the chart runtime", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId,
+      definition: {
+        title: "test 1",
+        dataSets: ["Sheet1!B1:B4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+    });
+    let chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    model.dispatch("UPDATE_CELL", {
+      col: 1,
+      row: 1,
+      sheetId,
+      content: "99",
+    });
+    chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
+    model.dispatch("UNDO");
+    chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    model.dispatch("REDO");
+    chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
+  });
 });
