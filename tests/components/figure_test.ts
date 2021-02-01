@@ -209,4 +209,16 @@ describe("figures", () => {
     figure = model.getters.getFigure(sheetId, "someuuid");
     expect(figure).toMatchObject({ id: "someuuid", x: 2, y: 2 });
   });
+
+  test("select a figure, it should have the  resize handles", async () => {
+    model.dispatch("CREATE_TEXT_FIGURE", {
+      sheetId: model.getters.getActiveSheetId(),
+      id: "someuuid",
+      text: "Hello",
+    });
+    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
+    await nextTick();
+    const anchors = fixture.querySelectorAll(".o-anchor");
+    expect(anchors.length).toBe(8);
+  });
 });
