@@ -8,20 +8,6 @@ const { xml, css } = owl.tags;
 const { useSubEnv } = owl.hooks;
 
 const Spreadsheet = o_spreadsheet.Spreadsheet;
-const menuItemRegistry = o_spreadsheet.registries.topbarMenuRegistry;
-
-menuItemRegistry.add("file", { name: "File", sequence: 10 });
-menuItemRegistry.addChild("save", ["file"], {
-  name: "Save",
-  shortCut: "Ctrl+S",
-  sequence: 30,
-  action: (env) => env.save(env.export()),
-});
-menuItemRegistry.addChild("clear", ["file"], {
-  name: "Clear save",
-  sequence: 30,
-  action: (env) => window.localStorage.removeItem("o-spreadsheet"),
-});
 
 let start;
 
@@ -30,24 +16,21 @@ class App extends Component {
     super();
     this.key = 1;
     this.transportService = new WebsocketTransport();
-    let cacheData;
-    try {
-      cacheData = JSON.parse(window.localStorage.getItem("o-spreadsheet"));
-    } catch (_) {
-      window.localStorage.removeItem("o-spreadsheet");
-    }
-    this.data = cacheData || demoData;
     useSubEnv({
       save: this.save.bind(this),
     });
-    this.stateUpdateMessages = [];
+    this.data = demoData;
     // this.data = makeLargeDataset(20, 10_000);
+    this.stateUpdateMessages = [];
   }
 
   async willStart() {
-    const result = await fetch('http://localhost:9000');
+    /**
+     * This fetch is used to get the list of revisions of the server since the
+     * start of the session.
+     */
+    const result = await fetch("http://localhost:9000");
     this.stateUpdateMessages = await result.json();
-    console.log(this.stateUpdateMessages);
   }
 
   mounted() {
@@ -57,8 +40,7 @@ class App extends Component {
   askConfirmation(ev) {
     if (window.confirm(ev.detail.content)) {
       ev.detail.confirm();
-    }
-    else {
+    } else {
       ev.detail.cancel();
     }
   }
@@ -71,14 +53,6 @@ class App extends Component {
     const text = window.prompt(ev.detail.title, ev.detail.placeholder);
     ev.detail.callback(text);
   }
-
-  saveContent(ev) {
-    this.save(ev.detail.data);
-  }
-
-  save(content) {
-    window.localStorage.setItem("o-spreadsheet", JSON.stringify(content));
-  }
 }
 
 App.template = xml/* xml */ `
@@ -89,8 +63,7 @@ App.template = xml/* xml */ `
       transportService="transportService"
       t-on-ask-confirmation="askConfirmation"
       t-on-notify-user="notifyUser"
-      t-on-edit-text="editText"
-      t-on-save-content="saveContent"/>
+      t-on-edit-text="editText"/>
   </div>`;
 App.style = css/* scss */ `
   html {
