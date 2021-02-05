@@ -478,12 +478,64 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("Notify cell is deleted when row is deleted", () => {
+  test("Delete row & Don't notify cell is deleted when composer is active", () => {
     selectCell(alice, "A4");
-    const spy = jest.spyOn(alice["config"], "notifyUser");
     alice.dispatch("START_EDITION", { text: "hello" });
+    const spy = jest.spyOn(alice["config"], "notifyUser");
     deleteRows(bob, [3]);
     expect(spy).toHaveBeenCalled();
+    expect(alice.getters.getEditionMode()).toBe("inactive");
+  });
+
+  test("Delete col & Don't notify cell is deleted when composer is active", () => {
+    selectCell(alice, "A4");
+    alice.dispatch("START_EDITION", { text: "hello" });
+    const spy = jest.spyOn(alice["config"], "notifyUser");
+    deleteColumns(bob, ["A"]);
+    expect(spy).toHaveBeenCalled();
+    expect(alice.getters.getEditionMode()).toBe("inactive");
+  });
+
+  test("Delete sheet & Don't notify cell is deleted when composer is active", () => {
+    const activeSheetId = alice.getters.getActiveSheetId();
+    createSheet(alice, { sheetId: "42" });
+    selectCell(alice, "A4");
+    alice.dispatch("START_EDITION", { text: "hello" });
+    const spy = jest.spyOn(alice["config"], "notifyUser");
+    alice.dispatch("DELETE_SHEET", { sheetId: activeSheetId });
+    expect(spy).toHaveBeenCalled();
+    expect(alice.getters.getEditionMode()).toBe("inactive");
+  });
+
+  test("Delete row & Don't notify cell is deleted when composer is not active", () => {
+    selectCell(alice, "A4");
+    alice.dispatch("START_EDITION", { text: "hello" });
+    alice.dispatch("STOP_EDITION");
+    const spy = jest.spyOn(alice["config"], "notifyUser");
+    deleteRows(bob, [3]);
+    expect(spy).not.toHaveBeenCalled();
+    expect(alice.getters.getEditionMode()).toBe("inactive");
+  });
+
+  test("Delete col & Don't notify cell is deleted when composer is not active", () => {
+    selectCell(alice, "A4");
+    alice.dispatch("START_EDITION", { text: "hello" });
+    alice.dispatch("STOP_EDITION");
+    const spy = jest.spyOn(alice["config"], "notifyUser");
+    deleteColumns(bob, ["A"]);
+    expect(spy).not.toHaveBeenCalled();
+    expect(alice.getters.getEditionMode()).toBe("inactive");
+  });
+
+  test("Delete sheet & Don't notify cell is deleted when composer is not active", () => {
+    const activeSheetId = alice.getters.getActiveSheetId();
+    createSheet(alice, { sheetId: "42" });
+    selectCell(alice, "A4");
+    alice.dispatch("START_EDITION", { text: "hello" });
+    alice.dispatch("STOP_EDITION");
+    const spy = jest.spyOn(alice["config"], "notifyUser");
+    alice.dispatch("DELETE_SHEET", { sheetId: activeSheetId });
+    expect(spy).not.toHaveBeenCalled();
     expect(alice.getters.getEditionMode()).toBe("inactive");
   });
 

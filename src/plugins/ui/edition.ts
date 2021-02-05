@@ -156,7 +156,7 @@ export class EditionPlugin extends UIPlugin {
         this.onRowsRemoved(cmd);
         break;
       case "DELETE_SHEET":
-        if (cmd.sheetId === this.sheet) {
+        if (cmd.sheetId === this.sheet && this.mode !== "inactive") {
           this.dispatch("STOP_EDITION", { cancel: true });
           this.ui.notifyUser(CELL_DELETED_MESSAGE);
         }
@@ -215,7 +215,7 @@ export class EditionPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   private onColumnsRemoved(cmd: RemoveColumnsCommand) {
-    if (cmd.columns.includes(this.col)) {
+    if (cmd.columns.includes(this.col) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
       this.ui.notifyUser(CELL_DELETED_MESSAGE);
       return;
@@ -230,7 +230,7 @@ export class EditionPlugin extends UIPlugin {
   }
 
   private onRowsRemoved(cmd: RemoveRowsCommand) {
-    if (cmd.rows.includes(this.row)) {
+    if (cmd.rows.includes(this.row) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
       this.ui.notifyUser(CELL_DELETED_MESSAGE);
       return;

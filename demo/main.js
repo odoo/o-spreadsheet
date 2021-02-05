@@ -16,9 +16,6 @@ class App extends Component {
     super();
     this.key = 1;
     this.transportService = new WebsocketTransport();
-    useSubEnv({
-      save: this.save.bind(this),
-    });
     this.data = demoData;
     // this.data = makeLargeDataset(20, 10_000);
     this.stateUpdateMessages = [];
