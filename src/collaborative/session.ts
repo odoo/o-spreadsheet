@@ -59,8 +59,6 @@ export class Session extends EventBus<CollaborativeEvent> {
     this.clients[client.id] = client;
     this.clientId = client.id;
 
-    // should the timeout be cleared when the session is destroyed?
-    // YES :D
     this.debouncedMove = owl.utils.debounce(
       this._move.bind(this),
       DEBOUNCE_TIME
@@ -81,11 +79,8 @@ export class Session extends EventBus<CollaborativeEvent> {
       version: MESSAGE_VERSION,
       serverRevisionId: this.serverRevisionId,
       nextRevisionId: revision.id,
-      revision: {
-        clientId: revision.clientId,
-        commands: revision.commands,
-        id: revision.id,
-      },
+      clientId: revision.clientId,
+      commands: revision.commands,
     });
   }
 
@@ -215,8 +210,8 @@ export class Session extends EventBus<CollaborativeEvent> {
           this.trigger("unexpected-revision-id", { revisionId: message.serverRevisionId });
           return;
         }
-        const { id, clientId, commands } = message.revision;
-        const revision = new Revision(id, clientId, commands);
+        const { clientId, commands } = message;
+        const revision = new Revision(message.nextRevisionId, clientId, commands);
         if (revision.clientId !== this.clientId) {
           this.revisions.insertExternal(revision.id, revision, message.serverRevisionId);
           this.trigger("remote-revision-received", { commands });
@@ -273,14 +268,11 @@ export class Session extends EventBus<CollaborativeEvent> {
     let message = this.pendingMessages[0];
     if (!message) return;
     if (message.type === "REMOTE_REVISION") {
-      const revision = this.revisions.get(message.revision.id);
+      const revision = this.revisions.get(message.nextRevisionId);
       message = {
         ...message,
-        revision: {
-          clientId: revision.clientId,
-          commands: revision.commands,
-          id: revision.id,
-        },
+        clientId: revision.clientId,
+        commands: revision.commands,
       };
     }
     this.transportService.sendMessage({

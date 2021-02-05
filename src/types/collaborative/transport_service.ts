@@ -1,4 +1,4 @@
-import { RevisionData } from "..";
+import { CoreCommand } from "../commands";
 import { UID } from "../misc";
 import { Client, ClientId } from "./session";
 
@@ -8,7 +8,8 @@ export interface AbstractMessage {
 
 export interface RemoteRevisionMessage extends AbstractMessage {
   type: "REMOTE_REVISION";
-  revision: RevisionData;
+  clientId: ClientId;
+  commands: readonly CoreCommand[];
   nextRevisionId: UID;
   serverRevisionId: UID;
 }

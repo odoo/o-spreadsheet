@@ -127,11 +127,8 @@ describe("Collaborative session", () => {
       type: "REMOTE_REVISION",
       version: MESSAGE_VERSION,
       nextRevisionId: "42",
-      revision: {
-        clientId: "client_42",
-        commands: [],
-        id: "42",
-      },
+      clientId: "client_42",
+      commands: [],
       serverRevisionId: transport["serverRevisionId"],
     });
     expect(spy).toHaveBeenNthCalledWith(1, "unexpected-revision-id", {
@@ -147,22 +144,16 @@ describe("Collaborative session", () => {
           type: "REMOTE_REVISION",
           version: MESSAGE_VERSION,
           nextRevisionId: "42",
-          revision: {
-            clientId: "client_42",
-            commands: [],
-            id: "42",
-          },
+          clientId: "client_42",
+          commands: [],
           serverRevisionId: transport["serverRevisionId"],
         },
         {
           type: "REMOTE_REVISION",
           version: MESSAGE_VERSION,
           nextRevisionId: "43",
-          revision: {
-            clientId: "client_43",
-            commands: [],
-            id: "43",
-          },
+          clientId: "client_43",
+          commands: [],
           serverRevisionId: "not 42",
         },
       ]);

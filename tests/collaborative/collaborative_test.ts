@@ -134,18 +134,16 @@ describe("Multi users synchronisation", () => {
       version: MESSAGE_VERSION,
       nextRevisionId: "1",
       serverRevisionId: DEFAULT_REVISION_ID,
-      revision: { clientId: "alice", commands: [command], id: "1" },
+      clientId: "alice",
+      commands: [command],
     };
     const nextMessage: CollaborationMessage = {
       type: "REMOTE_REVISION",
       version: MESSAGE_VERSION,
       nextRevisionId: "2",
       serverRevisionId: "1",
-      revision: {
-        clientId: "alice",
-        commands: [{ ...command, content: "second command" }],
-        id: "2",
-      },
+      clientId: "alice",
+      commands: [{ ...command, content: "second command" }],
     };
     // we simulate a message from the network which is supposed to come after
     // the messages given as initial messages
@@ -549,7 +547,8 @@ describe("Multi users synchronisation", () => {
       version: MESSAGE_VERSION,
       nextRevisionId: "42",
       serverRevisionId,
-      revision: { clientId: "alice", commands, id: "42" },
+      clientId: "alice",
+      commands,
     };
     // The message is received once as initial message and once from the network
     const david = new Model(data, { transportService: network }, [message]);

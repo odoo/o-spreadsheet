@@ -150,11 +150,8 @@ describe("Collaborative local history", () => {
         type: "REMOTE_REVISION",
         version: MESSAGE_VERSION,
         nextRevisionId: "1",
-        revision: {
-          clientId: "bob",
-          id: "1",
-          commands: [{ type: "UPDATE_CELL", col: 1, row: 0, sheetId: "sheet1", content: "hello" }],
-        },
+        clientId: "bob",
+        commands: [{ type: "UPDATE_CELL", col: 1, row: 0, sheetId: "sheet1", content: "hello" }],
         serverRevisionId: "initial_revision",
       },
     ];
@@ -179,11 +176,8 @@ describe("Collaborative local history", () => {
         type: "REMOTE_REVISION",
         nextRevisionId: "1",
         version: MESSAGE_VERSION,
-        revision: {
-          clientId: "bob",
-          id: "1",
-          commands: [{ type: "UPDATE_CELL", col: 1, row: 0, sheetId: "sheet1", content: "hello" }],
-        },
+        clientId: "bob",
+        commands: [{ type: "UPDATE_CELL", col: 1, row: 0, sheetId: "sheet1", content: "hello" }],
         serverRevisionId: "initial_revision",
       },
       {
@@ -215,11 +209,8 @@ describe("Collaborative local history", () => {
         type: "REMOTE_REVISION",
         version: MESSAGE_VERSION,
         nextRevisionId: "1",
-        revision: {
-          clientId: "bob",
-          id: "1",
-          commands: [{ type: "UPDATE_CELL", col: 1, row: 0, sheetId: "sheet1", content: "hello" }],
-        },
+        clientId: "bob",
+        commands: [{ type: "UPDATE_CELL", col: 1, row: 0, sheetId: "sheet1", content: "hello" }],
         serverRevisionId: "initial_revision",
       },
       {
