@@ -1,7 +1,8 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { ChartPanel } from "../../src/components/side_panel/chart_panel";
-import { Figure, SpreadsheetEnv, Viewport } from "../../src/types";
+import { Figure, SpreadsheetEnv } from "../../src/types";
+import { createModelWithViewport } from "../test_helpers/commands_helpers";
 import { setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import { makeTestFixture, mockUuidV4To, nextTick } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -23,16 +24,6 @@ class Parent extends Component<any, SpreadsheetEnv> {
   }
 }
 
-const viewport: Viewport = {
-  bottom: 1000,
-  right: 1000,
-  left: 0,
-  top: 0,
-  height: 1000,
-  width: 1000,
-  offsetX: 0,
-  offsetY: 0,
-};
 let fixture: HTMLElement;
 
 async function createChartPanel(
@@ -75,7 +66,7 @@ describe("Chart sidepanel component", () => {
 
   // Skipped because updating of a chart is not yet supported
   test.skip("update chart", async () => {
-    const model = new Model();
+    const model = createModelWithViewport();
     model.dispatch("CREATE_CHART", {
       id: "1",
       sheetId: model.getters.getActiveSheetId(),
@@ -87,10 +78,7 @@ describe("Chart sidepanel component", () => {
         type: "line",
       },
     });
-    const [figure] = model.getters.getVisibleFigures(
-      model.getters.getActiveSheetId(),
-      viewport
-    ) as Figure[];
+    const [figure] = model.getters.getVisibleFigures(model.getters.getActiveSheetId()) as Figure[];
     const { parent } = await createChartPanel({ model, figure });
     parent.env.dispatch = jest.fn(() => ({ status: "SUCCESS" }));
     await simulateClick(".o-sidePanelButton");

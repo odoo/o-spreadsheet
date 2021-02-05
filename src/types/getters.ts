@@ -23,6 +23,7 @@ import { SelectionMultiUserPlugin } from "../plugins/ui/selection_multiuser";
 import { SortPlugin } from "../plugins/ui/sort";
 import { UIOptionsPlugin } from "../plugins/ui/ui_options";
 import { SheetUIPlugin } from "../plugins/ui/ui_sheet";
+import { ViewportPlugin } from "../plugins/ui/viewport";
 // -----------------------------------------------------------------------------
 // Getters
 // -----------------------------------------------------------------------------
@@ -45,7 +46,6 @@ export interface CoreGetters {
   getColCells: SheetPlugin["getColCells"];
   getColsZone: SheetPlugin["getColsZone"];
   getRowsZone: SheetPlugin["getRowsZone"];
-  getGridSize: SheetPlugin["getGridSize"];
 
   zoneToXC: CellPlugin["zoneToXC"];
   getCells: CellPlugin["getCells"];
@@ -97,6 +97,7 @@ export type Getters = CoreGetters & {
   getSelectedFigureId: SelectionPlugin["getSelectedFigureId"];
   getVisibleFigures: SelectionPlugin["getVisibleFigures"];
   getPosition: SelectionPlugin["getPosition"];
+  getSheetPosition: SelectionPlugin["getSheetPosition"];
   getAggregate: SelectionPlugin["getAggregate"];
   getSelectionMode: SelectionPlugin["getSelectionMode"];
   isSelected: SelectionPlugin["isSelected"];
@@ -123,9 +124,6 @@ export type Getters = CoreGetters & {
   getColIndex: RendererPlugin["getColIndex"];
   getRowIndex: RendererPlugin["getRowIndex"];
   getRect: RendererPlugin["getRect"];
-  snapViewportToCell: RendererPlugin["snapViewportToCell"];
-  adjustViewportPosition: RendererPlugin["adjustViewportPosition"];
-  adjustViewportZone: RendererPlugin["adjustViewportZone"];
 
   getEditionMode: EditionPlugin["getEditionMode"];
   isSelectingForComposer: EditionPlugin["isSelectingForComposer"];
@@ -145,4 +143,10 @@ export type Getters = CoreGetters & {
   getContiguousZone: SortPlugin["getContiguousZone"];
 
   getClientsToDisplay: SelectionMultiUserPlugin["getClientsToDisplay"];
+
+  getSnappedViewport: ViewportPlugin["getViewport"];
+  getViewportDimension: ViewportPlugin["getViewportDimension"];
+  getActiveViewport: ViewportPlugin["getActiveViewport"];
+  getActiveSnappedViewport: ViewportPlugin["getActiveSnappedViewport"];
+  getGridDimension: ViewportPlugin["getGridDimension"];
 };

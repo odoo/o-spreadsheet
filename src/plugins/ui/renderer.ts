@@ -23,6 +23,7 @@ import {
   Header,
   LAYERS,
   Rect,
+  Sheet,
   Viewport,
   Zone,
 } from "../../types/index";
@@ -68,14 +69,7 @@ function searchIndex(headers: Header[], offset: number): number {
 
 export class RendererPlugin extends UIPlugin {
   static layers = [LAYERS.Background, LAYERS.Headers];
-  static getters = [
-    "getColIndex",
-    "getRowIndex",
-    "getRect",
-    "snapViewportToCell",
-    "adjustViewportPosition",
-    "adjustViewportZone",
-  ];
+  static getters = ["getColIndex", "getRowIndex", "getRect"];
   static modes: Mode[] = ["normal", "readonly"];
 
   private boxes: Box[] = [];
@@ -88,20 +82,20 @@ export class RendererPlugin extends UIPlugin {
    * Return the index of a column given an offset x and a visible left col index.
    * It returns -1 if no column is found.
    */
-  getColIndex(x: number, left: number): number {
+  getColIndex(x: number, left: number, sheet?: Sheet): number {
     if (x < HEADER_WIDTH) {
       return -1;
     }
-    const cols = this.getters.getActiveSheet().cols;
+    const cols = (sheet || this.getters.getActiveSheet()).cols;
     const adjustedX = x - HEADER_WIDTH + cols[left].start + 1;
     return searchIndex(cols, adjustedX);
   }
 
-  getRowIndex(y: number, top: number): number {
+  getRowIndex(y: number, top: number, sheet?: Sheet): number {
     if (y < HEADER_HEIGHT) {
       return -1;
     }
-    const rows = this.getters.getActiveSheet().rows;
+    const rows = (sheet || this.getters.getActiveSheet()).rows;
     const adjustedY = y - HEADER_HEIGHT + rows[top].start + 1;
     return searchIndex(rows, adjustedY);
   }
@@ -117,81 +111,6 @@ export class RendererPlugin extends UIPlugin {
     const y = Math.max(rows[top].start - offsetY, HEADER_HEIGHT);
     const height = rows[bottom].end - offsetY - y;
     return [x, y, width, height];
-  }
-
-  /**
-   * Snap a viewport boundaries to exactly match the start of a cell.
-   * @param viewport
-   */
-  snapViewportToCell(viewport: Viewport): Viewport {
-    const { cols, rows } = this.getters.getActiveSheet();
-    const adjustedViewport = Object.assign({}, viewport);
-    adjustedViewport.offsetX = cols[viewport.left].start;
-    adjustedViewport.offsetY = rows[viewport.top].start;
-    return adjustedViewport;
-  }
-
-  /**
-   * Adjust the viewport until the active cell is completely visible inside it.
-   * @param viewport the viewport that will be adjusted
-   */
-  adjustViewportPosition(viewport: Viewport): Viewport {
-    const adjustedViewport = Object.assign({}, viewport);
-    const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
-    const [col, row] = this.getters.getMainCell(sheetId, ...this.getters.getPosition());
-    while (col >= adjustedViewport.right && col !== cols.length - 1) {
-      adjustedViewport.offsetX = cols[adjustedViewport.left].end;
-      this.adjustViewportZoneX(adjustedViewport);
-    }
-    while (col < adjustedViewport.left) {
-      adjustedViewport.offsetX = cols[adjustedViewport.left - 1].start;
-      this.adjustViewportZoneX(adjustedViewport);
-    }
-    while (row >= adjustedViewport.bottom && row !== rows.length - 1) {
-      adjustedViewport.offsetY = rows[adjustedViewport.top].end;
-      this.adjustViewportZoneY(adjustedViewport);
-    }
-    while (row < adjustedViewport.top) {
-      adjustedViewport.offsetY = rows[adjustedViewport.top - 1].start;
-      this.adjustViewportZoneY(adjustedViewport);
-    }
-    return adjustedViewport;
-  }
-
-  adjustViewportZone(viewport: Viewport): Viewport {
-    const adjustedViewport = Object.assign({}, viewport);
-    this.adjustViewportZoneX(adjustedViewport);
-    this.adjustViewportZoneY(adjustedViewport);
-    return adjustedViewport;
-  }
-
-  private adjustViewportZoneX(viewport: Viewport) {
-    const { cols } = this.getters.getActiveSheet();
-    const { width, offsetX } = viewport;
-    viewport.left = this.getColIndex(offsetX + HEADER_WIDTH, 0);
-    const x = width + offsetX - HEADER_WIDTH;
-    viewport.right = cols.length - 1;
-    for (let i = viewport.left; i < cols.length; i++) {
-      if (x < cols[i].end) {
-        viewport.right = i;
-        break;
-      }
-    }
-  }
-
-  private adjustViewportZoneY(viewport: Viewport) {
-    const { rows } = this.getters.getActiveSheet();
-    const { height, offsetY } = viewport;
-    viewport.top = this.getRowIndex(offsetY + HEADER_HEIGHT, 0);
-
-    let y = height + offsetY - HEADER_HEIGHT;
-    viewport.bottom = rows.length - 1;
-    for (let i = viewport.top; i < rows.length; i++) {
-      if (y < rows[i].end) {
-        viewport.bottom = i;
-        break;
-      }
-    }
   }
 
   // ---------------------------------------------------------------------------
@@ -215,11 +134,12 @@ export class RendererPlugin extends UIPlugin {
 
   private drawBackground(renderingContext: GridRenderingContext) {
     const { ctx, viewport, thinLineWidth } = renderingContext;
-    let { width, height, offsetX, offsetY, top, left, bottom, right } = viewport;
+    let { offsetX, offsetY, top, left, bottom, right } = viewport;
+    const { width, height } = this.getters.getViewportDimension();
     const { cols, rows } = this.getters.getActiveSheet();
     // white background
     ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, viewport.width, viewport.height);
+    ctx.fillRect(0, 0, width, height);
 
     // background grid
     offsetX -= HEADER_WIDTH;
@@ -354,7 +274,8 @@ export class RendererPlugin extends UIPlugin {
 
   private drawHeaders(renderingContext: GridRenderingContext) {
     const { ctx, viewport, thinLineWidth } = renderingContext;
-    let { width, height, offsetX, offsetY, left, top, right, bottom } = viewport;
+    let { offsetX, offsetY, left, top, right, bottom } = viewport;
+    const { width, height } = this.getters.getViewportDimension();
     offsetX -= HEADER_WIDTH;
     offsetY -= HEADER_HEIGHT;
     const selection = this.getters.getSelectedZones();

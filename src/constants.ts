@@ -21,6 +21,8 @@ export const DEFAULT_CELL_WIDTH = 96;
 export const DEFAULT_CELL_HEIGHT = 23;
 export const SCROLLBAR_WIDTH = 15;
 export const PADDING_AUTORESIZE = 3;
+export const AUTOFILL_EDGE_LENGTH = 8;
+export const ICON_EDGE_LENGTH = 18;
 
 // Fonts
 export const DEFAULT_FONT_WEIGHT = "400";

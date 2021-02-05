@@ -1,26 +1,21 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers/zones";
-import { CancelledReason, Viewport } from "../../src/types";
-import { deleteColumns, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { CancelledReason } from "../../src/types";
+import {
+  createModelWithViewport,
+  deleteColumns,
+  selectCell,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import { mockUuidV4To, testUndoRedo, waitForRecompute } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
-const viewport: Viewport = {
-  bottom: 1000,
-  right: 1000,
-  left: 0,
-  top: 0,
-  height: 1000,
-  width: 1000,
-  offsetX: 0,
-  offsetY: 0,
-};
 
 beforeEach(() => {
   mockUuidV4To(1);
 
-  model = new Model({
+  model = createModelWithViewport({
     sheets: [
       {
         name: "Sheet1",
@@ -404,11 +399,11 @@ describe("datasource tests", function () {
       },
     });
     const exportedData = model.exportData();
-    const newModel = new Model(exportedData);
-    expect(newModel.getters.getVisibleFigures(sheetId, viewport)).toHaveLength(1);
+    const newModel = createModelWithViewport(exportedData);
+    expect(newModel.getters.getVisibleFigures(sheetId)).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
     newModel.dispatch("DELETE_FIGURE", { sheetId: model.getters.getActiveSheetId(), id: "1" });
-    expect(newModel.getters.getVisibleFigures(sheetId, viewport)).toHaveLength(0);
+    expect(newModel.getters.getVisibleFigures(sheetId)).toHaveLength(0);
     expect(newModel.getters.getChartRuntime("1")).toBeUndefined();
   });
 
@@ -725,7 +720,7 @@ describe("datasource tests", function () {
   test.skip("extend data set labels to new values manually", () => {});
 
   test("duplicate a sheet with and without a chart", () => {
-    const model = new Model({
+    const model = createModelWithViewport({
       sheets: [
         {
           id: "1",
@@ -756,14 +751,14 @@ describe("datasource tests", function () {
       sheetIdFrom: "1",
       sheetIdTo: "SheetNoFigure",
     });
-    expect(model.getters.getVisibleFigures("SheetNoFigure", viewport)).toEqual([]);
+    expect(model.getters.getVisibleFigures("SheetNoFigure")).toEqual([]);
     model.dispatch("DUPLICATE_SHEET", {
       name: "SheetWithFigure",
       sheetIdFrom: "2",
       sheetIdTo: "SheetWithFigure",
     });
-    const { x, y, height, width, tag } = model.getters.getVisibleFigures("2", viewport)[0];
-    expect(model.getters.getVisibleFigures("SheetWithFigure", viewport)).toMatchObject([
+    const { x, y, height, width, tag } = model.getters.getVisibleFigures("2")[0];
+    expect(model.getters.getVisibleFigures("SheetWithFigure")).toMatchObject([
       { x, y, height, width, tag },
     ]);
   });

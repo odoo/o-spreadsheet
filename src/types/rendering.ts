@@ -16,9 +16,12 @@ export interface Box {
   error?: string;
 }
 
-export interface Viewport extends Zone {
+export interface GridDimension {
   width: number;
   height: number;
+}
+
+export interface Viewport extends Zone {
   offsetX: number;
   offsetY: number;
 }

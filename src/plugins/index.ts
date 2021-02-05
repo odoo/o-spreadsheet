@@ -22,6 +22,7 @@ import { SelectionMultiUserPlugin } from "./ui/selection_multiuser";
 import { SortPlugin } from "./ui/sort";
 import { UIOptionsPlugin } from "./ui/ui_options";
 import { SheetUIPlugin } from "./ui/ui_sheet";
+import { ViewportPlugin } from "./ui/viewport";
 import { UIPluginConstructor } from "./ui_plugin";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
@@ -44,6 +45,7 @@ export const uiPluginRegistry = new Registry<UIPluginConstructor>()
   .add("edition", EditionPlugin)
   .add("highlight", HighlightPlugin)
   .add("selectionInput", SelectionInputPlugin)
+  .add("viewport", ViewportPlugin)
   .add("grid renderer", RendererPlugin)
   .add("autofill", AutofillPlugin)
   .add("find_and_replace", FindAndReplacePlugin)

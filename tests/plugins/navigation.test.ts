@@ -11,9 +11,9 @@ function getViewport(
   offsetX: number,
   offsetY: number
 ): Viewport {
-  let viewport = { width, height, offsetX, offsetY, left: 0, right: 0, top: 0, bottom: 0 };
-  viewport = model.getters.adjustViewportZone(viewport);
-  return viewport;
+  model.dispatch("RESIZE_VIEWPORT", { width, height });
+  model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
+  return model.getters.getActiveViewport();
 }
 
 describe("navigation", () => {
@@ -149,12 +149,12 @@ describe("navigation", () => {
     expect(viewport.right).toBe(5);
 
     selectCell(model, "E1");
-    viewport = model.getters.adjustViewportPosition(viewport);
+    viewport = model.getters.getActiveViewport();
     expect(viewport.left).toBe(0);
     expect(viewport.right).toBe(5);
 
     selectCell(model, "F1");
-    viewport = model.getters.adjustViewportPosition(viewport);
+    viewport = model.getters.getActiveViewport();
     expect(viewport.left).toBe(1);
     expect(viewport.right).toBe(6);
   });
@@ -166,12 +166,12 @@ describe("navigation", () => {
     expect(viewport.right).toBe(6);
 
     selectCell(model, "B1");
-    viewport = model.getters.adjustViewportPosition(viewport);
+    viewport = model.getters.getActiveViewport();
     expect(viewport.left).toBe(1);
     expect(viewport.right).toBe(6);
 
     selectCell(model, "A1");
-    viewport = model.getters.adjustViewportPosition(viewport);
+    viewport = model.getters.getActiveViewport();
     expect(viewport.left).toBe(0);
     expect(viewport.right).toBe(5);
   });
@@ -183,12 +183,12 @@ describe("navigation", () => {
     expect(viewport.bottom).toBe(11);
 
     selectCell(model, "A11");
-    viewport = model.getters.adjustViewportPosition(viewport);
+    viewport = model.getters.getActiveViewport();
     expect(viewport.top).toBe(0);
     expect(viewport.bottom).toBe(11);
 
     selectCell(model, "A12");
-    viewport = model.getters.adjustViewportPosition(viewport);
+    viewport = model.getters.getActiveViewport();
     expect(viewport.top).toBe(1);
     expect(viewport.bottom).toBe(12);
   });
@@ -200,12 +200,12 @@ describe("navigation", () => {
     expect(viewport.bottom).toBe(14);
 
     selectCell(model, "A3");
-    viewport = model.getters.adjustViewportPosition(viewport);
+    viewport = model.getters.getActiveViewport();
     expect(viewport.top).toBe(2);
     expect(viewport.bottom).toBe(14);
 
     selectCell(model, "A2");
-    viewport = model.getters.adjustViewportPosition(viewport);
+    viewport = model.getters.getActiveViewport();
     expect(viewport.top).toBe(1);
     expect(viewport.bottom).toBe(12);
   });
@@ -222,12 +222,12 @@ describe("navigation", () => {
     });
 
     selectCell(model, "A3");
-    viewport = model.getters.adjustViewportPosition(viewport);
+    viewport = model.getters.getActiveViewport();
     expect(viewport.top).toBe(2);
     expect(viewport.bottom).toBe(14);
 
     selectCell(model, "A2");
-    viewport = model.getters.adjustViewportPosition(viewport);
+    viewport = model.getters.getActiveViewport();
     expect(viewport.top).toBe(0);
     expect(viewport.bottom).toBe(11);
   });

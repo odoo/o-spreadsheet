@@ -726,6 +726,18 @@ export interface SortCommand extends BaseCommand {
 }
 export type SortDirection = "ascending" | "descending";
 
+export interface ResizeViewportCommand extends BaseCommand {
+  type: "RESIZE_VIEWPORT";
+  width: number;
+  height: number;
+}
+
+export interface SetViewportOffsetCommand extends BaseCommand {
+  type: "SET_VIEWPORT_OFFSET";
+  offsetX: number;
+  offsetY: number;
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -833,7 +845,9 @@ export type LocalCommand =
   | SelectSearchNextCommand
   | ReplaceSearchCommand
   | ReplaceAllSearchCommand
-  | SortCommand;
+  | SortCommand
+  | ResizeViewportCommand
+  | SetViewportOffsetCommand;
 
 export type Command = CoreCommand | LocalCommand;
 export interface CommandSuccess {

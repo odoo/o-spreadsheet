@@ -2,7 +2,7 @@ import * as owl from "@odoo/owl";
 import { Component } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH, SELECTION_BORDER_COLOR } from "../../constants";
 import { figureRegistry } from "../../registries/index";
-import { Figure, SpreadsheetEnv, Viewport } from "../../types/index";
+import { Figure, SpreadsheetEnv } from "../../types/index";
 import { startDnd } from "../helpers/drag_and_drop";
 import { ChartFigure } from "./chart";
 
@@ -129,10 +129,7 @@ const CSS = css/*SCSS*/ `
   }
 `;
 
-export class FiguresContainer extends Component<
-  { viewport: Viewport; sidePanelIsOpen: Boolean },
-  SpreadsheetEnv
-> {
+export class FiguresContainer extends Component<{ sidePanelIsOpen: Boolean }, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = {};
@@ -151,13 +148,11 @@ export class FiguresContainer extends Component<
 
   getVisibleFigures(): FigureInfo[] {
     const selectedId = this.getters.getSelectedFigureId();
-    return this.getters
-      .getVisibleFigures(this.getters.getActiveSheetId(), this.props.viewport)
-      .map((f) => ({
-        id: f.id,
-        isSelected: f.id === selectedId,
-        figure: f,
-      }));
+    return this.getters.getVisibleFigures(this.getters.getActiveSheetId()).map((f) => ({
+      id: f.id,
+      isSelected: f.id === selectedId,
+      figure: f,
+    }));
   }
 
   getDims(info: FigureInfo) {
@@ -169,7 +164,7 @@ export class FiguresContainer extends Component<
 
   getStyle(info: FigureInfo) {
     const { figure, isSelected } = info;
-    const { offsetX, offsetY } = this.props.viewport;
+    const { offsetX, offsetY } = this.getters.getActiveSnappedViewport();
     const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
     const { width, height } = target;
     let x = target.x - offsetX + HEADER_WIDTH - 1;
