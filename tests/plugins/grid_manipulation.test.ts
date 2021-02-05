@@ -995,8 +995,8 @@ describe("Rows", () => {
         { start: size + 30, end: size + 50, size: 20, name: "5", cells: {} },
         { start: size + 50, end: 2 * size + 50, size, name: "6", cells: {} },
       ]);
-      const dimensions = model.getters.getGridSize(model.getters.getActiveSheet());
-      expect(dimensions).toEqual([192, 124]);
+      const dimensions = model.getters.getGridDimension(model.getters.getActiveSheet());
+      expect(dimensions).toMatchObject({ width: 192, height: 124 });
       expect(model.getters.getActiveSheet().rows.length).toBe(6);
     });
     test("On addition after", () => {
@@ -1010,8 +1010,8 @@ describe("Rows", () => {
         { start: size + 50, end: size + 70, size: 20, name: "5", cells: {} },
         { start: size + 70, end: 2 * size + 70, size, name: "6", cells: {} },
       ]);
-      const dimensions = model.getters.getGridSize(model.getters.getActiveSheet());
-      expect(dimensions).toEqual([192, 144]);
+      const dimensions = model.getters.getGridDimension(model.getters.getActiveSheet());
+      expect(dimensions).toMatchObject({ width: 192, height: 144 });
       expect(model.getters.getActiveSheet().rows.length).toBe(6);
     });
     test("cannot delete column in invalid sheet", () => {
@@ -1021,13 +1021,13 @@ describe("Rows", () => {
 
     test("activate Sheet: same size", () => {
       addRows(model, "after", 2, 1);
-      let dimensions = model.getters.getGridSize(model.getters.getActiveSheet());
-      expect(dimensions).toEqual([192, 124]);
+      let dimensions = model.getters.getGridDimension(model.getters.getActiveSheet());
+      expect(dimensions).toMatchObject({ width: 192, height: 124 });
       const to = model.getters.getActiveSheetId();
       createSheet(model, { activate: true, sheetId: "42" });
       activateSheet(model, to);
-      dimensions = model.getters.getGridSize(model.getters.getActiveSheet());
-      expect(dimensions).toEqual([192, 124]);
+      dimensions = model.getters.getGridDimension(model.getters.getActiveSheet());
+      expect(dimensions).toMatchObject({ width: 192, height: 124 });
     });
   });
 

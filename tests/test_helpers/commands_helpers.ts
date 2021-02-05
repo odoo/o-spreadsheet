@@ -1,6 +1,7 @@
 import { lettersToNumber, toCartesian, toZone, uuidv4 } from "../../src/helpers/index";
-import { Model } from "../../src/model";
+import { Model, ModelConfig } from "../../src/model";
 import { BorderCommand, CommandResult, CreateSheetCommand, UID } from "../../src/types";
+import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 
 /**
  * Dispatch an UNDO to the model
@@ -153,4 +154,16 @@ export function setCellContent(
 export function selectCell(model: Model, xc: string) {
   const [col, row] = toCartesian(xc);
   model.dispatch("SELECT_CELL", { col, row });
+}
+
+export function createModelWithViewport(
+  data?: any,
+  config?: Partial<ModelConfig>,
+  stateUpdateMessages?: StateUpdateMessage[],
+  width: number = 1000,
+  height: number = 1000
+): Model {
+  const model = new Model(data, config, stateUpdateMessages);
+  model.dispatch("RESIZE_VIEWPORT", { width, height });
+  return model;
 }

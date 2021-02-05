@@ -125,8 +125,6 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
 
     const drawGrid = model.drawGrid;
     model.drawGrid = function (context: GridRenderingContext) {
-      context.viewport.width = 1000;
-      context.viewport.height = 1000;
       drawGrid.call(this, context);
     };
     this.model = model;
@@ -142,6 +140,10 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
 
   mounted() {
     this.model.on("update", this, this.render);
+    this.model.dispatch("RESIZE_VIEWPORT", {
+      width: this.el!.clientWidth,
+      height: this.el!.clientWidth,
+    });
   }
 
   willUnmount() {

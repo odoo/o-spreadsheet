@@ -1,13 +1,7 @@
-import { Grid } from "../../src/components/grid";
 import { MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import {
-  activateSheet,
-  deleteColumns,
-  selectCell,
-  setCellContent,
-} from "../test_helpers/commands_helpers";
+import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick, Touch } from "../test_helpers/helpers";
@@ -538,70 +532,75 @@ describe("error tooltip", () => {
   });
 });
 
-describe("multi sheet with different sizes", function () {
+describe("Events on Grid update viewport correctly", () => {
   beforeEach(async () => {
-    model = new Model({
-      sheets: [
-        {
-          name: "small",
-          id: "small",
-          colNumber: 2,
-          rowNumber: 2,
-          cells: {},
-        },
-        {
-          name: "big",
-          id: "big",
-          colNumber: 5,
-          rowNumber: 5,
-          cells: {},
-        },
-      ],
-    });
+    model = new Model();
     parent = new GridParent(model);
     await parent.mount(fixture);
   });
-
-  test("multiple sheets of different size render correctly", async () => {
-    expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("small");
-    selectCell(model, "B2");
-    activateSheet(model, "big");
+  afterEach(() => {
+    parent.destroy();
+  });
+  test("Vertical scroll", async () => {
+    fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaY: 1200 }));
     await nextTick();
-    selectCell(model, "E5");
-    activateSheet(model, "small");
-    await nextTick();
-    expect((parent.grid.comp! as Grid)["viewport"]).toMatchObject({
-      top: 0,
-      bottom: 1,
+    expect(model.getters.getActiveViewport()).toMatchObject({
+      top: 52,
+      bottom: 94,
       left: 0,
-      right: 1,
+      right: 9,
       offsetX: 0,
+      offsetY: 1200,
+    });
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+      top: 52,
+      bottom: 94,
+      left: 0,
+      right: 9,
+      offsetX: 0,
+      offsetY: 1196,
+    });
+  });
+  test("Horizontal scroll", async () => {
+    fixture
+      .querySelector(".o-grid")!
+      .dispatchEvent(new WheelEvent("wheel", { deltaY: 200, shiftKey: true }));
+    await nextTick();
+    expect(model.getters.getActiveViewport()).toMatchObject({
+      top: 0,
+      bottom: 42,
+      left: 2,
+      right: 12,
+      offsetX: 200,
       offsetY: 0,
     });
-    selectCell(model, "B2");
-    activateSheet(model, "big");
-    await nextTick();
-    expect((parent.grid.comp! as Grid)["viewport"]).toMatchObject({
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
       top: 0,
-      bottom: 4,
-      left: 0,
-      right: 4,
-      offsetX: 0,
+      bottom: 42,
+      left: 2,
+      right: 11,
+      offsetX: 192,
       offsetY: 0,
     });
   });
-
-  test("deleting the row that has the active cell doesn't crash", async () => {
-    expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("small");
-    selectCell(model, "B2");
-    deleteColumns(model, ["B"]);
-    await nextTick();
-    expect((parent.grid.comp! as Grid)["viewport"]).toMatchObject({
-      top: 0,
-      bottom: 1,
-      left: 0,
-      right: 0,
+  test("Move selection with keyboard", async () => {
+    triggerMouseEvent("canvas", "mousedown", 750, 40); // H1
+    expect(getActiveXc(model)).toBe("H1");
+    const viewport = model.getters.getActiveViewport();
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
+    );
+    expect(getActiveXc(model)).toBe("I1");
+    expect(model.getters.getActiveViewport()).toMatchObject(viewport);
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
+    );
+    expect(getActiveXc(model)).toBe("J1");
+    expect(model.getters.getActiveViewport()).toMatchObject({
+      ...viewport,
+      offsetX: 96,
+      left: 1,
+      right: 10,
     });
-    expect(model.getters.getActiveCell()).toBeUndefined();
   });
 });

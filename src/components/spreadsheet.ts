@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { BOTTOMBAR_HEIGHT, TOPBAR_HEIGHT } from "../constants";
+import { BOTTOMBAR_HEIGHT, ICON_EDGE_LENGTH, TOPBAR_HEIGHT } from "../constants";
 import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { SelectionMode } from "../plugins/ui/selection";
@@ -62,8 +62,8 @@ const CSS = css/* scss */ `
   }
 
   .o-icon {
-    width: 18px;
-    height: 18px;
+    width: ${ICON_EDGE_LENGTH}px;
+    height: ${ICON_EDGE_LENGTH}px;
     opacity: 0.6;
   }
 `;

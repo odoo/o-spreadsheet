@@ -49,12 +49,14 @@ export class ClientTag extends Component<ClientTagProps, SpreadsheetEnv> {
   static style = CSS;
 
   get tagStyle(): string {
-    const { col, row, viewport, color } = this.props;
+    const { col, row, color } = this.props;
+    const viewport = this.env.getters.getActiveSnappedViewport();
+    const { height } = this.env.getters.getViewportDimension();
     const [x, y, ,] = this.env.getters.getRect(
       { left: col, top: row, right: col, bottom: row },
       viewport
     );
-    return `bottom: ${viewport.height - y + 15}px;left: ${
+    return `bottom: ${height - y + 15}px;left: ${
       x - 1
     }px;border: 1px solid ${color};background-color: ${color};${
       this.props.active ? "opacity:1 !important" : ""

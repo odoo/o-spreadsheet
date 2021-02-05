@@ -27,7 +27,6 @@ import {
   Sheet,
   Style,
   UID,
-  Viewport,
   Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
@@ -74,6 +73,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     "getVisibleFigures",
     "getSelection",
     "getPosition",
+    "getSheetPosition",
     "getSelectionMode",
     "isSelected",
   ];
@@ -373,13 +373,24 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     return [this.activeCol, this.activeRow];
   }
 
+  getSheetPosition(sheetId: UID): [number, number] {
+    if (sheetId === this.getters.getActiveSheetId()) {
+      return this.getPosition();
+    } else {
+      const sheetData = this.sheetsData[sheetId];
+      return sheetData ? [sheetData.activeCol, sheetData.activeRow] : [0, 0];
+    }
+  }
+
   getAggregate(): string | null {
     let aggregate = 0;
     let n = 0;
     for (let zone of this.selection.zones) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         const r = this.getters.getRow(this.getters.getActiveSheetId(), row);
-        if (r === undefined) continue;
+        if (r === undefined) {
+          continue;
+        }
         for (let col = zone.left; col <= zone.right; col++) {
           const cell = r.cells[col];
           if (cell && cell.type !== "text" && !cell.error && typeof cell.value === "number") {
@@ -400,10 +411,11 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     return !!this.getters.getSelectedZones().find((z) => isEqual(z, zone));
   }
 
-  getVisibleFigures(sheetId: UID, viewport: Viewport): Figure[] {
+  getVisibleFigures(sheetId: UID): Figure[] {
     const result: Figure[] = [];
     const figures = this.getters.getFigures(sheetId);
-    const { offsetX, offsetY, width, height } = viewport;
+    const { offsetX, offsetY } = this.getters.getSnappedViewport(sheetId);
+    const { width, height } = this.getters.getViewportDimension();
     for (let figure of figures) {
       if (figure.x >= offsetX + width || figure.x + figure.width <= offsetX) {
         continue;

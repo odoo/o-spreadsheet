@@ -22,6 +22,9 @@ let model: Model;
 ColResizer.prototype._getMaxSize = () => 1000;
 RowResizer.prototype._getMaxSize = () => 1000;
 
+jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
+jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
+
 function fillData() {
   for (let i = 0; i < 8; i++) {
     setCellContent(model, toXC(i, i), "i");

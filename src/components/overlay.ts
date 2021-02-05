@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH, MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../constants";
-import { Col, Row, SpreadsheetEnv, Viewport } from "../types/index";
+import { Col, Row, SpreadsheetEnv } from "../types/index";
 import { ContextMenuType } from "./grid";
 import { startDnd } from "./helpers/drag_and_drop";
 
@@ -230,11 +230,11 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getStateOffset(): number {
-    return this.props.viewport.offsetX - HEADER_WIDTH;
+    return this.getters.getActiveSnappedViewport().offsetX - HEADER_WIDTH;
   }
 
   _getViewportOffset(): number {
-    return this.props.viewport.left;
+    return this.getters.getActiveSnappedViewport().left;
   }
 
   _getClientPosition(ev: MouseEvent): number {
@@ -242,7 +242,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getElementIndex(index: number): number {
-    return this.getters.getColIndex(index, this.props.viewport.left);
+    return this.getters.getColIndex(index, this.getters.getActiveSnappedViewport().left);
   }
 
   _getElement(index: number): Col {
@@ -354,11 +354,11 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getStateOffset(): number {
-    return this.props.viewport.offsetY - HEADER_HEIGHT;
+    return this.getters.getActiveSnappedViewport().offsetY - HEADER_HEIGHT;
   }
 
   _getViewportOffset(): number {
-    return this.props.viewport.top;
+    return this.getters.getActiveSnappedViewport().top;
   }
 
   _getClientPosition(ev: MouseEvent): number {
@@ -366,7 +366,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getElementIndex(index: number): number {
-    return this.getters.getRowIndex(index, this.props.viewport.top);
+    return this.getters.getRowIndex(index, this.getters.getActiveSnappedViewport().top);
   }
 
   _getElement(index: number): Row {
@@ -424,15 +424,11 @@ export class RowResizer extends AbstractResizer {
   }
 }
 
-interface Props {
-  viewport: Viewport;
-}
-
-export class Overlay extends Component<Props, SpreadsheetEnv> {
+export class Overlay extends Component<any, SpreadsheetEnv> {
   static template = xml/* xml */ `
     <div class="o-overlay">
-      <ColResizer viewport="props.viewport"/>
-      <RowResizer viewport="props.viewport"/>
+      <ColResizer />
+      <RowResizer />
       <div class="all" t-on-mousedown.self="selectAll"/>
     </div>`;
 

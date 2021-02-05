@@ -1,12 +1,13 @@
 import * as owl from "@odoo/owl";
 import {
+  AUTOFILL_EDGE_LENGTH,
   BACKGROUND_GRAY_COLOR,
   DEFAULT_CELL_HEIGHT,
   HEADER_HEIGHT,
   HEADER_WIDTH,
   SCROLLBAR_WIDTH,
 } from "../constants";
-import { isEqual, isInside } from "../helpers/index";
+import { isInside } from "../helpers/index";
 import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
@@ -161,7 +162,7 @@ const TEMPLATE = xml/* xml */ `
       <GridComposer
         t-on-composer-unmounted="focus"
         focus="props.focusComposer"
-        viewport="snappedViewport"/>
+        />
     </t>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
@@ -175,26 +176,26 @@ const TEMPLATE = xml/* xml */ `
                  col="client.position.col"
                  row="client.position.row"
                  active="isCellHovered(client.position.col, client.position.row)"
-                 viewport="snappedViewport"/>
+                 />
     </t>
     <t t-if="errorTooltip.isOpen">
       <div class="o-error-tooltip" t-esc="errorTooltip.text" t-att-style="errorTooltip.style"/>
     </t>
     <t t-if="getters.getEditionMode() === 'inactive'">
-      <Autofill position="getAutofillPosition()" viewport="snappedViewport"/>
+      <Autofill position="getAutofillPosition()"/>
     </t>
-    <Overlay t-on-open-contextmenu="onOverlayContextMenu" viewport="snappedViewport"/>
+    <Overlay t-on-open-contextmenu="onOverlayContextMenu" />
     <Menu t-if="menuState.isOpen"
       menuItems="menuState.menuItems"
       position="menuState.position"
       t-on-close.stop="menuState.isOpen=false"/>
-    <t t-set="gridSize" t-value="getters.getGridSize(getters.getActiveSheet())"/>
-    <FiguresContainer viewport="snappedViewport" model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" t-on-figure-deleted="focus" />
+    <t t-set="gridSize" t-value="getters.getGridDimension(getters.getActiveSheet())"/>
+    <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" t-on-figure-deleted="focus" />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
-      <div t-attf-style="width:1px;height:{{gridSize[1]}}px"/>
+      <div t-attf-style="width:1px;height:{{gridSize.height}}px"/>
     </div>
     <div class="o-scrollbar horizontal" t-on-scroll="onScroll" t-ref="hscrollbar">
-      <div t-attf-style="height:1px;width:{{gridSize[0]}}px"/>
+      <div t-attf-style="height:1px;width:{{gridSize.width}}px"/>
     </div>
   </div>`;
 
@@ -271,22 +272,9 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
 
   private clickedCol = 0;
   private clickedRow = 0;
-  private viewport: Viewport = {
-    width: 0,
-    height: 0,
-    offsetX: 0,
-    offsetY: 0,
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-  };
-  // this viewport represent the same area as the previous one, but 'snapped' to
-  // the col/row structure, so, the offsets are correct for computations necessary
-  // to align elements to the grid.
-  private snappedViewport: Viewport = this.viewport;
+
   // errorTooltip = useErrorTooltip(this.env, () => this.snappedViewport);
-  hoveredCell = useCellHovered(this.env, () => this.snappedViewport);
+  hoveredCell = useCellHovered(this.env, () => this.getters.getActiveSnappedViewport());
 
   get errorTooltip() {
     const { col, row } = this.hoveredCell;
@@ -298,15 +286,16 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     const cell = this.getters.getCell(sheetId, mainCol, mainRow);
 
     if (cell && cell.error) {
-      const viewport = this.snappedViewport;
+      const viewport = this.getters.getActiveSnappedViewport();
+      const { width: viewportWidth, height: viewportHeight } = this.getters.getViewportDimension();
       const [x, y, width, height] = this.getters.getRect(
         { left: col, top: row, right: col, bottom: row },
         viewport
       );
-      const hAlign = x + width + 200 < viewport.width ? "left" : "right";
-      const hOffset = hAlign === "left" ? x + width : viewport.width - x + (SCROLLBAR_WIDTH + 2);
-      const vAlign = y + 120 < viewport.height ? "top" : "bottom";
-      const vOffset = vAlign === "top" ? y : viewport.height - y - height + (SCROLLBAR_WIDTH + 2);
+      const hAlign = x + width + 200 < viewportWidth ? "left" : "right";
+      const hOffset = hAlign === "left" ? x + width : viewportWidth - x + (SCROLLBAR_WIDTH + 2);
+      const vAlign = y + 120 < viewportHeight ? "top" : "bottom";
+      const vOffset = vAlign === "top" ? y : viewportHeight - y - height + (SCROLLBAR_WIDTH + 2);
       return {
         isOpen: true,
         style: `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`,
@@ -359,22 +348,14 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   mounted() {
     this.vScrollbar.el = this.vScrollbarRef.el!;
     this.hScrollbar.el = this.hScrollbarRef.el!;
+    window.addEventListener("resize", this.resizeGrid.bind(this));
     this.focus();
+    this.resizeGrid();
     this.drawGrid();
   }
 
-  async willUpdateProps() {
-    const sheet = this.getters.getActiveSheetId();
-    if (this.currentSheet !== sheet) {
-      // We need to reset the viewport as the sheet is changed
-      this.viewport.offsetX = 0;
-      this.viewport.offsetY = 0;
-      this.hScrollbar.scroll = 0;
-      this.vScrollbar.scroll = 0;
-      this.viewport = this.getters.adjustViewportZone(this.viewport);
-      this.viewport = this.getters.adjustViewportPosition(this.viewport);
-      this.snappedViewport = this.getters.snapViewportToCell(this.viewport);
-    }
+  onWillUnmount() {
+    () => window.removeEventListener("resize", this.resizeGrid);
   }
 
   patched() {
@@ -387,15 +368,21 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     }
   }
 
+  resizeGrid() {
+    this.dispatch("RESIZE_VIEWPORT", {
+      height: this.el!.clientHeight - SCROLLBAR_WIDTH,
+      width: this.el!.clientWidth - SCROLLBAR_WIDTH,
+    });
+  }
+
   onScroll() {
-    this.viewport.offsetX = this.hScrollbar.scroll;
-    this.viewport.offsetY = this.vScrollbar.scroll;
-    const viewport = this.getters.adjustViewportZone(this.viewport);
-    if (!isEqual(viewport, this.viewport)) {
-      this.viewport = viewport;
-      this.render();
+    const { offsetX, offsetY } = this.getters.getActiveViewport();
+    if (offsetX !== this.hScrollbar.scroll || offsetY !== this.vScrollbar.scroll) {
+      this.dispatch("SET_VIEWPORT_OFFSET", {
+        offsetX: this.hScrollbar.scroll,
+        offsetY: this.vScrollbar.scroll,
+      });
     }
-    this.snappedViewport = this.getters.snapViewportToCell(this.viewport);
   }
 
   checkChanges(): boolean {
@@ -416,41 +403,32 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   getAutofillPosition() {
     const zone = this.getters.getSelectedZone();
     const sheet = this.getters.getActiveSheet();
+    const { offsetX, offsetY } = this.getters.getActiveSnappedViewport();
     return {
-      left: sheet.cols[zone.right].end - 4 + HEADER_WIDTH - this.snappedViewport.offsetX,
-      top: sheet.rows[zone.bottom].end - 4 + HEADER_HEIGHT - this.snappedViewport.offsetY,
+      left: sheet.cols[zone.right].end - AUTOFILL_EDGE_LENGTH / 2 + HEADER_WIDTH - offsetX,
+      top: sheet.rows[zone.bottom].end - AUTOFILL_EDGE_LENGTH / 2 + HEADER_HEIGHT - offsetY,
     };
   }
 
   drawGrid() {
-    // update viewport dimensions
-    // resize window
-    this.viewport.width = this.el!.clientWidth - SCROLLBAR_WIDTH;
-    this.viewport.height = this.el!.clientHeight - SCROLLBAR_WIDTH;
-
-    // scrollbar scrolled
-    this.viewport.offsetX = this.hScrollbar.scroll;
-    this.viewport.offsetY = this.vScrollbar.scroll;
-
-    // needed to reset the bottom and the right on the current viewport to the one of the new
-    // active sheet or in any case, the number of cols & rows might have changed.
-    this.viewport = this.getters.adjustViewportZone(this.viewport);
-
+    //reposition scrollbar
+    const { offsetX, offsetY } = this.getters.getActiveViewport();
+    this.hScrollbar.scroll = offsetX;
+    this.vScrollbar.scroll = offsetY;
     // check for position changes
-    if (this.checkChanges()) {
-      this.viewport = this.getters.adjustViewportPosition(this.viewport);
-      this.hScrollbar.scroll = this.viewport.offsetX;
-      this.vScrollbar.scroll = this.viewport.offsetY;
-    }
-    this.snappedViewport = this.getters.snapViewportToCell(this.viewport);
-
+    this.checkChanges();
     // drawing grid on canvas
     const canvas = this.canvas.el as HTMLCanvasElement;
     const dpr = window.devicePixelRatio || 1;
     const ctx = canvas.getContext("2d", { alpha: false })!;
     const thinLineWidth = 0.4 * dpr;
-    const renderingContext = { ctx, viewport: this.viewport, dpr, thinLineWidth };
-    const { width, height } = this.viewport;
+    const renderingContext = {
+      ctx,
+      viewport: this.getters.getActiveViewport(),
+      dpr,
+      thinLineWidth,
+    };
+    const { width, height } = this.getters.getViewportDimension();
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     canvas.width = width * dpr;
@@ -464,6 +442,10 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   private moveCanvas(deltaX, deltaY) {
     this.vScrollbar.scroll = this.vScrollbar.scroll + deltaY;
     this.hScrollbar.scroll = this.hScrollbar.scroll + deltaX;
+    this.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: this.hScrollbar.scroll,
+      offsetY: this.vScrollbar.scroll,
+    });
   }
 
   getClientPositionKey(client: Client) {
@@ -471,6 +453,9 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   }
 
   onMouseWheel(ev: WheelEvent) {
+    if (ev.ctrlKey) {
+      return;
+    }
     function normalize(val: number): number {
       return val * (ev.deltaMode === 0 ? 1 : DEFAULT_CELL_HEIGHT);
     }
@@ -492,8 +477,9 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     const rect = this.el!.getBoundingClientRect();
     const x = ev.pageX - rect.left;
     const y = ev.pageY - rect.top;
-    const colIndex = this.getters.getColIndex(x, this.snappedViewport.left);
-    const rowIndex = this.getters.getRowIndex(y, this.snappedViewport.top);
+    const { left, top } = this.getters.getActiveSnappedViewport();
+    const colIndex = this.getters.getColIndex(x, left);
+    const rowIndex = this.getters.getRowIndex(y, top);
     return [colIndex, rowIndex];
   }
 

@@ -24,17 +24,8 @@ class MockGridRenderingContext implements GridRenderingContext {
   thinLineWidth = 0.4;
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    this.viewport = {
-      width,
-      height,
-      offsetX: 0,
-      offsetY: 0,
-      left: 0,
-      right: 0,
-      top: 0,
-      bottom: 0,
-    };
-    this.viewport = model.getters.adjustViewportZone(this.viewport);
+    model.dispatch("RESIZE_VIEWPORT", { width, height });
+    this.viewport = model.getters.getActiveViewport();
 
     const handler = {
       get: (target, val) => {

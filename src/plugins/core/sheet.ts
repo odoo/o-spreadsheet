@@ -1,4 +1,3 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import {
   createCols,
   createDefaultCols,
@@ -49,7 +48,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getCell",
     "getCellPosition",
     "getColCells",
-    "getGridSize",
     "getColsZone",
     "getRowsZone",
   ];
@@ -291,12 +289,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       left: 0,
       right: this.getSheet(sheetId).cols.length - 1,
     };
-  }
-
-  getGridSize(sheet: Sheet): [number, number] {
-    const height = sheet.rows[sheet.rows.length - 1].end + DEFAULT_CELL_HEIGHT + 5;
-    const width = sheet.cols[sheet.cols.length - 1].end + DEFAULT_CELL_WIDTH;
-    return [width, height];
   }
 
   getCellPosition(cellId: UID): CellPosition {

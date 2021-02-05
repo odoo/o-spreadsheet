@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { fontSizeMap } from "../../fonts";
-import { Rect, SpreadsheetEnv, Viewport, Zone } from "../../types/index";
+import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
 import { Composer } from "./composer";
 
 const { Component } = owl;
@@ -31,7 +31,6 @@ const CSS = css/* scss */ `
 `;
 
 interface Props {
-  viewport: Viewport;
   focus: boolean;
   content: string;
 }
@@ -57,7 +56,7 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
       top: row,
       bottom: row,
     });
-    this.rect = this.getters.getRect(this.zone, this.props.viewport);
+    this.rect = this.getters.getRect(this.zone, this.getters.getActiveSnappedViewport());
   }
 
   get containerStyle(): string {
