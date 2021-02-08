@@ -127,7 +127,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   // ---------------------------------------------------------------------------
   import(data: WorkbookData) {
     for (let sheet of data.sheets) {
-      var figures = {};
+      const figures = {};
       sheet.figures.forEach((figure) => {
         figures[figure.id] = figure;
       });
@@ -136,17 +136,11 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   }
 
   export(data: WorkbookData) {
-    if (data.sheets) {
-      for (let sheet of data.sheets) {
-        if (this.figures[sheet.id]) {
-          const figures = this.figures[sheet.id];
-          if (figures) {
-            for (let figure of Object.values(figures).filter(isDefined)) {
-              const data = undefined;
-              sheet.figures.push({ ...figure, data });
-            }
-          }
-        }
+    for (const sheet of data.sheets) {
+      const figures = this.figures[sheet.id] || {};
+      for (const figure of Object.values(figures).filter(isDefined)) {
+        const data = undefined;
+        sheet.figures.push({ ...figure, data });
       }
     }
   }
