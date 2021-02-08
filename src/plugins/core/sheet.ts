@@ -66,27 +66,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: Command): CommandResult {
-    switch (cmd.type) {
-      case "REMOVE_COLUMNS":
-      case "REMOVE_ROWS":
-      case "ADD_ROWS":
-      case "ADD_COLUMNS":
-      case "RESIZE_COLUMNS":
-      case "RESIZE_ROWS":
-      case "AUTORESIZE_COLUMNS":
-      case "AUTORESIZE_ROWS":
-      case "UPDATE_CELL":
-      case "CLEAR_CELL":
-      case "RENAME_SHEET":
-      case "DELETE_SHEET":
-      case "DELETE_CONTENT":
-      case "DELETE_SHEET_CONFIRMATION":
-        if (this.sheets[cmd.sheetId] === undefined) {
-          return {
-            status: "CANCELLED",
-            reason: CancelledReason.InvalidSheetId,
-          };
-        }
+    if (cmd.type !== "CREATE_SHEET" && "sheetId" in cmd && this.sheets[cmd.sheetId] === undefined) {
+      return {
+        status: "CANCELLED",
+        reason: CancelledReason.InvalidSheetId,
+      };
     }
     switch (cmd.type) {
       case "CREATE_SHEET": {
