@@ -39,6 +39,12 @@ describe("figure plugin", () => {
     ]);
   });
 
+  test("Sheet with no figure has no figure", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getFigures(sheetId)).toEqual([]);
+  });
+
   test("can undo figure creation", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {

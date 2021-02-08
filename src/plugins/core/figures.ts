@@ -93,12 +93,9 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
 
   getVisibleFigures(sheetId: UID, viewport: Viewport): Figure[] {
     const result: Figure[] = [];
-    const figures = Object.values(this.figures[sheetId] || {});
+    const figures = this.getFigures(sheetId);
     const { offsetX, offsetY, width, height } = viewport;
     for (let figure of figures) {
-      if (!figure) {
-        continue;
-      }
       if (figure.x >= offsetX + width || figure.x + figure.width <= offsetX) {
         continue;
       }
@@ -109,8 +106,8 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     }
     return result;
   }
-  getFigures(sheetId: UID) {
-    return this.figures[sheetId] || [];
+  getFigures(sheetId: UID): Figure[] {
+    return Object.values(this.figures[sheetId] || {}).filter(isDefined);
   }
 
   getSelectedFigureId(): UID | null {
@@ -118,8 +115,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   }
 
   getFigure(sheetId: string, figureId: string): Figure | undefined {
-    const sheetFigures = this.figures[sheetId];
-    return sheetFigures ? sheetFigures[figureId] : undefined;
+    return this.figures[sheetId]?.[figureId];
   }
 
   // ---------------------------------------------------------------------------
@@ -137,8 +133,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
 
   export(data: WorkbookData) {
     for (const sheet of data.sheets) {
-      const figures = this.figures[sheet.id] || {};
-      for (const figure of Object.values(figures).filter(isDefined)) {
+      for (const figure of this.getFigures(sheet.id)) {
         const data = undefined;
         sheet.figures.push({ ...figure, data });
       }

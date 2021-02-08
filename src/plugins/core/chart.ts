@@ -68,8 +68,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       }
       case "DUPLICATE_SHEET": {
         const sheetFiguresFrom = this.getters.getFigures(cmd.sheetIdFrom);
-        for (let fig of Object.values(sheetFiguresFrom)) {
-          if (fig?.tag === "chart") {
+        for (const fig of sheetFiguresFrom) {
+          if (fig.tag === "chart") {
             const id = uuidv4();
             const chartDefinition = { ...this.chartFigures[fig.id], id };
             this.dispatch("CREATE_FIGURE", {
@@ -142,7 +142,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     if (data.sheets) {
       for (let sheet of data.sheets) {
         const sheetFigures = this.getters.getFigures(sheet.id);
-        const figures = Object.values(sheetFigures) as FigureData<any>[];
+        const figures = sheetFigures as FigureData<any>[];
         for (let figure of figures) {
           if (figure && figure.tag === "chart") {
             figure.data = this.getChartDefinitionUI(sheet.id, figure.id);
