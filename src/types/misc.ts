@@ -43,6 +43,7 @@ export interface Sheet {
   rows: Row[];
   hiddenColsGroups: ConsecutiveIndexes[];
   hiddenRowsGroups: ConsecutiveIndexes[];
+  areGridLinesVisible: boolean;
 }
 
 export interface CellPosition {

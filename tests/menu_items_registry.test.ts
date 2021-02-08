@@ -798,4 +798,40 @@ describe("Menu Item actions", () => {
       });
     });
   });
+
+  test("View -> Set gridlines visibility", () => {
+    const path_gridlines = ["view", "view_gridlines"];
+    const sheetId = model.getters.getActiveSheetId();
+
+    model.dispatch("SET_GRID_LINES_VISIBILITY", {
+      sheetId,
+      areGridLinesVisible: true,
+    });
+
+    expect(getName(path_gridlines, env)).toBe("Hide gridlines");
+    expect(getNode(path_gridlines).isVisible(env)).toBeTruthy();
+
+    model.dispatch("SET_GRID_LINES_VISIBILITY", {
+      sheetId,
+      areGridLinesVisible: false,
+    });
+    expect(getName(path_gridlines, env)).toBe("Show gridlines");
+    expect(getNode(path_gridlines).isVisible(env)).toBeTruthy();
+
+    doAction(path_gridlines, env);
+    expect(env.dispatch).toHaveBeenCalledWith("SET_GRID_LINES_VISIBILITY", {
+      sheetId,
+      areGridLinesVisible: true,
+    });
+    model.dispatch("SET_GRID_LINES_VISIBILITY", {
+      sheetId,
+      areGridLinesVisible: true,
+    });
+
+    doAction(path_gridlines, env);
+    expect(env.dispatch).toHaveBeenCalledWith("SET_GRID_LINES_VISIBILITY", {
+      sheetId,
+      areGridLinesVisible: false,
+    });
+  });
 });

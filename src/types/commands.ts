@@ -86,6 +86,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "RESIZE_COLUMNS_ROWS",
   "HIDE_COLUMNS_ROWS",
   "UNHIDE_COLUMNS_ROWS",
+  "SET_GRID_LINES_VISIBILITY",
 
   /** MERGE */
   "ADD_MERGE",
@@ -191,6 +192,10 @@ export interface UnhideColumnsRowsCommand
     GridDependentCommand {
   type: "UNHIDE_COLUMNS_ROWS";
   elements: number[];
+}
+export interface SetGridLinesVisibilityCommand extends BaseCommand, SheetDependentCommand {
+  type: "SET_GRID_LINES_VISIBILITY";
+  areGridLinesVisible: boolean;
 }
 
 //------------------------------------------------------------------------------
@@ -758,6 +763,7 @@ export interface SortCommand extends BaseCommand {
   zone: Zone;
   sortDirection: SortDirection;
 }
+
 export type SortDirection = "ascending" | "descending";
 
 export interface ResizeViewportCommand extends BaseCommand {
@@ -790,6 +796,7 @@ export type CoreCommand =
   | ResizeColumnsRowsCommand
   | HideColumnsRowsCommand
   | UnhideColumnsRowsCommand
+  | SetGridLinesVisibilityCommand
 
   /** MERGE */
   | AddMergeCommand

@@ -52,6 +52,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getRowsZone",
     "getHiddenColsGroups",
     "getHiddenRowsGroups",
+    "getGridLinesVisibility",
   ];
 
   readonly sheetIds: Record<string, UID | undefined> = {};
@@ -120,6 +121,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
+      case "SET_GRID_LINES_VISIBILITY":
+        this.setGridLinesVisibility(cmd.sheetId, cmd.areGridLinesVisible);
+        break;
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheetId, cmd.target);
         break;
@@ -207,6 +211,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         rows: createRows(sheetData.rows || {}, sheetData.rowNumber),
         hiddenColsGroups: [],
         hiddenRowsGroups: [],
+        areGridLinesVisible:
+          sheetData.areGridLinesVisible === undefined ? true : sheetData.areGridLinesVisible,
       };
       this.visibleSheets.push(sheet.id);
       this.sheets[sheet.id] = sheet;
@@ -229,6 +235,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         cells: {},
         conditionalFormats: [],
         figures: [],
+        areGridLinesVisible:
+          sheet.areGridLinesVisible === undefined ? true : sheet.areGridLinesVisible,
       };
     });
   }
@@ -236,6 +244,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
+
+  getGridLinesVisibility(sheetId: UID): boolean {
+    return this.getSheet(sheetId).areGridLinesVisible;
+  }
 
   tryGetSheet(sheetId: UID): Sheet | undefined {
     return this.sheets[sheetId];
@@ -372,6 +384,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
+  private setGridLinesVisibility(sheetId: UID, areGridLinesVisible: boolean) {
+    this.history.update("sheets", sheetId, "areGridLinesVisible", areGridLinesVisible);
+  }
+
   private clearZones(sheetId: UID, zones: Zone[]) {
     for (let zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
@@ -416,6 +432,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       rows: createDefaultRows(rowNumber),
       hiddenColsGroups: [],
       hiddenRowsGroups: [],
+      areGridLinesVisible: true,
     };
     const visibleSheets = this.visibleSheets.slice();
     visibleSheets.splice(position, 0, sheet.id);

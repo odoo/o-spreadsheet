@@ -155,6 +155,15 @@ topbarMenuRegistry
     action: ACTIONS.CREATE_SHEET_ACTION,
     separator: true,
   })
+  .addChild("view_gridlines", ["view"], {
+    name: (env: SpreadsheetEnv) =>
+      env.getters.getGridLinesVisibility(env.getters.getActiveSheetId())
+        ? _lt("Hide gridlines")
+        : _lt("Show gridlines"),
+    action: ACTIONS.SET_GRID_LINES_VISIBILITY_ACTION,
+    sequence: 5,
+    separator: true,
+  })
   .addChild("view_formulas", ["view"], {
     name: (env: SpreadsheetEnv) =>
       env.getters.shouldShowFormulas() ? _lt("Hide formulas") : _lt("Show formulas"),

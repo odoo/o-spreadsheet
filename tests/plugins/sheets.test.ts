@@ -861,6 +861,7 @@ describe("sheets", () => {
     });
     expect(deleteRows(model, [1, 2, 3, 4])).toBe(CommandResult.NotEnoughElements);
   });
+
   test("Cannot have all rows/columns hidden at once", () => {
     const model = new Model({
       sheets: [
@@ -872,5 +873,35 @@ describe("sheets", () => {
       ],
     });
     expect(hideRows(model, [0, 1, 3])).toBe(CommandResult.TooManyHiddenElements);
+  });
+
+  test("Can set the grid lines visibility", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getGridLinesVisibility(sheetId)).toBe(true);
+    model.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId, areGridLinesVisible: false });
+    expect(model.getters.getGridLinesVisibility(sheetId)).toBe(false);
+    model.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId, areGridLinesVisible: true });
+    expect(model.getters.getGridLinesVisibility(sheetId)).toBe(true);
+  });
+
+  test("Dispatch set the grid lines visibility on invalid sheet", () => {
+    const model = new Model();
+    const sheetId = "invalid";
+    expect(
+      model.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId, areGridLinesVisible: false })
+    ).toBe(CommandResult.InvalidSheetId);
+  });
+
+  test("Can undo/redo grid lines visibility", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getGridLinesVisibility(sheetId)).toBe(true);
+    model.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId, areGridLinesVisible: false });
+    expect(model.getters.getGridLinesVisibility(sheetId)).toBe(false);
+    model.dispatch("UNDO");
+    expect(model.getters.getGridLinesVisibility(sheetId)).toBe(true);
+    model.dispatch("REDO");
+    expect(model.getters.getGridLinesVisibility(sheetId)).toBe(false);
   });
 });

@@ -630,4 +630,28 @@ describe("Collaborative Sheet manipulation", () => {
       });
     }
   );
+  test("Set grid lines visibility is correctly shared", () => {
+    createSheet(alice, { sheetId: "42" });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getGridLinesVisibility("42"),
+      true
+    );
+    alice.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "42", areGridLinesVisible: false });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getGridLinesVisibility("42"),
+      false
+    );
+  });
+
+  test("Set grid lines visibility with a sheet deletion", () => {
+    createSheet(alice, { sheetId: "42" });
+    network.concurrent(() => {
+      bob.dispatch("DELETE_SHEET", { sheetId: "42" });
+      alice.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "42", areGridLinesVisible: false });
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.tryGetSheet("42"),
+      undefined
+    );
+  });
 });
