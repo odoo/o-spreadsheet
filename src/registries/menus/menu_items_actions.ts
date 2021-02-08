@@ -96,6 +96,14 @@ export const DELETE_CONTENT_ACTION = (env: SpreadsheetEnv) =>
 export const SET_FORMULA_VISIBILITY_ACTION = (env: SpreadsheetEnv) =>
   env.dispatch("SET_FORMULA_VISIBILITY", { show: !env.getters.shouldShowFormulas() });
 
+export const SET_GRID_LINES_VISIBILITY_ACTION = (env: SpreadsheetEnv) => {
+  const sheetId = env.getters.getActiveSheetId();
+  env.dispatch("SET_GRID_LINES_VISIBILITY", {
+    sheetId,
+    areGridLinesVisible: !env.getters.getGridLinesVisibility(sheetId),
+  });
+};
+
 //------------------------------------------------------------------------------
 // Grid manipulations
 //------------------------------------------------------------------------------

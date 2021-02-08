@@ -50,6 +50,7 @@ export interface CoreGetters {
   getRowsZone: SheetPlugin["getRowsZone"];
   getHiddenColsGroups: SheetPlugin["getHiddenColsGroups"];
   getHiddenRowsGroups: SheetPlugin["getHiddenColsGroups"];
+  getGridLinesVisibility: SheetPlugin["getGridLinesVisibility"];
 
   zoneToXC: CellPlugin["zoneToXC"];
   getCells: CellPlugin["getCells"];

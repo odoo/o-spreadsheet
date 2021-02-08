@@ -138,7 +138,7 @@ export class RendererPlugin extends UIPlugin {
     const { ctx, viewport, thinLineWidth } = renderingContext;
     let { offsetX, offsetY, top, left, bottom, right } = viewport;
     const { width, height } = this.getters.getViewportDimension();
-    const { cols, rows } = this.getters.getActiveSheet();
+    const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
     // white background
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, width, height);
@@ -147,6 +147,9 @@ export class RendererPlugin extends UIPlugin {
     offsetX -= HEADER_WIDTH;
     offsetY -= HEADER_HEIGHT;
 
+    if (!this.getters.getGridLinesVisibility(sheetId)) {
+      return;
+    }
     ctx.lineWidth = 2 * thinLineWidth;
     ctx.strokeStyle = CELL_BORDER_COLOR;
     ctx.beginPath();
@@ -180,13 +183,23 @@ export class RendererPlugin extends UIPlugin {
     ctx.lineWidth = 0.3 * thinLineWidth;
     const inset = 0.1 * thinLineWidth;
     ctx.strokeStyle = "#111";
+    const areGridLinesVisible = this.getters.getGridLinesVisibility(
+      this.getters.getActiveSheetId()
+    );
     for (let box of this.boxes) {
       // fill color
       let style = box.style;
       if (style && style.fillColor && style.fillColor !== "#ffffff") {
         ctx.fillStyle = style.fillColor;
         ctx.fillRect(box.x, box.y, box.width, box.height);
-        ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
+        if (areGridLinesVisible) {
+          ctx.strokeRect(
+            box.x + inset,
+            box.y + inset,
+            box.width - 2 * inset,
+            box.height - 2 * inset
+          );
+        }
       }
       if (box.error) {
         ctx.fillStyle = "red";

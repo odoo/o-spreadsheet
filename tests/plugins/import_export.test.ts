@@ -307,6 +307,7 @@ test("complete import, then export", () => {
         name: "My sheet",
         conditionalFormats: [],
         figures: [],
+        areGridLinesVisible: true,
       },
       {
         id: "someuuid_2",
@@ -321,6 +322,7 @@ test("complete import, then export", () => {
         name: "My sheet 2",
         conditionalFormats: [],
         figures: [],
+        areGridLinesVisible: false,
       },
     ],
     entities: {},
@@ -368,6 +370,7 @@ test("import then export (figures)", () => {
         name: "My sheet",
         conditionalFormats: [],
         figures: [{ id: "otheruuid", x: 100, y: 100, width: 100, height: 100 }],
+        areGridLinesVisible: true,
       },
     ],
     entities: {},
