@@ -44,14 +44,14 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** GRID SHAPE */
   "ADD_COLUMNS",
   "ADD_ROWS",
-  "REMOVE_COLUMNS",
-  "REMOVE_ROWS",
+  "DELETE_COLUMNS",
+  "DELETE_ROWS",
   "RESIZE_COLUMNS",
   "RESIZE_ROWS",
 
   /** MERGE */
   "ADD_MERGE",
-  "REMOVE_MERGE",
+  "DELETE_MERGE",
 
   /** SHEETS MANIPULATION */
   "CREATE_SHEET",
@@ -62,7 +62,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
 
   /** CONDITIONAL FORMAT */
   "ADD_CONDITIONAL_FORMAT",
-  "REMOVE_CONDITIONAL_FORMAT",
+  "DELETE_CONDITIONAL_FORMAT",
 
   /** FIGURES */
   "CREATE_FIGURE",
@@ -129,14 +129,14 @@ export interface AddRowsCommand extends BaseCommand {
   position: "before" | "after";
 }
 
-export interface RemoveColumnsCommand extends BaseCommand {
-  type: "REMOVE_COLUMNS";
+export interface DeleteColumnsCommand extends BaseCommand {
+  type: "DELETE_COLUMNS";
   columns: number[];
   sheetId: UID;
 }
 
-export interface RemoveRowsCommand extends BaseCommand {
-  type: "REMOVE_ROWS";
+export interface DeleteRowsCommand extends BaseCommand {
+  type: "DELETE_ROWS";
   rows: number[];
   sheetId: UID;
 }
@@ -166,8 +166,8 @@ export interface AddMergeCommand extends BaseCommand {
   force?: boolean;
 }
 
-export interface RemoveMergeCommand extends BaseCommand {
-  type: "REMOVE_MERGE";
+export interface DeleteMergeCommand extends BaseCommand {
+  type: "DELETE_MERGE";
   sheetId: UID;
   zone: Zone;
 }
@@ -223,8 +223,8 @@ export interface AddConditionalFormatCommand extends BaseCommand {
   sheetId: UID;
 }
 
-export interface RemoveConditionalFormatCommand extends BaseCommand {
-  type: "REMOVE_CONDITIONAL_FORMAT";
+export interface DeleteConditionalFormatCommand extends BaseCommand {
+  type: "DELETE_CONDITIONAL_FORMAT";
   id: string;
   sheetId: UID;
 }
@@ -514,8 +514,8 @@ export interface AddHighlightsCommand extends BaseCommand {
 /**
  * Remove the given highlights.
  */
-export interface RemoveHighlightsCommand extends BaseCommand {
-  type: "REMOVE_HIGHLIGHTS";
+export interface DeleteHighlightsCommand extends BaseCommand {
+  type: "DELETE_HIGHLIGHTS";
   /**
    * Ranges to remove. Keys are ranges in XC format and values
    * are the associated colors.
@@ -523,8 +523,8 @@ export interface RemoveHighlightsCommand extends BaseCommand {
    */
   ranges: { [range: string]: string };
 }
-export interface RemoveAllHighlightsCommand extends BaseCommand {
-  type: "REMOVE_ALL_HIGHLIGHTS";
+export interface DeleteAllHighlightsCommand extends BaseCommand {
+  type: "DELETE_ALL_HIGHLIGHTS";
 }
 
 export interface StopComposerSelectionCommand extends BaseCommand {
@@ -668,8 +668,8 @@ export interface AddEmptyRangeCommand extends BaseCommand {
 /**
  * Remove a given range in a SelectionComponent state
  */
-export interface RemoveRangeCommand extends BaseCommand {
-  type: "REMOVE_RANGE";
+export interface DeleteRangeCommand extends BaseCommand {
+  type: "DELETE_RANGE";
   /** SelectionComponent id */
   id: string;
   /** The range to be removed */
@@ -753,14 +753,14 @@ export type CoreCommand =
   /** GRID SHAPE */
   | AddColumnsCommand
   | AddRowsCommand
-  | RemoveColumnsCommand
-  | RemoveRowsCommand
+  | DeleteColumnsCommand
+  | DeleteRowsCommand
   | ResizeColumnsCommand
   | ResizeRowsCommand
 
   /** MERGE */
   | AddMergeCommand
-  | RemoveMergeCommand
+  | DeleteMergeCommand
 
   /** SHEETS MANIPULATION */
   | CreateSheetCommand
@@ -771,7 +771,7 @@ export type CoreCommand =
 
   /** CONDITIONAL FORMAT */
   | AddConditionalFormatCommand
-  | RemoveConditionalFormatCommand
+  | DeleteConditionalFormatCommand
 
   /** FIGURES */
   | CreateFigureCommand
@@ -794,7 +794,7 @@ export type LocalCommand =
   | RemoveInputCommand
   | FocusInputCommand
   | AddEmptyRangeCommand
-  | RemoveRangeCommand
+  | DeleteRangeCommand
   | ChangeRangeCommand
   | CopyCommand
   | CutCommand
@@ -820,8 +820,8 @@ export type LocalCommand =
   | AlterSelectionCommand
   | EvaluateCellsCommand
   | AddHighlightsCommand
-  | RemoveHighlightsCommand
-  | RemoveAllHighlightsCommand
+  | DeleteHighlightsCommand
+  | DeleteAllHighlightsCommand
   | HighlightSelectionCommand
   | AddPendingHighlightCommand
   | ResetPendingHighlightCommand

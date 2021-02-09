@@ -4,7 +4,7 @@ import {
   AddColumnsCommand,
   AddMergeCommand,
   AddRowsCommand,
-  RemoveMergeCommand,
+  DeleteMergeCommand,
   Zone,
 } from "../../types";
 import {
@@ -41,13 +41,13 @@ otRegistry.addTransformation(
 
 otRegistry.addTransformation(
   "ADD_COLUMNS",
-  ["ADD_MERGE", "REMOVE_MERGE"],
+  ["ADD_MERGE", "DELETE_MERGE"],
   withSheetCheck(mergeCommand)
 );
 
 otRegistry.addTransformation(
   "ADD_ROWS",
-  ["ADD_MERGE", "REMOVE_MERGE"],
+  ["ADD_MERGE", "DELETE_MERGE"],
   withSheetCheck(mergeCommand)
 );
 
@@ -57,13 +57,13 @@ otRegistry.addTransformation("ADD_ROWS", ["ADD_ROWS"], withSheetCheck(addRowsCom
 
 otRegistry.addTransformation(
   "ADD_COLUMNS",
-  ["RESIZE_COLUMNS", "REMOVE_COLUMNS"],
+  ["RESIZE_COLUMNS", "DELETE_COLUMNS"],
   withSheetCheck(columnsCommand)
 );
 
 otRegistry.addTransformation(
   "ADD_ROWS",
-  ["RESIZE_ROWS", "REMOVE_ROWS"],
+  ["RESIZE_ROWS", "DELETE_ROWS"],
   withSheetCheck(rowsCommand)
 );
 
@@ -100,9 +100,9 @@ function targetCommand(
 }
 
 function mergeCommand(
-  toTransform: AddMergeCommand | RemoveMergeCommand,
+  toTransform: AddMergeCommand | DeleteMergeCommand,
   executed: AddColumnsCommand
-): AddMergeCommand | RemoveMergeCommand {
+): AddMergeCommand | DeleteMergeCommand {
   return { ...toTransform, zone: transformZone(toTransform.zone, executed) };
 }
 

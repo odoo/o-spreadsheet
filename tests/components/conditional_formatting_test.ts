@@ -291,7 +291,7 @@ describe("UI of conditional formats", () => {
       const previews = document.querySelectorAll(selectors.listPreview);
       triggerMouseEvent(previews[0].querySelector(selectors.buttonDelete), "click");
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_CONDITIONAL_FORMAT", {
+      expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_CONDITIONAL_FORMAT", {
         id: "1",
         sheetId: model.getters.getActiveSheetId(),
       });

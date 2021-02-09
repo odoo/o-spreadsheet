@@ -24,10 +24,10 @@ export class HighlightPlugin extends UIPlugin {
       case "ADD_HIGHLIGHTS":
         this.addHighlights(cmd.ranges);
         break;
-      case "REMOVE_ALL_HIGHLIGHTS":
+      case "DELETE_ALL_HIGHLIGHTS":
         this.highlights = [];
         break;
-      case "REMOVE_HIGHLIGHTS":
+      case "DELETE_HIGHLIGHTS":
         this.removeHighlights(cmd.ranges);
         break;
       case "SELECT_CELL":
@@ -161,7 +161,7 @@ export class HighlightPlugin extends UIPlugin {
     for (const { zone, color } of notSelected) {
       ranges[this.getters.zoneToXC(activeSheetId, zone)] = color;
     }
-    this.dispatch("REMOVE_HIGHLIGHTS", { ranges });
+    this.dispatch("DELETE_HIGHLIGHTS", { ranges });
     this.pendingHighlights = selected;
   }
 

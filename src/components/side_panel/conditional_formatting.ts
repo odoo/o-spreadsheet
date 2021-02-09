@@ -343,7 +343,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
   }
 
   onDeleteClick(cf: ConditionalFormat) {
-    this.env.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+    this.env.dispatch("DELETE_CONDITIONAL_FORMAT", {
       id: cf.id,
       sheetId: this.getters.getActiveSheetId(),
     });

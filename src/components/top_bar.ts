@@ -468,7 +468,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     const zone = zones[zones.length - 1];
     const sheet = this.getters.getActiveSheetId();
     if (this.inMerge) {
-      this.dispatch("REMOVE_MERGE", { sheetId: sheet, zone });
+      this.dispatch("DELETE_MERGE", { sheetId: sheet, zone });
     } else {
       this.dispatch("ADD_MERGE", { sheetId: sheet, zone, interactive: true });
     }

@@ -158,7 +158,7 @@ export const DELETE_CONTENT_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
   });
 };
 
-export const REMOVE_ROWS_NAME = (env: SpreadsheetEnv) => {
+export const DELETE_ROWS_NAME = (env: SpreadsheetEnv) => {
   let first: number;
   let last: number;
   const activesRows = env.getters.getActiveRows();
@@ -176,7 +176,7 @@ export const REMOVE_ROWS_NAME = (env: SpreadsheetEnv) => {
   return _lt("Delete rows %s - %s", (first + 1).toString(), (last + 1).toString());
 };
 
-export const REMOVE_ROWS_ACTION = (env: SpreadsheetEnv) => {
+export const DELETE_ROWS_ACTION = (env: SpreadsheetEnv) => {
   let rows = [...env.getters.getActiveRows()];
   if (!rows.length) {
     const zone = env.getters.getSelectedZones()[0];
@@ -184,13 +184,13 @@ export const REMOVE_ROWS_ACTION = (env: SpreadsheetEnv) => {
       rows.push(i);
     }
   }
-  env.dispatch("REMOVE_ROWS", {
+  env.dispatch("DELETE_ROWS", {
     sheetId: env.getters.getActiveSheetId(),
     rows,
   });
 };
 
-export const REMOVE_COLUMNS_NAME = (env: SpreadsheetEnv) => {
+export const DELETE_COLUMNS_NAME = (env: SpreadsheetEnv) => {
   let first: number;
   let last: number;
   const activeCols = env.getters.getActiveCols();
@@ -208,7 +208,7 @@ export const REMOVE_COLUMNS_NAME = (env: SpreadsheetEnv) => {
   return _lt("Delete columns %s - %s", numberToLetters(first), numberToLetters(last));
 };
 
-export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
+export const DELETE_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
   let columns = [...env.getters.getActiveCols()];
   if (!columns.length) {
     const zone = env.getters.getSelectedZones()[0];
@@ -216,7 +216,7 @@ export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
       columns.push(i);
     }
   }
-  env.dispatch("REMOVE_COLUMNS", {
+  env.dispatch("DELETE_COLUMNS", {
     sheetId: env.getters.getActiveSheetId(),
     columns,
   });

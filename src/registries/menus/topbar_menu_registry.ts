@@ -91,14 +91,14 @@ topbarMenuRegistry
     action: ACTIONS.DELETE_CONTENT_ACTION,
   })
   .addChild("edit_delete_row", ["edit"], {
-    name: ACTIONS.REMOVE_ROWS_NAME,
+    name: ACTIONS.DELETE_ROWS_NAME,
     sequence: 80,
-    action: ACTIONS.REMOVE_ROWS_ACTION,
+    action: ACTIONS.DELETE_ROWS_ACTION,
   })
   .addChild("edit_delete_column", ["edit"], {
-    name: ACTIONS.REMOVE_COLUMNS_NAME,
+    name: ACTIONS.DELETE_COLUMNS_NAME,
     sequence: 90,
-    action: ACTIONS.REMOVE_COLUMNS_ACTION,
+    action: ACTIONS.DELETE_COLUMNS_ACTION,
   })
   .addChild("insert_row_before", ["insert"], {
     name: ACTIONS.MENU_INSERT_ROWS_BEFORE_NAME,

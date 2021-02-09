@@ -148,7 +148,7 @@ describe("selection input plugin", () => {
     model.dispatch("ADD_EMPTY_RANGE", { id });
     const ids = model.getters.getSelectionInput(id).map((i) => i.id);
     expect(model.getters.getSelectionInput(id).length).toBe(2);
-    model.dispatch("REMOVE_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+    model.dispatch("DELETE_RANGE", { id, rangeId: idOfRange(model, id, 0) });
     expect(model.getters.getSelectionInput(id).length).toBe(1);
     expect(model.getters.getSelectionInput(id).map((i) => i.id)).toEqual([ids[1]]);
   });
@@ -159,7 +159,7 @@ describe("selection input plugin", () => {
     model.dispatch("ADD_EMPTY_RANGE", { id });
     model.dispatch("ADD_EMPTY_RANGE", { id });
     expect(model.getters.getSelectionInput(id).length).toBe(4);
-    model.dispatch("REMOVE_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+    model.dispatch("DELETE_RANGE", { id, rangeId: idOfRange(model, id, 0) });
     expect(model.getters.getSelectionInput(id).length).toBe(3);
     expect(model.getters.getSelectionInput(id)[2].isFocused).toBe(true);
   });

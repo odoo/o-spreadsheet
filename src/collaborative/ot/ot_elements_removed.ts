@@ -4,8 +4,8 @@ import {
   AddColumnsCommand,
   AddMergeCommand,
   AddRowsCommand,
-  RemoveColumnsCommand,
-  RemoveRowsCommand,
+  DeleteColumnsCommand,
+  DeleteRowsCommand,
   Zone,
 } from "../../types";
 import {
@@ -16,59 +16,59 @@ import {
 } from "../../types/ot_types";
 import { withSheetCheck } from "./ot_helpers";
 
-type ExecutedCommand = RemoveColumnsCommand | RemoveRowsCommand;
+type ExecutedCommand = DeleteColumnsCommand | DeleteRowsCommand;
 
 otRegistry.addTransformation(
-  "REMOVE_COLUMNS",
+  "DELETE_COLUMNS",
   ["UPDATE_CELL", "UPDATE_CELL_POSITION", "CLEAR_CELL", "SET_BORDER"],
   withSheetCheck(cellCommand)
 );
 
 otRegistry.addTransformation(
-  "REMOVE_ROWS",
+  "DELETE_ROWS",
   ["UPDATE_CELL", "UPDATE_CELL_POSITION", "CLEAR_CELL", "SET_BORDER"],
   withSheetCheck(cellCommand)
 );
 
 otRegistry.addTransformation(
-  "REMOVE_COLUMNS",
+  "DELETE_COLUMNS",
   ["DELETE_CONTENT", "SET_FORMATTING", "CLEAR_FORMATTING", "SET_DECIMAL"],
   withSheetCheck(targetCommand)
 );
 
 otRegistry.addTransformation(
-  "REMOVE_ROWS",
+  "DELETE_ROWS",
   ["DELETE_CONTENT", "SET_FORMATTING", "CLEAR_FORMATTING", "SET_DECIMAL"],
   withSheetCheck(targetCommand)
 );
 
 otRegistry.addTransformation(
-  "REMOVE_COLUMNS",
-  ["ADD_MERGE", "REMOVE_MERGE"],
+  "DELETE_COLUMNS",
+  ["ADD_MERGE", "DELETE_MERGE"],
   withSheetCheck(mergeCommand)
 );
 
 otRegistry.addTransformation(
-  "REMOVE_ROWS",
-  ["ADD_MERGE", "REMOVE_MERGE"],
+  "DELETE_ROWS",
+  ["ADD_MERGE", "DELETE_MERGE"],
   withSheetCheck(mergeCommand)
 );
 
 otRegistry.addTransformation(
-  "REMOVE_COLUMNS",
-  ["REMOVE_COLUMNS", "RESIZE_COLUMNS"],
+  "DELETE_COLUMNS",
+  ["DELETE_COLUMNS", "RESIZE_COLUMNS"],
   withSheetCheck(columnsCommand)
 );
 
 otRegistry.addTransformation(
-  "REMOVE_ROWS",
-  ["RESIZE_ROWS", "REMOVE_ROWS"],
+  "DELETE_ROWS",
+  ["RESIZE_ROWS", "DELETE_ROWS"],
   withSheetCheck(rowsCommand)
 );
 
-otRegistry.addTransformation("REMOVE_COLUMNS", ["ADD_COLUMNS"], withSheetCheck(addColumnsCommand));
+otRegistry.addTransformation("DELETE_COLUMNS", ["ADD_COLUMNS"], withSheetCheck(addColumnsCommand));
 
-otRegistry.addTransformation("REMOVE_ROWS", ["ADD_ROWS"], withSheetCheck(addRowsCommand));
+otRegistry.addTransformation("DELETE_ROWS", ["ADD_ROWS"], withSheetCheck(addRowsCommand));
 
 function cellCommand(
   toTransform: PositionalCommand,
@@ -77,7 +77,7 @@ function cellCommand(
   let base: number;
   let element: "col" | "row";
   let elements: number[];
-  if (executed.type === "REMOVE_COLUMNS") {
+  if (executed.type === "DELETE_COLUMNS") {
     base = toTransform.col;
     element = "col";
     elements = executed.columns;
@@ -111,7 +111,7 @@ function targetCommand(
 }
 
 function transformZone(zone: Zone, executed: ExecutedCommand): Zone | undefined {
-  return executed.type === "REMOVE_COLUMNS"
+  return executed.type === "DELETE_COLUMNS"
     ? reduceZoneOnDeletion(zone, "left", executed.columns)
     : reduceZoneOnDeletion(zone, "top", executed.rows);
 }
@@ -129,7 +129,7 @@ function mergeCommand(
 
 function columnsCommand(
   toTransform: ColumnsCommand,
-  executed: RemoveColumnsCommand
+  executed: DeleteColumnsCommand
 ): ColumnsCommand | undefined {
   const columns = onRemoveElements(toTransform.columns, executed.columns);
   if (!columns.length) {
@@ -140,7 +140,7 @@ function columnsCommand(
 
 function rowsCommand(
   toTransform: RowsCommand,
-  executed: RemoveRowsCommand
+  executed: DeleteRowsCommand
 ): RowsCommand | undefined {
   const rows = onRemoveElements(toTransform.rows, executed.rows);
   if (!rows.length) {
@@ -171,7 +171,7 @@ function onRemoveElements(toTransform: number[], removedElements: number[]): num
 
 function addColumnsCommand(
   toTransform: AddColumnsCommand,
-  executed: RemoveColumnsCommand
+  executed: DeleteColumnsCommand
 ): AddColumnsCommand | undefined {
   const column = onAddElements(toTransform.column, executed.columns);
   return column !== undefined ? { ...toTransform, column } : undefined;
@@ -179,7 +179,7 @@ function addColumnsCommand(
 
 function addRowsCommand(
   toTransform: AddRowsCommand,
-  executed: RemoveRowsCommand
+  executed: DeleteRowsCommand
 ): AddRowsCommand | undefined {
   const row = onAddElements(toTransform.row, executed.rows);
   return row !== undefined ? { ...toTransform, row } : undefined;

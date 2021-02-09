@@ -19,7 +19,7 @@ otRegistry.addTransformation(
 
 otRegistry.addTransformation(
   "ADD_MERGE",
-  ["ADD_MERGE", "REMOVE_MERGE"],
+  ["ADD_MERGE", "DELETE_MERGE"],
   withSheetCheck(mergeCommand)
 );
 

@@ -410,7 +410,7 @@ export class AutofillPlugin extends UIPlugin {
     ) {
       const zone = this.getters.getMerge(activeSheet.id, col, row);
       if (zone) {
-        this.dispatch("REMOVE_MERGE", {
+        this.dispatch("DELETE_MERGE", {
           sheetId: activeSheet.id,
           zone,
         });

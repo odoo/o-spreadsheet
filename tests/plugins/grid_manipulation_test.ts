@@ -43,11 +43,11 @@ function clearRows(indexes: number[]) {
 }
 
 function removeColumns(columns: number[]) {
-  model.dispatch("REMOVE_COLUMNS", { sheetId: model.getters.getActiveSheetId(), columns });
+  model.dispatch("DELETE_COLUMNS", { sheetId: model.getters.getActiveSheetId(), columns });
 }
 
 function removeRows(rows: number[]) {
-  model.dispatch("REMOVE_ROWS", { sheetId: model.getters.getActiveSheetId(), rows });
+  model.dispatch("DELETE_ROWS", { sheetId: model.getters.getActiveSheetId(), rows });
 }
 
 function addColumns(column: number, position: "before" | "after", quantity: number) {
@@ -148,7 +148,7 @@ describe("Clear columns", () => {
   });
   test("cannot delete column in invalid sheet", () => {
     expect(
-      model.dispatch("REMOVE_COLUMNS", {
+      model.dispatch("DELETE_COLUMNS", {
         columns: [0],
         sheetId: "INVALID",
       })
@@ -197,7 +197,7 @@ describe("Clear rows", () => {
   });
   test("cannot delete row in invalid sheet", () => {
     expect(
-      model.dispatch("REMOVE_ROWS", {
+      model.dispatch("DELETE_ROWS", {
         rows: [0],
         sheetId: "INVALID",
       })
@@ -262,7 +262,7 @@ describe("Columns", () => {
       });
       const [sheet1, sheet2] = model.getters.getSheets();
       expect(sheet2).not.toBe(model.getters.getActiveSheetId());
-      model.dispatch("REMOVE_COLUMNS", {
+      model.dispatch("DELETE_COLUMNS", {
         columns: [0],
         sheetId: sheet2.id,
       });
@@ -483,7 +483,7 @@ describe("Columns", () => {
         target: [toZone("B2")],
         border: "external",
       });
-      model.dispatch("REMOVE_COLUMNS", {
+      model.dispatch("DELETE_COLUMNS", {
         columns: [2],
         sheetId,
       });
@@ -658,7 +658,7 @@ describe("Columns", () => {
       });
       const [sheet1, sheet2] = model.getters.getSheets();
       expect(sheet2.id).not.toBe(model.getters.getActiveSheetId());
-      model.dispatch("REMOVE_COLUMNS", {
+      model.dispatch("DELETE_COLUMNS", {
         columns: [0],
         sheetId: sheet2.id,
       });
@@ -793,7 +793,7 @@ describe("Columns", () => {
         ],
       });
       const sheet1Id = model.getters.getSheetIdByName("Sheet1");
-      model.dispatch("REMOVE_COLUMNS", { sheetId: sheet1Id!, columns: [0] });
+      model.dispatch("DELETE_COLUMNS", { sheetId: sheet1Id!, columns: [0] });
       expect(getCellText(model, "A1", "42")).toBe("=SUM(Sheet1!A1:C3)");
     });
     test("On multiple col deletion including the last one", () => {
@@ -955,7 +955,7 @@ describe("Rows", () => {
       });
       const [sheet1, sheet2] = model.getters.getSheets();
       expect(sheet2).not.toBe(model.getters.getActiveSheetId());
-      model.dispatch("REMOVE_ROWS", {
+      model.dispatch("DELETE_ROWS", {
         rows: [0],
         sheetId: sheet2.id,
       });
@@ -1034,7 +1034,7 @@ describe("Rows", () => {
         ],
       });
       const sheet1Id = model.getters.getSheetIdByName("Sheet1");
-      model.dispatch("REMOVE_ROWS", { sheetId: sheet1Id!, rows: [0] });
+      model.dispatch("DELETE_ROWS", { sheetId: sheet1Id!, rows: [0] });
       expect(getCellText(model, "A1", "42")).toBe("=SUM(Sheet1!A1:A2)");
     });
     test("On addition before first", () => {
@@ -1291,7 +1291,7 @@ describe("Rows", () => {
         target: [toZone("B2")],
         border: "external",
       });
-      model.dispatch("REMOVE_ROWS", {
+      model.dispatch("DELETE_ROWS", {
         rows: [2],
         sheetId,
       });
@@ -1361,7 +1361,7 @@ describe("Rows", () => {
         ],
       });
       expect(model.getters.getActiveSheetId()).toBe("s1");
-      model.dispatch("REMOVE_ROWS", {
+      model.dispatch("DELETE_ROWS", {
         rows: [0],
         sheetId: "s2",
       });

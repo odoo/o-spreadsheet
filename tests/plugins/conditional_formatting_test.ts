@@ -138,7 +138,7 @@ describe("conditional format", () => {
     expect(model.getters.getConditionalStyle(...toCartesian("A4"))).toEqual({
       fillColor: "#0000FF",
     });
-    model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+    model.dispatch("DELETE_CONDITIONAL_FORMAT", {
       id: "2",
       sheetId: model.getters.getActiveSheetId(),
     });
@@ -379,7 +379,7 @@ describe("conditional format", () => {
         ],
       });
       const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("REMOVE_ROWS", {
+      model.dispatch("DELETE_ROWS", {
         sheetId,
         rows: [1, 3],
       });
@@ -418,7 +418,7 @@ describe("conditional format", () => {
       });
       const sheetId = model.getters.getActiveSheetId();
 
-      model.dispatch("REMOVE_COLUMNS", {
+      model.dispatch("DELETE_COLUMNS", {
         sheetId,
         columns: [1, 3],
       });

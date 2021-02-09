@@ -6,8 +6,8 @@ import {
   ClearCellCommand,
   ClearFormattingCommand,
   DeleteContentCommand,
-  RemoveMergeCommand,
-  RemoveRowsCommand,
+  DeleteRowsCommand,
+  DeleteMergeCommand,
   ResizeRowsCommand,
   SetBorderCommand,
   SetDecimalCommand,
@@ -146,8 +146,8 @@ describe("OT with ADD_ROWS", () => {
     size: 10,
   };
 
-  const removeRowsCommands: Omit<RemoveRowsCommand, "rows"> = {
-    type: "REMOVE_ROWS",
+  const removeRowsCommands: Omit<DeleteRowsCommand, "rows"> = {
+    type: "DELETE_ROWS",
     sheetId,
   };
 
@@ -187,8 +187,8 @@ describe("OT with ADD_ROWS", () => {
     type: "ADD_MERGE",
     sheetId,
   };
-  const removeMerge: Omit<RemoveMergeCommand, "zone"> = {
-    type: "REMOVE_MERGE",
+  const removeMerge: Omit<DeleteMergeCommand, "zone"> = {
+    type: "DELETE_MERGE",
     sheetId,
   };
   describe.each([addMerge, removeMerge])("merge", (cmd) => {

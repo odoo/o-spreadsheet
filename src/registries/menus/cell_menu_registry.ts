@@ -68,14 +68,14 @@ cellMenuRegistry
     separator: true,
   })
   .add("delete_row", {
-    name: ACTIONS.REMOVE_ROWS_NAME,
+    name: ACTIONS.DELETE_ROWS_NAME,
     sequence: 110,
-    action: ACTIONS.REMOVE_ROWS_ACTION,
+    action: ACTIONS.DELETE_ROWS_ACTION,
   })
   .add("delete_column", {
-    name: ACTIONS.REMOVE_COLUMNS_NAME,
+    name: ACTIONS.DELETE_COLUMNS_NAME,
     sequence: 120,
-    action: ACTIONS.REMOVE_COLUMNS_ACTION,
+    action: ACTIONS.DELETE_COLUMNS_ACTION,
     separator: true,
   })
   .add("clear_cell", {

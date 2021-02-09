@@ -49,9 +49,9 @@ rowMenuRegistry
     action: ACTIONS.INSERT_ROWS_AFTER_ACTION,
   })
   .add("delete_row", {
-    name: ACTIONS.REMOVE_ROWS_NAME,
+    name: ACTIONS.DELETE_ROWS_NAME,
     sequence: 70,
-    action: ACTIONS.REMOVE_ROWS_ACTION,
+    action: ACTIONS.DELETE_ROWS_ACTION,
   })
   .add("clear_row", {
     name: ACTIONS.DELETE_CONTENT_ROWS_NAME,

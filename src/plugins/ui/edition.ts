@@ -17,9 +17,9 @@ import {
   CellType,
   Command,
   CommandResult,
+  DeleteColumnsCommand,
+  DeleteRowsCommand,
   LAYERS,
-  RemoveColumnsCommand,
-  RemoveRowsCommand,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
@@ -149,10 +149,10 @@ export class EditionPlugin extends UIPlugin {
       case "ADD_ROWS":
         this.onAddRows(cmd);
         break;
-      case "REMOVE_COLUMNS":
+      case "DELETE_COLUMNS":
         this.onColumnsRemoved(cmd);
         break;
-      case "REMOVE_ROWS":
+      case "DELETE_ROWS":
         this.onRowsRemoved(cmd);
         break;
       case "DELETE_SHEET":
@@ -214,7 +214,7 @@ export class EditionPlugin extends UIPlugin {
   // Misc
   // ---------------------------------------------------------------------------
 
-  private onColumnsRemoved(cmd: RemoveColumnsCommand) {
+  private onColumnsRemoved(cmd: DeleteColumnsCommand) {
     if (cmd.columns.includes(this.col) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
       this.ui.notifyUser(CELL_DELETED_MESSAGE);
@@ -229,7 +229,7 @@ export class EditionPlugin extends UIPlugin {
     this.row = top;
   }
 
-  private onRowsRemoved(cmd: RemoveRowsCommand) {
+  private onRowsRemoved(cmd: DeleteRowsCommand) {
     if (cmd.rows.includes(this.row) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
       this.ui.notifyUser(CELL_DELETED_MESSAGE);
@@ -313,7 +313,7 @@ export class EditionPlugin extends UIPlugin {
     this.initialContent = (cell && this.getCellContent(cell)) || "";
     this.mode = "editing";
     this.setContent(str || this.initialContent, selection);
-    this.dispatch("REMOVE_ALL_HIGHLIGHTS");
+    this.dispatch("DELETE_ALL_HIGHLIGHTS");
     const [col, row] = this.getters.getPosition();
     this.col = col;
     this.row = row;
@@ -366,7 +366,7 @@ export class EditionPlugin extends UIPlugin {
 
   private cancelEdition() {
     this.mode = "inactive";
-    this.dispatch("REMOVE_ALL_HIGHLIGHTS");
+    this.dispatch("DELETE_ALL_HIGHLIGHTS");
   }
 
   /**
@@ -463,7 +463,7 @@ export class EditionPlugin extends UIPlugin {
     if (!this.currentContent.startsWith("=")) {
       return;
     }
-    this.dispatch("REMOVE_ALL_HIGHLIGHTS"); //cleanup highlights for references
+    this.dispatch("DELETE_ALL_HIGHLIGHTS"); //cleanup highlights for references
     const tokens = composerTokenize(this.currentContent);
     const ranges = {};
     let lastUsedColorIndex = 0;

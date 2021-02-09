@@ -71,7 +71,7 @@ const inverseWhitelist: CoreCommandTypes[] = [
   "MOVE_SHEET",
   "RENAME_SHEET",
   "ADD_CONDITIONAL_FORMAT",
-  "REMOVE_CONDITIONAL_FORMAT",
+  "DELETE_CONDITIONAL_FORMAT",
   "DELETE_FIGURE",
   "UPDATE_FIGURE",
   "SET_FORMATTING",
@@ -111,9 +111,9 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
     "CLEAR_CELL",
     "DELETE_CONTENT",
     "ADD_COLUMNS",
-    "REMOVE_COLUMNS",
+    "DELETE_COLUMNS",
     "ADD_MERGE",
-    "REMOVE_MERGE",
+    "DELETE_MERGE",
     "RESIZE_COLUMNS",
     ...STYLE_COMMANDS,
   ]),
@@ -122,31 +122,31 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
     "CLEAR_CELL",
     "DELETE_CONTENT",
     "ADD_ROWS",
-    "REMOVE_ROWS",
+    "DELETE_ROWS",
     "ADD_MERGE",
-    "REMOVE_MERGE",
+    "DELETE_MERGE",
     "RESIZE_ROWS",
     ...STYLE_COMMANDS,
   ]),
-  REMOVE_COLUMNS: only([
+  DELETE_COLUMNS: only([
     "UPDATE_CELL",
     "CLEAR_CELL",
     "DELETE_CONTENT",
     "ADD_COLUMNS",
-    "REMOVE_COLUMNS",
+    "DELETE_COLUMNS",
     "ADD_MERGE",
-    "REMOVE_MERGE",
+    "DELETE_MERGE",
     "RESIZE_COLUMNS",
     ...STYLE_COMMANDS,
   ]),
-  REMOVE_ROWS: only([
+  DELETE_ROWS: only([
     "UPDATE_CELL",
     "CLEAR_CELL",
     "DELETE_CONTENT",
     "ADD_ROWS",
-    "REMOVE_ROWS",
+    "DELETE_ROWS",
     "ADD_MERGE",
-    "REMOVE_MERGE",
+    "DELETE_MERGE",
     "RESIZE_ROWS",
     ...STYLE_COMMANDS,
   ]),
@@ -154,8 +154,8 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
   RESIZE_ROWS: none(),
 
   /** MERGE */
-  ADD_MERGE: only(["UPDATE_CELL", "CLEAR_CELL", "ADD_MERGE", "REMOVE_MERGE"]),
-  REMOVE_MERGE: none(),
+  ADD_MERGE: only(["UPDATE_CELL", "CLEAR_CELL", "ADD_MERGE", "DELETE_MERGE"]),
+  DELETE_MERGE: none(),
 
   /** SHEETS MANIPULATION */
   CREATE_SHEET: none(),
@@ -166,7 +166,7 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
 
   /** CONDITIONAL FORMAT */
   ADD_CONDITIONAL_FORMAT: none(),
-  REMOVE_CONDITIONAL_FORMAT: none(),
+  DELETE_CONDITIONAL_FORMAT: none(),
 
   /** FIGURES */
   CREATE_FIGURE: none(),

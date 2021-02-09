@@ -753,7 +753,7 @@ describe("sheets", () => {
     const sheet = model.getters.getActiveSheetId();
     model.dispatch("DUPLICATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: uuidv4(), name: "dup" });
     expect(model.getters.getSheets()).toHaveLength(2);
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet, zone: toZone("A1:A2") });
+    model.dispatch("DELETE_MERGE", { sheetId: sheet, zone: toZone("A1:A2") });
     const newSheet = model.getters.getSheets()[1].id;
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: newSheet });
     expect(model.exportData().sheets[0].merges).toHaveLength(0);

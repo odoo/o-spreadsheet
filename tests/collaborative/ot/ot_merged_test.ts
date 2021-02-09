@@ -5,7 +5,7 @@ import {
   ClearCellCommand,
   ClearFormattingCommand,
   DeleteContentCommand,
-  RemoveMergeCommand,
+  DeleteMergeCommand,
   SetBorderCommand,
   SetDecimalCommand,
   SetFormattingCommand,
@@ -101,8 +101,8 @@ describe("OT with ADD_MERGE", () => {
     }
   );
 
-  const removeMerge: Omit<RemoveMergeCommand, "zone"> = {
-    type: "REMOVE_MERGE",
+  const removeMerge: Omit<DeleteMergeCommand, "zone"> = {
+    type: "DELETE_MERGE",
     sheetId,
   };
 

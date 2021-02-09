@@ -536,7 +536,7 @@ describe("multi sheet with different sizes", function () {
   test("deleting the row that has the active cell doesn't crash", async () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("small");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
-    model.dispatch("REMOVE_COLUMNS", { columns: [1], sheetId: model.getters.getActiveSheetId() });
+    model.dispatch("DELETE_COLUMNS", { columns: [1], sheetId: model.getters.getActiveSheetId() });
     await nextTick();
     expect((parent.grid.comp! as Grid)["viewport"]).toMatchObject({
       top: 0,

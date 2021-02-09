@@ -67,12 +67,12 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       case "CLEAR_FORMATTING":
         this.clearBorders(cmd.sheetId, cmd.target);
         break;
-      case "REMOVE_COLUMNS":
+      case "DELETE_COLUMNS":
         for (let col of cmd.columns) {
           this.shiftBordersHorizontally(cmd.sheetId, col + 1, -1);
         }
         break;
-      case "REMOVE_ROWS":
+      case "DELETE_ROWS":
         for (let row of cmd.rows) {
           this.shiftBordersVertically(cmd.sheetId, row + 1, -1);
         }

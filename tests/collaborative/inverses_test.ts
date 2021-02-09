@@ -9,12 +9,12 @@ import {
   CoreCommand,
   CreateChartDefinition,
   CreateSheetCommand,
+  DeleteColumnsCommand,
   DeleteContentCommand,
+  DeleteRowsCommand,
   DeleteSheetCommand,
   DuplicateSheetCommand,
-  RemoveColumnsCommand,
-  RemoveMergeCommand,
-  RemoveRowsCommand,
+  DeleteMergeCommand,
   ResizeColumnsCommand,
   ResizeRowsCommand,
   SetBorderCommand,
@@ -39,7 +39,7 @@ describe("Inverses commands", () => {
     test("Inverse with position = after", () => {
       expect(inverseCommand(addColumns)).toEqual([
         {
-          type: "REMOVE_COLUMNS",
+          type: "DELETE_COLUMNS",
           sheetId: "1",
           columns: [2, 3],
         },
@@ -49,7 +49,7 @@ describe("Inverses commands", () => {
     test("Inverse with position = before", () => {
       expect(inverseCommand({ ...addColumns, position: "before" })).toEqual([
         {
-          type: "REMOVE_COLUMNS",
+          type: "DELETE_COLUMNS",
           sheetId: "1",
           columns: [1, 2],
         },
@@ -67,14 +67,14 @@ describe("Inverses commands", () => {
 
     test("Inverse with position = after", () => {
       expect(inverseCommand(addRows)).toEqual([
-        { type: "REMOVE_ROWS", sheetId: "1", rows: [2, 3] },
+        { type: "DELETE_ROWS", sheetId: "1", rows: [2, 3] },
       ]);
     });
 
     test("Inverse with position = before", () => {
       expect(inverseCommand({ ...addRows, position: "before" })).toEqual([
         {
-          type: "REMOVE_ROWS",
+          type: "DELETE_ROWS",
           sheetId: "1",
           rows: [1, 2],
         },
@@ -88,12 +88,12 @@ describe("Inverses commands", () => {
       sheetId: "1",
       zone: toZone("A1:B1"),
     };
-    expect(inverseCommand(addMerge)).toEqual([{ ...addMerge, type: "REMOVE_MERGE" }]);
+    expect(inverseCommand(addMerge)).toEqual([{ ...addMerge, type: "DELETE_MERGE" }]);
   });
 
   test("Remove Merge", () => {
-    const removeMerge: RemoveMergeCommand = {
-      type: "REMOVE_MERGE",
+    const removeMerge: DeleteMergeCommand = {
+      type: "DELETE_MERGE",
       sheetId: "1",
       zone: toZone("A1:B1"),
     };
@@ -120,8 +120,8 @@ describe("Inverses commands", () => {
   });
 
   describe("Remove columns", () => {
-    const removeColumns: RemoveColumnsCommand = {
-      type: "REMOVE_COLUMNS",
+    const removeColumns: DeleteColumnsCommand = {
+      type: "DELETE_COLUMNS",
       columns: [0],
       sheetId: "42",
     };
@@ -140,8 +140,8 @@ describe("Inverses commands", () => {
   });
 
   describe("Remove rows", () => {
-    const removeRows: RemoveRowsCommand = {
-      type: "REMOVE_ROWS",
+    const removeRows: DeleteRowsCommand = {
+      type: "DELETE_ROWS",
       rows: [0],
       sheetId: "42",
     };

@@ -67,14 +67,14 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
 
   beforeHandle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "REMOVE_COLUMNS":
+      case "DELETE_COLUMNS":
         this.exportAndRemoveMerges(
           cmd.sheetId,
           (range) => updateRemoveColumns(range, cmd.columns),
           true
         );
         break;
-      case "REMOVE_ROWS":
+      case "DELETE_ROWS":
         this.exportAndRemoveMerges(
           cmd.sheetId,
           (range) => updateRemoveRows(range, cmd.rows),
@@ -127,13 +127,13 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
           this.addMerge(this.getters.getSheet(cmd.sheetId)!, cmd.zone);
         }
         break;
-      case "REMOVE_MERGE":
+      case "DELETE_MERGE":
         this.removeMerge(cmd.sheetId, cmd.zone);
         break;
       case "ADD_COLUMNS":
       case "ADD_ROWS":
-      case "REMOVE_COLUMNS":
-      case "REMOVE_ROWS":
+      case "DELETE_COLUMNS":
+      case "DELETE_ROWS":
         if (this.pending) {
           this.importMerges(this.pending.sheet, this.pending.merges);
           this.pending = null;

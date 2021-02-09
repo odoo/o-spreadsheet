@@ -261,7 +261,7 @@ describe("Multi users synchronisation", () => {
     });
     const sheetId = alice.getters.getActiveSheetId();
     expect(alice.getters.getMerges(sheetId)).toHaveLength(1);
-    alice.dispatch("REMOVE_MERGE", {
+    alice.dispatch("DELETE_MERGE", {
       zone: toZone("A1:B2"),
       sheetId,
     });

@@ -58,7 +58,7 @@ describe("merges", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
 
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
+    model.dispatch("DELETE_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
     expect(getCellsXC(model)).toEqual(["B2"]);
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
     expect(Object.keys(getMerges(model))).toEqual([]);
@@ -194,7 +194,7 @@ describe("merges", () => {
     });
     const [, sheet2] = model.getters.getSheets();
     expect(sheet2).not.toBe(model.getters.getActiveSheetId());
-    model.dispatch("REMOVE_ROWS", {
+    model.dispatch("DELETE_ROWS", {
       rows: [2],
       sheetId: sheet2.id,
     });
@@ -326,7 +326,7 @@ describe("merges", () => {
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
 
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    model.dispatch("DELETE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
   });
@@ -348,7 +348,7 @@ describe("merges", () => {
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
 
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    model.dispatch("DELETE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
   });
@@ -369,7 +369,7 @@ describe("merges", () => {
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
 
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    model.dispatch("DELETE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
   });
@@ -387,7 +387,7 @@ describe("merges", () => {
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
 
-    model.dispatch("REMOVE_MERGE", { sheetId, zone: toZone("A1:B1") });
+    model.dispatch("DELETE_MERGE", { sheetId, zone: toZone("A1:B1") });
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
   });
@@ -406,7 +406,7 @@ describe("merges", () => {
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    model.dispatch("DELETE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
   });
@@ -423,7 +423,7 @@ describe("merges", () => {
     model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:B1") });
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
-    model.dispatch("REMOVE_MERGE", { sheetId, zone: toZone("A1:B1") });
+    model.dispatch("DELETE_MERGE", { sheetId, zone: toZone("A1:B1") });
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
   });
@@ -443,7 +443,7 @@ describe("merges", () => {
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    model.dispatch("DELETE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
@@ -463,7 +463,7 @@ describe("merges", () => {
     expect(getMergeCellMap(model)[0][1]).toBe(mergeId);
 
     // unmerge. there should not be any merge left
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:A3") });
+    model.dispatch("DELETE_MERGE", { sheetId: sheet1, zone: toZone("A1:A3") });
     expect(getMergeCellMap(model)).toEqual({});
     expect(getMerges(model)).toEqual({});
   });
@@ -514,7 +514,7 @@ describe("merges", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
 
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
+    model.dispatch("DELETE_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 }); // B2
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 1, left: 1, right: 1, top: 1 }]);
     undo(model);
@@ -550,7 +550,7 @@ describe("merges", () => {
     expect(model.getters.getMerge(sheetId, ...toCartesian("C4"))).toBeTruthy();
     expect(getCell(model, "B4")!.style).toEqual({ textColor: "#fe0000" });
     expect(getBorder(model, "B4")).toEqual({ top: ["thin", "#000"] });
-    model.dispatch("REMOVE_MERGE", { sheetId, zone: toZone("B4:C5") });
+    model.dispatch("DELETE_MERGE", { sheetId, zone: toZone("B4:C5") });
     expect(getCell(model, "B4")!.style).toEqual({ textColor: "#fe0000" });
     expect(getCell(model, "C4")!.style).toEqual({ textColor: "#fe0000" });
     expect(getBorder(model, "B4")).toEqual({ top: ["thin", "#000"] });

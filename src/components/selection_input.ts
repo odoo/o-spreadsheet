@@ -154,7 +154,7 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
   }
 
   removeInput(rangeId: string) {
-    this.dispatch("REMOVE_RANGE", { id: this.id, rangeId });
+    this.dispatch("DELETE_RANGE", { id: this.id, rangeId });
     this.triggerChange();
   }
 

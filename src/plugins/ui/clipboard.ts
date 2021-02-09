@@ -382,7 +382,7 @@ export class ClipboardPlugin extends UIPlugin {
     const sheet = this.getters.getSheet(sheetId);
     if (!merge || !sheet) return;
     if (cut) {
-      this.dispatch("REMOVE_MERGE", {
+      this.dispatch("DELETE_MERGE", {
         sheetId: originSheet,
         zone: merge,
       });

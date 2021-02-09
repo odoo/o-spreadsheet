@@ -5,9 +5,9 @@ import {
   AddMergeCommand,
   ClearCellCommand,
   ClearFormattingCommand,
+  DeleteColumnsCommand,
   DeleteContentCommand,
-  RemoveColumnsCommand,
-  RemoveMergeCommand,
+  DeleteMergeCommand,
   ResizeColumnsCommand,
   SetBorderCommand,
   SetDecimalCommand,
@@ -18,8 +18,8 @@ import {
 
 describe("OT with REMOVE_COLUMN", () => {
   const sheetId = "Sheet1";
-  const removeColumns: RemoveColumnsCommand = {
-    type: "REMOVE_COLUMNS",
+  const removeColumns: DeleteColumnsCommand = {
+    type: "DELETE_COLUMNS",
     columns: [2, 5, 3],
     sheetId,
   };
@@ -176,8 +176,8 @@ describe("OT with REMOVE_COLUMN", () => {
   });
 
   describe("OT with two remove columns", () => {
-    const toTransform: Omit<RemoveColumnsCommand, "columns"> = {
-      type: "REMOVE_COLUMNS",
+    const toTransform: Omit<DeleteColumnsCommand, "columns"> = {
+      type: "DELETE_COLUMNS",
       sheetId,
     };
 
@@ -254,8 +254,8 @@ describe("OT with REMOVE_COLUMN", () => {
     type: "ADD_MERGE",
     sheetId,
   };
-  const removeMerge: Omit<RemoveMergeCommand, "zone"> = {
-    type: "REMOVE_MERGE",
+  const removeMerge: Omit<DeleteMergeCommand, "zone"> = {
+    type: "DELETE_MERGE",
     sheetId,
   };
   describe.each([addMerge, removeMerge])("Remove Columns - Merge", (cmd) => {

@@ -92,7 +92,7 @@ describe("Context Menu add/remove row/col", () => {
 
     parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     simulateClick(".o-menu div[data-name='delete_column']");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_COLUMNS", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_COLUMNS", {
       columns: [3],
       sheetId: model.getters.getActiveSheetId(),
     });
@@ -103,7 +103,7 @@ describe("Context Menu add/remove row/col", () => {
     await nextTick();
     parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     simulateClick(".o-menu div[data-name='delete_row']");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_ROWS", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_ROWS", {
       rows: [4],
       sheetId: model.getters.getActiveSheetId(),
     });

@@ -67,7 +67,7 @@ export function deleteColumns(
   columns: string[],
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  model.dispatch("REMOVE_COLUMNS", {
+  model.dispatch("DELETE_COLUMNS", {
     sheetId,
     columns: columns.map(lettersToNumber),
   });
@@ -99,7 +99,7 @@ export function deleteRows(
   rows: number[],
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  model.dispatch("REMOVE_ROWS", {
+  model.dispatch("DELETE_ROWS", {
     sheetId,
     rows,
   });

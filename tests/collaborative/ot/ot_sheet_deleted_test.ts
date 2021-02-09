@@ -9,15 +9,15 @@ import {
   ClearFormattingCommand,
   CreateChartCommand,
   CreateFigureCommand,
+  DeleteColumnsCommand,
   DeleteContentCommand,
+  DeleteRowsCommand,
   DeleteSheetCommand,
   DuplicateSheetCommand,
   Figure,
   MoveSheetCommand,
-  RemoveColumnsCommand,
-  RemoveConditionalFormatCommand,
-  RemoveMergeCommand,
-  RemoveRowsCommand,
+  DeleteConditionalFormatCommand,
+  DeleteMergeCommand,
   RenameSheetCommand,
   ResizeColumnsCommand,
   ResizeRowsCommand,
@@ -58,14 +58,14 @@ describe("OT with DELETE_SHEET", () => {
     position: "after",
     quantity: 1,
   };
-  const removeColumn: Omit<RemoveColumnsCommand, "sheetId"> = {
-    type: "REMOVE_COLUMNS",
+  const removeColumn: Omit<DeleteColumnsCommand, "sheetId"> = {
+    type: "DELETE_COLUMNS",
     columns: [0],
   };
-  const removeRows: Omit<RemoveRowsCommand, "sheetId"> = { type: "REMOVE_ROWS", rows: [0] };
+  const removeRows: Omit<DeleteRowsCommand, "sheetId"> = { type: "DELETE_ROWS", rows: [0] };
   const addMerge: Omit<AddMergeCommand, "sheetId"> = { type: "ADD_MERGE", zone: toZone("A1:B1") };
-  const removeMerge: Omit<RemoveMergeCommand, "sheetId"> = {
-    type: "REMOVE_MERGE",
+  const removeMerge: Omit<DeleteMergeCommand, "sheetId"> = {
+    type: "DELETE_MERGE",
     zone: toZone("A1:B1"),
   };
   const moveSheet: Omit<MoveSheetCommand, "sheetId"> = { type: "MOVE_SHEET", direction: "left" };
@@ -112,8 +112,8 @@ describe("OT with DELETE_SHEET", () => {
     rows: [1],
     size: 10,
   };
-  const removeConditionalFormatting: Omit<RemoveConditionalFormatCommand, "sheetId"> = {
-    type: "REMOVE_CONDITIONAL_FORMAT",
+  const removeConditionalFormatting: Omit<DeleteConditionalFormatCommand, "sheetId"> = {
+    type: "DELETE_CONDITIONAL_FORMAT",
     id: "789",
   };
   const otherDeleteSheet: Omit<DeleteSheetCommand, "sheetId"> = {

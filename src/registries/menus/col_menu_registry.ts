@@ -62,9 +62,9 @@ colMenuRegistry
     action: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
   })
   .add("delete_column", {
-    name: ACTIONS.REMOVE_COLUMNS_NAME,
+    name: ACTIONS.DELETE_COLUMNS_NAME,
     sequence: 90,
-    action: ACTIONS.REMOVE_COLUMNS_ACTION,
+    action: ACTIONS.DELETE_COLUMNS_ACTION,
   })
   .add("clear_column", {
     name: ACTIONS.DELETE_CONTENT_COLUMNS_NAME,

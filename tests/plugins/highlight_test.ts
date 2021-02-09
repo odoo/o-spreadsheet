@@ -39,7 +39,7 @@ describe("highlight", () => {
       ranges: { B2: "#888", B6: "#999" },
     });
     expect(model.getters.getHighlights().length).toBe(2);
-    model.dispatch("REMOVE_ALL_HIGHLIGHTS");
+    model.dispatch("DELETE_ALL_HIGHLIGHTS");
     expect(model.getters.getHighlights()).toEqual([]);
   });
 
@@ -47,7 +47,7 @@ describe("highlight", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#888", B6: "#999" },
     });
-    model.dispatch("REMOVE_HIGHLIGHTS", {
+    model.dispatch("DELETE_HIGHLIGHTS", {
       ranges: { B6: "#999" },
     });
     expect(model.getters.getHighlights()).toStrictEqual([
@@ -70,7 +70,7 @@ describe("highlight", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#888" },
     });
-    model.dispatch("REMOVE_HIGHLIGHTS", {
+    model.dispatch("DELETE_HIGHLIGHTS", {
       ranges: { B2: "#999" },
     });
     expect(model.getters.getHighlights()).toStrictEqual([
@@ -89,7 +89,7 @@ describe("highlight", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#999" },
     });
-    model.dispatch("REMOVE_HIGHLIGHTS", {
+    model.dispatch("DELETE_HIGHLIGHTS", {
       ranges: { B2: "#999" },
     });
     expect(model.getters.getHighlights()).toStrictEqual([
@@ -105,7 +105,7 @@ describe("highlight", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#888" },
     });
-    model.dispatch("REMOVE_HIGHLIGHTS", {
+    model.dispatch("DELETE_HIGHLIGHTS", {
       ranges: { "Sheet1!B2": "#888" },
     });
     expect(model.getters.getHighlights()).toHaveLength(0);
@@ -132,7 +132,7 @@ describe("highlight", () => {
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
-    model.dispatch("REMOVE_HIGHLIGHTS", {
+    model.dispatch("DELETE_HIGHLIGHTS", {
       ranges: { B2: "#888" },
     });
     expect(model.getters.getHighlights()).toStrictEqual([

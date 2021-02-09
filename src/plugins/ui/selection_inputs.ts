@@ -59,7 +59,7 @@ export class SelectionInputPlugin extends UIPlugin {
       case "DISABLE_SELECTION_INPUT":
         if (this.focusedInputId === cmd.id) {
           this.dispatch("HIGHLIGHT_SELECTION", { enabled: false });
-          this.dispatch("REMOVE_ALL_HIGHLIGHTS");
+          this.dispatch("DELETE_ALL_HIGHLIGHTS");
           this.focusedRange = null;
           this.focusedInputId = null;
         }
@@ -81,7 +81,7 @@ export class SelectionInputPlugin extends UIPlugin {
         this.inputs[cmd.id] = [...this.inputs[cmd.id], Object.freeze({ xc: "", id: uuidv4() })];
         this.focusLast(cmd.id);
         break;
-      case "REMOVE_RANGE":
+      case "DELETE_RANGE":
         const index = this.getIndex(cmd.id, cmd.rangeId);
         if (index !== null) {
           this.removeRange(cmd.id, index);
@@ -185,7 +185,7 @@ export class SelectionInputPlugin extends UIPlugin {
   }
 
   private removeAllHighlights() {
-    this.dispatch("REMOVE_ALL_HIGHLIGHTS");
+    this.dispatch("DELETE_ALL_HIGHLIGHTS");
   }
 
   /**
@@ -269,7 +269,7 @@ export class SelectionInputPlugin extends UIPlugin {
       color: input.color,
       xc: value,
     });
-    this.dispatch("REMOVE_HIGHLIGHTS", { ranges: this.inputToHighlights(id, input) });
+    this.dispatch("DELETE_HIGHLIGHTS", { ranges: this.inputToHighlights(id, input) });
     this.dispatch("ADD_HIGHLIGHTS", {
       ranges: highlightRanges,
     });
@@ -288,7 +288,7 @@ export class SelectionInputPlugin extends UIPlugin {
   private removeRange(id: UID, index: number) {
     const [removedRange] = this.inputs[id].splice(index, 1);
     if (this.focusedInputId === id && this.focusedRange !== null) {
-      this.dispatch("REMOVE_HIGHLIGHTS", {
+      this.dispatch("DELETE_HIGHLIGHTS", {
         ranges: this.inputToHighlights(id, removedRange),
       });
       this.focusLast(id);

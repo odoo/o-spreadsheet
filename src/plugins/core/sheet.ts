@@ -103,11 +103,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         return this.visibleSheets.length > 1
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughSheets };
-      case "REMOVE_COLUMNS":
+      case "DELETE_COLUMNS":
         return this.sheets[cmd.sheetId]!.cols.length > cmd.columns.length
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughColumns };
-      case "REMOVE_ROWS":
+      case "DELETE_ROWS":
         return this.sheets[cmd.sheetId]!.rows.length > cmd.rows.length
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughRows };
@@ -158,10 +158,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         this.deleteSheet(this.sheets[cmd.sheetId]!);
         break;
 
-      case "REMOVE_COLUMNS":
+      case "DELETE_COLUMNS":
         this.removeColumns(this.sheets[cmd.sheetId]!, cmd.columns);
         break;
-      case "REMOVE_ROWS":
+      case "DELETE_ROWS":
         this.removeRows(this.sheets[cmd.sheetId]!, cmd.rows);
         break;
       case "ADD_COLUMNS": {

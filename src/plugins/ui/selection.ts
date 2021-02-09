@@ -18,12 +18,12 @@ import {
   Command,
   CommandDispatcher,
   CommandResult,
+  DeleteColumnsCommand,
+  DeleteRowsCommand,
   Figure,
   Getters,
   GridRenderingContext,
   LAYERS,
-  RemoveColumnsCommand,
-  RemoveRowsCommand,
   Style,
   UID,
   Viewport,
@@ -167,7 +167,7 @@ export class SelectionPlugin extends UIPlugin {
       case "DISABLE_SELECTION_INPUT":
       case "HIGHLIGHT_SELECTION":
       case "RESET_PENDING_HIGHLIGHT":
-      case "REMOVE_ALL_HIGHLIGHTS":
+      case "DELETE_ALL_HIGHLIGHTS":
       case "ENABLE_NEW_SELECTION_INPUT":
         break;
       case "DELETE_FIGURE":
@@ -236,10 +236,10 @@ export class SelectionPlugin extends UIPlugin {
       case "REDO":
         this.updateSelection();
         break;
-      case "REMOVE_COLUMNS":
+      case "DELETE_COLUMNS":
         this.onColumnsRemoved(cmd);
         break;
-      case "REMOVE_ROWS":
+      case "DELETE_ROWS":
         this.onRowsRemoved(cmd);
         break;
       case "ADD_COLUMNS":
@@ -553,13 +553,13 @@ export class SelectionPlugin extends UIPlugin {
     this.setSelection([anchorCol, anchorRow], zones);
   }
 
-  private onColumnsRemoved(cmd: RemoveColumnsCommand) {
+  private onColumnsRemoved(cmd: DeleteColumnsCommand) {
     const zone = updateSelectionOnDeletion(this.getSelectedZone(), "left", cmd.columns);
     this.setSelection([zone.left, zone.top], [zone], true);
     this.updateSelection();
   }
 
-  private onRowsRemoved(cmd: RemoveRowsCommand) {
+  private onRowsRemoved(cmd: DeleteRowsCommand) {
     const zone = updateSelectionOnDeletion(this.getSelectedZone(), "top", cmd.rows);
     this.setSelection([zone.left, zone.top], [zone], true);
     this.updateSelection();

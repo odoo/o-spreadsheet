@@ -81,54 +81,54 @@ describe("range plugin", () => {
   describe("adapting the ranges to changes", () => {
     describe("create a range and remove a column", () => {
       test("in the middle", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [2] });
+        m.dispatch("DELETE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [2] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
       });
 
       test("in the start", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [1] });
+        m.dispatch("DELETE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [1] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
       });
 
       test("in the end", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [3] });
+        m.dispatch("DELETE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [3] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
       });
 
       test("before the start", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [0] });
+        m.dispatch("DELETE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [0] });
         expect(m.getters.getUsedRanges()).toEqual(["A2:C4"]);
       });
 
       test("after the end", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [5] });
+        m.dispatch("DELETE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [5] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
     });
 
     describe("create a range and remove a row", () => {
       test("in the middle", () => {
-        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [2] });
+        m.dispatch("DELETE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [2] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
       });
 
       test("in the start", () => {
-        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [1] });
+        m.dispatch("DELETE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [1] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
       });
 
       test("in the end", () => {
-        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [3] });
+        m.dispatch("DELETE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [3] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
       });
 
       test("before the start", () => {
-        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [0] });
+        m.dispatch("DELETE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [0] });
         expect(m.getters.getUsedRanges()).toEqual(["B1:D3"]);
       });
 
       test("after the end", () => {
-        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [5] });
+        m.dispatch("DELETE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [5] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
     });
@@ -340,17 +340,17 @@ describe("range plugin", () => {
 
   describe("change notification", () => {
     test("a change should be notified", () => {
-      m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [2] });
+      m.dispatch("DELETE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [2] });
       expect(notificationSpy).toHaveBeenCalledTimes(1);
       expect(notificationSpy).toHaveBeenCalledWith("RESIZE", "s1");
     });
     test("multiple changes of the same range should get notified only once", () => {
-      m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [1, 2] });
+      m.dispatch("DELETE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [1, 2] });
       expect(notificationSpy).toHaveBeenCalledTimes(1);
       expect(notificationSpy).toHaveBeenCalledWith("RESIZE", "s1");
     });
     test("multiple changes that results in the range disappearing should be notified only once", () => {
-      m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [1, 2, 3] });
+      m.dispatch("DELETE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [1, 2, 3] });
       expect(notificationSpy).toHaveBeenCalledTimes(1);
       expect(notificationSpy).toHaveBeenCalledWith("REMOVE", "s1");
     });
@@ -459,7 +459,7 @@ describe("range plugin", () => {
         ],
       });
       expect(m.getters.getCell("s1", 0, 3)!.value).toBe(8);
-      m.dispatch("REMOVE_ROWS", { rows: [1], sheetId: "s1" });
+      m.dispatch("DELETE_ROWS", { rows: [1], sheetId: "s1" });
       expect(m.getters.getCell("s1", 0, 2)!.value).toBe(6);
       expect(m.getters.getFormulaCellContent("s1", m.getters.getCell("s1", 0, 2))).toBe(
         "=sum(A1:A2)"

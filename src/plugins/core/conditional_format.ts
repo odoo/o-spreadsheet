@@ -70,13 +70,13 @@ export class ConditionalFormatPlugin
       case "ADD_CONDITIONAL_FORMAT":
         this.addConditionalFormatting(cmd.cf, cmd.sheetId);
         break;
-      case "REMOVE_CONDITIONAL_FORMAT":
+      case "DELETE_CONDITIONAL_FORMAT":
         this.removeConditionalFormatting(cmd.id, cmd.sheetId);
         break;
-      case "REMOVE_COLUMNS":
+      case "DELETE_COLUMNS":
         this.adaptcfRules(cmd.sheetId, (range: string) => updateRemoveColumns(range, cmd.columns));
         break;
-      case "REMOVE_ROWS":
+      case "DELETE_ROWS":
         this.adaptcfRules(cmd.sheetId, (range: string) => updateRemoveRows(range, cmd.rows));
         break;
       case "ADD_COLUMNS":

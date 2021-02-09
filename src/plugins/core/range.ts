@@ -32,11 +32,11 @@ export class RangePlugin extends CorePlugin<RangeState> {
   // ---------------------------------------------------------------------------
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "REMOVE_COLUMNS":
-      case "REMOVE_ROWS":
-        let start: "left" | "top" = cmd.type === "REMOVE_COLUMNS" ? "left" : "top";
-        let end: "right" | "bottom" = cmd.type === "REMOVE_COLUMNS" ? "right" : "bottom";
-        let dimension = cmd.type === "REMOVE_COLUMNS" ? "columns" : "rows";
+      case "DELETE_COLUMNS":
+      case "DELETE_ROWS":
+        let start: "left" | "top" = cmd.type === "DELETE_COLUMNS" ? "left" : "top";
+        let end: "right" | "bottom" = cmd.type === "DELETE_COLUMNS" ? "right" : "bottom";
+        let dimension = cmd.type === "DELETE_COLUMNS" ? "columns" : "rows";
         this.notifyChangeSheetId = cmd.sheetId;
 
         cmd[dimension].sort((a, b) => b - a);

@@ -171,7 +171,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_ROW", { index: 5, updateRange: true });
       expect(getName(path, env)).toBe("Delete rows 5 - 6");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_ROWS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("DELETE_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         rows: [4, 5],
       });
@@ -187,7 +187,7 @@ describe("Menu Item actions", () => {
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("Delete rows 4 - 5");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_ROWS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("DELETE_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         rows: [3, 4],
       });
@@ -201,7 +201,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_COLUMN", { index: 4, createRange: true });
       expect(getName(path, env)).toBe("Delete column E");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("DELETE_COLUMNS", {
         sheetId: env.getters.getActiveSheetId(),
         columns: [4],
       });
@@ -212,7 +212,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_COLUMN", { index: 5, updateRange: true });
       expect(getName(path, env)).toBe("Delete columns E - F");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("DELETE_COLUMNS", {
         sheetId: env.getters.getActiveSheetId(),
         columns: [4, 5],
       });
@@ -222,7 +222,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_CELL", { col: 3, row: 3 });
       expect(getName(path, env)).toBe("Delete column D");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("DELETE_COLUMNS", {
         sheetId: env.getters.getActiveSheetId(),
         columns: [3],
       });
@@ -233,7 +233,7 @@ describe("Menu Item actions", () => {
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("Delete columns D - E");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("DELETE_COLUMNS", {
         sheetId: env.getters.getActiveSheetId(),
         columns: [3, 4],
       });

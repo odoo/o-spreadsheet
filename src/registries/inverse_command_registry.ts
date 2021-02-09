@@ -8,12 +8,12 @@ import {
   CreateChartCommand,
   CreateFigureCommand,
   CreateSheetCommand,
+  DeleteColumnsCommand,
   DeleteFigureCommand,
+  DeleteRowsCommand,
   DeleteSheetCommand,
   DuplicateSheetCommand,
-  RemoveColumnsCommand,
-  RemoveMergeCommand,
-  RemoveRowsCommand,
+  DeleteMergeCommand,
 } from "../types/commands";
 
 type InverseFunction = (cmd: CoreCommand) => CoreCommand[];
@@ -22,17 +22,17 @@ export const inverseCommandRegistry = new Registry<InverseFunction>()
 
   .add("ADD_COLUMNS", inverseAddColumns)
   .add("ADD_ROWS", inverseAddRows)
-  .add("REMOVE_COLUMNS", inverseRemoveColumns)
-  .add("REMOVE_ROWS", inverseRemoveRows)
+  .add("DELETE_COLUMNS", inverseRemoveColumns)
+  .add("DELETE_ROWS", inverseRemoveRows)
   .add("ADD_MERGE", inverseAddMerge)
-  .add("REMOVE_MERGE", inverseRemoveMerge)
+  .add("DELETE_MERGE", inverseRemoveMerge)
   .add("CREATE_SHEET", inverseCreateSheet)
   .add("DELETE_SHEET", inverseDeleteSheet)
   .add("DUPLICATE_SHEET", inverseDuplicateSheet)
   .add("CREATE_FIGURE", inverseCreateFigure)
   .add("CREATE_CHART", inverseCreateChart);
 
-function inverseAddColumns(cmd: AddColumnsCommand): RemoveColumnsCommand[] {
+function inverseAddColumns(cmd: AddColumnsCommand): DeleteColumnsCommand[] {
   const columns: number[] = [];
   let start = cmd.column;
   if (cmd.position === "after") {
@@ -43,14 +43,14 @@ function inverseAddColumns(cmd: AddColumnsCommand): RemoveColumnsCommand[] {
   }
   return [
     {
-      type: "REMOVE_COLUMNS",
+      type: "DELETE_COLUMNS",
       columns,
       sheetId: cmd.sheetId,
     },
   ];
 }
 
-function inverseAddRows(cmd: AddRowsCommand): RemoveRowsCommand[] {
+function inverseAddRows(cmd: AddRowsCommand): DeleteRowsCommand[] {
   const rows: number[] = [];
   let start = cmd.row;
   if (cmd.position === "after") {
@@ -61,18 +61,18 @@ function inverseAddRows(cmd: AddRowsCommand): RemoveRowsCommand[] {
   }
   return [
     {
-      type: "REMOVE_ROWS",
+      type: "DELETE_ROWS",
       rows,
       sheetId: cmd.sheetId,
     },
   ];
 }
 
-function inverseAddMerge(cmd: AddMergeCommand): RemoveMergeCommand[] {
-  return [{ type: "REMOVE_MERGE", sheetId: cmd.sheetId, zone: cmd.zone }];
+function inverseAddMerge(cmd: AddMergeCommand): DeleteMergeCommand[] {
+  return [{ type: "DELETE_MERGE", sheetId: cmd.sheetId, zone: cmd.zone }];
 }
 
-function inverseRemoveMerge(cmd: RemoveMergeCommand): AddMergeCommand[] {
+function inverseRemoveMerge(cmd: DeleteMergeCommand): AddMergeCommand[] {
   return [{ type: "ADD_MERGE", sheetId: cmd.sheetId, zone: cmd.zone }];
 }
 
@@ -84,7 +84,7 @@ function inverseDuplicateSheet(cmd: DuplicateSheetCommand): DeleteSheetCommand[]
   return [{ type: "DELETE_SHEET", sheetId: cmd.sheetIdTo }];
 }
 
-function inverseRemoveColumns(cmd: RemoveColumnsCommand): AddColumnsCommand[] {
+function inverseRemoveColumns(cmd: DeleteColumnsCommand): AddColumnsCommand[] {
   const commands: AddColumnsCommand[] = [];
   for (let group of groupConsecutive(cmd.columns.sort((a, b) => a - b))) {
     const column = group[0] === 0 ? 0 : group[0] - 1;
@@ -100,7 +100,7 @@ function inverseRemoveColumns(cmd: RemoveColumnsCommand): AddColumnsCommand[] {
   return commands;
 }
 
-function inverseRemoveRows(cmd: RemoveRowsCommand): AddRowsCommand[] {
+function inverseRemoveRows(cmd: DeleteRowsCommand): AddRowsCommand[] {
   const commands: AddRowsCommand[] = [];
   for (let group of groupConsecutive(cmd.rows.sort((a, b) => a - b))) {
     const row = group[0] === 0 ? 0 : group[0] - 1;
