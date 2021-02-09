@@ -206,9 +206,11 @@ describe("merges", () => {
   });
 
   test("properly compute if a merge is destructive or not", () => {
+    const sheetId = "42";
     const model = new Model({
       sheets: [
         {
+          id: sheetId,
           colNumber: 10,
           rowNumber: 10,
           cells: { B2: { content: "b2" } },
@@ -216,20 +218,23 @@ describe("merges", () => {
       ],
     });
     // B2 is not top left, so it is destructive
-    expect(
-      model.getters.isMergeDestructive(model.getters.getActiveSheet(), toZone("A1:C4"))
-    ).toBeTruthy();
+    expect(model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:C4") })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.MergeIsDestructive,
+    });
 
     // B2 is top left, so it is not destructive
-    expect(
-      model.getters.isMergeDestructive(model.getters.getActiveSheet(), toZone("B2:C4"))
-    ).toBeFalsy();
+    expect(model.dispatch("ADD_MERGE", { sheetId, zone: toZone("B2:C4") })).toEqual({
+      status: "SUCCESS",
+    });
   });
 
   test("a merge with only style should not be considered destructive", () => {
+    const sheetId = "42";
     const model = new Model({
       sheets: [
         {
+          id: sheetId,
           colNumber: 10,
           rowNumber: 10,
           cells: { B2: { style: 1 } },
@@ -237,10 +242,9 @@ describe("merges", () => {
       ],
       styles: { 1: {} },
     });
-
-    expect(
-      model.getters.isMergeDestructive(model.getters.getActiveSheet(), toZone("A1:C4"))
-    ).toBeFalsy();
+    expect(model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:C4") })).toEqual({
+      status: "SUCCESS",
+    });
   });
 
   test("merging destructively a selection ask for confirmation", async () => {
