@@ -1,7 +1,9 @@
+import { CorePlugin } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { CURRENT_VERSION } from "../../src/data";
 import { Model } from "../../src/model";
-import { BorderDescr } from "../../src/types/index";
+import { corePluginRegistry } from "../../src/plugins";
+import { BorderDescr, WorkbookData } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
 import { getMerges, mockUuidV4To, toPosition } from "../helpers";
 
@@ -363,4 +365,36 @@ test("import then export (figures)", () => {
   };
   const model = new Model(modelData);
   expect(model.exportData()).toEqual(modelData);
+});
+
+test("Imported data are not mutated", () => {
+  class MutatePlugin extends CorePlugin {
+    private entities: Record<string, {}> = {};
+
+    import(data: WorkbookData) {
+      this.entities = data.entities;
+      this.entities["e2"] = {
+        text: "imported",
+      };
+    }
+
+    export(data: WorkbookData) {
+      data.entities = this.entities;
+    }
+  }
+  corePluginRegistry.add("mutate-plugin", MutatePlugin);
+  const data = {
+    entities: {
+      e1: { text: "base" },
+    },
+  };
+  const model = new Model(data);
+  expect(data.entities).toEqual({
+    e1: { text: "base" },
+  });
+  const exported = model.exportData();
+  expect(exported.entities).toEqual({
+    e1: { text: "base" },
+    e2: { text: "imported" },
+  });
 });
