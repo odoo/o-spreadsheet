@@ -20,7 +20,7 @@ export function load(data?: any): WorkbookData {
   if (!data) {
     return createEmptyWorkbookData();
   }
-  data = Object.assign({}, data);
+  data = JSON.parse(JSON.stringify(data));
 
   // apply migrations, if needed
   if ("version" in data) {
