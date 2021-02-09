@@ -36,7 +36,6 @@ interface MergeState {
 
 export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   static getters = [
-    "isMergeDestructive",
     "isInMerge",
     "isInSameMerge",
     "getMainCell",
@@ -158,28 +157,6 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   }
 
   /**
-   * Return true if the current selection requires losing state if it is merged.
-   * This happens when there is some textual content in other cells than the
-   * top left.
-   */
-  isMergeDestructive(sheet: Sheet, zone: Zone): boolean {
-    let { left, right, top, bottom } = zone;
-    right = clip(right, 0, sheet.cols.length - 1);
-    bottom = clip(bottom, 0, sheet.rows.length - 1);
-    for (let row = top; row <= bottom; row++) {
-      const actualRow = this.getters.getRow(sheet.id, row)!;
-      for (let col = left; col <= right; col++) {
-        if (col !== left || row !== top) {
-          const cell = actualRow.cells[col];
-          if (cell && cell.type !== CellType.empty) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-  /**
    * Return true if the zone intersects an existing merge:
    * if they have at least a common cell
    */
@@ -244,6 +221,29 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   // ---------------------------------------------------------------------------
   // Merges
   // ---------------------------------------------------------------------------
+
+  /**
+   * Return true if the current selection requires losing state if it is merged.
+   * This happens when there is some textual content in other cells than the
+   * top left.
+   */
+  private isMergeDestructive(sheet: Sheet, zone: Zone): boolean {
+    let { left, right, top, bottom } = zone;
+    right = clip(right, 0, sheet.cols.length - 1);
+    bottom = clip(bottom, 0, sheet.rows.length - 1);
+    for (let row = top; row <= bottom; row++) {
+      const actualRow = this.getters.getRow(sheet.id, row)!;
+      for (let col = left; col <= right; col++) {
+        if (col !== left || row !== top) {
+          const cell = actualRow.cells[col];
+          if (cell && cell.type !== CellType.empty) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
 
   private getMergeById(sheetId: UID, mergeId: number): Merge | undefined {
     const merges = this.merges[sheetId];

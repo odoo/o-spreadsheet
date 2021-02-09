@@ -58,7 +58,6 @@ export interface CoreGetters {
   getPasteZones: ClipboardPlugin["getPasteZones"];
 
   expandZone: MergePlugin["expandZone"];
-  isMergeDestructive: MergePlugin["isMergeDestructive"];
   isInMerge: MergePlugin["isInMerge"];
   getMainCell: MergePlugin["getMainCell"];
   doesIntersectMerge: MergePlugin["doesIntersectMerge"];
