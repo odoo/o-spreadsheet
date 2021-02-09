@@ -24,3 +24,5 @@ const { coreTypes } = o_spreadsheet;
 
 coreTypes.add("MY_COMMAND_NAME");
 ```
+
+Adding the type to `CoreTypes` is necessary to identify the new command as a `CoreCommands`, and so to ensure that it will be shared.

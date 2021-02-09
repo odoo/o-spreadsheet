@@ -1,7 +1,7 @@
 # Collaborative Edition
 
 Realtime collaboration edition can be enabled to synchronize a spreadsheet across multiple clients.
-It is enabled by providing a way to communicate with other connected clients to the `<Spreadsheet/>` component. We call it the _transport service_. It's interface and how it should be implemented is described in a [dedicated section](#transport-service). An optional [client](tsdoc/interfaces/client.md) can also be provided to display the names of connected clients.
+It is enabled by providing a way to communicate with other connected clients to the `<Spreadsheet/>` component. We call it the _transport service_. Its interface and how it should be implemented is described in a [dedicated section](#transport-service). An optional [client](tsdoc/interfaces/client.md) can also be provided to display the names of connected clients.
 
 ```xml
 <Spreadsheet
@@ -24,7 +24,7 @@ It is enabled by providing a way to communicate with other connected clients to 
 
 To enable realtime collaboration edition, a TransportService should be given to the Spreadsheet component.
 
-The TransportService is responsible of sending and receiving messages between the clients with the help of central server.
+The TransportService is responsible for sending and receiving messages between the clients with the help of central server.
 
 The transport service should implement the [TransportService](tsdoc/interfaces/transportservice.md) interface.
 
@@ -38,16 +38,20 @@ For each received messages, the server decides if it's accepted or not. If the m
 
 Messages can be split in two categories:
 
-- [ClientJoinedMessage](tsdoc/interfaces/clientjoinedmessage.md),[ClientMovedMessage](tsdoc/interfaces/clientmovedmessage.md),[ClientLeftMessage](tsdoc/interfaces/clientleftmessage.md)
+1. The messages that do not change the state of the spreadsheet and are always accepted:
 
-Those messages don't change the spreadsheet state. They are always accepted.
+- [ClientJoinedMessage](tsdoc/interfaces/clientjoinedmessage.md)
+- [ClientMovedMessage](tsdoc/interfaces/clientmovedmessage.md)
+- [ClientLeftMessage](tsdoc/interfaces/clientleftmessage.md)
 
-- [RemoteRevisionMessage](tsdoc/interfaces/remoterevisionmessage.md),[RevisionUndoneMessage](tsdoc/interfaces/revisionundonemessage.md),[RevisionRedoneMessage](tsdoc/interfaces/revisionredonemessage.md)
+2. The messages that require special care to ensure a correct message ordering:
 
-Those messages require special care to ensure a correct message ordering.
+- [RemoteRevisionMessage](tsdoc/interfaces/remoterevisionmessage.md)
+- [RevisionUndoneMessage](tsdoc/interfaces/revisionundonemessage.md)
+- [RevisionRedoneMessage](tsdoc/interfaces/revisionredonemessage.md)
 
 They have two important properties: `serverRevisionId` and `nextRevisionId`. A message is accepted only if its `serverRevisionId`
-is the same as the server revision id. The message is then transmitted to all clients and the server revision id becomes `nextRevisionId`. Otherwise, the message is rejected.
+is the same as the server revision id. The message is then transmitted to all clients, and the server revision id becomes `nextRevisionId`. Otherwise, the message is rejected. It means that the client should re-sent it later, after transforming it with all the messages it received in the meantime.
 
 By convention, the initial revision id of a blank spreadsheet is `"START_REVISION"`.
 
@@ -55,7 +59,7 @@ A basic example can be found in tools/server/main.js. The example is implemented
 
 ## How it works
 
-Realtime collaborative editing is based on Operational Transform.
+Realtime collaborative editing is based on [Operational Transform](https://en.wikipedia.org/wiki/Operational_transformation).
 
 ### Operational Transform
 
