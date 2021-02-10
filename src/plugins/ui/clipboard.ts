@@ -98,6 +98,8 @@ export class ClipboardPlugin extends UIPlugin {
           cmd.originSheet,
           cmd.origin,
           cmd.originBorder,
+          cmd.originCol,
+          cmd.originRow,
           cmd.col,
           cmd.row,
           cmd.onlyValue,
@@ -423,6 +425,8 @@ export class ClipboardPlugin extends UIPlugin {
     originSheet: UID,
     origin: Cell | null,
     originBorder: Border | null,
+    originCol: number,
+    originRow: number,
     col: number,
     row: number,
     onlyValue: boolean,
@@ -447,9 +451,8 @@ export class ClipboardPlugin extends UIPlugin {
           content = this.valueToContent(origin.value);
         }
       } else if (!onlyFormat && origin.type === CellType.formula) {
-        const position = this.getters.getCellPosition(origin.id);
-        const offsetX = col - position.col;
-        const offsetY = row - position.row;
+        const offsetX = col - originCol;
+        const offsetY = row - originRow;
         // TODO: replace with range specific stuff
         content = this.getters.applyOffset(sheetId, content, offsetX, offsetY);
       }
