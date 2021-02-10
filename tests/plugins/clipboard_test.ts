@@ -1241,6 +1241,24 @@ describe("clipboard: pasting outside of sheet", () => {
     expect(getCellContent(model, "B2")).toBe("txt");
   });
 
+  test("Can cut & paste a formula", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=1");
+    model.dispatch("CUT", { target: target("A1") });
+    model.dispatch("PASTE", { target: target("B1") });
+    expect(getCellContent(model, "A1")).toBe("");
+    expect(getCellText(model, "B1")).toBe("=1");
+  });
+
+  test("Cut & paste a formula correctly update offsets", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=B2");
+    model.dispatch("CUT", { target: target("A1") });
+    model.dispatch("PASTE", { target: target("C2") });
+    expect(getCellContent(model, "A1")).toBe("");
+    expect(getCellText(model, "C2")).toBe("=D3");
+  });
+
   test("can paste multiple cells from os to outside of sheet", () => {
     const model = new Model();
 
