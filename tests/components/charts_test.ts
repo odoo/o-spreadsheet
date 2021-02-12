@@ -144,16 +144,20 @@ describe("figures", () => {
               top: 0,
             },
           },
+          inputValue: "B1:B4",
         },
       ],
       labelRange: {
-        prefixSheet: false,
-        zone: {
-          bottom: 3,
-          left: 0,
-          right: 0,
-          top: 1,
+        range: {
+          prefixSheet: false,
+          zone: {
+            bottom: 3,
+            left: 0,
+            right: 0,
+            top: 1,
+          },
         },
+        inputValue: "A2:A4",
       },
       title: "hello",
       type: "bar",

@@ -69,7 +69,7 @@ describe("datasource tests", function () {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
         dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A2:A4",
+        labelRange: "A2:A4",
         type: "line",
       },
     });
@@ -87,6 +87,7 @@ describe("datasource tests", function () {
             sheetId: "2",
             zone: toZone("B1"),
           },
+          inputValue: "B1:B4",
         },
         {
           dataRange: {
@@ -99,12 +100,16 @@ describe("datasource tests", function () {
             sheetId: "2",
             zone: toZone("C1"),
           },
+          inputValue: "C1:C4",
         },
       ],
       labelRange: {
-        prefixSheet: true,
-        sheetId: "2",
-        zone: toZone("A2:A4"),
+        range: {
+          prefixSheet: false,
+          sheetId: "2",
+          zone: toZone("A2:A4"),
+        },
+        inputValue: "A2:A4",
       },
       sheetId: "2",
       title: "test 1",
@@ -119,9 +124,9 @@ describe("datasource tests", function () {
       sheetId: model.getters.getActiveSheetId(),
       definition: {
         title: "test 1",
-        dataSets: ["Sheet1!B1:C4"],
+        dataSets: ["B1:C4"],
         dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A2:A4",
+        labelRange: "A2:A4",
         type: "line",
       },
     });
@@ -139,6 +144,7 @@ describe("datasource tests", function () {
             sheetId: "2",
             zone: toZone("B1"),
           },
+          inputValue: "B1:B4",
         },
         {
           dataRange: {
@@ -151,12 +157,16 @@ describe("datasource tests", function () {
             sheetId: "2",
             zone: toZone("C1"),
           },
+          inputValue: "C1:C4",
         },
       ],
       labelRange: {
-        prefixSheet: true,
-        sheetId: "2",
-        zone: toZone("A2:A4"),
+        range: {
+          prefixSheet: false,
+          sheetId: "2",
+          zone: toZone("A2:A4"),
+        },
+        inputValue: "A2:A4",
       },
       sheetId: "2",
       title: "test 1",
@@ -187,6 +197,7 @@ describe("datasource tests", function () {
             zone: toZone("B2:B4"),
           },
           labelCell: undefined,
+          inputValue: "B2:B4",
         },
         {
           dataRange: {
@@ -195,12 +206,16 @@ describe("datasource tests", function () {
             zone: toZone("C2:C4"),
           },
           labelCell: undefined,
+          inputValue: "C2:C4",
         },
       ],
       labelRange: {
-        prefixSheet: false,
-        sheetId: "2",
-        zone: toZone("A2:A4"),
+        range: {
+          prefixSheet: false,
+          sheetId: "2",
+          zone: toZone("A2:A4"),
+        },
+        inputValue: "A2:A4",
       },
       sheetId: "2",
       title: "test 1",
@@ -234,6 +249,7 @@ describe("datasource tests", function () {
             sheetId: "2",
             zone: toZone("A8"),
           },
+          inputValue: "A8:D8",
         },
         {
           dataRange: {
@@ -246,12 +262,16 @@ describe("datasource tests", function () {
             sheetId: "2",
             zone: toZone("A9"),
           },
+          inputValue: "A9:D9",
         },
       ],
       labelRange: {
-        prefixSheet: false,
-        sheetId: "2",
-        zone: toZone("B7:D7"),
+        range: {
+          prefixSheet: false,
+          sheetId: "2",
+          zone: toZone("B7:D7"),
+        },
+        inputValue: "B7:D7",
       },
       sheetId: "2",
       title: "test 1",
@@ -282,6 +302,7 @@ describe("datasource tests", function () {
             zone: toZone("B8:D8"),
           },
           labelCell: undefined,
+          inputValue: "B8:D8",
         },
         {
           dataRange: {
@@ -290,12 +311,16 @@ describe("datasource tests", function () {
             zone: toZone("B9:D9"),
           },
           labelCell: undefined,
+          inputValue: "B9:D9",
         },
       ],
       labelRange: {
-        prefixSheet: false,
-        sheetId: "2",
-        zone: toZone("B7:D7"),
+        range: {
+          prefixSheet: false,
+          sheetId: "2",
+          zone: toZone("B7:D7"),
+        },
+        inputValue: "B7:D7",
       },
       sheetId: "2",
       title: "test 1",
@@ -313,16 +338,19 @@ describe("datasource tests", function () {
         title: "test 1",
         dataSets: ["Sheet1!B8"],
         dataSetsHaveTitle: true,
-        labelRange: "Sheet1!B7:D7",
+        labelRange: "B7:D7",
         type: "line",
       },
     });
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [],
       labelRange: {
-        prefixSheet: true,
-        sheetId: "2",
-        zone: toZone("B7:D7"),
+        range: {
+          prefixSheet: false,
+          sheetId: "2",
+          zone: toZone("B7:D7"),
+        },
+        inputValue: "B7:D7",
       },
       sheetId: "2",
       title: "test 1",
@@ -352,12 +380,16 @@ describe("datasource tests", function () {
             zone: toZone("B8"),
           },
           labelCell: undefined,
+          inputValue: "B8",
         },
       ],
       labelRange: {
-        prefixSheet: false,
-        sheetId: "2",
-        zone: toZone("B7"),
+        range: {
+          prefixSheet: false,
+          sheetId: "2",
+          zone: toZone("B7"),
+        },
+        inputValue: "B7",
       },
       sheetId: "2",
       title: "test 1",
@@ -479,6 +511,7 @@ describe("datasource tests", function () {
             sheetId: "2",
             zone: toZone("A8"),
           },
+          inputValue: "A8:D8",
         },
         {
           dataRange: {
@@ -491,12 +524,16 @@ describe("datasource tests", function () {
             sheetId: "2",
             zone: toZone("A9"),
           },
+          inputValue: "A9:D9",
         },
       ],
       labelRange: {
-        prefixSheet: true,
-        sheetId: "2",
-        zone: toZone("C7:D7"),
+        range: {
+          prefixSheet: true,
+          sheetId: "2",
+          zone: toZone("C7:D7"),
+        },
+        inputValue: "C7:D7",
       },
       sheetId: "2",
       title: "hello1",
@@ -606,47 +643,6 @@ describe("datasource tests", function () {
       },
     });
     expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.InvalidLabelRange });
-  });
-
-  test("create chart with invalid SheetName in dataset will ignore invalid data", () => {
-    model.dispatch("CREATE_CHART", {
-      id: "1",
-      sheetId: model.getters.getActiveSheetId(),
-      definition: {
-        title: "test 1",
-        dataSets: ["Coucou!B1:B4", "Sheet1!B1:B4"],
-        dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A2:A4",
-        type: "line",
-      },
-    });
-    const chart = model.getters.getChartRuntime("1")!;
-    expect(model.getters.getChartDefinition("1")).toMatchObject({
-      dataSets: [
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId: "2",
-            zone: toZone("B1:B4"),
-          },
-          labelCell: {
-            prefixSheet: false,
-            sheetId: "2",
-            zone: toZone("B1"),
-          },
-        },
-      ],
-      labelRange: {
-        prefixSheet: true,
-        sheetId: "2",
-        zone: toZone("A2:A4"),
-      },
-      sheetId: "2",
-      title: "test 1",
-      type: "line",
-    });
-    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
-    expect(chart.type).toEqual("line");
   });
 
   test("create chart with empty dataset", () => {
@@ -873,9 +869,12 @@ describe("multiple sheets", function () {
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
     expect(chartDefinition).toMatchObject({
       labelRange: {
-        prefixSheet: true,
-        sheetId: "2",
-        zone: toZone("A2:A4"),
+        range: {
+          prefixSheet: true,
+          sheetId: "2",
+          zone: toZone("A2:A4"),
+        },
+        inputValue: "Sheet1!A2:A4",
       },
       sheetId: "42",
     });

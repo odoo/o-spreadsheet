@@ -660,9 +660,9 @@ describe("sheets", () => {
       sheetId,
       definition: {
         title: "test 1",
-        dataSets: ["Sheet1!B1:B4"],
+        dataSets: ["B1:B4"],
         dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A2:A4",
+        labelRange: "A2:A4",
         type: "line",
       },
     });
@@ -672,9 +672,9 @@ describe("sheets", () => {
       sheetId,
       definition: {
         title: "hello1",
-        dataSets: ["Sheet1!B1:B3"],
+        dataSets: ["B1:B3"],
         dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A2:A3",
+        labelRange: "A2:A3",
         type: "bar",
       },
     });
@@ -691,12 +691,16 @@ describe("sheets", () => {
             sheetId: "1",
             zone: toZone("B1"),
           },
+          inputValue: "B1:B3",
         },
       ],
       labelRange: {
-        prefixSheet: true,
-        sheetId: "1",
-        zone: toZone("A2:A3"),
+        range: {
+          prefixSheet: false,
+          sheetId: "1",
+          zone: toZone("A2:A3"),
+        },
+        inputValue: "A2:A3",
       },
       sheetId: "1",
       title: "hello1",
@@ -715,12 +719,16 @@ describe("sheets", () => {
             sheetId: "1",
             zone: toZone("B1"),
           },
+          inputValue: "B1:B4",
         },
       ],
       labelRange: {
-        prefixSheet: true,
-        sheetId: "1",
-        zone: toZone("A2:A4"),
+        range: {
+          prefixSheet: false,
+          sheetId: "1",
+          zone: toZone("A2:A4"),
+        },
+        inputValue: "A2:A4",
       },
       sheetId: "1",
       title: "test 1",
