@@ -935,6 +935,75 @@ describe("multiple sheets", function () {
     expect(chart.data!.labels).toEqual(["P1", "miam", "P3"]);
   });
   test.skip("change title then activate the chart sheet (it should be up-to-date)", () => {});
+  test("create a chart on a sheet with data from another sheet", () => {
+    model.dispatch("CREATE_SHEET", { name: "hello", activate: true, sheetId: "42", position: 1 });
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId,
+      definition: {
+        title: "title",
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "bar",
+      },
+    });
+    const chart = model.getters.getChartRuntime("1")!;
+    const chartDefinition = model.getters.getChartDefinition("1");
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
+    expect(chartDefinition).toMatchObject({
+      dataSets: [
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("B1:B4"),
+          },
+          labelCell: {
+            invalidSheetName: undefined,
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("B1"),
+          },
+        },
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("C1:C4"),
+          },
+          labelCell: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("C1"),
+          },
+        },
+      ],
+      sheetId: "42",
+    });
+  });
+  test("export with chart data from a sheet that was deleted, than import data doesn't crash", () => {
+    const originSheet = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_SHEET", { name: "hello", activate: true, sheetId: "42", position: 1 });
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: "42",
+      definition: {
+        title: "title",
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "bar",
+      },
+    });
+    model.dispatch("DELETE_SHEET", { sheetId: originSheet });
+    const exportedData = model.exportData();
+    const newModel = new Model(exportedData);
+    const chart = newModel.getters.getChartRuntime("1")!;
+    expect(chart).toBeDefined();
+  });
 });
 
 describe("undo/redo", () => {

@@ -105,16 +105,24 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   getChartDefinitionUI(sheetId: UID, figureId: UID): CreateChartDefinition {
     const data: ChartDefinition = this.chartFigures[figureId];
     const dataSets: string[] = data.dataSets
-      .map((ds: DataSet) => (ds ? this.getters.getRangeString(ds.dataRange, sheetId) : ""))
+      .map((ds: DataSet) => {
+        if (ds) {
+          const rangeString = this.getters.getRangeString(ds.dataRange, sheetId);
+          return rangeString === "#REF" ? ds.value : rangeString;
+        } else {
+          return "";
+        }
+      })
       .filter((ds) => {
         return ds !== ""; // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
       });
+    const labelString = this.getters.getRangeString(data.labelRange.range, sheetId);
     return {
       title: data && data.title ? data.title : "",
       dataSets,
-      labelRange: data.labelRange ? this.getters.getRangeString(data.labelRange, sheetId) : "",
+      labelRange: labelString === "#REF" ? data.labelRange.value : labelString,
       type: data ? data.type : "bar",
-      dataSetsHaveTitle: data ? Boolean(data.dataSets[0].labelCell) : false,
+      dataSetsHaveTitle: data && data.dataSets[0] ? Boolean(data.dataSets[0].labelCell) : false,
     };
   }
 
@@ -165,9 +173,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     for (let sheetXC of createCommand.dataSets) {
       const dataRange = this.getters.getRangeFromSheetXC(sheetId, sheetXC, undefined, true);
       const { zone, sheetId: dataSetSheetId, invalidSheetName } = dataRange;
-      if (invalidSheetName) {
-        continue;
-      }
       if (zone.left !== zone.right && zone.top !== zone.bottom) {
         // It's a rectangle. We treat all columns (arbitrary) as different data series.
         for (let column = zone.left; column <= zone.right; column++) {
@@ -188,14 +193,18 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
                     left: columnZone.left,
                     right: columnZone.left,
                   }
-                : undefined
+                : undefined,
+              sheetXC,
+              invalidSheetName
             )
           );
         }
       } else if (zone.left === zone.right && zone.top === zone.bottom) {
         // A single cell. If it's only the title, the dataset is not added.
         if (!createCommand.dataSetsHaveTitle) {
-          dataSets.push(this.createDataSet(dataSetSheetId, zone, undefined));
+          dataSets.push(
+            this.createDataSet(dataSetSheetId, zone, undefined, sheetXC, invalidSheetName)
+          );
         }
       } else {
         /* 1 row or 1 column */
@@ -210,36 +219,55 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
                   left: zone.left,
                   right: zone.left,
                 }
-              : undefined
+              : undefined,
+            sheetXC,
+            invalidSheetName
           )
         );
       }
     }
-    const labelRange = this.getters.getRangeFromSheetXC(sheetId, createCommand.labelRange);
+    const range = this.getters.getRangeFromSheetXC(sheetId, createCommand.labelRange);
     return {
       title: createCommand.title,
       type: createCommand.type,
       dataSets: dataSets,
-      labelRange,
+      labelRange: { range, value: createCommand.labelRange },
       sheetId: sheetId,
     };
   }
 
-  private createDataSet(sheetId: UID, fullZone: Zone, titleZone: Zone | undefined): DataSet {
+  private createDataSet(
+    sheetId: UID,
+    fullZone: Zone,
+    titleZone: Zone | undefined,
+    value: string,
+    invalidSheetName: string | undefined
+  ): DataSet {
     if (fullZone.left !== fullZone.right && fullZone.top !== fullZone.bottom) {
       throw new Error(`Zone should be a single column or row: ${zoneToXc(fullZone)}`);
     }
     if (titleZone) {
-      const dataXC = zoneToXc(fullZone);
-      const labelCellXC = zoneToXc(titleZone);
+      const dataXC = invalidSheetName
+        ? invalidSheetName + "!" + zoneToXc(fullZone)
+        : zoneToXc(fullZone);
+      const labelCellXC = invalidSheetName
+        ? invalidSheetName + "!" + zoneToXc(titleZone)
+        : zoneToXc(titleZone);
+      const labelCell = this.getters.getRangeFromSheetXC(sheetId, labelCellXC);
+      const dataRange = this.getters.getRangeFromSheetXC(sheetId, dataXC);
       return {
-        labelCell: this.getters.getRangeFromSheetXC(sheetId, labelCellXC),
-        dataRange: this.getters.getRangeFromSheetXC(sheetId, dataXC),
+        labelCell,
+        dataRange,
+        value,
       };
     } else {
+      const dataXC = invalidSheetName
+        ? invalidSheetName + "!" + zoneToXc(fullZone)
+        : zoneToXc(fullZone);
       return {
         labelCell: undefined,
-        dataRange: this.getters.getRangeFromSheetXC(sheetId, zoneToXc(fullZone)),
+        dataRange: this.getters.getRangeFromSheetXC(sheetId, dataXC),
+        value,
       };
     }
   }

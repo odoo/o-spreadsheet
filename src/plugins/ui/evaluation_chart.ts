@@ -59,6 +59,7 @@ export class EvaluationChartPlugin extends UIPlugin {
         break;
       case "UNDO":
       case "REDO":
+      case "DELETE_SHEET":
         for (let chartId of Object.keys(this.chartRuntime)) {
           this.outOfDate.add(chartId);
         }
@@ -162,7 +163,7 @@ export class EvaluationChartPlugin extends UIPlugin {
     if (chart === undefined) {
       return false;
     }
-    if (chart.labelRange && isInside(col, row, chart.labelRange.zone)) {
+    if (chart.labelRange && isInside(col, row, chart.labelRange.range.zone)) {
       return true;
     }
     for (let ds of chart.dataSets) {
@@ -177,7 +178,10 @@ export class EvaluationChartPlugin extends UIPlugin {
   private mapDefinitionToRuntime(definition: ChartDefinition): ChartConfiguration {
     let labels: string[] = [];
     if (definition.labelRange) {
-      const rangeString = this.getters.getRangeString(definition.labelRange, definition.sheetId);
+      const rangeString = this.getters.getRangeString(
+        definition.labelRange.range,
+        definition.sheetId
+      );
       if (rangeString !== "#REF") {
         labels = this.getters.getRangeFormattedValues(rangeString, definition.sheetId).flat(1);
       }
