@@ -163,7 +163,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   ): ChartDefinition {
     let dataSets: DataSet[] = [];
     for (let sheetXC of createCommand.dataSets) {
-      const dataRange = this.getters.getRangeFromSheetXC(sheetId, sheetXC, undefined, true);
+      const dataRange = this.getters.getRangeFromSheetXC(sheetId, sheetXC);
       const { zone, sheetId: dataSetSheetId, invalidSheetName } = dataRange;
       if (invalidSheetName) {
         continue;

@@ -144,7 +144,7 @@ export class EvaluationPlugin extends UIPlugin {
 
     const ranges: Range[] = [];
     for (let xc of formulaString.dependencies) {
-      ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc, undefined, true));
+      ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
     }
 
     return compiledFormula(ranges, sheetId, ...params);

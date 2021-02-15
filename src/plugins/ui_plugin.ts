@@ -5,7 +5,7 @@ import { BasePlugin } from "./base_plugin";
 
 type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSidePanel" | "editText">;
 
-export interface UIPluginConstuctor {
+export interface UIPluginConstructor {
   new (
     getters: Getters,
     history: WHistory,

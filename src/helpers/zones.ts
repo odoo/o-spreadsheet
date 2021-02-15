@@ -279,3 +279,20 @@ export function zoneToDimension(zone: Zone): ZoneDimension {
     width: zone.right - zone.left + 1,
   };
 }
+
+export function createAdaptedZone(
+  zone: Zone,
+  dimension: "columns" | "rows",
+  operation: "MOVE" | "RESIZE",
+  by: number
+): Zone {
+  const start: "left" | "top" = dimension === "columns" ? "left" : "top";
+  const end: "right" | "bottom" = dimension === "columns" ? "right" : "bottom";
+
+  const newZone = { ...zone };
+  if (operation === "MOVE") {
+    newZone[start] += by;
+  }
+  newZone[end] += by;
+  return newZone;
+}

@@ -387,8 +387,8 @@ describe("compile functions", () => {
 
       const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
 
-      const rangeA1 = [{ zone: toZone("A1"), id: "R1", sheetId: "ABC" }] as Range[];
-      const rangeA1ToB2 = [{ zone: toZone("A1:B2"), id: "R1", sheetId: "ABC" }] as Range[];
+      const rangeA1 = [{ zone: toZone("A1"), sheetId: "ABC" }] as Range[];
+      const rangeA1ToB2 = [{ zone: toZone("A1:B2"), sheetId: "ABC" }] as Range[];
 
       compiledFormula1(rangeA1, "ABC", refFn, ensureRange, ctx);
       expect(refFn).toHaveBeenCalledWith(0, rangeA1, "ABC", true);

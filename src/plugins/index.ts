@@ -5,7 +5,6 @@ import { ChartPlugin } from "./core/chart";
 import { ConditionalFormatPlugin } from "./core/conditional_format";
 import { FigurePlugin } from "./core/figures";
 import { MergePlugin } from "./core/merge";
-import { RangePlugin } from "./core/range";
 import { SheetPlugin } from "./core/sheet";
 import { CorePluginConstructor } from "./core_plugin";
 import { AutofillPlugin } from "./ui/autofill";
@@ -22,11 +21,10 @@ import { SelectionInputPlugin } from "./ui/selection_inputs";
 import { SortPlugin } from "./ui/sort";
 import { UIOptionsPlugin } from "./ui/ui_options";
 import { SheetUIPlugin } from "./ui/ui_sheet";
-import { UIPluginConstuctor } from "./ui_plugin";
+import { UIPluginConstructor } from "./ui_plugin";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("sheet", SheetPlugin)
-  .add("range", RangePlugin)
   .add("cell", CellPlugin)
   .add("merge", MergePlugin)
   .add("borders", BordersPlugin)
@@ -34,7 +32,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("figures", FigurePlugin)
   .add("chart", ChartPlugin);
 
-export const uiPluginRegistry = new Registry<UIPluginConstuctor>()
+export const uiPluginRegistry = new Registry<UIPluginConstructor>()
   .add("ui_sheet", SheetUIPlugin)
   .add("ui_options", UIOptionsPlugin)
   .add("evaluation", EvaluationPlugin)
