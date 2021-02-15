@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { toCartesian, toZone } from "../../src/helpers";
 import { AutofillPlugin } from "../../src/plugins/ui/autofill";
-import { Border, ConditionalFormat, Style } from "../../src/types";
+import { Border, ConditionalFormatUI, Style } from "../../src/types";
 import { DIRECTION } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
 import {
@@ -142,7 +142,7 @@ describe("Autofill", () => {
       content: "1",
     });
     autofill("A1", "A4");
-    const cf: ConditionalFormat = {
+    const cf: ConditionalFormatUI = {
       ranges: ["A1", "A2"],
       id: "1",
       rule: {

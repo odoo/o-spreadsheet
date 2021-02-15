@@ -1,12 +1,7 @@
 import { compile, normalize } from "../../formulas/index";
+import { isInside } from "../../helpers/index";
 import {
-  toZone,
-  updateAddColumns,
-  updateAddRows,
-  updateRemoveColumns,
-  updateRemoveRows,
-} from "../../helpers/index";
-import {
+  ApplyRangeChange,
   CancelledReason,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
@@ -14,11 +9,12 @@ import {
   Command,
   CommandResult,
   ConditionalFormat,
+  ConditionalFormatUI,
   SingleColorRules,
   UID,
   WorkbookData,
   Zone,
-} from "../../types/index";
+} from "../../types";
 import { CorePlugin } from "../core_plugin";
 
 // -----------------------------------------------------------------------------
@@ -28,12 +24,63 @@ import { CorePlugin } from "../core_plugin";
 interface ConditionalFormatState {
   readonly cfRules: { [sheet: string]: ConditionalFormat[] };
 }
+
 export class ConditionalFormatPlugin
   extends CorePlugin<ConditionalFormatState>
   implements ConditionalFormatState {
   static getters = ["getConditionalFormats", "getRulesSelection", "getRulesByCell"];
 
   readonly cfRules: { [sheet: string]: ConditionalFormat[] } = {};
+
+  loopThroughRangesOfSheet(sheetId: UID, applyChange: ApplyRangeChange) {
+    for (const rule of this.cfRules[sheetId]) {
+      for (const range of rule.ranges) {
+        const change = applyChange(range);
+        switch (change.changeType) {
+          case "REMOVE":
+            let copy = rule.ranges.slice();
+            copy.splice(rule.ranges.indexOf(range), 1);
+            if (copy.length >= 1) {
+              this.history.update(
+                "cfRules",
+                sheetId,
+                this.cfRules[sheetId].indexOf(rule),
+                "ranges",
+                copy
+              );
+            } else {
+              this.removeConditionalFormatting(rule.id, sheetId);
+              break; // do not process the potential other ranges of this CF
+            }
+
+            break;
+          case "RESIZE":
+          case "MOVE":
+          case "CHANGE":
+            this.history.update(
+              "cfRules",
+              sheetId,
+              this.cfRules[sheetId].indexOf(rule),
+              "ranges",
+              rule.ranges.indexOf(range),
+              change.range
+            );
+            break;
+        }
+      }
+    }
+  }
+
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
+    if (sheetId) {
+      this.loopThroughRangesOfSheet(sheetId, applyChange);
+    } else {
+      for (const sheetId of Object.keys(this.cfRules)) {
+        this.loopThroughRangesOfSheet(sheetId, applyChange);
+      }
+    }
+    return;
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -72,28 +119,14 @@ export class ConditionalFormatPlugin
       case "REMOVE_CONDITIONAL_FORMAT":
         this.removeConditionalFormatting(cmd.id, cmd.sheetId);
         break;
-      case "REMOVE_COLUMNS":
-        this.adaptcfRules(cmd.sheetId, (range: string) => updateRemoveColumns(range, cmd.columns));
-        break;
-      case "REMOVE_ROWS":
-        this.adaptcfRules(cmd.sheetId, (range: string) => updateRemoveRows(range, cmd.rows));
-        break;
-      case "ADD_COLUMNS":
-        const column = cmd.position === "before" ? cmd.column : cmd.column + 1;
-        this.adaptcfRules(cmd.sheetId, (range: string) =>
-          updateAddColumns(range, column, cmd.quantity)
-        );
-        break;
-      case "ADD_ROWS":
-        const row = cmd.position === "before" ? cmd.row : cmd.row + 1;
-        this.adaptcfRules(cmd.sheetId, (range: string) => updateAddRows(range, row, cmd.quantity));
-        break;
     }
   }
 
   import(data: WorkbookData) {
     for (let sheet of data.sheets) {
-      this.cfRules[sheet.id] = sheet.conditionalFormats;
+      this.cfRules[sheet.id] = sheet.conditionalFormats.map((rule) =>
+        this.mapUIRuleToRule(sheet.id, rule)
+      );
     }
   }
 
@@ -101,7 +134,9 @@ export class ConditionalFormatPlugin
     if (data.sheets) {
       for (let sheet of data.sheets) {
         if (this.cfRules[sheet.id]) {
-          sheet.conditionalFormats = this.cfRules[sheet.id];
+          sheet.conditionalFormats = this.cfRules[sheet.id].map((rule) =>
+            this.mapRuleToUIRule(sheet.id, rule)
+          );
         }
       }
     }
@@ -112,10 +147,10 @@ export class ConditionalFormatPlugin
   // ---------------------------------------------------------------------------
 
   /**
-   * Returns all the conditional format rules defined for the current sheet
+   * Returns all the conditional format rules defined for the current sheet to display the user
    */
-  getConditionalFormats(sheetId: UID): ConditionalFormat[] {
-    return this.cfRules[sheetId] || [];
+  getConditionalFormats(sheetId: UID): ConditionalFormatUI[] {
+    return this.cfRules[sheetId].map((cf) => this.mapRuleToUIRule(sheetId, cf)) || [];
   }
 
   getRulesSelection(sheetId: UID, selection: [Zone]): string[] {
@@ -128,6 +163,7 @@ export class ConditionalFormatPlugin
     });
     return Array.from(ruleIds);
   }
+
   getRulesByZone(sheetId: UID, zone: Zone): Set<string> {
     const ruleIds: Set<string> = new Set();
     for (let row = zone.top; row <= zone.bottom; row++) {
@@ -140,37 +176,58 @@ export class ConditionalFormatPlugin
     }
     return ruleIds;
   }
-  getRulesByCell(sheetId: UID, cellCol: number, cellRow: number): Set<ConditionalFormat> {
-    const rulesId: Set<ConditionalFormat> = new Set();
+
+  getRulesByCell(sheetId: UID, cellCol: number, cellRow: number): Set<ConditionalFormatUI> {
+    const rules: ConditionalFormat[] = [];
     for (let cf of this.cfRules[sheetId]) {
-      for (let ref of cf.ranges) {
-        const zone: Zone = toZone(ref);
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          for (let col = zone.left; col <= zone.right; col++) {
-            if (cellCol === col && cellRow === row) {
-              rulesId.add(cf);
-            }
-          }
+      for (let range of cf.ranges) {
+        if (isInside(cellCol, cellRow, range.zone)) {
+          rules.push(cf);
         }
       }
     }
-    return rulesId;
+
+    return new Set<ConditionalFormatUI>(
+      rules.map((rule) => {
+        return this.mapRuleToUIRule(sheetId, rule);
+      })
+    );
   }
 
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
 
+  private mapRuleToUIRule(sheetId: UID, cf: ConditionalFormat): ConditionalFormatUI {
+    return {
+      ...cf,
+      ranges: cf.ranges.map((range) => {
+        return this.getters.getRangeString(range, sheetId);
+      }),
+    };
+  }
+
+  private mapUIRuleToRule(sheet: UID, cf: ConditionalFormatUI): ConditionalFormat {
+    const conditionalFormat = {
+      ...cf,
+      ranges: cf.ranges.map((range) => {
+        return this.getters.getRangeFromSheetXC(sheet, range);
+      }),
+    };
+    return conditionalFormat;
+  }
+
   /**
    * Add or replace a conditional format rule
    */
-  private addConditionalFormatting(cf: ConditionalFormat, sheet: string) {
+  private addConditionalFormatting(cf: ConditionalFormatUI, sheet: string) {
     const currentCF = this.cfRules[sheet].slice();
     const replaceIndex = currentCF.findIndex((c) => c.id === cf.id);
+    const newCF = this.mapUIRuleToRule(sheet, cf);
     if (replaceIndex > -1) {
-      currentCF.splice(replaceIndex, 1, cf);
+      currentCF.splice(replaceIndex, 1, newCF);
     } else {
-      currentCF.push(cf);
+      currentCF.push(newCF);
     }
     this.history.update("cfRules", sheet, currentCF);
   }
@@ -250,6 +307,7 @@ export class ConditionalFormatPlugin
     }
     return;
   }
+
   private checkColorScaleRule(rule: ColorScaleRule): CancelledReason | null {
     const error =
       this.checkPoint(rule.minimum, "min") ||
@@ -285,24 +343,6 @@ export class ConditionalFormatPlugin
       return CancelledReason.MidBiggerThanMax;
     }
     return null;
-  }
-  private adaptcfRules(sheet: string, updateCb: (range: string) => string | null) {
-    const currentCfs = this.cfRules[sheet];
-    const newCfs: ConditionalFormat[] = [];
-    for (let cf of currentCfs) {
-      const updatedRanges: string[] = [];
-      for (let range of cf.ranges) {
-        const updatedRange = updateCb(range);
-        if (updatedRange) {
-          updatedRanges.push(updatedRange);
-        }
-      }
-      if (updatedRanges.length === 0) {
-        continue;
-      }
-      newCfs.push({ ...cf, ranges: updatedRanges });
-    }
-    this.history.update("cfRules", sheet, newCfs);
   }
 
   private removeConditionalFormatting(id: string, sheet: string) {

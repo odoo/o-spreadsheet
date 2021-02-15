@@ -3,6 +3,7 @@ import { colorNumberString, uuidv4 } from "../../helpers/index";
 import {
   ColorScaleRule,
   ConditionalFormat,
+  ConditionalFormatUI,
   SingleColorRules,
   SpreadsheetEnv,
   Zone,
@@ -241,7 +242,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
   //@ts-ignore --> used in XML template
   private cellIsOperators = cellIsOperators;
   state = useState({
-    currentCF: undefined as undefined | ConditionalFormat,
+    currentCF: undefined as undefined | ConditionalFormatUI,
     currentRanges: [] as string[],
     mode: "list" as "list" | "edit" | "add",
     toRuleType: "CellIsRule",
@@ -261,7 +262,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     }
   }
 
-  get conditionalFormats(): ConditionalFormat[] {
+  get conditionalFormats(): ConditionalFormatUI[] {
     return this.getters.getConditionalFormats(this.getters.getActiveSheetId());
   }
 
@@ -366,7 +367,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     }
   }
 
-  defaultCellIsRule(): ConditionalFormat {
+  defaultCellIsRule(): ConditionalFormatUI {
     return {
       rule: {
         type: "CellIsRule",
@@ -381,7 +382,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     };
   }
 
-  defaultColorScaleRule(): ConditionalFormat {
+  defaultColorScaleRule(): ConditionalFormatUI {
     return {
       rule: {
         minimum: { type: "value", color: 0 },

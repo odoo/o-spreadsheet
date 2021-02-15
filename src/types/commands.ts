@@ -1,7 +1,13 @@
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
-import { Figure } from "./figure";
-import { BorderCommand, ConditionalFormat, CreateChartDefinition, Style, Zone } from "./index";
+import {
+  BorderCommand,
+  ConditionalFormatUI,
+  CreateChartDefinition,
+  Figure,
+  Style,
+  Zone,
+} from "./index";
 import { Border, Cell, UID } from "./misc";
 
 // -----------------------------------------------------------------------------
@@ -168,7 +174,7 @@ export interface SetDecimalCommand extends BaseCommand {
  */
 export interface AddConditionalFormatCommand extends BaseCommand {
   type: "ADD_CONDITIONAL_FORMAT";
-  cf: ConditionalFormat;
+  cf: ConditionalFormatUI;
   sheetId: UID;
 }
 

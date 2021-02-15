@@ -4,7 +4,7 @@ import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
-import { ConditionalFormat, SpreadsheetEnv } from "../../src/types";
+import { ConditionalFormatUI, SpreadsheetEnv } from "../../src/types";
 import { simulateClick, triggerMouseEvent } from "../dom_helper";
 import {
   getCell,
@@ -717,7 +717,7 @@ describe("Context Menu - CF", () => {
     const parent = new GridParent(model);
     await parent.mount(fixture);
 
-    const cfRule: ConditionalFormat = {
+    const cfRule: ConditionalFormatUI = {
       ranges: ["A1:C7"],
       id: "1",
       rule: {
@@ -749,7 +749,7 @@ describe("Context Menu - CF", () => {
     const parent = new GridParent(model);
     await parent.mount(fixture);
 
-    const cfRule1: ConditionalFormat = {
+    const cfRule1: ConditionalFormatUI = {
       ranges: ["A1:C7"],
       id: "1",
       rule: {
@@ -759,7 +759,7 @@ describe("Context Menu - CF", () => {
         style: { fillColor: "#FF0000" },
       },
     };
-    const cfRule2: ConditionalFormat = {
+    const cfRule2: ConditionalFormatUI = {
       ranges: ["A1:C7"],
       id: "2",
       rule: {
@@ -794,7 +794,7 @@ describe("Context Menu - CF", () => {
     const parent = new GridParent(model);
     await parent.mount(fixture);
 
-    const cfRule1: ConditionalFormat = {
+    const cfRule1: ConditionalFormatUI = {
       ranges: ["A1:A10"],
       id: "1",
       rule: {

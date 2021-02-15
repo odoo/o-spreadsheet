@@ -1,4 +1,4 @@
-import { ConditionalFormat } from "./conditional_formatting";
+import { ConditionalFormatUI } from "./conditional_formatting";
 import { Border, Style, UID } from "./misc";
 
 export type NormalizedFormula = {
@@ -40,7 +40,7 @@ export interface SheetData {
   figures: FigureData<any>[];
   cols: { [key: number]: HeaderData };
   rows: { [key: number]: HeaderData };
-  conditionalFormats: ConditionalFormat[];
+  conditionalFormats: ConditionalFormatUI[];
 }
 
 export interface WorkbookData {

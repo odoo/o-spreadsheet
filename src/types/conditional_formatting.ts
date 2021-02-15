@@ -1,4 +1,4 @@
-import { Style } from "./misc";
+import { Range, Style } from "./misc";
 
 // -----------------------------------------------------------------------------
 // Conditional Formatting
@@ -8,11 +8,15 @@ import { Style } from "./misc";
  * https://docs.microsoft.com/en-us/openspecs/office_standards/ms-xlsx/025ea6e4-ad42-43ea-a016-16f4e4688ac8
  */
 
-export interface ConditionalFormat {
+export interface ConditionalFormatUI {
   id: string;
   rule: ConditionalFormatRule; // the rules to apply, in order;
   stopIfTrue?: boolean; // the next rules must not be evaluated/applied if this rule is true
   ranges: string[]; // the cells/ranges on which to apply this conditional formatting
+}
+
+export interface ConditionalFormat extends Omit<ConditionalFormatUI, "ranges"> {
+  ranges: Range[];
 }
 
 export type ConditionalFormatRule = SingleColorRules | ColorScaleRule; //| DataBarRule | IconSetRule;

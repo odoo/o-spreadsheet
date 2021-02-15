@@ -4,7 +4,7 @@ import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { Model } from "../../src/model";
 import { topbarComponentRegistry } from "../../src/registries";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
-import { ConditionalFormat } from "../../src/types";
+import { ConditionalFormatUI } from "../../src/types";
 import { triggerMouseEvent } from "../dom_helper";
 import {
   getBorder,
@@ -355,7 +355,7 @@ describe("TopBar - CF", () => {
     const parent = new GridParent(model);
     await parent.mount(fixture);
 
-    const cfRule: ConditionalFormat = {
+    const cfRule: ConditionalFormatUI = {
       ranges: ["A1:C7"],
       id: "1",
       rule: {
@@ -389,7 +389,7 @@ describe("TopBar - CF", () => {
     const parent = new GridParent(model);
     await parent.mount(fixture);
 
-    const cfRule1: ConditionalFormat = {
+    const cfRule1: ConditionalFormatUI = {
       ranges: ["A1:C7"],
       id: "1",
       rule: {
@@ -399,7 +399,7 @@ describe("TopBar - CF", () => {
         style: { fillColor: "#FF0000" },
       },
     };
-    const cfRule2: ConditionalFormat = {
+    const cfRule2: ConditionalFormatUI = {
       ranges: ["A1:C7"],
       id: "2",
       rule: {

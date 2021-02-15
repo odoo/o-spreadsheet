@@ -14,7 +14,7 @@ import {
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
   CommandTypes,
-  ConditionalFormat,
+  ConditionalFormatUI,
   GridRenderingContext,
   Merge,
   Position,
@@ -524,7 +524,7 @@ export function createEqualCF(
   value: string,
   style: Style,
   id: string
-): ConditionalFormat {
+): ConditionalFormatUI {
   return {
     ranges,
     id,
@@ -538,7 +538,7 @@ export function createColorScale(
   min: ColorScaleThreshold,
   max: ColorScaleThreshold,
   mid?: ColorScaleMidPointThreshold
-): ConditionalFormat {
+): ConditionalFormatUI {
   return {
     ranges,
     id,

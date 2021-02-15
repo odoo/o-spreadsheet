@@ -10,7 +10,7 @@ import {
   ColorScaleRule,
   ColorScaleThreshold,
   Command,
-  ConditionalFormat,
+  ConditionalFormatUI,
   Style,
   UID,
   Zone,
@@ -382,7 +382,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   /**
    * Add or remove cells to a given conditional formatting rule.
    */
-  private adaptRules(sheetId: UID, cf: ConditionalFormat, toAdd: string[], toRemove: string[]) {
+  private adaptRules(sheetId: UID, cf: ConditionalFormatUI, toAdd: string[], toRemove: string[]) {
     if (toAdd.length === 0 && toRemove.length === 0) {
       return;
     }
