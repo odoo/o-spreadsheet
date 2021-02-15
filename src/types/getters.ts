@@ -79,7 +79,6 @@ export interface CoreGetters {
   getChartDefinition: ChartPlugin["getChartDefinition"];
   getChartDefinitionUI: ChartPlugin["getChartDefinitionUI"];
 
-  getRangeById: RangePlugin["getRangeById"];
   getRangeString: RangePlugin["getRangeString"];
   getRangeFromSheetXC: RangePlugin["getRangeFromSheetXC"];
 }

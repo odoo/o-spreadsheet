@@ -17,6 +17,7 @@ import {
   ReferenceDenormalizer,
   UID,
 } from "../../types/index";
+import { RangePlugin } from "../core/range";
 import { UIPlugin } from "../ui_plugin";
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {
@@ -76,10 +77,11 @@ export class EvaluationPlugin extends UIPlugin {
   constructor(
     getters: Getters,
     history: WHistory,
+    range: RangePlugin,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    super(getters, history, dispatch, config);
+    super(getters, history, range, dispatch, config);
     this.evalContext = config.evalContext;
   }
 
@@ -144,7 +146,7 @@ export class EvaluationPlugin extends UIPlugin {
 
     const ranges: Range[] = [];
     for (let xc of formulaString.dependencies) {
-      ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc, undefined, true));
+      ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
     }
 
     return compiledFormula(ranges, sheetId, ...params);

@@ -18,6 +18,7 @@ import { _lt } from "../../translation";
 import {
   AddColumnsCommand,
   AddRowsCommand,
+  ApplyRangeChange,
   Cell,
   CellData,
   CellPosition,
@@ -65,6 +66,35 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   ];
 
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
+
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
+    for (const sheet of Object.keys(this.cells)) {
+      for (const cell of Object.values(this.cells[sheet] || {})) {
+        if (cell.type === CellType.formula) {
+          for (const range of cell.dependencies) {
+            if (!sheetId || range.sheetId === sheetId) {
+              const change = applyChange(range);
+              switch (change.changeType) {
+                case "REMOVE":
+                case "RESIZE":
+                case "MOVE":
+                case "CHANGE":
+                  this.history.update(
+                    "cells",
+                    sheet,
+                    cell.id,
+                    "dependencies" as any,
+                    cell.dependencies.indexOf(range),
+                    change.range
+                  );
+                  break;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling

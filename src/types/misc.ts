@@ -57,10 +57,8 @@ export interface RangePart {
 }
 
 export type Range = {
-  id: UID;
   zone: Zone; // the zone the range actually spans
   sheetId: UID; // the sheet on which the range is defined
-  onChange?: onRangeChange; // the callbacks that needs to be called if a range is modified
   invalidSheetName?: string; // the name of any sheet that is invalid
   parts: RangePart[];
   prefixSheet: boolean; // true if the user provided the range with the sheet name, so it has to be recomputed with the sheet name too
@@ -174,5 +172,12 @@ export const enum DIRECTION {
   RIGHT,
 }
 
-export type ChangeType = "REMOVE" | "RESIZE" | "MOVE" | "CHANGE";
-export type onRangeChange = (changeType: ChangeType, sheetId: UID) => void;
+export type ChangeType = "REMOVE" | "RESIZE" | "MOVE" | "CHANGE" | "NONE";
+export type ApplyRangeChangeResult =
+  | { changeType: Exclude<ChangeType, "NONE">; range: Range }
+  | { changeType: "NONE" };
+export type ApplyRangeChange = (range: Range) => ApplyRangeChangeResult;
+
+export interface RangeProvider {
+  adaptRanges: (applyChange: ApplyRangeChange, sheetId?: UID) => void;
+}

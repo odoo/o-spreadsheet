@@ -2,9 +2,10 @@ import * as owl from "@odoo/owl";
 import { createEmptyWorkbookData, load } from "./data";
 import { DEBUG, setIsFastStrategy } from "./helpers/index";
 import { WHistory } from "./history";
+import { RangePlugin } from "./plugins/core/range";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
-import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
+import { UIPlugin, UIPluginConstructor } from "./plugins/ui_plugin";
 import { _lt } from "./translation";
 import {
   Command,
@@ -104,7 +105,13 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       canUndo: history.canUndo.bind(history),
       canRedo: history.canRedo.bind(history),
     } as Getters;
-    this.handlers = [history];
+
+    const range = new RangePlugin(this.getters);
+
+    this.getters.getRangeString = range.getRangeString.bind(range);
+    this.getters.getRangeFromSheetXC = range.getRangeFromSheetXC.bind(range);
+
+    this.handlers = [history, range];
 
     this.config = {
       mode: config.mode || "normal",
@@ -134,11 +141,13 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     delete DEBUG.model;
   }
 
-  private setupUiPlugin(Plugin: UIPluginConstuctor) {
+  private setupUiPlugin(Plugin: UIPluginConstructor) {
     const dispatch = this.dispatch.bind(this);
     const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
+    const range = this.handlers.find((p) => p instanceof RangePlugin)! as RangePlugin;
+
     if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(this.getters, history, dispatch, this.config);
+      const plugin = new Plugin(this.getters, history, range, dispatch, this.config);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
           throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
@@ -161,11 +170,12 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   private setupPlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
     const dispatch = this.dispatch.bind(this);
     const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
+    const range = this.handlers.find((p) => p instanceof RangePlugin)! as RangePlugin;
 
     setIsFastStrategy(true);
 
     if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(this.getters, history, dispatch, this.config);
+      const plugin = new Plugin(this.getters, history, range, dispatch, this.config);
       plugin.import(data);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {

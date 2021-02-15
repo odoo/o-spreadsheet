@@ -1,13 +1,12 @@
-import { Model } from "../../src";
-import { toZone } from "../../src/helpers";
+import { CorePlugin, Model } from "../../src";
 import { corePluginRegistry } from "../../src/plugins";
 import { INCORRECT_RANGE_STRING } from "../../src/plugins/core/range";
-import { CorePlugin } from "../../src/plugins/core_plugin";
-import { BaseCommand, Command, Range } from "../../src/types";
+import { ApplyRangeChange, BaseCommand, Command, Range, UID } from "../../src/types";
 import "../canvas.mock";
+import { mockUuidV4To } from "../helpers";
+jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let m;
-let notificationSpy;
 
 export interface UseRange extends BaseCommand {
   type: "USE_RANGE";
@@ -28,18 +27,31 @@ class PluginTestRange extends CorePlugin {
 
   ranges: Range[] = [];
 
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
+    for (let i = 0; i < this.ranges.length; i++) {
+      let range = this.ranges[i];
+      const change = applyChange(range);
+      switch (change.changeType) {
+        case "REMOVE":
+        case "RESIZE":
+        case "MOVE":
+        case "CHANGE":
+          this.ranges[i] = change.range;
+          break;
+      }
+    }
+  }
+
   handle(cmd: TestCommands) {
     switch (cmd.type) {
       case "USE_RANGE":
         for (let r of cmd.rangesXC) {
-          this.ranges.push(this.getters.getRangeFromSheetXC(cmd.sheetId, r, this.rangeChanged));
+          this.ranges.push(this.getters.getRangeFromSheetXC(cmd.sheetId, r));
         }
         break;
       case "USE_TRANSIENT_RANGE":
         for (let r of cmd.rangesXC) {
-          this.ranges.push(
-            this.getters.getRangeFromSheetXC(cmd.sheetId, r, this.rangeChanged, true)
-          );
+          this.ranges.push(this.getters.getRangeFromSheetXC(cmd.sheetId, r));
         }
         break;
     }
@@ -52,25 +64,19 @@ class PluginTestRange extends CorePlugin {
   getRanges() {
     return this.ranges;
   }
-
-  rangeChanged() {
-    console.log("called");
-  }
 }
 
 corePluginRegistry.add("testRange", PluginTestRange);
 
 describe("range plugin", () => {
   beforeEach(() => {
+    mockUuidV4To(1);
     m = new Model({
       sheets: [
         { id: "s1", name: "s1", rows: 10, cols: 10 },
         { id: "s2", name: "s 2", rows: 10, cols: 10 },
       ],
     });
-    notificationSpy = jest
-      .spyOn(PluginTestRange.prototype, "rangeChanged")
-      .mockImplementation(() => "Hello");
     m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["B2:D4"] });
   });
   afterEach(() => {
@@ -85,7 +91,7 @@ describe("range plugin", () => {
       });
 
       test("in the start", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [1] });
+        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [2] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
       });
 
@@ -112,7 +118,7 @@ describe("range plugin", () => {
       });
 
       test("in the start", () => {
-        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [1] });
+        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [2] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
       });
 
@@ -337,24 +343,6 @@ describe("range plugin", () => {
     });
   });
 
-  describe("change notification", () => {
-    test("a change should be notified", () => {
-      m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [2] });
-      expect(notificationSpy).toHaveBeenCalledTimes(1);
-      expect(notificationSpy).toHaveBeenCalledWith("RESIZE", "s1");
-    });
-    test("multiple changes of the same range should get notified only once", () => {
-      m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [1, 2] });
-      expect(notificationSpy).toHaveBeenCalledTimes(1);
-      expect(notificationSpy).toHaveBeenCalledWith("RESIZE", "s1");
-    });
-    test("multiple changes that results in the range disappearing should be notified only once", () => {
-      m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [1, 2, 3] });
-      expect(notificationSpy).toHaveBeenCalledTimes(1);
-      expect(notificationSpy).toHaveBeenCalledWith("REMOVE", "s1");
-    });
-  });
-
   describe("restoring a range as string", () => {
     test("range created from right to left have correct left (smaller) and right (bigger)", () => {
       let r = m.getters.getRangeFromSheetXC("s2", "c1:a1");
@@ -436,60 +424,6 @@ describe("range plugin", () => {
 
     test("requesting a range that doesn't exist", () => {
       expect(m.getters.getRangeString(undefined, "not there")).toBe(INCORRECT_RANGE_STRING);
-    });
-  });
-
-  describe("history", () => {
-    test("when a range is modified, undoing this restores the previous state", () => {
-      m = new Model({
-        sheets: [
-          {
-            id: "s1",
-            name: "s1",
-            rows: 10,
-            cols: 10,
-            cells: {
-              A1: { content: "1" },
-              A2: { content: "2" },
-              A3: { content: "5" },
-              A4: { content: "=sum(a1:a3)" },
-            },
-          },
-        ],
-      });
-      expect(m.getters.getCell("s1", 0, 3)!.value).toBe(8);
-      m.dispatch("REMOVE_ROWS", { rows: [1], sheetId: "s1" });
-      expect(m.getters.getCell("s1", 0, 2)!.value).toBe(6);
-      expect(m.getters.getFormulaCellContent("s1", m.getters.getCell("s1", 0, 2))).toBe(
-        "=sum(A1:A2)"
-      );
-      m.dispatch("UNDO");
-      expect(m.getters.getCell("s1", 0, 3)!.value).toBe(8);
-      expect(m.getters.getFormulaCellContent("s1", m.getters.getCell("s1", 0, 3))).toBe(
-        "=sum(A1:A3)"
-      );
-    });
-  });
-
-  describe("use transient ranges do not update the ranges", () => {
-    beforeEach(() => {
-      m.dispatch("USE_TRANSIENT_RANGE", {
-        sheetId: m.getters.getActiveSheetId(),
-        rangesXC: ["C3:D6"],
-      });
-    });
-    test("before, before the end", () => {
-      m.dispatch("ADD_ROWS", {
-        sheetId: m.getters.getActiveSheetId(),
-        row: 5,
-        quantity: 1,
-        position: "before",
-      });
-      expect(m.getters.getUsedRanges()).toEqual(["B2:D4", "C3:D6"]);
-      expect(m.getters.getRanges()).toMatchObject([
-        { zone: toZone("B2:D4") },
-        { zone: toZone("C3:D6") },
-      ]);
     });
   });
 });

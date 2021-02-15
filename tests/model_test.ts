@@ -13,6 +13,7 @@ import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
 import { SortPlugin } from "../src/plugins/ui/sort";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
 import { UIPlugin } from "../src/plugins/ui_plugin";
+import "./canvas.mock";
 import { getCell, setCellContent } from "./helpers";
 
 function getNbrPlugin(mode: Mode): number {
@@ -31,8 +32,8 @@ describe("Model", () => {
     const model = new Model({}, { mode: "headless" });
     expect(model["handlers"]).toHaveLength(12);
     expect(model["handlers"][0]).toBeInstanceOf(WHistory);
-    expect(model["handlers"][1]).toBeInstanceOf(SheetPlugin);
-    expect(model["handlers"][2]).toBeInstanceOf(RangePlugin);
+    expect(model["handlers"][1]).toBeInstanceOf(RangePlugin);
+    expect(model["handlers"][2]).toBeInstanceOf(SheetPlugin);
     expect(model["handlers"][3]).toBeInstanceOf(CellPlugin);
     expect(model["handlers"][4]).toBeInstanceOf(MergePlugin);
     expect(model["handlers"][5]).toBeInstanceOf(BordersPlugin);
@@ -47,19 +48,19 @@ describe("Model", () => {
   test("All plugin compatible with normal mode are loaded on normal mode", () => {
     const model = new Model();
     const nbr = getNbrPlugin("normal");
-    expect(model["handlers"]).toHaveLength(nbr + 1); //+1 for WHistory
+    expect(model["handlers"]).toHaveLength(nbr + 2); //+1 for WHistory +1 for Range
   });
 
   test("All plugin compatible with headless mode are loaded on headless mode", () => {
     const model = new Model({}, { mode: "headless" });
     const nbr = getNbrPlugin("headless");
-    expect(model["handlers"]).toHaveLength(nbr + 1); //+1 for WHistory
+    expect(model["handlers"]).toHaveLength(nbr + 2); //+1 for WHistory +1 for Range
   });
 
   test("All plugin compatible with readonly mode are loaded on readonly mode", () => {
     const model = new Model({}, { mode: "readonly" });
     const nbr = getNbrPlugin("readonly");
-    expect(model["handlers"]).toHaveLength(nbr + 1); //+1 for WHistory
+    expect(model["handlers"]).toHaveLength(nbr + 2); //+1 for WHistory +1 for Range
   });
 
   test("Model in headless mode should not evaluate cells", () => {

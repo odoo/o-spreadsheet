@@ -2,13 +2,15 @@ import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
 import { CommandDispatcher, Getters, GridRenderingContext, LAYERS } from "../types/index";
 import { BasePlugin } from "./base_plugin";
+import { RangePlugin } from "./core/range";
 
 type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSidePanel" | "editText">;
 
-export interface UIPluginConstuctor {
+export interface UIPluginConstructor {
   new (
     getters: Getters,
     history: WHistory,
+    range: RangePlugin,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ): UIPlugin;
@@ -30,10 +32,11 @@ export class UIPlugin<State = any> extends BasePlugin {
   constructor(
     getters: Getters,
     history: WHistory,
+    range: RangePlugin,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    super(history, dispatch, config);
+    super(history, range, dispatch, config);
     this.getters = getters;
     this.ui = config;
   }

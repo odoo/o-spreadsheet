@@ -649,7 +649,7 @@ describe("sheets", () => {
     expect(figure1).toEqual([
       { height: 500, id: "someuuid", tag: "chart", width: 800, x: 40, y: 0 },
     ]);
-    expect(figure2).toEqual([{ height: 500, id: "8", tag: "chart", width: 800, x: 0, y: 0 }]);
+    expect(figure2).toMatchObject([{ height: 500, tag: "chart", width: 800, x: 0, y: 0 }]);
   });
 
   test("Charts are correctly duplicated", () => {
@@ -702,7 +702,7 @@ describe("sheets", () => {
       title: "hello1",
       type: "bar",
     });
-    expect(model.getters.getChartDefinition("8")).toMatchObject({
+    expect(model.getters.getChartDefinition("3")).toMatchObject({
       dataSets: [
         {
           dataRange: {
@@ -841,10 +841,12 @@ describe("sheets", () => {
     const sheet2 = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
     model.dispatch("DELETE_SHEET", { sheetId: sheet2 });
-    expect(getCellText(model, "A1")).toBe("=#REF");
+    expect(getCellText(model, "A1")).toBe("=NEW_NAME!A1");
+    expect(getCell(model, "A1")?.value).toBe("#ERROR");
     model.dispatch("UNDO");
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
     expect(getCellText(model, "A1")).toBe("=NEW_NAME!A1");
+    expect(getCell(model, "A1")?.value).toBe(42);
   });
 
   test("UPDATE_CELL_POSITION remove the old position if exist", () => {
