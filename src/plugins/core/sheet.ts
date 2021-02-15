@@ -1,4 +1,4 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, INCORRECT_RANGE_STRING } from "../../constants";
 import { cellReference, rangeTokenize } from "../../formulas/index";
 import {
   getComposerSheetName,
@@ -26,7 +26,6 @@ import {
   Zone,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
-import { INCORRECT_RANGE_STRING } from "./range";
 
 export interface SheetState {
   readonly sheets: Record<UID, Sheet | undefined>;

@@ -40,3 +40,6 @@ export const DEFAULT_STYLE: Style = {
 
 // DateTimeRegex
 export const DATETIME_FORMAT = /[ymd:]/;
+
+// Ranges
+export const INCORRECT_RANGE_STRING = "#REF";

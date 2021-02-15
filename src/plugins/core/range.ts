@@ -1,197 +1,213 @@
+import { INCORRECT_RANGE_STRING } from "../../constants";
 import {
+  createAdaptedZone,
   getComposerSheetName,
   getUnquotedSheetName,
   groupConsecutive,
-  isDefined,
   numberToLetters,
   toZone,
-  uuidv4,
 } from "../../helpers/index";
-import { ChangeType, Command, onRangeChange, Range, RangePart, UID } from "../../types/index";
-import { CorePlugin } from "../core_plugin";
+import {
+  ApplyRangeChange,
+  ApplyRangeChangeResult,
+  ChangeType,
+  Command,
+  CommandHandler,
+  CommandResult,
+  Getters,
+  Range,
+  RangePart,
+  RangeProvider,
+  UID,
+} from "../../types/index";
 
-interface RangeState {
-  ranges: Record<UID, Range | undefined>;
-}
+export class RangeAdapter implements CommandHandler {
+  private getters: Getters;
+  private providers: Array<RangeProvider["adaptRanges"]> = [];
+  constructor(getters: Getters) {
+    this.getters = getters;
+  }
 
-export const INCORRECT_RANGE_STRING = "#REF";
-
-export class RangePlugin extends CorePlugin<RangeState> {
-  static getters = ["getRangeString", "getRangeFromSheetXC", "getRangeById"];
-
-  public readonly ranges: Record<UID, Range | undefined> = {};
-
-  private notifyResize: Set<UID> = new Set<UID>(); // temporary set filled with ranges resized, to notify in the finalize
-  private notifyMove: Set<UID> = new Set<UID>(); // idem for moved ranges
-  private notifyRemove: Set<UID> = new Set<UID>(); // idem for removed ranges (where the end is before the start)
-  private notifyChange: Set<UID> = new Set<UID>(); // item, for change
-  private notifyChangeSheetId: UID = "";
+  static getters = ["getRangeString", "getRangeFromSheetXC"];
 
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
+  allowDispatch(command: Command): CommandResult {
+    return { status: "SUCCESS" };
+  }
+  beforeHandle(command: Command) {}
+
   handle(cmd: Command) {
     switch (cmd.type) {
       case "REMOVE_COLUMNS":
-      case "REMOVE_ROWS":
+      case "REMOVE_ROWS": {
         let start: "left" | "top" = cmd.type === "REMOVE_COLUMNS" ? "left" : "top";
         let end: "right" | "bottom" = cmd.type === "REMOVE_COLUMNS" ? "right" : "bottom";
-        let dimension = cmd.type === "REMOVE_COLUMNS" ? "columns" : "rows";
-        this.notifyChangeSheetId = cmd.sheetId;
+        let dimension: "columns" | "rows" = cmd.type === "REMOVE_COLUMNS" ? "columns" : "rows";
 
         cmd[dimension].sort((a, b) => b - a);
-        for (let group of groupConsecutive(cmd[dimension])) {
-          for (let range of Object.values(this.ranges)
-            .filter(isDefined)
-            .filter((r) => r.sheetId === cmd.sheetId)) {
+
+        const groups = groupConsecutive(cmd[dimension]);
+        this.executeOnAllRanges((range: Range) => {
+          let newRange = range;
+          let changeType: ChangeType = "NONE";
+          for (let group of groups) {
             const min = Math.min(...group);
             const max = Math.max(...group);
             if (range.zone[start] <= min && min <= range.zone[end]) {
               const toRemove = Math.min(range.zone[end], max) - min + 1;
-              this.history.update("ranges", range.id, "zone", end, range.zone[end] - toRemove);
-              this.notifyResize.add(range.id);
-            } else if (min < range.zone[start]) {
-              this.history.update(
-                "ranges",
-                range.id,
-                "zone",
-                end,
-                range.zone[end] - (max - min + 1)
-              );
-              this.history.update(
-                "ranges",
-                range.id,
-                "zone",
-                start,
-                range.zone[start] - (max - min + 1)
-              );
-              this.notifyMove.add(range.id);
+              changeType = "RESIZE";
+              newRange = this.createAdaptedRange(newRange, dimension, changeType, -toRemove);
+            }
+            if (min < range.zone[start]) {
+              changeType = "MOVE";
+              newRange = this.createAdaptedRange(newRange, dimension, changeType, -(max - min + 1));
             }
           }
-        }
-        break;
-      case "ADD_COLUMNS":
-        this.notifyChangeSheetId = cmd.sheetId;
-
-        for (let range of Object.values(this.ranges)
-          .filter(isDefined)
-          .filter((r) => r.sheetId === cmd.sheetId)) {
-          if (cmd.position === "after") {
-            if (range.zone.left <= cmd.column && cmd.column < range.zone.right) {
-              this.history.update("ranges", range.id, "zone", "right", range.zone.right + 1);
-              this.notifyResize.add(range.id);
-            } else if (cmd.column < range.zone.left) {
-              this.history.update("ranges", range.id, "zone", "right", range.zone.right + 1);
-              this.history.update("ranges", range.id, "zone", "left", range.zone.left + 1);
-              this.notifyMove.add(range.id);
-            }
-          } else {
-            if (range.zone.left < cmd.column && cmd.column <= range.zone.right) {
-              this.history.update("ranges", range.id, "zone", "right", range.zone.right + 1);
-              this.notifyResize.add(range.id);
-            } else if (cmd.column <= range.zone.left) {
-              this.history.update("ranges", range.id, "zone", "right", range.zone.right + 1);
-              this.history.update("ranges", range.id, "zone", "left", range.zone.left + 1);
-              this.notifyMove.add(range.id);
-            }
+          if (changeType !== "NONE") {
+            return { changeType, range: newRange };
           }
-        }
+          return { changeType: "NONE" };
+        }, cmd.sheetId);
         break;
+      }
       case "ADD_ROWS":
-        this.notifyChangeSheetId = cmd.sheetId;
+      case "ADD_COLUMNS": {
+        let start: "left" | "top" = cmd.type === "ADD_COLUMNS" ? "left" : "top";
+        let end: "right" | "bottom" = cmd.type === "ADD_COLUMNS" ? "right" : "bottom";
+        let dimension: "columns" | "rows" = cmd.type === "ADD_COLUMNS" ? "columns" : "rows";
+        let origin: number = cmd.type === "ADD_COLUMNS" ? cmd.column : cmd.row;
 
-        for (let range of Object.values(this.ranges)
-          .filter(isDefined)
-          .filter((r) => r.sheetId === cmd.sheetId)) {
+        this.executeOnAllRanges((range: Range) => {
           if (cmd.position === "after") {
-            if (range.zone.top <= cmd.row && cmd.row < range.zone.bottom) {
-              this.history.update("ranges", range.id, "zone", "bottom", range.zone.bottom + 1);
-              this.notifyResize.add(range.id);
-            } else if (cmd.row < range.zone.top) {
-              this.history.update("ranges", range.id, "zone", "top", range.zone.top + 1);
-              this.history.update("ranges", range.id, "zone", "bottom", range.zone.bottom + 1);
-              this.notifyMove.add(range.id);
+            if (range.zone[start] <= origin && origin < range.zone[end]) {
+              return {
+                changeType: "RESIZE",
+                range: this.createAdaptedRange(range, dimension, "RESIZE", cmd.quantity),
+              };
+            }
+            if (origin < range.zone[start]) {
+              return {
+                changeType: "MOVE",
+                range: this.createAdaptedRange(range, dimension, "MOVE", cmd.quantity),
+              };
             }
           } else {
-            if (range.zone.top < cmd.row && cmd.row <= range.zone.bottom) {
-              this.history.update("ranges", range.id, "zone", "bottom", range.zone.bottom + 1);
-              this.notifyResize.add(range.id);
-            } else if (cmd.row <= range.zone.top) {
-              this.history.update("ranges", range.id, "zone", "top", range.zone.top + 1);
-              this.history.update("ranges", range.id, "zone", "bottom", range.zone.bottom + 1);
-              this.notifyMove.add(range.id);
+            if (range.zone[start] < origin && origin <= range.zone[end]) {
+              return {
+                changeType: "RESIZE",
+                range: this.createAdaptedRange(range, dimension, "RESIZE", cmd.quantity),
+              };
+            }
+            if (origin <= range.zone[start]) {
+              return {
+                changeType: "MOVE",
+                range: this.createAdaptedRange(range, dimension, "MOVE", cmd.quantity),
+              };
             }
           }
-        }
+          return { changeType: "NONE" };
+        }, cmd.sheetId);
+
         break;
-      case "DELETE_SHEET":
-        for (let range of Object.values(this.ranges)
-          .filter(isDefined)
-          .filter((r) => r.sheetId === cmd.sheetId)) {
-          this.notifyRemove.add(range.id);
-        }
+      }
+      case "DELETE_SHEET": {
+        this.executeOnAllRanges((range: Range) => {
+          range = {
+            ...range,
+            zone: { ...range.zone },
+            invalidSheetName: this.getters.getSheetName(cmd.sheetId),
+            sheetId: "",
+          };
+          return { changeType: "REMOVE", range };
+        }, cmd.sheetId);
+
         break;
+      }
       case "CREATE_SHEET":
-      case "RENAME_SHEET":
-        for (let range of Object.values(this.ranges).filter(isDefined)) {
+      case "RENAME_SHEET": {
+        this.executeOnAllRanges((range: Range) => {
           if (range.sheetId === cmd.sheetId) {
-            this.notifyChange.add(range.id);
+            return { changeType: "CHANGE", range };
           }
           if (cmd.name && range.invalidSheetName === cmd.name) {
-            let newSheetId = this.getters.getSheetIdByName(cmd.name);
-            if (newSheetId) {
-              this.history.update("ranges", range.id, "invalidSheetName", undefined);
-              this.history.update("ranges", range.id, "sheetId", newSheetId);
-              this.notifyChange.add(range.id);
-            }
+            const newRange = { ...range, zone: { ...range.zone } };
+            newRange.invalidSheetName = undefined;
+            newRange.sheetId = cmd.sheetId;
+            return { changeType: "CHANGE", range: newRange };
           }
-        }
+          return { changeType: "NONE" };
+        });
         break;
-    }
-
-    // ensure that even if a range has been updated after being removed, the last thing to happen to a removed range is being removed
-    for (let rangeId of this.notifyRemove) {
-      this.history.update("ranges", rangeId, undefined);
+      }
     }
   }
 
-  finalize() {
-    for (const rangeId of this.notifyResize) {
-      const r = this.ranges[rangeId];
-      if (!r || r.zone.right - r.zone.left < 0 || r.zone.bottom - r.zone.top < 0) {
-        this.notifyRemove.add(rangeId);
-        this.notifyResize.delete(rangeId);
-        this.notifyMove.delete(rangeId);
-        this.notifyChange.delete(rangeId);
-      }
-    }
+  finalize(command: Command) {}
 
-    this.notify(this.notifyRemove, "REMOVE");
-    this.notify(this.notifyResize, "RESIZE");
-    this.notify(this.notifyMove, "MOVE");
-    this.notify(this.notifyChange, "CHANGE");
+  /**
+   * Return a modified adapting function that verifies that after adapting a range, the range is still valid.
+   * Any range that gets adapted by the function adaptRange in parameter does so
+   * without caring if the start and end of the range in both row and column
+   * direction can be incorrect. This function ensure that an incorrect range gets removed.
+   */
+  private verifyRangeRemoved(adaptRange: ApplyRangeChange): ApplyRangeChange {
+    return (range: Range) => {
+      const result: ApplyRangeChangeResult = adaptRange(range);
+      if (
+        result.changeType !== "NONE" &&
+        result.range &&
+        (result.range.zone.right - result.range.zone.left < 0 ||
+          result.range.zone.bottom - result.range.zone.top < 0)
+      ) {
+        return { range: result.range, changeType: "REMOVE" };
+      }
+      return result;
+    };
+  }
+
+  private createAdaptedRange(
+    range: Range,
+    dimension: "columns" | "rows",
+    operation: "MOVE" | "RESIZE",
+    by: number
+  ) {
+    return {
+      ...range,
+      zone: createAdaptedZone(range.zone, dimension, operation, by),
+    };
+  }
+
+  private executeOnAllRanges(adaptRange: ApplyRangeChange, sheetId?: UID) {
+    const func = this.verifyRangeRemoved(adaptRange);
+    for (const provider of this.providers) {
+      provider(func, sheetId);
+    }
+  }
+
+  /**
+   * Stores the functions bound to each plugin to be able to iterate over all ranges of the application,
+   * without knowing any details of the internal data structure of the plugins and without storing ranges
+   * in the range adapter.
+   *
+   * @param provider a function bound to a plugin that will loop over its internal data structure to find
+   * all ranges
+   */
+  addRangeProvider(provider: RangeProvider["adaptRanges"]) {
+    this.providers.push(provider);
   }
 
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
 
-  getRangeById(rangeId: UID): Range | undefined {
-    return this.ranges[rangeId];
-  }
   /**
    * Creates a range from a XC reference that can contain a sheet reference
    * @param defaultSheetId the sheet to default to if the sheetXC parameter does not contain a sheet reference (usually the active sheet Id)
    * @param sheetXC the string description of a range, in the form SheetName!XC:XC
-   * @param onChange a function that will be called if this range is modified. Note that this function will be called
-   *                 in the finalize of the command, so it cannot use `dispatch` or `this.history`
    */
-  getRangeFromSheetXC(
-    defaultSheetId: UID,
-    sheetXC: string,
-    onChange?: onRangeChange,
-    transient: boolean = false
-  ): Range {
+  getRangeFromSheetXC(defaultSheetId: UID, sheetXC: string): Range {
     let xc = sheetXC;
     let sheetName: string = "";
     let sheetId: UID | undefined;
@@ -239,17 +255,12 @@ export class RangePlugin extends CorePlugin<RangeState> {
     }
 
     const r: Range = {
-      id: uuidv4(),
       sheetId: sheetId || defaultSheetId,
       zone: zone,
-      onChange: onChange,
       parts: rangeParts,
       invalidSheetName,
       prefixSheet,
     };
-    if (!transient) {
-      this.ranges[r.id] = r;
-    }
     return r;
   }
 
@@ -310,19 +321,5 @@ export class RangePlugin extends CorePlugin<RangeState> {
     }
 
     return `${prefixSheet ? sheetName + "!" : ""}${ref.join("")}`;
-  }
-
-  // ---------------------------------------------------------------------------
-  // Private
-  // ---------------------------------------------------------------------------
-
-  private notify(set: Set<UID>, type: ChangeType) {
-    for (const rangeId of set) {
-      const range = this.ranges[rangeId];
-      if (range && range.onChange) {
-        range.onChange(type, this.notifyChangeSheetId);
-      }
-    }
-    set.clear();
   }
 }

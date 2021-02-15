@@ -5,7 +5,7 @@ import { ChartPlugin } from "../plugins/core/chart";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { FigurePlugin } from "../plugins/core/figures";
 import { MergePlugin } from "../plugins/core/merge";
-import { RangePlugin } from "../plugins/core/range";
+import { RangeAdapter } from "../plugins/core/range";
 import { SheetPlugin } from "../plugins/core/sheet";
 import { AutofillPlugin } from "../plugins/ui/autofill";
 import { ClipboardPlugin } from "../plugins/ui/clipboard";
@@ -79,9 +79,8 @@ export interface CoreGetters {
   getChartDefinition: ChartPlugin["getChartDefinition"];
   getChartDefinitionUI: ChartPlugin["getChartDefinitionUI"];
 
-  getRangeById: RangePlugin["getRangeById"];
-  getRangeString: RangePlugin["getRangeString"];
-  getRangeFromSheetXC: RangePlugin["getRangeFromSheetXC"];
+  getRangeString: RangeAdapter["getRangeString"];
+  getRangeFromSheetXC: RangeAdapter["getRangeFromSheetXC"];
 }
 
 export type Getters = CoreGetters & {
