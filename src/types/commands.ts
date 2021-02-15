@@ -1,7 +1,13 @@
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
-import { Figure } from "./figure";
-import { BorderCommand, ConditionalFormat, CreateChartDefinition, Style, Zone } from "./index";
+import {
+  BorderCommand,
+  ConditionalFormat,
+  CreateChartDefinition,
+  Figure,
+  Style,
+  Zone,
+} from "./index";
 import { Border, Cell, UID } from "./misc";
 
 // -----------------------------------------------------------------------------

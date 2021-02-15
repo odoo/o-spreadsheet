@@ -1,4 +1,4 @@
-import { Style } from "./misc";
+import { Range, Style } from "./misc";
 
 // -----------------------------------------------------------------------------
 // Conditional Formatting
@@ -13,6 +13,10 @@ export interface ConditionalFormat {
   rule: ConditionalFormatRule; // the rules to apply, in order;
   stopIfTrue?: boolean; // the next rules must not be evaluated/applied if this rule is true
   ranges: string[]; // the cells/ranges on which to apply this conditional formatting
+}
+
+export interface ConditionalFormatInternal extends Omit<ConditionalFormat, "ranges"> {
+  ranges: Range[];
 }
 
 export type ConditionalFormatRule = SingleColorRules | ColorScaleRule; //| DataBarRule | IconSetRule;

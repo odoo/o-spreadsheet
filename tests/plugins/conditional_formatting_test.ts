@@ -211,7 +211,7 @@ describe("conditional format", () => {
     expect(model.getters.getConditionalFormats(sheetId)).toStrictEqual([
       {
         id: "1",
-        ranges: ["C1:C1", "C2:C2"],
+        ranges: ["C1", "C2"],
         rule: {
           operator: "Equal",
           style: { fillColor: "#FF0000" },
@@ -407,10 +407,10 @@ describe("conditional format", () => {
         rows: [1, 3],
       });
       expect(model.getters.getConditionalFormats(sheetId)).toEqual([
-        { id: "1", ranges: ["A1:A1"], rule },
-        { id: "3", ranges: ["C2:C2"], rule },
-        { id: "4", ranges: ["D1:D1"], rule },
-        { id: "5", ranges: ["E2:E2"], rule },
+        { id: "1", ranges: ["A1"], rule },
+        { id: "3", ranges: ["C2"], rule },
+        { id: "4", ranges: ["D1"], rule },
+        { id: "5", ranges: ["E2"], rule },
         { id: "6", ranges: ["F1:F2"], rule },
         { id: "7", ranges: ["G1:G2"], rule },
       ]);
@@ -448,14 +448,14 @@ describe("conditional format", () => {
         columns: [1, 3],
       });
       expect(model.getters.getConditionalFormats(sheetId)).toEqual([
-        { id: "1", ranges: ["A1:A1"], rule },
-        { id: "3", ranges: ["B3:B3"], rule },
-        { id: "4", ranges: ["A4:A4"], rule },
-        { id: "5", ranges: ["B5:B5"], rule },
+        { id: "1", ranges: ["A1"], rule },
+        { id: "3", ranges: ["B3"], rule },
+        { id: "4", ranges: ["A4"], rule },
+        { id: "5", ranges: ["B5"], rule },
         { id: "6", ranges: ["A6:B6"], rule },
         { id: "7", ranges: ["A7:B7"], rule },
-        { id: "8", ranges: ["A7:A7", "B7:B7"], rule },
-        { id: "9", ranges: ["A7:A7", "B7:B7"], rule },
+        { id: "8", ranges: ["A7", "B7"], rule },
+        { id: "9", ranges: ["A7", "B7"], rule },
       ]);
       expect(model.getters.getConditionalStyle(...toCartesian("B2"))).toBeUndefined();
       expect(model.getters.getConditionalStyle(...toCartesian("B3"))!.fillColor).toBe("orange");

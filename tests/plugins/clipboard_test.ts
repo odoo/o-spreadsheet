@@ -1,10 +1,15 @@
 import { toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
-import { CancelledReason, CommandSuccess, Zone } from "../../src/types/index";
+import {
+  CancelledReason,
+  CommandSuccess,
+  ConditionalFormat,
+  Style,
+  Zone,
+} from "../../src/types/index";
 import "../canvas.mock";
 import {
-  createEqualCF,
   getBorder,
   getCell,
   getCellContent,
@@ -18,6 +23,19 @@ import {
 function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
   return clipboardPlugin.status === "visible" ? clipboardPlugin.zones : [];
+}
+
+function createEqualCF(
+  ranges: string[],
+  value: string,
+  style: Style,
+  id: string
+): ConditionalFormat {
+  return {
+    ranges,
+    id,
+    rule: { values: [value], operator: "Equal", type: "CellIsRule", style },
+  };
 }
 
 describe("clipboard", () => {
