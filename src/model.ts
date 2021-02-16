@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { createEmptyWorkbookData, load } from "./data";
-import { DEBUG, setIsFastStrategy } from "./helpers/index";
+import { DEBUG } from "./helpers/index";
 import { WHistory } from "./history";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
@@ -124,8 +124,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       this.setupUiPlugin(Plugin);
     }
 
-    setIsFastStrategy(false);
-
     // starting plugins
     this.dispatch("START");
   }
@@ -161,8 +159,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   private setupPlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
     const dispatch = this.dispatch.bind(this);
     const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
-
-    setIsFastStrategy(true);
 
     if (Plugin.modes.includes(this.config.mode)) {
       const plugin = new Plugin(this.getters, history, dispatch, this.config);

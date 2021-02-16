@@ -37,6 +37,7 @@ import { CorePlugin } from "../core_plugin";
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 
 type UpdateCellData = {
+  id?: UID;
   content?: string;
   formula?: NormalizedFormula;
   style?: Style;
@@ -341,6 +342,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         const [col, row] = toCartesian(xc);
         const style = (cell && cell.style && data.styles[cell.style]) || undefined;
         this.updateCell(imported_sheet, col, row, {
+          id: `${sheet.id}_${xc}`,
           content: cell?.content,
           formula: cell?.formula,
           format: cell?.format,
@@ -617,7 +619,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     } else {
       // the current content cannot be reused, so we need to recompute the
       // derived
-      const cellId = before?.id || uuidv4();
+      const cellId = before?.id || after.id || uuidv4();
 
       let formulaString = after.formula;
       if (!formulaString && afterContent[0] === "=") {
