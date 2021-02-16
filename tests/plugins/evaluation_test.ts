@@ -224,12 +224,16 @@ describe("evaluateCells", () => {
     setCellContent(model, "A3", "=-2^2");
     setCellContent(model, "A4", "=-2^2 + 3");
     setCellContent(model, "A5", "= - 1 + - 2 * - 3");
+    setCellContent(model, "A6", "=1 & 8 + 2");
+    setCellContent(model, "A7", "=1 & 10 - 2");
 
     expect(getCell(model, "A1")!.value).toBe(7);
     expect(getCell(model, "A2")!.value).toBe(4);
     expect(getCell(model, "A3")!.value).toBe(-4);
     expect(getCell(model, "A4")!.value).toBe(-1);
     expect(getCell(model, "A5")!.value).toBe(5);
+    expect(getCell(model, "A6")!.value).toBe("110");
+    expect(getCell(model, "A7")!.value).toBe("18");
   });
 
   test("& operator", () => {
