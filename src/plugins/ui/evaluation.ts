@@ -17,7 +17,6 @@ import {
   ReferenceDenormalizer,
   UID,
 } from "../../types/index";
-import { RangePlugin } from "../core/range";
 import { UIPlugin } from "../ui_plugin";
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {
@@ -77,11 +76,10 @@ export class EvaluationPlugin extends UIPlugin {
   constructor(
     getters: Getters,
     history: WHistory,
-    range: RangePlugin,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    super(getters, history, range, dispatch, config);
+    super(getters, history, dispatch, config);
     this.evalContext = config.evalContext;
   }
 

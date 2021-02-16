@@ -1,15 +1,6 @@
 import { WHistory, WorkbookHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
-import {
-  ApplyRangeChange,
-  Command,
-  CommandDispatcher,
-  CommandHandler,
-  CommandResult,
-  RangeProvider,
-  UID,
-} from "../types/index";
-import { RangePlugin } from "./core/range";
+import { Command, CommandDispatcher, CommandHandler, CommandResult } from "../types/index";
 
 /**
  * BasePlugin
@@ -23,26 +14,18 @@ import { RangePlugin } from "./core/range";
  * and UI plugins handling transient data.
  */
 
-export class BasePlugin<State = any> implements CommandHandler, RangeProvider {
+export class BasePlugin<State = any> implements CommandHandler {
   static getters: string[] = [];
   static modes: Mode[] = ["headless", "normal", "readonly"];
 
   protected history: WorkbookHistory<State>;
-  protected range: RangePlugin;
   protected dispatch: CommandDispatcher["dispatch"];
   protected currentMode: Mode;
 
-  constructor(
-    history: WHistory,
-    range: RangePlugin,
-    dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig
-  ) {
+  constructor(history: WHistory, dispatch: CommandDispatcher["dispatch"], config: ModelConfig) {
     this.history = Object.assign(Object.create(history), {
       update: history.updateStateFromRoot.bind(history, this),
     });
-    range.addRangeProvider(this.adaptRanges.bind(this));
-    this.range = range;
     this.dispatch = dispatch;
     this.currentMode = config.mode;
   }
@@ -81,6 +64,4 @@ export class BasePlugin<State = any> implements CommandHandler, RangeProvider {
    * multiple cells, we only want to reevaluate the cell values once at the end.
    */
   finalize(command: Command): void {}
-
-  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID): void {}
 }

@@ -1,6 +1,6 @@
 import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
-import { CommandDispatcher, WorkbookData } from "../types";
+import { ApplyRangeChange, CommandDispatcher, RangeProvider, UID, WorkbookData } from "../types";
 import { CoreGetters } from "../types/getters";
 import { BasePlugin } from "./base_plugin";
 import { RangePlugin } from "./core/range";
@@ -23,8 +23,9 @@ export interface CorePluginConstructor {
  * persisted state.
  * They should not be concerned about UI parts or transient state.
  */
-export class CorePlugin<State = any> extends BasePlugin<State> {
+export class CorePlugin<State = any> extends BasePlugin<State> implements RangeProvider {
   protected getters: CoreGetters;
+  protected range: RangePlugin;
 
   constructor(
     getters: CoreGetters,
@@ -33,7 +34,9 @@ export class CorePlugin<State = any> extends BasePlugin<State> {
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    super(history, range, dispatch, config);
+    super(history, dispatch, config);
+    this.range = range;
+    range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;
   }
 
@@ -43,4 +46,6 @@ export class CorePlugin<State = any> extends BasePlugin<State> {
 
   import(data: WorkbookData) {}
   export(data: WorkbookData) {}
+
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID): void {}
 }
