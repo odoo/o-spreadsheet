@@ -11,6 +11,20 @@ import {
 } from "./helpers";
 
 // -----------------------------------------------------------------------------
+// ABS
+// -----------------------------------------------------------------------------
+export const ABS: AddFunctionDescription = {
+  description: _lt("Absolute value of a number."),
+  args: args(`
+    value (number) ${_lt("The number of which to return the absolute value.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    return Math.abs(toNumber(value));
+  },
+};
+
+// -----------------------------------------------------------------------------
 // ACOS
 // -----------------------------------------------------------------------------
 export const ACOS: AddFunctionDescription = {

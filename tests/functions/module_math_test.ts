@@ -1,6 +1,42 @@
 import { toNumber } from "../../src/functions/helpers";
 import { evaluateCell, evaluateCellText, evaluateGrid } from "../helpers";
 
+describe("ABS formula", () => {
+  test("take 1 argument", () => {
+    expect(evaluateCell("A1", { A1: "=ABS()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=ABS(-42)" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=ABS(-42, 24)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test.each([
+    ["123", 123],
+    ["-123", 123],
+    ["-0.9", 0.9],
+  ])("business logic > return the ABS", (value, result) => {
+    expect(evaluateCell("A1", { A1: "=ABS(A2)", A2: value })).toBe(result);
+  });
+
+  describe("casting test", () => {
+    test("empty cell are considered as 0", () => {
+      expect(evaluateCell("A1", { A1: "=ABS(A2)" })).toBe(0);
+    });
+    test("string/string in cell which can be cast in number are interpreted as numbers", () => {
+      expect(evaluateCell("A1", { A1: '=ABS("-100")' })).toBe(100);
+      expect(evaluateCell("A1", { A1: "=ABS(A2)", A2: '="-100"' })).toBe(100);
+    });
+    test("string/string in cell which cannot be cast in number return an error", () => {
+      expect(evaluateCell("A1", { A1: '=ABS(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE
+      expect(evaluateCell("A1", { A1: '=ABS("kikou")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE
+      expect(evaluateCell("A1", { A1: "=ABS(A2)", A2: "coucou" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE
+    });
+    test("boolean/boolean in cell are interpreted as numbers", () => {
+      expect(evaluateCell("A1", { A1: "=ABS(-TRUE)" })).toBe(1);
+      expect(evaluateCell("A1", { A1: "=ABS(-FALSE)" })).toBe(0);
+      expect(evaluateCell("A1", { A1: "=ABS(A2)", A2: "TRUE" })).toBe(1);
+    });
+  });
+});
+
 describe("ACOS formula", () => {
   test.each([
     ["1", 0],
