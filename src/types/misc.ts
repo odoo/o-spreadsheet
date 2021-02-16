@@ -181,3 +181,10 @@ export type ApplyRangeChange = (range: Range) => ApplyRangeChangeResult;
 export interface RangeProvider {
   adaptRanges: (applyChange: ApplyRangeChange, sheetId?: UID) => void;
 }
+
+export interface ZoneShift {
+  left?: number;
+  right?: number;
+  top?: number;
+  bottom?: number;
+}

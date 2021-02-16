@@ -1,4 +1,4 @@
-import { Cell, Sheet, Zone, ZoneDimension } from "../types";
+import { Cell, Range, Sheet, Zone, ZoneDimension, ZoneShift } from "../types";
 import { toCartesian, toXC } from "./coordinates";
 
 /**
@@ -277,5 +277,18 @@ export function zoneToDimension(zone: Zone): ZoneDimension {
   return {
     height: zone.bottom - zone.top + 1,
     width: zone.right - zone.left + 1,
+  };
+}
+
+export function getShiftedRange(range: Range, delta: ZoneShift): Range {
+  return { ...range, zone: getShiftedZone(range.zone, delta) };
+}
+
+export function getShiftedZone(zone: Zone, delta: ZoneShift): Zone {
+  return {
+    left: zone.left + (delta.left || 0),
+    right: zone.right + (delta.right || 0),
+    top: zone.top + (delta.top || 0),
+    bottom: zone.bottom + (delta.bottom || 0),
   };
 }

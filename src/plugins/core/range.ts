@@ -1,5 +1,6 @@
 import {
   getComposerSheetName,
+  getShiftedRange,
   getUnquotedSheetName,
   groupConsecutive,
   numberToLetters,
@@ -79,14 +80,14 @@ export class RangePlugin implements CommandHandler {
             const max = Math.max(...group);
             if (range.zone[start] <= min && min <= range.zone[end]) {
               const toRemove = Math.min(range.zone[end], max) - min + 1;
-              newRange = { ...newRange, zone: { ...newRange.zone } };
-              newRange.zone[end] = newRange.zone[end] - toRemove;
+              newRange = getShiftedRange(newRange, { [end]: -toRemove });
               changeType = "RESIZE";
             }
             if (min < range.zone[start]) {
-              newRange = { ...newRange, zone: { ...newRange.zone } };
-              newRange.zone[end] -= max - min + 1;
-              newRange.zone[start] -= max - min + 1;
+              newRange = getShiftedRange(newRange, {
+                [end]: -(max - min + 1),
+                [start]: -(max - min + 1),
+              });
               changeType = "MOVE";
             }
           }
@@ -97,63 +98,31 @@ export class RangePlugin implements CommandHandler {
         }, cmd.sheetId);
         break;
       }
+      case "ADD_ROWS":
       case "ADD_COLUMNS": {
+        const start: "left" | "top" = cmd.type === "ADD_COLUMNS" ? "left" : "top";
+        const end: "right" | "bottom" = cmd.type === "ADD_COLUMNS" ? "right" : "bottom";
+        const dimension = cmd.type === "ADD_COLUMNS" ? "column" : "row";
         this.executeOnAllRanges((range: Range) => {
           if (cmd.position === "after") {
-            if (range.zone.left <= cmd.column && cmd.column < range.zone.right) {
-              const newRange = { ...range, zone: { ...range.zone } };
-              newRange.zone.right += 1;
-              return { changeType: "RESIZE", range: newRange };
+            if (range.zone[start] <= cmd[dimension] && cmd[dimension] < range.zone[end]) {
+              return { changeType: "RESIZE", range: getShiftedRange(range, { [end]: 1 }) };
             }
-            if (cmd.column < range.zone.left) {
-              const newRange = { ...range, zone: { ...range.zone } };
-              newRange.zone.right += 1;
-              newRange.zone.left += 1;
-              return { changeType: "MOVE", range: newRange };
+            if (cmd[dimension] < range.zone[start]) {
+              return {
+                changeType: "MOVE",
+                range: getShiftedRange(range, { [start]: 1, [end]: 1 }),
+              };
             }
           } else {
-            if (range.zone.left < cmd.column && cmd.column <= range.zone.right) {
-              const newRange = { ...range, zone: { ...range.zone } };
-              newRange.zone.right += 1;
-              return { changeType: "RESIZE", range: newRange };
+            if (range.zone[start] < cmd[dimension] && cmd[dimension] <= range.zone[end]) {
+              return { changeType: "RESIZE", range: getShiftedRange(range, { [end]: 1 }) };
             }
-            if (cmd.column <= range.zone.left) {
-              const newRange = { ...range, zone: { ...range.zone } };
-              newRange.zone.right += 1;
-              newRange.zone.left += 1;
-              return { changeType: "MOVE", range: newRange };
-            }
-          }
-          return { changeType: "NONE" };
-        }, cmd.sheetId);
-
-        break;
-      }
-      case "ADD_ROWS": {
-        this.executeOnAllRanges((range: Range) => {
-          if (cmd.position === "after") {
-            if (range.zone.top <= cmd.row && cmd.row < range.zone.bottom) {
-              const newRange = { ...range, zone: { ...range.zone } };
-              newRange.zone.bottom += 1;
-              return { changeType: "RESIZE", range: newRange };
-            }
-            if (cmd.row < range.zone.top) {
-              const newRange = { ...range, zone: { ...range.zone } };
-              newRange.zone.top += 1;
-              newRange.zone.bottom += 1;
-              return { changeType: "MOVE", range: newRange };
-            }
-          } else {
-            if (range.zone.top < cmd.row && cmd.row <= range.zone.bottom) {
-              const newRange = { ...range, zone: { ...range.zone } };
-              newRange.zone.bottom += 1;
-              return { changeType: "RESIZE", range: newRange };
-            }
-            if (cmd.row <= range.zone.top) {
-              const newRange = { ...range, zone: { ...range.zone } };
-              newRange.zone.top += 1;
-              newRange.zone.bottom += 1;
-              return { changeType: "MOVE", range: newRange };
+            if (cmd[dimension] <= range.zone[start]) {
+              return {
+                changeType: "MOVE",
+                range: getShiftedRange(range, { [start]: 1, [end]: 1 }),
+              };
             }
           }
           return { changeType: "NONE" };
