@@ -11,7 +11,7 @@ export interface ChartDefinition {
   title?: string;
   type: ChartTypes;
   dataSets: DataSet[];
-  labelRange: Range;
+  labelRange?: Range;
   sheetId: UID;
 }
 
@@ -19,6 +19,6 @@ export interface CreateChartDefinition {
   title: string;
   type: ChartTypes;
   dataSets: string[];
-  labelRange: string;
+  labelRange?: string;
   dataSetsHaveTitle: boolean;
 }
