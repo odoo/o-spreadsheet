@@ -893,9 +893,9 @@ describe("evaluateCells", () => {
       ],
     });
 
-    expect(model.getters.getCellByXc("sheet1", "A3")!.value).toBe("old");
+    expect(getCell(model, "A3")!.value).toBe("old");
     model.dispatch("UPDATE_CELL", { col: 0, row: 0, content: "new", sheetId: "sheet1" });
-    expect(model.getters.getCellByXc("sheet1", "A3")!.value).toBe("new");
+    expect(getCell(model, "A3")!.value).toBe("new");
   });
 
   // TO DO: add tests for exp format (ex: 4E10)

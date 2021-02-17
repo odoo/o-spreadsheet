@@ -51,7 +51,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getGridSize",
     "getColsZone",
     "getRowsZone",
-    "getCellByXc",
   ];
 
   readonly sheetIds: Record<string, UID | undefined> = {};
@@ -207,7 +206,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         rowNumber: sheet.rows.length,
         rows: exportRows(sheet.rows),
         cols: exportCols(sheet.cols),
-        merges: [], //exportMerges(sheet.merges),
+        merges: [],
         cells: {},
         conditionalFormats: [],
         figures: [],
@@ -279,11 +278,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   getCell(sheetId: UID, col: number, row: number): Cell | undefined {
     const sheet = this.tryGetSheet(sheetId);
     return (sheet && sheet.rows[row] && sheet.rows[row].cells[col]) || undefined;
-  }
-
-  getCellByXc(sheetId: UID, xc: string): Cell | undefined {
-    let [col, row] = toCartesian(xc);
-    return this.sheets[sheetId]?.rows[row]?.cells[col];
   }
 
   /**
