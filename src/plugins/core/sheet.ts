@@ -131,12 +131,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         break;
       case "RESIZE_COLUMNS":
         for (let col of cmd.columns) {
-          this.setColSize(this.sheets[cmd.sheetId]!, col, cmd.size);
+          this.setHeaderSize(this.sheets[cmd.sheetId]!, "cols", col, cmd.size);
         }
         break;
       case "RESIZE_ROWS":
         for (let row of cmd.rows) {
-          this.setRowSize(this.sheets[cmd.sheetId]!, row, cmd.size);
+          this.setHeaderSize(this.sheets[cmd.sheetId]!, "rows", row, cmd.size);
         }
         break;
 
@@ -322,35 +322,19 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return cell;
   }
 
-  // ---------------------------------------------------------------------------
-  // Row/Col manipulation
-  // ---------------------------------------------------------------------------
-
-  private setColSize(sheet: Sheet, index: number, size: number) {
-    const cols = sheet.cols;
-    const col = cols[index];
-    const delta = size - col.size;
-    this.history.update("sheets", sheet.id, "cols", index, "size", size);
-    this.history.update("sheets", sheet.id, "cols", index, "end", col.end + delta);
-    for (let i = index + 1; i < cols.length; i++) {
-      const col = cols[i];
-      this.history.update("sheets", sheet.id, "cols", i, "start", col.start + delta);
-      this.history.update("sheets", sheet.id, "cols", i, "end", col.end + delta);
+  private setHeaderSize(sheet: Sheet, dimension: "cols" | "rows", index: number, size: number) {
+    const elements = sheet[dimension];
+    const base = elements[index];
+    const delta = size - base.size;
+    this.history.update("sheets", sheet.id, dimension, index, "size", size);
+    this.history.update("sheets", sheet.id, dimension, index, "end", base.end + delta);
+    for (let i = index + 1; i < elements.length; i++) {
+      const col = elements[i];
+      this.history.update("sheets", sheet.id, dimension, i, "start", col.start + delta);
+      this.history.update("sheets", sheet.id, dimension, i, "end", col.end + delta);
     }
   }
 
-  private setRowSize(sheet: Sheet, index: number, size: number) {
-    const rows = sheet.rows;
-    const row = rows[index];
-    const delta = size - row.size;
-    this.history.update("sheets", sheet.id, "rows", index, "size", size);
-    this.history.update("sheets", sheet.id, "rows", index, "end", row.end + delta);
-    for (let i = index + 1; i < rows.length; i++) {
-      const row = rows[i];
-      this.history.update("sheets", sheet.id, "rows", i, "start", row.start + delta);
-      this.history.update("sheets", sheet.id, "rows", i, "end", row.end + delta);
-    }
-  }
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
