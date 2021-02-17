@@ -387,7 +387,31 @@ describe("datasource tests", function () {
     expect(datasets).toHaveLength(1);
     expect(datasets[0].label!.toString()).toEqual("1000");
   });
-
+  test("ranges in definition change automatically", () => {
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: model.getters.getActiveSheetId(),
+      definition: {
+        title: "test 1",
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+    });
+    model.dispatch("ADD_COLUMNS", {
+      column: 0,
+      sheetId: model.getters.getActiveSheetId(),
+      quantity: 2,
+      position: "before",
+    });
+    const chart = model.getters.getChartDefinition("1")!;
+    expect(chart.dataSets[0].dataRange.zone).toStrictEqual(toZone("D1:D4"));
+    expect(chart.dataSets[0].labelCell!.zone).toStrictEqual(toZone("D1:D1"));
+    expect(chart.dataSets[1].dataRange.zone).toStrictEqual(toZone("E1:E4"));
+    expect(chart.dataSets[1].labelCell!.zone).toStrictEqual(toZone("E1:E1"));
+    expect(chart.labelRange!.zone).toStrictEqual(toZone("C2:C4"));
+  });
   test("can delete an imported chart", () => {
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_CHART", {
@@ -501,7 +525,7 @@ describe("datasource tests", function () {
     expect(chart.type).toEqual("bar");
   });
 
-  test.skip("delete a data source column", () => {
+  test("delete a data source column", () => {
     model.dispatch("CREATE_CHART", {
       id: "1",
       sheetId: model.getters.getActiveSheetId(),
@@ -516,7 +540,7 @@ describe("datasource tests", function () {
     deleteColumns(model, ["B"]);
     let chart = model.getters.getChartRuntime("1")!;
     expect(chart.data!.datasets![0].data).toEqual([20, 19, 18]);
-    expect(chart.data!.datasets![1].data).toBe(undefined);
+    expect(chart.data!.datasets![1]).toBe(undefined);
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
   });
 
@@ -997,7 +1021,7 @@ describe("multiple sheets", function () {
       sheetId: "42",
     });
   });
-  test("export with chart data from a sheet that was deleted, than import data doesn't crash", () => {
+  test("export with chart data from a sheet that was deleted, than import data doesnt crash", () => {
     const originSheet = model.getters.getActiveSheetId();
     model.dispatch("CREATE_SHEET", { name: "hello", activate: true, sheetId: "42", position: 1 });
     model.dispatch("CREATE_CHART", {

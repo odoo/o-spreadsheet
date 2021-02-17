@@ -1,8 +1,10 @@
 import { rangeReference } from "../../formulas/parser";
 import { uuidv4, zoneToXc } from "../../helpers/index";
 import {
+  ApplyRangeChange,
   CancelledReason,
   ChartDefinition,
+  Command,
   CommandResult,
   CoreCommand,
   CreateChartDefinition,
@@ -26,9 +28,87 @@ interface ChartState {
 
 export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   static getters = ["getChartDefinition", "getChartDefinitionUI"];
-  readonly chartFigures = {};
+  readonly chartFigures: Record<UID, ChartDefinition> = {};
 
-  allowDispatch(cmd: CoreCommand): CommandResult {
+  adaptRanges(applyChange: ApplyRangeChange) {
+    for (let [chartId, chart] of Object.entries(this.chartFigures)) {
+      if (chart) {
+        this.adaptDataSetRanges(chart, chartId, applyChange);
+        this.adaptLabelRanges(chart, chartId, applyChange);
+      }
+    }
+  }
+
+  private adaptDataSetRanges(chart: ChartDefinition, chartId: UID, applyChange: ApplyRangeChange) {
+    for (let ds of chart.dataSets) {
+      if (ds.labelCell) {
+        const labelCellChange = applyChange(ds.labelCell);
+        switch (labelCellChange.changeType) {
+          case "REMOVE":
+            this.history.update(
+              "chartFigures",
+              chartId,
+              "dataSets",
+              chart.dataSets.indexOf(ds),
+              "labelCell",
+              undefined
+            );
+            break;
+          case "RESIZE":
+          case "MOVE":
+          case "CHANGE":
+            this.history.update(
+              "chartFigures",
+              chartId,
+              "dataSets",
+              chart.dataSets.indexOf(ds),
+              "labelCell",
+              labelCellChange.range
+            );
+        }
+      }
+      const dataRangeChange = applyChange(ds.dataRange);
+      switch (dataRangeChange.changeType) {
+        case "REMOVE":
+          const newDataSets = chart.dataSets.filter((dataset) => dataset !== ds);
+          this.history.update("chartFigures", chartId, "dataSets", newDataSets);
+          break;
+        case "RESIZE":
+        case "MOVE":
+        case "CHANGE":
+          this.history.update(
+            "chartFigures",
+            chartId,
+            "dataSets",
+            chart.dataSets.indexOf(ds),
+            "dataRange",
+            dataRangeChange.range
+          );
+          break;
+      }
+    }
+  }
+  private adaptLabelRanges(chart: ChartDefinition, chartId: UID, applyChange: ApplyRangeChange) {
+    if (chart.labelRange) {
+      const labelRangeChange = applyChange(chart.labelRange);
+      switch (labelRangeChange.changeType) {
+        case "REMOVE":
+          this.history.update("chartFigures", chartId, "labelRange", undefined);
+          break;
+        case "RESIZE":
+        case "MOVE":
+        case "CHANGE":
+          this.history.update("chartFigures", chartId, "labelRange", labelRangeChange.range);
+          break;
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Command Handling
+  // ---------------------------------------------------------------------------
+
+  allowDispatch(cmd: Command): CommandResult {
     const success: CommandResult = { status: "SUCCESS" };
     switch (cmd.type) {
       case "UPDATE_CHART":
@@ -112,9 +192,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     return {
       title: data && data.title ? data.title : "",
       dataSets,
-      labelRange: data.labelRange ? this.getters.getRangeString(data.labelRange, sheetId) : "",
+      labelRange: data.labelRange
+        ? this.getters.getRangeString(data.labelRange, sheetId)
+        : undefined,
       type: data ? data.type : "bar",
-      dataSetsHaveTitle: data ? Boolean(data.dataSets[0].labelCell) : false,
+      dataSetsHaveTitle:
+        data && dataSets.length !== 0 ? Boolean(data.dataSets[0].labelCell) : false,
     };
   }
 
@@ -215,7 +298,9 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         );
       }
     }
-    const labelRange = this.getters.getRangeFromSheetXC(sheetId, createCommand.labelRange);
+    const labelRange = createCommand.labelRange
+      ? this.getters.getRangeFromSheetXC(sheetId, createCommand.labelRange)
+      : undefined;
     return {
       title: createCommand.title,
       type: createCommand.type,
