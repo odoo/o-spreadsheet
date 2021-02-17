@@ -1,6 +1,12 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, INCORRECT_RANGE_STRING } from "../../constants";
 import { cellReference, rangeTokenize } from "../../formulas/index";
 import {
+  createCols,
+  createDefaultCols,
+  createDefaultRows,
+  createRows,
+  exportCols,
+  exportRows,
   getComposerSheetName,
   groupConsecutive,
   isDefined,
@@ -15,7 +21,6 @@ import {
   Col,
   CommandResult,
   CoreCommand,
-  HeaderData,
   RenameSheetCommand,
   Row,
   Sheet,
@@ -334,10 +339,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       this.history.update("sheets", sheet.id, dimension, i, "end", col.end + delta);
     }
   }
-
-  // ---------------------------------------------------------------------------
-  // Private
-  // ---------------------------------------------------------------------------
 
   private updateCellPosition(cmd: UpdateCellPositionCommand) {
     if (cmd.cell) {
@@ -888,94 +889,4 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       String(y + 1)
     );
   }
-}
-
-function createDefaultCols(colNumber: number): Col[] {
-  const cols: Col[] = [];
-  let current = 0;
-  for (let i = 0; i < colNumber; i++) {
-    const size = DEFAULT_CELL_WIDTH;
-    const col = {
-      start: current,
-      end: current + size,
-      size: size,
-      name: numberToLetters(i),
-    };
-    cols.push(col);
-    current = col.end;
-  }
-  return cols;
-}
-
-function createDefaultRows(rowNumber: number): Row[] {
-  const rows: Row[] = [];
-  let current = 0;
-  for (let i = 0; i < rowNumber; i++) {
-    const size = DEFAULT_CELL_HEIGHT;
-    const row = {
-      start: current,
-      end: current + size,
-      size: size,
-      name: String(i + 1),
-      cells: {},
-    };
-    rows.push(row);
-    current = row.end;
-  }
-  return rows;
-}
-function createCols(savedCols: { [key: number]: HeaderData }, colNumber: number): Col[] {
-  const cols: Col[] = [];
-  let current = 0;
-  for (let i = 0; i < colNumber; i++) {
-    const size = savedCols[i] ? savedCols[i].size || DEFAULT_CELL_WIDTH : DEFAULT_CELL_WIDTH;
-    const col = {
-      start: current,
-      end: current + size,
-      size: size,
-      name: numberToLetters(i),
-    };
-    cols.push(col);
-    current = col.end;
-  }
-  return cols;
-}
-
-function createRows(savedRows: { [key: number]: HeaderData }, rowNumber: number): Row[] {
-  const rows: Row[] = [];
-  let current = 0;
-  for (let i = 0; i < rowNumber; i++) {
-    const size = savedRows[i] ? savedRows[i].size || DEFAULT_CELL_HEIGHT : DEFAULT_CELL_HEIGHT;
-    const row = {
-      start: current,
-      end: current + size,
-      size: size,
-      name: String(i + 1),
-      cells: {},
-    };
-    rows.push(row);
-    current = row.end;
-  }
-  return rows;
-}
-function exportCols(cols: Col[]): { [key: number]: HeaderData } {
-  const exportedCols: { [key: number]: HeaderData } = {};
-  for (let i in cols) {
-    const col = cols[i];
-    if (col.size !== DEFAULT_CELL_WIDTH) {
-      exportedCols[i] = { size: col.size };
-    }
-  }
-  return exportedCols;
-}
-
-function exportRows(rows: Row[]): { [key: number]: HeaderData } {
-  const exportedRows: { [key: number]: HeaderData } = {};
-  for (let i in rows) {
-    const row = rows[i];
-    if (row.size !== DEFAULT_CELL_HEIGHT) {
-      exportedRows[i] = { size: row.size };
-    }
-  }
-  return exportedRows;
 }
