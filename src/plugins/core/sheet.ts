@@ -172,30 +172,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         break;
       }
       case "UPDATE_CELL_POSITION":
-        if (cmd.cell) {
-          const position = this.cellPosition[cmd.cellId];
-          if (position) {
-            this.history.update(
-              "sheets",
-              cmd.sheetId,
-              "rows",
-              position.row,
-              "cells",
-              position.col,
-              undefined
-            );
-          }
-          this.history.update("cellPosition", cmd.cell.id, {
-            row: cmd.row,
-            col: cmd.col,
-            sheetId: cmd.sheetId,
-          });
-          //TODO : remove cell from the command, only store the cellId in sheets[sheet].row[rowIndex].cells[colIndex]
-          this.history.update("sheets", cmd.sheetId, "rows", cmd.row, "cells", cmd.col, cmd.cell);
-        } else {
-          this.history.update("cellPosition", cmd.cellId, undefined);
-          this.history.update("sheets", cmd.sheetId, "rows", cmd.row, "cells", cmd.col, undefined);
-        }
+        this.updateCellPosition(cmd);
         break;
     }
   }
@@ -390,6 +367,33 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
+
+  private updateCellPosition(cmd: UpdateCellPositionCommand) {
+    if (cmd.cell) {
+      const position = this.cellPosition[cmd.cellId];
+      if (position) {
+        this.history.update(
+          "sheets",
+          cmd.sheetId,
+          "rows",
+          position.row,
+          "cells",
+          position.col,
+          undefined
+        );
+      }
+      this.history.update("cellPosition", cmd.cell.id, {
+        row: cmd.row,
+        col: cmd.col,
+        sheetId: cmd.sheetId,
+      });
+      //TODO : remove cell from the command, only store the cellId in sheets[sheet].row[rowIndex].cells[colIndex]
+      this.history.update("sheets", cmd.sheetId, "rows", cmd.row, "cells", cmd.col, cmd.cell);
+    } else {
+      this.history.update("cellPosition", cmd.cellId, undefined);
+      this.history.update("sheets", cmd.sheetId, "rows", cmd.row, "cells", cmd.col, undefined);
+    }
+  }
 
   private clearZones(sheetId: UID, zones: Zone[]) {
     for (let zone of zones) {
