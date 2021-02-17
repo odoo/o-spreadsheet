@@ -47,7 +47,6 @@ export interface CoreGetters {
   getColsZone: SheetPlugin["getColsZone"];
   getRowsZone: SheetPlugin["getRowsZone"];
   getGridSize: SheetPlugin["getGridSize"];
-  getCellByXc: SheetPlugin["getCellByXc"];
 
   zoneToXC: CellPlugin["zoneToXC"];
   getCells: CellPlugin["getCells"];
