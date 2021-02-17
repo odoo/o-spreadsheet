@@ -19,7 +19,6 @@ import {
   RenameSheetCommand,
   Row,
   Sheet,
-  SheetData,
   UID,
   UpdateCellPositionCommand,
   WorkbookData,
@@ -185,23 +184,17 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       this.sheetIds[sheet.name] = sheet.id;
     }
 
-    for (let sheet of data.sheets) {
-      this.importSheet(sheet);
+    for (let sheetData of data.sheets) {
+      const name = sheetData.name || `Sheet${Object.keys(this.sheets).length + 1}`;
+      const sheet: Sheet = {
+        id: sheetData.id,
+        name: name,
+        cols: createCols(sheetData.cols || {}, sheetData.colNumber),
+        rows: createRows(sheetData.rows || {}, sheetData.rowNumber),
+      };
+      this.visibleSheets.push(sheet.id);
+      this.sheets[sheet.id] = sheet;
     }
-  }
-  importSheet(data: SheetData) {
-    let { sheets, visibleSheets } = this;
-    const name = data.name || `Sheet${Object.keys(sheets).length + 1}`;
-    const sheet: Sheet = {
-      id: data.id,
-      name: name,
-      cols: createCols(data.cols || {}, data.colNumber),
-      rows: createRows(data.rows || {}, data.rowNumber),
-    };
-    visibleSheets = visibleSheets.slice();
-    visibleSheets.push(sheet.id);
-    this.history.update("visibleSheets", visibleSheets);
-    this.history.update("sheets", Object.assign({}, sheets, { [sheet.id]: sheet }));
   }
 
   export(data: WorkbookData) {
