@@ -454,8 +454,13 @@ export class ClipboardPlugin extends UIPlugin {
       } else if (!onlyFormat && origin.type === CellType.formula) {
         const offsetX = col - originCol;
         const offsetY = row - originRow;
-        // TODO: replace with range specific stuff
-        content = this.getters.applyOffset(sheetId, content, offsetX, offsetY);
+        const ranges = this.getters.createAdaptedRanges(
+          origin.dependencies,
+          offsetX,
+          offsetY,
+          sheetId
+        );
+        content = this.getters.computeFormulaContent(sheetId, origin.formula.text, ranges);
       }
       const newCell = {
         style,

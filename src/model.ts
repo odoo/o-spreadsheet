@@ -146,6 +146,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     this.range = new RangeAdapter(this.getters);
     this.getters.getRangeString = this.range.getRangeString.bind(this.range);
     this.getters.getRangeFromSheetXC = this.range.getRangeFromSheetXC.bind(this.range);
+    this.getters.createAdaptedRanges = this.range.createAdaptedRanges.bind(this.range);
 
     setIsFastStrategy(true);
     // registering plugins

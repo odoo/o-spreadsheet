@@ -51,6 +51,7 @@ export interface CoreGetters {
   zoneToXC: CellPlugin["zoneToXC"];
   getCells: CellPlugin["getCells"];
   getFormulaCellContent: CellPlugin["getFormulaCellContent"];
+  computeFormulaContent: CellPlugin["computeFormulaContent"];
   getCellText: CellPlugin["getCellText"];
   getCellValue: CellPlugin["getCellValue"];
   getCellStyle: CellPlugin["getCellStyle"];
@@ -81,6 +82,7 @@ export interface CoreGetters {
 
   getRangeString: RangeAdapter["getRangeString"];
   getRangeFromSheetXC: RangeAdapter["getRangeFromSheetXC"];
+  createAdaptedRanges: RangeAdapter["createAdaptedRanges"];
 }
 
 export type Getters = CoreGetters & {

@@ -1214,7 +1214,7 @@ describe("clipboard", () => {
 
     model.dispatch("COPY", { target: [toZone("A1")] });
     model.dispatch("PASTE", { target: [toZone("A2")] });
-    expect(getCellText(model, "A2")).toBe("=#REF");
+    expect(getCellText(model, "A2")).toBe("=Sheet2!A2:A3");
   });
 
   test("can copy and paste a cell which contains a cross-sheet reference to a range", () => {

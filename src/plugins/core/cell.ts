@@ -63,6 +63,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "getCellText",
     "getCellValue",
     "getCellStyle",
+    "computeFormulaContent",
   ];
 
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
@@ -429,20 +430,24 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return this.cells[sheetId] || {};
   }
 
-  getFormulaCellContent(sheetId: UID, cell: FormulaCell): string {
-    let newDependencies = cell.dependencies?.map((x, i) => {
+  computeFormulaContent(sheetId: UID, formula: string, dependencies: Range[]): string {
+    let newDependencies = dependencies.map((x, i) => {
       return {
         stringDependency: this.getters.getRangeString(x, sheetId),
         stringPosition: `${FORMULA_REF_IDENTIFIER}${i}${FORMULA_REF_IDENTIFIER}`,
       };
     });
-    let newContent = cell.formula?.text || "";
+    let newContent = formula;
     if (newDependencies) {
       for (let d of newDependencies) {
         newContent = newContent.replace(d.stringPosition, d.stringDependency);
       }
     }
     return newContent;
+  }
+
+  getFormulaCellContent(sheetId: UID, cell: FormulaCell): string {
+    return this.computeFormulaContent(sheetId, cell.formula.text, cell.dependencies);
   }
 
   getCellValue(cell: Cell, sheetId: UID, showFormula: boolean = false): any {

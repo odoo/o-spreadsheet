@@ -20,6 +20,7 @@ import {
   RangePart,
   RangeProvider,
   UID,
+  Zone,
 } from "../../types/index";
 
 export class RangeAdapter implements CommandHandler<CoreCommand> {
@@ -29,7 +30,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     this.getters = getters;
   }
 
-  static getters = ["getRangeString", "getRangeFromSheetXC"];
+  static getters = ["getRangeString", "getRangeFromSheetXC", "createAdaptedRanges"];
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -199,9 +200,54 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     this.providers.push(provider);
   }
 
+  /**
+   * Check that a zone is valid regarding the order of top-bottom and left-right.
+   * Left should be smaller than right, top should be smaller than bottom.
+   * If it's not the case, simply invert them, and invert the linked parts
+   * (in place!)
+   */
+  private orderZone(zone: Zone, parts: RangePart[]) {
+    if (zone.right < zone.left) {
+      let right = zone.right;
+      zone.right = zone.left;
+      zone.left = right;
+
+      let rightFixed = parts[1].colFixed;
+      parts[1].colFixed = parts[0].colFixed;
+      parts[0].colFixed = rightFixed;
+    }
+
+    if (zone.bottom < zone.top) {
+      let bottom = zone.bottom;
+      zone.bottom = zone.top;
+      zone.top = bottom;
+
+      let bottomFixed = parts[1].rowFixed;
+      parts[1].rowFixed = parts[0].rowFixed;
+      parts[0].rowFixed = bottomFixed;
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
+
+  createAdaptedRanges(ranges: Range[], offsetX: number, offsetY: number, sheetId: UID): Range[] {
+    return ranges.map((range) => {
+      range = {
+        ...range,
+        sheetId: range.prefixSheet ? range.sheetId : sheetId,
+        zone: {
+          left: range.zone.left + (range.parts[0].colFixed ? 0 : offsetX),
+          right: range.zone.right + ((range.parts[1] || range.parts[0]).colFixed ? 0 : offsetX),
+          top: range.zone.top + (range.parts[0].rowFixed ? 0 : offsetY),
+          bottom: range.zone.bottom + ((range.parts[1] || range.parts[0]).rowFixed ? 0 : offsetY),
+        },
+      };
+      this.orderZone(range.zone, range.parts);
+      return range;
+    });
+  }
 
   /**
    * Creates a range from a XC reference that can contain a sheet reference
@@ -235,34 +281,15 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       };
     });
 
-    if (zone.right < zone.left) {
-      let right = zone.right;
-      zone.right = zone.left;
-      zone.left = right;
+    this.orderZone(zone, rangeParts);
 
-      let rightFixed = rangeParts[1].colFixed;
-      rangeParts[1].colFixed = rangeParts[0].colFixed;
-      rangeParts[0].colFixed = rightFixed;
-    }
-
-    if (zone.bottom < zone.top) {
-      let bottom = zone.bottom;
-      zone.bottom = zone.top;
-      zone.top = bottom;
-
-      let bottomFixed = rangeParts[1].rowFixed;
-      rangeParts[1].rowFixed = rangeParts[0].rowFixed;
-      rangeParts[0].rowFixed = bottomFixed;
-    }
-
-    const r: Range = {
+    return {
       sheetId: sheetId || defaultSheetId,
       zone: zone,
       parts: rangeParts,
       invalidSheetName,
       prefixSheet,
     };
-    return r;
   }
 
   /**
