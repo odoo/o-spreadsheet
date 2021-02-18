@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { INCORRECT_RANGE_STRING } from "../../src/constants";
 import "../canvas.mock";
 
 describe("applyOffset", () => {
@@ -27,13 +28,13 @@ describe("applyOffset", () => {
       ],
     });
     expect(model.getters.applyOffset(model.getters.getActiveSheetId(), "=B2", 0, -4)).toEqual(
-      "=#REF"
+      `=${INCORRECT_RANGE_STRING}`
     );
     expect(model.getters.applyOffset(model.getters.getActiveSheetId(), "=B10", 0, 2)).toEqual(
-      "=#REF"
+      `=${INCORRECT_RANGE_STRING}`
     );
     expect(model.getters.applyOffset(model.getters.getActiveSheetId(), "=J1", 2, 0)).toEqual(
-      "=#REF"
+      `=${INCORRECT_RANGE_STRING}`
     );
   });
 
@@ -70,12 +71,12 @@ describe("applyOffset", () => {
     );
     expect(
       model.getters.applyOffset(model.getters.getActiveSheetId(), "=Sheet2!B2", 0, -2)
-    ).toEqual("=#REF");
+    ).toEqual(`=${INCORRECT_RANGE_STRING}`);
     expect(model.getters.applyOffset(model.getters.getActiveSheetId(), "=Sheet2!B2", 1, 1)).toEqual(
       "=Sheet2!C3"
     );
     expect(
       model.getters.applyOffset(model.getters.getActiveSheetId(), "=Sheet2!B2", 1, 10)
-    ).toEqual("=#REF");
+    ).toEqual(`=${INCORRECT_RANGE_STRING}`);
   });
 });
