@@ -268,7 +268,7 @@ describe("clipboard", () => {
     expect(model.getters.isInMerge("s2", ...toCartesian("B5"))).toBe(true);
   });
 
-  test("paste on existing merge removes existing merge", () => {
+  test("paste merge on existing merge removes existing merge", () => {
     const model = new Model({
       sheets: [
         {
@@ -287,6 +287,28 @@ describe("clipboard", () => {
     expect(model.getters.isInMerge("s3", ...toCartesian("C2"))).toBe(false);
     expect(model.getters.isInMerge("s3", ...toCartesian("C3"))).toBe(false);
     expect(model.getters.isInMerge("s3", ...toCartesian("C4"))).toBe(false);
+  });
+
+  test("Pasting content on merge will remove the merge", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "s1",
+          colNumber: 5,
+          rowNumber: 5,
+          cells: {
+            A1: { content: "miam" },
+          },
+          merges: ["B1:C2"],
+        },
+      ],
+    });
+    model.dispatch("COPY", { target: target("A1") });
+    model.dispatch("PASTE", { target: target("B1"), force: true });
+    expect(model.getters.isInMerge("s1", ...toCartesian("B1"))).toBe(false);
+    expect(model.getters.isInMerge("s1", ...toCartesian("B2"))).toBe(false);
+    expect(model.getters.isInMerge("s1", ...toCartesian("C1"))).toBe(false);
+    expect(model.getters.isInMerge("s1", ...toCartesian("C2"))).toBe(false);
   });
 
   test("copy/paste a merge from one page to another", () => {
@@ -428,11 +450,6 @@ describe("clipboard", () => {
           colNumber: 5,
           rowNumber: 5,
           merges: ["B2:C3"],
-        },
-        {
-          id: "s2",
-          colNumber: 5,
-          rowNumber: 5,
         },
       ],
     });
