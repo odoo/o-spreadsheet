@@ -1,4 +1,8 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  INCORRECT_RANGE_STRING,
+} from "../../src/constants";
 import { lettersToNumber, toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { Border, CancelledReason, CellType, UID } from "../../src/types";
@@ -718,7 +722,7 @@ describe("Columns", () => {
         ],
       });
       deleteColumns(model, ["B", "C", "D", "E"]);
-      expect(getCellText(model, "A1", "s1")).toBe("=SUM(#REF)");
+      expect(getCellText(model, "A1", "s1")).toBe(`=SUM(${INCORRECT_RANGE_STRING})`);
     });
     test("update cross sheet range on column deletion", () => {
       model = new Model({
@@ -959,7 +963,7 @@ describe("Rows", () => {
         ],
       });
       deleteRows(model, [1, 2, 3, 4]);
-      expect(getCellText(model, "A1")).toBe("=SUM(#REF)");
+      expect(getCellText(model, "A1")).toBe(`=SUM(${INCORRECT_RANGE_STRING})`);
     });
     test("update cross sheet range on row deletion", () => {
       model = new Model({

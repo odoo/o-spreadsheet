@@ -1,3 +1,4 @@
+import { INCORRECT_RANGE_STRING } from "../../src/constants";
 import { normalize } from "../../src/formulas";
 import { parseDateTime } from "../../src/functions/dates";
 import { toXC, toZone } from "../../src/helpers/index";
@@ -185,7 +186,10 @@ describe("Basic Sorting", () => {
       C1: cellFormula("=SUM(A1, A2)"),
       C2: cellFormula("=A4*10"),
       C3: { content: "=BADBUNNY", type: CellType.invalidFormula },
-      C4: { content: "=#REF/#REF", type: CellType.invalidFormula },
+      C4: {
+        content: `=${INCORRECT_RANGE_STRING}/${INCORRECT_RANGE_STRING}`,
+        type: CellType.invalidFormula,
+      },
       C5: cellFormula('=CONCAT("ki", "kou")'),
       C6: cellFormula("=EQ(A4, 4)"),
     });
@@ -223,11 +227,14 @@ describe("Basic Sorting", () => {
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
       A2: { content: "23" },
-      A3: { content: "=SUM(4, #REF)" },
+      A3: { content: `=SUM(4, ${INCORRECT_RANGE_STRING})` },
       A4: cellFormula("=DATE(2012, 12, 21)"),
       A5: { value: parseDateTime("2020/09/01")!.value },
       A6: { content: "=BADBUNNY", type: CellType.invalidFormula },
-      A7: { content: "=#REF/#REF", type: CellType.invalidFormula },
+      A7: {
+        content: `=${INCORRECT_RANGE_STRING}/${INCORRECT_RANGE_STRING}`,
+        type: CellType.invalidFormula,
+      },
       A8: { content: "Kills" },
       A9: { content: "Machette" },
       A10: cellFormula('=CONCAT("Zor", "glub")'),
@@ -249,11 +256,14 @@ describe("Basic Sorting", () => {
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
       A2: { content: "23" },
-      A3: { content: "=SUM(4, #REF)" },
+      A3: { content: `=SUM(4, ${INCORRECT_RANGE_STRING})` },
       A4: cellFormula("=DATE(2012, 12, 21)"),
       A5: { value: parseDateTime("2020/09/01")!.value },
       A6: { content: "=BADBUNNY", type: CellType.invalidFormula },
-      A7: { content: "=#REF/#REF", type: CellType.invalidFormula },
+      A7: {
+        content: `=${INCORRECT_RANGE_STRING}/${INCORRECT_RANGE_STRING}`,
+        type: CellType.invalidFormula,
+      },
       A8: { content: "Kills" },
       A9: { content: "Machette" },
       A10: cellFormula('=CONCAT("Zor", "glub")'),
@@ -622,7 +632,7 @@ describe("Sort adjacent columns with headers", () => {
       A1: { content: "Tango" },
       A2: { content: "Alpha" },
       A3: { content: "Delta" },
-      A4: { content: "=#REF" }, // refered to B5 which is empty
+      A4: { content: `=${INCORRECT_RANGE_STRING}` }, // refered to B5 which is empty
       B1: { content: "49" },
       B2: { content: "192" },
       B3: { content: "2500" },

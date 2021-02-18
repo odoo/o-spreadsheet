@@ -1,5 +1,6 @@
 import { ChartConfiguration, ChartType } from "chart.js";
 import { chartTerms } from "../../components/side_panel/translations_terms";
+import { INCORRECT_RANGE_STRING } from "../../constants";
 import { isInside, recomputeZones, zoneToXc } from "../../helpers/index";
 import { Mode } from "../../model";
 import { ChartDefinition, DataSet } from "../../types/chart";
@@ -173,7 +174,7 @@ export class EvaluationChartPlugin extends UIPlugin {
     let labels: string[] = [];
     if (definition.labelRange) {
       const rangeString = this.getters.getRangeString(definition.labelRange, definition.sheetId);
-      if (rangeString !== "#REF") {
+      if (rangeString !== INCORRECT_RANGE_STRING) {
         labels = this.getters.getRangeFormattedValues(rangeString, definition.sheetId).flat(1);
       }
     }
