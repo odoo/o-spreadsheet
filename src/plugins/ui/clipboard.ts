@@ -79,12 +79,26 @@ export class ClipboardPlugin extends UIPlugin {
         }
         break;
       case "PASTE_CELL":
-        const [mainCellCol, mainCellRow] = this.getters.getMainCell(
+        const [mainCellColOrigin, mainCellRowOrigin] = this.getters.getMainCell(
           cmd.originSheet,
           cmd.originCol,
           cmd.originRow
         );
-        if (mainCellCol == cmd.originCol && mainCellRow == cmd.originRow) {
+        const [mainCellColTarget, mainCellRowTarget] = this.getters.getMainCell(
+          cmd.sheetId,
+          cmd.col,
+          cmd.row
+        );
+        if (mainCellColTarget === cmd.col && mainCellRowTarget === cmd.row) {
+          const merge = this.getters.getMerge(cmd.sheetId, cmd.col, cmd.row);
+          if (merge) {
+            this.dispatch("REMOVE_MERGE", {
+              sheetId: cmd.sheetId,
+              zone: merge,
+            });
+          }
+        }
+        if (mainCellColOrigin === cmd.originCol && mainCellRowOrigin === cmd.originRow) {
           this.pasteMerge(
             cmd.originCol,
             cmd.originRow,
