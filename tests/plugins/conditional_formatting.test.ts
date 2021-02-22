@@ -1,8 +1,8 @@
 import { toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason, ConditionalFormattingOperatorValues } from "../../src/types";
-import { addColumns, addRows, createSheet, redo, setCellContent, undo } from "../commands_helpers";
-import { createColorScale, createEqualCF } from "../helpers";
+import { addColumns, addRows, createSheet, redo, setCellContent, undo } from "../test_helpers/commands_helpers";
+import { createColorScale, createEqualCF } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;

@@ -1,10 +1,10 @@
 import { toCartesian, toZone, uuidv4 } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
-import { createSheet, redo, setCellContent, undo } from "../commands_helpers";
-import { getCell, getCellContent, getCellText } from "../getters_helpers";
-import "../helpers";
-import { createEqualCF, mockUuidV4To, testUndoRedo } from "../helpers";
+import { createSheet, redo, setCellContent, undo } from "../test_helpers/commands_helpers";
+import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
+import "../test_helpers/helpers";
+import { createEqualCF, mockUuidV4To, testUndoRedo } from "../test_helpers/helpers";
 
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 

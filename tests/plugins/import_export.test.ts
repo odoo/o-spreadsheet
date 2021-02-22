@@ -4,9 +4,9 @@ import { CURRENT_VERSION } from "../../src/data";
 import { Model } from "../../src/model";
 import { corePluginRegistry } from "../../src/plugins";
 import { BorderDescr, WorkbookData } from "../../src/types/index";
-import { getMerges } from "../getters_helpers";
-import "../helpers";
-import { mockUuidV4To, toPosition } from "../helpers";
+import { getMerges } from "../test_helpers/getters_helpers";
+import "../test_helpers/helpers";
+import { mockUuidV4To, toPosition } from "../test_helpers/helpers";
 
 describe("data", () => {
   test("give default col size if not specified", () => {

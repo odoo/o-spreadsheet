@@ -4,8 +4,8 @@ import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { SheetUIPlugin } from "../../src/plugins/ui/ui_sheet";
 import { CancelledReason, Cell, UID } from "../../src/types";
-import { createSheet, setCellContent } from "../commands_helpers";
-import { getCell, getCellContent } from "../getters_helpers";
+import { createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 
 function setFormat(model: Model, format: string) {
   model.dispatch("SET_FORMATTING", {

@@ -1,6 +1,6 @@
 import { DEFAULT_REVISION_ID } from "../src/constants";
 import { CURRENT_VERSION, load } from "../src/data";
-import { mockUuidV4To } from "./helpers";
+import { mockUuidV4To } from "./test_helpers/helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
 describe("load data", () => {

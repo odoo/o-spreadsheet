@@ -1,6 +1,6 @@
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
-import { getCellText } from "../getters_helpers";
+import { getCellText } from "../test_helpers/getters_helpers";
 import {
   GridParent,
   makeTestFixture,
@@ -8,7 +8,7 @@ import {
   resetFunctions,
   startGridComposition,
   typeInComposer as typeInComposerHelper,
-} from "../helpers";
+} from "../test_helpers/helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")

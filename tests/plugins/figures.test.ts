@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import { Viewport } from "../../src/types";
-import { createSheet, selectCell, undo } from "../commands_helpers";
+import { createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
 
 const viewport: Viewport = {
   left: 0,

@@ -1,7 +1,7 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { Viewport } from "../../src/types";
-import { getActiveXc } from "../getters_helpers";
+import { getActiveXc } from "../test_helpers/getters_helpers";
 
 function getViewport(
   model: Model,

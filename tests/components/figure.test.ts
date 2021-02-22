@@ -4,10 +4,10 @@ import { corePluginRegistry } from "../../src/plugins";
 import { CorePlugin } from "../../src/plugins/core_plugin";
 import { figureRegistry } from "../../src/registries/figure_registry";
 import { BaseCommand, Command, Figure, SpreadsheetEnv, UID } from "../../src/types";
-import { setCellContent } from "../commands_helpers";
-import { simulateClick } from "../dom_helper";
-import { getCellContent } from "../getters_helpers";
-import { GridParent, makeTestFixture, nextTick } from "../helpers";
+import { setCellContent } from "../test_helpers/commands_helpers";
+import { simulateClick } from "../test_helpers/dom_helper";
+import { getCellContent } from "../test_helpers/getters_helpers";
+import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
 
 jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);

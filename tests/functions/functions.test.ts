@@ -1,8 +1,8 @@
 import { Model } from "../../src";
 import { args, functionRegistry } from "../../src/functions/index";
-import { setCellContent } from "../commands_helpers";
-import { getCell } from "../getters_helpers";
-import { evaluateCell } from "../helpers";
+import { setCellContent } from "../test_helpers/commands_helpers";
+import { getCell } from "../test_helpers/getters_helpers";
+import { evaluateCell } from "../test_helpers/helpers";
 
 describe("addFunction", () => {
   test("can add a function", () => {

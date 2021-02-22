@@ -1,8 +1,8 @@
 import { Model } from "../../src";
 import { toCartesian } from "../../src/helpers";
 import { ReplaceOptions, SearchOptions } from "../../src/plugins/ui/find_and_replace";
-import { createSheet } from "../commands_helpers";
-import { getCellContent, getCellText } from "../getters_helpers";
+import { createSheet } from "../test_helpers/commands_helpers";
+import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
 
 let model: Model;
 let searchOptions: SearchOptions;

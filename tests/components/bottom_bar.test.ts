@@ -2,9 +2,9 @@ import { Component, hooks, tags } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
-import { createSheet } from "../commands_helpers";
-import { triggerMouseEvent } from "../dom_helper";
-import { makeTestFixture, mockUuidV4To, nextTick } from "../helpers";
+import { createSheet } from "../test_helpers/commands_helpers";
+import { triggerMouseEvent } from "../test_helpers/dom_helper";
+import { makeTestFixture, mockUuidV4To, nextTick } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 const { xml } = tags;

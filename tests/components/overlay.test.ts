@@ -11,10 +11,10 @@ import { fontSizeMap } from "../../src/fonts";
 import { lettersToNumber, toXC } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { SelectionMode } from "../../src/plugins/ui/selection";
-import { redo, setCellContent, undo } from "../commands_helpers";
-import { triggerMouseEvent } from "../dom_helper";
-import { getActiveXc } from "../getters_helpers";
-import { GridParent, makeTestFixture, nextTick } from "../helpers";
+import { redo, setCellContent, undo } from "../test_helpers/commands_helpers";
+import { triggerMouseEvent } from "../test_helpers/dom_helper";
+import { getActiveXc } from "../test_helpers/getters_helpers";
+import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;

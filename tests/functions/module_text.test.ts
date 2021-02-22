@@ -1,4 +1,4 @@
-import { evaluateCell, evaluateGrid } from "../helpers";
+import { evaluateCell, evaluateGrid } from "../test_helpers/helpers";
 
 describe("CHAR formula", () => {
   test("functional tests on simple arguments", () => {

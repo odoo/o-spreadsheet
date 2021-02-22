@@ -1,4 +1,4 @@
-import { evaluateCell } from "../helpers";
+import { evaluateCell } from "../test_helpers/helpers";
 
 describe("ISERROR formula", () => {
   test("functional tests on simple arguments", () => {
