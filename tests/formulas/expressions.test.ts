@@ -1,4 +1,4 @@
-import { evaluateCell } from "../helpers";
+import { evaluateCell } from "../test_helpers/helpers";
 
 /**
  * Tests in this file are supposed to test mostly the compiler/functions parts,

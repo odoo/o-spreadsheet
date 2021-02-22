@@ -13,9 +13,9 @@ import {
   selectCell,
   setCellContent,
   undo,
-} from "../commands_helpers";
-import { getBorder, getCell, getCellContent } from "../getters_helpers";
-import { toPosition } from "../helpers";
+} from "../test_helpers/commands_helpers";
+import { getBorder, getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { toPosition } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 

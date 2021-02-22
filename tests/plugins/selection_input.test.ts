@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { toCartesian, zoneToXc } from "../../src/helpers";
 import { CancelledReason } from "../../src/types";
-import { createSheet } from "../commands_helpers";
+import { createSheet } from "../test_helpers/commands_helpers";
 
 function select(model: Model, xc: string) {
   const [col, row] = toCartesian(xc);

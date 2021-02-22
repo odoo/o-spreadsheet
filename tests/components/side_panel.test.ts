@@ -4,8 +4,8 @@ import { Model } from "../../src/model";
 import { sidePanelRegistry } from "../../src/registries/index";
 import { SidePanelContent } from "../../src/registries/side_panel_registry";
 import { SpreadsheetEnv } from "../../src/types";
-import { simulateClick } from "../dom_helper";
-import { makeTestFixture, nextTick } from "../helpers";
+import { simulateClick } from "../test_helpers/dom_helper";
+import { makeTestFixture, nextTick } from "../test_helpers/helpers";
 
 const { useRef } = hooks;
 const { xml } = tags;

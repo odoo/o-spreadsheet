@@ -10,8 +10,8 @@ import {
   redo,
   setCellContent,
   undo,
-} from "../commands_helpers";
-import { getCell, getCellContent } from "../getters_helpers";
+} from "../test_helpers/commands_helpers";
+import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 

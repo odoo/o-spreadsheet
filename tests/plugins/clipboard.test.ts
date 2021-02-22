@@ -8,9 +8,9 @@ import {
   Style,
   Zone,
 } from "../../src/types/index";
-import { createSheet, setCellContent, undo } from "../commands_helpers";
-import { getBorder, getCell, getCellContent, getCellText } from "../getters_helpers";
-import { getGrid, target } from "../helpers";
+import { createSheet, setCellContent, undo } from "../test_helpers/commands_helpers";
+import { getBorder, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
+import { getGrid, target } from "../test_helpers/helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);

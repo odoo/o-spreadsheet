@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
 import { HighlightPlugin } from "../../src/plugins/ui/highlight";
-import { createSheet } from "../commands_helpers";
+import { createSheet } from "../test_helpers/commands_helpers";
 
 let model: Model;
 

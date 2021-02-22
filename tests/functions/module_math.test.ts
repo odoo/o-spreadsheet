@@ -1,5 +1,5 @@
 import { toNumber } from "../../src/functions/helpers";
-import { evaluateCell, evaluateCellText, evaluateGrid } from "../helpers";
+import { evaluateCell, evaluateCellText, evaluateGrid } from "../test_helpers/helpers";
 
 describe("ABS formula", () => {
   test("take 1 argument", () => {

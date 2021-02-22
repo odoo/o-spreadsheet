@@ -1,7 +1,7 @@
-import { toCartesian, toXC } from "../src/helpers/index";
-import { Model } from "../src/model";
-import { MergePlugin } from "../src/plugins/core/merge";
-import { Border, Cell, Merge, Sheet, UID } from "../src/types";
+import { toCartesian, toXC } from "../../src/helpers/index";
+import { Model } from "../../src/model";
+import { MergePlugin } from "../../src/plugins/core/merge";
+import { Border, Cell, Merge, Sheet, UID } from "../../src/types";
 
 /**
  * Get the active XC

@@ -3,10 +3,10 @@ import { toCartesian, toZone } from "../../src/helpers";
 import { AutofillPlugin } from "../../src/plugins/ui/autofill";
 import { Border, ConditionalFormat, Style } from "../../src/types";
 import { DIRECTION } from "../../src/types/index";
-import { createSheet, setCellContent } from "../commands_helpers";
-import { getCell, getCellContent, getCellText, getMerges } from "../getters_helpers"; // to have getcontext mocks
-import "../helpers";
-import { getMergeCellMap, toPosition, XCToMergeCellMap } from "../helpers";
+import { createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import { getCell, getCellContent, getCellText, getMerges } from "../test_helpers/getters_helpers"; // to have getcontext mocks
+import "../test_helpers/helpers";
+import { getMergeCellMap, toPosition, XCToMergeCellMap } from "../test_helpers/helpers";
 
 let autoFill: AutofillPlugin;
 let model: Model;

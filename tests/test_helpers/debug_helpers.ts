@@ -1,7 +1,7 @@
-import { Model } from "../src";
-import { Branch } from "../src/history/branch";
-import { Tree } from "../src/history/tree";
-import { UID } from "../src/types";
+import { Model } from "../../src";
+import { Branch } from "../../src/history/branch";
+import { Tree } from "../../src/history/tree";
+import { UID } from "../../src/types";
 
 interface Data {
   _commands?: any[];

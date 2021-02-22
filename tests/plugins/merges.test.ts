@@ -1,9 +1,9 @@
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CancelledReason, Style } from "../../src/types/index";
-import { redo, setCellContent, undo } from "../commands_helpers";
-import { getActiveXc, getBorder, getCell, getCellContent, getMerges } from "../getters_helpers";
-import { getMergeCellMap, toPosition, XCToMergeCellMap } from "../helpers";
+import { redo, setCellContent, undo } from "../test_helpers/commands_helpers";
+import { getActiveXc, getBorder, getCell, getCellContent, getMerges } from "../test_helpers/getters_helpers";
+import { getMergeCellMap, toPosition, XCToMergeCellMap } from "../test_helpers/helpers";
 
 function getCellsXC(model: Model): string[] {
   return Object.values(model.getters.getCells(model.getters.getActiveSheetId())).map((cell) => {

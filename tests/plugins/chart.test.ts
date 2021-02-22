@@ -1,8 +1,8 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers/zones";
 import { CancelledReason, Viewport } from "../../src/types";
-import { selectCell, setCellContent } from "../commands_helpers";
-import { mockUuidV4To, testUndoRedo, waitForRecompute } from "../helpers";
+import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { mockUuidV4To, testUndoRedo, waitForRecompute } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;

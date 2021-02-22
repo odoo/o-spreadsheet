@@ -1,9 +1,9 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { SelectionInput } from "../../src/components/selection_input";
-import { createSheet, undo } from "../commands_helpers";
-import { simulateClick } from "../dom_helper";
-import { makeTestFixture, nextTick } from "../helpers";
+import { createSheet, undo } from "../test_helpers/commands_helpers";
+import { simulateClick } from "../test_helpers/dom_helper";
+import { makeTestFixture, nextTick } from "../test_helpers/helpers";
 
 const { xml } = tags;
 const { useSubEnv, useRef } = hooks;

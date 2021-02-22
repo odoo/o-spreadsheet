@@ -14,15 +14,15 @@ import {
   deleteRows,
   redo,
   undo,
-} from "../commands_helpers";
-import { getBorder, getCell, getCellContent, getCellText, getMerges } from "../getters_helpers";
+} from "../test_helpers/commands_helpers";
+import { getBorder, getCell, getCellContent, getCellText, getMerges } from "../test_helpers/getters_helpers";
 import {
   getMergeCellMap,
   makeTestFixture,
   mockUuidV4To,
   toPosition,
   XCToMergeCellMap,
-} from "../helpers";
+} from "../test_helpers/helpers";
 let model: Model;
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 

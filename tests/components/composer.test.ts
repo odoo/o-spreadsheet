@@ -1,16 +1,16 @@
 import { colors, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { HighlightPlugin } from "../../src/plugins/ui/highlight";
-import { createSheet, setCellContent } from "../commands_helpers";
-import { triggerMouseEvent } from "../dom_helper";
-import { getActiveXc, getCell, getCellContent, getCellText } from "../getters_helpers";
+import { createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import { triggerMouseEvent } from "../test_helpers/dom_helper";
+import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
   GridParent,
   makeTestFixture,
   nextTick,
   startGridComposition as startComposition,
   typeInComposer as typeInComposerHelper,
-} from "../helpers";
+} from "../test_helpers/helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
