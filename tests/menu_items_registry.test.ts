@@ -3,6 +3,7 @@ import { fontSizes } from "../src/fonts";
 import { toZone } from "../src/helpers";
 import { FullMenuItem, topbarMenuRegistry } from "../src/registries/index";
 import { CommandResult, SpreadsheetEnv } from "../src/types";
+import { selectCell } from "./test_helpers/commands_helpers";
 import { GridParent, makeTestFixture, mockUuidV4To, nextTick } from "./test_helpers/helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
@@ -178,12 +179,12 @@ describe("Menu Item actions", () => {
     });
 
     test("A selected cell", () => {
-      model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+      selectCell(model, "D4");
       expect(getName(path, env)).toBe("Delete row 4");
     });
 
     test("Multiple selected cells", () => {
-      model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+      selectCell(model, "D4");
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("Delete rows 4 - 5");
       doAction(path, env);
@@ -219,7 +220,7 @@ describe("Menu Item actions", () => {
     });
 
     test("A selected cell", () => {
-      model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+      selectCell(model, "D4");
       expect(getName(path, env)).toBe("Delete column D");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS", {
@@ -229,7 +230,7 @@ describe("Menu Item actions", () => {
     });
 
     test("Multiple selected cells", () => {
-      model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+      selectCell(model, "D4");
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("Delete columns D - E");
       doAction(path, env);
@@ -269,13 +270,13 @@ describe("Menu Item actions", () => {
     });
 
     test("A selected cell", () => {
-      model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+      selectCell(model, "D4");
       expect(getName(path, env)).toBe("Row above");
       expect(getNode(path).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected cells", () => {
-      model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+      selectCell(model, "D4");
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("2 Rows above");
       doAction(path, env);
@@ -318,13 +319,13 @@ describe("Menu Item actions", () => {
     });
 
     test("A selected cell", () => {
-      model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+      selectCell(model, "D4");
       expect(getName(path, env)).toBe("Row below");
       expect(getNode(path).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected cells", () => {
-      model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+      selectCell(model, "D4");
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("2 Rows below");
       doAction(path, env);
@@ -367,13 +368,13 @@ describe("Menu Item actions", () => {
     });
 
     test("A selected cell", () => {
-      model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+      selectCell(model, "D4");
       expect(getName(path, env)).toBe("Column left");
       expect(getNode(path).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected cells", () => {
-      model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+      selectCell(model, "D4");
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("2 Columns left");
       doAction(path, env);
@@ -416,13 +417,13 @@ describe("Menu Item actions", () => {
     });
 
     test("A selected cell", () => {
-      model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+      selectCell(model, "D4");
       expect(getName(path, env)).toBe("Column right");
       expect(getNode(path).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected cells", () => {
-      model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+      selectCell(model, "D4");
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("2 Columns right");
       doAction(path, env);

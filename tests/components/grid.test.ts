@@ -2,7 +2,7 @@ import { Grid } from "../../src/components/grid";
 import { MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { setCellContent } from "../test_helpers/commands_helpers";
+import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick, Touch } from "../test_helpers/helpers";
@@ -231,7 +231,7 @@ describe("Grid component", () => {
     });
 
     test("pressing shift+ENTER in edit mode stop editing and move one cell up", async () => {
-      model.dispatch("SELECT_CELL", { col: 0, row: 1 });
+      selectCell(model, "A2");
       expect(getActiveXc(model)).toBe("A2");
       model.dispatch("START_EDITION", { text: "a" });
       await nextTick();
@@ -260,7 +260,7 @@ describe("Grid component", () => {
     });
 
     test("pressing shift+TAB move to previous cell", async () => {
-      model.dispatch("SELECT_CELL", { col: 1, row: 0 });
+      selectCell(model, "B1");
       expect(getActiveXc(model)).toBe("B1");
       parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
       expect(getActiveXc(model)).toBe("A1");
@@ -364,7 +364,7 @@ describe("Grid component", () => {
   describe("paint format tool with grid selection", () => {
     test("can paste format with mouse", async () => {
       setCellContent(model, "B2", "b2");
-      model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+      selectCell(model, "B2");
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
@@ -380,7 +380,7 @@ describe("Grid component", () => {
 
     test("can paste format with key", async () => {
       setCellContent(model, "B2", "b2");
-      model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+      selectCell(model, "B2");
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
@@ -518,10 +518,10 @@ describe("multi sheet with different sizes", function () {
 
   test("multiple sheets of different size render correctly", async () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("small");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "small", sheetIdTo: "big" });
     await nextTick();
-    model.dispatch("SELECT_CELL", { col: 4, row: 4 });
+    selectCell(model, "E5");
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "big", sheetIdTo: "small" });
     await nextTick();
     expect((parent.grid.comp! as Grid)["viewport"]).toMatchObject({
@@ -532,7 +532,7 @@ describe("multi sheet with different sizes", function () {
       offsetX: 0,
       offsetY: 0,
     });
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "small", sheetIdTo: "big" });
     await nextTick();
     expect((parent.grid.comp! as Grid)["viewport"]).toMatchObject({
@@ -547,7 +547,7 @@ describe("multi sheet with different sizes", function () {
 
   test("deleting the row that has the active cell doesn't crash", async () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("small");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("REMOVE_COLUMNS", { columns: [1], sheetId: model.getters.getActiveSheetId() });
     await nextTick();
     expect((parent.grid.comp! as Grid)["viewport"]).toMatchObject({

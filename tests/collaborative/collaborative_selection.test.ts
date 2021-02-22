@@ -84,7 +84,7 @@ describe("Collaborative selection", () => {
 
   test("Cell selected is updated after insert column", () => {
     const sheetId = alice.getters.getActiveSheetId();
-    alice.dispatch("SELECT_CELL", { col: 1, row: 0 });
+    selectCell(alice, "B1");
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     addColumns(bob, "before", "B", 2);
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);

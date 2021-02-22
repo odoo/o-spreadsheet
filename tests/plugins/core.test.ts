@@ -1,7 +1,13 @@
 import { Model } from "../../src/model";
 import { LOADING } from "../../src/plugins/ui/evaluation";
 import { CancelledReason } from "../../src/types";
-import { createSheet, redo, setCellContent, undo } from "../test_helpers/commands_helpers";
+import {
+  createSheet,
+  redo,
+  selectCell,
+  setCellContent,
+  undo,
+} from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { waitForRecompute } from "../test_helpers/helpers";
 
@@ -14,7 +20,7 @@ describe("core", () => {
 
       expect(model.getters.getAggregate()).toBe(null);
 
-      model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+      selectCell(model, "A1");
 
       expect(model.getters.getAggregate()).toBe(null);
 
@@ -29,7 +35,7 @@ describe("core", () => {
       setCellContent(model, "A3", "3");
 
       // select A1
-      model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+      selectCell(model, "A1");
       expect(model.getters.getAggregate()).toBe(null);
 
       // select A1:A2
@@ -47,7 +53,7 @@ describe("core", () => {
       setCellContent(model, "A2", "44");
 
       // select A1
-      model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+      selectCell(model, "A1");
       expect(model.getters.getAggregate()).toBe(null);
 
       // select A1:A2
@@ -69,7 +75,7 @@ describe("core", () => {
 
     test("format cell without content: empty string", () => {
       const model = new Model();
-      model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+      selectCell(model, "B2");
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: model.getters.getSelectedZones(),
@@ -81,7 +87,7 @@ describe("core", () => {
     test("format cell with the zero value", () => {
       const model = new Model();
       setCellContent(model, "A1", "0");
-      model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+      selectCell(model, "A1");
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: model.getters.getSelectedZones(),
@@ -89,7 +95,7 @@ describe("core", () => {
       });
       expect(getCellContent(model, "A1")).toBe("0.00000");
       setCellContent(model, "A2", "0");
-      model.dispatch("SELECT_CELL", { col: 0, row: 1 });
+      selectCell(model, "A2");
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: model.getters.getSelectedZones(),
@@ -101,7 +107,7 @@ describe("core", () => {
     test("format a pendingcell: should not apply format to Loading...", () => {
       const model = new Model();
       setCellContent(model, "B2", "=Wait(1000)");
-      model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+      selectCell(model, "B2");
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: model.getters.getSelectedZones(),
@@ -336,7 +342,7 @@ describe("history", () => {
     setCellContent(model, "A2", "3");
 
     expect(getCellContent(model, "A2")).toBe("3");
-    model.dispatch("SELECT_CELL", { col: 0, row: 1 });
+    selectCell(model, "A2");
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
