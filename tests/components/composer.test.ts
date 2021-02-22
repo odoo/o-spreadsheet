@@ -1,7 +1,7 @@
 import { colors, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { HighlightPlugin } from "../../src/plugins/ui/highlight";
-import { createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
@@ -135,21 +135,21 @@ describe("ranges and highlights", () => {
   });
 
   test("=Key UP in B2, should select and highlight B1", async () => {
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     await typeInComposer("=");
     await keydown("ArrowUp");
     expect(model.getters.getCurrentContent()).toBe("=B1");
   });
 
   test("=Key LEFT in B2, should select and highlight A2", async () => {
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     await typeInComposer("=");
     await keydown("ArrowLeft");
     expect(model.getters.getCurrentContent()).toBe("=A2");
   });
 
   test("=Key DOWN and UP in B2, should select and highlight B2", async () => {
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     await typeInComposer("=");
     await keydown("ArrowDown");
     await keydown("ArrowUp");
@@ -157,7 +157,7 @@ describe("ranges and highlights", () => {
   });
 
   test("=key UP 2 times and key DOWN in B2, should select and highlight B2", async () => {
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     await typeInComposer("=");
     await keydown("ArrowUp");
     await keydown("ArrowUp");
@@ -180,11 +180,11 @@ describe("ranges and highlights", () => {
   });
 
   test("Create a ref with merges with keyboard -> the merge should be treated as one cell", async () => {
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("ALTER_SELECTION", { delta: [1, 1] });
     const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:C3") });
-    model.dispatch("SELECT_CELL", { col: 2, row: 0 });
+    selectCell(model, "C1");
     await typeInComposer("=");
     await keydown("ArrowDown");
     expect(model.getters.getCurrentContent()).toBe("=B2");

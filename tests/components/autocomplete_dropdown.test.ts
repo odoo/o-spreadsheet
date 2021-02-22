@@ -1,5 +1,6 @@
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
+import { selectCell } from "../test_helpers/commands_helpers";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
   GridParent,
@@ -260,7 +261,7 @@ describe("Autocomplete parenthesis", () => {
     await typeInComposer("=sum(1,2)");
     composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+    selectCell(model, "A1");
     //edit A1
     parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
@@ -314,7 +315,7 @@ describe("Autocomplete parenthesis", () => {
   test("=sum(sum(1,2) + click outside composer should add the missing parenthesis", async () => {
     await typeInComposer("=sum(sum(1,2");
 
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     await nextTick();
     expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
   });

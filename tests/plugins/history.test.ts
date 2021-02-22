@@ -2,7 +2,13 @@ import { MAX_HISTORY_STEPS } from "../../src/constants";
 import { Model } from "../../src/model";
 import { StateObserver } from "../../src/state_observer";
 import { CancelledReason } from "../../src/types/commands";
-import { createSheet, redo, setCellContent, undo } from "../test_helpers/commands_helpers";
+import {
+  createSheet,
+  redo,
+  selectCell,
+  setCellContent,
+  undo,
+} from "../test_helpers/commands_helpers";
 import { getBorder, getCell, getCellContent } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
 import { waitForRecompute } from "../test_helpers/helpers";
@@ -199,7 +205,7 @@ describe("Model history", () => {
 
   test("two identical changes do not count as two undo steps", () => {
     const model = new Model();
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),

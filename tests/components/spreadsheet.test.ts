@@ -5,7 +5,7 @@ import { args, functionRegistry } from "../../src/functions";
 import { DEBUG } from "../../src/helpers";
 import { SelectionMode } from "../../src/plugins/ui/selection";
 import { Client } from "../../src/types";
-import { createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, MockClipboard, nextTick, typeInComposer } from "../test_helpers/helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
@@ -276,7 +276,7 @@ describe("Composer interactions", () => {
 
   test("top bar composer display active cell content", async () => {
     setCellContent(parent.model, "A2", "Hello");
-    parent.model.dispatch("SELECT_CELL", { col: 0, row: 1 });
+    selectCell(parent.model, "A2");
     await nextTick();
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
     expect(topBarComposer!.textContent).toBe("Hello");
@@ -322,9 +322,9 @@ describe("Composer interactions", () => {
     await typeInComposer(topBarComposer!, "=");
     const spy = jest.spyOn(gridComposerContainer.style, "width", "set");
     await nextTick();
-    parent.model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(parent.model, "B2");
     await nextTick();
-    parent.model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(parent.model, "B2");
     await nextTick();
     expect(spy).not.toHaveBeenCalled();
   });

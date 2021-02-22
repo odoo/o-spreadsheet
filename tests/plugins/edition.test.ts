@@ -1,7 +1,7 @@
 import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
-import { createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
 import { target } from "../test_helpers/helpers";
@@ -39,7 +39,7 @@ describe("edition", () => {
 
     // removing
     expect(getCellContent(model, "A2")).toBe("a2");
-    model.dispatch("SELECT_CELL", { col: 0, row: 1 });
+    selectCell(model, "A2");
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
@@ -303,10 +303,7 @@ describe("edition", () => {
     });
     expect(model.getters.getCurrentContent()).toBe("=A1:A3");
 
-    model.dispatch("SELECT_CELL", {
-      col: 0,
-      row: 0,
-    });
+    selectCell(model, "A1");
     expect(model.getters.getCurrentContent()).toBe("=A1");
 
     model.dispatch("MOVE_POSITION", {
@@ -350,7 +347,7 @@ describe("edition", () => {
     const model = new Model();
     setCellContent(model, "A2", "Hello sir");
     model.dispatch("START_EDITION", { text: "coucou" });
-    model.dispatch("SELECT_CELL", { col: 0, row: 1 });
+    selectCell(model, "A2");
     expect(model.getters.getCurrentContent()).toBe("Hello sir");
   });
 
@@ -377,7 +374,7 @@ describe("edition", () => {
     expect(model.getters.getCurrentContent()).toBe("Hello sir");
     const [col, row] = toCartesian("A2");
     expect(model.getters.getCell(model.getters.getActiveSheetId(), col, row)).toBeUndefined();
-    model.dispatch("SELECT_CELL", { col, row });
+    selectCell(model, "A2");
     expect(model.getters.getCurrentContent()).toBe("");
   });
 
@@ -385,7 +382,7 @@ describe("edition", () => {
     const model = new Model();
     const [col, row] = toCartesian("A2");
     expect(model.getters.getCell(model.getters.getActiveSheetId(), col, row)).toBeUndefined();
-    model.dispatch("SELECT_CELL", { col, row });
+    selectCell(model, "A2");
     model.dispatch("START_EDITION", { text: "=" });
     expect(model.getters.getEditionMode()).toBe("selecting");
     model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
@@ -396,7 +393,7 @@ describe("edition", () => {
     const model = new Model();
     setCellContent(model, "A2", "=SUM(5)");
     model.dispatch("START_EDITION");
-    model.dispatch("SELECT_CELL", { col: 0, row: 1 });
+    selectCell(model, "A2");
     expect(model.getters.getCurrentContent()).toBe("=SUM(5)");
   });
 
@@ -419,7 +416,7 @@ describe("edition", () => {
     model.dispatch("COPY", {
       target: target("A1"),
     });
-    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
+    selectCell(model, "B1");
     model.dispatch("PASTE", {
       target: target("B1"),
     });
@@ -436,7 +433,7 @@ describe("edition", () => {
         },
       ],
     });
-    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
+    selectCell(model, "B1");
     expect(model.getters.getCurrentContent()).toBe("Hello");
     model.dispatch("UPDATE_CELL", {
       col: 2,

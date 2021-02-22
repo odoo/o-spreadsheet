@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
 import { HighlightPlugin } from "../../src/plugins/ui/highlight";
-import { createSheet } from "../test_helpers/commands_helpers";
+import { createSheet, selectCell } from "../test_helpers/commands_helpers";
 
 let model: Model;
 
@@ -145,7 +145,7 @@ describe("highlight", () => {
 
   test("highlight cell selection", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: getColor(model),
@@ -233,7 +233,7 @@ describe("highlight", () => {
     });
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     model.dispatch("START_SELECTION_EXPANSION");
-    model.dispatch("SELECT_CELL", { col: 10, row: 10 });
+    selectCell(model, "K11");
     model.dispatch("STOP_SELECTION");
     expect(model.getters.getHighlights().length).toBe(2);
     const [firstColor, secondColor] = model.getters.getHighlights().map((h) => h.color);
@@ -328,7 +328,7 @@ describe("highlight", () => {
     });
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     model.dispatch("START_SELECTION");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: getColor(model),
@@ -341,10 +341,10 @@ describe("highlight", () => {
   test("expanding selection does not remove pending highlight from previous zones", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     model.dispatch("START_SELECTION");
-    model.dispatch("SELECT_CELL", { col: 5, row: 5 });
+    selectCell(model, "F6");
     const firstColor = getColor(model);
     model.dispatch("START_SELECTION_EXPANSION");
-    model.dispatch("SELECT_CELL", { col: 7, row: 7 });
+    selectCell(model, "H8");
     expect(model.getters.getSelectedZones().length).toBe(2);
     expect(model.getters.getHighlights()).toStrictEqual([
       {

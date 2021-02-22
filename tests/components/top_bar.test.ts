@@ -5,7 +5,7 @@ import { Model } from "../../src/model";
 import { topbarComponentRegistry } from "../../src/registries";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { ConditionalFormat } from "../../src/types";
-import { setCellContent } from "../test_helpers/commands_helpers";
+import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getBorder, getCell } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
@@ -113,7 +113,7 @@ describe("TopBar component", () => {
     expect(mergeTool.classList.contains("o-disabled")).toBeFalsy();
 
     model.dispatch("START_SELECTION_EXPANSION");
-    model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+    selectCell(model, "D4");
 
     await nextTick();
     // should be disabled, because multiple zones are selected
@@ -167,7 +167,7 @@ describe("TopBar component", () => {
 
   test("can clear formatting", async () => {
     const model = new Model();
-    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
+    selectCell(model, "B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
