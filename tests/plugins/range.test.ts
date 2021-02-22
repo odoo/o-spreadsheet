@@ -2,7 +2,7 @@ import { CorePlugin, Model } from "../../src";
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
 import { corePluginRegistry } from "../../src/plugins";
 import { ApplyRangeChange, BaseCommand, Command, Range, UID } from "../../src/types";
-import { addColumns, addRows } from "../test_helpers/commands_helpers";
+import { addColumns, addRows, deleteColumns, deleteRows } from "../test_helpers/commands_helpers";
 import { mockUuidV4To } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -86,54 +86,54 @@ describe("range plugin", () => {
   describe("adapting the ranges to changes", () => {
     describe("create a range and remove a column", () => {
       test("in the middle", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [2] });
+        deleteColumns(m, ["C"]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
       });
 
       test("in the start", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [2] });
+        deleteColumns(m, ["C"]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
       });
 
       test("in the end", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [3] });
+        deleteColumns(m, ["D"]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
       });
 
       test("before the start", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [0] });
+        deleteColumns(m, ["A"]);
         expect(m.getters.getUsedRanges()).toEqual(["A2:C4"]);
       });
 
       test("after the end", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [5] });
+        deleteColumns(m, ["F"]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
     });
 
     describe("create a range and remove a row", () => {
       test("in the middle", () => {
-        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [2] });
+        deleteRows(m, [2]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
       });
 
       test("in the start", () => {
-        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [2] });
+        deleteRows(m, [2]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
       });
 
       test("in the end", () => {
-        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [3] });
+        deleteRows(m, [3]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
       });
 
       test("before the start", () => {
-        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [0] });
+        deleteRows(m, [0]);
         expect(m.getters.getUsedRanges()).toEqual(["B1:D3"]);
       });
 
       test("after the end", () => {
-        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [5] });
+        deleteRows(m, [5]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
     });

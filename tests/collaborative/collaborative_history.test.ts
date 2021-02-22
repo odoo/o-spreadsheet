@@ -7,6 +7,7 @@ import {
   addColumns,
   createSheet,
   deleteColumns,
+  deleteRows,
   redo,
   setCellContent,
   undo,
@@ -322,7 +323,7 @@ describe("Collaborative local history", () => {
 
   test("Update, remove column, undo and redo", () => {
     setCellContent(alice, "A1", "hello");
-    bob.dispatch("REMOVE_COLUMNS", { sheetId: bob.getters.getActiveSheetId(), columns: [0] });
+    deleteColumns(bob, ["A"]);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     undo(bob);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
@@ -363,11 +364,7 @@ describe("Collaborative local history", () => {
   });
 
   test("Remove columns and undo/redo the change", () => {
-    const sheetId = alice.getters.getActiveSheetId();
-    alice.dispatch("REMOVE_COLUMNS", {
-      sheetId,
-      columns: [0, 1, 5],
-    });
+    deleteColumns(alice, ["A", "B", "F"]);
     setCellContent(bob, "A1", "hello");
     undo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "C1"), "hello");
@@ -376,11 +373,7 @@ describe("Collaborative local history", () => {
   });
 
   test("Remove rows and undo/redo the change", () => {
-    const sheetId = alice.getters.getActiveSheetId();
-    alice.dispatch("REMOVE_ROWS", {
-      sheetId,
-      rows: [0, 1, 5],
-    });
+    deleteRows(alice, [0, 1, 5]);
     setCellContent(bob, "A1", "hello");
     undo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A3"), "hello");

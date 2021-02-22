@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers/zones";
 import { CancelledReason, Viewport } from "../../src/types";
-import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { deleteColumns, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { mockUuidV4To, testUndoRedo, waitForRecompute } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -515,7 +515,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    model.dispatch("REMOVE_COLUMNS", { columns: [1], sheetId: model.getters.getActiveSheetId() });
+    deleteColumns(model, ["B"]);
     expect(model.getters.getChartRuntime("1")!.data!.datasets).toHaveLength(1);
     expect(model.getters.getChartRuntime("1")!.data!.datasets![0].data).toEqual([20, 19, 18]);
   });
@@ -532,7 +532,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    model.dispatch("REMOVE_COLUMNS", { columns: [0], sheetId: model.getters.getActiveSheetId() });
+    deleteColumns(model, ["A1"]);
     // dataset in col B becomes labels in col A
     expect(model.getters.getChartRuntime("1")!.data!.labels).toBeUndefined();
   });
