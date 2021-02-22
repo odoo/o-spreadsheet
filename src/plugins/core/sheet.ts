@@ -529,7 +529,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private addColumns(sheet: Sheet, column: number, position: "before" | "after", quantity: number) {
     // Move the cells.
-    this.moveCellOnColumnsAddition(sheet, position === "before" ? column : column + 1, quantity);
+    this.moveCellsOnAddition(
+      sheet,
+      position === "before" ? column : column + 1,
+      quantity,
+      "columns"
+    );
 
     // Recompute the left-right/top-bottom.
     this.updateColumnsStructureOnAddition(sheet, column, quantity);
@@ -539,7 +544,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     this.addEmptyRows(sheet, quantity);
 
     // Move the cells.
-    this.moveCellOnRowsAddition(sheet, position === "before" ? row : row + 1, quantity);
+    this.moveCellsOnAddition(sheet, position === "before" ? row : row + 1, quantity, "rows");
 
     // Recompute the left-right/top-bottom.
     this.updateRowsStructureOnAddition(sheet, row, quantity);
@@ -574,29 +579,32 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   /**
-   * Move the cells after column addition
-   *
-   * @param sheet Sheet
-   * @param addedColumn Column currently being added
-   * @param quantity Number of columns to add
+   * Move the cells after a column or rows insertion
    */
-  private moveCellOnColumnsAddition(sheet: Sheet, addedColumn: number, quantity: number) {
-    const commands: CoreCommand[] = [];
-    for (let [index, row] of Object.entries(sheet.rows)) {
+  private moveCellsOnAddition(
+    sheet: Sheet,
+    addedElement: number,
+    quantity: number,
+    dimension: "rows" | "columns"
+  ) {
+    const commands: UpdateCellPositionCommand[] = [];
+    for (const [index, row] of Object.entries(sheet.rows)) {
       const rowIndex = parseInt(index, 10);
-      for (let i in row.cells) {
-        const colIndex = parseInt(i, 10);
-        const cell = row.cells[i];
-        if (cell) {
-          if (colIndex >= addedColumn) {
-            commands.unshift({
-              type: "UPDATE_CELL_POSITION",
-              sheetId: sheet.id,
-              cellId: cell.id,
-              cell: cell,
-              col: colIndex + quantity,
-              row: rowIndex,
-            });
+      if (dimension !== "rows" || rowIndex >= addedElement) {
+        for (let i in row.cells) {
+          const colIndex = parseInt(i, 10);
+          const cell = row.cells[i];
+          if (cell) {
+            if (dimension === "rows" || colIndex >= addedElement) {
+              commands.unshift({
+                type: "UPDATE_CELL_POSITION",
+                sheetId: sheet.id,
+                cellId: cell.id,
+                cell: cell,
+                col: colIndex + (dimension === "columns" ? quantity : 0),
+                row: rowIndex + (dimension === "rows" ? quantity : 0),
+              });
+            }
           }
         }
       }
@@ -646,39 +654,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           }
         }
       }
-    }
-  }
-
-  /**
-   * Move the cells after rows addition
-   *
-   * @param sheet Sheet
-   * @param addedRow Row currently being added
-   * @param quantity Number of rows to add
-   */
-  private moveCellOnRowsAddition(sheet: Sheet, addedRow: number, quantity: number) {
-    const commands: UpdateCellPositionCommand[] = [];
-    for (let [index, row] of Object.entries(sheet.rows)) {
-      const rowIndex = parseInt(index, 10);
-      if (rowIndex >= addedRow) {
-        for (let i in row.cells) {
-          const colIndex = parseInt(i, 10);
-          const cell = row.cells[i];
-          if (cell) {
-            commands.unshift({
-              type: "UPDATE_CELL_POSITION",
-              sheetId: sheet.id,
-              cellId: cell.id,
-              cell: cell,
-              col: colIndex,
-              row: rowIndex + quantity,
-            });
-          }
-        }
-      }
-    }
-    for (let cmd of commands) {
-      this.dispatch(cmd.type, cmd);
     }
   }
 
