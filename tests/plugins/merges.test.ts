@@ -1,8 +1,14 @@
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CancelledReason, Style } from "../../src/types/index";
-import { redo, setCellContent, undo } from "../test_helpers/commands_helpers";
-import { getActiveXc, getBorder, getCell, getCellContent, getMerges } from "../test_helpers/getters_helpers";
+import { redo, selectCell, setCellContent, undo } from "../test_helpers/commands_helpers";
+import {
+  getActiveXc,
+  getBorder,
+  getCell,
+  getCellContent,
+  getMerges,
+} from "../test_helpers/getters_helpers";
 import { getMergeCellMap, toPosition, XCToMergeCellMap } from "../test_helpers/helpers";
 
 function getCellsXC(model: Model): string[] {
@@ -48,7 +54,7 @@ describe("merges", () => {
     });
     const sheet1 = model.getters.getVisibleSheets()[0];
 
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
     expect(getCellsXC(model)).toEqual(["B2"]);
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
@@ -94,7 +100,7 @@ describe("merges", () => {
       ],
     });
 
-    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
+    selectCell(model, "C3");
     expect(getActiveXc(model)).toBe("C3");
     model.dispatch("START_EDITION");
     expect(model.getters.getCurrentContent()).toBe("b2");
@@ -115,7 +121,7 @@ describe("merges", () => {
       ],
     });
 
-    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
+    selectCell(model, "C3");
     expect(getActiveXc(model)).toBe("C3");
     expect(getCellsXC(model)).toEqual(["B2"]);
     expect(getCell(model, "B2")!.style).not.toBeDefined();
@@ -144,7 +150,7 @@ describe("merges", () => {
       ],
     });
 
-    model.dispatch("SELECT_CELL", { col: 2, row: 3 });
+    selectCell(model, "C4");
     expect(getActiveXc(model)).toBe("C4");
     expect(model.getters.getActiveCell()).toBeUndefined(); // no active cell in C4
     model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
@@ -488,11 +494,11 @@ describe("merges", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
 
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 }); // B2
+    selectCell(model, "B2"); // B2
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
     undo(model);
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 }); // B2
+    selectCell(model, "B2"); // B2
 
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 1, left: 1, right: 1, top: 1 }]);
     redo(model);
@@ -505,7 +511,7 @@ describe("merges", () => {
 
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
     model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 }); // B2
+    selectCell(model, "B2"); // B2
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 1, left: 1, right: 1, top: 1 }]);
     undo(model);
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);

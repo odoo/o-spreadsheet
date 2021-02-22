@@ -4,7 +4,7 @@ import { corePluginRegistry } from "../../src/plugins";
 import { CorePlugin } from "../../src/plugins/core_plugin";
 import { figureRegistry } from "../../src/registries/figure_registry";
 import { BaseCommand, Command, Figure, SpreadsheetEnv, UID } from "../../src/types";
-import { setCellContent } from "../test_helpers/commands_helpers";
+import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
@@ -135,7 +135,7 @@ describe("figures", () => {
       text: "Hello",
     });
     setCellContent(model, "A1", "content");
-    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+    selectCell(model, "A1");
     await nextTick();
     const figure = fixture.querySelector(".o-figure")!;
     await simulateClick(".o-figure");

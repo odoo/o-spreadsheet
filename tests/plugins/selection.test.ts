@@ -52,16 +52,16 @@ describe("selection", () => {
         },
       ],
     });
-    model.dispatch("SELECT_CELL", { col: 0, row: 1 });
+    selectCell(model, "A2");
     model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
     model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
 
-    model.dispatch("SELECT_CELL", { col: 9, row: 0 });
+    selectCell(model, "J1");
     model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 9, top: 0, right: 9, bottom: 0 });
-    model.dispatch("SELECT_CELL", { col: 0, row: 9 });
+    selectCell(model, "A10");
     model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 9, right: 0, bottom: 9 });
   });
@@ -91,7 +91,7 @@ describe("selection", () => {
         },
       ],
     });
-    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
+    selectCell(model, "B1");
 
     // move to the right, inside the merge
     model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
@@ -116,7 +116,7 @@ describe("selection", () => {
       ],
     });
     // move sell to B4
-    model.dispatch("SELECT_CELL", { col: 1, row: 3 });
+    selectCell(model, "B4");
     expect(getActiveXc(model)).toBe("B4");
 
     // move up, inside the merge
@@ -140,7 +140,7 @@ describe("selection", () => {
       ],
     });
     // move sell to B4
-    model.dispatch("SELECT_CELL", { col: 1, row: 2 });
+    selectCell(model, "B3");
     expect(getActiveXc(model)).toBe("B3");
 
     // select right cell C3
@@ -269,11 +269,11 @@ describe("selection", () => {
         },
       ],
     });
-    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
+    selectCell(model, "C3");
     expect(getActiveXc(model)).toBe("C3");
     model.dispatch("START_EDITION", { text: "=" });
     expect(model.getters.getEditionMode()).toBe("selecting");
-    model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+    selectCell(model, "D4");
     expect(getActiveXc(model)).toBe("C3"); // active cell is not modified but the selection is
 
     expect(model.getters.getSelection()).toEqual({
@@ -291,10 +291,10 @@ describe("selection", () => {
         },
       ],
     });
-    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
+    selectCell(model, "C3");
 
     model.dispatch("START_EDITION", { text: "=" });
-    model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+    selectCell(model, "D4");
     model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
 
     expect(getActiveXc(model)).toBe("C3"); // active cell is not modified but the selection is
@@ -306,10 +306,10 @@ describe("selection", () => {
   });
   test("make selection works based on selection anchor, not active cell", () => {
     const model = new Model();
-    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+    selectCell(model, "A1");
 
     model.dispatch("START_EDITION", { text: "=" });
-    model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+    selectCell(model, "D4");
 
     model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
     model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
@@ -333,7 +333,7 @@ describe("multiple selections", () => {
         },
       ],
     });
-    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
+    selectCell(model, "C3");
     let selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
     expect(selection.anchor).toEqual([2, 2]);
@@ -344,7 +344,7 @@ describe("multiple selections", () => {
 
     // create new range
     model.dispatch("START_SELECTION_EXPANSION");
-    model.dispatch("SELECT_CELL", { col: 5, row: 2 });
+    selectCell(model, "F3");
     selection = model.getters.getSelection();
     expect(selection.zones).toHaveLength(2);
     expect(selection.anchor).toEqual([5, 2]);
@@ -355,7 +355,7 @@ describe("multiple sheets", () => {
   test("activating same sheet does not change selection", () => {
     const model = new Model();
     const sheet1 = model.getters.getVisibleSheets()[0];
-    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
+    selectCell(model, "C3");
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
 
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1, sheetIdTo: sheet1 });
@@ -364,11 +364,11 @@ describe("multiple sheets", () => {
 
   test("selection is restored when coming back to previous sheet", () => {
     const model = new Model();
-    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
+    selectCell(model, "C3");
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
     createSheet(model, { activate: true, sheetId: "42" });
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);
 
     const sheet1 = model.getters.getVisibleSheets()[0];

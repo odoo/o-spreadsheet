@@ -1,12 +1,12 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { createSheet, setCellContent, undo } from "../test_helpers/commands_helpers";
+import { createSheet, selectCell, setCellContent, undo } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 
 describe("styles", () => {
   test("can undo and redo a setStyle operation on an empty cell", () => {
     const model = new Model();
-    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
+    selectCell(model, "B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
@@ -22,7 +22,7 @@ describe("styles", () => {
   test("can undo and redo a setStyle operation on an non empty cell", () => {
     const model = new Model();
     setCellContent(model, "B1", "some content");
-    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
+    selectCell(model, "B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
@@ -39,7 +39,7 @@ describe("styles", () => {
     const model = new Model();
     const sheet1 = model.getters.getVisibleSheets()[0];
     setCellContent(model, "B1", "b1");
-    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
+    selectCell(model, "B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
       target: model.getters.getSelectedZones(),
@@ -56,7 +56,7 @@ describe("styles", () => {
 
   test("clearing format on a cell with no content actually remove it", () => {
     const model = new Model();
-    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
+    selectCell(model, "B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
@@ -73,7 +73,7 @@ describe("styles", () => {
   test("clearing format operation can be undone", () => {
     const model = new Model();
     setCellContent(model, "B1", "b1");
-    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
+    selectCell(model, "B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),

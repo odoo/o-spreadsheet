@@ -1,7 +1,7 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { SelectionInput } from "../../src/components/selection_input";
-import { createSheet, undo } from "../test_helpers/commands_helpers";
+import { createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { makeTestFixture, nextTick } from "../test_helpers/helpers";
 
@@ -161,7 +161,7 @@ describe("Selection Input", () => {
     expect(fixture.querySelectorAll("input")).toHaveLength(1);
     model.dispatch("PREPARE_SELECTION_EXPANSION");
     model.dispatch("START_SELECTION_EXPANSION");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     await nextTick();
     expect(fixture.querySelectorAll("input")).toHaveLength(1);
     expect(fixture.querySelector("input")!.value).toBe("A1");

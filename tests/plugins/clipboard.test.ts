@@ -8,7 +8,7 @@ import {
   Style,
   Zone,
 } from "../../src/types/index";
-import { createSheet, setCellContent, undo } from "../test_helpers/commands_helpers";
+import { createSheet, selectCell, setCellContent, undo } from "../test_helpers/commands_helpers";
 import { getBorder, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import { getGrid, target } from "../test_helpers/helpers";
 
@@ -119,7 +119,7 @@ describe("clipboard", () => {
     const model = new Model();
     const sheet1 = model.getters.getActiveSheetId();
     setCellContent(model, "B2", "b2");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
@@ -138,7 +138,7 @@ describe("clipboard", () => {
     const model = new Model();
     // set value and style in B2
     setCellContent(model, "B2", "b2");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
@@ -148,7 +148,7 @@ describe("clipboard", () => {
 
     // set value in A1, select and copy it
     setCellContent(model, "A1", "a1");
-    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+    selectCell(model, "A1");
     model.dispatch("COPY", { target: [toZone("A1")] });
 
     // select B2 again and paste
@@ -163,7 +163,7 @@ describe("clipboard", () => {
     const sheet1 = model.getters.getActiveSheetId();
     // set value and style in B2
     setCellContent(model, "B2", "b2");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
@@ -172,7 +172,7 @@ describe("clipboard", () => {
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     // set value in A1, select and copy it
-    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+    selectCell(model, "A1");
     model.dispatch("COPY", { target: [toZone("A1")] });
 
     model.dispatch("PASTE", { target: [toZone("B2")] });
@@ -182,7 +182,7 @@ describe("clipboard", () => {
 
   test("can copy a cell with borders", () => {
     const model = new Model();
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
@@ -200,7 +200,7 @@ describe("clipboard", () => {
   test("can copy a cell with a format", () => {
     const model = new Model();
     setCellContent(model, "B2", "0.451");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
@@ -373,11 +373,11 @@ describe("clipboard", () => {
       { askConfirmation }
     );
 
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     const selection = model.getters.getSelection().zones;
     model.dispatch("COPY", { target: selection });
 
-    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+    selectCell(model, "A1");
     model.dispatch("PASTE", { target: model.getters.getSelectedZones(), interactive: true });
     expect(askConfirmation).toHaveBeenCalled();
   });
@@ -399,7 +399,7 @@ describe("clipboard", () => {
       ],
     });
 
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     const selection = model.getters.getSelection().zones;
     model.dispatch("COPY", { target: selection });
     const result = model.dispatch("PASTE", { target: [toZone("A1")] });
@@ -429,7 +429,7 @@ describe("clipboard", () => {
         },
       ],
     });
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     const selection = model.getters.getSelection().zones;
     model.dispatch("COPY", { target: selection });
     model.dispatch("PASTE", { target: target("A1"), force: true });
@@ -445,7 +445,7 @@ describe("clipboard", () => {
   test("cutting a cell with style remove the cell", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
@@ -467,12 +467,12 @@ describe("clipboard", () => {
   test("getClipboardContent export formatted string", () => {
     const model = new Model();
     setCellContent(model, "B2", "abc");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("COPY", { target: [toZone("B2")] });
     expect(model.getters.getClipboardContent()).toBe("abc");
 
     setCellContent(model, "B2", "= 1 + 2");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("COPY", { target: [toZone("B2")] });
     expect(model.getters.getClipboardContent()).toBe("3");
   });
@@ -545,7 +545,7 @@ describe("clipboard", () => {
 
     expect(getClipboardVisibleZones(model).length).toBe(1);
 
-    model.dispatch("SELECT_CELL", { col: 4, row: 0 });
+    selectCell(model, "E1");
     model.dispatch("PASTE", { target: [toZone("E1")] });
     expect(getCellContent(model, "E1")).toBe("c1");
     expect(getCell(model, "E2")).toBeUndefined();
@@ -589,7 +589,7 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: [toZone("A1:A2")] });
 
     // select C1:C3
-    model.dispatch("SELECT_CELL", { col: 2, row: 0 });
+    selectCell(model, "C1");
     model.dispatch("ALTER_SELECTION", { cell: [2, 2] });
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 2, right: 2 });
@@ -605,9 +605,9 @@ describe("clipboard", () => {
     setCellContent(model, "A1", "1");
     model.dispatch("COPY", { target: [toZone("A1:A1")] });
 
-    model.dispatch("SELECT_CELL", { col: 2, row: 0 });
+    selectCell(model, "C1");
     model.dispatch("START_SELECTION_EXPANSION");
-    model.dispatch("SELECT_CELL", { col: 4, row: 0 });
+    selectCell(model, "E1");
 
     model.dispatch("PASTE", { target: [toZone("C1"), toZone("E1")] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 0, right: 2 });
@@ -642,9 +642,9 @@ describe("clipboard", () => {
     setCellContent(model, "A2", "2");
     model.dispatch("COPY", { target: [toZone("A1:A2")] });
 
-    model.dispatch("SELECT_CELL", { col: 2, row: 3 });
+    selectCell(model, "C4");
     model.dispatch("START_SELECTION_EXPANSION");
-    model.dispatch("SELECT_CELL", { col: 4, row: 5 });
+    selectCell(model, "F6");
     model.dispatch("PASTE", { target: model.getters.getSelectedZones(), interactive: true });
     expect(notifyUser).toHaveBeenCalled();
   });
@@ -679,7 +679,7 @@ describe("clipboard", () => {
   test("can paste-format a cell with style", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
@@ -696,7 +696,7 @@ describe("clipboard", () => {
   test("can copy and paste format", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
@@ -714,7 +714,7 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
     setCellContent(model, "C2", "c2");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
@@ -732,7 +732,7 @@ describe("clipboard", () => {
   test("can undo a paste format", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
@@ -751,7 +751,7 @@ describe("clipboard", () => {
   test("can copy and paste value only", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("COPY", { target: [toZone("B2")] });
     model.dispatch("PASTE", { target: [toZone("C2")], onlyValue: true });
     expect(getCellContent(model, "C2")).toBe("b2");
@@ -760,7 +760,7 @@ describe("clipboard", () => {
   test("can copy a cell with a style and paste value only", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
@@ -778,7 +778,7 @@ describe("clipboard", () => {
   test("can copy a cell with a border and paste value only", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
@@ -796,7 +796,7 @@ describe("clipboard", () => {
   test("can copy a cell with a format and paste value only", () => {
     const model = new Model();
     setCellContent(model, "B2", "0.451");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
@@ -845,7 +845,7 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
     setCellContent(model, "C3", "c3");
-    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
+    selectCell(model, "C3");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 2, right: 2, top: 2, bottom: 2 }],
@@ -864,7 +864,7 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
     setCellContent(model, "C3", "c3");
-    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
+    selectCell(model, "C3");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
@@ -884,7 +884,7 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "B2", "42");
     setCellContent(model, "C3", "0.451");
-    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
+    selectCell(model, "C3");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
@@ -913,7 +913,7 @@ describe("clipboard", () => {
   test("can undo a paste value only", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
@@ -966,7 +966,7 @@ describe("clipboard", () => {
 
     // write something in B2 and set its format
     setCellContent(model, "B2", "b2");
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
