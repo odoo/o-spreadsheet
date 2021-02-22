@@ -128,12 +128,7 @@ describe("Autofill", () => {
   });
 
   test("Autofill add CF to target cell if present in origin cell", () => {
-    model.dispatch("UPDATE_CELL", {
-      col: 0,
-      row: 0,
-      sheetId: model.getters.getActiveSheetId(),
-      content: "1",
-    });
+    setCellContent(model, "A1", "1");
     autofill("A1", "A4");
     const cf: ConditionalFormat = {
       ranges: ["A1", "A2"],

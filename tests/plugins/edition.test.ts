@@ -435,26 +435,11 @@ describe("edition", () => {
     });
     selectCell(model, "B1");
     expect(model.getters.getCurrentContent()).toBe("Hello");
-    model.dispatch("UPDATE_CELL", {
-      col: 2,
-      row: 0,
-      content: "update another cell",
-      sheetId: model.getters.getActiveSheetId(),
-    });
+    setCellContent(model, "C1", "update another cell");
     expect(model.getters.getCurrentContent()).toBe("Hello");
-    model.dispatch("UPDATE_CELL", {
-      col: 1,
-      row: 0,
-      content: "Hi",
-      sheetId: model.getters.getActiveSheetId(),
-    });
+    setCellContent(model, "B1", "Hi");
     expect(model.getters.getCurrentContent()).toBe("Hi");
-    model.dispatch("UPDATE_CELL", {
-      col: 1,
-      row: 0,
-      content: "",
-      sheetId: model.getters.getActiveSheetId(),
-    });
+    setCellContent(model, "B1", "");
     expect(model.getters.getCurrentContent()).toBe("");
   });
 });
