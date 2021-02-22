@@ -442,14 +442,9 @@ describe("history", () => {
 
   test("Cannot update a cell in invalid sheet", async () => {
     const model = new Model();
-    expect(
-      model.dispatch("UPDATE_CELL", {
-        sheetId: "invalid",
-        col: 1,
-        row: 1,
-        content: "hello",
-      })
-    ).toBeCancelled(CancelledReason.InvalidSheetId);
+    expect(setCellContent(model, "B2", "hello", "invalid")).toBeCancelled(
+      CancelledReason.InvalidSheetId
+    );
   });
 
   test("Can select a cell in another sheet", async () => {

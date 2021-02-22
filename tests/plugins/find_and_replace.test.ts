@@ -1,31 +1,21 @@
 import { Model } from "../../src";
-import { toCartesian } from "../../src/helpers";
 import { ReplaceOptions, SearchOptions } from "../../src/plugins/ui/find_and_replace";
-import { createSheet } from "../test_helpers/commands_helpers";
+import { createSheet, setCellContent } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
 
 let model: Model;
 let searchOptions: SearchOptions;
 let replaceOptions: ReplaceOptions;
 
-const updateCell = (xc: string, content: string) => {
-  const [col, row] = toCartesian(xc);
-  model.dispatch("UPDATE_CELL", {
-    sheetId: model.getters.getActiveSheetId(),
-    col,
-    row,
-    content,
-  });
-};
 describe("basic search", () => {
   beforeEach(() => {
     model = new Model();
-    updateCell("A1", "hello");
-    updateCell("A2", "hello1");
-    updateCell("A3", "=1");
-    updateCell("A4", "111");
-    updateCell("A5", "1");
-    updateCell("A6", "2");
+    setCellContent(model, "A1", "hello");
+    setCellContent(model, "A2", "hello1");
+    setCellContent(model, "A3", "=1");
+    setCellContent(model, "A4", "111");
+    setCellContent(model, "A5", "1");
+    setCellContent(model, "A6", "2");
     searchOptions = {
       matchCase: false,
       exactMatch: false,
@@ -54,8 +44,8 @@ describe("basic search", () => {
     expect(matches[1]).toStrictEqual({ col: 0, row: 2, selected: false });
     expect(matches[2]).toStrictEqual({ col: 0, row: 3, selected: false });
     expect(matches[3]).toStrictEqual({ col: 0, row: 4, selected: false });
-    updateCell("A2", "hello");
-    updateCell("B1", "1");
+    setCellContent(model, "A2", "hello");
+    setCellContent(model, "B1", "1");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches.length).toBe(4);
@@ -98,8 +88,8 @@ describe("basic search", () => {
     expect(matches[1]).toStrictEqual({ col: 0, row: 2, selected: false });
     expect(matches[2]).toStrictEqual({ col: 0, row: 3, selected: false });
     expect(matches[3]).toStrictEqual({ col: 0, row: 4, selected: false });
-    updateCell("B1", "=1");
-    updateCell("B2", "=11");
+    setCellContent(model, "B1", "=1");
+    setCellContent(model, "B2", "=11");
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(6);
@@ -116,9 +106,9 @@ describe("basic search", () => {
     const sheet1 = model.getters.getActiveSheetId();
     const sheet2 = "42";
     createSheet(model, { activate: true, sheetId: sheet2 });
-    updateCell("B1", "hello");
-    updateCell("B2", "Hello");
-    updateCell("B3", "hello1");
+    setCellContent(model, "B1", "hello");
+    setCellContent(model, "B2", "Hello");
+    setCellContent(model, "B3", "hello1");
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
     model.dispatch("UPDATE_SEARCH", { toSearch: "hello", searchOptions });
     let matches = model.getters.getSearchMatches();
@@ -140,9 +130,9 @@ describe("basic search", () => {
 describe("next/previous cycle", () => {
   beforeEach(() => {
     model = new Model({ sheets: [{ id: "s1" }] });
-    updateCell("A1", "1");
-    updateCell("A2", "1");
-    updateCell("A3", "1");
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "1");
+    setCellContent(model, "A3", "1");
   });
   test("Next will select the next match", () => {
     model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
@@ -284,11 +274,11 @@ describe("next/previous cycle", () => {
 describe("search options", () => {
   beforeEach(() => {
     model = new Model();
-    updateCell("A1", "hello=sum");
-    updateCell("A2", "Hello");
-    updateCell("A3", "=SUM(1,3)");
-    updateCell("A4", "hell");
-    updateCell("A5", "Hell");
+    setCellContent(model, "A1", "hello=sum");
+    setCellContent(model, "A2", "Hello");
+    setCellContent(model, "A3", "=SUM(1,3)");
+    setCellContent(model, "A4", "hell");
+    setCellContent(model, "A5", "Hell");
     searchOptions = {
       matchCase: false,
       exactMatch: false,
@@ -400,10 +390,10 @@ describe("search options", () => {
 describe("replace", () => {
   beforeEach(() => {
     model = new Model();
-    updateCell("A1", "hello");
-    updateCell("A2", "=SUM(2,2)");
-    updateCell("A3", "hell");
-    updateCell("A4", "hell");
+    setCellContent(model, "A1", "hello");
+    setCellContent(model, "A2", "=SUM(2,2)");
+    setCellContent(model, "A3", "hell");
+    setCellContent(model, "A4", "hell");
     searchOptions = {
       matchCase: false,
       exactMatch: false,
