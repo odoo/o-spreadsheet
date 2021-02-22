@@ -6,9 +6,7 @@ import {
   Border,
   BorderCommand,
   BorderDescription,
-  CancelledReason,
   Command,
-  CommandResult,
   Sheet,
   UID,
   WorkbookData,
@@ -33,19 +31,6 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-
-  allowDispatch(cmd: Command): CommandResult {
-    switch (cmd.type) {
-      case "SET_FORMATTING":
-        try {
-          this.getters.getSheet(cmd.sheetId);
-          break;
-        } catch (error) {
-          return { status: "CANCELLED", reason: CancelledReason.InvalidSheetId };
-        }
-    }
-    return { status: "SUCCESS" };
-  }
 
   handle(cmd: Command) {
     switch (cmd.type) {
