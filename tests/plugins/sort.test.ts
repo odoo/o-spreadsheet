@@ -756,13 +756,14 @@ describe("Sort Merges", () => {
       zones: [contiguousZone],
     });
     undo(model);
-    const result = model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: contiguousZone,
-      sortDirection: "ascending",
-    });
-    expect(result).toMatchObject({ status: "CANCELLED", reason: CancelledReason.InvalidSortZone });
+    expect(
+      model.dispatch("SORT_CELLS", {
+        sheetId: sheetId,
+        anchor: anchor,
+        zone: contiguousZone,
+        sortDirection: "ascending",
+      })
+    ).toBeCancelled(CancelledReason.InvalidSortZone);
   });
 
   test("Failed Sort of merges with adjascent merge with and without interactive mode", () => {
@@ -792,13 +793,14 @@ describe("Sort Merges", () => {
       zones: [contiguousZone],
     });
     undo(model);
-    const result = model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: contiguousZone,
-      sortDirection: "ascending",
-    });
-    expect(result).toMatchObject({ status: "CANCELLED", reason: CancelledReason.InvalidSortZone });
+    expect(
+      model.dispatch("SORT_CELLS", {
+        sheetId: sheetId,
+        anchor: anchor,
+        zone: contiguousZone,
+        sortDirection: "ascending",
+      })
+    ).toBeCancelled(CancelledReason.InvalidSortZone);
   });
 
   test("Sort w/ multicolumn selection", () => {

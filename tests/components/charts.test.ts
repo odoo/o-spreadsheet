@@ -1,6 +1,10 @@
 import { Model } from "../../src";
 import { CommandResult } from "../../src/types";
-import { setInputValueAndTrigger, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  setInputValueAndTrigger,
+  simulateClick,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
 
 const mockChart = () => {

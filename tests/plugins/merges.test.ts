@@ -208,10 +208,9 @@ describe("merges", () => {
       ],
     });
     // B2 is not top left, so it is destructive
-    expect(model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:C4") })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.MergeIsDestructive,
-    });
+    expect(model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:C4") })).toBeCancelled(
+      CancelledReason.MergeIsDestructive
+    );
 
     // B2 is top left, so it is not destructive
     expect(model.dispatch("ADD_MERGE", { sheetId, zone: toZone("B2:C4") })).toEqual({
