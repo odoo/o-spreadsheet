@@ -428,12 +428,7 @@ describe("datasource tests", function () {
     const newModel = new Model(model.exportData());
     let chart = newModel.getters.getChartRuntime("1")!;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
-    newModel.dispatch("UPDATE_CELL", {
-      col: 1,
-      row: 1,
-      sheetId,
-      content: "99",
-    });
+    setCellContent(newModel, "B2", "99");
     chart = newModel.getters.getChartRuntime("1")!;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
   });
@@ -558,18 +553,8 @@ describe("datasource tests", function () {
     let chart = model.getters.getChartRuntime("1")!;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![0].label).toEqual("first column dataset");
-    model.dispatch("UPDATE_CELL", {
-      col: 1,
-      row: 1,
-      sheetId: sheetId,
-      content: "99",
-    });
-    model.dispatch("UPDATE_CELL", {
-      col: 1,
-      row: 0,
-      sheetId: sheetId,
-      content: "new dataset label",
-    });
+    setCellContent(model, "B2", "99");
+    setCellContent(model, "B1", "new dataset label");
     chart = model.getters.getChartRuntime("1")!;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
     expect(chart.data!.datasets![0].label).toEqual("new dataset label");

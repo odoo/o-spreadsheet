@@ -7,6 +7,7 @@ import {
   deleteColumns,
   deleteRows,
   selectCell,
+  setCellContent,
 } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -148,12 +149,7 @@ describe("Collaborative Sheet manipulation", () => {
         sheetId,
         name: "NewName",
       });
-      bob.dispatch("UPDATE_CELL", {
-        col: 0,
-        row: 0,
-        content: `=${sheetName}!A2`,
-        sheetId,
-      });
+      setCellContent(bob, "A1", `=${sheetName}!A2`);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCell(user, "A1")!.error,

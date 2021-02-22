@@ -893,7 +893,7 @@ describe("evaluateCells", () => {
     });
 
     expect(getCell(model, "A3")!.value).toBe("old");
-    model.dispatch("UPDATE_CELL", { col: 0, row: 0, content: "new", sheetId: "sheet1" });
+    setCellContent(model, "A1", "new");
     expect(getCell(model, "A3")!.value).toBe("new");
   });
 
