@@ -2,7 +2,7 @@ import { Component, hooks, tags } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
-import { createSheet } from "../test_helpers/commands_helpers";
+import { activateSheet, createSheet } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, mockUuidV4To, nextTick } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -127,9 +127,8 @@ describe("BottomBar component", () => {
 
   test("Can move left a sheet", async () => {
     const model = new Model();
-    const sheetIdFrom = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo: "42" });
+    activateSheet(model, "42");
     const parent = new Parent(model);
     await parent.mount(fixture);
 

@@ -3,6 +3,7 @@ import { Model } from "../../src/model";
 import { StateObserver } from "../../src/state_observer";
 import { CancelledReason } from "../../src/types/commands";
 import {
+  activateSheet,
   createSheet,
   redo,
   selectCell,
@@ -272,10 +273,7 @@ describe("Model history", () => {
     const model = new Model();
     createSheet(model, { sheetId: "42" });
     setCellContent(model, "A1", "this will be undone");
-    model.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: model.getters.getActiveSheetId(),
-      sheetIdTo: "42",
-    });
+    activateSheet(model, "42");
     undo(model);
     expect(model.getters.getActiveSheetId()).toBe("42");
   });
@@ -286,10 +284,7 @@ describe("Model history", () => {
     const model = new Model();
     const originActiveSheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
-    model.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: originActiveSheetId,
-      sheetIdTo: "42",
-    });
+    activateSheet(model, "42");
     expect(model.getters.getActiveSheetId()).toBe("42");
     undo(model);
     expect(model.getters.getActiveSheetId()).toBe(originActiveSheetId);

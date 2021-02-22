@@ -4,6 +4,7 @@ import { toZone } from "../../src/helpers";
 import { CoreCommand } from "../../src/types";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
 import {
+  activateSheet,
   addColumns,
   addRows,
   clearCell,
@@ -365,7 +366,7 @@ describe("Multi users synchronisation", () => {
       (user) => user.getters.getActiveSheetId(),
       firstSheetId
     );
-    alice.dispatch("ACTIVATE_SHEET", { sheetIdFrom: firstSheetId, sheetIdTo: "42" });
+    activateSheet(alice, "42");
     expect(alice.getters.getActiveSheetId()).toBe("42");
     expect(bob.getters.getActiveSheetId()).toBe(firstSheetId);
     expect(charlie.getters.getActiveSheetId()).toBe(firstSheetId);
@@ -568,10 +569,7 @@ describe("Multi users synchronisation", () => {
 
   test("Composing in a sheet when the sheet is deleted", () => {
     createSheet(alice, { sheetId: "42" });
-    alice.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: alice.getters.getActiveSheetId(),
-      sheetIdTo: "42",
-    });
+    activateSheet(alice, "42");
     selectCell(alice, "A4");
     const spy = jest.spyOn(alice["config"], "notifyUser");
     alice.dispatch("START_EDITION", { text: "hello" });

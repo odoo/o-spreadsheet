@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { ReplaceOptions, SearchOptions } from "../../src/plugins/ui/find_and_replace";
-import { createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
 
 let model: Model;
@@ -109,18 +109,18 @@ describe("basic search", () => {
     setCellContent(model, "B1", "hello");
     setCellContent(model, "B2", "Hello");
     setCellContent(model, "B3", "hello1");
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
+    activateSheet(model, sheet1);
     model.dispatch("UPDATE_SEARCH", { toSearch: "hello", searchOptions });
     let matches = model.getters.getSearchMatches();
     let matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(2);
     expect(matchIndex).toStrictEqual(0);
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1, sheetIdTo: sheet2 });
+    activateSheet(model, sheet2);
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(0);
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
+    activateSheet(model, sheet1);
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(2);

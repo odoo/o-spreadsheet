@@ -2,6 +2,7 @@ import { toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason, ConditionalFormattingOperatorValues } from "../../src/types";
 import {
+  activateSheet,
   addColumns,
   addRows,
   createSheet,
@@ -73,16 +74,13 @@ describe("conditional format", () => {
   test("Add conditional formatting on inactive sheet", () => {
     model = new Model();
     createSheet(model, { sheetId: "42" });
-    const [activeSheet, sheet] = model.getters.getSheets();
+    const [, sheet] = model.getters.getSheets();
     expect(sheet.id).not.toBe(model.getters.getActiveSheetId());
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1:A4"], "4", { fillColor: "#0000FF" }, "2"),
       sheetId: sheet.id,
     });
-    model.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: activeSheet.id,
-      sheetIdTo: "42",
-    });
+    activateSheet(model, "42");
     expect(model.getters.getConditionalFormats("42")).toEqual([
       {
         rule: {

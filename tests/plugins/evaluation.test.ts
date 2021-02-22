@@ -1,6 +1,6 @@
 import { args, functionRegistry } from "../../src/functions";
 import { Model } from "../../src/model";
-import { createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
 import { evaluateCell, evaluateGrid } from "../test_helpers/helpers";
 import resetAllMocks = jest.resetAllMocks;
@@ -958,7 +958,7 @@ describe("evaluate formula getter", () => {
   test("using cells in other sheets", () => {
     createSheet(model, { sheetId: "42" });
     const s = model.getters.getSheets();
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: s[1].id, sheetIdTo: s[0].id });
+    activateSheet(model, s[0].id);
     setCellContent(model, "A1", "12", s[1].id);
     setCellContent(model, "A2", "=A1", s[1].id);
     setCellContent(model, "A2", "=Sheet2!A1", s[0].id);
