@@ -1,4 +1,4 @@
-import { evaluateGrid } from "../helpers";
+import { evaluateGrid } from "../test_helpers/helpers";
 
 describe("database formula", () => {
   // prettier-ignore

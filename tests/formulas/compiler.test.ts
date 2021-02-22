@@ -3,7 +3,7 @@ import { compile, normalize } from "../../src/formulas/index";
 import { functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
 import { CompiledFormula, NormalizedFormula, Range, ReturnFormatType } from "../../src/types";
-import { evaluateCell } from "../helpers";
+import { evaluateCell } from "../test_helpers/helpers";
 
 function compiledBaseFunction(formula: string): CompiledFormula {
   for (let f in functionCache) {

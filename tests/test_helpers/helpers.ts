@@ -1,12 +1,12 @@
 import { Component, hooks, tags, useState } from "@odoo/owl";
-import { Grid } from "../src/components/grid";
-import { SidePanel } from "../src/components/side_panel/side_panel";
-import { TopBar } from "../src/components/top_bar";
-import { functionRegistry } from "../src/functions/index";
-import { toCartesian, toXC } from "../src/helpers/index";
-import { Model } from "../src/model";
-import { MergePlugin } from "../src/plugins/core/merge";
-import { ComposerSelection } from "../src/plugins/ui/edition";
+import { Grid } from "../../src/components/grid";
+import { SidePanel } from "../../src/components/side_panel/side_panel";
+import { TopBar } from "../../src/components/top_bar";
+import { functionRegistry } from "../../src/functions/index";
+import { toCartesian, toXC } from "../../src/helpers/index";
+import { Model } from "../../src/model";
+import { MergePlugin } from "../../src/plugins/core/merge";
+import { ComposerSelection } from "../../src/plugins/ui/edition";
 import {
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
@@ -17,10 +17,10 @@ import {
   SpreadsheetEnv,
   Style,
   Zone,
-} from "../src/types";
+} from "../../src/types";
 import { redo, setCellContent, undo } from "./commands_helpers";
 import { getCell, getCellContent } from "./getters_helpers";
-export { setNextId as mockUuidV4To } from "./__mocks__/uuid";
+export { setNextId as mockUuidV4To } from "../__mocks__/uuid";
 
 const functions = functionRegistry.content;
 const functionMap = functionRegistry.mapping;

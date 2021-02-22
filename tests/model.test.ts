@@ -12,8 +12,8 @@ import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
 import { SortPlugin } from "../src/plugins/ui/sort";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
 import { UIPlugin } from "../src/plugins/ui_plugin";
-import { setCellContent } from "./commands_helpers";
-import { getCell } from "./getters_helpers";
+import { setCellContent } from "./test_helpers/commands_helpers";
+import { getCell } from "./test_helpers/getters_helpers";
 
 function getNbrPlugin(mode: Mode): number {
   return (

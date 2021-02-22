@@ -5,9 +5,9 @@ import { args, functionRegistry } from "../../src/functions";
 import { DEBUG } from "../../src/helpers";
 import { SelectionMode } from "../../src/plugins/ui/selection";
 import { Client } from "../../src/types";
-import { createSheet, setCellContent } from "../commands_helpers";
-import { triggerMouseEvent } from "../dom_helper";
-import { makeTestFixture, MockClipboard, nextTick, typeInComposer } from "../helpers";
+import { createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import { triggerMouseEvent } from "../test_helpers/dom_helper";
+import { makeTestFixture, MockClipboard, nextTick, typeInComposer } from "../test_helpers/helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );

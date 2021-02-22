@@ -1,6 +1,6 @@
-import { lettersToNumber, toCartesian, toZone, uuidv4 } from "../src/helpers/index";
-import { Model } from "../src/model";
-import { BorderCommand, CommandResult, CreateSheetCommand, UID } from "../src/types";
+import { lettersToNumber, toCartesian, toZone, uuidv4 } from "../../src/helpers/index";
+import { Model } from "../../src/model";
+import { BorderCommand, CommandResult, CreateSheetCommand, UID } from "../../src/types";
 
 /**
  * Dispatch an UNDO to the model

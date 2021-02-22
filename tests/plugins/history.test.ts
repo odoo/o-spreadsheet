@@ -2,10 +2,10 @@ import { MAX_HISTORY_STEPS } from "../../src/constants";
 import { Model } from "../../src/model";
 import { StateObserver } from "../../src/state_observer";
 import { CancelledReason } from "../../src/types/commands";
-import { createSheet, redo, setCellContent, undo } from "../commands_helpers";
-import { getBorder, getCell, getCellContent } from "../getters_helpers"; // to have getcontext mocks
-import "../helpers";
-import { waitForRecompute } from "../helpers";
+import { createSheet, redo, setCellContent, undo } from "../test_helpers/commands_helpers";
+import { getBorder, getCell, getCellContent } from "../test_helpers/getters_helpers"; // to have getcontext mocks
+import "../test_helpers/helpers";
+import { waitForRecompute } from "../test_helpers/helpers";
 
 // we test here the undo/redo feature
 

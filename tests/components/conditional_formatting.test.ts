@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers/zones";
 import { CommandResult } from "../../src/types";
-import { setInputValueAndTrigger, triggerMouseEvent } from "../dom_helper";
+import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
   createColorScale,
   createEqualCF,
@@ -9,7 +9,7 @@ import {
   makeTestFixture,
   mockUuidV4To,
   nextTick,
-} from "../helpers";
+} from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;

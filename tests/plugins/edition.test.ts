@@ -1,10 +1,10 @@
 import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
-import { createSheet, setCellContent } from "../commands_helpers";
-import { getCell, getCellContent, getCellText } from "../getters_helpers"; // to have getcontext mocks
-import "../helpers";
-import { target } from "../helpers";
+import { createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers"; // to have getcontext mocks
+import "../test_helpers/helpers";
+import { target } from "../test_helpers/helpers";
 
 describe("edition", () => {
   test("adding and removing a cell (by setting its content to empty string", () => {

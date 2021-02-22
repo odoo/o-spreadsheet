@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { CommandResult } from "../../src/types/commands";
-import { setInputValueAndTrigger, triggerMouseEvent } from "../dom_helper";
-import { GridParent, makeTestFixture, nextTick } from "../helpers";
+import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
+import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 jest.useFakeTimers();
 

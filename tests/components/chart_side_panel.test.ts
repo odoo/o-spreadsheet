@@ -2,8 +2,8 @@ import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { ChartPanel } from "../../src/components/side_panel/chart_panel";
 import { Figure, SpreadsheetEnv, Viewport } from "../../src/types";
-import { setInputValueAndTrigger, simulateClick } from "../dom_helper";
-import { makeTestFixture, mockUuidV4To, nextTick } from "../helpers";
+import { setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
+import { makeTestFixture, mockUuidV4To, nextTick } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 const { xml } = tags;

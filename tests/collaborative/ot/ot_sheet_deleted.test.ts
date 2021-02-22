@@ -27,7 +27,7 @@ import {
   UpdateCellCommand,
   UpdateCellPositionCommand,
 } from "../../../src/types";
-import { createEqualCF } from "../../helpers";
+import { createEqualCF } from "../../test_helpers/helpers";
 
 describe("OT with DELETE_SHEET", () => {
   const deletedSheetId = "deletedSheet";

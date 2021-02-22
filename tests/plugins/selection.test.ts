@@ -1,8 +1,8 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
-import { createSheet, selectCell } from "../commands_helpers";
-import { getActiveXc } from "../getters_helpers";
+import { createSheet, selectCell } from "../test_helpers/commands_helpers";
+import { getActiveXc } from "../test_helpers/getters_helpers";
 
 describe("selection", () => {
   test("if A1 is in a merge, it is initially properly selected", () => {

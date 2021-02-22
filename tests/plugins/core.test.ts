@@ -1,9 +1,9 @@
 import { Model } from "../../src/model";
 import { LOADING } from "../../src/plugins/ui/evaluation";
 import { CancelledReason } from "../../src/types";
-import { createSheet, redo, setCellContent, undo } from "../commands_helpers";
-import { getCell, getCellContent } from "../getters_helpers";
-import { waitForRecompute } from "../helpers";
+import { createSheet, redo, setCellContent, undo } from "../test_helpers/commands_helpers";
+import { getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { waitForRecompute } from "../test_helpers/helpers";
 
 describe("core", () => {
   describe("aggregate", () => {
