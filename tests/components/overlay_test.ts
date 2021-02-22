@@ -11,7 +11,6 @@ import { fontSizeMap } from "../../src/fonts";
 import { lettersToNumber, toXC } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { SelectionMode } from "../../src/plugins/ui/selection";
-import "../canvas.mock";
 import { redo, setCellContent, undo } from "../commands_helpers";
 import { triggerMouseEvent } from "../dom_helper";
 import { getActiveXc } from "../getters_helpers";

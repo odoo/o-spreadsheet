@@ -12,7 +12,6 @@ import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
 import { SortPlugin } from "../src/plugins/ui/sort";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
 import { UIPlugin } from "../src/plugins/ui_plugin";
-import "./canvas.mock";
 import { setCellContent } from "./commands_helpers";
 import { getCell } from "./getters_helpers";
 

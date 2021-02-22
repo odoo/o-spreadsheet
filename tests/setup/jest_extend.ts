@@ -1,5 +1,5 @@
-import { Model } from "../src";
-import { CancelledReason, CommandResult } from "../src/types";
+import { Model } from "../../src";
+import { CancelledReason, CommandResult } from "../../src/types";
 
 declare global {
   namespace jest {

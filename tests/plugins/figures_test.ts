@@ -1,6 +1,5 @@
 import { Model } from "../../src/model";
 import { Viewport } from "../../src/types";
-import "../canvas.mock";
 import { createSheet, selectCell, undo } from "../commands_helpers";
 
 const viewport: Viewport = {

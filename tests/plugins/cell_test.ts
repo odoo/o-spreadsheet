@@ -1,6 +1,5 @@
 import { Model } from "../../src";
 import { CellType } from "../../src/types";
-import "../canvas.mock";
 
 describe("getCellText", () => {
   test.each([

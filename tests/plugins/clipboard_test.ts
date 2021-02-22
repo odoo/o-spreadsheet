@@ -8,7 +8,6 @@ import {
   Style,
   Zone,
 } from "../../src/types/index";
-import "../canvas.mock";
 import { createSheet, setCellContent, undo } from "../commands_helpers";
 import { getBorder, getCell, getCellContent, getCellText } from "../getters_helpers";
 import { getGrid, target } from "../helpers";

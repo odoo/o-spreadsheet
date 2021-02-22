@@ -4,7 +4,6 @@ import { CancelledReason } from "../../src/types";
 import { createSheet, redo, setCellContent, undo } from "../commands_helpers";
 import { getCell, getCellContent } from "../getters_helpers";
 import { waitForRecompute } from "../helpers";
-import "../jest_extend";
 
 describe("core", () => {
   describe("aggregate", () => {

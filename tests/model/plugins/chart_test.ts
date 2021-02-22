@@ -1,7 +1,6 @@
 import { Model } from "../../../src";
 import { toZone } from "../../../src/helpers/zones";
 import { CancelledReason, Viewport } from "../../../src/types";
-import "../../canvas.mock";
 import { selectCell, setCellContent } from "../../commands_helpers";
 import { mockUuidV4To, testUndoRedo, waitForRecompute } from "../../helpers";
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));

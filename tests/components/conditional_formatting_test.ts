@@ -1,7 +1,6 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers/zones";
 import { CommandResult } from "../../src/types";
-import "../canvas.mock";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../dom_helper";
 import {
   createColorScale,

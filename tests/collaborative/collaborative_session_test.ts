@@ -4,7 +4,6 @@ import { Session } from "../../src/collaborative/session";
 import { DEBOUNCE_TIME, MESSAGE_VERSION } from "../../src/constants";
 import { buildRevisionLog } from "../../src/history/factory";
 import { Client } from "../../src/types";
-import "../canvas.mock";
 import { selectCell } from "../commands_helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 

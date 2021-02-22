@@ -4,10 +4,9 @@ import { CURRENT_VERSION } from "../../src/data";
 import { Model } from "../../src/model";
 import { corePluginRegistry } from "../../src/plugins";
 import { BorderDescr, WorkbookData } from "../../src/types/index";
-import { getMerges } from "../getters_helpers"; // to have getcontext mocks
+import { getMerges } from "../getters_helpers";
 import "../helpers";
 import { mockUuidV4To, toPosition } from "../helpers";
-import "../jest_extend";
 
 describe("data", () => {
   test("give default col size if not specified", () => {
