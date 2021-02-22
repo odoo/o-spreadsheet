@@ -5,6 +5,7 @@ import "../canvas.mock";
 import { redo, setCellContent, undo } from "../commands_helpers";
 import { getActiveXc, getBorder, getCell, getCellContent, getMerges } from "../getters_helpers";
 import { getMergeCellMap, toPosition, XCToMergeCellMap } from "../helpers";
+import "../jest_extend";
 
 function getCellsXC(model: Model): string[] {
   return Object.values(model.getters.getCells(model.getters.getActiveSheetId())).map((cell) => {
@@ -515,10 +516,9 @@ describe("merges", () => {
 
   test("Cannot add a merge in a non-existing sheet", () => {
     const model = new Model();
-    expect(model.dispatch("ADD_MERGE", { sheetId: "BLABLA", zone: toZone("A1:A2") })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.InvalidSheetId,
-    });
+    expect(model.dispatch("ADD_MERGE", { sheetId: "BLABLA", zone: toZone("A1:A2") })).toBeCancelled(
+      CancelledReason.InvalidSheetId
+    );
   });
 
   test("import merge with style", () => {
