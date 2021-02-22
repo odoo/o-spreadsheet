@@ -2,6 +2,7 @@ import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
 import "../canvas.mock";
 import { createSheet, redo, undo } from "../commands_helpers";
+import "../jest_extend";
 
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {
@@ -40,10 +41,7 @@ describe("Model resizer", () => {
         columns: [1],
         size: 100,
       })
-    ).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.InvalidSheetId,
-    });
+    ).toBeCancelled(CancelledReason.InvalidSheetId);
   });
   test("Cannot resize row in invalid sheet", async () => {
     const model = new Model();
@@ -53,10 +51,7 @@ describe("Model resizer", () => {
         rows: [1],
         size: 100,
       })
-    ).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.InvalidSheetId,
-    });
+    ).toBeCancelled(CancelledReason.InvalidSheetId);
   });
   test("Cannot auto resize column in invalid sheet", async () => {
     const model = new Model();
@@ -65,10 +60,7 @@ describe("Model resizer", () => {
         sheetId: "invalid",
         cols: [10],
       })
-    ).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.InvalidSheetId,
-    });
+    ).toBeCancelled(CancelledReason.InvalidSheetId);
   });
   test("Cannot auto resize row in invalid sheet", async () => {
     const model = new Model();
@@ -77,10 +69,7 @@ describe("Model resizer", () => {
         sheetId: "invalid",
         rows: [10],
       })
-    ).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.InvalidSheetId,
-    });
+    ).toBeCancelled(CancelledReason.InvalidSheetId);
   });
 
   test("Can resize one row, then undo", async () => {

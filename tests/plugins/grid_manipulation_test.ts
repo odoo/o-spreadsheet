@@ -23,6 +23,7 @@ import {
   toPosition,
   XCToMergeCellMap,
 } from "../helpers";
+import "../jest_extend";
 let model: Model;
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -134,10 +135,7 @@ describe("Clear columns", () => {
         columns: [0],
         sheetId: "INVALID",
       })
-    ).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.InvalidSheetId,
-    });
+    ).toBeCancelled(CancelledReason.InvalidSheetId);
   });
 });
 
@@ -183,10 +181,7 @@ describe("Clear rows", () => {
         rows: [0],
         sheetId: "INVALID",
       })
-    ).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.InvalidSheetId,
-    });
+    ).toBeCancelled(CancelledReason.InvalidSheetId);
   });
 });
 
@@ -284,10 +279,9 @@ describe("Columns", () => {
     });
     test("On addition in invalid sheet", () => {
       const sheetId = "invalid";
-      expect(addColumns(model, "after", "A", 1, sheetId)).toEqual({
-        status: "CANCELLED",
-        reason: CancelledReason.InvalidSheetId,
-      });
+      expect(addColumns(model, "after", "A", 1, sheetId)).toBeCancelled(
+        CancelledReason.InvalidSheetId
+      );
     });
   });
 
@@ -1040,10 +1034,7 @@ describe("Rows", () => {
     });
     test("cannot delete column in invalid sheet", () => {
       const sheetId = "invalid";
-      expect(addRows(model, "after", 0, 1, sheetId)).toEqual({
-        status: "CANCELLED",
-        reason: CancelledReason.InvalidSheetId,
-      });
+      expect(addRows(model, "after", 0, 1, sheetId)).toBeCancelled(CancelledReason.InvalidSheetId);
     });
 
     test("activate Sheet: same size", () => {

@@ -5,6 +5,7 @@ import { createSheet, redo, setCellContent, undo } from "../commands_helpers";
 import { getCell, getCellContent, getCellText } from "../getters_helpers"; // to have getcontext mocks
 import "../helpers";
 import { createEqualCF, mockUuidV4To, testUndoRedo } from "../helpers";
+import "../jest_extend";
 
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -107,18 +108,16 @@ describe("sheets", () => {
 
   test("Cannot delete an invalid sheet", async () => {
     const model = new Model();
-    expect(model.dispatch("DELETE_SHEET", { sheetId: "invalid" })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.InvalidSheetId,
-    });
+    expect(model.dispatch("DELETE_SHEET", { sheetId: "invalid" })).toBeCancelled(
+      CancelledReason.InvalidSheetId
+    );
   });
 
   test("Cannot delete an invalid sheet; confirmation", async () => {
     const model = new Model();
-    expect(model.dispatch("DELETE_SHEET_CONFIRMATION", { sheetId: "invalid" })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.InvalidSheetId,
-    });
+    expect(model.dispatch("DELETE_SHEET_CONFIRMATION", { sheetId: "invalid" })).toBeCancelled(
+      CancelledReason.InvalidSheetId
+    );
   });
 
   test("can read a value in same sheet", () => {
@@ -161,10 +160,7 @@ describe("sheets", () => {
       sheetIdFrom: model.getters.getActiveSheetId(),
       sheetIdTo: "INVALID ID",
     });
-    expect(result).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.InvalidSheetId,
-    });
+    expect(result).toBeCancelled(CancelledReason.InvalidSheetId);
   });
 
   test("evaluating multiple sheets", () => {
@@ -361,10 +357,7 @@ describe("sheets", () => {
         sheetId: "invalid",
         name: "hello",
       })
-    ).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.InvalidSheetId,
-    });
+    ).toBeCancelled(CancelledReason.InvalidSheetId);
   });
 
   test("New sheet name is trimmed", () => {
