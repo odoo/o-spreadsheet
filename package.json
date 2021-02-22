@@ -75,6 +75,9 @@
       "jsx",
       "json",
       "node"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup/jest.setup.ts"
     ]
   }
 }

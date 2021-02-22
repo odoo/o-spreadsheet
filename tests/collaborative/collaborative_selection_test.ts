@@ -1,9 +1,7 @@
 import * as owl from "@odoo/owl";
 import { Client, Model } from "../../src";
 import { DEBOUNCE_TIME } from "../../src/constants";
-import "../canvas.mock";
 import { addColumns, createSheet, selectCell } from "../commands_helpers";
-import "../jest_extend";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 

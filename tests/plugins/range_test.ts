@@ -2,7 +2,6 @@ import { CorePlugin, Model } from "../../src";
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
 import { corePluginRegistry } from "../../src/plugins";
 import { ApplyRangeChange, BaseCommand, Command, Range, UID } from "../../src/types";
-import "../canvas.mock";
 import { addColumns, addRows } from "../commands_helpers";
 import { mockUuidV4To } from "../helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));

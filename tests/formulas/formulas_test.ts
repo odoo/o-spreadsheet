@@ -1,6 +1,5 @@
 import { Model } from "../../src";
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
-import "../canvas.mock";
 
 describe("applyOffset", () => {
   test("simple changes", () => {

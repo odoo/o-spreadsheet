@@ -4,7 +4,6 @@ import { parseDateTime } from "../../src/functions/dates";
 import { toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CancelledReason, CellType, UID } from "../../src/types";
-import "../canvas.mock";
 import { redo, setCellContent, undo } from "../commands_helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
