@@ -5,6 +5,8 @@ import {
   addColumns,
   addRows,
   createSheet,
+  deleteColumns,
+  deleteRows,
   redo,
   setCellContent,
   undo,
@@ -410,10 +412,7 @@ describe("conditional format", () => {
         ],
       });
       const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("REMOVE_ROWS", {
-        sheetId,
-        rows: [1, 3],
-      });
+      deleteRows(model, [1, 3]);
       expect(model.getters.getConditionalFormats(sheetId)).toEqual([
         { id: "1", ranges: ["A1"], rule },
         { id: "3", ranges: ["C2"], rule },
@@ -449,12 +448,8 @@ describe("conditional format", () => {
           },
         ],
       });
+      deleteColumns(model, ["B", "D"]);
       const sheetId = model.getters.getActiveSheetId();
-
-      model.dispatch("REMOVE_COLUMNS", {
-        sheetId,
-        columns: [1, 3],
-      });
       expect(model.getters.getConditionalFormats(sheetId)).toEqual([
         { id: "1", ranges: ["A1"], rule },
         { id: "3", ranges: ["B3"], rule },
