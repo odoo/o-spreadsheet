@@ -256,16 +256,12 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
    */
   private isMergeAllowed(sheetId: UID, zone: Zone, force: boolean): CommandResult {
     if (!force) {
-      try {
-        const sheet = this.getters.getSheet(sheetId);
-        if (this.isMergeDestructive(sheet, zone)) {
-          return {
-            status: "CANCELLED",
-            reason: CancelledReason.MergeIsDestructive,
-          };
-        }
-      } catch (error) {
-        return { status: "CANCELLED", reason: CancelledReason.InvalidSheetId };
+      const sheet = this.getters.tryGetSheet(sheetId);
+      if (sheet && this.isMergeDestructive(sheet, zone)) {
+        return {
+          status: "CANCELLED",
+          reason: CancelledReason.MergeIsDestructive,
+        };
       }
     }
     return {
