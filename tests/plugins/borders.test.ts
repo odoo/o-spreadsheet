@@ -2,7 +2,13 @@ import { DEFAULT_BORDER_DESC as b, DEFAULT_BORDER_DESC } from "../../src/constan
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { BorderDescr } from "../../src/types/index";
-import { addColumns, addRows, setBorder, setCellContent, undo } from "../test_helpers/commands_helpers";
+import {
+  addColumns,
+  addRows,
+  setBorder,
+  setCellContent,
+  undo,
+} from "../test_helpers/commands_helpers";
 import { getBorder, getCell, getCellContent } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers"; // to have getcontext mocks
 

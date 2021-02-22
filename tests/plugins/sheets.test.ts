@@ -68,26 +68,23 @@ describe("sheets", () => {
   test("Cannot create a sheet with a name already existent", () => {
     const model = new Model();
     const name = model.getters.getSheetName(model.getters.getActiveSheetId());
-    expect(model.dispatch("CREATE_SHEET", { name, sheetId: "42", position: 1 })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.WrongSheetName,
-    });
+    expect(model.dispatch("CREATE_SHEET", { name, sheetId: "42", position: 1 })).toBeCancelled(
+      CancelledReason.WrongSheetName
+    );
   });
 
   test("Cannot create a sheet with a position > length of sheets", () => {
     const model = new Model();
-    expect(model.dispatch("CREATE_SHEET", { sheetId: "42", position: 54 })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.WrongSheetPosition,
-    });
+    expect(model.dispatch("CREATE_SHEET", { sheetId: "42", position: 54 })).toBeCancelled(
+      CancelledReason.WrongSheetPosition
+    );
   });
 
   test("Cannot create a sheet with a negative position", () => {
     const model = new Model();
-    expect(model.dispatch("CREATE_SHEET", { sheetId: "42", position: -1 })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.WrongSheetPosition,
-    });
+    expect(model.dispatch("CREATE_SHEET", { sheetId: "42", position: -1 })).toBeCancelled(
+      CancelledReason.WrongSheetPosition
+    );
   });
 
   test("Name is correctly generated when creating a sheet without given name", () => {
@@ -331,14 +328,12 @@ describe("sheets", () => {
     createSheet(model, { sheetId: "42" });
     const sheet1 = model.getters.getVisibleSheets()[0];
     const sheet2 = model.getters.getVisibleSheets()[1];
-    expect(model.dispatch("MOVE_SHEET", { sheetId: sheet1, direction: "left" })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.WrongSheetMove,
-    });
-    expect(model.dispatch("MOVE_SHEET", { sheetId: sheet2, direction: "right" })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.WrongSheetMove,
-    });
+    expect(model.dispatch("MOVE_SHEET", { sheetId: sheet1, direction: "left" })).toBeCancelled(
+      CancelledReason.WrongSheetMove
+    );
+    expect(model.dispatch("MOVE_SHEET", { sheetId: sheet2, direction: "right" })).toBeCancelled(
+      CancelledReason.WrongSheetMove
+    );
   });
 
   test("Can rename a sheet", () => {
@@ -372,31 +367,26 @@ describe("sheets", () => {
     const sheet = model.getters.getActiveSheetId();
     const name = "NEW_NAME";
     createSheet(model, { sheetId: "42", name });
-    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.WrongSheetName,
-    });
-    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "new_name" })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.WrongSheetName,
-    });
-    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "new_name " })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.WrongSheetName,
-    });
+    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name })).toBeCancelled(
+      CancelledReason.WrongSheetName
+    );
+    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "new_name" })).toBeCancelled(
+      CancelledReason.WrongSheetName
+    );
+    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "new_name " })).toBeCancelled(
+      CancelledReason.WrongSheetName
+    );
   });
 
   test("Cannot rename a sheet without name", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
-    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: undefined })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.WrongSheetName,
-    });
-    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "    " })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.WrongSheetName,
-    });
+    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: undefined })).toBeCancelled(
+      CancelledReason.WrongSheetName
+    );
+    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "    " })).toBeCancelled(
+      CancelledReason.WrongSheetName
+    );
   });
 
   test("Sheet reference are correctly updated", () => {
@@ -497,10 +487,9 @@ describe("sheets", () => {
     const sheet = model.getters.getActiveSheetId();
     const name = model.getters.getSheets()[0].name;
     const id = uuidv4();
-    expect(model.dispatch("DUPLICATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: id, name })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.WrongSheetName,
-    });
+    expect(
+      model.dispatch("DUPLICATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: id, name })
+    ).toBeCancelled(CancelledReason.WrongSheetName);
   });
 
   test("Properties of sheet are correctly duplicated", () => {
@@ -787,10 +776,9 @@ describe("sheets", () => {
 
   test("Cannot delete sheet if there is only one", () => {
     const model = new Model();
-    expect(model.dispatch("DELETE_SHEET", { sheetId: model.getters.getActiveSheetId() })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.NotEnoughSheets,
-    });
+    expect(
+      model.dispatch("DELETE_SHEET", { sheetId: model.getters.getActiveSheetId() })
+    ).toBeCancelled(CancelledReason.NotEnoughSheets);
   });
 
   test("Can undo-redo a sheet deletion", () => {

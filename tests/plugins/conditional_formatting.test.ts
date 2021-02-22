@@ -1,7 +1,14 @@
 import { toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason, ConditionalFormattingOperatorValues } from "../../src/types";
-import { addColumns, addRows, createSheet, redo, setCellContent, undo } from "../test_helpers/commands_helpers";
+import {
+  addColumns,
+  addRows,
+  createSheet,
+  redo,
+  setCellContent,
+  undo,
+} from "../test_helpers/commands_helpers";
 import { createColorScale, createEqualCF } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -873,10 +880,7 @@ describe("conditional formats types", () => {
           },
           sheetId: model.getters.getActiveSheetId(),
         });
-        expect(result).toEqual({
-          status: "CANCELLED",
-          reason: CancelledReason.InvalidNumberOfArgs,
-        });
+        expect(result).toBeCancelled(CancelledReason.InvalidNumberOfArgs);
       }
     );
   });
@@ -898,10 +902,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toEqual({
-            status: "CANCELLED",
-            reason: CancelledReason.MinNaN,
-          });
+          expect(result).toBeCancelled(CancelledReason.MinNaN);
         });
         test("midpoint is NaN", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -917,10 +918,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toEqual({
-            status: "CANCELLED",
-            reason: CancelledReason.MidNaN,
-          });
+          expect(result).toBeCancelled(CancelledReason.MidNaN);
         });
         test("maximum is NaN", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -935,10 +933,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toEqual({
-            status: "CANCELLED",
-            reason: CancelledReason.MaxNaN,
-          });
+          expect(result).toBeCancelled(CancelledReason.MaxNaN);
         });
       }
     );
@@ -967,10 +962,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toEqual({
-            status: "CANCELLED",
-            reason: CancelledReason.MinBiggerThanMax,
-          });
+          expect(result).toBeCancelled(CancelledReason.MinBiggerThanMax);
         });
         test("mid bigger than max", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -986,10 +978,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toEqual({
-            status: "CANCELLED",
-            reason: CancelledReason.MidBiggerThanMax,
-          });
+          expect(result).toBeCancelled(CancelledReason.MidBiggerThanMax);
         });
         test("min bigger than mid", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -1005,10 +994,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toEqual({
-            status: "CANCELLED",
-            reason: CancelledReason.MinBiggerThanMid,
-          });
+          expect(result).toBeCancelled(CancelledReason.MinBiggerThanMid);
         });
       }
     );

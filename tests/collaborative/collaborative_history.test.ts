@@ -300,10 +300,9 @@ describe("Collaborative local history", () => {
     setCellContent(alice, "A1", "hello");
     network.concurrent(() => {
       undo(alice);
-      expect(setCellContent(alice, "A2", "test")).toEqual({
-        status: "CANCELLED",
-        reason: CancelledReason.WaitingSessionConfirmation,
-      });
+      expect(setCellContent(alice, "A2", "test")).toBeCancelled(
+        CancelledReason.WaitingSessionConfirmation
+      );
     });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A2"), undefined);
     expect(setCellContent(alice, "A2", "test")).toEqual({ status: "SUCCESS" });

@@ -220,14 +220,12 @@ describe("selection", () => {
         },
       ],
     });
-    expect(model.dispatch("SELECT_ROW", { index: -1 })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.SelectionOutOfBound,
-    });
-    expect(model.dispatch("SELECT_ROW", { index: 11 })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.SelectionOutOfBound,
-    });
+    expect(model.dispatch("SELECT_ROW", { index: -1 })).toBeCancelled(
+      CancelledReason.SelectionOutOfBound
+    );
+    expect(model.dispatch("SELECT_ROW", { index: 11 })).toBeCancelled(
+      CancelledReason.SelectionOutOfBound
+    );
   });
 
   test("cannot select out of bound column", () => {
@@ -239,14 +237,12 @@ describe("selection", () => {
         },
       ],
     });
-    expect(model.dispatch("SELECT_COLUMN", { index: -1 })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.SelectionOutOfBound,
-    });
-    expect(model.dispatch("SELECT_COLUMN", { index: 11 })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.SelectionOutOfBound,
-    });
+    expect(model.dispatch("SELECT_COLUMN", { index: -1 })).toBeCancelled(
+      CancelledReason.SelectionOutOfBound
+    );
+    expect(model.dispatch("SELECT_COLUMN", { index: 11 })).toBeCancelled(
+      CancelledReason.SelectionOutOfBound
+    );
   });
 
   test("can select the whole sheet", () => {

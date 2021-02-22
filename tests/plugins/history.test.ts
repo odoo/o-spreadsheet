@@ -248,10 +248,7 @@ describe("Model history", () => {
 
     expect(getCell(model, "A1")!.value).toBe(10);
 
-    expect(undo(model)).toEqual({
-      reason: CancelledReason.EmptyUndoStack,
-      status: "CANCELLED",
-    });
+    expect(undo(model)).toBeCancelled(CancelledReason.EmptyUndoStack);
     expect(getCell(model, "A1")!.value).toBe(10);
   });
 
@@ -261,10 +258,7 @@ describe("Model history", () => {
 
     expect(getCell(model, "A1")!.value).toBe(10);
 
-    expect(redo(model)).toEqual({
-      reason: CancelledReason.EmptyRedoStack,
-      status: "CANCELLED",
-    });
+    expect(redo(model)).toBeCancelled(CancelledReason.EmptyRedoStack);
     expect(getCell(model, "A1")!.value).toBe(10);
   });
 

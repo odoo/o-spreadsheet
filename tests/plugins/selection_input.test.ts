@@ -53,10 +53,7 @@ describe("selection input plugin", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
     const result = model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
-    expect(result).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.InputAlreadyFocused,
-    });
+    expect(result).toBeCancelled(CancelledReason.InputAlreadyFocused);
   });
 
   test("focused input should not change when selecting a zone for composer", () => {
