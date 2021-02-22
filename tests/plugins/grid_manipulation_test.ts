@@ -23,7 +23,6 @@ import {
   toPosition,
   XCToMergeCellMap,
 } from "../helpers";
-import "../jest_extend";
 let model: Model;
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 

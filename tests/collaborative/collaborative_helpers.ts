@@ -1,5 +1,4 @@
 import { Model } from "../../src/model";
-import "../jest_extend";
 import { MockTransportService } from "../__mocks__/transport_service";
 interface CollaborativeEnv {
   network: MockTransportService;

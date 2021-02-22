@@ -18,10 +18,8 @@ import {
   Style,
   Zone,
 } from "../src/types";
-import "./canvas.mock";
 import { redo, setCellContent, undo } from "./commands_helpers";
 import { getCell, getCellContent } from "./getters_helpers";
-import "./jest_extend";
 export { setNextId as mockUuidV4To } from "./__mocks__/uuid";
 
 const functions = functionRegistry.content;

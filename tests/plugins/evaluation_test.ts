@@ -1,6 +1,5 @@
 import { args, functionRegistry } from "../../src/functions";
 import { Model } from "../../src/model";
-import "../canvas.mock";
 import { createSheet, setCellContent } from "../commands_helpers";
 import { getCell } from "../getters_helpers";
 import { evaluateCell, evaluateGrid } from "../helpers";

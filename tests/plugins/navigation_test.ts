@@ -1,7 +1,6 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { Viewport } from "../../src/types";
-import "../canvas.mock";
 import { getActiveXc } from "../getters_helpers";
 
 function getViewport(

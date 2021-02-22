@@ -1,6 +1,5 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import "../canvas.mock";
 import { createSheet, setCellContent, undo } from "../commands_helpers";
 import { getCell, getCellContent } from "../getters_helpers";
 

@@ -1,7 +1,6 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
-import "../canvas.mock";
 import { createSheet, selectCell } from "../commands_helpers";
 import { getActiveXc } from "../getters_helpers";
 

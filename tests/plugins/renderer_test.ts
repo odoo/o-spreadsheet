@@ -1,7 +1,7 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { GridRenderingContext, Viewport } from "../../src/types";
-import { MockCanvasRenderingContext2D } from "../canvas.mock";
+import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import { setCellContent } from "../commands_helpers";
 import { createEqualCF, mockUuidV4To } from "../helpers";
 

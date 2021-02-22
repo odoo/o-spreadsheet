@@ -1,8 +1,6 @@
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
-import "../canvas.mock";
 import { createSheet, redo, undo } from "../commands_helpers";
-import "../jest_extend";
 
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {

@@ -1,6 +1,5 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
-import "../canvas.mock";
 import {
   addColumns,
   addRows,
