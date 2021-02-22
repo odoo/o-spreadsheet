@@ -1,7 +1,13 @@
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CancelledReason, Style } from "../../src/types/index";
-import { redo, selectCell, setCellContent, undo } from "../test_helpers/commands_helpers";
+import {
+  deleteRows,
+  redo,
+  selectCell,
+  setCellContent,
+  undo,
+} from "../test_helpers/commands_helpers";
 import {
   getActiveXc,
   getBorder,
@@ -191,10 +197,7 @@ describe("merges", () => {
     });
     const [, sheet2] = model.getters.getSheets();
     expect(sheet2).not.toBe(model.getters.getActiveSheetId());
-    model.dispatch("REMOVE_ROWS", {
-      rows: [2],
-      sheetId: sheet2.id,
-    });
+    deleteRows(model, [2], sheet2.id);
     const cell = getCell(model, "A1", sheet2.id);
     expect(model.getters.getCellStyle(cell!)).toEqual({
       fillColor: "#a2a2a2",

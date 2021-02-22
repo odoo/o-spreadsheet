@@ -2,7 +2,7 @@ import { Grid } from "../../src/components/grid";
 import { MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { deleteColumns, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick, Touch } from "../test_helpers/helpers";
@@ -548,7 +548,7 @@ describe("multi sheet with different sizes", function () {
   test("deleting the row that has the active cell doesn't crash", async () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("small");
     selectCell(model, "B2");
-    model.dispatch("REMOVE_COLUMNS", { columns: [1], sheetId: model.getters.getActiveSheetId() });
+    deleteColumns(model, ["B"]);
     await nextTick();
     expect((parent.grid.comp! as Grid)["viewport"]).toMatchObject({
       top: 0,
