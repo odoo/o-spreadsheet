@@ -16,6 +16,14 @@ export function redo(model: Model): CommandResult {
   return model.dispatch("REDO");
 }
 
+export function activateSheet(
+  model: Model,
+  sheetIdTo: UID,
+  sheetIdFrom: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo });
+}
+
 /**
  * Create a new sheet. By default, the sheet is added at position 1
  * If data.activate is true, a "ACTIVATE_SHEET" is dispatched
@@ -24,9 +32,8 @@ export function createSheet(
   model: Model,
   data: Partial<CreateSheetCommand & { activate: boolean }>
 ) {
-  const activeSheetId = model.getters.getActiveSheetId();
   const sheetId = data.sheetId || uuidv4();
-  model.dispatch("CREATE_SHEET", {
+  const result = model.dispatch("CREATE_SHEET", {
     position: data.position !== undefined ? data.position : 1,
     sheetId,
     name: data.name,
@@ -34,11 +41,9 @@ export function createSheet(
     rows: data.rows,
   });
   if (data.activate) {
-    model.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: activeSheetId,
-      sheetIdTo: sheetId,
-    });
+    activateSheet(model, sheetId);
   }
+  return result;
 }
 
 /**

@@ -1,7 +1,12 @@
 import { colors, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { HighlightPlugin } from "../../src/plugins/ui/highlight";
-import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import {
+  activateSheet,
+  createSheet,
+  selectCell,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
@@ -505,7 +510,7 @@ describe("composer", () => {
     setCellContent(model, "C8", "1", "42");
     await typeInComposer("=");
     expect(model.getters.getEditionMode()).toBe("selecting");
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: "42" });
+    activateSheet(model, "42");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
@@ -559,7 +564,7 @@ describe("composer", () => {
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: sheet });
+    activateSheet(model, sheet);
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();

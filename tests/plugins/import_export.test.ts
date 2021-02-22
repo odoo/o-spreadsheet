@@ -4,6 +4,7 @@ import { CURRENT_VERSION } from "../../src/data";
 import { Model } from "../../src/model";
 import { corePluginRegistry } from "../../src/plugins";
 import { BorderDescr, WorkbookData } from "../../src/types/index";
+import { activateSheet } from "../test_helpers/commands_helpers";
 import { getMerges } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers";
 import { mockUuidV4To, toPosition } from "../test_helpers/helpers";
@@ -206,9 +207,9 @@ describe("Import", () => {
       sheetId: sheet1,
       zone: { left: 0, top: 1, right: 5, bottom: 1 },
     });
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1, sheetIdTo: sheet2 });
+    activateSheet(model, sheet2);
     expect(Object.keys(getMerges(model))).toHaveLength(0);
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
+    activateSheet(model, sheet1);
     expect(Object.keys(getMerges(model))).toHaveLength(1);
     expect(Object.values(getMerges(model))[0].topLeft).toEqual(toPosition("A2"));
   });

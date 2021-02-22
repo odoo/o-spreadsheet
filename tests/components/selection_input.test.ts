@@ -1,7 +1,7 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { SelectionInput } from "../../src/components/selection_input";
-import { createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
+import { activateSheet, createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { makeTestFixture, nextTick } from "../test_helpers/helpers";
 
@@ -263,7 +263,7 @@ describe("Selection Input", () => {
     const sheet1Id = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
     await createSelectionInput();
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1Id, sheetIdTo: "42" });
+    activateSheet(model, "42");
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: {
         B4: "#454545",
@@ -280,7 +280,7 @@ describe("Selection Input", () => {
     const sheet1Id = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
     await createSelectionInput();
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1Id, sheetIdTo: "42" });
+    activateSheet(model, "42");
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: {
         B4: "#454545",

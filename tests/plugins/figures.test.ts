@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import { Viewport } from "../../src/types";
-import { createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
+import { activateSheet, createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
 
 const viewport: Viewport = {
   left: 0,
@@ -320,7 +320,7 @@ describe("figure plugin", () => {
     });
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "1", sheetIdTo: "2" });
+    activateSheet(model, "2");
     expect(model.getters.getSelectedFigureId()).toBeNull();
   });
 });

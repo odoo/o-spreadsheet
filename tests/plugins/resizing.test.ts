@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
-import { createSheet, redo, undo } from "../test_helpers/commands_helpers";
+import { activateSheet, createSheet, redo, undo } from "../test_helpers/commands_helpers";
 
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {
@@ -133,7 +133,7 @@ describe("Model resizer", () => {
 
     const initialWidth = model.getters.getGridSize(model.getters.getActiveSheet())[0];
 
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
+    activateSheet(model, sheet1);
     expect(model.getters.getGridSize(model.getters.getActiveSheet())[0]).toBe(initialWidth - 100);
   });
 
