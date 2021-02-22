@@ -1,7 +1,7 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
-import { createSheet, selectCell } from "../test_helpers/commands_helpers";
+import { activateSheet, createSheet, selectCell } from "../test_helpers/commands_helpers";
 import { getActiveXc } from "../test_helpers/getters_helpers";
 
 describe("selection", () => {
@@ -358,7 +358,7 @@ describe("multiple sheets", () => {
     selectCell(model, "C3");
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
 
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1, sheetIdTo: sheet1 });
+    activateSheet(model, sheet1);
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
   });
 
@@ -373,9 +373,9 @@ describe("multiple sheets", () => {
 
     const sheet1 = model.getters.getVisibleSheets()[0];
     const sheet2 = model.getters.getVisibleSheets()[1];
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
+    activateSheet(model, sheet1);
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1, sheetIdTo: sheet2 });
+    activateSheet(model, sheet2);
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);
   });
 

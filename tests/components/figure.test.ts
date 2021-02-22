@@ -4,7 +4,7 @@ import { corePluginRegistry } from "../../src/plugins";
 import { CorePlugin } from "../../src/plugins/core_plugin";
 import { figureRegistry } from "../../src/registries/figure_registry";
 import { BaseCommand, Command, Figure, SpreadsheetEnv, UID } from "../../src/types";
-import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { activateSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
@@ -155,10 +155,7 @@ describe("figures", () => {
     fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaX: 1500 }));
     fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
     await nextTick();
-    model.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: model.getters.getActiveSheetId(),
-      sheetIdTo: "42",
-    });
+    activateSheet(model, "42");
     await nextTick();
     expect(fixture.querySelectorAll(".o-figure")).toHaveLength(1);
   });

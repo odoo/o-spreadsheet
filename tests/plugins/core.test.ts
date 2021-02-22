@@ -2,6 +2,7 @@ import { Model } from "../../src/model";
 import { LOADING } from "../../src/plugins/ui/evaluation";
 import { CancelledReason } from "../../src/types";
 import {
+  activateSheet,
   createSheet,
   redo,
   selectCell,
@@ -486,7 +487,7 @@ describe("history", () => {
           },
         ],
       });
-      model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1Id, sheetIdTo: sheet2Id }); // evaluate Sheet2
+      activateSheet(model, sheet2Id); // evaluate Sheet2
       expect(model.getters.getRangeFormattedValues("A1:A3", sheet1Id)).toEqual([
         ["1,000", "", "2,000"],
       ]);

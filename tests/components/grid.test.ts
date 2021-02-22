@@ -2,7 +2,12 @@ import { Grid } from "../../src/components/grid";
 import { MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { deleteColumns, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import {
+  activateSheet,
+  deleteColumns,
+  selectCell,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick, Touch } from "../test_helpers/helpers";
@@ -519,10 +524,10 @@ describe("multi sheet with different sizes", function () {
   test("multiple sheets of different size render correctly", async () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("small");
     selectCell(model, "B2");
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "small", sheetIdTo: "big" });
+    activateSheet(model, "big");
     await nextTick();
     selectCell(model, "E5");
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "big", sheetIdTo: "small" });
+    activateSheet(model, "small");
     await nextTick();
     expect((parent.grid.comp! as Grid)["viewport"]).toMatchObject({
       top: 0,
@@ -533,7 +538,7 @@ describe("multi sheet with different sizes", function () {
       offsetY: 0,
     });
     selectCell(model, "B2");
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "small", sheetIdTo: "big" });
+    activateSheet(model, "big");
     await nextTick();
     expect((parent.grid.comp! as Grid)["viewport"]).toMatchObject({
       top: 0,

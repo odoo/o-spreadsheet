@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { zoneToXc } from "../../src/helpers";
 import { CancelledReason } from "../../src/types";
-import { createSheet, selectCell } from "../test_helpers/commands_helpers";
+import { activateSheet, createSheet, selectCell } from "../test_helpers/commands_helpers";
 
 function select(model: Model, xc: string) {
   model.dispatch("START_SELECTION");
@@ -487,10 +487,7 @@ describe("selection input plugin", () => {
       value: "Sheet2!B3, A1",
     });
     expect(highlightedZones(model)).toEqual(["A1"]);
-    model.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: model.getters.getActiveSheetId(),
-      sheetIdTo: "42",
-    });
+    activateSheet(model, "42");
     expect(highlightedZones(model)).toEqual(["A1", "B3"]);
   });
 
@@ -500,10 +497,7 @@ describe("selection input plugin", () => {
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
     model.dispatch("FOCUS_RANGE", { id, rangeId: null });
     expect(model.getters.getSelectionInput(id)[0].isFocused).toBe(false);
-    model.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: model.getters.getActiveSheetId(),
-      sheetIdTo: "42",
-    });
+    activateSheet(model, "42");
     expect(model.getters.getSelectionInput(id)[0].isFocused).toBe(false);
   });
 });

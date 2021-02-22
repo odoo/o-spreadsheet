@@ -1,7 +1,12 @@
 import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
-import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import {
+  activateSheet,
+  createSheet,
+  selectCell,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
 import { target } from "../test_helpers/helpers";
@@ -56,10 +61,7 @@ describe("edition", () => {
     createSheet(model, { activate: true, sheetId: "42" });
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(getCell(model, "A1")).toBeUndefined();
-    model.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: model.getters.getActiveSheetId(),
-      sheetIdTo: sheet1,
-    });
+    activateSheet(model, sheet1);
     expect(getCellContent(model, "A1")).toBe("a");
   });
 
@@ -75,10 +77,7 @@ describe("edition", () => {
     model.dispatch("STOP_EDITION");
     expect(model.getters.getActiveSheetId()).toBe(sheet1);
     expect(getCellText(model, "A1")).toBe("=");
-    model.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: model.getters.getActiveSheetId(),
-      sheetIdTo: "42",
-    });
+    activateSheet(model, "42");
     expect(getCell(model, "A1")).toBeUndefined();
   });
 
@@ -364,7 +363,7 @@ describe("edition", () => {
     setCellContent(model, "A1", "Hello from sheet1");
     createSheet(model, { sheetId: "42", activate: true });
     expect(model.getters.getCurrentContent()).toBe("");
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: sheet1Id });
+    activateSheet(model, sheet1Id);
     expect(model.getters.getCurrentContent()).toBe("Hello from sheet1");
   });
 

@@ -7,6 +7,7 @@ import { lettersToNumber, toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { Border, CancelledReason, CellType, UID } from "../../src/types";
 import {
+  activateSheet,
   addColumns,
   addRows,
   createSheet,
@@ -15,7 +16,13 @@ import {
   redo,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getBorder, getCell, getCellContent, getCellText, getMerges } from "../test_helpers/getters_helpers";
+import {
+  getBorder,
+  getCell,
+  getCellContent,
+  getCellText,
+  getMerges,
+} from "../test_helpers/getters_helpers";
 import {
   getMergeCellMap,
   makeTestFixture,
@@ -1018,8 +1025,7 @@ describe("Rows", () => {
       expect(dimensions).toEqual([192, 124]);
       const to = model.getters.getActiveSheetId();
       createSheet(model, { activate: true, sheetId: "42" });
-      const from = model.getters.getActiveSheetId();
-      model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: to });
+      activateSheet(model, to);
       dimensions = model.getters.getGridSize(model.getters.getActiveSheet());
       expect(dimensions).toEqual([192, 124]);
     });

@@ -8,7 +8,13 @@ import {
   Style,
   Zone,
 } from "../../src/types/index";
-import { createSheet, selectCell, setCellContent, undo } from "../test_helpers/commands_helpers";
+import {
+  activateSheet,
+  createSheet,
+  selectCell,
+  setCellContent,
+  undo,
+} from "../test_helpers/commands_helpers";
 import { getBorder, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import { getGrid, target } from "../test_helpers/helpers";
 
@@ -83,7 +89,6 @@ describe("clipboard", () => {
     model.dispatch("CUT", { target: [toZone("A1")] });
     const to = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
-    const from = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "a1Sheet2");
     model.dispatch("PASTE", { target: [toZone("B2")] });
     expect(getCell(model, "A1")).toMatchObject({
@@ -92,7 +97,7 @@ describe("clipboard", () => {
       value: "a1Sheet2",
     });
     expect(getCell(model, "B2")).toMatchObject({ content: "a1", type: "text", value: "a1" });
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: to });
+    activateSheet(model, to);
     expect(model.getters.getCells(to)).toEqual({});
 
     expect(getClipboardVisibleZones(model).length).toBe(0);
@@ -301,10 +306,9 @@ describe("clipboard", () => {
         },
       ],
     });
-    const sheet1 = "s1";
     const sheet2 = "s2";
     model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1, sheetIdTo: sheet2 });
+    activateSheet(model, sheet2);
     model.dispatch("PASTE", { target: target("A1") });
     expect(model.getters.isInMerge(sheet2, ...toCartesian("A1"))).toBe(true);
     expect(model.getters.isInMerge(sheet2, ...toCartesian("A2"))).toBe(true);
@@ -332,7 +336,7 @@ describe("clipboard", () => {
     expect(getCellText(model, "A1", "s1")).toBe("=A2");
 
     model.dispatch("COPY", { target: [toZone("A1")] });
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "s1", sheetIdTo: "s2" });
+    activateSheet(model, "s2");
     model.dispatch("PASTE", { target: [toZone("A1")] });
 
     expect(getCellText(model, "A1", "s1")).toBe("=A2");
@@ -1127,9 +1131,6 @@ describe("clipboard", () => {
         },
       ],
     });
-    const sheet1 = "s1";
-    const sheet2 = "s2";
-
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -1137,7 +1138,7 @@ describe("clipboard", () => {
       sheetId: model.getters.getActiveSheetId(),
     });
     model.dispatch("COPY", { target: [toZone("A1:A2")] });
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1, sheetIdTo: sheet2 });
+    activateSheet(model, "s2");
     model.dispatch("PASTE", { target: target("A1") });
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
       fillColor: "#FF0000",
@@ -1173,7 +1174,7 @@ describe("clipboard", () => {
       sheetId: model.getters.getActiveSheetId(),
     });
     model.dispatch("CUT", { target: [toZone("A1:A2")] });
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1, sheetIdTo: sheet2 });
+    activateSheet(model, sheet2);
     model.dispatch("PASTE", { target: target("A1") });
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
       fillColor: "#FF0000",
@@ -1185,7 +1186,7 @@ describe("clipboard", () => {
     expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toEqual({
       fillColor: "#FF0000",
     });
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
+    activateSheet(model, sheet1);
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
     expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toBeUndefined();
   });
