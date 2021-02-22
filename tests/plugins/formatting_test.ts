@@ -7,6 +7,7 @@ import { CancelledReason, Cell, UID } from "../../src/types";
 import "../canvas.mock";
 import { createSheet, setCellContent } from "../commands_helpers";
 import { getCell, getCellContent } from "../getters_helpers";
+import "../jest_extend";
 
 function setFormat(model: Model, format: string) {
   model.dispatch("SET_FORMATTING", {
@@ -145,10 +146,7 @@ describe("formatting values (with formatters)", () => {
         sheetId: "invalid sheet Id",
         target: [toZone("A1")],
       })
-    ).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.InvalidSheetId,
-    });
+    ).toBeCancelled(CancelledReason.InvalidSheetId);
   });
 });
 
