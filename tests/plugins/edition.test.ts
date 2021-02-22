@@ -144,10 +144,7 @@ describe("edition", () => {
       content: "hello",
       selection: { start: 4, end: 1 },
     });
-    expect(result).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.WrongComposerSelection,
-    });
+    expect(result).toBeCancelled(CancelledReason.WrongComposerSelection);
   });
 
   test("change selection", () => {
@@ -179,10 +176,7 @@ describe("edition", () => {
         start: 2,
         end: 1,
       })
-    ).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.WrongComposerSelection,
-    });
+    ).toBeCancelled(CancelledReason.WrongComposerSelection);
   });
 
   test("setting selection out of content is invalid", () => {
@@ -193,10 +187,7 @@ describe("edition", () => {
         start: 1,
         end: 2,
       })
-    ).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.WrongComposerSelection,
-    });
+    ).toBeCancelled(CancelledReason.WrongComposerSelection);
   });
 
   test("ranges are highlighted", () => {
@@ -347,11 +338,12 @@ describe("edition", () => {
 
   test("start edition with a wrong selection", () => {
     const model = new Model();
-    const result = model.dispatch("START_EDITION", {
-      text: "coucou",
-      selection: { start: 10, end: 1 },
-    });
-    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.WrongComposerSelection });
+    expect(
+      model.dispatch("START_EDITION", {
+        text: "coucou",
+        selection: { start: 10, end: 1 },
+      })
+    ).toBeCancelled(CancelledReason.WrongComposerSelection);
   });
 
   test("select another cell while editing set the content to the selected cell", () => {

@@ -587,7 +587,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.InvalidDataSet });
+    expect(result).toBeCancelled(CancelledReason.InvalidDataSet);
   });
 
   test("chart is focused after creation and update", () => {
@@ -631,7 +631,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.InvalidLabelRange });
+    expect(result).toBeCancelled(CancelledReason.InvalidLabelRange);
   });
 
   test("create chart with invalid SheetName in dataset will ignore invalid data", () => {
@@ -688,7 +688,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.EmptyDataSet });
+    expect(result).toBeCancelled(CancelledReason.EmptyDataSet);
   });
 
   test("create chart with empty labels", () => {
@@ -703,7 +703,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.EmptyLabelRange });
+    expect(result).toBeCancelled(CancelledReason.EmptyLabelRange);
   });
   test("update chart with invalid dataset", () => {
     const result = model.dispatch("UPDATE_CHART", {
@@ -717,7 +717,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.InvalidDataSet });
+    expect(result).toBeCancelled(CancelledReason.InvalidDataSet);
   });
 
   test("update chart with invalid labels", () => {
@@ -732,7 +732,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.InvalidLabelRange });
+    expect(result).toBeCancelled(CancelledReason.InvalidLabelRange);
   });
   test.skip("extend data source to new values manually", () => {});
   test.skip("extend data set labels to new values manually", () => {});
