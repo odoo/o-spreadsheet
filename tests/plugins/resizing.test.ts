@@ -36,13 +36,13 @@ describe("Model resizer", () => {
 
   test("Cannot resize column in invalid sheet", async () => {
     const model = new Model();
-    expect(resizeColumns(model, ["B"], 100, "invalid")).toBeCancelled(
+    expect(resizeColumns(model, ["B"], 100, "invalid")).toBe(
       CommandResult.InvalidSheetId
     );
   });
   test("Cannot resize row in invalid sheet", async () => {
     const model = new Model();
-    expect(resizeRows(model, [1], 100, "invalid")).toBeCancelled(CommandResult.InvalidSheetId);
+    expect(resizeRows(model, [1], 100, "invalid")).toBe(CommandResult.InvalidSheetId);
   });
   test("Cannot auto resize column in invalid sheet", async () => {
     const model = new Model();
@@ -51,7 +51,7 @@ describe("Model resizer", () => {
         sheetId: "invalid",
         cols: [10],
       })
-    ).toBeCancelled(CommandResult.InvalidSheetId);
+    ).toBe(CommandResult.InvalidSheetId);
   });
   test("Cannot auto resize row in invalid sheet", async () => {
     const model = new Model();
@@ -60,7 +60,7 @@ describe("Model resizer", () => {
         sheetId: "invalid",
         rows: [10],
       })
-    ).toBeCancelled(CommandResult.InvalidSheetId);
+    ).toBe(CommandResult.InvalidSheetId);
   });
 
   test("Can resize one row, then undo", async () => {

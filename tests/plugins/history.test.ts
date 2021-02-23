@@ -255,7 +255,7 @@ describe("Model history", () => {
 
     expect(getCell(model, "A1")!.value).toBe(10);
 
-    expect(undo(model)).toBeCancelled(CommandResult.EmptyUndoStack);
+    expect(undo(model)).toBe(CommandResult.EmptyUndoStack);
     expect(getCell(model, "A1")!.value).toBe(10);
   });
 
@@ -265,7 +265,7 @@ describe("Model history", () => {
 
     expect(getCell(model, "A1")!.value).toBe(10);
 
-    expect(redo(model)).toBeCancelled(CommandResult.EmptyRedoStack);
+    expect(redo(model)).toBe(CommandResult.EmptyRedoStack);
     expect(getCell(model, "A1")!.value).toBe(10);
   });
 

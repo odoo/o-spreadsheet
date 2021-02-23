@@ -209,7 +209,7 @@ describe("merges", () => {
     const sheetId = model.getters.getActiveSheetId();
     expect(
       model.dispatch("ADD_MERGE", { sheetId, target: [toZone("A1:B2"), toZone("A2:B3")] })
-    ).toBeCancelled(CommandResult.MergeOverlap);
+    ).toBe(CommandResult.MergeOverlap);
   });
 
   test("properly compute if a merge is destructive or not", () => {
@@ -226,7 +226,7 @@ describe("merges", () => {
     });
     // B2 is not top left, so it is destructive
 
-    expect(merge(model, "A1:C4")).toBeCancelled(CommandResult.MergeIsDestructive);
+    expect(merge(model, "A1:C4")).toBe(CommandResult.MergeIsDestructive);
 
     // B2 is top left, so it is not destructive
     expect(merge(model, "B2:C4")).toEqual(CommandResult.Success);
@@ -521,7 +521,7 @@ describe("merges", () => {
 
   test("Cannot add a merge in a non-existing sheet", () => {
     const model = new Model();
-    expect(merge(model, "A1:A2", "invalid")).toBeCancelled(CommandResult.InvalidSheetId);
+    expect(merge(model, "A1:A2", "invalid")).toBe(CommandResult.InvalidSheetId);
   });
 
   test("import merge with style", () => {

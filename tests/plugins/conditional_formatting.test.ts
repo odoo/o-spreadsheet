@@ -890,7 +890,7 @@ describe("conditional formats types", () => {
           target: [toZone("A1")],
           sheetId: model.getters.getActiveSheetId(),
         });
-        expect(result).toBeCancelled(CommandResult.InvalidNumberOfArgs);
+        expect(result).toBe(CommandResult.InvalidNumberOfArgs);
       }
     );
   });
@@ -912,7 +912,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBeCancelled(CommandResult.MinNaN);
+          expect(result).toBe(CommandResult.MinNaN);
         });
         test("midpoint is NaN", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -928,7 +928,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBeCancelled(CommandResult.MidNaN);
+          expect(result).toBe(CommandResult.MidNaN);
         });
         test("maximum is NaN", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -943,7 +943,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBeCancelled(CommandResult.MaxNaN);
+          expect(result).toBe(CommandResult.MaxNaN);
         });
       }
     );
@@ -972,7 +972,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBeCancelled(CommandResult.MinBiggerThanMax);
+          expect(result).toBe(CommandResult.MinBiggerThanMax);
         });
         test("mid bigger than max", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -988,7 +988,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBeCancelled(CommandResult.MidBiggerThanMax);
+          expect(result).toBe(CommandResult.MidBiggerThanMax);
         });
         test("min bigger than mid", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -1004,7 +1004,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBeCancelled(CommandResult.MinBiggerThanMid);
+          expect(result).toBe(CommandResult.MinBiggerThanMid);
         });
       }
     );

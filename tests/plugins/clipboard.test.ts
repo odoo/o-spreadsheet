@@ -54,7 +54,7 @@ describe("clipboard", () => {
   test("paste without copied value", () => {
     const model = new Model();
     const result = model.dispatch("PASTE", { target: [toZone("D2")] });
-    expect(result).toBeCancelled(CommandResult.EmptyClipboard);
+    expect(result).toBe(CommandResult.EmptyClipboard);
   });
 
   test("paste zones without copied value", () => {
@@ -410,7 +410,7 @@ describe("clipboard", () => {
     const selection = model.getters.getSelection().zones;
     model.dispatch("COPY", { target: selection });
     const result = model.dispatch("PASTE", { target: [toZone("A1")] });
-    expect(result).toBeCancelled(CommandResult.WillRemoveExistingMerge);
+    expect(result).toBe(CommandResult.WillRemoveExistingMerge);
     expect(model.getters.isInMerge("s1", ...toCartesian("A1"))).toBe(false);
     expect(model.getters.isInMerge("s1", ...toCartesian("A2"))).toBe(false);
     expect(model.getters.isInMerge("s1", ...toCartesian("B1"))).toBe(false);
@@ -634,7 +634,7 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: [toZone("A1:A2")] });
     const result = model.dispatch("PASTE", { target: [toZone("C1"), toZone("E1")] });
 
-    expect(result).toBeCancelled(CommandResult.WrongPasteSelection);
+    expect(result).toBe(CommandResult.WrongPasteSelection);
   });
 
   test("pasting with multiple selection and more than one value will warn user", async () => {

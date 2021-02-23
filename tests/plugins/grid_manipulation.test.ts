@@ -140,7 +140,7 @@ describe("Clear columns", () => {
     expect(getBorder(model, "C2")).toEqual(border);
   });
   test("cannot delete column in invalid sheet", () => {
-    expect(deleteColumns(model, ["A"], "INVALID")).toBeCancelled(CommandResult.InvalidSheetId);
+    expect(deleteColumns(model, ["A"], "INVALID")).toBe(CommandResult.InvalidSheetId);
   });
 });
 
@@ -181,7 +181,7 @@ describe("Clear rows", () => {
     expect(getCell(model, "C2")).toMatchObject({ style });
   });
   test("cannot delete row in invalid sheet", () => {
-    expect(deleteRows(model, [0], "INVALID")).toBeCancelled(CommandResult.InvalidSheetId);
+    expect(deleteRows(model, [0], "INVALID")).toBe(CommandResult.InvalidSheetId);
   });
 });
 
@@ -342,9 +342,7 @@ describe("Columns", () => {
 
     test("On addition in invalid sheet", () => {
       const sheetId = "invalid";
-      expect(addColumns(model, "after", "A", 1, sheetId)).toBeCancelled(
-        CommandResult.InvalidSheetId
-      );
+      expect(addColumns(model, "after", "A", 1, sheetId)).toBe(CommandResult.InvalidSheetId);
     });
 
     test("On hide/unhide Column on small sheet", () => {
@@ -1196,7 +1194,7 @@ describe("Rows", () => {
     });
     test("cannot delete column in invalid sheet", () => {
       const sheetId = "invalid";
-      expect(addRows(model, "after", 0, 1, sheetId)).toBeCancelled(CommandResult.InvalidSheetId);
+      expect(addRows(model, "after", 0, 1, sheetId)).toBe(CommandResult.InvalidSheetId);
     });
 
     test("activate Sheet: same size", () => {
