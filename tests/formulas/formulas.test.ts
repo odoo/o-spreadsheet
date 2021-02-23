@@ -1,7 +1,20 @@
-import { Model } from "../../src";
+import { Model, normalize } from "../../src";
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
 
-describe("applyOffset", () => {
+function moveFormula(model: Model, formula: string, offsetX: number, offsetY: number): string {
+  const sheetId = model.getters.getActiveSheetId();
+  const normalizedFormula = normalize(formula);
+  const content = normalizedFormula.text;
+  const dependencies = normalizedFormula.dependencies.map((dep) =>
+    model.getters.getRangeFromSheetXC(sheetId, dep)
+  );
+  const ranges = model.getters.createAdaptedRanges(dependencies, offsetX, offsetY, sheetId);
+  return model.getters.computeFormulaContent(sheetId, content, ranges, {
+    withSheetCheck: true,
+  });
+}
+
+describe("createAdaptedRanges", () => {
   test("simple changes", () => {
     const model = new Model({
       sheets: [
@@ -11,10 +24,8 @@ describe("applyOffset", () => {
         },
       ],
     });
-    expect(model.getters.applyOffset(model.getters.getActiveSheetId(), "=A1", 1, 1)).toEqual("=B2");
-    expect(model.getters.applyOffset(model.getters.getActiveSheetId(), "=A1 + B3", 1, 1)).toEqual(
-      "=B2 + C4"
-    );
+    expect(moveFormula(model, "=A1", 1, 1)).toEqual("=B2");
+    expect(moveFormula(model, "=A1 + B3", 1, 1)).toEqual("=B2 + C4");
   });
 
   test("can handle negative/invalid offsets", () => {
@@ -26,15 +37,9 @@ describe("applyOffset", () => {
         },
       ],
     });
-    expect(model.getters.applyOffset(model.getters.getActiveSheetId(), "=B2", 0, -4)).toEqual(
-      `=${INCORRECT_RANGE_STRING}`
-    );
-    expect(model.getters.applyOffset(model.getters.getActiveSheetId(), "=B10", 0, 2)).toEqual(
-      `=${INCORRECT_RANGE_STRING}`
-    );
-    expect(model.getters.applyOffset(model.getters.getActiveSheetId(), "=J1", 2, 0)).toEqual(
-      `=${INCORRECT_RANGE_STRING}`
-    );
+    expect(moveFormula(model, "=B2", 0, -4)).toEqual(`=${INCORRECT_RANGE_STRING}`);
+    expect(moveFormula(model, "=B10", 0, 2)).toEqual(`=${INCORRECT_RANGE_STRING}`);
+    expect(moveFormula(model, "=J1", 2, 0)).toEqual(`=${INCORRECT_RANGE_STRING}`);
   });
 
   test("can handle other formulas", () => {
@@ -46,9 +51,7 @@ describe("applyOffset", () => {
         },
       ],
     });
-    expect(
-      model.getters.applyOffset(model.getters.getActiveSheetId(), "=AND(true, B2)", 0, 1)
-    ).toEqual("=AND(true, B3)");
+    expect(moveFormula(model, "=AND(true, B2)", 0, 1)).toEqual("=AND(true, B3)");
   });
 
   test("can handle cross-sheet formulas", () => {
@@ -65,17 +68,9 @@ describe("applyOffset", () => {
         },
       ],
     });
-    expect(model.getters.applyOffset(model.getters.getActiveSheetId(), "=Sheet2!B2", 0, 1)).toEqual(
-      "=Sheet2!B3"
-    );
-    expect(
-      model.getters.applyOffset(model.getters.getActiveSheetId(), "=Sheet2!B2", 0, -2)
-    ).toEqual(`=${INCORRECT_RANGE_STRING}`);
-    expect(model.getters.applyOffset(model.getters.getActiveSheetId(), "=Sheet2!B2", 1, 1)).toEqual(
-      "=Sheet2!C3"
-    );
-    expect(
-      model.getters.applyOffset(model.getters.getActiveSheetId(), "=Sheet2!B2", 1, 10)
-    ).toEqual(`=${INCORRECT_RANGE_STRING}`);
+    expect(moveFormula(model, "=Sheet2!B2", 0, 1)).toEqual("=Sheet2!B3");
+    expect(moveFormula(model, "=Sheet2!B2", 0, -2)).toEqual(`=${INCORRECT_RANGE_STRING}`);
+    expect(moveFormula(model, "=Sheet2!B2", 1, 1)).toEqual("=Sheet2!C3");
+    expect(moveFormula(model, "=Sheet2!B2", 1, 10)).toEqual(`=${INCORRECT_RANGE_STRING}`);
   });
 });

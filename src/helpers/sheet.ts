@@ -1,6 +1,6 @@
-import { numberToLetters } from ".";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 import { Col, HeaderData, Row } from "../types";
+import { numberToLetters } from "./coordinates";
 
 export function createDefaultCols(colNumber: number): Col[] {
   const cols: Col[] = [];
