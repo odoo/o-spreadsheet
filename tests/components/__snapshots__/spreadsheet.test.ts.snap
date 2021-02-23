@@ -341,9 +341,6 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
         >
           
         </div>
-        <div
-          class="o-composer-assistant"
-        />
       </div>
     </div>
   </div>
