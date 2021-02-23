@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers/zones";
-import { CancelledReason } from "../../src/types";
+import { CommandResult } from "../../src/types";
 import {
   addColumns,
   createChart,
@@ -564,7 +564,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(result).toBeCancelled(CancelledReason.InvalidDataSet);
+    expect(result).toBeCancelled(CommandResult.InvalidDataSet);
   });
 
   test("chart is focused after creation and update", () => {
@@ -605,7 +605,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(result).toBeCancelled(CancelledReason.InvalidLabelRange);
+    expect(result).toBeCancelled(CommandResult.InvalidLabelRange);
   });
 
   test("create chart with invalid SheetName in dataset will ignore invalid data", () => {
@@ -656,7 +656,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(result).toBeCancelled(CancelledReason.EmptyDataSet);
+    expect(result).toBeCancelled(CommandResult.EmptyDataSet);
   });
 
   test("create chart with empty labels", () => {
@@ -668,7 +668,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(result).toBeCancelled(CancelledReason.EmptyLabelRange);
+    expect(result).toBeCancelled(CommandResult.EmptyLabelRange);
   });
   test("update chart with invalid dataset", () => {
     const result = model.dispatch("UPDATE_CHART", {
@@ -682,7 +682,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(result).toBeCancelled(CancelledReason.InvalidDataSet);
+    expect(result).toBeCancelled(CommandResult.InvalidDataSet);
   });
 
   test("update chart with invalid labels", () => {
@@ -697,7 +697,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(result).toBeCancelled(CancelledReason.InvalidLabelRange);
+    expect(result).toBeCancelled(CommandResult.InvalidLabelRange);
   });
   test("duplicate a sheet with and without a chart", () => {
     const model = new Model({

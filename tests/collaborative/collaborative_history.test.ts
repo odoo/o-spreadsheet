@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers";
-import { CancelledReason } from "../../src/types";
+import { CommandResult } from "../../src/types";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import {
   addColumns,
@@ -302,11 +302,11 @@ describe("Collaborative local history", () => {
     network.concurrent(() => {
       undo(alice);
       expect(setCellContent(alice, "A2", "test")).toBeCancelled(
-        CancelledReason.WaitingSessionConfirmation
+        CommandResult.WaitingSessionConfirmation
       );
     });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A2"), undefined);
-    expect(setCellContent(alice, "A2", "test")).toEqual({ status: "SUCCESS" });
+    expect(setCellContent(alice, "A2", "test")).toEqual(CommandResult.Success);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "test");
   });
 

@@ -11,7 +11,6 @@ import { Mode } from "../../model";
 import { _lt } from "../../translation";
 import {
   AddColumnsRowsCommand,
-  CancelledReason,
   Cell,
   CellType,
   Command,
@@ -64,15 +63,15 @@ export class EditionPlugin extends UIPlugin {
         const length = this.currentContent.length;
         const { start, end } = cmd;
         return start >= 0 && start <= length && end >= 0 && end <= length && start <= end
-          ? { status: "SUCCESS" }
-          : { status: "CANCELLED", reason: CancelledReason.WrongComposerSelection };
+          ? CommandResult.Success
+          : CommandResult.WrongComposerSelection;
       case "SET_CURRENT_CONTENT":
       case "START_EDITION":
         return cmd.selection && cmd.selection.start > cmd.selection.end
-          ? { status: "CANCELLED", reason: CancelledReason.WrongComposerSelection }
-          : { status: "SUCCESS" };
+          ? CommandResult.WrongComposerSelection
+          : CommandResult.Success;
       default:
-        return { status: "SUCCESS" };
+        return CommandResult.Success;
     }
   }
 

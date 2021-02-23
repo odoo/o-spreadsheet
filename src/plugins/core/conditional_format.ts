@@ -2,7 +2,6 @@ import { compile, normalize } from "../../formulas/index";
 import { isInside, zoneToXc } from "../../helpers/index";
 import {
   ApplyRangeChange,
-  CancelledReason,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
   ColorScaleThreshold,
@@ -88,15 +87,9 @@ export class ConditionalFormatPlugin
   allowDispatch(cmd: Command): CommandResult {
     if (cmd.type === "ADD_CONDITIONAL_FORMAT") {
       const error = this.checkCFRule(cmd.cf.rule);
-      return error
-        ? { status: "CANCELLED", reason: error }
-        : {
-            status: "SUCCESS",
-          };
+      return error !== null ? error : CommandResult.Success;
     }
-    return {
-      status: "SUCCESS",
-    };
+    return CommandResult.Success;
   }
 
   handle(cmd: CoreCommand) {
@@ -238,12 +231,12 @@ export class ConditionalFormatPlugin
     this.history.update("cfRules", sheet, currentCF);
   }
 
-  private checkCFRule(rule: ColorScaleRule | SingleColorRules): CancelledReason | null {
+  private checkCFRule(rule: ColorScaleRule | SingleColorRules): CommandResult | null {
     switch (rule.type) {
       case "CellIsRule":
         if (rule.operator === "Between" || rule.operator === "NotBetween") {
           if (rule.values.length !== 2 || rule.values.some((x) => x === "")) {
-            return CancelledReason.InvalidNumberOfArgs;
+            return CommandResult.InvalidNumberOfArgs;
           }
         } else {
           if (
@@ -259,7 +252,7 @@ export class ConditionalFormatPlugin
             ].includes(rule.operator) &&
             (rule.values[0] === "" || rule.values[0] === undefined)
           ) {
-            return CancelledReason.InvalidNumberOfArgs;
+            return CommandResult.InvalidNumberOfArgs;
           }
         }
         break;
@@ -273,18 +266,18 @@ export class ConditionalFormatPlugin
   private checkPoint(
     threshold: ColorScaleThreshold | ColorScaleMidPointThreshold,
     thresholdName: string
-  ): CancelledReason | undefined {
+  ): CommandResult | undefined {
     if (
       ["number", "percentage", "percentile"].includes(threshold.type) &&
       (threshold.value === "" || isNaN(threshold.value as any))
     ) {
       switch (thresholdName) {
         case "min":
-          return CancelledReason.MinNaN;
+          return CommandResult.MinNaN;
         case "max":
-          return CancelledReason.MaxNaN;
+          return CommandResult.MaxNaN;
         case "mid":
-          return CancelledReason.MidNaN;
+          return CommandResult.MidNaN;
       }
     }
     try {
@@ -293,28 +286,28 @@ export class ConditionalFormatPlugin
         if (compiledFormula.async) {
           switch (thresholdName) {
             case "min":
-              return CancelledReason.MinAsyncFormulaNotSupported;
+              return CommandResult.MinAsyncFormulaNotSupported;
             case "max":
-              return CancelledReason.MaxAsyncFormulaNotSupported;
+              return CommandResult.MaxAsyncFormulaNotSupported;
             case "mid":
-              return CancelledReason.MidAsyncFormulaNotSupported;
+              return CommandResult.MidAsyncFormulaNotSupported;
           }
         }
       }
     } catch (error) {
       switch (thresholdName) {
         case "min":
-          return CancelledReason.MinInvalidFormula;
+          return CommandResult.MinInvalidFormula;
         case "max":
-          return CancelledReason.MaxInvalidFormula;
+          return CommandResult.MaxInvalidFormula;
         case "mid":
-          return CancelledReason.MidInvalidFormula;
+          return CommandResult.MidInvalidFormula;
       }
     }
     return;
   }
 
-  private checkColorScaleRule(rule: ColorScaleRule): CancelledReason | null {
+  private checkColorScaleRule(rule: ColorScaleRule): CommandResult | null {
     const error =
       this.checkPoint(rule.minimum, "min") ||
       this.checkPoint(rule.maximum, "max") ||
@@ -330,7 +323,7 @@ export class ConditionalFormatPlugin
       rule.minimum.type === rule.maximum.type &&
       Number(minValue) >= Number(maxValue)
     ) {
-      return CancelledReason.MinBiggerThanMax;
+      return CommandResult.MinBiggerThanMax;
     }
     if (
       rule.midpoint &&
@@ -338,7 +331,7 @@ export class ConditionalFormatPlugin
       rule.minimum.type === rule.midpoint.type &&
       Number(minValue) >= Number(midValue)
     ) {
-      return CancelledReason.MinBiggerThanMid;
+      return CommandResult.MinBiggerThanMid;
     }
     if (
       rule.midpoint &&
@@ -346,7 +339,7 @@ export class ConditionalFormatPlugin
       rule.midpoint.type === rule.maximum.type &&
       Number(midValue) >= Number(maxValue)
     ) {
-      return CancelledReason.MidBiggerThanMax;
+      return CommandResult.MidBiggerThanMax;
     }
     return null;
   }

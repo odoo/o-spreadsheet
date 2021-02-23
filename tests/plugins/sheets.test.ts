@@ -1,6 +1,6 @@
 import { toCartesian, toZone, uuidv4 } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CancelledReason } from "../../src/types";
+import { CommandResult } from "../../src/types";
 import {
   activateSheet,
   createSheet,
@@ -80,21 +80,21 @@ describe("sheets", () => {
     const model = new Model();
     const name = model.getters.getSheetName(model.getters.getActiveSheetId());
     expect(model.dispatch("CREATE_SHEET", { name, sheetId: "42", position: 1 })).toBeCancelled(
-      CancelledReason.WrongSheetName
+      CommandResult.WrongSheetName
     );
   });
 
   test("Cannot create a sheet with a position > length of sheets", () => {
     const model = new Model();
     expect(model.dispatch("CREATE_SHEET", { sheetId: "42", position: 54 })).toBeCancelled(
-      CancelledReason.WrongSheetPosition
+      CommandResult.WrongSheetPosition
     );
   });
 
   test("Cannot create a sheet with a negative position", () => {
     const model = new Model();
     expect(model.dispatch("CREATE_SHEET", { sheetId: "42", position: -1 })).toBeCancelled(
-      CancelledReason.WrongSheetPosition
+      CommandResult.WrongSheetPosition
     );
   });
 
@@ -116,14 +116,14 @@ describe("sheets", () => {
   test("Cannot delete an invalid sheet", async () => {
     const model = new Model();
     expect(model.dispatch("DELETE_SHEET", { sheetId: "invalid" })).toBeCancelled(
-      CancelledReason.InvalidSheetId
+      CommandResult.InvalidSheetId
     );
   });
 
   test("Cannot delete an invalid sheet; confirmation", async () => {
     const model = new Model();
     expect(model.dispatch("DELETE_SHEET_CONFIRMATION", { sheetId: "invalid" })).toBeCancelled(
-      CancelledReason.InvalidSheetId
+      CommandResult.InvalidSheetId
     );
   });
 
@@ -163,7 +163,7 @@ describe("sheets", () => {
 
   test("cannot activate an invalid sheet", () => {
     const model = new Model();
-    expect(activateSheet(model, "INVALID_ID")).toBeCancelled(CancelledReason.InvalidSheetId);
+    expect(activateSheet(model, "INVALID_ID")).toBeCancelled(CommandResult.InvalidSheetId);
   });
 
   test("evaluating multiple sheets", () => {
@@ -336,10 +336,10 @@ describe("sheets", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
     const sheet2 = model.getters.getVisibleSheets()[1];
     expect(model.dispatch("MOVE_SHEET", { sheetId: sheet1, direction: "left" })).toBeCancelled(
-      CancelledReason.WrongSheetMove
+      CommandResult.WrongSheetMove
     );
     expect(model.dispatch("MOVE_SHEET", { sheetId: sheet2, direction: "right" })).toBeCancelled(
-      CancelledReason.WrongSheetMove
+      CommandResult.WrongSheetMove
     );
   });
 
@@ -358,7 +358,7 @@ describe("sheets", () => {
         sheetId: "invalid",
         name: "hello",
       })
-    ).toBeCancelled(CancelledReason.InvalidSheetId);
+    ).toBeCancelled(CommandResult.InvalidSheetId);
   });
 
   test("New sheet name is trimmed", () => {
@@ -375,13 +375,13 @@ describe("sheets", () => {
     const name = "NEW_NAME";
     createSheet(model, { sheetId: "42", name });
     expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name })).toBeCancelled(
-      CancelledReason.WrongSheetName
+      CommandResult.WrongSheetName
     );
     expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "new_name" })).toBeCancelled(
-      CancelledReason.WrongSheetName
+      CommandResult.WrongSheetName
     );
     expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "new_name " })).toBeCancelled(
-      CancelledReason.WrongSheetName
+      CommandResult.WrongSheetName
     );
   });
 
@@ -389,10 +389,10 @@ describe("sheets", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
     expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: undefined })).toBeCancelled(
-      CancelledReason.WrongSheetName
+      CommandResult.WrongSheetName
     );
     expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "    " })).toBeCancelled(
-      CancelledReason.WrongSheetName
+      CommandResult.WrongSheetName
     );
   });
 
@@ -496,7 +496,7 @@ describe("sheets", () => {
     const id = uuidv4();
     expect(
       model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: id, name })
-    ).toBeCancelled(CancelledReason.WrongSheetName);
+    ).toBeCancelled(CommandResult.WrongSheetName);
   });
 
   test("Properties of sheet are correctly duplicated", () => {
@@ -786,7 +786,7 @@ describe("sheets", () => {
     const model = new Model();
     expect(
       model.dispatch("DELETE_SHEET", { sheetId: model.getters.getActiveSheetId() })
-    ).toBeCancelled(CancelledReason.NotEnoughSheets);
+    ).toBeCancelled(CommandResult.NotEnoughSheets);
   });
 
   test("Can undo-redo a sheet deletion", () => {
@@ -859,7 +859,7 @@ describe("sheets", () => {
         },
       ],
     });
-    expect(deleteRows(model, [1, 2, 3, 4])).toBeCancelled(CancelledReason.NotEnoughElements);
+    expect(deleteRows(model, [1, 2, 3, 4])).toBeCancelled(CommandResult.NotEnoughElements);
   });
   test("Cannot have all rows/columns hidden at once", () => {
     const model = new Model({
@@ -871,6 +871,6 @@ describe("sheets", () => {
         },
       ],
     });
-    expect(hideRows(model, [0, 1, 3])).toBeCancelled(CancelledReason.TooManyHiddenElements);
+    expect(hideRows(model, [0, 1, 3])).toBeCancelled(CommandResult.TooManyHiddenElements);
   });
 });

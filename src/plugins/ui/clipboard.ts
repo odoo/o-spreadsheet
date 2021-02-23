@@ -3,7 +3,6 @@ import { Mode } from "../../model";
 import { _lt } from "../../translation";
 import {
   Border,
-  CancelledReason,
   Cell,
   CellType,
   Command,
@@ -54,9 +53,7 @@ export class ClipboardPlugin extends UIPlugin {
     if (cmd.type === "PASTE") {
       return this.isPasteAllowed(cmd.target, force);
     }
-    return {
-      status: "SUCCESS",
-    };
+    return CommandResult.Success;
   }
 
   handle(cmd: Command) {
@@ -275,22 +272,19 @@ export class ClipboardPlugin extends UIPlugin {
     // cannot paste if we have a clipped zone larger than a cell and multiple
     // zones selected
     if (!zones || !cells || status === "empty") {
-      return { status: "CANCELLED", reason: CancelledReason.EmptyClipboard };
+      return CommandResult.EmptyClipboard;
     } else if (target.length > 1 && (cells.length > 1 || cells[0].length > 1)) {
-      return { status: "CANCELLED", reason: CancelledReason.WrongPasteSelection };
+      return CommandResult.WrongPasteSelection;
     }
     if (!force) {
       const pasteZones = this.getters.getPasteZones(target);
       for (let zone of pasteZones) {
         if (this.getters.doesIntersectMerge(sheetId, zone)) {
-          return {
-            status: "CANCELLED",
-            reason: CancelledReason.WillRemoveExistingMerge,
-          };
+          return CommandResult.WillRemoveExistingMerge;
         }
       }
     }
-    return { status: "SUCCESS" };
+    return CommandResult.Success;
   }
 
   private pasteFromModel(target: Zone[]) {
@@ -533,11 +527,11 @@ export class ClipboardPlugin extends UIPlugin {
   interactivePaste(target: Zone[]) {
     const result = this.dispatch("PASTE", { target, onlyFormat: false });
 
-    if (result.status === "CANCELLED") {
-      if (result.reason === CancelledReason.WrongPasteSelection) {
+    if (result !== CommandResult.Success) {
+      if (result === CommandResult.WrongPasteSelection) {
         this.ui.notifyUser(_lt("This operation is not allowed with multiple selections."));
       }
-      if (result.reason === CancelledReason.WillRemoveExistingMerge) {
+      if (result === CommandResult.WillRemoveExistingMerge) {
         this.ui.askConfirmation(
           _lt("Pasting here will remove existing merge(s). Paste anyway?"),
           () => this.dispatch("PASTE", { target, onlyFormat: false, force: true })

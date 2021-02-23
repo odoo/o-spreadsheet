@@ -2,7 +2,6 @@ import { DATETIME_FORMAT } from "../../constants";
 import { isEqual, isInside, mapCellsInZone, overlap, zoneToDimension } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
-  CancelledReason,
   Cell,
   CellType,
   Command,
@@ -30,7 +29,7 @@ export class SortPlugin extends UIPlugin {
       case "SORT_CELLS":
         return this.isSortAllowed(cmd.sheetId, cmd.anchor, cmd.zone);
     }
-    return { status: "SUCCESS" };
+    return CommandResult.Success;
   }
 
   handle(cmd: Command) {
@@ -58,7 +57,7 @@ export class SortPlugin extends UIPlugin {
       for (let row = zone.top; row <= zone.bottom; row++) {
         for (let col = zone.left; col <= zone.right; col++) {
           if (!this.getters.isInMerge(sheetId, col, row)) {
-            return { status: "CANCELLED", reason: CancelledReason.InvalidSortZone };
+            return CommandResult.InvalidSortZone;
           }
         }
       }
@@ -74,10 +73,10 @@ export class SortPlugin extends UIPlugin {
           return widthCurrent === widthFirst && heightCurrent === heightFirst;
         })
       ) {
-        return { status: "CANCELLED", reason: CancelledReason.InvalidSortZone };
+        return CommandResult.InvalidSortZone;
       }
     }
-    return { status: "SUCCESS" };
+    return CommandResult.Success;
   }
 
   private interactiveSortSelection(
@@ -86,7 +85,7 @@ export class SortPlugin extends UIPlugin {
     zone: Zone,
     sortDirection: SortDirection
   ) {
-    let result: CommandResult | undefined;
+    let result: CommandResult = CommandResult.Success;
 
     //several columns => bypass the contiguity check
     let multiColumns: boolean = zone.right > zone.left;
@@ -146,9 +145,9 @@ export class SortPlugin extends UIPlugin {
         );
       }
     }
-    if (result && result.status === "CANCELLED") {
-      switch (result.reason) {
-        case CancelledReason.InvalidSortZone:
+    if (result !== CommandResult.Success) {
+      switch (result) {
+        case CommandResult.InvalidSortZone:
           this.dispatch("SET_SELECTION", {
             anchor: anchor,
             zones: [zone],

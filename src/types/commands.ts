@@ -877,16 +877,10 @@ export type LocalCommand =
   | SetViewportOffsetCommand;
 
 export type Command = CoreCommand | LocalCommand;
-export interface CommandSuccess {
-  status: "SUCCESS";
-}
-export interface CommandCancelled {
-  status: "CANCELLED";
-  reason: CancelledReason;
-}
 
-export const enum CancelledReason {
-  Unknown,
+export const enum CommandResult {
+  Success,
+  CancelledForUnknownReason,
   WillRemoveExistingMerge,
   MergeIsDestructive,
   EmptyUndoStack,
@@ -928,8 +922,6 @@ export const enum CancelledReason {
   MergeOverlap,
   TooManyHiddenElements,
 }
-
-export type CommandResult = CommandSuccess | CommandCancelled;
 
 export interface CommandHandler<T> {
   allowDispatch(command: T): CommandResult;

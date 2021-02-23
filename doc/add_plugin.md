@@ -45,10 +45,10 @@ class MyPlugin extends spreadsheet.CorePlugin {
     switch (cmd.type) {
       case "DO_SOMETHING":
         if (cmd.toPutInFirstProp === "bla") {
-          return { status: "CANCELLED", reason: CancellationReason.IncorrectValueForMyPlugin };
+          return CommandResult.IncorrectValueForMyPlugin;
         }
     }
-    return { status: "SUCCESS" };
+    return CommandResult.Success;
   }
 
   handle(cmd) {
@@ -95,8 +95,8 @@ MyPlugin.getters = ["getSomething"];
 const pluginRegistry = spreadsheet.registries.pluginRegistry;
 pluginRegistry.add("MyPlugin", MyPlugin);
 
-// the cancellation reason should be any number > 1000 (o-spreadsheet reserves the numbers until 1000 for internal use)
-const CancellationReason = {
+// the command result should be any number > 1000 (o-spreadsheet reserves the numbers until 1000 for internal use)
+const CommandResult = {
   IncorrectValueForMyPlugin: 2000,
 };
 ```
@@ -106,7 +106,7 @@ const CancellationReason = {
 For processing all commands, command will go through the functions on the plugins in this order:
 
 1. `allowDispatch(command: Command): CommandResult`
-   Used to refuse a command and return a message. As soon as you return anything else than { status: "SUCCESS" }, the
+   Used to refuse a command and return a message. As soon as you return anything else than CommandResult.Success, the
    entire command processing stops for all plugins Here is the only way to refuse a command safely (that is, ensuring
    that no plugin has updated its state and possibly perverting the `undo` stack).
 

@@ -2,6 +2,7 @@ import * as owl from "@odoo/owl";
 import { colorNumberString, toZone, uuidv4 } from "../../helpers/index";
 import {
   ColorScaleRule,
+  CommandResult,
   ConditionalFormat,
   SingleColorRules,
   SpreadsheetEnv,
@@ -325,10 +326,9 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
         target: this.state.currentRanges.map(toZone),
         sheetId: this.getters.getActiveSheetId(),
       });
-      if (result.status === "CANCELLED") {
+      if (result !== CommandResult.Success) {
         this.state.error = this.env._t(
-          conditionalFormatingTerms.Errors[result.reason] ||
-            conditionalFormatingTerms.Errors.unexpected
+          conditionalFormatingTerms.Errors[result] || conditionalFormatingTerms.Errors.unexpected
         );
       } else {
         this.state.error = undefined;

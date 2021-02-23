@@ -2,7 +2,7 @@ import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { computeTextWidth } from "../../helpers/index";
 import { _lt } from "../../translation";
-import { CancelledReason, Cell, Command, CommandResult, UID, Zone } from "../../types";
+import { Cell, Command, CommandResult, UID, Zone } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
@@ -23,10 +23,10 @@ export class SheetUIPlugin extends UIPlugin {
           this.getters.getSheet(cmd.sheetId);
           break;
         } catch (error) {
-          return { status: "CANCELLED", reason: CancelledReason.InvalidSheetId };
+          return CommandResult.InvalidSheetId;
         }
     }
-    return { status: "SUCCESS" };
+    return CommandResult.Success;
   }
 
   handle(cmd: Command) {
@@ -117,7 +117,7 @@ export class SheetUIPlugin extends UIPlugin {
       }
       const result = this.dispatch("RENAME_SHEET", { sheetId: sheetId, name });
       const sheetName = this.getters.getSheetName(sheetId);
-      if (result.status === "CANCELLED" && sheetName !== name) {
+      if (result !== CommandResult.Success && sheetName !== name) {
         this.interactiveRenameSheet(sheetId, _lt("Please enter a valid sheet name"));
       }
     });
@@ -132,8 +132,8 @@ export class SheetUIPlugin extends UIPlugin {
   private interactiveMerge(sheet: string, target: Zone[]) {
     const result = this.dispatch("ADD_MERGE", { sheetId: sheet, target });
 
-    if (result.status === "CANCELLED") {
-      if (result.reason === CancelledReason.MergeIsDestructive) {
+    if (result !== CommandResult.Success) {
+      if (result === CommandResult.MergeIsDestructive) {
         this.ui.askConfirmation(
           _lt("Merging these cells will only preserve the top-leftmost value. Merge anyway?"),
           () => {

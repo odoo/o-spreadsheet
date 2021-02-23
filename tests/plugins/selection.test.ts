@@ -1,6 +1,6 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CancelledReason } from "../../src/types";
+import { CommandResult } from "../../src/types";
 import { activateSheet, createSheet, selectCell } from "../test_helpers/commands_helpers";
 import { getActiveXc } from "../test_helpers/getters_helpers";
 
@@ -221,10 +221,10 @@ describe("selection", () => {
       ],
     });
     expect(model.dispatch("SELECT_ROW", { index: -1 })).toBeCancelled(
-      CancelledReason.SelectionOutOfBound
+      CommandResult.SelectionOutOfBound
     );
     expect(model.dispatch("SELECT_ROW", { index: 11 })).toBeCancelled(
-      CancelledReason.SelectionOutOfBound
+      CommandResult.SelectionOutOfBound
     );
   });
 
@@ -238,10 +238,10 @@ describe("selection", () => {
       ],
     });
     expect(model.dispatch("SELECT_COLUMN", { index: -1 })).toBeCancelled(
-      CancelledReason.SelectionOutOfBound
+      CommandResult.SelectionOutOfBound
     );
     expect(model.dispatch("SELECT_COLUMN", { index: 11 })).toBeCancelled(
-      CancelledReason.SelectionOutOfBound
+      CommandResult.SelectionOutOfBound
     );
   });
 

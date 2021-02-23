@@ -20,7 +20,7 @@ class Parent extends Component<any, any> {
     super();
     useSubEnv({
       openSidePanel: (panel: string) => {},
-      dispatch: jest.fn(() => ({ status: "SUCCESS" } as CommandResult)),
+      dispatch: jest.fn(() => CommandResult.Success as CommandResult),
       getters: model.getters,
       _t: (s: string) => s,
       askConfirmation: jest.fn(),

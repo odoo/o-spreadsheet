@@ -3,7 +3,7 @@ import { Model } from "../../src";
 import { Session } from "../../src/collaborative/session";
 import { DEBOUNCE_TIME, MESSAGE_VERSION } from "../../src/constants";
 import { buildRevisionLog } from "../../src/history/factory";
-import { Client } from "../../src/types";
+import { Client, CommandResult } from "../../src/types";
 import { selectCell } from "../test_helpers/commands_helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 
@@ -25,7 +25,7 @@ describe("Collaborative session", () => {
     const revisionLog = buildRevisionLog(
       "START_REVISION",
       () => ({ changes: [], commands: [] }),
-      () => ({ status: "SUCCESS" as const })
+      () => CommandResult.Success
     );
     session = new Session(revisionLog, transport, client);
     session.join([]);

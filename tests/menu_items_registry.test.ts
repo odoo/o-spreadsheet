@@ -99,7 +99,7 @@ describe("Menu Item actions", () => {
     parent = new GridParent(model);
     env = parent.env;
     await parent.mount(fixture);
-    env.dispatch = jest.fn(() => ({ status: "SUCCESS" } as CommandResult));
+    env.dispatch = jest.fn(() => CommandResult.Success as CommandResult);
   });
 
   test("Edit -> undo", () => {

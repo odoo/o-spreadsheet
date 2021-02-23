@@ -1,7 +1,7 @@
 import { MAX_HISTORY_STEPS } from "../../src/constants";
 import { Model } from "../../src/model";
 import { StateObserver } from "../../src/state_observer";
-import { CancelledReason } from "../../src/types/commands";
+import { CommandResult } from "../../src/types/commands";
 import {
   activateSheet,
   createSheet,
@@ -255,7 +255,7 @@ describe("Model history", () => {
 
     expect(getCell(model, "A1")!.value).toBe(10);
 
-    expect(undo(model)).toBeCancelled(CancelledReason.EmptyUndoStack);
+    expect(undo(model)).toBeCancelled(CommandResult.EmptyUndoStack);
     expect(getCell(model, "A1")!.value).toBe(10);
   });
 
@@ -265,7 +265,7 @@ describe("Model history", () => {
 
     expect(getCell(model, "A1")!.value).toBe(10);
 
-    expect(redo(model)).toBeCancelled(CancelledReason.EmptyRedoStack);
+    expect(redo(model)).toBeCancelled(CommandResult.EmptyRedoStack);
     expect(getCell(model, "A1")!.value).toBe(10);
   });
 

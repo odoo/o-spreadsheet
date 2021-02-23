@@ -1,5 +1,5 @@
 import { _lt } from "../../translation";
-import { CancelledReason } from "../../types/index";
+import { CommandResult } from "../../types/index";
 
 export const conditionalFormatingTerms = {
   CF_TITLE: _lt("Format rules"),
@@ -14,23 +14,23 @@ export const conditionalFormatingTerms = {
   SAVE: _lt("Save"),
   PREVIEWTEXT: _lt("Preview text"),
   Errors: {
-    [CancelledReason.InvalidNumberOfArgs]: _lt("Invalid number of arguments"),
-    [CancelledReason.MinNaN]: _lt("The minpoint must be a number"),
-    [CancelledReason.MidNaN]: _lt("The midpoint must be a number"),
-    [CancelledReason.MaxNaN]: _lt("The maxpoint must be a number"),
-    [CancelledReason.MinBiggerThanMax]: _lt("Minimum must be smaller then Maximum"),
-    [CancelledReason.MinBiggerThanMid]: _lt("Minimum must be smaller then Midpoint"),
-    [CancelledReason.MidBiggerThanMax]: _lt("Midpoint must be smaller then Maximum"),
-    [CancelledReason.MinInvalidFormula]: _lt("Invalid Minpoint formula"),
-    [CancelledReason.MaxInvalidFormula]: _lt("Invalid Maxpoint formula"),
-    [CancelledReason.MidInvalidFormula]: _lt("Invalid Midpoint formula"),
-    [CancelledReason.MinAsyncFormulaNotSupported]: _lt(
+    [CommandResult.InvalidNumberOfArgs]: _lt("Invalid number of arguments"),
+    [CommandResult.MinNaN]: _lt("The minpoint must be a number"),
+    [CommandResult.MidNaN]: _lt("The midpoint must be a number"),
+    [CommandResult.MaxNaN]: _lt("The maxpoint must be a number"),
+    [CommandResult.MinBiggerThanMax]: _lt("Minimum must be smaller then Maximum"),
+    [CommandResult.MinBiggerThanMid]: _lt("Minimum must be smaller then Midpoint"),
+    [CommandResult.MidBiggerThanMax]: _lt("Midpoint must be smaller then Maximum"),
+    [CommandResult.MinInvalidFormula]: _lt("Invalid Minpoint formula"),
+    [CommandResult.MaxInvalidFormula]: _lt("Invalid Maxpoint formula"),
+    [CommandResult.MidInvalidFormula]: _lt("Invalid Midpoint formula"),
+    [CommandResult.MinAsyncFormulaNotSupported]: _lt(
       "Some formulas are not supported for the Minpoint"
     ),
-    [CancelledReason.MaxAsyncFormulaNotSupported]: _lt(
+    [CommandResult.MaxAsyncFormulaNotSupported]: _lt(
       "Some formulas are not supported for the Maxpoint"
     ),
-    [CancelledReason.MidAsyncFormulaNotSupported]: _lt(
+    [CommandResult.MidAsyncFormulaNotSupported]: _lt(
       "Some formulas are not supported for the Midpoint"
     ),
     unexpected: _lt("The rule is invalid for an unknown reason"),
@@ -79,10 +79,10 @@ export const chartTerms = {
   CreateChart: _lt("Create chart"),
   TitlePlaceholder: _lt("New Chart"),
   Errors: {
-    [CancelledReason.EmptyDataSet]: _lt("Invalid or no Dataset given"),
-    [CancelledReason.EmptyLabelRange]: _lt("No Labels given"),
-    [CancelledReason.InvalidDataSet]: _lt("Invalid dataSet"),
-    [CancelledReason.InvalidLabelRange]: _lt("Invalid Labels"),
+    [CommandResult.EmptyDataSet]: _lt("Invalid or no Dataset given"),
+    [CommandResult.EmptyLabelRange]: _lt("No Labels given"),
+    [CommandResult.InvalidDataSet]: _lt("Invalid dataSet"),
+    [CommandResult.InvalidLabelRange]: _lt("Invalid Labels"),
     unexpected: _lt("The chartdefinition is invalid for an unknown reason"),
   },
 };

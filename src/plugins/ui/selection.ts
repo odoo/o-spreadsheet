@@ -13,7 +13,6 @@ import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
 import {
   AddColumnsRowsCommand,
-  CancelledReason,
   Cell,
   ClientPosition,
   Command,
@@ -137,30 +136,21 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
           (cmd.deltaX < 0 && targetCol === 0) ||
           (cmd.deltaX > 0 && targetCol === cols.length - 1);
         if (outOfBound) {
-          return {
-            status: "CANCELLED",
-            reason: CancelledReason.SelectionOutOfBound,
-          };
+          return CommandResult.SelectionOutOfBound;
         }
         break;
       }
       case "SELECT_COLUMN": {
         const { index } = cmd;
         if (index < 0 || index >= this.getters.getActiveSheet().cols.length) {
-          return {
-            status: "CANCELLED",
-            reason: CancelledReason.SelectionOutOfBound,
-          };
+          return CommandResult.SelectionOutOfBound;
         }
         break;
       }
       case "SELECT_ROW": {
         const { index } = cmd;
         if (index < 0 || index >= this.getters.getActiveSheet().rows.length) {
-          return {
-            status: "CANCELLED",
-            reason: CancelledReason.SelectionOutOfBound,
-          };
+          return CommandResult.SelectionOutOfBound;
         }
         break;
       }
@@ -170,12 +160,10 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
           this.historizeActiveSheet = false;
           break;
         } catch (error) {
-          return { status: "CANCELLED", reason: CancelledReason.InvalidSheetId };
+          return CommandResult.InvalidSheetId;
         }
     }
-    return {
-      status: "SUCCESS",
-    };
+    return CommandResult.Success;
   }
 
   handle(cmd: Command) {

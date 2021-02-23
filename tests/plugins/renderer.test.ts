@@ -1,6 +1,6 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { GridRenderingContext, Viewport } from "../../src/types";
+import { CommandResult, GridRenderingContext, Viewport } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import { merge, setCellContent } from "../test_helpers/commands_helpers";
 import { createEqualCF, mockUuidV4To } from "../test_helpers/helpers";
@@ -470,7 +470,7 @@ describe("renderer", () => {
       target: [toZone("A1")],
       sheetId: model.getters.getActiveSheetId(),
     });
-    expect(result).toEqual({ status: "SUCCESS" });
+    expect(result).toEqual(CommandResult.Success);
     model.drawGrid(ctx);
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 48, y: 26 }]);
   });

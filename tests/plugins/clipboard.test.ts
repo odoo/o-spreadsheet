@@ -1,7 +1,7 @@
 import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
-import { CancelledReason, CommandSuccess, Zone } from "../../src/types/index";
+import { CommandResult, Zone } from "../../src/types/index";
 import {
   activateSheet,
   createSheet,
@@ -54,7 +54,7 @@ describe("clipboard", () => {
   test("paste without copied value", () => {
     const model = new Model();
     const result = model.dispatch("PASTE", { target: [toZone("D2")] });
-    expect(result).toBeCancelled(CancelledReason.EmptyClipboard);
+    expect(result).toBeCancelled(CommandResult.EmptyClipboard);
   });
 
   test("paste zones without copied value", () => {
@@ -410,7 +410,7 @@ describe("clipboard", () => {
     const selection = model.getters.getSelection().zones;
     model.dispatch("COPY", { target: selection });
     const result = model.dispatch("PASTE", { target: [toZone("A1")] });
-    expect(result).toBeCancelled(CancelledReason.WillRemoveExistingMerge);
+    expect(result).toBeCancelled(CommandResult.WillRemoveExistingMerge);
     expect(model.getters.isInMerge("s1", ...toCartesian("A1"))).toBe(false);
     expect(model.getters.isInMerge("s1", ...toCartesian("A2"))).toBe(false);
     expect(model.getters.isInMerge("s1", ...toCartesian("B1"))).toBe(false);
@@ -634,7 +634,7 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: [toZone("A1:A2")] });
     const result = model.dispatch("PASTE", { target: [toZone("C1"), toZone("E1")] });
 
-    expect(result).toBeCancelled(CancelledReason.WrongPasteSelection);
+    expect(result).toBeCancelled(CommandResult.WrongPasteSelection);
   });
 
   test("pasting with multiple selection and more than one value will warn user", async () => {
@@ -831,7 +831,7 @@ describe("clipboard", () => {
       sheetId: model.getters.getActiveSheetId(),
     });
 
-    expect(result).toEqual({ status: "SUCCESS" } as CommandSuccess);
+    expect(result).toEqual(CommandResult.Success);
     model.dispatch("COPY", { target: target("A1") });
     model.dispatch("PASTE", { target: target("C1"), onlyValue: true });
     model.dispatch("COPY", { target: target("A2") });

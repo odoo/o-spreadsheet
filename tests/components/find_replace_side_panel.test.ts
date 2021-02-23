@@ -70,7 +70,7 @@ describe("find and replace sidePanel component", () => {
       expect(document.activeElement).toBe(document.querySelector("body"));
 
       const sidePanel = document.querySelector(".o-find-and-replace");
-      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
       sidePanel!.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
       await nextTick();
       expect(parent.env.dispatch).toHaveBeenCalledWith("REFRESH_SEARCH");
@@ -96,7 +96,7 @@ describe("find and replace sidePanel component", () => {
   });
   describe("basic search", () => {
     beforeEach(() => {
-      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
     });
 
     test("simple search", async () => {
@@ -145,7 +145,7 @@ describe("find and replace sidePanel component", () => {
 
   describe("search options", () => {
     test("Can search matching case", async () => {
-      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
 
       setInputValueAndTrigger(selectors.inputSearch, "Hell", "input");
       jest.runAllTimers();
@@ -158,7 +158,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("Can search matching entire cell", async () => {
-      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
 
       setInputValueAndTrigger(selectors.inputSearch, "Hell", "input");
       jest.runAllTimers();
@@ -171,7 +171,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("can search in formulas", async () => {
-      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
 
       setInputValueAndTrigger(selectors.inputSearch, "Hell", "input");
       jest.runAllTimers();
@@ -194,7 +194,7 @@ describe("find and replace sidePanel component", () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "hello", "input");
       jest.runAllTimers();
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "kikou", "input");
-      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
       triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
       await nextTick();
       expect(parent.env.dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
@@ -208,7 +208,7 @@ describe("find and replace sidePanel component", () => {
       jest.runAllTimers();
       triggerMouseEvent(document.querySelector(selectors.checkBoxSearchFormulas), "click");
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "4", "input");
-      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
       triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
       await nextTick();
       expect(parent.env.dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
@@ -222,7 +222,7 @@ describe("find and replace sidePanel component", () => {
       jest.runAllTimers();
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "2", "input");
       triggerMouseEvent(document.querySelector(selectors.checkBoxReplaceFormulas), "click");
-      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
       triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
       await nextTick();
       expect(parent.env.dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
@@ -235,7 +235,7 @@ describe("find and replace sidePanel component", () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "4", "input");
       jest.runAllTimers();
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "2", "input");
-      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
       triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
       await nextTick();
       expect(parent.env.dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
@@ -248,7 +248,7 @@ describe("find and replace sidePanel component", () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "hell", "input");
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "kikou", "input");
       jest.runAllTimers();
-      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
       triggerMouseEvent(document.querySelector(selectors.replaceAllButton), "click");
       await nextTick();
       expect(parent.env.dispatch).toHaveBeenCalledWith("REPLACE_ALL_SEARCH", {
@@ -261,7 +261,7 @@ describe("find and replace sidePanel component", () => {
       setInputValueAndTrigger(selectors.inputSearch, "hell", "input");
       setInputValueAndTrigger(selectors.inputReplace, "kikou", "input");
       jest.runAllTimers();
-      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
       document
         .querySelector(selectors.inputReplace)!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));

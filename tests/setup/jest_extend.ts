@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { CancelledReason, CommandResult } from "../../src/types";
+import { CommandResult } from "../../src/types";
 
 declare global {
   namespace jest {
@@ -20,19 +20,16 @@ declare global {
        */
       toExport<T>(expected: T): R;
       /**
-       * Check that a commandResult is cancelled with the expected CancelledReason
+       * Check that a commandResult is cancelled with the expected CommandResult
        */
-      toBeCancelled(expected: CancelledReason): R;
+      toBeCancelled(expected: CommandResult): R;
     }
   }
 }
 
 expect.extend({
   toBeCancelled(result: CommandResult, expected: any) {
-    const commandResult: CommandResult = {
-      status: "CANCELLED",
-      reason: expected,
-    };
+    const commandResult: CommandResult = expected;
     if (!this.equals(result, commandResult)) {
       return {
         pass: this.isNot,

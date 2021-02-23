@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 import { Session } from "../collaborative/session";
 import { MAX_HISTORY_STEPS } from "../constants";
-import { CancelledReason, Command, CommandDispatcher, CommandResult, UID } from "../types";
+import { Command, CommandDispatcher, CommandResult, UID } from "../types";
 
 /**
  * Local History
@@ -36,17 +36,17 @@ export class LocalHistory extends owl.core.EventBus {
 
   allowDispatch(cmd: Command): CommandResult {
     if (this.isWaitingForUndoRedo) {
-      return { status: "CANCELLED", reason: CancelledReason.WaitingSessionConfirmation };
+      return CommandResult.WaitingSessionConfirmation;
     }
     switch (cmd.type) {
       case "UNDO":
         if (!this.canUndo()) {
-          return { status: "CANCELLED", reason: CancelledReason.EmptyUndoStack };
+          return CommandResult.EmptyUndoStack;
         }
         break;
       case "REDO":
         if (!this.canRedo()) {
-          return { status: "CANCELLED", reason: CancelledReason.EmptyRedoStack };
+          return CommandResult.EmptyRedoStack;
         }
         break;
     }
@@ -57,9 +57,9 @@ export class LocalHistory extends owl.core.EventBus {
         // We wait a global confirmation from the server. The goal is to avoid handling concurrent
         // history changes on multiple clients which are very hard to manage correctly.
         this.requestHistoryChange(cmd.type);
-        return { status: "CANCELLED", reason: CancelledReason.WaitingSessionConfirmation };
+        return CommandResult.WaitingSessionConfirmation;
     }
-    return { status: "SUCCESS" };
+    return CommandResult.Success;
   }
 
   private requestHistoryChange(type: "UNDO" | "REDO") {
