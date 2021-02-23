@@ -1,6 +1,6 @@
 import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CancelledReason } from "../../src/types";
+import { CommandResult } from "../../src/types";
 import {
   activateSheet,
   createSheet,
@@ -143,7 +143,7 @@ describe("edition", () => {
       content: "hello",
       selection: { start: 4, end: 1 },
     });
-    expect(result).toBeCancelled(CancelledReason.WrongComposerSelection);
+    expect(result).toBeCancelled(CommandResult.WrongComposerSelection);
   });
 
   test("change selection", () => {
@@ -175,7 +175,7 @@ describe("edition", () => {
         start: 2,
         end: 1,
       })
-    ).toBeCancelled(CancelledReason.WrongComposerSelection);
+    ).toBeCancelled(CommandResult.WrongComposerSelection);
   });
 
   test("setting selection out of content is invalid", () => {
@@ -186,7 +186,7 @@ describe("edition", () => {
         start: 1,
         end: 2,
       })
-    ).toBeCancelled(CancelledReason.WrongComposerSelection);
+    ).toBeCancelled(CommandResult.WrongComposerSelection);
   });
 
   test("ranges are highlighted", () => {
@@ -339,7 +339,7 @@ describe("edition", () => {
         text: "coucou",
         selection: { start: 10, end: 1 },
       })
-    ).toBeCancelled(CancelledReason.WrongComposerSelection);
+    ).toBeCancelled(CommandResult.WrongComposerSelection);
   });
 
   test("select another cell while editing set the content to the selected cell", () => {

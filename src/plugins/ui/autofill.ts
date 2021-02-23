@@ -5,7 +5,6 @@ import {
   AutofillData,
   AutofillModifier,
   AutofillResult,
-  CancelledReason,
   Cell,
   Command,
   CommandResult,
@@ -107,16 +106,16 @@ export class AutofillPlugin extends UIPlugin {
             ? this.lastCellSelected.row
             : clip(cmd.row, 0, this.getters.getSheet(sheetId).rows.length);
         if (this.lastCellSelected.col !== undefined && this.lastCellSelected.row !== undefined) {
-          return { status: "SUCCESS" };
+          return CommandResult.Success;
         }
-        return { status: "CANCELLED", reason: CancelledReason.InvalidAutofillSelection };
+        return CommandResult.InvalidAutofillSelection;
       case "AUTOFILL_AUTO":
         const zone = this.getters.getSelectedZone();
         return zone.top === zone.bottom
-          ? { status: "SUCCESS" }
-          : { status: "CANCELLED", reason: CancelledReason.Unknown };
+          ? CommandResult.Success
+          : CommandResult.CancelledForUnknownReason;
     }
-    return { status: "SUCCESS" };
+    return CommandResult.Success;
   }
 
   handle(cmd: Command) {

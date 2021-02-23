@@ -1,7 +1,7 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { ChartPanel } from "../../src/components/side_panel/chart_panel";
-import { Figure, SpreadsheetEnv } from "../../src/types";
+import { CommandResult, Figure, SpreadsheetEnv } from "../../src/types";
 import { setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import { makeTestFixture, mockUuidV4To, nextTick } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -46,7 +46,7 @@ describe("Chart sidepanel component", () => {
     setInputValueAndTrigger(".o-data-labels input", "A2:A10", "change");
     await nextTick();
     mockUuidV4To(42);
-    parent.env.dispatch = jest.fn(() => ({ status: "SUCCESS" }));
+    parent.env.dispatch = jest.fn(() => CommandResult.Success);
     await simulateClick(".o-sidePanelButton");
     await nextTick();
     expect(parent.env.dispatch).toHaveBeenCalledWith("CREATE_CHART", {
@@ -79,7 +79,7 @@ describe("Chart sidepanel component", () => {
     });
     const [figure] = model.getters.getVisibleFigures(model.getters.getActiveSheetId()) as Figure[];
     const { parent } = await createChartPanel({ model, figure });
-    parent.env.dispatch = jest.fn(() => ({ status: "SUCCESS" }));
+    parent.env.dispatch = jest.fn(() => CommandResult.Success);
     await simulateClick(".o-sidePanelButton");
     expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_CHART", {
       definition: {

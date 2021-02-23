@@ -2,7 +2,6 @@ import { rangeReference } from "../../formulas/parser";
 import { uuidv4, zoneToXc } from "../../helpers/index";
 import {
   ApplyRangeChange,
-  CancelledReason,
   ChartDefinition,
   Command,
   CommandResult,
@@ -109,16 +108,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: Command): CommandResult {
-    const success: CommandResult = { status: "SUCCESS" };
+    const success: CommandResult = CommandResult.Success;
     switch (cmd.type) {
       case "UPDATE_CHART":
       case "CREATE_CHART":
         const error = this.checkChartDefinition(cmd.definition);
-        return error
-          ? { status: "CANCELLED", reason: error }
-          : {
-              status: "SUCCESS",
-            };
+        return error !== null ? error : success;
       default:
         return success;
     }
@@ -329,23 +324,23 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     }
   }
 
-  private checkChartDefinition(createCommand: CreateChartDefinition): CancelledReason | null {
+  private checkChartDefinition(createCommand: CreateChartDefinition): CommandResult | null {
     if (createCommand.dataSets.length) {
       const invalidRanges =
         createCommand.dataSets.find((range) => !rangeReference.test(range)) !== undefined;
       if (invalidRanges) {
-        return CancelledReason.InvalidDataSet;
+        return CommandResult.InvalidDataSet;
       }
     } else {
-      return CancelledReason.EmptyDataSet;
+      return CommandResult.EmptyDataSet;
     }
     if (createCommand.labelRange) {
       const invalidLabels = !rangeReference.test(createCommand.labelRange);
       if (invalidLabels) {
-        return CancelledReason.InvalidLabelRange;
+        return CommandResult.InvalidLabelRange;
       }
     } else {
-      return CancelledReason.EmptyLabelRange;
+      return CommandResult.EmptyLabelRange;
     }
     return null;
   }

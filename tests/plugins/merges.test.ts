@@ -1,6 +1,6 @@
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { CancelledReason, Style } from "../../src/types/index";
+import { CommandResult, Style } from "../../src/types/index";
 import {
   deleteRows,
   merge,
@@ -209,7 +209,7 @@ describe("merges", () => {
     const sheetId = model.getters.getActiveSheetId();
     expect(
       model.dispatch("ADD_MERGE", { sheetId, target: [toZone("A1:B2"), toZone("A2:B3")] })
-    ).toBeCancelled(CancelledReason.MergeOverlap);
+    ).toBeCancelled(CommandResult.MergeOverlap);
   });
 
   test("properly compute if a merge is destructive or not", () => {
@@ -226,10 +226,10 @@ describe("merges", () => {
     });
     // B2 is not top left, so it is destructive
 
-    expect(merge(model, "A1:C4")).toBeCancelled(CancelledReason.MergeIsDestructive);
+    expect(merge(model, "A1:C4")).toBeCancelled(CommandResult.MergeIsDestructive);
 
     // B2 is top left, so it is not destructive
-    expect(merge(model, "B2:C4")).toEqual({ status: "SUCCESS" });
+    expect(merge(model, "B2:C4")).toEqual(CommandResult.Success);
   });
 
   test("a merge with only style should not be considered destructive", () => {
@@ -245,9 +245,7 @@ describe("merges", () => {
       ],
       styles: { 1: {} },
     });
-    expect(merge(model, "A1:C4")).toEqual({
-      status: "SUCCESS",
-    });
+    expect(merge(model, "A1:C4")).toEqual(CommandResult.Success);
   });
 
   test("merging destructively a selection ask for confirmation", async () => {
@@ -523,7 +521,7 @@ describe("merges", () => {
 
   test("Cannot add a merge in a non-existing sheet", () => {
     const model = new Model();
-    expect(merge(model, "A1:A2", "invalid")).toBeCancelled(CancelledReason.InvalidSheetId);
+    expect(merge(model, "A1:A2", "invalid")).toBeCancelled(CommandResult.InvalidSheetId);
   });
 
   test("import merge with style", () => {

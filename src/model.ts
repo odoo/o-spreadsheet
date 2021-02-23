@@ -20,7 +20,6 @@ import {
   CommandDispatcher,
   CommandHandler,
   CommandResult,
-  CommandSuccess,
   CoreCommand,
   EvalContext,
   Getters,
@@ -285,7 +284,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   private checkDispatchAllowed(command: Command): CommandResult | undefined {
     for (let handler of [this.history, ...this.handlers]) {
       const allowDispatch = handler.allowDispatch(command);
-      if (allowDispatch.status === "CANCELLED") {
+      if (allowDispatch !== CommandResult.Success) {
         return allowDispatch;
       }
     }
@@ -349,7 +348,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       case Status.RunningCore:
         throw new Error("A UI plugin cannot dispatch while handling a core command");
     }
-    return { status: "SUCCESS" } as CommandSuccess;
+    return CommandResult.Success;
   };
 
   /**
@@ -362,7 +361,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     this.status = Status.RunningCore;
     this.dispatchToHandlers(this.handlers, command);
     this.status = previousStatus;
-    return { status: "SUCCESS" } as CommandSuccess;
+    return CommandResult.Success;
   };
 
   /**

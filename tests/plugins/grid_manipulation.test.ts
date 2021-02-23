@@ -5,7 +5,7 @@ import {
 } from "../../src/constants";
 import { lettersToNumber, toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { Border, CancelledReason, CellType, UID } from "../../src/types";
+import { Border, CellType, CommandResult, UID } from "../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -140,7 +140,7 @@ describe("Clear columns", () => {
     expect(getBorder(model, "C2")).toEqual(border);
   });
   test("cannot delete column in invalid sheet", () => {
-    expect(deleteColumns(model, ["A"], "INVALID")).toBeCancelled(CancelledReason.InvalidSheetId);
+    expect(deleteColumns(model, ["A"], "INVALID")).toBeCancelled(CommandResult.InvalidSheetId);
   });
 });
 
@@ -181,7 +181,7 @@ describe("Clear rows", () => {
     expect(getCell(model, "C2")).toMatchObject({ style });
   });
   test("cannot delete row in invalid sheet", () => {
-    expect(deleteRows(model, [0], "INVALID")).toBeCancelled(CancelledReason.InvalidSheetId);
+    expect(deleteRows(model, [0], "INVALID")).toBeCancelled(CommandResult.InvalidSheetId);
   });
 });
 
@@ -215,10 +215,7 @@ describe("Hide Columns", () => {
     expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[1], [4]]);
   });
   test("Cannot hide columns on invalid sheetId", () => {
-    expect(hideColumns(model, ["A"], "INVALID")).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.InvalidSheetId,
-    });
+    expect(hideColumns(model, ["A"], "INVALID")).toBe(CommandResult.InvalidSheetId);
   });
 });
 
@@ -249,10 +246,7 @@ describe("Hide Rows", () => {
     expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1], [4]]);
   });
   test("Cannot hide rows on invalid sheetId", () => {
-    expect(hideRows(model, [0], "INVALID")).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.InvalidSheetId,
-    });
+    expect(hideRows(model, [0], "INVALID")).toEqual(CommandResult.InvalidSheetId);
   });
 });
 
@@ -349,7 +343,7 @@ describe("Columns", () => {
     test("On addition in invalid sheet", () => {
       const sheetId = "invalid";
       expect(addColumns(model, "after", "A", 1, sheetId)).toBeCancelled(
-        CancelledReason.InvalidSheetId
+        CommandResult.InvalidSheetId
       );
     });
 
@@ -1202,7 +1196,7 @@ describe("Rows", () => {
     });
     test("cannot delete column in invalid sheet", () => {
       const sheetId = "invalid";
-      expect(addRows(model, "after", 0, 1, sheetId)).toBeCancelled(CancelledReason.InvalidSheetId);
+      expect(addRows(model, "after", 0, 1, sheetId)).toBeCancelled(CommandResult.InvalidSheetId);
     });
 
     test("activate Sheet: same size", () => {

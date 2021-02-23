@@ -3,7 +3,7 @@ import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { SheetUIPlugin } from "../../src/plugins/ui/ui_sheet";
-import { CancelledReason, Cell, UID } from "../../src/types";
+import { Cell, CommandResult, UID } from "../../src/types";
 import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 
@@ -144,7 +144,7 @@ describe("formatting values (with formatters)", () => {
         sheetId: "invalid sheet Id",
         target: [toZone("A1")],
       })
-    ).toBeCancelled(CancelledReason.InvalidSheetId);
+    ).toBeCancelled(CommandResult.InvalidSheetId);
   });
 });
 

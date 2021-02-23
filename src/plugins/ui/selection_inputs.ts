@@ -1,7 +1,7 @@
 import { rangeReference } from "../../formulas/index";
 import { getNextColor, uuidv4 } from "../../helpers/index";
 import { Mode } from "../../model";
-import { CancelledReason, Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
+import { Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 import { SelectionMode } from "./selection";
 
@@ -39,16 +39,16 @@ export class SelectionInputPlugin extends UIPlugin {
       case "FOCUS_RANGE":
         const index = this.getIndex(cmd.id, cmd.rangeId);
         if (this.focusedInputId === cmd.id && this.focusedRange === index) {
-          return { status: "CANCELLED", reason: CancelledReason.InputAlreadyFocused };
+          return CommandResult.InputAlreadyFocused;
         }
         break;
       case "ADD_EMPTY_RANGE":
         if (this.inputs[cmd.id].length === this.inputMaximums[cmd.id]) {
-          return { status: "CANCELLED", reason: CancelledReason.MaximumRangesReached };
+          return CommandResult.MaximumRangesReached;
         }
         break;
     }
-    return { status: "SUCCESS" };
+    return CommandResult.Success;
   }
 
   handle(cmd: Command) {

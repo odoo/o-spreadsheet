@@ -3,7 +3,7 @@ import { normalize } from "../../src/formulas";
 import { parseDateTime } from "../../src/functions/dates";
 import { toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { CancelledReason, CellType, UID } from "../../src/types";
+import { CellType, CommandResult, UID } from "../../src/types";
 import { redo, setCellContent, undo } from "../test_helpers/commands_helpers";
 import { target } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -764,7 +764,7 @@ describe("Sort Merges", () => {
         zone: contiguousZone,
         sortDirection: "ascending",
       })
-    ).toBeCancelled(CancelledReason.InvalidSortZone);
+    ).toBeCancelled(CommandResult.InvalidSortZone);
   });
 
   test("Failed Sort of merges with adjacent merge with and without interactive mode", () => {
@@ -801,7 +801,7 @@ describe("Sort Merges", () => {
         zone: contiguousZone,
         sortDirection: "ascending",
       })
-    ).toBeCancelled(CancelledReason.InvalidSortZone);
+    ).toBeCancelled(CommandResult.InvalidSortZone);
   });
 
   test("Sort w/ multicolumn selection", () => {

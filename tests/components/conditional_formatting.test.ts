@@ -143,7 +143,7 @@ describe("UI of conditional formats", () => {
       triggerMouseEvent(selectors.ruleEditor.editor.italic, "click");
       triggerMouseEvent(selectors.ruleEditor.editor.strikethrough, "click");
 
-      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
       //  click save
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
@@ -165,7 +165,7 @@ describe("UI of conditional formats", () => {
     });
 
     test("the preview should be bold when the rule is bold", async () => {
-      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
 
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
@@ -193,7 +193,7 @@ describe("UI of conditional formats", () => {
       await nextTick();
       triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
 
-      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
       //  click save
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
@@ -257,7 +257,7 @@ describe("UI of conditional formats", () => {
       triggerMouseEvent(selectors.ruleEditor.editor.italic, "click");
       triggerMouseEvent(selectors.ruleEditor.editor.strikethrough, "click");
 
-      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
       //  click save
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
@@ -288,7 +288,7 @@ describe("UI of conditional formats", () => {
     });
 
     test("can delete Rule", async () => {
-      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
       const previews = document.querySelectorAll(selectors.listPreview);
       triggerMouseEvent(previews[0].querySelector(selectors.buttonDelete), "click");
       await nextTick();
@@ -317,7 +317,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
 
-    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
@@ -367,7 +367,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "20", "input");
 
-    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
@@ -419,7 +419,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90", "input");
 
-    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
@@ -471,7 +471,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90", "input");
 
-    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
@@ -531,7 +531,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "100", "input");
 
-    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();

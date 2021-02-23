@@ -1,6 +1,6 @@
 import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CancelledReason, ConditionalFormattingOperatorValues } from "../../src/types";
+import { CommandResult, ConditionalFormattingOperatorValues } from "../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -392,7 +392,7 @@ describe("conditional format", () => {
       target: [toZone("A1")],
       sheetId: model.getters.getActiveSheetId(),
     });
-    expect(result).toEqual({ status: "SUCCESS" });
+    expect(result).toEqual(CommandResult.Success);
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
       fillColor: "#FF0000",
     });
@@ -890,7 +890,7 @@ describe("conditional formats types", () => {
           target: [toZone("A1")],
           sheetId: model.getters.getActiveSheetId(),
         });
-        expect(result).toBeCancelled(CancelledReason.InvalidNumberOfArgs);
+        expect(result).toBeCancelled(CommandResult.InvalidNumberOfArgs);
       }
     );
   });
@@ -912,7 +912,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBeCancelled(CancelledReason.MinNaN);
+          expect(result).toBeCancelled(CommandResult.MinNaN);
         });
         test("midpoint is NaN", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -928,7 +928,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBeCancelled(CancelledReason.MidNaN);
+          expect(result).toBeCancelled(CommandResult.MidNaN);
         });
         test("maximum is NaN", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -943,7 +943,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBeCancelled(CancelledReason.MaxNaN);
+          expect(result).toBeCancelled(CommandResult.MaxNaN);
         });
       }
     );
@@ -972,7 +972,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBeCancelled(CancelledReason.MinBiggerThanMax);
+          expect(result).toBeCancelled(CommandResult.MinBiggerThanMax);
         });
         test("mid bigger than max", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -988,7 +988,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBeCancelled(CancelledReason.MidBiggerThanMax);
+          expect(result).toBeCancelled(CommandResult.MidBiggerThanMax);
         });
         test("min bigger than mid", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -1004,7 +1004,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBeCancelled(CancelledReason.MinBiggerThanMid);
+          expect(result).toBeCancelled(CommandResult.MinBiggerThanMid);
         });
       }
     );

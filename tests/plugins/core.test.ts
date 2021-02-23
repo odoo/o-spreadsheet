@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import { LOADING } from "../../src/plugins/ui/evaluation";
-import { CancelledReason } from "../../src/types";
+import { CommandResult } from "../../src/types";
 import {
   activateSheet,
   createSheet,
@@ -446,7 +446,7 @@ describe("history", () => {
   test("Cannot update a cell in invalid sheet", async () => {
     const model = new Model();
     expect(setCellContent(model, "B2", "hello", "invalid")).toBeCancelled(
-      CancelledReason.InvalidSheetId
+      CommandResult.InvalidSheetId
     );
   });
 

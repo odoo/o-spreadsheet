@@ -47,7 +47,7 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
    * There should not be any side effects in this method.
    */
   allowDispatch(command: C): CommandResult {
-    return { status: "SUCCESS" };
+    return CommandResult.Success;
   }
 
   /**

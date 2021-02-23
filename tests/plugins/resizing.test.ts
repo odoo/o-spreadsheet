@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { CancelledReason } from "../../src/types";
+import { CommandResult } from "../../src/types";
 import {
   activateSheet,
   createSheet,
@@ -37,12 +37,12 @@ describe("Model resizer", () => {
   test("Cannot resize column in invalid sheet", async () => {
     const model = new Model();
     expect(resizeColumns(model, ["B"], 100, "invalid")).toBeCancelled(
-      CancelledReason.InvalidSheetId
+      CommandResult.InvalidSheetId
     );
   });
   test("Cannot resize row in invalid sheet", async () => {
     const model = new Model();
-    expect(resizeRows(model, [1], 100, "invalid")).toBeCancelled(CancelledReason.InvalidSheetId);
+    expect(resizeRows(model, [1], 100, "invalid")).toBeCancelled(CommandResult.InvalidSheetId);
   });
   test("Cannot auto resize column in invalid sheet", async () => {
     const model = new Model();
@@ -51,7 +51,7 @@ describe("Model resizer", () => {
         sheetId: "invalid",
         cols: [10],
       })
-    ).toBeCancelled(CancelledReason.InvalidSheetId);
+    ).toBeCancelled(CommandResult.InvalidSheetId);
   });
   test("Cannot auto resize row in invalid sheet", async () => {
     const model = new Model();
@@ -60,7 +60,7 @@ describe("Model resizer", () => {
         sheetId: "invalid",
         rows: [10],
       })
-    ).toBeCancelled(CancelledReason.InvalidSheetId);
+    ).toBeCancelled(CommandResult.InvalidSheetId);
   });
 
   test("Can resize one row, then undo", async () => {

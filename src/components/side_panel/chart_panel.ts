@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { uuidv4 } from "../../helpers/index";
-import { CreateChartDefinition, Figure, SpreadsheetEnv } from "../../types/index";
+import { CommandResult, CreateChartDefinition, Figure, SpreadsheetEnv } from "../../types/index";
 import { SelectionInput } from "../selection_input";
 import { chartTerms } from "./translations_terms";
 
@@ -88,10 +88,8 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
       id,
       definition: this.getChartDefinition(),
     });
-    if (result.status === "CANCELLED") {
-      this.state.error = this.env._t(
-        chartTerms.Errors[result.reason] || chartTerms.Errors.unexpected
-      );
+    if (result !== CommandResult.Success) {
+      this.state.error = this.env._t(chartTerms.Errors[result] || chartTerms.Errors.unexpected);
     } else {
       this.env.dispatch("SELECT_FIGURE", { id });
       this.state.error = undefined;
@@ -105,10 +103,8 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
       id: chart.id,
       definition: this.getChartDefinition(),
     });
-    if (result.status === "CANCELLED") {
-      this.state.error = this.env._t(
-        chartTerms.Errors[result.reason] || chartTerms.Errors.unexpected
-      );
+    if (result !== CommandResult.Success) {
+      this.state.error = this.env._t(chartTerms.Errors[result] || chartTerms.Errors.unexpected);
     } else {
       this.state.error = undefined;
       this.trigger("close-side-panel");

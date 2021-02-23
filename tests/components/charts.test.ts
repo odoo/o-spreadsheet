@@ -215,7 +215,7 @@ describe("figures", () => {
     setInputValueAndTrigger(title, "piechart", "input");
     setInputValueAndTrigger(dataSeriesValues, "B2:B4", "change");
     triggerMouseEvent(hasTitle, "click");
-    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
     await simulateClick(".o-sidePanelButtons .o-sidePanelButton");
     expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_CHART", {
       id: "someuuid",

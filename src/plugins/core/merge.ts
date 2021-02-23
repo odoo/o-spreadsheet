@@ -7,7 +7,6 @@ import {
 import { clip, isDefined, isEqual, overlap, toXC, toZone, union } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
-  CancelledReason,
   CellType,
   CommandResult,
   CoreCommand,
@@ -62,7 +61,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
       case "ADD_MERGE":
         return this.isMergeAllowed(cmd.sheetId, cmd.target, force);
       default:
-        return { status: "SUCCESS" };
+        return CommandResult.Success;
     }
   }
 
@@ -274,24 +273,16 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
       const sheet = this.getters.tryGetSheet(sheetId);
       for (const zone of target) {
         if (sheet && this.isMergeDestructive(sheet, zone)) {
-          return {
-            status: "CANCELLED",
-            reason: CancelledReason.MergeIsDestructive,
-          };
+          return CommandResult.MergeIsDestructive;;
         }
         for (const zone2 of target) {
           if (zone !== zone2 && overlap(zone, zone2)) {
-            return {
-              status: "CANCELLED",
-              reason: CancelledReason.MergeOverlap,
-            };
+            return CommandResult.MergeOverlap;
           }
         }
       }
     }
-    return {
-      status: "SUCCESS",
-    };
+    return CommandResult.Success;
   }
 
   /**

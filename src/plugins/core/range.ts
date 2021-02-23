@@ -36,7 +36,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   // Command Handling
   // ---------------------------------------------------------------------------
   allowDispatch(command: Command): CommandResult {
-    return { status: "SUCCESS" };
+    return CommandResult.Success;
   }
   beforeHandle(command: Command) {}
 

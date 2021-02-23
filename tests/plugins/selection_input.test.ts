@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { zoneToXc } from "../../src/helpers";
-import { CancelledReason } from "../../src/types";
+import { CommandResult } from "../../src/types";
 import { activateSheet, createSheet, selectCell } from "../test_helpers/commands_helpers";
 
 function select(model: Model, xc: string) {
@@ -52,7 +52,7 @@ describe("selection input plugin", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
     const result = model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
-    expect(result).toBeCancelled(CancelledReason.InputAlreadyFocused);
+    expect(result).toBeCancelled(CommandResult.InputAlreadyFocused);
   });
 
   test("focused input should not change when selecting a zone for composer", () => {
