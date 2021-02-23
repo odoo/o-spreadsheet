@@ -1,5 +1,4 @@
 import { Model } from "../../src";
-import { CommandResult } from "../../src/types";
 
 declare global {
   namespace jest {
@@ -19,32 +18,11 @@ declare global {
        * different
        */
       toExport<T>(expected: T): R;
-      /**
-       * Check that a commandResult is cancelled with the expected CommandResult
-       */
-      toBeCancelled(expected: CommandResult): R;
     }
   }
 }
 
 expect.extend({
-  toBeCancelled(result: CommandResult, expected: any) {
-    const commandResult: CommandResult = expected;
-    if (!this.equals(result, commandResult)) {
-      return {
-        pass: this.isNot,
-        message: () =>
-          `${this.utils.printDiffOrStringify(
-            commandResult,
-            result,
-            "Expected",
-            "Received",
-            false
-          )}`,
-      };
-    }
-    return { pass: !this.isNot, message: () => "" };
-  },
   toExport(model: Model, expected: any) {
     const exportData = model.exportData();
     if (

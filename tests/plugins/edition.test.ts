@@ -143,7 +143,7 @@ describe("edition", () => {
       content: "hello",
       selection: { start: 4, end: 1 },
     });
-    expect(result).toBeCancelled(CommandResult.WrongComposerSelection);
+    expect(result).toBe(CommandResult.WrongComposerSelection);
   });
 
   test("change selection", () => {
@@ -175,7 +175,7 @@ describe("edition", () => {
         start: 2,
         end: 1,
       })
-    ).toBeCancelled(CommandResult.WrongComposerSelection);
+    ).toBe(CommandResult.WrongComposerSelection);
   });
 
   test("setting selection out of content is invalid", () => {
@@ -186,7 +186,7 @@ describe("edition", () => {
         start: 1,
         end: 2,
       })
-    ).toBeCancelled(CommandResult.WrongComposerSelection);
+    ).toBe(CommandResult.WrongComposerSelection);
   });
 
   test("ranges are highlighted", () => {
@@ -339,7 +339,7 @@ describe("edition", () => {
         text: "coucou",
         selection: { start: 10, end: 1 },
       })
-    ).toBeCancelled(CommandResult.WrongComposerSelection);
+    ).toBe(CommandResult.WrongComposerSelection);
   });
 
   test("select another cell while editing set the content to the selected cell", () => {

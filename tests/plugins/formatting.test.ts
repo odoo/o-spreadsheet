@@ -144,7 +144,7 @@ describe("formatting values (with formatters)", () => {
         sheetId: "invalid sheet Id",
         target: [toZone("A1")],
       })
-    ).toBeCancelled(CommandResult.InvalidSheetId);
+    ).toBe(CommandResult.InvalidSheetId);
   });
 });
 
