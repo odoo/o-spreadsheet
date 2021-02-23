@@ -308,6 +308,9 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     if (range.zone.bottom - range.zone.top < 0 || range.zone.right - range.zone.left < 0) {
       return INCORRECT_RANGE_STRING;
     }
+    if (range.zone.left < 0 || range.zone.top < 0) {
+      return INCORRECT_RANGE_STRING;
+    }
     let prefixSheet = range.sheetId !== forSheetId || range.invalidSheetName || range.prefixSheet;
     let sheetName: string = "";
     if (prefixSheet) {
