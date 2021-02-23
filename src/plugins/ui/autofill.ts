@@ -7,6 +7,7 @@ import {
   AutofillResult,
   CancelledReason,
   Cell,
+  CellType,
   Command,
   CommandResult,
   DIRECTION,
@@ -361,6 +362,10 @@ export class AutofillPlugin extends UIPlugin {
         row,
         col,
         content: cellData.cell ? this.getters.getCellText(cellData.cell, sheetId, true) : "",
+        formula:
+          cellData.cell && cellData.cell.type === CellType.formula
+            ? { text: cellData.cell.formula.text, dependencies: cellData.cell.dependencies }
+            : undefined,
         style: cellData.cell?.style || null,
         border: this.getters.getCellBorder(sheetId, col, row) || undefined,
         format: cellData.cell ? cellData.cell.format : "",

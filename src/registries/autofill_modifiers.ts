@@ -72,8 +72,14 @@ autofillModifiersRegistry
           y = 0;
           break;
       }
+      if (!data.formula) {
+        return { cellData: data };
+      }
       const sheetId = getters.getActiveSheetId();
-      const content = getters.applyOffset(sheetId, data.content!, x, y);
+      const ranges = getters.createAdaptedRanges(data.formula.dependencies, x, y, sheetId);
+      const content = getters.computeFormulaContent(sheetId, data.formula.text, ranges, {
+        withSheetCheck: true,
+      });
       return {
         cellData: Object.assign({}, data, { content }),
         tooltip: content ? { props: { content } } : undefined,
