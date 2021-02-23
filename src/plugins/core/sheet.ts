@@ -65,53 +65,50 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   allowDispatch(cmd: CoreCommand): CommandResult {
     if (cmd.type !== "CREATE_SHEET" && "sheetId" in cmd && this.sheets[cmd.sheetId] === undefined) {
-      return {
-        status: "CANCELLED",
-        reason: CancelledReason.InvalidSheetId,
-      };
+      return this.cancel(CancelledReason.InvalidSheetId);
     }
     switch (cmd.type) {
       case "CREATE_SHEET": {
         const { visibleSheets, sheets } = this;
         if (cmd.position > visibleSheets.length || cmd.position < 0) {
-          return { status: "CANCELLED", reason: CancelledReason.WrongSheetPosition };
+          return this.cancel(CancelledReason.WrongSheetPosition);
         }
         return !cmd.name || !visibleSheets.find((id) => sheets[id]!.name === cmd.name)
-          ? { status: "SUCCESS" }
-          : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
+          ? this.success()
+          : this.cancel(CancelledReason.WrongSheetName);
       }
       case "DUPLICATE_SHEET": {
         const { visibleSheets, sheets } = this;
         return !cmd.name || !visibleSheets.find((id) => sheets[id]!.name === cmd.name)
-          ? { status: "SUCCESS" }
-          : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
+          ? this.success()
+          : this.cancel(CancelledReason.WrongSheetName);
       }
       case "MOVE_SHEET":
         const currentIndex = this.visibleSheets.findIndex((id) => id === cmd.sheetId);
         if (currentIndex === -1) {
-          return { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
+          return this.cancel(CancelledReason.WrongSheetName);
         }
         return (cmd.direction === "left" && currentIndex === 0) ||
           (cmd.direction === "right" && currentIndex === this.visibleSheets.length - 1)
-          ? { status: "CANCELLED", reason: CancelledReason.WrongSheetMove }
-          : { status: "SUCCESS" };
+          ? this.cancel(CancelledReason.WrongSheetMove)
+          : this.success();
       case "RENAME_SHEET":
         return this.isRenameAllowed(cmd);
       case "DELETE_SHEET":
         return this.visibleSheets.length > 1
-          ? { status: "SUCCESS" }
-          : { status: "CANCELLED", reason: CancelledReason.NotEnoughSheets };
+          ? this.success()
+          : this.cancel(CancelledReason.NotEnoughSheets);
       case "REMOVE_COLUMNS":
         return this.sheets[cmd.sheetId]!.cols.length > cmd.columns.length
-          ? { status: "SUCCESS" }
-          : { status: "CANCELLED", reason: CancelledReason.NotEnoughColumns };
+          ? this.success()
+          : this.cancel(CancelledReason.NotEnoughColumns);
       case "REMOVE_ROWS":
         return this.sheets[cmd.sheetId]!.rows.length > cmd.rows.length
-          ? { status: "SUCCESS" }
-          : { status: "CANCELLED", reason: CancelledReason.NotEnoughRows };
+          ? this.success()
+          : this.cancel(CancelledReason.NotEnoughRows);
 
       default:
-        return { status: "SUCCESS" };
+        return this.success();
     }
   }
 
@@ -408,15 +405,15 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private isRenameAllowed(cmd: RenameSheetCommand): CommandResult {
     if (cmd.interactive) {
-      return { status: "SUCCESS" };
+      return this.success();
     }
     const name = cmd.name && cmd.name.trim().toLowerCase();
     if (!name) {
-      return { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
+      return this.cancel(CancelledReason.WrongSheetName);
     }
     return this.visibleSheets.findIndex((id) => this.sheets[id]?.name.toLowerCase() === name) === -1
-      ? { status: "SUCCESS" }
-      : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
+      ? this.success()
+      : this.cancel(CancelledReason.WrongSheetName);
   }
 
   private renameSheet(sheet: Sheet, name: string) {

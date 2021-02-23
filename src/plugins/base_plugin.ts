@@ -1,6 +1,12 @@
 import { Mode, ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
-import { CommandDispatcher, CommandHandler, CommandResult, WorkbookHistory } from "../types/index";
+import {
+  CancelledReason,
+  CommandDispatcher,
+  CommandHandler,
+  CommandResult,
+  WorkbookHistory,
+} from "../types/index";
 
 /**
  * BasePlugin
@@ -38,6 +44,14 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
   // ---------------------------------------------------------------------------
   // Command handling
   // ---------------------------------------------------------------------------
+
+  protected success(): CommandResult {
+    return { status: "SUCCESS" };
+  }
+
+  protected cancel(reason: CancelledReason): CommandResult {
+    return { status: "CANCELLED", reason };
+  }
 
   /**
    * Before a command is accepted, the model will ask each plugin if the command
