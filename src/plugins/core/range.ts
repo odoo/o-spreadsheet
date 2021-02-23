@@ -300,13 +300,29 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    * @param range the range (received from getRangeFromXC or getRangeFromZone)
    * @param forSheetId the id of the sheet where the range string is supposed to be used.
    */
-  getRangeString(range: Range, forSheetId: UID): string {
+  getRangeString(
+    range: Range,
+    forSheetId: UID,
+    options: { withSheetCheck?: boolean } = {}
+  ): string {
     if (!range) {
       return INCORRECT_RANGE_STRING;
     }
 
     if (range.zone.bottom - range.zone.top < 0 || range.zone.right - range.zone.left < 0) {
       return INCORRECT_RANGE_STRING;
+    }
+    if (options.withSheetCheck) {
+      const sheet = this.getters.tryGetSheet(range.sheetId);
+      if (
+        !sheet ||
+        sheet.cols.length <= range.zone.right ||
+        sheet.rows.length <= range.zone.bottom ||
+        range.zone.left < 0 ||
+        range.zone.top < 0
+      ) {
+        return INCORRECT_RANGE_STRING;
+      }
     }
     let prefixSheet = range.sheetId !== forSheetId || range.invalidSheetName || range.prefixSheet;
     let sheetName: string = "";

@@ -430,10 +430,15 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return this.cells[sheetId] || {};
   }
 
-  computeFormulaContent(sheetId: UID, formula: string, dependencies: Range[]): string {
+  computeFormulaContent(
+    sheetId: UID,
+    formula: string,
+    dependencies: Range[],
+    options: { withSheetCheck?: boolean } = {}
+  ): string {
     let newDependencies = dependencies.map((x, i) => {
       return {
-        stringDependency: this.getters.getRangeString(x, sheetId),
+        stringDependency: this.getters.getRangeString(x, sheetId, options),
         stringPosition: `${FORMULA_REF_IDENTIFIER}${i}${FORMULA_REF_IDENTIFIER}`,
       };
     });
