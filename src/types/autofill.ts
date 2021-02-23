@@ -5,11 +5,11 @@
  * It could be:
  *  - Increment: increment the content by a given step
  *  - Copy: simply copy the content
- *  - Formula: update the formula, with the same behaviour than paste
+ *  - Formula: update the formula, with the same behavior than paste
  */
 
-import { Border, Style } from "./misc";
-import { CellData } from "./workbook_data";
+import { Getters } from ".";
+import { Border, Cell, DIRECTION, UID, UpdateCellData } from "./misc";
 
 export interface IncrementModifier {
   type: "INCREMENT_MODIFIER";
@@ -34,18 +34,36 @@ export interface Tooltip {
   component?: any;
 }
 
+export interface AutofillCellData extends UpdateCellData {
+  border?: Border;
+}
+
+export interface AutofillData {
+  cell?: Cell;
+  col: number;
+  row: number;
+  sheetId: UID;
+  border?: Border;
+}
+
 export interface AutofillResult {
   cellData: AutofillCellData;
   tooltip?: Tooltip;
-}
-
-export interface AutofillCellData extends Omit<CellData, "border" | "style"> {
-  col: number;
-  row: number;
-  border?: Border;
-  style?: Style | null;
+  origin: {
+    col: number;
+    row: number;
+  };
 }
 export interface GeneratorCell {
-  data: AutofillCellData;
-  rule?: AutofillModifier;
+  data: AutofillData;
+  rule: AutofillModifier;
+}
+
+export interface AutofillModifierImplementation {
+  apply: (
+    rule: AutofillModifier,
+    data: AutofillData,
+    getters: Getters,
+    direction: DIRECTION
+  ) => Omit<AutofillResult, "origin">;
 }
