@@ -46,7 +46,6 @@ function log(message) {
 }
 
 function logMessage(msg) {
-  log(msg.type);
   switch (msg.type) {
     case "REMOTE_REVISION":
       log(`${msg.type}: ${msg.nextRevisionId} : ${JSON.stringify(msg.commands)}`);
@@ -73,6 +72,7 @@ app.get("/", function (req, res) {
 app.get("/clear", function (req, res) {
   messages = [];
   serverRevisionId = "START_REVISION";
+  log("History cleared");
   res.send("Cleared");
 });
 
