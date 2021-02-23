@@ -1,5 +1,4 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, INCORRECT_RANGE_STRING } from "../../constants";
-import { cellReference, rangeTokenize } from "../../formulas/index";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import {
   createCols,
   createDefaultCols,
@@ -7,11 +6,9 @@ import {
   createRows,
   exportCols,
   exportRows,
-  getComposerSheetName,
   groupConsecutive,
   isDefined,
   numberToLetters,
-  toCartesian,
 } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
@@ -40,7 +37,6 @@ export interface SheetState {
 
 export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   static getters = [
-    "applyOffset",
     "getSheetName",
     "getSheet",
     "tryGetSheet",
@@ -262,22 +258,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   getRow(sheetId: UID, index: number): Row | undefined {
     return this.sheets[sheetId]?.rows[index];
-  }
-
-  applyOffset(sheetId: UID, formula: string, offsetX: number, offsetY: number): string {
-    return rangeTokenize(formula)
-      .map((t) => {
-        if (t.type === "SYMBOL" && cellReference.test(t.value)) {
-          const [xcs, sheetName] = t.value.split("!").reverse();
-          const refSheetId = this.getSheetIdByName(sheetName);
-          if (xcs.includes(":")) {
-            return this.updateRange(sheetId, xcs, offsetX, offsetY, refSheetId);
-          }
-          return this.updateReference(sheetId, xcs, offsetX, offsetY, refSheetId);
-        }
-        return t.value;
-      })
-      .join("");
   }
 
   getCell(sheetId: UID, col: number, row: number): Cell | undefined {
@@ -806,62 +786,5 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       });
     }
     this.history.update("sheets", sheet.id, "rows", rows);
-  }
-
-  // ---------------------------------------------------------------------------
-  // Helpers
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Update a range with some offsets
-   */
-  private updateRange(
-    sheetId: UID,
-    symbol: string,
-    offsetX: number,
-    offsetY: number,
-    refSheetId: UID | undefined
-  ): string {
-    let [left, right] = symbol.split(":");
-    left = this.updateReference(sheetId, left, offsetX, offsetY, refSheetId);
-    right = this.updateReference(sheetId, right, offsetX, offsetY, refSheetId);
-    if (left === INCORRECT_RANGE_STRING || right === INCORRECT_RANGE_STRING) {
-      return INCORRECT_RANGE_STRING;
-    }
-    //As updateReference put the sheet in the ref, we need to remove it from the right part
-    right = right.split("!").pop()!;
-    return `${left}:${right}`;
-  }
-
-  /**
-   * Update a reference with some offsets.
-   */
-  private updateReference(
-    sheetId: UID,
-    symbol: string,
-    offsetX: number,
-    offsetY: number,
-    referenceSheetId: UID | undefined,
-    updateFreeze: boolean = true
-  ): string {
-    const xc = symbol.replace(/\$/g, "");
-    let [x, y] = toCartesian(xc);
-    const freezeCol = symbol.startsWith("$");
-    const freezeRow = symbol.includes("$", 1);
-    x += freezeCol && updateFreeze ? 0 : offsetX;
-    y += freezeRow && updateFreeze ? 0 : offsetY;
-    const sheet = this.getSheet(referenceSheetId || sheetId);
-    if (!sheet || x < 0 || x >= sheet.cols.length || y < 0 || y >= sheet.rows.length) {
-      return INCORRECT_RANGE_STRING;
-    }
-    const sheetName =
-      referenceSheetId && getComposerSheetName(this.getters.getSheetName(referenceSheetId)!);
-    return (
-      (sheetName ? `${sheetName}!` : "") +
-      (freezeCol ? "$" : "") +
-      numberToLetters(x) +
-      (freezeRow ? "$" : "") +
-      String(y + 1)
-    );
   }
 }

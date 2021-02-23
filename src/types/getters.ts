@@ -31,7 +31,6 @@ export interface CoreGetters {
   canUndo: LocalHistory["canUndo"];
   canRedo: LocalHistory["canRedo"];
 
-  applyOffset: SheetPlugin["applyOffset"];
   getEvaluationSheets: SheetPlugin["getEvaluationSheets"];
   getSheet: SheetPlugin["getSheet"];
   tryGetSheet: SheetPlugin["tryGetSheet"];
