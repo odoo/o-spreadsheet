@@ -5,6 +5,7 @@ import { Rect, SpreadsheetEnv, Viewport, Zone } from "../../types/index";
 import { Composer } from "./composer";
 
 const { Component } = owl;
+const { useState } = owl.hooks;
 const { xml, css } = owl.tags;
 
 const SCROLLBAR_WIDTH = 14;
@@ -13,9 +14,11 @@ const SCROLLBAR_HIGHT = 15;
 const TEMPLATE = xml/* xml */ `
   <div class="o-grid-composer" t-att-style="containerStyle">
     <Composer
-      focus="props.focus"
-      inputStyle="composerStyle"
-      t-on-keydown="onKeydown"
+      focus = "props.focus"
+      inputStyle = "composerStyle"
+      rect = "composerState.rect"
+      delimitation = "composerState.delimitation"
+      t-on-keydown = "onKeydown"
     />
   </div>
 `;
@@ -28,11 +31,22 @@ const CSS = css/* scss */ `
   }
 `;
 
+export interface Dimension {
+  width: number;
+  height: number;
+}
+
+interface ComposerState {
+  rect: Rect | null;
+  delimitation: Dimension | null;
+}
+
 interface Props {
   viewport: Viewport;
   focus: boolean;
   content: string;
 }
+
 /**
  * This component is a composer which positions itself on the grid at the anchor cell.
  * It also applies the style of the cell to the composer input.
@@ -45,6 +59,11 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
   private getters = this.env.getters;
   private zone: Zone;
   private rect: Rect;
+
+  private composerState: ComposerState = useState({
+    rect: null,
+    delimitation: null,
+  });
 
   constructor() {
     super(...arguments);
@@ -117,6 +136,12 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
 
     const maxWidth = el.parentElement!.clientWidth - this.rect[0] - SCROLLBAR_WIDTH;
     el.style.maxWidth = (maxWidth + "px") as string;
+
+    this.composerState.rect = [this.rect[0], this.rect[1], el!.clientWidth, el!.clientHeight];
+    this.composerState.delimitation = {
+      width: el!.parentElement!.clientWidth,
+      height: el!.parentElement!.clientHeight,
+    };
   }
 
   onKeydown(ev: KeyboardEvent) {

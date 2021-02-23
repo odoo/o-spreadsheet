@@ -12,7 +12,10 @@ const { useState } = owl.hooks;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-formula-assistant-container"
-       t-att-class="{'o-formula-assistant-event-none': assistantState.allowCellSelectionBehind}">
+       t-att-class="{
+         'o-formula-assistant-event-none': assistantState.allowCellSelectionBehind,
+         'o-formula-assistant-event-auto': !assistantState.allowCellSelectionBehind
+         }">
     <t t-set="context" t-value="getContext()"/>
     <div class="o-formula-assistant" t-if="context.functionName" t-on-mousemove="onMouseMove"
          t-att-class="{'o-formula-assistant-transparency': assistantState.allowCellSelectionBehind}">
@@ -62,11 +65,8 @@ const TEMPLATE = xml/* xml */ `
 
 const CSS = css/* scss */ `
   .o-formula-assistant {
-    width: 300px;
-    background-color: #fff;
-    box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
-    margin: 4px;
     white-space: normal;
+    background-color: #fff;
     .o-formula-assistant-head {
       background-color: #f2f2f2;
       padding: 10px;
@@ -99,11 +99,13 @@ const CSS = css/* scss */ `
     }
   }
   .o-formula-assistant-container {
-    position: absolute;
     user-select: none;
   }
   .o-formula-assistant-event-none {
     pointer-events: none;
+  }
+  .o-formula-assistant-event-auto {
+    pointer-events: auto;
   }
   .o-formula-assistant-transparency {
     opacity: 0.3;
