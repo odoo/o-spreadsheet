@@ -24,7 +24,7 @@
     "spreadsheet",
     "odoo"
   ],
-  "author": "Gery Debongnie",
+  "author": "Odoo SA",
   "license": "LGPL-3.0-or-later",
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^11.0.1",
