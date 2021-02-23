@@ -2,6 +2,8 @@
 // MISC
 // -----------------------------------------------------------------------------
 
+import { NormalizedFormula } from "./workbook_data";
+
 export type UID = string;
 
 export interface Zone {
@@ -25,6 +27,13 @@ export interface Style {
   fillColor?: string;
   textColor?: string;
   fontSize?: number; // in pt, not in px!
+}
+
+export interface UpdateCellData {
+  content?: string;
+  formula?: NormalizedFormula;
+  style?: Style | null;
+  format?: string;
 }
 
 export interface Sheet {
@@ -96,7 +105,6 @@ export enum CellType {
 export interface CellBase {
   id: UID;
   style?: Style;
-  border?: number;
   format?: string;
   error?: string;
   value: unknown;

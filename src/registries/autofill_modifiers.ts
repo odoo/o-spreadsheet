@@ -1,56 +1,54 @@
 import { Registry } from "../registry";
 import {
-  AutofillCellData,
-  AutofillModifier,
+  AutofillData,
+  AutofillModifierImplementation,
+  CellType,
   CopyModifier,
   DIRECTION,
   FormulaModifier,
   Getters,
   IncrementModifier,
-  Tooltip,
 } from "../types/index";
 
 /**
  * An AutofillModifierImplementation is used to describe how to handle a
  * AutofillModifier.
  */
-interface AutofillModifierImplementation {
-  apply: (
-    rule: AutofillModifier,
-    data: AutofillCellData,
-    getters: Getters,
-    direction: DIRECTION
-  ) => { cellData: AutofillCellData; tooltip?: Tooltip };
-}
 
 export const autofillModifiersRegistry = new Registry<AutofillModifierImplementation>();
 
 autofillModifiersRegistry
   .add("INCREMENT_MODIFIER", {
-    apply: (rule: IncrementModifier, data: AutofillCellData) => {
+    apply: (rule: IncrementModifier, data: AutofillData) => {
       rule.current += rule.increment;
       const content = rule.current.toString();
       return {
-        cellData: Object.assign({}, data, { content }),
+        cellData: {
+          border: data.border,
+          style: data.cell && data.cell.style,
+          format: data.cell && data.cell.format,
+          content,
+        },
         tooltip: content ? { props: { content } } : undefined,
       };
     },
   })
   .add("COPY_MODIFIER", {
-    apply: (rule: CopyModifier, data: AutofillCellData) => {
+    apply: (rule: CopyModifier, data: AutofillData, getters: Getters) => {
+      const content = (data.cell && getters.getCellText(data.cell, data.sheetId)) || "";
       return {
-        cellData: data,
-        tooltip: data.content ? { props: { content: data.content } } : undefined,
+        cellData: {
+          border: data.border,
+          style: data.cell && data.cell.style,
+          format: data.cell && data.cell.format,
+          content,
+        },
+        tooltip: content ? { props: { content: content } } : undefined,
       };
     },
   })
   .add("FORMULA_MODIFIER", {
-    apply: (
-      rule: FormulaModifier,
-      data: AutofillCellData,
-      getters: Getters,
-      direction: DIRECTION
-    ) => {
+    apply: (rule: FormulaModifier, data: AutofillData, getters: Getters, direction: DIRECTION) => {
       rule.current += rule.increment;
       let x = 0;
       let y = 0;
@@ -72,10 +70,19 @@ autofillModifiersRegistry
           y = 0;
           break;
       }
-      const sheetId = getters.getActiveSheetId();
-      const content = getters.applyOffset(sheetId, data.content!, x, y);
+      if (!data.cell || data.cell.type !== CellType.formula) {
+        return { cellData: {} };
+      }
+      const sheetId = data.sheetId;
+      const ranges = getters.createAdaptedRanges(data.cell.dependencies, x, y, sheetId);
+      const content = getters.buildFormulaContent(sheetId, data.cell.formula.text, ranges);
       return {
-        cellData: Object.assign({}, data, { content }),
+        cellData: {
+          border: data.border,
+          style: data.cell.style,
+          format: data.cell.format,
+          content,
+        },
         tooltip: content ? { props: { content } } : undefined,
       };
     },

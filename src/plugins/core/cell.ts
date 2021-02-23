@@ -25,24 +25,17 @@ import {
   CellType,
   CoreCommand,
   FormulaCell,
-  NormalizedFormula,
   Range,
   Sheet,
   Style,
   UID,
+  UpdateCellData,
   WorkbookData,
   Zone,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
-
-type UpdateCellData = {
-  content?: string;
-  formula?: NormalizedFormula;
-  style?: Style | null;
-  format?: string;
-};
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined

@@ -2,7 +2,7 @@ import { clip, isInside, toCartesian, toXC, union } from "../../helpers/index";
 import { Mode } from "../../model";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
 import {
-  AutofillCellData,
+  AutofillData,
   AutofillModifier,
   AutofillResult,
   CancelledReason,
@@ -61,19 +61,17 @@ class AutofillGenerator {
    */
   next(): AutofillResult {
     const genCell = this.cells[this.index++ % this.cells.length];
-    if (!genCell.rule) {
-      return {
-        cellData: genCell.data,
-        tooltip: genCell.data.content ? { props: genCell.data.content } : undefined,
-      };
-    }
     const rule = genCell.rule;
     const { cellData, tooltip } = autofillModifiersRegistry
       .get(rule.type)
       .apply(rule, genCell.data, this.getters, this.direction);
     return {
-      cellData: Object.assign({}, genCell.data, cellData),
+      cellData,
       tooltip,
+      origin: {
+        col: genCell.data.col,
+        row: genCell.data.row,
+      },
     };
   }
 }
@@ -139,9 +137,9 @@ export class AutofillPlugin extends UIPlugin {
           sheetId,
           col: cmd.col,
           row: cmd.row,
-          style: cmd.style,
-          content: cmd.content,
-          format: cmd.format,
+          style: cmd.style || null,
+          content: cmd.content || "",
+          format: cmd.format || "",
         });
         this.dispatch("SET_BORDER", {
           sheetId,
@@ -304,13 +302,13 @@ export class AutofillPlugin extends UIPlugin {
    * Generate the next cell
    */
   private computeNewCell(generator: AutofillGenerator, col: number, row: number, apply: boolean) {
-    const { cellData, tooltip } = generator.next();
-    const { col: originCol, row: originRow, content, style, border, format } = cellData;
+    const { cellData, tooltip, origin } = generator.next();
+    const { content, style, border, format } = cellData;
     this.tooltip = tooltip;
     if (apply) {
       this.dispatch("AUTOFILL_CELL", {
-        originCol,
-        originRow,
+        originCol: origin.col,
+        originRow: origin.row,
         col,
         row,
         content,
@@ -336,37 +334,31 @@ export class AutofillPlugin extends UIPlugin {
   private createGenerator(source: string[]): AutofillGenerator {
     const nextCells: GeneratorCell[] = [];
 
-    const cellsData: { col: number; row: number; cell?: Cell }[] = [];
+    const cellsData: AutofillData[] = [];
     const sheetId = this.getters.getActiveSheetId();
     for (let xc of source) {
       const [col, row] = toCartesian(xc);
       const cell = this.getters.getCell(sheetId, col, row);
-      let cellData: { col: number; row: number; cell?: Cell } = {
+      cellsData.push({
         col,
         row,
         cell,
-      };
-      cellsData.push(cellData);
+        sheetId,
+      });
     }
     const cells = cellsData.map((cellData) => cellData.cell);
     for (let cellData of cellsData) {
-      let rule: AutofillModifier | undefined;
+      let rule: AutofillModifier = { type: "COPY_MODIFIER" };
       if (cellData && cellData.cell) {
-        rule = this.getRule(cellData.cell, cells);
-      } else {
-        rule = { type: "COPY_MODIFIER" };
+        const newRule = this.getRule(cellData.cell, cells);
+        rule = newRule || rule;
       }
-      const { col, row } = cellData;
-      const data: AutofillCellData = {
-        row,
-        col,
-        content: cellData.cell ? this.getters.getCellText(cellData.cell, sheetId, true) : "",
-        style: cellData.cell?.style || null,
-        border: this.getters.getCellBorder(sheetId, col, row) || undefined,
-        format: cellData.cell ? cellData.cell.format : "",
-      };
-
-      nextCells.push({ data, rule });
+      const { sheetId, col, row } = cellData;
+      const border = this.getters.getCellBorder(sheetId, col, row) || undefined;
+      nextCells.push({
+        data: { ...cellData, border },
+        rule,
+      });
     }
     return new AutofillGenerator(nextCells, this.getters, this.direction!);
   }
