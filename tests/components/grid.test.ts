@@ -423,6 +423,47 @@ describe("Multi User selection", () => {
       client: { id: "david", name: "David", position: { sheetId: "invalid", col: 1, row: 1 } },
     });
     await nextTick();
+    expect(parent.el?.querySelectorAll(".o-client-tag")).toHaveLength(0);
+    parent.destroy();
+  });
+
+  test("Do not render multi user selection with invalid col", async () => {
+    const transportService = new MockTransportService();
+    const model = new Model({}, { transportService });
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    const sheet = model.getters.getActiveSheet();
+    transportService.sendMessage({
+      type: "CLIENT_JOINED",
+      version: MESSAGE_VERSION,
+      client: {
+        id: "david",
+        name: "David",
+        position: { sheetId: sheet.id, col: sheet.cols.length, row: 1 },
+      },
+    });
+    await nextTick();
+    expect(parent.el?.querySelectorAll(".o-client-tag")).toHaveLength(0);
+    parent.destroy();
+  });
+
+  test("Do not render multi user selection with invalid row", async () => {
+    const transportService = new MockTransportService();
+    const model = new Model({}, { transportService });
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    const sheet = model.getters.getActiveSheet();
+    transportService.sendMessage({
+      type: "CLIENT_JOINED",
+      version: MESSAGE_VERSION,
+      client: {
+        id: "david",
+        name: "David",
+        position: { sheetId: sheet.id, col: 1, row: sheet.rows.length },
+      },
+    });
+    await nextTick();
+    expect(parent.el?.querySelectorAll(".o-client-tag")).toHaveLength(0);
     parent.destroy();
   });
 });

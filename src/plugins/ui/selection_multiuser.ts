@@ -1,6 +1,6 @@
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE } from "../../constants";
 import { Mode } from "../../model";
-import { ClientPosition, GridRenderingContext, LAYERS, UID } from "../../types";
+import { Client, ClientPosition, GridRenderingContext, LAYERS, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 function randomChoice(arr: string[]): string {
@@ -22,8 +22,12 @@ export const colors = [
   "#001f3f",
 ];
 
+interface ClientToDisplay extends Required<Client> {
+  color: string;
+}
+
 export class SelectionMultiUserPlugin extends UIPlugin {
-  static getters = ["getClientColor"];
+  static getters = ["getClientsToDisplay"];
   static layers = [LAYERS.Selection];
   static modes: Mode[] = ["normal", "readonly"];
   private availableColors = new Set(colors);
@@ -31,7 +35,7 @@ export class SelectionMultiUserPlugin extends UIPlugin {
 
   private isPositionValid(position: ClientPosition): boolean {
     const sheet = this.getters.getSheet(position.sheetId);
-    return position.row <= sheet.rows.length && position.col <= sheet.cols.length;
+    return position.row < sheet.rows.length && position.col < sheet.cols.length;
   }
 
   private chooseNewColor(): string {
@@ -43,26 +47,36 @@ export class SelectionMultiUserPlugin extends UIPlugin {
     return color;
   }
 
-  getClientColor(id: UID): string {
-    if (!this.colors[id]) {
-      this.colors[id] = this.chooseNewColor();
+  /**
+   * Get the list of others connected clients which are present in the same sheet
+   * and with a valid position
+   */
+  getClientsToDisplay(): ClientToDisplay[] {
+    const sheetId = this.getters.getActiveSheetId();
+    const clients: ClientToDisplay[] = [];
+    for (const client of this.getters.getConnectedClients()) {
+      if (
+        client.id !== this.getters.getClient().id &&
+        client.position &&
+        client.position.sheetId === sheetId &&
+        this.isPositionValid(client.position)
+      ) {
+        const position = client.position;
+        if (!this.colors[client.id]) {
+          this.colors[client.id] = this.chooseNewColor();
+        }
+        const color = this.colors[client.id];
+        clients.push({ ...client, position, color });
+      }
     }
-    return this.colors[id];
+    return clients;
   }
 
   drawGrid(renderingContext: GridRenderingContext) {
     const { viewport, ctx, thinLineWidth } = renderingContext;
     const activeSheetId = this.getters.getActiveSheetId();
-    for (const client of this.getters.getConnectedClients()) {
-      if (
-        client.id === this.getters.getClient().id ||
-        !client.position ||
-        client.position.sheetId !== activeSheetId ||
-        !this.isPositionValid(client.position)
-      ) {
-        continue;
-      }
-      const { row, col } = client.position;
+    for (const client of this.getClientsToDisplay()) {
+      const { row, col } = client.position!;
       const zone = this.getters.expandZone(activeSheetId, {
         top: row,
         bottom: row,
@@ -73,7 +87,7 @@ export class SelectionMultiUserPlugin extends UIPlugin {
       if (width <= 0 || height <= 0) {
         continue;
       }
-      const color = this.getClientColor(client.id);
+      const color = client.color;
       /* Cell background */
       const cellBackgroundColor = `${color}10`;
       ctx.fillStyle = cellBackgroundColor;
