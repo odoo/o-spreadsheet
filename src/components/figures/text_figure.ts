@@ -1,5 +1,5 @@
 import { Component, tags } from "@odoo/owl";
-import { SpreadsheetEnv, Figure } from "../../types/index";
+import { Figure, SpreadsheetEnv } from "../../types/index";
 
 const { xml, css } = tags;
 

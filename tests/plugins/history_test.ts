@@ -1,8 +1,8 @@
 import { MAX_HISTORY_STEPS } from "../../src/history";
 import { Model } from "../../src/model";
+import { CancelledReason } from "../../src/types/commands";
 import "../helpers"; // to have getcontext mocks
 import { getCell, waitForRecompute } from "../helpers";
-import { CancelledReason } from "../../src/types/commands";
 
 // we test here the undo/redo feature
 

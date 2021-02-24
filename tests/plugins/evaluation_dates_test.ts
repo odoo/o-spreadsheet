@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import "../canvas.mock";
-import { evaluateCellText, evaluateGrid, getCell, evaluateCell } from "../helpers";
+import { evaluateCell, evaluateCellText, evaluateGrid, getCell } from "../helpers";
 
 describe("evaluateCells", () => {
   test("Various date representations", () => {

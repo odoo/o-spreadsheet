@@ -1,5 +1,5 @@
-import { ArgType, Arg } from "../types";
 import { _lt } from "../translation";
+import { Arg, ArgType } from "../types";
 
 //------------------------------------------------------------------------------
 // Arg description DSL

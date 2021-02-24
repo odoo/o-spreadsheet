@@ -1,10 +1,10 @@
-import { Component, tags, hooks } from "@odoo/owl";
-import { ChartPanel } from "../../src/components/side_panel/chart_panel";
+import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
-import { makeTestFixture, nextTick, mockUuidV4To } from "../helpers";
-import { simulateClick, setInputValueAndTrigger } from "../dom_helper";
-import { SpreadsheetEnv, ChartFigure, Viewport } from "../../src/types";
+import { ChartPanel } from "../../src/components/side_panel/chart_panel";
+import { ChartFigure, SpreadsheetEnv, Viewport } from "../../src/types";
 import "../canvas.mock";
+import { setInputValueAndTrigger, simulateClick } from "../dom_helper";
+import { makeTestFixture, mockUuidV4To, nextTick } from "../helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 const { xml } = tags;

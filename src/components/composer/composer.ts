@@ -1,10 +1,10 @@
 import * as owl from "@odoo/owl";
 import { fontSizeMap } from "../../fonts";
-import { EnrichedToken, composerTokenize, rangeReference } from "../../formulas/index";
+import { composerTokenize, EnrichedToken, rangeReference } from "../../formulas/index";
+import { colors, DEBUG, getComposerSheetName } from "../../helpers/index";
 import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
-import { colors, DEBUG, getComposerSheetName } from "../../helpers/index";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;

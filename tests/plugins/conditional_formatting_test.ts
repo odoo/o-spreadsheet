@@ -3,13 +3,13 @@ import { CommandResult } from "../../src/types";
 import "../canvas.mock";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../dom_helper";
 import {
+  createColorScale,
+  createEqualCF,
   GridParent,
   makeTestFixture,
   mockUuidV4To,
   nextTick,
   target,
-  createEqualCF,
-  createColorScale,
 } from "../helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 

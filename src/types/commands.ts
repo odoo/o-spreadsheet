@@ -1,4 +1,4 @@
-import { Zone, Style, BorderCommand, ConditionalFormat, CreateChartDefinition } from "./index";
+import { BorderCommand, ConditionalFormat, CreateChartDefinition, Style, Zone } from "./index";
 import { Cell } from "./misc";
 import { Figure } from "./workbook_data";
 

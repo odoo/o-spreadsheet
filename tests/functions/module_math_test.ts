@@ -1,5 +1,5 @@
-import { evaluateCell, evaluateGrid } from "../helpers";
 import { toNumber } from "../../src/functions/helpers";
+import { evaluateCell, evaluateGrid } from "../helpers";
 
 describe("math", () => {
   //----------------------------------------------------------------------------

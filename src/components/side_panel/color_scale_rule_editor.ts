@@ -1,9 +1,8 @@
 import * as owl from "@odoo/owl";
-import * as icons from "../icons";
-
-import { ColorPicker } from "../color_picker";
 import { colorNumberString } from "../../helpers/index";
 import { ColorScaleRule, ConditionalFormat, SpreadsheetEnv } from "../../types";
+import { ColorPicker } from "../color_picker";
+import * as icons from "../icons";
 
 const { Component, useState, hooks } = owl;
 const { useExternalListener } = hooks;

@@ -1,11 +1,11 @@
-import { Model } from "../../src/model";
-import { makeTestFixture, nextTick } from "../helpers";
-import { sidePanelRegistry } from "../../src/registries/index";
-import { Component, tags, hooks } from "@odoo/owl";
-import { SidePanelContent } from "../../src/registries/side_panel_registry";
-import { simulateClick } from "../dom_helper";
+import { Component, hooks, tags } from "@odoo/owl";
 import { Spreadsheet } from "../../src/components";
+import { Model } from "../../src/model";
+import { sidePanelRegistry } from "../../src/registries/index";
+import { SidePanelContent } from "../../src/registries/side_panel_registry";
 import { SpreadsheetEnv } from "../../src/types";
+import { simulateClick } from "../dom_helper";
+import { makeTestFixture, nextTick } from "../helpers";
 
 const { useRef } = hooks;
 const { xml } = tags;

@@ -1,14 +1,14 @@
+import { Registry } from "../registry";
 import {
-  Getters,
-  CellData,
-  DIRECTION,
   AutofillModifier,
-  IncrementModifier,
+  CellData,
   CopyModifier,
+  DIRECTION,
   FormulaModifier,
+  Getters,
+  IncrementModifier,
   Tooltip,
 } from "../types/index";
-import { Registry } from "../registry";
 
 /**
  * An AutofillModifierImplementation is used to describe how to handle a

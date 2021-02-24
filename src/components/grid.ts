@@ -2,23 +2,23 @@ import * as owl from "@odoo/owl";
 import {
   BACKGROUND_GRAY_COLOR,
   DEFAULT_CELL_HEIGHT,
+  HEADER_HEIGHT,
   HEADER_WIDTH,
   SCROLLBAR_WIDTH,
-  HEADER_HEIGHT,
 } from "../constants";
-import { isEqual, isInside, toXC, toCartesian } from "../helpers/index";
+import { isEqual, isInside, toCartesian, toXC } from "../helpers/index";
 import { Model } from "../model";
+import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
+import { colMenuRegistry } from "../registries/menus/col_menu_registry";
+import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
 import { SpreadsheetEnv, Viewport } from "../types/index";
+import { Autofill } from "./autofill";
 import { Composer } from "./composer/composer";
+import { FiguresContainer } from "./figures/container";
+import { startDnd } from "./helpers/drag_and_drop";
 import { Menu, MenuState } from "./menu";
 import { Overlay } from "./overlay";
-import { Autofill } from "./autofill";
-import { startDnd } from "./helpers/drag_and_drop";
 import { ScrollBar } from "./scrollbar";
-import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
-import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
-import { colMenuRegistry } from "../registries/menus/col_menu_registry";
-import { FiguresContainer } from "./figures/container";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible

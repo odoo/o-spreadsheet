@@ -1,7 +1,7 @@
 import { Model } from "../../src";
-import "../canvas.mock";
 import { toCartesian, zoneToXc } from "../../src/helpers";
 import { CancelledReason } from "../../src/types";
+import "../canvas.mock";
 
 function select(model: Model, xc: string) {
   const [col, row] = toCartesian(xc);

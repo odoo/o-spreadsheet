@@ -1,15 +1,15 @@
 import * as owl from "@odoo/owl";
-import { CellIsRuleEditor } from "./cell_is_rule_editor";
-import { ColorScaleRuleEditor } from "./color_scale_rule_editor";
-import { SelectionInput } from "../selection_input";
 import { colorNumberString, uuidv4 } from "../../helpers/index";
 import {
-  ConditionalFormat,
-  SpreadsheetEnv,
   ColorScaleRule,
+  ConditionalFormat,
   SingleColorRules,
+  SpreadsheetEnv,
   Zone,
 } from "../../types";
+import { SelectionInput } from "../selection_input";
+import { CellIsRuleEditor } from "./cell_is_rule_editor";
+import { ColorScaleRuleEditor } from "./color_scale_rule_editor";
 import { cellIsOperators } from "./translations_terms";
 
 const { Component, useState } = owl;

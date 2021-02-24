@@ -1,6 +1,6 @@
-import { functionRegistry, args } from "../../src/functions/index";
-import { evaluateCell, getCell } from "../helpers";
 import { Model } from "../../src";
+import { args, functionRegistry } from "../../src/functions/index";
+import { evaluateCell, getCell } from "../helpers";
 
 describe("addFunction", () => {
   test("can add a function", () => {

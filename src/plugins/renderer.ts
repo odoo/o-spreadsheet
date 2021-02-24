@@ -1,31 +1,31 @@
 import { BasePlugin } from "../base_plugin";
 import {
+  BACKGROUND_HEADER_ACTIVE_COLOR,
+  BACKGROUND_HEADER_COLOR,
+  BACKGROUND_HEADER_SELECTED_COLOR,
+  CELL_BORDER_COLOR,
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
   DEFAULT_FONT_WEIGHT,
+  HEADER_BORDER_COLOR,
+  HEADER_FONT_SIZE,
   HEADER_HEIGHT,
   HEADER_WIDTH,
-  BACKGROUND_HEADER_COLOR,
-  BACKGROUND_HEADER_SELECTED_COLOR,
-  BACKGROUND_HEADER_ACTIVE_COLOR,
   TEXT_HEADER_COLOR,
-  HEADER_FONT_SIZE,
-  HEADER_BORDER_COLOR,
-  CELL_BORDER_COLOR,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { overlap, toXC } from "../helpers/index";
+import { Mode } from "../model";
 import {
   Box,
-  Rect,
-  Zone,
-  Viewport,
+  Cell,
+  GridRenderingContext,
   Header,
   LAYERS,
-  GridRenderingContext,
-  Cell,
+  Rect,
+  Viewport,
+  Zone,
 } from "../types/index";
-import { Mode } from "../model";
 
 // -----------------------------------------------------------------------------
 // Constants, types, helpers, ...

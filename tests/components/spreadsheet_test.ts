@@ -1,11 +1,11 @@
 import { Component, hooks, tags } from "@odoo/owl";
+import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
-import { makeTestFixture, nextTick, MockClipboard } from "../helpers";
-import { Model } from "../../src";
+import { DEBUG } from "../../src/helpers";
 import { SelectionMode } from "../../src/plugins/selection";
 import { triggerMouseEvent } from "../dom_helper";
-import { DEBUG } from "../../src/helpers";
+import { makeTestFixture, MockClipboard, nextTick } from "../helpers";
 
 const { xml } = tags;
 const { useRef } = hooks;

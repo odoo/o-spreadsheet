@@ -1,16 +1,16 @@
-import { Model } from "../../src/model";
-import { makeTestFixture, GridParent, nextTick, getActiveXc } from "../helpers";
+import { ColResizer, RowResizer } from "../../src/components/overlay";
 import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
-  DEFAULT_CELL_WIDTH,
-  DEFAULT_CELL_HEIGHT,
 } from "../../src/constants";
 import { lettersToNumber, toXC } from "../../src/helpers/index";
-import { ColResizer, RowResizer } from "../../src/components/overlay";
+import { Model } from "../../src/model";
+import { SelectionMode } from "../../src/plugins/selection";
 import "../canvas.mock";
 import { triggerMouseEvent } from "../dom_helper";
-import { SelectionMode } from "../../src/plugins/selection";
+import { getActiveXc, GridParent, makeTestFixture, nextTick } from "../helpers";
 
 let fixture: HTMLElement;
 let model: Model;

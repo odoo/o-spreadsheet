@@ -1,15 +1,16 @@
 import { BasePlugin } from "../base_plugin";
 import {
   colorNumberString,
+  isInside,
+  recomputeZones,
   toXC,
   toZone,
   updateAddColumns,
   updateAddRows,
   updateRemoveColumns,
   updateRemoveRows,
-  isInside,
-  recomputeZones,
 } from "../helpers/index";
+import { _lt } from "../translation";
 import {
   Cell,
   CellIsRule,
@@ -20,7 +21,6 @@ import {
   WorkbookData,
   Zone,
 } from "../types/index";
-import { _lt } from "../translation";
 
 // -----------------------------------------------------------------------------
 // Constants

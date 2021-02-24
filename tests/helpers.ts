@@ -1,20 +1,20 @@
 import { Component, hooks, tags, useState } from "@odoo/owl";
 import { Grid } from "../src/components/grid";
-import { TopBar } from "../src/components/top_bar";
 import { SidePanel } from "../src/components/side_panel/side_panel";
+import { TopBar } from "../src/components/top_bar";
 import { functionRegistry } from "../src/functions/index";
 import { toCartesian, toXC } from "../src/helpers/index";
 import { Model } from "../src/model";
 import {
   Cell,
+  ColorScaleThreshold,
+  CommandTypes,
+  ConditionalFormat,
   GridRenderingContext,
   Sheet,
   SpreadsheetEnv,
-  Zone,
   Style,
-  ConditionalFormat,
-  ColorScaleThreshold,
-  CommandTypes,
+  Zone,
 } from "../src/types";
 import "./canvas.mock";
 export { setNextId as mockUuidV4To } from "./__mocks__/uuid";

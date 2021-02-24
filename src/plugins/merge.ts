@@ -5,7 +5,7 @@ import {
   updateRemoveColumns,
   updateRemoveRows,
 } from "../helpers/grid_manipulation";
-import { isEqual, toCartesian, toXC, union, overlap, clip } from "../helpers/index";
+import { clip, isEqual, overlap, toCartesian, toXC, union } from "../helpers/index";
 import { _lt } from "../translation";
 import { CancelledReason, Command, CommandResult, Merge, WorkbookData, Zone } from "../types/index";
 

@@ -1,8 +1,8 @@
+import { BasePlugin } from "../base_plugin";
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE, DEFAULT_FONT_WEIGHT } from "../constants";
 import { fontSizeMap } from "../fonts";
-import { stringify, toCartesian, toXC, maximumDecimalPlaces } from "../helpers/index";
+import { maximumDecimalPlaces, stringify, toCartesian, toXC } from "../helpers/index";
 import { Border, BorderCommand, Cell, Command, Style, WorkbookData, Zone } from "../types/index";
-import { BasePlugin } from "../base_plugin";
 
 // -----------------------------------------------------------------------------
 // Constants / Types / Helpers

@@ -1,6 +1,17 @@
+import {
+  BOTTOMBAR_HEIGHT,
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+  MIN_COL_WIDTH,
+  MIN_ROW_HEIGHT,
+  SCROLLBAR_WIDTH,
+  TOPBAR_HEIGHT,
+} from "./constants";
 import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
-import { numberToLetters, toXC, toZone, toCartesian, uuidv4, formatDecimal } from "./helpers/index";
+import { formatDecimal, numberToLetters, toCartesian, toXC, toZone, uuidv4 } from "./helpers/index";
 import { pluginRegistry } from "./plugins/index";
 import {
   autofillModifiersRegistry,
@@ -9,23 +20,11 @@ import {
   colMenuRegistry,
   createFullMenuItem,
   rowMenuRegistry,
-  topbarMenuRegistry,
-  sidePanelRegistry,
   sheetMenuRegistry,
+  sidePanelRegistry,
   topbarComponentRegistry,
+  topbarMenuRegistry,
 } from "./registries/index";
-
-import {
-  MIN_ROW_HEIGHT,
-  MIN_COL_WIDTH,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-  TOPBAR_HEIGHT,
-  BOTTOMBAR_HEIGHT,
-  DEFAULT_CELL_WIDTH,
-  DEFAULT_CELL_HEIGHT,
-  SCROLLBAR_WIDTH,
-} from "./constants";
 
 /**
  * We export here all entities that needs to be accessed publicly by Odoo.
@@ -37,10 +36,10 @@ import {
 export const __info__ = {};
 export { BasePlugin } from "./base_plugin";
 export { Spreadsheet } from "./components/index";
-export { Model } from "./model";
-export { parse, astToFormula } from "./formulas/parser";
-export { setTranslationMethod } from "./translation";
+export { astToFormula, parse } from "./formulas/parser";
 export { DEBUG as __DEBUG__ } from "./helpers/index";
+export { Model } from "./model";
+export { setTranslationMethod } from "./translation";
 
 export const SPREADSHEET_DIMENSIONS = {
   MIN_ROW_HEIGHT,

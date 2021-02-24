@@ -1,7 +1,7 @@
-import { MenuItemRegistry } from "../menu_items_registry";
+import { uuidv4 } from "../../helpers/index";
 import { _lt } from "../../translation";
 import { SpreadsheetEnv } from "../../types";
-import { uuidv4 } from "../../helpers/index";
+import { MenuItemRegistry } from "../menu_items_registry";
 
 export const sheetMenuRegistry = new MenuItemRegistry();
 
