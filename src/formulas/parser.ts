@@ -80,13 +80,15 @@ const OP_PRIORITY = {
   "^": 30,
   "*": 20,
   "/": 20,
+  "+": 15,
+  "-": 15,
+  "&": 13,
   ">": 10,
   "<>": 10,
   ">=": 10,
   "<": 10,
   "<=": 10,
   "=": 10,
-  "-": 7,
 };
 
 const FUNCTION_BP = 6;
@@ -193,7 +195,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
         return {
           type: "UNARY_OPERATION",
           value: current.value,
-          right: parseExpression(tokens, 15),
+          right: parseExpression(tokens, OP_PRIORITY[current.value]),
         };
       }
       throw new Error(_lt("nope")); //todo: provide explicit error

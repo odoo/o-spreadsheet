@@ -216,12 +216,16 @@ describe("evaluateCells", () => {
     model.dispatch("SET_VALUE", { xc: "A3", text: "=-2^2" });
     model.dispatch("SET_VALUE", { xc: "A4", text: "=-2^2 + 3" });
     model.dispatch("SET_VALUE", { xc: "A5", text: "= - 1 + - 2 * - 3" });
+    model.dispatch("SET_VALUE", { xc: "A6", text: "=1 & 8 + 2" });
+    model.dispatch("SET_VALUE", { xc: "A7", text: "=1 & 10 - 2" });
 
     expect(getCell(model, "A1")!.value).toBe(7);
     expect(getCell(model, "A2")!.value).toBe(4);
     expect(getCell(model, "A3")!.value).toBe(-4);
     expect(getCell(model, "A4")!.value).toBe(-1);
     expect(getCell(model, "A5")!.value).toBe(5);
+    expect(getCell(model, "A6")!.value).toBe("110");
+    expect(getCell(model, "A7")!.value).toBe("18");
   });
 
   test("& operator", () => {
