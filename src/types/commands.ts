@@ -1,5 +1,6 @@
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
+import { Selection } from "../plugins/ui/selection";
 import {
   BorderCommand,
   ConditionalFormat,
@@ -577,10 +578,18 @@ export interface ClearCellCommand extends BaseCommand {
 
 export interface UndoCommand extends BaseCommand {
   type: "UNDO";
+  activeSelection?: {
+    sheetId: UID;
+    selection: Selection;
+  };
 }
 
 export interface RedoCommand extends BaseCommand {
   type: "REDO";
+  activeSelection?: {
+    sheetId: UID;
+    selection: Selection;
+  };
 }
 
 export interface StartCommand extends BaseCommand {

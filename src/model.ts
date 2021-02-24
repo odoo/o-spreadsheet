@@ -82,7 +82,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
   private uiPlugins: UIPlugin[] = [];
 
-  private history: LocalHistory;
+  private history?: LocalHistory;
 
   private range: RangeAdapter;
 
@@ -133,15 +133,19 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
     this.config.moveClient = this.session.move.bind(this.session);
 
-    this.history = new LocalHistory(this.dispatchFromCorePlugin, this.session);
-
     this.getters = {
-      canUndo: this.history.canUndo.bind(this.history),
-      canRedo: this.history.canRedo.bind(this.history),
+      canUndo: () => false,
+      canRedo: () => false,
       getClient: this.session.getClient.bind(this.session),
       getConnectedClients: this.session.getConnectedClients.bind(this.session),
       isFullySynchronized: this.session.isFullySynchronized.bind(this.session),
     } as Getters;
+
+    if (this.config.mode === "normal") {
+      this.history = new LocalHistory(this.dispatchFromCorePlugin, this.getters, this.session);
+      this.getters.canUndo = this.history.canUndo.bind(this.history);
+      this.getters.canRedo = this.history.canRedo.bind(this.history);
+    }
 
     this.range = new RangeAdapter(this.getters);
     this.getters.getRangeString = this.range.getRangeString.bind(this.range);
@@ -283,7 +287,13 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * Check if the given command is allowed by all the plugins and the history.
    */
   private checkDispatchAllowed(command: Command): CommandResult | undefined {
-    for (let handler of [this.history, ...this.handlers]) {
+    if (this.history) {
+      const allowDispatch = this.history.allowDispatch(command);
+      if (allowDispatch.status === "CANCELLED") {
+        return allowDispatch;
+      }
+    }
+    for (let handler of this.handlers) {
       const allowDispatch = handler.allowDispatch(command);
       if (allowDispatch.status === "CANCELLED") {
         return allowDispatch;
@@ -324,6 +334,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
           return error;
         }
         this.status = Status.Running;
+        this.history?.init();
         const { changes, commands } = this.state.recordChanges(() => {
           if (isCoreCommand(command)) {
             this.state.addCommand(command);
@@ -369,7 +380,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * Dispatch the given command to the given handlers.
    * It will call `beforeHandle` and `handle`
    */
-  private dispatchToHandlers(handlers: CommandHandler<Command>[], command: Command) {
+  private dispatchToHandlers(handlers: readonly CommandHandler<Command>[], command: Command) {
     for (const handler of handlers) {
       handler.beforeHandle(command);
     }

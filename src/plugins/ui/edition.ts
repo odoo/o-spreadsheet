@@ -498,9 +498,7 @@ export class EditionPlugin extends UIPlugin {
       this.row = row;
     }
     const content = anchor ? this.getters.getCellText(anchor, sheetId, true) : "";
-    this.dispatch("SET_CURRENT_CONTENT", {
-      content,
-    });
+    this.setContent(content);
   }
 
   /**

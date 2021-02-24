@@ -28,11 +28,13 @@ export interface RevisionAcknowledgedEvent {
 export interface RevisionUndone {
   type: "revision-undone";
   revisionId: UID;
+  isLocal: boolean;
 }
 
 export interface RevisionRedone {
   type: "revision-redone";
   revisionId: UID;
+  isLocal: boolean;
 }
 
 export interface CollaborativeEventReceived {

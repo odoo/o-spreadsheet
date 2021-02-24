@@ -164,13 +164,10 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
         break;
       }
       case "ACTIVATE_SHEET":
-        try {
-          this.getters.getSheet(cmd.sheetIdTo);
-          this.historizeActiveSheet = false;
-          break;
-        } catch (error) {
+        if (!this.getters.tryGetSheet(cmd.sheetIdTo)) {
           return { status: "CANCELLED", reason: CancelledReason.InvalidSheetId };
         }
+        this.historizeActiveSheet = false;
     }
     return {
       status: "SUCCESS",
@@ -263,6 +260,11 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
         break;
       case "UNDO":
       case "REDO":
+        if (cmd.activeSelection && this.getters.tryGetSheet(cmd.activeSelection.sheetId)) {
+          const { sheetId, selection } = cmd.activeSelection;
+          this.setActiveSheet(sheetId);
+          this.setSelection(selection.anchor, selection.zones);
+        }
         const activeSheetId = this.getters
           .getVisibleSheets()
           .find((sheetId) => sheetId === this.getActiveSheetId());

@@ -496,12 +496,16 @@ describe("merges", () => {
     const model = new Model();
     const sheet1 = model.getters.getVisibleSheets()[0];
 
+    model.dispatch("SET_SELECTION", {
+      anchor: toCartesian("B2"),
+      zones: [toZone("B2:B3")],
+    });
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
-    selectCell(model, "B2"); // B2
+    selectCell(model, "B2");
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
     undo(model);
-    expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
-    selectCell(model, "B2"); // B2
+    expect(model.getters.getSelection().zones).toEqual([toZone("B2:B3")]);
+    selectCell(model, "B2");
 
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 1, left: 1, right: 1, top: 1 }]);
     redo(model);
@@ -512,6 +516,10 @@ describe("merges", () => {
     const model = new Model();
     const sheet1 = model.getters.getVisibleSheets()[0];
 
+    model.dispatch("SET_SELECTION", {
+      anchor: toCartesian("B2"),
+      zones: [toZone("B2:B3")],
+    });
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
     model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
     selectCell(model, "B2"); // B2

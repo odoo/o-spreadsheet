@@ -1,4 +1,5 @@
 import { MAX_HISTORY_STEPS } from "../../src/constants";
+import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { StateObserver } from "../../src/state_observer";
 import { CancelledReason } from "../../src/types/commands";
@@ -271,11 +272,12 @@ describe("Model history", () => {
 
   test("ACTIVATE_SHEET standalone is not saved", () => {
     const model = new Model();
+    const firstSheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
-    setCellContent(model, "A1", "this will be undone");
+    setCellContent(model, "A1", "this will be undone", firstSheetId);
     activateSheet(model, "42");
     undo(model);
-    expect(model.getters.getActiveSheetId()).toBe("42");
+    expect(model.getters.getActiveSheetId()).toBe(firstSheetId);
   });
 
   test("create and activate sheet, then undo", () => {
@@ -290,11 +292,30 @@ describe("Model history", () => {
     expect(model.getters.getActiveSheetId()).toBe(originActiveSheetId);
   });
 
-  test("ACTIVATE_SHEET with another command is saved", () => {
+  test("undo active sheet creation changes the active sheet", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
     undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheet);
+  });
+
+  test("select to stop edition and undo the edition", () => {
+    const model = new Model();
+    selectCell(model, "B3");
+    model.dispatch("START_EDITION", { text: "Hello" });
+    selectCell(model, "A3");
+    undo(model);
+    expect(model.getters.getSelectedZones()).toEqual([toZone("B3")]);
+  });
+
+  test("ACTIVATE_SHEET with another command is saved", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "42" });
+    setCellContent(model, "A1", "Hello in sheet 1", sheetId);
+    activateSheet(model, "42");
+    undo(model);
+    expect(model.getters.getActiveSheetId()).toBe(sheetId);
   });
 });

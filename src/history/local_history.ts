@@ -1,7 +1,16 @@
 import * as owl from "@odoo/owl";
 import { Session } from "../collaborative/session";
 import { MAX_HISTORY_STEPS } from "../constants";
-import { CancelledReason, Command, CommandDispatcher, CommandResult, UID } from "../types";
+import { Selection } from "../plugins/ui/selection";
+import { CancelledReason, Command, CommandDispatcher, CommandResult, Getters, UID } from "../types";
+
+interface HistoryStep {
+  revisionId: UID;
+  activeSelection: {
+    sheetId: UID;
+    selection: Selection;
+  };
+}
 
 /**
  * Local History
@@ -14,12 +23,12 @@ export class LocalHistory extends owl.core.EventBus {
   /**
    * Ids of the revisions which can be undone
    */
-  private undoStack: UID[] = [];
+  private undoStack: HistoryStep[] = [];
 
   /**
    * Ids of the revisions which can be redone
    */
-  private redoStack: UID[] = [];
+  private redoStack: HistoryStep[] = [];
 
   /**
    * Flag used to block all commands when an undo or redo is triggered, until
@@ -27,11 +36,29 @@ export class LocalHistory extends owl.core.EventBus {
    */
   private isWaitingForUndoRedo: boolean = false;
 
-  constructor(protected dispatch: CommandDispatcher["dispatch"], private session: Session) {
+  private activePosition?: {
+    sheetId: UID;
+    selection: Selection;
+  };
+
+  constructor(
+    private dispatch: CommandDispatcher["dispatch"],
+    private getters: Getters,
+    private session: Session
+  ) {
     super();
     this.session.on("new-local-state-update", this, this.onNewLocalStateUpdate);
     this.session.on("revision-undone", this, this.selectiveUndo);
     this.session.on("revision-redone", this, this.selectiveRedo);
+  }
+
+  init() {
+    const activeSheet = this.getters.getActiveSheet();
+    if (!activeSheet) return;
+    this.activePosition = {
+      selection: { ...this.getters.getSelection() },
+      sheetId: this.getters.getActiveSheetId(),
+    };
   }
 
   allowDispatch(cmd: Command): CommandResult {
@@ -63,17 +90,17 @@ export class LocalHistory extends owl.core.EventBus {
   }
 
   private requestHistoryChange(type: "UNDO" | "REDO") {
-    const id = type === "UNDO" ? this.undoStack.pop() : this.redoStack.pop();
-    if (!id) {
+    const step = type === "UNDO" ? this.undoStack.pop() : this.redoStack.pop();
+    if (!step) {
       return;
     }
     this.isWaitingForUndoRedo = true;
     if (type === "UNDO") {
-      this.session.undo(id);
-      this.redoStack.push(id);
+      this.redoStack.push(step);
+      this.session.undo(step.revisionId);
     } else {
-      this.session.redo(id);
-      this.undoStack.push(id);
+      this.undoStack.push(step);
+      this.session.redo(step.revisionId);
     }
   }
 
@@ -86,20 +113,33 @@ export class LocalHistory extends owl.core.EventBus {
   }
 
   private onNewLocalStateUpdate({ id }: { id: UID }) {
-    this.undoStack.push(id);
+    this.undoStack.push({
+      activeSelection: this.activePosition!,
+      revisionId: id,
+    });
     this.redoStack = [];
     if (this.undoStack.length > MAX_HISTORY_STEPS) {
       this.undoStack.shift();
     }
   }
 
-  private selectiveUndo() {
-    this.dispatch("UNDO");
+  private selectiveUndo({ revisionId, isLocal }: { revisionId: UID; isLocal: boolean }) {
+    const activeSelection = isLocal
+      ? this.redoStack[this.redoStack.length - 1].activeSelection
+      : undefined;
+    this.dispatch("UNDO", {
+      activeSelection,
+    });
     this.isWaitingForUndoRedo = false;
   }
 
-  private selectiveRedo() {
-    this.dispatch("REDO");
+  private selectiveRedo({ revisionId, isLocal }: { revisionId: UID; isLocal: boolean }) {
+    const activeSelection = isLocal
+      ? this.undoStack[this.undoStack.length - 1].activeSelection
+      : undefined;
+    this.dispatch("REDO", {
+      activeSelection,
+    });
     this.isWaitingForUndoRedo = false;
   }
 }

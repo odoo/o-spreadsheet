@@ -1,14 +1,16 @@
 import { Model } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
-import { toZone } from "../../src/helpers";
+import { range, toZone } from "../../src/helpers";
 import { CancelledReason } from "../../src/types";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import {
+  activateSheet,
   addColumns,
   createSheet,
   deleteColumns,
   deleteRows,
   redo,
+  selectCell,
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
@@ -191,6 +193,7 @@ describe("Collaborative local history", () => {
         nextRevisionId: "2",
         serverRevisionId: "1",
         undoneRevisionId: "1",
+        clientId: "bob",
       },
     ];
     const model = new Model(
@@ -224,6 +227,7 @@ describe("Collaborative local history", () => {
         nextRevisionId: "2",
         serverRevisionId: "1",
         undoneRevisionId: "1",
+        clientId: "bob",
       },
       {
         type: "REVISION_REDONE",
@@ -231,6 +235,7 @@ describe("Collaborative local history", () => {
         nextRevisionId: "3",
         serverRevisionId: "2",
         redoneRevisionId: "1",
+        clientId: "bob",
       },
     ];
     const model = new Model(
@@ -429,11 +434,11 @@ describe("Collaborative local history", () => {
   test("Add column, undo and redo does not impact the selection", () => {
     setCellContent(alice, "A1", "salut");
     addColumns(bob, "before", "A", 1);
-    const aliceSelection = alice.getters.getSelectedZone();
     const bobSelection = bob.getters.getSelectedZone();
     undo(alice);
+    expect(alice.getters.getSelectedZone()).toEqual(toZone("A1"));
     redo(alice);
-    expect(aliceSelection).toEqual(alice.getters.getSelectedZone());
+    expect(alice.getters.getSelectedZone()).toEqual(toZone("A1"));
     expect(bobSelection).toEqual(bob.getters.getSelectedZone());
   });
 
@@ -507,5 +512,26 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
     undo(bob);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "F1"), "hello");
+  });
+
+  test("undo step in a deleted sheet", () => {
+    const firstSheetId = alice.getters.getActiveSheetId();
+    createSheet(bob, { sheetId: "42" });
+    setCellContent(bob, "A1", "Hello", firstSheetId);
+    activateSheet(bob, "42");
+    alice.dispatch("DELETE_SHEET", { sheetId: firstSheetId });
+    undo(bob);
+    expect(bob.getters.getActiveSheetId()).toBe("42");
+  });
+
+  test("undo step in a deleted row", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    selectCell(bob, "A10");
+    setCellContent(bob, "A10", "Hello");
+    const nRows = bob.getters.getSheet(sheetId).rows.length;
+    deleteRows(alice, range(2, nRows));
+    expect(bob.getters.getSelectedZones()).toEqual([toZone("A2")]);
+    undo(bob);
+    expect(bob.getters.getSelectedZones()).toEqual([toZone("A2")]);
   });
 });
