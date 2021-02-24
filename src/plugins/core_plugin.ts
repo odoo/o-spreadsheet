@@ -7,6 +7,7 @@ import {
   RangeProvider,
   UID,
   WorkbookData,
+  WorkbookHistory,
 } from "../types";
 import { CoreGetters } from "../types/getters";
 import { BasePlugin } from "./base_plugin";
@@ -35,6 +36,7 @@ export class CorePlugin<State = any, C = CoreCommand>
   implements RangeProvider {
   protected getters: CoreGetters;
   protected range: RangeAdapter;
+  protected history: WorkbookHistory<State>;
 
   constructor(
     getters: CoreGetters,
@@ -43,7 +45,11 @@ export class CorePlugin<State = any, C = CoreCommand>
     protected dispatch: CoreCommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    super(stateObserver, dispatch, config);
+    super(dispatch, config);
+
+    this.history = Object.assign(Object.create(stateObserver), {
+      update: stateObserver.addChange.bind(stateObserver, this),
+    });
     this.range = range;
     range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;

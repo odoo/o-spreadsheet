@@ -1,6 +1,5 @@
 import { Mode, ModelConfig } from "../model";
-import { StateObserver } from "../state_observer";
-import { CommandDispatcher, CommandHandler, CommandResult, WorkbookHistory } from "../types/index";
+import { CommandDispatcher, CommandHandler, CommandResult } from "../types/index";
 
 /**
  * BasePlugin
@@ -18,19 +17,10 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
   static getters: string[] = [];
   static modes: Mode[] = ["headless", "normal", "readonly"];
 
-  protected history: WorkbookHistory<State>;
   protected dispatch: CommandDispatcher["dispatch"];
   protected currentMode: Mode;
 
-  constructor(
-    stateObserver: StateObserver,
-    dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig
-  ) {
-    this.history = Object.assign(Object.create(stateObserver), {
-      update: stateObserver.addChange.bind(stateObserver, this),
-      selectCell: () => {},
-    });
+  constructor(dispatch: CommandDispatcher["dispatch"], config: ModelConfig) {
     this.dispatch = dispatch;
     this.currentMode = config.mode;
   }

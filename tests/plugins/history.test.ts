@@ -279,8 +279,6 @@ describe("Model history", () => {
   });
 
   test("create and activate sheet, then undo", () => {
-    // The active sheet is currently not changed when the sheet
-    // creation is undone
     const model = new Model();
     const originActiveSheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });

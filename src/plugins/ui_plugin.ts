@@ -1,17 +1,11 @@
 import { Mode, ModelConfig } from "../model";
-import { StateObserver } from "../state_observer";
 import { Command, CommandDispatcher, Getters, GridRenderingContext, LAYERS } from "../types/index";
 import { BasePlugin } from "./base_plugin";
 
 type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSidePanel" | "editText">;
 
 export interface UIPluginConstructor {
-  new (
-    getters: Getters,
-    state: StateObserver,
-    dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig
-  ): UIPlugin;
+  new (getters: Getters, dispatch: CommandDispatcher["dispatch"], config: ModelConfig): UIPlugin;
   layers: LAYERS[];
   getters: string[];
   modes: Mode[];
@@ -27,13 +21,8 @@ export class UIPlugin<State = any, C = Command> extends BasePlugin<State, C> {
   protected getters: Getters;
   protected ui: UIActions;
 
-  constructor(
-    getters: Getters,
-    state: StateObserver,
-    dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig
-  ) {
-    super(state, dispatch, config);
+  constructor(getters: Getters, dispatch: CommandDispatcher["dispatch"], config: ModelConfig) {
+    super(dispatch, config);
     this.getters = getters;
     this.ui = config;
   }
