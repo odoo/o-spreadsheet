@@ -11,7 +11,7 @@ import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
-import { Client, SpreadsheetEnv, UID, Viewport } from "../types/index";
+import { Client, SpreadsheetEnv, Viewport } from "../types/index";
 import { Autofill } from "./autofill";
 import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
@@ -169,9 +169,9 @@ const TEMPLATE = xml/* xml */ `
       tabindex="-1"
       t-on-contextmenu="onCanvasContextMenu"
        />
-    <t t-foreach="connectedClients" t-as="client" t-key="getClientPositionKey(client)">
+    <t t-foreach="getters.getClientsToDisplay()" t-as="client" t-key="getClientPositionKey(client)">
       <ClientTag name="client.name"
-                 color="getClientColor(client.id)"
+                 color="client.color"
                  col="client.position.col"
                  row="client.position.row"
                  active="isCellHovered(client.position.col, client.position.row)"
@@ -356,14 +356,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     useTouchMove(this.moveCanvas.bind(this), () => this.vScrollbar.scroll > 0);
   }
 
-  get connectedClients(): Client[] {
-    const activeSheetId = this.getters.getActiveSheetId();
-    return [...this.getters.getConnectedClients()]
-      .filter((client) => client.id !== this.getters.getClient().id)
-      .filter((client) => client.position)
-      .filter((client) => client.position?.sheetId === activeSheetId);
-  }
-
   mounted() {
     this.vScrollbar.el = this.vScrollbarRef.el!;
     this.hScrollbar.el = this.hScrollbarRef.el!;
@@ -476,10 +468,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
 
   getClientPositionKey(client: Client) {
     return `${client.id}-${client.position?.sheetId}-${client.position?.col}-${client.position?.row}`;
-  }
-
-  getClientColor(id: UID) {
-    return this.props.model.getters.getClientColor(id);
   }
 
   onMouseWheel(ev: WheelEvent) {

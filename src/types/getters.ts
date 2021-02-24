@@ -144,5 +144,5 @@ export type Getters = CoreGetters & {
 
   getContiguousZone: SortPlugin["getContiguousZone"];
 
-  getClientColor: SelectionMultiUserPlugin["getClientColor"];
+  getClientsToDisplay: SelectionMultiUserPlugin["getClientsToDisplay"];
 };
