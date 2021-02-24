@@ -62,33 +62,52 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
   get containerStyle(): string {
     const isFormula = this.getters.getCurrentContent().startsWith("=");
     const style = this.getters.getCurrentStyle();
-    const fillColor = isFormula ? "#ffffff" : style.fillColor || "#ffffff";
-    const textColor = style.textColor;
-    const [x, y, width, height] = this.rect;
-    const weight = `font-weight:${style.bold ? "bold" : 500};`;
-    const italic = style.italic ? `font-style: italic;` : ``;
-    const strikethrough = style.strikethrough ? `text-decoration:line-through;` : ``;
-    let composerStyle = `left: ${x - 1}px;
-        top:${y}px;
-        height:${height + 1}px;
-        width:${width}px;
-        font-size:${fontSizeMap[style.fontSize || 10]}px;
-        ${weight}${italic}${strikethrough}`;
-    composerStyle = composerStyle + `background: ${fillColor};`;
-    if (textColor && !isFormula) {
-      composerStyle = composerStyle + `color: ${textColor}`;
+
+    // position style
+    const [left, top, width, height] = this.rect;
+
+    // color style
+    const background = (!isFormula && style.fillColor) || "#ffffff";
+    const color = (!isFormula && style.textColor) || "#000000";
+
+    // font style
+    const fontSize = (!isFormula && style.fontSize) || 10;
+    const fontWeight = !isFormula && style.bold ? "bold" : 500;
+    const fontStyle = !isFormula && style.italic ? "italic" : "normal";
+    const textDecoration = !isFormula && style.strikethrough ? "line-through" : "none";
+
+    // align style
+    let textAlign = "left";
+
+    if (!isFormula) {
+      const cell = this.getters.getActiveCell() || { type: "text" };
+      textAlign = style.align || cell.type === "number" ? "right" : "left";
     }
-    return composerStyle;
+
+    return `
+      left: ${left - 1}px;
+      top: ${top}px;
+      width: ${width}px;
+      height: ${height + 1}px;
+
+      background: ${background};
+      color: ${color};
+
+      font-size: ${fontSizeMap[fontSize]}px;
+      font-weight: ${fontWeight};
+      font-style: ${fontStyle};
+      text-decoration: ${textDecoration};
+
+      text-align: ${textAlign};
+    `;
   }
 
   get composerStyle(): string {
-    const style = this.getters.getCurrentStyle();
-    const cell = this.getters.getActiveCell() || { type: "text" };
     const height = this.rect[3] - COMPOSER_BORDER_WIDTH * 2 + 1;
-    const align = "align" in style ? style.align : cell.type === "number" ? "right" : "left";
-    return `text-align:${align};
-        height: ${height}px;
-        line-height:${height}px;`;
+    return `
+      height: ${height}px;
+      line-height:${height}px;
+    `;
   }
 
   mounted() {

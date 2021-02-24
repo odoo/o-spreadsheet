@@ -1,3 +1,4 @@
+import { fontSizes } from "../../src/fonts";
 import { colors, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { HighlightPlugin } from "../../src/plugins/ui/highlight";
@@ -629,48 +630,164 @@ describe("composer", () => {
     expect(styleSpyHeight).toHaveBeenCalledWith("59px"); //100(maxHeight) - 26(maxHeight) - 15(SCROLLBAR_HIGHT)
   });
 
-  test("composer text is colored with cell text color", async () => {
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("A1")],
-      style: { textColor: "#123456" },
+  describe("composer's style depends on the style of the cell", () => {
+    test("with text color", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { textColor: "#123456" },
+      });
+      await typeInComposer("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.color).toBe("rgb(18, 52, 86)");
     });
-    await typeInComposer("Hello");
-    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-    expect(gridComposer.style.color).toBe("rgb(18, 52, 86)");
+
+    test("with background color", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { fillColor: "#123456" },
+      });
+      await typeInComposer("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.background).toBe("rgb(18, 52, 86)");
+    });
+
+    test("with font size", async () => {
+      const fontSize = fontSizes[0];
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { fontSize: fontSize.pt },
+      });
+      await typeInComposer("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.fontSize).toBe("10px");
+    });
+
+    test("with font weight", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { bold: true },
+      });
+      await typeInComposer("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.fontWeight).toBe("bold");
+    });
+
+    test("with font style", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { italic: true },
+      });
+      await typeInComposer("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.fontStyle).toBe("italic");
+    });
+
+    test("with text decoration", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { strikethrough: true },
+      });
+      await typeInComposer("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.textDecoration).toBe("line-through");
+    });
+
+    test("with text align", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { align: "right" },
+      });
+      await typeInComposer("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.textAlign).toBe("right");
+    });
   });
 
-  test("composer formula is not colored with cell text color", async () => {
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("A1")],
-      style: { textColor: "#123456" },
+  describe("composer's style does not depend on the style of the cell when it is a formula", () => {
+    test("with text color", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { textColor: "#123456" },
+      });
+      await typeInComposer("=");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.color).toBe("rgb(0, 0, 0)");
     });
-    await typeInComposer("=");
-    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-    expect(gridComposer.style.color).toBe("");
-  });
 
-  test("composer background is colored with cell background color", async () => {
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("A1")],
-      style: { fillColor: "#123456" },
+    test("with background color", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { textColor: "#123456" },
+      });
+      await typeInComposer("=");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.background).toBe("rgb(255, 255, 255)");
     });
-    await typeInComposer("Hello");
-    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-    expect(gridComposer.style.background).toBe("rgb(18, 52, 86)");
-  });
 
-  test("composer background is not colored with cell background color if formula", async () => {
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("A1")],
-      style: { textColor: "#123456" },
+    test("with font size", async () => {
+      const fontSize = fontSizes[0];
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { fontSize: fontSize.pt },
+      });
+      await typeInComposer("=");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.fontSize).toBe("13px");
     });
-    await typeInComposer("=");
-    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-    expect(gridComposer.style.background).toBe("rgb(255, 255, 255)");
+
+    test("with font weight", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { bold: true },
+      });
+      await typeInComposer("=");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.fontWeight).toBe("500");
+    });
+
+    test("with font style", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { italic: true },
+      });
+      await typeInComposer("=");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.fontStyle).toBe("normal");
+    });
+
+    test("with text decoration", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { strikethrough: true },
+      });
+      await typeInComposer("=");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.textDecoration).toBe("none");
+    });
+
+    test("with text align", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { align: "right" },
+      });
+      await typeInComposer("=");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.textAlign).toBe("left");
+    });
   });
 
   test("clicking on the composer while in 'selecting' mode should put the composer in 'edition' mode", async () => {
