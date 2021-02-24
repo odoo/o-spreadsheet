@@ -93,7 +93,6 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   // the main command.
 
   private historizeActiveSheet: boolean = true;
-  private deletingActiveSheet: boolean = false;
   activeSheet: Sheet = null as any;
 
   constructor(
@@ -176,27 +175,6 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     return {
       status: "SUCCESS",
     };
-  }
-
-  beforeHandle(cmd: Command) {
-    switch (cmd.type) {
-      case "DELETE_SHEET":
-        if (this.getActiveSheetId() === cmd.sheetId) {
-          this.deletingActiveSheet = true;
-          const currentIndex = this.getters
-            .getVisibleSheets()
-            .findIndex((sheetId) => sheetId === this.getActiveSheetId());
-          let sheetIdTo: UID;
-          const currentSheets = this.getters.getVisibleSheets();
-          if (currentIndex === 0) {
-            sheetIdTo = currentSheets[1];
-          } else {
-            sheetIdTo = currentSheets[Math.max(0, currentIndex - 1)];
-          }
-          this.activeSheet = this.getters.getSheet(sheetIdTo);
-        }
-        break;
-    }
   }
 
   handle(cmd: Command) {
@@ -312,17 +290,16 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       case "SELECT_FIGURE":
         this.selectedFigureId = cmd.id;
         break;
-      case "DELETE_SHEET":
-        if (this.deletingActiveSheet) {
-          this.selectCell(0, 0);
-        }
-        break;
     }
   }
 
   finalize() {
     this.historizeActiveSheet = true;
-    this.deletingActiveSheet = false;
+    if (!this.getters.tryGetSheet(this.getActiveSheetId())) {
+      const currentSheets = this.getters.getVisibleSheets();
+      this.activeSheet = this.getters.getSheet(currentSheets[0]);
+      this.selectCell(0, 0);
+    }
   }
 
   // ---------------------------------------------------------------------------

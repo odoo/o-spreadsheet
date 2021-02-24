@@ -155,6 +155,27 @@ describe("Multi users synchronisation", () => {
     expect(getCellContent(david, "A1")).toBe("second command");
   });
 
+  test("Correctly set the active sheet after a sheet deletion", () => {
+    const sheetId = "sheet1";
+    const message: CollaborationMessage = {
+      type: "REMOTE_REVISION",
+      version: MESSAGE_VERSION,
+      nextRevisionId: "1",
+      serverRevisionId: DEFAULT_REVISION_ID,
+      clientId: "alice",
+      commands: [{ type: "DELETE_SHEET", sheetId }],
+    };
+    const model = new Model(
+      {
+        sheets: [{ id: sheetId }, { id: "sheet2" }],
+        activeSheetId: sheetId,
+      },
+      {},
+      [message]
+    );
+    expect(model.getters.getActiveSheetId()).toBe("sheet2");
+  });
+
   test("delete and update the same empty cell concurrently", () => {
     setCellContent(alice, "A1", "hello");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(

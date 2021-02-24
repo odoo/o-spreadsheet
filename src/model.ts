@@ -163,12 +163,12 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     // starting plugins
     this.dispatch("START");
 
-    // Load the initial revisions
-    this.session.join(stateUpdateMessages);
-
     // This should be done after construction of LocalHistory due to order of
     // events
     this.setupSessionEvents();
+
+    // Load the initial revisions
+    this.session.join(stateUpdateMessages);
   }
 
   get handlers(): CommandHandler<Command>[] {
@@ -200,7 +200,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   }
 
   /**
-   * Initialise and properly configure a plugin.
+   * Initialize and properly configure a plugin.
    *
    * This method is private for now, but if the need arise, there is no deep
    * reason why the model could not add dynamically a plugin while it is running.
