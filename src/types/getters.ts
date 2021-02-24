@@ -1,18 +1,18 @@
-import { MergePlugin } from "../plugins/merge";
-import { ClipboardPlugin } from "../plugins/clipboard";
-import { SelectionPlugin } from "../plugins/selection";
-import { CorePlugin } from "../plugins/core";
-import { ConditionalFormatPlugin } from "../plugins/conditional_format";
-import { RendererPlugin } from "../plugins/renderer";
-import { FormattingPlugin } from "../plugins/formatting";
 import { WHistory } from "../history";
-import { EvaluationPlugin } from "../plugins/evaluation";
-import { EditionPlugin } from "../plugins/edition";
 import { AutofillPlugin } from "../plugins/autofill";
-import { HighlightPlugin } from "../plugins/highlight";
-import { SelectionInputPlugin } from "../plugins/selection_inputs";
-import { FigurePlugin } from "../plugins/figures";
 import { ChartPlugin } from "../plugins/chart";
+import { ClipboardPlugin } from "../plugins/clipboard";
+import { ConditionalFormatPlugin } from "../plugins/conditional_format";
+import { CorePlugin } from "../plugins/core";
+import { EditionPlugin } from "../plugins/edition";
+import { EvaluationPlugin } from "../plugins/evaluation";
+import { FigurePlugin } from "../plugins/figures";
+import { FormattingPlugin } from "../plugins/formatting";
+import { HighlightPlugin } from "../plugins/highlight";
+import { MergePlugin } from "../plugins/merge";
+import { RendererPlugin } from "../plugins/renderer";
+import { SelectionPlugin } from "../plugins/selection";
+import { SelectionInputPlugin } from "../plugins/selection_inputs";
 
 // -----------------------------------------------------------------------------
 // Getters

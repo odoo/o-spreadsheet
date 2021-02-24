@@ -6,15 +6,15 @@ import { formatDateTime, InternalDate, parseDateTime } from "../functions/dates"
 import {
   formatNumber,
   formatStandardNumber,
+  getComposerSheetName,
+  getUnquotedSheetName,
   isNumber,
+  mapCellsInZone,
   numberToLetters,
   parseNumber,
-  getUnquotedSheetName,
   toCartesian,
   toXC,
   toZone,
-  mapCellsInZone,
-  getComposerSheetName,
 } from "../helpers/index";
 import { _lt } from "../translation";
 import {
@@ -25,12 +25,12 @@ import {
   Command,
   CommandResult,
   HeaderData,
+  RenameSheetCommand,
   Row,
   Sheet,
   SheetData,
   WorkbookData,
   Zone,
-  RenameSheetCommand,
 } from "../types/index";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");

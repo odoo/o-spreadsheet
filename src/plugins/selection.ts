@@ -1,16 +1,16 @@
-import { isEqual, toXC, union, clip, formatStandardNumber } from "../helpers/index";
 import { BasePlugin } from "../base_plugin";
-import {
-  Command,
-  Zone,
-  Cell,
-  LAYERS,
-  GridRenderingContext,
-  CommandResult,
-  CancelledReason,
-} from "../types/index";
-import { Mode } from "../model";
 import { SELECTION_BORDER_COLOR } from "../constants";
+import { clip, formatStandardNumber, isEqual, toXC, union } from "../helpers/index";
+import { Mode } from "../model";
+import {
+  CancelledReason,
+  Cell,
+  Command,
+  CommandResult,
+  GridRenderingContext,
+  LAYERS,
+  Zone,
+} from "../types/index";
 
 export interface Selection {
   anchor: [number, number];

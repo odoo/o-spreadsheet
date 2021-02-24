@@ -4,8 +4,8 @@ import { functionRegistry } from "../functions/index";
 import { mapCellsInZone, toCartesian } from "../helpers/index";
 import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
-import { Cell, Command, CommandDispatcher, EvalContext, Getters, Workbook } from "../types";
 import { _lt } from "../translation";
+import { Cell, Command, CommandDispatcher, EvalContext, Getters, Workbook } from "../types";
 
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {

@@ -1,19 +1,19 @@
 import { BasePlugin } from "../base_plugin";
 import { Registry } from "../registry";
+import { AutofillPlugin } from "./autofill";
+import { ChartPlugin } from "./chart";
 import { ClipboardPlugin } from "./clipboard";
 import { ConditionalFormatPlugin } from "./conditional_format";
 import { CorePlugin } from "./core";
 import { EditionPlugin } from "./edition";
 import { EvaluationPlugin } from "./evaluation";
+import { FigurePlugin } from "./figures";
 import { FormattingPlugin } from "./formatting";
+import { HighlightPlugin } from "./highlight";
 import { MergePlugin } from "./merge";
 import { RendererPlugin } from "./renderer";
 import { SelectionPlugin } from "./selection";
-import { ChartPlugin } from "./chart";
-import { AutofillPlugin } from "./autofill";
-import { HighlightPlugin } from "./highlight";
 import { SelectionInputPlugin } from "./selection_inputs";
-import { FigurePlugin } from "./figures";
 
 export const pluginRegistry = new Registry<typeof BasePlugin>()
   .add("core", CorePlugin)

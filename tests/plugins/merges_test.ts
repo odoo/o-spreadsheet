@@ -1,6 +1,6 @@
 import { toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { Style, Border } from "../../src/types/index";
+import { Border, Style } from "../../src/types/index";
 import "../canvas.mock";
 import { getActiveXc, getCell } from "../helpers";
 

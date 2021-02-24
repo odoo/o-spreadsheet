@@ -1,9 +1,9 @@
-import * as icons from "./icons";
-import { Component, tags, useState, hooks } from "@odoo/owl";
-import { SpreadsheetEnv } from "../types";
+import { Component, hooks, tags, useState } from "@odoo/owl";
 import { FullMenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
+import { SpreadsheetEnv } from "../types";
 import { isChildEvent } from "./helpers/dom_helpers";
+import * as icons from "./icons";
 
 const { xml, css } = tags;
 const { useExternalListener, useRef } = hooks;

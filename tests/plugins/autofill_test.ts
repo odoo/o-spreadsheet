@@ -1,7 +1,7 @@
 import { Model } from "../../src";
+import { toCartesian, toZone } from "../../src/helpers";
 import { AutofillPlugin } from "../../src/plugins/autofill";
 import { ConditionalFormat } from "../../src/types";
-import { toZone, toCartesian } from "../../src/helpers";
 import { DIRECTION } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
 import { getCell } from "../helpers";

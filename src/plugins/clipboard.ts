@@ -1,16 +1,16 @@
 import { BasePlugin } from "../base_plugin";
 import { clip, toXC } from "../helpers/index";
 import { Mode } from "../model";
+import { _lt } from "../translation";
 import {
+  CancelledReason,
   Cell,
   Command,
+  CommandResult,
   GridRenderingContext,
   LAYERS,
   Zone,
-  CancelledReason,
-  CommandResult,
 } from "../types/index";
-import { _lt } from "../translation";
 
 interface ClipboardCell {
   cell: Cell | null;

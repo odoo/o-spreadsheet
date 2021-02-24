@@ -1,10 +1,10 @@
 import { Registry } from "../registry";
 import { FunctionDescription } from "../types";
 import { validateArguments } from "./arguments";
-import * as info from "./module_info";
-import * as logical from "./module_logical";
 import * as database from "./module_database";
 import * as date from "./module_date";
+import * as info from "./module_info";
+import * as logical from "./module_logical";
 import * as lookup from "./module_lookup";
 import * as math from "./module_math";
 import * as operators from "./module_operators";

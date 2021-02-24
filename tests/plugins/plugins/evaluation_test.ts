@@ -1,6 +1,5 @@
+import { args, functionRegistry } from "../../../src/functions/index";
 import { Model } from "../../../src/model";
-import { functionRegistry, args } from "../../../src/functions/index";
-
 import "../../canvas.mock";
 import { getCell } from "../../helpers";
 

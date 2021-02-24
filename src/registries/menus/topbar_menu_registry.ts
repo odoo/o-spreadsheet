@@ -1,8 +1,8 @@
-import { SpreadsheetEnv } from "../../types/env";
 import { fontSizes } from "../../fonts";
-import * as ACTIONS from "./menu_items_actions";
-import { MenuItemRegistry } from "../menu_items_registry";
 import { _lt } from "../../translation";
+import { SpreadsheetEnv } from "../../types/env";
+import { MenuItemRegistry } from "../menu_items_registry";
+import * as ACTIONS from "./menu_items_actions";
 
 export const topbarMenuRegistry = new MenuItemRegistry();
 

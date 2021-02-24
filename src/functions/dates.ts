@@ -1,10 +1,8 @@
-import { toNumber } from "./helpers";
-
 // -----------------------------------------------------------------------------
 // Date Type
 // -----------------------------------------------------------------------------
-
 import { _lt } from "../translation";
+import { toNumber } from "./helpers";
 
 /**
  * All Spreadsheet dates are internally stored as an object with two values:

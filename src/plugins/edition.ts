@@ -1,8 +1,8 @@
-import { tokenize } from "../formulas/index";
-import { toXC, toCartesian } from "../helpers/index";
-import { Command, LAYERS } from "../types/index";
 import { BasePlugin } from "../base_plugin";
+import { tokenize } from "../formulas/index";
+import { toCartesian, toXC } from "../helpers/index";
 import { Mode } from "../model";
+import { Command, LAYERS } from "../types/index";
 
 export type EditionMode = "editing" | "selecting" | "inactive";
 

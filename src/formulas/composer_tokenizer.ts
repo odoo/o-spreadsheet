@@ -1,5 +1,5 @@
+import { EnrichedToken, enrichTokens, mergeSymbolsIntoRanges } from "./range_tokenizer";
 import { tokenize } from "./tokenizer";
-import { mergeSymbolsIntoRanges, EnrichedToken, enrichTokens } from "./range_tokenizer";
 
 /**
  * add on each token the length, start and end

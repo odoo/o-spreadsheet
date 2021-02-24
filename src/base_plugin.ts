@@ -4,12 +4,12 @@ import {
   Command,
   CommandDispatcher,
   CommandHandler,
+  CommandResult,
   Getters,
   GridRenderingContext,
   LAYERS,
   Workbook,
   WorkbookData,
-  CommandResult,
 } from "./types/index";
 
 type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSidePanel" | "editText">;

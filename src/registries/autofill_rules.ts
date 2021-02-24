@@ -1,5 +1,5 @@
-import { Cell, AutofillModifier } from "../types/index";
 import { Registry } from "../registry";
+import { AutofillModifier, Cell } from "../types/index";
 
 /**
  * An AutofillRule is used to generate what to do when we need to autofill

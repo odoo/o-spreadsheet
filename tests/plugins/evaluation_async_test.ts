@@ -1,7 +1,7 @@
+import { args, functionRegistry } from "../../src/functions";
 import { Model } from "../../src/model";
-import { patch, waitForRecompute, asyncComputations } from "../helpers";
 import { LOADING } from "../../src/plugins/evaluation";
-import { functionRegistry, args } from "../../src/functions";
+import { asyncComputations, patch, waitForRecompute } from "../helpers";
 
 describe("evaluateCells, async formulas", () => {
   test("async formula", async () => {

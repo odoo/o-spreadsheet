@@ -10,7 +10,6 @@
  * 2. it throws an error when the get operation fails
  * 3. it provides a chained API to add items to the registry.
  */
-import { _lt } from "./translation";
 
 export class Registry<T> {
   content: { [key: string]: T } = {};

@@ -1,22 +1,22 @@
 import { BasePlugin } from "../base_plugin";
+import { clip, isInside, toCartesian, toXC, union } from "../helpers/index";
 import { Mode } from "../model";
+import { autofillModifiersRegistry, autofillRulesRegistry } from "../registries/index";
 import {
   AutofillModifier,
+  AutofillResult,
+  CancelledReason,
   Cell,
   Command,
+  CommandResult,
   DIRECTION,
+  GeneratorCell,
   Getters,
   GridRenderingContext,
   LAYERS,
-  Zone,
-  CancelledReason,
-  CommandResult,
   Tooltip,
-  GeneratorCell,
-  AutofillResult,
+  Zone,
 } from "../types/index";
-import { union, toCartesian, toXC, isInside, clip } from "../helpers/index";
-import { autofillModifiersRegistry, autofillRulesRegistry } from "../registries/index";
 
 /**
  * This plugin manage the autofill.

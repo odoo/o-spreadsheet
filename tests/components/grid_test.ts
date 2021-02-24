@@ -1,8 +1,8 @@
-import { Model } from "../../src/model";
-import { makeTestFixture, GridParent, nextTick, getActiveXc, getCell, Touch } from "../helpers";
-import { toZone } from "../../src/helpers/index";
-import { triggerMouseEvent, simulateClick } from "../dom_helper";
 import { Grid } from "../../src/components/grid";
+import { toZone } from "../../src/helpers/index";
+import { Model } from "../../src/model";
+import { simulateClick, triggerMouseEvent } from "../dom_helper";
+import { getActiveXc, getCell, GridParent, makeTestFixture, nextTick, Touch } from "../helpers";
 jest.mock("../../src/components/composer/content_editable_helper");
 jest.mock("../../src/components/scrollbar", () => require("./__mocks__/scrollbar"));
 
