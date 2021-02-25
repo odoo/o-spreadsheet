@@ -106,11 +106,11 @@ export function updateSelectionOnDeletion(
   let newStart = zone[start];
   let newEnd = zone[end];
   for (let removedElement of elements.sort((a, b) => b - a)) {
-    if (zone[start] >= removedElement) {
+    if (zone[start] > removedElement) {
       newStart--;
       newEnd--;
     }
-    if (zone[start] <= removedElement && zone[end] >= removedElement) {
+    if (zone[start] < removedElement && zone[end] >= removedElement) {
       newEnd--;
     }
   }
