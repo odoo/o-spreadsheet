@@ -572,64 +572,6 @@ describe("composer", () => {
     expect(composerEl.textContent).toBe("=C8");
   });
 
-  test("composer is resized (width) when input content is larger than composer", async () => {
-    await typeInComposer("Hello");
-    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-    const parent = gridComposer.parentElement! as HTMLElement;
-    jest.spyOn(parent, "clientWidth", "get").mockImplementation(() => 400);
-    const styleSpy = jest.spyOn(gridComposer.style, "width", "set");
-    jest.spyOn(gridComposer, "clientWidth", "get").mockImplementation(() => 100);
-    jest.spyOn(composerEl, "scrollWidth", "get").mockImplementation(() => 120);
-    await typeInComposer("world", false);
-    expect(styleSpy).toHaveBeenCalledWith("170px"); // scrollWidth + 50
-  });
-
-  test("composer width will not exceed max width", async () => {
-    await typeInComposer("Hello");
-    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-    const parent = gridComposer.parentElement! as HTMLElement;
-    jest.spyOn(parent, "clientWidth", "get").mockImplementation(() => 400);
-    const styleSpy = jest.spyOn(gridComposer.style, "width", "set");
-    jest.spyOn(gridComposer, "clientWidth", "get").mockImplementation(() => 100);
-    jest.spyOn(composerEl, "scrollWidth", "get").mockImplementation(() => 420);
-    await typeInComposer("world", false);
-    expect(styleSpy).toHaveBeenCalledWith("338px"); // 400 - 48 (left of A1 cell) - 14 (SCROLLBAR_WIDTH) (see resize function in grid_composer);
-  });
-
-  test("composer is resized (height) when input content is larger than composer", async () => {
-    await typeInComposer("Hello");
-    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-    const parent = gridComposer.parentElement! as HTMLElement;
-    jest.spyOn(parent, "clientWidth", "get").mockImplementation(() => 200);
-    jest.spyOn(parent, "clientHeight", "get").mockImplementation(() => 200);
-    const styleSpyWidth = jest.spyOn(gridComposer.style, "width", "set");
-    const styleSpyHeight = jest.spyOn(gridComposer.style, "height", "set");
-    jest.spyOn(gridComposer, "clientWidth", "get").mockImplementation(() => 100);
-    jest.spyOn(gridComposer, "clientHeight", "get").mockImplementation(() => 20);
-    jest.spyOn(composerEl, "scrollWidth", "get").mockImplementation(() => 220);
-    jest.spyOn(composerEl, "scrollHeight", "get").mockImplementation(() => 40);
-    await typeInComposer("Hello", false);
-    expect(styleSpyWidth).toHaveBeenCalledWith("138px");
-    expect(styleSpyHeight).toHaveBeenCalledWith("43px");
-  });
-
-  test("composer Height will not exceed max Height", async () => {
-    await typeInComposer("Hello");
-    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-    const parent = gridComposer.parentElement! as HTMLElement;
-    jest.spyOn(parent, "clientWidth", "get").mockImplementation(() => 200);
-    jest.spyOn(parent, "clientHeight", "get").mockImplementation(() => 100);
-    const styleSpyWidth = jest.spyOn(gridComposer.style, "width", "set");
-    const styleSpyHeight = jest.spyOn(gridComposer.style, "height", "set");
-    jest.spyOn(gridComposer, "clientWidth", "get").mockImplementation(() => 100);
-    jest.spyOn(gridComposer, "clientHeight", "get").mockImplementation(() => 20);
-    jest.spyOn(composerEl, "scrollWidth", "get").mockImplementation(() => 220);
-    jest.spyOn(composerEl, "scrollHeight", "get").mockImplementation(() => 110);
-    await typeInComposer("Hello", false);
-    expect(styleSpyWidth).toHaveBeenCalledWith("138px");
-    expect(styleSpyHeight).toHaveBeenCalledWith("59px"); //100(maxHeight) - 26(maxHeight) - 15(SCROLLBAR_HIGHT)
-  });
-
   describe("composer's style depends on the style of the cell", () => {
     test("with text color", async () => {
       model.dispatch("SET_FORMATTING", {

@@ -376,6 +376,9 @@ exports[`TopBar component can set cell format 1`] = `
   "
         tabindex="1"
       />
+      <div
+        class="o-composer-assistant"
+      />
     </div>
   </div>
 </div>
@@ -716,6 +719,9 @@ exports[`TopBar component simple rendering 1`] = `
     background-color: white;
   "
         tabindex="1"
+      />
+      <div
+        class="o-composer-assistant"
       />
     </div>
   </div>

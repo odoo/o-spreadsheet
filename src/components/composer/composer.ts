@@ -55,20 +55,22 @@ const TEMPLATE = xml/* xml */ `
 
       t-on-click.stop="onClick"
     />
-    <TextValueProvider
-        t-if="autoCompleteState.showProvider and props.focus"
-        t-ref="o_autocomplete_provider"
-        search="autoCompleteState.search"
-        provider="autoCompleteState.provider"
-        t-on-completed="onCompleted"
-    />
-    <FunctionDescriptionProvider
-        t-if="functionDescriptionState.showDescription and props.focus"
-        t-ref="o_function_description_provider"
-        functionName = "functionDescriptionState.functionName"
-        functionDescription = "functionDescriptionState.functionDescription"
-        argToFocus = "functionDescriptionState.argToFocus"
-    />
+    <div class="o-composer-assistant">
+      <TextValueProvider
+          t-if="autoCompleteState.showProvider and props.focus"
+          t-ref="o_autocomplete_provider"
+          search="autoCompleteState.search"
+          provider="autoCompleteState.provider"
+          t-on-completed="onCompleted"
+      />
+      <FunctionDescriptionProvider
+          t-if="functionDescriptionState.showDescription and props.focus"
+          t-ref="o_function_description_provider"
+          functionName = "functionDescriptionState.functionName"
+          functionDescription = "functionDescriptionState.functionDescription"
+          argToFocus = "functionDescriptionState.argToFocus"
+      />
+    </div>
 </div>
   `;
 const CSS = css/* scss */ `
@@ -78,6 +80,7 @@ const CSS = css/* scss */ `
     border: 0;
     z-index: 5;
     flex-grow: 1;
+    max-height: inherit;
     .o-composer {
       caret-color: black;
       padding-left: 2px;
@@ -86,6 +89,9 @@ const CSS = css/* scss */ `
       &:focus {
         outline: none;
       }
+    }
+    .o-composer-assistant {
+      position: absolute;
     }
   }
 `;
