@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { toZone } from "../../src/helpers";
+import { numberToLetters, range, toZone } from "../../src/helpers";
 import {
   addColumns,
   addRows,
@@ -207,6 +207,22 @@ describe("Collaborative Sheet manipulation", () => {
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("A9"));
   });
 
+  test("remove the selected row and all following rows", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    selectCell(bob, "A10");
+    const nRows = bob.getters.getSheet(sheetId).rows.length;
+    deleteRows(alice, range(2, nRows));
+    expect(bob.getters.getSelectedZones()).toEqual([toZone("A2")]);
+  });
+
+  test("remove the selected col when it is the last col", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    selectCell(bob, "F1");
+    const nCols = bob.getters.getSheet(sheetId).cols.length;
+    deleteColumns(alice, range(2, nCols).map(numberToLetters));
+    expect(bob.getters.getSelectedZones()).toEqual([toZone("B1")]);
+  });
+
   test("adding rows adapts selection", () => {
     selectCell(alice, "A3");
     selectCell(bob, "A1");
@@ -222,9 +238,9 @@ describe("Collaborative Sheet manipulation", () => {
     selectCell(bob, "B1");
     selectCell(charlie, "B10");
     deleteColumns(alice, ["B"]);
-    expect(alice.getters.getSelectedZone()).toEqual(toZone("A3"));
-    expect(bob.getters.getSelectedZone()).toEqual(toZone("A1"));
-    expect(charlie.getters.getSelectedZone()).toEqual(toZone("A10"));
+    expect(alice.getters.getSelectedZone()).toEqual(toZone("B3"));
+    expect(bob.getters.getSelectedZone()).toEqual(toZone("B1"));
+    expect(charlie.getters.getSelectedZone()).toEqual(toZone("B10"));
   });
 
   test("removing the first column while selected", () => {
@@ -242,9 +258,9 @@ describe("Collaborative Sheet manipulation", () => {
     selectCell(bob, "C2");
     selectCell(charlie, "D2");
     deleteRows(alice, [1]);
-    expect(alice.getters.getSelectedZone()).toEqual(toZone("B1"));
-    expect(bob.getters.getSelectedZone()).toEqual(toZone("C1"));
-    expect(charlie.getters.getSelectedZone()).toEqual(toZone("D1"));
+    expect(alice.getters.getSelectedZone()).toEqual(toZone("B2"));
+    expect(bob.getters.getSelectedZone()).toEqual(toZone("C2"));
+    expect(charlie.getters.getSelectedZone()).toEqual(toZone("D2"));
   });
 
   test("removing the first rows while selected", () => {
