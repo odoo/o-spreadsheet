@@ -36,7 +36,7 @@ export class LocalHistory extends owl.core.EventBus {
    */
   private isWaitingForUndoRedo: boolean = false;
 
-  private activePosition?: {
+  private activeSelection?: {
     sheetId: UID;
     selection: Selection;
   };
@@ -52,10 +52,13 @@ export class LocalHistory extends owl.core.EventBus {
     this.session.on("revision-redone", this, this.selectiveRedo);
   }
 
-  init() {
+  startOperation() {
+    // `getActiveSheet` is typed as returning a `Sheet`,
+    // but it actually doesn't return anything before plugins
+    // are fully started.
     const activeSheet = this.getters.getActiveSheet();
     if (!activeSheet) return;
-    this.activePosition = {
+    this.activeSelection = {
       selection: { ...this.getters.getSelection() },
       sheetId: this.getters.getActiveSheetId(),
     };
@@ -113,8 +116,9 @@ export class LocalHistory extends owl.core.EventBus {
   }
 
   private onNewLocalStateUpdate({ id }: { id: UID }) {
+    if (!this.activeSelection) return;
     this.undoStack.push({
-      activeSelection: this.activePosition!,
+      activeSelection: this.activeSelection,
       revisionId: id,
     });
     this.redoStack = [];
