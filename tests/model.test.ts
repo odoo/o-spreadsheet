@@ -46,7 +46,7 @@ describe("Model", () => {
   test("All plugin compatible with normal mode are loaded on normal mode", () => {
     const model = new Model();
     const nbr = getNbrPlugin("normal");
-    expect(model["handlers"]).toHaveLength(nbr + 1); //+1 for Range
+    expect(model["handlers"]).toHaveLength(nbr + 2); //+1 for Range +1 for LocalHistory
   });
 
   test("All plugin compatible with headless mode are loaded on headless mode", () => {
@@ -80,17 +80,23 @@ describe("Model", () => {
     uiPluginRegistry.add("normalPlugin", NormalPlugin);
     uiPluginRegistry.add("headlessPlugin", HeadlessPlugin);
     uiPluginRegistry.add("readonlyPlugin", ReadOnlyPlugin);
+
     const modelNormal = new Model();
-    expect(modelNormal["handlers"][modelNormal["handlers"].length - 1]).toBeInstanceOf(
-      NormalPlugin
-    );
+    const normalHandlers = modelNormal["handlers"].map((handler) => handler.constructor);
+    expect(normalHandlers).toContain(NormalPlugin);
+    expect(normalHandlers).not.toContain(HeadlessPlugin);
+    expect(normalHandlers).not.toContain(ReadOnlyPlugin);
+
     const modelHeadless = new Model({}, { mode: "headless" });
-    expect(modelHeadless["handlers"][modelHeadless["handlers"].length - 1]).toBeInstanceOf(
-      HeadlessPlugin
-    );
+    const headlessHandlers = modelHeadless["handlers"].map((handler) => handler.constructor);
+    expect(headlessHandlers).not.toContain(NormalPlugin);
+    expect(headlessHandlers).toContain(HeadlessPlugin);
+    expect(headlessHandlers).not.toContain(ReadOnlyPlugin);
+
     const modelReadonly = new Model({}, { mode: "readonly" });
-    expect(modelReadonly["handlers"][modelReadonly["handlers"].length - 1]).toBeInstanceOf(
-      ReadOnlyPlugin
-    );
+    const readonlyHandlers = modelReadonly["handlers"].map((handler) => handler.constructor);
+    expect(readonlyHandlers).not.toContain(NormalPlugin);
+    expect(readonlyHandlers).not.toContain(HeadlessPlugin);
+    expect(readonlyHandlers).toContain(ReadOnlyPlugin);
   });
 });

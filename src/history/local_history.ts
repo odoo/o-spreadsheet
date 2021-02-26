@@ -45,6 +45,7 @@ export class LocalHistory extends owl.core.EventBus implements CommandHandler<Co
   private isWaitingForUndoRedo: boolean = false;
 
   private isStarted = false;
+  private isHandlingSubCommand = false;
   private activeSelection?: {
     sheetId: UID;
     selection: Selection;
@@ -61,17 +62,12 @@ export class LocalHistory extends owl.core.EventBus implements CommandHandler<Co
     this.session.on("revision-redone", this, this.selectiveRedo);
   }
   beforeHandle(cmd: Command): void {
-    this.activeSelection = undefined;
-    switch (cmd.type) {
-      case "SELECT_CELL":
-      case "SET_SELECTION":
-      case "MOVE_POSITION":
-        this.activeSelection = {
-          selection: { ...this.getters.getSelection() },
-          sheetId: this.getters.getActiveSheetId(),
-        };
-        break;
-    }
+    if (!this.isStarted || this.isHandlingSubCommand) return;
+    this.activeSelection = {
+      selection: { ...this.getters.getSelection() },
+      sheetId: this.getters.getActiveSheetId(),
+    };
+    this.isHandlingSubCommand = true;
   }
 
   handle(cmd: Command): void {
@@ -79,20 +75,12 @@ export class LocalHistory extends owl.core.EventBus implements CommandHandler<Co
       case "START":
         this.isStarted = true;
         break;
-      case "SELECT_CELL":
-      case "SET_SELECTION":
-      case "MOVE_POSITION":
-        break;
-      default:
-        if (!this.isStarted || this.activeSelection) break;
-        this.activeSelection = {
-          selection: { ...this.getters.getSelection() },
-          sheetId: this.getters.getActiveSheetId(),
-        };
-        break;
     }
   }
-  finalize(): void {}
+
+  finalize(): void {
+    this.isHandlingSubCommand = false;
+  }
 
   allowDispatch(cmd: Command): CommandResult {
     if (this.isWaitingForUndoRedo) {
