@@ -1,6 +1,7 @@
 import { Model } from "../../src";
 import { numberToLetters, range, toZone } from "../../src/helpers";
 import {
+  activateSheet,
   addColumns,
   addRows,
   createSheet,
@@ -271,5 +272,22 @@ describe("Collaborative Sheet manipulation", () => {
     expect(alice.getters.getSelectedZone()).toEqual(toZone("C1"));
     expect(bob.getters.getSelectedZone()).toEqual(toZone("A1"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("K1"));
+  });
+
+  test("Adding/removing columns/rows does not update the selection of clients on another sheet", () => {
+    selectCell(bob, "D4");
+    createSheet(alice, { sheetId: "42", activate: true });
+    activateSheet(charlie, "42");
+    selectCell(charlie, "D4");
+    /** Columns */
+    addColumns(alice, "before", "A", 5);
+    deleteColumns(alice, ["A"]);
+    expect(bob.getters.getSelectedZone()).toEqual(toZone("D4"));
+    expect(charlie.getters.getSelectedZone()).toEqual(toZone("H4"));
+    /** Rows */
+    addRows(alice, "before", 0, 5);
+    deleteRows(alice, [0]);
+    expect(bob.getters.getSelectedZone()).toEqual(toZone("D4"));
+    expect(charlie.getters.getSelectedZone()).toEqual(toZone("H8"));
   });
 });
