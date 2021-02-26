@@ -145,6 +145,8 @@ describe("figure plugin", () => {
         height: 100,
       },
     });
+    expect(model.getters.getSelectedFigureId()).toBe(null);
+    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
     selectCell(model, "A1");
     expect(model.getters.getSelectedFigureId()).toBe(null);

@@ -291,9 +291,6 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
           this.onAddRows(cmd);
         }
         break;
-      case "CREATE_FIGURE":
-        this.selectedFigureId = cmd.figure.id;
-        break;
       case "UPDATE_CHART":
       case "SELECT_FIGURE":
         this.selectedFigureId = cmd.id;

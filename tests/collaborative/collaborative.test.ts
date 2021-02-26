@@ -626,6 +626,15 @@ describe("Multi users synchronisation", () => {
     expect(david.getters.getActiveSheet().cols.length).toBe(length + 50);
   });
 
+  test("Selected figure Id is not modified if the create sheet comes from someone else", () => {
+    const figure = { id: "42", x: 0, y: 0, width: 100, height: 100, tag: "text" };
+    const sheetId = alice.getters.getActiveSheetId();
+    alice.dispatch("CREATE_FIGURE", { sheetId, figure });
+    alice.dispatch("SELECT_FIGURE", { id: "42" });
+    expect(alice.getters.getSelectedFigureId()).toBe("42");
+    expect(bob.getters.getSelectedFigureId()).toBeNull();
+  });
+
   describe("Evaluation", () => {
     test("Evaluation is correctly triggered after cell updated", () => {
       setCellContent(alice, "A1", "=5");
