@@ -272,16 +272,24 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
         this.updateSelection();
         break;
       case "REMOVE_COLUMNS":
-        this.onColumnsRemoved(cmd);
+        if (cmd.sheetId === this.getActiveSheetId()) {
+          this.onColumnsRemoved(cmd);
+        }
         break;
       case "REMOVE_ROWS":
-        this.onRowsRemoved(cmd);
+        if (cmd.sheetId === this.getActiveSheetId()) {
+          this.onRowsRemoved(cmd);
+        }
         break;
       case "ADD_COLUMNS":
-        this.onAddColumns(cmd);
+        if (cmd.sheetId === this.getActiveSheetId()) {
+          this.onAddColumns(cmd);
+        }
         break;
       case "ADD_ROWS":
-        this.onAddRows(cmd);
+        if (cmd.sheetId === this.getActiveSheetId()) {
+          this.onAddRows(cmd);
+        }
         break;
       case "CREATE_FIGURE":
         this.selectedFigureId = cmd.figure.id;
