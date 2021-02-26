@@ -125,15 +125,16 @@ coreTypes.add("MY_COMMAND_NAME");
 
 For each new `CoreCommand`, a transformation function could be required for each other `CoreCommands`.
 
-A transformation function takes as arguments the command to transform, and the already executed command. It should return a `CoreCommands` or `undefined` if the command should be skipped.
+A transformation function takes as arguments the already executed command, and the command to transform. It should return a `CoreCommands` or `undefined` if the command should be skipped.
 
 If a transformation is required, here is the way to declare it. The transformation check that the command is on the same sheet of the deleted sheet. If true, the command should be skipped.
 
 ```js
 const { otRegistry } = o_spreadsheet.registries;
 
-otRegistry.addTransformation("MY_COMMAND", ["DELETE_SHEET"], (myCommand, executedCommand) => {
-  if (myCommand.sheetId === executed.sheetId) {
+otRegistry.addTransformation("DELETE_SHEET", ["MY_COMMAND"], (myCommand, deleteSheet) => {
+  // MY_COMMAND should takes DELETE_SHEET into account as DELETE_SHEET is arrived first
+  if (myCommand.sheetId === deleteSheet.sheetId) {
     return undefined;
   }
   return myCommand;
