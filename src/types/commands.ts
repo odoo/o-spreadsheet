@@ -147,14 +147,14 @@ export interface ResizeColumnsRowsCommand extends BaseCommand {
 export interface AddMergeCommand extends BaseCommand {
   type: "ADD_MERGE";
   sheetId: UID;
-  zone: Zone;
+  target: Zone[];
   force?: boolean;
 }
 
 export interface RemoveMergeCommand extends BaseCommand {
   type: "REMOVE_MERGE";
   sheetId: UID;
-  zone: Zone;
+  target: Zone[];
 }
 
 //------------------------------------------------------------------------------
@@ -875,6 +875,7 @@ export const enum CancelledReason {
   MaxInvalidFormula,
   InvalidSortZone,
   WaitingSessionConfirmation,
+  MergeOverlap,
 }
 
 export type CommandResult = CommandSuccess | CommandCancelled;

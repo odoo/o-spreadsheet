@@ -404,7 +404,7 @@ export class AutofillPlugin extends UIPlugin {
       if (zone) {
         this.dispatch("REMOVE_MERGE", {
           sheetId: activeSheet.id,
-          zone,
+          target: [zone],
         });
       }
     }
@@ -412,12 +412,14 @@ export class AutofillPlugin extends UIPlugin {
     if (originMerge?.topLeft.col === originCol && originMerge?.topLeft.row === originRow) {
       this.dispatch("ADD_MERGE", {
         sheetId: activeSheet.id,
-        zone: {
-          top: row,
-          bottom: row + originMerge.bottom - originMerge.top,
-          left: col,
-          right: col + originMerge.right - originMerge.left,
-        },
+        target: [
+          {
+            top: row,
+            bottom: row + originMerge.bottom - originMerge.top,
+            left: col,
+            right: col + originMerge.right - originMerge.left,
+          },
+        ],
       });
     }
   }

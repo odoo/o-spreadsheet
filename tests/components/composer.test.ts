@@ -4,6 +4,7 @@ import { HighlightPlugin } from "../../src/plugins/ui/highlight";
 import {
   activateSheet,
   createSheet,
+  merge,
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
@@ -187,8 +188,7 @@ describe("ranges and highlights", () => {
   test("Create a ref with merges with keyboard -> the merge should be treated as one cell", async () => {
     selectCell(model, "B2");
     model.dispatch("ALTER_SELECTION", { delta: [1, 1] });
-    const sheet1 = model.getters.getVisibleSheets()[0];
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:C3") });
+    merge(model, "B2:C3");
     selectCell(model, "C1");
     await typeInComposer("=");
     await keydown("ArrowDown");

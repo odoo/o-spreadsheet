@@ -16,7 +16,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getBorder, getCell, getCellContent } from "../test_helpers/getters_helpers";
-import { toPosition } from "../test_helpers/helpers";
+import { target, toPosition } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -199,7 +199,7 @@ describe("Multi users synchronisation", () => {
       setCellContent(alice, "B2", "Hi Bob");
       bob.dispatch("ADD_MERGE", {
         sheetId: alice.getters.getActiveSheetId(),
-        zone: toZone("A1:B2"),
+        target: target("A1:B2"),
       });
     });
 
@@ -246,7 +246,7 @@ describe("Multi users synchronisation", () => {
     network.concurrent(() => {
       alice.dispatch("ADD_MERGE", {
         sheetId,
-        zone: toZone("A1:B3"),
+        target: target("A1:B3"),
       });
       setCellContent(bob, "B3", "Hi Alice");
     });
@@ -276,14 +276,14 @@ describe("Multi users synchronisation", () => {
     network.concurrent(() => {
       alice.dispatch("ADD_MERGE", {
         sheetId: alice.getters.getActiveSheetId(),
-        zone: toZone("A1:B2"),
+        target: target("A1:B2"),
       });
       setCellContent(bob, "B2", "Hi Alice");
     });
     const sheetId = alice.getters.getActiveSheetId();
     expect(alice.getters.getMerges(sheetId)).toHaveLength(1);
     alice.dispatch("REMOVE_MERGE", {
-      zone: toZone("A1:B2"),
+      target: target("A1:B2"),
       sheetId,
     });
     expect(alice.getters.getMerges(sheetId)).toHaveLength(0);
@@ -297,7 +297,7 @@ describe("Multi users synchronisation", () => {
     network.concurrent(() => {
       alice.dispatch("ADD_MERGE", {
         sheetId,
-        zone: toZone("B2:C3"),
+        target: target("B2:C3"),
       });
       bob.dispatch("DELETE_CONTENT", {
         sheetId,
@@ -313,7 +313,7 @@ describe("Multi users synchronisation", () => {
     network.concurrent(() => {
       alice.dispatch("ADD_MERGE", {
         sheetId,
-        zone: toZone("A1:B2"),
+        target: target("A1:B2"),
       });
       bob.dispatch("SET_FORMATTING", {
         sheetId,

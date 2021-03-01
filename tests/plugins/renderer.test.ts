@@ -2,7 +2,7 @@ import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { GridRenderingContext, Viewport } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
-import { setCellContent } from "../test_helpers/commands_helpers";
+import { merge, setCellContent } from "../test_helpers/commands_helpers";
 import { createEqualCF, mockUuidV4To } from "../test_helpers/helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {
@@ -174,7 +174,7 @@ describe("renderer", () => {
       target: [toZone("A1")],
       style: { fillColor: "#DC6CDF" },
     });
-    model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:A3") });
+    merge(model, "A1:A3");
 
     let fillStyle: any[] = [];
     let fillStyleColor1Called = false;
@@ -270,7 +270,7 @@ describe("renderer", () => {
       cf: createEqualCF(["A1"], "1", { fillColor: "#DC6CDF" }, "1"),
       sheetId,
     });
-    model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:A3") });
+    merge(model, "A1:A3");
     let fillStyle: any[] = [];
     let fillStyleColor1Called = false;
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -298,9 +298,7 @@ describe("renderer", () => {
 
   test("formulas in a merge, evaluating to a string are properly aligned", () => {
     const model = new Model();
-
-    const sheet1 = model.getters.getVisibleSheets()[0];
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A2:B2") });
+    merge(model, "A2:B2");
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "=A1");
 
@@ -349,9 +347,7 @@ describe("renderer", () => {
 
   test("formulas in a merge, evaluating to a boolean are properly aligned", () => {
     const model = new Model();
-    const sheet1 = model.getters.getVisibleSheets()[0];
-
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A2:B2") });
+    merge(model, "A2:B2");
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "=A1");
 

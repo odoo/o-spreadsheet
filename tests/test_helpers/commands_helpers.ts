@@ -2,6 +2,7 @@ import { lettersToNumber, toCartesian, toZone, uuidv4 } from "../../src/helpers/
 import { Model, ModelConfig } from "../../src/model";
 import { BorderCommand, CommandResult, CreateSheetCommand, UID } from "../../src/types";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
+import { target } from "./helpers";
 
 /**
  * Dispatch an UNDO to the model
@@ -204,4 +205,26 @@ export function createModelWithViewport(
   const model = new Model(data, config, stateUpdateMessages);
   model.dispatch("RESIZE_VIEWPORT", { width, height });
   return model;
+}
+
+export function merge(
+  model: Model,
+  range: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): CommandResult {
+  return model.dispatch("ADD_MERGE", {
+    sheetId,
+    target: target(range),
+  });
+}
+
+export function unMerge(
+  model: Model,
+  range: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): CommandResult {
+  return model.dispatch("REMOVE_MERGE", {
+    sheetId,
+    target: target(range),
+  });
 }

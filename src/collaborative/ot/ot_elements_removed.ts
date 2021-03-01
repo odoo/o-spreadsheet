@@ -2,7 +2,6 @@ import { isDefined, reduceZoneOnDeletion } from "../../helpers";
 import { otRegistry } from "../../registries";
 import {
   AddColumnsRowsCommand,
-  AddMergeCommand,
   RemoveColumnsRowsCommand,
   ResizeColumnsRowsCommand,
   Zone,
@@ -25,7 +24,7 @@ otRegistry.addTransformation(
 otRegistry.addTransformation(
   "REMOVE_COLUMNS_ROWS",
   ["ADD_MERGE", "REMOVE_MERGE"],
-  withSheetCheck(mergeCommand)
+  withSheetCheck(targetCommand)
 );
 
 otRegistry.addTransformation(
@@ -74,17 +73,6 @@ function targetCommand(
 function transformZone(zone: Zone, executed: RemoveColumnsRowsCommand): Zone | undefined {
   const start = executed.dimension === "COL" ? "left" : "top";
   return reduceZoneOnDeletion(zone, start, executed.elements);
-}
-
-function mergeCommand(
-  toTransform: AddMergeCommand,
-  executed: RemoveColumnsRowsCommand
-): AddMergeCommand | undefined {
-  const zone = transformZone(toTransform.zone, executed);
-  if (!zone) {
-    return undefined;
-  }
-  return { ...toTransform, zone };
 }
 
 function columnsCommand(

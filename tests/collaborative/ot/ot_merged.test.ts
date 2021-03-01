@@ -12,12 +12,13 @@ import {
   UpdateCellCommand,
   UpdateCellPositionCommand,
 } from "../../../src/types";
+import { target } from "../../test_helpers/helpers";
 
 describe("OT with ADD_MERGE", () => {
   const sheetId = "Sheet1";
   const addMerge: AddMergeCommand = {
     type: "ADD_MERGE",
-    zone: toZone("B2:C3"),
+    target: target("B2:C3"),
     sheetId,
   };
 
@@ -101,24 +102,24 @@ describe("OT with ADD_MERGE", () => {
     }
   );
 
-  const removeMerge: Omit<RemoveMergeCommand, "zone"> = {
+  const removeMerge: Omit<RemoveMergeCommand, "target"> = {
     type: "REMOVE_MERGE",
     sheetId,
   };
 
   describe.each([addMerge, removeMerge])(`ADD_MERGE & AddMerge | RemoveMerge`, (cmd) => {
     test("two distinct merges", () => {
-      const command = { ...cmd, zone: toZone("E1:F2") };
+      const command = { ...cmd, target: target("E1:F2") };
       const result = transform(command, addMerge);
       expect(result).toEqual(command);
     });
     test("two overlapping merges", () => {
-      const command = { ...cmd, zone: toZone("C3:D5") };
+      const command = { ...cmd, target: target("C3:D5") };
       const result = transform(command, addMerge);
       expect(result).toBeUndefined();
     });
     test("two overlapping merges in different sheets", () => {
-      const command = { ...cmd, zone: toZone("C3:D5"), sheetId: "another sheet" };
+      const command = { ...cmd, target: target("C3:D5"), sheetId: "another sheet" };
       const result = transform(command, addMerge);
       expect(result).toEqual(command);
     });

@@ -1,6 +1,6 @@
 import { isInside, overlap, toXC } from "../../helpers/index";
 import { otRegistry } from "../../registries";
-import { AddMergeCommand } from "../../types";
+import { AddMergeCommand, Zone } from "../../types";
 import { PositionalCommand } from "../../types/collaborative/ot_types";
 import { withSheetCheck } from "./ot_helpers";
 
@@ -28,19 +28,29 @@ function cellCommand(
   executed: AddMergeCommand
 ): PositionalCommand | undefined {
   const xc = toXC(toTransform.col, toTransform.row);
-  const xcMerge = toXC(executed.zone.left, executed.zone.top);
-  if (xc === xcMerge || !isInside(toTransform.col, toTransform.row, executed.zone)) {
-    return toTransform;
+  for (const zone of executed.target) {
+    const xcMerge = toXC(zone.left, zone.top);
+    if (xc !== xcMerge && isInside(toTransform.col, toTransform.row, zone)) {
+      return undefined;
+    }
   }
-  return undefined;
+  return toTransform;
 }
 
 function mergeCommand(
   toTransform: AddMergeCommand,
   executed: AddMergeCommand
 ): AddMergeCommand | undefined {
-  if (overlap(toTransform.zone, executed.zone)) {
-    return undefined;
+  const target: Zone[] = [];
+  for (const toTransformZone of toTransform.target) {
+    for (const executedZone of executed.target) {
+      if (!overlap(toTransformZone, executedZone)) {
+        target.push({ ...toTransformZone });
+      }
+    }
   }
-  return toTransform;
+  if (target.length) {
+    return { ...toTransform, target };
+  }
+  return undefined;
 }

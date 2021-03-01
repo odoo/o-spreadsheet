@@ -22,6 +22,7 @@ import {
   UpdateChartCommand,
   UpdateFigureCommand,
 } from "../../src/types";
+import { target } from "../test_helpers/helpers";
 
 describe("Inverses commands", () => {
   describe("Add Columns", () => {
@@ -88,7 +89,7 @@ describe("Inverses commands", () => {
     const addMerge: AddMergeCommand = {
       type: "ADD_MERGE",
       sheetId: "1",
-      zone: toZone("A1:B1"),
+      target: target("A1:B1"),
     };
     expect(inverseCommand(addMerge)).toEqual([{ ...addMerge, type: "REMOVE_MERGE" }]);
   });
@@ -97,7 +98,7 @@ describe("Inverses commands", () => {
     const removeMerge: RemoveMergeCommand = {
       type: "REMOVE_MERGE",
       sheetId: "1",
-      zone: toZone("A1:B1"),
+      target: target("A1:B1"),
     };
     expect(inverseCommand(removeMerge)).toEqual([{ ...removeMerge, type: "ADD_MERGE" }]);
   });

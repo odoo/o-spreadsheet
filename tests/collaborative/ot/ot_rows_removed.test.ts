@@ -15,6 +15,7 @@ import {
   UpdateCellCommand,
   UpdateCellPositionCommand,
 } from "../../../src/types";
+import { target } from "../../test_helpers/helpers";
 
 describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
   const sheetId = "Sheet1";
@@ -254,42 +255,42 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
     });
   });
 
-  const addMerge: Omit<AddMergeCommand, "zone"> = {
+  const addMerge: Omit<AddMergeCommand, "target"> = {
     type: "ADD_MERGE",
     sheetId,
   };
-  const removeMerge: Omit<RemoveMergeCommand, "zone"> = {
+  const removeMerge: Omit<RemoveMergeCommand, "target"> = {
     type: "REMOVE_MERGE",
     sheetId,
   };
   describe.each([addMerge, removeMerge])("Remove Columns - Merge", (cmd) => {
     test(`remove rows before Merge`, () => {
-      const command = { ...cmd, zone: toZone("A1:C1") };
+      const command = { ...cmd, target: target("A1:C1") };
       const result = transform(command, removeRows);
       expect(result).toEqual(command);
     });
     test(`remove rows after Merge`, () => {
-      const command = { ...cmd, zone: toZone("A12:B14") };
+      const command = { ...cmd, target: target("A12:B14") };
       const result = transform(command, removeRows);
-      expect(result).toEqual({ ...command, zone: toZone("A9:B11") });
+      expect(result).toEqual({ ...command, target: target("A9:B11") });
     });
     test(`remove rows before and after Merge`, () => {
-      const command = { ...cmd, zone: toZone("A5:B5") };
+      const command = { ...cmd, target: target("A5:B5") };
       const result = transform(command, removeRows);
-      expect(result).toEqual({ ...command, zone: toZone("A3:B3") });
+      expect(result).toEqual({ ...command, target: target("A3:B3") });
     });
     test(`Merge in removed rows`, () => {
-      const command = { ...cmd, zone: toZone("A6:B7") };
+      const command = { ...cmd, target: target("A6:B7") };
       const result = transform(command, removeRows);
-      expect(result).toEqual({ ...command, zone: toZone("A4:B4") });
+      expect(result).toEqual({ ...command, target: target("A4:B4") });
     });
     test(`Merge and rows removed in different sheets`, () => {
-      const command = { ...cmd, zone: toZone("A1:C6"), sheetId: "42" };
+      const command = { ...cmd, target: target("A1:C6"), sheetId: "42" };
       const result = transform(command, removeRows);
       expect(result).toEqual(command);
     });
-    test(`Merge with a zone removed`, () => {
-      const command = { ...cmd, zone: toZone("A3:B4") };
+    test(`Merge with a target removed`, () => {
+      const command = { ...cmd, target: target("A3:B4") };
       const result = transform(command, removeRows);
       expect(result).toBeUndefined();
     });

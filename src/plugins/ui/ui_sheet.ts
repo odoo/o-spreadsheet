@@ -41,7 +41,7 @@ export class SheetUIPlugin extends UIPlugin {
         break;
       case "ADD_MERGE":
         if (cmd.interactive) {
-          this.interactiveMerge(cmd.sheetId, cmd.zone);
+          this.interactiveMerge(cmd.sheetId, cmd.target);
         }
         break;
       case "AUTORESIZE_COLUMNS":
@@ -129,15 +129,15 @@ export class SheetUIPlugin extends UIPlugin {
     });
   }
 
-  private interactiveMerge(sheet: string, zone: Zone) {
-    const result = this.dispatch("ADD_MERGE", { sheetId: sheet, zone });
+  private interactiveMerge(sheet: string, target: Zone[]) {
+    const result = this.dispatch("ADD_MERGE", { sheetId: sheet, target });
 
     if (result.status === "CANCELLED") {
       if (result.reason === CancelledReason.MergeIsDestructive) {
         this.ui.askConfirmation(
           _lt("Merging these cells will only preserve the top-leftmost value. Merge anyway?"),
           () => {
-            this.dispatch("ADD_MERGE", { sheetId: sheet, zone, force: true });
+            this.dispatch("ADD_MERGE", { sheetId: sheet, target, force: true });
           }
         );
       }

@@ -35,7 +35,9 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     switch (cmd.type) {
       case "ADD_MERGE":
         if (!cmd.interactive) {
-          this.addBordersToMerge(cmd.sheetId, cmd.zone);
+          for (const zone of cmd.target) {
+            this.addBordersToMerge(cmd.sheetId, zone);
+          }
         }
         break;
       case "SET_BORDER":

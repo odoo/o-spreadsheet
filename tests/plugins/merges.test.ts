@@ -3,10 +3,12 @@ import { Model } from "../../src/model";
 import { CancelledReason, Style } from "../../src/types/index";
 import {
   deleteRows,
+  merge,
   redo,
   selectCell,
   setCellContent,
   undo,
+  unMerge,
 } from "../test_helpers/commands_helpers";
 import {
   getActiveXc,
@@ -15,7 +17,7 @@ import {
   getCellContent,
   getMerges,
 } from "../test_helpers/getters_helpers";
-import { getMergeCellMap, toPosition, XCToMergeCellMap } from "../test_helpers/helpers";
+import { getMergeCellMap, target, toPosition, XCToMergeCellMap } from "../test_helpers/helpers";
 
 function getCellsXC(model: Model): string[] {
   return Object.values(model.getters.getCells(model.getters.getActiveSheetId())).map((cell) => {
@@ -33,7 +35,7 @@ describe("merges", () => {
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
     expect(Object.keys(getMerges(model))).toEqual([]);
     const sheet1 = model.getters.getVisibleSheets()[0];
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
+    merge(model, "B2:B3");
 
     expect(getCellsXC(model)).toEqual(["B2"]);
     expect(getCellContent(model, "B2", sheet1)).toBe("b2");
@@ -58,10 +60,9 @@ describe("merges", () => {
     expect(getMerges(model)).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: toPosition("B2") },
     });
-    const sheet1 = model.getters.getVisibleSheets()[0];
 
     selectCell(model, "B2");
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
+    unMerge(model, "B2:B3");
     expect(getCellsXC(model)).toEqual(["B2"]);
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
     expect(Object.keys(getMerges(model))).toEqual([]);
@@ -70,11 +71,10 @@ describe("merges", () => {
   test("a single cell is not merged", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
-    const sheet1 = model.getters.getVisibleSheets()[0];
 
     expect(Object.keys(getMerges(model))).toEqual([]);
 
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B2") });
+    merge(model, "B2:B2");
 
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
     expect(Object.keys(getMerges(model))).toEqual([]);
@@ -90,7 +90,7 @@ describe("merges", () => {
       ],
     });
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:C3") });
+    merge(model, "A1:C3");
     expect(model.getters.getMerge(sheetId, ...toCartesian("A1"))).toMatchObject(toZone("A1:B2"));
   });
 
@@ -204,6 +204,14 @@ describe("merges", () => {
     });
   });
 
+  test("Merge with two zone overlap is now allowed", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    expect(
+      model.dispatch("ADD_MERGE", { sheetId, target: [toZone("A1:B2"), toZone("A2:B3")] })
+    ).toBeCancelled(CancelledReason.MergeOverlap);
+  });
+
   test("properly compute if a merge is destructive or not", () => {
     const sheetId = "42";
     const model = new Model({
@@ -217,14 +225,11 @@ describe("merges", () => {
       ],
     });
     // B2 is not top left, so it is destructive
-    expect(model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:C4") })).toBeCancelled(
-      CancelledReason.MergeIsDestructive
-    );
+
+    expect(merge(model, "A1:C4")).toBeCancelled(CancelledReason.MergeIsDestructive);
 
     // B2 is top left, so it is not destructive
-    expect(model.dispatch("ADD_MERGE", { sheetId, zone: toZone("B2:C4") })).toEqual({
-      status: "SUCCESS",
-    });
+    expect(merge(model, "B2:C4")).toEqual({ status: "SUCCESS" });
   });
 
   test("a merge with only style should not be considered destructive", () => {
@@ -240,7 +245,7 @@ describe("merges", () => {
       ],
       styles: { 1: {} },
     });
-    expect(model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:C4") })).toEqual({
+    expect(merge(model, "A1:C4")).toEqual({
       status: "SUCCESS",
     });
   });
@@ -252,7 +257,7 @@ describe("merges", () => {
     model.dispatch("ALTER_SELECTION", { cell: [5, 5] });
     model.dispatch("ADD_MERGE", {
       sheetId: model.getters.getActiveSheetId(),
-      zone: model.getters.getSelectedZone(),
+      target: [model.getters.getSelectedZone()],
       interactive: true,
     });
     expect(askConfirmation).toHaveBeenCalled();
@@ -275,7 +280,7 @@ describe("merges", () => {
       ],
     });
     expect(getCell(model, "A4")!.value).toBe(6);
-    model.dispatch("ADD_MERGE", { sheetId: "Sheet1", zone: toZone("A1:A3") });
+    merge(model, "A1:A3");
 
     expect(getCell(model, "A1")!.value).toBe(1);
     expect(getCell(model, "A2")!.value).toBe(2);
@@ -300,7 +305,7 @@ describe("merges", () => {
     });
     const sheet1 = model.getters.getVisibleSheets()[0];
     expect(getCell(model, "A4")!.value).toBe(6);
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:A3"), force: true });
+    model.dispatch("ADD_MERGE", { sheetId: sheet1, target: target("A1:A3"), force: true });
 
     expect(getCell(model, "A1")!.value).toBe(1);
     expect(getCell(model, "A2")).toBeUndefined();
@@ -315,7 +320,7 @@ describe("merges", () => {
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
 
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    merge(model, "A1:B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
       target: [{ left: 0, right: 1, top: 0, bottom: 0 }],
@@ -325,7 +330,7 @@ describe("merges", () => {
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
 
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    merge(model, "A1:B1");
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
   });
@@ -343,11 +348,11 @@ describe("merges", () => {
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
 
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    merge(model, "A1:B1");
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
 
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    merge(model, "A1:B1");
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
   });
@@ -364,11 +369,11 @@ describe("merges", () => {
 
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
 
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    merge(model, "A1:B1");
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
 
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    merge(model, "A1:B1");
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
   });
@@ -376,7 +381,7 @@ describe("merges", () => {
   test("merging => setting border => unmerging", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:B1") });
+    merge(model, "A1:B1");
     model.dispatch("SET_FORMATTING", {
       sheetId,
       target: [toZone("A1")],
@@ -386,7 +391,7 @@ describe("merges", () => {
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
 
-    model.dispatch("REMOVE_MERGE", { sheetId, zone: toZone("A1:B1") });
+    unMerge(model, "A1:B1");
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
   });
@@ -404,8 +409,8 @@ describe("merges", () => {
     const line = ["thin", "#000"];
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    merge(model, "A1:B1");
+    merge(model, "A1:B1");
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
   });
@@ -419,10 +424,10 @@ describe("merges", () => {
       border: "external",
     });
     const line = ["thin", "#000"];
-    model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:B1") });
+    merge(model, "A1:B1");
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
-    model.dispatch("REMOVE_MERGE", { sheetId, zone: toZone("A1:B1") });
+    unMerge(model, "A1:B1");
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
   });
@@ -437,12 +442,12 @@ describe("merges", () => {
       style: { fillColor: "red" },
     });
     const line = ["thin", "#000"];
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    merge(model, "A1:B1");
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    merge(model, "A1:B1");
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
@@ -453,26 +458,24 @@ describe("merges", () => {
     const model = new Model({
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }],
     });
-    const sheet1 = model.getters.getVisibleSheets()[0];
 
     //merging
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:A3") });
+    merge(model, "A1:A3");
     const mergeId = getMergeCellMap(model)[0][0];
     expect(mergeId).toBeGreaterThan(0);
     expect(getMergeCellMap(model)[0][1]).toBe(mergeId);
 
     // unmerge. there should not be any merge left
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:A3") });
+    unMerge(model, "A1:A3");
     expect(getMergeCellMap(model)).toEqual({});
     expect(getMerges(model)).toEqual({});
   });
 
   test("can undo and redo a merge", () => {
     const model = new Model();
-    const sheet1 = model.getters.getVisibleSheets()[0];
 
     // select B2:B3 and merge
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
+    merge(model, "B2:B3");
 
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["B2", "B3"]));
     expect(getMerges(model)).toEqual({
@@ -494,9 +497,8 @@ describe("merges", () => {
 
   test("merge, undo, select, redo: correct selection", () => {
     const model = new Model();
-    const sheet1 = model.getters.getVisibleSheets()[0];
 
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
+    merge(model, "B2:B3");
     selectCell(model, "B2"); // B2
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
     undo(model);
@@ -510,10 +512,9 @@ describe("merges", () => {
 
   test("merge, unmerge, select, undo: correct selection", () => {
     const model = new Model();
-    const sheet1 = model.getters.getVisibleSheets()[0];
 
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
+    merge(model, "B2:B3");
+    unMerge(model, "B2:B3");
     selectCell(model, "B2"); // B2
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 1, left: 1, right: 1, top: 1 }]);
     undo(model);
@@ -522,9 +523,7 @@ describe("merges", () => {
 
   test("Cannot add a merge in a non-existing sheet", () => {
     const model = new Model();
-    expect(model.dispatch("ADD_MERGE", { sheetId: "BLABLA", zone: toZone("A1:A2") })).toBeCancelled(
-      CancelledReason.InvalidSheetId
-    );
+    expect(merge(model, "A1:A2", "invalid")).toBeCancelled(CancelledReason.InvalidSheetId);
   });
 
   test("import merge with style", () => {
@@ -548,7 +547,7 @@ describe("merges", () => {
     expect(model.getters.getMerge(sheetId, ...toCartesian("C4"))).toBeTruthy();
     expect(getCell(model, "B4")!.style).toEqual({ textColor: "#fe0000" });
     expect(getBorder(model, "B4")).toEqual({ top: ["thin", "#000"] });
-    model.dispatch("REMOVE_MERGE", { sheetId, zone: toZone("B4:C5") });
+    unMerge(model, "B4:C5");
     expect(getCell(model, "B4")!.style).toEqual({ textColor: "#fe0000" });
     expect(getCell(model, "C4")!.style).toEqual({ textColor: "#fe0000" });
     expect(getBorder(model, "B4")).toEqual({ top: ["thin", "#000"] });

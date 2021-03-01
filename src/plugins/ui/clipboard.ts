@@ -94,7 +94,7 @@ export class ClipboardPlugin extends UIPlugin {
           if (merge) {
             this.dispatch("REMOVE_MERGE", {
               sheetId: cmd.sheetId,
-              zone: merge,
+              target: [merge],
             });
           }
         }
@@ -400,17 +400,19 @@ export class ClipboardPlugin extends UIPlugin {
     if (cut) {
       this.dispatch("REMOVE_MERGE", {
         sheetId: originSheet,
-        zone: merge,
+        target: [merge],
       });
     }
     this.dispatch("ADD_MERGE", {
       sheetId: this.getters.getActiveSheetId(),
-      zone: {
-        left: col,
-        top: row,
-        right: col + merge.right - merge.left,
-        bottom: row + merge.bottom - merge.top,
-      },
+      target: [
+        {
+          left: col,
+          top: row,
+          right: col + merge.right - merge.left,
+          bottom: row + merge.bottom - merge.top,
+        },
+      ],
     });
   }
 

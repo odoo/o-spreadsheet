@@ -9,6 +9,7 @@ import {
   resizeRows,
   setCellContent,
   undo,
+  unMerge,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers";
@@ -732,7 +733,7 @@ describe("sheets", () => {
     const sheet = model.getters.getActiveSheetId();
     model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4(), name: "dup" });
     expect(model.getters.getSheets()).toHaveLength(2);
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet, zone: toZone("A1:A2") });
+    unMerge(model, "A1:A2");
     const newSheet = model.getters.getSheets()[1].id;
     activateSheet(model, newSheet);
     expect(model.exportData().sheets[0].merges).toHaveLength(0);
