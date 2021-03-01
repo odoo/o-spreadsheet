@@ -1,6 +1,7 @@
 import { isDefined } from "../../helpers/index";
 import { otRegistry } from "../../registries/ot_registry";
 import { CoreCommand } from "../../types";
+import { tryTransform } from "../../types/collaborative/ot_types";
 import "./ot_elements_added";
 import "./ot_elements_removed";
 import "./ot_figure_deleted";
@@ -25,6 +26,10 @@ export function transform(
   toTransform: CoreCommand,
   executed: CoreCommand
 ): CoreCommand | undefined {
+  const tryT = tryTransform(toTransform, executed);
+  if (tryT !== null) {
+    return tryT;
+  }
   const ot = otRegistry.getTransformation(toTransform.type, executed.type);
   return ot ? ot(toTransform, executed) : toTransform;
 }

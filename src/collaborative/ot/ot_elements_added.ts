@@ -7,37 +7,32 @@ import {
   RemoveMergeCommand,
   Zone,
 } from "../../types";
-import {
-  ColumnsCommand,
-  PositionalCommand,
-  RowsCommand,
-  TargetCommand,
-} from "../../types/collaborative/ot_types";
+import { ColumnsCommand, RowsCommand } from "../../types/collaborative/ot_types";
 import { withSheetCheck } from "./ot_helpers";
 
-otRegistry.addTransformation(
-  "ADD_COLUMNS",
-  ["UPDATE_CELL", "UPDATE_CELL_POSITION", "CLEAR_CELL", "SET_BORDER"],
-  withSheetCheck(cellCommand)
-);
+// otRegistry.addTransformation(
+//   "ADD_COLUMNS",
+//   ["UPDATE_CELL", "UPDATE_CELL_POSITION", "CLEAR_CELL", "SET_BORDER"],
+//   withSheetCheck(cellCommand)
+// );
 
-otRegistry.addTransformation(
-  "ADD_ROWS",
-  ["UPDATE_CELL", "UPDATE_CELL_POSITION", "CLEAR_CELL", "SET_BORDER"],
-  withSheetCheck(cellCommand)
-);
+// otRegistry.addTransformation(
+//   "ADD_ROWS",
+//   ["UPDATE_CELL", "UPDATE_CELL_POSITION", "CLEAR_CELL", "SET_BORDER"],
+//   withSheetCheck(cellCommand)
+// );
 
-otRegistry.addTransformation(
-  "ADD_COLUMNS",
-  ["DELETE_CONTENT", "SET_FORMATTING", "CLEAR_FORMATTING", "SET_DECIMAL"],
-  withSheetCheck(targetCommand)
-);
+// otRegistry.addTransformation(
+//   "ADD_COLUMNS",
+//   ["DELETE_CONTENT", "SET_FORMATTING", "CLEAR_FORMATTING", "SET_DECIMAL"],
+//   withSheetCheck(targetCommand)
+// );
 
-otRegistry.addTransformation(
-  "ADD_ROWS",
-  ["DELETE_CONTENT", "SET_FORMATTING", "CLEAR_FORMATTING", "SET_DECIMAL"],
-  withSheetCheck(targetCommand)
-);
+// otRegistry.addTransformation(
+//   "ADD_ROWS",
+//   ["DELETE_CONTENT", "SET_FORMATTING", "CLEAR_FORMATTING", "SET_DECIMAL"],
+//   withSheetCheck(targetCommand)
+// );
 
 otRegistry.addTransformation(
   "ADD_COLUMNS",
@@ -67,37 +62,37 @@ otRegistry.addTransformation(
   withSheetCheck(rowsCommand)
 );
 
-function cellCommand(
-  toTransform: PositionalCommand,
-  executed: AddColumnsCommand | AddRowsCommand
-): PositionalCommand {
-  let updated: number;
-  let pivot: number;
-  let element: "col" | "row";
-  if (executed.type === "ADD_COLUMNS") {
-    updated = toTransform.col;
-    pivot = executed.column;
-    element = "col";
-  } else {
-    updated = toTransform.row;
-    pivot = executed.row;
-    element = "row";
-  }
-  if (updated > pivot || (updated === pivot && executed.position === "before")) {
-    return { ...toTransform, [element]: updated + executed.quantity };
-  }
-  return toTransform;
-}
+// function cellCommand(
+//   toTransform: PositionalCommand,
+//   executed: AddColumnsCommand | AddRowsCommand
+// ): PositionalCommand {
+//   let updated: number;
+//   let pivot: number;
+//   let element: "col" | "row";
+//   if (executed.type === "ADD_COLUMNS") {
+//     updated = toTransform.col;
+//     pivot = executed.column;
+//     element = "col";
+//   } else {
+//     updated = toTransform.row;
+//     pivot = executed.row;
+//     element = "row";
+//   }
+//   if (updated > pivot || (updated === pivot && executed.position === "before")) {
+//     return { ...toTransform, [element]: updated + executed.quantity };
+//   }
+//   return toTransform;
+// }
 
-function targetCommand(
-  toTransform: TargetCommand,
-  executed: AddColumnsCommand | AddRowsCommand
-): TargetCommand {
-  return {
-    ...toTransform,
-    target: toTransform.target.map((zone) => transformZone(zone, executed)),
-  };
-}
+// function targetCommand(
+//   toTransform: TargetCommand,
+//   executed: AddColumnsCommand | AddRowsCommand
+// ): TargetCommand {
+//   return {
+//     ...toTransform,
+//     target: toTransform.target.map((zone) => transformZone(zone, executed)),
+//   };
+// }
 
 function mergeCommand(
   toTransform: AddMergeCommand | RemoveMergeCommand,

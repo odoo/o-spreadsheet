@@ -8,39 +8,34 @@ import {
   RemoveRowsCommand,
   Zone,
 } from "../../types";
-import {
-  ColumnsCommand,
-  PositionalCommand,
-  RowsCommand,
-  TargetCommand,
-} from "../../types/collaborative/ot_types";
+import { ColumnsCommand, RowsCommand } from "../../types/collaborative/ot_types";
 import { withSheetCheck } from "./ot_helpers";
 
 type ExecutedCommand = RemoveColumnsCommand | RemoveRowsCommand;
 
-otRegistry.addTransformation(
-  "REMOVE_COLUMNS",
-  ["UPDATE_CELL", "UPDATE_CELL_POSITION", "CLEAR_CELL", "SET_BORDER"],
-  withSheetCheck(cellCommand)
-);
+// otRegistry.addTransformation(
+//   "REMOVE_COLUMNS",
+//   ["UPDATE_CELL", "UPDATE_CELL_POSITION", "CLEAR_CELL", "SET_BORDER"],
+//   withSheetCheck(cellCommand)
+// );
 
-otRegistry.addTransformation(
-  "REMOVE_ROWS",
-  ["UPDATE_CELL", "UPDATE_CELL_POSITION", "CLEAR_CELL", "SET_BORDER"],
-  withSheetCheck(cellCommand)
-);
+// otRegistry.addTransformation(
+//   "REMOVE_ROWS",
+//   ["UPDATE_CELL", "UPDATE_CELL_POSITION", "CLEAR_CELL", "SET_BORDER"],
+//   withSheetCheck(cellCommand)
+// );
 
-otRegistry.addTransformation(
-  "REMOVE_COLUMNS",
-  ["DELETE_CONTENT", "SET_FORMATTING", "CLEAR_FORMATTING", "SET_DECIMAL"],
-  withSheetCheck(targetCommand)
-);
+// otRegistry.addTransformation(
+//   "REMOVE_COLUMNS",
+//   ["DELETE_CONTENT", "SET_FORMATTING", "CLEAR_FORMATTING", "SET_DECIMAL"],
+//   withSheetCheck(targetCommand)
+// );
 
-otRegistry.addTransformation(
-  "REMOVE_ROWS",
-  ["DELETE_CONTENT", "SET_FORMATTING", "CLEAR_FORMATTING", "SET_DECIMAL"],
-  withSheetCheck(targetCommand)
-);
+// otRegistry.addTransformation(
+//   "REMOVE_ROWS",
+//   ["DELETE_CONTENT", "SET_FORMATTING", "CLEAR_FORMATTING", "SET_DECIMAL"],
+//   withSheetCheck(targetCommand)
+// );
 
 otRegistry.addTransformation(
   "REMOVE_COLUMNS",
@@ -70,45 +65,45 @@ otRegistry.addTransformation("REMOVE_COLUMNS", ["ADD_COLUMNS"], withSheetCheck(a
 
 otRegistry.addTransformation("REMOVE_ROWS", ["ADD_ROWS"], withSheetCheck(addRowsCommand));
 
-function cellCommand(
-  toTransform: PositionalCommand,
-  executed: ExecutedCommand
-): PositionalCommand | undefined {
-  let base: number;
-  let element: "col" | "row";
-  let elements: number[];
-  if (executed.type === "REMOVE_COLUMNS") {
-    base = toTransform.col;
-    element = "col";
-    elements = executed.columns;
-  } else {
-    element = "row";
-    base = toTransform.row;
-    elements = executed.rows;
-  }
-  if (elements.includes(base)) {
-    return undefined;
-  }
-  for (let removedElement of elements) {
-    if (base >= removedElement) {
-      base--;
-    }
-  }
-  return { ...toTransform, [element]: base };
-}
+// function cellCommand(
+//   toTransform: PositionalCommand,
+//   executed: ExecutedCommand
+// ): PositionalCommand | undefined {
+//   let base: number;
+//   let element: "col" | "row";
+//   let elements: number[];
+//   if (executed.type === "REMOVE_COLUMNS") {
+//     base = toTransform.col;
+//     element = "col";
+//     elements = executed.columns;
+//   } else {
+//     element = "row";
+//     base = toTransform.row;
+//     elements = executed.rows;
+//   }
+//   if (elements.includes(base)) {
+//     return undefined;
+//   }
+//   for (let removedElement of elements) {
+//     if (base >= removedElement) {
+//       base--;
+//     }
+//   }
+//   return { ...toTransform, [element]: base };
+// }
 
-function targetCommand(
-  toTransform: TargetCommand,
-  executed: ExecutedCommand
-): TargetCommand | undefined {
-  const adaptedTarget = toTransform.target
-    .map((zone) => transformZone(zone, executed))
-    .filter(isDefined);
-  if (!adaptedTarget.length) {
-    return undefined;
-  }
-  return { ...toTransform, target: adaptedTarget };
-}
+// function targetCommand(
+//   toTransform: TargetCommand,
+//   executed: ExecutedCommand
+// ): TargetCommand | undefined {
+//   const adaptedTarget = toTransform.target
+//     .map((zone) => transformZone(zone, executed))
+//     .filter(isDefined);
+//   if (!adaptedTarget.length) {
+//     return undefined;
+//   }
+//   return { ...toTransform, target: adaptedTarget };
+// }
 
 function transformZone(zone: Zone, executed: ExecutedCommand): Zone | undefined {
   return executed.type === "REMOVE_COLUMNS"
