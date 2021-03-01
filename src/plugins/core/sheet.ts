@@ -150,7 +150,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         }
         break;
       case "DUPLICATE_SHEET":
-        this.duplicateSheet(cmd.sheetIdFrom, cmd.sheetIdTo, cmd.name);
+        this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo, cmd.name);
         break;
       case "DELETE_SHEET":
         this.deleteSheet(this.sheets[cmd.sheetId]!);

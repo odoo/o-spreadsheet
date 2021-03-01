@@ -57,7 +57,7 @@ function duplicateCommand(
   toTransform: DuplicateSheetCommand,
   executed: DeleteSheetCommand
 ): DuplicateSheetCommand | undefined {
-  if (toTransform.sheetIdFrom === executed.sheetId) {
+  if (toTransform.sheetId === executed.sheetId) {
     return undefined;
   }
   return toTransform;

@@ -114,12 +114,12 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         this.history.update(
           "merges",
           cmd.sheetIdTo,
-          Object.assign({}, this.merges[cmd.sheetIdFrom])
+          Object.assign({}, this.merges[cmd.sheetId])
         );
         this.history.update(
           "mergeCellMap",
           cmd.sheetIdTo,
-          Object.assign({}, this.mergeCellMap[cmd.sheetIdFrom])
+          Object.assign({}, this.mergeCellMap[cmd.sheetId])
         );
         break;
       case "ADD_MERGE":

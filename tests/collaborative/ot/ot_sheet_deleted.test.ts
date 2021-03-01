@@ -158,19 +158,19 @@ describe("OT with DELETE_SHEET", () => {
   });
 
   describe("Delete sheet with duplicate sheet", () => {
-    const cmd: Omit<DuplicateSheetCommand, "sheetIdFrom"> = {
+    const cmd: Omit<DuplicateSheetCommand, "sheetId"> = {
       type: "DUPLICATE_SHEET",
       sheetIdTo: "sheetIdTo",
       name: "sheetIdTo",
     };
 
     test("Delete the sheet on which the command is triggered", () => {
-      const result = transform({ ...cmd, sheetIdFrom: deletedSheetId }, deleteSheet);
+      const result = transform({ ...cmd, sheetId: deletedSheetId }, deleteSheet);
       expect(result).toBeUndefined();
     });
 
     test("Delete the sheet on which the command is triggered", () => {
-      const command = { ...cmd, sheetIdFrom: sheetId };
+      const command = { ...cmd, sheetId };
       const result = transform(command, deleteSheet);
       expect(result).toEqual(command);
     });

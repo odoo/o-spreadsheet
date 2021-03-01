@@ -198,7 +198,7 @@ export interface DeleteSheetCommand extends BaseCommand {
 
 export interface DuplicateSheetCommand extends BaseCommand {
   type: "DUPLICATE_SHEET";
-  sheetIdFrom: UID;
+  sheetId: UID;
   sheetIdTo: UID;
   name: string;
 }

@@ -191,7 +191,7 @@ describe("BottomBar component", () => {
     const name = `Copy of ${model.getters.getSheets()[0].name}`;
     triggerMouseEvent(".o-menu-item[data-name='duplicate'", "click");
     expect(parent.env.dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", {
-      sheetIdFrom: sheet,
+      sheetId: sheet,
       sheetIdTo: "123",
       name,
     });
@@ -217,7 +217,7 @@ describe("BottomBar component", () => {
     mockUuidV4To(123);
     triggerMouseEvent(".o-menu-item[data-name='duplicate'", "click");
     expect(parent.env.dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", {
-      sheetIdFrom: sheet,
+      sheetId: sheet,
       sheetIdTo: "123",
       name,
     });

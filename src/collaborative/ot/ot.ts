@@ -5,7 +5,6 @@ import { tryTransform } from "../../types/collaborative/ot_types";
 import "./ot_elements_added";
 import "./ot_elements_removed";
 import "./ot_figure_deleted";
-import "./ot_merged";
 import "./ot_sheet_deleted";
 
 /**

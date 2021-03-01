@@ -112,7 +112,7 @@ describe("Inverses commands", () => {
   test("Duplicate Sheet", () => {
     const duplicateSheet: DuplicateSheetCommand = {
       type: "DUPLICATE_SHEET",
-      sheetIdFrom: "1",
+      sheetId: "1",
       sheetIdTo: "2",
       name: "bla",
     };
