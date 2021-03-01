@@ -38,7 +38,7 @@ sheetMenuRegistry
       );
       const sheetIdTo = uuidv4();
       env.dispatch("DUPLICATE_SHEET", {
-        sheetIdFrom,
+        sheetId: sheetIdFrom,
         sheetIdTo,
         name,
       });

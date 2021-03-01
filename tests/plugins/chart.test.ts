@@ -748,13 +748,13 @@ describe("datasource tests", function () {
     });
     model.dispatch("DUPLICATE_SHEET", {
       name: "SheetNoFigure",
-      sheetIdFrom: "1",
+      sheetId: "1",
       sheetIdTo: "SheetNoFigure",
     });
     expect(model.getters.getVisibleFigures("SheetNoFigure")).toEqual([]);
     model.dispatch("DUPLICATE_SHEET", {
       name: "SheetWithFigure",
-      sheetIdFrom: "2",
+      sheetId: "2",
       sheetIdTo: "SheetWithFigure",
     });
     const { x, y, height, width, tag } = model.getters.getVisibleFigures("2")[0];
