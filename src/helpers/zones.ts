@@ -56,12 +56,12 @@ export function zoneToXc(zone: Zone): string {
  */
 export function expandZoneOnInsertion(
   zone: Zone,
-  start: "left" | "top",
+  dimension: "columns" | "rows",
   base: number,
   position: "after" | "before",
   quantity: number
 ): Zone {
-  const dimension = start === "left" ? "columns" : "rows";
+  const start = dimension === "columns" ? "left" : "top";
   const baseElement = position === "before" ? base - 1 : base;
   const end = start === "left" ? "right" : "bottom";
   if (zone[start] <= baseElement && zone[end] >= baseElement) {

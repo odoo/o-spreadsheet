@@ -1,5 +1,11 @@
 import { CoreCommand, UID, Zone } from "..";
-import { expandZoneOnInsertion, isInside, overlap, reduceZoneOnDeletion } from "../../helpers";
+import {
+  expandZoneOnInsertion,
+  isDefined,
+  isInside,
+  overlap,
+  reduceZoneOnDeletion,
+} from "../../helpers";
 
 export type SheetCommand = Extract<CoreCommand, { sheetId: UID }>;
 
@@ -74,10 +80,12 @@ export function categorize(cmd: CoreCommand): Category {
   switch (cmd.type) {
     case "ADD_COLUMNS":
     case "REMOVE_COLUMNS":
+    case "RESIZE_COLUMNS":
       cat.grid = { dimension: "columns" };
       break;
     case "ADD_ROWS":
     case "REMOVE_ROWS":
+    case "RESIZE_ROWS":
       cat.grid = { dimension: "rows" };
       break;
     case "ADD_MERGE":
@@ -153,10 +161,9 @@ export function tryTransform(
         );
       }
       if (patch.added) {
-        const start = patch.dimension === "columns" ? "left" : "top";
         newZone = expandZoneOnInsertion(
           zone,
-          start,
+          patch.dimension!,
           patch.added.base,
           patch.added.position,
           patch.added.quantity
@@ -178,6 +185,86 @@ export function tryTransform(
       return undefined;
     }
     return cmd;
+  }
+
+  if (cat.grid) {
+    if (patch.deleted) {
+      let dim: string = cat.grid.dimension;
+      let withS = true;
+      if (!(dim in cmd)) {
+        withS = false;
+        dim = dim.slice(0, -1);
+      }
+      let elements: number[] = cmd[dim];
+      if (!withS) {
+        elements = [cmd[dim]];
+      }
+      elements = elements
+        .map((element) => {
+          if (patch.deleted!.includes(element)) {
+            return undefined;
+          }
+          for (let removedElement of patch.deleted!) {
+            if (element > removedElement) {
+              element--;
+            }
+          }
+          return element;
+        })
+        .filter(isDefined);
+      if (elements.length) {
+        if (withS) {
+          return { ...cmd, [dim]: elements };
+        }
+        return { ...cmd, [dim]: elements[0] };
+      }
+      return undefined;
+    }
+    if (patch.added) {
+      let dim: string = cat.grid.dimension;
+      let withS = true;
+      if (!(dim in cmd)) {
+        withS = false;
+        dim = dim.slice(0, -1);
+      }
+      let elements: number[] = cmd[dim];
+      if (!withS) {
+        elements = [cmd[dim]];
+      }
+      const base = patch.added.position === "before" ? patch.added.base - 1 : patch.added.base;
+      elements = elements.map((el) => (el > base ? el + patch.added!.quantity : el));
+      if (withS) {
+        return { ...cmd, [dim]: elements };
+      }
+      return { ...cmd, [dim]: elements[0] };
+    }
+  }
+
+  if (cat.isMerge) {
+    // This should be "merged" with cat.target, as zone is the same as a target with one element
+    const zone: Zone = cmd["zone"];
+    let newZone: Zone | undefined = { ...zone };
+    if (patch.deleted) {
+      newZone = reduceZoneOnDeletion(
+        zone,
+        patch.dimension === "columns" ? "left" : "top",
+        patch.deleted
+      );
+    }
+    if (patch.added) {
+      newZone = expandZoneOnInsertion(
+        zone,
+        patch.dimension!,
+        patch.added.base,
+        patch.added.position,
+        patch.added.quantity
+      );
+    }
+    if (newZone) {
+      // @ts-ignore A ce state vu que c'est cat.isMerge on sait que c'est bon
+      return { ...cmd, zone: newZone };
+    }
+    return undefined;
   }
 
   return null;

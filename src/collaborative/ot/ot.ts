@@ -2,10 +2,7 @@ import { isDefined } from "../../helpers/index";
 import { otRegistry } from "../../registries/ot_registry";
 import { CoreCommand } from "../../types";
 import { tryTransform } from "../../types/collaborative/ot_types";
-import "./ot_elements_added";
-import "./ot_elements_removed";
 import "./ot_figure_deleted";
-import "./ot_sheet_deleted";
 
 /**
  * Get the result of applying the operation transformations on the given command
