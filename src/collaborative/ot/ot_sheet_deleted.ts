@@ -1,5 +1,5 @@
 import { otRegistry } from "../../registries";
-import { DeleteSheetCommand, DuplicateSheetCommand } from "../../types";
+import { DeleteSheetCommand } from "../../types";
 import { SheetCommand } from "../../types/collaborative/ot_types";
 
 /*
@@ -35,27 +35,16 @@ otRegistry.addTransformation(
     "DELETE_FIGURE",
     "CREATE_CHART",
     "UPDATE_CHART",
+    "DUPLICATE_SHEET",
   ],
   sheetDeleted
 );
-
-otRegistry.addTransformation("DELETE_SHEET", ["DUPLICATE_SHEET"], duplicateCommand);
 
 function sheetDeleted(
   toTransform: SheetCommand,
   executed: DeleteSheetCommand
 ): SheetCommand | undefined {
   if (toTransform.sheetId === executed.sheetId) {
-    return undefined;
-  }
-  return toTransform;
-}
-
-function duplicateCommand(
-  toTransform: DuplicateSheetCommand,
-  executed: DeleteSheetCommand
-): DuplicateSheetCommand | undefined {
-  if (toTransform.sheetIdFrom === executed.sheetId) {
     return undefined;
   }
   return toTransform;

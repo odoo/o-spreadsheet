@@ -380,7 +380,7 @@ describe("Multi users synchronisation", () => {
     const firstSheetId = alice.getters.getActiveSheetId();
     alice.dispatch("DUPLICATE_SHEET", {
       name: "Duplicated Sheet",
-      sheetIdFrom: firstSheetId,
+      sheetId: firstSheetId,
       sheetIdTo: "42",
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
