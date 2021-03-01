@@ -605,10 +605,11 @@ describe("Multi users synchronisation", () => {
     const data = alice.exportData();
     const commands: CoreCommand[] = [
       {
-        type: "ADD_COLUMNS",
+        type: "ADD_COLUMNS_ROWS",
+        dimension: "COL",
         position: "before",
         sheetId: alice.getters.getActiveSheetId(),
-        column: 1,
+        base: 1,
         quantity: 50,
       },
     ];

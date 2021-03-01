@@ -486,7 +486,7 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "C1"), "hello in C");
   });
 
-  test("undo ADD_COLUMNS when the column has been removed", () => {
+  test("undo ADD_COLUMNS_ROWS with dimension COL when the column has been removed", () => {
     addColumns(alice, "after", "B", 1);
     setCellContent(bob, "F1", "hello");
     deleteColumns(bob, ["A", "B", "C", "D", "E"]);
@@ -497,7 +497,7 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "E1"), "hello");
   });
 
-  test("undo/redo ADD_COLUMNS when the column has been removed", () => {
+  test("undo/redo ADD_COLUMNS_ROWS with dimension COL when the column has been removed", () => {
     addColumns(alice, "after", "B", 1);
     setCellContent(bob, "F1", "hello");
     deleteColumns(bob, ["A", "B", "C", "D", "E"]);

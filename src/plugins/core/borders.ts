@@ -1,8 +1,7 @@
 import { DEFAULT_BORDER_DESC } from "../../constants";
 import { range, stringify, toCartesian, toXC, toZone } from "../../helpers/index";
 import {
-  AddColumnsCommand,
-  AddRowsCommand,
+  AddColumnsRowsCommand,
   Border,
   BorderCommand,
   BorderDescription,
@@ -52,21 +51,21 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       case "CLEAR_FORMATTING":
         this.clearBorders(cmd.sheetId, cmd.target);
         break;
-      case "REMOVE_COLUMNS":
-        for (let col of cmd.columns) {
-          this.shiftBordersHorizontally(cmd.sheetId, col + 1, -1);
+      case "REMOVE_COLUMNS_ROWS":
+        for (let el of cmd.elements) {
+          if (cmd.dimension === "COL") {
+            this.shiftBordersHorizontally(cmd.sheetId, el + 1, -1);
+          } else {
+            this.shiftBordersVertically(cmd.sheetId, el + 1, -1);
+          }
         }
         break;
-      case "REMOVE_ROWS":
-        for (let row of cmd.rows) {
-          this.shiftBordersVertically(cmd.sheetId, row + 1, -1);
+      case "ADD_COLUMNS_ROWS":
+        if (cmd.dimension === "COL") {
+          this.handleAddColumns(cmd);
+        } else {
+          this.handleAddRows(cmd);
         }
-        break;
-      case "ADD_COLUMNS":
-        this.handleAddColumns(cmd);
-        break;
-      case "ADD_ROWS":
-        this.handleAddRows(cmd);
         break;
     }
   }
@@ -75,23 +74,23 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    * Move borders according to the inserted columns.
    * Ensure borders continuity.
    */
-  private handleAddColumns(cmd: AddColumnsCommand) {
+  private handleAddColumns(cmd: AddColumnsRowsCommand) {
     // The new columns have already been inserted in the sheet at this point.
     const sheet = this.getters.getSheet(cmd.sheetId);
     let colLeftOfInsertion: number;
     let colRightOfInsertion: number;
     if (cmd.position === "before") {
-      this.shiftBordersHorizontally(cmd.sheetId, cmd.column, cmd.quantity, {
+      this.shiftBordersHorizontally(cmd.sheetId, cmd.base, cmd.quantity, {
         moveFirstLeftBorder: true,
       });
-      colLeftOfInsertion = cmd.column - 1;
-      colRightOfInsertion = cmd.column + cmd.quantity;
+      colLeftOfInsertion = cmd.base - 1;
+      colRightOfInsertion = cmd.base + cmd.quantity;
     } else {
-      this.shiftBordersHorizontally(cmd.sheetId, cmd.column + 1, cmd.quantity, {
+      this.shiftBordersHorizontally(cmd.sheetId, cmd.base + 1, cmd.quantity, {
         moveFirstLeftBorder: false,
       });
-      colLeftOfInsertion = cmd.column;
-      colRightOfInsertion = cmd.column + cmd.quantity + 1;
+      colLeftOfInsertion = cmd.base;
+      colRightOfInsertion = cmd.base + cmd.quantity + 1;
     }
     this.ensureColumnBorderContinuity(sheet, colLeftOfInsertion, colRightOfInsertion);
   }
@@ -100,21 +99,21 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    * Move borders according to the inserted rows.
    * Ensure borders continuity.
    */
-  private handleAddRows(cmd: AddRowsCommand) {
+  private handleAddRows(cmd: AddColumnsRowsCommand) {
     // The new rows have already been inserted at this point.
     const sheet = this.getters.getSheet(cmd.sheetId);
     let rowAboveInsertion: number;
     let rowBelowInsertion: number;
     if (cmd.position === "before") {
-      this.shiftBordersVertically(sheet.id, cmd.row, cmd.quantity, { moveFirstTopBorder: true });
-      rowAboveInsertion = cmd.row - 1;
-      rowBelowInsertion = cmd.row + cmd.quantity;
+      this.shiftBordersVertically(sheet.id, cmd.base, cmd.quantity, { moveFirstTopBorder: true });
+      rowAboveInsertion = cmd.base - 1;
+      rowBelowInsertion = cmd.base + cmd.quantity;
     } else {
-      this.shiftBordersVertically(sheet.id, cmd.row + 1, cmd.quantity, {
+      this.shiftBordersVertically(sheet.id, cmd.base + 1, cmd.quantity, {
         moveFirstTopBorder: false,
       });
-      rowAboveInsertion = cmd.row;
-      rowBelowInsertion = cmd.row + cmd.quantity + 1;
+      rowAboveInsertion = cmd.base;
+      rowBelowInsertion = cmd.base + cmd.quantity + 1;
     }
     this.ensureRowBorderContinuity(sheet, rowAboveInsertion, rowBelowInsertion);
   }

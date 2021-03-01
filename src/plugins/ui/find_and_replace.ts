@@ -86,10 +86,8 @@ export class FindAndReplacePlugin extends UIPlugin {
         break;
       case "UNDO":
       case "REDO":
-      case "REMOVE_COLUMNS":
-      case "REMOVE_ROWS":
-      case "ADD_COLUMNS":
-      case "ADD_ROWS":
+      case "REMOVE_COLUMNS_ROWS":
+      case "ADD_COLUMNS_ROWS":
         this.clearSearch();
         break;
       case "ACTIVATE_SHEET":

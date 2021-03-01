@@ -57,10 +57,11 @@ export function addColumns(
   quantity: number,
   sheetId: UID = model.getters.getActiveSheetId()
 ): CommandResult {
-  return model.dispatch("ADD_COLUMNS", {
+  return model.dispatch("ADD_COLUMNS_ROWS", {
     sheetId,
+    dimension: "COL",
     position,
-    column: lettersToNumber(column),
+    base: lettersToNumber(column),
     quantity,
   });
 }
@@ -73,9 +74,27 @@ export function deleteColumns(
   columns: string[],
   sheetId: UID = model.getters.getActiveSheetId()
 ): CommandResult {
-  return model.dispatch("REMOVE_COLUMNS", {
+  return model.dispatch("REMOVE_COLUMNS_ROWS", {
     sheetId,
-    columns: columns.map(lettersToNumber),
+    dimension: "COL",
+    elements: columns.map(lettersToNumber),
+  });
+}
+
+/**
+ * Resize columns
+ */
+export function resizeColumns(
+  model: Model,
+  columns: string[],
+  size: number,
+  sheetId: UID = model.getters.getActiveSheetId()
+): CommandResult {
+  return model.dispatch("RESIZE_COLUMNS_ROWS", {
+    dimension: "COL",
+    elements: columns.map(lettersToNumber),
+    sheetId,
+    size,
   });
 }
 
@@ -89,10 +108,11 @@ export function addRows(
   quantity: number,
   sheetId: UID = model.getters.getActiveSheetId()
 ): CommandResult {
-  return model.dispatch("ADD_ROWS", {
+  return model.dispatch("ADD_COLUMNS_ROWS", {
+    dimension: "ROW",
     sheetId,
     position,
-    row,
+    base: row,
     quantity,
   });
 }
@@ -105,9 +125,27 @@ export function deleteRows(
   rows: number[],
   sheetId: UID = model.getters.getActiveSheetId()
 ): CommandResult {
-  return model.dispatch("REMOVE_ROWS", {
+  return model.dispatch("REMOVE_COLUMNS_ROWS", {
     sheetId,
-    rows,
+    elements: rows,
+    dimension: "ROW",
+  });
+}
+
+/**
+ * Resize rows
+ */
+export function resizeRows(
+  model: Model,
+  rows: number[],
+  size: number,
+  sheetId: UID = model.getters.getActiveSheetId()
+): CommandResult {
+  return model.dispatch("RESIZE_COLUMNS_ROWS", {
+    dimension: "ROW",
+    elements: rows,
+    sheetId,
+    size,
   });
 }
 

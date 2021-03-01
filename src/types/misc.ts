@@ -186,6 +186,8 @@ export type ApplyRangeChangeResult =
   | { changeType: "NONE" };
 export type ApplyRangeChange = (range: Range) => ApplyRangeChangeResult;
 
+export type Dimension = "COL" | "ROW";
+
 export interface RangeProvider {
   adaptRanges: (applyChange: ApplyRangeChange, sheetId?: UID) => void;
 }

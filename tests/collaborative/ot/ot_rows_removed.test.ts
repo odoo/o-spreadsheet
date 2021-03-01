@@ -1,14 +1,14 @@
 import { transform } from "../../../src/collaborative/ot/ot";
 import { toZone } from "../../../src/helpers";
 import {
+  AddColumnsRowsCommand,
   AddMergeCommand,
-  AddRowsCommand,
   ClearCellCommand,
   ClearFormattingCommand,
   DeleteContentCommand,
+  RemoveColumnsRowsCommand,
   RemoveMergeCommand,
-  RemoveRowsCommand,
-  ResizeRowsCommand,
+  ResizeColumnsRowsCommand,
   SetBorderCommand,
   SetDecimalCommand,
   SetFormattingCommand,
@@ -16,11 +16,12 @@ import {
   UpdateCellPositionCommand,
 } from "../../../src/types";
 
-describe("OT with REMOVE_ROWS", () => {
+describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
   const sheetId = "Sheet1";
-  const removeRows: RemoveRowsCommand = {
-    type: "REMOVE_ROWS",
-    rows: [2, 5, 3],
+  const removeRows: RemoveColumnsRowsCommand = {
+    type: "REMOVE_COLUMNS_ROWS",
+    elements: [2, 5, 3],
+    dimension: "ROW",
     sheetId,
   };
 
@@ -142,111 +143,114 @@ describe("OT with REMOVE_ROWS", () => {
     }
   );
 
-  describe("OT with RemoveRows - Addrows", () => {
-    const toTransform: Omit<AddRowsCommand, "row"> = {
-      type: "ADD_ROWS",
+  describe("OT with RemoveRows - ADD_COLUMNS_ROWS with dimension ROW", () => {
+    const toTransform: Omit<AddColumnsRowsCommand, "base"> = {
+      type: "ADD_COLUMNS_ROWS",
+      dimension: "ROW",
       position: "after",
       quantity: 10,
       sheetId,
     };
 
     test("Add a removed rows", () => {
-      const command = { ...toTransform, row: 2 };
+      const command = { ...toTransform, base: 2 };
       const result = transform(command, removeRows);
       expect(result).toBeUndefined();
     });
 
     test("Add a row after the removed ones", () => {
-      const command = { ...toTransform, row: 10 };
+      const command = { ...toTransform, base: 10 };
       const result = transform(command, removeRows);
-      expect(result).toEqual({ ...command, row: 7 });
+      expect(result).toEqual({ ...command, base: 7 });
     });
 
     test("Add a row before the removed ones", () => {
-      const command = { ...toTransform, row: 0 };
+      const command = { ...toTransform, base: 0 };
       const result = transform(command, removeRows);
       expect(result).toEqual(command);
     });
 
     test("Add on another sheet", () => {
-      const command = { ...toTransform, row: 2, sheetId: "42" };
+      const command = { ...toTransform, base: 2, sheetId: "42" };
       const result = transform(command, removeRows);
       expect(result).toEqual(command);
     });
   });
 
   describe("OT with two remove rows", () => {
-    const toTransform: Omit<RemoveRowsCommand, "rows"> = {
-      type: "REMOVE_ROWS",
+    const toTransform: Omit<RemoveColumnsRowsCommand, "elements"> = {
+      type: "REMOVE_COLUMNS_ROWS",
+      dimension: "ROW",
       sheetId,
     };
 
     test("Remove a row which is in the removed rows", () => {
-      const command = { ...toTransform, rows: [2] };
+      const command = { ...toTransform, elements: [2] };
       const result = transform(command, removeRows);
       expect(result).toBeUndefined();
     });
 
     test("Remove rows with one in the removed rows", () => {
-      const command = { ...toTransform, rows: [0, 2] };
+      const command = { ...toTransform, elements: [0, 2] };
       const result = transform(command, removeRows);
-      expect(result).toEqual({ ...command, rows: [0] });
+      expect(result).toEqual({ ...command, elements: [0] });
     });
 
     test("Remove a column before removed rows", () => {
-      const command = { ...toTransform, rows: [0] };
+      const command = { ...toTransform, elements: [0] };
       const result = transform(command, removeRows);
       expect(result).toEqual(command);
     });
 
     test("Remove a column after removed rows", () => {
-      const command = { ...toTransform, rows: [8] };
+      const command = { ...toTransform, elements: [8] };
       const result = transform(command, removeRows);
-      expect(result).toEqual({ ...command, rows: [5] });
+      expect(result).toEqual({ ...command, elements: [5] });
     });
 
     test("Remove a column inside removed rows", () => {
-      const command = { ...toTransform, rows: [4] };
+      const command = { ...toTransform, elements: [4] };
       const result = transform(command, removeRows);
-      expect(result).toEqual({ ...command, rows: [2] });
+      expect(result).toEqual({ ...command, elements: [2] });
     });
 
     test("Remove a column on another sheet", () => {
-      const command = { ...toTransform, rows: [4], sheetId: "42" };
+      const command = { ...toTransform, elements: [4], sheetId: "42" };
       const result = transform(command, removeRows);
       expect(result).toEqual(command);
     });
   });
 
-  const resizeRowsCommand: Omit<ResizeRowsCommand, "rows"> = {
-    type: "RESIZE_ROWS",
+  const resizeRowsCommand: Omit<ResizeColumnsRowsCommand, "elements"> = {
+    type: "RESIZE_COLUMNS_ROWS",
+    dimension: "ROW",
     sheetId,
     size: 10,
   };
 
   describe("Rows removed - Resize rows", () => {
     test("Resize rows which are positioned before the removed rows", () => {
-      const command = { ...resizeRowsCommand, rows: [0, 1] };
+      const command = { ...resizeRowsCommand, elements: [0, 1] };
       const result = transform(command, removeRows);
       expect(result).toEqual(command);
     });
 
     test("Resize rows which are positioned before AND after the removed rows", () => {
-      const command = { ...resizeRowsCommand, rows: [0, 10] };
+      const command = { ...resizeRowsCommand, elements: [0, 10] };
       const result = transform(command, removeRows);
-      expect(result).toEqual({ ...command, rows: [0, 7] });
+      expect(result).toEqual({ ...command, elements: [0, 7] });
     });
 
     test("Resize a row which is a deleted row", () => {
-      const command = { ...resizeRowsCommand, rows: [5] };
+      const command = { ...resizeRowsCommand, elements: [5] };
       const result = transform(command, removeRows);
       expect(result).toBeUndefined();
     });
 
     test("Resize rows one of which is a deleted row", () => {
-      const command = { ...resizeRowsCommand, rows: [0, 5] };
+      const command = { ...resizeRowsCommand, elements: [0, 5] };
       const result = transform(command, removeRows);
-      expect(result).toEqual({ ...command, rows: [0] });
+      expect(result).toEqual({ ...command, elements: [0] });
     });
   });
 

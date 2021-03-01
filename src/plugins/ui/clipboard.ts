@@ -418,8 +418,9 @@ export class ClipboardPlugin extends UIPlugin {
     const { cols, rows } = sheet;
     const missingRows = height + row - rows.length;
     if (missingRows > 0) {
-      this.dispatch("ADD_ROWS", {
-        row: rows.length - 1,
+      this.dispatch("ADD_COLUMNS_ROWS", {
+        dimension: "ROW",
+        base: rows.length - 1,
         sheetId: this.getters.getActiveSheetId(),
         quantity: missingRows,
         position: "after",
@@ -427,8 +428,9 @@ export class ClipboardPlugin extends UIPlugin {
     }
     const missingCols = width + col - cols.length;
     if (missingCols > 0) {
-      this.dispatch("ADD_COLUMNS", {
-        column: cols.length - 1,
+      this.dispatch("ADD_COLUMNS_ROWS", {
+        dimension: "COL",
+        base: cols.length - 1,
         sheetId: this.getters.getActiveSheetId(),
         quantity: missingCols,
         position: "after",

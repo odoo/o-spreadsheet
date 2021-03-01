@@ -1,98 +1,60 @@
 import { expandZoneOnInsertion } from "../../helpers";
 import { otRegistry } from "../../registries";
 import {
-  AddColumnsCommand,
+  AddColumnsRowsCommand,
   AddMergeCommand,
-  AddRowsCommand,
+  RemoveColumnsRowsCommand,
   RemoveMergeCommand,
+  ResizeColumnsRowsCommand,
   Zone,
 } from "../../types";
-import {
-  ColumnsCommand,
-  PositionalCommand,
-  RowsCommand,
-  TargetCommand,
-} from "../../types/collaborative/ot_types";
+import { PositionalCommand, TargetCommand } from "../../types/collaborative/ot_types";
 import { withSheetCheck } from "./ot_helpers";
 
 otRegistry.addTransformation(
-  "ADD_COLUMNS",
+  "ADD_COLUMNS_ROWS",
   ["UPDATE_CELL", "UPDATE_CELL_POSITION", "CLEAR_CELL", "SET_BORDER"],
   withSheetCheck(cellCommand)
 );
 
 otRegistry.addTransformation(
-  "ADD_ROWS",
-  ["UPDATE_CELL", "UPDATE_CELL_POSITION", "CLEAR_CELL", "SET_BORDER"],
-  withSheetCheck(cellCommand)
-);
-
-otRegistry.addTransformation(
-  "ADD_COLUMNS",
+  "ADD_COLUMNS_ROWS",
   ["DELETE_CONTENT", "SET_FORMATTING", "CLEAR_FORMATTING", "SET_DECIMAL"],
   withSheetCheck(targetCommand)
 );
 
 otRegistry.addTransformation(
-  "ADD_ROWS",
-  ["DELETE_CONTENT", "SET_FORMATTING", "CLEAR_FORMATTING", "SET_DECIMAL"],
-  withSheetCheck(targetCommand)
-);
-
-otRegistry.addTransformation(
-  "ADD_COLUMNS",
+  "ADD_COLUMNS_ROWS",
   ["ADD_MERGE", "REMOVE_MERGE"],
   withSheetCheck(mergeCommand)
 );
 
 otRegistry.addTransformation(
-  "ADD_ROWS",
-  ["ADD_MERGE", "REMOVE_MERGE"],
-  withSheetCheck(mergeCommand)
-);
-
-otRegistry.addTransformation("ADD_COLUMNS", ["ADD_COLUMNS"], withSheetCheck(addColumnsCommand));
-
-otRegistry.addTransformation("ADD_ROWS", ["ADD_ROWS"], withSheetCheck(addRowsCommand));
-
-otRegistry.addTransformation(
-  "ADD_COLUMNS",
-  ["RESIZE_COLUMNS", "REMOVE_COLUMNS"],
-  withSheetCheck(columnsCommand)
+  "ADD_COLUMNS_ROWS",
+  ["ADD_COLUMNS_ROWS"],
+  withSheetCheck(addColumnsRowCommand)
 );
 
 otRegistry.addTransformation(
-  "ADD_ROWS",
-  ["RESIZE_ROWS", "REMOVE_ROWS"],
-  withSheetCheck(rowsCommand)
+  "ADD_COLUMNS_ROWS",
+  ["RESIZE_COLUMNS_ROWS", "REMOVE_COLUMNS_ROWS"],
+  withSheetCheck(columnsRowCommand)
 );
 
 function cellCommand(
   toTransform: PositionalCommand,
-  executed: AddColumnsCommand | AddRowsCommand
+  executed: AddColumnsRowsCommand
 ): PositionalCommand {
-  let updated: number;
-  let pivot: number;
-  let element: "col" | "row";
-  if (executed.type === "ADD_COLUMNS") {
-    updated = toTransform.col;
-    pivot = executed.column;
-    element = "col";
-  } else {
-    updated = toTransform.row;
-    pivot = executed.row;
-    element = "row";
-  }
+  const pivot: number = executed.base;
+  const element: "col" | "row" = executed.dimension === "COL" ? "col" : "row";
+  const updated: number = toTransform[element];
   if (updated > pivot || (updated === pivot && executed.position === "before")) {
     return { ...toTransform, [element]: updated + executed.quantity };
   }
   return toTransform;
 }
 
-function targetCommand(
-  toTransform: TargetCommand,
-  executed: AddColumnsCommand | AddRowsCommand
-): TargetCommand {
+function targetCommand(toTransform: TargetCommand, executed: AddColumnsRowsCommand): TargetCommand {
   return {
     ...toTransform,
     target: toTransform.target.map((zone) => transformZone(zone, executed)),
@@ -101,72 +63,55 @@ function targetCommand(
 
 function mergeCommand(
   toTransform: AddMergeCommand | RemoveMergeCommand,
-  executed: AddColumnsCommand
+  executed: AddColumnsRowsCommand
 ): AddMergeCommand | RemoveMergeCommand {
   return { ...toTransform, zone: transformZone(toTransform.zone, executed) };
 }
 
-function transformZone(zone: Zone, executed: AddColumnsCommand | AddRowsCommand): Zone {
-  return executed.type === "ADD_COLUMNS"
-    ? expandZoneOnInsertion(zone, "left", executed.column, executed.position, executed.quantity)
-    : expandZoneOnInsertion(zone, "top", executed.row, executed.position, executed.quantity);
+function transformZone(zone: Zone, executed: AddColumnsRowsCommand): Zone {
+  const start = executed.dimension === "COL" ? "left" : "top";
+  return expandZoneOnInsertion(zone, start, executed.base, executed.position, executed.quantity);
 }
 
-function addColumnsCommand(
-  toTransform: AddColumnsCommand,
-  executed: AddColumnsCommand
-): AddColumnsCommand {
-  return {
-    ...toTransform,
-    column: onAddElement(toTransform.column, executed.column, executed.position, executed.quantity),
-  };
+function addColumnsRowCommand(
+  toTransform: AddColumnsRowsCommand,
+  executed: AddColumnsRowsCommand
+): AddColumnsRowsCommand | undefined {
+  if (toTransform.dimension === executed.dimension) {
+    return {
+      ...toTransform,
+      base: shiftCommandIfNeeded(
+        toTransform.base,
+        executed.base,
+        executed.position,
+        executed.quantity
+      ),
+    };
+  }
+  return undefined;
 }
 
-function addRowsCommand(toTransform: AddRowsCommand, executed: AddRowsCommand): AddRowsCommand {
-  return {
-    ...toTransform,
-    row: onAddElement(toTransform.row, executed.row, executed.position, executed.quantity),
-  };
+function columnsRowCommand(
+  toTransform: ResizeColumnsRowsCommand | RemoveColumnsRowsCommand,
+  executed: AddColumnsRowsCommand
+): ResizeColumnsRowsCommand | RemoveColumnsRowsCommand | undefined {
+  if (toTransform.dimension === executed.dimension) {
+    return {
+      ...toTransform,
+      elements: toTransform.elements.map((element: number) =>
+        shiftCommandIfNeeded(element, executed.base, executed.position, executed.quantity)
+      ),
+    };
+  }
+  return undefined;
 }
 
-function onAddElement(
-  toTransform: number,
+function shiftCommandIfNeeded(
   element: number,
+  base: number,
   position: "before" | "after",
   quantity: number
 ): number {
-  const base = position === "before" ? element - 1 : element;
-  if (base < toTransform) {
-    return toTransform + quantity;
-  }
-  return toTransform;
-}
-
-function columnsCommand(toTransform: ColumnsCommand, executed: AddColumnsCommand): ColumnsCommand {
-  return {
-    ...toTransform,
-    columns: onTransformCommand(
-      toTransform.columns,
-      executed.column,
-      executed.position,
-      executed.quantity
-    ),
-  };
-}
-
-function rowsCommand(toTransform: RowsCommand, executed: AddRowsCommand): RowsCommand {
-  return {
-    ...toTransform,
-    rows: onTransformCommand(toTransform.rows, executed.row, executed.position, executed.quantity),
-  };
-}
-
-function onTransformCommand(
-  elements: number[],
-  element: number,
-  position: "before" | "after",
-  quantity: number
-): number[] {
-  const base = position === "before" ? element - 1 : element;
-  return elements.map((el) => (el > base ? el + quantity : el));
+  const positionalBase = position === "before" ? base - 1 : base;
+  return element > positionalBase ? element + quantity : element;
 }

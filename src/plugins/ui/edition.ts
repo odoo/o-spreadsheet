@@ -10,16 +10,14 @@ import {
 import { Mode } from "../../model";
 import { _lt } from "../../translation";
 import {
-  AddColumnsCommand,
-  AddRowsCommand,
+  AddColumnsRowsCommand,
   CancelledReason,
   Cell,
   CellType,
   Command,
   CommandResult,
   LAYERS,
-  RemoveColumnsCommand,
-  RemoveRowsCommand,
+  RemoveColumnsRowsCommand,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
@@ -143,17 +141,15 @@ export class EditionPlugin extends UIPlugin {
           this.setActiveContent();
         }
         break;
-      case "ADD_COLUMNS":
-        this.onAddColumns(cmd);
+      case "ADD_COLUMNS_ROWS":
+        this.onAddElements(cmd);
         break;
-      case "ADD_ROWS":
-        this.onAddRows(cmd);
-        break;
-      case "REMOVE_COLUMNS":
-        this.onColumnsRemoved(cmd);
-        break;
-      case "REMOVE_ROWS":
-        this.onRowsRemoved(cmd);
+      case "REMOVE_COLUMNS_ROWS":
+        if (cmd.dimension === "COL") {
+          this.onColumnsRemoved(cmd);
+        } else {
+          this.onRowsRemoved(cmd);
+        }
         break;
       case "DELETE_SHEET":
         if (cmd.sheetId === this.sheet && this.mode !== "inactive") {
@@ -214,8 +210,8 @@ export class EditionPlugin extends UIPlugin {
   // Misc
   // ---------------------------------------------------------------------------
 
-  private onColumnsRemoved(cmd: RemoveColumnsCommand) {
-    if (cmd.columns.includes(this.col) && this.mode !== "inactive") {
+  private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
+    if (cmd.elements.includes(this.col) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
       this.ui.notifyUser(CELL_DELETED_MESSAGE);
       return;
@@ -223,14 +219,14 @@ export class EditionPlugin extends UIPlugin {
     const { top, left } = updateSelectionOnDeletion(
       { left: this.col, right: this.col, top: this.row, bottom: this.row },
       "left",
-      cmd.columns
+      cmd.elements
     );
     this.col = left;
     this.row = top;
   }
 
-  private onRowsRemoved(cmd: RemoveRowsCommand) {
-    if (cmd.rows.includes(this.row) && this.mode !== "inactive") {
+  private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
+    if (cmd.elements.includes(this.row) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
       this.ui.notifyUser(CELL_DELETED_MESSAGE);
       return;
@@ -238,29 +234,17 @@ export class EditionPlugin extends UIPlugin {
     const { top, left } = updateSelectionOnDeletion(
       { left: this.col, right: this.col, top: this.row, bottom: this.row },
       "top",
-      cmd.rows
+      cmd.elements
     );
     this.col = left;
     this.row = top;
   }
 
-  private onAddColumns(cmd: AddColumnsCommand) {
+  private onAddElements(cmd: AddColumnsRowsCommand) {
     const { top, left } = updateSelectionOnInsertion(
       { left: this.col, right: this.col, top: this.row, bottom: this.row },
-      "left",
-      cmd.column,
-      cmd.position,
-      cmd.quantity
-    );
-    this.col = left;
-    this.row = top;
-  }
-
-  private onAddRows(cmd: AddRowsCommand) {
-    const { top, left } = updateSelectionOnInsertion(
-      { left: this.col, right: this.col, top: this.row, bottom: this.row },
-      "top",
-      cmd.row,
+      cmd.dimension === "COL" ? "left" : "top",
+      cmd.base,
       cmd.position,
       cmd.quantity
     );

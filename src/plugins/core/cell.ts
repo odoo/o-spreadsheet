@@ -16,8 +16,7 @@ import {
 } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
-  AddColumnsCommand,
-  AddRowsCommand,
+  AddColumnsRowsCommand,
   ApplyRangeChange,
   Cell,
   CellData,
@@ -105,11 +104,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       case "CLEAR_FORMATTING":
         this.clearStyles(cmd.sheetId, cmd.target);
         break;
-      case "ADD_COLUMNS":
-        this.handleAddColumns(cmd);
-        break;
-      case "ADD_ROWS":
-        this.handleAddRows(cmd);
+      case "ADD_COLUMNS_ROWS":
+        if (cmd.dimension === "COL") {
+          this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
+        } else {
+          this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
+        }
         break;
       case "UPDATE_CELL":
         this.updateCell(this.getters.getSheet(cmd.sheetId), cmd.col, cmd.row, cmd);
@@ -312,38 +312,24 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   /**
-   * Copy the style of the reference column to the new columns.
+   * Copy the style of the reference column/row to the new columns/rows.
    */
-  private handleAddColumns(cmd: AddColumnsCommand) {
-    // The new columns have already been inserted in the sheet at this point.
+  private handleAddColumnsRows(
+    cmd: AddColumnsRowsCommand,
+    fn: (sheet: Sheet, styleRef: number, elements: number[]) => void
+  ) {
     const sheet = this.getters.getSheet(cmd.sheetId);
-    let insertedColumns: number[];
-    let styleColumn: number;
+    // The new elements have already been inserted in the sheet at this point.
+    let insertedElements: number[];
+    let styleReference: number;
     if (cmd.position === "before") {
-      insertedColumns = range(cmd.column, cmd.column + cmd.quantity);
-      styleColumn = cmd.column + cmd.quantity;
+      insertedElements = range(cmd.base, cmd.base + cmd.quantity);
+      styleReference = cmd.base + cmd.quantity;
     } else {
-      insertedColumns = range(cmd.column + 1, cmd.column + cmd.quantity + 1);
-      styleColumn = cmd.column;
+      insertedElements = range(cmd.base + 1, cmd.base + cmd.quantity + 1);
+      styleReference = cmd.base;
     }
-    this.copyColumnStyle(sheet, styleColumn, insertedColumns);
-  }
-
-  /**
-   * Copy the style of the reference row to the new rows.
-   */
-  private handleAddRows(cmd: AddRowsCommand) {
-    const sheet = this.getters.getSheet(cmd.sheetId);
-    let insertedRows: number[];
-    let styleRow: number;
-    if (cmd.position === "before") {
-      insertedRows = range(cmd.row, cmd.row + cmd.quantity);
-      styleRow = cmd.row + cmd.quantity;
-    } else {
-      styleRow = cmd.row;
-      insertedRows = range(cmd.row + 1, cmd.row + cmd.quantity + 1);
-    }
-    this.copyRowStyle(sheet, styleRow, insertedRows);
+    fn(sheet, styleReference, insertedElements);
   }
 
   // ---------------------------------------------------------------------------

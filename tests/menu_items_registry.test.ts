@@ -172,9 +172,10 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_ROW", { index: 5, updateRange: true });
       expect(getName(path, env)).toBe("Delete rows 5 - 6");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_ROWS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
-        rows: [4, 5],
+        dimension: "ROW",
+        elements: [4, 5],
       });
     });
 
@@ -188,9 +189,10 @@ describe("Menu Item actions", () => {
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("Delete rows 4 - 5");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_ROWS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
-        rows: [3, 4],
+        dimension: "ROW",
+        elements: [3, 4],
       });
     });
   });
@@ -202,9 +204,10 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_COLUMN", { index: 4, createRange: true });
       expect(getName(path, env)).toBe("Delete column E");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
-        columns: [4],
+        dimension: "COL",
+        elements: [4],
       });
     });
 
@@ -213,9 +216,10 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_COLUMN", { index: 5, updateRange: true });
       expect(getName(path, env)).toBe("Delete columns E - F");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
-        columns: [4, 5],
+        dimension: "COL",
+        elements: [4, 5],
       });
     });
 
@@ -223,9 +227,10 @@ describe("Menu Item actions", () => {
       selectCell(model, "D4");
       expect(getName(path, env)).toBe("Delete column D");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
-        columns: [3],
+        dimension: "COL",
+        elements: [3],
       });
     });
 
@@ -234,9 +239,10 @@ describe("Menu Item actions", () => {
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("Delete columns D - E");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
-        columns: [3, 4],
+        dimension: "COL",
+        elements: [3, 4],
       });
     });
   });
@@ -255,9 +261,10 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_ROW", { index: 5, updateRange: true });
       expect(getName(path, env)).toBe("2 Rows above");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_ROWS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
-        row: 4,
+        dimension: "ROW",
+        base: 4,
         quantity: 2,
         position: "before",
       });
@@ -280,9 +287,10 @@ describe("Menu Item actions", () => {
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("2 Rows above");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_ROWS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
-        row: 3,
+        dimension: "ROW",
+        base: 3,
         quantity: 2,
         position: "before",
       });
@@ -304,9 +312,10 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_ROW", { index: 5, updateRange: true });
       expect(getName(path, env)).toBe("2 Rows below");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_ROWS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
-        row: 5,
+        dimension: "ROW",
+        base: 5,
         quantity: 2,
         position: "after",
       });
@@ -329,9 +338,10 @@ describe("Menu Item actions", () => {
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("2 Rows below");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_ROWS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
-        row: 4,
+        dimension: "ROW",
+        base: 4,
         quantity: 2,
         position: "after",
       });
@@ -353,9 +363,10 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_COLUMN", { index: 5, updateRange: true });
       expect(getName(path, env)).toBe("2 Columns left");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
-        column: 4,
+        base: 4,
+        dimension: "COL",
         quantity: 2,
         position: "before",
       });
@@ -378,9 +389,10 @@ describe("Menu Item actions", () => {
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("2 Columns left");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
-        column: 3,
+        base: 3,
+        dimension: "COL",
         quantity: 2,
         position: "before",
       });
@@ -402,9 +414,10 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_COLUMN", { index: 5, updateRange: true });
       expect(getName(path, env)).toBe("2 Columns right");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
-        column: 5,
+        base: 5,
+        dimension: "COL",
         quantity: 2,
         position: "after",
       });
@@ -427,9 +440,10 @@ describe("Menu Item actions", () => {
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("2 Columns right");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS", {
+      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
-        column: 4,
+        base: 4,
+        dimension: "COL",
         quantity: 2,
         position: "after",
       });

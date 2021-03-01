@@ -92,10 +92,8 @@ export class EvaluationPlugin extends UIPlugin {
       case "RENAME_SHEET":
       case "DELETE_SHEET":
       case "CREATE_SHEET":
-      case "ADD_COLUMNS":
-      case "ADD_ROWS":
-      case "REMOVE_COLUMNS":
-      case "REMOVE_ROWS":
+      case "ADD_COLUMNS_ROWS":
+      case "REMOVE_COLUMNS_ROWS":
         this.isUpToDate.clear();
         break;
       case "UPDATE_CELL":

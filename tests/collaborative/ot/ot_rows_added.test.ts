@@ -1,14 +1,14 @@
 import { transform } from "../../../src/collaborative/ot/ot";
 import { toZone } from "../../../src/helpers";
 import {
+  AddColumnsRowsCommand,
   AddMergeCommand,
-  AddRowsCommand,
   ClearCellCommand,
   ClearFormattingCommand,
   DeleteContentCommand,
+  RemoveColumnsRowsCommand,
   RemoveMergeCommand,
-  RemoveRowsCommand,
-  ResizeRowsCommand,
+  ResizeColumnsRowsCommand,
   SetBorderCommand,
   SetDecimalCommand,
   SetFormattingCommand,
@@ -16,19 +16,21 @@ import {
   UpdateCellPositionCommand,
 } from "../../../src/types";
 
-describe("OT with ADD_ROWS", () => {
+describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
   const sheetId = "Sheet1";
-  const addRowsAfter: AddRowsCommand = {
-    type: "ADD_ROWS",
+  const addRowsAfter: AddColumnsRowsCommand = {
+    type: "ADD_COLUMNS_ROWS",
+    dimension: "ROW",
     position: "after",
-    row: 5,
+    base: 5,
     quantity: 2,
     sheetId,
   };
-  const addRowsBefore: AddRowsCommand = {
-    type: "ADD_ROWS",
+  const addRowsBefore: AddColumnsRowsCommand = {
+    type: "ADD_COLUMNS_ROWS",
+    dimension: "ROW",
     position: "before",
-    row: 10,
+    base: 10,
     quantity: 2,
     sheetId,
   };
@@ -57,7 +59,7 @@ describe("OT with ADD_ROWS", () => {
   };
 
   describe.each([updateCell, updateCellPosition, clearCell, setBorder])(
-    "OT with ADD_ROWS",
+    "OT with ADD_COLUMNS_ROW with dimension ROW",
     (cmd) => {
       test(`${cmd.type} before added rows`, () => {
         const command = { ...cmd, row: 1 };
@@ -140,44 +142,46 @@ describe("OT with ADD_ROWS", () => {
     }
   );
 
-  const resizeRowsCommand: Omit<ResizeRowsCommand, "rows"> = {
-    type: "RESIZE_ROWS",
+  const resizeRowsCommand: Omit<ResizeColumnsRowsCommand, "elements"> = {
+    type: "RESIZE_COLUMNS_ROWS",
+    dimension: "ROW",
     sheetId,
     size: 10,
   };
 
-  const removeRowsCommands: Omit<RemoveRowsCommand, "rows"> = {
-    type: "REMOVE_ROWS",
+  const removeRowsCommands: Omit<RemoveColumnsRowsCommand, "elements"> = {
+    type: "REMOVE_COLUMNS_ROWS",
+    dimension: "ROW",
     sheetId,
   };
 
   describe.each([resizeRowsCommand, removeRowsCommands])("delete or resize rows", (toTransform) => {
     test(`${toTransform.type} which are positioned before the added rows`, () => {
-      const command = { ...toTransform, rows: [1, 2] };
+      const command = { ...toTransform, elements: [1, 2] };
       const result = transform(command, addRowsAfter);
       expect(result).toEqual(command);
     });
 
     test(`${toTransform.type} which are positioned before AND after the added rows`, () => {
-      const command = { ...toTransform, rows: [1, 10] };
+      const command = { ...toTransform, elements: [1, 10] };
       const result = transform(command, addRowsAfter);
-      expect(result).toEqual({ ...command, rows: [1, 12] });
+      expect(result).toEqual({ ...command, elements: [1, 12] });
     });
 
     test(`${toTransform.type} which is the row on which the added command is triggered, with before position`, () => {
-      const command = { ...toTransform, rows: [10] };
+      const command = { ...toTransform, elements: [10] };
       const result = transform(command, addRowsBefore);
-      expect(result).toEqual({ ...command, rows: [12] });
+      expect(result).toEqual({ ...command, elements: [12] });
     });
 
     test(`${toTransform.type} which is the row on which the added command is triggered, with after position`, () => {
-      const command = { ...toTransform, rows: [5] };
+      const command = { ...toTransform, elements: [5] };
       const result = transform(command, addRowsAfter);
       expect(result).toEqual(command);
     });
 
     test(`${toTransform.type} in another sheet`, () => {
-      const command = { ...toTransform, rows: [1, 10], sheetId: "coucou" };
+      const command = { ...toTransform, elements: [1, 10], sheetId: "coucou" };
       const result = transform(command, addRowsAfter);
       expect(result).toEqual(command);
     });
@@ -214,19 +218,21 @@ describe("OT with ADD_ROWS", () => {
     });
   });
 
-  describe("ADD_ROWS & ADD_ROWS", () => {
+  describe("ADD_COLUMNS_ROWS with dimension ROW & ADD_COLUMNS_ROWS with dimension ROW", () => {
     test("same base row, one after, one before", () => {
-      const addRowsAfter: AddRowsCommand = {
-        type: "ADD_ROWS",
+      const addRowsAfter: AddColumnsRowsCommand = {
+        type: "ADD_COLUMNS_ROWS",
+        dimension: "ROW",
         position: "after",
-        row: 5,
+        base: 5,
         quantity: 2,
         sheetId,
       };
-      const addRowsBefore: AddRowsCommand = {
-        type: "ADD_ROWS",
+      const addRowsBefore: AddColumnsRowsCommand = {
+        type: "ADD_COLUMNS_ROWS",
+        dimension: "ROW",
         position: "before",
-        row: 5,
+        base: 5,
         quantity: 2,
         sheetId,
       };
@@ -234,44 +240,48 @@ describe("OT with ADD_ROWS", () => {
       expect(result).toEqual(addRowsBefore);
     });
     test("same base row, one before, one after", () => {
-      const addRowsAfter: AddRowsCommand = {
-        type: "ADD_ROWS",
+      const addRowsAfter: AddColumnsRowsCommand = {
+        type: "ADD_COLUMNS_ROWS",
+        dimension: "ROW",
         position: "after",
-        row: 5,
+        base: 5,
         quantity: 2,
         sheetId,
       };
-      const addRowsBefore: AddRowsCommand = {
-        type: "ADD_ROWS",
+      const addRowsBefore: AddColumnsRowsCommand = {
+        type: "ADD_COLUMNS_ROWS",
+        dimension: "ROW",
         position: "before",
-        row: 5,
+        base: 5,
         quantity: 2,
         sheetId,
       };
       const result = transform(addRowsAfter, addRowsBefore);
-      expect(result).toEqual({ ...addRowsAfter, row: 7 });
+      expect(result).toEqual({ ...addRowsAfter, base: 7 });
     });
     test("Base row before the one already added", () => {
-      const addRowsAfter: AddRowsCommand = {
-        type: "ADD_ROWS",
+      const addRowsAfter: AddColumnsRowsCommand = {
+        type: "ADD_COLUMNS_ROWS",
+        dimension: "ROW",
         position: "after",
-        row: 5,
+        base: 5,
         quantity: 2,
         sheetId,
       };
-      const result = transform({ ...addRowsAfter, row: 0 }, addRowsAfter);
-      expect(result).toEqual({ ...addRowsAfter, row: 0 });
+      const result = transform({ ...addRowsAfter, base: 0 }, addRowsAfter);
+      expect(result).toEqual({ ...addRowsAfter, base: 0 });
     });
     test("Base row after the one already added", () => {
-      const addRowsAfter: AddRowsCommand = {
-        type: "ADD_ROWS",
+      const addRowsAfter: AddColumnsRowsCommand = {
+        type: "ADD_COLUMNS_ROWS",
+        dimension: "ROW",
         position: "after",
-        row: 5,
+        base: 5,
         quantity: 2,
         sheetId,
       };
-      const result = transform({ ...addRowsAfter, row: 10 }, addRowsAfter);
-      expect(result).toEqual({ ...addRowsAfter, row: 12 });
+      const result = transform({ ...addRowsAfter, base: 10 }, addRowsAfter);
+      expect(result).toEqual({ ...addRowsAfter, base: 12 });
     });
     test("add a row on another sheet", () => {
       const command = { ...addRowsAfter, sheetId: "other" };

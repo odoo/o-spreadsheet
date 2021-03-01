@@ -1,10 +1,9 @@
 import { transform } from "../../../src/collaborative/ot/ot";
 import { toZone } from "../../../src/helpers";
 import {
-  AddColumnsCommand,
+  AddColumnsRowsCommand,
   AddConditionalFormatCommand,
   AddMergeCommand,
-  AddRowsCommand,
   ClearCellCommand,
   ClearFormattingCommand,
   CreateChartCommand,
@@ -14,13 +13,11 @@ import {
   DuplicateSheetCommand,
   Figure,
   MoveSheetCommand,
-  RemoveColumnsCommand,
+  RemoveColumnsRowsCommand,
   RemoveConditionalFormatCommand,
   RemoveMergeCommand,
-  RemoveRowsCommand,
   RenameSheetCommand,
-  ResizeColumnsCommand,
-  ResizeRowsCommand,
+  ResizeColumnsRowsCommand,
   SetBorderCommand,
   SetDecimalCommand,
   SetFormattingCommand,
@@ -46,23 +43,30 @@ describe("OT with DELETE_SHEET", () => {
     type: "DELETE_CONTENT",
     target: [toZone("A1")],
   };
-  const addColumns: Omit<AddColumnsCommand, "sheetId"> = {
-    type: "ADD_COLUMNS",
-    column: 0,
+  const addColumns: Omit<AddColumnsRowsCommand, "sheetId"> = {
+    type: "ADD_COLUMNS_ROWS",
+    dimension: "COL",
+    base: 0,
     position: "after",
     quantity: 1,
   };
-  const addRows: Omit<AddRowsCommand, "sheetId"> = {
-    type: "ADD_ROWS",
-    row: 1,
+  const addRows: Omit<AddColumnsRowsCommand, "sheetId"> = {
+    type: "ADD_COLUMNS_ROWS",
+    dimension: "ROW",
+    base: 1,
     position: "after",
     quantity: 1,
   };
-  const removeColumn: Omit<RemoveColumnsCommand, "sheetId"> = {
-    type: "REMOVE_COLUMNS",
-    columns: [0],
+  const removeColumn: Omit<RemoveColumnsRowsCommand, "sheetId"> = {
+    type: "REMOVE_COLUMNS_ROWS",
+    dimension: "COL",
+    elements: [0],
   };
-  const removeRows: Omit<RemoveRowsCommand, "sheetId"> = { type: "REMOVE_ROWS", rows: [0] };
+  const removeRows: Omit<RemoveColumnsRowsCommand, "sheetId"> = {
+    type: "REMOVE_COLUMNS_ROWS",
+    elements: [0],
+    dimension: "ROW",
+  };
   const addMerge: Omit<AddMergeCommand, "sheetId"> = { type: "ADD_MERGE", zone: toZone("A1:B1") };
   const removeMerge: Omit<RemoveMergeCommand, "sheetId"> = {
     type: "REMOVE_MERGE",
@@ -102,14 +106,16 @@ describe("OT with DELETE_SHEET", () => {
     id: "1",
     definition: {} as any,
   };
-  const resizeColumns: Omit<ResizeColumnsCommand, "sheetId"> = {
-    type: "RESIZE_COLUMNS",
-    columns: [1],
+  const resizeColumns: Omit<ResizeColumnsRowsCommand, "sheetId"> = {
+    type: "RESIZE_COLUMNS_ROWS",
+    dimension: "COL",
+    elements: [1],
     size: 10,
   };
-  const resizeRows: Omit<ResizeRowsCommand, "sheetId"> = {
-    type: "RESIZE_ROWS",
-    rows: [1],
+  const resizeRows: Omit<ResizeColumnsRowsCommand, "sheetId"> = {
+    type: "RESIZE_COLUMNS_ROWS",
+    dimension: "ROW",
+    elements: [1],
     size: 10,
   };
   const removeConditionalFormatting: Omit<RemoveConditionalFormatCommand, "sheetId"> = {

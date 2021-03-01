@@ -10,8 +10,7 @@ import {
 import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
 import {
-  AddColumnsCommand,
-  AddRowsCommand,
+  AddColumnsRowsCommand,
   CancelledReason,
   Cell,
   ClientPosition,
@@ -22,8 +21,7 @@ import {
   Getters,
   GridRenderingContext,
   LAYERS,
-  RemoveColumnsCommand,
-  RemoveRowsCommand,
+  RemoveColumnsRowsCommand,
   Sheet,
   Style,
   UID,
@@ -271,24 +269,18 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
         }
         this.updateSelection();
         break;
-      case "REMOVE_COLUMNS":
+      case "REMOVE_COLUMNS_ROWS":
         if (cmd.sheetId === this.getActiveSheetId()) {
-          this.onColumnsRemoved(cmd);
+          if (cmd.dimension === "COL") {
+            this.onColumnsRemoved(cmd);
+          } else {
+            this.onRowsRemoved(cmd);
+          }
         }
         break;
-      case "REMOVE_ROWS":
+      case "ADD_COLUMNS_ROWS":
         if (cmd.sheetId === this.getActiveSheetId()) {
-          this.onRowsRemoved(cmd);
-        }
-        break;
-      case "ADD_COLUMNS":
-        if (cmd.sheetId === this.getActiveSheetId()) {
-          this.onAddColumns(cmd);
-        }
-        break;
-      case "ADD_ROWS":
-        if (cmd.sheetId === this.getActiveSheetId()) {
-          this.onAddRows(cmd);
+          this.onAddElements(cmd);
         }
         break;
       case "UPDATE_CHART":
@@ -628,33 +620,27 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     this.setSelection([anchorCol, anchorRow], zones);
   }
 
-  private onColumnsRemoved(cmd: RemoveColumnsCommand) {
-    const zone = updateSelectionOnDeletion(this.getSelectedZone(), "left", cmd.columns);
+  private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
+    const zone = updateSelectionOnDeletion(this.getSelectedZone(), "left", cmd.elements);
     this.setSelection([zone.left, zone.top], [zone], true);
     this.updateSelection();
   }
 
-  private onRowsRemoved(cmd: RemoveRowsCommand) {
-    const zone = updateSelectionOnDeletion(this.getSelectedZone(), "top", cmd.rows);
+  private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
+    const zone = updateSelectionOnDeletion(this.getSelectedZone(), "top", cmd.elements);
     this.setSelection([zone.left, zone.top], [zone], true);
     this.updateSelection();
   }
 
-  private onAddColumns(cmd: AddColumnsCommand) {
+  private onAddElements(cmd: AddColumnsRowsCommand) {
     const selection = this.getSelectedZone();
     const zone = updateSelectionOnInsertion(
       selection,
-      "left",
-      cmd.column,
+      cmd.dimension === "COL" ? "left" : "top",
+      cmd.base,
       cmd.position,
       cmd.quantity
     );
-    this.setSelection([zone.left, zone.top], [zone], true);
-  }
-
-  private onAddRows(cmd: AddRowsCommand) {
-    const selection = this.getSelectedZone();
-    const zone = updateSelectionOnInsertion(selection, "top", cmd.row, cmd.position, cmd.quantity);
     this.setSelection([zone.left, zone.top], [zone], true);
   }
 
