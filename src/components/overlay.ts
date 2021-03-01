@@ -265,9 +265,10 @@ export class ColResizer extends AbstractResizer {
     const index = this.state.activeElement;
     const size = this.state.delta + this._getElement(index).size;
     const cols = this.getters.getActiveCols();
-    this.dispatch("RESIZE_COLUMNS", {
+    this.dispatch("RESIZE_COLUMNS_ROWS", {
+      dimension: "COL",
       sheetId: this.getters.getActiveSheetId(),
-      columns: cols.has(index) ? [...cols] : [index],
+      elements: cols.has(index) ? [...cols] : [index],
       size,
     });
   }
@@ -385,9 +386,10 @@ export class RowResizer extends AbstractResizer {
     const index = this.state.activeElement;
     const size = this.state.delta + this._getElement(index).size;
     const rows = this.getters.getActiveRows();
-    this.dispatch("RESIZE_ROWS", {
+    this.dispatch("RESIZE_COLUMNS_ROWS", {
+      dimension: "ROW",
       sheetId: this.getters.getActiveSheetId(),
-      rows: rows.has(index) ? [...rows] : [index],
+      elements: rows.has(index) ? [...rows] : [index],
       size,
     });
   }

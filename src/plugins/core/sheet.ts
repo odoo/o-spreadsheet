@@ -99,15 +99,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         return this.visibleSheets.length > 1
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughSheets };
-      case "REMOVE_COLUMNS":
-        return this.sheets[cmd.sheetId]!.cols.length > cmd.columns.length
+      case "REMOVE_COLUMNS_ROWS":
+        const sheet = this.getSheet(cmd.sheetId);
+        const length = cmd.dimension === "COL" ? sheet.cols.length : sheet.rows.length;
+        return length > cmd.elements.length
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughColumns };
-      case "REMOVE_ROWS":
-        return this.sheets[cmd.sheetId]!.rows.length > cmd.rows.length
-          ? { status: "SUCCESS" }
-          : { status: "CANCELLED", reason: CancelledReason.NotEnoughRows };
-
       default:
         return { status: "SUCCESS" };
     }
@@ -128,17 +125,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         );
         this.history.update("sheetIds", sheet.name, sheet.id);
         break;
-      case "RESIZE_COLUMNS":
-        for (let col of cmd.columns) {
-          this.setHeaderSize(this.sheets[cmd.sheetId]!, "cols", col, cmd.size);
+      case "RESIZE_COLUMNS_ROWS":
+        const dimension = cmd.dimension === "COL" ? "cols" : "rows";
+        for (let elt of cmd.elements) {
+          this.setHeaderSize(this.getSheet(cmd.sheetId), dimension, elt, cmd.size);
         }
         break;
-      case "RESIZE_ROWS":
-        for (let row of cmd.rows) {
-          this.setHeaderSize(this.sheets[cmd.sheetId]!, "rows", row, cmd.size);
-        }
-        break;
-
       case "MOVE_SHEET":
         this.moveSheet(cmd.sheetId, cmd.direction);
         break;
@@ -154,20 +146,20 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         this.deleteSheet(this.sheets[cmd.sheetId]!);
         break;
 
-      case "REMOVE_COLUMNS":
-        this.removeColumns(this.sheets[cmd.sheetId]!, cmd.columns);
+      case "REMOVE_COLUMNS_ROWS":
+        if (cmd.dimension === "COL") {
+          this.removeColumns(this.sheets[cmd.sheetId]!, cmd.elements);
+        } else {
+          this.removeRows(this.sheets[cmd.sheetId]!, cmd.elements);
+        }
         break;
-      case "REMOVE_ROWS":
-        this.removeRows(this.sheets[cmd.sheetId]!, cmd.rows);
+      case "ADD_COLUMNS_ROWS":
+        if (cmd.dimension === "COL") {
+          this.addColumns(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
+        } else {
+          this.addRows(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
+        }
         break;
-      case "ADD_COLUMNS": {
-        this.addColumns(this.sheets[cmd.sheetId]!, cmd.column, cmd.position, cmd.quantity);
-        break;
-      }
-      case "ADD_ROWS": {
-        this.addRows(this.sheets[cmd.sheetId]!, cmd.row, cmd.position, cmd.quantity);
-        break;
-      }
       case "UPDATE_CELL_POSITION":
         this.updateCellPosition(cmd);
         break;

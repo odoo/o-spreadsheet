@@ -1,9 +1,8 @@
 import { toZone } from "../../src/helpers";
 import { inverseCommand } from "../../src/helpers/inverse_commands";
 import {
-  AddColumnsCommand,
+  AddColumnsRowsCommand,
   AddMergeCommand,
-  AddRowsCommand,
   ClearCellCommand,
   ClearFormattingCommand,
   CoreCommand,
@@ -12,11 +11,9 @@ import {
   DeleteContentCommand,
   DeleteSheetCommand,
   DuplicateSheetCommand,
-  RemoveColumnsCommand,
+  RemoveColumnsRowsCommand,
   RemoveMergeCommand,
-  RemoveRowsCommand,
-  ResizeColumnsCommand,
-  ResizeRowsCommand,
+  ResizeColumnsRowsCommand,
   SetBorderCommand,
   SetDecimalCommand,
   SetFormattingCommand,
@@ -28,20 +25,22 @@ import {
 
 describe("Inverses commands", () => {
   describe("Add Columns", () => {
-    const addColumns: AddColumnsCommand = {
-      type: "ADD_COLUMNS",
+    const addColumns: AddColumnsRowsCommand = {
+      type: "ADD_COLUMNS_ROWS",
       position: "after",
+      dimension: "COL",
       quantity: 2,
-      column: 1,
+      base: 1,
       sheetId: "1",
     };
 
     test("Inverse with position = after", () => {
       expect(inverseCommand(addColumns)).toEqual([
         {
-          type: "REMOVE_COLUMNS",
+          type: "REMOVE_COLUMNS_ROWS",
           sheetId: "1",
-          columns: [2, 3],
+          elements: [2, 3],
+          dimension: "COL",
         },
       ]);
     });
@@ -49,34 +48,37 @@ describe("Inverses commands", () => {
     test("Inverse with position = before", () => {
       expect(inverseCommand({ ...addColumns, position: "before" })).toEqual([
         {
-          type: "REMOVE_COLUMNS",
+          type: "REMOVE_COLUMNS_ROWS",
           sheetId: "1",
-          columns: [1, 2],
+          elements: [1, 2],
+          dimension: "COL",
         },
       ]);
     });
   });
   describe("Add Rows", () => {
-    const addRows: AddRowsCommand = {
-      type: "ADD_ROWS",
+    const addRows: AddColumnsRowsCommand = {
+      type: "ADD_COLUMNS_ROWS",
+      dimension: "ROW",
       position: "after",
       quantity: 2,
-      row: 1,
+      base: 1,
       sheetId: "1",
     };
 
     test("Inverse with position = after", () => {
       expect(inverseCommand(addRows)).toEqual([
-        { type: "REMOVE_ROWS", sheetId: "1", rows: [2, 3] },
+        { type: "REMOVE_COLUMNS_ROWS", sheetId: "1", elements: [2, 3], dimension: "ROW" },
       ]);
     });
 
     test("Inverse with position = before", () => {
       expect(inverseCommand({ ...addRows, position: "before" })).toEqual([
         {
-          type: "REMOVE_ROWS",
+          type: "REMOVE_COLUMNS_ROWS",
           sheetId: "1",
-          rows: [1, 2],
+          elements: [1, 2],
+          dimension: "ROW",
         },
       ]);
     });
@@ -120,41 +122,99 @@ describe("Inverses commands", () => {
   });
 
   describe("Remove columns", () => {
-    const removeColumns: RemoveColumnsCommand = {
-      type: "REMOVE_COLUMNS",
-      columns: [0],
+    const removeColumns: RemoveColumnsRowsCommand = {
+      type: "REMOVE_COLUMNS_ROWS",
+      dimension: "COL",
+      elements: [0],
       sheetId: "42",
     };
     test("Inverse with column = 0", () => {
       expect(inverseCommand(removeColumns)).toEqual([
-        { type: "ADD_COLUMNS", position: "before", quantity: 1, column: 0, sheetId: "42" },
+        {
+          type: "ADD_COLUMNS_ROWS",
+          dimension: "COL",
+          position: "before",
+          quantity: 1,
+          base: 0,
+          sheetId: "42",
+        },
       ]);
     });
     test("Inverse with column > 0", () => {
-      expect(inverseCommand({ ...removeColumns, columns: [1, 2, 4, 5, 9] })).toEqual([
-        { type: "ADD_COLUMNS", position: "after", quantity: 2, column: 0, sheetId: "42" },
-        { type: "ADD_COLUMNS", position: "after", quantity: 2, column: 3, sheetId: "42" },
-        { type: "ADD_COLUMNS", position: "after", quantity: 1, column: 8, sheetId: "42" },
+      expect(inverseCommand({ ...removeColumns, elements: [1, 2, 4, 5, 9] })).toEqual([
+        {
+          type: "ADD_COLUMNS_ROWS",
+          dimension: "COL",
+          position: "after",
+          quantity: 2,
+          base: 0,
+          sheetId: "42",
+        },
+        {
+          type: "ADD_COLUMNS_ROWS",
+          dimension: "COL",
+          position: "after",
+          quantity: 2,
+          base: 3,
+          sheetId: "42",
+        },
+        {
+          type: "ADD_COLUMNS_ROWS",
+          dimension: "COL",
+          position: "after",
+          quantity: 1,
+          base: 8,
+          sheetId: "42",
+        },
       ]);
     });
   });
 
   describe("Remove rows", () => {
-    const removeRows: RemoveRowsCommand = {
-      type: "REMOVE_ROWS",
-      rows: [0],
+    const removeRows: RemoveColumnsRowsCommand = {
+      type: "REMOVE_COLUMNS_ROWS",
+      dimension: "ROW",
+      elements: [0],
       sheetId: "42",
     };
     test("Inverse with row = 0", () => {
       expect(inverseCommand(removeRows)).toEqual([
-        { type: "ADD_ROWS", position: "before", quantity: 1, row: 0, sheetId: "42" },
+        {
+          type: "ADD_COLUMNS_ROWS",
+          dimension: "ROW",
+          position: "before",
+          quantity: 1,
+          base: 0,
+          sheetId: "42",
+        },
       ]);
     });
     test("Inverse with row > 0", () => {
-      expect(inverseCommand({ ...removeRows, rows: [1, 2, 4, 5, 9] })).toEqual([
-        { type: "ADD_ROWS", position: "after", quantity: 2, row: 0, sheetId: "42" },
-        { type: "ADD_ROWS", position: "after", quantity: 2, row: 3, sheetId: "42" },
-        { type: "ADD_ROWS", position: "after", quantity: 1, row: 8, sheetId: "42" },
+      expect(inverseCommand({ ...removeRows, elements: [1, 2, 4, 5, 9] })).toEqual([
+        {
+          type: "ADD_COLUMNS_ROWS",
+          dimension: "ROW",
+          position: "after",
+          quantity: 2,
+          base: 0,
+          sheetId: "42",
+        },
+        {
+          type: "ADD_COLUMNS_ROWS",
+          dimension: "ROW",
+          position: "after",
+          quantity: 2,
+          base: 3,
+          sheetId: "42",
+        },
+        {
+          type: "ADD_COLUMNS_ROWS",
+          dimension: "ROW",
+          position: "after",
+          quantity: 1,
+          base: 8,
+          sheetId: "42",
+        },
       ]);
     });
   });
@@ -195,15 +255,17 @@ describe("Inverses commands", () => {
       sheetId: "1",
       target: [toZone("A1")],
     };
-    const resizeColumns: ResizeColumnsCommand = {
-      type: "RESIZE_COLUMNS",
-      columns: [0],
+    const resizeColumns: ResizeColumnsRowsCommand = {
+      type: "RESIZE_COLUMNS_ROWS",
+      dimension: "COL",
+      elements: [0],
       size: 10,
       sheetId: "1",
     };
-    const resizeRows: ResizeRowsCommand = {
-      type: "RESIZE_ROWS",
-      rows: [0],
+    const resizeRows: ResizeColumnsRowsCommand = {
+      type: "RESIZE_COLUMNS_ROWS",
+      dimension: "ROW",
+      elements: [0],
       size: 10,
       sheetId: "1",
     };

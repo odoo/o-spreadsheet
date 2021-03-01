@@ -4,7 +4,7 @@ import { CURRENT_VERSION } from "../../src/data";
 import { Model } from "../../src/model";
 import { corePluginRegistry } from "../../src/plugins";
 import { BorderDescr, WorkbookData } from "../../src/types/index";
-import { activateSheet } from "../test_helpers/commands_helpers";
+import { activateSheet, resizeColumns, resizeRows } from "../test_helpers/commands_helpers";
 import { getMerges } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers";
 import { mockUuidV4To, toPosition } from "../test_helpers/helpers";
@@ -225,11 +225,7 @@ describe("Export", () => {
         },
       ],
     });
-    model.dispatch("RESIZE_COLUMNS", {
-      sheetId: model.getters.getActiveSheetId(),
-      columns: [1],
-      size: 150,
-    });
+    resizeColumns(model, ["B"], 150);
     const exp = model.exportData();
     expect(exp.sheets![0].cols![1].size).toBe(150);
   });
@@ -243,11 +239,7 @@ describe("Export", () => {
         },
       ],
     });
-    model.dispatch("RESIZE_ROWS", {
-      sheetId: model.getters.getActiveSheetId(),
-      rows: [1],
-      size: 150,
-    });
+    resizeRows(model, [1], 150);
     const exp = model.exportData();
     expect(exp.sheets![0].rows![1].size).toBe(150);
   });

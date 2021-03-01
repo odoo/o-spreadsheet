@@ -5,6 +5,8 @@ import {
   activateSheet,
   createSheet,
   redo,
+  resizeColumns,
+  resizeRows,
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
@@ -709,8 +711,8 @@ describe("sheets", () => {
     const sheet = model.getters.getActiveSheetId();
     model.dispatch("DUPLICATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: uuidv4(), name: "dup" });
     expect(model.getters.getSheets()).toHaveLength(2);
-    model.dispatch("RESIZE_COLUMNS", { columns: [0], size: 1, sheetId: sheet });
-    model.dispatch("RESIZE_ROWS", { rows: [0], size: 1, sheetId: sheet });
+    resizeColumns(model, ["A"], 1);
+    resizeRows(model, [0], 1);
     const newSheet = model.getters.getSheets()[1].id;
     activateSheet(model, newSheet);
     expect(model.getters.getCol(model.getters.getActiveSheetId(), 0)!.size).not.toBe(1);

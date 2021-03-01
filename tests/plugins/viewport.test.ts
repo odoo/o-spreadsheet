@@ -4,14 +4,18 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "../../src/constants";
-import { toXC } from "../../src/helpers";
+import { numberToLetters, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
   activateSheet,
   addColumns,
   addRows,
   createModelWithViewport,
+  deleteColumns,
+  deleteRows,
   redo,
+  resizeColumns,
+  resizeRows,
   selectCell,
   undo,
 } from "../test_helpers/commands_helpers";
@@ -243,17 +247,17 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Resize (increase) columns correctly affects viewport without changing the offset", () => {
-    const { cols, id: sheetId } = model.getters.getActiveSheet();
+    const { cols } = model.getters.getActiveSheet();
     model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: DEFAULT_CELL_WIDTH * 2,
       offsetY: 0,
     });
     const { offsetX } = model.getters.getActiveViewport();
-    model.dispatch("RESIZE_COLUMNS", {
-      sheetId: sheetId,
-      size: DEFAULT_CELL_WIDTH * 2,
-      columns: [...Array(cols.length).keys()],
-    });
+    resizeColumns(
+      model,
+      [...Array(cols.length).keys()].map(numberToLetters),
+      DEFAULT_CELL_WIDTH * 2
+    );
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 42,
@@ -268,16 +272,16 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Resize (reduce) columns correctly changes offset", () => {
-    const { cols, id: sheetId } = model.getters.getActiveSheet();
+    const { cols } = model.getters.getActiveSheet();
     //scroll max
     selectCell(model, "Z1");
     model.dispatch("SELECT_ALL");
 
-    model.dispatch("RESIZE_COLUMNS", {
-      sheetId: sheetId,
-      size: DEFAULT_CELL_WIDTH / 2,
-      columns: [...Array(cols.length).keys()],
-    });
+    resizeColumns(
+      model,
+      [...Array(cols.length).keys()].map(numberToLetters),
+      DEFAULT_CELL_WIDTH / 2
+    );
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 42,
@@ -295,17 +299,13 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Resize rows correctly affects viewport without changing the offset", () => {
-    const { rows, id: sheetId } = model.getters.getActiveSheet();
+    const { rows } = model.getters.getActiveSheet();
     model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
       offsetY: DEFAULT_CELL_HEIGHT * 2,
     });
     const { offsetY } = model.getters.getActiveViewport();
-    model.dispatch("RESIZE_ROWS", {
-      sheetId: sheetId,
-      size: DEFAULT_CELL_HEIGHT * 2,
-      rows: [...Array(rows.length).keys()],
-    });
+    resizeRows(model, [...Array(rows.length).keys()], DEFAULT_CELL_HEIGHT * 2);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 1,
       bottom: 22,
@@ -320,7 +320,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Resize (reduce) rows correctly changes offset", () => {
-    const { rows, id: sheetId } = model.getters.getActiveSheet();
+    const { rows } = model.getters.getActiveSheet();
     //scroll max
     selectCell(model, "A100");
     model.dispatch("SELECT_ALL");
@@ -330,11 +330,7 @@ describe("Viewport of Simple sheet", () => {
       left: 0,
       right: 9,
     });
-    model.dispatch("RESIZE_ROWS", {
-      sheetId: sheetId,
-      size: DEFAULT_CELL_HEIGHT / 2,
-      rows: [...Array(rows.length).keys()],
-    });
+    resizeRows(model, [...Array(rows.length).keys()], DEFAULT_CELL_HEIGHT / 2);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 17,
       bottom: 99,
@@ -465,11 +461,7 @@ describe("Viewport of Simple sheet", () => {
 
   test("Move position on cells that are taller than the client's height", () => {
     const { height } = model.getters.getViewportDimension();
-    model.dispatch("RESIZE_ROWS", {
-      sheetId: model.getters.getActiveSheetId(),
-      size: height + 50,
-      rows: [1],
-    });
+    resizeRows(model, [1], height + 50);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 1,
@@ -493,11 +485,7 @@ describe("Viewport of Simple sheet", () => {
   });
   test("Move position on cells wider than the client's width", () => {
     const { width } = model.getters.getViewportDimension();
-    model.dispatch("RESIZE_COLUMNS", {
-      sheetId: model.getters.getActiveSheetId(),
-      size: width + 50,
-      columns: [1],
-    });
+    resizeColumns(model, ["B"], width + 50);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 42,
@@ -629,7 +617,7 @@ describe("multi sheet with different sizes", () => {
   test("deleting the column that has the active cell doesn't crash", () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("small");
     selectCell(model, "B2");
-    model.dispatch("REMOVE_COLUMNS", { columns: [1], sheetId: model.getters.getActiveSheetId() });
+    deleteColumns(model, ["B"]);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 1,
@@ -642,7 +630,7 @@ describe("multi sheet with different sizes", () => {
   test("deleting the row that has the active cell doesn't crash", () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("small");
     selectCell(model, "B2");
-    model.dispatch("REMOVE_ROWS", { rows: [1], sheetId: model.getters.getActiveSheetId() });
+    deleteRows(model, [1]);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 0,

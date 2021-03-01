@@ -1,14 +1,14 @@
 import { transform } from "../../../src/collaborative/ot/ot";
 import { toZone } from "../../../src/helpers/zones";
 import {
-  AddColumnsCommand,
+  AddColumnsRowsCommand,
   AddMergeCommand,
   ClearCellCommand,
   ClearFormattingCommand,
   DeleteContentCommand,
-  RemoveColumnsCommand,
+  RemoveColumnsRowsCommand,
   RemoveMergeCommand,
-  ResizeColumnsCommand,
+  ResizeColumnsRowsCommand,
   SetBorderCommand,
   SetDecimalCommand,
   SetFormattingCommand,
@@ -16,19 +16,21 @@ import {
   UpdateCellPositionCommand,
 } from "../../../src/types";
 
-describe("OT with ADD_COLUMNS", () => {
+describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
   const sheetId = "Sheet1";
-  const addColumnsAfter: AddColumnsCommand = {
-    type: "ADD_COLUMNS",
+  const addColumnsAfter: AddColumnsRowsCommand = {
+    type: "ADD_COLUMNS_ROWS",
+    dimension: "COL",
     position: "after",
-    column: 5,
+    base: 5,
     quantity: 2,
     sheetId,
   };
-  const addColumnsBefore: AddColumnsCommand = {
-    type: "ADD_COLUMNS",
+  const addColumnsBefore: AddColumnsRowsCommand = {
+    type: "ADD_COLUMNS_ROWS",
+    dimension: "COL",
     position: "before",
-    column: 10,
+    base: 10,
     quantity: 2,
     sheetId,
   };
@@ -57,7 +59,7 @@ describe("OT with ADD_COLUMNS", () => {
   };
 
   describe.each([updateCell, updateCellPosition, clearCell, setBorder])(
-    "OT with ADD_COLUMNS",
+    "OT with ADD_COLUMNS_ROWS with dimension COL",
     (cmd) => {
       test(`${cmd.type} before added columns`, () => {
         const command = { ...cmd, col: 1 };
@@ -170,62 +172,66 @@ describe("OT with ADD_COLUMNS", () => {
     });
   });
 
-  const resizeColumnsCommand: Omit<ResizeColumnsCommand, "columns"> = {
-    type: "RESIZE_COLUMNS",
+  const resizeColumnsCommand: Omit<ResizeColumnsRowsCommand, "elements"> = {
+    type: "RESIZE_COLUMNS_ROWS",
+    dimension: "COL",
     sheetId,
     size: 10,
   };
 
-  const removeColumnsCommand: Omit<RemoveColumnsCommand, "columns"> = {
-    type: "REMOVE_COLUMNS",
+  const removeColumnsCommand: Omit<RemoveColumnsRowsCommand, "elements"> = {
+    type: "REMOVE_COLUMNS_ROWS",
+    dimension: "COL",
     sheetId,
   };
 
   describe.each([resizeColumnsCommand, removeColumnsCommand])("delete or resize columns", (cmd) => {
     test(`${cmd.type} which are positioned before the added columns`, () => {
-      const command = { ...cmd, columns: [1, 2] };
+      const command = { ...cmd, elements: [1, 2] };
       const result = transform(command, addColumnsAfter);
       expect(result).toEqual(command);
     });
 
     test(`${cmd.type} which are positioned before AND after the add columns`, () => {
-      const command = { ...cmd, columns: [1, 10] };
+      const command = { ...cmd, elements: [1, 10] };
       const result = transform(command, addColumnsAfter);
-      expect(result).toEqual({ ...command, columns: [1, 12] });
+      expect(result).toEqual({ ...command, elements: [1, 12] });
     });
 
     test(`${cmd.type} which is the column on which the added command is triggered, with before position`, () => {
-      const command = { ...cmd, columns: [10] };
+      const command = { ...cmd, elements: [10] };
       const result = transform(command, addColumnsBefore);
-      expect(result).toEqual({ ...command, columns: [12] });
+      expect(result).toEqual({ ...command, elements: [12] });
     });
 
     test(`${cmd.type} which is the column on which the added command is triggered, with after position`, () => {
-      const command = { ...cmd, columns: [5] };
+      const command = { ...cmd, elements: [5] };
       const result = transform(command, addColumnsAfter);
       expect(result).toEqual(command);
     });
 
     test(`${cmd.type} in another sheet`, () => {
-      const command = { ...cmd, columns: [1, 10], sheetId: "coucou" };
+      const command = { ...cmd, elements: [1, 10], sheetId: "coucou" };
       const result = transform(command, addColumnsAfter);
       expect(result).toEqual(command);
     });
   });
 
-  describe("ADD_COLUMNS & ADD_COLUMNS", () => {
+  describe("ADD_COLUMNS_ROWS with dimension COL & ADD_COLUMNS_ROWS with dimension COL", () => {
     test("same base col, one after, one before", () => {
-      const addColumnsAfter: AddColumnsCommand = {
-        type: "ADD_COLUMNS",
+      const addColumnsAfter: AddColumnsRowsCommand = {
+        type: "ADD_COLUMNS_ROWS",
+        dimension: "COL",
         position: "after",
-        column: 5,
+        base: 5,
         quantity: 2,
         sheetId,
       };
-      const addColumnsBefore: AddColumnsCommand = {
-        type: "ADD_COLUMNS",
+      const addColumnsBefore: AddColumnsRowsCommand = {
+        type: "ADD_COLUMNS_ROWS",
+        dimension: "COL",
         position: "before",
-        column: 5,
+        base: 5,
         quantity: 2,
         sheetId,
       };
@@ -233,44 +239,48 @@ describe("OT with ADD_COLUMNS", () => {
       expect(result).toEqual(addColumnsBefore);
     });
     test("same base col, one before, one after", () => {
-      const addColumnsAfter: AddColumnsCommand = {
-        type: "ADD_COLUMNS",
+      const addColumnsAfter: AddColumnsRowsCommand = {
+        type: "ADD_COLUMNS_ROWS",
+        dimension: "COL",
         position: "after",
-        column: 5,
+        base: 5,
         quantity: 2,
         sheetId,
       };
-      const addColumnsBefore: AddColumnsCommand = {
-        type: "ADD_COLUMNS",
+      const addColumnsBefore: AddColumnsRowsCommand = {
+        type: "ADD_COLUMNS_ROWS",
+        dimension: "COL",
         position: "before",
-        column: 5,
+        base: 5,
         quantity: 2,
         sheetId,
       };
       const result = transform(addColumnsAfter, addColumnsBefore);
-      expect(result).toEqual({ ...addColumnsAfter, column: 7 });
+      expect(result).toEqual({ ...addColumnsAfter, base: 7 });
     });
     test("Base col before the one already added", () => {
-      const addColumnsAfter: AddColumnsCommand = {
-        type: "ADD_COLUMNS",
+      const addColumnsAfter: AddColumnsRowsCommand = {
+        type: "ADD_COLUMNS_ROWS",
+        dimension: "COL",
         position: "after",
-        column: 5,
+        base: 5,
         quantity: 2,
         sheetId,
       };
-      const result = transform({ ...addColumnsAfter, column: 0 }, addColumnsAfter);
-      expect(result).toEqual({ ...addColumnsAfter, column: 0 });
+      const result = transform({ ...addColumnsAfter, base: 0 }, addColumnsAfter);
+      expect(result).toEqual({ ...addColumnsAfter, base: 0 });
     });
     test("Base col after the one already added", () => {
-      const addColumnsAfter: AddColumnsCommand = {
-        type: "ADD_COLUMNS",
+      const addColumnsAfter: AddColumnsRowsCommand = {
+        type: "ADD_COLUMNS_ROWS",
+        dimension: "COL",
         position: "after",
-        column: 5,
+        base: 5,
         quantity: 2,
         sheetId,
       };
-      const result = transform({ ...addColumnsAfter, column: 10 }, addColumnsAfter);
-      expect(result).toEqual({ ...addColumnsAfter, column: 12 });
+      const result = transform({ ...addColumnsAfter, base: 10 }, addColumnsAfter);
+      expect(result).toEqual({ ...addColumnsAfter, base: 12 });
     });
     test("add a column On another sheet", () => {
       const command = { ...addColumnsAfter, sheetId: "other" };

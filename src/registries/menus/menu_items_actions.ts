@@ -184,9 +184,10 @@ export const REMOVE_ROWS_ACTION = (env: SpreadsheetEnv) => {
       rows.push(i);
     }
   }
-  env.dispatch("REMOVE_ROWS", {
+  env.dispatch("REMOVE_COLUMNS_ROWS", {
     sheetId: env.getters.getActiveSheetId(),
-    rows,
+    dimension: "ROW",
+    elements: rows,
   });
 };
 
@@ -216,9 +217,10 @@ export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
       columns.push(i);
     }
   }
-  env.dispatch("REMOVE_COLUMNS", {
+  env.dispatch("REMOVE_COLUMNS_ROWS", {
     sheetId: env.getters.getActiveSheetId(),
-    columns,
+    dimension: "COL",
+    elements: columns,
   });
 };
 
@@ -255,11 +257,12 @@ export const INSERT_ROWS_BEFORE_ACTION = (env: SpreadsheetEnv) => {
     row = zone.top;
     quantity = zone.bottom - zone.top + 1;
   }
-  env.dispatch("ADD_ROWS", {
+  env.dispatch("ADD_COLUMNS_ROWS", {
     sheetId: env.getters.getActiveSheetId(),
     position: "before",
-    row,
+    base: row,
     quantity,
+    dimension: "ROW",
   });
 };
 
@@ -288,11 +291,12 @@ export const INSERT_ROWS_AFTER_ACTION = (env: SpreadsheetEnv) => {
     row = zone.bottom;
     quantity = zone.bottom - zone.top + 1;
   }
-  env.dispatch("ADD_ROWS", {
+  env.dispatch("ADD_COLUMNS_ROWS", {
     sheetId: env.getters.getActiveSheetId(),
     position: "after",
-    row,
+    base: row,
     quantity,
+    dimension: "ROW",
   });
 };
 
@@ -331,10 +335,11 @@ export const INSERT_COLUMNS_BEFORE_ACTION = (env: SpreadsheetEnv) => {
     column = zone.left;
     quantity = zone.right - zone.left + 1;
   }
-  env.dispatch("ADD_COLUMNS", {
+  env.dispatch("ADD_COLUMNS_ROWS", {
     sheetId: env.getters.getActiveSheetId(),
     position: "before",
-    column,
+    dimension: "COL",
+    base: column,
     quantity,
   });
 };
@@ -366,10 +371,11 @@ export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetEnv) => {
     column = zone.right;
     quantity = zone.right - zone.left + 1;
   }
-  env.dispatch("ADD_COLUMNS", {
+  env.dispatch("ADD_COLUMNS_ROWS", {
     sheetId: env.getters.getActiveSheetId(),
     position: "after",
-    column,
+    dimension: "COL",
+    base: column,
     quantity,
   });
 };

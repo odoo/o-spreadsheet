@@ -5,6 +5,8 @@ import {
   activateSheet,
   createSheet,
   redo,
+  resizeColumns,
+  resizeRows,
   selectCell,
   setCellContent,
   undo,
@@ -264,8 +266,8 @@ describe("core", () => {
     const model = new Model();
     createSheet(model, { sheetId: "42" });
     const [, sheet2] = model.getters.getSheets();
-    model.dispatch("RESIZE_ROWS", { sheetId: sheet2.id, rows: [0], size: 24 });
-    model.dispatch("RESIZE_COLUMNS", { sheetId: sheet2.id, columns: [0], size: 42 });
+    resizeRows(model, [0], 24, sheet2.id);
+    resizeColumns(model, ["A"], 42, sheet2.id);
     expect(sheet2.id).not.toBe(model.getters.getActiveSheetId());
     expect(model.getters.getRow(sheet2.id, 0)).toEqual({
       cells: {},

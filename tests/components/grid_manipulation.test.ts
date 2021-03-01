@@ -93,8 +93,9 @@ describe("Context Menu add/remove row/col", () => {
 
     parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     simulateClick(".o-menu div[data-name='delete_column']");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_COLUMNS", {
-      columns: [3],
+    expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_COLUMNS_ROWS", {
+      elements: [3],
+      dimension: "COL",
       sheetId: model.getters.getActiveSheetId(),
     });
   });
@@ -104,8 +105,9 @@ describe("Context Menu add/remove row/col", () => {
     await nextTick();
     parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     simulateClick(".o-menu div[data-name='delete_row']");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_ROWS", {
-      rows: [4],
+    expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_COLUMNS_ROWS", {
+      elements: [4],
+      dimension: "ROW",
       sheetId: model.getters.getActiveSheetId(),
     });
   });
@@ -115,9 +117,10 @@ describe("Context Menu add/remove row/col", () => {
     await nextTick();
     parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     simulateClick(".o-menu div[data-name='add_column_before']");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_COLUMNS", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_COLUMNS_ROWS", {
       position: "before",
-      column: 3,
+      dimension: "COL",
+      base: 3,
       quantity: 1,
       sheetId: model.getters.getActiveSheetId(),
     });
@@ -128,9 +131,10 @@ describe("Context Menu add/remove row/col", () => {
     await nextTick();
     parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     simulateClick(".o-menu div[data-name='add_row_before']");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_ROWS", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_COLUMNS_ROWS", {
       position: "before",
-      row: 4,
+      base: 4,
+      dimension: "ROW",
       quantity: 1,
       sheetId: model.getters.getActiveSheetId(),
     });
@@ -141,9 +145,10 @@ describe("Context Menu add/remove row/col", () => {
     await nextTick();
     parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     simulateClick(".o-menu div[data-name='add_column_after']");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_COLUMNS", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_COLUMNS_ROWS", {
       position: "after",
-      column: 3,
+      dimension: "COL",
+      base: 3,
       quantity: 1,
       sheetId: model.getters.getActiveSheetId(),
     });
@@ -154,9 +159,10 @@ describe("Context Menu add/remove row/col", () => {
     await nextTick();
     parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     simulateClick(".o-menu div[data-name='add_row_after']");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_ROWS", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_COLUMNS_ROWS", {
       position: "after",
-      row: 4,
+      base: 4,
+      dimension: "ROW",
       quantity: 1,
       sheetId: model.getters.getActiveSheetId(),
     });

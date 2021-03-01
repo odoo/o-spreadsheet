@@ -317,7 +317,7 @@ describe("Grid manipulation", () => {
     model = new Model();
   });
 
-  test("ADD_COLUMNS before with external borders", () => {
+  test("ADD_COLUMNS_ROWS with dimension col before with external borders", () => {
     setBorder(model, "external", "B2");
     addColumns(model, "before", "B", 1);
     expect(getBorder(model, "B2")).toEqual({ right: b });
@@ -325,7 +325,7 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "D2")).toEqual({ left: b });
   });
 
-  test.skip("[ok] ADD_COLUMNS before with external borders in the column before", () => {
+  test.skip("[ok] ADD_COLUMNS_ROWS with dimension col before with external borders in the column before", () => {
     setBorder(model, "external", "B2");
     addColumns(model, "before", "C", 1);
     expect(getBorder(model, "A2")).toEqual({ right: b });
@@ -334,7 +334,7 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "D2")).toBeNull();
   });
 
-  test("ADD_COLUMNS before with external borders in the column before", () => {
+  test("ADD_COLUMNS_ROWS with dimension col before with external borders in the column before", () => {
     setBorder(model, "external", "B2");
     addColumns(model, "before", "C", 1);
     expect(getBorder(model, "A2")).toEqual({ right: b });
@@ -344,7 +344,7 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "D2")).toEqual({ left: b });
   });
 
-  test("ADD_COLUMNS before with external borders in the column after", () => {
+  test("ADD_COLUMNS_ROWS with dimension col before with external borders in the column after", () => {
     setBorder(model, "external", "B2");
     addColumns(model, "before", "A", 1);
     expect(getBorder(model, "A2")).toBeNull();
@@ -353,7 +353,7 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "D2")).toEqual({ left: b });
   });
 
-  test("ADD_ROWS before with external borders", () => {
+  test("ADD_COLUMNS_ROWS with dimension row before with external borders", () => {
     setBorder(model, "external", "B2");
     addRows(model, "before", 1, 1);
     expect(getBorder(model, "B2")).toEqual({ bottom: b });
@@ -362,7 +362,7 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "B4")).toEqual({ top: b });
   });
 
-  test.skip("[ok] ADD_ROWS before with external borders in the column before", () => {
+  test.skip("[ok] ADD_COLUMNS_ROWS with dimension row before with external borders in the column before", () => {
     setBorder(model, "external", "B2");
     addRows(model, "before", 2, 1);
     expect(getBorder(model, "A2")).toEqual({ right: b });
@@ -372,7 +372,7 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "B4")).toBeNull();
   });
 
-  test("ADD_ROWS before with external borders in the column before", () => {
+  test("ADD_COLUMNS_ROWS with dimension row before with external borders in the column before", () => {
     setBorder(model, "external", "B2");
     addRows(model, "before", 2, 1);
     expect(getBorder(model, "A2")).toEqual({ right: b });
@@ -383,7 +383,7 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "B4")).toEqual({ top: b });
   });
 
-  test("ADD_ROWS before with external borders in the column after", () => {
+  test("ADD_COLUMNS_ROWS with dimension row before with external borders in the column after", () => {
     setBorder(model, "external", "B2");
     addRows(model, "before", 0, 1);
     expect(getBorder(model, "B2")).toEqual({ bottom: b });

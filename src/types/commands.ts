@@ -8,7 +8,7 @@ import {
   Style,
   Zone,
 } from "./index";
-import { Border, Cell, UID } from "./misc";
+import { Border, Cell, Dimension, UID } from "./misc";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -26,8 +26,8 @@ import { Border, Cell, UID } from "./misc";
  *   2. can be converted into CoreCommands
  *   3. are not shared in collaborative environment
  *
- * For example, "RESIZE_COLUMNS" is a CoreCommand. "AUTORESIZE_COLUMNS"
- * can be (locally) converted into a "RESIZE_COLUMNS", and therefore, is not a
+ * For example, "RESIZE_COLUMNS_ROWS" is a CoreCommand. "AUTORESIZE_COLUMNS"
+ * can be (locally) converted into a "RESIZE_COLUMNS_ROWS", and therefore, is not a
  * CoreCommand.
  *
  * CoreCommands should be "device agnostic". This means that they should
@@ -48,12 +48,9 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "DELETE_CONTENT",
 
   /** GRID SHAPE */
-  "ADD_COLUMNS",
-  "ADD_ROWS",
-  "REMOVE_COLUMNS",
-  "REMOVE_ROWS",
-  "RESIZE_COLUMNS",
-  "RESIZE_ROWS",
+  "ADD_COLUMNS_ROWS",
+  "REMOVE_COLUMNS_ROWS",
+  "RESIZE_COLUMNS_ROWS",
 
   /** MERGE */
   "ADD_MERGE",
@@ -119,45 +116,27 @@ export interface UpdateCellPositionCommand extends BaseCommand {
 // Grid Shape
 //------------------------------------------------------------------------------
 
-export interface AddColumnsCommand extends BaseCommand {
-  type: "ADD_COLUMNS";
-  column: number;
+export interface AddColumnsRowsCommand extends BaseCommand {
+  type: "ADD_COLUMNS_ROWS";
+  dimension: Dimension;
   sheetId: UID;
+  base: number;
   quantity: number;
   position: "before" | "after";
 }
 
-export interface AddRowsCommand extends BaseCommand {
-  type: "ADD_ROWS";
-  row: number;
+export interface RemoveColumnsRowsCommand extends BaseCommand {
+  type: "REMOVE_COLUMNS_ROWS";
+  dimension: Dimension;
   sheetId: UID;
-  quantity: number;
-  position: "before" | "after";
+  elements: number[];
 }
 
-export interface RemoveColumnsCommand extends BaseCommand {
-  type: "REMOVE_COLUMNS";
-  columns: number[];
+export interface ResizeColumnsRowsCommand extends BaseCommand {
+  type: "RESIZE_COLUMNS_ROWS";
+  dimension: Dimension;
   sheetId: UID;
-}
-
-export interface RemoveRowsCommand extends BaseCommand {
-  type: "REMOVE_ROWS";
-  rows: number[];
-  sheetId: UID;
-}
-
-export interface ResizeColumnsCommand extends BaseCommand {
-  type: "RESIZE_COLUMNS";
-  sheetId: UID;
-  columns: number[];
-  size: number;
-}
-
-export interface ResizeRowsCommand extends BaseCommand {
-  type: "RESIZE_ROWS";
-  sheetId: UID;
-  rows: number[];
+  elements: number[];
   size: number;
 }
 
@@ -751,12 +730,9 @@ export type CoreCommand =
   | SetDecimalCommand
 
   /** GRID SHAPE */
-  | AddColumnsCommand
-  | AddRowsCommand
-  | RemoveColumnsCommand
-  | RemoveRowsCommand
-  | ResizeColumnsCommand
-  | ResizeRowsCommand
+  | AddColumnsRowsCommand
+  | RemoveColumnsRowsCommand
+  | ResizeColumnsRowsCommand
 
   /** MERGE */
   | AddMergeCommand

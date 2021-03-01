@@ -65,10 +65,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       case "DELETE_SHEET":
       case "ADD_CONDITIONAL_FORMAT":
       case "REMOVE_CONDITIONAL_FORMAT":
-      case "REMOVE_COLUMNS":
-      case "REMOVE_ROWS":
-      case "ADD_COLUMNS":
-      case "ADD_ROWS":
+      case "REMOVE_COLUMNS_ROWS":
+      case "ADD_COLUMNS_ROWS":
       case "EVALUATE_CELLS":
       case "UPDATE_CELL":
       case "UNDO":

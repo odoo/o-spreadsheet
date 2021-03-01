@@ -57,19 +57,20 @@ export class ViewportPlugin extends UIPlugin {
       case "SET_VIEWPORT_OFFSET":
         this.setViewportOffset(cmd.offsetX, cmd.offsetY);
         break;
-      case "REMOVE_ROWS":
-      case "RESIZE_ROWS":
-        this.adjustViewportOffsetY(cmd.sheetId);
+      case "REMOVE_COLUMNS_ROWS":
+      case "RESIZE_COLUMNS_ROWS":
+        if (cmd.dimension === "COL") {
+          this.adjustViewportOffsetX(cmd.sheetId);
+        } else {
+          this.adjustViewportOffsetY(cmd.sheetId);
+        }
         break;
-      case "REMOVE_COLUMNS":
-      case "RESIZE_COLUMNS":
-        this.adjustViewportOffsetX(cmd.sheetId);
-        break;
-      case "ADD_COLUMNS":
-        this.adjustViewportZoneX(cmd.sheetId, this.getViewport(cmd.sheetId));
-        break;
-      case "ADD_ROWS":
-        this.adjustViewportZoneY(cmd.sheetId, this.getViewport(cmd.sheetId));
+      case "ADD_COLUMNS_ROWS":
+        if (cmd.dimension === "COL") {
+          this.adjustViewportZoneX(cmd.sheetId, this.getViewport(cmd.sheetId));
+        } else {
+          this.adjustViewportZoneY(cmd.sheetId, this.getViewport(cmd.sheetId));
+        }
         break;
       case "ACTIVATE_SHEET":
         this.refreshViewport(cmd.sheetIdTo);

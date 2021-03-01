@@ -48,8 +48,9 @@ export class SheetUIPlugin extends UIPlugin {
         for (let col of cmd.cols) {
           const size = this.getColMaxWidth(cmd.sheetId, col);
           if (size !== 0) {
-            this.dispatch("RESIZE_COLUMNS", {
-              columns: [col],
+            this.dispatch("RESIZE_COLUMNS_ROWS", {
+              elements: [col],
+              dimension: "COL",
               size: size + 2 * PADDING_AUTORESIZE,
               sheetId: cmd.sheetId,
             });
@@ -60,8 +61,9 @@ export class SheetUIPlugin extends UIPlugin {
         for (let row of cmd.rows) {
           const size = this.getRowMaxHeight(cmd.sheetId, row);
           if (size !== 0) {
-            this.dispatch("RESIZE_ROWS", {
-              rows: [row],
+            this.dispatch("RESIZE_COLUMNS_ROWS", {
+              elements: [row],
+              dimension: "ROW",
               size: size + 2 * PADDING_AUTORESIZE,
               sheetId: cmd.sheetId,
             });

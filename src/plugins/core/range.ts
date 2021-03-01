@@ -42,15 +42,14 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "REMOVE_COLUMNS":
-      case "REMOVE_ROWS": {
-        let start: "left" | "top" = cmd.type === "REMOVE_COLUMNS" ? "left" : "top";
-        let end: "right" | "bottom" = cmd.type === "REMOVE_COLUMNS" ? "right" : "bottom";
-        let dimension: "columns" | "rows" = cmd.type === "REMOVE_COLUMNS" ? "columns" : "rows";
+      case "REMOVE_COLUMNS_ROWS": {
+        let start: "left" | "top" = cmd.dimension === "COL" ? "left" : "top";
+        let end: "right" | "bottom" = cmd.dimension === "COL" ? "right" : "bottom";
+        let dimension: "columns" | "rows" = cmd.dimension === "COL" ? "columns" : "rows";
 
-        cmd[dimension].sort((a, b) => b - a);
+        cmd.elements.sort((a, b) => b - a);
 
-        const groups = groupConsecutive(cmd[dimension]);
+        const groups = groupConsecutive(cmd.elements);
         this.executeOnAllRanges((range: Range) => {
           let newRange = range;
           let changeType: ChangeType = "NONE";
@@ -74,35 +73,33 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         }, cmd.sheetId);
         break;
       }
-      case "ADD_ROWS":
-      case "ADD_COLUMNS": {
-        let start: "left" | "top" = cmd.type === "ADD_COLUMNS" ? "left" : "top";
-        let end: "right" | "bottom" = cmd.type === "ADD_COLUMNS" ? "right" : "bottom";
-        let dimension: "columns" | "rows" = cmd.type === "ADD_COLUMNS" ? "columns" : "rows";
-        let origin: number = cmd.type === "ADD_COLUMNS" ? cmd.column : cmd.row;
+      case "ADD_COLUMNS_ROWS": {
+        let start: "left" | "top" = cmd.dimension === "COL" ? "left" : "top";
+        let end: "right" | "bottom" = cmd.dimension === "COL" ? "right" : "bottom";
+        let dimension: "columns" | "rows" = cmd.dimension === "COL" ? "columns" : "rows";
 
         this.executeOnAllRanges((range: Range) => {
           if (cmd.position === "after") {
-            if (range.zone[start] <= origin && origin < range.zone[end]) {
+            if (range.zone[start] <= cmd.base && cmd.base < range.zone[end]) {
               return {
                 changeType: "RESIZE",
                 range: this.createAdaptedRange(range, dimension, "RESIZE", cmd.quantity),
               };
             }
-            if (origin < range.zone[start]) {
+            if (cmd.base < range.zone[start]) {
               return {
                 changeType: "MOVE",
                 range: this.createAdaptedRange(range, dimension, "MOVE", cmd.quantity),
               };
             }
           } else {
-            if (range.zone[start] < origin && origin <= range.zone[end]) {
+            if (range.zone[start] < cmd.base && cmd.base <= range.zone[end]) {
               return {
                 changeType: "RESIZE",
                 range: this.createAdaptedRange(range, dimension, "RESIZE", cmd.quantity),
               };
             }
-            if (origin <= range.zone[start]) {
+            if (cmd.base <= range.zone[start]) {
               return {
                 changeType: "MOVE",
                 range: this.createAdaptedRange(range, dimension, "MOVE", cmd.quantity),

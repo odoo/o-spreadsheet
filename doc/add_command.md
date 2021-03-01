@@ -14,7 +14,7 @@ There are two kinds of commands: `CoreCommands` and `LocalCommands`.
    - can be converted into CoreCommands
    - are not shared in collaborative environment
 
-For example, "RESIZE_COLUMNS" is a CoreCommand. "AUTORESIZE_COLUMNS" can be (locally) converted into a "RESIZE_COLUMNS", and therefore, is not a CoreCommand.
+For example, "RESIZE_COLUMNS_ROWS" is a CoreCommand. "AUTORESIZE_COLUMNS" can be (locally) converted into a "RESIZE_COLUMNS_ROWS", and therefore, is not a CoreCommand.
 CoreCommands should be "device agnostic". This means that they should contain all the information necessary to perform their job. Local commands can use inferred information from the local internal state, such as the active sheet.
 
 To declare a new `CoreCommands`, its type should be added to `CoreTypes`:

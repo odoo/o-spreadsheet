@@ -201,7 +201,7 @@ describe("conditional format", () => {
     });
   });
 
-  test("Still correct after ADD_COLUMNS and UNDO/REDO", () => {
+  test("Still correct after ADD_COLUMNS_ROWS with dimension col and UNDO/REDO", () => {
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "B1", "1");
     setCellContent(model, "B2", "1");
