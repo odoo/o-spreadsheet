@@ -61,11 +61,11 @@ function inverseAddColumnsRows(cmd: AddColumnsRowsCommand): RemoveColumnsRowsCom
 }
 
 function inverseAddMerge(cmd: AddMergeCommand): RemoveMergeCommand[] {
-  return [{ type: "REMOVE_MERGE", sheetId: cmd.sheetId, zone: cmd.zone }];
+  return [{ type: "REMOVE_MERGE", sheetId: cmd.sheetId, target: cmd.target }];
 }
 
 function inverseRemoveMerge(cmd: RemoveMergeCommand): AddMergeCommand[] {
-  return [{ type: "ADD_MERGE", sheetId: cmd.sheetId, zone: cmd.zone }];
+  return [{ type: "ADD_MERGE", sheetId: cmd.sheetId, target: cmd.target }];
 }
 
 function inverseCreateSheet(cmd: CreateSheetCommand): DeleteSheetCommand[] {

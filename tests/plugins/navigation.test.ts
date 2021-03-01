@@ -1,7 +1,7 @@
-import { toXC, toZone } from "../../src/helpers";
+import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { Viewport } from "../../src/types";
-import { selectCell } from "../test_helpers/commands_helpers";
+import { merge, selectCell } from "../test_helpers/commands_helpers";
 import { getActiveXc } from "../test_helpers/getters_helpers";
 
 function getViewport(
@@ -66,7 +66,7 @@ describe("navigation", () => {
     const rowNumber = activeSheet.rows.length;
     model.dispatch("ADD_MERGE", {
       sheetId: activeSheet.id,
-      zone: { top: rowNumber - 2, bottom: rowNumber - 1, left: 0, right: 0 },
+      target: [{ top: rowNumber - 2, bottom: rowNumber - 1, left: 0, right: 0 }],
     });
     selectCell(model, toXC(0, rowNumber - 2));
     expect(model.getters.getPosition()).toEqual([0, rowNumber - 2]);
@@ -80,7 +80,7 @@ describe("navigation", () => {
     const colNumber = activeSheet.cols.length;
     model.dispatch("ADD_MERGE", {
       sheetId: activeSheet.id,
-      zone: { top: 0, bottom: 0, left: colNumber - 2, right: colNumber - 1 },
+      target: [{ top: 0, bottom: 0, left: colNumber - 2, right: colNumber - 1 }],
     });
     selectCell(model, toXC(colNumber - 2, 0));
     expect(model.getters.getPosition()).toEqual([colNumber - 2, 0]);
@@ -216,10 +216,7 @@ describe("navigation", () => {
     expect(viewport.top).toBe(2);
     expect(viewport.bottom).toBe(14);
 
-    model.dispatch("ADD_MERGE", {
-      sheetId: model.getters.getActiveSheetId(),
-      zone: toZone("A1:A2"),
-    });
+    merge(model, "A1:A2");
 
     selectCell(model, "A3");
     viewport = model.getters.getActiveViewport();

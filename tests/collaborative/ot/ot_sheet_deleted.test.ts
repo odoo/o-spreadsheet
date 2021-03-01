@@ -24,7 +24,7 @@ import {
   UpdateCellCommand,
   UpdateCellPositionCommand,
 } from "../../../src/types";
-import { createEqualCF } from "../../test_helpers/helpers";
+import { createEqualCF, target } from "../../test_helpers/helpers";
 
 describe("OT with DELETE_SHEET", () => {
   const deletedSheetId = "deletedSheet";
@@ -67,10 +67,10 @@ describe("OT with DELETE_SHEET", () => {
     elements: [0],
     dimension: "ROW",
   };
-  const addMerge: Omit<AddMergeCommand, "sheetId"> = { type: "ADD_MERGE", zone: toZone("A1:B1") };
+  const addMerge: Omit<AddMergeCommand, "sheetId"> = { type: "ADD_MERGE", target: target("A1:B1") };
   const removeMerge: Omit<RemoveMergeCommand, "sheetId"> = {
     type: "REMOVE_MERGE",
-    zone: toZone("A1:B1"),
+    target: target("A1:B1"),
   };
   const moveSheet: Omit<MoveSheetCommand, "sheetId"> = { type: "MOVE_SHEET", direction: "left" };
   const renameSheet: Omit<RenameSheetCommand, "sheetId"> = { type: "RENAME_SHEET", name: "test" };

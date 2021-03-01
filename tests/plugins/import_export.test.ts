@@ -4,7 +4,7 @@ import { CURRENT_VERSION } from "../../src/data";
 import { Model } from "../../src/model";
 import { corePluginRegistry } from "../../src/plugins";
 import { BorderDescr, WorkbookData } from "../../src/types/index";
-import { activateSheet, resizeColumns, resizeRows } from "../test_helpers/commands_helpers";
+import { activateSheet, merge, resizeColumns, resizeRows } from "../test_helpers/commands_helpers";
 import { getMerges } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers";
 import { mockUuidV4To, toPosition } from "../test_helpers/helpers";
@@ -203,10 +203,7 @@ describe("Import", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
     const sheet2 = model.getters.getVisibleSheets()[1];
     model.dispatch("SELECT_ROW", { index: 1 });
-    model.dispatch("ADD_MERGE", {
-      sheetId: sheet1,
-      zone: { left: 0, top: 1, right: 5, bottom: 1 },
-    });
+    merge(model, "A2:F2", sheet1);
     activateSheet(model, sheet2);
     expect(Object.keys(getMerges(model))).toHaveLength(0);
     activateSheet(model, sheet1);

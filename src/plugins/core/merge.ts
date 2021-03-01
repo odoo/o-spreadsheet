@@ -59,7 +59,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
 
     switch (cmd.type) {
       case "ADD_MERGE":
-        return this.isMergeAllowed(cmd.sheetId, cmd.zone, force);
+        return this.isMergeAllowed(cmd.sheetId, cmd.target, force);
       default:
         return { status: "SUCCESS" };
     }
@@ -120,11 +120,15 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         break;
       case "ADD_MERGE":
         if (!cmd.interactive) {
-          this.addMerge(this.getters.getSheet(cmd.sheetId)!, cmd.zone);
+          for (const zone of cmd.target) {
+            this.addMerge(this.getters.getSheet(cmd.sheetId)!, zone);
+          }
         }
         break;
       case "REMOVE_MERGE":
-        this.removeMerge(cmd.sheetId, cmd.zone);
+        for (const zone of cmd.target) {
+          this.removeMerge(cmd.sheetId, zone);
+        }
         break;
       case "ADD_COLUMNS_ROWS":
       case "REMOVE_COLUMNS_ROWS":
@@ -248,14 +252,24 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
    * Verify that we can merge without losing content of other cells or
    * because the user gave his permission
    */
-  private isMergeAllowed(sheetId: UID, zone: Zone, force: boolean): CommandResult {
+  private isMergeAllowed(sheetId: UID, target: Zone[], force: boolean): CommandResult {
     if (!force) {
       const sheet = this.getters.tryGetSheet(sheetId);
-      if (sheet && this.isMergeDestructive(sheet, zone)) {
-        return {
-          status: "CANCELLED",
-          reason: CancelledReason.MergeIsDestructive,
-        };
+      for (const zone of target) {
+        if (sheet && this.isMergeDestructive(sheet, zone)) {
+          return {
+            status: "CANCELLED",
+            reason: CancelledReason.MergeIsDestructive,
+          };
+        }
+        for (const zone2 of target) {
+          if (zone !== zone2 && overlap(zone, zone2)) {
+            return {
+              status: "CANCELLED",
+              reason: CancelledReason.MergeOverlap,
+            };
+          }
+        }
       }
     }
     return {

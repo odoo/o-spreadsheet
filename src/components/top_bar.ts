@@ -465,12 +465,12 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
 
   toggleMerge() {
     const zones = this.getters.getSelectedZones();
-    const zone = zones[zones.length - 1];
+    const target = [zones[zones.length - 1]];
     const sheet = this.getters.getActiveSheetId();
     if (this.inMerge) {
-      this.dispatch("REMOVE_MERGE", { sheetId: sheet, zone });
+      this.dispatch("REMOVE_MERGE", { sheetId: sheet, target });
     } else {
-      this.dispatch("ADD_MERGE", { sheetId: sheet, zone, interactive: true });
+      this.dispatch("ADD_MERGE", { sheetId: sheet, target, interactive: true });
     }
   }
 

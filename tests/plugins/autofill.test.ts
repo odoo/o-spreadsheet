@@ -3,7 +3,7 @@ import { toCartesian, toZone } from "../../src/helpers";
 import { AutofillPlugin } from "../../src/plugins/ui/autofill";
 import { Border, ConditionalFormat, Style } from "../../src/types";
 import { DIRECTION } from "../../src/types/index";
-import { createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import { createSheet, merge, setCellContent } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText, getMerges } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
 import { getMergeCellMap, toPosition, XCToMergeCellMap } from "../test_helpers/helpers";
@@ -384,8 +384,7 @@ describe("Autofill", () => {
   });
 
   test("autofill with merge in selection", () => {
-    const sheet1 = model.getters.getActiveSheetId();
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:A2") });
+    merge(model, "A1:A2");
     setCellContent(model, "A1", "1");
     autofill("A1:A3", "A9");
     expect(getMergeCellMap(model)).toEqual(
@@ -410,8 +409,7 @@ describe("Autofill", () => {
         },
       ],
     });
-    const sheet1 = model.getters.getActiveSheetId();
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:A2") });
+    merge(model, "A1:A2");
     autofill("A1:A2", "A5");
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["A1", "A2", "A3", "A4"]));
     expect(getMerges(model)).toEqual({
@@ -421,8 +419,7 @@ describe("Autofill", () => {
   });
 
   test("autofill with merge in target (1)", () => {
-    const sheet1 = model.getters.getActiveSheetId();
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A3:A5") });
+    merge(model, "A3:A5");
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     autofill("A1:A2", "A6");
@@ -437,8 +434,7 @@ describe("Autofill", () => {
   });
 
   test("autofill with merge in target (2)", () => {
-    const sheet1 = model.getters.getActiveSheetId();
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A2:B2") });
+    merge(model, "A2:B2");
     setCellContent(model, "B1", "1");
     autofill("B1", "B2");
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);

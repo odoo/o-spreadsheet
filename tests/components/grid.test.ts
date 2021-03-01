@@ -1,7 +1,6 @@
 import { MESSAGE_VERSION } from "../../src/constants";
-import { toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { merge, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick, Touch } from "../test_helpers/helpers";
@@ -53,9 +52,7 @@ describe("Grid component", () => {
 
   test("can render a sheet with a merge", async () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
-
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
-
+    merge(model, "B2:B3", sheet1);
     expect(fixture.querySelector("canvas")).toBeDefined();
   });
 
@@ -510,8 +507,7 @@ describe("error tooltip", () => {
   });
 
   test("can display error when move on merge", async () => {
-    const sheet = model.getters.getActiveSheetId();
-    model.dispatch("ADD_MERGE", { sheetId: sheet, zone: toZone("C1:C8") });
+    merge(model, "C1:C8");
     setCellContent(model, "C1", "=1/0");
     await nextTick();
     triggerMouseEvent("canvas", "mousemove", 300, 200); // C8
@@ -523,8 +519,7 @@ describe("error tooltip", () => {
   });
 
   test("composer content is set when clicking on merged cell (not top left)", async () => {
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_MERGE", { sheetId, zone: toZone("C1:C8") });
+    merge(model, "C1:C8");
     setCellContent(model, "C1", "Hello");
     await nextTick();
     await simulateClick("canvas", 300, 200); // C8

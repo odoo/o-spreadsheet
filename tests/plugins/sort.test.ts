@@ -5,6 +5,7 @@ import { toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CancelledReason, CellType, UID } from "../../src/types";
 import { redo, setCellContent, undo } from "../test_helpers/commands_helpers";
+import { target } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -766,14 +767,14 @@ describe("Sort Merges", () => {
     ).toBeCancelled(CancelledReason.InvalidSortZone);
   });
 
-  test("Failed Sort of merges with adjascent merge with and without interactive mode", () => {
+  test("Failed Sort of merges with adjacent merge with and without interactive mode", () => {
     const sheetId = model.getters.getActiveSheetId();
     //add merge [cols:2, rows: 1] above existing merges
     setCellContent(model, "B1", "Bad Merge!", sheetId);
 
     model.dispatch("ADD_MERGE", {
       sheetId: sheetId,
-      zone: toZone("B1:C1"),
+      target: target("B1:C1"),
       force: true,
     });
     // sort

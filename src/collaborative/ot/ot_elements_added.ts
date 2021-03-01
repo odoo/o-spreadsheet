@@ -2,9 +2,7 @@ import { expandZoneOnInsertion } from "../../helpers";
 import { otRegistry } from "../../registries";
 import {
   AddColumnsRowsCommand,
-  AddMergeCommand,
   RemoveColumnsRowsCommand,
-  RemoveMergeCommand,
   ResizeColumnsRowsCommand,
   Zone,
 } from "../../types";
@@ -26,7 +24,7 @@ otRegistry.addTransformation(
 otRegistry.addTransformation(
   "ADD_COLUMNS_ROWS",
   ["ADD_MERGE", "REMOVE_MERGE"],
-  withSheetCheck(mergeCommand)
+  withSheetCheck(targetCommand)
 );
 
 otRegistry.addTransformation(
@@ -59,13 +57,6 @@ function targetCommand(toTransform: TargetCommand, executed: AddColumnsRowsComma
     ...toTransform,
     target: toTransform.target.map((zone) => transformZone(zone, executed)),
   };
-}
-
-function mergeCommand(
-  toTransform: AddMergeCommand | RemoveMergeCommand,
-  executed: AddColumnsRowsCommand
-): AddMergeCommand | RemoveMergeCommand {
-  return { ...toTransform, zone: transformZone(toTransform.zone, executed) };
 }
 
 function transformZone(zone: Zone, executed: AddColumnsRowsCommand): Zone {
