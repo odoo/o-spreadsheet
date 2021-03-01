@@ -86,7 +86,24 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "UPDATE_CHART",
 ]);
 
-export function isCoreCommand(cmd: Command): cmd is CoreCommand {
+
+export const GriddyCommands = {
+  "ADD_COLUMNS" : "column",
+}
+
+
+export const PositionnyCommands = {
+  "ADD_COLUMNS" : "column",
+}
+
+
+
+export const ZonyCommands = {
+  "ADD_COLUMNS" : "column",
+}
+
+
+export function isCoreCommacnd(cmd: Command): cmd is CoreCommand {
   return coreTypes.has(cmd.type as any);
 }
 
@@ -134,6 +151,14 @@ export interface AddRowsCommand extends BaseCommand {
   quantity: number;
   position: "before" | "after";
 }
+
+export enum SheetyCommands {
+  "REMOVE_COLUMNS",
+  "REMOVE_ROWS"
+}
+  
+export type GridyCommands = RemoveRowsCommand|RemoveColumnsCommand|AddColumnsCommand;
+
 
 export interface RemoveColumnsCommand extends BaseCommand {
   type: "REMOVE_COLUMNS";

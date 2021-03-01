@@ -1,4 +1,5 @@
 import { CoreCommand, UID, Zone } from "..";
+import { DeleteRowsCommand, UpdateCellCommand } from "../../commands/core";
 import {
   expandZoneOnInsertion,
   isDefined,
@@ -34,8 +35,6 @@ export function createPatch(cmd: CoreCommand): Patch | undefined {
   switch (cmd.type) {
     case "REMOVE_COLUMNS":
       return { onSheet: cmd.sheetId, dimension: "columns", deleted: cmd.columns };
-    case "REMOVE_ROWS":
-      return { onSheet: cmd.sheetId, dimension: "rows", deleted: cmd.rows };
     case "ADD_COLUMNS":
       return {
         onSheet: cmd.sheetId,
@@ -100,8 +99,23 @@ export function tryTransform(
   cmd: CoreCommand,
   executed: CoreCommand
 ): CoreCommand | null | undefined {
-  const patch = createPatch(executed);
-  const cat = categorize(cmd);
+  let patch: Patch | undefined = createPatch(executed);
+  if (executed.type === "REMOVE_ROWS") {
+    const cls = new DeleteRowsCommand(executed.sheetId, executed.rows);
+    patch = cls.getPatch();
+  }
+  let cat: Category = categorize(cmd);
+  if (cmd.type === "UPDATE_CELL") {
+    const cls = new UpdateCellCommand(
+      cmd.sheetId,
+      cmd.col,
+      cmd.row,
+      cmd.content,
+      cmd.style,
+      cmd.format
+    );
+    cat = cls.getCategory();
+  }
   if (!patch) {
     return null;
   }
@@ -176,7 +190,7 @@ export function tryTransform(
     if (!target.length) {
       return undefined;
     }
-    // @ts-ignore A ce state vu que c'est cat.target on sait que c'est bon
+    // @ts-ignore A ce stade vu que c'est cat.target on sait que c'est bon
     return { ...cmd, target };
   }
 
@@ -201,10 +215,10 @@ export function tryTransform(
       }
       elements = elements
         .map((element) => {
-          if (patch.deleted!.includes(element)) {
+          if (patch!.deleted!.includes(element)) {
             return undefined;
           }
-          for (let removedElement of patch.deleted!) {
+          for (let removedElement of patch!.deleted!) {
             if (element > removedElement) {
               element--;
             }
@@ -232,7 +246,7 @@ export function tryTransform(
         elements = [cmd[dim]];
       }
       const base = patch.added.position === "before" ? patch.added.base - 1 : patch.added.base;
-      elements = elements.map((el) => (el > base ? el + patch.added!.quantity : el));
+      elements = elements.map((el) => (el > base ? el + patch!.added!.quantity : el));
       if (withS) {
         return { ...cmd, [dim]: elements };
       }
@@ -261,7 +275,7 @@ export function tryTransform(
       );
     }
     if (newZone) {
-      // @ts-ignore A ce state vu que c'est cat.isMerge on sait que c'est bon
+      // @ts-ignore A ce stade vu que c'est cat.isMerge on sait que c'est bon
       return { ...cmd, zone: newZone };
     }
     return undefined;

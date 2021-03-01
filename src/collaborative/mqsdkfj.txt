@@ -1,0 +1,9 @@
+1. join row/col commands in one
+2. change merge to take a target of a single zone
+3. change conditional format to take a target instead of ranges
+4. create interface for core commands
+	sheet = prop sheet id UID
+    position= col & row number + sheet id
+    dimension= COL | ROW + sheet id
+    target= zone [] + sheet Id
+    objectId'y = objectId (not sheetId or any existing ID, for CF and figure) + sheet id
