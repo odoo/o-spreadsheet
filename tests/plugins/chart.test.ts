@@ -4,7 +4,6 @@ import { CancelledReason } from "../../src/types";
 import {
   addColumns,
   createChart,
-  createModelWithViewport,
   createSheet,
   deleteColumns,
   selectCell,
@@ -18,7 +17,7 @@ let model: Model;
 beforeEach(() => {
   mockUuidV4To(1);
 
-  model = createModelWithViewport({
+  model = new Model({
     sheets: [
       {
         name: "Sheet1",
@@ -406,7 +405,7 @@ describe("datasource tests", function () {
       "1"
     );
     const exportedData = model.exportData();
-    const newModel = createModelWithViewport(exportedData);
+    const newModel = new Model(exportedData);
     expect(newModel.getters.getVisibleFigures(sheetId)).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
     newModel.dispatch("DELETE_FIGURE", { sheetId: model.getters.getActiveSheetId(), id: "1" });
@@ -701,7 +700,7 @@ describe("datasource tests", function () {
     expect(result).toBeCancelled(CancelledReason.InvalidLabelRange);
   });
   test("duplicate a sheet with and without a chart", () => {
-    const model = createModelWithViewport({
+    const model = new Model({
       sheets: [
         {
           id: "1",
