@@ -35,9 +35,15 @@ export class ViewportPlugin extends UIPlugin {
 
   readonly viewports: ViewportPluginState["viewports"] = {};
   readonly snappedViewports: ViewportPluginState["viewports"] = {};
-  private clientWidth: number = 0;
-  private clientHeight: number = 0;
   private updateSnap: boolean = false;
+  /**
+   * The viewport dimensions (clientWidth and clientHeight) are usually set by one of the components
+   * (i.e. when grid component is mounted) to properly reflect its state in the DOM.
+   * In the absence of a component (standalone model), is it mandatory to set reasonable default values
+   * to ensure the correct operation of this plugin.
+   */
+  private clientWidth: number = 1000;
+  private clientHeight: number = 1000;
 
   // ---------------------------------------------------------------------------
   // Command Handling

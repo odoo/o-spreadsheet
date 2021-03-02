@@ -1,15 +1,9 @@
 import { Model } from "../../src/model";
-import {
-  activateSheet,
-  createModelWithViewport,
-  createSheet,
-  selectCell,
-  undo,
-} from "../test_helpers/commands_helpers";
+import { activateSheet, createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
 
 describe("figure plugin", () => {
   test("can create a simple figure", () => {
-    const model = createModelWithViewport();
+    const model = new Model();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -40,7 +34,7 @@ describe("figure plugin", () => {
   });
 
   test("can undo figure creation", () => {
-    const model = createModelWithViewport();
+    const model = new Model();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -58,7 +52,7 @@ describe("figure plugin", () => {
   });
 
   test("can create a figure in a different sheet", () => {
-    const model = createModelWithViewport();
+    const model = new Model();
     const sheetId = "Sheet2";
     createSheet(model, { sheetId }); // The sheet is not activated
 
@@ -84,7 +78,7 @@ describe("figure plugin", () => {
   });
 
   test("getVisibleFigures only returns visible figures", () => {
-    const model = createModelWithViewport();
+    const model = new Model();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -106,7 +100,7 @@ describe("figure plugin", () => {
   });
 
   test("selecting a figure, then clicking on a cell unselect figure", () => {
-    const model = createModelWithViewport();
+    const model = new Model();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -149,7 +143,7 @@ describe("figure plugin", () => {
   });
 
   test("can move a figure", () => {
-    const model = createModelWithViewport();
+    const model = new Model();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -180,7 +174,7 @@ describe("figure plugin", () => {
   });
 
   test("can undo an update operation", () => {
-    const model = createModelWithViewport();
+    const model = new Model();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -210,7 +204,7 @@ describe("figure plugin", () => {
   });
 
   test("prevent moving a figure left or above of the sheet", () => {
-    const model = createModelWithViewport();
+    const model = new Model();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -236,7 +230,7 @@ describe("figure plugin", () => {
   });
 
   test("can delete a figure", () => {
-    const model = createModelWithViewport();
+    const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_FIGURE", {
       sheetId,

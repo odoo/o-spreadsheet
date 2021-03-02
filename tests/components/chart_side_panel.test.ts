@@ -2,7 +2,6 @@ import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { ChartPanel } from "../../src/components/side_panel/chart_panel";
 import { Figure, SpreadsheetEnv } from "../../src/types";
-import { createModelWithViewport } from "../test_helpers/commands_helpers";
 import { setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import { makeTestFixture, mockUuidV4To, nextTick } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -66,7 +65,7 @@ describe("Chart sidepanel component", () => {
 
   // Skipped because updating of a chart is not yet supported
   test.skip("update chart", async () => {
-    const model = createModelWithViewport();
+    const model = new Model();
     model.dispatch("CREATE_CHART", {
       id: "1",
       sheetId: model.getters.getActiveSheetId(),

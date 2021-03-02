@@ -10,7 +10,6 @@ import {
   activateSheet,
   addColumns,
   addRows,
-  createModelWithViewport,
   deleteColumns,
   deleteRows,
   redo,
@@ -573,7 +572,7 @@ describe("Viewport of Simple sheet", () => {
 
 describe("multi sheet with different sizes", () => {
   beforeEach(async () => {
-    model = createModelWithViewport({
+    model = new Model({
       sheets: [
         {
           name: "small",
