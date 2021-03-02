@@ -10,7 +10,7 @@ They should not be concerned about UI parts or transient state.
 ## Type parameters
 
 Name | Default |
------- | ------ |
+:------ | :------ |
 `State` | *any* |
 `C` | CoreCommand |
 
@@ -54,23 +54,23 @@ Name | Default |
 
 ### constructor
 
-\+ **new CorePlugin**<State, C\>(`getters`: CoreGetters, `stateObserver`: *StateObserver*, `range`: *RangeAdapter*, `dispatch`: <T, C\>(`type`: {} *extends* *Pick*<C, *Exclude*<keyof C, *type*\>\> ? T : *never*) => CommandResult<T, C\>(`type`: T, `r`: *Pick*<C, *Exclude*<keyof C, *type*\>\>) => CommandResult, `config`: ModelConfig): [*CorePlugin*](coreplugin.md)<State, C\>
+\+ **new CorePlugin**<State, C\>(`getters`: CoreGetters, `stateObserver`: *StateObserver*, `range`: *RangeAdapter*, `dispatch`: <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => CommandResult<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => CommandResult, `config`: ModelConfig): [*CorePlugin*](coreplugin.md)<State, C\>
 
 #### Type parameters:
 
 Name | Default |
------- | ------ |
+:------ | :------ |
 `State` | *any* |
 `C` | CoreCommand |
 
 #### Parameters:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `getters` | CoreGetters |
 `stateObserver` | *StateObserver* |
 `range` | *RangeAdapter* |
-`dispatch` | <T, C\>(`type`: {} *extends* *Pick*<C, *Exclude*<keyof C, *type*\>\> ? T : *never*) => CommandResult<T, C\>(`type`: T, `r`: *Pick*<C, *Exclude*<keyof C, *type*\>\>) => CommandResult |
+`dispatch` | <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => CommandResult<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => CommandResult |
 `config` | ModelConfig |
 
 **Returns:** [*CorePlugin*](coreplugin.md)<State, C\>
@@ -85,7 +85,44 @@ ___
 
 ### dispatch
 
-• `Protected` **dispatch**: <T, C\>(`type`: {} *extends* *Pick*<C, *Exclude*<keyof C, *type*\>\> ? T : *never*) => CommandResult<T, C\>(`type`: T, `r`: *Pick*<C, *Exclude*<keyof C, *type*\>\>) => CommandResult
+• `Protected` **dispatch**: <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => CommandResult<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => CommandResult
+
+#### Type declaration:
+
+▸ <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*): CommandResult
+
+#### Type parameters:
+
+Name | Type |
+:------ | :------ |
+`T` | *UPDATE_CELL* \| *UPDATE_CELL_POSITION* \| *CLEAR_CELL* \| *DELETE_CONTENT* \| *SET_DECIMAL* \| *ADD_COLUMNS_ROWS* \| *REMOVE_COLUMNS_ROWS* \| *RESIZE_COLUMNS_ROWS* \| *ADD_MERGE* \| *REMOVE_MERGE* \| *CREATE_SHEET* \| *DELETE_SHEET* \| *DUPLICATE_SHEET* \| *MOVE_SHEET* \| *RENAME_SHEET* \| *ADD_CONDITIONAL_FORMAT* \| *REMOVE_CONDITIONAL_FORMAT* \| *CREATE_FIGURE* \| *DELETE_FIGURE* \| *UPDATE_FIGURE* \| *SET_FORMATTING* \| *CLEAR_FORMATTING* \| *SET_BORDER* \| *CREATE_CHART* \| *UPDATE_CHART* |
+`C` | { `type`: T  } & UpdateCellCommand \| { `type`: T  } & UpdateCellPositionCommand \| { `type`: T  } & ClearCellCommand \| { `type`: T  } & DeleteContentCommand \| { `type`: T  } & SetDecimalCommand \| { `type`: T  } & AddColumnsRowsCommand \| { `type`: T  } & RemoveColumnsRowsCommand \| { `type`: T  } & ResizeColumnsRowsCommand \| { `type`: T  } & AddMergeCommand \| { `type`: T  } & RemoveMergeCommand \| { `type`: T  } & CreateSheetCommand \| { `type`: T  } & DeleteSheetCommand \| { `type`: T  } & DuplicateSheetCommand \| { `type`: T  } & MoveSheetCommand \| { `type`: T  } & RenameSheetCommand \| { `type`: T  } & AddConditionalFormatCommand \| { `type`: T  } & RemoveConditionalFormatCommand \| { `type`: T  } & CreateFigureCommand \| { `type`: T  } & DeleteFigureCommand \| { `type`: T  } & *UpdateFigureCommand* \| { `type`: T  } & SetFormattingCommand \| { `type`: T  } & ClearFormattingCommand \| { `type`: T  } & SetBorderCommand \| { `type`: T  } & CreateChartCommand \| { `type`: T  } & UpdateChartCommand |
+
+#### Parameters:
+
+Name | Type |
+:------ | :------ |
+`type` | {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never* |
+
+**Returns:** CommandResult
+
+▸ <T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>): CommandResult
+
+#### Type parameters:
+
+Name | Type |
+:------ | :------ |
+`T` | *UPDATE_CELL* \| *UPDATE_CELL_POSITION* \| *CLEAR_CELL* \| *DELETE_CONTENT* \| *SET_DECIMAL* \| *ADD_COLUMNS_ROWS* \| *REMOVE_COLUMNS_ROWS* \| *RESIZE_COLUMNS_ROWS* \| *ADD_MERGE* \| *REMOVE_MERGE* \| *CREATE_SHEET* \| *DELETE_SHEET* \| *DUPLICATE_SHEET* \| *MOVE_SHEET* \| *RENAME_SHEET* \| *ADD_CONDITIONAL_FORMAT* \| *REMOVE_CONDITIONAL_FORMAT* \| *CREATE_FIGURE* \| *DELETE_FIGURE* \| *UPDATE_FIGURE* \| *SET_FORMATTING* \| *CLEAR_FORMATTING* \| *SET_BORDER* \| *CREATE_CHART* \| *UPDATE_CHART* |
+`C` | { `type`: T  } & UpdateCellCommand \| { `type`: T  } & UpdateCellPositionCommand \| { `type`: T  } & ClearCellCommand \| { `type`: T  } & DeleteContentCommand \| { `type`: T  } & SetDecimalCommand \| { `type`: T  } & AddColumnsRowsCommand \| { `type`: T  } & RemoveColumnsRowsCommand \| { `type`: T  } & ResizeColumnsRowsCommand \| { `type`: T  } & AddMergeCommand \| { `type`: T  } & RemoveMergeCommand \| { `type`: T  } & CreateSheetCommand \| { `type`: T  } & DeleteSheetCommand \| { `type`: T  } & DuplicateSheetCommand \| { `type`: T  } & MoveSheetCommand \| { `type`: T  } & RenameSheetCommand \| { `type`: T  } & AddConditionalFormatCommand \| { `type`: T  } & RemoveConditionalFormatCommand \| { `type`: T  } & CreateFigureCommand \| { `type`: T  } & DeleteFigureCommand \| { `type`: T  } & *UpdateFigureCommand* \| { `type`: T  } & SetFormattingCommand \| { `type`: T  } & ClearFormattingCommand \| { `type`: T  } & SetBorderCommand \| { `type`: T  } & CreateChartCommand \| { `type`: T  } & UpdateChartCommand |
+
+#### Parameters:
+
+Name | Type |
+:------ | :------ |
+`type` | T |
+`r` | *Pick*<C, Exclude<keyof C, *type*\>\> |
+
+**Returns:** CommandResult
 
 ___
 
@@ -132,7 +169,7 @@ the type of change that occurred.
 #### Parameters:
 
 Name | Type | Description |
------- | ------ | ------ |
+:------ | :------ | :------ |
 `applyChange` | ApplyRangeChange | a function that, when called, will adapt the range according to the change on the grid   |
 `sheetId?` | *string* | an optional sheetId to adapt either range of that sheet specifically, or ranges pointing to that sheet    |
 
@@ -153,7 +190,7 @@ There should not be any side effects in this method.
 #### Parameters:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `command` | C |
 
 **Returns:** CommandResult
@@ -171,7 +208,7 @@ possible to do the work in the handle method.
 #### Parameters:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `command` | C |
 
 **Returns:** *void*
@@ -185,7 +222,7 @@ ___
 #### Parameters:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `data` | WorkbookData |
 
 **Returns:** *void*
@@ -214,7 +251,7 @@ command handling work should take place here.
 #### Parameters:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `command` | C |
 
 **Returns:** *void*
@@ -228,7 +265,7 @@ ___
 #### Parameters:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `data` | WorkbookData |
 
 **Returns:** *void*

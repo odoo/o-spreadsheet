@@ -222,7 +222,7 @@ export class SortPlugin extends UIPlugin {
    *         ___   ___   ___   ___   ___
    *
    *  Let's consider a provided zone corresponding to (C2:D3) - (left:2, right: 3, top:1, bottom:2)
-   *  - the top external bounday is (B1:E1)
+   *  - the top external boundary is (B1:E1)
    *    Since we have B1='D' != "", we expand to the top: => (C1:D3)
    *    The top boundary having reached the top of the grid, we cannot expand in that direction anymore
    *

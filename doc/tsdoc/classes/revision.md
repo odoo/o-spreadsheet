@@ -2,10 +2,6 @@
 
 # Class: Revision
 
-## Hierarchy
-
-* **Revision**
-
 ## Implements
 
 * *RevisionData*
@@ -47,7 +43,7 @@ A revision contains the following information:
 #### Parameters:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `id` | *string* |
 `clientId` | *string* |
 `commands` | readonly CoreCommand[] |
@@ -71,7 +67,7 @@ ___
 
 ### changes
 
-• **changes**(): readonly HistoryChange[]
+• get **changes**(): readonly HistoryChange[]
 
 **Returns:** readonly HistoryChange[]
 
@@ -79,7 +75,7 @@ ___
 
 ### commands
 
-• **commands**(): readonly CoreCommand[]
+• get **commands**(): readonly CoreCommand[]
 
 **Returns:** readonly CoreCommand[]
 
@@ -92,7 +88,7 @@ ___
 #### Parameters:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `changes` | readonly HistoryChange[] |
 
 **Returns:** *void*
