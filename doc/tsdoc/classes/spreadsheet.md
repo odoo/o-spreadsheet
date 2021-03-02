@@ -58,12 +58,12 @@
 
 ### composer
 
-• **composer**: { `grid`: *boolean* = false; `topBar`: *boolean* = false }
+• **composer**: *object*
 
 #### Type declaration:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `grid` | *boolean* |
 `topBar` | *boolean* |
 
@@ -71,7 +71,7 @@ ___
 
 ### grid
 
-• **grid**: *Ref*<*Component*<*any*, Env\>\>
+• **grid**: *Ref*<Component<any, Env\>\>
 
 ___
 
@@ -83,13 +83,13 @@ ___
 
 ### sidePanel
 
-• **sidePanel**: { `component?`: *undefined* \| *string* ; `isOpen`: *boolean* ; `panelProps`: *any*  }
+• **sidePanel**: *object*
 
 #### Type declaration:
 
 Name | Type |
------- | ------ |
-`component?` | *undefined* \| *string* |
+:------ | :------ |
+`component`? | *undefined* \| *string* |
 `isOpen` | *boolean* |
 `panelProps` | *any* |
 
@@ -99,16 +99,28 @@ ___
 
 ▪ `Static` **\_t**: (`s`: *string*) => *string*
 
+#### Type declaration:
+
+▸ (`s`: *string*): *string*
+
+#### Parameters:
+
+Name | Type |
+:------ | :------ |
+`s` | *string* |
+
+**Returns:** *string*
+
 ___
 
 ### components
 
-▪ `Static` **components**: { `BottomBar`: *typeof* BottomBar ; `Grid`: *typeof* Grid ; `SidePanel`: *typeof* SidePanel ; `TopBar`: *typeof* TopBar  }
+▪ `Static` **components**: *object*
 
 #### Type declaration:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `BottomBar` | *typeof* BottomBar |
 `Grid` | *typeof* Grid |
 `SidePanel` | *typeof* SidePanel |
@@ -130,7 +142,7 @@ ___
 
 ### focusGridComposer
 
-• **focusGridComposer**(): *boolean*
+• get **focusGridComposer**(): *boolean*
 
 **Returns:** *boolean*
 
@@ -138,7 +150,7 @@ ___
 
 ### focusTopBarComposer
 
-• **focusTopBarComposer**(): *boolean*
+• get **focusTopBarComposer**(): *boolean*
 
 **Returns:** *boolean*
 
@@ -151,7 +163,7 @@ ___
 #### Parameters:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `cut` | *boolean* |
 `ev` | ClipboardEvent |
 
@@ -190,7 +202,7 @@ ___
 #### Parameters:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `ev` | ComposerFocusedEvent |
 
 **Returns:** *void*
@@ -204,7 +216,7 @@ ___
 #### Parameters:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `ev` | KeyboardEvent |
 
 **Returns:** *void*
@@ -218,7 +230,7 @@ ___
 #### Parameters:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `ev` | KeyboardEvent |
 
 **Returns:** *void*
@@ -232,7 +244,7 @@ ___
 #### Parameters:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `ev` | ComposerFocusedEvent |
 
 **Returns:** *void*
@@ -246,7 +258,7 @@ ___
 #### Parameters:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `panel` | *string* |
 `panelProps` | *any* |
 
@@ -261,7 +273,7 @@ ___
 #### Parameters:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `ev` | ClipboardEvent |
 
 **Returns:** *void*
@@ -283,7 +295,7 @@ ___
 #### Parameters:
 
 Name | Type |
------- | ------ |
+:------ | :------ |
 `panel` | *string* |
 `panelProps` | *any* |
 

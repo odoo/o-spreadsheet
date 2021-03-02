@@ -2,10 +2,6 @@
 
 # Interface: Client
 
-## Hierarchy
-
-* **Client**
-
 ## Table of contents
 
 ### Properties

@@ -9,12 +9,8 @@ The service will handle all networking details internally.
 ## Type parameters
 
 Name | Default |
------- | ------ |
+:------ | :------ |
 `T` | *any* |
-
-## Hierarchy
-
-* **TransportService**
 
 ## Table of contents
 
@@ -31,6 +27,18 @@ Name | Default |
 • **leave**: (`id`: *string*) => *void*
 
 Unregister a callback linked to the given id
+
+#### Type declaration:
+
+▸ (`id`: *string*): *void*
+
+#### Parameters:
+
+Name | Type |
+:------ | :------ |
+`id` | *string* |
+
+**Returns:** *void*
 
 ___
 
@@ -49,6 +57,19 @@ transportService.onNewMessage(id, (message) => {
 ```
 The `id` is used to unregister this callback when the session is closed.
 
+#### Type declaration:
+
+▸ (`id`: *string*, `callback`: *NewMessageCallback*<T\>): *void*
+
+#### Parameters:
+
+Name | Type |
+:------ | :------ |
+`id` | *string* |
+`callback` | *NewMessageCallback*<T\> |
+
+**Returns:** *void*
+
 ___
 
 ### sendMessage
@@ -56,3 +77,15 @@ ___
 • **sendMessage**: (`message`: T) => *void*
 
 Send a message to all clients
+
+#### Type declaration:
+
+▸ (`message`: T): *void*
+
+#### Parameters:
+
+Name | Type |
+:------ | :------ |
+`message` | T |
+
+**Returns:** *void*

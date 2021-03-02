@@ -29,8 +29,8 @@ o-spreadsheet API
 
 ### Variables
 
-- [DATETIME_FORMAT](README.md#datetime_format)
-- [SPREADSHEET_DIMENSIONS](README.md#spreadsheet_dimensions)
+- [DATETIME\_FORMAT](README.md#datetime_format)
+- [SPREADSHEET\_DIMENSIONS](README.md#spreadsheet_dimensions)
 - [\_\_DEBUG\_\_](README.md#__debug__)
 - [\_\_info\_\_](README.md#__info__)
 - [coreTypes](README.md#coretypes)
@@ -49,132 +49,138 @@ o-spreadsheet API
 
 ### CollaborationMessage
 
-Ƭ **CollaborationMessage**: [_RevisionUndoneMessage_](interfaces/revisionundonemessage.md) \| [_RevisionRedoneMessage_](interfaces/revisionredonemessage.md) \| [_RemoteRevisionMessage_](interfaces/remoterevisionmessage.md) \| [_ClientMovedMessage_](interfaces/clientmovedmessage.md) \| [_ClientJoinedMessage_](interfaces/clientjoinedmessage.md) \| [_ClientLeftMessage_](interfaces/clientleftmessage.md)
+Ƭ **CollaborationMessage**: [*RevisionUndoneMessage*](interfaces/revisionundonemessage.md) \| [*RevisionRedoneMessage*](interfaces/revisionredonemessage.md) \| [*RemoteRevisionMessage*](interfaces/remoterevisionmessage.md) \| [*ClientMovedMessage*](interfaces/clientmovedmessage.md) \| [*ClientJoinedMessage*](interfaces/clientjoinedmessage.md) \| [*ClientLeftMessage*](interfaces/clientleftmessage.md)
 
 ## Variables
 
-### DATETIME_FORMAT
+### DATETIME\_FORMAT
 
-• `Const` **DATETIME_FORMAT**: _RegExp_
+• `Const` **DATETIME\_FORMAT**: *RegExp*
 
----
+___
 
-### SPREADSHEET_DIMENSIONS
+### SPREADSHEET\_DIMENSIONS
 
-• `Const` **SPREADSHEET_DIMENSIONS**: _object_
+• `Const` **SPREADSHEET\_DIMENSIONS**: *object*
 
 #### Type declaration:
 
-| Name                  | Type     |
-| --------------------- | -------- |
-| `BOTTOMBAR_HEIGHT`    | _number_ |
-| `DEFAULT_CELL_HEIGHT` | _number_ |
-| `DEFAULT_CELL_WIDTH`  | _number_ |
-| `HEADER_HEIGHT`       | _number_ |
-| `HEADER_WIDTH`        | _number_ |
-| `MIN_COL_WIDTH`       | _number_ |
-| `MIN_ROW_HEIGHT`      | _number_ |
-| `SCROLLBAR_WIDTH`     | _number_ |
-| `TOPBAR_HEIGHT`       | _number_ |
+Name | Type |
+:------ | :------ |
+`BOTTOMBAR_HEIGHT` | *number* |
+`DEFAULT_CELL_HEIGHT` | *number* |
+`DEFAULT_CELL_WIDTH` | *number* |
+`HEADER_HEIGHT` | *number* |
+`HEADER_WIDTH` | *number* |
+`MIN_COL_WIDTH` | *number* |
+`MIN_ROW_HEIGHT` | *number* |
+`SCROLLBAR_WIDTH` | *number* |
+`TOPBAR_HEIGHT` | *number* |
 
----
+___
 
 ### \_\_DEBUG\_\_
 
-• `Const` **\_\_DEBUG\_\_**: _object_
+• `Const` **\_\_DEBUG\_\_**: *object*
 
----
+#### Type declaration:
+
+___
 
 ### \_\_info\_\_
 
-• `Const` **\_\_info\_\_**: _object_
+• `Const` **\_\_info\_\_**: *object*
 
 We export here all entities that needs to be accessed publicly by Odoo.
 
-Note that the **info** key is actually completed by the build process (see
+Note that the __info__ key is actually completed by the build process (see
 the rollup.config.js file)
 
----
+#### Type declaration:
+
+___
 
 ### coreTypes
 
-• `Const` **coreTypes**: _Set_<_UPDATE_CELL_ \| _UPDATE_CELL_POSITION_ \| _CLEAR_CELL_ \| _DELETE_CONTENT_ \| _SET_DECIMAL_ \| _ADD_COLUMNS_ \| _ADD_ROWS_ \| _REMOVE_COLUMNS_ \| _REMOVE_ROWS_ \| _RESIZE_COLUMNS_ROWS_ \| _RESIZE_ROWS_ \| _ADD_MERGE_ \| _REMOVE_MERGE_ \| _CREATE_SHEET_ \| _DELETE_SHEET_ \| _DUPLICATE_SHEET_ \| _MOVE_SHEET_ \| _RENAME_SHEET_ \| _ADD_CONDITIONAL_FORMAT_ \| _REMOVE_CONDITIONAL_FORMAT_ \| _CREATE_FIGURE_ \| _DELETE_FIGURE_ \| _UPDATE_FIGURE_ \| _SET_FORMATTING_ \| _CLEAR_FORMATTING_ \| _SET_BORDER_ \| _CREATE_CHART_ \| _UPDATE_CHART_\>
+• `Const` **coreTypes**: *Set*<*UPDATE_CELL* \| *UPDATE_CELL_POSITION* \| *CLEAR_CELL* \| *DELETE_CONTENT* \| *SET_DECIMAL* \| *ADD_COLUMNS_ROWS* \| *REMOVE_COLUMNS_ROWS* \| *RESIZE_COLUMNS_ROWS* \| *ADD_MERGE* \| *REMOVE_MERGE* \| *CREATE_SHEET* \| *DELETE_SHEET* \| *DUPLICATE_SHEET* \| *MOVE_SHEET* \| *RENAME_SHEET* \| *ADD_CONDITIONAL_FORMAT* \| *REMOVE_CONDITIONAL_FORMAT* \| *CREATE_FIGURE* \| *DELETE_FIGURE* \| *UPDATE_FIGURE* \| *SET_FORMATTING* \| *CLEAR_FORMATTING* \| *SET_BORDER* \| *CREATE_CHART* \| *UPDATE_CHART*\>
 
----
+___
 
 ### functionCache
 
-• `Const` **functionCache**: _object_
+• `Const` **functionCache**: *object*
 
----
+#### Type declaration:
+
+___
 
 ### helpers
 
-• `Const` **helpers**: _object_
+• `Const` **helpers**: *object*
 
 #### Type declaration:
 
-| Name                 | Type                                                                                |
-| -------------------- | ----------------------------------------------------------------------------------- |
-| `args`               | (`strings`: _string_) => Arg[]                                                      |
-| `computeTextWidth`   | (`context`: CanvasRenderingContext2D, `text`: _string_, `style`: Style) => _number_ |
-| `createFullMenuItem` | (`key`: _string_, `value`: MenuItem) => FullMenuItem                                |
-| `formatDecimal`      | (`n`: _number_, `decimals`: _number_, `sep`: _string_) => _string_                  |
-| `numberToLetters`    | (`n`: _number_) => _string_                                                         |
-| `toBoolean`          | (`value`: _any_) => _boolean_                                                       |
-| `toCartesian`        | (`xc`: _string_) => [*number*, *number*]                                            |
-| `toNumber`           | (`value`: _any_) => _number_                                                        |
-| `toString`           | (`value`: _any_) => _string_                                                        |
-| `toXC`               | (`col`: _number_, `row`: _number_) => _string_                                      |
-| `toZone`             | (`xc`: _string_, `keepBoundaries`: _boolean_) => Zone                               |
-| `uuidv4`             | () => _string_                                                                      |
+Name | Type |
+:------ | :------ |
+`args` | (`strings`: *string*) => Arg[] |
+`computeTextWidth` | (`context`: CanvasRenderingContext2D, `text`: *string*, `style`: Style) => *number* |
+`createFullMenuItem` | (`key`: *string*, `value`: MenuItem) => FullMenuItem |
+`formatDecimal` | (`n`: *number*, `decimals`: *number*, `sep`: *string*) => *string* |
+`numberToLetters` | (`n`: *number*) => *string* |
+`toBoolean` | (`value`: *any*) => *boolean* |
+`toCartesian` | (`xc`: *string*) => [*number*, *number*] |
+`toNumber` | (`value`: *any*) => *number* |
+`toString` | (`value`: *any*) => *string* |
+`toXC` | (`col`: *number*, `row`: *number*) => *string* |
+`toZone` | (`xc`: *string*, `keepBoundaries`: *boolean*) => Zone |
+`uuidv4` | () => *string* |
 
----
+___
 
 ### registries
 
-• `Const` **registries**: _object_
+• `Const` **registries**: *object*
 
 #### Type declaration:
 
-| Name                        | Type                                        |
-| --------------------------- | ------------------------------------------- |
-| `autofillModifiersRegistry` | _Registry_<AutofillModifierImplementation\> |
-| `autofillRulesRegistry`     | _Registry_<AutofillRule\>                   |
-| `cellMenuRegistry`          | _MenuItemRegistry_                          |
-| `colMenuRegistry`           | _MenuItemRegistry_                          |
-| `corePluginRegistry`        | _Registry_<CorePluginConstructor\>          |
-| `functionRegistry`          | _FunctionRegistry_                          |
-| `inverseCommandRegistry`    | _Registry_<InverseFunction\>                |
-| `otRegistry`                | _OTRegistry_                                |
-| `rowMenuRegistry`           | _MenuItemRegistry_                          |
-| `sheetMenuRegistry`         | _MenuItemRegistry_                          |
-| `sidePanelRegistry`         | _Registry_<SidePanelContent\>               |
-| `topbarComponentRegistry`   | _Registry_<TopbarComponent\>                |
-| `topbarMenuRegistry`        | _MenuItemRegistry_                          |
-| `uiPluginRegistry`          | _Registry_<UIPluginConstructor\>            |
+Name | Type |
+:------ | :------ |
+`autofillModifiersRegistry` | *Registry*<AutofillModifierImplementation\> |
+`autofillRulesRegistry` | *Registry*<AutofillRule\> |
+`cellMenuRegistry` | *MenuItemRegistry* |
+`colMenuRegistry` | *MenuItemRegistry* |
+`corePluginRegistry` | *Registry*<CorePluginConstructor\> |
+`functionRegistry` | *FunctionRegistry* |
+`inverseCommandRegistry` | *Registry*<InverseFunction\> |
+`otRegistry` | *OTRegistry* |
+`rowMenuRegistry` | *MenuItemRegistry* |
+`sheetMenuRegistry` | *MenuItemRegistry* |
+`sidePanelRegistry` | *Registry*<SidePanelContent\> |
+`topbarComponentRegistry` | *Registry*<TopbarComponent\> |
+`topbarMenuRegistry` | *MenuItemRegistry* |
+`uiPluginRegistry` | *Registry*<UIPluginConstructor\> |
 
 ## Functions
 
 ### astToFormula
 
-▸ **astToFormula**(`ast`: AST): _string_
+▸ **astToFormula**(`ast`: AST): *string*
 
 Converts an ast formula to the corresponding string
 
 #### Parameters:
 
-| Name  | Type |
-| ----- | ---- |
-| `ast` | AST  |
+Name | Type |
+:------ | :------ |
+`ast` | AST |
 
-**Returns:** _string_
+**Returns:** *string*
 
----
+___
 
 ### normalize
 
-▸ **normalize**(`formula`: _string_): NormalizedFormula
+▸ **normalize**(`formula`: *string*): NormalizedFormula
 
 parses a formula (as a string) into the same formula,
 but with the references to other cells extracted
@@ -183,40 +189,40 @@ but with the references to other cells extracted
 
 #### Parameters:
 
-| Name      | Type     | Description |
-| --------- | -------- | ----------- |
-| `formula` | _string_ |             |
+Name | Type |
+:------ | :------ |
+`formula` | *string* |
 
 **Returns:** NormalizedFormula
 
----
+___
 
 ### parse
 
-▸ **parse**(`str`: _string_): AST
+▸ **parse**(`str`: *string*): AST
 
 Parse an expression (as a string) into an AST.
 
 #### Parameters:
 
-| Name  | Type     |
-| ----- | -------- |
-| `str` | _string_ |
+Name | Type |
+:------ | :------ |
+`str` | *string* |
 
 **Returns:** AST
 
----
+___
 
 ### setTranslationMethod
 
-▸ **setTranslationMethod**(`tfn`: TranslationFunction): _void_
+▸ **setTranslationMethod**(`tfn`: TranslationFunction): *void*
 
 Allow to inject a translation function from outside o-spreadsheet.
 
 #### Parameters:
 
-| Name  | Type                | Description                               |
-| ----- | ------------------- | ----------------------------------------- |
-| `tfn` | TranslationFunction | the function that will do the translation |
+Name | Type | Description |
+:------ | :------ | :------ |
+`tfn` | TranslationFunction | the function that will do the translation    |
 
-**Returns:** _void_
+**Returns:** *void*
