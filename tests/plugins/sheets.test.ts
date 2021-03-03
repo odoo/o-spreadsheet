@@ -751,7 +751,7 @@ describe("sheets", () => {
     expect(model.getters.getActiveSheetId()).toEqual(sheet1);
     undo(model);
     expect(model.getters.getSheets()).toHaveLength(2);
-    expect(model.getters.getActiveSheetId()).toEqual(sheet1);
+    expect(model.getters.getActiveSheetId()).toEqual(sheet2);
     redo(model);
     expect(model.getters.getSheets()).toHaveLength(1);
     expect(model.getters.getActiveSheetId()).toEqual(sheet1);

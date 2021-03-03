@@ -86,11 +86,6 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   private mode = SelectionMode.idle;
   private sheetsData: { [sheet: string]: SheetInfo } = {};
   private moveClient: (position: ClientPosition) => void;
-
-  // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
-  // the main command.
-
-  private historizeActiveSheet: boolean = true;
   activeSheet: Sheet = null as any;
 
   constructor(
@@ -164,7 +159,6 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       case "ACTIVATE_SHEET":
         try {
           this.getters.getSheet(cmd.sheetIdTo);
-          this.historizeActiveSheet = false;
           break;
         } catch (error) {
           return { status: "CANCELLED", reason: CancelledReason.InvalidSheetId };
@@ -200,7 +194,6 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     }
     switch (cmd.type) {
       case "START":
-        this.historizeActiveSheet = false;
         this.dispatch("ACTIVATE_SHEET", {
           sheetIdTo: this.getters.getSheets()[0].id,
           sheetIdFrom: this.getters.getSheets()[0].id,
@@ -291,7 +284,6 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   }
 
   finalize() {
-    this.historizeActiveSheet = true;
     if (!this.getters.tryGetSheet(this.getActiveSheetId())) {
       const currentSheets = this.getters.getVisibleSheets();
       this.activeSheet = this.getters.getSheet(currentSheets[0]);
@@ -499,11 +491,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
 
   private setActiveSheet(id: UID) {
     const sheet = this.getters.getSheet(id);
-    if (this.historizeActiveSheet) {
-      this.history.update("activeSheet", sheet);
-    } else {
-      this.activeSheet = sheet;
-    }
+    this.activeSheet = sheet;
   }
 
   /**
