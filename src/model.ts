@@ -186,7 +186,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
   private setupUiPlugin(Plugin: UIPluginConstructor) {
     if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(this.getters, this.state, this.dispatch, this.config);
+      const plugin = new Plugin(this.getters, this.dispatch, this.config);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
           throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);

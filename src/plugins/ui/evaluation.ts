@@ -2,7 +2,6 @@ import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { mapCellsInZone, toXC, toZone } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
-import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
 import {
   Cell,
@@ -73,13 +72,8 @@ export class EvaluationPlugin extends UIPlugin {
    */
   private COMPUTED: Set<Cell> = new Set();
 
-  constructor(
-    getters: Getters,
-    state: StateObserver,
-    dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig
-  ) {
-    super(getters, state, dispatch, config);
+  constructor(getters: Getters, dispatch: CommandDispatcher["dispatch"], config: ModelConfig) {
+    super(getters, dispatch, config);
     this.evalContext = config.evalContext;
   }
 

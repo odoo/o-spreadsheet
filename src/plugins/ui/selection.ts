@@ -8,7 +8,6 @@ import {
   updateSelectionOnInsertion,
 } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
-import { StateObserver } from "../../state_observer";
 import {
   AddColumnsRowsCommand,
   CancelledReason,
@@ -47,14 +46,10 @@ export enum SelectionMode {
   expanding,
 }
 
-interface SelectionPluginState {
-  activeSheet: Sheet;
-}
-
 /**
  * SelectionPlugin
  */
-export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
+export class SelectionPlugin extends UIPlugin {
   static layers = [LAYERS.Selection];
   static modes: Mode[] = ["normal", "readonly"];
   static getters = [
@@ -88,13 +83,8 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   private moveClient: (position: ClientPosition) => void;
   activeSheet: Sheet = null as any;
 
-  constructor(
-    getters: Getters,
-    state: StateObserver,
-    dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig
-  ) {
-    super(getters, state, dispatch, config);
+  constructor(getters: Getters, dispatch: CommandDispatcher["dispatch"], config: ModelConfig) {
+    super(getters, dispatch, config);
     this.moveClient = config.moveClient;
   }
 
