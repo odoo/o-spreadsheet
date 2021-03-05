@@ -1,9 +1,4 @@
-import {
-  expandZoneOnInsertion,
-  isDefined,
-  isInside,
-  reduceZoneOnDeletion,
-} from "../../helpers/index";
+import { isDefined, isInside } from "../../helpers/index";
 import { otRegistry } from "../../registries/ot_registry";
 import {
   AddColumnsRowsCommand,
@@ -20,6 +15,7 @@ import {
   TargetDependentCommand,
   Zone,
 } from "../../types";
+import { transformZone } from "./ot_helpers";
 import "./ot_specific";
 
 type TransformResult = "SKIP_TRANSFORMATION" | "IGNORE_COMMAND";
@@ -114,23 +110,7 @@ function transformTarget(
 ): Extract<CoreCommand, TargetDependentCommand> | TransformResult {
   const target: Zone[] = [];
   for (const zone of cmd.target) {
-    let newZone: Zone | undefined = { ...zone };
-    if (executed.type === "REMOVE_COLUMNS_ROWS") {
-      newZone = reduceZoneOnDeletion(
-        zone,
-        executed.dimension === "COL" ? "left" : "top",
-        executed.elements
-      );
-    }
-    if (executed.type === "ADD_COLUMNS_ROWS") {
-      newZone = expandZoneOnInsertion(
-        zone,
-        executed.dimension === "COL" ? "left" : "top",
-        executed.base,
-        executed.position,
-        executed.quantity
-      );
-    }
+    const newZone = transformZone(zone, executed);
     if (newZone) {
       target.push(newZone);
     }

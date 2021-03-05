@@ -1,18 +1,32 @@
-import { overlap } from "../../helpers";
+import { isDefined, overlap, toZone, zoneToXc } from "../../helpers";
 import { otRegistry } from "../../registries";
 import {
+  AddColumnsRowsCommand,
   AddMergeCommand,
+  CreateChartCommand,
   DeleteFigureCommand,
+  RemoveColumnsRowsCommand,
   RemoveMergeCommand,
   UpdateChartCommand,
   UpdateFigureCommand,
   Zone,
 } from "../../types";
+import { transformZone } from "./ot_helpers";
 
 /*
  * This file contains the specifics transformations
  */
 
+otRegistry.addTransformation(
+  "ADD_COLUMNS_ROWS",
+  ["CREATE_CHART", "UPDATE_CHART"],
+  updateChartRangesTransformation
+);
+otRegistry.addTransformation(
+  "REMOVE_COLUMNS_ROWS",
+  ["CREATE_CHART", "UPDATE_CHART"],
+  updateChartRangesTransformation
+);
 otRegistry.addTransformation("DELETE_FIGURE", ["UPDATE_FIGURE", "UPDATE_CHART"], updateChartFigure);
 otRegistry.addTransformation("ADD_MERGE", ["ADD_MERGE", "REMOVE_MERGE"], mergeTransformation);
 
@@ -24,6 +38,29 @@ function updateChartFigure(
     return undefined;
   }
   return toTransform;
+}
+
+function updateChartRangesTransformation(
+  toTransform: UpdateChartCommand | CreateChartCommand,
+  executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+): UpdateChartCommand | CreateChartCommand {
+  const definition = toTransform.definition;
+  let labelZone: Zone | undefined;
+  if (definition.labelRange) {
+    labelZone = transformZone(toZone(definition.labelRange), executed);
+  }
+  return {
+    ...toTransform,
+    definition: {
+      ...definition,
+      dataSets: definition.dataSets
+        .map((range) => toZone(range))
+        .map((zone) => transformZone(zone, executed))
+        .filter(isDefined)
+        .map(zoneToXc),
+      labelRange: labelZone ? zoneToXc(labelZone) : undefined,
+    },
+  };
 }
 
 function mergeTransformation(
