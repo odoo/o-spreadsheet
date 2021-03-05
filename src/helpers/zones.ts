@@ -3,20 +3,19 @@ import { toCartesian, toXC } from "./coordinates";
 
 /**
  * Convert from a cartesian reference to a Zone
- *
+ * The range boundaries will be kept in the same order as the
+ * ones in the text.
  * Examples:
  *    "A1" ==> Top 0, Bottom 0, Left: 0, Right: 0
  *    "B1:B3" ==> Top 0, Bottom 3, Left: 1, Right: 1
  *    "Sheet1!A1" ==> Top 0, Bottom 0, Left: 0, Right: 0
  *    "Sheet1!B1:B3" ==> Top 0, Bottom 3, Left: 1, Right: 1
+ *    "C3:A1" ==> Top 2, Bottom 0, Left 2, Right 0}
  *
  * @param xc the string reference to convert
- * @param keepBoundaries if true, the boundaries of the range will be kept in the same order as the
- *                       ones in the text: C3:A1 will have a zone {top:2,left:2:bottom:0,right:0} else
- *                       the zone will be inverted {top:0,bottom:2,left:0, bottom:2}
  *
  */
-export function toZone(xc: string, keepBoundaries: boolean = false): Zone {
+export function toZoneWithoutBoundaryChanges(xc: string): Zone {
   xc = xc.split("!").pop()!;
   const ranges = xc.replace(/\$/g, "").split(":");
   let top: number, bottom: number, left: number, right: number;
@@ -28,16 +27,30 @@ export function toZone(xc: string, keepBoundaries: boolean = false): Zone {
     let d = toCartesian(ranges[1].trim());
     right = d[0];
     bottom = d[1];
-    if (!keepBoundaries) {
-      if (right < left) {
-        [right, left] = [left, right];
-      }
-      if (bottom < top) {
-        [bottom, top] = [top, bottom];
-      }
-    }
   }
+  return { top, bottom, left, right };
+}
 
+/**
+ * Convert from a cartesian reference to a Zone
+ *
+ * Examples:
+ *    "A1" ==> Top 0, Bottom 0, Left: 0, Right: 0
+ *    "B1:B3" ==> Top 0, Bottom 3, Left: 1, Right: 1
+ *    "Sheet1!A1" ==> Top 0, Bottom 0, Left: 0, Right: 0
+ *    "Sheet1!B1:B3" ==> Top 0, Bottom 3, Left: 1, Right: 1
+ *
+ * @param xc the string reference to convert
+ *
+ */
+export function toZone(xc: string): Zone {
+  let { top, bottom, left, right } = toZoneWithoutBoundaryChanges(xc);
+  if (right < left) {
+    [right, left] = [left, right];
+  }
+  if (bottom < top) {
+    [bottom, top] = [top, bottom];
+  }
   return { top, bottom, left, right };
 }
 

@@ -5,7 +5,7 @@ import {
   getUnquotedSheetName,
   groupConsecutive,
   numberToLetters,
-  toZone,
+  toZoneWithoutBoundaryChanges,
 } from "../../helpers/index";
 import {
   ApplyRangeChange,
@@ -269,7 +269,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         invalidSheetName = sheetName;
       }
     }
-    let zone = toZone(xc, true);
+    const zone = toZoneWithoutBoundaryChanges(xc);
 
     let rangeParts: RangePart[] = xc.split(":").map((p) => {
       return {
