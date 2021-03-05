@@ -1,7 +1,10 @@
 /**
- * Return true if the event was triggered from
- * a child element.
+ *  returns true if the element or one of its parents has the class classname
  */
-export function isChildEvent(parent: HTMLElement, ev: Event): boolean {
-  return !!ev.target && parent!.contains(ev.target as Node);
+export function hasSomeParentTheClass(element: HTMLElement, classname: string): boolean {
+  if (element.classList.contains(classname)) return true;
+  if (element.parentElement) {
+    return hasSomeParentTheClass(element.parentElement, classname);
+  }
+  return false;
 }

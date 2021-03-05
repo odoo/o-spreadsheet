@@ -2,7 +2,7 @@ import { Component, hooks, tags } from "@odoo/owl";
 import { FullMenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { SpreadsheetEnv } from "../types";
-import { isChildEvent } from "./helpers/dom_helpers";
+import { hasSomeParentTheClass } from "./helpers/dom_helpers";
 import * as icons from "./icons";
 
 const { xml, css } = tags;
@@ -147,7 +147,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   }
 
   private onClick(ev: MouseEvent) {
-    if (this.el && isChildEvent(this.el, ev)) {
+    if (hasSomeParentTheClass(ev.target as HTMLElement, "o-menu-item")) {
       return;
     }
     this.close();
