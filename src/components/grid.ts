@@ -208,6 +208,10 @@ const CSS = css/* scss */ `
     overflow: hidden;
     background-color: ${BACKGROUND_GRAY_COLOR};
 
+    /* allows to define the grid as the main anchor point for using fixed
+    position for child elements */
+    transform: rotate(0deg);
+
     > canvas {
       border-top: 1px solid #e2e3e3;
       border-bottom: 1px solid #e2e3e3;
@@ -243,6 +247,9 @@ const CSS = css/* scss */ `
         left: ${HEADER_WIDTH}px;
       }
     }
+  }
+  .o-menu-container {
+    position: absolute;
   }
 `;
 

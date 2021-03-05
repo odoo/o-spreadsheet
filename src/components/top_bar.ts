@@ -8,13 +8,12 @@ import { FullMenuItem } from "../registries/menu_items_registry";
 import { Align, BorderCommand, SpreadsheetEnv, Style } from "../types/index";
 import { ColorPicker } from "./color_picker";
 import { Composer } from "./composer/composer";
-import { isChildEvent } from "./helpers/dom_helpers";
 import * as icons from "./icons";
 import { Menu, MenuState } from "./menu";
 
 const { Component, useState, hooks } = owl;
+const { useExternalListener } = hooks;
 const { xml, css } = owl.tags;
-const { useExternalListener, useRef } = hooks;
 
 type Tool =
   | ""
@@ -61,8 +60,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           <Menu t-if="state.menuState.isOpen"
                 position="state.menuState.position"
                 menuItems="state.menuState.menuItems"
-                t-ref="menuRef"
-                t-on-close="state.menuState.isOpen=false"/>
+                t-on-close="closeMenus()"/>
         </div>
         <div class="o-topbar-topright">
           <div t-foreach="topbarComponents" t-as="comp" t-key="comp_index">
@@ -341,7 +339,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   fillColor: string = "white";
   textColor: string = "black";
   menus: FullMenuItem[] = [];
-  menuRef = useRef("menuRef");
   composerStyle = `
     line-height: 34px;
     border-bottom: 1px solid #e0e2e4;
@@ -351,7 +348,11 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
 
   constructor() {
     super(...arguments);
-    useExternalListener(window as any, "click", this.onClick);
+    useExternalListener(window, "contextmenu", this.onContextMenu);
+  }
+
+  private onContextMenu() {
+    this.closeMenus();
   }
 
   get topbarComponents() {
@@ -365,13 +366,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   }
   async willUpdateProps() {
     this.updateCellState();
-  }
-
-  onClick(ev: MouseEvent) {
-    if (this.openedEl && isChildEvent(this.openedEl, ev)) {
-      return;
-    }
-    this.closeMenus();
   }
 
   toogleStyle(style: string) {
@@ -421,9 +415,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     this.state.menuState.isOpen = false;
     this.isSelectingMenu = false;
     this.openedEl = null;
-    if (this.menuRef.comp) {
-      (<Menu>this.menuRef.comp).closeSubMenus();
-    }
   }
 
   updateCellState() {
