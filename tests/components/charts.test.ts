@@ -361,7 +361,7 @@ describe("charts with multiple sheets", () => {
   afterEach(() => {
     fixture.remove();
   });
-  test("delete sheet containing chart data doesnt crash", async () => {
+  test("delete sheet containing chart data does not crash", async () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
     model.dispatch("DELETE_SHEET", { sheetId: model.getters.getActiveSheetId() });
     const runtimeChart = model.getters.getChartRuntime("1");
