@@ -1,13 +1,7 @@
 import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
-import {
-  CancelledReason,
-  CommandSuccess,
-  ConditionalFormat,
-  Style,
-  Zone,
-} from "../../src/types/index";
+import { CancelledReason, CommandSuccess, Zone } from "../../src/types/index";
 import {
   activateSheet,
   createSheet,
@@ -16,24 +10,11 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getBorder, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
-import { getGrid, target } from "../test_helpers/helpers";
+import { createEqualCF, getGrid, target } from "../test_helpers/helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
   return clipboardPlugin.status === "visible" ? clipboardPlugin.zones : [];
-}
-
-function createEqualCF(
-  ranges: string[],
-  value: string,
-  style: Style,
-  id: string
-): ConditionalFormat {
-  return {
-    ranges,
-    id,
-    rule: { values: [value], operator: "Equal", type: "CellIsRule", style },
-  };
 }
 
 describe("clipboard", () => {
@@ -845,7 +826,8 @@ describe("clipboard", () => {
     setCellContent(model, "C1", "1");
     setCellContent(model, "C2", "2");
     let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1"), toZone("A2")],
       sheetId: model.getters.getActiveSheetId(),
     });
 
@@ -1019,8 +1001,9 @@ describe("clipboard", () => {
     setCellContent(model, "C1", "1");
     setCellContent(model, "C2", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("A1"), toZone("A2")],
     });
     model.dispatch("COPY", { target: target("A1") });
     model.dispatch("PASTE", { target: target("C1") });
@@ -1049,7 +1032,8 @@ describe("clipboard", () => {
     setCellContent(model, "C1", "1");
     setCellContent(model, "C2", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1"), toZone("A2")],
       sheetId: model.getters.getActiveSheetId(),
     });
     model.dispatch("CUT", { target: target("A1") });
@@ -1076,7 +1060,8 @@ describe("clipboard", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1"), toZone("A2")],
       sheetId: model.getters.getActiveSheetId(),
     });
     model.dispatch("COPY", { target: target("A1:A2") });
@@ -1114,7 +1099,8 @@ describe("clipboard", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1"), toZone("A2")],
       sheetId: model.getters.getActiveSheetId(),
     });
     model.dispatch("CUT", { target: target("A1:A2") });
@@ -1151,7 +1137,8 @@ describe("clipboard", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1"), toZone("A2")],
       sheetId: model.getters.getActiveSheetId(),
     });
     model.dispatch("COPY", { target: [toZone("A1:A2")] });
@@ -1187,7 +1174,8 @@ describe("clipboard", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1"), toZone("A2")],
       sheetId: model.getters.getActiveSheetId(),
     });
     model.dispatch("CUT", { target: [toZone("A1:A2")] });

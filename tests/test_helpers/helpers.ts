@@ -394,13 +394,11 @@ export function target(str: string): Zone[] {
 }
 
 export function createEqualCF(
-  ranges: string[],
   value: string,
   style: Style,
   id: string
-): ConditionalFormat {
+): Omit<ConditionalFormat, "ranges"> {
   return {
-    ranges,
     id,
     rule: { values: [value], operator: "Equal", type: "CellIsRule", style },
   };
@@ -408,13 +406,11 @@ export function createEqualCF(
 
 export function createColorScale(
   id: string,
-  ranges: string[],
   min: ColorScaleThreshold,
   max: ColorScaleThreshold,
   mid?: ColorScaleMidPointThreshold
-): ConditionalFormat {
+): Omit<ConditionalFormat, "ranges"> {
   return {
-    ranges,
     id,
     rule: { type: "ColorScaleRule", minimum: min, maximum: max, midpoint: mid },
   };

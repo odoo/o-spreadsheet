@@ -87,16 +87,17 @@ describe("UI of conditional formats", () => {
   describe("Conditional format list", () => {
     beforeEach(async () => {
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createEqualCF(["A1:A2"], "2", { fillColor: "#FF0000" }, "1"),
+        cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
         sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1:A2")],
       });
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "2",
-          ["B1:B5"],
           { type: "value", color: 0xff00ff, value: "" },
           { type: "value", color: 0x123456, value: "" }
         ),
+        target: [toZone("B1:B5")],
         sheetId: model.getters.getActiveSheetId(),
       });
       await nextTick();
@@ -150,7 +151,6 @@ describe("UI of conditional formats", () => {
       expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "1",
-          ranges: ["A1:A3"],
           rule: {
             operator: "BeginsWith",
             stopIfTrue: false,
@@ -159,6 +159,7 @@ describe("UI of conditional formats", () => {
             values: ["3", ""],
           },
         },
+        target: [toZone("A1:A3")],
         sheetId: model.getters.getActiveSheetId(),
       });
     });
@@ -167,7 +168,8 @@ describe("UI of conditional formats", () => {
       parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
 
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createEqualCF(["C1:C5"], "2", { bold: true, fillColor: "#ff0000" }, "99"),
+        cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
+        target: [toZone("C1:C5")],
         sheetId: model.getters.getActiveSheetId(),
       });
 
@@ -199,7 +201,6 @@ describe("UI of conditional formats", () => {
       expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "2",
-          ranges: ["B2:B5"],
           rule: {
             maximum: {
               color: 0xffff00,
@@ -214,6 +215,7 @@ describe("UI of conditional formats", () => {
             type: "ColorScaleRule",
           },
         },
+        target: [toZone("B2:B5")],
         sheetId: model.getters.getActiveSheetId(),
       });
     });
@@ -262,7 +264,6 @@ describe("UI of conditional formats", () => {
       expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "50",
-          ranges: ["A1:A3"],
           rule: {
             operator: "BeginsWith",
             stopIfTrue: false,
@@ -271,6 +272,7 @@ describe("UI of conditional formats", () => {
             values: ["3", ""],
           },
         },
+        target: [toZone("A1:A3")],
         sheetId: model.getters.getActiveSheetId(),
       });
     });
@@ -323,7 +325,6 @@ describe("UI of conditional formats", () => {
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "57",
-        ranges: ["B2:B5"],
         rule: {
           maximum: {
             color: 0xffff00,
@@ -336,6 +337,7 @@ describe("UI of conditional formats", () => {
           type: "ColorScaleRule",
         },
       },
+      target: [toZone("B2:B5")],
       sheetId: model.getters.getActiveSheetId(),
     });
   });
@@ -373,7 +375,6 @@ describe("UI of conditional formats", () => {
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "58",
-        ranges: ["B2:B5"],
         rule: {
           maximum: {
             color: 0xffff00,
@@ -388,6 +389,7 @@ describe("UI of conditional formats", () => {
           type: "ColorScaleRule",
         },
       },
+      target: [toZone("B2:B5")],
       sheetId: model.getters.getActiveSheetId(),
     });
   });
@@ -425,7 +427,6 @@ describe("UI of conditional formats", () => {
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "58",
-        ranges: ["B2:B5"],
         rule: {
           maximum: {
             color: 0xffff00,
@@ -440,6 +441,7 @@ describe("UI of conditional formats", () => {
           type: "ColorScaleRule",
         },
       },
+      target: [toZone("B2:B5")],
       sheetId: model.getters.getActiveSheetId(),
     });
   });
@@ -477,7 +479,6 @@ describe("UI of conditional formats", () => {
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "58",
-        ranges: ["B2:B5"],
         rule: {
           maximum: {
             color: 0xffff00,
@@ -492,6 +493,7 @@ describe("UI of conditional formats", () => {
           type: "ColorScaleRule",
         },
       },
+      target: [toZone("B2:B5")],
       sheetId: model.getters.getActiveSheetId(),
     });
   });
@@ -537,7 +539,6 @@ describe("UI of conditional formats", () => {
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "58",
-        ranges: ["B2:B5"],
         rule: {
           maximum: {
             color: 0xffff00,
@@ -557,6 +558,7 @@ describe("UI of conditional formats", () => {
           type: "ColorScaleRule",
         },
       },
+      target: [toZone("B2:B5")],
       sheetId: model.getters.getActiveSheetId(),
     });
   });

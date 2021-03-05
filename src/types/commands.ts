@@ -235,9 +235,12 @@ export interface RenameSheetCommand extends BaseCommand, SheetDependentCommand {
  * todo: use id instead of a list. this is not safe to serialize and send to
  * another user
  */
-export interface AddConditionalFormatCommand extends BaseCommand, SheetDependentCommand {
+export interface AddConditionalFormatCommand
+  extends BaseCommand,
+    SheetDependentCommand,
+    TargetDependentCommand {
   type: "ADD_CONDITIONAL_FORMAT";
-  cf: ConditionalFormat;
+  cf: Omit<ConditionalFormat, "ranges">;
 }
 
 export interface RemoveConditionalFormatCommand extends BaseCommand, SheetDependentCommand {

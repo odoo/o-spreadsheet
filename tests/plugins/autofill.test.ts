@@ -145,6 +145,7 @@ describe("Autofill", () => {
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf,
       sheetId: model.getters.getActiveSheetId(),
+      target: cf.ranges.map(toZone),
     });
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
       fillColor: "#FF0000",

@@ -1,5 +1,5 @@
 import { compile, normalize } from "../../formulas/index";
-import { isInside } from "../../helpers/index";
+import { isInside, zoneToXc } from "../../helpers/index";
 import {
   ApplyRangeChange,
   CancelledReason,
@@ -113,7 +113,11 @@ export class ConditionalFormatPlugin
         this.history.update("cfRules", cfRules);
         break;
       case "ADD_CONDITIONAL_FORMAT":
-        this.addConditionalFormatting(cmd.cf, cmd.sheetId);
+        const cf = {
+          ...cmd.cf,
+          ranges: cmd.target.map(zoneToXc),
+        };
+        this.addConditionalFormatting(cf, cmd.sheetId);
         break;
       case "REMOVE_CONDITIONAL_FORMAT":
         this.removeConditionalFormatting(cmd.id, cmd.sheetId);

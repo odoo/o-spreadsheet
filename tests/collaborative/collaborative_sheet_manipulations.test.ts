@@ -11,6 +11,7 @@ import {
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
+import { createEqualCF } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnvWithViewport } from "./collaborative_helpers";
 
@@ -289,5 +290,99 @@ describe("Collaborative Sheet manipulation", () => {
     deleteRows(alice, [0]);
     expect(bob.getters.getSelectedZone()).toEqual(toZone("D4"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("H8"));
+  });
+
+  describe("conditional formatting", () => {
+    test("Concurrent new conditional format and new columns", () => {
+      const sheetId = bob.getters.getActiveSheetId();
+      const cf = createEqualCF("1", { fillColor: "#FF0000" }, "1");
+      network.concurrent(() => {
+        addColumns(alice, "before", "D", 2);
+        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
+          sheetId,
+          cf,
+          target: [toZone("A1:A3"), toZone("C1:D3"), toZone("F1:F3")],
+        });
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getConditionalFormats(sheetId),
+        [
+          {
+            id: "1",
+            ranges: ["A1:A3", "C1:F3", "H1:H3"],
+            rule: cf.rule,
+          },
+        ]
+      );
+    });
+
+    test("Concurrent new conditional format and removed columns", () => {
+      const sheetId = bob.getters.getActiveSheetId();
+      const cf = createEqualCF("1", { fillColor: "#FF0000" }, "1");
+      network.concurrent(() => {
+        deleteColumns(alice, ["C", "D", "F"]);
+        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
+          sheetId,
+          cf,
+          target: [toZone("A1:A3"), toZone("C1:D3"), toZone("F1:G3")],
+        });
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getConditionalFormats(sheetId),
+        [
+          {
+            id: "1",
+            ranges: ["A1:A3", "D1:D3"],
+            rule: cf.rule,
+          },
+        ]
+      );
+    });
+
+    test("Concurrent new conditional format and new rows", () => {
+      const sheetId = bob.getters.getActiveSheetId();
+      const cf = createEqualCF("1", { fillColor: "#FF0000" }, "1");
+      network.concurrent(() => {
+        addRows(alice, "before", 9, 2);
+        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
+          sheetId,
+          cf,
+          target: [toZone("A1:A3"), toZone("A4:A10"), toZone("A11:A12")],
+        });
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getConditionalFormats(sheetId),
+        [
+          {
+            id: "1",
+            ranges: ["A1:A3", "A4:A12", "A13:A14"],
+            rule: cf.rule,
+          },
+        ]
+      );
+    });
+
+    test("Concurrent new conditional format and removed rows", () => {
+      const sheetId = bob.getters.getActiveSheetId();
+      const cf = createEqualCF("1", { fillColor: "#FF0000" }, "1");
+      network.concurrent(() => {
+        deleteRows(alice, [3, 4, 10]);
+        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
+          sheetId,
+          cf,
+          target: [toZone("A1:A3"), toZone("A4:A5"), toZone("A11:A12")],
+        });
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getConditionalFormats(sheetId),
+        [
+          {
+            id: "1",
+            ranges: ["A1:A3", "A9"],
+            rule: cf.rule,
+          },
+        ]
+      );
+    });
   });
 });

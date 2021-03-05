@@ -566,7 +566,8 @@ describe("sheets", () => {
     });
     expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1:A2"], "42", { fillColor: "blue" }, "1"),
+      cf: createEqualCF("42", { fillColor: "blue" }, "1"),
+      target: [toZone("A1:A2")],
       sheetId: model.getters.getActiveSheetId(),
     });
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({ fillColor: "blue" });
