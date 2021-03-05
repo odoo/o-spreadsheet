@@ -398,8 +398,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         id: cf.id,
         rule: cf.rule,
         stopIfTrue: cf.stopIfTrue,
-        ranges: newRange,
       },
+      target: newRange.map(toZone),
       sheetId,
     });
   }

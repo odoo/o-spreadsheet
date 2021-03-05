@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { colorNumberString, uuidv4 } from "../../helpers/index";
+import { colorNumberString, toZone, uuidv4 } from "../../helpers/index";
 import {
   ColorScaleRule,
   ConditionalFormat,
@@ -320,9 +320,9 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
       const result = this.env.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: ev.detail.rule,
-          ranges: this.state.currentRanges,
           id: this.state.mode === "edit" ? this.state.currentCF.id : uuidv4(),
         },
+        target: this.state.currentRanges.map(toZone),
         sheetId: this.getters.getActiveSheetId(),
       });
       if (result.status === "CANCELLED") {

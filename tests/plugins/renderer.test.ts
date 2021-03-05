@@ -227,8 +227,9 @@ describe("renderer", () => {
       ],
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1"], "1", { fillColor: "#DC6CDF" }, "1"),
+      cf: createEqualCF("1", { fillColor: "#DC6CDF" }, "1"),
       sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("A1")],
     });
 
     let fillStyle: any[] = [];
@@ -267,7 +268,8 @@ describe("renderer", () => {
     });
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1"], "1", { fillColor: "#DC6CDF" }, "1"),
+      cf: createEqualCF("1", { fillColor: "#DC6CDF" }, "1"),
+      target: [toZone("A1")],
       sheetId,
     });
     merge(model, "A1:A3");
@@ -464,7 +466,8 @@ describe("renderer", () => {
     expect(fillStyle).toEqual([]);
     fillStyle = [];
     let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1"], "", { fillColor: "#DC6CDF" }, "1"),
+      cf: createEqualCF("", { fillColor: "#DC6CDF" }, "1"),
+      target: [toZone("A1")],
       sheetId: model.getters.getActiveSheetId(),
     });
     expect(result).toEqual({ status: "SUCCESS" });

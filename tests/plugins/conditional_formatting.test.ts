@@ -1,4 +1,4 @@
-import { toCartesian } from "../../src/helpers";
+import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason, ConditionalFormattingOperatorValues } from "../../src/types";
 import {
@@ -28,11 +28,13 @@ describe("conditional format", () => {
     setCellContent(model, "A3", "3");
     setCellContent(model, "A4", "4");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1:A4"], "2", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1:A4")],
       sheetId: model.getters.getActiveSheetId(),
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1:A4"], "4", { fillColor: "#0000FF" }, "2"),
+      cf: createEqualCF("4", { fillColor: "#0000FF" }, "2"),
+      target: [toZone("A1:A4")],
       sheetId: model.getters.getActiveSheetId(),
     });
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toEqual([
@@ -77,7 +79,8 @@ describe("conditional format", () => {
     const [, sheet] = model.getters.getSheets();
     expect(sheet.id).not.toBe(model.getters.getActiveSheetId());
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1:A4"], "4", { fillColor: "#0000FF" }, "2"),
+      cf: createEqualCF("4", { fillColor: "#0000FF" }, "2"),
+      target: [toZone("A1:A4")],
       sheetId: sheet.id,
     });
     activateSheet(model, "42");
@@ -104,11 +107,13 @@ describe("conditional format", () => {
     setCellContent(model, "A4", "4");
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1:A4"], "2", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1:A4")],
       sheetId,
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1:A4"], "4", { fillColor: "#0000FF" }, "2"),
+      cf: createEqualCF("4", { fillColor: "#0000FF" }, "2"),
+      target: [toZone("A1:A4")],
       sheetId,
     });
     expect(model.getters.getConditionalFormats(sheetId)).toEqual([
@@ -161,7 +166,8 @@ describe("conditional format", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "1");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1"), toZone("A2")],
       sheetId: model.getters.getActiveSheetId(),
     });
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
@@ -176,7 +182,8 @@ describe("conditional format", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "1");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1"), toZone("A2")],
       sheetId: model.getters.getActiveSheetId(),
     });
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
@@ -206,7 +213,8 @@ describe("conditional format", () => {
     setCellContent(model, "B1", "1");
     setCellContent(model, "B2", "1");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["B1", "B2"], "1", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("B1"), toZone("B2")],
       sheetId,
     });
     expect(model.getters.getConditionalStyle(...toCartesian("B1"))).toEqual({
@@ -272,7 +280,8 @@ describe("conditional format", () => {
 
   test("is saved/restored", () => {
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1:A4"], "2", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1:A4")],
       sheetId: model.getters.getActiveSheetId(),
     });
     const workbookData = model.exportData();
@@ -287,7 +296,8 @@ describe("conditional format", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1"], "2", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1")],
       sheetId: model.getters.getActiveSheetId(),
     });
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
@@ -306,7 +316,8 @@ describe("conditional format", () => {
   test("works when cells are in error", () => {
     setCellContent(model, "A1", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1"], "2", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1")],
       sheetId: model.getters.getActiveSheetId(),
     });
     setCellContent(model, "A1", "=BLA");
@@ -316,11 +327,13 @@ describe("conditional format", () => {
   test("multiple conditional formats for one cell", () => {
     setCellContent(model, "A1", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1"], "2", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1")],
       sheetId: model.getters.getActiveSheetId(),
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1"], "2", { textColor: "#445566" }, "2"),
+      cf: createEqualCF("2", { textColor: "#445566" }, "2"),
+      target: [toZone("A1")],
       sheetId: model.getters.getActiveSheetId(),
     });
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
@@ -332,11 +345,13 @@ describe("conditional format", () => {
   test("multiple conditional formats with same style", () => {
     setCellContent(model, "A1", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1"], "2", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1")],
       sheetId: model.getters.getActiveSheetId(),
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1"], "2", { fillColor: "#FF0000" }, "2"),
+      cf: createEqualCF("2", { fillColor: "#FF0000" }, "2"),
+      target: [toZone("A1")],
       sheetId: model.getters.getActiveSheetId(),
     });
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
@@ -349,7 +364,6 @@ describe("conditional format", () => {
 
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        ranges: ["A1"],
         rule: {
           values: ["2"],
           operator: "Equal",
@@ -359,10 +373,12 @@ describe("conditional format", () => {
         id: "1",
         stopIfTrue: true,
       },
+      target: [toZone("A1")],
       sheetId: model.getters.getActiveSheetId(),
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1"], "2", { fillColor: "#445566" }, "2"),
+      cf: createEqualCF("2", { fillColor: "#445566" }, "2"),
+      target: [toZone("A1")],
       sheetId: model.getters.getActiveSheetId(),
     });
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
@@ -372,7 +388,8 @@ describe("conditional format", () => {
 
   test("Set conditionalFormat on empty cell", () => {
     let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF(["A1"], "", { fillColor: "#FF0000" }, "1"),
+      cf: createEqualCF("", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1")],
       sheetId: model.getters.getActiveSheetId(),
     });
     expect(result).toEqual({ status: "SUCCESS" });
@@ -536,9 +553,9 @@ describe("conditional formats types", () => {
             values: ["qsdf"],
             style: { fillColor: "#ff0f0f" },
           },
-          ranges: ["A1"],
           id: "11",
         },
+        target: [toZone("A1")],
         sheetId: model.getters.getActiveSheetId(),
       });
 
@@ -560,9 +577,9 @@ describe("conditional formats types", () => {
             values: ["1", "3"],
             style: { fillColor: "#ff0f0f" },
           },
-          ranges: ["A1"],
           id: "11",
         },
+        target: [toZone("A1")],
         sheetId: model.getters.getActiveSheetId(),
       });
 
@@ -597,9 +614,9 @@ describe("conditional formats types", () => {
             values: ["abc"],
             style: { fillColor: "#ff0f0f" },
           },
-          ranges: ["A1"],
           id: "11",
         },
+        target: [toZone("A1")],
         sheetId: model.getters.getActiveSheetId(),
       });
       setCellContent(model, "A1", "hello");
@@ -620,9 +637,9 @@ describe("conditional formats types", () => {
             values: ["qsdf"],
             style: { fillColor: "#ff0f0f" },
           },
-          ranges: ["A1"],
           id: "11",
         },
+        target: [toZone("A1")],
         sheetId: model.getters.getActiveSheetId(),
       });
 
@@ -644,9 +661,9 @@ describe("conditional formats types", () => {
             values: ["12"],
             style: { fillColor: "#ff0f0f" },
           },
-          ranges: ["A1"],
           id: "11",
         },
+        target: [toZone("A1")],
         sheetId: model.getters.getActiveSheetId(),
       });
       setCellContent(model, "A1", "5");
@@ -670,9 +687,9 @@ describe("conditional formats types", () => {
             values: ["12"],
             style: { fillColor: "#ff0f0f" },
           },
-          ranges: ["A1"],
           id: "11",
         },
+        target: [toZone("A1")],
         sheetId: model.getters.getActiveSheetId(),
       });
 
@@ -699,9 +716,9 @@ describe("conditional formats types", () => {
             values: ["10"],
             style: { fillColor: "#ff0f0f" },
           },
-          ranges: ["A1"],
           id: "11",
         },
+        target: [toZone("A1")],
         sheetId: model.getters.getActiveSheetId(),
       });
 
@@ -726,9 +743,9 @@ describe("conditional formats types", () => {
             values: ["10"],
             style: { fillColor: "#ff0f0f" },
           },
-          ranges: ["A1"],
           id: "11",
         },
+        target: [toZone("A1")],
         sheetId: model.getters.getActiveSheetId(),
       });
 
@@ -755,9 +772,9 @@ describe("conditional formats types", () => {
             values: ["5", "10"],
             style: { fillColor: "#ff0f0f" },
           },
-          ranges: ["A1"],
           id: "11",
         },
+        target: [toZone("A1")],
         sheetId: model.getters.getActiveSheetId(),
       });
 
@@ -792,9 +809,9 @@ describe("conditional formats types", () => {
             values: ["qsdf"],
             style: { fillColor: "#ff0f0f" },
           },
-          ranges: ["A1"],
           id: "11",
         },
+        target: [toZone("A1")],
         sheetId: model.getters.getActiveSheetId(),
       });
 
@@ -816,9 +833,9 @@ describe("conditional formats types", () => {
             values: ["qsdf"],
             style: { fillColor: "#ff0f0f" },
           },
-          ranges: ["A1"],
           id: "11",
         },
+        target: [toZone("A1")],
         sheetId: model.getters.getActiveSheetId(),
       });
 
@@ -868,9 +885,9 @@ describe("conditional formats types", () => {
               values: values,
               style: { fillColor: "#ff0f0f" },
             },
-            ranges: ["A1"],
             id: "11",
           },
+          target: [toZone("A1")],
           sheetId: model.getters.getActiveSheetId(),
         });
         expect(result).toBeCancelled(CancelledReason.InvalidNumberOfArgs);
@@ -885,9 +902,9 @@ describe("conditional formats types", () => {
         test("minimum is NaN", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
             sheetId: model.getters.getActiveSheetId(),
+            target: [toZone("A1")],
             cf: {
               id: "1",
-              ranges: ["A1"],
               rule: {
                 type: "ColorScaleRule",
                 minimum: { type: "number", color: 1, value: value },
@@ -900,9 +917,9 @@ describe("conditional formats types", () => {
         test("midpoint is NaN", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
             sheetId: model.getters.getActiveSheetId(),
+            target: [toZone("A1")],
             cf: {
               id: "1",
-              ranges: ["A1"],
               rule: {
                 type: "ColorScaleRule",
                 minimum: { type: "number", color: 1, value: "1" },
@@ -916,9 +933,9 @@ describe("conditional formats types", () => {
         test("maximum is NaN", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
             sheetId: model.getters.getActiveSheetId(),
+            target: [toZone("A1")],
             cf: {
               id: "1",
-              ranges: ["A1"],
               rule: {
                 type: "ColorScaleRule",
                 minimum: { type: "number", color: 1, value: "1" },
@@ -945,9 +962,9 @@ describe("conditional formats types", () => {
         test("min bigger than max", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
             sheetId: model.getters.getActiveSheetId(),
+            target: [toZone("A1")],
             cf: {
               id: "1",
-              ranges: ["A1"],
               rule: {
                 type: "ColorScaleRule",
                 minimum: { type: minType, color: 1, value: "10" },
@@ -960,9 +977,9 @@ describe("conditional formats types", () => {
         test("mid bigger than max", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
             sheetId: model.getters.getActiveSheetId(),
+            target: [toZone("A1")],
             cf: {
               id: "1",
-              ranges: ["A1"],
               rule: {
                 type: "ColorScaleRule",
                 minimum: { type: minType, color: 1, value: "1" },
@@ -976,9 +993,9 @@ describe("conditional formats types", () => {
         test("min bigger than mid", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
             sheetId: model.getters.getActiveSheetId(),
+            target: [toZone("A1")],
             cf: {
               id: "1",
-              ranges: ["A1"],
               rule: {
                 type: "ColorScaleRule",
                 minimum: { type: minType, color: 1, value: "5" },
@@ -996,10 +1013,10 @@ describe("conditional formats types", () => {
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
-          ["A1"],
           { type: "value", color: 0xff00ff },
           { type: "value", color: 0x123456 }
         ),
+        target: [toZone("A1")],
         sheetId: model.getters.getActiveSheetId(),
       });
       expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual(undefined);
@@ -1015,10 +1032,10 @@ describe("conditional formats types", () => {
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
-          ["A1:A5"],
           { type: "value", color: 0xff00ff },
           { type: "value", color: 0x123456 }
         ),
+        target: [toZone("A1:A5")],
         sheetId: model.getters.getActiveSheetId(),
       });
 
@@ -1049,10 +1066,10 @@ describe("conditional formats types", () => {
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
-          ["A1:A5"],
           { type: "value", color: 0xff00ff },
           { type: "value", color: 0x123456 }
         ),
+        target: [toZone("A1:A5")],
         sheetId: model.getters.getActiveSheetId(),
       });
 
@@ -1083,10 +1100,10 @@ describe("conditional formats types", () => {
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
-          ["A1:A5"],
           { type: "value", color: 0xff00ff },
           { type: "value", color: 0x123456 }
         ),
+        target: [toZone("A1:A5")],
         sheetId: model.getters.getActiveSheetId(),
       });
 
@@ -1115,10 +1132,10 @@ describe("conditional formats types", () => {
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
-          ["A1:A5"],
           { type: "value", color: 0xff0000 },
           { type: "value", color: 0x00ff00 }
         ),
+        target: [toZone("A1:A5")],
         sheetId: model.getters.getActiveSheetId(),
       });
 
@@ -1139,10 +1156,10 @@ describe("conditional formats types", () => {
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
-          ["A1:A2"],
           { type: "value", color: 0xff00ff },
           { type: "value", color: 0x123456 }
         ),
+        target: [toZone("A1:A2")],
         sheetId: model.getters.getActiveSheetId(),
       });
 
@@ -1157,10 +1174,10 @@ describe("conditional formats types", () => {
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
-          ["A1:A2"],
           { type: "value", color: 0xff00ff },
           { type: "value", color: 0x123456 }
         ),
+        target: [toZone("A1:A2")],
         sheetId: model.getters.getActiveSheetId(),
       });
       expect(true).toBeTruthy(); // no error
