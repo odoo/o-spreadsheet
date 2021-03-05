@@ -49,6 +49,42 @@ export function createSheet(
 }
 
 /**
+ * Create a new chart by default of type bar with titles
+ * in the data sets, on the active sheet.
+ */
+
+export function createChart(
+  model: Model,
+  data: {
+    title?: string;
+    dataSets: string[];
+    labelRange: string;
+    dataSetsHaveTitle?: boolean;
+    type?: "bar" | "line" | "pie";
+  },
+  chartId?: string,
+  sheetId?: string
+) {
+  const id = chartId || uuidv4();
+  const title = data.title || "test";
+  sheetId = sheetId || model.getters.getActiveSheetId();
+  const dataSetsHaveTitle = data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true;
+  const type = data.type || "bar";
+  const result = model.dispatch("CREATE_CHART", {
+    id,
+    sheetId: sheetId,
+    definition: {
+      title,
+      dataSets: data.dataSets,
+      dataSetsHaveTitle,
+      labelRange: data.labelRange,
+      type,
+    },
+  });
+  return result;
+}
+
+/**
  * Add columns
  */
 export function addColumns(
