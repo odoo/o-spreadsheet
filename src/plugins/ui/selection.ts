@@ -262,7 +262,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
         if (!activeSheetId) {
           this.setActiveSheet(this.getters.getVisibleSheets()[0]);
         }
-        this.updateSelection();
+        this.ensureSelectionValidity();
         break;
       case "REMOVE_COLUMNS_ROWS":
         if (cmd.sheetId === this.getActiveSheetId()) {
@@ -649,11 +649,37 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     this.dispatch("SET_SELECTION", { zones, anchor: [anchorCol, anchorRow] });
   }
 
-  private updateSelection() {
-    const activeSheet = this.getters.getActiveSheet();
-    const cols = activeSheet.cols.length - 1;
-    const rows = activeSheet.rows.length - 1;
-    const zones = this.selection.zones.map((z) => ({
+  /**
+   * Ensure selections are not outside sheet boundaries.
+   * They are clipped to fit inside the sheet if needed.
+   */
+  private ensureSelectionValidity() {
+    const { anchor, zones } = this.clipSelection(this.getActiveSheetId(), this.selection);
+    this.setSelection(anchor, zones);
+    const deletedSheetIds = Object.keys(this.sheetsData).filter(
+      (sheetId) => !this.getters.tryGetSheet(sheetId)
+    );
+    for (const sheetId of deletedSheetIds) {
+      delete this.sheetsData[sheetId];
+    }
+    for (const sheetId in this.sheetsData) {
+      const { anchor, zones } = this.clipSelection(sheetId, this.sheetsData[sheetId].selection);
+      this.sheetsData[sheetId] = {
+        selection: { anchor, zones },
+        activeCol: anchor[0],
+        activeRow: anchor[1],
+      };
+    }
+  }
+
+  /**
+   * Clip the selection if it spans outside the sheet
+   */
+  private clipSelection(sheetId: UID, selection: Selection): Selection {
+    const sheet = this.getters.getSheet(sheetId);
+    const cols = sheet.cols.length - 1;
+    const rows = sheet.rows.length - 1;
+    const zones = selection.zones.map((z) => ({
       left: clip(z.left, 0, cols),
       right: clip(z.right, 0, cols),
       top: clip(z.top, 0, rows),
@@ -661,19 +687,22 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     }));
     const anchorCol = zones[zones.length - 1].left;
     const anchorRow = zones[zones.length - 1].top;
-    this.setSelection([anchorCol, anchorRow], zones);
+    return {
+      anchor: [anchorCol, anchorRow],
+      zones,
+    };
   }
 
   private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
     const zone = updateSelectionOnDeletion(this.getSelectedZone(), "left", cmd.elements);
     this.setSelection([zone.left, zone.top], [zone], true);
-    this.updateSelection();
+    this.ensureSelectionValidity();
   }
 
   private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
     const zone = updateSelectionOnDeletion(this.getSelectedZone(), "top", cmd.elements);
     this.setSelection([zone.left, zone.top], [zone], true);
-    this.updateSelection();
+    this.ensureSelectionValidity();
   }
 
   private onAddElements(cmd: AddColumnsRowsCommand) {

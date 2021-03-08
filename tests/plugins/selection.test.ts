@@ -1,7 +1,15 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
-import { activateSheet, createSheet, selectCell } from "../test_helpers/commands_helpers";
+import {
+  activateSheet,
+  addColumns,
+  createSheet,
+  deleteColumns,
+  redo,
+  selectCell,
+  undo,
+} from "../test_helpers/commands_helpers";
 import { getActiveXc } from "../test_helpers/getters_helpers";
 
 describe("selection", () => {
@@ -250,6 +258,41 @@ describe("selection", () => {
     expect(getActiveXc(model)).toBe("A1");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
+  });
+
+  test("invalid selection is updated after undo", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "42",
+          colNumber: 3,
+          rowNumber: 3,
+        },
+      ],
+    });
+    addColumns(model, "after", "A", 1);
+    selectCell(model, "D1");
+    undo(model);
+    expect(model.getters.getPosition()).toEqual([2, 0]);
+    expect(model.getters.getSheetPosition("42")).toEqual([2, 0]);
+  });
+
+  test("invalid selection is updated after redo", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "42",
+          colNumber: 3,
+          rowNumber: 3,
+        },
+      ],
+    });
+    deleteColumns(model, ["A"]);
+    undo(model);
+    selectCell(model, "C1");
+    redo(model);
+    expect(model.getters.getPosition()).toEqual([1, 0]);
+    expect(model.getters.getSheetPosition("42")).toEqual([1, 0]);
   });
 });
 
