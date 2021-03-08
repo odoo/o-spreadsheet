@@ -267,7 +267,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   private canvas = useRef("canvas");
   private getters = this.env.getters;
   private dispatch = this.env.dispatch;
-  private currentPosition = this.getters.getPosition();
   private currentSheet = this.getters.getActiveSheetId();
 
   private clickedCol = 0;
@@ -385,19 +384,12 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     }
   }
 
-  checkChanges(): boolean {
-    const [col, row] = this.getters.getPosition();
-    const [curCol, curRow] = this.currentPosition;
+  checkSheetChanges() {
     const currentSheet = this.getters.getActiveSheetId();
-    const changed = currentSheet !== this.currentSheet || col !== curCol || row !== curRow;
-    if (changed) {
-      this.currentPosition = [col, row];
-    }
     if (currentSheet !== this.currentSheet) {
       this.focus();
       this.currentSheet = currentSheet;
     }
-    return changed;
   }
 
   getAutofillPosition() {
@@ -416,7 +408,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.hScrollbar.scroll = offsetX;
     this.vScrollbar.scroll = offsetY;
     // check for position changes
-    this.checkChanges();
+    this.checkSheetChanges();
     // drawing grid on canvas
     const canvas = this.canvas.el as HTMLCanvasElement;
     const dpr = window.devicePixelRatio || 1;
@@ -500,7 +492,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       this.dispatch("ALTER_SELECTION", { cell: [col, row] });
     } else {
       this.dispatch("SELECT_CELL", { col, row });
-      this.checkChanges();
+      this.checkSheetChanges();
     }
     let prevCol = col;
     let prevRow = row;
