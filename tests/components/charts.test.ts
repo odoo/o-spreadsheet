@@ -273,6 +273,22 @@ describe("figures", () => {
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
   });
 
+  test("can refresh a chart", async () => {
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
+    await simulateClick(".o-figure");
+    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-menu div[data-name='edit']");
+    await nextTick();
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+    await simulateClick(".o-figure");
+    await simulateClick(".o-chart-menu");
+    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    await simulateClick(".o-menu div[data-name='refresh']");
+    expect(parent.env.dispatch).toHaveBeenCalledWith("REFRESH_CHART", {
+      id: "someuuid",
+    });
+  });
+
   test("selecting other chart will adapt sidepanel", async () => {
     model.dispatch("CREATE_CHART", {
       sheetId: model.getters.getActiveSheetId(),
