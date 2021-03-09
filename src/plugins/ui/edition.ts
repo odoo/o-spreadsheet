@@ -258,10 +258,9 @@ export class EditionPlugin extends UIPlugin {
   private startComposerSelection() {
     this.mode = "resettingPosition";
     this.insertSelectionIndicator();
-    const [col, row] = this.getters.getPosition();
     this.dispatch("SELECT_CELL", {
-      col,
-      row,
+      col: this.col,
+      row: this.row,
     });
     this.mode = "selecting";
     // We set this variable to store the start of the selection, to allow
@@ -296,12 +295,12 @@ export class EditionPlugin extends UIPlugin {
     const cell = this.getters.getActiveCell();
     this.initialContent = (cell && this.getCellContent(cell)) || "";
     this.mode = "editing";
-    this.setContent(str || this.initialContent, selection);
-    this.dispatch("REMOVE_ALL_HIGHLIGHTS");
     const [col, row] = this.getters.getPosition();
     this.col = col;
     this.row = row;
     this.sheet = this.getters.getActiveSheetId();
+    this.setContent(str || this.initialContent, selection);
+    this.dispatch("REMOVE_ALL_HIGHLIGHTS");
   }
 
   private stopEdition() {

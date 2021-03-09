@@ -114,16 +114,15 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "MOVE_POSITION": {
-        const [refCol, refRow] = this.getReferenceCoords();
         const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
-        let targetCol = refCol;
-        let targetRow = refRow;
-        if (this.getters.isInMerge(sheetId, refCol, refRow)) {
+        let targetCol = this.activeCol;
+        let targetRow = this.activeRow;
+        if (this.getters.isInMerge(sheetId, this.activeCol, this.activeRow)) {
           while (
             this.getters.isInSameMerge(
               sheetId,
-              refCol,
-              refRow,
+              this.activeCol,
+              this.activeRow,
               targetCol + cmd.deltaX,
               targetRow + cmd.deltaY
             )
@@ -465,14 +464,6 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   // Other
   // ---------------------------------------------------------------------------
 
-  /**
-   * Return [col, row]
-   */
-  private getReferenceCoords(): [number, number] {
-    const isSelectingRange = this.getters.isSelectingForComposer();
-    return isSelectingRange ? this.selection.anchor : [this.activeCol, this.activeRow];
-  }
-
   private selectColumn(index: number, createRange: boolean, updateRange: boolean) {
     const bottom = this.getters.getActiveSheet().rows.length - 1;
     const zone = { left: index, right: index, top: 0, bottom };
@@ -536,10 +527,8 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     this.selection.zones = uniqueZones(this.selection.zones);
 
     this.selection.anchor = [col, row];
-    if (!this.getters.isSelectingForComposer()) {
-      this.activeCol = col;
-      this.activeRow = row;
-    }
+    this.activeCol = col;
+    this.activeRow = row;
   }
 
   private setActiveSheet(id: UID) {
@@ -555,21 +544,20 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
    * Moves the position of either the active cell of the anchor of the current selection by a number of rows / cols delta
    */
   movePosition(deltaX: number, deltaY: number) {
-    const [refCol, refRow] = this.getReferenceCoords();
     const sheet = this.getters.getActiveSheet();
-    if (this.getters.isInMerge(sheet.id, refCol, refRow)) {
-      let targetCol = refCol;
-      let targetRow = refRow;
-      while (this.getters.isInSameMerge(sheet.id, refCol, refRow, targetCol, targetRow)) {
+    if (this.getters.isInMerge(sheet.id, this.activeCol, this.activeRow)) {
+      let targetCol = this.activeCol;
+      let targetRow = this.activeRow;
+      while (this.getters.isInSameMerge(sheet.id, this.activeCol, this.activeRow, targetCol, targetRow)) {
         targetCol += deltaX;
         targetRow += deltaY;
       }
       if (targetCol >= 0 && targetRow >= 0) {
         this.selectCell(targetCol, targetRow);
       }
-    } else if (sheet.cols[refCol + deltaX]?.isHidden || sheet.rows[refRow + deltaY]?.isHidden) {
-      let targetCol = refCol + deltaX;
-      let targetRow = refRow + deltaY;
+    } else if (sheet.cols[this.activeCol + deltaX]?.isHidden || sheet.rows[this.activeRow + deltaY]?.isHidden) {
+      let targetCol = this.activeCol + deltaX;
+      let targetRow = this.activeRow + deltaY;
       while (sheet.cols[targetCol]?.isHidden) {
         targetCol += deltaX;
       }
@@ -585,7 +573,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
         this.selectCell(targetCol, targetRow);
       }
     } else {
-      this.selectCell(refCol + deltaX, refRow + deltaY);
+      this.selectCell(this.activeCol + deltaX, this.activeRow + deltaY);
     }
   }
 
