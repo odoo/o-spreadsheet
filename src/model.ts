@@ -101,6 +101,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * Internal status of the model. Important for command handling coordination
    */
   private status: Status = Status.Ready;
+  private isPrimaryDispatch: boolean = false;
 
   /**
    * The config object contains some configuration flag and callbacks
@@ -185,7 +186,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
   private setupUiPlugin(Plugin: UIPluginConstructor) {
     if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(this.getters, this.state, this.dispatch, this.config);
+      const plugin = new Plugin(this.getters, this.dispatch, this.config);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
           throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
@@ -323,16 +324,21 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         if (error) {
           return error;
         }
+        this.isPrimaryDispatch = true;
         this.status = Status.Running;
         const { changes, commands } = this.state.recordChanges(() => {
           if (isCoreCommand(command)) {
             this.state.addCommand(command);
           }
-          this.dispatchToHandlers(this.handlers, command);
+          this.dispatchToHandlers(this.handlers, {
+            isPrimaryDispatch: this.isPrimaryDispatch,
+            ...command,
+          });
           this.finalize();
         });
         this.session.save(commands, changes);
         this.status = Status.Ready;
+        this.isPrimaryDispatch = false;
         if (this.config.mode !== "headless") {
           this.trigger("update");
         }
@@ -342,7 +348,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         if (isCoreCommand(command)) {
           this.state.addCommand(command);
         }
-        this.dispatchToHandlers(this.handlers, command);
+        this.dispatchToHandlers(this.handlers, {
+          isPrimaryDispatch: this.isPrimaryDispatch,
+          ...command,
+        });
         break;
       case Status.Finalizing:
         throw new Error(_lt("Cannot dispatch commands in the finalize state"));
@@ -357,9 +366,9 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * A command dispatched from this function is not added to the history.
    */
   private dispatchFromCorePlugin: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
-    const command: Command = { type, ...payload };
+    const command: Command = { type, isPrimaryDispatch: this.isPrimaryDispatch, ...payload };
     const previousStatus = this.status;
-    this.status = Status.RunningCore;
+    this.status = isCoreCommand(command) ? Status.RunningCore : Status.Running;
     this.dispatchToHandlers(this.handlers, command);
     this.status = previousStatus;
     return { status: "SUCCESS" } as CommandSuccess;

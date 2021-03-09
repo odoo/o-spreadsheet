@@ -4,6 +4,7 @@ import { toZone } from "../../src/helpers";
 import { CancelledReason } from "../../src/types";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import {
+  activateSheet,
   addColumns,
   createSheet,
   deleteColumns,
@@ -14,7 +15,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
-import { setupCollaborativeEnv } from "./collaborative_helpers";
+import { setupCollaborativeEnvWithViewport } from "./collaborative_helpers";
 
 describe("Collaborative local history", () => {
   let network: MockTransportService;
@@ -24,7 +25,7 @@ describe("Collaborative local history", () => {
   let all: Model[];
 
   beforeEach(() => {
-    ({ network, alice, bob, charlie } = setupCollaborativeEnv());
+    ({ network, alice, bob, charlie } = setupCollaborativeEnvWithViewport());
     all = [alice, bob, charlie];
   });
 
@@ -188,6 +189,7 @@ describe("Collaborative local history", () => {
       {
         type: "REVISION_UNDONE",
         version: MESSAGE_VERSION,
+        clientId: "bob",
         nextRevisionId: "2",
         serverRevisionId: "1",
         undoneRevisionId: "1",
@@ -221,6 +223,7 @@ describe("Collaborative local history", () => {
       {
         type: "REVISION_UNDONE",
         version: MESSAGE_VERSION,
+        clientId: "bob",
         nextRevisionId: "2",
         serverRevisionId: "1",
         undoneRevisionId: "1",
@@ -228,6 +231,7 @@ describe("Collaborative local history", () => {
       {
         type: "REVISION_REDONE",
         version: MESSAGE_VERSION,
+        clientId: "bob",
         nextRevisionId: "3",
         serverRevisionId: "2",
         redoneRevisionId: "1",
@@ -507,5 +511,15 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
     undo(bob);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "F1"), "hello");
+  });
+
+  test("undo step in a deleted sheet", () => {
+    const firstSheetId = alice.getters.getActiveSheetId();
+    createSheet(bob, { sheetId: "42" });
+    setCellContent(bob, "A1", "Hello", firstSheetId);
+    activateSheet(bob, "42");
+    alice.dispatch("DELETE_SHEET", { sheetId: firstSheetId });
+    undo(bob);
+    expect(bob.getters.getActiveSheetId()).toBe("42");
   });
 });

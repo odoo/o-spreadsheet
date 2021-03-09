@@ -17,6 +17,7 @@ import { FindAndReplacePlugin } from "./ui/find_and_replace";
 import { HighlightPlugin } from "./ui/highlight";
 import { RendererPlugin } from "./ui/renderer";
 import { SelectionPlugin } from "./ui/selection";
+import { SelectionHistoryPlugin } from "./ui/selection_history";
 import { SelectionInputPlugin } from "./ui/selection_inputs";
 import { SelectionMultiUserPlugin } from "./ui/selection_multiuser";
 import { SortPlugin } from "./ui/sort";
@@ -36,6 +37,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
 
 export const uiPluginRegistry = new Registry<UIPluginConstructor>()
   .add("selection", SelectionPlugin)
+  .add("selection_history", SelectionHistoryPlugin)
   .add("ui_sheet", SheetUIPlugin)
   .add("ui_options", UIOptionsPlugin)
   .add("evaluation", EvaluationPlugin)

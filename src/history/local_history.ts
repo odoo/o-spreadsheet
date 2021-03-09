@@ -1,7 +1,14 @@
 import * as owl from "@odoo/owl";
 import { Session } from "../collaborative/session";
 import { MAX_HISTORY_STEPS } from "../constants";
-import { CancelledReason, Command, CommandDispatcher, CommandResult, UID } from "../types";
+import {
+  CancelledReason,
+  Command,
+  CommandDispatcher,
+  CommandResult,
+  RevisionRedone,
+  UID,
+} from "../types";
 
 /**
  * Local History
@@ -93,13 +100,13 @@ export class LocalHistory extends owl.core.EventBus {
     }
   }
 
-  private selectiveUndo() {
-    this.dispatch("UNDO");
+  private selectiveUndo({ isLocal }: RevisionRedone) {
+    this.dispatch("UNDO", { isLocal });
     this.isWaitingForUndoRedo = false;
   }
 
-  private selectiveRedo() {
-    this.dispatch("REDO");
+  private selectiveRedo({ isLocal }: RevisionRedone) {
+    this.dispatch("REDO", { isLocal });
     this.isWaitingForUndoRedo = false;
   }
 }

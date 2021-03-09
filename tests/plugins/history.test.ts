@@ -271,11 +271,12 @@ describe("Model history", () => {
 
   test("ACTIVATE_SHEET standalone is not saved", () => {
     const model = new Model();
+    const firstSheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
-    setCellContent(model, "A1", "this will be undone");
+    setCellContent(model, "A1", "this will be undone", firstSheetId);
     activateSheet(model, "42");
     undo(model);
-    expect(model.getters.getActiveSheetId()).toBe("42");
+    expect(model.getters.getActiveSheetId()).toBe(firstSheetId);
   });
 
   test("create and activate sheet, then undo", () => {
@@ -290,11 +291,21 @@ describe("Model history", () => {
     expect(model.getters.getActiveSheetId()).toBe(originActiveSheetId);
   });
 
-  test("ACTIVATE_SHEET with another command is saved", () => {
+  test("undo active sheet creation changes the active sheet", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
     undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheet);
+  });
+
+  test("ACTIVATE_SHEET with another command is saved", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "42" });
+    setCellContent(model, "A1", "Hello in sheet 1", sheetId);
+    activateSheet(model, "42");
+    undo(model);
+    expect(model.getters.getActiveSheetId()).toBe(sheetId);
   });
 });

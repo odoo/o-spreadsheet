@@ -16,6 +16,7 @@ export interface RemoteRevisionMessage extends AbstractMessage {
 
 export interface RevisionUndoneMessage extends AbstractMessage {
   type: "REVISION_UNDONE";
+  clientId: ClientId;
   undoneRevisionId: UID;
   nextRevisionId: UID;
   serverRevisionId: UID;
@@ -23,6 +24,7 @@ export interface RevisionUndoneMessage extends AbstractMessage {
 
 export interface RevisionRedoneMessage extends AbstractMessage {
   type: "REVISION_REDONE";
+  clientId: ClientId;
   redoneRevisionId: UID;
   nextRevisionId: UID;
   serverRevisionId: UID;

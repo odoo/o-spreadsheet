@@ -38,6 +38,7 @@ import { Border, Cell, Dimension, UID } from "./misc";
 
 export interface BaseCommand {
   interactive?: boolean;
+  isPrimaryDispatch?: boolean;
 }
 
 export interface SheetDependentCommand {
@@ -585,10 +586,12 @@ export interface ClearCellCommand extends BaseCommand {
 
 export interface UndoCommand extends BaseCommand {
   type: "UNDO";
+  isLocal?: boolean;
 }
 
 export interface RedoCommand extends BaseCommand {
   type: "REDO";
+  isLocal?: boolean;
 }
 
 export interface StartCommand extends BaseCommand {
@@ -918,21 +921,21 @@ export interface CommandHandler<T> {
 
 export interface CommandDispatcher {
   dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
-    type: {} extends Omit<C, "type"> ? T : never
+    type: {} extends Omit<C, "type" | "isPrimaryDispatch"> ? T : never
   ): CommandResult;
   dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
     type: T,
-    r: Omit<C, "type">
+    r: Omit<C, "type" | "isPrimaryDispatch">
   ): CommandResult;
 }
 
 export interface CoreCommandDispatcher {
   dispatch<T extends CoreCommandTypes, C extends Extract<CoreCommand, { type: T }>>(
-    type: {} extends Omit<C, "type"> ? T : never
+    type: {} extends Omit<C, "type" | "isPrimaryDispatch"> ? T : never
   ): CommandResult;
   dispatch<T extends CoreCommandTypes, C extends Extract<CoreCommand, { type: T }>>(
     type: T,
-    r: Omit<C, "type">
+    r: Omit<C, "type" | "isPrimaryDispatch">
   ): CommandResult;
 }
 
