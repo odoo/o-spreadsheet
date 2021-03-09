@@ -377,6 +377,42 @@ describe("edition", () => {
     expect(model.getters.getCurrentContent()).toBe("");
   });
 
+  test("extend selection sets the range in composer", () => {
+    const model = new Model();
+    selectCell(model, "C3");
+
+    model.dispatch("START_EDITION", { text: "=" });
+    selectCell(model, "D4");
+    model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
+
+    expect(model.getters.getCurrentContent()).toBe("=D4:E5");
+  });
+
+  test("alter selection updates composer content", () => {
+    const model = new Model();
+    selectCell(model, "A1");
+
+    model.dispatch("START_EDITION", { text: "=" });
+    selectCell(model, "D4");
+    expect(model.getters.getCurrentContent()).toBe("=D4");
+    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    expect(model.getters.getCurrentContent()).toBe("=D4:D5");
+    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
+    expect(model.getters.getCurrentContent()).toBe("=D4");
+  });
+
+  test("enable selection mode reset to initial position", () => {
+    const model = new Model();
+    selectCell(model, "D3");
+    model.dispatch("START_EDITION", { text: "=" });
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    expect(model.getters.getCurrentContent()).toBe("=D4");
+    model.dispatch("STOP_COMPOSER_SELECTION");
+    model.dispatch("SET_CURRENT_CONTENT", { content: "=D4+" });
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    expect(model.getters.getCurrentContent()).toBe("=D4+D4");
+  });
+
   test("select an empty cell, start selecting mode at the composer position", () => {
     const model = new Model();
     const [col, row] = toCartesian("A2");
