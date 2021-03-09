@@ -26,7 +26,7 @@ interface ChartState {
 }
 
 export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
-  static getters = ["getChartDefinition", "getChartDefinitionUI"];
+  static getters = ["getChartDefinition", "getChartDefinitionUI", "getChartsIdBySheet"];
   readonly chartFigures: Record<UID, ChartDefinition> = {};
 
   adaptRanges(applyChange: ApplyRangeChange) {
@@ -175,6 +175,14 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
 
   getChartDefinition(figureId: UID): ChartDefinition | undefined {
     return this.chartFigures[figureId];
+  }
+
+  getChartIdsBySheet(sheetId: UID) {
+    return Object.entries(this.chartFigures)
+      .filter((chart) => {
+        return chart[1].sheetId === sheetId;
+      })
+      .map((chart) => chart[0]);
   }
 
   getChartDefinitionUI(sheetId: UID, figureId: UID): CreateChartDefinition {

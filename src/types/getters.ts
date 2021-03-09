@@ -80,6 +80,7 @@ export interface CoreGetters {
   getCellBorder: BordersPlugin["getCellBorder"];
 
   getChartDefinition: ChartPlugin["getChartDefinition"];
+  getChartsIdBySheet: ChartPlugin["getChartsIdBySheet"];
   getChartDefinitionUI: ChartPlugin["getChartDefinitionUI"];
 
   getRangeString: RangeAdapter["getRangeString"];

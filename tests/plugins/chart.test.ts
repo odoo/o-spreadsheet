@@ -937,6 +937,79 @@ describe("multiple sheets", function () {
       sheetId: "42",
     });
   });
+  describe("multiple sheets with formulas", function () {
+    beforeEach(() => {
+      model = new Model({
+        sheets: [
+          {
+            name: "Sheet1",
+            cells: {
+              A1: { content: "a" },
+              A2: { content: "b" },
+              B1: { content: "1" },
+              B2: { content: "2" },
+            },
+            figures: [
+              {
+                id: "1",
+                tag: "chart",
+                width: 400,
+                height: 300,
+                x: 100,
+                y: 100,
+                data: {
+                  type: "line",
+                  title: "demo chart",
+                  labelRange: "Sheet1!A1:A2",
+                  dataSets: ["Sheet2!A1:A2"],
+                  dataSetsHaveTitle: false,
+                },
+              },
+            ],
+          },
+          {
+            name: "Sheet2",
+            cells: {
+              A1: { content: "=Sheet1!B1*2" },
+              A2: { content: "=Sheet1!B2*2" },
+            },
+          },
+        ],
+      });
+    });
+    test("new model with chart with formulas from another sheet (not evaluated yet)", () => {
+      const chart = model.getters.getChartRuntime("1")!;
+      expect(chart.data!.datasets![0].data).toEqual([2, 4]);
+    });
+    test("refresh chart to update it with new data", () => {
+      model.dispatch("UPDATE_CELL", {
+        sheetId: "Sheet2",
+        col: 0,
+        row: 0,
+        content: "=Sheet1!B1*3",
+      });
+      let chart = model.getters.getChartRuntime("1")!;
+      expect(chart.data!.datasets![0].data).toEqual([undefined, 4]); // data has not been updated :(
+
+      model.dispatch("REFRESH_CHART", { id: "1" });
+      chart = model.getters.getChartRuntime("1")!;
+      expect(chart.data!.datasets![0].data).toEqual([3, 4]);
+
+      model.dispatch("UPDATE_CELL", {
+        sheetId: "Sheet1",
+        col: 1,
+        row: 1,
+        content: "5",
+      });
+      chart = model.getters.getChartRuntime("1")!;
+      expect(chart.data!.datasets![0].data).toEqual([3, 4]); // data has not been updated :(
+
+      model.dispatch("REFRESH_CHART", { id: "1" });
+      chart = model.getters.getChartRuntime("1")!;
+      expect(chart.data!.datasets![0].data).toEqual([3, 10]);
+    });
+  });
+
   test("export with chart data from a sheet that was deleted, than import data does not crash", () => {
     const originSheet = model.getters.getActiveSheetId();
     createSheet(model, { name: "hello", sheetId: "42", activate: true });

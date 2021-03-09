@@ -138,7 +138,7 @@ describe("figure plugin", () => {
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
 
-    model.dispatch("EVALUATE_CELLS");
+    model.dispatch("EVALUATE_CELLS", { sheetId: model.getters.getActiveSheetId() });
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
   });
 

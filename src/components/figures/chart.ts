@@ -118,6 +118,15 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
         this.trigger("figure-deleted");
       },
     });
+    registry.add("refresh", {
+      name: _lt("Refresh"),
+      sequence: 11,
+      action: () => {
+        this.env.dispatch("REFRESH_CHART", {
+          id: this.props.figure.id,
+        });
+      },
+    });
     this.openContextMenu(ev.currentTarget as HTMLElement, registry);
   }
 

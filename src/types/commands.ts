@@ -300,6 +300,11 @@ export interface UpdateChartCommand extends BaseCommand, SheetDependentCommand {
   definition: CreateChartDefinition;
 }
 
+export interface RefreshChartCommand extends BaseCommand {
+  type: "REFRESH_CHART";
+  id: UID;
+}
+
 export interface SetFormattingCommand
   extends BaseCommand,
     SheetDependentCommand,
@@ -529,6 +534,7 @@ export interface AlterSelectionCommand extends BaseCommand {
 
 export interface EvaluateCellsCommand extends BaseCommand {
   type: "EVALUATE_CELLS";
+  sheetId: UID;
   onlyWaiting?: boolean;
 }
 
@@ -874,6 +880,7 @@ export type LocalCommand =
   | ReplaceAllSearchCommand
   | SortCommand
   | ResizeViewportCommand
+  | RefreshChartCommand
   | SetViewportOffsetCommand;
 
 export type Command = CoreCommand | LocalCommand;

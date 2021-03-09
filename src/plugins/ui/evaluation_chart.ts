@@ -38,7 +38,7 @@ export class EvaluationChartPlugin extends UIPlugin {
   // contains the configuration of the chart with it's values like they should be displayed,
   // as well as all the options needed for the chart library to work correctly
   readonly chartRuntime: { [figureId: string]: ChartConfiguration } = {};
-  private outOfDate: Set<string> = new Set<string>();
+  private outOfDate: Set<UID> = new Set<UID>();
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -57,6 +57,14 @@ export class EvaluationChartPlugin extends UIPlugin {
           }
         }
         break;
+      case "REFRESH_CHART":
+        this.evaluateUsedSheets([cmd.id]);
+        this.outOfDate.add(cmd.id);
+        break;
+      case "ACTIVATE_SHEET":
+        const chartsIds = this.getters.getChartsIdBySheet(cmd.sheetIdTo);
+        this.evaluateUsedSheets(chartsIds);
+        break;
       case "UNDO":
       case "REDO":
         for (let chartId of Object.keys(this.chartRuntime)) {
@@ -64,7 +72,6 @@ export class EvaluationChartPlugin extends UIPlugin {
         }
         break;
       case "EVALUATE_CELLS":
-      case "START":
         // if there was an async evaluation of cell, there is no way to know which was updated so all charts must be updated
         for (let id in this.chartRuntime) {
           this.outOfDate.add(id);
@@ -170,6 +177,34 @@ export class EvaluationChartPlugin extends UIPlugin {
     return false;
   }
 
+  private getSheetIdsUsedInChart(chartDefinition: ChartDefinition): Set<UID> {
+    const sheetIds: Set<UID> = new Set();
+    for (let ds of chartDefinition.dataSets) {
+      sheetIds.add(ds.dataRange.sheetId);
+    }
+    if (chartDefinition.labelRange) {
+      sheetIds.add(chartDefinition.labelRange.sheetId);
+    }
+    return sheetIds;
+  }
+
+  private evaluateUsedSheets(chartsIds: UID[]) {
+    const usedSheetsId: Set<UID> = new Set();
+    for (let chartId of chartsIds) {
+      const chartDefinition = this.getters.getChartDefinition(chartId);
+      const sheetsIds =
+        chartDefinition !== undefined ? this.getSheetIdsUsedInChart(chartDefinition) : [];
+      sheetsIds.forEach((sheetId) => {
+        if (sheetId !== this.getters.getActiveSheetId()) {
+          usedSheetsId.add(sheetId);
+        }
+      });
+    }
+    for (let sheetId of usedSheetsId) {
+      this.dispatch("EVALUATE_CELLS", { sheetId });
+    }
+  }
+
   private mapDefinitionToRuntime(definition: ChartDefinition): ChartConfiguration {
     let labels: string[] = [];
     if (definition.labelRange) {
@@ -222,7 +257,7 @@ export class EvaluationChartPlugin extends UIPlugin {
     if (ds.dataRange) {
       const labelCellZone = ds.labelCell ? [zoneToXc(ds.labelCell.zone)] : [];
       const dataXC = recomputeZones([zoneToXc(ds.dataRange.zone)], labelCellZone)[0];
-      const dataRange = this.getters.getRangeFromSheetXC(sheetId, dataXC);
+      const dataRange = this.getters.getRangeFromSheetXC(ds.dataRange.sheetId, dataXC);
       const dataRangeXc = this.getters.getRangeString(dataRange, sheetId);
       return this.getters.getRangeValues(dataRangeXc, ds.dataRange.sheetId).flat(1);
     }

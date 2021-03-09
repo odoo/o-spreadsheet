@@ -951,7 +951,7 @@ describe("evaluate formula getter", () => {
     setCellContent(model, "A1", "=GETVALUE()");
     expect(getCell(model, "A1")!.value).toBe(1);
     value = 2;
-    model.dispatch("EVALUATE_CELLS");
+    model.dispatch("EVALUATE_CELLS", { sheetId: model.getters.getActiveSheetId() });
     expect(getCell(model, "A1")!.value).toBe(2);
   });
 
@@ -977,7 +977,7 @@ describe("evaluate formula getter", () => {
     setCellContent(model, "A1", "=GETVALUE()");
     expect(mockCompute).toHaveBeenCalledTimes(1);
     resetAllMocks();
-    model.dispatch("EVALUATE_CELLS");
+    model.dispatch("EVALUATE_CELLS", { sheetId: model.getters.getActiveSheetId() });
     expect(mockCompute).toHaveBeenCalledTimes(0);
   });
   test("cells are re-evaluated if one of their dependency changes", () => {
