@@ -253,7 +253,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
       // when completing with tab, if there is no value to complete, the active cell will be moved to the right.
       // we can't let the model think that it is for a ref selection.
       // todo: check if this can be removed someday
-      this.dispatch("STOP_COMPOSER_SELECTION");
+      this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     }
 
     const deltaX = ev.shiftKey ? -1 : 1;
@@ -291,7 +291,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   }
 
   onBeforeinput() {
-    this.dispatch("STOP_COMPOSER_SELECTION");
+    this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
   }
 
   /*
@@ -331,11 +331,11 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     if (ev.ctrlKey && ev.key === " ") {
       this.autoCompleteState.search = "";
       this.autoCompleteState.showProvider = true;
-      this.dispatch("STOP_COMPOSER_SELECTION");
+      this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
       return;
     }
 
-    this.dispatch("CHANGE_COMPOSER_SELECTION", this.contentHelper.getCurrentSelection());
+    this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", this.contentHelper.getCurrentSelection());
     this.processTokenAtCursor();
   }
 
@@ -353,8 +353,8 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
         selection: this.contentHelper.getCurrentSelection(),
       });
     }
-    this.dispatch("STOP_COMPOSER_SELECTION");
-    this.dispatch("CHANGE_COMPOSER_SELECTION", this.contentHelper.getCurrentSelection());
+    this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+    this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", this.contentHelper.getCurrentSelection());
     this.processTokenAtCursor();
   }
 
@@ -529,13 +529,13 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
           }
         }
 
-        this.dispatch("CHANGE_COMPOSER_SELECTION", {
+        this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
           start,
           end,
         });
       }
 
-      this.dispatch("REPLACE_COMPOSER_SELECTION", {
+      this.dispatch("REPLACE_COMPOSER_CURSOR_SELECTION", {
         text: value,
       });
     }

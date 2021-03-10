@@ -84,7 +84,7 @@ describe("edition", () => {
   test("ignore stopping composer selection if not selecting", () => {
     const model = new Model();
     expect(model.getters.getEditionMode()).toBe("inactive");
-    model.dispatch("STOP_COMPOSER_SELECTION");
+    model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
@@ -155,7 +155,7 @@ describe("edition", () => {
     model.dispatch("SET_CURRENT_CONTENT", {
       content: "hello",
     });
-    model.dispatch("CHANGE_COMPOSER_SELECTION", {
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
       start: 1,
       end: 2,
     });
@@ -171,7 +171,7 @@ describe("edition", () => {
       content: "hello",
     });
     expect(
-      model.dispatch("CHANGE_COMPOSER_SELECTION", {
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
         start: 2,
         end: 1,
       })
@@ -182,7 +182,7 @@ describe("edition", () => {
     const model = new Model();
     expect(model.getters.getCurrentContent()).toHaveLength(0);
     expect(
-      model.dispatch("CHANGE_COMPOSER_SELECTION", {
+      model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
         start: 1,
         end: 2,
       })
@@ -242,11 +242,11 @@ describe("edition", () => {
     model.dispatch("SET_CURRENT_CONTENT", {
       content: "12345",
     });
-    model.dispatch("CHANGE_COMPOSER_SELECTION", {
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
       start: 2,
       end: 4,
     });
-    model.dispatch("REPLACE_COMPOSER_SELECTION", {
+    model.dispatch("REPLACE_COMPOSER_CURSOR_SELECTION", {
       text: "A",
     });
     expect(model.getters.getCurrentContent()).toBe("12A5");
@@ -262,11 +262,11 @@ describe("edition", () => {
     model.dispatch("SET_CURRENT_CONTENT", {
       content: "12345",
     });
-    model.dispatch("CHANGE_COMPOSER_SELECTION", {
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
       start: 2,
       end: 4,
     });
-    model.dispatch("REPLACE_COMPOSER_SELECTION", {
+    model.dispatch("REPLACE_COMPOSER_CURSOR_SELECTION", {
       text: "ABCDE",
     });
     expect(model.getters.getCurrentContent()).toBe("12ABCDE5");
@@ -291,7 +291,7 @@ describe("edition", () => {
     model.dispatch("SET_CURRENT_CONTENT", {
       content: "=",
     });
-    model.dispatch("CHANGE_COMPOSER_SELECTION", {
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
       start: 1,
       end: 1,
     });

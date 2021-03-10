@@ -282,8 +282,8 @@ describe("Autocomplete parenthesis", () => {
   test("=S( + edit S with autocomplete does not add left parenthesis", async () => {
     await typeInComposer("=S(");
     // go behind the letter "S"
-    model.dispatch("STOP_COMPOSER_SELECTION");
-    model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 2, end: 2 });
+    model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 2, end: 2 });
     await nextTick();
     // show autocomplete
     await typeInComposer("U", false);

@@ -403,9 +403,9 @@ describe("composer", () => {
       );
 
       async function moveToStart() {
-        model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 0, end: 0 });
+        model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 0 });
         await nextTick();
-        model.dispatch("STOP_COMPOSER_SELECTION");
+        model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
         await nextTick();
       }
 
@@ -536,7 +536,7 @@ describe("composer", () => {
 
   test("End key sets cursor at the begining", async () => {
     await typeInComposer("Hello");
-    model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 0, end: 0 });
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 0 });
     await nextTick();
     composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "End" }));
     await nextTick();
