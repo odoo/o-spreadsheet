@@ -59,7 +59,7 @@ export class EditionPlugin extends UIPlugin {
 
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
-      case "CHANGE_COMPOSER_SELECTION":
+      case "CHANGE_COMPOSER_CURSOR_SELECTION":
         const length = this.currentContent.length;
         const { start, end } = cmd;
         return start >= 0 && start <= length && end >= 0 && end <= length && start <= end
@@ -90,11 +90,11 @@ export class EditionPlugin extends UIPlugin {
       case "START":
         this.setActiveContent();
         break;
-      case "CHANGE_COMPOSER_SELECTION":
+      case "CHANGE_COMPOSER_CURSOR_SELECTION":
         this.selectionStart = cmd.start;
         this.selectionEnd = cmd.end;
         break;
-      case "STOP_COMPOSER_SELECTION":
+      case "STOP_COMPOSER_RANGE_SELECTION":
         this.removeSelectionIndicator();
         if (this.mode === "selecting") {
           this.mode = "editing";
@@ -119,7 +119,7 @@ export class EditionPlugin extends UIPlugin {
           this.highlightRanges();
         }
         break;
-      case "REPLACE_COMPOSER_SELECTION":
+      case "REPLACE_COMPOSER_CURSOR_SELECTION":
         this.replaceSelection(cmd.text);
         break;
       case "ACTIVATE_SHEET":
@@ -254,7 +254,7 @@ export class EditionPlugin extends UIPlugin {
   /**
    * Enable the selecting mode
    */
-  private startComposerSelection() {
+  private startComposerRangeSelection() {
     this.mode = "resettingPosition";
     this.insertSelectionIndicator();
     this.dispatch("SELECT_CELL", {
@@ -366,8 +366,8 @@ export class EditionPlugin extends UIPlugin {
     } else {
       this.selectionStart = this.selectionEnd = text.length;
     }
-    if (this.canStartComposerSelection()) {
-      this.startComposerSelection();
+    if (this.canstartComposerRangeSelection()) {
+      this.startComposerRangeSelection();
     }
   }
 
@@ -383,7 +383,7 @@ export class EditionPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     let selectedXc = this.getters.zoneToXC(sheetId, zone);
     const { end } = this.getters.getComposerSelection();
-    this.dispatch("CHANGE_COMPOSER_SELECTION", {
+    this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
       start: this.selectionInitialStart,
       end,
     });
@@ -492,7 +492,7 @@ export class EditionPlugin extends UIPlugin {
    * - the next token is missing or is among ["COMMA", "RIGHT_PAREN", "OPERATOR"]
    * - Previous and next tokens can be separated by spaces
    */
-  private canStartComposerSelection(): boolean {
+  private canstartComposerRangeSelection(): boolean {
     if (this.isSelectingForComposer()) return false;
     const tokens = composerTokenize(this.currentContent);
     const tokenAtCursor = this.getTokenAtCursor();

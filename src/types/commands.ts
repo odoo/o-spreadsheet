@@ -554,7 +554,7 @@ export interface RemoveAllHighlightsCommand extends BaseCommand {
 }
 
 export interface StopComposerSelectionCommand extends BaseCommand {
-  type: "STOP_COMPOSER_SELECTION";
+  type: "STOP_COMPOSER_RANGE_SELECTION";
 }
 
 export interface StartEditionCommand extends BaseCommand {
@@ -575,13 +575,13 @@ export interface SetCurrentContentCommand extends BaseCommand {
 }
 
 export interface ChangeComposerSelectionCommand extends BaseCommand {
-  type: "CHANGE_COMPOSER_SELECTION";
+  type: "CHANGE_COMPOSER_CURSOR_SELECTION";
   start: number;
   end: number;
 }
 
 export interface ReplaceComposerSelectionCommand extends BaseCommand {
-  type: "REPLACE_COMPOSER_SELECTION";
+  type: "REPLACE_COMPOSER_CURSOR_SELECTION";
   text: string;
 }
 
