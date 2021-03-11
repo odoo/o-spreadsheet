@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { colorNumberString, toZone, uuidv4 } from "../../helpers/index";
+import { colorNumberString, toZone, uuidv4, zoneToXc } from "../../helpers/index";
 import {
   ColorScaleRule,
   ConditionalFormat,
@@ -374,9 +374,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
         values: [],
         style: { fillColor: "#FF0000" },
       },
-      ranges: this.getters
-        .getSelectedZones()
-        .map((zone) => this.getters.zoneToXC(this.getters.getActiveSheetId(), zone)),
+      ranges: this.getters.getSelectedZones().map(zoneToXc),
       id: uuidv4(),
     };
   }
@@ -389,9 +387,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
         maximum: { type: "value", color: 0xeeffee },
         type: "ColorScaleRule",
       },
-      ranges: this.getters
-        .getSelectedZones()
-        .map((zone) => this.getters.zoneToXC(this.getters.getActiveSheetId(), zone)),
+      ranges: this.getters.getSelectedZones().map(zoneToXc),
       id: uuidv4(),
     };
   }

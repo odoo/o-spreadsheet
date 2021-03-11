@@ -829,27 +829,6 @@ describe("sheets", () => {
     expect(getCell(model, "A1")?.value).toBe(42);
   });
 
-  test("UPDATE_CELL_POSITION remove the old position if exist", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "test");
-    const cell = getCell(model, "A1")!;
-    model.dispatch("UPDATE_CELL_POSITION", {
-      sheetId: model.getters.getActiveSheetId(),
-      col: 1,
-      row: 1,
-      cell,
-      cellId: cell.id,
-    });
-    const sheet = model.getters.getActiveSheet();
-    expect(sheet.rows[0].cells[0]).toBeUndefined();
-    expect(sheet.rows[1].cells[1]!.id).toBe(cell.id);
-    expect(model.getters.getCellPosition(cell.id)).toEqual({
-      col: 1,
-      row: 1,
-      sheetId: model.getters.getActiveSheetId(),
-    });
-  });
-
   test("Cannot remove more columns/rows than there are inside the sheet", () => {
     const model = new Model({
       sheets: [

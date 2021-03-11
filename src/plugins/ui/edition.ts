@@ -6,6 +6,7 @@ import {
   getComposerSheetName,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
+  zoneToXc,
 } from "../../helpers/index";
 import { Mode } from "../../model";
 import { _lt } from "../../translation";
@@ -383,7 +384,7 @@ export class EditionPlugin extends UIPlugin {
   private insertSelectedRange() {
     const [zone] = this.getters.getSelectedZones();
     const sheetId = this.getters.getActiveSheetId();
-    let selectedXc = this.getters.zoneToXC(sheetId, zone);
+    let selectedXc = zoneToXc(this.getters.getZoneWithMerge(sheetId, zone));
     const { end } = this.getters.getComposerSelection();
     this.dispatch("CHANGE_COMPOSER_SELECTION", {
       start: this.selectionInitialStart,
@@ -475,11 +476,10 @@ export class EditionPlugin extends UIPlugin {
       sheetId,
       ...this.getters.getPosition()
     );
-    const anchor = this.getters.getCell(this.getters.getActiveSheetId(), mainCellCol, mainCellRow);
+    const anchor = this.getters.getCell(sheetId, mainCellCol, mainCellRow);
     if (anchor) {
-      const { col, row } = this.getters.getCellPosition(anchor.id);
-      this.col = col;
-      this.row = row;
+      this.col = mainCellCol;
+      this.row = mainCellRow;
     }
     const content = anchor ? this.getters.getCellText(anchor, sheetId, true) : "";
     this.dispatch("SET_CURRENT_CONTENT", {

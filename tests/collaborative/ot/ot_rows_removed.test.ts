@@ -14,7 +14,6 @@ import {
   SetDecimalCommand,
   SetFormattingCommand,
   UpdateCellCommand,
-  UpdateCellPositionCommand,
 } from "../../../src/types";
 import { createEqualCF, target } from "../../test_helpers/helpers";
 
@@ -33,12 +32,6 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
     content: "test",
     col: 1,
   };
-  const updateCellPosition: Omit<UpdateCellPositionCommand, "row"> = {
-    type: "UPDATE_CELL_POSITION",
-    cellId: "Id",
-    sheetId,
-    col: 1,
-  };
   const clearCell: Omit<ClearCellCommand, "row"> = {
     type: "CLEAR_CELL",
     sheetId,
@@ -51,36 +44,33 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
     border: { left: ["thin", "#000"] },
   };
 
-  describe.each([updateCell, updateCellPosition, clearCell, setBorder])(
-    "single cell commands",
-    (cmd) => {
-      test(`remove rows before ${cmd.type}`, () => {
-        const command = { ...cmd, row: 10 };
-        const result = transform(command, removeRows);
-        expect(result).toEqual({ ...command, row: 7 });
-      });
-      test(`remove rows after ${cmd.type}`, () => {
-        const command = { ...cmd, row: 1 };
-        const result = transform(command, removeRows);
-        expect(result).toEqual(command);
-      });
-      test(`remove rows before and after ${cmd.type}`, () => {
-        const command = { ...cmd, row: 4 };
-        const result = transform(command, removeRows);
-        expect(result).toEqual({ ...command, row: 2 });
-      });
-      test(`${cmd.type} in removed rows`, () => {
-        const command = { ...cmd, row: 2 };
-        const result = transform(command, removeRows);
-        expect(result).toBeUndefined();
-      });
-      test(`${cmd.type} and rows removed in different sheets`, () => {
-        const command = { ...cmd, row: 10, sheetId: "42" };
-        const result = transform(command, removeRows);
-        expect(result).toEqual(command);
-      });
-    }
-  );
+  describe.each([updateCell, clearCell, setBorder])("single cell commands", (cmd) => {
+    test(`remove rows before ${cmd.type}`, () => {
+      const command = { ...cmd, row: 10 };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command, row: 7 });
+    });
+    test(`remove rows after ${cmd.type}`, () => {
+      const command = { ...cmd, row: 1 };
+      const result = transform(command, removeRows);
+      expect(result).toEqual(command);
+    });
+    test(`remove rows before and after ${cmd.type}`, () => {
+      const command = { ...cmd, row: 4 };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command, row: 2 });
+    });
+    test(`${cmd.type} in removed rows`, () => {
+      const command = { ...cmd, row: 2 };
+      const result = transform(command, removeRows);
+      expect(result).toBeUndefined();
+    });
+    test(`${cmd.type} and rows removed in different sheets`, () => {
+      const command = { ...cmd, row: 10, sheetId: "42" };
+      const result = transform(command, removeRows);
+      expect(result).toEqual(command);
+    });
+  });
 
   const deleteContent: Omit<DeleteContentCommand, "target"> = {
     type: "DELETE_CONTENT",

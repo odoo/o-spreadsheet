@@ -76,7 +76,6 @@ export function isPositionDependent(cmd: CoreCommand): boolean {
 export const coreTypes = new Set<CoreCommandTypes>([
   /** CELLS */
   "UPDATE_CELL",
-  "UPDATE_CELL_POSITION",
   "CLEAR_CELL",
   "DELETE_CONTENT",
 
@@ -136,15 +135,6 @@ export interface UpdateCellCommand
   content?: string;
   style?: Style | null;
   format?: string;
-}
-
-export interface UpdateCellPositionCommand
-  extends BaseCommand,
-    SheetDependentCommand,
-    PositionDependentCommand {
-  type: "UPDATE_CELL_POSITION";
-  cell?: Cell;
-  cellId: UID;
 }
 
 //------------------------------------------------------------------------------
@@ -773,7 +763,6 @@ export type CoreCommand =
 
   /** CELLS */
   | UpdateCellCommand
-  | UpdateCellPositionCommand
   | ClearCellCommand
   | DeleteContentCommand
   | SetDecimalCommand

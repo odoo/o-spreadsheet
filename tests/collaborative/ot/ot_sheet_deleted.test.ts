@@ -22,7 +22,6 @@ import {
   SetDecimalCommand,
   SetFormattingCommand,
   UpdateCellCommand,
-  UpdateCellPositionCommand,
 } from "../../../src/types";
 import { createEqualCF, target } from "../../test_helpers/helpers";
 
@@ -32,12 +31,6 @@ describe("OT with DELETE_SHEET", () => {
   const deleteSheet: DeleteSheetCommand = { type: "DELETE_SHEET", sheetId: deletedSheetId };
 
   const updateCell: Omit<UpdateCellCommand, "sheetId"> = { type: "UPDATE_CELL", col: 0, row: 0 };
-  const updateCellPosition: Omit<UpdateCellPositionCommand, "sheetId"> = {
-    type: "UPDATE_CELL_POSITION",
-    col: 0,
-    row: 0,
-    cellId: "ID",
-  };
   const clearCell: Omit<ClearCellCommand, "sheetId"> = { type: "CLEAR_CELL", col: 0, row: 0 };
   const deleteContent: Omit<DeleteContentCommand, "sheetId"> = {
     type: "DELETE_CONTENT",
@@ -129,7 +122,6 @@ describe("OT with DELETE_SHEET", () => {
 
   describe.each([
     updateCell,
-    updateCellPosition,
     clearCell,
     deleteContent,
     addColumns,

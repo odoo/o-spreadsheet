@@ -1,4 +1,4 @@
-import { getNextColor, isEqual, toZone } from "../../helpers/index";
+import { getNextColor, isEqual, toZone, zoneToXc } from "../../helpers/index";
 import { Mode } from "../../model";
 import { Command, GridRenderingContext, Highlight, LAYERS, Zone } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
@@ -118,8 +118,7 @@ export class HighlightPlugin extends UIPlugin {
     const shouldBeKept = (highlight: Highlight) =>
       !(
         rangesBySheets[highlight.sheet] &&
-        rangesBySheets[highlight.sheet][this.getters.zoneToXC(activeSheetId, highlight.zone)] ===
-          highlight.color
+        rangesBySheets[highlight.sheet][zoneToXc(highlight.zone)] === highlight.color
       );
     this.highlights = this.highlights.filter(shouldBeKept);
   }
@@ -132,9 +131,8 @@ export class HighlightPlugin extends UIPlugin {
     const zones = this.getters.getSelectedZones().filter((z) => !this.isHighlighted(z));
     const ranges = {};
     let color = this.color;
-    const activeSheetId = this.getters.getActiveSheetId();
     for (const zone of zones) {
-      ranges[this.getters.zoneToXC(activeSheetId, zone)] = color;
+      ranges[zoneToXc(zone)] = color;
       color = getNextColor();
     }
     this.dispatch("ADD_HIGHLIGHTS", { ranges });
@@ -157,9 +155,8 @@ export class HighlightPlugin extends UIPlugin {
         this.getters.isSelected(highlight.zone) ? [[...y, highlight], n] : [y, [...n, highlight]],
       [[], []]
     );
-    const activeSheetId = this.getters.getActiveSheetId();
     for (const { zone, color } of notSelected) {
-      ranges[this.getters.zoneToXC(activeSheetId, zone)] = color;
+      ranges[zoneToXc(zone)] = color;
     }
     this.dispatch("REMOVE_HIGHLIGHTS", { ranges });
     this.pendingHighlights = selected;

@@ -1,3 +1,7 @@
+import { DATETIME_FORMAT } from "../../constants";
+import { compile, normalize } from "../../formulas";
+import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
+import { formatDateTime, parseDateTime } from "../../functions/dates";
 import {
   createCols,
   createDefaultCols,
@@ -5,24 +9,41 @@ import {
   createRows,
   exportCols,
   exportRows,
+  formatNumber,
+  formatStandardNumber,
   groupConsecutive,
   isDefined,
+  isNumber,
+  maximumDecimalPlaces,
   numberToLetters,
+  parseNumber,
+  range,
+  stringify,
+  toCartesian,
+  toXC,
+  uuidv4,
 } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
+  AddColumnsRowsCommand,
+  ApplyRangeChange,
   CancelledReason,
   Cell,
+  CellData,
   CellPosition,
+  CellType,
   Col,
   CommandResult,
   ConsecutiveIndexes,
   CoreCommand,
+  FormulaCell,
+  Range,
   RenameSheetCommand,
   Row,
   Sheet,
+  Style,
   UID,
-  UpdateCellPositionCommand,
+  UpdateCellData,
   WorkbookData,
   Zone,
 } from "../../types/index";
@@ -34,6 +55,8 @@ export interface SheetState {
   readonly sheetIds: Record<string, UID | undefined>;
   readonly cellPosition: Record<UID, CellPosition | undefined>;
 }
+
+const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 
 export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   static getters = [
@@ -53,12 +76,50 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getRowsZone",
     "getHiddenColsGroups",
     "getHiddenRowsGroups",
+    "getCells",
+    "getFormulaCellContent",
+    "getCellText",
+    "getCellValue",
+    "getCellStyle",
+    "buildFormulaContent",
   ];
 
   readonly sheetIds: Record<string, UID | undefined> = {};
   readonly visibleSheets: UID[] = []; // ids of visible sheets
   readonly sheets: Record<UID, Sheet | undefined> = {};
   readonly cellPosition: Record<UID, CellPosition | undefined> = {};
+
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
+    let cells: Record<UID, Cell | undefined> = {};
+    for (const sheet of this.getSheets()) {
+      cells = { ...cells, ...this.getters.getCells(sheet.id) };
+    }
+
+    for (const cell of Object.values(cells).filter(isDefined)) {
+      if (cell.type === CellType.formula) {
+        for (const range of cell.dependencies) {
+          if (!sheetId || range.sheetId === sheetId) {
+            const change = applyChange(range);
+            if (change.changeType !== "NONE") {
+              const { sheetId: sId, col, row } = this.getCellPosition(cell.id);
+              this.history.update(
+                "sheets",
+                sId,
+                "rows",
+                row,
+                "cells",
+                col,
+                "dependencies" as any,
+                // @ts-ignore Should add update method type with 8 keys
+                cell.dependencies.indexOf(range),
+                change.range
+              );
+            }
+          }
+        }
+      }
+    }
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -153,6 +214,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         break;
       case "DUPLICATE_SHEET":
         this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo, cmd.name);
+        //   const cells = this.oldsCells[cmd.sheetId];
+        //   if (cells) {
+        //     this.history.update("oldsCells", cmd.sheetIdTo, JSON.parse(JSON.stringify(cells)));
+        //   }
         break;
       case "DELETE_SHEET":
         this.deleteSheet(this.sheets[cmd.sheetId]!);
@@ -168,8 +233,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       case "ADD_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {
           this.addColumns(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
+          this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
         } else {
           this.addRows(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
+          this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
         }
         break;
       case "HIDE_COLUMNS_ROWS": {
@@ -188,8 +255,32 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         }
         break;
       }
-      case "UPDATE_CELL_POSITION":
-        this.updateCellPosition(cmd);
+      case "SET_FORMATTING":
+        if ("style" in cmd) {
+          this.setStyle(cmd.sheetId, cmd.target, cmd.style);
+        }
+        if ("format" in cmd && cmd.format !== undefined) {
+          this.setFormatter(cmd.sheetId, cmd.target, cmd.format);
+        }
+        break;
+      case "SET_DECIMAL":
+        this.setDecimal(cmd.sheetId, cmd.target, cmd.step);
+        break;
+      case "CLEAR_FORMATTING":
+        this.clearStyles(cmd.sheetId, cmd.target);
+        break;
+      case "UPDATE_CELL":
+        this.updateCell(this.getters.getSheet(cmd.sheetId), cmd.col, cmd.row, cmd);
+        break;
+      case "CLEAR_CELL":
+        this.dispatch("UPDATE_CELL", {
+          sheetId: cmd.sheetId,
+          col: cmd.col,
+          row: cmd.row,
+          content: "",
+          style: null,
+          format: "",
+        });
         break;
     }
   }
@@ -217,6 +308,20 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       this.updateHiddenElementsGroups(sheet.id, "cols");
       this.updateHiddenElementsGroups(sheet.id, "rows");
     }
+    for (let sheetData of data.sheets) {
+      for (let xc in sheetData.cells) {
+        const cell = sheetData.cells[xc];
+        const [col, row] = toCartesian(xc);
+        const style = (cell && cell.style && data.styles[cell.style]) || undefined;
+        const sheet = this.getSheet(sheetData.id);
+        this.updateCell(sheet, col, row, {
+          content: cell?.content,
+          formula: cell?.formula,
+          format: cell?.format,
+          style,
+        });
+      }
+    }
   }
 
   export(data: WorkbookData) {
@@ -235,6 +340,53 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         figures: [],
       };
     });
+    let styleId = 0;
+    const styles: { [styleId: number]: Style } = {};
+    /**
+     * Get the id of the given style. If the style does not exist, it creates
+     * one.
+     */
+    function getStyleId(style: Style) {
+      for (let [key, value] of Object.entries(styles)) {
+        if (stringify(value) === stringify(style)) {
+          return parseInt(key, 10);
+        }
+      }
+      styles[++styleId] = style;
+      return styleId;
+    }
+    for (let _sheet of data.sheets) {
+      const sheet = this.getSheet(_sheet.id);
+      const cells: { [key: string]: CellData } = {};
+      for (let col = 0; col < sheet.cols.length; col++) {
+        for (let row = 0; row < sheet.rows.length; row++) {
+          const cell = sheet.rows[row].cells[col];
+          if (cell) {
+            const xc = toXC(col, row);
+            cells[xc] = {
+              style: cell.style && getStyleId(cell.style),
+              format: cell.format,
+            };
+            switch (cell.type) {
+              case CellType.formula:
+                cells[xc].formula = {
+                  text: cell.formula.text || "",
+                  dependencies:
+                    cell.dependencies?.map((d) => this.getters.getRangeString(d, _sheet.id)) || [],
+                };
+                break;
+              case CellType.number:
+              case CellType.text:
+              case CellType.invalidFormula:
+                cells[xc].content = cell.content;
+                break;
+            }
+          }
+        }
+      }
+      _sheet.cells = cells;
+    }
+    data.styles = styles;
   }
 
   // ---------------------------------------------------------------------------
@@ -349,30 +501,34 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
-  private updateCellPosition(cmd: UpdateCellPositionCommand) {
-    if (cmd.cell) {
-      const position = this.cellPosition[cmd.cellId];
-      if (position) {
-        this.history.update(
-          "sheets",
-          cmd.sheetId,
-          "rows",
-          position.row,
-          "cells",
-          position.col,
-          undefined
-        );
-      }
-      this.history.update("cellPosition", cmd.cell.id, {
-        row: cmd.row,
-        col: cmd.col,
-        sheetId: cmd.sheetId,
-      });
-      //TODO : remove cell from the command, only store the cellId in sheets[sheet].row[rowIndex].cells[colIndex]
-      this.history.update("sheets", cmd.sheetId, "rows", cmd.row, "cells", cmd.col, cmd.cell);
+  private moveCell(cell: Cell, position: CellPosition) {
+    const currentPosition = this.cellPosition[cell.id];
+    if (currentPosition) {
+      this.deleteCell(cell.id, currentPosition);
+    }
+    const { col, row, sheetId } = position;
+    this.history.update("cellPosition", cell.id, position);
+    this.history.update("sheets", sheetId, "rows", row, "cells", col, cell);
+  }
+
+  private deleteCell(cellId: UID, position: CellPosition) {
+    this.history.update("cellPosition", cellId, undefined);
+    this.history.update(
+      "sheets",
+      position.sheetId,
+      "rows",
+      position.row,
+      "cells",
+      position.col,
+      undefined
+    );
+  }
+
+  private updateCellPosition(sheetId: UID, col: number, row: number, cellId: UID, cell?: Cell) {
+    if (cell) {
+      this.moveCell(cell, { sheetId, col, row });
     } else {
-      this.history.update("cellPosition", cmd.cellId, undefined);
-      this.history.update("sheets", cmd.sheetId, "rows", cmd.row, "cells", cmd.col, undefined);
+      this.deleteCell(cellId, { sheetId, col, row });
     }
   }
 
@@ -461,15 +617,32 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private duplicateSheet(fromId: UID, toId: UID, toName: string) {
     const sheet = this.sheets[fromId];
-    const newSheet = JSON.parse(JSON.stringify(sheet));
+    const newSheet: Sheet = JSON.parse(JSON.stringify(sheet));
     newSheet.id = toId;
     newSheet.name = toName;
+
+    for (let col = 0; col <= newSheet.cols.length; col++) {
+      for (let row = 0; row <= newSheet.rows.length; row++) {
+        if (newSheet.rows[row]) {
+          newSheet.rows[row].cells[col] = undefined;
+        }
+      }
+    }
+
     const visibleSheets = this.visibleSheets.slice();
     const currentIndex = visibleSheets.findIndex((id) => id === fromId);
     visibleSheets.splice(currentIndex + 1, 0, newSheet.id);
     this.history.update("visibleSheets", visibleSheets);
     this.history.update("sheets", Object.assign({}, this.sheets, { [newSheet.id]: newSheet }));
 
+    for (const cell of Object.values(this.getCells(fromId))) {
+      const { col, row } = this.getCellPosition(cell.id);
+      this.updateCell(newSheet, col, row, {
+        content: this.getCellText(cell, fromId, true),
+        format: cell.format,
+        style: cell.style,
+      });
+    }
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[newSheet.name] = newSheet.id;
     this.history.update("sheetIds", sheetIds);
@@ -576,13 +749,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
             });
           }
           if (colIndex > deletedColumn) {
-            this.dispatch("UPDATE_CELL_POSITION", {
-              sheetId: sheet.id,
-              cellId: cell.id,
-              cell: cell,
-              col: colIndex - 1,
-              row: rowIndex,
-            });
+            this.updateCellPosition(sheet.id, colIndex - 1, rowIndex, cell.id, cell);
           }
         }
       }
@@ -598,7 +765,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     quantity: number,
     dimension: "rows" | "columns"
   ) {
-    const commands: UpdateCellPositionCommand[] = [];
+    const commands: { sheetId: UID; col: number; row: number; cellId: UID; cell?: Cell }[] = [];
     for (const [index, row] of Object.entries(sheet.rows)) {
       const rowIndex = parseInt(index, 10);
       if (dimension !== "rows" || rowIndex >= addedElement) {
@@ -608,7 +775,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           if (cell) {
             if (dimension === "rows" || colIndex >= addedElement) {
               commands.unshift({
-                type: "UPDATE_CELL_POSITION",
                 sheetId: sheet.id,
                 cellId: cell.id,
                 cell: cell,
@@ -621,7 +787,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       }
     }
     for (let cmd of commands) {
-      this.dispatch(cmd.type, cmd);
+      this.updateCellPosition(cmd.sheetId, cmd.col, cmd.row, cmd.cellId, cmd.cell);
     }
   }
 
@@ -655,13 +821,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           const colIndex = parseInt(i, 10);
           const cell = row.cells[i];
           if (cell) {
-            this.dispatch("UPDATE_CELL_POSITION", {
-              sheetId: sheet.id,
-              cellId: cell.id,
-              cell: cell,
-              col: colIndex,
-              row: rowIndex - numberRows,
-            });
+            this.updateCellPosition(sheet.id, colIndex, rowIndex - numberRows, cell.id, cell);
           }
         }
       }
@@ -870,5 +1030,545 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       return acc;
     }, [] as ConsecutiveIndexes[]);
     this.history.update("sheets", sheetId, elementsRef, hiddenEltsGroups);
+  }
+
+  /**
+   * Set a format to all the cells in a zone
+   */
+  private setFormatter(sheetId: UID, zones: Zone[], format: string) {
+    for (let zone of zones) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          this.dispatch("UPDATE_CELL", {
+            sheetId,
+            col,
+            row,
+            format,
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * This function allows to adjust the quantity of decimal places after a decimal
+   * point on cells containing number value. It does this by changing the cells
+   * format. Values aren't modified.
+   *
+   * The change of the decimal quantity is done one by one, the sign of the step
+   * variable indicates whether we are increasing or decreasing.
+   *
+   * If several cells are in the zone, the format resulting from the change of the
+   * first cell (with number type) will be applied to the whole zone.
+   */
+  private setDecimal(sheetId: UID, zones: Zone[], step: number) {
+    // Find the first cell with a number value and get the format
+    const numberFormat = this.searchNumberFormat(sheetId, zones);
+    if (numberFormat !== undefined) {
+      // Depending on the step sign, increase or decrease the decimal representation
+      // of the format
+      const newFormat = this.changeDecimalFormat(numberFormat, step);
+      // Apply the new format on the whole zone
+      this.setFormatter(sheetId, zones, newFormat!);
+    }
+  }
+
+  /**
+   * Take a range of cells and return the format of the first cell containing a
+   * number value. Returns a default format if the cell hasn't format. Returns
+   * undefined if no number value in the range.
+   */
+  private searchNumberFormat(sheetId: UID, zones: Zone[]): string | undefined {
+    for (let zone of zones) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          const cell = this.getters.getCell(sheetId, col, row);
+          if (
+            cell &&
+            (cell.type === CellType.number ||
+              (cell.type === CellType.formula && typeof cell.value === "number")) &&
+            !cell.format?.match(DATETIME_FORMAT) // reject dates
+          ) {
+            return cell.format || this.setDefaultNumberFormat(cell.value as any);
+          }
+        }
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Function used to give the default format of a cell with a number for value.
+   * It is considered that the default format of a number is 0 followed by as many
+   * 0 as there are decimal places.
+   *
+   * Example:
+   * - 1 --> '0'
+   * - 123 --> '0'
+   * - 12345 --> '0'
+   * - 42.1 --> '0.0'
+   * - 456.0001 --> '0.0000'
+   */
+  private setDefaultNumberFormat(cellValue: number): string {
+    const strValue = cellValue.toString();
+    const parts = strValue.split(".");
+    if (parts.length === 1) {
+      return "0";
+    }
+    return "0." + Array(parts[1].length + 1).join("0");
+  }
+
+  /**
+   * This function take a cell format representation and return a new format representation
+   * with more or less decimal places.
+   *
+   * If the format doesn't look like a digital format (means that not contain '0')
+   * or if this one cannot be increased or decreased, the returned format will be
+   * the same.
+   *
+   * This function aims to work with all possible formats as well as custom formats.
+   *
+   * Examples of format changed by this function:
+   * - "0" (step = 1) --> "0.0"
+   * - "0.000%" (step = 1) --> "0.0000%"
+   * - "0.00" (step = -1) --> "0.0"
+   * - "0%" (step = -1) --> "0%"
+   * - "#,##0.0" (step = -1) --> "#,##0"
+   * - "#,##0;0.0%;0.000" (step = 1) --> "#,##0.0;0.00%;0.0000"
+   */
+  private changeDecimalFormat(format: string, step: number): string {
+    const sign = Math.sign(step);
+    // According to the representation of the cell format. A format can contain
+    // up to 4 sub-formats which can be applied depending on the value of the cell
+    // (among positive / negative / zero / text), each of these sub-format is separated
+    // by ';' in the format. We need to make the change on each sub-format.
+    const subFormats = format.split(";");
+    let newSubFormats: string[] = [];
+
+    for (let subFormat of subFormats) {
+      const decimalPointPosition = subFormat.indexOf(".");
+      const exponentPosition = subFormat.toUpperCase().indexOf("E");
+      let newSubFormat: string;
+
+      // the 1st step is to find the part of the zeros located before the
+      // exponent (when existed)
+      const subPart = exponentPosition > -1 ? subFormat.slice(0, exponentPosition) : subFormat;
+      const zerosAfterDecimal =
+        decimalPointPosition > -1 ? subPart.slice(decimalPointPosition).match(/0/g)!.length : 0;
+
+      // the 2nd step is to add (or remove) zero after the last zeros obtained in
+      // step 1
+      const lastZeroPosition = subPart.lastIndexOf("0");
+      if (lastZeroPosition > -1) {
+        if (sign > 0) {
+          // in this case we want to add decimal information
+          if (zerosAfterDecimal < maximumDecimalPlaces) {
+            newSubFormat =
+              subFormat.slice(0, lastZeroPosition + 1) +
+              (zerosAfterDecimal === 0 ? ".0" : "0") +
+              subFormat.slice(lastZeroPosition + 1);
+          } else {
+            newSubFormat = subFormat;
+          }
+        } else {
+          // in this case we want to remove decimal information
+          if (zerosAfterDecimal > 0) {
+            // remove last zero
+            newSubFormat =
+              subFormat.slice(0, lastZeroPosition) + subFormat.slice(lastZeroPosition + 1);
+            // if a zero always exist after decimal point else remove decimal point
+            if (zerosAfterDecimal === 1) {
+              newSubFormat =
+                newSubFormat.slice(0, decimalPointPosition) +
+                newSubFormat.slice(decimalPointPosition + 1);
+            }
+          } else {
+            // zero after decimal isn't present, we can't remove zero
+            newSubFormat = subFormat;
+          }
+        }
+      } else {
+        // no zeros are present in this format, we do nothing
+        newSubFormat = subFormat;
+      }
+      newSubFormats.push(newSubFormat);
+    }
+    return newSubFormats.join(";");
+  }
+
+  /**
+   * Clear the styles of zones
+   */
+  private clearStyles(sheetId: UID, zones: Zone[]) {
+    for (let zone of zones) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          // commandHelpers.updateCell(sheetId, col, row, { style: undefined});
+          this.dispatch("UPDATE_CELL", {
+            sheetId,
+            col,
+            row,
+            style: null,
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * Copy the style of the reference column/row to the new columns/rows.
+   */
+  private handleAddColumnsRows(
+    cmd: AddColumnsRowsCommand,
+    fn: (sheet: Sheet, styleRef: number, elements: number[]) => void
+  ) {
+    const sheet = this.getters.getSheet(cmd.sheetId);
+    // The new elements have already been inserted in the sheet at this point.
+    let insertedElements: number[];
+    let styleReference: number;
+    if (cmd.position === "before") {
+      insertedElements = range(cmd.base, cmd.base + cmd.quantity);
+      styleReference = cmd.base + cmd.quantity;
+    } else {
+      insertedElements = range(cmd.base + 1, cmd.base + cmd.quantity + 1);
+      styleReference = cmd.base;
+    }
+    fn(sheet, styleReference, insertedElements);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Import/Export
+  // ---------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------
+  // GETTERS
+  // ---------------------------------------------------------------------------
+  getCells(sheetId: UID): Record<UID, Cell> {
+    const sheet = this.tryGetSheet(sheetId);
+    if (!sheet) {
+      return {};
+    }
+    const cells = {};
+    for (let col = 0; col < sheet.cols.length; col++) {
+      for (let row = 0; row < sheet.rows.length; row++) {
+        const cell = sheet.rows[row].cells[col];
+        if (cell) {
+          cells[cell.id] = cell;
+        }
+      }
+    }
+    return cells;
+  }
+
+  buildFormulaContent(sheetId: UID, formula: string, dependencies: Range[]): string {
+    let newDependencies = dependencies.map((x, i) => {
+      return {
+        stringDependency: this.getters.getRangeString(x, sheetId),
+        stringPosition: `${FORMULA_REF_IDENTIFIER}${i}${FORMULA_REF_IDENTIFIER}`,
+      };
+    });
+    let newContent = formula;
+    if (newDependencies) {
+      for (let d of newDependencies) {
+        newContent = newContent.replace(d.stringPosition, d.stringDependency);
+      }
+    }
+    return newContent;
+  }
+
+  getFormulaCellContent(sheetId: UID, cell: FormulaCell): string {
+    return this.buildFormulaContent(sheetId, cell.formula.text, cell.dependencies);
+  }
+
+  getCellValue(cell: Cell, sheetId: UID, showFormula: boolean = false): any {
+    let value: unknown;
+    if (showFormula) {
+      if (cell.type === CellType.formula) {
+        value = this.getters.getFormulaCellContent(sheetId, cell);
+      } else {
+        value = cell.type === CellType.invalidFormula ? cell.content : cell.value;
+      }
+    } else {
+      value = cell.value;
+    }
+    switch (typeof value) {
+      case "string":
+        return value;
+      case "boolean":
+        return value ? "TRUE" : "FALSE";
+      case "number":
+        return formatStandardNumber(value);
+      case "object":
+        return "0";
+    }
+    return (value && (value as any).toString()) || "";
+  }
+
+  getCellText(cell: Cell, sheetId: UID, showFormula: boolean = false): string {
+    let value: unknown;
+
+    if (showFormula) {
+      if (cell.type === CellType.formula) {
+        value = this.getters.getFormulaCellContent(sheetId, cell);
+      } else {
+        value = cell.type === CellType.invalidFormula ? cell.content : cell.value;
+      }
+    } else {
+      value = cell.value;
+    }
+    switch (typeof value) {
+      case "string":
+        return value;
+      case "boolean":
+        return value ? "TRUE" : "FALSE";
+      case "number":
+        const shouldFormat = (value || value === 0) && cell.format && !cell.error;
+        const dateTimeFormat = shouldFormat && cell.format!.match(DATETIME_FORMAT);
+        if (dateTimeFormat) {
+          return formatDateTime({ value, format: cell.format! });
+        }
+        const numberFormat = shouldFormat && !dateTimeFormat;
+        if (numberFormat) {
+          return formatNumber(value, cell.format!);
+        }
+        return formatStandardNumber(value);
+      case "object":
+        return "0";
+    }
+    return (value && (value as any).toString()) || "";
+  }
+
+  getCellStyle(cell: Cell): Style {
+    return cell.style || {};
+  }
+
+  private setStyle(sheetId: UID, target: Zone[], style: Style | undefined) {
+    for (let zone of target) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          const cell = this.getters.getCell(sheetId, col, row);
+          this.dispatch("UPDATE_CELL", {
+            sheetId,
+            col,
+            row,
+            style: style ? { ...cell?.style, ...style } : undefined,
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * Copy the style of one column to other columns.
+   */
+  private copyColumnStyle(sheet: Sheet, refColumn: number, targetCols: number[]) {
+    for (let row = 0; row < sheet.rows.length; row++) {
+      const format = this.getFormat(sheet.id, refColumn, row);
+      if (format.style || format.format) {
+        for (let col of targetCols) {
+          this.dispatch("UPDATE_CELL", { sheetId: sheet.id, col, row, ...format });
+        }
+      }
+    }
+  }
+
+  /**
+   * Copy the style of one row to other rows.
+   */
+  private copyRowStyle(sheet: Sheet, refRow: number, targetRows: number[]) {
+    for (let col = 0; col < sheet.cols.length; col++) {
+      const format = this.getFormat(sheet.id, col, refRow);
+      if (format.style || format.format) {
+        for (let row of targetRows) {
+          this.dispatch("UPDATE_CELL", { sheetId: sheet.id, col, row, ...format });
+        }
+      }
+    }
+  }
+
+  /**
+   * gets the currently used style/border of a cell based on it's coordinates
+   */
+  private getFormat(sheetId: UID, col: number, row: number): { style?: Style; format?: string } {
+    const format: { style?: Style; format?: string } = {};
+    const [mainCol, mainRow] = this.getters.getMainCell(sheetId, col, row);
+    const cell = this.getters.getCell(sheetId, mainCol, mainRow);
+    if (cell) {
+      if (cell.style) {
+        format["style"] = cell.style;
+      }
+      if (cell.format) {
+        format["format"] = cell.format;
+      }
+    }
+    return format;
+  }
+
+  private updateCell(sheet: Sheet, col: number, row: number, after: UpdateCellData) {
+    const before = sheet.rows[row].cells[col];
+    const hasContent = "content" in after || "formula" in after;
+
+    // Compute the new cell properties
+    const afterContent = after.content ? after.content.replace(nbspRegexp, "") : "";
+    const style = after.style !== undefined ? after.style : (before && before.style) || 0;
+    let format = "format" in after ? after.format : (before && before.format) || "";
+
+    /* Read the following IF as:
+     * we need to remove the cell if it is completely empty, but we can know if it completely empty if:
+     * - the command says the new content is empty and has no border/format/style
+     * - the command has no content property, in this case
+     *     - either there wasn't a cell at this place and the command says border/format/style is empty
+     *     - or there was a cell at this place, but it's an empty cell and the command says border/format/style is empty
+     *  */
+    if (
+      ((hasContent && !afterContent && !after.formula) ||
+        (!hasContent && (before?.type === CellType.empty || !before))) &&
+      !style &&
+      !format
+    ) {
+      if (before) {
+        // this.history.update("cells", before.id, undefined);
+        this.updateCellPosition(sheet.id, col, row, before.id, undefined);
+      }
+      return;
+    }
+
+    // compute the new cell value
+    const didContentChange = hasContent;
+    let cell: Cell;
+    if (before && !didContentChange) {
+      cell = Object.assign({}, before);
+    } else {
+      // the current content cannot be reused, so we need to recompute the
+      // derived
+      const cellId = before?.id || uuidv4();
+
+      let formulaString = after.formula;
+      if (!formulaString && afterContent[0] === "=") {
+        formulaString = normalize(afterContent || "");
+      }
+
+      if (formulaString) {
+        try {
+          const compiledFormula = compile(formulaString);
+          let ranges: Range[] = [];
+
+          for (let xc of formulaString.dependencies) {
+            // todo: remove the actual range from the cell and only keep the range Id
+            ranges.push(this.getters.getRangeFromSheetXC(sheet.id, xc));
+          }
+
+          cell = {
+            id: cellId,
+            type: CellType.formula,
+            formula: {
+              compiledFormula: compiledFormula,
+              text: formulaString.text,
+            },
+            dependencies: ranges,
+          } as FormulaCell;
+
+          if (!after.formula) {
+            format = this.computeFormulaFormat(cell);
+          }
+        } catch (e) {
+          cell = {
+            id: cellId,
+            type: CellType.invalidFormula,
+            content: afterContent,
+            value: "#BAD_EXPR",
+            error: _lt("Invalid Expression"),
+          };
+        }
+      } else if (afterContent === "") {
+        cell = {
+          id: cellId,
+          type: CellType.empty,
+          value: "",
+        };
+      } else if (isNumber(afterContent)) {
+        cell = {
+          id: cellId,
+          type: CellType.number,
+          content: afterContent,
+          value: parseNumber(afterContent),
+        };
+        if (afterContent.includes("%")) {
+          format = afterContent.includes(".") ? "0.00%" : "0%";
+        }
+      } else {
+        const internaldate = parseDateTime(afterContent);
+        if (internaldate !== null) {
+          cell = {
+            id: cellId,
+            type: CellType.number,
+            content: internaldate.value.toString(),
+            value: internaldate.value,
+          };
+          if (!format) {
+            format = internaldate.format;
+          }
+        } else {
+          const contentUpperCase = afterContent.toUpperCase();
+          cell = {
+            id: cellId,
+            type: CellType.text,
+            content: afterContent,
+            value:
+              contentUpperCase === "TRUE"
+                ? true
+                : contentUpperCase === "FALSE"
+                ? false
+                : afterContent,
+          };
+        }
+      }
+    }
+
+    if (style) {
+      cell.style = style;
+    } else {
+      delete cell.style;
+    }
+    if (format) {
+      cell.format = format;
+    } else {
+      delete cell.format;
+    }
+
+    // this.history.update("cells", cell.id, cell);
+    this.updateCellPosition(sheet.id, col, row, cell.id, cell);
+  }
+
+  NULL_FORMAT = "";
+
+  private computeFormulaFormat(cell: FormulaCell): string {
+    const dependenciesFormat = cell.formula.compiledFormula.dependenciesFormat;
+    const dependencies = cell.dependencies;
+
+    for (let dependencyFormat of dependenciesFormat) {
+      switch (typeof dependencyFormat) {
+        case "string":
+          // dependencyFormat corresponds to a literal format which can be applied
+          // directly.
+          return dependencyFormat;
+        case "number":
+          // dependencyFormat corresponds to a dependency cell from which we must
+          // find the cell and extract the associated format
+          const ref = dependencies[dependencyFormat];
+          const sheets = this.getEvaluationSheets();
+          const s = sheets[ref.sheetId];
+          if (s) {
+            // if the reference is a range --> the first cell in the range
+            // determines the format
+            const cellRef = s.rows[ref.zone.top]?.cells[ref.zone.left];
+            if (cellRef && cellRef.format) {
+              return cellRef.format;
+            }
+          }
+          break;
+      }
+    }
+    return this.NULL_FORMAT;
   }
 }

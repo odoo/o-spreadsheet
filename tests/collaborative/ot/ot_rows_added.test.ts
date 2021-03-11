@@ -14,7 +14,6 @@ import {
   SetDecimalCommand,
   SetFormattingCommand,
   UpdateCellCommand,
-  UpdateCellPositionCommand,
 } from "../../../src/types";
 import { createEqualCF, target } from "../../test_helpers/helpers";
 
@@ -42,12 +41,6 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
     content: "test",
     col: 1,
   };
-  const updateCellPosition: Omit<UpdateCellPositionCommand, "row"> = {
-    type: "UPDATE_CELL_POSITION",
-    cellId: "Id",
-    sheetId,
-    col: 1,
-  };
   const clearCell: Omit<ClearCellCommand, "row"> = {
     type: "CLEAR_CELL",
     sheetId,
@@ -60,7 +53,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
     border: { left: ["thin", "#000"] },
   };
 
-  describe.each([updateCell, updateCellPosition, clearCell, setBorder])(
+  describe.each([updateCell, clearCell, setBorder])(
     "OT with ADD_COLUMNS_ROW with dimension ROW",
     (cmd) => {
       test(`${cmd.type} before added rows`, () => {

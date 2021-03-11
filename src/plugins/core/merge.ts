@@ -40,6 +40,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     "isInSameMerge",
     "isMergeHidden",
     "getMainCell",
+    "getZoneWithMerge",
     "expandZone",
     "doesIntersectMerge",
     "getMerges",
@@ -144,6 +145,17 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
+
+  getZoneWithMerge(sheetId: UID, zone: Zone): Zone {
+    zone = this.getters.expandZone(sheetId, zone);
+    const cellTopLeft = this.getMainCell(sheetId, zone.left, zone.top);
+    const cellBotRight = this.getMainCell(sheetId, zone.right, zone.bottom);
+    const sameCell = cellTopLeft[0] == cellBotRight[0] && cellTopLeft[1] == cellBotRight[1];
+    if (!sameCell) {
+      return zone;
+    }
+    return { top: zone.top, bottom: zone.top, left: zone.left, right: zone.left };
+  }
 
   getMerges(sheetId: UID): Merge[] {
     return Object.values(this.merges[sheetId] || {}).filter(isDefined);

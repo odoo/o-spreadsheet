@@ -1,7 +1,6 @@
 import { Session } from "../collaborative/session";
 import { LocalHistory } from "../history/local_history";
 import { BordersPlugin } from "../plugins/core/borders";
-import { CellPlugin } from "../plugins/core/cell";
 import { ChartPlugin } from "../plugins/core/chart";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { FigurePlugin } from "../plugins/core/figures";
@@ -49,19 +48,19 @@ export interface CoreGetters {
   getHiddenColsGroups: SheetPlugin["getHiddenColsGroups"];
   getHiddenRowsGroups: SheetPlugin["getHiddenColsGroups"];
 
-  zoneToXC: CellPlugin["zoneToXC"];
-  getCells: CellPlugin["getCells"];
-  getFormulaCellContent: CellPlugin["getFormulaCellContent"];
-  buildFormulaContent: CellPlugin["buildFormulaContent"];
-  getCellText: CellPlugin["getCellText"];
-  getCellValue: CellPlugin["getCellValue"];
-  getCellStyle: CellPlugin["getCellStyle"];
+  getCells: SheetPlugin["getCells"];
+  getFormulaCellContent: SheetPlugin["getFormulaCellContent"];
+  buildFormulaContent: SheetPlugin["buildFormulaContent"];
+  getCellText: SheetPlugin["getCellText"];
+  getCellValue: SheetPlugin["getCellValue"];
+  getCellStyle: SheetPlugin["getCellStyle"];
 
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
   getPasteZones: ClipboardPlugin["getPasteZones"];
 
   expandZone: MergePlugin["expandZone"];
+  getZoneWithMerge: MergePlugin["getZoneWithMerge"];
   isInMerge: MergePlugin["isInMerge"];
   getMainCell: MergePlugin["getMainCell"];
   doesIntersectMerge: MergePlugin["doesIntersectMerge"];

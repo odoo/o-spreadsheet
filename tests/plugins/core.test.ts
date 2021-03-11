@@ -1,3 +1,4 @@
+import { toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { LOADING } from "../../src/plugins/ui/evaluation";
 import { CancelledReason } from "../../src/types";
@@ -209,20 +210,14 @@ describe("core", () => {
   test("single cell XC conversion", () => {
     const model = new Model({});
     expect(
-      model.getters.zoneToXC(
-        model.getters.getActiveSheetId(),
-        /*A1*/ { top: 0, left: 0, right: 0, bottom: 0 }
-      )
+      zoneToXc(model.getters.getZoneWithMerge(model.getters.getActiveSheetId(), toZone("A1")))
     ).toBe("A1");
   });
 
   test("multi cell zone XC conversion", () => {
     const model = new Model({});
     expect(
-      model.getters.zoneToXC(
-        model.getters.getActiveSheetId(),
-        /*A1:B2*/ { top: 0, left: 0, right: 1, bottom: 1 }
-      )
+      zoneToXc(model.getters.getZoneWithMerge(model.getters.getActiveSheetId(), toZone("A1:B2")))
     ).toBe("A1:B2");
   });
 
@@ -231,10 +226,7 @@ describe("core", () => {
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }],
     });
     expect(
-      model.getters.zoneToXC(
-        model.getters.getActiveSheetId(),
-        /*A2:B3*/ { top: 1, bottom: 2, left: 0, right: 1 }
-      )
+      zoneToXc(model.getters.getZoneWithMerge(model.getters.getActiveSheetId(), toZone("A2:B3")))
     ).toBe("A1:B3");
   });
 
@@ -243,10 +235,7 @@ describe("core", () => {
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2", "A4:B5"] }],
     });
     expect(
-      model.getters.zoneToXC(
-        model.getters.getActiveSheetId(),
-        /*A2:B4*/ { top: 1, bottom: 3, left: 0, right: 1 }
-      )
+      zoneToXc(model.getters.getZoneWithMerge(model.getters.getActiveSheetId(), toZone("A2:B4")))
     ).toBe("A1:B5");
   });
 
@@ -255,10 +244,7 @@ describe("core", () => {
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }],
     });
     expect(
-      model.getters.zoneToXC(
-        model.getters.getActiveSheetId(),
-        /*A2:B2*/ { top: 1, bottom: 1, left: 0, right: 1 }
-      )
+      zoneToXc(model.getters.getZoneWithMerge(model.getters.getActiveSheetId(), toZone("A2:B2")))
     ).toBe("A1");
   });
 

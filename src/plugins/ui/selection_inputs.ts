@@ -1,5 +1,5 @@
 import { rangeReference } from "../../formulas/index";
-import { getNextColor, uuidv4 } from "../../helpers/index";
+import { getNextColor, uuidv4, zoneToXc } from "../../helpers/index";
 import { Mode } from "../../model";
 import { CancelledReason, Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
@@ -323,14 +323,12 @@ export class SelectionInputPlugin extends UIPlugin {
    * Convert highlights to the input format
    */
   private highlightsToInput(highlights: Highlight[], activeSheetId: UID): RangeInputValue[] {
-    const toXC = this.getters.zoneToXC;
-    const sheetId = this.getters.getActiveSheetId();
     return highlights.map((h) =>
       Object.freeze({
         xc:
           h.sheet !== activeSheetId
-            ? `${this.getters.getSheetName(h.sheet)}!${toXC(sheetId, h.zone)}`
-            : toXC(sheetId, h.zone),
+            ? `${this.getters.getSheetName(h.sheet)}!${zoneToXc(h.zone)}`
+            : zoneToXc(h.zone),
         id: uuidv4(),
         color: h.color,
       })

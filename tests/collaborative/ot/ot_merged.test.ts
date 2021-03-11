@@ -10,7 +10,6 @@ import {
   SetDecimalCommand,
   SetFormattingCommand,
   UpdateCellCommand,
-  UpdateCellPositionCommand,
 } from "../../../src/types";
 import { target } from "../../test_helpers/helpers";
 
@@ -27,11 +26,6 @@ describe("OT with ADD_MERGE", () => {
     sheetId,
     content: "test",
   };
-  const updateCellPosition: Omit<UpdateCellPositionCommand, "row" | "col"> = {
-    type: "UPDATE_CELL_POSITION",
-    cellId: "Id",
-    sheetId,
-  };
   const clearCell: Omit<ClearCellCommand, "row" | "col"> = {
     type: "CLEAR_CELL",
     sheetId,
@@ -42,32 +36,29 @@ describe("OT with ADD_MERGE", () => {
     border: { left: ["thin", "#000"] },
   };
 
-  describe.each([updateCell, updateCellPosition, clearCell, setBorder])(
-    "single cell commands",
-    (cmd) => {
-      test(`${cmd.type} inside the merge`, () => {
-        const command = { ...cmd, col: 2, row: 2 };
-        const result = transform(command, addMerge);
-        expect(result).toBeUndefined();
-      });
-      test(`${cmd.type} = the top-left of the merge`, () => {
-        const command = { ...cmd, col: 1, row: 1 };
-        const result = transform(command, addMerge);
-        expect(result).toEqual(command);
-      });
-      test(`${cmd.type} outside the merge`, () => {
-        const command = { ...cmd, col: 10, row: 10 };
-        const result = transform(command, addMerge);
-        expect(result).toEqual(command);
-      });
+  describe.each([updateCell, clearCell, setBorder])("single cell commands", (cmd) => {
+    test(`${cmd.type} inside the merge`, () => {
+      const command = { ...cmd, col: 2, row: 2 };
+      const result = transform(command, addMerge);
+      expect(result).toBeUndefined();
+    });
+    test(`${cmd.type} = the top-left of the merge`, () => {
+      const command = { ...cmd, col: 1, row: 1 };
+      const result = transform(command, addMerge);
+      expect(result).toEqual(command);
+    });
+    test(`${cmd.type} outside the merge`, () => {
+      const command = { ...cmd, col: 10, row: 10 };
+      const result = transform(command, addMerge);
+      expect(result).toEqual(command);
+    });
 
-      test(`${cmd.type} in another sheet`, () => {
-        const command = { ...cmd, col: 2, row: 1, sheetId: "42" };
-        const result = transform(command, addMerge);
-        expect(result).toEqual(command);
-      });
-    }
-  );
+    test(`${cmd.type} in another sheet`, () => {
+      const command = { ...cmd, col: 2, row: 1, sheetId: "42" };
+      const result = transform(command, addMerge);
+      expect(result).toEqual(command);
+    });
+  });
 
   const deleteContent: Omit<DeleteContentCommand, "target"> = {
     type: "DELETE_CONTENT",
