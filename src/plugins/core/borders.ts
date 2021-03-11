@@ -69,6 +69,12 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
           this.handleAddRows(cmd);
         }
         break;
+      case "DUPLICATE_SHEET":
+        const borders = this.borders[cmd.sheetId];
+        if (borders) {
+          this.history.update("borders", cmd.sheetIdTo, JSON.parse(JSON.stringify(borders)));
+        }
+        break;
     }
   }
 

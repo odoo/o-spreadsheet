@@ -115,6 +115,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         this.updateCell(this.getters.getSheet(cmd.sheetId), cmd.col, cmd.row, cmd);
         break;
 
+      case "DUPLICATE_SHEET":
+        const cells = this.cells[cmd.sheetId];
+        if (cells) {
+          this.history.update("cells", cmd.sheetIdTo, JSON.parse(JSON.stringify(cells)));
+        }
+        break;
+
       case "CLEAR_CELL":
         this.dispatch("UPDATE_CELL", {
           sheetId: cmd.sheetId,

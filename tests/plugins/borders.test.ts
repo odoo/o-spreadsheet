@@ -309,6 +309,15 @@ describe("borders", () => {
     expect(getBorder(model, "C4")).toEqual({ top: s, bottom: s, right: s, left: s });
     expect(getBorder(model, "B2")).toBeNull();
   });
+
+  test("Borders are correctly duplicated on sheet duplication", () => {
+    const model = new Model();
+    setBorder(model, "external", "B2");
+    const s = DEFAULT_BORDER_DESC;
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "42", name: "hello" });
+    expect(getBorder(model, "B2", "42")).toEqual({ top: s, bottom: s, right: s, left: s });
+  });
 });
 
 describe("Grid manipulation", () => {
