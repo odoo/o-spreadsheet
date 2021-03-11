@@ -1,3 +1,4 @@
+import { configureToMatchImageSnapshot, MatchImageSnapshotOptions } from "jest-image-snapshot";
 import { Model } from "../../src";
 import { CancelledReason, DispatchResult } from "../../src/types";
 
@@ -21,11 +22,16 @@ declare global {
       toExport<T>(expected: T): R;
       toBeCancelledBecause(...expected: CancelledReason[]): R;
       toBeSuccessfullyDispatched(): R;
+      toMatchImageSnapshot(options?: MatchImageSnapshotOptions): R;
     }
   }
 }
+const toMatchImageSnapshot = configureToMatchImageSnapshot({
+  dumpDiffToConsole: true, // allows to copy-paste the diff from Runbot logs
+});
 
 expect.extend({
+  toMatchImageSnapshot,
   toExport(model: Model, expected: any) {
     const exportData = model.exportData();
     if (

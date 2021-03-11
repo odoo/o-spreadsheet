@@ -39,12 +39,65 @@ interface ContextObserver {
   onFunctionCall?(fn: string, args: any[]): void;
 }
 
+const MOCK_THIN_LINE_WIDTH = 0.4;
+
+registerFont(join(__dirname, "../helpers/fonts/Roboto-Regular.ttf"), { family: "Roboto" });
+registerFont(join(__dirname, "../helpers/fonts/Roboto-Bold.ttf"), {
+  family: "Roboto",
+  weight: "bold",
+});
+registerFont(join(__dirname, "../helpers/fonts/Roboto-BoldItalic.ttf"), {
+  family: "Roboto",
+  weight: "bold",
+  style: "italic",
+});
+registerFont(join(__dirname, "../helpers/fonts/Roboto-Italic.ttf"), {
+  family: "Roboto",
+  style: "italic",
+});
+
+function defaultPixelZone(rangeXC: string): Zone {
+  const { top, left, bottom, right } = toZone(rangeXC);
+  return {
+    top: top * DEFAULT_CELL_HEIGHT,
+    bottom: (bottom + 1) * DEFAULT_CELL_HEIGHT,
+    left: left * DEFAULT_CELL_WIDTH,
+    right: (right + 1) * DEFAULT_CELL_WIDTH,
+  };
+}
+
+export class ImageGridRenderingContext implements GridRenderingContext {
+  ctx: CanvasRenderingContext2D;
+  viewport: Viewport;
+  dpr = 1;
+  thinLineWidth = MOCK_THIN_LINE_WIDTH;
+  private canvas: Canvas;
+
+  constructor(model: Model, zone: Zone) {
+    const width = zone.right - zone.left + HEADER_WIDTH;
+    const height = zone.bottom - zone.top + HEADER_HEIGHT;
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: zone.left,
+      offsetY: zone.top,
+    });
+    model.dispatch("RESIZE_VIEWPORT", { width, height });
+
+    this.canvas = createCanvas(width, height);
+    this.ctx = this.canvas.getContext("2d");
+    this.viewport = model.getters.getActiveViewport();
+  }
+
+  screenshot() {
+    return this.canvas.toBuffer("image/png");
+  }
+}
+
 class MockGridRenderingContext implements GridRenderingContext {
   _context = document.createElement("canvas").getContext("2d");
   ctx: CanvasRenderingContext2D;
   viewport: Viewport;
   dpr = 1;
-  thinLineWidth = 0.4;
+  thinLineWidth = MOCK_THIN_LINE_WIDTH;
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
     model.dispatch("RESIZE_VIEWPORT", {
@@ -632,327 +685,11 @@ describe("renderer", () => {
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 48, y: 26 }]);
   });
 
-  test.each(["I am a very long text", "100000000000000"])(
-    "Overflowing left-aligned content is correctly clipped",
-    (overflowingContent) => {
-      let box: Box;
-      const model = new Model({
-        sheets: [
-          {
-            id: "sheet1",
-            colNumber: 3,
-            rowNumber: 1,
-            cols: { 1: { size: 5 } },
-            cells: { B1: { content: overflowingContent, style: 1 } },
-          },
-        ],
-        styles: { 1: { align: "left" } },
-      });
-
-      let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-      model.drawGrid(ctx);
-
-      box = getBoxFromText(model, overflowingContent);
-      // no clip
-      expect(box.clipRect).toBeUndefined();
-
-      // no clipping at the left
-      setCellContent(model, "A1", "Content at the left");
-      model.drawGrid(ctx);
-      box = getBoxFromText(model, overflowingContent);
-      expect(box.clipRect).toBeUndefined();
-
-      // clipping at the right
-      setCellContent(model, "C1", "Content at the right");
-      model.drawGrid(ctx);
-      box = getBoxFromText(model, overflowingContent);
-      expect(box.clipRect).toEqual([
-        HEADER_WIDTH + DEFAULT_CELL_WIDTH,
-        HEADER_HEIGHT,
-        5,
-        DEFAULT_CELL_HEIGHT,
-      ]);
-    }
-  );
-
-  test.each([{ align: "left" }, { align: undefined }])(
-    "Overflowing number with % align is correctly clipped",
-    (style) => {
-      const overflowingNumber = "100000000000000";
-      let box: Box;
-      const model = new Model({
-        sheets: [
-          {
-            id: "sheet1",
-            colNumber: 3,
-            rowNumber: 1,
-            cols: { 1: { size: 5 } },
-            cells: { B1: { content: overflowingNumber, style: 1 } },
-          },
-        ],
-        styles: { 1: style },
-      });
-
-      let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-      model.drawGrid(ctx);
-
-      box = getBoxFromText(model, overflowingNumber);
-      // no clip
-      expect(box.clipRect).toBeUndefined();
-
-      // no clipping at the left
-      setCellContent(model, "A1", "Content at the left");
-      model.drawGrid(ctx);
-      box = getBoxFromText(model, overflowingNumber);
-      expect(box.clipRect).toBeUndefined();
-
-      // clipping at the right
-      setCellContent(model, "C1", "Content at the right");
-      model.drawGrid(ctx);
-      box = getBoxFromText(model, overflowingNumber);
-      expect(box.clipRect).toEqual([
-        HEADER_WIDTH + DEFAULT_CELL_WIDTH,
-        HEADER_HEIGHT,
-        5,
-        DEFAULT_CELL_HEIGHT,
-      ]);
-    }
-  );
-
-  test("Overflowing right-aligned text is correctly clipped", () => {
-    const overflowingText = "I am a very long text";
-    let box: Box;
-    const model = new Model({
-      sheets: [
-        {
-          id: "sheet1",
-          colNumber: 3,
-          rowNumber: 1,
-          cols: { 1: { size: 5 } },
-          cells: { B1: { content: overflowingText, style: 1 } },
-        },
-      ],
-      styles: { 1: { align: "right" } },
-    });
-
-    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-    model.drawGrid(ctx);
-
-    box = getBoxFromText(model, overflowingText);
-    // no clip
-    expect(box.clipRect).toBeUndefined();
-
-    // no clipping at the right
-    setCellContent(model, "C1", "Content at the left");
-    model.drawGrid(ctx);
-    box = getBoxFromText(model, overflowingText);
-    expect(box.clipRect).toBeUndefined();
-
-    // clipping at the left
-    setCellContent(model, "A1", "Content at the right");
-    model.drawGrid(ctx);
-    box = getBoxFromText(model, overflowingText);
-    expect(box.clipRect).toEqual([
-      HEADER_WIDTH + DEFAULT_CELL_WIDTH,
-      HEADER_HEIGHT,
-      5,
-      DEFAULT_CELL_HEIGHT,
-    ]);
-  });
-
-  test.each(["I am a very long text", "100000000000000"])(
-    "Overflowing centered content is clipped on both sides",
-    (overflowingContent) => {
-      let centeredBox: Box;
-      const model = new Model({
-        sheets: [
-          {
-            id: "sheet1",
-            colNumber: 3,
-            rowNumber: 1,
-            cols: { 1: { size: 5 } },
-            cells: { B1: { content: overflowingContent, style: 1 } },
-          },
-        ],
-        styles: { 1: { align: "center" } },
-      });
-
-      let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-      model.drawGrid(ctx);
-
-      centeredBox = getBoxFromText(model, overflowingContent);
-      // // spans from A1 to C1 <-> no clip
-      expect(centeredBox.clipRect).toBeUndefined();
-
-      setCellContent(model, "A1", "left");
-      model.drawGrid(ctx);
-
-      centeredBox = getBoxFromText(model, overflowingContent);
-      expect(centeredBox.clipRect).toEqual([
-        HEADER_WIDTH + DEFAULT_CELL_WIDTH, // clipped to the left
-        HEADER_HEIGHT,
-        5 + DEFAULT_CELL_WIDTH,
-        DEFAULT_CELL_HEIGHT,
-      ]);
-
-      setCellContent(model, "C1", "right");
-      model.drawGrid(ctx);
-
-      centeredBox = getBoxFromText(model, overflowingContent);
-      expect(centeredBox.clipRect).toEqual([
-        HEADER_WIDTH + DEFAULT_CELL_WIDTH, //clipped to the left
-        HEADER_HEIGHT,
-        5, // clipped to the right
-        DEFAULT_CELL_HEIGHT,
-      ]);
-    }
-  );
-
-  test("cells with a fontsize too big for the row height are clipped", () => {
-    const overflowingText = "TOO HIGH";
-    const fontSize = 26;
-    let box: Box;
-    const model = new Model({
-      sheets: [
-        {
-          id: "sheet1",
-          colNumber: 1,
-          rowNumber: 1,
-          rows: { 0: { size: Math.floor(fontSizeMap[fontSize] + 5) } },
-          cells: { A1: { content: overflowingText, style: 1 } },
-        },
-      ],
-      styles: { 1: { fontSize } },
-    });
-
-    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-    model.drawGrid(ctx);
-
-    box = getBoxFromText(model, overflowingText);
-    expect(box.clipRect).toBeUndefined();
-
-    resizeRows(model, [0], Math.floor(fontSizeMap[fontSize] / 2));
-    model.drawGrid(ctx);
-    box = getBoxFromText(model, overflowingText);
-    expect(box.clipRect).toEqual([
-      HEADER_WIDTH,
-      HEADER_HEIGHT,
-      DEFAULT_CELL_WIDTH,
-      Math.floor(fontSizeMap[fontSize] / 2),
-    ]);
-  });
-
-  test("cells with icon CF are correctly clipped", () => {
-    let box: Box;
-    const cellContent = "10000";
-    const model = new Model({
-      sheets: [
-        {
-          id: "sheet1",
-          colNumber: 1,
-          rowNumber: 1,
-          cells: { A1: { content: "10000" } },
-          conditionalFormats: [
-            {
-              id: "1",
-              ranges: ["A1"],
-              rule: {
-                type: "IconSetRule",
-                upperInflectionPoint: { type: "number", value: "1000", operator: "gt" },
-                lowerInflectionPoint: { type: "number", value: "0", operator: "gt" },
-                icons: {
-                  upper: "arrowGood",
-                  middle: "arrowNeutral",
-                  lower: "arrowBad",
-                },
-              },
-            },
-          ],
-        },
-      ],
-    });
-
-    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-    model.drawGrid(ctx);
-    box = getBoxFromText(model, cellContent);
-    const maxIconBoxWidth = box.image!.size + 2 * MIN_CF_ICON_MARGIN;
-    expect(box.image!.clipIcon).toEqual([
-      HEADER_WIDTH,
-      HEADER_HEIGHT,
-      maxIconBoxWidth,
-      DEFAULT_CELL_HEIGHT,
-    ]);
-    expect(box.clipRect).toEqual([
-      HEADER_WIDTH + maxIconBoxWidth,
-      HEADER_HEIGHT,
-      DEFAULT_CELL_WIDTH - maxIconBoxWidth,
-      DEFAULT_CELL_HEIGHT,
-    ]);
-
-    resizeColumns(model, ["A"], maxIconBoxWidth - 3);
-    model.drawGrid(ctx);
-    box = getBoxFromText(model, cellContent);
-    expect(box.image!.clipIcon).toEqual([
-      HEADER_WIDTH,
-      HEADER_HEIGHT,
-      maxIconBoxWidth - 3,
-      DEFAULT_CELL_HEIGHT,
-    ]);
-    expect(box.clipRect).toEqual([
-      HEADER_WIDTH + maxIconBoxWidth,
-      HEADER_HEIGHT,
-      0,
-      DEFAULT_CELL_HEIGHT,
-    ]);
-  });
-
-  test.each(["A1", "A1:A2", "A1:A2,B1:B2", "A1,C1"])(
-    "compatible copied zones %s are all outlined with dots",
-    (targetXc) => {
-      const model = new Model();
-      const copiedTarget = target(targetXc);
-      model.dispatch("COPY", { target: copiedTarget });
-      const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
-      model.drawGrid(ctx);
-      expect(isDotOutlined(copiedTarget)).toBeTruthy();
-      model.dispatch("PASTE", { target: target("A10") });
-      reset();
-      model.drawGrid(ctx);
-      expect(isDotOutlined(copiedTarget)).toBeFalsy();
-    }
-  );
-
-  test.each(["A1,A2", "A1:A2,A4:A5"])(
-    "only last copied non-compatible zones %s is outlined with dots",
-    (targetXc) => {
-      const model = new Model();
-      const copiedTarget = target(targetXc);
-      model.dispatch("COPY", { target: copiedTarget });
-      const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
-      model.drawGrid(ctx);
-      const expectedOutlinedZone = copiedTarget.slice(-1);
-      expect(isDotOutlined(expectedOutlinedZone)).toBeTruthy();
-      model.dispatch("PASTE", { target: target("A10") });
-      reset();
-      model.drawGrid(ctx);
-      expect(isDotOutlined(expectedOutlinedZone)).toBeFalsy();
-    }
-  );
-
-  test.each([
-    (model) => setCellContent(model, "B15", "hello"),
-    (model) => addColumns(model, "after", "B", 1),
-    (model) => deleteColumns(model, ["K"]),
-  ])("copied zone outline is removed at first change to the grid", (coreOperation) => {
+  test("simple content", () => {
     const model = new Model();
-    const copiedTarget = target("A1:A2");
-    model.dispatch("COPY", { target: copiedTarget });
-    const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
+    setCellContent(model, "B2", "Hello !");
+    const ctx = new ImageGridRenderingContext(model, defaultPixelZone("B2"));
     model.drawGrid(ctx);
-    expect(isDotOutlined(copiedTarget)).toBeTruthy();
-    coreOperation(model);
-    reset();
-    model.drawGrid(ctx);
-    expect(isDotOutlined(copiedTarget)).toBeFalsy();
+    expect(ctx.screenshot()).toMatchImageSnapshot();
   });
 });
