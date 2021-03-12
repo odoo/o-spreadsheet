@@ -1,6 +1,5 @@
 import { Mode, Model } from "../src/model";
 import { BordersPlugin } from "../src/plugins/core/borders";
-import { CellPlugin } from "../src/plugins/core/cell";
 import { ChartPlugin } from "../src/plugins/core/chart";
 import { ConditionalFormatPlugin } from "../src/plugins/core/conditional_format";
 import { FigurePlugin } from "../src/plugins/core/figures";
@@ -29,18 +28,17 @@ function getNbrPlugin(mode: Mode): number {
 describe("Model", () => {
   test("can create model in headless mode", () => {
     const model = new Model({}, { mode: "headless" });
-    expect(model["handlers"]).toHaveLength(11);
+    expect(model["handlers"]).toHaveLength(10);
     expect(model["handlers"][0]).toBeInstanceOf(RangeAdapter);
     expect(model["handlers"][1]).toBeInstanceOf(SheetPlugin);
-    expect(model["handlers"][2]).toBeInstanceOf(CellPlugin);
-    expect(model["handlers"][3]).toBeInstanceOf(MergePlugin);
-    expect(model["handlers"][4]).toBeInstanceOf(BordersPlugin);
-    expect(model["handlers"][5]).toBeInstanceOf(ConditionalFormatPlugin);
-    expect(model["handlers"][6]).toBeInstanceOf(FigurePlugin);
-    expect(model["handlers"][7]).toBeInstanceOf(ChartPlugin);
-    expect(model["handlers"][8]).toBeInstanceOf(SheetUIPlugin);
-    expect(model["handlers"][9]).toBeInstanceOf(FindAndReplacePlugin);
-    expect(model["handlers"][10]).toBeInstanceOf(SortPlugin);
+    expect(model["handlers"][2]).toBeInstanceOf(MergePlugin);
+    expect(model["handlers"][3]).toBeInstanceOf(BordersPlugin);
+    expect(model["handlers"][4]).toBeInstanceOf(ConditionalFormatPlugin);
+    expect(model["handlers"][5]).toBeInstanceOf(FigurePlugin);
+    expect(model["handlers"][6]).toBeInstanceOf(ChartPlugin);
+    expect(model["handlers"][7]).toBeInstanceOf(SheetUIPlugin);
+    expect(model["handlers"][8]).toBeInstanceOf(FindAndReplacePlugin);
+    expect(model["handlers"][9]).toBeInstanceOf(SortPlugin);
   });
 
   test("All plugin compatible with normal mode are loaded on normal mode", () => {

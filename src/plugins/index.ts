@@ -1,6 +1,5 @@
 import { Registry } from "../registry";
 import { BordersPlugin } from "./core/borders";
-import { CellPlugin } from "./core/cell";
 import { ChartPlugin } from "./core/chart";
 import { ConditionalFormatPlugin } from "./core/conditional_format";
 import { FigurePlugin } from "./core/figures";
@@ -27,7 +26,6 @@ import { UIPluginConstructor } from "./ui_plugin";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("sheet", SheetPlugin)
-  .add("cell", CellPlugin)
   .add("merge", MergePlugin)
   .add("borders", BordersPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
