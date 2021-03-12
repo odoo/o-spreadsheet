@@ -1,5 +1,5 @@
 import { DATETIME_FORMAT } from "../../constants";
-import { composerTokenize, EnrichedToken, rangeReference, tokenize } from "../../formulas/index";
+import { composerTokenize, EnrichedToken, rangeReference } from "../../formulas/index";
 import { formatDateTime } from "../../functions/dates";
 import {
   colors,
@@ -20,7 +20,12 @@ import {
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
-export type EditionMode = "editing" | "selecting" | "inactive" | "resettingPosition";
+export type EditionMode =
+  | "editing"
+  | "waitingForRangeSelection"
+  | "rangeSelected"
+  | "inactive"
+  | "resettingPosition";
 
 const CELL_DELETED_MESSAGE = _lt("The cell you are trying to edit has been deleted.");
 
@@ -39,6 +44,7 @@ export class EditionPlugin extends UIPlugin {
     "getCurrentContent",
     "getEditionSheet",
     "getComposerSelection",
+    "getCurrentTokens",
     "getTokenAtCursor",
   ];
   static modes: Mode[] = ["normal", "readonly"];
@@ -48,6 +54,7 @@ export class EditionPlugin extends UIPlugin {
   private mode: EditionMode = "inactive";
   private sheet: string = "";
   private currentContent: string = "";
+  private currentTokens: EnrichedToken[] = [];
   private selectionStart: number = 0;
   private selectionEnd: number = 0;
   private selectionInitialStart: number = 0;
@@ -78,7 +85,7 @@ export class EditionPlugin extends UIPlugin {
   beforeHandle(cmd: Command) {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
-        if (this.mode !== "selecting") {
+        if (!this.isSelectingForComposer()) {
           this.stopEdition();
         }
         break;
@@ -95,8 +102,7 @@ export class EditionPlugin extends UIPlugin {
         this.selectionEnd = cmd.end;
         break;
       case "STOP_COMPOSER_RANGE_SELECTION":
-        this.removeSelectionIndicator();
-        if (this.mode === "selecting") {
+        if (this.isSelectingForComposer()) {
           this.mode = "editing";
         }
         break;
@@ -109,7 +115,6 @@ export class EditionPlugin extends UIPlugin {
           this.cancelEdition();
           this.resetContent();
         } else {
-          this.removeSelectionIndicator();
           this.stopEdition();
         }
         break;
@@ -132,8 +137,7 @@ export class EditionPlugin extends UIPlugin {
       case "MOVE_POSITION":
         if (this.mode === "editing") {
           this.dispatch("STOP_EDITION");
-        } else if (this.mode === "selecting") {
-          this.removeSelectionIndicator();
+        } else if (this.mode === "waitingForRangeSelection" || this.mode === "rangeSelected") {
           this.insertSelectedRange();
         }
         if (this.mode === "inactive") {
@@ -188,7 +192,15 @@ export class EditionPlugin extends UIPlugin {
   }
 
   isSelectingForComposer(): boolean {
-    return this.mode === "selecting" || this.mode === "resettingPosition";
+    return (
+      this.mode === "waitingForRangeSelection" ||
+      this.mode === "rangeSelected" ||
+      this.mode === "resettingPosition"
+    );
+  }
+
+  getCurrentTokens(): EnrichedToken[] {
+    return this.currentTokens;
   }
 
   /**
@@ -200,8 +212,7 @@ export class EditionPlugin extends UIPlugin {
     if (start === end && end === 0) {
       return undefined;
     } else {
-      const tokens = composerTokenize(this.currentContent);
-      return tokens.find((t) => t.start <= start && t.end >= end);
+      return this.currentTokens.find((t) => t.start <= start && t.end >= end);
     }
   }
 
@@ -256,12 +267,11 @@ export class EditionPlugin extends UIPlugin {
    */
   private startComposerRangeSelection() {
     this.mode = "resettingPosition";
-    this.insertSelectionIndicator();
     this.dispatch("SELECT_CELL", {
       col: this.col,
       row: this.row,
     });
-    this.mode = "selecting";
+    this.mode = "waitingForRangeSelection";
     // We set this variable to store the start of the selection, to allow
     // to replace selections (ex: select twice a cell should only be added
     // once)
@@ -308,16 +318,14 @@ export class EditionPlugin extends UIPlugin {
       const sheetId = this.getters.getActiveSheetId();
       const [col, row] = this.getters.getMainCell(sheetId, this.col, this.row);
       let content = this.currentContent;
-      this.setContent("");
       const didChange = this.initialContent !== content;
       if (!didChange) {
         return;
       }
       if (content) {
         if (content.startsWith("=")) {
-          const tokens = tokenize(content);
-          const left = tokens.filter((t) => t.type === "LEFT_PAREN").length;
-          const right = tokens.filter((t) => t.type === "RIGHT_PAREN").length;
+          const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
+          const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
           const missing = left - right;
           if (missing > 0) {
             content += new Array(missing).fill(")").join("");
@@ -343,6 +351,7 @@ export class EditionPlugin extends UIPlugin {
           sheetIdTo: this.sheet,
         });
       }
+      this.setContent("");
     }
   }
 
@@ -359,12 +368,16 @@ export class EditionPlugin extends UIPlugin {
   }
 
   private setContent(text: string, selection?: ComposerSelection) {
+    const isNewCurrentContent = this.currentContent !== text;
     this.currentContent = text;
     if (selection) {
       this.selectionStart = selection.start;
       this.selectionEnd = selection.end;
     } else {
       this.selectionStart = this.selectionEnd = text.length;
+    }
+    if (isNewCurrentContent) {
+      this.currentTokens = text.startsWith("=") ? composerTokenize(text) : [];
     }
     if (this.canstartComposerRangeSelection()) {
       this.startComposerRangeSelection();
@@ -379,6 +392,7 @@ export class EditionPlugin extends UIPlugin {
    *  - end:    the current end of the selection.
    */
   private insertSelectedRange() {
+    this.mode = "rangeSelected";
     const [zone] = this.getters.getSelectedZones();
     const sheetId = this.getters.getActiveSheetId();
     let selectedXc = this.getters.zoneToXC(sheetId, zone);
@@ -394,22 +408,6 @@ export class EditionPlugin extends UIPlugin {
       selectedXc = `${sheetName}!${selectedXc}`;
     }
     this.replaceSelection(selectedXc);
-  }
-
-  //insert a visual symbol to indicate the user that selection started
-  private insertSelectionIndicator() {
-    const content =
-      this.currentContent.slice(0, this.selectionStart) +
-      SelectionIndicator +
-      this.currentContent.slice(this.selectionStart);
-    this.setContent(content, {
-      start: this.selectionStart,
-      end: this.selectionStart,
-    });
-  }
-
-  private removeSelectionIndicator() {
-    this.currentContent = this.currentContent.replace(SelectionIndicator, "");
   }
 
   /**
@@ -446,10 +444,9 @@ export class EditionPlugin extends UIPlugin {
       return;
     }
     this.dispatch("REMOVE_ALL_HIGHLIGHTS"); //cleanup highlights for references
-    const tokens = composerTokenize(this.currentContent);
     const ranges = {};
     let lastUsedColorIndex = 0;
-    for (let token of tokens.filter((token) => token.type === "SYMBOL")) {
+    for (let token of this.currentTokens.filter((token) => token.type === "SYMBOL")) {
       let value = token.value;
       const [xc, sheet] = value.split("!").reverse();
       if (rangeReference.test(xc)) {
@@ -494,31 +491,36 @@ export class EditionPlugin extends UIPlugin {
    */
   private canstartComposerRangeSelection(): boolean {
     if (this.isSelectingForComposer()) return false;
-    const tokens = composerTokenize(this.currentContent);
-    const tokenAtCursor = this.getTokenAtCursor();
-    if (this.currentContent.startsWith("=") && tokenAtCursor) {
-      const tokenIdex = tokens.map((token) => token.start).indexOf(tokenAtCursor.start);
+    if (this.currentContent.startsWith("=")) {
+      const tokenAtCursor = this.getTokenAtCursor();
+      if (tokenAtCursor) {
+        const tokenIdex = this.currentTokens
+          .map((token) => token.start)
+          .indexOf(tokenAtCursor.start);
 
-      let count = tokenIdex;
-      let curentToken = tokenAtCursor;
-      // check previous token
-      while (!["COMMA", "LEFT_PAREN", "OPERATOR"].includes(curentToken.type)) {
-        if (curentToken.type !== "SPACE" || count < 1) {
-          return false;
+        let count = tokenIdex;
+        let curentToken = tokenAtCursor;
+        // check previous token
+        while (!["COMMA", "LEFT_PAREN", "OPERATOR"].includes(curentToken.type)) {
+          if (curentToken.type !== "SPACE" || count < 1) {
+            return false;
+          }
+          count--;
+          curentToken = this.currentTokens[count];
         }
-        count--;
-        curentToken = tokens[count];
-      }
 
-      count = tokenIdex + 1;
-      curentToken = tokens[count];
-      // check next token
-      while (curentToken && !["COMMA", "RIGHT_PAREN", "OPERATOR"].includes(curentToken.type)) {
-        if (curentToken.type !== "SPACE") {
-          return false;
+        count = tokenIdex + 1;
+        curentToken = this.currentTokens[count];
+        // check next token
+        while (curentToken && !["COMMA", "RIGHT_PAREN", "OPERATOR"].includes(curentToken.type)) {
+          if (curentToken.type !== "SPACE") {
+            return false;
+          }
+          count++;
+          curentToken = this.currentTokens[count];
         }
         count++;
-        curentToken = tokens[count];
+        curentToken = this.currentTokens[count];
       }
       return true;
     }

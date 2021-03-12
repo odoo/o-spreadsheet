@@ -134,6 +134,7 @@ export type Getters = CoreGetters & {
   getCurrentContent: EditionPlugin["getCurrentContent"];
   getEditionSheet: EditionPlugin["getEditionSheet"];
   getComposerSelection: EditionPlugin["getComposerSelection"];
+  getCurrentTokens: EditionPlugin["getCurrentTokens"];
   getTokenAtCursor: EditionPlugin["getTokenAtCursor"];
 
   getAutofillTooltip: AutofillPlugin["getAutofillTooltip"];

@@ -77,7 +77,7 @@ describe("ranges and highlights", () => {
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
-    expect(model.getters.getCurrentContent()).toBe("=C8");
+    expect(composerEl.textContent).toBe("=C8");
     expect(
       // @ts-ignore
       (window.mockContentHelper as ContentEditableHelper).colors["C8"]
@@ -98,7 +98,7 @@ describe("ranges and highlights", () => {
     triggerMouseEvent("canvas", "mousemove", 200, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 200, clientY: 200 }));
     await nextTick();
-    expect(model.getters.getCurrentContent()).toBe("=B8:C8");
+    expect(composerEl.textContent).toBe("=B8:C8");
     expect(
       // @ts-ignore
       (window.mockContentHelper as ContentEditableHelper).colors["B8:C8"]
@@ -108,55 +108,55 @@ describe("ranges and highlights", () => {
   test("=Key DOWN in A1, should select and highlight A2", async () => {
     await typeInComposer("=");
     await keydown("ArrowDown");
-    expect(model.getters.getCurrentContent()).toBe("=A2");
+    expect(composerEl.textContent).toBe("=A2");
   });
 
   test("reference position is reset at each selection", async () => {
     await typeInComposer("=");
     await keydown("ArrowDown");
-    expect(model.getters.getCurrentContent()).toBe("=A2");
+    expect(composerEl.textContent).toBe("=A2");
     await typeInComposer("+", false);
-    expect(model.getters.getCurrentContent()).toBe("=A2+␣");
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(composerEl.textContent).toBe("=A2+␣");
+    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
     await keydown("ArrowDown");
-    expect(model.getters.getCurrentContent()).toBe("=A2+A2");
+    expect(composerEl.textContent).toBe("=A2+A2");
   });
 
   test("=Key DOWN+DOWN in A1, should select and highlight A3", async () => {
     await typeInComposer("=");
     await keydown("ArrowDown");
     await keydown("ArrowDown");
-    expect(model.getters.getCurrentContent()).toBe("=A3");
+    expect(composerEl.textContent).toBe("=A3");
   });
 
   test("=Key RIGHT in A1, should select and highlight B1", async () => {
     await typeInComposer("=");
     await keydown("ArrowRight");
-    expect(model.getters.getCurrentContent()).toBe("=B1");
+    expect(composerEl.textContent).toBe("=B1");
   });
 
   test("=Key RIGHT twice selects C1", async () => {
     await typeInComposer("=");
     await keydown("ArrowRight");
     await keyup("ArrowRight");
-    expect(model.getters.getCurrentContent()).toBe("=B1");
+    expect(composerEl.textContent).toBe("=B1");
     await keydown("ArrowRight");
     await keyup("ArrowRight");
-    expect(model.getters.getCurrentContent()).toBe("=C1");
+    expect(composerEl.textContent).toBe("=C1");
   });
 
   test("=Key UP in B2, should select and highlight B1", async () => {
     selectCell(model, "B2");
     await typeInComposer("=");
     await keydown("ArrowUp");
-    expect(model.getters.getCurrentContent()).toBe("=B1");
+    expect(composerEl.textContent).toBe("=B1");
   });
 
   test("=Key LEFT in B2, should select and highlight A2", async () => {
     selectCell(model, "B2");
     await typeInComposer("=");
     await keydown("ArrowLeft");
-    expect(model.getters.getCurrentContent()).toBe("=A2");
+    expect(composerEl.textContent).toBe("=A2");
   });
 
   test("=Key DOWN and UP in B2, should select and highlight B2", async () => {
@@ -164,7 +164,7 @@ describe("ranges and highlights", () => {
     await typeInComposer("=");
     await keydown("ArrowDown");
     await keydown("ArrowUp");
-    expect(model.getters.getCurrentContent()).toBe("=B2");
+    expect(composerEl.textContent).toBe("=B2");
   });
 
   test("=key UP 2 times and key DOWN in B2, should select and highlight B2", async () => {
@@ -173,21 +173,21 @@ describe("ranges and highlights", () => {
     await keydown("ArrowUp");
     await keydown("ArrowUp");
     await keydown("ArrowDown");
-    expect(model.getters.getCurrentContent()).toBe("=B2");
+    expect(composerEl.textContent).toBe("=B2");
   });
 
   test("While selecting a ref, Shift+UP/DOWN/LEFT/RIGHT extend the range selection and updates the composer", async () => {
     await typeInComposer("=");
     await keydown("ArrowDown");
-    expect(model.getters.getCurrentContent()).toBe("=A2");
+    expect(composerEl.textContent).toBe("=A2");
     await keydown("ArrowDown", { shiftKey: true });
-    expect(model.getters.getCurrentContent()).toBe("=A2:A3");
+    expect(composerEl.textContent).toBe("=A2:A3");
     await keydown("ArrowRight", { shiftKey: true });
-    expect(model.getters.getCurrentContent()).toBe("=A2:B3");
+    expect(composerEl.textContent).toBe("=A2:B3");
     await keydown("ArrowUp", { shiftKey: true });
-    expect(model.getters.getCurrentContent()).toBe("=A2:B2");
+    expect(composerEl.textContent).toBe("=A2:B2");
     await keydown("ArrowLeft", { shiftKey: true });
-    expect(model.getters.getCurrentContent()).toBe("=A2");
+    expect(composerEl.textContent).toBe("=A2");
   });
 
   test("Create a ref with merges with keyboard -> the merge should be treated as one cell", async () => {
@@ -197,7 +197,7 @@ describe("ranges and highlights", () => {
     selectCell(model, "C1");
     await typeInComposer("=");
     await keydown("ArrowDown");
-    expect(model.getters.getCurrentContent()).toBe("=B2");
+    expect(composerEl.textContent).toBe("=B2");
     expect(getHighlights(model)).toHaveLength(1);
     expect(getHighlights(model)[0].zone).toMatchObject({
       top: 1,
@@ -206,7 +206,7 @@ describe("ranges and highlights", () => {
       right: 2,
     });
     await keydown("ArrowDown");
-    expect(model.getters.getCurrentContent()).toBe("=C4");
+    expect(composerEl.textContent).toBe("=C4");
   });
 });
 
@@ -246,7 +246,7 @@ describe("composer", () => {
   test("type '=' in the sheet and select a cell", async () => {
     composerEl = await startComposition("=");
     expect(composerEl.textContent).toBe("=␣");
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
@@ -255,11 +255,11 @@ describe("composer", () => {
 
   test("type '=', select twice a cell", async () => {
     await typeInComposer("=");
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(model.getters.getEditionMode()).toBe("rangeSelected");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
@@ -272,7 +272,7 @@ describe("composer", () => {
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
     expect(composerEl.textContent).toBe("=C8");
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(model.getters.getEditionMode()).toBe("rangeSelected");
     await keydown("Enter");
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(getCellText(model, "A1")).toBe("=C8");
@@ -336,69 +336,69 @@ describe("composer", () => {
 
     describe.each(formulas)("typing %s followed by", (formula) => {
       test.each(matchingValues.concat(["("]))(
-        "a matching value --> activate 'selecting' mode",
+        "a matching value --> activate 'waitingForRangeSelection' mode",
         async (matchingValue) => {
           const content = formula + matchingValue;
           await startComposition();
           await typeInComposer(content);
-          expect(model.getters.getEditionMode()).toBe("selecting");
-          expect(model.getters.getCurrentContent()).toBe(content + "␣");
+          expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+          expect(composerEl.textContent).toBe(content + "␣");
         }
       );
 
       test.each(mismatchingValues.concat([")"]))(
-        "a mismatching value --> not activate 'selecting' mode",
+        "a mismatching value --> not activate 'waitingForRangeSelection' mode",
         async (mismatchingValue) => {
           const content = formula + mismatchingValue;
           await startComposition();
           await typeInComposer(content);
-          expect(model.getters.getEditionMode()).not.toBe("selecting");
-          expect(model.getters.getCurrentContent()).toBe(content);
+          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
+          expect(composerEl.textContent).toBe(content);
         }
       );
 
       test.each(matchingValues.concat(["("]))(
-        "a matching value & spaces --> activate 'selecting' mode",
+        "a matching value & spaces --> activate 'waitingForRangeSelection' mode",
         async (matchingValue) => {
           const content = formula + matchingValue;
           await startComposition();
           await typeInComposer(content + "   ");
-          expect(model.getters.getEditionMode()).toBe("selecting");
-          expect(model.getters.getCurrentContent()).toBe(content + "   ␣");
+          expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+          expect(composerEl.textContent).toBe(content + "   ␣");
         }
       );
 
       test.each(mismatchingValues.concat([")"]))(
-        "a mismatching value & spaces --> not activate 'selecting' mode",
+        "a mismatching value & spaces --> not activate 'waitingForRangeSelection' mode",
         async (mismatchingValue) => {
           const content = formula + mismatchingValue;
           await startComposition();
           await typeInComposer(content + "   ");
-          expect(model.getters.getEditionMode()).not.toBe("selecting");
-          expect(model.getters.getCurrentContent()).toBe(content + "   ");
+          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
+          expect(composerEl.textContent).toBe(content + "   ");
         }
       );
 
       test.each(mismatchingValues.concat([")"]))(
-        "a UNKNOWN token & a matching value --> not activate 'selecting' mode",
+        "a UNKNOWN token & a matching value --> not activate 'waitingForRangeSelection' mode",
         async (matchingValue) => {
           const content = formula + "'" + matchingValue;
           await startComposition();
           await typeInComposer(content);
-          expect(model.getters.getEditionMode()).not.toBe("selecting");
-          expect(model.getters.getCurrentContent()).toBe(content);
+          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
+          expect(composerEl.textContent).toBe(content);
         }
       );
 
       test.each(matchingValues.concat([")"]))(
-        "a matching value & located before matching value --> activate 'selecting' mode",
+        "a matching value & located before matching value --> activate 'waitingForRangeSelection' mode",
         async (matchingValue) => {
           await startComposition();
           await typeInComposer(matchingValue);
           await moveToStart();
           await typeInComposer(formula + ",");
-          expect(model.getters.getEditionMode()).toBe("selecting");
-          expect(model.getters.getCurrentContent()).toBe(formula + ",␣" + matchingValue);
+          expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+          expect(composerEl.textContent).toBe(formula + ",␣" + matchingValue);
         }
       );
 
@@ -410,99 +410,99 @@ describe("composer", () => {
       }
 
       test.each(mismatchingValues.concat(["("]))(
-        "a matching value & located before mismatching value --> not activate 'selecting' mode",
+        "a matching value & located before mismatching value --> not activate 'waitingForRangeSelection' mode",
         async (mismatchingValue) => {
           await startComposition();
           await typeInComposer(mismatchingValue);
           await moveToStart();
           await typeInComposer(formula + ",");
-          expect(model.getters.getEditionMode()).not.toBe("selecting");
-          expect(model.getters.getCurrentContent()).toBe(formula + "," + mismatchingValue);
+          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
+          expect(composerEl.textContent).toBe(formula + "," + mismatchingValue);
         }
       );
 
       test.each(matchingValues.concat([")"]))(
-        "a matching value & spaces & located before matching value --> activate 'selecting' mode",
+        "a matching value & spaces & located before matching value --> activate 'waitingForRangeSelection' mode",
         async (matchingValue) => {
           await startComposition();
           await typeInComposer(matchingValue);
           await moveToStart();
           await typeInComposer(formula + ",  ");
-          expect(model.getters.getEditionMode()).toBe("selecting");
-          expect(model.getters.getCurrentContent()).toBe(formula + ",  ␣" + matchingValue);
+          expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+          expect(composerEl.textContent).toBe(formula + ",  ␣" + matchingValue);
         }
       );
 
       test.each(mismatchingValues.concat(["("]))(
-        "a matching value & spaces & located before mismatching value --> not activate 'selecting' mode",
+        "a matching value & spaces & located before mismatching value --> not activate 'waitingForRangeSelection' mode",
         async (mismatchingValue) => {
           await startComposition();
           await typeInComposer(mismatchingValue);
           await moveToStart();
           await typeInComposer(formula + ",  ");
-          expect(model.getters.getEditionMode()).not.toBe("selecting");
-          expect(model.getters.getCurrentContent()).toBe(formula + ",  " + mismatchingValue);
+          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
+          expect(composerEl.textContent).toBe(formula + ",  " + mismatchingValue);
         }
       );
 
       test.each(matchingValues.concat([")"]))(
-        "a matching value & located before spaces & matching value --> activate 'selecting' mode",
+        "a matching value & located before spaces & matching value --> activate 'waitingForRangeSelection' mode",
         async (matchingValue) => {
           await startComposition();
           await typeInComposer("   " + matchingValue);
           await moveToStart();
           await typeInComposer(formula + ",");
-          expect(model.getters.getEditionMode()).toBe("selecting");
-          expect(model.getters.getCurrentContent()).toBe(formula + ",␣   " + matchingValue);
+          expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+          expect(composerEl.textContent).toBe(formula + ",␣   " + matchingValue);
         }
       );
 
       test.each(mismatchingValues.concat(["("]))(
-        "a matching value & located before spaces & mismatching value --> not activate 'selecting' mode",
+        "a matching value & located before spaces & mismatching value --> not activate 'waitingForRangeSelection' mode",
         async (mismatchingValue) => {
           await startComposition();
           await typeInComposer("   " + mismatchingValue);
           await moveToStart();
           await typeInComposer(formula + ",");
-          expect(model.getters.getEditionMode()).not.toBe("selecting");
-          expect(model.getters.getCurrentContent()).toBe(formula + ",   " + mismatchingValue);
+          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
+          expect(composerEl.textContent).toBe(formula + ",   " + mismatchingValue);
         }
       );
     });
 
     test.each([",", "+", "*", ")", "("])(
-      "typing a matching values (except '=') --> not activate 'selecting' mode",
+      "typing a matching values (except '=') --> not activate 'waitingForRangeSelection' mode",
       async (value) => {
         await startComposition();
         await typeInComposer(value);
-        expect(model.getters.getEditionMode()).not.toBe("selecting");
-        expect(model.getters.getCurrentContent()).toBe(value);
+        expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
+        expect(composerEl.textContent).toBe(value);
       }
     );
 
-    test("typing '='--> activate 'selecting' mode", async () => {
+    test("typing '='--> activate 'waitingForRangeSelection' mode", async () => {
       await startComposition();
       await typeInComposer("=");
-      expect(model.getters.getEditionMode()).toBe("selecting");
-      expect(model.getters.getCurrentContent()).toBe("=␣");
+      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+      expect(composerEl.textContent).toBe("=␣");
     });
 
-    test("typing '=' & spaces --> activate 'selecting' mode", async () => {
+    test("typing '=' & spaces --> activate 'waitingForRangeSelection' mode", async () => {
       await startComposition();
       await typeInComposer("=   ");
-      expect(model.getters.getEditionMode()).toBe("selecting");
-      expect(model.getters.getCurrentContent()).toBe("=   ␣");
+      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+      expect(composerEl.textContent).toBe("=   ␣");
     });
   });
 
   test("type '=', select a cell in another sheet", async () => {
     await typeInComposer("=");
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
     createSheet(model, { sheetId: "42", name: "Sheet2", activate: true });
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(model.getters.getEditionMode()).toBe("rangeSelected");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
@@ -514,7 +514,7 @@ describe("composer", () => {
     model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet 2", position: 1 });
     setCellContent(model, "C8", "1", "42");
     await typeInComposer("=");
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
     activateSheet(model, "42");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
@@ -547,12 +547,12 @@ describe("composer", () => {
 
   test("type '=', select a cell in another sheet with space in name", async () => {
     await typeInComposer("=");
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
     createSheet(model, { sheetId: "42", name: "Sheet 2", activate: true });
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(model.getters.getEditionMode()).toBe("rangeSelected");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
@@ -736,9 +736,9 @@ describe("composer", () => {
     });
   });
 
-  test("clicking on the composer while in 'selecting' mode should put the composer in 'edition' mode", async () => {
+  test("clicking on the composer while in 'waitingForRangeSelection' mode should put the composer in 'edition' mode", async () => {
     await typeInComposer("=");
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
     composerEl.dispatchEvent(new MouseEvent("click"));
     await nextTick();
     expect(model.getters.getEditionMode()).toBe("editing");

@@ -204,17 +204,17 @@ describe("formula assistant", () => {
       expect(fixture.querySelector(".o-formula-assistant")).toMatchSnapshot();
     });
 
-    test("use arowKey during 'selecting' mode in a function should not display formula assistant", async () => {
+    test("use arowKey during 'waitingForRangeSelection' mode in a function should not display formula assistant", async () => {
       await typeInComposer("=FUNC1(1,");
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
-      expect(model.getters.getEditionMode()).toBe("selecting");
+      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
       await nextTick();
       composerEl.dispatchEvent(new KeyboardEvent("keyup", { key: "ArrowRight", bubbles: true }));
       await nextTick();
       expect(model.getters.getCurrentContent()).toBe("=FUNC1(1,B1");
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
-      expect(model.getters.getEditionMode()).toBe("selecting");
+      expect(model.getters.getEditionMode()).toBe("rangeSelected");
     });
 
     test("use arowKey during 'editing' mode in a function should display formula assistant", async () => {

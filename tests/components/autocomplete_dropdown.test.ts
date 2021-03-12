@@ -86,18 +86,18 @@ describe("Functions autocomplete", () => {
       expect(fixture.querySelectorAll(".o-autocomplete-value")[1].textContent).toBe("SZZ");
     });
 
-    test("=S+TAB complete the function --> =sum(␣", async () => {
+    test("=S+TAB complete the function --> =SUM(␣", async () => {
       await typeInComposer("=S");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
-      expect(model.getters.getCurrentContent()).toBe("=SUM(␣");
+      expect(composerEl.textContent).toBe("=SUM(␣");
     });
 
-    test("=S+ENTER complete the function --> =sum(␣", async () => {
+    test("=S+ENTER complete the function --> =SUM(␣", async () => {
       await typeInComposer("=S");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       await nextTick();
-      expect(model.getters.getCurrentContent()).toBe("=SUM(␣");
+      expect(composerEl.textContent).toBe("=SUM(␣");
     });
 
     test("=SX not show autocomplete (nothing matches SX)", async () => {
@@ -212,7 +212,7 @@ describe("Functions autocomplete", () => {
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
-      expect(model.getters.getCurrentContent()).toBe("=IF(␣");
+      expect(composerEl.textContent).toBe("=IF(␣");
     });
     test("= and CTRL+Space & DOWN move to next autocomplete", async () => {
       await typeInComposer("=");
@@ -294,7 +294,7 @@ describe("Autocomplete parenthesis", () => {
     // select the SUM function
     fixture.querySelector(".o-autocomplete-value-focus")!.dispatchEvent(new MouseEvent("click"));
     await nextTick();
-    expect(model.getters.getCurrentContent()).toBe("=SUM(␣");
+    expect(composerEl.textContent).toBe("=SUM(␣");
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
   });
 
@@ -331,7 +331,7 @@ describe("Autocomplete parenthesis", () => {
     await typeInComposer("=s");
     composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
     await nextTick();
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
   });
 });
 
