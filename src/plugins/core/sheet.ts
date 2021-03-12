@@ -524,14 +524,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     );
   }
 
-  private updateCellPosition(sheetId: UID, col: number, row: number, cellId: UID, cell?: Cell) {
-    if (cell) {
-      this.moveCell(cell, { sheetId, col, row });
-    } else {
-      this.deleteCell(cellId, { sheetId, col, row });
-    }
-  }
-
   private clearZones(sheetId: UID, zones: Zone[]) {
     for (let zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
@@ -749,7 +741,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
             });
           }
           if (colIndex > deletedColumn) {
-            this.updateCellPosition(sheet.id, colIndex - 1, rowIndex, cell.id, cell);
+            this.moveCell(cell, { sheetId: sheet.id, col: colIndex - 1, row: rowIndex });
           }
         }
       }
@@ -765,7 +757,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     quantity: number,
     dimension: "rows" | "columns"
   ) {
-    const commands: { sheetId: UID; col: number; row: number; cellId: UID; cell?: Cell }[] = [];
+    const moves: { position: CellPosition; cell: Cell }[] = [];
     for (const [index, row] of Object.entries(sheet.rows)) {
       const rowIndex = parseInt(index, 10);
       if (dimension !== "rows" || rowIndex >= addedElement) {
@@ -774,20 +766,21 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           const cell = row.cells[i];
           if (cell) {
             if (dimension === "rows" || colIndex >= addedElement) {
-              commands.unshift({
-                sheetId: sheet.id,
-                cellId: cell.id,
+              moves.unshift({
+                position: {
+                  sheetId: sheet.id,
+                  col: colIndex + (dimension === "columns" ? quantity : 0),
+                  row: rowIndex + (dimension === "rows" ? quantity : 0),
+                },
                 cell: cell,
-                col: colIndex + (dimension === "columns" ? quantity : 0),
-                row: rowIndex + (dimension === "rows" ? quantity : 0),
               });
             }
           }
         }
       }
     }
-    for (let cmd of commands) {
-      this.updateCellPosition(cmd.sheetId, cmd.col, cmd.row, cmd.cellId, cmd.cell);
+    for (let move of moves) {
+      this.moveCell(move.cell, move.position);
     }
   }
 
@@ -821,7 +814,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           const colIndex = parseInt(i, 10);
           const cell = row.cells[i];
           if (cell) {
-            this.updateCellPosition(sheet.id, colIndex, rowIndex - numberRows, cell.id, cell);
+            this.moveCell(cell, { sheetId: sheet.id, col: colIndex, row: rowIndex - numberRows });
           }
         }
       }
@@ -1428,7 +1421,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     ) {
       if (before) {
         // this.history.update("cells", before.id, undefined);
-        this.updateCellPosition(sheet.id, col, row, before.id, undefined);
+        this.deleteCell(before.id, { sheetId: sheet.id, col, row });
       }
       return;
     }
@@ -1537,7 +1530,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
 
     // this.history.update("cells", cell.id, cell);
-    this.updateCellPosition(sheet.id, col, row, cell.id, cell);
+    this.moveCell(cell, { sheetId: sheet.id, col, row });
   }
 
   NULL_FORMAT = "";
