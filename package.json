@@ -33,6 +33,7 @@
     "@rollup/plugin-node-resolve": "^11.0.1",
     "@types/chart.js": "2.9.3",
     "@types/jest": "^27.0.1",
+    "@types/jest-image-snapshot": "^4.3.1",
     "@types/node": "^13.13.23",
     "babel-eslint": "^10.1.0",
     "body-parser": "^1.19.0",
