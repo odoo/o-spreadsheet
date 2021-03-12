@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { composerTokenize, EnrichedToken, rangeReference } from "../../formulas/index";
+import { EnrichedToken, rangeReference } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { DEBUG, zoneToXc } from "../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
@@ -291,7 +291,12 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   }
 
   onBeforeinput() {
+    // Remove the selector flag to not include the flag-text in the
+    // current content during the "onInput" event.
+    const newSelection = this.contentHelper.getCurrentSelection();
+    this.removeSelectorFlag();
     this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+    this.contentHelper.selectRange(newSelection.start, newSelection.end);
   }
 
   /*
@@ -348,13 +353,15 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   }
 
   onClick() {
+    const newSelection = this.contentHelper.getCurrentSelection();
+    this.removeSelectorFlag();
+    this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     if (!this.props.focus) {
       this.trigger("composer-focused", {
-        selection: this.contentHelper.getCurrentSelection(),
+        selection: newSelection,
       });
     }
-    this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
-    this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", this.contentHelper.getCurrentSelection());
+    this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", newSelection);
     this.processTokenAtCursor();
   }
 
@@ -375,9 +382,9 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     }
     const { start, end } = this.getters.getComposerSelection();
     if (value.startsWith("=")) {
-      this.tokens = composerTokenize(value);
+      const tokens = this.getters.getCurrentTokens();
       const tokenAtCursor = this.getters.getTokenAtCursor();
-      for (let token of this.tokens) {
+      for (let token of tokens) {
         switch (token.type) {
           case "OPERATOR":
           case "NUMBER":
@@ -409,26 +416,23 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
               this.contentHelper.insertText(token.value);
             }
             break;
-          case "UNKNOWN":
-            if (token.value === SelectionIndicator) {
-              this.contentHelper.insertText(token.value, SelectionIndicatorColor);
-            } else {
-              this.contentHelper.insertText(token.value);
-            }
-            break;
           default:
             this.contentHelper.insertText(token.value);
             break;
         }
       }
 
-      // Put the cursor back where it was
+      if (this.getters.getEditionMode() === "waitingForRangeSelection") {
+        this.insertSelectorFlag();
+      }
     } else {
       this.contentHelper.insertText(value);
     }
     if (isFocused) {
+      // Put the cursor back where it was
       this.contentHelper.selectRange(start, end);
     }
+
     if (this.composerRef.el!.clientWidth !== this.composerRef.el!.scrollWidth) {
       this.trigger("content-width-changed", {
         newWidth: this.composerRef.el!.scrollWidth,
@@ -439,6 +443,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
         newHeight: this.composerRef.el!.scrollHeight,
       });
     }
+
     this.shouldProcessInputEvents = true;
   }
 
@@ -515,14 +520,13 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
           start = tokenAtCursor.start;
         }
 
-        if (this.autoCompleteState.provider && this.tokens.length) {
+        const tokens = this.getters.getCurrentTokens();
+        if (this.autoCompleteState.provider && tokens.length) {
           value += "(";
 
-          const currentTokenIndex = this.tokens
-            .map((token) => token.start)
-            .indexOf(tokenAtCursor.start);
-          if (currentTokenIndex + 1 < this.tokens.length) {
-            const nextToken = this.tokens[currentTokenIndex + 1];
+          const currentTokenIndex = tokens.map((token) => token.start).indexOf(tokenAtCursor.start);
+          if (currentTokenIndex + 1 < tokens.length) {
+            const nextToken = tokens[currentTokenIndex + 1];
             if (nextToken.type === "LEFT_PAREN") {
               end++;
             }
@@ -540,5 +544,24 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
       });
     }
     this.processTokenAtCursor();
+  }
+
+  /**
+   * Insert a selector flag to indicate the range selection has started
+   * */
+  private insertSelectorFlag() {
+    const { start, end } = this.getters.getComposerSelection();
+    this.contentHelper.selectRange(start, end);
+    this.contentHelper.insertText(SelectionIndicator, SelectionIndicatorColor);
+    this.contentHelper.selectRange(start, end);
+  }
+
+  private removeSelectorFlag() {
+    if (this.getters.getEditionMode() !== "waitingForRangeSelection") {
+      return;
+    }
+    const { start, end } = this.getters.getComposerSelection();
+    this.contentHelper.selectRange(start, end + 1);
+    this.contentHelper.removeSelection();
   }
 }

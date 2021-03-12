@@ -65,14 +65,14 @@ describe("edition", () => {
     expect(getCellContent(model, "A1")).toBe("a");
   });
 
-  test("editing a cell, start a composer selection, then activating a new sheet: mode should still be selecting", () => {
+  test("editing a cell, start a composer selection, then activating a new sheet: mode should still be 'waitingForRangeSelection'", () => {
     const model = new Model();
     const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("START_EDITION", { text: "=" });
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
     expect(model.getters.getEditionSheet()).toBe(sheet1);
     createSheet(model, { activate: true, sheetId: "42", name: "Sheet2" });
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
     expect(model.getters.getEditionSheet()).toBe(sheet1);
     model.dispatch("STOP_EDITION");
     expect(model.getters.getActiveSheetId()).toBe(sheet1);
@@ -285,7 +285,7 @@ describe("edition", () => {
     expect(model.getters.getHighlights()).toHaveLength(0);
   });
 
-  test("selecting insert range in 'selecting' mode", () => {
+  test("selecting insert range in selecting mode", () => {
     const model = new Model();
     model.dispatch("START_EDITION");
     model.dispatch("SET_CURRENT_CONTENT", {
@@ -407,7 +407,7 @@ describe("edition", () => {
     model.dispatch("START_EDITION", { text: "=" });
     model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
     expect(model.getters.getCurrentContent()).toBe("=D4");
-    model.dispatch("STOP_COMPOSER_SELECTION");
+    model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     model.dispatch("SET_CURRENT_CONTENT", { content: "=D4+" });
     model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
     expect(model.getters.getCurrentContent()).toBe("=D4+D4");
@@ -419,9 +419,10 @@ describe("edition", () => {
     expect(model.getters.getCell(model.getters.getActiveSheetId(), col, row)).toBeUndefined();
     selectCell(model, "A2");
     model.dispatch("START_EDITION", { text: "=" });
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
     model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
     expect(model.getters.getCurrentContent()).toBe("=B2");
+    expect(model.getters.getEditionMode()).toBe("rangeSelected");
   });
 
   test("content is the raw cell content, not the evaluated text", () => {
