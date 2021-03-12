@@ -13,7 +13,7 @@ jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 
 import { GridRenderingContext, Viewport, Zone } from "../../src/types";
-import { merge, setCellContent, setSelection } from "../test_helpers/commands_helpers";
+import { merge, setBorder, setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import { createEqualCF } from "../test_helpers/helpers";
 
 function selectZone(model: Model, zoneXc: string) {
@@ -392,6 +392,14 @@ describe("renderer", () => {
     const model = new Model();
     setCellContent(model, "B2", "Hello !");
     const ctx = new MockGridRenderingContext(model, defaultPixelZone("B2"));
+    model.drawGrid(ctx);
+    expect(ctx.screenshot()).toMatchImageSnapshot();
+  });
+  test("bottom right cell border does not impact merge", () => {
+    const model = new Model();
+    merge(model, "B1:B2");
+    setBorder(model, "right", "C3");
+    const ctx = new MockGridRenderingContext(model, defaultPixelZone("B1:C2"));
     model.drawGrid(ctx);
     expect(ctx.screenshot()).toMatchImageSnapshot();
   });
