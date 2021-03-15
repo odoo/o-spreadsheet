@@ -1,51 +1,71 @@
-import { toXC, uuidv4 } from "../../../helpers";
-import { Cell, CellPosition, CellType, CoreCommand, EmptyCell, Style, UID, UpdateCellCommand } from "../../../types";
+import { isNumber } from "../../../helpers";
+import {
+  Cell,
+  CellPosition,
+  CellType,
+  CoreCommand,
+  Style,
+  UID,
+  UpdateCellCommand,
+} from "../../../types";
 import { CorePlugin } from "../../core_plugin";
 
-class StyleManager {
-    private styles: Style[] = [];
-
-    registerStyle(style: Style) {
-        const s = JSON.stringify(style);
-        for (const id in this.styles) {
-            if (JSON.stringify(this.styles[id]) === s) {
-                return parseInt(id, 10);
-            }
-        }
-        return this.styles.push(style) - 1;
-    }
-
-    getStyle(id: number): Style {
-        if (!(id in this.styles)) {
-            throw new Error(`Asking for a non-existing style: ${id}`);
-        }
-        return this.styles[id];
-    }
+let nextId = 1;
+function getNextId(): UID {
+  return (nextId++).toString();
 }
 
-class ContentManager {
-    private contents: string[] = [""]//string or Formula or whatever we want
-
-    registerContent(content: string): { type: CellType, id: number} {
-        if (content === "") {
-            return { type: CellType.empty, id: 0};
-        }
-        // Compute here the type of the cell
-        const id = this.contents.push(content) - 1;
-        return { type: CellType.text, id};
-    }
-
-    getContent(id: number): string {
-        if (!(id in this.contents)) {
-            throw new Error(`Asking for a non-existing content: ${id}`);
-        }
-        return this.contents[id];
-    }
+interface InternalCell {
+  id: UID;
+  styleId?: UID;
+  contentId?: UID;
+  value: any;
 }
 
+abstract class Manager<T> {
+  protected content: Record<UID, T> = {};
+
+  register(element: T): UID {
+    const id = getNextId();
+    this.content[id] = element;
+    return id;
+  }
+
+  get(id: UID): T {
+    if (!(id in this.content)) {
+      throw new Error(`Element not found: ${id} on ${this.constructor.name}`);
+    }
+    return this.content[id];
+  }
+}
+class StyleManager extends Manager<Style> {
+  register(style: Style): UID {
+    const s = JSON.stringify(style);
+    for (const id in this.content) {
+      if (JSON.stringify(this.content[id]) === s) {
+        return id;
+      }
+    }
+    return super.register(style);
+  }
+}
+
+class ContentManager extends Manager<string> {
+  getType(id: UID): CellType {
+    // Formula is not supported yet
+    const content = this.get(id);
+    if (content === "") {
+      return CellType.empty;
+    }
+    if (isNumber(content)) {
+      return CellType.number;
+    }
+    return CellType.text;
+  }
+}
 
 export class SpreadsheetPlugin extends CorePlugin {
-  private cells: Record<UID, Cell | undefined> = {};
+  private cells: Record<UID, InternalCell | undefined> = {};
   private styleManager: StyleManager = new StyleManager();
   private contentManager: ContentManager = new ContentManager();
   private position: Record<string, UID | undefined> = {};
@@ -59,58 +79,69 @@ export class SpreadsheetPlugin extends CorePlugin {
   }
 
   private getKey(position: CellPosition) {
-      return JSON.stringify(position);
+    return JSON.stringify(position);
+  }
+
+  private createCell(): InternalCell {
+    const cell = {
+      id: getNextId(),
+      value: "",
+    };
+    this.cells[cell.id] = cell;
+    return cell;
+  }
+
+  private setCellPosition(cellId: UID, position: CellPosition) {
+    this.position[JSON.stringify(position)] = cellId;
+  }
+
+  deleteCell(position: CellPosition) {
+    const key = JSON.stringify(position);
+    const cellId = this.position[key];
+    if (cellId) {
+      delete this.cells[cellId];
+      delete this.position[key];
+    }
   }
 
   private updateCell(cmd: UpdateCellCommand) {
-      const sheetId = cmd.sheetId;
-      const col = cmd.col;
-      const row = cmd.row;
-      const key = this.getKey({sheetId, col, row});
-      const existingCellId = this.position[key];
-      if (existingCellId) {
-
-      } else {
-          //Create a new one
-          const id = uuidv4();
-          const cell: Cell = {
-              id,
-              type: CellType.empty,
-              value: ""
-          }
-          this.cells[id] = cell;
-          this.position[key] = id;
-          if (cmd.style) {
-              const id = this.styleManager.registerStyle(cmd.style);
-              //@ts-ignore
-              cell.styleId = id;
-          }
-          if (cmd.content) {
-              const { type, id } = this.contentManager.registerContent(cmd.content);
-              //@ts-ignore
-              cell.contentId = id;
-              //@ts-ignore
-              cell.type = type;
-          }
+    const position = { sheetId: cmd.sheetId, col: cmd.col, row: cmd.row };
+    const key = JSON.stringify(position);
+    const existingCellId = this.position[key];
+    if (existingCellId) {
+      if (cmd.content === "" && cmd.format === "" && cmd.style === null) {
+        this.deleteCell(position);
+        return;
       }
+    } else {
+      //Create a new one
+      const cell = this.createCell();
+      this.setCellPosition(cell.id, position);
+      if (cmd.style !== undefined && cmd.style !== null) {
+        cell.styleId = this.styleManager.register(cmd.style);
+      }
+      if (cmd.content !== undefined) {
+        cell.contentId = this.contentManager.register(cmd.content);
+      }
+    }
   }
 
-  getCell(position: CellPosition): Cell {
+  getCell(position: CellPosition): Cell | undefined {
     const cellId = this.position[this.getKey(position)];
     if (!cellId) {
-        throw new Error(`Asking for a non-existing cell: ${position.sheetId} - ${toXC(position.col, position.row)}`);
+      return undefined;
     }
     const cell = this.cells[cellId];
     if (!cell) {
-        throw new Error(`bug`);
+      throw new Error(`bug`);
     }
-    //@ts-ignore
-    const style = cell.styleId && this.styleManager.getStyle(cell.styleId);
-    //@ts-ignore
-    const content = cell.contentId && this.contentManager.
+    const style = (cell.styleId !== undefined && this.styleManager.get(cell.styleId)) || undefined;
+    const content = (cell.contentId !== undefined && this.contentManager.get(cell.contentId)) || "";
     return {
-        ...cell,
-        style
-    }
+      ...cell,
+      type: CellType.text,
+      content,
+      style,
+    };
   }
 }
