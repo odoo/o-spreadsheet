@@ -1,11 +1,11 @@
 import { ChartConfiguration, ChartType } from "chart.js";
 import { chartTerms } from "../../components/side_panel/translations_terms";
 import { INCORRECT_RANGE_STRING } from "../../constants";
-import { isInside, recomputeZones, zoneToXc } from "../../helpers/index";
+import { isDefined, isInside, overlap, recomputeZones, zoneToXc } from "../../helpers/index";
 import { Mode } from "../../model";
 import { ChartDefinition, DataSet } from "../../types/chart";
 import { Command } from "../../types/commands";
-import { Cell, UID } from "../../types/misc";
+import { Cell, UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 const GraphColors = [
@@ -40,6 +40,26 @@ export class EvaluationChartPlugin extends UIPlugin {
   readonly chartRuntime: { [figureId: string]: ChartConfiguration } = {};
   private outOfDate: Set<UID> = new Set<UID>();
 
+  beforeHandle(cmd: Command) {
+    switch (cmd.type) {
+      case "REMOVE_COLUMNS_ROWS":
+        const sheet = this.getters.getSheet(cmd.sheetId);
+        const length = cmd.dimension === "ROW" ? sheet.cols.length : sheet.rows.length;
+        const zones: Zone[] = cmd.elements.map((el) => ({
+          top: cmd.dimension === "ROW" ? el : 0,
+          bottom: cmd.dimension === "ROW" ? el : length - 1,
+          left: cmd.dimension === "ROW" ? 0 : el,
+          right: cmd.dimension === "ROW" ? length - 1 : el,
+        }));
+        for (const chartId of Object.keys(this.chartRuntime)) {
+          if (this.areZonesUsedInChart(cmd.sheetId, zones, chartId)) {
+            this.outOfDate.add(chartId);
+          }
+        }
+        break;
+    }
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
       case "UPDATE_CHART":
@@ -50,13 +70,6 @@ export class EvaluationChartPlugin extends UIPlugin {
       case "DELETE_FIGURE":
         delete this.chartRuntime[cmd.id];
         break;
-      case "UPDATE_CELL":
-        for (let chartId of Object.keys(this.chartRuntime)) {
-          if (this.isCellUsedInChart(cmd.sheetId, chartId, cmd.col, cmd.row)) {
-            this.outOfDate.add(chartId);
-          }
-        }
-        break;
       case "REFRESH_CHART":
         this.evaluateUsedSheets([cmd.id]);
         this.outOfDate.add(cmd.id);
@@ -64,6 +77,29 @@ export class EvaluationChartPlugin extends UIPlugin {
       case "ACTIVATE_SHEET":
         const chartsIds = this.getters.getChartsIdBySheet(cmd.sheetIdTo);
         this.evaluateUsedSheets(chartsIds);
+        break;
+      case "UPDATE_CELL":
+        for (let chartId of Object.keys(this.chartRuntime)) {
+          if (this.isCellUsedInChart(cmd.sheetId, chartId, cmd.col, cmd.row)) {
+            this.outOfDate.add(chartId);
+          }
+        }
+        break;
+      case "ADD_COLUMNS_ROWS":
+        const sheet = this.getters.getSheet(cmd.sheetId);
+        const numberOfElem = cmd.dimension === "ROW" ? sheet.cols.length : sheet.rows.length;
+        const offset = cmd.position === "before" ? 0 : 1;
+        const zone: Zone = {
+          top: cmd.dimension === "ROW" ? cmd.base + offset : 0,
+          bottom: cmd.dimension === "ROW" ? cmd.base + cmd.quantity + offset : numberOfElem - 1,
+          left: cmd.dimension === "ROW" ? 0 : cmd.base + offset,
+          right: cmd.dimension === "ROW" ? numberOfElem - 1 : cmd.base + cmd.quantity + offset,
+        };
+        for (const chartId of Object.keys(this.chartRuntime)) {
+          if (this.areZonesUsedInChart(cmd.sheetId, [zone], chartId)) {
+            this.outOfDate.add(chartId);
+          }
+        }
         break;
       case "UNDO":
       case "REDO":
@@ -160,17 +196,37 @@ export class EvaluationChartPlugin extends UIPlugin {
     return config;
   }
 
-  private isCellUsedInChart(sheetId: UID, chartId: UID, col: number, row: number): boolean {
-    const chart = this.getters.getChartDefinition(chartId);
-    if (chart === undefined) {
+  private areZonesUsedInChart(sheetId: UID, zones: Zone[], chartId: UID): boolean {
+    const chartDefinition = this.getters.getChartDefinition(chartId);
+    if (!chartDefinition || sheetId !== chartDefinition?.sheetId) {
       return false;
     }
-    if (chart.labelRange && isInside(col, row, chart.labelRange.zone)) {
-      return true;
+    const ranges = [
+      ...chartDefinition.dataSets.map((ds) => ds.dataRange),
+      chartDefinition.labelRange,
+    ].filter(isDefined);
+    for (let zone of zones) {
+      for (let range of ranges) {
+        if (range.sheetId === sheetId && overlap(range.zone, zone)) {
+          return true;
+        }
+      }
     }
-    for (let ds of chart.dataSets) {
-      const dataRange = ds.dataRange;
-      if (dataRange && dataRange.zone && isInside(col, row, dataRange.zone)) {
+    return false;
+  }
+
+  private isCellUsedInChart(sheetId: UID, chartId: UID, col: number, row: number): boolean {
+    const chartDefinition = this.getters.getChartDefinition(chartId);
+    if (chartDefinition === undefined) {
+      return false;
+    }
+    const ranges = [
+      ...chartDefinition.dataSets.map((ds) => ds.dataRange),
+      chartDefinition.labelRange,
+    ].filter(isDefined);
+
+    for (let range of ranges) {
+      if (range.sheetId === sheetId && isInside(col, row, range.zone)) {
         return true;
       }
     }
