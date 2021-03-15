@@ -177,7 +177,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     return this.chartFigures[figureId];
   }
 
-  getChartIdsBySheet(sheetId: UID) {
+  getChartsIdBySheet(sheetId: UID) {
     return Object.entries(this.chartFigures)
       .filter((chart) => {
         return chart[1].sheetId === sheetId;

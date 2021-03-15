@@ -3,9 +3,11 @@ import { toZone } from "../../src/helpers/zones";
 import { CommandResult } from "../../src/types";
 import {
   addColumns,
+  addRows,
   createChart,
   createSheet,
   deleteColumns,
+  deleteRows,
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
@@ -532,6 +534,60 @@ describe("datasource tests", function () {
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
     expect(chart.data!.labels).toEqual([]);
+  });
+
+  test("delete last row of dataset", () => {
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
+        labelRange: "Sheet1!A2:A5",
+        dataSetsHaveTitle: true,
+        type: "line",
+      },
+      "1"
+    );
+    deleteRows(model, [4]);
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
+  });
+
+  test("delete last col of dataset", () => {
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
+        labelRange: "Sheet1!A2:A5",
+        dataSetsHaveTitle: true,
+        type: "line",
+      },
+      "1"
+    );
+    deleteColumns(model, ["C"]);
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13]);
+    expect(chart.data!.datasets![1]).toBeUndefined();
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+  });
+
+  test("add row in dataset", () => {
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
+        labelRange: "Sheet1!A2:A5",
+        dataSetsHaveTitle: true,
+        type: "line",
+      },
+      "1"
+    );
+    addRows(model, "before", 2, 1);
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets![0].data).toEqual([10, undefined, 11, 12, 13]);
+    expect(chart.data!.datasets![1].data).toEqual([20, undefined, 19, 18, 17]);
+    expect(chart.data!.labels).toEqual(["P1", "", "P2", "P3", "P4"]);
   });
 
   test("update dataset cell updates chart runtime", () => {
