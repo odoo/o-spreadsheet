@@ -173,23 +173,23 @@ class ContentManager {
     };
   }
 
-  // getCellValue(id: UID): any {
-  //   const content = this.get(id);
-  //   switch (content.type) {
-  //     case CellType.boolean:
-  //       return content.text.toUpperCase() === "TRUE";
-  //     case CellType.number:
-  //       return parseNumber(content.text);
-  //     case CellType.text:
-  //       return content.text;
-  //     case CellType.invalidFormula:
-  //       return "#BAD_EXPR";
-  //     case CellType.empty:
-  //       return "";
-  //     case CellType.formula:
-  //       return content.value;
-  //   }
-  // }
+  getValue(id: UID): any {
+    const content = this.get(id);
+    switch (content.type) {
+      case CellType.boolean:
+        return content.text.toUpperCase() === "TRUE";
+      case CellType.number:
+        return parseNumber(content.text);
+      case CellType.text:
+        return content.text;
+      case CellType.invalidFormula:
+        return "#BAD_EXPR";
+      case CellType.empty:
+        return "";
+      case CellType.formula:
+        return content.value;
+    }
+  }
 
   register(content: { text: string; formula?: NormalizedFormula }, sheetId: UID): UID {
     const id = getNextId();
@@ -343,7 +343,7 @@ export class SpreadsheetPlugin
       throw new Error(`bug`);
     }
     const style = (cell.styleId !== undefined && this.styleManager.get(cell.styleId)) || undefined;
-    const content = (cell.contentId !== undefined && this.contentManager.get(cell.contentId).) || "";
+    const content = (cell.contentId !== undefined && this.contentManager.getValue(cell.contentId)) || "";
     return {
       ...cell,
       type: CellType.text,
