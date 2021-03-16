@@ -490,7 +490,7 @@ export class EditionPlugin extends UIPlugin {
    * - Previous and next tokens can be separated by spaces
    */
   private canstartComposerRangeSelection(): boolean {
-    if (this.isSelectingForComposer()) return false;
+    if (this.mode !== "editing") return false;
     if (this.currentContent.startsWith("=")) {
       const tokenAtCursor = this.getTokenAtCursor();
       if (tokenAtCursor) {
