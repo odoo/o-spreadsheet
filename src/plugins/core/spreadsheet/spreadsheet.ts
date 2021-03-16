@@ -1,8 +1,9 @@
 import { compile, normalize } from "../../../formulas";
 import { InternalDate, parseDateTime } from "../../../functions/dates";
-import { isNumber, parseNumber } from "../../../helpers";
+import { isDefined, isNumber, parseNumber } from "../../../helpers";
 import { _lt } from "../../../translation";
 import {
+  ApplyRangeChange,
   Cell,
   CellPosition,
   CellType,
@@ -26,6 +27,7 @@ interface InternalCell {
   id: UID;
   styleId?: UID;
   contentId?: UID;
+  formatId?: UID;
   value: any;
 }
 
@@ -54,6 +56,61 @@ class StyleManager extends Manager<Style> {
       }
     }
     return super.register(style);
+  }
+}
+
+class FormatManager extends Manager<string> {
+  constructor(private getters: CoreGetters) {
+    super();
+  }
+
+  getDefaultFormat(content: CellContent) {
+    switch (content.type) {
+      case CellType.formula:
+        return this.computeFormulaFormat(content);
+      case CellType.number:
+        if (content.text.includes("%")) {
+          return content.text.includes(".") ? "0.00%" : "0%";
+        }
+        const internalDate = parseDateTime(content.text);
+        if (internalDate) {
+          return internalDate.format;
+        }
+      //Miss date format
+    }
+    return "";
+  }
+
+  NULL_FORMAT = "";
+
+  private computeFormulaFormat(cell: CellFormulaContent): string {
+    const dependenciesFormat = cell.formula.compiledFormula.dependenciesFormat;
+    const dependencies = cell.dependencies;
+
+    for (let dependencyFormat of dependenciesFormat) {
+      switch (typeof dependencyFormat) {
+        case "string":
+          // dependencyFormat corresponds to a literal format which can be applied
+          // directly.
+          return dependencyFormat;
+        case "number":
+          // dependencyFormat corresponds to a dependency cell from which we must
+          // find the cell and extract the associated format
+          const ref = dependencies[dependencyFormat];
+          const sheets = this.getters.getEvaluationSheets();
+          const s = sheets[ref.sheetId];
+          if (s) {
+            // if the reference is a range --> the first cell in the range
+            // determines the format
+            const cellRef = s.rows[ref.zone.top]?.cells[ref.zone.left];
+            if (cellRef && cellRef.format) {
+              return cellRef.format;
+            }
+          }
+          break;
+      }
+    }
+    return this.NULL_FORMAT;
   }
 }
 
@@ -242,8 +299,6 @@ class ContentManager {
 
 interface SpreadsheetCoreState {
   readonly cells: Record<UID, InternalCell | undefined>;
-  readonly styleManager: StyleManager;
-  readonly contentManager: ContentManager;
   readonly position: Record<string, UID | undefined>;
 }
 
@@ -251,31 +306,27 @@ export class SpreadsheetPlugin
   extends CorePlugin<SpreadsheetCoreState>
   implements SpreadsheetCoreState {
   readonly cells: Record<UID, InternalCell | undefined> = {};
-  readonly styleManager: StyleManager = new StyleManager();
-  readonly contentManager: ContentManager = new ContentManager(this.getters);
   readonly position: Record<string, UID | undefined> = {};
 
-  // adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
-  //   for (const cell of Object.values(this.cells).filter(isDefined)) {
-  //     if (cell.type === CellType.formula) {
-  //       for (const range of cell.dependencies) {
-  //         if (!sheetId || range.sheetId === sheetId) {
-  //           const change = applyChange(range);
-  //           if (change.changeType !== "NONE") {
-  //             this.history.update(
-  //               "cells",
-  //               sheet,
-  //               cell.id,
-  //               "dependencies" as any,
-  //               cell.dependencies.indexOf(range),
-  //               change.range
-  //             );
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+  private styleManager: StyleManager = new StyleManager();
+  private contentManager: ContentManager = new ContentManager(this.getters);
+  private formatManager: FormatManager = new FormatManager(this.getters);
+
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
+    for (const cell of Object.values(this.cells).filter(isDefined)) {
+      const content = this.contentManager.get(cell.id);
+      if (content.type === CellType.formula) {
+        for (const range of content.dependencies) {
+          if (!sheetId || range.sheetId === sheetId) {
+            const change = applyChange(range);
+            if (change.changeType !== "NONE") {
+              content.dependencies[content.dependencies.indexOf(range)] = change.range; //TODO Handle history
+            }
+          }
+        }
+      }
+    }
+  }
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
@@ -330,6 +381,11 @@ export class SpreadsheetPlugin
       if (cmd.content !== undefined) {
         cell.contentId = this.contentManager.register({ text: cmd.content }, cmd.sheetId);
       }
+      if (cmd.format === undefined) {
+        cell.formatId = this.formatManager.getDefaultFormat(this.contentManager.get(cell.id));
+      } else {
+        cell.formatId = this.formatManager.register(cmd.format);
+      }
     }
   }
 
@@ -343,12 +399,14 @@ export class SpreadsheetPlugin
       throw new Error(`bug`);
     }
     const style = (cell.styleId !== undefined && this.styleManager.get(cell.styleId)) || undefined;
-    const content = (cell.contentId !== undefined && this.contentManager.getValue(cell.contentId)) || "";
+    const content =
+      (cell.contentId !== undefined && this.contentManager.getValue(cell.contentId)) || "";
     return {
       ...cell,
       type: CellType.text,
       content: content,
       style,
+      format: cell.formatId ? this.formatManager.get(cell.formatId) : undefined,
     };
   }
 }
