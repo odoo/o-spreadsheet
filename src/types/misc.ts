@@ -102,6 +102,7 @@ export enum CellType {
   formula = "formula",
   empty = "empty",
   invalidFormula = "invalidFormula",
+  boolean = "boolean",
 }
 
 export interface CellBase {
