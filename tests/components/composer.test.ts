@@ -755,6 +755,28 @@ describe("composer", () => {
     await nextTick();
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
+
+  test("type '=', stop editing with enter, click on the modified cell --> the edition mode should be inactive", async () => {
+    // type '=' in C8
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    await typeInComposer("=");
+    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+
+    // stop editing with enter
+    await keydown("Enter");
+    expect(getCellText(model, "C8")).toBe("=");
+    expect(getCell(model, "C8")!.value).toBe("#BAD_EXPR");
+    expect(getActiveXc(model)).toBe("C9");
+    expect(model.getters.getEditionMode()).toBe("inactive");
+
+    // click on the modified cell C8
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    await nextTick();
+    expect(getActiveXc(model)).toBe("C8");
+    expect(model.getters.getEditionMode()).toBe("inactive");
+  });
 });
 
 describe("composer formula color", () => {
