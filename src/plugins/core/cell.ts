@@ -644,7 +644,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
             dependencies: ranges,
           } as FormulaCell;
 
-          if (!after.formula) {
+          if (!format && !after.formula) {
             format = this.computeFormulaFormat(cell);
           }
         } catch (_) {
@@ -669,7 +669,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           content: afterContent,
           value: parseNumber(afterContent),
         };
-        if (afterContent.includes("%")) {
+        if (!format && afterContent.includes("%")) {
           format = afterContent.includes(".") ? "0.00%" : "0%";
         }
       } else {
