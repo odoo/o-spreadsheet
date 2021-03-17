@@ -1,4 +1,6 @@
+import { Model } from "../../src";
 import { normalize } from "../../src/formulas";
+import { getCellText, setCellContent } from "../helpers";
 
 test("basic formula with not references should be unchanged", () => {
   expect(normalize("=Sum( 1 , 3) + 8 - ( 1 * 8)")).toEqual({
@@ -63,4 +65,10 @@ test("replace multiple references", () => {
 test("do not replace inside strings", () => {
   const formula = '=concat("|1|","|0|")';
   expect(normalize(formula)).toEqual({ text: formula, dependencies: [] });
+});
+
+test("cell with multiple identical references are correctly displayed", () => {
+  let model = new Model();
+  setCellContent(model, "A1", "=a2+a2+a2");
+  expect(getCellText(model, "a1")).toBe("=A2+A2+A2");
 });
