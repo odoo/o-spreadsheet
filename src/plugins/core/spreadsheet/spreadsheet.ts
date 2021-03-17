@@ -8,7 +8,7 @@ import {
   CoreCommand,
   Style,
   UID,
-  UpdateCellCommand,
+  UpdateCellData,
   WorkbookData,
 } from "../../../types";
 import { InternalCell } from "../../../types/spreadsheet_core";
@@ -52,7 +52,13 @@ export class SpreadsheetPlugin extends CorePlugin<CoreState> implements CoreStat
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "UPDATE_CELL":
-        this.updateCell(cmd);
+        const position = { sheetId: cmd.sheetId, col: cmd.col, row: cmd.row };
+        const cellData: UpdateCellData = {
+          content: cmd.content,
+          format: cmd.format,
+          style: cmd.style,
+        };
+        this.updateCell(position, cellData);
         break;
     }
   }
@@ -80,23 +86,22 @@ export class SpreadsheetPlugin extends CorePlugin<CoreState> implements CoreStat
     }
   }
 
-  private updateCell(cmd: UpdateCellCommand) {
-    const position = { sheetId: cmd.sheetId, col: cmd.col, row: cmd.row };
+  private updateCell(position: CellPosition, data: UpdateCellData) {
     const key = JSON.stringify(position);
     const existingCellId = this.position[key];
     const cell = existingCellId ? this.cells[existingCellId] : this.createCell(position);
     if (!cell) {
       throw new Error("The cell should not be empty at this point");
     }
-    if (cmd.style !== undefined && cmd.style !== null) {
-      cell.styleId = this.styleManager.register(cmd.style);
+    if (data.style !== undefined && data.style !== null) {
+      cell.styleId = this.styleManager.register(data.style);
     }
-    const text = cmd.content ? cmd.content.replace(nbspRegexp, "") : "";
-    cell.contentId = this.contentManager.register({ text }, cmd.sheetId);
-    if (cmd.format === undefined) {
+    const text = data.content ? data.content.replace(nbspRegexp, "") : "";
+    cell.contentId = this.contentManager.register({ text }, position.sheetId);
+    if (data.format === undefined) {
       cell.formatId = this.formatManager.getDefaultFormat(this.contentManager.get(cell.id));
     } else {
-      cell.formatId = this.formatManager.register(cmd.format);
+      cell.formatId = this.formatManager.register(data.format);
     }
     if (this.isEmpty(cell)) {
       this.deleteCell(position);
@@ -129,21 +134,24 @@ export class SpreadsheetPlugin extends CorePlugin<CoreState> implements CoreStat
   }
 
   import(data: WorkbookData) {
+    this.styleManager.import(data);
     for (let sheet of data.sheets) {
       for (let xc in sheet.cells) {
         const cell = sheet.cells[xc];
+        if (!cell) {
+          continue;
+        }
         const [col, row] = toCartesian(xc);
-        const style = (cell && cell.style && data.styles[cell.style]) || undefined;
-        this.updateCell({
-          type: "UPDATE_CELL",
-          sheetId: sheet.id,
-          col,
-          row,
-          content: cell?.content,
-          // formula: cell?.formula,
-          format: cell?.format,
+        const position = { sheetId: sheet.id, col, row };
+        const styleId = cell.style || 0;
+        const style = this.styleManager.get(styleId.toString());
+        const cellData = {
+          content: cell.content,
+          format: cell.format,
+          formula: cell.formula,
           style,
-        });
+        };
+        this.updateCell(position, cellData);
       }
     }
   }

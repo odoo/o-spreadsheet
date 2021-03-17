@@ -1,4 +1,4 @@
-import { Style, UID } from "../../../types";
+import { Style, UID, WorkbookData } from "../../../types";
 import { Manager } from "./manager";
 
 export class StyleManager extends Manager<Style> {
@@ -10,5 +10,18 @@ export class StyleManager extends Manager<Style> {
       }
     }
     return super.register(style);
+  }
+
+  import(data: WorkbookData) {
+    for (const [id, style] of Object.entries(data.styles)) {
+      this.content[id] = style;
+    }
+    // TODO Getnextid should be updated
+  }
+
+  export(data: WorkbookData) {
+    for (const [id, style] of Object.entries(this.content)) {
+      data.styles[id] = style;
+    }
   }
 }
