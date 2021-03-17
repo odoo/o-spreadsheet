@@ -590,6 +590,24 @@ describe("datasource tests", function () {
     expect(chart.data!.labels).toEqual(["P1", "", "P2", "P3", "P4"]);
   });
 
+  test("delete all the dataset except for the title", () => {
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
+        labelRange: "Sheet1!A2:A5",
+        dataSetsHaveTitle: true,
+        type: "line",
+      },
+      "1"
+    );
+    deleteRows(model, [1, 2, 3, 4]);
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets![0].data).toEqual([]);
+    expect(chart.data!.datasets![1].data).toEqual([]);
+    expect(chart.data!.labels).toEqual([]);
+  });
+
   test("update dataset cell updates chart runtime", () => {
     createChart(
       model,

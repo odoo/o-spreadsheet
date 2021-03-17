@@ -313,6 +313,9 @@ export class EvaluationChartPlugin extends UIPlugin {
     if (ds.dataRange) {
       const labelCellZone = ds.labelCell ? [zoneToXc(ds.labelCell.zone)] : [];
       const dataXC = recomputeZones([zoneToXc(ds.dataRange.zone)], labelCellZone)[0];
+      if (dataXC === undefined) {
+        return [];
+      }
       const dataRange = this.getters.getRangeFromSheetXC(ds.dataRange.sheetId, dataXC);
       const dataRangeXc = this.getters.getRangeString(dataRange, sheetId);
       return this.getters.getRangeValues(dataRangeXc, ds.dataRange.sheetId).flat(1);
