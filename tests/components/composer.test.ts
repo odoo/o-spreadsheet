@@ -58,6 +58,10 @@ beforeEach(async () => {
   model = new Model();
   parent = new GridParent(model);
   await parent.mount(fixture);
+  model.dispatch("RESIZE_VIEWPORT", {
+    width: 1000,
+    height: 1000,
+  });
   canvasEl = parent.grid.el;
 });
 

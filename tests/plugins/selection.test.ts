@@ -259,68 +259,6 @@ describe("selection", () => {
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
   });
-
-  test("can select part of a formula", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-        },
-      ],
-    });
-    selectCell(model, "C3");
-    expect(getActiveXc(model)).toBe("C3");
-    model.dispatch("START_EDITION", { text: "=" });
-    expect(model.getters.getEditionMode()).toBe("selecting");
-    selectCell(model, "D4");
-    expect(getActiveXc(model)).toBe("C3"); // active cell is not modified but the selection is
-
-    expect(model.getters.getSelection()).toEqual({
-      anchor: [3, 3],
-      zones: [{ left: 3, top: 3, right: 3, bottom: 3 }],
-    });
-  });
-
-  test("extend selection works based on selection anchor, not active cell", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-        },
-      ],
-    });
-    selectCell(model, "C3");
-
-    model.dispatch("START_EDITION", { text: "=" });
-    selectCell(model, "D4");
-    model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
-
-    expect(getActiveXc(model)).toBe("C3"); // active cell is not modified but the selection is
-    expect(model.getters.getPosition()).toEqual([2, 2]);
-    expect(model.getters.getSelection()).toEqual({
-      anchor: [3, 3],
-      zones: [{ left: 3, top: 3, right: 4, bottom: 4 }],
-    });
-  });
-  test("make selection works based on selection anchor, not active cell", () => {
-    const model = new Model();
-    selectCell(model, "A1");
-
-    model.dispatch("START_EDITION", { text: "=" });
-    selectCell(model, "D4");
-
-    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
-    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
-
-    expect(getActiveXc(model)).toBe("A1"); // active cell is not modified but the selection is
-    expect(model.getters.getPosition()).toEqual([0, 0]);
-    expect(model.getters.getSelection()).toEqual({
-      anchor: [3, 3],
-      zones: [{ left: 3, top: 3, right: 3, bottom: 3 }],
-    });
-  });
 });
 
 describe("multiple selections", () => {
