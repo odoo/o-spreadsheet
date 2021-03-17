@@ -54,6 +54,12 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
           this.addBordersToMerge(cmd.sheetId, cmd.zone);
         }
         break;
+      case "DUPLICATE_SHEET":
+        const borders = this.borders[cmd.sheetIdFrom];
+        if (borders) {
+          this.history.update("borders", cmd.sheetIdTo, JSON.parse(JSON.stringify(borders)));
+        }
+        break;
       case "SET_BORDER":
         this.setBorder(cmd.sheetId, cmd.col, cmd.row, cmd.border);
         break;
