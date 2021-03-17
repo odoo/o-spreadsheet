@@ -391,4 +391,13 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "C2")).toBeNull();
     expect(getBorder(model, "B4")).toEqual({ top: b });
   });
+
+  test("Borders are correctly duplicated on sheet dup", () => {
+    setBorder(model, "external", "B2");
+    const sheetIdFrom = model.getters.getActiveSheetId();
+    const sheetIdTo = "42";
+    model.dispatch("DUPLICATE_SHEET", { sheetIdFrom, sheetIdTo, name: "42" });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo });
+    expect(getBorder(model, "B2")).toEqual({ top: b, left: b, right: b, bottom: b });
+  });
 });
