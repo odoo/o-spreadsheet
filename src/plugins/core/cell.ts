@@ -408,13 +408,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     let newDependencies = cell.dependencies?.map((x, i) => {
       return {
         stringDependency: this.getters.getRangeString(x, sheetId),
-        stringPosition: `${FORMULA_REF_IDENTIFIER}${i}${FORMULA_REF_IDENTIFIER}`,
+        stringPosition: `\\${FORMULA_REF_IDENTIFIER}${i}\\${FORMULA_REF_IDENTIFIER}`,
       };
     });
     let newContent = cell.formula?.text || "";
     if (newDependencies) {
       for (let d of newDependencies) {
-        newContent = newContent.replace(d.stringPosition, d.stringDependency);
+        newContent = newContent.replace(new RegExp(d.stringPosition, "g"), d.stringDependency);
       }
     }
     return newContent;
