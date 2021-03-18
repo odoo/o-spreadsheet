@@ -1,3 +1,8 @@
+import {
+  MatchingParenColor,
+  NumberColor,
+  tokenColor,
+} from "../../src/components/composer/composer";
 import { fontSizes } from "../../src/fonts";
 import { colors, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
@@ -749,6 +754,78 @@ describe("composer", () => {
     triggerMouseEvent("canvas", "contextmenu", 300, 200);
     await nextTick();
     expect(model.getters.getEditionMode()).toBe("inactive");
+  });
+});
+
+describe("composer formula color", () => {
+  test('type "=SUM" --> SUM should have specific function color', async () => {
+    await typeInComposer("=SUM");
+    // @ts-ignore
+    const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
+    expect(contentColors["SUM"]).toBe(tokenColor["FUNCTION"]);
+  });
+
+  test('type "=SUM(" --> left parenthesis should be highlighted', async () => {
+    await typeInComposer("=SUM(");
+    // @ts-ignore
+    const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
+    expect(contentColors["("]).toBe(MatchingParenColor);
+  });
+
+  test('type "=SUM(1" --> left parenthesis should have specific parenthesis color', async () => {
+    await typeInComposer("=SUM(1");
+    // @ts-ignore
+    const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
+    expect(contentColors["("]).toBe(tokenColor["LEFT_PAREN"]);
+  });
+
+  test('type "=SUM(1" --> number should have specific number color', async () => {
+    await typeInComposer("=SUM(1");
+    // @ts-ignore
+    const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
+    expect(contentColors["1"]).toBe(tokenColor["NUMBER"]);
+  });
+
+  test('type "=SUM(1," --> comma should have specific comma color', async () => {
+    await typeInComposer("=SUM(1,");
+    // @ts-ignore
+    const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
+    expect(contentColors[","]).toBe(tokenColor["COMMA"]);
+  });
+
+  test(`type '=SUM(1, "2"' --> string should have specific string color`, async () => {
+    await typeInComposer('=SUM(1, "2"');
+    // @ts-ignore
+    const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
+    expect(contentColors[`"2"`]).toBe(tokenColor["STRING"]);
+  });
+
+  test(`type '=SUM(1, "2")' --> right parenthesis should be highlighted`, async () => {
+    await typeInComposer('=SUM(1, "2")');
+    // @ts-ignore
+    const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
+    expect(contentColors[")"]).toBe(MatchingParenColor);
+  });
+
+  test(`type '=SUM(1, "2") +' --> right parenthesis should have specific parenthesis color`, async () => {
+    await typeInComposer('=SUM(1, "2") +');
+    // @ts-ignore
+    const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
+    expect(contentColors[")"]).toBe(tokenColor["RIGHT_PAREN"]);
+  });
+
+  test(`type '=SUM(1, "2") +' --> operator should have specific operator color`, async () => {
+    await typeInComposer('=SUM(1, "2") +');
+    // @ts-ignore
+    const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
+    expect(contentColors["+"]).toBe(tokenColor["OPERATOR"]);
+  });
+
+  test(`type '=SUM(1, "2") + TRUE' --> boolean should have specific bolean color`, async () => {
+    await typeInComposer('=SUM(1, "2") + TRUE');
+    // @ts-ignore
+    const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
+    expect(contentColors["TRUE"]).toBe(NumberColor);
   });
 });
 
