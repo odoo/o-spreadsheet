@@ -8,8 +8,8 @@ export const sheetMenuRegistry = new MenuItemRegistry();
 function getDuplicateSheetName(env: SpreadsheetEnv, sheet: string) {
   let i = 1;
   const names = env.getters.getSheets().map((s) => s.name);
-  const baseName = _lt("Copy of %s", sheet);
-  let name = baseName.toString();
+  const baseName = env._t(`Copy of ${sheet}`);
+  let name = baseName;
   while (names.includes(name)) {
     name = `${baseName} (${i})`;
     i++;
