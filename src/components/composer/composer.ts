@@ -3,15 +3,18 @@ import { composerTokenize, EnrichedToken, rangeReference } from "../../formulas/
 import { functionRegistry } from "../../functions/index";
 import { DEBUG, zoneToXc } from "../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
-import { FunctionDescription, SpreadsheetEnv } from "../../types/index";
+import { FunctionDescription, Rect, SpreadsheetEnv } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
 import { FunctionDescriptionProvider } from "./formula_assistant";
+import { Dimension } from "./grid_composer";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;
 const { xml, css } = owl.tags;
 const functions = functionRegistry.content;
+
+const ASSISTANT_WIDTH = 300;
 
 export const FunctionColor = "#4a4e4d";
 export const OperatorColor = "#3da4ab";
@@ -55,20 +58,24 @@ const TEMPLATE = xml/* xml */ `
 
       t-on-click.stop="onClick"
     />
-    <TextValueProvider
-        t-if="autoCompleteState.showProvider and props.focus"
-        t-ref="o_autocomplete_provider"
-        search="autoCompleteState.search"
-        provider="autoCompleteState.provider"
-        t-on-completed="onCompleted"
-    />
-    <FunctionDescriptionProvider
-        t-if="functionDescriptionState.showDescription and props.focus"
-        t-ref="o_function_description_provider"
-        functionName = "functionDescriptionState.functionName"
-        functionDescription = "functionDescriptionState.functionDescription"
-        argToFocus = "functionDescriptionState.argToFocus"
-    />
+
+    <div t-if="props.focus and (autoCompleteState.showProvider or functionDescriptionState.showDescription)"
+      class="o-composer-assistant" t-att-style="assistantStyle">
+      <TextValueProvider
+          t-if="autoCompleteState.showProvider"
+          t-ref="o_autocomplete_provider"
+          search="autoCompleteState.search"
+          provider="autoCompleteState.provider"
+          t-on-completed="onCompleted"
+      />
+      <FunctionDescriptionProvider
+          t-if="functionDescriptionState.showDescription"
+          t-ref="o_function_description_provider"
+          functionName = "functionDescriptionState.functionName"
+          functionDescription = "functionDescriptionState.functionDescription"
+          argToFocus = "functionDescriptionState.argToFocus"
+      />
+    </div>
 </div>
   `;
 const CSS = css/* scss */ `
@@ -78,6 +85,7 @@ const CSS = css/* scss */ `
     border: 0;
     z-index: 5;
     flex-grow: 1;
+    max-height: inherit;
     .o-composer {
       caret-color: black;
       padding-left: 2px;
@@ -87,11 +95,19 @@ const CSS = css/* scss */ `
         outline: none;
       }
     }
+    .o-composer-assistant {
+      position: absolute;
+      margin: 4px;
+      box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
+      pointer-events: none;
+    }
   }
 `;
 
 interface Props {
   inputStyle: string;
+  rect?: Rect;
+  delimitation?: Dimension;
   focus: boolean;
 }
 
@@ -137,6 +153,27 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     functionDescription: {} as FunctionDescription,
     argToFocus: 0,
   });
+
+  get assistantStyle(): string {
+    if (this.props.delimitation && this.props.rect) {
+      const [cellX, cellY, , cellHeight] = this.props.rect;
+      const remainingHeight = this.props.delimitation.height - (cellY + cellHeight);
+      let assistantStyle = "";
+      if (cellY > remainingHeight) {
+        // render top
+        assistantStyle += `
+          top: -8px;
+          transform: translate(0, -100%);
+        `;
+      }
+      if (cellX + ASSISTANT_WIDTH > this.props.delimitation.width) {
+        // render left
+        assistantStyle += `right:0px;`;
+      }
+      return (assistantStyle += `width:${ASSISTANT_WIDTH}px;`);
+    }
+    return "";
+  }
 
   // we can't allow input events to be triggered while we remove and add back the content of the composer in processContent
   shouldProcessInputEvents: boolean = false;

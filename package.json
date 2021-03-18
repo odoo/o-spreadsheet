@@ -14,7 +14,8 @@
     "precommit": "npm run prettier && npm run doc",
     "test": "jest",
     "test:watch": "jest --watch",
-    "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --write"
+    "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --write",
+    "check-formatting": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --check"
   },
   "browserslist": [
     "last 1 Chrome versions"

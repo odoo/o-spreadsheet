@@ -413,13 +413,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     let newDependencies = dependencies.map((x, i) => {
       return {
         stringDependency: this.getters.getRangeString(x, sheetId),
-        stringPosition: `${FORMULA_REF_IDENTIFIER}${i}${FORMULA_REF_IDENTIFIER}`,
+        stringPosition: `\\${FORMULA_REF_IDENTIFIER}${i}\\${FORMULA_REF_IDENTIFIER}`,
       };
     });
     let newContent = formula;
     if (newDependencies) {
       for (let d of newDependencies) {
-        newContent = newContent.replace(d.stringPosition, d.stringDependency);
+        newContent = newContent.replace(new RegExp(d.stringPosition, "g"), d.stringDependency);
       }
     }
     return newContent;
@@ -653,7 +653,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
             dependencies: ranges,
           } as FormulaCell;
 
-          if (!after.formula) {
+          if (!format && !after.formula) {
             format = this.computeFormulaFormat(cell);
           }
         } catch (_) {
@@ -678,7 +678,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           content: afterContent,
           value: parseNumber(afterContent),
         };
-        if (afterContent.includes("%")) {
+        if (!format && afterContent.includes("%")) {
           format = afterContent.includes(".") ? "0.00%" : "0%";
         }
       } else {

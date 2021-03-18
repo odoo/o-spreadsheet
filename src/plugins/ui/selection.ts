@@ -536,14 +536,19 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     if (this.getters.isInMerge(sheet.id, this.activeCol, this.activeRow)) {
       let targetCol = this.activeCol;
       let targetRow = this.activeRow;
-      while (this.getters.isInSameMerge(sheet.id, this.activeCol, this.activeRow, targetCol, targetRow)) {
+      while (
+        this.getters.isInSameMerge(sheet.id, this.activeCol, this.activeRow, targetCol, targetRow)
+      ) {
         targetCol += deltaX;
         targetRow += deltaY;
       }
       if (targetCol >= 0 && targetRow >= 0) {
         this.selectCell(targetCol, targetRow);
       }
-    } else if (sheet.cols[this.activeCol + deltaX]?.isHidden || sheet.rows[this.activeRow + deltaY]?.isHidden) {
+    } else if (
+      sheet.cols[this.activeCol + deltaX]?.isHidden ||
+      sheet.rows[this.activeRow + deltaY]?.isHidden
+    ) {
       let targetCol = this.activeCol + deltaX;
       let targetRow = this.activeRow + deltaY;
       while (sheet.cols[targetCol]?.isHidden) {

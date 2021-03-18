@@ -457,14 +457,33 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private duplicateSheet(fromId: UID, toId: UID, toName: string) {
     const sheet = this.sheets[fromId];
-    const newSheet = JSON.parse(JSON.stringify(sheet));
+    const newSheet: Sheet = JSON.parse(JSON.stringify(sheet));
     newSheet.id = toId;
     newSheet.name = toName;
+    for (let col = 0; col <= newSheet.cols.length; col++) {
+      for (let row = 0; row <= newSheet.rows.length; row++) {
+        if (newSheet.rows[row]) {
+          newSheet.rows[row].cells[col] = undefined;
+        }
+      }
+    }
     const visibleSheets = this.visibleSheets.slice();
     const currentIndex = visibleSheets.findIndex((id) => id === fromId);
     visibleSheets.splice(currentIndex + 1, 0, newSheet.id);
     this.history.update("visibleSheets", visibleSheets);
     this.history.update("sheets", Object.assign({}, this.sheets, { [newSheet.id]: newSheet }));
+
+    for (const cell of Object.values(this.getters.getCells(fromId))) {
+      const { col, row } = this.getCellPosition(cell.id);
+      this.dispatch("UPDATE_CELL", {
+        sheetId: newSheet.id,
+        col,
+        row,
+        content: this.getters.getCellText(cell, fromId, true),
+        format: cell.format,
+        style: cell.style,
+      });
+    }
 
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[newSheet.name] = newSheet.id;
