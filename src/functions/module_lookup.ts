@@ -50,7 +50,7 @@ export const LOOKUP: FunctionDescription = {
 
     const index = dichotomicPredecessorSearch(searchRange, search_key);
     if (index === -1) {
-      throw new Error(_lt(`Did not find value '${search_key}' in LOOKUP evaluation.`));
+      throw new Error(_lt("Did not find value '%s' in LOOKUP evaluation.", search_key));
     }
     if (result_range === undefined) {
       return verticalSearch ? search_array.pop()[index] : search_array[index].pop();
