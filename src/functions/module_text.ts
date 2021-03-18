@@ -191,7 +191,8 @@ export const REPLACE: FunctionDescription = {
     if (_position < 1) {
       throw new Error(
         _lt(
-          `Function REPLACE parameter 2 value is ${_position}. It should be greater than or equal to 1.`
+          "Function REPLACE parameter 2 value is %s. It should be greater than or equal to 1.",
+          toString(_position)
         )
       );
     }
