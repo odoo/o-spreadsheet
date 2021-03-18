@@ -19,9 +19,9 @@ const ASSISTANT_WIDTH = 300;
 export const FunctionColor = "#4a4e4d";
 export const OperatorColor = "#3da4ab";
 export const StringColor = "#f6cd61";
+export const SelectionIndicatorColor = "lightgrey";
 export const NumberColor = "#02c39a";
 export const MatchingParenColor = "pink";
-export const SelectionIndicatorColor = "lightgrey";
 
 interface ComposerFocusedEventData {
   content?: string;
@@ -30,15 +30,15 @@ interface ComposerFocusedEventData {
 
 export type ComposerFocusedEvent = CustomEvent<ComposerFocusedEventData>;
 
-const tokenColor = {
+export const tokenColor = {
   OPERATOR: OperatorColor,
   NUMBER: NumberColor,
   STRING: StringColor,
-  BOOLEAN: NumberColor,
   FUNCTION: FunctionColor,
   DEBUGGER: OperatorColor,
-  LEFT_PAREN: OperatorColor,
-  RIGHT_PAREN: OperatorColor,
+  LEFT_PAREN: FunctionColor,
+  RIGHT_PAREN: FunctionColor,
+  COMMA: FunctionColor,
 };
 
 const TEMPLATE = xml/* xml */ `
@@ -390,7 +390,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
           case "NUMBER":
           case "FUNCTION":
           case "COMMA":
-          case "BOOLEAN":
+          case "STRING":
             this.contentHelper.insertText(token.value, this.tokenColor(token.type));
             break;
           case "SYMBOL":
@@ -398,6 +398,8 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
             const [xc, sheet] = value.split("!").reverse() as [string, string | undefined];
             if (rangeReference.test(xc)) {
               this.contentHelper.insertText(value, this.rangeColor(xc, sheet));
+            } else if (["TRUE", "FALSE"].includes(value.toUpperCase())) {
+              this.contentHelper.insertText(value, NumberColor);
             } else {
               this.contentHelper.insertText(value, "#000");
             }
@@ -413,7 +415,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
             ) {
               this.contentHelper.insertText(token.value, this.parenthesisColor());
             } else {
-              this.contentHelper.insertText(token.value);
+              this.contentHelper.insertText(token.value, this.tokenColor(token.type));
             }
             break;
           default:
