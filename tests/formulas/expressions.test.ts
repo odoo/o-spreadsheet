@@ -40,6 +40,12 @@ describe("expression evaluation", () => {
     expect(evaluateCell("A1", { A1: "=4 >= 1 + 2" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=4 <= 1 + 2" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=2 = 1 + 1" })).toBe(true);
+
+    expect(evaluateCell("A1", { A1: '="4" > 1 & 2' })).toBe(true);
+    expect(evaluateCell("A1", { A1: '="4" < 1 & 2' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '="4" >= 1 & 2' })).toBe(true);
+    expect(evaluateCell("A1", { A1: '="4" <= 1 & 2' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '="12" = 1 & 2' })).toBe(true);
   });
 
   test("miscellaneous formulas", () => {

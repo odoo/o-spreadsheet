@@ -1,3 +1,4 @@
+import { fontSizes } from "../../src/fonts";
 import { colors, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { HighlightPlugin } from "../../src/plugins/ui/highlight";
@@ -575,106 +576,164 @@ describe("composer", () => {
     expect(composerEl.textContent).toBe("=C8");
   });
 
-  test("composer is resized (width) when input content is larger than composer", async () => {
-    await typeInComposer("Hello");
-    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-    const parent = gridComposer.parentElement! as HTMLElement;
-    jest.spyOn(parent, "clientWidth", "get").mockImplementation(() => 400);
-    const styleSpy = jest.spyOn(gridComposer.style, "width", "set");
-    jest.spyOn(gridComposer, "clientWidth", "get").mockImplementation(() => 100);
-    jest.spyOn(composerEl, "scrollWidth", "get").mockImplementation(() => 120);
-    await typeInComposer("world", false);
-    expect(styleSpy).toHaveBeenCalledWith("170px"); // scrollWidth + 50
-  });
-
-  test("composer width will not exceed max width", async () => {
-    await typeInComposer("Hello");
-    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-    const parent = gridComposer.parentElement! as HTMLElement;
-    jest.spyOn(parent, "clientWidth", "get").mockImplementation(() => 400);
-    const styleSpy = jest.spyOn(gridComposer.style, "width", "set");
-    jest.spyOn(gridComposer, "clientWidth", "get").mockImplementation(() => 100);
-    jest.spyOn(composerEl, "scrollWidth", "get").mockImplementation(() => 420);
-    await typeInComposer("world", false);
-    expect(styleSpy).toHaveBeenCalledWith("338px"); // 400 - 48 (left of A1 cell) - 14 (SCROLLBAR_WIDTH) (see resize function in grid_composer);
-  });
-
-  test("composer is resized (height) when input content is larger than composer", async () => {
-    await typeInComposer("Hello");
-    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-    const parent = gridComposer.parentElement! as HTMLElement;
-    jest.spyOn(parent, "clientWidth", "get").mockImplementation(() => 200);
-    jest.spyOn(parent, "clientHeight", "get").mockImplementation(() => 200);
-    const styleSpyWidth = jest.spyOn(gridComposer.style, "width", "set");
-    const styleSpyHeight = jest.spyOn(gridComposer.style, "height", "set");
-    jest.spyOn(gridComposer, "clientWidth", "get").mockImplementation(() => 100);
-    jest.spyOn(gridComposer, "clientHeight", "get").mockImplementation(() => 20);
-    jest.spyOn(composerEl, "scrollWidth", "get").mockImplementation(() => 220);
-    jest.spyOn(composerEl, "scrollHeight", "get").mockImplementation(() => 40);
-    await typeInComposer("Hello", false);
-    expect(styleSpyWidth).toHaveBeenCalledWith("138px");
-    expect(styleSpyHeight).toHaveBeenCalledWith("43px");
-  });
-
-  test("composer Height will not exceed max Height", async () => {
-    await typeInComposer("Hello");
-    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-    const parent = gridComposer.parentElement! as HTMLElement;
-    jest.spyOn(parent, "clientWidth", "get").mockImplementation(() => 200);
-    jest.spyOn(parent, "clientHeight", "get").mockImplementation(() => 100);
-    const styleSpyWidth = jest.spyOn(gridComposer.style, "width", "set");
-    const styleSpyHeight = jest.spyOn(gridComposer.style, "height", "set");
-    jest.spyOn(gridComposer, "clientWidth", "get").mockImplementation(() => 100);
-    jest.spyOn(gridComposer, "clientHeight", "get").mockImplementation(() => 20);
-    jest.spyOn(composerEl, "scrollWidth", "get").mockImplementation(() => 220);
-    jest.spyOn(composerEl, "scrollHeight", "get").mockImplementation(() => 110);
-    await typeInComposer("Hello", false);
-    expect(styleSpyWidth).toHaveBeenCalledWith("138px");
-    expect(styleSpyHeight).toHaveBeenCalledWith("59px"); //100(maxHeight) - 26(maxHeight) - 15(SCROLLBAR_HIGHT)
-  });
-
-  test("composer text is colored with cell text color", async () => {
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("A1")],
-      style: { textColor: "#123456" },
+  describe("composer's style depends on the style of the cell", () => {
+    test("with text color", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { textColor: "#123456" },
+      });
+      await typeInComposer("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.color).toBe("rgb(18, 52, 86)");
     });
-    await typeInComposer("Hello");
-    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-    expect(gridComposer.style.color).toBe("rgb(18, 52, 86)");
+
+    test("with background color", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { fillColor: "#123456" },
+      });
+      await typeInComposer("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.background).toBe("rgb(18, 52, 86)");
+    });
+
+    test("with font size", async () => {
+      const fontSize = fontSizes[0];
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { fontSize: fontSize.pt },
+      });
+      await typeInComposer("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.fontSize).toBe("10px");
+    });
+
+    test("with font weight", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { bold: true },
+      });
+      await typeInComposer("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.fontWeight).toBe("bold");
+    });
+
+    test("with font style", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { italic: true },
+      });
+      await typeInComposer("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.fontStyle).toBe("italic");
+    });
+
+    test("with text decoration", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { strikethrough: true },
+      });
+      await typeInComposer("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.textDecoration).toBe("line-through");
+    });
+
+    test("with text align", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { align: "right" },
+      });
+      await typeInComposer("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.textAlign).toBe("right");
+    });
   });
 
-  test("composer formula is not colored with cell text color", async () => {
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("A1")],
-      style: { textColor: "#123456" },
+  describe("composer's style does not depend on the style of the cell when it is a formula", () => {
+    test("with text color", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { textColor: "#123456" },
+      });
+      await typeInComposer("=");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.color).toBe("rgb(0, 0, 0)");
     });
-    await typeInComposer("=");
-    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-    expect(gridComposer.style.color).toBe("");
-  });
 
-  test("composer background is colored with cell background color", async () => {
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("A1")],
-      style: { fillColor: "#123456" },
+    test("with background color", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { textColor: "#123456" },
+      });
+      await typeInComposer("=");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.background).toBe("rgb(255, 255, 255)");
     });
-    await typeInComposer("Hello");
-    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-    expect(gridComposer.style.background).toBe("rgb(18, 52, 86)");
-  });
 
-  test("composer background is not colored with cell background color if formula", async () => {
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("A1")],
-      style: { textColor: "#123456" },
+    test("with font size", async () => {
+      const fontSize = fontSizes[0];
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { fontSize: fontSize.pt },
+      });
+      await typeInComposer("=");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.fontSize).toBe("13px");
     });
-    await typeInComposer("=");
-    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-    expect(gridComposer.style.background).toBe("rgb(255, 255, 255)");
+
+    test("with font weight", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { bold: true },
+      });
+      await typeInComposer("=");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.fontWeight).toBe("500");
+    });
+
+    test("with font style", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { italic: true },
+      });
+      await typeInComposer("=");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.fontStyle).toBe("normal");
+    });
+
+    test("with text decoration", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { strikethrough: true },
+      });
+      await typeInComposer("=");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.textDecoration).toBe("none");
+    });
+
+    test("with text align", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { align: "right" },
+      });
+      await typeInComposer("=");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.textAlign).toBe("left");
+    });
   });
 
   test("clicking on the composer while in 'selecting' mode should put the composer in 'edition' mode", async () => {

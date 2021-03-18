@@ -273,7 +273,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
       const sheet = this.getters.tryGetSheet(sheetId);
       for (const zone of target) {
         if (sheet && this.isMergeDestructive(sheet, zone)) {
-          return CommandResult.MergeIsDestructive;;
+          return CommandResult.MergeIsDestructive;
         }
         for (const zone2 of target) {
           if (zone !== zone2 && overlap(zone, zone2)) {

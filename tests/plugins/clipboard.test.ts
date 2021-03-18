@@ -1273,6 +1273,15 @@ describe("clipboard: pasting outside of sheet", () => {
 
   test("can paste multiple cells from os to outside of sheet", () => {
     const model = new Model();
+    setCellContent(model, "A1", "=B2");
+    model.dispatch("CUT", { target: target("A1") });
+    model.dispatch("PASTE", { target: target("C2") });
+    expect(getCellContent(model, "A1")).toBe("");
+    expect(getCellText(model, "C2")).toBe("=D3");
+  });
+
+  test("can paste multiple cells from os to outside of sheet", () => {
+    const model = new Model();
     createSheet(model, { activate: true, sheetId: "2", name: "sheet2", rows: 2, cols: 2 });
     model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
       text: "A\nque\tcoucou\nBOB",

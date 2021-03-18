@@ -494,9 +494,9 @@ describe("sheets", () => {
     const sheet = model.getters.getActiveSheetId();
     const name = model.getters.getSheets()[0].name;
     const id = uuidv4();
-    expect(
-      model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: id, name })
-    ).toBe(CommandResult.WrongSheetName);
+    expect(model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: id, name })).toBe(
+      CommandResult.WrongSheetName
+    );
   });
 
   test("Properties of sheet are correctly duplicated", () => {

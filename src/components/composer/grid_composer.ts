@@ -1,9 +1,11 @@
 import * as owl from "@odoo/owl";
+import { DEFAULT_CELL_HEIGHT } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
 import { Composer } from "./composer";
 
 const { Component } = owl;
+const { useState } = owl.hooks;
 const { xml, css } = owl.tags;
 
 const SCROLLBAR_WIDTH = 14;
@@ -12,11 +14,11 @@ const SCROLLBAR_HIGHT = 15;
 const TEMPLATE = xml/* xml */ `
   <div class="o-grid-composer" t-att-style="containerStyle">
     <Composer
-      focus="props.focus"
-      inputStyle="composerStyle"
-      t-on-keydown="onKeydown"
-      t-on-content-width-changed="onWidthChanged"
-      t-on-content-height-changed="onHeigthChanged"
+      focus = "props.focus"
+      inputStyle = "composerStyle"
+      rect = "composerState.rect"
+      delimitation = "composerState.delimitation"
+      t-on-keydown = "onKeydown"
     />
   </div>
 `;
@@ -26,14 +28,24 @@ const CSS = css/* scss */ `
     box-sizing: border-box;
     position: absolute;
     border: ${COMPOSER_BORDER_WIDTH}px solid #3266ca;
-    white-space: nowrap;
   }
 `;
+
+export interface Dimension {
+  width: number;
+  height: number;
+}
+
+interface ComposerState {
+  rect: Rect | null;
+  delimitation: Dimension | null;
+}
 
 interface Props {
   focus: boolean;
   content: string;
 }
+
 /**
  * This component is a composer which positions itself on the grid at the anchor cell.
  * It also applies the style of the cell to the composer input.
@@ -46,6 +58,11 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
   private getters = this.env.getters;
   private zone: Zone;
   private rect: Rect;
+
+  private composerState: ComposerState = useState({
+    rect: null,
+    delimitation: null,
+  });
 
   constructor() {
     super(...arguments);
@@ -62,51 +79,68 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
   get containerStyle(): string {
     const isFormula = this.getters.getCurrentContent().startsWith("=");
     const style = this.getters.getCurrentStyle();
-    const fillColor = isFormula ? "#ffffff" : style.fillColor || "#ffffff";
-    const textColor = style.textColor;
-    const [x, y, width, height] = this.rect;
-    const weight = `font-weight:${style.bold ? "bold" : 500};`;
-    const italic = style.italic ? `font-style: italic;` : ``;
-    const strikethrough = style.strikethrough ? `text-decoration:line-through;` : ``;
-    let composerStyle = `left: ${x - 1}px;
-        top:${y}px;
-        height:${height + 1}px;
-        width:${width}px;
-        font-size:${fontSizeMap[style.fontSize || 10]}px;
-        ${weight}${italic}${strikethrough}`;
-    composerStyle = composerStyle + `background: ${fillColor};`;
-    if (textColor && !isFormula) {
-      composerStyle = composerStyle + `color: ${textColor}`;
+
+    // position style
+    const [left, top, width, height] = this.rect;
+
+    // color style
+    const background = (!isFormula && style.fillColor) || "#ffffff";
+    const color = (!isFormula && style.textColor) || "#000000";
+
+    // font style
+    const fontSize = (!isFormula && style.fontSize) || 10;
+    const fontWeight = !isFormula && style.bold ? "bold" : 500;
+    const fontStyle = !isFormula && style.italic ? "italic" : "normal";
+    const textDecoration = !isFormula && style.strikethrough ? "line-through" : "none";
+
+    // align style
+    let textAlign = "left";
+
+    if (!isFormula) {
+      const cell = this.getters.getActiveCell() || { type: "text" };
+      textAlign = style.align || cell.type === "number" ? "right" : "left";
     }
-    return composerStyle;
+
+    return `
+      left: ${left - 1}px;
+      top: ${top}px;
+      min-width: ${width + 2}px;
+      min-height: ${height + 1}px;
+
+      background: ${background};
+      color: ${color};
+
+      font-size: ${fontSizeMap[fontSize]}px;
+      font-weight: ${fontWeight};
+      font-style: ${fontStyle};
+      text-decoration: ${textDecoration};
+
+      text-align: ${textAlign};
+    `;
   }
 
   get composerStyle(): string {
-    const style = this.getters.getCurrentStyle();
-    const cell = this.getters.getActiveCell() || { type: "text" };
-    const height = this.rect[3] - COMPOSER_BORDER_WIDTH * 2 + 1;
-    const align = "align" in style ? style.align : cell.type === "number" ? "right" : "left";
-    return `text-align:${align};
-        height: ${height}px;
-        line-height:${height}px;`;
+    return `
+      line-height:${DEFAULT_CELL_HEIGHT}px;
+      max-height: inherit;
+      overflow: hidden;
+    `;
   }
 
   mounted() {
     const el = this.el!;
-    const width = Math.max(el.scrollWidth, this.rect[2]);
-    this.resizeWidth(width, 0);
-    const height = Math.max(el.scrollHeight, this.rect[3]);
-    this.resizeHeigth(height);
-  }
 
-  onWidthChanged(ev: CustomEvent) {
-    const paddingWidth = this.props.focus ? 40 : 0;
-    this.resizeWidth(ev.detail.newWidth + paddingWidth, 10);
-  }
+    const maxHeight = el.parentElement!.clientHeight - this.rect[1] - SCROLLBAR_HIGHT;
+    el.style.maxHeight = (maxHeight + "px") as string;
 
-  onHeigthChanged(ev: CustomEvent) {
-    const paddingHeight = this.props.focus ? 2 : 0;
-    this.resizeHeigth(ev.detail.newHeight + paddingHeight);
+    const maxWidth = el.parentElement!.clientWidth - this.rect[0] - SCROLLBAR_WIDTH;
+    el.style.maxWidth = (maxWidth + "px") as string;
+
+    this.composerState.rect = [this.rect[0], this.rect[1], el!.clientWidth, el!.clientHeight];
+    this.composerState.delimitation = {
+      width: el!.parentElement!.clientWidth,
+      height: el!.parentElement!.clientHeight,
+    };
   }
 
   onKeydown(ev: KeyboardEvent) {
@@ -115,29 +149,5 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(ev.key)) {
       ev.preventDefault();
     }
-  }
-
-  private resizeWidth(width: number, step: number) {
-    const el = this.el! as HTMLInputElement;
-    const maxWidth = el.parentElement!.clientWidth - this.rect[0] - SCROLLBAR_WIDTH;
-    let newWidth = Math.max(width + step, this.rect[2] + 0.5);
-    if (newWidth > maxWidth) {
-      el.style.whiteSpace = "normal";
-      newWidth = maxWidth;
-    } else {
-      el.style.whiteSpace = "none";
-    }
-    el.style.width = (newWidth + "px") as string;
-  }
-
-  private resizeHeigth(height: number) {
-    const el = this.el! as HTMLInputElement;
-    const maxHeight = el.parentElement!.clientHeight - this.rect[1] - SCROLLBAR_HIGHT;
-    let newHeight = Math.max(height + 1, this.rect[3]);
-    if (newHeight > maxHeight) {
-      el.style.overflow = "hidden";
-      newHeight = maxHeight;
-    }
-    el.style.height = (newHeight + "px") as string;
   }
 }

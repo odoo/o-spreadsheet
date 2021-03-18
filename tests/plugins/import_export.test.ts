@@ -4,8 +4,14 @@ import { CURRENT_VERSION } from "../../src/data";
 import { Model } from "../../src/model";
 import { corePluginRegistry } from "../../src/plugins";
 import { BorderDescr, WorkbookData } from "../../src/types/index";
-import { activateSheet, merge, resizeColumns, resizeRows } from "../test_helpers/commands_helpers";
-import { getMerges } from "../test_helpers/getters_helpers";
+import {
+  activateSheet,
+  merge,
+  resizeColumns,
+  resizeRows,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
+import { getCellContent, getMerges } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers";
 import { mockUuidV4To, toPosition } from "../test_helpers/helpers";
 
@@ -332,6 +338,18 @@ test("complete import, then export", () => {
   // We test here a that two import with the same data give the same result.
   const model2 = new Model(modelData);
   expect(model2.exportData()).toEqual(modelData);
+});
+
+test("Data of a duplicate sheet are correctly duplicated", () => {
+  const model = new Model();
+  setCellContent(model, "A1", "hello");
+  const sheetId = model.getters.getActiveSheetId();
+  model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "42", name: "second" });
+  expect(getCellContent(model, "A1", sheetId)).toBe("hello");
+  expect(getCellContent(model, "A1", "42")).toBe("hello");
+  const data = model.exportData();
+  expect(Object.keys(data.sheets[0].cells)).toHaveLength(1);
+  expect(Object.keys(data.sheets[1].cells)).toHaveLength(1);
 });
 
 test("import then export (figures)", () => {

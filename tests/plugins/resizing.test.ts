@@ -36,9 +36,7 @@ describe("Model resizer", () => {
 
   test("Cannot resize column in invalid sheet", async () => {
     const model = new Model();
-    expect(resizeColumns(model, ["B"], 100, "invalid")).toBe(
-      CommandResult.InvalidSheetId
-    );
+    expect(resizeColumns(model, ["B"], 100, "invalid")).toBe(CommandResult.InvalidSheetId);
   });
   test("Cannot resize row in invalid sheet", async () => {
     const model = new Model();
