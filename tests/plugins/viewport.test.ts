@@ -558,53 +558,17 @@ describe("Viewport of Simple sheet", () => {
       model.getters.getActiveSnappedViewport()
     );
   });
-  test("Select Column without updating range updates viewport offset", () => {
-    selectCell(model, "C79");
-    model.dispatch("SELECT_COLUMN", { index: 3 });
-    expect(model.getters.getActiveViewport()).toMatchObject({
-      left: 0,
-      right: 9,
-      top: 0,
-      bottom: 42,
-      offsetX: 0,
-      offsetY: 0,
-    });
-  });
-  test("Select Column while updating range does not recomputes viewport", () => {
+  test("Select Column while updating range does not update viewport", () => {
     selectCell(model, "C51");
-    model.dispatch("SELECT_COLUMN", { index: 3, updateRange: true });
-    expect(model.getters.getActiveViewport()).toMatchObject({
-      left: 0,
-      right: 9,
-      top: 9,
-      bottom: 51,
-      offsetX: 0,
-      offsetY: 9 * DEFAULT_CELL_HEIGHT,
-    });
+    const viewport = model.getters.getActiveViewport();
+    model.dispatch("SELECT_COLUMN", { index: 3 });
+    expect(model.getters.getActiveViewport()).toMatchObject(viewport);
   });
-  test("Select Row without updating range updates viewport offset", () => {
+  test("Select Row does not update viewport", () => {
     selectCell(model, "U5");
+    const viewport = model.getters.getActiveViewport();
     model.dispatch("SELECT_ROW", { index: 3 });
-    expect(model.getters.getActiveViewport()).toMatchObject({
-      left: 0,
-      right: 9,
-      top: 0,
-      bottom: 42,
-      offsetX: 0,
-      offsetY: 0,
-    });
-  });
-  test("Select Row while updating range does not recomputes viewport", () => {
-    selectCell(model, "U5");
-    model.dispatch("SELECT_ROW", { index: 3, updateRange: true });
-    expect(model.getters.getActiveViewport()).toMatchObject({
-      left: 12,
-      right: 21,
-      top: 0,
-      bottom: 42,
-      offsetX: 12 * DEFAULT_CELL_WIDTH,
-      offsetY: 0,
-    });
+    expect(model.getters.getActiveViewport()).toMatchObject(viewport);
   });
   test("Resize Viewport is correctly computed and does not adjust position", () => {
     selectCell(model, "K71");

@@ -88,12 +88,6 @@ export class ViewportPlugin extends UIPlugin {
       case "MOVE_POSITION":
         this.refreshViewport(this.getters.getActiveSheetId());
         break;
-      case "SELECT_ROW":
-      case "SELECT_COLUMN":
-        if (!cmd.updateRange) {
-          this.refreshViewport(this.getters.getActiveSheetId());
-        }
-        break;
     }
   }
 
