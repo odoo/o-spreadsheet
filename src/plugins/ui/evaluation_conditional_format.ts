@@ -371,7 +371,9 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         default:
           console.warn(
             _lt(
-              `Not implemented operator ${rule.operator} for kind of conditional formatting:  ${rule.type}`
+              "Not implemented operator %s for kind of conditional formatting:  %s",
+              rule.operator,
+              rule.type
             )
           );
       }
