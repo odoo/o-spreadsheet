@@ -277,6 +277,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   private currentPosition = this.getters.getPosition();
   private currentSheet = this.getters.getActiveSheet();
 
+  private currentPositionInViewport = false;
   private clickedCol = 0;
   private clickedRow = 0;
   private viewport: Viewport = {
@@ -334,6 +335,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     const sheet = this.getters.getActiveSheet();
     if (this.currentSheet !== sheet) {
       // We need to reset the viewport as the sheet is changed
+      this.currentPositionInViewport = true;
       this.viewport.offsetX = 0;
       this.viewport.offsetY = 0;
       this.hScrollbar.scroll = 0;
@@ -411,7 +413,8 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.viewport = this.getters.adjustViewportZone(this.viewport);
 
     // check for position changes
-    if (this.checkChanges()) {
+    if (this.checkChanges() && this.currentPositionInViewport) {
+      this.currentPositionInViewport = false;
       this.viewport = this.getters.adjustViewportPosition(this.viewport);
       this.hScrollbar.scroll = this.viewport.offsetX;
       this.vScrollbar.scroll = this.viewport.offsetY;
@@ -535,6 +538,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       ArrowRight: [1, 0],
       ArrowUp: [0, -1],
     };
+    this.currentPositionInViewport = true;
     const delta = deltaMap[ev.key];
     if (ev.shiftKey) {
       this.dispatch("ALTER_SELECTION", { delta });
