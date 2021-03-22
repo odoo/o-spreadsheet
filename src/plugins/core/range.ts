@@ -1,3 +1,4 @@
+import { rangeReference } from "../../formulas";
 import {
   getComposerSheetName,
   getUnquotedSheetName,
@@ -197,6 +198,9 @@ export class RangePlugin extends CorePlugin<RangeState> {
     let sheetId: UID | undefined;
     let invalidSheetName: string | undefined;
     let prefixSheet: boolean = false;
+    if (!rangeReference.test(sheetXC)) {
+      return this.buildInvalidRange(sheetXC);
+    }
     if (sheetXC.includes("!")) {
       [xc, sheetName] = sheetXC.split("!").reverse();
       if (sheetName) {
@@ -265,7 +269,9 @@ export class RangePlugin extends CorePlugin<RangeState> {
     if (!range) {
       return INCORRECT_RANGE_STRING;
     }
-
+    if (range.invalidXc) {
+      return range.invalidXc;
+    }
     if (range.zone.bottom - range.zone.top < 0 || range.zone.right - range.zone.left < 0) {
       return INCORRECT_RANGE_STRING;
     }
@@ -324,5 +330,16 @@ export class RangePlugin extends CorePlugin<RangeState> {
       }
     }
     set.clear();
+  }
+
+  private buildInvalidRange(invalidXc: string): Range {
+    return {
+      id: uuidv4(),
+      parts: [],
+      prefixSheet: false,
+      zone: { left: -1, top: -1, right: -1, bottom: -1 },
+      sheetId: "",
+      invalidXc,
+    };
   }
 }
