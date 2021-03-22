@@ -2,7 +2,13 @@ import { Model } from "../../../src";
 import { toZone } from "../../../src/helpers/zones";
 import { CancelledReason, Viewport } from "../../../src/types";
 import "../../canvas.mock";
-import { mockUuidV4To, setCellContent, testUndoRedo, waitForRecompute } from "../../helpers";
+import {
+  getCellContent,
+  mockUuidV4To,
+  setCellContent,
+  testUndoRedo,
+  waitForRecompute,
+} from "../../helpers";
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
 let model: Model;
@@ -502,6 +508,30 @@ describe("datasource tests", function () {
     expect(chart.data!.datasets![0].data).toEqual([30, 31, 32]);
     expect(chart.data!.datasets![1].data).toEqual([40, 41, 42]);
     expect(chart.type).toEqual("bar");
+  });
+
+  test("delete data rows", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId,
+      definition: {
+        title: "test 1",
+        dataSets: ["Sheet1!B1:B4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+    });
+    model.dispatch("REMOVE_ROWS", {
+      rows: [1, 2, 3],
+      sheetId,
+    });
+    expect(model.getters.getChartRuntime("1")!.data!.datasets).toHaveLength(1);
+    expect(model.getters.getChartRuntime("1")!.data!.datasets![0].data).toHaveLength(0);
+    expect(model.getters.getChartRuntime("1")!.data!.datasets![0].label).toBe(
+      getCellContent(model, "B1")
+    );
   });
 
   test.skip("delete a data source column", () => {

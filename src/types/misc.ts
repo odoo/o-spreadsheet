@@ -62,6 +62,7 @@ export type Range = {
   sheetId: UID; // the sheet on which the range is defined
   onChange?: onRangeChange; // the callbacks that needs to be called if a range is modified
   invalidSheetName?: string; // the name of any sheet that is invalid
+  invalidXc?: string;
   parts: RangePart[];
   prefixSheet: boolean; // true if the user provided the range with the sheet name, so it has to be recomputed with the sheet name too
 };
