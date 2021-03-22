@@ -966,29 +966,33 @@ describe("statistical", () => {
     const grid = {
       A1: "=MAXA(B2:D3,B4:D4,E2:E3,E4)",
 
-      A2: "=MAXA(B2:E2)",
-      A3: "=MAXA(B3:E3)",
-      A4: "=MAXA(B4:E4)",
+      A2: "=MAXA(B2:F2)",
+      A3: "=MAXA(B3:F3)",
+      A4: "=MAXA(B4:F4)",
 
       B1: "=MAXA(B2:B4)",
       C1: "=MAXA(C2:C4)",
       D1: "=MAXA(D2:D4)",
       E1: "=MAXA(E2:E4)",
+      F1: "=MAXA(F2:F4)",
 
       B2: "=-3",
       C2: "-3",
       D2: '"9"',
       E2: '="9"',
+      F2: "-42",
 
       B3: '=" "',
       C3: "3",
       D3: "Jean Balletoultan",
       E3: '"Jean Découvrepleindautres"',
+      F3: "TRUE",
 
       B4: "3",
       C4: '""',
       D4: '=""',
       E4: '" "',
+      F4: "-100",
     };
 
     const gridResult = evaluateGrid(grid);
@@ -1000,6 +1004,7 @@ describe("statistical", () => {
     expect(gridResult.C1).toEqual(3);
     expect(gridResult.D1).toEqual(0);
     expect(gridResult.E1).toEqual(0);
+    expect(gridResult.F1).toEqual(1);
   });
 
   //----------------------------------------------------------------------------
@@ -1171,6 +1176,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=MINA("2", " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=MINA(TRUE, FALSE)" })).toBe(0);
     expect(evaluateCell("A1", { A1: '=MINA(0, "0", TRUE)' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=MINA(5, "4", TRUE)' })).toBe(1);
   });
 
   test("MINA: functional tests on cell arguments", () => {
@@ -1233,29 +1239,33 @@ describe("statistical", () => {
     const grid = {
       A1: "=MINA(B2:D3,B4:D4,E2:E3,E4)",
 
-      A2: "=MINA(B2:E2)",
-      A3: "=MINA(B3:E3)",
-      A4: "=MINA(B4:E4)",
+      A2: "=MINA(B2:F2)",
+      A3: "=MINA(B3:F3)",
+      A4: "=MINA(B4:F4)",
 
       B1: "=MINA(B2:B4)",
       C1: "=MINA(C2:C4)",
       D1: "=MINA(D2:D4)",
       E1: "=MINA(E2:E4)",
+      F1: "=MINA(F2:F4)",
 
       B2: "=9",
       C2: "9",
       D2: '"-9"',
       E2: '="-9"',
+      F2: "5",
 
       B3: '=" "',
       C3: "3",
       D3: "Jean Évumille",
       E3: '"Jean Duvoyage"',
+      F3: "TRUE",
 
       B4: "-42",
       C4: '""',
       D4: '=""',
       E4: '" "',
+      F4: "42",
     };
 
     const gridResult = evaluateGrid(grid);
@@ -1267,6 +1277,7 @@ describe("statistical", () => {
     expect(gridResult.C1).toEqual(0);
     expect(gridResult.D1).toEqual(0);
     expect(gridResult.E1).toEqual(0);
+    expect(gridResult.F1).toEqual(1);
   });
 
   //----------------------------------------------------------------------------

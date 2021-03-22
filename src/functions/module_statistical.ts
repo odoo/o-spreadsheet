@@ -511,26 +511,13 @@ export const MAXA: FunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (): number {
-    let maxa = -Infinity;
-    for (let n of arguments) {
-      if (Array.isArray(n)) {
-        for (let i of n) {
-          for (let j of i) {
-            if (j != undefined) {
-              j = typeof j === "number" ? j : 0;
-              if (maxa < j) {
-                maxa = j;
-              }
-            }
-          }
-        }
-      } else {
-        n = toNumber(n);
-        if (maxa < n) {
-          maxa = n;
-        }
-      }
-    }
+    const maxa = reduceNumbersTextAs0(
+      arguments,
+      (acc, a) => {
+        return Math.max(a, acc);
+      },
+      -Infinity
+    );
     return maxa === -Infinity ? 0 : maxa;
   },
 };
@@ -604,26 +591,13 @@ export const MINA: FunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (): number {
-    let mina = Infinity;
-    for (let n of arguments) {
-      if (Array.isArray(n)) {
-        for (let i of n) {
-          for (let j of i) {
-            if (j != undefined) {
-              j = typeof j === "number" ? j : 0;
-              if (j < mina) {
-                mina = j;
-              }
-            }
-          }
-        }
-      } else {
-        n = toNumber(n);
-        if (n < mina) {
-          mina = n;
-        }
-      }
-    }
+    const mina: number = reduceNumbersTextAs0(
+      arguments,
+      (acc, a) => {
+        return Math.min(a, acc);
+      },
+      Infinity
+    );
     return mina === Infinity ? 0 : mina;
   },
 };
