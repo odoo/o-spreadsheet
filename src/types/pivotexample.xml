@@ -1,0 +1,23 @@
+<pivotTableDefinition cache="4" applyNumberFormats="0" applyBorderFormats="0"
+                      applyFontFormats="0" applyPatternFormats="0" applyAlignmentFormats="0"
+                      applyWidthHeightFormats="1" dataCaption="Data" updatedVersion="3"
+                      minRefreshableVersion="3" useAutoFormatting="1" itemPrintTitles="1"
+                      createdVersion="3" indent="0" outline="1" outlineData="1">
+    <location ref="H4:H5" firstHeaderRow="1" firstDataRow="1" firstDataCol="0"/>
+    <pivotFields count="1">
+        <pivotField dataField="1" numFmtId="0" outline="1"
+                    subtotalTop="1" showAll="0" measureFilter="0" sortType="manual"/>
+    </pivotFields>
+    <rowItems count="1">
+        <i t="data"/>
+    </rowItems>
+    <colItems count="1">
+        <i t="data"/>
+    </colItems>
+    <dataFields count="1">
+        <dataField name="Sum of 1000" fld="0" subtotal="average"
+                   baseField="0" baseItem="0" numFmtId="0"/>
+    </dataFields>
+    <tableStyle name="TableStyle2" showRowHeaders="1" showColHeaders="1"
+                showRowStripes="1" showColStripes="1"/>
+</pivotTableDefinition>
