@@ -77,6 +77,11 @@ const CSS = css/* scss */ `
       line-height: ${BOTTOMBAR_HEIGHT}px;
       user-select: none;
       white-space: nowrap;
+      border-left: 1px solid #c1c1c1;
+
+      &:last-child {
+        border-right: 1px solid #c1c1c1;
+      }
 
       &.active {
         color: #484;
