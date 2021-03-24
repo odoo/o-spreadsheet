@@ -421,33 +421,35 @@ export class EditionPlugin extends UIPlugin {
    */
   private canStartComposerSelection(): boolean {
     if (this.isSelectingForComposer()) return false;
-    const tokens = composerTokenize(this.currentContent);
-    const tokenAtCursor = this.getTokenAtCursor();
-    if (this.currentContent.startsWith("=") && tokenAtCursor) {
-      const tokenIdex = tokens.map((token) => token.start).indexOf(tokenAtCursor.start);
+    if (this.currentContent.startsWith("=")) {
+      const tokens = composerTokenize(this.currentContent);
+      const tokenAtCursor = this.getTokenAtCursor();
+      if (tokenAtCursor) {
+        const tokenIdex = tokens.map((token) => token.start).indexOf(tokenAtCursor.start);
 
-      let count = tokenIdex;
-      let curentToken = tokenAtCursor;
-      // check previous token
-      while (!["COMMA", "LEFT_PAREN", "OPERATOR"].includes(curentToken.type)) {
-        if (curentToken.type !== "SPACE" || count < 1) {
-          return false;
+        let count = tokenIdex;
+        let curentToken = tokenAtCursor;
+        // check previous token
+        while (!["COMMA", "LEFT_PAREN", "OPERATOR"].includes(curentToken.type)) {
+          if (curentToken.type !== "SPACE" || count < 1) {
+            return false;
+          }
+          count--;
+          curentToken = tokens[count];
         }
-        count--;
-        curentToken = tokens[count];
-      }
 
-      count = tokenIdex + 1;
-      curentToken = tokens[count];
-      // check next token
-      while (curentToken && !["COMMA", "RIGHT_PAREN", "OPERATOR"].includes(curentToken.type)) {
-        if (curentToken.type !== "SPACE") {
-          return false;
-        }
-        count++;
+        count = tokenIdex + 1;
         curentToken = tokens[count];
+        // check next token
+        while (curentToken && !["COMMA", "RIGHT_PAREN", "OPERATOR"].includes(curentToken.type)) {
+          if (curentToken.type !== "SPACE") {
+            return false;
+          }
+          count++;
+          curentToken = tokens[count];
+        }
+        return true;
       }
-      return true;
     }
     return false;
   }
