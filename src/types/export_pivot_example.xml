@@ -21,3 +21,11 @@
     <tableStyle name="TableStyle2" showRowHeaders="1" showColHeaders="1"
                 showRowStripes="1" showColStripes="1"/>
 </pivotTableDefinition>
+<!-- notes
+1 pivot columns must be named
+2 pivot cells cannot be blank (or should not, see pivot tutorial inside excel itself
+3 value fields are fields with numbers (they can be aggregated)
+4 row fields
+5 col fields
+
+-->
