@@ -90,6 +90,10 @@ const CSS = css/* scss */ `
       .o-menu-item-shortcut {
         color: grey;
       }
+
+      .o-icon {
+        width: 10px;
+      }
     }
   }
 `;
