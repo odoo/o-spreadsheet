@@ -585,7 +585,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> Sort ascending", () => {
-    doAction(["edit", "sort_ascending"], env);
+    doAction(["edit", "sort_range", "sort_ascending"], env);
     const { anchor, zones } = env.getters.getSelection();
     expect(env.dispatch).toHaveBeenCalledWith("SORT_CELLS", {
       sheetId: env.getters.getActiveSheetId(),
@@ -597,7 +597,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> Sort descending", () => {
-    doAction(["edit", "sort_descending"], env);
+    doAction(["edit", "sort_range", "sort_descending"], env);
     const { anchor, zones } = env.getters.getSelection();
     expect(env.dispatch).toHaveBeenCalledWith("SORT_CELLS", {
       sheetId: env.getters.getActiveSheetId(),
@@ -609,15 +609,12 @@ describe("Menu Item actions", () => {
   });
 
   describe("Edit -> Sort", () => {
-    const path_ascending = ["edit", "sort_ascending"];
-    const path_descending = ["edit", "sort_descending"];
+    const pathSort = ["edit", "sort_range"];
 
     test("A selected zone", () => {
       model.dispatch("SET_SELECTION", { anchor: [0, 0], zones: [toZone("A1:A2")] });
-      expect(getName(path_ascending, env)).toBe("Ascending Sort");
-      expect(getNode(path_ascending).isVisible(env)).toBeTruthy();
-      expect(getName(path_descending, env)).toBe("Descending Sort");
-      expect(getNode(path_descending).isVisible(env)).toBeTruthy();
+      expect(getName(pathSort, env)).toBe("Sort range");
+      expect(getNode(pathSort).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected zones", () => {
@@ -625,8 +622,7 @@ describe("Menu Item actions", () => {
         anchor: [0, 0],
         zones: [toZone("A1:A2"), toZone("B1:B2")],
       });
-      expect(getNode(path_ascending).isVisible(env)).toBeFalsy();
-      expect(getNode(path_descending).isVisible(env)).toBeFalsy();
+      expect(getNode(pathSort).isVisible(env)).toBeFalsy();
     });
   });
   describe("Hide/Unhide Columns", () => {

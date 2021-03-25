@@ -39,18 +39,22 @@ colMenuRegistry
     sequence: 20,
     action: ACTIONS.PASTE_FORMAT_ACTION,
   })
-  .add("sort_ascending", {
-    name: _lt("Ascending Sort"),
+  .add("sort_columns", {
+    name: (env) =>
+      env.getters.getActiveCols().size > 1 ? _lt("Sort columns") : _lt("Sort column"),
     sequence: 50,
-    action: ACTIONS.SORT_CELLS_ASCENDING,
-    isVisible: ACTIONS.SORT_CELLS_VISIBILITY,
-  })
-  .add("sort_descending", {
-    name: _lt("Descending Sort"),
-    sequence: 60,
-    action: ACTIONS.SORT_CELLS_DESCENDING,
     isVisible: ACTIONS.SORT_CELLS_VISIBILITY,
     separator: true,
+  })
+  .addChild("sort_ascending", ["sort_columns"], {
+    name: _lt("Ascending (A ⟶ Z)"),
+    sequence: 10,
+    action: ACTIONS.SORT_CELLS_ASCENDING,
+  })
+  .addChild("sort_descending", ["sort_columns"], {
+    name: _lt("Descending (Z ⟶ A)"),
+    sequence: 20,
+    action: ACTIONS.SORT_CELLS_DESCENDING,
   })
   .add("add_column_before", {
     name: ACTIONS.COLUMN_INSERT_COLUMNS_BEFORE_NAME,
