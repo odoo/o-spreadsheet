@@ -42,7 +42,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </span>
   </div>
   <div
-    class="o-menu-item o-menu-root o-separator"
+    class="o-menu-item o-menu-root"
     data-name="paste_special"
     title="Paste special"
   >
@@ -63,7 +63,10 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </svg>
   </div>
   <div
-    class="o-menu-item o-menu-root o-separator"
+    class="o-separator"
+  />
+  <div
+    class="o-menu-item o-menu-root"
     data-name="sort_range"
     title="Sort range"
   >
@@ -84,6 +87,9 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </svg>
   </div>
   <div
+    class="o-separator"
+  />
+  <div
     class="o-menu-item"
     data-name="add_row_before"
     title="Insert row"
@@ -96,7 +102,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </span>
   </div>
   <div
-    class="o-menu-item o-separator"
+    class="o-menu-item"
     data-name="add_column_before"
     title="Insert column"
   >
@@ -107,6 +113,9 @@ exports[`Context Menu context menu simple rendering 1`] = `
       
     </span>
   </div>
+  <div
+    class="o-separator"
+  />
   <div
     class="o-menu-item"
     data-name="delete_row"
@@ -120,7 +129,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </span>
   </div>
   <div
-    class="o-menu-item o-separator"
+    class="o-menu-item"
     data-name="delete_column"
     title="Delete column C"
   >
@@ -131,6 +140,9 @@ exports[`Context Menu context menu simple rendering 1`] = `
       
     </span>
   </div>
+  <div
+    class="o-separator"
+  />
   <div
     class="o-menu-item disabled"
     data-name="clear_cell"
