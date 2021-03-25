@@ -63,28 +63,25 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </svg>
   </div>
   <div
-    class="o-menu-item"
-    data-name="sort_ascending"
-    title="Ascending Sort"
+    class="o-menu-item o-menu-root o-separator"
+    data-name="sort_range"
+    title="Sort range"
   >
-    Ascending Sort
+    Sort range
     <span
       class="o-menu-item-shortcut"
     >
       
     </span>
-  </div>
-  <div
-    class="o-menu-item o-separator"
-    data-name="sort_descending"
-    title="Descending Sort"
-  >
-    Descending Sort
-    <span
-      class="o-menu-item-shortcut"
+    <svg
+      class="o-icon"
     >
-      
-    </span>
+      <polygon
+        fill="#000000"
+        points="0 0 4 4 0 8"
+        transform="translate(5 3)"
+      />
+    </svg>
   </div>
   <div
     class="o-menu-item"

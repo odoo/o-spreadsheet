@@ -43,18 +43,21 @@ cellMenuRegistry
     sequence: 20,
     action: ACTIONS.PASTE_FORMAT_ACTION,
   })
-  .add("sort_ascending", {
-    name: _lt("Ascending Sort"),
+  .add("sort_range", {
+    name: _lt("Sort range"),
     sequence: 50,
-    action: ACTIONS.SORT_CELLS_ASCENDING,
     isVisible: ACTIONS.SORT_CELLS_VISIBILITY,
-  })
-  .add("sort_descending", {
-    name: _lt("Descending Sort"),
-    sequence: 60,
-    action: ACTIONS.SORT_CELLS_DESCENDING,
     separator: true,
-    isVisible: ACTIONS.SORT_CELLS_VISIBILITY,
+  })
+  .addChild("sort_ascending", ["sort_range"], {
+    name: _lt("Ascending (A ⟶ Z)"),
+    sequence: 10,
+    action: ACTIONS.SORT_CELLS_ASCENDING,
+  })
+  .addChild("sort_descending", ["sort_range"], {
+    name: _lt("Descending (Z ⟶ A)"),
+    sequence: 20,
+    action: ACTIONS.SORT_CELLS_DESCENDING,
   })
   .add("add_row_before", {
     name: ACTIONS.CELL_INSERT_ROWS_BEFORE_NAME,

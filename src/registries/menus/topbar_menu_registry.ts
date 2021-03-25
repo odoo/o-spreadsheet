@@ -65,18 +65,21 @@ topbarMenuRegistry
     sequence: 20,
     action: ACTIONS.PASTE_FORMAT_ACTION,
   })
-  .addChild("sort_ascending", ["edit"], {
-    name: _lt("Ascending Sort"),
+  .addChild("sort_range", ["edit"], {
+    name: _lt("Sort range"),
     sequence: 62,
-    action: ACTIONS.SORT_CELLS_ASCENDING,
-    isVisible: ACTIONS.SORT_CELLS_VISIBILITY,
-  })
-  .addChild("sort_descending", ["edit"], {
-    name: _lt("Descending Sort"),
-    sequence: 63,
-    action: ACTIONS.SORT_CELLS_DESCENDING,
     isVisible: ACTIONS.SORT_CELLS_VISIBILITY,
     separator: true,
+  })
+  .addChild("sort_ascending", ["edit", "sort_range"], {
+    name: _lt("Ascending (A ⟶ Z)"),
+    sequence: 10,
+    action: ACTIONS.SORT_CELLS_ASCENDING,
+  })
+  .addChild("sort_descending", ["edit", "sort_range"], {
+    name: _lt("Descending (Z ⟶ A)"),
+    sequence: 20,
+    action: ACTIONS.SORT_CELLS_DESCENDING,
   })
   .addChild("find_and_replace", ["edit"], {
     name: _lt("Find and replace"),
