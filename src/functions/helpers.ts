@@ -2,6 +2,7 @@
 
 import { isNumber, parseNumber } from "../helpers/index";
 import { _lt } from "../translation";
+import { parseDateTime } from "./dates";
 
 const expectNumberValueError = (value: string) =>
   _lt(
@@ -18,6 +19,10 @@ export function toNumber(value: any): number {
     case "string":
       if (isNumber(value) || value === "") {
         return parseNumber(value);
+      }
+      const internalDate = parseDateTime(value);
+      if (internalDate) {
+        return internalDate.value;
       }
       throw new Error(expectNumberValueError(value));
     default:
@@ -39,6 +44,8 @@ export function visitNumbers(args: IArguments | any[], cb: (arg: number) => void
         for (let j of i) {
           if (typeof j === "number") {
             cb(j);
+          } else if (typeof j === "object" && j !== null && j.jsDate) {
+            cb(j.value);
           }
         }
       }
@@ -58,6 +65,8 @@ function visitNumbersTextAs0(args: IArguments | any[], cb: (arg: number) => void
               cb(j);
             } else if (typeof j === "boolean") {
               cb(toNumber(j));
+            } else if (typeof j === "object" && j !== null && j.jsDate) {
+              cb(j.value);
             } else {
               cb(0);
             }

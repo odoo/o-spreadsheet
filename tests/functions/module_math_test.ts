@@ -2220,6 +2220,7 @@ describe("math", () => {
     expect(evaluateCell("A1", { A1: '=SUM("2", " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=SUM(TRUE, FALSE)" })).toBe(1);
     expect(evaluateCell("A1", { A1: '=SUM(1, "1", TRUE)' })).toBe(3);
+    expect(evaluateCell("A1", { A1: '=SUM(1, "10/10/10")' })).toBe(40462);
   });
 
   test("SUM: functional tests on cell arguments", () => {
@@ -2264,6 +2265,7 @@ describe("math", () => {
     expect(evaluateCell("A1", { A1: '=SUM(A2, " ")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=SUM(A2, " ")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=SUM(42, "42")' })).toBe(84);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: "10/10/10" })).toBe(40503);
     expect(evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: "42" })).toBe(84);
     expect(evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: '"42"' })).toBe(42);
     expect(evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: "=42" })).toBe(84);

@@ -21,6 +21,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=AVEDEV("2", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=AVEDEV("2", " -6 ")' })).toBe(4);
     expect(evaluateCell("A1", { A1: "=AVEDEV(TRUE, FALSE)" })).toBe(0.5);
+    expect(evaluateCell("A1", { A1: '=AVEDEV("8/8/2008", "10/10/2010")' })).toBe(396.5);
   });
 
   test("AVEDEV: functional tests on cell arguments", () => {
@@ -38,6 +39,9 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: '"2"', A3: "42" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: "TRUE", A3: "FALSE" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: "TRUE", A3: "42" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: "8/8/2008", A3: "10/10/2010" })).toBe(
+      396.5
+    );
   });
 
   test("AVEDEV: functional tests on range arguments", () => {
@@ -75,6 +79,7 @@ describe("statistical", () => {
   test("AVERAGE: casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=average("2", "-6")' })).toBe(-2);
     expect(evaluateCell("A1", { A1: "=average(TRUE, FALSE)" })).toBe(0.5);
+    expect(evaluateCell("A1", { A1: '=average("08/08/2008", "10/10/2010")' })).toBe(40064.5);
   });
 
   test("AVERAGE: functional tests on cell arguments", () => {
@@ -94,6 +99,9 @@ describe("statistical", () => {
       "#ERROR"
     ); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=average(A2, A3)", A2: "TRUE", A3: "42" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=average(A2, A3)", A2: "08/08/2008", A3: "10/10/2010" })).toBe(
+      40064.5
+    );
   });
 
   test("AVERAGE: functional tests on range arguments", () => {
@@ -352,6 +360,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=AVERAGEA("2", "")' })).toBe(1);
     expect(evaluateCell("A1", { A1: '=AVERAGEA("2", " -6 ")' })).toBe(-2);
     expect(evaluateCell("A1", { A1: "=AVERAGEA(TRUE, FALSE)" })).toBe(0.5);
+    expect(evaluateCell("A1", { A1: '=AVERAGEA("0", "01/01/1900")' })).toBe(1);
   });
 
   test("AVERAGEA: functional tests on cell arguments", () => {
@@ -376,6 +385,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: '=""' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: '=" "' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: '="42"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: "01/20/1900" })).toBe(21);
   });
 
   test("AVERAGEA: functional tests on range arguments", () => {
@@ -477,6 +487,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=count(1, 2, "TRUE")' })).toBe(2);
     expect(evaluateCell("A1", { A1: '=count(1, 2, "3%")' })).toBe(3);
     expect(evaluateCell("A1", { A1: '=count(1, 2, "3@")' })).toBe(2);
+    expect(evaluateCell("A1", { A1: '=count(1, 2, "2020-03-26")' })).toBe(3);
   });
 
   test("COUNT: functional tests on cell arguments", () => {
@@ -497,12 +508,13 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "42", A3: '"TRUE"' })).toBe(1);
     expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "42", A3: '"3%"' })).toBe(1);
     expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "42", A3: '"3@"' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "1", A3: "05/22/2020" })).toBe(2);
   });
 
   test("COUNT: functional tests on range arguments", () => {
     const grid = {
-      A1: "=count(B2:D4)",
-      A2: "=count(B2:C3, B4:C4, D2:D3, D4)",
+      A1: "=count(B2:D5)",
+      A2: "=count(B2:C3, B4:C4, D2:D3, D4, B5:C5)",
       B2: "42.2",
       C2: "TRUE",
       D2: "FALSE",
@@ -512,9 +524,11 @@ describe("statistical", () => {
       B4: '"111111"',
       C4: "0",
       D4: "0",
+      B5: "05/17/2002",
+      C5: '"05/17/2002"',
     };
-    expect(evaluateCell("A1", grid)).toEqual(4);
-    expect(evaluateCell("A2", grid)).toEqual(4);
+    expect(evaluateCell("A1", grid)).toEqual(5);
+    expect(evaluateCell("A2", grid)).toEqual(5);
   });
 
   //----------------------------------------------------------------------------
@@ -785,6 +799,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=MAX("2", " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=MAX(TRUE, FALSE)" })).toBe(1);
     expect(evaluateCell("A1", { A1: '=MAX(0, "0", TRUE)' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=MAX("08/08/08", "10/10/10")' })).toBe(40461);
   });
 
   test("MAX: functional tests on cell arguments", () => {
@@ -813,6 +828,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: "=24", A3: "=42" })).toBe(42);
     expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: "=24", A3: '="42"' })).toBe(24);
     expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: '="24"', A3: '="42"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: "08/08/08", A3: "10/10/10" })).toBe(40461);
   });
 
   test("MAX: functional tests on simple and cell arguments", () => {
@@ -904,6 +920,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=MAXA("2", " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=MAXA(TRUE, FALSE)" })).toBe(1);
     expect(evaluateCell("A1", { A1: '=MAXA(0, "0", TRUE)' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=MAXA("10/10/2010", "8/8/2008")' })).toBe(40461);
   });
 
   test("MAXA: functional tests on cell arguments", () => {
@@ -922,6 +939,9 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=MAXA(A2, A3)", A2: " ", A3: '=" "' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MAXA(A2, A3)", A2: "  ", A3: '=" "' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MAXA(A2, A3)", A2: " ", A3: '="  "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAXA(A2, A3)", A2: "10/10/2010", A3: "8/8/2008" })).toBe(
+      40461
+    );
     expect(evaluateCell("A1", { A1: "=MAXA(A2, A3)", A2: "24", A3: "42" })).toBe(42);
     expect(evaluateCell("A1", { A1: "=MAXA(A2, A3)", A2: "24", A3: '"42"' })).toBe(24);
     expect(evaluateCell("A1", { A1: "=MAXA(A2, A3)", A2: "24", A3: "=42" })).toBe(42);
@@ -1057,6 +1077,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=MIN("2", " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=MIN(TRUE, FALSE)" })).toBe(0);
     expect(evaluateCell("A1", { A1: '=MIN(0, "0", TRUE)' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=MIN("08/08/08", "10/10/10")' })).toBe(39668);
   });
 
   test("MIN: functional tests on cell arguments", () => {
@@ -1075,6 +1096,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: " ", A3: '=" "' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: "  ", A3: '=" "' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: " ", A3: '="  "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: "08/08/08", A3: "10/10/10" })).toBe(39668);
     expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: "42", A3: "24" })).toBe(24);
     expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: "42", A3: '"24"' })).toBe(42);
     expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: "42", A3: "=24" })).toBe(24);
@@ -1177,6 +1199,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=MINA(TRUE, FALSE)" })).toBe(0);
     expect(evaluateCell("A1", { A1: '=MINA(0, "0", TRUE)' })).toBe(0);
     expect(evaluateCell("A1", { A1: '=MINA(5, "4", TRUE)' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=MINA("10/10/2010", "8/8/2008")' })).toBe(39668);
   });
 
   test("MINA: functional tests on cell arguments", () => {
@@ -1205,6 +1228,9 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=MINA(A2, A3)", A2: "=42", A3: "=24" })).toBe(24);
     expect(evaluateCell("A1", { A1: "=MINA(A2, A3)", A2: "=42", A3: '="24"' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MINA(A2, A3)", A2: '="42"', A3: '="24"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MINA(A2, A3)", A2: "10/10/2010", A3: "8/8/2008" })).toBe(
+      39668
+    );
   });
 
   test("MINA: functional tests on simple and cell arguments", () => {
@@ -1406,6 +1432,10 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=STDEV(2, 4, "6")' })).toBe(2);
     expect(evaluateCell("A1", { A1: "=STDEV(TRUE, 3, 5)" })).toBe(2);
     expect(evaluateCell("A1", { A1: '=STDEV("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=STDEV("8/8/2008", "10/10/2010")' })).toBeCloseTo(
+      560.73568,
+      5
+    );
   });
 
   test("STDEV: functional tests on cell arguments", () => {
@@ -1433,6 +1463,9 @@ describe("statistical", () => {
     expect(
       evaluateCell("A1", { A1: "=STDEV(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })
     ).toBeCloseTo(1.41);
+    expect(
+      evaluateCell("A1", { A1: "=STDEV(A2, A3)", A2: "8/8/2008", A3: "10/10/2010" })
+    ).toBeCloseTo(560.73568, 5);
   });
 
   //----------------------------------------------------------------------------
@@ -1455,6 +1488,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=STDEV.P(2, 5, "8")' })).toBeCloseTo(2.45);
     expect(evaluateCell("A1", { A1: "=STDEV.P(TRUE, 4, 7)" })).toBeCloseTo(2.45);
     expect(evaluateCell("A1", { A1: '=STDEV.P("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=STDEV.P("8/8/2008", "10/10/2010")' })).toBe(396.5);
   });
 
   test("STDEV.P: functional tests on cell arguments", () => {
@@ -1484,6 +1518,9 @@ describe("statistical", () => {
       1
     );
     expect(evaluateCell("A1", { A1: "=STDEV.P(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=STDEV.P(A2, A3)", A2: "8/8/2008", A3: "10/10/2010" })).toBe(
+      396.5
+    );
   });
 
   //----------------------------------------------------------------------------
@@ -1506,6 +1543,10 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=STDEV.S(2, 4, "6")' })).toBe(2);
     expect(evaluateCell("A1", { A1: "=STDEV.S(TRUE, 3, 5)" })).toBe(2);
     expect(evaluateCell("A1", { A1: '=STDEV.S("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=STDEV.S("8/8/2008", "10/10/2010")' })).toBeCloseTo(
+      560.73568,
+      5
+    );
   });
 
   test("STDEV.S: functional tests on cell arguments", () => {
@@ -1533,6 +1574,9 @@ describe("statistical", () => {
     expect(
       evaluateCell("A1", { A1: "=STDEV.S(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })
     ).toBeCloseTo(1.41);
+    expect(
+      evaluateCell("A1", { A1: "=STDEV.S(A2, A3)", A2: "8/8/2008", A3: "10/10/2010" })
+    ).toBeCloseTo(560.73568, 5);
   });
 
   //----------------------------------------------------------------------------
@@ -1555,6 +1599,10 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=STDEVA(2, 4, "6")' })).toBe(2);
     expect(evaluateCell("A1", { A1: "=STDEVA(TRUE, 3, 5)" })).toBe(2);
     expect(evaluateCell("A1", { A1: '=STDEVA("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=STDEVA("8/8/2008", "10/10/2010")' })).toBeCloseTo(
+      560.73568,
+      5
+    );
   });
 
   test("STDEVA: functional tests on cell arguments", () => {
@@ -1576,6 +1624,9 @@ describe("statistical", () => {
       evaluateCell("A1", { A1: "=STDEVA(A2, A3, A4)", A2: "test", A3: "3", A4: "5" })
     ).toBeCloseTo(2.52);
     expect(evaluateCell("A1", { A1: "=STDEVA(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(2);
+    expect(
+      evaluateCell("A1", { A1: "=STDEVA(A2, A3)", A2: "8/8/2008", A3: "10/10/2010" })
+    ).toBeCloseTo(560.73568, 5);
   });
 
   //----------------------------------------------------------------------------
@@ -1598,6 +1649,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=STDEVP(2, 5, "8")' })).toBeCloseTo(2.45);
     expect(evaluateCell("A1", { A1: "=STDEVP(TRUE, 4, 7)" })).toBeCloseTo(2.45);
     expect(evaluateCell("A1", { A1: '=STDEVP("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=STDEVP("8/8/2008", "10/10/2010")' })).toBe(396.5);
   });
 
   test("STDEVP: functional tests on cell arguments", () => {
@@ -1621,6 +1673,9 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=STDEVP(A2, A3, A4)", A2: "TRUE", A3: "3", A4: "5" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=STDEVP(A2, A3, A4)", A2: "test", A3: "3", A4: "5" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=STDEVP(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=STDEVP(A2, A3)", A2: "8/8/2008", A3: "10/10/2010" })).toBe(
+      396.5
+    );
   });
 
   //----------------------------------------------------------------------------
@@ -1643,6 +1698,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=STDEVPA(2, 5, "8")' })).toBeCloseTo(2.45);
     expect(evaluateCell("A1", { A1: "=STDEVPA(TRUE, 4, 7)" })).toBeCloseTo(2.45);
     expect(evaluateCell("A1", { A1: '=STDEVPA("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=STDEVPA("8/8/2008", "10/10/2010")' })).toBe(396.5);
   });
 
   test("STDEVPA: functional tests on cell arguments", () => {
@@ -1674,6 +1730,9 @@ describe("statistical", () => {
     expect(
       evaluateCell("A1", { A1: "=STDEVPA(A2, A3, A4)", A2: "3", A3: "6", A4: '=""' })
     ).toBeCloseTo(2.45);
+    expect(evaluateCell("A1", { A1: "=STDEVPA(A2, A3)", A2: "8/8/2008", A3: "10/10/2010" })).toBe(
+      396.5
+    );
   });
 
   //----------------------------------------------------------------------------
@@ -1696,6 +1755,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=VAR(2, 4, "6")' })).toBe(4);
     expect(evaluateCell("A1", { A1: "=VAR(TRUE, 3, 5)" })).toBe(4);
     expect(evaluateCell("A1", { A1: '=VAR("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=VAR("8/8/2008", "10/10/2010")' })).toBe(314424.5);
   });
 
   test("VAR: functional tests on cell arguments", () => {
@@ -1715,6 +1775,9 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VAR(A2, A3, A4)", A2: "TRUE", A3: "3", A4: "5" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=VAR(A2, A3, A4)", A2: "test", A3: "3", A4: "5" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=VAR(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=VAR(A2, A3)", A2: "8/8/2008", A3: "10/10/2010" })).toBe(
+      314424.5
+    );
   });
 
   //----------------------------------------------------------------------------
@@ -1737,6 +1800,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=VAR.P(2, 5, "8")' })).toBe(6);
     expect(evaluateCell("A1", { A1: "=VAR.P(TRUE, 4, 7)" })).toBe(6);
     expect(evaluateCell("A1", { A1: '=VAR.P("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=VAR.P("1/11/1900", "1/8/1900", FALSE)' })).toBe(26);
   });
 
   test("VAR.P: functional tests on cell arguments", () => {
@@ -1756,6 +1820,9 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VAR.P(A2, A3, A4)", A2: "TRUE", A3: "3", A4: "5" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=VAR.P(A2, A3, A4)", A2: "test", A3: "3", A4: "5" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=VAR.P(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(1);
+    expect(
+      evaluateCell("A1", { A1: "=VAR.P(A2, A3, A4)", A2: "1/11/1900", A3: "1/8/1900", A4: "FALSE" })
+    ).toBe(2.25);
   });
 
   //----------------------------------------------------------------------------
@@ -1778,6 +1845,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=VAR.S(2, 4, "6")' })).toBe(4);
     expect(evaluateCell("A1", { A1: "=VAR.S(TRUE, 3, 5)" })).toBe(4);
     expect(evaluateCell("A1", { A1: '=VAR.S("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=VAR.S("1/11/1900", "1/8/1900", FALSE)' })).toBe(39);
   });
 
   test("VAR.S: functional tests on cell arguments", () => {
@@ -1797,6 +1865,9 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VAR.S(A2, A3, A4)", A2: "TRUE", A3: "3", A4: "5" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=VAR.S(A2, A3, A4)", A2: "test", A3: "3", A4: "5" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=VAR.S(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(2);
+    expect(
+      evaluateCell("A1", { A1: "=VAR.S(A2, A3, A4)", A2: "1/11/1900", A3: "1/8/1900", A4: "FALSE" })
+    ).toBe(4.5);
   });
 
   //----------------------------------------------------------------------------
@@ -1819,6 +1890,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=VARA(2, 4, "6")' })).toBe(4);
     expect(evaluateCell("A1", { A1: "=VARA(TRUE, 3, 5)" })).toBe(4);
     expect(evaluateCell("A1", { A1: '=VARA("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=VARA("1/11/1900", "1/8/1900", FALSE)' })).toBe(39);
   });
 
   test("VARA: functional tests on cell arguments", () => {
@@ -1838,6 +1910,9 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VARA(A2, A3, A4)", A2: "TRUE", A3: "3", A4: "5" })).toBe(4);
     expect(evaluateCell("A1", { A1: "=VARA(A2, A3, A4)", A2: "test", A3: "3", A4: "6" })).toBe(9);
     expect(evaluateCell("A1", { A1: "=VARA(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(4);
+    expect(
+      evaluateCell("A1", { A1: "=VARA(A2, A3, A4)", A2: "1/11/1900", A3: "1/8/1900", A4: "test" })
+    ).toBe(39);
   });
 
   //----------------------------------------------------------------------------
@@ -1860,6 +1935,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=VARP(2, 5, "8")' })).toBe(6);
     expect(evaluateCell("A1", { A1: "=VARP(TRUE, 4, 7)" })).toBe(6);
     expect(evaluateCell("A1", { A1: '=VARP("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=VARP("1/11/1900", "1/8/1900")' })).toBe(2.25);
   });
 
   test("VARP: functional tests on cell arguments", () => {
@@ -1879,6 +1955,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VARP(A2, A3, A4)", A2: "TRUE", A3: "3", A4: "5" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=VARP(A2, A3, A4)", A2: "test", A3: "3", A4: "5" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=VARP(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=VARP(A2, A3)", A2: "1/11/1900", A3: "1/8/1900" })).toBe(2.25);
   });
 
   //----------------------------------------------------------------------------
@@ -1901,6 +1978,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=VARPA(2, 5, "8")' })).toBe(6);
     expect(evaluateCell("A1", { A1: "=VARPA(TRUE, 4, 7)" })).toBe(6);
     expect(evaluateCell("A1", { A1: '=VARPA("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=VARPA("1/11/1900", "1/8/1900", FALSE)' })).toBe(26);
   });
 
   test("VARPA: functional tests on cell arguments", () => {
@@ -1920,5 +1998,8 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VARPA(A2, A3, A4)", A2: "TRUE", A3: "4", A4: "7" })).toBe(6);
     expect(evaluateCell("A1", { A1: "=VARPA(A2, A3, A4)", A2: "test", A3: "3", A4: "6" })).toBe(6);
     expect(evaluateCell("A1", { A1: "=VARPA(A2, A3, A4)", A2: "3", A3: "6", A4: '=""' })).toBe(6);
+    expect(
+      evaluateCell("A1", { A1: "=VARPA(A2, A3, A4)", A2: "1/11/1900", A3: "1/8/1900", A4: "test" })
+    ).toBe(26);
   });
 });

@@ -2,6 +2,7 @@ import { isNumber } from "../helpers/index";
 import { _lt } from "../translation";
 import { FunctionDescription } from "../types";
 import { args } from "./arguments";
+import { parseDateTime } from "./dates";
 import {
   dichotomicPredecessorSearch,
   reduceArgs,
@@ -361,12 +362,12 @@ export const COUNT: FunctionDescription = {
       if (Array.isArray(n)) {
         for (let i of n) {
           for (let j of i) {
-            if (typeof j === "number") {
+            if (typeof j === "number" || (typeof j === "object" && j !== null && j.jsDate)) {
               count += 1;
             }
           }
         }
-      } else if (typeof n !== "string" || isNumber(n)) {
+      } else if (typeof n !== "string" || isNumber(n) || parseDateTime(n)) {
         count += 1;
       }
     }
