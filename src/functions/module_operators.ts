@@ -2,7 +2,7 @@ import { _lt } from "../translation";
 import { AddFunctionDescription, ReturnFormatType } from "../types";
 import { args } from "./arguments";
 import { InternalDate } from "./dates";
-import { toNumber, toString } from "./helpers";
+import { assert, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------
@@ -49,9 +49,7 @@ export const DIVIDE: AddFunctionDescription = {
   returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (dividend: any, divisor: any): number {
     const _divisor = toNumber(divisor);
-    if (_divisor === 0) {
-      throw new Error(_lt("Function [[FUNCTION_NAME]] parameter 2 cannot be zero."));
-    }
+    assert(() => _divisor !== 0, _lt("The divisor must be different from zero."));
     return toNumber(dividend) / _divisor;
   },
 };

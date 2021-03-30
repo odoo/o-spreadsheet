@@ -23,9 +23,7 @@ function newtonMethod(
     xDelta = Math.abs(newX - x);
     x = newX;
     yEqual0 = xDelta < epsMax || Math.abs(y) < epsMax;
-    if (count >= interMax) {
-      throw new Error(_lt(`Function [[FUNCTION_NAME]] didn't find any result`));
-    }
+    assert(() => count < interMax, _lt(`Function [[FUNCTION_NAME]] didn't find any result`));
     count++;
   } while (!yEqual0);
   return x;
@@ -72,7 +70,7 @@ export const DB: AddFunctionDescription = {
     );
     assert(
       () => 1 <= _month && _month <= 12,
-      _lt("The month (%s) should be between 1 and 12 inclusive.", _month.toString())
+      _lt("The month (%s) must be between 1 and 12 inclusive.", _month.toString())
     );
     assert(
       () => _period <= lifeLimit,
@@ -168,7 +166,7 @@ export const DURATION: AddFunctionDescription = {
     const nbrCoupons = Math.ceil(years * _frequency);
 
     // The DURATION function return the Macaulay duration
-    // See exemple: https://en.wikipedia.org/wiki/Bond_duration#Formulas
+    // See example: https://en.wikipedia.org/wiki/Bond_duration#Formulas
 
     const cashFlowFromCoupon = _rate / _frequency;
     const yieldPerPeriod = _yield / _frequency;
@@ -264,7 +262,7 @@ export const IRR: AddFunctionDescription = {
     const firstAmount = amounts.shift();
 
     // The result of IRR is the rate at which the NPV() function will return zero with the given values.
-    // This algotithm uses the Newton's method on the NPV function to determine the result
+    // This algorithm uses the Newton's method on the NPV function to determine the result
     // Newton's method: https://en.wikipedia.org/wiki/Newton%27s_method
 
     // As the NPV function isn't continuous, we apply the Newton's method on the numerator of the NPV formula.
@@ -624,7 +622,7 @@ export const YIELD: AddFunctionDescription = {
     }
 
     // The result of YIELD function is the yield at which the PRICE function will return the given price.
-    // This algotithm uses the Newton's method on the PRICE function to determine the result.
+    // This algorithm uses the Newton's method on the PRICE function to determine the result.
     // Newton's method: https://en.wikipedia.org/wiki/Newton%27s_method
 
     // As the PRICE function isn't continuous, we apply the Newton's method on the numerator of the PRICE formula.

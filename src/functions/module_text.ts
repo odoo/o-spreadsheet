@@ -1,7 +1,7 @@
 import { _lt } from "../translation";
 import { AddFunctionDescription } from "../types";
 import { args } from "./arguments";
-import { reduceAny, toBoolean, toNumber, toString } from "./helpers";
+import { assert, reduceAny, toBoolean, toNumber, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // CHAR
@@ -16,14 +16,10 @@ export const CHAR: AddFunctionDescription = {
   returns: ["STRING"],
   compute: function (tableNumber: any): string {
     const _tableNumber = Math.trunc(toNumber(tableNumber));
-    if (_tableNumber < 1) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] parameter 1 value %s is out of range.",
-          _tableNumber.toString()
-        )
-      );
-    }
+    assert(
+      () => _tableNumber >= 1,
+      _lt("The table_number (%s) is out of range.", _tableNumber.toString())
+    );
     return String.fromCharCode(_tableNumber);
   },
 };
@@ -72,31 +68,27 @@ export const FIND: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (searchFor: any, textToSearch: any, startingAt: any = 1): number {
-    const _textToSearch = toString(textToSearch);
-    if (_textToSearch === "") {
-      throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 2 value should be non-empty.`));
-    }
-
-    const _startingAt = toNumber(startingAt);
-    if (_startingAt === 0) {
-      throw new Error(
-        _lt(
-          `Function [[FUNCTION_NAME]] parameter 3 value is 0. It should be greater than or equal to 1.`
-        )
-      );
-    }
-
     const _searchFor = toString(searchFor);
+    const _textToSearch = toString(textToSearch);
+    const _startingAt = toNumber(startingAt);
+
+    assert(() => _textToSearch !== "", _lt(`The text_to_search must be non-empty.`));
+    assert(
+      () => _startingAt >= 1,
+      _lt(`The starting_at (%s) must be greater than or equal to 1.`, _startingAt.toString())
+    );
+
     const result = _textToSearch.indexOf(_searchFor, _startingAt - 1);
-    if (result < 0) {
-      throw new Error(
-        _lt(
-          "In [[FUNCTION_NAME]] evaluation, cannot find '%s' within '%s'.",
-          _searchFor.toString(),
-          _textToSearch
-        )
-      );
-    }
+
+    assert(
+      () => result >= 0,
+      _lt(
+        "In [[FUNCTION_NAME]] evaluation, cannot find '%s' within '%s'.",
+        _searchFor.toString(),
+        _textToSearch
+      )
+    );
+
     return result + 1;
   },
 };
@@ -136,13 +128,10 @@ export const LEFT: AddFunctionDescription = {
   returns: ["STRING"],
   compute: function (text: any, numberOfCharacters: any = 1): string {
     const _numberOfCharacters = toNumber(numberOfCharacters);
-    if (_numberOfCharacters < 0) {
-      throw new Error(
-        _lt(
-          `Function [[FUNCTION_NAME]] parameter 2 value is negative. It should be positive or zero.`
-        )
-      );
-    }
+    assert(
+      () => _numberOfCharacters >= 0,
+      _lt(`The number_of_characters (%s) must be positive or null.`, _numberOfCharacters.toString())
+    );
     return toString(text).substring(0, _numberOfCharacters);
   },
 };
@@ -189,14 +178,10 @@ export const REPLACE: AddFunctionDescription = {
   returns: ["STRING"],
   compute: function (text: any, position: any, length: any, newText: any): string {
     const _position = toNumber(position);
-    if (_position < 1) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] parameter 2 value is %s. It should be greater than or equal to 1.",
-          toString(_position)
-        )
-      );
-    }
+    assert(
+      () => _position >= 1,
+      _lt(`The position (%s) must be greater than or equal to 1.`, _position.toString())
+    );
 
     const _text = toString(text);
     const _length = toNumber(length);
@@ -219,13 +204,10 @@ export const RIGHT: AddFunctionDescription = {
   returns: ["STRING"],
   compute: function (text: any, numberOfCharacters: any = 1): string {
     const _numberOfCharacters = toNumber(numberOfCharacters);
-    if (_numberOfCharacters < 0) {
-      throw new Error(
-        _lt(
-          `Function [[FUNCTION_NAME]] parameter 2 value is negative. It should be positive or zero.`
-        )
-      );
-    }
+    assert(
+      () => _numberOfCharacters >= 0,
+      _lt(`The number_of_characters (%s) must be positive or null.`, _numberOfCharacters.toString())
+    );
     const _text = toString(text);
     const stringLength = _text.length;
     return _text.substring(stringLength - _numberOfCharacters, stringLength);
@@ -245,32 +227,28 @@ export const SEARCH: AddFunctionDescription = {
       )}
   `),
   returns: ["NUMBER"],
-  compute: function (searchFor: any, textToDearch: any, startingAt: any = 1): number {
-    const _textToSearch = toString(textToDearch).toLowerCase();
-    if (_textToSearch === "") {
-      throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 2 value should be non-empty.`));
-    }
-
-    const _startingAt = toNumber(startingAt);
-    if (_startingAt === 0) {
-      throw new Error(
-        _lt(
-          `Function [[FUNCTION_NAME]] parameter 3 value is 0. It should be greater than or equal to 1.`
-        )
-      );
-    }
-
+  compute: function (searchFor: any, textToSearch: any, startingAt: any = 1): number {
     const _searchFor = toString(searchFor).toLowerCase();
+    const _textToSearch = toString(textToSearch).toLowerCase();
+    const _startingAt = toNumber(startingAt);
+
+    assert(() => _textToSearch !== "", _lt(`The text_to_search must be non-empty.`));
+    assert(
+      () => _startingAt >= 1,
+      _lt(`The starting_at (%s) must be greater than or equal to 1.`, _startingAt.toString())
+    );
+
     const result = _textToSearch.indexOf(_searchFor, _startingAt - 1);
-    if (result < 0) {
-      throw new Error(
-        _lt(
-          "In [[FUNCTION_NAME]] evaluation, cannot find '%s' within '%s'.",
-          _searchFor,
-          _textToSearch
-        )
-      );
-    }
+
+    assert(
+      () => result >= 0,
+      _lt(
+        "In [[FUNCTION_NAME]] evaluation, cannot find '%s' within '%s'.",
+        _searchFor,
+        _textToSearch
+      )
+    );
+
     return result + 1;
   },
 };
@@ -296,13 +274,11 @@ export const SUBSTITUTE: AddFunctionDescription = {
     occurrenceNumber: any = undefined
   ): string {
     const _occurrenceNumber = toNumber(occurrenceNumber);
-    if (_occurrenceNumber < 0) {
-      throw new Error(
-        _lt(
-          `Function [[FUNCTION_NAME]] parameter 4 value is negative. It should be positive or zero.`
-        )
-      );
-    }
+
+    assert(
+      () => _occurrenceNumber >= 0,
+      _lt(`The occurrenceNumber (%s) must be positive or null.`, _occurrenceNumber.toString())
+    );
 
     const _textToSearch = toString(textToSearch);
     const _searchFor = toString(searchFor);
@@ -330,7 +306,7 @@ export const TEXTJOIN: AddFunctionDescription = {
       delimiter (string) ${_lt(
         " A string, possible empty, or a reference to a valid string. If empty, the text will be simply concatenated."
       )}
-      ignore_empty (bollean) ${_lt(
+      ignore_empty (boolean) ${_lt(
         "A boolean; if TRUE, empty cells selected in the text arguments won't be included in the result."
       )}
       text1 (string, range<string>) ${_lt(

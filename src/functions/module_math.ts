@@ -2,6 +2,7 @@ import { _lt } from "../translation";
 import { AddFunctionDescription, ReturnFormatType } from "../types";
 import { args } from "./arguments";
 import {
+  assert,
   reduceAny,
   reduceNumbers,
   strictToNumber,
@@ -37,14 +38,10 @@ export const ACOS: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (value: any): number {
     const _value = toNumber(value);
-    if (Math.abs(_value) > 1) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] parameter 1 value is %s. Valid values are between -1 and 1 inclusive.",
-          _value.toString()
-        )
-      );
-    }
+    assert(
+      () => Math.abs(_value) <= 1,
+      _lt("The value (%s) must be between -1 and 1 inclusive.", _value.toString())
+    );
     return Math.acos(_value);
   },
 };
@@ -62,14 +59,10 @@ export const ACOSH: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (value: any): number {
     const _value = toNumber(value);
-    if (_value < 1) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] parameter 1 value is %s. It should be greater than or equal to 1.",
-          _value.toString()
-        )
-      );
-    }
+    assert(
+      () => _value >= 1,
+      _lt("The value (%s) must be greater than or equal to 1.", _value.toString())
+    );
     return Math.acosh(_value);
   },
 };
@@ -106,14 +99,10 @@ export const ACOTH: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (value: any): number {
     const _value = toNumber(value);
-    if (Math.abs(_value) <= 1) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] parameter 1 value is %s. Valid values cannot be between -1 and 1 inclusive.",
-          _value.toString()
-        )
-      );
-    }
+    assert(
+      () => Math.abs(_value) > 1,
+      _lt("The value (%s) cannot be between -1 and 1 inclusive.", _value.toString())
+    );
     return Math.log((_value + 1) / (_value - 1)) / 2;
   },
 };
@@ -131,14 +120,10 @@ export const ASIN: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (value: any): number {
     const _value = toNumber(value);
-    if (Math.abs(_value) > 1) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] parameter 1 value is %S. Valid values are between -1 and 1 inclusive.",
-          _value.toString()
-        )
-      );
-    }
+    assert(
+      () => Math.abs(_value) <= 1,
+      _lt("The value (%s) must be between -1 and 1 inclusive.", _value.toString())
+    );
     return Math.asin(_value);
   },
 };
@@ -188,9 +173,10 @@ export const ATAN2: AddFunctionDescription = {
   compute: function (x: any, y: any): number {
     const _x = toNumber(x);
     const _y = toNumber(y);
-    if (_x === 0 && _y === 0) {
-      throw new Error(_lt(`Function [[FUNCTION_NAME]] caused a divide by zero error.`));
-    }
+    assert(
+      () => _x !== 0 || _y !== 0,
+      _lt(`Function [[FUNCTION_NAME]] caused a divide by zero error.`)
+    );
     return Math.atan2(_y, _x);
   },
 };
@@ -208,14 +194,10 @@ export const ATANH: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (value: any): number {
     const _value = toNumber(value);
-    if (Math.abs(_value) >= 1) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] parameter 1 value is %s. Valid values are between -1 and 1 exclusive.",
-          _value.toString()
-        )
-      );
-    }
+    assert(
+      () => Math.abs(_value) < 1,
+      _lt("The value (%s) must be between -1 and 1 exclusive.", _value.toString())
+    );
     return Math.atanh(_value);
   },
 };
@@ -234,18 +216,14 @@ export const CEILING: AddFunctionDescription = {
   compute: function (value: any, factor: any = 1): number {
     const _value = toNumber(value);
     const _factor = toNumber(factor);
-
-    if (_value > 0 && _factor < 0) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] expects the parameter '%s' to be positive when parameter '%s' is positive. Change '%s' from [%s] to a positive value.",
-          CEILING.args[1].name,
-          CEILING.args[0].name,
-          CEILING.args[1].name,
-          _factor.toString()
-        )
-      );
-    }
+    assert(
+      () => _factor >= 0 || _value <= 0,
+      _lt(
+        "The factor (%s) must be positive when the value (%s) is positive.",
+        _factor.toString(),
+        _value.toString()
+      )
+    );
     return _factor ? Math.ceil(_value / _factor) * _factor : 0;
   },
 };
@@ -342,11 +320,10 @@ export const COT: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (angle: any): number {
     const _angle = toNumber(angle);
-    if (_angle === 0) {
-      throw new Error(
-        _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
-      );
-    }
+    assert(
+      () => _angle !== 0,
+      _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+    );
     return 1 / Math.tan(_angle);
   },
 };
@@ -362,11 +339,10 @@ export const COTH: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (value: any): number {
     const _value = toNumber(value);
-    if (_value === 0) {
-      throw new Error(
-        _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
-      );
-    }
+    assert(
+      () => _value !== 0,
+      _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+    );
     return 1 / Math.tanh(_value);
   },
 };
@@ -506,9 +482,10 @@ export const CSC: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (angle: any): number {
     const _angle = toNumber(angle);
-    if (_angle === 0) {
-      throw new Error(_lt(`Function [[FUNCTION_NAME]] caused a divide by zero error.`));
-    }
+    assert(
+      () => _angle !== 0,
+      _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+    );
     return 1 / Math.sin(_angle);
   },
 };
@@ -524,9 +501,10 @@ export const CSCH: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (value: any): number {
     const _value = toNumber(value);
-    if (_value === 0) {
-      throw new Error(_lt(`Function [[FUNCTION_NAME]] caused a divide by zero error.`));
-    }
+    assert(
+      () => _value !== 0,
+      _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+    );
     return 1 / Math.sinh(_value);
   },
 };
@@ -534,16 +512,6 @@ export const CSCH: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // DECIMAL
 // -----------------------------------------------------------------------------
-const decimalErrorParameter2 = (parameterName, base, value) =>
-  _lt(
-    "Function DECIMAL expects the parameter '%s' to be a valid base %s representation. Change '%s' from [%s] to a valid base %s representation.",
-    parameterName,
-    base,
-    parameterName,
-    value,
-    base
-  );
-
 export const DECIMAL: AddFunctionDescription = {
   description: _lt("Converts from another base to decimal."),
   args: args(`
@@ -554,16 +522,11 @@ export const DECIMAL: AddFunctionDescription = {
   compute: function (value: any, base: any): number {
     let _base = toNumber(base);
     _base = Math.floor(_base);
-    if (_base < 2 || _base > 36) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] expects the parameter '%s' to be between 2 and 36 inclusive. Change '%s' from [%s] to a value between 2 and 36.",
-          DECIMAL.args[1].name,
-          DECIMAL.args[1].name,
-          _base.toString()
-        )
-      );
-    }
+
+    assert(
+      () => 2 <= _base && _base <= 36,
+      _lt("The base (%s) must be between 2 and 36 inclusive.", _base.toString())
+    );
 
     const _value = toString(value);
     if (_value === "") {
@@ -575,14 +538,16 @@ export const DECIMAL: AddFunctionDescription = {
      * Return error if 'value' is positive.
      * Remove '-?' in the next regex to catch this error.
      */
-    if (!_value.match(/^-?[a-z0-9]+$/i)) {
-      throw new Error(decimalErrorParameter2(DECIMAL.args[0].name, _base, _value));
-    }
+    assert(
+      () => !!_value.match(/^-?[a-z0-9]+$/i),
+      _lt("The value (%s) must be a valid base %s representation.", _value, _base.toString())
+    );
 
     const deci = parseInt(_value, _base);
-    if (isNaN(deci)) {
-      throw new Error(decimalErrorParameter2(DECIMAL.args[0].name, _base, _value));
-    }
+    assert(
+      () => !isNaN(deci),
+      _lt("The value (%s) must be a valid base %s representation.", _value, _base.toString())
+    );
     return deci;
   },
 };
@@ -629,18 +594,14 @@ export const FLOOR: AddFunctionDescription = {
   compute: function (value: any, factor: any = 1): number {
     const _value = toNumber(value);
     const _factor = toNumber(factor);
-
-    if (_value > 0 && _factor < 0) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] expects the parameter '%s' to be positive when parameter '%s' is positive. Change '%s' from [%s] to a positive value.",
-          FLOOR.args[1].name,
-          FLOOR.args[0].name,
-          FLOOR.args[1].name,
-          _factor.toString()
-        )
-      );
-    }
+    assert(
+      () => _factor >= 0 || _value <= 0,
+      _lt(
+        "The factor (%s) must be positive when the value (%s) is positive.",
+        _factor.toString(),
+        _value.toString()
+      )
+    );
     return _factor ? Math.floor(_value / _factor) * _factor : 0;
   },
 };
@@ -764,14 +725,7 @@ export const LN: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (value: any): number {
     const _value = toNumber(value);
-    if (_value <= 0) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] parameter 1 value is %s. It should be greater than 0.",
-          _value.toString()
-        )
-      );
-    }
+    assert(() => _value > 0, _lt("The value (%s) must be strictly positive.", _value.toString()));
     return Math.log(_value);
   },
 };
@@ -790,15 +744,8 @@ export const MOD: AddFunctionDescription = {
   compute: function (dividend: any, divisor: any): number {
     const _divisor = toNumber(divisor);
 
-    if (_divisor === 0) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] expects the parameter '%s' to be different from 0. Change '%s' to a value other than 0.",
-          MOD.args[1].name,
-          MOD.args[1].name
-        )
-      );
-    }
+    assert(() => _divisor !== 0, _lt("The divisor must be different from 0."));
+
     const _dividend = toNumber(dividend);
     const modulus = _dividend % _divisor;
     // -42 % 10 = -2 but we want 8, so need the code below
@@ -854,21 +801,10 @@ export const POWER: AddFunctionDescription = {
   compute: function (base: any, exponent: any): number {
     const _base = toNumber(base);
     const _exponent = toNumber(exponent);
-
-    if (_base >= 0) {
-      return Math.pow(_base, _exponent);
-    }
-    if (!Number.isInteger(_exponent)) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] expects the parameter '%s' to be an integer when parameter '%s' is negative. Change '%s' from [%s] to an integer value.",
-          POWER.args[1].name,
-          POWER.args[0].name,
-          POWER.args[1].name,
-          _exponent.toString()
-        )
-      );
-    }
+    assert(
+      () => _base >= 0 || Number.isInteger(_exponent),
+      _lt("The exponent (%s) must be an integer when the base is negative.", _exponent.toString())
+    );
     return Math.pow(_base, _exponent);
   },
 };
@@ -947,16 +883,14 @@ export const RANDBETWEEN: AddFunctionDescription = {
       _high = Math.floor(_high);
     }
 
-    if (_high < _low) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] parameter '%s' value is %s. It should be greater than or equal to [%s].",
-          RANDBETWEEN.args[1].name,
-          _high.toString(),
-          _low.toString()
-        )
-      );
-    }
+    assert(
+      () => low <= _high,
+      _lt(
+        "The high (%s) must be greater than or equal to the low (%s).",
+        _high.toString(),
+        _low.toString()
+      )
+    );
     return _low + Math.ceil((_high - _low + 1) * Math.random()) - 1;
   },
 };
@@ -1116,17 +1050,7 @@ export const SQRT: AddFunctionDescription = {
   returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (value: any): number {
     const _value = toNumber(value);
-
-    if (_value < 0) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] parameter '%s' value is negative. It should be positive or zero. Change '%s' from [%s] to a positive value.",
-          SQRT.args[0].name,
-          SQRT.args[0].name,
-          _value.toString()
-        )
-      );
-    }
+    assert(() => _value >= 0, _lt("The value (%s) must be positive or null.", _value.toString()));
     return Math.sqrt(_value);
   },
 };

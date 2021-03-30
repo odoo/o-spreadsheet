@@ -3,6 +3,7 @@ import { _lt } from "../translation";
 import { AddFunctionDescription } from "../types";
 import { args } from "./arguments";
 import {
+  assert,
   dichotomicPredecessorSearch,
   dichotomicSuccessorSearch,
   toBoolean,
@@ -43,20 +44,11 @@ export const COLUMN: AddFunctionDescription = {
   ),
   returns: ["NUMBER"],
   compute: function (cellReference?: string): number {
-    let zone;
-    if (cellReference) {
-      zone = toZone(cellReference);
-    } else {
-      if (this.__originCellXC) {
-        zone = toZone(this.__originCellXC);
-      } else {
-        throw new Error(
-          _lt(
-            `In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter.`
-          )
-        );
-      }
-    }
+    assert(
+      () => !!(cellReference || this.__originCellXC),
+      "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
+    );
+    const zone = toZone((cellReference || this.__originCellXC)!);
     return zone.left + 1;
   },
 };
@@ -96,9 +88,10 @@ export const HLOOKUP: AddFunctionDescription = {
   returns: ["ANY"],
   compute: function (searchKey: any, range: any[], index: any, isSorted: any = true): any {
     const _index = Math.trunc(toNumber(index));
-    if (_index < 1 || range[0].length < _index) {
-      throw new Error(_lt(`[[FUNCTION_NAME]] evaluates to an out of bounds range.`));
-    }
+    assert(
+      () => 1 <= _index && _index <= range[0].length,
+      _lt("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
+    );
 
     const _isSorted = toBoolean(isSorted);
     const firstRow = range.map((col) => col[0]);
@@ -109,11 +102,12 @@ export const HLOOKUP: AddFunctionDescription = {
       colIndex = linearSearch(firstRow, searchKey);
     }
 
-    if (colIndex > -1) {
-      return range[colIndex][_index - 1];
-    } else {
-      throw new Error(_lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", searchKey));
-    }
+    assert(
+      () => colIndex > -1,
+      _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", searchKey)
+    );
+
+    return range[colIndex][_index - 1];
   },
 };
 
@@ -136,41 +130,36 @@ export const LOOKUP: AddFunctionDescription = {
   compute: function (searchKey: any, searchArray: any, resultRange: any = undefined): any {
     const verticalSearch = searchArray[0].length >= searchArray.length;
     const searchRange = verticalSearch ? searchArray[0] : searchArray.map((c) => c[0]);
-
     const index = dichotomicPredecessorSearch(searchRange, searchKey);
-    if (index === -1) {
-      throw new Error(_lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", searchKey));
-    }
+    assert(
+      () => index >= 0,
+      _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", searchKey)
+    );
+
     if (resultRange === undefined) {
       return verticalSearch ? searchArray.pop()[index] : searchArray[index].pop();
     }
 
     const nbCol = resultRange.length;
     const nbRow = resultRange[0].length;
-    if (nbCol > 1 && nbRow > 1) {
-      throw new Error(_lt(`[[FUNCTION_NAME]] range must be a single row or a single column.`));
-    }
+    assert(
+      () => nbCol === 1 || nbRow === 1,
+      _lt("The result_range must be a single row or a single column.")
+    );
 
     if (nbCol > 1) {
-      if (nbCol - 1 < index) {
-        throw new Error(
-          _lt(
-            "[[FUNCTION_NAME]] evaluates to an out of range row value %s.",
-            (index + 1).toString()
-          )
-        );
-      }
+      assert(
+        () => index <= nbCol - 1,
+        _lt("[[FUNCTION_NAME]] evaluates to an out of range row value %s.", (index + 1).toString())
+      );
       return resultRange[index][0];
     }
 
-    if (nbRow - 1 < index) {
-      throw new Error(
-        _lt(
-          "[[FUNCTION_NAME]] evaluates to an out of range column value %s.",
-          (index + 1).toString()
-        )
-      );
-    }
+    assert(
+      () => index <= nbRow - 1,
+      _lt("[[FUNCTION_NAME]] evaluates to an out of range column value %s.", (index + 1).toString())
+    );
+
     return resultRange[0][index];
   },
 };
@@ -193,9 +182,12 @@ export const MATCH: AddFunctionDescription = {
     let _searchType = toNumber(searchType);
     const nbCol = range.length;
     const nbRow = range[0].length;
-    if (nbCol > 1 && nbRow > 1) {
-      throw new Error(_lt(`[[FUNCTION_NAME]] range must be a single row or a single column.`));
-    }
+
+    assert(
+      () => nbCol === 1 || nbRow === 1,
+      _lt("The range must be a single row or a single column.")
+    );
+
     let index = -1;
     range = range.flat();
     _searchType = Math.sign(_searchType);
@@ -210,11 +202,13 @@ export const MATCH: AddFunctionDescription = {
         index = dichotomicSuccessorSearch(range, searchKey);
         break;
     }
-    if (index > -1) {
-      return index + 1;
-    } else {
-      throw new Error(_lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", searchKey));
-    }
+
+    assert(
+      () => index >= 0,
+      _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", searchKey)
+    );
+
+    return index + 1;
   },
 };
 
@@ -231,18 +225,11 @@ export const ROW: AddFunctionDescription = {
   ),
   returns: ["NUMBER"],
   compute: function (cellReference?: string): number {
-    let zone;
-    if (cellReference) {
-      zone = toZone(cellReference);
-    } else {
-      if (this.__originCellXC) {
-        zone = toZone(this.__originCellXC);
-      } else {
-        throw Error(
-          `In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter.`
-        );
-      }
-    }
+    assert(
+      () => !!(cellReference || this.__originCellXC),
+      "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
+    );
+    const zone = toZone((cellReference || this.__originCellXC)!);
     return zone.top + 1;
   },
 };
@@ -282,9 +269,10 @@ export const VLOOKUP: AddFunctionDescription = {
   returns: ["ANY"],
   compute: function (searchKey: any, range: any[], index: any, isSorted: any = true): any {
     const _index = Math.trunc(toNumber(index));
-    if (_index < 1 || range.length < _index) {
-      throw new Error(_lt(`[[FUNCTION_NAME]] evaluates to an out of bounds range.`));
-    }
+    assert(
+      () => 1 <= _index && _index <= range.length,
+      _lt("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
+    );
 
     const _isSorted = toBoolean(isSorted);
     const firstCol = range[0];
@@ -295,10 +283,11 @@ export const VLOOKUP: AddFunctionDescription = {
       rowIndex = linearSearch(firstCol, searchKey);
     }
 
-    if (rowIndex > -1) {
-      return range[_index - 1][rowIndex];
-    } else {
-      throw new Error(_lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", searchKey));
-    }
+    assert(
+      () => rowIndex > -1,
+      _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", searchKey)
+    );
+
+    return range[_index - 1][rowIndex];
   },
 };
