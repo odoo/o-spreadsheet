@@ -103,9 +103,7 @@ describe("evaluateCells", () => {
     );
 
     setCellContent(model, "A1", "=DECIMAL(1,100)");
-    expect(getCell(model, "A1")!.error).toBe(
-      `Function DECIMAL expects the parameter 'base' to be between 2 and 36 inclusive. Change 'base' from [100] to a value between 2 and 36.`
-    );
+    expect(getCell(model, "A1")!.error).toBe(`The base (100) must be between 2 and 36 inclusive.`);
   });
 
   test("error in an addition", () => {

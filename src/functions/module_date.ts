@@ -29,13 +29,10 @@ export const DATE: AddFunctionDescription = {
     const _day = Math.trunc(toNumber(day));
 
     // For years less than 0 or greater than 10000, return #ERROR.
-    if (_year < 0 || 10000 <= _year) {
-      throw new Error(
-        _lt(
-          `function [[FUNCTION_NAME]] parameter year should be greater or equal to 0 and lesser than 10000.`
-        )
-      );
-    }
+    assert(
+      () => 0 <= _year && _year <= 9999,
+      _lt("The year (%s) must be between 0 and 9999 inclusive.", _year.toString())
+    );
 
     // Between 0 and 1899, we add that value to 1900 to calculate the year
     if (_year < 1900) {
@@ -45,11 +42,10 @@ export const DATE: AddFunctionDescription = {
     const jsDate = new Date(_year, _month - 1, _day);
     const delta = jsDate.getTime() - INITIAL_1900_DAY.getTime();
 
-    if (delta < 0) {
-      throw new Error(
-        _lt(`function [[FUNCTION_NAME]] result should not be lesser than 01/01/1900`)
-      );
-    }
+    assert(
+      () => delta >= 0,
+      _lt(`The function [[FUNCTION_NAME]] result must be greater than or equal 01/01/1900.`)
+    );
 
     return Math.round(delta / 86400000);
   },
@@ -67,12 +63,13 @@ export const DATEVALUE: AddFunctionDescription = {
   compute: function (dateString: any): number {
     const _dateString = toString(dateString);
     const internalDate = parseDateTime(_dateString);
-    if (internalDate === null) {
-      throw new Error(
-        _lt("[[FUNCTION_NAME]] parameter '%s' cannot be parsed to date/time.", _dateString)
-      );
-    }
-    return Math.trunc(internalDate.value);
+
+    assert(
+      () => internalDate !== null,
+      _lt("The date_string (%s) cannot be parsed to date/time.", _dateString.toString())
+    );
+
+    return Math.trunc(internalDate!.value);
   },
 };
 
@@ -315,7 +312,7 @@ export const NETWORKDAYS: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 
 /**
- * Transform weekend Spreadsheet informations into Date Day JavaScript informations.
+ * Transform weekend Spreadsheet information into Date Day JavaScript information.
  * Take string (String method) or number (Number method), return array of numbers.
  *
  * String method: weekends can be specified using seven 0’s and 1’s, where the
@@ -329,70 +326,66 @@ export const NETWORKDAYS: AddFunctionDescription = {
  * is the only weekend, and this pattern repeats until 17 = Saturday is the only
  * weekend.
  *
- * Exemple:
+ * Example:
  * - 11 return [0] (correspond to Sunday)
  * - 12 return [1] (correspond to Monday)
  * - 3 return [1,2] (correspond to Monday and Tuesday)
  * - "0101010" return [2,4,6] (correspond to Tuesday, Thursday and Saturday)
  */
 function weekendToDayNumber(weekend: any): number[] {
-  if (typeof weekend === "string") {
-    let result: number[] = [];
+  assert(
+    () => typeof weekend === "string" || typeof weekend === "number",
+    _lt(`The weekend (%s) must be a number or a string.`, weekend.toString())
+  );
 
-    if (weekend.length === 7) {
-      for (let i = 0; i < 7; i++) {
-        switch (weekend.charAt(i)) {
-          case "0":
-            break;
-          case "1":
-            // "1000000" corespond to Monday [1]
-            // "0000010" corespond to Saturday [6]
-            // "0000001" corespond to Sunday [0]
-            result.push(i + 1 === 7 ? 0 : i + 1);
-            break;
-          default:
-            throw new Error(
-              _lt(
-                "Function [[FUNCTION_NAME]] parameter 3 requires a string composed of 0 or 1. Actual string is '%s'.",
-                weekend
-              )
-            );
+  // case "string"
+  if (typeof weekend === "string") {
+    assert(() => {
+      if (weekend.length !== 7) {
+        return false;
+      }
+      for (let day of weekend) {
+        if (day !== "0" && day !== "1") {
+          return false;
         }
       }
-      return result;
+      return true;
+    }, _lt('When weekend is a string (%s) it must be composed of "0" or "1".', weekend));
+
+    let result: number[] = [];
+    for (let i = 0; i < 7; i++) {
+      if (weekend[i] === "1") {
+        result.push((i + 1) % 7);
+      }
     }
-    throw new Error(
-      _lt(
-        "Function [[FUNCTION_NAME]] parameter 3 requires a string with 7 characters. Actual string is '%s'.",
-        weekend
-      )
-    );
+
+    return result;
   }
 
-  if (typeof weekend === "number") {
-    if (1 <= weekend && weekend <= 7) {
-      // 1 = Saturday/Sunday are weekends
-      // 2 = Sunday/Monday
-      // ...
-      // 7 = Friday/Saturday.
-      return [weekend - 2 === -1 ? 6 : weekend - 2, weekend - 1];
-    }
-    if (11 <= weekend && weekend <= 17) {
-      // 11 = Sunday is the only weekend
-      // 12 = Monday is the only weekend
-      // ...
-      // 17 = Saturday is the only weekend.
-      return [weekend - 11];
-    }
-    throw new Error(
-      _lt(
-        "Function [[FUNCTION_NAME]] parameter 3 requires a string or a number in the range 1-7 or 11-17. Actual number is %s.",
-        weekend.toString()
-      )
-    );
+  //  case number
+  assert(
+    () => (1 <= weekend && weekend <= 7) || (11 <= weekend && weekend <= 17),
+    _lt(
+      "The weekend (%s) must be a string or a number in the range 1-7 or 11-17.",
+      weekend.toString()
+    )
+  );
+
+  // case 1 <= weekend <= 7
+  if (weekend <= 7) {
+    // 1 = Saturday/Sunday are weekends
+    // 2 = Sunday/Monday
+    // ...
+    // 7 = Friday/Saturday.
+    return [weekend - 2 === -1 ? 6 : weekend - 2, weekend - 1];
   }
 
-  throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 3 requires a number or a string.`));
+  // case 11 <= weekend <= 17
+  // 11 = Sunday is the only weekend
+  // 12 = Monday is the only weekend
+  // ...
+  // 17 = Saturday is the only weekend.
+  return [weekend - 11];
 }
 
 export const NETWORKDAYS_INTL: AddFunctionDescription = {
@@ -507,9 +500,7 @@ export const TIME: AddFunctionDescription = {
 
     _hour %= 24;
 
-    if (_hour < 0) {
-      throw new Error(_lt(`function [[FUNCTION_NAME]] result should not be negative`));
-    }
+    assert(() => _hour >= 0, _lt(`The function [[FUNCTION_NAME]] result cannot be negative`));
 
     return _hour / 24 + _minute / (24 * 60) + _second / (24 * 60 * 60);
   },
@@ -527,12 +518,12 @@ export const TIMEVALUE: AddFunctionDescription = {
   compute: function (timeString: any): number {
     const _timeString = toString(timeString);
     const internalDate = parseDateTime(_timeString);
-    if (internalDate === null) {
-      throw new Error(
-        _lt("[[FUNCTION_NAME]] parameter '%s' cannot be parsed to date/time.", _timeString)
-      );
-    }
-    const result = internalDate.value - Math.trunc(internalDate.value);
+
+    assert(
+      () => internalDate !== null,
+      _lt("The time_string (%s) cannot be parsed to date/time.", _timeString)
+    );
+    const result = internalDate!.value - Math.trunc(internalDate!.value);
 
     return result < 0 ? 1 + result : result;
   },
@@ -572,17 +563,15 @@ export const WEEKDAY: AddFunctionDescription = {
     const _date = toJsDate(date);
     const _type = Math.round(toNumber(type));
     const m = _date.getDay();
-    switch (_type) {
-      case 1:
-        return m + 1;
-      case 2:
-        return m === 0 ? 7 : m;
-      case 3:
-        return m === 0 ? 6 : m - 1;
-    }
-    throw new Error(
-      _lt("Function [[FUNCTION_NAME]] parameter 2 value %s is out of range.", _type.toString())
+
+    assert(
+      () => [1, 2, 3].includes(_type),
+      _lt("The type (%s) must be 1, 2 or 3.", _type.toString())
     );
+
+    if (type === 1) return m + 1;
+    if (type === 2) return m === 0 ? 7 : m;
+    return m === 0 ? 6 : m - 1;
   },
 };
 
@@ -604,18 +593,21 @@ export const WEEKNUM: AddFunctionDescription = {
     const _date = toJsDate(date);
     const _type = Math.round(toNumber(type));
 
-    let startDayOfWeek: number;
+    assert(
+      () => _type === 1 || _type === 2 || (11 <= _type && _type <= 17) || _type === 21,
+      _lt("The type (%s) is out of range.", _type.toString())
+    );
 
+    if (_type === 21) {
+      return ISOWEEKNUM.compute(date);
+    }
+
+    let startDayOfWeek: number;
     if (_type === 1 || _type === 2) {
       startDayOfWeek = _type - 1;
-    } else if (11 <= _type && _type <= 17) {
-      startDayOfWeek = _type - 10 === 7 ? 0 : _type - 10;
-    } else if (_type === 21) {
-      return ISOWEEKNUM.compute(date);
     } else {
-      throw new Error(
-        _lt("Function [[FUNCTION_NAME]] parameter 2 value %s is out of range.", _type.toString())
-      );
+      // case 11 <= _type <= 17
+      startDayOfWeek = _type - 10 === 7 ? 0 : _type - 10;
     }
 
     const y = _date.getFullYear();
@@ -686,9 +678,11 @@ export const WORKDAY_INTL: AddFunctionDescription = {
     let _startDate = toJsDate(startDate);
     let _numDays = Math.trunc(toNumber(numDays));
 
-    if (weekend === "1111111") {
-      throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 3 cannot be equal to '1111111'.`));
-    }
+    assert(
+      () => weekend !== "1111111",
+      _lt("The weekend (%s) must be different from '1111111'.", weekend.toString())
+    );
+
     const daysWeekend = weekendToDayNumber(weekend);
 
     let timesHoliday = new Set();
@@ -814,9 +808,9 @@ export const YEARFRAC: AddFunctionDescription = {
 
         const isSameYear = yearStart === yearEnd;
         const isOneDeltaYear = yearStart + 1 === yearEnd;
-        const isMonthEndBiger = monthStart < monthEnd;
+        const isMonthEndBigger = monthStart < monthEnd;
         const isSameMonth = monthStart === monthEnd;
-        const isDayEndBiger = dayStart < dayEnd;
+        const isDayEndBigger = dayStart < dayEnd;
 
         // |-----|  <-- one Year
         // 'A' is start date
@@ -824,12 +818,12 @@ export const YEARFRAC: AddFunctionDescription = {
 
         if (
           (!isSameYear && !isOneDeltaYear) ||
-          (!isSameYear && isMonthEndBiger) ||
-          (!isSameYear && isSameMonth && isDayEndBiger)
+          (!isSameYear && isMonthEndBigger) ||
+          (!isSameYear && isSameMonth && isDayEndBigger)
         ) {
           // |---A-|-----|-B---|  <-- !isSameYear && !isOneDeltaYear
-          // |---A-|----B|-----|  <-- !isSameYear && isMonthEndBiger
-          // |---A-|---B-|-----|  <-- !isSameYear && isSameMonth && isDayEndBiger
+          // |---A-|----B|-----|  <-- !isSameYear && isMonthEndBigger
+          // |---A-|---B-|-----|  <-- !isSameYear && isSameMonth && isDayEndBigger
 
           let countYears = 0;
           let countDaysInYears = 0;

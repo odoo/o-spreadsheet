@@ -3,6 +3,7 @@ import { _lt } from "../translation";
 import { AddFunctionDescription, ReturnFormatType } from "../types";
 import { args } from "./arguments";
 import {
+  assert,
   dichotomicPredecessorSearch,
   reduceAny,
   reduceNumbers,
@@ -30,15 +31,14 @@ function covariance(dataY: any[], dataX: any[], isSample: boolean): number {
     lenX += 1;
   });
 
-  if (lenY !== lenX) {
-    throw new Error(
-      _lt(
-        "[[FUNCTION_NAME]] has mismatched argument count %s vs %s.",
-        lenY.toString(),
-        lenX.toString()
-      )
-    );
-  }
+  assert(
+    () => lenY === lenX,
+    _lt(
+      "[[FUNCTION_NAME]] has mismatched argument count %s vs %s.",
+      lenY.toString(),
+      lenX.toString()
+    )
+  );
 
   let count = 0;
   let sumY = 0;
@@ -53,9 +53,10 @@ function covariance(dataY: any[], dataX: any[], isSample: boolean): number {
     }
   }
 
-  if (count === 0 || (isSample && count === 1)) {
-    throw new Error(_lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`));
-  }
+  assert(
+    () => count !== 0 && (!isSample || count !== 1),
+    _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+  );
 
   const averageY = sumY / count;
   const averageX = sumX / count;
@@ -75,9 +76,9 @@ function covariance(dataY: any[], dataX: any[], isSample: boolean): number {
 function variance(args: IArguments | any[], isSample: boolean, textAs0: boolean): number {
   let count = 0;
   let sum = 0;
-  const reduceFuction = textAs0 ? reduceNumbersTextAs0 : reduceNumbers;
+  const reduceFunction = textAs0 ? reduceNumbersTextAs0 : reduceNumbers;
 
-  sum = reduceFuction(
+  sum = reduceFunction(
     args,
     (acc, a) => {
       count += 1;
@@ -86,22 +87,24 @@ function variance(args: IArguments | any[], isSample: boolean, textAs0: boolean)
     0
   );
 
-  if (count === 0 || (isSample && count === 1)) {
-    throw new Error(_lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`));
-  }
+  assert(
+    () => count !== 0 && (!isSample || count !== 1),
+    _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+  );
 
   const average = sum / count;
   return (
-    reduceFuction(args, (acc, a) => acc + Math.pow(a - average, 2), 0) /
+    reduceFunction(args, (acc, a) => acc + Math.pow(a - average, 2), 0) /
     (count - (isSample ? 1 : 0))
   );
 }
 
 function centile(data: any, percent: any, isInclusive: boolean): number {
   const _percent = toNumber(percent);
-  if (_percent < 0 || 1 < _percent || (!isInclusive && (_percent === 0 || _percent === 1))) {
-    throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 2 value is out of range.`));
-  }
+  assert(
+    () => (isInclusive ? 0 <= _percent && _percent <= 1 : 0 < _percent && _percent < 1),
+    _lt(`Function [[FUNCTION_NAME]] parameter 2 value is out of range.`)
+  );
   let sortedArray: number[] = [];
   let index: number;
   let count = 0;
@@ -112,14 +115,15 @@ function centile(data: any, percent: any, isInclusive: boolean): number {
       count++;
     }
   });
-  if (count === 0) {
-    throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
-  }
+  assert(() => count !== 0, _lt(`[[FUNCTION_NAME]] has no valid input data.`));
+
   let percentIndex = (count + (isInclusive ? -1 : 1)) * _percent;
   if (!isInclusive) {
-    if (percentIndex < 1 || count < percentIndex) {
-      throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 2 value is out of range.`));
-    }
+    assert(
+      () => 1 <= percentIndex && percentIndex <= count,
+      _lt(`Function [[FUNCTION_NAME]] parameter 2 value is out of range.`)
+    );
+
     percentIndex--;
   }
   if (Number.isInteger(percentIndex)) {
@@ -155,11 +159,10 @@ export const AVEDEV: AddFunctionDescription = {
       },
       0
     );
-    if (count === 0) {
-      throw new Error(
-        _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
-      );
-    }
+    assert(
+      () => count !== 0,
+      _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+    );
     const average = sum / count;
     return reduceNumbers(arguments, (acc, a) => acc + Math.abs(average - a), 0) / count;
   },
@@ -175,7 +178,7 @@ export const AVERAGE: AddFunctionDescription = {
         "The first value or range to consider when calculating the average value."
       )}
       value2 (number, range<number>, repeating) ${_lt(
-        "Additional vlues or ranges to consider when calculating the average value."
+        "Additional values or ranges to consider when calculating the average value."
       )}
     `),
   returns: ["NUMBER"],
@@ -190,11 +193,10 @@ export const AVERAGE: AddFunctionDescription = {
       },
       0
     );
-    if (count === 0) {
-      throw new Error(
-        _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
-      );
-    }
+    assert(
+      () => count !== 0,
+      _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+    );
     return sum / count;
   },
 };
@@ -222,9 +224,10 @@ export const AVERAGE_WEIGHTED: AddFunctionDescription = {
     let count = 0;
     let value;
     let weight;
-    if (arguments.length % 2 === 1) {
-      throw new Error(_lt(`Wrong number of arguments. Expected an even number of arguments.`));
-    }
+    assert(
+      () => arguments.length % 2 === 0,
+      _lt(`Wrong number of arguments. Expected an even number of arguments.`)
+    );
     for (let n = 0; n < arguments.length - 1; n += 2) {
       value = arguments[n];
       weight = arguments[n + 1];
@@ -232,14 +235,12 @@ export const AVERAGE_WEIGHTED: AddFunctionDescription = {
       //   throw new Error(rangeError);
       // }
       if (Array.isArray(value)) {
-        if (!Array.isArray(weight)) {
-          throw new Error(rangeError);
-        }
+        assert(() => Array.isArray(weight), rangeError);
+
         let dimColValue = value.length;
         let dimLinValue = value[0].length;
-        if (dimColValue !== weight.length || dimLinValue != weight[0].length) {
-          throw new Error(rangeError);
-        }
+        assert(() => dimColValue === weight.length && dimLinValue === weight[0].length, rangeError);
+
         for (let i = 0; i < dimColValue; i++) {
           for (let j = 0; j < dimLinValue; j++) {
             let subValue = value[i][j];
@@ -247,13 +248,14 @@ export const AVERAGE_WEIGHTED: AddFunctionDescription = {
             let subValueIsNumber = typeof subValue === "number";
             let subWeightIsNumber = typeof subWeight === "number";
             // typeof subValue or subWeight can be 'number' or 'undefined'
-            if (subValueIsNumber !== subWeightIsNumber) {
-              throw new Error(_lt(`[[FUNCTION_NAME]] expects number values.`));
-            }
+            assert(
+              () => subValueIsNumber === subWeightIsNumber,
+              _lt(`[[FUNCTION_NAME]] expects number values.`)
+            );
+
             if (subWeightIsNumber) {
-              if (subWeight < 0) {
-                throw new Error(negativeWeightError);
-              }
+              assert(() => subWeight >= 0, negativeWeightError);
+
               sum += subValue * subWeight;
               count += subWeight;
             }
@@ -262,18 +264,18 @@ export const AVERAGE_WEIGHTED: AddFunctionDescription = {
       } else {
         weight = toNumber(weight);
         value = toNumber(value);
-        if (weight < 0) {
-          throw new Error(negativeWeightError);
-        }
+        assert(() => weight >= 0, negativeWeightError);
+
         sum += value * weight;
         count += weight;
       }
     }
-    if (count === 0) {
-      throw new Error(
-        _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
-      );
-    }
+
+    assert(
+      () => count !== 0,
+      _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+    );
+
     return sum / count;
   },
 };
@@ -303,11 +305,10 @@ export const AVERAGEA: AddFunctionDescription = {
       },
       0
     );
-    if (count === 0) {
-      throw new Error(
-        _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
-      );
-    }
+    assert(
+      () => count !== 0,
+      _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+    );
     return sum / count;
   },
 };
@@ -341,11 +342,11 @@ export const AVERAGEIF: AddFunctionDescription = {
       }
     });
 
-    if (count === 0) {
-      throw new Error(
-        _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
-      );
-    }
+    assert(
+      () => count !== 0,
+      _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+    );
+
     return sum / count;
   },
 };
@@ -373,11 +374,10 @@ export const AVERAGEIFS: AddFunctionDescription = {
         sum += value;
       }
     });
-    if (count === 0) {
-      throw new Error(
-        _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
-      );
-    }
+    assert(
+      () => count !== 0,
+      _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+    );
     return sum / count;
   },
 };
@@ -504,15 +504,12 @@ export const LARGE: AddFunctionDescription = {
       }
     });
     const result = largests.shift();
-    if (result === undefined) {
-      throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
-    }
-    if (count < n) {
-      throw new Error(
-        _lt("Function [[FUNCTION_NAME]] parameter 2 value %s is out of range.", n.toString())
-      );
-    }
-    return result;
+    assert(() => result !== undefined, _lt(`[[FUNCTION_NAME]] has no valid input data.`));
+    assert(
+      () => count >= n,
+      _lt("Function [[FUNCTION_NAME]] parameter 2 value (%s) is out of range.", n.toString())
+    );
+    return result!;
   },
 };
 
@@ -826,15 +823,12 @@ export const SMALL: AddFunctionDescription = {
       }
     });
     const result = largests.pop();
-    if (result === undefined) {
-      throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
-    }
-    if (count < n) {
-      throw new Error(
-        _lt("Function [[FUNCTION_NAME]] parameter 2 value %s is out of range.", n.toString())
-      );
-    }
-    return result;
+    assert(() => result !== undefined, _lt(`[[FUNCTION_NAME]] has no valid input data.`));
+    assert(
+      () => count >= n,
+      _lt("Function [[FUNCTION_NAME]] parameter 2 value (%s) is out of range.", n.toString())
+    );
+    return result!;
   },
 };
 

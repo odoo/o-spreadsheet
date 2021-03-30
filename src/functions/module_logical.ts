@@ -1,7 +1,7 @@
 import { _lt } from "../translation";
 import { AddFunctionDescription } from "../types";
 import { args } from "./arguments";
-import { conditionalVisitBoolean, toBoolean } from "./helpers";
+import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // WAIT
@@ -42,10 +42,7 @@ export const AND: AddFunctionDescription = {
       acc = acc && arg;
       return acc;
     });
-
-    if (!foundBoolean) {
-      throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
-    }
+    assert(() => foundBoolean, _lt(`[[FUNCTION_NAME]] has no valid input data.`));
     return acc;
   },
 };
@@ -119,9 +116,10 @@ export const IFS: AddFunctionDescription = {
   `),
   returns: ["ANY"],
   compute: function (): any {
-    if (arguments.length % 2 === 1) {
-      throw new Error(_lt(`Wrong number of arguments. Expected an even number of arguments.`));
-    }
+    assert(
+      () => arguments.length % 2 === 0,
+      _lt(`Wrong number of arguments. Expected an even number of arguments.`)
+    );
     for (let n = 0; n < arguments.length - 1; n += 2) {
       if (toBoolean(arguments[n]())) {
         return arguments[n + 1]();
@@ -170,9 +168,7 @@ export const OR: AddFunctionDescription = {
       acc = acc || arg;
       return !acc;
     });
-    if (!foundBoolean) {
-      throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
-    }
+    assert(() => foundBoolean, _lt(`[[FUNCTION_NAME]] has no valid input data.`));
     return acc;
   },
 };
@@ -199,9 +195,7 @@ export const XOR: AddFunctionDescription = {
       acc = acc ? !arg : arg;
       return true; // no stop condition
     });
-    if (!foundBoolean) {
-      throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
-    }
+    assert(() => foundBoolean, _lt(`[[FUNCTION_NAME]] has no valid input data.`));
     return acc;
   },
 };

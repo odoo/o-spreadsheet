@@ -1,12 +1,12 @@
 import { _lt } from "../translation";
 import { AddFunctionDescription } from "../types";
 import { args } from "./arguments";
-import { toString, visitMatchingRanges } from "./helpers";
+import { assert, toString, visitMatchingRanges } from "./helpers";
 import { PRODUCT, SUM } from "./module_math";
 import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
 
 function getMatchingCells(database: any, field: any, criteria: any): any[] {
-  // Exemple :
+  // Example :
   //
   // # DATABASE             # CRITERIA          # field = "C"
   //
@@ -31,35 +31,39 @@ function getMatchingCells(database: any, field: any, criteria: any): any[] {
     // first row of database or a numeric index indicating which column to consider,
     // where the first column has the value 1.
     index = Math.trunc(field) - 1;
-    if (index < 0 || index > dimRowDB - 1) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] parameter 2 value is %s. Valid values are between 1 and %s inclusive.",
-          field,
-          dimRowDB
-        )
-      );
-    }
+
+    assert(
+      () => 0 <= index && index <= dimRowDB - 1,
+      _lt(
+        "The field (%s) must be between 1 and %s inclusive.",
+        field.toString(),
+        dimRowDB.toString()
+      )
+    );
   } else {
     const colName = typeofField === "string" ? field.toUpperCase() : field;
     index = indexColNameDB.get(colName);
-    if (index === undefined) {
-      throw new Error(
-        _lt(
-          "Function [[FUNCTION_NAME]] parameter 2 value is %s. It should be one of: %s.",
-          field,
-          [...indexColNameDB.keys()].map((v) => "'" + v + "'").join(", ")
-        )
-      );
-    }
+
+    assert(
+      () => index !== undefined,
+      _lt(
+        "The field (%s) must be one of %s.",
+        field.toString(),
+        [...indexColNameDB.keys()].toString()
+      )
+    );
   } // Ex: index = 2
 
   // 3 - For each criteria row, find database row that correspond
   const dimColCriteria = criteria[0].length;
 
-  if (dimColCriteria < 2) {
-    throw new Error(_lt(`[[FUNCTION_NAME]] criteria range must be at least 2 rows.`));
-  }
+  assert(
+    () => dimColCriteria >= 2,
+    _lt(
+      `The criteria range contains %s row, it must be at least 2 rows.`,
+      dimColCriteria.toString()
+    )
+  );
 
   let matchingRows: Set<number> = new Set();
   const dimColDB = database[0].length;
@@ -67,8 +71,8 @@ function getMatchingCells(database: any, field: any, criteria: any): any[] {
     let args: any[] = [];
     let existColNameDB = true;
     for (let indexCol = 0; indexCol < criteria.length; indexCol++) {
-      const curentName = toString(criteria[indexCol][0]).toUpperCase();
-      const indexColDB = indexColNameDB.get(curentName);
+      const currentName = toString(criteria[indexCol][0]).toUpperCase();
+      const indexColDB = indexColNameDB.get(currentName);
       const criter = criteria[indexCol][indexRow];
       if (criter !== undefined) {
         if (indexColDB !== undefined) {
@@ -170,9 +174,7 @@ export const DGET: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (database: any, field: any, criteria: any): any {
     const cells = getMatchingCells(database, field, criteria);
-    if (cells.length > 1) {
-      throw new Error(_lt(`More than one match found in DGET evaluation.`));
-    }
+    assert(() => cells.length === 1, _lt("More than one match found in DGET evaluation."));
     return cells[0];
   },
 };
