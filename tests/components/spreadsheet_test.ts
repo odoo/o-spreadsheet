@@ -4,7 +4,7 @@ import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
 import { DEBUG } from "../../src/helpers";
 import { SelectionMode } from "../../src/plugins/selection";
-import { triggerMouseEvent } from "../dom_helper";
+import { simulateClick, triggerMouseEvent } from "../dom_helper";
 import { makeTestFixture, MockClipboard, nextTick } from "../helpers";
 
 const { xml } = tags;
@@ -180,5 +180,15 @@ describe("Spreadsheet", () => {
   test("Debug informations are removed when Spreadsheet is destroyed", async () => {
     parent["spreadsheet"].comp.destroy();
     expect(Object.keys(DEBUG)).toHaveLength(0);
+  });
+
+  test("typing opens composer after toolbar clicked", async () => {
+    await simulateClick(`div[title="Bold"]`);
+    expect(document.activeElement).not.toBeNull();
+    document.activeElement?.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "d", bubbles: true })
+    );
+    expect(parent.model.getters.getEditionMode()).toBe("editing");
+    expect(parent.model.getters.getCurrentContent()).toBe("d");
   });
 });
