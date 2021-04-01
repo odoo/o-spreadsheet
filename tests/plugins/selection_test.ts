@@ -1,4 +1,4 @@
-import { toZone } from "../../src/helpers";
+import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
 import "../canvas.mock";
@@ -323,6 +323,63 @@ describe("selection", () => {
       anchor: [3, 3],
       zones: [{ left: 3, top: 3, right: 3, bottom: 3 }],
     });
+  });
+
+  test("invalid selection is updated after undo", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "42",
+          colNumber: 3,
+          rowNumber: 3,
+        },
+        {
+          id: "43",
+          colNumber: 3,
+          rowNumber: 3,
+        },
+      ],
+    });
+    model.dispatch("ADD_COLUMNS", {
+      column: 1,
+      position: "after",
+      quantity: 1,
+      sheet: "42",
+    });
+    const [col, row] = toCartesian("D1");
+    model.dispatch("SELECT_CELL", { col, row });
+    model.dispatch("ACTIVATE_SHEET", { from: "42", to: "43" });
+    model.dispatch("UNDO");
+    model.dispatch("ACTIVATE_SHEET", { from: "43", to: "42" });
+    expect(model.getters.getPosition()).toEqual([2, 0]);
+  });
+
+  test("invalid selection is updated after redo", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "42",
+          colNumber: 3,
+          rowNumber: 3,
+        },
+        {
+          id: "43",
+          colNumber: 3,
+          rowNumber: 3,
+        },
+      ],
+    });
+    model.dispatch("REMOVE_COLUMNS", {
+      columns: [1],
+      sheet: "42",
+    });
+    const [col, row] = toCartesian("C1");
+    model.dispatch("SELECT_CELL", { col, row });
+    model.dispatch("ACTIVATE_SHEET", { from: "42", to: "43" });
+    model.dispatch("UNDO");
+    model.dispatch("REDO");
+    model.dispatch("ACTIVATE_SHEET", { from: "43", to: "42" });
+    expect(model.getters.getPosition()).toEqual([1, 0]);
   });
 });
 

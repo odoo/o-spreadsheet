@@ -167,7 +167,7 @@ export class SelectionPlugin extends BasePlugin {
       case "REDO":
       case "REMOVE_COLUMNS":
       case "REMOVE_ROWS":
-        this.updateSelection();
+        this.ensureSelectionValidity();
         break;
       case "ADD_COLUMNS":
         if (cmd.position === "before") {
@@ -439,10 +439,43 @@ export class SelectionPlugin extends BasePlugin {
     this.dispatch("SET_SELECTION", { zones, anchor: [anchorCol, anchorRow] });
   }
 
-  private updateSelection() {
-    const cols = this.workbook.activeSheet.cols.length - 1;
-    const rows = this.workbook.activeSheet.rows.length - 1;
-    const zones = this.selection.zones.map((z) => ({
+  /**
+   * Ensure selections are not outside sheet boundaries.
+   * They are clipped to fit inside the sheet if needed.
+   */
+  private ensureSelectionValidity() {
+    const sheets = this.getters.getSheets();
+    const sheetIds = sheets.map((sheet) => sheet.id);
+    if (!sheetIds.includes(this.getters.getActiveSheet())) {
+      this.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheet(), to: sheetIds[0] });
+    } else {
+      const { anchor, zones } = this.clipSelection(this.getters.getActiveSheet(), this.selection);
+      this.setSelection(anchor, zones);
+    }
+    const deletedSheetIds = Object.keys(this.sheetsData).filter(
+      (sheetId) => !sheetIds.includes(sheetId)
+    );
+    for (const sheetId of deletedSheetIds) {
+      delete this.sheetsData[sheetId];
+    }
+    for (const sheetId in this.sheetsData) {
+      const { anchor, zones } = this.clipSelection(sheetId, this.sheetsData[sheetId].selection);
+      this.sheetsData[sheetId] = {
+        selection: { anchor, zones },
+        activeCol: anchor[0],
+        activeRow: anchor[1],
+        activeXc: toXC(...anchor),
+      };
+    }
+  }
+
+  /**
+   * Clip the selection if it spans outside the sheet
+   */
+  private clipSelection(sheetId: string, selection: Selection): Selection {
+    const cols = this.getters.getNumberCols(sheetId) - 1;
+    const rows = this.getters.getNumberRows(sheetId) - 1;
+    const zones = selection.zones.map((z) => ({
       left: clip(z.left, 0, cols),
       right: clip(z.right, 0, cols),
       top: clip(z.top, 0, rows),
@@ -450,7 +483,10 @@ export class SelectionPlugin extends BasePlugin {
     }));
     const anchorCol = zones[zones.length - 1].left;
     const anchorRow = zones[zones.length - 1].top;
-    this.dispatch("SET_SELECTION", { zones, anchor: [anchorCol, anchorRow] });
+    return {
+      anchor: [anchorCol, anchorRow],
+      zones,
+    };
   }
 
   private onAddColumns(quantity: number) {
