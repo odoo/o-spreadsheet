@@ -4,7 +4,7 @@
   "description": "A spreadsheet component",
   "main": "index.js",
   "scripts": {
-    "serve": "live-server --open=demo --ignore=logs,./",
+    "serve": "live-server --open=demo --watch=dist,demo",
     "dev": "npm-run-all build --parallel server serve \"build:* -- --watch\"",
     "server": "node tools/server/main.js",
     "build:js": "tsc --module es6 --outDir dist/js --incremental",
