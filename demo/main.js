@@ -25,19 +25,24 @@ class App extends Component {
   constructor() {
     super();
     this.key = 1;
-    this.transportService = new WebsocketTransport();
     this.data = demoData;
     // this.data = makeLargeDataset(20, 10_000);
     this.stateUpdateMessages = [];
   }
 
   async willStart() {
-    /**
-     * This fetch is used to get the list of revisions of the server since the
-     * start of the session.
-     */
-    const result = await fetch("http://localhost:9000");
-    this.stateUpdateMessages = await result.json();
+    this.transportService = new WebsocketTransport();
+    try {
+      const [history,] = await Promise.all([
+        this.fetchHistory(),
+        this.transportService.connect(),
+      ]);
+      this.stateUpdateMessages = history;
+    } catch (error) {
+      console.warn("Error while connecting to the collaborative server. Starting the spreadsheet without collaborative mode.", error);
+      this.transportService = undefined;
+      this.stateUpdateMessages = [];
+    }
   }
 
   mounted() {
@@ -59,6 +64,17 @@ class App extends Component {
   editText(ev) {
     const text = window.prompt(ev.detail.title, ev.detail.placeholder);
     ev.detail.callback(text);
+  }
+
+  /**
+   * Fetch the list of revisions of the server since the
+   * start of the session.
+   *
+   * @returns {Promise}
+   */
+  async fetchHistory() {
+    const result = await fetch("http://localhost:9000");
+    return result.json();
   }
 }
 
