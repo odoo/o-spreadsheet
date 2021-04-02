@@ -5,16 +5,27 @@ export class WebsocketTransport {
   listeners = [];
   queue = [];
   isConnected = false;
-  socket = new WebSocket(`ws://localhost:9000`);
+  socket = null;
 
-  constructor() {
-    this.socket.addEventListener("open", () => {
-      this.isConnected = true;
-      this.processQueue();
-    });
-    this.socket.addEventListener("message", (ev) => {
-      const message = JSON.parse(ev.data);
-      this.notifyListeners(message);
+  /**
+   * Open a connection to the collaborative server.
+   *
+   * @returns {Promise<void>}
+   */
+  connect() {
+    return new Promise((resolve, reject) => {
+      const socket = new WebSocket(`ws://localhost:9000`);
+      socket.addEventListener("open", () => {
+        this.socket = socket;
+        this.isConnected = true;
+        this.processQueue();
+        resolve();
+      });
+      socket.addEventListener("message", (ev) => {
+        const message = JSON.parse(ev.data);
+        this.notifyListeners(message);
+      });
+      socket.addEventListener("error", reject);
     });
   }
 
