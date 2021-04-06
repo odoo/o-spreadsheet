@@ -26,4 +26,4 @@ ___
 
 ### position
 
-• `Optional` **position**: *undefined* \| ClientPosition
+• `Optional` **position**: ClientPosition

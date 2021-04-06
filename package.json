@@ -48,8 +48,8 @@
     "prettier-plugin-organize-imports": "^1.1.1",
     "rollup": "^2.38.5",
     "ts-jest": "^25.3.1",
-    "typedoc": "^0.20.20",
-    "typedoc-plugin-markdown": "^3.4.5",
+    "typedoc": "0.20.30",
+    "typedoc-plugin-markdown": "3.6.1",
     "typescript": "^3.9.7"
   },
   "prettier": {
