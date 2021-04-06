@@ -4,6 +4,10 @@ o-spreadsheet API
 
 ## Table of contents
 
+### Enumerations
+
+- [CommandResult](enums/commandresult.md)
+
 ### Classes
 
 - [CorePlugin](classes/coreplugin.md)

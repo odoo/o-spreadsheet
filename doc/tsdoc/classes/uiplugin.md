@@ -47,7 +47,7 @@ Name | Default |
 
 ### constructor
 
-\+ **new UIPlugin**<State, C\>(`getters`: Getters, `state`: *StateObserver*, `dispatch`: <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => CommandResult<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => CommandResult, `config`: ModelConfig): [*UIPlugin*](uiplugin.md)<State, C\>
+\+ **new UIPlugin**<State, C\>(`getters`: Getters, `state`: *StateObserver*, `dispatch`: <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => [*CommandResult*](../enums/commandresult.md)<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => [*CommandResult*](../enums/commandresult.md), `config`: ModelConfig): [*UIPlugin*](uiplugin.md)<State, C\>
 
 #### Type parameters:
 
@@ -62,7 +62,7 @@ Name | Type |
 :------ | :------ |
 `getters` | Getters |
 `state` | *StateObserver* |
-`dispatch` | <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => CommandResult<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => CommandResult |
+`dispatch` | <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => [*CommandResult*](../enums/commandresult.md)<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => [*CommandResult*](../enums/commandresult.md) |
 `config` | ModelConfig |
 
 **Returns:** [*UIPlugin*](uiplugin.md)<State, C\>
@@ -77,11 +77,11 @@ ___
 
 ### dispatch
 
-• `Protected` **dispatch**: <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => CommandResult<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => CommandResult
+• `Protected` **dispatch**: <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => [*CommandResult*](../enums/commandresult.md)<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => [*CommandResult*](../enums/commandresult.md)
 
 #### Type declaration:
 
-▸ <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*): CommandResult
+▸ <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*): [*CommandResult*](../enums/commandresult.md)
 
 #### Type parameters:
 
@@ -96,9 +96,9 @@ Name | Type |
 :------ | :------ |
 `type` | {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never* |
 
-**Returns:** CommandResult
+**Returns:** [*CommandResult*](../enums/commandresult.md)
 
-▸ <T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>): CommandResult
+▸ <T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>): [*CommandResult*](../enums/commandresult.md)
 
 #### Type parameters:
 
@@ -114,7 +114,7 @@ Name | Type |
 `type` | T |
 `r` | *Pick*<C, Exclude<keyof C, *type*\>\> |
 
-**Returns:** CommandResult
+**Returns:** [*CommandResult*](../enums/commandresult.md)
 
 ___
 
@@ -156,7 +156,7 @@ ___
 
 ### allowDispatch
 
-▸ **allowDispatch**(`command`: C): CommandResult
+▸ **allowDispatch**(`command`: C): [*CommandResult*](../enums/commandresult.md)
 
 Before a command is accepted, the model will ask each plugin if the command
 is allowed.  If all of then return true, then we can proceed. Otherwise,
@@ -170,7 +170,7 @@ Name | Type |
 :------ | :------ |
 `command` | C |
 
-**Returns:** CommandResult
+**Returns:** [*CommandResult*](../enums/commandresult.md)
 
 ___
 

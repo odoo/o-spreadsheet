@@ -54,7 +54,7 @@ Name | Type |
 
 ### dispatch
 
-• **dispatch**: <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => CommandResult<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => CommandResult
+• **dispatch**: <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => [*CommandResult*](../enums/commandresult.md)<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => [*CommandResult*](../enums/commandresult.md)
 
 The dispatch method is the only entry point to manipulate data in the model.
 This is through this method that commands are dispatched most of the time
@@ -71,7 +71,7 @@ reasons for this:
 
 #### Type declaration:
 
-▸ <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*): CommandResult
+▸ <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*): [*CommandResult*](../enums/commandresult.md)
 
 #### Type parameters:
 
@@ -86,9 +86,9 @@ Name | Type |
 :------ | :------ |
 `type` | {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never* |
 
-**Returns:** CommandResult
+**Returns:** [*CommandResult*](../enums/commandresult.md)
 
-▸ <T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>): CommandResult
+▸ <T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>): [*CommandResult*](../enums/commandresult.md)
 
 #### Type parameters:
 
@@ -104,7 +104,7 @@ Name | Type |
 `type` | T |
 `r` | *Pick*<C, Exclude<keyof C, *type*\>\> |
 
-**Returns:** CommandResult
+**Returns:** [*CommandResult*](../enums/commandresult.md)
 
 ___
 
