@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 import { Session } from "../collaborative/session";
 import { MAX_HISTORY_STEPS } from "../constants";
-import { Command, CommandDispatcher, CommandResult, UID } from "../types";
+import { Command, CommandDispatcher, CommandHandler, CommandResult, UID } from "../types";
 
 /**
  * Local History
@@ -10,7 +10,7 @@ import { Command, CommandDispatcher, CommandResult, UID } from "../types";
  * It maintains the local undo and redo stack to allow to undo/redo only local
  * changes
  */
-export class LocalHistory extends owl.core.EventBus {
+export class LocalHistory extends owl.core.EventBus implements CommandHandler<Command> {
   /**
    * Ids of the revisions which can be undone
    */
@@ -44,28 +44,34 @@ export class LocalHistory extends owl.core.EventBus {
       return CommandResult.WaitingSessionConfirmation;
     }
     switch (cmd.type) {
-      case "UNDO":
+      case "REQUEST_UNDO":
         if (!this.canUndo()) {
           return CommandResult.EmptyUndoStack;
         }
         break;
-      case "REDO":
+      case "REQUEST_REDO":
         if (!this.canRedo()) {
           return CommandResult.EmptyRedoStack;
         }
         break;
     }
+    return CommandResult.Success;
+  }
+
+  beforeHandle(cmd: Command) {}
+
+  handle(cmd: Command) {
     switch (cmd.type) {
-      case "UNDO":
-      case "REDO":
+      case "REQUEST_UNDO":
+      case "REQUEST_REDO":
         // History changes (undo & redo) are *not* applied optimistically on the local state.
         // We wait a global confirmation from the server. The goal is to avoid handling concurrent
         // history changes on multiple clients which are very hard to manage correctly.
-        this.requestHistoryChange(cmd.type);
-        return CommandResult.WaitingSessionConfirmation;
+        this.requestHistoryChange(cmd.type === "REQUEST_UNDO" ? "UNDO" : "REDO");
     }
-    return CommandResult.Success;
   }
+
+  finalize() {}
 
   private requestHistoryChange(type: "UNDO" | "REDO") {
     const id = type === "UNDO" ? this.undoStack.pop() : this.redoStack.pop();

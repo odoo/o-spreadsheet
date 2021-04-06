@@ -321,8 +321,8 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     "CTRL+S": () => {
       this.trigger("save-requested");
     },
-    "CTRL+Z": () => this.dispatch("UNDO"),
-    "CTRL+Y": () => this.dispatch("REDO"),
+    "CTRL+Z": () => this.dispatch("REQUEST_UNDO"),
+    "CTRL+Y": () => this.dispatch("REQUEST_REDO"),
     "CTRL+B": () =>
       this.dispatch("SET_FORMATTING", {
         sheetId: this.getters.getActiveSheetId(),

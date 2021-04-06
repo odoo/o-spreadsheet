@@ -46,9 +46,9 @@ export function setStyle(env: SpreadsheetEnv, style: Style) {
 // Simple actions
 //------------------------------------------------------------------------------
 
-export const UNDO_ACTION = (env: SpreadsheetEnv) => env.dispatch("UNDO");
+export const UNDO_ACTION = (env: SpreadsheetEnv) => env.dispatch("REQUEST_UNDO");
 
-export const REDO_ACTION = (env: SpreadsheetEnv) => env.dispatch("REDO");
+export const REDO_ACTION = (env: SpreadsheetEnv) => env.dispatch("REQUEST_REDO");
 
 export const COPY_ACTION = async (env: SpreadsheetEnv) => {
   env.dispatch("COPY", { target: env.getters.getSelectedZones() });

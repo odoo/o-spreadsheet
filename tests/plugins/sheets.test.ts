@@ -900,9 +900,9 @@ describe("sheets", () => {
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(true);
     model.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId, areGridLinesVisible: false });
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(false);
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(true);
-    model.dispatch("REDO");
+    redo(model);
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(false);
   });
 

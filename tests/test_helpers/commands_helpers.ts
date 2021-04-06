@@ -7,14 +7,14 @@ import { target } from "./helpers";
  * Dispatch an UNDO to the model
  */
 export function undo(model: Model): CommandResult {
-  return model.dispatch("UNDO");
+  return model.dispatch("REQUEST_UNDO");
 }
 
 /**
  * Dispatch a REDO to the model
  */
 export function redo(model: Model): CommandResult {
-  return model.dispatch("REDO");
+  return model.dispatch("REQUEST_REDO");
 }
 
 export function activateSheet(

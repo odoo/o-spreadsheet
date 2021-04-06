@@ -180,7 +180,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   }
 
   get handlers(): CommandHandler<Command>[] {
-    return [this.range, ...this.corePlugins, ...this.uiPlugins];
+    return [this.range, ...this.corePlugins, ...this.uiPlugins, this.history];
   }
 
   leaveSession() {
@@ -294,7 +294,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * Check if the given command is allowed by all the plugins and the history.
    */
   private checkDispatchAllowed(command: Command): CommandResult | undefined {
-    for (let handler of [this.history, ...this.handlers]) {
+    for (let handler of this.handlers) {
       const allowDispatch = handler.allowDispatch(command);
       if (allowDispatch !== CommandResult.Success) {
         return allowDispatch;

@@ -1,5 +1,6 @@
 import { CommandResult, CorePlugin } from "../src";
 import { toZone } from "../src/helpers";
+import { LocalHistory } from "../src/history/local_history";
 import { Mode, Model } from "../src/model";
 import { BordersPlugin } from "../src/plugins/core/borders";
 import { CellPlugin } from "../src/plugins/core/cell";
@@ -33,7 +34,7 @@ function getNbrPlugin(mode: Mode): number {
 describe("Model", () => {
   test("can create model in headless mode", () => {
     const model = new Model({}, { mode: "headless" });
-    expect(model["handlers"]).toHaveLength(12);
+    expect(model["handlers"]).toHaveLength(13);
     expect(model["handlers"][0]).toBeInstanceOf(RangeAdapter);
     expect(model["handlers"][1]).toBeInstanceOf(SheetPlugin);
     expect(model["handlers"][2]).toBeInstanceOf(CellPlugin);
@@ -46,24 +47,25 @@ describe("Model", () => {
     expect(model["handlers"][9]).toBeInstanceOf(FindAndReplacePlugin);
     expect(model["handlers"][10]).toBeInstanceOf(SortPlugin);
     expect(model["handlers"][11]).toBeInstanceOf(AutomaticSumPlugin);
+    expect(model["handlers"][12]).toBeInstanceOf(LocalHistory);
   });
 
   test("All plugin compatible with normal mode are loaded on normal mode", () => {
     const model = new Model();
     const nbr = getNbrPlugin("normal");
-    expect(model["handlers"]).toHaveLength(nbr + 1); //+1 for Range
+    expect(model["handlers"]).toHaveLength(nbr + 2); //+1 for Range +1 for History
   });
 
   test("All plugin compatible with headless mode are loaded on headless mode", () => {
     const model = new Model({}, { mode: "headless" });
     const nbr = getNbrPlugin("headless");
-    expect(model["handlers"]).toHaveLength(nbr + 1); //+1 for Range
+    expect(model["handlers"]).toHaveLength(nbr + 2); //+1 for Range +1 for History
   });
 
   test("All plugin compatible with readonly mode are loaded on readonly mode", () => {
     const model = new Model({}, { mode: "readonly" });
     const nbr = getNbrPlugin("readonly");
-    expect(model["handlers"]).toHaveLength(nbr + 1); //+1 for Range
+    expect(model["handlers"]).toHaveLength(nbr + 2); //+1 for Range +1 for History
   });
 
   test("Model in headless mode should not evaluate cells", () => {
@@ -86,17 +88,33 @@ describe("Model", () => {
     uiPluginRegistry.add("headlessPlugin", HeadlessPlugin);
     uiPluginRegistry.add("readonlyPlugin", ReadOnlyPlugin);
     const modelNormal = new Model();
-    expect(modelNormal["handlers"][modelNormal["handlers"].length - 1]).toBeInstanceOf(
-      NormalPlugin
-    );
+    expect(modelNormal["handlers"].find((handler) => handler instanceof NormalPlugin)).toBeTruthy();
+    expect(
+      modelNormal["handlers"].find((handler) => handler instanceof HeadlessPlugin)
+    ).toBeFalsy();
+    expect(
+      modelNormal["handlers"].find((handler) => handler instanceof ReadOnlyPlugin)
+    ).toBeFalsy();
     const modelHeadless = new Model({}, { mode: "headless" });
-    expect(modelHeadless["handlers"][modelHeadless["handlers"].length - 1]).toBeInstanceOf(
-      HeadlessPlugin
-    );
+    expect(
+      modelHeadless["handlers"].find((handler) => handler instanceof NormalPlugin)
+    ).toBeFalsy();
+    expect(
+      modelHeadless["handlers"].find((handler) => handler instanceof HeadlessPlugin)
+    ).toBeTruthy();
+    expect(
+      modelHeadless["handlers"].find((handler) => handler instanceof ReadOnlyPlugin)
+    ).toBeFalsy();
     const modelReadonly = new Model({}, { mode: "readonly" });
-    expect(modelReadonly["handlers"][modelReadonly["handlers"].length - 1]).toBeInstanceOf(
-      ReadOnlyPlugin
-    );
+    expect(
+      modelReadonly["handlers"].find((handler) => handler instanceof NormalPlugin)
+    ).toBeFalsy();
+    expect(
+      modelReadonly["handlers"].find((handler) => handler instanceof HeadlessPlugin)
+    ).toBeFalsy();
+    expect(
+      modelReadonly["handlers"].find((handler) => handler instanceof ReadOnlyPlugin)
+    ).toBeTruthy();
   });
 
   test("core plugin can refuse command from UI plugin", () => {

@@ -8,8 +8,10 @@ import {
   createSheet,
   deleteColumns,
   deleteRows,
+  redo,
   selectCell,
   setCellContent,
+  undo,
 } from "../test_helpers/commands_helpers";
 import { mockUuidV4To, testUndoRedo, waitForRecompute } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -1141,10 +1143,10 @@ describe("undo/redo", () => {
     setCellContent(model, "B2", "99");
     chart = model.getters.getChartRuntime("27")!;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
-    model.dispatch("UNDO");
+    undo(model);
     chart = model.getters.getChartRuntime("27")!;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
-    model.dispatch("REDO");
+    redo(model);
     chart = model.getters.getChartRuntime("27")!;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
   });

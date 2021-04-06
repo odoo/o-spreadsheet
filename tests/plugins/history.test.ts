@@ -274,7 +274,7 @@ describe("Model history", () => {
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: "42" });
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheetId);
   });
 

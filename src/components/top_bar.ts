@@ -525,10 +525,10 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   }
 
   undo() {
-    this.dispatch("UNDO");
+    this.dispatch("REQUEST_UNDO");
   }
 
   redo() {
-    this.dispatch("REDO");
+    this.dispatch("REQUEST_REDO");
   }
 }
