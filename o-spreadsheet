@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# ignore node_modules !
+docker run -p 8080:8080 -p 9000:9000 -t -v `pwd`:/o-spreadsheet o-spreadsheet npm run $@
