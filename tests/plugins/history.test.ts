@@ -1,7 +1,9 @@
+import { UIPlugin } from "../../src";
 import { MAX_HISTORY_STEPS } from "../../src/constants";
 import { Model } from "../../src/model";
+import { uiPluginRegistry } from "../../src/plugins";
 import { StateObserver } from "../../src/state_observer";
-import { CommandResult } from "../../src/types/commands";
+import { CommandResult, UpdateCellCommand } from "../../src/types/commands";
 import {
   activateSheet,
   createSheet,
@@ -305,5 +307,32 @@ describe("Model history", () => {
     createSheet(model, { sheetId: "42", activate: true });
     undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheet);
+  });
+
+  test("undone & redone commands are part of the command", () => {
+    class TestPlugin extends UIPlugin {}
+    uiPluginRegistry.add("test-plugin", TestPlugin);
+    const model = new Model();
+    const plugin = model["handlers"].find((handler) => handler instanceof TestPlugin)!;
+    plugin.handle = jest.fn((cmd) => {});
+    const command: UpdateCellCommand = {
+      type: "UPDATE_CELL",
+      col: 0,
+      row: 0,
+      sheetId: model.getters.getActiveSheetId(),
+      content: "hello",
+    };
+    model.dispatch(command.type, command);
+    undo(model);
+    expect(plugin.handle).toHaveBeenCalledWith({
+      type: "UNDO",
+      commands: [command],
+    });
+    redo(model);
+    expect(plugin.handle).toHaveBeenCalledWith({
+      type: "REDO",
+      commands: [command],
+    });
+    uiPluginRegistry.remove("test-plugin");
   });
 });

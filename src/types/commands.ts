@@ -657,10 +657,12 @@ export interface ClearCellCommand extends BaseCommand {
 
 export interface UndoCommand extends BaseCommand {
   type: "UNDO";
+  commands: readonly CoreCommand[];
 }
 
 export interface RedoCommand extends BaseCommand {
   type: "REDO";
+  commands: readonly CoreCommand[];
 }
 
 export interface RequestUndoCommand extends BaseCommand {
