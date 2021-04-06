@@ -61,7 +61,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
         }
         break;
       case "DELETE_SHEET":
-        const allBorders = Object.assign({}, this.borders);
+        const allBorders = { ...this.borders };
         delete allBorders[cmd.sheetId];
         this.history.update("borders", allBorders);
         break;
