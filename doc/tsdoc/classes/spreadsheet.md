@@ -89,7 +89,7 @@ ___
 
 Name | Type |
 :------ | :------ |
-`component`? | *undefined* \| *string* |
+`component`? | *string* |
 `isOpen` | *boolean* |
 `panelProps` | *any* |
 
