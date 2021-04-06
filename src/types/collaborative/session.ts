@@ -28,11 +28,13 @@ export interface RevisionAcknowledgedEvent {
 export interface RevisionUndone {
   type: "revision-undone";
   revisionId: UID;
+  commands: readonly CoreCommand[];
 }
 
 export interface RevisionRedone {
   type: "revision-redone";
   revisionId: UID;
+  commands: readonly CoreCommand[];
 }
 
 export interface CollaborativeEventReceived {

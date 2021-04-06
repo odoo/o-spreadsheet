@@ -1,7 +1,14 @@
 import * as owl from "@odoo/owl";
 import { Session } from "../collaborative/session";
 import { MAX_HISTORY_STEPS } from "../constants";
-import { Command, CommandDispatcher, CommandHandler, CommandResult, UID } from "../types";
+import {
+  Command,
+  CommandDispatcher,
+  CommandHandler,
+  CommandResult,
+  CoreCommand,
+  UID,
+} from "../types";
 
 /**
  * Local History
@@ -30,8 +37,8 @@ export class LocalHistory extends owl.core.EventBus implements CommandHandler<Co
   constructor(protected dispatch: CommandDispatcher["dispatch"], private session: Session) {
     super();
     this.session.on("new-local-state-update", this, this.onNewLocalStateUpdate);
-    this.session.on("revision-undone", this, this.selectiveUndo);
-    this.session.on("revision-redone", this, this.selectiveRedo);
+    this.session.on("revision-undone", this, ({ commands }) => this.selectiveUndo(commands));
+    this.session.on("revision-redone", this, ({ commands }) => this.selectiveRedo(commands));
     this.session.on("snapshot", this, () => {
       this.undoStack = [];
       this.redoStack = [];
@@ -104,13 +111,13 @@ export class LocalHistory extends owl.core.EventBus implements CommandHandler<Co
     }
   }
 
-  private selectiveUndo() {
-    this.dispatch("UNDO");
+  private selectiveUndo(commands: readonly CoreCommand[]) {
+    this.dispatch("UNDO", { commands });
     this.isWaitingForUndoRedo = false;
   }
 
-  private selectiveRedo() {
-    this.dispatch("REDO");
+  private selectiveRedo(commands: readonly CoreCommand[]) {
+    this.dispatch("REDO", { commands });
     this.isWaitingForUndoRedo = false;
   }
 }

@@ -1,7 +1,8 @@
-import { Model } from "../../src";
+import { Model, UIPlugin } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers";
-import { CommandResult } from "../../src/types";
+import { uiPluginRegistry } from "../../src/plugins";
+import { CommandResult, UpdateCellCommand } from "../../src/types";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import {
   addColumns,
@@ -572,5 +573,52 @@ describe("Collaborative local history", () => {
     const revisionId = alice.exportData().revisionId;
     snapshot(alice);
     expect(network.snapshot?.revisionId).not.toBe(revisionId);
+  });
+
+  test("undone & redone commands are transformed", () => {
+    class TestPlugin extends UIPlugin {}
+    uiPluginRegistry.add("test-plugin", TestPlugin);
+    const david = new Model(alice.exportData(), {
+      transportService: network,
+      client: { id: "david", name: "David" },
+    });
+    const elisa = new Model(alice.exportData(), {
+      transportService: network,
+      client: { id: "elisa", name: "Elisa" },
+    });
+    uiPluginRegistry.remove("test-plugin");
+    const command: UpdateCellCommand = {
+      type: "UPDATE_CELL",
+      col: 0,
+      row: 0,
+      sheetId: david.getters.getActiveSheetId(),
+      content: "hello",
+    };
+    network.concurrent(() => {
+      addColumns(alice, "before", "A", 1);
+      david.dispatch(command.type, command);
+    });
+    const pluginDavid = david["handlers"].find((handler) => handler instanceof TestPlugin)!;
+    const pluginElisa = elisa["handlers"].find((handler) => handler instanceof TestPlugin)!;
+    pluginDavid.handle = jest.fn((cmd) => {});
+    pluginElisa.handle = jest.fn((cmd) => {});
+    undo(david);
+    expect(pluginDavid.handle).toHaveBeenCalledWith({
+      type: "UNDO",
+      commands: [{ ...command, col: 1 }],
+    });
+    expect(pluginElisa.handle).toHaveBeenCalledWith({
+      type: "UNDO",
+      commands: [{ ...command, col: 1 }],
+    });
+    redo(david);
+    expect(pluginDavid.handle).toHaveBeenCalledWith({
+      type: "REDO",
+      commands: [{ ...command, col: 1 }],
+    });
+    expect(pluginElisa.handle).toHaveBeenCalledWith({
+      type: "REDO",
+      commands: [{ ...command, col: 1 }],
+    });
   });
 });
