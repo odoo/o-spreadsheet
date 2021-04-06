@@ -663,6 +663,14 @@ export interface RedoCommand extends BaseCommand {
   type: "REDO";
 }
 
+export interface RequestUndoCommand extends BaseCommand {
+  type: "REQUEST_UNDO";
+}
+
+export interface RequestRedoCommand extends BaseCommand {
+  type: "REQUEST_REDO";
+}
+
 export interface StartCommand extends BaseCommand {
   type: "START";
 }
@@ -877,6 +885,8 @@ export type CoreCommand =
   | UpdateChartCommand;
 
 export type LocalCommand =
+  | RequestUndoCommand
+  | RequestRedoCommand
   | UndoCommand
   | RedoCommand
   | NewInputCommand

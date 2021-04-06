@@ -104,12 +104,12 @@ describe("Menu Item actions", () => {
 
   test("Edit -> undo", () => {
     doAction(["edit", "undo"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("UNDO");
+    expect(env.dispatch).toHaveBeenCalledWith("REQUEST_UNDO");
   });
 
   test("Edit -> redo", () => {
     doAction(["edit", "redo"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("REDO");
+    expect(env.dispatch).toHaveBeenCalledWith("REQUEST_REDO");
   });
 
   test("Edit -> copy", () => {

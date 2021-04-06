@@ -644,7 +644,7 @@ describe("Resizer component", () => {
     );
     expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([]);
     // from the right
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([
       [1, 2, 3],
     ]);
@@ -701,7 +701,7 @@ describe("Resizer component", () => {
     );
     expect(model.getters.getHiddenRowsGroups(model.getters.getActiveSheetId())).toEqual([]);
     // from the right
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getHiddenRowsGroups(model.getters.getActiveSheetId())).toEqual([
       [1, 2, 3],
     ]);
