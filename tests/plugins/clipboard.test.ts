@@ -1262,22 +1262,15 @@ describe("clipboard: pasting outside of sheet", () => {
     expect(getCellText(model, "B1")).toBe("=1");
   });
 
-  test("Cut & paste a formula correctly update offsets", () => {
+  test("Cut & paste a formula update offsets only if the range is in the zone", () => {
     const model = new Model();
-    setCellContent(model, "A1", "=B2");
-    model.dispatch("CUT", { target: target("A1") });
+    setCellContent(model, "B1", "2");
+    setCellContent(model, "B2", "=B1");
+    setCellContent(model, "B3", "=B2");
+    model.dispatch("CUT", { target: target("B2:B3") });
     model.dispatch("PASTE", { target: target("C2") });
-    expect(getCellContent(model, "A1")).toBe("");
-    expect(getCellText(model, "C2")).toBe("=D3");
-  });
-
-  test("can paste multiple cells from os to outside of sheet", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "=B2");
-    model.dispatch("CUT", { target: target("A1") });
-    model.dispatch("PASTE", { target: target("C2") });
-    expect(getCellContent(model, "A1")).toBe("");
-    expect(getCellText(model, "C2")).toBe("=D3");
+    expect(getCellText(model, "C2")).toBe("=B1");
+    expect(getCellText(model, "C3")).toBe("=C2");
   });
 
   test("can paste multiple cells from os to outside of sheet", () => {

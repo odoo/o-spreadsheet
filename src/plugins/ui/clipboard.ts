@@ -1,4 +1,4 @@
-import { clip } from "../../helpers/index";
+import { clip, overlap } from "../../helpers/index";
 import { Mode } from "../../model";
 import { _lt } from "../../translation";
 import {
@@ -9,6 +9,7 @@ import {
   CommandResult,
   GridRenderingContext,
   LAYERS,
+  Range,
   Sheet,
   Style,
   UID,
@@ -466,13 +467,25 @@ export class ClipboardPlugin extends UIPlugin {
       } else if (!onlyFormat && origin.type === CellType.formula) {
         const offsetX = col - originCol;
         const offsetY = row - originRow;
-        const ranges = this.getters.createAdaptedRanges(
-          origin.dependencies,
-          offsetX,
-          offsetY,
-          sheetId
-        );
-        content = this.getters.buildFormulaContent(sheetId, origin.formula.text, ranges);
+        if (this.shouldCut) {
+          const ranges: Range[] = [];
+          for (const range of origin.dependencies) {
+            if (this.isZoneOverlapClippedZone(range.zone)) {
+              ranges.push(...this.getters.createAdaptedRanges([range], offsetX, offsetY, sheetId));
+            } else {
+              ranges.push(range);
+            }
+          }
+          content = this.getters.buildFormulaContent(sheetId, origin.formula.text, ranges);
+        } else {
+          const ranges = this.getters.createAdaptedRanges(
+            origin.dependencies,
+            offsetX,
+            offsetY,
+            sheetId
+          );
+          content = this.getters.buildFormulaContent(sheetId, origin.formula.text, ranges);
+        }
       }
       const newCell = {
         style,
@@ -509,6 +522,16 @@ export class ClipboardPlugin extends UIPlugin {
         });
       }
     }
+  }
+
+  /**
+   * Check if the given zone and at least one of the clipped zones overlap
+   */
+  private isZoneOverlapClippedZone(zone: Zone): boolean {
+    return this.zones.reduce(
+      (isOverlapping, clippedZone) => isOverlapping || overlap(zone, clippedZone),
+      false
+    );
   }
 
   private valueToContent(cellValue: any): string {
