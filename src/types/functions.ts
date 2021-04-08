@@ -7,7 +7,8 @@ export type ArgType =
   | "RANGE"
   | "RANGE<BOOLEAN>"
   | "RANGE<NUMBER>"
-  | "RANGE<STRING>";
+  | "RANGE<STRING>"
+  | "RANGE<DATE>";
 
 export interface Arg {
   repeating?: boolean;

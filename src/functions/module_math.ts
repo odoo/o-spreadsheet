@@ -406,7 +406,7 @@ export const COUNTIFS: FunctionDescription = {
   args: args(`
     criteria_range (any, range) ${_lt("The range to check against criterion1.")}
     criterion (string) ${_lt("The pattern or test to apply to criteria_range1.")}
-    additional_values (any, optional, repeating) ${_lt(
+    additional_values (any, range, optional, repeating) ${_lt(
       "Additional criteria_range and criterion to check."
     )}
   `),
@@ -470,7 +470,7 @@ export const COUNTUNIQUEIFS: FunctionDescription = {
     criterion1 (string) ${_lt(
       "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
     )}
-    additional_values (any, optional, repeating) ${_lt(
+    additional_values (any, range, optional, repeating) ${_lt(
       "Additional criteria_range and criterion to check."
     )}
   `),
@@ -1174,7 +1174,7 @@ export const SUMIFS: FunctionDescription = {
       sum_range (any, range) ${_lt("The range to sum.")}
       criteria_range1 (any, range) ${_lt("The range to check against criterion1.")}
       criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
-      additional_values (any, optional, repeating) ${_lt(
+      additional_values (any, range, optional, repeating) ${_lt(
         "Additional criteria_range and criterion to check."
       )}
     `),
