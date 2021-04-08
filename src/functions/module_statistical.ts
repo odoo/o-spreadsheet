@@ -315,7 +315,7 @@ export const AVERAGEIFS: FunctionDescription = {
       average_range (any, range) ${_lt("The range to average.")}
       criteria_range1 (any, range) ${_lt("The range to check against criterion1.")}
       criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
-      additional_values (any, optional, repeating) ${_lt(
+      additional_values (any, range, optional, repeating) ${_lt(
         "Additional criteria_range and criterion to check."
       )}
     `),
@@ -505,7 +505,7 @@ export const MAXA: FunctionDescription = {
       value1 (any, range) ${_lt(
         "The first value or range to consider when calculating the maximum value."
       )}
-      value2 (ant, range, optional, repeating) ${_lt(
+      value2 (any, range, optional, repeating) ${_lt(
         "Additional values or ranges to consider when calculating the maximum value."
       )}
     `),
@@ -533,7 +533,7 @@ export const MAXIFS: FunctionDescription = {
       criterion1 (string) ${_lt(
         "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
       )}
-      additional_values (any, optional, repeating) ${_lt(
+      additional_values (any, range, optional, repeating) ${_lt(
         "Additional criteria_range and criterion to check."
       )}
     `),
@@ -613,7 +613,7 @@ export const MINIFS: FunctionDescription = {
       criterion1 (string) ${_lt(
         "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
       )}
-      additional_values (any, optional, repeating) ${_lt(
+      additional_values (any, range, optional, repeating) ${_lt(
         "Additional criteria_range and criterion to check."
       )}
     `),

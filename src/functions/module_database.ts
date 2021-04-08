@@ -111,13 +111,13 @@ function getMatchingCells(database: any, field: any, criteria: any): any[] {
 }
 
 const databaseArgs = args(`
-  database (array) ${_lt(
+  database (range) ${_lt(
     "The array or range containing the data to consider, structured in such a way that the first row contains the labels for each column's values."
   )}
   field (any) ${_lt(
     "Indicates which column in database contains the values to be extracted and operated on."
   )}
-  criteria (array) ${_lt(
+  criteria (range) ${_lt(
     "An array or range containing zero or more criteria to filter the database values by before operating."
   )}
 `);

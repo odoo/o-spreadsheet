@@ -71,26 +71,6 @@ export function compile(
     const args = ast.args;
     let argDescr: Arg;
 
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i];
-      argDescr = fn.args[i] || argDescr!;
-      const isLazy = argDescr && argDescr.lazy;
-      let argValue = compileAST(arg, isLazy);
-      if (arg.type === "REFERENCE") {
-        const types = argDescr.type;
-        const hasRange = types.find(
-          (t) =>
-            t === "RANGE" ||
-            t === "RANGE<BOOLEAN>" ||
-            t === "RANGE<NUMBER>" ||
-            t === "RANGE<STRING>"
-        );
-        if (hasRange) {
-          argValue = `[[${argValue}]]`;
-        }
-      }
-      result.push(argValue);
-    }
     const isRepeating = fn.args.length ? fn.args[fn.args.length - 1].repeating : false;
     let minArg = 0;
     let maxArg = isRepeating ? Infinity : fn.args.length;
@@ -99,15 +79,72 @@ export function compile(
         minArg++;
       }
     }
-    if (result.length < minArg || result.length > maxArg) {
+    if (args.length < minArg || args.length > maxArg) {
       throw new Error(
         _lt(
           "Invalid number of arguments for the %s function. Expected %s, but got %s instead.",
           ast.value.toUpperCase(),
           fn.args.length.toString(),
-          result.length.toString()
+          args.length.toString()
         )
       );
+    }
+
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i];
+      argDescr = fn.args[i] || argDescr!;
+      const isLazy = argDescr && argDescr.lazy;
+      const types = (argDescr && argDescr.type) || [];
+      const hasRange = types.find(
+        (t) =>
+          t === "RANGE" ||
+          t === "RANGE<BOOLEAN>" ||
+          t === "RANGE<DATE>" ||
+          t === "RANGE<NUMBER>" ||
+          t === "RANGE<STRING>"
+      );
+      if (["BOOLEAN", "NUMBER", "STRING"].includes(arg.type)) {
+        const isRangeOnly = types.every(
+          (t) =>
+            t === "RANGE" ||
+            t === "RANGE<BOOLEAN>" ||
+            t === "RANGE<DATE>" ||
+            t === "RANGE<NUMBER>" ||
+            t === "RANGE<STRING>"
+        );
+        if (isRangeOnly) {
+          throw new Error(
+            _lt(
+              "Function %s expects the parameter %s to be reference to a cell or range, not a %s.",
+              ast.value.toUpperCase(),
+              (i + 1).toString(),
+              arg.type.toLowerCase()
+            )
+          );
+        }
+      } else if (
+        // a range of more than 1 cell
+        arg.type === "BIN_OPERATION" &&
+        arg.value === ":" &&
+        arg.left.value !== arg.right.value
+      ) {
+        if (!hasRange) {
+          throw new Error(
+            _lt(
+              "Function %s expects the parameter %s to be a single value or a single cell reference, not a range.",
+              ast.value.toUpperCase(),
+              (i + 1).toString()
+            )
+          );
+        }
+      }
+      let argValue = compileAST(arg, isLazy);
+      if (arg.type === "REFERENCE") {
+        if (hasRange) {
+          argValue = `[[${argValue}]]`;
+        }
+      }
+      result.push(argValue);
     }
     return result;
   }

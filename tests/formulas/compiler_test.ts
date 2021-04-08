@@ -1,6 +1,7 @@
 import { compile } from "../../src/formulas";
 import { functionCache } from "../../src/formulas/compiler";
 import { functionRegistry } from "../../src/functions/index";
+import { ArgType } from "../../src/types";
 import { evaluateCell } from "../helpers";
 
 function compiledBaseFunction(formula: string): string {
@@ -132,6 +133,71 @@ describe("compile functions", () => {
       expect(() => compiledBaseFunction("=REPEATABLE(1)")).not.toThrow();
       expect(() => compiledBaseFunction("=REPEATABLE(1,2)")).not.toThrow();
       expect(() => compiledBaseFunction("=REPEATABLE(1,2,3,4,5,6)")).not.toThrow();
+    });
+  });
+
+  describe("check type of arguments", () => {
+    test("reject non-range argument when expecting only range argument", () => {
+      functionRegistry.add("RANGEEXPECTED", {
+        description: "function expect number in 1st arg",
+        compute: (arg) => {
+          return true;
+        },
+        args: [{ name: "arg1", description: "", type: ["RANGE"] }],
+        returns: ["ANY"],
+      });
+      expect(() => compiledBaseFunction("=RANGEEXPECTED(42)")).toThrowError(
+        "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a number."
+      );
+      expect(() => compiledBaseFunction('=RANGEEXPECTED("test")')).toThrowError(
+        "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a string."
+      );
+      expect(() => compiledBaseFunction("=RANGEEXPECTED(TRUE)")).toThrowError(
+        "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a boolean."
+      );
+
+      expect(() => compiledBaseFunction("=RANGEEXPECTED(A1)")).not.toThrow();
+      expect(() => compiledBaseFunction("=RANGEEXPECTED(A1:A1)")).not.toThrow();
+      expect(() => compiledBaseFunction("=RANGEEXPECTED(A1:A2)")).not.toThrow();
+      expect(() => compiledBaseFunction("=RANGEEXPECTED(A1:A$2)")).not.toThrow();
+      expect(() => compiledBaseFunction("=RANGEEXPECTED(sheet2!A1:A$2)")).not.toThrow();
+    });
+
+    test("reject range when expecting only non-range argument", () => {
+      for (let typeExpected of ["ANY", "BOOLEAN", "DATE", "NUMBER", "STRING"] as ArgType[]) {
+        functionRegistry.add(typeExpected + "EXPECTED", {
+          description: "function expect number in 1st arg",
+          compute: (arg) => {
+            return true;
+          },
+          args: [{ name: "arg1", description: "", type: [typeExpected] }],
+          returns: ["ANY"],
+        });
+      }
+
+      expect(() => compiledBaseFunction("=ANYEXPECTED(A1:A2)")).toThrowError(
+        "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
+      );
+      expect(() => compiledBaseFunction("=BOOLEANEXPECTED(A1:A2)")).toThrowError(
+        "Function BOOLEANEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
+      );
+      expect(() => compiledBaseFunction("=DATEEXPECTED(A1:A2)")).toThrowError(
+        "Function DATEEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
+      );
+      expect(() => compiledBaseFunction("=NUMBEREXPECTED(A1:A2)")).toThrowError(
+        "Function NUMBEREXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
+      );
+      expect(() => compiledBaseFunction("=STRINGEXPECTED(A1:A2)")).toThrowError(
+        "Function STRINGEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
+      );
+
+      expect(() => compiledBaseFunction("=ANYEXPECTED(A1:A$2)")).toThrowError(
+        "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
+      );
+      expect(() => compiledBaseFunction("=ANYEXPECTED(sheet2!A1:A$2)")).toThrowError(
+        "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
+      );
+      expect(() => compiledBaseFunction("=ANYEXPECTED(A1:A1)")).not.toThrow();
     });
   });
 
