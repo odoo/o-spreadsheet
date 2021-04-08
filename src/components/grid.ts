@@ -35,7 +35,7 @@ import { ScrollBar } from "./scrollbar";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
-const { useRef, onMounted, onWillUnmount } = owl.hooks;
+const { useRef, onMounted, onWillUnmount, useExternalListener } = owl.hooks;
 export type ContextMenuType = "ROW" | "COL" | "CELL";
 
 const registries = {
@@ -342,19 +342,15 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.vScrollbar = new ScrollBar(this.vScrollbarRef.el, "vertical");
     this.hScrollbar = new ScrollBar(this.hScrollbarRef.el, "horizontal");
     useTouchMove(this.moveCanvas.bind(this), () => this.vScrollbar.scroll > 0);
+    useExternalListener(window, "resize", this.resizeGrid.bind(this));
   }
 
   mounted() {
     this.vScrollbar.el = this.vScrollbarRef.el!;
     this.hScrollbar.el = this.hScrollbarRef.el!;
-    window.addEventListener("resize", this.resizeGrid.bind(this));
     this.focus();
     this.resizeGrid();
     this.drawGrid();
-  }
-
-  onWillUnmount() {
-    () => window.removeEventListener("resize", this.resizeGrid);
   }
 
   patched() {

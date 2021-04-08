@@ -598,4 +598,9 @@ describe("Events on Grid update viewport correctly", () => {
       right: 10,
     });
   });
+
+  test("resize event handler is removed", () => {
+    parent.destroy();
+    window.dispatchEvent(new Event("resize"));
+  });
 });
