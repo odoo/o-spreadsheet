@@ -105,6 +105,16 @@ topbarMenuRegistry
     sequence: 90,
     action: ACTIONS.REMOVE_COLUMNS_ACTION,
   })
+  .addChild("edit_delete_cell_shift_up", ["edit"], {
+    name: _lt("Delete cell and shift up"),
+    sequence: 93,
+    action: ACTIONS.DELETE_CELL_SHIFT_UP,
+  })
+  .addChild("edit_delete_cell_shift_left", ["edit"], {
+    name: _lt("Delete cell and shift left"),
+    sequence: 97,
+    action: ACTIONS.DELETE_CELL_SHIFT_LEFT,
+  })
   .addChild("edit_unhide_columns", ["edit"], {
     name: _lt("Unhide all columns"),
     sequence: 100,
@@ -143,6 +153,17 @@ topbarMenuRegistry
     sequence: 40,
     action: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
     isVisible: (env: SpreadsheetEnv) => env.getters.getActiveRows().size === 0,
+    separator: true,
+  })
+  .addChild("insert_insert_cell_shift_down", ["insert"], {
+    name: _lt("Insert cells and shift down"),
+    sequence: 43,
+    action: ACTIONS.INSERT_CELL_SHIFT_DOWN,
+  })
+  .addChild("insert_insert_cell_shift_right", ["insert"], {
+    name: _lt("Insert cells and shift right"),
+    sequence: 47,
+    action: ACTIONS.INSERT_CELL_SHIFT_RIGHT,
     separator: true,
   })
   .addChild("insert_chart", ["insert"], {

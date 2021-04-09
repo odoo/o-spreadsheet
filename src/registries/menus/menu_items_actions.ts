@@ -82,10 +82,10 @@ export const PASTE_ACTION = async (env: SpreadsheetEnv) => {
 };
 
 export const PASTE_VALUE_ACTION = (env: SpreadsheetEnv) =>
-  env.dispatch("PASTE", { target: env.getters.getSelectedZones(), onlyValue: true });
+  env.dispatch("PASTE", { target: env.getters.getSelectedZones(), pasteOption: "onlyValue" });
 
 export const PASTE_FORMAT_ACTION = (env: SpreadsheetEnv) =>
-  env.dispatch("PASTE", { target: env.getters.getSelectedZones(), onlyFormat: true });
+  env.dispatch("PASTE", { target: env.getters.getSelectedZones(), pasteOption: "onlyFormat" });
 
 export const DELETE_CONTENT_ACTION = (env: SpreadsheetEnv) =>
   env.dispatch("DELETE_CONTENT", {
@@ -230,6 +230,26 @@ export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
     dimension: "COL",
     elements: columns,
   });
+};
+
+export const INSERT_CELL_SHIFT_DOWN = (env: SpreadsheetEnv) => {
+  const zone = env.getters.getSelectedZone();
+  env.dispatch("INSERT_CELL", { shiftDimension: "ROW", zone });
+};
+
+export const INSERT_CELL_SHIFT_RIGHT = (env: SpreadsheetEnv) => {
+  const zone = env.getters.getSelectedZone();
+  env.dispatch("INSERT_CELL", { shiftDimension: "COL", zone });
+};
+
+export const DELETE_CELL_SHIFT_UP = (env: SpreadsheetEnv) => {
+  const zone = env.getters.getSelectedZone();
+  env.dispatch("DELETE_CELL", { shiftDimension: "ROW", zone });
+};
+
+export const DELETE_CELL_SHIFT_LEFT = (env: SpreadsheetEnv) => {
+  const zone = env.getters.getSelectedZone();
+  env.dispatch("DELETE_CELL", { shiftDimension: "COL", zone });
 };
 
 export const MENU_INSERT_ROWS_BEFORE_NAME = (env: SpreadsheetEnv) => {

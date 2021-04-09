@@ -48,14 +48,14 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         }
         break;
       case "PASTE_CELL":
-        if (!cmd.onlyValue) {
+        if (cmd.pasteOption !== "onlyValue") {
           this.pasteCf(
-            cmd.originCol,
-            cmd.originRow,
-            cmd.col,
-            cmd.row,
-            cmd.originSheet,
-            cmd.sheetId,
+            cmd.origin.position.col,
+            cmd.origin.position.row,
+            cmd.position.col,
+            cmd.position.row,
+            cmd.origin.position.sheetId,
+            cmd.position.sheetId,
             cmd.cut
           );
         }
@@ -71,6 +71,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       case "UPDATE_CELL":
       case "UNDO":
       case "REDO":
+      case "DELETE_CELL":
+      case "INSERT_CELL":
         this.isStale = true;
         break;
     }

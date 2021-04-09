@@ -69,7 +69,21 @@ cellMenuRegistry
     name: ACTIONS.CELL_INSERT_COLUMNS_BEFORE_NAME,
     sequence: 90,
     action: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
+  })
+  .add("insert_cell", {
+    name: _lt("Insert cells"),
+    sequence: 100,
     separator: true,
+  })
+  .addChild("insert_cell_down", ["insert_cell"], {
+    name: _lt("Shift down"),
+    sequence: 10,
+    action: ACTIONS.INSERT_CELL_SHIFT_DOWN,
+  })
+  .addChild("insert_cell_right", ["insert_cell"], {
+    name: _lt("Shift right"),
+    sequence: 20,
+    action: ACTIONS.INSERT_CELL_SHIFT_RIGHT,
   })
   .add("delete_row", {
     name: ACTIONS.REMOVE_ROWS_NAME,
@@ -80,7 +94,21 @@ cellMenuRegistry
     name: ACTIONS.REMOVE_COLUMNS_NAME,
     sequence: 120,
     action: ACTIONS.REMOVE_COLUMNS_ACTION,
+  })
+  .add("delete_cell", {
+    name: _lt("Delete cells"),
+    sequence: 125,
     separator: true,
+  })
+  .addChild("delete_cell_up", ["delete_cell"], {
+    name: _lt("Shift up"),
+    sequence: 10,
+    action: ACTIONS.DELETE_CELL_SHIFT_UP,
+  })
+  .addChild("delete_cell_down", ["delete_cell"], {
+    name: _lt("Shift left"),
+    sequence: 20,
+    action: ACTIONS.DELETE_CELL_SHIFT_LEFT,
   })
   .add("clear_cell", {
     name: _lt("Clear cell"),

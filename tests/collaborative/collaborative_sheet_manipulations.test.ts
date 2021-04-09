@@ -5,6 +5,7 @@ import {
   addColumns,
   addRows,
   createSheet,
+  deleteCells,
   deleteColumns,
   deleteRows,
   hideColumns,
@@ -14,7 +15,7 @@ import {
   unhideColumns,
   unhideRows,
 } from "../test_helpers/commands_helpers";
-import { getCell } from "../test_helpers/getters_helpers";
+import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { createEqualCF } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
@@ -417,6 +418,18 @@ describe("Collaborative Sheet manipulation", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getHiddenColsGroups(sheetId),
       toNumbers([["B"], ["D"]])
+    );
+  });
+
+  test("Delete cells on columns deleted", () => {
+    setCellContent(alice, "F1", "hello");
+    network.concurrent(() => {
+      deleteColumns(alice, ["D"]);
+      deleteCells(bob, "C1:E1", "left");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "C1"),
+      "hello"
     );
   });
 

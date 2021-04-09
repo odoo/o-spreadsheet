@@ -156,7 +156,7 @@ describe("Menu Item actions", () => {
     doAction(["edit", "paste_special", "paste_special_value"], env);
     expect(env.dispatch).toHaveBeenCalledWith("PASTE", {
       target: env.getters.getSelectedZones(),
-      onlyValue: true,
+      pasteOption: "onlyValue",
     });
   });
 
@@ -164,7 +164,7 @@ describe("Menu Item actions", () => {
     doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(env.dispatch).toHaveBeenCalledWith("PASTE", {
       target: env.getters.getSelectedZones(),
-      onlyFormat: true,
+      pasteOption: "onlyFormat",
     });
   });
 
