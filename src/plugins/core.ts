@@ -867,7 +867,7 @@ export class CorePlugin extends BasePlugin {
           cell.async = cell.formula.async;
         } catch (e) {
           cell.value = "#BAD_EXPR";
-          cell.error = _lt("Invalid Expression");
+          cell.error = e.message || _lt("Invalid Expression");
         }
       }
     }
