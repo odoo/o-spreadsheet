@@ -71,7 +71,7 @@ export class ClipboardPlugin extends UIPlugin {
         this._isPaintingFormat = false;
         this.pasteOnlyFormat = !this.pasteOnlyValue && onlyFormat;
         if (cmd.interactive) {
-          this.interactivePaste(cmd.target);
+          this.interactivePaste(cmd.target, !!cmd.onlyFormat, !!cmd.onlyValue);
         } else {
           this.pasteFromModel(cmd.target);
         }
@@ -547,8 +547,8 @@ export class ClipboardPlugin extends UIPlugin {
     }
   }
 
-  interactivePaste(target: Zone[]) {
-    const result = this.dispatch("PASTE", { target, onlyFormat: false });
+  interactivePaste(target: Zone[], onlyFormat: boolean, onlyValue: boolean) {
+    const result = this.dispatch("PASTE", { target, onlyFormat, onlyValue });
 
     if (result !== CommandResult.Success) {
       if (result === CommandResult.WrongPasteSelection) {
@@ -557,7 +557,7 @@ export class ClipboardPlugin extends UIPlugin {
       if (result === CommandResult.WillRemoveExistingMerge) {
         this.ui.askConfirmation(
           _lt("Pasting here will remove existing merge(s). Paste anyway?"),
-          () => this.dispatch("PASTE", { target, onlyFormat: false, force: true })
+          () => this.dispatch("PASTE", { target, onlyFormat, onlyValue, force: true })
         );
       }
     }
