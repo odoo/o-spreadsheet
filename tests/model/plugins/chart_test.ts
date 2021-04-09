@@ -419,6 +419,24 @@ describe("datasource tests", function () {
   test.skip("extend data set labels to new values manually", () => {});
 });
 
+test("Chart is deleted on sheet deletion", () => {
+  model.dispatch("CREATE_SHEET", { id: "2" });
+  model.dispatch("CREATE_CHART", {
+    id: "1",
+    sheetId: "2",
+    definition: {
+      title: "test 1",
+      dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+      seriesHasTitle: true,
+      labelRange: "Sheet1!A2:A4",
+      type: "line",
+    },
+  });
+  expect(model.getters.getChartRuntime("1")).not.toBeUndefined();
+  model.dispatch("DELETE_SHEET", { sheet: "2" });
+  expect(model.getters.getChartRuntime("1")).toBeUndefined();
+});
+
 describe.skip("title", function () {
   test("delete a title column", () => {});
   test("change title manually", () => {});

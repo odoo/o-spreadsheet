@@ -119,6 +119,19 @@ export class ChartPlugin extends BasePlugin {
           this.history.updateLocalState(["chartRuntime", cmd.id], undefined);
         }
         break;
+      case "DELETE_SHEET":
+        const figures = new Set(this.chartFigures);
+        const runtime = { ...this.chartRuntime };
+        for (let figureId of this.chartFigures) {
+          const figure = this.getters.getFigure(figureId);
+          if (!figure) {
+            figures.delete(figureId);
+            delete runtime[figureId];
+          }
+        }
+        this.history.updateLocalState(["chartFigures"], figures);
+        this.history.updateLocalState(["chartRuntime"], runtime);
+        break;
       case "UPDATE_CELL":
         for (let chartId of this.chartFigures) {
           const chart = this.getChartDefinition(chartId);
