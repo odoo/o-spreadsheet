@@ -389,6 +389,28 @@ describe("clipboard", () => {
     expect(askConfirmation).toHaveBeenCalled();
   });
 
+  test("Pasting content interactive correctly keep flags", async () => {
+    const model = new Model();
+    const style = { fontSize: 42 };
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "=42");
+    model.dispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, style });
+
+    model.dispatch("COPY", { target: target("A1") });
+    model.dispatch("PASTE", { target: target("B1"), interactive: true, onlyFormat: true });
+    model.dispatch("PASTE", { target: target("B2"), interactive: true, onlyValue: true });
+    model.dispatch("PASTE", { target: target("B3"), interactive: true });
+
+    expect(getCellText(model, "B1")).toBe("");
+    expect(getCell(model, "B1")!.style).toEqual(style);
+
+    expect(getCellText(model, "B2")).toBe("42");
+    expect(getCell(model, "B2")!.style).toBeUndefined();
+
+    expect(getCellText(model, "B3")).toBe("=42");
+    expect(getCell(model, "B3")!.style).toEqual(style);
+  });
+
   test("Pasting content that will destroy a merge will fail if not forced", async () => {
     const model = new Model({
       sheets: [
