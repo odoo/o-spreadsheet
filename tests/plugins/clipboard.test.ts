@@ -14,7 +14,7 @@ import { createEqualCF, getGrid, target } from "../test_helpers/helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
-  return clipboardPlugin.status === "visible" ? clipboardPlugin.zones : [];
+  return clipboardPlugin.status === "visible" ? clipboardPlugin.clippedZones : [];
 }
 
 describe("clipboard", () => {

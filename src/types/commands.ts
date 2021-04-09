@@ -8,7 +8,7 @@ import {
   Style,
   Zone,
 } from "./index";
-import { Border, Cell, Dimension, UID } from "./misc";
+import { Border, Cell, CellPosition, ClipboardCell, Dimension, UID } from "./misc";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -365,14 +365,8 @@ export interface PasteCommand extends BaseCommand {
 
 export interface PasteCellCommand extends BaseCommand {
   type: "PASTE_CELL";
-  origin: Cell | null;
-  originSheet: UID;
-  originBorder: Border | null;
-  originCol: number;
-  originRow: number;
-  col: number;
-  row: number;
-  sheetId: UID;
+  origin: ClipboardCell;
+  position: CellPosition;
   cut?: boolean;
   onlyValue: boolean;
   onlyFormat: boolean;

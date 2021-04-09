@@ -50,12 +50,12 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       case "PASTE_CELL":
         if (!cmd.onlyValue) {
           this.pasteCf(
-            cmd.originCol,
-            cmd.originRow,
-            cmd.col,
-            cmd.row,
-            cmd.originSheet,
-            cmd.sheetId,
+            cmd.origin.position.col,
+            cmd.origin.position.row,
+            cmd.position.col,
+            cmd.position.row,
+            cmd.origin.position.sheetId,
+            cmd.position.sheetId,
             cmd.cut
           );
         }
