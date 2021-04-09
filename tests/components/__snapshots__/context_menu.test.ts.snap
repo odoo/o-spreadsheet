@@ -114,6 +114,27 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </span>
   </div>
   <div
+    class="o-menu-item o-menu-root"
+    data-name="insert_cell"
+    title="Insert cells"
+  >
+    Insert cells
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
+    <svg
+      class="o-icon"
+    >
+      <polygon
+        fill="#000000"
+        points="0 0 4 4 0 8"
+        transform="translate(5 3)"
+      />
+    </svg>
+  </div>
+  <div
     class="o-separator"
   />
   <div
@@ -139,6 +160,27 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
+  </div>
+  <div
+    class="o-menu-item o-menu-root"
+    data-name="delete_cell"
+    title="Delete cells"
+  >
+    Delete cells
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
+    <svg
+      class="o-icon"
+    >
+      <polygon
+        fill="#000000"
+        points="0 0 4 4 0 8"
+        transform="translate(5 3)"
+      />
+    </svg>
   </div>
   <div
     class="o-separator"

@@ -14,7 +14,7 @@ import { createEqualCF, getGrid, target } from "../test_helpers/helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
-  return clipboardPlugin.status === "visible" ? clipboardPlugin.zones : [];
+  return clipboardPlugin.status === "visible" ? clipboardPlugin.state.zones : [];
 }
 
 describe("clipboard", () => {
@@ -60,7 +60,8 @@ describe("clipboard", () => {
   test("paste zones without copied value", () => {
     const model = new Model();
     const zones = [toZone("A1"), toZone("B2")];
-    const pasteZone = model.getters.getPasteZones(zones);
+    const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
+    const pasteZone = clipboardPlugin.getPasteZones(zones, []);
     expect(pasteZone).toEqual(zones);
   });
 
@@ -397,8 +398,8 @@ describe("clipboard", () => {
     model.dispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, style });
 
     model.dispatch("COPY", { target: target("A1") });
-    model.dispatch("PASTE", { target: target("B1"), interactive: true, onlyFormat: true });
-    model.dispatch("PASTE", { target: target("B2"), interactive: true, onlyValue: true });
+    model.dispatch("PASTE", { target: target("B1"), interactive: true, pasteOption: "onlyFormat" });
+    model.dispatch("PASTE", { target: target("B2"), interactive: true, pasteOption: "onlyValue" });
     model.dispatch("PASTE", { target: target("B3"), interactive: true });
 
     expect(getCellText(model, "B1")).toBe("");
@@ -712,7 +713,7 @@ describe("clipboard", () => {
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], onlyFormat: true });
+    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyFormat" });
     expect(getCellContent(model, "C2")).toBe("");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
   });
@@ -729,7 +730,7 @@ describe("clipboard", () => {
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], onlyFormat: true });
+    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyFormat" });
     expect(getCellContent(model, "C2")).toBe("");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
   });
@@ -747,7 +748,7 @@ describe("clipboard", () => {
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], onlyFormat: true });
+    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyFormat" });
 
     expect(getCellContent(model, "C2")).toBe("c2");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
@@ -763,7 +764,7 @@ describe("clipboard", () => {
       style: { bold: true },
     });
     model.dispatch("COPY", { target: [toZone("B2:B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], onlyFormat: true });
+    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyFormat" });
 
     expect(getCellContent(model, "C2")).toBe("");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
@@ -777,7 +778,7 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
     model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], onlyValue: true });
+    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyValue" });
     expect(getCellContent(model, "C2")).toBe("b2");
   });
 
@@ -793,7 +794,7 @@ describe("clipboard", () => {
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], onlyValue: true });
+    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyValue" });
 
     expect(getCell(model, "C2")!.value).toBe("b2");
     expect(getCell(model, "C2")!.style).not.toBeDefined();
@@ -811,7 +812,7 @@ describe("clipboard", () => {
     expect(getBorder(model, "B2")).toEqual({ bottom: ["thin", "#000"] });
 
     model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], onlyValue: true });
+    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyValue" });
 
     expect(getCell(model, "C2")!.value).toBe("b2");
     expect(getBorder(model, "C2")).toBeNull();
@@ -829,7 +830,7 @@ describe("clipboard", () => {
     expect(getCellContent(model, "B2")).toBe("45.10%");
 
     model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], onlyValue: true });
+    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyValue" });
 
     expect(getCellContent(model, "C2")).toBe("0.451");
   });
@@ -855,9 +856,9 @@ describe("clipboard", () => {
 
     expect(result).toEqual(CommandResult.Success);
     model.dispatch("COPY", { target: target("A1") });
-    model.dispatch("PASTE", { target: target("C1"), onlyValue: true });
+    model.dispatch("PASTE", { target: target("C1"), pasteOption: "onlyValue" });
     model.dispatch("COPY", { target: target("A2") });
-    model.dispatch("PASTE", { target: target("C2"), onlyValue: true });
+    model.dispatch("PASTE", { target: target("C2"), pasteOption: "onlyValue" });
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
       fillColor: "#FF0000",
     });
@@ -879,7 +880,7 @@ describe("clipboard", () => {
     expect(getCell(model, "C3")!.style).toEqual({ bold: true });
 
     model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C3")], onlyValue: true });
+    model.dispatch("PASTE", { target: [toZone("C3")], pasteOption: "onlyValue" });
 
     expect(getCellContent(model, "C3")).toBe("b2");
     expect(getCell(model, "C3")!.style).toEqual({ bold: true });
@@ -899,7 +900,7 @@ describe("clipboard", () => {
     expect(getBorder(model, "C4")).toEqual({ top: ["thin", "#000"] });
 
     model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C3")], onlyValue: true });
+    model.dispatch("PASTE", { target: [toZone("C3")], pasteOption: "onlyValue" });
 
     expect(getCellContent(model, "C3")).toBe("b2");
     expect(getBorder(model, "C3")).toEqual({ bottom: ["thin", "#000"] });
@@ -918,7 +919,7 @@ describe("clipboard", () => {
     expect(getCellContent(model, "C3")).toBe("45.10%");
 
     model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C3")], onlyValue: true });
+    model.dispatch("PASTE", { target: [toZone("C3")], pasteOption: "onlyValue" });
 
     expect(getCellContent(model, "C3")).toBe("4200.00%");
   });
@@ -929,7 +930,7 @@ describe("clipboard", () => {
     setCellContent(model, "A2", "=EQ(42,42)");
     setCellContent(model, "A3", '=CONCAT("Ki","kou")');
     model.dispatch("COPY", { target: [toZone("A1:A3")] });
-    model.dispatch("PASTE", { target: [toZone("B1")], onlyValue: true });
+    model.dispatch("PASTE", { target: [toZone("B1")], pasteOption: "onlyValue" });
     expect(getCellContent(model, "B1")).toBe("3");
     expect(getCellContent(model, "B2")).toBe("TRUE");
     expect(getCellContent(model, "B3")).toBe("Kikou");
@@ -945,7 +946,7 @@ describe("clipboard", () => {
       style: { bold: true },
     });
     model.dispatch("COPY", { target: [toZone("B2:B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], onlyValue: true });
+    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyValue" });
 
     expect(getCellContent(model, "C2")).toBe("b2");
     expect(getCell(model, "C2")!.style).not.toBeDefined();
@@ -1003,7 +1004,7 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: [toZone("A1")] });
 
     // select B2 and paste format
-    model.dispatch("PASTE", { target: [toZone("B2")], onlyFormat: true });
+    model.dispatch("PASTE", { target: [toZone("B2")], pasteOption: "onlyFormat" });
 
     expect(getCellContent(model, "B2")).toBe("b2");
     expect(getCell(model, "B2")!.style).not.toBeDefined();

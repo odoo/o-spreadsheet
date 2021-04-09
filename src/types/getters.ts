@@ -66,7 +66,6 @@ export interface CoreGetters {
 
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
-  getPasteZones: ClipboardPlugin["getPasteZones"];
 
   expandZone: MergePlugin["expandZone"];
   isInMerge: MergePlugin["isInMerge"];

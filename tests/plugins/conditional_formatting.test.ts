@@ -6,6 +6,7 @@ import {
   addColumns,
   addRows,
   createSheet,
+  deleteCells,
   deleteColumns,
   deleteRows,
   redo,
@@ -1298,6 +1299,21 @@ describe("conditional formats types", () => {
         sheetId: model.getters.getActiveSheetId(),
       });
       expect(true).toBeTruthy(); // no error
+    });
+
+    test("CF is not updated with insert/delete cells", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createColorScale(
+          "1",
+          { type: "value", color: 0xff00ff },
+          { type: "value", color: 0x123456 }
+        ),
+        target: [toZone("A1:A10")],
+        sheetId,
+      });
+      deleteCells(model, "A2:A3", "up");
+      expect(model.getters.getConditionalFormats(sheetId)[0].ranges[0]).toBe("A1:A10");
     });
   });
   describe("icon scale", () => {});

@@ -11,11 +11,16 @@ import {
   addColumns,
   addRows,
   createSheet,
+  deleteCells,
   deleteColumns,
   deleteRows,
   hideColumns,
   hideRows,
+  insertCells,
+  merge,
   redo,
+  selectCell,
+  setCellContent,
   undo,
   unhideColumns,
   unhideRows,
@@ -31,6 +36,8 @@ import {
   getMergeCellMap,
   makeTestFixture,
   mockUuidV4To,
+  target,
+  testUndoRedo,
   toPosition,
   XCToMergeCellMap,
 } from "../test_helpers/helpers";
@@ -1855,5 +1862,193 @@ describe("Rows", () => {
         name: "5",
       });
     });
+  });
+});
+
+describe("Delete cell", () => {
+  let model: Model;
+  beforeEach(() => {
+    model = new Model();
+  });
+
+  test("Do not move cell positioned before the deleted ones", () => {
+    setCellContent(model, "B2", "B2");
+    deleteCells(model, "C3", "left");
+    expect(getCellContent(model, "B2", "B2"));
+    deleteCells(model, "C3", "up");
+    expect(getCellContent(model, "B2", "B2"));
+  });
+
+  test("Correctly delete the deleted cells", () => {
+    setCellContent(model, "A1", "A1");
+    setCellContent(model, "A2", "A2");
+    setCellContent(model, "B1", "B1");
+    setCellContent(model, "B2", "B2");
+
+    deleteCells(model, "A2:B2", "left");
+    expect(getCellContent(model, "A1")).toBe("A1");
+    expect(getCellContent(model, "A2")).toBe("");
+    expect(getCellContent(model, "B1")).toBe("B1");
+    expect(getCellContent(model, "B2")).toBe("");
+  });
+
+  test("Correctly move cells on deletion, with shift left", () => {
+    setCellContent(model, "C1", "C1");
+    setCellContent(model, "D1", "D1");
+    setCellContent(model, "E1", "E1");
+    deleteCells(model, "C1", "left");
+    expect(getCellContent(model, "C1")).toBe("D1");
+    expect(getCellContent(model, "D1")).toBe("E1");
+    expect(getCellContent(model, "E1")).toBe("");
+  });
+
+  test("Correctly move cells on deletion, with shift up", () => {
+    setCellContent(model, "A3", "A3");
+    setCellContent(model, "A4", "A4");
+    setCellContent(model, "A5", "A5");
+    deleteCells(model, "A3", "up");
+    expect(getCellContent(model, "A3")).toBe("A4");
+    expect(getCellContent(model, "A4")).toBe("A5");
+    expect(getCellContent(model, "A5")).toBe("");
+  });
+
+  test("Correctly update cell content on deletion, with shift left", () => {
+    setCellContent(model, "D1", "=D2");
+    setCellContent(model, "E1", "=F1");
+    deleteCells(model, "C1", "left");
+    expect(getCellText(model, "C1")).toBe("=D2");
+    expect(getCellText(model, "D1")).toBe("=E1");
+    expect(getCellText(model, "E1")).toBe("");
+  });
+
+  test("Correctly update cell content on deletion, with shift up", () => {
+    setCellContent(model, "A4", "=B4");
+    setCellContent(model, "A5", "=A6");
+    deleteCells(model, "A3", "up");
+    expect(getCellText(model, "A3")).toBe("=B4");
+    expect(getCellText(model, "A4")).toBe("=A5");
+    expect(getCellText(model, "A5")).toBe("");
+  });
+
+  test("Selection is not updated on cells deletion", () => {
+    selectCell(model, "B1");
+    deleteCells(model, "B1", "left");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("B1"));
+    deleteCells(model, "B1", "up");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("B1"));
+  });
+
+  test("Undo/redo is correctly supported", () => {
+    setCellContent(model, "A2", "=A3");
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: target("A3"),
+      style: { fillColor: "orange" },
+    });
+    testUndoRedo(model, expect, "DELETE_CELL", { zone: toZone("A1"), dimension: "ROW" });
+  });
+});
+
+describe("Insert cell", () => {
+  let model: Model;
+  beforeEach(() => {
+    model = new Model();
+  });
+
+  test("Do not move cell positioned before the inserted ones", () => {
+    setCellContent(model, "B2", "B2");
+    insertCells(model, "C3", "right");
+    expect(getCellContent(model, "B2", "B2"));
+    insertCells(model, "C3", "down");
+    expect(getCellContent(model, "B2", "B2"));
+  });
+
+  test("Correctly insert the inserted cells", () => {
+    setCellContent(model, "A1", "A1");
+    setCellContent(model, "B1", "B1");
+    setCellContent(model, "A2", "A2");
+    setCellContent(model, "B2", "B2");
+
+    insertCells(model, "A2:B2", "right");
+    expect(getCellContent(model, "A1")).toBe("A1");
+    expect(getCellContent(model, "A2")).toBe("");
+    expect(getCellContent(model, "B1")).toBe("B1");
+    expect(getCellContent(model, "B2")).toBe("");
+    expect(getCellContent(model, "C2")).toBe("A2");
+    expect(getCellContent(model, "D2")).toBe("B2");
+  });
+
+  test("Correctly move cells on insertion, with shift right", () => {
+    setCellContent(model, "C1", "C1");
+    setCellContent(model, "D1", "D1");
+    setCellContent(model, "E1", "E1");
+    insertCells(model, "C1", "right");
+    expect(getCellContent(model, "C1")).toBe("");
+    expect(getCellContent(model, "D1")).toBe("C1");
+    expect(getCellContent(model, "E1")).toBe("D1");
+    expect(getCellContent(model, "F1")).toBe("E1");
+  });
+
+  test("Correctly move cells on insertion, with shift down", () => {
+    setCellContent(model, "A3", "A3");
+    setCellContent(model, "A4", "A4");
+    setCellContent(model, "A5", "A5");
+    insertCells(model, "A3", "down");
+    expect(getCellContent(model, "A3")).toBe("");
+    expect(getCellContent(model, "A4")).toBe("A3");
+    expect(getCellContent(model, "A5")).toBe("A4");
+    expect(getCellContent(model, "A6")).toBe("A5");
+  });
+
+  test("Correctly update cell content on insertion, with shift right", () => {
+    setCellContent(model, "D1", "=D2");
+    setCellContent(model, "E1", "=F1");
+    insertCells(model, "C1", "right");
+    expect(getCellText(model, "E1")).toBe("=D2");
+    expect(getCellText(model, "F1")).toBe("=G1");
+  });
+
+  test("Correctly update cell content on insertion, with shift down", () => {
+    setCellContent(model, "A4", "=B4");
+    setCellContent(model, "A5", "=A6");
+    insertCells(model, "A3", "down");
+    expect(getCellText(model, "A5")).toBe("=B4");
+    expect(getCellText(model, "A6")).toBe("=A7");
+  });
+
+  test("Selection is not updated on cells insertion", () => {
+    selectCell(model, "B1");
+    insertCells(model, "B1", "right");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("B1"));
+    insertCells(model, "B1", "down");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("B1"));
+  });
+
+  test("Undo/redo is correctly supported", () => {
+    setCellContent(model, "A2", "=A3");
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: target("A3"),
+      style: { fillColor: "orange" },
+    });
+    testUndoRedo(model, expect, "INSERT_CELL", { zone: toZone("A1"), dimension: "ROW" });
+  });
+});
+
+describe("Insert/Delete cells with merge", () => {
+  test("Insert/Delete cell is rejected if a merge is blocking left-right", () => {
+    model = new Model();
+    merge(model, "B1:B2");
+    expect(deleteCells(model, "A1", "left")).toBe(CommandResult.WillRemoveExistingMerge);
+    expect(insertCells(model, "A1", "right")).toBe(CommandResult.WillRemoveExistingMerge);
+  });
+
+  test("Insert/Delete cell is rejected if a merge is blocking up-down", () => {
+    model = new Model();
+    merge(model, "A2:B2");
+    expect(deleteCells(model, "A1", "up")).toBe(CommandResult.WillRemoveExistingMerge);
+    expect(insertCells(model, "A1", "down")).toBe(CommandResult.WillRemoveExistingMerge);
   });
 });
