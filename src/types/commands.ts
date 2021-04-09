@@ -8,7 +8,7 @@ import {
   Style,
   Zone,
 } from "./index";
-import { Border, Cell, Dimension, UID } from "./misc";
+import { Border, Cell, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -404,24 +404,14 @@ export interface CutCommand extends BaseCommand {
 export interface PasteCommand extends BaseCommand {
   type: "PASTE";
   target: Zone[];
-  onlyValue?: boolean;
-  onlyFormat?: boolean;
+  pasteOption?: ClipboardOptions;
   force?: boolean;
 }
 
-export interface PasteCellCommand extends BaseCommand {
-  type: "PASTE_CELL";
-  origin: Cell | null;
-  originSheet: UID;
-  originBorder: Border | null;
-  originCol: number;
-  originRow: number;
-  col: number;
-  row: number;
-  sheetId: UID;
-  cut?: boolean;
-  onlyValue: boolean;
-  onlyFormat: boolean;
+export interface CutAndPasteCommand extends BaseCommand {
+  type: "CUT_AND_PASTE";
+  source: Zone;
+  target: Zone;
 }
 
 export interface AutoFillCellCommand extends BaseCommand {
@@ -837,6 +827,25 @@ export interface SumSelectionCommand extends BaseCommand {
   type: "SUM_SELECTION";
 }
 
+export interface DeleteCellCommand extends BaseCommand {
+  type: "DELETE_CELL";
+  shiftDimension: Dimension;
+  zone: Zone;
+}
+
+export interface InsertCellCommand extends BaseCommand {
+  type: "INSERT_CELL";
+  shiftDimension: Dimension;
+  zone: Zone;
+}
+
+export interface PasteCFCommand extends BaseCommand {
+  type: "PASTE_CONDITIONAL_FORMAT";
+  origin: CellPosition;
+  target: CellPosition;
+  operation: "CUT" | "COPY";
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -900,10 +909,11 @@ export type LocalCommand =
   | CopyCommand
   | CutCommand
   | PasteCommand
-  | PasteCellCommand
+  | CutAndPasteCommand
   | AutoFillCellCommand
   | PasteFromOSClipboardCommand
   | ActivatePaintFormatCommand
+  | PasteCFCommand
   | AutoresizeColumnsCommand
   | AutoresizeRowsCommand
   | MovePositionCommand
@@ -950,6 +960,8 @@ export type LocalCommand =
   | ResizeViewportCommand
   | RefreshChartCommand
   | SumSelectionCommand
+  | DeleteCellCommand
+  | InsertCellCommand
   | SetViewportOffsetCommand;
 
 export type Command = CoreCommand | LocalCommand;

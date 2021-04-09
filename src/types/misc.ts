@@ -136,6 +136,12 @@ export interface EmptyCell extends CellBase {
 
 export type Cell = FormulaCell | EmptyCell | OtherCell;
 
+export interface ClipboardCell {
+  cell?: Cell;
+  border?: Border;
+  position: CellPosition;
+}
+
 export interface Header {
   start: number;
   end: number;
@@ -201,3 +207,5 @@ export interface RangeProvider {
 }
 
 export type Validation<T> = (toValidate: T) => CommandResult;
+
+export type ClipboardOptions = "onlyFormat" | "onlyValue";

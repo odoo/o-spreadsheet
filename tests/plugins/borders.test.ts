@@ -5,6 +5,7 @@ import { BorderDescr } from "../../src/types/index";
 import {
   addColumns,
   addRows,
+  deleteCells,
   selectCell,
   setBorder,
   setCellContent,
@@ -399,5 +400,43 @@ describe("Grid manipulation", () => {
     model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo, name: "42" });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo });
     expect(getBorder(model, "B2")).toEqual({ top: b, left: b, right: b, bottom: b });
+  });
+
+  test("Delete cell correctly move borders on shift up", () => {
+    setBorder(model, "external", "C3:D4");
+    deleteCells(model, "C1", "up");
+    expect(getBorder(model, "C1")).toEqual({ bottom: b });
+    expect(getBorder(model, "C2")).toEqual({ top: b, left: b });
+    expect(getBorder(model, "C3")).toEqual({ bottom: b, left: b });
+    expect(getBorder(model, "D2")).toEqual({ bottom: b });
+    expect(getBorder(model, "D3")).toEqual({ top: b, right: b });
+    expect(getBorder(model, "D4")).toEqual({ bottom: b, right: b });
+  });
+
+  test("Delete a cell correctly move all the borders on shift up", () => {
+    setBorder(model, "external", "C3");
+    deleteCells(model, "C1", "up");
+    expect(getBorder(model, "C1")).toEqual({ bottom: b });
+    expect(getBorder(model, "C2")).toEqual({ bottom: b, top: b, left: b, right: b });
+    expect(getBorder(model, "C3")).toEqual({ top: b });
+  });
+
+  test("Delete cell correctly move borders on shift left", () => {
+    setBorder(model, "external", "C3:D4");
+    deleteCells(model, "A3", "left");
+    expect(getBorder(model, "A3")).toEqual({ right: b });
+    expect(getBorder(model, "B3")).toEqual({ left: b, top: b });
+    expect(getBorder(model, "C3")).toEqual({ right: b, top: b });
+    expect(getBorder(model, "B4")).toEqual({ right: b });
+    expect(getBorder(model, "C4")).toEqual({ left: b, bottom: b });
+    expect(getBorder(model, "D4")).toEqual({ right: b, bottom: b });
+  });
+
+  test("Delete a cell correctly move all the borders on shift left", () => {
+    setBorder(model, "external", "C3");
+    deleteCells(model, "A3", "left");
+    expect(getBorder(model, "A3")).toEqual({ right: b });
+    expect(getBorder(model, "B3")).toEqual({ bottom: b, top: b, left: b, right: b });
+    expect(getBorder(model, "C3")).toEqual({ left: b });
   });
 });

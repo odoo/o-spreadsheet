@@ -245,6 +245,20 @@ export function unhideRows(
   });
 }
 
+export function deleteCells(model: Model, range: string, shift: "left" | "up"): CommandResult {
+  return model.dispatch("DELETE_CELL", {
+    zone: toZone(range),
+    shiftDimension: shift === "left" ? "COL" : "ROW",
+  });
+}
+
+export function insertCells(model: Model, range: string, shift: "right" | "down"): CommandResult {
+  return model.dispatch("INSERT_CELL", {
+    zone: toZone(range),
+    shiftDimension: shift === "right" ? "COL" : "ROW",
+  });
+}
+
 /**
  * Set a border to a given zone or the selected zones
  */

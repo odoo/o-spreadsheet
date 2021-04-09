@@ -45,6 +45,7 @@
 - [save](spreadsheet.md#save)
 - [toggleSidePanel](spreadsheet.md#togglesidepanel)
 - [willUnmount](spreadsheet.md#willunmount)
+- [willUpdateProps](spreadsheet.md#willupdateprops)
 
 ## Constructors
 
@@ -308,3 +309,17 @@ ___
 ▸ **willUnmount**(): *void*
 
 **Returns:** *void*
+
+___
+
+### willUpdateProps
+
+▸ **willUpdateProps**(`nextProps`: Props): *Promise*<void\>
+
+#### Parameters:
+
+Name | Type |
+:------ | :------ |
+`nextProps` | Props |
+
+**Returns:** *Promise*<void\>

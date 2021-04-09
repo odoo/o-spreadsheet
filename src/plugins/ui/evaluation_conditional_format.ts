@@ -5,6 +5,7 @@ import { _lt } from "../../translation";
 import {
   Cell,
   CellIsRule,
+  CellPosition,
   CellType,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
@@ -47,18 +48,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
           this.adaptRules(sheetId, cf, [toXC(cmd.col, cmd.row)], []);
         }
         break;
-      case "PASTE_CELL":
-        if (!cmd.onlyValue) {
-          this.pasteCf(
-            cmd.originCol,
-            cmd.originRow,
-            cmd.col,
-            cmd.row,
-            cmd.originSheet,
-            cmd.sheetId,
-            cmd.cut
-          );
-        }
+      case "PASTE_CONDITIONAL_FORMAT":
+        this.pasteCf(cmd.origin, cmd.target, cmd.operation);
         break;
       case "DUPLICATE_SHEET":
       case "CREATE_SHEET":
@@ -71,6 +62,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       case "UPDATE_CELL":
       case "UNDO":
       case "REDO":
+      case "DELETE_CELL":
+      case "INSERT_CELL":
         this.isStale = true;
         break;
     }
@@ -410,30 +403,22 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     });
   }
 
-  private pasteCf(
-    originCol: number,
-    originRow: number,
-    col: number,
-    row: number,
-    originSheet: UID,
-    destinationSheetId: UID,
-    cut?: boolean
-  ) {
-    const xc = toXC(col, row);
-    for (let rule of this.getters.getConditionalFormats(originSheet)) {
+  private pasteCf(origin: CellPosition, target: CellPosition, operation: "CUT" | "COPY") {
+    const xc = toXC(target.col, target.row);
+    for (let rule of this.getters.getConditionalFormats(origin.sheetId)) {
       for (let range of rule.ranges) {
-        if (isInside(originCol, originRow, toZone(range))) {
+        if (isInside(origin.col, origin.row, toZone(range))) {
           const cf = rule;
           const toRemoveRange: string[] = [];
-          if (cut) {
+          if (operation === "CUT") {
             //remove from current rule
-            toRemoveRange.push(toXC(originCol, originRow));
+            toRemoveRange.push(toXC(origin.col, origin.row));
           }
-          if (originSheet === destinationSheetId) {
-            this.adaptRules(originSheet, cf, [xc], toRemoveRange);
+          if (origin.sheetId === target.sheetId) {
+            this.adaptRules(origin.sheetId, cf, [xc], toRemoveRange);
           } else {
-            this.adaptRules(destinationSheetId, cf, [xc], []);
-            this.adaptRules(originSheet, cf, [], toRemoveRange);
+            this.adaptRules(target.sheetId, cf, [xc], []);
+            this.adaptRules(origin.sheetId, cf, [], toRemoveRange);
           }
         }
       }
