@@ -276,9 +276,9 @@ export const AVERAGEA: FunctionDescription = {
 export const AVERAGEIF: FunctionDescription = {
   description: _lt(`Average of values depending on criteria.`),
   args: args(`
-      criteria_range (any, range) ${_lt("The range to check against criterion.")}
+      criteria_range (range) ${_lt("The range to check against criterion.")}
       criterion (string) ${_lt("The pattern or test to apply to criteria_range.")}
-      average_range (any, range, optional, default=criteria_range) ${_lt(
+      average_range (range, optional, default=criteria_range) ${_lt(
         "The range to average. If not included, criteria_range is used for the average instead."
       )}
     `),
@@ -312,8 +312,8 @@ export const AVERAGEIF: FunctionDescription = {
 export const AVERAGEIFS: FunctionDescription = {
   description: _lt(`Average of values depending on multiple criteria.`),
   args: args(`
-      average_range (any, range) ${_lt("The range to average.")}
-      criteria_range1 (any, range) ${_lt("The range to check against criterion1.")}
+      average_range (range) ${_lt("The range to average.")}
+      criteria_range1 (range) ${_lt("The range to check against criterion1.")}
       criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
       additional_values (any, range, optional, repeating) ${_lt(
         "Additional criteria_range and criterion to check."
@@ -528,8 +528,8 @@ export const MAXA: FunctionDescription = {
 export const MAXIFS: FunctionDescription = {
   description: _lt("Returns the maximum value in a range of cells, filtered by a set of criteria."),
   args: args(`
-      range (any, range) ${_lt("The range of cells from which the maximum will be determined.")}
-      criteria_range1 (any, range) ${_lt("The range of cells over which to evaluate criterion1.")}
+      range (range) ${_lt("The range of cells from which the maximum will be determined.")}
+      criteria_range1 (range) ${_lt("The range of cells over which to evaluate criterion1.")}
       criterion1 (string) ${_lt(
         "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
       )}
@@ -608,8 +608,8 @@ export const MINA: FunctionDescription = {
 export const MINIFS: FunctionDescription = {
   description: _lt("Returns the minimum value in a range of cells, filtered by a set of criteria."),
   args: args(`
-      range (any, range) ${_lt("The range of cells from which the minimum will be determined.")}
-      criteria_range1 (any, range) ${_lt("The range of cells over which to evaluate criterion1.")}
+      range (range) ${_lt("The range of cells from which the minimum will be determined.")}
+      criteria_range1 (range) ${_lt("The range of cells over which to evaluate criterion1.")}
       criterion1 (string) ${_lt(
         "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
       )}
