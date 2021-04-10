@@ -2,6 +2,7 @@ import { compile, normalize } from "../../formulas/index";
 import { isInside, zoneToXc } from "../../helpers/index";
 import {
   ApplyRangeChange,
+  CellIsRule,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
   ColorScaleThreshold,
@@ -9,9 +10,11 @@ import {
   CommandResult,
   ConditionalFormat,
   ConditionalFormatInternal,
+  ConditionalFormattingOperatorValues,
   CoreCommand,
   SingleColorRules,
   UID,
+  Validation,
   WorkbookData,
   Zone,
 } from "../../types";
@@ -20,6 +23,11 @@ import { CorePlugin } from "../core_plugin";
 // -----------------------------------------------------------------------------
 // Constants
 // -----------------------------------------------------------------------------
+
+type ThresholdValidation = (
+  threshold: ColorScaleThreshold | ColorScaleMidPointThreshold,
+  thresholdName: string
+) => CommandResult;
 
 interface ConditionalFormatState {
   readonly cfRules: { [sheet: string]: ConditionalFormatInternal[] };
@@ -86,8 +94,7 @@ export class ConditionalFormatPlugin
 
   allowDispatch(cmd: Command): CommandResult {
     if (cmd.type === "ADD_CONDITIONAL_FORMAT") {
-      const error = this.checkCFRule(cmd.cf.rule);
-      return error !== null ? error : CommandResult.Success;
+      return this.checkCFRule(cmd.cf.rule);
     }
     return CommandResult.Success;
   }
@@ -231,42 +238,59 @@ export class ConditionalFormatPlugin
     this.history.update("cfRules", sheet, currentCF);
   }
 
-  private checkCFRule(rule: ColorScaleRule | SingleColorRules): CommandResult | null {
+  private checkCFRule(rule: ColorScaleRule | SingleColorRules): CommandResult {
     switch (rule.type) {
       case "CellIsRule":
-        if (rule.operator === "Between" || rule.operator === "NotBetween") {
-          if (rule.values.length !== 2 || rule.values.some((x) => x === "")) {
-            return CommandResult.InvalidNumberOfArgs;
-          }
-        } else {
-          if (
-            [
-              "BeginsWith",
-              "ContainsText",
-              "EndsWith",
-              "GreaterThan",
-              "GreaterThanOrEqual",
-              "LessThan",
-              "LessThanOrEqual",
-              "NotContains",
-            ].includes(rule.operator) &&
-            (rule.values[0] === "" || rule.values[0] === undefined)
-          ) {
-            return CommandResult.InvalidNumberOfArgs;
-          }
-        }
-        break;
+        return this.checkValidations(
+          rule,
+          this.checkOperatorArgsNumber(2, ["Between", "NotBetween"]),
+          this.checkOperatorArgsNumber(1, [
+            "BeginsWith",
+            "ContainsText",
+            "EndsWith",
+            "GreaterThan",
+            "GreaterThanOrEqual",
+            "LessThan",
+            "LessThanOrEqual",
+            "NotContains",
+          ])
+        );
       case "ColorScaleRule": {
-        return this.checkColorScaleRule(rule);
+        return this.checkValidations(
+          rule,
+          this.checkThresholds(this.checkNaN),
+          this.checkThresholds(this.checkFormulaCompilation),
+          this.checkThresholds(this.checkAsyncFormula),
+          this.checkMinBiggerThanMax,
+          this.checkMinBiggerThanMid,
+          this.checkMidBiggerThanMax
+          // ☝️ Those three validations can be factorized further
+        );
       }
     }
-    return null;
+    return CommandResult.Success;
   }
 
-  private checkPoint(
+  private checkOperatorArgsNumber(
+    expectedNumber: number,
+    operators: ConditionalFormattingOperatorValues[]
+  ) {
+    const isEmpty = (value) => value === "" || value === undefined;
+    return (rule: CellIsRule) => {
+      if (
+        operators.includes(rule.operator) &&
+        (rule.values.length !== expectedNumber || rule.values.some(isEmpty))
+      ) {
+        return CommandResult.InvalidNumberOfArgs;
+      }
+      return CommandResult.Success;
+    };
+  }
+
+  private checkNaN(
     threshold: ColorScaleThreshold | ColorScaleMidPointThreshold,
     thresholdName: string
-  ): CommandResult | undefined {
+  ) {
     if (
       ["number", "percentage", "percentile"].includes(threshold.type) &&
       (threshold.value === "" || isNaN(threshold.value as any))
@@ -280,20 +304,16 @@ export class ConditionalFormatPlugin
           return CommandResult.MidNaN;
       }
     }
+    return CommandResult.Success;
+  }
+
+  private checkFormulaCompilation(
+    threshold: ColorScaleThreshold | ColorScaleMidPointThreshold,
+    thresholdName: string
+  ) {
+    if (threshold.type !== "formula") return CommandResult.Success;
     try {
-      if (threshold.type === "formula") {
-        const compiledFormula = compile(normalize(threshold.value || ""));
-        if (compiledFormula.async) {
-          switch (thresholdName) {
-            case "min":
-              return CommandResult.MinAsyncFormulaNotSupported;
-            case "max":
-              return CommandResult.MaxAsyncFormulaNotSupported;
-            case "mid":
-              return CommandResult.MidAsyncFormulaNotSupported;
-          }
-        }
-      }
+      compile(normalize(threshold.value || ""));
     } catch (error) {
       switch (thresholdName) {
         case "min":
@@ -304,19 +324,38 @@ export class ConditionalFormatPlugin
           return CommandResult.MidInvalidFormula;
       }
     }
-    return;
+    return CommandResult.Success;
   }
 
-  private checkColorScaleRule(rule: ColorScaleRule): CommandResult | null {
-    const error =
-      this.checkPoint(rule.minimum, "min") ||
-      this.checkPoint(rule.maximum, "max") ||
-      (rule.midpoint && this.checkPoint(rule.midpoint, "mid"));
-    if (error) {
-      return error;
+  private checkAsyncFormula(
+    threshold: ColorScaleThreshold | ColorScaleMidPointThreshold,
+    thresholdName: string
+  ): CommandResult {
+    if (threshold.type !== "formula") return CommandResult.Success;
+    const compiledFormula = compile(normalize(threshold.value || ""));
+    if (compiledFormula.async) {
+      switch (thresholdName) {
+        case "min":
+          return CommandResult.MinAsyncFormulaNotSupported;
+        case "max":
+          return CommandResult.MaxAsyncFormulaNotSupported;
+        case "mid":
+          return CommandResult.MidAsyncFormulaNotSupported;
+      }
     }
+    return CommandResult.Success;
+  }
+
+  private checkThresholds(check: ThresholdValidation): Validation<ColorScaleRule> {
+    return this.combineValidations(
+      (rule) => check(rule.minimum, "min"),
+      (rule) => check(rule.maximum, "max"),
+      (rule) => (rule.midpoint ? check(rule.midpoint, "mid") : CommandResult.Success)
+    );
+  }
+
+  private checkMinBiggerThanMax(rule: ColorScaleRule): CommandResult {
     const minValue = rule.minimum.value;
-    const midValue = rule.midpoint?.value;
     const maxValue = rule.maximum.value;
     if (
       ["number", "percentage", "percentile"].includes(rule.minimum.type) &&
@@ -325,14 +364,12 @@ export class ConditionalFormatPlugin
     ) {
       return CommandResult.MinBiggerThanMax;
     }
-    if (
-      rule.midpoint &&
-      ["number", "percentage", "percentile"].includes(rule.midpoint.type) &&
-      rule.minimum.type === rule.midpoint.type &&
-      Number(minValue) >= Number(midValue)
-    ) {
-      return CommandResult.MinBiggerThanMid;
-    }
+    return CommandResult.Success;
+  }
+
+  private checkMidBiggerThanMax(rule: ColorScaleRule): CommandResult {
+    const midValue = rule.midpoint?.value;
+    const maxValue = rule.maximum.value;
     if (
       rule.midpoint &&
       ["number", "percentage", "percentile"].includes(rule.midpoint.type) &&
@@ -341,7 +378,21 @@ export class ConditionalFormatPlugin
     ) {
       return CommandResult.MidBiggerThanMax;
     }
-    return null;
+    return CommandResult.Success;
+  }
+
+  private checkMinBiggerThanMid(rule: ColorScaleRule): CommandResult {
+    const minValue = rule.minimum.value;
+    const midValue = rule.midpoint?.value;
+    if (
+      rule.midpoint &&
+      ["number", "percentage", "percentile"].includes(rule.midpoint.type) &&
+      rule.minimum.type === rule.midpoint.type &&
+      Number(minValue) >= Number(midValue)
+    ) {
+      return CommandResult.MinBiggerThanMid;
+    }
+    return CommandResult.Success;
   }
 
   private removeConditionalFormatting(id: string, sheet: string) {

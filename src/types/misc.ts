@@ -2,6 +2,7 @@
 // MISC
 // -----------------------------------------------------------------------------
 
+import { CommandResult } from "./commands";
 import { NormalizedFormula } from "./workbook_data";
 
 export type UID = string;
@@ -196,3 +197,5 @@ export type ConsecutiveIndexes = number[];
 export interface RangeProvider {
   adaptRanges: (applyChange: ApplyRangeChange, sheetId?: UID) => void;
 }
+
+export type Validation<T> = (toValidate: T) => CommandResult;

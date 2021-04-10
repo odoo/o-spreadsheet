@@ -6,10 +6,12 @@ import {
   Command,
   CommandResult,
   CoreCommand,
+  CreateChartCommand,
   CreateChartDefinition,
   DataSet,
   FigureData,
   UID,
+  UpdateChartCommand,
   WorkbookData,
   Zone,
 } from "../../types/index";
@@ -112,8 +114,13 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     switch (cmd.type) {
       case "UPDATE_CHART":
       case "CREATE_CHART":
-        const error = this.checkChartDefinition(cmd.definition);
-        return error !== null ? error : success;
+        return this.checkValidations(
+          cmd,
+          this.checkEmptyDataset,
+          this.checkDataset,
+          this.checkEmptyLabelRange,
+          this.checkLabelRange
+        );
       default:
         return success;
     }
@@ -332,24 +339,28 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     }
   }
 
-  private checkChartDefinition(createCommand: CreateChartDefinition): CommandResult | null {
-    if (createCommand.dataSets.length) {
-      const invalidRanges =
-        createCommand.dataSets.find((range) => !rangeReference.test(range)) !== undefined;
-      if (invalidRanges) {
-        return CommandResult.InvalidDataSet;
-      }
-    } else {
-      return CommandResult.EmptyDataSet;
-    }
-    if (createCommand.labelRange) {
-      const invalidLabels = !rangeReference.test(createCommand.labelRange);
-      if (invalidLabels) {
-        return CommandResult.InvalidLabelRange;
-      }
-    } else {
-      return CommandResult.EmptyLabelRange;
-    }
-    return null;
+  private checkEmptyDataset(createCommand: CreateChartCommand | UpdateChartCommand): CommandResult {
+    return createCommand.definition.dataSets.length === 0
+      ? CommandResult.EmptyDataSet
+      : CommandResult.Success;
+  }
+
+  private checkDataset(createCommand: CreateChartCommand | UpdateChartCommand): CommandResult {
+    const invalidRanges =
+      createCommand.definition.dataSets.find((range) => !rangeReference.test(range)) !== undefined;
+    return invalidRanges ? CommandResult.InvalidDataSet : CommandResult.Success;
+  }
+
+  private checkEmptyLabelRange(
+    createCommand: CreateChartCommand | UpdateChartCommand
+  ): CommandResult {
+    return createCommand.definition.labelRange
+      ? CommandResult.Success
+      : CommandResult.EmptyLabelRange;
+  }
+
+  private checkLabelRange(createCommand: CreateChartCommand | UpdateChartCommand): CommandResult {
+    const invalidLabels = !rangeReference.test(createCommand.definition.labelRange || "");
+    return invalidLabels ? CommandResult.InvalidLabelRange : CommandResult.Success;
   }
 }

@@ -7,6 +7,7 @@ import {
   Command,
   CommandResult,
   Sheet,
+  SortCommand,
   SortDirection,
   UID,
   Zone,
@@ -27,7 +28,10 @@ export class SortPlugin extends UIPlugin {
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "SORT_CELLS":
-        return this.isSortAllowed(cmd.sheetId, cmd.anchor, cmd.zone);
+        if (!isInside(cmd.anchor[0], cmd.anchor[1], cmd.zone)) {
+          throw new Error(_lt("The anchor must be part of the provided zone"));
+        }
+        return this.checkValidations(cmd, this.checkMerge, this.checkMergeSizes);
     }
     return CommandResult.Success;
   }
@@ -44,37 +48,39 @@ export class SortPlugin extends UIPlugin {
     }
   }
 
-  private isSortAllowed(sheetId: UID, anchor: [number, number], zone: Zone): CommandResult {
-    if (!isInside(anchor[0], anchor[1], zone)) {
-      throw new Error(_lt("The anchor must be part of the provided zone"));
+  private checkMerge({ sheetId, zone }: SortCommand): CommandResult {
+    if (!this.getters.doesIntersectMerge(sheetId, zone)) {
+      return CommandResult.Success;
     }
-
-    const hasMerges = this.getters.doesIntersectMerge(sheetId, zone);
-    if (hasMerges) {
-      const merges = this.getters.getMerges(sheetId).filter((merge) => overlap(merge, zone));
-
-      /*Test the presence of single cells*/
-      for (let row = zone.top; row <= zone.bottom; row++) {
-        for (let col = zone.left; col <= zone.right; col++) {
-          if (!this.getters.isInMerge(sheetId, col, row)) {
-            return CommandResult.InvalidSortZone;
-          }
+    /*Test the presence of single cells*/
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        if (!this.getters.isInMerge(sheetId, col, row)) {
+          return CommandResult.InvalidSortZone;
         }
       }
-      /*Test the presence of merges of different sizes*/
-      const mergeDimension = zoneToDimension(merges[0]);
-      let [widthFirst, heightFirst] = [mergeDimension.width, mergeDimension.height];
-      if (
-        !merges.every((merge) => {
-          let [widthCurrent, heightCurrent] = [
-            merge.right - merge.left + 1,
-            merge.bottom - merge.top + 1,
-          ];
-          return widthCurrent === widthFirst && heightCurrent === heightFirst;
-        })
-      ) {
-        return CommandResult.InvalidSortZone;
-      }
+    }
+    return CommandResult.Success;
+  }
+
+  private checkMergeSizes({ sheetId, zone }: SortCommand): CommandResult {
+    if (!this.getters.doesIntersectMerge(sheetId, zone)) {
+      return CommandResult.Success;
+    }
+    const merges = this.getters.getMerges(sheetId).filter((merge) => overlap(merge, zone));
+    /*Test the presence of merges of different sizes*/
+    const mergeDimension = zoneToDimension(merges[0]);
+    let [widthFirst, heightFirst] = [mergeDimension.width, mergeDimension.height];
+    if (
+      !merges.every((merge) => {
+        let [widthCurrent, heightCurrent] = [
+          merge.right - merge.left + 1,
+          merge.bottom - merge.top + 1,
+        ];
+        return widthCurrent === widthFirst && heightCurrent === heightFirst;
+      })
+    ) {
+      return CommandResult.InvalidSortZone;
     }
     return CommandResult.Success;
   }
