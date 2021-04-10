@@ -7,6 +7,7 @@ import {
 import { clip, isDefined, isEqual, overlap, toXC, toZone, union } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
+  AddMergeCommand,
   CellType,
   CommandResult,
   CoreCommand,
@@ -59,7 +60,10 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
 
     switch (cmd.type) {
       case "ADD_MERGE":
-        return this.isMergeAllowed(cmd.sheetId, cmd.target, force);
+        if (force) {
+          return CommandResult.Success;
+        }
+        return this.checkValidations(cmd, this.checkDestructiveMerge, this.checkOverlap);
       default:
         return CommandResult.Success;
     }
@@ -264,21 +268,18 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     return merges !== undefined ? merges[mergeId] : undefined;
   }
 
-  /**
-   * Verify that we can merge without losing content of other cells or
-   * because the user gave his permission
-   */
-  private isMergeAllowed(sheetId: UID, target: Zone[], force: boolean): CommandResult {
-    if (!force) {
-      const sheet = this.getters.tryGetSheet(sheetId);
-      for (const zone of target) {
-        if (sheet && this.isMergeDestructive(sheet, zone)) {
-          return CommandResult.MergeIsDestructive;
-        }
-        for (const zone2 of target) {
-          if (zone !== zone2 && overlap(zone, zone2)) {
-            return CommandResult.MergeOverlap;
-          }
+  private checkDestructiveMerge({ sheetId, target }: AddMergeCommand): CommandResult {
+    const sheet = this.getters.tryGetSheet(sheetId);
+    if (!sheet) return CommandResult.Success;
+    const isDestructive = target.some((zone) => this.isMergeDestructive(sheet, zone));
+    return isDestructive ? CommandResult.MergeIsDestructive : CommandResult.Success;
+  }
+
+  private checkOverlap({ target }: AddMergeCommand): CommandResult {
+    for (const zone of target) {
+      for (const zone2 of target) {
+        if (zone !== zone2 && overlap(zone, zone2)) {
+          return CommandResult.MergeOverlap;
         }
       }
     }

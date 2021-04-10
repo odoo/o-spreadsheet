@@ -1,6 +1,12 @@
 import { ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
-import { CommandDispatcher, CommandHandler, CommandResult, WorkbookHistory } from "../types/index";
+import {
+  CommandDispatcher,
+  CommandHandler,
+  CommandResult,
+  Validation,
+  WorkbookHistory,
+} from "../types/index";
 
 /**
  * BasePlugin
@@ -66,4 +72,21 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
    * multiple cells, we only want to reevaluate the cell values once at the end.
    */
   finalize(): void {}
+
+  /**
+   * Combine multiple validation functions into a single function.
+   */
+  combineValidations<T>(...validations: Validation<T>[]): Validation<T> {
+    return (toValidate: T) => {
+      for (const validation of validations) {
+        const result = validation.call(this, toValidate);
+        if (result !== CommandResult.Success) return result;
+      }
+      return CommandResult.Success;
+    };
+  }
+
+  checkValidations<T>(command: T, ...validations: Validation<T>[]): CommandResult {
+    return this.combineValidations(...validations)(command);
+  }
 }
