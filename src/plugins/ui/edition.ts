@@ -7,7 +7,6 @@ import {
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
-import { Mode } from "../../model";
 import { _lt } from "../../translation";
 import {
   AddColumnsRowsCommand,
@@ -47,7 +46,6 @@ export class EditionPlugin extends UIPlugin {
     "getCurrentTokens",
     "getTokenAtCursor",
   ];
-  static modes: Mode[] = ["normal", "readonly"];
 
   private col: number = 0;
   private row: number = 0;

@@ -55,9 +55,7 @@ import {
  * programmatically a spreadsheet.
  */
 
-export type Mode = "normal" | "headless" | "readonly";
 export interface ModelConfig {
-  mode: Mode;
   openSidePanel: (panel: string, panelProps?: any) => void;
   notifyUser: (content: string) => any;
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
@@ -66,6 +64,7 @@ export interface ModelConfig {
   moveClient: (position: ClientPosition) => void;
   transportService: TransportService;
   client: Client;
+  isHeadless: boolean;
 }
 
 const enum Status {
@@ -153,8 +152,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       this.setupCorePlugin(Plugin, workbookData);
     }
 
-    for (let Plugin of uiPluginRegistry.getAll()) {
-      this.setupUiPlugin(Plugin);
+    if (!this.config.isHeadless) {
+      for (let Plugin of uiPluginRegistry.getAll()) {
+        this.setupUiPlugin(Plugin);
+      }
     }
 
     setIsFastStrategy(false);
@@ -183,19 +184,17 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   }
 
   private setupUiPlugin(Plugin: UIPluginConstructor) {
-    if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(this.getters, this.state, this.dispatch, this.config);
-      for (let name of Plugin.getters) {
-        if (!(name in plugin)) {
-          throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
-        }
-        this.getters[name] = plugin[name].bind(plugin);
+    const plugin = new Plugin(this.getters, this.state, this.dispatch, this.config);
+    for (let name of Plugin.getters) {
+      if (!(name in plugin)) {
+        throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
       }
-      this.uiPlugins.push(plugin);
-      const layers = Plugin.layers.map((l) => [plugin, l] as [UIPlugin, LAYERS]);
-      this.renderers.push(...layers);
-      this.renderers.sort((p1, p2) => p1[1] - p2[1]);
+      this.getters[name] = plugin[name].bind(plugin);
     }
+    this.uiPlugins.push(plugin);
+    const layers = Plugin.layers.map((l) => [plugin, l] as [UIPlugin, LAYERS]);
+    this.renderers.push(...layers);
+    this.renderers.sort((p1, p2) => p1[1] - p2[1]);
   }
 
   /**
@@ -205,23 +204,21 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * reason why the model could not add dynamically a plugin while it is running.
    */
   private setupCorePlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
-    if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(
-        this.getters,
-        this.state,
-        this.range,
-        this.dispatchFromCorePlugin,
-        this.config
-      );
-      plugin.import(data);
-      for (let name of Plugin.getters) {
-        if (!(name in plugin)) {
-          throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
-        }
-        this.getters[name] = plugin[name].bind(plugin);
+    const plugin = new Plugin(
+      this.getters,
+      this.state,
+      this.range,
+      this.dispatchFromCorePlugin,
+      this.config
+    );
+    plugin.import(data);
+    for (let name of Plugin.getters) {
+      if (!(name in plugin)) {
+        throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
       }
-      this.corePlugins.push(plugin);
+      this.getters[name] = plugin[name].bind(plugin);
     }
+    this.corePlugins.push(plugin);
   }
 
   private onRemoteRevisionReceived({ commands }: { commands: CoreCommand[] }) {
@@ -262,7 +259,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     const client = config.client || { id: uuidv4(), name: _lt("Anonymous").toString() };
     const transportService = config.transportService || new LocalTransportService();
     return {
-      mode: config.mode || "normal",
       openSidePanel: config.openSidePanel || (() => {}),
       notifyUser: config.notifyUser || (() => {}),
       askConfirmation: config.askConfirmation || (() => {}),
@@ -271,6 +267,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       transportService,
       client,
       moveClient: () => {},
+      isHeadless: config.isHeadless || false,
     };
   }
 
@@ -332,9 +329,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         });
         this.session.save(commands, changes);
         this.status = Status.Ready;
-        if (this.config.mode !== "headless") {
-          this.trigger("update");
-        }
+        this.trigger("update");
         break;
       case Status.Running:
       case Status.Interactive:

@@ -1,4 +1,4 @@
-import { Mode, ModelConfig } from "../model";
+import { ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
 import { Command, CommandDispatcher, Getters, GridRenderingContext, LAYERS } from "../types/index";
 import { BasePlugin } from "./base_plugin";
@@ -14,7 +14,6 @@ export interface UIPluginConstructor {
   ): UIPlugin;
   layers: LAYERS[];
   getters: string[];
-  modes: Mode[];
 }
 
 /**
