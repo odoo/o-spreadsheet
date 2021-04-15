@@ -1,6 +1,5 @@
 import { rangeReference } from "../../formulas/index";
 import { getNextColor, uuidv4 } from "../../helpers/index";
-import { Mode } from "../../model";
 import { Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 import { SelectionMode } from "./selection";
@@ -19,7 +18,6 @@ export interface RangeInputValue {
  * This plugin handles this internal state.
  */
 export class SelectionInputPlugin extends UIPlugin {
-  static modes: Mode[] = ["normal", "readonly"];
   static layers = [LAYERS.Highlights];
   static getters = ["getSelectionInput", "getSelectionInputValue", "isRangeValid"];
 

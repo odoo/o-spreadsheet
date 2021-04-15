@@ -1,5 +1,4 @@
 import { clip, overlap } from "../../helpers/index";
-import { Mode } from "../../model";
 import { _lt } from "../../translation";
 import {
   Border,
@@ -34,7 +33,6 @@ interface ClipboardCell {
 export class ClipboardPlugin extends UIPlugin {
   static layers = [LAYERS.Clipboard];
   static getters = ["getClipboardContent", "isPaintingFormat", "getPasteZones"];
-  static modes: Mode[] = ["normal", "readonly"];
 
   private status: "empty" | "visible" | "invisible" = "empty";
   private shouldCut?: boolean;
