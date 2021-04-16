@@ -67,6 +67,7 @@ export interface ModelConfig {
   client: Client;
   isHeadless: boolean;
   isReadonly: boolean;
+  snapshotRequested: boolean;
 }
 
 const enum Status {
@@ -172,6 +173,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
     // Load the initial revisions
     this.session.join(stateUpdateMessages);
+
+    if (config.snapshotRequested) {
+      this.session.snapshot(this.exportData());
+    }
   }
 
   get handlers(): CommandHandler<Command>[] {
@@ -272,6 +277,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       moveClient: () => {},
       isHeadless: config.isHeadless || false,
       isReadonly: config.isReadonly || false,
+      snapshotRequested: false,
     };
   }
 

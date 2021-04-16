@@ -1,5 +1,5 @@
 import { DEFAULT_REVISION_ID } from "../../src/constants";
-import { UID } from "../../src/types";
+import { UID, WorkbookData } from "../../src/types";
 import {
   CollaborationMessage,
   NewMessageCallback,
@@ -11,13 +11,14 @@ export class MockTransportService implements TransportService<CollaborationMessa
   private pendingMessages: CollaborationMessage[] = [];
   private isConcurrent: boolean = false;
   private serverRevisionId: string = DEFAULT_REVISION_ID;
+  snapshot?: WorkbookData;
 
   onNewMessage(id: UID, callback: NewMessageCallback) {
     this.listeners.push({ id, callback });
   }
 
   sendMessage(message: CollaborationMessage) {
-    const msg = JSON.parse(JSON.stringify(message));
+    const msg: CollaborationMessage = JSON.parse(JSON.stringify(message));
     switch (msg.type) {
       case "REMOTE_REVISION":
       case "REVISION_UNDONE":
@@ -27,9 +28,19 @@ export class MockTransportService implements TransportService<CollaborationMessa
           this.broadcast(msg);
         }
         break;
-      case "CLIENT_JOINED":
-      case "CLIENT_LEFT":
-      case "CLIENT_MOVED":
+      case "SNAPSHOT":
+        if (this.serverRevisionId === msg.serverRevisionId) {
+          this.serverRevisionId = msg.nextRevisionId;
+          this.broadcast({
+            type: "SNAPSHOT_CREATED",
+            nextRevisionId: msg.nextRevisionId,
+            serverRevisionId: msg.serverRevisionId,
+            version: 1,
+          });
+          this.snapshot = msg.data;
+        }
+        break;
+      default:
         this.broadcast(msg);
         break;
     }

@@ -4,7 +4,7 @@ import { uuidv4 } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
 import { isDefined } from "../helpers/misc";
 import { SelectiveHistory as RevisionLog } from "../history/selective_history";
-import { CoreCommand, HistoryChange, UID } from "../types";
+import { CoreCommand, HistoryChange, UID, WorkbookData } from "../types";
 import {
   Client,
   ClientId,
@@ -137,6 +137,20 @@ export class Session extends EventBus<CollaborativeEvent> {
     });
   }
 
+  /**
+   * Send a snapshot of the spreadsheet to the collaboration server
+   */
+  snapshot(data: WorkbookData) {
+    const snapshotId = uuidv4();
+    this.transportService.sendMessage({
+      type: "SNAPSHOT",
+      nextRevisionId: snapshotId,
+      serverRevisionId: this.serverRevisionId,
+      data: { ...data, revisionId: snapshotId },
+      version: MESSAGE_VERSION,
+    });
+  }
+
   getClient(): Client {
     const client = this.clients[this.clientId];
     if (!client) {
@@ -219,6 +233,14 @@ export class Session extends EventBus<CollaborativeEvent> {
           this.trigger("remote-revision-received", { commands });
         }
         break;
+      case "SNAPSHOT_CREATED": {
+        this.waitingAck = false;
+        const revision = new Revision(message.nextRevisionId, "server", []);
+        this.revisions.insert(revision.id, revision, message.serverRevisionId);
+        this.dropPendingHistoryMessages();
+        this.trigger("snapshot");
+        break;
+      }
     }
     this.acknowledge(message);
     this.trigger("collaborative-event-received");
@@ -288,6 +310,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       case "REMOTE_REVISION":
       case "REVISION_REDONE":
       case "REVISION_UNDONE":
+      case "SNAPSHOT_CREATED":
         this.pendingMessages = this.pendingMessages.filter(
           (msg) => msg.nextRevisionId !== message.nextRevisionId
         );
@@ -307,5 +330,11 @@ export class Session extends EventBus<CollaborativeEvent> {
       default:
         return false;
     }
+  }
+
+  private dropPendingHistoryMessages() {
+    this.pendingMessages = this.pendingMessages.filter(
+      ({ type }) => type !== "REVISION_REDONE" && type !== "REVISION_UNDONE"
+    );
   }
 }

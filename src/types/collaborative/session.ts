@@ -49,6 +49,10 @@ export interface NewLocalStateUpdateEvent {
   id: UID;
 }
 
+export interface SnapshotEvent {
+  type: "snapshot";
+}
+
 export type CollaborativeEvent =
   | NewLocalStateUpdateEvent
   | UnexpectedRevisionIdEvent
@@ -56,6 +60,7 @@ export type CollaborativeEvent =
   | RevisionAcknowledgedEvent
   | RevisionUndone
   | RevisionRedone
+  | SnapshotEvent
   | CollaborativeEventReceived;
 
 export type CollaborativeEventTypes = CollaborativeEvent["type"];
