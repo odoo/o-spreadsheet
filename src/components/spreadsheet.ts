@@ -74,6 +74,7 @@ interface Props {
   stateUpdateMessages?: StateUpdateMessage[];
   transportService?: TransportService;
   isReadonly?: boolean;
+  snapshotRequested?: boolean;
 }
 
 const t = (s: string): string => s;
@@ -97,6 +98,7 @@ export class Spreadsheet extends Component<Props> {
       transportService: this.props.transportService,
       client: this.props.client,
       isReadonly: this.props.isReadonly,
+      snapshotRequested: this.props.snapshotRequested,
     },
     this.props.stateUpdateMessages
   );

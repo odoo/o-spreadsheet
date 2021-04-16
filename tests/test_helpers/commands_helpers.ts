@@ -311,3 +311,7 @@ export function unMerge(
     target: target(range),
   });
 }
+
+export function snapshot(model: Model) {
+  model["session"].snapshot(model.exportData());
+}

@@ -10,6 +10,7 @@ import {
   deleteRows,
   redo,
   setCellContent,
+  snapshot,
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
@@ -505,5 +506,71 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
     undo(bob);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "F1"), "hello");
+  });
+
+  test("local history is cleared", () => {
+    setCellContent(alice, "A1", "hello");
+    setCellContent(alice, "A2", "hello");
+    undo(alice);
+    snapshot(bob);
+    expect(undo(alice)).toBe(CommandResult.EmptyUndoStack);
+    expect(redo(alice)).toBe(CommandResult.EmptyRedoStack);
+  });
+
+  test("concurrently dispatch after history cleared", () => {
+    const bobData = bob.exportData();
+    network.concurrent(() => {
+      snapshot(bob);
+      setCellContent(alice, "A2", "Hi");
+    });
+    expect(new Model(network.snapshot)).toExport(bobData);
+    expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "Hi");
+  });
+
+  test("concurrently clear history after dispatch", () => {
+    const bobData = bob.exportData();
+    network.concurrent(() => {
+      setCellContent(alice, "A2", "Hi");
+      snapshot(bob);
+    });
+    expect(network.snapshot).not.toEqual(bobData);
+    expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "Hi");
+  });
+
+  test("concurrent snapshot is refused if arrives after", () => {
+    setCellContent(alice, "A1", "hello");
+    setCellContent(alice, "A2", "hello");
+    const bobData = bob.exportData();
+    network.concurrent(() => {
+      undo(alice);
+      snapshot(bob);
+    });
+    expect(network.snapshot).not.toEqual(bobData);
+    expect(getCellContent(alice, "A2")).toBeFalsy();
+    setCellContent(alice, "A2", "Hi"); // can still dispatch
+    expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "Hi");
+  });
+
+  test("local history can be cleared while undoing: clear first", () => {
+    setCellContent(alice, "A1", "hello");
+    network.concurrent(() => {
+      snapshot(bob);
+      undo(alice);
+    });
+    expect(getCellContent(alice, "A1")).toBe("hello");
+    setCellContent(alice, "A2", "Hi"); // can still dispatch
+    expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "Hi");
+  });
+
+  test("snapshot is sent", () => {
+    const data = alice.exportData();
+    new Model(data, { transportService: network, snapshotRequested: true });
+    expect(new Model(network.snapshot)).toExport(data);
+  });
+
+  test("snapshot is sent with a new revision id", () => {
+    const revisionId = alice.exportData().revisionId;
+    snapshot(alice);
+    expect(network.snapshot?.revisionId).not.toBe(revisionId);
   });
 });

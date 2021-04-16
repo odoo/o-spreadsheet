@@ -32,6 +32,11 @@ export class LocalHistory extends owl.core.EventBus {
     this.session.on("new-local-state-update", this, this.onNewLocalStateUpdate);
     this.session.on("revision-undone", this, this.selectiveUndo);
     this.session.on("revision-redone", this, this.selectiveRedo);
+    this.session.on("snapshot", this, () => {
+      this.undoStack = [];
+      this.redoStack = [];
+      this.isWaitingForUndoRedo = false;
+    });
   }
 
   allowDispatch(cmd: Command): CommandResult {
