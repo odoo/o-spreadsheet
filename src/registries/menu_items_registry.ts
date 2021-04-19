@@ -15,6 +15,7 @@ import { SpreadsheetEnv } from "../types/env";
  * - sequence, which represents its position inside the
  *   menus (the lower sequence it has, the upper it is in the menu)
  * - isVisible, which can be defined to compute the visibility of the item
+ * - isReadonlyAllowed: is the action allowed when running spreadsheet in readonly mode
  * - action, the action associated to this item
  * - children, subitems associated to this item
  *    NB: an item without action or children is not displayed !
@@ -29,6 +30,7 @@ export interface MenuItem {
   id?: string;
   isVisible?: (env: SpreadsheetEnv) => boolean;
   isEnabled?: (env: SpreadsheetEnv) => boolean;
+  isReadonlyAllowed?: boolean;
   action?: (env: SpreadsheetEnv) => void;
   children?: menuChildren;
   separator?: boolean;
@@ -41,6 +43,7 @@ type menuChildren = FullMenuItem[] | ((env: SpreadsheetEnv) => FullMenuItem[]);
 const DEFAULT_MENU_ITEM = (key: string) => ({
   isVisible: () => true,
   isEnabled: () => true,
+  isReadonlyAllowed: false,
   shortCut: "",
   action: false,
   children: [],

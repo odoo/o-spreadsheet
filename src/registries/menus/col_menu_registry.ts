@@ -16,6 +16,7 @@ colMenuRegistry
     name: _lt("Copy"),
     shortCut: "Ctrl+C",
     sequence: 20,
+    isReadonlyAllowed: true,
     action: ACTIONS.COPY_ACTION,
   })
   .add("paste", {

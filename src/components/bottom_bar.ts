@@ -158,6 +158,7 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
       registry.add(sheet.id, {
         name: sheet.name,
         sequence: i,
+        isReadonlyAllowed: true,
         action: (env) => env.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheet.id }),
       });
       i++;

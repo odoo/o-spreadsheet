@@ -67,7 +67,7 @@ export {
   RevisionUndoneMessage,
   TransportService,
 } from "./types/collaborative/transport_service";
-export { coreTypes } from "./types/commands";
+export { coreTypes, readonlyAllowedCommands } from "./types/commands";
 export const SPREADSHEET_DIMENSIONS = {
   MIN_ROW_HEIGHT,
   MIN_COL_WIDTH,

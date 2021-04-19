@@ -14,6 +14,7 @@ import { StateObserver } from "./state_observer";
 import { _lt } from "./translation";
 import { StateUpdateMessage, TransportService } from "./types/collaborative/transport_service";
 import {
+  canExecuteInReadonly,
   Client,
   ClientPosition,
   Command,
@@ -65,6 +66,7 @@ export interface ModelConfig {
   transportService: TransportService;
   client: Client;
   isHeadless: boolean;
+  isReadonly: boolean;
 }
 
 const enum Status {
@@ -134,6 +136,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     this.history = new LocalHistory(this.dispatchFromCorePlugin, this.session);
 
     this.getters = {
+      isReadonly: () => this.config.isReadonly,
       canUndo: this.history.canUndo.bind(this.history),
       canRedo: this.history.canRedo.bind(this.history),
       getClient: this.session.getClient.bind(this.session),
@@ -268,6 +271,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       client,
       moveClient: () => {},
       isHeadless: config.isHeadless || false,
+      isReadonly: config.isReadonly || false,
     };
   }
 
@@ -313,6 +317,9 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
     const command: Command = { type, ...payload };
     let status: Status = command.interactive ? Status.Interactive : this.status;
+    if (this.config.isReadonly && !canExecuteInReadonly(command)) {
+      return CommandResult.Readonly;
+    }
     switch (status) {
       case Status.Ready:
         const error = this.checkDispatchAllowed(command);

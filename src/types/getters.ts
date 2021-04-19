@@ -29,6 +29,8 @@ import { ViewportPlugin } from "../plugins/ui/viewport";
 // -----------------------------------------------------------------------------
 
 export interface CoreGetters {
+  isReadonly: () => boolean;
+
   canUndo: LocalHistory["canUndo"];
   canRedo: LocalHistory["canRedo"];
 

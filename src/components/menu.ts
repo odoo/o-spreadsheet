@@ -260,7 +260,10 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   }
 
   isEnabled(menu: FullMenuItem) {
-    return menu.isEnabled(this.env);
+    if (menu.isEnabled(this.env)) {
+      return this.env.getters.isReadonly() ? menu.isReadonlyAllowed : true;
+    }
+    return false;
   }
 
   closeSubMenus() {
@@ -292,7 +295,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   }
 
   onClickMenu(menu: FullMenuItem, position: number) {
-    if (menu.isEnabled(this.env)) {
+    if (this.isEnabled(menu)) {
       if (this.isRoot(menu)) {
         this.openSubMenu(menu, position);
       } else {

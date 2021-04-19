@@ -73,6 +73,41 @@ export function isPositionDependent(cmd: CoreCommand): boolean {
   return "col" in cmd && "row" in cmd;
 }
 
+export const readonlyAllowedCommands = new Set<CommandTypes>([
+  "START",
+  "ACTIVATE_SHEET",
+
+  "COPY",
+
+  "START_SELECTION",
+  "SET_SELECTION",
+  "ALTER_SELECTION",
+  "START_SELECTION_EXPANSION",
+  "PREPARE_SELECTION_EXPANSION",
+  "STOP_SELECTION",
+
+  "RESIZE_VIEWPORT",
+  "SET_VIEWPORT_OFFSET",
+
+  "SELECT_ALL",
+  "SELECT_CELL",
+  "SELECT_COLUMN",
+  "SELECT_ROW",
+  "SELECT_FIGURE",
+
+  "MOVE_POSITION",
+
+  "SELECT_SEARCH_NEXT_MATCH",
+  "SELECT_SEARCH_PREVIOUS_MATCH",
+  "REFRESH_SEARCH",
+  "UPDATE_SEARCH",
+  "CLEAR_SEARCH",
+
+  "EVALUATE_CELLS",
+
+  "SET_CURRENT_CONTENT",
+]);
+
 export const coreTypes = new Set<CoreCommandTypes>([
   /** CELLS */
   "UPDATE_CELL",
@@ -120,6 +155,10 @@ export const coreTypes = new Set<CoreCommandTypes>([
 
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
   return coreTypes.has(cmd.type as any);
+}
+
+export function canExecuteInReadonly(cmd: Command): boolean {
+  return readonlyAllowedCommands.has(cmd.type);
 }
 
 // Core Commands
@@ -928,6 +967,7 @@ export const enum CommandResult {
   WaitingSessionConfirmation,
   MergeOverlap,
   TooManyHiddenElements,
+  Readonly,
 }
 
 export interface CommandHandler<T> {

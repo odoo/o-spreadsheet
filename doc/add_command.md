@@ -26,3 +26,11 @@ coreTypes.add("MY_COMMAND_NAME");
 ```
 
 Adding the type to `CoreTypes` is necessary to identify the new command as a `CoreCommands`, and so to ensure that it will be shared.
+
+In readonly mode, the commands are cancelled with the `CommandResult` `Readonly`. However, some commands still need to be executed. For example, the selection should still be updated.
+To declare that a new command should be executed in readonly mode, its type should be added to `readonlyAllowedCommands`
+
+```js
+const { readonlyAllowedCommands } = o_spreadsheet;
+readonlyAllowedCommands.add("MY_COMMAND_NAME");
+```
