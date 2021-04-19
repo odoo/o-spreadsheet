@@ -335,7 +335,7 @@ export const NETWORKDAYS: AddFunctionDescription = {
 function weekendToDayNumber(weekend: any): number[] {
   assert(
     () => typeof weekend === "string" || typeof weekend === "number",
-    _lt(`The weekend (%s) must be a number or a string.`, weekend.toString())
+    _lt("The weekend (%s) must be a number or a string.", weekend.toString())
   );
 
   // case "string"

@@ -60,7 +60,7 @@ function getMatchingCells(database: any, field: any, criteria: any): any[] {
   assert(
     () => dimColCriteria >= 2,
     _lt(
-      `The criteria range contains %s row, it must be at least 2 rows.`,
+      "The criteria range contains %s row, it must be at least 2 rows.",
       dimColCriteria.toString()
     )
   );
