@@ -84,6 +84,7 @@ App.template = xml/* xml */ `
       t-key="key"
       stateUpdateMessages="stateUpdateMessages"
       transportService="transportService"
+      isReadonly="false"
       t-on-ask-confirmation="askConfirmation"
       t-on-notify-user="notifyUser"
       t-on-edit-text="editText"/>

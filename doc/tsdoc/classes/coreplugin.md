@@ -32,13 +32,11 @@ Name | Default |
 
 ### Properties
 
-- [currentMode](coreplugin.md#currentmode)
 - [dispatch](coreplugin.md#dispatch)
 - [getters](coreplugin.md#getters)
 - [history](coreplugin.md#history)
 - [range](coreplugin.md#range)
 - [getters](coreplugin.md#getters)
-- [modes](coreplugin.md#modes)
 
 ### Methods
 
@@ -76,12 +74,6 @@ Name | Type |
 **Returns:** [*CorePlugin*](coreplugin.md)<State, C\>
 
 ## Properties
-
-### currentMode
-
-• `Protected` **currentMode**: Mode
-
-___
 
 ### dispatch
 
@@ -147,12 +139,6 @@ ___
 ### getters
 
 ▪ `Static` **getters**: *string*[]
-
-___
-
-### modes
-
-▪ `Static` **modes**: Mode[]
 
 ## Methods
 

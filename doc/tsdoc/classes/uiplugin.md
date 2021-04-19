@@ -26,14 +26,12 @@ Name | Default |
 
 ### Properties
 
-- [currentMode](uiplugin.md#currentmode)
 - [dispatch](uiplugin.md#dispatch)
 - [getters](uiplugin.md#getters)
 - [history](uiplugin.md#history)
 - [ui](uiplugin.md#ui)
 - [getters](uiplugin.md#getters)
 - [layers](uiplugin.md#layers)
-- [modes](uiplugin.md#modes)
 
 ### Methods
 
@@ -68,12 +66,6 @@ Name | Type |
 **Returns:** [*UIPlugin*](uiplugin.md)<State, C\>
 
 ## Properties
-
-### currentMode
-
-• `Protected` **currentMode**: Mode
-
-___
 
 ### dispatch
 
@@ -145,12 +137,6 @@ ___
 ### layers
 
 ▪ `Static` **layers**: LAYERS[]
-
-___
-
-### modes
-
-▪ `Static` **modes**: Mode[]
 
 ## Methods
 

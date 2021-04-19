@@ -285,9 +285,9 @@ export function setCellContent(
 /**
  * Select a cell
  */
-export function selectCell(model: Model, xc: string) {
+export function selectCell(model: Model, xc: string): CommandResult {
   const [col, row] = toCartesian(xc);
-  model.dispatch("SELECT_CELL", { col, row });
+  return model.dispatch("SELECT_CELL", { col, row });
 }
 
 export function merge(

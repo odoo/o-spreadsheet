@@ -73,6 +73,7 @@ interface Props {
   data?: any;
   stateUpdateMessages?: StateUpdateMessage[];
   transportService?: TransportService;
+  isReadonly?: boolean;
 }
 
 const t = (s: string): string => s;
@@ -95,6 +96,7 @@ export class Spreadsheet extends Component<Props> {
       evalContext: { env: this.env },
       transportService: this.props.transportService,
       client: this.props.client,
+      isReadonly: this.props.isReadonly,
     },
     this.props.stateUpdateMessages
   );

@@ -38,6 +38,7 @@
 - [MinNaN](commandresult.md#minnan)
 - [NotEnoughElements](commandresult.md#notenoughelements)
 - [NotEnoughSheets](commandresult.md#notenoughsheets)
+- [Readonly](commandresult.md#readonly)
 - [SelectionOutOfBound](commandresult.md#selectionoutofbound)
 - [Success](commandresult.md#success)
 - [TooManyHiddenElements](commandresult.md#toomanyhiddenelements)
@@ -240,6 +241,12 @@ ___
 ### NotEnoughSheets
 
 • **NotEnoughSheets**: = 7
+
+___
+
+### Readonly
+
+• **Readonly**: = 42
 
 ___
 

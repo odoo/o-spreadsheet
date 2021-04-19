@@ -636,6 +636,20 @@ describe("Multi users synchronisation", () => {
     expect(bob.getters.getSelectedFigureId()).toBeNull();
   });
 
+  test("Spreadsheet in readonly still receive commands", () => {
+    const david = new Model(alice.exportData(), { transportService: network, isReadonly: true });
+    setCellContent(alice, "A1", "hello");
+    expect([alice, bob, charlie, david]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "hello"
+    );
+    setCellContent(david, "A1", "I'm David and I want access !");
+    expect([alice, bob, charlie, david]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "hello"
+    );
+  });
+
   describe("Evaluation", () => {
     test("Evaluation is correctly triggered after cell updated", () => {
       setCellContent(alice, "A1", "=5");

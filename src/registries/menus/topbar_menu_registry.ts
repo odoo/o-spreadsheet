@@ -36,6 +36,7 @@ topbarMenuRegistry
     name: _lt("Copy"),
     shortCut: "Ctrl+C",
     sequence: 30,
+    isReadonlyAllowed: true,
     action: ACTIONS.COPY_ACTION,
   })
   .addChild("cut", ["edit"], {
@@ -85,6 +86,7 @@ topbarMenuRegistry
     name: _lt("Find and replace"),
     shortCut: "Ctrl+H",
     sequence: 65,
+    isReadonlyAllowed: true,
     action: ACTIONS.OPEN_FAR_SIDEPANEL_ACTION,
     separator: true,
   })
