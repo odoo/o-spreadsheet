@@ -1,4 +1,12 @@
 #!/bin/bash
 
+# podman build . -t o-spreadsheet
+
 # ignore node_modules !
-docker run -p 8080:8080 -p 9000:9000 -t -v `pwd`:/o-spreadsheet o-spreadsheet npm run $@
+podman run -p 8080:8080 -p 9000:9000 -ti \
+  -v `pwd`/src:/o-spreadsheet/src \
+  -v `pwd`/tests:/o-spreadsheet/tests \
+  -v `pwd`/dist:/o-spreadsheet/dist \
+  -v `pwd`/demo:/o-spreadsheet/demo \
+  -v `pwd`/logs:/o-spreadsheet/logs \
+  o-spreadsheet npm run $@
