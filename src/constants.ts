@@ -1,3 +1,4 @@
+import { _lt } from "./translation";
 import { BorderDescr, Style } from "./types";
 
 // Colors
@@ -56,3 +57,5 @@ export const DEFAULT_REVISION_ID = "START_REVISION";
 export const DEBOUNCE_TIME = 200;
 
 export const MESSAGE_VERSION = 1;
+
+export const DEFAULT_ERROR_MESSAGE = _lt("Invalid expression");

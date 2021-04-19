@@ -1,4 +1,4 @@
-import { DATETIME_FORMAT } from "../../constants";
+import { DATETIME_FORMAT, DEFAULT_ERROR_MESSAGE } from "../../constants";
 import { compile, normalize } from "../../formulas/index";
 import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
 import { formatDateTime, parseDateTime } from "../../functions/dates";
@@ -14,7 +14,6 @@ import {
   toXC,
   uuidv4,
 } from "../../helpers/index";
-import { _lt } from "../../translation";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -656,13 +655,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           if (!format && !after.formula) {
             format = this.computeFormulaFormat(cell);
           }
-        } catch (_) {
+        } catch (e) {
           cell = {
             id: cellId,
             type: CellType.invalidFormula,
             content: afterContent,
             value: "#BAD_EXPR",
-            error: _lt("Invalid Expression"),
+            error: e.message || DEFAULT_ERROR_MESSAGE,
           };
         }
       } else if (afterContent === "") {
