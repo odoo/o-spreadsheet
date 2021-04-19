@@ -75,7 +75,7 @@ export const FIND: AddFunctionDescription = {
     assert(() => _textToSearch !== "", _lt(`The text_to_search must be non-empty.`));
     assert(
       () => _startingAt >= 1,
-      _lt(`The starting_at (%s) must be greater than or equal to 1.`, _startingAt.toString())
+      _lt("The starting_at (%s) must be greater than or equal to 1.", _startingAt.toString())
     );
 
     const result = _textToSearch.indexOf(_searchFor, _startingAt - 1);
@@ -130,7 +130,7 @@ export const LEFT: AddFunctionDescription = {
     const _numberOfCharacters = toNumber(numberOfCharacters);
     assert(
       () => _numberOfCharacters >= 0,
-      _lt(`The number_of_characters (%s) must be positive or null.`, _numberOfCharacters.toString())
+      _lt("The number_of_characters (%s) must be positive or null.", _numberOfCharacters.toString())
     );
     return toString(text).substring(0, _numberOfCharacters);
   },
@@ -180,7 +180,7 @@ export const REPLACE: AddFunctionDescription = {
     const _position = toNumber(position);
     assert(
       () => _position >= 1,
-      _lt(`The position (%s) must be greater than or equal to 1.`, _position.toString())
+      _lt("The position (%s) must be greater than or equal to 1.", _position.toString())
     );
 
     const _text = toString(text);
@@ -206,7 +206,7 @@ export const RIGHT: AddFunctionDescription = {
     const _numberOfCharacters = toNumber(numberOfCharacters);
     assert(
       () => _numberOfCharacters >= 0,
-      _lt(`The number_of_characters (%s) must be positive or null.`, _numberOfCharacters.toString())
+      _lt("The number_of_characters (%s) must be positive or null.", _numberOfCharacters.toString())
     );
     const _text = toString(text);
     const stringLength = _text.length;
@@ -235,7 +235,7 @@ export const SEARCH: AddFunctionDescription = {
     assert(() => _textToSearch !== "", _lt(`The text_to_search must be non-empty.`));
     assert(
       () => _startingAt >= 1,
-      _lt(`The starting_at (%s) must be greater than or equal to 1.`, _startingAt.toString())
+      _lt("The starting_at (%s) must be greater than or equal to 1.", _startingAt.toString())
     );
 
     const result = _textToSearch.indexOf(_searchFor, _startingAt - 1);
@@ -277,7 +277,7 @@ export const SUBSTITUTE: AddFunctionDescription = {
 
     assert(
       () => _occurrenceNumber >= 0,
-      _lt(`The occurrenceNumber (%s) must be positive or null.`, _occurrenceNumber.toString())
+      _lt("The occurrenceNumber (%s) must be positive or null.", _occurrenceNumber.toString())
     );
 
     const _textToSearch = toString(textToSearch);
