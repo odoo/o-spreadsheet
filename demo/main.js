@@ -37,6 +37,15 @@ class App extends Component {
         this.state.isReadonly = true;
       },
     });
+
+    topbarMenuRegistry.addChild("read_write", ["file"], {
+      name: "Open with write access",
+      sequence: 12,
+      isReadonlyAllowed: true,
+      action: async (env) => {
+        this.state.isReadonly = false;
+      },
+    });
   }
 
   async willStart() {
