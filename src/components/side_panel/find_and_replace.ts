@@ -40,7 +40,7 @@ const TEMPLATE = xml/* xml */ `
             t-esc="env._t('${FindAndReplaceTerms.Next}')"/>
   </div>
 
-  <div class="o-section">
+  <div class="o-section" t-if="!getters.isReadonly()">
     <div t-esc="env._t('${FindAndReplaceTerms.Replace}')" class="o-section-title"/>
     <input type="text" class="o-input" t-model="state.replaceWith" t-on-keydown="onKeydownReplace"/>
     <label class="o-far-checkbox">
@@ -50,7 +50,7 @@ const TEMPLATE = xml/* xml */ `
     </label>
   </div>
 
-  <div class="o-sidePanelButtons">
+  <div class="o-sidePanelButtons" t-if="!getters.isReadonly()">
     <button t-att-disabled="env.getters.getCurrentSelectedMatchIndex() === null" t-on-click="replace"
             class="o-sidePanelButton" t-esc="env._t('${FindAndReplaceTerms.Replace}')"/>
     <button t-att-disabled="env.getters.getCurrentSelectedMatchIndex() === null" t-on-click="replaceAll"
