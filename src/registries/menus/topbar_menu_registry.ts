@@ -161,6 +161,7 @@ topbarMenuRegistry
     name: (env: SpreadsheetEnv) =>
       env.getters.shouldShowFormulas() ? _lt("Hide formulas") : _lt("Show formulas"),
     action: ACTIONS.SET_FORMULA_VISIBILITY_ACTION,
+    isReadonlyAllowed: true,
     sequence: 10,
   })
   .addChild("format_number", ["format"], {
