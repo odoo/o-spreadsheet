@@ -106,6 +106,8 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "EVALUATE_CELLS",
 
   "SET_CURRENT_CONTENT",
+
+  "SET_FORMULA_VISIBILITY",
 ]);
 
 export const coreTypes = new Set<CoreCommandTypes>([
