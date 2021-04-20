@@ -3,7 +3,7 @@ import { WebsocketTransport } from "./transport.js";
 owl.config.mode = "dev";
 
 const { whenReady } = owl.utils;
-const { Component } = owl;
+const { Component, useState } = owl;
 const { xml, css } = owl.tags;
 const { useSubEnv } = owl.hooks;
 
@@ -28,18 +28,30 @@ class App extends Component {
     this.data = demoData;
     // this.data = makeLargeDataset(20, 10_000);
     this.stateUpdateMessages = [];
+    this.state = useState({ isReadonly: false });
+
+    topbarMenuRegistry.addChild("readonly", ["file"], {
+      name: "Open in read-only",
+      sequence: 11,
+      action: async (env) => {
+        this.state.isReadonly = true;
+      },
+    });
   }
 
   async willStart() {
     this.transportService = new WebsocketTransport();
     try {
-      const [history,] = await Promise.all([
+      const [history, _] = await Promise.all([
         this.fetchHistory(),
         this.transportService.connect(),
       ]);
       this.stateUpdateMessages = history;
     } catch (error) {
-      console.warn("Error while connecting to the collaborative server. Starting the spreadsheet without collaborative mode.", error);
+      console.warn(
+        "Error while connecting to the collaborative server. Starting the spreadsheet without collaborative mode.",
+        error
+      );
       this.transportService = undefined;
       this.stateUpdateMessages = [];
     }
@@ -84,7 +96,7 @@ App.template = xml/* xml */ `
       t-key="key"
       stateUpdateMessages="stateUpdateMessages"
       transportService="transportService"
-      isReadonly="false"
+      isReadonly="state.isReadonly"
       t-on-ask-confirmation="askConfirmation"
       t-on-notify-user="notifyUser"
       t-on-edit-text="editText"/>

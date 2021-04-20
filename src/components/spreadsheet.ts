@@ -158,6 +158,12 @@ export class Spreadsheet extends Component<Props> {
     this.leaveCollaborativeSession();
   }
 
+  async willUpdateProps(nextProps: Props) {
+    if (this.props.isReadonly !== nextProps.isReadonly) {
+      this.model.updateReadOnly(nextProps.isReadonly);
+    }
+  }
+
   private leaveCollaborativeSession() {
     this.model.off("update", this);
     this.model.leaveSession();
