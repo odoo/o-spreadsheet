@@ -423,4 +423,15 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     data = JSON.parse(JSON.stringify(data));
     return data;
   }
+
+  /**
+   * Change the configuration of the model to put it in readonly or read-write mode
+   * @param isReadonly
+   */
+  updateReadOnly(isReadonly: undefined | boolean) {
+    if (isReadonly) {
+      this.dispatch("STOP_EDITION", { cancel: true });
+    }
+    this.config.isReadonly = isReadonly || false;
+  }
 }
