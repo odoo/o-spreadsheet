@@ -14,6 +14,7 @@ import {
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { overlap } from "../../helpers/index";
+import { Mode } from "../../model";
 import {
   Box,
   Cell,
@@ -71,6 +72,7 @@ function searchIndex(headers: Header[], offset: number): number {
 export class RendererPlugin extends UIPlugin {
   static layers = [LAYERS.Background, LAYERS.Headers];
   static getters = ["getColIndex", "getRowIndex", "getRect"];
+  static modes: Mode[] = ["normal", "readonly"];
 
   private boxes: Box[] = [];
 

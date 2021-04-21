@@ -1,5 +1,6 @@
 import { colorNumberString, isInside, recomputeZones, toXC, toZone } from "../../helpers/index";
 import { clip } from "../../helpers/misc";
+import { Mode } from "../../model";
 import { _lt } from "../../translation";
 import {
   Cell,
@@ -22,6 +23,7 @@ import { UIPlugin } from "../ui_plugin";
 
 export class EvaluationConditionalFormatPlugin extends UIPlugin {
   static getters = ["getConditionalStyle"];
+  static modes: Mode[] = ["normal", "readonly"];
   private isStale: boolean = true;
   // stores the computed styles in the format of computedStyles.sheetName[col][row] = Style
   private computedStyles: { [sheet: string]: { [col: number]: (Style | undefined)[] } } = {};

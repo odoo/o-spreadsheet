@@ -9,7 +9,7 @@ import {
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
-import { ModelConfig } from "../../model";
+import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
 import {
   AddColumnsRowsCommand,
@@ -58,6 +58,7 @@ interface SelectionPluginState {
  */
 export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   static layers = [LAYERS.Selection];
+  static modes: Mode[] = ["normal", "readonly"];
   static getters = [
     "getActiveSheet",
     "getActiveSheetId",

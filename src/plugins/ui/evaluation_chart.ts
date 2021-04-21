@@ -2,6 +2,7 @@ import { ChartConfiguration, ChartType } from "chart.js";
 import { chartTerms } from "../../components/side_panel/translations_terms";
 import { INCORRECT_RANGE_STRING } from "../../constants";
 import { isDefined, isInside, overlap, recomputeZones, zoneToXc } from "../../helpers/index";
+import { Mode } from "../../model";
 import { ChartDefinition, DataSet } from "../../types/chart";
 import { Command } from "../../types/commands";
 import { Cell, UID, Zone } from "../../types/misc";
@@ -33,6 +34,7 @@ const GraphColors = [
 
 export class EvaluationChartPlugin extends UIPlugin {
   static getters = ["getChartRuntime"];
+  static modes: Mode[] = ["normal", "readonly"];
   // contains the configuration of the chart with it's values like they should be displayed,
   // as well as all the options needed for the chart library to work correctly
   readonly chartRuntime: { [figureId: string]: ChartConfiguration } = {};
