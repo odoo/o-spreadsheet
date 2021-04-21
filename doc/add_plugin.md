@@ -84,6 +84,9 @@ class MyPlugin extends spreadsheet.CorePlugin {
   }
 }
 
+// makes the new plugin to be instantiated for every spreadsheet mode
+MyPlugin.modes = ["normal", "headless", "readonly"];
+
 // makes the function getSomething accessible from anywhere that has a reference to model.getters
 MyPlugin.getters = ["getSomething"];
 

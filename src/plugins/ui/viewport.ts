@@ -5,6 +5,7 @@ import {
   HEADER_WIDTH,
 } from "../../constants";
 import { getNextVisibleCellCoords } from "../../helpers";
+import { Mode } from "../../model";
 import { Command, Sheet, UID, Viewport, ZoneDimension } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
@@ -31,6 +32,7 @@ export class ViewportPlugin extends UIPlugin {
     "getViewportDimension",
     "getGridDimension",
   ];
+  static modes: Mode[] = ["normal", "readonly"];
 
   readonly viewports: ViewportPluginState["viewports"] = {};
   readonly snappedViewports: ViewportPluginState["viewports"] = {};

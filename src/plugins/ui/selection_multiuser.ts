@@ -1,4 +1,5 @@
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE } from "../../constants";
+import { Mode } from "../../model";
 import { Client, ClientPosition, GridRenderingContext, LAYERS, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
@@ -28,6 +29,7 @@ interface ClientToDisplay extends Required<Client> {
 export class SelectionMultiUserPlugin extends UIPlugin {
   static getters = ["getClientsToDisplay"];
   static layers = [LAYERS.Selection];
+  static modes: Mode[] = ["normal", "readonly"];
   private availableColors = new Set(colors);
   private colors: Record<UID, string> = {};
 

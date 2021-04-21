@@ -1,4 +1,4 @@
-import { ModelConfig } from "../model";
+import { Mode, ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
 import {
   ApplyRangeChange,
@@ -21,6 +21,7 @@ export interface CorePluginConstructor {
     config: ModelConfig
   ): CorePlugin;
   getters: string[];
+  modes: Mode[];
 }
 
 /**

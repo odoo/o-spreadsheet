@@ -637,7 +637,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("Spreadsheet in readonly still receive commands", () => {
-    const david = new Model(alice.exportData(), { transportService: network, isReadonly: true });
+    const david = new Model(alice.exportData(), { transportService: network, mode: "readonly" });
     setCellContent(alice, "A1", "hello");
     expect([alice, bob, charlie, david]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),

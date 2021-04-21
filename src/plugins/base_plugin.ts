@@ -1,4 +1,4 @@
-import { ModelConfig } from "../model";
+import { Mode, ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
 import {
   CommandDispatcher,
@@ -22,9 +22,11 @@ import {
 
 export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
   static getters: string[] = [];
+  static modes: Mode[] = ["headless", "normal", "readonly"];
 
   protected history: WorkbookHistory<State>;
   protected dispatch: CommandDispatcher["dispatch"];
+  protected currentMode: Mode;
 
   constructor(
     stateObserver: StateObserver,
@@ -36,6 +38,7 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
       selectCell: () => {},
     });
     this.dispatch = dispatch;
+    this.currentMode = config.mode;
   }
 
   // ---------------------------------------------------------------------------

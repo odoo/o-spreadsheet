@@ -1,7 +1,7 @@
 import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { mapCellsInZone, toXC, toZone } from "../../helpers/index";
-import { ModelConfig } from "../../model";
+import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
 import {
@@ -38,6 +38,7 @@ export const LOADING = "Loading...";
 
 export class EvaluationPlugin extends UIPlugin {
   static getters = ["evaluateFormula", "isIdle", "getRangeFormattedValues", "getRangeValues"];
+  static modes: Mode[] = ["normal", "readonly"];
 
   private isUpToDate: Set<UID> = new Set(); // Set<sheetIds>
   private loadingCells: number = 0;

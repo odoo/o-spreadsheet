@@ -1,4 +1,5 @@
 import { clip, isInside, toCartesian, toXC, union } from "../../helpers/index";
+import { Mode } from "../../model";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
 import {
   AutofillData,
@@ -81,6 +82,7 @@ class AutofillGenerator {
 export class AutofillPlugin extends UIPlugin {
   static layers = [LAYERS.Autofill];
   static getters = ["getAutofillTooltip"];
+  static modes: Mode[] = ["normal", "readonly"];
 
   private autofillZone: Zone | undefined;
   private lastCellSelected: { col?: number; row?: number } = {};
