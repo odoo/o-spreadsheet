@@ -6,6 +6,7 @@ import {
   createSheet,
   deleteRows,
   hideRows,
+  merge,
   redo,
   resizeColumns,
   resizeRows,
@@ -903,5 +904,18 @@ describe("sheets", () => {
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(true);
     model.dispatch("REDO");
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(false);
+  });
+
+  test("isEmpty getter", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "hello");
+    expect(model.getters.isEmpty(sheetId, toZone("A1"))).toBe(false);
+    expect(model.getters.isEmpty(sheetId, toZone("A1:A2"))).toBe(false);
+    expect(model.getters.isEmpty(sheetId, toZone("A2"))).toBe(true);
+    expect(model.getters.isEmpty(sheetId, toZone("A2:A3"))).toBe(true);
+    merge(model, "A1:A2");
+    expect(model.getters.isEmpty(sheetId, toZone("A2"))).toBe(true);
+    expect(model.getters.isEmpty(sheetId, toZone("A2:A3"))).toBe(true);
   });
 });

@@ -559,6 +559,36 @@ describe("merges", () => {
     expect(setCellContent(model, "A2", "hello")).toBe(CommandResult.CellIsMerged);
     expect(getCell(model, "A2")).toBeUndefined();
   });
+
+  describe("isSingleCellOrMerge getter", () => {
+    test("simple zone without merges", () => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.isSingleCellOrMerge(sheetId, toZone("A1"))).toBe(true);
+      setCellContent(model, "A1", "hello");
+      expect(model.getters.isSingleCellOrMerge(sheetId, toZone("A1"))).toBe(true);
+      expect(model.getters.isSingleCellOrMerge(sheetId, toZone("A1:B1"))).toBe(false);
+    });
+
+    test("merged zones", () => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+      merge(model, "A1:A2");
+      merge(model, "B1:B2");
+      expect(model.getters.isSingleCellOrMerge(sheetId, toZone("A1:A2"))).toBe(true);
+      expect(model.getters.isSingleCellOrMerge(sheetId, toZone("A1:B2"))).toBe(false);
+      expect(model.getters.isSingleCellOrMerge(sheetId, toZone("A1:A3"))).toBe(false);
+    });
+
+    test("zone outside of sheet", () => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+      const singleCellZone = { top: 999, bottom: 999, left: 999, right: 999 };
+      const zone = { top: 0, bottom: 999, left: 0, right: 999 };
+      expect(model.getters.isSingleCellOrMerge(sheetId, singleCellZone)).toBe(true);
+      expect(model.getters.isSingleCellOrMerge(sheetId, zone)).toBe(false);
+    });
+  });
 });
 
 function getStyle(model: Model, xc: string): Style {

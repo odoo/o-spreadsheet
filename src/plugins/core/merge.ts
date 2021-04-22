@@ -4,7 +4,16 @@ import {
   updateRemoveColumns,
   updateRemoveRows,
 } from "../../helpers/grid_manipulation";
-import { clip, isDefined, isEqual, overlap, toXC, toZone, union } from "../../helpers/index";
+import {
+  clip,
+  isDefined,
+  isEqual,
+  overlap,
+  toXC,
+  toZone,
+  union,
+  zoneToDimension,
+} from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
   AddMergeCommand,
@@ -45,6 +54,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     "doesIntersectMerge",
     "getMerges",
     "getMerge",
+    "isSingleCellOrMerge",
   ];
 
   private nextId: number = 1;
@@ -228,6 +238,18 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
       }
     }
     return false;
+  }
+
+  /**
+   * Check if the zone represents a single cell or a single merge.
+   */
+  isSingleCellOrMerge(sheetId: UID, zone: Zone): boolean {
+    const merge = this.getMerge(sheetId, zone.left, zone.top);
+    if (merge) {
+      return isEqual(zone, merge);
+    }
+    const { width, height } = zoneToDimension(zone);
+    return width === 1 && height === 1;
   }
   // ---------------------------------------------------------------------------
   // Merges

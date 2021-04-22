@@ -1,8 +1,9 @@
 import { MESSAGE_VERSION } from "../../src/constants";
+import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { merge, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { getActiveXc, getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick, Touch } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
@@ -354,6 +355,119 @@ describe("Grid component", () => {
         new KeyboardEvent("keydown", { key: "S", ctrlKey: true, bubbles: true })
       );
       expect(saveContentCalled).toBe(true);
+    });
+
+    test("can automatically sum with ALT+=", async () => {
+      setCellContent(model, "B2", "2");
+      selectCell(model, "B5");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
+      );
+      await nextTick();
+      expect(document.activeElement).toBe(parent.el?.querySelector(".o-grid-composer .o-composer"));
+      expect(model.getters.getEditionMode()).toBe("editing");
+      expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 10 });
+      expect(model.getters.getCurrentContent()).toBe("=SUM(B2:B4)");
+      expect(model.getters.getHighlights()[0]?.zone).toEqual(toZone("B2:B4"));
+    });
+
+    test("can automatically sum in an empty sheet with ALT+=", () => {
+      selectCell(model, "B5");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
+      );
+      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+      expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
+      expect(model.getters.getCurrentContent()).toBe("=SUM()");
+    });
+
+    test("can automatically sum multiple zones in an empty sheet with ALT+=", () => {
+      model.dispatch("SET_SELECTION", {
+        anchor: [0, 0],
+        zones: [toZone("A1:B2"), toZone("C4:C6")],
+      });
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
+      );
+      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+      expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
+      expect(model.getters.getCurrentContent()).toBe("=SUM()");
+    });
+
+    test("automatically sum zoned xc is merged", () => {
+      setCellContent(model, "B2", "2");
+      merge(model, "B2:B4");
+      selectCell(model, "B5");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
+      );
+      expect(model.getters.getCurrentContent()).toBe("=SUM(B2)");
+    });
+
+    test("automatically sum from merged cell", () => {
+      setCellContent(model, "A1", "2");
+      merge(model, "B1:B2");
+      selectCell(model, "B2");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
+      );
+      expect(model.getters.getCurrentContent()).toBe("=SUM(A1)");
+      model.dispatch("STOP_EDITION", { cancel: true });
+      selectCell(model, "B1");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
+      );
+      expect(model.getters.getCurrentContent()).toBe("=SUM(A1)");
+    });
+
+    test("automatic sum does not open composer when multiple zones are summed", () => {
+      setCellContent(model, "A1", "2");
+      setCellContent(model, "B1", "2");
+      model.dispatch("SET_SELECTION", {
+        anchor: [0, 1],
+        zones: [toZone("A2:B2")],
+      });
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
+      );
+      expect(model.getters.getEditionMode()).toBe("inactive");
+      expect(getCellText(model, "A2")).toBe("=SUM(A1)");
+      expect(getCellText(model, "B2")).toBe("=SUM(B1)");
+    });
+
+    test("automatic sum does not open composer with column full of data", () => {
+      setCellContent(model, "A1", "2");
+      setCellContent(model, "A2", "2");
+      model.dispatch("SET_SELECTION", {
+        anchor: [0, 0],
+        zones: [toZone("A1:A2")],
+      });
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
+      );
+      expect(model.getters.getEditionMode()).toBe("inactive");
+      expect(getCellText(model, "A3")).toBe("=SUM(A1:A2)");
+    });
+
+    test("automatic sum opens composer if selection is one cell even if it's not empty", () => {
+      setCellContent(model, "A2", "2");
+      selectCell(model, "A2");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
+      );
+      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+      expect(model.getters.getCurrentContent()).toBe("=SUM()");
+    });
+
+    test("automatic sum opens composer if selection is one merge even if it's not empty", () => {
+      setCellContent(model, "A2", "2");
+      merge(model, "A2:A3");
+      selectCell(model, "A2");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
+      );
+      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+      expect(model.getters.getCurrentContent()).toBe("=SUM()");
     });
   });
 

@@ -7,12 +7,14 @@ import {
   exportRows,
   groupConsecutive,
   isDefined,
+  mapCellsInZone,
   numberToLetters,
 } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
   Cell,
   CellPosition,
+  CellType,
   Col,
   CommandResult,
   ConsecutiveIndexes,
@@ -55,6 +57,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getHiddenColsGroups",
     "getHiddenRowsGroups",
     "getGridLinesVisibility",
+    "isEmpty",
   ];
 
   readonly sheetIds: Record<string, UID | undefined> = {};
@@ -351,6 +354,16 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   // ---------------------------------------------------------------------------
   // Row/Col manipulation
   // ---------------------------------------------------------------------------
+
+  /**
+   * Check if a zone only contains empty cells
+   */
+  isEmpty(sheetId: UID, zone: Zone): boolean {
+    const sheet = this.getSheet(sheetId);
+    return mapCellsInZone(zone, sheet, (cell) => cell, undefined)
+      .flat()
+      .every((cell) => !cell || cell.type === CellType.empty);
+  }
 
   private setHeaderSize(sheet: Sheet, dimension: "cols" | "rows", index: number, size: number) {
     let start: number, end: number;

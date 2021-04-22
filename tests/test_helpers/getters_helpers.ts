@@ -1,4 +1,4 @@
-import { toCartesian, toXC } from "../../src/helpers/index";
+import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { Border, Cell, Merge, Sheet, UID } from "../../src/types";
@@ -80,4 +80,33 @@ export function getMerges(model: Model): Record<number, Merge> {
         Object.entries(sheetMerges).filter(([mergeId, merge]) => merge !== undefined)
       ) as Record<number, Merge>)
     : {};
+}
+
+export function automaticSum(
+  model: Model,
+  xc: string,
+  { anchor }: { anchor?: string } = {},
+  sheetId?: UID
+) {
+  return automaticSumMulti(model, [xc], { anchor }, sheetId);
+}
+
+export function automaticSumMulti(
+  model: Model,
+  xcs: string[],
+  { anchor }: { anchor?: string } = {},
+  sheetId?: UID
+) {
+  if (!sheetId) {
+    sheetId = model.getters.getActiveSheetId();
+  }
+  const mainSelectedZone = toZone(xcs[0]);
+  const anchorPosition: [number, number] = anchor
+    ? toCartesian(anchor)
+    : [mainSelectedZone.left, mainSelectedZone.top];
+  model.dispatch("SET_SELECTION", {
+    anchor: anchorPosition,
+    zones: xcs.map(toZone),
+  });
+  return model.dispatch("SUM_SELECTION");
 }

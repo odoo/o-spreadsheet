@@ -1,4 +1,4 @@
-import { overlap, recomputeZones, toZone } from "../../src/helpers/index";
+import { overlap, positions, recomputeZones, toZone } from "../../src/helpers/index";
 import { Zone } from "../../src/types";
 
 describe("overlap", () => {
@@ -93,5 +93,30 @@ describe("toZone", () => {
 
   test("should support lowercase cell reference", () => {
     expect(toZone("c35")).toStrictEqual({ right: 2, top: 34, bottom: 34, left: 2 } as Zone);
+  });
+});
+
+describe("positions", () => {
+  test("single cell zone", () => {
+    expect(positions(toZone("A1"))).toContainEqual([0, 0]);
+    expect(positions(toZone("A1"))).toHaveLength(1);
+  });
+
+  test("simple zone", () => {
+    const zone = toZone("A1:B2");
+    expect(positions(zone)).toHaveLength(4);
+    expect(positions(zone)).toContainEqual([0, 0]);
+    expect(positions(zone)).toContainEqual([0, 1]);
+    expect(positions(zone)).toContainEqual([1, 0]);
+    expect(positions(zone)).toContainEqual([1, 1]);
+  });
+
+  test("zone with inverted boundaries", () => {
+    const zone = { top: 1, bottom: 0, left: 1, right: 0 };
+    expect(positions(zone)).toHaveLength(4);
+    expect(positions(zone)).toContainEqual([0, 0]);
+    expect(positions(zone)).toContainEqual([0, 1]);
+    expect(positions(zone)).toContainEqual([1, 0]);
+    expect(positions(zone)).toContainEqual([1, 1]);
   });
 });

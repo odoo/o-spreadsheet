@@ -8,6 +8,7 @@ import { MergePlugin } from "./core/merge";
 import { SheetPlugin } from "./core/sheet";
 import { CorePluginConstructor } from "./core_plugin";
 import { AutofillPlugin } from "./ui/autofill";
+import { AutomaticSumPlugin } from "./ui/automatic_sum";
 import { ClipboardPlugin } from "./ui/clipboard";
 import { EditionPlugin } from "./ui/edition";
 import { EvaluationPlugin } from "./ui/evaluation";
@@ -50,4 +51,5 @@ export const uiPluginRegistry = new Registry<UIPluginConstructor>()
   .add("autofill", AutofillPlugin)
   .add("find_and_replace", FindAndReplacePlugin)
   .add("sort", SortPlugin)
+  .add("automatic_sum", AutomaticSumPlugin)
   .add("selection_multiuser", SelectionMultiUserPlugin);
