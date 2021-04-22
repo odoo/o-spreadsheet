@@ -1,4 +1,3 @@
-import * as owl from "@odoo/owl";
 import { Component, hooks, tags } from "@odoo/owl";
 import Chart from "chart.js";
 import { MenuItemRegistry } from "../../registries/index";
@@ -6,15 +5,14 @@ import { _lt } from "../../translation";
 import { Figure, SpreadsheetEnv } from "../../types";
 import { LIST } from "../icons";
 import { Menu, MenuState } from "../menu";
-const { useState } = owl;
 
 const { xml, css } = tags;
-const { useRef } = hooks;
+const { useRef, useState } = hooks;
 
 const TEMPLATE = xml/* xml */ `
 <div class="o-chart-container">
   <div class="o-chart-menu" t-on-click="showMenu">${LIST}</div>
-  <canvas t-ref="graphContainer"/>
+  <canvas t-att-style="getStyle" t-ref="graphContainer"/>
   <Menu t-if="menuState.isOpen"
     position="menuState.position"
     menuItems="menuState.menuItems"
@@ -55,6 +53,10 @@ interface Props {
   sidePanelIsOpen: boolean;
 }
 
+interface State {
+  backgroundColor: string;
+}
+
 export class ChartFigure extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
@@ -63,6 +65,12 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
 
   canvas = useRef("graphContainer");
   private chart?: Chart;
+
+  private state: State = useState({ backgroundColor: "ffffff" });
+
+  getStyle() {
+    return `background-color:${this.state.backgroundColor}`;
+  }
 
   mounted() {
     this.createChart();
@@ -81,6 +89,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
       } else {
         this.chart!.data.datasets = undefined;
       }
+      this.state.backgroundColor = chartData.backgroundColor;
       this.chart!.update({ duration: 0 });
     } else {
       this.chart && this.chart.destroy();

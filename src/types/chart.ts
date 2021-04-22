@@ -20,5 +20,11 @@ export interface CreateChartDefinition {
   type: ChartTypes;
   dataSets: string[];
   labelRange?: string;
+  stackedBar?: boolean;
+  backgroundColor?: string;
+  verticalAxisPosition?: "left" | "right";
+  dataLabels?: "none" | "top" | "center";
+  trendline?: "none" | "linear" | "exponential" | "logarithmic";
+  legendPosition?: "top" | "bottom" | "left" | "right";
   dataSetsHaveTitle: boolean;
 }

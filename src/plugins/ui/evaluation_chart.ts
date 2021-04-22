@@ -168,6 +168,7 @@ export class EvaluationChartPlugin extends UIPlugin {
         labels,
         datasets: [],
       },
+      backgroundColor: "ffffff",
     };
 
     if (type !== "pie") {
