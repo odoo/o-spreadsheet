@@ -9,6 +9,7 @@ import { MergePlugin } from "../plugins/core/merge";
 import { RangeAdapter } from "../plugins/core/range";
 import { SheetPlugin } from "../plugins/core/sheet";
 import { AutofillPlugin } from "../plugins/ui/autofill";
+import { AutomaticSumPlugin } from "../plugins/ui/automatic_sum";
 import { ClipboardPlugin } from "../plugins/ui/clipboard";
 import { EditionPlugin } from "../plugins/ui/edition";
 import { EvaluationPlugin } from "../plugins/ui/evaluation";
@@ -53,6 +54,7 @@ export interface CoreGetters {
   getGridLinesVisibility: SheetPlugin["getGridLinesVisibility"];
   getNumberRows: SheetPlugin["getNumberRows"];
   getNumberCols: SheetPlugin["getNumberCols"];
+  isEmpty: SheetPlugin["isEmpty"];
 
   zoneToXC: CellPlugin["zoneToXC"];
   getCells: CellPlugin["getCells"];
@@ -74,6 +76,7 @@ export interface CoreGetters {
   getMerges: MergePlugin["getMerges"];
   getMerge: MergePlugin["getMerge"];
   isMergeHidden: MergePlugin["isMergeHidden"];
+  isSingleCellOrMerge: MergePlugin["isSingleCellOrMerge"];
 
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
   getRulesSelection: ConditionalFormatPlugin["getRulesSelection"];
@@ -161,4 +164,6 @@ export type Getters = CoreGetters & {
   getActiveViewport: ViewportPlugin["getActiveViewport"];
   getActiveSnappedViewport: ViewportPlugin["getActiveSnappedViewport"];
   getGridDimension: ViewportPlugin["getGridDimension"];
+
+  getAutomaticSums: AutomaticSumPlugin["getAutomaticSums"];
 };

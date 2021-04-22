@@ -819,6 +819,14 @@ export interface SetViewportOffsetCommand extends BaseCommand {
   offsetY: number;
 }
 
+/**
+ * Sum data according to the selected zone(s) in the appropriated
+ * cells.
+ */
+export interface SumSelectionCommand extends BaseCommand {
+  type: "SUM_SELECTION";
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -929,6 +937,7 @@ export type LocalCommand =
   | SortCommand
   | ResizeViewportCommand
   | RefreshChartCommand
+  | SumSelectionCommand
   | SetViewportOffsetCommand;
 
 export type Command = CoreCommand | LocalCommand;

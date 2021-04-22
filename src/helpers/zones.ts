@@ -1,5 +1,6 @@
 import { Cell, Sheet, Zone, ZoneDimension } from "../types";
 import { toCartesian, toXC } from "./coordinates";
+import { range } from "./misc";
 
 /**
  * Convert from a cartesian reference to a Zone
@@ -371,7 +372,7 @@ export function mapCellsInZone<T, U>(
     let col: any[] = new Array(Math.floor((bottom - top + 1) / stepY));
     result[c - left] = col;
     for (let r = top; r <= bottom; r += stepY) {
-      let cell = sheet.rows[r].cells[c];
+      let cell = sheet.rows[r]?.cells[c];
       col[(r - top) / stepY] = cell ? callback(cell) : emptyCellValue;
     }
   }
@@ -383,6 +384,26 @@ export function zoneToDimension(zone: Zone): ZoneDimension {
     height: zone.bottom - zone.top + 1,
     width: zone.right - zone.left + 1,
   };
+}
+
+export function isOneDimensional(zone: Zone): boolean {
+  const { width, height } = zoneToDimension(zone);
+  return width === 1 || height === 1;
+}
+
+/**
+ * Array of all positions in the zone.
+ */
+export function positions(zone: Zone): [number, number][] {
+  const positions: [number, number][] = [];
+  const [left, right] = [zone.right, zone.left].sort((a, b) => a - b);
+  const [top, bottom] = [zone.top, zone.bottom].sort((a, b) => a - b);
+  for (const col of range(left, right + 1)) {
+    for (const row of range(top, bottom + 1)) {
+      positions.push([col, row]);
+    }
+  }
+  return positions;
 }
 
 export function createAdaptedZone(

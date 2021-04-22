@@ -10,6 +10,7 @@ import { MergePlugin } from "../src/plugins/core/merge";
 import { RangeAdapter } from "../src/plugins/core/range";
 import { SheetPlugin } from "../src/plugins/core/sheet";
 import { corePluginRegistry, uiPluginRegistry } from "../src/plugins/index";
+import { AutomaticSumPlugin } from "../src/plugins/ui/automatic_sum";
 import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
 import { SortPlugin } from "../src/plugins/ui/sort";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
@@ -32,7 +33,7 @@ function getNbrPlugin(mode: Mode): number {
 describe("Model", () => {
   test("can create model in headless mode", () => {
     const model = new Model({}, { mode: "headless" });
-    expect(model["handlers"]).toHaveLength(11);
+    expect(model["handlers"]).toHaveLength(12);
     expect(model["handlers"][0]).toBeInstanceOf(RangeAdapter);
     expect(model["handlers"][1]).toBeInstanceOf(SheetPlugin);
     expect(model["handlers"][2]).toBeInstanceOf(CellPlugin);
@@ -44,6 +45,7 @@ describe("Model", () => {
     expect(model["handlers"][8]).toBeInstanceOf(SheetUIPlugin);
     expect(model["handlers"][9]).toBeInstanceOf(FindAndReplacePlugin);
     expect(model["handlers"][10]).toBeInstanceOf(SortPlugin);
+    expect(model["handlers"][11]).toBeInstanceOf(AutomaticSumPlugin);
   });
 
   test("All plugin compatible with normal mode are loaded on normal mode", () => {

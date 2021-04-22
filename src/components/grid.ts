@@ -335,6 +335,30 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
         target: this.getters.getSelectedZones(),
         style: { italic: !this.getters.getCurrentStyle().italic },
       }),
+    "ALT+=": () => {
+      const sheetId = this.getters.getActiveSheetId();
+
+      const mainSelectedZone = this.getters.getSelectedZone();
+      const sums = this.getters.getAutomaticSums(
+        sheetId,
+        mainSelectedZone,
+        this.getters.getPosition()
+      );
+      if (
+        this.getters.isSingleCellOrMerge(sheetId, mainSelectedZone) ||
+        (this.getters.isEmpty(sheetId, mainSelectedZone) && sums.length <= 1)
+      ) {
+        const zone = sums[0]?.zone;
+        const zoneXc = zone ? this.getters.zoneToXC(sheetId, sums[0].zone) : "";
+        const formula = `=SUM(${zoneXc})`;
+        this.trigger("composer-focused", {
+          content: formula,
+          selection: { start: 5, end: 5 + zoneXc.length },
+        });
+      } else {
+        this.dispatch("SUM_SELECTION");
+      }
+    },
   };
 
   constructor() {
