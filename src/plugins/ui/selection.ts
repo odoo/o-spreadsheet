@@ -93,7 +93,6 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
   // the main command.
 
-  private historizeActiveSheet: boolean = true;
   activeSheet: Sheet = null as any;
 
   constructor(
@@ -157,7 +156,6 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       case "ACTIVATE_SHEET":
         try {
           this.getters.getSheet(cmd.sheetIdTo);
-          this.historizeActiveSheet = false;
           break;
         } catch (error) {
           return CommandResult.InvalidSheetId;
@@ -191,7 +189,6 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     }
     switch (cmd.type) {
       case "START":
-        this.historizeActiveSheet = false;
         const firstSheet = this.getters.getSheets()[0];
         const firstVisiblePosition = getNextVisibleCellCoords(firstSheet, 0, 0);
         this.activeCol = firstVisiblePosition[0];
@@ -256,11 +253,11 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
         break;
       case "UNDO":
       case "REDO":
-        const activeSheetId = this.getters
-          .getVisibleSheets()
-          .find((sheetId) => sheetId === this.getActiveSheetId());
-        if (!activeSheetId) {
-          this.setActiveSheet(this.getters.getVisibleSheets()[0]);
+      case "DELETE_SHEET":
+        if (!this.getters.tryGetSheet(this.getActiveSheetId())) {
+          const currentSheets = this.getters.getVisibleSheets();
+          this.activeSheet = this.getters.getSheet(currentSheets[0]);
+          this.selectCell(0, 0);
         }
         this.updateSelection();
         break;
@@ -282,15 +279,6 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       case "SELECT_FIGURE":
         this.selectedFigureId = cmd.id;
         break;
-    }
-  }
-
-  finalize() {
-    this.historizeActiveSheet = true;
-    if (!this.getters.tryGetSheet(this.getActiveSheetId())) {
-      const currentSheets = this.getters.getVisibleSheets();
-      this.activeSheet = this.getters.getSheet(currentSheets[0]);
-      this.selectCell(0, 0);
     }
   }
 
@@ -521,11 +509,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
 
   private setActiveSheet(id: UID) {
     const sheet = this.getters.getSheet(id);
-    if (this.historizeActiveSheet) {
-      this.history.update("activeSheet", sheet);
-    } else {
-      this.activeSheet = sheet;
-    }
+    this.activeSheet = sheet;
   }
 
   /**
