@@ -4,6 +4,7 @@ import {
   activateSheet,
   addColumns,
   addRows,
+  createChart,
   createSheet,
   deleteCells,
   deleteColumns,
@@ -119,22 +120,20 @@ describe("Collaborative Sheet manipulation", () => {
 
   test("delete sheet and update chart concurrently", () => {
     const sheetId = "42";
+    const chartId = "24";
     createSheet(bob, { sheetId, activate: true });
-    bob.dispatch("CREATE_CHART", {
-      sheetId,
-      id: "456",
-      definition: {
+    createChart(
+      bob,
+      {
         dataSets: ["A1:A10"],
-        labelRange: "B1:B10",
-        dataSetsHaveTitle: false,
-        title: "test chart",
-        type: "bar",
       },
-    });
+      chartId,
+      sheetId
+    );
     network.concurrent(() => {
       alice.dispatch("DELETE_SHEET", { sheetId });
       bob.dispatch("UPDATE_CHART", {
-        id: "456",
+        id: chartId,
         sheetId,
         definition: {
           dataSets: ["A1:A11"],
@@ -146,7 +145,7 @@ describe("Collaborative Sheet manipulation", () => {
       });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getFigure(sheetId, "456"),
+      (user) => user.getters.getFigure(sheetId, chartId),
       undefined
     );
   });
