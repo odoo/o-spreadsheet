@@ -13,6 +13,7 @@ import {
   selectCell,
   setCellContent,
   undo,
+  updateChart,
 } from "../test_helpers/commands_helpers";
 import { initPatcher, mockUuidV4To } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -488,16 +489,11 @@ describe("datasource tests", function () {
     let chart = model.getters.getChartRuntime("1")!;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.type).toEqual("line");
-    model.dispatch("UPDATE_CHART", {
-      id: "1",
-      sheetId,
-      definition: {
-        title: "hello1",
-        dataSets: ["Sheet1!A8:D8", "Sheet1!A9:D9"],
-        dataSetsHaveTitle: true,
-        labelRange: "Sheet1!C7:D7",
-        type: "bar",
-      },
+    updateChart(model, "1", {
+      dataSets: ["Sheet1!A8:D8", "Sheet1!A9:D9"],
+      labelRange: "Sheet1!C7:D7",
+      type: "bar",
+      title: "hello1",
     });
     chart = model.getters.getChartRuntime("1")!;
     expect(model.getters.getChartDefinition("1")).toMatchObject({
@@ -737,31 +733,26 @@ describe("datasource tests", function () {
   });
 
   test("chart is focused after creation and update", () => {
+    const chartId = "1234";
     createChart(
       model,
       {
         dataSets: ["B1:B4"],
         labelRange: "A2:A4",
       },
-      "someuuid"
+      chartId
     );
     expect(model.getters.getSelectedFigureId()).toBeNull();
-    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
-    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    model.dispatch("SELECT_FIGURE", { id: chartId });
+    expect(model.getters.getSelectedFigureId()).toBe(chartId);
     selectCell(model, "A1");
     expect(model.getters.getSelectedFigureId()).toBeNull();
-    model.dispatch("UPDATE_CHART", {
-      sheetId: model.getters.getActiveSheetId(),
-      id: "someuuid",
-      definition: {
-        dataSets: ["B1:B4"],
-        labelRange: "A2:A4",
-        dataSetsHaveTitle: true,
-        title: "updated chart",
-        type: "bar",
-      },
+    updateChart(model, chartId, {
+      dataSets: ["B1:B4"],
+      labelRange: "A2:A4",
+      title: "updated chart",
     });
-    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    expect(model.getters.getSelectedFigureId()).toBe(chartId);
   });
 
   test("create chart with invalid labels", () => {
@@ -840,33 +831,20 @@ describe("datasource tests", function () {
     expect(result).toBe(CommandResult.EmptyLabelRange);
   });
   test("update chart with invalid dataset", () => {
-    const result = model.dispatch("UPDATE_CHART", {
-      sheetId: model.getters.getActiveSheetId(),
-      id: "1",
-      definition: {
-        title: "test 1",
+    expect(
+      updateChart(model, "1", {
         dataSets: ["Sheet1!B1:B4", "This is invalid"],
-        dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A2:A4",
-        type: "line",
-      },
-    });
-    expect(result).toBe(CommandResult.InvalidDataSet);
+      })
+    ).toBe(CommandResult.InvalidDataSet);
   });
 
   test("update chart with invalid labels", () => {
-    const result = model.dispatch("UPDATE_CHART", {
-      sheetId: model.getters.getActiveSheetId(),
-      id: "1",
-      definition: {
-        title: "test 1",
+    expect(
+      updateChart(model, "1", {
         dataSets: ["Sheet1!B1:B4"],
-        dataSetsHaveTitle: true,
         labelRange: "This is invalid",
-        type: "line",
-      },
-    });
-    expect(result).toBe(CommandResult.InvalidLabelRange);
+      })
+    ).toBe(CommandResult.InvalidLabelRange);
   });
   test("duplicate a sheet with and without a chart", () => {
     const model = new Model({
@@ -908,34 +886,18 @@ describe("datasource tests", function () {
     ]);
   });
   test("extend data source to new values manually", () => {
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("UPDATE_CHART", {
-      id: "1",
-      sheetId,
-      definition: {
-        title: "hello1",
-        dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
-        dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A2:A5",
-        type: "bar",
-      },
+    updateChart(model, "1", {
+      dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
+      labelRange: "Sheet1!A2:A5",
     });
     const chart = model.getters.getChartRuntime("1")!;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18, 17]);
   });
   test("extend data set labels to new values manually", () => {
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("UPDATE_CHART", {
-      id: "1",
-      sheetId,
-      definition: {
-        title: "hello1",
-        dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
-        dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A2:A5",
-        type: "bar",
-      },
+    updateChart(model, "1", {
+      dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
+      labelRange: "Sheet1!A2:A5",
     });
     const chart = model.getters.getChartRuntime("1")!;
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
@@ -962,17 +924,10 @@ describe("datasource tests", function () {
 
 describe("title", function () {
   test("change title manually", () => {
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("UPDATE_CHART", {
-      id: "1",
-      sheetId,
-      definition: {
-        title: "newTitle",
-        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
-        dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A2:A4",
-        type: "bar",
-      },
+    updateChart(model, "1", {
+      title: "newTitle",
+      dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+      labelRange: "Sheet1!A2:A4",
     });
     const chart = model.getters.getChartRuntime("1")!;
     expect(chart.options!.title!.text).toEqual("newTitle");

@@ -80,10 +80,32 @@ export function deleteSheet(model: Model, sheetId: UID): CommandResult {
 export function createChart(
   model: Model,
   data: Partial<ChartUIDefinition>,
-  chartId: string = uuidv4(),
-  sheetId: string = model.getters.getActiveSheetId()
+  chartId: UID = uuidv4(),
+  sheetId: UID = model.getters.getActiveSheetId()
 ) {
   return model.dispatch("CREATE_CHART", {
+    id: chartId,
+    sheetId,
+    definition: {
+      title: data.title || "test",
+      dataSets: data.dataSets || [],
+      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
+      labelRange: data.labelRange,
+      type: data.type || "bar",
+    },
+  });
+}
+
+/**
+ * Update a chart
+ */
+export function updateChart(
+  model: Model,
+  chartId: UID,
+  data: Partial<ChartUIDefinition>,
+  sheetId: UID = model.getters.getActiveSheetId()
+): CommandResult {
+  return model.dispatch("UPDATE_CHART", {
     id: chartId,
     sheetId,
     definition: {
