@@ -1,5 +1,6 @@
 import { Model } from "../../src";
 import { lettersToNumber, numberToLetters, range, toZone } from "../../src/helpers";
+import { ChartUIDefinition } from "../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -127,6 +128,7 @@ describe("Collaborative Sheet manipulation", () => {
       bob,
       {
         dataSets: ["A1:A10"],
+        labelRange: "A1",
       },
       chartId,
       sheetId
@@ -524,144 +526,156 @@ describe("Collaborative Sheet manipulation", () => {
     });
   });
 
-  describe.each(["CREATE_CHART", "UPDATE_CHART"])(
-    "chart creation & update",
-    (chartCommand: "CREATE_CHART" | "UPDATE_CHART") => {
-      test(`Concurrently ${chartCommand} and add columns`, () => {
-        const sheetId = alice.getters.getActiveSheetId();
-        network.concurrent(() => {
-          addColumns(alice, "before", "D", 2);
-          bob.dispatch(chartCommand, {
-            sheetId,
-            id: "42",
-            definition: {
-              dataSets: ["A1:A3", "F1:F3"],
-              labelRange: "F3",
-              title: "chart title",
-              dataSetsHaveTitle: false,
-              type: "bar",
-            },
-          });
-        });
-        expect([alice, bob, charlie]).toHaveSynchronizedValue(
-          (user) => user.getters.getChartDefinitionUI(sheetId, "42"),
-          {
-            dataSets: ["A1:A3", "H1:H3"],
-            labelRange: "H3",
-            title: "chart title",
-            dataSetsHaveTitle: false,
-            type: "bar",
-          }
-        );
-      });
+  describe("Chart creation & update", () => {
+    const chartId = "42";
+    const chartDef: ChartUIDefinition = {
+      dataSets: ["A1:A3", "F1:F3"],
+      labelRange: "F3",
+      title: "chart title",
+      dataSetsHaveTitle: false,
+      type: "bar",
+    };
 
-      test(`Concurrently ${chartCommand} and removed columns`, () => {
-        const sheetId = alice.getters.getActiveSheetId();
-        network.concurrent(() => {
-          deleteColumns(alice, ["C", "F"]);
-          bob.dispatch(chartCommand, {
-            sheetId,
-            id: "42",
-            definition: {
-              dataSets: ["A1:A3", "C1:C3", "F1:G3"],
-              labelRange: "F1:F3",
-              title: "chart title",
-              dataSetsHaveTitle: false,
-              type: "bar",
-            },
-          });
-        });
-        expect([alice, bob, charlie]).toHaveSynchronizedValue(
-          (user) => user.getters.getChartDefinitionUI(sheetId, "42"),
-          {
-            dataSets: ["A1:A3", "E1:E3"],
-            labelRange: undefined,
-            title: "chart title",
-            dataSetsHaveTitle: false,
-            type: "bar",
-          }
-        );
+    test(`Concurrently chart creation & update and add columns`, () => {
+      const sheetId = alice.getters.getActiveSheetId();
+      network.concurrent(() => {
+        addColumns(alice, "before", "D", 2);
+        createChart(bob, chartDef, chartId);
       });
-
-      test(`Concurrently ${chartCommand} and new rows`, () => {
-        const sheetId = alice.getters.getActiveSheetId();
-        network.concurrent(() => {
-          addRows(alice, "before", 9, 2);
-          bob.dispatch(chartCommand, {
-            sheetId,
-            id: "42",
-            definition: {
-              dataSets: ["A1:A3", "A4:A10", "A11:A12"],
-              labelRange: "F10",
-              title: "chart title",
-              dataSetsHaveTitle: false,
-              type: "bar",
-            },
-          });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getChartDefinitionUI(sheetId, chartId),
+        { ...chartDef, dataSets: ["A1:A3", "H1:H3"], labelRange: "H3" }
+      );
+      network.concurrent(() => {
+        addColumns(alice, "before", "D", 2);
+        updateChart(bob, chartId, {
+          dataSets: ["A1:A3", "F1:F3"],
+          labelRange: "F3",
+          dataSetsHaveTitle: false,
         });
-        expect([alice, bob, charlie]).toHaveSynchronizedValue(
-          (user) => user.getters.getChartDefinitionUI(sheetId, "42"),
-          {
-            dataSets: ["A1:A3", "A4:A12", "A13:A14"],
-            labelRange: "F12",
-            title: "chart title",
-            dataSetsHaveTitle: false,
-            type: "bar",
-          }
-        );
       });
-
-      test(`Concurrently ${chartCommand} and removed rows`, () => {
-        const sheetId = alice.getters.getActiveSheetId();
-        network.concurrent(() => {
-          deleteRows(alice, [3, 4, 10]);
-          bob.dispatch(chartCommand, {
-            sheetId,
-            id: "42",
-            definition: {
-              dataSets: ["A1:A3", "A4:A5", "A11:A12"],
-              labelRange: "F10",
-              title: "chart title",
-              dataSetsHaveTitle: false,
-              type: "bar",
-            },
-          });
-        });
-        expect([alice, bob, charlie]).toHaveSynchronizedValue(
-          (user) => user.getters.getChartDefinitionUI(sheetId, "42"),
-          {
-            dataSets: ["A1:A3", "A9"],
-            labelRange: "F8",
-            title: "chart title",
-            dataSetsHaveTitle: false,
-            type: "bar",
-          }
-        );
-      });
-    }
-  );
-  test("Set grid lines visibility is correctly shared", () => {
-    createSheet(alice, { sheetId: "42" });
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getGridLinesVisibility("42"),
-      true
-    );
-    alice.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "42", areGridLinesVisible: false });
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getGridLinesVisibility("42"),
-      false
-    );
-  });
-
-  test("Set grid lines visibility with a sheet deletion", () => {
-    createSheet(alice, { sheetId: "42" });
-    network.concurrent(() => {
-      bob.dispatch("DELETE_SHEET", { sheetId: "42" });
-      alice.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "42", areGridLinesVisible: false });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getChartDefinitionUI(sheetId, chartId),
+        { ...chartDef, dataSets: ["A1:A3", "H1:H3"], labelRange: "H3" }
+      );
     });
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.tryGetSheet("42"),
-      undefined
-    );
+
+    test(`Concurrently chart creation & update and removed columns`, () => {
+      const sheetId = alice.getters.getActiveSheetId();
+      network.concurrent(() => {
+        deleteColumns(alice, ["C", "F"]);
+        createChart(
+          bob,
+          {
+            ...chartDef,
+            dataSets: ["A1:A3", "C1:C3", "F1:G3"],
+          },
+          chartId
+        );
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getChartDefinitionUI(sheetId, chartId),
+        {
+          ...chartDef,
+          dataSets: ["A1:A3", "E1:E3"],
+          labelRange: undefined,
+        }
+      );
+      network.concurrent(() => {
+        deleteColumns(alice, ["C", "F"]);
+        updateChart(bob, chartId, {
+          dataSets: ["A1:A3", "C1:C3", "F1:G3"],
+        });
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getChartDefinitionUI(sheetId, chartId),
+        {
+          ...chartDef,
+          dataSets: ["A1:A3", "E1:E3"],
+          labelRange: undefined,
+        }
+      );
+    });
+
+    test(`Concurrently chart creation & update and new rows`, () => {
+      const sheetId = alice.getters.getActiveSheetId();
+      network.concurrent(() => {
+        addRows(alice, "before", 9, 2);
+        createChart(
+          bob,
+          { ...chartDef, dataSets: ["A1:A3", "A4:A10", "A11:A12"], labelRange: "F10" },
+          chartId
+        );
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getChartDefinitionUI(sheetId, chartId),
+        { ...chartDef, dataSets: ["A1:A3", "A4:A12", "A13:A14"], labelRange: "F12" }
+      );
+      network.concurrent(() => {
+        addRows(alice, "before", 9, 2);
+        updateChart(bob, chartId, { dataSets: ["A1:A3", "A4:A10", "A11:A12"], labelRange: "F10" });
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getChartDefinitionUI(sheetId, chartId),
+        { ...chartDef, dataSets: ["A1:A3", "A4:A12", "A13:A14"], labelRange: "F12" }
+      );
+    });
+
+    test("Set grid lines visibility is correctly shared", () => {
+      createSheet(alice, { sheetId: "42" });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getGridLinesVisibility("42"),
+        true
+      );
+      alice.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "42", areGridLinesVisible: false });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getGridLinesVisibility("42"),
+        false
+      );
+    });
+
+    test("Set grid lines visibility with a sheet deletion", () => {
+      createSheet(alice, { sheetId: "42" });
+      network.concurrent(() => {
+        bob.dispatch("DELETE_SHEET", { sheetId: "42" });
+        alice.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "42", areGridLinesVisible: false });
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.tryGetSheet("42"),
+        undefined
+      );
+    });
+
+    test(`Concurrently chart creation & update and removed rows`, () => {
+      const sheetId = alice.getters.getActiveSheetId();
+      network.concurrent(() => {
+        deleteRows(alice, [3, 4, 10]);
+        createChart(
+          bob,
+          { ...chartDef, dataSets: ["A1:A3", "A4:A5", "A11:A12"], labelRange: "F10" },
+          chartId
+        );
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getChartDefinitionUI(sheetId, chartId),
+        {
+          ...chartDef,
+          dataSets: ["A1:A3", "A9"],
+          labelRange: "F8",
+        }
+      );
+      network.concurrent(() => {
+        deleteRows(alice, [3, 4, 10]);
+        updateChart(bob, chartId, { dataSets: ["A1:A3", "A4:A5", "A11:A12"], labelRange: "F10" });
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getChartDefinitionUI(sheetId, chartId),
+        {
+          ...chartDef,
+          dataSets: ["A1:A3", "A9"],
+          labelRange: "F8",
+        }
+      );
+    });
   });
 });

@@ -147,8 +147,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         this.history.update("chartFigures", cmd.id, chartDefinition);
         break;
       case "UPDATE_CHART": {
-        const newChartDefinition = this.createChartDefinition(cmd.definition, cmd.sheetId);
-        this.history.update("chartFigures", cmd.id, newChartDefinition);
+        this.updateChartDefinition(cmd.id, cmd.definition);
         break;
       }
       case "DUPLICATE_SHEET": {
@@ -309,12 +308,56 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   // Private
   // ---------------------------------------------------------------------------
 
-  private createChartDefinition(
-    createCommand: ChartUIDefinition,
-    sheetId: string
-  ): ChartDefinition {
-    let dataSets: DataSet[] = [];
-    for (let sheetXC of createCommand.dataSets) {
+  /**
+   * Create a new chart definition based on the given UI definition
+   */
+  private createChartDefinition(definition: ChartUIDefinition, sheetId: UID): ChartDefinition {
+    return {
+      title: definition.title,
+      type: definition.type,
+      dataSets: this.createDataSets(definition.dataSets, sheetId, definition.dataSetsHaveTitle),
+      labelRange: definition.labelRange
+        ? this.getters.getRangeFromSheetXC(sheetId, definition.labelRange)
+        : undefined,
+      sheetId,
+    };
+  }
+
+  /**
+   * Update the chart definition linked to the given id with the attributes
+   * given in the partial UI definition
+   */
+  private updateChartDefinition(id: UID, definition: Partial<ChartUIDefinition>) {
+    const chart = this.chartFigures[id];
+    if (!chart) {
+      throw new Error(`There is no chart with the given id: ${id}`);
+    }
+    if (definition.title) {
+      this.history.update("chartFigures", id, "title", definition.title);
+    }
+    if (definition.type) {
+      this.history.update("chartFigures", id, "type", definition.type);
+    }
+    if (definition.dataSets) {
+      const dataSetsHaveTitle = !!definition.dataSetsHaveTitle;
+      const dataSets = this.createDataSets(definition.dataSets, chart.sheetId, dataSetsHaveTitle);
+      this.history.update("chartFigures", id, "dataSets", dataSets);
+    }
+    if (definition.labelRange) {
+      const labelRange = definition.labelRange
+        ? this.getters.getRangeFromSheetXC(chart.sheetId, definition.labelRange)
+        : undefined;
+      this.history.update("chartFigures", id, "labelRange", labelRange);
+    }
+  }
+
+  private createDataSets(
+    dataSetsString: string[],
+    sheetId: UID,
+    dataSetsHaveTitle: boolean
+  ): DataSet[] {
+    const dataSets: DataSet[] = [];
+    for (const sheetXC of dataSetsString) {
       const dataRange = this.getters.getRangeFromSheetXC(sheetId, sheetXC);
       const { zone, sheetId: dataSetSheetId, invalidSheetName } = dataRange;
       if (invalidSheetName) {
@@ -333,7 +376,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             this.createDataSet(
               dataSetSheetId,
               columnZone,
-              createCommand.dataSetsHaveTitle
+              dataSetsHaveTitle
                 ? {
                     top: columnZone.top,
                     bottom: columnZone.top,
@@ -346,7 +389,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         }
       } else if (zone.left === zone.right && zone.top === zone.bottom) {
         // A single cell. If it's only the title, the dataset is not added.
-        if (!createCommand.dataSetsHaveTitle) {
+        if (!dataSetsHaveTitle) {
           dataSets.push(this.createDataSet(dataSetSheetId, zone, undefined));
         }
       } else {
@@ -355,7 +398,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           this.createDataSet(
             dataSetSheetId,
             zone,
-            createCommand.dataSetsHaveTitle
+            dataSetsHaveTitle
               ? {
                   top: zone.top,
                   bottom: zone.top,
@@ -367,16 +410,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         );
       }
     }
-    const labelRange = createCommand.labelRange
-      ? this.getters.getRangeFromSheetXC(sheetId, createCommand.labelRange)
-      : undefined;
-    return {
-      title: createCommand.title,
-      type: createCommand.type,
-      dataSets: dataSets,
-      labelRange,
-      sheetId: sheetId,
-    };
+    return dataSets;
   }
 
   private createDataSet(sheetId: UID, fullZone: Zone, titleZone: Zone | undefined): DataSet {
@@ -398,28 +432,32 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     }
   }
 
-  private checkEmptyDataset(createCommand: CreateChartCommand | UpdateChartCommand): CommandResult {
-    return createCommand.definition.dataSets.length === 0
+  private checkEmptyDataset(cmd: CreateChartCommand | UpdateChartCommand): CommandResult {
+    return cmd.definition.dataSets && cmd.definition.dataSets.length === 0
       ? CommandResult.EmptyDataSet
       : CommandResult.Success;
   }
 
-  private checkDataset(createCommand: CreateChartCommand | UpdateChartCommand): CommandResult {
+  private checkDataset(cmd: CreateChartCommand | UpdateChartCommand): CommandResult {
+    if (!cmd.definition.dataSets) {
+      return CommandResult.Success;
+    }
     const invalidRanges =
-      createCommand.definition.dataSets.find((range) => !rangeReference.test(range)) !== undefined;
+      cmd.definition.dataSets.find((range) => !rangeReference.test(range)) !== undefined;
     return invalidRanges ? CommandResult.InvalidDataSet : CommandResult.Success;
   }
 
-  private checkEmptyLabelRange(
-    createCommand: CreateChartCommand | UpdateChartCommand
-  ): CommandResult {
-    return createCommand.definition.labelRange
+  private checkEmptyLabelRange(cmd: CreateChartCommand | UpdateChartCommand): CommandResult {
+    return cmd.type === "UPDATE_CHART" || cmd.definition.labelRange
       ? CommandResult.Success
       : CommandResult.EmptyLabelRange;
   }
 
-  private checkLabelRange(createCommand: CreateChartCommand | UpdateChartCommand): CommandResult {
-    const invalidLabels = !rangeReference.test(createCommand.definition.labelRange || "");
+  private checkLabelRange(cmd: CreateChartCommand | UpdateChartCommand): CommandResult {
+    if (cmd.type === "UPDATE_CHART" && !cmd.definition.labelRange) {
+      return CommandResult.Success;
+    }
+    const invalidLabels = !rangeReference.test(cmd.definition.labelRange || "");
     return invalidLabels ? CommandResult.InvalidLabelRange : CommandResult.Success;
   }
 }

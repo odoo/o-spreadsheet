@@ -102,19 +102,13 @@ export function createChart(
 export function updateChart(
   model: Model,
   chartId: UID,
-  data: Partial<ChartUIDefinition>,
+  definition: Partial<ChartUIDefinition>,
   sheetId: UID = model.getters.getActiveSheetId()
 ): CommandResult {
   return model.dispatch("UPDATE_CHART", {
     id: chartId,
     sheetId,
-    definition: {
-      title: data.title || "test",
-      dataSets: data.dataSets || [],
-      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
-      labelRange: data.labelRange,
-      type: data.type || "bar",
-    },
+    definition
   });
 }
 
