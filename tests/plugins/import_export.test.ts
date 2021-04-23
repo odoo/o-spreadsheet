@@ -1,5 +1,6 @@
 import { CorePlugin } from "../../src";
 import {
+  BACKGROUND_CHART_COLOR,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   DEFAULT_REVISION_ID,
@@ -31,7 +32,7 @@ describe("data", () => {
 });
 
 describe("Migrations", () => {
-  test("Can upgrade from 1 to 8", () => {
+  test("Can upgrade from 1 to 9", () => {
     mockUuidV4To(333);
     const model = new Model({
       version: 1,
@@ -52,14 +53,14 @@ describe("Migrations", () => {
       ],
     });
     const data = model.exportData();
-    expect(data.version).toBe(8);
+    expect(data.version).toBe(9);
     expect(data.sheets[0].id).toBeDefined();
     expect(data.sheets[0].figures).toBeDefined();
     expect(data.sheets[0].cells.A1!.formula).toBeDefined();
     expect(data.sheets[0].cells.A1!.formula!.text).toBeDefined();
     expect(data.sheets[0].cells.A1!.formula!.dependencies).toBeDefined();
   });
-  test("migration 6 to 7: charts", () => {
+  test("migration 6 to 9: charts", () => {
     mockUuidV4To(333);
     const model = new Model({
       version: 6,
@@ -150,6 +151,10 @@ describe("Migrations", () => {
       labelRange: "'My sheet'!A27:A35",
       dataSets: ["B26:B35", "C26:C35"],
       dataSetsHaveTitle: true,
+      background: BACKGROUND_CHART_COLOR,
+      verticalAxisPosition: "left",
+      legendPosition: "top",
+      stackedBar: false,
     });
     expect(data.sheets[0].figures[1].data).toEqual({
       type: "bar",
@@ -157,6 +162,10 @@ describe("Migrations", () => {
       labelRange: "'My sheet'!A27:A35",
       dataSets: ["B27:B35", "C27:C35"],
       dataSetsHaveTitle: false,
+      background: BACKGROUND_CHART_COLOR,
+      verticalAxisPosition: "left",
+      legendPosition: "top",
+      stackedBar: false,
     });
     expect(data.sheets[0].figures[2].data).toEqual({
       type: "bar",
@@ -164,6 +173,10 @@ describe("Migrations", () => {
       labelRange: "'My sheet'!A27",
       dataSets: ["B26:B27"],
       dataSetsHaveTitle: true,
+      background: BACKGROUND_CHART_COLOR,
+      verticalAxisPosition: "left",
+      legendPosition: "top",
+      stackedBar: false,
     });
     expect(data.sheets[0].figures[3].data).toEqual({
       type: "bar",
@@ -171,6 +184,10 @@ describe("Migrations", () => {
       labelRange: "'My sheet'!A27",
       dataSets: ["B27"],
       dataSetsHaveTitle: false,
+      background: BACKGROUND_CHART_COLOR,
+      verticalAxisPosition: "left",
+      legendPosition: "top",
+      stackedBar: false,
     });
   });
   test.each(FORBIDDEN_SHEET_CHARS)("migration 7 to 8: sheet Names", (char) => {
@@ -517,6 +534,12 @@ test("import then export (figures)", () => {
   };
   const model = new Model(modelData);
   expect(model).toExport(modelData);
+});
+
+test("Can import spreadsheet with only version", () => {
+  new Model({ version: 1 });
+  // We expect the model to be loaded without traceback
+  expect(true).toBeTruthy();
 });
 
 test("Imported data are not mutated", () => {

@@ -1,4 +1,4 @@
-import { DEFAULT_REVISION_ID, FORBIDDEN_IN_EXCEL_REGEX } from "./constants";
+import { BACKGROUND_CHART_COLOR, DEFAULT_REVISION_ID, FORBIDDEN_IN_EXCEL_REGEX } from "./constants";
 import { normalize } from "./formulas/index";
 import { toXC, toZone } from "./helpers/index";
 import { ExcelSheetData, ExcelWorkbookData, SheetData, WorkbookData } from "./types/index";
@@ -8,7 +8,7 @@ import { ExcelSheetData, ExcelWorkbookData, SheetData, WorkbookData } from "./ty
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 8;
+export const CURRENT_VERSION = 9;
 
 /**
  * This function tries to load anything that could look like a valid
@@ -90,8 +90,10 @@ const MIGRATIONS: Migration[] = [
     from: 3,
     to: 4,
     applyMigration(data: any): any {
-      const activeSheet = data.sheets.find((s) => s.name === data.activeSheet);
-      data.activeSheet = activeSheet.id;
+      if (data.sheets && data.activeSheet) {
+        const activeSheet = data.sheets.find((s) => s.name === data.activeSheet);
+        data.activeSheet = activeSheet.id;
+      }
       return data;
     },
   },
@@ -100,7 +102,7 @@ const MIGRATIONS: Migration[] = [
     from: 4,
     to: 5,
     applyMigration(data: any): any {
-      for (let sheet of data.sheets) {
+      for (let sheet of data.sheets || []) {
         sheet.figures = sheet.figures || [];
       }
       return data;
@@ -112,8 +114,8 @@ const MIGRATIONS: Migration[] = [
     from: 5,
     to: 6,
     applyMigration(data: any): any {
-      for (let sheet of data.sheets) {
-        for (let xc in sheet.cells) {
+      for (let sheet of data.sheets || []) {
+        for (let xc in sheet.cells || []) {
           const cell = sheet.cells[xc];
           if (cell.content && cell.content.startsWith("=")) {
             cell.formula = normalize(cell.content);
@@ -128,8 +130,8 @@ const MIGRATIONS: Migration[] = [
     from: 6,
     to: 7,
     applyMigration(data: any): any {
-      for (let sheet of data.sheets) {
-        for (let f in sheet.figures) {
+      for (let sheet of data.sheets || []) {
+        for (let f in sheet.figures || []) {
           const { dataSets, ...newData } = sheet.figures[f].data;
           const newDataSets: string[] = [];
           for (let ds of dataSets) {
@@ -215,7 +217,22 @@ const MIGRATIONS: Migration[] = [
           }
         }
       }
-
+      return data;
+    },
+  },
+  {
+    description: "transform chart data structure with design attributes",
+    from: 8,
+    to: 9,
+    applyMigration(data: any): any {
+      for (const sheet of data.sheets || []) {
+        for (const chart of sheet.figures || []) {
+          chart.data.background = BACKGROUND_CHART_COLOR;
+          chart.data.verticalAxisPosition = "left";
+          chart.data.legendPosition = "top";
+          chart.data.stackedBar = false;
+        }
+      }
       return data;
     },
   },

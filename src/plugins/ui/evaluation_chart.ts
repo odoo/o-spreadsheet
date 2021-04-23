@@ -3,10 +3,11 @@ import {
   ChartConfiguration,
   ChartData,
   ChartDataSets,
+  ChartLegendOptions,
   ChartTooltipItem,
-  ChartType,
 } from "chart.js";
 import { chartTerms } from "../../components/side_panel/translations_terms";
+import { MAX_CHAR_LABEL } from "../../constants";
 import { ChartColors } from "../../helpers/chart";
 import { isDefined, isInside, overlap, recomputeZones, zoneToXc } from "../../helpers/index";
 import { Mode } from "../../model";
@@ -120,18 +121,33 @@ export class EvaluationChartPlugin extends UIPlugin {
     return this.chartRuntime[figureId];
   }
 
+  private truncateLabel(label: string): string {
+    if (label.length > MAX_CHAR_LABEL) {
+      return label.substring(0, MAX_CHAR_LABEL) + "…";
+    }
+    return label;
+  }
+
   private getDefaultConfiguration(
-    type: ChartType,
-    title: string | undefined,
+    definition: ChartDefinition,
     labels: string[]
   ): ChartConfiguration {
+    const legend: ChartLegendOptions = {};
+    if (!definition.labelRange && definition.dataSets.length === 1) {
+      legend.display = false;
+    } else {
+      legend.position = definition.legendPosition;
+    }
     const config: ChartConfiguration = {
-      type,
+      type: definition.type,
       options: {
+        legend,
         // https://www.chartjs.org/docs/latest/general/responsive.html
         responsive: true, // will resize when its container is resized
         maintainAspectRatio: false, // doesn't maintain the aspect ration (width/height =2 by default) so the user has the choice of the exact layout
-        layout: { padding: { left: 20, right: 20, top: 10, bottom: 10 } },
+        layout: {
+          padding: { left: 20, right: 20, top: definition.title ? 10 : 25, bottom: 10 },
+        },
         elements: {
           line: {
             fill: false, // do not fill the area under line charts
@@ -148,19 +164,19 @@ export class EvaluationChartPlugin extends UIPlugin {
         },
         responsiveAnimationDuration: 0, // animation duration after a resize
         title: {
-          display: true,
+          display: !!definition.title,
           fontSize: 22,
           fontStyle: "normal",
-          text: title,
+          text: definition.title,
         },
       },
       data: {
-        labels,
+        labels: labels.map(this.truncateLabel),
         datasets: [],
       },
     };
 
-    if (type !== "pie") {
+    if (definition.type !== "pie") {
       config.options!.scales = {
         xAxes: [
           {
@@ -175,6 +191,7 @@ export class EvaluationChartPlugin extends UIPlugin {
         ],
         yAxes: [
           {
+            position: definition.verticalAxisPosition,
             ticks: {
               // y axis configuration
               beginAtZero: true, // the origin of the y axis is always zero
@@ -182,6 +199,10 @@ export class EvaluationChartPlugin extends UIPlugin {
           },
         ],
       };
+      if (definition.type === "bar" && definition.stackedBar) {
+        config.options!.scales.xAxes![0].stacked = true;
+        config.options!.scales.yAxes![0].stacked = true;
+      }
     } else {
       config.options!.tooltips = {
         callbacks: {
@@ -265,8 +286,12 @@ export class EvaluationChartPlugin extends UIPlugin {
       if (!definition.labelRange.invalidXc && !definition.labelRange.invalidSheetName) {
         labels = this.getters.getRangeFormattedValues(definition.labelRange).flat(1);
       }
+    } else if (definition.dataSets.length === 1) {
+      for (let i = 0; i < this.getData(definition.dataSets[0], definition.sheetId).length; i++) {
+        labels.push("");
+      }
     }
-    const runtime = this.getDefaultConfiguration(definition.type, definition.title, labels);
+    const runtime = this.getDefaultConfiguration(definition, labels);
 
     const colors = new ChartColors();
     const pieColors: ChartColor[] = [];
@@ -287,7 +312,7 @@ export class EvaluationChartPlugin extends UIPlugin {
           : undefined;
         label =
           cell && labelRange
-            ? this.getters.getCellText(cell, labelRange.sheetId)
+            ? this.truncateLabel(this.getters.getCellText(cell, labelRange.sheetId))
             : (label = `${chartTerms.Series} ${parseInt(dsIndex) + 1}`);
       } else {
         label = label = `${chartTerms.Series} ${parseInt(dsIndex) + 1}`;

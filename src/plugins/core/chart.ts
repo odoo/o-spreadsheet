@@ -121,7 +121,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           cmd,
           this.checkEmptyDataset,
           this.checkDataset,
-          this.checkEmptyLabelRange,
           this.checkLabelRange
         );
       default:
@@ -133,14 +132,16 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     switch (cmd.type) {
       case "CREATE_CHART":
         const chartDefinition = this.createChartDefinition(cmd.definition, cmd.sheetId);
+        const x = cmd.position ? cmd.position.x : 0;
+        const y = cmd.position ? cmd.position.y : 0;
         this.dispatch("CREATE_FIGURE", {
           sheetId: cmd.sheetId,
           figure: {
             id: cmd.id,
-            x: 0,
-            y: 0,
-            height: 500,
-            width: 800,
+            x,
+            y,
+            height: 335,
+            width: 536,
             tag: "chart",
           },
         });
@@ -217,6 +218,10 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       type: data ? data.type : "bar",
       dataSetsHaveTitle:
         data && dataSets.length !== 0 ? Boolean(data.dataSets[0].labelCell) : false,
+      background: data.background,
+      verticalAxisPosition: data.verticalAxisPosition,
+      legendPosition: data.legendPosition,
+      stackedBar: data.stackedBar,
     };
   }
 
@@ -227,6 +232,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       .filter((ds) => ds.range !== ""); // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
     return {
       ...this.getChartDefinitionUI("forceSheetReference", figureId),
+      backgroundColor: data.background,
       dataSets,
     };
   }
@@ -313,8 +319,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
    */
   private createChartDefinition(definition: ChartUIDefinition, sheetId: UID): ChartDefinition {
     return {
-      title: definition.title,
-      type: definition.type,
+      ...definition,
       dataSets: this.createDataSets(definition.dataSets, sheetId, definition.dataSetsHaveTitle),
       labelRange: definition.labelRange
         ? this.getters.getRangeFromSheetXC(sheetId, definition.labelRange)
@@ -332,7 +337,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     if (!chart) {
       throw new Error(`There is no chart with the given id: ${id}`);
     }
-    if (definition.title) {
+    if (definition.title !== undefined) {
       this.history.update("chartFigures", id, "title", definition.title);
     }
     if (definition.type) {
@@ -348,6 +353,23 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         ? this.getters.getRangeFromSheetXC(chart.sheetId, definition.labelRange)
         : undefined;
       this.history.update("chartFigures", id, "labelRange", labelRange);
+    }
+    if (definition.background) {
+      this.history.update("chartFigures", id, "background", definition.background);
+    }
+    if (definition.verticalAxisPosition) {
+      this.history.update(
+        "chartFigures",
+        id,
+        "verticalAxisPosition",
+        definition.verticalAxisPosition
+      );
+    }
+    if (definition.legendPosition) {
+      this.history.update("chartFigures", id, "legendPosition", definition.legendPosition);
+    }
+    if (definition.stackedBar !== undefined) {
+      this.history.update("chartFigures", id, "stackedBar", definition.stackedBar);
     }
   }
 
@@ -447,14 +469,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     return invalidRanges ? CommandResult.InvalidDataSet : CommandResult.Success;
   }
 
-  private checkEmptyLabelRange(cmd: CreateChartCommand | UpdateChartCommand): CommandResult {
-    return cmd.type === "UPDATE_CHART" || cmd.definition.labelRange
-      ? CommandResult.Success
-      : CommandResult.EmptyLabelRange;
-  }
-
   private checkLabelRange(cmd: CreateChartCommand | UpdateChartCommand): CommandResult {
-    if (cmd.type === "UPDATE_CHART" && !cmd.definition.labelRange) {
+    if (!cmd.definition.labelRange) {
       return CommandResult.Success;
     }
     const invalidLabels = !rangeReference.test(cmd.definition.labelRange || "");

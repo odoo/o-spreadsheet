@@ -1,3 +1,4 @@
+import { BACKGROUND_CHART_COLOR } from "../../src/constants";
 import { lettersToNumber, toCartesian, toZone, uuidv4 } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import {
@@ -92,6 +93,10 @@ export function createChart(
       dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
       labelRange: data.labelRange,
       type: data.type || "bar",
+      background: data.background || BACKGROUND_CHART_COLOR,
+      verticalAxisPosition: data.verticalAxisPosition || "left",
+      legendPosition: data.legendPosition || "top",
+      stackedBar: data.stackedBar || false,
     },
   });
 }
@@ -108,7 +113,7 @@ export function updateChart(
   return model.dispatch("UPDATE_CHART", {
     id: chartId,
     sheetId,
-    definition
+    definition,
   });
 }
 

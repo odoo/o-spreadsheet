@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { BACKGROUND_CHART_COLOR } from "../../src/constants";
 import { lettersToNumber, numberToLetters, range, toZone } from "../../src/helpers";
 import { ChartUIDefinition } from "../../src/types";
 import {
@@ -534,6 +535,10 @@ describe("Collaborative Sheet manipulation", () => {
       title: "chart title",
       dataSetsHaveTitle: false,
       type: "bar",
+      stackedBar: false,
+      background: BACKGROUND_CHART_COLOR,
+      verticalAxisPosition: "left",
+      legendPosition: "top",
     };
 
     test(`Concurrently chart creation & update and add columns`, () => {

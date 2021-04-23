@@ -177,7 +177,7 @@ export class EvaluationPlugin extends UIPlugin {
   getRangeValues(range: Range): any[][] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [[]];
-    return mapCellsInZone(range.zone, sheet, (cell) => cell.value);
+    return mapCellsInZone(range.zone, sheet, (cell) => this.getters.getCellValue(cell, sheet.id));
   }
 
   // ---------------------------------------------------------------------------

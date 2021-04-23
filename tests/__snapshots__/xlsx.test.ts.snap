@@ -251,6 +251,11 @@ Object {
                 </c:txPr>
             </c:valAx>
             <!-- <tickLblPos/> omitted -->
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val=\\"FFFFFF\\"/>
+                </a:solidFill>
+            </c:spPr>
         </c:plotArea>
         <c:legend>
             <c:legendPos val=\\"t\\"/>
@@ -297,13 +302,13 @@ Object {
                 24
             </xdr:col>
             <xdr:colOff>
-                7677150
+                5162550
             </xdr:colOff>
             <xdr:row>
-                21
+                14
             </xdr:row>
             <xdr:rowOff>
-                171450
+                133350
             </xdr:rowOff>
         </xdr:to>
         <xdr:graphicFrame>
@@ -827,6 +832,11 @@ Object {
                 </c:txPr>
             </c:valAx>
             <!-- <tickLblPos/> omitted -->
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val=\\"FFFFFF\\"/>
+                </a:solidFill>
+            </c:spPr>
         </c:plotArea>
         <c:legend>
             <c:legendPos val=\\"t\\"/>
@@ -870,16 +880,16 @@ Object {
         </xdr:from>
         <xdr:to>
             <xdr:col>
-                8
+                5
             </xdr:col>
             <xdr:colOff>
-                314325
+                542925
             </xdr:colOff>
             <xdr:row>
-                21
+                14
             </xdr:row>
             <xdr:rowOff>
-                171450
+                133350
             </xdr:rowOff>
         </xdr:to>
         <xdr:graphicFrame>
@@ -1418,6 +1428,11 @@ Object {
                 </c:txPr>
             </c:valAx>
             <!-- <tickLblPos/> omitted -->
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val=\\"FFFFFF\\"/>
+                </a:solidFill>
+            </c:spPr>
         </c:plotArea>
         <c:legend>
             <c:legendPos val=\\"t\\"/>
@@ -1461,16 +1476,16 @@ Object {
         </xdr:from>
         <xdr:to>
             <xdr:col>
-                8
+                5
             </xdr:col>
             <xdr:colOff>
-                314325
+                542925
             </xdr:colOff>
             <xdr:row>
-                21
+                14
             </xdr:row>
             <xdr:rowOff>
-                171450
+                133350
             </xdr:rowOff>
         </xdr:to>
         <xdr:graphicFrame>
@@ -1864,6 +1879,11 @@ Object {
                 </c:txPr>
             </c:valAx>
             <!-- <tickLblPos/> omitted -->
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val=\\"FFFFFF\\"/>
+                </a:solidFill>
+            </c:spPr>
         </c:plotArea>
         <c:legend>
             <c:legendPos val=\\"t\\"/>
@@ -1907,16 +1927,16 @@ Object {
         </xdr:from>
         <xdr:to>
             <xdr:col>
-                8
+                5
             </xdr:col>
             <xdr:colOff>
-                314325
+                542925
             </xdr:colOff>
             <xdr:row>
-                21
+                14
             </xdr:row>
             <xdr:rowOff>
-                171450
+                133350
             </xdr:rowOff>
         </xdr:to>
         <xdr:graphicFrame>
@@ -2393,6 +2413,11 @@ Object {
                 </c:txPr>
             </c:valAx>
             <!-- <tickLblPos/> omitted -->
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val=\\"FFFFFF\\"/>
+                </a:solidFill>
+            </c:spPr>
         </c:plotArea>
         <c:legend>
             <c:legendPos val=\\"t\\"/>
@@ -2436,16 +2461,16 @@ Object {
         </xdr:from>
         <xdr:to>
             <xdr:col>
-                8
+                5
             </xdr:col>
             <xdr:colOff>
-                314325
+                542925
             </xdr:colOff>
             <xdr:row>
-                21
+                14
             </xdr:row>
             <xdr:rowOff>
-                171450
+                133350
             </xdr:rowOff>
         </xdr:to>
         <xdr:graphicFrame>
@@ -2945,6 +2970,11 @@ Object {
                 </c:txPr>
             </c:valAx>
             <!-- <tickLblPos/> omitted -->
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val=\\"FFFFFF\\"/>
+                </a:solidFill>
+            </c:spPr>
         </c:plotArea>
         <c:legend>
             <c:legendPos val=\\"t\\"/>
@@ -2988,16 +3018,16 @@ Object {
         </xdr:from>
         <xdr:to>
             <xdr:col>
-                8
+                5
             </xdr:col>
             <xdr:colOff>
-                314325
+                542925
             </xdr:colOff>
             <xdr:row>
-                21
+                14
             </xdr:row>
             <xdr:rowOff>
-                171450
+                133350
             </xdr:rowOff>
         </xdr:to>
         <xdr:graphicFrame>
@@ -3535,6 +3565,11 @@ Object {
                 </c:txPr>
             </c:valAx>
             <!-- <tickLblPos/> omitted -->
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val=\\"FFFFFF\\"/>
+                </a:solidFill>
+            </c:spPr>
         </c:plotArea>
         <c:legend>
             <c:legendPos val=\\"t\\"/>
@@ -3578,16 +3613,16 @@ Object {
         </xdr:from>
         <xdr:to>
             <xdr:col>
-                8
+                5
             </xdr:col>
             <xdr:colOff>
-                314325
+                542925
             </xdr:colOff>
             <xdr:row>
-                21
+                14
             </xdr:row>
             <xdr:rowOff>
-                171450
+                133350
             </xdr:rowOff>
         </xdr:to>
         <xdr:graphicFrame>
@@ -4086,6 +4121,11 @@ Object {
                 </c:txPr>
             </c:valAx>
             <!-- <tickLblPos/> omitted -->
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val=\\"FFFFFF\\"/>
+                </a:solidFill>
+            </c:spPr>
         </c:plotArea>
         <c:legend>
             <c:legendPos val=\\"t\\"/>
@@ -4129,16 +4169,16 @@ Object {
         </xdr:from>
         <xdr:to>
             <xdr:col>
-                8
+                5
             </xdr:col>
             <xdr:colOff>
-                314325
+                542925
             </xdr:colOff>
             <xdr:row>
-                21
+                14
             </xdr:row>
             <xdr:rowOff>
-                171450
+                133350
             </xdr:rowOff>
         </xdr:to>
         <xdr:graphicFrame>
@@ -4678,6 +4718,11 @@ Object {
                 </c:txPr>
             </c:valAx>
             <!-- <tickLblPos/> omitted -->
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val=\\"FFFFFF\\"/>
+                </a:solidFill>
+            </c:spPr>
         </c:plotArea>
         <c:legend>
             <c:legendPos val=\\"t\\"/>
@@ -4721,16 +4766,16 @@ Object {
         </xdr:from>
         <xdr:to>
             <xdr:col>
-                8
+                5
             </xdr:col>
             <xdr:colOff>
-                314325
+                542925
             </xdr:colOff>
             <xdr:row>
-                21
+                14
             </xdr:row>
             <xdr:rowOff>
-                171450
+                133350
             </xdr:rowOff>
         </xdr:to>
         <xdr:graphicFrame>
@@ -5147,6 +5192,11 @@ Object {
                     </c:val>
                 </c:ser>
             </c:doughnutChart>
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val=\\"FFFFFF\\"/>
+                </a:solidFill>
+            </c:spPr>
         </c:plotArea>
         <c:legend>
             <c:legendPos val=\\"t\\"/>
@@ -5190,16 +5240,16 @@ Object {
         </xdr:from>
         <xdr:to>
             <xdr:col>
-                8
+                5
             </xdr:col>
             <xdr:colOff>
-                314325
+                542925
             </xdr:colOff>
             <xdr:row>
-                21
+                14
             </xdr:row>
             <xdr:rowOff>
-                171450
+                133350
             </xdr:rowOff>
         </xdr:to>
         <xdr:graphicFrame>
@@ -5690,6 +5740,11 @@ Object {
                     </c:val>
                 </c:ser>
             </c:doughnutChart>
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val=\\"FFFFFF\\"/>
+                </a:solidFill>
+            </c:spPr>
         </c:plotArea>
         <c:legend>
             <c:legendPos val=\\"t\\"/>
@@ -5733,16 +5788,16 @@ Object {
         </xdr:from>
         <xdr:to>
             <xdr:col>
-                8
+                5
             </xdr:col>
             <xdr:colOff>
-                314325
+                542925
             </xdr:colOff>
             <xdr:row>
-                21
+                14
             </xdr:row>
             <xdr:rowOff>
-                171450
+                133350
             </xdr:rowOff>
         </xdr:to>
         <xdr:graphicFrame>

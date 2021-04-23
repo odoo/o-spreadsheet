@@ -53,7 +53,7 @@ function updateChartRangesTransformation(
   }
   if (definition.dataSets) {
     dataSets = definition.dataSets
-      .map((range) => toZone(range))
+      .map(toZone)
       .map((zone) => transformZone(zone, executed))
       .filter(isDefined)
       .map(zoneToXc);

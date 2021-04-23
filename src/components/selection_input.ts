@@ -9,7 +9,7 @@ const { xml, css } = owl.tags;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-selection">
-    <t t-foreach="ranges" t-as="range" t-key="range.id">
+    <div t-foreach="ranges" t-as="range" t-key="range.id" class="o-selection-input">
       <input
         type="text"
         spellcheck="false"
@@ -20,56 +20,64 @@ const TEMPLATE = xml/* xml */ `
         t-att-class="range.isFocused ? 'o-focused' : ''"
       />
       <button
-        class="o-remove-selection"
+        class="o-btn o-remove-selection"
         t-if="ranges.length > 1"
         t-on-click="removeInput(range.id)">✖</button>
-    </t>
-
-    <div class="o-selection-controls">
-      <button
-        t-if="canAddRange"
-        t-on-click="addEmptyInput"
-        class="o-btn o-add-selection">Add another range</button>
-      <button
-        class="o-btn o-selection-ok"
-        t-if="hasFocus"
-        t-on-click="disable">OK</button>
     </div>
+
+    <div class="o-selection-input">
+    </div>
+
+    <div class="o-selection-input">
+      <button
+        class="o-btn-action o-add-selection"
+        t-if="canAddRange"
+        t-on-click="addEmptyInput">Add range</button>
+      <button
+          class="o-btn-action o-selection-ok"
+          t-if="hasFocus"
+          t-on-click="disable">Confirm</button>
+    </div>
+
   </div>`;
 
 const CSS = css/* scss */ `
   .o-selection {
-    input {
-      padding: 4px 6px;
-      border-radius: 4px;
-      box-sizing: border-box;
-      border: 1px solid #dadce0;
-      width: 100%;
-    }
-    input:focus {
-      outline: none;
-    }
-    input.o-focused {
-      border-color: #3266ca;
-      border-width: 2px;
-      padding: 3px 5px;
-    }
-    button.o-remove-selection {
-      margin-left: -30px;
-      background: transparent;
-      border: none;
-      color: #333;
-      cursor: pointer;
-    }
-    button.o-btn {
-      margin: 8px 1px;
-      border-radius: 4px;
-      background: transparent;
-      border: 1px solid #dadce0;
-      color: #188038;
-      font-weight: bold;
-      font-size: 14px;
-      height: 25px;
+    .o-selection-input {
+      display: flex;
+      flex-direction: row;
+
+      input {
+        padding: 4px 6px;
+        border-radius: 4px;
+        box-sizing: border-box;
+        border: 1px solid #dadce0;
+        flex-grow: 2;
+      }
+      input:focus {
+        outline: none;
+      }
+      input.o-focused {
+        border-color: #3266ca;
+        border-width: 2px;
+        padding: 3px 5px;
+      }
+      button.o-btn {
+        background: transparent;
+        border: none;
+        color: #333;
+        cursor: pointer;
+      }
+      button.o-btn-action {
+        margin: 8px 1px;
+        border-radius: 4px;
+        background: transparent;
+        border: 1px solid #dadce0;
+        color: #188038;
+        font-weight: bold;
+        font-size: 14px;
+        height: 25px;
+      }
     }
   }
 `;
@@ -173,6 +181,7 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
   removeInput(rangeId: string) {
     this.dispatch("REMOVE_RANGE", { id: this.id, rangeId });
     this.triggerChange();
+    this.trigger("selection-confirmed");
   }
 
   onInputChanged(rangeId: string, ev: InputEvent) {
@@ -198,5 +207,6 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
         sheetIdTo: this.originSheet,
       });
     }
+    this.trigger("selection-confirmed");
   }
 }
