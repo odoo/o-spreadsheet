@@ -492,6 +492,7 @@ describe("datasource tests", function () {
     updateChart(model, "1", {
       dataSets: ["Sheet1!A8:D8", "Sheet1!A9:D9"],
       labelRange: "Sheet1!C7:D7",
+      dataSetsHaveTitle: true,
       type: "bar",
       title: "hello1",
     });
@@ -839,9 +840,16 @@ describe("datasource tests", function () {
   });
 
   test("update chart with invalid labels", () => {
+    createChart(
+      model,
+      {
+        dataSets: ["A1:A2"],
+        labelRange: "A1",
+      },
+      "1"
+    );
     expect(
       updateChart(model, "1", {
-        dataSets: ["Sheet1!B1:B4"],
         labelRange: "This is invalid",
       })
     ).toBe(CommandResult.InvalidLabelRange);
@@ -886,15 +894,32 @@ describe("datasource tests", function () {
     ]);
   });
   test("extend data source to new values manually", () => {
+    createChart(
+      model,
+      {
+        dataSets: ["A1:A2"],
+        labelRange: "A1",
+      },
+      "1"
+    );
     updateChart(model, "1", {
       dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
       labelRange: "Sheet1!A2:A5",
+      dataSetsHaveTitle: true,
     });
     const chart = model.getters.getChartRuntime("1")!;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18, 17]);
   });
   test("extend data set labels to new values manually", () => {
+    createChart(
+      model,
+      {
+        dataSets: ["A1:A2"],
+        labelRange: "A1",
+      },
+      "1"
+    );
     updateChart(model, "1", {
       dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
       labelRange: "Sheet1!A2:A5",
@@ -924,12 +949,20 @@ describe("datasource tests", function () {
 
 describe("title", function () {
   test("change title manually", () => {
-    updateChart(model, "1", {
-      title: "newTitle",
-      dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
-      labelRange: "Sheet1!A2:A4",
-    });
-    const chart = model.getters.getChartRuntime("1")!;
+    createChart(
+      model,
+      {
+        dataSets: ["A1:B1"],
+        labelRange: "A2:B2",
+        title: "title",
+      },
+      "1"
+    );
+    let chart = model.getters.getChartRuntime("1")!;
+    expect(chart.options!.title!.text).toEqual("title");
+
+    updateChart(model, "1", { title: "newTitle" });
+    chart = model.getters.getChartRuntime("1")!;
     expect(chart.options!.title!.text).toEqual("newTitle");
   });
 });

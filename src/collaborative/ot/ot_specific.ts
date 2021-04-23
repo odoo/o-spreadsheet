@@ -3,6 +3,7 @@ import { otRegistry } from "../../registries";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
+  ChartUIDefinition,
   CreateChartCommand,
   DeleteFigureCommand,
   RemoveColumnsRowsCommand,
@@ -46,20 +47,24 @@ function updateChartRangesTransformation(
 ): UpdateChartCommand | CreateChartCommand {
   const definition = toTransform.definition;
   let labelZone: Zone | undefined;
+  let dataSets: string[] | undefined;
   if (definition.labelRange) {
     labelZone = transformZone(toZone(definition.labelRange), executed);
+  }
+  if (definition.dataSets) {
+    dataSets = definition.dataSets
+      .map((range) => toZone(range))
+      .map((zone) => transformZone(zone, executed))
+      .filter(isDefined)
+      .map(zoneToXc);
   }
   return {
     ...toTransform,
     definition: {
       ...definition,
-      dataSets: definition.dataSets
-        .map((range) => toZone(range))
-        .map((zone) => transformZone(zone, executed))
-        .filter(isDefined)
-        .map(zoneToXc),
+      dataSets,
       labelRange: labelZone ? zoneToXc(labelZone) : undefined,
-    },
+    } as ChartUIDefinition,
   };
 }
 
