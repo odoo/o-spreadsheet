@@ -50,5 +50,4 @@ export const uiPluginRegistry = new Registry<UIPluginConstructor>()
   .add("autofill", AutofillPlugin)
   .add("find_and_replace", FindAndReplacePlugin)
   .add("sort", SortPlugin)
-  .add("selection_multiuser", SelectionMultiUserPlugin)
-  .add("find_and_replace", FindAndReplacePlugin);
+  .add("selection_multiuser", SelectionMultiUserPlugin);
