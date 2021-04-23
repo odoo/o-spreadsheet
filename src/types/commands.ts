@@ -328,6 +328,7 @@ export interface DeleteFigureCommand extends BaseCommand, SheetDependentCommand 
 export interface CreateChartCommand extends BaseCommand, SheetDependentCommand {
   type: "CREATE_CHART";
   id: UID;
+  position?: { x: number; y: number };
   definition: ChartUIDefinition;
 }
 
@@ -987,7 +988,6 @@ export const enum CommandResult {
   MaximumRangesReached,
   InvalidChartDefinition,
   EmptyDataSet,
-  EmptyLabelRange,
   InvalidDataSet,
   InvalidLabelRange,
   InvalidAutofillSelection,

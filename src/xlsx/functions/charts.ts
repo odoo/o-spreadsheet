@@ -42,7 +42,7 @@ export function createChart(chart: FigureData<ExcelChartDefinition>): XMLDocumen
   ];
 
   const chartShapeProperty = shapeProperty({
-    backgroundColor: "FFFFFF",
+    backgroundColor: toHex6(chart.data.backgroundColor),
     line: { color: "000000" },
   });
   // <manualLayout/> to manually position the chart in the figure container
@@ -69,6 +69,22 @@ export function createChart(chart: FigureData<ExcelChartDefinition>): XMLDocumen
       plot = addDoughnutChart(chart.data, { holeSize: 0 });
       break;
   }
+  let position: ElementPosition = "t";
+  switch (chart.data.legendPosition) {
+    case "bottom":
+      position = "b";
+      break;
+    case "left":
+      position = "l";
+      break;
+    case "right":
+      position = "r";
+      break;
+    case "top":
+      position = "t";
+      break;
+  }
+
   const xml = /*xml*/ `
     <c:chartSpace ${formatAttributes(namespaces)}>
       <c:roundedCorners val="0" />
@@ -81,8 +97,9 @@ export function createChart(chart: FigureData<ExcelChartDefinition>): XMLDocumen
           <!-- how the chart element is placed on the chart -->
           <c:layout />
           ${plot}
+          ${shapeProperty({ backgroundColor: toHex6(chart.data.backgroundColor) })}
         </c:plotArea>
-        ${addLegend("t")}
+        ${addLegend(position)}
       </c:chart>
     </c:chartSpace>
   `;
@@ -197,6 +214,9 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
     `);
   }
 
+  // Excel does not support this feature
+  const axisPos = chart.verticalAxisPosition === "left" ? "l" : "r";
+
   return /*xml*/ `
     <c:barChart>
       <c:barDir val="col"/>
@@ -210,7 +230,7 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
       <c:axId val="${valAxId}" />
     </c:barChart>
     ${addAx("b", "c:catAx", catAxId, valAxId)}
-    ${addAx("l", "c:valAx", valAxId, catAxId)}
+    ${addAx(axisPos, "c:valAx", valAxId, catAxId)}
   `;
 }
 
@@ -247,6 +267,9 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
     `);
   }
 
+  // Excel does not support this feature
+  const axisPos = chart.verticalAxisPosition === "left" ? "l" : "r";
+
   return /*xml*/ `
     <c:lineChart>
       <!-- each data marker in the series does not have a different color -->
@@ -256,7 +279,7 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
       <c:axId val="${valAxId}" />
     </c:lineChart>
     ${addAx("b", "c:catAx", catAxId, valAxId)}
-    ${addAx("l", "c:valAx", valAxId, catAxId)}
+    ${addAx(axisPos, "c:valAx", valAxId, catAxId)}
   `;
 }
 

@@ -664,8 +664,8 @@ describe("sheets", () => {
 
     const figure1 = model.getters.getFigures(sheetId);
     const figure2 = model.getters.getFigures("42");
-    expect(figure1).toEqual([{ height: 500, id: chartId, tag: "chart", width: 800, x: 40, y: 0 }]);
-    expect(figure2).toMatchObject([{ height: 500, tag: "chart", width: 800, x: 0, y: 0 }]);
+    expect(figure1).toEqual([{ height: 335, id: chartId, tag: "chart", width: 536, x: 40, y: 0 }]);
+    expect(figure2).toMatchObject([{ height: 335, tag: "chart", width: 536, x: 0, y: 0 }]);
   });
 
   test("Charts are correctly duplicated", () => {

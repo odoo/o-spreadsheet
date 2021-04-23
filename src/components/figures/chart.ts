@@ -1,6 +1,7 @@
 import * as owl from "@odoo/owl";
 import { Component, hooks, tags } from "@odoo/owl";
 import Chart, { ChartConfiguration } from "chart.js";
+import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { MenuItemRegistry } from "../../registries/index";
 import { _lt } from "../../translation";
 import { Figure, SpreadsheetEnv } from "../../types";
@@ -14,7 +15,7 @@ const { useRef } = hooks;
 const TEMPLATE = xml/* xml */ `
 <div class="o-chart-container">
   <div class="o-chart-menu" t-on-click="showMenu">${LIST}</div>
-  <canvas t-ref="graphContainer"/>
+  <canvas t-att-style="canvasStyle" t-ref="graphContainer"/>
   <Menu t-if="menuState.isOpen"
     position="menuState.position"
     menuItems="menuState.menuItems"
@@ -30,9 +31,6 @@ const CSS = css/* scss */ `
     height: 100%;
     position: relative;
 
-    > canvas {
-      background-color: white;
-    }
     .o-chart-menu {
       right: 0px;
       display: none;
@@ -55,6 +53,10 @@ interface Props {
   sidePanelIsOpen: boolean;
 }
 
+interface State {
+  background: string;
+}
+
 export class ChartFigure extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
@@ -63,6 +65,11 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
 
   canvas = useRef("graphContainer");
   private chart?: Chart;
+  private state: State = { background: BACKGROUND_CHART_COLOR };
+
+  get canvasStyle() {
+    return `background-color: ${this.state.background}`;
+  }
 
   mounted() {
     const figure = this.props.figure;
@@ -91,9 +98,15 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
       } else {
         this.chart!.data.datasets = undefined;
       }
+      this.chart!.config.options!.legend = chartData.options?.legend;
+      this.chart!.config.options!.scales = chartData.options?.scales;
       this.chart!.update({ duration: 0 });
     } else {
       this.chart && this.chart.destroy();
+    }
+    const def = this.env.getters.getChartDefinition(figure.id);
+    if (def) {
+      this.state.background = def.background;
     }
   }
 
@@ -101,6 +114,10 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
     this.chart = new window.Chart(ctx, chartData);
+    const def = this.env.getters.getChartDefinition(this.props.figure.id);
+    if (def) {
+      this.state.background = def.background;
+    }
   }
 
   showMenu(ev: MouseEvent) {

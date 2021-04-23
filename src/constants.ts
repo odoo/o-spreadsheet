@@ -13,6 +13,7 @@ export const TEXT_HEADER_COLOR = "#666666";
 export const SELECTION_BORDER_COLOR = "#3266ca";
 export const HEADER_BORDER_COLOR = "#C0C0C0";
 export const CELL_BORDER_COLOR = "#E2E3E3";
+export const BACKGROUND_CHART_COLOR = "#FFFFFF";
 
 // Dimensions
 export const MIN_ROW_HEIGHT = 10;
@@ -59,6 +60,9 @@ export const MAX_HISTORY_STEPS = 99;
 
 // Id of the first revision
 export const DEFAULT_REVISION_ID = "START_REVISION";
+
+// Chart
+export const MAX_CHAR_LABEL = 20;
 
 export const DEBOUNCE_TIME = 200;
 

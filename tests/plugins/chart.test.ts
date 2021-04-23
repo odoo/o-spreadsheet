@@ -1,6 +1,7 @@
 import { Model } from "../../src";
+import { chartTerms } from "../../src/components/side_panel/translations_terms";
 import { toZone } from "../../src/helpers/zones";
-import { CommandResult } from "../../src/types";
+import { ChartUIDefinition, CommandResult } from "../../src/types";
 import {
   addColumns,
   addRows,
@@ -365,6 +366,20 @@ describe("datasource tests", function () {
     expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
+  test("create a chart with stacked bar", () => {
+    createChart(
+      model,
+      {
+        dataSets: ["B7:B8"],
+        labelRange: "B7",
+        type: "bar",
+        stackedBar: true,
+      },
+      "1"
+    );
+    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
+  });
+
   test("create chart with async as label", async () => {
     setCellContent(model, "B7", "=WAIT(1000)");
     createChart(
@@ -404,17 +419,11 @@ describe("datasource tests", function () {
   });
 
   test("pie chart tooltip title display the correct dataset", () => {
-    model.dispatch("CREATE_CHART", {
-      id: "1",
-      sheetId: model.getters.getActiveSheetId(),
-      definition: {
-        title: "test 1",
-        dataSets: ["B7:B8"],
-        dataSetsHaveTitle: true,
-        labelRange: "B7",
-        type: "pie",
-      },
-    });
+    createChart(
+      model,
+      { dataSets: ["B7:B8"], dataSetsHaveTitle: true, labelRange: "B7", type: "pie" },
+      "1"
+    );
     const title = model.getters.getChartRuntime("1")!.options!.tooltips!.callbacks!.title!;
     const chartData = { datasets: [{ label: "dataset 1" }, { label: "dataset 2" }] };
     expect(title([{ datasetIndex: 0 }], chartData)).toBe("dataset 1");
@@ -422,17 +431,11 @@ describe("datasource tests", function () {
   });
 
   test.each(["bar", "line"] as const)("chart %s tooltip title is not dynamic", (chartType) => {
-    model.dispatch("CREATE_CHART", {
-      id: "1",
-      sheetId: model.getters.getActiveSheetId(),
-      definition: {
-        title: "test 1",
-        dataSets: ["B7:B8"],
-        dataSetsHaveTitle: true,
-        labelRange: "B7",
-        type: chartType,
-      },
-    });
+    createChart(
+      model,
+      { dataSets: ["B7:B8"], dataSetsHaveTitle: true, labelRange: "B7", type: chartType },
+      "1"
+    );
     const title = model.getters.getChartRuntime("1")?.options?.tooltips?.callbacks?.title;
     expect(title).toBeUndefined();
   });
@@ -469,10 +472,10 @@ describe("datasource tests", function () {
     );
     const newModel = new Model(model.exportData());
     let chart = newModel.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
     setCellContent(newModel, "B2", "99");
     chart = newModel.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
+    expect(chart.data!.datasets![0].data).toEqual(["99", "11", "12"]);
   });
 
   test("update existing chart", () => {
@@ -487,7 +490,7 @@ describe("datasource tests", function () {
       "1"
     );
     let chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
     expect(chart.type).toEqual("line");
     updateChart(model, "1", {
       dataSets: ["Sheet1!A8:D8", "Sheet1!A9:D9"],
@@ -533,8 +536,8 @@ describe("datasource tests", function () {
       title: "hello1",
       type: "bar",
     });
-    expect(chart.data!.datasets![0].data).toEqual([30, 31, 32]);
-    expect(chart.data!.datasets![1].data).toEqual([40, 41, 42]);
+    expect(chart.data!.datasets![0].data).toEqual(["30", "31", "32"]);
+    expect(chart.data!.datasets![1].data).toEqual(["40", "41", "42"]);
     expect(chart.type).toEqual("bar");
   });
 
@@ -586,7 +589,7 @@ describe("datasource tests", function () {
     );
     deleteColumns(model, ["B"]);
     const chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual([20, 19, 18]);
+    expect(chart.data!.datasets![0].data).toEqual(["20", "19", "18"]);
     expect(chart.data!.datasets![1]).toBe(undefined);
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
   });
@@ -605,8 +608,8 @@ describe("datasource tests", function () {
     // dataset in col B becomes labels in col A
     expect(model.getters.getChartRuntime("1")!.data!.labels).toEqual([]);
     const chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
-    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
+    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
+    expect(chart.data!.datasets![1].data).toEqual(["20", "19", "18"]);
     expect(chart.data!.labels).toEqual([]);
   });
 
@@ -623,8 +626,8 @@ describe("datasource tests", function () {
     );
     deleteRows(model, [4]);
     const chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
-    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
+    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
+    expect(chart.data!.datasets![1].data).toEqual(["20", "19", "18"]);
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
   });
 
@@ -641,7 +644,7 @@ describe("datasource tests", function () {
     );
     deleteColumns(model, ["C"]);
     const chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13]);
+    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12", "13"]);
     expect(chart.data!.datasets![1]).toBeUndefined();
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
@@ -659,8 +662,8 @@ describe("datasource tests", function () {
     );
     addRows(model, "before", 2, 1);
     const chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual([10, undefined, 11, 12, 13]);
-    expect(chart.data!.datasets![1].data).toEqual([20, undefined, 19, 18, 17]);
+    expect(chart.data!.datasets![0].data).toEqual(["10", undefined, "11", "12", "13"]);
+    expect(chart.data!.datasets![1].data).toEqual(["20", undefined, "19", "18", "17"]);
     expect(chart.data!.labels).toEqual(["P1", "", "P2", "P3", "P4"]);
   });
 
@@ -711,12 +714,12 @@ describe("datasource tests", function () {
       "1"
     );
     let chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
     expect(chart.data!.datasets![0].label).toEqual("first column dataset");
     setCellContent(model, "B2", "99");
     setCellContent(model, "B1", "new dataset label");
     chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
+    expect(chart.data!.datasets![0].data).toEqual(["99", "11", "12"]);
     expect(chart.data!.datasets![0].label).toEqual("new dataset label");
   });
 
@@ -804,7 +807,7 @@ describe("datasource tests", function () {
       title: "test",
       type: "bar",
     });
-    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
     expect(chart.type).toEqual("bar");
   });
 
@@ -829,7 +832,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(result).toBe(CommandResult.EmptyLabelRange);
+    expect(result).toBe(CommandResult.Success);
   });
   test("update chart with invalid dataset", () => {
     expect(
@@ -908,8 +911,8 @@ describe("datasource tests", function () {
       dataSetsHaveTitle: true,
     });
     const chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13]);
-    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18, 17]);
+    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12", "13"]);
+    expect(chart.data!.datasets![1].data).toEqual(["20", "19", "18", "17"]);
   });
   test("extend data set labels to new values manually", () => {
     createChart(
@@ -930,17 +933,16 @@ describe("datasource tests", function () {
 
   test("Chart is deleted on sheet deletion", () => {
     model.dispatch("CREATE_SHEET", { sheetId: "2", position: 1 });
-    model.dispatch("CREATE_CHART", {
-      id: "1",
-      sheetId: "2",
-      definition: {
-        title: "test 1",
+    createChart(
+      model,
+      {
         dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
-        dataSetsHaveTitle: true,
         labelRange: "Sheet1!A2:A4",
         type: "line",
       },
-    });
+      "1",
+      "2"
+    );
     expect(model.getters.getChartRuntime("1")).not.toBeUndefined();
     model.dispatch("DELETE_SHEET", { sheetId: "2" });
     expect(model.getters.getChartRuntime("1")).toBeUndefined();
@@ -965,6 +967,21 @@ describe("title", function () {
     chart = model.getters.getChartRuntime("1")!;
     expect(chart.options!.title!.text).toEqual("newTitle");
   });
+
+  test("Title is not displayed if empty", () => {
+    createChart(
+      model,
+      {
+        dataSets: ["A1:B1"],
+        labelRange: "A2:B2",
+        title: "title",
+      },
+      "1"
+    );
+    expect(model.getters.getChartRuntime("1")?.options?.title?.display).toBe(true);
+    updateChart(model, "1", { title: "" });
+    expect(model.getters.getChartRuntime("1")?.options?.title?.display).toBe(false);
+  });
 });
 
 describe("multiple sheets", function () {
@@ -980,8 +997,8 @@ describe("multiple sheets", function () {
     );
     const chart = model.getters.getChartRuntime("1")!;
     const chartDefinition = model.getters.getChartDefinition("1");
-    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
-    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
+    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
+    expect(chart.data!.datasets![1].data).toEqual(["20", "19", "18"]);
     expect(chartDefinition).toMatchObject({
       dataSets: [
         {
@@ -1050,7 +1067,7 @@ describe("multiple sheets", function () {
     });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
     const chart = model.getters.getChartRuntime("28")!;
-    expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
+    expect(chart.data!.datasets![0].data).toEqual(["99", "11", "12"]);
   });
   test("change dataset label then activate the chart sheet (it should be up-to-date)", () => {
     createSheet(model, { sheetId: "42", activate: true });
@@ -1077,8 +1094,8 @@ describe("multiple sheets", function () {
     });
     const chart = model.getters.getChartRuntime("28")!;
     const chartDefinition = model.getters.getChartDefinition("28");
-    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
-    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
+    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
+    expect(chart.data!.datasets![1].data).toEqual(["20", "19", "18"]);
     expect(chartDefinition).toMatchObject({
       dataSets: [
         {
@@ -1152,7 +1169,7 @@ describe("multiple sheets", function () {
     });
     test("new model with chart with formulas from another sheet (not evaluated yet)", () => {
       const chart = model.getters.getChartRuntime("1")!;
-      expect(chart.data!.datasets![0].data).toEqual([2, 4]);
+      expect(chart.data!.datasets![0].data).toEqual(["2", "4"]);
     });
     test("refresh chart to update it with new data", () => {
       model.dispatch("UPDATE_CELL", {
@@ -1162,11 +1179,11 @@ describe("multiple sheets", function () {
         content: "=Sheet1!B1*3",
       });
       let chart = model.getters.getChartRuntime("1")!;
-      expect(chart.data!.datasets![0].data).toEqual([undefined, 4]); // data has not been updated :(
+      expect(chart.data!.datasets![0].data).toEqual(["", "4"]); // data has not been updated :(
 
       model.dispatch("REFRESH_CHART", { id: "1" });
       chart = model.getters.getChartRuntime("1")!;
-      expect(chart.data!.datasets![0].data).toEqual([3, 4]);
+      expect(chart.data!.datasets![0].data).toEqual(["3", "4"]);
 
       model.dispatch("UPDATE_CELL", {
         sheetId: "Sheet1",
@@ -1175,11 +1192,11 @@ describe("multiple sheets", function () {
         content: "5",
       });
       chart = model.getters.getChartRuntime("1")!;
-      expect(chart.data!.datasets![0].data).toEqual([3, 4]); // data has not been updated :(
+      expect(chart.data!.datasets![0].data).toEqual(["3", "4"]); // data has not been updated :(
 
       model.dispatch("REFRESH_CHART", { id: "1" });
       chart = model.getters.getChartRuntime("1")!;
-      expect(chart.data!.datasets![0].data).toEqual([3, 10]);
+      expect(chart.data!.datasets![0].data).toEqual(["3", "10"]);
     });
   });
 
@@ -1215,15 +1232,129 @@ describe("undo/redo", () => {
       type: "line",
     });
     let chart = model.getters.getChartRuntime("27")!;
-    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
     setCellContent(model, "B2", "99");
     chart = model.getters.getChartRuntime("27")!;
-    expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
+    expect(chart.data!.datasets![0].data).toEqual(["99", "11", "12"]);
     undo(model);
     chart = model.getters.getChartRuntime("27")!;
-    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
     redo(model);
     chart = model.getters.getChartRuntime("27")!;
-    expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
+    expect(chart.data!.datasets![0].data).toEqual(["99", "11", "12"]);
+  });
+});
+
+describe("Chart without labels", () => {
+  const defaultChart: ChartUIDefinition = {
+    background: "#FFFFFF",
+    dataSets: ["A1:A2"],
+    dataSetsHaveTitle: false,
+    legendPosition: "top",
+    title: "My chart",
+    type: "bar",
+    verticalAxisPosition: "left",
+    stackedBar: false,
+  };
+
+  test("The legend is not displayed when there is only one dataSet and no label", () => {
+    createChart(model, defaultChart, "42");
+    expect(model.getters.getChartRuntime("42")?.options?.legend?.display).toBe(false);
+
+    createChart(model, { ...defaultChart, dataSets: ["A1:A2", "A3:A4"] }, "43");
+    expect(model.getters.getChartRuntime("43")?.options?.legend?.display).toBeUndefined();
+
+    createChart(model, { ...defaultChart, labelRange: "B1:B2" }, "44");
+    expect(model.getters.getChartRuntime("44")?.options?.legend?.display).toBeUndefined();
+  });
+
+  test("Labels are empty if there is only one dataSet and no label", () => {
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    createChart(model, defaultChart, "42");
+    expect(model.getters.getChartRuntime("42")?.data?.labels).toEqual(["", ""]);
+
+    createChart(model, { ...defaultChart, dataSets: ["A1:A2", "A3:A4"] }, "43");
+    expect(model.getters.getChartRuntime("43")?.data?.datasets![0].label).toEqual(
+      `${chartTerms.Series.toString()} 1`
+    );
+    expect(model.getters.getChartRuntime("43")?.data?.datasets![1].label).toEqual(
+      `${chartTerms.Series.toString()} 2`
+    );
+
+    setCellContent(model, "B1", "B1");
+    setCellContent(model, "B2", "B2");
+    createChart(model, { ...defaultChart, labelRange: "B1:B2" }, "44");
+    expect(model.getters.getChartRuntime("44")?.data?.labels).toEqual(["B1", "B2"]);
+  });
+});
+
+describe("Chart design configuration", () => {
+  const defaultChart: ChartUIDefinition = {
+    background: "#FFFFFF",
+    dataSets: ["A1:A2"],
+    dataSetsHaveTitle: true,
+    legendPosition: "top",
+    title: "My chart",
+    type: "bar",
+    verticalAxisPosition: "left",
+    labelRange: "A1",
+    stackedBar: false,
+  };
+
+  test("Legend position", () => {
+    createChart(model, defaultChart, "42");
+    expect(model.getters.getChartRuntime("42")?.options?.legend?.position).toBe("top");
+
+    updateChart(model, "42", { legendPosition: "left" });
+    expect(model.getters.getChartRuntime("42")?.options?.legend?.position).toBe("left");
+
+    updateChart(model, "42", { legendPosition: "right" });
+    expect(model.getters.getChartRuntime("42")?.options?.legend?.position).toBe("right");
+
+    updateChart(model, "42", { legendPosition: "bottom" });
+    expect(model.getters.getChartRuntime("42")?.options?.legend?.position).toBe("bottom");
+  });
+
+  test("Background is correctly updated", () => {
+    createChart(model, defaultChart, "42");
+    expect(
+      model.getters.getChartDefinitionUI(model.getters.getActiveSheetId(), "42").background
+    ).toBe("#FFFFFF");
+
+    updateChart(model, "42", { background: "#000000" });
+    expect(
+      model.getters.getChartDefinitionUI(model.getters.getActiveSheetId(), "42").background
+    ).toBe("#000000");
+  });
+
+  test("Stacked bar", () => {
+    createChart(model, defaultChart, "42");
+    expect(model.getters.getChartRuntime("42")?.options?.scales?.xAxes![0].stacked).toBeUndefined();
+    expect(model.getters.getChartRuntime("42")?.options?.scales?.yAxes![0].stacked).toBeUndefined();
+
+    updateChart(model, "42", { stackedBar: true });
+    expect(model.getters.getChartRuntime("42")?.options?.scales?.xAxes![0].stacked).toBe(true);
+    expect(model.getters.getChartRuntime("42")?.options?.scales?.yAxes![0].stacked).toBe(true);
+
+    updateChart(model, "42", { type: "line" });
+    expect(model.getters.getChartRuntime("42")?.options?.scales?.xAxes![0].stacked).toBeUndefined();
+    expect(model.getters.getChartRuntime("42")?.options?.scales?.yAxes![0].stacked).toBeUndefined();
+
+    updateChart(model, "42", { type: "bar" });
+    expect(model.getters.getChartRuntime("42")?.options?.scales?.xAxes![0].stacked).toBe(true);
+    expect(model.getters.getChartRuntime("42")?.options?.scales?.yAxes![0].stacked).toBe(true);
+
+    updateChart(model, "42", { stackedBar: false });
+    expect(model.getters.getChartRuntime("42")?.options?.scales?.xAxes![0].stacked).toBeUndefined();
+    expect(model.getters.getChartRuntime("42")?.options?.scales?.yAxes![0].stacked).toBeUndefined();
+  });
+
+  test("Vertical axis position", () => {
+    createChart(model, defaultChart, "42");
+    expect(model.getters.getChartRuntime("42")?.options?.scales?.yAxes![0].position).toBe("left");
+
+    updateChart(model, "42", { verticalAxisPosition: "right" });
+    expect(model.getters.getChartRuntime("42")?.options?.scales?.yAxes![0].position).toBe("right");
   });
 });

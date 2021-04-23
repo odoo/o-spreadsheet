@@ -17,6 +17,10 @@ export interface ChartDefinition {
   sheetId: UID;
   title: string;
   type: ChartTypes;
+  background: string;
+  verticalAxisPosition: "left" | "right";
+  legendPosition: "top" | "bottom" | "left" | "right";
+  stackedBar: boolean;
 }
 
 export interface ChartUIDefinition
@@ -31,4 +35,7 @@ export interface ExcelChartDefinition {
   type: ChartTypes;
   dataSets: ExcelChartDataset[];
   labelRange?: string;
+  backgroundColor: string;
+  verticalAxisPosition: "left" | "right";
+  legendPosition: "top" | "bottom" | "left" | "right";
 }

@@ -1,5 +1,6 @@
 import { ChartConfiguration } from "chart.js";
 import { Model } from "../../src";
+import { BACKGROUND_CHART_COLOR } from "../../src/constants";
 import { CommandResult } from "../../src/types";
 import { createChart } from "../test_helpers/commands_helpers";
 import {
@@ -105,11 +106,15 @@ describe("figures", () => {
           dataSetsHaveTitle: true,
           title: "hello",
           type: "bar",
+          background: BACKGROUND_CHART_COLOR,
+          verticalAxisPosition: "left",
+          stackedBar: false,
+          legendPosition: "top",
         },
         id: "someuuid",
-        height: 500,
+        height: 335,
         tag: "chart",
-        width: 800,
+        width: 536,
         x: 0,
         y: 0,
       },
@@ -185,14 +190,12 @@ describe("figures", () => {
     await simulateClick(".o-menu div[data-name='edit']");
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
     const chartType = fixture.querySelectorAll(".o-input")[0];
-    const title = fixture.querySelectorAll(".o-input")[1];
     const dataSeries = fixture.querySelectorAll(
       ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
     )[0];
     const hasTitle = (dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement).checked;
     const labels = fixture.querySelector(".o-data-labels");
     expect((chartType as HTMLSelectElement).value).toBe("bar");
-    expect((title as HTMLInputElement).value).toBe("hello");
     expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
       "B1:B4"
     );
@@ -201,6 +204,8 @@ describe("figures", () => {
   });
 
   test("can edit charts", async () => {
+    const chartId = "someuuid";
+    const sheetId = model.getters.getActiveSheetId();
     await simulateClick(".o-figure");
     await simulateClick(".o-chart-menu");
     const editButton = fixture.querySelectorAll(".o-menu-item")[0];
@@ -208,28 +213,42 @@ describe("figures", () => {
     await simulateClick(".o-menu div[data-name='edit']");
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
     const chartType = fixture.querySelectorAll(".o-input")[0] as HTMLSelectElement;
-    const title = fixture.querySelectorAll(".o-input")[1] as HTMLInputElement;
     const dataSeries = fixture.querySelectorAll(
       ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
     )[0] as HTMLInputElement;
     const dataSeriesValues = dataSeries.querySelector("input");
     const hasTitle = dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement;
-    setInputValueAndTrigger(chartType, "pie", "change");
-    setInputValueAndTrigger(title, "piechart", "input");
-    setInputValueAndTrigger(dataSeriesValues, "B2:B4", "change");
-    triggerMouseEvent(hasTitle, "click");
     parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
-    await simulateClick(".o-sidePanelButtons .o-sidePanelButton");
+    setInputValueAndTrigger(chartType, "pie", "change");
     expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_CHART", {
-      id: "someuuid",
+      id: chartId,
+      sheetId,
       definition: {
-        dataSets: ["B2:B4"],
-        labelRange: "A2:A4",
-        dataSetsHaveTitle: false,
-        title: "piechart",
         type: "pie",
       },
-      sheetId: model.getters.getActiveSheetId(),
+    });
+
+    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    setInputValueAndTrigger(dataSeriesValues, "B2:B4", "change");
+    triggerMouseEvent(hasTitle, "click");
+    expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_CHART", {
+      id: chartId,
+      sheetId,
+      definition: {
+        dataSets: ["B2:B4"],
+        dataSetsHaveTitle: false,
+      },
+    });
+
+    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    await simulateClick(".o-panel .inactive");
+    setInputValueAndTrigger(".o-chart-title input", "hello", "change");
+    expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_CHART", {
+      id: chartId,
+      sheetId,
+      definition: {
+        title: "hello",
+      },
     });
   });
 
@@ -241,24 +260,19 @@ describe("figures", () => {
     await simulateClick(".o-menu div[data-name='edit']");
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
     const chartType = fixture.querySelectorAll(".o-input")[0] as HTMLSelectElement;
-    const title = fixture.querySelectorAll(".o-input")[1] as HTMLInputElement;
     const dataSeries = fixture.querySelectorAll(
       ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
     )[0] as HTMLInputElement;
     const dataSeriesValues = dataSeries.querySelector("input");
     const hasTitle = dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement;
-    const labels = fixture.querySelector(".o-data-labels input");
     setInputValueAndTrigger(chartType, "pie", "change");
-    setInputValueAndTrigger(title, "piechart", "input");
     setInputValueAndTrigger(dataSeriesValues, "B2:B5", "change");
-    setInputValueAndTrigger(labels, "A2:A5", "change");
     triggerMouseEvent(hasTitle, "click");
-    await simulateClick(".o-sidePanelButtons .o-sidePanelButton");
     await nextTick();
-    expect((mockChartData.data! as any).labels).toEqual(["P1", "P2", "P3", "P4"]);
-    expect((mockChartData.data! as any).datasets[0].data).toEqual([10, 11, 12, 13]);
+    expect((mockChartData.data! as any).labels).toEqual(["P1", "P2", "P3"]);
+    expect((mockChartData.data! as any).datasets[0].data).toEqual(["10", "11", "12", "13"]);
     expect(mockChartData.type).toBe("pie");
-    expect((mockChartData.options!.title as any).text).toBe("piechart");
+    expect((mockChartData.options!.title as any).text).toBe("hello");
   });
 
   test("deleting chart will close sidePanel", async () => {
@@ -304,14 +318,12 @@ describe("figures", () => {
     await simulateClick(figures[1] as HTMLElement);
     await nextTick();
     const chartType = fixture.querySelectorAll(".o-input")[0];
-    const title = fixture.querySelectorAll(".o-input")[1];
     const dataSeries = fixture.querySelectorAll(
       ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
     )[0];
     const hasTitle = (dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement).checked;
     const labels = fixture.querySelector(".o-data-labels");
     expect((chartType as HTMLSelectElement).value).toBe("line");
-    expect((title as HTMLInputElement).value).toBe("second");
     expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
       "C1:C4"
     );
