@@ -15,6 +15,7 @@ import {
   setCellContent,
   unhideColumns,
   unhideRows,
+  updateChart,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { createEqualCF } from "../test_helpers/helpers";
@@ -132,17 +133,14 @@ describe("Collaborative Sheet manipulation", () => {
     );
     network.concurrent(() => {
       alice.dispatch("DELETE_SHEET", { sheetId });
-      bob.dispatch("UPDATE_CHART", {
-        id: chartId,
-        sheetId,
-        definition: {
+      updateChart(
+        bob,
+        chartId,
+        {
           dataSets: ["A1:A11"],
-          labelRange: "B1:B11",
-          dataSetsHaveTitle: false,
-          title: "test chart",
-          type: "bar",
         },
-      });
+        sheetId
+      );
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getFigure(sheetId, chartId),

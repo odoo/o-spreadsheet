@@ -17,6 +17,7 @@ import {
   setCellContent,
   undo,
   unMerge,
+  updateChart,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers";
@@ -670,30 +671,26 @@ describe("sheets", () => {
   test("Charts are correctly duplicated", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_CHART", {
-      id: "someuuid",
-      sheetId,
-      definition: {
-        title: "test 1",
+    const chartId = "1234";
+    createChart(
+      model,
+      {
         dataSets: ["Sheet1!B1:B4"],
-        dataSetsHaveTitle: true,
         labelRange: "Sheet1!A2:A4",
+        title: "test 1",
         type: "line",
       },
-    });
+      chartId
+    );
     model.dispatch("DUPLICATE_SHEET", { sheetId: sheetId, sheetIdTo: "42" });
-    model.dispatch("UPDATE_CHART", {
-      id: "someuuid",
-      sheetId,
-      definition: {
-        title: "hello1",
-        dataSets: ["Sheet1!B1:B3"],
-        dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A2:A3",
-        type: "bar",
-      },
+    updateChart(model, chartId, {
+      title: "hello1",
+      dataSets: ["Sheet1!B1:B3"],
+      dataSetsHaveTitle: true,
+      labelRange: "Sheet1!A2:A3",
+      type: "bar",
     });
-    expect(model.getters.getChartDefinition("someuuid")).toMatchObject({
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       dataSets: [
         {
           dataRange: {
