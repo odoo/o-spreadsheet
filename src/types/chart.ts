@@ -12,16 +12,15 @@ export interface ExcelChartDataset {
   range: string;
 }
 export interface ChartDefinition {
-  title?: string;
+  title: string;
   type: ChartTypes;
   dataSets: DataSet[];
   labelRange?: Range;
   sheetId: UID;
 }
 
-export interface ChartUIDefinition {
-  title: string;
-  type: ChartTypes;
+export interface ChartUIDefinition
+  extends Omit<ChartDefinition, "dataSets" | "labelRange" | "sheetId"> {
   dataSets: string[];
   labelRange?: string;
   dataSetsHaveTitle: boolean;
