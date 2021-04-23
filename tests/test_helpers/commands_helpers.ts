@@ -1,6 +1,12 @@
 import { lettersToNumber, toCartesian, toZone, uuidv4 } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { BorderCommand, CommandResult, CreateSheetCommand, UID } from "../../src/types";
+import {
+  BorderCommand,
+  ChartUIDefinition,
+  CommandResult,
+  CreateSheetCommand,
+  UID,
+} from "../../src/types";
 import { target } from "./helpers";
 
 /**
@@ -71,36 +77,23 @@ export function deleteSheet(model: Model, sheetId: UID): CommandResult {
  * Create a new chart by default of type bar with titles
  * in the data sets, on the active sheet.
  */
-
 export function createChart(
   model: Model,
-  data: {
-    title?: string;
-    dataSets: string[];
-    labelRange: string;
-    dataSetsHaveTitle?: boolean;
-    type?: "bar" | "line" | "pie";
-  },
-  chartId?: string,
-  sheetId?: string
+  data: Partial<ChartUIDefinition>,
+  chartId: string = uuidv4(),
+  sheetId: string = model.getters.getActiveSheetId()
 ) {
-  const id = chartId || uuidv4();
-  const title = data.title || "test";
-  sheetId = sheetId || model.getters.getActiveSheetId();
-  const dataSetsHaveTitle = data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true;
-  const type = data.type || "bar";
-  const result = model.dispatch("CREATE_CHART", {
-    id,
-    sheetId: sheetId,
+  return model.dispatch("CREATE_CHART", {
+    id: chartId,
+    sheetId,
     definition: {
-      title,
-      dataSets: data.dataSets,
-      dataSetsHaveTitle,
+      title: data.title || "test",
+      dataSets: data.dataSets || [],
+      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
       labelRange: data.labelRange,
-      type,
+      type: data.type || "bar",
     },
   });
-  return result;
 }
 
 /**

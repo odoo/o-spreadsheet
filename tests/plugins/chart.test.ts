@@ -14,7 +14,7 @@ import {
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
-import { initPatcher, mockUuidV4To, testUndoRedo } from "../test_helpers/helpers";
+import { initPatcher, mockUuidV4To } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -1212,16 +1212,13 @@ describe("multiple sheets", function () {
 
 describe("undo/redo", () => {
   test("undo/redo chart creation", () => {
-    testUndoRedo(model, expect, "CREATE_CHART", {
-      id: "1",
-      sheetId: model.getters.getActiveSheetId(),
-      definition: {
-        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
-        dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A2:A4",
-        type: "line",
-      },
-    });
+    const before = model.exportData();
+    createChart(model, { dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"] });
+    const after = model.exportData();
+    undo(model);
+    expect(model).toExport(before);
+    redo(model);
+    expect(model).toExport(after);
   });
   test("undo/redo chart dataset rebuild the chart runtime", () => {
     createChart(model, {

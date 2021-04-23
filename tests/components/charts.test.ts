@@ -1,6 +1,7 @@
 import { ChartConfiguration } from "chart.js";
 import { Model } from "../../src";
 import { CommandResult } from "../../src/types";
+import { createChart } from "../test_helpers/commands_helpers";
 import {
   setInputValueAndTrigger,
   simulateClick,
@@ -42,12 +43,14 @@ jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation((
 let fixture: HTMLElement;
 let model;
 let mockChartData = mockChart();
+let chartId: string;
 
 let parent: GridParent;
 describe("figures", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();
     mockChartData = mockChart();
+    chartId = "someuuid";
     model = new Model({
       sheets: [
         {
@@ -76,17 +79,15 @@ describe("figures", () => {
     parent = new GridParent(model);
     await parent.mount(fixture);
     await nextTick();
-    model.dispatch("CREATE_CHART", {
-      sheetId: model.getters.getActiveSheetId(),
-      id: "someuuid",
-      definition: {
+    createChart(
+      model,
+      {
         dataSets: ["B1:B4"],
         labelRange: "A2:A4",
-        dataSetsHaveTitle: true,
         title: "hello",
-        type: "bar",
       },
-    });
+      chartId
+    );
     await nextTick();
   });
   afterEach(() => {
@@ -292,17 +293,7 @@ describe("figures", () => {
   });
 
   test("selecting other chart will adapt sidepanel", async () => {
-    model.dispatch("CREATE_CHART", {
-      sheetId: model.getters.getActiveSheetId(),
-      id: "someuuid2",
-      definition: {
-        dataSets: ["C1:C4"],
-        labelRange: "A2:A4",
-        dataSetsHaveTitle: true,
-        title: "second",
-        type: "line",
-      },
-    });
+    createChart(model, { dataSets: ["C1:C4"], labelRange: "A2:A4", title: "second", type: "line" });
     await nextTick();
     const figures = fixture.querySelectorAll(".o-figure");
     await simulateClick(figures[0] as HTMLElement);

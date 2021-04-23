@@ -4,6 +4,7 @@ import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
   activateSheet,
+  createChart,
   createSheet,
   createSheetWithName,
   deleteRows,
@@ -651,29 +652,18 @@ describe("sheets", () => {
   test("Figures of Charts are correctly duplicated", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_CHART", {
-      id: "someuuid",
-      sheetId,
-      definition: {
-        title: "test 1",
-        dataSets: ["Sheet1!B1:B4"],
-        dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A2:A4",
-        type: "line",
-      },
-    });
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheetId, sheetIdTo: "42" });
+    const chartId = "uuid";
+    createChart(model, { dataSets: ["Sheet1!B1:B4"], labelRange: "Sheet1!A2:A4" }, chartId);
+    model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "42" });
     model.dispatch("UPDATE_FIGURE", {
       sheetId: sheetId,
-      id: "someuuid",
+      id: chartId,
       x: 40,
     });
 
     const figure1 = model.getters.getFigures(sheetId);
     const figure2 = model.getters.getFigures("42");
-    expect(figure1).toEqual([
-      { height: 500, id: "someuuid", tag: "chart", width: 800, x: 40, y: 0 },
-    ]);
+    expect(figure1).toEqual([{ height: 500, id: chartId, tag: "chart", width: 800, x: 40, y: 0 }]);
     expect(figure2).toMatchObject([{ height: 500, tag: "chart", width: 800, x: 0, y: 0 }]);
   });
 

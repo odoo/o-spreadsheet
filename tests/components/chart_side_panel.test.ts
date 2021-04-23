@@ -2,6 +2,7 @@ import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { ChartPanel } from "../../src/components/side_panel/chart_panel";
 import { CommandResult, Figure, SpreadsheetEnv } from "../../src/types";
+import { createChart } from "../test_helpers/commands_helpers";
 import { setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import { makeTestFixture, mockUuidV4To, nextTick } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -74,17 +75,15 @@ describe("Chart sidepanel component", () => {
   // Skipped because updating of a chart is not yet supported
   test.skip("update chart", async () => {
     const model = new Model();
-    model.dispatch("CREATE_CHART", {
-      id: "1",
-      sheetId: model.getters.getActiveSheetId(),
-      definition: {
-        title: "test 1",
+    const chartId = "1";
+    createChart(
+      model,
+      {
         dataSets: ["B1:B4", "C1:C4"],
-        dataSetsHaveTitle: true,
         labelRange: "A2:A4",
-        type: "line",
       },
-    });
+      chartId
+    );
     const [figure] = model.getters.getVisibleFigures(model.getters.getActiveSheetId()) as Figure[];
     const { parent } = await createChartPanel({ model, figure });
     parent.env.dispatch = jest.fn(() => CommandResult.Success);
