@@ -202,16 +202,6 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     return sheetMap ? col in sheetMap && Boolean(sheetMap[col]?.[row]) : false;
   }
 
-  isMainCell(sheetId: string, col: number, row: number): boolean {
-    for (let mergeId in this.merges[sheetId]) {
-      const merge = this.getMergeById(sheetId, parseInt(mergeId));
-      if (merge && merge.topLeft.col === col && merge.topLeft.row === row) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   getMainCell(sheetId: UID, col: number, row: number): [number, number] {
     if (!this.isInMerge(sheetId, col, row)) {
       return [col, row];
