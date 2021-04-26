@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { uuidv4 } from "../../helpers/index";
-import { CommandResult, CreateChartDefinition, Figure, SpreadsheetEnv } from "../../types/index";
+import { ChartUIDefinition, CommandResult, Figure, SpreadsheetEnv } from "../../types/index";
 import { SelectionInput } from "../selection_input";
 import { chartTerms } from "./translations_terms";
 
@@ -53,7 +53,7 @@ interface Props {
   figure?: Figure;
 }
 
-interface ChartPanelState extends CreateChartDefinition {
+interface ChartPanelState extends ChartUIDefinition {
   error?: string;
 }
 
@@ -111,7 +111,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
     }
   }
 
-  private getChartDefinition(): CreateChartDefinition {
+  private getChartDefinition(): ChartUIDefinition {
     return {
       type: this.state.type,
       title: this.state.title,
