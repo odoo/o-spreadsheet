@@ -1,36 +1,20 @@
-import { ChartColor, ChartConfiguration, ChartData, ChartTooltipItem, ChartType } from "chart.js";
+import {
+  ChartColor,
+  ChartConfiguration,
+  ChartData,
+  ChartDataSets,
+  ChartTooltipItem,
+  ChartType,
+} from "chart.js";
 import { chartTerms } from "../../components/side_panel/translations_terms";
 import { INCORRECT_RANGE_STRING } from "../../constants";
+import { ChartColors } from "../../helpers/chart";
 import { isDefined, isInside, overlap, recomputeZones, zoneToXc } from "../../helpers/index";
 import { Mode } from "../../model";
 import { ChartDefinition, DataSet } from "../../types/chart";
 import { Command } from "../../types/commands";
 import { Cell, UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
-
-const GraphColors = [
-  // the same colors as those used in odoo reporting
-  "rgb(31,119,180)",
-  "rgb(255,127,14)",
-  "rgb(174,199,232)",
-  "rgb(255,187,120)",
-  "rgb(44,160,44)",
-  "rgb(152,223,138)",
-  "rgb(214,39,40)",
-  "rgb(255,152,150)",
-  "rgb(148,103,189)",
-  "rgb(197,176,213)",
-  "rgb(140,86,75)",
-  "rgb(196,156,148)",
-  "rgb(227,119,194)",
-  "rgb(247,182,210)",
-  "rgb(127,127,127)",
-  "rgb(199,199,199)",
-  "rgb(188,189,34)",
-  "rgb(219,219,141)",
-  "rgb(23,190,207)",
-  "rgb(158,218,229)",
-];
 
 export class EvaluationChartPlugin extends UIPlugin {
   static getters = ["getChartRuntime"];
@@ -286,19 +270,18 @@ export class EvaluationChartPlugin extends UIPlugin {
     }
     const runtime = this.getDefaultConfiguration(definition.type, definition.title, labels);
 
-    let graphColorIndex = 0;
+    const colors = new ChartColors();
     const pieColors: ChartColor[] = [];
     if (definition.type === "pie") {
       const maxLength = Math.max(
         ...definition.dataSets.map((ds) => this.getData(ds, definition.sheetId).length)
       );
       for (let i = 0; i <= maxLength; i++) {
-        pieColors.push(GraphColors[graphColorIndex]);
-        graphColorIndex = ++graphColorIndex % GraphColors.length;
+        pieColors.push(colors.next());
       }
     }
     for (const [dsIndex, ds] of Object.entries(definition.dataSets)) {
-      let label;
+      let label: string;
       if (ds.labelCell) {
         const labelRange = ds.labelCell;
         const cell: Cell | undefined = labelRange
@@ -311,24 +294,19 @@ export class EvaluationChartPlugin extends UIPlugin {
       } else {
         label = label = `${chartTerms.Series} ${parseInt(dsIndex) + 1}`;
       }
-      const dataset = {
+      const color = definition.type !== "pie" ? colors.next() : "#FFFFFF"; // white border for pie chart
+      const dataset: ChartDataSets = {
         label,
         data: ds.dataRange ? this.getData(ds, definition.sheetId) : [],
         lineTension: 0, // 0 -> render straight lines, which is much faster
-        borderColor: definition.type !== "pie" ? GraphColors[graphColorIndex] : "#FFFFFF", // white border for pie chart
-        backgroundColor: GraphColors[graphColorIndex],
+        borderColor: color,
+        backgroundColor: color,
       };
       if (definition.type === "pie") {
-        const colors: string[] = [];
-        for (let i = 0; i <= dataset.data.length - 1; i++) {
-          colors.push(GraphColors[graphColorIndex]);
-          graphColorIndex = ++graphColorIndex % GraphColors.length;
-        }
         // In case of pie graph, dataset.backgroundColor is an array of string
-        // @ts-ignore
-        dataset.backgroundColor = colors;
+        // @ts-ignore - we know dataset.data is an array
+        dataset.backgroundColor = pieColors;
       }
-      graphColorIndex = ++graphColorIndex % GraphColors.length;
       runtime.data!.datasets!.push(dataset);
     }
     return runtime;

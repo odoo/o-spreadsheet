@@ -1,6 +1,9 @@
 import { _lt } from "./translation";
 import { BorderDescr, Style } from "./types";
 
+// Scheduler
+export const MAXIMUM_EVALUATION_CHECK_DELAY_MS = 15;
+
 // Colors
 export const BACKGROUND_GRAY_COLOR = "#f5f5f5";
 export const BACKGROUND_HEADER_COLOR = "#F8F9FA";
@@ -26,6 +29,8 @@ export const AUTOFILL_EDGE_LENGTH = 8;
 export const ICON_EDGE_LENGTH = 18;
 export const UNHIDE_ICON_EDGE_LENGTH = 14;
 export const MIN_CF_ICON_MARGIN = 4;
+
+export const FIGURE_BORDER_SIZE = 1;
 
 // Fonts
 export const DEFAULT_FONT_WEIGHT = "400";

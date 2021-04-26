@@ -81,11 +81,14 @@ export function createRows(savedRows: { [key: number]: HeaderData }, rowNumber: 
   }
   return rows;
 }
-export function exportCols(cols: Col[]): { [key: number]: HeaderData } {
+export function exportCols(
+  cols: Col[],
+  exportDefaults: boolean = false
+): { [key: number]: HeaderData } {
   const exportedCols: { [key: number]: HeaderData } = {};
   for (let i in cols) {
     const col = cols[i];
-    if (col.size !== DEFAULT_CELL_WIDTH) {
+    if (col.size !== DEFAULT_CELL_WIDTH || exportDefaults) {
       exportedCols[i] = { size: col.size };
     }
     if (col.isHidden) {
@@ -96,11 +99,14 @@ export function exportCols(cols: Col[]): { [key: number]: HeaderData } {
   return exportedCols;
 }
 
-export function exportRows(rows: Row[]): { [key: number]: HeaderData } {
+export function exportRows(
+  rows: Row[],
+  exportDefaults: boolean = false
+): { [key: number]: HeaderData } {
   const exportedRows: { [key: number]: HeaderData } = {};
   for (let i in rows) {
     const row = rows[i];
-    if (row.size !== DEFAULT_CELL_HEIGHT) {
+    if (row.size !== DEFAULT_CELL_HEIGHT || exportDefaults) {
       exportedRows[i] = { size: row.size };
     }
     if (row.isHidden) {

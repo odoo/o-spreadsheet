@@ -1,7 +1,7 @@
 import { DEFAULT_REVISION_ID } from "./constants";
 import { normalize } from "./formulas/index";
 import { toXC, toZone } from "./helpers/index";
-import { SheetData, WorkbookData } from "./types/index";
+import { ExcelSheetData, ExcelWorkbookData, SheetData, WorkbookData } from "./types/index";
 
 /**
  * This is the current state version number. It should be incremented each time
@@ -179,4 +179,18 @@ export function createEmptyWorkbookData(): WorkbookData {
     revisionId: DEFAULT_REVISION_ID,
   };
   return data;
+}
+
+function createEmptyExcelSheet(name: string = "Sheet1"): ExcelSheetData {
+  return {
+    ...createEmptySheet(name),
+    charts: [],
+  };
+}
+
+export function createEmptyExcelWorkbookData(): ExcelWorkbookData {
+  return {
+    ...createEmptyWorkbookData(),
+    sheets: [createEmptyExcelSheet("Sheet1")],
+  };
 }

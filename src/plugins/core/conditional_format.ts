@@ -12,6 +12,7 @@ import {
   ConditionalFormatInternal,
   ConditionalFormattingOperatorValues,
   CoreCommand,
+  ExcelWorkbookData,
   IconSetRule,
   IconThreshold,
   SingleColorRules,
@@ -147,6 +148,10 @@ export class ConditionalFormatPlugin
         }
       }
     }
+  }
+
+  exportForExcel(data: ExcelWorkbookData) {
+    this.export(data);
   }
 
   // ---------------------------------------------------------------------------

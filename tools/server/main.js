@@ -21,7 +21,7 @@ const currentSessionFile = "./logs/session.json";
 if (fs.existsSync(currentSessionFile)) {
   messages = JSON.parse(fs.readFileSync(currentSessionFile));
   if (messages.length) {
-    serverRevisionId = messages[messages.length - 1].nextRevisionId
+    serverRevisionId = messages[messages.length - 1].nextRevisionId;
   }
   log(`loaded ${messages.length} messages from ${currentSessionFile}`);
 }
@@ -36,7 +36,6 @@ if (fs.existsSync(currentSessionFile)) {
 });
 
 // setup the socket connection for the clients to connect
-
 
 const aWss = expressWS.getWss("/");
 expressWS.getWss().on("connection", (ws) => {
@@ -94,7 +93,9 @@ app.ws("/", function (ws, req) {
           messages.push(msg);
           broadcast(message);
         } else {
-          log(`Server revision ${serverRevisionId} != message revision ${msg.serverRevisionId}. Message rejected ${message}`);
+          log(
+            `Server revision ${serverRevisionId} != message revision ${msg.serverRevisionId}. Message rejected ${message}`
+          );
         }
         break;
       case "CLIENT_JOINED":

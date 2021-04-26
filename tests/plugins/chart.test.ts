@@ -14,10 +14,12 @@ import {
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
-import { mockUuidV4To, testUndoRedo, waitForRecompute } from "../test_helpers/helpers";
+import { initPatcher, mockUuidV4To, testUndoRedo } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
+
+let waitForRecompute: () => Promise<void>;
 
 beforeEach(() => {
   mockUuidV4To(1);
@@ -60,6 +62,7 @@ beforeEach(() => {
       },
     ],
   });
+  ({ waitForRecompute } = initPatcher());
 });
 
 describe("datasource tests", function () {

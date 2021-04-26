@@ -20,6 +20,7 @@ import {
   CellType,
   CommandResult,
   CoreCommand,
+  ExcelWorkbookData,
   Merge,
   Sheet,
   UID,
@@ -460,6 +461,10 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         sheetData.merges.push(...exportMerges(merges));
       }
     }
+  }
+
+  exportForExcel(data: ExcelWorkbookData) {
+    this.export(data);
   }
 }
 

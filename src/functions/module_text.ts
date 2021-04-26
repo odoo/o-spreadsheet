@@ -24,6 +24,7 @@ export const CHAR: AddFunctionDescription = {
     );
     return String.fromCharCode(_tableNumber);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -39,6 +40,7 @@ export const CONCATENATE: AddFunctionDescription = {
   compute: function (): string {
     return reduceAny(arguments, (acc, a) => acc + toString(a), "");
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -54,6 +56,7 @@ export const EXACT: AddFunctionDescription = {
   compute: function (string1: any, string2: any): boolean {
     return toString(string1) === toString(string2);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -97,6 +100,7 @@ export const FIND: AddFunctionDescription = {
 
     return result + 1;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -140,6 +144,7 @@ export const LEFT: AddFunctionDescription = {
     );
     return toString(text).substring(0, _numberOfCharacters);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -154,6 +159,7 @@ export const LEN: AddFunctionDescription = {
   compute: function (text: any): number {
     return toString(text).length;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -168,6 +174,7 @@ export const LOWER: AddFunctionDescription = {
   compute: function (text: any): string {
     return toString(text).toLowerCase();
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -194,6 +201,7 @@ export const REPLACE: AddFunctionDescription = {
     const _newText = toString(newText);
     return _text.substring(0, _position - 1) + _newText + _text.substring(_position - 1 + _length);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -218,6 +226,7 @@ export const RIGHT: AddFunctionDescription = {
     const stringLength = _text.length;
     return _text.substring(stringLength - _numberOfCharacters, stringLength);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -261,6 +270,7 @@ export const SEARCH: AddFunctionDescription = {
 
     return result + 1;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -305,6 +315,7 @@ export const SUBSTITUTE: AddFunctionDescription = {
     let n = 0;
     return _textToSearch.replace(reg, (text) => (++n === _occurrenceNumber ? _replaceWith : text));
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -336,6 +347,7 @@ export const TEXTJOIN: AddFunctionDescription = {
       ""
     );
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -350,6 +362,7 @@ export const TRIM: AddFunctionDescription = {
   compute: function (text: any): string {
     return toString(text).trim();
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -364,4 +377,5 @@ export const UPPER: AddFunctionDescription = {
   compute: function (text: any): string {
     return toString(text).toUpperCase();
   },
+  isExported: true,
 };

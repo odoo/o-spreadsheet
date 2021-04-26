@@ -28,3 +28,44 @@ export function getNextColor() {
   colorIndex = ++colorIndex % colors.length;
   return colors[colorIndex];
 }
+
+/**
+ * Converts any CSS color value to a standardized hex6 value.
+ * Accepts: hex3, hex6 and rgb (rgba is not supported)
+ *
+ * toHex6("#ABC")
+ * >> "AABBCC"
+ *
+ * toHex6("#AAAFFF")
+ * >> "AAAFFF"
+ *
+ * toHex6("rgb(30, 80, 16)")
+ * >> "1E5010"
+ *
+ * (note: number sign is dropped as it is not supported in xlsx format)
+ */
+export function toHex6(color: string): string {
+  if (color.includes("rgb")) {
+    return rgbToHex6(color);
+  }
+  color = color.replace("#", "").toUpperCase();
+  if (color.length === 3) {
+    color = color.split("").reduce((acc, h) => acc + h + h, "");
+  }
+  return color;
+}
+
+/**
+ * Convert a CSS rgb color string to a standardized hex6 color value.
+ *
+ * rgbToHex6("rgb(30, 80, 16)")
+ * >> "1E5010"
+ */
+function rgbToHex6(color: string): string {
+  return color
+    .slice(4, -1)
+    .split(",")
+    .map((valueString) => parseInt(valueString, 10).toString(16).padStart(2, "0"))
+    .join("")
+    .toUpperCase();
+}

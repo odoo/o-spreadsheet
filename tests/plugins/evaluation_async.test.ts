@@ -4,7 +4,15 @@ import { LOADING } from "../../src/plugins/ui/evaluation";
 import { FormulaCell } from "../../src/types";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
-import { asyncComputations, patch, waitForRecompute } from "../test_helpers/helpers";
+import { initPatcher } from "../test_helpers/helpers";
+
+let asyncComputations: () => Promise<void>;
+let waitForRecompute: () => Promise<void>;
+let patchCalls: any[];
+
+beforeEach(() => {
+  ({ asyncComputations, waitForRecompute, calls: patchCalls } = initPatcher());
+});
 
 describe("evaluateCells, async formulas", () => {
   test("async formula", async () => {
@@ -17,7 +25,7 @@ describe("evaluateCells, async formulas", () => {
     expect((getCell(model, "A2") as FormulaCell).formula!.compiledFormula.async).toBe(true);
     expect((getCell(model, "A3") as FormulaCell).formula!.compiledFormula.async).toBe(true);
     expect(getCell(model, "A2")!.value).toEqual(LOADING);
-    expect(patch.calls.length).toBe(2);
+    expect(patchCalls.length).toBe(2);
     await waitForRecompute();
     expect(getCell(model, "A2")!.value).toEqual(3);
     expect(getCell(model, "A3")!.value).toEqual(2);
@@ -50,7 +58,7 @@ describe("evaluateCells, async formulas", () => {
     setCellContent(model, "A2", "=WAIT(33)");
     expect((getCell(model, "A2") as FormulaCell).formula!.compiledFormula.async).toBe(true);
     expect(getCell(model, "A2")!.value).toEqual(LOADING);
-    expect(patch.calls.length).toBe(1);
+    expect(patchCalls.length).toBe(1);
 
     await waitForRecompute();
     expect(getCell(model, "A2")!.value).toEqual(33);
@@ -61,11 +69,11 @@ describe("evaluateCells, async formulas", () => {
     setCellContent(model, "A2", "=WAIT(WAIT(3))");
     expect((getCell(model, "A2") as FormulaCell).formula!.compiledFormula.async).toBe(true);
     expect(getCell(model, "A2")!.value).toEqual(LOADING);
-    expect(patch.calls.length).toBe(1);
+    expect(patchCalls.length).toBe(1);
     // Inner wait is resolved
     await waitForRecompute();
     expect(getCell(model, "A2")!.value).toEqual(LOADING);
-    expect(patch.calls.length).toBe(1);
+    expect(patchCalls.length).toBe(1);
 
     // outer wait is resolved
     await waitForRecompute();
@@ -80,12 +88,12 @@ describe("evaluateCells, async formulas", () => {
     expect((getCell(model, "A2") as FormulaCell).formula!.compiledFormula.async).toBe(false);
     expect(getCell(model, "A1")!.value).toEqual(LOADING);
     expect(getCell(model, "A2")!.value).toEqual(LOADING);
-    expect(patch.calls.length).toBe(1);
+    expect(patchCalls.length).toBe(1);
 
     await waitForRecompute();
     expect(getCell(model, "A1")!.value).toEqual(3);
     expect(getCell(model, "A2")!.value).toEqual(4);
-    expect(patch.calls.length).toBe(0);
+    expect(patchCalls.length).toBe(0);
   });
 
   test("async formula, and multiple values depending on it", async () => {
@@ -98,12 +106,12 @@ describe("evaluateCells, async formulas", () => {
     expect(getCell(model, "A1")!.value).toEqual(LOADING);
     expect(getCell(model, "A2")!.value).toEqual(LOADING);
     expect(getCell(model, "A3")!.value).toEqual(LOADING);
-    expect(patch.calls.length).toBe(2);
+    expect(patchCalls.length).toBe(2);
     await waitForRecompute();
     expect(getCell(model, "A1")!.value).toEqual(3);
     expect(getCell(model, "A2")!.value).toEqual(1);
     expect(getCell(model, "A3")!.value).toEqual(4);
-    expect(patch.calls.length).toBe(0);
+    expect(patchCalls.length).toBe(0);
   });
 
   test("async formula, another configuration", async () => {
@@ -154,7 +162,7 @@ describe("evaluateCells, async formulas", () => {
     expect((getCell(model, "A2") as FormulaCell).formula!.compiledFormula.async).toBe(true);
     expect(getCell(model, "A1")!.value).toEqual("#CYCLE");
     expect(getCell(model, "A2")!.value).toEqual(LOADING);
-    expect(patch.calls.length).toBe(1);
+    expect(patchCalls.length).toBe(1);
     updateNbr = 0;
     await waitForRecompute();
     // next assertion checks that the interface has properly been

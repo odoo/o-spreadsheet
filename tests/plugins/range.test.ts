@@ -288,6 +288,20 @@ describe("range plugin", () => {
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
     });
+
+    describe("create a range and delete a sheet", () => {
+      test("delete sheet does not delete ranges from other sheets", () => {
+        deleteSheet(m, "s2");
+        expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
+      });
+
+      test("delete sheet delete ranges in the same sheet", () => {
+        m.dispatch("USE_RANGE", { rangesXC: ["A1"], sheetId: "s2" });
+        expect(m.getters.getUsedRanges()).toEqual(["B2:D4", "'s 2'!A1"]);
+        deleteSheet(m, "s2");
+        expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
+      });
+    });
   });
 
   describe("restoring a range as string", () => {

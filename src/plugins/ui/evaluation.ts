@@ -1,3 +1,4 @@
+import { MAXIMUM_EVALUATION_CHECK_DELAY_MS } from "../../constants";
 import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { mapCellsInZone, toXC, toZone } from "../../helpers/index";
@@ -114,6 +115,9 @@ export class EvaluationPlugin extends UIPlugin {
         }
         this.isUpToDate.add(cmd.sheetId);
         break;
+      case "EVALUATE_ALL_SHEETS":
+        this.evaluateAllSheets();
+        break;
       case "UNDO":
       case "REDO":
         this.isUpToDate.clear();
@@ -150,7 +154,7 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   isIdle() {
-    return this.loadingCells === 0;
+    return this.loadingCells === 0 && this.WAITING.size === 0 && this.PENDING.size === 0;
   }
 
   getRangeFormattedValues(reference: string, defaultSheetId: UID): string[][] {
@@ -199,7 +203,7 @@ export class EvaluationPlugin extends UIPlugin {
           }
         }
         if (current > 0) {
-          window.setTimeout(recomputeCells, 15);
+          window.setTimeout(recomputeCells, MAXIMUM_EVALUATION_CHECK_DELAY_MS);
         }
       };
       window.setTimeout(recomputeCells, 5);
@@ -427,5 +431,18 @@ export class EvaluationPlugin extends UIPlugin {
     }
 
     return [refFn, range, evalContext];
+  }
+
+  /**
+   * Triggers an evaluation of all cells on all sheets.
+   */
+  private evaluateAllSheets() {
+    for (const sheetId of this.getters.getVisibleSheets()) {
+      if (!this.isUpToDate.has(sheetId)) {
+        this.evaluate(sheetId);
+        this.isUpToDate.add(sheetId);
+      }
+    }
+    this.startScheduler();
   }
 }
