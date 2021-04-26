@@ -34,6 +34,7 @@ export const CONCAT: AddFunctionDescription = {
   compute: function (value1: any, value2: any): string {
     return toString(value1) + toString(value2);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------

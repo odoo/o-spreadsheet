@@ -4,6 +4,7 @@ import {
   ApplyRangeChange,
   CoreCommand,
   CoreCommandDispatcher,
+  ExcelWorkbookData,
   RangeProvider,
   UID,
   WorkbookData,
@@ -55,6 +56,7 @@ export class CorePlugin<State = any, C = CoreCommand>
 
   import(data: WorkbookData) {}
   export(data: WorkbookData) {}
+  exportForExcel(data: ExcelWorkbookData) {}
 
   /**
    * This method can be implemented in any plugin, to loop over the plugin's data structure and adapt the plugin's ranges.

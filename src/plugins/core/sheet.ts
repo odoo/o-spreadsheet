@@ -19,6 +19,7 @@ import {
   CommandResult,
   ConsecutiveIndexes,
   CoreCommand,
+  ExcelWorkbookData,
   RenameSheetCommand,
   Row,
   Sheet,
@@ -199,6 +200,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Import/Export
+  // ---------------------------------------------------------------------------
+
   import(data: WorkbookData) {
     // we need to fill the sheetIds mapping first, because otherwise formulas
     // that depends on a sheet not already imported will not be able to be
@@ -226,7 +231,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
-  export(data: WorkbookData) {
+  private exportSheets(data: WorkbookData, exportDefaultSizes: boolean = false) {
     data.sheets = this.visibleSheets.filter(isDefined).map((id) => {
       const sheet = this.sheets[id]!;
       return {
@@ -234,8 +239,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         name: sheet.name,
         colNumber: sheet.cols.length,
         rowNumber: sheet.rows.length,
-        rows: exportRows(sheet.rows),
-        cols: exportCols(sheet.cols),
+        rows: exportRows(sheet.rows, exportDefaultSizes),
+        cols: exportCols(sheet.cols, exportDefaultSizes),
         merges: [],
         cells: {},
         conditionalFormats: [],
@@ -244,6 +249,14 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           sheet.areGridLinesVisible === undefined ? true : sheet.areGridLinesVisible,
       };
     });
+  }
+
+  export(data: WorkbookData) {
+    this.exportSheets(data);
+  }
+
+  exportForExcel(data: ExcelWorkbookData) {
+    this.exportSheets(data, true);
   }
 
   // ---------------------------------------------------------------------------

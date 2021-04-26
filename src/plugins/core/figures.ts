@@ -1,5 +1,5 @@
 import { isDefined } from "../../helpers/index";
-import { CoreCommand, Figure, UID, WorkbookData } from "../../types/index";
+import { CoreCommand, ExcelWorkbookData, Figure, UID, WorkbookData } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
 interface FigureState {
@@ -102,5 +102,9 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
         sheet.figures.push({ ...figure, data });
       }
     }
+  }
+
+  exportForExcel(data: ExcelWorkbookData) {
+    this.export(data);
   }
 }

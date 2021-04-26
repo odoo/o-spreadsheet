@@ -846,6 +846,10 @@ export interface PasteCFCommand extends BaseCommand {
   operation: "CUT" | "COPY";
 }
 
+export interface EvaluateAllSheetsCommand extends BaseCommand {
+  type: "EVALUATE_ALL_SHEETS";
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -962,7 +966,8 @@ export type LocalCommand =
   | SumSelectionCommand
   | DeleteCellCommand
   | InsertCellCommand
-  | SetViewportOffsetCommand;
+  | SetViewportOffsetCommand
+  | EvaluateAllSheetsCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

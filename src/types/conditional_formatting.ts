@@ -52,20 +52,22 @@ export interface ExpressionRule extends SingleColorRule {
   type: "ExpressionRule";
 }
 
+export type ThresholdType = "value" | "number" | "percentage" | "percentile" | "formula";
+
 export type ColorScaleThreshold = {
   color: number;
-  type: "value" | "number" | "percentage" | "percentile" | "formula";
+  type: ThresholdType;
   value?: string;
 };
 
 export type ColorScaleMidPointThreshold = {
   color: number;
-  type: "number" | "percentage" | "percentile" | "formula";
+  type: Exclude<ThresholdType, "value">;
   value: string;
 };
 
 export type IconThreshold = {
-  type: "number" | "percentage" | "percentile" | "formula";
+  type: Exclude<ThresholdType, "value">;
   operator: "gt" | "ge";
   value: string;
 };

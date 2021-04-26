@@ -1,4 +1,5 @@
 import { Component, hooks, tags, useState } from "@odoo/owl";
+import format from "xml-formatter";
 import { Grid } from "../../src/components/grid";
 import { SidePanel } from "../../src/components/side_panel/side_panel";
 import { TopBar } from "../../src/components/top_bar";
@@ -18,6 +19,7 @@ import {
   Style,
   Zone,
 } from "../../src/types";
+import { XLSXExport } from "../../src/types/xlsx";
 import { redo, setCellContent, undo } from "./commands_helpers";
 import { getCell, getCellContent } from "./getters_helpers";
 export { setNextId as mockUuidV4To } from "../__mocks__/uuid";
@@ -290,12 +292,19 @@ interface PatchResult {
   calls: any[];
   resolveAll: () => void;
 }
+
+interface ComputePatch {
+  calls: any[];
+  waitForRecompute: () => Promise<void>;
+  asyncComputations: () => Promise<void>;
+}
+
 export function patchWaitFunction(): PatchResult {
   const result: PatchResult = {
     calls: [],
     resolveAll() {
       result.calls.forEach((c) => c.def.resolve(c.val));
-      result.calls = [];
+      result.calls.length = 0;
     },
   };
   functionMap["WAIT"] = (arg) => {
@@ -307,31 +316,34 @@ export function patchWaitFunction(): PatchResult {
   return result;
 }
 
-export const patch = patchWaitFunction();
+export function initPatcher(): ComputePatch {
+  let timeHandlers: Function[] = [];
+  (window as any).setTimeout = (cb) => {
+    timeHandlers.push(cb);
+  };
 
-let timeHandlers: Function[] = [];
-(window as any).setTimeout = (cb) => {
-  timeHandlers.push(cb);
-};
-
-function clearTimers() {
-  let handlers = timeHandlers.slice();
-  timeHandlers = [];
-  for (let cb of handlers) {
-    cb();
+  const patch = patchWaitFunction();
+  function clearTimers() {
+    let handlers = timeHandlers.slice();
+    timeHandlers = [];
+    for (let cb of handlers) {
+      cb();
+    }
   }
+
+  async function waitForRecompute() {
+    patch.resolveAll();
+    await nextTick();
+    clearTimers();
+  }
+
+  async function asyncComputations() {
+    clearTimers();
+    await nextTick();
+  }
+  return { asyncComputations, waitForRecompute, calls: patch.calls };
 }
 
-export async function asyncComputations() {
-  clearTimers();
-  await nextTick();
-}
-
-export async function waitForRecompute() {
-  patch.resolveAll();
-  await nextTick();
-  clearTimers();
-}
 /*
  * Remove all functions from the internal function list.
  */
@@ -473,4 +485,15 @@ export class Touch {
     this.screenY = touchInitDict.screenY || 0;
     this.touchType = touchInitDict.touchType || "direct";
   }
+}
+
+/**
+ * Return XLSX export with prettified XML files.
+ */
+export async function exportPrettifiedXlsx(model: Model): Promise<XLSXExport> {
+  const xlsxExport = await model.exportXLSX();
+  return {
+    ...xlsxExport,
+    files: xlsxExport.files.map((file) => ({ ...file, content: format(file.content) })),
+  };
 }

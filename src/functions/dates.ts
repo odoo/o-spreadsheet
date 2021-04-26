@@ -23,9 +23,9 @@ const INITIAL_1900_DAY = new Date(1899, 11, 30) as any;
 const INITIAL_JS_DAY = new Date(0) as any;
 const DATE_JS_1900_OFFSET = INITIAL_JS_DAY - INITIAL_1900_DAY;
 
-const mdyDateRegexp = /^\d{1,2}(\/|-|\s)\d{1,2}((\/|-|\s)\d{1,4})?$/;
-const ymdDateRegexp = /^\d{3,4}(\/|-|\s)\d{1,2}(\/|-|\s)\d{1,2}$/;
-const timeRegexp = /((\d+(:\d+)?(:\d+)?\s*(AM|PM))|(\d+:\d+(:\d+)?))$/;
+export const mdyDateRegexp = /^\d{1,2}(\/|-|\s)\d{1,2}((\/|-|\s)\d{1,4})?$/;
+export const ymdDateRegexp = /^\d{3,4}(\/|-|\s)\d{1,2}(\/|-|\s)\d{1,2}$/;
+export const timeRegexp = /((\d+(:\d+)?(:\d+)?\s*(AM|PM))|(\d+:\d+(:\d+)?))$/;
 
 export function parseDateTime(str: string): InternalDate | null {
   str = str.trim();

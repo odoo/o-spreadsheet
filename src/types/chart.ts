@@ -7,6 +7,10 @@ export interface DataSet {
 
 export type ChartTypes = "line" | "bar" | "pie";
 
+export interface ExcelChartDataset {
+  label?: string;
+  range: string;
+}
 export interface ChartDefinition {
   title?: string;
   type: ChartTypes;
@@ -21,4 +25,11 @@ export interface CreateChartDefinition {
   dataSets: string[];
   labelRange?: string;
   dataSetsHaveTitle: boolean;
+}
+
+export interface ExcelChartDefinition {
+  title: string;
+  type: ChartTypes;
+  dataSets: ExcelChartDataset[];
+  labelRange?: string;
 }

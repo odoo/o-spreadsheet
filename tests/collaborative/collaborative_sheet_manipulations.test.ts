@@ -567,7 +567,7 @@ describe("Collaborative Sheet manipulation", () => {
             id: "42",
             definition: {
               dataSets: ["A1:A3", "C1:C3", "F1:G3"],
-              labelRange: "F3",
+              labelRange: "F1:F3",
               title: "chart title",
               dataSetsHaveTitle: false,
               type: "bar",

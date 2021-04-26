@@ -167,6 +167,7 @@ export const AVEDEV: AddFunctionDescription = {
     const average = sum / count;
     return reduceNumbers(arguments, (acc, a) => acc + Math.abs(average - a), 0) / count;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -200,6 +201,7 @@ export const AVERAGE: AddFunctionDescription = {
     );
     return sum / count;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -312,6 +314,7 @@ export const AVERAGEA: AddFunctionDescription = {
     );
     return sum / count;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -350,6 +353,7 @@ export const AVERAGEIF: AddFunctionDescription = {
 
     return sum / count;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -382,6 +386,7 @@ export const AVERAGEIFS: AddFunctionDescription = {
     );
     return sum / count;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -413,6 +418,7 @@ export const COUNT: AddFunctionDescription = {
     }
     return count;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -428,6 +434,7 @@ export const COUNTA: AddFunctionDescription = {
   compute: function (): number {
     return reduceAny(arguments, (acc, a) => (a !== undefined && a !== null ? acc + 1 : acc), 0);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -446,6 +453,7 @@ export const COVAR: AddFunctionDescription = {
   compute: function (dataY: any[], dataX: any[]): number {
     return covariance(dataY, dataX, false);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -461,6 +469,7 @@ export const COVARIANCE_P: AddFunctionDescription = {
   compute: function (dataY: any[], dataX: any[]): number {
     return covariance(dataY, dataX, false);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -476,6 +485,7 @@ export const COVARIANCE_S: AddFunctionDescription = {
   compute: function (dataY: any[], dataX: any[]): number {
     return covariance(dataY, dataX, true);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -513,6 +523,7 @@ export const LARGE: AddFunctionDescription = {
     );
     return result!;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -534,6 +545,7 @@ export const MAX: AddFunctionDescription = {
     const result = reduceNumbers(arguments, (acc, a) => (acc < a ? a : acc), -Infinity);
     return result === -Infinity ? 0 : result;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -561,6 +573,7 @@ export const MAXA: AddFunctionDescription = {
     );
     return maxa === -Infinity ? 0 : maxa;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -590,6 +603,7 @@ export const MAXIFS: AddFunctionDescription = {
     });
     return result === -Infinity ? 0 : result;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -614,6 +628,7 @@ export const MEDIAN: AddFunctionDescription = {
     });
     return centile([data], 0.5, true);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -635,6 +650,7 @@ export const MIN: AddFunctionDescription = {
     const result = reduceNumbers(arguments, (acc, a) => (a < acc ? a : acc), Infinity);
     return result === Infinity ? 0 : result;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -662,6 +678,7 @@ export const MINA: AddFunctionDescription = {
     );
     return mina === Infinity ? 0 : mina;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -691,6 +708,7 @@ export const MINIFS: AddFunctionDescription = {
     });
     return result === Infinity ? 0 : result;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -709,6 +727,7 @@ export const PERCENTILE: AddFunctionDescription = {
   compute: function (data: any, percentile: any): number {
     return PERCENTILE_INC.compute(data, percentile);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -727,6 +746,7 @@ export const PERCENTILE_EXC: AddFunctionDescription = {
   compute: function (data: any, percentile: any): number {
     return centile(data, percentile, false);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -745,6 +765,7 @@ export const PERCENTILE_INC: AddFunctionDescription = {
   compute: function (data: any, percentile: any): number {
     return centile(data, percentile, true);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -761,6 +782,7 @@ export const QUARTILE: AddFunctionDescription = {
   compute: function (data: any, quartileNumber: any): number {
     return QUARTILE_INC.compute(data, quartileNumber);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -778,6 +800,7 @@ export const QUARTILE_EXC: AddFunctionDescription = {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber));
     return centile(data, 0.25 * _quartileNumber, false);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -795,6 +818,7 @@ export const QUARTILE_INC: AddFunctionDescription = {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber));
     return centile(data, 0.25 * _quartileNumber, true);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -832,6 +856,7 @@ export const SMALL: AddFunctionDescription = {
     );
     return result!;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -849,6 +874,7 @@ export const STDEV: AddFunctionDescription = {
   compute: function (): number {
     return Math.sqrt(VAR.compute(...arguments));
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -866,6 +892,7 @@ export const STDEV_P: AddFunctionDescription = {
   compute: function (): number {
     return Math.sqrt(VAR_P.compute(...arguments));
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -883,6 +910,7 @@ export const STDEV_S: AddFunctionDescription = {
   compute: function (): number {
     return Math.sqrt(VAR_S.compute(...arguments));
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -900,6 +928,7 @@ export const STDEVA: AddFunctionDescription = {
   compute: function (): number {
     return Math.sqrt(VARA.compute(...arguments));
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -917,6 +946,7 @@ export const STDEVP: AddFunctionDescription = {
   compute: function (): number {
     return Math.sqrt(VARP.compute(...arguments));
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -934,6 +964,7 @@ export const STDEVPA: AddFunctionDescription = {
   compute: function (): number {
     return Math.sqrt(VARPA.compute(...arguments));
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -951,6 +982,7 @@ export const VAR: AddFunctionDescription = {
   compute: function (): number {
     return variance(arguments, true, false);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -968,6 +1000,7 @@ export const VAR_P: AddFunctionDescription = {
   compute: function (): number {
     return variance(arguments, false, false);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -985,6 +1018,7 @@ export const VAR_S: AddFunctionDescription = {
   compute: function (): number {
     return variance(arguments, true, false);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -1002,6 +1036,7 @@ export const VARA: AddFunctionDescription = {
   compute: function (): number {
     return variance(arguments, true, true);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -1019,6 +1054,7 @@ export const VARP: AddFunctionDescription = {
   compute: function (): number {
     return variance(arguments, false, false);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -1036,4 +1072,5 @@ export const VARPA: AddFunctionDescription = {
   compute: function (): number {
     return variance(arguments, false, true);
   },
+  isExported: true,
 };

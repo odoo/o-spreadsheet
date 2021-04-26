@@ -137,6 +137,7 @@ export const DAVERAGE: AddFunctionDescription = {
     const cells = getMatchingCells(database, field, criteria);
     return AVERAGE.compute([cells]);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -150,6 +151,7 @@ export const DCOUNT: AddFunctionDescription = {
     const cells = getMatchingCells(database, field, criteria);
     return COUNT.compute([cells]);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -163,6 +165,7 @@ export const DCOUNTA: AddFunctionDescription = {
     const cells = getMatchingCells(database, field, criteria);
     return COUNTA.compute([cells]);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -177,6 +180,7 @@ export const DGET: AddFunctionDescription = {
     assert(() => cells.length === 1, _lt("More than one match found in DGET evaluation."));
     return cells[0];
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -190,6 +194,7 @@ export const DMAX: AddFunctionDescription = {
     const cells = getMatchingCells(database, field, criteria);
     return MAX.compute([cells]);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -203,6 +208,7 @@ export const DMIN: AddFunctionDescription = {
     const cells = getMatchingCells(database, field, criteria);
     return MIN.compute([cells]);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -216,6 +222,7 @@ export const DPRODUCT: AddFunctionDescription = {
     const cells = getMatchingCells(database, field, criteria);
     return PRODUCT.compute([cells]);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -229,6 +236,7 @@ export const DSTDEV: AddFunctionDescription = {
     const cells = getMatchingCells(database, field, criteria);
     return STDEV.compute([cells]);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -242,6 +250,7 @@ export const DSTDEVP: AddFunctionDescription = {
     const cells = getMatchingCells(database, field, criteria);
     return STDEVP.compute([cells]);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -255,6 +264,7 @@ export const DSUM: AddFunctionDescription = {
     const cells = getMatchingCells(database, field, criteria);
     return SUM.compute([cells]);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -268,6 +278,7 @@ export const DVAR: AddFunctionDescription = {
     const cells = getMatchingCells(database, field, criteria);
     return VAR.compute([cells]);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -281,4 +292,5 @@ export const DVARP: AddFunctionDescription = {
     const cells = getMatchingCells(database, field, criteria);
     return VARP.compute([cells]);
   },
+  isExported: true,
 };

@@ -45,6 +45,7 @@ export const AND: AddFunctionDescription = {
     assert(() => foundBoolean, _lt(`[[FUNCTION_NAME]] has no valid input data.`));
     return acc;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -72,6 +73,7 @@ export const IF: AddFunctionDescription = {
     const result = toBoolean(logicalExpression) ? valueIfTrue() : valueIfFalse();
     return result === null || result === undefined ? "" : result;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -95,6 +97,7 @@ export const IFERROR: AddFunctionDescription = {
     }
     return result === null || result === undefined ? "" : result;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -127,6 +130,7 @@ export const IFS: AddFunctionDescription = {
     }
     throw new Error(_lt(`No match.`));
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -144,6 +148,7 @@ export const NOT: AddFunctionDescription = {
   compute: function (logicalExpression: any): boolean {
     return !toBoolean(logicalExpression);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -171,6 +176,7 @@ export const OR: AddFunctionDescription = {
     assert(() => foundBoolean, _lt(`[[FUNCTION_NAME]] has no valid input data.`));
     return acc;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -198,4 +204,5 @@ export const XOR: AddFunctionDescription = {
     assert(() => foundBoolean, _lt(`[[FUNCTION_NAME]] has no valid input data.`));
     return acc;
   },
+  isExported: true,
 };

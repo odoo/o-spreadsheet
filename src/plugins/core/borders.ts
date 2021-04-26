@@ -6,6 +6,7 @@ import {
   BorderCommand,
   BorderDescription,
   Command,
+  ExcelWorkbookData,
   Sheet,
   UID,
   WorkbookData,
@@ -525,5 +526,9 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       }
     }
     data.borders = borders;
+  }
+
+  exportForExcel(data: ExcelWorkbookData) {
+    this.export(data);
   }
 }

@@ -1,3 +1,4 @@
+import { ExcelChartDefinition } from "./chart";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Border, Style, UID } from "./misc";
 
@@ -6,6 +7,7 @@ export type NormalizedFormula = {
   // {formula: "=sum(  |ref1|, 3) + |ref2|"), ["a1:b3","a1"]
   text: string;
   dependencies: string[];
+  value?: any;
 };
 
 export interface CellData {
@@ -52,4 +54,12 @@ export interface WorkbookData {
   borders: { [key: number]: Border };
   entities: { [key: string]: { [key: string]: any } };
   revisionId: UID;
+}
+
+export interface ExcelWorkbookData extends WorkbookData {
+  sheets: ExcelSheetData[];
+}
+
+export interface ExcelSheetData extends SheetData {
+  charts: FigureData<ExcelChartDefinition>[];
 }

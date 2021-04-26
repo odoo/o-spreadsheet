@@ -1,5 +1,5 @@
 import { rangeReference } from "../../formulas/parser";
-import { uuidv4, zoneToXc } from "../../helpers/index";
+import { uuidv4, zoneToDimension, zoneToXc } from "../../helpers/index";
 import {
   ApplyRangeChange,
   ChartDefinition,
@@ -9,6 +9,9 @@ import {
   CreateChartCommand,
   CreateChartDefinition,
   DataSet,
+  ExcelChartDataset,
+  ExcelChartDefinition,
+  ExcelWorkbookData,
   FigureData,
   UID,
   UpdateChartCommand,
@@ -218,6 +221,42 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     };
   }
 
+  private getChartDefinitionExcel(sheetId: UID, figureId: UID): ExcelChartDefinition {
+    const data: ChartDefinition = this.chartFigures[figureId];
+    const dataSets: ExcelChartDataset[] = data.dataSets
+      .map((ds: DataSet) => this.toExcelDataset(ds))
+      .filter((ds) => ds.range !== ""); // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
+    return {
+      ...this.getChartDefinitionUI("forceSheetReference", figureId),
+      dataSets,
+    };
+  }
+
+  private toExcelDataset(ds: DataSet): ExcelChartDataset {
+    const labelZone = ds.labelCell?.zone;
+    let dataZone = ds.dataRange.zone;
+    if (labelZone) {
+      const { height, width } = zoneToDimension(dataZone);
+      if (height === 1) {
+        dataZone = { ...dataZone, left: dataZone.left + 1 };
+      } else if (width === 1) {
+        dataZone = { ...dataZone, top: dataZone.top + 1 };
+      }
+    }
+
+    const dataRange = {
+      ...ds.dataRange,
+      zone: dataZone,
+    };
+
+    return {
+      label: ds.labelCell
+        ? this.getters.getRangeString(ds.labelCell, "forceSheetReference")
+        : undefined,
+      range: this.getters.getRangeString(dataRange, "forceSheetReference"),
+    };
+  }
+
   // ---------------------------------------------------------------------------
   // Import/Export
   // ---------------------------------------------------------------------------
@@ -250,6 +289,19 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         }
         sheet.figures = figures;
       }
+    }
+  }
+
+  exportForExcel(data: ExcelWorkbookData) {
+    for (let sheet of data.sheets) {
+      const sheetFigures = this.getters.getFigures(sheet.id);
+      const figures = sheetFigures as FigureData<ExcelChartDefinition>[];
+      for (let figure of figures) {
+        if (figure && figure.tag === "chart") {
+          figure.data = this.getChartDefinitionExcel(sheet.id, figure.id);
+        }
+      }
+      sheet.charts = figures;
     }
   }
 

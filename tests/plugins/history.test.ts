@@ -14,7 +14,13 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getBorder, getCell, getCellContent } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
-import { waitForRecompute } from "../test_helpers/helpers";
+import { initPatcher } from "../test_helpers/helpers";
+
+let waitForRecompute: () => Promise<void>;
+
+beforeEach(() => {
+  ({ waitForRecompute } = initPatcher());
+});
 
 // we test here the undo/redo feature
 

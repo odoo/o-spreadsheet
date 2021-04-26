@@ -17,6 +17,7 @@ export const ISERROR: AddFunctionDescription = {
       return true;
     }
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -29,6 +30,7 @@ export const ISLOGICAL: AddFunctionDescription = {
   compute: function (value: any): boolean {
     return typeof value === "boolean";
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -41,6 +43,7 @@ export const ISNONTEXT: AddFunctionDescription = {
   compute: function (value: any): boolean {
     return typeof value !== "string";
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -54,6 +57,7 @@ export const ISNUMBER: AddFunctionDescription = {
   compute: function (value: any): boolean {
     return typeof value === "number";
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -66,4 +70,5 @@ export const ISTEXT: AddFunctionDescription = {
   compute: function (value: any): boolean {
     return typeof value === "string";
   },
+  isExported: true,
 };
