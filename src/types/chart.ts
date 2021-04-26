@@ -19,7 +19,7 @@ export interface ChartDefinition {
   sheetId: UID;
 }
 
-export interface CreateChartDefinition {
+export interface ChartUIDefinition {
   title: string;
   type: ChartTypes;
   dataSets: string[];

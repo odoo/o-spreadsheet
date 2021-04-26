@@ -3,11 +3,11 @@ import { uuidv4, zoneToDimension, zoneToXc } from "../../helpers/index";
 import {
   ApplyRangeChange,
   ChartDefinition,
+  ChartUIDefinition,
   Command,
   CommandResult,
   CoreCommand,
   CreateChartCommand,
-  CreateChartDefinition,
   DataSet,
   ExcelChartDataset,
   ExcelChartDefinition,
@@ -202,7 +202,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       .map((chart) => chart[0]);
   }
 
-  getChartDefinitionUI(sheetId: UID, figureId: UID): CreateChartDefinition {
+  getChartDefinitionUI(sheetId: UID, figureId: UID): ChartUIDefinition {
     const data: ChartDefinition = this.chartFigures[figureId];
     const dataSets: string[] = data.dataSets
       .map((ds: DataSet) => (ds ? this.getters.getRangeString(ds.dataRange, sheetId) : ""))
@@ -266,7 +266,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       if (sheet.figures) {
         for (let figure of sheet.figures) {
           if (figure.tag === "chart") {
-            const figureData: CreateChartDefinition = {
+            const figureData: ChartUIDefinition = {
               ...figure.data,
             };
             this.chartFigures[figure.id] = this.createChartDefinition(figureData, sheet.id);
@@ -310,7 +310,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   // ---------------------------------------------------------------------------
 
   private createChartDefinition(
-    createCommand: CreateChartDefinition,
+    createCommand: ChartUIDefinition,
     sheetId: string
   ): ChartDefinition {
     let dataSets: DataSet[] = [];

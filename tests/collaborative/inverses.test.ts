@@ -3,10 +3,10 @@ import { inverseCommand } from "../../src/helpers/inverse_commands";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
+  ChartUIDefinition,
   ClearCellCommand,
   ClearFormattingCommand,
   CoreCommand,
-  CreateChartDefinition,
   CreateSheetCommand,
   DeleteContentCommand,
   DeleteSheetCommand,
@@ -301,7 +301,7 @@ describe("Inverses commands", () => {
     const updateChart: UpdateChartCommand = {
       type: "UPDATE_CHART",
       sheetId: "42",
-      definition: {} as CreateChartDefinition,
+      definition: {} as ChartUIDefinition,
       id: "1",
     };
     test.each([

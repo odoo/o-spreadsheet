@@ -1,13 +1,6 @@
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
-import {
-  BorderCommand,
-  ConditionalFormat,
-  CreateChartDefinition,
-  Figure,
-  Style,
-  Zone,
-} from "./index";
+import { BorderCommand, ChartUIDefinition, ConditionalFormat, Figure, Style, Zone } from "./index";
 import { Border, Cell, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
 
 // -----------------------------------------------------------------------------
@@ -335,13 +328,13 @@ export interface DeleteFigureCommand extends BaseCommand, SheetDependentCommand 
 export interface CreateChartCommand extends BaseCommand, SheetDependentCommand {
   type: "CREATE_CHART";
   id: UID;
-  definition: CreateChartDefinition;
+  definition: ChartUIDefinition;
 }
 
 export interface UpdateChartCommand extends BaseCommand, SheetDependentCommand {
   type: "UPDATE_CHART";
   id: UID;
-  definition: CreateChartDefinition;
+  definition: ChartUIDefinition;
 }
 
 export interface RefreshChartCommand extends BaseCommand {
