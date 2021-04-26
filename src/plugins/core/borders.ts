@@ -526,4 +526,8 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     }
     data.borders = borders;
   }
+
+  exportForExcel(data: WorkbookData) {
+    this.export(data);
+  }
 }

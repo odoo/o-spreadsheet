@@ -55,6 +55,7 @@ export class CorePlugin<State = any, C = CoreCommand>
 
   import(data: WorkbookData) {}
   export(data: WorkbookData) {}
+  exportForExcel(data: WorkbookData) {}
 
   /**
    * This method can be implemented in any plugin, to loop over the plugin's data structure and adapt the plugin's ranges.

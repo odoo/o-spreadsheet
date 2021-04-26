@@ -37,6 +37,7 @@ export interface AddFunctionDescription {
   args: Arg[];
   returns: [ArgType];
   returnFormat?: ReturnFormatType.FormatFromArgument | ReturnSpecificFormat;
+  isExported?: boolean;
 }
 
 export interface FunctionDescription extends AddFunctionDescription {

@@ -297,7 +297,7 @@ test("complete import, then export", () => {
         cells: {
           A1: { content: "hello" },
           B1: {
-            formula: { text: "=|0|", dependencies: ["A1"] },
+            formula: { text: "=|0|", dependencies: ["A1"], value: "hello" },
             style: 1,
             border: 1,
             format: "0.00%",

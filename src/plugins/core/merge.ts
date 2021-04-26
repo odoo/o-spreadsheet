@@ -461,6 +461,10 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
       }
     }
   }
+
+  exportForExcel(data: WorkbookData) {
+    this.export(data);
+  }
 }
 
 function exportMerges(merges: Record<number, Merge | undefined>): string[] {

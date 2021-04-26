@@ -253,6 +253,10 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     }
   }
 
+  exportForExcel(data: WorkbookData) {
+    /** Not supported yet */
+  }
+
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------

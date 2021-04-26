@@ -145,6 +145,10 @@ export class ConditionalFormatPlugin
     }
   }
 
+  exportForExcel(data: WorkbookData) {
+    this.export(data);
+  }
+
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------

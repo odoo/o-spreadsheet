@@ -19,6 +19,21 @@ topbarMenuRegistry.addChild("clear", ["file"], {
   },
 });
 
+topbarMenuRegistry.addChild("xlsx", ["file"], {
+  name: "Save as XLSX",
+  sequence: 20,
+  action: async (env) => {
+    const doc = await env.exportXLSX();
+    const zip = new JSZip();
+    for (const file of doc.files) {
+      zip.file(file.path, file.content.replaceAll(` xmlns=""`, ""));
+    }
+    zip.generateAsync({ type: "blob" }).then(function (blob) {
+      saveAs(blob, doc.name);
+    });
+  },
+});
+
 let start;
 
 class App extends Component {

@@ -103,4 +103,8 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
       }
     }
   }
+
+  exportForExcel(data: WorkbookData) {
+    /** Not supported yet */
+  }
 }

@@ -73,6 +73,9 @@ The properties of a function are:
   - `"FormatFromArgument"` --> if the first argument of the formula is a reference to a cell or range, the format of the reference will be returned. Ex: in `=SUM(A2, A3, A4)` where the parameter `returnFormat` is defined as `"FormatFromArgument"`, the final formula format will be the format of the `A2` reference.
   - `specificFormat` (string): a string that can be interpreted by spreadsheet. Ex: in `=TIME(A2, A3, A4)`
     where the parameter `returnFormat` is defined as `{specificFormat: "hh:mm:ss"}`, the final formula format will be `"hh:mm:ss"`.
+- `isExported` (boolean, default=false): This will mark the function as exportable in Microsoft Excel. If set to _false_, cells with formula containing the function will be exported with its result as a static value.
+
+  > ⚠ warning: If you are using `isExported`: _true_, make sure that both the function name and behaviour you defined match those in Microsoft Excel.
 
 ## Example
 

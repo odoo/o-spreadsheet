@@ -52,6 +52,7 @@ export const DATE: AddFunctionDescription = {
 
     return Math.round(delta / 86400000);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -74,6 +75,7 @@ export const DATEVALUE: AddFunctionDescription = {
 
     return Math.trunc(internalDate!.value);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -88,6 +90,7 @@ export const DAY: AddFunctionDescription = {
   compute: function (date: any): number {
     return toJsDate(date).getDate();
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -106,6 +109,7 @@ export const DAYS: AddFunctionDescription = {
     const dateDif = _endDate.getTime() - _startDate.getTime();
     return Math.round(dateDif / 86400000);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -133,6 +137,7 @@ export const EDATE: AddFunctionDescription = {
 
     return Math.round(delta / 86400000);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -159,6 +164,7 @@ export const EOMONTH: AddFunctionDescription = {
 
     return Math.round(delta / 86400000);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -173,6 +179,7 @@ export const HOUR: AddFunctionDescription = {
   compute: function (date: any): number {
     return toJsDate(date).getHours();
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -258,6 +265,7 @@ export const ISOWEEKNUM: AddFunctionDescription = {
     const dif = (_date.getTime() - firstDay.getTime()) / 86400000;
     return Math.floor(dif / 7) + 1;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -272,6 +280,7 @@ export const MINUTE: AddFunctionDescription = {
   compute: function (date: any): number {
     return toJsDate(date).getMinutes();
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -286,6 +295,7 @@ export const MONTH: AddFunctionDescription = {
   compute: function (date: any): number {
     return toJsDate(date).getMonth() + 1;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -308,6 +318,7 @@ export const NETWORKDAYS: AddFunctionDescription = {
   compute: function (startDate: any, endDate: any, holidays: any): number {
     return NETWORKDAYS_INTL.compute(startDate, endDate, 1, holidays);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -444,6 +455,7 @@ export const NETWORKDAYS_INTL: AddFunctionDescription = {
 
     return invertDate ? -netWorkingDay : netWorkingDay;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -462,6 +474,7 @@ export const NOW: AddFunctionDescription = {
     const time = today.getHours() / 24 + today.getMinutes() / 1440 + today.getSeconds() / 86400;
     return Math.floor(delta / 86400000) + time;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -476,6 +489,7 @@ export const SECOND: AddFunctionDescription = {
   compute: function (date: any): number {
     return toJsDate(date).getSeconds();
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -507,6 +521,7 @@ export const TIME: AddFunctionDescription = {
 
     return _hour / 24 + _minute / (24 * 60) + _second / (24 * 60 * 60);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -530,6 +545,7 @@ export const TIMEVALUE: AddFunctionDescription = {
 
     return result < 0 ? 1 + result : result;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -546,6 +562,7 @@ export const TODAY: AddFunctionDescription = {
     const delta = jsDate.getTime() - INITIAL_1900_DAY.getTime();
     return Math.round(delta / 86400000);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -576,6 +593,7 @@ export const WEEKDAY: AddFunctionDescription = {
     if (_type === 2) return m === 0 ? 7 : m;
     return m === 0 ? 6 : m - 1;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -630,6 +648,7 @@ export const WEEKNUM: AddFunctionDescription = {
     }
     return Math.floor(dif / 7) + (dayStart === 1 ? 1 : 2);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -651,6 +670,7 @@ export const WORKDAY: AddFunctionDescription = {
   compute: function (startDate: any, numDays: any, holidays: any = undefined): number {
     return WORKDAY_INTL.compute(startDate, numDays, 1, holidays);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -714,6 +734,7 @@ export const WORKDAY_INTL: AddFunctionDescription = {
     const delta = timeStepDate - INITIAL_1900_DAY.getTime();
     return Math.round(delta / 86400000);
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -728,6 +749,7 @@ export const YEAR: AddFunctionDescription = {
   compute: function (date: any): number {
     return toJsDate(date).getFullYear();
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------

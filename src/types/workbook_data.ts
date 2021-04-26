@@ -6,6 +6,7 @@ export type NormalizedFormula = {
   // {formula: "=sum(  |ref1|, 3) + |ref2|"), ["a1:b3","a1"]
   text: string;
   dependencies: string[];
+  value?: any;
 };
 
 export interface CellData {

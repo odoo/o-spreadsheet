@@ -199,6 +199,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Import/Export
+  // ---------------------------------------------------------------------------
+
   import(data: WorkbookData) {
     // we need to fill the sheetIds mapping first, because otherwise formulas
     // that depends on a sheet not already imported will not be able to be
@@ -244,6 +248,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           sheet.areGridLinesVisible === undefined ? true : sheet.areGridLinesVisible,
       };
     });
+  }
+
+  exportForExcel(data: WorkbookData) {
+    this.export(data);
   }
 
   // ---------------------------------------------------------------------------

@@ -50,6 +50,6 @@ for (let category in functions) {
   for (let name in fns) {
     const addDescr = fns[name];
     addDescr.category = category;
-    functionRegistry.add(name, addDescr);
+    functionRegistry.add(name, { isExported: false, ...addDescr });
   }
 }

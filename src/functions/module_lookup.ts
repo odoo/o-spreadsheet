@@ -53,6 +53,7 @@ export const COLUMN: AddFunctionDescription = {
     const zone = toZone((cellReference || this.__originCellXC)!);
     return zone.left + 1;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -67,6 +68,7 @@ export const COLUMNS: AddFunctionDescription = {
     const zone = toZone(range);
     return zone.right - zone.left + 1;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -116,6 +118,7 @@ export const HLOOKUP: AddFunctionDescription = {
 
     return range[colIndex][_index - 1];
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -169,6 +172,7 @@ export const LOOKUP: AddFunctionDescription = {
 
     return resultRange[0][index];
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -217,6 +221,7 @@ export const MATCH: AddFunctionDescription = {
 
     return index + 1;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -239,6 +244,7 @@ export const ROW: AddFunctionDescription = {
     const zone = toZone((cellReference || this.__originCellXC)!);
     return zone.top + 1;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -253,6 +259,7 @@ export const ROWS: AddFunctionDescription = {
     const zone = toZone(range);
     return zone.bottom - zone.top + 1;
   },
+  isExported: true,
 };
 
 // -----------------------------------------------------------------------------
@@ -302,4 +309,5 @@ export const VLOOKUP: AddFunctionDescription = {
 
     return range[_index - 1][rowIndex];
   },
+  isExported: true,
 };

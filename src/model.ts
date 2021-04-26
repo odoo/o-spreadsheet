@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
-import { DEFAULT_REVISION_ID } from "./constants";
+import { DEFAULT_REVISION_ID, MAXIMUM_EVALUATION_CHECK_DELAY_MS } from "./constants";
 import { createEmptyWorkbookData, load } from "./data";
 import { DEBUG, setIsFastStrategy, uuidv4 } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
@@ -30,6 +30,8 @@ import {
   UID,
   WorkbookData,
 } from "./types/index";
+import { XLSXExport } from "./types/xlsx";
+import { getXLSX } from "./xlsx/xlsx_writer";
 
 /**
  * Model
@@ -457,5 +459,48 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       this.dispatch("STOP_EDITION", { cancel: true });
     }
     this.config.isReadonly = isReadonly || false;
+  }
+
+  /**
+   * Wait until all async cells in spreadsheet are computed
+   */
+  async waitForIdle() {
+    return new Promise<void>((resolve) => {
+      const interval = setInterval(() => {
+        if (this.getters.isIdle()) {
+          clearInterval(interval);
+          // after the last cell has been evaluated, the dependencies of that cell still need to
+          // be evaluated at the next scheduler "tick" so we are waiting a little more than the
+          // next scheduler tick to ensure it's done.
+          setTimeout(() => {
+            this.getters.isIdle();
+            resolve();
+          }, MAXIMUM_EVALUATION_CHECK_DELAY_MS + 1);
+        }
+      }, 20);
+    });
+  }
+
+  /**
+   * Exports the current model data into a list of serialized XML files
+   * to be zipped together as an *.xlsx file.
+   *
+   * We need to trigger a cell revaluation  on every sheet and ensure that even
+   * async functions are evaluated.
+   * This prove to be necessary if the client did not trigger that evaluation in the first place
+   * (e.g. open a document with several sheet and click on download before visiting each sheet)
+   */
+  async exportXLSX(): Promise<XLSXExport> {
+    this.dispatch("EVALUATE_ALL_SHEETS");
+    await this.waitForIdle();
+    let data = createEmptyWorkbookData();
+    for (let handler of this.handlers) {
+      if (handler instanceof CorePlugin) {
+        handler.exportForExcel(data);
+      }
+    }
+    data = JSON.parse(JSON.stringify(data));
+
+    return getXLSX(data);
   }
 }

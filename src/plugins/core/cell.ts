@@ -398,6 +398,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
               text: cell.formula.text || "",
               dependencies:
                 cell.dependencies?.map((d) => this.getters.getRangeString(d, _sheet.id)) || [],
+              value: cell.value,
             };
             break;
           case CellType.number:
@@ -410,6 +411,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       _sheet.cells = cells;
     }
     data.styles = styles;
+  }
+
+  exportForExcel(data: WorkbookData) {
+    this.export(data);
   }
 
   // ---------------------------------------------------------------------------
