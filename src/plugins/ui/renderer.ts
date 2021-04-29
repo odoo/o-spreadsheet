@@ -475,8 +475,8 @@ export class RendererPlugin extends UIPlugin {
         const borderTopLeft = this.getters.getCellBorder(activeSheetId, merge.left, merge.top);
         const borderBottomRight = this.getters.getCellBorder(
           activeSheetId,
-          merge.right + 1,
-          merge.bottom + 1
+          merge.right,
+          merge.bottom
         );
         const width = cols[merge.right].end - cols[merge.left].start;
         let text, textWidth, style, align, border;

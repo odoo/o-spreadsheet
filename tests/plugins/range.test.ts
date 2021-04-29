@@ -282,6 +282,8 @@ describe("range plugin", () => {
       ["s1!$A1:$B1"],
       ["s1!A$1:B$1"],
       ["s1!$A$1:$B$1"],
+      ["#REF"],
+      ["invalid xc"],
     ])("test withing a fixed row", (range) => {
       let r = m.getters.getRangeFromSheetXC("s1", range);
       expect(m.getters.getRangeString(r, "s1")).toBe(range);
@@ -312,6 +314,8 @@ describe("range plugin", () => {
       ["s1!$A1:$B1", "s1!$A1:$B1"],
       ["s1!A$1:B$1", "s1!A$1:B$1"],
       ["s1!$A$1:$B$1", "s1!$A$1:$B$1"],
+      ["#REF", "#REF"],
+      ["invalid xc", "invalid xc"],
     ])("test withing a fixed row, displayed for another sheet", (range, expectedString) => {
       let r = m.getters.getRangeFromSheetXC("s1", range);
       expect(m.getters.getRangeString(r, "s2")).toBe(expectedString);

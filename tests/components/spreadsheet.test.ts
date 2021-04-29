@@ -6,8 +6,9 @@ import { DEBUG } from "../../src/helpers";
 import { SelectionMode } from "../../src/plugins/ui/selection";
 import { Client } from "../../src/types";
 import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
-import { triggerMouseEvent } from "../test_helpers/dom_helper";
+import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, MockClipboard, nextTick, typeInComposer } from "../test_helpers/helpers";
+
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
@@ -190,13 +191,24 @@ describe("Spreadsheet", () => {
     expect(Object.keys(DEBUG)).toHaveLength(0);
   });
 
+  test("typing opens composer after toolbar clicked", async () => {
+    await simulateClick(`div[title="Bold"]`);
+    expect(document.activeElement).not.toBeNull();
+    document.activeElement?.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "d", bubbles: true })
+    );
+    await nextTick();
+    expect(parent.model.getters.getEditionMode()).toBe("editing");
+    expect(parent.model.getters.getCurrentContent()).toBe("d");
+  });
+
   test("can open/close search with ctrl+h", async () => {
+    await nextTick();
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "H", ctrlKey: true, bubbles: true })
     );
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
-    await nextTick();
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "H", ctrlKey: true, bubbles: true })
     );

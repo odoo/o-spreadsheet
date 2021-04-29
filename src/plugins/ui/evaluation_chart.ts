@@ -85,6 +85,13 @@ export class EvaluationChartPlugin extends UIPlugin {
           }
         }
         break;
+      case "DELETE_SHEET":
+        for (let chartId of Object.keys(this.chartRuntime)) {
+          if (!this.getters.getChartDefinition(chartId)) {
+            delete this.chartRuntime[chartId];
+          }
+        }
+        break;
       case "ADD_COLUMNS_ROWS":
         const sheet = this.getters.getSheet(cmd.sheetId);
         const numberOfElem = cmd.dimension === "ROW" ? sheet.cols.length : sheet.rows.length;

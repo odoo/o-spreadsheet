@@ -1,4 +1,5 @@
 import { INCORRECT_RANGE_STRING } from "../../constants";
+import { rangeReference } from "../../formulas";
 import {
   createAdaptedZone,
   getComposerSheetName,
@@ -257,6 +258,9 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     let sheetId: UID | undefined;
     let invalidSheetName: string | undefined;
     let prefixSheet: boolean = false;
+    if (!rangeReference.test(sheetXC)) {
+      return this.buildInvalidRange(sheetXC);
+    }
     if (sheetXC.includes("!")) {
       [xc, sheetName] = sheetXC.split("!").reverse();
       if (sheetName) {
@@ -301,7 +305,9 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     if (!range) {
       return INCORRECT_RANGE_STRING;
     }
-
+    if (range.invalidXc) {
+      return range.invalidXc;
+    }
     if (range.zone.bottom - range.zone.top < 0 || range.zone.right - range.zone.left < 0) {
       return INCORRECT_RANGE_STRING;
     }
@@ -349,5 +355,19 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     }
 
     return `${prefixSheet ? sheetName + "!" : ""}${ref.join("")}`;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Private
+  // ---------------------------------------------------------------------------
+
+  private buildInvalidRange(invalidXc: string): Range {
+    return {
+      parts: [],
+      prefixSheet: false,
+      zone: { left: -1, top: -1, right: -1, bottom: -1 },
+      sheetId: "",
+      invalidXc,
+    };
   }
 }
