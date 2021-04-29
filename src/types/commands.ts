@@ -938,6 +938,7 @@ export const enum CommandResult {
   CancelledForUnknownReason,
   WillRemoveExistingMerge,
   MergeIsDestructive,
+  CellIsMerged,
   EmptyUndoStack,
   EmptyRedoStack,
   NotEnoughElements,
