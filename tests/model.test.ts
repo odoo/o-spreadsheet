@@ -1,4 +1,5 @@
-import { CommandResult } from "../src";
+import { CommandResult, CorePlugin } from "../src";
+import { toZone } from "../src/helpers";
 import { Mode, Model } from "../src/model";
 import { BordersPlugin } from "../src/plugins/core/borders";
 import { CellPlugin } from "../src/plugins/core/cell";
@@ -13,8 +14,9 @@ import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
 import { SortPlugin } from "../src/plugins/ui/sort";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
 import { UIPlugin } from "../src/plugins/ui_plugin";
+import { Command, CoreCommand } from "../src/types";
 import { selectCell, setCellContent } from "./test_helpers/commands_helpers";
-import { getCell } from "./test_helpers/getters_helpers";
+import { getCell, getCellText } from "./test_helpers/getters_helpers";
 
 function getNbrPlugin(mode: Mode): number {
   return (
@@ -93,6 +95,91 @@ describe("Model", () => {
     expect(modelReadonly["handlers"][modelReadonly["handlers"].length - 1]).toBeInstanceOf(
       ReadOnlyPlugin
     );
+  });
+
+  test("core plugin can refuse command from UI plugin", () => {
+    class MyCorePlugin extends CorePlugin {
+      allowDispatch(cmd: CoreCommand) {
+        if (cmd.type === "UPDATE_CELL") {
+          return CommandResult.CancelledForUnknownReason;
+        }
+        return CommandResult.Success;
+      }
+    }
+    let result: CommandResult | undefined = undefined;
+    class MyUIPlugin extends UIPlugin {
+      handle(cmd: Command) {
+        if (cmd.type === "COPY") {
+          result = this.dispatch("UPDATE_CELL", {
+            col: 0,
+            row: 0,
+            sheetId: this.getters.getActiveSheetId(),
+            content: "hello",
+          });
+        }
+      }
+    }
+    uiPluginRegistry.add("myUIPlugin", MyUIPlugin);
+    corePluginRegistry.add("myCorePlugin", MyCorePlugin);
+    const model = new Model();
+    model.dispatch("COPY", { target: [toZone("A1")] });
+    expect(result).toBe(CommandResult.CancelledForUnknownReason);
+    uiPluginRegistry.remove("myUIPlugin");
+    corePluginRegistry.remove("myCorePlugin");
+  });
+
+  test("core plugin cannot refuse command from core plugin", () => {
+    let result: CommandResult | undefined = undefined;
+    class MyCorePlugin extends CorePlugin {
+      allowDispatch(cmd: CoreCommand) {
+        if (cmd.type === "UPDATE_CELL") {
+          return CommandResult.CancelledForUnknownReason;
+        }
+        return CommandResult.Success;
+      }
+      handle(cmd: CoreCommand) {
+        if (cmd.type === "CREATE_SHEET") {
+          result = this.dispatch("UPDATE_CELL", {
+            col: 0,
+            row: 0,
+            sheetId: cmd.sheetId,
+            content: "Hello",
+          });
+        }
+      }
+    }
+    corePluginRegistry.add("myCorePlugin", MyCorePlugin);
+    const model = new Model();
+    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    expect(result).toBe(CommandResult.Success);
+    expect(getCellText(model, "A1", "42")).toBe("Hello");
+    corePluginRegistry.remove("myCorePlugin");
+  });
+
+  test("UI plugin cannot refuse command from UI plugin", () => {
+    let result: CommandResult | undefined = undefined;
+    class MyUIPlugin extends UIPlugin {
+      allowDispatch(cmd: Command) {
+        if (cmd.type === "PASTE") {
+          return CommandResult.CancelledForUnknownReason;
+        }
+        return CommandResult.Success;
+      }
+      handle(cmd: Command) {
+        if (cmd.type === "COPY") {
+          result = this.dispatch("PASTE", {
+            target: [toZone("A2")],
+          });
+        }
+      }
+    }
+    uiPluginRegistry.add("myUIPlugin", MyUIPlugin);
+    const model = new Model();
+    setCellContent(model, "A1", "copy&paste me");
+    model.dispatch("COPY", { target: [toZone("A1")] });
+    expect(result).toBe(CommandResult.Success);
+    expect(getCellText(model, "A2")).toBe("copy&paste me");
+    corePluginRegistry.remove("myUIPlugin");
   });
 
   test("Can open a model in readonly mode", () => {

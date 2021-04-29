@@ -352,6 +352,17 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         }
         break;
       case Status.Running:
+        if (isCoreCommand(command)) {
+          const cancelledReason = this.checkDispatchAllowed(command);
+          if (cancelledReason) {
+            return cancelledReason;
+          }
+          this.state.addCommand(command);
+          this.dispatchToHandlers(this.handlers, command);
+        } else {
+          this.dispatchToHandlers(this.handlers, command);
+        }
+        break;
       case Status.Interactive:
         if (isCoreCommand(command)) {
           this.state.addCommand(command);
