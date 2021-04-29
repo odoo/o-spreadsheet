@@ -552,6 +552,13 @@ describe("merges", () => {
     expect(getBorder(model, "C4")).toEqual({ top: ["thin", "#000"] });
     expect(getBorder(model, "C5")).toBeNull();
   });
+
+  test("update content cell of merged cell, other than top left", () => {
+    const model = new Model();
+    merge(model, "A1:A2");
+    expect(setCellContent(model, "A2", "hello")).toBe(CommandResult.CellIsMerged);
+    expect(getCell(model, "A2")).toBeUndefined();
+  });
 });
 
 function getStyle(model: Model, xc: string): Style {

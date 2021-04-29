@@ -14,6 +14,7 @@ import {
   Merge,
   Sheet,
   UID,
+  UpdateCellCommand,
   WorkbookData,
   Zone,
 } from "../../types/index";
@@ -64,6 +65,8 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
           return CommandResult.Success;
         }
         return this.checkValidations(cmd, this.checkDestructiveMerge, this.checkOverlap);
+      case "UPDATE_CELL":
+        return this.checkMergedContentUpdate(cmd);
       default:
         return CommandResult.Success;
     }
@@ -274,6 +277,22 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
       }
     }
     return CommandResult.Success;
+  }
+
+  /**
+   * The content of a merged cell should always be empty.
+   * Except for the top-left cell.
+   */
+  private checkMergedContentUpdate(cmd: UpdateCellCommand): CommandResult {
+    const { col, row, sheetId, content } = cmd;
+    if (content === undefined) {
+      return CommandResult.Success;
+    }
+    const [mainCol, mainRow] = this.getMainCell(sheetId, col, row);
+    if (mainCol === col && mainRow === row) {
+      return CommandResult.Success;
+    }
+    return CommandResult.CellIsMerged;
   }
 
   /**
