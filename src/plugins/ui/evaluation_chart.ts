@@ -57,6 +57,13 @@ export class EvaluationChartPlugin extends UIPlugin {
           }
         }
         break;
+      case "DELETE_SHEET":
+        for (let chartId of Object.keys(this.chartRuntime)) {
+          if (!this.getters.getChartDefinition(chartId)) {
+            delete this.chartRuntime[chartId];
+          }
+        }
+        break;
       case "UNDO":
       case "REDO":
         for (let chartId of Object.keys(this.chartRuntime)) {

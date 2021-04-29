@@ -8,7 +8,10 @@ export async function simulateClick(selector: string | any, x: number = 10, y: n
     target = selector;
   }
   triggerMouseEvent(selector, "mousedown", x, y);
-  target.focus();
+  if (target !== document.activeElement) {
+    (document.activeElement as HTMLElement | null)?.blur();
+    target.focus();
+  }
   triggerMouseEvent(selector, "mouseup", x, y);
   triggerMouseEvent(selector, "click", x, y);
   await nextTick();
