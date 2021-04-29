@@ -54,6 +54,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getColsZone",
     "getRowsZone",
     "getCellByXc",
+    "getNumberCols",
+    "getNumberRows",
   ];
 
   readonly sheetIds: Record<string, UID | undefined> = {};
@@ -374,6 +376,14 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       throw new Error(`asking for a cell position that doesn't exist, cell id: ${cellId}`);
     }
     return cell;
+  }
+
+  getNumberCols(sheetId: UID) {
+    return this.getSheet(sheetId).cols.length;
+  }
+
+  getNumberRows(sheetId: UID) {
+    return this.getSheet(sheetId).rows.length;
   }
 
   // ---------------------------------------------------------------------------

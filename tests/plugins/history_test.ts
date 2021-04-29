@@ -274,6 +274,15 @@ describe("Model history", () => {
     expect(getCell(model, "A1")!.value).toBe(10);
   });
 
+  test("undo a sheet creation changes the active sheet", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: "42" });
+    model.dispatch("UNDO");
+    expect(model.getters.getActiveSheetId()).toBe(sheetId);
+  });
+
   test("ACTIVATE_SHEET standalone is not saved", () => {
     const model = new Model();
     model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });

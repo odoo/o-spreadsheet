@@ -91,6 +91,13 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       case "DELETE_FIGURE":
         this.history.update("chartFigures", cmd.id, undefined);
         break;
+      case "DELETE_SHEET":
+        for (let id of Object.keys(this.chartFigures)) {
+          if (this.chartFigures[id]?.sheetId === cmd.sheetId) {
+            this.history.update("chartFigures", id, undefined);
+          }
+        }
+        break;
     }
   }
 
