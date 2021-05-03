@@ -947,6 +947,7 @@ export const enum CommandResult {
   WrongSheetMove,
   WrongSheetPosition,
   SelectionOutOfBound,
+  TargetOutOfSheet,
   WrongPasteSelection,
   EmptyClipboard,
   InvalidRange,

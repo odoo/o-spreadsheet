@@ -5,6 +5,7 @@ import { formatDateTime, parseDateTime } from "../../functions/dates";
 import {
   formatNumber,
   formatStandardNumber,
+  isInside,
   isNumber,
   maximumDecimalPlaces,
   parseNumber,
@@ -21,6 +22,7 @@ import {
   CellData,
   CellPosition,
   CellType,
+  CommandResult,
   CoreCommand,
   FormulaCell,
   Range,
@@ -86,6 +88,15 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
+
+  allowDispatch(cmd: CoreCommand): CommandResult {
+    switch (cmd.type) {
+      case "UPDATE_CELL":
+        return this.checkCellOutOfSheet(cmd.sheetId, cmd.col, cmd.row);
+      default:
+        return CommandResult.Success;
+    }
+  }
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
@@ -754,5 +765,16 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       }
     }
     return this.NULL_FORMAT;
+  }
+
+  private checkCellOutOfSheet(sheetId: UID, col: number, row: number): CommandResult {
+    const sheet = this.getters.getSheet(sheetId);
+    const sheetZone = {
+      top: 0,
+      left: 0,
+      bottom: sheet.rows.length - 1,
+      right: sheet.cols.length - 1,
+    };
+    return isInside(col, row, sheetZone) ? CommandResult.Success : CommandResult.TargetOutOfSheet;
   }
 }
