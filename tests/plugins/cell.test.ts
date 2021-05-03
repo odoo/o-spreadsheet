@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { CellType } from "../../src/types";
+import { CellType, CommandResult } from "../../src/types";
 import { getCell } from "../test_helpers/getters_helpers";
 
 describe("getCellText", () => {
@@ -51,5 +51,17 @@ describe("getCellText", () => {
     expect(getCell(model, "A1")?.format).toBe("bla");
     expect(getCell(model, "B2")?.format).toBe("bla");
     expect(getCell(model, "C3")?.format).toBe("bla");
+  });
+
+  test("update cell outside of sheet", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const result = model.dispatch("UPDATE_CELL", {
+      sheetId,
+      col: 9999,
+      row: 9999,
+      content: "hello",
+    });
+    expect(result).toBe(CommandResult.TargetOutOfSheet);
   });
 });
