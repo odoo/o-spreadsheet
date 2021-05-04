@@ -1,5 +1,28 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`compile functions with lazy arguments functions call requesting lazy parameters 1`] = `
+"function anonymous(cell,range,ctx
+) {
+// =USELAZYARG(24)
+let _2 = ()=> 24
+ctx.__lastFnCalled = 'USELAZYARG'
+let _1 = ctx['USELAZYARG'](_2)
+return _1;
+}"
+`;
+
+exports[`compile functions with lazy arguments functions call requesting lazy parameters 2`] = `
+"function anonymous(cell,range,ctx
+) {
+// =USELAZYARG(1/0)
+ctx.__lastFnCalled = 'DIVIDE'
+let _2 = ()=> ctx['DIVIDE'](1, 0)
+ctx.__lastFnCalled = 'USELAZYARG'
+let _1 = ctx['USELAZYARG'](_2)
+return _1;
+}"
+`;
+
 exports[`expression compiler async functions 1`] = `
 "async function anonymous(cell,range,ctx
 ) {
