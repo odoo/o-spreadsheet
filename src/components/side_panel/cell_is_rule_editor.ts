@@ -27,9 +27,17 @@ const TEMPLATE = xml/* xml */ `
             <option t-att-value="op" t-esc="cellIsOperators[op]"/>
         </t>
     </select>
-    <input type="text" placeholder="Value" t-model="state.condition.value1" class="o-input o-cell-is-value"/>
-    <t t-if="state.condition.operator === 'Between' || state.condition.operator === 'NotBetween'">
-        <input type="text" placeholder="and value" t-model="state.condition.value2" class="o-input"/>
+    <t t-if="state.condition.operator !== 'IsEmpty' and state.condition.operator !== 'IsNotEmpty'">
+      <input type="text"
+             placeholder="Value"
+             t-model="state.condition.value1"
+             class="o-input o-cell-is-value"/>
+      <t t-if="state.condition.operator === 'Between' || state.condition.operator === 'NotBetween'">
+          <input type="text"
+                 placeholder="and value"
+                 t-model="state.condition.value2"
+                 class="o-input"/>
+      </t>
     </t>
     <div class="o-cf-title-text" t-esc="env._t('${conditionalFormatingTerms.FORMATTING_STYLE}')"></div>
 
@@ -58,6 +66,9 @@ const TEMPLATE = xml/* xml */ `
                     <ColorPicker t-if="state.fillColorTool" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
         </div>
     </div>
+    <div class="o-cf-error" t-if="props.error">
+        <t t-esc="props.error"/>
+      </div>
     <div class="o-sidePanelButtons">
       <button t-on-click="onCancel" class="o-sidePanelButton o-cf-cancel" t-esc="env._t('${conditionalFormatingTerms.CANCEL}')"></button>
       <button t-on-click="onSave" class="o-sidePanelButton o-cf-save" t-esc="env._t('${conditionalFormatingTerms.SAVE}')"></button>
@@ -75,6 +86,10 @@ const CSS = css/* scss */ `
   .o-cf-preview-line {
     border: 1px solid darkgrey;
     padding: 10px;
+  }
+  .o-cf-error {
+    color: red;
+    margin-top: 10px;
   }
 `;
 
@@ -94,7 +109,7 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
   rule = this.cf.rule as CellIsRule;
   state = useState({
     condition: {
-      operator: this.rule && this.rule.operator ? this.rule.operator : "Equal",
+      operator: this.rule && this.rule.operator ? this.rule.operator : "IsNotEmpty",
       value1: this.rule && this.rule.values.length > 0 ? this.rule.values[0] : "",
       value2: this.cf && this.rule.values.length > 1 ? this.rule.values[1] : "",
     },

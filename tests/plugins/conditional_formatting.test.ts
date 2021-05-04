@@ -814,6 +814,9 @@ describe("conditional formats types", () => {
         target: [toZone("A1")],
         sheetId: model.getters.getActiveSheetId(),
       });
+      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+        fillColor: "#ff0f0f",
+      });
 
       setCellContent(model, "A1", "hellqsdfo");
       expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
@@ -853,7 +856,81 @@ describe("conditional formats types", () => {
       expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
     });
 
+    test("Operator IsEmpty", () => {
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "IsEmpty",
+            values: [],
+            style: { fillColor: "#ff0f0f" },
+          },
+          id: "11",
+        },
+        target: [toZone("A1")],
+        sheetId: model.getters.getActiveSheetId(),
+      });
+      setCellContent(model, "A1", "");
+      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+        fillColor: "#ff0f0f",
+      });
+
+      setCellContent(model, "A1", " ");
+      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+        fillColor: "#ff0f0f",
+      });
+
+      setCellContent(model, "A2", "");
+      setCellContent(model, "A1", "=A2");
+      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
+
+      setCellContent(model, "A1", '=""');
+      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+        fillColor: "#ff0f0f",
+      });
+
+      setCellContent(model, "A1", '=" "');
+      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+        fillColor: "#ff0f0f",
+      });
+
+      setCellContent(model, "A1", "helabclo");
+      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
+    });
+
+    test("Operator IsNotEmpty", () => {
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "IsNotEmpty",
+            values: [],
+            style: { fillColor: "#ff0f0f" },
+          },
+          id: "11",
+        },
+        target: [toZone("A1")],
+        sheetId: model.getters.getActiveSheetId(),
+      });
+      setCellContent(model, "A1", "");
+      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
+
+      setCellContent(model, "A1", " ");
+      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
+
+      setCellContent(model, "A1", "helabclo");
+      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+        fillColor: "#ff0f0f",
+      });
+    });
+
     test.each([
+      ["IsEmpty", ["", ""]],
+      ["IsEmpty", []],
+      ["IsEmpty", [""]],
+      ["IsNotEmpty", ["", ""]],
+      ["IsNotEmpty", []],
+      ["IsNotEmpty", [""]],
       ["GreaterThan", ["1", ""]],
       ["GreaterThan", ["1"]],
       ["GreaterThanOrEqual", ["1", ""]],

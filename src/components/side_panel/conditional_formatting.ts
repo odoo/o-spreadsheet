@@ -370,7 +370,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     return {
       rule: {
         type: "CellIsRule",
-        operator: "Equal",
+        operator: "IsNotEmpty",
         values: [],
         style: { fillColor: "#FF0000" },
       },
