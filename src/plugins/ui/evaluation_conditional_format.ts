@@ -330,6 +330,10 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       }
 
       switch (rule.operator) {
+        case "IsEmpty":
+          return !cell || value.toString().trim() === "";
+        case "IsNotEmpty":
+          return cell && value.toString().trim() !== "";
         case "BeginsWith":
           if (!cell && rule.values[0] === "") {
             return false;
@@ -339,7 +343,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
           if (!cell && rule.values[0] === "") {
             return false;
           }
-          return cell && value.endsWith(rule.values[0]);
+          return cell && value && value.toString().endsWith(rule.values[0]);
         case "Between":
           return cell && value >= rule.values[0] && value <= rule.values[1];
         case "NotBetween":
@@ -347,7 +351,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         case "ContainsText":
           return cell && value && value.toString().indexOf(rule.values[0]) > -1;
         case "NotContains":
-          return cell && value && value.toString().indexOf(rule.values[0]) == -1;
+          return !cell || !value || value.toString().indexOf(rule.values[0]) == -1;
         case "GreaterThan":
           return cell && value > rule.values[0];
         case "GreaterThanOrEqual":
@@ -360,12 +364,12 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
           if (!cell && rule.values[0] === "") {
             return false;
           }
-          return cell && value != rule.values[0];
+          return cell && value !== rule.values[0];
         case "Equal":
           if (!cell && rule.values[0] === "") {
             return true;
           }
-          return cell && value == rule.values[0];
+          return cell && value.toString() === rule.values[0];
         default:
           console.warn(
             _lt(

@@ -51,18 +51,20 @@ export const colorScale = {
 };
 
 export const cellIsOperators = {
-  BeginsWith: _lt("Begins with"),
-  Between: _lt("Between"),
-  ContainsText: _lt("Contains text"),
+  IsEmpty: _lt("Is empty"),
+  IsNotEmpty: _lt("Is not empty"),
+  ContainsText: _lt("Contains"),
+  NotContains: _lt("Does not contain"),
+  BeginsWith: _lt("Starts with"),
   EndsWith: _lt("Ends with"),
   Equal: _lt("Is equal to"),
-  GreaterThan: _lt("Greater than"),
-  GreaterThanOrEqual: _lt("Greater than or equal"),
-  LessThan: _lt("Less than"),
-  LessThanOrEqual: _lt("Less than or equal"),
-  NotBetween: _lt("Not between"),
-  NotContains: _lt("Not contains"),
-  NotEqual: _lt("Not equal"),
+  NotEqual: _lt("Is not equal to"),
+  GreaterThan: _lt("Is greater than"),
+  GreaterThanOrEqual: _lt("Is greater than or equal to"),
+  LessThan: _lt("Is less than"),
+  LessThanOrEqual: _lt("Is less than or equal to"),
+  Between: _lt("Is between"),
+  NotBetween: _lt("Is not between"),
 };
 
 export const chartTerms = {

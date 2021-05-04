@@ -253,7 +253,8 @@ export class ConditionalFormatPlugin
             "LessThan",
             "LessThanOrEqual",
             "NotContains",
-          ])
+          ]),
+          this.checkOperatorArgsNumber(0, ["IsEmpty", "IsNotEmpty"])
         );
       case "ColorScaleRule": {
         return this.checkValidations(

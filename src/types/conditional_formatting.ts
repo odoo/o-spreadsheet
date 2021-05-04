@@ -123,10 +123,13 @@ export interface Top10Rule extends SingleColorRule {
   rank: number;
 }
 //https://docs.microsoft.com/en-us/dotnet/api/documentformat.openxml.spreadsheet.conditionalformattingoperatorvalues?view=openxml-2.8.1
+// Note: IsEmpty and IsNotEmpty does not exist on the specification
 export type ConditionalFormattingOperatorValues =
   | "BeginsWith"
   | "Between"
   | "ContainsText"
+  | "IsEmpty"
+  | "IsNotEmpty"
   | "EndsWith"
   | "Equal"
   | "GreaterThan"

@@ -251,6 +251,7 @@ describe("UI of conditional formats", () => {
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3", "change");
       setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith", "change");
+      await nextTick();
       setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "3", "input");
 
       triggerMouseEvent(selectors.ruleEditor.editor.bold, "click");
