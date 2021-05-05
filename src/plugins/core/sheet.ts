@@ -50,6 +50,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getColCells",
     "getColsZone",
     "getRowsZone",
+    "getNumberCols",
+    "getNumberRows",
     "getHiddenColsGroups",
     "getHiddenRowsGroups",
     "getGridLinesVisibility",
@@ -338,6 +340,17 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   getHiddenRowsGroups(sheetId: UID): ConsecutiveIndexes[] {
     return this.sheets[sheetId]?.hiddenRowsGroups || [];
   }
+  getNumberCols(sheetId: UID) {
+    return this.getSheet(sheetId).cols.length;
+  }
+
+  getNumberRows(sheetId: UID) {
+    return this.getSheet(sheetId).rows.length;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Row/Col manipulation
+  // ---------------------------------------------------------------------------
 
   private setHeaderSize(sheet: Sheet, dimension: "cols" | "rows", index: number, size: number) {
     let start: number, end: number;

@@ -847,6 +847,24 @@ describe("datasource tests", function () {
     const chart = model.getters.getChartRuntime("1")!;
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
+
+  test("Chart is deleted on sheet deletion", () => {
+    model.dispatch("CREATE_SHEET", { sheetId: "2", position: 1 });
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: "2",
+      definition: {
+        title: "test 1",
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+    });
+    expect(model.getters.getChartRuntime("1")).not.toBeUndefined();
+    model.dispatch("DELETE_SHEET", { sheetId: "2" });
+    expect(model.getters.getChartRuntime("1")).toBeUndefined();
+  });
 });
 
 describe("title", function () {

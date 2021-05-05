@@ -73,6 +73,7 @@ export type Range = {
   zone: Zone; // the zone the range actually spans
   sheetId: UID; // the sheet on which the range is defined
   invalidSheetName?: string; // the name of any sheet that is invalid
+  invalidXc?: string;
   parts: RangePart[];
   prefixSheet: boolean; // true if the user provided the range with the sheet name, so it has to be recomputed with the sheet name too
 };
