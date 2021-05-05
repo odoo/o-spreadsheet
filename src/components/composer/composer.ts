@@ -330,7 +330,6 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     }
 
     ev.preventDefault();
-    ev.stopPropagation();
 
     this.autoCompleteState.showProvider = false;
     if (ev.ctrlKey && ev.key === " ") {
