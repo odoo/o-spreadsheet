@@ -38,9 +38,10 @@ Name | Default |
 ### Methods
 
 - [allowDispatch](uiplugin.md#allowdispatch)
+- [batchValidations](uiplugin.md#batchvalidations)
 - [beforeHandle](uiplugin.md#beforehandle)
+- [chainValidations](uiplugin.md#chainvalidations)
 - [checkValidations](uiplugin.md#checkvalidations)
-- [combineValidations](uiplugin.md#combinevalidations)
 - [drawGrid](uiplugin.md#drawgrid)
 - [finalize](uiplugin.md#finalize)
 - [handle](uiplugin.md#handle)
@@ -49,7 +50,7 @@ Name | Default |
 
 ### constructor
 
-\+ **new UIPlugin**<State, C\>(`getters`: Getters, `state`: *StateObserver*, `dispatch`: <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => [*CommandResult*](../enums/commandresult.md)<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => [*CommandResult*](../enums/commandresult.md), `config`: ModelConfig): [*UIPlugin*](uiplugin.md)<State, C\>
+\+ **new UIPlugin**<State, C\>(`getters`: Getters, `state`: *StateObserver*, `dispatch`: <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => [*DispatchResult*](dispatchresult.md)<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => [*DispatchResult*](dispatchresult.md), `config`: ModelConfig): [*UIPlugin*](uiplugin.md)<State, C\>
 
 #### Type parameters:
 
@@ -64,7 +65,7 @@ Name | Type |
 :------ | :------ |
 `getters` | Getters |
 `state` | *StateObserver* |
-`dispatch` | <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => [*CommandResult*](../enums/commandresult.md)<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => [*CommandResult*](../enums/commandresult.md) |
+`dispatch` | <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => [*DispatchResult*](dispatchresult.md)<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => [*DispatchResult*](dispatchresult.md) |
 `config` | ModelConfig |
 
 **Returns:** [*UIPlugin*](uiplugin.md)<State, C\>
@@ -79,11 +80,11 @@ ___
 
 ### dispatch
 
-• `Protected` **dispatch**: <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => [*CommandResult*](../enums/commandresult.md)<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => [*CommandResult*](../enums/commandresult.md)
+• `Protected` **dispatch**: <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*) => [*DispatchResult*](dispatchresult.md)<T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>) => [*DispatchResult*](dispatchresult.md)
 
 #### Type declaration:
 
-▸ <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*): [*CommandResult*](../enums/commandresult.md)
+▸ <T, C\>(`type`: {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never*): [*DispatchResult*](dispatchresult.md)
 
 #### Type parameters:
 
@@ -98,9 +99,9 @@ Name | Type |
 :------ | :------ |
 `type` | {} *extends* *Pick*<C, Exclude<keyof C, *type*\>\> ? T : *never* |
 
-**Returns:** [*CommandResult*](../enums/commandresult.md)
+**Returns:** [*DispatchResult*](dispatchresult.md)
 
-▸ <T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>): [*CommandResult*](../enums/commandresult.md)
+▸ <T, C\>(`type`: T, `r`: *Pick*<C, Exclude<keyof C, *type*\>\>): [*DispatchResult*](dispatchresult.md)
 
 #### Type parameters:
 
@@ -116,7 +117,7 @@ Name | Type |
 `type` | T |
 `r` | *Pick*<C, Exclude<keyof C, *type*\>\> |
 
-**Returns:** [*CommandResult*](../enums/commandresult.md)
+**Returns:** [*DispatchResult*](dispatchresult.md)
 
 ___
 
@@ -158,7 +159,7 @@ ___
 
 ### allowDispatch
 
-▸ **allowDispatch**(`command`: C): [*CommandResult*](../enums/commandresult.md)
+▸ **allowDispatch**(`command`: C): [*Success*](../enums/commandresult.md#success) \| [*CancelledForUnknownReason*](../enums/commandresult.md#cancelledforunknownreason) \| [*WillRemoveExistingMerge*](../enums/commandresult.md#willremoveexistingmerge) \| [*MergeIsDestructive*](../enums/commandresult.md#mergeisdestructive) \| [*CellIsMerged*](../enums/commandresult.md#cellismerged) \| [*EmptyUndoStack*](../enums/commandresult.md#emptyundostack) \| [*EmptyRedoStack*](../enums/commandresult.md#emptyredostack) \| [*NotEnoughElements*](../enums/commandresult.md#notenoughelements) \| [*NotEnoughSheets*](../enums/commandresult.md#notenoughsheets) \| [*MissingSheetName*](../enums/commandresult.md#missingsheetname) \| [*DuplicatedSheetName*](../enums/commandresult.md#duplicatedsheetname) \| [*ForbiddenCharactersInSheetName*](../enums/commandresult.md#forbiddencharactersinsheetname) \| [*WrongSheetMove*](../enums/commandresult.md#wrongsheetmove) \| [*WrongSheetPosition*](../enums/commandresult.md#wrongsheetposition) \| [*SelectionOutOfBound*](../enums/commandresult.md#selectionoutofbound) \| [*TargetOutOfSheet*](../enums/commandresult.md#targetoutofsheet) \| [*WrongPasteSelection*](../enums/commandresult.md#wrongpasteselection) \| [*EmptyClipboard*](../enums/commandresult.md#emptyclipboard) \| [*InvalidRange*](../enums/commandresult.md#invalidrange) \| [*InvalidSheetId*](../enums/commandresult.md#invalidsheetid) \| [*InputAlreadyFocused*](../enums/commandresult.md#inputalreadyfocused) \| [*MaximumRangesReached*](../enums/commandresult.md#maximumrangesreached) \| [*InvalidChartDefinition*](../enums/commandresult.md#invalidchartdefinition) \| [*EmptyDataSet*](../enums/commandresult.md#emptydataset) \| [*InvalidDataSet*](../enums/commandresult.md#invaliddataset) \| [*InvalidLabelRange*](../enums/commandresult.md#invalidlabelrange) \| [*InvalidAutofillSelection*](../enums/commandresult.md#invalidautofillselection) \| [*WrongComposerSelection*](../enums/commandresult.md#wrongcomposerselection) \| [*MinBiggerThanMax*](../enums/commandresult.md#minbiggerthanmax) \| [*LowerBiggerThanUpper*](../enums/commandresult.md#lowerbiggerthanupper) \| [*MidBiggerThanMax*](../enums/commandresult.md#midbiggerthanmax) \| [*MinBiggerThanMid*](../enums/commandresult.md#minbiggerthanmid) \| [*InvalidNumberOfArgs*](../enums/commandresult.md#invalidnumberofargs) \| [*MinNaN*](../enums/commandresult.md#minnan) \| [*MidNaN*](../enums/commandresult.md#midnan) \| [*MaxNaN*](../enums/commandresult.md#maxnan) \| [*ValueUpperInflectionNaN*](../enums/commandresult.md#valueupperinflectionnan) \| [*ValueLowerInflectionNaN*](../enums/commandresult.md#valuelowerinflectionnan) \| [*MinAsyncFormulaNotSupported*](../enums/commandresult.md#minasyncformulanotsupported) \| [*MidAsyncFormulaNotSupported*](../enums/commandresult.md#midasyncformulanotsupported) \| [*MaxAsyncFormulaNotSupported*](../enums/commandresult.md#maxasyncformulanotsupported) \| [*ValueUpperAsyncFormulaNotSupported*](../enums/commandresult.md#valueupperasyncformulanotsupported) \| [*ValueLowerAsyncFormulaNotSupported*](../enums/commandresult.md#valuelowerasyncformulanotsupported) \| [*MinInvalidFormula*](../enums/commandresult.md#mininvalidformula) \| [*MidInvalidFormula*](../enums/commandresult.md#midinvalidformula) \| [*MaxInvalidFormula*](../enums/commandresult.md#maxinvalidformula) \| [*ValueUpperInvalidFormula*](../enums/commandresult.md#valueupperinvalidformula) \| [*ValueLowerInvalidFormula*](../enums/commandresult.md#valuelowerinvalidformula) \| [*InvalidSortZone*](../enums/commandresult.md#invalidsortzone) \| [*WaitingSessionConfirmation*](../enums/commandresult.md#waitingsessionconfirmation) \| [*MergeOverlap*](../enums/commandresult.md#mergeoverlap) \| [*TooManyHiddenElements*](../enums/commandresult.md#toomanyhiddenelements) \| [*Readonly*](../enums/commandresult.md#readonly) \| [*CommandResult*](../enums/commandresult.md)[]
 
 Before a command is accepted, the model will ask each plugin if the command
 is allowed.  If all of then return true, then we can proceed. Otherwise,
@@ -172,7 +173,30 @@ Name | Type |
 :------ | :------ |
 `command` | C |
 
-**Returns:** [*CommandResult*](../enums/commandresult.md)
+**Returns:** [*Success*](../enums/commandresult.md#success) \| [*CancelledForUnknownReason*](../enums/commandresult.md#cancelledforunknownreason) \| [*WillRemoveExistingMerge*](../enums/commandresult.md#willremoveexistingmerge) \| [*MergeIsDestructive*](../enums/commandresult.md#mergeisdestructive) \| [*CellIsMerged*](../enums/commandresult.md#cellismerged) \| [*EmptyUndoStack*](../enums/commandresult.md#emptyundostack) \| [*EmptyRedoStack*](../enums/commandresult.md#emptyredostack) \| [*NotEnoughElements*](../enums/commandresult.md#notenoughelements) \| [*NotEnoughSheets*](../enums/commandresult.md#notenoughsheets) \| [*MissingSheetName*](../enums/commandresult.md#missingsheetname) \| [*DuplicatedSheetName*](../enums/commandresult.md#duplicatedsheetname) \| [*ForbiddenCharactersInSheetName*](../enums/commandresult.md#forbiddencharactersinsheetname) \| [*WrongSheetMove*](../enums/commandresult.md#wrongsheetmove) \| [*WrongSheetPosition*](../enums/commandresult.md#wrongsheetposition) \| [*SelectionOutOfBound*](../enums/commandresult.md#selectionoutofbound) \| [*TargetOutOfSheet*](../enums/commandresult.md#targetoutofsheet) \| [*WrongPasteSelection*](../enums/commandresult.md#wrongpasteselection) \| [*EmptyClipboard*](../enums/commandresult.md#emptyclipboard) \| [*InvalidRange*](../enums/commandresult.md#invalidrange) \| [*InvalidSheetId*](../enums/commandresult.md#invalidsheetid) \| [*InputAlreadyFocused*](../enums/commandresult.md#inputalreadyfocused) \| [*MaximumRangesReached*](../enums/commandresult.md#maximumrangesreached) \| [*InvalidChartDefinition*](../enums/commandresult.md#invalidchartdefinition) \| [*EmptyDataSet*](../enums/commandresult.md#emptydataset) \| [*InvalidDataSet*](../enums/commandresult.md#invaliddataset) \| [*InvalidLabelRange*](../enums/commandresult.md#invalidlabelrange) \| [*InvalidAutofillSelection*](../enums/commandresult.md#invalidautofillselection) \| [*WrongComposerSelection*](../enums/commandresult.md#wrongcomposerselection) \| [*MinBiggerThanMax*](../enums/commandresult.md#minbiggerthanmax) \| [*LowerBiggerThanUpper*](../enums/commandresult.md#lowerbiggerthanupper) \| [*MidBiggerThanMax*](../enums/commandresult.md#midbiggerthanmax) \| [*MinBiggerThanMid*](../enums/commandresult.md#minbiggerthanmid) \| [*InvalidNumberOfArgs*](../enums/commandresult.md#invalidnumberofargs) \| [*MinNaN*](../enums/commandresult.md#minnan) \| [*MidNaN*](../enums/commandresult.md#midnan) \| [*MaxNaN*](../enums/commandresult.md#maxnan) \| [*ValueUpperInflectionNaN*](../enums/commandresult.md#valueupperinflectionnan) \| [*ValueLowerInflectionNaN*](../enums/commandresult.md#valuelowerinflectionnan) \| [*MinAsyncFormulaNotSupported*](../enums/commandresult.md#minasyncformulanotsupported) \| [*MidAsyncFormulaNotSupported*](../enums/commandresult.md#midasyncformulanotsupported) \| [*MaxAsyncFormulaNotSupported*](../enums/commandresult.md#maxasyncformulanotsupported) \| [*ValueUpperAsyncFormulaNotSupported*](../enums/commandresult.md#valueupperasyncformulanotsupported) \| [*ValueLowerAsyncFormulaNotSupported*](../enums/commandresult.md#valuelowerasyncformulanotsupported) \| [*MinInvalidFormula*](../enums/commandresult.md#mininvalidformula) \| [*MidInvalidFormula*](../enums/commandresult.md#midinvalidformula) \| [*MaxInvalidFormula*](../enums/commandresult.md#maxinvalidformula) \| [*ValueUpperInvalidFormula*](../enums/commandresult.md#valueupperinvalidformula) \| [*ValueLowerInvalidFormula*](../enums/commandresult.md#valuelowerinvalidformula) \| [*InvalidSortZone*](../enums/commandresult.md#invalidsortzone) \| [*WaitingSessionConfirmation*](../enums/commandresult.md#waitingsessionconfirmation) \| [*MergeOverlap*](../enums/commandresult.md#mergeoverlap) \| [*TooManyHiddenElements*](../enums/commandresult.md#toomanyhiddenelements) \| [*Readonly*](../enums/commandresult.md#readonly) \| [*CommandResult*](../enums/commandresult.md)[]
+
+___
+
+### batchValidations
+
+▸ **batchValidations**<T\>(...`validations`: *Validation*<T\>[]): *Validation*<T\>
+
+Combine multiple validation functions into a single function
+returning the list of result of every validation.
+
+#### Type parameters:
+
+Name |
+:------ |
+`T` |
+
+#### Parameters:
+
+Name | Type |
+:------ | :------ |
+`...validations` | *Validation*<T\>[] |
+
+**Returns:** *Validation*<T\>
 
 ___
 
@@ -194,32 +218,13 @@ Name | Type |
 
 ___
 
-### checkValidations
+### chainValidations
 
-▸ **checkValidations**<T\>(`command`: T, ...`validations`: *Validation*<T\>[]): [*CommandResult*](../enums/commandresult.md)
+▸ **chainValidations**<T\>(...`validations`: *Validation*<T\>[]): *Validation*<T\>
 
-#### Type parameters:
-
-Name |
-:------ |
-`T` |
-
-#### Parameters:
-
-Name | Type |
-:------ | :------ |
-`command` | T |
-`...validations` | *Validation*<T\>[] |
-
-**Returns:** [*CommandResult*](../enums/commandresult.md)
-
-___
-
-### combineValidations
-
-▸ **combineValidations**<T\>(...`validations`: *Validation*<T\>[]): *Validation*<T\>
-
-Combine multiple validation functions into a single function.
+Combine multiple validation functions. Every validation is executed one after
+the other. As soon as one validation fails, it stops and the cancelled reason
+is returned.
 
 #### Type parameters:
 
@@ -234,6 +239,27 @@ Name | Type |
 `...validations` | *Validation*<T\>[] |
 
 **Returns:** *Validation*<T\>
+
+___
+
+### checkValidations
+
+▸ **checkValidations**<T\>(`command`: T, ...`validations`: *Validation*<T\>[]): [*Success*](../enums/commandresult.md#success) \| [*CancelledForUnknownReason*](../enums/commandresult.md#cancelledforunknownreason) \| [*WillRemoveExistingMerge*](../enums/commandresult.md#willremoveexistingmerge) \| [*MergeIsDestructive*](../enums/commandresult.md#mergeisdestructive) \| [*CellIsMerged*](../enums/commandresult.md#cellismerged) \| [*EmptyUndoStack*](../enums/commandresult.md#emptyundostack) \| [*EmptyRedoStack*](../enums/commandresult.md#emptyredostack) \| [*NotEnoughElements*](../enums/commandresult.md#notenoughelements) \| [*NotEnoughSheets*](../enums/commandresult.md#notenoughsheets) \| [*MissingSheetName*](../enums/commandresult.md#missingsheetname) \| [*DuplicatedSheetName*](../enums/commandresult.md#duplicatedsheetname) \| [*ForbiddenCharactersInSheetName*](../enums/commandresult.md#forbiddencharactersinsheetname) \| [*WrongSheetMove*](../enums/commandresult.md#wrongsheetmove) \| [*WrongSheetPosition*](../enums/commandresult.md#wrongsheetposition) \| [*SelectionOutOfBound*](../enums/commandresult.md#selectionoutofbound) \| [*TargetOutOfSheet*](../enums/commandresult.md#targetoutofsheet) \| [*WrongPasteSelection*](../enums/commandresult.md#wrongpasteselection) \| [*EmptyClipboard*](../enums/commandresult.md#emptyclipboard) \| [*InvalidRange*](../enums/commandresult.md#invalidrange) \| [*InvalidSheetId*](../enums/commandresult.md#invalidsheetid) \| [*InputAlreadyFocused*](../enums/commandresult.md#inputalreadyfocused) \| [*MaximumRangesReached*](../enums/commandresult.md#maximumrangesreached) \| [*InvalidChartDefinition*](../enums/commandresult.md#invalidchartdefinition) \| [*EmptyDataSet*](../enums/commandresult.md#emptydataset) \| [*InvalidDataSet*](../enums/commandresult.md#invaliddataset) \| [*InvalidLabelRange*](../enums/commandresult.md#invalidlabelrange) \| [*InvalidAutofillSelection*](../enums/commandresult.md#invalidautofillselection) \| [*WrongComposerSelection*](../enums/commandresult.md#wrongcomposerselection) \| [*MinBiggerThanMax*](../enums/commandresult.md#minbiggerthanmax) \| [*LowerBiggerThanUpper*](../enums/commandresult.md#lowerbiggerthanupper) \| [*MidBiggerThanMax*](../enums/commandresult.md#midbiggerthanmax) \| [*MinBiggerThanMid*](../enums/commandresult.md#minbiggerthanmid) \| [*InvalidNumberOfArgs*](../enums/commandresult.md#invalidnumberofargs) \| [*MinNaN*](../enums/commandresult.md#minnan) \| [*MidNaN*](../enums/commandresult.md#midnan) \| [*MaxNaN*](../enums/commandresult.md#maxnan) \| [*ValueUpperInflectionNaN*](../enums/commandresult.md#valueupperinflectionnan) \| [*ValueLowerInflectionNaN*](../enums/commandresult.md#valuelowerinflectionnan) \| [*MinAsyncFormulaNotSupported*](../enums/commandresult.md#minasyncformulanotsupported) \| [*MidAsyncFormulaNotSupported*](../enums/commandresult.md#midasyncformulanotsupported) \| [*MaxAsyncFormulaNotSupported*](../enums/commandresult.md#maxasyncformulanotsupported) \| [*ValueUpperAsyncFormulaNotSupported*](../enums/commandresult.md#valueupperasyncformulanotsupported) \| [*ValueLowerAsyncFormulaNotSupported*](../enums/commandresult.md#valuelowerasyncformulanotsupported) \| [*MinInvalidFormula*](../enums/commandresult.md#mininvalidformula) \| [*MidInvalidFormula*](../enums/commandresult.md#midinvalidformula) \| [*MaxInvalidFormula*](../enums/commandresult.md#maxinvalidformula) \| [*ValueUpperInvalidFormula*](../enums/commandresult.md#valueupperinvalidformula) \| [*ValueLowerInvalidFormula*](../enums/commandresult.md#valuelowerinvalidformula) \| [*InvalidSortZone*](../enums/commandresult.md#invalidsortzone) \| [*WaitingSessionConfirmation*](../enums/commandresult.md#waitingsessionconfirmation) \| [*MergeOverlap*](../enums/commandresult.md#mergeoverlap) \| [*TooManyHiddenElements*](../enums/commandresult.md#toomanyhiddenelements) \| [*Readonly*](../enums/commandresult.md#readonly) \| [*CommandResult*](../enums/commandresult.md)[]
+
+#### Type parameters:
+
+Name |
+:------ |
+`T` |
+
+#### Parameters:
+
+Name | Type |
+:------ | :------ |
+`command` | T |
+`...validations` | *Validation*<T\>[] |
+
+**Returns:** [*Success*](../enums/commandresult.md#success) \| [*CancelledForUnknownReason*](../enums/commandresult.md#cancelledforunknownreason) \| [*WillRemoveExistingMerge*](../enums/commandresult.md#willremoveexistingmerge) \| [*MergeIsDestructive*](../enums/commandresult.md#mergeisdestructive) \| [*CellIsMerged*](../enums/commandresult.md#cellismerged) \| [*EmptyUndoStack*](../enums/commandresult.md#emptyundostack) \| [*EmptyRedoStack*](../enums/commandresult.md#emptyredostack) \| [*NotEnoughElements*](../enums/commandresult.md#notenoughelements) \| [*NotEnoughSheets*](../enums/commandresult.md#notenoughsheets) \| [*MissingSheetName*](../enums/commandresult.md#missingsheetname) \| [*DuplicatedSheetName*](../enums/commandresult.md#duplicatedsheetname) \| [*ForbiddenCharactersInSheetName*](../enums/commandresult.md#forbiddencharactersinsheetname) \| [*WrongSheetMove*](../enums/commandresult.md#wrongsheetmove) \| [*WrongSheetPosition*](../enums/commandresult.md#wrongsheetposition) \| [*SelectionOutOfBound*](../enums/commandresult.md#selectionoutofbound) \| [*TargetOutOfSheet*](../enums/commandresult.md#targetoutofsheet) \| [*WrongPasteSelection*](../enums/commandresult.md#wrongpasteselection) \| [*EmptyClipboard*](../enums/commandresult.md#emptyclipboard) \| [*InvalidRange*](../enums/commandresult.md#invalidrange) \| [*InvalidSheetId*](../enums/commandresult.md#invalidsheetid) \| [*InputAlreadyFocused*](../enums/commandresult.md#inputalreadyfocused) \| [*MaximumRangesReached*](../enums/commandresult.md#maximumrangesreached) \| [*InvalidChartDefinition*](../enums/commandresult.md#invalidchartdefinition) \| [*EmptyDataSet*](../enums/commandresult.md#emptydataset) \| [*InvalidDataSet*](../enums/commandresult.md#invaliddataset) \| [*InvalidLabelRange*](../enums/commandresult.md#invalidlabelrange) \| [*InvalidAutofillSelection*](../enums/commandresult.md#invalidautofillselection) \| [*WrongComposerSelection*](../enums/commandresult.md#wrongcomposerselection) \| [*MinBiggerThanMax*](../enums/commandresult.md#minbiggerthanmax) \| [*LowerBiggerThanUpper*](../enums/commandresult.md#lowerbiggerthanupper) \| [*MidBiggerThanMax*](../enums/commandresult.md#midbiggerthanmax) \| [*MinBiggerThanMid*](../enums/commandresult.md#minbiggerthanmid) \| [*InvalidNumberOfArgs*](../enums/commandresult.md#invalidnumberofargs) \| [*MinNaN*](../enums/commandresult.md#minnan) \| [*MidNaN*](../enums/commandresult.md#midnan) \| [*MaxNaN*](../enums/commandresult.md#maxnan) \| [*ValueUpperInflectionNaN*](../enums/commandresult.md#valueupperinflectionnan) \| [*ValueLowerInflectionNaN*](../enums/commandresult.md#valuelowerinflectionnan) \| [*MinAsyncFormulaNotSupported*](../enums/commandresult.md#minasyncformulanotsupported) \| [*MidAsyncFormulaNotSupported*](../enums/commandresult.md#midasyncformulanotsupported) \| [*MaxAsyncFormulaNotSupported*](../enums/commandresult.md#maxasyncformulanotsupported) \| [*ValueUpperAsyncFormulaNotSupported*](../enums/commandresult.md#valueupperasyncformulanotsupported) \| [*ValueLowerAsyncFormulaNotSupported*](../enums/commandresult.md#valuelowerasyncformulanotsupported) \| [*MinInvalidFormula*](../enums/commandresult.md#mininvalidformula) \| [*MidInvalidFormula*](../enums/commandresult.md#midinvalidformula) \| [*MaxInvalidFormula*](../enums/commandresult.md#maxinvalidformula) \| [*ValueUpperInvalidFormula*](../enums/commandresult.md#valueupperinvalidformula) \| [*ValueLowerInvalidFormula*](../enums/commandresult.md#valuelowerinvalidformula) \| [*InvalidSortZone*](../enums/commandresult.md#invalidsortzone) \| [*WaitingSessionConfirmation*](../enums/commandresult.md#waitingsessionconfirmation) \| [*MergeOverlap*](../enums/commandresult.md#mergeoverlap) \| [*TooManyHiddenElements*](../enums/commandresult.md#toomanyhiddenelements) \| [*Readonly*](../enums/commandresult.md#readonly) \| [*CommandResult*](../enums/commandresult.md)[]
 
 ___
 

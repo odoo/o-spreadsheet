@@ -27,6 +27,10 @@ import { CorePlugin } from "../core_plugin";
 // Constants
 // -----------------------------------------------------------------------------
 
+function stringToNumber(value: string | undefined): number {
+  return value === "" ? NaN : Number(value);
+}
+
 type ThresholdValidation = (
   threshold: ColorScaleThreshold | ColorScaleMidPointThreshold,
   thresholdName: string
@@ -98,7 +102,7 @@ export class ConditionalFormatPlugin
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command): CommandResult {
+  allowDispatch(cmd: Command) {
     if (cmd.type === "ADD_CONDITIONAL_FORMAT") {
       return this.checkCFRule(cmd.cf.rule);
     }
@@ -248,7 +252,7 @@ export class ConditionalFormatPlugin
     this.history.update("cfRules", sheet, currentCF);
   }
 
-  private checkCFRule(rule: ColorScaleRule | SingleColorRules | IconSetRule): CommandResult {
+  private checkCFRule(rule: ColorScaleRule | SingleColorRules | IconSetRule) {
     switch (rule.type) {
       case "CellIsRule":
         return this.checkValidations(
@@ -271,8 +275,10 @@ export class ConditionalFormatPlugin
         return this.checkValidations(
           rule,
           this.checkThresholds(this.checkNaN),
-          this.checkThresholds(this.checkFormulaCompilation),
-          this.checkThresholds(this.checkAsyncFormula),
+          this.chainValidations(
+            this.checkThresholds(this.checkFormulaCompilation),
+            this.checkThresholds(this.checkAsyncFormula)
+          ),
           this.checkMinBiggerThanMax,
           this.checkMinBiggerThanMid,
           this.checkMidBiggerThanMax
@@ -282,10 +288,14 @@ export class ConditionalFormatPlugin
       case "IconSetRule": {
         return this.checkValidations(
           rule,
-          this.checkInflectionPoints(this.checkNaN),
-          this.checkInflectionPoints(this.checkFormulaCompilation),
-          this.checkInflectionPoints(this.checkAsyncFormula),
-          this.checkLowerBiggerThanUpper
+          this.chainValidations(
+            this.checkInflectionPoints(this.checkNaN),
+            this.checkLowerBiggerThanUpper
+          ),
+          this.chainValidations(
+            this.checkInflectionPoints(this.checkFormulaCompilation),
+            this.checkInflectionPoints(this.checkAsyncFormula)
+          )
         );
       }
     }
@@ -393,7 +403,7 @@ export class ConditionalFormatPlugin
   }
 
   private checkThresholds(check: ThresholdValidation): Validation<ColorScaleRule> {
-    return this.combineValidations(
+    return this.batchValidations(
       (rule) => check(rule.minimum, "min"),
       (rule) => check(rule.maximum, "max"),
       (rule) => (rule.midpoint ? check(rule.midpoint, "mid") : CommandResult.Success)
@@ -401,7 +411,7 @@ export class ConditionalFormatPlugin
   }
 
   private checkInflectionPoints(check: InflectionPointValidation): Validation<IconSetRule> {
-    return this.combineValidations(
+    return this.batchValidations(
       (rule) => check(rule.lowerInflectionPoint, "lowerInflectionPoint"),
       (rule) => check(rule.upperInflectionPoint, "upperInflectionPoint")
     );
@@ -425,7 +435,7 @@ export class ConditionalFormatPlugin
     if (
       ["number", "percentage", "percentile"].includes(rule.minimum.type) &&
       rule.minimum.type === rule.maximum.type &&
-      Number(minValue) >= Number(maxValue)
+      stringToNumber(minValue) >= stringToNumber(maxValue)
     ) {
       return CommandResult.MinBiggerThanMax;
     }
@@ -439,7 +449,7 @@ export class ConditionalFormatPlugin
       rule.midpoint &&
       ["number", "percentage", "percentile"].includes(rule.midpoint.type) &&
       rule.midpoint.type === rule.maximum.type &&
-      Number(midValue) >= Number(maxValue)
+      stringToNumber(midValue) >= stringToNumber(maxValue)
     ) {
       return CommandResult.MidBiggerThanMax;
     }
@@ -453,7 +463,7 @@ export class ConditionalFormatPlugin
       rule.midpoint &&
       ["number", "percentage", "percentile"].includes(rule.midpoint.type) &&
       rule.minimum.type === rule.midpoint.type &&
-      Number(minValue) >= Number(midValue)
+      stringToNumber(minValue) >= stringToNumber(midValue)
     ) {
       return CommandResult.MinBiggerThanMid;
     }

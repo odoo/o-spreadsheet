@@ -303,10 +303,12 @@ describe("Collaborative local history", () => {
     setCellContent(alice, "A1", "hello");
     network.concurrent(() => {
       undo(alice);
-      expect(setCellContent(alice, "A2", "test")).toBe(CommandResult.WaitingSessionConfirmation);
+      expect(setCellContent(alice, "A2", "test")).toBeCancelledBecause(
+        CommandResult.WaitingSessionConfirmation
+      );
     });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A2"), undefined);
-    expect(setCellContent(alice, "A2", "test")).toEqual(CommandResult.Success);
+    expect(setCellContent(alice, "A2", "test")).toBeSuccessfullyDispatched();
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "test");
   });
 
@@ -514,8 +516,8 @@ describe("Collaborative local history", () => {
     setCellContent(alice, "A2", "hello");
     undo(alice);
     snapshot(bob);
-    expect(undo(alice)).toBe(CommandResult.EmptyUndoStack);
-    expect(redo(alice)).toBe(CommandResult.EmptyRedoStack);
+    expect(undo(alice)).toBeCancelledBecause(CommandResult.EmptyUndoStack);
+    expect(redo(alice)).toBeCancelledBecause(CommandResult.EmptyRedoStack);
   });
 
   test("concurrently dispatch after history cleared", () => {

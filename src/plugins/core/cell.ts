@@ -789,7 +789,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   private checkCellOutOfSheet(sheetId: UID, col: number, row: number): CommandResult {
-    const sheet = this.getters.getSheet(sheetId);
+    const sheet = this.getters.tryGetSheet(sheetId);
+    if (!sheet) return CommandResult.InvalidSheetId;
     const sheetZone = {
       top: 0,
       left: 0,

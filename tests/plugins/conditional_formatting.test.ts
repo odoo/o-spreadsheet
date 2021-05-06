@@ -1,6 +1,10 @@
 import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult, ConditionalFormattingOperatorValues } from "../../src/types";
+import {
+  CancelledReason,
+  CommandResult,
+  ConditionalFormattingOperatorValues,
+} from "../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -111,7 +115,7 @@ describe("conditional format", () => {
         target: [toZone("A1:A4000")],
         sheetId: sheetId,
       })
-    ).toBe(CommandResult.TargetOutOfSheet);
+    ).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
 
   test("remove a conditional format rule", () => {
@@ -406,7 +410,7 @@ describe("conditional format", () => {
       target: [toZone("A1")],
       sheetId: model.getters.getActiveSheetId(),
     });
-    expect(result).toEqual(CommandResult.Success);
+    expect(result).toBeSuccessfullyDispatched();
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
       fillColor: "#FF0000",
     });
@@ -979,7 +983,7 @@ describe("conditional formats types", () => {
           target: [toZone("A1")],
           sheetId: model.getters.getActiveSheetId(),
         });
-        expect(result).toBe(CommandResult.Success);
+        expect(result).toBeSuccessfullyDispatched();
       }
     );
 
@@ -1021,7 +1025,7 @@ describe("conditional formats types", () => {
           target: [toZone("A1")],
           sheetId: model.getters.getActiveSheetId(),
         });
-        expect(result).toBe(CommandResult.InvalidNumberOfArgs);
+        expect(result).toBeCancelledBecause(CommandResult.InvalidNumberOfArgs);
       }
     );
   });
@@ -1048,7 +1052,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBe(CommandResult.ValueUpperInflectionNaN);
+          expect(result).toBeCancelledBecause(CommandResult.ValueUpperInflectionNaN);
         });
         test("upper inflection point is NaN", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -1068,10 +1072,38 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBe(CommandResult.ValueLowerInflectionNaN);
+          expect(result).toBeCancelledBecause(CommandResult.ValueLowerInflectionNaN);
         });
       }
     );
+
+    test.each([
+      [
+        "=WAIT(10)",
+        CommandResult.ValueLowerAsyncFormulaNotSupported,
+        CommandResult.ValueUpperAsyncFormulaNotSupported,
+      ],
+      ["=WAI", CommandResult.ValueLowerInvalidFormula, CommandResult.ValueUpperInvalidFormula],
+    ])("refuse invalid and async formulas %s", (formula, ...expectedResults: CancelledReason[]) => {
+      const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        cf: {
+          id: "1",
+          rule: {
+            type: "IconSetRule",
+            lowerInflectionPoint: { type: "formula", value: formula, operator: "gt" },
+            upperInflectionPoint: { type: "formula", value: formula, operator: "gt" },
+            icons: {
+              upper: "arrowGood",
+              middle: "arrowNeutral",
+              lower: "arrowBad",
+            },
+          },
+        },
+      });
+      expect(result).toBeCancelledBecause(...expectedResults);
+    });
 
     describe.each([
       ["number", "number"],
@@ -1101,7 +1133,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBe(CommandResult.LowerBiggerThanUpper);
+          expect(result).toBeCancelledBecause(CommandResult.LowerBiggerThanUpper);
         });
       }
     );
@@ -1241,7 +1273,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBe(CommandResult.MinNaN);
+          expect(result).toBeCancelledBecause(CommandResult.MinNaN);
         });
         test("midpoint is NaN", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -1257,7 +1289,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBe(CommandResult.MidNaN);
+          expect(result).toBeCancelledBecause(CommandResult.MidNaN);
         });
         test("maximum is NaN", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -1272,7 +1304,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBe(CommandResult.MaxNaN);
+          expect(result).toBeCancelledBecause(CommandResult.MaxNaN);
         });
       }
     );
@@ -1301,7 +1333,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBe(CommandResult.MinBiggerThanMax);
+          expect(result).toBeCancelledBecause(CommandResult.MinBiggerThanMax);
         });
         test("mid bigger than max", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -1317,7 +1349,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBe(CommandResult.MidBiggerThanMax);
+          expect(result).toBeCancelledBecause(CommandResult.MidBiggerThanMax);
         });
         test("min bigger than mid", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -1333,7 +1365,7 @@ describe("conditional formats types", () => {
               },
             },
           });
-          expect(result).toBe(CommandResult.MinBiggerThanMid);
+          expect(result).toBeCancelledBecause(CommandResult.MinBiggerThanMid);
         });
       }
     );

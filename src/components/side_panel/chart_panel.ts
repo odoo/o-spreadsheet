@@ -2,7 +2,6 @@ import * as owl from "@odoo/owl";
 import {
   ChartUIDefinition,
   ChartUIDefinitionUpdate,
-  CommandResult,
   Figure,
   SpreadsheetEnv,
 } from "../../types/index";
@@ -199,10 +198,9 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
       sheetId: this.getters.getActiveSheetId(),
       definition,
     });
-    this.state.error =
-      result !== CommandResult.Success
-        ? this.env._t(chartTerms.Errors[result] || chartTerms.Errors.unexpected)
-        : undefined;
+    this.state.error = !result.isSuccessful
+      ? this.env._t(chartTerms.Errors[result.reasons[0]] || chartTerms.Errors.unexpected)
+      : undefined;
   }
 
   onLabelRangeChanged(ev: CustomEvent) {

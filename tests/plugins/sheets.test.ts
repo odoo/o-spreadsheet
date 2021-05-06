@@ -94,7 +94,7 @@ describe("sheets", () => {
         },
         name
       )
-    ).toBe(CommandResult.DuplicatedSheetName);
+    ).toBeCancelledBecause(CommandResult.DuplicatedSheetName);
   });
 
   test("Cannot create a sheet with a name already existent + upper", () => {
@@ -109,7 +109,7 @@ describe("sheets", () => {
         },
         name.toUpperCase()
       )
-    ).toBe(CommandResult.DuplicatedSheetName);
+    ).toBeCancelledBecause(CommandResult.DuplicatedSheetName);
   });
   test("Cannot create a sheet with a name already existent + spaces", () => {
     const model = new Model();
@@ -123,26 +123,26 @@ describe("sheets", () => {
         },
         "   " + name + "  "
       )
-    ).toBe(CommandResult.DuplicatedSheetName);
+    ).toBeCancelledBecause(CommandResult.DuplicatedSheetName);
   });
 
   test.each(FORBIDDEN_SHEET_CHARS)("Cannot rename a sheet with a %s in the name", (char) => {
     const model = new Model();
-    expect(renameSheet(model, model.getters.getActiveSheetId(), `my life ${char}`)).toBe(
-      CommandResult.ForbiddenCharactersInSheetName
-    );
+    expect(
+      renameSheet(model, model.getters.getActiveSheetId(), `my life ${char}`)
+    ).toBeCancelledBecause(CommandResult.ForbiddenCharactersInSheetName);
   });
 
   test("Cannot create a sheet with a position > length of sheets", () => {
     const model = new Model();
-    expect(model.dispatch("CREATE_SHEET", { sheetId: "42", position: 54 })).toBe(
+    expect(model.dispatch("CREATE_SHEET", { sheetId: "42", position: 54 })).toBeCancelledBecause(
       CommandResult.WrongSheetPosition
     );
   });
 
   test("Cannot create a sheet with a negative position", () => {
     const model = new Model();
-    expect(model.dispatch("CREATE_SHEET", { sheetId: "42", position: -1 })).toBe(
+    expect(model.dispatch("CREATE_SHEET", { sheetId: "42", position: -1 })).toBeCancelledBecause(
       CommandResult.WrongSheetPosition
     );
   });
@@ -164,16 +164,16 @@ describe("sheets", () => {
 
   test("Cannot delete an invalid sheet", async () => {
     const model = new Model();
-    expect(model.dispatch("DELETE_SHEET", { sheetId: "invalid" })).toBe(
+    expect(model.dispatch("DELETE_SHEET", { sheetId: "invalid" })).toBeCancelledBecause(
       CommandResult.InvalidSheetId
     );
   });
 
   test("Cannot delete an invalid sheet; confirmation", async () => {
     const model = new Model();
-    expect(model.dispatch("DELETE_SHEET_CONFIRMATION", { sheetId: "invalid" })).toBe(
-      CommandResult.InvalidSheetId
-    );
+    expect(
+      model.dispatch("DELETE_SHEET_CONFIRMATION", { sheetId: "invalid" })
+    ).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 
   test("can read a value in same sheet", () => {
@@ -212,7 +212,7 @@ describe("sheets", () => {
 
   test("cannot activate an invalid sheet", () => {
     const model = new Model();
-    expect(activateSheet(model, "INVALID_ID")).toBe(CommandResult.InvalidSheetId);
+    expect(activateSheet(model, "INVALID_ID")).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 
   test("evaluating multiple sheets", () => {
@@ -384,12 +384,12 @@ describe("sheets", () => {
     createSheet(model, { sheetId: "42" });
     const sheet1 = model.getters.getVisibleSheets()[0];
     const sheet2 = model.getters.getVisibleSheets()[1];
-    expect(model.dispatch("MOVE_SHEET", { sheetId: sheet1, direction: "left" })).toBe(
-      CommandResult.WrongSheetMove
-    );
-    expect(model.dispatch("MOVE_SHEET", { sheetId: sheet2, direction: "right" })).toBe(
-      CommandResult.WrongSheetMove
-    );
+    expect(
+      model.dispatch("MOVE_SHEET", { sheetId: sheet1, direction: "left" })
+    ).toBeCancelledBecause(CommandResult.WrongSheetMove);
+    expect(
+      model.dispatch("MOVE_SHEET", { sheetId: sheet2, direction: "right" })
+    ).toBeCancelledBecause(CommandResult.WrongSheetMove);
   });
 
   test("Can rename a sheet", () => {
@@ -407,7 +407,7 @@ describe("sheets", () => {
         sheetId: "invalid",
         name: "hello",
       })
-    ).toBe(CommandResult.InvalidSheetId);
+    ).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 
   test("New sheet name is trimmed", () => {
@@ -423,24 +423,24 @@ describe("sheets", () => {
     const sheet = model.getters.getActiveSheetId();
     const name = "NEW_NAME";
     createSheetWithName(model, { sheetId: "42" }, name);
-    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name })).toBe(
+    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name })).toBeCancelledBecause(
       CommandResult.DuplicatedSheetName
     );
-    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "new_name" })).toBe(
-      CommandResult.DuplicatedSheetName
-    );
-    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "new_name " })).toBe(
-      CommandResult.DuplicatedSheetName
-    );
+    expect(
+      model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "new_name" })
+    ).toBeCancelledBecause(CommandResult.DuplicatedSheetName);
+    expect(
+      model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "new_name " })
+    ).toBeCancelledBecause(CommandResult.DuplicatedSheetName);
   });
 
   test("Cannot rename a sheet without name", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
-    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: undefined })).toBe(
-      CommandResult.MissingSheetName
-    );
-    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "    " })).toBe(
+    expect(
+      model.dispatch("RENAME_SHEET", { sheetId: sheet, name: undefined })
+    ).toBeCancelledBecause(CommandResult.MissingSheetName);
+    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "    " })).toBeCancelledBecause(
       CommandResult.MissingSheetName
     );
   });
@@ -812,9 +812,9 @@ describe("sheets", () => {
 
   test("Cannot delete sheet if there is only one", () => {
     const model = new Model();
-    expect(model.dispatch("DELETE_SHEET", { sheetId: model.getters.getActiveSheetId() })).toBe(
-      CommandResult.NotEnoughSheets
-    );
+    expect(
+      model.dispatch("DELETE_SHEET", { sheetId: model.getters.getActiveSheetId() })
+    ).toBeCancelledBecause(CommandResult.NotEnoughSheets);
   });
 
   test("Can undo-redo a sheet deletion", () => {
@@ -886,7 +886,7 @@ describe("sheets", () => {
         },
       ],
     });
-    expect(deleteRows(model, [1, 2, 3, 4])).toBe(CommandResult.NotEnoughElements);
+    expect(deleteRows(model, [1, 2, 3, 4])).toBeCancelledBecause(CommandResult.NotEnoughElements);
   });
 
   test("Cannot have all rows/columns hidden at once", () => {
@@ -899,7 +899,7 @@ describe("sheets", () => {
         },
       ],
     });
-    expect(hideRows(model, [0, 1, 3])).toBe(CommandResult.TooManyHiddenElements);
+    expect(hideRows(model, [0, 1, 3])).toBeCancelledBecause(CommandResult.TooManyHiddenElements);
   });
 
   test("Can set the grid lines visibility", () => {
@@ -917,7 +917,7 @@ describe("sheets", () => {
     const sheetId = "invalid";
     expect(
       model.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId, areGridLinesVisible: false })
-    ).toBe(CommandResult.InvalidSheetId);
+    ).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 
   test("Can undo/redo grid lines visibility", () => {

@@ -127,7 +127,7 @@ export class SheetUIPlugin extends UIPlugin {
       }
       const result = this.dispatch("RENAME_SHEET", { sheetId: sheetId, name });
       const sheetName = this.getters.getSheetName(sheetId);
-      if (result !== CommandResult.Success && sheetName !== name) {
+      if (!result.isSuccessful && sheetName !== name) {
         this.interactiveRenameSheet(sheetId, _lt("Please enter a valid sheet name"));
       }
     });
@@ -142,8 +142,8 @@ export class SheetUIPlugin extends UIPlugin {
   private interactiveMerge(sheet: string, target: Zone[]) {
     const result = this.dispatch("ADD_MERGE", { sheetId: sheet, target });
 
-    if (result !== CommandResult.Success) {
-      if (result === CommandResult.MergeIsDestructive) {
+    if (!result.isSuccessful) {
+      if (result.isCancelledBecause(CommandResult.MergeIsDestructive)) {
         this.ui.askConfirmation(
           _lt("Merging these cells will only preserve the top-leftmost value. Merge anyway?"),
           () => {

@@ -22,6 +22,7 @@ import {
   CommandHandler,
   CommandResult,
   CoreCommand,
+  DispatchResult,
   EvalContext,
   Getters,
   GridRenderingContext,
@@ -308,14 +309,9 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   /**
    * Check if the given command is allowed by all the plugins and the history.
    */
-  private checkDispatchAllowed(command: Command): CommandResult | undefined {
-    for (let handler of this.handlers) {
-      const allowDispatch = handler.allowDispatch(command);
-      if (allowDispatch !== CommandResult.Success) {
-        return allowDispatch;
-      }
-    }
-    return undefined;
+  private checkDispatchAllowed(command: Command): DispatchResult {
+    const results = this.handlers.map((handler) => handler.allowDispatch(command));
+    return new DispatchResult(results.flat());
   }
 
   private finalize() {
@@ -344,13 +340,13 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     const command: Command = { type, ...payload };
     let status: Status = command.interactive ? Status.Interactive : this.status;
     if (this.config.isReadonly && !canExecuteInReadonly(command)) {
-      return CommandResult.Readonly;
+      return new DispatchResult(CommandResult.Readonly);
     }
     switch (status) {
       case Status.Ready:
-        const error = this.checkDispatchAllowed(command);
-        if (error) {
-          return error;
+        const result = this.checkDispatchAllowed(command);
+        if (!result.isSuccessful) {
+          return result;
         }
         this.status = Status.Running;
         const { changes, commands } = this.state.recordChanges(() => {
@@ -368,9 +364,9 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         break;
       case Status.Running:
         if (isCoreCommand(command)) {
-          const cancelledReason = this.checkDispatchAllowed(command);
-          if (cancelledReason) {
-            return cancelledReason;
+          const dispatchResult = this.checkDispatchAllowed(command);
+          if (!dispatchResult.isSuccessful) {
+            return dispatchResult;
           }
           this.state.addCommand(command);
           this.dispatchToHandlers(this.handlers, command);
@@ -389,7 +385,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       case Status.RunningCore:
         throw new Error("A UI plugin cannot dispatch while handling a core command");
     }
-    return CommandResult.Success;
+    return DispatchResult.Success;
   };
 
   /**
@@ -402,7 +398,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     this.status = Status.RunningCore;
     this.dispatchToHandlers(this.handlers, command);
     this.status = previousStatus;
-    return CommandResult.Success;
+    return DispatchResult.Success;
   };
 
   /**

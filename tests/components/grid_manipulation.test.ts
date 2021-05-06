@@ -1,6 +1,6 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
-import { CommandResult } from "../../src/types/commands";
+import { DispatchResult } from "../../src/types/commands";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
@@ -58,7 +58,7 @@ describe("Context Menu add/remove row/col", () => {
   test("can clear cols with contextmenu", async () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     simulateClick(".o-menu div[data-name='clear_column']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
       target: [
@@ -76,7 +76,7 @@ describe("Context Menu add/remove row/col", () => {
   test("can clear row with contextmenu", async () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     simulateClick(".o-menu div[data-name='clear_row']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
       target: [
@@ -95,7 +95,7 @@ describe("Context Menu add/remove row/col", () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
 
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     simulateClick(".o-menu div[data-name='delete_column']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_COLUMNS_ROWS", {
       elements: [3],
@@ -107,7 +107,7 @@ describe("Context Menu add/remove row/col", () => {
   test("can delete rows with contextmenu", async () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     simulateClick(".o-menu div[data-name='delete_row']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_COLUMNS_ROWS", {
       elements: [4],
@@ -119,7 +119,7 @@ describe("Context Menu add/remove row/col", () => {
   test("can add before cols with contextmenu", async () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     simulateClick(".o-menu div[data-name='add_column_before']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_COLUMNS_ROWS", {
       position: "before",
@@ -133,7 +133,7 @@ describe("Context Menu add/remove row/col", () => {
   test("can add before rows with contextmenu", async () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     simulateClick(".o-menu div[data-name='add_row_before']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_COLUMNS_ROWS", {
       position: "before",
@@ -147,7 +147,7 @@ describe("Context Menu add/remove row/col", () => {
   test("can add after cols with contextmenu", async () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     simulateClick(".o-menu div[data-name='add_column_after']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_COLUMNS_ROWS", {
       position: "after",
@@ -161,7 +161,7 @@ describe("Context Menu add/remove row/col", () => {
   test("can add after rows with contextmenu", async () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     simulateClick(".o-menu div[data-name='add_row_after']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_COLUMNS_ROWS", {
       position: "after",
@@ -177,7 +177,7 @@ describe("Context Menu hide col/row", () => {
   test("can hide column", async () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     simulateClick(".o-menu div[data-name='hide_columns']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
       elements: [3],
@@ -196,7 +196,7 @@ describe("Context Menu hide col/row", () => {
     const NEW_COL_D = { x: COLUMN_D.x - DEFAULT_CELL_WIDTH, y: COLUMN_D.y };
     simulateContextMenu(".o-col-resizer", NEW_COL_D);
     await nextTick();
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     simulateClick(".o-menu div[data-name='unhide_columns']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
       elements: [1, 2, 3],
@@ -207,7 +207,7 @@ describe("Context Menu hide col/row", () => {
   test("can hide row", async () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     simulateClick(".o-menu div[data-name='hide_rows']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
       elements: [4],
@@ -226,7 +226,7 @@ describe("Context Menu hide col/row", () => {
     const NEW_ROW_5 = { x: ROW_5.x, y: ROW_5.y - DEFAULT_CELL_HEIGHT };
     simulateContextMenu(".o-row-resizer", NEW_ROW_5);
     await nextTick();
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     simulateClick(".o-menu div[data-name='unhide_rows']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
       elements: [2, 3, 4],

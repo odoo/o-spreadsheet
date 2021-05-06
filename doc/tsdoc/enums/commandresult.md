@@ -89,7 +89,11 @@ ___
 
 ### EmptyDataSet
 
+<<<<<<< HEAD
 • **EmptyDataSet**: = 24
+=======
+• **EmptyDataSet**: = 23
+>>>>>>> [IMP] plugins: return multiple cancell reasons from allowDispatch
 
 ___
 
@@ -125,7 +129,7 @@ ___
 
 ### InvalidAutofillSelection
 
-• **InvalidAutofillSelection**: = 27
+• **InvalidAutofillSelection**: = 26
 
 ___
 
@@ -137,19 +141,19 @@ ___
 
 ### InvalidDataSet
 
-• **InvalidDataSet**: = 25
+• **InvalidDataSet**: = 24
 
 ___
 
 ### InvalidLabelRange
 
-• **InvalidLabelRange**: = 26
+• **InvalidLabelRange**: = 25
 
 ___
 
 ### InvalidNumberOfArgs
 
-• **InvalidNumberOfArgs**: = 33
+• **InvalidNumberOfArgs**: = 32
 
 ___
 
@@ -167,31 +171,31 @@ ___
 
 ### InvalidSortZone
 
-• **InvalidSortZone**: = 49
+• **InvalidSortZone**: = 48
 
 ___
 
 ### LowerBiggerThanUpper
 
-• **LowerBiggerThanUpper**: = 30
+• **LowerBiggerThanUpper**: = 29
 
 ___
 
 ### MaxAsyncFormulaNotSupported
 
-• **MaxAsyncFormulaNotSupported**: = 41
+• **MaxAsyncFormulaNotSupported**: = 40
 
 ___
 
 ### MaxInvalidFormula
 
-• **MaxInvalidFormula**: = 46
+• **MaxInvalidFormula**: = 45
 
 ___
 
 ### MaxNaN
 
-• **MaxNaN**: = 36
+• **MaxNaN**: = 35
 
 ___
 
@@ -209,61 +213,61 @@ ___
 
 ### MergeOverlap
 
-• **MergeOverlap**: = 51
+• **MergeOverlap**: = 50
 
 ___
 
 ### MidAsyncFormulaNotSupported
 
-• **MidAsyncFormulaNotSupported**: = 40
+• **MidAsyncFormulaNotSupported**: = 39
 
 ___
 
 ### MidBiggerThanMax
 
-• **MidBiggerThanMax**: = 31
+• **MidBiggerThanMax**: = 30
 
 ___
 
 ### MidInvalidFormula
 
-• **MidInvalidFormula**: = 45
+• **MidInvalidFormula**: = 44
 
 ___
 
 ### MidNaN
 
-• **MidNaN**: = 35
+• **MidNaN**: = 34
 
 ___
 
 ### MinAsyncFormulaNotSupported
 
-• **MinAsyncFormulaNotSupported**: = 39
+• **MinAsyncFormulaNotSupported**: = 38
 
 ___
 
 ### MinBiggerThanMax
 
-• **MinBiggerThanMax**: = 29
+• **MinBiggerThanMax**: = 28
 
 ___
 
 ### MinBiggerThanMid
 
-• **MinBiggerThanMid**: = 32
+• **MinBiggerThanMid**: = 31
 
 ___
 
 ### MinInvalidFormula
 
-• **MinInvalidFormula**: = 44
+• **MinInvalidFormula**: = 43
 
 ___
 
 ### MinNaN
 
-• **MinNaN**: = 34
+• **MinNaN**: = 33
 
 ___
 
@@ -287,7 +291,7 @@ ___
 
 ### Readonly
 
-• **Readonly**: = 53
+• **Readonly**: = 52
 
 ___
 
@@ -311,49 +315,49 @@ ___
 
 ### TooManyHiddenElements
 
-• **TooManyHiddenElements**: = 52
+• **TooManyHiddenElements**: = 51
 
 ___
 
 ### ValueLowerAsyncFormulaNotSupported
 
-• **ValueLowerAsyncFormulaNotSupported**: = 43
+• **ValueLowerAsyncFormulaNotSupported**: = 42
 
 ___
 
 ### ValueLowerInflectionNaN
 
-• **ValueLowerInflectionNaN**: = 38
+• **ValueLowerInflectionNaN**: = 37
 
 ___
 
 ### ValueLowerInvalidFormula
 
-• **ValueLowerInvalidFormula**: = 48
+• **ValueLowerInvalidFormula**: = 47
 
 ___
 
 ### ValueUpperAsyncFormulaNotSupported
 
-• **ValueUpperAsyncFormulaNotSupported**: = 42
+• **ValueUpperAsyncFormulaNotSupported**: = 41
 
 ___
 
 ### ValueUpperInflectionNaN
 
-• **ValueUpperInflectionNaN**: = 37
+• **ValueUpperInflectionNaN**: = 36
 
 ___
 
 ### ValueUpperInvalidFormula
 
-• **ValueUpperInvalidFormula**: = 47
+• **ValueUpperInvalidFormula**: = 46
 
 ___
 
 ### WaitingSessionConfirmation
 
-• **WaitingSessionConfirmation**: = 50
+• **WaitingSessionConfirmation**: = 49
 
 ___
 
@@ -365,7 +369,7 @@ ___
 
 ### WrongComposerSelection
 
-• **WrongComposerSelection**: = 28
+• **WrongComposerSelection**: = 27
 
 ___
 

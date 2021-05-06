@@ -75,8 +75,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: CoreCommand): CommandResult {
-    const genericChecks = this.checkValidations(cmd, this.checkSheetExists, this.checkZones);
+  allowDispatch(cmd: CoreCommand) {
+    const genericChecks = this.chainValidations(this.checkSheetExists, this.checkZones)(cmd);
     if (genericChecks !== CommandResult.Success) {
       return genericChecks;
     }

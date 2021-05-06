@@ -746,7 +746,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(result).toBe(CommandResult.InvalidDataSet);
+    expect(result).toBeCancelledBecause(CommandResult.InvalidDataSet);
   });
 
   test("chart is focused after creation and update", () => {
@@ -782,7 +782,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(result).toBe(CommandResult.InvalidLabelRange);
+    expect(result).toBeCancelledBecause(CommandResult.InvalidLabelRange);
   });
 
   test("create chart with invalid SheetName in dataset will ignore invalid data", () => {
@@ -833,7 +833,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(result).toBe(CommandResult.EmptyDataSet);
+    expect(result).toBeCancelledBecause(CommandResult.EmptyDataSet);
   });
 
   test("create chart with empty labels", () => {
@@ -845,14 +845,14 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(result).toBe(CommandResult.Success);
+    expect(result).toBeSuccessfullyDispatched();
   });
   test("update chart with invalid dataset", () => {
     expect(
       updateChart(model, "1", {
         dataSets: ["Sheet1!B1:B4", "This is invalid"],
       })
-    ).toBe(CommandResult.InvalidDataSet);
+    ).toBeCancelledBecause(CommandResult.InvalidDataSet);
   });
 
   test("update chart with invalid labels", () => {
@@ -868,7 +868,7 @@ describe("datasource tests", function () {
       updateChart(model, "1", {
         labelRange: "This is invalid",
       })
-    ).toBe(CommandResult.InvalidLabelRange);
+    ).toBeCancelledBecause(CommandResult.InvalidLabelRange);
   });
   test("duplicate a sheet with and without a chart", () => {
     const model = new Model({

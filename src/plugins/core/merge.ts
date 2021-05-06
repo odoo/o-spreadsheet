@@ -67,7 +67,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-  allowDispatch(cmd: CoreCommand): CommandResult {
+  allowDispatch(cmd: CoreCommand) {
     const force = "force" in cmd ? !!cmd.force : false;
 
     switch (cmd.type) {

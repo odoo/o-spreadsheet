@@ -112,7 +112,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command): CommandResult {
+  allowDispatch(cmd: Command) {
     const success: CommandResult = CommandResult.Success;
     switch (cmd.type) {
       case "UPDATE_CHART":

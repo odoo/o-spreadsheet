@@ -55,7 +55,7 @@ export { Model } from "./model";
 export { CorePlugin } from "./plugins/core_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";
 export { setTranslationMethod } from "./translation";
-export { CommandResult } from "./types";
+export { CancelledReason, CommandResult, DispatchResult } from "./types";
 export { Client } from "./types/collaborative/session";
 export {
   ClientJoinedMessage,
