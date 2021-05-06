@@ -261,8 +261,12 @@ describe("selection", () => {
         },
       ],
     });
-    expect(model.dispatch("SELECT_ROW", { index: -1 })).toBe(CommandResult.SelectionOutOfBound);
-    expect(model.dispatch("SELECT_ROW", { index: 11 })).toBe(CommandResult.SelectionOutOfBound);
+    expect(model.dispatch("SELECT_ROW", { index: -1 })).toBeCancelledBecause(
+      CommandResult.SelectionOutOfBound
+    );
+    expect(model.dispatch("SELECT_ROW", { index: 11 })).toBeCancelledBecause(
+      CommandResult.SelectionOutOfBound
+    );
   });
 
   test("cannot select out of bound column", () => {
@@ -274,8 +278,12 @@ describe("selection", () => {
         },
       ],
     });
-    expect(model.dispatch("SELECT_COLUMN", { index: -1 })).toBe(CommandResult.SelectionOutOfBound);
-    expect(model.dispatch("SELECT_COLUMN", { index: 11 })).toBe(CommandResult.SelectionOutOfBound);
+    expect(model.dispatch("SELECT_COLUMN", { index: -1 })).toBeCancelledBecause(
+      CommandResult.SelectionOutOfBound
+    );
+    expect(model.dispatch("SELECT_COLUMN", { index: 11 })).toBeCancelledBecause(
+      CommandResult.SelectionOutOfBound
+    );
   });
 
   test("can select the whole sheet", () => {
@@ -333,7 +341,7 @@ describe("selection", () => {
     const anchorZone = { top: 1, bottom: 2, left: 1, right: 2 };
     const zones = [zone];
     const anchor: [number, number] = [1, 1];
-    expect(model.dispatch("SET_SELECTION", { zones, anchor, anchorZone })).toBe(
+    expect(model.dispatch("SET_SELECTION", { zones, anchor, anchorZone })).toBeCancelledBecause(
       CommandResult.InvalidAnchorZone
     );
   });
@@ -443,9 +451,9 @@ describe("Alter selection starting from hidden cells", () => {
     hideRows(model, [0]);
 
     const alter1 = model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
-    expect(alter1).toBe(CommandResult.SelectionOutOfBound);
+    expect(alter1).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
     const alter2 = model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
-    expect(alter2).toBe(CommandResult.SelectionOutOfBound);
+    expect(alter2).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
   });
 
   test("Cannot move position vertically from hidden column", () => {
@@ -460,9 +468,9 @@ describe("Alter selection starting from hidden cells", () => {
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
     const move1 = model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
-    expect(move1).toBe(CommandResult.SelectionOutOfBound);
+    expect(move1).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
     const move2 = model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
-    expect(move2).toBe(CommandResult.SelectionOutOfBound);
+    expect(move2).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
   });
 
   test.each([

@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { CancelledReason, DispatchResult } from "../../src/types";
 
 declare global {
   namespace jest {
@@ -18,6 +19,8 @@ declare global {
        * different
        */
       toExport<T>(expected: T): R;
+      toBeCancelledBecause(...expected: CancelledReason[]): R;
+      toBeSuccessfullyDispatched(): R;
     }
   }
 }
@@ -86,5 +89,36 @@ expect.extend({
       }
     }
     return { pass: !this.isNot, message: () => "" };
+  },
+  toBeCancelledBecause(dispatchResult: DispatchResult, ...expectedReasons: CancelledReason[]) {
+    const pass = this.equals(dispatchResult.reasons, expectedReasons, [
+      this.utils.iterableEquality,
+    ]);
+    const message = () => {
+      if (pass) {
+        return `The command should not have been cancelled because of reason ${expectedReasons}`;
+      } else {
+        return `
+The command should have been cancelled:
+Expected: ${this.utils.printExpected(expectedReasons)}
+Received: ${this.utils.printReceived(dispatchResult.reasons)}
+`;
+      }
+    };
+    return { pass, message };
+  },
+  toBeSuccessfullyDispatched(dispatchResult: DispatchResult) {
+    const pass = dispatchResult.isSuccessful;
+    const message = () => {
+      if (pass) {
+        return "The command should not have been successfully dispatched";
+      } else {
+        return `
+The command should have been successfully dispatched:
+CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
+`;
+      }
+    };
+    return { pass, message };
   },
 });

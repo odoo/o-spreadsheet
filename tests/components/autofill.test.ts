@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
-import { CommandResult } from "../../src/types/commands";
+import { DispatchResult } from "../../src/types/commands";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
@@ -29,7 +29,7 @@ afterEach(() => {
 
 describe("Autofill component", () => {
   test("Can drag and drop autofill on columns", async () => {
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();
@@ -49,7 +49,7 @@ describe("Autofill component", () => {
   });
 
   test("Can drag and drop autofill on rows", async () => {
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();
@@ -69,7 +69,7 @@ describe("Autofill component", () => {
   });
 
   test("Can auto-autofill with dblclick", async () => {
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "dblclick", 4, 4);
     await nextTick();
@@ -162,7 +162,7 @@ describe("Autofill component", () => {
   });
 
   test("Autofill on the last col/row", async () => {
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();

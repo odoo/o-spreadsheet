@@ -145,7 +145,7 @@ describe("edition", () => {
       content: "hello",
       selection: { start: 4, end: 0 },
     });
-    expect(result).toBe(CommandResult.Success);
+    expect(result).toBeSuccessfullyDispatched();
   });
 
   test("setting content with wrong selection", () => {
@@ -158,7 +158,7 @@ describe("edition", () => {
       content: "hello",
       selection: { start: 1, end: 6 },
     });
-    expect(result).toBe(CommandResult.WrongComposerSelection);
+    expect(result).toBeCancelledBecause(CommandResult.WrongComposerSelection);
   });
 
   test("change selection", () => {
@@ -190,7 +190,7 @@ describe("edition", () => {
         start: 2,
         end: 1,
       })
-    ).toBe(CommandResult.Success);
+    ).toBeSuccessfullyDispatched();
   });
 
   test("setting selection out of content is invalid", () => {
@@ -201,7 +201,7 @@ describe("edition", () => {
         start: 1,
         end: 2,
       })
-    ).toBe(CommandResult.WrongComposerSelection);
+    ).toBeCancelledBecause(CommandResult.WrongComposerSelection);
   });
 
   test("ranges are highlighted", () => {
@@ -402,7 +402,7 @@ describe("edition", () => {
         text: "coucou",
         selection: { start: 5, end: 1 },
       })
-    ).toBe(CommandResult.Success);
+    ).toBeSuccessfullyDispatched();
   });
 
   test("start edition with a wrong selection", () => {
@@ -412,7 +412,7 @@ describe("edition", () => {
         text: "coucou",
         selection: { start: 10, end: 1 },
       })
-    ).toBe(CommandResult.WrongComposerSelection);
+    ).toBeCancelledBecause(CommandResult.WrongComposerSelection);
   });
 
   test("select another cell while editing set the content to the selected cell", () => {

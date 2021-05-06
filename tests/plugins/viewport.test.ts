@@ -253,7 +253,7 @@ describe("Viewport of Simple sheet", () => {
       offsetX: -1,
       offsetY: 0,
     });
-    expect(negativeOffsetResult).toBe(CommandResult.InvalidOffset);
+    expect(negativeOffsetResult).toBeCancelledBecause(CommandResult.InvalidOffset);
 
     // too large
     model.dispatch("RESIZE_VIEWPORT", { height: 1000, width: 1000 });
@@ -263,7 +263,7 @@ describe("Viewport of Simple sheet", () => {
       offsetX: 0,
       offsetY: height + HEADER_HEIGHT - 1000 + 1,
     });
-    expect(tooLargeOffsetResult).toBe(CommandResult.InvalidOffset);
+    expect(tooLargeOffsetResult).toBeCancelledBecause(CommandResult.InvalidOffset);
   });
 
   test("Resize (increase) columns correctly affects viewport without changing the offset", () => {

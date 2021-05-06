@@ -7,7 +7,7 @@ import {
   rowMenuRegistry,
   topbarMenuRegistry,
 } from "../src/registries/index";
-import { CommandResult, SpreadsheetEnv } from "../src/types";
+import { DispatchResult, SpreadsheetEnv } from "../src/types";
 import { hideColumns, hideRows, selectCell, setSelection } from "./test_helpers/commands_helpers";
 import { GridParent, makeTestFixture, mockUuidV4To, nextTick } from "./test_helpers/helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
@@ -98,7 +98,7 @@ describe("Menu Item actions", () => {
     parent = new GridParent(model);
     env = parent.env;
     await parent.mount(fixture);
-    env.dispatch = jest.fn(() => CommandResult.Success as CommandResult);
+    env.dispatch = jest.fn(() => DispatchResult.Success);
   });
 
   test("Edit -> undo", () => {

@@ -9,7 +9,7 @@ import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { RendererPlugin } from "../../src/plugins/ui/renderer";
-import { Box, CommandResult, GridRenderingContext, Viewport } from "../../src/types";
+import { Box, GridRenderingContext, Viewport } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   addColumns,
@@ -492,7 +492,7 @@ describe("renderer", () => {
       target: [toZone("A1")],
       sheetId: model.getters.getActiveSheetId(),
     });
-    expect(result).toEqual(CommandResult.Success);
+    expect(result).toBeSuccessfullyDispatched();
     model.drawGrid(ctx);
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 48, y: 26 }]);
   });

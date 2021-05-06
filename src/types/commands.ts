@@ -984,6 +984,46 @@ export type LocalCommand =
 
 export type Command = CoreCommand | LocalCommand;
 
+/**
+ * Holds the result of a command dispatch.
+ * The command may have been successfully dispatched or cancelled
+ * for one or more reasons.
+ */
+export class DispatchResult {
+  public readonly reasons: CancelledReason[];
+
+  constructor(results: CommandResult | CommandResult[] = []) {
+    if (!Array.isArray(results)) {
+      results = [results];
+    }
+    results = [...new Set(results)];
+    this.reasons = results.filter(
+      (result): result is CancelledReason => result !== CommandResult.Success
+    );
+  }
+
+  /**
+   * Static helper which returns a successful DispatchResult
+   */
+  static get Success() {
+    return new DispatchResult();
+  }
+
+  get isSuccessful(): boolean {
+    return this.reasons.length === 0;
+  }
+
+  /**
+   * Check if the dispatch has been cancelled because of
+   * the given reason.
+   */
+  isCancelledBecause(reason: CancelledReason): boolean {
+    return this.reasons.includes(reason);
+  }
+}
+
+export type CancelledReason = Exclude<CommandResult, CommandResult.Success>;
+
 export const enum CommandResult {
   Success,
   CancelledForUnknownReason,
@@ -1044,7 +1084,7 @@ export const enum CommandResult {
 }
 
 export interface CommandHandler<T> {
-  allowDispatch(command: T): CommandResult;
+  allowDispatch(command: T): CommandResult | CommandResult[];
   beforeHandle(command: T): void;
   handle(command: T): void;
   finalize(): void;
@@ -1053,21 +1093,21 @@ export interface CommandHandler<T> {
 export interface CommandDispatcher {
   dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
     type: {} extends Omit<C, "type"> ? T : never
-  ): CommandResult;
+  ): DispatchResult;
   dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
     type: T,
     r: Omit<C, "type">
-  ): CommandResult;
+  ): DispatchResult;
 }
 
 export interface CoreCommandDispatcher {
   dispatch<T extends CoreCommandTypes, C extends Extract<CoreCommand, { type: T }>>(
     type: {} extends Omit<C, "type"> ? T : never
-  ): CommandResult;
+  ): DispatchResult;
   dispatch<T extends CoreCommandTypes, C extends Extract<CoreCommand, { type: T }>>(
     type: T,
     r: Omit<C, "type">
-  ): CommandResult;
+  ): DispatchResult;
 }
 
 export type CommandTypes = Command["type"];

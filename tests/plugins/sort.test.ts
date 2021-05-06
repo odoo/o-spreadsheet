@@ -765,7 +765,7 @@ describe("Sort Merges", () => {
         zone: contiguousZone,
         sortDirection: "ascending",
       })
-    ).toBe(CommandResult.InvalidSortZone);
+    ).toBeCancelledBecause(CommandResult.InvalidSortZone);
   });
 
   test("Failed Sort of merges with adjacent merge with and without interactive mode", () => {
@@ -803,7 +803,7 @@ describe("Sort Merges", () => {
         zone: contiguousZone,
         sortDirection: "ascending",
       })
-    ).toBe(CommandResult.InvalidSortZone);
+    ).toBeCancelledBecause(CommandResult.InvalidSortZone);
   });
 
   test("Sort w/ multicolumn selection", () => {

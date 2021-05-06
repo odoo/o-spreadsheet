@@ -1,7 +1,7 @@
 import { ChartConfiguration } from "chart.js";
 import { Model } from "../../src";
 import { BACKGROUND_CHART_COLOR } from "../../src/constants";
-import { CommandResult } from "../../src/types";
+import { DispatchResult } from "../../src/types";
 import { createChart } from "../test_helpers/commands_helpers";
 import {
   setInputValueAndTrigger,
@@ -226,7 +226,7 @@ describe("figures", () => {
     )[0] as HTMLInputElement;
     const dataSeriesValues = dataSeries.querySelector("input");
     const hasTitle = dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement;
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     setInputValueAndTrigger(chartType, "pie", "change");
     expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_CHART", {
       id: chartId,
@@ -236,7 +236,7 @@ describe("figures", () => {
       },
     });
 
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     setInputValueAndTrigger(dataSeriesValues, "B2:B4", "change");
     triggerMouseEvent(hasTitle, "click");
     expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_CHART", {
@@ -248,7 +248,7 @@ describe("figures", () => {
       },
     });
 
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     await simulateClick(".o-panel .inactive");
     setInputValueAndTrigger(".o-chart-title input", "hello", "change");
     expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_CHART", {
@@ -320,7 +320,7 @@ describe("figures", () => {
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
     await simulateClick(".o-figure");
     await simulateClick(".o-chart-menu");
-    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     await simulateClick(".o-menu div[data-name='refresh']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("REFRESH_CHART", {
       id: "someuuid",

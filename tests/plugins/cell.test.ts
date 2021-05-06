@@ -41,6 +41,6 @@ describe("getCellText", () => {
       row: 9999,
       content: "hello",
     });
-    expect(result).toBe(CommandResult.TargetOutOfSheet);
+    expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
 });

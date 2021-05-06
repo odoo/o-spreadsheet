@@ -11,6 +11,7 @@ o-spreadsheet API
 ### Classes
 
 - [CorePlugin](classes/coreplugin.md)
+- [DispatchResult](classes/dispatchresult.md)
 - [Model](classes/model.md)
 - [Revision](classes/revision.md)
 - [Spreadsheet](classes/spreadsheet.md)
@@ -29,6 +30,7 @@ o-spreadsheet API
 
 ### Type aliases
 
+- [CancelledReason](README.md#cancelledreason)
 - [CollaborationMessage](README.md#collaborationmessage)
 
 ### Variables
@@ -51,6 +53,12 @@ o-spreadsheet API
 - [setTranslationMethod](README.md#settranslationmethod)
 
 ## Type aliases
+
+### CancelledReason
+
+Ƭ **CancelledReason**: *Exclude*<[*CommandResult*](enums/commandresult.md), [*Success*](enums/commandresult.md#success)\>
+
+___
 
 ### CollaborationMessage
 

@@ -213,7 +213,7 @@ export interface RangeProvider {
   adaptRanges: (applyChange: ApplyRangeChange, sheetId?: UID) => void;
 }
 
-export type Validation<T> = (toValidate: T) => CommandResult;
+export type Validation<T> = (toValidate: T) => CommandResult | CommandResult[];
 
 export type ClipboardOptions = "onlyFormat" | "onlyValue";
 

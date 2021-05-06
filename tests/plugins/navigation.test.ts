@@ -323,9 +323,9 @@ describe("Navigation starting from hidden cells", () => {
     selectCell(model, "C1");
     hideRows(model, [0]);
     const move1 = model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
-    expect(move1).toBe(CommandResult.SelectionOutOfBound);
+    expect(move1).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
     const move2 = model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 });
-    expect(move2).toBe(CommandResult.SelectionOutOfBound);
+    expect(move2).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
   });
 
   test("Cannot move position vertically from hidden column", () => {
@@ -340,9 +340,9 @@ describe("Navigation starting from hidden cells", () => {
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
     const move1 = model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
-    expect(move1).toBe(CommandResult.SelectionOutOfBound);
+    expect(move1).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
     const move2 = model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
-    expect(move2).toBe(CommandResult.SelectionOutOfBound);
+    expect(move2).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
   });
 
   test.each([

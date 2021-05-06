@@ -5,8 +5,8 @@ import {
   BorderCommand,
   ChartUIDefinition,
   ChartUIDefinitionUpdate,
-  CommandResult,
   CreateSheetCommand,
+  DispatchResult,
   UID,
 } from "../../src/types";
 import { target } from "./helpers";
@@ -14,14 +14,14 @@ import { target } from "./helpers";
 /**
  * Dispatch an UNDO to the model
  */
-export function undo(model: Model): CommandResult {
+export function undo(model: Model): DispatchResult {
   return model.dispatch("REQUEST_UNDO");
 }
 
 /**
  * Dispatch a REDO to the model
  */
-export function redo(model: Model): CommandResult {
+export function redo(model: Model): DispatchResult {
   return model.dispatch("REQUEST_REDO");
 }
 
@@ -54,7 +54,7 @@ export function createSheet(
   return result;
 }
 
-export function renameSheet(model: Model, sheetId: UID, name: string): CommandResult {
+export function renameSheet(model: Model, sheetId: UID, name: string): DispatchResult {
   return model.dispatch("RENAME_SHEET", { sheetId, name });
 }
 
@@ -62,16 +62,16 @@ export function createSheetWithName(
   model: Model,
   data: Partial<CreateSheetCommand & { activate: boolean }>,
   name: string
-) {
+): DispatchResult {
   let createResult = createSheet(model, data);
-  if (createResult !== CommandResult.Success) {
+  if (!createResult.isSuccessful) {
     return createResult;
   }
   const sheets = model.getters.getSheets();
   return renameSheet(model, sheets[sheets.length - 1].id, name);
 }
 
-export function deleteSheet(model: Model, sheetId: UID): CommandResult {
+export function deleteSheet(model: Model, sheetId: UID): DispatchResult {
   return model.dispatch("DELETE_SHEET", { sheetId });
 }
 
@@ -113,7 +113,7 @@ export function updateChart(
   chartId: UID,
   definition: ChartUIDefinitionUpdate,
   sheetId: UID = model.getters.getActiveSheetId()
-): CommandResult {
+): DispatchResult {
   return model.dispatch("UPDATE_CHART", {
     id: chartId,
     sheetId,
@@ -130,7 +130,7 @@ export function addColumns(
   column: string,
   quantity: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): CommandResult {
+): DispatchResult {
   return model.dispatch("ADD_COLUMNS_ROWS", {
     sheetId,
     dimension: "COL",
@@ -147,7 +147,7 @@ export function deleteColumns(
   model: Model,
   columns: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): CommandResult {
+): DispatchResult {
   return model.dispatch("REMOVE_COLUMNS_ROWS", {
     sheetId,
     dimension: "COL",
@@ -163,7 +163,7 @@ export function resizeColumns(
   columns: string[],
   size: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): CommandResult {
+): DispatchResult {
   return model.dispatch("RESIZE_COLUMNS_ROWS", {
     dimension: "COL",
     elements: columns.map(lettersToNumber),
@@ -181,7 +181,7 @@ export function addRows(
   row: number,
   quantity: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): CommandResult {
+): DispatchResult {
   return model.dispatch("ADD_COLUMNS_ROWS", {
     dimension: "ROW",
     sheetId,
@@ -198,7 +198,7 @@ export function deleteRows(
   model: Model,
   rows: number[],
   sheetId: UID = model.getters.getActiveSheetId()
-): CommandResult {
+): DispatchResult {
   return model.dispatch("REMOVE_COLUMNS_ROWS", {
     sheetId,
     elements: rows,
@@ -214,7 +214,7 @@ export function resizeRows(
   rows: number[],
   size: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): CommandResult {
+): DispatchResult {
   return model.dispatch("RESIZE_COLUMNS_ROWS", {
     dimension: "ROW",
     elements: rows,
@@ -230,7 +230,7 @@ export function hideColumns(
   model: Model,
   columns: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): CommandResult {
+): DispatchResult {
   return model.dispatch("HIDE_COLUMNS_ROWS", {
     sheetId,
     dimension: "COL",
@@ -245,7 +245,7 @@ export function unhideColumns(
   model: Model,
   columns: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): CommandResult {
+): DispatchResult {
   return model.dispatch("UNHIDE_COLUMNS_ROWS", {
     sheetId,
     dimension: "COL",
@@ -260,7 +260,7 @@ export function hideRows(
   model: Model,
   rows: number[],
   sheetId: UID = model.getters.getActiveSheetId()
-): CommandResult {
+): DispatchResult {
   return model.dispatch("HIDE_COLUMNS_ROWS", {
     sheetId,
     dimension: "ROW",
@@ -275,7 +275,7 @@ export function unhideRows(
   model: Model,
   rows: number[],
   sheetId: UID = model.getters.getActiveSheetId()
-): CommandResult {
+): DispatchResult {
   return model.dispatch("UNHIDE_COLUMNS_ROWS", {
     sheetId,
     dimension: "ROW",
@@ -283,14 +283,14 @@ export function unhideRows(
   });
 }
 
-export function deleteCells(model: Model, range: string, shift: "left" | "up"): CommandResult {
+export function deleteCells(model: Model, range: string, shift: "left" | "up"): DispatchResult {
   return model.dispatch("DELETE_CELL", {
     zone: toZone(range),
     shiftDimension: shift === "left" ? "COL" : "ROW",
   });
 }
 
-export function insertCells(model: Model, range: string, shift: "right" | "down"): CommandResult {
+export function insertCells(model: Model, range: string, shift: "right" | "down"): DispatchResult {
   return model.dispatch("INSERT_CELL", {
     zone: toZone(range),
     shiftDimension: shift === "right" ? "COL" : "ROW",
@@ -337,7 +337,7 @@ export function setCellContent(
 /**
  * Select a cell
  */
-export function selectCell(model: Model, xc: string): CommandResult {
+export function selectCell(model: Model, xc: string): DispatchResult {
   const [col, row] = toCartesian(xc);
   return model.dispatch("SELECT_CELL", { col, row });
 }
@@ -366,7 +366,7 @@ export function merge(
   model: Model,
   range: string,
   sheetId: UID = model.getters.getActiveSheetId()
-): CommandResult {
+): DispatchResult {
   return model.dispatch("ADD_MERGE", {
     sheetId,
     target: target(range),
@@ -377,7 +377,7 @@ export function unMerge(
   model: Model,
   range: string,
   sheetId: UID = model.getters.getActiveSheetId()
-): CommandResult {
+): DispatchResult {
   return model.dispatch("REMOVE_MERGE", {
     sheetId,
     target: target(range),

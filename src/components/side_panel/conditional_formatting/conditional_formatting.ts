@@ -2,12 +2,12 @@ import * as owl from "@odoo/owl";
 import { colorNumberString, rangeReference, toZone } from "../../../helpers/index";
 import {
   ColorScaleRule,
-  CommandResult,
   ConditionalFormat,
   ConditionalFormatRule,
   SingleColorRules,
   SpreadsheetEnv,
   Zone,
+  CommandResult,
 } from "../../../types";
 import { ICONS, TRASH } from "../../icons";
 import { SelectionInput } from "../../selection_input";
@@ -443,9 +443,10 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
         target: this.state.currentCF.ranges.map(toZone),
         sheetId: this.getters.getActiveSheetId(),
       });
-      if (result !== CommandResult.Success) {
+      if (!result.isSuccessful) {
         this.state.error = this.env._t(
-          conditionalFormattingTerms.Errors[result] || conditionalFormattingTerms.Errors.unexpected
+          conditionalFormattingTerms.Errors[result.reasons[0]] ||
+            conditionalFormattingTerms.Errors.unexpected
         );
       } else {
         this.switchToList();

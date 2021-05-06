@@ -52,7 +52,7 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
    *
    * There should not be any side effects in this method.
    */
-  allowDispatch(command: C): CommandResult {
+  allowDispatch(command: C): CommandResult | CommandResult[] {
     return CommandResult.Success;
   }
 
@@ -77,19 +77,39 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
   finalize(): void {}
 
   /**
-   * Combine multiple validation functions into a single function.
+   * Combine multiple validation functions into a single function
+   * returning the list of result of every validation.
    */
-  combineValidations<T>(...validations: Validation<T>[]): Validation<T> {
+  batchValidations<T>(...validations: Validation<T>[]): Validation<T> {
+    return (toValidate: T) =>
+      validations.map((validation) => validation.call(this, toValidate)).flat();
+  }
+
+  /**
+   * Combine multiple validation functions. Every validation is executed one after
+   * the other. As soon as one validation fails, it stops and the cancelled reason
+   * is returned.
+   */
+  chainValidations<T>(...validations: Validation<T>[]): Validation<T> {
     return (toValidate: T) => {
       for (const validation of validations) {
-        const result = validation.call(this, toValidate);
-        if (result !== CommandResult.Success) return result;
+        let results: CommandResult | CommandResult[] = validation.call(this, toValidate);
+        if (!Array.isArray(results)) {
+          results = [results];
+        }
+        const cancelledReasons = results.filter((result) => result !== CommandResult.Success);
+        if (cancelledReasons.length) {
+          return cancelledReasons;
+        }
       }
       return CommandResult.Success;
     };
   }
 
-  checkValidations<T>(command: T, ...validations: Validation<T>[]): CommandResult {
-    return this.combineValidations(...validations)(command);
+  checkValidations<T>(
+    command: T,
+    ...validations: Validation<T>[]
+  ): CommandResult | CommandResult[] {
+    return this.batchValidations(...validations)(command);
   }
 }

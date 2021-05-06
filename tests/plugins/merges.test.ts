@@ -90,7 +90,7 @@ describe("merges", () => {
       ],
     });
     const sheetId = model.getters.getActiveSheetId();
-    expect(merge(model, "A1:C3")).toBe(CommandResult.TargetOutOfSheet);
+    expect(merge(model, "A1:C3")).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
     expect(model.getters.getMerge(sheetId, ...toCartesian("A1"))).toBeUndefined();
   });
 
@@ -209,7 +209,7 @@ describe("merges", () => {
     const sheetId = model.getters.getActiveSheetId();
     expect(
       model.dispatch("ADD_MERGE", { sheetId, target: [toZone("A1:B2"), toZone("A2:B3")] })
-    ).toBe(CommandResult.MergeOverlap);
+    ).toBeCancelledBecause(CommandResult.MergeOverlap);
   });
 
   test("properly compute if a merge is destructive or not", () => {
@@ -226,10 +226,10 @@ describe("merges", () => {
     });
     // B2 is not top left, so it is destructive
 
-    expect(merge(model, "A1:C4")).toBe(CommandResult.MergeIsDestructive);
+    expect(merge(model, "A1:C4")).toBeCancelledBecause(CommandResult.MergeIsDestructive);
 
     // B2 is top left, so it is not destructive
-    expect(merge(model, "B2:C4")).toEqual(CommandResult.Success);
+    expect(merge(model, "B2:C4")).toBeSuccessfullyDispatched();
   });
 
   test("a merge with only style should not be considered destructive", () => {
@@ -245,7 +245,7 @@ describe("merges", () => {
       ],
       styles: { 1: {} },
     });
-    expect(merge(model, "A1:C4")).toEqual(CommandResult.Success);
+    expect(merge(model, "A1:C4")).toBeSuccessfullyDispatched();
   });
 
   test("merging destructively a selection ask for confirmation", async () => {
@@ -521,7 +521,7 @@ describe("merges", () => {
 
   test("Cannot add a merge in a non-existing sheet", () => {
     const model = new Model();
-    expect(merge(model, "A1:A2", "invalid")).toBe(CommandResult.InvalidSheetId);
+    expect(merge(model, "A1:A2", "invalid")).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 
   test("import merge with style", () => {
@@ -556,7 +556,7 @@ describe("merges", () => {
   test("update content cell of merged cell, other than top left", () => {
     const model = new Model();
     merge(model, "A1:A2");
-    expect(setCellContent(model, "A2", "hello")).toBe(CommandResult.CellIsMerged);
+    expect(setCellContent(model, "A2", "hello")).toBeCancelledBecause(CommandResult.CellIsMerged);
     expect(getCell(model, "A2")).toBeUndefined();
   });
 

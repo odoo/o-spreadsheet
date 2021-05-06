@@ -6,6 +6,7 @@ import {
   CellType,
   Command,
   CommandResult,
+  DispatchResult,
   Sheet,
   SortCommand,
   SortDirection,
@@ -25,7 +26,7 @@ type IndexSTVMapItem = { index: number; val: Item | SortTypeValueMap }[];
 export class SortPlugin extends UIPlugin {
   static getters = ["getContiguousZone"];
 
-  allowDispatch(cmd: Command): CommandResult {
+  allowDispatch(cmd: Command) {
     switch (cmd.type) {
       case "SORT_CELLS":
         if (!isInside(cmd.anchor[0], cmd.anchor[1], cmd.zone)) {
@@ -91,7 +92,7 @@ export class SortPlugin extends UIPlugin {
     zone: Zone,
     sortDirection: SortDirection
   ) {
-    let result: CommandResult = CommandResult.Success;
+    let result: DispatchResult = DispatchResult.Success;
 
     //several columns => bypass the contiguity check
     let multiColumns: boolean = zone.right > zone.left;
@@ -151,19 +152,15 @@ export class SortPlugin extends UIPlugin {
         );
       }
     }
-    if (result !== CommandResult.Success) {
-      switch (result) {
-        case CommandResult.InvalidSortZone:
-          this.dispatch("SET_SELECTION", {
-            anchor: anchor,
-            zones: [zone],
-            anchorZone: zone,
-          });
-          this.ui.notifyUser(
-            _lt("Cannot sort. To sort, select only cells or only merges that have the same size.")
-          );
-          break;
-      }
+    if (result.isCancelledBecause(CommandResult.InvalidSortZone)) {
+      this.dispatch("SET_SELECTION", {
+        anchor: anchor,
+        zones: [zone],
+        anchorZone: zone,
+      });
+      this.ui.notifyUser(
+        _lt("Cannot sort. To sort, select only cells or only merges that have the same size.")
+      );
     }
   }
 

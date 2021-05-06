@@ -143,7 +143,9 @@ describe("Clear columns", () => {
     expect(getBorder(model, "C2")).toEqual(border);
   });
   test("cannot delete column in invalid sheet", () => {
-    expect(deleteColumns(model, ["A"], "INVALID")).toBe(CommandResult.InvalidSheetId);
+    expect(deleteColumns(model, ["A"], "INVALID")).toBeCancelledBecause(
+      CommandResult.InvalidSheetId
+    );
   });
 });
 
@@ -184,7 +186,7 @@ describe("Clear rows", () => {
     expect(getCell(model, "C2")).toMatchObject({ style });
   });
   test("cannot delete row in invalid sheet", () => {
-    expect(deleteRows(model, [0], "INVALID")).toBe(CommandResult.InvalidSheetId);
+    expect(deleteRows(model, [0], "INVALID")).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 });
 
@@ -218,7 +220,7 @@ describe("Hide Columns", () => {
     expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[1], [4]]);
   });
   test("Cannot hide columns on invalid sheetId", () => {
-    expect(hideColumns(model, ["A"], "INVALID")).toBe(CommandResult.InvalidSheetId);
+    expect(hideColumns(model, ["A"], "INVALID")).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 });
 
@@ -249,7 +251,7 @@ describe("Hide Rows", () => {
     expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1], [4]]);
   });
   test("Cannot hide rows on invalid sheetId", () => {
-    expect(hideRows(model, [0], "INVALID")).toEqual(CommandResult.InvalidSheetId);
+    expect(hideRows(model, [0], "INVALID")).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 });
 
@@ -345,7 +347,9 @@ describe("Columns", () => {
 
     test("On addition in invalid sheet", () => {
       const sheetId = "invalid";
-      expect(addColumns(model, "after", "A", 1, sheetId)).toBe(CommandResult.InvalidSheetId);
+      expect(addColumns(model, "after", "A", 1, sheetId)).toBeCancelledBecause(
+        CommandResult.InvalidSheetId
+      );
     });
 
     test("On hide/unhide Column on small sheet", () => {
@@ -1191,7 +1195,9 @@ describe("Rows", () => {
     });
     test("cannot delete column in invalid sheet", () => {
       const sheetId = "invalid";
-      expect(addRows(model, "after", 0, 1, sheetId)).toBe(CommandResult.InvalidSheetId);
+      expect(addRows(model, "after", 0, 1, sheetId)).toBeCancelledBecause(
+        CommandResult.InvalidSheetId
+      );
     });
 
     test("activate Sheet: same size", () => {
@@ -2005,14 +2011,22 @@ describe("Insert/Delete cells with merge", () => {
   test("Insert/Delete cell is rejected if a merge is blocking left-right", () => {
     model = new Model();
     merge(model, "B1:B2");
-    expect(deleteCells(model, "A1", "left")).toBe(CommandResult.WillRemoveExistingMerge);
-    expect(insertCells(model, "A1", "right")).toBe(CommandResult.WillRemoveExistingMerge);
+    expect(deleteCells(model, "A1", "left")).toBeCancelledBecause(
+      CommandResult.WillRemoveExistingMerge
+    );
+    expect(insertCells(model, "A1", "right")).toBeCancelledBecause(
+      CommandResult.WillRemoveExistingMerge
+    );
   });
 
   test("Insert/Delete cell is rejected if a merge is blocking up-down", () => {
     model = new Model();
     merge(model, "A2:B2");
-    expect(deleteCells(model, "A1", "up")).toBe(CommandResult.WillRemoveExistingMerge);
-    expect(insertCells(model, "A1", "down")).toBe(CommandResult.WillRemoveExistingMerge);
+    expect(deleteCells(model, "A1", "up")).toBeCancelledBecause(
+      CommandResult.WillRemoveExistingMerge
+    );
+    expect(insertCells(model, "A1", "down")).toBeCancelledBecause(
+      CommandResult.WillRemoveExistingMerge
+    );
   });
 });

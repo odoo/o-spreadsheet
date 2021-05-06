@@ -16,7 +16,7 @@ import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
 import { SortPlugin } from "../src/plugins/ui/sort";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
 import { UIPlugin } from "../src/plugins/ui_plugin";
-import { Command, CoreCommand } from "../src/types";
+import { Command, CoreCommand, DispatchResult } from "../src/types";
 import { selectCell, setCellContent } from "./test_helpers/commands_helpers";
 import { getCell, getCellText } from "./test_helpers/getters_helpers";
 
@@ -126,7 +126,7 @@ describe("Model", () => {
         return CommandResult.Success;
       }
     }
-    let result: CommandResult | undefined = undefined;
+    let result: DispatchResult | undefined = undefined;
     class MyUIPlugin extends UIPlugin {
       handle(cmd: Command) {
         if (cmd.type === "COPY") {
@@ -143,13 +143,13 @@ describe("Model", () => {
     corePluginRegistry.add("myCorePlugin", MyCorePlugin);
     const model = new Model();
     model.dispatch("COPY", { target: [toZone("A1")] });
-    expect(result).toBe(CommandResult.CancelledForUnknownReason);
+    expect(result).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
     uiPluginRegistry.remove("myUIPlugin");
     corePluginRegistry.remove("myCorePlugin");
   });
 
   test("core plugin cannot refuse command from core plugin", () => {
-    let result: CommandResult | undefined = undefined;
+    let result: DispatchResult | undefined = undefined;
     class MyCorePlugin extends CorePlugin {
       allowDispatch(cmd: CoreCommand) {
         if (cmd.type === "UPDATE_CELL") {
@@ -171,13 +171,13 @@ describe("Model", () => {
     corePluginRegistry.add("myCorePlugin", MyCorePlugin);
     const model = new Model();
     model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
-    expect(result).toBe(CommandResult.Success);
+    expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A1", "42")).toBe("Hello");
     corePluginRegistry.remove("myCorePlugin");
   });
 
   test("UI plugin cannot refuse command from UI plugin", () => {
-    let result: CommandResult | undefined = undefined;
+    let result: DispatchResult | undefined = undefined;
     class MyUIPlugin extends UIPlugin {
       allowDispatch(cmd: Command) {
         if (cmd.type === "PASTE") {
@@ -197,7 +197,7 @@ describe("Model", () => {
     const model = new Model();
     setCellContent(model, "A1", "copy&paste me");
     model.dispatch("COPY", { target: [toZone("A1")] });
-    expect(result).toBe(CommandResult.Success);
+    expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A2")).toBe("copy&paste me");
     corePluginRegistry.remove("myUIPlugin");
   });
@@ -209,11 +209,11 @@ describe("Model", () => {
 
   test("Some commands are not dispatched in readonly mode", () => {
     const model = new Model({}, { mode: "readonly" });
-    expect(setCellContent(model, "A1", "hello")).toBe(CommandResult.Readonly);
+    expect(setCellContent(model, "A1", "hello")).toBeCancelledBecause(CommandResult.Readonly);
   });
 
   test("Moving the selection is allowed in readonly mode", () => {
     const model = new Model({}, { mode: "readonly" });
-    expect(selectCell(model, "A15")).toBe(CommandResult.Success);
+    expect(selectCell(model, "A15")).toBeSuccessfullyDispatched();
   });
 });
