@@ -11,6 +11,7 @@
 - [DuplicatedSheetName](commandresult.md#duplicatedsheetname)
 - [EmptyClipboard](commandresult.md#emptyclipboard)
 - [EmptyDataSet](commandresult.md#emptydataset)
+- [EmptyRange](commandresult.md#emptyrange)
 - [EmptyRedoStack](commandresult.md#emptyredostack)
 - [EmptyUndoStack](commandresult.md#emptyundostack)
 - [ForbiddenCharactersInSheetName](commandresult.md#forbiddencharactersinsheetname)
@@ -21,9 +22,11 @@
 - [InvalidDataSet](commandresult.md#invaliddataset)
 - [InvalidLabelRange](commandresult.md#invalidlabelrange)
 - [InvalidNumberOfArgs](commandresult.md#invalidnumberofargs)
+- [InvalidOffset](commandresult.md#invalidoffset)
 - [InvalidRange](commandresult.md#invalidrange)
 - [InvalidSheetId](commandresult.md#invalidsheetid)
 - [InvalidSortZone](commandresult.md#invalidsortzone)
+- [InvalidViewportSize](commandresult.md#invalidviewportsize)
 - [LowerBiggerThanUpper](commandresult.md#lowerbiggerthanupper)
 - [MaxAsyncFormulaNotSupported](commandresult.md#maxasyncformulanotsupported)
 - [MaxInvalidFormula](commandresult.md#maxinvalidformula)
@@ -89,11 +92,13 @@ ___
 
 ### EmptyDataSet
 
-<<<<<<< HEAD
-• **EmptyDataSet**: = 24
-=======
-• **EmptyDataSet**: = 23
->>>>>>> [IMP] plugins: return multiple cancell reasons from allowDispatch
+• **EmptyDataSet**: = 25
+
+___
+
+### EmptyRange
+
+• **EmptyRange**: = 19
 
 ___
 
@@ -117,7 +122,7 @@ ___
 
 ### InputAlreadyFocused
 
-• **InputAlreadyFocused**: = 21
+• **InputAlreadyFocused**: = 22
 
 ___
 
@@ -129,79 +134,91 @@ ___
 
 ### InvalidAutofillSelection
 
-• **InvalidAutofillSelection**: = 26
+• **InvalidAutofillSelection**: = 28
 
 ___
 
 ### InvalidChartDefinition
 
-• **InvalidChartDefinition**: = 23
+• **InvalidChartDefinition**: = 24
 
 ___
 
 ### InvalidDataSet
 
-• **InvalidDataSet**: = 24
+• **InvalidDataSet**: = 26
 
 ___
 
 ### InvalidLabelRange
 
-• **InvalidLabelRange**: = 25
+• **InvalidLabelRange**: = 27
 
 ___
 
 ### InvalidNumberOfArgs
 
-• **InvalidNumberOfArgs**: = 32
+• **InvalidNumberOfArgs**: = 34
+
+___
+
+### InvalidOffset
+
+• **InvalidOffset**: = 55
 
 ___
 
 ### InvalidRange
 
-• **InvalidRange**: = 19
+• **InvalidRange**: = 20
 
 ___
 
 ### InvalidSheetId
 
-• **InvalidSheetId**: = 20
+• **InvalidSheetId**: = 21
 
 ___
 
 ### InvalidSortZone
 
-• **InvalidSortZone**: = 48
+• **InvalidSortZone**: = 50
+
+___
+
+### InvalidViewportSize
+
+• **InvalidViewportSize**: = 56
 
 ___
 
 ### LowerBiggerThanUpper
 
-• **LowerBiggerThanUpper**: = 29
+• **LowerBiggerThanUpper**: = 31
 
 ___
 
 ### MaxAsyncFormulaNotSupported
 
-• **MaxAsyncFormulaNotSupported**: = 40
+• **MaxAsyncFormulaNotSupported**: = 42
 
 ___
 
 ### MaxInvalidFormula
 
-• **MaxInvalidFormula**: = 45
+• **MaxInvalidFormula**: = 47
 
 ___
 
 ### MaxNaN
 
-• **MaxNaN**: = 35
+• **MaxNaN**: = 37
 
 ___
 
 ### MaximumRangesReached
 
-• **MaximumRangesReached**: = 22
+• **MaximumRangesReached**: = 23
 
 ___
 
@@ -213,61 +230,61 @@ ___
 
 ### MergeOverlap
 
-• **MergeOverlap**: = 50
+• **MergeOverlap**: = 52
 
 ___
 
 ### MidAsyncFormulaNotSupported
 
-• **MidAsyncFormulaNotSupported**: = 39
+• **MidAsyncFormulaNotSupported**: = 41
 
 ___
 
 ### MidBiggerThanMax
 
-• **MidBiggerThanMax**: = 30
+• **MidBiggerThanMax**: = 32
 
 ___
 
 ### MidInvalidFormula
 
-• **MidInvalidFormula**: = 44
+• **MidInvalidFormula**: = 46
 
 ___
 
 ### MidNaN
 
-• **MidNaN**: = 34
+• **MidNaN**: = 36
 
 ___
 
 ### MinAsyncFormulaNotSupported
 
-• **MinAsyncFormulaNotSupported**: = 38
+• **MinAsyncFormulaNotSupported**: = 40
 
 ___
 
 ### MinBiggerThanMax
 
-• **MinBiggerThanMax**: = 28
+• **MinBiggerThanMax**: = 30
 
 ___
 
 ### MinBiggerThanMid
 
-• **MinBiggerThanMid**: = 31
+• **MinBiggerThanMid**: = 33
 
 ___
 
 ### MinInvalidFormula
 
-• **MinInvalidFormula**: = 43
+• **MinInvalidFormula**: = 45
 
 ___
 
 ### MinNaN
 
-• **MinNaN**: = 33
+• **MinNaN**: = 35
 
 ___
 
@@ -291,7 +308,7 @@ ___
 
 ### Readonly
 
-• **Readonly**: = 52
+• **Readonly**: = 54
 
 ___
 
@@ -315,49 +332,49 @@ ___
 
 ### TooManyHiddenElements
 
-• **TooManyHiddenElements**: = 51
+• **TooManyHiddenElements**: = 53
 
 ___
 
 ### ValueLowerAsyncFormulaNotSupported
 
-• **ValueLowerAsyncFormulaNotSupported**: = 42
+• **ValueLowerAsyncFormulaNotSupported**: = 44
 
 ___
 
 ### ValueLowerInflectionNaN
 
-• **ValueLowerInflectionNaN**: = 37
+• **ValueLowerInflectionNaN**: = 39
 
 ___
 
 ### ValueLowerInvalidFormula
 
-• **ValueLowerInvalidFormula**: = 47
+• **ValueLowerInvalidFormula**: = 49
 
 ___
 
 ### ValueUpperAsyncFormulaNotSupported
 
-• **ValueUpperAsyncFormulaNotSupported**: = 41
+• **ValueUpperAsyncFormulaNotSupported**: = 43
 
 ___
 
 ### ValueUpperInflectionNaN
 
-• **ValueUpperInflectionNaN**: = 36
+• **ValueUpperInflectionNaN**: = 38
 
 ___
 
 ### ValueUpperInvalidFormula
 
-• **ValueUpperInvalidFormula**: = 46
+• **ValueUpperInvalidFormula**: = 48
 
 ___
 
 ### WaitingSessionConfirmation
 
-• **WaitingSessionConfirmation**: = 49
+• **WaitingSessionConfirmation**: = 51
 
 ___
 
@@ -369,7 +386,7 @@ ___
 
 ### WrongComposerSelection
 
-• **WrongComposerSelection**: = 27
+• **WrongComposerSelection**: = 29
 
 ___
 

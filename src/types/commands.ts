@@ -1044,6 +1044,7 @@ export const enum CommandResult {
   TargetOutOfSheet,
   WrongPasteSelection,
   EmptyClipboard,
+  EmptyRange,
   InvalidRange,
   InvalidSheetId,
   InputAlreadyFocused,

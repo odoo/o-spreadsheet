@@ -1,6 +1,7 @@
 import { compile, normalize } from "../../formulas/index";
 import { isInside, zoneToXc } from "../../helpers/index";
 import {
+  AddConditionalFormatCommand,
   ApplyRangeChange,
   CellIsRule,
   ColorScaleMidPointThreshold,
@@ -15,7 +16,6 @@ import {
   ExcelWorkbookData,
   IconSetRule,
   IconThreshold,
-  SingleColorRules,
   UID,
   Validation,
   WorkbookData,
@@ -104,7 +104,7 @@ export class ConditionalFormatPlugin
 
   allowDispatch(cmd: Command) {
     if (cmd.type === "ADD_CONDITIONAL_FORMAT") {
-      return this.checkCFRule(cmd.cf.rule);
+      return this.checkValidations(cmd, this.checkCFRule, this.checkEmptyRange);
     }
     return CommandResult.Success;
   }
@@ -252,7 +252,12 @@ export class ConditionalFormatPlugin
     this.history.update("cfRules", sheet, currentCF);
   }
 
-  private checkCFRule(rule: ColorScaleRule | SingleColorRules | IconSetRule) {
+  private checkEmptyRange(cmd: AddConditionalFormatCommand) {
+    return cmd.target.length ? CommandResult.Success : CommandResult.EmptyRange;
+  }
+
+  private checkCFRule(cmd: AddConditionalFormatCommand) {
+    const rule = cmd.cf.rule;
     switch (rule.type) {
       case "CellIsRule":
         return this.checkValidations(
