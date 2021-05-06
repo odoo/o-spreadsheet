@@ -226,6 +226,17 @@ describe("conditional format", () => {
     });
   });
 
+  test("Conditional formatting with empty target", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("4", { fillColor: "#0000FF" }, "2"),
+      target: [],
+      sheetId,
+    });
+    expect(result).toBeCancelledBecause(CommandResult.EmptyRange);
+    expect(model.getters.getConditionalFormats(sheetId)).toHaveLength(0);
+  });
+
   test("Still correct after ADD_COLUMNS_ROWS with dimension col and UNDO/REDO", () => {
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "B1", "1");
