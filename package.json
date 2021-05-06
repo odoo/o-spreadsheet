@@ -58,7 +58,8 @@
   },
   "dependencies": {
     "@odoo/owl": "^1.2.1",
-    "bootstrap": "^4.6.0"
+    "bootstrap": "^4.6.0",
+    "jquery-lite": "^2.2.3"
   },
   "jest": {
     "roots": [
