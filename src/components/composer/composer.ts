@@ -67,6 +67,7 @@ const TEMPLATE = xml/* xml */ `
           search="autoCompleteState.search"
           provider="autoCompleteState.provider"
           t-on-completed="onCompleted"
+          borderStyle="borderStyle"
       />
       <FunctionDescriptionProvider
           t-if="functionDescriptionState.showDescription"
@@ -74,6 +75,7 @@ const TEMPLATE = xml/* xml */ `
           functionName = "functionDescriptionState.functionName"
           functionDescription = "functionDescriptionState.functionDescription"
           argToFocus = "functionDescriptionState.argToFocus"
+          borderStyle="borderStyle"
       />
     </div>
 </div>
@@ -98,7 +100,6 @@ const CSS = css/* scss */ `
     .o-composer-assistant {
       position: absolute;
       margin: 4px;
-      box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
       pointer-events: none;
     }
   }
@@ -174,6 +175,8 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     }
     return "";
   }
+
+  borderStyle = `box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);`;
 
   // we can't allow input events to be triggered while we remove and add back the content of the composer in processContent
   shouldProcessInputEvents: boolean = false;

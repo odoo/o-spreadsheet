@@ -33,7 +33,9 @@ providerRegistry.add("functions", async function () {
 // -----------------------------------------------------------------------------
 
 const TEMPLATE = xml/* xml */ `
-  <div t-att-class="{'o-autocomplete-dropdown':state.values.length}" >
+  <div t-att-class="{'o-autocomplete-dropdown':state.values.length}"
+       t-att-style="state.values.length > 0 ? props.borderStyle : null"
+    >
     <t t-foreach="state.values" t-as="v" t-key="v.text">
         <div t-att-class="{'o-autocomplete-value-focus': state.selectedIndex === v_index}" t-on-click.stop.prevent="fillValue(v_index)">
              <div class="o-autocomplete-value" t-esc="v.text"/>
@@ -72,6 +74,7 @@ interface Props {
   provider: string;
   filter?: (searchTerm: string, vals: AutocompleteValue[]) => AutocompleteValue[];
   search: string;
+  borderStyle: string;
 }
 
 export abstract class TextValueProvider extends Component<Props> {
