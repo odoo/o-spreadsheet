@@ -3,6 +3,8 @@ import { AddFunctionDescription } from "../types";
 import { args } from "./arguments";
 import { assert, reduceAny, toBoolean, toNumber, toString } from "./helpers";
 
+const DEFAULT_STARTING_AT = 1;
+
 // -----------------------------------------------------------------------------
 // CHAR
 // -----------------------------------------------------------------------------
@@ -62,12 +64,16 @@ export const FIND: AddFunctionDescription = {
   args: args(`
       search_for (string) ${_lt("The string to look for within text_to_search.")}
       text_to_search (string) ${_lt("The text to search for the first occurrence of search_for.")}
-      starting_at (number, default=1 ) ${_lt(
-        "The character within text_to_search at which to start the search."
-      )}
+      starting_at (number, default=${DEFAULT_STARTING_AT}) ${_lt(
+    "The character within text_to_search at which to start the search."
+  )}
   `),
   returns: ["NUMBER"],
-  compute: function (searchFor: any, textToSearch: any, startingAt: any = 1): number {
+  compute: function (
+    searchFor: any,
+    textToSearch: any,
+    startingAt: any = DEFAULT_STARTING_AT
+  ): number {
     const _searchFor = toString(searchFor);
     const _textToSearch = toString(textToSearch);
     const _startingAt = toNumber(startingAt);
@@ -222,12 +228,16 @@ export const SEARCH: AddFunctionDescription = {
   args: args(`
       search_for (string) ${_lt("The string to look for within text_to_search.")}
       text_to_search (string) ${_lt("The text to search for the first occurrence of search_for.")}
-      starting_at (number, default=1 ) ${_lt(
-        "The character within text_to_search at which to start the search."
-      )}
+      starting_at (number, default=${DEFAULT_STARTING_AT}) ${_lt(
+    "The character within text_to_search at which to start the search."
+  )}
   `),
   returns: ["NUMBER"],
-  compute: function (searchFor: any, textToSearch: any, startingAt: any = 1): number {
+  compute: function (
+    searchFor: any,
+    textToSearch: any,
+    startingAt: any = DEFAULT_STARTING_AT
+  ): number {
     const _searchFor = toString(searchFor).toLowerCase();
     const _textToSearch = toString(textToSearch).toLowerCase();
     const _startingAt = toNumber(startingAt);

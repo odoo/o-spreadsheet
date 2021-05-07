@@ -4,6 +4,9 @@ import { args } from "./arguments";
 import { assert, reduceNumbers, toBoolean, toNumber, visitNumbers } from "./helpers";
 import { YEARFRAC } from "./module_date";
 
+const DEFAULT_DAY_COUNT_CONVENTION = 0;
+const DEFAULT_END_OR_BEGINNING = 0;
+
 function newtonMethod(
   func: (x: number) => number,
   derivFunc: (x: number) => number,
@@ -119,9 +122,9 @@ export const DURATION: AddFunctionDescription = {
         frequency (number) ${_lt(
           "The number of interest or coupon payments per year (1, 2, or 4)."
         )}
-        day_count_convention (number, default=0 ) ${_lt(
-          "An indicator of what day count method to use."
-        )}
+        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
+    "An indicator of what day count method to use."
+  )}
     `),
   returns: ["NUMBER"],
   compute: function (
@@ -130,7 +133,7 @@ export const DURATION: AddFunctionDescription = {
     rate: unknown,
     securityYield: unknown,
     frequency: unknown,
-    dayCountConvention: unknown
+    dayCountConvention: unknown = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     const start = Math.trunc(toNumber(settlement));
     const end = Math.trunc(toNumber(maturity));
@@ -188,14 +191,17 @@ export const DURATION: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // FV
 // -----------------------------------------------------------------------------
+const DEFAULT_PRESENT_VALUE = 0;
 export const FV: AddFunctionDescription = {
   description: _lt("Future value of an annuity investment."),
   args: args(`
   rate (number) ${_lt("The interest rate.")}
   number_of_periods (number) ${_lt("The number of payments to be made.")}
   payment_amount (number) ${_lt("The amount per period to be paid.")}
-  present_value (number, default=0) ${_lt("The current value of the annuity.")}
-  end_or_beginning (number, default=0) ${_lt(
+  present_value (number, default=${DEFAULT_PRESENT_VALUE}) ${_lt(
+    "The current value of the annuity."
+  )}
+  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt(
     "Whether payments are due at the end (0) or beginning (1) of each period."
   )}
   `),
@@ -206,8 +212,8 @@ export const FV: AddFunctionDescription = {
     rate: unknown,
     numberOfPeriods: unknown,
     paymentAmount: unknown,
-    presentValue: unknown = 0,
-    endOrBeginning: unknown = 0
+    presentValue: unknown = DEFAULT_PRESENT_VALUE,
+    endOrBeginning: unknown = DEFAULT_END_OR_BEGINNING
   ): number {
     const r = toNumber(rate);
     const n = toNumber(numberOfPeriods);
@@ -221,19 +227,20 @@ export const FV: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // IRR
 // -----------------------------------------------------------------------------
+const DEFAULT_RATE_GUESS = 0.1;
 export const IRR: AddFunctionDescription = {
   description: _lt("Internal rate of return given periodic cashflows."),
   args: args(`
   cashflow_amounts (number, range<number>) ${_lt(
     "An array or range containing the income or payments associated with the investment."
   )}
-  rate_guess (number, default=0.1) ${_lt(
+  rate_guess (number, default=${DEFAULT_RATE_GUESS}) ${_lt(
     "An estimate for what the internal rate of return will be."
   )}
   `),
   returns: ["NUMBER"],
   returnFormat: { specificFormat: "0%" },
-  compute: function (cashFlowAmounts: unknown, rateGuess: unknown = 0.1): number {
+  compute: function (cashFlowAmounts: unknown, rateGuess: unknown = DEFAULT_RATE_GUESS): number {
     const _rateGuess = toNumber(rateGuess);
 
     assert(
@@ -313,9 +320,9 @@ export const MDURATION: AddFunctionDescription = {
         frequency (number) ${_lt(
           "The number of interest or coupon payments per year (1, 2, or 4)."
         )}
-        day_count_convention (number, default=0 ) ${_lt(
-          "An indicator of what day count method to use."
-        )}
+        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
+    "An indicator of what day count method to use."
+  )}
     `),
   returns: ["NUMBER"],
   compute: function (
@@ -324,7 +331,7 @@ export const MDURATION: AddFunctionDescription = {
     rate: unknown,
     securityYield: unknown,
     frequency: unknown,
-    dayCountConvention: unknown = 0
+    dayCountConvention: unknown = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     const duration = DURATION.compute(
       settlement,
@@ -413,16 +420,17 @@ export const PDURATION: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // PV
 // -----------------------------------------------------------------------------
+const DEFAULT_FUTURE_VALUE = 0;
 export const PV: AddFunctionDescription = {
   description: _lt("Present value of an annuity investment."),
   args: args(`
   rate (number) ${_lt("The interest rate.")}
   number_of_periods (number) ${_lt("The number of payments to be made.")}
   payment_amount (number) ${_lt("The amount per period to be paid.")}
-  future_value (number, default=0) ${_lt(
+  future_value (number, default=${DEFAULT_FUTURE_VALUE}) ${_lt(
     "The future value remaining after the final payment has been made."
   )}
-  end_or_beginning (number, default=0) ${_lt(
+  end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING}) ${_lt(
     "Whether payments are due at the end (0) or beginning (1) of each period."
   )}
   `),
@@ -433,8 +441,8 @@ export const PV: AddFunctionDescription = {
     rate: unknown,
     numberOfPeriods: unknown,
     paymentAmount: unknown,
-    futureValue: unknown = 0,
-    endOrBeginning: unknown = 0
+    futureValue: unknown = DEFAULT_FUTURE_VALUE,
+    endOrBeginning: unknown = DEFAULT_END_OR_BEGINNING
   ): number {
     const r = toNumber(rate);
     const n = toNumber(numberOfPeriods);
@@ -461,9 +469,9 @@ export const PRICE: AddFunctionDescription = {
       yield (number) ${_lt("The expected annual yield of the security.")}
       redemption (number) ${_lt("The redemption amount per 100 face value, or par.")}
       frequency (number) ${_lt("The number of interest or coupon payments per year (1, 2, or 4).")}
-      day_count_convention (number, default=0 ) ${_lt(
-        "An indicator of what day count method to use."
-      )}
+      day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
+    "An indicator of what day count method to use."
+  )}
     `),
   returns: ["NUMBER"],
   compute: function (
@@ -473,7 +481,7 @@ export const PRICE: AddFunctionDescription = {
     securityYield: unknown,
     redemption: unknown,
     frequency: unknown,
-    dayCountConvention: unknown = 0
+    dayCountConvention: unknown = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     const _settlement = Math.trunc(toNumber(settlement));
     const _maturity = Math.trunc(toNumber(maturity));
@@ -558,9 +566,9 @@ export const YIELD: AddFunctionDescription = {
         frequency (number) ${_lt(
           "The number of interest or coupon payments per year (1, 2, or 4)."
         )}
-        day_count_convention (number, default=0 ) ${_lt(
-          "An indicator of what day count method to use."
-        )}
+        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
+    "An indicator of what day count method to use."
+  )}
     `),
   returns: ["NUMBER"],
   compute: function (
@@ -570,7 +578,7 @@ export const YIELD: AddFunctionDescription = {
     price: unknown,
     redemption: unknown,
     frequency: unknown,
-    dayCountConvention: unknown = 0
+    dayCountConvention: unknown = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     const _settlement = Math.trunc(toNumber(settlement));
     const _maturity = Math.trunc(toNumber(maturity));
@@ -703,9 +711,9 @@ export const YIELDMAT: AddFunctionDescription = {
         issue (date) ${_lt("The date the security was initially issued.")}
         rate (number) ${_lt("The annualized rate of interest.")}
         price (number) ${_lt("The price at which the security is bought.")}
-        day_count_convention (number, default=0 ) ${_lt(
-          "An indicator of what day count method to use."
-        )}
+        day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} ) ${_lt(
+    "An indicator of what day count method to use."
+  )}
     `),
   returns: ["NUMBER"],
   compute: function (
@@ -714,7 +722,7 @@ export const YIELDMAT: AddFunctionDescription = {
     issue: unknown,
     rate: unknown,
     price: unknown,
-    dayCountConvention: unknown = 0
+    dayCountConvention: unknown = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     const _settlement = Math.trunc(toNumber(settlement));
     const _maturity = Math.trunc(toNumber(maturity));

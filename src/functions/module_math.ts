@@ -11,6 +11,11 @@ import {
   visitMatchingRanges,
 } from "./helpers";
 
+const DEFAULT_FACTOR = 1;
+const DEFAULT_MODE = 0;
+const DEFAULT_PLACES = 0;
+const DEFAULT_SIGNIFICANCE = 1;
+
 // -----------------------------------------------------------------------------
 // ABS
 // -----------------------------------------------------------------------------
@@ -209,11 +214,13 @@ export const CEILING: AddFunctionDescription = {
   description: _lt(`Rounds number up to nearest multiple of factor.`),
   args: args(`
     value (number) ${_lt("The value to round up to the nearest integer multiple of factor.")}
-    factor (number, default=1) ${_lt("The number to whose multiples value will be rounded.")}
+    factor (number, default=${DEFAULT_FACTOR}) ${_lt(
+    "The number to whose multiples value will be rounded."
+  )}
   `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (value: any, factor: any = 1): number {
+  compute: function (value: any, factor: any = DEFAULT_FACTOR): number {
     const _value = toNumber(value);
     const _factor = toNumber(factor);
     assert(
@@ -235,16 +242,20 @@ export const CEILING_MATH: AddFunctionDescription = {
   description: _lt(`Rounds number up to nearest multiple of factor.`),
   args: args(`
     number (number) ${_lt("The value to round up to the nearest integer multiple of significance.")}
-    significance (number, default=1) ${_lt(
-      "The number to whose multiples number will be rounded. The sign of significance will be ignored."
-    )}
-    mode (number, default=0) ${_lt(
-      "If number is negative, specifies the rounding direction. If 0 or blank, it is rounded towards zero. Otherwise, it is rounded away from zero."
-    )}
+    significance (number, default=${DEFAULT_SIGNIFICANCE}) ${_lt(
+    "The number to whose multiples number will be rounded. The sign of significance will be ignored."
+  )}
+    mode (number, default=${DEFAULT_MODE}) ${_lt(
+    "If number is negative, specifies the rounding direction. If 0 or blank, it is rounded towards zero. Otherwise, it is rounded away from zero."
+  )}
   `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (number: any, significance: any = 1, mode: any = 0): number {
+  compute: function (
+    number: any,
+    significance: any = DEFAULT_SIGNIFICANCE,
+    mode: any = DEFAULT_MODE
+  ): number {
     let _significance = toNumber(significance);
     if (_significance === 0) {
       return 0;
@@ -272,7 +283,9 @@ export const CEILING_PRECISE: AddFunctionDescription = {
   description: _lt(`Rounds number up to nearest multiple of factor.`),
   args: args(`
     number (number) ${_lt("The value to round up to the nearest integer multiple of significance.")}
-    significance (number, default=1) ${_lt("The number to whose multiples number will be rounded.")}
+    significance (number, default=${DEFAULT_SIGNIFICANCE}) ${_lt(
+    "The number to whose multiples number will be rounded."
+  )}
   `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
@@ -587,11 +600,13 @@ export const FLOOR: AddFunctionDescription = {
   description: _lt(`Rounds number down to nearest multiple of factor.`),
   args: args(`
     value (number) ${_lt("The value to round down to the nearest integer multiple of factor.")}
-    factor (number, default=1) ${_lt("The number to whose multiples value will be rounded.")}
+    factor (number, default=${DEFAULT_FACTOR}) ${_lt(
+    "The number to whose multiples value will be rounded."
+  )}
   `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (value: any, factor: any = 1): number {
+  compute: function (value: any, factor: any = DEFAULT_FACTOR): number {
     const _value = toNumber(value);
     const _factor = toNumber(factor);
     assert(
@@ -615,16 +630,20 @@ export const FLOOR_MATH: AddFunctionDescription = {
     number (number) ${_lt(
       "The value to round down to the nearest integer multiple of significance."
     )}
-    significance (number, default=1) ${_lt(
-      "The number to whose multiples number will be rounded. The sign of significance will be ignored."
-    )}
-    mode (number, default=0) ${_lt(
-      "If number is negative, specifies the rounding direction. If 0 or blank, it is rounded away from zero. Otherwise, it is rounded towards zero."
-    )}
+    significance (number, default=${DEFAULT_SIGNIFICANCE}) ${_lt(
+    "The number to whose multiples number will be rounded. The sign of significance will be ignored."
+  )}
+    mode (number, default=${DEFAULT_MODE}) ${_lt(
+    "If number is negative, specifies the rounding direction. If 0 or blank, it is rounded away from zero. Otherwise, it is rounded towards zero."
+  )}
   `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (number: any, significance: any = 1, mode: any = 0): number {
+  compute: function (
+    number: any,
+    significance: any = DEFAULT_SIGNIFICANCE,
+    mode: any = DEFAULT_MODE
+  ): number {
     let _significance = toNumber(significance);
     if (_significance === 0) {
       return 0;
@@ -653,11 +672,13 @@ export const FLOOR_PRECISE: AddFunctionDescription = {
     number (number) ${_lt(
       "The value to round down to the nearest integer multiple of significance."
     )}
-    significance (number, default=1) ${_lt("The number to whose multiples number will be rounded.")}
+    significance (number, default=${DEFAULT_SIGNIFICANCE}) ${_lt(
+    "The number to whose multiples number will be rounded."
+  )}
   `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (number: number, significance: number = 1): number {
+  compute: function (number: number, significance: number = DEFAULT_SIGNIFICANCE): number {
     return FLOOR_MATH.compute(number, significance, 0);
   },
 };
@@ -687,13 +708,13 @@ export const ISO_CEILING: AddFunctionDescription = {
       number (number) ${_lt(
         "The value to round up to the nearest integer multiple of significance."
       )}
-      significance (number, default=1) ${_lt(
-        "The number to whose multiples number will be rounded."
-      )}
+      significance (number, default=${DEFAULT_SIGNIFICANCE}) ${_lt(
+    "The number to whose multiples number will be rounded."
+  )}
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (number: any, significance: any): number {
+  compute: function (number: any, significance: any = DEFAULT_SIGNIFICANCE): number {
     return CEILING_MATH.compute(number, significance, 0);
   },
 };
@@ -902,11 +923,13 @@ export const ROUND: AddFunctionDescription = {
   description: _lt("Rounds a number according to standard rules."),
   args: args(`
       value (number) ${_lt("The value to round to places number of places.")}
-      places (number, default=0) ${_lt("The number of decimal places to which to round.")}
+      places (number, default=${DEFAULT_PLACES}) ${_lt(
+    "The number of decimal places to which to round."
+  )}
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (value: any, places: any = 0): number {
+  compute: function (value: any, places: any = DEFAULT_PLACES): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
 
@@ -931,11 +954,13 @@ export const ROUNDDOWN: AddFunctionDescription = {
   description: _lt(`Rounds down a number.`),
   args: args(`
       value (number) ${_lt("The value to round to places number of places, always rounding down.")}
-      places (number, default=0) ${_lt("The number of decimal places to which to round.")}
+      places (number, default=${DEFAULT_PLACES}) ${_lt(
+    "The number of decimal places to which to round."
+  )}
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (value: any, places: any = 0): number {
+  compute: function (value: any, places: any = DEFAULT_PLACES): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
 
@@ -960,11 +985,13 @@ export const ROUNDUP: AddFunctionDescription = {
   description: _lt(`Rounds up a number.`),
   args: args(`
       value (number) ${_lt("The value to round to places number of places, always rounding up.")}
-      places (number, default=0) ${_lt("The number of decimal places to which to round.")}
+      places (number, default=${DEFAULT_PLACES}) ${_lt(
+    "The number of decimal places to which to round."
+  )}
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (value: any, places: any): number {
+  compute: function (value: any, places: any = DEFAULT_PLACES): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
 
@@ -1161,13 +1188,13 @@ export const TRUNC: AddFunctionDescription = {
   description: _lt("Truncates a number."),
   args: args(`
       value (number) ${_lt("The value to be truncated.")}
-      places (number, default=0) ${_lt(
-        "The number of significant digits to the right of the decimal point to retain."
-      )}
+      places (number, default=${DEFAULT_PLACES}) ${_lt(
+    "The number of significant digits to the right of the decimal point to retain."
+  )}
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (value: any, places: any = 0): number {
+  compute: function (value: any, places: any = DEFAULT_PLACES): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
 
