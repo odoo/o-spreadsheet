@@ -854,8 +854,48 @@ describe("conditional formats types", () => {
     });
 
     test.each([
+      ["GreaterThan", ["1", ""]],
+      ["GreaterThan", ["1"]],
+      ["GreaterThanOrEqual", ["1", ""]],
+      ["GreaterThanOrEqual", ["1"]],
+      ["LessThan", ["1"]],
+      ["LessThan", ["1", ""]],
+      ["LessThanOrEqual", ["1"]],
+      ["LessThanOrEqual", ["1", ""]],
+      ["BeginsWith", ["1"]],
+      ["BeginsWith", ["1", ""]],
+      ["ContainsText", ["1"]],
+      ["ContainsText", ["1", ""]],
+      ["EndsWith", ["1"]],
+      ["EndsWith", ["1", ""]],
+      ["NotContains", ["1"]],
+      ["NotContains", ["1", ""]],
+      ["Between", ["1", "1"]],
+      ["NotBetween", ["1", "1"]],
+    ])(
+      "%s operator with valid number of arguments: %s",
+      (operator: ConditionalFormattingOperatorValues, values: []) => {
+        let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: operator,
+              values: values,
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
+          },
+          target: [toZone("A1")],
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        expect(result).toBe(CommandResult.Success);
+      }
+    );
+
+    test.each([
       ["GreaterThan", []],
       ["GreaterThan", [""]],
+      ["GreaterThan", ["", "1"]],
       ["GreaterThanOrEqual", []],
       ["GreaterThanOrEqual", [""]],
       ["LessThan", []],
@@ -875,7 +915,7 @@ describe("conditional formats types", () => {
       ["NotBetween", ["1"]],
       ["NotBetween", ["1", ""]],
     ])(
-      "operators with invalid number of arguments",
+      "%s operator with invalid number of arguments %s",
       (operator: ConditionalFormattingOperatorValues, values: []) => {
         let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
           cf: {

@@ -275,13 +275,13 @@ export class ConditionalFormatPlugin
     expectedNumber: number,
     operators: ConditionalFormattingOperatorValues[]
   ) {
-    const isEmpty = (value) => value === "" || value === undefined;
     return (rule: CellIsRule) => {
-      if (
-        operators.includes(rule.operator) &&
-        (rule.values.length !== expectedNumber || rule.values.some(isEmpty))
-      ) {
-        return CommandResult.InvalidNumberOfArgs;
+      if (operators.includes(rule.operator)) {
+        for (let i = 0; i < expectedNumber; i++) {
+          if (rule.values[i] === undefined || rule.values[i] === "") {
+            return CommandResult.InvalidNumberOfArgs;
+          }
+        }
       }
       return CommandResult.Success;
     };
