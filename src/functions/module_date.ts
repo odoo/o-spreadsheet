@@ -6,6 +6,9 @@ import { assert, toJsDate, toNumber, toString, visitAny } from "./helpers";
 
 const INITIAL_1900_DAY = new Date(1899, 11, 30);
 
+const DEFAULT_TYPE = 1;
+const DEFAULT_WEEKEND = 1;
+
 function isLeapYear(year: number): boolean {
   const _year = Math.trunc(year);
   return (_year % 4 === 0 && _year % 100 != 0) || _year % 400 == 0;
@@ -397,9 +400,9 @@ export const NETWORKDAYS_INTL: AddFunctionDescription = {
       end_date (date) ${_lt(
         "The end date of the period from which to calculate the number of net working days."
       )}
-      weekend (any, default=1) ${_lt(
-        "A number or string representing which days of the week are considered weekends."
-      )}
+      weekend (any, default=${DEFAULT_WEEKEND}) ${_lt(
+    "A number or string representing which days of the week are considered weekends."
+  )}
       holidays (date, range<date>, optional) ${_lt(
         "A range or array constant containing the dates to consider as holidays."
       )}
@@ -408,7 +411,7 @@ export const NETWORKDAYS_INTL: AddFunctionDescription = {
   compute: function (
     startDate: any,
     endDate: any,
-    weekend: any = 1,
+    weekend: any = DEFAULT_WEEKEND,
     holidays: any = undefined
   ): number {
     const _startDate = toJsDate(startDate);
@@ -554,12 +557,12 @@ export const WEEKDAY: AddFunctionDescription = {
     date (date) ${_lt(
       "The date for which to determine the day of the week. Must be a reference to a cell containing a date, a function returning a date type, or a number."
     )}
-    type (number, default=1) ${_lt(
-      "A number indicating which numbering system to use to represent weekdays. By default, counts starting with Sunday = 1."
-    )}
+    type (number, default=${DEFAULT_TYPE}) ${_lt(
+    "A number indicating which numbering system to use to represent weekdays. By default, counts starting with Sunday = 1."
+  )}
   `),
   returns: ["NUMBER"],
-  compute: function (date: any, type: any = 1): number {
+  compute: function (date: any, type: any = DEFAULT_TYPE): number {
     const _date = toJsDate(date);
     const _type = Math.round(toNumber(type));
     const m = _date.getDay();
@@ -569,8 +572,8 @@ export const WEEKDAY: AddFunctionDescription = {
       _lt("The type (%s) must be 1, 2 or 3.", _type.toString())
     );
 
-    if (type === 1) return m + 1;
-    if (type === 2) return m === 0 ? 7 : m;
+    if (_type === 1) return m + 1;
+    if (_type === 2) return m === 0 ? 7 : m;
     return m === 0 ? 6 : m - 1;
   },
 };
@@ -584,12 +587,12 @@ export const WEEKNUM: AddFunctionDescription = {
     date (date) ${_lt(
       "The date for which to determine the week number. Must be a reference to a cell containing a date, a function returning a date type, or a number."
     )}
-    type (number, default=1) ${_lt(
-      "A number representing the day that a week starts on. Sunday = 1."
-    )}
+    type (number, default=${DEFAULT_TYPE}) ${_lt(
+    "A number representing the day that a week starts on. Sunday = 1."
+  )}
     `),
   returns: ["NUMBER"],
-  compute: function (date: any, type: any = 1): number {
+  compute: function (date: any, type: any = DEFAULT_TYPE): number {
     const _date = toJsDate(date);
     const _type = Math.round(toNumber(type));
 
@@ -660,9 +663,9 @@ export const WORKDAY_INTL: AddFunctionDescription = {
       num_days (number) ${_lt(
         "The number of working days to advance from start_date. If negative, counts backwards."
       )}
-      weekend (any, default=1) ${_lt(
-        "A number or string representing which days of the week are considered weekends."
-      )}
+      weekend (any, default=${DEFAULT_WEEKEND}) ${_lt(
+    "A number or string representing which days of the week are considered weekends."
+  )}
       holidays (date, range<date>, optional) ${_lt(
         "A range or array constant containing the dates to consider holidays."
       )}
@@ -672,7 +675,7 @@ export const WORKDAY_INTL: AddFunctionDescription = {
   compute: function (
     startDate: any,
     numDays: any,
-    weekend: any = 1,
+    weekend: any = DEFAULT_WEEKEND,
     holidays: any = undefined
   ): number {
     let _startDate = toJsDate(startDate);
@@ -730,6 +733,7 @@ export const YEAR: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // YEARFRAC
 // -----------------------------------------------------------------------------
+const DEFAULT_DAY_COUNT_CONVENTION = 0;
 export const YEARFRAC: AddFunctionDescription = {
   description: _lt("Exact number of years between two dates."),
   args: args(`
@@ -739,10 +743,16 @@ export const YEARFRAC: AddFunctionDescription = {
     end_date (date) ${_lt(
       "The end date to consider in the calculation. Must be a reference to a cell containing a date, a function returning a date type, or a number."
     )}
-    day_count_convention (number, default=0) ${_lt("An indicator of what day count method to use.")}
+    day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION}) ${_lt(
+    "An indicator of what day count method to use."
+  )}
     `),
   returns: ["NUMBER"],
-  compute: function (startDate: any, endDate: any, dayCountConvention: any): number {
+  compute: function (
+    startDate: any,
+    endDate: any,
+    dayCountConvention: any = DEFAULT_DAY_COUNT_CONVENTION
+  ): number {
     let _startDate = Math.trunc(toNumber(startDate));
     let _endDate = Math.trunc(toNumber(endDate));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention));

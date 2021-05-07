@@ -10,6 +10,8 @@ import {
   toNumber,
 } from "./helpers";
 
+const DEFAULT_IS_SORTED = true;
+
 /**
  * Perform a linear search and return the index of the perfect match.
  * -1 is returned if no value is found.
@@ -81,12 +83,17 @@ export const HLOOKUP: AddFunctionDescription = {
       index (number) ${_lt(
         "The row index of the value to be returned, where the first row in range is numbered 1."
       )}
-      is_sorted (boolean, default=TRUE) ${_lt(
-        "Indicates whether the row to be searched (the first row of the specified range) is sorted, in which case the closest match for search_key will be returned."
-      )}
+      is_sorted (boolean, default=${DEFAULT_IS_SORTED}) ${_lt(
+    "Indicates whether the row to be searched (the first row of the specified range) is sorted, in which case the closest match for search_key will be returned."
+  )}
   `),
   returns: ["ANY"],
-  compute: function (searchKey: any, range: any[], index: any, isSorted: any = true): any {
+  compute: function (
+    searchKey: any,
+    range: any[],
+    index: any,
+    isSorted: any = DEFAULT_IS_SORTED
+  ): any {
     const _index = Math.trunc(toNumber(index));
     assert(
       () => 1 <= _index && _index <= range[0].length,
@@ -167,18 +174,18 @@ export const LOOKUP: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // MATCH
 // -----------------------------------------------------------------------------
-
+const DEFAULT_SEARCH_TYPE = 1;
 export const MATCH: AddFunctionDescription = {
   description: _lt(`Position of item in range that matches value.`),
   args: args(`
       search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
       range (any, range) ${_lt("The one-dimensional array to be searched.")}
-      search_type (number, default=1) ${_lt(
-        "The search method. 1 (default) finds the largest value less than or equal to search_key when range is sorted in ascending order. 0 finds the exact value when range is unsorted. -1 finds the smallest value greater than or equal to search_key when range is sorted in descending order."
-      )}
+      search_type (number, default=${DEFAULT_SEARCH_TYPE}) ${_lt(
+    "The search method. 1 (default) finds the largest value less than or equal to search_key when range is sorted in ascending order. 0 finds the exact value when range is unsorted. -1 finds the smallest value greater than or equal to search_key when range is sorted in descending order."
+  )}
   `),
   returns: ["NUMBER"],
-  compute: function (searchKey: any, range: any[], searchType: any = 1): number {
+  compute: function (searchKey: any, range: any[], searchType: any = DEFAULT_SEARCH_TYPE): number {
     let _searchType = toNumber(searchType);
     const nbCol = range.length;
     const nbRow = range[0].length;
@@ -262,12 +269,17 @@ export const VLOOKUP: AddFunctionDescription = {
       index (number) ${_lt(
         "The column index of the value to be returned, where the first column in range is numbered 1."
       )}
-      is_sorted (boolean, default=TRUE) ${_lt(
-        "Indicates whether the column to be searched (the first column of the specified range) is sorted, in which case the closest match for search_key will be returned."
-      )}
+      is_sorted (boolean, default=${DEFAULT_IS_SORTED}) ${_lt(
+    "Indicates whether the column to be searched (the first column of the specified range) is sorted, in which case the closest match for search_key will be returned."
+  )}
   `),
   returns: ["ANY"],
-  compute: function (searchKey: any, range: any[], index: any, isSorted: any = true): any {
+  compute: function (
+    searchKey: any,
+    range: any[],
+    index: any,
+    isSorted: any = DEFAULT_IS_SORTED
+  ): any {
     const _index = Math.trunc(toNumber(index));
     assert(
       () => 1 <= _index && _index <= range.length,
