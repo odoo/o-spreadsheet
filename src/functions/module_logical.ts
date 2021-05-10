@@ -70,7 +70,7 @@ export const IF: AddFunctionDescription = {
     valueIfFalse: () => any = () => false
   ): any {
     const result = toBoolean(logicalExpression) ? valueIfTrue() : valueIfFalse();
-    return result === null ? "" : result;
+    return result === null || result === undefined ? "" : result;
   },
 };
 
@@ -93,7 +93,7 @@ export const IFERROR: AddFunctionDescription = {
     } catch (e) {
       result = valueIfError();
     }
-    return result === null ? "" : result;
+    return result === null || result === undefined ? "" : result;
   },
 };
 

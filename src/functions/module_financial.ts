@@ -49,13 +49,13 @@ export const DB: AddFunctionDescription = {
     salvage: unknown,
     life: unknown,
     period: unknown,
-    month: unknown = 12
+    ...args
   ): number {
     const _cost = toNumber(cost);
     const _salvage = toNumber(salvage);
     const _life = toNumber(life);
     const _period = Math.trunc(toNumber(period));
-    const _month = Math.trunc(toNumber(month));
+    const _month = args.length ? Math.trunc(toNumber(args[0])) : 12;
     const lifeLimit = _life + (_month === 12 ? 0 : 1);
 
     assert(() => _cost > 0, _lt("The cost (%s) must be strictly positive.", _cost.toString()));

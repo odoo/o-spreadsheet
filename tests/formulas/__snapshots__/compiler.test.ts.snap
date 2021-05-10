@@ -231,7 +231,7 @@ exports[`expression compiler some arithmetic expressions 12`] = `
 ) {
 // =sum(1,,2)
 ctx.__lastFnCalled = 'SUM'
-let _1 = ctx['SUM'](1,null,2)
+let _1 = ctx['SUM'](1,undefined,2)
 return _1;
 }"
 `;

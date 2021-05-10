@@ -241,6 +241,23 @@ describe("compile functions", () => {
       expect(() => compiledBaseFunction("=OPTIONAL(1,2,3)")).toThrow();
     });
 
+    test("with default argument", () => {
+      functionRegistry.add("USEDEFAULTARG", {
+        description: "function with a default argument",
+        compute: () => {
+          return true;
+        },
+        args: [
+          { name: "arg1", description: "", type: ["ANY"] },
+          { name: "arg2", description: "", type: ["ANY"], default: true, defaultValue: 42 },
+        ],
+        returns: ["ANY"],
+      });
+      expect(() => compiledBaseFunction("=USEDEFAULTARG(1)")).not.toThrow();
+      expect(() => compiledBaseFunction("=USEDEFAULTARG(1,2)")).not.toThrow();
+      expect(() => compiledBaseFunction("=USEDEFAULTARG(1,2,3)")).toThrow();
+    });
+
     test("with repeatable argument", () => {
       functionRegistry.add("REPEATABLE", {
         description: "function with repeatable argument",
@@ -275,6 +292,51 @@ describe("compile functions", () => {
       expect(() => compiledBaseFunction("=REPEATABLES(1, 2, 3)")).not.toThrow();
       expect(() => compiledBaseFunction("=REPEATABLES(1, 2, 3, 4)")).toThrow();
       expect(() => compiledBaseFunction("=REPEATABLES(1, 2, 3, 4, 5)")).not.toThrow();
+    });
+  });
+
+  describe("interpret values", () => {
+    beforeAll(() => {
+      functionRegistry.add("ANYFUNCTION", {
+        description: "any function",
+        compute: (arg1, arg2) => {
+          return arg2;
+        },
+        args: [
+          { name: "arg1", description: "", type: ["ANY"] },
+          { name: "arg2", description: "", type: ["ANY"] },
+        ],
+        returns: ["ANY"],
+      });
+
+      functionRegistry.add("USEDEFAULTARG", {
+        description: "function with a default argument",
+        compute: (arg1, arg2 = 42) => {
+          return arg2;
+        },
+        args: [
+          { name: "arg1", description: "", type: ["ANY"] },
+          { name: "arg2", description: "", type: ["ANY"], default: true, defaultValue: 42 },
+        ],
+        returns: ["ANY"],
+      });
+    });
+
+    test("empty value interpreted as undefined", () => {
+      expect(evaluateCell("A1", { A1: "=ANYFUNCTION(1,)" })).toBe(undefined);
+    });
+
+    test("if default value --> empty value interpreted as default value", () => {
+      expect(evaluateCell("A1", { A1: "=USEDEFAULTARG(1,)" })).toBe(42);
+    });
+
+    test("if default value --> non-value interpreted as default value", () => {
+      expect(evaluateCell("A1", { A1: "=USEDEFAULTARG(1)" })).toBe(42);
+    });
+
+    test("empty cell interpreted as null", () => {
+      expect(evaluateCell("A1", { A1: "=USEDEFAULTARG(1,A2)" })).toBe(null);
+      expect(evaluateCell("A1", { A1: "=ANYFUNCTION(1,A2)" })).toBe(null);
     });
   });
 

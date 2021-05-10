@@ -242,10 +242,10 @@ export function compile(str: NormalizedFormula): CompiledFormula {
           break;
         case "UNKNOWN":
           if (!isLazy) {
-            return "null";
+            return "undefined";
           }
           id = nextId++;
-          statement = `null`;
+          statement = `undefined`;
           break;
       }
       code.push(`let _${id} = ` + (isLazy ? `()=> ` : ``) + statement);

@@ -291,7 +291,7 @@ export function conditionalVisitBoolean(
       return true;
     },
     (argValue) => {
-      if (argValue !== null) {
+      if (argValue !== undefined && argValue !== null) {
         return cb(strictToBoolean(argValue));
       }
       return true;

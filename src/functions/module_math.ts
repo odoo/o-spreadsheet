@@ -837,7 +837,7 @@ export const PRODUCT: AddFunctionDescription = {
             }
           }
         }
-      } else if (n !== null) {
+      } else if (n !== null && n !== undefined) {
         acc *= strictToNumber(n);
         count += 1;
       }
@@ -884,7 +884,7 @@ export const RANDBETWEEN: AddFunctionDescription = {
     }
 
     assert(
-      () => low <= _high,
+      () => _low <= _high,
       _lt(
         "The high (%s) must be greater than or equal to the low (%s).",
         _high.toString(),
