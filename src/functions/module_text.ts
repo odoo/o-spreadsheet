@@ -121,13 +121,13 @@ export const LEFT: AddFunctionDescription = {
   description: _lt("Substring from beginning of specified string."),
   args: args(`
       text (string) ${_lt("The string from which the left portion will be returned.")}
-      number_of_characters (number, default=1) ${_lt(
+      number_of_characters (number, optional) ${_lt(
         "The number of characters to return from the left side of string."
       )}
   `),
   returns: ["STRING"],
-  compute: function (text: any, numberOfCharacters: any = 1): string {
-    const _numberOfCharacters = toNumber(numberOfCharacters);
+  compute: function (text: any, ...args): string {
+    const _numberOfCharacters = args.length ? toNumber(args[0]) : 1;
     assert(
       () => _numberOfCharacters >= 0,
       _lt("The number_of_characters (%s) must be positive or null.", _numberOfCharacters.toString())
@@ -197,13 +197,13 @@ export const RIGHT: AddFunctionDescription = {
   description: _lt("A substring from the end of a specified string."),
   args: args(`
       text (string) ${_lt("The string from which the right portion will be returned.")}
-      number_of_characters (number, default=1) ${_lt(
+      number_of_characters (number, optional) ${_lt(
         "The number of characters to return from the right side of string."
       )}
   `),
   returns: ["STRING"],
-  compute: function (text: any, numberOfCharacters: any = 1): string {
-    const _numberOfCharacters = toNumber(numberOfCharacters);
+  compute: function (text: any, ...args): string {
+    const _numberOfCharacters = args.length ? toNumber(args[0]) : 1;
     assert(
       () => _numberOfCharacters >= 0,
       _lt("The number_of_characters (%s) must be positive or null.", _numberOfCharacters.toString())
