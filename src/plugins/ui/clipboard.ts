@@ -643,9 +643,10 @@ export class ClipboardPlugin extends UIPlugin {
         this.ui.notifyUser(_lt("This operation is not allowed with multiple selections."));
       }
       if (result === CommandResult.WillRemoveExistingMerge) {
-        this.ui.askConfirmation(
-          _lt("Pasting here will remove existing merge(s). Paste anyway?"),
-          () => this.dispatch("PASTE", { target, pasteOption, force: true })
+        this.ui.notifyUser(
+          _lt(
+            "This operation is not possible due to a merge. Please remove the merges first than try again."
+          )
         );
       }
     } else {
