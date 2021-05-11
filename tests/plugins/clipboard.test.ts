@@ -362,8 +362,8 @@ describe("clipboard", () => {
     });
   });
 
-  test("Pasting content that will destroy a merge will ask for confirmation", async () => {
-    const askConfirmation = jest.fn();
+  test("Pasting content that will destroy a merge will notify the user", async () => {
+    const notifyUser = jest.fn();
     const model = new Model(
       {
         sheets: [
@@ -378,7 +378,7 @@ describe("clipboard", () => {
           },
         ],
       },
-      { askConfirmation }
+      { notifyUser }
     );
 
     selectCell(model, "B2");
@@ -387,7 +387,7 @@ describe("clipboard", () => {
 
     selectCell(model, "A1");
     model.dispatch("PASTE", { target: model.getters.getSelectedZones(), interactive: true });
-    expect(askConfirmation).toHaveBeenCalled();
+    expect(notifyUser).toHaveBeenCalled();
   });
 
   test("Dispatch a PASTE command with interactive=true correctly takes pasteOption into account", async () => {
