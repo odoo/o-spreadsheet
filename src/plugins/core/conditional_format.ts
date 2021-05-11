@@ -3,6 +3,7 @@ import { isInside, zoneToXc } from "../../helpers/index";
 import {
   AddConditionalFormatCommand,
   ApplyRangeChange,
+  CancelledReason,
   CellIsRule,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
@@ -263,7 +264,6 @@ export class ConditionalFormatPlugin
         return this.checkValidations(
           rule,
           this.checkOperatorArgsNumber(2, ["Between", "NotBetween"]),
-          this.checkOperatorArgsNumberEqual(["Equal", "NotEqual"]),
           this.checkOperatorArgsNumber(1, [
             "BeginsWith",
             "ContainsText",
@@ -279,15 +279,19 @@ export class ConditionalFormatPlugin
       case "ColorScaleRule": {
         return this.checkValidations(
           rule,
-          this.checkThresholds(this.checkNaN),
           this.chainValidations(
             this.checkThresholds(this.checkFormulaCompilation),
             this.checkThresholds(this.checkAsyncFormula)
           ),
-          this.checkMinBiggerThanMax,
-          this.checkMinBiggerThanMid,
-          this.checkMidBiggerThanMax
-          // ☝️ Those three validations can be factorized further
+          this.chainValidations(
+            this.checkThresholds(this.checkNaN),
+            this.batchValidations(
+              this.checkMinBiggerThanMax,
+              this.checkMinBiggerThanMid,
+              this.checkMidBiggerThanMax
+              // ☝️ Those three validations can be factorized further
+            )
+          )
         );
       }
       case "IconSetRule": {
@@ -307,30 +311,26 @@ export class ConditionalFormatPlugin
     return CommandResult.Success;
   }
 
-  private checkOperatorArgsNumberEqual(operators: ConditionalFormattingOperatorValues[]) {
-    return (rule: CellIsRule) => {
-      const isEmpty = (value) => value === "" || value === undefined;
-      if (
-        operators.includes(rule.operator) &&
-        (!isEmpty(rule.values[1]) || rule.values.length > 2)
-      ) {
-        return CommandResult.InvalidNumberOfArgs;
-      }
-      return CommandResult.Success;
-    };
-  }
-
   private checkOperatorArgsNumber(
     expectedNumber: number,
     operators: ConditionalFormattingOperatorValues[]
   ) {
+    if (expectedNumber > 2) {
+      throw new Error(
+        "Checking more than 2 arguments is currently not supported. Add the appropriate CommandResult if you want to."
+      );
+    }
     return (rule: CellIsRule) => {
       if (operators.includes(rule.operator)) {
-        for (let i = 0; i < expectedNumber; i++) {
-          if (rule.values[i] === undefined || rule.values[i] === "") {
-            return CommandResult.InvalidNumberOfArgs;
-          }
+        const errors: CancelledReason[] = [];
+        const isEmpty = (value) => value === undefined || value === "";
+        if (expectedNumber >= 1 && isEmpty(rule.values[0])) {
+          errors.push(CommandResult.FirstArgMissing);
         }
+        if (expectedNumber >= 2 && isEmpty(rule.values[1])) {
+          errors.push(CommandResult.SecondArgMissing);
+        }
+        return errors.length ? errors : CommandResult.Success;
       }
       return CommandResult.Success;
     };

@@ -1,5 +1,11 @@
 import * as owl from "@odoo/owl";
-import { IconSetRule, IconThreshold, SpreadsheetEnv } from "../../../types";
+import {
+  CancelledReason,
+  CommandResult,
+  IconSetRule,
+  IconThreshold,
+  SpreadsheetEnv,
+} from "../../../types";
 import { ICONS, ICON_SETS, REFRESH } from "../../icons";
 import { IconPicker } from "../../icon_picker";
 import { conditionalFormattingTerms, iconSetRule } from "../translations_terms";
@@ -54,6 +60,7 @@ const INFLECTION_POINTS_TEMPLATE_ROW = xml/* xml */ `
     </td>
     <td>
       <input type="text" class="o-input"
+        t-att-class="{ 'o-invalid': isInflectionPointInvalid(inflectionPoint) }"
         t-model="stateIconSetCF[inflectionPoint].value"
       />
     </td>
@@ -214,6 +221,7 @@ const CSS = css/* scss */ `
 
 interface Props {
   rule: IconSetRule;
+  errors: CancelledReason[];
 }
 
 interface IconSetRuleState {
@@ -251,6 +259,29 @@ export class IconSetRuleEditor extends Component<Props, SpreadsheetEnv> {
   constructor() {
     super(...arguments);
     useExternalListener(window as any, "click", this.closeMenus);
+  }
+
+  isInflectionPointInvalid(
+    inflectionPoint: "lowerInflectionPoint" | "upperInflectionPoint"
+  ): boolean {
+    switch (inflectionPoint) {
+      case "lowerInflectionPoint":
+        return (
+          this.props.errors.includes(CommandResult.ValueLowerInflectionNaN) ||
+          this.props.errors.includes(CommandResult.ValueLowerAsyncFormulaNotSupported) ||
+          this.props.errors.includes(CommandResult.ValueLowerInvalidFormula) ||
+          this.props.errors.includes(CommandResult.LowerBiggerThanUpper)
+        );
+      case "upperInflectionPoint":
+        return (
+          this.props.errors.includes(CommandResult.ValueUpperInflectionNaN) ||
+          this.props.errors.includes(CommandResult.ValueUpperAsyncFormulaNotSupported) ||
+          this.props.errors.includes(CommandResult.ValueUpperInvalidFormula) ||
+          this.props.errors.includes(CommandResult.LowerBiggerThanUpper)
+        );
+      default:
+        return true;
+    }
   }
 
   toggleMenu(tool) {

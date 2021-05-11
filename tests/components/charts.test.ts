@@ -8,7 +8,7 @@ import {
   simulateClick,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
-import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
+import { GridParent, makeTestFixture, nextTick, textContentAll } from "../test_helpers/helpers";
 
 const mockChart = () => {
   const mockChartData: ChartConfiguration = {
@@ -39,11 +39,7 @@ const mockChart = () => {
 };
 
 function errorMessages(): string[] {
-  const errors = document.querySelectorAll(".o-sidepanel-error");
-  if (!errors) return [];
-  return [...errors]
-    .map((error) => error.textContent)
-    .filter((error): error is string => error !== null);
+  return textContentAll(".o-sidepanel-error div");
 }
 
 jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
@@ -273,6 +269,30 @@ describe("figures", () => {
     expect(parent.model.getters.getChartDefinition(chartId)?.labelRange).toBeUndefined();
   });
 
+  test("empty dataset and invalid label range display both errors", async () => {
+    const model = parent.model;
+    const sheetId = model.getters.getActiveSheetId();
+    const figure = model.getters.getFigure(sheetId, chartId);
+    parent.env.openSidePanel("ChartPanel", { figure });
+    await nextTick();
+
+    // empty dataset
+    await simulateClick(".o-data-series input");
+    setInputValueAndTrigger(".o-data-series input", "", "change");
+    await simulateClick(".o-data-series .o-selection-ok");
+    expect(parent.el?.querySelector(".o-data-series input")?.classList).toContain("o-invalid");
+    expect(parent.el?.querySelector(".o-data-labels input")?.classList).not.toContain("o-invalid");
+    expect(errorMessages()).toEqual(["A dataset needs to be defined"]);
+
+    // invalid labels
+    await simulateClick(".o-data-labels input");
+    setInputValueAndTrigger(".o-data-labels input", "Invalid Label Range", "change");
+    await simulateClick(".o-data-labels .o-selection-ok");
+    expect(parent.el?.querySelector(".o-data-series input")?.classList).toContain("o-invalid");
+    expect(parent.el?.querySelector(".o-data-labels input")?.classList).toContain("o-invalid");
+    expect(errorMessages()).toEqual(["A dataset needs to be defined", "Labels are invalid"]);
+  });
+
   test("drawing of chart will receive new data after update", async () => {
     await simulateClick(".o-figure");
     await simulateClick(".o-chart-menu");
@@ -369,7 +389,7 @@ describe("figures", () => {
     await nextTick();
     await simulateClick(".o-data-labels .o-selection-ok");
 
-    expect(errorMessages()).toEqual([]);
+    expect(errorMessages()).toEqual(["A dataset needs to be defined"]);
   });
 
   test("update chart with invalid dataset and empty labels", async () => {

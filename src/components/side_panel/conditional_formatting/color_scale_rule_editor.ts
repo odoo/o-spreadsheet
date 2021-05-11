@@ -1,9 +1,11 @@
 import * as owl from "@odoo/owl";
 import { colorNumberString } from "../../../helpers/index";
 import {
+  CancelledReason,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
   ColorScaleThreshold,
+  CommandResult,
   ConditionalFormatRule,
   SpreadsheetEnv,
 } from "../../../types";
@@ -43,8 +45,9 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
           <t t-esc="env._t('${conditionalFormattingTerms.Formula}')"/>
         </option>
       </select>
-      <input type="text" class="o-input o-threshold-value"
+      <input type="text" class="o-input o-threshold-value o-required"
         t-model="stateColorScale[thresholdType].value"
+        t-att-class="{ 'o-invalid': isValueInvalid(thresholdType) }"
         t-if="['number', 'percentage', 'percentile', 'formula'].includes(threshold.type)"
       />
       <input type="text" class="o-input o-threshold-value"
@@ -113,6 +116,7 @@ const CSS = css/* scss */ `
 
 interface Props {
   rule: ColorScaleRule;
+  errors: CancelledReason[];
 }
 
 type ComponentColorScaleMidPointThreshold = {
@@ -133,6 +137,9 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { ColorPicker };
+  static defaultProps = {
+    errors: [],
+  };
 
   colorNumberString = colorNumberString;
 
@@ -184,6 +191,35 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
     return this.stateColorScale.midpoint.type === "none"
       ? baseString + minColor + ", #" + maxColor + ")"
       : baseString + minColor + ", #" + midColor + ", #" + maxColor + ")";
+  }
+
+  isValueInvalid(threshold: "minimum" | "midpoint" | "maximum"): boolean {
+    switch (threshold) {
+      case "minimum":
+        return (
+          this.props.errors.includes(CommandResult.MinAsyncFormulaNotSupported) ||
+          this.props.errors.includes(CommandResult.MinInvalidFormula) ||
+          this.props.errors.includes(CommandResult.MinBiggerThanMid) ||
+          this.props.errors.includes(CommandResult.MinBiggerThanMax) ||
+          this.props.errors.includes(CommandResult.MinNaN)
+        );
+      case "midpoint":
+        return (
+          this.props.errors.includes(CommandResult.MidAsyncFormulaNotSupported) ||
+          this.props.errors.includes(CommandResult.MidInvalidFormula) ||
+          this.props.errors.includes(CommandResult.MidNaN) ||
+          this.props.errors.includes(CommandResult.MidBiggerThanMax)
+        );
+      case "maximum":
+        return (
+          this.props.errors.includes(CommandResult.MaxAsyncFormulaNotSupported) ||
+          this.props.errors.includes(CommandResult.MaxInvalidFormula) ||
+          this.props.errors.includes(CommandResult.MaxNaN)
+        );
+
+      default:
+        return false;
+    }
   }
 
   private closeMenus() {

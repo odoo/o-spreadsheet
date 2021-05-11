@@ -834,6 +834,7 @@ describe("datasource tests", function () {
       "1"
     );
     expect(result).toBeCancelledBecause(CommandResult.EmptyDataSet);
+    expect(result).not.toBeCancelledBecause(CommandResult.InvalidDataSet);
   });
 
   test("create chart with empty labels", () => {

@@ -1016,12 +1016,10 @@ describe("conditional formats types", () => {
       ["EndsWith", [""]],
       ["NotContains", []],
       ["NotContains", [""]],
-      ["Between", ["1"]],
-      ["Between", ["1", ""]],
-      ["NotBetween", ["1"]],
-      ["NotBetween", ["1", ""]],
+      ["Between", ["", "1"]],
+      ["NotBetween", ["", "1"]],
     ])(
-      "%s operator with invalid number of arguments %s",
+      "%s operator with missing first argument %s",
       (operator: ConditionalFormattingOperatorValues, values: []) => {
         let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
           cf: {
@@ -1036,10 +1034,59 @@ describe("conditional formats types", () => {
           target: [toZone("A1")],
           sheetId: model.getters.getActiveSheetId(),
         });
-        expect(result).toBeCancelledBecause(CommandResult.InvalidNumberOfArgs);
+        expect(result).toBeCancelledBecause(CommandResult.FirstArgMissing);
       }
     );
   });
+  test.each([
+    ["Between", ["1"]],
+    ["Between", ["1", ""]],
+    ["NotBetween", ["1"]],
+    ["NotBetween", ["1", ""]],
+  ])(
+    "%s operator with missing second argument %s",
+    (operator: ConditionalFormattingOperatorValues, values: []) => {
+      let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: operator,
+            values: values,
+            style: { fillColor: "#ff0f0f" },
+          },
+          id: "11",
+        },
+        target: [toZone("A1")],
+        sheetId: model.getters.getActiveSheetId(),
+      });
+      expect(result).toBeCancelledBecause(CommandResult.SecondArgMissing);
+    }
+  );
+  test.each([
+    ["Between", ["", ""]],
+    ["NotBetween", ["", ""]],
+  ])(
+    "%s operator with both arguments missing %s",
+    (operator: ConditionalFormattingOperatorValues, values: []) => {
+      let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: operator,
+            values: values,
+            style: { fillColor: "#ff0f0f" },
+          },
+          id: "11",
+        },
+        target: [toZone("A1")],
+        sheetId: model.getters.getActiveSheetId(),
+      });
+      expect(result).toBeCancelledBecause(
+        CommandResult.FirstArgMissing,
+        CommandResult.SecondArgMissing
+      );
+    }
+  );
 
   describe("Icon set", () => {
     describe.each(["", "aaaa", "=SUM(1, 2)"])(

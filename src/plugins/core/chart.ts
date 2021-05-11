@@ -119,8 +119,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       case "CREATE_CHART":
         return this.checkValidations(
           cmd,
-          this.checkEmptyDataset,
-          this.checkDataset,
+          this.chainValidations(this.checkEmptyDataset, this.checkDataset),
           this.checkLabelRange
         );
       default:

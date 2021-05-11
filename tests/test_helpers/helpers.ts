@@ -450,6 +450,15 @@ export async function startGridComposition(key: string = "Enter") {
 }
 
 /**
+ * Return the text of every node matching the selector
+ */
+export function textContentAll(cssSelector: string): string[] {
+  const nodes = document.querySelectorAll(cssSelector);
+  if (!nodes) return [];
+  return [...nodes].map((node) => node.textContent).filter((text): text is string => text !== null);
+}
+
+/**
  * The Touch API is currently experimental (mid 2020).
  * This implementation is used in test to easily trigger TouchEvents.
  * (TouchEvent is not experimental and supported by all major browsers.)
