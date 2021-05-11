@@ -14,6 +14,7 @@
 - [EmptyRange](commandresult.md#emptyrange)
 - [EmptyRedoStack](commandresult.md#emptyredostack)
 - [EmptyUndoStack](commandresult.md#emptyundostack)
+- [FirstArgMissing](commandresult.md#firstargmissing)
 - [ForbiddenCharactersInSheetName](commandresult.md#forbiddencharactersinsheetname)
 - [InputAlreadyFocused](commandresult.md#inputalreadyfocused)
 - [InvalidAnchorZone](commandresult.md#invalidanchorzone)
@@ -21,7 +22,6 @@
 - [InvalidChartDefinition](commandresult.md#invalidchartdefinition)
 - [InvalidDataSet](commandresult.md#invaliddataset)
 - [InvalidLabelRange](commandresult.md#invalidlabelrange)
-- [InvalidNumberOfArgs](commandresult.md#invalidnumberofargs)
 - [InvalidOffset](commandresult.md#invalidoffset)
 - [InvalidRange](commandresult.md#invalidrange)
 - [InvalidSheetId](commandresult.md#invalidsheetid)
@@ -47,6 +47,7 @@
 - [NotEnoughElements](commandresult.md#notenoughelements)
 - [NotEnoughSheets](commandresult.md#notenoughsheets)
 - [Readonly](commandresult.md#readonly)
+- [SecondArgMissing](commandresult.md#secondargmissing)
 - [SelectionOutOfBound](commandresult.md#selectionoutofbound)
 - [Success](commandresult.md#success)
 - [TargetOutOfSheet](commandresult.md#targetoutofsheet)
@@ -114,6 +115,12 @@ ___
 
 ___
 
+### FirstArgMissing
+
+• **FirstArgMissing**: = 34
+
+___
+
 ### ForbiddenCharactersInSheetName
 
 • **ForbiddenCharactersInSheetName**: = 11
@@ -156,15 +163,9 @@ ___
 
 ___
 
-### InvalidNumberOfArgs
-
-• **InvalidNumberOfArgs**: = 34
-
-___
-
 ### InvalidOffset
 
-• **InvalidOffset**: = 55
+• **InvalidOffset**: = 56
 
 ___
 
@@ -182,13 +183,13 @@ ___
 
 ### InvalidSortZone
 
-• **InvalidSortZone**: = 50
+• **InvalidSortZone**: = 51
 
 ___
 
 ### InvalidViewportSize
 
-• **InvalidViewportSize**: = 56
+• **InvalidViewportSize**: = 57
 
 ___
 
@@ -200,19 +201,19 @@ ___
 
 ### MaxAsyncFormulaNotSupported
 
-• **MaxAsyncFormulaNotSupported**: = 42
+• **MaxAsyncFormulaNotSupported**: = 43
 
 ___
 
 ### MaxInvalidFormula
 
-• **MaxInvalidFormula**: = 47
+• **MaxInvalidFormula**: = 48
 
 ___
 
 ### MaxNaN
 
-• **MaxNaN**: = 37
+• **MaxNaN**: = 38
 
 ___
 
@@ -230,13 +231,13 @@ ___
 
 ### MergeOverlap
 
-• **MergeOverlap**: = 52
+• **MergeOverlap**: = 53
 
 ___
 
 ### MidAsyncFormulaNotSupported
 
-• **MidAsyncFormulaNotSupported**: = 41
+• **MidAsyncFormulaNotSupported**: = 42
 
 ___
 
@@ -248,19 +249,19 @@ ___
 
 ### MidInvalidFormula
 
-• **MidInvalidFormula**: = 46
+• **MidInvalidFormula**: = 47
 
 ___
 
 ### MidNaN
 
-• **MidNaN**: = 36
+• **MidNaN**: = 37
 
 ___
 
 ### MinAsyncFormulaNotSupported
 
-• **MinAsyncFormulaNotSupported**: = 40
+• **MinAsyncFormulaNotSupported**: = 41
 
 ___
 
@@ -278,13 +279,13 @@ ___
 
 ### MinInvalidFormula
 
-• **MinInvalidFormula**: = 45
+• **MinInvalidFormula**: = 46
 
 ___
 
 ### MinNaN
 
-• **MinNaN**: = 35
+• **MinNaN**: = 36
 
 ___
 
@@ -308,7 +309,13 @@ ___
 
 ### Readonly
 
-• **Readonly**: = 54
+• **Readonly**: = 55
+
+___
+
+### SecondArgMissing
+
+• **SecondArgMissing**: = 35
 
 ___
 
@@ -332,49 +339,49 @@ ___
 
 ### TooManyHiddenElements
 
-• **TooManyHiddenElements**: = 53
+• **TooManyHiddenElements**: = 54
 
 ___
 
 ### ValueLowerAsyncFormulaNotSupported
 
-• **ValueLowerAsyncFormulaNotSupported**: = 44
+• **ValueLowerAsyncFormulaNotSupported**: = 45
 
 ___
 
 ### ValueLowerInflectionNaN
 
-• **ValueLowerInflectionNaN**: = 39
+• **ValueLowerInflectionNaN**: = 40
 
 ___
 
 ### ValueLowerInvalidFormula
 
-• **ValueLowerInvalidFormula**: = 49
+• **ValueLowerInvalidFormula**: = 50
 
 ___
 
 ### ValueUpperAsyncFormulaNotSupported
 
-• **ValueUpperAsyncFormulaNotSupported**: = 43
+• **ValueUpperAsyncFormulaNotSupported**: = 44
 
 ___
 
 ### ValueUpperInflectionNaN
 
-• **ValueUpperInflectionNaN**: = 38
+• **ValueUpperInflectionNaN**: = 39
 
 ___
 
 ### ValueUpperInvalidFormula
 
-• **ValueUpperInvalidFormula**: = 48
+• **ValueUpperInvalidFormula**: = 49
 
 ___
 
 ### WaitingSessionConfirmation
 
-• **WaitingSessionConfirmation**: = 51
+• **WaitingSessionConfirmation**: = 52
 
 ___
 

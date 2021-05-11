@@ -15,7 +15,8 @@ export const conditionalFormattingTerms = {
   PREVIEW_TEXT: _lt("Preview text"),
   Errors: {
     [CommandResult.InvalidRange]: _lt("The range is invalid"),
-    [CommandResult.InvalidNumberOfArgs]: _lt("Invalid number of arguments"),
+    [CommandResult.FirstArgMissing]: _lt("The argument is missing. Please provide a value"),
+    [CommandResult.SecondArgMissing]: _lt("The second argument is missing. Please provide a value"),
     [CommandResult.MinNaN]: _lt("The minpoint must be a number"),
     [CommandResult.MidNaN]: _lt("The midpoint must be a number"),
     [CommandResult.MaxNaN]: _lt("The maxpoint must be a number"),
@@ -47,6 +48,7 @@ export const conditionalFormattingTerms = {
     [CommandResult.ValueLowerAsyncFormulaNotSupported]: _lt(
       "Some formulas are not supported for the lower inflection point"
     ),
+    [CommandResult.EmptyRange]: _lt("A range needs to be defined"),
     unexpected: _lt("The rule is invalid for an unknown reason"),
   },
   SingleColor: _lt("Single color"),

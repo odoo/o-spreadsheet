@@ -1,5 +1,12 @@
 import * as owl from "@odoo/owl";
-import { CellIsRule, ConditionalFormatRule, SpreadsheetEnv, Style } from "../../../types";
+import {
+  CancelledReason,
+  CellIsRule,
+  CommandResult,
+  ConditionalFormatRule,
+  SpreadsheetEnv,
+  Style,
+} from "../../../types";
 import { ColorPicker } from "../../color_picker";
 import * as icons from "../../icons";
 import { cellIsOperators, conditionalFormattingTerms } from "../translations_terms";
@@ -31,12 +38,14 @@ const TEMPLATE = xml/* xml */ `
       <input type="text"
              placeholder="Value"
              t-model="state.condition.value1"
-             class="o-input o-cell-is-value"/>
+             t-att-class="{ 'o-invalid': isValue1Invalid }"
+             class="o-input o-cell-is-value o-required"/>
       <t t-if="state.condition.operator === 'Between' || state.condition.operator === 'NotBetween'">
           <input type="text"
                  placeholder="and value"
                  t-model="state.condition.value2"
-                 class="o-input o-cell-is-value"/>
+                 t-att-class="{ 'o-invalid': isValue2Invalid }"
+                 class="o-input o-cell-is-value o-required"/>
       </t>
     </t>
     <div class="o-cf-title-text" t-esc="env._t('${conditionalFormattingTerms.FORMATTING_STYLE}')"></div>
@@ -104,12 +113,16 @@ const CSS = css/* scss */ `
 
 interface Props {
   rule: CellIsRule;
+  errors: CancelledReason[];
 }
 
 export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { ColorPicker };
+  static defaultProps = {
+    errors: [],
+  };
 
   // @ts-ignore used in XML template
   private cellIsOperators = cellIsOperators;
@@ -135,6 +148,14 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
   constructor() {
     super(...arguments);
     useExternalListener(window as any, "click", this.closeMenus);
+  }
+
+  get isValue1Invalid(): boolean {
+    return !!this.props.errors?.includes(CommandResult.FirstArgMissing);
+  }
+
+  get isValue2Invalid(): boolean {
+    return !!this.props.errors?.includes(CommandResult.SecondArgMissing);
   }
 
   getRule(): CellIsRule {

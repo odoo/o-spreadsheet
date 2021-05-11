@@ -3,7 +3,7 @@ import { UuidGenerator } from "../helpers/index";
 import { RangeInputValue } from "../plugins/ui/selection_inputs";
 import { SpreadsheetEnv } from "../types";
 
-const { Component } = owl;
+const { Component, useState } = owl;
 
 const { xml, css } = owl.tags;
 
@@ -18,8 +18,12 @@ const TEMPLATE = xml/* xml */ `
         t-on-change="onInputChanged(range.id)"
         t-on-focus="focus(range.id)"
         t-att-value="range.xc"
-        t-att-style="getStyle(range)"
-        t-att-class="range.isFocused ? 'o-focused' : ''"
+        t-att-style="getColor(range)"
+        t-att-class="{
+          'o-focused' : range.isFocused,
+          'o-required': props.required,
+          'o-invalid': isInvalid || !range.isValidRange,
+        }"
       />
       <button
         class="o-btn o-remove-selection"
@@ -59,10 +63,16 @@ const CSS = css/* scss */ `
       input:focus {
         outline: none;
       }
+      input.o-required,
       input.o-focused {
-        border-color: #3266ca;
         border-width: 2px;
         padding: 3px 5px;
+      }
+      input.o-focused {
+        border-color: #3266ca;
+      }
+      input.o-invalid {
+        border-color: red;
       }
       button.o-btn {
         background: transparent;
@@ -87,6 +97,8 @@ const CSS = css/* scss */ `
 interface Props {
   ranges: string[];
   maximumRanges?: number;
+  required?: boolean;
+  isInvalid?: boolean;
 }
 
 interface SelectionRange extends RangeInputValue {
@@ -109,6 +121,9 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
   private getters = this.env.getters;
   private dispatch = this.env.dispatch;
   private originSheet = this.env.getters.getActiveSheetId();
+  private state = useState({
+    isMissing: false,
+  });
 
   get ranges(): SelectionRange[] {
     const existingSelectionRange = this.getters.getSelectionInput(this.id);
@@ -135,6 +150,10 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
     return !this.props.maximumRanges || this.ranges.length < this.props.maximumRanges;
   }
 
+  get isInvalid(): boolean {
+    return this.props.isInvalid || this.state.isMissing;
+  }
+
   mounted() {
     this.dispatch("ENABLE_NEW_SELECTION_INPUT", {
       id: this.id,
@@ -154,22 +173,20 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
     }
   }
 
-  getStyle(range: SelectionRange) {
+  getColor(range: SelectionRange) {
     const color = range.color || "#000";
-    let style = "color: " + color + ";";
-    if (!range.isValidRange) {
-      return style + "border-color: red;";
-    }
-    return style;
+    return "color: " + color + ";";
   }
 
   private triggerChange() {
     const ranges = this.getters.getSelectionInputValue(this.id);
+
     this.trigger("selection-changed", { ranges });
     this.previousRanges = ranges;
   }
 
   focus(rangeId: string | null) {
+    this.state.isMissing = false;
     this.dispatch("FOCUS_RANGE", {
       id: this.id,
       rangeId,
@@ -202,6 +219,10 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
       id: this.id,
       rangeId: null,
     });
+    const ranges = this.getters.getSelectionInputValue(this.id);
+    if (this.props.required && ranges.length === 0) {
+      this.state.isMissing = true;
+    }
     const activeSheetId = this.getters.getActiveSheetId();
     if (this.originSheet !== activeSheetId) {
       this.dispatch("ACTIVATE_SHEET", {

@@ -1,13 +1,14 @@
 import * as owl from "@odoo/owl";
 import { colorNumberString, rangeReference, toZone } from "../../../helpers/index";
 import {
+  CancelledReason,
   ColorScaleRule,
+  CommandResult,
   ConditionalFormat,
   ConditionalFormatRule,
   SingleColorRules,
   SpreadsheetEnv,
   Zone,
-  CommandResult,
 } from "../../../types";
 import { ICONS, TRASH } from "../../icons";
 import { SelectionInput } from "../../selection_input";
@@ -75,7 +76,12 @@ const TEMPLATE = xml/* xml */ `
             <div class="o-section o-cf-range">
               <div class="o-section-title">Apply to range</div>
               <div class="o-selection-cf">
-                <SelectionInput ranges="state.currentCF.ranges" class="o-range" t-on-selection-changed="onRangesChanged"/>
+                <SelectionInput
+                  ranges="state.currentCF.ranges"
+                  class="o-range"
+                  isInvalid="isRangeValid"
+                  t-on-selection-changed="onRangesChanged"
+                  required="true"/>
               </div>
               <div class="o-section-title" t-esc="env._t('${conditionalFormattingTerms.CF_TITLE}')"></div>
               <div class="o_field_radio o_horizontal o_field_widget o-cf-type-selector">
@@ -103,12 +109,17 @@ const TEMPLATE = xml/* xml */ `
             <div class="o-section o-cf-editor">
               <t t-component="editors[state.currentCFType]"
                  t-ref="editorRef"
+                 errors="state.errors"
                  t-key="state.currentCF.id + state.currentCFType"
                  rule="state.rules[state.currentCFType]"/>
-              <div class="o-cf-error" t-if="state.error" t-esc="state.error"/>
               <div class="o-sidePanelButtons">
                 <button t-on-click="switchToList" class="o-sidePanelButton o-cf-cancel" t-esc="env._t('${conditionalFormattingTerms.CANCEL}')"></button>
                 <button t-on-click="saveConditionalFormat" class="o-sidePanelButton o-cf-save" t-esc="env._t('${conditionalFormattingTerms.SAVE}')"></button>
+              </div>
+            </div>
+            <div class="o-section">
+              <div class="o-cf-error" t-foreach="state.errors || []" t-as="error">
+                <t t-esc="errorMessage(error)"/>
               </div>
             </div>
         </div>
@@ -319,7 +330,7 @@ interface State {
   rules: Partial<Record<CFType, ConditionalFormatRule | undefined>>;
   currentCF?: Omit<ConditionalFormat, "rule">;
   currentCFType?: CFType;
-  error?: string;
+  errors: CancelledReason[];
 }
 
 export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv> {
@@ -337,6 +348,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
   private state: State = useState({
     mode: "list",
     rules: {},
+    errors: [],
   });
 
   editors = {
@@ -361,6 +373,16 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     return this.getters.getConditionalFormats(this.getters.getActiveSheetId());
   }
 
+  get isRangeValid(): boolean {
+    return this.state.errors.includes(CommandResult.EmptyRange);
+  }
+
+  errorMessage(error: CancelledReason): string {
+    return this.env._t(
+      conditionalFormattingTerms.Errors[error] || conditionalFormattingTerms.Errors.unexpected
+    );
+  }
+
   async willUpdateProps(nextProps: Props) {
     if (nextProps.selection !== this.props.selection) {
       const sheetId = this.getters.getActiveSheetId();
@@ -383,7 +405,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     this.state.mode = "list";
     this.state.currentCF = undefined;
     this.state.currentCFType = undefined;
-    this.state.error = undefined;
+    this.state.errors = [];
     this.state.rules = {};
   }
 
@@ -429,9 +451,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     if (this.state.currentCF) {
       const invalidRanges = this.state.currentCF.ranges.some((xc) => !xc.match(rangeReference));
       if (invalidRanges) {
-        this.state.error = this.env._t(
-          conditionalFormattingTerms.Errors[CommandResult.InvalidRange]
-        );
+        this.state.errors = [CommandResult.InvalidRange];
         return;
       }
       const result = this.env.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -444,10 +464,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
         sheetId: this.getters.getActiveSheetId(),
       });
       if (!result.isSuccessful) {
-        this.state.error = this.env._t(
-          conditionalFormattingTerms.Errors[result.reasons[0]] ||
-            conditionalFormattingTerms.Errors.unexpected
-        );
+        this.state.errors = result.reasons;
       } else {
         this.switchToList();
       }
@@ -508,6 +525,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     if (this.state.currentCFType) {
       this.state.rules[this.state.currentCFType] = this.getEditorRule();
     }
+    this.state.errors = [];
     this.state.currentCFType = ruleType;
     if (!(ruleType in this.state.rules)) {
       switch (ruleType) {

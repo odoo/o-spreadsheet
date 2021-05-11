@@ -2,6 +2,8 @@ import * as owl from "@odoo/owl";
 import {
   ChartUIDefinition,
   ChartUIDefinitionUpdate,
+  CommandResult,
+  DispatchResult,
   Figure,
   SpreadsheetEnv,
 } from "../../types/index";
@@ -46,6 +48,8 @@ const TEMPLATE = xml/* xml */ `
         <SelectionInput
           t-key="getKey('dataSets')"
           ranges="state.dataSets"
+          isInvalid="isDatasetInvalid"
+          required="true"
           t-on-selection-changed="onSeriesChanged"
           t-on-selection-confirmed="updateDataSet"
         />
@@ -56,13 +60,16 @@ const TEMPLATE = xml/* xml */ `
           <SelectionInput
             t-key="getKey('label')"
             ranges="[state.labelRange || '']"
+            isInvalid="isLabelInvalid"
             t-on-selection-changed="onLabelRangeChanged"
             t-on-selection-confirmed="updateLabelRange"
             maximumRanges="1"
           />
       </div>
-      <div class="o-section o-sidepanel-error" t-if="state.error">
-          <t t-esc="state.error"/>
+      <div class="o-section o-sidepanel-error" t-if="errorMessages">
+        <div t-foreach="errorMessages" t-as="error">
+          <t t-esc="error"/>
+        </div>
       </div>
       </t>
       <t t-else="">
@@ -141,7 +148,8 @@ interface Props {
 }
 
 interface ChartPanelState extends ChartUIDefinition {
-  error?: string;
+  datasetDispatchResult?: DispatchResult;
+  labelsDispatchResult?: DispatchResult;
   panel: "configuration" | "design";
   fillColorTool: boolean;
 }
@@ -164,12 +172,33 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
     }
   }
 
+  get errorMessages(): string[] {
+    const cancelledReasons = [
+      ...(this.state.datasetDispatchResult?.reasons || []),
+      ...(this.state.labelsDispatchResult?.reasons || []),
+    ];
+    return cancelledReasons.map((error) =>
+      this.env._t(chartTerms.Errors[error] || chartTerms.Errors.unexpected)
+    );
+  }
+
+  get isDatasetInvalid(): boolean {
+    return !!(
+      this.state.datasetDispatchResult?.isCancelledBecause(CommandResult.EmptyDataSet) ||
+      this.state.datasetDispatchResult?.isCancelledBecause(CommandResult.InvalidDataSet)
+    );
+  }
+
+  get isLabelInvalid(): boolean {
+    return !!this.state.labelsDispatchResult?.isCancelledBecause(CommandResult.InvalidLabelRange);
+  }
+
   onSeriesChanged(ev: CustomEvent) {
     this.state.dataSets = ev.detail.ranges;
   }
 
   updateDataSet() {
-    this.updateChart({
+    this.state.datasetDispatchResult = this.updateChart({
       dataSets: this.state.dataSets,
       dataSetsHaveTitle: this.state.dataSetsHaveTitle,
     });
@@ -189,18 +218,17 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   }
 
   updateLabelRange() {
-    this.updateChart({ labelRange: this.state.labelRange || null });
+    this.state.labelsDispatchResult = this.updateChart({
+      labelRange: this.state.labelRange || null,
+    });
   }
 
-  private updateChart(definition: ChartUIDefinitionUpdate) {
-    const result = this.env.dispatch("UPDATE_CHART", {
+  private updateChart(definition: ChartUIDefinitionUpdate): DispatchResult {
+    return this.env.dispatch("UPDATE_CHART", {
       id: this.props.figure.id,
       sheetId: this.getters.getActiveSheetId(),
       definition,
     });
-    this.state.error = !result.isSuccessful
-      ? this.env._t(chartTerms.Errors[result.reasons[0]] || chartTerms.Errors.unexpected)
-      : undefined;
   }
 
   onLabelRangeChanged(ev: CustomEvent) {

@@ -13,6 +13,7 @@ import {
   makeTestFixture,
   mockUuidV4To,
   nextTick,
+  textContentAll,
 } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -36,6 +37,10 @@ describe("UI of conditional formats", () => {
     fixture.remove();
     parent.destroy();
   });
+
+  function errorMessages(): string[] {
+    return textContentAll(selectors.error);
+  }
 
   const selectors = {
     listPreview: ".o-cf .o-cf-preview",
@@ -609,6 +614,17 @@ describe("UI of conditional formats", () => {
 
   test("switching sheet changes the content of CF and cancels the edition", async () => {});
 
+  test("error if range is empty", async () => {
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+    setInputValueAndTrigger(selectors.ruleEditor.range, "", "change");
+    await nextTick();
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+    expect(errorMessages()).toEqual(["A range needs to be defined"]);
+    expect(fixture.querySelector(selectors.ruleEditor.range)?.className).toContain("o-invalid");
+  });
+
   test("will not dispatch if minvalue > maxvalue", async () => {
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();
@@ -626,15 +642,22 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "10", "input");
 
-    let error = document.querySelector(selectors.error);
-    expect(error).toBe(null);
+    expect(errorMessages()).toHaveLength(0);
 
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-    error = document.querySelector(selectors.error);
-    expect(error!.textContent).toBe("Minimum must be smaller then Maximum");
+    expect(errorMessages()).toEqual(["Minimum must be smaller then Maximum"]);
+    expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).toContain(
+      "o-invalid"
+    );
+    expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.className).not.toContain(
+      "o-invalid"
+    );
+    expect(fixture.querySelector(selectors.colorScaleEditor.maxValue)?.className).not.toContain(
+      "o-invalid"
+    );
   });
 
   test("will show error if minvalue > midvalue", async () => {
@@ -659,16 +682,27 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "10", "input");
 
-    let error = document.querySelector(selectors.error);
-    expect(error).toBe(null);
+    expect(errorMessages()).toHaveLength(0);
 
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-    error = document.querySelector(selectors.error);
-    expect(error!.textContent).toBe("Minimum must be smaller then Maximum");
+    expect(errorMessages()).toEqual([
+      "Minimum must be smaller then Maximum",
+      "Minimum must be smaller then Midpoint",
+      "Midpoint must be smaller then Maximum",
+    ]);
+    expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).toContain(
+      "o-invalid"
+    );
+    expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.className).toContain(
+      "o-invalid"
+    );
+    expect(fixture.querySelector(selectors.colorScaleEditor.maxValue)?.className).not.toContain(
+      "o-invalid"
+    );
   });
 
   test("will show error if midvalue > maxvalue", async () => {
@@ -690,16 +724,23 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25", "input");
     await nextTick();
 
-    let error = document.querySelector(selectors.error);
-    expect(error).toBe(null);
+    expect(errorMessages()).toHaveLength(0);
 
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-    error = document.querySelector(selectors.error);
-    expect(error!.textContent).toBe("Midpoint must be smaller then Maximum");
+    expect(errorMessages()).toEqual(["Midpoint must be smaller then Maximum"]);
+    expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).not.toContain(
+      "o-invalid"
+    );
+    expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.className).toContain(
+      "o-invalid"
+    );
+    expect(fixture.querySelector(selectors.colorScaleEditor.maxValue)?.className).not.toContain(
+      "o-invalid"
+    );
   });
 
   test("will show error if async formula used", async () => {
@@ -721,16 +762,23 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "=WAIT(1000)", "input");
     await nextTick();
 
-    let error = document.querySelector(selectors.error);
-    expect(error).toBe(null);
+    expect(errorMessages()).toHaveLength(0);
 
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-    error = document.querySelector(selectors.error);
-    expect(error!.textContent).toBe("Some formulas are not supported for the Maxpoint");
+    expect(errorMessages()).toEqual(["Some formulas are not supported for the Maxpoint"]);
+    expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).not.toContain(
+      "o-invalid"
+    );
+    expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.className).not.toContain(
+      "o-invalid"
+    );
+    expect(fixture.querySelector(selectors.colorScaleEditor.maxValue)?.className).toContain(
+      "o-invalid"
+    );
   });
 
   test.each(["", "aaaa", "=SUM(1, 2)"])(
@@ -753,14 +801,21 @@ describe("UI of conditional formats", () => {
       setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25", "input");
       await nextTick();
 
-      let error = document.querySelector(selectors.error);
-      expect(error).toBe(null);
+      expect(errorMessages()).toHaveLength(0);
 
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
       expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-      error = document.querySelector(selectors.error);
-      expect(error!.textContent).toBe("The minpoint must be a number");
+      expect(errorMessages()).toEqual(["The minpoint must be a number"]);
+      expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).toContain(
+        "o-invalid"
+      );
+      expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.className).not.toContain(
+        "o-invalid"
+      );
+      expect(fixture.querySelector(selectors.colorScaleEditor.maxValue)?.className).not.toContain(
+        "o-invalid"
+      );
     }
   );
 
@@ -785,14 +840,21 @@ describe("UI of conditional formats", () => {
       setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25", "input");
       await nextTick();
 
-      let error = document.querySelector(selectors.error);
-      expect(error).toBe(null);
+      expect(errorMessages()).toHaveLength(0);
 
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
       expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-      error = document.querySelector(selectors.error);
-      expect(error!.textContent).toBe("The midpoint must be a number");
+      expect(errorMessages()).toEqual(["The midpoint must be a number"]);
+      expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).not.toContain(
+        "o-invalid"
+      );
+      expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.className).toContain(
+        "o-invalid"
+      );
+      expect(fixture.querySelector(selectors.colorScaleEditor.maxValue)?.className).not.toContain(
+        "o-invalid"
+      );
     }
   );
 
@@ -816,14 +878,21 @@ describe("UI of conditional formats", () => {
       setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, invalidValue, "input");
       await nextTick();
 
-      let error = document.querySelector(selectors.error);
-      expect(error).toBe(null);
+      expect(errorMessages()).toHaveLength(0);
 
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
       expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-      error = document.querySelector(selectors.error);
-      expect(error!.textContent).toBe("The maxpoint must be a number");
+      expect(errorMessages()).toEqual(["The maxpoint must be a number"]);
+      expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).not.toContain(
+        "o-invalid"
+      );
+      expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.className).not.toContain(
+        "o-invalid"
+      );
+      expect(fixture.querySelector(selectors.colorScaleEditor.maxValue)?.className).toContain(
+        "o-invalid"
+      );
     }
   );
 
@@ -845,14 +914,21 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "=SUM(1,2)", "input");
     await nextTick();
 
-    let error = document.querySelector(selectors.error);
-    expect(error).toBe(null);
+    expect(errorMessages()).toHaveLength(0);
 
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-    error = document.querySelector(selectors.error);
-    expect(error!.textContent).toBe("Invalid Minpoint formula");
+    expect(errorMessages()).toEqual(["Invalid Minpoint formula"]);
+    expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).toContain(
+      "o-invalid"
+    );
+    expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.className).not.toContain(
+      "o-invalid"
+    );
+    expect(fixture.querySelector(selectors.colorScaleEditor.maxValue)?.className).not.toContain(
+      "o-invalid"
+    );
   });
 
   test("will display error if there is an invalid formula for the mid", async () => {
@@ -874,14 +950,64 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "3", "input");
     await nextTick();
 
-    let error = document.querySelector(selectors.error);
-    expect(error).toBe(null);
+    expect(errorMessages()).toHaveLength(0);
 
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-    error = document.querySelector(selectors.error);
-    expect(error!.textContent).toBe("Invalid Midpoint formula");
+    expect(errorMessages()).toEqual(["Invalid Midpoint formula"]);
+    expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).not.toContain(
+      "o-invalid"
+    );
+    expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.className).toContain(
+      "o-invalid"
+    );
+    expect(fixture.querySelector(selectors.colorScaleEditor.maxValue)?.className).not.toContain(
+      "o-invalid"
+    );
+  });
+
+  test("single color missing a single value", async () => {
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "GreaterThan", "change");
+    expect(fixture.querySelector(".o-invalid")).toBeNull();
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-invalid")).not.toBeNull();
+    expect(errorMessages()).toEqual(["The argument is missing. Please provide a value"]);
+  });
+
+  test("single color missing two values", async () => {
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "Between", "change");
+    expect(fixture.querySelector(".o-invalid")).toBeNull();
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+    expect([...fixture.querySelectorAll(".o-invalid")]).toHaveLength(2);
+    expect(errorMessages()).toEqual([
+      "The argument is missing. Please provide a value",
+      "The second argument is missing. Please provide a value",
+    ]);
+    setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "25", "input");
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+    expect([...fixture.querySelectorAll(".o-invalid")]).toHaveLength(1);
+    expect(errorMessages()).toEqual(["The second argument is missing. Please provide a value"]);
+  });
+
+  test("changing rule type resets errors", async () => {
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "GreaterThan", "change");
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+    expect(errorMessages()).not.toHaveLength(0);
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+    await nextTick();
+    expect(errorMessages()).toHaveLength(0);
+    expect([...fixture.querySelectorAll(".o-invalid")]).toHaveLength(0);
   });
 
   test("will display error if there is an invalid formula for the max", async () => {
@@ -902,14 +1028,12 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "=SUM(1,2)", "input");
     await nextTick();
 
-    let error = document.querySelector(selectors.error);
-    expect(error).toBe(null);
+    expect(errorMessages()).toHaveLength(0);
 
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-    error = document.querySelector(selectors.error);
-    expect(error!.textContent).toBe("Invalid Maxpoint formula");
+    expect(errorMessages()).toEqual(["Invalid Maxpoint formula"]);
   });
 
   describe("Icon set CF", () => {
@@ -1127,42 +1251,108 @@ describe("UI of conditional formats", () => {
     });
   });
 
-  describe.each([
-    [CommandResult.ValueUpperInflectionNaN, "The first value must be a number"],
+  test.each([
     [CommandResult.ValueLowerInflectionNaN, "The second value must be a number"],
-    [
-      CommandResult.ValueUpperAsyncFormulaNotSupported,
-      "Some formulas are not supported for the upper inflection point",
-    ],
     [
       CommandResult.ValueLowerAsyncFormulaNotSupported,
       "Some formulas are not supported for the lower inflection point",
     ],
-    [CommandResult.ValueUpperInvalidFormula, "Invalid upper inflection point formula"],
     [CommandResult.ValueLowerInvalidFormula, "Invalid lower inflection point formula"],
-    [
-      CommandResult.LowerBiggerThanUpper,
-      "Lower inflection point must be smaller then upper inflection point",
-    ],
+    [CommandResult.ValueLowerInvalidFormula, "Invalid lower inflection point formula"],
   ])(
-    "Show right error message (Command result: %s , Message: %s)",
-    (error: CommandResult, errorMessage: string) => {
-      test("Error message shown on wrong input", async () => {
-        triggerMouseEvent(selectors.buttonAdd, "click");
-        await nextTick();
+    "Show right lowerInflection point error message (Command result: %s , Message: %s)",
+    async (error: CommandResult, errorMessage: string) => {
+      triggerMouseEvent(selectors.buttonAdd, "click");
+      await nextTick();
+      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
+      await nextTick();
 
-        triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
-        await nextTick();
-
-        parent.env.dispatch = jest.fn((command) => new DispatchResult(error));
-        //  click save
-        triggerMouseEvent(selectors.buttonSave, "click");
-        await nextTick();
-        const errorString = document.querySelector(selectors.error);
-        expect(errorString!.textContent).toBe(errorMessage);
-      });
+      parent.env.dispatch = jest.fn(() => new DispatchResult(error));
+      triggerMouseEvent(selectors.buttonSave, "click");
+      await nextTick();
+      const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
+      const inputInflectionLower = rows[1].querySelectorAll("input")[0];
+      const inputInflectionUpper = rows[2].querySelectorAll("input")[0];
+      expect(inputInflectionUpper.classList).toContain("o-invalid");
+      expect(inputInflectionLower.classList).not.toContain("o-invalid");
+      expect(errorMessages()).toEqual([errorMessage]);
     }
   );
+  test.each([
+    [CommandResult.ValueUpperInflectionNaN, "The first value must be a number"],
+    [
+      CommandResult.ValueUpperAsyncFormulaNotSupported,
+      "Some formulas are not supported for the upper inflection point",
+    ],
+    [CommandResult.ValueUpperInvalidFormula, "Invalid upper inflection point formula"],
+  ])(
+    "Show right upperInflection point error message (Command result: %s , Message: %s)",
+    async (error: CommandResult, errorMessage: string) => {
+      triggerMouseEvent(selectors.buttonAdd, "click");
+      await nextTick();
+
+      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
+      await nextTick();
+
+      parent.env.dispatch = jest.fn(() => new DispatchResult(error));
+      triggerMouseEvent(selectors.buttonSave, "click");
+      await nextTick();
+      const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
+      const inputInflectionLower = rows[1].querySelectorAll("input")[0];
+      const inputInflectionUpper = rows[2].querySelectorAll("input")[0];
+      expect(inputInflectionUpper.classList).not.toContain("o-invalid");
+      expect(inputInflectionLower.classList).toContain("o-invalid");
+      expect(errorMessages()).toEqual([errorMessage]);
+    }
+  );
+
+  test("display both inflection point errors", async () => {
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
+    await nextTick();
+    const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
+    const inputInflectionLower = rows[1].querySelectorAll("input")[0];
+    const inputInflectionUpper = rows[2].querySelectorAll("input")[0];
+    setInputValueAndTrigger(inputInflectionLower, "hello", "input");
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+    expect(inputInflectionLower.classList).toContain("o-invalid");
+    expect(inputInflectionUpper.classList).not.toContain("o-invalid");
+    expect(errorMessages()).toEqual(["The first value must be a number"]);
+
+    setInputValueAndTrigger(inputInflectionUpper, "hello", "input");
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+    expect(inputInflectionLower.classList).toContain("o-invalid");
+    expect(inputInflectionUpper.classList).toContain("o-invalid");
+    expect(errorMessages()).toEqual([
+      "The second value must be a number",
+      "The first value must be a number",
+    ]);
+  });
+
+  test("lower point bigger than upper displays both input as invalid", async () => {
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
+    await nextTick();
+    const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
+    const inputInflectionLower = rows[1].querySelectorAll("input")[0];
+    const inputInflectionUpper = rows[2].querySelectorAll("input")[0];
+    setInputValueAndTrigger(inputInflectionUpper, "10", "input");
+    await nextTick();
+    setInputValueAndTrigger(inputInflectionLower, "1", "input");
+    await nextTick();
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+    expect(inputInflectionLower.classList).toContain("o-invalid");
+    expect(inputInflectionUpper.classList).toContain("o-invalid");
+    expect(errorMessages()).toEqual([
+      "Lower inflection point must be smaller then upper inflection point",
+    ]);
+  });
+
   test("Configuration is locally saved when switching cf type", async () => {
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();

@@ -302,9 +302,7 @@ describe("Selection Input", () => {
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #0074d9;");
     await writeInput(0, "aaaaa");
     expect(fixture.querySelectorAll("input")[0].value).toBe("aaaaa");
-    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe(
-      "color: #000;border-color: red;"
-    );
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #000;");
     await writeInput(0, "B1");
     expect(fixture.querySelectorAll("input")[0].value).toBe("B1");
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #ad8e00;");

@@ -98,6 +98,12 @@ const CSS = css/* scss */ `
         background-position: right 5px top 11px;
       }
     }
+    input.o-required {
+      border-color: #4c4c4c;
+    }
+    input.o-invalid {
+      border-color: red;
+    }
     select.o-input {
       background-color: white;
       text-align: left;
