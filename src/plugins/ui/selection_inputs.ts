@@ -347,9 +347,9 @@ export class SelectionInputPlugin extends UIPlugin {
     id: UID,
     { xc, color }: Pick<RangeInputValue, "xc" | "color">
   ): { [range: string]: string } {
-    const ranges = this.cleanInputs([xc]).filter((reference) =>
-      this.shouldBeHighlighted(this.activeSheets[id], reference)
-    );
+    const ranges = this.cleanInputs([xc])
+      .filter((range) => this.isRangeValid(range))
+      .filter((reference) => this.shouldBeHighlighted(this.activeSheets[id], reference));
     if (ranges.length === 0) return {};
     const [fromInput, ...otherRanges] = ranges;
     const highlights: { [range: string]: string } = {
@@ -366,8 +366,7 @@ export class SelectionInputPlugin extends UIPlugin {
       .map((xc) => xc.split(","))
       .flat()
       .map((xc) => xc.trim())
-      .filter((xc) => xc !== "")
-      .filter((range) => this.isRangeValid(range));
+      .filter((xc) => xc !== "");
   }
 
   /**
@@ -381,7 +380,7 @@ export class SelectionInputPlugin extends UIPlugin {
     const sheetName = reference.split("!").reverse()[1];
     const sheetId = this.getters.getSheetIdByName(sheetName);
     const activeSheetId = this.getters.getActiveSheet().id;
-    const valid = this.cleanInputs([reference]).length === 1;
+    const valid = this.isRangeValid(reference);
     return (
       valid &&
       (sheetId === activeSheetId || (sheetId === undefined && activeSheetId === inputSheetId))

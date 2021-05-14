@@ -35,6 +35,14 @@ async function createChartPanel(
   return { model, parent };
 }
 
+function errorMessages(): string[] {
+  const errors = document.querySelectorAll(".o-sidepanel-error");
+  if (!errors) return [];
+  return [...errors]
+    .map((error) => error.textContent)
+    .filter((error): error is string => error !== null);
+}
+
 describe("Chart sidepanel component", () => {
   test("create a chart", async () => {
     const { parent, model } = await createChartPanel();
@@ -108,5 +116,15 @@ describe("Chart sidepanel component", () => {
       id: "1",
     });
     parent.unmount();
+  });
+
+  test("create chart with invalid dataset and empty labels", async () => {
+    const { parent } = await createChartPanel();
+    await simulateClick(".o-data-series input");
+    setInputValueAndTrigger(".o-data-series input", "This is not valid", "change");
+    await simulateClick(".o-sidePanelButton");
+    await nextTick();
+    expect(errorMessages()).toEqual(["Invalid dataSet"]);
+    parent.destroy();
   });
 });

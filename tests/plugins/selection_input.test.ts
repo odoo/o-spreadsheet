@@ -284,6 +284,7 @@ describe("selection input plugin", () => {
       rangeId: idOfRange(model, id, 0),
       value: "This is invalid",
     });
+    expect(model.getters.getSelectionInputValue(id)).toEqual(["This is invalid"]);
     expect(highlightedZones(model)).toStrictEqual([]);
   });
 
@@ -303,6 +304,7 @@ describe("selection input plugin", () => {
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("A1");
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("This is invalid");
     expect(model.getters.getSelectionInput(id)[2].xc).toBe("E3");
+    expect(model.getters.getSelectionInputValue(id)).toEqual(["A1", "This is invalid", "E3"]);
   });
 
   test("writing an empty range removes the highlight", () => {
