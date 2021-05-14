@@ -79,7 +79,7 @@ export const chartTerms = {
   CreateChart: _lt("Create chart"),
   TitlePlaceholder: _lt("New Chart"),
   Errors: {
-    [CommandResult.EmptyDataSet]: _lt("Invalid or no Dataset given"),
+    [CommandResult.EmptyDataSet]: _lt("No Dataset given"),
     [CommandResult.EmptyLabelRange]: _lt("No Labels given"),
     [CommandResult.InvalidDataSet]: _lt("Invalid dataSet"),
     [CommandResult.InvalidLabelRange]: _lt("Invalid Labels"),
