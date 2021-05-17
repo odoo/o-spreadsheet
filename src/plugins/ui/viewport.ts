@@ -91,6 +91,13 @@ export class ViewportPlugin extends UIPlugin {
     }
   }
 
+  finalize() {
+    if (this.updateSnap) {
+      this.snapViewportToCell(this.getters.getActiveSheetId());
+      this.updateSnap = false;
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
@@ -272,13 +279,14 @@ export class ViewportPlugin extends UIPlugin {
    * In order to keep the coherence of both viewports, it is also necessary to update the standard viewport
    * if the zones of both viewports don't match.
    */
-  private adjustViewportsPosition(sheetId: UID) {
+  private adjustViewportsPosition(sheetId: UID, position?: [number, number]) {
     const sheet = this.getters.getSheet(sheetId);
     const { cols, rows } = sheet;
     const adjustedViewport = this.getSnappedViewport(sheetId);
+    position = position || this.getters.getSheetPosition(sheetId);
     const [col, row] = this.getters.getMainCell(
       sheetId,
-      ...getNextVisibleCellCoords(sheet, ...this.getters.getSheetPosition(sheetId))
+      ...getNextVisibleCellCoords(sheet, position[0], position[1])
     );
     while (
       cols[col].end > adjustedViewport.offsetX + this.clientWidth - HEADER_WIDTH &&
@@ -325,12 +333,5 @@ export class ViewportPlugin extends UIPlugin {
     adjustedViewport.offsetY = rows[viewport.top].start;
     this.adjustViewportZone(sheetId, adjustedViewport);
     this.snappedViewports[sheetId] = adjustedViewport;
-  }
-
-  finalize() {
-    if (this.updateSnap) {
-      this.snapViewportToCell(this.getters.getActiveSheetId());
-      this.updateSnap = false;
-    }
   }
 }

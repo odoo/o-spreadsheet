@@ -9,7 +9,7 @@ import {
   PADDING_AUTORESIZE,
 } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
-import { lettersToNumber, toXC } from "../../src/helpers/index";
+import { lettersToNumber, scrollDelay, toXC } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { SelectionMode } from "../../src/plugins/ui/selection";
 import {
@@ -37,24 +37,6 @@ function fillData() {
     setCellContent(model, toXC(i, i), "i");
   }
 }
-
-beforeEach(async () => {
-  fixture = makeTestFixture();
-  model = new Model({
-    sheets: [
-      {
-        colNumber: 10,
-        rowNumber: 10,
-      },
-    ],
-  });
-  const parent = new GridParent(model);
-  await parent.mount(fixture);
-});
-
-afterEach(() => {
-  fixture.remove();
-});
 
 /**
  * Select a column
@@ -130,6 +112,24 @@ async function dblClickRow(index: number) {
 }
 
 describe("Resizer component", () => {
+  beforeEach(async () => {
+    fixture = makeTestFixture();
+    model = new Model({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+        },
+      ],
+    });
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+  });
+
+  afterEach(() => {
+    fixture.remove();
+  });
+
   test("can click on a header to select a column", async () => {
     selectColumn("C");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
@@ -741,5 +741,79 @@ describe("Resizer component", () => {
       [0],
       [4, 5],
     ]);
+  });
+});
+
+describe("Edge-Scrolling on mouseMove in selection", () => {
+  beforeEach(async () => {
+    jest.useFakeTimers();
+    fixture = makeTestFixture();
+    model = new Model();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+  });
+
+  afterEach(() => {
+    fixture.remove();
+  });
+  test("Can edge-scroll horizontally", async () => {
+    const { width } = model.getters.getViewportDimension();
+    const y = DEFAULT_CELL_HEIGHT;
+
+    triggerMouseEvent(".o-col-resizer", "mousedown", width / 2, y);
+    triggerMouseEvent(".o-col-resizer", "mousemove", 1.5 * width, y);
+    const advanceTimer = scrollDelay(0.5 * width) * 6 - 1;
+    jest.advanceTimersByTime(advanceTimer);
+    triggerMouseEvent(".o-col-resizer", "mouseup", 1.5 * width, y);
+
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+      left: 6,
+      right: 15,
+      top: 0,
+      bottom: 42,
+    });
+
+    triggerMouseEvent(".o-col-resizer", "mousedown", width / 2, y);
+    triggerMouseEvent(".o-col-resizer", "mousemove", -0.5 * width, y);
+    const advanceTimer2 = scrollDelay(0.5 * width) * 3 - 1;
+    jest.advanceTimersByTime(advanceTimer2);
+    triggerMouseEvent(".o-col-resizer", "mouseup", -0.5 * width, y);
+
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+      left: 3,
+      right: 12,
+      top: 0,
+      bottom: 42,
+    });
+  });
+
+  test("Can edge-scroll vertically", () => {
+    const { height } = model.getters.getViewportDimension();
+    const x = DEFAULT_CELL_WIDTH / 2;
+    triggerMouseEvent(".o-row-resizer", "mousedown", x, height / 2);
+    triggerMouseEvent(".o-row-resizer", "mousemove", x, 1.5 * height);
+    const advanceTimer = scrollDelay(0.5 * height) * 6 - 1;
+    jest.advanceTimersByTime(advanceTimer);
+    triggerMouseEvent(".o-row-resizer", "mouseup", x, 1.5 * height);
+
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+      left: 0,
+      right: 9,
+      top: 6,
+      bottom: 48,
+    });
+
+    triggerMouseEvent(".o-row-resizer", "mousedown", x, height / 2);
+    triggerMouseEvent(".o-row-resizer", "mousemove", x, -0.5 * height);
+    const advanceTimer2 = scrollDelay(0.5 * height) * 3 - 1;
+    jest.advanceTimersByTime(advanceTimer2);
+    triggerMouseEvent(".o-row-resizer", "mouseup", x, -0.5 * height);
+
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+      left: 0,
+      right: 9,
+      top: 3,
+      bottom: 45,
+    });
   });
 });
