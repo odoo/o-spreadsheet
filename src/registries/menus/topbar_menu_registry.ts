@@ -69,7 +69,7 @@ topbarMenuRegistry
   .addChild("sort_range", ["edit"], {
     name: _lt("Sort range"),
     sequence: 62,
-    isVisible: ACTIONS.SORT_CELLS_VISIBILITY,
+    isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
     separator: true,
   })
   .addChild("sort_ascending", ["edit", "sort_range"], {

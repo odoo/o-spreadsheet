@@ -44,7 +44,7 @@ colMenuRegistry
     name: (env) =>
       env.getters.getActiveCols().size > 1 ? _lt("Sort columns") : _lt("Sort column"),
     sequence: 50,
-    isVisible: ACTIONS.SORT_CELLS_VISIBILITY,
+    isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
     separator: true,
   })
   .addChild("sort_ascending", ["sort_columns"], {
