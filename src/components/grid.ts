@@ -7,7 +7,7 @@ import {
   HEADER_WIDTH,
   SCROLLBAR_WIDTH,
 } from "../constants";
-import { isInside } from "../helpers/index";
+import { findCellInNewZone, isInside, MAX_DELAY } from "../helpers/index";
 import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
@@ -485,10 +485,18 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   // Zone selection with mouse
   // ---------------------------------------------------------------------------
 
-  getCartesianCoordinates(ev: MouseEvent): [number, number] {
+  /**
+   * Get the coordinates in pixels, with 0,0 being the top left of the grid itself
+   */
+  getCoordinates(ev: MouseEvent): [number, number] {
     const rect = this.el!.getBoundingClientRect();
     const x = ev.pageX - rect.left;
     const y = ev.pageY - rect.top;
+    return [x, y];
+  }
+
+  getCartesianCoordinates(ev: MouseEvent): [number, number] {
+    const [x, y] = this.getCoordinates(ev);
     const { left, top } = this.getters.getActiveSnappedViewport();
     const colIndex = this.getters.getColIndex(x, left);
     const rowIndex = this.getters.getRowIndex(y, top);
@@ -516,18 +524,69 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     }
     let prevCol = col;
     let prevRow = row;
+
+    let isEdgeScrolling: boolean = false;
+    let timeOutId: any = null;
+    let timeoutDelay: number = 0;
+
+    let currentEv: MouseEvent;
+
+    const sheet = this.getters.getActiveSheet();
+
     const onMouseMove = (ev: MouseEvent) => {
-      const [col, row] = this.getCartesianCoordinates(ev);
-      if (col < 0 || row < 0) {
+      currentEv = ev;
+      if (timeOutId) {
         return;
       }
+
+      const [x, y] = this.getCoordinates(currentEv);
+
+      isEdgeScrolling = false;
+      timeoutDelay = 0;
+
+      const colEdgeScroll = this.getters.getEdgeScrollCol(x);
+      const rowEdgeScroll = this.getters.getEdgeScrollRow(y);
+
+      const { left, right, top, bottom } = this.getters.getActiveSnappedViewport();
+      let col: number, row: number;
+      if (colEdgeScroll.canEdgeScroll) {
+        col = colEdgeScroll.direction > 0 ? right : left - 1;
+      } else {
+        col = this.getters.getColIndex(x, left);
+        col = col === -1 ? prevCol : col;
+      }
+
+      if (rowEdgeScroll.canEdgeScroll) {
+        row = rowEdgeScroll.direction > 0 ? bottom : top - 1;
+      } else {
+        row = this.getters.getRowIndex(y, top);
+        row = row === -1 ? prevRow : row;
+      }
+
+      isEdgeScrolling = colEdgeScroll.canEdgeScroll || rowEdgeScroll.canEdgeScroll;
+
+      timeoutDelay = Math.min(
+        colEdgeScroll.canEdgeScroll ? colEdgeScroll.delay : MAX_DELAY,
+        rowEdgeScroll.canEdgeScroll ? rowEdgeScroll.delay : MAX_DELAY
+      );
+
       if (col !== prevCol || row !== prevRow) {
         prevCol = col;
         prevRow = row;
         this.dispatch("ALTER_SELECTION", { cell: [col, row] });
       }
+      if (isEdgeScrolling) {
+        const offsetX = sheet.cols[left + colEdgeScroll.direction].start;
+        const offsetY = sheet.rows[top + rowEdgeScroll.direction].start;
+        this.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
+        timeOutId = setTimeout(() => {
+          timeOutId = null;
+          onMouseMove(currentEv);
+        }, Math.round(timeoutDelay));
+      }
     };
     const onMouseUp = (ev: MouseEvent) => {
+      clearTimeout(timeOutId);
       this.dispatch(ev.ctrlKey ? "PREPARE_SELECTION_EXPANSION" : "STOP_SELECTION");
       this.canvas.el!.removeEventListener("mousemove", onMouseMove);
       if (this.getters.isPaintingFormat()) {
@@ -568,7 +627,21 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     };
     const delta = deltaMap[ev.key];
     if (ev.shiftKey) {
+      const oldZone = this.getters.getSelectedZone();
       this.dispatch("ALTER_SELECTION", { delta });
+      const newZone = this.getters.getSelectedZone();
+      const viewport = this.getters.getActiveSnappedViewport();
+      const sheet = this.getters.getActiveSheet();
+      const [col, row] = findCellInNewZone(oldZone, newZone, viewport);
+
+      const { left, right, top, bottom, offsetX, offsetY } = viewport;
+      const newOffsetX =
+        col < left || col > right - 1 ? sheet.cols[left + delta[0]].start : offsetX;
+      const newOffsetY = row < top || row > bottom - 1 ? sheet.rows[top + delta[1]].start : offsetY;
+      debugger;
+      if (newOffsetX !== offsetX || newOffsetY !== offsetY) {
+        this.dispatch("SET_VIEWPORT_OFFSET", { offsetX: newOffsetX, offsetY: newOffsetY });
+      }
     } else {
       this.dispatch("MOVE_POSITION", { deltaX: delta[0], deltaY: delta[1] });
     }

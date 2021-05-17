@@ -7,7 +7,7 @@ import {
   MIN_ROW_HEIGHT,
   UNHIDE_ICON_EDGE_LENGTH,
 } from "../constants";
-import { Col, Row, SpreadsheetEnv } from "../types/index";
+import { Col, EdgeScrollInfo, Row, SpreadsheetEnv } from "../types/index";
 import { ContextMenuType } from "./grid";
 import { startDnd } from "./helpers/drag_and_drop";
 import * as icons from "./icons";
@@ -47,6 +47,10 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
 
   abstract _getElementIndex(index: number): number;
 
+  abstract _getEdgeScroll(position: number): EdgeScrollInfo;
+
+  abstract _getBoundaries(): { first: number; last: number };
+
   abstract _getElement(index: number): Col | Row;
 
   abstract _getHeaderSize(): number;
@@ -58,6 +62,8 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
   abstract _selectElement(index: number, ctrlKey: boolean): void;
 
   abstract _increaseSelection(index: number): void;
+
+  abstract _adjustViewport(index: number): void;
 
   abstract _fitElementSize(index: number): void;
 
@@ -160,15 +166,37 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
     }
     const initialIndex = this._getClientPosition(ev);
     const initialOffset = this._getEvOffset(ev);
+    let timeOutId: any = null;
+    let currentEv: MouseEvent;
+
     const onMouseMoveSelect = (ev: MouseEvent) => {
-      const offset = this._getClientPosition(ev) - initialIndex + initialOffset;
-      const index = this._getElementIndex(offset);
+      currentEv = ev;
+      if (timeOutId) {
+        return;
+      }
+      const offset = this._getClientPosition(currentEv) - initialIndex + initialOffset;
+      const EdgeScrollInfo = this._getEdgeScroll(offset);
+      const { first, last } = this._getBoundaries();
+      let index;
+      if (EdgeScrollInfo.canEdgeScroll) {
+        index = EdgeScrollInfo.direction > 0 ? last : first - 1;
+      } else {
+        index = this._getElementIndex(offset);
+      }
       if (index !== this.lastElement && index !== -1) {
         this._increaseSelection(index);
         this.lastElement = index;
       }
+      if (EdgeScrollInfo.canEdgeScroll) {
+        this._adjustViewport(EdgeScrollInfo.direction);
+        timeOutId = setTimeout(() => {
+          timeOutId = null;
+          onMouseMoveSelect(currentEv);
+        }, Math.round(EdgeScrollInfo.delay));
+      }
     };
     const onMouseUpSelect = () => {
+      clearTimeout(timeOutId);
       this.lastElement = null;
       this.dispatch(ev.ctrlKey ? "PREPARE_SELECTION_EXPANSION" : "STOP_SELECTION");
     };
@@ -281,6 +309,15 @@ export class ColResizer extends AbstractResizer {
     return this.getters.getColIndex(index, this.getters.getActiveSnappedViewport().left);
   }
 
+  _getEdgeScroll(position: number): EdgeScrollInfo {
+    return this.getters.getEdgeScrollCol(position);
+  }
+
+  _getBoundaries(): { first: number; last: number } {
+    const { left, right } = this.getters.getActiveSnappedViewport();
+    return { first: left, last: right };
+  }
+
   _getElement(index: number): Col {
     return this.getters.getCol(this.getters.getActiveSheetId(), index)!;
   }
@@ -315,6 +352,13 @@ export class ColResizer extends AbstractResizer {
 
   _increaseSelection(index: number): void {
     this.dispatch("SELECT_COLUMN", { index, updateRange: true });
+  }
+
+  _adjustViewport(direction: number): void {
+    const { left, offsetY } = this.getters.getActiveSnappedViewport();
+    const { cols } = this.getters.getActiveSheet();
+    const offsetX = cols[left + direction].start;
+    this.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
   }
 
   _fitElementSize(index: number): void {
@@ -454,6 +498,15 @@ export class RowResizer extends AbstractResizer {
     return this.getters.getRowIndex(index, this.getters.getActiveSnappedViewport().top);
   }
 
+  _getEdgeScroll(position: number): EdgeScrollInfo {
+    return this.getters.getEdgeScrollRow(position);
+  }
+
+  _getBoundaries(): { first: number; last: number } {
+    const { top, bottom } = this.getters.getActiveSnappedViewport();
+    return { first: top, last: bottom };
+  }
+
   _getElement(index: number): Row {
     return this.getters.getRow(this.getters.getActiveSheetId(), index)!;
   }
@@ -484,6 +537,13 @@ export class RowResizer extends AbstractResizer {
 
   _increaseSelection(index: number): void {
     this.dispatch("SELECT_ROW", { index, updateRange: true });
+  }
+
+  _adjustViewport(direction: number): void {
+    const { top, offsetX } = this.getters.getActiveSnappedViewport();
+    const { rows } = this.getters.getActiveSheet();
+    const offsetY = rows[top + direction].start;
+    this.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
   }
 
   _fitElementSize(index: number): void {

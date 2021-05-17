@@ -1,5 +1,5 @@
 import { MESSAGE_VERSION } from "../../src/constants";
-import { toZone } from "../../src/helpers";
+import { scrollDelay, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { merge, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
@@ -645,10 +645,12 @@ describe("Events on Grid update viewport correctly", () => {
   beforeEach(async () => {
     model = new Model();
     parent = new GridParent(model);
+    fixture = makeTestFixture();
     await parent.mount(fixture);
   });
   afterEach(() => {
     parent.destroy();
+    fixture.remove();
   });
   test("Vertical scroll", async () => {
     fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaY: 1200 }));
@@ -693,7 +695,7 @@ describe("Events on Grid update viewport correctly", () => {
     });
   });
   test("Move selection with keyboard", async () => {
-    triggerMouseEvent("canvas", "mousedown", 750, 40); // H1
+    await simulateClick("canvas", 750, 40); // H1
     expect(getActiveXc(model)).toBe("H1");
     const viewport = model.getters.getActiveViewport();
     document.activeElement!.dispatchEvent(
@@ -710,6 +712,92 @@ describe("Events on Grid update viewport correctly", () => {
       offsetX: 96,
       left: 1,
       right: 10,
+    });
+  });
+
+  test("Alter selection with keyboard", async () => {
+    await simulateClick("canvas", 750, 40); // H1
+    expect(getActiveXc(model)).toBe("H1");
+    const viewport = model.getters.getActiveViewport();
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowRight", shiftKey: true, bubbles: true })
+    );
+    expect(model.getters.getSelectedZone()).toEqual(toZone("H1:I1"));
+    expect(model.getters.getActiveViewport()).toMatchObject(viewport);
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowRight", shiftKey: true, bubbles: true })
+    );
+    expect(model.getters.getSelectedZone()).toEqual(toZone("H1:J1"));
+    expect(model.getters.getActiveViewport()).toMatchObject({
+      ...viewport,
+      offsetX: 96,
+      left: 1,
+      right: 10,
+    });
+  });
+
+  describe("Edge-Scrolling on mouseMove in selection", () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+    test("Can edge-scroll horizontally", async () => {
+      const { width, height } = model.getters.getViewportDimension();
+      const y = height / 2;
+      triggerMouseEvent("canvas", "mousedown", width / 2, y);
+      triggerMouseEvent("canvas", "mousemove", 1.5 * width, y);
+      const advanceTimer = scrollDelay(0.5 * width) * 6 - 1;
+      jest.advanceTimersByTime(advanceTimer);
+      triggerMouseEvent("canvas", "mouseup", 1.5 * width, y);
+
+      expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+        left: 6,
+        right: 15,
+        top: 0,
+        bottom: 42,
+      });
+
+      triggerMouseEvent("canvas", "mousedown", width / 2, y);
+      triggerMouseEvent("canvas", "mousemove", -0.5 * width, y);
+      const advanceTimer2 = scrollDelay(0.5 * width) * 3 - 1;
+      jest.advanceTimersByTime(advanceTimer2);
+      triggerMouseEvent("canvas", "mouseup", -0.5 * width, y);
+
+      expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+        left: 3,
+        right: 12,
+        top: 0,
+        bottom: 42,
+      });
+    });
+
+    test("Can edge-scroll vertically", () => {
+      const { width, height } = model.getters.getViewportDimension();
+      const x = width / 2;
+      triggerMouseEvent("canvas", "mousedown", x, height / 2);
+      triggerMouseEvent("canvas", "mousemove", x, 1.5 * height);
+      const advanceTimer = scrollDelay(0.5 * height) * 6 - 1;
+      jest.advanceTimersByTime(advanceTimer);
+      triggerMouseEvent("canvas", "mouseup", x, 1.5 * height);
+
+      expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+        left: 0,
+        right: 9,
+        top: 6,
+        bottom: 48,
+      });
+
+      triggerMouseEvent("canvas", "mousedown", x, height / 2);
+      triggerMouseEvent("canvas", "mousemove", x, -0.5 * height);
+      const advanceTimer2 = scrollDelay(0.5 * height) * 3 - 1;
+      jest.advanceTimersByTime(advanceTimer2);
+      triggerMouseEvent("canvas", "mouseup", x, -0.5 * height);
+
+      expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+        left: 0,
+        right: 9,
+        top: 3,
+        bottom: 45,
+      });
     });
   });
 

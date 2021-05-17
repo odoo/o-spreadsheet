@@ -50,3 +50,11 @@ export const enum LAYERS {
   Autofill,
   Headers, // Probably keep this at the end
 }
+
+export interface EdgeScrollInfo {
+  canEdgeScroll: boolean;
+  direction: number;
+  delay: number;
+}
+
+export type ScrollDirection = 1 | 0 | -1;

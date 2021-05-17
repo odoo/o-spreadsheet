@@ -138,6 +138,8 @@ export type Getters = CoreGetters & {
   getColIndex: RendererPlugin["getColIndex"];
   getRowIndex: RendererPlugin["getRowIndex"];
   getRect: RendererPlugin["getRect"];
+  getEdgeScrollCol: RendererPlugin["getEdgeScrollCol"];
+  getEdgeScrollRow: RendererPlugin["getEdgeScrollRow"];
 
   getEditionMode: EditionPlugin["getEditionMode"];
   isSelectingForComposer: EditionPlugin["isSelectingForComposer"];

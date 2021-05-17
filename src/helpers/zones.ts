@@ -1,4 +1,4 @@
-import { Cell, Sheet, Zone, ZoneDimension } from "../types";
+import { Cell, Sheet, Viewport, Zone, ZoneDimension } from "../types";
 import { toCartesian, toXC } from "./coordinates";
 import { range } from "./misc";
 
@@ -443,4 +443,33 @@ export function uniqueZones(zones: Zone[]): Zone[] {
         )
     )
     .reverse();
+}
+
+/**
+ * This function will compare the modifications of selection to determine
+ * a cell that is part of the new zone and not the previous one.
+ */
+export function findCellInNewZone(
+  oldZone: Zone,
+  currentZone: Zone,
+  viewport: Viewport
+): [number, number] {
+  let col: number, row: number;
+  const { left: oldLeft, right: oldRight, top: oldTop, bottom: oldBottom } = oldZone!;
+  const { left, right, top, bottom } = currentZone;
+  if (left != oldLeft) {
+    col = left;
+  } else if (right != oldRight) {
+    col = right;
+  } else {
+    col = viewport.left;
+  }
+  if (top != oldTop) {
+    row = top;
+  } else if (bottom != oldBottom) {
+    row = bottom;
+  } else {
+    row = viewport.top;
+  }
+  return [col, row];
 }
