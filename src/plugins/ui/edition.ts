@@ -23,7 +23,7 @@ import { UIPlugin } from "../ui_plugin";
 export type EditionMode =
   | "editing"
   | "waitingForRangeSelection"
-  | "rangeSelected"
+  | "rangeSelected" // should tell if you need to underline the current range selected.
   | "inactive"
   | "resettingPosition";
 

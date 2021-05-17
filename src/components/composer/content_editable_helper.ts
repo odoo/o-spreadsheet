@@ -1,3 +1,5 @@
+import { HtmlContent } from "./composer";
+
 export class ContentEditableHelper {
   el: HTMLElement;
   constructor(el: HTMLElement | null) {
@@ -75,19 +77,23 @@ export class ContentEditableHelper {
   }
 
   /**
-   * insert text at the current selection point. If a selection of 1 or more elements is done,
-   * the selection is replaced by the text to be inserted
-   * */
-  insertText(value: string, color?: string) {
-    if (!value) return;
-    if (document.activeElement === this.el) {
-      document.execCommand("foreColor", false, color);
-      document.execCommand("insertText", false, value);
-    } else {
+   * Sets (or Replaces all) the text inside the root element in the form of distinctive
+   * span for each element provided in `contents`.
+   *
+   * Each span will have its own fontcolor and specific class if provided in the HtmlContent object.
+   */
+  setText(contents: HtmlContent[]) {
+    if (contents.length === 0) {
+      return;
+    }
+    for (const content of contents) {
       const span = document.createElement("span");
-      span.innerText = value;
-      if (color) {
-        span.style.color = color;
+      span.innerText = content.value;
+      if (content.color) {
+        span.style.color = content.color;
+      }
+      if (content.class) {
+        span.classList.add(content.class);
       }
       this.el.appendChild(span);
     }

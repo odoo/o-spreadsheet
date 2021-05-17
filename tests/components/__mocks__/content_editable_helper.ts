@@ -1,3 +1,5 @@
+import { HtmlContent } from "../../../src/components/composer/composer";
+
 export class ContentEditableHelper {
   currentState = {
     cursorStart: 0,
@@ -17,6 +19,7 @@ export class ContentEditableHelper {
     this.colors = {};
   }
   selectRange(start, end) {
+    // TODO: find a way not to depend on selectRange to gain focus and push mockContentHelper
     this.el!.focus();
     // @ts-ignore
     window.mockContentHelper = this;
@@ -24,6 +27,13 @@ export class ContentEditableHelper {
     this.currentState.cursorStart = start;
     this.currentState.cursorEnd = end;
   }
+
+  setText(values: HtmlContent[]) {
+    for (const content of values) {
+      this.insertText(content.value, content.color);
+    }
+  }
+
   insertText(value, color?: string) {
     const text = this.el!.textContent!;
 
