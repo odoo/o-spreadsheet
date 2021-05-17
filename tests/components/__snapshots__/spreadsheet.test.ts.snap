@@ -338,9 +338,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     background-color: white;
   "
           tabindex="1"
-        >
-          
-        </div>
+        />
       </div>
     </div>
   </div>
