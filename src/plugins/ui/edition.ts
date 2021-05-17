@@ -225,6 +225,16 @@ export class EditionPlugin extends UIPlugin {
   // Misc
   // ---------------------------------------------------------------------------
 
+  private validateSelection(
+    length: number,
+    start: number,
+    end: number
+  ): CommandResult.Success | CommandResult.WrongComposerSelection {
+    return start >= 0 && start <= length && end >= 0 && end <= length
+      ? CommandResult.Success
+      : CommandResult.WrongComposerSelection;
+  }
+
   private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
     if (cmd.elements.includes(this.col) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
@@ -265,12 +275,6 @@ export class EditionPlugin extends UIPlugin {
     );
     this.col = left;
     this.row = top;
-  }
-
-  private validateSelection(length: number, start: number, end: number): CommandResult {
-    return start >= 0 && start <= length && end >= 0 && end <= length
-      ? CommandResult.Success
-      : CommandResult.WrongComposerSelection;
   }
 
   /**
@@ -381,16 +385,17 @@ export class EditionPlugin extends UIPlugin {
   private setContent(text: string, selection?: ComposerSelection) {
     const isNewCurrentContent = this.currentContent !== text;
     this.currentContent = text;
+
     if (selection) {
       this.selectionStart = selection.start;
       this.selectionEnd = selection.end;
     } else {
       this.selectionStart = this.selectionEnd = text.length;
     }
-    if (isNewCurrentContent) {
+    if (isNewCurrentContent || this.mode !== "inactive") {
       this.currentTokens = text.startsWith("=") ? composerTokenize(text) : [];
     }
-    if (this.canstartComposerRangeSelection()) {
+    if (this.canStartComposerRangeSelection()) {
       this.startComposerRangeSelection();
     }
   }
@@ -500,8 +505,10 @@ export class EditionPlugin extends UIPlugin {
    * - the next token is missing or is among ["COMMA", "RIGHT_PAREN", "OPERATOR"]
    * - Previous and next tokens can be separated by spaces
    */
-  private canstartComposerRangeSelection(): boolean {
-    if (this.mode !== "editing") return false;
+  private canStartComposerRangeSelection(): boolean {
+    if (this.mode !== "editing" && this.selectionStart === this.selectionEnd) {
+      return false;
+    }
     if (this.currentContent.startsWith("=")) {
       const tokenAtCursor = this.getTokenAtCursor();
       if (tokenAtCursor) {
@@ -510,28 +517,28 @@ export class EditionPlugin extends UIPlugin {
           .indexOf(tokenAtCursor.start);
 
         let count = tokenIdex;
-        let curentToken = tokenAtCursor;
+        let currentToken = tokenAtCursor;
         // check previous token
-        while (!["COMMA", "LEFT_PAREN", "OPERATOR"].includes(curentToken.type)) {
-          if (curentToken.type !== "SPACE" || count < 1) {
+        while (!["COMMA", "LEFT_PAREN", "OPERATOR"].includes(currentToken.type)) {
+          if (currentToken.type !== "SPACE" || count < 1) {
             return false;
           }
           count--;
-          curentToken = this.currentTokens[count];
+          currentToken = this.currentTokens[count];
         }
 
         count = tokenIdex + 1;
-        curentToken = this.currentTokens[count];
+        currentToken = this.currentTokens[count];
         // check next token
-        while (curentToken && !["COMMA", "RIGHT_PAREN", "OPERATOR"].includes(curentToken.type)) {
-          if (curentToken.type !== "SPACE") {
+        while (currentToken && !["COMMA", "RIGHT_PAREN", "OPERATOR"].includes(currentToken.type)) {
+          if (currentToken.type !== "SPACE") {
             return false;
           }
           count++;
-          curentToken = this.currentTokens[count];
+          currentToken = this.currentTokens[count];
         }
         count++;
-        curentToken = this.currentTokens[count];
+        currentToken = this.currentTokens[count];
       }
       return true;
     }

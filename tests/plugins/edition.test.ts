@@ -143,7 +143,7 @@ describe("edition", () => {
       content: "hello",
       selection: { start: 4, end: 0 },
     });
-    expect(result).toEqual(CommandResult.Success);
+    expect(result).toBe(CommandResult.Success);
   });
 
   test("setting content with wrong selection", () => {
@@ -188,7 +188,7 @@ describe("edition", () => {
         start: 2,
         end: 1,
       })
-    ).toEqual(CommandResult.Success);
+    ).toBe(CommandResult.Success);
   });
 
   test("setting selection out of content is invalid", () => {
@@ -352,7 +352,7 @@ describe("edition", () => {
         text: "coucou",
         selection: { start: 5, end: 1 },
       })
-    ).toEqual(CommandResult.Success);
+    ).toBe(CommandResult.Success);
   });
 
   test("start edition with a wrong selection", () => {
