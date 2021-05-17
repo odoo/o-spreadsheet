@@ -65,18 +65,30 @@ export class EditionPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: Command): CommandResult {
+    let length: number, start: number, end: number;
     switch (cmd.type) {
       case "CHANGE_COMPOSER_CURSOR_SELECTION":
-        const length = this.currentContent.length;
-        const { start, end } = cmd;
-        return start >= 0 && start <= length && end >= 0 && end <= length && start <= end
-          ? CommandResult.Success
-          : CommandResult.WrongComposerSelection;
+        length = this.currentContent.length;
+        ({ start, end } = cmd);
+        return this.validateSelection(length, start, end);
       case "SET_CURRENT_CONTENT":
+        if (cmd.selection) {
+          length = cmd.content.length;
+          ({ start, end } = cmd.selection);
+          return this.validateSelection(length, start, end);
+        } else {
+          return CommandResult.Success;
+        }
       case "START_EDITION":
-        return cmd.selection && cmd.selection.start > cmd.selection.end
-          ? CommandResult.WrongComposerSelection
-          : CommandResult.Success;
+        if (cmd.selection) {
+          const cell = this.getters.getActiveCell();
+          const content = cmd.text || (cell && this.getCellContent(cell)) || "";
+          length = content.length;
+          ({ start, end } = cmd.selection);
+          return this.validateSelection(length, start, end);
+        } else {
+          return CommandResult.Success;
+        }
       default:
         return CommandResult.Success;
     }
@@ -207,8 +219,8 @@ export class EditionPlugin extends UIPlugin {
    * Return the (enriched) token just before the cursor.
    */
   getTokenAtCursor(): EnrichedToken | undefined {
-    const start = this.selectionStart;
-    const end = this.selectionEnd;
+    const start = Math.min(this.selectionStart, this.selectionEnd);
+    const end = Math.max(this.selectionStart, this.selectionEnd);
     if (start === end && end === 0) {
       return undefined;
     } else {
@@ -220,6 +232,15 @@ export class EditionPlugin extends UIPlugin {
   // Misc
   // ---------------------------------------------------------------------------
 
+  private validateSelection(
+    length: number,
+    start: number,
+    end: number
+  ): CommandResult.Success | CommandResult.WrongComposerSelection {
+    return start >= 0 && start <= length && end >= 0 && end <= length
+      ? CommandResult.Success
+      : CommandResult.WrongComposerSelection;
+  }
   private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
     if (cmd.elements.includes(this.col) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
@@ -370,16 +391,17 @@ export class EditionPlugin extends UIPlugin {
   private setContent(text: string, selection?: ComposerSelection) {
     const isNewCurrentContent = this.currentContent !== text;
     this.currentContent = text;
+
     if (selection) {
       this.selectionStart = selection.start;
       this.selectionEnd = selection.end;
     } else {
       this.selectionStart = this.selectionEnd = text.length;
     }
-    if (isNewCurrentContent) {
+    if (isNewCurrentContent || this.mode !== "inactive") {
       this.currentTokens = text.startsWith("=") ? composerTokenize(text) : [];
     }
-    if (this.canstartComposerRangeSelection()) {
+    if (this.canStartComposerRangeSelection()) {
       this.startComposerRangeSelection();
     }
   }
@@ -415,12 +437,12 @@ export class EditionPlugin extends UIPlugin {
    * The cursor is then set at the end of the text.
    */
   private replaceSelection(text) {
-    const start = this.selectionStart;
-    const end = this.selectionEnd;
+    const start = Math.min(this.selectionStart, this.selectionEnd);
+    const end = Math.max(this.selectionStart, this.selectionEnd);
     this.currentContent =
       this.currentContent.slice(0, start) +
       this.currentContent.slice(end, this.currentContent.length);
-    this.insertText(text, this.selectionStart);
+    this.insertText(text, start);
   }
 
   /**
@@ -489,8 +511,10 @@ export class EditionPlugin extends UIPlugin {
    * - the next token is missing or is among ["COMMA", "RIGHT_PAREN", "OPERATOR"]
    * - Previous and next tokens can be separated by spaces
    */
-  private canstartComposerRangeSelection(): boolean {
-    if (this.mode !== "editing") return false;
+  private canStartComposerRangeSelection(): boolean {
+    if (this.mode !== "editing" && this.selectionStart === this.selectionEnd) {
+      return false;
+    }
     if (this.currentContent.startsWith("=")) {
       const tokenAtCursor = this.getTokenAtCursor();
       if (tokenAtCursor) {
@@ -499,28 +523,28 @@ export class EditionPlugin extends UIPlugin {
           .indexOf(tokenAtCursor.start);
 
         let count = tokenIdex;
-        let curentToken = tokenAtCursor;
+        let currentToken = tokenAtCursor;
         // check previous token
-        while (!["COMMA", "LEFT_PAREN", "OPERATOR"].includes(curentToken.type)) {
-          if (curentToken.type !== "SPACE" || count < 1) {
+        while (!["COMMA", "LEFT_PAREN", "OPERATOR"].includes(currentToken.type)) {
+          if (currentToken.type !== "SPACE" || count < 1) {
             return false;
           }
           count--;
-          curentToken = this.currentTokens[count];
+          currentToken = this.currentTokens[count];
         }
 
         count = tokenIdex + 1;
-        curentToken = this.currentTokens[count];
+        currentToken = this.currentTokens[count];
         // check next token
-        while (curentToken && !["COMMA", "RIGHT_PAREN", "OPERATOR"].includes(curentToken.type)) {
-          if (curentToken.type !== "SPACE") {
+        while (currentToken && !["COMMA", "RIGHT_PAREN", "OPERATOR"].includes(currentToken.type)) {
+          if (currentToken.type !== "SPACE") {
             return false;
           }
           count++;
-          curentToken = this.currentTokens[count];
+          currentToken = this.currentTokens[count];
         }
         count++;
-        curentToken = this.currentTokens[count];
+        currentToken = this.currentTokens[count];
       }
       return true;
     }

@@ -133,6 +133,19 @@ describe("edition", () => {
     });
   });
 
+  test("Allow setting content with right-to-left selection", () => {
+    const model = new Model();
+    expect(model.getters.getComposerSelection()).toEqual({
+      start: 0,
+      end: 0,
+    });
+    const result = model.dispatch("SET_CURRENT_CONTENT", {
+      content: "hello",
+      selection: { start: 4, end: 0 },
+    });
+    expect(result).toBe(CommandResult.Success);
+  });
+
   test("setting content with wrong selection", () => {
     const model = new Model();
     expect(model.getters.getComposerSelection()).toEqual({
@@ -141,7 +154,7 @@ describe("edition", () => {
     });
     const result = model.dispatch("SET_CURRENT_CONTENT", {
       content: "hello",
-      selection: { start: 4, end: 1 },
+      selection: { start: 1, end: 6 },
     });
     expect(result).toBe(CommandResult.WrongComposerSelection);
   });
@@ -165,7 +178,7 @@ describe("edition", () => {
     });
   });
 
-  test("setting selection start after end is invalid", () => {
+  test("Allow setting right-to-left selection", () => {
     const model = new Model();
     model.dispatch("SET_CURRENT_CONTENT", {
       content: "hello",
@@ -175,7 +188,7 @@ describe("edition", () => {
         start: 2,
         end: 1,
       })
-    ).toBe(CommandResult.WrongComposerSelection);
+    ).toBe(CommandResult.Success);
   });
 
   test("setting selection out of content is invalid", () => {
@@ -330,6 +343,16 @@ describe("edition", () => {
       selection: { start: 4, end: 5 },
     });
     expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 5 });
+  });
+
+  test("Allow start edition with a right-to-left selection", () => {
+    const model = new Model();
+    expect(
+      model.dispatch("START_EDITION", {
+        text: "coucou",
+        selection: { start: 5, end: 1 },
+      })
+    ).toBe(CommandResult.Success);
   });
 
   test("start edition with a wrong selection", () => {
