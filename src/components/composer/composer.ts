@@ -116,6 +116,11 @@ const CSS = css/* scss */ `
       pointer-events: none;
     }
   }
+
+  /* Custom css to highlight topbar composer on focus */
+  .o-topbar-toolbar .o-composer-container:focus-within {
+    box-shadow: 0px 0px 4px 5px rgba(60, 64, 67, 0.35);
+  }
 `;
 
 interface Props {
