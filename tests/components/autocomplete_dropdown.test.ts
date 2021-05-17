@@ -1,3 +1,4 @@
+import { SelectionIndicatorClass } from "../../src/components/composer/composer";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
@@ -90,14 +91,16 @@ describe("Functions autocomplete", () => {
       await typeInComposer("=S");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
-      expect(composerEl.textContent).toBe("=SUM(␣");
+      expect(composerEl.textContent).toBe("=SUM(");
+      expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
     });
 
     test("=S+ENTER complete the function --> =SUM(␣", async () => {
       await typeInComposer("=S");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       await nextTick();
-      expect(composerEl.textContent).toBe("=SUM(␣");
+      expect(composerEl.textContent).toBe("=SUM(");
+      expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
     });
 
     test("=SX not show autocomplete (nothing matches SX)", async () => {
@@ -178,7 +181,8 @@ describe("Functions autocomplete", () => {
         .querySelector(".o-autocomplete-dropdown")!
         .children[1].dispatchEvent(new MouseEvent("click"));
       await nextTick();
-      expect(composerEl.textContent).toBe("=SZZ(␣");
+      expect(composerEl.textContent).toBe("=SZZ(");
+      expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
@@ -212,7 +216,8 @@ describe("Functions autocomplete", () => {
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
-      expect(composerEl.textContent).toBe("=IF(␣");
+      expect(composerEl.textContent).toBe("=IF(");
+      expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
     });
     test("= and CTRL+Space & DOWN move to next autocomplete", async () => {
       await typeInComposer("=");
@@ -294,7 +299,8 @@ describe("Autocomplete parenthesis", () => {
     // select the SUM function
     fixture.querySelector(".o-autocomplete-value-focus")!.dispatchEvent(new MouseEvent("click"));
     await nextTick();
-    expect(composerEl.textContent).toBe("=SUM(␣");
+    expect(composerEl.textContent).toBe("=SUM(");
+    expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
   });
 

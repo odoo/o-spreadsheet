@@ -19,14 +19,22 @@ const ASSISTANT_WIDTH = 300;
 export const FunctionColor = "#4a4e4d";
 export const OperatorColor = "#3da4ab";
 export const StringColor = "#f6cd61";
-export const SelectionIndicatorColor = "lightgrey";
+export const SelectionIndicatorColor = "darkgrey";
 export const NumberColor = "#02c39a";
 export const MatchingParenColor = "pink";
+
+export const SelectionIndicatorClass = "SelectorFlag";
 
 interface ComposerFocusedEventData {
   content?: string;
   selection?: ComposerSelection;
 }
+
+export type HtmlContent = {
+  value: string;
+  color: string;
+  class?: string;
+};
 
 export type ComposerFocusedEvent = CustomEvent<ComposerFocusedEventData>;
 
@@ -43,39 +51,37 @@ export const tokenColor = {
 
 const TEMPLATE = xml/* xml */ `
 <div class="o-composer-container">
-    <div class="o-composer"
-      t-att-style="props.inputStyle"
-      t-ref="o_composer"
-      tabindex="1"
-      contenteditable="true"
-      spellcheck="false"
+  <div class="o-composer"
+    t-att-style="props.inputStyle"
+    t-ref="o_composer"
+    tabindex="1"
+    contenteditable="true"
+    spellcheck="false"
 
-      t-on-keydown="onKeydown"
-      t-on-beforeinput="onBeforeinput"
-      t-on-mousedown="onMousedown"
-      t-on-input="onInput"
-      t-on-keyup="onKeyup"
+    t-on-keydown="onKeydown"
+    t-on-mousedown="onMousedown"
+    t-on-input="onInput"
+    t-on-keyup="onKeyup"
+    t-on-click.stop="onClick"
+  />
 
-      t-on-click.stop="onClick"
+  <div t-if="props.focus and (autoCompleteState.showProvider or functionDescriptionState.showDescription)"
+    class="o-composer-assistant" t-att-style="assistantStyle">
+    <TextValueProvider
+        t-if="autoCompleteState.showProvider"
+        t-ref="o_autocomplete_provider"
+        search="autoCompleteState.search"
+        provider="autoCompleteState.provider"
+        t-on-completed="onCompleted"
     />
-
-    <div t-if="props.focus and (autoCompleteState.showProvider or functionDescriptionState.showDescription)"
-      class="o-composer-assistant" t-att-style="assistantStyle">
-      <TextValueProvider
-          t-if="autoCompleteState.showProvider"
-          t-ref="o_autocomplete_provider"
-          search="autoCompleteState.search"
-          provider="autoCompleteState.provider"
-          t-on-completed="onCompleted"
-      />
-      <FunctionDescriptionProvider
-          t-if="functionDescriptionState.showDescription"
-          t-ref="o_function_description_provider"
-          functionName = "functionDescriptionState.functionName"
-          functionDescription = "functionDescriptionState.functionDescription"
-          argToFocus = "functionDescriptionState.argToFocus"
-      />
-    </div>
+    <FunctionDescriptionProvider
+        t-if="functionDescriptionState.showDescription"
+        t-ref="o_function_description_provider"
+        functionName = "functionDescriptionState.functionName"
+        functionDescription = "functionDescriptionState.functionDescription"
+        argToFocus = "functionDescriptionState.argToFocus"
+    />
+  </div>
 </div>
   `;
 const CSS = css/* scss */ `
@@ -88,11 +94,18 @@ const CSS = css/* scss */ `
     max-height: inherit;
     .o-composer {
       caret-color: black;
-      padding-left: 2px;
+      padding-left: 8px;
       padding-right: 2px;
       word-break: break-all;
       &:focus {
         outline: none;
+      }
+      span {
+        white-space: pre;
+        &.${SelectionIndicatorClass}:after {
+          content: "${SelectionIndicator}";
+          color: ${SelectionIndicatorColor};
+        }
       }
     }
     .o-composer-assistant {
@@ -109,6 +122,11 @@ interface Props {
   rect?: Rect;
   delimitation?: Dimension;
   focus: boolean;
+}
+
+interface ComposerState {
+  positionStart: number;
+  positionEnd: number;
 }
 
 interface AutoCompleteState {
@@ -140,6 +158,11 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   dispatch = this.env.dispatch;
 
   contentHelper: ContentEditableHelper;
+
+  composerState: ComposerState = useState({
+    positionStart: 0,
+    positionEnd: 0,
+  });
 
   autoCompleteState: AutoCompleteState = useState({
     showProvider: false,
@@ -202,7 +225,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     const el = this.composerRef.el!;
 
     this.contentHelper.updateEl(el);
-    this.processContent(this.props.focus);
+    this.processContent();
   }
 
   willUnmount(): void {
@@ -210,10 +233,9 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     this.trigger("composer-unmounted");
   }
 
-  async willUpdateProps(nextProps: Props) {
-    this.processContent(nextProps.focus);
+  patched() {
+    this.processContent();
   }
-
   // ---------------------------------------------------------------------------
   // Handlers
   // ---------------------------------------------------------------------------
@@ -290,15 +312,6 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     ev.stopPropagation();
   }
 
-  onBeforeinput() {
-    // Remove the selector flag to not include the flag-text in the
-    // current content during the "onInput" event.
-    const newSelection = this.contentHelper.getCurrentSelection();
-    this.removeSelectorFlag();
-    this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
-    this.contentHelper.selectRange(newSelection.start, newSelection.end);
-  }
-
   /*
    * Triggered automatically by the content-editable between the keydown and key up
    * */
@@ -306,6 +319,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     if (!this.props.focus || !this.shouldProcessInputEvents) {
       return;
     }
+    this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     const el = this.composerRef.el! as HTMLInputElement;
     this.dispatch("SET_CURRENT_CONTENT", {
       content: el.childNodes.length ? el.textContent! : "",
@@ -330,7 +344,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     }
 
     ev.preventDefault();
-
+    ev.stopPropagation();
     this.autoCompleteState.showProvider = false;
     if (ev.ctrlKey && ev.key === " ") {
       this.autoCompleteState.search = "";
@@ -339,7 +353,13 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
       return;
     }
 
-    this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", this.contentHelper.getCurrentSelection());
+    const { start: oldStart, end: oldEnd } = this.getters.getComposerSelection();
+    const { start, end } = this.contentHelper.getCurrentSelection();
+
+    if (start !== oldStart || end !== oldEnd) {
+      this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", this.contentHelper.getCurrentSelection());
+    }
+
     this.processTokenAtCursor();
   }
 
@@ -353,7 +373,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
 
   onClick() {
     const newSelection = this.contentHelper.getCurrentSelection();
-    this.removeSelectorFlag();
+
     this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     if (!this.props.focus) {
       this.trigger("composer-focused", {
@@ -372,80 +392,89 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   // Private
   // ---------------------------------------------------------------------------
 
-  private processContent(isFocused: boolean) {
+  private processContent() {
+    this.contentHelper.removeAll(); // removes the content of the composer, to be added just after
     this.shouldProcessInputEvents = false;
-    let value = this.getters.getCurrentContent();
-    this.contentHelper.removeAll(); // remove the content of the composer, to be added just after
-    if (isFocused) {
+
+    if (this.props.focus) {
       this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
     }
-    const { start, end } = this.getters.getComposerSelection();
-    if (value.startsWith("=")) {
-      const tokens = this.getters.getCurrentTokens();
-      const tokenAtCursor = this.getters.getTokenAtCursor();
-      for (let token of tokens) {
-        switch (token.type) {
-          case "OPERATOR":
-          case "NUMBER":
-          case "FUNCTION":
-          case "COMMA":
-          case "STRING":
-            this.contentHelper.insertText(token.value, this.tokenColor(token.type));
-            break;
-          case "SYMBOL":
-            let value = token.value;
-            const [xc, sheet] = value.split("!").reverse() as [string, string | undefined];
-            if (rangeReference.test(xc)) {
-              this.contentHelper.insertText(value, this.rangeColor(xc, sheet));
-            } else if (["TRUE", "FALSE"].includes(value.toUpperCase())) {
-              this.contentHelper.insertText(value, NumberColor);
-            } else {
-              this.contentHelper.insertText(value, "#000");
-            }
-            break;
-          case "LEFT_PAREN":
-          case "RIGHT_PAREN":
-            // Compute the matching parenthesis
-            if (
-              tokenAtCursor &&
-              ["LEFT_PAREN", "RIGHT_PAREN"].includes(tokenAtCursor.type) &&
-              tokenAtCursor.parenIndex &&
-              tokenAtCursor.parenIndex === token.parenIndex
-            ) {
-              this.contentHelper.insertText(token.value, this.parenthesisColor());
-            } else {
-              this.contentHelper.insertText(token.value, this.tokenColor(token.type));
-            }
-            break;
-          default:
-            this.contentHelper.insertText(token.value);
-            break;
-        }
-      }
+    const content = this.getContent();
+    if (content.length !== 0) {
+      this.contentHelper.setText(content);
+      const { start, end } = this.getters.getComposerSelection();
 
-      if (this.getters.getEditionMode() === "waitingForRangeSelection") {
-        this.insertSelectorFlag();
+      if (this.props.focus) {
+        // Put the cursor back where it was before the rendering
+        this.contentHelper.selectRange(start, end);
       }
-    } else {
-      this.contentHelper.insertText(value);
-    }
-    if (isFocused) {
-      // Put the cursor back where it was
-      this.contentHelper.selectRange(start, end);
-    }
-
-    if (this.composerRef.el!.clientWidth !== this.composerRef.el!.scrollWidth) {
-      this.trigger("content-width-changed", {
-        newWidth: this.composerRef.el!.scrollWidth,
-      });
-    }
-    if (this.composerRef.el!.clientHeight !== this.composerRef.el!.scrollHeight) {
-      this.trigger("content-height-changed", {
-        newHeight: this.composerRef.el!.scrollHeight,
-      });
     }
 
     this.shouldProcessInputEvents = true;
+  }
+
+  private getContent(): HtmlContent[] {
+    let content: HtmlContent[];
+    let value = this.getters.getCurrentContent();
+    if (value === "") {
+      content = [];
+    } else if (value.startsWith("=") && this.getters.getEditionMode() !== "inactive") {
+      content = this.getColoredTokens();
+    } else {
+      content = [{ value, color: "#000" }];
+    }
+    return content;
+  }
+
+  private getColoredTokens(): any[] {
+    const tokens = this.getters.getCurrentTokens();
+    const tokenAtCursor = this.getters.getTokenAtCursor();
+    const result: any[] = [];
+    const { end } = this.getters.getComposerSelection();
+    for (let token of tokens) {
+      switch (token.type) {
+        case "OPERATOR":
+        case "NUMBER":
+        case "FUNCTION":
+        case "COMMA":
+        case "STRING":
+          result.push({ value: token.value, color: tokenColor[token.type] || "#000" });
+          break;
+        case "SYMBOL":
+          let value = token.value;
+          const [xc, sheet] = value.split("!").reverse() as [string, string | undefined];
+          if (rangeReference.test(xc)) {
+            result.push({ value: token.value, color: this.rangeColor(xc, sheet) || "#000" });
+          } else if (["TRUE", "FALSE"].includes(value.toUpperCase())) {
+            result.push({ value: token.value, color: NumberColor });
+          } else {
+            result.push({ value: token.value, color: "#000" });
+          }
+          break;
+        case "LEFT_PAREN":
+        case "RIGHT_PAREN":
+          // Compute the matching parenthesis
+          if (
+            tokenAtCursor &&
+            ["LEFT_PAREN", "RIGHT_PAREN"].includes(tokenAtCursor.type) &&
+            tokenAtCursor.parenIndex &&
+            tokenAtCursor.parenIndex === token.parenIndex
+          ) {
+            result.push({ value: token.value, color: MatchingParenColor || "#000" });
+          } else {
+            result.push({ value: token.value, color: tokenColor[token.type] || "#000" });
+          }
+          break;
+        default:
+          result.push({ value: token.value, color: "#000" });
+          break;
+      }
+      // Note: mode === waitingForRangeSelection implies end === start
+      if (this.getters.getEditionMode() === "waitingForRangeSelection" && end === token.end) {
+        result[result.length - 1].class = SelectionIndicatorClass;
+      }
+    }
+    return result;
   }
 
   private rangeColor(xc: string, sheetName?: string): string | undefined {
@@ -461,14 +490,6 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
         zoneToXc(highlight.zone) == xc.replace(/\$/g, "") && highlight.sheet === refSheet
     );
     return highlight && highlight.color ? highlight.color : undefined;
-  }
-
-  private tokenColor(tokenType: string): string | undefined {
-    return this.getters.getEditionMode() !== "inactive" ? tokenColor[tokenType] : undefined;
-  }
-
-  private parenthesisColor(): string | undefined {
-    return this.getters.getEditionMode() !== "inactive" ? MatchingParenColor : undefined;
   }
 
   /**
@@ -545,24 +566,5 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
       });
     }
     this.processTokenAtCursor();
-  }
-
-  /**
-   * Insert a selector flag to indicate the range selection has started
-   * */
-  private insertSelectorFlag() {
-    const { start, end } = this.getters.getComposerSelection();
-    this.contentHelper.selectRange(start, end);
-    this.contentHelper.insertText(SelectionIndicator, SelectionIndicatorColor);
-    this.contentHelper.selectRange(start, end);
-  }
-
-  private removeSelectorFlag() {
-    if (this.getters.getEditionMode() !== "waitingForRangeSelection") {
-      return;
-    }
-    const { start, end } = this.getters.getComposerSelection();
-    this.contentHelper.selectRange(start, end + 1);
-    this.contentHelper.removeSelection();
   }
 }

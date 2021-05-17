@@ -1,6 +1,7 @@
 import {
   MatchingParenColor,
   NumberColor,
+  SelectionIndicatorClass,
   tokenColor,
 } from "../../src/components/composer/composer";
 import { fontSizes } from "../../src/fonts";
@@ -121,7 +122,8 @@ describe("ranges and highlights", () => {
     await keydown("ArrowDown");
     expect(composerEl.textContent).toBe("=A2");
     await typeInComposer("+", false);
-    expect(composerEl.textContent).toBe("=A2+␣");
+    expect(composerEl.textContent).toBe("=A2+");
+    expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
     expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
     await keydown("ArrowDown");
     expect(composerEl.textContent).toBe("=A2+A2");
@@ -225,7 +227,7 @@ describe("composer", () => {
 
   test("starting the edition with a key stroke =, the composer should have the focus after the key input", async () => {
     composerEl = await startComposition("=");
-    expect(composerEl.textContent).toBe("=␣");
+    expect(composerEl.textContent).toBe("=");
   });
 
   test("starting the edition with a key stroke B, the composer should have the focus after the key input", async () => {
@@ -240,7 +242,6 @@ describe("composer", () => {
     const cehMock = window.mockContentHelper as ContentEditableHelper;
     cehMock.removeAll();
     composerEl.dispatchEvent(new Event("input"));
-    composerEl.dispatchEvent(new Event("beforeinput"));
     composerEl.dispatchEvent(new Event("keyup"));
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     await nextTick();
@@ -250,7 +251,8 @@ describe("composer", () => {
 
   test("type '=' in the sheet and select a cell", async () => {
     composerEl = await startComposition("=");
-    expect(composerEl.textContent).toBe("=␣");
+    expect(composerEl.textContent).toBe("=");
+    expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
     expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
@@ -347,7 +349,8 @@ describe("composer", () => {
           await startComposition();
           await typeInComposer(content);
           expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-          expect(composerEl.textContent).toBe(content + "␣");
+          expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
+          expect(composerEl.textContent).toBe(content);
         }
       );
 
@@ -369,7 +372,7 @@ describe("composer", () => {
           await startComposition();
           await typeInComposer(content + "   ");
           expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-          expect(composerEl.textContent).toBe(content + "   ␣");
+          expect(composerEl.textContent).toBe(content + "   ");
         }
       );
 
@@ -403,7 +406,8 @@ describe("composer", () => {
           await moveToStart();
           await typeInComposer(formula + ",");
           expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-          expect(composerEl.textContent).toBe(formula + ",␣" + matchingValue);
+          expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
+          expect(composerEl.textContent).toBe(formula + "," + matchingValue);
         }
       );
 
@@ -434,7 +438,8 @@ describe("composer", () => {
           await moveToStart();
           await typeInComposer(formula + ",  ");
           expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-          expect(composerEl.textContent).toBe(formula + ",  ␣" + matchingValue);
+          expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
+          expect(composerEl.textContent).toBe(formula + ",  " + matchingValue);
         }
       );
 
@@ -458,7 +463,8 @@ describe("composer", () => {
           await moveToStart();
           await typeInComposer(formula + ",");
           expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-          expect(composerEl.textContent).toBe(formula + ",␣   " + matchingValue);
+          expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
+          expect(composerEl.textContent).toBe(formula + ",   " + matchingValue);
         }
       );
 
@@ -489,14 +495,16 @@ describe("composer", () => {
       await startComposition();
       await typeInComposer("=");
       expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-      expect(composerEl.textContent).toBe("=␣");
+      expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
+      expect(composerEl.textContent).toBe("=");
     });
 
     test("typing '=' & spaces --> activate 'waitingForRangeSelection' mode", async () => {
       await startComposition();
       await typeInComposer("=   ");
       expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-      expect(composerEl.textContent).toBe("=   ␣");
+      expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
+      expect(composerEl.textContent).toBe("=   ");
     });
   });
 
