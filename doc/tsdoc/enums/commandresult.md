@@ -7,6 +7,7 @@
 ### Enumeration members
 
 - [CancelledForUnknownReason](commandresult.md#cancelledforunknownreason)
+- [CellIsMerged](commandresult.md#cellismerged)
 - [EmptyClipboard](commandresult.md#emptyclipboard)
 - [EmptyDataSet](commandresult.md#emptydataset)
 - [EmptyLabelRange](commandresult.md#emptylabelrange)
@@ -41,6 +42,7 @@
 - [Readonly](commandresult.md#readonly)
 - [SelectionOutOfBound](commandresult.md#selectionoutofbound)
 - [Success](commandresult.md#success)
+- [TargetOutOfSheet](commandresult.md#targetoutofsheet)
 - [TooManyHiddenElements](commandresult.md#toomanyhiddenelements)
 - [WaitingSessionConfirmation](commandresult.md#waitingsessionconfirmation)
 - [WillRemoveExistingMerge](commandresult.md#willremoveexistingmerge)
@@ -58,111 +60,117 @@
 
 ___
 
+### CellIsMerged
+
+• **CellIsMerged**: = 4
+
+___
+
 ### EmptyClipboard
 
-• **EmptyClipboard**: = 13
+• **EmptyClipboard**: = 15
 
 ___
 
 ### EmptyDataSet
 
-• **EmptyDataSet**: = 19
+• **EmptyDataSet**: = 21
 
 ___
 
 ### EmptyLabelRange
 
-• **EmptyLabelRange**: = 20
+• **EmptyLabelRange**: = 22
 
 ___
 
 ### EmptyRedoStack
 
-• **EmptyRedoStack**: = 5
+• **EmptyRedoStack**: = 6
 
 ___
 
 ### EmptyUndoStack
 
-• **EmptyUndoStack**: = 4
+• **EmptyUndoStack**: = 5
 
 ___
 
 ### InputAlreadyFocused
 
-• **InputAlreadyFocused**: = 16
+• **InputAlreadyFocused**: = 18
 
 ___
 
 ### InvalidAutofillSelection
 
-• **InvalidAutofillSelection**: = 23
+• **InvalidAutofillSelection**: = 25
 
 ___
 
 ### InvalidChartDefinition
 
-• **InvalidChartDefinition**: = 18
+• **InvalidChartDefinition**: = 20
 
 ___
 
 ### InvalidDataSet
 
-• **InvalidDataSet**: = 21
+• **InvalidDataSet**: = 23
 
 ___
 
 ### InvalidLabelRange
 
-• **InvalidLabelRange**: = 22
+• **InvalidLabelRange**: = 24
 
 ___
 
 ### InvalidNumberOfArgs
 
-• **InvalidNumberOfArgs**: = 28
+• **InvalidNumberOfArgs**: = 30
 
 ___
 
 ### InvalidRange
 
-• **InvalidRange**: = 14
+• **InvalidRange**: = 16
 
 ___
 
 ### InvalidSheetId
 
-• **InvalidSheetId**: = 15
+• **InvalidSheetId**: = 17
 
 ___
 
 ### InvalidSortZone
 
-• **InvalidSortZone**: = 38
+• **InvalidSortZone**: = 40
 
 ___
 
 ### MaxAsyncFormulaNotSupported
 
-• **MaxAsyncFormulaNotSupported**: = 34
+• **MaxAsyncFormulaNotSupported**: = 36
 
 ___
 
 ### MaxInvalidFormula
 
-• **MaxInvalidFormula**: = 37
+• **MaxInvalidFormula**: = 39
 
 ___
 
 ### MaxNaN
 
-• **MaxNaN**: = 31
+• **MaxNaN**: = 33
 
 ___
 
 ### MaximumRangesReached
 
-• **MaximumRangesReached**: = 17
+• **MaximumRangesReached**: = 19
 
 ___
 
@@ -174,85 +182,85 @@ ___
 
 ### MergeOverlap
 
-• **MergeOverlap**: = 40
+• **MergeOverlap**: = 42
 
 ___
 
 ### MidAsyncFormulaNotSupported
 
-• **MidAsyncFormulaNotSupported**: = 33
+• **MidAsyncFormulaNotSupported**: = 35
 
 ___
 
 ### MidBiggerThanMax
 
-• **MidBiggerThanMax**: = 26
+• **MidBiggerThanMax**: = 28
 
 ___
 
 ### MidInvalidFormula
 
-• **MidInvalidFormula**: = 36
+• **MidInvalidFormula**: = 38
 
 ___
 
 ### MidNaN
 
-• **MidNaN**: = 30
+• **MidNaN**: = 32
 
 ___
 
 ### MinAsyncFormulaNotSupported
 
-• **MinAsyncFormulaNotSupported**: = 32
+• **MinAsyncFormulaNotSupported**: = 34
 
 ___
 
 ### MinBiggerThanMax
 
-• **MinBiggerThanMax**: = 25
+• **MinBiggerThanMax**: = 27
 
 ___
 
 ### MinBiggerThanMid
 
-• **MinBiggerThanMid**: = 27
+• **MinBiggerThanMid**: = 29
 
 ___
 
 ### MinInvalidFormula
 
-• **MinInvalidFormula**: = 35
+• **MinInvalidFormula**: = 37
 
 ___
 
 ### MinNaN
 
-• **MinNaN**: = 29
+• **MinNaN**: = 31
 
 ___
 
 ### NotEnoughElements
 
-• **NotEnoughElements**: = 6
+• **NotEnoughElements**: = 7
 
 ___
 
 ### NotEnoughSheets
 
-• **NotEnoughSheets**: = 7
+• **NotEnoughSheets**: = 8
 
 ___
 
 ### Readonly
 
-• **Readonly**: = 42
+• **Readonly**: = 44
 
 ___
 
 ### SelectionOutOfBound
 
-• **SelectionOutOfBound**: = 11
+• **SelectionOutOfBound**: = 12
 
 ___
 
@@ -262,15 +270,21 @@ ___
 
 ___
 
+### TargetOutOfSheet
+
+• **TargetOutOfSheet**: = 13
+
+___
+
 ### TooManyHiddenElements
 
-• **TooManyHiddenElements**: = 41
+• **TooManyHiddenElements**: = 43
 
 ___
 
 ### WaitingSessionConfirmation
 
-• **WaitingSessionConfirmation**: = 39
+• **WaitingSessionConfirmation**: = 41
 
 ___
 
@@ -282,28 +296,28 @@ ___
 
 ### WrongComposerSelection
 
-• **WrongComposerSelection**: = 24
+• **WrongComposerSelection**: = 26
 
 ___
 
 ### WrongPasteSelection
 
-• **WrongPasteSelection**: = 12
+• **WrongPasteSelection**: = 14
 
 ___
 
 ### WrongSheetMove
 
-• **WrongSheetMove**: = 9
+• **WrongSheetMove**: = 10
 
 ___
 
 ### WrongSheetName
 
-• **WrongSheetName**: = 8
+• **WrongSheetName**: = 9
 
 ___
 
 ### WrongSheetPosition
 
-• **WrongSheetPosition**: = 10
+• **WrongSheetPosition**: = 11
