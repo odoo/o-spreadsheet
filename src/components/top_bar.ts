@@ -199,11 +199,10 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
         /* Toolbar */
         .o-toolbar-tools {
           display: flex;
-
+          flex-shrink: 0;
           margin-left: 20px;
           color: #333;
           cursor: default;
-          display: flex;
 
           .o-tool {
             display: flex;
@@ -212,6 +211,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             padding: 0 3px;
             border-radius: 2px;
             cursor: pointer;
+            min-width: fit-content;
           }
 
           .o-tool.active,
@@ -324,6 +324,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           padding: 0 12px;
           margin: 0;
           line-height: 34px;
+          white-space: nowrap;
         }
       }
     }
