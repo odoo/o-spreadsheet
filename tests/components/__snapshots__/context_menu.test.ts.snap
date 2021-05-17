@@ -188,9 +188,9 @@ exports[`Context Menu context menu simple rendering 1`] = `
   <div
     class="o-menu-item disabled"
     data-name="clear_cell"
-    title="Clear cell"
+    title="Clear cells"
   >
-    Clear cell
+    Clear cells
     <span
       class="o-menu-item-shortcut"
     >

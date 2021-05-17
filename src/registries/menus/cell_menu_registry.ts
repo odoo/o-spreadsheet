@@ -28,11 +28,13 @@ cellMenuRegistry
     shortCut: "Ctrl+V",
     sequence: 30,
     action: ACTIONS.PASTE_ACTION,
+    isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
   })
   .add("paste_special", {
     name: _lt("Paste special"),
     sequence: 40,
     separator: true,
+    isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
   })
   .addChild("paste_value_only", ["paste_special"], {
     name: _lt("Paste values only"),
@@ -47,7 +49,7 @@ cellMenuRegistry
   .add("sort_range", {
     name: _lt("Sort range"),
     sequence: 50,
-    isVisible: ACTIONS.SORT_CELLS_VISIBILITY,
+    isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
     separator: true,
   })
   .addChild("sort_ascending", ["sort_range"], {
@@ -64,15 +66,18 @@ cellMenuRegistry
     name: ACTIONS.CELL_INSERT_ROWS_BEFORE_NAME,
     sequence: 70,
     action: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
+    isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
   })
   .add("add_column_before", {
     name: ACTIONS.CELL_INSERT_COLUMNS_BEFORE_NAME,
     sequence: 90,
     action: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
+    isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
   })
   .add("insert_cell", {
     name: _lt("Insert cells"),
     sequence: 100,
+    isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
     separator: true,
   })
   .addChild("insert_cell_down", ["insert_cell"], {
@@ -89,15 +94,18 @@ cellMenuRegistry
     name: ACTIONS.REMOVE_ROWS_NAME,
     sequence: 110,
     action: ACTIONS.REMOVE_ROWS_ACTION,
+    isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
   })
   .add("delete_column", {
     name: ACTIONS.REMOVE_COLUMNS_NAME,
     sequence: 120,
     action: ACTIONS.REMOVE_COLUMNS_ACTION,
+    isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
   })
   .add("delete_cell", {
     name: _lt("Delete cells"),
     sequence: 125,
+    isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
     separator: true,
   })
   .addChild("delete_cell_up", ["delete_cell"], {
@@ -111,7 +119,7 @@ cellMenuRegistry
     action: ACTIONS.DELETE_CELL_SHIFT_LEFT,
   })
   .add("clear_cell", {
-    name: _lt("Clear cell"),
+    name: _lt("Clear cells"),
     sequence: 130,
     action: ACTIONS.DELETE_CONTENT_ACTION,
     isEnabled: (env: SpreadsheetEnv) => {

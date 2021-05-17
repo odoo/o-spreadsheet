@@ -579,6 +579,6 @@ export const SORT_CELLS_DESCENDING = (env: SpreadsheetEnv) => {
   });
 };
 
-export const SORT_CELLS_VISIBILITY = (env: SpreadsheetEnv) => {
+export const IS_ONLY_ONE_RANGE = (env: SpreadsheetEnv): boolean => {
   return env.getters.getSelectedZones().length === 1;
 };
