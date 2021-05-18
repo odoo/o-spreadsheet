@@ -338,7 +338,7 @@ Object {
         },
       },
     ],
-    "error": "This formula depends on invalid values",
+    "error": "invalid range B1:A1",
     "formula": Object {
       "compiledFormula": [Function],
       "text": "=|0|",
@@ -369,7 +369,7 @@ Object {
         },
       },
     ],
-    "error": "This formula depends on invalid values",
+    "error": "invalid range B1:A1",
     "formula": Object {
       "compiledFormula": [Function],
       "text": "=|0|",
@@ -462,7 +462,7 @@ Object {
         },
       },
     ],
-    "error": "This formula depends on invalid values",
+    "error": "invalid range B1:A1",
     "formula": Object {
       "compiledFormula": [Function],
       "text": "=|0|",
@@ -966,7 +966,7 @@ Object {
         },
       },
     ],
-    "error": "This formula depends on invalid values",
+    "error": "invalid range A2:A1",
     "formula": Object {
       "compiledFormula": [Function],
       "text": "=|0|",
@@ -1028,7 +1028,7 @@ Object {
         },
       },
     ],
-    "error": "This formula depends on invalid values",
+    "error": "invalid range A2:A1",
     "formula": Object {
       "compiledFormula": [Function],
       "text": "=|0|",
