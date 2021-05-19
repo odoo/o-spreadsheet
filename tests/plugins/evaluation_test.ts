@@ -1,7 +1,14 @@
 import { args, functionRegistry } from "../../src/functions";
 import { Model } from "../../src/model";
 import "../canvas.mock";
-import { evaluateCell, evaluateGrid, getCell, setCellContent } from "../helpers";
+import {
+  evaluateCell,
+  evaluateGrid,
+  getCell,
+  getCellContent,
+  setCellContent,
+  target,
+} from "../helpers";
 import resetAllMocks = jest.resetAllMocks;
 
 describe("evaluateCells", () => {
@@ -877,6 +884,23 @@ describe("evaluateCells", () => {
     expect(getCell(model, "D10")!.value).toBe(1);
     expect(getCell(model, "D11")!.value).toBe(1);
     expect(getCell(model, "D12")!.value).toBe(1);
+  });
+
+  test("evaluate empty colored cell", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A2", "=A1");
+    expect(getCell(model, "A2")!.value).toBe(null);
+    model.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: target("A1"),
+      style: {
+        fillColor: "#a7d08c",
+      },
+    });
+    setCellContent(model, "A12", "this re-evaluates cells");
+    expect(getCellContent(model, "A2")).toBe("0");
+    expect(getCell(model, "A2")!.value).toBe(null);
   });
 
   test("evaluation follows dependencies", () => {
