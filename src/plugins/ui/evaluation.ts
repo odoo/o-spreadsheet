@@ -307,14 +307,14 @@ export class EvaluationPlugin extends UIPlugin {
     const sheets = this.getters.getEvaluationSheets();
     const PENDING = this.PENDING;
     function readCell(range: Range): any {
-      let cell;
+      let cell: Cell | undefined;
       const s = sheets[range.sheetId];
       if (s) {
         cell = s.rows[range.zone.top]?.cells[range.zone.left];
       } else {
         throw new Error(_lt("Invalid sheet name"));
       }
-      if (!cell || cell.content === "") {
+      if (!cell || cell.type === CellType.empty) {
         return null;
       }
       return getCellValue(cell, range.sheetId);
