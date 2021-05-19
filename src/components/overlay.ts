@@ -224,7 +224,6 @@ export class ColResizer extends AbstractResizer {
       left: ${HEADER_WIDTH}px;
       right: 0;
       height: ${HEADER_HEIGHT}px;
-      overflow: hidden;
       .o-handle {
         position: absolute;
         height: ${HEADER_HEIGHT}px;
@@ -393,7 +392,6 @@ export class RowResizer extends AbstractResizer {
       right: 0;
       width: ${HEADER_WIDTH}px;
       height: 100%;
-      overflow: hidden;
       .o-handle {
         position: absolute;
         height: 4px;
