@@ -47,6 +47,10 @@ export function createSheet(
   return result;
 }
 
+export function deleteSheet(model: Model, sheetId: UID) {
+  return model.dispatch("DELETE_SHEET", { sheetId });
+}
+
 /**
  * Create a new chart by default of type bar with titles
  * in the data sets, on the active sheet.
