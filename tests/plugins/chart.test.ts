@@ -8,6 +8,7 @@ import {
   createSheet,
   deleteColumns,
   deleteRows,
+  deleteSheet,
   redo,
   selectCell,
   setCellContent,
@@ -500,6 +501,24 @@ describe("datasource tests", function () {
     expect(chart.data!.datasets![0].data).toEqual([30, 31, 32]);
     expect(chart.data!.datasets![1].data).toEqual([40, 41, 42]);
     expect(chart.type).toEqual("bar");
+  });
+
+  test("deleting a random sheet does not affect a chart", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!A8:D8"],
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+      "1"
+    );
+    const chartDefinitionBefore = model.getters.getChartDefinitionUI(sheetId, "1");
+    createSheet(model, { sheetId: "42" });
+    deleteSheet(model, "42");
+    const chartDefinitionAfter = model.getters.getChartDefinitionUI(sheetId, "1");
+    expect(chartDefinitionBefore).toEqual(chartDefinitionAfter);
   });
 
   test("delete a data source column", () => {

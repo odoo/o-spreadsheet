@@ -114,6 +114,9 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       }
       case "DELETE_SHEET": {
         this.executeOnAllRanges((range: Range) => {
+          if (range.sheetId !== cmd.sheetId) {
+            return { changeType: "NONE" };
+          }
           range = {
             ...range,
             zone: { ...range.zone },

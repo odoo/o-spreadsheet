@@ -2,7 +2,13 @@ import { CorePlugin, Model } from "../../src";
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
 import { corePluginRegistry } from "../../src/plugins";
 import { ApplyRangeChange, BaseCommand, Command, Range, UID } from "../../src/types";
-import { addColumns, addRows, deleteColumns, deleteRows } from "../test_helpers/commands_helpers";
+import {
+  addColumns,
+  addRows,
+  deleteColumns,
+  deleteRows,
+  deleteSheet,
+} from "../test_helpers/commands_helpers";
 import { mockUuidV4To } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -33,6 +39,8 @@ class PluginTestRange extends CorePlugin {
       const change = applyChange(range);
       switch (change.changeType) {
         case "REMOVE":
+          this.ranges.splice(i, 1);
+          break;
         case "RESIZE":
         case "MOVE":
         case "CHANGE":
@@ -238,6 +246,20 @@ describe("range plugin", () => {
 
       test("before, before the end", () => {
         addRows(m, "before", 5, 1);
+        expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
+      });
+    });
+
+    describe("create a range and delete a sheet", () => {
+      test("delete sheet does not delete ranges from other sheets", () => {
+        deleteSheet(m, "s2");
+        expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
+      });
+
+      test("delete sheet delete ranges in the same sheet", () => {
+        m.dispatch("USE_RANGE", { rangesXC: ["A1"], sheetId: "s2" });
+        expect(m.getters.getUsedRanges()).toEqual(["B2:D4", "'s 2'!A1"]);
+        deleteSheet(m, "s2");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
     });
