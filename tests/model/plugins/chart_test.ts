@@ -209,6 +209,9 @@ describe("datasource tests", function () {
       title: "test 1",
       type: "line",
     });
+    const datasets = model.getters.getChartRuntime("1")!.data!.datasets!;
+    expect(datasets[0].label!.toString()).toEqual("Series 1");
+    expect(datasets[1].label!.toString()).toEqual("Series 2");
     expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
@@ -366,6 +369,9 @@ describe("datasource tests", function () {
       title: "test 1",
       type: "line",
     });
+    const datasets = model.getters.getChartRuntime("1")!.data!.datasets!;
+    expect(datasets).toHaveLength(1);
+    expect(datasets[0].label!.toString()).toEqual("Series 1");
     expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
@@ -390,6 +396,40 @@ describe("datasource tests", function () {
     datasets = model.getters.getChartRuntime("1")!.data!.datasets!;
     expect(datasets).toHaveLength(1);
     expect(datasets[0].label!.toString()).toEqual("1000");
+  });
+
+  test("pie chart tooltip title display the correct dataset", () => {
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: model.getters.getActiveSheetId(),
+      definition: {
+        title: "test 1",
+        dataSets: ["B7:B8"],
+        dataSetsHaveTitle: true,
+        labelRange: "B7",
+        type: "pie",
+      },
+    });
+    const title = model.getters.getChartRuntime("1")!.options!.tooltips!.callbacks!.title!;
+    const chartData = { datasets: [{ label: "dataset 1" }, { label: "dataset 2" }] };
+    expect(title([{ datasetIndex: 0 }], chartData)).toBe("dataset 1");
+    expect(title([{ datasetIndex: 1 }], chartData)).toBe("dataset 2");
+  });
+
+  test.each(["bar", "line"] as const)("chart %s tooltip title is not dynamic", (chartType) => {
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: model.getters.getActiveSheetId(),
+      definition: {
+        title: "test 1",
+        dataSets: ["B7:B8"],
+        dataSetsHaveTitle: true,
+        labelRange: "B7",
+        type: chartType,
+      },
+    });
+    const title = model.getters.getChartRuntime("1")?.options?.tooltips?.callbacks?.title;
+    expect(title).toBeUndefined();
   });
 
   test("can delete an imported chart", () => {
