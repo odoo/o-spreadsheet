@@ -19,6 +19,7 @@ import {
   RemoveColumnsRowsCommand,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
+import { SelectionMode } from "./selection";
 
 export type EditionMode =
   | "editing"
@@ -58,6 +59,7 @@ export class EditionPlugin extends UIPlugin {
   private selectionStart: number = 0;
   private selectionEnd: number = 0;
   private selectionInitialStart: number = 0;
+  private multiSelectionInitialStart: number = 0;
   private initialContent: string | undefined = "";
 
   // ---------------------------------------------------------------------------
@@ -140,13 +142,39 @@ export class EditionPlugin extends UIPlugin {
       case "SELECT_CELL":
       case "SET_SELECTION":
       case "MOVE_POSITION":
-        if (this.mode === "editing") {
-          this.dispatch("STOP_EDITION");
-        } else if (this.mode === "waitingForRangeSelection" || this.mode === "rangeSelected") {
-          this.insertSelectedRange();
-        }
-        if (this.mode === "inactive") {
-          this.setActiveContent();
+        switch (this.mode) {
+          case "editing":
+            this.dispatch("STOP_EDITION");
+            break;
+          case "inactive":
+            this.setActiveContent();
+            break;
+          case "waitingForRangeSelection":
+            this.insertSelectedRange();
+            break;
+          case "rangeSelected":
+            switch (cmd.type) {
+              case "MOVE_POSITION":
+                this.replaceAllSelectedRanges();
+                break;
+              case "SELECT_CELL":
+                if (this.getters.getSelectionMode() === SelectionMode.expanding) {
+                  this.insertSelectedRange();
+                } else {
+                  this.replaceAllSelectedRanges();
+                }
+                break;
+              case "SET_SELECTION":
+                if (!cmd.strict) {
+                  this.replaceSelectedRange();
+                } else if (this.getters.getSelectionMode() === SelectionMode.expanding) {
+                  this.insertSelectedRange();
+                } else {
+                  this.replaceAllSelectedRanges();
+                }
+                break;
+            }
+            break;
         }
         break;
       case "ADD_COLUMNS_ROWS":
@@ -287,10 +315,11 @@ export class EditionPlugin extends UIPlugin {
       row: this.row,
     });
     this.mode = "waitingForRangeSelection";
-    // We set this variable to store the start of the selection, to allow
-    // to replace selections (ex: select twice a cell should only be added
-    // once)
-    this.selectionInitialStart = this.selectionStart;
+    // We set this variable to store the start of the multiple range
+    // selection. This is useful for example when we select multiple
+    // cells with ctrl, release the ctrl and select a new cell.
+    // This should result in deletions of previously selected cells.
+    this.multiSelectionInitialStart = this.selectionStart;
   }
 
   private getCellContent(cell: Cell) {
@@ -401,29 +430,61 @@ export class EditionPlugin extends UIPlugin {
   }
 
   /**
-   * Insert the currently selected zone XC in the composer content.
-   * The XC replaces the following section:
-   *  - start:  where the cursor was when the edition mode was
-   *            changed to `selecting`.
-   *  - end:    the current end of the selection.
+   * Insert reference of the currently selected zone in the composer content.
+   * Separates references with commas when more than one is selected.
    */
   private insertSelectedRange() {
-    this.mode = "rangeSelected";
-    const [zone] = this.getters.getSelectedZones();
-    const sheetId = this.getters.getActiveSheetId();
-    let selectedXc = this.getters.zoneToXC(sheetId, zone);
+    const start = Math.min(this.selectionStart, this.selectionEnd);
+    if (this.mode === "waitingForRangeSelection") {
+      this.insertText(this.getZoneReference(), start);
+      this.selectionInitialStart = start;
+      this.mode = "rangeSelected";
+      return;
+    }
+    // range already present (mean this.mode === "rangeSelected")
+    this.insertText("," + this.getZoneReference(), start);
+    this.selectionInitialStart = start + 1;
+  }
+
+  /**
+   * Replace the last reference by the new one.
+   * This function is particularly useful when multiple cells selection is
+   * enabled and we need to change the last reference (eg: change the cell
+   * reference to a range reference)
+   */
+  private replaceSelectedRange() {
     const { end } = this.getters.getComposerSelection();
     this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
       start: this.selectionInitialStart,
       end,
     });
+    this.replaceSelection(this.getZoneReference());
+  }
+
+  /**
+   * Replace all references selected by the new one.
+   * */
+  private replaceAllSelectedRanges() {
+    const { end } = this.getters.getComposerSelection();
+    this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
+      start: this.multiSelectionInitialStart,
+      end,
+    });
+    this.replaceSelection(this.getZoneReference());
+    this.selectionInitialStart = this.multiSelectionInitialStart;
+  }
+
+  private getZoneReference(): string {
+    const zone = this.getters.getSelectedZone();
+    const sheetId = this.getters.getActiveSheetId();
+    let selectedXc = this.getters.zoneToXC(sheetId, zone);
     if (this.getters.getEditionSheet() !== this.getters.getActiveSheetId()) {
       const sheetName = getComposerSheetName(
         this.getters.getSheetName(this.getters.getActiveSheetId())!
       );
       selectedXc = `${sheetName}!${selectedXc}`;
     }
-    this.replaceSelection(selectedXc);
+    return selectedXc;
   }
 
   /**
