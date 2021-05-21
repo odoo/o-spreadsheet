@@ -1,4 +1,4 @@
-import { ChartConfiguration, ChartType } from "chart.js";
+import { ChartColor, ChartConfiguration, ChartData, ChartTooltipItem, ChartType } from "chart.js";
 import { BasePlugin } from "../base_plugin";
 import { chartTerms } from "../components/side_panel/translations_terms";
 import { rangeReference } from "../formulas/parser";
@@ -305,8 +305,20 @@ export class ChartPlugin extends BasePlugin {
           },
         ],
       };
+    } else {
+      config.options!.tooltips = {
+        callbacks: {
+          title: function (tooltipItems: ChartTooltipItem[], data: ChartData) {
+            return data.datasets![tooltipItems[0]!.datasetIndex!].label!;
+          },
+        },
+      };
     }
     return config;
+  }
+
+  private extractDataFromRange(sheetId: string, reference?: string): any[] {
+    return reference ? this.getters.getRangeValues(reference, sheetId).flat(1) : [];
   }
 
   private mapDefinitionToRuntime(definition: ChartDefinition): ChartConfiguration {
@@ -317,36 +329,41 @@ export class ChartPlugin extends BasePlugin {
     const runtime = this.getDefaultConfiguration(definition.type, definition.title, labels);
 
     let graphColorIndex = 0;
-    for (const ds of definition.dataSets) {
+    const pieColors: ChartColor[] = [];
+    if (definition.type === "pie") {
+      const maxLength = Math.max(
+        ...definition.dataSets.map(
+          (ds) => this.extractDataFromRange(definition.sheetId, ds.dataRange).length
+        )
+      );
+      for (let i = 0; i <= maxLength; i++) {
+        pieColors.push(GraphColors[graphColorIndex]);
+        graphColorIndex = ++graphColorIndex % GraphColors.length;
+      }
+    }
+    for (const [dsIndex, ds] of Object.entries(definition.dataSets)) {
       let label;
       if (ds.labelCell) {
         try {
           label = this.getters.evaluateFormula(ds.labelCell, definition.sheetId);
         } catch (e) {
           // We want here to catch issue linked to async formula
-          label = chartTerms.Series;
+          label = `${chartTerms.Series} ${parseInt(dsIndex) + 1}`;
         }
       } else {
-        label = chartTerms.Series;
+        label = `${chartTerms.Series} ${parseInt(dsIndex) + 1}`;
       }
       const dataset = {
         label,
-        data: ds.dataRange
-          ? this.getters.getRangeValues(ds.dataRange, definition.sheetId).flat(1)
-          : [],
+        data: this.extractDataFromRange(definition.sheetId, ds.dataRange),
         lineTension: 0, // 0 -> render straight lines, which is much faster
         borderColor: definition.type !== "pie" ? GraphColors[graphColorIndex] : "#FFFFFF", // white border for pie chart
         backgroundColor: GraphColors[graphColorIndex],
       };
       if (definition.type === "pie") {
-        const colors: string[] = [];
-        for (let i = 0; i <= dataset.data.length - 1; i++) {
-          colors.push(GraphColors[graphColorIndex]);
-          graphColorIndex = ++graphColorIndex % GraphColors.length;
-        }
         // In case of pie graph, dataset.backgroundColor is an array of string
         // @ts-ignore
-        dataset.backgroundColor = colors;
+        dataset.backgroundColor = pieColors;
       }
       graphColorIndex = ++graphColorIndex % GraphColors.length;
       runtime.data!.datasets!.push(dataset);

@@ -126,8 +126,8 @@ describe("datasource tests", function () {
       type: "line",
     });
     const datasets = model.getters.getChartRuntime("1")!.data!.datasets!;
-    expect(datasets[0].label!.toString()).toEqual("Series");
-    expect(datasets[1].label!.toString()).toEqual("Series");
+    expect(datasets[0].label!.toString()).toEqual("Series 1");
+    expect(datasets[1].label!.toString()).toEqual("Series 2");
   });
 
   test("create chart with row datasets", () => {
@@ -225,7 +225,7 @@ describe("datasource tests", function () {
     });
     const datasets = model.getters.getChartRuntime("1")!.data!.datasets!;
     expect(datasets).toHaveLength(1);
-    expect(datasets[0].label!.toString()).toEqual("Series");
+    expect(datasets[0].label!.toString()).toEqual("Series 1");
   });
 
   test("create chart with async as label", () => {
@@ -243,7 +243,41 @@ describe("datasource tests", function () {
     });
     const datasets = model.getters.getChartRuntime("1")!.data!.datasets!;
     expect(datasets).toHaveLength(1);
-    expect(datasets[0].label!.toString()).toEqual("Series");
+    expect(datasets[0].label!.toString()).toEqual("Series 1");
+  });
+
+  test("pie chart tooltip title display the correct dataset", () => {
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: model.getters.getActiveSheet(),
+      definition: {
+        title: "test 1",
+        dataSets: ["B7:B8"],
+        seriesHasTitle: true,
+        labelRange: "B7",
+        type: "pie",
+      },
+    });
+    const title = model.getters.getChartRuntime("1")!.options!.tooltips!.callbacks!.title!;
+    const chartData = { datasets: [{ label: "dataset 1" }, { label: "dataset 2" }] };
+    expect(title([{ datasetIndex: 0 }], chartData)).toBe("dataset 1");
+    expect(title([{ datasetIndex: 1 }], chartData)).toBe("dataset 2");
+  });
+
+  test.each(["bar", "line"] as const)("chart %s tooltip title is not dynamic", (chartType) => {
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: model.getters.getActiveSheet(),
+      definition: {
+        title: "test 1",
+        dataSets: ["B7:B8"],
+        seriesHasTitle: true,
+        labelRange: "B7",
+        type: chartType,
+      },
+    });
+    const title = model.getters.getChartRuntime("1")?.options?.tooltips?.callbacks?.title;
+    expect(title).toBeUndefined();
   });
 
   test("can delete an imported chart", () => {
