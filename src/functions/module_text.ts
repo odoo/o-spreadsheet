@@ -330,7 +330,7 @@ export const TEXTJOIN: AddFunctionDescription = {
       delimiter (string) ${_lt(
         " A string, possible empty, or a reference to a valid string. If empty, the text will be simply concatenated."
       )}
-      ignore_empty (bollean) ${_lt(
+      ignore_empty (boolean) ${_lt(
         "A boolean; if TRUE, empty cells selected in the text arguments won't be included in the result."
       )}
       text1 (string, range<string>) ${_lt(

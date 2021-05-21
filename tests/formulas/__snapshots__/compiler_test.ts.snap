@@ -23,11 +23,34 @@ return _1;
 }"
 `;
 
+exports[`compile functions with lazy arguments functions call requesting lazy parameters 3`] = `
+"function anonymous(deps,sheetId,ref,range,ctx
+) {
+// =USELAZYARG(24)
+let _2 = ()=> 24
+ctx.__lastFnCalled = 'USELAZYARG'
+let _1 = ctx['USELAZYARG'](_2)
+return _1;
+}"
+`;
+
+exports[`compile functions with lazy arguments functions call requesting lazy parameters 4`] = `
+"function anonymous(deps,sheetId,ref,range,ctx
+) {
+// =USELAZYARG(1/0)
+ctx.__lastFnCalled = 'DIVIDE'
+let _2 = ()=> ctx['DIVIDE'](1, 0)
+ctx.__lastFnCalled = 'USELAZYARG'
+let _1 = ctx['USELAZYARG'](_2)
+return _1;
+}"
+`;
+
 exports[`compile functions with meta arguments function call requesting meta parameter 1`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =USEMETAARG(|0|)
-let _2 = ref(0, deps, sheetId, true)
+let _2 = ref(0, deps, sheetId, true, \\"USEMETAARG\\",  1)
 ctx.__lastFnCalled = 'USEMETAARG'
 let _1 = ctx['USEMETAARG'](_2)
 return _1;
@@ -38,7 +61,7 @@ exports[`compile functions with meta arguments function call requesting meta par
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =USEMETAARG(|0|)
-let _2 = ref(0, deps, sheetId, true)
+let _2 = ref(0, deps, sheetId, true, \\"USEMETAARG\\",  1)
 ctx.__lastFnCalled = 'USEMETAARG'
 let _1 = ctx['USEMETAARG'](_2)
 return _1;
@@ -59,9 +82,9 @@ exports[`expression compiler cells are converted to ranges if function require a
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =sum(|0|)
-let _2 = ref(0, deps, sheetId)
+let _2 = range(0, deps, sheetId)
 ctx.__lastFnCalled = 'SUM'
-let _1 = ctx['SUM'](range(0, deps, sheetId))
+let _1 = ctx['SUM'](_2)
 return _1;
 }"
 `;
@@ -70,11 +93,11 @@ exports[`expression compiler expression with $ref 1`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =|0|+|1|+|2|
-let _3 = ref(0, deps, sheetId)
-let _4 = ref(1, deps, sheetId)
+let _3 = ref(0, deps, sheetId, false, \\"undefined\\",  undefined)
+let _4 = ref(1, deps, sheetId, false, \\"undefined\\",  undefined)
 ctx.__lastFnCalled = 'ADD'
 let _2 = ctx['ADD'](_3, _4)
-let _5 = ref(2, deps, sheetId)
+let _5 = ref(2, deps, sheetId, false, \\"undefined\\",  undefined)
 ctx.__lastFnCalled = 'ADD'
 let _1 = ctx['ADD'](_2, _5)
 return _1;
@@ -85,7 +108,7 @@ exports[`expression compiler expression with references with a sheet 1`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =|0|
-let _1 = ref(0, deps, sheetId)
+let _1 = ref(0, deps, sheetId, false, \\"undefined\\",  undefined)
 return _1;
 }"
 `;
@@ -95,7 +118,7 @@ exports[`expression compiler expressions with a debugger 1`] = `
 ) {
 // =? |0| / 2
 debugger;
-let _2 = ref(0, deps, sheetId)
+let _2 = ref(0, deps, sheetId, false, \\"undefined\\",  undefined)
 ctx.__lastFnCalled = 'DIVIDE'
 let _1 = ctx['DIVIDE'](_2, 2)
 return _1;
@@ -106,10 +129,10 @@ exports[`expression compiler read some values and functions 1`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =|0| + sum(|1|)
-let _2 = ref(0, deps, sheetId)
-let _4 = ref(1, deps, sheetId)
+let _2 = ref(0, deps, sheetId, false, \\"undefined\\",  undefined)
+let _4 = range(1, deps, sheetId)
 ctx.__lastFnCalled = 'SUM'
-let _3 = ctx['SUM'](range(1, deps, sheetId))
+let _3 = ctx['SUM'](_4)
 ctx.__lastFnCalled = 'ADD'
 let _1 = ctx['ADD'](_2, _3)
 return _1;

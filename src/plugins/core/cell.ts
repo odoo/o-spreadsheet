@@ -647,13 +647,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           if (!format && !after.formula) {
             format = this.computeFormulaFormat(cell);
           }
-        } catch (_) {
+        } catch (e) {
           cell = {
             id: cellId,
             type: CellType.invalidFormula,
             content: afterContent,
             value: "#BAD_EXPR",
-            error: _lt("Invalid Expression"),
+            error: e.message || _lt("Invalid Expression"),
           };
         }
       } else if (afterContent === "") {
