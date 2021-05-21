@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { Component, hooks, tags } from "@odoo/owl";
-import Chart from "chart.js";
+import Chart, { ChartConfiguration } from "chart.js";
 import { MenuItemRegistry } from "../../registries/index";
 import { _lt } from "../../translation";
 import { Figure, SpreadsheetEnv } from "../../types";
@@ -65,16 +65,26 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
   private chart?: Chart;
 
   mounted() {
-    this.createChart();
+    const figure = this.props.figure;
+    const chartData = this.env.getters.getChartRuntime(figure.id);
+    if (chartData) {
+      this.createChart(chartData);
+    }
   }
 
   patched() {
     const figure = this.props.figure;
     const chartData = this.env.getters.getChartRuntime(figure.id);
     if (chartData) {
-      if (chartData.data && chartData.data.datasets) {
+      if (chartData.type !== this.chart!.config.type) {
+        // Updating a chart type requires to update its options accordingly, if feasible at all.
+        // Since we trust Chart.js to generate most of its options, it is safer to just start from scratch.
+        // See https://www.chartjs.org/docs/latest/developers/updates.html
+        // and https://stackoverflow.com/questions/36949343/chart-js-dynamic-changing-of-chart-type-line-to-bar-as-example
+        this.chart && this.chart.destroy();
+        this.createChart(chartData);
+      } else if (chartData.data && chartData.data.datasets) {
         this.chart!.data = chartData.data;
-        this.chart!.config.type = chartData.type;
         if (chartData.options?.title) {
           this.chart!.config.options!.title = chartData.options.title;
         }
@@ -87,14 +97,10 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
     }
   }
 
-  private createChart() {
-    const figure = this.props.figure;
-    const chartData = this.env.getters.getChartRuntime(figure.id);
-    if (chartData) {
-      const canvas = this.canvas.el as HTMLCanvasElement;
-      const ctx = canvas.getContext("2d")!;
-      this.chart = new window.Chart(ctx, chartData);
-    }
+  private createChart(chartData: ChartConfiguration) {
+    const canvas = this.canvas.el as HTMLCanvasElement;
+    const ctx = canvas.getContext("2d")!;
+    this.chart = new window.Chart(ctx, chartData);
   }
 
   showMenu(ev: MouseEvent) {
