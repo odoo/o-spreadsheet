@@ -494,8 +494,9 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     const sheet = this.getters.getActiveSheet();
     this.moveClient({ sheetId: sheet.id, col, row });
     let zone = this.getters.expandZone(sheet.id, { left: col, right: col, top: row, bottom: row });
-
     if (this.mode === SelectionMode.expanding) {
+      // It is important to add the zone at the end of the array.
+      // It is a way to easily find the last selection made by the user.
       this.selection.zones.push(zone);
     } else {
       this.selection.zones = [zone];
