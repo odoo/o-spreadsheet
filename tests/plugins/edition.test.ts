@@ -330,6 +330,57 @@ describe("edition", () => {
     expect(model.getters.getCurrentContent()).toBe("=B2:C3");
   });
 
+  test("selection expansion should add multiple cells references", () => {
+    const model = new Model();
+    selectCell(model, "C3");
+    model.dispatch("START_EDITION", { text: "=SUM(" });
+
+    model.dispatch("START_SELECTION_EXPANSION");
+    selectCell(model, "D4");
+    expect(model.getters.getCurrentContent()).toBe("=SUM(D4");
+    model.dispatch("PREPARE_SELECTION_EXPANSION");
+
+    model.dispatch("START_SELECTION_EXPANSION");
+    selectCell(model, "E5");
+    expect(model.getters.getCurrentContent()).toBe("=SUM(D4,E5");
+  });
+
+  test("alter selection during selection expansion updates the last reference", () => {
+    const model = new Model();
+    selectCell(model, "C3");
+    model.dispatch("START_EDITION", { text: "=SUM(" });
+
+    model.dispatch("START_SELECTION_EXPANSION");
+    selectCell(model, "D4");
+    expect(model.getters.getCurrentContent()).toBe("=SUM(D4");
+    model.dispatch("PREPARE_SELECTION_EXPANSION");
+
+    model.dispatch("START_SELECTION_EXPANSION");
+    selectCell(model, "E5");
+    expect(model.getters.getCurrentContent()).toBe("=SUM(D4,E5");
+    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    expect(model.getters.getCurrentContent()).toBe("=SUM(D4,E5:E6");
+  });
+
+  test("stopping expansion should reset the reference of the affected cells after a new selection", () => {
+    const model = new Model();
+    selectCell(model, "C3");
+    model.dispatch("START_EDITION", { text: "=SUM(" });
+
+    model.dispatch("START_SELECTION_EXPANSION");
+    selectCell(model, "D4");
+    model.dispatch("PREPARE_SELECTION_EXPANSION");
+
+    model.dispatch("START_SELECTION_EXPANSION");
+    selectCell(model, "E5");
+    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    model.dispatch("STOP_SELECTION");
+
+    expect(model.getters.getCurrentContent()).toBe("=SUM(D4,E5:E6");
+    selectCell(model, "F6");
+    expect(model.getters.getCurrentContent()).toBe("=SUM(F6");
+  });
+
   test("start edition without selection set cursor at the end", () => {
     const model = new Model();
     model.dispatch("START_EDITION", { text: "coucou" });

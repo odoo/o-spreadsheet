@@ -423,17 +423,24 @@ export function createAdaptedZone(
   return newZone;
 }
 
-// returns an Zone array with unique occurrence of each zone
+/**
+ * Returns a Zone array with unique occurrence of each zone.
+ * For each multiple occurrence, the occurrence with the largest index is kept.
+ * This allows to always have the last selection made in the last position.
+ * */
 export function uniqueZones(zones: Zone[]): Zone[] {
-  return zones.filter(
-    (zone, index, self) =>
-      index ===
-      self.findIndex(
-        (z) =>
-          z.top === zone.top &&
-          z.bottom === zone.bottom &&
-          z.left === zone.left &&
-          z.right === zone.right
-      )
-  );
+  return zones
+    .reverse()
+    .filter(
+      (zone, index, self) =>
+        index ===
+        self.findIndex(
+          (z) =>
+            z.top === zone.top &&
+            z.bottom === zone.bottom &&
+            z.left === zone.left &&
+            z.right === zone.right
+        )
+    )
+    .reverse();
 }
