@@ -521,6 +521,24 @@ describe("datasource tests", function () {
     expect(chartDefinitionBefore).toEqual(chartDefinitionAfter);
   });
 
+  test("deleting a col on another sheet does not affect a chart", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!A8:D8"],
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+      "1"
+    );
+    const chartDefinitionBefore = model.getters.getChartDefinitionUI(sheetId, "1");
+    createSheet(model, { sheetId: "42" });
+    deleteColumns(model, ["A"], "42");
+    const chartDefinitionAfter = model.getters.getChartDefinitionUI(sheetId, "1");
+    expect(chartDefinitionBefore).toEqual(chartDefinitionAfter);
+  });
+
   test("delete a data source column", () => {
     createChart(
       model,
@@ -609,6 +627,24 @@ describe("datasource tests", function () {
     expect(chart.data!.datasets![0].data).toEqual([10, undefined, 11, 12, 13]);
     expect(chart.data!.datasets![1].data).toEqual([20, undefined, 19, 18, 17]);
     expect(chart.data!.labels).toEqual(["P1", "", "P2", "P3", "P4"]);
+  });
+
+  test("Add a row on another sheet does not affect a chart", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!A8:D8"],
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+      "1"
+    );
+    const chartDefinitionBefore = model.getters.getChartDefinitionUI(sheetId, "1");
+    createSheet(model, { sheetId: "42" });
+    addRows(model, "before", 0, 1, "42");
+    const chartDefinitionAfter = model.getters.getChartDefinitionUI(sheetId, "1");
+    expect(chartDefinitionBefore).toEqual(chartDefinitionAfter);
   });
 
   test("delete all the dataset except for the title", () => {

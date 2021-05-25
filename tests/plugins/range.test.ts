@@ -5,6 +5,7 @@ import { ApplyRangeChange, BaseCommand, Command, Range, UID } from "../../src/ty
 import {
   addColumns,
   addRows,
+  createSheet,
   deleteColumns,
   deleteRows,
   deleteSheet,
@@ -117,6 +118,12 @@ describe("range plugin", () => {
         deleteColumns(m, ["F"]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
+
+      test("in another sheet", () => {
+        createSheet(m, { sheetId: "42" });
+        deleteColumns(m, ["A"], "42");
+        expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
+      });
     });
 
     describe("create a range and remove a row", () => {
@@ -142,6 +149,12 @@ describe("range plugin", () => {
 
       test("after the end", () => {
         deleteRows(m, [5]);
+        expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
+      });
+
+      test("in another sheet", () => {
+        createSheet(m, { sheetId: "42" });
+        deleteRows(m, [0], "42");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
     });
@@ -196,6 +209,12 @@ describe("range plugin", () => {
         addColumns(m, "before", "E", 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
+
+      test("in another sheet", () => {
+        createSheet(m, { sheetId: "42" });
+        addColumns(m, "before", "A", 1, "42");
+        expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
+      });
     });
 
     describe("create a range and add a row", () => {
@@ -246,6 +265,12 @@ describe("range plugin", () => {
 
       test("before, before the end", () => {
         addRows(m, "before", 5, 1);
+        expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
+      });
+
+      test("in another sheet", () => {
+        createSheet(m, { sheetId: "42" });
+        addRows(m, "before", 1, 1, "42");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
     });
