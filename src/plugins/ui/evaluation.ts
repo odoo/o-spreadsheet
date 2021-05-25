@@ -412,13 +412,7 @@ export class EvaluationPlugin extends UIPlugin {
         throw new Error(_lt("Invalid sheet name: %s", range.invalidSheetName));
       }
 
-      if (range.zone.left !== range.zone.right || range.zone.top !== range.zone.bottom) {
-        // it's a range
-        return _range(range);
-      } else {
-        //it's a cell
-        return readCell(range);
-      }
+      return readCell(range);
     }
 
     /**
