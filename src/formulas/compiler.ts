@@ -127,28 +127,47 @@ export function compile(str: NormalizedFormula): CompiledFormula {
         if (0 <= argPosition && argPosition < functionDefinition.args.length) {
           const currentArg = currentFunctionArguments[i];
           const argDefinition = functionDefinition.args[argPosition];
-          const argTypes = argDefinition.type;
+          const argTypes = argDefinition.type || [];
 
           // detect when an argument need to be evaluated as a meta argument
           const isMeta = argTypes.includes("META");
           // detect when an argument need to be evaluated as a lazy argument
           const isLazy = argDefinition.lazy;
 
-          // compile arguments
-          let argValue = compileAST(currentArg, isLazy, isMeta);
-
-          // asking for a range & get a cell --> transform cell value into a range
-          if (currentArg.type === "REFERENCE") {
-            const hasRange = argTypes.find(
-              (t) =>
-                t === "RANGE" ||
-                t === "RANGE<BOOLEAN>" ||
-                t === "RANGE<NUMBER>" ||
-                t === "RANGE<STRING>"
-            );
-            if (hasRange) {
-              argValue = `range(${currentArg.value}, deps, sheetId)`;
+          const hasRange = argTypes.some(
+            (t) =>
+              t === "RANGE" ||
+              t === "RANGE<BOOLEAN>" ||
+              t === "RANGE<DATE>" ||
+              t === "RANGE<NUMBER>" ||
+              t === "RANGE<STRING>"
+          );
+          const isRangeOnly = argTypes.every(
+            (t) =>
+              t === "RANGE" ||
+              t === "RANGE<BOOLEAN>" ||
+              t === "RANGE<DATE>" ||
+              t === "RANGE<NUMBER>" ||
+              t === "RANGE<STRING>"
+          );
+          if (isRangeOnly) {
+            if (currentArg.type !== "REFERENCE") {
+              throw new Error(
+                _lt(
+                  "Function %s expects the parameter %s to be reference to a cell or range, not a %s.",
+                  ast.value.toUpperCase(),
+                  (i + 1).toString(),
+                  currentArg.type.toLowerCase()
+                )
+              );
             }
+          }
+
+          let argValue = compileAST(currentArg, isLazy, isMeta, hasRange, {
+            functionName: ast.value.toUpperCase(),
+            paramIndex: i + 1,
+          });
+          if (currentArg.type === "REFERENCE") {
           }
           listArgs.push(argValue);
         }
@@ -176,7 +195,16 @@ export function compile(str: NormalizedFormula): CompiledFormula {
      * than its value. For this we have meta arguments.
      */
 
-    function compileAST(ast: AST, isLazy = false, isMeta = false): string {
+    function compileAST(
+      ast: AST,
+      isLazy = false,
+      isMeta = false,
+      hasRange = false,
+      referenceVerification: {
+        functionName?: string;
+        paramIndex?: number;
+      } = {}
+    ): string {
       let id, left, right, args, fnName, statement;
       if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
         if (isMeta) {
@@ -204,10 +232,12 @@ export function compile(str: NormalizedFormula): CompiledFormula {
             break;
           }
           id = nextId++;
-          if (isMeta) {
-            statement = `ref(${ast.value}, deps, sheetId, ${isMeta})`;
+          if (hasRange) {
+            statement = `range(${ast.value}, deps, sheetId)`;
           } else {
-            statement = `ref(${ast.value}, deps, sheetId)`;
+            statement = `ref(${ast.value}, deps, sheetId, ${isMeta ? "true" : "false"}, "${
+              referenceVerification.functionName
+            }",  ${referenceVerification.paramIndex})`;
           }
           break;
         case "FUNCALL":

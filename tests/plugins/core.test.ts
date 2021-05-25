@@ -1,3 +1,4 @@
+import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { LOADING } from "../../src/plugins/ui/evaluation";
 import { CommandResult } from "../../src/types";
@@ -48,6 +49,28 @@ describe("core", () => {
       // select A1:A3
       model.dispatch("ALTER_SELECTION", { cell: [0, 2] });
       expect(model.getters.getAggregate()).toBe("5");
+    });
+
+    describe("raise error from compilation with specific error message", () => {
+      functionRegistry.add("TWOARGSNEEDED", {
+        description: "any function",
+        compute: () => {
+          return true;
+        },
+        args: [
+          { name: "arg1", description: "", type: ["ANY"] },
+          { name: "arg2", description: "", type: ["ANY"] },
+        ],
+        returns: ["ANY"],
+      });
+
+      const model = new Model();
+      setCellContent(model, "A1", "=TWOARGSNEEDED(42)");
+
+      expect(getCell(model, "A1")!.value).toBe("#BAD_EXPR");
+      expect(getCell(model, "A1")!.error!.toString()).toBe(
+        `Invalid number of arguments for the TWOARGSNEEDED function. Expected 2 minimum, but got 1 instead.`
+      );
     });
 
     test("ignore async cells while they are not ready", async () => {

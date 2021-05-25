@@ -1,8 +1,8 @@
 // HELPERS
 
-import { numberToJsDate, parseDateTime } from "../functions/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _lt } from "../translation";
+import { numberToJsDate, parseDateTime } from "./dates";
 
 export function assert(condition: () => boolean, message: string): void {
   if (!condition()) {

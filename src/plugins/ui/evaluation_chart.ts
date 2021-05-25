@@ -1,4 +1,4 @@
-import { ChartConfiguration, ChartType } from "chart.js";
+import { ChartColor, ChartConfiguration, ChartData, ChartTooltipItem, ChartType } from "chart.js";
 import { chartTerms } from "../../components/side_panel/translations_terms";
 import { INCORRECT_RANGE_STRING } from "../../constants";
 import { isDefined, isInside, overlap, recomputeZones, zoneToXc } from "../../helpers/index";
@@ -199,6 +199,14 @@ export class EvaluationChartPlugin extends UIPlugin {
           },
         ],
       };
+    } else {
+      config.options!.tooltips = {
+        callbacks: {
+          title: function (tooltipItems: ChartTooltipItem[], data: ChartData) {
+            return data.datasets![tooltipItems[0]!.datasetIndex!].label!;
+          },
+        },
+      };
     }
     return config;
   }
@@ -279,7 +287,17 @@ export class EvaluationChartPlugin extends UIPlugin {
     const runtime = this.getDefaultConfiguration(definition.type, definition.title, labels);
 
     let graphColorIndex = 0;
-    for (const ds of definition.dataSets) {
+    const pieColors: ChartColor[] = [];
+    if (definition.type === "pie") {
+      const maxLength = Math.max(
+        ...definition.dataSets.map((ds) => this.getData(ds, definition.sheetId).length)
+      );
+      for (let i = 0; i <= maxLength; i++) {
+        pieColors.push(GraphColors[graphColorIndex]);
+        graphColorIndex = ++graphColorIndex % GraphColors.length;
+      }
+    }
+    for (const [dsIndex, ds] of Object.entries(definition.dataSets)) {
       let label;
       if (ds.labelCell) {
         const labelRange = ds.labelCell;
@@ -289,9 +307,9 @@ export class EvaluationChartPlugin extends UIPlugin {
         label =
           cell && labelRange
             ? this.getters.getCellText(cell, labelRange.sheetId)
-            : chartTerms.Series;
+            : (label = `${chartTerms.Series} ${parseInt(dsIndex) + 1}`);
       } else {
-        label = chartTerms.Series;
+        label = label = `${chartTerms.Series} ${parseInt(dsIndex) + 1}`;
       }
       const dataset = {
         label,

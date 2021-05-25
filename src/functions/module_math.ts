@@ -387,7 +387,7 @@ export const COUNTBLANK: AddFunctionDescription = {
 export const COUNTIF: AddFunctionDescription = {
   description: _lt("A conditional count across a range."),
   args: args(`
-    range (any, range) ${_lt("The range that is tested against criterion.")}
+    range (range) ${_lt("The range that is tested against criterion.")}
     criterion (string) ${_lt("The pattern or test to apply to range.")}
   `),
   returns: ["NUMBER"],
@@ -406,9 +406,9 @@ export const COUNTIF: AddFunctionDescription = {
 export const COUNTIFS: AddFunctionDescription = {
   description: _lt("Count values depending on multiple criteria."),
   args: args(`
-    criteria_range1 (any, range) ${_lt("The range to check against criterion1.")}
-    criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
-    criteria_range2 (any, range, repeating) ${_lt(
+    criteria_range (range) ${_lt("The range to check against criterion1.")}
+    criterion (string) ${_lt("The pattern or test to apply to criteria_range1.")}
+    additional_values (any, range, optional, repeating) ${_lt(
       "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
     )}
     criterion2 (string, repeating) ${_lt("Additional criteria to check.")}
@@ -459,14 +459,14 @@ export const COUNTUNIQUE: AddFunctionDescription = {
 export const COUNTUNIQUEIFS: AddFunctionDescription = {
   description: _lt("Counts number of unique values in a range, filtered by a set of criteria."),
   args: args(`
-    range (any, range) ${_lt(
+    range (range) ${_lt(
       "The range of cells from which the number of unique values will be counted."
     )}
-    criteria_range1 (any, range) ${_lt("The range of cells over which to evaluate criterion1.")}
+    criteria_range1 (range) ${_lt("The range of cells over which to evaluate criterion1.")}
     criterion1 (string) ${_lt(
       "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
     )}
-    criteria_range2 (any, range, repeating) ${_lt(
+    additional_values (any, range, optional, repeating) ${_lt(
       "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
     )}
     criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
@@ -1106,11 +1106,11 @@ export const SUM: AddFunctionDescription = {
 export const SUMIF: AddFunctionDescription = {
   description: _lt("A conditional sum across a range."),
   args: args(`
-      criteria_range (any, range) ${_lt("The range which is tested against criterion.")}
+      criteria_range (range) ${_lt("The range which is tested against criterion.")}
       criterion (string) ${_lt("The pattern or test to apply to range.")}
-      sum_range (any, range, default=${_lt("criteria_range")}) ${_lt(
-    "The range to be summed, if different from range."
-  )}
+      sum_range (range, optional, default=criteria_range) ${_lt(
+        "The range to be summed, if different from range."
+      )}
     `),
   returns: ["NUMBER"],
   compute: function (criteriaRange: any, criterion: any, sumRange: any = undefined): number {
@@ -1134,11 +1134,10 @@ export const SUMIF: AddFunctionDescription = {
 export const SUMIFS: AddFunctionDescription = {
   description: _lt("Sums a range depending on multiple criteria."),
   args: args(`
-      sum_range (any, range) ${_lt("The range to sum.")}
-      criteria_range1 (any, range) ${_lt("The range to check against criterion1.")}
+      sum_range (range) ${_lt("The range to sum.")}
+      criteria_range1 (range) ${_lt("The range to check against criterion1.")}
       criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
-      criteria_range2 (any, range, repeating) ${_lt("Additional ranges to check.")}
-      criterion2 (string, repeating) ${_lt("Additional criteria to check.")}
+      additional_values (any, range, optional, repeating) ${_lt("Additional criteria to check.")}
     `),
   returns: ["NUMBER"],
   compute: function (sumRange, ...args): number {

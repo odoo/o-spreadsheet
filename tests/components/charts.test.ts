@@ -1,3 +1,4 @@
+import { ChartConfiguration } from "chart.js";
 import { Model } from "../../src";
 import { CommandResult } from "../../src/types";
 import {
@@ -8,16 +9,17 @@ import {
 import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
 
 const mockChart = () => {
-  const mockChartData = {
+  const mockChartData: ChartConfiguration = {
     data: undefined,
-    config: {
-      options: {
-        title: undefined,
-      },
-      type: undefined,
+    options: {
+      title: undefined,
     },
+    type: undefined,
   };
   class ChartMock {
+    constructor(ctx: unknown, chartData: ChartConfiguration) {
+      Object.assign(mockChartData, chartData);
+    }
     set data(value) {
       mockChartData.data = value;
     }
@@ -26,8 +28,8 @@ const mockChart = () => {
     }
     destroy = () => {};
     update = () => {};
-    options = mockChartData.config.options;
-    config = mockChartData.config;
+    options = mockChartData.options;
+    config = mockChartData;
   }
   //@ts-ignore
   window.Chart = ChartMock;
@@ -254,8 +256,8 @@ describe("figures", () => {
     await nextTick();
     expect((mockChartData.data! as any).labels).toEqual(["P1", "P2", "P3", "P4"]);
     expect((mockChartData.data! as any).datasets[0].data).toEqual([10, 11, 12, 13]);
-    expect(mockChartData.config.type).toBe("pie");
-    expect((mockChartData.config.options.title as any).text).toBe("piechart");
+    expect(mockChartData.type).toBe("pie");
+    expect((mockChartData.options!.title as any).text).toBe("piechart");
   });
 
   test("deleting chart will close sidePanel", async () => {

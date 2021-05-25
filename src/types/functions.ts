@@ -7,6 +7,7 @@ export type ArgType =
   | "RANGE"
   | "RANGE<BOOLEAN>"
   | "RANGE<NUMBER>"
+  | "RANGE<DATE>"
   | "RANGE<STRING>"
   | "META";
 

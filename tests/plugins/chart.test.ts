@@ -398,6 +398,41 @@ describe("datasource tests", function () {
     expect(chart.dataSets[1].labelCell!.zone).toStrictEqual(toZone("E1:E1"));
     expect(chart.labelRange!.zone).toStrictEqual(toZone("C2:C4"));
   });
+
+  test("pie chart tooltip title display the correct dataset", () => {
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: model.getters.getActiveSheetId(),
+      definition: {
+        title: "test 1",
+        dataSets: ["B7:B8"],
+        dataSetsHaveTitle: true,
+        labelRange: "B7",
+        type: "pie",
+      },
+    });
+    const title = model.getters.getChartRuntime("1")!.options!.tooltips!.callbacks!.title!;
+    const chartData = { datasets: [{ label: "dataset 1" }, { label: "dataset 2" }] };
+    expect(title([{ datasetIndex: 0 }], chartData)).toBe("dataset 1");
+    expect(title([{ datasetIndex: 1 }], chartData)).toBe("dataset 2");
+  });
+
+  test.each(["bar", "line"] as const)("chart %s tooltip title is not dynamic", (chartType) => {
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: model.getters.getActiveSheetId(),
+      definition: {
+        title: "test 1",
+        dataSets: ["B7:B8"],
+        dataSetsHaveTitle: true,
+        labelRange: "B7",
+        type: chartType,
+      },
+    });
+    const title = model.getters.getChartRuntime("1")?.options?.tooltips?.callbacks?.title;
+    expect(title).toBeUndefined();
+  });
+
   test("can delete an imported chart", () => {
     const sheetId = model.getters.getActiveSheetId();
     createChart(

@@ -12,6 +12,7 @@ const { useState } = owl.hooks;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-formula-assistant-container"
+       t-att-style="props.borderStyle"
        t-att-class="{
          'o-formula-assistant-event-none': assistantState.allowCellSelectionBehind,
          'o-formula-assistant-event-auto': !assistantState.allowCellSelectionBehind
@@ -116,6 +117,7 @@ interface Props {
   functionName: string;
   functionDescription: FunctionDescription;
   argToFocus: number;
+  borderStyle: string;
 }
 
 interface AssistantState {

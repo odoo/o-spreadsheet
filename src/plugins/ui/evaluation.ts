@@ -311,14 +311,14 @@ export class EvaluationPlugin extends UIPlugin {
     const sheets = this.getters.getEvaluationSheets();
     const PENDING = this.PENDING;
     function readCell(range: Range): any {
-      let cell;
+      let cell: Cell | undefined;
       const s = sheets[range.sheetId];
       if (s) {
         cell = s.rows[range.zone.top]?.cells[range.zone.left];
       } else {
         throw new Error(_lt("Invalid sheet name"));
       }
-      if (!cell || cell.content === "") {
+      if (!cell || cell.type === CellType.empty) {
         return null;
       }
       return getCellValue(cell, range.sheetId);
@@ -377,23 +377,42 @@ export class EvaluationPlugin extends UIPlugin {
       position: number,
       references: Range[],
       sheetId: UID,
-      isMeta: boolean = false
+      isMeta: boolean,
+      functionName: string,
+      paramNumber: number
     ): any | any[][] {
       const range: Range = references[position];
 
       if (isMeta) {
         return evalContext.getters.getRangeString(range, sheetId);
       }
+
+      if (range.zone.top > range.zone.bottom || range.zone.left > range.zone.right) {
+        throw new Error(
+          _lt(
+            "invalid range %s:%s",
+            toXC(range.zone.left, range.zone.top),
+            toXC(range.zone.right, range.zone.bottom)
+          )
+        );
+      }
+
+      // if the formula definition could have accepted a range, we would pass through the _range function and not here
+      if (range.zone.bottom !== range.zone.top || range.zone.left !== range.zone.right) {
+        throw new Error(
+          _lt(
+            "Function %s expects the parameter %s to be a single value or a single cell reference, not a range.",
+            functionName.toString(),
+            paramNumber.toString()
+          )
+        );
+      }
+
       if (range.invalidSheetName) {
         throw new Error(_lt("Invalid sheet name: %s", range.invalidSheetName));
       }
-      if (range.zone.left !== range.zone.right || range.zone.top !== range.zone.bottom) {
-        // it's a range
-        return _range(range);
-      } else {
-        //it's a cell
-        return readCell(range);
-      }
+
+      return readCell(range);
     }
 
     /**
@@ -403,7 +422,7 @@ export class EvaluationPlugin extends UIPlugin {
      *
      * the parameters are the same as refFn, except that these parameters cannot be Meta
      */
-    function range(position: number, references: Range[]): any[][] {
+    function range(position: number, references: Range[], sheetId: UID): any[][] {
       return _range(references[position]);
     }
 

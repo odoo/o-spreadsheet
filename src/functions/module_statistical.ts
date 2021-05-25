@@ -2,6 +2,7 @@ import { isNumber } from "../helpers/index";
 import { _lt } from "../translation";
 import { AddFunctionDescription, ReturnFormatType } from "../types";
 import { args } from "./arguments";
+import { parseDateTime } from "./dates";
 import {
   assert,
   dichotomicPredecessorSearch,
@@ -319,11 +320,11 @@ export const AVERAGEA: AddFunctionDescription = {
 export const AVERAGEIF: AddFunctionDescription = {
   description: _lt(`Average of values depending on criteria.`),
   args: args(`
-      criteria_range (any, range) ${_lt("The range to check against criterion.")}
+      criteria_range (range) ${_lt("The range to check against criterion.")}
       criterion (string) ${_lt("The pattern or test to apply to criteria_range.")}
-      average_range (any, range, default=${_lt("criteria_range")}) ${_lt(
-    "The range to average. If not included, criteria_range is used for the average instead."
-  )}
+      average_range (range, optional, default=criteria_range) ${_lt(
+        "The range to average. If not included, criteria_range is used for the average instead."
+      )}
     `),
   returns: ["NUMBER"],
   compute: function (criteriaRange: any, criterion: any, averageRange: any = undefined): number {
@@ -357,11 +358,12 @@ export const AVERAGEIF: AddFunctionDescription = {
 export const AVERAGEIFS: AddFunctionDescription = {
   description: _lt(`Average of values depending on multiple criteria.`),
   args: args(`
-      average_range (any, range) ${_lt("The range to average.")}
-      criteria_range1 (any, range) ${_lt("The range to check against criterion1.")}
+      average_range (range) ${_lt("The range to average.")}
+      criteria_range1 (range) ${_lt("The range to check against criterion1.")}
       criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
-      criteria_range2 (any, range, repeating) ${_lt("Additional ranges to check.")}
-      criterion2 (string, repeating) ${_lt("Additional criteria to check.")}
+      additional_values (any, range, optional, repeating) ${_lt(
+        "Additional criteria_range and criterion to check."
+      )}
     `),
   returns: ["NUMBER"],
   compute: function (averageRange, ...args): number {
@@ -405,7 +407,7 @@ export const COUNT: AddFunctionDescription = {
             }
           }
         }
-      } else if (typeof n !== "string" || isNumber(n)) {
+      } else if (typeof n !== "string" || isNumber(n) || parseDateTime(n)) {
         count += 1;
       }
     }
@@ -543,7 +545,7 @@ export const MAXA: AddFunctionDescription = {
       value1 (any, range) ${_lt(
         "The first value or range to consider when calculating the maximum value."
       )}
-      value2 (ant, range, repeating) ${_lt(
+      value2 (any, range, optional, repeating) ${_lt(
         "Additional values or ranges to consider when calculating the maximum value."
       )}
     `),
@@ -567,12 +569,12 @@ export const MAXA: AddFunctionDescription = {
 export const MAXIFS: AddFunctionDescription = {
   description: _lt("Returns the maximum value in a range of cells, filtered by a set of criteria."),
   args: args(`
-      range (any, range) ${_lt("The range of cells from which the maximum will be determined.")}
-      criteria_range1 (any, range) ${_lt("The range of cells over which to evaluate criterion1.")}
+      range (range) ${_lt("The range of cells from which the maximum will be determined.")}
+      criteria_range1 (range) ${_lt("The range of cells over which to evaluate criterion1.")}
       criterion1 (string) ${_lt(
         "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
       )}
-      criteria_range2 (any, range, repeating) ${_lt(
+      additional_values (any, range, optional, repeating) ${_lt(
         "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
       )}
       criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
@@ -668,12 +670,12 @@ export const MINA: AddFunctionDescription = {
 export const MINIFS: AddFunctionDescription = {
   description: _lt("Returns the minimum value in a range of cells, filtered by a set of criteria."),
   args: args(`
-      range (any, range) ${_lt("The range of cells from which the minimum will be determined.")}
-      criteria_range1 (any, range) ${_lt("The range of cells over which to evaluate criterion1.")}
+      range (range) ${_lt("The range of cells from which the minimum will be determined.")}
+      criteria_range1 (range) ${_lt("The range of cells over which to evaluate criterion1.")}
       criterion1 (string) ${_lt(
         "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
       )}
-      criteria_range2 (any, range, repeating) ${_lt(
+      additional_values (any, range, optional, repeating) ${_lt(
         "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
       )}
       criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
