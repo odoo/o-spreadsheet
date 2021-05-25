@@ -9,11 +9,12 @@ const ARG_REGEXP = /(.*?)\((.*?)\)(.*)/;
 const ARG_TYPES: ArgType[] = [
   "ANY",
   "BOOLEAN",
+  "DATE",
   "NUMBER",
   "STRING",
-  "DATE",
   "RANGE",
   "RANGE<BOOLEAN>",
+  "RANGE<DATE>",
   "RANGE<NUMBER>",
   "RANGE<STRING>",
   "META",

@@ -10,9 +10,7 @@ Object {
         "data": Array [
           30,
         ],
-        "label": Object {
-          "toString": [Function],
-        },
+        "label": "Series 1",
         "lineTension": 0,
       },
     ],
@@ -177,9 +175,7 @@ Object {
           11,
           12,
         ],
-        "label": Object {
-          "toString": [Function],
-        },
+        "label": "Series 1",
         "lineTension": 0,
       },
       Object {
@@ -190,9 +186,7 @@ Object {
           19,
           18,
         ],
-        "label": Object {
-          "toString": [Function],
-        },
+        "label": "Series 2",
         "lineTension": 0,
       },
     ],
@@ -514,9 +508,7 @@ Object {
           31,
           32,
         ],
-        "label": Object {
-          "toString": [Function],
-        },
+        "label": "Series 1",
         "lineTension": 0,
       },
       Object {
@@ -527,9 +519,7 @@ Object {
           41,
           42,
         ],
-        "label": Object {
-          "toString": [Function],
-        },
+        "label": "Series 2",
         "lineTension": 0,
       },
     ],

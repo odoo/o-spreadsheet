@@ -201,7 +201,7 @@ describe("formula assistant", () => {
 
     test("simple snapshot with =FUNC1(", async () => {
       await typeInComposer("=FUNC1(");
-      expect(fixture.querySelector(".o-formula-assistant")).toMatchSnapshot();
+      expect(fixture.querySelector(".o-formula-assistant-container")).toMatchSnapshot();
     });
 
     test("use arowKey during 'waitingForRangeSelection' mode in a function should not display formula assistant", async () => {

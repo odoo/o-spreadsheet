@@ -81,10 +81,12 @@ export type ReferenceDenormalizer = (
   position: number,
   references: Range[],
   sheetId: UID,
-  isMeta: boolean
+  isMeta: boolean,
+  functionName: string,
+  paramNumber: number
 ) => any | any[][];
 
-export type EnsureRange = (position: number, references: Range[]) => any[][];
+export type EnsureRange = (position: number, references: Range[], sheetId: UID) => any[][];
 
 export type _CompiledFormula = (
   deps: Range[],
