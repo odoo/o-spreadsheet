@@ -52,6 +52,9 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
 
         const groups = groupConsecutive(cmd.elements);
         this.executeOnAllRanges((range: Range) => {
+          if (range.sheetId !== cmd.sheetId) {
+            return { changeType: "NONE" };
+          }
           let newRange = range;
           let changeType: ChangeType = "NONE";
           for (let group of groups) {
@@ -80,6 +83,9 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         let dimension: "columns" | "rows" = cmd.dimension === "COL" ? "columns" : "rows";
 
         this.executeOnAllRanges((range: Range) => {
+          if (range.sheetId !== cmd.sheetId) {
+            return { changeType: "NONE" };
+          }
           if (cmd.position === "after") {
             if (range.zone[start] <= cmd.base && cmd.base < range.zone[end]) {
               return {
