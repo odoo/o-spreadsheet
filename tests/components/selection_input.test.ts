@@ -305,7 +305,7 @@ describe("Selection Input", () => {
     );
     await writeInput(0, "B1");
     expect(fixture.querySelectorAll("input")[0].value).toBe("B1");
-    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #ffdc00;");
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #ad8e00;");
   });
   test("don't show red border initially", async () => {
     await createSelectionInput();
