@@ -1,8 +1,8 @@
 import * as owl from "@odoo/owl";
-import { ConditionalFormat, IconSetRule, IconThreshold, SpreadsheetEnv } from "../../../types";
+import { IconSetRule, IconThreshold, SpreadsheetEnv } from "../../../types";
 import { ICONS, ICON_SETS, REFRESH } from "../../icons";
 import { IconPicker } from "../../icon_picker";
-import { conditionalFormatingTerms, iconSetRule } from "../translations_terms";
+import { conditionalFormattingTerms, iconSetRule } from "../translations_terms";
 
 const { Component, useState, hooks } = owl;
 const { useExternalListener } = hooks;
@@ -60,16 +60,16 @@ const INFLECTION_POINTS_TEMPLATE_ROW = xml/* xml */ `
     <td>
       <select class="o-input" name="valueType" t-model="inflectionPointValue.type">
       <option value="number">
-        <t t-esc="env._t('${conditionalFormatingTerms.FixedNumber}')"/>
+        <t t-esc="env._t('${conditionalFormattingTerms.FixedNumber}')"/>
       </option>
       <option value="percentage">
-        <t t-esc="env._t('${conditionalFormatingTerms.Percentage}')"/>
+        <t t-esc="env._t('${conditionalFormattingTerms.Percentage}')"/>
       </option>
       <option value="percentile">
-        <t t-esc="env._t('${conditionalFormatingTerms.Percentile}')"/>
+        <t t-esc="env._t('${conditionalFormattingTerms.Percentile}')"/>
       </option>
       <option value="formula">
-        <t t-esc="env._t('${conditionalFormatingTerms.Formula}')"/>
+        <t t-esc="env._t('${conditionalFormattingTerms.Formula}')"/>
       </option>
       </select>
     </td>
@@ -128,19 +128,6 @@ const TEMPLATE = xml/* xml */ `
           <t t-raw="reverseIcon"/>
         </div>
         <t t-esc="env._t('${iconSetRule.ReverseIcons}')"/>
-      </div>
-      <div class="o-cf-error" t-if="props.error">
-        <t t-esc="props.error"/>
-      </div>
-      <div class="o-sidePanelButtons">
-        <button t-on-click="onCancel" class="o-sidePanelButton o-cf-cancel">
-          <t t-esc="env._t('${conditionalFormatingTerms.CANCEL}')"/>
-        </button>
-        <button class="o-sidePanelButton o-cf-save"
-          t-on-click="onSave"
-        >
-          <t t-esc="env._t('${conditionalFormatingTerms.SAVE}')"/>
-        </button>
       </div>
   </div>`;
 
@@ -226,7 +213,7 @@ const CSS = css/* scss */ `
 `;
 
 interface Props {
-  conditionalFormat: ConditionalFormat;
+  rule: IconSetRule;
 }
 
 interface IconSetRuleState {
@@ -249,15 +236,13 @@ export class IconSetRuleEditor extends Component<Props, SpreadsheetEnv> {
   iconSets = ICON_SETS;
   reverseIcon = REFRESH;
 
-  cf = this.props.conditionalFormat;
-  rule = this.cf.rule as IconSetRule;
   stateIconSetCF = useState<IconSetRuleState>({
     reversed: false,
-    upperInflectionPoint: this.rule.upperInflectionPoint,
-    lowerInflectionPoint: this.rule.lowerInflectionPoint,
-    upperIcon: this.rule.icons.upper,
-    middleIcon: this.rule.icons.middle,
-    lowerIcon: this.rule.icons.lower,
+    upperInflectionPoint: this.props.rule.upperInflectionPoint,
+    lowerInflectionPoint: this.props.rule.lowerInflectionPoint,
+    upperIcon: this.props.rule.icons.upper,
+    middleIcon: this.props.rule.icons.middle,
+    lowerIcon: this.props.rule.icons.lower,
     upperIconTool: false,
     middleIconTool: false,
     lowerIconTool: false,
@@ -290,6 +275,21 @@ export class IconSetRuleEditor extends Component<Props, SpreadsheetEnv> {
     this.stateIconSetCF[target + "Icon"] = ev.detail.icon;
   }
 
+  getRule(): IconSetRule {
+    const upperInflectionPoint: IconThreshold = { ...this.stateIconSetCF.upperInflectionPoint };
+    const lowerInflectionPoint: IconThreshold = { ...this.stateIconSetCF.lowerInflectionPoint };
+    return {
+      type: "IconSetRule",
+      lowerInflectionPoint,
+      upperInflectionPoint,
+      icons: {
+        upper: this.stateIconSetCF.upperIcon,
+        middle: this.stateIconSetCF.middleIcon,
+        lower: this.stateIconSetCF.lowerIcon,
+      },
+    };
+  }
+
   getIconsSelction() {
     return Object.keys(this.icons);
   }
@@ -300,22 +300,24 @@ export class IconSetRuleEditor extends Component<Props, SpreadsheetEnv> {
     this.stateIconSetCF.lowerIcon = upperIcon;
   }
 
-  onSave() {
-    const upperInflectionPoint: IconThreshold = { ...this.stateIconSetCF.upperInflectionPoint };
-    const lowerInflectionPoint: IconThreshold = { ...this.stateIconSetCF.lowerInflectionPoint };
-    const rule: IconSetRule = {
+  static getDefaultRule(): IconSetRule {
+    return {
       type: "IconSetRule",
-      lowerInflectionPoint,
-      upperInflectionPoint,
       icons: {
-        upper: this.stateIconSetCF.upperIcon,
-        middle: this.stateIconSetCF.middleIcon,
-        lower: this.stateIconSetCF.lowerIcon,
+        upper: "arrowGood",
+        middle: "arrowNeutral",
+        lower: "arrowBad",
+      },
+      upperInflectionPoint: {
+        type: "percentage",
+        value: "66",
+        operator: "gt",
+      },
+      lowerInflectionPoint: {
+        type: "percentage",
+        value: "33",
+        operator: "gt",
       },
     };
-    this.trigger("modify-rule", { rule: rule });
-  }
-  onCancel() {
-    this.trigger("cancel-edit");
   }
 }

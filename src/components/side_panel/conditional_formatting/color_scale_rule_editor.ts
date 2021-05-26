@@ -1,22 +1,23 @@
 import * as owl from "@odoo/owl";
 import { colorNumberString } from "../../../helpers/index";
 import {
+  ColorScaleMidPointThreshold,
   ColorScaleRule,
   ColorScaleThreshold,
-  ConditionalFormat,
+  ConditionalFormatRule,
   SpreadsheetEnv,
 } from "../../../types";
 import { ColorPicker } from "../../color_picker";
 import * as icons from "../../icons";
-import { colorScale, conditionalFormatingTerms } from ".././translations_terms";
+import { colorScale, conditionalFormattingTerms } from ".././translations_terms";
 
 const { Component, useState, hooks } = owl;
 const { useExternalListener } = hooks;
 const { xml, css } = owl.tags;
 
-export const PREVIEW_TEMPLATE = xml/* xml */ `
+const PREVIEW_TEMPLATE = xml/* xml */ `
   <div class="o-cf-preview-gradient" t-attf-style="{{getPreviewGradient()}}">
-    <t t-esc="env._t('${conditionalFormatingTerms.PREVIEWTEXT}')"/>
+    <t t-esc="env._t('${conditionalFormattingTerms.PREVIEW_TEXT}')"/>
   </div>
 `;
 
@@ -30,16 +31,16 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
           <t t-esc="env._t('${colorScale.None}')"/>
         </option>
         <option value="number">
-          <t t-esc="env._t('${conditionalFormatingTerms.FixedNumber}')"/>
+          <t t-esc="env._t('${conditionalFormattingTerms.FixedNumber}')"/>
         </option>
         <option value="percentage">
-          <t t-esc="env._t('${conditionalFormatingTerms.Percentage}')"/>
+          <t t-esc="env._t('${conditionalFormattingTerms.Percentage}')"/>
         </option>
         <option value="percentile">
-          <t t-esc="env._t('${conditionalFormatingTerms.Percentile}')"/>
+          <t t-esc="env._t('${conditionalFormattingTerms.Percentile}')"/>
         </option>
         <option value="formula">
-          <t t-esc="env._t('${conditionalFormatingTerms.Formula}')"/>
+          <t t-esc="env._t('${conditionalFormattingTerms.Formula}')"/>
         </option>
       </select>
       <input type="text" class="o-input o-threshold-value"
@@ -85,19 +86,6 @@ const TEMPLATE = xml/* xml */ `
           <t t-set="threshold" t-value="stateColorScale.maximum" ></t>
           <t t-set="thresholdType" t-value="'maximum'" ></t>
       </t>
-      <div class="o-cf-error" t-if="props.error">
-        <t t-esc="props.error"/>
-      </div>
-      <div class="o-sidePanelButtons">
-        <button t-on-click="onCancel" class="o-sidePanelButton o-cf-cancel">
-          <t t-esc="env._t('${conditionalFormatingTerms.CANCEL}')"/>
-        </button>
-        <button class="o-sidePanelButton o-cf-save"
-          t-on-click="onSave"
-        >
-          <t t-esc="env._t('${conditionalFormatingTerms.SAVE}')"/>
-        </button>
-      </div>
   </div>`;
 
 const CSS = css/* scss */ `
@@ -124,7 +112,7 @@ const CSS = css/* scss */ `
 `;
 
 interface Props {
-  conditionalFormat: ConditionalFormat;
+  rule: ColorScaleRule;
 }
 
 type ComponentColorScaleMidPointThreshold = {
@@ -132,14 +120,7 @@ type ComponentColorScaleMidPointThreshold = {
   type: "none" | "number" | "percentage" | "percentile" | "formula";
   value?: string;
 };
-interface ComponentColorScaleRule {
-  type: "ColorScaleRule";
-  minimum: ColorScaleThreshold;
-  maximum: ColorScaleThreshold;
-  midpoint: ComponentColorScaleMidPointThreshold;
-}
-
-interface ColorScaleRuleState {
+interface State {
   minimum: ColorScaleThreshold;
   maximum: ColorScaleThreshold;
   midpoint: ComponentColorScaleMidPointThreshold;
@@ -153,13 +134,14 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
   static style = CSS;
   static components = { ColorPicker };
 
-  cf = this.props.conditionalFormat;
   colorNumberString = colorNumberString;
-  rule = this.cf.rule as ColorScaleRule;
-  stateColorScale = useState<ColorScaleRuleState>({
-    minimum: this.rule.minimum,
-    maximum: this.rule.maximum,
-    midpoint: this.rule.midpoint ? this.rule.midpoint : { color: 0xb6d7a8, type: "none" },
+
+  stateColorScale: State = useState({
+    minimum: this.props.rule.minimum,
+    maximum: this.props.rule.maximum,
+    midpoint: this.props.rule.midpoint
+      ? this.props.rule.midpoint
+      : { color: 0xb6d7a8, type: "none" },
     maximumColorTool: false,
     minimumColorTool: false,
     midpointColorTool: false,
@@ -170,15 +152,24 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
     useExternalListener(window as any, "click", this.closeMenus);
   }
 
-  toggleMenu(tool) {
+  getRule(): ColorScaleRule {
+    const minimum = { ...this.stateColorScale.minimum };
+    const midpoint = { ...this.stateColorScale.midpoint };
+    const maximum = { ...this.stateColorScale.maximum };
+    return {
+      type: "ColorScaleRule",
+      minimum,
+      maximum,
+      midpoint: midpoint.type === "none" ? undefined : (midpoint as ColorScaleMidPointThreshold),
+    };
+  }
+
+  toggleMenu(tool: string) {
     const current = this.stateColorScale[tool];
     this.closeMenus();
     this.stateColorScale[tool] = !current;
   }
 
-  toggleTool(tool: string) {
-    this.closeMenus();
-  }
   setColor(target: string, ev: CustomEvent) {
     const color: string = ev.detail.color;
     this.stateColorScale[target].color = Number.parseInt(color.substr(1), 16);
@@ -195,34 +186,21 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
       : baseString + minColor + ", #" + midColor + ", #" + maxColor + ")";
   }
 
-  closeMenus() {
+  private closeMenus() {
     this.stateColorScale.minimumColorTool = false;
     this.stateColorScale.midpointColorTool = false;
     this.stateColorScale.maximumColorTool = false;
   }
 
-  private cleanRule(rule: ComponentColorScaleRule): ColorScaleRule {
-    if (rule.midpoint.type === "none") {
-      return {
-        ...rule,
-        midpoint: undefined,
-      };
-    }
-    return rule as ColorScaleRule;
-  }
-  onSave() {
-    const minimum = { ...this.stateColorScale.minimum };
-    const midpoint = { ...this.stateColorScale.midpoint };
-    const maximum = { ...this.stateColorScale.maximum };
-    const rule: ComponentColorScaleRule = {
+  /**
+   * Get a default rule for "ColorScaleRule"
+   */
+  static getDefaultRule(): ConditionalFormatRule {
+    return {
       type: "ColorScaleRule",
-      minimum,
-      maximum,
-      midpoint,
+      minimum: { type: "value", color: 0xffffff },
+      midpoint: undefined,
+      maximum: { type: "value", color: 0x6aa84f },
     };
-    this.trigger("modify-rule", { rule: this.cleanRule(rule) });
-  }
-  onCancel() {
-    this.trigger("cancel-edit");
   }
 }

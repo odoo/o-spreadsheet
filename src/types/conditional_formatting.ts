@@ -1,4 +1,4 @@
-import { Range, Style } from "./misc";
+import { Range, Style, UID } from "./misc";
 
 // -----------------------------------------------------------------------------
 // Conditional Formatting
@@ -9,7 +9,7 @@ import { Range, Style } from "./misc";
  */
 
 export interface ConditionalFormat {
-  id: string;
+  id: UID;
   rule: ConditionalFormatRule; // the rules to apply, in order;
   stopIfTrue?: boolean; // the next rules must not be evaluated/applied if this rule is true
   ranges: string[]; // the cells/ranges on which to apply this conditional formatting

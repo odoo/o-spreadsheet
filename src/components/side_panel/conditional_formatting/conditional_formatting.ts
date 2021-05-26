@@ -4,19 +4,21 @@ import {
   ColorScaleRule,
   CommandResult,
   ConditionalFormat,
+  ConditionalFormatRule,
   SingleColorRules,
   SpreadsheetEnv,
   Zone,
 } from "../../../types";
 import { ICONS, TRASH } from "../../icons";
 import { SelectionInput } from "../../selection_input";
-import { cellIsOperators, conditionalFormatingTerms, GenericWords } from "../translations_terms";
+import { cellIsOperators, conditionalFormattingTerms, GenericWords } from "../translations_terms";
 import { CellIsRuleEditor } from "./cell_is_rule_editor";
 import { ColorScaleRuleEditor } from "./color_scale_rule_editor";
 import { IconSetRuleEditor } from "./icon_set_rule_editor";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
+const { useRef } = owl.hooks;
 
 // TODO vsc: add ordering of rules
 const PREVIEW_TEMPLATE = xml/* xml */ `
@@ -50,8 +52,8 @@ const PREVIEW_TEMPLATE = xml/* xml */ `
     <div class="o-cf-preview-range" t-esc="cf.ranges"/>
   </div>
   <div class="o-cf-delete">
-    <div class="o-cf-delete-button" t-on-click.stop="onDeleteClick(cf)" aria-label="Remove rule">
-      <t t-raw="trashIcon"/>
+    <div class="o-cf-delete-button" t-on-click.stop="deleteConditionalFormat(cf)" aria-label="Remove rule">
+    <t t-raw="trashIcon"/>
     </div>
   </div>
 </div>`;
@@ -60,9 +62,12 @@ const TEMPLATE = xml/* xml */ `
   <div class="o-cf">
     <t t-if="state.mode === 'list'">
       <div class="o-cf-preview-list" >
-          <div t-on-click="onRuleClick(cf)" t-foreach="conditionalFormats" t-as="cf" t-key="cf.id">
-              <t t-call="${PREVIEW_TEMPLATE}"/>
-          </div>
+        <div t-on-click="editConditionalFormat(cf)" t-foreach="conditionalFormats" t-as="cf" t-key="cf.id">
+            <t t-call="${PREVIEW_TEMPLATE}"/>
+        </div>
+      </div>
+      <div class="btn btn-link o-cf-add" t-on-click.prevent.stop="addConditionalFormat">
+        <t t-esc="'+ ' + env._t('${conditionalFormattingTerms.newRule}')"/>
       </div>
     </t>
     <t t-if="state.mode === 'edit' || state.mode === 'add'" t-key="state.currentCF.id">
@@ -70,45 +75,44 @@ const TEMPLATE = xml/* xml */ `
             <div class="o-section o-cf-range">
               <div class="o-section-title">Apply to range</div>
               <div class="o-selection-cf">
-                <SelectionInput ranges="state.currentRanges" class="o-range" t-on-selection-changed="onRangesChanged"/>
+                <SelectionInput ranges="state.currentCF.ranges" class="o-range" t-on-selection-changed="onRangesChanged"/>
               </div>
-              <div class="o-section-title" t-esc="env._t('${conditionalFormatingTerms.CF_TITLE}')"></div>
+              <div class="o-section-title" t-esc="env._t('${conditionalFormattingTerms.CF_TITLE}')"></div>
               <div class="o_field_radio o_horizontal o_field_widget o-cf-type-selector">
-                <div class="custom-control custom-radio o_cf_radio_item" t-on-click="setRuleType('CellIsRule')">
-                  <input class="custom-control-input o_radio_input" t-attf-checked="{{state.toRuleType === 'CellIsRule'}}" type="radio" id="cellIsRule" name="ruleType" value="CellIsRule"/>
+                <div class="custom-control custom-radio o_cf_radio_item" t-on-click="changeRuleType('CellIsRule')">
+                  <input class="custom-control-input o_radio_input" t-attf-checked="{{state.currentCFType === 'CellIsRule'}}" type="radio" id="cellIsRule" name="ruleType" value="CellIsRule"/>
                   <label for="cellIsRule" class="custom-control-label o_form_label">
-                    <t t-esc="env._t('${conditionalFormatingTerms.SingleColor}')"/>
+                    <t t-esc="env._t('${conditionalFormattingTerms.SingleColor}')"/>
                   </label>
                 </div>
-                <div class="custom-control custom-radio o_cf_radio_item" t-on-click="setRuleType('ColorScaleRule')">
-                  <input class="custom-control-input o_radio_input" t-attf-checked="{{state.toRuleType === 'ColorScaleRule'}}" type="radio" id="colorScaleRule" name="ruleType" value="ColorScaleRule"/>
+                <div class="custom-control custom-radio o_cf_radio_item" t-on-click="changeRuleType('ColorScaleRule')">
+                  <input class="custom-control-input o_radio_input" t-attf-checked="{{state.currentCFType === 'ColorScaleRule'}}" type="radio" id="colorScaleRule" name="ruleType" value="ColorScaleRule"/>
                   <label for="colorScaleRule" class="custom-control-label o_form_label">
-                  <t t-esc="env._t('${conditionalFormatingTerms.ColorScale}')"/>
+                  <t t-esc="env._t('${conditionalFormattingTerms.ColorScale}')"/>
                   </label>
                 </div>
 
-                <div class="custom-control custom-radio o_cf_radio_item" t-on-click="setRuleType('IconSetRule')">
-                  <input class="custom-control-input o_radio_input" t-attf-checked="{{state.toRuleType === 'IconSetRule'}}" type="radio" id="iconSetRule" name="ruleType" value="IconSetRule"/>
+                <div class="custom-control custom-radio o_cf_radio_item" t-on-click="changeRuleType('IconSetRule')">
+                  <input class="custom-control-input o_radio_input" t-attf-checked="{{state.currentCFType === 'IconSetRule'}}" type="radio" id="iconSetRule" name="ruleType" value="IconSetRule"/>
                   <label for="iconSetRule" class="custom-control-label o_form_label">
-                  <t t-esc="env._t('${conditionalFormatingTerms.IconSet}')"/>
+                  <t t-esc="env._t('${conditionalFormattingTerms.IconSet}')"/>
                   </label>
                 </div>
               </div>
             </div>
-            <div class="o-section">
-              <t t-component="editors[state.currentCF.rule.type]"
-                  t-key="state.currentCF.id"
-                  conditionalFormat="state.currentCF"
-                  error="state.error"
-                  t-on-cancel-edit="onCancel"
-                  t-on-modify-rule="onSave"
-                  class="o-cf-editor" />
+            <div class="o-section o-cf-editor">
+              <t t-component="editors[state.currentCFType]"
+                 t-ref="editorRef"
+                 t-key="state.currentCF.id + state.currentCFType"
+                 rule="state.rules[state.currentCFType]"/>
+              <div class="o-cf-error" t-if="state.error" t-esc="state.error"/>
+              <div class="o-sidePanelButtons">
+                <button t-on-click="switchToList" class="o-sidePanelButton o-cf-cancel" t-esc="env._t('${conditionalFormattingTerms.CANCEL}')"></button>
+                <button t-on-click="saveConditionalFormat" class="o-sidePanelButton o-cf-save" t-esc="env._t('${conditionalFormattingTerms.SAVE}')"></button>
+              </div>
             </div>
         </div>
     </t>
-    <div class="btn btn-link o-cf-add" t-if="state.mode === 'list'" t-on-click.prevent.stop="onAdd">
-    <t t-esc="'+ ' + env._t('${conditionalFormatingTerms.newRule}')"/>
-    </div>
   </div>`;
 
 const CSS = css/* scss */ `
@@ -303,25 +307,36 @@ const CSS = css/* scss */ `
   }
   }`;
 interface Props {
-  selection: Zone | undefined;
+  selection: Zone[] | undefined;
 }
+
+type CFType = "CellIsRule" | "ColorScaleRule" | "IconSetRule";
+type CFEditor = CellIsRuleEditor | ColorScaleRuleEditor | IconSetRuleEditor;
+type Mode = "list" | "add" | "edit";
+
+interface State {
+  mode: Mode;
+  rules: Partial<Record<CFType, ConditionalFormatRule | undefined>>;
+  currentCF?: Omit<ConditionalFormat, "rule">;
+  currentCFType?: CFType;
+  error?: string;
+}
+
 export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   icons = ICONS;
   trashIcon = TRASH;
-  static components = { CellIsRuleEditor, ColorScaleRuleEditor, SelectionInput };
-  colorNumberString = colorNumberString;
-  getters = this.env.getters;
+  static components = { CellIsRuleEditor, ColorScaleRuleEditor, IconSetRuleEditor, SelectionInput };
 
   //@ts-ignore --> used in XML template
   private cellIsOperators = cellIsOperators;
-  state = useState({
-    currentCF: undefined as undefined | ConditionalFormat,
-    currentRanges: [] as string[],
-    mode: "list" as "list" | "edit" | "add",
-    toRuleType: "CellIsRule",
-    error: undefined as string | undefined,
+  private editor = useRef("editorRef");
+  private getters = this.env.getters;
+
+  private state: State = useState({
+    mode: "list",
+    rules: {},
   });
 
   editors = {
@@ -330,11 +345,15 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     IconSetRule: IconSetRuleEditor,
   };
 
-  constructor(parent, props) {
+  constructor(parent: any, props: Props) {
     super(parent, props);
     const sheetId = this.getters.getActiveSheetId();
-    if (props.selection && this.getters.getRulesSelection(sheetId, props.selection).length === 1) {
-      this.openCf(this.getters.getRulesSelection(sheetId, props.selection)[0]);
+    const rules = this.getters.getRulesSelection(sheetId, props.selection || []);
+    if (rules.length === 1) {
+      const cf = this.conditionalFormats.find((c) => c.id === rules[0]);
+      if (cf) {
+        this.editConditionalFormat(cf);
+      }
     }
   }
 
@@ -342,56 +361,58 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     return this.getters.getConditionalFormats(this.getters.getActiveSheetId());
   }
 
-  async willUpdateProps(nextProps) {
-    if (nextProps.selection && nextProps.selection !== this.props.selection) {
+  async willUpdateProps(nextProps: Props) {
+    if (nextProps.selection !== this.props.selection) {
       const sheetId = this.getters.getActiveSheetId();
-      if (
-        nextProps.selection &&
-        this.getters.getRulesSelection(sheetId, nextProps.selection).length === 1
-      ) {
-        this.openCf(this.getters.getRulesSelection(sheetId, nextProps.selection)[0]);
+      const rules = this.getters.getRulesSelection(sheetId, nextProps.selection || []);
+      if (rules.length === 1) {
+        const cf = this.conditionalFormats.find((c) => c.id === rules[0]);
+        if (cf) {
+          this.editConditionalFormat(cf);
+        }
       } else {
-        this.resetState();
+        this.switchToList();
       }
     }
   }
 
-  resetState() {
-    this.state.currentCF = undefined;
-    this.state.currentRanges = [];
+  /**
+   * Switch to the list view
+   */
+  private switchToList() {
     this.state.mode = "list";
-    this.state.toRuleType = "CellIsRule";
+    this.state.currentCF = undefined;
+    this.state.currentCFType = undefined;
+    this.state.error = undefined;
+    this.state.rules = {};
   }
 
   getStyle(rule: SingleColorRules | ColorScaleRule): string {
     if (rule.type === "CellIsRule") {
-      const cellRule = rule as SingleColorRules;
-      const fontWeight = cellRule.style.bold ? "bold" : "normal";
-      const fontDecoration = cellRule.style.strikethrough ? "line-through" : "none";
-      const fontStyle = cellRule.style.italic ? "italic" : "normal";
-      const color = cellRule.style.textColor || "none";
-      const backgroundColor = cellRule.style.fillColor || "none";
+      const fontWeight = rule.style.bold ? "bold" : "normal";
+      const fontDecoration = rule.style.strikethrough ? "line-through" : "none";
+      const fontStyle = rule.style.italic ? "italic" : "normal";
+      const color = rule.style.textColor || "none";
+      const backgroundColor = rule.style.fillColor || "none";
       return `font-weight:${fontWeight};
                text-decoration:${fontDecoration};
                font-style:${fontStyle};
                color:${color};
                background-color:${backgroundColor};`;
-    }
-    if (rule.type === "ColorScaleRule") {
-      const colorScale = rule as ColorScaleRule;
-      const minColor = colorNumberString(colorScale.minimum.color);
-      const midColor = colorScale.midpoint ? colorNumberString(colorScale.midpoint.color) : null;
-      const maxColor = colorNumberString(colorScale.maximum.color);
+    } else if (rule.type === "ColorScaleRule") {
+      const minColor = colorNumberString(rule.minimum.color);
+      const midColor = rule.midpoint ? colorNumberString(rule.midpoint.color) : null;
+      const maxColor = colorNumberString(rule.maximum.color);
       const baseString = "background-image: linear-gradient(to right, #";
       return midColor
         ? baseString + minColor + ", #" + midColor + ", #" + maxColor + ")"
         : baseString + minColor + ", #" + maxColor + ")";
-    } else {
-      return "";
     }
+    return "";
   }
 
   getDescription(cf: ConditionalFormat): string {
+    //TODO Fix translations of this
     switch (cf.rule.type) {
       case "CellIsRule":
         return cellIsOperators[cf.rule.operator];
@@ -404,138 +425,99 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     }
   }
 
-  onSave(ev: CustomEvent) {
+  saveConditionalFormat() {
     if (this.state.currentCF) {
       const result = this.env.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
-          rule: ev.detail.rule,
+          rule: this.getEditorRule(),
           id: this.state.mode === "edit" ? this.state.currentCF.id : uuidv4(),
         },
-        target: this.state.currentRanges.map(toZone),
+        target: this.state.currentCF.ranges.map(toZone),
         sheetId: this.getters.getActiveSheetId(),
       });
       if (result !== CommandResult.Success) {
         this.state.error = this.env._t(
-          conditionalFormatingTerms.Errors[result] || conditionalFormatingTerms.Errors.unexpected
+          conditionalFormattingTerms.Errors[result] || conditionalFormattingTerms.Errors.unexpected
         );
       } else {
-        this.state.error = undefined;
-        this.state.mode = "list";
-        this.state.toRuleType = "CellIsRule";
+        this.switchToList();
       }
     }
   }
 
-  onCancel() {
-    this.state.mode = "list";
-    this.state.currentCF = undefined;
-    this.state.toRuleType = "CellIsRule";
+  /**
+   * Get the rule currently edited with the editor
+   */
+  private getEditorRule(): ConditionalFormatRule {
+    return (<CFEditor>this.editor.comp).getRule();
   }
 
-  onDeleteClick(cf: ConditionalFormat) {
+  /**
+   * Create a new CF, a CellIsRule by default
+   */
+  addConditionalFormat() {
+    this.state.mode = "add";
+    this.state.currentCFType = "CellIsRule";
+    this.state.rules["CellIsRule"] = CellIsRuleEditor.getDefaultRule();
+    this.state.currentCF = {
+      id: uuidv4(),
+      ranges: this.getters
+        .getSelectedZones()
+        .map((zone) => this.getters.zoneToXC(this.getters.getActiveSheetId(), zone)),
+    };
+  }
+
+  /**
+   * Delete a CF
+   */
+  deleteConditionalFormat(cf: ConditionalFormat) {
     this.env.dispatch("REMOVE_CONDITIONAL_FORMAT", {
       id: cf.id,
       sheetId: this.getters.getActiveSheetId(),
     });
   }
-  onRuleClick(cf) {
+
+  /**
+   * Edit an existing CF
+   */
+  editConditionalFormat(cf: ConditionalFormat) {
     this.state.mode = "edit";
     this.state.currentCF = cf;
-    this.state.toRuleType = cf.rule.type;
-    this.state.currentRanges = this.state.currentCF!.ranges;
+    this.state.currentCFType =
+      cf.rule.type === "CellIsRule"
+        ? "CellIsRule"
+        : cf.rule.type === "ColorScaleRule"
+        ? "ColorScaleRule"
+        : "IconSetRule";
+    this.state.rules[cf.rule.type] = cf.rule;
   }
 
-  openCf(cfId) {
-    const cfIndex = this.conditionalFormats.findIndex((c) => c.id === cfId);
-    const cf = this.conditionalFormats[cfIndex];
-    if (cf) {
-      this.state.mode = "edit";
-      this.state.currentCF = cf;
-      this.state.toRuleType = cf.rule.type;
-      this.state.currentRanges = this.state.currentCF!.ranges;
-    }
-  }
-
-  defaultCellIsRule(): ConditionalFormat {
-    return {
-      rule: {
-        type: "CellIsRule",
-        operator: "IsNotEmpty",
-        values: [],
-        style: { fillColor: "#b6d7a8" },
-      },
-      ranges: this.getters
-        .getSelectedZones()
-        .map((zone) => this.getters.zoneToXC(this.getters.getActiveSheetId(), zone)),
-      id: uuidv4(),
-    };
-  }
-
-  defaultColorScaleRule(): ConditionalFormat {
-    return {
-      rule: {
-        minimum: { type: "value", color: 0xffffff },
-        midpoint: undefined,
-        maximum: { type: "value", color: 0x6aa84f },
-        type: "ColorScaleRule",
-      },
-      ranges: this.getters
-        .getSelectedZones()
-        .map((zone) => this.getters.zoneToXC(this.getters.getActiveSheetId(), zone)),
-      id: uuidv4(),
-    };
-  }
-
-  defaultIconSetRule(): ConditionalFormat {
-    return {
-      rule: {
-        type: "IconSetRule",
-        icons: {
-          upper: "arrowGood",
-          middle: "arrowNeutral",
-          lower: "arrowBad",
-        },
-        upperInflectionPoint: {
-          type: "percentage",
-          value: "66",
-          operator: "gt",
-        },
-        lowerInflectionPoint: {
-          type: "percentage",
-          value: "33",
-          operator: "gt",
-        },
-      },
-      ranges: this.getters
-        .getSelectedZones()
-        .map((zone) => this.getters.zoneToXC(this.getters.getActiveSheetId(), zone)),
-      id: uuidv4(),
-    };
-  }
-
-  onAdd() {
-    this.state.mode = "add";
-    this.state.currentCF = this.defaultCellIsRule();
-    this.state.currentRanges = this.state.currentCF!.ranges;
-  }
-
-  setRuleType(ruleType: string) {
-    if (ruleType === this.state.toRuleType) {
+  changeRuleType(ruleType: CFType) {
+    if (this.state.currentCFType === ruleType) {
       return;
     }
-    if (ruleType === "ColorScaleRule") {
-      this.state.currentCF = this.defaultColorScaleRule();
+    if (this.state.currentCFType) {
+      this.state.rules[this.state.currentCFType] = this.getEditorRule();
     }
-    if (ruleType === "CellIsRule") {
-      this.state.currentCF = this.defaultCellIsRule();
+    this.state.currentCFType = ruleType;
+    if (!(ruleType in this.state.rules)) {
+      switch (ruleType) {
+        case "CellIsRule":
+          this.state.rules["CellIsRule"] = CellIsRuleEditor.getDefaultRule();
+          break;
+        case "ColorScaleRule":
+          this.state.rules["ColorScaleRule"] = ColorScaleRuleEditor.getDefaultRule();
+          break;
+        case "IconSetRule":
+          this.state.rules["IconSetRule"] = IconSetRuleEditor.getDefaultRule();
+          break;
+      }
     }
-    if (ruleType === "IconSetRule") {
-      this.state.currentCF = this.defaultIconSetRule();
-    }
-    this.state.toRuleType = ruleType;
   }
 
   onRangesChanged({ detail }: { detail: { ranges: string[] } }) {
-    this.state.currentRanges = detail.ranges;
+    if (this.state.currentCF) {
+      this.state.currentCF.ranges = detail.ranges;
+    }
   }
 }

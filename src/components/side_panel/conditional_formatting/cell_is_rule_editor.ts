@@ -1,14 +1,14 @@
 import * as owl from "@odoo/owl";
-import { CellIsRule, ConditionalFormat, SpreadsheetEnv, Style } from "../../../types";
+import { CellIsRule, ConditionalFormatRule, SpreadsheetEnv, Style } from "../../../types";
 import { ColorPicker } from "../../color_picker";
 import * as icons from "../../icons";
-import { cellIsOperators, conditionalFormatingTerms } from "../translations_terms";
+import { cellIsOperators, conditionalFormattingTerms } from "../translations_terms";
 
 const { Component, useState, hooks } = owl;
 const { useExternalListener } = hooks;
 const { xml, css } = owl.tags;
 
-export const PREVIEW_TEMPLATE = xml/* xml */ `
+const PREVIEW_TEMPLATE = xml/* xml */ `
     <div class="o-cf-preview-line"
          t-attf-style="font-weight:{{currentStyle.bold ?'bold':'normal'}};
                        text-decoration:{{currentStyle.strikethrough ? 'line-through':'none'}};
@@ -16,12 +16,12 @@ export const PREVIEW_TEMPLATE = xml/* xml */ `
                        color:{{currentStyle.textColor}};
                        border-radius: 4px;
                        background-color:{{currentStyle.fillColor}};"
-         t-esc="previewText || env._t('${conditionalFormatingTerms.PREVIEWTEXT}')" />
+         t-esc="previewText || env._t('${conditionalFormattingTerms.PREVIEW_TEXT}')" />
 `;
 
 const TEMPLATE = xml/* xml */ `
 <div>
-    <div class="o-cf-title-text" t-esc="env._t('${conditionalFormatingTerms.IS_RULE}')"></div>
+    <div class="o-cf-title-text" t-esc="env._t('${conditionalFormattingTerms.IS_RULE}')"></div>
     <select t-model="state.condition.operator" class="o-input o-cell-is-operator">
         <t t-foreach="Object.keys(cellIsOperators)" t-as="op" t-key="op_index">
             <option t-att-value="op" t-esc="cellIsOperators[op]"/>
@@ -39,23 +39,23 @@ const TEMPLATE = xml/* xml */ `
                  class="o-input o-cell-is-value"/>
       </t>
     </t>
-    <div class="o-cf-title-text" t-esc="env._t('${conditionalFormatingTerms.FORMATTING_STYLE}')"></div>
+    <div class="o-cf-title-text" t-esc="env._t('${conditionalFormattingTerms.FORMATTING_STYLE}')"></div>
 
     <t t-call="${PREVIEW_TEMPLATE}">
         <t t-set="currentStyle" t-value="state.style"/>
     </t>
     <div class="o-tools">
-        <div class="o-tool" t-att-title="env._t('${conditionalFormatingTerms.BOLD}')" t-att-class="{active:state.style.bold}" t-on-click="toggleTool('bold')">
+        <div class="o-tool" t-att-title="env._t('${conditionalFormattingTerms.BOLD}')" t-att-class="{active:state.style.bold}" t-on-click="toggleTool('bold')">
             ${icons.BOLD_ICON}
         </div>
-        <div class="o-tool" t-att-title="env._t('${conditionalFormatingTerms.ITALIC}')" t-att-class="{active:state.style.italic}" t-on-click="toggleTool('italic')">
+        <div class="o-tool" t-att-title="env._t('${conditionalFormattingTerms.ITALIC}')" t-att-class="{active:state.style.italic}" t-on-click="toggleTool('italic')">
             ${icons.ITALIC_ICON}
         </div>
-        <div class="o-tool" t-att-title="env._t('${conditionalFormatingTerms.STRIKETHROUGH}')" t-att-class="{active:state.style.strikethrough}"
+        <div class="o-tool" t-att-title="env._t('${conditionalFormattingTerms.STRIKE_THROUGH}')" t-att-class="{active:state.style.strikethrough}"
              t-on-click="toggleTool('strikethrough')">${icons.STRIKE_ICON}
         </div>
         <div class="o-tool o-with-color">
-              <span t-att-title="env._t('${conditionalFormatingTerms.TEXTCOLOR}')" t-attf-style="border-color:{{state.style.textColor}}"
+              <span t-att-title="env._t('${conditionalFormattingTerms.TEXT_COLOR}')" t-attf-style="border-color:{{state.style.textColor}}"
                     t-on-click.stop="toggleMenu('textColorTool')">
                     ${icons.TEXT_COLOR_ICON}
               </span>
@@ -65,7 +65,7 @@ const TEMPLATE = xml/* xml */ `
         </div>
         <div class="o-divider"/>
         <div class="o-tool o-with-color">
-          <span t-att-title="env._t('${conditionalFormatingTerms.FILLCOLOR}')" t-attf-style="border-color:{{state.style.fillColor}}"
+          <span t-att-title="env._t('${conditionalFormattingTerms.FILL_COLOR}')" t-attf-style="border-color:{{state.style.fillColor}}"
                 t-on-click.stop="toggleMenu('fillColorTool')">
                 ${icons.FILL_COLOR_ICON}
           </span>
@@ -73,13 +73,6 @@ const TEMPLATE = xml/* xml */ `
             <ColorPicker t-if="state.fillColorTool" dropdownDirection="'left'" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
           </div>
         </div>
-    </div>
-    <div class="o-cf-error" t-if="props.error">
-      <t t-esc="props.error"/>
-    </div>
-    <div class="o-sidePanelButtons">
-      <button t-on-click="onCancel" class="o-sidePanelButton o-cf-cancel" t-esc="env._t('${conditionalFormatingTerms.CANCEL}')"></button>
-      <button t-on-click="onSave" class="o-sidePanelButton o-cf-save" t-esc="env._t('${conditionalFormatingTerms.SAVE}')"></button>
     </div>
 </div>
 `;
@@ -106,7 +99,7 @@ const CSS = css/* scss */ `
 `;
 
 interface Props {
-  conditionalFormat: ConditionalFormat;
+  rule: CellIsRule;
 }
 
 export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
@@ -114,26 +107,25 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
   static style = CSS;
   static components = { ColorPicker };
 
-  // @ts-ignore   used in XML template
+  // @ts-ignore used in XML template
   private cellIsOperators = cellIsOperators;
 
-  cf = this.props.conditionalFormat as ConditionalFormat;
-  rule = this.cf.rule as CellIsRule;
   state = useState({
     condition: {
-      operator: this.rule && this.rule.operator ? this.rule.operator : "IsNotEmpty",
-      value1: this.rule && this.rule.values.length > 0 ? this.rule.values[0] : "",
-      value2: this.cf && this.rule.values.length > 1 ? this.rule.values[1] : "",
+      operator:
+        this.props.rule && this.props.rule.operator ? this.props.rule.operator : "IsNotEmpty",
+      value1: this.props.rule && this.props.rule.values.length > 0 ? this.props.rule.values[0] : "",
+      value2: this.props.rule.values.length > 1 ? this.props.rule.values[1] : "",
     },
 
     textColorTool: false,
     fillColorTool: false,
     style: {
-      fillColor: this.cf && this.rule.style.fillColor,
-      textColor: this.cf && this.rule.style.textColor,
-      bold: this.cf && this.rule.style.bold,
-      italic: this.cf && this.rule.style.italic,
-      strikethrough: this.cf && this.rule.style.strikethrough,
+      fillColor: this.props.rule.style.fillColor,
+      textColor: this.props.rule.style.textColor,
+      bold: this.props.rule.style.bold,
+      italic: this.props.rule.style.italic,
+      strikethrough: this.props.rule.style.strikethrough,
     },
   });
   constructor() {
@@ -141,27 +133,7 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
     useExternalListener(window as any, "click", this.closeMenus);
   }
 
-  toggleMenu(tool) {
-    const current = this.state[tool];
-    this.closeMenus();
-    this.state[tool] = !current;
-  }
-
-  toggleTool(tool: string) {
-    this.state.style[tool] = !this.state.style[tool];
-    this.closeMenus();
-  }
-  setColor(target: string, ev: CustomEvent) {
-    const color = ev.detail.color;
-    this.state.style[target] = color;
-    this.closeMenus();
-  }
-  closeMenus() {
-    this.state.textColorTool = false;
-    this.state.fillColorTool = false;
-  }
-
-  onSave() {
+  getRule(): CellIsRule {
     const newStyle: Style = {};
     const style = this.state.style;
     if (style.bold !== undefined) {
@@ -179,18 +151,45 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
     if (style.textColor) {
       newStyle.textColor = style.textColor;
     }
-
-    this.trigger("modify-rule", {
-      rule: {
-        type: "CellIsRule",
-        operator: this.state.condition.operator,
-        values: [this.state.condition.value1, this.state.condition.value2],
-        stopIfTrue: false,
-        style: newStyle,
-      },
-    });
+    return {
+      type: "CellIsRule",
+      operator: this.state.condition.operator,
+      values: [this.state.condition.value1, this.state.condition.value2],
+      style: newStyle,
+    };
   }
-  onCancel() {
-    this.trigger("cancel-edit");
+
+  toggleMenu(tool: string) {
+    const current = this.state[tool];
+    this.closeMenus();
+    this.state[tool] = !current;
+  }
+
+  toggleTool(tool: string) {
+    this.state.style[tool] = !this.state.style[tool];
+    this.closeMenus();
+  }
+
+  setColor(target: string, ev: CustomEvent) {
+    const color = ev.detail.color;
+    this.state.style[target] = color;
+    this.closeMenus();
+  }
+
+  closeMenus() {
+    this.state.textColorTool = false;
+    this.state.fillColorTool = false;
+  }
+
+  /**
+   * Get a default rule for "CellIsRule"
+   */
+  static getDefaultRule(): ConditionalFormatRule {
+    return {
+      type: "CellIsRule",
+      operator: "IsNotEmpty",
+      values: [],
+      style: { fillColor: "#b6d7a8" },
+    };
   }
 }
