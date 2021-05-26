@@ -1,4 +1,7 @@
 import { Model } from "../../src";
+import { CellIsRuleEditor } from "../../src/components/side_panel/conditional_formatting/cell_is_rule_editor";
+import { ColorScaleRuleEditor } from "../../src/components/side_panel/conditional_formatting/color_scale_rule_editor";
+import { IconSetRuleEditor } from "../../src/components/side_panel/conditional_formatting/icon_set_rule_editor";
 import { toZone } from "../../src/helpers/zones";
 import { CommandResult } from "../../src/types";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
@@ -160,7 +163,6 @@ describe("UI of conditional formats", () => {
           id: "1",
           rule: {
             operator: "BeginsWith",
-            stopIfTrue: false,
             style: { bold: true, fillColor: "#FF0000", italic: true, strikethrough: true },
             type: "CellIsRule",
             values: ["3", ""],
@@ -280,7 +282,6 @@ describe("UI of conditional formats", () => {
           id: "50",
           rule: {
             operator: "BeginsWith",
-            stopIfTrue: false,
             style: { bold: true, fillColor: "#b6d7a8", italic: true, strikethrough: true },
             type: "CellIsRule",
             values: ["3", ""],
@@ -335,7 +336,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "57",
+        id: "51",
         rule: {
           maximum: {
             color: 0xffff00,
@@ -385,7 +386,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "58",
+        id: "52",
         rule: {
           maximum: {
             color: 0xffff00,
@@ -437,7 +438,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "58",
+        id: "52",
         rule: {
           maximum: {
             color: 0xffff00,
@@ -489,7 +490,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "58",
+        id: "52",
         rule: {
           maximum: {
             color: 0xffff00,
@@ -549,7 +550,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "58",
+        id: "52",
         rule: {
           maximum: {
             color: 0xffff00,
@@ -1013,7 +1014,7 @@ describe("UI of conditional formats", () => {
 
       expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
         cf: {
-          id: "58",
+          id: "52",
           rule: {
             type: "IconSetRule",
             icons: {
@@ -1074,7 +1075,7 @@ describe("UI of conditional formats", () => {
 
       expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
         cf: {
-          id: "56",
+          id: "50",
           rule: {
             type: "IconSetRule",
             icons: {
@@ -1124,7 +1125,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "56",
+        id: "50",
         rule: {
           type: "IconSetRule",
           icons: {
@@ -1186,4 +1187,68 @@ describe("UI of conditional formats", () => {
       });
     }
   );
+  test("Configuration is locally saved when switching cf type", async () => {
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+
+    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith", "change");
+    await nextTick();
+    expect(
+      (document.querySelector(
+        `${selectors.ruleEditor.editor.operatorInput} option:checked`
+      ) as HTMLInputElement).value
+    ).toBe("BeginsWith");
+
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+    await nextTick();
+
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[0], "click");
+    await nextTick();
+    expect(
+      (document.querySelector(
+        `${selectors.ruleEditor.editor.operatorInput} option:checked`
+      ) as HTMLInputElement).value
+    ).toBe("BeginsWith");
+  });
+
+  describe("Default rules", () => {
+    test("Default CellIsRule", () => {
+      expect(CellIsRuleEditor.getDefaultRule()).toEqual({
+        type: "CellIsRule",
+        operator: "IsNotEmpty",
+        values: [],
+        style: { fillColor: "#b6d7a8" },
+      });
+    });
+
+    test("Default ColorScaleRule", () => {
+      expect(ColorScaleRuleEditor.getDefaultRule()).toEqual({
+        type: "ColorScaleRule",
+        minimum: { type: "value", color: 0xffffff },
+        midpoint: undefined,
+        maximum: { type: "value", color: 0x6aa84f },
+      });
+    });
+
+    test("Default IconSetRule", () => {
+      expect(IconSetRuleEditor.getDefaultRule()).toEqual({
+        type: "IconSetRule",
+        icons: {
+          upper: "arrowGood",
+          middle: "arrowNeutral",
+          lower: "arrowBad",
+        },
+        upperInflectionPoint: {
+          type: "percentage",
+          value: "66",
+          operator: "gt",
+        },
+        lowerInflectionPoint: {
+          type: "percentage",
+          value: "33",
+          operator: "gt",
+        },
+      });
+    });
+  });
 });

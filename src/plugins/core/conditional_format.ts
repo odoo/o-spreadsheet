@@ -160,8 +160,8 @@ export class ConditionalFormatPlugin
     return this.cfRules[sheetId].map((cf) => this.mapToConditionalFormat(sheetId, cf)) || [];
   }
 
-  getRulesSelection(sheetId: UID, selection: [Zone]): string[] {
-    const ruleIds: Set<string> = new Set();
+  getRulesSelection(sheetId: UID, selection: Zone[]): UID[] {
+    const ruleIds: Set<UID> = new Set();
     selection.forEach((zone) => {
       const zoneRuleId = this.getRulesByZone(sheetId, zone);
       zoneRuleId.forEach((ruleId) => {
@@ -171,8 +171,8 @@ export class ConditionalFormatPlugin
     return Array.from(ruleIds);
   }
 
-  getRulesByZone(sheetId: UID, zone: Zone): Set<string> {
-    const ruleIds: Set<string> = new Set();
+  getRulesByZone(sheetId: UID, zone: Zone): Set<UID> {
+    const ruleIds: Set<UID> = new Set();
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
         const cellRules = this.getRulesByCell(sheetId, col, row);
