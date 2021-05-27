@@ -67,16 +67,21 @@ export class EditionPlugin extends UIPlugin {
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "CHANGE_COMPOSER_CURSOR_SELECTION":
-        const length = this.currentContent.length;
-        const { start, end } = cmd;
-        return start >= 0 && start <= length && end >= 0 && end <= length && start <= end
-          ? CommandResult.Success
-          : CommandResult.WrongComposerSelection;
+        return this.validateSelection(this.currentContent.length, cmd.start, cmd.end);
       case "SET_CURRENT_CONTENT":
+        if (cmd.selection) {
+          return this.validateSelection(cmd.content.length, cmd.selection.start, cmd.selection.end);
+        } else {
+          return CommandResult.Success;
+        }
       case "START_EDITION":
-        return cmd.selection && cmd.selection.start > cmd.selection.end
-          ? CommandResult.WrongComposerSelection
-          : CommandResult.Success;
+        if (cmd.selection) {
+          const cell = this.getters.getActiveCell();
+          const content = cmd.text || (cell && this.getCellContent(cell)) || "";
+          return this.validateSelection(content.length, cmd.selection.start, cmd.selection.end);
+        } else {
+          return CommandResult.Success;
+        }
       default:
         return CommandResult.Success;
     }
@@ -207,8 +212,8 @@ export class EditionPlugin extends UIPlugin {
    * Return the (enriched) token just before the cursor.
    */
   getTokenAtCursor(): EnrichedToken | undefined {
-    const start = this.selectionStart;
-    const end = this.selectionEnd;
+    const start = Math.min(this.selectionStart, this.selectionEnd);
+    const end = Math.max(this.selectionStart, this.selectionEnd);
     if (start === end && end === 0) {
       return undefined;
     } else {
@@ -260,6 +265,12 @@ export class EditionPlugin extends UIPlugin {
     );
     this.col = left;
     this.row = top;
+  }
+
+  private validateSelection(length: number, start: number, end: number): CommandResult {
+    return start >= 0 && start <= length && end >= 0 && end <= length
+      ? CommandResult.Success
+      : CommandResult.WrongComposerSelection;
   }
 
   /**
@@ -415,12 +426,12 @@ export class EditionPlugin extends UIPlugin {
    * The cursor is then set at the end of the text.
    */
   private replaceSelection(text) {
-    const start = this.selectionStart;
-    const end = this.selectionEnd;
+    const start = Math.min(this.selectionStart, this.selectionEnd);
+    const end = Math.max(this.selectionStart, this.selectionEnd);
     this.currentContent =
       this.currentContent.slice(0, start) +
       this.currentContent.slice(end, this.currentContent.length);
-    this.insertText(text, this.selectionStart);
+    this.insertText(text, start);
   }
 
   /**
