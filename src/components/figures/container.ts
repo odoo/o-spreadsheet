@@ -63,8 +63,6 @@ const CSS = css/*SCSS*/ `
     border: 1px solid black;
     box-sizing: border-box;
     position: absolute;
-    bottom: 3px;
-    right: 3px;
     &:focus {
       outline: none;
     }
