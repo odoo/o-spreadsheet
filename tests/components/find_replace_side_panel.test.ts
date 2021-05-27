@@ -9,7 +9,8 @@ let model: Model;
 
 const selectors = {
   closeSidepanel: ".o-sidePanel .o-sidePanelClose",
-  inputSearch: ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) input",
+  inputSearch:
+    ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-input-search-container input",
   inputReplace: ".o-sidePanel .o-find-and-replace .o-section:nth-child(3) input",
   previousButton:
     ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(2) .o-sidePanelButton:nth-child(1)",
@@ -20,13 +21,13 @@ const selectors = {
   replaceAllButton:
     ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(4) .o-sidePanelButton:nth-child(2)",
   checkBoxMatchingCase:
-    ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-far-checkbox:nth-of-type(1) input",
+    ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-far-item:nth-child(1) input",
   checkBoxExactMatch:
-    ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-far-checkbox:nth-of-type(2) input",
+    ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-far-item:nth-child(2) input",
   checkBoxSearchFormulas:
-    ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-far-checkbox:nth-of-type(3) input",
+    ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-far-item:nth-child(3) input",
   checkBoxReplaceFormulas:
-    ".o-sidePanel .o-find-and-replace .o-section:nth-child(3) .o-far-checkbox:nth-of-type(1) input",
+    ".o-sidePanel .o-find-and-replace .o-section:nth-child(3) .o-far-item:nth-child(3) input",
 };
 
 describe("find and replace sidePanel component", () => {

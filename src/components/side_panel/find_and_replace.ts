@@ -18,20 +18,26 @@ const TEMPLATE = xml/* xml */ `
         <t t-esc="env.getters.getSearchMatches().length"/>
       </div>
     </div>
-    <label class="o-far-checkbox">
-      <input type="checkbox" t-model="state.searchOptions.matchCase" t-on-change="updateSearch()"/>
-      <t t-esc="env._t('${FindAndReplaceTerms.MatchCase}')"/>
-    </label>
-
-    <label class="o-far-checkbox">
-      <input type="checkbox" t-model="state.searchOptions.exactMatch" t-on-change="updateSearch()"/>
-      <t t-esc="env._t('${FindAndReplaceTerms.ExactMatch}')"/>
-    </label>inputSearch
-
-    <label class="o-far-checkbox">
-      <input type="checkbox" t-model="state.searchOptions.searchFormulas" t-on-change="searchFormulas"/>
-      <t t-esc="env._t('${FindAndReplaceTerms.SearchFormulas}')"/>
-    </label>
+    <div>
+      <div class="o-far-item">
+        <label class="o-far-checkbox">
+          <input t-model="state.searchOptions.matchCase" t-on-change="updateSearch()" class="o-far-input" type="checkbox" />
+          <span class="o-far-label"><t t-esc="env._t('${FindAndReplaceTerms.MatchCase}')"/></span>
+        </label>
+      </div>
+      <div class="o-far-item">
+        <label class="o-far-checkbox">
+          <input t-model="state.searchOptions.exactMatch" t-on-change="updateSearch()" class="o-far-input" type="checkbox" />
+          <span class="o-far-label"><t t-esc="env._t('${FindAndReplaceTerms.ExactMatch}')"/></span>
+        </label>                                                                            
+      </div>
+      <div class="o-far-item">
+        <label class="o-far-checkbox">
+          <input t-model="state.searchOptions.searchFormulas" t-on-change="searchFormulas" class="o-far-input" type="checkbox" />
+          <span class="o-far-label"><t t-esc="env._t('${FindAndReplaceTerms.SearchFormulas}')"/></span>
+        </label>
+      </div>
+    </div>
   </div>
   <div class="o-sidePanelButtons">
     <button t-att-disabled="!hasSearchResult" t-on-click="onSelectPreviousCell" class="o-sidePanelButton"
@@ -42,12 +48,18 @@ const TEMPLATE = xml/* xml */ `
 
   <div class="o-section" t-if="!getters.isReadonly()">
     <div t-esc="env._t('${FindAndReplaceTerms.Replace}')" class="o-section-title"/>
-    <input type="text" class="o-input" t-model="state.replaceWith" t-on-keydown="onKeydownReplace"/>
-    <label class="o-far-checkbox">
-      <input t-att-disabled="state.searchOptions.searchFormulas" type="checkbox"
-             t-model="state.replaceOptions.modifyFormulas"/>
-      <t t-esc="env._t('${FindAndReplaceTerms.ReplaceFormulas}')"/>
-    </label>
+    <div class="o-input-search-container">
+      <input type="text" class="o-input o-input-without-count" t-model="state.replaceWith" t-on-keydown="onKeydownReplace"/>
+    </div>
+    
+
+    <div class="o-far-item">
+      <label class="o-far-checkbox">
+        <input class="o-far-input" t-att-disabled="state.searchOptions.searchFormulas" type="checkbox"
+        t-model="state.replaceOptions.modifyFormulas"/>
+        <span class="o-far-label"><t t-esc="env._t('${FindAndReplaceTerms.ReplaceFormulas}')"/></span>
+      </label>                                                                            
+    </div>
   </div>
 
   <div class="o-sidePanelButtons" t-if="!getters.isReadonly()">
@@ -62,6 +74,20 @@ const TEMPLATE = xml/* xml */ `
 
 const CSS = css/* scss */ `
   .o-find-and-replace {
+    .o-far-item {
+      display: block;
+      .o-far-checkbox {
+        display: inline-block;
+        .o-far-input {
+          vertical-align: middle;
+        }
+        .o-far-label {
+          position: relative;
+          top: 1.5px;
+          padding-left: 4px;
+        }
+      }
+    }
     outline: none;
     height: 100%;
     .o-input-search-container {
@@ -69,6 +95,9 @@ const CSS = css/* scss */ `
       .o-input-with-count {
         flex-grow: 1;
         width: auto;
+      }
+      .o-input-without-count {
+        width: 100%;
       }
       .o-input-count {
         width: fit-content;
