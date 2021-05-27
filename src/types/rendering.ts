@@ -14,6 +14,13 @@ export interface Box {
   align: Align;
   clipRect: Rect | null;
   error?: string;
+  image?: Image;
+}
+export interface Image {
+  clipIcon: Rect | null;
+  size: number;
+  type: "icon"; //| "Picture"
+  image: HTMLImageElement;
 }
 
 export interface GridDimension {

@@ -1,8 +1,8 @@
 import * as owl from "@odoo/owl";
-import { CellIsRule, ConditionalFormat, SpreadsheetEnv, Style } from "../../types";
-import { ColorPicker } from "../color_picker";
-import * as icons from "../icons";
-import { cellIsOperators, conditionalFormatingTerms } from "./translations_terms";
+import { CellIsRule, ConditionalFormat, SpreadsheetEnv, Style } from "../../../types";
+import { ColorPicker } from "../../color_picker";
+import * as icons from "../../icons";
+import { cellIsOperators, conditionalFormatingTerms } from "../translations_terms";
 
 const { Component, useState, hooks } = owl;
 const { useExternalListener } = hooks;
@@ -14,13 +14,13 @@ export const PREVIEW_TEMPLATE = xml/* xml */ `
                        text-decoration:{{currentStyle.strikethrough ? 'line-through':'none'}};
                        font-style:{{currentStyle.italic?'italic':'normal'}};
                        color:{{currentStyle.textColor}};
+                       border-radius: 4px;
                        background-color:{{currentStyle.fillColor}};"
          t-esc="previewText || env._t('${conditionalFormatingTerms.PREVIEWTEXT}')" />
 `;
 
 const TEMPLATE = xml/* xml */ `
 <div>
-    <div class="o-section-title" t-esc="env._t('${conditionalFormatingTerms.CF_TITLE}')"></div>
     <div class="o-cf-title-text" t-esc="env._t('${conditionalFormatingTerms.IS_RULE}')"></div>
     <select t-model="state.condition.operator" class="o-input o-cell-is-operator">
         <t t-foreach="Object.keys(cellIsOperators)" t-as="op" t-key="op_index">
@@ -36,7 +36,7 @@ const TEMPLATE = xml/* xml */ `
           <input type="text"
                  placeholder="and value"
                  t-model="state.condition.value2"
-                 class="o-input"/>
+                 class="o-input o-cell-is-value"/>
       </t>
     </t>
     <div class="o-cf-title-text" t-esc="env._t('${conditionalFormatingTerms.FORMATTING_STYLE}')"></div>
@@ -54,21 +54,29 @@ const TEMPLATE = xml/* xml */ `
         <div class="o-tool" t-att-title="env._t('${conditionalFormatingTerms.STRIKETHROUGH}')" t-att-class="{active:state.style.strikethrough}"
              t-on-click="toggleTool('strikethrough')">${icons.STRIKE_ICON}
         </div>
-        <div class="o-tool o-dropdown o-with-color">
+        <div class="o-tool o-with-color">
               <span t-att-title="env._t('${conditionalFormatingTerms.TEXTCOLOR}')" t-attf-style="border-color:{{state.style.textColor}}"
-                    t-on-click.stop="toggleMenu('textColorTool')">${icons.TEXT_COLOR_ICON}</span>
-                    <ColorPicker t-if="state.textColorTool" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
+                    t-on-click.stop="toggleMenu('textColorTool')">
+                    ${icons.TEXT_COLOR_ICON}
+              </span>
+              <div class="o-colorpicker-container" >
+                <ColorPicker t-if="state.textColorTool" dropdownDirection="'left'" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
+              </div>
         </div>
         <div class="o-divider"/>
-        <div class="o-tool  o-dropdown o-with-color">
-              <span t-att-title="env._t('${conditionalFormatingTerms.FILLCOLOR}')" t-attf-style="border-color:{{state.style.fillColor}}"
-                    t-on-click.stop="toggleMenu('fillColorTool')">${icons.FILL_COLOR_ICON}</span>
-                    <ColorPicker t-if="state.fillColorTool" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
+        <div class="o-tool o-with-color">
+          <span t-att-title="env._t('${conditionalFormatingTerms.FILLCOLOR}')" t-attf-style="border-color:{{state.style.fillColor}}"
+                t-on-click.stop="toggleMenu('fillColorTool')">
+                ${icons.FILL_COLOR_ICON}
+          </span>
+          <div class="o-colorpicker-container" >
+            <ColorPicker t-if="state.fillColorTool" dropdownDirection="'left'" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
+          </div>
         </div>
     </div>
     <div class="o-cf-error" t-if="props.error">
-        <t t-esc="props.error"/>
-      </div>
+      <t t-esc="props.error"/>
+    </div>
     <div class="o-sidePanelButtons">
       <button t-on-click="onCancel" class="o-sidePanelButton o-cf-cancel" t-esc="env._t('${conditionalFormatingTerms.CANCEL}')"></button>
       <button t-on-click="onSave" class="o-sidePanelButton o-cf-save" t-esc="env._t('${conditionalFormatingTerms.SAVE}')"></button>
@@ -77,19 +85,23 @@ const TEMPLATE = xml/* xml */ `
 `;
 
 const CSS = css/* scss */ `
-  .o-cf-title-text {
-    font-size: 12px;
-    line-height: 14px;
-    margin-bottom: 6px;
-    margin-top: 18px;
-  }
   .o-cf-preview-line {
     border: 1px solid darkgrey;
     padding: 10px;
   }
-  .o-cf-error {
-    color: red;
-    margin-top: 10px;
+  .o-cell-is-operator {
+    margin-bottom: 5px;
+    width: 96%;
+  }
+  .o-cell-is-value {
+    margin-bottom: 5px;
+    width: 96%;
+  }
+  .o-colorpicker-container {
+    position: absolute;
+    padding-left: 20px;
+    padding-bottom: 18px;
+    pointer-events: none;
   }
 `;
 

@@ -12,6 +12,8 @@ import {
   ColorScaleThreshold,
   Command,
   ConditionalFormat,
+  IconSetRule,
+  IconThreshold,
   Style,
   UID,
   Zone,
@@ -23,11 +25,12 @@ import { UIPlugin } from "../ui_plugin";
 // -----------------------------------------------------------------------------
 
 export class EvaluationConditionalFormatPlugin extends UIPlugin {
-  static getters = ["getConditionalStyle"];
+  static getters = ["getConditionalStyle", "getConditionalIcon"];
   static modes: Mode[] = ["normal", "readonly"];
   private isStale: boolean = true;
   // stores the computed styles in the format of computedStyles.sheetName[col][row] = Style
   private computedStyles: { [sheet: string]: { [col: number]: (Style | undefined)[] } } = {};
+  private computedIcons: { [sheet: string]: { [col: number]: (string | undefined)[] } } = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -37,7 +40,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
         const activeSheet = cmd.sheetIdTo;
-        this.computedStyles[activeSheet] = this.computedStyles[activeSheet] || {}; // ?
+        this.computedStyles[activeSheet] = this.computedStyles[activeSheet] || {};
+        this.computedIcons[activeSheet] = this.computedIcons[activeSheet] || {};
         this.isStale = true;
         break;
 
@@ -90,6 +94,11 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     return styles && styles[col]?.[row];
   }
 
+  getConditionalIcon(col: number, row: number): string | undefined {
+    const activeSheet = this.getters.getActiveSheetId();
+    const icon = this.computedIcons[activeSheet];
+    return icon && icon[col]?.[row];
+  }
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
@@ -107,6 +116,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   private computeStyles() {
     const activeSheetId = this.getters.getActiveSheetId();
     this.computedStyles[activeSheetId] = {};
+    this.computedIcons[activeSheetId] = {};
     const computedStyle = this.computedStyles[activeSheetId];
     for (let cf of this.getters.getConditionalFormats(activeSheetId)) {
       try {
@@ -114,6 +124,11 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
           case "ColorScaleRule":
             for (let range of cf.ranges) {
               this.applyColorScale(range, cf.rule);
+            }
+            break;
+          case "IconSetRule":
+            for (let range of cf.ranges) {
+              this.applyIcon(range, cf.rule);
             }
             break;
           default:
@@ -144,7 +159,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
 
   private parsePoint(
     range: string,
-    threshold: ColorScaleThreshold | ColorScaleMidPointThreshold,
+    threshold: ColorScaleThreshold | ColorScaleMidPointThreshold | IconThreshold,
     functionName?: "min" | "max"
   ): null | number {
     switch (threshold.type) {
@@ -169,6 +184,76 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     }
   }
 
+  private applyIcon(range: string, rule: IconSetRule): void {
+    const lowerInflectionPoint: number | null = this.parsePoint(range, rule.lowerInflectionPoint);
+    const upperInflectionPoint: number | null = this.parsePoint(range, rule.upperInflectionPoint);
+    if (
+      lowerInflectionPoint === null ||
+      upperInflectionPoint === null ||
+      lowerInflectionPoint > upperInflectionPoint
+    ) {
+      return;
+    }
+    const zone: Zone = toZone(range);
+    const activeSheetId = this.getters.getActiveSheetId();
+    const computedIcons = this.computedIcons[activeSheetId];
+    const iconSet: string[] = [rule.icons.upper, rule.icons.middle, rule.icons.lower];
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        const cell = this.getters.getCell(activeSheetId, col, row);
+        let value;
+        if (cell) {
+          switch (cell.type) {
+            case CellType.formula:
+            case CellType.number:
+              value = cell.value;
+              break;
+            case CellType.text:
+            case CellType.empty:
+            case CellType.invalidFormula:
+              continue;
+          }
+        }
+        const icon = this.computeIcon(
+          value,
+          upperInflectionPoint,
+          rule.upperInflectionPoint.operator,
+          lowerInflectionPoint,
+          rule.lowerInflectionPoint.operator,
+          iconSet
+        );
+        if (!computedIcons[col]) {
+          computedIcons[col] = [];
+        }
+        computedIcons[col][row] = icon;
+      }
+    }
+  }
+  private computeIcon(
+    value: number | undefined,
+    upperInflectionPoint: number,
+    upperOperator: string,
+    lowerInflectionPoint: number,
+    lowerOperator: string,
+    icons: string[]
+  ): string | undefined {
+    if (value === undefined) {
+      return undefined;
+    }
+    if (
+      (upperOperator === "ge" && value >= upperInflectionPoint) ||
+      (upperOperator === "gt" && value > upperInflectionPoint)
+    ) {
+      return icons[0];
+    } else if (
+      (lowerOperator === "ge" && value >= lowerInflectionPoint) ||
+      (lowerOperator === "gt" && value > lowerInflectionPoint)
+    ) {
+      return icons[1];
+    }
+
+    return icons[2];
+  }
   private applyColorScale(range: string, rule: ColorScaleRule): void {
     const minValue: number | null = this.parsePoint(range, rule.minimum, "min");
     const midValue: number | null = rule.midpoint ? this.parsePoint(range, rule.midpoint) : null;

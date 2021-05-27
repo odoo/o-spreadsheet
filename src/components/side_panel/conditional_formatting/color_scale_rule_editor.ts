@@ -1,14 +1,14 @@
 import * as owl from "@odoo/owl";
-import { colorNumberString } from "../../helpers/index";
+import { colorNumberString } from "../../../helpers/index";
 import {
   ColorScaleRule,
   ColorScaleThreshold,
   ConditionalFormat,
   SpreadsheetEnv,
-} from "../../types";
-import { ColorPicker } from "../color_picker";
-import * as icons from "../icons";
-import { colorScale, conditionalFormatingTerms } from "./translations_terms";
+} from "../../../types";
+import { ColorPicker } from "../../color_picker";
+import * as icons from "../../icons";
+import { colorScale, conditionalFormatingTerms } from ".././translations_terms";
 
 const { Component, useState, hooks } = owl;
 const { useExternalListener } = hooks;
@@ -22,14 +22,7 @@ export const PREVIEW_TEMPLATE = xml/* xml */ `
 
 const THRESHOLD_TEMPLATE = xml/* xml */ `
   <div t-attf-class="o-threshold o-threshold-{{thresholdType}}">
-      <div class="o-tools">
-        <div class="o-tool  o-dropdown o-with-color">
-          <span title="Fill Color"  t-attf-style="border-color:#{{colorNumberString(threshold.color)}}"
-                t-on-click.stop="toggleMenu(thresholdType+'ColorTool')">${icons.FILL_COLOR_ICON}</span>
-          <ColorPicker t-if="stateColorScale[thresholdType+'ColorTool']" t-on-color-picked="setColor(thresholdType)"/>
-        </div>
-      </div>
-      <select name="valueType" t-model="threshold.type" t-on-click="closeMenus">
+      <select class="o-input" name="valueType" t-model="threshold.type" t-on-click="closeMenus">
         <option value="value" t-if="thresholdType!=='midpoint'">
           <t t-esc="env._t('${colorScale.CellValues}')"/>
         </option>
@@ -37,32 +30,36 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
           <t t-esc="env._t('${colorScale.None}')"/>
         </option>
         <option value="number">
-          <t t-esc="env._t('${colorScale.FixedNumber}')"/>
+          <t t-esc="env._t('${conditionalFormatingTerms.FixedNumber}')"/>
         </option>
         <option value="percentage">
-          <t t-esc="env._t('${colorScale.Percentage}')"/>
+          <t t-esc="env._t('${conditionalFormatingTerms.Percentage}')"/>
         </option>
         <option value="percentile">
-          <t t-esc="env._t('${colorScale.Percentile}')"/>
+          <t t-esc="env._t('${conditionalFormatingTerms.Percentile}')"/>
         </option>
         <option value="formula">
-          <t t-esc="env._t('${colorScale.Formula}')"/>
+          <t t-esc="env._t('${conditionalFormatingTerms.Formula}')"/>
         </option>
       </select>
-      <input type="text" class="o-threshold-value"
+      <input type="text" class="o-input o-threshold-value"
         t-model="stateColorScale[thresholdType].value"
         t-if="['number', 'percentage', 'percentile', 'formula'].includes(threshold.type)"
       />
-      <input type="text" class="o-threshold-value"
+      <input type="text" class="o-input o-threshold-value"
         t-else="" disabled="1"
       />
+      <div class="o-tools">
+        <div class="o-tool  o-dropdown o-with-color">
+          <span title="Fill Color"  t-attf-style="border-color:#{{colorNumberString(threshold.color)}}"
+                t-on-click.stop="toggleMenu(thresholdType+'ColorTool')">${icons.FILL_COLOR_ICON}</span>
+          <ColorPicker t-if="stateColorScale[thresholdType+'ColorTool']" dropdownDirection="'left'" t-on-color-picked="setColor(thresholdType)"/>
+        </div>
+      </div>
   </div>`;
 
 const TEMPLATE = xml/* xml */ `
   <div>
-      <div class="o-section-title">
-        <t t-esc="env._t('${colorScale.FormatRules}')"/>
-      </div>
       <div class="o-cf-title-text">
         <t t-esc="env._t('${colorScale.Preview}')"/>
       </div>
@@ -104,29 +101,25 @@ const TEMPLATE = xml/* xml */ `
   </div>`;
 
 const CSS = css/* scss */ `
-  .o-cf-title-text {
-    font-size: 12px;
-    line-height: 14px;
-    margin-bottom: 6px;
-    margin-top: 18px;
-  }
   .o-threshold {
     display: flex;
     flex-direction: horizontal;
-
-    .o-threshold-value {
-      margin-left: 15px;
+    select {
       width: 100%;
+    }
+    .o-threshold-value {
+      margin-left: 2%;
+      width: 20%;
       min-width: 0px; // input overflows in Firefox otherwise
+    }
+    .o-threshold-value:disabled {
+      background-color: #edebed;
     }
   }
   .o-cf-preview-gradient {
     border: 1px solid darkgrey;
     padding: 10px;
-  }
-  .o-cf-error {
-    color: red;
-    margin-top: 10px;
+    border-radius: 4px;
   }
 `;
 
@@ -166,7 +159,7 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
   stateColorScale = useState<ColorScaleRuleState>({
     minimum: this.rule.minimum,
     maximum: this.rule.maximum,
-    midpoint: this.rule.midpoint ? this.rule.midpoint : { color: 0x444, type: "none" },
+    midpoint: this.rule.midpoint ? this.rule.midpoint : { color: 0xb6d7a8, type: "none" },
     maximumColorTool: false,
     minimumColorTool: false,
     midpointColorTool: false,

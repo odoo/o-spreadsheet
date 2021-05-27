@@ -1013,6 +1013,204 @@ describe("conditional formats types", () => {
     );
   });
 
+  describe("Icon set", () => {
+    describe.each(["", "aaaa", "=SUM(1, 2)"])(
+      "dispatch is not allowed if value is not a number",
+      (value) => {
+        test("lower inflationpoint is NaN", () => {
+          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+            sheetId: model.getters.getActiveSheetId(),
+            target: [toZone("A1")],
+            cf: {
+              id: "1",
+              rule: {
+                type: "IconSetRule",
+                upperInflectionPoint: { type: "number", value: value, operator: "gt" },
+                lowerInflectionPoint: { type: "number", value: "1000", operator: "gt" },
+                icons: {
+                  upper: "arrowGood",
+                  middle: "arrowNeutral",
+                  lower: "arrowBad",
+                },
+              },
+            },
+          });
+          expect(result).toBe(CommandResult.ValueUpperInflectionNaN);
+        });
+        test("upper inflationpoint is NaN", () => {
+          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+            sheetId: model.getters.getActiveSheetId(),
+            target: [toZone("A1")],
+            cf: {
+              id: "1",
+              rule: {
+                type: "IconSetRule",
+                lowerInflectionPoint: { type: "number", value: value, operator: "gt" },
+                upperInflectionPoint: { type: "number", value: "1000", operator: "gt" },
+                icons: {
+                  upper: "arrowGood",
+                  middle: "arrowNeutral",
+                  lower: "arrowBad",
+                },
+              },
+            },
+          });
+          expect(result).toBe(CommandResult.ValueLowerInflectionNaN);
+        });
+      }
+    );
+
+    describe.each([
+      ["number", "number"],
+      ["percentage", "percentage"],
+      ["percentile", "percentile"],
+    ])(
+      "dispatch is not allowed if points not ascending (upper: %s , lower: %s)",
+      (
+        lowerInflectionPoint: "number" | "percentage" | "percentile",
+        upperInflectionPoint: "number" | "percentage" | "percentile"
+      ) => {
+        test("upper bigger than lower", () => {
+          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+            sheetId: model.getters.getActiveSheetId(),
+            target: [toZone("A1")],
+            cf: {
+              id: "1",
+              rule: {
+                type: "IconSetRule",
+                lowerInflectionPoint: { type: lowerInflectionPoint, value: "10", operator: "gt" },
+                upperInflectionPoint: { type: upperInflectionPoint, value: "1", operator: "gt" },
+                icons: {
+                  upper: "arrowGood",
+                  middle: "arrowNeutral",
+                  lower: "arrowBad",
+                },
+              },
+            },
+          });
+          expect(result).toBe(CommandResult.LowerBiggerThanUpper);
+        });
+      }
+    );
+    test("single cell", () => {
+      setCellContent(model, "A1", "5");
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          id: "1",
+          rule: {
+            type: "IconSetRule",
+            lowerInflectionPoint: { type: "number", value: "0", operator: "gt" },
+            upperInflectionPoint: { type: "number", value: "10", operator: "gt" },
+            icons: {
+              upper: "arrowGood",
+              middle: "arrowNeutral",
+              lower: "arrowBad",
+            },
+          },
+        },
+        target: [toZone("A1")],
+        sheetId: model.getters.getActiveSheetId(),
+      });
+      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual(undefined);
+      expect(model.getters.getConditionalIcon(...toCartesian("A1"))).toEqual("arrowNeutral");
+    });
+
+    test("2 points with 'gt', value scale", () => {
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "3");
+      setCellContent(model, "A3", "5");
+      setCellContent(model, "A4", "7");
+      setCellContent(model, "A5", "10");
+
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          id: "1",
+          rule: {
+            type: "IconSetRule",
+            lowerInflectionPoint: { type: "number", value: "3", operator: "gt" },
+            upperInflectionPoint: { type: "number", value: "7", operator: "gt" },
+            icons: {
+              upper: "arrowGood",
+              middle: "arrowNeutral",
+              lower: "arrowBad",
+            },
+          },
+        },
+        target: [toZone("A1:A5")],
+        sheetId: model.getters.getActiveSheetId(),
+      });
+
+      expect(model.getters.getConditionalIcon(...toCartesian("A1"))).toEqual("arrowBad");
+      expect(model.getters.getConditionalIcon(...toCartesian("A2"))).toEqual("arrowBad");
+      expect(model.getters.getConditionalIcon(...toCartesian("A3"))).toEqual("arrowNeutral");
+      expect(model.getters.getConditionalIcon(...toCartesian("A4"))).toEqual("arrowNeutral");
+      expect(model.getters.getConditionalIcon(...toCartesian("A5"))).toEqual("arrowGood");
+    });
+
+    test("2 points with 'ge', value scale", () => {
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "3");
+      setCellContent(model, "A3", "5");
+      setCellContent(model, "A4", "7");
+      setCellContent(model, "A5", "10");
+
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          id: "1",
+          rule: {
+            type: "IconSetRule",
+            lowerInflectionPoint: { type: "number", value: "3", operator: "ge" },
+            upperInflectionPoint: { type: "number", value: "7", operator: "ge" },
+            icons: {
+              upper: "arrowGood",
+              middle: "arrowNeutral",
+              lower: "arrowBad",
+            },
+          },
+        },
+        target: [toZone("A1:A5")],
+        sheetId: model.getters.getActiveSheetId(),
+      });
+
+      expect(model.getters.getConditionalIcon(...toCartesian("A1"))).toEqual("arrowBad");
+      expect(model.getters.getConditionalIcon(...toCartesian("A2"))).toEqual("arrowNeutral");
+      expect(model.getters.getConditionalIcon(...toCartesian("A3"))).toEqual("arrowNeutral");
+      expect(model.getters.getConditionalIcon(...toCartesian("A4"))).toEqual("arrowGood");
+      expect(model.getters.getConditionalIcon(...toCartesian("A5"))).toEqual("arrowGood");
+    });
+
+    test("same upper and lower inflationpoint", () => {
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "3");
+      setCellContent(model, "A3", "5");
+      setCellContent(model, "A4", "7");
+      setCellContent(model, "A5", "10");
+
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          id: "1",
+          rule: {
+            type: "IconSetRule",
+            lowerInflectionPoint: { type: "number", value: "7", operator: "gt" },
+            upperInflectionPoint: { type: "number", value: "7", operator: "gt" },
+            icons: {
+              upper: "arrowGood",
+              middle: "arrowNeutral",
+              lower: "arrowBad",
+            },
+          },
+        },
+        target: [toZone("A1:A5")],
+        sheetId: model.getters.getActiveSheetId(),
+      });
+
+      expect(model.getters.getConditionalIcon(...toCartesian("A1"))).toEqual("arrowBad");
+      expect(model.getters.getConditionalIcon(...toCartesian("A2"))).toEqual("arrowBad");
+      expect(model.getters.getConditionalIcon(...toCartesian("A3"))).toEqual("arrowBad");
+      expect(model.getters.getConditionalIcon(...toCartesian("A4"))).toEqual("arrowBad");
+      expect(model.getters.getConditionalIcon(...toCartesian("A5"))).toEqual("arrowGood");
+    });
+  });
   describe("color scale", () => {
     describe.each(["", "aaaa", "=SUM(1, 2)"])(
       "dispatch is not allowed if value is not a number",
@@ -1316,5 +1514,4 @@ describe("conditional formats types", () => {
       expect(model.getters.getConditionalFormats(sheetId)[0].ranges[0]).toBe("A1:A10");
     });
   });
-  describe("icon scale", () => {});
 });

@@ -12,6 +12,8 @@ import {
   ConditionalFormatInternal,
   ConditionalFormattingOperatorValues,
   CoreCommand,
+  IconSetRule,
+  IconThreshold,
   SingleColorRules,
   UID,
   Validation,
@@ -28,6 +30,8 @@ type ThresholdValidation = (
   threshold: ColorScaleThreshold | ColorScaleMidPointThreshold,
   thresholdName: string
 ) => CommandResult;
+
+type InflectionPointValidation = (threshold: IconThreshold, thresholdName: string) => CommandResult;
 
 interface ConditionalFormatState {
   readonly cfRules: { [sheet: string]: ConditionalFormatInternal[] };
@@ -238,12 +242,13 @@ export class ConditionalFormatPlugin
     this.history.update("cfRules", sheet, currentCF);
   }
 
-  private checkCFRule(rule: ColorScaleRule | SingleColorRules): CommandResult {
+  private checkCFRule(rule: ColorScaleRule | SingleColorRules | IconSetRule): CommandResult {
     switch (rule.type) {
       case "CellIsRule":
         return this.checkValidations(
           rule,
           this.checkOperatorArgsNumber(2, ["Between", "NotBetween"]),
+          this.checkOperatorArgsNumberEqual(["Equal", "NotEqual"]),
           this.checkOperatorArgsNumber(1, [
             "BeginsWith",
             "ContainsText",
@@ -268,8 +273,30 @@ export class ConditionalFormatPlugin
           // ☝️ Those three validations can be factorized further
         );
       }
+      case "IconSetRule": {
+        return this.checkValidations(
+          rule,
+          this.checkInflationPoints(this.checkNaN),
+          this.checkInflationPoints(this.checkFormulaCompilation),
+          this.checkInflationPoints(this.checkAsyncFormula),
+          this.checkLowerBiggerThanUpper
+        );
+      }
     }
     return CommandResult.Success;
+  }
+
+  private checkOperatorArgsNumberEqual(operators: ConditionalFormattingOperatorValues[]) {
+    return (rule: CellIsRule) => {
+      const isEmpty = (value) => value === "" || value === undefined;
+      if (
+        operators.includes(rule.operator) &&
+        (!isEmpty(rule.values[1]) || rule.values.length > 2)
+      ) {
+        return CommandResult.InvalidNumberOfArgs;
+      }
+      return CommandResult.Success;
+    };
   }
 
   private checkOperatorArgsNumber(
@@ -289,7 +316,7 @@ export class ConditionalFormatPlugin
   }
 
   private checkNaN(
-    threshold: ColorScaleThreshold | ColorScaleMidPointThreshold,
+    threshold: ColorScaleThreshold | ColorScaleMidPointThreshold | IconThreshold,
     thresholdName: string
   ) {
     if (
@@ -303,13 +330,17 @@ export class ConditionalFormatPlugin
           return CommandResult.MaxNaN;
         case "mid":
           return CommandResult.MidNaN;
+        case "upperInflectionPoint":
+          return CommandResult.ValueUpperInflectionNaN;
+        case "lowerInflectionPoint":
+          return CommandResult.ValueLowerInflectionNaN;
       }
     }
     return CommandResult.Success;
   }
 
   private checkFormulaCompilation(
-    threshold: ColorScaleThreshold | ColorScaleMidPointThreshold,
+    threshold: ColorScaleThreshold | ColorScaleMidPointThreshold | IconThreshold,
     thresholdName: string
   ) {
     if (threshold.type !== "formula") return CommandResult.Success;
@@ -323,13 +354,17 @@ export class ConditionalFormatPlugin
           return CommandResult.MaxInvalidFormula;
         case "mid":
           return CommandResult.MidInvalidFormula;
+        case "upperInflectionPoint":
+          return CommandResult.ValueUpperInvalidFormula;
+        case "lowerInflectionPoint":
+          return CommandResult.ValueLowerInvalidFormula;
       }
     }
     return CommandResult.Success;
   }
 
   private checkAsyncFormula(
-    threshold: ColorScaleThreshold | ColorScaleMidPointThreshold,
+    threshold: ColorScaleThreshold | ColorScaleMidPointThreshold | IconThreshold,
     thresholdName: string
   ): CommandResult {
     if (threshold.type !== "formula") return CommandResult.Success;
@@ -342,6 +377,10 @@ export class ConditionalFormatPlugin
           return CommandResult.MaxAsyncFormulaNotSupported;
         case "mid":
           return CommandResult.MidAsyncFormulaNotSupported;
+        case "upperInflectionPoint":
+          return CommandResult.ValueUpperAsyncFormulaNotSupported;
+        case "lowerInflectionPoint":
+          return CommandResult.ValueLowerAsyncFormulaNotSupported;
       }
     }
     return CommandResult.Success;
@@ -355,6 +394,25 @@ export class ConditionalFormatPlugin
     );
   }
 
+  private checkInflationPoints(check: InflectionPointValidation): Validation<IconSetRule> {
+    return this.combineValidations(
+      (rule) => check(rule.lowerInflectionPoint, "lowerInflectionPoint"),
+      (rule) => check(rule.upperInflectionPoint, "upperInflectionPoint")
+    );
+  }
+
+  private checkLowerBiggerThanUpper(rule: IconSetRule): CommandResult {
+    const minValue = rule.lowerInflectionPoint.value;
+    const maxValue = rule.upperInflectionPoint.value;
+    if (
+      ["number", "percentage", "percentile"].includes(rule.lowerInflectionPoint.type) &&
+      rule.lowerInflectionPoint.type === rule.upperInflectionPoint.type &&
+      Number(minValue) > Number(maxValue)
+    ) {
+      return CommandResult.LowerBiggerThanUpper;
+    }
+    return CommandResult.Success;
+  }
   private checkMinBiggerThanMax(rule: ColorScaleRule): CommandResult {
     const minValue = rule.minimum.value;
     const maxValue = rule.maximum.value;

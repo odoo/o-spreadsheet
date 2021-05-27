@@ -39,7 +39,7 @@ describe("UI of conditional formats", () => {
   const selectors = {
     listPreview: ".o-cf .o-cf-preview",
     ruleEditor: {
-      range: ".o-cf .o-cf-ruleEditor .o-cf-range input",
+      range: ".o-cf .o-cf-ruleEditor .o-cf-range .o-range input",
       editor: {
         operatorInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-operator",
         valueInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-value",
@@ -47,8 +47,15 @@ describe("UI of conditional formats", () => {
         italic: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools div.o-tool[title='Italic']",
         strikethrough:
           ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools div.o-tool[title='Strikethrough']",
-        colorDropdown:
-          ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools .o-tool.o-dropdown.o-with-color span",
+        colorDropdown: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools .o-with-color span",
+        iconSetRule: {
+          container: ".o-cf .o-cf-iconset-rule",
+          iconsets: ".o-cf .o-cf-iconset-rule .o-cf-iconsets .o-cf-iconset",
+          inflextion: ".o-cf .o-cf-iconset-rule .o-inflection",
+          icons: ".o-cf .o-cf-iconset-rule .o-inflection .o-cf-icon",
+          reverse: ".o-cf .o-cf-iconset-rule .o-cf-iconset-reverse",
+          rows: ".o-cf .o-cf-iconset-rule .o-inflection tr",
+        },
       },
     },
     previewImage: ".o-cf-preview-image",
@@ -75,12 +82,12 @@ describe("UI of conditional formats", () => {
       colorPickerBlue: ".o-color-picker div[data-color='#0000ff']",
       colorPickerOrange: ".o-color-picker div[data-color='#ff9900']",
       colorPickerYellow: ".o-color-picker div[data-color='#ffff00']",
-      error: ".o-cf-error",
     },
-    cfTabSelector: ".o-cf-type-selector .o-cf-type-tab",
+    cfTabSelector: ".o-cf-type-selector .o_form_label",
     buttonSave: ".o-sidePanelButtons .o-cf-save",
     buttonDelete: ".o-cf-delete-button",
     buttonAdd: ".o-cf-add",
+    error: ".o-cf-error",
     closePanel: ".o-sidePanelClose",
   };
 
@@ -223,10 +230,16 @@ describe("UI of conditional formats", () => {
     test("toggle color-picker", async () => {
       triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[0], "click");
       await nextTick();
-      triggerMouseEvent(selectors.ruleEditor.editor.colorDropdown, "click");
+      triggerMouseEvent(
+        document.querySelectorAll(selectors.ruleEditor.editor.colorDropdown)[0],
+        "click"
+      );
       await nextTick();
       expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
-      triggerMouseEvent(selectors.ruleEditor.editor.colorDropdown, "click");
+      triggerMouseEvent(
+        document.querySelectorAll(selectors.ruleEditor.editor.colorDropdown)[0],
+        "click"
+      );
       await nextTick();
       expect(fixture.querySelector(".o-color-picker")).toBeFalsy();
     });
@@ -268,7 +281,7 @@ describe("UI of conditional formats", () => {
           rule: {
             operator: "BeginsWith",
             stopIfTrue: false,
-            style: { bold: true, fillColor: "#FF0000", italic: true, strikethrough: true },
+            style: { bold: true, fillColor: "#b6d7a8", italic: true, strikethrough: true },
             type: "CellIsRule",
             values: ["3", ""],
           },
@@ -301,16 +314,13 @@ describe("UI of conditional formats", () => {
   });
   test("can create a new ColorScaleRule with cell values", async () => {
     mockUuidV4To("43");
-
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();
-
     triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
     await nextTick();
 
     // change every value
     setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
-
     triggerMouseEvent(selectors.colorScaleEditor.minColor, "click");
     await nextTick();
     triggerMouseEvent(selectors.colorScaleEditor.colorPickerBlue, "click");
@@ -619,14 +629,14 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "10", "input");
 
-    let error = document.querySelector(selectors.colorScaleEditor.error);
+    let error = document.querySelector(selectors.error);
     expect(error).toBe(null);
 
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-    error = document.querySelector(selectors.colorScaleEditor.error);
+    error = document.querySelector(selectors.error);
     expect(error!.textContent).toBe("Minimum must be smaller then Maximum");
   });
 
@@ -654,7 +664,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "10", "input");
 
-    let error = document.querySelector(selectors.colorScaleEditor.error);
+    let error = document.querySelector(selectors.error);
     expect(error).toBe(null);
 
     //  click save
@@ -662,7 +672,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
 
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-    error = document.querySelector(selectors.colorScaleEditor.error);
+    error = document.querySelector(selectors.error);
     expect(error!.textContent).toBe("Minimum must be smaller then Maximum");
   });
 
@@ -687,7 +697,7 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25", "input");
     await nextTick();
 
-    let error = document.querySelector(selectors.colorScaleEditor.error);
+    let error = document.querySelector(selectors.error);
     expect(error).toBe(null);
 
     //  click save
@@ -695,7 +705,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
 
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-    error = document.querySelector(selectors.colorScaleEditor.error);
+    error = document.querySelector(selectors.error);
     expect(error!.textContent).toBe("Midpoint must be smaller then Maximum");
   });
 
@@ -720,7 +730,7 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "=WAIT(1000)", "input");
     await nextTick();
 
-    let error = document.querySelector(selectors.colorScaleEditor.error);
+    let error = document.querySelector(selectors.error);
     expect(error).toBe(null);
 
     //  click save
@@ -728,7 +738,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
 
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-    error = document.querySelector(selectors.colorScaleEditor.error);
+    error = document.querySelector(selectors.error);
     expect(error!.textContent).toBe("Some formulas are not supported for the Maxpoint");
   });
 
@@ -754,13 +764,13 @@ describe("UI of conditional formats", () => {
       setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25", "input");
       await nextTick();
 
-      let error = document.querySelector(selectors.colorScaleEditor.error);
+      let error = document.querySelector(selectors.error);
       expect(error).toBe(null);
 
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
       expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-      error = document.querySelector(selectors.colorScaleEditor.error);
+      error = document.querySelector(selectors.error);
       expect(error!.textContent).toBe("The minpoint must be a number");
     }
   );
@@ -788,13 +798,13 @@ describe("UI of conditional formats", () => {
       setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25", "input");
       await nextTick();
 
-      let error = document.querySelector(selectors.colorScaleEditor.error);
+      let error = document.querySelector(selectors.error);
       expect(error).toBe(null);
 
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
       expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-      error = document.querySelector(selectors.colorScaleEditor.error);
+      error = document.querySelector(selectors.error);
       expect(error!.textContent).toBe("The midpoint must be a number");
     }
   );
@@ -821,13 +831,13 @@ describe("UI of conditional formats", () => {
       setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, invalidValue, "input");
       await nextTick();
 
-      let error = document.querySelector(selectors.colorScaleEditor.error);
+      let error = document.querySelector(selectors.error);
       expect(error).toBe(null);
 
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
       expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-      error = document.querySelector(selectors.colorScaleEditor.error);
+      error = document.querySelector(selectors.error);
       expect(error!.textContent).toBe("The maxpoint must be a number");
     }
   );
@@ -852,13 +862,13 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "=SUM(1,2)", "input");
     await nextTick();
 
-    let error = document.querySelector(selectors.colorScaleEditor.error);
+    let error = document.querySelector(selectors.error);
     expect(error).toBe(null);
 
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-    error = document.querySelector(selectors.colorScaleEditor.error);
+    error = document.querySelector(selectors.error);
     expect(error!.textContent).toBe("Invalid Minpoint formula");
   });
 
@@ -883,13 +893,13 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "3", "input");
     await nextTick();
 
-    let error = document.querySelector(selectors.colorScaleEditor.error);
+    let error = document.querySelector(selectors.error);
     expect(error).toBe(null);
 
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-    error = document.querySelector(selectors.colorScaleEditor.error);
+    error = document.querySelector(selectors.error);
     expect(error!.textContent).toBe("Invalid Midpoint formula");
   });
 
@@ -913,13 +923,267 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "=SUM(1,2)", "input");
     await nextTick();
 
-    let error = document.querySelector(selectors.colorScaleEditor.error);
+    let error = document.querySelector(selectors.error);
     expect(error).toBe(null);
 
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-    error = document.querySelector(selectors.colorScaleEditor.error);
+    error = document.querySelector(selectors.error);
     expect(error!.textContent).toBe("Invalid Maxpoint formula");
   });
+
+  describe("Icon set CF", () => {
+    test("can select the Icon set tab", async () => {
+      triggerMouseEvent(selectors.buttonAdd, "click");
+      await nextTick();
+
+      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
+      await nextTick();
+      expect(
+        document.querySelector(selectors.ruleEditor.editor.iconSetRule.container)
+      ).toBeDefined();
+    });
+
+    test("can apply different iconSet", async () => {
+      triggerMouseEvent(selectors.buttonAdd, "click");
+      await nextTick();
+
+      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
+      await nextTick();
+      const icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
+      expect(icons[0].classList.value).toBe("o-cf-icon arrow-up");
+      expect(icons[1].classList.value).toBe("o-cf-icon arrow-right");
+      expect(icons[2].classList.value).toBe("o-cf-icon arrow-down");
+
+      triggerMouseEvent(
+        document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.iconsets)[1],
+        "click"
+      );
+      await nextTick();
+      expect(icons[0].classList.value).toBe("o-cf-icon smile");
+      expect(icons[1].classList.value).toBe("o-cf-icon meh");
+      expect(icons[2].classList.value).toBe("o-cf-icon frown");
+
+      triggerMouseEvent(
+        document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.iconsets)[2],
+        "click"
+      );
+      await nextTick();
+      expect(icons[0].classList.value).toBe("o-cf-icon green-dot");
+      expect(icons[1].classList.value).toBe("o-cf-icon yellow-dot");
+      expect(icons[2].classList.value).toBe("o-cf-icon red-dot");
+    });
+
+    test("inverse checkbox will inverse icons", async () => {
+      triggerMouseEvent(selectors.buttonAdd, "click");
+      await nextTick();
+
+      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
+      await nextTick();
+
+      const icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
+      expect(icons[0].classList.value).toBe("o-cf-icon arrow-up");
+      expect(icons[1].classList.value).toBe("o-cf-icon arrow-right");
+      expect(icons[2].classList.value).toBe("o-cf-icon arrow-down");
+
+      triggerMouseEvent(selectors.ruleEditor.editor.iconSetRule.reverse, "click");
+      await nextTick();
+      expect(icons[2].classList.value).toBe("o-cf-icon arrow-up");
+      expect(icons[1].classList.value).toBe("o-cf-icon arrow-right");
+      expect(icons[0].classList.value).toBe("o-cf-icon arrow-down");
+    });
+
+    test("can create a new IconsetRule", async () => {
+      mockUuidV4To("44");
+
+      triggerMouseEvent(selectors.buttonAdd, "click");
+      await nextTick();
+
+      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
+      await nextTick();
+
+      // change every value
+      setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+      //  click save
+      triggerMouseEvent(selectors.buttonSave, "click");
+      await nextTick();
+
+      expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          id: "58",
+          rule: {
+            type: "IconSetRule",
+            icons: {
+              lower: "arrowBad",
+              middle: "arrowNeutral",
+              upper: "arrowGood",
+            },
+            lowerInflectionPoint: {
+              operator: "gt",
+              type: "percentage",
+              value: "33",
+            },
+            upperInflectionPoint: {
+              operator: "gt",
+              type: "percentage",
+              value: "66",
+            },
+          },
+        },
+        target: [toZone("B2:B5")],
+        sheetId: model.getters.getActiveSheetId(),
+      });
+    });
+
+    test("can change inputs", async () => {
+      mockUuidV4To("44");
+      triggerMouseEvent(selectors.buttonAdd, "click");
+      await nextTick();
+
+      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
+      await nextTick();
+      const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
+      const typeinflectionLower = rows[1].querySelectorAll("select")[1];
+      const operatorinflectionLower = rows[1].querySelectorAll("select")[0];
+      const inputinflectionLower = rows[1].querySelectorAll("input")[0];
+      const typeinflectionUpper = rows[2].querySelectorAll("select")[1];
+      const operatorinflectionUpper = rows[2].querySelectorAll("select")[0];
+      const inputinflectionUpper = rows[2].querySelectorAll("input")[0];
+
+      setInputValueAndTrigger(typeinflectionLower, "number", "change");
+      await nextTick();
+      setInputValueAndTrigger(operatorinflectionLower, "ge", "change");
+      await nextTick();
+      setInputValueAndTrigger(inputinflectionLower, "10", "input");
+      await nextTick();
+
+      setInputValueAndTrigger(typeinflectionUpper, "number", "change");
+      await nextTick();
+      setInputValueAndTrigger(operatorinflectionUpper, "ge", "change");
+      await nextTick();
+      setInputValueAndTrigger(inputinflectionUpper, "0", "input");
+      await nextTick();
+
+      parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+      //  click save
+      triggerMouseEvent(selectors.buttonSave, "click");
+      await nextTick();
+
+      expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          id: "56",
+          rule: {
+            type: "IconSetRule",
+            icons: {
+              lower: "arrowBad",
+              middle: "arrowNeutral",
+              upper: "arrowGood",
+            },
+            lowerInflectionPoint: {
+              operator: "ge",
+              type: "number",
+              value: "0",
+            },
+            upperInflectionPoint: {
+              operator: "ge",
+              type: "number",
+              value: "10",
+            },
+          },
+        },
+        target: [toZone("A1")],
+        sheetId: model.getters.getActiveSheetId(),
+      });
+    });
+  });
+
+  test("can change one icon", async () => {
+    mockUuidV4To("44");
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
+    await nextTick();
+
+    const middleRow = document.querySelectorAll(".o-inflection tr")[2];
+    const middleIcon = middleRow.querySelectorAll("div")[0];
+    triggerMouseEvent(middleIcon, "click");
+    await nextTick();
+
+    const newIcon = document.querySelectorAll(".o-icon-picker-item")[7];
+    triggerMouseEvent(newIcon, "click");
+    await nextTick();
+
+    parent.env.dispatch = jest.fn((command) => CommandResult.Success as CommandResult);
+    //  click save
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "56",
+        rule: {
+          type: "IconSetRule",
+          icons: {
+            lower: "arrowBad",
+            middle: "dotNeutral",
+            upper: "arrowGood",
+          },
+          lowerInflectionPoint: {
+            operator: "gt",
+            type: "percentage",
+            value: "33",
+          },
+          upperInflectionPoint: {
+            operator: "gt",
+            type: "percentage",
+            value: "66",
+          },
+        },
+      },
+      target: [toZone("A1")],
+      sheetId: model.getters.getActiveSheetId(),
+    });
+  });
+
+  describe.each([
+    [CommandResult.ValueUpperInflectionNaN, "The first value must be a number"],
+    [CommandResult.ValueLowerInflectionNaN, "The second value must be a number"],
+    [
+      CommandResult.ValueUpperAsyncFormulaNotSupported,
+      "Some formulas are not supported for the upper inflection point",
+    ],
+    [
+      CommandResult.ValueLowerAsyncFormulaNotSupported,
+      "Some formulas are not supported for the lower inflection point",
+    ],
+    [CommandResult.ValueUpperInvalidFormula, "Invalid upper inflation point formula"],
+    [CommandResult.ValueLowerInvalidFormula, "Invalid lower inflation point formula"],
+    [
+      CommandResult.LowerBiggerThanUpper,
+      "Lower inflation point must be smaller then upper inflation point",
+    ],
+  ])(
+    "Show right error message (Command result: %s , Message: %s)",
+    (error: CommandResult, errorMessage: string) => {
+      test("Error message shown on wrong input", async () => {
+        mockUuidV4To("44");
+        triggerMouseEvent(selectors.buttonAdd, "click");
+        await nextTick();
+
+        triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
+        await nextTick();
+
+        parent.env.dispatch = jest.fn((command) => error as CommandResult);
+        //  click save
+        triggerMouseEvent(selectors.buttonSave, "click");
+        await nextTick();
+        const errorString = document.querySelector(selectors.error);
+        expect(errorString!.textContent).toBe(errorMessage);
+      });
+    }
+  );
 });

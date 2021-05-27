@@ -2,7 +2,12 @@
 // Miscellaneous
 //------------------------------------------------------------------------------
 
-import { DEFAULT_FONT, DEFAULT_FONT_SIZE, DEFAULT_FONT_WEIGHT } from "../constants";
+import {
+  DEFAULT_FONT,
+  DEFAULT_FONT_SIZE,
+  DEFAULT_FONT_WEIGHT,
+  MIN_CF_ICON_MARGIN,
+} from "../constants";
 import { fontSizeMap } from "../fonts";
 import { ConsecutiveIndexes, Style } from "../types";
 /**
@@ -46,6 +51,12 @@ export function computeTextWidth(context: CanvasRenderingContext2D, text: string
   const size = fontSizeMap[sizeInPt];
   context.font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
   return context.measureText(text).width;
+}
+
+export function computeIconWidth(context: CanvasRenderingContext2D, style: Style) {
+  const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
+  const size = fontSizeMap[sizeInPt];
+  return size + 2 * MIN_CF_ICON_MARGIN;
 }
 
 /**

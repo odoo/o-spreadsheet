@@ -119,6 +119,7 @@ export type Getters = CoreGetters & {
   isFullySynchronized: Session["isFullySynchronized"];
 
   getCellWidth: SheetUIPlugin["getCellWidth"];
+  getTextWidth: SheetUIPlugin["getTextWidth"];
   getCellHeight: SheetUIPlugin["getCellHeight"];
 
   getRangeFormattedValues: EvaluationPlugin["getRangeFormattedValues"];
@@ -130,6 +131,7 @@ export type Getters = CoreGetters & {
   getChartRuntime: EvaluationChartPlugin["getChartRuntime"];
 
   getConditionalStyle: EvaluationConditionalFormatPlugin["getConditionalStyle"];
+  getConditionalIcon: EvaluationConditionalFormatPlugin["getConditionalIcon"];
 
   getHighlights: HighlightPlugin["getHighlights"];
 

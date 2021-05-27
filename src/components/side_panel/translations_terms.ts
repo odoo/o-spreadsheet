@@ -18,12 +18,19 @@ export const conditionalFormatingTerms = {
     [CommandResult.MinNaN]: _lt("The minpoint must be a number"),
     [CommandResult.MidNaN]: _lt("The midpoint must be a number"),
     [CommandResult.MaxNaN]: _lt("The maxpoint must be a number"),
+    [CommandResult.ValueUpperInflectionNaN]: _lt("The first value must be a number"),
+    [CommandResult.ValueLowerInflectionNaN]: _lt("The second value must be a number"),
     [CommandResult.MinBiggerThanMax]: _lt("Minimum must be smaller then Maximum"),
     [CommandResult.MinBiggerThanMid]: _lt("Minimum must be smaller then Midpoint"),
     [CommandResult.MidBiggerThanMax]: _lt("Midpoint must be smaller then Maximum"),
+    [CommandResult.LowerBiggerThanUpper]: _lt(
+      "Lower inflation point must be smaller then upper inflation point"
+    ),
     [CommandResult.MinInvalidFormula]: _lt("Invalid Minpoint formula"),
     [CommandResult.MaxInvalidFormula]: _lt("Invalid Maxpoint formula"),
     [CommandResult.MidInvalidFormula]: _lt("Invalid Midpoint formula"),
+    [CommandResult.ValueUpperInvalidFormula]: _lt("Invalid upper inflation point formula"),
+    [CommandResult.ValueLowerInvalidFormula]: _lt("Invalid lower inflation point formula"),
     [CommandResult.MinAsyncFormulaNotSupported]: _lt(
       "Some formulas are not supported for the Minpoint"
     ),
@@ -33,21 +40,39 @@ export const conditionalFormatingTerms = {
     [CommandResult.MidAsyncFormulaNotSupported]: _lt(
       "Some formulas are not supported for the Midpoint"
     ),
+    [CommandResult.ValueUpperAsyncFormulaNotSupported]: _lt(
+      "Some formulas are not supported for the upper inflection point"
+    ),
+    [CommandResult.ValueLowerAsyncFormulaNotSupported]: _lt(
+      "Some formulas are not supported for the lower inflection point"
+    ),
     unexpected: _lt("The rule is invalid for an unknown reason"),
   },
-};
-export const colorScale = {
-  CellValues: _lt("Cell values"),
-  FixedNumber: _lt("Fixed number"),
+  SingleColor: _lt("Single color"),
+  ColorScale: _lt("Color scale"),
+  IconSet: _lt("Icon set"),
+  newRule: _lt("Add another rule"),
+  FixedNumber: _lt("Number"),
   Percentage: _lt("Percentage"),
   Percentile: _lt("Percentile"),
   Formula: _lt("Formula"),
-  FormatRules: _lt("Format rules"),
+};
+export const colorScale = {
+  CellValues: _lt("Cell values"),
   None: _lt("None"),
   Preview: _lt("Preview"),
   Minpoint: _lt("Minpoint"),
-  MaxPoint: _lt("MaxPoint"),
-  MidPoint: _lt("MidPoint"),
+  MaxPoint: _lt("Maxpoint"),
+  MidPoint: _lt("Midpoint"),
+};
+
+export const iconSetRule = {
+  WhenValueIs: _lt("When value is"),
+  Else: _lt("Else"),
+  ReverseIcons: _lt("Reverse icons"),
+  Icons: _lt("Icons"),
+  Type: _lt("Type"),
+  Value: _lt("Value"),
 };
 
 export const cellIsOperators = {
@@ -99,4 +124,8 @@ export const FindAndReplaceTerms = {
   SearchFormulas: _lt("Search in formulas"),
   ReplaceAll: _lt("Replace all"),
   ReplaceFormulas: _lt("Also modify formulas"),
+};
+
+export const GenericWords = {
+  And: _lt("and"),
 };

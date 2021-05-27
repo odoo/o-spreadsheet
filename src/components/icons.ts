@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// Icons
+
 // -----------------------------------------------------------------------------
 export const UNDO_ICON = `<svg class="o-icon"><path fill="#000000" d="M11.5656391,4.43436088 L9,7 L16,7 L16,0 L13.0418424,2.95815758 C11.5936787,1.73635959 9.72260775,1 7.67955083,1 C4.22126258,1 1.25575599,3.10984908 0,6 L2,7 C2.93658775,4.60974406 5.12943697,3.08011229 7.67955083,3 C9.14881247,3.0528747 10.4994783,3.57862053 11.5656391,4.43436088 Z" transform="matrix(-1 0 0 1 17 5)"/></svg>`;
 export const REDO_ICON = `<svg class="o-icon"><path fill="#000000" d="M11.5656391,4.43436088 L9,7 L16,7 L16,0 L13.0418424,2.95815758 C11.5936787,1.73635959 9.72260775,1 7.67955083,1 C4.22126258,1 1.25575599,3.10984908 0,6 L2,7 C2.93658775,4.60974406 5.12943697,3.08011229 7.67955083,3 C9.14881247,3.0528747 10.4994783,3.57862053 11.5656391,4.43436088 Z" transform="translate(1 5)"/></svg>`;
@@ -36,3 +36,101 @@ export const BORDER_CLEAR = `<svg class="o-icon"><path fill="#000000" fill-rule=
 
 export const PLUS = `<svg class="o-icon"><path fill="#000000" d="M8,0 L10,0 L10,8 L18,8 L18,10 L10,10 L10,18 L8,18 L8,10 L0,10 L0,8 L8,8"/></svg>`;
 export const LIST = `<svg class="o-icon" viewBox="0 0 384 384"><rect x="0" y="277.333" width="384" height="42.667"/><rect x="0" y="170.667" width="384" height="42.667"/><rect x="0" y="64" width="384" height="42.667"/></svg>`;
+
+/** Font Awesome by Dave Gandy
+ *  http://fontawesome.io/
+ *  https://fontawesome.com/license
+ */
+
+export const TRASH =
+  '<svg xmlns ="http://www.w3.org/2000/svg" class="o-cf-icon trash" viewBox = "0 0 448 512" > <path fill="currentColor" d = "M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z" > </path></svg >';
+export const REFRESH =
+  '<svg xmlns="http://www.w3.org/2000/svg" class="o-cf-icon refresh" viewBox="0 0 512 512"><path fill="currentColor" d="M440.65 12.57l4 82.77A247.16 247.16 0 0 0 255.83 8C134.73 8 33.91 94.92 12.29 209.82A12 12 0 0 0 24.09 224h49.05a12 12 0 0 0 11.67-9.26 175.91 175.91 0 0 1 317-56.94l-101.46-4.86a12 12 0 0 0-12.57 12v47.41a12 12 0 0 0 12 12H500a12 12 0 0 0 12-12V12a12 12 0 0 0-12-12h-47.37a12 12 0 0 0-11.98 12.57zM255.83 432a175.61 175.61 0 0 1-146-77.8l101.8 4.87a12 12 0 0 0 12.57-12v-47.4a12 12 0 0 0-12-12H12a12 12 0 0 0-12 12V500a12 12 0 0 0 12 12h47.35a12 12 0 0 0 12-12.6l-4.15-82.57A247.17 247.17 0 0 0 255.83 504c121.11 0 221.93-86.92 243.55-201.82a12 12 0 0 0-11.8-14.18h-49.05a12 12 0 0 0-11.67 9.26A175.86 175.86 0 0 1 255.83 432z"></path></svg>';
+
+export const ARROW_DOWN =
+  '<svg xmlns="http://www.w3.org/2000/svg" class="o-cf-icon arrow-down" focusable="false" viewBox="0 0 448 512"><path fill="#DC6965" d="M413.1 222.5l22.2 22.2c9.4 9.4 9.4 24.6 0 33.9L241 473c-9.4 9.4-24.6 9.4-33.9 0L12.7 278.6c-9.4-9.4-9.4-24.6 0-33.9l22.2-22.2c9.5-9.5 25-9.3 34.3.4L184 343.4V56c0-13.3 10.7-24 24-24h32c13.3 0 24 10.7 24 24v287.4l114.8-120.5c9.3-9.8 24.8-10 34.3-.4z"></path></svg>';
+export const ARROW_UP =
+  '<svg xmlns="http://www.w3.org/2000/svg" class="o-cf-icon arrow-up" focusable="false" viewBox="0 0 448 512"><path fill="#00A04A" d="M34.9 289.5l-22.2-22.2c-9.4-9.4-9.4-24.6 0-33.9L207 39c9.4-9.4 24.6-9.4 33.9 0l194.3 194.3c9.4 9.4 9.4 24.6 0 33.9L413 289.4c-9.5 9.5-25 9.3-34.3-.4L264 168.6V456c0 13.3-10.7 24-24 24h-32c-13.3 0-24-10.7-24-24V168.6L69.2 289.1c-9.3 9.8-24.8 10-34.3.4z"></path></svg>';
+export const ARROW_RIGHT =
+  '<svg xmlns="http://www.w3.org/2000/svg" class="o-cf-icon arrow-right" focusable="false" viewBox="0 0 448 512"><path fill="#F0AD4E" d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"></path></svg>';
+
+export const SMILE =
+  '<svg xmlns="http://www.w3.org/2000/svg" class="o-cf-icon smile" focusable="false" viewBox="0 0 496 512"><path fill="#00A04A" d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 448c-110.3 0-200-89.7-200-200S137.7 56 248 56s200 89.7 200 200-89.7 200-200 200zm-80-216c17.7 0 32-14.3 32-32s-14.3-32-32-32-32 14.3-32 32 14.3 32 32 32zm160 0c17.7 0 32-14.3 32-32s-14.3-32-32-32-32 14.3-32 32 14.3 32 32 32zm4 72.6c-20.8 25-51.5 39.4-84 39.4s-63.2-14.3-84-39.4c-8.5-10.2-23.7-11.5-33.8-3.1-10.2 8.5-11.5 23.6-3.1 33.8 30 36 74.1 56.6 120.9 56.6s90.9-20.6 120.9-56.6c8.5-10.2 7.1-25.3-3.1-33.8-10.1-8.4-25.3-7.1-33.8 3.1z"></path></svg>';
+export const MEH =
+  '<svg xmlns="http://www.w3.org/2000/svg" class="o-cf-icon meh" focusable="false" viewBox="0 0 496 512"><path fill="#F0AD4E" d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 448c-110.3 0-200-89.7-200-200S137.7 56 248 56s200 89.7 200 200-89.7 200-200 200zm-80-216c17.7 0 32-14.3 32-32s-14.3-32-32-32-32 14.3-32 32 14.3 32 32 32zm160-64c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm8 144H160c-13.2 0-24 10.8-24 24s10.8 24 24 24h176c13.2 0 24-10.8 24-24s-10.8-24-24-24z"></path></svg>';
+export const FROWN =
+  '<svg xmlns="http://www.w3.org/2000/svg" class="o-cf-icon frown" focusable="false" viewBox="0 0 496 512"><path fill="#DC6965" d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 448c-110.3 0-200-89.7-200-200S137.7 56 248 56s200 89.7 200 200-89.7 200-200 200zm-80-216c17.7 0 32-14.3 32-32s-14.3-32-32-32-32 14.3-32 32 14.3 32 32 32zm160-64c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm-80 128c-40.2 0-78 17.7-103.8 48.6-8.5 10.2-7.1 25.3 3.1 33.8 10.2 8.4 25.3 7.1 33.8-3.1 16.6-19.9 41-31.4 66.9-31.4s50.3 11.4 66.9 31.4c8.1 9.7 23.1 11.9 33.8 3.1 10.2-8.5 11.5-23.6 3.1-33.8C326 321.7 288.2 304 248 304z"></path></svg>';
+
+export const GREEN_DOT =
+  '<svg xmlns="http://www.w3.org/2000/svg" class="o-cf-icon green-dot" focusable="false" viewBox="0 0 512 512"><path fill="#00A04A" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z"></path></svg>';
+export const YELLOW_DOT =
+  '<svg xmlns="http://www.w3.org/2000/svg" class="o-cf-icon yellow-dot" focusable="false" viewBox="0 0 512 512"><path fill="#F0AD4E" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z"></path></svg>';
+export const RED_DOT =
+  '<svg xmlns="http://www.w3.org/2000/svg" class="o-cf-icon red-dot" focusable="false" viewBox="0 0 512 512"><path fill="#DC6965" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z"></path></svg>';
+
+export const ARROW_ICONS = { good: ARROW_UP, neutral: ARROW_RIGHT, bad: ARROW_DOWN };
+export const SMILEY_ICONS = { good: SMILE, neutral: MEH, bad: FROWN };
+export const DOTS_ICONS = { good: GREEN_DOT, neutral: YELLOW_DOT, bad: RED_DOT };
+
+function loadIconImage(svg) {
+  const image = new Image();
+  image.src = "data:image/svg+xml; charset=utf8, " + encodeURIComponent(svg);
+  return image;
+}
+
+export const ICONS = {
+  arrowGood: {
+    img: loadIconImage(ARROW_UP),
+    svg: ARROW_UP,
+  },
+  arrowNeutral: {
+    img: loadIconImage(ARROW_RIGHT),
+    svg: ARROW_RIGHT,
+  },
+  arrowBad: {
+    img: loadIconImage(ARROW_DOWN),
+    svg: ARROW_DOWN,
+  },
+  smileyGood: {
+    img: loadIconImage(SMILE),
+    svg: SMILE,
+  },
+  smileyNeutral: {
+    img: loadIconImage(MEH),
+    svg: MEH,
+  },
+  smileyBad: {
+    img: loadIconImage(FROWN),
+    svg: FROWN,
+  },
+  dotGood: {
+    img: loadIconImage(GREEN_DOT),
+    svg: GREEN_DOT,
+  },
+  dotNeutral: {
+    img: loadIconImage(YELLOW_DOT),
+    svg: YELLOW_DOT,
+  },
+  dotBad: {
+    img: loadIconImage(RED_DOT),
+    svg: RED_DOT,
+  },
+};
+
+export const ICON_SETS = {
+  arrows: {
+    good: "arrowGood",
+    neutral: "arrowNeutral",
+    bad: "arrowBad",
+  },
+  smiley: {
+    good: "smileyGood",
+    neutral: "smileyNeutral",
+    bad: "smileyBad",
+  },
+  dots: {
+    good: "dotGood",
+    neutral: "dotNeutral",
+    bad: "dotBad",
+  },
+};

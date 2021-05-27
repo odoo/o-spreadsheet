@@ -35,11 +35,12 @@ const CSS = css/* scss */ `
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid darkgray;
+      border-top: 1px solid darkgray;
       font-weight: bold;
       .o-sidePanelTitle {
         font-weight: bold;
         padding: 5px 10px;
-        font-size: 1.2rem;
+        color: dimgrey;
       }
       .o-sidePanelClose {
         font-size: 1.5rem;
@@ -62,7 +63,7 @@ const CSS = css/* scss */ `
     }
 
     .o-sidePanelButtons {
-      padding: 5px 16px;
+      padding: 16px;
       text-align: right;
       .o-sidePanelButton {
         border: 1px solid lightgrey;
@@ -86,10 +87,13 @@ const CSS = css/* scss */ `
       }
     }
     .o-input {
+      color: #666666;
       border-radius: 4px;
+      min-width: 0px;
       border: 1px solid lightgrey;
       padding: 4px 6px;
-      width: 96%;
+      height: 15.5px;
+      line-height: 1;
       .o-type-selector {
         background-position: right 5px top 11px;
       }
@@ -100,14 +104,14 @@ const CSS = css/* scss */ `
     }
 
     .o-section {
-      padding: 16px;
+      padding-top: 16px;
+      padding-left: 16px;
+      padding-right: 16px;
       .o-section-title {
         font-weight: bold;
+        color: dimgrey;
         margin-bottom: 5px;
       }
-    }
-    label {
-      display: block;
     }
   }
 `;
