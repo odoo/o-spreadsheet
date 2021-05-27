@@ -91,6 +91,18 @@ export class ContentEditableHelper {
         this.currentState.cursorStart = end;
         this.currentState.cursorEnd = end;
         break;
+      case "ArrowRight":
+        this.currentState.cursorEnd += 1;
+        this.currentState.cursorStart = ev.shiftKey
+          ? this.currentState.cursorStart
+          : this.currentState.cursorEnd;
+        break;
+      case "ArrowLeft":
+        this.currentState.cursorEnd -= 1;
+        this.currentState.cursorStart = ev.shiftKey
+          ? this.currentState.cursorStart
+          : this.currentState.cursorEnd;
+        break;
     }
   }
 }

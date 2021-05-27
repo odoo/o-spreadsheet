@@ -51,11 +51,13 @@ async function keydown(key: string, options: any = {}) {
     new KeyboardEvent("keydown", Object.assign({ key, bubbles: true }, options))
   );
   await nextTick();
+  await nextTick();
 }
 async function keyup(key: string, options: any = {}) {
   composerEl.dispatchEvent(
     new KeyboardEvent("keyup", Object.assign({ key, bubbles: true }, options))
   );
+  await nextTick();
   await nextTick();
 }
 
@@ -529,25 +531,58 @@ describe("composer", () => {
     expect(getCellContent(model, "A1", sheetId)).toBe("1");
   });
 
-  test("Home key sets cursor at the begining", async () => {
+  test("Home key sets cursor at the beginning", async () => {
     await typeInComposer("Hello");
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
-    composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Home" }));
-    await nextTick();
-    composerEl.dispatchEvent(new KeyboardEvent("keyup", { key: "Home" }));
-    await nextTick();
+    await keydown("Home");
+    await keyup("Home");
     expect(model.getters.getComposerSelection()).toEqual({ start: 0, end: 0 });
   });
 
-  test("End key sets cursor at the begining", async () => {
+  test("End key sets cursor at the end", async () => {
     await typeInComposer("Hello");
     model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 0 });
     await nextTick();
-    composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "End" }));
-    await nextTick();
-    composerEl.dispatchEvent(new KeyboardEvent("keyup", { key: "End" }));
-    await nextTick();
+    await keydown("End");
+    await keyup("End");
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
+  });
+
+  test("Move cursor while in edit mode", async () => {
+    await typeInComposer("Hello");
+    expect(model.getters.getEditionMode()).toBe("editing");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
+    for (let _ in [1, 2, 3]) {
+      await keydown("ArrowLeft");
+    }
+    await keyup("ArrowLeft");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 2, end: 2 });
+    for (let _ in [1, 2]) {
+      await keydown("ArrowRight");
+    }
+    await keyup("ArrowRight");
+
+    expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 4 });
+  });
+
+  test("Select a right-to-left range with the keyboard", async () => {
+    await typeInComposer("Hello");
+    const { end } = model.getters.getComposerSelection();
+    await keydown("ArrowLeft", { shiftKey: true });
+    await keyup("ArrowLeft", { shiftKey: true });
+    expect(model.getters.getComposerSelection()).toEqual({
+      start: end,
+      end: end - 1,
+    });
+  });
+
+  test("Select a left-to-right range with the keyboard", async () => {
+    await typeInComposer("Hello");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 0 });
+    await nextTick();
+    await keydown("ArrowRight", { shiftKey: true });
+    await keyup("ArrowRight", { shiftKey: true });
+    expect(model.getters.getComposerSelection()).toEqual({ start: 0, end: 1 });
   });
 
   test("type '=', select a cell in another sheet with space in name", async () => {

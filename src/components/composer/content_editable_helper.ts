@@ -18,6 +18,7 @@ export class ContentEditableHelper {
     if (start == end && start === 0) {
       range.setStart(this.el, 0);
       range.setEnd(this.el, 0);
+      selection.addRange(range);
     } else {
       if (start < 0 || end > this.el!.textContent!.length) {
         console.warn(
@@ -31,9 +32,9 @@ export class ContentEditableHelper {
       let startNode = this.findChildAtCharacterIndex(start);
       let endNode = this.findChildAtCharacterIndex(end);
       range.setStart(startNode.node, startNode.offset);
-      range.setEnd(endNode.node, endNode.offset);
+      selection.addRange(range);
+      selection.extend(endNode.node, endNode.offset);
     }
-    selection.addRange(range);
   }
 
   /**
@@ -147,13 +148,11 @@ export class ContentEditableHelper {
   private getStartAndEndSelection() {
     const selection = document.getSelection()!;
 
-    const range = selection.getRangeAt(0);
-
     return {
-      startElement: range.startContainer,
-      startSelectionOffset: range.startOffset,
-      endElement: range.endContainer,
-      endSelectionOffset: range.endOffset,
+      startElement: selection.anchorNode || this.el,
+      startSelectionOffset: selection.anchorOffset,
+      endElement: selection.focusNode || this.el,
+      endSelectionOffset: selection.focusOffset,
     };
   }
 }
