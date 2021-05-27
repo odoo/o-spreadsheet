@@ -66,6 +66,12 @@ const CSS = css/* scss */ `
     height: ${ICON_EDGE_LENGTH}px;
     opacity: 0.6;
   }
+
+  .o-cf-icon {
+    width: 15px;
+    height: 15px;
+    vertical-align: sub;
+  }
 `;
 
 interface Props {

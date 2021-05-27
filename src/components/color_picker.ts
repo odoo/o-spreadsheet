@@ -102,9 +102,16 @@ const COLORS = [
   ],
 ];
 
-export class ColorPicker extends Component<any, SpreadsheetEnv> {
+interface Props {
+  dropdownDirection: "left" | "right" | undefined;
+}
+
+export class ColorPicker extends Component<Props, SpreadsheetEnv> {
   static template = xml/* xml */ `
-  <div class="o-color-picker" t-on-click="onColorClick">
+  <div class="o-color-picker" t-att-class="{
+    'right': dropDownRight(),
+    'left': !dropDownRight()
+    }" t-on-click="onColorClick">
     <div class="o-color-picker-line" t-foreach="COLORS" t-as="colors" t-key="colors">
       <t t-foreach="colors" t-as="color" t-key="color">
         <div class="o-color-picker-line-item" t-att-data-color="color" t-attf-style="background-color:{{color}};"></div>
@@ -116,7 +123,6 @@ export class ColorPicker extends Component<any, SpreadsheetEnv> {
     .o-color-picker {
       position: absolute;
       top: calc(100% + 5px);
-      left: 0;
       z-index: 10;
       box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
       background-color: white;
@@ -138,8 +144,18 @@ export class ColorPicker extends Component<any, SpreadsheetEnv> {
         }
       }
     }
+    .right {
+      left: 0;
+    }
+    .left {
+      right: 0;
+    }
   `;
   COLORS = COLORS;
+
+  dropDownRight() {
+    return this.props.dropdownDirection === "right" || this.props.dropdownDirection === undefined;
+  }
 
   onColorClick(ev: MouseEvent) {
     const color = (ev.target as HTMLElement).dataset.color;

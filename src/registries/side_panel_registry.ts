@@ -1,5 +1,5 @@
 import { ChartPanel } from "../components/side_panel/chart_panel";
-import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting";
+import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting/conditional_formatting";
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace";
 import { Registry } from "../registry";
 import { _lt } from "../translation";

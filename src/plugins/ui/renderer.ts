@@ -1,3 +1,4 @@
+import { ICONS } from "../../components/icons";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_COLOR,
@@ -10,6 +11,7 @@ import {
   HEADER_FONT_SIZE,
   HEADER_HEIGHT,
   HEADER_WIDTH,
+  MIN_CF_ICON_MARGIN,
   TEXT_HEADER_COLOR,
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
@@ -127,6 +129,7 @@ export class RendererPlugin extends UIPlugin {
         this.drawCellBackground(renderingContext);
         this.drawBorders(renderingContext);
         this.drawTexts(renderingContext);
+        this.drawIcon(renderingContext);
         break;
       case LAYERS.Headers:
         this.drawHeaders(renderingContext);
@@ -264,7 +267,7 @@ export class RendererPlugin extends UIPlugin {
         let x: number;
         let y = box.y + box.height / 2 + 1;
         if (align === "left") {
-          x = box.x + 3;
+          x = box.x + 3 + (box.image ? box.image.size : 0);
         } else if (align === "right") {
           x = box.x + box.width - 3;
         } else {
@@ -287,6 +290,29 @@ export class RendererPlugin extends UIPlugin {
           ctx.fillRect(x, y, box.textWidth, 2.6 * thinLineWidth);
         }
         if (box.clipRect) {
+          ctx.restore();
+        }
+      }
+    }
+  }
+
+  private async drawIcon(renderingContext: GridRenderingContext) {
+    const { ctx } = renderingContext;
+    for (let box of this.boxes) {
+      if (box.image) {
+        let x = box.x;
+        let y = box.y;
+        const icon: HTMLImageElement = box.image.image;
+        const size = box.image.size;
+        const margin = (box.height - size) / 2;
+        if (box.image.clipIcon) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(...box.image.clipIcon);
+          ctx.clip();
+        }
+        ctx.drawImage(icon, x + MIN_CF_ICON_MARGIN, y + margin, size, size);
+        if (box.image.clipIcon) {
           ctx.restore();
         }
       }
@@ -398,10 +424,11 @@ export class RendererPlugin extends UIPlugin {
         let cell = row.cells[colNumber];
         const border = this.getters.getCellBorder(sheetId, colNumber, rowNumber);
         const conditionalStyle = this.getters.getConditionalStyle(colNumber, rowNumber);
+        const iconStyle = this.getters.getConditionalIcon(colNumber, rowNumber);
         if (!this.getters.isInMerge(sheetId, colNumber, rowNumber)) {
           if (cell) {
             const text = this.getters.getCellText(cell, sheetId, showFormula);
-            const textWidth = this.getters.getCellWidth(cell);
+            const textWidth = this.getters.getTextWidth(cell);
             let style = this.getters.getCellStyle(cell);
             if (conditionalStyle) {
               style = Object.assign({}, style, conditionalStyle);
@@ -410,7 +437,14 @@ export class RendererPlugin extends UIPlugin {
               ? (style && style.align) || computeAlign(cell, showFormula)
               : undefined;
             let clipRect: Rect | null = null;
-            if (text && textWidth > cols[colNumber].size) {
+            let clipIcon: Rect | null = null;
+            const fontsize = style.fontSize || DEFAULT_FONT_SIZE;
+            const iconWidth = fontSizeMap[fontsize];
+            if (
+              (text && textWidth > cols[colNumber].size) ||
+              iconStyle ||
+              fontSizeMap[fontsize] > row.size
+            ) {
               if (align === "left") {
                 let c = colNumber;
                 while (c < right && !this.hasContent(c + 1, rowNumber)) {
@@ -426,12 +460,25 @@ export class RendererPlugin extends UIPlugin {
                   c--;
                 }
                 const width = col.end - cols[c].start;
-                if (width < textWidth) {
+                if (iconStyle) {
+                  const colWidth = col.end - col.start;
+                  clipRect = [
+                    col.start - offsetX + iconWidth + 2 * MIN_CF_ICON_MARGIN,
+                    row.start - offsetY,
+                    Math.max(0, colWidth - iconWidth + 2 * MIN_CF_ICON_MARGIN),
+                    row.size,
+                  ];
+                  clipIcon = [
+                    col.start - offsetX,
+                    row.start - offsetY,
+                    Math.min(iconWidth + 2 * MIN_CF_ICON_MARGIN, colWidth),
+                    row.size,
+                  ];
+                } else {
                   clipRect = [cols[c].start - offsetX, row.start - offsetY, width, row.size];
                 }
               }
             }
-
             result.push({
               x: col.start - offsetX,
               y: row.start - offsetY,
@@ -444,6 +491,14 @@ export class RendererPlugin extends UIPlugin {
               align,
               clipRect,
               error: cell.error,
+              image: iconStyle
+                ? {
+                    type: "icon",
+                    size: iconWidth,
+                    clipIcon,
+                    image: ICONS[iconStyle].img,
+                  }
+                : undefined,
             });
           } else {
             result.push({
@@ -483,7 +538,7 @@ export class RendererPlugin extends UIPlugin {
         style = refCell ? this.getters.getCellStyle(refCell) : null;
         if (refCell || borderBottomRight || borderTopLeft) {
           text = refCell ? this.getters.getCellText(refCell, activeSheetId, showFormula) : "";
-          textWidth = refCell ? this.getters.getCellWidth(refCell) : null;
+          textWidth = refCell ? this.getters.getTextWidth(refCell) : null;
           const conditionalStyle = this.getters.getConditionalStyle(
             merge.topLeft.col,
             merge.topLeft.row
@@ -508,10 +563,23 @@ export class RendererPlugin extends UIPlugin {
           style = Object.create(style);
           style.fillColor = "#fff";
         }
-
         const x = cols[merge.left].start - offsetX;
         const y = rows[merge.top].start - offsetY;
         const height = rows[merge.bottom].end - rows[merge.top].start;
+        const iconStyle = this.getters.getConditionalIcon(merge.left, merge.top);
+        const fontsize = style.fontSize || DEFAULT_FONT_SIZE;
+        const iconWidth = fontSizeMap[fontsize];
+        const clipRect: Rect = iconStyle
+          ? [
+              x + iconWidth + 2 * MIN_CF_ICON_MARGIN,
+              y,
+              Math.max(0, width - iconWidth + 2 * MIN_CF_ICON_MARGIN),
+              height,
+            ]
+          : [x, y, width, height];
+        const clipIcon: Rect | null = iconStyle
+          ? [x, y, Math.min(iconWidth + 2 * MIN_CF_ICON_MARGIN, width), height]
+          : null;
         result.push({
           x: x,
           y: y,
@@ -522,8 +590,16 @@ export class RendererPlugin extends UIPlugin {
           border,
           style,
           align,
-          clipRect: [x, y, width, height],
+          clipRect,
           error: refCell ? refCell.error : undefined,
+          image: iconStyle
+            ? {
+                type: "icon",
+                clipIcon,
+                size: iconWidth,
+                image: ICONS[iconStyle].img,
+              }
+            : undefined,
         });
       }
     }

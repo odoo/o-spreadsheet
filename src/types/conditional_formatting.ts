@@ -19,7 +19,7 @@ export interface ConditionalFormatInternal extends Omit<ConditionalFormat, "rang
   ranges: Range[];
 }
 
-export type ConditionalFormatRule = SingleColorRules | ColorScaleRule; //| DataBarRule | IconSetRule;
+export type ConditionalFormatRule = SingleColorRules | ColorScaleRule | IconSetRule; //| DataBarRule |;
 export type SingleColorRules =
   | CellIsRule
   | ExpressionRule
@@ -64,6 +64,12 @@ export type ColorScaleMidPointThreshold = {
   value: string;
 };
 
+export type IconThreshold = {
+  type: "number" | "percentage" | "percentile" | "formula";
+  operator: "gt" | "ge";
+  value: string;
+};
+
 export interface ColorScaleRule {
   type: "ColorScaleRule";
   minimum: ColorScaleThreshold;
@@ -74,9 +80,18 @@ export interface ColorScaleRule {
 // export interface DataBarRule {
 //   type: "ColorScaleRule";
 // }
-// export interface IconSetRule {
-//   type: "IconSetRule";
-// }
+
+export interface IconSet {
+  upper: string;
+  middle: string;
+  lower: string;
+}
+export interface IconSetRule {
+  type: "IconSetRule";
+  icons: IconSet;
+  upperInflectionPoint: IconThreshold;
+  lowerInflectionPoint: IconThreshold;
+}
 export interface ContainsTextRule extends TextRule {
   type: "ContainsTextRule";
 }

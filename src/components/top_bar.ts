@@ -255,9 +255,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             .o-text-icon {
               height: 100%;
               line-height: 30px;
-              > svg {
-                margin-bottom: -5px;
-              }
             }
 
             .o-text-options > div {

@@ -1,12 +1,12 @@
 import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { computeTextWidth } from "../../helpers/index";
+import { computeIconWidth, computeTextWidth } from "../../helpers/index";
 import { _lt } from "../../translation";
 import { Cell, Command, CommandResult, UID, Zone } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
-  static getters = ["getCellWidth", "getCellHeight"];
+  static getters = ["getCellWidth", "getCellHeight", "getTextWidth"];
 
   private ctx = document.createElement("canvas").getContext("2d")!;
 
@@ -78,6 +78,16 @@ export class SheetUIPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   getCellWidth(cell: Cell): number {
+    let width = this.getTextWidth(cell);
+    const cellPosition = this.getters.getCellPosition(cell.id);
+    const icon = this.getters.getConditionalIcon(cellPosition.col, cellPosition.row);
+    if (icon) {
+      width += computeIconWidth(this.ctx, this.getters.getCellStyle(cell));
+    }
+    return width;
+  }
+
+  getTextWidth(cell: Cell): number {
     const text = this.getters.getCellText(
       cell,
       this.getters.getActiveSheetId(),
