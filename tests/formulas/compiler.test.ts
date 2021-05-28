@@ -5,6 +5,7 @@ import { functionRegistry } from "../../src/functions/index";
 import { toZone } from "../../src/helpers";
 import {
   ArgType,
+  ArgValue,
   CompiledFormula,
   NormalizedFormula,
   Range,
@@ -367,7 +368,7 @@ describe("compile functions", () => {
 
       functionRegistry.add("USELAZYARG", {
         description: "function with a lazy argument",
-        compute: (arg) => {
+        compute: (arg: () => ArgValue) => {
           count *= 42;
           return arg();
         },
@@ -624,7 +625,7 @@ describe("compile functions", () => {
 
       functionRegistry.add("USELAZYARG", {
         description: "function with a lazy argument",
-        compute: (arg) => {
+        compute: (arg: () => ArgValue) => {
           count *= 42;
           return arg();
         },

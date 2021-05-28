@@ -1,3 +1,5 @@
+import { Argument } from "./misc";
+
 export type ArgType =
   | "ANY"
   | "BOOLEAN"
@@ -32,7 +34,7 @@ export interface ReturnSpecificFormat {
 
 export interface AddFunctionDescription {
   description: string;
-  compute: (this: EvalContext, ...args: any[]) => any;
+  compute: (this: EvalContext, ...args: (Argument | (() => Argument))[]) => any;
   async?: boolean;
   category?: string;
   args: Arg[];

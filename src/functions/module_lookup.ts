@@ -1,6 +1,6 @@
 import { toZone } from "../helpers/index";
 import { _lt } from "../translation";
-import { AddFunctionDescription } from "../types";
+import { AddFunctionDescription, ArgRange, ArgValue } from "../types";
 import { args } from "./arguments";
 import {
   assert,
@@ -8,6 +8,7 @@ import {
   dichotomicSuccessorSearch,
   toBoolean,
   toNumber,
+  toString,
 } from "./helpers";
 
 const DEFAULT_IS_SORTED = true;
@@ -22,7 +23,7 @@ const DEFAULT_IS_SORTED = true;
  * - [3, 6, 10], 9 => -1
  * - [3, 6, 10], 2 => -1
  */
-function linearSearch(range: any[], target: any): number {
+function linearSearch(range: ArgValue[], target: ArgValue): number {
   for (let i = 0; i < range.length; i++) {
     if (range[i] === target) {
       return i;
@@ -46,11 +47,12 @@ export const COLUMN: AddFunctionDescription = {
   ),
   returns: ["NUMBER"],
   compute: function (cellReference?: string): number {
+    cellReference = cellReference || this.__originCellXC;
     assert(
-      () => !!(cellReference || this.__originCellXC),
+      () => !!cellReference,
       "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
     );
-    const zone = toZone((cellReference || this.__originCellXC)!);
+    const zone = toZone(cellReference!);
     return zone.left + 1;
   },
 };
@@ -77,7 +79,7 @@ export const HLOOKUP: AddFunctionDescription = {
   description: _lt(`Horizontal lookup`),
   args: args(`
       search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
-      range (any, range) ${_lt(
+      range (range) ${_lt(
         "The range to consider for the search. The first row in the range is searched for the key specified in search_key."
       )}
       index (number) ${_lt(
@@ -89,11 +91,11 @@ export const HLOOKUP: AddFunctionDescription = {
   `),
   returns: ["ANY"],
   compute: function (
-    searchKey: any,
-    range: any[],
-    index: any,
-    isSorted: any = DEFAULT_IS_SORTED
-  ): any {
+    searchKey: ArgValue,
+    range: ArgRange,
+    index: ArgValue,
+    isSorted: ArgValue = DEFAULT_IS_SORTED
+  ): ArgValue {
     const _index = Math.trunc(toNumber(index));
     assert(
       () => 1 <= _index && _index <= range[0].length,
@@ -111,7 +113,7 @@ export const HLOOKUP: AddFunctionDescription = {
 
     assert(
       () => colIndex > -1,
-      _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", searchKey)
+      _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey))
     );
 
     return range[colIndex][_index - 1];
@@ -126,29 +128,36 @@ export const LOOKUP: AddFunctionDescription = {
   description: _lt(`Look up a value.`),
   args: args(`
       search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
-      search_array (any, range) ${_lt(
+      search_array (range) ${_lt(
         "One method of using this function is to provide a single sorted row or column search_array to look through for the search_key with a second argument result_range. The other way is to combine these two arguments into one search_array where the first row or column is searched and a value is returned from the last row or column in the array. If search_key is not found, a non-exact match may be returned."
       )}
-      result_range (any, range, optional) ${_lt(
+      result_range (range, optional) ${_lt(
         "The range from which to return a result. The value returned corresponds to the location where search_key is found in search_range. This range must be only a single row or column and should not be used if using the search_result_array method."
       )}
   `),
   returns: ["ANY"],
-  compute: function (searchKey: any, searchArray: any, resultRange: any = undefined): any {
-    const verticalSearch = searchArray[0].length >= searchArray.length;
+  compute: function (
+    searchKey: ArgValue,
+    searchArray: ArgRange,
+    resultRange: ArgRange | undefined
+  ): ArgValue {
+    let nbCol = searchArray.length;
+    let nbRow = searchArray[0].length;
+
+    const verticalSearch = nbRow >= nbCol;
     const searchRange = verticalSearch ? searchArray[0] : searchArray.map((c) => c[0]);
     const index = dichotomicPredecessorSearch(searchRange, searchKey);
     assert(
       () => index >= 0,
-      _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", searchKey)
+      _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey))
     );
 
     if (resultRange === undefined) {
-      return verticalSearch ? searchArray.pop()[index] : searchArray[index].pop();
+      return verticalSearch ? searchArray[nbCol - 1][index] : searchArray[index][nbRow - 1];
     }
 
-    const nbCol = resultRange.length;
-    const nbRow = resultRange[0].length;
+    nbCol = resultRange.length;
+    nbRow = resultRange[0].length;
     assert(
       () => nbCol === 1 || nbRow === 1,
       _lt("The result_range must be a single row or a single column.")
@@ -185,7 +194,11 @@ export const MATCH: AddFunctionDescription = {
   )}
   `),
   returns: ["NUMBER"],
-  compute: function (searchKey: any, range: any[], searchType: any = DEFAULT_SEARCH_TYPE): number {
+  compute: function (
+    searchKey: ArgValue,
+    range: ArgRange,
+    searchType: ArgValue = DEFAULT_SEARCH_TYPE
+  ): number {
     let _searchType = toNumber(searchType);
     const nbCol = range.length;
     const nbRow = range[0].length;
@@ -196,23 +209,23 @@ export const MATCH: AddFunctionDescription = {
     );
 
     let index = -1;
-    range = range.flat();
+    const _range = range.flat();
     _searchType = Math.sign(_searchType);
     switch (_searchType) {
       case 1:
-        index = dichotomicPredecessorSearch(range, searchKey);
+        index = dichotomicPredecessorSearch(_range, searchKey);
         break;
       case 0:
-        index = linearSearch(range, searchKey);
+        index = linearSearch(_range, searchKey);
         break;
       case -1:
-        index = dichotomicSuccessorSearch(range, searchKey);
+        index = dichotomicSuccessorSearch(_range, searchKey);
         break;
     }
 
     assert(
       () => index >= 0,
-      _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", searchKey)
+      _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey))
     );
 
     return index + 1;
@@ -232,11 +245,12 @@ export const ROW: AddFunctionDescription = {
   ),
   returns: ["NUMBER"],
   compute: function (cellReference?: string): number {
+    cellReference = cellReference || this.__originCellXC;
     assert(
-      () => !!(cellReference || this.__originCellXC),
+      () => !!cellReference,
       "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
     );
-    const zone = toZone((cellReference || this.__originCellXC)!);
+    const zone = toZone(cellReference!);
     return zone.top + 1;
   },
 };
@@ -275,11 +289,11 @@ export const VLOOKUP: AddFunctionDescription = {
   `),
   returns: ["ANY"],
   compute: function (
-    searchKey: any,
-    range: any[],
-    index: any,
-    isSorted: any = DEFAULT_IS_SORTED
-  ): any {
+    searchKey: ArgValue,
+    range: ArgRange,
+    index: ArgValue,
+    isSorted: ArgValue = DEFAULT_IS_SORTED
+  ): ArgValue {
     const _index = Math.trunc(toNumber(index));
     assert(
       () => 1 <= _index && _index <= range.length,
@@ -297,7 +311,7 @@ export const VLOOKUP: AddFunctionDescription = {
 
     assert(
       () => rowIndex > -1,
-      _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", searchKey)
+      _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey))
     );
 
     return range[_index - 1][rowIndex];

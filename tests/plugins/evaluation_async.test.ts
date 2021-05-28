@@ -210,7 +210,7 @@ describe("evaluateCells, async formulas", () => {
       async: true,
       description: "This async formula crashes for negative numbers",
       args: args(`value (number)`),
-      compute: (value) => {
+      compute: (value: number) => {
         if (value < 0) {
           throw new Error("I only like positive numbers");
         }

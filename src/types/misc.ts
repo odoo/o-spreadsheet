@@ -109,13 +109,18 @@ export enum CellType {
   invalidFormula = "invalidFormula",
 }
 
+export type CellValue = string | number | boolean;
 export interface CellBase {
   id: UID;
   style?: Style;
   format?: string;
   error?: string;
-  value: unknown;
+  value: CellValue;
 }
+
+export type ArgValue = CellValue | undefined;
+export type ArgRange = ArgValue[][];
+export type Argument = ArgValue | ArgRange;
 
 export interface OtherCell extends CellBase {
   type: CellType.number | CellType.text | CellType.invalidFormula;

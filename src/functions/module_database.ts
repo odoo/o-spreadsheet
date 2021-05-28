@@ -1,13 +1,13 @@
 import { _lt } from "../translation";
-import { AddFunctionDescription } from "../types";
+import { AddFunctionDescription, ArgRange, ArgValue, CellValue } from "../types";
 import { args } from "./arguments";
 import { assert, toString, visitMatchingRanges } from "./helpers";
 import { PRODUCT, SUM } from "./module_math";
 import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
 
-function getMatchingCells(database: any, field: any, criteria: any): any[] {
-  // Example :
-  //
+function getMatchingCells(database: ArgRange, field: ArgValue, criteria: ArgRange): any[] {
+  // Example
+
   // # DATABASE             # CRITERIA          # field = "C"
   //
   // | A | B | C |          | A | C |
@@ -16,59 +16,71 @@ function getMatchingCells(database: any, field: any, criteria: any): any[] {
   // | 1 | Z | k |          |   | 7 |
   // | 5 | y | 7 |
 
-  // 1 - Select coordinates of database columns
-  const indexColNameDB = new Map();
+  // 1 - Select coordinates of database columns ----------------------------------------------------
+
+  const indexColNameDB: Map<string, number> = new Map();
   const dimRowDB = database.length;
   for (let indexCol = dimRowDB - 1; indexCol >= 0; indexCol--) {
     indexColNameDB.set(toString(database[indexCol][0]).toUpperCase(), indexCol);
-  } // Ex: indexColNameDB = {A => 0, B => 1, C => 2}
+  }
 
-  // 2 - Check if the field parameter exists in the column names of the database
-  const typeofField = typeof field;
-  let index;
-  if (typeofField === "number") {
-    // field may either be a text label corresponding to a column header in the
-    // first row of database or a numeric index indicating which column to consider,
-    // where the first column has the value 1.
+  // Example continuation: indexColNameDB = {"A" => 0, "B" => 1, "C" => 2}
+
+  // 2 - Check if the field parameter exists in the column names of the database -------------------
+
+  // field may either be a text label corresponding to a column header in the
+  // first row of database or a numeric index indicating which column to consider,
+  // where the first column has the value 1.
+
+  if (typeof field !== "number" && typeof field !== "string") {
+    throw new Error(_lt("The field must be a number or a string"));
+  }
+
+  let index: number;
+  if (typeof field === "number") {
     index = Math.trunc(field) - 1;
-
-    assert(
-      () => 0 <= index && index <= dimRowDB - 1,
-      _lt(
-        "The field (%s) must be between 1 and %s inclusive.",
-        field.toString(),
-        dimRowDB.toString()
-      )
-    );
+    if (index < 0 || dimRowDB - 1 < index) {
+      throw new Error(
+        _lt(
+          "The field (%s) must be one of %s or must be a number between 1 and %s inclusive.",
+          field.toString(),
+          dimRowDB.toString()
+        )
+      );
+    }
   } else {
-    const colName = typeofField === "string" ? field.toUpperCase() : field;
-    index = indexColNameDB.get(colName);
+    const colName = toString(field).toUpperCase();
+    index = indexColNameDB.get(colName) ?? -1;
+    if (index === -1) {
+      throw new Error(
+        _lt(
+          "The field (%s) must be one of %s.",
+          toString(field),
+          [...indexColNameDB.keys()].toString()
+        )
+      );
+    }
+  }
 
-    assert(
-      () => index !== undefined,
-      _lt(
-        "The field (%s) must be one of %s.",
-        field.toString(),
-        [...indexColNameDB.keys()].toString()
-      )
-    );
-  } // Ex: index = 2
+  // Example continuation: index = 2
 
-  // 3 - For each criteria row, find database row that correspond
+  // 3 - For each criteria row, find database row that correspond ----------------------------------
+
   const dimColCriteria = criteria[0].length;
 
-  assert(
-    () => dimColCriteria >= 2,
-    _lt(
-      "The criteria range contains %s row, it must be at least 2 rows.",
-      dimColCriteria.toString()
-    )
-  );
+  if (dimColCriteria < 2) {
+    throw new Error(
+      _lt(
+        "The criteria range contains %s row, it must be at least 2 rows.",
+        dimColCriteria.toString()
+      )
+    );
+  }
 
   let matchingRows: Set<number> = new Set();
   const dimColDB = database[0].length;
   for (let indexRow = 1; indexRow < dimColCriteria; indexRow++) {
-    let args: any[] = [];
+    let args: (ArgRange | CellValue)[] = [];
     let existColNameDB = true;
     for (let indexCol = 0; indexCol < criteria.length; indexCol++) {
       const currentName = toString(criteria[indexCol][0]).toUpperCase();
@@ -84,8 +96,8 @@ function getMatchingCells(database: any, field: any, criteria: any): any[] {
         }
       }
     }
-    // Ex: args1 = [[1,1,5], "<2", ["j","k",7], "j"]
-    // Ex: args2 = [["j","k",7], "7"]
+    // Example continuation: args1 = [[1,1,5], "<2", ["j","k",7], "j"]
+    // Example continuation: args2 = [["j","k",7], "7"]
 
     if (existColNameDB) {
       if (args.length > 0) {
@@ -102,14 +114,16 @@ function getMatchingCells(database: any, field: any, criteria: any): any[] {
         break;
       }
     }
-  } // Ex: matchingRows = {0, 2}
+  }
 
-  // 4 - return for each database row corresponding, the cells corresponding to
-  // the field parameter
-  const fieldCol: any[] = database[index];
-  // Ex: fieldCol = ["C", "j", "k", 7]
+  // Example continuation: matchingRows = {0, 2}
+
+  // 4 - return for each database row corresponding, the cells corresponding to the field parameter
+
+  const fieldCol: ArgValue[] = database[index];
+  // Example continuation:: fieldCol = ["C", "j", "k", 7]
   const matchingCells = [...matchingRows].map((x) => fieldCol[x + 1]);
-  // Ex: matchingCells = ["j", 7]
+  // Example continuation:: matchingCells = ["j", 7]
 
   return matchingCells;
 }
@@ -133,7 +147,7 @@ export const DAVERAGE: AddFunctionDescription = {
   description: _lt("Average of a set of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
-  compute: function (database: any, field: any, criteria: any): number {
+  compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
     return AVERAGE.compute([cells]);
   },
@@ -146,7 +160,7 @@ export const DCOUNT: AddFunctionDescription = {
   description: _lt("Counts values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
-  compute: function (database: any, field: any, criteria: any): number {
+  compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
     return COUNT.compute([cells]);
   },
@@ -159,7 +173,7 @@ export const DCOUNTA: AddFunctionDescription = {
   description: _lt("Counts values and text from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
-  compute: function (database: any, field: any, criteria: any): number {
+  compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
     return COUNTA.compute([cells]);
   },
@@ -172,7 +186,7 @@ export const DGET: AddFunctionDescription = {
   description: _lt("Single value from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
-  compute: function (database: any, field: any, criteria: any): any {
+  compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): ArgValue {
     const cells = getMatchingCells(database, field, criteria);
     assert(() => cells.length === 1, _lt("More than one match found in DGET evaluation."));
     return cells[0];
@@ -186,7 +200,7 @@ export const DMAX: AddFunctionDescription = {
   description: _lt("Maximum of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
-  compute: function (database: any, field: any, criteria: any): number {
+  compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
     return MAX.compute([cells]);
   },
@@ -199,7 +213,7 @@ export const DMIN: AddFunctionDescription = {
   description: _lt("Minimum of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
-  compute: function (database: any, field: any, criteria: any): number {
+  compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
     return MIN.compute([cells]);
   },
@@ -212,7 +226,7 @@ export const DPRODUCT: AddFunctionDescription = {
   description: _lt("Product of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
-  compute: function (database: any, field: any, criteria: any): number {
+  compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
     return PRODUCT.compute([cells]);
   },
@@ -225,7 +239,7 @@ export const DSTDEV: AddFunctionDescription = {
   description: _lt("Standard deviation of population sample from table."),
   args: databaseArgs,
   returns: ["NUMBER"],
-  compute: function (database: any, field: any, criteria: any): number {
+  compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
     return STDEV.compute([cells]);
   },
@@ -238,7 +252,7 @@ export const DSTDEVP: AddFunctionDescription = {
   description: _lt("Standard deviation of entire population from table."),
   args: databaseArgs,
   returns: ["NUMBER"],
-  compute: function (database: any, field: any, criteria: any): number {
+  compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
     return STDEVP.compute([cells]);
   },
@@ -251,7 +265,7 @@ export const DSUM: AddFunctionDescription = {
   description: _lt("Sum of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
-  compute: function (database: any, field: any, criteria: any): number {
+  compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
     return SUM.compute([cells]);
   },
@@ -264,7 +278,7 @@ export const DVAR: AddFunctionDescription = {
   description: _lt("Variance of population sample from table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
-  compute: function (database: any, field: any, criteria: any): number {
+  compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
     return VAR.compute([cells]);
   },
@@ -277,7 +291,7 @@ export const DVARP: AddFunctionDescription = {
   description: _lt("Variance of a population from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
-  compute: function (database: any, field: any, criteria: any): number {
+  compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
     return VARP.compute([cells]);
   },
