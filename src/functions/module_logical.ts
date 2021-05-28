@@ -1,7 +1,7 @@
 import { _lt } from "../translation";
-import { AddFunctionDescription } from "../types";
+import { AddFunctionDescription, Argument, ArgValue } from "../types";
 import { args } from "./arguments";
-import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
+import { assert, conditionalVisitBoolean, toBoolean, toNumber } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // WAIT
@@ -11,11 +11,11 @@ export const WAIT: AddFunctionDescription = {
   args: args(`ms (number) ${_lt("wait time in milliseconds")}`),
   returns: ["ANY"],
   async: true,
-  compute: function (delay) {
+  compute: function (delay: ArgValue) {
     return new Promise(function (resolve, reject) {
       setTimeout(function () {
         resolve(delay);
-      }, delay);
+      }, toNumber(delay));
     });
   },
 };
@@ -34,10 +34,10 @@ export const AND: AddFunctionDescription = {
       )}
     `),
   returns: ["BOOLEAN"],
-  compute: function (): boolean {
+  compute: function (...logicalExpressions: Argument[]): boolean {
     let foundBoolean = false;
     let acc = true;
-    conditionalVisitBoolean(arguments, (arg) => {
+    conditionalVisitBoolean(logicalExpressions, (arg) => {
       foundBoolean = true;
       acc = acc && arg;
       return acc;
@@ -66,10 +66,10 @@ export const IF: AddFunctionDescription = {
     `),
   returns: ["ANY"],
   compute: function (
-    logicalExpression: any,
-    valueIfTrue: () => any,
-    valueIfFalse: () => any = () => false
-  ): any {
+    logicalExpression: ArgValue,
+    valueIfTrue: () => ArgValue,
+    valueIfFalse: () => ArgValue = () => false
+  ): ArgValue {
     const result = toBoolean(logicalExpression) ? valueIfTrue() : valueIfFalse();
     return result === null || result === undefined ? "" : result;
   },
@@ -88,7 +88,7 @@ export const IFERROR: AddFunctionDescription = {
   )}
   `),
   returns: ["ANY"],
-  compute: function (value: () => any, valueIfError: () => any = () => ""): any {
+  compute: function (value: () => ArgValue, valueIfError: () => ArgValue = () => ""): ArgValue {
     let result;
     try {
       result = value();
@@ -118,14 +118,14 @@ export const IFS: AddFunctionDescription = {
       )}
   `),
   returns: ["ANY"],
-  compute: function (): any {
+  compute: function (...values: (() => ArgValue)[]): ArgValue {
     assert(
-      () => arguments.length % 2 === 0,
+      () => values.length % 2 === 0,
       _lt(`Wrong number of arguments. Expected an even number of arguments.`)
     );
-    for (let n = 0; n < arguments.length - 1; n += 2) {
-      if (toBoolean(arguments[n]())) {
-        return arguments[n + 1]();
+    for (let n = 0; n < values.length - 1; n += 2) {
+      if (toBoolean(values[n]())) {
+        return values[n + 1]();
       }
     }
     throw new Error(_lt(`No match.`));
@@ -145,7 +145,7 @@ export const NOT: AddFunctionDescription = {
     `
   ),
   returns: ["BOOLEAN"],
-  compute: function (logicalExpression: any): boolean {
+  compute: function (logicalExpression: ArgValue): boolean {
     return !toBoolean(logicalExpression);
   },
   isExported: true,
@@ -165,10 +165,10 @@ export const OR: AddFunctionDescription = {
       )}
     `),
   returns: ["BOOLEAN"],
-  compute: function (): boolean {
+  compute: function (...logicalExpressions: Argument[]): boolean {
     let foundBoolean = false;
     let acc = false;
-    conditionalVisitBoolean(arguments, (arg) => {
+    conditionalVisitBoolean(logicalExpressions, (arg) => {
       foundBoolean = true;
       acc = acc || arg;
       return !acc;
@@ -193,10 +193,10 @@ export const XOR: AddFunctionDescription = {
       )}
     `),
   returns: ["BOOLEAN"],
-  compute: function (): boolean {
+  compute: function (...logicalExpressions: Argument[]): boolean {
     let foundBoolean = false;
     let acc = false;
-    conditionalVisitBoolean(arguments, (arg) => {
+    conditionalVisitBoolean(logicalExpressions, (arg) => {
       foundBoolean = true;
       acc = acc ? !arg : arg;
       return true; // no stop condition

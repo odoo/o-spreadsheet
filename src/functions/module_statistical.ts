@@ -1,6 +1,6 @@
 import { isNumber } from "../helpers/index";
 import { _lt } from "../translation";
-import { AddFunctionDescription, ReturnFormatType } from "../types";
+import { AddFunctionDescription, ArgRange, Argument, ArgValue, ReturnFormatType } from "../types";
 import { args } from "./arguments";
 import { parseDateTime } from "./dates";
 import {
@@ -16,9 +16,9 @@ import {
 } from "./helpers";
 
 // Note: dataY and dataX may not have the same dimension
-function covariance(dataY: any[], dataX: any[], isSample: boolean): number {
-  let flatDataY: any[] = [];
-  let flatDataX: any[] = [];
+function covariance(dataY: Argument, dataX: Argument, isSample: boolean): number {
+  let flatDataY: ArgValue[] = [];
+  let flatDataX: ArgValue[] = [];
   let lenY = 0;
   let lenX = 0;
 
@@ -74,7 +74,7 @@ function covariance(dataY: any[], dataX: any[], isSample: boolean): number {
   return acc / (count - (isSample ? 1 : 0));
 }
 
-function variance(args: IArguments | any[], isSample: boolean, textAs0: boolean): number {
+function variance(args: Argument[], isSample: boolean, textAs0: boolean): number {
   let count = 0;
   let sum = 0;
   const reduceFunction = textAs0 ? reduceNumbersTextAs0 : reduceNumbers;
@@ -100,7 +100,7 @@ function variance(args: IArguments | any[], isSample: boolean, textAs0: boolean)
   );
 }
 
-function centile(data: any, percent: any, isInclusive: boolean): number {
+function centile(data: Argument[], percent: ArgValue, isInclusive: boolean): number {
   const _percent = toNumber(percent);
   assert(
     () => (isInclusive ? 0 <= _percent && _percent <= 1 : 0 < _percent && _percent < 1),
@@ -109,7 +109,7 @@ function centile(data: any, percent: any, isInclusive: boolean): number {
   let sortedArray: number[] = [];
   let index: number;
   let count = 0;
-  visitAny([data], (d) => {
+  visitAny(data, (d) => {
     if (typeof d === "number") {
       index = dichotomicPredecessorSearch(sortedArray, d);
       sortedArray.splice(index + 1, 0, d);
@@ -150,10 +150,10 @@ export const AVEDEV: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
-  compute: function (): number {
+  compute: function (...values: Argument[]): number {
     let count = 0;
     const sum = reduceNumbers(
-      arguments,
+      values,
       (acc, a) => {
         count += 1;
         return acc + a;
@@ -165,7 +165,7 @@ export const AVEDEV: AddFunctionDescription = {
       _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
     );
     const average = sum / count;
-    return reduceNumbers(arguments, (acc, a) => acc + Math.abs(average - a), 0) / count;
+    return reduceNumbers(values, (acc, a) => acc + Math.abs(average - a), 0) / count;
   },
   isExported: true,
 };
@@ -185,10 +185,10 @@ export const AVERAGE: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (): number {
+  compute: function (...values: Argument[]): number {
     let count = 0;
     const sum = reduceNumbers(
-      arguments,
+      values,
       (acc, a) => {
         count += 1;
         return acc + a;
@@ -222,18 +222,18 @@ export const AVERAGE_WEIGHTED: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (): number {
+  compute: function (...values: Argument[]): number {
     let sum = 0;
     let count = 0;
     let value;
     let weight;
     assert(
-      () => arguments.length % 2 === 0,
-      _lt(`Wrong number of arguments. Expected an even number of arguments.`)
+      () => values.length % 2 === 0,
+      _lt(`Wrong number of Argument[]. Expected an even number of Argument[].`)
     );
-    for (let n = 0; n < arguments.length - 1; n += 2) {
-      value = arguments[n];
-      weight = arguments[n + 1];
+    for (let n = 0; n < values.length - 1; n += 2) {
+      value = values[n];
+      weight = values[n + 1];
       // if (typeof value != typeof weight) {
       //   throw new Error(rangeError);
       // }
@@ -298,10 +298,10 @@ export const AVERAGEA: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (): number {
+  compute: function (...values: Argument[]): number {
     let count = 0;
     const sum = reduceNumbersTextAs0(
-      arguments,
+      values,
       (acc, a) => {
         count += 1;
         return acc + a;
@@ -330,8 +330,12 @@ export const AVERAGEIF: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (criteriaRange: any, criterion: any, averageRange: any = undefined): number {
-    if (averageRange === undefined) {
+  compute: function (
+    criteriaRange: ArgRange,
+    criterion: ArgValue,
+    averageRange: Argument | undefined = undefined
+  ): number {
+    if (averageRange === undefined || averageRange === null) {
       averageRange = criteriaRange;
     }
 
@@ -339,7 +343,7 @@ export const AVERAGEIF: AddFunctionDescription = {
     let sum = 0;
 
     visitMatchingRanges([criteriaRange, criterion], (i, j) => {
-      const value = averageRange[i][j];
+      const value = (averageRange || criteriaRange)[i][j];
       if (typeof value === "number") {
         count += 1;
         sum += value;
@@ -370,10 +374,10 @@ export const AVERAGEIFS: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (averageRange, ...args): number {
+  compute: function (averageRange: ArgRange, ...values: Argument[]): number {
     let count = 0;
     let sum = 0;
-    visitMatchingRanges(args, (i, j) => {
+    visitMatchingRanges(values, (i, j) => {
       const value = averageRange[i][j];
       if (typeof value === "number") {
         count += 1;
@@ -401,9 +405,9 @@ export const COUNT: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
-  compute: function (): number {
+  compute: function (...values: Argument[]): number {
     let count = 0;
-    for (let n of arguments) {
+    for (let n of values) {
       if (Array.isArray(n)) {
         for (let i of n) {
           for (let j of i) {
@@ -431,8 +435,8 @@ export const COUNTA: AddFunctionDescription = {
     value2 (any, range, repeating) ${_lt("Additional values or ranges to consider when counting.")}
   `),
   returns: ["NUMBER"],
-  compute: function (): number {
-    return reduceAny(arguments, (acc, a) => (a !== undefined && a !== null ? acc + 1 : acc), 0);
+  compute: function (...values: Argument[]): number {
+    return reduceAny(values, (acc, a) => (a !== undefined && a !== null ? acc + 1 : acc), 0);
   },
   isExported: true,
 };
@@ -450,7 +454,7 @@ export const COVAR: AddFunctionDescription = {
     data_x (any, range) ${_lt("The range representing the array or matrix of independent data.")}
   `),
   returns: ["NUMBER"],
-  compute: function (dataY: any[], dataX: any[]): number {
+  compute: function (dataY: Argument, dataX: Argument): number {
     return covariance(dataY, dataX, false);
   },
   isExported: true,
@@ -466,7 +470,7 @@ export const COVARIANCE_P: AddFunctionDescription = {
     data_x (any, range) ${_lt("The range representing the array or matrix of independent data.")}
   `),
   returns: ["NUMBER"],
-  compute: function (dataY: any[], dataX: any[]): number {
+  compute: function (dataY: Argument, dataX: Argument): number {
     return covariance(dataY, dataX, false);
   },
   isExported: true,
@@ -482,7 +486,7 @@ export const COVARIANCE_S: AddFunctionDescription = {
     data_x (any, range) ${_lt("The range representing the array or matrix of independent data.")}
   `),
   returns: ["NUMBER"],
-  compute: function (dataY: any[], dataX: any[]): number {
+  compute: function (dataY: Argument, dataX: Argument): number {
     return covariance(dataY, dataX, true);
   },
   isExported: true,
@@ -499,8 +503,8 @@ export const LARGE: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (data: any, n: any): number {
-    n = Math.trunc(toNumber(n));
+  compute: function (data: Argument, n: ArgValue): number {
+    const _n = Math.trunc(toNumber(n));
     let largests: number[] = [];
     let index: number;
     let count = 0;
@@ -509,7 +513,7 @@ export const LARGE: AddFunctionDescription = {
         index = dichotomicPredecessorSearch(largests, d);
         largests.splice(index + 1, 0, d);
         count++;
-        if (count > n) {
+        if (count > _n) {
           largests.shift();
           count--;
         }
@@ -518,8 +522,8 @@ export const LARGE: AddFunctionDescription = {
     const result = largests.shift();
     assert(() => result !== undefined, _lt(`[[FUNCTION_NAME]] has no valid input data.`));
     assert(
-      () => count >= n,
-      _lt("Function [[FUNCTION_NAME]] parameter 2 value (%s) is out of range.", n.toString())
+      () => count >= _n,
+      _lt("Function [[FUNCTION_NAME]] parameter 2 value (%s) is out of range.", _n.toString())
     );
     return result!;
   },
@@ -541,8 +545,8 @@ export const MAX: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (): number {
-    const result = reduceNumbers(arguments, (acc, a) => (acc < a ? a : acc), -Infinity);
+  compute: function (...values: Argument[]): number {
+    const result = reduceNumbers(values, (acc, a) => (acc < a ? a : acc), -Infinity);
     return result === -Infinity ? 0 : result;
   },
   isExported: true,
@@ -563,9 +567,9 @@ export const MAXA: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (): number {
+  compute: function (...values: Argument[]): number {
     const maxa = reduceNumbersTextAs0(
-      arguments,
+      values,
       (acc, a) => {
         return Math.max(a, acc);
       },
@@ -593,7 +597,7 @@ export const MAXIFS: AddFunctionDescription = {
       criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
     `),
   returns: ["NUMBER"],
-  compute: function (range, ...args): number {
+  compute: function (range: ArgRange, ...args: Argument[]): number {
     let result = -Infinity;
     visitMatchingRanges(args, (i, j) => {
       const value = range[i][j];
@@ -621,12 +625,12 @@ export const MEDIAN: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (): number {
-    let data: any[] = [];
-    visitNumbers(arguments, (arg) => {
+  compute: function (...values: Argument[]): number {
+    let data: Argument[] = [];
+    visitNumbers(values, (arg) => {
       data.push(arg);
     });
-    return centile([data], 0.5, true);
+    return centile(data, 0.5, true);
   },
   isExported: true,
 };
@@ -646,8 +650,8 @@ export const MIN: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (): number {
-    const result = reduceNumbers(arguments, (acc, a) => (a < acc ? a : acc), Infinity);
+  compute: function (...values: Argument[]): number {
+    const result = reduceNumbers(values, (acc, a) => (a < acc ? a : acc), Infinity);
     return result === Infinity ? 0 : result;
   },
   isExported: true,
@@ -668,9 +672,9 @@ export const MINA: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (): number {
+  compute: function (...values: Argument[]): number {
     const mina: number = reduceNumbersTextAs0(
-      arguments,
+      values,
       (acc, a) => {
         return Math.min(a, acc);
       },
@@ -698,7 +702,7 @@ export const MINIFS: AddFunctionDescription = {
       criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
     `),
   returns: ["NUMBER"],
-  compute: function (range, ...args): number {
+  compute: function (range: ArgRange, ...args: Argument[]): number {
     let result = Infinity;
     visitMatchingRanges(args, (i, j) => {
       const value = range[i][j];
@@ -724,7 +728,7 @@ export const PERCENTILE: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (data: any, percentile: any): number {
+  compute: function (data: Argument, percentile: ArgValue): number {
     return PERCENTILE_INC.compute(data, percentile);
   },
   isExported: true,
@@ -743,8 +747,8 @@ export const PERCENTILE_EXC: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (data: any, percentile: any): number {
-    return centile(data, percentile, false);
+  compute: function (data: Argument, percentile: ArgValue): number {
+    return centile([data], percentile, false);
   },
   isExported: true,
 };
@@ -762,8 +766,8 @@ export const PERCENTILE_INC: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (data: any, percentile: any): number {
-    return centile(data, percentile, true);
+  compute: function (data: Argument, percentile: ArgValue): number {
+    return centile([data], percentile, true);
   },
   isExported: true,
 };
@@ -779,7 +783,7 @@ export const QUARTILE: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (data: any, quartileNumber: any): number {
+  compute: function (data: Argument, quartileNumber: ArgValue): number {
     return QUARTILE_INC.compute(data, quartileNumber);
   },
   isExported: true,
@@ -796,9 +800,9 @@ export const QUARTILE_EXC: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (data: any, quartileNumber: any): number {
+  compute: function (data: Argument, quartileNumber: ArgValue): number {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber));
-    return centile(data, 0.25 * _quartileNumber, false);
+    return centile([data], 0.25 * _quartileNumber, false);
   },
   isExported: true,
 };
@@ -814,9 +818,9 @@ export const QUARTILE_INC: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (data: any, quartileNumber: any): number {
+  compute: function (data: Argument, quartileNumber: ArgValue): number {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber));
-    return centile(data, 0.25 * _quartileNumber, true);
+    return centile([data], 0.25 * _quartileNumber, true);
   },
   isExported: true,
 };
@@ -832,8 +836,8 @@ export const SMALL: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (data: any, n: any): number {
-    n = Math.trunc(toNumber(n));
+  compute: function (data: Argument, n: ArgValue): number {
+    const _n = Math.trunc(toNumber(n));
     let largests: number[] = [];
     let index: number;
     let count = 0;
@@ -842,7 +846,7 @@ export const SMALL: AddFunctionDescription = {
         index = dichotomicPredecessorSearch(largests, d);
         largests.splice(index + 1, 0, d);
         count++;
-        if (count > n) {
+        if (count > _n) {
           largests.pop();
           count--;
         }
@@ -851,8 +855,8 @@ export const SMALL: AddFunctionDescription = {
     const result = largests.pop();
     assert(() => result !== undefined, _lt(`[[FUNCTION_NAME]] has no valid input data.`));
     assert(
-      () => count >= n,
-      _lt("Function [[FUNCTION_NAME]] parameter 2 value (%s) is out of range.", n.toString())
+      () => count >= _n,
+      _lt("Function [[FUNCTION_NAME]] parameter 2 value (%s) is out of range.", _n.toString())
     );
     return result!;
   },
@@ -871,8 +875,8 @@ export const STDEV: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (): number {
-    return Math.sqrt(VAR.compute(...arguments));
+  compute: function (...values: Argument[]): number {
+    return Math.sqrt(VAR.compute(...values));
   },
   isExported: true,
 };
@@ -889,8 +893,8 @@ export const STDEV_P: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (): number {
-    return Math.sqrt(VAR_P.compute(...arguments));
+  compute: function (...values: Argument[]): number {
+    return Math.sqrt(VAR_P.compute(...values));
   },
   isExported: true,
 };
@@ -907,8 +911,8 @@ export const STDEV_S: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (): number {
-    return Math.sqrt(VAR_S.compute(...arguments));
+  compute: function (...values: Argument[]): number {
+    return Math.sqrt(VAR_S.compute(...values));
   },
   isExported: true,
 };
@@ -925,8 +929,8 @@ export const STDEVA: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
-  compute: function (): number {
-    return Math.sqrt(VARA.compute(...arguments));
+  compute: function (...values: Argument[]): number {
+    return Math.sqrt(VARA.compute(...values));
   },
   isExported: true,
 };
@@ -943,8 +947,8 @@ export const STDEVP: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
-  compute: function (): number {
-    return Math.sqrt(VARP.compute(...arguments));
+  compute: function (...values: Argument[]): number {
+    return Math.sqrt(VARP.compute(...values));
   },
   isExported: true,
 };
@@ -961,8 +965,8 @@ export const STDEVPA: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
-  compute: function (): number {
-    return Math.sqrt(VARPA.compute(...arguments));
+  compute: function (...values: Argument[]): number {
+    return Math.sqrt(VARPA.compute(...values));
   },
   isExported: true,
 };
@@ -979,8 +983,8 @@ export const VAR: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (): number {
-    return variance(arguments, true, false);
+  compute: function (...values: Argument[]): number {
+    return variance(values, true, false);
   },
   isExported: true,
 };
@@ -997,8 +1001,8 @@ export const VAR_P: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (): number {
-    return variance(arguments, false, false);
+  compute: function (...values: Argument[]): number {
+    return variance(values, false, false);
   },
   isExported: true,
 };
@@ -1015,8 +1019,8 @@ export const VAR_S: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (): number {
-    return variance(arguments, true, false);
+  compute: function (...values: Argument[]): number {
+    return variance(values, true, false);
   },
   isExported: true,
 };
@@ -1033,8 +1037,8 @@ export const VARA: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
-  compute: function (): number {
-    return variance(arguments, true, true);
+  compute: function (...values: Argument[]): number {
+    return variance(values, true, true);
   },
   isExported: true,
 };
@@ -1051,8 +1055,8 @@ export const VARP: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
-  compute: function (): number {
-    return variance(arguments, false, false);
+  compute: function (...values: Argument[]): number {
+    return variance(values, false, false);
   },
   isExported: true,
 };
@@ -1069,8 +1073,8 @@ export const VARPA: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
-  compute: function (): number {
-    return variance(arguments, false, true);
+  compute: function (...values: Argument[]): number {
+    return variance(values, false, true);
   },
   isExported: true,
 };

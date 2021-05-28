@@ -2,6 +2,7 @@
 
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _lt } from "../translation";
+import { ArgRange, Argument, ArgValue, CellValue } from "../types";
 import { numberToJsDate, parseDateTime } from "./dates";
 
 export function assert(condition: () => boolean, message: string): void {
@@ -19,7 +20,7 @@ const expectNumberValueError = (value: string) =>
     value
   );
 
-export function toNumber(value: unknown): number {
+export function toNumber(value: ArgValue): number {
   switch (typeof value) {
     case "number":
       return value;
@@ -39,14 +40,14 @@ export function toNumber(value: unknown): number {
   }
 }
 
-export function strictToNumber(value: unknown): number {
+export function strictToNumber(value: ArgValue): number {
   if (value === "") {
     throw new Error(expectNumberValueError(value));
   }
   return toNumber(value);
 }
 
-export function toString(value: any): string {
+export function toString(value: ArgValue): string {
   switch (typeof value) {
     case "string":
       return value;
@@ -65,7 +66,7 @@ const expectBooleanValueError = (value: string) =>
     value
   );
 
-export function toBoolean(value: unknown): boolean {
+export function toBoolean(value: ArgValue): boolean {
   switch (typeof value) {
     case "boolean":
       return value;
@@ -89,14 +90,14 @@ export function toBoolean(value: unknown): boolean {
   }
 }
 
-export function strictToBoolean(value: unknown): boolean {
+export function strictToBoolean(value: ArgValue): boolean {
   if (value === "") {
     throw new Error(expectBooleanValueError(value));
   }
   return toBoolean(value);
 }
 
-export function toJsDate(value: unknown): Date {
+export function toJsDate(value: ArgValue): Date {
   return numberToJsDate(toNumber(value));
 }
 
@@ -104,9 +105,9 @@ export function toJsDate(value: unknown): Date {
 // VISIT FUNCTIONS
 // -----------------------------------------------------------------------------
 function visitArgs(
-  args: IArguments | any[],
-  cellCb: (a: unknown) => void,
-  dataCb: (a: unknown) => void
+  args: Argument[],
+  cellCb: (a: ArgValue) => void,
+  dataCb: (a: ArgValue) => void
 ): void {
   for (let arg of args) {
     if (Array.isArray(arg)) {
@@ -125,11 +126,11 @@ function visitArgs(
   }
 }
 
-export function visitAny(args: IArguments | unknown[], cb: (a: any) => void): void {
+export function visitAny(args: Argument[], cb: (a: ArgValue) => void): void {
   visitArgs(args, cb, cb);
 }
 
-export function visitNumbers(args: IArguments | unknown[], cb: (arg: number) => void): void {
+export function visitNumbers(args: Argument[], cb: (arg: number) => void): void {
   visitArgs(
     args,
     (cellValue) => {
@@ -143,7 +144,7 @@ export function visitNumbers(args: IArguments | unknown[], cb: (arg: number) => 
   );
 }
 
-export function visitBooleans(args: IArguments | unknown[], cb: (a: boolean) => void): void {
+export function visitBooleans(args: Argument[], cb: (a: boolean) => void): void {
   visitArgs(
     args,
     (cellValue) => {
@@ -167,9 +168,9 @@ export function visitBooleans(args: IArguments | unknown[], cb: (a: boolean) => 
 // -----------------------------------------------------------------------------
 
 function reduceArgs<T>(
-  args: IArguments | any[],
-  cellCb: (acc: T, a: any) => T,
-  dataCb: (acc: T, a: any) => T,
+  args: Argument[],
+  cellCb: (acc: T, a: ArgValue) => T,
+  dataCb: (acc: T, a: ArgValue) => T,
   initialValue: T
 ): T {
   let val = initialValue;
@@ -191,24 +192,20 @@ function reduceArgs<T>(
   return val;
 }
 
-export function reduceAny(
-  args: IArguments | any[],
-  cb: (acc: any, a: any) => any,
-  initialValue: any
-): any {
+export function reduceAny<T>(args: Argument[], cb: (acc: T, a: ArgValue) => T, initialValue: T): T {
   return reduceArgs(args, cb, cb, initialValue);
 }
 
 export function reduceNumbers(
-  args: IArguments | any[],
-  cb: (acc: number, a: any) => number,
+  args: Argument[],
+  cb: (acc: number, a: number) => number,
   initialValue: number
 ): number {
   return reduceArgs(
     args,
-    (acc, cellValue) => {
-      if (typeof cellValue === "number") {
-        return cb(acc, cellValue);
+    (acc, ArgValue) => {
+      if (typeof ArgValue === "number") {
+        return cb(acc, ArgValue);
       }
       return acc;
     },
@@ -220,18 +217,18 @@ export function reduceNumbers(
 }
 
 export function reduceNumbersTextAs0(
-  args: IArguments | any[],
-  cb: (acc: number, a: any) => number,
+  args: Argument[],
+  cb: (acc: number, a: number) => number,
   initialValue: number
 ): number {
   return reduceArgs(
     args,
-    (acc, cellValue) => {
-      if (cellValue !== undefined && cellValue !== null) {
-        if (typeof cellValue === "number") {
-          return cb(acc, cellValue);
-        } else if (typeof cellValue === "boolean") {
-          return cb(acc, toNumber(cellValue));
+    (acc, ArgValue) => {
+      if (ArgValue !== undefined && ArgValue !== null) {
+        if (typeof ArgValue === "number") {
+          return cb(acc, ArgValue);
+        } else if (typeof ArgValue === "boolean") {
+          return cb(acc, toNumber(ArgValue));
         } else {
           return cb(acc, 0);
         }
@@ -254,9 +251,9 @@ export function reduceNumbersTextAs0(
  * It is mainly used to bypass argument evaluation for functions like OR or AND.
  */
 function conditionalVisitArgs(
-  args: IArguments | any[],
-  cellCb: (a: unknown) => boolean,
-  dataCb: (a: unknown) => boolean
+  args: Argument[],
+  cellCb: (a: ArgValue) => boolean,
+  dataCb: (a: ArgValue) => boolean
 ): void {
   for (let arg of args) {
     if (Array.isArray(arg)) {
@@ -275,18 +272,15 @@ function conditionalVisitArgs(
   }
 }
 
-export function conditionalVisitBoolean(
-  args: IArguments | any[],
-  cb: (a: boolean) => boolean
-): void {
+export function conditionalVisitBoolean(args: Argument[], cb: (a: boolean) => boolean): void {
   return conditionalVisitArgs(
     args,
-    (cellValue) => {
-      if (typeof cellValue === "boolean") {
-        return cb(cellValue);
+    (ArgValue) => {
+      if (typeof ArgValue === "boolean") {
+        return cb(ArgValue);
       }
-      if (typeof cellValue === "number") {
-        return cb(cellValue ? true : false);
+      if (typeof ArgValue === "number") {
+        return cb(ArgValue ? true : false);
       }
       return true;
     },
@@ -306,13 +300,13 @@ export function conditionalVisitBoolean(
 type Operator = ">" | ">=" | "<" | "<=" | "<>" | "=";
 interface Predicate {
   operator: Operator;
-  operand: any;
+  operand: ArgValue;
   regexp?: RegExp;
 }
 
 function getPredicate(descr: string, isQuery: boolean): Predicate {
   let operator: Operator;
-  let operand: any;
+  let operand: ArgValue;
 
   let subString = descr.substring(0, 2);
 
@@ -371,8 +365,12 @@ function operandToRegExp(operand: string): RegExp {
   return new RegExp("^" + exp + "$", "i");
 }
 
-function evaluatePredicate(value: any, criterion: Predicate): boolean {
+function evaluatePredicate(value: ArgValue, criterion: Predicate): boolean {
   const { operator, operand } = criterion;
+
+  if (value === undefined || operand === undefined) {
+    return false;
+  }
 
   if (typeof operand === "number" && operator === "=") {
     return toString(value) === toString(operand);
@@ -381,7 +379,7 @@ function evaluatePredicate(value: any, criterion: Predicate): boolean {
   if (operator === "<>" || operator === "=") {
     let result: boolean;
     if (typeof value === typeof operand) {
-      if (criterion.regexp) {
+      if (typeof value === "string" && criterion.regexp) {
         result = criterion.regexp.test(value);
       } else {
         result = value === operand;
@@ -432,7 +430,7 @@ function evaluatePredicate(value: any, criterion: Predicate): boolean {
  * (Ex4 isQuery = false, predicate = "abc", element = "abc": predicate match the element).
  */
 export function visitMatchingRanges(
-  args: IArguments | any[],
+  args: Argument[],
   cb: (i: number, j: number) => void,
   isQuery: boolean = false
 ): void {
@@ -444,21 +442,25 @@ export function visitMatchingRanges(
     );
   }
 
-  const dimRow = args[0].length;
-  const dimCol = args[0][0].length;
+  const dimRow = (args[0] as ArgRange).length;
+  const dimCol = (args[0] as ArgRange)[0].length;
 
   let predicates: Predicate[] = [];
 
   for (let i = 0; i < countArg - 1; i += 2) {
     const criteriaRange = args[i];
 
-    if (criteriaRange.length !== dimRow || criteriaRange[0].length !== dimCol) {
+    if (
+      !Array.isArray(criteriaRange) ||
+      criteriaRange.length !== dimRow ||
+      criteriaRange[0].length !== dimCol
+    ) {
       throw new Error(
         _lt(`Function [[FUNCTION_NAME]] expects criteria_range to have the same dimension`)
       );
     }
 
-    const description = toString(args[i + 1]);
+    const description = toString(args[i + 1] as ArgValue);
     predicates.push(getPredicate(description, isQuery));
   }
 
@@ -466,7 +468,7 @@ export function visitMatchingRanges(
     for (let j = 0; j < dimCol; j++) {
       let validatedPredicates = true;
       for (let k = 0; k < countArg - 1; k += 2) {
-        const criteriaValue = args[k][i][j];
+        const criteriaValue = (args[k] as ArgRange)[i][j];
         const criterion = predicates[k / 2];
         validatedPredicates = evaluatePredicate(criteriaValue, criterion);
         if (!validatedPredicates) {
@@ -499,27 +501,30 @@ export function visitMatchingRanges(
  * - [3, undefined, 6, undefined, 10], 9 => 2
  * - [3, 6, undefined, undefined, undefined, 10], 2 => -1
  */
-export function dichotomicPredecessorSearch(range: any[], target: any): number {
+export function dichotomicPredecessorSearch(range: ArgValue[], target: ArgValue): number {
+  if (target === undefined) {
+    return -1;
+  }
   const targetType = typeof target;
 
-  let valMin: any;
+  let valMin: ArgValue = undefined;
   let valMinIndex: number | undefined = undefined;
 
   let indexLeft = 0;
   let indexRight = range.length - 1;
 
-  if (typeof range[indexLeft] === targetType && target < range[indexLeft]) {
+  if (typeof range[indexLeft] === targetType && target < (range[indexLeft] as CellValue)) {
     return -1;
   }
 
-  if (typeof range[indexRight] === targetType && range[indexRight] <= target) {
+  if (typeof range[indexRight] === targetType && (range[indexRight] as CellValue) <= target) {
     return indexRight;
   }
 
   let indexMedian: number;
   let currentIndex: number;
-  let currentVal: any;
-  let currentType: any;
+  let currentVal: ArgValue;
+  let currentType: string;
 
   while (indexRight - indexLeft >= 0) {
     indexMedian = Math.ceil((indexLeft + indexRight) / 2);
@@ -536,10 +541,10 @@ export function dichotomicPredecessorSearch(range: any[], target: any): number {
     }
 
     // 2 - check if value match
-    if (currentType === targetType && currentVal <= target) {
+    if (currentType === targetType && (currentVal as CellValue) <= target) {
       if (
         valMin === undefined ||
-        valMin < currentVal ||
+        valMin < (currentVal as CellValue) ||
         (valMin === currentVal && valMinIndex! < currentIndex)
       ) {
         valMin = currentVal;
@@ -548,7 +553,7 @@ export function dichotomicPredecessorSearch(range: any[], target: any): number {
     }
 
     // 3 - give new indexs for the Binary search
-    if (currentType === targetType && currentVal > target) {
+    if (currentType === targetType && (currentVal as CellValue) > target) {
       indexRight = currentIndex - 1;
     } else {
       indexLeft = indexMedian + 1;

@@ -1,5 +1,5 @@
 import { _lt } from "../translation";
-import { AddFunctionDescription, ReturnFormatType } from "../types";
+import { AddFunctionDescription, ArgRange, Argument, ArgValue, ReturnFormatType } from "../types";
 import { args } from "./arguments";
 import {
   assert,
@@ -25,7 +25,7 @@ export const ABS: AddFunctionDescription = {
     value (number) ${_lt("The number of which to return the absolute value.")}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     return Math.abs(toNumber(value));
   },
   isExported: true,
@@ -42,7 +42,7 @@ export const ACOS: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     const _value = toNumber(value);
     assert(
       () => Math.abs(_value) <= 1,
@@ -64,7 +64,7 @@ export const ACOSH: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     const _value = toNumber(value);
     assert(
       () => _value >= 1,
@@ -84,7 +84,7 @@ export const ACOT: AddFunctionDescription = {
     value (number) ${_lt("The value for which to calculate the inverse cotangent.")}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     const _value = toNumber(value);
     const sign = Math.sign(_value) || 1;
     // ACOT has two possible configurations:
@@ -106,7 +106,7 @@ export const ACOTH: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     const _value = toNumber(value);
     assert(
       () => Math.abs(_value) > 1,
@@ -128,7 +128,7 @@ export const ASIN: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     const _value = toNumber(value);
     assert(
       () => Math.abs(_value) <= 1,
@@ -148,7 +148,7 @@ export const ASINH: AddFunctionDescription = {
     value (number) ${_lt("The value for which to calculate the inverse hyperbolic sine.")}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     return Math.asinh(toNumber(value));
   },
   isExported: true,
@@ -163,7 +163,7 @@ export const ATAN: AddFunctionDescription = {
     value (number) ${_lt("The value for which to calculate the inverse tangent.")}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     return Math.atan(toNumber(value));
   },
   isExported: true,
@@ -183,7 +183,7 @@ export const ATAN2: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
-  compute: function (x: any, y: any): number {
+  compute: function (x: ArgValue, y: ArgValue): number {
     const _x = toNumber(x);
     const _y = toNumber(y);
     assert(
@@ -206,7 +206,7 @@ export const ATANH: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     const _value = toNumber(value);
     assert(
       () => Math.abs(_value) < 1,
@@ -230,7 +230,7 @@ export const CEILING: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (value: any, factor: any = DEFAULT_FACTOR): number {
+  compute: function (value: ArgValue, factor: ArgValue = DEFAULT_FACTOR): number {
     const _value = toNumber(value);
     const _factor = toNumber(factor);
     assert(
@@ -263,9 +263,9 @@ export const CEILING_MATH: AddFunctionDescription = {
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (
-    number: any,
-    significance: any = DEFAULT_SIGNIFICANCE,
-    mode: any = DEFAULT_MODE
+    number: ArgValue,
+    significance: ArgValue = DEFAULT_SIGNIFICANCE,
+    mode: ArgValue = DEFAULT_MODE
   ): number {
     let _significance = toNumber(significance);
     if (_significance === 0) {
@@ -301,7 +301,7 @@ export const CEILING_PRECISE: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (number: any, significance: any): number {
+  compute: function (number: ArgValue, significance: ArgValue): number {
     return CEILING_MATH.compute(number, significance, 0);
   },
   isExported: true,
@@ -316,7 +316,7 @@ export const COS: AddFunctionDescription = {
     angle (number) ${_lt("The angle to find the cosine of, in radians.")}
   `),
   returns: ["NUMBER"],
-  compute: function (angle: any): number {
+  compute: function (angle: ArgValue): number {
     return Math.cos(toNumber(angle));
   },
   isExported: true,
@@ -331,7 +331,7 @@ export const COSH: AddFunctionDescription = {
     value (number) ${_lt("Any real value to calculate the hyperbolic cosine of.")}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     return Math.cosh(toNumber(value));
   },
   isExported: true,
@@ -346,7 +346,7 @@ export const COT: AddFunctionDescription = {
     angle (number) ${_lt("The angle to find the cotangent of, in radians.")}
   `),
   returns: ["NUMBER"],
-  compute: function (angle: any): number {
+  compute: function (angle: ArgValue): number {
     const _angle = toNumber(angle);
     assert(
       () => _angle !== 0,
@@ -366,7 +366,7 @@ export const COTH: AddFunctionDescription = {
     value (number) ${_lt("Any real value to calculate the hyperbolic cotangent of.")}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     const _value = toNumber(value);
     assert(
       () => _value !== 0,
@@ -389,9 +389,9 @@ export const COUNTBLANK: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
-  compute: function (): number {
+  compute: function (...argsValues: Argument[]): number {
     return reduceAny(
-      arguments,
+      argsValues,
       (acc, a) => (a === null || a === undefined || a === "" ? acc + 1 : acc),
       0
     );
@@ -409,9 +409,9 @@ export const COUNTIF: AddFunctionDescription = {
     criterion (string) ${_lt("The pattern or test to apply to range.")}
   `),
   returns: ["NUMBER"],
-  compute: function (): number {
+  compute: function (...argsValues: Argument[]): number {
     let count = 0;
-    visitMatchingRanges(arguments, (i, j) => {
+    visitMatchingRanges(argsValues, (i, j) => {
       count += 1;
     });
     return count;
@@ -433,9 +433,9 @@ export const COUNTIFS: AddFunctionDescription = {
     criterion2 (string, repeating) ${_lt("Additional criteria to check.")}
   `),
   returns: ["NUMBER"],
-  compute: function (): number {
+  compute: function (...argsValues: Argument[]): number {
     let count = 0;
-    visitMatchingRanges(arguments, (i, j) => {
+    visitMatchingRanges(argsValues, (i, j) => {
       count += 1;
     });
     return count;
@@ -467,8 +467,8 @@ export const COUNTUNIQUE: AddFunctionDescription = {
     value2 (any, range, repeating) ${_lt("Additional values or ranges to consider for uniqueness.")}
   `),
   returns: ["NUMBER"],
-  compute: function (): number {
-    return reduceAny(arguments, (acc, a) => (isDefined(a) ? acc.add(a) : acc), new Set()).size;
+  compute: function (...argsValues: Argument[]): number {
+    return reduceAny(argsValues, (acc, a) => (isDefined(a) ? acc.add(a) : acc), new Set()).size;
   },
 };
 
@@ -492,9 +492,9 @@ export const COUNTUNIQUEIFS: AddFunctionDescription = {
     criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
   `),
   returns: ["NUMBER"],
-  compute: function (range, ...args): number {
+  compute: function (range: ArgRange, ...argsValues: Argument[]): number {
     let uniqueValues = new Set();
-    visitMatchingRanges(args, (i, j) => {
+    visitMatchingRanges(argsValues, (i, j) => {
       const value = range[i][j];
       if (isDefined(value)) {
         uniqueValues.add(value);
@@ -513,7 +513,7 @@ export const CSC: AddFunctionDescription = {
     angle (number) ${_lt("The angle to find the cosecant of, in radians.")}
   `),
   returns: ["NUMBER"],
-  compute: function (angle: any): number {
+  compute: function (angle: ArgValue): number {
     const _angle = toNumber(angle);
     assert(
       () => _angle !== 0,
@@ -533,7 +533,7 @@ export const CSCH: AddFunctionDescription = {
     value (number) ${_lt("Any real value to calculate the hyperbolic cosecant of.")}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     const _value = toNumber(value);
     assert(
       () => _value !== 0,
@@ -554,7 +554,7 @@ export const DECIMAL: AddFunctionDescription = {
     base (number) ${_lt("The base to convert the value from.")},
   `),
   returns: ["NUMBER"],
-  compute: function (value: any, base: any): number {
+  compute: function (value: ArgValue, base: ArgValue): number {
     let _base = toNumber(base);
     _base = Math.floor(_base);
 
@@ -597,7 +597,7 @@ export const DEGREES: AddFunctionDescription = {
     angle (number)  ${_lt("The angle to convert from radians to degrees.")}
   `),
   returns: ["NUMBER"],
-  compute: function (angle: any): number {
+  compute: function (angle: ArgValue): number {
     return (toNumber(angle) * 180) / Math.PI;
   },
   isExported: true,
@@ -612,7 +612,7 @@ export const EXP: AddFunctionDescription = {
     value (number) ${_lt("The exponent to raise e.")}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     return Math.exp(toNumber(value));
   },
   isExported: true,
@@ -631,7 +631,7 @@ export const FLOOR: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (value: any, factor: any = DEFAULT_FACTOR): number {
+  compute: function (value: ArgValue, factor: ArgValue = DEFAULT_FACTOR): number {
     const _value = toNumber(value);
     const _factor = toNumber(factor);
     assert(
@@ -666,9 +666,9 @@ export const FLOOR_MATH: AddFunctionDescription = {
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (
-    number: any,
-    significance: any = DEFAULT_SIGNIFICANCE,
-    mode: any = DEFAULT_MODE
+    number: ArgValue,
+    significance: ArgValue = DEFAULT_SIGNIFICANCE,
+    mode: ArgValue = DEFAULT_MODE
   ): number {
     let _significance = toNumber(significance);
     if (_significance === 0) {
@@ -705,7 +705,7 @@ export const FLOOR_PRECISE: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (number: number, significance: number = DEFAULT_SIGNIFICANCE): number {
+  compute: function (number: ArgValue, significance: ArgValue = DEFAULT_SIGNIFICANCE): number {
     return FLOOR_MATH.compute(number, significance, 0);
   },
   isExported: true,
@@ -720,7 +720,7 @@ export const ISEVEN: AddFunctionDescription = {
     value (number) ${_lt("The value to be verified as even.")}
   `),
   returns: ["BOOLEAN"],
-  compute: function (value: any): boolean {
+  compute: function (value: ArgValue): boolean {
     const _value = strictToNumber(value);
 
     return Math.floor(Math.abs(_value)) & 1 ? false : true;
@@ -743,7 +743,7 @@ export const ISO_CEILING: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (number: any, significance: any = DEFAULT_SIGNIFICANCE): number {
+  compute: function (number: ArgValue, significance: ArgValue = DEFAULT_SIGNIFICANCE): number {
     return CEILING_MATH.compute(number, significance, 0);
   },
   isExported: true,
@@ -758,7 +758,7 @@ export const ISODD: AddFunctionDescription = {
     value (number) ${_lt("The value to be verified as even.")}
   `),
   returns: ["BOOLEAN"],
-  compute: function (value: any): boolean {
+  compute: function (value: ArgValue): boolean {
     const _value = strictToNumber(value);
 
     return Math.floor(Math.abs(_value)) & 1 ? true : false;
@@ -775,7 +775,7 @@ export const LN: AddFunctionDescription = {
     value (number) ${_lt("The value for which to calculate the logarithm, base e.")}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     const _value = toNumber(value);
     assert(() => _value > 0, _lt("The value (%s) must be strictly positive.", _value.toString()));
     return Math.log(_value);
@@ -794,7 +794,7 @@ export const MOD: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (dividend: any, divisor: any): number {
+  compute: function (dividend: ArgValue, divisor: ArgValue): number {
     const _divisor = toNumber(divisor);
 
     assert(() => _divisor !== 0, _lt("The divisor must be different from 0."));
@@ -820,7 +820,7 @@ export const ODD: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     const _value = toNumber(value);
 
     let temp = Math.ceil(Math.abs(_value));
@@ -854,7 +854,7 @@ export const POWER: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (base: any, exponent: any): number {
+  compute: function (base: ArgValue, exponent: ArgValue): number {
     const _base = toNumber(base);
     const _exponent = toNumber(exponent);
     assert(
@@ -881,10 +881,10 @@ export const PRODUCT: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (): number {
+  compute: function (...factors: Argument[]): number {
     let count = 0;
     let acc = 1;
-    for (let n of arguments) {
+    for (let n of factors) {
       if (Array.isArray(n)) {
         for (let i of n) {
           for (let j of i) {
@@ -931,7 +931,7 @@ export const RANDBETWEEN: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (low: any, high: any): number {
+  compute: function (low: ArgValue, high: ArgValue): number {
     let _low = toNumber(low);
     if (!Number.isInteger(_low)) {
       _low = Math.ceil(_low);
@@ -968,7 +968,7 @@ export const ROUND: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (value: any, places: any = DEFAULT_PLACES): number {
+  compute: function (value: ArgValue, places: ArgValue = DEFAULT_PLACES): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
 
@@ -1000,7 +1000,7 @@ export const ROUNDDOWN: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (value: any, places: any = DEFAULT_PLACES): number {
+  compute: function (value: ArgValue, places: ArgValue = DEFAULT_PLACES): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
 
@@ -1032,7 +1032,7 @@ export const ROUNDUP: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (value: any, places: any = DEFAULT_PLACES): number {
+  compute: function (value: ArgValue, places: ArgValue = DEFAULT_PLACES): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
 
@@ -1060,7 +1060,7 @@ export const SEC: AddFunctionDescription = {
     angle (number) ${_lt("The angle to find the secant of, in radians.")}
   `),
   returns: ["NUMBER"],
-  compute: function (angle: any): number {
+  compute: function (angle: ArgValue): number {
     return 1 / Math.cos(toNumber(angle));
   },
   isExported: true,
@@ -1075,7 +1075,7 @@ export const SECH: AddFunctionDescription = {
     value (number) ${_lt("Any real value to calculate the hyperbolic secant of.")}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     return 1 / Math.cosh(toNumber(value));
   },
   isExported: true,
@@ -1090,7 +1090,7 @@ export const SIN: AddFunctionDescription = {
       angle (number) ${_lt("The angle to find the sine of, in radians.")}
     `),
   returns: ["NUMBER"],
-  compute: function (angle: number): number {
+  compute: function (angle: ArgValue): number {
     return Math.sin(toNumber(angle));
   },
   isExported: true,
@@ -1105,7 +1105,7 @@ export const SINH: AddFunctionDescription = {
     value (number) ${_lt("Any real value to calculate the hyperbolic sine of.")}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     return Math.sinh(toNumber(value));
   },
   isExported: true,
@@ -1121,7 +1121,7 @@ export const SQRT: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     const _value = toNumber(value);
     assert(() => _value >= 0, _lt("The value (%s) must be positive or null.", _value.toString()));
     return Math.sqrt(_value);
@@ -1142,8 +1142,8 @@ export const SUM: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (): number {
-    return reduceNumbers(arguments, (acc, a) => acc + a, 0);
+  compute: function (...values: Argument[]): number {
+    return reduceNumbers(values, (acc, a) => acc + a, 0);
   },
   isExported: true,
 };
@@ -1161,13 +1161,18 @@ export const SUMIF: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (criteriaRange: any, criterion: any, sumRange: any = undefined): number {
+  compute: function (
+    criteriaRange: Argument,
+    criterion: ArgValue,
+    sumRange: Argument | undefined = undefined
+  ): number {
     if (sumRange === undefined) {
       sumRange = criteriaRange;
     }
+
     let sum = 0;
     visitMatchingRanges([criteriaRange, criterion], (i, j) => {
-      const value = sumRange[i][j];
+      const value = sumRange![i][j];
       if (typeof value === "number") {
         sum += value;
       }
@@ -1189,9 +1194,9 @@ export const SUMIFS: AddFunctionDescription = {
       additional_values (any, range, optional, repeating) ${_lt("Additional criteria to check.")}
     `),
   returns: ["NUMBER"],
-  compute: function (sumRange, ...args): number {
+  compute: function (sumRange: ArgRange, ...criters: Argument[]): number {
     let sum = 0;
-    visitMatchingRanges(args, (i, j) => {
+    visitMatchingRanges(criters, (i, j) => {
       const value = sumRange[i][j];
       if (typeof value === "number") {
         sum += value;
@@ -1211,7 +1216,7 @@ export const TAN: AddFunctionDescription = {
     angle (number) ${_lt("The angle to find the tangent of, in radians.")}
   `),
   returns: ["NUMBER"],
-  compute: function (angle: any): number {
+  compute: function (angle: ArgValue): number {
     return Math.tan(toNumber(angle));
   },
   isExported: true,
@@ -1226,7 +1231,7 @@ export const TANH: AddFunctionDescription = {
     value (number) ${_lt("Any real value to calculate the hyperbolic tangent of.")}
   `),
   returns: ["NUMBER"],
-  compute: function (value: any): number {
+  compute: function (value: ArgValue): number {
     return Math.tanh(toNumber(value));
   },
   isExported: true,
@@ -1245,7 +1250,7 @@ export const TRUNC: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   returnFormat: ReturnFormatType.FormatFromArgument,
-  compute: function (value: any, places: any = DEFAULT_PLACES): number {
+  compute: function (value: ArgValue, places: ArgValue = DEFAULT_PLACES): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
 

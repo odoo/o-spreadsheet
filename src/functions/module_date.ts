@@ -1,6 +1,6 @@
 import { parseDateTime } from "../functions/dates";
 import { _lt } from "../translation";
-import { AddFunctionDescription } from "../types";
+import { AddFunctionDescription, Argument, ArgValue, CellValue } from "../types";
 import { args } from "./arguments";
 import { assert, toJsDate, toNumber, toString, visitAny } from "./helpers";
 
@@ -26,7 +26,7 @@ export const DATE: AddFunctionDescription = {
     `),
   returns: ["DATE"],
   returnFormat: { specificFormat: "m/d/yyyy" },
-  compute: function (year: any, month: any, day: any): number {
+  compute: function (year: ArgValue, month: ArgValue, day: ArgValue): number {
     let _year = Math.trunc(toNumber(year));
     const _month = Math.trunc(toNumber(month));
     const _day = Math.trunc(toNumber(day));
@@ -64,7 +64,7 @@ export const DATEVALUE: AddFunctionDescription = {
       date_string (string) ${_lt("The string representing the date.")}
     `),
   returns: ["NUMBER"],
-  compute: function (dateString: any): number {
+  compute: function (dateString: ArgValue): number {
     const _dateString = toString(dateString);
     const internalDate = parseDateTime(_dateString);
 
@@ -87,7 +87,7 @@ export const DAY: AddFunctionDescription = {
       date (string) ${_lt("The date from which to extract the day.")}
     `),
   returns: ["NUMBER"],
-  compute: function (date: any): number {
+  compute: function (date: ArgValue): number {
     return toJsDate(date).getDate();
   },
   isExported: true,
@@ -103,7 +103,7 @@ export const DAYS: AddFunctionDescription = {
       start_date (date) ${_lt("The start of the date range.")}
     `),
   returns: ["NUMBER"],
-  compute: function (endDate: any, startDate: any): number {
+  compute: function (endDate: ArgValue, startDate: ArgValue): number {
     const _endDate = toJsDate(endDate);
     const _startDate = toJsDate(startDate);
     const dateDif = _endDate.getTime() - _startDate.getTime();
@@ -125,7 +125,7 @@ export const EDATE: AddFunctionDescription = {
     `),
   returns: ["DATE"],
   returnFormat: { specificFormat: "m/d/yyyy" },
-  compute: function (startDate: any, months: any): number {
+  compute: function (startDate: ArgValue, months: ArgValue): number {
     const _startDate = toJsDate(startDate);
     const _months = Math.trunc(toNumber(months));
 
@@ -153,7 +153,7 @@ export const EOMONTH: AddFunctionDescription = {
     `),
   returns: ["DATE"],
   returnFormat: { specificFormat: "m/d/yyyy" },
-  compute: function (startDate: any, months: any): number {
+  compute: function (startDate: ArgValue, months: ArgValue): number {
     const _startDate = toJsDate(startDate);
     const _months = Math.trunc(toNumber(months));
 
@@ -176,7 +176,7 @@ export const HOUR: AddFunctionDescription = {
     time (date) ${_lt("The time from which to calculate the hour component.")}
     `),
   returns: ["NUMBER"],
-  compute: function (date: any): number {
+  compute: function (date: ArgValue): number {
     return toJsDate(date).getHours();
   },
   isExported: true,
@@ -193,7 +193,7 @@ export const ISOWEEKNUM: AddFunctionDescription = {
     )}
     `),
   returns: ["NUMBER"],
-  compute: function (date: any): number {
+  compute: function (date: ArgValue): number {
     const _date = toJsDate(date);
     const y = _date.getFullYear();
 
@@ -277,7 +277,7 @@ export const MINUTE: AddFunctionDescription = {
       time (date) ${_lt("The time from which to calculate the minute component.")}
     `),
   returns: ["NUMBER"],
-  compute: function (date: any): number {
+  compute: function (date: ArgValue): number {
     return toJsDate(date).getMinutes();
   },
   isExported: true,
@@ -292,7 +292,7 @@ export const MONTH: AddFunctionDescription = {
       date (date) ${_lt("The date from which to extract the month.")}
     `),
   returns: ["NUMBER"],
-  compute: function (date: any): number {
+  compute: function (date: ArgValue): number {
     return toJsDate(date).getMonth() + 1;
   },
   isExported: true,
@@ -315,7 +315,11 @@ export const NETWORKDAYS: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (startDate: any, endDate: any, holidays: any): number {
+  compute: function (
+    startDate: ArgValue,
+    endDate: ArgValue,
+    holidays: Argument | undefined = undefined
+  ): number {
     return NETWORKDAYS_INTL.compute(startDate, endDate, 1, holidays);
   },
   isExported: true,
@@ -346,12 +350,7 @@ export const NETWORKDAYS: AddFunctionDescription = {
  * - 3 return [1,2] (correspond to Monday and Tuesday)
  * - "0101010" return [2,4,6] (correspond to Tuesday, Thursday and Saturday)
  */
-function weekendToDayNumber(weekend: any): number[] {
-  assert(
-    () => typeof weekend === "string" || typeof weekend === "number",
-    _lt("The weekend (%s) must be a number or a string.", weekend.toString())
-  );
-
+function weekendToDayNumber(weekend: CellValue): number[] {
   // case "string"
   if (typeof weekend === "string") {
     assert(() => {
@@ -376,30 +375,34 @@ function weekendToDayNumber(weekend: any): number[] {
     return result;
   }
 
-  //  case number
-  assert(
-    () => (1 <= weekend && weekend <= 7) || (11 <= weekend && weekend <= 17),
-    _lt(
-      "The weekend (%s) must be a string or a number in the range 1-7 or 11-17.",
-      weekend.toString()
-    )
-  );
+  //case "number"
+  if (typeof weekend === "number") {
+    assert(
+      () => (1 <= weekend && weekend <= 7) || (11 <= weekend && weekend <= 17),
+      _lt(
+        "The weekend (%s) must be a string or a number in the range 1-7 or 11-17.",
+        weekend.toString()
+      )
+    );
 
-  // case 1 <= weekend <= 7
-  if (weekend <= 7) {
-    // 1 = Saturday/Sunday are weekends
-    // 2 = Sunday/Monday
+    // case 1 <= weekend <= 7
+    if (weekend <= 7) {
+      // 1 = Saturday/Sunday are weekends
+      // 2 = Sunday/Monday
+      // ...
+      // 7 = Friday/Saturday.
+      return [weekend - 2 === -1 ? 6 : weekend - 2, weekend - 1];
+    }
+
+    // case 11 <= weekend <= 17
+    // 11 = Sunday is the only weekend
+    // 12 = Monday is the only weekend
     // ...
-    // 7 = Friday/Saturday.
-    return [weekend - 2 === -1 ? 6 : weekend - 2, weekend - 1];
+    // 17 = Saturday is the only weekend.
+    return [weekend - 11];
   }
 
-  // case 11 <= weekend <= 17
-  // 11 = Sunday is the only weekend
-  // 12 = Monday is the only weekend
-  // ...
-  // 17 = Saturday is the only weekend.
-  return [weekend - 11];
+  throw Error(_lt(`The weekend (%s) must be a number or a string.`, weekend.toString()));
 }
 
 export const NETWORKDAYS_INTL: AddFunctionDescription = {
@@ -420,14 +423,13 @@ export const NETWORKDAYS_INTL: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (
-    startDate: any,
-    endDate: any,
-    weekend: any = DEFAULT_WEEKEND,
-    holidays: any = undefined
+    startDate: ArgValue,
+    endDate: ArgValue,
+    weekend: ArgValue = DEFAULT_WEEKEND,
+    holidays: Argument = undefined
   ): number {
     const _startDate = toJsDate(startDate);
     const _endDate = toJsDate(endDate);
-
     const daysWeekend = weekendToDayNumber(weekend);
     let timesHoliday = new Set();
     if (holidays !== undefined) {
@@ -486,7 +488,7 @@ export const SECOND: AddFunctionDescription = {
       time (date) ${_lt("The time from which to calculate the second component.")}
     `),
   returns: ["NUMBER"],
-  compute: function (date: any): number {
+  compute: function (date: ArgValue): number {
     return toJsDate(date).getSeconds();
   },
   isExported: true,
@@ -504,7 +506,7 @@ export const TIME: AddFunctionDescription = {
     `),
   returns: ["DATE"],
   returnFormat: { specificFormat: "hh:mm:ss a" },
-  compute: function (hour: any, minute: any, second: any): number {
+  compute: function (hour: ArgValue, minute: ArgValue, second: ArgValue): number {
     let _hour = Math.trunc(toNumber(hour));
     let _minute = Math.trunc(toNumber(minute));
     let _second = Math.trunc(toNumber(second));
@@ -533,7 +535,7 @@ export const TIMEVALUE: AddFunctionDescription = {
       time_string (string) ${_lt("The string that holds the time representation.")}
     `),
   returns: ["NUMBER"],
-  compute: function (timeString: any): number {
+  compute: function (timeString: ArgValue): number {
     const _timeString = toString(timeString);
     const internalDate = parseDateTime(_timeString);
 
@@ -579,11 +581,10 @@ export const WEEKDAY: AddFunctionDescription = {
   )}
   `),
   returns: ["NUMBER"],
-  compute: function (date: any, type: any = DEFAULT_TYPE): number {
+  compute: function (date: ArgValue, type: ArgValue = DEFAULT_TYPE): number {
     const _date = toJsDate(date);
     const _type = Math.round(toNumber(type));
     const m = _date.getDay();
-
     assert(
       () => [1, 2, 3].includes(_type),
       _lt("The type (%s) must be 1, 2 or 3.", _type.toString())
@@ -610,10 +611,9 @@ export const WEEKNUM: AddFunctionDescription = {
   )}
     `),
   returns: ["NUMBER"],
-  compute: function (date: any, type: any = DEFAULT_TYPE): number {
+  compute: function (date: ArgValue, type: ArgValue = DEFAULT_TYPE): number {
     const _date = toJsDate(date);
     const _type = Math.round(toNumber(type));
-
     assert(
       () => _type === 1 || _type === 2 || (11 <= _type && _type <= 17) || _type === 21,
       _lt("The type (%s) is out of range.", _type.toString())
@@ -667,7 +667,11 @@ export const WORKDAY: AddFunctionDescription = {
       `),
   returns: ["NUMBER"],
   returnFormat: { specificFormat: "m/d/yyyy" },
-  compute: function (startDate: any, numDays: any, holidays: any = undefined): number {
+  compute: function (
+    startDate: ArgValue,
+    numDays: ArgValue,
+    holidays: Argument | undefined = undefined
+  ): number {
     return WORKDAY_INTL.compute(startDate, numDays, 1, holidays);
   },
   isExported: true,
@@ -693,18 +697,19 @@ export const WORKDAY_INTL: AddFunctionDescription = {
   returns: ["DATE"],
   returnFormat: { specificFormat: "m/d/yyyy" },
   compute: function (
-    startDate: any,
-    numDays: any,
-    weekend: any = DEFAULT_WEEKEND,
-    holidays: any = undefined
+    startDate: ArgValue,
+    numDays: ArgValue,
+    weekend: ArgValue = DEFAULT_WEEKEND,
+    holidays: Argument = undefined
   ): number {
     let _startDate = toJsDate(startDate);
     let _numDays = Math.trunc(toNumber(numDays));
-
-    assert(
-      () => weekend !== "1111111",
-      _lt("The weekend (%s) must be different from '1111111'.", weekend.toString())
-    );
+    if (typeof weekend === "string") {
+      assert(
+        () => weekend !== "1111111",
+        _lt("The weekend (%s) must be different from '1111111'.", weekend)
+      );
+    }
 
     const daysWeekend = weekendToDayNumber(weekend);
 
@@ -746,7 +751,7 @@ export const YEAR: AddFunctionDescription = {
     date (date) ${_lt("The date from which to extract the year.")}
     `),
   returns: ["NUMBER"],
-  compute: function (date: any): number {
+  compute: function (date: ArgValue): number {
     return toJsDate(date).getFullYear();
   },
   isExported: true,
@@ -771,9 +776,9 @@ export const YEARFRAC: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (
-    startDate: any,
-    endDate: any,
-    dayCountConvention: any = DEFAULT_DAY_COUNT_CONVENTION
+    startDate: ArgValue,
+    endDate: ArgValue,
+    dayCountConvention: ArgValue = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     let _startDate = Math.trunc(toNumber(startDate));
     let _endDate = Math.trunc(toNumber(endDate));

@@ -1,5 +1,5 @@
 import { _lt } from "../translation";
-import { AddFunctionDescription } from "../types";
+import { AddFunctionDescription, Argument, ArgValue } from "../types";
 import { args } from "./arguments";
 import { assert, reduceAny, toBoolean, toNumber, toString } from "./helpers";
 
@@ -16,7 +16,7 @@ export const CHAR: AddFunctionDescription = {
       )}
   `),
   returns: ["STRING"],
-  compute: function (tableNumber: any): string {
+  compute: function (tableNumber: ArgValue): string {
     const _tableNumber = Math.trunc(toNumber(tableNumber));
     assert(
       () => _tableNumber >= 1,
@@ -37,8 +37,8 @@ export const CONCATENATE: AddFunctionDescription = {
       string2 (string, range<string>, repeating) ${_lt("More strings to append in sequence.")}
   `),
   returns: ["STRING"],
-  compute: function (): string {
-    return reduceAny(arguments, (acc, a) => acc + toString(a), "");
+  compute: function (...values: Argument[]): string {
+    return reduceAny(values, (acc, a) => acc + toString(a), "");
   },
   isExported: true,
 };
@@ -53,7 +53,7 @@ export const EXACT: AddFunctionDescription = {
       string2 (string) ${_lt("The second string to compare.")}
   `),
   returns: ["BOOLEAN"],
-  compute: function (string1: any, string2: any): boolean {
+  compute: function (string1: ArgValue, string2: ArgValue): boolean {
     return toString(string1) === toString(string2);
   },
   isExported: true,
@@ -73,9 +73,9 @@ export const FIND: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (
-    searchFor: any,
-    textToSearch: any,
-    startingAt: any = DEFAULT_STARTING_AT
+    searchFor: ArgValue,
+    textToSearch: ArgValue,
+    startingAt: ArgValue = DEFAULT_STARTING_AT
   ): number {
     const _searchFor = toString(searchFor);
     const _textToSearch = toString(textToSearch);
@@ -118,7 +118,7 @@ export const JOIN: AddFunctionDescription = {
       )}
   `),
   returns: ["STRING"],
-  compute: function (delimiter: any, ...valuesOrArrays: any): string {
+  compute: function (delimiter: ArgValue, ...valuesOrArrays: Argument[]): string {
     const _delimiter = toString(delimiter);
     return reduceAny(valuesOrArrays, (acc, a) => (acc ? acc + _delimiter : "") + toString(a), "");
   },
@@ -136,7 +136,7 @@ export const LEFT: AddFunctionDescription = {
       )}
   `),
   returns: ["STRING"],
-  compute: function (text: any, ...args): string {
+  compute: function (text: ArgValue, ...args: ArgValue[]): string {
     const _numberOfCharacters = args.length ? toNumber(args[0]) : 1;
     assert(
       () => _numberOfCharacters >= 0,
@@ -156,7 +156,7 @@ export const LEN: AddFunctionDescription = {
       text (string) ${_lt("The string whose length will be returned.")}
   `),
   returns: ["NUMBER"],
-  compute: function (text: any): number {
+  compute: function (text: ArgValue): number {
     return toString(text).length;
   },
   isExported: true,
@@ -171,7 +171,7 @@ export const LOWER: AddFunctionDescription = {
       text (string) ${_lt("The string to convert to lowercase.")}
   `),
   returns: ["STRING"],
-  compute: function (text: any): string {
+  compute: function (text: ArgValue): string {
     return toString(text).toLowerCase();
   },
   isExported: true,
@@ -189,7 +189,12 @@ export const REPLACE: AddFunctionDescription = {
       new_text (string) ${_lt("The text which will be inserted into the original text.")}
   `),
   returns: ["STRING"],
-  compute: function (text: any, position: any, length: any, newText: any): string {
+  compute: function (
+    text: ArgValue,
+    position: ArgValue,
+    length: ArgValue,
+    newText: ArgValue
+  ): string {
     const _position = toNumber(position);
     assert(
       () => _position >= 1,
@@ -216,7 +221,7 @@ export const RIGHT: AddFunctionDescription = {
       )}
   `),
   returns: ["STRING"],
-  compute: function (text: any, ...args): string {
+  compute: function (text: ArgValue, ...args: ArgValue[]): string {
     const _numberOfCharacters = args.length ? toNumber(args[0]) : 1;
     assert(
       () => _numberOfCharacters >= 0,
@@ -243,9 +248,9 @@ export const SEARCH: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (
-    searchFor: any,
-    textToSearch: any,
-    startingAt: any = DEFAULT_STARTING_AT
+    searchFor: ArgValue,
+    textToSearch: ArgValue,
+    startingAt: ArgValue = DEFAULT_STARTING_AT
   ): number {
     const _searchFor = toString(searchFor).toLowerCase();
     const _textToSearch = toString(textToSearch).toLowerCase();
@@ -288,10 +293,10 @@ export const SUBSTITUTE: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (
-    textToSearch: any,
-    searchFor: any,
-    replaceWith: any,
-    occurrenceNumber: any = undefined
+    textToSearch: ArgValue,
+    searchFor: ArgValue,
+    replaceWith: ArgValue,
+    occurrenceNumber: ArgValue = undefined
   ): string {
     const _occurrenceNumber = toNumber(occurrenceNumber);
 
@@ -336,7 +341,11 @@ export const TEXTJOIN: AddFunctionDescription = {
       text2 (string, range<string>, repeating) ${_lt("Additional text item(s).")}
   `),
   returns: ["STRING"],
-  compute: function (delimiter: any, ignoreEmpty: any, ...textsOrArrays: any): string {
+  compute: function (
+    delimiter: ArgValue,
+    ignoreEmpty: ArgValue,
+    ...textsOrArrays: Argument[]
+  ): string {
     const _delimiter = toString(delimiter);
     const _ignoreEmpty = toBoolean(ignoreEmpty);
     let n = 0;
@@ -359,7 +368,7 @@ export const TRIM: AddFunctionDescription = {
       text (string) ${_lt("The text or reference to a cell containing text to be trimmed.")}
   `),
   returns: ["STRING"],
-  compute: function (text: any): string {
+  compute: function (text: ArgValue): string {
     return toString(text).trim();
   },
   isExported: true,
@@ -374,7 +383,7 @@ export const UPPER: AddFunctionDescription = {
       text (string) ${_lt("The string to convert to uppercase.")}
   `),
   returns: ["STRING"],
-  compute: function (text: any): string {
+  compute: function (text: ArgValue): string {
     return toString(text).toUpperCase();
   },
   isExported: true,
