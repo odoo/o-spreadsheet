@@ -103,14 +103,14 @@ const COLORS = [
 ];
 
 interface Props {
-  dropdownDirection: "left" | "right" | undefined;
+  dropdownDirection?: "left" | "right";
 }
 
 export class ColorPicker extends Component<Props, SpreadsheetEnv> {
   static template = xml/* xml */ `
   <div class="o-color-picker" t-att-class="{
-    'right': dropDownRight(),
-    'left': !dropDownRight()
+    'right': isDropdownRight(),
+    'left': !isDropdownRight()
     }" t-on-click="onColorClick">
     <div class="o-color-picker-line" t-foreach="COLORS" t-as="colors" t-key="colors">
       <t t-foreach="colors" t-as="color" t-key="color">
@@ -138,23 +138,26 @@ export class ColorPicker extends Component<Props, SpreadsheetEnv> {
           border-radius: 50px;
           border: 1px solid #c0c0c0;
           &:hover {
+            cursor: pointer;
             background-color: rgba(0, 0, 0, 0.08);
             outline: 1px solid gray;
           }
         }
       }
-    }
-    .right {
-      left: 0;
-    }
-    .left {
-      right: 0;
+
+      &.right {
+        left: 0;
+      }
+
+      &.left {
+        right: 0;
+      }
     }
   `;
   COLORS = COLORS;
 
-  dropDownRight() {
-    return this.props.dropdownDirection === "right" || this.props.dropdownDirection === undefined;
+  isDropdownRight() {
+    return this.props.dropdownDirection !== "left";
   }
 
   onColorClick(ev: MouseEvent) {
