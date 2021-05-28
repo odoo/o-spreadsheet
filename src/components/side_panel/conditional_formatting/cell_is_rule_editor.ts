@@ -95,6 +95,10 @@ const CSS = css/* scss */ `
     padding-left: 20px;
     padding-bottom: 18px;
     pointer-events: none;
+
+    .o-color-picker {
+      pointer-events: all;
+    }
   }
 `;
 
