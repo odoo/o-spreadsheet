@@ -638,7 +638,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       const newOffsetX =
         col < left || col > right - 1 ? sheet.cols[left + delta[0]].start : offsetX;
       const newOffsetY = row < top || row > bottom - 1 ? sheet.rows[top + delta[1]].start : offsetY;
-      debugger;
       if (newOffsetX !== offsetX || newOffsetY !== offsetY) {
         this.dispatch("SET_VIEWPORT_OFFSET", { offsetX: newOffsetX, offsetY: newOffsetY });
       }
