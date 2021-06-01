@@ -104,9 +104,8 @@ cellMenuRegistry
   })
   .add("delete_cell", {
     name: _lt("Delete cells"),
-    sequence: 125,
+    sequence: 130,
     isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
-    separator: true,
   })
   .addChild("delete_cell_up", ["delete_cell"], {
     name: _lt("Shift up"),
@@ -120,12 +119,13 @@ cellMenuRegistry
   })
   .add("clear_cell", {
     name: _lt("Clear cells"),
-    sequence: 130,
+    sequence: 140,
     action: ACTIONS.DELETE_CONTENT_ACTION,
     isEnabled: (env: SpreadsheetEnv) => {
       const cell = env.getters.getActiveCell();
       return Boolean(cell);
     },
+    separator: true,
   })
   .add("conditional_formatting", {
     name: _lt("Conditional formatting"),

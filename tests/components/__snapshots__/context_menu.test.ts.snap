@@ -183,9 +183,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </svg>
   </div>
   <div
-    class="o-separator"
-  />
-  <div
     class="o-menu-item disabled"
     data-name="clear_cell"
     title="Clear cells"
@@ -197,6 +194,9 @@ exports[`Context Menu context menu simple rendering 1`] = `
       
     </span>
   </div>
+  <div
+    class="o-separator"
+  />
   <div
     class="o-menu-item"
     data-name="conditional_formatting"
