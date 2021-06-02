@@ -7,7 +7,6 @@ import {
   ChartType,
 } from "chart.js";
 import { chartTerms } from "../../components/side_panel/translations_terms";
-import { INCORRECT_RANGE_STRING } from "../../constants";
 import { ChartColors } from "../../helpers/chart";
 import { isDefined, isInside, overlap, recomputeZones, zoneToXc } from "../../helpers/index";
 import { Mode } from "../../model";
@@ -263,9 +262,8 @@ export class EvaluationChartPlugin extends UIPlugin {
   private mapDefinitionToRuntime(definition: ChartDefinition): ChartConfiguration {
     let labels: string[] = [];
     if (definition.labelRange) {
-      const rangeString = this.getters.getRangeString(definition.labelRange, definition.sheetId);
-      if (rangeString !== INCORRECT_RANGE_STRING) {
-        labels = this.getters.getRangeFormattedValues(rangeString, definition.sheetId).flat(1);
+      if (!definition.labelRange.invalidXc && !definition.labelRange.invalidSheetName) {
+        labels = this.getters.getRangeFormattedValues(definition.labelRange).flat(1);
       }
     }
     const runtime = this.getDefaultConfiguration(definition.type, definition.title, labels);
@@ -320,8 +318,7 @@ export class EvaluationChartPlugin extends UIPlugin {
         return [];
       }
       const dataRange = this.getters.getRangeFromSheetXC(ds.dataRange.sheetId, dataXC);
-      const dataRangeXc = this.getters.getRangeString(dataRange, sheetId);
-      return this.getters.getRangeValues(dataRangeXc, ds.dataRange.sheetId).flat(1);
+      return this.getters.getRangeValues(dataRange).flat(1);
     }
     return [];
   }

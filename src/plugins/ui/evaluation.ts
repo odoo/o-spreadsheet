@@ -1,7 +1,7 @@
 import { MAXIMUM_EVALUATION_CHECK_DELAY_MS } from "../../constants";
 import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { mapCellsInZone, toXC, toZone } from "../../helpers/index";
+import { mapCellsInZone, toXC } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
@@ -157,30 +157,27 @@ export class EvaluationPlugin extends UIPlugin {
     return this.loadingCells === 0 && this.WAITING.size === 0 && this.PENDING.size === 0;
   }
 
-  getRangeFormattedValues(reference: string, defaultSheetId: UID): string[][] {
-    const [range, sheetName] = reference.split("!").reverse();
-    const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : defaultSheetId;
-    const sheet = sheetId ? this.getters.getSheet(sheetId) : undefined;
+  /**
+   * Return the value of each cell in the range as they are displayed in the grid.
+   */
+  getRangeFormattedValues(range: Range): string[][] {
+    const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [[]];
     return mapCellsInZone(
-      toZone(range),
+      range.zone,
       sheet,
-      (cell) =>
-        this.getters.getCellText(
-          cell,
-          sheetId || defaultSheetId,
-          this.getters.shouldShowFormulas()
-        ),
+      (cell) => this.getters.getCellText(cell, range.sheetId, this.getters.shouldShowFormulas()),
       ""
     );
   }
 
-  getRangeValues(reference: string, defaultSheetId: UID): any[][] {
-    const [range, sheetName] = reference.split("!").reverse();
-    const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : defaultSheetId;
-    const sheet = sheetId ? this.getters.tryGetSheet(sheetId) : undefined;
+  /**
+   * Return the value of each cell in the range.
+   */
+  getRangeValues(range: Range): any[][] {
+    const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [[]];
-    return mapCellsInZone(toZone(range), sheet, (cell) => cell.value);
+    return mapCellsInZone(range.zone, sheet, (cell) => cell.value);
   }
 
   // ---------------------------------------------------------------------------
