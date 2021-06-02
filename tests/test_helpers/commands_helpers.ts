@@ -37,7 +37,6 @@ export function createSheet(
   const result = model.dispatch("CREATE_SHEET", {
     position: data.position !== undefined ? data.position : 1,
     sheetId,
-    name: data.name,
     cols: data.cols,
     rows: data.rows,
   });
@@ -47,7 +46,24 @@ export function createSheet(
   return result;
 }
 
-export function deleteSheet(model: Model, sheetId: UID) {
+export function renameSheet(model: Model, sheetId: UID, name: string): CommandResult {
+  return model.dispatch("RENAME_SHEET", { sheetId, name });
+}
+
+export function createSheetWithName(
+  model: Model,
+  data: Partial<CreateSheetCommand & { activate: boolean }>,
+  name: string
+) {
+  let createResult = createSheet(model, data);
+  if (createResult !== CommandResult.Success) {
+    return createResult;
+  }
+  const sheets = model.getters.getSheets();
+  return renameSheet(model, sheets[sheets.length - 1].id, name);
+}
+
+export function deleteSheet(model: Model, sheetId: UID): CommandResult {
   return model.dispatch("DELETE_SHEET", { sheetId });
 }
 

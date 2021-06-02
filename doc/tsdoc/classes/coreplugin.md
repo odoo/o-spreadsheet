@@ -48,6 +48,7 @@ Name | Default |
 - [checkValidations](coreplugin.md#checkvalidations)
 - [combineValidations](coreplugin.md#combinevalidations)
 - [export](coreplugin.md#export)
+- [exportForExcel](coreplugin.md#exportforexcel)
 - [finalize](coreplugin.md#finalize)
 - [handle](coreplugin.md#handle)
 - [import](coreplugin.md#import)
@@ -269,6 +270,20 @@ ___
 Name | Type |
 :------ | :------ |
 `data` | WorkbookData |
+
+**Returns:** *void*
+
+___
+
+### exportForExcel
+
+▸ **exportForExcel**(`data`: ExcelWorkbookData): *void*
+
+#### Parameters:
+
+Name | Type |
+:------ | :------ |
+`data` | ExcelWorkbookData |
 
 **Returns:** *void*
 

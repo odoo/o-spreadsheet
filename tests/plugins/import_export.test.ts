@@ -1,9 +1,14 @@
 import { CorePlugin } from "../../src";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, DEFAULT_REVISION_ID } from "../../src/constants";
+import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  DEFAULT_REVISION_ID,
+  FORBIDDEN_SHEET_CHARS,
+} from "../../src/constants";
 import { CURRENT_VERSION } from "../../src/data";
 import { Model } from "../../src/model";
 import { corePluginRegistry } from "../../src/plugins";
-import { BorderDescr, WorkbookData } from "../../src/types/index";
+import { BorderDescr, ColorScaleRule, IconSetRule, WorkbookData } from "../../src/types/index";
 import {
   activateSheet,
   merge,
@@ -26,7 +31,7 @@ describe("data", () => {
 });
 
 describe("Migrations", () => {
-  test("Can upgrade from 1 to 7", () => {
+  test("Can upgrade from 1 to 8", () => {
     mockUuidV4To(333);
     const model = new Model({
       version: 1,
@@ -47,7 +52,7 @@ describe("Migrations", () => {
       ],
     });
     const data = model.exportData();
-    expect(data.version).toBe(7);
+    expect(data.version).toBe(8);
     expect(data.sheets[0].id).toBeDefined();
     expect(data.sheets[0].figures).toBeDefined();
     expect(data.sheets[0].cells.A1!.formula).toBeDefined();
@@ -167,6 +172,132 @@ describe("Migrations", () => {
       dataSets: ["B27"],
       dataSetsHaveTitle: false,
     });
+  });
+  test.each(FORBIDDEN_SHEET_CHARS)("migration 7 to 8: sheet Names", (char) => {
+    const model = new Model({
+      version: 7,
+      sheets: [
+        { name: "My sheet" },
+        {
+          name: `sheetName${char}`,
+          cells: {
+            A1: {
+              formula: {
+                text: "=|0|",
+                dependencies: [`sheetName${char}!A2`],
+              },
+            },
+          },
+          figures: [
+            {
+              id: "1",
+              x: 0,
+              y: 0,
+              width: 100,
+              height: 100,
+              type: "chart",
+              data: {
+                dataSets: [`=sheetName${char}!A1:A2`, "My sheet!A1:A2"],
+                dataSetsHaveTitle: true,
+                labelRange: `=sheetName${char}!B1:B2`,
+                type: "bar",
+              },
+            },
+          ],
+          conditionalFormats: [
+            {
+              id: 1,
+              ranges: [`=sheetName${char}!A1:A2`],
+              rule: {
+                type: "ColorScaleRule",
+                maximum: { type: "formula", value: `=sheetName${char}!B1`, color: 16711680 },
+                midpoint: { type: "formula", value: `=sheetName${char}!B1`, color: 16711680 },
+                minimum: { type: "formula", value: `=sheetName${char}!B1`, color: 16711680 },
+              },
+            },
+            {
+              id: 2,
+              ranges: ["D5:D6"],
+              rule: {
+                type: "IconSetRule",
+                icons: { upper: "arrowGood", middle: "dotNeutral", lower: "arrowBad" },
+                lowerInflectionPoint: {
+                  type: "formula",
+                  value: `=sheetName${char}!B1`,
+                  operator: "gt",
+                },
+                upperInflectionPoint: {
+                  type: "formula",
+                  value: `=sheetName${char}!B1`,
+                  operator: "gt",
+                },
+              },
+            },
+            {
+              id: 3,
+              ranges: [`=sheetName${char}!A1:A2`],
+              rule: {
+                type: "ColorScaleRule",
+                minimum: { type: "percentage", value: "33", color: 16711680 },
+                midpoint: { type: "number", value: "13", color: 16711680 },
+                maximum: { type: "value", color: 16711680 },
+              },
+            },
+          ],
+        },
+      ],
+    });
+    const data = model.exportData();
+    expect(data.sheets[0].name).toBe("My sheet");
+    expect(data.sheets[1].name).toBe("sheetName_");
+
+    const cells = data.sheets[1].cells;
+    expect(cells.A1!.formula).toEqual({ dependencies: ["sheetName_!A2"], text: "=|0|" });
+
+    const figures = data.sheets[1].figures;
+    expect(figures[0].data?.dataSets).toEqual(["=sheetName_!A1:A2", "My sheet!A1:A2"]);
+    expect(figures[0].data?.labelRange).toBe("=sheetName_!B1:B2");
+
+    const cfs = data.sheets[1].conditionalFormats;
+    const rule1 = cfs[0].rule as ColorScaleRule;
+    expect(cfs[0].ranges).toEqual(["=sheetName_!A1:A2"]);
+    expect(rule1.minimum.value).toEqual("=sheetName_!B1");
+    expect(rule1.midpoint?.value).toEqual("=sheetName_!B1");
+    expect(rule1.maximum.value).toEqual("=sheetName_!B1");
+
+    const rule2 = cfs[1].rule as IconSetRule;
+    expect(cfs[1].ranges).toEqual(["D5:D6"]);
+    expect(rule2.lowerInflectionPoint.value).toEqual("=sheetName_!B1");
+    expect(rule2.upperInflectionPoint.value).toEqual("=sheetName_!B1");
+
+    const rule3 = cfs[2].rule as ColorScaleRule;
+    expect(cfs[2].ranges).toEqual(["=sheetName_!A1:A2"]);
+    expect(rule3.minimum.value).toEqual("33");
+    expect(rule3.midpoint?.value).toEqual("13");
+    expect(rule3.maximum.value).toBeUndefined();
+  });
+
+  test("migration 7 to 8: duplicated sheet Names without forbidden characters", () => {
+    const model = new Model({
+      version: 7,
+      sheets: [
+        { name: "My sheet?" },
+        { name: "My sheet]" },
+        { name: "My sheet[" },
+        { name: "?" },
+        { name: "*" },
+        { name: "__" },
+        { name: "[]" },
+      ],
+    });
+    const data = model.exportData();
+    expect(data.sheets[0].name).toBe("My sheet_");
+    expect(data.sheets[1].name).toBe("My sheet_1");
+    expect(data.sheets[2].name).toBe("My sheet_2");
+    expect(data.sheets[3].name).toBe("_");
+    expect(data.sheets[4].name).toBe("_1");
+    expect(data.sheets[5].name).toBe("__");
+    expect(data.sheets[6].name).toBe("__1");
   });
 });
 
@@ -303,6 +434,13 @@ test("complete import, then export", () => {
             format: "0.00%",
           },
           C1: { content: "=mqdlskjfqmslfkj(++%//@@@)" },
+          D1: {
+            formula: {
+              text: '="This is a quote \\""',
+              dependencies: [],
+              value: 'This is a quote "',
+            },
+          },
         },
         name: "My sheet",
         conditionalFormats: [],
@@ -346,7 +484,7 @@ test("Data of a duplicate sheet are correctly duplicated", () => {
   const model = new Model();
   setCellContent(model, "A1", "hello");
   const sheetId = model.getters.getActiveSheetId();
-  model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "42", name: "second" });
+  model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "42" });
   expect(getCellContent(model, "A1", sheetId)).toBe("hello");
   expect(getCellContent(model, "A1", "42")).toBe("hello");
   const data = model.exportData();

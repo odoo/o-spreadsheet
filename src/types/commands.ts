@@ -265,7 +265,6 @@ export interface RemoveMergeCommand
 export interface CreateSheetCommand extends BaseCommand, SheetDependentCommand {
   type: "CREATE_SHEET";
   position: number;
-  name?: string;
   cols?: number;
   rows?: number;
 }
@@ -277,7 +276,6 @@ export interface DeleteSheetCommand extends BaseCommand, SheetDependentCommand {
 export interface DuplicateSheetCommand extends BaseCommand, SheetDependentCommand {
   type: "DUPLICATE_SHEET";
   sheetIdTo: UID;
-  name: string;
 }
 
 export interface MoveSheetCommand extends BaseCommand, SheetDependentCommand {
@@ -981,7 +979,9 @@ export const enum CommandResult {
   EmptyRedoStack,
   NotEnoughElements,
   NotEnoughSheets,
-  WrongSheetName,
+  MissingSheetName,
+  DuplicatedSheetName,
+  ForbiddenCharactersInSheetName,
   WrongSheetMove,
   WrongSheetPosition,
   SelectionOutOfBound,

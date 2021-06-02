@@ -1,13 +1,16 @@
+import { FORBIDDEN_SHEET_CHARS } from "../../src/constants";
 import { toCartesian, toZone, uuidv4 } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
   activateSheet,
   createSheet,
+  createSheetWithName,
   deleteRows,
   hideRows,
   merge,
   redo,
+  renameSheet,
   resizeColumns,
   resizeRows,
   setCellContent,
@@ -64,13 +67,16 @@ describe("sheets", () => {
 
   test("Can create a new sheet with given size and name", () => {
     const model = new Model();
-    createSheet(model, {
-      rows: 2,
-      cols: 4,
-      name: "SheetTest",
-      activate: true,
-      sheetId: "42",
-    });
+    createSheetWithName(
+      model,
+      {
+        rows: 2,
+        cols: 4,
+        activate: true,
+        sheetId: "42",
+      },
+      "SheetTest"
+    );
     const activeSheet = model.getters.getActiveSheet();
     expect(activeSheet.cols.length).toBe(4);
     expect(activeSheet.rows.length).toBe(2);
@@ -79,9 +85,52 @@ describe("sheets", () => {
 
   test("Cannot create a sheet with a name already existent", () => {
     const model = new Model();
-    const name = model.getters.getSheetName(model.getters.getActiveSheetId());
-    expect(model.dispatch("CREATE_SHEET", { name, sheetId: "42", position: 1 })).toBe(
-      CommandResult.WrongSheetName
+    const name = model.getters.getSheetName(model.getters.getActiveSheetId()) || "";
+    expect(
+      createSheetWithName(
+        model,
+        {
+          sheetId: "42",
+          position: 1,
+        },
+        name
+      )
+    ).toBe(CommandResult.DuplicatedSheetName);
+  });
+
+  test("Cannot create a sheet with a name already existent + upper", () => {
+    const model = new Model();
+    const name = model.getters.getSheetName(model.getters.getActiveSheetId()) || "";
+    expect(
+      createSheetWithName(
+        model,
+        {
+          sheetId: "42",
+          position: 1,
+        },
+        name.toUpperCase()
+      )
+    ).toBe(CommandResult.DuplicatedSheetName);
+  });
+  test("Cannot create a sheet with a name already existent + spaces", () => {
+    const model = new Model();
+    const name = model.getters.getSheetName(model.getters.getActiveSheetId()) || "";
+    expect(
+      createSheetWithName(
+        model,
+        {
+          sheetId: "42",
+          position: 1,
+        },
+        "   " + name + "  "
+      )
+    ).toBe(CommandResult.DuplicatedSheetName);
+  });
+
+  test.each(FORBIDDEN_SHEET_CHARS)("Cannot rename a sheet with a %s in the name", (char) => {
+    const model = new Model();
+    expect(renameSheet(model, model.getters.getActiveSheetId(), `my life ${char}`)).toBe(
+      CommandResult.ForbiddenCharactersInSheetName
     );
   });
 
@@ -374,15 +423,15 @@ describe("sheets", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
     const name = "NEW_NAME";
-    createSheet(model, { sheetId: "42", name });
+    createSheetWithName(model, { sheetId: "42" }, name);
     expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name })).toBe(
-      CommandResult.WrongSheetName
+      CommandResult.DuplicatedSheetName
     );
     expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "new_name" })).toBe(
-      CommandResult.WrongSheetName
+      CommandResult.DuplicatedSheetName
     );
     expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "new_name " })).toBe(
-      CommandResult.WrongSheetName
+      CommandResult.DuplicatedSheetName
     );
   });
 
@@ -390,10 +439,10 @@ describe("sheets", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
     expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: undefined })).toBe(
-      CommandResult.WrongSheetName
+      CommandResult.MissingSheetName
     );
     expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "    " })).toBe(
-      CommandResult.WrongSheetName
+      CommandResult.MissingSheetName
     );
   });
 
@@ -402,7 +451,7 @@ describe("sheets", () => {
     const name = "NEW_NAME";
     const sheet1 = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "=NEW_NAME!A1");
-    createSheet(model, { name, sheetId: "42", activate: true });
+    createSheetWithName(model, { sheetId: "42", activate: true }, name);
     const sheet2 = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
     const nextName = "NEXT NAME";
@@ -419,7 +468,7 @@ describe("sheets", () => {
     const model = new Model();
     const name = "NEW_NAME";
     const sheet2 = "42";
-    createSheet(model, { sheetId: sheet2, name });
+    createSheetWithName(model, { sheetId: sheet2 }, name);
     setCellContent(model, "A1", "=NEW_NAME!A1");
     setCellContent(model, "A1", "24", sheet2);
     const nextName = "NEXT NAME";
@@ -475,8 +524,11 @@ describe("sheets", () => {
   test("Can duplicate a sheet", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4(), name: "dup" });
-    expect(model.getters.getSheets()).toHaveLength(2);
+    const name = `Copy of ${model.getters.getSheets()[0].name}`;
+    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4() });
+    const sheets = model.getters.getSheets();
+    expect(sheets).toHaveLength(2);
+    expect(sheets[sheets.length - 1].name).toBe(name);
     undo(model);
     expect(model.getters.getSheets()).toHaveLength(1);
     redo(model);
@@ -486,18 +538,8 @@ describe("sheets", () => {
   test("Duplicate a sheet does not make the newly created active", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheetId, sheetIdTo: "42", name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { sheetId: sheetId, sheetIdTo: "42" });
     expect(model.getters.getActiveSheetId()).toBe(sheetId);
-  });
-
-  test("Cannot duplicate a sheet with the same name", () => {
-    const model = new Model();
-    const sheet = model.getters.getActiveSheetId();
-    const name = model.getters.getSheets()[0].name;
-    const id = uuidv4();
-    expect(model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: id, name })).toBe(
-      CommandResult.WrongSheetName
-    );
   });
 
   test("Properties of sheet are correctly duplicated", () => {
@@ -524,7 +566,7 @@ describe("sheets", () => {
     });
     const sheet = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4(), name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4() });
     expect(model.getters.getSheets()).toHaveLength(2);
     const newSheet = model.getters.getSheets()[1].id;
     activateSheet(model, newSheet);
@@ -559,7 +601,7 @@ describe("sheets", () => {
     });
     const sheet = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4(), name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4() });
     expect(model.getters.getSheets()).toHaveLength(2);
     const newSheetId = model.getters.getSheets()[1].id;
     activateSheet(model, newSheetId);
@@ -595,7 +637,7 @@ describe("sheets", () => {
       ],
     });
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4(), name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4() });
     expect(model.getters.getSheets()).toHaveLength(2);
     const newSheet = model.getters.getSheets()[1].id;
     activateSheet(model, newSheet);
@@ -620,7 +662,7 @@ describe("sheets", () => {
         type: "line",
       },
     });
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheetId, sheetIdTo: "42", name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { sheetId: sheetId, sheetIdTo: "42" });
     model.dispatch("UPDATE_FIGURE", {
       sheetId: sheetId,
       id: "someuuid",
@@ -649,7 +691,7 @@ describe("sheets", () => {
         type: "line",
       },
     });
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheetId, sheetIdTo: "42", name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { sheetId: sheetId, sheetIdTo: "42" });
     model.dispatch("UPDATE_CHART", {
       id: "someuuid",
       sheetId,
@@ -714,7 +756,7 @@ describe("sheets", () => {
   test("Cols and Rows are correctly duplicated", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4(), name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4() });
     expect(model.getters.getSheets()).toHaveLength(2);
     resizeColumns(model, ["A"], 1);
     resizeRows(model, [0], 1);
@@ -735,7 +777,7 @@ describe("sheets", () => {
       ],
     });
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4(), name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4() });
     expect(model.getters.getSheets()).toHaveLength(2);
     unMerge(model, "A1:A2");
     const newSheet = model.getters.getSheets()[1].id;
@@ -809,7 +851,6 @@ describe("sheets", () => {
     testUndoRedo(model, expect, "DUPLICATE_SHEET", {
       sheetIdTo: "42",
       sheetId: model.getters.getActiveSheetId(),
-      name: "dup",
     });
   });
 
@@ -818,7 +859,7 @@ describe("sheets", () => {
     const name = "NEW_NAME";
     const sheet1 = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "=NEW_NAME!A1");
-    createSheet(model, { sheetId: "42", name, activate: true });
+    createSheetWithName(model, { sheetId: "42", activate: true }, name);
     const sheet2 = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
     model.dispatch("DELETE_SHEET", { sheetId: sheet2 });

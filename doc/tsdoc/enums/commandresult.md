@@ -7,11 +7,14 @@
 ### Enumeration members
 
 - [CancelledForUnknownReason](commandresult.md#cancelledforunknownreason)
+- [CellIsMerged](commandresult.md#cellismerged)
+- [DuplicatedSheetName](commandresult.md#duplicatedsheetname)
 - [EmptyClipboard](commandresult.md#emptyclipboard)
 - [EmptyDataSet](commandresult.md#emptydataset)
 - [EmptyLabelRange](commandresult.md#emptylabelrange)
 - [EmptyRedoStack](commandresult.md#emptyredostack)
 - [EmptyUndoStack](commandresult.md#emptyundostack)
+- [ForbiddenCharactersInSheetName](commandresult.md#forbiddencharactersinsheetname)
 - [InputAlreadyFocused](commandresult.md#inputalreadyfocused)
 - [InvalidAutofillSelection](commandresult.md#invalidautofillselection)
 - [InvalidChartDefinition](commandresult.md#invalidchartdefinition)
@@ -21,6 +24,7 @@
 - [InvalidRange](commandresult.md#invalidrange)
 - [InvalidSheetId](commandresult.md#invalidsheetid)
 - [InvalidSortZone](commandresult.md#invalidsortzone)
+- [LowerBiggerThanUpper](commandresult.md#lowerbiggerthanupper)
 - [MaxAsyncFormulaNotSupported](commandresult.md#maxasyncformulanotsupported)
 - [MaxInvalidFormula](commandresult.md#maxinvalidformula)
 - [MaxNaN](commandresult.md#maxnan)
@@ -36,18 +40,25 @@
 - [MinBiggerThanMid](commandresult.md#minbiggerthanmid)
 - [MinInvalidFormula](commandresult.md#mininvalidformula)
 - [MinNaN](commandresult.md#minnan)
+- [MissingSheetName](commandresult.md#missingsheetname)
 - [NotEnoughElements](commandresult.md#notenoughelements)
 - [NotEnoughSheets](commandresult.md#notenoughsheets)
 - [Readonly](commandresult.md#readonly)
 - [SelectionOutOfBound](commandresult.md#selectionoutofbound)
 - [Success](commandresult.md#success)
+- [TargetOutOfSheet](commandresult.md#targetoutofsheet)
 - [TooManyHiddenElements](commandresult.md#toomanyhiddenelements)
+- [ValueLowerAsyncFormulaNotSupported](commandresult.md#valuelowerasyncformulanotsupported)
+- [ValueLowerInflectionNaN](commandresult.md#valuelowerinflectionnan)
+- [ValueLowerInvalidFormula](commandresult.md#valuelowerinvalidformula)
+- [ValueUpperAsyncFormulaNotSupported](commandresult.md#valueupperasyncformulanotsupported)
+- [ValueUpperInflectionNaN](commandresult.md#valueupperinflectionnan)
+- [ValueUpperInvalidFormula](commandresult.md#valueupperinvalidformula)
 - [WaitingSessionConfirmation](commandresult.md#waitingsessionconfirmation)
 - [WillRemoveExistingMerge](commandresult.md#willremoveexistingmerge)
 - [WrongComposerSelection](commandresult.md#wrongcomposerselection)
 - [WrongPasteSelection](commandresult.md#wrongpasteselection)
 - [WrongSheetMove](commandresult.md#wrongsheetmove)
-- [WrongSheetName](commandresult.md#wrongsheetname)
 - [WrongSheetPosition](commandresult.md#wrongsheetposition)
 
 ## Enumeration members
@@ -58,111 +69,135 @@
 
 ___
 
+### CellIsMerged
+
+• **CellIsMerged**: = 4
+
+___
+
+### DuplicatedSheetName
+
+• **DuplicatedSheetName**: = 10
+
+___
+
 ### EmptyClipboard
 
-• **EmptyClipboard**: = 13
+• **EmptyClipboard**: = 17
 
 ___
 
 ### EmptyDataSet
 
-• **EmptyDataSet**: = 19
+• **EmptyDataSet**: = 23
 
 ___
 
 ### EmptyLabelRange
 
-• **EmptyLabelRange**: = 20
+• **EmptyLabelRange**: = 24
 
 ___
 
 ### EmptyRedoStack
 
-• **EmptyRedoStack**: = 5
+• **EmptyRedoStack**: = 6
 
 ___
 
 ### EmptyUndoStack
 
-• **EmptyUndoStack**: = 4
+• **EmptyUndoStack**: = 5
+
+___
+
+### ForbiddenCharactersInSheetName
+
+• **ForbiddenCharactersInSheetName**: = 11
 
 ___
 
 ### InputAlreadyFocused
 
-• **InputAlreadyFocused**: = 16
+• **InputAlreadyFocused**: = 20
 
 ___
 
 ### InvalidAutofillSelection
 
-• **InvalidAutofillSelection**: = 23
+• **InvalidAutofillSelection**: = 27
 
 ___
 
 ### InvalidChartDefinition
 
-• **InvalidChartDefinition**: = 18
+• **InvalidChartDefinition**: = 22
 
 ___
 
 ### InvalidDataSet
 
-• **InvalidDataSet**: = 21
+• **InvalidDataSet**: = 25
 
 ___
 
 ### InvalidLabelRange
 
-• **InvalidLabelRange**: = 22
+• **InvalidLabelRange**: = 26
 
 ___
 
 ### InvalidNumberOfArgs
 
-• **InvalidNumberOfArgs**: = 28
+• **InvalidNumberOfArgs**: = 33
 
 ___
 
 ### InvalidRange
 
-• **InvalidRange**: = 14
+• **InvalidRange**: = 18
 
 ___
 
 ### InvalidSheetId
 
-• **InvalidSheetId**: = 15
+• **InvalidSheetId**: = 19
 
 ___
 
 ### InvalidSortZone
 
-• **InvalidSortZone**: = 38
+• **InvalidSortZone**: = 49
+
+___
+
+### LowerBiggerThanUpper
+
+• **LowerBiggerThanUpper**: = 30
 
 ___
 
 ### MaxAsyncFormulaNotSupported
 
-• **MaxAsyncFormulaNotSupported**: = 34
+• **MaxAsyncFormulaNotSupported**: = 41
 
 ___
 
 ### MaxInvalidFormula
 
-• **MaxInvalidFormula**: = 37
+• **MaxInvalidFormula**: = 46
 
 ___
 
 ### MaxNaN
 
-• **MaxNaN**: = 31
+• **MaxNaN**: = 36
 
 ___
 
 ### MaximumRangesReached
 
-• **MaximumRangesReached**: = 17
+• **MaximumRangesReached**: = 21
 
 ___
 
@@ -174,85 +209,91 @@ ___
 
 ### MergeOverlap
 
-• **MergeOverlap**: = 40
+• **MergeOverlap**: = 51
 
 ___
 
 ### MidAsyncFormulaNotSupported
 
-• **MidAsyncFormulaNotSupported**: = 33
+• **MidAsyncFormulaNotSupported**: = 40
 
 ___
 
 ### MidBiggerThanMax
 
-• **MidBiggerThanMax**: = 26
+• **MidBiggerThanMax**: = 31
 
 ___
 
 ### MidInvalidFormula
 
-• **MidInvalidFormula**: = 36
+• **MidInvalidFormula**: = 45
 
 ___
 
 ### MidNaN
 
-• **MidNaN**: = 30
+• **MidNaN**: = 35
 
 ___
 
 ### MinAsyncFormulaNotSupported
 
-• **MinAsyncFormulaNotSupported**: = 32
+• **MinAsyncFormulaNotSupported**: = 39
 
 ___
 
 ### MinBiggerThanMax
 
-• **MinBiggerThanMax**: = 25
+• **MinBiggerThanMax**: = 29
 
 ___
 
 ### MinBiggerThanMid
 
-• **MinBiggerThanMid**: = 27
+• **MinBiggerThanMid**: = 32
 
 ___
 
 ### MinInvalidFormula
 
-• **MinInvalidFormula**: = 35
+• **MinInvalidFormula**: = 44
 
 ___
 
 ### MinNaN
 
-• **MinNaN**: = 29
+• **MinNaN**: = 34
+
+___
+
+### MissingSheetName
+
+• **MissingSheetName**: = 9
 
 ___
 
 ### NotEnoughElements
 
-• **NotEnoughElements**: = 6
+• **NotEnoughElements**: = 7
 
 ___
 
 ### NotEnoughSheets
 
-• **NotEnoughSheets**: = 7
+• **NotEnoughSheets**: = 8
 
 ___
 
 ### Readonly
 
-• **Readonly**: = 42
+• **Readonly**: = 53
 
 ___
 
 ### SelectionOutOfBound
 
-• **SelectionOutOfBound**: = 11
+• **SelectionOutOfBound**: = 14
 
 ___
 
@@ -262,15 +303,57 @@ ___
 
 ___
 
+### TargetOutOfSheet
+
+• **TargetOutOfSheet**: = 15
+
+___
+
 ### TooManyHiddenElements
 
-• **TooManyHiddenElements**: = 41
+• **TooManyHiddenElements**: = 52
+
+___
+
+### ValueLowerAsyncFormulaNotSupported
+
+• **ValueLowerAsyncFormulaNotSupported**: = 43
+
+___
+
+### ValueLowerInflectionNaN
+
+• **ValueLowerInflectionNaN**: = 38
+
+___
+
+### ValueLowerInvalidFormula
+
+• **ValueLowerInvalidFormula**: = 48
+
+___
+
+### ValueUpperAsyncFormulaNotSupported
+
+• **ValueUpperAsyncFormulaNotSupported**: = 42
+
+___
+
+### ValueUpperInflectionNaN
+
+• **ValueUpperInflectionNaN**: = 37
+
+___
+
+### ValueUpperInvalidFormula
+
+• **ValueUpperInvalidFormula**: = 47
 
 ___
 
 ### WaitingSessionConfirmation
 
-• **WaitingSessionConfirmation**: = 39
+• **WaitingSessionConfirmation**: = 50
 
 ___
 
@@ -282,28 +365,22 @@ ___
 
 ### WrongComposerSelection
 
-• **WrongComposerSelection**: = 24
+• **WrongComposerSelection**: = 28
 
 ___
 
 ### WrongPasteSelection
 
-• **WrongPasteSelection**: = 12
+• **WrongPasteSelection**: = 16
 
 ___
 
 ### WrongSheetMove
 
-• **WrongSheetMove**: = 9
-
-___
-
-### WrongSheetName
-
-• **WrongSheetName**: = 8
+• **WrongSheetMove**: = 12
 
 ___
 
 ### WrongSheetPosition
 
-• **WrongSheetPosition**: = 10
+• **WrongSheetPosition**: = 13

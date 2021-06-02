@@ -445,7 +445,7 @@ describe("Autofill", () => {
   });
 
   test("Autofill cross-sheet references", () => {
-    createSheet(model, { sheetId: "42", name: "Sheet2" });
+    createSheet(model, { sheetId: "42" });
     setCellContent(model, "A1", "=Sheet2!A1");
     autofill("A1", "A3");
     expect(getCellText(model, "A2")).toBe("=Sheet2!A2");

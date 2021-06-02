@@ -4,6 +4,7 @@ import { CommandResult } from "../../src/types";
 import {
   activateSheet,
   createSheet,
+  createSheetWithName,
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
@@ -71,7 +72,7 @@ describe("edition", () => {
     model.dispatch("START_EDITION", { text: "=" });
     expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
     expect(model.getters.getEditionSheet()).toBe(sheet1);
-    createSheet(model, { activate: true, sheetId: "42", name: "Sheet2" });
+    createSheet(model, { activate: true, sheetId: "42" });
     expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
     expect(model.getters.getEditionSheet()).toBe(sheet1);
     model.dispatch("STOP_EDITION");
@@ -92,7 +93,7 @@ describe("edition", () => {
     const model = new Model();
     const name = "NEW_NAME";
     const sheet2 = "42";
-    createSheet(model, { sheetId: sheet2, name });
+    createSheetWithName(model, { sheetId: sheet2 }, name);
     setCellContent(model, "A1", "=NEW_NAME!A1");
     setCellContent(model, "A1", "24", sheet2);
     const nextName = "NEXT NAME";

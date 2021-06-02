@@ -312,7 +312,7 @@ describe("Collaborative local history", () => {
 
   test("Update cell, undo, remove sheet, redo", () => {
     const sheetId = "42";
-    createSheet(charlie, { sheetId, name: "Sheet42" });
+    createSheet(charlie, { sheetId });
     expect(all).toHaveSynchronizedExportedData();
     setCellContent(alice, "A1", "hello", sheetId);
     undo(alice);

@@ -1,4 +1,4 @@
-import { DEFAULT_REVISION_ID } from "./constants";
+import { DEFAULT_REVISION_ID, FORBIDDEN_IN_EXCEL_REGEX } from "./constants";
 import { normalize } from "./formulas/index";
 import { toXC, toZone } from "./helpers/index";
 import { ExcelSheetData, ExcelWorkbookData, SheetData, WorkbookData } from "./types/index";
@@ -8,7 +8,7 @@ import { ExcelSheetData, ExcelWorkbookData, SheetData, WorkbookData } from "./ty
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 7;
+export const CURRENT_VERSION = 8;
 
 /**
  * This function tries to load anything that could look like a valid
@@ -146,6 +146,76 @@ const MIGRATIONS: Migration[] = [
           sheet.figures[f].data = newData;
         }
       }
+      return data;
+    },
+  },
+  {
+    description: "remove single quotes in sheet names",
+    from: 7,
+    to: 8,
+    applyMigration(data: any): any {
+      const namesTaken: string[] = [];
+      const globalForbiddenInExcel = new RegExp(FORBIDDEN_IN_EXCEL_REGEX, "g");
+      for (let sheet of data.sheets || []) {
+        if (!sheet.name) {
+          continue;
+        }
+        const oldName = sheet.name;
+        const escapedName: string = oldName.replace(globalForbiddenInExcel, "_");
+        let i = 1;
+        let newName = escapedName;
+        while (namesTaken.includes(newName)) {
+          newName = `${escapedName}${i}`;
+          i++;
+        }
+        sheet.name = newName;
+        namesTaken.push(newName);
+
+        const replaceName = (str: string | undefined) => {
+          if (str === undefined) {
+            return str;
+          }
+          // replaceAll is only available in next Typescript version
+          let newString: string = str.replace(oldName, newName);
+          let currentString: string = str;
+          while (currentString !== newString) {
+            currentString = newString;
+            newString = currentString.replace(oldName, newName);
+          }
+          return currentString;
+        };
+        //cells
+        for (let xc in sheet.cells) {
+          const cell = sheet.cells[xc];
+          if (cell.formula) {
+            cell.formula.dependencies = cell.formula.dependencies.map(replaceName);
+          }
+        }
+        //charts
+        for (let figure of sheet.figures || []) {
+          if (figure.type === "chart") {
+            const dataSets = figure.data.dataSets.map(replaceName);
+            const labelRange = replaceName(figure.data.labelRange);
+            figure.data = { ...figure.data, dataSets, labelRange };
+          }
+        }
+        //ConditionalFormats
+        for (let cf of sheet.conditionalFormats || []) {
+          cf.ranges = cf.ranges.map(replaceName);
+          for (const thresholdName of [
+            "minimum",
+            "maximum",
+            "midpoint",
+            "upperInflectionPoint",
+            "lowerInflectionPoint",
+          ] as const) {
+            if (cf.rule[thresholdName]?.type === "formula") {
+              cf.rule[thresholdName].value = replaceName(cf.rule[thresholdName].value);
+            }
+          }
+        }
+      }
+
       return data;
     },
   },

@@ -1,21 +1,8 @@
 import { uuidv4 } from "../../helpers/index";
 import { _lt } from "../../translation";
-import { SpreadsheetEnv } from "../../types";
 import { MenuItemRegistry } from "../menu_items_registry";
 
 export const sheetMenuRegistry = new MenuItemRegistry();
-
-function getDuplicateSheetName(env: SpreadsheetEnv, sheet: string) {
-  let i = 1;
-  const names = env.getters.getSheets().map((s) => s.name);
-  const baseName = _lt("Copy of %s", sheet);
-  let name = baseName.toString();
-  while (names.includes(name)) {
-    name = `${baseName} (${i})`;
-    i++;
-  }
-  return name;
-}
 
 sheetMenuRegistry
   .add("delete", {
@@ -32,15 +19,10 @@ sheetMenuRegistry
     sequence: 20,
     action: (env) => {
       const sheetIdFrom = env.getters.getActiveSheetId();
-      const name = getDuplicateSheetName(
-        env,
-        env.getters.getSheets().find((s) => s.id === sheetIdFrom)!.name
-      );
       const sheetIdTo = uuidv4();
       env.dispatch("DUPLICATE_SHEET", {
         sheetId: sheetIdFrom,
         sheetIdTo,
-        name,
       });
       env.dispatch("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo });
     },

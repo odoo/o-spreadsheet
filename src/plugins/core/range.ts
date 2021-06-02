@@ -134,7 +134,6 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
 
         break;
       }
-      case "CREATE_SHEET":
       case "RENAME_SHEET": {
         this.executeOnAllRanges((range: Range) => {
           if (range.sheetId === cmd.sheetId) {
