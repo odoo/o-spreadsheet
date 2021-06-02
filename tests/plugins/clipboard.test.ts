@@ -1221,7 +1221,7 @@ describe("clipboard", () => {
 
   test("can copy and paste a cell which contains a cross-sheet reference", () => {
     const model = new Model();
-    createSheet(model, { sheetId: "42", name: "Sheet2" });
+    createSheet(model, { sheetId: "42" });
     setCellContent(model, "B2", "=Sheet2!B2");
 
     model.dispatch("COPY", { target: [toZone("B2")] });
@@ -1231,7 +1231,7 @@ describe("clipboard", () => {
 
   test("can copy and paste a cell which contains a cross-sheet reference in a smaller sheet", () => {
     const model = new Model();
-    createSheet(model, { sheetId: "42", name: "Sheet2", rows: 2, cols: 2 });
+    createSheet(model, { sheetId: "42", rows: 2, cols: 2 });
     setCellContent(model, "A1", "=Sheet2!A1:A2");
 
     model.dispatch("COPY", { target: [toZone("A1")] });
@@ -1241,7 +1241,7 @@ describe("clipboard", () => {
 
   test("can copy and paste a cell which contains a cross-sheet reference to a range", () => {
     const model = new Model();
-    createSheet(model, { sheetId: "42", name: "Sheet2" });
+    createSheet(model, { sheetId: "42" });
     setCellContent(model, "A1", "=SUM(Sheet2!A2:A5)");
 
     model.dispatch("COPY", { target: [toZone("A1")] });
@@ -1298,7 +1298,7 @@ describe("clipboard: pasting outside of sheet", () => {
 
   test("can paste multiple cells from os to outside of sheet", () => {
     const model = new Model();
-    createSheet(model, { activate: true, sheetId: "2", name: "sheet2", rows: 2, cols: 2 });
+    createSheet(model, { activate: true, sheetId: "2", rows: 2, cols: 2 });
     model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
       text: "A\nque\tcoucou\nBOB",
       target: [toZone("B2")],
@@ -1311,7 +1311,6 @@ describe("clipboard: pasting outside of sheet", () => {
     createSheet(model, {
       activate: true,
       sheetId: "3",
-      name: "sheet3",
       rows: 2,
       cols: 2,
     });

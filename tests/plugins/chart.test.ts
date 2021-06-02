@@ -894,13 +894,11 @@ describe("datasource tests", function () {
       "2"
     );
     model.dispatch("DUPLICATE_SHEET", {
-      name: "SheetNoFigure",
       sheetId: "1",
       sheetIdTo: "SheetNoFigure",
     });
     expect(model.getters.getVisibleFigures("SheetNoFigure")).toEqual([]);
     model.dispatch("DUPLICATE_SHEET", {
-      name: "SheetWithFigure",
       sheetId: "2",
       sheetIdTo: "SheetWithFigure",
     });
@@ -983,7 +981,7 @@ describe("title", function () {
 
 describe("multiple sheets", function () {
   test("create a chart with data from another sheet", () => {
-    createSheet(model, { name: "hello", sheetId: "42", activate: true });
+    createSheet(model, { sheetId: "42", activate: true });
     createChart(
       model,
       {
@@ -1028,7 +1026,7 @@ describe("multiple sheets", function () {
     });
   });
   test("create a chart with dataset label from another sheet", () => {
-    createSheet(model, { name: "hello", sheetId: "42", activate: true });
+    createSheet(model, { sheetId: "42", activate: true });
     createChart(
       model,
       {
@@ -1050,7 +1048,7 @@ describe("multiple sheets", function () {
     });
   });
   test("change source data then activate the chart sheet (it should be up-to-date)", () => {
-    createSheet(model, { name: "hello", sheetId: "42", activate: true });
+    createSheet(model, { sheetId: "42", activate: true });
     createChart(model, {
       dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
       labelRange: "Sheet1!A2:A4",
@@ -1067,7 +1065,7 @@ describe("multiple sheets", function () {
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
   });
   test("change dataset label then activate the chart sheet (it should be up-to-date)", () => {
-    createSheet(model, { name: "hello", sheetId: "42", activate: true });
+    createSheet(model, { sheetId: "42", activate: true });
     createChart(model, {
       dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
       labelRange: "Sheet1!A2:A4",
@@ -1084,7 +1082,7 @@ describe("multiple sheets", function () {
     expect(chart.data!.labels).toEqual(["P1", "miam", "P3"]);
   });
   test("create a chart with data from another sheet", () => {
-    createSheet(model, { name: "hello", sheetId: "42", activate: true });
+    createSheet(model, { sheetId: "42", activate: true });
     createChart(model, {
       dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
       labelRange: "Sheet1!A2:A4",
@@ -1199,7 +1197,7 @@ describe("multiple sheets", function () {
 
   test("export with chart data from a sheet that was deleted, than import data does not crash", () => {
     const originSheet = model.getters.getActiveSheetId();
-    createSheet(model, { name: "hello", sheetId: "42", activate: true });
+    createSheet(model, { sheetId: "42", activate: true });
     createChart(model, {
       dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
       labelRange: "Sheet1!A2:A4",

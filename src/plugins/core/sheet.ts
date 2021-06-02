@@ -1,3 +1,4 @@
+import { FORBIDDEN_IN_EXCEL_REGEX } from "../../constants";
 import {
   createCols,
   createDefaultCols,
@@ -76,25 +77,14 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
     switch (cmd.type) {
       case "CREATE_SHEET": {
-        const { visibleSheets, sheets } = this;
+        const { visibleSheets } = this;
         if (cmd.position > visibleSheets.length || cmd.position < 0) {
           return CommandResult.WrongSheetPosition;
         }
-        return !cmd.name || !visibleSheets.find((id) => sheets[id]!.name === cmd.name)
-          ? CommandResult.Success
-          : CommandResult.WrongSheetName;
-      }
-      case "DUPLICATE_SHEET": {
-        const { visibleSheets, sheets } = this;
-        return !cmd.name || !visibleSheets.find((id) => sheets[id]!.name === cmd.name)
-          ? CommandResult.Success
-          : CommandResult.WrongSheetName;
+        return CommandResult.Success;
       }
       case "MOVE_SHEET":
         const currentIndex = this.visibleSheets.findIndex((id) => id === cmd.sheetId);
-        if (currentIndex === -1) {
-          return CommandResult.WrongSheetName;
-        }
         return (cmd.direction === "left" && currentIndex === 0) ||
           (cmd.direction === "right" && currentIndex === this.visibleSheets.length - 1)
           ? CommandResult.WrongSheetMove
@@ -136,7 +126,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       case "CREATE_SHEET":
         const sheet = this.createSheet(
           cmd.sheetId,
-          cmd.name || this.generateSheetName(),
+          this.generateSheetName(),
           cmd.cols || 26,
           cmd.rows || 100,
           cmd.position
@@ -158,7 +148,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         }
         break;
       case "DUPLICATE_SHEET":
-        this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo, cmd.name);
+        this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo);
         break;
       case "DELETE_SHEET":
         this.deleteSheet(this.sheets[cmd.sheetId]!);
@@ -489,17 +479,28 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     this.history.update("visibleSheets", visibleSheets);
   }
 
+  private checkSheetName(cmd: RenameSheetCommand): CommandResult {
+    const { visibleSheets, sheets } = this;
+    const name = cmd.name && cmd.name.trim().toLowerCase();
+
+    if (visibleSheets.find((id) => sheets[id]?.name.toLowerCase() === name)) {
+      return CommandResult.DuplicatedSheetName;
+    }
+    if (FORBIDDEN_IN_EXCEL_REGEX.test(name!)) {
+      return CommandResult.ForbiddenCharactersInSheetName;
+    }
+    return CommandResult.Success;
+  }
+
   private isRenameAllowed(cmd: RenameSheetCommand): CommandResult {
     if (cmd.interactive) {
       return CommandResult.Success;
     }
     const name = cmd.name && cmd.name.trim().toLowerCase();
     if (!name) {
-      return CommandResult.WrongSheetName;
+      return CommandResult.MissingSheetName;
     }
-    return this.visibleSheets.findIndex((id) => this.sheets[id]?.name.toLowerCase() === name) === -1
-      ? CommandResult.Success
-      : CommandResult.WrongSheetName;
+    return this.checkSheetName(cmd);
   }
 
   private renameSheet(sheet: Sheet, name: string) {
@@ -511,8 +512,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     this.history.update("sheetIds", sheetIds);
   }
 
-  private duplicateSheet(fromId: UID, toId: UID, toName: string) {
-    const sheet = this.sheets[fromId];
+  private duplicateSheet(fromId: UID, toId: UID) {
+    const sheet = this.getSheet(fromId);
+    const toName = this.getDuplicateSheetName(sheet.name);
     const newSheet: Sheet = JSON.parse(JSON.stringify(sheet));
     newSheet.id = toId;
     newSheet.name = toName;
@@ -544,6 +546,18 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[newSheet.name] = newSheet.id;
     this.history.update("sheetIds", sheetIds);
+  }
+
+  private getDuplicateSheetName(sheetName: string) {
+    let i = 1;
+    const names = this.getters.getSheets().map((s) => s.name);
+    const baseName = _lt("Copy of %s", sheetName);
+    let name = baseName.toString();
+    while (names.includes(name)) {
+      name = `${baseName} (${i})`;
+      i++;
+    }
+    return name;
   }
 
   private deleteSheet(sheet: Sheet) {

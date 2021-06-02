@@ -397,7 +397,7 @@ describe("Grid manipulation", () => {
     setBorder(model, "external", "B2");
     const sheetId = model.getters.getActiveSheetId();
     const sheetIdTo = "42";
-    model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo, name: "42" });
+    model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo });
     expect(getBorder(model, "B2")).toEqual({ top: b, left: b, right: b, bottom: b });
   });

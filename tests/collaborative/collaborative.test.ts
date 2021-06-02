@@ -379,7 +379,6 @@ describe("Multi users synchronisation", () => {
   test("duplicate sheet does not activate sheet", () => {
     const firstSheetId = alice.getters.getActiveSheetId();
     alice.dispatch("DUPLICATE_SHEET", {
-      name: "Duplicated Sheet",
       sheetId: firstSheetId,
       sheetIdTo: "42",
     });
