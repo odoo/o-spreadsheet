@@ -1,7 +1,13 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { SelectionInput } from "../../src/components/selection_input";
-import { activateSheet, createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
+import {
+  activateSheet,
+  createSheet,
+  highlight,
+  selectCell,
+  undo,
+} from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { makeTestFixture, nextTick } from "../test_helpers/helpers";
 
@@ -136,20 +142,12 @@ describe("Selection Input", () => {
 
   test("input is filled when new highlight is added", async () => {
     const { model } = await createSelectionInput();
-    model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: {
-        B4: "#454545",
-      },
-    });
+    highlight(model, "B4", "#454545");
     await nextTick();
     expect(fixture.querySelector("input")!.value).toBe("B4");
     expect(fixture.querySelector("input")!.getAttribute("style")).toBe("color: #454545;");
     simulateClick(".o-add-selection");
-    model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: {
-        B5: "#787878",
-      },
-    });
+    highlight(model, "B5", "#787878");
     await nextTick();
     expect(fixture.querySelectorAll("input")[0].value).toBe("B4");
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #454545;");
@@ -237,11 +235,7 @@ describe("Selection Input", () => {
       newRanges = detail.ranges;
     });
     const { model } = await createSelectionInput({ onChanged });
-    model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: {
-        B4: "#454545",
-      },
-    });
+    highlight(model, "B4", "#454545");
     await nextTick();
     expect(onChanged).toHaveBeenCalled();
     expect(newRanges).toStrictEqual(["B4"]);
@@ -265,11 +259,7 @@ describe("Selection Input", () => {
     createSheet(model, { sheetId: "42", activate: true });
     await createSelectionInput();
     activateSheet(model, "42");
-    model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: {
-        B4: "#454545",
-      },
-    });
+    highlight(model, "B4", "#454545");
     await nextTick();
     expect(fixture.querySelector("input")!.value).toBe("Sheet2!B4");
     await simulateClick(".o-selection-ok");
@@ -282,11 +272,7 @@ describe("Selection Input", () => {
     createSheet(model, { sheetId: "42" });
     await createSelectionInput();
     activateSheet(model, "42");
-    model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: {
-        B4: "#454545",
-      },
-    });
+    highlight(model, "B4", "#454545");
     await nextTick();
     await simulateClick(".o-selection-ok");
     expect(model.getters.getActiveSheetId()).toBe(sheet1Id);

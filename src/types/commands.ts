@@ -8,7 +8,7 @@ import {
   Style,
   Zone,
 } from "./index";
-import { Border, Cell, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
+import { Border, Cell, CellPosition, ClipboardOptions, Dimension, Highlight, UID } from "./misc";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -523,7 +523,7 @@ export interface HighlightSelectionCommand extends BaseCommand {
  */
 export interface AddPendingHighlightCommand extends BaseCommand {
   type: "ADD_PENDING_HIGHLIGHTS";
-  ranges: { [range: string]: string };
+  ranges: Highlight[];
 }
 
 /**
@@ -572,9 +572,12 @@ export interface EvaluateCellsCommand extends BaseCommand {
   onlyWaiting?: boolean;
 }
 
+/**
+ * Highlight a zone in the sheet with a color
+ */
 export interface AddHighlightsCommand extends BaseCommand {
   type: "ADD_HIGHLIGHTS";
-  ranges: { [range: string]: string };
+  ranges: Highlight[];
 }
 
 /**
@@ -583,11 +586,9 @@ export interface AddHighlightsCommand extends BaseCommand {
 export interface RemoveHighlightsCommand extends BaseCommand {
   type: "REMOVE_HIGHLIGHTS";
   /**
-   * Ranges to remove. Keys are ranges in XC format and values
-   * are the associated colors.
-   * e.g. { B4: "#e2e2e2" }
+   * Ranges to remove.
    */
-  ranges: { [range: string]: string };
+  ranges: Highlight[];
 }
 export interface RemoveAllHighlightsCommand extends BaseCommand {
   type: "REMOVE_ALL_HIGHLIGHTS";

@@ -1,4 +1,4 @@
-import { getNextColor, isEqual, toZone } from "../../helpers/index";
+import { getNextColor, isEqual } from "../../helpers/index";
 import { Mode } from "../../model";
 import { Command, GridRenderingContext, Highlight, LAYERS, Zone } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
@@ -68,28 +68,25 @@ export class HighlightPlugin extends UIPlugin {
   // Other
   // ---------------------------------------------------------------------------
 
-  private addHighlights(ranges: { [range: string]: string }) {
+  private addHighlights(ranges: Highlight[]) {
     let highlights = this.prepareHighlights(ranges);
     this.highlights = this.highlights.concat(highlights);
   }
 
-  private addPendingHighlight(ranges: { [range: string]: string }) {
+  private addPendingHighlight(ranges: Highlight[]) {
     let highlights = this.prepareHighlights(ranges);
     this.pendingHighlights = this.pendingHighlights.concat(highlights);
   }
 
-  private prepareHighlights(ranges: { [range: string]: string }): Highlight[] {
-    if (Object.keys(ranges).length === 0) {
+  private prepareHighlights(ranges: Highlight[]): Highlight[] {
+    if (ranges.length === 0) {
       return [];
     }
-    const activeSheetId = this.getters.getActiveSheetId();
-    return Object.keys(ranges)
-      .map((r1c1) => {
-        const [xc, sheet] = r1c1.split("!").reverse();
-        const sheetId = this.getters.getSheetIdByName(sheet) || activeSheetId;
-        const zone: Zone = this.getters.expandZone(activeSheetId, toZone(xc));
-        return { zone, color: ranges[r1c1], sheet: sheetId };
-      })
+    return ranges
+      .map((highlight) => ({
+        ...highlight,
+        zone: this.getters.expandZone(highlight.sheet, highlight.zone),
+      }))
       .filter(
         (x) =>
           x.zone.top >= 0 &&
@@ -104,23 +101,15 @@ export class HighlightPlugin extends UIPlugin {
    * @param ranges {"[sheet!]XC": color}
    * @private
    */
-  private removeHighlights(ranges: { [range: string]: string }) {
-    const activeSheetId = this.getters.getActiveSheetId();
-    const rangesBySheets = {};
-    for (let [range, color] of Object.entries(ranges)) {
-      const [xc, sheetName] = range.split("!").reverse();
-      const sheetId = this.getters.getSheetIdByName(sheetName);
-      rangesBySheets[sheetId || activeSheetId] = Object.assign(
-        { [xc]: color },
-        rangesBySheets[sheetId || activeSheetId] || {}
-      );
-    }
+  private removeHighlights(ranges: Highlight[]) {
     const shouldBeKept = (highlight: Highlight) =>
-      !(
-        rangesBySheets[highlight.sheet] &&
-        rangesBySheets[highlight.sheet][this.getters.zoneToXC(activeSheetId, highlight.zone)] ===
-          highlight.color
+      !ranges.some(
+        (removedHighlight) =>
+          isEqual(removedHighlight.zone, highlight.zone) &&
+          removedHighlight.sheet === highlight.sheet &&
+          removedHighlight.color === highlight.color
       );
+
     this.highlights = this.highlights.filter(shouldBeKept);
   }
 
@@ -130,11 +119,15 @@ export class HighlightPlugin extends UIPlugin {
   private highlightSelection() {
     this.removePendingHighlights();
     const zones = this.getters.getSelectedZones().filter((z) => !this.isHighlighted(z));
-    const ranges = {};
+    const ranges: Highlight[] = [];
     let color = this.color;
     const activeSheetId = this.getters.getActiveSheetId();
     for (const zone of zones) {
-      ranges[this.getters.zoneToXC(activeSheetId, zone)] = color;
+      ranges.push({
+        sheet: activeSheetId,
+        color,
+        zone,
+      });
       color = getNextColor();
     }
     this.dispatch("ADD_HIGHLIGHTS", { ranges });
@@ -151,17 +144,12 @@ export class HighlightPlugin extends UIPlugin {
    * pending.
    */
   private removePendingHighlights() {
-    const ranges = {};
     const [selected, notSelected] = this.pendingHighlights.reduce(
       ([y, n], highlight) =>
         this.getters.isSelected(highlight.zone) ? [[...y, highlight], n] : [y, [...n, highlight]],
       [[], []]
     );
-    const activeSheetId = this.getters.getActiveSheetId();
-    for (const { zone, color } of notSelected) {
-      ranges[this.getters.zoneToXC(activeSheetId, zone)] = color;
-    }
-    this.dispatch("REMOVE_HIGHLIGHTS", { ranges });
+    this.dispatch("REMOVE_HIGHLIGHTS", { ranges: notSelected });
     this.pendingHighlights = selected;
   }
 

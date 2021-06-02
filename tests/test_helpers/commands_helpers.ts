@@ -349,3 +349,20 @@ export function unMerge(
 export function snapshot(model: Model) {
   model["session"].snapshot(model.exportData());
 }
+
+export function highlight(
+  model: Model,
+  xc: string,
+  color: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("ADD_HIGHLIGHTS", {
+    ranges: [
+      {
+        color,
+        sheet: sheetId,
+        zone: toZone(xc),
+      },
+    ],
+  });
+}

@@ -1,7 +1,12 @@
 import { Model } from "../../src";
-import { zoneToXc } from "../../src/helpers";
+import { toZone, zoneToXc } from "../../src/helpers";
 import { CommandResult } from "../../src/types";
-import { activateSheet, createSheet, selectCell } from "../test_helpers/commands_helpers";
+import {
+  activateSheet,
+  createSheet,
+  highlight,
+  selectCell,
+} from "../test_helpers/commands_helpers";
 
 function select(model: Model, xc: string) {
   model.dispatch("START_SELECTION");
@@ -99,12 +104,14 @@ describe("selection input plugin", () => {
 
   test("adding multiple ranges does not add more input than maximum", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, maximumRanges: 2 });
+    const color = "#000";
+    const sheet = model.getters.getActiveSheetId();
     model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: {
-        A1: "#000",
-        B1: "#000",
-        C1: "#000",
-      },
+      ranges: [
+        { color, sheet, zone: toZone("A1") },
+        { color, sheet, zone: toZone("B1") },
+        { color, sheet, zone: toZone("C1") },
+      ],
     });
     expect(model.getters.getSelectionInput(id)).toHaveLength(2);
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("A1");
@@ -420,17 +427,13 @@ describe("selection input plugin", () => {
   test("can select a range in another sheet", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     createSheet(model, { sheetId: "42", activate: true });
-    model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: { A1: "#000" },
-    });
+    highlight(model, "A1", "#000");
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("Sheet2!A1");
   });
 
   test("focus while in other sheet", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: { A1: "#000" },
-    });
+    highlight(model, "A1", "#000");
     createSheet(model, { sheetId: "42", activate: true });
     model.dispatch("FOCUS_RANGE", { id, rangeId: null });
     let [range] = model.getters.getSelectionInput(id);

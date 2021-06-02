@@ -4,8 +4,10 @@ import { formatDateTime } from "../../functions/dates";
 import {
   colors,
   getComposerSheetName,
+  toZone,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
+  zoneToXc,
 } from "../../helpers/index";
 import { Mode } from "../../model";
 import { _lt } from "../../translation";
@@ -15,6 +17,7 @@ import {
   CellType,
   Command,
   CommandResult,
+  Highlight,
   LAYERS,
   RemoveColumnsRowsCommand,
 } from "../../types/index";
@@ -521,22 +524,26 @@ export class EditionPlugin extends UIPlugin {
       return;
     }
     this.dispatch("REMOVE_ALL_HIGHLIGHTS"); //cleanup highlights for references
-    const ranges = {};
+    const alreadyHighlighted = new Set<string>();
+    const ranges: Highlight[] = [];
     let lastUsedColorIndex = 0;
     for (let token of this.currentTokens.filter((token) => token.type === "SYMBOL")) {
       let value = token.value;
       const [xc, sheet] = value.split("!").reverse();
       if (rangeReference.test(xc)) {
-        const refSanitized =
-          (sheet ? `${sheet}!` : `${this.getters.getSheetName(this.getters.getEditionSheet())}!`) +
-          xc.replace(/\$/g, "");
-        if (!ranges[refSanitized]) {
-          ranges[refSanitized] = colors[lastUsedColorIndex];
+        const refSanitized = `${sheet}${zoneToXc(toZone(xc))}`;
+        if (!alreadyHighlighted.has(refSanitized)) {
+          alreadyHighlighted.add(refSanitized);
+          ranges.push({
+            color: colors[lastUsedColorIndex],
+            zone: toZone(xc),
+            sheet: this.getters.getSheetIdByName(sheet) || this.getters.getEditionSheet(),
+          });
           lastUsedColorIndex = ++lastUsedColorIndex % colors.length;
         }
       }
     }
-    if (Object.keys(ranges).length) {
+    if (ranges.length) {
       this.dispatch("ADD_HIGHLIGHTS", { ranges });
     }
   }
