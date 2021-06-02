@@ -25,7 +25,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: "#888",
-        sheet: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -45,7 +45,7 @@ describe("highlight", () => {
     model.dispatch("REMOVE_HIGHLIGHTS", {
       ranges: [
         {
-          sheet: model.getters.getActiveSheetId(),
+          sheetId: model.getters.getActiveSheetId(),
           color: "#999",
           zone: toZone("B6"),
         },
@@ -54,7 +54,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: "#888",
-        sheet: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -72,7 +72,7 @@ describe("highlight", () => {
     model.dispatch("REMOVE_HIGHLIGHTS", {
       ranges: [
         {
-          sheet: model.getters.getActiveSheetId(),
+          sheetId: model.getters.getActiveSheetId(),
           color: "#999",
           zone: toZone("B2"),
         },
@@ -81,7 +81,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: "#888",
-        sheet: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -93,7 +93,7 @@ describe("highlight", () => {
     model.dispatch("REMOVE_HIGHLIGHTS", {
       ranges: [
         {
-          sheet: model.getters.getActiveSheetId(),
+          sheetId: model.getters.getActiveSheetId(),
           color: "#999",
           zone: toZone("B2"),
         },
@@ -102,7 +102,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: "#888",
-        sheet: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -116,19 +116,19 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: "#888",
-        sheet: sheet1,
+        sheetId: sheet1,
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
       {
         color: "#888",
-        sheet: "42",
+        sheetId: "42",
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
     model.dispatch("REMOVE_HIGHLIGHTS", {
       ranges: [
         {
-          sheet: model.getters.getActiveSheetId(),
+          sheetId: model.getters.getActiveSheetId(),
           color: "#888",
           zone: toZone("B2"),
         },
@@ -137,7 +137,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: "#888",
-        sheet: sheet1,
+        sheetId: sheet1,
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -149,7 +149,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: getColor(model),
-        sheet: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -169,7 +169,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
-        sheet: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         zone: zone1,
       },
     ]);
@@ -183,7 +183,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
-        sheet: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         zone: zone2,
       },
     ]);
@@ -203,7 +203,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
-        sheet: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         zone: zone1,
       },
     ]);
@@ -218,7 +218,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: getColor(model),
-        sheet: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         zone: zone2,
       },
     ]);
@@ -278,12 +278,12 @@ describe("highlight", () => {
     model.dispatch("SET_SELECTION", { anchor, zones });
     model.dispatch("STOP_SELECTION");
     expect(model.getters.getHighlights()).toStrictEqual([
-      { color, zone, sheet: model.getters.getActiveSheetId() },
+      { color, zone, sheetId: model.getters.getActiveSheetId() },
     ]);
     model.dispatch("START_SELECTION");
     model.dispatch("SET_SELECTION", { anchor, zones });
     expect(model.getters.getHighlights()).toStrictEqual([
-      { color, zone, sheet: model.getters.getActiveSheetId() },
+      { color, zone, sheetId: model.getters.getActiveSheetId() },
     ]);
   });
 
@@ -308,12 +308,12 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
-        sheet: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         zone: zone1,
       },
       {
         color: getColor(model),
-        sheet: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         zone: zone2,
       },
     ]);
@@ -324,7 +324,7 @@ describe("highlight", () => {
     model.dispatch("ADD_PENDING_HIGHLIGHTS", {
       ranges: [
         {
-          sheet: model.getters.getActiveSheetId(),
+          sheetId: model.getters.getActiveSheetId(),
           zone: toZone("B10"),
           color: "#999",
         },
@@ -336,7 +336,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: getColor(model),
-        sheet: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -353,12 +353,12 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
-        sheet: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         zone: { bottom: 5, left: 5, right: 5, top: 5 },
       },
       {
         color: getColor(model),
-        sheet: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         zone: { bottom: 7, left: 7, right: 7, top: 7 },
       },
     ]);
@@ -376,7 +376,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: mergeColor,
-        sheet: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         zone: toZone("A2:A5"),
       },
     ]);
@@ -397,7 +397,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: mergeColor,
-        sheet: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         zone: toZone("A1:A5"),
       },
     ]);
@@ -408,7 +408,7 @@ describe("highlight", () => {
     model.dispatch("ADD_PENDING_HIGHLIGHTS", {
       ranges: [
         {
-          sheet: model.getters.getActiveSheetId(),
+          sheetId: model.getters.getActiveSheetId(),
           zone: toZone("B10"),
           color: "#999",
         },

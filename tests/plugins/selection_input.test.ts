@@ -105,12 +105,12 @@ describe("selection input plugin", () => {
   test("adding multiple ranges does not add more input than maximum", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, maximumRanges: 2 });
     const color = "#000";
-    const sheet = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: [
-        { color, sheet, zone: toZone("A1") },
-        { color, sheet, zone: toZone("B1") },
-        { color, sheet, zone: toZone("C1") },
+        { color, sheetId, zone: toZone("A1") },
+        { color, sheetId, zone: toZone("B1") },
+        { color, sheetId, zone: toZone("C1") },
       ],
     });
     expect(model.getters.getSelectionInput(id)).toHaveLength(2);

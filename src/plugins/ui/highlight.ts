@@ -85,14 +85,14 @@ export class HighlightPlugin extends UIPlugin {
     return ranges
       .map((highlight) => ({
         ...highlight,
-        zone: this.getters.expandZone(highlight.sheet, highlight.zone),
+        zone: this.getters.expandZone(highlight.sheetId, highlight.zone),
       }))
       .filter(
         (x) =>
           x.zone.top >= 0 &&
           x.zone.left >= 0 &&
-          x.zone.bottom < this.getters.getSheet(x.sheet).rows.length &&
-          x.zone.right < this.getters.getSheet(x.sheet).cols.length
+          x.zone.bottom < this.getters.getSheet(x.sheetId).rows.length &&
+          x.zone.right < this.getters.getSheet(x.sheetId).cols.length
       );
   }
 
@@ -106,7 +106,7 @@ export class HighlightPlugin extends UIPlugin {
       !ranges.some(
         (removedHighlight) =>
           isEqual(removedHighlight.zone, highlight.zone) &&
-          removedHighlight.sheet === highlight.sheet &&
+          removedHighlight.sheetId === highlight.sheetId &&
           removedHighlight.color === highlight.color
       );
 
@@ -124,7 +124,7 @@ export class HighlightPlugin extends UIPlugin {
     const activeSheetId = this.getters.getActiveSheetId();
     for (const zone of zones) {
       ranges.push({
-        sheet: activeSheetId,
+        sheetId: activeSheetId,
         color,
         zone,
       });
@@ -163,7 +163,7 @@ export class HighlightPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const lineWidth = 3 * thinLineWidth;
     ctx.lineWidth = lineWidth;
-    for (let h of this.highlights.filter((highlight) => highlight.sheet === sheetId)) {
+    for (let h of this.highlights.filter((highlight) => highlight.sheetId === sheetId)) {
       const [x, y, width, height] = this.getters.getRect(h.zone, viewport);
       if (width > 0 && height > 0) {
         ctx.strokeStyle = h.color!;

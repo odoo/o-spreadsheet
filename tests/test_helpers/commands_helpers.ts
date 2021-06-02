@@ -360,7 +360,7 @@ export function highlight(
     ranges: [
       {
         color,
-        sheet: sheetId,
+        sheetId,
         zone: toZone(xc),
       },
     ],

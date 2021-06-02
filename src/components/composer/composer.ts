@@ -495,7 +495,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
       : this.getters.getEditionSheet();
     const highlight = highlights.find(
       (highlight) =>
-        zoneToXc(highlight.zone) == xc.replace(/\$/g, "") && highlight.sheet === refSheet
+        zoneToXc(highlight.zone) == xc.replace(/\$/g, "") && highlight.sheetId === refSheet
     );
     return highlight && highlight.color ? highlight.color : undefined;
   }

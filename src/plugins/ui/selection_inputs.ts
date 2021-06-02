@@ -328,8 +328,8 @@ export class SelectionInputPlugin extends UIPlugin {
     return highlights.map((h) =>
       Object.freeze({
         xc:
-          h.sheet !== activeSheetId
-            ? `${this.getters.getSheetName(h.sheet)}!${toXC(sheetId, h.zone)}`
+          h.sheetId !== activeSheetId
+            ? `${this.getters.getSheetName(h.sheetId)}!${toXC(sheetId, h.zone)}`
             : toXC(sheetId, h.zone),
         id: uuidv4(),
         color: h.color,
@@ -355,14 +355,14 @@ export class SelectionInputPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const highlights: Highlight[] = [
       {
-        sheet: sheetId,
+        sheetId: sheetId,
         zone: toZone(fromInput),
         color: color || getNextColor(),
       },
     ];
     for (const range of otherRanges) {
       highlights.push({
-        sheet: sheetId,
+        sheetId: sheetId,
         color: getNextColor(),
         zone: toZone(range),
       });

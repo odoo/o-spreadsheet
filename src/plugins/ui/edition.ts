@@ -537,7 +537,7 @@ export class EditionPlugin extends UIPlugin {
           ranges.push({
             color: colors[lastUsedColorIndex],
             zone: toZone(xc),
-            sheet: this.getters.getSheetIdByName(sheet) || this.getters.getEditionSheet(),
+            sheetId: this.getters.getSheetIdByName(sheet) || this.getters.getEditionSheet(),
           });
           lastUsedColorIndex = ++lastUsedColorIndex % colors.length;
         }
