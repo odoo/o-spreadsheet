@@ -30,11 +30,12 @@ export function getUnquotedSheetName(sheetName: string): string {
 }
 
 /**
- * Add quotes around the sheet name if it contains a space
+ * Add quotes around the sheet name if it contains at least one non alphanumeric character
+ * '\w' captures [0-9][a-z][A-Z] and _.
  * @param sheetName Name of the sheet
  */
 export function getComposerSheetName(sheetName: string): string {
-  if (sheetName.includes(" ")) {
+  if (sheetName.match(/\w/g)?.length !== sheetName.length) {
     sheetName = `'${sheetName}'`;
   }
   return sheetName;

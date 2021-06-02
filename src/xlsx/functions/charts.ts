@@ -380,7 +380,7 @@ function insertMajorGridLines(color: string = "B7B7B7"): XMLString {
 function stringRef(reference: string): XMLString {
   return /*xml*/ `
     <c:strRef>
-      <c:f>${reference}</c:f>
+      <c:f>${xmlEscape(reference)}</c:f>
     </c:strRef>
   `;
 }
@@ -388,7 +388,7 @@ function stringRef(reference: string): XMLString {
 function numberRef(reference: string): XMLString {
   return /*xml*/ `
     <c:numRef>
-      <c:f>${reference}</c:f>
+      <c:f>${xmlEscape(reference)}</c:f>
       <c:numCache />
     </c:numRef>
   `;

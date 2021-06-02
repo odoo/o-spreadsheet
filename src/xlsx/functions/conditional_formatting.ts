@@ -52,7 +52,7 @@ export function addConditionalFormatting(
 function addCellIsRule(cf: ConditionalFormat, rule: CellIsRule, dxfs: XLSXDxf[]): XMLString {
   const ruleAttributes = commonCfAttributes(cf);
   ruleAttributes.push(["type", "cellIs"], ["operator", convertOperator(rule.operator)]);
-  const formulas = rule.values.map((value) => /*xml*/ `<formula>${value}</formula>`);
+  const formulas = rule.values.map((value) => /*xml*/ `<formula>${xmlEscape(value)}</formula>`);
   const dxf: XLSXDxf = {};
   if (rule.style.textColor) {
     dxf.font = { color: rule.style.textColor };

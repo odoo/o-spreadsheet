@@ -30,7 +30,8 @@ export interface XLSXStructure {
   dxfs: XLSXDxf[];
 }
 
-type XMLAttribute = [string, string | number | boolean];
+export type XMLAttributeValue = string | number | boolean;
+type XMLAttribute = [string, XMLAttributeValue];
 export type XMLAttributes = XMLAttribute[];
 
 export type XMLString = string;
