@@ -36,6 +36,9 @@ const simpleData = {
         A33: { content: "Jessica Alcock (Jess)" },
         A34: { content: "Charlotte Anaya" },
         A35: { content: "Lauren Anthony" },
+        A36: { content: "test 'single quot'" },
+        A37: { content: `="this is a quote: \\""` },
+        A38: { content: `='<Sheet2>'!B2` },
         K3: { border: 5 },
         K4: { border: 4 },
         K5: { border: 4 },
@@ -45,7 +48,7 @@ const simpleData = {
       },
     },
     {
-      name: "Sheet2",
+      name: "<Sheet2>",
       cells: {
         B2: { content: "42" },
       },

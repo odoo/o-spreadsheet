@@ -16,9 +16,7 @@ import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../
 import { getCellType, pushElement } from "../helpers/content_helpers";
 import { xmlEscape } from "../helpers/xml_helpers";
 
-export function addFormula(
-  formula: NormalizedFormula
-): {
+export function addFormula(formula: NormalizedFormula): {
   attrs: XMLAttributes;
   node: XMLString;
 } {
@@ -143,7 +141,7 @@ function astToExcelFormula(ast: AST): string {
         }
         return `"${formatDateTime({ value: internalDate.value, format: format.join(" ") })}"`;
       } else {
-        return ast.value;
+        return ast.value.replace(/\\"/g, `""`);
       }
     case "BOOLEAN":
       return ast.value ? "TRUE" : "FALSE";

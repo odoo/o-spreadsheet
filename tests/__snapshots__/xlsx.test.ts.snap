@@ -6497,7 +6497,7 @@ Object {
       "content": "<workbook xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
     <sheets>
         <sheet name=\\"Sheet1\\" sheetId=\\"1\\" r:id=\\"rId1\\"/>
-        <sheet name=\\"Sheet2\\" sheetId=\\"2\\" r:id=\\"rId2\\"/>
+        <sheet name=\\"&lt;Sheet2&gt;\\" sheetId=\\"2\\" r:id=\\"rId2\\"/>
     </sheets>
 </workbook>",
       "contentType": "workbook",
@@ -6745,6 +6745,27 @@ Object {
                 </v>
             </c>
         </row>
+        <row r=\\"36\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A36\\" s=\\"3\\" t=\\"s\\">
+                <v>
+                    19
+                </v>
+            </c>
+        </row>
+        <row r=\\"37\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A37\\" s=\\"3\\">
+                <f>
+                    \\"this is a quote: \\"\\"\\"
+                </f>
+            </c>
+        </row>
+        <row r=\\"38\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A38\\" s=\\"3\\">
+                <f>
+                    '&lt;Sheet2&gt;'!B2
+                </f>
+            </c>
+        </row>
     </sheetData>
 </worksheet>",
       "contentType": "sheet",
@@ -6964,7 +6985,7 @@ Object {
       "path": "xl/styles.xml",
     },
     Object {
-      "content": "<sst xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" count=\\"19\\" uniqueCount=\\"19\\">
+      "content": "<sst xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" count=\\"20\\" uniqueCount=\\"20\\">
     <si>
         <t>
             Owl is awesome
@@ -7058,6 +7079,11 @@ Object {
     <si>
         <t>
             Lauren Anthony
+        </t>
+    </si>
+    <si>
+        <t>
+            test 'single quot'
         </t>
     </si>
 </sst>",

@@ -390,5 +390,17 @@ describe("range plugin", () => {
     test("requesting a range that doesn't exist", () => {
       expect(m.getters.getRangeString(undefined, "not there")).toBe(INCORRECT_RANGE_STRING);
     });
+
+    test.each(["Sheet 0", "<Sheet1>", "&Sheet2", "Sheet4;", "Sheet5🐻"])(
+      "sheet name with special character %s",
+      (name) => {
+        m.dispatch("RENAME_SHEET", {
+          sheetId: "s1",
+          name,
+        });
+        const range = m.getters.getRangeFromSheetXC("s1", "A1");
+        expect(m.getters.getRangeString(range, "tao")).toBe(`'${name}'!A1`);
+      }
+    );
   });
 });

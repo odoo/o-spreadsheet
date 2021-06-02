@@ -1,5 +1,11 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
-import { XLSXExportFile, XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
+import {
+  XLSXExportFile,
+  XLSXStructure,
+  XMLAttributes,
+  XMLAttributeValue,
+  XMLString,
+} from "../../types/xlsx";
 
 // -------------------------------------
 //            XML HELPERS
@@ -17,16 +23,17 @@ export function createXMLFile(
   };
 }
 
-export function xmlEscape(str) {
+export function xmlEscape(str: XMLAttributeValue): string {
   return String(str)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 export function formatAttributes(attrs: XMLAttributes): string {
-  return attrs.map(([key, val]) => `${key}="${val}"`).join(" ");
+  return attrs.map(([key, val]) => `${key}="${xmlEscape(val)}"`).join(" ");
 }
 
 export function parseXML(xmlString: XMLString): XMLDocument {
