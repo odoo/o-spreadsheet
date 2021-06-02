@@ -48,6 +48,22 @@ export function getCellText(
   return cell ? model.getters.getCellText(cell, sheetId, true) : "";
 }
 
+export function getRangeFormattedValues(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): string[][] {
+  return model.getters.getRangeFormattedValues(model.getters.getRangeFromSheetXC(sheetId, xc));
+}
+
+export function getRangeValues(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): any[][] {
+  return model.getters.getRangeValues(model.getters.getRangeFromSheetXC(sheetId, xc));
+}
+
 /**
  * Get the sheet at the given index
  */
