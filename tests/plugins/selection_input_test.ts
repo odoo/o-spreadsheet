@@ -434,6 +434,39 @@ describe("selection input plugin", () => {
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("Sheet2!A1");
   });
 
+  test("can select a range in sheet with a space in its name", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+    model.dispatch("CREATE_SHEET", {
+      sheetId: "42",
+      activate: true,
+      position: 1,
+      name: "sheet name",
+    });
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { A1: "#000" },
+    });
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe(`'sheet name'!A1`);
+  });
+
+  test.each(["Sheet+", "Sheet:)"])(
+    "can select a range in sheet with special characters in its name: %s",
+    (sheetName) => {
+      // Note: this test will fail in saas-14.4 since special characters
+      // are quoted. In saas-14.4, it can be combined with the test above :)
+      model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+      model.dispatch("CREATE_SHEET", {
+        sheetId: "42",
+        activate: true,
+        position: 1,
+        name: sheetName,
+      });
+      model.dispatch("ADD_HIGHLIGHTS", {
+        ranges: { A1: "#000" },
+      });
+      expect(model.getters.getSelectionInput(id)[0].xc).toBe(`${sheetName}!A1`);
+    }
+  );
+
   test("focus while in other sheet", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     model.dispatch("ADD_HIGHLIGHTS", {

@@ -1,7 +1,6 @@
 import { rangeReference } from "../../formulas";
 import {
   getComposerSheetName,
-  getUnquotedSheetName,
   groupConsecutive,
   isDefined,
   numberToLetters,
@@ -204,7 +203,7 @@ export class RangePlugin extends CorePlugin<RangeState> {
     if (sheetXC.includes("!")) {
       [xc, sheetName] = sheetXC.split("!").reverse();
       if (sheetName) {
-        sheetId = this.getters.getSheetIdByName(getUnquotedSheetName(sheetName));
+        sheetId = this.getters.getSheetIdByName(sheetName);
         prefixSheet = true;
         if (!sheetId) {
           invalidSheetName = sheetName;

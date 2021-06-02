@@ -1,4 +1,4 @@
-import { toCartesian, toZone, uuidv4 } from "../../src/helpers";
+import { getComposerSheetName, toCartesian, toZone, uuidv4 } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
 import "../helpers"; // to have getcontext mocks
@@ -868,5 +868,22 @@ describe("sheets", () => {
       row: 1,
       sheetId: model.getters.getActiveSheetId(),
     });
+  });
+
+  test.each(["Sheet", "My sheet"])("getSheetIdByName", (name) => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("RENAME_SHEET", {
+      sheetId,
+      name,
+    });
+    expect(model.getters.getSheetIdByName(name)).toBe(sheetId);
+    expect(model.getters.getSheetIdByName(`'${name}'`)).toBe(sheetId);
+    expect(model.getters.getSheetIdByName(getComposerSheetName(name))).toBe(sheetId);
+  });
+
+  test("getSheetIdByName with invalid name", () => {
+    const model = new Model();
+    expect(model.getters.getSheetIdByName("this name does not exist")).toBeUndefined();
   });
 });
