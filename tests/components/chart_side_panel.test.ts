@@ -118,13 +118,42 @@ describe("Chart sidepanel component", () => {
     parent.unmount();
   });
 
+  test("create chart with empty dataset and empty labels", async () => {
+    const { parent } = await createChartPanel();
+    await simulateClick(".o-sidePanelButton");
+    await nextTick();
+    expect(errorMessages()).toEqual(["A dataset needs to be defined"]);
+    parent.destroy();
+  });
+
   test("create chart with invalid dataset and empty labels", async () => {
     const { parent } = await createChartPanel();
     await simulateClick(".o-data-series input");
     setInputValueAndTrigger(".o-data-series input", "This is not valid", "change");
     await simulateClick(".o-sidePanelButton");
     await nextTick();
-    expect(errorMessages()).toEqual(["Invalid dataSet"]);
+    expect(errorMessages()).toEqual(["The dataset is invalid"]);
+    parent.destroy();
+  });
+
+  test("create chart with empty labels", async () => {
+    const { parent } = await createChartPanel();
+    await simulateClick(".o-data-series input");
+    setInputValueAndTrigger(".o-data-series input", "A2:A10", "change");
+    await simulateClick(".o-sidePanelButton");
+    await nextTick();
+    expect(errorMessages()).toEqual(["Labels need to be defined"]);
+    parent.destroy();
+  });
+
+  test("create chart with invalid labels", async () => {
+    const { parent } = await createChartPanel();
+    await simulateClick(".o-data-series input");
+    setInputValueAndTrigger(".o-data-series input", "A2:A10", "change");
+    setInputValueAndTrigger(".o-data-labels input", "this is not valid", "change");
+    await simulateClick(".o-sidePanelButton");
+    await nextTick();
+    expect(errorMessages()).toEqual(["Labels are invalid"]);
     parent.destroy();
   });
 });

@@ -106,11 +106,11 @@ export const chartTerms = {
   CreateChart: _lt("Create chart"),
   TitlePlaceholder: _lt("New Chart"),
   Errors: {
-    [CommandResult.EmptyDataSet]: _lt("No Dataset given"),
-    [CommandResult.EmptyLabelRange]: _lt("No Labels given"),
-    [CommandResult.InvalidDataSet]: _lt("Invalid dataSet"),
-    [CommandResult.InvalidLabelRange]: _lt("Invalid Labels"),
-    unexpected: _lt("The chartdefinition is invalid for an unknown reason"),
+    [CommandResult.EmptyDataSet]: _lt("A dataset needs to be defined"),
+    [CommandResult.EmptyLabelRange]: _lt("Labels need to be defined"),
+    [CommandResult.InvalidDataSet]: _lt("The dataset is invalid"),
+    [CommandResult.InvalidLabelRange]: _lt("Labels are invalid"),
+    unexpected: _lt("The chart definition is invalid for an unknown reason"),
   },
 };
 
