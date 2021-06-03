@@ -8,12 +8,12 @@ import {
   extractStyle,
   normalizeStyle,
 } from "../helpers/content_helpers";
-import { formatAttributes } from "../helpers/xml_helpers";
+import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";
 import { addContent, addFormula } from "./cells";
 
 export function addColumns(cols: { [key: number]: HeaderData }): XMLString {
   if (!Object.values(cols).length) {
-    return /*xml*/ "";
+    return escapeXml``;
   }
   const colNodes: XMLString[] = [];
   for (let [id, col] of Object.entries(cols)) {
@@ -25,13 +25,13 @@ export function addColumns(cols: { [key: number]: HeaderData }): XMLString {
       ["customWidth", 1],
       ["hidden", col.isHidden ? 1 : 0],
     ];
-    colNodes.push(/*xml*/ `
+    colNodes.push(escapeXml/*xml*/ `
       <col ${formatAttributes(attributes)}/>
     `);
   }
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <cols>
-      ${colNodes.join("\n")}
+      ${joinXmlNodes(colNodes)}
     </cols>
   `;
 }
@@ -59,7 +59,7 @@ export function addRows(construct, data: ExcelWorkbookData, sheet: ExcelSheetDat
         attributes.push(["s", id]);
 
         let additionalAttrs: XMLAttributes = [];
-        let cellNode: XMLString = "";
+        let cellNode = escapeXml``;
         // Either formula or static value inside the cell
         if (cell.formula) {
           ({ attrs: additionalAttrs, node: cellNode } = addFormula(cell.formula));
@@ -70,7 +70,7 @@ export function addRows(construct, data: ExcelWorkbookData, sheet: ExcelSheetDat
           ));
         }
         attributes.push(...additionalAttrs);
-        cellNodes.push(/*xml*/ `
+        cellNodes.push(escapeXml/*xml*/ `
           <c ${formatAttributes(attributes)}>
             ${cellNode}
           </c>
@@ -78,27 +78,27 @@ export function addRows(construct, data: ExcelWorkbookData, sheet: ExcelSheetDat
       }
     }
     if (cellNodes.length) {
-      rowNodes.push(/*xml*/ `
+      rowNodes.push(escapeXml/*xml*/ `
         <row ${formatAttributes(rowAttrs)}>
-          ${cellNodes.join("\n")}
+          ${joinXmlNodes(cellNodes)}
         </row>
       `);
     }
   }
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <sheetData>
-      ${rowNodes.join("\n")}
+      ${joinXmlNodes(rowNodes)}
     </sheetData>
   `;
 }
 
 export function addMerges(merges: string[]): XMLString {
   if (merges.length) {
-    const mergeNodes = merges.map((merge) => /*xml*/ `<mergeCell ref="${merge}" />`);
-    return /*xml*/ `
+    const mergeNodes = merges.map((merge) => escapeXml/*xml*/ `<mergeCell ref="${merge}" />`);
+    return escapeXml/*xml*/ `
       <mergeCells count="${merges.length}">
-        ${mergeNodes.join("\n")}
+        ${joinXmlNodes(mergeNodes)}
       </mergeCells>
     `;
-  } else return "";
+  } else return escapeXml``;
 }

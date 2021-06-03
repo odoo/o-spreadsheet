@@ -14,7 +14,7 @@ import {
 import { ExcelIconSet, XLSXDxf, XMLAttributes, XMLString } from "../../types/xlsx";
 import { XLSX_ICONSET_MAP } from "../constants";
 import { convertOperator, pushElement } from "../helpers/content_helpers";
-import { formatAttributes, xmlEscape } from "../helpers/xml_helpers";
+import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";
 import { adaptFormulaToExcel } from "./cells";
 
 type CFExcelPointType = "formula" | "max" | "min" | "num" | "percent" | "percentile";
@@ -52,7 +52,7 @@ export function addConditionalFormatting(
 function addCellIsRule(cf: ConditionalFormat, rule: CellIsRule, dxfs: XLSXDxf[]): XMLString {
   const ruleAttributes = commonCfAttributes(cf);
   ruleAttributes.push(["type", "cellIs"], ["operator", convertOperator(rule.operator)]);
-  const formulas = rule.values.map((value) => /*xml*/ `<formula>${xmlEscape(value)}</formula>`);
+  const formulas = rule.values.map((value) => escapeXml/*xml*/ `<formula>${value}</formula>`);
   const dxf: XLSXDxf = {};
   if (rule.style.textColor) {
     dxf.font = { color: rule.style.textColor };
@@ -63,10 +63,10 @@ function addCellIsRule(cf: ConditionalFormat, rule: CellIsRule, dxfs: XLSXDxf[])
   const { id } = pushElement(dxf, dxfs);
   ruleAttributes.push(["dxfId", id]);
 
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <conditionalFormatting sqref="${cf.ranges.join(" ")}">
       <cfRule ${formatAttributes(ruleAttributes)}>
-        ${formulas.join("\n")}
+        ${joinXmlNodes(formulas)}
       </cfRule>
     </conditionalFormatting>
   `;
@@ -106,24 +106,24 @@ function addColorScaleRule(cf: ConditionalFormat, rule: ColorScaleRule): XMLStri
       continue;
     }
     const cfValueObjectNodes = cfValueObject.map(
-      (attrs) => /*xml*/ `<cfvo ${formatAttributes(attrs)}/>`
+      (attrs) => escapeXml/*xml*/ `<cfvo ${formatAttributes(attrs)}/>`
     );
-    const cfColorNodes = colors.map((attrs) => /*xml*/ `<color ${formatAttributes(attrs)}/>`);
-    conditionalFormats.push(/*xml*/ `
+    const cfColorNodes = colors.map(
+      (attrs) => escapeXml/*xml*/ `<color ${formatAttributes(attrs)}/>`
+    );
+    conditionalFormats.push(escapeXml/*xml*/ `
       <conditionalFormatting sqref="${range}">
         <cfRule ${formatAttributes(ruleAttributes)}>
           <colorScale>
-            ${cfValueObjectNodes.join("\n")}
-            ${cfColorNodes.join("\n")}
+            ${joinXmlNodes(cfValueObjectNodes)}
+            ${joinXmlNodes(cfColorNodes)}
           </colorScale>
         </cfRule>
       </conditionalFormatting>
     `);
   }
 
-  return /*xml*/ `
-    ${conditionalFormats.join("\n")}
-  `;
+  return joinXmlNodes(conditionalFormats);
 }
 
 function addIconSetRule(cf: ConditionalFormat, rule: IconSetRule): XMLString {
@@ -160,22 +160,20 @@ function addIconSetRule(cf: ConditionalFormat, rule: IconSetRule): XMLString {
       continue;
     }
     const cfValueObjectNodes = cfValueObject.map(
-      (attrs) => /*xml*/ `<cfvo ${formatAttributes(attrs)} />`
+      (attrs) => escapeXml/*xml*/ `<cfvo ${formatAttributes(attrs)} />`
     );
-    conditionalFormats.push(/*xml*/ `
+    conditionalFormats.push(escapeXml/*xml*/ `
       <conditionalFormatting sqref="${range}">
         <cfRule ${formatAttributes(ruleAttributes)}>
           <iconSet iconSet="${getIconSet(rule.icons)}">
-            ${cfValueObjectNodes.join("\n")}
+            ${joinXmlNodes(cfValueObjectNodes)}
           </iconSet>
         </cfRule>
       </conditionalFormatting>
     `);
   }
 
-  return /*xml*/ `
-    ${conditionalFormats.join("\n")}
-  `;
+  return joinXmlNodes(conditionalFormats);
 }
 
 // ----------------------
@@ -214,7 +212,7 @@ function thresholdAttributes(
         val = threshold.value!;
       }
     }
-    attrs.push(["val", xmlEscape(val)]); // value is undefined only for type="value")
+    attrs.push(["val", val]); // value is undefined only for type="value")
   }
   return attrs;
 }
