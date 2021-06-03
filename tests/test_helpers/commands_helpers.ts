@@ -357,7 +357,7 @@ export function highlight(
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   return model.dispatch("ADD_HIGHLIGHTS", {
-    ranges: [
+    highlights: [
       {
         color,
         sheetId,

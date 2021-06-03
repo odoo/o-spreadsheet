@@ -22,13 +22,13 @@ export class HighlightPlugin extends UIPlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ADD_HIGHLIGHTS":
-        this.addHighlights(cmd.ranges);
+        this.addHighlights(cmd.highlights);
         break;
       case "REMOVE_ALL_HIGHLIGHTS":
         this.highlights = [];
         break;
       case "REMOVE_HIGHLIGHTS":
-        this.removeHighlights(cmd.ranges);
+        this.removeHighlights(cmd.highlights);
         break;
       case "SELECT_CELL":
       case "SET_SELECTION":
@@ -49,7 +49,7 @@ export class HighlightPlugin extends UIPlugin {
         this.pendingHighlights = [];
         break;
       case "ADD_PENDING_HIGHLIGHTS":
-        this.addPendingHighlight(cmd.ranges);
+        this.addPendingHighlight(cmd.highlights);
         break;
       case "SET_HIGHLIGHT_COLOR":
         this.color = cmd.color;
@@ -68,21 +68,16 @@ export class HighlightPlugin extends UIPlugin {
   // Other
   // ---------------------------------------------------------------------------
 
-  private addHighlights(ranges: Highlight[]) {
-    let highlights = this.prepareHighlights(ranges);
-    this.highlights = this.highlights.concat(highlights);
+  private addHighlights(highlights: Highlight[]) {
+    this.highlights = this.highlights.concat(this.prepareHighlights(highlights));
   }
 
-  private addPendingHighlight(ranges: Highlight[]) {
-    let highlights = this.prepareHighlights(ranges);
-    this.pendingHighlights = this.pendingHighlights.concat(highlights);
+  private addPendingHighlight(highlights: Highlight[]) {
+    this.pendingHighlights = this.pendingHighlights.concat(this.prepareHighlights(highlights));
   }
 
-  private prepareHighlights(ranges: Highlight[]): Highlight[] {
-    if (ranges.length === 0) {
-      return [];
-    }
-    return ranges
+  private prepareHighlights(highlights: Highlight[]): Highlight[] {
+    return highlights
       .map((highlight) => ({
         ...highlight,
         zone: this.getters.expandZone(highlight.sheetId, highlight.zone),
@@ -97,13 +92,11 @@ export class HighlightPlugin extends UIPlugin {
   }
 
   /**
-   *
-   * @param ranges {"[sheet!]XC": color}
-   * @private
+   * Remove the given highlights
    */
-  private removeHighlights(ranges: Highlight[]) {
+  private removeHighlights(highlights: Highlight[]) {
     const shouldBeKept = (highlight: Highlight) =>
-      !ranges.some(
+      !highlights.some(
         (removedHighlight) =>
           isEqual(removedHighlight.zone, highlight.zone) &&
           removedHighlight.sheetId === highlight.sheetId &&
@@ -119,19 +112,19 @@ export class HighlightPlugin extends UIPlugin {
   private highlightSelection() {
     this.removePendingHighlights();
     const zones = this.getters.getSelectedZones().filter((z) => !this.isHighlighted(z));
-    const ranges: Highlight[] = [];
+    const highlights: Highlight[] = [];
     let color = this.color;
     const activeSheetId = this.getters.getActiveSheetId();
     for (const zone of zones) {
-      ranges.push({
+      highlights.push({
         sheetId: activeSheetId,
         color,
         zone,
       });
       color = getNextColor();
     }
-    this.dispatch("ADD_HIGHLIGHTS", { ranges });
-    this.dispatch("ADD_PENDING_HIGHLIGHTS", { ranges });
+    this.dispatch("ADD_HIGHLIGHTS", { highlights });
+    this.dispatch("ADD_PENDING_HIGHLIGHTS", { highlights });
   }
 
   private isHighlighted(zone: Zone): boolean {
@@ -149,7 +142,7 @@ export class HighlightPlugin extends UIPlugin {
         this.getters.isSelected(highlight.zone) ? [[...y, highlight], n] : [y, [...n, highlight]],
       [[], []]
     );
-    this.dispatch("REMOVE_HIGHLIGHTS", { ranges: notSelected });
+    this.dispatch("REMOVE_HIGHLIGHTS", { highlights: notSelected });
     this.pendingHighlights = selected;
   }
 

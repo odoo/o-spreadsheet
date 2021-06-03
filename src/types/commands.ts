@@ -523,7 +523,7 @@ export interface HighlightSelectionCommand extends BaseCommand {
  */
 export interface AddPendingHighlightCommand extends BaseCommand {
   type: "ADD_PENDING_HIGHLIGHTS";
-  ranges: Highlight[];
+  highlights: Highlight[];
 }
 
 /**
@@ -577,7 +577,7 @@ export interface EvaluateCellsCommand extends BaseCommand {
  */
 export interface AddHighlightsCommand extends BaseCommand {
   type: "ADD_HIGHLIGHTS";
-  ranges: Highlight[];
+  highlights: Highlight[];
 }
 
 /**
@@ -586,9 +586,9 @@ export interface AddHighlightsCommand extends BaseCommand {
 export interface RemoveHighlightsCommand extends BaseCommand {
   type: "REMOVE_HIGHLIGHTS";
   /**
-   * Ranges to remove.
+   * Highlights to remove.
    */
-  ranges: Highlight[];
+  highlights: Highlight[];
 }
 export interface RemoveAllHighlightsCommand extends BaseCommand {
   type: "REMOVE_ALL_HIGHLIGHTS";

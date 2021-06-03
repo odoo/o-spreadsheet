@@ -43,7 +43,7 @@ describe("highlight", () => {
     highlight(model, "B2", "#888");
     highlight(model, "B6", "#999");
     model.dispatch("REMOVE_HIGHLIGHTS", {
-      ranges: [
+      highlights: [
         {
           sheetId: model.getters.getActiveSheetId(),
           color: "#999",
@@ -62,7 +62,7 @@ describe("highlight", () => {
 
   test("add no hightlight", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: [],
+      highlights: [],
     });
     expect(model.getters.getHighlights()).toStrictEqual([]);
   });
@@ -70,7 +70,7 @@ describe("highlight", () => {
   test("remove highlight with another color", () => {
     highlight(model, "B2", "#888");
     model.dispatch("REMOVE_HIGHLIGHTS", {
-      ranges: [
+      highlights: [
         {
           sheetId: model.getters.getActiveSheetId(),
           color: "#999",
@@ -91,7 +91,7 @@ describe("highlight", () => {
     highlight(model, "B2", "#888");
     highlight(model, "B2", "#999");
     model.dispatch("REMOVE_HIGHLIGHTS", {
-      ranges: [
+      highlights: [
         {
           sheetId: model.getters.getActiveSheetId(),
           color: "#999",
@@ -126,7 +126,7 @@ describe("highlight", () => {
       },
     ]);
     model.dispatch("REMOVE_HIGHLIGHTS", {
-      ranges: [
+      highlights: [
         {
           sheetId: model.getters.getActiveSheetId(),
           color: "#888",
@@ -322,7 +322,7 @@ describe("highlight", () => {
   test("selection with manually set pending highlight", () => {
     highlight(model, "B10", "#999");
     model.dispatch("ADD_PENDING_HIGHLIGHTS", {
-      ranges: [
+      highlights: [
         {
           sheetId: model.getters.getActiveSheetId(),
           zone: toZone("B10"),
@@ -406,7 +406,7 @@ describe("highlight", () => {
   test("disabling selection highlighting resets pending highlights", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     model.dispatch("ADD_PENDING_HIGHLIGHTS", {
-      ranges: [
+      highlights: [
         {
           sheetId: model.getters.getActiveSheetId(),
           zone: toZone("B10"),

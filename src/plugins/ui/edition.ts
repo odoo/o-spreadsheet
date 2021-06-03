@@ -525,7 +525,7 @@ export class EditionPlugin extends UIPlugin {
     }
     this.dispatch("REMOVE_ALL_HIGHLIGHTS"); //cleanup highlights for references
     const alreadyHighlighted = new Set<string>();
-    const ranges: Highlight[] = [];
+    const highlights: Highlight[] = [];
     let lastUsedColorIndex = 0;
     for (let token of this.currentTokens.filter((token) => token.type === "SYMBOL")) {
       let value = token.value;
@@ -534,7 +534,7 @@ export class EditionPlugin extends UIPlugin {
         const refSanitized = `${sheet}${zoneToXc(toZone(xc))}`;
         if (!alreadyHighlighted.has(refSanitized)) {
           alreadyHighlighted.add(refSanitized);
-          ranges.push({
+          highlights.push({
             color: colors[lastUsedColorIndex],
             zone: toZone(xc),
             sheetId: this.getters.getSheetIdByName(sheet) || this.getters.getEditionSheet(),
@@ -543,8 +543,8 @@ export class EditionPlugin extends UIPlugin {
         }
       }
     }
-    if (ranges.length) {
-      this.dispatch("ADD_HIGHLIGHTS", { ranges });
+    if (highlights.length) {
+      this.dispatch("ADD_HIGHLIGHTS", { highlights });
     }
   }
 

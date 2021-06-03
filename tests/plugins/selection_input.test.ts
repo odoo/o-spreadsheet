@@ -107,7 +107,7 @@ describe("selection input plugin", () => {
     const color = "#000";
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: [
+      highlights: [
         { color, sheetId, zone: toZone("A1") },
         { color, sheetId, zone: toZone("B1") },
         { color, sheetId, zone: toZone("C1") },

@@ -89,7 +89,7 @@ export class SelectionInputPlugin extends UIPlugin {
         break;
       case "ADD_HIGHLIGHTS":
         const highlights = this.getters.getHighlights();
-        this.add(highlights.slice(highlights.length - Object.keys(cmd.ranges).length));
+        this.add(highlights.slice(highlights.length - Object.keys(cmd.highlights).length));
         break;
       case "START_SELECTION_EXPANSION":
         if (this.willAddNewRange) {
@@ -212,7 +212,7 @@ export class SelectionInputPlugin extends UIPlugin {
       this.focusedRange = index;
       const ranges = this.inputToHighlights(id, input);
       if (Object.keys(ranges).length > 0) {
-        this.dispatch("ADD_HIGHLIGHTS", { ranges });
+        this.dispatch("ADD_HIGHLIGHTS", { highlights: ranges });
       }
     }
   }
@@ -284,9 +284,9 @@ export class SelectionInputPlugin extends UIPlugin {
       color: input.color,
       xc: value,
     });
-    this.dispatch("REMOVE_HIGHLIGHTS", { ranges: this.inputToHighlights(id, input) });
+    this.dispatch("REMOVE_HIGHLIGHTS", { highlights: this.inputToHighlights(id, input) });
     this.dispatch("ADD_HIGHLIGHTS", {
-      ranges: highlightRanges,
+      highlights: highlightRanges,
     });
     const highlightNumber = Object.keys(highlightRanges).length;
     const setRange = highlightNumber ? this.insertNewRange.bind(this) : this.setRange.bind(this);
@@ -304,7 +304,7 @@ export class SelectionInputPlugin extends UIPlugin {
     const [removedRange] = this.inputs[id].splice(index, 1);
     if (this.focusedInputId === id && this.focusedRange !== null) {
       this.dispatch("REMOVE_HIGHLIGHTS", {
-        ranges: this.inputToHighlights(id, removedRange),
+        highlights: this.inputToHighlights(id, removedRange),
       });
       this.focusLast(id);
     }
@@ -314,7 +314,7 @@ export class SelectionInputPlugin extends UIPlugin {
     this.dispatch("RESET_PENDING_HIGHLIGHT");
     if (index !== null && this.inputs[id][index].xc) {
       this.dispatch("ADD_PENDING_HIGHLIGHTS", {
-        ranges: this.inputToHighlights(id, this.inputs[id][index]),
+        highlights: this.inputToHighlights(id, this.inputs[id][index]),
       });
     }
   }
