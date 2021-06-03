@@ -14,7 +14,7 @@ import { NormalizedFormula } from "../../types";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../constants";
 import { getCellType, pushElement } from "../helpers/content_helpers";
-import { xmlEscape } from "../helpers/xml_helpers";
+import { escapeXml } from "../helpers/xml_helpers";
 
 export function addFormula(
   formula: NormalizedFormula
@@ -26,24 +26,24 @@ export function addFormula(
   const tokens = tokenize(formula.text);
 
   const attrs: XMLAttributes = [];
-  let node: string = "";
+  let node = escapeXml``;
 
   const isExported = tokens
     .filter((tk) => tk.type === "FUNCTION")
     .every((tk) => functions[tk.value.toUpperCase()].isExported);
 
   if (isExported) {
-    let cycle = "";
+    let cycle = escapeXml``;
     const XlsxFormula = adaptFormulaToExcel(formula);
     // hack for cycles : if we don't set a value (be it 0 or #VALUE!), it will appear as invisible on excel,
     // Making it very hard for the client to find where the recursion is.
     if (formula.value === "#CYCLE") {
       attrs.push(["t", "str"]);
-      cycle = /*xml*/ `<v>${xmlEscape(formula.value)}</v>`;
+      cycle = escapeXml/*xml*/ `<v>${formula.value}</v>`;
     }
-    node = /*xml*/ `
+    node = escapeXml/*xml*/ `
       <f>
-        ${xmlEscape(XlsxFormula)}
+        ${XlsxFormula}
       </f>
       ${cycle}
     `;
@@ -55,7 +55,7 @@ export function addFormula(
     if (value) {
       const type = getCellType(value);
       attrs.push(["t", type]);
-      node = /*xml*/ `<v>${xmlEscape(value)}</v>`;
+      node = escapeXml/*xml*/ `<v>${value}</v>`;
     }
     return { attrs, node };
   }
@@ -79,8 +79,7 @@ export function addContent(
     value = id.toString();
     attrs.push(["t", "s"]);
   }
-
-  return { attrs, node: /*xml*/ `<v>${xmlEscape(value)}</v>` };
+  return { attrs, node: escapeXml/*xml*/ `<v>${value}</v>` };
 }
 
 export function adaptFormulaToExcel(formula: NormalizedFormula): string {

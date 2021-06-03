@@ -1,7 +1,7 @@
 import { Model } from "../src/model";
 import { ChartTypes, NormalizedFormula } from "../src/types";
 import { adaptFormulaToExcel } from "../src/xlsx/functions/cells";
-import { parseXML } from "../src/xlsx/helpers/xml_helpers";
+import { escapeXml, parseXML } from "../src/xlsx/helpers/xml_helpers";
 import { createChart, createSheet } from "./test_helpers/commands_helpers";
 import { exportPrettifiedXlsx } from "./test_helpers/helpers";
 
@@ -39,6 +39,7 @@ const simpleData = {
         A36: { content: "test 'single quot'" },
         A37: { content: `="this is a quote: \\""` },
         A38: { content: `='<Sheet2>'!B2` },
+        A39: { content: `=A39` },
         K3: { border: 5 },
         K4: { border: 4 },
         K5: { border: 4 },
@@ -730,18 +731,18 @@ describe("Test XLSX export", () => {
 
 describe("XML parser", () => {
   test("simple xml", () => {
-    const document = parseXML("<hello>Raoul</hello>");
+    const document = parseXML(escapeXml`<hello>Raoul</hello>`);
     expect(document.firstElementChild?.outerHTML).toBe("<hello>Raoul</hello>");
   });
 
   test("error on the first line", () => {
-    expect(() => parseXML("<hello>Raoul/hello>")).toThrowError(
+    expect(() => parseXML(escapeXml`<hello>Raoul/hello>`)).toThrowError(
       `XML string could not be parsed: null:1:19: unclosed tag: hello\n<hello>Raoul/hello>`
     );
   });
 
   test("error in the middle", () => {
-    const xmlString = /*xml*/ `
+    const xmlString = escapeXml/*xml*/ `
       <root>
         <hello>1</hello>
         <hello>2</hello>
@@ -761,7 +762,7 @@ describe("XML parser", () => {
   });
 
   test("error at the end", () => {
-    const xmlString = /*xml*/ `
+    const xmlString = escapeXml/*xml*/ `
       <root>
         <hello>1</hello>
         <hello>2</hello>

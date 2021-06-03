@@ -23,7 +23,7 @@ export function createXMLFile(
   };
 }
 
-export function xmlEscape(str: XMLAttributeValue): string {
+function xmlEscape(str: XMLAttributeValue): string {
   return String(str)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -32,17 +32,17 @@ export function xmlEscape(str: XMLAttributeValue): string {
     .replace(/'/g, "&apos;");
 }
 
-export function formatAttributes(attrs: XMLAttributes): string {
-  return attrs.map(([key, val]) => `${key}="${xmlEscape(val)}"`).join(" ");
+export function formatAttributes(attrs: XMLAttributes): XMLString {
+  return new XMLString(attrs.map(([key, val]) => `${key}="${xmlEscape(val)}"`).join(" "));
 }
 
 export function parseXML(xmlString: XMLString): XMLDocument {
-  const document = new DOMParser().parseFromString(xmlString, "text/xml");
+  const document = new DOMParser().parseFromString(xmlString.toString(), "text/xml");
   const parserError = document.querySelector("parsererror");
   if (parserError) {
     const errorString = parserError.innerHTML;
     const lineNumber = parseInt(errorString.split(":")[1], 10);
-    const xmlStringArray = xmlString.trim().split("\n");
+    const xmlStringArray = xmlString.toString().trim().split("\n");
     const xmlPreview = xmlStringArray
       .slice(Math.max(lineNumber - 3, 0), Math.min(lineNumber + 2, xmlStringArray.length))
       .join("\n");
@@ -81,7 +81,28 @@ export function getDefaultXLSXStructure(): XLSXStructure {
 }
 
 export function createOverride(partName: string, contentType: string): XMLString {
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <Override ContentType="${contentType}" PartName="${partName}" />
   `;
+}
+
+export function joinXmlNodes(xmlNodes: XMLString[]): XMLString {
+  return new XMLString(xmlNodes.join("\n"));
+}
+
+/**
+ * Escape interpolated values except if the value is already
+ * a properly escaped XML string.
+ *
+ * ```
+ * escapeXml`<t>${"This will be escaped"}</t>`
+ * ```
+ */
+export function escapeXml(strings: TemplateStringsArray, ...expressions): XMLString {
+  let str = [strings[0]];
+  for (let i = 0; i < expressions.length; i++) {
+    const value = expressions[i] instanceof XMLString ? expressions[i] : xmlEscape(expressions[i]);
+    str.push(value + strings[i + 1]);
+  }
+  return new XMLString(str.join(""));
 }

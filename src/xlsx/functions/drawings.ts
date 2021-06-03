@@ -3,7 +3,7 @@ import { ExcelChartDefinition, FigureData, HeaderData, SheetData } from "../../t
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { DRAWING_NS_A, DRAWING_NS_C, NAMESPACE, RELATIONSHIP_NSR } from "../constants";
 import { convertChartId, convertDotValueToEMU } from "../helpers/content_helpers";
-import { formatAttributes, parseXML } from "../helpers/xml_helpers";
+import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
 
 type FigurePosition = {
   to: {
@@ -41,7 +41,7 @@ export function createDrawing(
       ["name", `Chart ${chartId}`],
       ["title", "Chart"],
     ];
-    figuresNodes.push(/*xml*/ `
+    figuresNodes.push(escapeXml/*xml*/ `
       <xdr:twoCellAnchor>
         <xdr:from>
           <xdr:col>${from.col}</xdr:col>
@@ -75,9 +75,9 @@ export function createDrawing(
     `);
   }
 
-  const xml = /*xml*/ `
+  const xml = escapeXml/*xml*/ `
     <xdr:wsDr ${formatAttributes(namespaces)}>
-      ${figuresNodes.join("\n")}
+      ${joinXmlNodes(figuresNodes)}
     </xdr:wsDr>
   `;
   return parseXML(xml);

@@ -26,10 +26,11 @@ import { convertChartId, convertHeight, convertWidth } from "./helpers/content_h
 import {
   createOverride,
   createXMLFile,
+  escapeXml,
   formatAttributes,
   getDefaultXLSXStructure,
+  joinXmlNodes,
   parseXML,
-  xmlEscape,
 } from "./helpers/xml_helpers";
 
 /**
@@ -66,7 +67,7 @@ function createWorkbook(data: ExcelWorkbookData, construct: XLSXStructure): XLSX
       ["sheetId", parseInt(index) + 1],
       ["r:id", `rId${parseInt(index) + 1}`],
     ];
-    sheetNodes.push(/*xml*/ `
+    sheetNodes.push(escapeXml/*xml*/ `
       <sheet ${formatAttributes(attributes)} />
     `);
 
@@ -75,10 +76,10 @@ function createWorkbook(data: ExcelWorkbookData, construct: XLSXStructure): XLSX
       target: `worksheets/sheet${index}.xml`,
     });
   }
-  const xml = /*xml*/ `
+  const xml = escapeXml/*xml*/ `
     <workbook ${formatAttributes(namespaces)}>
       <sheets>
-        ${sheetNodes.join("\n")}
+        ${joinXmlNodes(sheetNodes)}
       </sheets>
     </workbook>
   `;
@@ -98,7 +99,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
     ];
 
     // Figures and Charts
-    let drawingNode: XMLString = "";
+    let drawingNode = escapeXml``;
     const charts = sheet.charts;
     if (charts.length) {
       const chartRelIds: string[] = [];
@@ -131,15 +132,15 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
           "drawing"
         )
       );
-      drawingNode = /*xml*/ `<drawing r:id="${drawingRelId}" />`;
+      drawingNode = escapeXml/*xml*/ `<drawing r:id="${drawingRelId}" />`;
     }
-    const sheetXml = /*xml*/ `
+    const sheetXml = escapeXml/*xml*/ `
       <worksheet ${formatAttributes(namespaces)}>
         <sheetFormatPr ${formatAttributes(sheetFormatAttributes)} />
         ${addColumns(sheet.cols)}
         ${addRows(construct, data, sheet)}
         ${addMerges(sheet.merges)}
-        ${addConditionalFormatting(construct.dxfs, sheet.conditionalFormats).join("\n")}
+        ${joinXmlNodes(addConditionalFormatting(construct.dxfs, sheet.conditionalFormats))}
         ${drawingNode}
       </worksheet>
     `;
@@ -161,7 +162,7 @@ function createStylesSheet(construct: XLSXStructure): XLSXExportFile {
     ["xmlns", NAMESPACE["styleSheet"]],
     ["xmlns:r", RELATIONSHIP_NSR],
   ];
-  const styleXml = /*xml*/ `
+  const styleXml = escapeXml/*xml*/ `
     <styleSheet ${formatAttributes(namespaces)}>
       ${addNumberFormats(construct.numFmts)}
       ${addFonts(construct.fonts)}
@@ -181,11 +182,11 @@ function createSharedStrings(strings: string[]): XLSXExportFile {
     ["uniqueCount", strings.length],
   ];
 
-  const stringNodes = strings.map((string) => /*xml*/ `<si><t>${xmlEscape(string)}</t></si>`);
+  const stringNodes = strings.map((string) => escapeXml/*xml*/ `<si><t>${string}</t></si>`);
 
-  const xml = /*xml*/ `
+  const xml = escapeXml/*xml*/ `
     <sst ${formatAttributes(namespaces)}>
-      ${stringNodes.join("\n")}
+      ${joinXmlNodes(stringNodes)}
     </sst>
   `;
   return createXMLFile(parseXML(xml), "xl/sharedStrings.xml", "sharedStrings");
@@ -201,13 +202,13 @@ function createRelsFiles(relsFiles: XLSXRelFile[]): XLSXExportFile[] {
         ["Target", rel.target],
         ["Type", rel.type],
       ];
-      relationNodes.push(/*xml*/ `
+      relationNodes.push(escapeXml/*xml*/ `
         <Relationship ${formatAttributes(attributes)} />
       `);
     }
-    const xml = /*xml*/ `
+    const xml = escapeXml/*xml*/ `
       <Relationships xmlns="${NAMESPACE["Relationships"]}">
-        ${relationNodes.join("\n")}
+        ${joinXmlNodes(relationNodes)}
       </Relationships>
     `;
     XMLRelsFiles.push(createXMLFile(parseXML(xml), relFile.path));
@@ -222,11 +223,11 @@ function createContentTypes(files: XLSXExportFile[]): XLSXExportFile {
       overrideNodes.push(createOverride("/" + file.path, CONTENT_TYPES[file.contentType]));
     }
   }
-  const xml = /*xml*/ `
+  const xml = escapeXml/*xml*/ `
     <Types xmlns="${NAMESPACE["Types"]}">
       <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />
       <Default Extension="xml" ContentType="application/xml" />
-      ${overrideNodes.join("\n")}
+      ${joinXmlNodes(overrideNodes)}
     </Types>
   `;
   return createXMLFile(parseXML(xml), "[Content_Types].xml");
@@ -239,7 +240,7 @@ function createRelRoot(): XLSXExportFile {
     ["Target", "xl/workbook.xml"],
   ];
 
-  const xml = /*xml*/ `
+  const xml = escapeXml/*xml*/ `
     <Relationships xmlns="${NAMESPACE["Relationships"]}">
       <Relationship ${formatAttributes(attributes)} />
     </Relationships>

@@ -4,7 +4,7 @@ import { ExcelChartDefinition, FigureData } from "../../types";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { DRAWING_NS_A, DRAWING_NS_C, RELATIONSHIP_NSR } from "../constants";
 import { convertDotValueToEMU } from "../helpers/content_helpers";
-import { formatAttributes, parseXML, xmlEscape } from "../helpers/xml_helpers";
+import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
 
 type ElementPosition = "t" | "b" | "l" | "r";
 
@@ -46,9 +46,9 @@ export function createChart(chart: FigureData<ExcelChartDefinition>): XMLDocumen
     line: { color: "000000" },
   });
   // <manualLayout/> to manually position the chart in the figure container
-  let title = "";
+  let title = escapeXml``;
   if (chart.data.title) {
-    title = /*xml*/ `
+    title = escapeXml/*xml*/ `
       <c:title>
         ${insertText(chart.data.title)}
         <c:overlay val="0" />
@@ -57,7 +57,7 @@ export function createChart(chart: FigureData<ExcelChartDefinition>): XMLDocumen
   }
 
   // switch on chart type
-  let plot: XMLString = "";
+  let plot = escapeXml``;
   switch (chart.data.type) {
     case "bar":
       plot = addBarChart(chart.data);
@@ -85,7 +85,7 @@ export function createChart(chart: FigureData<ExcelChartDefinition>): XMLDocumen
       break;
   }
 
-  const xml = /*xml*/ `
+  const xml = escapeXml/*xml*/ `
     <c:chartSpace ${formatAttributes(namespaces)}>
       <c:roundedCorners val="0" />
       <!-- <manualLayout/> to manually position the chart in the figure container -->
@@ -107,7 +107,7 @@ export function createChart(chart: FigureData<ExcelChartDefinition>): XMLDocumen
 }
 
 function shapeProperty(params: { backgroundColor?: string; line?: LineAttributes }): XMLString {
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <c:spPr>
       ${params.backgroundColor ? solidFill(params.backgroundColor) : ""}
       ${params.line ? lineAttributes(params.line) : ""}
@@ -116,7 +116,7 @@ function shapeProperty(params: { backgroundColor?: string; line?: LineAttributes
 }
 
 function solidFill(color: string): XMLString {
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <a:solidFill>
       <a:srgbClr val="${color}"/>
     </a:solidFill>
@@ -128,8 +128,8 @@ function lineAttributes(params: LineAttributes): XMLString {
   if (params.width) {
     attrs.push(["w", convertDotValueToEMU(params.width)]);
   }
-  const lineStyle = params.style ? /*xml*/ `<a:prstDash val="${params.style}"/>` : "";
-  return /*xml*/ `
+  const lineStyle = params.style ? escapeXml/*xml*/ `<a:prstDash val="${params.style}"/>` : "";
+  return escapeXml/*xml*/ `
     <a:ln ${formatAttributes(attrs)}>
       ${solidFill(params.color)}
       ${lineStyle}
@@ -138,7 +138,7 @@ function lineAttributes(params: LineAttributes): XMLString {
 }
 
 function insertText(text: string, fontsize: number = 22): XMLString {
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <c:tx>
       <c:rich>
         <a:bodyPr />
@@ -152,7 +152,7 @@ function insertText(text: string, fontsize: number = 22): XMLString {
           </a:pPr>
           <a:r> <!-- Runs -->
             <a:rPr sz="${fontsize * 100}"/>
-            <a:t>${xmlEscape(text)}</a:t>
+            <a:t>${text}</a:t>
           </a:r>
         </a:p>
       </c:rich>
@@ -166,7 +166,7 @@ function insertTextProperties(fontsize: number = 12, bold = false, italic = fals
     ["i", italic ? "1" : "0"],
     ["sz", fontsize * 100],
   ];
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <c:txPr>
       <a:bodyPr/>
       <a:lstStyle/>
@@ -198,14 +198,14 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
       line: { color },
     });
 
-    dataSetsNodes.push(/*xml*/ `
+    dataSetsNodes.push(escapeXml/*xml*/ `
       <c:ser>
         <c:idx val="${dsIndex}"/>
         <c:order val="${dsIndex}"/>
-        ${dataset.label ? /*xml*/ `<c:tx>${stringRef(dataset.label!)}</c:tx>` : ""}
+        ${dataset.label ? escapeXml/*xml*/ `<c:tx>${stringRef(dataset.label!)}</c:tx>` : ""}
         ${dataShapeProperty}
         ${
-          chart.labelRange ? /*xml*/ `<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
+          chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
         } <!-- x-coordinate values -->
         <c:val> <!-- x-coordinate values -->
           ${numberRef(dataset.range)}
@@ -219,7 +219,7 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
 
   const grouping = chart.stackedBar ? "stacked" : "clustered";
   const overlap = chart.stackedBar ? 100 : -20;
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <c:barChart>
       <c:barDir val="col"/>
       <c:grouping val="${grouping}"/>
@@ -227,7 +227,7 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
       <c:gapWidth val="70"/>
       <!-- each data marker in the series does not have a different color -->
       <c:varyColors val="0"/>
-      ${dataSetsNodes.join("\n")}
+      ${joinXmlNodes(dataSetsNodes)}
       <c:axId val="${catAxId}" />
       <c:axId val="${valAxId}" />
     </c:barChart>
@@ -248,7 +248,7 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
       },
     });
 
-    dataSetsNodes.push(/*xml*/ `
+    dataSetsNodes.push(escapeXml/*xml*/ `
       <c:ser>
         <c:idx val="${dsIndex}"/>
         <c:order val="${dsIndex}"/>
@@ -257,10 +257,10 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
           <c:symbol val="circle" />
           <c:size val="5"/>
         </c:marker>
-        ${dataset.label ? `<c:tx>${stringRef(dataset.label!)}</c:tx>` : ""}
+        ${dataset.label ? escapeXml`<c:tx>${stringRef(dataset.label!)}</c:tx>` : ""}
         ${dataShapeProperty}
         ${
-          chart.labelRange ? `<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
+          chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
         } <!-- x-coordinate values -->
         <c:val> <!-- x-coordinate values -->
           ${numberRef(dataset.range)}
@@ -272,11 +272,11 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
   // Excel does not support this feature
   const axisPos = chart.verticalAxisPosition === "left" ? "l" : "r";
 
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <c:lineChart>
       <!-- each data marker in the series does not have a different color -->
       <c:varyColors val="0"/>
-      ${dataSetsNodes.join("\n")}
+      ${joinXmlNodes(dataSetsNodes)}
       <c:axId val="${catAxId}" />
       <c:axId val="${valAxId}" />
     </c:lineChart>
@@ -308,7 +308,7 @@ function addDoughnutChart(chart: ExcelChartDefinition, { holeSize } = { holeSize
         backgroundColor: doughnutColors[index],
         line: { color: "FFFFFF", width: 1.5 },
       });
-      dataPoints.push(/*xml*/ `
+      dataPoints.push(escapeXml/*xml*/ `
         <c:dPt>
           <c:idx val="${index}"/>
           ${pointShapeProperty}
@@ -316,32 +316,32 @@ function addDoughnutChart(chart: ExcelChartDefinition, { holeSize } = { holeSize
       `);
     }
 
-    dataSetsNodes.push(/*xml*/ `
+    dataSetsNodes.push(escapeXml/*xml*/ `
       <c:ser>
         <c:idx val="${dsIndex}"/>
         <c:order val="${dsIndex}"/>
-        ${dataset.label ? `<c:tx>${stringRef(dataset.label!)}</c:tx>` : ""}
-        ${dataPoints.join("\n")}
+        ${dataset.label ? escapeXml`<c:tx>${stringRef(dataset.label!)}</c:tx>` : ""}
+        ${joinXmlNodes(dataPoints)}
         ${insertDataLabels({ showLeaderLines: true })}
-        ${chart.labelRange ? `<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""}
+        ${chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""}
         <c:val>
           ${numberRef(dataset.range)}
         </c:val>
       </c:ser>
     `);
   }
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <c:doughnutChart>
       <c:varyColors val="1" />
       <c:holeSize val="${holeSize}" />
       ${insertDataLabels()}
-      ${dataSetsNodes.join("\n")}
+      ${joinXmlNodes(dataSetsNodes)}
     </c:doughnutChart>
   `;
 }
 
 function insertDataLabels({ showLeaderLines } = { showLeaderLines: false }): XMLString {
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <dLbls>
       <c:showLegendKey val="0"/>
       <c:showVal val="0"/>
@@ -362,7 +362,7 @@ function addAx(
 ): XMLString {
   // Each Axis present inside a graph needs to be identified by an unsigned integer in order to be referenced by its crossAxis.
   // I.e. x-axis, will reference y-axis and vice-versa.
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <${axisName}>
       <c:axId val="${axId}"/>
       <c:crossAx val="${crossAxId}"/> <!-- reference to the other axe of the chart -->
@@ -385,7 +385,7 @@ function addAx(
 }
 
 function addLegend(position: ElementPosition): XMLString {
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <c:legend>
       <c:legendPos val="${position}"/>
       <c:overlay val="0"/>
@@ -395,7 +395,7 @@ function addLegend(position: ElementPosition): XMLString {
 }
 
 function insertMajorGridLines(color: string = "B7B7B7"): XMLString {
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <c:majorGridlines>
       ${shapeProperty({ line: { color } })}
     </c:majorGridlines>
@@ -403,17 +403,17 @@ function insertMajorGridLines(color: string = "B7B7B7"): XMLString {
 }
 
 function stringRef(reference: string): XMLString {
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <c:strRef>
-      <c:f>${xmlEscape(reference)}</c:f>
+      <c:f>${reference}</c:f>
     </c:strRef>
   `;
 }
 
 function numberRef(reference: string): XMLString {
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <c:numRef>
-      <c:f>${xmlEscape(reference)}</c:f>
+      <c:f>${reference}</c:f>
       <c:numCache />
     </c:numRef>
   `;

@@ -34,7 +34,20 @@ export type XMLAttributeValue = string | number | boolean;
 type XMLAttribute = [string, XMLAttributeValue];
 export type XMLAttributes = XMLAttribute[];
 
-export type XMLString = string;
+/**
+ * Represent a raw XML string
+ */
+export class XMLString {
+  /**
+   * @param xmlString should be a well formed, properly escaped XML string
+   */
+  constructor(private xmlString: string) {}
+
+  toString(): string {
+    return this.xmlString;
+  }
+}
+
 export interface XLSXDxf {
   font?: Partial<XLSXFont>;
   fill?: XLSXFill;

@@ -2,7 +2,7 @@ import { toHex6 } from "../../helpers";
 import { Border, BorderDescr } from "../../types";
 import { XLSXDxf, XLSXFill, XLSXFont, XLSXStyle, XMLAttributes, XMLString } from "../../types/xlsx";
 import { FIRST_NUMFMT_ID } from "../constants";
-import { formatAttributes } from "../helpers/xml_helpers";
+import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";
 
 export function addNumberFormats(numFmts: string[]): XMLString {
   const numFmtNodes: XMLString[] = [];
@@ -11,13 +11,13 @@ export function addNumberFormats(numFmts: string[]): XMLString {
       ["numFmtId", parseInt(index) + FIRST_NUMFMT_ID],
       ["formatCode", numFmt],
     ];
-    numFmtNodes.push(/*xml*/ `
+    numFmtNodes.push(escapeXml/*xml*/ `
       <numFmt ${formatAttributes(numFmtAttrs)}/>
     `);
   }
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <numFmts count="${numFmts.length}">
-      ${numFmtNodes.join("\n")}
+      ${joinXmlNodes(numFmtNodes)}
     </numFmts>
   `;
 }
@@ -25,20 +25,20 @@ export function addNumberFormats(numFmts: string[]): XMLString {
 export function addFonts(fonts: XLSXFont[]): XMLString {
   const fontNodes: XMLString[] = [];
   for (let font of Object.values(fonts)) {
-    fontNodes.push(/*xml*/ `
+    fontNodes.push(escapeXml/*xml*/ `
       <font>
-        ${font.bold ? /*xml*/ `<b />` : ""}
-        ${font.italic ? /*xml*/ `<i />` : ""}
-        ${font.strike ? /*xml*/ `<strike />` : ""}
+        ${font.bold ? escapeXml/*xml*/ `<b />` : ""}
+        ${font.italic ? escapeXml/*xml*/ `<i />` : ""}
+        ${font.strike ? escapeXml/*xml*/ `<strike />` : ""}
         <sz val="${font.size}" />
         <color rgb="${toHex6(font.color)}" />
         <name val="${font.name}" />
       </font>
     `);
   }
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <fonts count="${fonts.length}">
-      ${fontNodes.join("\n")}
+      ${joinXmlNodes(fontNodes)}
     </fonts>
   `;
 }
@@ -47,13 +47,13 @@ export function addFills(fills: XLSXFill[]): XMLString {
   const fillNodes: XMLString[] = [];
   for (let fill of Object.values(fills)) {
     if (fill.reservedAttribute !== undefined) {
-      fillNodes.push(/*xml*/ `
+      fillNodes.push(escapeXml/*xml*/ `
         <fill>
           <patternFill patternType="${fill.reservedAttribute}" />
         </fill>
       `);
     } else {
-      fillNodes.push(/*xml*/ `
+      fillNodes.push(escapeXml/*xml*/ `
         <fill>
           <patternFill patternType="solid">
             <fgColor rgb="${toHex6(fill.fgColor!)}" />
@@ -63,9 +63,9 @@ export function addFills(fills: XLSXFill[]): XMLString {
       `);
     }
   }
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <fills count="${fills.length}">
-    ${fillNodes.join("\n")}
+    ${joinXmlNodes(fillNodes)}
     </fills>
   `;
 }
@@ -73,7 +73,7 @@ export function addFills(fills: XLSXFill[]): XMLString {
 export function addBorders(borders: Border[]): XMLString {
   const borderNodes: XMLString[] = [];
   for (let border of Object.values(borders)) {
-    borderNodes.push(/*xml*/ `
+    borderNodes.push(escapeXml/*xml*/ `
       <border>
         <left ${formatBorderAttribute(border["left"])} />
         <right ${formatBorderAttribute(border["right"])} />
@@ -83,16 +83,16 @@ export function addBorders(borders: Border[]): XMLString {
       </border>
     `);
   }
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <borders count="${borders.length}">
-      ${borderNodes.join("\n")}
+      ${joinXmlNodes(borderNodes)}
     </borders>
   `;
 }
 
 export function formatBorderAttribute(description: BorderDescr | undefined): XMLString {
   if (!description) {
-    return "";
+    return escapeXml``;
   }
   return formatAttributes([
     ["style", description[0]],
@@ -118,15 +118,15 @@ export function addStyles(styles: XLSXStyle[]): XMLString {
       alignAttrs.push(["horizontal", style.horizontalAlignment]);
     }
 
-    styleNodes.push(/*xml*/ `
+    styleNodes.push(escapeXml/*xml*/ `
       <xf ${formatAttributes(attributes)}>
-        ${alignAttrs ? /*xml*/ `<alignment ${formatAttributes(alignAttrs)} />` : ""}
+        ${alignAttrs ? escapeXml/*xml*/ `<alignment ${formatAttributes(alignAttrs)} />` : ""}
       </xf>
     `);
   }
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <cellXfs count="${styles.length}">
-      ${styleNodes.join("\n")}
+      ${joinXmlNodes(styleNodes)}
     </cellXfs>
   `;
 }
@@ -139,15 +139,15 @@ export function addCellWiseConditionalFormatting(
 ): XMLString {
   const dxfNodes: XMLString[] = [];
   for (const dxf of dxfs) {
-    let fontNode: XMLString = "";
+    let fontNode: XMLString = escapeXml``;
     if (dxf.font?.color) {
-      fontNode = /*xml*/ `
+      fontNode = escapeXml/*xml*/ `
         <font rgb="${toHex6(dxf.font.color)}" />
       `;
     }
-    let fillNode: XMLString = "";
+    let fillNode: XMLString = escapeXml``;
     if (dxf.fill) {
-      fillNode = /*xml*/ `
+      fillNode = escapeXml/*xml*/ `
         <fill>
           <patternFill>
             <bgColor rgb="${toHex6(dxf.fill.fgColor!)}" />
@@ -155,16 +155,16 @@ export function addCellWiseConditionalFormatting(
         </fill>
       `;
     }
-    dxfNodes.push(/*xml*/ `
+    dxfNodes.push(escapeXml/*xml*/ `
       <dxf>
         ${fontNode}
         ${fillNode}
       </dxf>
     `);
   }
-  return /*xml*/ `
+  return escapeXml/*xml*/ `
     <dxfs count="${dxfs.length}">
-      ${dxfNodes.join("\n")}
+      ${joinXmlNodes(dxfNodes)}
     </dxfs>
   `;
 }
