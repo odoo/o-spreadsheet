@@ -1024,6 +1024,8 @@ export const enum CommandResult {
   MergeOverlap,
   TooManyHiddenElements,
   Readonly,
+  InvalidOffset,
+  InvalidViewportSize,
 }
 
 export interface CommandHandler<T> {

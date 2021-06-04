@@ -6,7 +6,7 @@ import {
 } from "../../constants";
 import { findLastVisibleColRow, getNextVisibleCellCoords } from "../../helpers";
 import { Mode } from "../../model";
-import { Command, Sheet, UID, Viewport, ZoneDimension } from "../../types/index";
+import { Command, CommandResult, Sheet, UID, Viewport, ZoneDimension } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 interface ViewportPluginState {
@@ -50,6 +50,20 @@ export class ViewportPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
+  allowDispatch(cmd: Command): CommandResult {
+    switch (cmd.type) {
+      case "SET_VIEWPORT_OFFSET":
+        return this.checkOffsetValidity(cmd.offsetX, cmd.offsetY);
+      case "RESIZE_VIEWPORT":
+        if (cmd.width < 0 || cmd.height < 0) {
+          return CommandResult.InvalidViewportSize;
+        }
+        return CommandResult.Success;
+      default:
+        return CommandResult.Success;
+    }
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
       case "UNDO":
@@ -68,9 +82,9 @@ export class ViewportPlugin extends UIPlugin {
       case "RESIZE_COLUMNS_ROWS":
       case "HIDE_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {
-          this.adjustViewportOffsetX(cmd.sheetId);
+          this.adjustViewportOffsetX(cmd.sheetId, this.getViewport(cmd.sheetId));
         } else {
-          this.adjustViewportOffsetY(cmd.sheetId);
+          this.adjustViewportOffsetY(cmd.sheetId, this.getViewport(cmd.sheetId));
         }
         break;
       case "ADD_COLUMNS_ROWS":
@@ -142,6 +156,20 @@ export class ViewportPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
+
+  private checkOffsetValidity(offsetX: number, offsetY: number): CommandResult {
+    const { width, height } = this.getters.getGridDimension(this.getters.getActiveSheet());
+    if (
+      offsetX < 0 ||
+      offsetY < 0 ||
+      this.clientHeight - HEADER_HEIGHT + offsetY > height ||
+      this.clientWidth - HEADER_WIDTH + offsetX > width
+    ) {
+      return CommandResult.InvalidOffset;
+    }
+    return CommandResult.Success;
+  }
+
   private getSnappedViewport(sheetId: UID) {
     this.snapViewportToCell(sheetId);
     return this.snappedViewports[sheetId];
@@ -154,6 +182,7 @@ export class ViewportPlugin extends UIPlugin {
     return this.viewports[sheetId];
   }
 
+  /** gets rid of deprecated sheetIds */
   private cleanViewports() {
     const sheets = this.getters.getVisibleSheets();
     for (let sheetId of Object.keys(this.viewports)) {
@@ -164,31 +193,37 @@ export class ViewportPlugin extends UIPlugin {
   }
 
   private resetViewports() {
-    for (let sheetId of Object.keys(this.viewports)) {
-      this.adjustViewportOffsetX(sheetId);
-      this.adjustViewportOffsetY(sheetId);
+    for (let [sheetId, viewport] of Object.entries(this.viewports)) {
+      this.adjustViewportOffsetX(sheetId, viewport);
+      this.adjustViewportOffsetY(sheetId, viewport);
       this.adjustViewportsPosition(sheetId);
     }
   }
 
-  private adjustViewportOffsetX(sheetId: UID) {
-    const { offsetX } = this.getViewport(sheetId);
+  /** Corrects the viewport's horizontal offset based on the current structure
+   *  To make sure that at least on column is visible inside the viewport.
+   */
+  private adjustViewportOffsetX(sheetId: UID, viewport: Viewport) {
+    const { offsetX } = viewport;
     const { width: sheetWidth } = this.getGridDimension(this.getters.getSheet(sheetId));
     if (this.clientWidth - HEADER_WIDTH + offsetX > sheetWidth) {
       const diff = this.clientWidth - HEADER_WIDTH + offsetX - sheetWidth;
-      this.viewports[sheetId].offsetX = Math.max(0, offsetX - diff);
+      viewport.offsetX = Math.max(0, offsetX - diff);
     }
-    this.adjustViewportZoneX(sheetId, this.viewports[sheetId]);
+    this.adjustViewportZoneX(sheetId, viewport);
   }
 
-  private adjustViewportOffsetY(sheetId: UID) {
-    const { offsetY } = this.getViewport(sheetId);
+  /** Corrects the viewport's vertical offset based on the current structure
+   *  To make sure that at least on row is visible inside the viewport.
+   */
+  private adjustViewportOffsetY(sheetId: UID, viewport: Viewport) {
+    const { offsetY } = viewport;
     const { height: sheetHeight } = this.getGridDimension(this.getters.getSheet(sheetId));
     if (this.clientHeight - HEADER_HEIGHT + offsetY > sheetHeight) {
       const diff = this.clientHeight - HEADER_HEIGHT + offsetY - sheetHeight;
-      this.viewports[sheetId].offsetY = Math.max(0, offsetY - diff);
+      viewport.offsetY = Math.max(0, offsetY - diff);
     }
-    this.adjustViewportZoneY(sheetId, this.viewports[sheetId]);
+    this.adjustViewportZoneY(sheetId, viewport);
   }
 
   private resizeViewport(height: number, width: number) {
@@ -199,7 +234,8 @@ export class ViewportPlugin extends UIPlugin {
 
   private recomputeViewports() {
     for (let sheetId of Object.keys(this.viewports)) {
-      this.adjustViewportZone(sheetId, this.viewports[sheetId]);
+      this.adjustViewportOffsetX(sheetId, this.viewports[sheetId]);
+      this.adjustViewportOffsetY(sheetId, this.viewports[sheetId]);
     }
   }
 
@@ -234,6 +270,7 @@ export class ViewportPlugin extends UIPlugin {
     this.adjustViewportZoneY(sheetId, viewport);
   }
 
+  /** Updates the viewport zone based on its horizontal offset (will find Left) and its width (will find Right) */
   private adjustViewportZoneX(sheetId: UID, viewport: Viewport) {
     const sheet = this.getters.getSheet(sheetId);
     const cols = sheet.cols;
@@ -249,6 +286,7 @@ export class ViewportPlugin extends UIPlugin {
     this.updateSnap = true;
   }
 
+  /** Updates the viewport zone based on its vertical offset (will find Top) and its width (will find Bottom) */
   private adjustViewportZoneY(sheetId: UID, viewport: Viewport) {
     const sheet = this.getters.getSheet(sheetId);
     const rows = sheet.rows;
@@ -265,9 +303,9 @@ export class ViewportPlugin extends UIPlugin {
   }
 
   /**
-   * This function will make sure that the current cell is part of the viewport that is actually
-   * displayed on the client, that is, the snapped one. We therefore adjust the offset of the snapped viewport
-   * until it contains the current cell completely.
+   * This function will make sure that the provided cell position (or current selected position) is part of
+   * the viewport that is actually displayed on the client, that is, the snapped one. We therefore adjust
+   * the offset of the snapped viewport until it contains the cell completely.
    * In order to keep the coherence of both viewports, it is also necessary to update the standard viewport
    * if the zones of both viewports don't match.
    */
@@ -317,12 +355,16 @@ export class ViewportPlugin extends UIPlugin {
     this.updateSnap = false;
   }
 
+  /** Will update the snapped viewport based on the "standard" viewport to ensure its
+   * offsets match the start of the viewport left (resp. top) column (resp. row). */
   private snapViewportToCell(sheetId: UID) {
     const { cols, rows } = this.getters.getSheet(sheetId);
     const viewport = this.getViewport(sheetId);
     const adjustedViewport = Object.assign({}, viewport);
-    adjustedViewport.offsetX = cols[viewport.left].start;
-    adjustedViewport.offsetY = rows[viewport.top].start;
+    this.adjustViewportOffsetX(sheetId, adjustedViewport);
+    this.adjustViewportOffsetY(sheetId, adjustedViewport);
+    adjustedViewport.offsetX = cols[adjustedViewport.left].start;
+    adjustedViewport.offsetY = rows[adjustedViewport.top].start;
     this.adjustViewportZone(sheetId, adjustedViewport);
     this.snappedViewports[sheetId] = adjustedViewport;
   }

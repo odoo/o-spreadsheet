@@ -27,6 +27,9 @@ Object.defineProperty(navigator, "clipboard", {
   configurable: true,
 });
 
+jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
+jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
+
 class Parent extends Component<any> {
   static template = xml/* xml */ `<Spreadsheet t-ref="spreadsheet" data="data" client="client"/>`;
   static components = { Spreadsheet };
