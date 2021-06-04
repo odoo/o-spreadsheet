@@ -1,3 +1,4 @@
+import { CommandResult } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -244,6 +245,25 @@ describe("Viewport of Simple sheet", () => {
       offsetX: 0,
       offsetY: DEFAULT_CELL_HEIGHT * 12,
     });
+  });
+
+  test("cannot set offset outside of the grid", () => {
+    // negative
+    const negativeOffsetResult = model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: -1,
+      offsetY: 0,
+    });
+    expect(negativeOffsetResult).toBe(CommandResult.InvalidOffset);
+
+    // too large
+    model.dispatch("RESIZE_VIEWPORT", { height: 1000, width: 1000 });
+    const { height } = model.getters.getGridDimension(model.getters.getActiveSheet());
+
+    const tooLargeOffsetResult = model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: 0,
+      offsetY: height + HEADER_HEIGHT - 1000 + 1,
+    });
+    expect(tooLargeOffsetResult).toBe(CommandResult.InvalidOffset);
   });
 
   test("Resize (increase) columns correctly affects viewport without changing the offset", () => {
