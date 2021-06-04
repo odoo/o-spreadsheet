@@ -213,6 +213,15 @@ export interface RemoveColumnsRowsCommand
   elements: number[];
 }
 
+export interface MoveColumnsRowsCommand
+  extends BaseCommand,
+    SheetDependentCommand,
+    GridDependentCommand {
+  type: "MOVE_COLUMNS_ROWS";
+  base: number;
+  elements: number[];
+}
+
 export interface ResizeColumnsRowsCommand
   extends BaseCommand,
     SheetDependentCommand,
@@ -954,6 +963,7 @@ export type LocalCommand =
   | PasteCFCommand
   | AutoresizeColumnsCommand
   | AutoresizeRowsCommand
+  | MoveColumnsRowsCommand
   | MovePositionCommand
   | DeleteSheetConfirmationCommand
   | ActivateSheetCommand

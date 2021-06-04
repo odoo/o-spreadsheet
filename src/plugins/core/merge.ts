@@ -54,6 +54,8 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     "getBottomLeftCell",
     "expandZone",
     "doesIntersectMerge",
+    "doesColumnsHaveCommonMerges",
+    "doesRowsHaveCommonMerges",
     "getMerges",
     "getMerge",
     "isSingleCellOrMerge",
@@ -184,6 +186,32 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         if (this.getMerge(sheetId, col, row)) {
           return true;
         }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Returns true if two columns have at least one merge in common
+   */
+  doesColumnsHaveCommonMerges(sheetId: string, colA: number, colB: number) {
+    const sheet = this.getters.getSheet(sheetId);
+    for (let row = 0; row < sheet.rows.length; row++) {
+      if (this.isInSameMerge(sheet.id, colA, row, colB, row)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Returns true if two rows have at least one merge in common
+   */
+  doesRowsHaveCommonMerges(sheetId: string, rowA: number, rowB: number) {
+    const sheet = this.getters.getSheet(sheetId);
+    for (let col = 0; col <= sheet.cols.length; col++) {
+      if (this.isInSameMerge(sheet.id, col, rowA, col, rowB)) {
+        return true;
       }
     }
     return false;

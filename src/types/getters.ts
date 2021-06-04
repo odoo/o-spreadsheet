@@ -72,6 +72,8 @@ export interface CoreGetters {
   getMainCell: MergePlugin["getMainCell"];
   getBottomLeftCell: MergePlugin["getBottomLeftCell"];
   doesIntersectMerge: MergePlugin["doesIntersectMerge"];
+  doesColumnsHaveCommonMerges: MergePlugin["doesColumnsHaveCommonMerges"];
+  doesRowsHaveCommonMerges: MergePlugin["doesRowsHaveCommonMerges"];
   isInSameMerge: MergePlugin["isInSameMerge"];
   getMerges: MergePlugin["getMerges"];
   getMerge: MergePlugin["getMerge"];
