@@ -6,7 +6,7 @@
   "scripts": {
     "serve": "live-server --open=demo",
     "dev": "npm-run-all  build --parallel serve \"build:* -- --watch\"",
-    "build:js": "tsc --module es6 --outDir dist/js --incremental",
+    "build:js": "tsc --module es6 --outDir dist/js",
     "build:bundle": "rollup -c -m",
     "build": "npm run build:js && npm run build:bundle",
     "test": "jest",
