@@ -1,3 +1,4 @@
+import { CommandResult } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -244,6 +245,25 @@ describe("Viewport of Simple sheet", () => {
       offsetX: 0,
       offsetY: DEFAULT_CELL_HEIGHT * 12,
     });
+  });
+
+  test("cannot set offset outside of the grid", () => {
+    // negative
+    const negativeOffsetResult = model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: -1,
+      offsetY: 0,
+    });
+    expect(negativeOffsetResult).toBe(CommandResult.InvalidOffset);
+
+    // too large
+    model.dispatch("RESIZE_VIEWPORT", { height: 1000, width: 1000 });
+    const { height } = model.getters.getGridDimension(model.getters.getActiveSheet());
+
+    const tooLargeOffsetResult = model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: 0,
+      offsetY: height + HEADER_HEIGHT - 1000 + 1,
+    });
+    expect(tooLargeOffsetResult).toBe(CommandResult.InvalidOffset);
   });
 
   test("Resize (increase) columns correctly affects viewport without changing the offset", () => {
@@ -564,6 +584,36 @@ describe("Viewport of Simple sheet", () => {
       right: viewport.left + Math.ceil((500 - HEADER_WIDTH) / DEFAULT_CELL_WIDTH) - 1,
     });
   });
+
+  test("Resizing the viewport impacts current Offset", () => {
+    // set coherent size and offset limit
+    model.dispatch("RESIZE_VIEWPORT", {
+      width: 1000,
+      height: 1000,
+    });
+    let { width: gridWidth, height: gridHeight } = model.getters.getGridDimension(
+      model.getters.getActiveSheet()
+    );
+    let { width, height } = model.getters.getViewportDimension();
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: gridWidth - width + HEADER_WIDTH,
+      offsetY: gridHeight - height + HEADER_HEIGHT,
+    });
+    // de-zoom
+    model.dispatch("RESIZE_VIEWPORT", {
+      width: 1250,
+      height: 1250,
+    });
+    ({ width, height } = model.getters.getViewportDimension());
+    ({ width: gridWidth, height: gridHeight } = model.getters.getGridDimension(
+      model.getters.getActiveSheet()
+    ));
+
+    expect(model.getters.getActiveViewport()).toMatchObject({
+      offsetX: gridWidth - width + HEADER_WIDTH,
+      offsetY: gridHeight - height + HEADER_HEIGHT,
+    });
+  });
 });
 
 describe("multi sheet with different sizes", () => {
@@ -655,8 +705,7 @@ describe("multi sheet with different sizes", () => {
       right: 2,
     });
   });
-  test.skip("can undo/redo actions on other sheets", () => {
-    // Currently broken due to issue with selection
+  test("can undo/redo actions on other sheets", () => {
     activateSheet(model, "small");
     addColumns(model, "after", "A", 200);
     selectCell(model, toXC(200, 0));
