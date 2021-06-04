@@ -20,7 +20,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
-import { getActiveXc } from "../test_helpers/getters_helpers";
+import { getActiveXc, getCell } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
@@ -43,9 +43,11 @@ function fillData() {
  * @param letter Name of the column to click on (Starts at 'A')
  * @param extra shiftKey, ctrlKey
  */
-function selectColumn(letter: string, extra: any = {}) {
+async function selectColumn(letter: string, extra: any = {}) {
   const index = lettersToNumber(letter);
   const x = model.getters.getCol(model.getters.getActiveSheetId(), index)!.start + 1;
+  triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
+  await nextTick();
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10, extra);
   triggerMouseEvent(window, "mouseup", x, 10);
 }
@@ -65,6 +67,21 @@ async function resizeColumn(letter: string, delta: number) {
   await nextTick();
 }
 /**
+ * Drag a column until another
+ * @param startLetter Name of the column to move (Starts at 'A')
+ * @param endLetter Name of the column where the movement will end
+ */
+async function dragColumn(startLetter: string, endLetter: string) {
+  let index = lettersToNumber(startLetter);
+  let x = model.getters.getCol(model.getters.getActiveSheetId(), index)!.start + 1;
+  triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10);
+  index = lettersToNumber(endLetter);
+  x = model.getters.getCol(model.getters.getActiveSheetId(), index)!.start + 1;
+  triggerMouseEvent(window, "mousemove", x, 10, { buttons: 1 });
+  await nextTick();
+  triggerMouseEvent(window, "mouseup", x, 10);
+}
+/**
  * Trigger a double click on a column
  * @param letter Name of the column to double click on (Starts at 'A')
  */
@@ -80,8 +97,10 @@ async function dblClickColumn(letter: string) {
  * @param index Number of the row to click on (Starts at 0)
  * @param extra shiftKey, ctrlKey
  */
-function selectRow(index: number, extra: any = {}) {
+async function selectRow(index: number, extra: any = {}) {
   const y = model.getters.getRow(model.getters.getActiveSheetId(), index)!.start + 1;
+  triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
+  await nextTick();
   triggerMouseEvent(".o-overlay .o-row-resizer", "mousedown", 10, y, extra);
   triggerMouseEvent(window, "mouseup", 10, y);
 }
@@ -98,6 +117,19 @@ async function resizeRow(index: number, delta: number) {
   triggerMouseEvent(window, "mousemove", 10, y + delta);
   triggerMouseEvent(window, "mouseup", 10, y + delta);
   await nextTick();
+}
+/**
+ * Drag a row until another
+ * @param startIndex Name of the column to move (Starts at '0')
+ * @param endIndex Name of the column where the movement will end
+ */
+async function dragRow(startIndex: number, endIndex: number) {
+  let y = model.getters.getRow(model.getters.getActiveSheetId(), startIndex)!.start + 1;
+  triggerMouseEvent(".o-overlay .o-row-resizer", "mousedown", 10, y);
+  y = model.getters.getRow(model.getters.getActiveSheetId(), endIndex)!.start + 1;
+  triggerMouseEvent(window, "mousemove", 10, y, { buttons: 1 });
+  await nextTick();
+  triggerMouseEvent(window, "mouseup", 10, y);
 }
 /**
  * Trigger a double click on a row
@@ -131,7 +163,7 @@ describe("Resizer component", () => {
   });
 
   test("can click on a header to select a column", async () => {
-    selectColumn("C");
+    await selectColumn("C");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(getActiveXc(model)).toBe("C1");
   });
@@ -171,29 +203,24 @@ describe("Resizer component", () => {
   });
 
   test("can click on a row-header to select a row", async () => {
-    selectRow(2);
+    await selectRow(2);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
     expect(getActiveXc(model)).toBe("A3");
   });
 
   test("can select multiple rows/cols", async () => {
-    selectRow(2);
+    await selectRow(2);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
 
-    selectRow(3, { ctrlKey: true });
+    await selectRow(3, { ctrlKey: true });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
     expect(model.getters.getSelectedZones()[1]).toEqual({ left: 0, top: 3, right: 9, bottom: 3 });
     expect(getActiveXc(model)).toBe("A4");
 
-    selectColumn("C", { ctrlKey: true });
+    await selectColumn("C", { ctrlKey: true });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
     expect(model.getters.getSelectedZones()[1]).toEqual({ left: 0, top: 3, right: 9, bottom: 3 });
     expect(model.getters.getSelectedZones()[2]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
-    expect(getActiveXc(model)).toBe("C1");
-
-    selectColumn("C");
-    expect(model.getters.getSelectedZones().length).toBe(1);
-    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(getActiveXc(model)).toBe("C1");
   });
 
@@ -218,8 +245,8 @@ describe("Resizer component", () => {
   });
 
   test("Can resize multiples columns", async () => {
-    selectColumn("C");
-    selectColumn("D", { ctrlKey: true });
+    await selectColumn("C");
+    await selectColumn("D", { ctrlKey: true });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(model.getters.getSelectedZones()[1]).toEqual({ left: 3, top: 0, right: 3, bottom: 9 });
     expect(getActiveXc(model)).toBe("D1");
@@ -243,8 +270,8 @@ describe("Resizer component", () => {
   });
 
   test("Can resize multiples rows", async () => {
-    selectRow(2);
-    selectRow(3, { ctrlKey: true });
+    await selectRow(2);
+    await selectRow(3, { ctrlKey: true });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
     expect(model.getters.getSelectedZones()[1]).toEqual({ left: 0, top: 3, right: 9, bottom: 3 });
     expect(getActiveXc(model)).toBe("A4");
@@ -271,8 +298,8 @@ describe("Resizer component", () => {
     const sheetId = model.getters.getActiveSheetId();
     const col_A = model.getters.getCol(sheetId, 0)!;
     hideColumns(model, ["D", "E"]);
-    selectColumn("C");
-    selectColumn("F", { shiftKey: true });
+    await selectColumn("C");
+    await selectColumn("F", { shiftKey: true });
     await resizeColumn("D", 50);
     expect(model.getters.getCol(sheetId, 2)!.size).toBe(col_A.size + 50);
 
@@ -291,8 +318,8 @@ describe("Resizer component", () => {
     const sheetId = model.getters.getActiveSheetId();
     const row_1 = model.getters.getRow(sheetId, 0)!;
     hideRows(model, [3, 4]);
-    selectRow(2);
-    selectRow(5, { shiftKey: true });
+    await selectRow(2);
+    await selectRow(5, { shiftKey: true });
     await resizeRow(3, 50);
     expect(model.getters.getRow(sheetId, 2)!.size).toBe(row_1.size + 50);
 
@@ -356,8 +383,8 @@ describe("Resizer component", () => {
   test("Double click on column then undo, then redo", async () => {
     setCellContent(model, "C2", "C2");
     setCellContent(model, "D2", "D2");
-    selectColumn("C");
-    selectColumn("D", { ctrlKey: true });
+    await selectColumn("C");
+    await selectColumn("D", { ctrlKey: true });
     await dblClickColumn("D");
     const sheet = model.getters.getActiveSheetId();
     const initialSize = model.getters.getCol(sheet, 0)!.size;
@@ -391,8 +418,8 @@ describe("Resizer component", () => {
     fillData();
     setCellContent(model, "C3", "C3");
     setCellContent(model, "C4", "C4");
-    selectRow(2);
-    selectRow(3, { ctrlKey: true });
+    await selectRow(2);
+    await selectRow(3, { ctrlKey: true });
     await dblClickRow(2);
     const sheet = model.getters.getActiveSheetId();
     const initialSize = model.getters.getRow(sheet, 0)!.size;
@@ -416,104 +443,104 @@ describe("Resizer component", () => {
     expect(model.getters.getRow(sheet, 4)!.start).toBe(initialSize * 2 + size * 2);
   });
 
-  test("Select B, shift D then BCD selected", () => {
-    selectColumn("B");
-    selectColumn("D", { shiftKey: true });
+  test("Select B, shift D then BCD selected", async () => {
+    await selectColumn("B");
+    await selectColumn("D", { shiftKey: true });
     expect(model.getters.getActiveCols()).toEqual(new Set([1, 2, 3]));
   });
 
-  test("Select B, ctrl D then BD selected", () => {
-    selectColumn("B");
-    selectColumn("D", { ctrlKey: true });
+  test("Select B, ctrl D then BD selected", async () => {
+    await selectColumn("B");
+    await selectColumn("D", { ctrlKey: true });
     expect(model.getters.getActiveCols()).toEqual(new Set([1, 3]));
   });
 
-  test("Select 2, shift 4 then 234 selected", () => {
-    selectRow(1);
-    selectRow(3, { shiftKey: true });
+  test("Select 2, shift 4 then 234 selected", async () => {
+    await selectRow(1);
+    await selectRow(3, { shiftKey: true });
     expect(model.getters.getActiveRows()).toEqual(new Set([1, 2, 3]));
   });
 
-  test("Select 2, ctrl 4 then 24 selected", () => {
-    selectRow(1);
-    selectRow(3, { ctrlKey: true });
+  test("Select 2, ctrl 4 then 24 selected", async () => {
+    await selectRow(1);
+    await selectRow(3, { ctrlKey: true });
     expect(model.getters.getActiveRows()).toEqual(new Set([1, 3]));
   });
 
-  test("Select B, shift D, shift A then AB selected", () => {
-    selectColumn("B");
-    selectColumn("D", { shiftKey: true });
-    selectColumn("A", { shiftKey: true });
+  test("Select B, shift D, shift A then AB selected", async () => {
+    await selectColumn("B");
+    await selectColumn("D", { shiftKey: true });
+    await selectColumn("A", { shiftKey: true });
     expect(model.getters.getActiveCols()).toEqual(new Set([0, 1]));
   });
 
-  test("Select 2, shift 4, shift 1 then 12 selected", () => {
-    selectRow(1);
-    selectRow(3, { shiftKey: true });
-    selectRow(0, { shiftKey: true });
+  test("Select 2, shift 4, shift 1 then 12 selected", async () => {
+    await selectRow(1);
+    await selectRow(3, { shiftKey: true });
+    await selectRow(0, { shiftKey: true });
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1]));
   });
 
-  test("Select A, shift C, ctrl E then ABCE selected", () => {
-    selectColumn("A");
-    selectColumn("C", { shiftKey: true });
-    selectColumn("E", { ctrlKey: true });
+  test("Select A, shift C, ctrl E then ABCE selected", async () => {
+    await selectColumn("A");
+    await selectColumn("C", { shiftKey: true });
+    await selectColumn("E", { ctrlKey: true });
     expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2, 4]));
   });
 
-  test("Select 1, shift 3, ctrl 5 then 1235 selected", () => {
-    selectRow(0);
-    selectRow(2, { shiftKey: true });
-    selectRow(4, { ctrlKey: true });
+  test("Select 1, shift 3, ctrl 5 then 1235 selected", async () => {
+    await selectRow(0);
+    await selectRow(2, { shiftKey: true });
+    await selectRow(4, { ctrlKey: true });
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2, 4]));
   });
 
-  test("Select A, shift C, ctrl E, shift G then ABCEFG selected", () => {
-    selectColumn("A");
-    selectColumn("C", { shiftKey: true });
-    selectColumn("E", { ctrlKey: true });
-    selectColumn("G", { shiftKey: true });
+  test("Select A, shift C, ctrl E, shift G then ABCEFG selected", async () => {
+    await selectColumn("A");
+    await selectColumn("C", { shiftKey: true });
+    await selectColumn("E", { ctrlKey: true });
+    await selectColumn("G", { shiftKey: true });
 
     expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2, 4, 5, 6]));
   });
 
-  test("Select 1, shift 3, ctrl 5, shift 7 then 123567 selected", () => {
-    selectRow(0);
-    selectRow(2, { shiftKey: true });
-    selectRow(4, { ctrlKey: true });
-    selectRow(6, { shiftKey: true });
+  test("Select 1, shift 3, ctrl 5, shift 7 then 123567 selected", async () => {
+    await selectRow(0);
+    await selectRow(2, { shiftKey: true });
+    await selectRow(4, { ctrlKey: true });
+    await selectRow(6, { shiftKey: true });
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2, 4, 5, 6]));
   });
 
-  test("Select A, shift C, ctrl 1, shift 3 then ABC123 selected", () => {
-    selectColumn("A");
-    selectColumn("C", { shiftKey: true });
-    selectRow(0, { ctrlKey: true });
-    selectRow(2, { shiftKey: true });
+  test("Select A, shift C, ctrl 1, shift 3 then ABC123 selected", async () => {
+    await selectColumn("A");
+    await selectColumn("C", { shiftKey: true });
+    await selectRow(0, { ctrlKey: true });
+    await selectRow(2, { shiftKey: true });
 
     expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2]));
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2]));
   });
 
-  test("Select A, ctrl C, shift E then ACDE selected", () => {
-    selectColumn("A");
-    selectColumn("C", { ctrlKey: true });
-    selectColumn("E", { shiftKey: true });
+  test("Select A, ctrl C, shift E then ACDE selected", async () => {
+    await selectColumn("A");
+    await selectColumn("C", { ctrlKey: true });
+    await selectColumn("E", { shiftKey: true });
     expect(model.getters.getActiveCols()).toEqual(new Set([0, 2, 3, 4]));
   });
 
-  test("Select 1, ctrl 3, shift 5 then 1345 selected", () => {
-    selectRow(0);
-    selectRow(2, { ctrlKey: true });
-    selectRow(4, { shiftKey: true });
+  test("Select 1, ctrl 3, shift 5 then 1345 selected", async () => {
+    await selectRow(0);
+    await selectRow(2, { ctrlKey: true });
+    await selectRow(4, { shiftKey: true });
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 2, 3, 4]));
   });
 
   test("Select ABC E, dblclick E then resize all", async () => {
     fillData();
-    selectColumn("A");
-    selectColumn("C", { shiftKey: true });
-    selectColumn("E", { ctrlKey: true });
+    await selectColumn("A");
+    await selectColumn("C", { shiftKey: true });
+    await selectColumn("E", { ctrlKey: true });
     await dblClickColumn("E");
     expect(model.getters.getCol(model.getters.getActiveSheetId(), 0)!.size).toBe(1006);
     expect(model.getters.getCol(model.getters.getActiveSheetId(), 1)!.size).toBe(1006);
@@ -526,9 +553,9 @@ describe("Resizer component", () => {
 
   test("Select ABC E, dblclick F then resize only F", async () => {
     fillData();
-    selectColumn("A");
-    selectColumn("C", { shiftKey: true });
-    selectColumn("E", { ctrlKey: true });
+    await selectColumn("A");
+    await selectColumn("C", { shiftKey: true });
+    await selectColumn("E", { ctrlKey: true });
     await dblClickColumn("F");
     expect(model.getters.getCol(model.getters.getActiveSheetId(), 0)!.size).toBe(
       DEFAULT_CELL_WIDTH
@@ -550,9 +577,9 @@ describe("Resizer component", () => {
 
   test("Select 123 5, dblclick 5 then resize all", async () => {
     fillData();
-    selectRow(0);
-    selectRow(2, { shiftKey: true });
-    selectRow(4, { ctrlKey: true });
+    await selectRow(0);
+    await selectRow(2, { shiftKey: true });
+    await selectRow(4, { ctrlKey: true });
     await dblClickRow(4);
     const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2 * PADDING_AUTORESIZE;
     expect(model.getters.getRow(model.getters.getActiveSheetId(), 0)!.size).toBe(size);
@@ -566,9 +593,9 @@ describe("Resizer component", () => {
 
   test("Select 123 5, dblclick 6 then resize only 6", async () => {
     fillData();
-    selectRow(0);
-    selectRow(2, { shiftKey: true });
-    selectRow(4, { ctrlKey: true });
+    await selectRow(0);
+    await selectRow(2, { shiftKey: true });
+    await selectRow(4, { ctrlKey: true });
     await dblClickRow(5);
     expect(model.getters.getRow(model.getters.getActiveSheetId(), 0)!.size).toBe(
       DEFAULT_CELL_HEIGHT
@@ -590,18 +617,12 @@ describe("Resizer component", () => {
   });
 
   test("Select A, drag to C then ABC selected", async () => {
-    let x = model.getters.getCol(model.getters.getActiveSheetId(), 0)!.start + 1;
-    triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10);
-    x = model.getters.getCol(model.getters.getActiveSheetId(), 2)!.start + 1;
-    triggerMouseEvent(window, "mousemove", x, 10, { buttons: 1 });
+    await dragColumn("A", "C");
     expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2]));
   });
 
   test("Select 1, drag to 3 then 123 selected", async () => {
-    let y = model.getters.getRow(model.getters.getActiveSheetId(), 0)!.start + 1;
-    triggerMouseEvent(".o-overlay .o-row-resizer", "mousedown", 10, y);
-    y = model.getters.getRow(model.getters.getActiveSheetId(), 2)!.start + 1;
-    triggerMouseEvent(window, "mousemove", 10, y, { buttons: 1 });
+    await dragRow(0, 2);
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2]));
   });
 
@@ -814,6 +835,296 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
       right: 9,
       top: 3,
       bottom: 45,
+    });
+  });
+});
+
+describe("move selected element(s)", () => {
+  beforeEach(async () => {
+    fixture = makeTestFixture();
+    model = new Model({
+      sheets: [
+        {
+          id: "sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+        },
+      ],
+    });
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+  });
+
+  afterEach(() => {
+    fixture.remove();
+  });
+
+  test("select the last selected cols/rows keep all selected zone active", async () => {
+    await selectColumn("A");
+    // last selected column is now column A
+    await selectColumn("C", { ctrlKey: true });
+    await selectColumn("E", { shiftKey: true });
+    // last selected columns are now columns C, D, E
+    await selectColumn("C");
+    // A, C, D, E stay active
+    expect(model.getters.getActiveCols()).toEqual(new Set([0, 2, 3, 4]));
+  });
+
+  describe("move selected column(s)", () => {
+    test("drag selected B to C --> C arrive before B", async () => {
+      setCellContent(model, "B1", "b1");
+      setCellContent(model, "C1", "c1");
+
+      await selectColumn("B");
+      // last selected column is now the column B
+      await dragColumn("B", "C");
+
+      expect(getCell(model, "B1")!.evaluated.value).toBe("c1");
+      expect(getCell(model, "C1")!.evaluated.value).toBe("b1");
+    });
+
+    test("drag selected C to B --> C arrive before B", async () => {
+      setCellContent(model, "B1", "b1");
+      setCellContent(model, "C1", "c1");
+
+      await selectColumn("C");
+      // last selected column is now the column C
+      await dragColumn("C", "B");
+
+      expect(getCell(model, "B1")!.evaluated.value).toBe("c1");
+      expect(getCell(model, "C1")!.evaluated.value).toBe("b1");
+    });
+
+    test("drag selected C,D to B (mouseDown on C) --> C,D arrive before B", async () => {
+      setCellContent(model, "B1", "b1");
+      setCellContent(model, "C1", "c1");
+      setCellContent(model, "D1", "d1");
+
+      await selectColumn("C");
+      await selectColumn("D", { shiftKey: true });
+      // last selected columns are now columns C, D
+      await dragColumn("C", "B");
+
+      expect(getCell(model, "B1")!.evaluated.value).toBe("c1");
+      expect(getCell(model, "C1")!.evaluated.value).toBe("d1");
+      expect(getCell(model, "D1")!.evaluated.value).toBe("b1");
+    });
+
+    test("drag selected C,D to B (mouseDown on D) --> C,D arrive before B", async () => {
+      setCellContent(model, "B1", "b1");
+      setCellContent(model, "C1", "c1");
+      setCellContent(model, "D1", "d1");
+
+      await selectColumn("C");
+      await selectColumn("D", { shiftKey: true });
+      // last selected columns are now columns C, D
+      await dragColumn("D", "B");
+
+      expect(getCell(model, "B1")!.evaluated.value).toBe("c1");
+      expect(getCell(model, "C1")!.evaluated.value).toBe("d1");
+      expect(getCell(model, "D1")!.evaluated.value).toBe("b1");
+    });
+
+    test("drag selected C,D to E (mouseDown on C) -->  E arrive before C,D", async () => {
+      setCellContent(model, "C1", "c1");
+      setCellContent(model, "D1", "d1");
+      setCellContent(model, "E1", "e1");
+
+      await selectColumn("C");
+      await selectColumn("D", { shiftKey: true });
+      // last selected columns are now columns C, D
+      await dragColumn("C", "E");
+
+      expect(getCell(model, "C1")!.evaluated.value).toBe("e1");
+      expect(getCell(model, "D1")!.evaluated.value).toBe("c1");
+      expect(getCell(model, "E1")!.evaluated.value).toBe("d1");
+    });
+
+    test("drag selected C,D to E (mouseDown on D) --> E arrive before C,D", async () => {
+      setCellContent(model, "C1", "c1");
+      setCellContent(model, "D1", "d1");
+      setCellContent(model, "E1", "e1");
+
+      await selectColumn("C");
+      await selectColumn("D", { shiftKey: true });
+      // last selected columns are now columns C, D
+      await dragColumn("D", "E");
+
+      expect(getCell(model, "C1")!.evaluated.value).toBe("e1");
+      expect(getCell(model, "D1")!.evaluated.value).toBe("c1");
+      expect(getCell(model, "E1")!.evaluated.value).toBe("d1");
+    });
+
+    test("drag selected C,D to C (mouseDown on D) --> does nothing", async () => {
+      setCellContent(model, "C1", "c1");
+      setCellContent(model, "D1", "d1");
+
+      await selectColumn("C");
+      await selectColumn("D", { shiftKey: true });
+      // last selected columns are now columns C, D
+      await dragColumn("D", "C");
+
+      expect(getCell(model, "C1")!.evaluated.value).toBe("c1");
+      expect(getCell(model, "D1")!.evaluated.value).toBe("d1");
+    });
+
+    test("drag selected C,D to D (mouseDown on C) --> does nothing", async () => {
+      setCellContent(model, "C1", "c1");
+      setCellContent(model, "D1", "d1");
+
+      await selectColumn("C");
+      await selectColumn("D", { shiftKey: true });
+      // last selected columns are now columns C, D
+      await dragColumn("C", "D");
+
+      expect(getCell(model, "C1")!.evaluated.value).toBe("c1");
+      expect(getCell(model, "D1")!.evaluated.value).toBe("d1");
+    });
+
+    test("can't move a selected col that isn't the last selected zone", async () => {
+      setCellContent(model, "B1", "b1");
+      setCellContent(model, "C1", "c1");
+      setCellContent(model, "D1", "d1");
+
+      await selectColumn("B");
+      // last selected column is now column B
+      await selectColumn("C", { ctrlKey: true });
+      await selectColumn("D", { shiftKey: true });
+      // last selected columns are now columns C, D
+      await dragColumn("B", "D");
+
+      expect(getCell(model, "B1")!.evaluated.value).toBe("b1");
+      expect(getCell(model, "C1")!.evaluated.value).toBe("c1");
+      expect(getCell(model, "D1")!.evaluated.value).toBe("d1");
+    });
+  });
+
+  describe("move selected row(s)", () => {
+    test("drag selected 2 to 3 --> 2 arrive before 3", async () => {
+      setCellContent(model, "A2", "a2");
+      setCellContent(model, "A3", "a3");
+
+      await selectRow(1);
+      // last selected row is now row 2
+      await dragRow(1, 2);
+
+      expect(getCell(model, "A2")!.evaluated.value).toBe("a3");
+      expect(getCell(model, "A3")!.evaluated.value).toBe("a2");
+    });
+
+    test("drag selected 3 to 2 --> 2 arrive before 3", async () => {
+      setCellContent(model, "A2", "a2");
+      setCellContent(model, "A3", "a3");
+
+      await selectRow(2);
+      // last selected row is now row 3
+      await dragRow(2, 1);
+
+      expect(getCell(model, "A2")!.evaluated.value).toBe("a3");
+      expect(getCell(model, "A3")!.evaluated.value).toBe("a2");
+    });
+
+    test("drag selected 3,4 to 2 (mouseDown on 3) --> 3,4 arrive before 2", async () => {
+      setCellContent(model, "A2", "a2");
+      setCellContent(model, "A3", "a3");
+      setCellContent(model, "A4", "a4");
+
+      await selectRow(2);
+      await selectRow(3, { shiftKey: true });
+      // last selected rows are now rows 3, 4
+      await dragRow(2, 1);
+
+      expect(getCell(model, "A2")!.evaluated.value).toBe("a3");
+      expect(getCell(model, "A3")!.evaluated.value).toBe("a4");
+      expect(getCell(model, "A4")!.evaluated.value).toBe("a2");
+    });
+
+    test("drag selected 3,4 to 2 (mouseDown on 4) --> 3,4 arrive before 2", async () => {
+      setCellContent(model, "A2", "a2");
+      setCellContent(model, "A3", "a3");
+      setCellContent(model, "A4", "a4");
+
+      await selectRow(2);
+      await selectRow(3, { shiftKey: true });
+      // last selected rows are now rows 3, 4
+      await dragRow(3, 1);
+
+      expect(getCell(model, "A2")!.evaluated.value).toBe("a3");
+      expect(getCell(model, "A3")!.evaluated.value).toBe("a4");
+      expect(getCell(model, "A4")!.evaluated.value).toBe("a2");
+    });
+
+    test("drag selected 3,4 to 5 (mouseDown on 3) -->  5 arrive before 3,4", async () => {
+      setCellContent(model, "A3", "a3");
+      setCellContent(model, "A4", "a4");
+      setCellContent(model, "A5", "a5");
+
+      await selectRow(2);
+      await selectRow(3, { shiftKey: true });
+      // last selected rows are now row 3, 4
+      await dragRow(2, 4);
+
+      expect(getCell(model, "A3")!.evaluated.value).toBe("a5");
+      expect(getCell(model, "A4")!.evaluated.value).toBe("a3");
+      expect(getCell(model, "A5")!.evaluated.value).toBe("a4");
+    });
+
+    test("drag selected 3,4 to 5 (mouseDown on 4) -->  5 arrive before 3,4", async () => {
+      setCellContent(model, "A3", "a3");
+      setCellContent(model, "A4", "a4");
+      setCellContent(model, "A5", "a5");
+
+      await selectRow(2);
+      await selectRow(3, { shiftKey: true });
+      // last selected rows are now row 3, 4
+      await dragRow(3, 4);
+
+      expect(getCell(model, "A3")!.evaluated.value).toBe("a5");
+      expect(getCell(model, "A4")!.evaluated.value).toBe("a3");
+      expect(getCell(model, "A5")!.evaluated.value).toBe("a4");
+    });
+
+    test("drag selected 3,4 to 3 (mouseDown on 4) --> does nothing", async () => {
+      setCellContent(model, "A3", "a3");
+      setCellContent(model, "A4", "a4");
+
+      await selectRow(2);
+      await selectRow(3, { shiftKey: true });
+      // last selected rows are now rows 3, 4
+      await dragRow(3, 2);
+
+      expect(getCell(model, "A3")!.evaluated.value).toBe("a3");
+      expect(getCell(model, "A4")!.evaluated.value).toBe("a4");
+    });
+
+    test("drag selected 3,4 to 4 (mouseDown on 3) --> does nothing", async () => {
+      setCellContent(model, "A3", "a3");
+      setCellContent(model, "A4", "a4");
+
+      await selectRow(2);
+      await selectRow(3, { shiftKey: true });
+      // last selected rows are now rows 3, 4
+      await dragRow(2, 3);
+
+      expect(getCell(model, "A3")!.evaluated.value).toBe("a3");
+      expect(getCell(model, "A4")!.evaluated.value).toBe("a4");
+    });
+
+    test("can't move a selected row that isn't the last selected zone", async () => {
+      setCellContent(model, "A2", "a2");
+      setCellContent(model, "A3", "a3");
+      setCellContent(model, "A4", "a4");
+
+      await selectRow(1);
+      // last selected row is now row 2
+      await selectRow(2, { ctrlKey: true });
+      await selectRow(3, { shiftKey: true });
+      // last selected rows are now rows 3, 4
+      await dragRow(1, 3);
+
+      expect(getCell(model, "A2")!.evaluated.value).toBe("a2");
+      expect(getCell(model, "A3")!.evaluated.value).toBe("a3");
+      expect(getCell(model, "A4")!.evaluated.value).toBe("a4");
     });
   });
 });

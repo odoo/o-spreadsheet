@@ -13,6 +13,7 @@ import {
 } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
+import { _lt } from "../../translation";
 import {
   AddColumnsRowsCommand,
   Cell,
@@ -28,6 +29,7 @@ import {
   Header,
   Increment,
   LAYERS,
+  MoveColumnsRowsCommand,
   Position,
   RemoveColumnsRowsCommand,
   Sheet,
@@ -182,6 +184,14 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
         } catch (error) {
           return CommandResult.InvalidSheetId;
         }
+      case "MOVE_COLUMNS_ROWS":
+        const result = this.isMoveElementAllowed(cmd);
+        if (result === CommandResult.WillRemoveExistingMerge) {
+          this.ui.notifyUser(
+            _lt("Merged cells are preventing this operation. Unmerge those cells and try again.")
+          );
+        }
+        return result;
     }
     return CommandResult.Success;
   }
@@ -295,6 +305,11 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       case "ADD_COLUMNS_ROWS":
         if (cmd.sheetId === this.getActiveSheetId()) {
           this.onAddElements(cmd);
+        }
+        break;
+      case "MOVE_COLUMNS_ROWS":
+        if (cmd.sheetId === this.getActiveSheetId()) {
+          this.onMoveElements(cmd);
         }
         break;
       case "UPDATE_CHART":
@@ -817,6 +832,72 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       sheetIdFrom: this.getActiveSheetId(),
       sheetIdTo: sheetIds[newPosition],
     });
+  }
+
+  private onMoveElements(cmd: MoveColumnsRowsCommand) {
+    const thickness = cmd.elements.length;
+
+    this.dispatch("ADD_COLUMNS_ROWS", {
+      dimension: cmd.dimension,
+      sheetId: cmd.sheetId,
+      base: cmd.base,
+      quantity: thickness,
+      position: "before",
+    });
+
+    const isCol = cmd.dimension === "COL";
+    const start = cmd.elements[0];
+    const end = cmd.elements[thickness - 1];
+    const isBasedbefore = cmd.base < start;
+    const deltaCol = isBasedbefore && isCol ? thickness : 0;
+    const deltaRow = isBasedbefore && !isCol ? thickness : 0;
+    const sheet = this.getters.getSheet(cmd.sheetId);
+
+    this.dispatch("CUT", {
+      target: [
+        {
+          left: isCol ? start + deltaCol : 0,
+          right: isCol ? end + deltaCol : sheet.cols.length - 1,
+          top: !isCol ? start + deltaRow : 0,
+          bottom: !isCol ? end + deltaRow : sheet.rows.length - 1,
+        },
+      ],
+    });
+
+    this.dispatch("PASTE", {
+      target: [
+        {
+          left: isCol ? cmd.base : 0,
+          right: isCol ? cmd.base + thickness - 1 : sheet.cols.length - 1,
+          top: !isCol ? cmd.base : 0,
+          bottom: !isCol ? cmd.base + thickness - 1 : sheet.rows.length - 1,
+        },
+      ],
+    });
+
+    this.dispatch("REMOVE_COLUMNS_ROWS", {
+      dimension: cmd.dimension,
+      sheetId: cmd.sheetId,
+      elements: isBasedbefore ? cmd.elements.map((el) => el + thickness) : cmd.elements,
+    });
+  }
+
+  private isMoveElementAllowed(cmd: MoveColumnsRowsCommand): CommandResult {
+    const isCol = cmd.dimension === "COL";
+    const start = cmd.elements[0];
+    const end = cmd.elements[cmd.elements.length - 1];
+    const id = cmd.sheetId;
+    const doesElementsHaveCommonMerges = isCol
+      ? this.getters.doesColumnsHaveCommonMerges
+      : this.getters.doesRowsHaveCommonMerges;
+    if (
+      doesElementsHaveCommonMerges(id, start - 1, start) ||
+      doesElementsHaveCommonMerges(id, end, end + 1) ||
+      doesElementsHaveCommonMerges(id, cmd.base - 1, cmd.base)
+    ) {
+      return CommandResult.WillRemoveExistingMerge;
+    }
+    return CommandResult.Success;
   }
 
   // ---------------------------------------------------------------------------

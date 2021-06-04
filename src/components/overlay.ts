@@ -24,17 +24,22 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
   PADDING: number = 0;
   MAX_SIZE_MARGIN: number = 0;
   MIN_ELEMENT_SIZE: number = 0;
-  lastSelectedElement: number | null = null;
-  lastElement: number | null = null;
+  lastSelectedElementIndex: number | null = null;
   getters = this.env.getters;
   dispatch = this.env.dispatch;
 
   state = useState({
     resizerIsActive: <boolean>false,
     isResizing: <boolean>false,
+    isMoving: <boolean>false,
+    isSelecting: <boolean>false,
+    waitingForMove: <boolean>false,
     activeElement: <number>0,
-    resizerStyleValue: <number>0,
+    draggerLinePosition: <number>0,
+    draggerShadowPosition: <number>0,
+    draggerShadowThickness: <number>0,
     delta: <number>0,
+    base: <number>0,
   });
 
   abstract _getEvOffset(ev: MouseEvent): number;
@@ -45,7 +50,11 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
 
   abstract _getClientPosition(ev: MouseEvent): number;
 
-  abstract _getElementIndex(index: number): number;
+  abstract _getElementIndex(position: number): number;
+
+  abstract _getSelectedZoneStart(): number;
+
+  abstract _getSelectedZoneEnd(): number;
 
   abstract _getEdgeScroll(position: number): EdgeScrollInfo;
 
@@ -58,6 +67,8 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
   abstract _getMaxSize(): number;
 
   abstract _updateSize(): void;
+
+  abstract _moveElements(): void;
 
   abstract _selectElement(index: number, ctrlKey: boolean): void;
 
@@ -76,9 +87,9 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
   abstract _getPreviousVisibleElement(index: number): number;
 
   _computeHandleDisplay(ev: MouseEvent) {
-    const index = this._getEvOffset(ev);
+    const position = this._getEvOffset(ev);
 
-    const elementIndex = this._getElementIndex(index);
+    const elementIndex = this._getElementIndex(position);
     if (elementIndex < 0) {
       return;
     }
@@ -86,30 +97,46 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
     const offset = this._getStateOffset();
 
     if (
-      index - (element.start - offset) < this.PADDING &&
+      position - (element.start - offset) < this.PADDING &&
       elementIndex !== this._getViewportOffset()
     ) {
       this.state.resizerIsActive = true;
-      this.state.resizerStyleValue = element.start - offset - this._getHeaderSize();
+      this.state.draggerLinePosition = element.start - offset - this._getHeaderSize();
       this.state.activeElement = this._getPreviousVisibleElement(elementIndex);
-    } else if (element.end - offset - index < this.PADDING) {
+    } else if (element.end - offset - position < this.PADDING) {
       this.state.resizerIsActive = true;
-      this.state.resizerStyleValue = element.end - offset - this._getHeaderSize();
+      this.state.draggerLinePosition = element.end - offset - this._getHeaderSize();
       this.state.activeElement = elementIndex;
     } else {
       this.state.resizerIsActive = false;
     }
   }
 
+  _computeGrabDisplay(ev: MouseEvent) {
+    const index = this._getElementIndex(this._getEvOffset(ev));
+    const activeElements = this._getActiveElements();
+    const selectedZoneStart = this._getSelectedZoneStart();
+    const selectedZoneEnd = this._getSelectedZoneEnd();
+    if (activeElements.has(selectedZoneStart)) {
+      if (selectedZoneStart <= index && index <= selectedZoneEnd) {
+        this.state.waitingForMove = true;
+        return;
+      }
+    }
+    this.state.waitingForMove = false;
+  }
+
   onMouseMove(ev: MouseEvent) {
-    if (this.state.isResizing) {
+    if (this.state.isResizing || this.state.isMoving || this.state.isSelecting) {
       return;
     }
     this._computeHandleDisplay(ev);
+    this._computeGrabDisplay(ev);
   }
 
   onMouseLeave() {
     this.state.resizerIsActive = this.state.isResizing;
+    this.state.waitingForMove = false;
   }
 
   onDblClick() {
@@ -121,8 +148,8 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
     this.state.isResizing = true;
     this.state.delta = 0;
 
-    const initialIndex = this._getClientPosition(ev);
-    const styleValue = this.state.resizerStyleValue;
+    const initialPosition = this._getClientPosition(ev);
+    const styleValue = this.state.draggerLinePosition;
     const size = this._getElement(this.state.activeElement).size;
     const minSize = styleValue - size + this.MIN_ELEMENT_SIZE;
     const maxSize = this._getMaxSize();
@@ -133,14 +160,14 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
       }
     };
     const onMouseMove = (ev: MouseEvent) => {
-      this.state.delta = this._getClientPosition(ev) - initialIndex;
-      this.state.resizerStyleValue = styleValue + this.state.delta;
-      if (this.state.resizerStyleValue < minSize) {
-        this.state.resizerStyleValue = minSize;
+      this.state.delta = this._getClientPosition(ev) - initialPosition;
+      this.state.draggerLinePosition = styleValue + this.state.delta;
+      if (this.state.draggerLinePosition < minSize) {
+        this.state.draggerLinePosition = minSize;
         this.state.delta = this.MIN_ELEMENT_SIZE - size;
       }
-      if (this.state.resizerStyleValue > maxSize) {
-        this.state.resizerStyleValue = maxSize;
+      if (this.state.draggerLinePosition > maxSize) {
+        this.state.draggerLinePosition = maxSize;
         this.state.delta = maxSize - styleValue;
       }
     };
@@ -156,55 +183,127 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
     if (index < 0) {
       return;
     }
-    this.lastElement = index;
+    if (this.state.waitingForMove === true) {
+      this.startMovement(ev);
+      return;
+    }
+    this.startSelection(ev, index);
+  }
+
+  private startMovement(ev: MouseEvent) {
+    this.state.waitingForMove = false;
+    this.state.isMoving = true;
+    const startElement = this._getElement(this._getSelectedZoneStart());
+    const endElement = this._getElement(this._getSelectedZoneEnd());
+    const initialPosition = this._getClientPosition(ev);
+    const defaultPosition = startElement.start - this._getStateOffset() - this._getHeaderSize();
+    this.state.draggerLinePosition = defaultPosition;
+    this.state.base = this._getSelectedZoneStart();
+    this.state.draggerShadowPosition = defaultPosition;
+    this.state.draggerShadowThickness = endElement.end - startElement.start;
+    const mouseMoveMovement = (elementIndex: number, currentEv: MouseEvent) => {
+      if (elementIndex >= 0) {
+        // define draggerLinePosition
+        const element = this._getElement(elementIndex);
+        const offset = this._getStateOffset() + this._getHeaderSize();
+        if (elementIndex <= this._getSelectedZoneStart()) {
+          this.state.draggerLinePosition = element.start - offset;
+          this.state.base = elementIndex;
+        } else if (this._getSelectedZoneEnd() < elementIndex) {
+          this.state.draggerLinePosition = element.end - offset;
+          this.state.base = elementIndex + 1;
+        } else {
+          this.state.draggerLinePosition = startElement.start - offset;
+          this.state.base = this._getSelectedZoneStart();
+        }
+        // define draggerShadowPosition
+        const delta = this._getClientPosition(currentEv) - initialPosition;
+        this.state.draggerShadowPosition = Math.max(defaultPosition + delta, 0);
+      }
+    };
+    const mouseUpMovement = (finalEv: MouseEvent) => {
+      this.state.isMoving = false;
+      if (this.state.base !== this._getSelectedZoneStart()) {
+        this._moveElements();
+      }
+      this._computeGrabDisplay(finalEv);
+    };
+    this.dragOverlayBeyondTheViewport(ev, mouseMoveMovement, mouseUpMovement);
+  }
+
+  private startSelection(ev: MouseEvent, index: number) {
+    this.state.isSelecting = true;
     this.dispatch(ev.ctrlKey ? "START_SELECTION_EXPANSION" : "START_SELECTION");
     if (ev.shiftKey) {
       this._increaseSelection(index);
     } else {
-      this.lastSelectedElement = index;
       this._selectElement(index, ev.ctrlKey);
     }
-    const initialIndex = this._getClientPosition(ev);
-    const initialOffset = this._getEvOffset(ev);
+    this.lastSelectedElementIndex = index;
+
+    const mouseMoveSelect = (elementIndex: number, currentEv) => {
+      if (elementIndex !== this.lastSelectedElementIndex && elementIndex !== -1) {
+        this._increaseSelection(elementIndex);
+        this.lastSelectedElementIndex = elementIndex;
+      }
+    };
+    const mouseUpSelect = () => {
+      this.state.isSelecting = false;
+      this.lastSelectedElementIndex = null;
+      this.dispatch(ev.ctrlKey ? "PREPARE_SELECTION_EXPANSION" : "STOP_SELECTION");
+      this._computeGrabDisplay(ev);
+    };
+
+    this.dragOverlayBeyondTheViewport(ev, mouseMoveSelect, mouseUpSelect);
+  }
+
+  private dragOverlayBeyondTheViewport(
+    ev: MouseEvent,
+    cbMouseMove: (elementIndex: number, currentEv: MouseEvent) => void,
+    cbMouseUp: (finalEv: MouseEvent) => void
+  ) {
     let timeOutId: any = null;
     let currentEv: MouseEvent;
+    const initialPosition = this._getClientPosition(ev);
+    const initialOffset = this._getEvOffset(ev);
 
-    const onMouseMoveSelect = (ev: MouseEvent) => {
+    const onMouseMove = (ev: MouseEvent) => {
       currentEv = ev;
       if (timeOutId) {
         return;
       }
-      const offset = this._getClientPosition(currentEv) - initialIndex + initialOffset;
-      const EdgeScrollInfo = this._getEdgeScroll(offset);
+      const position = this._getClientPosition(currentEv) - initialPosition + initialOffset;
+      const EdgeScrollInfo = this._getEdgeScroll(position);
       const { first, last } = this._getBoundaries();
-      let index;
+      let elementIndex;
       if (EdgeScrollInfo.canEdgeScroll) {
-        index = EdgeScrollInfo.direction > 0 ? last : first - 1;
+        elementIndex = EdgeScrollInfo.direction > 0 ? last : first - 1;
       } else {
-        index = this._getElementIndex(offset);
+        elementIndex = this._getElementIndex(position);
       }
-      if (index !== this.lastElement && index !== -1) {
-        this._increaseSelection(index);
-        this.lastElement = index;
-      }
+
+      cbMouseMove(elementIndex, currentEv);
+
+      // adjust viewport if necessary
       if (EdgeScrollInfo.canEdgeScroll) {
         this._adjustViewport(EdgeScrollInfo.direction);
         timeOutId = setTimeout(() => {
           timeOutId = null;
-          onMouseMoveSelect(currentEv);
+          onMouseMove(currentEv);
         }, Math.round(EdgeScrollInfo.delay));
       }
     };
-    const onMouseUpSelect = () => {
+
+    const onMouseUp = (finalEv: MouseEvent) => {
       clearTimeout(timeOutId);
-      this.lastElement = null;
-      this.dispatch(ev.ctrlKey ? "PREPARE_SELECTION_EXPANSION" : "STOP_SELECTION");
+      cbMouseUp(finalEv);
     };
-    startDnd(onMouseMoveSelect, onMouseUpSelect);
+
+    startDnd(onMouseMove, onMouseUp);
   }
 
   onMouseUp(ev: MouseEvent) {
-    this.lastElement = null;
+    this.lastSelectedElementIndex = null;
   }
 
   onContextMenu(ev: MouseEvent) {
@@ -212,7 +311,6 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
     const index = this._getElementIndex(this._getEvOffset(ev));
     if (index < 0) return;
     if (!this._getActiveElements().has(index)) {
-      this.lastSelectedElement = index;
       this._selectElement(index, false);
     }
     const type = this._getType();
@@ -224,11 +322,13 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
 export class ColResizer extends AbstractResizer {
   static template = xml/* xml */ `
     <div class="o-col-resizer" t-on-mousemove.self="onMouseMove" t-on-mouseleave="onMouseLeave" t-on-mousedown.self.prevent="select"
-      t-on-mouseup.self="onMouseUp" t-on-contextmenu.self="onContextMenu">
+      t-on-mouseup.self="onMouseUp" t-on-contextmenu.self="onContextMenu" t-att-class="{'o-grab': state.waitingForMove, 'o-dragging': state.isMoving, }">
+      <div t-if="state.isMoving" class="dragging-col-line" t-attf-style="left:{{state.draggerLinePosition}}px;"/>
+      <div t-if="state.isMoving" class="dragging-col-shadow" t-attf-style="left:{{state.draggerShadowPosition}}px; width:{{state.draggerShadowThickness}}px"/>
       <t t-if="state.resizerIsActive">
         <div class="o-handle" t-on-mousedown="onMouseDown" t-on-dblclick="onDblClick" t-on-contextmenu.prevent=""
-        t-attf-style="left:{{state.resizerStyleValue - 2}}px;">
-        <div class="dragging" t-if="state.isResizing"/>
+        t-attf-style="left:{{state.draggerLinePosition - 2}}px;">
+        <div class="dragging-resizer" t-if="state.isResizing"/>
         </div>
       </t>
       <t t-foreach="getters.getHiddenColsGroups(getters.getActiveSheetId())" t-as="hiddenItem" t-key="hiddenItem_index">
@@ -252,6 +352,26 @@ export class ColResizer extends AbstractResizer {
       left: ${HEADER_WIDTH}px;
       right: 0;
       height: ${HEADER_HEIGHT}px;
+      &.o-dragging {
+        cursor: grabbing;
+      }
+      &.o-grab {
+        cursor: grab;
+      }
+      .dragging-col-line {
+        top: ${HEADER_HEIGHT}px;
+        position: absolute;
+        width: 2px;
+        height: 10000px;
+        background-color: black;
+      }
+      .dragging-col-shadow {
+        top: ${HEADER_HEIGHT}px;
+        position: absolute;
+        height: 10000px;
+        background-color: black;
+        opacity: 0.1;
+      }
       .o-handle {
         position: absolute;
         height: ${HEADER_HEIGHT}px;
@@ -259,7 +379,7 @@ export class ColResizer extends AbstractResizer {
         cursor: e-resize;
         background-color: #3266ca;
       }
-      .dragging {
+      .dragging-resizer {
         top: ${HEADER_HEIGHT}px;
         position: absolute;
         margin-left: 2px;
@@ -309,6 +429,14 @@ export class ColResizer extends AbstractResizer {
     return this.getters.getColIndex(index, this.getters.getActiveSnappedViewport().left);
   }
 
+  _getSelectedZoneStart(): number {
+    return this.getters.getSelectedZone().left;
+  }
+
+  _getSelectedZoneEnd(): number {
+    return this.getters.getSelectedZone().right;
+  }
+
   _getEdgeScroll(position: number): EdgeScrollInfo {
     return this.getters.getEdgeScrollCol(position);
   }
@@ -343,6 +471,21 @@ export class ColResizer extends AbstractResizer {
       sheetId: this.getters.getActiveSheetId(),
       elements: cols.has(index) ? [...cols] : [index],
       size,
+    });
+  }
+
+  _moveElements(): void {
+    const elements: number[] = [];
+    const start = this._getSelectedZoneStart();
+    const end = this._getSelectedZoneEnd();
+    for (let colIndex = start; colIndex <= end; colIndex++) {
+      elements.push(colIndex);
+    }
+    this.dispatch("MOVE_COLUMNS_ROWS", {
+      sheetId: this.getters.getActiveSheetId(),
+      dimension: "COL",
+      base: this.state.base,
+      elements,
     });
   }
 
@@ -407,11 +550,13 @@ export class ColResizer extends AbstractResizer {
 export class RowResizer extends AbstractResizer {
   static template = xml/* xml */ `
     <div class="o-row-resizer" t-on-mousemove.self="onMouseMove" t-on-mouseleave="onMouseLeave" t-on-mousedown.self.prevent="select"
-    t-on-mouseup.self="onMouseUp" t-on-contextmenu.self="onContextMenu">
+    t-on-mouseup.self="onMouseUp" t-on-contextmenu.self="onContextMenu" t-att-class="{'o-grab': state.waitingForMove, 'o-dragging': state.isMoving}">
+      <div t-if="state.isMoving" class="dragging-row-line" t-attf-style="top:{{state.draggerLinePosition}}px;"/>
+      <div t-if="state.isMoving" class="dragging-row-shadow" t-attf-style="top:{{state.draggerShadowPosition}}px; height:{{state.draggerShadowThickness}}px;"/>
       <t t-if="state.resizerIsActive">
         <div class="o-handle" t-on-mousedown="onMouseDown" t-on-dblclick="onDblClick" t-on-contextmenu.prevent=""
-          t-attf-style="top:{{state.resizerStyleValue - 2}}px;">
-          <div class="dragging" t-if="state.isResizing"/>
+          t-attf-style="top:{{state.draggerLinePosition - 2}}px;">
+          <div class="dragging-resizer" t-if="state.isResizing"/>
         </div>
       </t>
       <t t-foreach="getters.getHiddenRowsGroups(getters.getActiveSheetId())" t-as="hiddenItem" t-key="hiddenItem_index">
@@ -436,6 +581,26 @@ export class RowResizer extends AbstractResizer {
       right: 0;
       width: ${HEADER_WIDTH}px;
       height: 100%;
+      &.o-dragging {
+        cursor: grabbing;
+      }
+      &.o-grab {
+        cursor: grab;
+      }
+      .dragging-row-line {
+        left: ${HEADER_WIDTH}px;
+        position: absolute;
+        width: 10000px;
+        height: 2px;
+        background-color: black;
+      }
+      .dragging-row-shadow {
+        left: ${HEADER_WIDTH}px;
+        position: absolute;
+        width: 10000px;
+        background-color: black;
+        opacity: 0.1;
+      }
       .o-handle {
         position: absolute;
         height: 4px;
@@ -443,7 +608,7 @@ export class RowResizer extends AbstractResizer {
         cursor: n-resize;
         background-color: #3266ca;
       }
-      .dragging {
+      .dragging-resizer {
         left: ${HEADER_WIDTH}px;
         position: absolute;
         margin-top: 2px;
@@ -498,6 +663,14 @@ export class RowResizer extends AbstractResizer {
     return this.getters.getRowIndex(index, this.getters.getActiveSnappedViewport().top);
   }
 
+  _getSelectedZoneStart(): number {
+    return this.getters.getSelectedZone().top;
+  }
+
+  _getSelectedZoneEnd(): number {
+    return this.getters.getSelectedZone().bottom;
+  }
+
   _getEdgeScroll(position: number): EdgeScrollInfo {
     return this.getters.getEdgeScrollRow(position);
   }
@@ -528,6 +701,21 @@ export class RowResizer extends AbstractResizer {
       sheetId: this.getters.getActiveSheetId(),
       elements: rows.has(index) ? [...rows] : [index],
       size,
+    });
+  }
+
+  _moveElements(): void {
+    const elements: number[] = [];
+    const start = this._getSelectedZoneStart();
+    const end = this._getSelectedZoneEnd();
+    for (let rowIndex = start; rowIndex <= end; rowIndex++) {
+      elements.push(rowIndex);
+    }
+    this.dispatch("MOVE_COLUMNS_ROWS", {
+      sheetId: this.getters.getActiveSheetId(),
+      dimension: "ROW",
+      base: this.state.base,
+      elements,
     });
   }
 
