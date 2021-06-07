@@ -21,6 +21,7 @@ import {
   redo,
   selectCell,
   setCellContent,
+  setSelection,
   undo,
   unhideColumns,
   unhideRows,
@@ -956,72 +957,43 @@ describe("Columns", () => {
   describe("Correctly update selection", () => {
     test("On add left 1", () => {
       model = new Model(fullData);
-      const zone = { left: 1, right: 3, top: 0, bottom: 2 };
-      model.dispatch("SET_SELECTION", {
-        zones: [zone],
-        anchor: [zone.left, zone.top],
-        strict: true,
-      });
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+      setSelection(model, ["B1:D3"], { strict: true });
+      expect(model.getters.getSelectedZone()).toEqual(toZone("B1:D3"));
       addColumns(model, "before", "B", 1);
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 2, right: 4, top: 0 });
+      expect(model.getters.getSelectedZone()).toEqual(toZone("C1:E3"));
     });
     test("On add left 3", () => {
       model = new Model(fullData);
-      const zone = { left: 1, right: 3, top: 0, bottom: 2 };
-      model.dispatch("SET_SELECTION", {
-        zones: [zone],
-        anchor: [zone.left, zone.top],
-        strict: true,
-      });
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+      setSelection(model, ["B1:D3"], { strict: true });
+      expect(model.getters.getSelectedZone()).toEqual(toZone("B1:D3"));
       addColumns(model, "before", "B", 3);
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 4, right: 6, top: 0 });
+      expect(model.getters.getSelectedZone()).toEqual(toZone("E1:G3"));
     });
     test("On add right 1", () => {
       model = new Model(fullData);
-      const zone = toZone("B1:D3");
-      model.dispatch("SET_SELECTION", {
-        zones: [zone],
-        anchor: [zone.left, zone.top],
-        strict: true,
-      });
-      expect(model.getters.getSelectedZone()).toEqual(zone);
+      setSelection(model, ["B1:D3"], { strict: true });
+      expect(model.getters.getSelectedZone()).toEqual(toZone("B1:D3"));
       addColumns(model, "after", "B", 1);
       expect(model.getters.getSelectedZone()).toEqual(toZone("B1:E3"));
     });
     test("On add right 3", () => {
       model = new Model(fullData);
-      const zone = toZone("B1:D3");
-      model.dispatch("SET_SELECTION", {
-        zones: [zone],
-        anchor: [zone.left, zone.top],
-        strict: true,
-      });
-      expect(model.getters.getSelectedZone()).toEqual(zone);
+      setSelection(model, ["B1:D3"], { strict: true });
+      expect(model.getters.getSelectedZone()).toEqual(toZone("B1:D3"));
       addColumns(model, "after", "B", 3);
       expect(model.getters.getSelectedZone()).toEqual(toZone("B1:G3"));
     });
     test("On hide 1", () => {
       model = new Model(fullData);
-      const zone = toZone("C1:C4");
-      model.dispatch("SET_SELECTION", {
-        zones: [zone],
-        anchor: [zone.left, zone.top],
-        strict: true,
-      });
+      setSelection(model, ["C1:C4"], { strict: true });
       hideColumns(model, ["C"]);
-      expect(model.getters.getSelectedZones()).toEqual([zone]);
+      expect(model.getters.getSelectedZone()).toEqual(toZone("C1:C4"));
     });
     test("On hide multiple", () => {
       model = new Model(fullData);
       const zone1 = toZone("A1:A4");
       const zone2 = toZone("C1:C4");
-      model.dispatch("SET_SELECTION", {
-        zones: [zone1, zone2],
-        anchor: [zone1.left, zone1.top],
-        strict: true,
-      });
+      setSelection(model, ["A1:A4", "C1:C4"], { strict: true });
       hideColumns(model, ["A", "C"]);
       expect(model.getters.getSelectedZones()).toEqual([zone1, zone2]);
     });
@@ -1763,72 +1735,43 @@ describe("Rows", () => {
   describe("Correctly update selection", () => {
     test("On add top 1", () => {
       model = new Model(fullData);
-      const zone = { left: 2, right: 3, top: 0, bottom: 1 };
-      model.dispatch("SET_SELECTION", {
-        zones: [zone],
-        anchor: [zone.left, zone.top],
-        strict: true,
-      });
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 1, left: 2, right: 3, top: 0 });
+      setSelection(model, ["C1:D2"], { strict: true });
+      expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D2"));
       addRows(model, "before", 0, 1);
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 2, right: 3, top: 1 });
+      expect(model.getters.getSelectedZone()).toEqual(toZone("C2:D3"));
     });
     test("On add top 3", () => {
       model = new Model(fullData);
-      const zone = { left: 2, right: 3, top: 0, bottom: 1 };
-      model.dispatch("SET_SELECTION", {
-        zones: [zone],
-        anchor: [zone.left, zone.top],
-        strict: true,
-      });
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 1, left: 2, right: 3, top: 0 });
+      setSelection(model, ["C1:D2"], { strict: true });
+      expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D2"));
       addRows(model, "before", 0, 3);
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 4, left: 2, right: 3, top: 3 });
+      expect(model.getters.getSelectedZone()).toEqual(toZone("C4:D5"));
     });
     test("On add bottom 1", () => {
       model = new Model(fullData);
-      const zone = toZone("C1:D2");
-      model.dispatch("SET_SELECTION", {
-        zones: [zone],
-        anchor: [zone.left, zone.top],
-        strict: true,
-      });
-      expect(model.getters.getSelectedZone()).toEqual(zone);
+      setSelection(model, ["C1:D2"], { strict: true });
+      expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D2"));
       addRows(model, "after", 0, 1);
       expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D3"));
     });
     test("On add bottom 3", () => {
       model = new Model(fullData);
-      const zone = toZone("C1:D2");
-      model.dispatch("SET_SELECTION", {
-        zones: [zone],
-        anchor: [zone.left, zone.top],
-        strict: true,
-      });
-      expect(model.getters.getSelectedZone()).toEqual(zone);
+      setSelection(model, ["C1:D2"], { strict: true });
+      expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D2"));
       addRows(model, "after", 0, 3);
       expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D5"));
     });
     test("On hide 1", () => {
       model = new Model(fullData);
-      const zone = toZone("A3:D3");
-      model.dispatch("SET_SELECTION", {
-        zones: [zone],
-        anchor: [zone.left, zone.top],
-        strict: true,
-      });
+      setSelection(model, ["A3:D3"], { strict: true });
       hideRows(model, [2]);
-      expect(model.getters.getSelectedZones()).toEqual([zone]);
+      expect(model.getters.getSelectedZone()).toEqual(toZone("A3:D3"));
     });
     test("On hide multiple", () => {
       model = new Model(fullData);
       const zone1 = toZone("A1:D1");
       const zone2 = toZone("A3:D3");
-      model.dispatch("SET_SELECTION", {
-        zones: [zone1, zone2],
-        anchor: [zone1.left, zone1.top],
-        strict: true,
-      });
+      setSelection(model, ["A1:D1", "A3:D3"], { strict: true });
       hideRows(model, [0, 2]);
       expect(model.getters.getSelectedZones()).toEqual([zone1, zone2]);
     });
