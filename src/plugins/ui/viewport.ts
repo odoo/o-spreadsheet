@@ -4,7 +4,7 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "../../constants";
-import { getNextVisibleCellCoords } from "../../helpers";
+import { findLastVisibleColRow, getNextVisibleCellCoords } from "../../helpers";
 import { Mode } from "../../model";
 import { Command, Sheet, UID, Viewport, ZoneDimension } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
@@ -117,9 +117,9 @@ export class ViewportPlugin extends UIPlugin {
   }
 
   getGridDimension(sheet: Sheet): ZoneDimension {
-    const lastCol = this.findLastVisibleColRow(sheet, "cols");
+    const lastCol = findLastVisibleColRow(sheet, "cols");
     const effectiveWidth = this.clientWidth - HEADER_WIDTH;
-    const lastRow = this.findLastVisibleColRow(sheet, "rows");
+    const lastRow = findLastVisibleColRow(sheet, "rows");
     const effectiveHeight = this.clientHeight - HEADER_HEIGHT;
 
     const leftCol =
@@ -145,14 +145,6 @@ export class ViewportPlugin extends UIPlugin {
   private getSnappedViewport(sheetId: UID) {
     this.snapViewportToCell(sheetId);
     return this.snappedViewports[sheetId];
-  }
-
-  private findLastVisibleColRow(sheet: Sheet, dimension: "cols" | "rows") {
-    let lastIndex = sheet[dimension].length - 1;
-    while (lastIndex >= 0 && sheet[dimension][lastIndex].isHidden === true) {
-      lastIndex--;
-    }
-    return sheet[dimension][lastIndex];
   }
 
   private getViewport(sheetId: UID): Viewport {

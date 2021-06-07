@@ -1,7 +1,8 @@
-import { toCartesian, toXC, toZone } from "../../src/helpers/index";
+import { toCartesian, toXC } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { Border, Cell, Merge, Sheet, UID } from "../../src/types";
+import { setSelection } from "./commands_helpers";
 
 /**
  * Get the active XC
@@ -100,13 +101,6 @@ export function automaticSumMulti(
   if (!sheetId) {
     sheetId = model.getters.getActiveSheetId();
   }
-  const mainSelectedZone = toZone(xcs[0]);
-  const anchorPosition: [number, number] = anchor
-    ? toCartesian(anchor)
-    : [mainSelectedZone.left, mainSelectedZone.top];
-  model.dispatch("SET_SELECTION", {
-    anchor: anchorPosition,
-    zones: xcs.map(toZone),
-  });
+  setSelection(model, xcs, { anchor });
   return model.dispatch("SUM_SELECTION");
 }

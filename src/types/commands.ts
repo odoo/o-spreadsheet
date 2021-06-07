@@ -8,7 +8,7 @@ import {
   Style,
   Zone,
 } from "./index";
-import { Border, Cell, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
+import { Border, Cell, CellPosition, ClipboardOptions, Dimension, Increment, UID } from "./misc";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -449,8 +449,8 @@ export interface AutoresizeRowsCommand extends BaseCommand {
 
 export interface MovePositionCommand extends BaseCommand {
   type: "MOVE_POSITION";
-  deltaX: number;
-  deltaY: number;
+  deltaX: Increment;
+  deltaY: Increment;
 }
 
 export interface ActivateSheetCommand extends BaseCommand {
@@ -562,7 +562,7 @@ export interface SelectAllCommand extends BaseCommand {
 
 export interface AlterSelectionCommand extends BaseCommand {
   type: "ALTER_SELECTION";
-  delta?: [number, number];
+  delta?: [Increment, Increment];
   cell?: [number, number];
 }
 
