@@ -399,9 +399,9 @@ describe("Viewport of Simple sheet", () => {
     });
   });
   test("Horizontally move position to top right then back to top left correctly affects offset", () => {
-    const { cols } = model.getters.getActiveSheet();
     const { right } = model.getters.getActiveViewport();
-    model.dispatch("MOVE_POSITION", { deltaX: right, deltaY: 0 });
+    selectCell(model, toXC(right - 1, 0));
+    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 42,
@@ -413,40 +413,30 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveViewport()).toMatchObject(
       model.getters.getActiveSnappedViewport()
     );
-    model.dispatch("MOVE_POSITION", { deltaX: 5, deltaY: 0 });
+    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 42,
-      left: 6,
-      right: 15,
-      offsetX: DEFAULT_CELL_WIDTH * 6,
+      left: 3,
+      right: 12,
+      offsetX: DEFAULT_CELL_WIDTH * 3,
       offsetY: 0,
     });
     expect(model.getters.getActiveViewport()).toMatchObject(
       model.getters.getActiveSnappedViewport()
     );
-    model.dispatch("MOVE_POSITION", {
-      deltaX: cols.length - 2 - model.getters.getPosition()[0], // target penultimate cell to trigger a move
-      deltaY: 0,
-    });
+
+    const { left } = model.getters.getActiveSnappedViewport();
+    selectCell(model, toXC(left, 0));
+    model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 });
+    model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 });
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 42,
-      left: 16,
-      right: 25,
-      offsetX: DEFAULT_CELL_WIDTH * 16,
-      offsetY: 0,
-    });
-    expect(model.getters.getActiveViewport()).toMatchObject(
-      model.getters.getActiveSnappedViewport()
-    );
-    model.dispatch("MOVE_POSITION", { deltaX: -24, deltaY: 0 });
-    expect(model.getters.getActiveViewport()).toMatchObject({
-      top: 0,
-      bottom: 42,
-      left: 0,
-      right: 9,
-      offsetX: 0,
+      left: 1,
+      right: 10,
+      offsetX: DEFAULT_CELL_WIDTH,
       offsetY: 0,
     });
     expect(model.getters.getActiveViewport()).toMatchObject(
@@ -455,9 +445,9 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Vertically move position to bottom left then back to top left correctly affects offset", () => {
-    const { rows } = model.getters.getActiveSheet();
     const { bottom } = model.getters.getActiveViewport();
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: bottom });
+    selectCell(model, toXC(0, bottom - 1));
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 1,
       bottom: 43,
@@ -469,41 +459,30 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveViewport()).toMatchObject(
       model.getters.getActiveSnappedViewport()
     );
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 5 });
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
     expect(model.getters.getActiveViewport()).toMatchObject({
-      top: 6,
-      bottom: 48,
+      top: 3,
+      bottom: 45,
       left: 0,
       right: 9,
       offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 6,
+      offsetY: DEFAULT_CELL_HEIGHT * 3,
     });
     expect(model.getters.getActiveViewport()).toMatchObject(
       model.getters.getActiveSnappedViewport()
     );
-    model.dispatch("MOVE_POSITION", {
-      deltaX: 0,
-      deltaY: rows.length - 2 - model.getters.getPosition()[1], // target penultimate cell to trigger a move
-    });
+    const { top } = model.getters.getActiveViewport();
+    selectCell(model, toXC(0, top));
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
     expect(model.getters.getActiveViewport()).toMatchObject({
-      top: 57,
-      bottom: 99,
+      top: 1,
+      bottom: 43,
       left: 0,
       right: 9,
       offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 57,
-    });
-    expect(model.getters.getActiveViewport()).toMatchObject(
-      model.getters.getActiveSnappedViewport()
-    );
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -98 });
-    expect(model.getters.getActiveViewport()).toMatchObject({
-      top: 0,
-      bottom: 42,
-      left: 0,
-      right: 9,
-      offsetX: 0,
-      offsetY: 0,
+      offsetY: DEFAULT_CELL_HEIGHT,
     });
     expect(model.getters.getActiveViewport()).toMatchObject(
       model.getters.getActiveSnappedViewport()
@@ -512,46 +491,47 @@ describe("Viewport of Simple sheet", () => {
 
   test("Move position on cells that are taller than the client's height", () => {
     const { height } = model.getters.getViewportDimension();
-    resizeRows(model, [1], height + 50);
+    resizeRows(model, [0], height + 50);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
-      bottom: 1,
+      bottom: 0,
       left: 0,
       right: 9,
       offsetX: 0,
       offsetY: 0,
     });
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 2 });
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
     expect(model.getters.getActiveViewport()).toMatchObject({
-      top: 2,
-      bottom: 44,
+      top: 1,
+      bottom: 43,
       left: 0,
       right: 9,
       offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT + height + 50, // row1 + row2
+      offsetY: height + 50, // row1 + row2
     });
     expect(model.getters.getActiveViewport()).toMatchObject(
       model.getters.getActiveSnappedViewport()
     );
   });
+
   test("Move position on cells wider than the client's width", () => {
     const { width } = model.getters.getViewportDimension();
-    resizeColumns(model, ["B"], width + 50);
+    resizeColumns(model, ["A"], width + 50);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 42,
       left: 0,
-      right: 1,
+      right: 0,
       offsetX: 0,
       offsetY: 0,
     });
-    model.dispatch("MOVE_POSITION", { deltaX: 2, deltaY: 0 });
+    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 42,
-      left: 2,
-      right: 11,
-      offsetX: DEFAULT_CELL_WIDTH + width + 50, // colA + colB
+      left: 1,
+      right: 10,
+      offsetX: width + 50, // colA + colB
       offsetY: 0,
     });
     expect(model.getters.getActiveViewport()).toMatchObject(
