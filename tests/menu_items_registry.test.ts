@@ -1,6 +1,5 @@
 import { Model } from "../src";
 import { fontSizes } from "../src/fonts";
-import { toZone } from "../src/helpers";
 import {
   colMenuRegistry,
   FullMenuItem,
@@ -9,7 +8,7 @@ import {
   topbarMenuRegistry,
 } from "../src/registries/index";
 import { CommandResult, SpreadsheetEnv } from "../src/types";
-import { hideColumns, hideRows, selectCell } from "./test_helpers/commands_helpers";
+import { hideColumns, hideRows, selectCell, setSelection } from "./test_helpers/commands_helpers";
 import { GridParent, makeTestFixture, mockUuidV4To, nextTick } from "./test_helpers/helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
@@ -612,16 +611,13 @@ describe("Menu Item actions", () => {
     const pathSort = ["edit", "sort_range"];
 
     test("A selected zone", () => {
-      model.dispatch("SET_SELECTION", { anchor: [0, 0], zones: [toZone("A1:A2")] });
+      setSelection(model, ["A1:A2"]);
       expect(getName(pathSort, env)).toBe("Sort range");
       expect(getNode(pathSort).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected zones", () => {
-      model.dispatch("SET_SELECTION", {
-        anchor: [0, 0],
-        zones: [toZone("A1:A2"), toZone("B1:B2")],
-      });
+      setSelection(model, ["A1:A2", "B1:B2"]);
       expect(getNode(pathSort).isVisible(env)).toBeFalsy();
     });
   });
@@ -640,10 +636,7 @@ describe("Menu Item actions", () => {
       });
     });
     test("Action with at least one active column", () => {
-      model.dispatch("SET_SELECTION", {
-        anchor: [1, 0],
-        zones: [toZone("B1:B100"), toZone("C5")],
-      });
+      setSelection(model, ["B1:B100", "C5"]);
       expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide columns B - C");
       expect(getNode(hidePath, colMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(hidePath, env, colMenuRegistry);
@@ -654,10 +647,7 @@ describe("Menu Item actions", () => {
       });
     });
     test("Action without any active column", () => {
-      model.dispatch("SET_SELECTION", {
-        anchor: [1, 0],
-        zones: [toZone("B1")],
-      });
+      setSelection(model, ["B1"]);
       expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide columns");
       expect(getNode(hidePath, colMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(hidePath, env, colMenuRegistry);
@@ -669,19 +659,13 @@ describe("Menu Item actions", () => {
     });
 
     test("Inactive menu item on invalid selection", () => {
-      model.dispatch("SET_SELECTION", {
-        anchor: [0, 0],
-        zones: [toZone("A1:A100"), toZone("A4:Z4")],
-      });
+      setSelection(model, ["A1:A100", "A4:Z4"]);
       expect(getNode(hidePath, colMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
     test("Unhide cols from Col menu", () => {
       hideColumns(model, ["C"]);
-      model.dispatch("SET_SELECTION", {
-        anchor: [0, 0],
-        zones: [toZone("B1:E100")],
-      });
+      setSelection(model, ["B1:E100"]);
       expect(getNode(unhidePath, colMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(unhidePath, env, colMenuRegistry);
       expect(env.dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
@@ -691,10 +675,7 @@ describe("Menu Item actions", () => {
       });
     });
     test("Unhide rows from Col menu without hidden cols", () => {
-      model.dispatch("SET_SELECTION", {
-        anchor: [0, 0],
-        zones: [toZone("B1:E100")],
-      });
+      setSelection(model, ["B1:E100"]);
       expect(getNode(unhidePath, colMenuRegistry).isVisible(env)).toBeFalsy();
     });
     test("Unhide all cols from top menu", () => {
@@ -726,10 +707,7 @@ describe("Menu Item actions", () => {
       });
     });
     test("Action with at least one active row", () => {
-      model.dispatch("SET_SELECTION", {
-        anchor: [0, 1],
-        zones: [toZone("A2:Z2"), toZone("C3")],
-      });
+      setSelection(model, ["A2:Z2", "C3"]);
       expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide rows 2 - 3");
       expect(getNode(hidePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(hidePath, env, rowMenuRegistry);
@@ -740,10 +718,7 @@ describe("Menu Item actions", () => {
       });
     });
     test("Action without any active column", () => {
-      model.dispatch("SET_SELECTION", {
-        anchor: [1, 0],
-        zones: [toZone("B1")],
-      });
+      setSelection(model, ["B1"]);
       expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide rows");
       expect(getNode(hidePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(hidePath, env, rowMenuRegistry);
@@ -755,19 +730,13 @@ describe("Menu Item actions", () => {
     });
 
     test("Inactive menu item on invalid selection", () => {
-      model.dispatch("SET_SELECTION", {
-        anchor: [0, 0],
-        zones: [toZone("A1:A100"), toZone("A4:Z4")],
-      });
+      setSelection(model, ["A1:A100", "A4:Z4"]);
       expect(getNode(hidePath, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
     test("Unhide rows from Row menu with hidden rows", () => {
       hideRows(model, [2]);
-      model.dispatch("SET_SELECTION", {
-        anchor: [0, 0],
-        zones: [toZone("A1:Z4")],
-      });
+      setSelection(model, ["A1:Z4"]);
       expect(getNode(unhidePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(unhidePath, env, rowMenuRegistry);
       expect(env.dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
@@ -777,10 +746,7 @@ describe("Menu Item actions", () => {
       });
     });
     test("Unhide rows from Row menu without hidden rows", () => {
-      model.dispatch("SET_SELECTION", {
-        anchor: [0, 0],
-        zones: [toZone("A1:Z4")],
-      });
+      setSelection(model, ["A1:Z4"]);
       expect(getNode(unhidePath, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });
 

@@ -211,3 +211,5 @@ export interface RangeProvider {
 export type Validation<T> = (toValidate: T) => CommandResult;
 
 export type ClipboardOptions = "onlyFormat" | "onlyValue";
+
+export type Increment = 1 | -1 | 0;

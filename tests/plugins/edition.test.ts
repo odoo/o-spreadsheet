@@ -7,6 +7,7 @@ import {
   createSheetWithName,
   selectCell,
   setCellContent,
+  setSelection,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
@@ -310,10 +311,7 @@ describe("edition", () => {
       end: 1,
     });
 
-    model.dispatch("SET_SELECTION", {
-      anchor: [0, 0],
-      zones: [toZone("A1:A3")],
-    });
+    setSelection(model, ["A1:A3"]);
     expect(model.getters.getCurrentContent()).toBe("=A1:A3");
 
     selectCell(model, "A1");
