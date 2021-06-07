@@ -1,4 +1,4 @@
-import { HEADER_WIDTH, MESSAGE_VERSION } from "../../src/constants";
+import { MESSAGE_VERSION } from "../../src/constants";
 import { scrollDelay, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { merge, selectCell, setCellContent } from "../test_helpers/commands_helpers";
@@ -738,12 +738,11 @@ describe("Events on Grid update viewport correctly", () => {
 
   test("Scroll viewport then alter selection with keyboard from before last cell to last cell does not shift viewport", async () => {
     await simulateClick("canvas"); // gain focus on grid element
-    const { width } = model.getters.getGridDimension(model.getters.getActiveSheet());
-    const { width: viewportWidth } = model.getters.getViewportDimension();
+    const { maxOffsetX } = model.getters.getGridDimension(model.getters.getActiveSheet());
     document.activeElement!.dispatchEvent(
       // scroll completely to the right
       new WheelEvent("wheel", {
-        deltaY: width - viewportWidth + HEADER_WIDTH,
+        deltaY: maxOffsetX,
         deltaX: 0,
         shiftKey: true,
         deltaMode: 0,

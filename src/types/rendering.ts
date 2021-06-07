@@ -26,6 +26,8 @@ export interface Image {
 export interface GridDimension {
   width: number;
   height: number;
+  maxOffsetX: number;
+  maxOffsetY: number;
 }
 
 export interface Viewport extends Zone {

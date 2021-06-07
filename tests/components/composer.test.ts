@@ -4,6 +4,7 @@ import {
   SelectionIndicatorClass,
   tokenColor,
 } from "../../src/components/composer/composer";
+import { HEADER_HEIGHT, HEADER_WIDTH, SCROLLBAR_WIDTH } from "../../src/constants";
 import { fontSizes } from "../../src/fonts";
 import { colors, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
@@ -68,9 +69,12 @@ beforeEach(async () => {
   model = new Model();
   parent = new GridParent(model);
   await parent.mount(fixture);
+  const { width, height } = model.getters.getGridDimension(model.getters.getActiveSheet());
   model.dispatch("RESIZE_VIEWPORT", {
     width: 1000,
     height: 1000,
+    maxOffsetX: width - (1000 - HEADER_WIDTH - SCROLLBAR_WIDTH - 1),
+    maxOffsetY: height - (1000 - HEADER_HEIGHT - SCROLLBAR_WIDTH - 1),
   });
   canvasEl = parent.grid.el;
 });

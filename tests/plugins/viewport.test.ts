@@ -4,6 +4,7 @@ import {
   DEFAULT_CELL_WIDTH,
   HEADER_HEIGHT,
   HEADER_WIDTH,
+  SCROLLBAR_WIDTH,
 } from "../../src/constants";
 import { numberToLetters, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
@@ -142,6 +143,13 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Horizontal scroll correctly affects offset", () => {
+    const { width, height } = model.getters.getGridDimension(model.getters.getActiveSheet());
+    model.dispatch("RESIZE_VIEWPORT", {
+      width: 1000,
+      height: 1000,
+      maxOffsetX: width - (1000 - HEADER_WIDTH - SCROLLBAR_WIDTH - 1),
+      maxOffsetY: height - (1000 - HEADER_HEIGHT - SCROLLBAR_WIDTH - 1),
+    });
     model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: DEFAULT_CELL_WIDTH * 2,
       offsetY: 0,
@@ -195,6 +203,13 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Vertical scroll correctly affects offset", () => {
+    const { width, height } = model.getters.getGridDimension(model.getters.getActiveSheet());
+    model.dispatch("RESIZE_VIEWPORT", {
+      width: 1000,
+      height: 1000,
+      maxOffsetX: width - (1000 - HEADER_WIDTH - SCROLLBAR_WIDTH - 1),
+      maxOffsetY: height - (1000 - HEADER_HEIGHT - SCROLLBAR_WIDTH - 1),
+    });
     model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
       offsetY: DEFAULT_CELL_HEIGHT * 2,
@@ -255,13 +270,18 @@ describe("Viewport of Simple sheet", () => {
     });
     expect(negativeOffsetResult).toBe(CommandResult.InvalidOffset);
 
+    const { width, height } = model.getters.getGridDimension(model.getters.getActiveSheet());
     // too large
-    model.dispatch("RESIZE_VIEWPORT", { height: 1000, width: 1000 });
-    const { height } = model.getters.getGridDimension(model.getters.getActiveSheet());
+    model.dispatch("RESIZE_VIEWPORT", {
+      height: 1000,
+      width: 1000,
+      maxOffsetX: width - (1000 - HEADER_WIDTH - SCROLLBAR_WIDTH - 1),
+      maxOffsetY: height - (1000 - HEADER_HEIGHT - SCROLLBAR_WIDTH - 1),
+    });
 
     const tooLargeOffsetResult = model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
-      offsetY: height + HEADER_HEIGHT - 1000 + 1,
+      offsetY: height - 1000 + HEADER_HEIGHT + SCROLLBAR_WIDTH + 2,
     });
     expect(tooLargeOffsetResult).toBe(CommandResult.InvalidOffset);
   });
@@ -594,9 +614,12 @@ describe("Viewport of Simple sheet", () => {
     selectCell(model, "K71");
     model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 100, offsetY: 112 });
     const viewport = model.getters.getActiveSnappedViewport();
+    const { width, height } = model.getters.getGridDimension(model.getters.getActiveSheet());
     model.dispatch("RESIZE_VIEWPORT", {
       width: 500,
       height: 500,
+      maxOffsetX: width - (500 - HEADER_WIDTH - SCROLLBAR_WIDTH - 1),
+      maxOffsetY: height - (500 - HEADER_HEIGHT - SCROLLBAR_WIDTH - 1),
     });
     expect(model.getters.getActiveSnappedViewport()).toMatchObject({
       ...viewport,
@@ -679,6 +702,8 @@ describe("multi sheet with different sizes", () => {
     model.dispatch("RESIZE_VIEWPORT", {
       width: 2.5 * DEFAULT_CELL_WIDTH + HEADER_WIDTH, // concretely 2.5 cells visible
       height: 3.5 * DEFAULT_CELL_HEIGHT + HEADER_HEIGHT, // concretely 3.5 cells visible
+      maxOffsetX: 1000,
+      maxOffsetY: 1000,
     });
     activateSheet(model, "small");
     expect(model.getters.getActiveViewport()).toMatchObject({

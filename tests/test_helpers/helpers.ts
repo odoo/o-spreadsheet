@@ -3,6 +3,7 @@ import format from "xml-formatter";
 import { Grid } from "../../src/components/grid";
 import { SidePanel } from "../../src/components/side_panel/side_panel";
 import { TopBar } from "../../src/components/top_bar";
+import { HEADER_HEIGHT, HEADER_WIDTH, SCROLLBAR_WIDTH } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/index";
 import { toCartesian, toXC } from "../../src/helpers/index";
 import { Model } from "../../src/model";
@@ -142,9 +143,14 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
 
   mounted() {
     this.model.on("update", this, this.render);
+    const { width, height } = this.model.getters.getGridDimension(
+      this.model.getters.getActiveSheet()
+    );
     this.model.dispatch("RESIZE_VIEWPORT", {
       width: this.el!.clientWidth,
       height: this.el!.clientWidth,
+      maxOffsetX: width - (this.el!.clientWidth - HEADER_WIDTH - SCROLLBAR_WIDTH - 1),
+      maxOffsetY: height - (this.el!.clientWidth - HEADER_HEIGHT - SCROLLBAR_WIDTH - 1),
     });
   }
 

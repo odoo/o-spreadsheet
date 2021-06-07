@@ -1,3 +1,4 @@
+import { HEADER_HEIGHT, HEADER_WIDTH, SCROLLBAR_WIDTH } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult, GridRenderingContext, Viewport } from "../../src/types";
@@ -24,7 +25,15 @@ class MockGridRenderingContext implements GridRenderingContext {
   thinLineWidth = 0.4;
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    model.dispatch("RESIZE_VIEWPORT", { width, height });
+    const { width: gridWidth, height: gridHeight } = model.getters.getGridDimension(
+      model.getters.getActiveSheet()
+    );
+    model.dispatch("RESIZE_VIEWPORT", {
+      width,
+      height,
+      maxOffsetX: gridWidth - (width - HEADER_WIDTH - SCROLLBAR_WIDTH - 1),
+      maxOffsetY: gridHeight - (height - HEADER_HEIGHT - SCROLLBAR_WIDTH - 1),
+    });
     this.viewport = model.getters.getActiveViewport();
 
     const handler = {

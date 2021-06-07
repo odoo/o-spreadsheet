@@ -1,3 +1,4 @@
+import { HEADER_HEIGHT, HEADER_WIDTH, SCROLLBAR_WIDTH } from "../../src/constants";
 import { toCartesian, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { Viewport } from "../../src/types";
@@ -11,7 +12,15 @@ function getViewport(
   offsetX: number,
   offsetY: number
 ): Viewport {
-  model.dispatch("RESIZE_VIEWPORT", { width, height });
+  const { width: gridWidth, height: gridHeight } = model.getters.getGridDimension(
+    model.getters.getActiveSheet()
+  );
+  model.dispatch("RESIZE_VIEWPORT", {
+    width,
+    height,
+    maxOffsetX: gridWidth - (width - HEADER_WIDTH - SCROLLBAR_WIDTH - 1),
+    maxOffsetY: gridHeight - (height - HEADER_HEIGHT - SCROLLBAR_WIDTH - 1),
+  });
   model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
   return model.getters.getActiveViewport();
 }

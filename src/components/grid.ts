@@ -391,6 +391,8 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.dispatch("RESIZE_VIEWPORT", {
       height: this.el!.clientHeight - SCROLLBAR_WIDTH,
       width: this.el!.clientWidth - SCROLLBAR_WIDTH,
+      maxOffsetX: Math.max(0, this.hScrollbar.el!.scrollWidth - this.hScrollbar.el!.clientWidth),
+      maxOffsetY: Math.max(0, this.vScrollbar.el!.scrollHeight - this.vScrollbar.el!.clientHeight),
     });
   }
 

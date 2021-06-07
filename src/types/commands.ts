@@ -809,6 +809,8 @@ export interface ResizeViewportCommand extends BaseCommand {
   type: "RESIZE_VIEWPORT";
   width: number;
   height: number;
+  maxOffsetX: number;
+  maxOffsetY: number;
 }
 
 export interface SetViewportOffsetCommand extends BaseCommand {
@@ -1025,6 +1027,7 @@ export const enum CommandResult {
   TooManyHiddenElements,
   Readonly,
   InvalidOffset,
+  InvalidViewportSize,
 }
 
 export interface CommandHandler<T> {

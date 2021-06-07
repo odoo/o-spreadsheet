@@ -44,6 +44,9 @@ class Parent extends Component<any> {
   }
 }
 
+jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
+jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
+
 beforeEach(async () => {
   fixture = makeTestFixture();
   parent = new Parent({
