@@ -217,11 +217,13 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
   // Excel does not support this feature
   const axisPos = chart.verticalAxisPosition === "left" ? "l" : "r";
 
+  const grouping = chart.stackedBar ? "stacked" : "clustered";
+  const overlap = chart.stackedBar ? 100 : -20;
   return /*xml*/ `
     <c:barChart>
       <c:barDir val="col"/>
-      <c:grouping val="clustered"/>
-      <c:overlap val="-20"/>
+      <c:grouping val="${grouping}"/>
+      <c:overlap val="${overlap}"/>
       <c:gapWidth val="70"/>
       <!-- each data marker in the series does not have a different color -->
       <c:varyColors val="0"/>

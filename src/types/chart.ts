@@ -45,4 +45,5 @@ export interface ExcelChartDefinition {
   backgroundColor: string;
   verticalAxisPosition: "left" | "right";
   legendPosition: "top" | "bottom" | "left" | "right";
+  stackedBar: boolean;
 }

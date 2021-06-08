@@ -32,6 +32,11 @@ import {
   xmlEscape,
 } from "./helpers/xml_helpers";
 
+/**
+ * Return the spreadsheet data in the Office Open XML file format.
+ * See ECMA-376 standard.
+ * https://www.ecma-international.org/publications-and-standards/standards/ecma-376/
+ */
 export function getXLSX(data: ExcelWorkbookData): XLSXExport {
   const files: XLSXExportFile[] = [];
   const construct = getDefaultXLSXStructure();
