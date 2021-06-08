@@ -650,6 +650,21 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
+    test("stacked bar chart", async () => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+          labelRange: "Sheet1!A2:A4",
+          stackedBar: true,
+          type: "bar",
+        },
+        "1"
+      );
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
     test("charts in different sheets", async () => {
       const model = new Model(chartData);
       createSheet(model, { sheetId: "42" });
