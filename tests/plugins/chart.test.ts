@@ -541,6 +541,20 @@ describe("datasource tests", function () {
     expect(chart.type).toEqual("bar");
   });
 
+  test("remove labels from existing chart", () => {
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!A8:D8"],
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+      "1"
+    );
+    updateChart(model, "1", { labelRange: null });
+    expect(model.getters.getChartDefinition("1")?.labelRange).toBeUndefined();
+  });
+
   test("deleting a random sheet does not affect a chart", () => {
     const sheetId = model.getters.getActiveSheetId();
     createChart(

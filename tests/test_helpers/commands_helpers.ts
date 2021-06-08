@@ -4,6 +4,7 @@ import { Model } from "../../src/model";
 import {
   BorderCommand,
   ChartUIDefinition,
+  ChartUIDefinitionUpdate,
   CommandResult,
   CreateSheetCommand,
   UID,
@@ -107,7 +108,7 @@ export function createChart(
 export function updateChart(
   model: Model,
   chartId: UID,
-  definition: Partial<ChartUIDefinition>,
+  definition: ChartUIDefinitionUpdate,
   sheetId: UID = model.getters.getActiveSheetId()
 ): CommandResult {
   return model.dispatch("UPDATE_CHART", {

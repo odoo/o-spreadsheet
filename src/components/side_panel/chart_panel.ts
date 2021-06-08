@@ -1,5 +1,11 @@
 import * as owl from "@odoo/owl";
-import { ChartUIDefinition, CommandResult, Figure, SpreadsheetEnv } from "../../types/index";
+import {
+  ChartUIDefinition,
+  ChartUIDefinitionUpdate,
+  CommandResult,
+  Figure,
+  SpreadsheetEnv,
+} from "../../types/index";
 import { ColorPicker } from "../color_picker";
 import * as icons from "../icons";
 import { SelectionInput } from "../selection_input";
@@ -184,10 +190,10 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   }
 
   updateLabelRange() {
-    this.updateChart({ labelRange: this.state.labelRange });
+    this.updateChart({ labelRange: this.state.labelRange || null });
   }
 
-  private updateChart(definition: Partial<ChartUIDefinition>) {
+  private updateChart(definition: ChartUIDefinitionUpdate) {
     const result = this.env.dispatch("UPDATE_CHART", {
       id: this.props.figure.id,
       sheetId: this.getters.getActiveSheetId(),

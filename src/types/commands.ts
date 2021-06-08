@@ -1,5 +1,6 @@
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
+import { ChartUIDefinitionUpdate } from "./chart";
 import { BorderCommand, ChartUIDefinition, ConditionalFormat, Figure, Style, Zone } from "./index";
 import { Border, Cell, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
 
@@ -335,7 +336,7 @@ export interface CreateChartCommand extends BaseCommand, SheetDependentCommand {
 export interface UpdateChartCommand extends BaseCommand, SheetDependentCommand {
   type: "UPDATE_CHART";
   id: UID;
-  definition: Partial<ChartUIDefinition>;
+  definition: ChartUIDefinitionUpdate;
 }
 
 export interface RefreshChartCommand extends BaseCommand {
