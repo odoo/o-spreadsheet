@@ -37,7 +37,6 @@ import { Border, Cell, CellPosition, ClipboardOptions, Dimension, UID } from "./
  * can use inferred information from the local internal state, such as the
  * active sheet.
  */
-
 export interface BaseCommand {
   interactive?: boolean;
 }
@@ -166,7 +165,7 @@ export function canExecuteInReadonly(cmd: Command): boolean {
   return readonlyAllowedCommands.has(cmd.type);
 }
 
-// Core Commands
+//#region Core Commands
 // ------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -384,8 +383,9 @@ export interface SetDecimalCommand
   type: "SET_DECIMAL";
   step: number;
 }
+//#endregion
 
-// Local Commands
+//#region Local Commands
 // ------------------------------------------------
 export interface DeleteSheetConfirmationCommand extends BaseCommand {
   type: "DELETE_SHEET_CONFIRMATION";
@@ -851,6 +851,7 @@ export interface PasteCFCommand extends BaseCommand {
 export interface EvaluateAllSheetsCommand extends BaseCommand {
   type: "EVALUATE_ALL_SHEETS";
 }
+//#endregion
 
 export interface ActivateNextSheetCommand extends BaseCommand {
   type: "ACTIVATE_NEXT_SHEET";
