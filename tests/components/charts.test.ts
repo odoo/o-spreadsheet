@@ -252,6 +252,19 @@ describe("figures", () => {
     });
   });
 
+  test("remove labels", async () => {
+    const model = parent.model;
+    const sheetId = model.getters.getActiveSheetId();
+    const figure = model.getters.getFigure(sheetId, chartId);
+    expect(parent.model.getters.getChartDefinition(chartId)?.labelRange).not.toBeUndefined();
+    parent.env.openSidePanel("ChartPanel", { figure });
+    await nextTick();
+    await simulateClick(".o-data-labels input");
+    setInputValueAndTrigger(".o-data-labels input", "", "change");
+    await simulateClick(".o-data-labels .o-selection-ok");
+    expect(parent.model.getters.getChartDefinition(chartId)?.labelRange).toBeUndefined();
+  });
+
   test("drawing of chart will receive new data after update", async () => {
     await simulateClick(".o-figure");
     await simulateClick(".o-chart-menu");

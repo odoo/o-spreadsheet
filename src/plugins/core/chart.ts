@@ -4,6 +4,7 @@ import {
   ApplyRangeChange,
   ChartDefinition,
   ChartUIDefinition,
+  ChartUIDefinitionUpdate,
   Command,
   CommandResult,
   CoreCommand,
@@ -332,7 +333,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
    * Update the chart definition linked to the given id with the attributes
    * given in the partial UI definition
    */
-  private updateChartDefinition(id: UID, definition: Partial<ChartUIDefinition>) {
+  private updateChartDefinition(id: UID, definition: ChartUIDefinitionUpdate) {
     const chart = this.chartFigures[id];
     if (!chart) {
       throw new Error(`There is no chart with the given id: ${id}`);
@@ -348,7 +349,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       const dataSets = this.createDataSets(definition.dataSets, chart.sheetId, dataSetsHaveTitle);
       this.history.update("chartFigures", id, "dataSets", dataSets);
     }
-    if (definition.labelRange) {
+    if (definition.labelRange !== undefined) {
       const labelRange = definition.labelRange
         ? this.getters.getRangeFromSheetXC(chart.sheetId, definition.labelRange)
         : undefined;

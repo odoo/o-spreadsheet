@@ -30,6 +30,13 @@ export interface ChartUIDefinition
   labelRange?: string;
 }
 
+/**
+ * Data to be updated on a chart definition.
+ */
+export interface ChartUIDefinitionUpdate extends Omit<Partial<ChartUIDefinition>, "labelRange"> {
+  labelRange?: string | null;
+}
+
 export interface ExcelChartDefinition {
   title: string;
   type: ChartTypes;
