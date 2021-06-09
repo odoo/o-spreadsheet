@@ -285,4 +285,25 @@ describe("figure plugin", () => {
     activateSheet(model, "2");
     expect(model.getters.getSelectedFigureId()).toBeNull();
   });
+
+  test("Selecting a cell cancel the edition of a cell", () => {
+    const model = new Model();
+    model.dispatch("CREATE_FIGURE", {
+      sheetId: model.getters.getActiveSheetId(),
+      figure: {
+        id: "someuuid",
+        x: 10,
+        y: 10,
+        tag: "hey",
+        width: 10,
+        height: 10,
+      },
+    });
+    model.dispatch("START_EDITION");
+    model.dispatch("SET_CURRENT_CONTENT", { content: "hello" });
+    expect(model.getters.getEditionMode()).toBe("editing");
+    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
+    expect(model.getters.getEditionMode()).toBe("inactive");
+    expect(model.getters.getActiveCell()?.value).toBeUndefined();
+  });
 });
