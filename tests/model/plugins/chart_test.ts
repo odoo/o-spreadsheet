@@ -1,5 +1,5 @@
 import { Model } from "../../../src";
-import { CancelledReason, Viewport } from "../../../src/types";
+import { CancelledReason, ChartDefinition, Viewport } from "../../../src/types";
 import "../../canvas.mock";
 import { testUndoRedo } from "../../helpers";
 
@@ -68,8 +68,8 @@ describe("datasource tests", function () {
     });
     expect(model.getters.getFigures(viewport)[0].data).toEqual({
       dataSets: [
-        { dataRange: "B2:B4", labelCell: "B1" },
-        { dataRange: "C2:C4", labelCell: "C1" },
+        { dataRange: "Sheet1!B2:B4", labelCell: "Sheet1!B1" },
+        { dataRange: "Sheet1!C2:C4", labelCell: "Sheet1!C1" },
       ],
       labelRange: "Sheet1!A2:A4",
       sheetId: model.getters.getActiveSheet(),
@@ -93,8 +93,8 @@ describe("datasource tests", function () {
     });
     expect(model.getters.getFigures(viewport)[0].data).toEqual({
       dataSets: [
-        { dataRange: "B2:B4", labelCell: "B1" },
-        { dataRange: "C2:C4", labelCell: "C1" },
+        { dataRange: "Sheet1!B2:B4", labelCell: "Sheet1!B1" },
+        { dataRange: "Sheet1!C2:C4", labelCell: "Sheet1!C1" },
       ],
       labelRange: "Sheet1!A2:A4",
       sheetId: model.getters.getActiveSheet(),
@@ -117,8 +117,8 @@ describe("datasource tests", function () {
     });
     expect(model.getters.getFigures(viewport)[0].data).toEqual({
       dataSets: [
-        { dataRange: "B2:B4", labelCell: undefined },
-        { dataRange: "C2:C4", labelCell: undefined },
+        { dataRange: "Sheet1!B2:B4", labelCell: undefined },
+        { dataRange: "Sheet1!C2:C4", labelCell: undefined },
       ],
       labelRange: "Sheet1!A2:A4",
       sheetId: model.getters.getActiveSheet(),
@@ -144,8 +144,8 @@ describe("datasource tests", function () {
     });
     expect(model.getters.getFigures(viewport)[0].data).toEqual({
       dataSets: [
-        { dataRange: "B8:D8", labelCell: "A8" },
-        { dataRange: "B9:D9", labelCell: "A9" },
+        { dataRange: "Sheet1!B8:D8", labelCell: "Sheet1!A8" },
+        { dataRange: "Sheet1!B9:D9", labelCell: "Sheet1!A9" },
       ],
       labelRange: "Sheet1!B7:D7",
       sheetId: model.getters.getActiveSheet(),
@@ -168,8 +168,8 @@ describe("datasource tests", function () {
     });
     expect(model.getters.getFigures(viewport)[0].data).toEqual({
       dataSets: [
-        { dataRange: "B8:D8", labelCell: undefined },
-        { dataRange: "B9:D9", labelCell: undefined },
+        { dataRange: "Sheet1!B8:D8", labelCell: undefined },
+        { dataRange: "Sheet1!B9:D9", labelCell: undefined },
       ],
       labelRange: "Sheet1!B7:D7",
       sheetId: model.getters.getActiveSheet(),
@@ -495,6 +495,92 @@ describe.skip("size and position", function () {
   test("delete a column before a graph, it should move", () => {});
   test("delete a columns within graph, it should resize and rerender at the size-sizeOfRemovedColumn", () => {});
   test("delete all columns that a graph is defined on, it should remove the graph", () => {});
+});
+
+test("Rename a sheet on which datasets are defined for a chart", () => {
+  const sheetId = "42";
+  const activeSheetId = model.getters.getActiveSheet();
+  model.dispatch("CREATE_SHEET", { id: sheetId });
+  model.dispatch("ACTIVATE_SHEET", { from: sheetId, to: activeSheetId });
+  model.dispatch("CREATE_CHART", {
+    id: "1",
+    sheetId,
+    definition: {
+      title: "test 1",
+      dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+      seriesHasTitle: true,
+      labelRange: "Sheet1!A2:A4",
+      type: "line",
+    },
+  });
+  model.dispatch("RENAME_SHEET", { sheet: activeSheetId, name: "Bl a" });
+  model.dispatch("EVALUATE_CELLS");
+  model.getters.getChartRuntime("1");
+  expect(model.getters.getFigure<ChartDefinition>("1").data.labelRange).toBe("'Bl a'!A2:A4");
+  expect(model.getters.getFigure<ChartDefinition>("1").data.dataSets).toEqual([
+    {
+      dataRange: "'Bl a'!B2:B4",
+      labelCell: "'Bl a'!B1",
+    },
+    {
+      dataRange: "'Bl a'!C2:C4",
+      labelCell: "'Bl a'!C1",
+    },
+  ]);
+  model.dispatch("UNDO");
+  expect(model.getters.getFigure<ChartDefinition>("1").data.labelRange).toBe("Sheet1!A2:A4");
+  expect(model.getters.getFigure<ChartDefinition>("1").data.dataSets).toEqual([
+    {
+      dataRange: "Sheet1!B2:B4",
+      labelCell: "Sheet1!B1",
+    },
+    {
+      dataRange: "Sheet1!C2:C4",
+      labelCell: "Sheet1!C1",
+    },
+  ]);
+  model.dispatch("REDO");
+  expect(model.getters.getFigure<ChartDefinition>("1").data.labelRange).toBe("'Bl a'!A2:A4");
+  expect(model.getters.getFigure<ChartDefinition>("1").data.dataSets).toEqual([
+    {
+      dataRange: "'Bl a'!B2:B4",
+      labelCell: "'Bl a'!B1",
+    },
+    {
+      dataRange: "'Bl a'!C2:C4",
+      labelCell: "'Bl a'!C1",
+    },
+  ]);
+});
+
+test("Can add a chart with datasets on other sheet", () => {
+  const sheetId = "42";
+  const activeSheetId = model.getters.getActiveSheet();
+  model.dispatch("CREATE_SHEET", { id: sheetId });
+  model.dispatch("ACTIVATE_SHEET", { from: sheetId, to: activeSheetId });
+  model.dispatch("CREATE_CHART", {
+    id: "1",
+    sheetId,
+    definition: {
+      title: "test 1",
+      dataSets: ["'Sheet1'!B1:B4", "'Sheet1'!C1:C4"],
+      seriesHasTitle: true,
+      labelRange: "'Sheet1'!A2:A4",
+      type: "line",
+    },
+  });
+  expect(model.getters.getFigure<ChartDefinition>("1").data.dataSets).toEqual([
+    {
+      dataRange: "'Sheet1'!B2:B4",
+      labelCell: "'Sheet1'!B1",
+    },
+    {
+      dataRange: "'Sheet1'!C2:C4",
+      labelCell: "'Sheet1'!C1",
+    },
+  ]);
+  expect(model.getters.getChartRuntime("1")?.data?.datasets![0].data).toEqual([10, 11, 12]);
+  expect(model.getters.getChartRuntime("1")?.data?.datasets![1].data).toEqual([20, 19, 18]);
 });
 
 describe("undo/redo", () => {

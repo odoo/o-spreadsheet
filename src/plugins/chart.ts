@@ -2,7 +2,14 @@ import { ChartColor, ChartConfiguration, ChartData, ChartTooltipItem, ChartType 
 import { BasePlugin } from "../base_plugin";
 import { chartTerms } from "../components/side_panel/translations_terms";
 import { rangeReference } from "../formulas/parser";
-import { isInside, toXC, toZone, zoneToXc } from "../helpers/index";
+import {
+  getComposerSheetName,
+  getUnquotedSheetName,
+  isInside,
+  toXC,
+  toZone,
+  zoneToXc,
+} from "../helpers/index";
 import {
   CancelledReason,
   ChartDefinition,
@@ -56,6 +63,12 @@ export class ChartPlugin extends BasePlugin {
   private chartRuntime: { [figureId: string]: ChartConfiguration } = {};
   private outOfDate: Set<string> = new Set<string>();
 
+  /**
+   * This sheet name is used to handle the adaptation of the datasets and
+   * label range when a sheet is renamed
+   */
+  private oldSheetName?: string;
+
   allowDispatch(cmd: Command): CommandResult {
     const success: CommandResult = { status: "SUCCESS" };
     switch (cmd.type) {
@@ -68,9 +81,10 @@ export class ChartPlugin extends BasePlugin {
         return invalidRanges || invalidLabels
           ? { status: "CANCELLED", reason: CancelledReason.InvalidChartDefinition }
           : success;
-      default:
-        return success;
+      case "RENAME_SHEET":
+        this.oldSheetName = getUnquotedSheetName(this.getters.getSheetName(cmd.sheet)!);
     }
+    return success;
   }
 
   handle(cmd: Command) {
@@ -119,6 +133,11 @@ export class ChartPlugin extends BasePlugin {
           this.history.updateLocalState(["chartRuntime", cmd.id], undefined);
         }
         break;
+      case "RENAME_SHEET":
+        if (cmd.name) {
+          this.onSheetRenaming(getComposerSheetName(cmd.name));
+        }
+        break;
       case "DELETE_SHEET":
         const figures = new Set(this.chartFigures);
         const runtime = { ...this.chartRuntime };
@@ -145,6 +164,9 @@ export class ChartPlugin extends BasePlugin {
 
   finalize(cmd: Command) {
     switch (cmd.type) {
+      case "RENAME_SHEET":
+        this.oldSheetName = undefined;
+        break;
       case "EVALUATE_CELLS":
       case "START":
         // if there was an async evaluation of cell, there is no way to know which was updated so all charts must be updated
@@ -181,6 +203,41 @@ export class ChartPlugin extends BasePlugin {
   // Private
   // ---------------------------------------------------------------------------
 
+  /**
+   * Update the given reference with the new sheet name.
+   */
+  private getUpdatedReference(ref: string, name: string): string {
+    const [range, sheetName] = ref.split("!").reverse();
+    if (sheetName && getUnquotedSheetName(sheetName) === this.oldSheetName) {
+      return `${name}!${range}`;
+    }
+    return ref;
+  }
+
+  /**
+   * Update the datasets and labelRange of the charts
+   */
+  private onSheetRenaming(sheetName: string) {
+    for (const chartId of this.chartFigures) {
+      const definition = this.getChartDefinition(chartId);
+      const data = { ...definition };
+      data.labelRange = this.getUpdatedReference(definition.labelRange, sheetName);
+
+      const dataSets: DataSet[] = [];
+      for (let ds of data.dataSets) {
+        dataSets.push({
+          dataRange: this.getUpdatedReference(ds.dataRange, sheetName),
+          labelCell: ds.labelCell
+            ? this.getUpdatedReference(ds.labelCell, sheetName)
+            : ds.labelCell,
+        });
+      }
+      data.dataSets = dataSets;
+      this.dispatch("UPDATE_FIGURE", { id: chartId, data });
+      this.outOfDate.add(chartId);
+    }
+  }
+
   private getChartDefinition(figureId: string): ChartDefinition {
     return this.getters.getFigure<ChartDefinition>(figureId).data;
   }
@@ -191,7 +248,8 @@ export class ChartPlugin extends BasePlugin {
   ): ChartDefinition {
     let dataSets: DataSet[] = [];
 
-    for (let range of createCommand.dataSets) {
+    for (let reference of createCommand.dataSets) {
+      let [range, sheetName] = reference.split("!").reverse();
       let zone = toZone(range);
       if (zone.left !== zone.right && zone.top !== zone.bottom) {
         // It's a rectangle. We treat all columns (arbitrary) as different data series.
@@ -202,15 +260,17 @@ export class ChartPlugin extends BasePlugin {
             top: zone.top,
             bottom: zone.bottom,
           };
-          dataSets.push(this.createDataset(columnZone, createCommand.seriesHasTitle));
+          dataSets.push(this.createDataset(columnZone, createCommand.seriesHasTitle, sheetName));
         }
       } else if (zone.left === zone.right && zone.top === zone.bottom) {
         // A single cell. If it's only the title, the dataset is not added.
         if (!createCommand.seriesHasTitle) {
-          dataSets.push({ dataRange: zoneToXc(zone) });
+          dataSets.push({
+            dataRange: sheetName ? `${sheetName}!${zoneToXc(zone)}` : zoneToXc(zone),
+          });
         }
       } else {
-        dataSets.push(this.createDataset(zone, createCommand.seriesHasTitle));
+        dataSets.push(this.createDataset(zone, createCommand.seriesHasTitle, sheetName));
       }
     }
 
@@ -227,7 +287,7 @@ export class ChartPlugin extends BasePlugin {
    * Create a chart dataset from a Zone.
    * The zone should be a single column or a single row
    */
-  private createDataset(zone: Zone, withTitle: boolean): DataSet {
+  private createDataset(zone: Zone, withTitle: boolean, sheetName?: string): DataSet {
     if (zone.left !== zone.right && zone.top !== zone.bottom) {
       throw new Error(`Zone should be a single column or row: ${zoneToXc(zone)}`);
     }
@@ -240,7 +300,10 @@ export class ChartPlugin extends BasePlugin {
       left: isColumn ? zone.left : zone.left + offset,
       right: zone.right,
     });
-    return { labelCell, dataRange };
+    return {
+      labelCell: sheetName && labelCell ? `${sheetName}!${labelCell}` : labelCell,
+      dataRange: sheetName ? `${sheetName}!${dataRange}` : dataRange,
+    };
   }
 
   private getDefaultConfiguration(

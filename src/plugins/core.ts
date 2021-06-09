@@ -410,13 +410,13 @@ export class CorePlugin extends BasePlugin {
 
   getRangeValues(reference: string, defaultSheetId: string): any[][] {
     const [range, sheetName] = reference.split("!").reverse();
-    const sheetId = sheetName ? this.sheetIds[sheetName] : defaultSheetId;
+    const sheetId = sheetName ? this.sheetIds[getUnquotedSheetName(sheetName)] : defaultSheetId;
     return mapCellsInZone(toZone(range), this.workbook.sheets[sheetId], (cell) => cell.value);
   }
 
   getRangeFormattedValues(reference: string, defaultSheetId: string): string[][] {
     const [range, sheetName] = reference.split("!").reverse();
-    const sheetId = sheetName ? this.sheetIds[sheetName] : defaultSheetId;
+    const sheetId = sheetName ? this.sheetIds[getUnquotedSheetName(sheetName)] : defaultSheetId;
     return mapCellsInZone(
       toZone(range),
       this.workbook.sheets[sheetId],
