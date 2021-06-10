@@ -11,7 +11,6 @@ import { corePluginRegistry } from "../../src/plugins";
 import { BorderDescr, ColorScaleRule, IconSetRule, WorkbookData } from "../../src/types/index";
 import {
   activateSheet,
-  merge,
   resizeColumns,
   resizeRows,
   setCellContent,
@@ -330,6 +329,7 @@ describe("Import", () => {
         {
           colNumber: 2,
           rowNumber: 2,
+          merges: ["A2:B2"],
         },
         {
           colNumber: 2,
@@ -339,8 +339,6 @@ describe("Import", () => {
     });
     const sheet1 = model.getters.getVisibleSheets()[0];
     const sheet2 = model.getters.getVisibleSheets()[1];
-    model.dispatch("SELECT_ROW", { index: 1 });
-    merge(model, "A2:F2", sheet1);
     activateSheet(model, sheet2);
     expect(Object.keys(getMerges(model))).toHaveLength(0);
     activateSheet(model, sheet1);

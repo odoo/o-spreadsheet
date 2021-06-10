@@ -899,7 +899,7 @@ describe("IRR formula", () => {
       test("boolean/boolean in cell are interpreted as numbers", () => {
         expect(evaluateCell("A1", { A1: "=IRR(A2:A3, TRUE)", ...grid })).toBeCloseTo(-0.4, 5);
         expect(evaluateCell("A1", { A1: "=IRR(A2:A3, FALSE)", ...grid })).toBeCloseTo(-0.4, 5);
-        expect(evaluateCell("A1", { A1: "=IRR(A2:A3, A4)", ...grid, 4: "TRUE" })).toBeCloseTo(
+        expect(evaluateCell("A1", { A1: "=IRR(A2:A3, A4)", ...grid, A4: "TRUE" })).toBeCloseTo(
           -0.4,
           5
         );
