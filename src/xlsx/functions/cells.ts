@@ -16,7 +16,9 @@ import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../
 import { getCellType, pushElement } from "../helpers/content_helpers";
 import { xmlEscape } from "../helpers/xml_helpers";
 
-export function addFormula(formula: NormalizedFormula): {
+export function addFormula(
+  formula: NormalizedFormula
+): {
   attrs: XMLAttributes;
   node: XMLString;
 } {

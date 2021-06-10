@@ -443,7 +443,7 @@ describe("Sort multi adjacent columns", () => {
    */
   test("Sort on second column w/ contiguous", () => {
     model = new Model(modelData);
-    const zone = toZone("B2:DB3");
+    const zone = toZone("B2:B3");
     anchor = [1, 1];
     const sheetId = model.getters.getActiveSheetId();
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);

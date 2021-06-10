@@ -14,6 +14,7 @@ export const conditionalFormattingTerms = {
   SAVE: _lt("Save"),
   PREVIEW_TEXT: _lt("Preview text"),
   Errors: {
+    [CommandResult.InvalidRange]: _lt("The range is invalid"),
     [CommandResult.InvalidNumberOfArgs]: _lt("Invalid number of arguments"),
     [CommandResult.MinNaN]: _lt("The minpoint must be a number"),
     [CommandResult.MidNaN]: _lt("The midpoint must be a number"),

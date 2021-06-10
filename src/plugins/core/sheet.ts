@@ -8,6 +8,8 @@ import {
   exportRows,
   groupConsecutive,
   isDefined,
+  isZoneInside,
+  isZoneValid,
   mapCellsInZone,
   numberToLetters,
 } from "../../helpers/index";
@@ -17,6 +19,7 @@ import {
   CellPosition,
   CellType,
   Col,
+  Command,
   CommandResult,
   ConsecutiveIndexes,
   CoreCommand,
@@ -72,8 +75,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: CoreCommand): CommandResult {
-    if (cmd.type !== "CREATE_SHEET" && "sheetId" in cmd && this.sheets[cmd.sheetId] === undefined) {
-      return CommandResult.InvalidSheetId;
+    const genericChecks = this.checkValidations(cmd, this.checkSheetExists, this.checkZones);
+    if (genericChecks !== CommandResult.Success) {
+      return genericChecks;
     }
     switch (cmd.type) {
       case "CREATE_SHEET": {
@@ -955,5 +959,45 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       return acc;
     }, [] as ConsecutiveIndexes[]);
     this.history.update("sheets", sheetId, elementsRef, hiddenEltsGroups);
+  }
+
+  /**
+   * Check that any "sheetId" in the command matches an existing
+   * sheet.
+   */
+  private checkSheetExists(cmd: Command): CommandResult {
+    if (cmd.type !== "CREATE_SHEET" && "sheetId" in cmd && this.sheets[cmd.sheetId] === undefined) {
+      return CommandResult.InvalidSheetId;
+    }
+    return CommandResult.Success;
+  }
+
+  /**
+   * Check if zones in the command are well formed and
+   * not outside the sheet.
+   */
+  private checkZones(cmd: Command): CommandResult {
+    const zones: Zone[] = [];
+    if ("zone" in cmd) {
+      zones.push(cmd.zone);
+    }
+    if ("target" in cmd && Array.isArray(cmd.target)) {
+      zones.push(...cmd.target);
+    }
+    if (!zones.every(isZoneValid)) {
+      return CommandResult.InvalidRange;
+    } else if (zones.length && "sheetId" in cmd) {
+      const sheet = this.getSheet(cmd.sheetId);
+      const sheetZone = {
+        top: 0,
+        left: 0,
+        bottom: sheet.rows.length - 1,
+        right: sheet.cols.length - 1,
+      };
+      return zones.every((zone) => isZoneInside(zone, sheetZone))
+        ? CommandResult.Success
+        : CommandResult.TargetOutOfSheet;
+    }
+    return CommandResult.Success;
   }
 }

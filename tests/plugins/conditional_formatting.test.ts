@@ -101,6 +101,19 @@ describe("conditional format", () => {
     ]);
   });
 
+  test("add conditional format outside the sheet", () => {
+    model = new Model();
+    createSheet(model, { sheetId: "42" });
+    const sheetId = model.getters.getActiveSheetId();
+    expect(
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createEqualCF("4", { fillColor: "#0000FF" }, "2"),
+        target: [toZone("A1:A4000")],
+        sheetId: sheetId,
+      })
+    ).toBe(CommandResult.TargetOutOfSheet);
+  });
+
   test("remove a conditional format rule", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
