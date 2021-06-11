@@ -244,7 +244,7 @@ export class CorePlugin extends BasePlugin {
           if (xcs.includes(":")) {
             return this.updateRange(xcs, offsetX, offsetY, sheetId);
           }
-          return this.updateReference(xcs, offsetX, offsetY, sheetId);
+          return this.updateReference(xcs, offsetX, offsetY, sheetId, true, false);
         }
         return t.value;
       })
@@ -1233,8 +1233,8 @@ export class CorePlugin extends BasePlugin {
     sheetId: string | undefined
   ): string {
     let [left, right] = symbol.split(":");
-    left = this.updateReference(left, offsetX, offsetY, sheetId);
-    right = this.updateReference(right, offsetX, offsetY, sheetId);
+    left = this.updateReference(left, offsetX, offsetY, sheetId, true, false);
+    right = this.updateReference(right, offsetX, offsetY, sheetId, true, false);
     if (left === "#REF" || right === "#REF") {
       return "#REF";
     }
@@ -1251,7 +1251,8 @@ export class CorePlugin extends BasePlugin {
     offsetX: number,
     offsetY: number,
     sheetId: string | undefined,
-    updateFreeze: boolean = true
+    updateFreeze: boolean = true,
+    checkSheetBoundary: boolean = true
   ): string {
     const xc = symbol.replace(/\$/g, "");
     let [x, y] = toCartesian(xc);
@@ -1261,9 +1262,10 @@ export class CorePlugin extends BasePlugin {
     y += freezeRow && updateFreeze ? 0 : offsetY;
     if (
       x < 0 ||
-      x >= this.getters.getNumberCols(sheetId || this.getters.getActiveSheet()) ||
       y < 0 ||
-      y >= this.getters.getNumberRows(sheetId || this.getters.getActiveSheet())
+      (checkSheetBoundary &&
+        (x >= this.getters.getNumberCols(sheetId || this.getters.getActiveSheet()) ||
+          y >= this.getters.getNumberRows(sheetId || this.getters.getActiveSheet())))
     ) {
       return "#REF";
     }
