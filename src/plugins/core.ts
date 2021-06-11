@@ -344,7 +344,7 @@ export class CorePlugin extends BasePlugin {
   }
 
   getSheetIdByName(name: string | undefined): string | undefined {
-    return name && this.sheetIds[name];
+    return name && this.sheetIds[getUnquotedSheetName(name)];
   }
 
   getSheets(): Sheet[] {
