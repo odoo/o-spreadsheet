@@ -1098,6 +1098,16 @@ describe("clipboard", () => {
     expect(model.getters.getCell(1, 2)!.content).toBe("=Sheet2!B3");
   });
 
+  test("can copy and paste a cell which contains a cross-sheet reference with a space in the name", () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET", { id: "42", name: "Sheet 2" });
+    model.dispatch("SET_VALUE", { xc: "B2", text: "='Sheet 2'!B2" });
+
+    model.dispatch("COPY", { target: target("B2") });
+    model.dispatch("PASTE", { target: target("B3") });
+    expect(model.getters.getCell(1, 2)!.content).toBe("='Sheet 2'!B3");
+  });
+
   test("can copy and paste a cell which contains a cross-sheet reference in a smaller sheet", () => {
     const model = new Model();
     model.dispatch("CREATE_SHEET", { id: "42", name: "Sheet2", rows: 2, cols: 2 });

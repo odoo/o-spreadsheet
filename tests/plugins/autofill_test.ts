@@ -446,4 +446,12 @@ describe("Autofill", () => {
     expect(getCell(model, "A2")!.content).toBe("=Sheet2!A2");
     expect(getCell(model, "A3")!.content).toBe("=Sheet2!A3");
   });
+
+  test("Autofill cross-sheet references with a space in the name", () => {
+    model.dispatch("CREATE_SHEET", { id: "42", name: "Sheet 2" });
+    setValue("A1", "='Sheet 2'!A1");
+    autofill("A1", "A3");
+    expect(getCell(model, "A2")!.content).toBe("='Sheet 2'!A2");
+    expect(getCell(model, "A3")!.content).toBe("='Sheet 2'!A3");
+  });
 });

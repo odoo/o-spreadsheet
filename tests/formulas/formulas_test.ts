@@ -65,9 +65,16 @@ describe("applyOffset", () => {
       ],
     });
     expect(model.getters.applyOffset("=Sheet2!B2", 0, 1)).toEqual("=Sheet2!B3");
+    expect(model.getters.applyOffset("='Sheet2'!B2", 0, 1)).toEqual("=Sheet2!B3");
     expect(model.getters.applyOffset("=Sheet2!B2", 0, -2)).toEqual("=#REF");
     expect(model.getters.applyOffset("=Sheet2!B2", -2, 0)).toEqual("=#REF");
     expect(model.getters.applyOffset("=Sheet2!B2", 1, 1)).toEqual("=Sheet2!C3");
     expect(model.getters.applyOffset("=Sheet2!B2", 1, 10)).toEqual("=Sheet2!C12");
+  });
+
+  test("can handle sheet reference with names", () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET", { id: "42", name: "Sheet 2" });
+    expect(model.getters.applyOffset("='Sheet 2'!B2", 0, 1)).toEqual("='Sheet 2'!B3");
   });
 });
