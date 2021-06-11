@@ -237,15 +237,17 @@ const CSS = css/* scss */ `
       z-index: 2;
       &.vertical {
         right: 0;
-        top: ${SCROLLBAR_WIDTH + 1}px;
-        bottom: 15px;
-        width: 15px;
+        top: ${HEADER_HEIGHT}px;
+        bottom: ${SCROLLBAR_WIDTH}px;
+        width: ${SCROLLBAR_WIDTH}px;
+        overflow-x: hidden;
       }
       &.horizontal {
         bottom: 0;
-        height: 15px;
+        height: ${SCROLLBAR_WIDTH}px;
         right: ${SCROLLBAR_WIDTH + 1}px;
         left: ${HEADER_WIDTH}px;
+        overflow-y: hidden;
       }
     }
   }
