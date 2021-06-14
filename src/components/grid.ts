@@ -269,6 +269,8 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   private dispatch = this.env.dispatch;
   private currentSheet = this.getters.getActiveSheetId();
 
+  private skipScroll: boolean = false;
+
   private clickedCol = 0;
   private clickedRow = 0;
 
@@ -397,6 +399,10 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   }
 
   onScroll() {
+    if (this.skipScroll) {
+      this.skipScroll = false;
+      return;
+    }
     const { offsetX, offsetY } = this.getters.getActiveViewport();
     if (offsetX !== this.hScrollbar.scroll || offsetY !== this.vScrollbar.scroll) {
       this.dispatch("SET_VIEWPORT_OFFSET", {
@@ -427,6 +433,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   drawGrid() {
     //reposition scrollbar
     const { offsetX, offsetY } = this.getters.getActiveViewport();
+    this.skipScroll = true;
     this.hScrollbar.scroll = offsetX;
     this.vScrollbar.scroll = offsetY;
     // check for position changes
@@ -474,6 +481,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       return val * (ev.deltaMode === 0 ? 1 : DEFAULT_CELL_HEIGHT);
     }
 
+    this.skipScroll = false;
     const deltaX = ev.shiftKey ? ev.deltaY : ev.deltaX;
     const deltaY = ev.shiftKey ? ev.deltaX : ev.deltaY;
     this.moveCanvas(normalize(deltaX), normalize(deltaY));
