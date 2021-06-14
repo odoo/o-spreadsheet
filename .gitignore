@@ -5,5 +5,5 @@ dist/
 .npmrc
 /coverage/
 logs/
-
+__pycache__
 debug.log
