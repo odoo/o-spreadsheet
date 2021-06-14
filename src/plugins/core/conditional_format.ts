@@ -281,9 +281,9 @@ export class ConditionalFormatPlugin
       case "IconSetRule": {
         return this.checkValidations(
           rule,
-          this.checkInflationPoints(this.checkNaN),
-          this.checkInflationPoints(this.checkFormulaCompilation),
-          this.checkInflationPoints(this.checkAsyncFormula),
+          this.checkInflectionPoints(this.checkNaN),
+          this.checkInflectionPoints(this.checkFormulaCompilation),
+          this.checkInflectionPoints(this.checkAsyncFormula),
           this.checkLowerBiggerThanUpper
         );
       }
@@ -399,7 +399,7 @@ export class ConditionalFormatPlugin
     );
   }
 
-  private checkInflationPoints(check: InflectionPointValidation): Validation<IconSetRule> {
+  private checkInflectionPoints(check: InflectionPointValidation): Validation<IconSetRule> {
     return this.combineValidations(
       (rule) => check(rule.lowerInflectionPoint, "lowerInflectionPoint"),
       (rule) => check(rule.upperInflectionPoint, "upperInflectionPoint")
