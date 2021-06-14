@@ -1161,11 +1161,11 @@ describe("UI of conditional formats", () => {
       CommandResult.ValueLowerAsyncFormulaNotSupported,
       "Some formulas are not supported for the lower inflection point",
     ],
-    [CommandResult.ValueUpperInvalidFormula, "Invalid upper inflation point formula"],
-    [CommandResult.ValueLowerInvalidFormula, "Invalid lower inflation point formula"],
+    [CommandResult.ValueUpperInvalidFormula, "Invalid upper inflection point formula"],
+    [CommandResult.ValueLowerInvalidFormula, "Invalid lower inflection point formula"],
     [
       CommandResult.LowerBiggerThanUpper,
-      "Lower inflation point must be smaller then upper inflation point",
+      "Lower inflection point must be smaller then upper inflection point",
     ],
   ])(
     "Show right error message (Command result: %s , Message: %s)",

@@ -1017,7 +1017,7 @@ describe("conditional formats types", () => {
     describe.each(["", "aaaa", "=SUM(1, 2)"])(
       "dispatch is not allowed if value is not a number",
       (value) => {
-        test("lower inflationpoint is NaN", () => {
+        test("lower inflection point is NaN", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
             sheetId: model.getters.getActiveSheetId(),
             target: [toZone("A1")],
@@ -1037,7 +1037,7 @@ describe("conditional formats types", () => {
           });
           expect(result).toBe(CommandResult.ValueUpperInflectionNaN);
         });
-        test("upper inflationpoint is NaN", () => {
+        test("upper inflection point is NaN", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
             sheetId: model.getters.getActiveSheetId(),
             target: [toZone("A1")],
@@ -1179,7 +1179,7 @@ describe("conditional formats types", () => {
       expect(model.getters.getConditionalIcon(...toCartesian("A5"))).toEqual("arrowGood");
     });
 
-    test("same upper and lower inflationpoint", () => {
+    test("same upper and lower inflection point", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "3");
       setCellContent(model, "A3", "5");

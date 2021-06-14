@@ -24,13 +24,13 @@ export const conditionalFormattingTerms = {
     [CommandResult.MinBiggerThanMid]: _lt("Minimum must be smaller then Midpoint"),
     [CommandResult.MidBiggerThanMax]: _lt("Midpoint must be smaller then Maximum"),
     [CommandResult.LowerBiggerThanUpper]: _lt(
-      "Lower inflation point must be smaller then upper inflation point"
+      "Lower inflection point must be smaller then upper inflection point"
     ),
     [CommandResult.MinInvalidFormula]: _lt("Invalid Minpoint formula"),
     [CommandResult.MaxInvalidFormula]: _lt("Invalid Maxpoint formula"),
     [CommandResult.MidInvalidFormula]: _lt("Invalid Midpoint formula"),
-    [CommandResult.ValueUpperInvalidFormula]: _lt("Invalid upper inflation point formula"),
-    [CommandResult.ValueLowerInvalidFormula]: _lt("Invalid lower inflation point formula"),
+    [CommandResult.ValueUpperInvalidFormula]: _lt("Invalid upper inflection point formula"),
+    [CommandResult.ValueLowerInvalidFormula]: _lt("Invalid lower inflection point formula"),
     [CommandResult.MinAsyncFormulaNotSupported]: _lt(
       "Some formulas are not supported for the Minpoint"
     ),
