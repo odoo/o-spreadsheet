@@ -9,6 +9,7 @@ export const demoData = {
   version: 5,
   sheets: [
     {
+      id: "Sheet1",
       name: "Sheet1",
       colNumber: 26,
       rowNumber: 120,
@@ -110,6 +111,24 @@ export const demoData = {
           },
         },
       ],
+      figures: [{
+        id: "1",
+        tag: "chart",
+        width: 400,
+        height: 300,
+        x: 800,
+        y: 230,
+        data: {
+          sheetId: "Sheet1",
+          type: "line",
+          title: "demo chart",
+          labelRange: "A27:A35",
+          dataSets: [
+            { labelCell: "B26", dataRange: "B27:B35" },
+            { labelCell: "C26", dataRange: "C27:C35" },
+          ],
+        }
+      }]
     },
     {
       name: "Sheet2",
@@ -132,22 +151,6 @@ export const demoData = {
         x: 900,
         y: 200,
         data: "yip yip"
-      }, {
-        id: "1",
-        tag: "chart",
-        width: 400,
-        height: 300,
-        x: 450,
-        y: 550,
-        data: {
-          type: "line",
-          title: "demo chart",
-          labelRange: "Sheet1!A27:A35",
-          dataSets: [
-            { labelCell: "Sheet1!B26", dataRange: "Sheet1!B27:B35" },
-            { labelCell: "Sheet1!C26", dataRange: "Sheet1!C27:C35" },
-          ],
-        }
       }],
     },
   ],
