@@ -8,10 +8,9 @@ const { xml, css } = owl.tags;
 const TEMPLATE = xml/* xml */ `
 <div class="o-find-and-replace" tabindex="0" t-on-focusin="onFocusSidePanel">
   <div class="o-section">
-    <div t-esc="env._t('${FindAndReplaceTerms.Search}')" class="o-section-title"/>
+    <div class="o-section-title" t-esc="env._t('${FindAndReplaceTerms.Search}')"/>
     <div class="o-input-search-container">
-      <input type="text" class="o-input o-input-with-count" t-on-input="onInput" t-on-keydown="onKeydownSearch">
-      </input>
+      <input type="text" class="o-input o-input-with-count" t-on-input="onInput" t-on-keydown="onKeydownSearch"/>
       <div class="o-input-count" t-if="hasSearchResult">
         <t t-esc="env.getters.getCurrentSelectedMatchIndex()+1"/>
         /
@@ -21,15 +20,15 @@ const TEMPLATE = xml/* xml */ `
     <div>
       <div class="o-far-item">
         <label class="o-far-checkbox">
-          <input t-model="state.searchOptions.matchCase" t-on-change="updateSearch()" class="o-far-input" type="checkbox" />
+          <input t-model="state.searchOptions.matchCase" t-on-change="updateSearch()" class="o-far-input" type="checkbox"/>
           <span class="o-far-label"><t t-esc="env._t('${FindAndReplaceTerms.MatchCase}')"/></span>
         </label>
       </div>
       <div class="o-far-item">
         <label class="o-far-checkbox">
-          <input t-model="state.searchOptions.exactMatch" t-on-change="updateSearch()" class="o-far-input" type="checkbox" />
+          <input t-model="state.searchOptions.exactMatch" t-on-change="updateSearch()" class="o-far-input" type="checkbox"/>
           <span class="o-far-label"><t t-esc="env._t('${FindAndReplaceTerms.ExactMatch}')"/></span>
-        </label>                                                                            
+        </label>
       </div>
       <div class="o-far-item">
         <label class="o-far-checkbox">
@@ -40,25 +39,27 @@ const TEMPLATE = xml/* xml */ `
     </div>
   </div>
   <div class="o-sidePanelButtons">
-    <button t-att-disabled="!hasSearchResult" t-on-click="onSelectPreviousCell" class="o-sidePanelButton"
+    <button t-att-disabled="!hasSearchResult"
+            t-on-click="onSelectPreviousCell"
+            class="o-sidePanelButton"
             t-esc="env._t('${FindAndReplaceTerms.Previous}')"/>
-    <button t-att-disabled="!hasSearchResult" t-on-click="onSelectNextCell" class="o-sidePanelButton"
+    <button t-att-disabled="!hasSearchResult"
+            t-on-click="onSelectNextCell"
+            class="o-sidePanelButton"
             t-esc="env._t('${FindAndReplaceTerms.Next}')"/>
   </div>
-
   <div class="o-section" t-if="!getters.isReadonly()">
     <div t-esc="env._t('${FindAndReplaceTerms.Replace}')" class="o-section-title"/>
     <div class="o-input-search-container">
       <input type="text" class="o-input o-input-without-count" t-model="state.replaceWith" t-on-keydown="onKeydownReplace"/>
     </div>
-    
 
     <div class="o-far-item">
       <label class="o-far-checkbox">
         <input class="o-far-input" t-att-disabled="state.searchOptions.searchFormulas" type="checkbox"
         t-model="state.replaceOptions.modifyFormulas"/>
         <span class="o-far-label"><t t-esc="env._t('${FindAndReplaceTerms.ReplaceFormulas}')"/></span>
-      </label>                                                                            
+      </label>
     </div>
   </div>
 
