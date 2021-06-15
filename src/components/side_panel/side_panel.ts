@@ -55,6 +55,16 @@ const CSS = css/* scss */ `
       overflow: auto;
       width: 100%;
       height: 100%;
+
+      .o-section {
+        padding: 16px;
+
+        .o-section-title {
+          font-weight: bold;
+          color: dimgrey;
+          margin-bottom: 5px;
+        }
+      }
     }
 
     .o-sidepanel-error {
@@ -90,10 +100,10 @@ const CSS = css/* scss */ `
       color: #666666;
       border-radius: 4px;
       min-width: 0px;
-      border: 1px solid lightgrey;
       padding: 4px 6px;
-      height: 15.5px;
+      box-sizing: border-box;
       line-height: 1;
+      width: 100%;
       .o-type-selector {
         background-position: right 5px top 11px;
       }
@@ -107,17 +117,6 @@ const CSS = css/* scss */ `
     select.o-input {
       background-color: white;
       text-align: left;
-    }
-
-    .o-section {
-      padding-top: 16px;
-      padding-left: 16px;
-      padding-right: 16px;
-      .o-section-title {
-        font-weight: bold;
-        color: dimgrey;
-        margin-bottom: 5px;
-      }
     }
   }
 `;
