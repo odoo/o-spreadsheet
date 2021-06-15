@@ -2,6 +2,7 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import { cellReference, rangeTokenize } from "../../formulas/index";
 import {
   getComposerSheetName,
+  getUnquotedSheetName,
   groupConsecutive,
   isDefined,
   numberToLetters,
@@ -286,7 +287,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   getSheetIdByName(name: string | undefined): UID | undefined {
-    return name && this.sheetIds[name];
+    return name && this.sheetIds[getUnquotedSheetName(name)];
   }
 
   getSheets(): Sheet[] {
@@ -319,7 +320,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           if (xcs.includes(":")) {
             return this.updateRange(sheetId, xcs, offsetX, offsetY, refSheetId);
           }
-          return this.updateReference(sheetId, xcs, offsetX, offsetY, refSheetId);
+          return this.updateReference(sheetId, xcs, offsetX, offsetY, refSheetId, true, false);
         }
         return t.value;
       })
@@ -919,8 +920,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     refSheetId: UID | undefined
   ): string {
     let [left, right] = symbol.split(":");
-    left = this.updateReference(sheetId, left, offsetX, offsetY, refSheetId);
-    right = this.updateReference(sheetId, right, offsetX, offsetY, refSheetId);
+    left = this.updateReference(sheetId, left, offsetX, offsetY, refSheetId, true, false);
+    right = this.updateReference(sheetId, right, offsetX, offsetY, refSheetId, true, false);
     if (left === INCORRECT_RANGE_STRING || right === INCORRECT_RANGE_STRING) {
       return INCORRECT_RANGE_STRING;
     }
@@ -938,7 +939,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     offsetX: number,
     offsetY: number,
     referenceSheetId: UID | undefined,
-    updateFreeze: boolean = true
+    updateFreeze: boolean = true,
+    checkSheetBoundary: boolean = true
   ): string {
     const xc = symbol.replace(/\$/g, "");
     let [x, y] = toCartesian(xc);
@@ -947,7 +949,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     x += freezeCol && updateFreeze ? 0 : offsetX;
     y += freezeRow && updateFreeze ? 0 : offsetY;
     const sheet = this.getSheet(referenceSheetId || sheetId);
-    if (!sheet || x < 0 || x >= sheet.cols.length || y < 0 || y >= sheet.rows.length) {
+    if (
+      !sheet ||
+      x < 0 ||
+      y < 0 ||
+      (checkSheetBoundary && (x >= sheet.cols.length || y >= sheet.rows.length))
+    ) {
       return INCORRECT_RANGE_STRING;
     }
     const sheetName =

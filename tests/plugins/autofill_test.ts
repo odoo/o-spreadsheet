@@ -258,6 +258,39 @@ describe("Autofill", () => {
       expect(getCellText(model, "A6")).toBe("=B6");
     });
 
+    test.each([
+      ["=B10000", "=B10001", "=B10002"],
+      ["=B$10000", "=B$10000", "=B$10000"],
+      ["=SUM(B100:B10000)", "=SUM(B101:B10001)", "=SUM(B102:B10002)"],
+    ])("Autofill reference outside of sheet %s", (A1, expectedA2, expectedA3) => {
+      setCellContent(model, "A1", A1);
+      autofill("A1", "A3");
+      expect(getCellText(model, "A2")).toBe(expectedA2);
+      expect(getCellText(model, "A3")).toBe(expectedA3);
+    });
+
+    test.each([
+      ["=$B1", "=$B2", "=$B3"],
+      ["=$B$1", "=$B$1", "=$B$1"],
+      ["=B$1", "=B$1", "=B$1"],
+    ])("Autofill vertically fixed reference %s", (A1, expectedA2, expectedA3) => {
+      setCellContent(model, "A1", A1);
+      autofill("A1", "A3");
+      expect(getCellText(model, "A2")).toBe(expectedA2);
+      expect(getCellText(model, "A3")).toBe(expectedA3);
+    });
+
+    test.each([
+      ["=$A2", "=$A2", "=$A2"],
+      ["=$A$2", "=$A$2", "=$A$2"],
+      ["=A$2", "=B$2", "=C$2"],
+    ])("Autofill horizontally fixed reference %s", (A1, B1, C1) => {
+      setCellContent(model, "A1", A1);
+      autofill("A1", "C1");
+      expect(getCellText(model, "B1")).toBe(B1);
+      expect(getCellText(model, "C1")).toBe(C1);
+    });
+
     test("Autofill text values", () => {
       setCellContent(model, "A1", "A");
       setCellContent(model, "A2", "B");
@@ -465,5 +498,13 @@ describe("Autofill", () => {
     autofill("A1", "A3");
     expect(getCellText(model, "A2")).toBe("=Sheet2!A2");
     expect(getCellText(model, "A3")).toBe("=Sheet2!A3");
+  });
+
+  test("Autofill cross-sheet references with a space in the name", () => {
+    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet 2", position: 1 });
+    setCellContent(model, "A1", "='Sheet 2'!A1");
+    autofill("A1", "A3");
+    expect(getCellText(model, "A2")).toBe("='Sheet 2'!A2");
+    expect(getCellText(model, "A3")).toBe("='Sheet 2'!A3");
   });
 });

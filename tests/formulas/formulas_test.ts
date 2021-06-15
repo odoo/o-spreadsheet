@@ -17,7 +17,17 @@ describe("applyOffset", () => {
     );
   });
 
-  test("can handle negative/invalid offsets", () => {
+  test("can handle negative offsets", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.applyOffset(sheetId, "=B2", 0, -1)).toEqual("=B1");
+    expect(model.getters.applyOffset(sheetId, "=B2", -1, 0)).toEqual("=A2");
+    expect(model.getters.applyOffset(sheetId, "=B2", -1, -1)).toEqual("=A1");
+    expect(model.getters.applyOffset(sheetId, "=B2", 0, -4)).toEqual("=#REF");
+    expect(model.getters.applyOffset(sheetId, "=B2", -4, 0)).toEqual("=#REF");
+  });
+
+  test("can handle offsets outside the sheet", () => {
     const model = new Model({
       sheets: [
         {
@@ -26,15 +36,10 @@ describe("applyOffset", () => {
         },
       ],
     });
-    expect(model.getters.applyOffset(model.getters.getActiveSheetId(), "=B2", 0, -4)).toEqual(
-      "=#REF"
-    );
-    expect(model.getters.applyOffset(model.getters.getActiveSheetId(), "=B10", 0, 2)).toEqual(
-      "=#REF"
-    );
-    expect(model.getters.applyOffset(model.getters.getActiveSheetId(), "=J1", 2, 0)).toEqual(
-      "=#REF"
-    );
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.applyOffset(sheetId, "=B2", 0, -4)).toEqual("=#REF");
+    expect(model.getters.applyOffset(sheetId, "=B10", 0, 2)).toEqual("=B12");
+    expect(model.getters.applyOffset(sheetId, "=J1", 2, 0)).toEqual("=L1");
   });
 
   test("can handle other formulas", () => {
@@ -65,17 +70,18 @@ describe("applyOffset", () => {
         },
       ],
     });
-    expect(model.getters.applyOffset(model.getters.getActiveSheetId(), "=Sheet2!B2", 0, 1)).toEqual(
-      "=Sheet2!B3"
-    );
-    expect(
-      model.getters.applyOffset(model.getters.getActiveSheetId(), "=Sheet2!B2", 0, -2)
-    ).toEqual("=#REF");
-    expect(model.getters.applyOffset(model.getters.getActiveSheetId(), "=Sheet2!B2", 1, 1)).toEqual(
-      "=Sheet2!C3"
-    );
-    expect(
-      model.getters.applyOffset(model.getters.getActiveSheetId(), "=Sheet2!B2", 1, 10)
-    ).toEqual("=#REF");
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.applyOffset(sheetId, "=Sheet2!B2", 0, 1)).toEqual("=Sheet2!B3");
+    expect(model.getters.applyOffset(sheetId, "='Sheet2'!B2", 0, 1)).toEqual("=Sheet2!B3");
+    expect(model.getters.applyOffset(sheetId, "=Sheet2!B2", 0, -2)).toEqual("=#REF");
+    expect(model.getters.applyOffset(sheetId, "=Sheet2!B2", -2, 0)).toEqual("=#REF");
+    expect(model.getters.applyOffset(sheetId, "=Sheet2!B2", 1, 1)).toEqual("=Sheet2!C3");
+    expect(model.getters.applyOffset(sheetId, "=Sheet2!B2", 1, 10)).toEqual("=Sheet2!C12");
+  });
+
+  test("can handle sheet reference with names", () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet 2", position: 1 });
+    expect(model.getters.applyOffset("42", "='Sheet 2'!B2", 0, 1)).toEqual("='Sheet 2'!B3");
   });
 });

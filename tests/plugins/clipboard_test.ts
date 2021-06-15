@@ -1188,6 +1188,16 @@ describe("clipboard", () => {
     expect(getCellText(model, "B3")).toBe("=Sheet2!B3");
   });
 
+  test("can copy and paste a cell which contains a cross-sheet reference with a space in the name", () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet 2", position: 1 });
+    setCellContent(model, "B2", "='Sheet 2'!B2");
+
+    model.dispatch("COPY", { target: target("B2") });
+    model.dispatch("PASTE", { target: target("B3") });
+    expect(getCellText(model, "B3")).toBe("='Sheet 2'!B3");
+  });
+
   test("can copy and paste a cell which contains a cross-sheet reference in a smaller sheet", () => {
     const model = new Model();
     model.dispatch("CREATE_SHEET", {
@@ -1201,7 +1211,7 @@ describe("clipboard", () => {
 
     model.dispatch("COPY", { target: target("A1") });
     model.dispatch("PASTE", { target: target("A2") });
-    expect(getCellText(model, "A2")).toBe("=#REF");
+    expect(getCellText(model, "A2")).toBe("=Sheet2!A2:A3");
   });
 
   test("can copy and paste a cell which contains a cross-sheet reference to a range", () => {
