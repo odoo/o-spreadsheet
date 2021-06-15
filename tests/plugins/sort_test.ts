@@ -621,7 +621,7 @@ describe("Sort adjacent columns with headers", () => {
       A1: { content: "Tango" },
       A2: { content: "Alpha" },
       A3: { content: "Delta" },
-      A4: { content: "=#REF" }, // refered to B5 which is empty
+      A4: cellFormula("=B5"),
       B1: { content: "49" },
       B2: { content: "192" },
       B3: { content: "2500" },

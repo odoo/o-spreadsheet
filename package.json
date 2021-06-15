@@ -7,12 +7,14 @@
     "serve": "live-server --open=demo",
     "dev": "npm-run-all  build --parallel serve \"build:* -- --watch\"",
     "build:js": "tsc --module es6 --outDir dist/js --incremental",
+    "build:all": "tsc --module es6 --outDir dist/js",
     "build:bundle": "rollup -c -m",
     "build": "npm run build:js && npm run build:bundle",
     "test": "jest",
     "test:watch": "jest --watch",
     "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --write",
-    "check-formatting": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --check"
+    "check-formatting": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --check",
+    "dist":"npm run build:all && npm run build:bundle"
   },
   "browserslist": [
     "last 1 Chrome versions"
