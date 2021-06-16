@@ -1,7 +1,12 @@
 import { Model } from "../../src";
 import { zoneToXc } from "../../src/helpers";
 import { CommandResult } from "../../src/types";
-import { activateSheet, createSheet, selectCell } from "../test_helpers/commands_helpers";
+import {
+  activateSheet,
+  createSheet,
+  createSheetWithName,
+  selectCell,
+} from "../test_helpers/commands_helpers";
 
 function select(model: Model, xc: string) {
   model.dispatch("START_SELECTION");
@@ -425,6 +430,18 @@ describe("selection input plugin", () => {
     });
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("Sheet2!A1");
   });
+
+  test.each(["sheet name", "Sheet+", "Sheet:)"])(
+    "can select a range  with special characters in its name: %s",
+    (sheetName) => {
+      model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+      createSheetWithName(model, { sheetId: "42", activate: true }, sheetName);
+      model.dispatch("ADD_HIGHLIGHTS", {
+        ranges: { A1: "#000" },
+      });
+      expect(model.getters.getSelectionInput(id)[0].xc).toBe(`'${sheetName}'!A1`);
+    }
+  );
 
   test("focus while in other sheet", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });

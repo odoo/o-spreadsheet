@@ -532,10 +532,14 @@ describe("history", () => {
       expect(model.getters.getRangeFormattedValues("Sheet2!A1:A3", sheet1Id)).toEqual([
         ["21,000", "", "12/31/2020"],
       ]);
+      expect(model.getters.getRangeFormattedValues("'Sheet2'!A1:A3", sheet1Id)).toEqual([
+        ["21,000", "", "12/31/2020"],
+      ]);
       expect(model.getters.getRangeFormattedValues("B2", sheet1Id)).toEqual([["TRUE"]]);
       expect(model.getters.getRangeFormattedValues("Sheet1!B2", sheet1Id)).toEqual([["TRUE"]]);
       expect(model.getters.getRangeFormattedValues("Sheet2!B2", sheet2Id)).toEqual([["TRUE"]]);
       expect(model.getters.getRangeFormattedValues("Sheet2!B2", sheet1Id)).toEqual([["TRUE"]]);
+      expect(model.getters.getRangeFormattedValues("'Sheet2'!B2", sheet1Id)).toEqual([["TRUE"]]);
     });
 
     test("getRangeValues", () => {

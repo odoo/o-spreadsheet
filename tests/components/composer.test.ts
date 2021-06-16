@@ -114,6 +114,23 @@ describe("ranges and highlights", () => {
     ).toBe(colors[0]);
   });
 
+  test.each([
+    "A1",
+    "$A1",
+    "A$1",
+    "A1:B2",
+    "Sheet1!A1",
+    "Sheet1!A1:B2",
+    "'Sheet1'!A1",
+    "Sheet1!$A$1",
+  ])("reference %s should be colored", async (ref) => {
+    await typeInComposer(`=SUM(${ref})`);
+    expect(
+      // @ts-ignore
+      (window.mockContentHelper as ContentEditableHelper).colors[ref]
+    ).toBe(colors[0]);
+  });
+
   test("=Key DOWN in A1, should select and highlight A2", async () => {
     await typeInComposer("=");
     await keydown("ArrowDown");
