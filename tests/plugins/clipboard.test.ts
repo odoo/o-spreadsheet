@@ -5,6 +5,7 @@ import { CommandResult, Zone } from "../../src/types/index";
 import {
   activateSheet,
   createSheet,
+  createSheetWithName,
   selectCell,
   setCellContent,
   undo,
@@ -1227,6 +1228,16 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: [toZone("B2")] });
     model.dispatch("PASTE", { target: [toZone("B3")] });
     expect(getCellText(model, "B3")).toBe("=Sheet2!B3");
+  });
+
+  test("can copy and paste a cell which contains a cross-sheet reference with a space in the name", () => {
+    const model = new Model();
+    createSheetWithName(model, { sheetId: "42" }, "Sheet 2");
+    setCellContent(model, "B2", "='Sheet 2'!B2");
+
+    model.dispatch("COPY", { target: target("B2") });
+    model.dispatch("PASTE", { target: target("B3") });
+    expect(getCellText(model, "B3")).toBe("='Sheet 2'!B3");
   });
 
   test("can copy and paste a cell which contains a cross-sheet reference in a smaller sheet", () => {

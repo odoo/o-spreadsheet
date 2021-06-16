@@ -1,5 +1,6 @@
 import { Model, normalize } from "../../src";
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
+import { createSheetWithName } from "../test_helpers/commands_helpers";
 
 function moveFormula(model: Model, formula: string, offsetX: number, offsetY: number): string {
   const sheetId = model.getters.getActiveSheetId();
@@ -35,8 +36,25 @@ describe("createAdaptedRanges", () => {
         },
       ],
     });
+    expect(moveFormula(model, "=B2", 0, -1)).toEqual("=B1");
+    expect(moveFormula(model, "=B2", -1, 0)).toEqual("=A2");
+    expect(moveFormula(model, "=B2", -1, -1)).toEqual("=A1");
     expect(moveFormula(model, "=B2", 0, -4)).toEqual(`=${INCORRECT_RANGE_STRING}`);
     expect(moveFormula(model, "=B2", -4, 0)).toEqual(`=${INCORRECT_RANGE_STRING}`);
+  });
+
+  test("can handle offsets outside the sheet", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+        },
+      ],
+    });
+    expect(moveFormula(model, "=B2", 0, -4)).toEqual(`=${INCORRECT_RANGE_STRING}`);
+    expect(moveFormula(model, "=B10", 0, 2)).toEqual("=B12");
+    expect(moveFormula(model, "=J1", 2, 0)).toEqual("=L1");
   });
 
   test("can handle other formulas", () => {
@@ -66,7 +84,16 @@ describe("createAdaptedRanges", () => {
       ],
     });
     expect(moveFormula(model, "=Sheet2!B2", 0, 1)).toEqual("=Sheet2!B3");
+    expect(moveFormula(model, "='Sheet2'!B2", 0, 1)).toEqual("=Sheet2!B3");
     expect(moveFormula(model, "=Sheet2!B2", 0, -2)).toEqual(`=${INCORRECT_RANGE_STRING}`);
+    expect(moveFormula(model, "=Sheet2!B2", -2, 0)).toEqual(`=${INCORRECT_RANGE_STRING}`);
     expect(moveFormula(model, "=Sheet2!B2", 1, 1)).toEqual("=Sheet2!C3");
+    expect(moveFormula(model, "=Sheet2!B2", 1, 10)).toEqual("=Sheet2!C12");
+  });
+
+  test("can handle sheet reference with space in its name", () => {
+    const model = new Model();
+    createSheetWithName(model, { sheetId: "42" }, "Sheet 2");
+    expect(moveFormula(model, "='Sheet 2'!B2", 1, 10)).toEqual("='Sheet 2'!C12");
   });
 });

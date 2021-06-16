@@ -6,6 +6,7 @@ import {
   createRows,
   exportCols,
   exportRows,
+  getUnquotedSheetName,
   groupConsecutive,
   isDefined,
   isZoneInside,
@@ -278,7 +279,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   getSheetIdByName(name: string | undefined): UID | undefined {
-    return name && this.sheetIds[name];
+    return name && this.sheetIds[getUnquotedSheetName(name)];
   }
 
   getSheets(): Sheet[] {
