@@ -355,6 +355,12 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
         target: this.getters.getSelectedZones(),
         style: { italic: !this.getters.getCurrentStyle().italic },
       }),
+    "CTRL+U": () =>
+      this.dispatch("SET_FORMATTING", {
+        sheetId: this.getters.getActiveSheetId(),
+        target: this.getters.getSelectedZones(),
+        style: { underline: !this.getters.getCurrentStyle().underline },
+      }),
     "ALT+=": () => {
       const sheetId = this.getters.getActiveSheetId();
 

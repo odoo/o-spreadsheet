@@ -2,6 +2,7 @@ import * as owl from "@odoo/owl";
 import { DEFAULT_CELL_HEIGHT } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
+import { getTextDecoration } from "../helpers/dom_helpers";
 import { Composer } from "./composer";
 
 const { Component } = owl;
@@ -91,7 +92,7 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
     const fontSize = (!isFormula && style.fontSize) || 10;
     const fontWeight = !isFormula && style.bold ? "bold" : 500;
     const fontStyle = !isFormula && style.italic ? "italic" : "normal";
-    const textDecoration = !isFormula && style.strikethrough ? "line-through" : "none";
+    const textDecoration = !isFormula ? getTextDecoration(style) : "none";
 
     // align style
     let textAlign = "left";

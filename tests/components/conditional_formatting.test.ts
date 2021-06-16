@@ -51,6 +51,7 @@ describe("UI of conditional formats", () => {
         valueInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-value",
         bold: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools div.o-tool[title='Bold']",
         italic: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools div.o-tool[title='Italic']",
+        underline: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools div.o-tool[title='Underline']",
         strikethrough:
           ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools div.o-tool[title='Strikethrough']",
         colorDropdown: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools .o-with-color span",
@@ -154,6 +155,7 @@ describe("UI of conditional formats", () => {
 
       triggerMouseEvent(selectors.ruleEditor.editor.bold, "click");
       triggerMouseEvent(selectors.ruleEditor.editor.italic, "click");
+      triggerMouseEvent(selectors.ruleEditor.editor.underline, "click");
       triggerMouseEvent(selectors.ruleEditor.editor.strikethrough, "click");
 
       parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
@@ -166,7 +168,13 @@ describe("UI of conditional formats", () => {
           id: "1",
           rule: {
             operator: "BeginsWith",
-            style: { bold: true, fillColor: "#FF0000", italic: true, strikethrough: true },
+            style: {
+              bold: true,
+              fillColor: "#FF0000",
+              italic: true,
+              strikethrough: true,
+              underline: true,
+            },
             type: "CellIsRule",
             values: ["3", ""],
           },
@@ -273,6 +281,7 @@ describe("UI of conditional formats", () => {
 
       triggerMouseEvent(selectors.ruleEditor.editor.bold, "click");
       triggerMouseEvent(selectors.ruleEditor.editor.italic, "click");
+      triggerMouseEvent(selectors.ruleEditor.editor.underline, "click");
       triggerMouseEvent(selectors.ruleEditor.editor.strikethrough, "click");
 
       parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
@@ -284,7 +293,13 @@ describe("UI of conditional formats", () => {
           id: "43",
           rule: {
             operator: "BeginsWith",
-            style: { bold: true, fillColor: "#b6d7a8", italic: true, strikethrough: true },
+            style: {
+              bold: true,
+              fillColor: "#b6d7a8",
+              italic: true,
+              strikethrough: true,
+              underline: true,
+            },
             type: "CellIsRule",
             values: ["3", ""],
           },

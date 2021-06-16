@@ -580,6 +580,9 @@ export const FORMAT_ITALIC_ACTION = (env: SpreadsheetEnv) =>
 export const FORMAT_STRIKETHROUGH_ACTION = (env: SpreadsheetEnv) =>
   setStyle(env, { strikethrough: !env.getters.getCurrentStyle().strikethrough });
 
+export const FORMAT_UNDERLINE_ACTION = (env: SpreadsheetEnv) =>
+  setStyle(env, { underline: !env.getters.getCurrentStyle().underline });
+
 //------------------------------------------------------------------------------
 // Side panel
 //------------------------------------------------------------------------------

@@ -564,6 +564,15 @@ describe("Menu Item actions", () => {
     });
   });
 
+  test("Format -> underline", () => {
+    doAction(["format", "format_underline"], env);
+    expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      sheetId: env.getters.getActiveSheetId(),
+      target: env.getters.getSelectedZones(),
+      style: { underline: true },
+    });
+  });
+
   test("Format -> strikethrough", () => {
     doAction(["format", "format_strikethrough"], env);
     expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {

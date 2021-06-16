@@ -82,6 +82,7 @@ export interface XLSXFont {
   name: string;
   bold?: boolean;
   italic?: boolean;
+  underline?: boolean;
   strike?: boolean;
 }
 export interface XLSXFill {

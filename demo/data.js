@@ -38,6 +38,7 @@ export const demoData = {
         C18: { content: "=C1{C2" },
         F2: { content: "italic blablah", style: 2 },
         F3: { content: "strikethrough", style: 3 },
+        F4: { content: "underline", style: 9 },
         H2: { content: "merged content" },
         C20: { content: "left", border: 1 },
         E20: { content: "top", border: 2 },
@@ -974,6 +975,7 @@ export const demoData = {
     6: { fillColor: "#a7d08c" },
     7: { align: "left" },
     8: { bold: true, fontSize: 11 },
+    9: { underline: true },
   },
   borders: {
     1: { left: ["thin", "#000"] },

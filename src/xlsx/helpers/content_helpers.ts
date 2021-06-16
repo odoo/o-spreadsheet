@@ -75,6 +75,7 @@ export function extractStyle(cell: CellData, data: WorkbookData): ExtractedStyle
   };
 
   styles.font["strike"] = !!style?.strikethrough || undefined;
+  styles.font["underline"] = !!style?.underline || undefined;
   styles.font["bold"] = !!style?.bold || undefined;
   styles.font["italic"] = !!style?.italic || undefined;
   return styles;
