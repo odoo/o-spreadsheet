@@ -221,11 +221,12 @@ export class ViewportPlugin extends UIPlugin {
    */
   private adjustViewportOffsetX(sheetId: UID) {
     const { offsetX } = this.getViewport(sheetId);
-    const { width: sheetWidth } = this.getGridDimension(this.getters.getSheet(sheetId));
-    if (this.clientWidth - HEADER_WIDTH + offsetX > sheetWidth) {
-      const diff = this.clientWidth - HEADER_WIDTH + offsetX - sheetWidth;
-      this.viewports[sheetId].offsetX = Math.max(0, offsetX - diff);
-    }
+    // const { width: sheetWidth } = this.getGridDimension(this.getters.getSheet(sheetId));
+    // if (this.clientWidth - HEADER_WIDTH + offsetX > sheetWidth) {
+    //   const diff = this.clientWidth - HEADER_WIDTH + offsetX - sheetWidth;
+    //   this.viewports[sheetId].offsetX = Math.max(0, offsetX - diff);
+    // }
+    this.viewports[sheetId].offsetX = Math.min(offsetX, this.maxOffsetX);
     this.adjustViewportZoneX(sheetId, this.viewports[sheetId]);
   }
 
@@ -234,25 +235,27 @@ export class ViewportPlugin extends UIPlugin {
    */
   private adjustViewportOffsetY(sheetId: UID) {
     const { offsetY } = this.getViewport(sheetId);
-    const { height: sheetHeight } = this.getGridDimension(this.getters.getSheet(sheetId));
-    if (this.clientHeight - HEADER_HEIGHT + offsetY > sheetHeight) {
-      const diff = this.clientHeight - HEADER_HEIGHT + offsetY - sheetHeight;
-      this.viewports[sheetId].offsetY = Math.max(0, offsetY - diff);
-    }
+    // const { height: sheetHeight } = this.getGridDimension(this.getters.getSheet(sheetId));
+    // if (this.clientHeight - HEADER_HEIGHT + offsetY > sheetHeight) {
+    //   const diff = this.clientHeight - HEADER_HEIGHT + offsetY - sheetHeight;
+    //   this.viewports[sheetId].offsetY = Math.max(0, offsetY - diff);
+    // }
+    this.viewports[sheetId].offsetY = Math.min(offsetY, this.maxOffsetY);
     this.adjustViewportZoneY(sheetId, this.viewports[sheetId]);
   }
 
   private resizeViewport(cmd: ResizeViewportCommand) {
     this.clientHeight = cmd.height;
     this.clientWidth = cmd.width;
-    this.maxOffsetX = cmd.maxOffsetX || this.maxOffsetX;
-    this.maxOffsetY = cmd.maxOffsetY || this.maxOffsetY;
+    this.maxOffsetX = cmd.maxOffsetX;
+    this.maxOffsetY = cmd.maxOffsetY;
     this.recomputeViewports();
   }
 
   private recomputeViewports() {
     for (let sheetId of Object.keys(this.viewports)) {
-      this.adjustViewportZone(sheetId, this.viewports[sheetId]);
+      this.adjustViewportOffsetX(sheetId);
+      this.adjustViewportOffsetY(sheetId);
     }
   }
 

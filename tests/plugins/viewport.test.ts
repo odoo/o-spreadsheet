@@ -627,6 +627,34 @@ describe("Viewport of Simple sheet", () => {
       right: viewport.left + Math.ceil((500 - HEADER_WIDTH) / DEFAULT_CELL_WIDTH) - 1,
     });
   });
+
+  test("Resizing the viewport impacts current Offset", () => {
+    // set coherent size and offset limit
+    const { width, height } = model.getters.getGridDimension(model.getters.getActiveSheet());
+    model.dispatch("RESIZE_VIEWPORT", {
+      width: 1000,
+      height: 1000,
+      maxOffsetX: width - (1000 - HEADER_WIDTH - 1),
+      maxOffsetY: height - (1000 - HEADER_HEIGHT - 1),
+    });
+    selectCell(model, "Z100");
+    expect(model.getters.getActiveViewport()).toMatchObject({
+      offsetX: 1632,
+      offsetY: 1334,
+    });
+    // de-zoom
+    model.dispatch("RESIZE_VIEWPORT", {
+      width: 1200,
+      height: 1200,
+      maxOffsetX: width - (1200 - HEADER_WIDTH - 1),
+      maxOffsetY: height - (1200 - HEADER_HEIGHT - 1),
+    });
+    console.log(model.getters.getGridDimension(model.getters.getActiveSheet()));
+    expect(model.getters.getActiveViewport()).toMatchObject({
+      offsetX: width - (1200 - HEADER_WIDTH - 1),
+      offsetY: height - (1200 - HEADER_HEIGHT - 1),
+    });
+  });
 });
 
 describe("multi sheet with different sizes", () => {
@@ -720,8 +748,7 @@ describe("multi sheet with different sizes", () => {
       right: 2,
     });
   });
-  test.skip("can undo/redo actions on other sheets", () => {
-    // Currently broken due to issue with selection
+  test("can undo/redo actions on other sheets", () => {
     activateSheet(model, "small");
     addColumns(model, "after", "A", 200);
     selectCell(model, toXC(200, 0));
