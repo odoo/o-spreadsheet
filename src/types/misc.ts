@@ -24,6 +24,7 @@ export interface Style {
   bold?: boolean;
   italic?: boolean;
   strikethrough?: boolean;
+  underline?: boolean,
   align?: Align;
   fillColor?: string;
   textColor?: string;

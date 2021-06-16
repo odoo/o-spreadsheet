@@ -249,11 +249,12 @@ topbarMenuRegistry
     shortCut: "Ctrl+I",
     action: ACTIONS.FORMAT_ITALIC_ACTION,
   })
-  // .addChild("format_underline", ["format"], {
-  //   Underline is not yet implemented
-  //   name: _lt("Underline"),
-  //   sequence: 40,
-  // })
+  .addChild("format_underline", ["format"], {
+    name: _lt("Underline"),
+    shortCut: "Ctrl+U",
+    sequence: 40,
+    action: ACTIONS.FORMAT_UNDERLINE_ACTION,
+  })
   .addChild("format_strikethrough", ["format"], {
     name: _lt("Strikethrough"),
     sequence: 50,

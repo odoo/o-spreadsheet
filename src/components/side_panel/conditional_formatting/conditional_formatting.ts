@@ -10,6 +10,7 @@ import {
   SpreadsheetEnv,
   Zone,
 } from "../../../types";
+import { getTextDecoration } from "../../helpers/dom_helpers";
 import { ICONS, TRASH } from "../../icons";
 import { SelectionInput } from "../../selection_input";
 import { cellIsOperators, conditionalFormattingTerms, GenericWords } from "../translations_terms";
@@ -412,7 +413,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
   getStyle(rule: SingleColorRules | ColorScaleRule): string {
     if (rule.type === "CellIsRule") {
       const fontWeight = rule.style.bold ? "bold" : "normal";
-      const fontDecoration = rule.style.strikethrough ? "line-through" : "none";
+      const fontDecoration = getTextDecoration(rule.style);
       const fontStyle = rule.style.italic ? "italic" : "normal";
       const color = rule.style.textColor || "none";
       const backgroundColor = rule.style.fillColor || "none";

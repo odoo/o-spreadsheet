@@ -20,6 +20,7 @@ const simpleData = {
         D12: { content: "this is a sum of sums" },
         F2: { content: "italic blablah", style: 2 },
         F3: { content: "strikethrough", style: 3 },
+        F4: { content: "underline", style: 5 },
         H2: { content: "merged content" },
         C20: { content: "left", border: 1 },
         E20: { content: "top", border: 2 },
@@ -60,6 +61,7 @@ const simpleData = {
     2: { italic: true },
     3: { strikethrough: true, align: "left" },
     4: { fillColor: "#e3efd9" },
+    5: { underline: true },
   },
   borders: {
     1: { left: ["thin", "#000"] },

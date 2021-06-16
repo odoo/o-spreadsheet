@@ -8,6 +8,7 @@ import {
   Style,
 } from "../../../types";
 import { ColorPicker } from "../../color_picker";
+import { getTextDecoration } from "../../helpers/dom_helpers";
 import * as icons from "../../icons";
 import { cellIsOperators, conditionalFormattingTerms } from "../translations_terms";
 
@@ -18,7 +19,7 @@ const { xml, css } = owl.tags;
 const PREVIEW_TEMPLATE = xml/* xml */ `
     <div class="o-cf-preview-line"
          t-attf-style="font-weight:{{currentStyle.bold ?'bold':'normal'}};
-                       text-decoration:{{currentStyle.strikethrough ? 'line-through':'none'}};
+                       text-decoration:{{getTextDecoration(currentStyle)}};
                        font-style:{{currentStyle.italic?'italic':'normal'}};
                        color:{{currentStyle.textColor}};
                        border-radius: 4px;
@@ -59,6 +60,9 @@ const TEMPLATE = xml/* xml */ `
         </div>
         <div class="o-tool" t-att-title="env._t('${conditionalFormattingTerms.ITALIC}')" t-att-class="{active:state.style.italic}" t-on-click="toggleTool('italic')">
             ${icons.ITALIC_ICON}
+        </div>
+        <div class="o-tool" t-att-title="env._t('${conditionalFormattingTerms.UNDERLINE}')" t-att-class="{active:state.style.underline}"
+             t-on-click="toggleTool('underline')">${icons.UNDERLINE_ICON}
         </div>
         <div class="o-tool" t-att-title="env._t('${conditionalFormattingTerms.STRIKE_THROUGH}')" t-att-class="{active:state.style.strikethrough}"
              t-on-click="toggleTool('strikethrough')">${icons.STRIKE_ICON}
@@ -126,6 +130,8 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
 
   // @ts-ignore used in XML template
   private cellIsOperators = cellIsOperators;
+  // @ts-ignore used in XML template
+  private getTextDecoration = getTextDecoration;
 
   state = useState({
     condition: {
@@ -143,6 +149,7 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
       bold: this.props.rule.style.bold,
       italic: this.props.rule.style.italic,
       strikethrough: this.props.rule.style.strikethrough,
+      underline: this.props.rule.style.underline,
     },
   });
   constructor() {
@@ -169,6 +176,9 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
     }
     if (style.strikethrough !== undefined) {
       newStyle.strikethrough = style.strikethrough;
+    }
+    if (style.underline !== undefined) {
+      newStyle.underline = style.underline;
     }
     if (style.fillColor) {
       newStyle.fillColor = style.fillColor;

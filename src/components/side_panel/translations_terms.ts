@@ -7,6 +7,7 @@ export const conditionalFormattingTerms = {
   FORMATTING_STYLE: _lt("Formatting style"),
   BOLD: _lt("Bold"),
   ITALIC: _lt("Italic"),
+  UNDERLINE: _lt("Underline"),
   STRIKE_THROUGH: _lt("Strikethrough"),
   TEXT_COLOR: _lt("Text Color"),
   FILL_COLOR: _lt("Fill Color"),

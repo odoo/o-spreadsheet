@@ -332,13 +332,19 @@ export class RendererPlugin extends UIPlugin {
           ctx.clip();
         }
         ctx.fillText(box.text, Math.round(x), Math.round(y));
-        if (style.strikethrough) {
+        if (style.strikethrough || style.underline) {
           if (align === "right") {
             x = x - box.textWidth;
           } else if (align === "center") {
             x = x - box.textWidth / 2;
           }
-          ctx.fillRect(x, y, box.textWidth, 2.6 * thinLineWidth);
+          if (style.strikethrough) {
+            ctx.fillRect(x, y, box.textWidth, 2.6 * thinLineWidth);
+          }
+          if (style.underline) {
+            y = box.y + box.height / 2 + 1 + size / 2;
+            ctx.fillRect(x, y, box.textWidth, 1.3 * thinLineWidth);
+          }
         }
         if (box.clipRect) {
           ctx.restore();

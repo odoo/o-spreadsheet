@@ -29,6 +29,7 @@ export function addFonts(fonts: XLSXFont[]): XMLString {
       <font>
         ${font.bold ? escapeXml/*xml*/ `<b />` : ""}
         ${font.italic ? escapeXml/*xml*/ `<i />` : ""}
+        ${font.underline ? escapeXml/*xml*/ `<u />` : ""}
         ${font.strike ? escapeXml/*xml*/ `<strike />` : ""}
         <sz val="${font.size}" />
         <color rgb="${toHex6(font.color)}" />

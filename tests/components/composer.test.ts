@@ -769,7 +769,7 @@ describe("composer", () => {
       expect(gridComposer.style.fontStyle).toBe("italic");
     });
 
-    test("with text decoration", async () => {
+    test("with text decoration strikethrough", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: [toZone("A1")],
@@ -778,6 +778,28 @@ describe("composer", () => {
       await typeInComposer("Hello");
       const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
       expect(gridComposer.style.textDecoration).toBe("line-through");
+    });
+
+    test("with text decoration underline", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { underline: true },
+      });
+      await typeInComposer("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.textDecoration).toBe("underline");
+    });
+
+    test("with text decoration strikethrough and underline", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { strikethrough: true, underline: true },
+      });
+      await typeInComposer("Hello");
+      const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+      expect(gridComposer.style.textDecoration).toBe("line-through underline");
     });
 
     test("with text align", async () => {
