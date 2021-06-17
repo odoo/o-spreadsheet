@@ -13,12 +13,13 @@ import {
   DispatchResult,
   Getters,
   Header,
-  Increment,
   Position,
+  SelectionDirection,
+  SelectionStep,
+  UID,
   Zone,
 } from "../types";
 import { SelectionEvent } from "../types/event_stream";
-import { SelectionDirection } from "../types/selection";
 import { EventStream, StreamCallbacks } from "./event_stream";
 
 type StatefulStream<Event, State> = {
@@ -36,10 +37,10 @@ type StatefulStream<Event, State> = {
 export interface SelectionProcessor {
   selectZone(anchor: AnchorZone): DispatchResult;
   selectCell(col: number, row: number): DispatchResult;
-  moveAnchorCell(direction: SelectionDirection): DispatchResult;
+  moveAnchorCell(direction: SelectionDirection, step: SelectionStep): DispatchResult;
   setAnchorCorner(col: number, row: number): DispatchResult;
   addCellToSelection(col: number, row: number): DispatchResult;
-  resizeAnchorZone(direction: SelectionDirection): DispatchResult;
+  resizeAnchorZone(direction: SelectionDirection, step: SelectionStep): DispatchResult;
   selectColumn(index: number, mode: SelectionEvent["mode"]): DispatchResult;
   selectRow(
     index: number,
@@ -137,8 +138,8 @@ export class SelectionStreamProcessor
   /**
    * Set the selection to one of the cells adjacent to the current anchor cell.
    */
-  moveAnchorCell(direction: SelectionDirection): DispatchResult {
-    const { col, row } = this.getNextAvailablePosition(direction);
+  moveAnchorCell(direction: SelectionDirection, step: SelectionStep = "one"): DispatchResult {
+    const { col, row } = this.getNextAvailablePosition(direction, step);
     return this.selectCell(col, row);
   }
 
@@ -183,12 +184,16 @@ export class SelectionStreamProcessor
    * The anchor cell remains where it is. It's the opposite side
    * of the anchor zone which moves.
    */
-  resizeAnchorZone(direction: SelectionDirection): DispatchResult {
+  resizeAnchorZone(direction: SelectionDirection, step: SelectionStep = "one"): DispatchResult {
     const sheet = this.getters.getActiveSheet();
     const anchor = this.anchor;
-    const delta = this.directionToDelta(direction);
     const { col: anchorCol, row: anchorRow } = anchor.cell;
     const { left, right, top, bottom } = anchor.zone;
+    const starting = this.getStartingPosition(direction);
+    let [deltaCol, deltaRow] = this.deltaToTarget(starting, direction, step);
+    if (deltaCol === 0 && deltaRow === 0) {
+      return DispatchResult.Success;
+    }
     let result: Zone | null = anchor.zone;
     const expand = (z: Zone) => {
       z = organizeZone(z);
@@ -206,20 +211,20 @@ export class SelectionStreamProcessor
     let n = 0;
     while (result !== null) {
       n++;
-      if (delta[0] < 0) {
-        const newRight = this.getNextAvailableCol(delta[0], right - (n - 1), refRow);
+      if (deltaCol < 0) {
+        const newRight = this.getNextAvailableCol(deltaCol, right - (n - 1), refRow);
         result = refCol <= right - n ? expand({ top, left, bottom, right: newRight }) : null;
       }
-      if (delta[0] > 0) {
-        const newLeft = this.getNextAvailableCol(delta[0], left + (n - 1), refRow);
+      if (deltaCol > 0) {
+        const newLeft = this.getNextAvailableCol(deltaCol, left + (n - 1), refRow);
         result = left + n <= refCol ? expand({ top, left: newLeft, bottom, right }) : null;
       }
-      if (delta[1] < 0) {
-        const newBottom = this.getNextAvailableRow(delta[1], refCol, bottom - (n - 1));
+      if (deltaRow < 0) {
+        const newBottom = this.getNextAvailableRow(deltaRow, refCol, bottom - (n - 1));
         result = refRow <= bottom - n ? expand({ top, left, bottom: newBottom, right }) : null;
       }
-      if (delta[1] > 0) {
-        const newTop = this.getNextAvailableRow(delta[1], refCol, top + (n - 1));
+      if (deltaRow > 0) {
+        const newTop = this.getNextAvailableRow(deltaRow, refCol, top + (n - 1));
         result = top + n <= refRow ? expand({ top: newTop, left, bottom, right }) : null;
       }
       result = result ? organizeZone(result) : result;
@@ -238,10 +243,10 @@ export class SelectionStreamProcessor
       right: anchorCol,
     };
     const zoneWithDelta = organizeZone({
-      top: this.getNextAvailableRow(delta[1], refCol!, top),
-      left: this.getNextAvailableCol(delta[0], left, refRow!),
-      bottom: this.getNextAvailableRow(delta[1], refCol!, bottom),
-      right: this.getNextAvailableCol(delta[0], right, refRow!),
+      top: this.getNextAvailableRow(deltaRow, refCol!, top),
+      left: this.getNextAvailableCol(deltaCol, left, refRow!),
+      bottom: this.getNextAvailableRow(deltaRow, refCol!, bottom),
+      right: this.getNextAvailableCol(deltaCol, right, refRow!),
     });
     result = expand(union(currentZone, zoneWithDelta));
     const newAnchor = { zone: result, cell: { col: anchorCol, row: anchorRow } };
@@ -352,33 +357,23 @@ export class SelectionStreamProcessor
    *  ---- PRIVATE ----
    */
 
-  private directionToDelta(direction: SelectionDirection): [Increment, Increment] {
-    switch (direction) {
-      case "up":
-        return [0, -1];
-      case "down":
-        return [0, 1];
-      case "left":
-        return [-1, 0];
-      case "right":
-        return [1, 0];
-    }
-  }
-
   /** Computes the next cell position in the direction of deltaX and deltaY
    * by crossing through merges and skipping hidden cells.
    * Note that the resulting position might be out of the sheet, it needs to be validated.
    */
-  private getNextAvailablePosition(direction: SelectionDirection): Position {
+  private getNextAvailablePosition(
+    direction: SelectionDirection,
+    step: SelectionStep = "one"
+  ): Position {
     const { col, row } = this.anchor.cell;
-    const delta = this.directionToDelta(direction);
+    const delta = this.deltaToTarget({ col, row }, direction, step);
     return {
       col: this.getNextAvailableCol(delta[0], col, row),
       row: this.getNextAvailableRow(delta[1], col, row),
     };
   }
 
-  private getNextAvailableCol(delta: Increment, colIndex: number, rowIndex: number): number {
+  private getNextAvailableCol(delta: number, colIndex: number, rowIndex: number): number {
     const { cols, id: sheetId } = this.getters.getActiveSheet();
     const position = { col: colIndex, row: rowIndex };
     const isInPositionMerge = (nextCol: number) =>
@@ -386,7 +381,7 @@ export class SelectionStreamProcessor
     return this.getNextAvailableHeader(delta, cols, colIndex, position, isInPositionMerge);
   }
 
-  private getNextAvailableRow(delta: Increment, colIndex: number, rowIndex: number): number {
+  private getNextAvailableRow(delta: number, colIndex: number, rowIndex: number): number {
     const { rows, id: sheetId } = this.getters.getActiveSheet();
     const position = { col: colIndex, row: rowIndex };
     const isInPositionMerge = (nextRow: number) =>
@@ -395,36 +390,29 @@ export class SelectionStreamProcessor
   }
 
   private getNextAvailableHeader(
-    delta: Increment,
+    delta: number,
     headers: Header[],
     startingHeaderIndex: number,
     position: Position,
     isInPositionMerge: (nextHeader: number) => boolean
   ): number {
-    const sheetId = this.getters.getActiveSheetId();
-    const { col, row } = position;
     if (delta === 0) {
       return startingHeaderIndex;
     }
+    const step = Math.sign(delta);
     let header = startingHeaderIndex + delta;
 
-    if (this.getters.isInMerge(sheetId, col, row)) {
-      while (isInPositionMerge(header)) {
-        header += delta;
-      }
-      while (headers[header]?.isHidden) {
-        header += delta;
-      }
-    } else if (headers[header]?.isHidden) {
-      while (headers[header]?.isHidden) {
-        header += delta;
-      }
+    while (isInPositionMerge(header)) {
+      header += step;
+    }
+    while (headers[header]?.isHidden) {
+      header += step;
     }
     const outOfBound = header < 0 || header > headers.length - 1;
     if (outOfBound) {
       if (headers[startingHeaderIndex].isHidden) {
         return this.getNextAvailableHeader(
-          -delta as Increment,
+          -step,
           headers,
           startingHeaderIndex,
           position,
@@ -456,5 +444,124 @@ export class SelectionStreamProcessor
         ? findVisibleHeader(sheet, "rows", range(top, bottom + 1)) || anchorRow
         : anchorRow,
     };
+  }
+
+  private deltaToTarget(
+    position: Position,
+    direction: SelectionDirection,
+    step: SelectionStep
+  ): [number, number] {
+    switch (direction) {
+      case "up":
+        return step === "one"
+          ? [0, -1]
+          : [0, this.getEndOfCluster(position, "rows", -1) - position.row];
+      case "down":
+        return step === "one"
+          ? [0, 1]
+          : [0, this.getEndOfCluster(position, "rows", 1) - position.row];
+      case "left":
+        return step === "one"
+          ? [-1, 0]
+          : [this.getEndOfCluster(position, "cols", -1) - position.col, 0];
+      case "right":
+        return step === "one"
+          ? [1, 0]
+          : [this.getEndOfCluster(position, "cols", 1) - position.col, 0];
+    }
+  }
+
+  // TODO rename this
+  private getStartingPosition(direction: SelectionDirection): Position {
+    let [col, row] = this.getPosition();
+    const zone = this.anchor.zone;
+    switch (direction) {
+      case "down":
+      case "up":
+        row = row === zone.top ? zone.bottom : zone.top;
+        break;
+      case "left":
+      case "right":
+        col = col === zone.right ? zone.left : zone.right;
+        break;
+    }
+    return { col, row };
+  }
+
+  /**
+   * Given a starting position, compute the end of the cluster containing the position in the given
+   * direction or the start of the next cluster. We define cluster here as side-by-side cells that
+   * all have a content.
+   *
+   * We will return the end of the cluster if the given cell is inside a cluster, and the start of the
+   * next cluster if the given cell is outside a cluster or at the border of a cluster in the given direction.
+   */
+  private getEndOfCluster(startPosition: Position, dim: "cols" | "rows", dir: -1 | 1): number {
+    const sheet = this.getters.getActiveSheet();
+    let currentPosition = startPosition;
+
+    // If both the current cell and the next cell are not empty, we want to go to the end of the cluster
+    const nextCellPosition = this.getNextCellPosition(startPosition, dim, dir);
+    let mode: "endOfCluster" | "nextCluster" =
+      !this.isCellEmpty(currentPosition, sheet.id) && !this.isCellEmpty(nextCellPosition, sheet.id)
+        ? "endOfCluster"
+        : "nextCluster";
+
+    while (true) {
+      const nextCellPosition = this.getNextCellPosition(currentPosition, dim, dir);
+      // Break if nextPosition == currentPosition, which happens if there's no next valid position
+      if (
+        currentPosition.col === nextCellPosition.col &&
+        currentPosition.row === nextCellPosition.row
+      ) {
+        break;
+      }
+      const isNextCellEmpty = this.isCellEmpty(nextCellPosition, sheet.id);
+      if (mode === "endOfCluster" && isNextCellEmpty) {
+        break;
+      } else if (mode === "nextCluster" && !isNextCellEmpty) {
+        // We want to return the start of the next cluster, not the end of the empty zone
+        currentPosition = nextCellPosition;
+        break;
+      }
+      currentPosition = nextCellPosition;
+    }
+    return dim === "cols" ? currentPosition.col : currentPosition.row;
+  }
+
+  /**
+   * Check if a cell is empty or undefined in the model. If the cell is part of a merge,
+   * check if the merge containing the cell is empty.
+   */
+  private isCellEmpty({ col, row }: Position, sheetId: UID): boolean {
+    const cell = this.getters.getCell(sheetId, ...this.getters.getMainCell(sheetId, col, row));
+    return !cell || cell.isEmpty();
+  }
+
+  /** Computes the next cell position in the given direction by crossing through merges and skipping hidden cells.
+   *
+   * This has the same behaviour as getNextAvailablePosition() for certains arguments, but use this method instead
+   * inside directionToDelta(), which is called in getNextAvailablePosition(), to avoid possible infinite
+   * recursion.
+   */
+  private getNextCellPosition(
+    currentPosition: Position,
+    dimension: "cols" | "rows",
+    direction: -1 | 1
+  ): Position {
+    const dimOfInterest = dimension === "cols" ? "col" : "row";
+    const startingPosition = { ...currentPosition };
+
+    const nextCoord =
+      dimension === "cols"
+        ? this.getNextAvailableCol(direction, startingPosition.col, startingPosition.row)
+        : this.getNextAvailableRow(direction, startingPosition.col, startingPosition.row);
+
+    startingPosition[dimOfInterest] = nextCoord;
+    return { col: startingPosition.col, row: startingPosition.row };
+  }
+
+  private getPosition(): [number, number] {
+    return [this.anchor.cell.col, this.anchor.cell.row];
   }
 }

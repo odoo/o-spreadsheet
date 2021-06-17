@@ -12,7 +12,7 @@ import {
   UID,
   UpDown,
 } from "../../src/types";
-import { SelectionDirection } from "../../src/types/selection";
+import { SelectionDirection, SelectionStep } from "../../src/types/selection";
 import { target } from "./helpers";
 
 /**
@@ -344,12 +344,20 @@ export function selectCell(model: Model, xc: string): DispatchResult {
   return model.selection.selectCell(col, row);
 }
 
-export function moveAnchorCell(model: Model, direction: SelectionDirection): DispatchResult {
-  return model.selection.moveAnchorCell(direction);
+export function moveAnchorCell(
+  model: Model,
+  direction: SelectionDirection,
+  step: SelectionStep = "one"
+): DispatchResult {
+  return model.selection.moveAnchorCell(direction, step);
 }
 
-export function resizeAnchorZone(model: Model, direction: SelectionDirection): DispatchResult {
-  return model.selection.resizeAnchorZone(direction);
+export function resizeAnchorZone(
+  model: Model,
+  direction: SelectionDirection,
+  step: SelectionStep = "one"
+): DispatchResult {
+  return model.selection.resizeAnchorZone(direction, step);
 }
 
 export function setAnchorCorner(model: Model, xc: string): DispatchResult {

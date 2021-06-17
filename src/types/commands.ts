@@ -7,11 +7,11 @@ import {
   ChartUIDefinitionUpdate,
   ConditionalFormat,
   Figure,
-  Increment,
   Style,
   Zone,
 } from "./index";
 import { Border, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
+import { SelectionDirection, SelectionStep } from "./selection";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -488,7 +488,8 @@ export interface SelectAllCommand {
 
 export interface AlterSelectionCommand {
   type: "ALTER_SELECTION";
-  delta?: [Increment, Increment];
+  direction?: SelectionDirection;
+  step?: SelectionStep;
   cell?: [number, number];
 }
 
