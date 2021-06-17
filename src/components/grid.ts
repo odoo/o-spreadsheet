@@ -7,7 +7,7 @@ import {
   HEADER_WIDTH,
   SCROLLBAR_WIDTH,
 } from "../constants";
-import { findCellInNewZone, isInside, MAX_DELAY } from "../helpers/index";
+import { isInside, MAX_DELAY } from "../helpers/index";
 import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
@@ -310,8 +310,8 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   // down itself
   private keyDownMapping: { [key: string]: Function } = {
     ENTER: () => this.trigger("composer-focused"),
-    TAB: () => this.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 }),
-    "SHIFT+TAB": () => this.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 }),
+    TAB: () => this.dispatch("MOVE_POSITION", { direction: "right", step: "one" }),
+    "SHIFT+TAB": () => this.dispatch("MOVE_POSITION", { direction: "left", step: "one" }),
     F2: () => this.trigger("composer-focused"),
     DELETE: () => {
       this.dispatch("DELETE_CONTENT", {
@@ -614,37 +614,24 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
 
   processTabKey(ev: KeyboardEvent) {
     ev.preventDefault();
-    const deltaX = ev.shiftKey ? -1 : 1;
-    this.dispatch("MOVE_POSITION", { deltaX, deltaY: 0 });
+    const direction = ev.shiftKey ? "up" : "down";
+    this.dispatch("MOVE_POSITION", { direction, step: "one" });
   }
 
   processArrows(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
-    const deltaMap = {
-      ArrowDown: [0, 1],
-      ArrowLeft: [-1, 0],
-      ArrowRight: [1, 0],
-      ArrowUp: [0, -1],
+    const directionMap = {
+      ArrowDown: "down",
+      ArrowLeft: "left",
+      ArrowRight: "right",
+      ArrowUp: "up",
     };
-    const delta = deltaMap[ev.key];
+    const direction = directionMap[ev.key];
     if (ev.shiftKey) {
-      const oldZone = this.getters.getSelectedZone();
-      this.dispatch("ALTER_SELECTION", { delta });
-      const newZone = this.getters.getSelectedZone();
-      const viewport = this.getters.getActiveSnappedViewport();
-      const sheet = this.getters.getActiveSheet();
-      const [col, row] = findCellInNewZone(oldZone, newZone, viewport);
-
-      const { left, right, top, bottom, offsetX, offsetY } = viewport;
-      const newOffsetX =
-        col < left || col > right - 1 ? sheet.cols[left + delta[0]].start : offsetX;
-      const newOffsetY = row < top || row > bottom - 1 ? sheet.rows[top + delta[1]].start : offsetY;
-      if (newOffsetX !== offsetX || newOffsetY !== offsetY) {
-        this.dispatch("SET_VIEWPORT_OFFSET", { offsetX: newOffsetX, offsetY: newOffsetY });
-      }
+      this.dispatch("ALTER_SELECTION", { direction, step: ev.ctrlKey ? "end" : "one" });
     } else {
-      this.dispatch("MOVE_POSITION", { deltaX: delta[0], deltaY: delta[1] });
+      this.dispatch("MOVE_POSITION", { direction, step: ev.ctrlKey ? "end" : "one" });
     }
 
     if (this.getters.isPaintingFormat()) {

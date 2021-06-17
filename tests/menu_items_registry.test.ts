@@ -8,7 +8,13 @@ import {
   topbarMenuRegistry,
 } from "../src/registries/index";
 import { CommandResult, SpreadsheetEnv } from "../src/types";
-import { hideColumns, hideRows, selectCell, setSelection } from "./test_helpers/commands_helpers";
+import {
+  alterSelection,
+  hideColumns,
+  hideRows,
+  selectCell,
+  setSelection,
+} from "./test_helpers/commands_helpers";
 import { GridParent, makeTestFixture, mockUuidV4To, nextTick } from "./test_helpers/helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
@@ -202,7 +208,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
+      alterSelection(model, { cell: [4, 4] });
       expect(getName(path, env)).toBe("Delete rows 4 - 5");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -252,7 +258,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
+      alterSelection(model, { cell: [4, 4] });
       expect(getName(path, env)).toBe("Delete columns D - E");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -300,7 +306,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
+      alterSelection(model, { cell: [4, 4] });
       expect(getName(path, env)).toBe("2 Rows above");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -351,7 +357,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
+      alterSelection(model, { cell: [4, 4] });
       expect(getName(path, env)).toBe("2 Rows below");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -402,7 +408,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
+      alterSelection(model, { cell: [4, 4] });
       expect(getName(path, env)).toBe("2 Columns left");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -453,7 +459,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
+      alterSelection(model, { cell: [4, 4] });
       expect(getName(path, env)).toBe("2 Columns right");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {

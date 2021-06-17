@@ -1,7 +1,13 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
 import { HighlightPlugin } from "../../src/plugins/ui/highlight";
-import { createSheet, merge, selectCell, setSelection } from "../test_helpers/commands_helpers";
+import {
+  alterSelection,
+  createSheet,
+  merge,
+  selectCell,
+  setSelection,
+} from "../test_helpers/commands_helpers";
 
 let model: Model;
 
@@ -352,8 +358,8 @@ describe("highlight", () => {
     model.dispatch("START_SELECTION_EXPANSION");
     setSelection(model, ["A3:A5"], { anchor: "A5" });
     const mergeColor = getColor(model);
-    model.dispatch("ALTER_SELECTION", { cell: [0, 1] }); // TopLeft
-    model.dispatch("ALTER_SELECTION", { cell: [0, 0] }); // above merge
+    alterSelection(model, { cell: [0, 1] }); // TopLeft
+    alterSelection(model, { cell: [0, 0] }); // above merge
     model.dispatch("STOP_SELECTION");
     expect(model.getters.getHighlights()).toStrictEqual([
       {

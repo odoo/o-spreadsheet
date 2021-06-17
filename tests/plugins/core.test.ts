@@ -4,6 +4,7 @@ import { LOADING } from "../../src/plugins/ui/evaluation";
 import { CommandResult } from "../../src/types";
 import {
   activateSheet,
+  alterSelection,
   createSheet,
   redo,
   resizeColumns,
@@ -39,7 +40,7 @@ describe("core", () => {
 
       expect(model.getters.getAggregate()).toBe(null);
 
-      model.dispatch("ALTER_SELECTION", { cell: [0, 2] });
+      alterSelection(model, { cell: [0, 2] });
       expect(model.getters.getAggregate()).toBe("57");
     });
 
@@ -54,11 +55,11 @@ describe("core", () => {
       expect(model.getters.getAggregate()).toBe(null);
 
       // select A1:A2
-      model.dispatch("ALTER_SELECTION", { cell: [0, 1] });
+      alterSelection(model, { cell: [0, 1] });
       expect(model.getters.getAggregate()).toBe(null);
 
       // select A1:A3
-      model.dispatch("ALTER_SELECTION", { cell: [0, 2] });
+      alterSelection(model, { cell: [0, 2] });
       expect(model.getters.getAggregate()).toBe("5");
     });
 
@@ -94,7 +95,7 @@ describe("core", () => {
       expect(model.getters.getAggregate()).toBe(null);
 
       // select A1:A2
-      model.dispatch("ALTER_SELECTION", { cell: [0, 1] });
+      alterSelection(model, { cell: [0, 1] });
       expect(model.getters.getAggregate()).toBe(null);
 
       await waitForRecompute();

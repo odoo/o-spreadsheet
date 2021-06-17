@@ -10,6 +10,7 @@ import { Model } from "../../src/model";
 import { HighlightPlugin } from "../../src/plugins/ui/highlight";
 import {
   activateSheet,
+  alterSelection,
   createSheet,
   createSheetWithName,
   merge,
@@ -219,7 +220,8 @@ describe("ranges and highlights", () => {
 
   test("Create a ref with merges with keyboard -> the merge should be treated as one cell", async () => {
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { delta: [1, 1] });
+    alterSelection(model, { direction: "down" });
+    alterSelection(model, { direction: "right" });
     merge(model, "B2:C3");
     selectCell(model, "C1");
     await typeInComposer("=");

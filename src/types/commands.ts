@@ -6,11 +6,11 @@ import {
   ChartUIDefinitionUpdate,
   ConditionalFormat,
   Figure,
-  Increment,
   Style,
   Zone,
 } from "./index";
 import { Border, Cell, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
+import { SelectionDirection, SelectionStep } from "./selection";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -452,8 +452,8 @@ export interface AutoresizeRowsCommand extends BaseCommand {
 
 export interface MovePositionCommand extends BaseCommand {
   type: "MOVE_POSITION";
-  deltaX: Increment;
-  deltaY: Increment;
+  direction: SelectionDirection;
+  step: SelectionStep;
 }
 
 export interface ActivateSheetCommand extends BaseCommand {
@@ -566,7 +566,8 @@ export interface SelectAllCommand extends BaseCommand {
 
 export interface AlterSelectionCommand extends BaseCommand {
   type: "ALTER_SELECTION";
-  delta?: [Increment, Increment];
+  direction?: SelectionDirection;
+  step?: SelectionStep;
   cell?: [number, number];
 }
 

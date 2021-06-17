@@ -6,7 +6,12 @@ import { Model } from "../../src/model";
 import { topbarComponentRegistry } from "../../src/registries";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { ConditionalFormat } from "../../src/types";
-import { selectCell, setCellContent, setSelection } from "../test_helpers/commands_helpers";
+import {
+  alterSelection,
+  selectCell,
+  setCellContent,
+  setSelection,
+} from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getBorder, getCell } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
@@ -92,7 +97,7 @@ describe("TopBar component", () => {
 
     // increase the selection to A2 (so, it is now A1:B2) => merge tool
     // shoul not be active
-    model.dispatch("ALTER_SELECTION", { cell: [0, 1] });
+    alterSelection(model, { cell: [0, 1] });
     await nextTick();
     expect(mergeTool.classList.contains("active")).toBeFalsy();
   });
@@ -108,7 +113,7 @@ describe("TopBar component", () => {
     // should be disabled, because the selection is just one cell
     expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
 
-    model.dispatch("ALTER_SELECTION", { cell: [1, 0] });
+    alterSelection(model, { cell: [1, 0] });
     await nextTick();
     // should be enabled, because two cells are selected
     expect(mergeTool.classList.contains("o-disabled")).toBeFalsy();

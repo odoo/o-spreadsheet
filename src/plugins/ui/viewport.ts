@@ -4,9 +4,17 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "../../constants";
-import { findLastVisibleColRow, getNextVisibleCellCoords } from "../../helpers";
+import { findCellInNewZone, findLastVisibleColRow, getNextVisibleCellCoords } from "../../helpers";
 import { Mode } from "../../model";
-import { Command, CommandResult, Sheet, UID, Viewport, ZoneDimension } from "../../types/index";
+import {
+  Command,
+  CommandResult,
+  Sheet,
+  UID,
+  Viewport,
+  Zone,
+  ZoneDimension,
+} from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 interface ViewportPluginState {
@@ -46,6 +54,8 @@ export class ViewportPlugin extends UIPlugin {
   private clientWidth: number = 1000;
   private clientHeight: number = 1000;
 
+  private oldSelectedZone: Zone = { left: 0, right: 0, top: 0, bottom: 0 };
+
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -61,6 +71,15 @@ export class ViewportPlugin extends UIPlugin {
         return CommandResult.Success;
       default:
         return CommandResult.Success;
+    }
+  }
+
+  beforeHandle(cmd: Command) {
+    switch (cmd.type) {
+      case "ALTER_SELECTION":
+        if (cmd.direction) {
+          this.oldSelectedZone = this.getters.getSelectedZone();
+        }
     }
   }
 
@@ -102,6 +121,14 @@ export class ViewportPlugin extends UIPlugin {
       case "MOVE_POSITION":
         this.refreshViewport(this.getters.getActiveSheetId());
         break;
+      case "ALTER_SELECTION":
+        const newZone = this.getters.getSelectedZone();
+        const position = findCellInNewZone(
+          this.oldSelectedZone,
+          newZone,
+          this.getActiveSnappedViewport()
+        );
+        this.adjustViewportsPosition(this.getters.getActiveSheetId(), position);
     }
   }
 

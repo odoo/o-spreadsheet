@@ -1,7 +1,13 @@
 import { toCartesian, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult, Increment, Viewport } from "../../src/types";
-import { hideColumns, hideRows, merge, selectCell } from "../test_helpers/commands_helpers";
+import { CommandResult, SelectionDirection, Viewport } from "../../src/types";
+import {
+  hideColumns,
+  hideRows,
+  merge,
+  movePosition,
+  selectCell,
+} from "../test_helpers/commands_helpers";
 import { getActiveXc } from "../test_helpers/getters_helpers";
 
 function getViewport(
@@ -23,7 +29,7 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([0, 0]);
     expect(model.getters.getSelection().anchor).toEqual([0, 0]);
 
-    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    movePosition(model, "right");
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 0 });
     expect(model.getters.getPosition()).toEqual([1, 0]);
     expect(model.getters.getSelection().anchor).toEqual([1, 0]);
@@ -34,7 +40,8 @@ describe("navigation", () => {
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(model.getters.getPosition()).toEqual([0, 0]);
 
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
+    movePosition(model, "up");
+
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(model.getters.getPosition()).toEqual([0, 0]);
   });
@@ -46,7 +53,8 @@ describe("navigation", () => {
     selectCell(model, toXC(colNumber - 1, 0));
 
     expect(model.getters.getPosition()).toEqual([colNumber - 1, 0]);
-    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    movePosition(model, "right");
+
     expect(model.getters.getPosition()).toEqual([colNumber - 1, 0]);
   });
 
@@ -56,7 +64,8 @@ describe("navigation", () => {
     const rowNumber = activeSheet.rows.length;
     selectCell(model, toXC(0, rowNumber - 1));
     expect(model.getters.getPosition()).toEqual([0, rowNumber - 1]);
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    movePosition(model, "down");
+
     expect(model.getters.getPosition()).toEqual([0, rowNumber - 1]);
   });
 
@@ -70,7 +79,7 @@ describe("navigation", () => {
     });
     selectCell(model, toXC(0, rowNumber - 2));
     expect(model.getters.getPosition()).toEqual([0, rowNumber - 2]);
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    movePosition(model, "down");
     expect(model.getters.getPosition()).toEqual([0, rowNumber - 2]);
   });
 
@@ -89,7 +98,7 @@ describe("navigation", () => {
     });
     selectCell(model, toXC(0, rowNumber - 3));
     expect(model.getters.getPosition()).toEqual([0, rowNumber - 3]);
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    movePosition(model, "down");
     expect(model.getters.getPosition()).toEqual([0, rowNumber - 3]);
   });
 
@@ -103,7 +112,7 @@ describe("navigation", () => {
     });
     selectCell(model, toXC(colNumber - 2, 0));
     expect(model.getters.getPosition()).toEqual([colNumber - 2, 0]);
-    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    movePosition(model, "right");
     expect(model.getters.getPosition()).toEqual([colNumber - 2, 0]);
   });
 
@@ -120,13 +129,13 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([0, 0]);
 
     // move to the right, inside the merge
-    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    movePosition(model, "right");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.getters.getPosition()).toEqual([1, 0]);
 
     // move to the right, outside the merge
-    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    movePosition(model, "right");
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 3, left: 3, bottom: 0 });
     expect(model.getters.getPosition()).toEqual([3, 0]);
     expect(getActiveXc(model)).toBe("D1");
@@ -149,14 +158,14 @@ describe("navigation", () => {
 
     // enter merge from below
     expect(getActiveXc(model)).toBe("B3");
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
+    movePosition(model, "up");
     expect(getActiveXc(model)).toBe("B2");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.getters.getPosition()).toEqual([1, 1]);
 
     // move to the top, outside the merge
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
+    movePosition(model, "up");
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.getters.getPosition()).toEqual([1, 1]);
   });
@@ -260,10 +269,10 @@ describe("navigation", () => {
     });
     //from the right
     model.dispatch("SELECT_CELL", { col: 3, row: 0 });
-    model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 });
+    movePosition(model, "left");
     expect(model.getters.getPosition()).toEqual(toCartesian("B1"));
     //from the left
-    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    movePosition(model, "right");
     expect(model.getters.getPosition()).toEqual(toCartesian("D1"));
   });
 
@@ -279,11 +288,11 @@ describe("navigation", () => {
     });
     // move left from the first visible column
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
-    model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 });
+    movePosition(model, "left");
     expect(model.getters.getPosition()).toEqual(toCartesian("B1"));
     // move right from last visible column
     model.dispatch("SELECT_CELL", { col: 3, row: 0 });
-    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    movePosition(model, "right");
     expect(model.getters.getPosition()).toEqual(toCartesian("D1"));
   });
 
@@ -302,10 +311,10 @@ describe("navigation", () => {
       col: 0,
       row: 3,
     });
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
+    movePosition(model, "up");
     expect(model.getters.getPosition()).toEqual(toCartesian("A2"));
     //from the top
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    movePosition(model, "down");
     expect(model.getters.getPosition()).toEqual(toCartesian("A4"));
   });
 });
@@ -322,9 +331,9 @@ describe("Navigation starting from hidden cells", () => {
     });
     selectCell(model, "C1");
     hideRows(model, [0]);
-    const move1 = model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    const move1 = movePosition(model, "right");
     expect(move1).toBe(CommandResult.SelectionOutOfBound);
-    const move2 = model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 });
+    const move2 = movePosition(model, "left");
     expect(move2).toBe(CommandResult.SelectionOutOfBound);
   });
 
@@ -339,53 +348,53 @@ describe("Navigation starting from hidden cells", () => {
     });
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
-    const move1 = model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    const move1 = movePosition(model, "down");
     expect(move1).toBe(CommandResult.SelectionOutOfBound);
-    const move2 = model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
+    const move2 = movePosition(model, "up");
     expect(move2).toBe(CommandResult.SelectionOutOfBound);
   });
 
   test.each([
-    [["A"], "A1", 1, "B1"], // move right from A1 if column A is hidden => B1
-    [["A", "B"], "A1", 1, "C1"], // move right from A1 if columns A and B are hidden => C1
-    [["A"], "A1", -1, "B1"], // move left from A1 if column A is hidden => B1
-    [["A", "B"], "A1", -1, "C1"], // move left from A1 if column A and B are hidden => C1
-    [["A", "B"], "B1", -1, "C1"], // move left from B1 if column A and B are hidden => C1
+    [["A"], "A1", "right", "B1"], // move right from A1 if column A is hidden => B1
+    [["A", "B"], "A1", "right", "C1"], // move right from A1 if columns A and B are hidden => C1
+    [["A"], "A1", "left", "B1"], // move left from A1 if column A is hidden => B1
+    [["A", "B"], "A1", "left", "C1"], // move left from A1 if column A and B are hidden => C1
+    [["A", "B"], "B1", "left", "C1"], // move left from B1 if column A and B are hidden => C1
 
-    [["Z"], "Z1", -1, "Y1"], // move left from Z1 if column Z is hidden => Y1
-    [["Y", "Z"], "Z1", -1, "X1"], // move left from Z1 if column Y and Z are hidden => X1
-    [["Z"], "Z1", 1, "Y1"], // move right from Z1 if column Z is hidden => Y1
-    [["Y", "Z"], "Z1", 1, "X1"], // move right from Z1 if column Y and Z are hidden => X1
-    [["Y", "Z"], "Y1", 1, "X1"], // move right from Y1 if column Y and Z are hidden => X1
+    [["Z"], "Z1", "left", "Y1"], // move left from Z1 if column Z is hidden => Y1
+    [["Y", "Z"], "Z1", "left", "X1"], // move left from Z1 if column Y and Z are hidden => X1
+    [["Z"], "Z1", "right", "Y1"], // move right from Z1 if column Z is hidden => Y1
+    [["Y", "Z"], "Z1", "right", "X1"], // move right from Z1 if column Y and Z are hidden => X1
+    [["Y", "Z"], "Y1", "right", "X1"], // move right from Y1 if column Y and Z are hidden => X1
   ])(
     "Move from position horizontally from hidden col",
-    (hiddenCols, startPosition, delta, endPosition) => {
+    (hiddenCols, startPosition, direction: SelectionDirection, endPosition) => {
       const model = new Model();
       selectCell(model, startPosition);
       hideColumns(model, hiddenCols);
-      model.dispatch("MOVE_POSITION", { deltaX: delta as Increment, deltaY: 0 });
+      movePosition(model, direction);
       expect(model.getters.getPosition()).toEqual(toCartesian(endPosition));
     }
   );
   test.each([
-    [[0], "A1", 1, "A2"], // move bottom from A1 if row 1 is hidden => A2
-    [[0, 1], "A1", 1, "A3"], // move bottom from A1 if rows 1 and 2 are hidden => A3
-    [[0], "A1", -1, "A2"], // move top from A1 if row 1 is hidden => A2
-    [[0, 1], "A1", -1, "A3"], // move top from A1 if rows 1 and 2 are hidden => A3
-    [[0, 1], "A2", -1, "A3"], // move top from A2 if rows 1 and 2 are hidden => A3
+    [[0], "A1", "down", "A2"], // move bottom from A1 if row 1 is hidden => A2
+    [[0, 1], "A1", "down", "A3"], // move bottom from A1 if rows 1 and 2 are hidden => A3
+    [[0], "A1", "up", "A2"], // move top from A1 if row 1 is hidden => A2
+    [[0, 1], "A1", "up", "A3"], // move top from A1 if rows 1 and 2 are hidden => A3
+    [[0, 1], "A2", "up", "A3"], // move top from A2 if rows 1 and 2 are hidden => A3
 
-    [[99], "A100", -1, "A99"], // move top from A100 if row 100 is hidden => A99
-    [[98, 99], "A100", -1, "A98"], // move top from A100 if rows 99 and 100 are hidden => A98
-    [[99], "A100", 1, "A99"], // move bottom from A100 if row 100 is hidden => A99
-    [[98, 99], "A100", 1, "A98"], // move bottom from A100 if rows 99 and 100 are hidden => A98
-    [[98, 99], "A99", 1, "A98"], // move bottom from A99 if rows 99 and 100 are hidden => A98
+    [[99], "A100", "up", "A99"], // move top from A100 if row 100 is hidden => A99
+    [[98, 99], "A100", "up", "A98"], // move top from A100 if rows 99 and 100 are hidden => A98
+    [[99], "A100", "down", "A99"], // move bottom from A100 if row 100 is hidden => A99
+    [[98, 99], "A100", "down", "A98"], // move bottom from A100 if rows 99 and 100 are hidden => A98
+    [[98, 99], "A99", "down", "A98"], // move bottom from A99 if rows 99 and 100 are hidden => A98
   ])(
     "Move from position vertically from hidden col",
-    (hiddenRows, startPosition, delta, endPosition) => {
+    (hiddenRows, startPosition, direction: SelectionDirection, endPosition) => {
       const model = new Model();
       selectCell(model, startPosition);
       hideRows(model, hiddenRows);
-      model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: delta as Increment });
+      movePosition(model, direction);
       expect(model.getters.getPosition()).toEqual(toCartesian(endPosition));
     }
   );

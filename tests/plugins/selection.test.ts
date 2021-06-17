@@ -1,13 +1,16 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult, Increment } from "../../src/types";
+import { CommandResult, SelectionDirection } from "../../src/types";
 import {
   activateSheet,
   addColumns,
+  alterSelection,
   createSheet,
   deleteColumns,
   hideColumns,
   hideRows,
+  merge,
+  movePosition,
   redo,
   selectCell,
   setSelection,
@@ -15,6 +18,8 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getActiveXc } from "../test_helpers/getters_helpers";
 
+let model: Model;
+const hiddenContent = { content: "hidden content to be skipped" };
 describe("selection", () => {
   test("if A1 is in a merge, it is initially properly selected", () => {
     const model = new Model({
@@ -40,7 +45,7 @@ describe("selection", () => {
       ],
     });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    alterSelection(model, { direction: "right" });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
@@ -48,9 +53,9 @@ describe("selection", () => {
     const model = new Model();
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    alterSelection(model, { direction: "right" });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 1, bottom: 0 });
-    model.dispatch("ALTER_SELECTION", { delta: [-1, 0] });
+    alterSelection(model, { direction: "left" });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
   });
 
@@ -64,16 +69,16 @@ describe("selection", () => {
       ],
     });
     selectCell(model, "A2");
-    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
+    alterSelection(model, { direction: "up" });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
-    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
+    alterSelection(model, { direction: "up" });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
 
     selectCell(model, "J1");
-    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    alterSelection(model, { direction: "right" });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 9, top: 0, right: 9, bottom: 0 });
     selectCell(model, "A10");
-    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    alterSelection(model, { direction: "down" });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 9, right: 0, bottom: 9 });
   });
 
@@ -88,7 +93,7 @@ describe("selection", () => {
       ],
     });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    model.dispatch("ALTER_SELECTION", { cell: [1, 0] });
+    alterSelection(model, { cell: [1, 0] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
@@ -105,13 +110,13 @@ describe("selection", () => {
     selectCell(model, "B1");
 
     // move to the right, inside the merge
-    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    alterSelection(model, { direction: "right" });
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 3, left: 1, bottom: 1 });
     expect(getActiveXc(model)).toBe("B1");
 
     // move to the left, outside the merge
-    model.dispatch("ALTER_SELECTION", { delta: [-1, 0] });
+    alterSelection(model, { direction: "left" });
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 1 });
     expect(getActiveXc(model)).toBe("B1");
   });
@@ -131,12 +136,12 @@ describe("selection", () => {
     expect(getActiveXc(model)).toBe("B4");
 
     // move up, inside the merge
-    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
+    alterSelection(model, { direction: "up" });
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 1, right: 2, left: 1, bottom: 3 });
 
     // move to the left, outside the merge
-    model.dispatch("ALTER_SELECTION", { delta: [-1, 0] });
+    alterSelection(model, { direction: "left" });
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 1, right: 2, left: 0, bottom: 3 });
   });
 
@@ -155,7 +160,7 @@ describe("selection", () => {
     expect(getActiveXc(model)).toBe("B3");
 
     // select right cell C3
-    model.dispatch("ALTER_SELECTION", { cell: [2, 2] });
+    alterSelection(model, { cell: [2, 2] });
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 1, right: 3, left: 1, bottom: 2 });
   });
@@ -171,7 +176,7 @@ describe("selection", () => {
       ],
     });
     selectCell(model, "B1");
-    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    alterSelection(model, { direction: "right" });
     expect(model.getters.getSelectedZone()).toEqual(toZone("B1:E1"));
   });
 
@@ -186,7 +191,7 @@ describe("selection", () => {
       ],
     });
     selectCell(model, "A5");
-    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
+    alterSelection(model, { direction: "up" });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A2:A5"));
   });
 
@@ -353,7 +358,7 @@ describe("multiple selections", () => {
     let selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
     expect(selection.anchor).toEqual([2, 2]);
-    model.dispatch("ALTER_SELECTION", { cell: [2, 3] });
+    alterSelection(model, { cell: [2, 3] });
     selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
     expect(selection.anchor).toEqual([2, 2]);
@@ -420,9 +425,10 @@ describe("Alter selection starting from hidden cells", () => {
     hideColumns(model, ["C"]);
     hideRows(model, [0]);
 
-    const alter1 = model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    const alter1 = alterSelection(model, { direction: "down" });
+
     expect(alter1).toBe(CommandResult.SelectionOutOfBound);
-    const alter2 = model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    const alter2 = alterSelection(model, { direction: "right" });
     expect(alter2).toBe(CommandResult.SelectionOutOfBound);
   });
 
@@ -437,87 +443,313 @@ describe("Alter selection starting from hidden cells", () => {
     });
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
-    const move1 = model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    const move1 = movePosition(model, "down");
     expect(move1).toBe(CommandResult.SelectionOutOfBound);
-    const move2 = model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
+    const move2 = movePosition(model, "up");
     expect(move2).toBe(CommandResult.SelectionOutOfBound);
   });
 
   test.each([
-    [["A"], "A1", 1, "A1:B1"],
-    [["A", "B"], "A1", 1, "A1:C1"],
-    [["A"], "A1", -1, "A1:B1"],
-    [["A", "B"], "A1", -1, "A1:C1"],
-    [["A", "B"], "B1", -1, "B1:C1"],
+    [["A"], "A1", "right", "A1:B1"],
+    [["A", "B"], "A1", "right", "A1:C1"],
+    [["A"], "A1", "left", "A1:B1"],
+    [["A", "B"], "A1", "left", "A1:C1"],
+    [["A", "B"], "B1", "left", "B1:C1"],
 
-    [["Z"], "Z1", -1, "Y1:Z1"],
-    [["Y", "Z"], "Z1", -1, "X1:Z1"],
-    [["Z"], "Z1", 1, "Y1:Z1"],
-    [["Y", "Z"], "Z1", 1, "X1:Z1"],
-    [["Y", "Z"], "Y1", 1, "X1:Y1"],
+    [["Z"], "Z1", "left", "Y1:Z1"],
+    [["Y", "Z"], "Z1", "left", "X1:Z1"],
+    [["Z"], "Z1", "right", "Y1:Z1"],
+    [["Y", "Z"], "Z1", "right", "X1:Z1"],
+    [["Y", "Z"], "Y1", "right", "X1:Y1"],
   ])(
     "Alter selection horizontally from hidden col",
-    (hiddenCols, startPosition, delta, endPosition) => {
+    (hiddenCols, startPosition, direction: SelectionDirection, endPosition) => {
       const model = new Model();
       selectCell(model, startPosition);
       hideColumns(model, hiddenCols);
-      model.dispatch("ALTER_SELECTION", { delta: [delta as Increment, 0] });
+      alterSelection(model, { direction });
       expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
     }
   );
 
   test.each([
-    [["A"], "A1", 1, "A1"], // won't move
-    [["A"], "A1:B1", 1, "A1:B2"],
-    [["A", "B"], "A1:B1", 1, "A1:B1"], //won't move
-    [["A", "C"], "A1:C1", 1, "A1:C2"],
+    [["A"], "A1", "down", "A1"], // won't move
+    [["A"], "A1:B1", "down", "A1:B2"],
+    [["A", "B"], "A1:B1", "down", "A1:B1"], //won't move
+    [["A", "C"], "A1:C1", "down", "A1:C2"],
   ])(
     "Alter selection vertically from hidden col needs at least one visible selected cell",
-    (hiddenCols, startPosition, delta, endPosition) => {
+    (hiddenCols, startPosition, direction: SelectionDirection, endPosition) => {
       const model = new Model();
       setSelection(model, [startPosition]);
       hideColumns(model, hiddenCols);
-      model.dispatch("ALTER_SELECTION", { delta: [0, delta as Increment] });
+      alterSelection(model, { direction });
       expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
     }
   );
 
   test.each([
-    [[0], "A1", 1, "A1:A2"],
-    [[0, 1], "A1", 1, "A1:A3"],
-    [[0], "A1", -1, "A1:A2"],
-    [[0, 1], "A1", -1, "A1:A3"],
-    [[0, 1], "A2", -1, "A2:A3"],
+    [[0], "A1", "down", "A1:A2"],
+    [[0, 1], "A1", "down", "A1:A3"],
+    [[0], "A1", "up", "A1:A2"],
+    [[0, 1], "A1", "up", "A1:A3"],
+    [[0, 1], "A2", "up", "A2:A3"],
 
-    [[99], "A100", -1, "A99:A100"],
-    [[98, 99], "A100", -1, "A98:A100"],
-    [[99], "A100", 1, "A99:A100"],
-    [[98, 99], "A100", 1, "A98:A100"],
-    [[98, 99], "A99", 1, "A98:A99"],
+    [[99], "A100", "up", "A99:A100"],
+    [[98, 99], "A100", "up", "A98:A100"],
+    [[99], "A100", "down", "A99:A100"],
+    [[98, 99], "A100", "down", "A98:A100"],
+    [[98, 99], "A99", "down", "A98:A99"],
   ])(
     "Alter selection vertically from hidden col",
-    (hiddenRows, startPosition, delta, endPosition) => {
+    (hiddenRows, startPosition, direction: SelectionDirection, endPosition) => {
       const model = new Model();
       selectCell(model, startPosition);
       hideRows(model, hiddenRows);
-      model.dispatch("ALTER_SELECTION", { delta: [0, delta as Increment] });
+      alterSelection(model, { direction });
       expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
     }
   );
 
   test.each([
-    [[0], "A1", 1, "A1"], // won't move
-    [[0], "A1:A2", 1, "A1:B2"],
-    [[0, 1], "A1:A2", 1, "A1:A2"], // won't move
-    [[0, 2], "A1:A3", 1, "A1:B3"],
+    [[0], "A1", "right", "A1"], // won't move
+    [[0], "A1:A2", "right", "A1:B2"],
+    [[0, 1], "A1:A2", "right", "A1:A2"], // won't move
+    [[0, 2], "A1:A3", "right", "A1:B3"],
   ])(
     "Alter selection horizontally from hidden col",
-    (hiddenRows, startPosition, delta, endPosition) => {
+    (hiddenRows, startPosition, direction: SelectionDirection, endPosition) => {
       const model = new Model();
       setSelection(model, [startPosition]);
       hideRows(model, hiddenRows);
-      model.dispatch("ALTER_SELECTION", { delta: [delta as Increment, 0] });
+      alterSelection(model, { direction });
       expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
+    }
+  );
+});
+
+describe("Change selection to sheet extremities", () => {
+  test.each([
+    [[], [], "F10", "left", "A10"],
+    [["A"], [], "F10", "left", "B10"],
+    [[], [], "F10", "right", "Z10"],
+    [["Z", "Y"], [], "F10", "right", "X10"],
+    [["A"], ["B1:C20"], "F10", "left", "B1:C20"],
+  ])(
+    "Move selection horizontally to sheet extremities",
+    (hiddenCols, merges, selection, direction: SelectionDirection, result) => {
+      const model = new Model();
+      selectCell(model, selection);
+      for (const mergeXc of merges) {
+        merge(model, mergeXc);
+      }
+      hideColumns(model, hiddenCols);
+      movePosition(model, direction, "end");
+      expect(model.getters.getSelectedZone()).toEqual(toZone(result));
+    }
+  );
+
+  test.each([
+    [[], [], "F10", "up", "F1"],
+    [[0], [], "F10", "up", "F2"],
+    [[], [], "F10", "down", "F100"],
+    [[99, 98], [], "F10", "down", "F98"],
+    [[0], ["A2:G3"], "F10", "up", "A2:G3"],
+  ])(
+    "Move selection vertically to sheet extremities",
+    (hiddenRows, merges, selection, direction: SelectionDirection, result) => {
+      const model = new Model();
+      selectCell(model, selection);
+      for (const mergeXc of merges) {
+        merge(model, mergeXc);
+      }
+      hideRows(model, hiddenRows);
+      movePosition(model, direction, "end");
+      expect(model.getters.getSelectedZone()).toEqual(toZone(result));
+    }
+  );
+
+  test.each([
+    [[], [], "F10", "left", "A10:F10"],
+    [["A"], [], "F10", "left", "B10:F10"],
+    [[], [], "F10", "right", "F10:Z10"],
+    [["Z", "Y"], [], "F10", "right", "F10:X10"],
+    [["A"], ["B1:C20"], "F10", "left", "B1:F20"],
+  ])(
+    "Alter selection horizontally to sheet extremities",
+    (hiddenCols, merges, selection, direction: SelectionDirection, result) => {
+      const model = new Model();
+      selectCell(model, selection);
+      for (const mergeXc of merges) {
+        merge(model, mergeXc);
+      }
+      hideColumns(model, hiddenCols);
+      alterSelection(model, { direction, step: "end" });
+      expect(model.getters.getSelectedZone()).toEqual(toZone(result));
+    }
+  );
+
+  test.each([
+    [[], [], "F10", "up", "F1:F10"],
+    [[0], [], "F10", "up", "F2:F10"],
+    [[], [], "F10", "down", "F10:F100"],
+    [[99, 98], [], "F10", "down", "F10:F98"],
+    [[0], ["A2:G3"], "F10", "up", "A2:G10"],
+  ])(
+    "Alter selection vertically to sheet extremities",
+    (hiddenRows, merges, selection, direction: SelectionDirection, result) => {
+      const model = new Model();
+      selectCell(model, selection);
+      for (const mergeXc of merges) {
+        merge(model, mergeXc);
+      }
+      hideRows(model, hiddenRows);
+      alterSelection(model, { direction, step: "end" });
+      expect(model.getters.getSelectedZone()).toEqual(toZone(result));
+    }
+  );
+});
+
+describe("Change selection to next clusters", () => {
+  beforeEach(() => {
+    model = new Model({
+      sheets: [
+        {
+          colNumber: 9,
+          rowNumber: 16,
+          cols: { 4: { isHidden: true } },
+          rows: { 8: { isHidden: true } },
+          cells: {
+            B2: { content: "Merge With Content" },
+            E2: hiddenContent,
+            G2: { content: "content on same line as merge topLeft" },
+            E3: hiddenContent,
+            G3: { content: "content on line of merge but aligned with topLeft" },
+            B6: { content: "content on same line as empty merge topLeft" },
+            E6: hiddenContent,
+            B7: { content: "content on line of empty merge but aligned with topLeft" },
+            E7: hiddenContent,
+            A9: hiddenContent,
+            B9: hiddenContent,
+            C9: hiddenContent,
+            D9: hiddenContent,
+            E9: hiddenContent,
+            F9: hiddenContent,
+            G9: hiddenContent,
+            A11: { content: "A9" },
+            B11: { content: "B9" },
+            C11: { content: "C9" },
+            E11: hiddenContent,
+            F11: { content: "", style: 1 },
+            G11: { content: "F9" },
+            H11: { content: "G9" },
+            B13: { content: "B11" },
+            C13: { content: "C11" },
+            D13: { content: "D11" },
+            B14: { content: "B12" },
+            C14: { content: "C12" },
+          },
+          merges: ["B2:D4", "C6:D7"],
+          styles: { 1: { textColor: "#fe0000" } },
+        },
+      ],
+    });
+  });
+  test.each([
+    ["A2", "right", ["B2:D4", "G2", "I2"]],
+    ["A3", "right", ["G3", "I3"]],
+    ["A6", "right", ["B6", "I6"]],
+    ["B11", "right", ["C11", "G11", "H11", "I11"]],
+    ["A13", "right", ["B13", "D13", "I13"]],
+    ["I1", "right", ["I1", "I1"]],
+    ["I2", "left", ["G2", "B2:D4", "A2"]],
+    ["I3", "left", ["G3", "A3"]],
+    ["I6", "left", ["B6", "A6"]],
+    ["I11", "left", ["H11", "G11", "C11", "A11"]],
+    ["I13", "left", ["D13", "B13", "A13"]],
+    ["A1", "left", ["A1", "A1"]],
+  ])(
+    "Move selection horizontally",
+    (startPosition: string, direction: SelectionDirection, targetXCs: string[]) => {
+      selectCell(model, startPosition);
+      for (let targetXC of targetXCs) {
+        movePosition(model, direction, "end");
+        expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
+      }
+    }
+  );
+
+  test.each([
+    ["A1", "down", ["A11", "A16"]],
+    ["B1", "down", ["B2:D4", "B6", "B7", "B11", "B13", "B14", "B16"]],
+    ["C1", "down", ["C11", "C13", "C14", "C16"]],
+    ["F1", "down", ["F16"]],
+    ["G1", "down", ["G2", "G3", "G11", "G16"]],
+    ["A16", "down", ["A16", "A16"]],
+    ["A16", "up", ["A11", "A1"]],
+    ["B16", "up", ["B14", "B13", "B11", "B7", "B6", "B2:D4", "B1"]],
+    ["C16", "up", ["C14", "C13", "C11", "C1"]],
+    ["F16", "up", ["F1"]],
+    ["G16", "up", ["G11", "G3", "G2", "G1"]],
+    ["A1", "up", ["A1", "A1"]],
+  ])(
+    "Move selection vertically",
+    (startPosition: string, direction: SelectionDirection, targetXCs: string[]) => {
+      selectCell(model, startPosition);
+      for (let targetXC of targetXCs) {
+        movePosition(model, direction, "end");
+        expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
+      }
+    }
+  );
+
+  test.each([
+    ["A2", "A2", "right", ["A2:D4", "A2:G4", "A2:I4"]],
+    ["A3", "A3", "right", ["A2:G4", "A2:I4"]],
+    ["A6", "A6", "right", ["A6:B6", "A6:I7"]],
+    ["B11", "B11", "right", ["B11:C11", "B11:G11", "B11:H11", "B11:I11"]],
+    ["A13", "A13", "right", ["A13:B13", "A13:D13", "A13:I13"]],
+    ["A13", "A13:A14", "right", ["A13:B14", "A13:D14", "A13:I14"]],
+    ["A14", "A13:A14", "right", ["A13:B14", "A13:C14", "A13:I14"]],
+    ["I1", "I1", "right", ["I1", "I1"]],
+    ["G2", "G2", "left", ["B2:G4", "A2:G4"]],
+    ["H4", "H4", "left", ["A2:H4"]],
+    ["I7", "I7", "left", ["B6:I7", "A6:I7"]],
+    ["I11", "I11", "left", ["H11:I11", "G11:I11", "C11:I11", "A11:I11"]],
+  ])(
+    "Alter selection horizontally",
+    (anchor: string, selection: string, direction: SelectionDirection, targetXCs: string[]) => {
+      setSelection(model, [selection], { anchor });
+      for (let targetXC of targetXCs) {
+        alterSelection(model, { direction, step: "end" });
+        expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
+      }
+    }
+  );
+
+  test.each([
+    ["A1", "A1", "down", ["A1:A11", "A1:A16"]],
+    ["B1", "B1", "down", ["B1:D4", "B1:D7", "B1:D11", "B1:D13", "B1:D14", "B1:D16"]],
+    ["C1", "C1", "down", ["B1:D11", "B1:D13", "B1:D14", "B1:D16"]],
+    ["F1", "F1", "down", ["F1:F16"]],
+    ["G1", "G1", "down", ["G1:G2", "G1:G3", "G1:G11", "G1:G16"]],
+    ["B12", "B12:D12", "down", ["B12:D13", "B12:D14", "B12:D16"]],
+    ["D12", "B12:D12", "down", ["B12:D13", "B12:D16"]],
+    ["A16", "A16", "down", ["A16", "A16"]],
+    ["B16", "B16", "up", ["B14:B16", "B13:B16", "B11:B16", "B7:B16", "B6:B16", "B2:D16", "B1:D16"]],
+    ["C16", "C16", "up", ["C14:C16", "C13:C16", "C11:C16", "B1:D16"]],
+    ["F16", "F16", "up", ["F1:F16"]],
+    ["B13", "B13:D15", "up", ["B13:D14", "B13:D13"]],
+    ["D13", "B13:D15", "up", ["B13:D13"]],
+    ["A1", "A1", "up", ["A1", "A1"]],
+  ])(
+    "Alter selection vertically",
+    (anchor: string, selection: string, direction: SelectionDirection, targetXCs: string[]) => {
+      setSelection(model, [selection], { anchor });
+      for (let targetXC of targetXCs) {
+        alterSelection(model, { direction, step: "end" });
+        expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
+      }
     }
   );
 });

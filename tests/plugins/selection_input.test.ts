@@ -3,6 +3,7 @@ import { zoneToXc } from "../../src/helpers";
 import { CommandResult } from "../../src/types";
 import {
   activateSheet,
+  alterSelection,
   createSheet,
   createSheetWithName,
   selectCell,
@@ -186,7 +187,7 @@ describe("selection input plugin", () => {
     model.dispatch("START_SELECTION_EXPANSION");
     selectCell(model, "C2");
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("C2");
-    model.dispatch("ALTER_SELECTION", { cell: [3, 1] });
+    alterSelection(model, { cell: [3, 1] });
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("C2:D2");
   });
 
@@ -389,7 +390,7 @@ describe("selection input plugin", () => {
     model.dispatch("START_SELECTION_EXPANSION");
     selectCell(model, "D2");
     expect(highlightedZones(model)).toEqual(["D4", "C2", "D2"]);
-    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    alterSelection(model, { direction: "right" });
     expect(highlightedZones(model)).toEqual(["D4", "C2", "D2:E2"]);
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("D4");
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("C2");

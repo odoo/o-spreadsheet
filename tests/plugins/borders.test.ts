@@ -5,6 +5,7 @@ import { BorderDescr } from "../../src/types/index";
 import {
   addColumns,
   addRows,
+  alterSelection,
   deleteCells,
   selectCell,
   setBorder,
@@ -70,7 +71,7 @@ describe("borders", () => {
 
     // select B2:C2
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { cell: [2, 1] });
+    alterSelection(model, { cell: [2, 1] });
 
     // set a border top
     setBorder(model, "top");
@@ -89,7 +90,7 @@ describe("borders", () => {
 
     // select A1:E6
     selectCell(model, "A1");
-    model.dispatch("ALTER_SELECTION", { cell: [5, 5] });
+    alterSelection(model, { cell: [5, 5] });
 
     // clear all borders
     setBorder(model, "clear");
@@ -102,7 +103,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:C3
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { cell: [2, 2] });
+    alterSelection(model, { cell: [2, 2] });
 
     // set all borders
     setBorder(model, "all");
@@ -123,7 +124,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:C3
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { cell: [2, 2] });
+    alterSelection(model, { cell: [2, 2] });
 
     // set all borders
     setBorder(model, "top");
@@ -155,7 +156,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:D4
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { cell: [3, 3] });
+    alterSelection(model, { cell: [3, 3] });
 
     // set external borders
     setBorder(model, "external");
@@ -176,7 +177,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:C4
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { cell: [2, 3] });
+    alterSelection(model, { cell: [2, 3] });
 
     setBorder(model, "h");
     const s = ["thin", "#000"];
@@ -193,7 +194,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:D4
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { cell: [3, 3] });
+    alterSelection(model, { cell: [3, 3] });
 
     setBorder(model, "v");
     const s = ["thin", "#000"];
@@ -213,7 +214,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:C4
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { cell: [3, 3] });
+    alterSelection(model, { cell: [3, 3] });
 
     setBorder(model, "hv");
     const s = ["thin", "#000"];
@@ -274,7 +275,7 @@ describe("borders", () => {
   test("can clear formatting (border) after selecting all cells", () => {
     const model = new Model();
     selectCell(model, "A1");
-    model.dispatch("ALTER_SELECTION", { cell: [25, 99] });
+    alterSelection(model, { cell: [25, 99] });
     const activeSheet = model.getters.getActiveSheet();
     expect(model.getters.getSelectedZones()[0]).toEqual({
       left: 0,

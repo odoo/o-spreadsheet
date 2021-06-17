@@ -4,6 +4,7 @@ import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
 import { CommandResult, Zone } from "../../src/types/index";
 import {
   activateSheet,
+  alterSelection,
   createSheet,
   createSheetWithName,
   selectCell,
@@ -616,7 +617,7 @@ describe("clipboard", () => {
 
     // select C1:C3
     selectCell(model, "C1");
-    model.dispatch("ALTER_SELECTION", { cell: [2, 2] });
+    alterSelection(model, { cell: [2, 2] });
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 2, right: 2 });
     model.dispatch("PASTE", { target: [toZone("C1:C3")] });

@@ -7,6 +7,8 @@ import {
   ChartUIDefinitionUpdate,
   CommandResult,
   CreateSheetCommand,
+  SelectionDirection,
+  SelectionStep,
   UID,
 } from "../../src/types";
 import { target } from "./helpers";
@@ -386,4 +388,23 @@ export function unMerge(
 
 export function snapshot(model: Model) {
   model["session"].snapshot(model.exportData());
+}
+
+export function movePosition(
+  model: Model,
+  direction: SelectionDirection,
+  step: SelectionStep = "one"
+) {
+  return model.dispatch("MOVE_POSITION", { direction, step });
+}
+
+export function alterSelection(
+  model: Model,
+  options: {
+    direction?: SelectionDirection;
+    step?: SelectionStep;
+    cell?: [number, number];
+  } = { direction: undefined, cell: undefined }
+) {
+  return model.dispatch("ALTER_SELECTION", options);
 }

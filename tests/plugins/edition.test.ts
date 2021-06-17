@@ -3,8 +3,10 @@ import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
   activateSheet,
+  alterSelection,
   createSheet,
   createSheetWithName,
+  movePosition,
   selectCell,
   setCellContent,
   setSelection,
@@ -317,15 +319,12 @@ describe("edition", () => {
     selectCell(model, "A1");
     expect(model.getters.getCurrentContent()).toBe("=A1");
 
-    model.dispatch("MOVE_POSITION", {
-      deltaX: 1,
-      deltaY: 1,
-    });
+    movePosition(model, "down");
+    movePosition(model, "right");
     expect(model.getters.getCurrentContent()).toBe("=B2");
 
-    model.dispatch("ALTER_SELECTION", {
-      delta: [1, 1],
-    });
+    alterSelection(model, { direction: "down" });
+    alterSelection(model, { direction: "right" });
     expect(model.getters.getCurrentContent()).toBe("=B2:C3");
   });
 
@@ -357,7 +356,7 @@ describe("edition", () => {
     model.dispatch("START_SELECTION_EXPANSION");
     selectCell(model, "E5");
     expect(model.getters.getCurrentContent()).toBe("=SUM(D4,E5");
-    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    alterSelection(model, { direction: "down" });
     expect(model.getters.getCurrentContent()).toBe("=SUM(D4,E5:E6");
   });
 
@@ -372,7 +371,7 @@ describe("edition", () => {
 
     model.dispatch("START_SELECTION_EXPANSION");
     selectCell(model, "E5");
-    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    alterSelection(model, { direction: "down" });
     model.dispatch("STOP_SELECTION");
 
     expect(model.getters.getCurrentContent()).toBe("=SUM(D4,E5:E6");
@@ -456,7 +455,7 @@ describe("edition", () => {
 
     model.dispatch("START_EDITION", { text: "=" });
     selectCell(model, "D4");
-    model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
+    alterSelection(model, { cell: [4, 4] });
 
     expect(model.getters.getCurrentContent()).toBe("=D4:E5");
   });
@@ -468,9 +467,9 @@ describe("edition", () => {
     model.dispatch("START_EDITION", { text: "=" });
     selectCell(model, "D4");
     expect(model.getters.getCurrentContent()).toBe("=D4");
-    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    alterSelection(model, { direction: "down" });
     expect(model.getters.getCurrentContent()).toBe("=D4:D5");
-    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
+    alterSelection(model, { direction: "up" });
     expect(model.getters.getCurrentContent()).toBe("=D4");
   });
 
@@ -478,11 +477,11 @@ describe("edition", () => {
     const model = new Model();
     selectCell(model, "D3");
     model.dispatch("START_EDITION", { text: "=" });
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    movePosition(model, "down");
     expect(model.getters.getCurrentContent()).toBe("=D4");
     model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     model.dispatch("SET_CURRENT_CONTENT", { content: "=D4+" });
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    movePosition(model, "down");
     expect(model.getters.getCurrentContent()).toBe("=D4+D4");
   });
 
@@ -493,7 +492,7 @@ describe("edition", () => {
     selectCell(model, "A2");
     model.dispatch("START_EDITION", { text: "=" });
     expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    movePosition(model, "right");
     expect(model.getters.getCurrentContent()).toBe("=B2");
     expect(model.getters.getEditionMode()).toBe("rangeSelected");
   });

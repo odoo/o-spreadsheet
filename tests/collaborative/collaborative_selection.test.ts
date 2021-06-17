@@ -1,7 +1,12 @@
 import * as owl from "@odoo/owl";
 import { Client, Model } from "../../src";
 import { DEBOUNCE_TIME } from "../../src/constants";
-import { addColumns, createSheet, selectCell } from "../test_helpers/commands_helpers";
+import {
+  addColumns,
+  createSheet,
+  movePosition,
+  selectCell,
+} from "../test_helpers/commands_helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -46,10 +51,8 @@ describe("Collaborative selection", () => {
 
   test("active cell is transferred to other users", () => {
     selectCell(alice, "C3");
-    bob.dispatch("MOVE_POSITION", {
-      deltaX: 1,
-      deltaY: 1,
-    });
+    movePosition(bob, "right");
+    movePosition(bob, "down");
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     const sheetId = alice.getters.getActiveSheetId();
     expect([alice, bob, charlie]).toHaveSynchronizedValue(

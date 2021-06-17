@@ -289,8 +289,8 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
       this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     }
 
-    const deltaX = ev.shiftKey ? -1 : 1;
-    this.dispatch("MOVE_POSITION", { deltaX, deltaY: 0 });
+    const direction = ev.shiftKey ? "left" : "right";
+    this.dispatch("MOVE_POSITION", { direction, step: "one" });
   }
 
   private processEnterKey(ev: KeyboardEvent) {
@@ -306,8 +306,8 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     }
     this.dispatch("STOP_EDITION");
     this.dispatch("MOVE_POSITION", {
-      deltaX: 0,
-      deltaY: ev.shiftKey ? -1 : 1,
+      direction: ev.shiftKey ? "up" : "down",
+      step: "one",
     });
   }
 
