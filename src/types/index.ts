@@ -22,4 +22,5 @@ export * from "./getters";
 export * from "./history";
 export * from "./misc";
 export * from "./rendering";
+export * from "./selection";
 export * from "./workbook_data";

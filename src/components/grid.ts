@@ -465,8 +465,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         ? this.props.onGridComposerCellFocused()
         : this.props.onComposerContentFocused();
     },
-    TAB: () => this.env.model.selection.moveAnchorCell("right"),
-    "SHIFT+TAB": () => this.env.model.selection.moveAnchorCell("left"),
+    TAB: () => this.env.model.selection.moveAnchorCell("right", "one"),
+    "SHIFT+TAB": () => this.env.model.selection.moveAnchorCell("left", "one"),
     F2: () => {
       const cell = this.env.model.getters.getActiveCell();
       !cell || cell.isEmpty()
@@ -848,7 +848,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const { direction, delta } = arrowMap[ev.key];
     if (ev.shiftKey) {
       const oldZone = this.env.model.getters.getSelectedZone();
-      this.env.model.selection.resizeAnchorZone(direction);
+      this.env.model.selection.resizeAnchorZone(direction, ev.ctrlKey ? "end" : "one");
       const newZone = this.env.model.getters.getSelectedZone();
       const viewport = this.env.model.getters.getActiveSnappedViewport();
       const sheet = this.env.model.getters.getActiveSheet();
@@ -865,7 +865,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         });
       }
     } else {
-      this.env.model.selection.moveAnchorCell(direction);
+      this.env.model.selection.moveAnchorCell(direction, ev.ctrlKey ? "end" : "one");
     }
 
     if (this.env.model.getters.isPaintingFormat()) {
