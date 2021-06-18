@@ -16,6 +16,7 @@ import {
   Sheet,
   UID,
   Zone,
+  isCoreCommand,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
@@ -121,6 +122,10 @@ export class ClipboardPlugin extends UIPlugin {
         this._isPaintingFormat = true;
         this.status = "visible";
         break;
+      default:
+        if (isCoreCommand(cmd)) {
+          this.status = "invisible";
+        }
     }
   }
 
