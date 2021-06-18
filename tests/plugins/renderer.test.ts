@@ -11,8 +11,16 @@ import { Model } from "../../src/model";
 import { RendererPlugin } from "../../src/plugins/ui/renderer";
 import { Box, CommandResult, GridRenderingContext, Viewport } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
-import { merge, resizeColumns, resizeRows, setCellContent } from "../test_helpers/commands_helpers";
-import { createEqualCF } from "../test_helpers/helpers";
+import {
+  addColumns,
+  deleteColumns,
+  merge,
+  resizeColumns,
+  resizeRows,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
+import { createEqualCF, target } from "../test_helpers/helpers";
+import { watchClipboardOutline } from "../test_helpers/renderer_helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
   return { width: text.length };
@@ -713,5 +721,55 @@ describe("renderer", () => {
       0,
       DEFAULT_CELL_HEIGHT,
     ]);
+  });
+
+  test.each(["A1", "A1:A2", "A1:A2,B1:B2", "A1,C1"])(
+    "compatible copied zones %s are all outlined with dots",
+    (targetXc) => {
+      const model = new Model();
+      const copiedTarget = target(targetXc);
+      model.dispatch("COPY", { target: copiedTarget });
+      const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
+      model.drawGrid(ctx);
+      expect(isDotOutlined(copiedTarget)).toBeTruthy();
+      model.dispatch("PASTE", { target: target("A10") });
+      reset();
+      model.drawGrid(ctx);
+      expect(isDotOutlined(copiedTarget)).toBeFalsy();
+    }
+  );
+
+  test.each(["A1,A2", "A1:A2,A4:A5"])(
+    "only last copied non-compatible zones %s is outlined with dots",
+    (targetXc) => {
+      const model = new Model();
+      const copiedTarget = target(targetXc);
+      model.dispatch("COPY", { target: copiedTarget });
+      const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
+      model.drawGrid(ctx);
+      const expectedOutlinedZone = copiedTarget.slice(-1);
+      expect(isDotOutlined(expectedOutlinedZone)).toBeTruthy();
+      model.dispatch("PASTE", { target: target("A10") });
+      reset();
+      model.drawGrid(ctx);
+      expect(isDotOutlined(expectedOutlinedZone)).toBeFalsy();
+    }
+  );
+
+  test.each([
+    (model) => setCellContent(model, "B15", "hello"),
+    (model) => addColumns(model, "after", "B", 1),
+    (model) => deleteColumns(model, ["K"]),
+  ])("copied zone outline is removed at first change to the grid", (coreOperation) => {
+    const model = new Model();
+    const copiedTarget = target("A1:A2");
+    model.dispatch("COPY", { target: copiedTarget });
+    const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
+    model.drawGrid(ctx);
+    expect(isDotOutlined(copiedTarget)).toBeTruthy();
+    coreOperation(model);
+    reset();
+    model.drawGrid(ctx);
+    expect(isDotOutlined(copiedTarget)).toBeFalsy();
   });
 });

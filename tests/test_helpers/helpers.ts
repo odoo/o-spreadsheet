@@ -4,7 +4,7 @@ import { Grid } from "../../src/components/grid";
 import { SidePanel } from "../../src/components/side_panel/side_panel";
 import { TopBar } from "../../src/components/top_bar";
 import { functionRegistry } from "../../src/functions/index";
-import { toCartesian, toXC } from "../../src/helpers/index";
+import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { ComposerSelection } from "../../src/plugins/ui/edition";
@@ -392,13 +392,7 @@ export function toPosition(xc: string): Position {
 }
 
 export function zone(str: string): Zone {
-  let [tl, br] = str.split(":");
-  if (!br) {
-    br = tl;
-  }
-  const [left, top] = toCartesian(tl);
-  const [right, bottom] = toCartesian(br);
-  return { left, top, right, bottom };
+  return toZone(str);
 }
 
 export function target(str: string): Zone[] {
