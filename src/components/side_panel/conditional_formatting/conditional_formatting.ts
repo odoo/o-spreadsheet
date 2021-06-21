@@ -1,4 +1,5 @@
 import * as owl from "@odoo/owl";
+import { rangeReference } from "../../../formulas";
 import { colorNumberString, toZone, uuidv4 } from "../../../helpers/index";
 import {
   ColorScaleRule,
@@ -427,6 +428,13 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
 
   saveConditionalFormat() {
     if (this.state.currentCF) {
+      const invalidRanges = this.state.currentCF.ranges.some((xc) => !xc.match(rangeReference));
+      if (invalidRanges) {
+        this.state.error = this.env._t(
+          conditionalFormattingTerms.Errors[CommandResult.InvalidRange]
+        );
+        return;
+      }
       const result = this.env.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: this.getEditorRule(),

@@ -291,6 +291,23 @@ describe("UI of conditional formats", () => {
         sheetId: model.getters.getActiveSheetId(),
       });
     });
+
+    test("cannot create a new CF with invalid range", async () => {
+      mockUuidV4To("42");
+
+      triggerMouseEvent(selectors.buttonAdd, "click");
+      await nextTick();
+
+      setInputValueAndTrigger(selectors.ruleEditor.range, "hello", "change");
+
+      parent.env.dispatch = jest.fn(() => CommandResult.Success);
+      //  click save
+      triggerMouseEvent(selectors.buttonSave, "click");
+      await nextTick();
+      expect(parent.env.dispatch).not.toHaveBeenCalled();
+      const errorString = document.querySelector(selectors.error);
+      expect(errorString!.textContent).toBe("The range is invalid");
+    });
     test("displayed range is updated if range changes", async () => {
       const previews = document.querySelectorAll(selectors.listPreview);
       expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
@@ -1161,11 +1178,11 @@ describe("UI of conditional formats", () => {
       CommandResult.ValueLowerAsyncFormulaNotSupported,
       "Some formulas are not supported for the lower inflection point",
     ],
-    [CommandResult.ValueUpperInvalidFormula, "Invalid upper inflation point formula"],
-    [CommandResult.ValueLowerInvalidFormula, "Invalid lower inflation point formula"],
+    [CommandResult.ValueUpperInvalidFormula, "Invalid upper inflection point formula"],
+    [CommandResult.ValueLowerInvalidFormula, "Invalid lower inflection point formula"],
     [
       CommandResult.LowerBiggerThanUpper,
-      "Lower inflation point must be smaller then upper inflation point",
+      "Lower inflection point must be smaller then upper inflection point",
     ],
   ])(
     "Show right error message (Command result: %s , Message: %s)",

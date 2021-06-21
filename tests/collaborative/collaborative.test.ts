@@ -11,6 +11,7 @@ import {
   createSheet,
   deleteColumns,
   deleteRows,
+  merge,
   selectCell,
   setCellContent,
   undo,
@@ -324,6 +325,27 @@ describe("Multi users synchronisation", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellContent(user, "B2"), "");
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getBorder(user, "B2"), null);
+  });
+
+  test("merge is transformed to fit sheet size", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    network.concurrent(() => {
+      merge(alice, "A80:A100");
+      deleteRows(bob, [98, 99]);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getMerges(sheetId),
+      [
+        {
+          ...toZone("A80:A98"),
+          id: 2,
+          topLeft: {
+            col: 0,
+            row: 79,
+          },
+        },
+      ]
+    );
   });
 
   test("Command not allowed is not dispatched to others users", () => {

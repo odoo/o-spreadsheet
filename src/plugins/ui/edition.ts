@@ -139,6 +139,10 @@ export class EditionPlugin extends UIPlugin {
           this.setActiveContent();
         }
         break;
+      case "SELECT_FIGURE":
+        this.cancelEdition();
+        this.resetContent();
+        break;
       case "SELECT_CELL":
       case "SET_SELECTION":
       case "MOVE_POSITION":

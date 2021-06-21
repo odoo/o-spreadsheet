@@ -1,5 +1,5 @@
 import { rangeReference } from "../../formulas/index";
-import { getNextColor, uuidv4 } from "../../helpers/index";
+import { getComposerSheetName, getNextColor, uuidv4 } from "../../helpers/index";
 import { Mode } from "../../model";
 import { Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
@@ -329,7 +329,10 @@ export class SelectionInputPlugin extends UIPlugin {
       Object.freeze({
         xc:
           h.sheet !== activeSheetId
-            ? `${this.getters.getSheetName(h.sheet)}!${toXC(sheetId, h.zone)}`
+            ? `${getComposerSheetName(this.getters.getSheetName(h.sheet)!)}!${toXC(
+                sheetId,
+                h.zone
+              )}`
             : toXC(sheetId, h.zone),
         id: uuidv4(),
         color: h.color,
