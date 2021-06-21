@@ -1,7 +1,14 @@
 import { HEADER_WIDTH, MESSAGE_VERSION } from "../../src/constants";
 import { scrollDelay, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { merge, selectCell, setCellContent, setSelection } from "../test_helpers/commands_helpers";
+import {
+  hideColumns,
+  hideRows,
+  merge,
+  selectCell,
+  setCellContent,
+  setSelection,
+} from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick, Touch } from "../test_helpers/helpers";
@@ -461,6 +468,29 @@ describe("Grid component", () => {
       );
       expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
       expect(model.getters.getCurrentContent()).toBe("=SUM()");
+    });
+
+    test("Pressing CTRL+HOME moves you to first visible top-left cell", () => {
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Home", ctrlKey: true, bubbles: true })
+      );
+      expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
+      hideRows(model, [0]);
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Home", ctrlKey: true, bubbles: true })
+      );
+      expect(model.getters.getSelectedZone()).toEqual(toZone("A2"));
+    });
+    test("Pressing CTRL+END moves you to last visible top-left cell", () => {
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "End", ctrlKey: true, bubbles: true })
+      );
+      expect(model.getters.getSelectedZone()).toEqual(toZone("Z100"));
+      hideColumns(model, ["Z", "Y"]);
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "End", ctrlKey: true, bubbles: true })
+      );
+      expect(model.getters.getSelectedZone()).toEqual(toZone("X100"));
     });
   });
 
