@@ -367,7 +367,7 @@ describe("TopBar - CF", () => {
       target: cfRule.ranges.map(toZone),
     });
     const zone = { left: 0, top: 0, bottom: 10, right: 10 };
-    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
+    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0], anchorZone: zone });
 
     triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
     await nextTick();
@@ -417,7 +417,7 @@ describe("TopBar - CF", () => {
       target: cfRule2.ranges.map(toZone),
     });
     const zone = { left: 0, top: 0, bottom: 10, right: 10 };
-    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
+    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0], anchorZone: zone });
 
     triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
     await nextTick();

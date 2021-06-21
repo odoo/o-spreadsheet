@@ -11,11 +11,11 @@
 - [DuplicatedSheetName](commandresult.md#duplicatedsheetname)
 - [EmptyClipboard](commandresult.md#emptyclipboard)
 - [EmptyDataSet](commandresult.md#emptydataset)
-- [EmptyLabelRange](commandresult.md#emptylabelrange)
 - [EmptyRedoStack](commandresult.md#emptyredostack)
 - [EmptyUndoStack](commandresult.md#emptyundostack)
 - [ForbiddenCharactersInSheetName](commandresult.md#forbiddencharactersinsheetname)
 - [InputAlreadyFocused](commandresult.md#inputalreadyfocused)
+- [InvalidAnchorZone](commandresult.md#invalidanchorzone)
 - [InvalidAutofillSelection](commandresult.md#invalidautofillselection)
 - [InvalidChartDefinition](commandresult.md#invalidchartdefinition)
 - [InvalidDataSet](commandresult.md#invaliddataset)
@@ -83,19 +83,13 @@ ___
 
 ### EmptyClipboard
 
-• **EmptyClipboard**: = 17
+• **EmptyClipboard**: = 18
 
 ___
 
 ### EmptyDataSet
 
-• **EmptyDataSet**: = 23
-
-___
-
-### EmptyLabelRange
-
-• **EmptyLabelRange**: = 24
+• **EmptyDataSet**: = 24
 
 ___
 
@@ -119,7 +113,13 @@ ___
 
 ### InputAlreadyFocused
 
-• **InputAlreadyFocused**: = 20
+• **InputAlreadyFocused**: = 21
+
+___
+
+### InvalidAnchorZone
+
+• **InvalidAnchorZone**: = 14
 
 ___
 
@@ -131,7 +131,7 @@ ___
 
 ### InvalidChartDefinition
 
-• **InvalidChartDefinition**: = 22
+• **InvalidChartDefinition**: = 23
 
 ___
 
@@ -155,13 +155,13 @@ ___
 
 ### InvalidRange
 
-• **InvalidRange**: = 18
+• **InvalidRange**: = 19
 
 ___
 
 ### InvalidSheetId
 
-• **InvalidSheetId**: = 19
+• **InvalidSheetId**: = 20
 
 ___
 
@@ -197,7 +197,7 @@ ___
 
 ### MaximumRangesReached
 
-• **MaximumRangesReached**: = 21
+• **MaximumRangesReached**: = 22
 
 ___
 
@@ -293,7 +293,7 @@ ___
 
 ### SelectionOutOfBound
 
-• **SelectionOutOfBound**: = 14
+• **SelectionOutOfBound**: = 15
 
 ___
 
@@ -305,7 +305,7 @@ ___
 
 ### TargetOutOfSheet
 
-• **TargetOutOfSheet**: = 15
+• **TargetOutOfSheet**: = 16
 
 ___
 
@@ -371,7 +371,7 @@ ___
 
 ### WrongPasteSelection
 
-• **WrongPasteSelection**: = 16
+• **WrongPasteSelection**: = 17
 
 ___
 

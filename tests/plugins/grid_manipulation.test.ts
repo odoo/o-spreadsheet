@@ -964,6 +964,7 @@ describe("Columns", () => {
       const zone = { left: 1, right: 3, top: 0, bottom: 2 };
       model.dispatch("SET_SELECTION", {
         zones: [zone],
+        anchorZone: zone,
         anchor: [zone.left, zone.top],
         strict: true,
       });
@@ -976,6 +977,7 @@ describe("Columns", () => {
       const zone = { left: 1, right: 3, top: 0, bottom: 2 };
       model.dispatch("SET_SELECTION", {
         zones: [zone],
+        anchorZone: zone,
         anchor: [zone.left, zone.top],
         strict: true,
       });
@@ -988,6 +990,7 @@ describe("Columns", () => {
       const zone = toZone("B1:D3");
       model.dispatch("SET_SELECTION", {
         zones: [zone],
+        anchorZone: zone,
         anchor: [zone.left, zone.top],
         strict: true,
       });
@@ -1000,6 +1003,7 @@ describe("Columns", () => {
       const zone = toZone("B1:D3");
       model.dispatch("SET_SELECTION", {
         zones: [zone],
+        anchorZone: zone,
         anchor: [zone.left, zone.top],
         strict: true,
       });
@@ -1012,6 +1016,7 @@ describe("Columns", () => {
       const zone = toZone("C1:C4");
       model.dispatch("SET_SELECTION", {
         zones: [zone],
+        anchorZone: zone,
         anchor: [zone.left, zone.top],
         strict: true,
       });
@@ -1024,6 +1029,7 @@ describe("Columns", () => {
       const zone2 = toZone("C1:C4");
       model.dispatch("SET_SELECTION", {
         zones: [zone1, zone2],
+        anchorZone: zone2,
         anchor: [zone1.left, zone1.top],
         strict: true,
       });
@@ -1771,6 +1777,7 @@ describe("Rows", () => {
       const zone = { left: 2, right: 3, top: 0, bottom: 1 };
       model.dispatch("SET_SELECTION", {
         zones: [zone],
+        anchorZone: zone,
         anchor: [zone.left, zone.top],
         strict: true,
       });
@@ -1783,6 +1790,7 @@ describe("Rows", () => {
       const zone = { left: 2, right: 3, top: 0, bottom: 1 };
       model.dispatch("SET_SELECTION", {
         zones: [zone],
+        anchorZone: zone,
         anchor: [zone.left, zone.top],
         strict: true,
       });
@@ -1795,6 +1803,7 @@ describe("Rows", () => {
       const zone = toZone("C1:D2");
       model.dispatch("SET_SELECTION", {
         zones: [zone],
+        anchorZone: zone,
         anchor: [zone.left, zone.top],
         strict: true,
       });
@@ -1807,6 +1816,7 @@ describe("Rows", () => {
       const zone = toZone("C1:D2");
       model.dispatch("SET_SELECTION", {
         zones: [zone],
+        anchorZone: zone,
         anchor: [zone.left, zone.top],
         strict: true,
       });
@@ -1819,6 +1829,7 @@ describe("Rows", () => {
       const zone = toZone("A3:D3");
       model.dispatch("SET_SELECTION", {
         zones: [zone],
+        anchorZone: zone,
         anchor: [zone.left, zone.top],
         strict: true,
       });
@@ -1831,6 +1842,7 @@ describe("Rows", () => {
       const zone2 = toZone("A3:D3");
       model.dispatch("SET_SELECTION", {
         zones: [zone1, zone2],
+        anchorZone: zone2,
         anchor: [zone1.left, zone1.top],
         strict: true,
       });

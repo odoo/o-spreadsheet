@@ -727,7 +727,7 @@ describe("Context Menu - CF", () => {
       target: cfRule.ranges.map(toZone),
     });
     const zone = { left: 0, top: 0, bottom: 10, right: 10 };
-    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
+    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0], anchorZone: zone });
     simulateContextMenu(240, 110); //click on C5
     await nextTick();
     await simulateClick(".o-menu div[data-name='conditional_formatting']");
@@ -775,7 +775,7 @@ describe("Context Menu - CF", () => {
       target: cfRule2.ranges.map(toZone),
     });
     const zone = { left: 0, top: 0, bottom: 10, right: 10 };
-    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
+    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0], anchorZone: zone });
     simulateContextMenu(240, 110); //click on C5
     await nextTick();
     await simulateClick(".o-menu div[data-name='conditional_formatting']");
@@ -807,7 +807,7 @@ describe("Context Menu - CF", () => {
       target: cfRule1.ranges.map(toZone),
     });
     let zone = { left: 0, top: 0, bottom: 10, right: 0 };
-    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
+    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0], anchorZone: zone });
     simulateContextMenu(80, 90);
     await nextTick();
     await simulateClick(".o-menu div[data-name='conditional_formatting']");
@@ -819,7 +819,7 @@ describe("Context Menu - CF", () => {
     ).toBeTruthy();
 
     zone = { left: 5, top: 5, bottom: 5, right: 5 };
-    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [5, 5] });
+    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [5, 5], anchorZone: zone });
     simulateContextMenu(530, 125);
     await nextTick();
     await simulateClick(".o-menu div[data-name='conditional_formatting']");

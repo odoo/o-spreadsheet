@@ -163,6 +163,7 @@ describe("highlight", () => {
     model.dispatch("SET_SELECTION", {
       anchor: [1, 1],
       zones: [zone1],
+      anchorZone: zone1,
     });
     model.dispatch("STOP_SELECTION");
     const firstColor = getColor(model);
@@ -177,6 +178,7 @@ describe("highlight", () => {
     model.dispatch("SET_SELECTION", {
       anchor: [6, 6],
       zones: [zone2],
+      anchorZone: zone2,
     });
     model.dispatch("STOP_SELECTION");
     expect(getColor(model)).toBe(firstColor);
@@ -197,6 +199,7 @@ describe("highlight", () => {
     model.dispatch("SET_SELECTION", {
       anchor: [1, 1],
       zones: [zone1],
+      anchorZone: zone1,
     });
     model.dispatch("STOP_SELECTION");
     const firstColor = getColor(model);
@@ -212,6 +215,7 @@ describe("highlight", () => {
     model.dispatch("SET_SELECTION", {
       anchor: [6, 6],
       zones: [zone2],
+      anchorZone: zone2,
     });
     model.dispatch("STOP_SELECTION");
     expect(getColor(model)).not.toBe(firstColor);
@@ -230,6 +234,7 @@ describe("highlight", () => {
     model.dispatch("SET_SELECTION", {
       anchor: [1, 1],
       zones: [zone1],
+      anchorZone: zone1,
     });
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     model.dispatch("START_SELECTION_EXPANSION");
@@ -253,6 +258,7 @@ describe("highlight", () => {
     model.dispatch("SET_SELECTION", {
       anchor: [1, 1],
       zones: [zone1],
+      anchorZone: zone1,
     });
     model.dispatch("STOP_SELECTION");
     const firstColor = getColor(model);
@@ -262,6 +268,7 @@ describe("highlight", () => {
     model.dispatch("SET_SELECTION", {
       anchor: [6, 6],
       zones: [zone2],
+      anchorZone: zone2,
     });
     model.dispatch("STOP_SELECTION");
     expect(getColor(model)).not.toBe(firstColor);
@@ -275,13 +282,13 @@ describe("highlight", () => {
     const zones = [zone];
     model.dispatch("START_SELECTION");
     const color = getColor(model);
-    model.dispatch("SET_SELECTION", { anchor, zones });
+    model.dispatch("SET_SELECTION", { anchor, zones, anchorZone: zone });
     model.dispatch("STOP_SELECTION");
     expect(model.getters.getHighlights()).toStrictEqual([
       { color, zone, sheet: model.getters.getActiveSheetId() },
     ]);
     model.dispatch("START_SELECTION");
-    model.dispatch("SET_SELECTION", { anchor, zones });
+    model.dispatch("SET_SELECTION", { anchor, zones, anchorZone: zone });
     expect(model.getters.getHighlights()).toStrictEqual([
       { color, zone, sheet: model.getters.getActiveSheetId() },
     ]);
@@ -295,6 +302,7 @@ describe("highlight", () => {
     model.dispatch("SET_SELECTION", {
       anchor: [1, 1],
       zones: [zone1],
+      anchorZone: zone1,
     });
     const firstColor = getColor(model);
     model.dispatch("STOP_SELECTION");
@@ -303,6 +311,7 @@ describe("highlight", () => {
     model.dispatch("SET_SELECTION", {
       anchor: [6, 6],
       zones: [zone2],
+      anchorZone: zone2,
     });
     model.dispatch("STOP_SELECTION");
     expect(model.getters.getHighlights()).toStrictEqual([
@@ -367,6 +376,7 @@ describe("highlight", () => {
     model.dispatch("SET_SELECTION", {
       anchor: [0, 4],
       zones: [toZone("A3:A5")],
+      anchorZone: toZone("A3:A5"),
     });
     const mergeColor = getColor(model);
     expect(model.getters.getHighlights()).toStrictEqual([
@@ -385,6 +395,7 @@ describe("highlight", () => {
     model.dispatch("SET_SELECTION", {
       anchor: [0, 4],
       zones: [toZone("A3:A5")],
+      anchorZone: toZone("A3:A5"),
     });
     const mergeColor = getColor(model);
     model.dispatch("ALTER_SELECTION", { cell: [0, 1] }); // TopLeft

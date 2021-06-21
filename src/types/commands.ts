@@ -464,6 +464,7 @@ export interface SetSelectionCommand extends BaseCommand {
   type: "SET_SELECTION";
   anchor: [number, number];
   zones: Zone[];
+  anchorZone: Zone;
   strict?: boolean;
 }
 
@@ -979,6 +980,7 @@ export const enum CommandResult {
   ForbiddenCharactersInSheetName,
   WrongSheetMove,
   WrongSheetPosition,
+  InvalidAnchorZone,
   SelectionOutOfBound,
   TargetOutOfSheet,
   WrongPasteSelection,

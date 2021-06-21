@@ -157,6 +157,7 @@ export class SortPlugin extends UIPlugin {
           this.dispatch("SET_SELECTION", {
             anchor: anchor,
             zones: [zone],
+            anchorZone: zone,
           });
           this.ui.notifyUser(
             _lt("Cannot sort. To sort, select only cells or only merges that have the same size.")

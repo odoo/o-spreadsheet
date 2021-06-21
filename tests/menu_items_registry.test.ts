@@ -612,7 +612,11 @@ describe("Menu Item actions", () => {
     const pathSort = ["edit", "sort_range"];
 
     test("A selected zone", () => {
-      model.dispatch("SET_SELECTION", { anchor: [0, 0], zones: [toZone("A1:A2")] });
+      model.dispatch("SET_SELECTION", {
+        anchor: [0, 0],
+        zones: [toZone("A1:A2")],
+        anchorZone: toZone("A1:A2"),
+      });
       expect(getName(pathSort, env)).toBe("Sort range");
       expect(getNode(pathSort).isVisible(env)).toBeTruthy();
     });
@@ -621,6 +625,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SET_SELECTION", {
         anchor: [0, 0],
         zones: [toZone("A1:A2"), toZone("B1:B2")],
+        anchorZone: toZone("B1:B2"),
       });
       expect(getNode(pathSort).isVisible(env)).toBeFalsy();
     });
@@ -643,6 +648,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SET_SELECTION", {
         anchor: [1, 0],
         zones: [toZone("B1:B100"), toZone("C5")],
+        anchorZone: toZone("C5"),
       });
       expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide columns B - C");
       expect(getNode(hidePath, colMenuRegistry).isVisible(env)).toBeTruthy();
@@ -657,6 +663,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SET_SELECTION", {
         anchor: [1, 0],
         zones: [toZone("B1")],
+        anchorZone: toZone("B1"),
       });
       expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide columns");
       expect(getNode(hidePath, colMenuRegistry).isVisible(env)).toBeTruthy();
@@ -672,6 +679,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SET_SELECTION", {
         anchor: [0, 0],
         zones: [toZone("A1:A100"), toZone("A4:Z4")],
+        anchorZone: toZone("A4:Z4"),
       });
       expect(getNode(hidePath, colMenuRegistry).isVisible(env)).toBeFalsy();
     });
@@ -681,6 +689,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SET_SELECTION", {
         anchor: [0, 0],
         zones: [toZone("B1:E100")],
+        anchorZone: toZone("B1:E100"),
       });
       expect(getNode(unhidePath, colMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(unhidePath, env, colMenuRegistry);
@@ -694,6 +703,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SET_SELECTION", {
         anchor: [0, 0],
         zones: [toZone("B1:E100")],
+        anchorZone: toZone("B1:E100"),
       });
       expect(getNode(unhidePath, colMenuRegistry).isVisible(env)).toBeFalsy();
     });
@@ -729,6 +739,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SET_SELECTION", {
         anchor: [0, 1],
         zones: [toZone("A2:Z2"), toZone("C3")],
+        anchorZone: toZone("C3"),
       });
       expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide rows 2 - 3");
       expect(getNode(hidePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
@@ -743,6 +754,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SET_SELECTION", {
         anchor: [1, 0],
         zones: [toZone("B1")],
+        anchorZone: toZone("B1"),
       });
       expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide rows");
       expect(getNode(hidePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
@@ -758,6 +770,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SET_SELECTION", {
         anchor: [0, 0],
         zones: [toZone("A1:A100"), toZone("A4:Z4")],
+        anchorZone: toZone("A4:Z4"),
       });
       expect(getNode(hidePath, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });
@@ -767,6 +780,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SET_SELECTION", {
         anchor: [0, 0],
         zones: [toZone("A1:Z4")],
+        anchorZone: toZone("A1:Z4"),
       });
       expect(getNode(unhidePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(unhidePath, env, rowMenuRegistry);
@@ -780,6 +794,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SET_SELECTION", {
         anchor: [0, 0],
         zones: [toZone("A1:Z4")],
+        anchorZone: toZone("A1:Z4"),
       });
       expect(getNode(unhidePath, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });

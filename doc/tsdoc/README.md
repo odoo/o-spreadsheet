@@ -132,10 +132,10 @@ Name | Type |
 `createFullMenuItem` | (`key`: *string*, `value`: MenuItem) => FullMenuItem |
 `formatDecimal` | (`n`: *number*, `decimals`: *number*, `sep`: *string*) => *string* |
 `numberToLetters` | (`n`: *number*) => *string* |
-`toBoolean` | (`value`: *unknown*) => *boolean* |
+`toBoolean` | (`value`: ArgValue) => *boolean* |
 `toCartesian` | (`xc`: *string*) => [*number*, *number*] |
-`toNumber` | (`value`: *unknown*) => *number* |
-`toString` | (`value`: *any*) => *string* |
+`toNumber` | (`value`: ArgValue) => *number* |
+`toString` | (`value`: ArgValue) => *string* |
 `toXC` | (`col`: *number*, `row`: *number*) => *string* |
 `toZone` | (`xc`: *string*) => Zone |
 `uuidv4` | () => *string* |

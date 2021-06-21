@@ -347,16 +347,16 @@ export class ClipboardPlugin extends UIPlugin {
         });
       }
     }
+    const zone = {
+      left: activeCol,
+      top: activeRow,
+      right: activeCol + width - 1,
+      bottom: activeRow + height - 1,
+    };
     this.dispatch("SET_SELECTION", {
       anchor: [activeCol, activeRow],
-      zones: [
-        {
-          left: activeCol,
-          top: activeRow,
-          right: activeCol + width - 1,
-          bottom: activeRow + height - 1,
-        },
-      ],
+      zones: [zone],
+      anchorZone: zone,
     });
   }
 
@@ -444,6 +444,7 @@ export class ClipboardPlugin extends UIPlugin {
       this.dispatch("SET_SELECTION", {
         anchor: [newCol, newRow],
         zones: [newSelection],
+        anchorZone: newSelection,
       });
     }
   }
