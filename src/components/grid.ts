@@ -7,7 +7,14 @@ import {
   HEADER_WIDTH,
   SCROLLBAR_WIDTH,
 } from "../constants";
-import { findCellInNewZone, isInside, MAX_DELAY } from "../helpers/index";
+import {
+  findCellInNewZone,
+  findVisibleHeader,
+  getNextVisibleCellCoords,
+  isInside,
+  MAX_DELAY,
+  range,
+} from "../helpers/index";
 import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
@@ -360,6 +367,17 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       } else {
         this.dispatch("SUM_SELECTION");
       }
+    },
+    "CTRL+HOME": () => {
+      const sheet = this.getters.getActiveSheet();
+      const [col, row] = getNextVisibleCellCoords(sheet, 0, 0);
+      this.dispatch("SELECT_CELL", { col, row });
+    },
+    "CTRL+END": () => {
+      const sheet = this.getters.getActiveSheet();
+      const col = findVisibleHeader(sheet, "cols", range(0, sheet.cols.length).reverse())!;
+      const row = findVisibleHeader(sheet, "rows", range(0, sheet.rows.length).reverse())!;
+      this.dispatch("SELECT_CELL", { col, row });
     },
   };
 
