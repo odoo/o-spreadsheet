@@ -206,6 +206,10 @@ export class Spreadsheet extends Component<Props> {
     if (!this.grid.el!.contains(document.activeElement)) {
       return;
     }
+    /* If we are currently editing a cell, let the default behavior */
+    if (this.model.getters.getEditionMode() !== "inactive") {
+      return;
+    }
     const type = cut ? "CUT" : "COPY";
     const target = this.model.getters.getSelectedZones();
     this.model.dispatch(type, { target });

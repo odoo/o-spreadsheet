@@ -56,6 +56,19 @@ export function toZone(xc: string): Zone {
 }
 
 /**
+ * Check that the zone has valid coordinates and in
+ * the correct order.
+ */
+export function isZoneValid(zone: Zone): boolean {
+  // Typescript *should* prevent this kind of errors but
+  // it's better to be on the safe side at runtime as well.
+  if (isNaN(zone.bottom) || isNaN(zone.top) || isNaN(zone.left) || isNaN(zone.right)) {
+    return false;
+  }
+  return zone.bottom >= zone.top && zone.right >= zone.left;
+}
+
+/**
  * Convert from zone to a cartesian reference
  *
  */
@@ -196,6 +209,13 @@ export function overlap(z1: Zone, z2: Zone): boolean {
 export function isInside(col: number, row: number, zone: Zone): boolean {
   const { left, right, top, bottom } = zone;
   return col >= left && col <= right && row >= top && row <= bottom;
+}
+
+/**
+ * Check if a zone is inside another
+ */
+export function isZoneInside(smallZone, biggerZone): boolean {
+  return isEqual(union(biggerZone, smallZone), biggerZone);
 }
 
 /**

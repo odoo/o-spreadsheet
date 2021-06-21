@@ -14,6 +14,7 @@ export const conditionalFormattingTerms = {
   SAVE: _lt("Save"),
   PREVIEW_TEXT: _lt("Preview text"),
   Errors: {
+    [CommandResult.InvalidRange]: _lt("The range is invalid"),
     [CommandResult.InvalidNumberOfArgs]: _lt("Invalid number of arguments"),
     [CommandResult.MinNaN]: _lt("The minpoint must be a number"),
     [CommandResult.MidNaN]: _lt("The midpoint must be a number"),
@@ -24,13 +25,13 @@ export const conditionalFormattingTerms = {
     [CommandResult.MinBiggerThanMid]: _lt("Minimum must be smaller then Midpoint"),
     [CommandResult.MidBiggerThanMax]: _lt("Midpoint must be smaller then Maximum"),
     [CommandResult.LowerBiggerThanUpper]: _lt(
-      "Lower inflation point must be smaller then upper inflation point"
+      "Lower inflection point must be smaller then upper inflection point"
     ),
     [CommandResult.MinInvalidFormula]: _lt("Invalid Minpoint formula"),
     [CommandResult.MaxInvalidFormula]: _lt("Invalid Maxpoint formula"),
     [CommandResult.MidInvalidFormula]: _lt("Invalid Midpoint formula"),
-    [CommandResult.ValueUpperInvalidFormula]: _lt("Invalid upper inflation point formula"),
-    [CommandResult.ValueLowerInvalidFormula]: _lt("Invalid lower inflation point formula"),
+    [CommandResult.ValueUpperInvalidFormula]: _lt("Invalid upper inflection point formula"),
+    [CommandResult.ValueLowerInvalidFormula]: _lt("Invalid lower inflection point formula"),
     [CommandResult.MinAsyncFormulaNotSupported]: _lt(
       "Some formulas are not supported for the Minpoint"
     ),
@@ -120,10 +121,10 @@ export const chartTerms = {
   Exponential: _lt("Exponential"),
   Logarithmic: _lt("Logarithmic"),
   Errors: {
-    [CommandResult.EmptyDataSet]: _lt("No Dataset given"),
-    [CommandResult.InvalidDataSet]: _lt("Invalid dataSet"),
-    [CommandResult.InvalidLabelRange]: _lt("Invalid Labels"),
-    unexpected: _lt("The chartdefinition is invalid for an unknown reason"),
+    [CommandResult.EmptyDataSet]: _lt("A dataset needs to be defined"),
+    [CommandResult.InvalidDataSet]: _lt("The dataset is invalid"),
+    [CommandResult.InvalidLabelRange]: _lt("Labels are invalid"),
+    unexpected: _lt("The chart definition is invalid for an unknown reason"),
   },
 };
 

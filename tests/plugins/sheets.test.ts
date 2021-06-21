@@ -1,5 +1,5 @@
 import { FORBIDDEN_SHEET_CHARS } from "../../src/constants";
-import { toCartesian, toZone, uuidv4 } from "../../src/helpers";
+import { getComposerSheetName, toCartesian, toZone, uuidv4 } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
@@ -945,5 +945,22 @@ describe("sheets", () => {
     merge(model, "A1:A2");
     expect(model.getters.isEmpty(sheetId, toZone("A2"))).toBe(true);
     expect(model.getters.isEmpty(sheetId, toZone("A2:A3"))).toBe(true);
+  });
+
+  test.each(["Sheet", "My sheet"])("getSheetIdByName", (name) => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("RENAME_SHEET", {
+      sheetId,
+      name,
+    });
+    expect(model.getters.getSheetIdByName(name)).toBe(sheetId);
+    expect(model.getters.getSheetIdByName(`'${name}'`)).toBe(sheetId);
+    expect(model.getters.getSheetIdByName(getComposerSheetName(name))).toBe(sheetId);
+  });
+
+  test("getSheetIdByName with invalid name", () => {
+    const model = new Model();
+    expect(model.getters.getSheetIdByName("this name does not exist")).toBeUndefined();
   });
 });

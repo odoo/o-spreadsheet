@@ -3,7 +3,6 @@ import { rangeReference } from "../../formulas";
 import {
   createAdaptedZone,
   getComposerSheetName,
-  getUnquotedSheetName,
   groupConsecutive,
   numberToLetters,
   toZoneWithoutBoundaryChanges,
@@ -272,7 +271,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     if (sheetXC.includes("!")) {
       [xc, sheetName] = sheetXC.split("!").reverse();
       if (sheetName) {
-        sheetId = this.getters.getSheetIdByName(getUnquotedSheetName(sheetName));
+        sheetId = this.getters.getSheetIdByName(sheetName);
         prefixSheet = true;
         if (!sheetId) {
           invalidSheetName = sheetName;

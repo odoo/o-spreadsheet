@@ -38,6 +38,14 @@ const mockChart = () => {
   return mockChartData;
 };
 
+function errorMessages(): string[] {
+  const errors = document.querySelectorAll(".o-sidepanel-error");
+  if (!errors) return [];
+  return [...errors]
+    .map((error) => error.textContent)
+    .filter((error): error is string => error !== null);
+}
+
 jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
 
@@ -342,6 +350,48 @@ describe("figures", () => {
     );
     expect(hasTitle).toBe(true);
     expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe("A2:A4");
+  });
+
+  test("update chart with empty dataset and empty labels", async () => {
+    await simulateClick(".o-figure");
+    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-menu div[data-name='edit']");
+
+    await simulateClick(".o-data-series input");
+    setInputValueAndTrigger(".o-data-series input", "", "change");
+    await nextTick();
+    await simulateClick(".o-data-series .o-selection-ok");
+
+    expect(errorMessages()).toEqual(["A dataset needs to be defined"]);
+
+    await simulateClick(".o-data-labels input");
+    setInputValueAndTrigger(".o-data-labels input", "", "change");
+    await nextTick();
+    await simulateClick(".o-data-labels .o-selection-ok");
+
+    expect(errorMessages()).toEqual([]);
+  });
+
+  test("update chart with invalid dataset and empty labels", async () => {
+    await simulateClick(".o-figure");
+    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-menu div[data-name='edit']");
+    await simulateClick(".o-data-series input");
+    setInputValueAndTrigger(".o-data-series input", "This is not valid", "change");
+    await nextTick();
+    await simulateClick(".o-data-series .o-selection-ok");
+    expect(errorMessages()).toEqual(["The dataset is invalid"]);
+  });
+
+  test("update chart with invalid labels", async () => {
+    await simulateClick(".o-figure");
+    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-menu div[data-name='edit']");
+    await simulateClick(".o-data-labels input");
+    setInputValueAndTrigger(".o-data-labels input", "this is not valid", "change");
+    await nextTick();
+    await simulateClick(".o-data-labels .o-selection-ok");
+    expect(errorMessages()).toEqual(["Labels are invalid"]);
   });
 });
 describe("charts with multiple sheets", () => {

@@ -80,7 +80,7 @@ describe("merges", () => {
     expect(Object.keys(getMerges(model))).toEqual([]);
   });
 
-  test("merge is clipped to sheet dimension", () => {
+  test("merge outside the sheet is refused", () => {
     const model = new Model({
       sheets: [
         {
@@ -90,8 +90,8 @@ describe("merges", () => {
       ],
     });
     const sheetId = model.getters.getActiveSheetId();
-    merge(model, "A1:C3");
-    expect(model.getters.getMerge(sheetId, ...toCartesian("A1"))).toMatchObject(toZone("A1:B2"));
+    expect(merge(model, "A1:C3")).toBe(CommandResult.TargetOutOfSheet);
+    expect(model.getters.getMerge(sheetId, ...toCartesian("A1"))).toBeUndefined();
   });
 
   test("editing a merge cell actually edits the top left", () => {
