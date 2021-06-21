@@ -600,6 +600,7 @@ describe("UI of conditional formats", () => {
     model.dispatch("SET_SELECTION", {
       anchor: [1, 1],
       zones: [zone1, zone2],
+      anchorZone: zone2,
     });
     parent.env.openSidePanel("ConditionalFormatting");
     await nextTick();
@@ -617,6 +618,7 @@ describe("UI of conditional formats", () => {
     model.dispatch("SET_SELECTION", {
       anchor: [1, 1],
       zones: [zone1, zone2],
+      anchorZone: zone2,
     });
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();

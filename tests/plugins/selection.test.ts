@@ -294,6 +294,16 @@ describe("selection", () => {
     expect(model.getters.getPosition()).toEqual([1, 0]);
     expect(model.getters.getSheetPosition("42")).toEqual([1, 0]);
   });
+  test("cannot set a selection with an anchor zone not present in the zones provided", () => {
+    const model = new Model();
+    const zone = { top: 0, bottom: 0, left: 0, right: 0 };
+    const anchorZone = { top: 1, bottom: 2, left: 1, right: 2 };
+    const zones = [zone];
+    const anchor: [number, number] = [1, 1];
+    expect(model.dispatch("SET_SELECTION", { zones, anchor, anchorZone })).toBe(
+      CommandResult.InvalidAnchorZone
+    );
+  });
 });
 
 describe("multiple selections", () => {

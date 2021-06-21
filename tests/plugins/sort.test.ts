@@ -754,6 +754,7 @@ describe("Sort Merges", () => {
     expect(notifyUser).toHaveBeenCalled();
     expect(model.getters.getSelection()).toEqual({
       anchor: anchor,
+      anchorZone: contiguousZone,
       zones: [contiguousZone],
     });
     undo(model);
@@ -791,6 +792,7 @@ describe("Sort Merges", () => {
     expect(notifyUser).toHaveBeenCalled();
     expect(model.getters.getSelection()).toEqual({
       anchor: anchor,
+      anchorZone: contiguousZone,
       zones: [contiguousZone],
     });
     undo(model);

@@ -34,6 +34,7 @@ import { UIPlugin } from "../ui_plugin";
 export interface Selection {
   anchor: [number, number];
   zones: Zone[];
+  anchorZone: Zone;
 }
 
 interface SheetInfo {
@@ -82,6 +83,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   private selection: Selection = {
     zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
     anchor: [0, 0],
+    anchorZone: { top: 0, left: 0, bottom: 0, right: 0 },
   };
   private selectedFigureId: string | null = null;
   private activeCol: number = 0;
@@ -111,6 +113,12 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
 
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
+      case "SET_SELECTION": {
+        if (cmd.zones.findIndex((z: Zone) => isEqual(z, cmd.anchorZone)) === -1) {
+          return CommandResult.InvalidAnchorZone;
+        }
+        break;
+      }
       case "MOVE_POSITION": {
         const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
         let targetCol = this.activeCol;
@@ -214,7 +222,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
         }
         break;
       case "SET_SELECTION":
-        this.setSelection(cmd.anchor, cmd.zones, cmd.strict);
+        this.setSelection(cmd.anchor, cmd.zones, cmd.anchorZone, cmd.strict);
         break;
       case "START_SELECTION":
         this.mode = SelectionMode.selecting;
@@ -333,7 +341,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   }
 
   getSelectedZone(): Zone {
-    return this.selection.zones[this.selection.zones.length - 1];
+    return this.selection.anchorZone;
   }
 
   getSelection(): Selection {
@@ -442,45 +450,45 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
 
   private selectColumn(index: number, createRange: boolean, updateRange: boolean) {
     const bottom = this.getters.getActiveSheet().rows.length - 1;
-    const zone = { left: index, right: index, top: 0, bottom };
+    let zone = { left: index, right: index, top: 0, bottom };
     const current = this.selection.zones;
-    let zones: Zone[], anchor: [number, number];
+    let newZones: Zone[], anchor: [number, number];
     const top = this.getters.getActiveSheet().rows.findIndex((row) => !row.isHidden);
     if (updateRange) {
       const [col, row] = this.selection.anchor;
-      const updatedZone = union(zone, { left: col, right: col, top, bottom });
-      zones = current.slice(0, -1).concat(updatedZone);
+      zone = union(zone, { left: col, right: col, top, bottom });
+      newZones = this.updateSelectionZones(zone);
       anchor = [col, row];
     } else {
-      zones = createRange ? current.concat(zone) : [zone];
+      newZones = createRange ? current.concat(zone) : [zone];
       anchor = [index, top];
     }
-    this.dispatch("SET_SELECTION", { zones, anchor, strict: true });
+    this.dispatch("SET_SELECTION", { zones: newZones, anchor, strict: true, anchorZone: zone });
   }
 
   private selectRow(index: number, createRange: boolean, updateRange: boolean) {
     const right = this.getters.getActiveSheet().cols.length - 1;
-    const zone = { top: index, bottom: index, left: 0, right };
+    let zone = { top: index, bottom: index, left: 0, right };
     const current = this.selection.zones;
     let zones: Zone[], anchor: [number, number];
     const left = this.getters.getActiveSheet().cols.findIndex((col) => !col.isHidden);
     if (updateRange) {
       const [col, row] = this.selection.anchor;
-      const updatedZone = union(zone, { left, right, top: row, bottom: row });
-      zones = current.slice(0, -1).concat(updatedZone);
+      zone = union(zone, { left, right, top: row, bottom: row });
+      zones = this.updateSelectionZones(zone);
       anchor = [col, row];
     } else {
       zones = createRange ? current.concat(zone) : [zone];
       anchor = [left, index];
     }
-    this.dispatch("SET_SELECTION", { zones, anchor, strict: true });
+    this.dispatch("SET_SELECTION", { zones, anchor, strict: true, anchorZone: zone });
   }
 
   private selectAll() {
     const bottom = this.getters.getActiveSheet().rows.length - 1;
     const right = this.getters.getActiveSheet().cols.length - 1;
     const zone = { left: 0, top: 0, bottom, right };
-    this.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
+    this.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0], anchorZone: zone });
   }
 
   /**
@@ -495,14 +503,12 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     this.moveClient({ sheetId: sheet.id, col, row });
     let zone = this.getters.expandZone(sheet.id, { left: col, right: col, top: row, bottom: row });
     if (this.mode === SelectionMode.expanding) {
-      // It is important to add the zone at the end of the array.
-      // It is a way to easily find the last selection made by the user.
       this.selection.zones.push(zone);
     } else {
       this.selection.zones = [zone];
     }
     this.selection.zones = uniqueZones(this.selection.zones);
-
+    this.selection.anchorZone = zone;
     this.selection.anchor = [col, row];
     this.activeCol = col;
     this.activeRow = row;
@@ -555,13 +561,15 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     }
   }
 
-  setSelection(anchor: [number, number], zones: Zone[], strict: boolean = false) {
+  setSelection(anchor: [number, number], zones: Zone[], anchorZone: Zone, strict: boolean = false) {
     this.selectCell(...anchor);
     if (strict) {
       this.selection.zones = zones;
+      this.selection.anchorZone = anchorZone;
     } else {
       const sheetId = this.getters.getActiveSheetId();
       this.selection.zones = zones.map((zone: Zone) => this.getters.expandZone(sheetId, zone));
+      this.selection.anchorZone = this.getters.expandZone(sheetId, anchorZone);
     }
     this.selection.zones = uniqueZones(this.selection.zones);
     this.selection.anchor = anchor;
@@ -569,11 +577,10 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
 
   private moveSelection(deltaX: number, deltaY: number) {
     const selection = this.selection;
-    const zones = selection.zones.slice();
-    const lastZone = zones[selection.zones.length - 1];
+    let newZones: Zone[] = [];
     const [anchorCol, anchorRow] = selection.anchor;
-    const { left, right, top, bottom } = lastZone;
-    let result: Zone | null = lastZone;
+    const { left, right, top, bottom } = selection.anchorZone;
+    let result: Zone | null = selection.anchorZone;
     const activeSheet = this.getters.getActiveSheet();
     const expand = (z: Zone) => {
       const { left, right, top, bottom } = this.getters.expandZone(activeSheet.id, z);
@@ -601,9 +608,13 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       if (deltaY > 0) {
         result = top + n <= anchorRow ? expand({ top: top + n, left, bottom, right }) : null;
       }
-      if (result && !isEqual(result, lastZone)) {
-        zones[zones.length - 1] = result;
-        this.dispatch("SET_SELECTION", { zones, anchor: [anchorCol, anchorRow] });
+      if (result && !isEqual(result, selection.anchorZone)) {
+        newZones = this.updateSelectionZones(result);
+        this.dispatch("SET_SELECTION", {
+          zones: newZones,
+          anchor: [anchorCol, anchorRow],
+          anchorZone: result,
+        });
         return;
       }
     }
@@ -615,9 +626,13 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       right: right + deltaX,
     };
     result = expand(union(currentZone, zoneWithDelta));
-    if (!isEqual(result, lastZone)) {
-      zones[zones.length - 1] = result;
-      this.dispatch("SET_SELECTION", { zones, anchor: [anchorCol, anchorRow] });
+    if (!isEqual(result, selection.anchorZone)) {
+      newZones = this.updateSelectionZones(result);
+      this.dispatch("SET_SELECTION", {
+        zones: newZones,
+        anchor: [anchorCol, anchorRow],
+        anchorZone: result,
+      });
     }
   }
 
@@ -630,8 +645,12 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       right: Math.max(anchorCol, col),
       bottom: Math.max(anchorRow, row),
     };
-    const zones = selection.zones.slice(0, -1).concat(zone);
-    this.dispatch("SET_SELECTION", { zones, anchor: [anchorCol, anchorRow] });
+    const newZones = this.updateSelectionZones(zone);
+    this.dispatch("SET_SELECTION", {
+      zones: newZones,
+      anchor: [anchorCol, anchorRow],
+      anchorZone: zone,
+    });
   }
 
   /**
@@ -639,8 +658,11 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
    * They are clipped to fit inside the sheet if needed.
    */
   private ensureSelectionValidity() {
-    const { anchor, zones } = this.clipSelection(this.getActiveSheetId(), this.selection);
-    this.setSelection(anchor, zones);
+    const { anchor, zones, anchorZone } = this.clipSelection(
+      this.getActiveSheetId(),
+      this.selection
+    );
+    this.setSelection(anchor, zones, anchorZone);
     const deletedSheetIds = Object.keys(this.sheetsData).filter(
       (sheetId) => !this.getters.tryGetSheet(sheetId)
     );
@@ -648,9 +670,12 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       delete this.sheetsData[sheetId];
     }
     for (const sheetId in this.sheetsData) {
-      const { anchor, zones } = this.clipSelection(sheetId, this.sheetsData[sheetId].selection);
+      const { anchor, zones, anchorZone } = this.clipSelection(
+        sheetId,
+        this.sheetsData[sheetId].selection
+      );
       this.sheetsData[sheetId] = {
-        selection: { anchor, zones },
+        selection: { anchor, zones, anchorZone },
         activeCol: anchor[0],
         activeRow: anchor[1],
       };
@@ -670,23 +695,30 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       top: clip(z.top, 0, rows),
       bottom: clip(z.bottom, 0, rows),
     }));
-    const anchorCol = zones[zones.length - 1].left;
-    const anchorRow = zones[zones.length - 1].top;
+    const anchorCol = clip(selection.anchor[0], 0, cols);
+    const anchorRow = clip(selection.anchor[1], 0, rows);
+    const anchorZone = {
+      left: clip(selection.anchorZone.left, 0, cols),
+      right: clip(selection.anchorZone.right, 0, cols),
+      top: clip(selection.anchorZone.top, 0, rows),
+      bottom: clip(selection.anchorZone.bottom, 0, rows),
+    };
     return {
       anchor: [anchorCol, anchorRow],
       zones,
+      anchorZone,
     };
   }
 
   private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
     const zone = updateSelectionOnDeletion(this.getSelectedZone(), "left", cmd.elements);
-    this.setSelection([zone.left, zone.top], [zone], true);
+    this.setSelection([zone.left, zone.top], [zone], zone, true);
     this.ensureSelectionValidity();
   }
 
   private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
     const zone = updateSelectionOnDeletion(this.getSelectedZone(), "top", cmd.elements);
-    this.setSelection([zone.left, zone.top], [zone], true);
+    this.setSelection([zone.left, zone.top], [zone], zone, true);
     this.ensureSelectionValidity();
   }
 
@@ -699,9 +731,22 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       cmd.position,
       cmd.quantity
     );
-    this.setSelection([zone.left, zone.top], [zone], true);
+    this.setSelection([zone.left, zone.top], [zone], zone, true);
   }
 
+  /**
+   * this function searches for anchorZone in selection.zones
+   * and modifies it by newZone
+   */
+  private updateSelectionZones(newZone: Zone): Zone[] {
+    let zones = [...this.selection.zones];
+    const current = this.selection.anchorZone;
+    const index = zones.findIndex((z: Zone) => isEqual(z, current));
+    if (index >= 0) {
+      zones[index] = newZone;
+    }
+    return zones;
+  }
   // ---------------------------------------------------------------------------
   // Grid rendering
   // ---------------------------------------------------------------------------

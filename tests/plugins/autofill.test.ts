@@ -24,6 +24,7 @@ function selectZone(range: string) {
   model.dispatch("SET_SELECTION", {
     anchor: [zone.left, zone.top],
     zones: [zone],
+    anchorZone: zone,
   });
 }
 

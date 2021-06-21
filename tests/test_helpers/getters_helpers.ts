@@ -123,6 +123,7 @@ export function automaticSumMulti(
   model.dispatch("SET_SELECTION", {
     anchor: anchorPosition,
     zones: xcs.map(toZone),
+    anchorZone: mainSelectedZone,
   });
   return model.dispatch("SUM_SELECTION");
 }

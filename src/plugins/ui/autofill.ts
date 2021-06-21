@@ -234,6 +234,7 @@ export class AutofillPlugin extends UIPlugin {
       this.dispatch("SET_SELECTION", {
         zones: [zone],
         anchor: [zone.left, zone.top],
+        anchorZone: zone,
       });
     }
   }

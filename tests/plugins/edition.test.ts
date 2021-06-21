@@ -313,6 +313,7 @@ describe("edition", () => {
     model.dispatch("SET_SELECTION", {
       anchor: [0, 0],
       zones: [toZone("A1:A3")],
+      anchorZone: toZone("A1:A3"),
     });
     expect(model.getters.getCurrentContent()).toBe("=A1:A3");
 
