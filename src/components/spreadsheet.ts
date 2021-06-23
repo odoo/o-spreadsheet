@@ -22,17 +22,18 @@ const { useSubEnv } = owl.hooks;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet" t-on-save-requested="save" t-on-keydown="onKeydown">
-    <TopBar
-      t-on-click="focusGrid"
-      t-on-composer-focused="onTopBarComposerFocused"
-      focusComposer="focusTopBarComposer"
-      class="o-two-columns"/>
+  <TopBar
+  t-on-click="focusGrid"
+  t-on-composer-content-focused="onTopBarComposerFocused"
+  focusComposer="focusTopBarComposer"
+  class="o-two-columns"/>
     <Grid
       model="model"
       sidePanelIsOpen="sidePanel.isOpen"
       t-ref="grid"
       focusComposer="focusGridComposer"
-      t-on-composer-focused="onGridComposerFocused"
+      t-on-composer-content-focused="onGridComposerContentFocused"
+      t-on-composer-cell-focused="onGridComposerCellFocused"
       t-att-class="{'o-two-columns': !sidePanel.isOpen}"/>
     <SidePanel t-if="sidePanel.isOpen"
            t-on-close-side-panel="sidePanel.isOpen = false"
@@ -117,9 +118,9 @@ export class Spreadsheet extends Component<Props> {
   });
 
   composer = useState({
-    topBar: false,
-    grid: false,
-  });
+    topBarFocus: "inactive",
+    gridFocusMode: "inactive",
+  } as { topBarFocus: "inactive" | "contentFocus"; gridFocusMode: "inactive" | "cellFocus" | "contentFocus" });
 
   // last string that was cut or copied. It is necessary so we can make the
   // difference between a paste coming from the sheet itself, or from the
@@ -152,12 +153,16 @@ export class Spreadsheet extends Component<Props> {
     useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
   }
 
-  get focusTopBarComposer(): boolean {
-    return this.model.getters.getEditionMode() !== "inactive" && this.composer.topBar;
+  get focusTopBarComposer(): "inactive" | "contentFocus" {
+    return this.model.getters.getEditionMode() === "inactive"
+      ? "inactive"
+      : this.composer.topBarFocus;
   }
 
-  get focusGridComposer(): boolean {
-    return this.model.getters.getEditionMode() !== "inactive" && this.composer.grid;
+  get focusGridComposer(): "inactive" | "cellFocus" | "contentFocus" {
+    return this.model.getters.getEditionMode() === "inactive"
+      ? "inactive"
+      : this.composer.gridFocusMode;
   }
 
   mounted() {
@@ -279,14 +284,20 @@ export class Spreadsheet extends Component<Props> {
   }
 
   onTopBarComposerFocused(ev: ComposerFocusedEvent) {
-    this.composer.grid = false;
-    this.composer.topBar = true;
+    this.composer.topBarFocus = "contentFocus";
+    this.composer.gridFocusMode = "inactive";
     this.setComposerContent(ev.detail || {});
   }
 
-  onGridComposerFocused(ev: ComposerFocusedEvent) {
-    this.composer.topBar = false;
-    this.composer.grid = true;
+  onGridComposerContentFocused(ev: ComposerFocusedEvent) {
+    this.composer.topBarFocus = "inactive";
+    this.composer.gridFocusMode = "contentFocus";
+    this.setComposerContent(ev.detail || {});
+  }
+
+  onGridComposerCellFocused(ev: ComposerFocusedEvent) {
+    this.composer.topBarFocus = "inactive";
+    this.composer.gridFocusMode = "cellFocus";
     this.setComposerContent(ev.detail || {});
   }
 

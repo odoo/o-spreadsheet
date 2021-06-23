@@ -49,14 +49,14 @@ async function typeInComposer(text: string, fromScratch: boolean = true) {
 }
 
 async function keydown(key: string, options: any = {}) {
-  composerEl.dispatchEvent(
+  document.activeElement!.dispatchEvent(
     new KeyboardEvent("keydown", Object.assign({ key, bubbles: true }, options))
   );
   await nextTick();
   await nextTick();
 }
 async function keyup(key: string, options: any = {}) {
-  composerEl.dispatchEvent(
+  document.activeElement!.dispatchEvent(
     new KeyboardEvent("keyup", Object.assign({ key, bubbles: true }, options))
   );
   await nextTick();
@@ -253,6 +253,54 @@ describe("composer", () => {
   test("starting the edition with a key stroke B, the composer should have the focus after the key input", async () => {
     composerEl = await startComposition("b");
     expect(composerEl.textContent).toBe("b");
+  });
+
+  test("ArrowKeys will move to neighbour cell, if not in contentFocus mode (left/right)", async () => {
+    composerEl = await startComposition("a");
+    expect(composerEl.textContent).toBe("a");
+    await keydown("ArrowRight");
+    expect(getCellText(model, "A1")).toBe("a");
+    expect(model.getters.getPosition()).toEqual([1, 0]);
+
+    composerEl = await startComposition("b");
+    expect(composerEl.textContent).toBe("b");
+    await keydown("ArrowRight");
+    expect(getCellText(model, "B1")).toBe("b");
+    expect(model.getters.getPosition()).toEqual([2, 0]);
+
+    await keydown("ArrowLeft");
+    expect(model.getters.getPosition()).toEqual([1, 0]);
+    await keydown("ArrowLeft");
+    expect(model.getters.getPosition()).toEqual([0, 0]);
+    composerEl = await startComposition("c");
+    expect(composerEl.textContent).toBe("c");
+    await keydown("Enter");
+    expect(getCellText(model, "B1")).toBe("b");
+    expect(getCellText(model, "A1")).toBe("c");
+  });
+
+  test("ArrowKeys will move to neighbour cell, if not in contentFocus mode (up/down)", async () => {
+    composerEl = await startComposition("a");
+    expect(composerEl.textContent).toBe("a");
+    await keydown("ArrowDown");
+    expect(getCellText(model, "A1")).toBe("a");
+    expect(model.getters.getPosition()).toEqual([0, 1]);
+
+    composerEl = await startComposition("b");
+    expect(composerEl.textContent).toBe("b");
+    await keydown("ArrowDown");
+    expect(getCellText(model, "A2")).toBe("b");
+    expect(model.getters.getPosition()).toEqual([0, 2]);
+
+    await keydown("ArrowUp");
+    expect(model.getters.getPosition()).toEqual([0, 1]);
+    await keydown("ArrowUp");
+    expect(model.getters.getPosition()).toEqual([0, 0]);
+    composerEl = await startComposition("c");
+    expect(composerEl.textContent).toBe("c");
+    await keydown("Enter");
+    expect(getCellText(model, "A2")).toBe("b");
+    expect(getCellText(model, "A1")).toBe("c");
   });
 
   test("type '=', backspace and select a cell should not add it", async () => {
@@ -574,8 +622,10 @@ describe("composer", () => {
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
   });
 
-  test("Move cursor while in edit mode", async () => {
-    await typeInComposer("Hello");
+  test("Move cursor while in edit mode with non empty cell", async () => {
+    setCellContent(model, "A1", "Hello");
+    await nextTick();
+    await keydown("Enter");
     expect(model.getters.getEditionMode()).toBe("editing");
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
     for (let _ in [1, 2, 3]) {
@@ -591,6 +641,14 @@ describe("composer", () => {
     expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 4 });
   });
 
+  test("Move cursor while in edit mode with empty cell", async () => {
+    await typeInComposer("Hello");
+    expect(model.getters.getEditionMode()).toBe("editing");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
+    await keydown("ArrowLeft");
+    expect(model.getters.getEditionMode()).toBe("inactive");
+  });
+
   test("Select a right-to-left range with the keyboard", async () => {
     await typeInComposer("Hello");
     const { end } = model.getters.getComposerSelection();
@@ -602,13 +660,25 @@ describe("composer", () => {
     });
   });
 
-  test("Select a left-to-right range with the keyboard", async () => {
-    await typeInComposer("Hello");
+  test("Select a left-to-right range with the keyboard in a non empty cell", async () => {
+    setCellContent(model, "A1", "Hello");
+    await nextTick();
+    await keydown("Enter");
     model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 0 });
     await nextTick();
     await keydown("ArrowRight", { shiftKey: true });
     await keyup("ArrowRight", { shiftKey: true });
     expect(model.getters.getComposerSelection()).toEqual({ start: 0, end: 1 });
+  });
+
+  test("Select a left-to-right range with the keyboard in an empty cell", async () => {
+    await typeInComposer("Hello");
+    expect(model.getters.getEditionMode()).toBe("editing");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 0 });
+    await nextTick();
+    await keydown("ArrowRight", { shiftKey: true });
+    await keyup("ArrowRight", { shiftKey: true });
+    expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
   test("type '=', select a cell in another sheet with space in name", async () => {

@@ -65,7 +65,7 @@ const TEMPLATE = xml/* xml */ `
     t-on-click.stop="onClick"
   />
 
-  <div t-if="props.focus and (autoCompleteState.showProvider or functionDescriptionState.showDescription)"
+  <div t-if="props.focus !== 'inactive' and (autoCompleteState.showProvider or functionDescriptionState.showDescription)"
     class="o-composer-assistant" t-att-style="assistantStyle">
     <TextValueProvider
         t-if="autoCompleteState.showProvider"
@@ -127,7 +127,7 @@ interface Props {
   inputStyle: string;
   rect?: Rect;
   delimitation?: Dimension;
-  focus: boolean;
+  focus: "inactive" | "cellFocus" | "contentFocus";
 }
 
 interface ComposerState {
@@ -154,7 +154,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   static components = { TextValueProvider, FunctionDescriptionProvider };
   static defaultProps = {
     inputStyle: "",
-    focus: false,
+    focus: "inactive",
   };
 
   composerRef = useRef("o_composer");
@@ -256,6 +256,9 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
       this.functionDescriptionState.showDescription = false;
       return;
     }
+    if (this.props.focus === "cellFocus" && !this.autoCompleteState.showProvider) {
+      return;
+    }
     ev.stopPropagation();
     const autoCompleteComp = this.autoCompleteRef.comp as TextValueProvider;
     if (
@@ -333,7 +336,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
    * Triggered automatically by the content-editable between the keydown and key up
    * */
   onInput() {
-    if (!this.props.focus || !this.shouldProcessInputEvents) {
+    if (this.props.focus === "inactive" || !this.shouldProcessInputEvents) {
       return;
     }
     this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
@@ -346,7 +349,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
 
   onKeyup(ev: KeyboardEvent) {
     this.isKeyStillDown = false;
-    if (!this.props.focus || ["Control", "Shift", "Tab", "Enter"].includes(ev.key)) {
+    if (this.props.focus === "inactive" || ["Control", "Shift", "Tab", "Enter"].includes(ev.key)) {
       return;
     }
 
@@ -393,8 +396,8 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     const newSelection = this.contentHelper.getCurrentSelection();
 
     this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
-    if (!this.props.focus) {
-      this.trigger("composer-focused", {
+    if (this.props.focus === "inactive") {
+      this.trigger("composer-content-focused", {
         selection: newSelection,
       });
     }
@@ -414,7 +417,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     this.contentHelper.removeAll(); // removes the content of the composer, to be added just after
     this.shouldProcessInputEvents = false;
 
-    if (this.props.focus) {
+    if (this.props.focus !== "inactive") {
       this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
     }
     const content = this.getContent();
@@ -422,7 +425,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
       this.contentHelper.setText(content);
       const { start, end } = this.getters.getComposerSelection();
 
-      if (this.props.focus) {
+      if (this.props.focus !== "inactive") {
         // Put the cursor back where it was before the rendering
         this.contentHelper.selectRange(start, end);
       }
