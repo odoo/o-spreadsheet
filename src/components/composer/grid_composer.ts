@@ -42,7 +42,7 @@ interface ComposerState {
 }
 
 interface Props {
-  focus: boolean;
+  focus: "inactive" | "cellFocus" | "contentFocus";
   content: string;
 }
 

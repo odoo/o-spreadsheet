@@ -221,13 +221,17 @@ describe("formula assistant", () => {
       await typeInComposer("=FUNC1(1");
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
       expect(model.getters.getEditionMode()).toBe("editing");
+    });
+
+    test("leaving 'editing' mode with arrows should hide formula assistant", async () => {
+      await typeInComposer("=FUNC1(1");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
       await nextTick();
       composerEl.dispatchEvent(new KeyboardEvent("keyup", { key: "ArrowLeft", bubbles: true }));
       await nextTick();
-      expect(model.getters.getCurrentContent()).toBe("=FUNC1(1");
-      expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
-      expect(model.getters.getEditionMode()).toBe("editing");
+      expect(model.getters.getEditionMode()).toBe("inactive");
+      expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
+      expect(model.getters.getCurrentContent()).toBe("=FUNC1(1)");
     });
 
     describe("function definition", () => {

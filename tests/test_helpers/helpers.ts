@@ -83,12 +83,13 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
         model="model"
         t-on-ask-confirmation="askConfirmation"
         focusComposer="focusTopBarComposer"
-        t-on-composer-focused="onTopBarComposerFocused"/>
+        t-on-composer-content-focused="onTopBarComposerFocused"/>
       <Grid
         model="model"
         sidePanelIsOpen="sidePanel.isOpen"
         t-ref="grid"
-        t-on-composer-focused="onGridComposerFocused"
+        t-on-composer-cell-focused="onGridComposerCellFocused"
+        t-on-composer-content-focused="onGridComposerContentFocused"
         focusComposer="focusGridComposer"/>
       <SidePanel t-if="sidePanel.isOpen"
              t-on-close-side-panel="sidePanel.isOpen = false"
@@ -108,9 +109,9 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
   });
 
   composer = useState({
-    topBar: false,
-    grid: false,
-  });
+    topBarFocus: "inactive",
+    gridFocusMode: "inactive",
+  } as { topBarFocus: "inactive" | "contentFocus"; gridFocusMode: "inactive" | "contentFocus" | "cellFocus" });
 
   constructor(model: Model) {
     super();
@@ -132,12 +133,16 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
     this.model = model;
   }
 
-  get focusTopBarComposer(): boolean {
-    return this.model.getters.getEditionMode() !== "inactive" && this.composer.topBar;
+  get focusTopBarComposer(): "inactive" | "contentFocus" {
+    return this.model.getters.getEditionMode() === "inactive"
+      ? "inactive"
+      : this.composer.topBarFocus;
   }
 
-  get focusGridComposer(): boolean {
-    return this.model.getters.getEditionMode() !== "inactive" && this.composer.grid;
+  get focusGridComposer(): "inactive" | "cellFocus" | "contentFocus" {
+    return this.model.getters.getEditionMode() === "inactive"
+      ? "inactive"
+      : this.composer.gridFocusMode;
   }
 
   mounted() {
@@ -166,14 +171,19 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
   }
 
   onTopBarComposerFocused(ev: CustomEvent) {
-    this.composer.grid = false;
-    this.composer.topBar = true;
+    this.composer.topBarFocus = "contentFocus";
+    this.composer.gridFocusMode = "inactive";
+    this.setComposerContent(ev.detail || {});
+  }
+  onGridComposerContentFocused(ev: CustomEvent) {
+    this.composer.topBarFocus = "inactive";
+    this.composer.gridFocusMode = "contentFocus";
     this.setComposerContent(ev.detail || {});
   }
 
-  onGridComposerFocused(ev: CustomEvent) {
-    this.composer.topBar = false;
-    this.composer.grid = true;
+  onGridComposerCellFocused(ev: CustomEvent) {
+    this.composer.topBarFocus = "inactive";
+    this.composer.gridFocusMode = "cellFocus";
     this.setComposerContent(ev.detail || {});
   }
 
