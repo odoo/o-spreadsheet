@@ -99,8 +99,8 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
     let textAlign = "left";
 
     if (!isFormula) {
-      const cell = this.getters.getActiveCell() || { type: "text" };
-      textAlign = style.align || cell.type === "number" ? "right" : "left";
+      const cell = this.getters.getActiveCell();
+      textAlign = style.align || cell?.defaultAlign || "left";
     }
 
     return `

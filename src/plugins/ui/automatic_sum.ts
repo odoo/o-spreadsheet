@@ -10,7 +10,7 @@ import {
   zoneToDimension,
 } from "../../helpers";
 import { Mode } from "../../model";
-import { Cell, CellType, Command, Dimension, Sheet, UID, Zone } from "../../types";
+import { Cell, CellValueType, Command, Dimension, Sheet, UID, Zone } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 interface AutomaticSum {
@@ -172,7 +172,9 @@ export class AutomaticSumPlugin extends UIPlugin {
   private reduceZoneStart(sheet: Sheet, zone: Zone, end: number): number {
     const cells = mapCellsInZone(zone, sheet, (cell) => cell, undefined).flat();
     const cellPositions = range(end, -1, -1);
-    const invalidCells = cellPositions.filter((position) => !this.isValid(cells[position]));
+    const invalidCells = cellPositions.filter(
+      (position) => cells[position] && !cells[position]?.isAutoSummable
+    );
     const maxValidPosition = Math.max(...invalidCells);
     const numberSequences = groupConsecutive(
       cellPositions.filter((position) => this.isNumber(cells[position]))
@@ -189,17 +191,7 @@ export class AutomaticSumPlugin extends UIPlugin {
   }
 
   private isNumber(cell?: Cell): boolean {
-    return !!cell && typeof cell.value === "number" && !cell.format?.match(DATETIME_FORMAT);
-  }
-
-  /**
-   * Only empty cells, text cells and numbers are valid
-   */
-  private isValid(cell?: Cell): boolean {
-    return (
-      cell?.type !== CellType.invalidFormula &&
-      (!cell || typeof cell.value === "string" || !cell.value || this.isNumber(cell))
-    );
+    return cell?.evaluated.type === CellValueType.number && !cell.format?.match(DATETIME_FORMAT);
   }
 
   private isZoneValid(zone: Zone): boolean {

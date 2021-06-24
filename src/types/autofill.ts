@@ -9,7 +9,8 @@
  */
 
 import { Getters } from ".";
-import { Border, Cell, DIRECTION, UID, UpdateCellData } from "./misc";
+import { Cell } from "./cells";
+import { Border, DIRECTION, UID, UpdateCellData } from "./misc";
 
 export interface IncrementModifier {
   type: "INCREMENT_MODIFIER";
