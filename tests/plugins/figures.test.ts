@@ -304,6 +304,6 @@ describe("figure plugin", () => {
     expect(model.getters.getEditionMode()).toBe("editing");
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
     expect(model.getters.getEditionMode()).toBe("inactive");
-    expect(model.getters.getActiveCell()?.value).toBeUndefined();
+    expect(model.getters.getActiveCell()?.evaluated.value).toBeUndefined();
   });
 });

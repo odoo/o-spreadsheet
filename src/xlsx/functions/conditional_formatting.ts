@@ -38,6 +38,7 @@ export function addConditionalFormatting(
         cfNodes.push(addIconSetRule(cf, cf.rule));
         break;
       default:
+        // @ts-ignore
         console.warn(`Conditional formatting ${cf.rule.type} not implemented`);
         break;
     }
