@@ -212,7 +212,7 @@ export function getGrid(model: Model): GridResult {
   for (let cellId in model.getters.getCells(sheetId)) {
     const { col, row } = model.getters.getCellPosition(cellId);
     const cell = model.getters.getCell(sheetId, col, row);
-    result[toXC(col, row)] = cell ? cell.value : undefined;
+    result[toXC(col, row)] = cell ? cell.evaluated.value : undefined;
   }
   return result;
 }
@@ -235,7 +235,7 @@ export function evaluateGrid(grid: GridDescr): GridResult {
   const result = {};
   for (let xc in grid) {
     const cell = getCell(model, xc);
-    result[xc] = cell ? cell.value : "";
+    result[xc] = cell ? cell.evaluated.value : "";
   }
   return result;
 }

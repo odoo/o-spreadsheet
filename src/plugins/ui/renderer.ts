@@ -16,12 +16,13 @@ import {
   TEXT_HEADER_COLOR,
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
+import { isEmpty, isFormula } from "../../helpers/cells";
 import { overlap, scrollDelay } from "../../helpers/index";
 import { Mode } from "../../model";
 import {
   Box,
   Cell,
-  CellType,
+  CellValueType,
   EdgeScrollInfo,
   GridRenderingContext,
   Header,
@@ -39,20 +40,10 @@ import { UIPlugin } from "../ui_plugin";
 // -----------------------------------------------------------------------------
 
 function computeAlign(cell: Cell, isShowingFormulas: boolean): "right" | "center" | "left" {
-  if (cell.type === CellType.formula && isShowingFormulas) {
+  if (isFormula(cell) && isShowingFormulas) {
     return "left";
-  } else if (cell.error) {
-    return "center";
   }
-  switch (typeof cell.value) {
-    case "object":
-    case "number":
-      return "right";
-    case "boolean":
-      return "center";
-    default:
-      return "left";
-  }
+  return cell.defaultAlign;
 }
 
 function searchIndex(headers: Header[], offset: number): number {
@@ -455,7 +446,7 @@ export class RendererPlugin extends UIPlugin {
   private hasContent(col: number, row: number): boolean {
     const sheetId = this.getters.getActiveSheetId();
     const cell = this.getters.getCell(sheetId, col, row);
-    return (cell && cell.type !== "empty") || (this.getters.isInMerge(sheetId, col, row) as any);
+    return !isEmpty(cell) || this.getters.isInMerge(sheetId, col, row);
   }
 
   private getGridBoxes(renderingContext: GridRenderingContext): Box[] {
@@ -484,7 +475,7 @@ export class RendererPlugin extends UIPlugin {
         const iconStyle = this.getters.getConditionalIcon(colNumber, rowNumber);
         if (!this.getters.isInMerge(sheetId, colNumber, rowNumber)) {
           if (cell) {
-            const text = this.getters.getCellText(cell, sheetId, showFormula);
+            const text = this.getters.getCellText(cell, showFormula);
             let style = this.getters.getCellStyle(cell);
             if (conditionalStyle) {
               style = Object.assign({}, style, conditionalStyle);
@@ -503,7 +494,7 @@ export class RendererPlugin extends UIPlugin {
             const isOverflowing =
               contentWidth > cols[colNumber].size || fontSizeMap[fontsize] > row.size;
 
-            if (isOverflowing && typeof cell.value === "number") {
+            if (isOverflowing && cell.evaluated.type === CellValueType.number) {
               align = align !== "center" ? "left" : align;
             }
 
@@ -586,7 +577,7 @@ export class RendererPlugin extends UIPlugin {
               style,
               align,
               clipRect,
-              error: cell.error,
+              error: cell.evaluated.type === CellValueType.error ? cell.evaluated.error : undefined,
               image: iconStyle
                 ? {
                     type: "icon",
@@ -633,7 +624,7 @@ export class RendererPlugin extends UIPlugin {
         let text, textWidth, style, align, border;
         style = refCell ? this.getters.getCellStyle(refCell) : null;
         if (refCell || borderBottomRight || borderTopLeft) {
-          text = refCell ? this.getters.getCellText(refCell, activeSheetId, showFormula) : "";
+          text = refCell ? this.getters.getCellText(refCell, showFormula) : "";
           textWidth = refCell ? this.getters.getTextWidth(refCell) : null;
           const conditionalStyle = this.getters.getConditionalStyle(
             merge.topLeft.col,
@@ -670,7 +661,10 @@ export class RendererPlugin extends UIPlugin {
         /** alignment of a number cell should be put to left once the text overflows from the cell */
         const contentWidth = iconBoxWidth + textWidth;
         align =
-          text && typeof refCell!.value === "number" && contentWidth > width && align !== "center"
+          text &&
+          refCell?.evaluated.type === CellValueType.number &&
+          contentWidth > width &&
+          align !== "center"
             ? "left"
             : align;
 
@@ -691,7 +685,10 @@ export class RendererPlugin extends UIPlugin {
           style,
           align,
           clipRect,
-          error: refCell ? refCell.error : undefined,
+          error:
+            refCell && refCell.evaluated.type === CellValueType.error
+              ? refCell.evaluated.error
+              : undefined,
           image: iconStyle
             ? {
                 type: "icon",

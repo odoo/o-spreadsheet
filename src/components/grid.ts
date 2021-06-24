@@ -7,6 +7,7 @@ import {
   HEADER_WIDTH,
   SCROLLBAR_WIDTH,
 } from "../constants";
+import { isEmpty } from "../helpers/cells";
 import {
   findCellInNewZone,
   findVisibleHeader,
@@ -19,7 +20,7 @@ import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
-import { CellType, Client, SpreadsheetEnv, Viewport } from "../types/index";
+import { CellValueType, Client, SpreadsheetEnv, Viewport } from "../types/index";
 import { Autofill } from "./autofill";
 import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
@@ -309,7 +310,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     const [mainCol, mainRow] = this.getters.getMainCell(sheetId, col, row);
     const cell = this.getters.getCell(sheetId, mainCol, mainRow);
 
-    if (cell && cell.error) {
+    if (cell && cell.evaluated.type === CellValueType.error) {
       const viewport = this.getters.getActiveSnappedViewport();
       const { width: viewportWidth, height: viewportHeight } = this.getters.getViewportDimension();
       const [x, y, width, height] = this.getters.getRect(
@@ -323,30 +324,29 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       return {
         isOpen: true,
         style: `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`,
-        text: cell.error,
+        text: cell.evaluated.error,
       };
     }
     return { isOpen: false };
   }
 
-  get isEmptyCell(): boolean {
-    const cell = this.getters.getActiveCell();
-    return !cell || cell.type === CellType.empty;
-  }
-
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
   // down itself
   private keyDownMapping: { [key: string]: Function } = {
-    ENTER: () =>
-      this.isEmptyCell
+    ENTER: () => {
+      const cell = this.getters.getActiveCell();
+      isEmpty(cell)
         ? this.trigger("composer-cell-focused")
-        : this.trigger("composer-content-focused"),
+        : this.trigger("composer-content-focused");
+    },
     TAB: () => this.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 }),
     "SHIFT+TAB": () => this.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 }),
-    F2: () =>
-      this.isEmptyCell
+    F2: () => {
+      const cell = this.getters.getActiveCell();
+      isEmpty(cell)
         ? this.trigger("composer-cell-focused")
-        : this.trigger("composer-content-focused"),
+        : this.trigger("composer-content-focused");
+    },
     DELETE: () => {
       this.dispatch("DELETE_CONTENT", {
         sheetId: this.getters.getActiveSheetId(),
@@ -682,7 +682,8 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   onDoubleClick(ev) {
     const [col, row] = this.getCartesianCoordinates(ev);
     if (this.clickedCol === col && this.clickedRow === row) {
-      this.isEmptyCell
+      const cell = this.getters.getActiveCell();
+      isEmpty(cell)
         ? this.trigger("composer-cell-focused")
         : this.trigger("composer-content-focused");
     }

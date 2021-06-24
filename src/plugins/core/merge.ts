@@ -1,3 +1,4 @@
+import { isEmpty } from "../../helpers/cells";
 import {
   updateAddColumns,
   updateAddRows,
@@ -17,7 +18,6 @@ import {
 import { _lt } from "../../translation";
 import {
   AddMergeCommand,
-  CellType,
   CommandResult,
   CoreCommand,
   ExcelWorkbookData,
@@ -270,7 +270,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
       for (let col = left; col <= right; col++) {
         if (col !== left || row !== top) {
           const cell = actualRow.cells[col];
-          if (cell && cell.type !== CellType.empty) {
+          if (cell && !isEmpty(cell)) {
             return true;
           }
         }

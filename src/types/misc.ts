@@ -2,6 +2,7 @@
 // MISC
 // -----------------------------------------------------------------------------
 
+import { Cell, CellValue } from "./cells";
 import { CommandResult } from "./commands";
 import { NormalizedFormula } from "./workbook_data";
 
@@ -101,47 +102,9 @@ export interface CompiledFormula extends _CompiledFormula {
   dependenciesFormat: (string | number)[];
 }
 
-export enum CellType {
-  text = "text",
-  number = "number",
-  formula = "formula",
-  empty = "empty",
-  invalidFormula = "invalidFormula",
-}
-
-export type CellValue = string | number | boolean;
-export interface CellBase {
-  id: UID;
-  style?: Style;
-  format?: string;
-  error?: string;
-  value: CellValue;
-}
-
 export type ArgValue = CellValue | undefined;
 export type ArgRange = ArgValue[][];
 export type Argument = ArgValue | ArgRange;
-
-export interface OtherCell extends CellBase {
-  type: CellType.number | CellType.text | CellType.invalidFormula;
-  content: string;
-}
-
-export interface FormulaCell extends CellBase {
-  type: CellType.formula;
-  formula: {
-    text: string;
-    compiledFormula: CompiledFormula;
-    format?: string;
-  };
-  dependencies: Range[];
-}
-
-export interface EmptyCell extends CellBase {
-  type: CellType.empty;
-}
-
-export type Cell = FormulaCell | EmptyCell | OtherCell;
 
 export interface ClipboardCell {
   cell?: Cell;

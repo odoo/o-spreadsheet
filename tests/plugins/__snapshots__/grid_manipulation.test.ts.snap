@@ -2,7 +2,9 @@
 
 exports[`Columns Correctly update references On addition 1`] = `
 Object {
-  "A1": Object {
+  "A1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -22,16 +24,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "2",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "A2": Object {
+  "A2": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -51,16 +55,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "3",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "A3": Object {
+  "A3": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -80,16 +86,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "4",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "A5": Object {
+  "A5": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -113,16 +121,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=SUM(|0|)",
+    "evaluated": Object {
+      "type": "number",
+      "value": 0,
     },
+    "format": undefined,
     "id": "9",
-    "type": "formula",
-    "value": 0,
+    "normalizedText": "=SUM(|0|)",
+    "style": undefined,
   },
-  "A6": Object {
+  "A6": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -146,16 +156,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=SUM(|0|)",
+    "evaluated": Object {
+      "type": "number",
+      "value": 0,
     },
+    "format": undefined,
     "id": "10",
-    "type": "formula",
-    "value": 0,
+    "normalizedText": "=SUM(|0|)",
+    "style": undefined,
   },
-  "A7": Object {
+  "A7": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -179,16 +191,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=SUM(|0|)",
+    "evaluated": Object {
+      "type": "number",
+      "value": 0,
     },
+    "format": undefined,
     "id": "11",
-    "type": "formula",
-    "value": 0,
+    "normalizedText": "=SUM(|0|)",
+    "style": undefined,
   },
-  "F1": Object {
+  "F1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -208,16 +222,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "5",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "F2": Object {
+  "F2": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -237,16 +253,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "6",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "F3": Object {
+  "F3": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -266,16 +284,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "7",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "F4": Object {
+  "F4": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -295,21 +315,23 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "8",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
 }
 `;
 
 exports[`Columns Correctly update references On addition 2`] = `
 Object {
-  "A1": Object {
+  "A1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -329,14 +351,18 @@ Object {
         },
       },
     ],
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "text",
+      "value": "Loading...",
     },
+    "format": undefined,
     "id": "12",
-    "type": "formula",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "A2": Object {
+  "A2": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -356,14 +382,18 @@ Object {
         },
       },
     ],
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "text",
+      "value": "Loading...",
     },
+    "format": undefined,
     "id": "13",
-    "type": "formula",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "A3": Object {
+  "A3": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -383,19 +413,23 @@ Object {
         },
       },
     ],
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "text",
+      "value": "Loading...",
     },
+    "format": undefined,
     "id": "14",
-    "type": "formula",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
 }
 `;
 
 exports[`Columns Correctly update references On deletion 1`] = `
 Object {
-  "A1": Object {
+  "A1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -415,16 +449,19 @@ Object {
         },
       },
     ],
-    "error": "invalid range B1:A1",
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "error": "invalid range B1:A1",
+      "type": "error",
+      "value": "#ERROR",
     },
+    "format": undefined,
     "id": "2",
-    "type": "formula",
-    "value": "#ERROR",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "A2": Object {
+  "A2": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -444,16 +481,19 @@ Object {
         },
       },
     ],
-    "error": "invalid range B1:A1",
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "error": "invalid range B1:A1",
+      "type": "error",
+      "value": "#ERROR",
     },
+    "format": undefined,
     "id": "3",
-    "type": "formula",
-    "value": "#ERROR",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "A3": Object {
+  "A3": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -473,16 +513,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "4",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "A5": Object {
+  "A5": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -506,16 +548,19 @@ Object {
         },
       },
     ],
-    "error": "This formula depends on invalid values",
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=SUM(|0|)",
+    "evaluated": Object {
+      "error": "This formula depends on invalid values",
+      "type": "error",
+      "value": "#ERROR",
     },
+    "format": undefined,
     "id": "9",
-    "type": "formula",
-    "value": "#ERROR",
+    "normalizedText": "=SUM(|0|)",
+    "style": undefined,
   },
-  "A6": Object {
+  "A6": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -539,16 +584,19 @@ Object {
         },
       },
     ],
-    "error": "This formula depends on invalid values",
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=SUM(|0|)",
+    "evaluated": Object {
+      "error": "This formula depends on invalid values",
+      "type": "error",
+      "value": "#ERROR",
     },
+    "format": undefined,
     "id": "10",
-    "type": "formula",
-    "value": "#ERROR",
+    "normalizedText": "=SUM(|0|)",
+    "style": undefined,
   },
-  "A7": Object {
+  "A7": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -572,16 +620,19 @@ Object {
         },
       },
     ],
-    "error": "Cannot read property 'length' of undefined",
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=SUM(|0|)",
+    "evaluated": Object {
+      "error": "Cannot read property 'length' of undefined",
+      "type": "error",
+      "value": "#ERROR",
     },
+    "format": undefined,
     "id": "11",
-    "type": "formula",
-    "value": "#ERROR",
+    "normalizedText": "=SUM(|0|)",
+    "style": undefined,
   },
-  "B1": Object {
+  "B1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -601,16 +652,19 @@ Object {
         },
       },
     ],
-    "error": "This formula depends on invalid values",
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "error": "This formula depends on invalid values",
+      "type": "error",
+      "value": "#ERROR",
     },
+    "format": undefined,
     "id": "5",
-    "type": "formula",
-    "value": "#ERROR",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "B2": Object {
+  "B2": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -630,16 +684,19 @@ Object {
         },
       },
     ],
-    "error": "invalid range B1:A1",
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "error": "invalid range B1:A1",
+      "type": "error",
+      "value": "#ERROR",
     },
+    "format": undefined,
     "id": "6",
-    "type": "formula",
-    "value": "#ERROR",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "B3": Object {
+  "B3": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -659,16 +716,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "7",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "B4": Object {
+  "B4": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -688,21 +747,23 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "8",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
 }
 `;
 
 exports[`Columns Correctly update references On deletion 2`] = `
 Object {
-  "A1": Object {
+  "A1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -722,14 +783,18 @@ Object {
         },
       },
     ],
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "text",
+      "value": "Loading...",
     },
+    "format": undefined,
     "id": "12",
-    "type": "formula",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "A2": Object {
+  "A2": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -749,14 +814,18 @@ Object {
         },
       },
     ],
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "text",
+      "value": "Loading...",
     },
+    "format": undefined,
     "id": "13",
-    "type": "formula",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "A3": Object {
+  "A3": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -776,19 +845,23 @@ Object {
         },
       },
     ],
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "text",
+      "value": "Loading...",
     },
+    "format": undefined,
     "id": "14",
-    "type": "formula",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
 }
 `;
 
 exports[`Rows Correctly update references On addition 1`] = `
 Object {
-  "A1": Object {
+  "A1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -808,16 +881,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "2",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "A6": Object {
+  "A6": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -837,16 +912,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "3",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "B1": Object {
+  "B1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -866,16 +943,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "4",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "B6": Object {
+  "B6": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -895,16 +974,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "5",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "C1": Object {
+  "C1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -924,16 +1005,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "6",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "C6": Object {
+  "C6": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -953,16 +1036,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "7",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "D6": Object {
+  "D6": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -982,16 +1067,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "8",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "E1": Object {
+  "E1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1015,16 +1102,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=SUM(|0|)",
+    "evaluated": Object {
+      "type": "number",
+      "value": 0,
     },
+    "format": undefined,
     "id": "9",
-    "type": "formula",
-    "value": 0,
+    "normalizedText": "=SUM(|0|)",
+    "style": undefined,
   },
-  "F1": Object {
+  "F1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1048,16 +1137,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=SUM(|0|)",
+    "evaluated": Object {
+      "type": "number",
+      "value": 0,
     },
+    "format": undefined,
     "id": "10",
-    "type": "formula",
-    "value": 0,
+    "normalizedText": "=SUM(|0|)",
+    "style": undefined,
   },
-  "G1": Object {
+  "G1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1081,21 +1172,23 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=SUM(|0|)",
+    "evaluated": Object {
+      "type": "number",
+      "value": 0,
     },
+    "format": undefined,
     "id": "11",
-    "type": "formula",
-    "value": 0,
+    "normalizedText": "=SUM(|0|)",
+    "style": undefined,
   },
 }
 `;
 
 exports[`Rows Correctly update references On addition 2`] = `
 Object {
-  "A1": Object {
+  "A1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1115,14 +1208,18 @@ Object {
         },
       },
     ],
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "text",
+      "value": "Loading...",
     },
+    "format": undefined,
     "id": "12",
-    "type": "formula",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "B1": Object {
+  "B1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1142,14 +1239,18 @@ Object {
         },
       },
     ],
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "text",
+      "value": "Loading...",
     },
+    "format": undefined,
     "id": "13",
-    "type": "formula",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "C1": Object {
+  "C1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1169,19 +1270,23 @@ Object {
         },
       },
     ],
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "text",
+      "value": "Loading...",
     },
+    "format": undefined,
     "id": "14",
-    "type": "formula",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
 }
 `;
 
 exports[`Rows Correctly update references On deletion 1`] = `
 Object {
-  "A1": Object {
+  "A1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1201,16 +1306,19 @@ Object {
         },
       },
     ],
-    "error": "invalid range A2:A1",
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "error": "invalid range A2:A1",
+      "type": "error",
+      "value": "#ERROR",
     },
+    "format": undefined,
     "id": "2",
-    "type": "formula",
-    "value": "#ERROR",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "A2": Object {
+  "A2": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1230,16 +1338,19 @@ Object {
         },
       },
     ],
-    "error": "This formula depends on invalid values",
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "error": "This formula depends on invalid values",
+      "type": "error",
+      "value": "#ERROR",
     },
+    "format": undefined,
     "id": "3",
-    "type": "formula",
-    "value": "#ERROR",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "B1": Object {
+  "B1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1259,16 +1370,19 @@ Object {
         },
       },
     ],
-    "error": "invalid range A2:A1",
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "error": "invalid range A2:A1",
+      "type": "error",
+      "value": "#ERROR",
     },
+    "format": undefined,
     "id": "4",
-    "type": "formula",
-    "value": "#ERROR",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "B2": Object {
+  "B2": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1288,16 +1402,19 @@ Object {
         },
       },
     ],
-    "error": "This formula depends on invalid values",
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "error": "This formula depends on invalid values",
+      "type": "error",
+      "value": "#ERROR",
     },
+    "format": undefined,
     "id": "5",
-    "type": "formula",
-    "value": "#ERROR",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "C1": Object {
+  "C1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1317,16 +1434,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "6",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "C2": Object {
+  "C2": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1346,16 +1465,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "7",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "D2": Object {
+  "D2": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1375,16 +1496,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "8",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "E1": Object {
+  "E1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1408,16 +1531,19 @@ Object {
         },
       },
     ],
-    "error": "This formula depends on invalid values",
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=SUM(|0|)",
+    "evaluated": Object {
+      "error": "This formula depends on invalid values",
+      "type": "error",
+      "value": "#ERROR",
     },
+    "format": undefined,
     "id": "9",
-    "type": "formula",
-    "value": "#ERROR",
+    "normalizedText": "=SUM(|0|)",
+    "style": undefined,
   },
-  "F1": Object {
+  "F1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1441,16 +1567,19 @@ Object {
         },
       },
     ],
-    "error": "This formula depends on invalid values",
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=SUM(|0|)",
+    "evaluated": Object {
+      "error": "This formula depends on invalid values",
+      "type": "error",
+      "value": "#ERROR",
     },
+    "format": undefined,
     "id": "10",
-    "type": "formula",
-    "value": "#ERROR",
+    "normalizedText": "=SUM(|0|)",
+    "style": undefined,
   },
-  "G1": Object {
+  "G1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1474,21 +1603,23 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=SUM(|0|)",
+    "evaluated": Object {
+      "type": "number",
+      "value": 0,
     },
+    "format": undefined,
     "id": "11",
-    "type": "formula",
-    "value": 0,
+    "normalizedText": "=SUM(|0|)",
+    "style": undefined,
   },
 }
 `;
 
 exports[`Rows Correctly update references On deletion 2`] = `
 Object {
-  "A1": Object {
+  "A1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1508,14 +1639,18 @@ Object {
         },
       },
     ],
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "text",
+      "value": "Loading...",
     },
+    "format": undefined,
     "id": "12",
-    "type": "formula",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "B1": Object {
+  "B1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1535,14 +1670,18 @@ Object {
         },
       },
     ],
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "text",
+      "value": "Loading...",
     },
+    "format": undefined,
     "id": "13",
-    "type": "formula",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "C1": Object {
+  "C1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1562,19 +1701,23 @@ Object {
         },
       },
     ],
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "text",
+      "value": "Loading...",
     },
+    "format": undefined,
     "id": "14",
-    "type": "formula",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
 }
 `;
 
 exports[`Rows Correctly update references delete row on inactive sheet 1`] = `
 Object {
-  "B2": Object {
+  "B2": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1594,16 +1737,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "2",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "C1": Object {
+  "C1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1623,21 +1768,23 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "3",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
 }
 `;
 
 exports[`Rows Correctly update references delete row on inactive sheet 2`] = `
 Object {
-  "A1": Object {
+  "A1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1657,16 +1804,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "4",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "B1": Object {
+  "B1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1686,16 +1835,18 @@ Object {
         },
       },
     ],
-    "error": undefined,
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "empty",
+      "value": null,
     },
+    "format": undefined,
     "id": "5",
-    "type": "formula",
-    "value": null,
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
-  "C1": Object {
+  "C1": FormulaCell {
+    "buildFormulaString": [Function],
+    "compiledFormula": [Function],
     "dependencies": Array [
       Object {
         "invalidSheetName": undefined,
@@ -1715,12 +1866,14 @@ Object {
         },
       },
     ],
-    "formula": Object {
-      "compiledFormula": [Function],
-      "text": "=|0|",
+    "evaluated": Object {
+      "type": "text",
+      "value": "Loading...",
     },
+    "format": undefined,
     "id": "6",
-    "type": "formula",
+    "normalizedText": "=|0|",
+    "style": undefined,
   },
 }
 `;

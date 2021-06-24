@@ -1,5 +1,6 @@
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
+import { Cell } from "./cells";
 import {
   BorderCommand,
   ChartUIDefinition,
@@ -10,7 +11,7 @@ import {
   Style,
   Zone,
 } from "./index";
-import { Border, Cell, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
+import { Border, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
 
 // -----------------------------------------------------------------------------
 // Grid commands

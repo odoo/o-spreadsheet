@@ -1,16 +1,19 @@
 import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
+import { isEmpty, isFormula } from "../../helpers/cells";
 import { mapCellsInZone, toXC } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
 import {
   Cell,
-  CellType,
+  CellValue,
+  CellValueType,
   Command,
   CommandDispatcher,
   EnsureRange,
   EvalContext,
+  FormulaCell,
   Getters,
   NormalizedFormula,
   Range,
@@ -117,7 +120,7 @@ export class EvaluationPlugin extends UIPlugin {
     return mapCellsInZone(
       range.zone,
       sheet,
-      (cell) => this.getters.getCellText(cell, range.sheetId, this.getters.shouldShowFormulas()),
+      (cell) => this.getters.getCellText(cell, this.getters.shouldShowFormulas()),
       ""
     );
   }
@@ -125,10 +128,10 @@ export class EvaluationPlugin extends UIPlugin {
   /**
    * Return the value of each cell in the range.
    */
-  getRangeValues(range: Range): any[][] {
+  getRangeValues(range: Range): CellValue[][] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [[]];
-    return mapCellsInZone(range.zone, sheet, (cell) => this.getters.getCellValue(cell, sheet.id));
+    return mapCellsInZone(range.zone, sheet, (cell) => cell.evaluated.value);
   }
 
   // ---------------------------------------------------------------------------
@@ -147,21 +150,21 @@ export class EvaluationPlugin extends UIPlugin {
       computeValue(cell, sheetId);
     }
 
-    function handleError(e: Error | any, cell: Cell) {
+    function handleError(e: Error | any, cell: FormulaCell) {
       if (!(e instanceof Error)) {
         e = new Error(e);
       }
-      if (!cell.error) {
-        cell.value = "#ERROR";
+      if (cell.evaluated.type !== CellValueType.error) {
+        cell.assignValue("#ERROR");
 
         // apply function name
         const __lastFnCalled = params[2].__lastFnCalled || "";
-        cell.error = e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled);
+        cell.assignError("#ERROR", e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled));
       }
     }
 
     function computeValue(cell: Cell, sheetId: string) {
-      if (cell.type !== "formula" || !cell.formula) {
+      if (!isFormula(cell)) {
         return;
       }
       const position = params[2].getters.getCellPosition(cell.id);
@@ -169,21 +172,17 @@ export class EvaluationPlugin extends UIPlugin {
       visited[sheetId] = visited[sheetId] || {};
       if (xc in visited[sheetId]) {
         if (visited[sheetId][xc] === null) {
-          cell.value = "#CYCLE";
-          cell.error = _lt("Circular reference");
+          cell.assignError("#CYCLE", _lt("Circular reference"));
         }
         return;
       }
       visited[sheetId][xc] = null;
-      cell.error = undefined;
       try {
         params[2].__originCellXC = xc;
-        cell.value = cell.formula.compiledFormula(cell.dependencies!, sheetId, ...params);
-        if (Array.isArray(cell.value)) {
+        cell.assignValue(cell.compiledFormula(cell.dependencies!, sheetId, ...params));
+        if (Array.isArray(cell.evaluated.value)) {
           // if a value returns an array (like =A1:A3)
           throw new Error(_lt("This formula depends on invalid values"));
-        } else {
-          cell.error = undefined;
         }
       } catch (e) {
         handleError(e, cell);
@@ -211,21 +210,22 @@ export class EvaluationPlugin extends UIPlugin {
       } else {
         throw new Error(_lt("Invalid sheet name"));
       }
-      if (!cell || cell.type === CellType.empty) {
+      if (!cell || isEmpty(cell)) {
+        // magic "empty" value
         return null;
       }
       return getCellValue(cell, range.sheetId);
     }
 
     function getCellValue(cell: Cell, sheetId: UID): any {
-      if (cell.type === CellType.formula && cell.error) {
+      if (isFormula(cell) && cell.evaluated.type === CellValueType.error) {
         throw new Error(_lt("This formula depends on invalid values"));
       }
       computeValue(cell, sheetId);
-      if (cell.error) {
+      if (cell.evaluated.type === CellValueType.error) {
         throw new Error(_lt("This formula depends on invalid values"));
       }
-      return cell.value;
+      return cell.evaluated.value;
     }
 
     /**

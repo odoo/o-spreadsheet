@@ -1,9 +1,9 @@
+import { formatValue, isFormula } from "../../helpers/cells";
 import { clip, overlap } from "../../helpers/index";
 import { Mode } from "../../model";
 import { _lt } from "../../translation";
 import {
   CellPosition,
-  CellType,
   ClipboardCell,
   ClipboardOptions,
   Command,
@@ -153,13 +153,7 @@ export class ClipboardPlugin extends UIPlugin {
         .map((cells) => {
           return cells
             .map((c) =>
-              c.cell
-                ? this.getters.getCellText(
-                    c.cell,
-                    c.position.sheetId,
-                    this.getters.shouldShowFormulas()
-                  )
-                : ""
+              c.cell ? this.getters.getCellText(c.cell, this.getters.shouldShowFormulas()) : ""
             )
             .join("\t");
         })
@@ -567,13 +561,13 @@ export class ClipboardPlugin extends UIPlugin {
       }
 
       if (pasteOption === "onlyValue") {
-        const content = this.valueToContent(origin.cell.value);
+        const content = formatValue(origin.cell.evaluated.value);
         this.dispatch("UPDATE_CELL", { ...target, content });
         return;
       }
-      let content = this.getters.getCellValue(origin.cell, origin.position.sheetId, true) || "";
+      let content = origin.cell.content;
 
-      if (origin.cell.type === CellType.formula) {
+      if (isFormula(origin.cell)) {
         const offsetX = col - origin.position.col;
         const offsetY = row - origin.position.row;
         content = this.getUpdatedContent(sheetId, origin.cell, offsetX, offsetY, zones, operation);
@@ -615,10 +609,10 @@ export class ClipboardPlugin extends UIPlugin {
           ranges.push(range);
         }
       }
-      return this.getters.buildFormulaContent(sheetId, cell.formula.text, ranges);
+      return this.getters.buildFormulaContent(sheetId, cell.normalizedText, ranges);
     }
     const ranges = this.getters.createAdaptedRanges(cell.dependencies, offsetX, offsetY, sheetId);
-    return this.getters.buildFormulaContent(sheetId, cell.formula.text, ranges);
+    return this.getters.buildFormulaContent(sheetId, cell.normalizedText, ranges);
   }
 
   /**
@@ -626,19 +620,6 @@ export class ClipboardPlugin extends UIPlugin {
    */
   private isZoneOverlapClippedZone(zones: Zone[], zone: Zone): boolean {
     return zones.some((clippedZone) => overlap(zone, clippedZone));
-  }
-
-  private valueToContent(cellValue: any): string {
-    switch (typeof cellValue) {
-      case "number":
-        return cellValue.toString();
-      case "string":
-        return cellValue;
-      case "boolean":
-        return cellValue ? "TRUE" : "FALSE";
-      default:
-        return "";
-    }
   }
 
   private interactivePaste(state: ClipboardState, target: Zone[], cmd: Command) {

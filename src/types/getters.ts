@@ -60,8 +60,6 @@ export interface CoreGetters {
   getCells: CellPlugin["getCells"];
   getFormulaCellContent: CellPlugin["getFormulaCellContent"];
   buildFormulaContent: CellPlugin["buildFormulaContent"];
-  getCellText: CellPlugin["getCellText"];
-  getCellValue: CellPlugin["getCellValue"];
   getCellStyle: CellPlugin["getCellStyle"];
   getCellById: CellPlugin["getCellById"];
 
@@ -122,6 +120,7 @@ export type Getters = CoreGetters & {
   getCellWidth: SheetUIPlugin["getCellWidth"];
   getTextWidth: SheetUIPlugin["getTextWidth"];
   getCellHeight: SheetUIPlugin["getCellHeight"];
+  getCellText: SheetUIPlugin["getCellText"];
 
   getRangeFormattedValues: EvaluationPlugin["getRangeFormattedValues"];
   evaluateFormula: EvaluationPlugin["evaluateFormula"];

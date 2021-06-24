@@ -277,13 +277,13 @@ describe("merges", () => {
         },
       ],
     });
-    expect(getCell(model, "A4")!.value).toBe(6);
+    expect(getCell(model, "A4")!.evaluated.value).toBe(6);
     merge(model, "A1:A3");
 
-    expect(getCell(model, "A1")!.value).toBe(1);
-    expect(getCell(model, "A2")!.value).toBe(2);
-    expect(getCell(model, "A3")!.value).toBe(3);
-    expect(getCell(model, "A4")!.value).toBe(6);
+    expect(getCell(model, "A1")!.evaluated.value).toBe(1);
+    expect(getCell(model, "A2")!.evaluated.value).toBe(2);
+    expect(getCell(model, "A3")!.evaluated.value).toBe(3);
+    expect(getCell(model, "A4")!.evaluated.value).toBe(6);
   });
 
   test("merging cells with values remove them if forced", () => {
@@ -302,13 +302,13 @@ describe("merges", () => {
       ],
     });
     const sheet1 = model.getters.getVisibleSheets()[0];
-    expect(getCell(model, "A4")!.value).toBe(6);
+    expect(getCell(model, "A4")!.evaluated.value).toBe(6);
     model.dispatch("ADD_MERGE", { sheetId: sheet1, target: target("A1:A3"), force: true });
 
-    expect(getCell(model, "A1")!.value).toBe(1);
+    expect(getCell(model, "A1")!.evaluated.value).toBe(1);
     expect(getCell(model, "A2")).toBeUndefined();
     expect(getCell(model, "A3")).toBeUndefined();
-    expect(getCell(model, "A4")!.value).toBe(1);
+    expect(getCell(model, "A4")!.evaluated.value).toBe(1);
   });
 
   test("merging => setting background color => unmerging", () => {

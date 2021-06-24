@@ -1210,6 +1210,32 @@ describe("conditional formats types", () => {
       expect(model.getters.getConditionalIcon(...toCartesian("A1"))).toEqual("arrowNeutral");
     });
 
+    test.each(["hello", "TRUE", "=TRUE", `="hello"`, ""])(
+      "is not applied if cell is not a number: %s",
+      (content) => {
+        setCellContent(model, "A1", content);
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            id: "1",
+            rule: {
+              type: "IconSetRule",
+              lowerInflectionPoint: { type: "number", value: "0", operator: "gt" },
+              upperInflectionPoint: { type: "number", value: "10", operator: "gt" },
+              icons: {
+                upper: "arrowGood",
+                middle: "arrowNeutral",
+                lower: "arrowBad",
+              },
+            },
+          },
+          target: [toZone("A1")],
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
+        expect(model.getters.getConditionalIcon(...toCartesian("A1"))).toBeUndefined();
+      }
+    );
+
     test("2 points with 'gt', value scale", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "3");

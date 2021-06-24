@@ -1,7 +1,7 @@
 import { toCartesian, toXC } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
-import { Border, Cell, Merge, Sheet, UID } from "../../src/types";
+import { Border, Cell, CellValueType, Merge, Sheet, UID } from "../../src/types";
 import { setSelection } from "./commands_helpers";
 
 /**
@@ -23,6 +23,15 @@ export function getCell(
   return model.getters.getCell(sheetId, col, row);
 }
 
+export function getCellError(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): string | undefined {
+  const cell = getCell(model, xc, sheetId);
+  return cell && cell.evaluated.type === CellValueType.error ? cell.evaluated.error : undefined;
+}
+
 /**
  * Get the string representation of the content of a cell (the value for formula
  * cell, or the formula, depending on ShowFormula)
@@ -33,7 +42,7 @@ export function getCellContent(
   sheetId: UID = model.getters.getActiveSheetId()
 ): string {
   const cell = getCell(model, xc, sheetId);
-  return cell ? model.getters.getCellText(cell, sheetId, model.getters.shouldShowFormulas()) : "";
+  return cell ? model.getters.getCellText(cell, model.getters.shouldShowFormulas()) : "";
 }
 
 /**
@@ -46,7 +55,7 @@ export function getCellText(
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   const cell = getCell(model, xc, sheetId);
-  return cell ? model.getters.getCellText(cell, sheetId, true) : "";
+  return cell ? model.getters.getCellText(cell, true) : "";
 }
 
 export function getRangeFormattedValues(

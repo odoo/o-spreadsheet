@@ -1,7 +1,7 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { numberToLetters, zoneToXc } from "../../helpers/index";
 import { _lt } from "../../translation";
-import { SpreadsheetEnv, Style } from "../../types/index";
+import { CellValueType, SpreadsheetEnv, Style } from "../../types/index";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -528,7 +528,7 @@ export const CREATE_CHART = (env: SpreadsheetEnv) => {
   let dataSetsHaveTitle = false;
   for (let x = dataSetZone.left; x <= dataSetZone.right; x++) {
     const cell = env.getters.getCell(sheetId, x, zone.top);
-    if (cell && typeof cell.value !== "number") {
+    if (cell && cell.evaluated.type !== CellValueType.number) {
       dataSetsHaveTitle = true;
     }
   }

@@ -674,23 +674,23 @@ describe("Multi users synchronisation", () => {
   describe("Evaluation", () => {
     test("Evaluation is correctly triggered after cell updated", () => {
       setCellContent(alice, "A1", "=5");
-      expect(getCell(alice, "A1")!.value).toBe(5);
-      expect(getCell(bob, "A1")!.value).toBe(5);
+      expect(getCell(alice, "A1")!.evaluated.value).toBe(5);
+      expect(getCell(bob, "A1")!.evaluated.value).toBe(5);
     });
     test("Cell value is correctly re-evaluated after undo", () => {
       setCellContent(alice, "A1", "=5");
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
-        (user) => getCell(user, "A1")!.value,
+        (user) => getCell(user, "A1")!.evaluated.value,
         5
       );
       setCellContent(alice, "A1", "=10");
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
-        (user) => getCell(user, "A1")!.value,
+        (user) => getCell(user, "A1")!.evaluated.value,
         10
       );
       undo(alice);
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
-        (user) => getCell(user, "A1")!.value,
+        (user) => getCell(user, "A1")!.evaluated.value,
         5
       );
     });

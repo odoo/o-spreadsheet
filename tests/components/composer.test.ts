@@ -418,7 +418,7 @@ describe("composer", () => {
     await typeInComposer("=qsdf");
     await keydown("Enter");
     expect(getCellText(model, "A1")).toBe("=qsdf");
-    expect(getCell(model, "A1")!.value).toBe("#BAD_EXPR");
+    expect(getCell(model, "A1")!.evaluated.value).toBe("#BAD_EXPR");
   });
 
   test("typing text then enter exits the edit mode and moves to the next cell down", async () => {
@@ -426,7 +426,7 @@ describe("composer", () => {
     await typeInComposer("qsdf");
     await keydown("Enter");
     expect(getCellContent(model, "A1")).toBe("qsdf");
-    expect(getCell(model, "A1")!.value).toBe("qsdf");
+    expect(getCell(model, "A1")!.evaluated.value).toBe("qsdf");
   });
 
   test("typing CTRL+C does not type C in the cell", async () => {
@@ -973,7 +973,7 @@ describe("composer", () => {
     // stop editing with enter
     await keydown("Enter");
     expect(getCellText(model, "C8")).toBe("=");
-    expect(getCell(model, "C8")!.value).toBe("#BAD_EXPR");
+    expect(getCell(model, "C8")!.evaluated.value).toBe("#BAD_EXPR");
     expect(getActiveXc(model)).toBe("C9");
     expect(model.getters.getEditionMode()).toBe("inactive");
 
