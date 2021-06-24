@@ -13,7 +13,6 @@ import {
   stringify,
   toCartesian,
   toXC,
-  uuidv4,
 } from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
@@ -642,7 +641,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     } else {
       // the current content cannot be reused, so we need to recompute the
       // derived
-      const cellId = before?.id || uuidv4();
+      const cellId = before?.id || this.uuidGenerator.uuidv4();
 
       let formulaString = after.formula;
       if (!formulaString && afterContent[0] === "=") {

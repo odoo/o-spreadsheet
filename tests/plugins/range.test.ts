@@ -10,7 +10,6 @@ import {
   deleteRows,
   deleteSheet,
 } from "../test_helpers/commands_helpers";
-import { mockUuidV4To } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let m;
@@ -79,7 +78,6 @@ corePluginRegistry.add("testRange", PluginTestRange);
 
 describe("range plugin", () => {
   beforeEach(() => {
-    mockUuidV4To(1);
     m = new Model({
       sheets: [
         { id: "s1", name: "s1", rows: 10, cols: 10 },

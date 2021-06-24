@@ -469,7 +469,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Insert -> new sheet", () => {
-    mockUuidV4To(42);
+    mockUuidV4To(model, 42);
     doAction(["insert", "insert_sheet"], env);
     const activeSheetId = env.getters.getActiveSheetId();
     expect(env.dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {

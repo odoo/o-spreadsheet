@@ -340,7 +340,7 @@ describe("selection input plugin", () => {
     expect(model.getters.getSelectionInputValue(id)).toStrictEqual(["C2", "D5"]);
   });
 
-  test("mutliple ranges are combined", () => {
+  test("multiple ranges are combined", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     model.dispatch("ADD_EMPTY_RANGE", { id });
     model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "C2" });

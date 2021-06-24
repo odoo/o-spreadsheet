@@ -1,5 +1,5 @@
 import { FORBIDDEN_SHEET_CHARS } from "../../src/constants";
-import { getComposerSheetName, toCartesian, toZone, uuidv4 } from "../../src/helpers";
+import { getComposerSheetName, toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
@@ -19,14 +19,11 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers";
-import { createEqualCF, mockUuidV4To, testUndoRedo } from "../test_helpers/helpers";
+import { createEqualCF, testUndoRedo } from "../test_helpers/helpers";
 
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 describe("sheets", () => {
-  beforeEach(() => {
-    mockUuidV4To(1);
-  });
   test("can create a new sheet, then undo, then redo", () => {
     const model = new Model();
     expect(model.getters.getVisibleSheets().length).toBe(1);
@@ -525,7 +522,7 @@ describe("sheets", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
     const name = `Copy of ${model.getters.getSheets()[0].name}`;
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4() });
+    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: model.uuidGenerator.uuidv4() });
     const sheets = model.getters.getSheets();
     expect(sheets).toHaveLength(2);
     expect(sheets[sheets.length - 1].name).toBe(name);
@@ -566,7 +563,7 @@ describe("sheets", () => {
     });
     const sheet = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4() });
+    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: model.uuidGenerator.uuidv4() });
     expect(model.getters.getSheets()).toHaveLength(2);
     const newSheet = model.getters.getSheets()[1].id;
     activateSheet(model, newSheet);
@@ -601,7 +598,7 @@ describe("sheets", () => {
     });
     const sheet = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4() });
+    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: model.uuidGenerator.uuidv4() });
     expect(model.getters.getSheets()).toHaveLength(2);
     const newSheetId = model.getters.getSheets()[1].id;
     activateSheet(model, newSheetId);
@@ -637,7 +634,7 @@ describe("sheets", () => {
       ],
     });
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4() });
+    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: model.uuidGenerator.uuidv4() });
     expect(model.getters.getSheets()).toHaveLength(2);
     const newSheet = model.getters.getSheets()[1].id;
     activateSheet(model, newSheet);
@@ -727,7 +724,8 @@ describe("sheets", () => {
       title: "hello1",
       type: "bar",
     });
-    expect(model.getters.getChartDefinition("3")).toMatchObject({
+    const duplicatedFigure = model.getters.getFigures("42")[0];
+    expect(model.getters.getChartDefinition(duplicatedFigure.id)).toMatchObject({
       dataSets: [
         {
           dataRange: {
@@ -756,7 +754,7 @@ describe("sheets", () => {
   test("Cols and Rows are correctly duplicated", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4() });
+    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: model.uuidGenerator.uuidv4() });
     expect(model.getters.getSheets()).toHaveLength(2);
     resizeColumns(model, ["A"], 1);
     resizeRows(model, [0], 1);
@@ -777,7 +775,7 @@ describe("sheets", () => {
       ],
     });
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: uuidv4() });
+    model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: model.uuidGenerator.uuidv4() });
     expect(model.getters.getSheets()).toHaveLength(2);
     unMerge(model, "A1:A2");
     const newSheet = model.getters.getSheets()[1].id;

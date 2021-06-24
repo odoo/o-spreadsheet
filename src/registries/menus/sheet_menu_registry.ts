@@ -1,4 +1,3 @@
-import { uuidv4 } from "../../helpers/index";
 import { _lt } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
 
@@ -19,7 +18,7 @@ sheetMenuRegistry
     sequence: 20,
     action: (env) => {
       const sheetIdFrom = env.getters.getActiveSheetId();
-      const sheetIdTo = uuidv4();
+      const sheetIdTo = env.uuidGenerator.uuidv4();
       env.dispatch("DUPLICATE_SHEET", {
         sheetId: sheetIdFrom,
         sheetIdTo,

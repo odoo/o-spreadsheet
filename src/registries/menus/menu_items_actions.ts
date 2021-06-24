@@ -1,4 +1,4 @@
-import { numberToLetters, uuidv4 } from "../../helpers/index";
+import { numberToLetters } from "../../helpers/index";
 import { _lt } from "../../translation";
 import { SpreadsheetEnv, Style } from "../../types/index";
 
@@ -500,7 +500,7 @@ export const CREATE_SHEET_ACTION = (env: SpreadsheetEnv) => {
   const activeSheetId = env.getters.getActiveSheetId();
   const position =
     env.getters.getVisibleSheets().findIndex((sheetId) => sheetId === activeSheetId) + 1;
-  const sheetId = uuidv4();
+  const sheetId = env.uuidGenerator.uuidv4();
   env.dispatch("CREATE_SHEET", { sheetId, position });
   env.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
 };

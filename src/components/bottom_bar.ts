@@ -1,6 +1,5 @@
 import * as owl from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../constants";
-import { uuidv4 } from "../helpers/index";
 import { MenuItemRegistry, sheetMenuRegistry } from "../registries/index";
 import { SpreadsheetEnv } from "../types";
 import { LIST, PLUS, TRIANGLE_DOWN_ICON } from "./icons";
@@ -145,7 +144,7 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
     const activeSheetId = this.env.getters.getActiveSheetId();
     const position =
       this.env.getters.getVisibleSheets().findIndex((sheetId) => sheetId === activeSheetId) + 1;
-    const sheetId = uuidv4();
+    const sheetId = this.env.uuidGenerator.uuidv4();
     this.env.dispatch("CREATE_SHEET", { sheetId, position });
     this.env.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
   }

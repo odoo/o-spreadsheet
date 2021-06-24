@@ -35,7 +35,6 @@ import {
 import {
   getMergeCellMap,
   makeTestFixture,
-  mockUuidV4To,
   target,
   testUndoRedo,
   toPosition,
@@ -106,10 +105,6 @@ const fullData = {
 //------------------------------------------------------------------------------
 // Clear
 //------------------------------------------------------------------------------
-
-beforeEach(() => {
-  mockUuidV4To(1);
-});
 
 describe("Clear columns", () => {
   test("Can clear multiple column", () => {

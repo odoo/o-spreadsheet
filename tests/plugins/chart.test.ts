@@ -14,7 +14,7 @@ import {
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
-import { initPatcher, mockUuidV4To, testUndoRedo } from "../test_helpers/helpers";
+import { initPatcher, testUndoRedo } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -22,8 +22,6 @@ let model: Model;
 let waitForRecompute: () => Promise<void>;
 
 beforeEach(() => {
-  mockUuidV4To(1);
-
   model = new Model({
     sheets: [
       {
@@ -1061,7 +1059,8 @@ describe("multiple sheets", function () {
       content: "99",
     });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
-    const chart = model.getters.getChartRuntime("28")!;
+    const figureId = model.getters.getFigures("42")[0].id;
+    const chart = model.getters.getChartRuntime(figureId)!;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
   });
   test("change dataset label then activate the chart sheet (it should be up-to-date)", () => {
@@ -1078,7 +1077,8 @@ describe("multiple sheets", function () {
       content: "miam",
     });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
-    const chart = model.getters.getChartRuntime("28")!;
+    const figureId = model.getters.getFigures("42")[0].id;
+    const chart = model.getters.getChartRuntime(figureId)!;
     expect(chart.data!.labels).toEqual(["P1", "miam", "P3"]);
   });
   test("create a chart with data from another sheet", () => {
@@ -1087,8 +1087,9 @@ describe("multiple sheets", function () {
       dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
       labelRange: "Sheet1!A2:A4",
     });
-    const chart = model.getters.getChartRuntime("28")!;
-    const chartDefinition = model.getters.getChartDefinition("28");
+    const figureId = model.getters.getFigures("42")[0].id;
+    const chart = model.getters.getChartRuntime(figureId)!;
+    const chartDefinition = model.getters.getChartDefinition(figureId);
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
     expect(chartDefinition).toMatchObject({
@@ -1205,7 +1206,8 @@ describe("multiple sheets", function () {
     model.dispatch("DELETE_SHEET", { sheetId: originSheet });
     const exportedData = model.exportData();
     const newModel = new Model(exportedData);
-    const chart = newModel.getters.getChartRuntime("28")!;
+    const figureId = model.getters.getFigures("42")[0].id;
+    const chart = newModel.getters.getChartRuntime(figureId)!;
     expect(chart).toBeDefined();
   });
 });

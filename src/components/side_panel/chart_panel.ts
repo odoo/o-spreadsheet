@@ -1,5 +1,4 @@
 import * as owl from "@odoo/owl";
-import { uuidv4 } from "../../helpers/index";
 import { CommandResult, CreateChartDefinition, Figure, SpreadsheetEnv } from "../../types/index";
 import { SelectionInput } from "../selection_input";
 import { chartTerms } from "./translations_terms";
@@ -82,7 +81,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
     return this.props.figure ? label + this.props.figure.id : label;
   }
   createChart() {
-    const id = uuidv4();
+    const id = this.env.uuidGenerator.uuidv4();
     const result = this.env.dispatch("CREATE_CHART", {
       sheetId: this.getters.getActiveSheetId(),
       id,
