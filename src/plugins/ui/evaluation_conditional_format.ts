@@ -1,12 +1,13 @@
+import { isEmpty } from "../../helpers/cells";
 import { colorNumberString, isInside, recomputeZones, toXC, toZone } from "../../helpers/index";
-import { clip } from "../../helpers/misc";
+import { clip, isDefined } from "../../helpers/misc";
 import { Mode } from "../../model";
 import { _lt } from "../../translation";
 import {
   Cell,
   CellIsRule,
   CellPosition,
-  CellType,
+  CellValueType,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
   ColorScaleThreshold,
@@ -136,7 +137,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
               const zone: Zone = toZone(ref);
               for (let row = zone.top; row <= zone.bottom; row++) {
                 for (let col = zone.left; col <= zone.right; col++) {
-                  const pr = this.rulePredicate[cf.rule.type];
+                  const pr: (cell: Cell | undefined, rule: CellIsRule) => boolean = this
+                    .rulePredicate[cf.rule.type];
                   let cell = this.getters.getCell(activeSheetId, col, row);
                   if (pr && pr(cell, cf.rule)) {
                     if (!computedStyle[col]) computedStyle[col] = [];
@@ -201,21 +203,12 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
         const cell = this.getters.getCell(activeSheetId, col, row);
-        let value;
-        if (cell) {
-          switch (cell.type) {
-            case CellType.formula:
-            case CellType.number:
-              value = cell.value;
-              break;
-            case CellType.text:
-            case CellType.empty:
-            case CellType.invalidFormula:
-              continue;
-          }
+        // missing test: apply icon CF to formula evaluating to a string ="HELLO"
+        if (cell?.evaluated.type !== CellValueType.number) {
+          continue;
         }
         const icon = this.computeIcon(
-          value,
+          cell.evaluated.value,
           upperInflectionPoint,
           rule.upperInflectionPoint.operator,
           lowerInflectionPoint,
@@ -230,16 +223,13 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     }
   }
   private computeIcon(
-    value: number | undefined,
+    value: number,
     upperInflectionPoint: number,
     upperOperator: string,
     lowerInflectionPoint: number,
     lowerOperator: string,
     icons: string[]
-  ): string | undefined {
-    if (value === undefined) {
-      return undefined;
-    }
+  ): string {
     if (
       (upperOperator === "ge" && value >= upperInflectionPoint) ||
       (upperOperator === "gt" && value > upperInflectionPoint)
@@ -310,20 +300,13 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
         const cell = this.getters.getCell(activeSheetId, col, row);
-        let value;
         if (cell) {
-          switch (cell.type) {
-            case CellType.formula:
-            case CellType.number:
-            case CellType.text:
-              value = cell.value;
-              break;
-            case CellType.empty:
-            case CellType.invalidFormula:
-              continue;
+          // is it usefull?
+          if (cell.evaluated.type === CellValueType.error || isEmpty(cell)) {
+            continue;
           }
-          if (!Number.isNaN(Number.parseFloat(value))) {
-            value = clip(value, minValue, maxValue);
+          if (cell.evaluated.type === CellValueType.number) {
+            const value = clip(cell.evaluated.value, minValue, maxValue);
             let color;
             if (colorCellArgs.length === 2 && midValue) {
               color =
@@ -392,62 +375,64 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
    * Execute the predicate to know if a conditional formatting rule should be applied to a cell
    */
   private rulePredicate: { CellIsRule: (cell: Cell, rule: CellIsRule) => boolean } = {
-    CellIsRule: (cell: Cell, rule: CellIsRule): boolean => {
-      let value;
-      if (cell) {
-        switch (cell.type) {
-          case CellType.formula:
-          case CellType.number:
-          case CellType.text:
-            value = cell.value;
-            break;
-          case CellType.empty:
-          case CellType.invalidFormula:
-            value = "";
-        }
+    CellIsRule: (cell: Cell | undefined, rule: CellIsRule): boolean => {
+      if (cell && cell.evaluated.type === CellValueType.error) {
+        return false;
       }
-
+      // bug?: invalid formula are considered empty cells
       switch (rule.operator) {
         case "IsEmpty":
-          return !cell || value.toString().trim() === "";
+          return !isDefined(cell) || cell.evaluated.value.toString().trim() === "";
         case "IsNotEmpty":
-          return cell && value.toString().trim() !== "";
+          return isDefined(cell) && cell.evaluated.value.toString().trim() !== "";
         case "BeginsWith":
           if (!cell && rule.values[0] === "") {
             return false;
           }
-          return cell && value.startsWith(rule.values[0]);
+          return isDefined(cell) && cell?.evaluated.value.toString().startsWith(rule.values[0]);
         case "EndsWith":
           if (!cell && rule.values[0] === "") {
             return false;
           }
-          return cell && value && value.toString().endsWith(rule.values[0]);
+          return isDefined(cell) && cell.evaluated.value.toString().endsWith(rule.values[0]);
         case "Between":
-          return cell && value >= rule.values[0] && value <= rule.values[1];
+          return (
+            isDefined(cell) &&
+            cell.evaluated.value >= rule.values[0] &&
+            cell.evaluated.value <= rule.values[1]
+          );
         case "NotBetween":
-          return !(cell && value >= rule.values[0] && value <= rule.values[1]);
+          return !(
+            isDefined(cell) &&
+            cell.evaluated.value >= rule.values[0] &&
+            cell.evaluated.value <= rule.values[1]
+          );
         case "ContainsText":
-          return cell && value && value.toString().indexOf(rule.values[0]) > -1;
+          return isDefined(cell) && cell.evaluated.value.toString().indexOf(rule.values[0]) > -1;
         case "NotContains":
-          return !cell || !value || value.toString().indexOf(rule.values[0]) == -1;
+          return (
+            !isDefined(cell) ||
+            !cell.evaluated.value ||
+            cell.evaluated.value.toString().indexOf(rule.values[0]) == -1
+          );
         case "GreaterThan":
-          return cell && value > rule.values[0];
+          return isDefined(cell) && cell.evaluated.value > rule.values[0];
         case "GreaterThanOrEqual":
-          return cell && value >= rule.values[0];
+          return isDefined(cell) && cell.evaluated.value >= rule.values[0];
         case "LessThan":
-          return cell && value < rule.values[0];
+          return isDefined(cell) && cell.evaluated.value < rule.values[0];
         case "LessThanOrEqual":
-          return cell && value <= rule.values[0];
+          return isDefined(cell) && cell.evaluated.value <= rule.values[0];
         case "NotEqual":
-          if (!cell && rule.values[0] === "") {
+          if (!isDefined(cell) && rule.values[0] === "") {
             return false;
           }
-          return cell && value !== rule.values[0];
+          return isDefined(cell) && cell.evaluated.value !== rule.values[0];
         case "Equal":
           if (!cell && rule.values[0] === "") {
             return true;
           }
-          return cell && value.toString() === rule.values[0];
+          return isDefined(cell) && cell.evaluated.value.toString() === rule.values[0];
         default:
           console.warn(
             _lt(

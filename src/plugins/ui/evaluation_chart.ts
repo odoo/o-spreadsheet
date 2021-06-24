@@ -11,9 +11,10 @@ import { MAX_CHAR_LABEL } from "../../constants";
 import { ChartColors } from "../../helpers/chart";
 import { isDefined, isInside, overlap, recomputeZones, zoneToXc } from "../../helpers/index";
 import { Mode } from "../../model";
+import { Cell } from "../../types";
 import { ChartDefinition, DataSet } from "../../types/chart";
 import { Command } from "../../types/commands";
-import { Cell, UID, Zone } from "../../types/misc";
+import { UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class EvaluationChartPlugin extends UIPlugin {
@@ -312,7 +313,7 @@ export class EvaluationChartPlugin extends UIPlugin {
           : undefined;
         label =
           cell && labelRange
-            ? this.truncateLabel(this.getters.getCellText(cell, labelRange.sheetId))
+            ? this.truncateLabel(cell.formattedValue)
             : (label = `${chartTerms.Series} ${parseInt(dsIndex) + 1}`);
       } else {
         label = label = `${chartTerms.Series} ${parseInt(dsIndex) + 1}`;
@@ -335,7 +336,7 @@ export class EvaluationChartPlugin extends UIPlugin {
     return runtime;
   }
 
-  private getData(ds: DataSet, sheetId: UID) {
+  private getData(ds: DataSet, sheetId: UID): any[] {
     if (ds.dataRange) {
       const labelCellZone = ds.labelCell ? [zoneToXc(ds.labelCell.zone)] : [];
       const dataXC = recomputeZones([zoneToXc(ds.dataRange.zone)], labelCellZone)[0];

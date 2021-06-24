@@ -19,7 +19,7 @@ import {
   unhideRows,
   updateChart,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { getCellContent, getCellError } from "../test_helpers/getters_helpers";
 import { createEqualCF } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
@@ -162,7 +162,7 @@ describe("Collaborative Sheet manipulation", () => {
       setCellContent(bob, "A1", `=${sheetName}!A2`);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A1")!.error,
+      (user) => getCellError(user, "A1"),
       `Invalid sheet name: ${sheetName}`
     );
   });

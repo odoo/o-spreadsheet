@@ -2,14 +2,14 @@ import { tokenize } from "../../formulas";
 import { AST, parse } from "../../formulas/parser";
 import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
 import { functionRegistry } from "../../functions";
+import { isNumber } from "../../helpers";
 import {
   formatDateTime,
   mdyDateRegexp,
   parseDateTime,
   timeRegexp,
   ymdDateRegexp,
-} from "../../functions/dates";
-import { isNumber } from "../../helpers";
+} from "../../helpers/dates";
 import { NormalizedFormula } from "../../types";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../constants";

@@ -1,12 +1,12 @@
 import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { computeIconWidth, computeTextWidth } from "../../helpers/index";
+import { computeIconWidth, computeTextWidth, isFormula } from "../../helpers/index";
 import { _lt } from "../../translation";
-import { Cell, Command, CommandResult, UID, Zone } from "../../types";
+import { Cell, CellValueType, Command, CommandResult, UID, Zone } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
-  static getters = ["getCellWidth", "getCellHeight", "getTextWidth"];
+  static getters = ["getCellWidth", "getCellHeight", "getTextWidth", "getCellText"];
 
   private ctx = document.createElement("canvas").getContext("2d")!;
 
@@ -88,11 +88,7 @@ export class SheetUIPlugin extends UIPlugin {
   }
 
   getTextWidth(cell: Cell): number {
-    const text = this.getters.getCellText(
-      cell,
-      this.getters.getActiveSheetId(),
-      this.getters.shouldShowFormulas()
-    );
+    const text = this.getters.getCellText(cell, this.getters.shouldShowFormulas());
     return computeTextWidth(this.ctx, text, this.getters.getCellStyle(cell));
   }
 
@@ -100,6 +96,14 @@ export class SheetUIPlugin extends UIPlugin {
     const style = this.getters.getCellStyle(cell);
     const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
     return fontSizeMap[sizeInPt];
+  }
+
+  getCellText(cell: Cell, showFormula: boolean = false): string {
+    if (showFormula && (isFormula(cell) || cell.evaluated.type === CellValueType.error)) {
+      return cell.content;
+    } else {
+      return cell.formattedValue;
+    }
   }
 
   // ---------------------------------------------------------------------------

@@ -1,3 +1,4 @@
+import { isEmpty } from "../../helpers/cells";
 import { clip, isInside, toCartesian, toXC, union } from "../../helpers/index";
 import { Mode } from "../../model";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
@@ -276,7 +277,7 @@ export class AutofillPlugin extends UIPlugin {
     let row = zone.bottom;
     if (col > 0) {
       let left = this.getters.getCell(sheetId, col - 1, row);
-      while (left && left.type !== "empty") {
+      while (!isEmpty(left)) {
         row += 1;
         left = this.getters.getCell(sheetId, col - 1, row);
       }
@@ -285,7 +286,7 @@ export class AutofillPlugin extends UIPlugin {
       col = zone.right;
       if (col <= this.getters.getActiveSheet().cols.length) {
         let right = this.getters.getCell(sheetId, col + 1, row);
-        while (right && right.type !== "empty") {
+        while (!isEmpty(right)) {
           row += 1;
           right = this.getters.getCell(sheetId, col + 1, row);
         }

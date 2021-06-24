@@ -1,6 +1,6 @@
+import { LOADING } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
-import { LOADING } from "../../src/plugins/ui/evaluation";
 import { CommandResult } from "../../src/types";
 import {
   activateSheet,
@@ -15,6 +15,7 @@ import {
 import {
   getCell,
   getCellContent,
+  getCellError,
   getRangeFormattedValues,
   getRangeValues,
 } from "../test_helpers/getters_helpers";
@@ -78,8 +79,8 @@ describe("core", () => {
       const model = new Model();
       setCellContent(model, "A1", "=TWOARGSNEEDED(42)");
 
-      expect(getCell(model, "A1")!.value).toBe("#BAD_EXPR");
-      expect(getCell(model, "A1")!.error!.toString()).toBe(
+      expect(getCell(model, "A1")!.evaluated.value).toBe("#BAD_EXPR");
+      expect(getCellError(model, "A1")).toBe(
         `Invalid number of arguments for the TWOARGSNEEDED function. Expected 2 minimum, but got 1 instead.`
       );
     });
@@ -190,8 +191,8 @@ describe("core", () => {
         setCellContent(model, "A1", "=CONCAT(4,2)");
         setCellContent(model, "A2", "=COS(42)");
 
-        expect(getCell(model, "A1")!.format).toBe(undefined);
-        expect(getCell(model, "A2")!.format).toBe(undefined);
+        expect(getCell(model, "A1")!.format).toBeUndefined();
+        expect(getCell(model, "A2")!.format).toBeUndefined();
       });
 
       test("from formula with return format", () => {
@@ -215,7 +216,7 @@ describe("core", () => {
           setCellContent(model, "A1", "=1+A2");
           setCellContent(model, "A2", "3%");
 
-          expect(getCell(model, "A1")!.format).toBe(undefined);
+          expect(getCell(model, "A1")!.format).toBeUndefined();
           expect(getCell(model, "A2")!.format).toBe("0%");
         });
       });
@@ -226,12 +227,12 @@ describe("core", () => {
     const model = new Model();
     setCellContent(model, "A1", "=rand()");
 
-    expect(getCell(model, "A1")!.value).toBeDefined();
-    const val = getCell(model, "A1")!.value;
+    expect(getCell(model, "A1")!.evaluated.value).toBeDefined();
+    const val = getCell(model, "A1")!.evaluated.value;
 
     model.dispatch("START_EDITION");
     model.dispatch("STOP_EDITION");
-    expect(getCell(model, "A1")!.value).toBe(val);
+    expect(getCell(model, "A1")!.evaluated.value).toBe(val);
   });
 
   test("getCell getter does not crash if invalid col/row", () => {
@@ -572,21 +573,15 @@ describe("history", () => {
           },
         ],
       });
-      expect(getRangeValues(model, "A1:A3", sheet1Id)).toEqual([["1000", undefined, "2000"]]);
-      expect(getRangeValues(model, "$A$1:$A$3", sheet1Id)).toEqual([["1000", undefined, "2000"]]);
-      expect(getRangeValues(model, "Sheet1!A1:A3", sheet1Id)).toEqual([
-        ["1000", undefined, "2000"],
-      ]);
-      expect(getRangeValues(model, "Sheet2!A1:A3", sheet2Id)).toEqual([
-        ["21000", undefined, "44196"],
-      ]);
-      expect(getRangeValues(model, "Sheet2!A1:A3", sheet1Id)).toEqual([
-        ["21000", undefined, "44196"],
-      ]);
-      expect(getRangeValues(model, "B2", sheet1Id)).toEqual([["TRUE"]]);
-      expect(getRangeValues(model, "Sheet1!B2", sheet1Id)).toEqual([["TRUE"]]);
-      expect(getRangeValues(model, "Sheet2!B2", sheet2Id)).toEqual([["TRUE"]]);
-      expect(getRangeValues(model, "Sheet2!B2", sheet1Id)).toEqual([["TRUE"]]);
+      expect(getRangeValues(model, "A1:A3", sheet1Id)).toEqual([[1000, undefined, 2000]]);
+      expect(getRangeValues(model, "$A$1:$A$3", sheet1Id)).toEqual([[1000, undefined, 2000]]);
+      expect(getRangeValues(model, "Sheet1!A1:A3", sheet1Id)).toEqual([[1000, undefined, 2000]]);
+      expect(getRangeValues(model, "Sheet2!A1:A3", sheet2Id)).toEqual([[21000, undefined, 44196]]);
+      expect(getRangeValues(model, "Sheet2!A1:A3", sheet1Id)).toEqual([[21000, undefined, 44196]]);
+      expect(getRangeValues(model, "B2", sheet1Id)).toEqual([[true]]);
+      expect(getRangeValues(model, "Sheet1!B2", sheet1Id)).toEqual([[true]]);
+      expect(getRangeValues(model, "Sheet2!B2", sheet2Id)).toEqual([[true]]);
+      expect(getRangeValues(model, "Sheet2!B2", sheet1Id)).toEqual([[true]]);
       expect(getRangeValues(model, "B2", "invalidSheetId")).toEqual([[]]);
     });
   });

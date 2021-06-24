@@ -291,7 +291,7 @@ describe("figures", () => {
     triggerMouseEvent(hasTitle, "click");
     await nextTick();
     expect((mockChartData.data! as any).labels).toEqual(["P1", "P2", "P3"]);
-    expect((mockChartData.data! as any).datasets[0].data).toEqual(["10", "11", "12", "13"]);
+    expect((mockChartData.data! as any).datasets[0].data).toEqual([10, 11, 12, 13]);
     expect(mockChartData.type).toBe("pie");
     expect((mockChartData.options!.title as any).text).toBe("hello");
   });

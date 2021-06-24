@@ -1,6 +1,6 @@
 import { DATETIME_FORMAT } from "../../constants";
 import { composerTokenize, EnrichedToken, rangeReference } from "../../formulas/index";
-import { formatDateTime } from "../../functions/dates";
+import { formatDateTime } from "../../helpers/dates";
 import {
   colors,
   getComposerSheetName,
@@ -12,7 +12,6 @@ import { _lt } from "../../translation";
 import {
   AddColumnsRowsCommand,
   Cell,
-  CellType,
   Command,
   CommandResult,
   LAYERS,
@@ -211,8 +210,7 @@ export class EditionPlugin extends UIPlugin {
   getCurrentContent(): string {
     if (this.mode === "inactive") {
       const cell = this.getters.getActiveCell();
-      const activeSheetId = this.getters.getActiveSheetId();
-      return cell ? this.getters.getCellText(cell, activeSheetId, true) : "";
+      return cell?.content || "";
     }
     return this.currentContent;
   }
@@ -327,19 +325,9 @@ export class EditionPlugin extends UIPlugin {
   }
 
   private getCellContent(cell: Cell) {
-    switch (cell.type) {
-      case CellType.formula:
-        return this.getters.getFormulaCellContent(this.getters.getActiveSheetId(), cell);
-      case CellType.empty:
-        return "";
-      case CellType.number:
-        return cell.format?.match(DATETIME_FORMAT)
-          ? formatDateTime({ value: (cell.value || 0) as number, format: cell.format! })
-          : cell.content;
-      case CellType.text:
-      case CellType.invalidFormula:
-        return cell.content;
-    }
+    return cell.format?.match(DATETIME_FORMAT)
+      ? formatDateTime({ value: (cell.evaluated.value || 0) as number, format: cell.format! })
+      : cell.content;
   }
 
   /**
@@ -557,7 +545,7 @@ export class EditionPlugin extends UIPlugin {
       this.col = col;
       this.row = row;
     }
-    const content = anchor ? this.getters.getCellText(anchor, sheetId, true) : "";
+    const content = anchor?.content || "";
     this.dispatch("SET_CURRENT_CONTENT", {
       content,
     });

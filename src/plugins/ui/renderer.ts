@@ -15,12 +15,13 @@ import {
   TEXT_HEADER_COLOR,
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
+import { isEmpty, isFormula } from "../../helpers/cells";
 import { overlap, scrollDelay } from "../../helpers/index";
 import { Mode } from "../../model";
 import {
   Box,
   Cell,
-  CellType,
+  CellValueType,
   EdgeScrollInfo,
   GridRenderingContext,
   Header,
@@ -38,12 +39,12 @@ import { UIPlugin } from "../ui_plugin";
 // -----------------------------------------------------------------------------
 
 function computeAlign(cell: Cell, isShowingFormulas: boolean): "right" | "center" | "left" {
-  if (cell.type === CellType.formula && isShowingFormulas) {
+  if (isFormula(cell) && isShowingFormulas) {
     return "left";
-  } else if (cell.error) {
+  } else if (cell.evaluated.type === CellValueType.error) {
     return "center";
   }
-  switch (typeof cell.value) {
+  switch (typeof cell.evaluated.value) {
     case "object":
     case "number":
       return "right";
@@ -447,7 +448,7 @@ export class RendererPlugin extends UIPlugin {
   private hasContent(col: number, row: number): boolean {
     const sheetId = this.getters.getActiveSheetId();
     const cell = this.getters.getCell(sheetId, col, row);
-    return (cell && cell.type !== "empty") || (this.getters.isInMerge(sheetId, col, row) as any);
+    return isEmpty(cell) || this.getters.isInMerge(sheetId, col, row);
   }
 
   private getGridBoxes(renderingContext: GridRenderingContext): Box[] {
@@ -476,7 +477,7 @@ export class RendererPlugin extends UIPlugin {
         const iconStyle = this.getters.getConditionalIcon(colNumber, rowNumber);
         if (!this.getters.isInMerge(sheetId, colNumber, rowNumber)) {
           if (cell) {
-            const text = this.getters.getCellText(cell, sheetId, showFormula);
+            const text = this.getters.getCellText(cell, showFormula);
             const textWidth = this.getters.getTextWidth(cell);
             let style = this.getters.getCellStyle(cell);
             if (conditionalStyle) {
@@ -539,7 +540,7 @@ export class RendererPlugin extends UIPlugin {
               style,
               align,
               clipRect,
-              error: cell.error,
+              error: cell.evaluated.type === CellValueType.error ? cell.evaluated.error : undefined,
               image: iconStyle
                 ? {
                     type: "icon",
@@ -586,7 +587,7 @@ export class RendererPlugin extends UIPlugin {
         let text, textWidth, style, align, border;
         style = refCell ? this.getters.getCellStyle(refCell) : null;
         if (refCell || borderBottomRight || borderTopLeft) {
-          text = refCell ? this.getters.getCellText(refCell, activeSheetId, showFormula) : "";
+          text = refCell ? this.getters.getCellText(refCell, showFormula) : "";
           textWidth = refCell ? this.getters.getTextWidth(refCell) : null;
           const conditionalStyle = this.getters.getConditionalStyle(
             merge.topLeft.col,
@@ -640,7 +641,10 @@ export class RendererPlugin extends UIPlugin {
           style,
           align,
           clipRect,
-          error: refCell ? refCell.error : undefined,
+          error:
+            refCell && refCell.evaluated.type === CellValueType.error
+              ? refCell.evaluated.error
+              : undefined,
           image: iconStyle
             ? {
                 type: "icon",

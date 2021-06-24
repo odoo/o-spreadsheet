@@ -9,6 +9,7 @@ import {
   getUnquotedSheetName,
   groupConsecutive,
   isDefined,
+  isEmpty,
   isZoneInside,
   isZoneValid,
   mapCellsInZone,
@@ -18,7 +19,6 @@ import { _lt } from "../../translation";
 import {
   Cell,
   CellPosition,
-  CellType,
   Col,
   Command,
   CommandResult,
@@ -370,7 +370,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const sheet = this.getSheet(sheetId);
     return mapCellsInZone(zone, sheet, (cell) => cell, undefined)
       .flat()
-      .every((cell) => !cell || cell.type === CellType.empty);
+      .every(isEmpty);
   }
 
   private setHeaderSize(sheet: Sheet, dimension: "cols" | "rows", index: number, size: number) {
@@ -542,7 +542,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         sheetId: newSheet.id,
         col,
         row,
-        content: this.getters.getCellText(cell, fromId, true),
+        content: cell.content,
         format: cell.format,
         style: cell.style,
       });

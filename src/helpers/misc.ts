@@ -10,6 +10,7 @@ import {
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { ConsecutiveIndexes, Style } from "../types";
+import { parseDateTime } from "./dates";
 /**
  * Stringify an object, like JSON.stringify, except that the first level of keys
  * is ordered.
@@ -120,6 +121,15 @@ export function* linkNext<T>(
       next: nextItem.done ? undefined : nextItem.value,
     };
   }
+}
+
+export function isBoolean(str: string): boolean {
+  const upperCased = str.toUpperCase();
+  return upperCased === "TRUE" || upperCased === "FALSE";
+}
+
+export function isDateTime(str: string): boolean {
+  return parseDateTime(str) !== null;
 }
 
 /**

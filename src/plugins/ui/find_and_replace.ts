@@ -1,12 +1,5 @@
-import {
-  Cell,
-  CellType,
-  Command,
-  FormulaCell,
-  GridRenderingContext,
-  LAYERS,
-  UID,
-} from "../../types/index";
+import { isFormula } from "../../helpers";
+import { Cell, Command, GridRenderingContext, LAYERS, UID } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 const BORDER_COLOR: string = "#8B008B";
@@ -152,7 +145,6 @@ export class FindAndReplacePlugin extends UIPlugin {
     const cells = this.getters.getCells(activeSheetId);
     const matches: SearchMatch[] = [];
 
-    //let field = this.searchOptions.searchFormulas ? "content" : "value";
     if (this.toSearch) {
       for (const cell of Object.values(cells)) {
         if (
@@ -160,10 +152,10 @@ export class FindAndReplacePlugin extends UIPlugin {
           this.currentSearchRegex &&
           this.currentSearchRegex.test(
             this.searchOptions.searchFormulas
-              ? cell.type === CellType.formula
-                ? this.getters.getFormulaCellContent(activeSheetId, cell as FormulaCell)
-                : String(cell.value)
-              : String(cell.value)
+              ? isFormula(cell)
+                ? cell.content
+                : String(cell.evaluated.value)
+              : String(cell.evaluated.value)
           )
         ) {
           const position = this.getters.getCellPosition(cell.id);
@@ -277,12 +269,12 @@ export class FindAndReplacePlugin extends UIPlugin {
    * Determines if the content, the value or nothing should be replaced,
    * based on the search and replace options
    */
-  private toReplace(cell: Cell | undefined, sheetId: UID) {
+  private toReplace(cell: Cell | undefined, sheetId: UID): string | null {
     if (cell) {
-      if (this.searchOptions.searchFormulas && cell.type === CellType.formula) {
-        return this.getters.getFormulaCellContent(sheetId, cell);
-      } else if (this.replaceOptions.modifyFormulas || cell.type !== CellType.formula) {
-        return (cell.value as any).toString();
+      if (this.searchOptions.searchFormulas && isFormula(cell)) {
+        return cell.content;
+      } else if (this.replaceOptions.modifyFormulas || !isFormula(cell)) {
+        return (cell.evaluated.value as any).toString();
       }
     }
     return null;

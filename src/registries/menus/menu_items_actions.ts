@@ -528,7 +528,7 @@ export const CREATE_CHART = (env: SpreadsheetEnv) => {
   let dataSetsHaveTitle = false;
   for (let x = dataSetZone.left; x <= dataSetZone.right; x++) {
     const cell = env.getters.getCell(sheetId, x, zone.top);
-    if (cell && typeof cell.value !== "number") {
+    if (cell && typeof cell.evaluated.value !== "number") {
       dataSetsHaveTitle = true;
     }
   }

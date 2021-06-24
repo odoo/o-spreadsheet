@@ -268,7 +268,11 @@ describe("Migrations", () => {
     expect(data.sheets[1].name).toBe("sheetName_");
 
     const cells = data.sheets[1].cells;
-    expect(cells.A1!.formula).toEqual({ dependencies: ["sheetName_!A2"], text: "=|0|" });
+    expect(cells.A1!.formula).toEqual({
+      dependencies: ["sheetName_!A2"],
+      text: "=|0|",
+      value: "Loading...",
+    });
 
     const figures = data.sheets[1].figures;
     expect(figures[0].data?.dataSets).toEqual(["=sheetName_!A1:A2", "My sheet!A1:A2"]);

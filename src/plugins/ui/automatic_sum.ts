@@ -10,7 +10,7 @@ import {
   zoneToDimension,
 } from "../../helpers";
 import { Mode } from "../../model";
-import { Cell, CellType, Command, Dimension, Sheet, UID, Zone } from "../../types";
+import { Cell, CellValueType, Command, Dimension, Sheet, UID, Zone } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 interface AutomaticSum {
@@ -189,7 +189,7 @@ export class AutomaticSumPlugin extends UIPlugin {
   }
 
   private isNumber(cell?: Cell): boolean {
-    return !!cell && typeof cell.value === "number" && !cell.format?.match(DATETIME_FORMAT);
+    return cell?.evaluated.type === CellValueType.number && !cell.format?.match(DATETIME_FORMAT);
   }
 
   /**
@@ -197,8 +197,11 @@ export class AutomaticSumPlugin extends UIPlugin {
    */
   private isValid(cell?: Cell): boolean {
     return (
-      cell?.type !== CellType.invalidFormula &&
-      (!cell || typeof cell.value === "string" || !cell.value || this.isNumber(cell))
+      !(cell?.evaluated.type === CellValueType.error) &&
+      (!cell ||
+        cell.evaluated.type === CellValueType.text ||
+        !cell.evaluated.value ||
+        this.isNumber(cell))
     );
   }
 

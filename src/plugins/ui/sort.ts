@@ -1,9 +1,9 @@
-import { DATETIME_FORMAT } from "../../constants";
+import { isFormula } from "../../helpers/cells";
 import { isEqual, isInside, mapCellsInZone, overlap, zoneToDimension } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
   Cell,
-  CellType,
+  CellValueType,
   Command,
   CommandResult,
   Sheet,
@@ -16,7 +16,7 @@ import { UIPlugin } from "../ui_plugin";
 
 type Item = Cell | undefined;
 type IndexItemMap = { index: number; val: Item }[];
-type HeaderType = Exclude<CellType, CellType.formula | CellType.invalidFormula> | "boolean";
+type HeaderType = CellValueType;
 type SortType = HeaderType;
 type SortTypeValueMap = { type: SortType; value: any };
 type IndexSortTypeValueMap = { index: number; val: SortTypeValueMap }[];
@@ -195,16 +195,11 @@ export class SortPlugin extends UIPlugin {
         for (let r = top; r <= bottom; r++) {
           const [mainCellCol, mainCellRow] = this.getters.getMainCell(sheetId, c, r);
           cell = this.getters.getCell(sheetId, mainCellCol, mainCellRow);
-          line.push(cell ? this.getters.getCellText(cell, sheetId) : "");
+          line.push(cell?.formattedValue || "");
         }
       }
     } else {
-      const values = mapCellsInZone(
-        expandedZone,
-        sheet,
-        (cell) => this.getters.getCellText(cell, sheetId),
-        ""
-      );
+      const values = mapCellsInZone(expandedZone, sheet, (cell) => cell.formattedValue, "");
       line = values.flat();
     }
     return line.some((item) => item !== "");
@@ -310,29 +305,6 @@ export class SortPlugin extends UIPlugin {
     return { left, right, top, bottom };
   }
 
-  private headerTypeFromCell = (cell: Cell): HeaderType => {
-    switch (cell.type) {
-      case CellType.formula:
-        if (typeof cell.value === "number" && cell.format?.match(DATETIME_FORMAT)) {
-          // date
-          return CellType.number;
-        } else {
-          switch (typeof cell.value) {
-            case "boolean":
-              return "boolean";
-            case "number":
-              return CellType.number;
-            default:
-              return CellType.text;
-          }
-        }
-      case CellType.invalidFormula:
-        return CellType.text;
-      default:
-        return cell.type;
-    }
-  };
-
   /**
    * This function evaluates if the top row of a provided zone can be considered as a `header`
    * by checking the following criteria:
@@ -349,20 +321,20 @@ export class SortPlugin extends UIPlugin {
     let cells: HeaderType[][] = mapCellsInZone(
       { left, right, top: top, bottom: top + 2 * deltaY - 1 },
       sheet,
-      this.headerTypeFromCell,
-      CellType.empty,
+      (cell) => cell.evaluated.type,
+      CellValueType.empty,
       deltaX,
       deltaY
     );
 
     // ignore left-most column when topLeft cell is empty
     const topLeft = cells[0][0];
-    if (topLeft === CellType.empty) {
+    if (topLeft === CellValueType.empty) {
       cells = cells.slice(1);
     }
-    if (cells.some((item) => item[0] === CellType.empty)) {
+    if (cells.some((item) => item[0] === CellValueType.empty)) {
       return false;
-    } else if (cells.some((item) => item[1] !== CellType.empty && item[0] !== item[1])) {
+    } else if (cells.some((item) => item[1] !== CellValueType.empty && item[0] !== item[1])) {
       return true;
     } else {
       return false;
@@ -372,17 +344,22 @@ export class SortPlugin extends UIPlugin {
   private sortCellsList(list: Item[], sortDirection: SortDirection): IndexSTVMapItem {
     const cellsIndex: IndexItemMap = list.map((val, index) => ({ index, val }));
     const sortingCellsIndexes: IndexItemMap = cellsIndex.filter(
-      (x) => !(x.val == undefined || x.val.value === "")
+      (x) => !(x.val == undefined || x.val.evaluated.value === "")
     );
     const emptyCellsIndexes: IndexItemMap = cellsIndex.filter(
-      (x) => x.val == undefined || x.val.value === ""
+      (x) => x.val == undefined || x.val.evaluated.value === ""
     );
     const inverse = sortDirection === "descending" ? -1 : 1;
-    const sortTypes: SortType[] = [CellType.number, CellType.text, "boolean"];
+    const sortTypes: SortType[] = [
+      CellValueType.number,
+      CellValueType.error,
+      CellValueType.text,
+      CellValueType.boolean,
+    ];
 
     const convertCell = (cell: Cell): SortTypeValueMap => {
-      let type = this.headerTypeFromCell(cell);
-      return { type: type, value: cell.value };
+      let type = cell.evaluated.type;
+      return { type: type, value: cell.evaluated.value };
     };
 
     const sortingTypeValueMapIndexes: IndexSortTypeValueMap = sortingCellsIndexes.map((item) => {
@@ -395,7 +372,7 @@ export class SortPlugin extends UIPlugin {
     const sortedIndex = sortingTypeValueMapIndexes.sort((left, right) => {
       let typeOrder = sortTypes.indexOf(left.val.type) - sortTypes.indexOf(right.val.type);
       if (typeOrder === 0) {
-        if (left.val.type === "text") {
+        if (left.val.type === CellValueType.text || left.val.type === CellValueType.error) {
           typeOrder = left.val.value.localeCompare(right.val.value);
         } else typeOrder = left.val.value - right.val.value;
       }
@@ -454,18 +431,18 @@ export class SortPlugin extends UIPlugin {
           value: "",
         };
         if (cell) {
-          let content: string = this.getters.getCellValue(cell, sheetId, true) || "";
-          if (cell.type === CellType.formula) {
+          let content: string = cell.content;
+          if (isFormula(cell)) {
             const position = this.getters.getCellPosition(cell.id);
             const offsetY = newRow - position.row;
             // we only have a vertical offset
             const ranges = this.getters.createAdaptedRanges(cell.dependencies, 0, offsetY, sheetId);
-            content = this.getters.buildFormulaContent(sheetId, cell.formula.text, ranges);
+            content = this.getters.buildFormulaContent(sheetId, cell.normalizedText, ranges);
           }
           newCellValues.style = cell.style;
           newCellValues.content = content;
           newCellValues.format = cell.format;
-          newCellValues.value = cell.value;
+          newCellValues.value = cell.evaluated.value;
         }
         this.dispatch("UPDATE_CELL", newCellValues);
       }

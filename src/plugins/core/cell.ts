@@ -1,10 +1,21 @@
 import { DATETIME_FORMAT, DEFAULT_ERROR_MESSAGE } from "../../constants";
 import { compile, normalize } from "../../formulas/index";
 import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
-import { formatDateTime, parseDateTime } from "../../functions/dates";
 import {
-  formatNumber,
-  formatStandardNumber,
+  BooleanCell,
+  DateTimeCell,
+  EmptyCell,
+  FormulaCell,
+  InvalidFormulaCell,
+  isEmpty,
+  isFormula,
+  NumberCell,
+  TextCell,
+} from "../../helpers/cells";
+import { parseDateTime } from "../../helpers/dates";
+import {
+  isBoolean,
+  isDateTime,
   isInside,
   isNumber,
   maximumDecimalPlaces,
@@ -20,12 +31,13 @@ import {
   ApplyRangeChange,
   Cell,
   CellData,
+  CellDisplayProperties,
   CellPosition,
-  CellType,
+  CellValueType,
   CommandResult,
+  CompiledFormula,
   CoreCommand,
   ExcelWorkbookData,
-  FormulaCell,
   Range,
   Sheet,
   Style,
@@ -54,8 +66,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "zoneToXC",
     "getCells",
     "getFormulaCellContent",
-    "getCellText",
-    "getCellValue",
     "getCellStyle",
     "buildFormulaContent",
   ];
@@ -65,7 +75,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
-        if (cell.type === CellType.formula) {
+        if (isFormula(cell)) {
           for (const range of cell.dependencies) {
             if (!sheetId || range.sheetId === sheetId) {
               const change = applyChange(range);
@@ -191,12 +201,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         for (let col = zone.left; col <= zone.right; col++) {
           const cell = this.getters.getCell(sheetId, col, row);
           if (
-            cell &&
-            (cell.type === CellType.number ||
-              (cell.type === CellType.formula && typeof cell.value === "number")) &&
+            cell?.evaluated.type === CellValueType.number &&
             !cell.format?.match(DATETIME_FORMAT) // reject dates
           ) {
-            return cell.format || this.setDefaultNumberFormat(cell.value as any);
+            return cell.format || this.setDefaultNumberFormat(cell.evaluated.value as any);
           }
         }
       }
@@ -348,20 +356,23 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {
-    // Styles
     for (let sheet of data.sheets) {
       const imported_sheet = this.getters.getSheet(sheet.id);
       // cells
       for (let xc in sheet.cells) {
-        const cell = sheet.cells[xc];
+        const cellData = sheet.cells[xc];
         const [col, row] = toCartesian(xc);
-        const style = (cell && cell.style && data.styles[cell.style]) || undefined;
-        this.updateCell(imported_sheet, col, row, {
-          content: cell?.content,
-          formula: cell?.formula,
-          format: cell?.format,
-          style,
-        });
+        if (cellData?.formula || cellData?.content || cellData?.format || cellData?.style) {
+          const cell = this.importCell(imported_sheet, cellData, data.styles);
+          this.history.update("cells", sheet.id, cell.id, cell);
+          this.dispatch("UPDATE_CELL_POSITION", {
+            cell,
+            cellId: cell.id,
+            col,
+            row,
+            sheetId: sheet.id,
+          });
+        }
       }
     }
   }
@@ -392,26 +403,44 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           style: cell.style && getStyleId(cell.style),
           format: cell.format,
         };
-
-        switch (cell.type) {
-          case CellType.formula:
-            cells[xc].formula = {
-              text: cell.formula.text || "",
-              dependencies:
-                cell.dependencies?.map((d) => this.getters.getRangeString(d, _sheet.id)) || [],
-              value: cell.value,
-            };
-            break;
-          case CellType.number:
-          case CellType.text:
-          case CellType.invalidFormula:
-            cells[xc].content = cell.content;
-            break;
+        if (isFormula(cell)) {
+          cells[xc].formula = {
+            text: cell.normalizedText || "",
+            dependencies:
+              cell.dependencies?.map((d) => this.getters.getRangeString(d, _sheet.id)) || [],
+            value: cell.evaluated.value,
+          };
+        } else {
+          cells[xc].content = cell.content;
         }
       }
       _sheet.cells = cells;
     }
     data.styles = styles;
+  }
+
+  importCell(sheet: Sheet, cellData: CellData, normalizedStyles: { [key: number]: Style }): Cell {
+    const style = (cellData.style && normalizedStyles[cellData.style]) || undefined;
+    // For perf reasons, formula are already normalized at export/import
+    if (cellData.formula) {
+      const ranges = cellData.formula.dependencies.map((xc) =>
+        this.getters.getRangeFromSheetXC(sheet.id, xc)
+      );
+      return new FormulaCell(
+        (normalizedText, dependencies) =>
+          this.getters.buildFormulaContent(sheet.id, normalizedText, dependencies),
+        uuidv4(),
+        cellData.formula.text,
+        compile(cellData.formula),
+        ranges,
+        { format: cellData?.format, style }
+      );
+    } else {
+      return this.createCell(sheet, uuidv4(), cellData?.content || "", {
+        format: cellData?.format,
+        style,
+      });
+    }
   }
 
   exportForExcel(data: ExcelWorkbookData) {
@@ -442,65 +471,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   getFormulaCellContent(sheetId: UID, cell: FormulaCell): string {
-    return this.buildFormulaContent(sheetId, cell.formula.text, cell.dependencies);
-  }
-
-  getCellValue(cell: Cell, sheetId: UID, showFormula: boolean = false): any {
-    let value: unknown;
-    if (showFormula) {
-      if (cell.type === CellType.formula) {
-        value = this.getters.getFormulaCellContent(sheetId, cell);
-      } else {
-        value = cell.type === CellType.invalidFormula ? cell.content : cell.value;
-      }
-    } else {
-      value = cell.value;
-    }
-    switch (typeof value) {
-      case "string":
-        return value;
-      case "boolean":
-        return value ? "TRUE" : "FALSE";
-      case "number":
-        return formatStandardNumber(value);
-      case "object":
-        return "0";
-    }
-    return (value && (value as any).toString()) || "";
-  }
-
-  getCellText(cell: Cell, sheetId: UID, showFormula: boolean = false): string {
-    let value: unknown;
-
-    if (showFormula) {
-      if (cell.type === CellType.formula) {
-        value = this.getters.getFormulaCellContent(sheetId, cell);
-      } else {
-        value = cell.type === CellType.invalidFormula ? cell.content : cell.value;
-      }
-    } else {
-      value = cell.value;
-    }
-    switch (typeof value) {
-      case "string":
-        return value;
-      case "boolean":
-        return value ? "TRUE" : "FALSE";
-      case "number":
-        const shouldFormat = (value || value === 0) && cell.format && !cell.error;
-        const dateTimeFormat = shouldFormat && cell.format!.match(DATETIME_FORMAT);
-        if (dateTimeFormat) {
-          return formatDateTime({ value, format: cell.format! });
-        }
-        const numberFormat = shouldFormat && !dateTimeFormat;
-        if (numberFormat) {
-          return formatNumber(value, cell.format!);
-        }
-        return formatStandardNumber(value);
-      case "object":
-        return "0";
-    }
-    return (value && (value as any).toString()) || "";
+    return this.buildFormulaContent(sheetId, cell.normalizedText, cell.dependencies);
   }
 
   getCellStyle(cell: Cell): Style {
@@ -605,8 +576,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
     // Compute the new cell properties
     const afterContent = after.content ? after.content.replace(nbspRegexp, "") : "";
-    const style = after.style !== undefined ? after.style : (before && before.style) || 0;
-    let format = "format" in after ? after.format : (before && before.format) || "";
+    let style: Style | undefined;
+    if (after.style !== undefined) {
+      style = after.style || undefined;
+    } else {
+      style = before ? before.style : undefined;
+    }
+    let format = ("format" in after ? after.format : before && before.format) || this.NULL_FORMAT;
 
     /* Read the following IF as:
      * we need to remove the cell if it is completely empty, but we can know if it completely empty if:
@@ -617,7 +593,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
      *  */
     if (
       ((hasContent && !afterContent && !after.formula) ||
-        (!hasContent && (before?.type === CellType.empty || !before))) &&
+        (!hasContent && (isEmpty(before) || !before))) &&
       !style &&
       !format
     ) {
@@ -634,119 +610,71 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       return;
     }
 
-    // compute the new cell value
+    const cellId = before?.id || uuidv4();
     const didContentChange = hasContent;
     let cell: Cell;
     if (before && !didContentChange) {
-      cell = Object.assign({}, before);
+      cell = before.withDisplayProperties({ format, style });
     } else {
-      // the current content cannot be reused, so we need to recompute the
-      // derived
-      const cellId = before?.id || uuidv4();
-
-      let formulaString = after.formula;
-      if (!formulaString && afterContent[0] === "=") {
-        formulaString = normalize(afterContent || "");
-      }
-
-      if (formulaString) {
-        try {
-          const compiledFormula = compile(formulaString);
-          let ranges: Range[] = [];
-
-          for (let xc of formulaString.dependencies) {
-            // todo: remove the actual range from the cell and only keep the range Id
-            ranges.push(this.getters.getRangeFromSheetXC(sheet.id, xc));
-          }
-
-          cell = {
-            id: cellId,
-            type: CellType.formula,
-            formula: {
-              compiledFormula: compiledFormula,
-              text: formulaString.text,
-            },
-            dependencies: ranges,
-          } as FormulaCell;
-
-          if (!format && !after.formula) {
-            format = this.computeFormulaFormat(cell);
-          }
-        } catch (e) {
-          cell = {
-            id: cellId,
-            type: CellType.invalidFormula,
-            content: afterContent,
-            value: "#BAD_EXPR",
-            error: e.message || DEFAULT_ERROR_MESSAGE,
-          };
-        }
-      } else if (afterContent === "") {
-        cell = {
-          id: cellId,
-          type: CellType.empty,
-          value: "",
-        };
-      } else if (isNumber(afterContent)) {
-        cell = {
-          id: cellId,
-          type: CellType.number,
-          content: afterContent,
-          value: parseNumber(afterContent),
-        };
-        if (!format && afterContent.includes("%")) {
-          format = afterContent.includes(".") ? "0.00%" : "0%";
-        }
-      } else {
-        const internaldate = parseDateTime(afterContent);
-        if (internaldate !== null) {
-          cell = {
-            id: cellId,
-            type: CellType.number,
-            content: internaldate.value.toString(),
-            value: internaldate.value,
-          };
-          if (!format) {
-            format = internaldate.format;
-          }
-        } else {
-          const contentUpperCase = afterContent.toUpperCase();
-          cell = {
-            id: cellId,
-            type: CellType.text,
-            content: afterContent,
-            value:
-              contentUpperCase === "TRUE"
-                ? true
-                : contentUpperCase === "FALSE"
-                ? false
-                : afterContent,
-          };
-        }
-      }
+      cell = this.createCell(sheet, cellId, afterContent, {
+        style,
+        format,
+      });
     }
-
-    if (style) {
-      cell.style = style;
-    } else {
-      delete cell.style;
-    }
-    if (format) {
-      cell.format = format;
-    } else {
-      delete cell.format;
-    }
-
     this.history.update("cells", sheet.id, cell.id, cell);
     this.dispatch("UPDATE_CELL_POSITION", { cell, cellId: cell.id, col, row, sheetId: sheet.id });
   }
 
-  NULL_FORMAT = "";
+  private createCell(sheet: Sheet, id: UID, content: string, options: CellDisplayProperties): Cell {
+    if (content.startsWith("=")) {
+      const formula = normalize(content);
+      try {
+        const normalizedText = formula.text;
+        const compiledFormula = compile(formula);
+        const ranges = formula.dependencies.map((xc) =>
+          this.getters.getRangeFromSheetXC(sheet.id, xc)
+        );
+        const format = options.format || this.computeFormulaFormat(compiledFormula, ranges);
+        return new FormulaCell(
+          (normalizedText, dependencies) =>
+            this.getters.buildFormulaContent(sheet.id, normalizedText, dependencies),
+          id,
+          normalizedText,
+          compiledFormula,
+          ranges,
+          {
+            ...options,
+            format,
+          }
+        );
+      } catch (error) {
+        return new InvalidFormulaCell(id, content, error.message || DEFAULT_ERROR_MESSAGE, options);
+      }
+    } else if (content === "") {
+      return new EmptyCell(id, options);
+    } else if (isNumber(content)) {
+      if (!options.format && content.includes("%")) {
+        options.format = content.includes(".") ? "0.00%" : "0%";
+      }
+      return new NumberCell(id, parseNumber(content), options);
+    } else if (isBoolean(content)) {
+      return new BooleanCell(id, content.toUpperCase() === "TRUE" ? true : false, options);
+    } else if (isDateTime(content)) {
+      const internalDate = parseDateTime(content)!;
+      const format = options.format || internalDate.format;
+      return new DateTimeCell(id, internalDate.value, { ...options, format });
+    } else {
+      return new TextCell(id, content, options);
+    }
+  }
 
-  private computeFormulaFormat(cell: FormulaCell): string {
-    const dependenciesFormat = cell.formula.compiledFormula.dependenciesFormat;
-    const dependencies = cell.dependencies;
+  NULL_FORMAT = undefined;
 
+  private computeFormulaFormat(
+    compiledFormula: CompiledFormula,
+    dependencies: Range[]
+  ): string | undefined {
+    const dependenciesFormat = compiledFormula.dependenciesFormat;
     for (let dependencyFormat of dependenciesFormat) {
       switch (typeof dependencyFormat) {
         case "string":
