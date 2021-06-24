@@ -75,7 +75,7 @@ export class RendererPlugin extends UIPlugin {
     "getEdgeScrollCol",
     "getEdgeScrollRow",
   ];
-  static modes: Mode[] = ["normal", "readonly"];
+  static modes: Mode[] = ["normal"];
 
   private boxes: Box[] = [];
 

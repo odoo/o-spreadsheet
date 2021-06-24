@@ -305,18 +305,27 @@ export class Spreadsheet extends Component<Props> {
   }
 
   onTopBarComposerFocused(ev: ComposerFocusedEvent) {
+    if (this.model.getters.isReadonly()) {
+      return;
+    }
     this.composer.topBarFocus = "contentFocus";
     this.composer.gridFocusMode = "inactive";
     this.setComposerContent(ev.detail || {});
   }
 
   onGridComposerContentFocused(ev: ComposerFocusedEvent) {
+    if (this.model.getters.isReadonly()) {
+      return;
+    }
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "contentFocus";
     this.setComposerContent(ev.detail || {});
   }
 
   onGridComposerCellFocused(ev: ComposerFocusedEvent) {
+    if (this.model.getters.isReadonly()) {
+      return;
+    }
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "cellFocus";
     this.setComposerContent(ev.detail || {});

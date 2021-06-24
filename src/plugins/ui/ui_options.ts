@@ -3,7 +3,7 @@ import { Command } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 export class UIOptionsPlugin extends UIPlugin {
-  static modes: Mode[] = ["normal", "readonly"];
+  static modes: Mode[] = ["normal"];
   static getters = ["shouldShowFormulas"];
   private showFormulas: boolean = false;
 

@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { DEFAULT_FONT_SIZE } from "../constants";
+import { BACKGROUND_HEADER_COLOR, DEFAULT_FONT_SIZE } from "../constants";
 import { fontSizes } from "../fonts";
 import { isEqual } from "../helpers/index";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../registries/index";
@@ -73,7 +73,12 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       <!-- Toolbar and Cell Content -->
       <div class="o-topbar-toolbar">
         <!-- Toolbar -->
-        <div class="o-toolbar-tools">
+        <div t-if="getters.isReadonly()" class="o-readonly-toolbar text-muted">
+          <span>
+            <i class="fa fa-eye" /> <t t-esc="env._t('Readonly Access')" />
+          </span>
+        </div>
+        <div t-else="" class="o-toolbar-tools">
           <div class="o-tool" title="Undo" t-att-class="{'o-disabled': !undoTool}" t-on-click="undo" >${icons.UNDO_ICON}</div>
           <div class="o-tool" t-att-class="{'o-disabled': !redoTool}" title="Redo"  t-on-click="redo">${icons.REDO_ICON}</div>
           <div class="o-tool" title="Paint Format" t-att-class="{active:paintFormatTool}" t-on-click="paintFormat">${icons.PAINT_FORMAT_ICON}</div>
@@ -193,8 +198,12 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
         border-bottom: 1px solid #e0e2e4;
         display: flex;
 
-        .o-composer-container {
-          height: 34px;
+        .o-readonly-toolbar {
+          display: flex;
+          align-items: center;
+          background-color: ${BACKGROUND_HEADER_COLOR};
+          padding-left: 18px;
+          padding-right: 18px;
         }
 
         /* Toolbar */
@@ -352,6 +361,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   menuRef = useRef("menuRef");
   composerStyle = `
     line-height: 34px;
+    height: 34px;
     border-bottom: 1px solid #e0e2e4;
     border-left: 1px solid #e0e2e4;
     background-color: white;

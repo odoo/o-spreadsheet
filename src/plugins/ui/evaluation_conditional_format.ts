@@ -26,7 +26,7 @@ import { UIPlugin } from "../ui_plugin";
 
 export class EvaluationConditionalFormatPlugin extends UIPlugin {
   static getters = ["getConditionalStyle", "getConditionalIcon"];
-  static modes: Mode[] = ["normal", "readonly"];
+  static modes: Mode[] = ["normal"];
   private isStale: boolean = true;
   // stores the computed styles in the format of computedStyles.sheetName[col][row] = Style
   private computedStyles: { [sheet: string]: { [col: number]: (Style | undefined)[] } } = {};

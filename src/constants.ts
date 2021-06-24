@@ -14,6 +14,7 @@ export const SELECTION_BORDER_COLOR = "#3266ca";
 export const HEADER_BORDER_COLOR = "#C0C0C0";
 export const CELL_BORDER_COLOR = "#E2E3E3";
 export const BACKGROUND_CHART_COLOR = "#FFFFFF";
+export const MENU_ITEM_DISABLED_COLOR = "#CACACA";
 
 // Dimensions
 export const MIN_ROW_HEIGHT = 10;

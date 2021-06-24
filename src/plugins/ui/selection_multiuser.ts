@@ -30,7 +30,7 @@ interface ClientToDisplay extends Required<Client> {
 export class SelectionMultiUserPlugin extends UIPlugin {
   static getters = ["getClientsToDisplay"];
   static layers = [LAYERS.Selection];
-  static modes: Mode[] = ["normal", "readonly"];
+  static modes: Mode[] = ["normal"];
   private availableColors = new Set(colors);
   private colors: Record<UID, string> = {};
 

@@ -18,7 +18,7 @@ export interface RangeInputValue {
  * This plugin handles this internal state.
  */
 export class SelectionInputPlugin extends UIPlugin {
-  static modes: Mode[] = ["normal", "readonly"];
+  static modes: Mode[] = ["normal"];
   static layers = [LAYERS.Highlights];
   static getters = ["getSelectionInput", "getSelectionInputValue", "isRangeValid"];
 

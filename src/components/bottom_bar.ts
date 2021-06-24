@@ -14,7 +14,7 @@ const { useState } = owl.hooks;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-bottom-bar">
-    <div class="o-sheet-item o-add-sheet" t-on-click="addSheet">${PLUS}</div>
+    <div class="o-sheet-item o-add-sheet" t-att-class="{'disabled': getters.isReadonly()}" t-on-click="addSheet">${PLUS}</div>
     <div class="o-sheet-item o-list-sheets" t-on-click="listSheets">${LIST}</div>
     <div class="o-all-sheets">
       <t t-foreach="getters.getSheets()" t-as="sheet" t-key="sheet.id">
@@ -49,6 +49,10 @@ const CSS = css/* scss */ `
     .o-add-sheet,
     .o-list-sheets {
       margin-right: 5px;
+    }
+
+    .o-add-sheet.disabled {
+      cursor: not-allowed;
     }
 
     .o-sheet-item {

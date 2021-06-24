@@ -22,7 +22,7 @@ import {
 
 export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
   static getters: string[] = [];
-  static modes: Mode[] = ["headless", "normal", "readonly"];
+  static modes: Mode[] = ["headless", "normal"];
 
   protected history: WorkbookHistory<State>;
   protected dispatch: CommandDispatcher["dispatch"];

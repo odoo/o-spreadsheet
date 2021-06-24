@@ -19,7 +19,7 @@ import { UIPlugin } from "../ui_plugin";
 
 export class EvaluationChartPlugin extends UIPlugin {
   static getters = ["getChartRuntime"];
-  static modes: Mode[] = ["normal", "readonly"];
+  static modes: Mode[] = ["normal"];
   // contains the configuration of the chart with it's values like they should be displayed,
   // as well as all the options needed for the chart library to work correctly
   readonly chartRuntime: { [figureId: string]: ChartConfiguration } = {};
