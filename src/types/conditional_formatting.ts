@@ -20,20 +20,20 @@ export interface ConditionalFormatInternal extends Omit<ConditionalFormat, "rang
 }
 
 export type ConditionalFormatRule = SingleColorRules | ColorScaleRule | IconSetRule; //| DataBarRule |;
-export type SingleColorRules =
-  | CellIsRule
-  | ExpressionRule
-  | ContainsTextRule
-  | NotContainsTextRule
-  | BeginsWithRule
-  | EndsWithRule
-  | containsBlanksRule
-  | notContainsBlanksRule
-  | containsErrorsRule
-  | notContainsErrorsRule
-  | TimePeriodRule
-  | AboveAverageRule
-  | Top10Rule;
+export type SingleColorRules = CellIsRule;
+// not implemented
+// | ExpressionRule
+// | ContainsTextRule
+// | NotContainsTextRule
+// | BeginsWithRule
+// | EndsWithRule
+// | containsBlanksRule
+// | notContainsBlanksRule
+// | containsErrorsRule
+// | notContainsErrorsRule
+// | TimePeriodRule
+// | AboveAverageRule
+// | Top10Rule;
 
 export interface SingleColorRule {
   style: Style;

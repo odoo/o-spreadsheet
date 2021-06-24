@@ -69,7 +69,12 @@ export const DEBOUNCE_TIME = 200;
 
 export const MESSAGE_VERSION = 1;
 
+export const LOADING = "Loading...";
+
 export const DEFAULT_ERROR_MESSAGE = _lt("Invalid expression");
 
 export const FORBIDDEN_SHEET_CHARS = ["'", "*", "?", "/", "\\", "[", "]"] as const;
 export const FORBIDDEN_IN_EXCEL_REGEX = /'|\*|\?|\/|\\|\[|\]/;
+
+// Cells
+export const NULL_FORMAT = undefined;

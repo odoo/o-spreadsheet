@@ -297,6 +297,17 @@ describe("Composer interactions", () => {
     expect(topBarComposer!.textContent).toBe("Hello");
   });
 
+  test("top bar composer displays formatted date cell content", async () => {
+    setCellContent(parent.model, "A2", "10/10/2021");
+    selectCell(parent.model, "A2");
+    await nextTick();
+    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
+    expect(topBarComposer!.textContent).toBe("10/10/2021");
+    // Focus top bar composer
+    triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
+    expect(topBarComposer!.textContent).toBe("10/10/2021");
+  });
+
   test("autocomplete disapear when grid composer is blured", async () => {
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "Enter", bubbles: true })

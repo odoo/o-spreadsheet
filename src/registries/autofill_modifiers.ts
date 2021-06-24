@@ -1,8 +1,8 @@
+import { isFormula } from "../helpers/cells";
 import { Registry } from "../registry";
 import {
   AutofillData,
   AutofillModifierImplementation,
-  CellType,
   CopyModifier,
   DIRECTION,
   FormulaModifier,
@@ -35,7 +35,7 @@ autofillModifiersRegistry
   })
   .add("COPY_MODIFIER", {
     apply: (rule: CopyModifier, data: AutofillData, getters: Getters) => {
-      const content = (data.cell && getters.getCellText(data.cell, data.sheetId)) || "";
+      const content = data.cell?.formattedValue || "";
       return {
         cellData: {
           border: data.border,
@@ -70,12 +70,12 @@ autofillModifiersRegistry
           y = 0;
           break;
       }
-      if (!data.cell || data.cell.type !== CellType.formula) {
+      if (!data.cell || !isFormula(data.cell)) {
         return { cellData: {} };
       }
       const sheetId = data.sheetId;
       const ranges = getters.createAdaptedRanges(data.cell.dependencies, x, y, sheetId);
-      const content = getters.buildFormulaContent(sheetId, data.cell.formula.text, ranges);
+      const content = getters.buildFormulaContent(sheetId, data.cell.normalizedText, ranges);
       return {
         cellData: {
           border: data.border,

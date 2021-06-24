@@ -471,10 +471,10 @@ describe("datasource tests", function () {
     );
     const newModel = new Model(model.exportData());
     let chart = newModel.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     setCellContent(newModel, "B2", "99");
     chart = newModel.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual(["99", "11", "12"]);
+    expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
   });
 
   test("update existing chart", () => {
@@ -489,7 +489,7 @@ describe("datasource tests", function () {
       "1"
     );
     let chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.type).toEqual("line");
     updateChart(model, "1", {
       dataSets: ["Sheet1!A8:D8", "Sheet1!A9:D9"],
@@ -535,8 +535,8 @@ describe("datasource tests", function () {
       title: "hello1",
       type: "bar",
     });
-    expect(chart.data!.datasets![0].data).toEqual(["30", "31", "32"]);
-    expect(chart.data!.datasets![1].data).toEqual(["40", "41", "42"]);
+    expect(chart.data!.datasets![0].data).toEqual([30, 31, 32]);
+    expect(chart.data!.datasets![1].data).toEqual([40, 41, 42]);
     expect(chart.type).toEqual("bar");
   });
 
@@ -602,7 +602,7 @@ describe("datasource tests", function () {
     );
     deleteColumns(model, ["B"]);
     const chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual(["20", "19", "18"]);
+    expect(chart.data!.datasets![0].data).toEqual([20, 19, 18]);
     expect(chart.data!.datasets![1]).toBe(undefined);
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
   });
@@ -621,8 +621,8 @@ describe("datasource tests", function () {
     // dataset in col B becomes labels in col A
     expect(model.getters.getChartRuntime("1")!.data!.labels).toEqual([]);
     const chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
-    expect(chart.data!.datasets![1].data).toEqual(["20", "19", "18"]);
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
     expect(chart.data!.labels).toEqual([]);
   });
 
@@ -639,8 +639,8 @@ describe("datasource tests", function () {
     );
     deleteRows(model, [4]);
     const chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
-    expect(chart.data!.datasets![1].data).toEqual(["20", "19", "18"]);
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
   });
 
@@ -657,7 +657,7 @@ describe("datasource tests", function () {
     );
     deleteColumns(model, ["C"]);
     const chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12", "13"]);
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13]);
     expect(chart.data!.datasets![1]).toBeUndefined();
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
@@ -675,8 +675,8 @@ describe("datasource tests", function () {
     );
     addRows(model, "before", 2, 1);
     const chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual(["10", undefined, "11", "12", "13"]);
-    expect(chart.data!.datasets![1].data).toEqual(["20", undefined, "19", "18", "17"]);
+    expect(chart.data!.datasets![0].data).toEqual([10, undefined, 11, 12, 13]);
+    expect(chart.data!.datasets![1].data).toEqual([20, undefined, 19, 18, 17]);
     expect(chart.data!.labels).toEqual(["P1", "", "P2", "P3", "P4"]);
   });
 
@@ -727,12 +727,12 @@ describe("datasource tests", function () {
       "1"
     );
     let chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![0].label).toEqual("first column dataset");
     setCellContent(model, "B2", "99");
     setCellContent(model, "B1", "new dataset label");
     chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual(["99", "11", "12"]);
+    expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
     expect(chart.data!.datasets![0].label).toEqual("new dataset label");
   });
 
@@ -820,7 +820,7 @@ describe("datasource tests", function () {
       title: "test",
       type: "bar",
     });
-    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.type).toEqual("bar");
   });
 
@@ -924,8 +924,8 @@ describe("datasource tests", function () {
       dataSetsHaveTitle: true,
     });
     const chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12", "13"]);
-    expect(chart.data!.datasets![1].data).toEqual(["20", "19", "18", "17"]);
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13]);
+    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18, 17]);
   });
   test("extend data set labels to new values manually", () => {
     createChart(
@@ -1010,8 +1010,8 @@ describe("multiple sheets", function () {
     );
     const chart = model.getters.getChartRuntime("1")!;
     const chartDefinition = model.getters.getChartDefinition("1");
-    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
-    expect(chart.data!.datasets![1].data).toEqual(["20", "19", "18"]);
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
     expect(chartDefinition).toMatchObject({
       dataSets: [
         {
@@ -1084,7 +1084,7 @@ describe("multiple sheets", function () {
     });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
     const chart = model.getters.getChartRuntime("28")!;
-    expect(chart.data!.datasets![0].data).toEqual(["99", "11", "12"]);
+    expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
   });
   test("change dataset label then activate the chart sheet (it should be up-to-date)", () => {
     createSheet(model, { sheetId: "42", activate: true });
@@ -1119,8 +1119,8 @@ describe("multiple sheets", function () {
     );
     const chart = model.getters.getChartRuntime("28")!;
     const chartDefinition = model.getters.getChartDefinition("28");
-    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
-    expect(chart.data!.datasets![1].data).toEqual(["20", "19", "18"]);
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
     expect(chartDefinition).toMatchObject({
       dataSets: [
         {
@@ -1194,7 +1194,7 @@ describe("multiple sheets", function () {
     });
     test("new model with chart with formulas from another sheet (not evaluated yet)", () => {
       const chart = model.getters.getChartRuntime("1")!;
-      expect(chart.data!.datasets![0].data).toEqual(["2", "4"]);
+      expect(chart.data!.datasets![0].data).toEqual([2, 4]);
     });
     test("refresh chart to update it with new data", () => {
       model.dispatch("UPDATE_CELL", {
@@ -1204,11 +1204,11 @@ describe("multiple sheets", function () {
         content: "=Sheet1!B1*3",
       });
       let chart = model.getters.getChartRuntime("1")!;
-      expect(chart.data!.datasets![0].data).toEqual(["", "4"]); // data has not been updated :(
+      expect(chart.data!.datasets![0].data).toEqual(["Loading...", 4]); // data has not been updated :(
 
       model.dispatch("REFRESH_CHART", { id: "1" });
       chart = model.getters.getChartRuntime("1")!;
-      expect(chart.data!.datasets![0].data).toEqual(["3", "4"]);
+      expect(chart.data!.datasets![0].data).toEqual([3, 4]);
 
       model.dispatch("UPDATE_CELL", {
         sheetId: "Sheet1",
@@ -1217,11 +1217,11 @@ describe("multiple sheets", function () {
         content: "5",
       });
       chart = model.getters.getChartRuntime("1")!;
-      expect(chart.data!.datasets![0].data).toEqual(["3", "4"]); // data has not been updated :(
+      expect(chart.data!.datasets![0].data).toEqual([3, 4]); // data has not been updated :(
 
       model.dispatch("REFRESH_CHART", { id: "1" });
       chart = model.getters.getChartRuntime("1")!;
-      expect(chart.data!.datasets![0].data).toEqual(["3", "10"]);
+      expect(chart.data!.datasets![0].data).toEqual([3, 10]);
     });
   });
 
@@ -1265,16 +1265,16 @@ describe("undo/redo", () => {
       "27"
     );
     let chart = model.getters.getChartRuntime("27")!;
-    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     setCellContent(model, "B2", "99");
     chart = model.getters.getChartRuntime("27")!;
-    expect(chart.data!.datasets![0].data).toEqual(["99", "11", "12"]);
+    expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
     undo(model);
     chart = model.getters.getChartRuntime("27")!;
-    expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     redo(model);
     chart = model.getters.getChartRuntime("27")!;
-    expect(chart.data!.datasets![0].data).toEqual(["99", "11", "12"]);
+    expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
   });
 });
 

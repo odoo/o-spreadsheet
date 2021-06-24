@@ -1,6 +1,4 @@
-import { DATETIME_FORMAT } from "../../constants";
 import { composerTokenize, EnrichedToken, rangeReference } from "../../formulas/index";
-import { formatDateTime } from "../../functions/dates";
 import {
   colors,
   getComposerSheetName,
@@ -11,8 +9,6 @@ import { Mode } from "../../model";
 import { _lt } from "../../translation";
 import {
   AddColumnsRowsCommand,
-  Cell,
-  CellType,
   Command,
   CommandResult,
   LAYERS,
@@ -79,7 +75,7 @@ export class EditionPlugin extends UIPlugin {
       case "START_EDITION":
         if (cmd.selection) {
           const cell = this.getters.getActiveCell();
-          const content = cmd.text || (cell && this.getCellContent(cell)) || "";
+          const content = cmd.text || cell?.composerContent || "";
           return this.validateSelection(content.length, cmd.selection.start, cmd.selection.end);
         } else {
           return CommandResult.Success;
@@ -101,9 +97,6 @@ export class EditionPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "START":
-        this.setActiveContent();
-        break;
       case "CHANGE_COMPOSER_CURSOR_SELECTION":
         this.selectionStart = cmd.start;
         this.selectionEnd = cmd.end;
@@ -134,11 +127,6 @@ export class EditionPlugin extends UIPlugin {
       case "REPLACE_COMPOSER_CURSOR_SELECTION":
         this.replaceSelection(cmd.text);
         break;
-      case "ACTIVATE_SHEET":
-        if (this.mode === "inactive") {
-          this.setActiveContent();
-        }
-        break;
       case "SELECT_FIGURE":
         this.cancelEdition();
         this.resetContent();
@@ -151,7 +139,7 @@ export class EditionPlugin extends UIPlugin {
             this.dispatch("STOP_EDITION");
             break;
           case "inactive":
-            this.setActiveContent();
+            // this.setActiveContent();
             break;
           case "waitingForRangeSelection":
             this.insertSelectedRange();
@@ -211,8 +199,7 @@ export class EditionPlugin extends UIPlugin {
   getCurrentContent(): string {
     if (this.mode === "inactive") {
       const cell = this.getters.getActiveCell();
-      const activeSheetId = this.getters.getActiveSheetId();
-      return cell ? this.getters.getCellText(cell, activeSheetId, true) : "";
+      return cell?.composerContent || "";
     }
     return this.currentContent;
   }
@@ -326,22 +313,6 @@ export class EditionPlugin extends UIPlugin {
     this.multiSelectionInitialStart = this.selectionStart;
   }
 
-  private getCellContent(cell: Cell) {
-    switch (cell.type) {
-      case CellType.formula:
-        return this.getters.getFormulaCellContent(this.getters.getActiveSheetId(), cell);
-      case CellType.empty:
-        return "";
-      case CellType.number:
-        return cell.format?.match(DATETIME_FORMAT)
-          ? formatDateTime({ value: (cell.value || 0) as number, format: cell.format! })
-          : cell.content;
-      case CellType.text:
-      case CellType.invalidFormula:
-        return cell.content;
-    }
-  }
-
   /**
    * start the edition of a cell
    * @param str the key that is used to start the edition if it is a "content" key like a letter or number
@@ -350,7 +321,7 @@ export class EditionPlugin extends UIPlugin {
    */
   private startEdition(str?: string, selection?: ComposerSelection) {
     const cell = this.getters.getActiveCell();
-    this.initialContent = (cell && this.getCellContent(cell)) || "";
+    this.initialContent = cell?.composerContent || "";
     this.mode = "editing";
     const [col, row] = this.getters.getPosition();
     this.col = col;
@@ -543,24 +514,6 @@ export class EditionPlugin extends UIPlugin {
     if (Object.keys(ranges).length) {
       this.dispatch("ADD_HIGHLIGHTS", { ranges });
     }
-  }
-
-  private setActiveContent() {
-    const sheetId = this.getters.getActiveSheetId();
-    const [mainCellCol, mainCellRow] = this.getters.getMainCell(
-      sheetId,
-      ...this.getters.getPosition()
-    );
-    const anchor = this.getters.getCell(this.getters.getActiveSheetId(), mainCellCol, mainCellRow);
-    if (anchor) {
-      const { col, row } = this.getters.getCellPosition(anchor.id);
-      this.col = col;
-      this.row = row;
-    }
-    const content = anchor ? this.getters.getCellText(anchor, sheetId, true) : "";
-    this.dispatch("SET_CURRENT_CONTENT", {
-      content,
-    });
   }
 
   /**

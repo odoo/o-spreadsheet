@@ -16,6 +16,7 @@ import { StateObserver } from "../../state_observer";
 import {
   AddColumnsRowsCommand,
   Cell,
+  CellValueType,
   ClientPosition,
   Command,
   CommandDispatcher,
@@ -391,9 +392,9 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
         }
         for (let col = zone.left; col <= zone.right; col++) {
           const cell = r.cells[col];
-          if (cell && cell.type !== "text" && !cell.error && typeof cell.value === "number") {
+          if (cell?.evaluated.type === CellValueType.number) {
             n++;
-            aggregate += cell.value;
+            aggregate += cell.evaluated.value;
           }
         }
       }

@@ -1,9 +1,9 @@
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
 import { normalize } from "../../src/formulas";
-import { parseDateTime } from "../../src/functions/dates";
+import { parseDateTime } from "../../src/helpers/dates";
 import { toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { CellType, CommandResult, UID } from "../../src/types";
+import { CellValueType, CommandResult, UID } from "../../src/types";
 import { redo, setCellContent, undo } from "../test_helpers/commands_helpers";
 import { target } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -16,7 +16,11 @@ function getCellsObject(model: Model, sheetId: UID) {
   for (let cell of Object.values(model.getters.getCells(sheetId))) {
     const { col, row } = model.getters.getCellPosition(cell.id);
     cell = model.getters.getCell(sheetId, col, row)!;
-    cells[toXC(col, row)] = cell;
+    cells[toXC(col, row)] = {
+      ...cell,
+      value: cell.evaluated.value,
+      content: cell.content,
+    };
   }
   return cells;
 }
@@ -24,7 +28,7 @@ function getCellsObject(model: Model, sheetId: UID) {
 function cellFormula(formula: string) {
   const normalizedFormula = normalize(formula);
   return {
-    formula: { text: normalizedFormula.text },
+    normalizedText: normalizedFormula.text,
     dependencies: normalizedFormula.dependencies.map((elem) => ({
       zone: toZone(elem),
     })),
@@ -185,10 +189,10 @@ describe("Basic Sorting", () => {
     expect(getCellsObject(model, sheetId)).toMatchObject({
       C1: cellFormula("=SUM(A1, A2)"),
       C2: cellFormula("=A4*10"),
-      C3: { content: "=BADBUNNY", type: CellType.invalidFormula },
+      C3: { content: "=BADBUNNY", evaluated: { type: CellValueType.error } },
       C4: {
         content: `=${INCORRECT_RANGE_STRING}/${INCORRECT_RANGE_STRING}`,
-        type: CellType.invalidFormula,
+        evaluated: { type: CellValueType.error },
       },
       C5: cellFormula('=CONCAT("ki", "kou")'),
       C6: cellFormula("=EQ(A4, 4)"),
@@ -230,10 +234,10 @@ describe("Basic Sorting", () => {
       A3: { content: `=SUM(4, ${INCORRECT_RANGE_STRING})` },
       A4: cellFormula("=DATE(2012, 12, 21)"),
       A5: { value: parseDateTime("2020/09/01")!.value },
-      A6: { content: "=BADBUNNY", type: CellType.invalidFormula },
+      A6: { content: "=BADBUNNY", evaluated: { type: CellValueType.error } },
       A7: {
         content: `=${INCORRECT_RANGE_STRING}/${INCORRECT_RANGE_STRING}`,
-        type: CellType.invalidFormula,
+        evaluated: { type: CellValueType.error },
       },
       A8: { content: "Kills" },
       A9: { content: "Machette" },
@@ -259,10 +263,10 @@ describe("Basic Sorting", () => {
       A3: { content: `=SUM(4, ${INCORRECT_RANGE_STRING})` },
       A4: cellFormula("=DATE(2012, 12, 21)"),
       A5: { value: parseDateTime("2020/09/01")!.value },
-      A6: { content: "=BADBUNNY", type: CellType.invalidFormula },
+      A6: { content: "=BADBUNNY", evaluated: { type: CellValueType.error } },
       A7: {
         content: `=${INCORRECT_RANGE_STRING}/${INCORRECT_RANGE_STRING}`,
-        type: CellType.invalidFormula,
+        evaluated: { type: CellValueType.error },
       },
       A8: { content: "Kills" },
       A9: { content: "Machette" },

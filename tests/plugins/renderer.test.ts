@@ -457,7 +457,7 @@ describe("renderer", () => {
 
     // 1 center for headers, 1 for cell content
     expect(textAligns).toEqual(["left", "center"]);
-    expect(getCellTextMock).toHaveBeenLastCalledWith(expect.objectContaining({}), "Sheet1", true);
+    expect(getCellTextMock).toHaveBeenLastCalledWith(expect.objectContaining({}), true);
   });
   test("CF on empty cell", () => {
     const model = new Model({
@@ -538,7 +538,7 @@ describe("renderer", () => {
     ]);
   });
 
-  test("Overflowing left-aligned text is correctly clipped", () => {
+  test("Overflowing right-aligned text is correctly clipped", () => {
     const overflowingText = "I am a very long text";
     let box: Box;
     const model = new Model({

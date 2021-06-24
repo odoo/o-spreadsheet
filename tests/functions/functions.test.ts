@@ -35,7 +35,7 @@ describe("addFunction", () => {
       returns: ["STRING"],
     });
     setCellContent(model, "A1", "=GETCOUCOU()");
-    expect(getCell(model, "A1")!.value).toBe("Raoul");
+    expect(getCell(model, "A1")!.evaluated.value).toBe("Raoul");
   });
 
   test("Can use a getter in a function", () => {

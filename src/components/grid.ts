@@ -12,7 +12,7 @@ import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
-import { Client, SpreadsheetEnv, Viewport } from "../types/index";
+import { CellValueType, Client, SpreadsheetEnv, Viewport } from "../types/index";
 import { Autofill } from "./autofill";
 import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
@@ -286,7 +286,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     const [mainCol, mainRow] = this.getters.getMainCell(sheetId, col, row);
     const cell = this.getters.getCell(sheetId, mainCol, mainRow);
 
-    if (cell && cell.error) {
+    if (cell && cell.evaluated.type === CellValueType.error) {
       const viewport = this.getters.getActiveSnappedViewport();
       const { width: viewportWidth, height: viewportHeight } = this.getters.getViewportDimension();
       const [x, y, width, height] = this.getters.getRect(
@@ -300,7 +300,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       return {
         isOpen: true,
         style: `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`,
-        text: cell.error,
+        text: cell.evaluated.error,
       };
     }
     return { isOpen: false };
