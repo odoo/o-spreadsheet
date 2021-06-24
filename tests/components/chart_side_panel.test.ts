@@ -18,6 +18,7 @@ class Parent extends Component<any, SpreadsheetEnv> {
     useSubEnv({
       dispatch: model.dispatch,
       getters: model.getters,
+      uuidGenerator: model.uuidGenerator,
       _t: (s: string): string => s,
     });
   }
@@ -53,7 +54,7 @@ describe("Chart sidepanel component", () => {
     await nextTick();
     setInputValueAndTrigger(".o-data-labels input", "A2:A10", "change");
     await nextTick();
-    mockUuidV4To(42);
+    mockUuidV4To(model, 42);
     parent.env.dispatch = jest.fn(() => CommandResult.Success);
     await simulateClick(".o-sidePanelButton");
     await nextTick();

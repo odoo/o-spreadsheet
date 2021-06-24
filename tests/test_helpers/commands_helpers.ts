@@ -1,4 +1,4 @@
-import { lettersToNumber, toCartesian, toZone, uuidv4 } from "../../src/helpers/index";
+import { lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { BorderCommand, CommandResult, CreateSheetCommand, UID } from "../../src/types";
 import { target } from "./helpers";
@@ -33,7 +33,7 @@ export function createSheet(
   model: Model,
   data: Partial<CreateSheetCommand & { activate: boolean }>
 ) {
-  const sheetId = data.sheetId || uuidv4();
+  const sheetId = data.sheetId || model.uuidGenerator.uuidv4();
   const result = model.dispatch("CREATE_SHEET", {
     position: data.position !== undefined ? data.position : 1,
     sheetId,
@@ -84,7 +84,7 @@ export function createChart(
   chartId?: string,
   sheetId?: string
 ) {
-  const id = chartId || uuidv4();
+  const id = chartId || model.uuidGenerator.uuidv4();
   const title = data.title || "test";
   sheetId = sheetId || model.getters.getActiveSheetId();
   const dataSetsHaveTitle = data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true;

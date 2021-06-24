@@ -1,5 +1,5 @@
 import { rangeReference } from "../../formulas/parser";
-import { uuidv4, zoneToDimension, zoneToXc } from "../../helpers/index";
+import { zoneToDimension, zoneToXc } from "../../helpers/index";
 import {
   ApplyRangeChange,
   ChartDefinition,
@@ -155,7 +155,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
         for (const fig of sheetFiguresFrom) {
           if (fig.tag === "chart") {
-            const id = uuidv4();
+            const id = this.uuidGenerator.uuidv4();
             const chartDefinition = { ...this.chartFigures[fig.id], id };
             this.dispatch("CREATE_FIGURE", {
               sheetId: cmd.sheetIdTo,

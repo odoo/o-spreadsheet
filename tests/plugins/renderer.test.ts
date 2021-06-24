@@ -3,7 +3,7 @@ import { Model } from "../../src/model";
 import { CommandResult, GridRenderingContext, Viewport } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import { merge, setCellContent } from "../test_helpers/commands_helpers";
-import { createEqualCF, mockUuidV4To } from "../test_helpers/helpers";
+import { createEqualCF } from "../test_helpers/helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {
   return { width: 100 };
@@ -54,9 +54,6 @@ class MockGridRenderingContext implements GridRenderingContext {
   }
 }
 
-beforeEach(() => {
-  mockUuidV4To(1);
-});
 describe("renderer", () => {
   test("snapshot for a simple grid rendering", () => {
     const model = new Model();

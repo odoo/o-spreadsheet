@@ -1,4 +1,4 @@
-import { uuidv4 } from "../src/helpers";
+import { UuidGenerator } from "../src/helpers";
 import { SelectiveHistory } from "../src/history/selective_history";
 import { UID } from "../src/types";
 
@@ -30,6 +30,8 @@ function undoTransformation(toTransform: Command, cancelled: Command): Command {
 class MiniEditor {
   private revisionIds: Set<UID> = new Set();
   private state = "";
+  private uuidGenerator = new UuidGenerator();
+
   private undoTransformation: (toTransform: Command, cancelled: Command) => Command;
   private redoTransformation: (toTransform: Command, cancelled: Command) => Command;
 
@@ -107,12 +109,12 @@ class MiniEditor {
     this.history.append(commandId, command);
   }
 
-  undo(commandId: UID, undoId: UID = uuidv4()) {
+  undo(commandId: UID, undoId: UID = this.uuidGenerator.uuidv4()) {
     this.revisionIds.add(undoId);
     this.history.undo(commandId, undoId);
   }
 
-  redo(commandId: UID, redoId: UID = uuidv4()) {
+  redo(commandId: UID, redoId: UID = this.uuidGenerator.uuidv4()) {
     this.revisionIds.add(redoId);
     this.history.redo(commandId, redoId);
   }

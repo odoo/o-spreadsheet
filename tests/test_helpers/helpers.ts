@@ -22,7 +22,6 @@ import {
 import { XLSXExport } from "../../src/types/xlsx";
 import { redo, setCellContent, undo } from "./commands_helpers";
 import { getCell, getCellContent } from "./getters_helpers";
-export { setNextId as mockUuidV4To } from "../__mocks__/uuid";
 
 const functions = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
@@ -123,6 +122,7 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
       getters: model.getters,
       _t: GridParent._t,
       clipboard: new MockClipboard(),
+      uuidGenerator: model.uuidGenerator,
     });
 
     const drawGrid = model.drawGrid;
@@ -496,4 +496,9 @@ export async function exportPrettifiedXlsx(model: Model): Promise<XLSXExport> {
     ...xlsxExport,
     files: xlsxExport.files.map((file) => ({ ...file, content: format(file.content) })),
   };
+}
+
+export function mockUuidV4To(model: Model, value: number | string) {
+  //@ts-ignore
+  return model.uuidGenerator.setNextId(value);
 }

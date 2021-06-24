@@ -137,6 +137,7 @@ export class Spreadsheet extends Component<Props> {
         this.toggleSidePanel(panel, panelProps),
       dispatch: this.model.dispatch,
       getters: this.model.getters,
+      uuidGenerator: this.model.uuidGenerator,
       _t: Spreadsheet._t,
       clipboard: navigator.clipboard,
       export: this.model.exportData.bind(this.model),

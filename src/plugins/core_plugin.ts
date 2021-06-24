@@ -1,3 +1,4 @@
+import { UuidGenerator } from "../helpers";
 import { Mode, ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
 import {
@@ -19,7 +20,8 @@ export interface CorePluginConstructor {
     stateObserver: StateObserver,
     range: RangeAdapter,
     dispatch: CoreCommandDispatcher["dispatch"],
-    config: ModelConfig
+    config: ModelConfig,
+    uuidGenerator: UuidGenerator
   ): CorePlugin;
   getters: string[];
   modes: Mode[];
@@ -36,18 +38,21 @@ export class CorePlugin<State = any, C = CoreCommand>
   implements RangeProvider {
   protected getters: CoreGetters;
   protected range: RangeAdapter;
+  protected uuidGenerator: UuidGenerator;
 
   constructor(
     getters: CoreGetters,
     stateObserver: StateObserver,
     range: RangeAdapter,
     protected dispatch: CoreCommandDispatcher["dispatch"],
-    config: ModelConfig
+    config: ModelConfig,
+    uuidGenerator: UuidGenerator
   ) {
     super(stateObserver, dispatch, config);
     this.range = range;
     range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;
+    this.uuidGenerator = uuidGenerator;
   }
 
   // ---------------------------------------------------------------------------

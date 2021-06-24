@@ -1,11 +1,13 @@
 import * as owl from "@odoo/owl";
-import { uuidv4 } from "../helpers/index";
+import { UuidGenerator } from "../helpers/index";
 import { RangeInputValue } from "../plugins/ui/selection_inputs";
 import { SpreadsheetEnv } from "../types";
 
 const { Component } = owl;
 
 const { xml, css } = owl.tags;
+
+const uuidGenerator = new UuidGenerator();
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-selection">
@@ -94,7 +96,7 @@ interface SelectionRange extends RangeInputValue {
 export class SelectionInput extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
-  private id = uuidv4();
+  private id = uuidGenerator.uuidv4();
   private previousRanges: string[] = this.props.ranges || [];
   private getters = this.env.getters;
   private dispatch = this.env.dispatch;
@@ -105,9 +107,9 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
     const ranges = existingSelectionRange.length
       ? existingSelectionRange
       : this.props.ranges
-      ? this.props.ranges.map((xc) => ({
+      ? this.props.ranges.map((xc, i) => ({
           xc,
-          id: uuidv4(),
+          id: i.toString(),
           isFocused: false,
         }))
       : [];
