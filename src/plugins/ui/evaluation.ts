@@ -35,7 +35,7 @@ type FormulaParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 
 export class EvaluationPlugin extends UIPlugin {
   static getters = ["evaluateFormula", "getRangeFormattedValues", "getRangeValues"];
-  static modes: Mode[] = ["normal", "readonly"];
+  static modes: Mode[] = ["normal"];
 
   private isUpToDate: Set<UID> = new Set(); // Set<sheetIds>
   private readonly evalContext: EvalContext;

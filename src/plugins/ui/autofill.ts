@@ -83,7 +83,7 @@ class AutofillGenerator {
 export class AutofillPlugin extends UIPlugin {
   static layers = [LAYERS.Autofill];
   static getters = ["getAutofillTooltip"];
-  static modes: Mode[] = ["normal", "readonly"];
+  static modes: Mode[] = ["normal"];
 
   private autofillZone: Zone | undefined;
   private lastCellSelected: { col?: number; row?: number } = {};

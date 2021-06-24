@@ -1,6 +1,7 @@
 import { Component, hooks, tags, useState } from "@odoo/owl";
 import {
   HEADER_HEIGHT,
+  MENU_ITEM_DISABLED_COLOR,
   MENU_ITEM_HEIGHT,
   MENU_SEPARATOR_BORDER_WIDTH,
   MENU_SEPARATOR_HEIGHT,
@@ -81,21 +82,9 @@ const CSS = css/* scss */ `
       text-overflow: ellipsis;
       cursor: pointer;
 
-      &:hover {
-        background-color: #ebebeb;
-      }
-
-      &.disabled {
-        color: grey;
-        cursor: not-allowed;
-      }
-
       &.o-menu-root {
         display: flex;
         justify-content: space-between;
-      }
-      .o-menu-item-shortcut {
-        color: grey;
       }
       .o-menu-item-icon {
         margin-top: auto;
@@ -103,6 +92,19 @@ const CSS = css/* scss */ `
       }
       .o-icon {
         width: 10px;
+      }
+
+      &:not(.disabled) {
+        &:hover {
+          background-color: #ebebeb;
+        }
+        .o-menu-item-shortcut {
+          color: grey;
+        }
+      }
+      &.disabled {
+        color: ${MENU_ITEM_DISABLED_COLOR};
+        cursor: not-allowed;
       }
     }
 

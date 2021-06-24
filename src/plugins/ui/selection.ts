@@ -67,7 +67,7 @@ interface SelectionPluginState {
  */
 export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   static layers = [LAYERS.Selection];
-  static modes: Mode[] = ["normal", "readonly"];
+  static modes: Mode[] = ["normal"];
   static getters = [
     "getActiveSheet",
     "getActiveSheetId",

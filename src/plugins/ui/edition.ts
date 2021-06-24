@@ -51,7 +51,7 @@ export class EditionPlugin extends UIPlugin {
     "getCurrentTokens",
     "getTokenAtCursor",
   ];
-  static modes: Mode[] = ["normal", "readonly"];
+  static modes: Mode[] = ["normal"];
 
   private col: number = 0;
   private row: number = 0;

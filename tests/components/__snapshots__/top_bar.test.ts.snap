@@ -370,6 +370,7 @@ exports[`TopBar component can set cell format 1`] = `
         spellcheck="false"
         style="
     line-height: 34px;
+    height: 34px;
     border-bottom: 1px solid #e0e2e4;
     border-left: 1px solid #e0e2e4;
     background-color: white;
@@ -711,6 +712,7 @@ exports[`TopBar component simple rendering 1`] = `
         spellcheck="false"
         style="
     line-height: 34px;
+    height: 34px;
     border-bottom: 1px solid #e0e2e4;
     border-left: 1px solid #e0e2e4;
     background-color: white;

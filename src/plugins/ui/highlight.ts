@@ -7,7 +7,7 @@ import { UIPlugin } from "../ui_plugin";
  * HighlightPlugin
  */
 export class HighlightPlugin extends UIPlugin {
-  static modes: Mode[] = ["normal", "readonly"];
+  static modes: Mode[] = ["normal"];
   static layers = [LAYERS.Highlights];
   static getters = ["getHighlights"];
   private highlights: Highlight[] = [];

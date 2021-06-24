@@ -1,4 +1,5 @@
 import * as owl from "@odoo/owl";
+import { BACKGROUND_HEADER_COLOR } from "../../constants";
 import { SidePanelContent, sidePanelRegistry } from "../../registries/side_panel_registry";
 import { SpreadsheetEnv } from "../../types";
 
@@ -30,7 +31,7 @@ const CSS = css/* scss */ `
     .o-sidePanelHeader {
       padding: 6px;
       height: 30px;
-      background-color: #f8f9fa;
+      background-color: ${BACKGROUND_HEADER_COLOR};
       display: flex;
       align-items: center;
       justify-content: space-between;

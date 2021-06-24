@@ -60,7 +60,7 @@ import { getXLSX } from "./xlsx/xlsx_writer";
  * programmatically a spreadsheet.
  */
 
-export type Mode = "normal" | "headless" | "readonly";
+export type Mode = "normal" | "headless";
 export interface ModelConfig {
   mode: Mode;
   openSidePanel: (panel: string, panelProps?: any) => void;
@@ -301,7 +301,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       client,
       moveClient: () => {},
       isHeadless: config.mode === "headless" || false,
-      isReadonly: config.mode === "readonly" || false,
+      isReadonly: config.isReadonly || false,
       snapshotRequested: false,
       dataSources: this.dataSources,
     };

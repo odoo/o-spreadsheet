@@ -1,37 +1,53 @@
-import { Component, hooks, tags } from "@odoo/owl";
+import { Component, hooks, tags, useState } from "@odoo/owl";
 import { TopBar } from "../../src/components/top_bar";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { topbarComponentRegistry } from "../../src/registries";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
-import { ConditionalFormat } from "../../src/types";
+import { ConditionalFormat, SpreadsheetEnv } from "../../src/types";
 import { selectCell, setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getBorder, getCell } from "../test_helpers/getters_helpers";
-import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
+import { GridParent, makeTestFixture, nextTick, typeInComposer } from "../test_helpers/helpers";
+
+jest.mock("../../src/components/composer/content_editable_helper", () =>
+  require("./__mocks__/content_editable_helper")
+);
 
 const { xml } = tags;
 const { useSubEnv } = hooks;
 
 let fixture: HTMLElement;
+const t = (s: string): string => s;
 
-class Parent extends Component<any, any> {
+class Parent extends Component<any, SpreadsheetEnv> {
   static template = xml/* xml */ `
-    <TopBar class="o-spreadsheet" model="model" t-on-ask-confirmation="askConfirmation"/>
+    <TopBar class="o-spreadsheet" model="model" focusComposer="state.focusComposer" t-on-ask-confirmation="askConfirmation"/>
   `;
   static components = { TopBar };
+
+  static _t = t;
+  state = useState({ focusComposer: <boolean>false });
   model: Model;
-  constructor(model: Model) {
+
+  constructor(model: Model, focusComposer: boolean = false) {
     super();
     useSubEnv({
       openSidePanel: (panel: string) => {},
       dispatch: model.dispatch,
       getters: model.getters,
       askConfirmation: jest.fn(),
+      _t: Parent._t,
     });
     this.model = model;
+    this.state.focusComposer = focusComposer;
   }
+
+  setFocusComposer(isFocused: boolean) {
+    this.state.focusComposer = isFocused;
+  }
+
   mounted() {
     this.model.on("update", this, this.render);
   }
@@ -319,6 +335,40 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-topbar-test")).toHaveLength(1);
     topbarComponentRegistry.content = compDefinitions;
     parent.destroy();
+  });
+
+  test("Readonly spreadsheet has a specific top bar", async () => {
+    const model = new Model();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+
+    expect(fixture.querySelectorAll(".o-readonly-toolbar")).toHaveLength(0);
+    model.updateReadOnly(true);
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-readonly-toolbar")).toHaveLength(1);
+    triggerMouseEvent(".o-topbar-menu[data-id='insert']", "click");
+    await nextTick();
+    const insertMenuItems = fixture.querySelectorAll(".o-menu div.o-menu-item");
+    expect([...insertMenuItems].every((item) => item.classList.contains("disabled"))).toBeTruthy();
+  });
+
+  test("Cannot edit cell in a readonly spreadsheet", async () => {
+    const model = new Model({}, { isReadonly: true });
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+
+    const composerEl = fixture.querySelector(".o-spreadsheet-topbar div.o-composer")!;
+
+    expect(composerEl.classList.contains("unfocusable")).toBeTruthy();
+    expect(composerEl.attributes.getNamedItem("contentEditable")!.value).toBe("false");
+
+    parent.setFocusComposer(true);
+    await nextTick();
+    // Won't update the current content
+    const content = model.getters.getCurrentContent();
+    expect(content).toBe("");
+    typeInComposer(composerEl, "tabouret");
+    expect(model.getters.getCurrentContent()).toBe(content);
   });
 });
 

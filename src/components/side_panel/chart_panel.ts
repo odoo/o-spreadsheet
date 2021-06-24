@@ -1,4 +1,5 @@
 import * as owl from "@odoo/owl";
+import { BACKGROUND_HEADER_COLOR } from "../../constants";
 import {
 ChartUIDefinition,
 ChartUIDefinitionUpdate,
@@ -127,7 +128,7 @@ const STYLE = css/* scss */ `
         cursor: pointer;
         border-right: 1px solid darkgray;
         &.inactive {
-          background-color: #f8f9fa;
+          background-color: ${BACKGROUND_HEADER_COLOR};
           border-bottom: 1px solid darkgray;
         }
         .fa {

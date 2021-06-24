@@ -32,7 +32,7 @@ interface ComposerFocusedEventData {
 
 export type HtmlContent = {
   value: string;
-  color: string;
+  color?: string;
   class?: string;
 };
 
@@ -51,11 +51,12 @@ export const tokenColor = {
 
 const TEMPLATE = xml/* xml */ `
 <div class="o-composer-container">
-  <div class="o-composer"
+  <div
+    t-att-class="{ 'o-composer': true, 'text-muted': getters.isReadonly(), 'unfocusable': getters.isReadonly() }"
     t-att-style="props.inputStyle"
     t-ref="o_composer"
     tabindex="1"
-    contenteditable="true"
+    t-att-contenteditable="getters.isReadonly() ? 'false' : 'true'"
     spellcheck="false"
 
     t-on-keydown="onKeydown"
@@ -101,6 +102,9 @@ const CSS = css/* scss */ `
       word-break: break-all;
       &:focus {
         outline: none;
+      }
+      &.unfocusable {
+        pointer-events: none;
       }
       span {
         white-space: pre;
@@ -393,6 +397,9 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   }
 
   onClick() {
+    if (this.getters.isReadonly()) {
+      return;
+    }
     const newSelection = this.contentHelper.getCurrentSelection();
 
     this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
@@ -442,7 +449,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     } else if (value.startsWith("=") && this.getters.getEditionMode() !== "inactive") {
       content = this.getColoredTokens();
     } else {
-      content = [{ value, color: "#000" }];
+      content = [{ value }];
     }
     return content;
   }

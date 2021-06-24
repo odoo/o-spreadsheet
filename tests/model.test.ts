@@ -62,12 +62,6 @@ describe("Model", () => {
     expect(model["handlers"]).toHaveLength(nbr + 2); //+1 for Range +1 for History
   });
 
-  test("All plugin compatible with readonly mode are loaded on readonly mode", () => {
-    const model = new Model({}, { mode: "readonly" });
-    const nbr = getNbrPlugin("readonly");
-    expect(model["handlers"]).toHaveLength(nbr + 2); //+1 for Range +1 for History
-  });
-
   test("Model in headless mode should not evaluate cells", () => {
     const model = new Model({ sheets: [{ id: "sheet1" }] }, { mode: "headless" });
     setCellContent(model, "A1", "=1", "sheet1");
@@ -81,19 +75,12 @@ describe("Model", () => {
     class HeadlessPlugin extends UIPlugin {
       static modes: Mode[] = ["headless"];
     }
-    class ReadOnlyPlugin extends UIPlugin {
-      static modes: Mode[] = ["readonly"];
-    }
     uiPluginRegistry.add("normalPlugin", NormalPlugin);
     uiPluginRegistry.add("headlessPlugin", HeadlessPlugin);
-    uiPluginRegistry.add("readonlyPlugin", ReadOnlyPlugin);
     const modelNormal = new Model();
     expect(modelNormal["handlers"].find((handler) => handler instanceof NormalPlugin)).toBeTruthy();
     expect(
       modelNormal["handlers"].find((handler) => handler instanceof HeadlessPlugin)
-    ).toBeFalsy();
-    expect(
-      modelNormal["handlers"].find((handler) => handler instanceof ReadOnlyPlugin)
     ).toBeFalsy();
     const modelHeadless = new Model({}, { mode: "headless" });
     expect(
@@ -101,19 +88,6 @@ describe("Model", () => {
     ).toBeFalsy();
     expect(
       modelHeadless["handlers"].find((handler) => handler instanceof HeadlessPlugin)
-    ).toBeTruthy();
-    expect(
-      modelHeadless["handlers"].find((handler) => handler instanceof ReadOnlyPlugin)
-    ).toBeFalsy();
-    const modelReadonly = new Model({}, { mode: "readonly" });
-    expect(
-      modelReadonly["handlers"].find((handler) => handler instanceof NormalPlugin)
-    ).toBeFalsy();
-    expect(
-      modelReadonly["handlers"].find((handler) => handler instanceof HeadlessPlugin)
-    ).toBeFalsy();
-    expect(
-      modelReadonly["handlers"].find((handler) => handler instanceof ReadOnlyPlugin)
     ).toBeTruthy();
   });
 
@@ -203,17 +177,17 @@ describe("Model", () => {
   });
 
   test("Can open a model in readonly mode", () => {
-    const model = new Model({}, { mode: "readonly" });
+    const model = new Model({}, { isReadonly: true });
     expect(model.getters.isReadonly()).toBe(true);
   });
 
   test("Some commands are not dispatched in readonly mode", () => {
-    const model = new Model({}, { mode: "readonly" });
+    const model = new Model({}, { isReadonly: true });
     expect(setCellContent(model, "A1", "hello")).toBeCancelledBecause(CommandResult.Readonly);
   });
 
   test("Moving the selection is allowed in readonly mode", () => {
-    const model = new Model({}, { mode: "readonly" });
+    const model = new Model({}, { isReadonly: true });
     expect(selectCell(model, "A15")).toBeSuccessfullyDispatched();
   });
 });
