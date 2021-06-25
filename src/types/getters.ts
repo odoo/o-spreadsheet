@@ -63,6 +63,7 @@ export interface CoreGetters {
   getCellText: CellPlugin["getCellText"];
   getCellValue: CellPlugin["getCellValue"];
   getCellStyle: CellPlugin["getCellStyle"];
+  getCellById: CellPlugin["getCellById"];
 
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
