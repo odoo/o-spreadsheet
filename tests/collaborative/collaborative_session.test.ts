@@ -27,8 +27,8 @@ describe("Collaborative session", () => {
       () => ({ changes: [], commands: [] }),
       () => CommandResult.Success
     );
-    session = new Session(revisionLog, transport, client);
-    session.join([]);
+    session = new Session(revisionLog, transport);
+    session.join(client);
   });
 
   test("local client move", () => {
@@ -175,7 +175,7 @@ describe("Collaborative session", () => {
 
   test("Receiving bad initial revisions should throw", () => {
     expect(() => {
-      session.join([
+      session.loadInitialMessages([
         {
           type: "REMOTE_REVISION",
           version: MESSAGE_VERSION,
