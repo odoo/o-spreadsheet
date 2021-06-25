@@ -18,7 +18,6 @@ const TEMPLATE = xml/* xml */ `
   <div>
     <div
       class="o-client-tag"
-      t-transition="fade"
       t-att-style="tagStyle"
       t-esc="props.name"
     />
@@ -34,13 +33,6 @@ const CSS = css/* scss */ `
     color: white;
     opacity: 0;
     pointer-events: none;
-  }
-  .o-client-tag.fade-enter {
-    opacity: 1;
-  }
-
-  .o-client-tag.fade-enter-to {
-    transition: opacity 0.3s 1s;
   }
 `;
 export class ClientTag extends Component<ClientTagProps, SpreadsheetEnv> {
