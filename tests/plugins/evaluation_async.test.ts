@@ -3,8 +3,8 @@ import { Model } from "../../src/model";
 import { LOADING } from "../../src/plugins/ui/evaluation";
 import { FormulaCell } from "../../src/types";
 import { setCellContent } from "../test_helpers/commands_helpers";
-import { getCell } from "../test_helpers/getters_helpers";
-import { initPatcher } from "../test_helpers/helpers";
+import { getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { initPatcher, target } from "../test_helpers/helpers";
 
 let asyncComputations: () => Promise<void>;
 let waitForRecompute: () => Promise<void>;
@@ -257,5 +257,19 @@ describe("evaluateCells, async formulas", () => {
     expect(getCell(model, "A1")!.error).toBe("This is an error");
     expect(getCell(model, "A2")!.error).toBe("");
     expect(getCell(model, "A3")!.error).toBe("4");
+  });
+
+  test("change style while evaluating async formula", async () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=WAIT(300)");
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      style: {
+        strikethrough: true,
+      },
+    });
+    await waitForRecompute();
+    expect(getCellContent(model, "A1")).toBe("300");
   });
 });
