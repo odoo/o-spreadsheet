@@ -51,7 +51,7 @@ export class EvaluationPlugin extends UIPlugin {
    *
    * For example: =Wait(3)
    */
-  private PENDING: Set<Cell> = new Set();
+  private PENDING: Set<UID> = new Set();
 
   /**
    * For all cells that are NOT being currently computed, but depend on another
@@ -61,7 +61,7 @@ export class EvaluationPlugin extends UIPlugin {
    *   A1: =Wait(3)
    *   A2: =A1
    */
-  private WAITING: Set<Cell> = new Set();
+  private WAITING: Set<UID> = new Set();
 
   /**
    * For all cells that have been async computed.
@@ -72,7 +72,7 @@ export class EvaluationPlugin extends UIPlugin {
    *
    * When A1 is computed, A1 is moved in COMPUTED
    */
-  private COMPUTED: Set<Cell> = new Set();
+  private COMPUTED: Set<UID> = new Set();
 
   constructor(
     getters: Getters,
@@ -106,8 +106,16 @@ export class EvaluationPlugin extends UIPlugin {
         break;
       case "EVALUATE_CELLS":
         if (cmd.onlyWaiting) {
-          const cells = new Set(this.WAITING);
+          const cellIds = new Set(this.WAITING);
           this.WAITING.clear();
+          const cells = new Set();
+          for (const id of cellIds) {
+            const { sheetId, col, row } = this.getters.getCellPosition(id);
+            const cell = this.getters.getCell(sheetId, col, row);
+            if (cell) {
+              cells.add(cell)
+            }
+          }
           this.evaluateCells(makeSetIterator(cells), cmd.sheetId);
         } else {
           this.WAITING.clear();
@@ -233,12 +241,12 @@ export class EvaluationPlugin extends UIPlugin {
       if (!(e instanceof Error)) {
         e = new Error(e);
       }
-      if (PENDING.has(cell)) {
-        PENDING.delete(cell);
+      if (PENDING.has(cell.id)) {
+        PENDING.delete(cell.id);
         self.loadingCells--;
       }
       if (e.message === "not ready") {
-        WAITING.add(cell);
+        WAITING.add(cell.id);
         cell.value = LOADING;
       } else if (!cell.error) {
         cell.value = "#ERROR";
@@ -263,7 +271,7 @@ export class EvaluationPlugin extends UIPlugin {
         }
         return;
       }
-      if (COMPUTED.has(cell) || PENDING.has(cell)) {
+      if (COMPUTED.has(cell.id) || PENDING.has(cell.id)) {
         return;
       }
       visited[sheetId][xc] = null;
@@ -272,16 +280,18 @@ export class EvaluationPlugin extends UIPlugin {
         params[2].__originCellXC = xc;
         if (cell.formula.compiledFormula.async) {
           cell.value = LOADING;
-          PENDING.add(cell);
+          PENDING.add(cell.id);
 
           cell.formula
             .compiledFormula(cell.dependencies!, sheetId, ...params)
             .then((val) => {
-              cell.value = val;
+              const { col, row } = params[2].getters.getCellPosition(cell.id);
+              const c = params[2].getters.getCell(sheetId, col, row);
+              c.value = val;
               self.loadingCells--;
-              if (PENDING.has(cell)) {
-                PENDING.delete(cell);
-                COMPUTED.add(cell);
+              if (PENDING.has(cell.id)) {
+                PENDING.delete(cell.id);
+                COMPUTED.add(cell.id);
               }
             })
             .catch((e: Error) => handleError(e, cell));
@@ -333,7 +343,7 @@ export class EvaluationPlugin extends UIPlugin {
         cell.type === CellType.formula &&
         cell.formula.compiledFormula.async &&
         cell.error &&
-        !PENDING.has(cell)
+        !PENDING.has(cell.id)
       ) {
         throw new Error(_lt("This formula depends on invalid values"));
       }
