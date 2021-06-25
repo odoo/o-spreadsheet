@@ -378,6 +378,19 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       const row = findVisibleHeader(sheet, "rows", range(0, sheet.rows.length).reverse())!;
       this.dispatch("SELECT_CELL", { col, row });
     },
+    "SHIFT+ ": () => {
+      const { cols } = this.getters.getActiveSheet();
+      const newZone = { ...this.getters.getSelectedZone(), left: 0, right: cols.length - 1 };
+      this.dispatch("SET_SELECTION", { anchor: this.getters.getPosition(), zones: [newZone] });
+    },
+    "CTRL+ ": () => {
+      const { rows } = this.getters.getActiveSheet();
+      const newZone = { ...this.getters.getSelectedZone(), top: 0, bottom: rows.length - 1 };
+      this.dispatch("SET_SELECTION", { anchor: this.getters.getPosition(), zones: [newZone] });
+    },
+    "CTRL+SHIFT+ ": () => {
+      this.dispatch("SELECT_ALL");
+    },
   };
 
   constructor() {

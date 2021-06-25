@@ -492,6 +492,29 @@ describe("Grid component", () => {
       );
       expect(model.getters.getSelectedZone()).toEqual(toZone("X100"));
     });
+
+    test("Pressing Ctrl+Space selects the columns of the selection", () => {
+      setSelection(model, ["A1:C2"]);
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: " ", ctrlKey: true, bubbles: true })
+      );
+      expect(model.getters.getSelectedZone()).toEqual(toZone("A1:C100"));
+    });
+
+    test("Pressing Shift+Space selects the rows of the selection", () => {
+      setSelection(model, ["A1:C2"]);
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: " ", shiftKey: true, bubbles: true })
+      );
+      expect(model.getters.getSelectedZone()).toEqual(toZone("A1:Z2"));
+    });
+
+    test("Pressing Ctrl+Shift+Space selects the whole sheet", () => {
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: " ", ctrlKey:true, shiftKey: true, bubbles: true })
+      );
+      expect(model.getters.getSelectedZone()).toEqual(toZone("A1:Z100"));
+    });
   });
 
   describe("paint format tool with grid selection", () => {
