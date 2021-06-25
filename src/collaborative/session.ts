@@ -21,12 +21,14 @@ import {
 } from "../types/collaborative/transport_service";
 import { Revision } from "./revisions";
 
+export class ClientDisconnectedError extends Error {}
+
 export class Session extends EventBus<CollaborativeEvent> {
   /**
    * Positions of the others client.
    */
   private clients: Record<ClientId, Client | undefined> = {};
-  private clientId: ClientId;
+  private clientId: ClientId = "local";
 
   /**
    * Id of the server revision
@@ -54,12 +56,9 @@ export class Session extends EventBus<CollaborativeEvent> {
   constructor(
     private revisions: RevisionLog<Revision>,
     private transportService: TransportService<CollaborationMessage>,
-    client: Client,
     private serverRevisionId: UID = DEFAULT_REVISION_ID
   ) {
     super();
-    this.clients[client.id] = client;
-    this.clientId = client.id;
 
     this.debouncedMove = owl.utils.debounce(
       this._move.bind(this),
@@ -113,7 +112,18 @@ export class Session extends EventBus<CollaborativeEvent> {
     this.debouncedMove(position);
   }
 
-  join(messages: StateUpdateMessage[]) {
+  join(client?: Client) {
+    if (client) {
+      this.clients[client.id] = client;
+      this.clientId = client.id;
+    } else {
+      this.clients["local"] = { id: "local", name: "local" };
+      this.clientId = "local";
+    }
+    this.transportService.onNewMessage(this.clientId, this.onMessageReceived.bind(this));
+  }
+
+  loadInitialMessages(messages: StateUpdateMessage[]) {
     this.on("unexpected-revision-id", this, ({ revisionId }) => {
       throw new Error(`The spreadsheet could not be loaded. Revision ${revisionId} is corrupted.`);
     });
@@ -121,7 +131,6 @@ export class Session extends EventBus<CollaborativeEvent> {
       this.onMessageReceived(message);
     }
     this.off("unexpected-revision-id", this);
-    this.transportService.onNewMessage(this.clientId, this.onMessageReceived.bind(this));
   }
 
   /**
@@ -154,7 +163,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   getClient(): Client {
     const client = this.clients[this.clientId];
     if (!client) {
-      throw new Error("The client left the session");
+      throw new ClientDisconnectedError("The client left the session");
     }
     return client;
   }

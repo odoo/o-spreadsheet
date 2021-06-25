@@ -162,6 +162,9 @@ export class Spreadsheet extends Component<Props> {
   mounted() {
     this.model.on("update", this, this.render);
     this.model.on("unexpected-revision-id", this, () => this.trigger("unexpected-revision-id"));
+    if (this.props.client) {
+      this.model.joinSession(this.props.client);
+    }
   }
 
   willUnmount() {
