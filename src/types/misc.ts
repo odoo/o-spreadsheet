@@ -109,7 +109,7 @@ export enum CellType {
   invalidFormula = "invalidFormula",
 }
 
-export type CellValue = string | number | boolean;
+export type CellValue = string | number | boolean | null;
 export interface CellBase {
   id: UID;
   style?: Style;

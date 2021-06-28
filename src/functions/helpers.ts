@@ -2,7 +2,7 @@
 
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _lt } from "../translation";
-import { ArgRange, Argument, ArgValue, CellValue } from "../types";
+import { ArgRange, Argument, ArgValue } from "../types";
 import { numberToJsDate, parseDateTime } from "./dates";
 
 export function assert(condition: () => boolean, message: string): void {
@@ -368,7 +368,7 @@ function operandToRegExp(operand: string): RegExp {
 function evaluatePredicate(value: ArgValue, criterion: Predicate): boolean {
   const { operator, operand } = criterion;
 
-  if (value === undefined || operand === undefined) {
+  if (value === null || value === undefined || operand === undefined || operand === null) {
     return false;
   }
 
@@ -502,7 +502,7 @@ export function visitMatchingRanges(
  * - [3, 6, undefined, undefined, undefined, 10], 2 => -1
  */
 export function dichotomicPredecessorSearch(range: ArgValue[], target: ArgValue): number {
-  if (target === undefined) {
+  if (target === undefined || target === null) {
     return -1;
   }
   const targetType = typeof target;
@@ -512,12 +512,16 @@ export function dichotomicPredecessorSearch(range: ArgValue[], target: ArgValue)
 
   let indexLeft = 0;
   let indexRight = range.length - 1;
+  const isSameTypeAsTarget = (value: ArgValue): value is Exclude<ArgValue, undefined | null> =>
+    typeof value === typeof target;
 
-  if (typeof range[indexLeft] === targetType && target < (range[indexLeft] as CellValue)) {
+  const left = range[indexLeft];
+  if (isSameTypeAsTarget(left) && target < left) {
     return -1;
   }
 
-  if (typeof range[indexRight] === targetType && (range[indexRight] as CellValue) <= target) {
+  const right = range[indexRight];
+  if (isSameTypeAsTarget(right) && right <= target) {
     return indexRight;
   }
 
@@ -541,10 +545,10 @@ export function dichotomicPredecessorSearch(range: ArgValue[], target: ArgValue)
     }
 
     // 2 - check if value match
-    if (currentType === targetType && (currentVal as CellValue) <= target) {
+    if (isSameTypeAsTarget(currentVal) && currentVal <= target) {
       if (
         valMin === undefined ||
-        valMin < (currentVal as CellValue) ||
+        valMin < currentVal ||
         (valMin === currentVal && valMinIndex! < currentIndex)
       ) {
         valMin = currentVal;
@@ -553,7 +557,7 @@ export function dichotomicPredecessorSearch(range: ArgValue[], target: ArgValue)
     }
 
     // 3 - give new indexs for the Binary search
-    if (currentType === targetType && (currentVal as CellValue) > target) {
+    if (isSameTypeAsTarget(currentVal) && currentVal > target) {
       indexRight = currentIndex - 1;
     } else {
       indexLeft = indexMedian + 1;

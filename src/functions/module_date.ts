@@ -402,7 +402,12 @@ function weekendToDayNumber(weekend: CellValue): number[] {
     return [weekend - 11];
   }
 
-  throw Error(_lt(`The weekend (%s) must be a number or a string.`, weekend.toString()));
+  throw Error(
+    _lt(
+      `The weekend (%s) must be a number or a string.`,
+      weekend !== null ? weekend.toString() : ""
+    )
+  );
 }
 
 export const NETWORKDAYS_INTL: AddFunctionDescription = {

@@ -8,6 +8,7 @@ import { _lt } from "../../translation";
 import {
   Cell,
   CellType,
+  CellValue,
   Command,
   CommandDispatcher,
   EnsureRange,
@@ -311,7 +312,7 @@ export class EvaluationPlugin extends UIPlugin {
     });
     const sheets = this.getters.getEvaluationSheets();
     const PENDING = this.PENDING;
-    function readCell(range: Range): any {
+    function readCell(range: Range): CellValue {
       let cell: Cell | undefined;
       const s = sheets[range.sheetId];
       if (s) {
@@ -325,7 +326,7 @@ export class EvaluationPlugin extends UIPlugin {
       return getCellValue(cell, range.sheetId);
     }
 
-    function getCellValue(cell: Cell, sheetId: UID): any {
+    function getCellValue(cell: Cell, sheetId: UID): CellValue {
       if (
         cell.type === CellType.formula &&
         cell.formula.compiledFormula.async &&
@@ -351,7 +352,7 @@ export class EvaluationPlugin extends UIPlugin {
      * Note that each col is possibly sparse: it only contain the values of cells
      * that are actually present in the grid.
      */
-    function _range(range: Range): any[][] {
+    function _range(range: Range): CellValue[][] {
       const sheet = sheets[range.sheetId]!;
 
       const zone = {
