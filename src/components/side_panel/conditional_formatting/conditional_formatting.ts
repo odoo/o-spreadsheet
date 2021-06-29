@@ -412,14 +412,13 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
   }
 
   getDescription(cf: ConditionalFormat): string {
-    //TODO Fix translations of this
     switch (cf.rule.type) {
       case "CellIsRule":
         return cellIsOperators[cf.rule.operator];
       case "ColorScaleRule":
-        return "Color scale";
+        return this.env._t("Color scale");
       case "IconSetRule":
-        return "Icon Set";
+        return this.env._t("Icon Set");
       default:
         return "";
     }
