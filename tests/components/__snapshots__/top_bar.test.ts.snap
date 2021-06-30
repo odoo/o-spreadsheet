@@ -2,7 +2,7 @@
 
 exports[`TopBar component can set cell format 1`] = `
 <div
-  class="o-spreadsheet-topbar"
+  class="o-spreadsheet-topbar o-spreadsheet"
 >
   <div
     class="o-topbar-top"
@@ -383,7 +383,7 @@ exports[`TopBar component can set cell format 1`] = `
 
 exports[`TopBar component simple rendering 1`] = `
 <div
-  class="o-spreadsheet-topbar"
+  class="o-spreadsheet-topbar o-spreadsheet"
 >
   <div
     class="o-topbar-top"

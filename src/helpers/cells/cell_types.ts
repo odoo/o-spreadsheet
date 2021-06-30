@@ -1,4 +1,4 @@
-import { DATETIME_FORMAT, LOADING } from "../../constants";
+import { DATETIME_FORMAT, LINK_COLOR, LOADING } from "../../constants";
 import {
   BooleanEvaluation,
   Cell,
@@ -11,13 +11,17 @@ import {
   FormulaCell as IFormulaCell,
   ICell,
   InvalidEvaluation,
+  Link,
+  LinkCell as ILinkCell,
   NumberEvaluation,
   Range,
+  SpreadsheetEnv,
   Style,
   TextEvaluation,
   UID,
 } from "../../types";
 import { formatDateTime } from "../dates";
+import { markdownLink, parseMarkdownLink, parseSheetLink } from "../misc";
 import { formatStandardNumber } from "../numbers";
 import { formatValue } from "./cell_helpers";
 
@@ -129,6 +133,90 @@ export class DateTimeCell extends NumberCell {
   }
 }
 
+export abstract class LinkCell extends AbstractCell<TextEvaluation> implements ILinkCell {
+  readonly link: Link;
+  readonly content: string;
+  abstract isUrlEditable: boolean;
+  abstract urlRepresentation: string;
+
+  constructor(id: UID, content: string, properties: CellDisplayProperties = {}) {
+    const link = parseMarkdownLink(content);
+    properties = {
+      ...properties,
+      style: {
+        ...properties.style,
+        textColor: properties.style?.textColor || LINK_COLOR,
+      },
+    };
+    super(id, { value: link.label, type: CellValueType.text }, properties);
+    this.link = link;
+    this.content = content;
+  }
+  abstract action(env: SpreadsheetEnv): void;
+
+  get composerContent() {
+    return this.link.label;
+  }
+}
+
+/**
+ * Simple web link cell
+ */
+export class WebLinkCell extends LinkCell {
+  readonly urlRepresentation: string;
+  readonly content: string;
+  readonly isUrlEditable: boolean;
+
+  constructor(id: UID, content: string, properties: CellDisplayProperties = {}) {
+    super(id, content, properties);
+    this.link.url = this.withHttp(this.link.url);
+    this.content = markdownLink(this.link.label, this.link.url);
+    this.urlRepresentation = this.link.url;
+    this.isUrlEditable = true;
+  }
+
+  action(env: SpreadsheetEnv) {
+    window.open(this.link.url, "_blank");
+  }
+
+  /**
+   * Add the `https` prefix to the url if it's missing
+   */
+  private withHttp(url: string): string {
+    return !/^https?:\/\//i.test(url) ? `https://${url}` : url;
+  }
+}
+
+/**
+ * Link redirecting to a given sheet in the workbook.
+ */
+export class SheetLinkCell extends LinkCell {
+  private sheetId: UID;
+  readonly isUrlEditable: boolean;
+
+  constructor(
+    id: UID,
+    content: string,
+    properties: CellDisplayProperties = {},
+    private sheetName: (sheetId: UID) => string
+  ) {
+    super(id, content, properties);
+    this.sheetId = parseSheetLink(this.link.url);
+    this.isUrlEditable = false;
+  }
+
+  action(env: SpreadsheetEnv) {
+    env.dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: env.getters.getActiveSheetId(),
+      sheetIdTo: this.sheetId,
+    });
+  }
+
+  get urlRepresentation(): string {
+    return this.sheetName(this.sheetId);
+  }
+}
+
 export class FormulaCell extends AbstractCell implements IFormulaCell {
   /**
    * Evaluation error
@@ -217,4 +305,8 @@ export function isFormula(cell: ICell): cell is IFormulaCell {
 
 export function isEmpty(cell: Cell | undefined): boolean {
   return !cell || cell instanceof EmptyCell;
+}
+
+export function hasLink(cell: ICell | undefined): cell is ILinkCell {
+  return cell instanceof LinkCell;
 }

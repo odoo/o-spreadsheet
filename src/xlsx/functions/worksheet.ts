@@ -1,8 +1,15 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
-import { toXC } from "../../helpers";
-import { ExcelSheetData, ExcelWorkbookData, HeaderData } from "../../types";
-import { XMLAttributes, XMLString } from "../../types/xlsx";
 import {
+  isMarkdownLink,
+  isMarkdownSheetLink,
+  parseMarkdownLink,
+  parseSheetLink,
+  toXC,
+} from "../../helpers";
+import { ExcelSheetData, ExcelWorkbookData, HeaderData } from "../../types";
+import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
+import {
+  addRelsToFile,
   convertHeight,
   convertWidth,
   extractStyle,
@@ -36,7 +43,11 @@ export function addColumns(cols: { [key: number]: HeaderData }): XMLString {
   `;
 }
 
-export function addRows(construct, data: ExcelWorkbookData, sheet: ExcelSheetData): XMLString {
+export function addRows(
+  construct: XLSXStructure,
+  data: ExcelWorkbookData,
+  sheet: ExcelSheetData
+): XMLString {
   const rowNodes: XMLString[] = [];
   for (let r = 0; r < sheet.rowNumber; r++) {
     const rowAttrs: XMLAttributes = [["r", r + 1]];
@@ -63,6 +74,9 @@ export function addRows(construct, data: ExcelWorkbookData, sheet: ExcelSheetDat
         // Either formula or static value inside the cell
         if (cell.formula) {
           ({ attrs: additionalAttrs, node: cellNode } = addFormula(cell.formula));
+        } else if (cell.content && isMarkdownLink(cell.content)) {
+          const { label } = parseMarkdownLink(cell.content);
+          ({ attrs: additionalAttrs, node: cellNode } = addContent(label, construct.sharedStrings));
         } else if (cell.content && cell.content !== "") {
           ({ attrs: additionalAttrs, node: cellNode } = addContent(
             cell.content,
@@ -89,6 +103,50 @@ export function addRows(construct, data: ExcelWorkbookData, sheet: ExcelSheetDat
     <sheetData>
       ${joinXmlNodes(rowNodes)}
     </sheetData>
+  `;
+}
+
+export function addHyperlinks(
+  construct: XLSXStructure,
+  data: ExcelWorkbookData,
+  sheetIndex: string
+): XMLString {
+  const sheet = data.sheets[sheetIndex];
+  const cells = sheet.cells;
+  const linkNodes: XMLString[] = [];
+  for (const xc in cells) {
+    const content = cells[xc]?.content;
+    if (content && isMarkdownLink(content)) {
+      const { label, url } = parseMarkdownLink(content);
+      if (isMarkdownSheetLink(content)) {
+        const sheetId = parseSheetLink(url);
+        const sheet = data.sheets.find((sheet) => sheet.id === sheetId)!;
+        linkNodes.push(escapeXml/*xml*/ `
+          <hyperlink display="${label}" location="${sheet.name}!A1" ref="${xc}"/>
+        `);
+      } else {
+        const linkRelId = addRelsToFile(
+          construct.relsFiles,
+          `xl/worksheets/_rels/sheet${sheetIndex}.xml.rels`,
+          {
+            target: url,
+            type: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+            targetMode: "External",
+          }
+        );
+        linkNodes.push(escapeXml/*xml*/ `
+          <hyperlink r:id="${linkRelId}" ref="${xc}"/>
+        `);
+      }
+    }
+  }
+  if (!linkNodes.length) {
+    return escapeXml``;
+  }
+  return escapeXml/*xml*/ `
+    <hyperlinks>
+      ${joinXmlNodes(linkNodes)}
+    </hyperlinks>
   `;
 }
 

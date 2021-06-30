@@ -1,6 +1,6 @@
 import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { isFormula } from "../../helpers/cells";
+import { isFormula } from "../../helpers/cells/index";
 import { computeIconWidth, computeTextWidth } from "../../helpers/index";
 import { _lt } from "../../translation";
 import { Cell, CellValueType, Command, CommandResult, UID, Zone } from "../../types";

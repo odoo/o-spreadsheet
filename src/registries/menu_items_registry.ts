@@ -7,7 +7,7 @@ import { SpreadsheetEnv } from "../types/env";
 
 /**
  * An ActionMenuItem represent a menu item for the menus of the topbar.
- * Later, it will be reused for the context menu items as well.
+ * and the context menu in the grid.
  *
  * An ActionMenuItem has:
  * - id, used for example to add child
@@ -16,7 +16,8 @@ import { SpreadsheetEnv } from "../types/env";
  *   menus (the lower sequence it has, the upper it is in the menu)
  * - isVisible, which can be defined to compute the visibility of the item
  * - isReadonlyAllowed: is the action allowed when running spreadsheet in readonly mode
- * - action, the action associated to this item
+ * - action, the action associated to this item. The action can return a result.
+ *   The result will be carried by a `menu-clicked` event to the menu parent component.
  * - children, subitems associated to this item
  *    NB: an item without action or children is not displayed !
  * - separator, whether it should add a separator below the item
@@ -31,7 +32,7 @@ export interface MenuItem {
   isVisible?: (env: SpreadsheetEnv) => boolean;
   isEnabled?: (env: SpreadsheetEnv) => boolean;
   isReadonlyAllowed?: boolean;
-  action?: (env: SpreadsheetEnv) => void;
+  action?: (env: SpreadsheetEnv) => unknown;
   children?: menuChildren;
   separator?: boolean;
 }

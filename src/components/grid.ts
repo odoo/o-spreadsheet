@@ -5,23 +5,30 @@ import {
   DEFAULT_CELL_HEIGHT,
   HEADER_HEIGHT,
   HEADER_WIDTH,
+  LINK_TOOLTIP_HEIGHT,
+  LINK_TOOLTIP_WIDTH,
   SCROLLBAR_WIDTH,
+  TOPBAR_HEIGHT,
 } from "../constants";
+import { hasLink } from "../helpers/cells/index";
 import { findCellInNewZone, isInside, MAX_DELAY } from "../helpers/index";
 import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
-import { CellValueType, Client, SpreadsheetEnv, Viewport } from "../types/index";
+import { CellValueType, Client, Position, SpreadsheetEnv, Viewport } from "../types/index";
 import { Autofill } from "./autofill";
 import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
+import { ErrorToolTip } from "./error_tooltip";
 import { FiguresContainer } from "./figures/container";
 import { startDnd } from "./helpers/drag_and_drop";
+import { LinkDisplay } from "./link/link_display";
+import { LinkEditor } from "./link/link_editor";
 import { Menu, MenuState } from "./menu";
 import { Overlay } from "./overlay";
+import { Popover } from "./popover";
 import { ScrollBar } from "./scrollbar";
-
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
  * for displaying the actual grid, rendering it, managing events, ...
@@ -44,6 +51,11 @@ const registries = {
   CELL: cellMenuRegistry,
 };
 
+const LINK_EDITOR_WIDTH = 340;
+const LINK_EDITOR_HEIGHT = 180;
+
+const ERROR_TOOLTIP_HEIGHT = 80;
+const ERROR_TOOLTIP_WIDTH = 180;
 // copy and paste are specific events that should not be managed by the keydown event,
 // but they shouldn't be preventDefault and stopped (else copy and paste events will not trigger)
 // and also should not result in typing the character C or V in the composer
@@ -178,9 +190,31 @@ const TEMPLATE = xml/* xml */ `
                  active="isCellHovered(client.position.col, client.position.row)"
                  />
     </t>
-    <t t-if="errorTooltip.isOpen">
-      <div class="o-error-tooltip" t-esc="errorTooltip.text" t-att-style="errorTooltip.style"/>
-    </t>
+    <Popover
+      t-if="errorTooltip.isOpen"
+      position="errorTooltip.position"
+      childWidth="${ERROR_TOOLTIP_WIDTH}"
+      childHeight="${ERROR_TOOLTIP_HEIGHT}">
+      <ErrorToolTip text="errorTooltip.text"/>
+    </Popover>
+    <Popover
+      t-if="shouldDisplayLink"
+      position="linkProps.position"
+      flipHorizontalOffset="-linkProps.cellWidth"
+      flipVerticalOffset="-linkProps.cellHeight"
+      childWidth="${LINK_TOOLTIP_WIDTH}"
+      childHeight="${LINK_TOOLTIP_HEIGHT}">
+      <LinkDisplay cellPosition="activeCellPosition"/>
+    </Popover>
+    <Popover
+      t-if="props.linkEditorIsOpen"
+      position="linkProps.position"
+      flipHorizontalOffset="-linkProps.cellWidth"
+      flipVerticalOffset="-linkProps.cellHeight"
+      childWidth="${LINK_EDITOR_WIDTH}"
+      childHeight="${LINK_EDITOR_HEIGHT}">
+      <LinkEditor cellPosition="activeCellPosition"/>
+    </Popover>
     <t t-if="getters.getEditionMode() === 'inactive'">
       <Autofill position="getAutofillPosition()"/>
     </t>
@@ -216,16 +250,6 @@ const CSS = css/* scss */ `
         outline: none;
       }
     }
-    .o-error-tooltip {
-      position: absolute;
-      font-size: 13px;
-      width: 180px;
-      height: 80px;
-      background-color: white;
-      box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
-      border-left: 3px solid red;
-      padding: 10px;
-    }
     .o-scrollbar {
       position: absolute;
       overflow: auto;
@@ -248,13 +272,30 @@ const CSS = css/* scss */ `
   }
 `;
 
+interface Props {
+  sidePanelIsOpen: boolean;
+  model: Model;
+  linkEditorIsOpen: boolean;
+}
+
 // -----------------------------------------------------------------------------
 // JS
 // -----------------------------------------------------------------------------
-export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
+export class Grid extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { GridComposer, Overlay, Menu, Autofill, FiguresContainer, ClientTag };
+  static components = {
+    GridComposer,
+    Overlay,
+    Menu,
+    Autofill,
+    FiguresContainer,
+    ClientTag,
+    ErrorToolTip,
+    LinkDisplay,
+    LinkEditor,
+    Popover,
+  };
 
   private menuState: MenuState = useState({
     isOpen: false,
@@ -274,12 +315,11 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   private clickedCol = 0;
   private clickedRow = 0;
 
-  // errorTooltip = useErrorTooltip(this.env, () => this.snappedViewport);
   hoveredCell = useCellHovered(this.env, () => this.getters.getActiveSnappedViewport());
 
   get errorTooltip() {
     const { col, row } = this.hoveredCell;
-    if (!col || !row) {
+    if (col === undefined || row === undefined) {
       return { isOpen: false };
     }
     const sheetId = this.getters.getActiveSheetId();
@@ -288,22 +328,57 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
 
     if (cell && cell.evaluated.type === CellValueType.error) {
       const viewport = this.getters.getActiveSnappedViewport();
-      const { width: viewportWidth, height: viewportHeight } = this.getters.getViewportDimension();
-      const [x, y, width, height] = this.getters.getRect(
+      const [x, y, width] = this.getters.getRect(
         { left: col, top: row, right: col, bottom: row },
         viewport
       );
-      const hAlign = x + width + 200 < viewportWidth ? "left" : "right";
-      const hOffset = hAlign === "left" ? x + width : viewportWidth - x + (SCROLLBAR_WIDTH + 2);
-      const vAlign = y + 120 < viewportHeight ? "top" : "bottom";
-      const vOffset = vAlign === "top" ? y : viewportHeight - y - height + (SCROLLBAR_WIDTH + 2);
       return {
         isOpen: true,
-        style: `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`,
+        position: { x: x + width, y: y + TOPBAR_HEIGHT },
         text: cell.evaluated.error,
       };
     }
     return { isOpen: false };
+  }
+
+  get activeCellPosition(): Position {
+    const [col, row] = this.getters.getMainCell(
+      this.getters.getActiveSheetId(),
+      ...this.getters.getPosition()
+    );
+    return { col, row };
+  }
+
+  get shouldDisplayLink(): boolean {
+    const sheetId = this.getters.getActiveSheetId();
+    const { col, row } = this.activeCellPosition;
+    const cell = this.getters.getCell(sheetId, col, row);
+    return (
+      hasLink(cell) &&
+      !this.menuState.isOpen &&
+      !this.props.linkEditorIsOpen &&
+      !this.props.sidePanelIsOpen
+    );
+  }
+
+  /**
+   * Properties for the link popover components
+   */
+  get linkProps() {
+    const [col, row] = this.getters.getBottomLeftCell(
+      this.getters.getActiveSheetId(),
+      ...this.getters.getPosition()
+    );
+    const viewport = this.getters.getActiveSnappedViewport();
+    const [x, y, width, height] = this.getters.getRect(
+      { left: col, top: row, right: col, bottom: row },
+      viewport
+    );
+    return {
+      position: { x, y: y + height + TOPBAR_HEIGHT },
+      cellWidth: width,
+      cellHeight: height,
+    };
   }
 
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
@@ -517,6 +592,13 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.clickedCol = col;
     this.clickedRow = row;
 
+    const sheetId = this.getters.getActiveSheetId();
+    const [mainCol, mainRow] = this.getters.getMainCell(sheetId, col, row);
+    const cell = this.getters.getCell(sheetId, mainCol, mainRow);
+    if (!hasLink(cell)) {
+      this.closeLinkEditor();
+    }
+
     this.dispatch(ev.ctrlKey ? "START_SELECTION_EXPANSION" : "START_SELECTION");
     if (ev.shiftKey) {
       this.dispatch("ALTER_SELECTION", { cell: [col, row] });
@@ -608,6 +690,9 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     }
   }
 
+  closeLinkEditor() {
+    this.trigger("link-editor-closed");
+  }
   // ---------------------------------------------------------------------------
   // Keyboard interactions
   // ---------------------------------------------------------------------------
@@ -621,6 +706,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   processArrows(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
+    this.closeLinkEditor();
     const deltaMap = {
       ArrowDown: [0, 1],
       ArrowLeft: [-1, 0],
@@ -719,13 +805,9 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   }
 
   toggleContextMenu(type: ContextMenuType, x: number, y: number) {
+    this.closeLinkEditor();
     this.menuState.isOpen = true;
-    this.menuState.position = {
-      x,
-      y,
-      width: this.el!.clientWidth,
-      height: this.el!.clientHeight,
-    };
+    this.menuState.position = { x, y: y + TOPBAR_HEIGHT };
     this.menuState.menuItems = registries[type]
       .getAll()
       .filter((item) => !item.isVisible || item.isVisible(this.env));

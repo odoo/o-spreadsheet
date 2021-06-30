@@ -1,4 +1,4 @@
-import { formatValue, isFormula } from "../../helpers/cells";
+import { formatValue, isFormula } from "../../helpers/cells/index";
 import { clip, overlap } from "../../helpers/index";
 import { Mode } from "../../model";
 import { _lt } from "../../translation";

@@ -25,6 +25,7 @@ import {
   autofillModifiersRegistry,
   autofillRulesRegistry,
   cellMenuRegistry,
+  cellRegistry,
   colMenuRegistry,
   createFullMenuItem,
   inverseCommandRegistry,
@@ -95,6 +96,7 @@ export const registries = {
   topbarComponentRegistry,
   otRegistry,
   inverseCommandRegistry,
+  cellRegistry,
 };
 
 export const helpers = {

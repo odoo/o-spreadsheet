@@ -1,4 +1,5 @@
-import { CompiledFormula, Range, Style, UID } from "./misc";
+import { SpreadsheetEnv } from "./env";
+import { CompiledFormula, Link, Range, Style, UID } from "./misc";
 
 export enum CellValueType {
   boolean = "boolean",
@@ -48,6 +49,30 @@ export interface FormulaCell extends ICell {
   readonly normalizedText: string;
   readonly compiledFormula: CompiledFormula;
   readonly dependencies: Range[];
+}
+
+/**
+ * A cell that can redirect to a given location which is
+ * specified in a link.
+ */
+export interface LinkCell extends ICell {
+  readonly link: Link;
+  /**
+   * Go to the link destination
+   */
+  readonly action: (env: SpreadsheetEnv) => void;
+  /**
+   * String used to display the URL in components.
+   * Particularly useful for special links (sheet, etc.)
+   * - a simple web link displays the raw url
+   * - a link to a sheet displays the sheet name
+   */
+  readonly urlRepresentation: string;
+  /**
+   * Specifies if the URL is editable by the end user.
+   * Special links might not allow it.
+   */
+  readonly isUrlEditable: boolean;
 }
 
 export type InvalidCell = ICell & {

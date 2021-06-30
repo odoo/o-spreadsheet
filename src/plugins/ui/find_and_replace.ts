@@ -1,4 +1,4 @@
-import { isFormula } from "../../helpers/cells";
+import { isFormula } from "../../helpers/cells/index";
 import { Cell, Command, GridRenderingContext, LAYERS, UID } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 

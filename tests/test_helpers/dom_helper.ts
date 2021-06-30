@@ -1,9 +1,14 @@
+import { Model } from "../../src";
+import { toZone } from "../../src/helpers";
 import { nextTick } from "./helpers";
 
 export async function simulateClick(selector: string | any, x: number = 10, y: number = 10) {
   let target;
   if (typeof selector === "string") {
-    target = document.querySelector(selector)! as HTMLElement;
+    target = document.querySelector(selector) as HTMLElement;
+    if (!target) {
+      throw new Error(`"${selector}" does not match any element.`);
+    }
   } else {
     target = selector;
   }
@@ -14,6 +19,22 @@ export async function simulateClick(selector: string | any, x: number = 10, y: n
   }
   triggerMouseEvent(selector, "mouseup", x, y);
   triggerMouseEvent(selector, "click", x, y);
+  await nextTick();
+}
+
+export async function clickCell(model: Model, xc: string) {
+  const zone = toZone(xc);
+  const viewport = model.getters.getActiveViewport();
+  const [x, y, ,] = model.getters.getRect(zone, viewport);
+
+  await simulateClick("canvas", x, y);
+}
+
+export async function rightClickCell(model: Model, xc: string) {
+  const zone = toZone(xc);
+  const viewport = model.getters.getActiveViewport();
+  const [x, y, ,] = model.getters.getRect(zone, viewport);
+  triggerMouseEvent("canvas", "contextmenu", x, y);
   await nextTick();
 }
 

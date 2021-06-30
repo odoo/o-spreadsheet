@@ -1,4 +1,4 @@
-import { isFormula } from "../helpers/cells";
+import { isFormula } from "../helpers/cells/index";
 import { Registry } from "../registry";
 import {
   AutofillData,

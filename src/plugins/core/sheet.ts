@@ -1,5 +1,5 @@
 import { FORBIDDEN_IN_EXCEL_REGEX } from "../../constants";
-import { isEmpty } from "../../helpers/cells";
+import { isEmpty } from "../../helpers/cells/index";
 import {
   createCols,
   createDefaultCols,

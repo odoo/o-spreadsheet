@@ -1,6 +1,6 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
 import { Align, Border, CellData, Style, UID, WorkbookData } from "../../types";
-import { ExtractedStyle, XLSXStructure } from "../../types/xlsx";
+import { ExtractedStyle, XLSXRel, XLSXRelFile, XLSXStructure } from "../../types/xlsx";
 import { FIRST_NUMFMT_ID, HEIGHT_FACTOR, WIDTH_FACTOR, XLSX_FORMAT_MAP } from "../constants";
 
 type PropertyPosition<T> = {
@@ -109,6 +109,30 @@ export function convertFormat(format: string | undefined, numFmtStructure: strin
     formatId = id + FIRST_NUMFMT_ID;
   }
   return formatId;
+}
+
+/**
+ * Add a relation to the given file and return its id.
+ */
+export function addRelsToFile(
+  relsFiles: XLSXRelFile[],
+  path: string,
+  rel: Omit<XLSXRel, "id">
+): string {
+  let relsFile = relsFiles.find((file) => file.path === path);
+  // the id is a one-based int casted as string
+  let id: string;
+  if (!relsFile) {
+    id = "rId1";
+    relsFiles.push({ path, rels: [{ ...rel, id }] });
+  } else {
+    id = `rId${(relsFile.rels.length + 1).toString()}`;
+    relsFile.rels.push({
+      ...rel,
+      id,
+    });
+  }
+  return id;
 }
 
 export function pushElement<T>(property: T, propertyList: T[]): PropertyPosition<T> {

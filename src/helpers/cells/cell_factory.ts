@@ -3,7 +3,14 @@ import { compile, normalize } from "../../formulas";
 import { cellRegistry } from "../../registries/cell_types";
 import { Cell, CellDisplayProperties, CoreGetters, UID } from "../../types";
 import { parseDateTime } from "../dates";
-import { isBoolean, isDateTime } from "../misc";
+import {
+  isBoolean,
+  isDateTime,
+  isMarkdownLink,
+  isMarkdownSheetLink,
+  isWebLink,
+  markdownLink,
+} from "../misc";
 import { isNumber, parseNumber } from "../numbers";
 import { computeFormulaFormat } from "./cell_helpers";
 import {
@@ -13,7 +20,9 @@ import {
   FormulaCell,
   InvalidFormulaCell,
   NumberCell,
+  SheetLinkCell,
   TextCell,
+  WebLinkCell,
 } from "./cell_types";
 
 cellRegistry
@@ -80,6 +89,32 @@ cellRegistry
       const internalDate = parseDateTime(content)!;
       const format = properties.format || internalDate.format;
       return new DateTimeCell(id, internalDate.value, { ...properties, format });
+    },
+  })
+  .add("MarkdownSheetLink", {
+    sequence: 60,
+    match: (content) => isMarkdownSheetLink(content),
+    createCell: (id, content, properties, sheetId, getters) => {
+      return new SheetLinkCell(
+        id,
+        content,
+        properties,
+        (sheetId) => getters.getSheetName(sheetId) || ""
+      );
+    },
+  })
+  .add("MarkdownLink", {
+    sequence: 70,
+    match: (content) => isMarkdownLink(content),
+    createCell: (id, content, properties) => {
+      return new WebLinkCell(id, content, properties);
+    },
+  })
+  .add("WebLink", {
+    sequence: 80,
+    match: (content) => isWebLink(content),
+    createCell: (id, content, properties) => {
+      return new WebLinkCell(id, markdownLink(content, content), properties);
     },
   });
 

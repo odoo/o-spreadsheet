@@ -100,6 +100,7 @@ describe("figures", () => {
     await nextTick();
   });
   afterEach(() => {
+    parent.destroy();
     fixture.remove();
   });
   test("can export a chart", () => {

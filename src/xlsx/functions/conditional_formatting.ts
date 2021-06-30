@@ -38,7 +38,7 @@ export function addConditionalFormatting(
         cfNodes.push(addIconSetRule(cf, cf.rule));
         break;
       default:
-        // @ts-ignore
+        // @ts-ignore Typescript nows it will never happen at compile time
         console.warn(`Conditional formatting ${cf.rule.type} not implemented`);
         break;
     }

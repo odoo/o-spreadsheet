@@ -16,7 +16,7 @@ import {
   TEXT_HEADER_COLOR,
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { isEmpty, isFormula } from "../../helpers/cells";
+import { isEmpty, isFormula } from "../../helpers/cells/index";
 import { overlap, scrollDelay } from "../../helpers/index";
 import { Mode } from "../../model";
 import {

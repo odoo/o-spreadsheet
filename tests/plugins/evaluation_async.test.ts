@@ -1,6 +1,6 @@
 import { LOADING } from "../../src/constants";
 import { args, functionRegistry } from "../../src/functions";
-import { FormulaCell } from "../../src/helpers/cells";
+import { FormulaCell } from "../../src/helpers/cells/index";
 import { Model } from "../../src/model";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellError } from "../test_helpers/getters_helpers";

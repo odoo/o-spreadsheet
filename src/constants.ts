@@ -32,6 +32,16 @@ export const UNHIDE_ICON_EDGE_LENGTH = 14;
 export const MIN_CF_ICON_MARGIN = 4;
 export const MIN_CELL_TEXT_MARGIN = 4;
 
+export const LINK_TOOLTIP_HEIGHT = 43;
+export const LINK_TOOLTIP_WIDTH = 220;
+
+// Menus
+export const MENU_WIDTH = 200;
+export const MENU_ITEM_HEIGHT = 32;
+export const MENU_SEPARATOR_BORDER_WIDTH = 1;
+export const MENU_SEPARATOR_PADDING = 5;
+export const MENU_SEPARATOR_HEIGHT = MENU_SEPARATOR_BORDER_WIDTH + 2 * MENU_SEPARATOR_PADDING;
+
 export const FIGURE_BORDER_SIZE = 1;
 
 // Fonts
@@ -49,7 +59,7 @@ export const DEFAULT_STYLE: Style = {
   textColor: "black",
   fontSize: DEFAULT_FONT_SIZE,
 };
-
+export const LINK_COLOR = "#00f";
 // DateTimeRegex
 export const DATETIME_FORMAT = /[ymd:]/;
 
