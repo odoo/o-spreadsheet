@@ -24,9 +24,9 @@ export interface ICell {
    * Cell value formatted based on the format
    */
   readonly formattedValue: string;
-  readonly defaultAlign: "right" | "center" | "left";
   readonly style?: Style;
   readonly format?: string;
+  readonly defaultAlign: "right" | "center" | "left";
   /**
    * Return a copy of the cell with new display properties.
    */
@@ -67,7 +67,7 @@ export type EmptyEvaluation = {
 export type InvalidEvaluation = {
   readonly type: CellValueType.error;
   readonly value: string;
-  error: string;
+  readonly error: string;
 };
 
 export type CellEvaluation =

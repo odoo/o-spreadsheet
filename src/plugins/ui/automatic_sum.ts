@@ -196,13 +196,16 @@ export class AutomaticSumPlugin extends UIPlugin {
    * Only empty cells, text cells and numbers are valid
    */
   private isValid(cell?: Cell): boolean {
-    return (
-      !(cell?.evaluated.type === CellValueType.error) &&
-      (!cell ||
-        cell.evaluated.type === CellValueType.text ||
-        !cell.evaluated.value ||
-        this.isNumber(cell))
-    );
+    if (!cell) return true;
+    switch (cell.evaluated.type) {
+      case CellValueType.empty:
+      case CellValueType.text:
+        return true;
+      case CellValueType.number:
+        return !cell.format?.match(DATETIME_FORMAT);
+      default:
+        return false;
+    }
   }
 
   private isZoneValid(zone: Zone): boolean {
