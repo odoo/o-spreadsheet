@@ -17,6 +17,7 @@ import {
   isBoolean,
   isDateTime,
   isInside,
+  isMarkDownLink,
   isNumber,
   maximumDecimalPlaces,
   parseNumber,
@@ -25,7 +26,6 @@ import {
   toCartesian,
   toXC,
   uuidv4,
-  isMarkDownLink,
 } from "../../helpers/index";
 import {
   AddColumnsRowsCommand,

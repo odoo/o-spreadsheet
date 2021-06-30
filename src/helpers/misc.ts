@@ -132,7 +132,7 @@ export function isDateTime(str: string): boolean {
   return parseDateTime(str) !== null;
 }
 
-const MARKDOWN_LINK_REGEX = /\[([^\[]+)\]\((.*)\)/
+const MARKDOWN_LINK_REGEX = /\[([^\[]+)\]\((.*)\)/;
 
 export function isMarkDownLink(str: string): boolean {
   return MARKDOWN_LINK_REGEX.test(str);
