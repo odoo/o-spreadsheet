@@ -1,4 +1,4 @@
-import { isFormula } from "../../helpers/cells";
+import { isFormula } from "../../helpers/cells/index";
 import { isEqual, isInside, mapCellsInZone, overlap, zoneToDimension } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {

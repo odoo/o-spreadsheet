@@ -1,5 +1,6 @@
 export * from "./autofill_modifiers";
 export * from "./autofill_rules";
+export * from "./cell_types";
 export * from "./figure_registry";
 export * from "./inverse_command_registry";
 export * from "./menus/index";

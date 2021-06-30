@@ -1,9 +1,10 @@
+import { buildSheetLink } from "../src/helpers";
 import { Model } from "../src/model";
 import { ChartTypes, NormalizedFormula } from "../src/types";
 import { adaptFormulaToExcel } from "../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../src/xlsx/helpers/xml_helpers";
-import { createChart, createSheet } from "./test_helpers/commands_helpers";
-import { exportPrettifiedXlsx } from "./test_helpers/helpers";
+import { createChart, createSheet, merge, setCellContent } from "./test_helpers/commands_helpers";
+import { exportPrettifiedXlsx, target } from "./test_helpers/helpers";
 
 const simpleData = {
   sheets: [
@@ -728,6 +729,49 @@ describe("Test XLSX export", () => {
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
+  });
+
+  test("multiple elements are exported in the correct order", async () => {
+    const model = new Model();
+    setCellContent(model, "A1", "[label](url.com)");
+    merge(model, "F10:F12");
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B2:B4", "Sheet1!C12:C4"],
+        labelRange: "Sheet1!A2:A4",
+        type: "bar",
+        dataSetsHaveTitle: false,
+      },
+      "1"
+    );
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      cf: {
+        id: "42",
+        rule: {
+          type: "CellIsRule",
+          operator: "Equal",
+          values: ["1"],
+          style: { bold: true },
+        },
+      },
+    });
+    expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+  });
+
+  test("link cells", async () => {
+    const model = new Model();
+    setCellContent(model, "A1", "[label](url.com)");
+    setCellContent(model, "A2", "[label](http://url.com)");
+    setCellContent(model, "A3", `[Sheet1](${buildSheetLink(model.getters.getActiveSheetId())})`);
+    setCellContent(
+      model,
+      "A4",
+      `[custom link label](${buildSheetLink(model.getters.getActiveSheetId())})`
+    );
+    expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
   });
 });
 

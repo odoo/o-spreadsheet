@@ -13,6 +13,7 @@ import { StateUpdateMessage, TransportService } from "../types/collaborative/tra
 import { BottomBar } from "./bottom_bar";
 import { ComposerFocusedEvent } from "./composer/composer";
 import { Grid } from "./grid";
+import { LinkEditor } from "./link/link_editor";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
 
@@ -35,6 +36,8 @@ const TEMPLATE = xml/* xml */ `
     <Grid
       model="model"
       sidePanelIsOpen="sidePanel.isOpen"
+      linkEditorIsOpen="linkEditor.isOpen"
+      t-on-link-editor-closed="closeLinkEditor"
       t-ref="grid"
       focusComposer="focusGridComposer"
       t-on-composer-content-focused="onGridComposerContentFocused"
@@ -49,6 +52,7 @@ const TEMPLATE = xml/* xml */ `
 
 const CSS = css/* scss */ `
   .o-spreadsheet {
+    position: relative;
     display: grid;
     grid-template-rows: ${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT + 1}px;
     grid-template-columns: auto 350px;
@@ -95,7 +99,7 @@ const t = (s: string): string => s;
 export class Spreadsheet extends Component<Props> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { TopBar, Grid, BottomBar, SidePanel };
+  static components = { TopBar, Grid, BottomBar, SidePanel, LinkEditor };
   static _t = t;
 
   model = new Model(
@@ -122,6 +126,7 @@ export class Spreadsheet extends Component<Props> {
     component?: string;
     panelProps: any;
   });
+  linkEditor = useState({ isOpen: false });
 
   composer = useState({
     topBarFocus: "inactive",
@@ -150,6 +155,7 @@ export class Spreadsheet extends Component<Props> {
       export: this.model.exportData.bind(this.model),
       waitForIdle: this.model.waitForIdle.bind(this.model),
       exportXLSX: this.model.exportXLSX.bind(this.model),
+      openLinkEditor: () => this.openLinkEditor(),
     });
     useExternalListener(window as any, "resize", this.render);
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
@@ -203,6 +209,15 @@ export class Spreadsheet extends Component<Props> {
     this.sidePanel.component = panel;
     this.sidePanel.panelProps = panelProps;
     this.sidePanel.isOpen = true;
+  }
+
+  openLinkEditor() {
+    this.linkEditor.isOpen = true;
+  }
+
+  closeLinkEditor() {
+    this.linkEditor.isOpen = false;
+    this.focusGrid();
   }
 
   toggleSidePanel(panel: string, panelProps: any) {

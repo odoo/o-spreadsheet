@@ -57,6 +57,7 @@ export interface XLSXRel {
   id: string;
   type: string;
   target: string;
+  targetMode?: "External";
 }
 
 export interface XLSXRelFile {

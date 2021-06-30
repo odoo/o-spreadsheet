@@ -1,10 +1,11 @@
 import * as owl from "@odoo/owl";
 import { Component, hooks, tags } from "@odoo/owl";
 import Chart, { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../constants";
+import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../constants";
 import { MenuItemRegistry } from "../../registries/index";
 import { _lt } from "../../translation";
 import { Figure, SpreadsheetEnv } from "../../types";
+import { useAbsolutePosition } from "../helpers/position_hook";
 import { LIST } from "../icons";
 import { Menu, MenuState } from "../menu";
 const { useState } = owl;
@@ -66,6 +67,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
   canvas = useRef("graphContainer");
   private chart?: Chart;
   private state: State = { background: BACKGROUND_CHART_COLOR };
+  private position = useAbsolutePosition();
 
   get canvasStyle() {
     return `background-color: ${this.state.background}`;
@@ -159,10 +161,8 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
     this.menuState.isOpen = true;
     this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
     this.menuState.position = {
-      x,
-      y,
-      height: 400,
-      width: this.el!.clientWidth,
+      x: this.position.x + x - MENU_WIDTH,
+      y: this.position.y + y,
     };
   }
 }

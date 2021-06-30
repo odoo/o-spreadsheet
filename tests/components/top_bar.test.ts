@@ -17,7 +17,9 @@ const { useSubEnv } = hooks;
 let fixture: HTMLElement;
 
 class Parent extends Component<any, any> {
-  static template = xml`<TopBar model="model" t-on-ask-confirmation="askConfirmation"/>`;
+  static template = xml/* xml */ `
+    <TopBar class="o-spreadsheet" model="model" t-on-ask-confirmation="askConfirmation"/>
+  `;
   static components = { TopBar };
   model: Model;
   constructor(model: Model) {
@@ -53,6 +55,7 @@ describe("TopBar component", () => {
     await parent.mount(fixture);
 
     expect(fixture.querySelector(".o-spreadsheet-topbar")).toMatchSnapshot();
+    parent.destroy();
   });
 
   test("opening a second menu closes the first one", async () => {
@@ -72,6 +75,7 @@ describe("TopBar component", () => {
     await nextTick();
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
     expect(fixture.querySelectorAll(".o-color-line").length).toBe(0);
+    parent.destroy();
   });
 
   test("merging cell button state is correct", async () => {
@@ -95,6 +99,7 @@ describe("TopBar component", () => {
     model.dispatch("ALTER_SELECTION", { cell: [0, 1] });
     await nextTick();
     expect(mergeTool.classList.contains("active")).toBeFalsy();
+    parent.destroy();
   });
 
   test("multiple selection zones => merge tools is disabled", async () => {
@@ -119,6 +124,7 @@ describe("TopBar component", () => {
     await nextTick();
     // should be disabled, because multiple zones are selected
     expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
+    parent.destroy();
   });
 
   test("undo/redo tools", async () => {
@@ -149,6 +155,7 @@ describe("TopBar component", () => {
     expect(redoTool.classList.contains("o-disabled")).toBeFalsy();
 
     expect(getCell(model, "A1")).toBeUndefined();
+    parent.destroy();
   });
 
   test("paint format tools", async () => {
@@ -164,6 +171,7 @@ describe("TopBar component", () => {
     await nextTick();
 
     expect(paintFormatTool.classList.contains("active")).toBeTruthy();
+    parent.destroy();
   });
 
   test("can clear formatting", async () => {
@@ -180,6 +188,7 @@ describe("TopBar component", () => {
     const clearFormatTool = fixture.querySelector('.o-tool[title="Clear Format"]')!;
     clearFormatTool.dispatchEvent(new Event("click"));
     expect(getCell(model, "B1")).toBeUndefined();
+    parent.destroy();
   });
 
   test("can set cell format", async () => {
@@ -196,6 +205,7 @@ describe("TopBar component", () => {
       .dispatchEvent(new Event("click", { bubbles: true }));
     await nextTick();
     expect(getCell(model, "A1")!.format).toEqual("0.00%");
+    parent.destroy();
   });
 
   test("can set font size", async () => {
@@ -213,6 +223,7 @@ describe("TopBar component", () => {
     expect(fontSizeTool.textContent!.trim()).toBe("8");
     const style = model.getters.getCellStyle(getCell(model, "A1")!);
     expect(style.fontSize).toBe(8);
+    parent.destroy();
   });
 
   test("opening, then closing same menu", async () => {
@@ -228,6 +239,7 @@ describe("TopBar component", () => {
     fixture.querySelector('span[title="Borders"]')!.dispatchEvent(new Event("click"));
     await nextTick();
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
+    parent.destroy();
   });
 
   test("Can open a Topbar menu", async () => {
@@ -248,6 +260,7 @@ describe("TopBar component", () => {
     triggerMouseEvent(".o-spreadsheet-topbar", "click");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+    parent.destroy();
   });
 
   test("Can open a Topbar menu with mousemove", async () => {
@@ -269,6 +282,7 @@ describe("TopBar component", () => {
       .filter((item) => item.children.length !== 0 || item.action).length;
     expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    parent.destroy();
   });
 
   test("Can click on a menuItem do execute action and close menus", async () => {
@@ -291,6 +305,7 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(0);
     expect(number).toBe(1);
     topbarMenuRegistry.content = menuDefinitions;
+    parent.destroy();
   });
 
   test("Can add a custom component to topbar", async () => {
@@ -303,6 +318,7 @@ describe("TopBar component", () => {
     await parent.mount(fixture);
     expect(fixture.querySelectorAll(".o-topbar-test")).toHaveLength(1);
     topbarComponentRegistry.content = compDefinitions;
+    parent.destroy();
   });
 });
 
@@ -327,6 +343,7 @@ test("Can show/hide a TopBarComponent based on condition", async () => {
   expect(fixture.querySelectorAll(".o-topbar-test1")).toHaveLength(1);
   expect(fixture.querySelectorAll(".o-topbar-test2")).toHaveLength(0);
   topbarComponentRegistry.content = compDefinitions;
+  parent.destroy();
 });
 
 describe("TopBar - CF", () => {
@@ -344,6 +361,7 @@ describe("TopBar - CF", () => {
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
     ).toBeFalsy();
+    parent.destroy();
   });
 
   test("open sidepanel with one CF in selected zone", async () => {
@@ -378,6 +396,7 @@ describe("TopBar - CF", () => {
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
     ).toBeTruthy();
+    parent.destroy();
   });
 
   test("open sidepanel with with more then one CF in selected zone", async () => {
@@ -427,5 +446,6 @@ describe("TopBar - CF", () => {
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
     ).toBeFalsy();
+    parent.destroy();
   });
 });

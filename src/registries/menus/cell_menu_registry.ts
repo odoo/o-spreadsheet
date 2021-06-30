@@ -105,6 +105,7 @@ cellMenuRegistry
   .add("delete_cell", {
     name: _lt("Delete cells"),
     sequence: 130,
+    separator: true,
     isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
   })
   .addChild("delete_cell_up", ["delete_cell"], {
@@ -116,6 +117,12 @@ cellMenuRegistry
     name: _lt("Shift left"),
     sequence: 20,
     action: ACTIONS.DELETE_CELL_SHIFT_LEFT,
+  })
+  .add("insert_link", {
+    name: _lt("Insert link"),
+    separator: true,
+    sequence: 135,
+    action: ACTIONS.INSERT_LINK,
   })
   .add("clear_cell", {
     name: _lt("Clear cells"),

@@ -478,6 +478,17 @@ describe("sheets", () => {
     expect(getCell(model, "A1")!.evaluated.value).toBe(24);
   });
 
+  test("tryGetSheetName with an existing sheet", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.tryGetSheetName(sheetId)).toBe("Sheet1");
+  });
+
+  test("tryGetSheetName with a sheet which does not exist", () => {
+    const model = new Model();
+    expect(model.getters.tryGetSheetName("Sheet999")).toBeUndefined();
+  });
+
   test("Rename a sheet will call editText", async () => {
     const editText = jest.fn();
     const model = new Model(

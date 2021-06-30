@@ -3,7 +3,6 @@ import { ExcelWorkbookData } from "../types";
 import {
   XLSXExport,
   XLSXExportFile,
-  XLSXRel,
   XLSXRelFile,
   XLSXStructure,
   XMLAttributes,
@@ -21,8 +20,13 @@ import {
   addNumberFormats,
   addStyles,
 } from "./functions/styles";
-import { addColumns, addMerges, addRows } from "./functions/worksheet";
-import { convertChartId, convertHeight, convertWidth } from "./helpers/content_helpers";
+import { addColumns, addHyperlinks, addMerges, addRows } from "./functions/worksheet";
+import {
+  addRelsToFile,
+  convertChartId,
+  convertHeight,
+  convertWidth,
+} from "./helpers/content_helpers";
 import {
   createOverride,
   createXMLFile,
@@ -141,6 +145,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
         ${addRows(construct, data, sheet)}
         ${addMerges(sheet.merges)}
         ${joinXmlNodes(addConditionalFormatting(construct.dxfs, sheet.conditionalFormats))}
+        ${addHyperlinks(construct, data, sheetIndex)}
         ${drawingNode}
       </worksheet>
     `;
@@ -202,6 +207,9 @@ function createRelsFiles(relsFiles: XLSXRelFile[]): XLSXExportFile[] {
         ["Target", rel.target],
         ["Type", rel.type],
       ];
+      if (rel.targetMode) {
+        attributes.push(["TargetMode", rel.targetMode]);
+      }
       relationNodes.push(escapeXml/*xml*/ `
         <Relationship ${formatAttributes(attributes)} />
       `);
@@ -246,24 +254,4 @@ function createRelRoot(): XLSXExportFile {
     </Relationships>
   `;
   return createXMLFile(parseXML(xml), "_rels/.rels");
-}
-
-/**
- * Add a relation to the given file and return its id.
- */
-function addRelsToFile(relsFiles: XLSXRelFile[], path: string, rel: Omit<XLSXRel, "id">): string {
-  let relsFile = relsFiles.find((file) => file.path === path);
-  // the id is a one-based int casted as string
-  let id: string;
-  if (!relsFile) {
-    id = "rId1";
-    relsFiles.push({ path, rels: [{ ...rel, id }] });
-  } else {
-    id = `rId${(relsFile.rels.length + 1).toString()}`;
-    relsFile.rels.push({
-      ...rel,
-      id,
-    });
-  }
-  return id;
 }

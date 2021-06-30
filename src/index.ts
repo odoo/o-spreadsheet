@@ -11,10 +11,14 @@ import {
 } from "./constants";
 import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
+import { isFormula, LinkCell } from "./helpers/cells/index";
 import {
   computeTextWidth,
   formatDecimal,
+  isMarkdownLink,
+  markdownLink,
   numberToLetters,
+  parseMarkdownLink,
   toCartesian,
   toXC,
   toZone,
@@ -25,9 +29,11 @@ import {
   autofillModifiersRegistry,
   autofillRulesRegistry,
   cellMenuRegistry,
+  cellRegistry,
   colMenuRegistry,
   createFullMenuItem,
   inverseCommandRegistry,
+  linkMenuRegistry,
   otRegistry,
   rowMenuRegistry,
   sheetMenuRegistry,
@@ -86,6 +92,7 @@ export const registries = {
   autofillRulesRegistry,
   cellMenuRegistry,
   colMenuRegistry,
+  linkMenuRegistry,
   functionRegistry,
   uiPluginRegistry,
   corePluginRegistry,
@@ -96,8 +103,11 @@ export const registries = {
   topbarComponentRegistry,
   otRegistry,
   inverseCommandRegistry,
+  cellRegistry,
 };
-
+export const cellTypes = {
+  LinkCell,
+};
 export const helpers = {
   args,
   toBoolean,
@@ -111,4 +121,8 @@ export const helpers = {
   UuidGenerator,
   formatDecimal,
   computeTextWidth,
+  isFormula,
+  isMarkdownLink,
+  parseMarkdownLink,
+  markdownLink,
 };

@@ -1,5 +1,5 @@
 import { FORBIDDEN_IN_EXCEL_REGEX } from "../../constants";
-import { isEmpty } from "../../helpers/cells";
+import { isEmpty } from "../../helpers/cells/index";
 import {
   createCols,
   createDefaultCols,
@@ -45,6 +45,7 @@ export interface SheetState {
 export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   static getters = [
     "getSheetName",
+    "tryGetSheetName",
     "getSheet",
     "tryGetSheet",
     "getSheetIdByName",
@@ -279,6 +280,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    */
   getSheetName(sheetId: UID): string {
     return this.getSheet(sheetId).name;
+  }
+
+  /**
+   * Return the sheet name or undefined if the sheet doesn't exist.
+   */
+  tryGetSheetName(sheetId: UID): string | undefined {
+    return this.tryGetSheet(sheetId)?.name;
   }
 
   getSheetIdByName(name: string | undefined): UID | undefined {

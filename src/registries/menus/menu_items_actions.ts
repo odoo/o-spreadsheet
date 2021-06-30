@@ -595,6 +595,10 @@ export const OPEN_FAR_SIDEPANEL_ACTION = (env: SpreadsheetEnv) => {
   env.openSidePanel("FindAndReplace", {});
 };
 
+export const INSERT_LINK = (env: SpreadsheetEnv) => {
+  env.openLinkEditor();
+};
+
 //------------------------------------------------------------------------------
 // Sorting action
 //------------------------------------------------------------------------------

@@ -170,11 +170,16 @@ topbarMenuRegistry
     name: _lt("Chart"),
     sequence: 50,
     action: ACTIONS.CREATE_CHART,
+  })
+  .addChild("insert_link", ["insert"], {
+    name: _lt("Link"),
     separator: true,
+    sequence: 60,
+    action: ACTIONS.INSERT_LINK,
   })
   .addChild("insert_sheet", ["insert"], {
     name: _lt("New sheet"),
-    sequence: 60,
+    sequence: 70,
     action: ACTIONS.CREATE_SHEET_ACTION,
     separator: true,
   })

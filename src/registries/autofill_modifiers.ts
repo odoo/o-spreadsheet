@@ -1,4 +1,4 @@
-import { isFormula } from "../helpers/cells";
+import { isFormula } from "../helpers/cells/index";
 import { Registry } from "../registry";
 import {
   AutofillData,
@@ -35,7 +35,7 @@ autofillModifiersRegistry
   })
   .add("COPY_MODIFIER", {
     apply: (rule: CopyModifier, data: AutofillData, getters: Getters) => {
-      const content = data.cell?.formattedValue || "";
+      const content = data.cell?.content || "";
       return {
         cellData: {
           border: data.border,
@@ -43,7 +43,7 @@ autofillModifiersRegistry
           format: data.cell && data.cell.format,
           content,
         },
-        tooltip: content ? { props: { content: content } } : undefined,
+        tooltip: content ? { props: { content: data.cell?.formattedValue } } : undefined,
       };
     },
   })

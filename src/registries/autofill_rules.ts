@@ -1,5 +1,5 @@
 import { DATETIME_FORMAT } from "../constants";
-import { isFormula } from "../helpers/cells";
+import { isFormula } from "../helpers/cells/index";
 import { Registry } from "../registry";
 import { AutofillModifier, Cell, CellValueType } from "../types/index";
 

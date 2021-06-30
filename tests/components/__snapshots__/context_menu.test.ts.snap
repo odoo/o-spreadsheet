@@ -3,7 +3,6 @@
 exports[`Context Menu context menu simple rendering 1`] = `
 <div
   class="o-menu"
-  style="top:200px;left:300px;max-height:1000px"
 >
   <div
     class="o-menu-item"
@@ -182,6 +181,24 @@ exports[`Context Menu context menu simple rendering 1`] = `
       />
     </svg>
   </div>
+  <div
+    class="o-separator"
+  />
+  <div
+    class="o-menu-item"
+    data-name="insert_link"
+    title="Insert link"
+  >
+    Insert link
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
+  </div>
+  <div
+    class="o-separator"
+  />
   <div
     class="o-menu-item disabled"
     data-name="clear_cell"

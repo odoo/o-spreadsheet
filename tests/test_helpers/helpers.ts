@@ -78,7 +78,7 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
 
 export class GridParent extends Component<any, SpreadsheetEnv> {
   static template = xml/* xml */ `
-    <div class="parent">
+    <div class="parent o-spreadsheet">
       <TopBar
         model="model"
         t-on-ask-confirmation="askConfirmation"
@@ -87,6 +87,8 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
       <Grid
         model="model"
         sidePanelIsOpen="sidePanel.isOpen"
+        linkEditorIsOpen="linkEditor.isOpen"
+        t-on-link-editor-closed="closeLinkEditor"
         t-ref="grid"
         t-on-composer-cell-focused="onGridComposerCellFocused"
         t-on-composer-content-focused="onGridComposerContentFocused"
@@ -107,6 +109,7 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
     component?: string;
     panelProps: any;
   });
+  linkEditor = useState({ isOpen: false });
 
   composer = useState({
     topBarFocus: "inactive",
@@ -124,6 +127,7 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
       _t: GridParent._t,
       clipboard: new MockClipboard(),
       uuidGenerator: model.uuidGenerator,
+      openLinkEditor: () => this.openLinkEditor(),
     });
 
     const drawGrid = model.drawGrid;
@@ -168,6 +172,14 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
     } else {
       this.openSidePanel(panel, panelProps);
     }
+  }
+
+  openLinkEditor() {
+    this.linkEditor.isOpen = true;
+  }
+
+  closeLinkEditor() {
+    this.linkEditor.isOpen = false;
   }
 
   onTopBarComposerFocused(ev: CustomEvent) {

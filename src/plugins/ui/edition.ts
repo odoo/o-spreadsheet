@@ -1,7 +1,9 @@
 import { composerTokenize, EnrichedToken } from "../../formulas/index";
+import { isLink } from "../../helpers/cells/index";
 import {
   colors,
   getComposerSheetName,
+  markdownLink,
   rangeReference,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
@@ -131,9 +133,6 @@ export class EditionPlugin extends UIPlugin {
         switch (this.mode) {
           case "editing":
             this.dispatch("STOP_EDITION");
-            break;
-          case "inactive":
-            // this.setActiveContent();
             break;
           case "waitingForRangeSelection":
             this.insertSelectedRange();
@@ -351,6 +350,7 @@ export class EditionPlugin extends UIPlugin {
         return;
       }
       if (content) {
+        const cell = this.getters.getCell(sheetId, col, row);
         if (content.startsWith("=")) {
           const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
           const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
@@ -358,6 +358,8 @@ export class EditionPlugin extends UIPlugin {
           if (missing > 0) {
             content += new Array(missing).fill(")").join("");
           }
+        } else if (isLink(cell)) {
+          content = markdownLink(content, cell.link.url);
         }
         this.dispatch("UPDATE_CELL", {
           sheetId: this.sheet,

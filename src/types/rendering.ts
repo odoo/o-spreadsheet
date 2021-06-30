@@ -2,6 +2,14 @@ import { Align, Border, Style, Zone } from "./misc";
 
 export type Rect = [number, number, number, number];
 
+/**
+ * Coordinate in pixels
+ */
+export interface DOMCoordinates {
+  x: number;
+  y: number;
+}
+
 export interface Box {
   x: number;
   y: number;
