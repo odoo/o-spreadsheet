@@ -132,6 +132,12 @@ export function isDateTime(str: string): boolean {
   return parseDateTime(str) !== null;
 }
 
+const MARKDOWN_LINK_REGEX = /\[([^\[]+)\]\((.*)\)/
+
+export function isMarkDownLink(str: string): boolean {
+  return MARKDOWN_LINK_REGEX.test(str);
+}
+
 /**
  * This helper function can be used as a type guard when filtering arrays.
  * const foo: number[] = [1, 2, undefined, 4].filter(isDefined)

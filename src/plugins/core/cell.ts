@@ -25,6 +25,7 @@ import {
   toCartesian,
   toXC,
   uuidv4,
+  isMarkDownLink,
 } from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
@@ -663,6 +664,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       const internalDate = parseDateTime(content)!;
       const format = options.format || internalDate.format;
       return new DateTimeCell(id, internalDate.value, { ...options, format });
+    } else if (isMarkDownLink(content)) {
     } else {
       return new TextCell(id, content, options);
     }
