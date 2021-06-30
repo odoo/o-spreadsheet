@@ -193,7 +193,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
         display: flex;
 
         .o-composer-container {
-          height: 34px;
+          height: 31px;
         }
 
         /* Toolbar */
@@ -340,7 +340,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   menus: FullMenuItem[] = [];
   menuRef = useRef("menuRef");
   composerStyle = `
-    line-height: 34px;
+    line-height: 31px;
     border-bottom: 1px solid #e0e2e4;
     border-left: 1px solid #e0e2e4;
     background-color: white;
