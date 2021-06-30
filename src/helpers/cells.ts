@@ -61,6 +61,18 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
     return formatValue(this.evaluated.value, this.format);
   }
 
+  get defaultAlign() {
+    switch (this.evaluated.type) {
+      case CellValueType.number:
+        return "right";
+      case CellValueType.boolean:
+      case CellValueType.error:
+        return "center";
+      default:
+        return "left";
+    }
+  }
+
   withDisplayProperties(properties: CellDisplayProperties): this {
     return Object.create(this, {
       style: {
@@ -155,6 +167,7 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
         break;
       // the two following cases seem wrong.
       //`null` and `undefined` values are not allowed according to `CellValue`
+      // `CellValue` is incomplete
       case "object": // null ?
         this.evaluated = {
           value,

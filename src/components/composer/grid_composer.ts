@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 import { DEFAULT_CELL_HEIGHT } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { CellValueType, Rect, SpreadsheetEnv, Zone } from "../../types/index";
+import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
 import { Composer } from "./composer";
 
 const { Component } = owl;
@@ -98,7 +98,7 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
 
     if (!isFormula) {
       const cell = this.getters.getActiveCell();
-      textAlign = style.align || cell?.evaluated.type === CellValueType.number ? "right" : "left";
+      textAlign = style.align || cell?.defaultAlign || "left";
     }
 
     return `

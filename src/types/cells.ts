@@ -24,6 +24,7 @@ export interface ICell {
    * Cell value formatted based on the format
    */
   readonly formattedValue: string;
+  readonly defaultAlign: "right" | "center" | "left";
   readonly style?: Style;
   readonly format?: string;
   /**

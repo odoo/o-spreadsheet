@@ -41,18 +41,8 @@ import { UIPlugin } from "../ui_plugin";
 function computeAlign(cell: Cell, isShowingFormulas: boolean): "right" | "center" | "left" {
   if (isFormula(cell) && isShowingFormulas) {
     return "left";
-  } else if (cell.evaluated.type === CellValueType.error) {
-    return "center";
   }
-  switch (typeof cell.evaluated.value) {
-    case "object":
-    case "number":
-      return "right";
-    case "boolean":
-      return "center";
-    default:
-      return "left";
-  }
+  return cell.defaultAlign;
 }
 
 function searchIndex(headers: Header[], offset: number): number {
