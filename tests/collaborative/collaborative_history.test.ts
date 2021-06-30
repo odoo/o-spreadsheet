@@ -285,7 +285,6 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "C1"), "hello in D1");
     undo(alice);
     expect(all).toHaveSynchronizedExportedData();
-    // console.log(alice.exportData());
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello in D1");
   });
 

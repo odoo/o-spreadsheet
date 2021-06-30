@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { toCartesian, toZone } from "../../src/helpers";
+import { buildSheetLink, toCartesian, toZone } from "../../src/helpers";
 import { AutofillPlugin } from "../../src/plugins/ui/autofill";
 import { Border, ConditionalFormat, Style } from "../../src/types";
 import { DIRECTION } from "../../src/types/index";
@@ -25,6 +25,13 @@ function autofill(from: string, to: string) {
   const [col, row] = toCartesian(to);
   model.dispatch("AUTOFILL_SELECT", { col, row });
   model.dispatch("AUTOFILL");
+}
+
+function autofillTooltip(from: string, to: string): string | undefined {
+  setSelection(model, [from]);
+  const [col, row] = toCartesian(to);
+  model.dispatch("AUTOFILL_SELECT", { col, row });
+  return model.getters.getAutofillTooltip()?.props.content;
 }
 
 /**
@@ -306,6 +313,16 @@ describe("Autofill", () => {
       expect(getCellContent(model, "A4")).toBe("test");
     });
 
+    test.each([
+      "[https://url.com](https://url.com)",
+      "[custom label](https://url.com)",
+      `[custom label](${buildSheetLink("Sheet1")})`,
+    ])("Autofill link %s", (link) => {
+      setCellContent(model, "A1", link);
+      autofill("A1", "A2");
+      expect(getCell(model, "A2")?.content).toBe(link);
+    });
+
     test("Autofill mixed-mixed values", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "test");
@@ -486,5 +503,10 @@ describe("Autofill", () => {
     autofill("A1", "A3");
     expect(getCellText(model, "A2")).toBe("='Sheet 2'!A2");
     expect(getCellText(model, "A3")).toBe("='Sheet 2'!A3");
+  });
+
+  test("link tooltip is formatted", () => {
+    setCellContent(model, "A1", "[label](url)");
+    expect(autofillTooltip("A1", "A2")).toBe("label");
   });
 });

@@ -1,4 +1,4 @@
-import { isEmpty } from "../../helpers/cells";
+import { isEmpty } from "../../helpers/cells/index";
 import { clip, isInside, toCartesian, toXC, union } from "../../helpers/index";
 import { Mode } from "../../model";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";

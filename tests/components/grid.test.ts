@@ -673,6 +673,21 @@ describe("error tooltip", () => {
     await parent.mount(fixture);
   });
 
+  afterEach(() => {
+    parent.destroy();
+  });
+
+  test("can display error on A1", async () => {
+    setCellContent(model, "A1", "=1/0");
+    await nextTick();
+    triggerMouseEvent("canvas", "mousemove", 80, 30); // A1
+
+    currentTime = 500;
+    intervalCb();
+    await nextTick();
+    expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
+  });
+
   test("can display error tooltip", async () => {
     setCellContent(model, "C8", "=1/0");
     await nextTick();
@@ -688,7 +703,7 @@ describe("error tooltip", () => {
     intervalCb();
     await nextTick();
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
-    expect(document.querySelector(".o-error-tooltip")).toMatchSnapshot();
+    expect(document.querySelector(".o-error-tooltip")?.parentElement).toMatchSnapshot();
 
     // moving mouse await
     triggerMouseEvent("canvas", "mousemove", 100, 200);

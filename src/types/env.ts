@@ -6,6 +6,7 @@ import { Getters } from "./getters";
 
 export interface SpreadsheetEnv extends Env {
   openSidePanel: (panel: string, panelProps?: any) => void;
+  openLinkEditor: () => void;
   toggleSidePanel: (panel: string, panelProps?: any) => void;
   dispatch: CommandDispatcher["dispatch"];
   getters: Getters;

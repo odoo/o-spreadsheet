@@ -13,7 +13,11 @@ const { useSubEnv } = hooks;
 let fixture: HTMLElement;
 
 class Parent extends Component<any, any> {
-  static template = xml`<BottomBar model="model"/>`;
+  static template = xml/* xml */ `
+    <div class="o-spreadsheet">
+      <BottomBar model="model"/>
+    </div>
+  `;
   static components = { BottomBar };
   model: Model;
   constructor(model: Model) {
@@ -51,6 +55,7 @@ describe("BottomBar component", () => {
     await parent.mount(fixture);
 
     expect(fixture.querySelector(".o-spreadsheet-bottom-bar")).toMatchSnapshot();
+    parent.destroy();
   });
 
   test("Can create a new sheet", async () => {
@@ -69,6 +74,7 @@ describe("BottomBar component", () => {
       sheetIdTo: "42",
       sheetIdFrom: activeSheetId,
     });
+    parent.destroy();
   });
 
   test("Can activate a sheet", async () => {
@@ -79,6 +85,7 @@ describe("BottomBar component", () => {
     const sheetIdFrom = parent.model.getters.getActiveSheetId();
     const sheetIdTo = sheetIdFrom;
     expect(parent.env.dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo });
+    parent.destroy();
   });
 
   test("Can open context menu of a sheet", async () => {
@@ -89,6 +96,7 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    parent.destroy();
   });
 
   test("Can open context menu of a sheet with the arrow", async () => {
@@ -99,6 +107,7 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-sheet-icon", "click");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    parent.destroy();
   });
 
   test("Click on the arrow when the context menu is open should close it", async () => {
@@ -112,6 +121,7 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-sheet-icon", "click");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+    parent.destroy();
   });
 
   test("Can move right a sheet", async () => {
@@ -125,6 +135,7 @@ describe("BottomBar component", () => {
     const sheetId = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='move_right'", "click");
     expect(parent.env.dispatch).toHaveBeenCalledWith("MOVE_SHEET", { sheetId, direction: "right" });
+    parent.destroy();
   });
 
   test("Can move left a sheet", async () => {
@@ -139,6 +150,7 @@ describe("BottomBar component", () => {
     const sheetId = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='move_left'", "click");
     expect(parent.env.dispatch).toHaveBeenCalledWith("MOVE_SHEET", { sheetId, direction: "left" });
+    parent.destroy();
   });
 
   test("Move right and left are not visible when it's not possible to move", async () => {
@@ -150,6 +162,7 @@ describe("BottomBar component", () => {
     await nextTick();
     expect(fixture.querySelector(".o-menu-item[data-name='move_left'")).toBeNull();
     expect(fixture.querySelector(".o-menu-item[data-name='move_right'")).toBeNull();
+    parent.destroy();
   });
 
   test("Can rename a sheet", async () => {
@@ -165,6 +178,7 @@ describe("BottomBar component", () => {
       sheetId,
       interactive: true,
     });
+    parent.destroy();
   });
 
   test("Can rename a sheet with dblclick", async () => {
@@ -179,6 +193,7 @@ describe("BottomBar component", () => {
       sheetId,
       interactive: true,
     });
+    parent.destroy();
   });
 
   test("Can duplicate a sheet", async () => {
@@ -195,6 +210,7 @@ describe("BottomBar component", () => {
       sheetId: sheet,
       sheetIdTo: "123",
     });
+    parent.destroy();
   });
 
   test("Can delete a sheet", async () => {
@@ -208,6 +224,7 @@ describe("BottomBar component", () => {
     const sheetId = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='delete'", "click");
     expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_SHEET_CONFIRMATION", { sheetId });
+    parent.destroy();
   });
 
   test("Delete sheet is not visible when there is only one sheet", async () => {
@@ -218,6 +235,7 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     expect(fixture.querySelector(".o-menu-item[data-name='delete'")).toBeNull();
+    parent.destroy();
   });
 
   test("Can open the list of sheets", async () => {
@@ -228,6 +246,7 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-list-sheets", "click");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    parent.destroy();
   });
 
   test("Can open the list of sheets", async () => {
@@ -244,6 +263,7 @@ describe("BottomBar component", () => {
     expect(sheets.length).toBe(2);
     expect((sheets[0] as HTMLElement).dataset.name).toBe(sheet);
     expect((sheets[1] as HTMLElement).dataset.name).toBe("42");
+    parent.destroy();
   });
 
   test("Can activate a sheet from the list of sheets", async () => {
@@ -259,5 +279,6 @@ describe("BottomBar component", () => {
       sheetIdFrom: sheet,
       sheetIdTo: "42",
     });
+    parent.destroy();
   });
 });

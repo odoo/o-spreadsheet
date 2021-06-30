@@ -16,7 +16,7 @@ import {
   TEXT_HEADER_COLOR,
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { isEmpty, isFormula } from "../../helpers/cells";
+import { isEmpty, isFormula } from "../../helpers/cells/index";
 import { overlap, scrollDelay } from "../../helpers/index";
 import { Mode } from "../../model";
 import {
@@ -71,6 +71,7 @@ export class RendererPlugin extends UIPlugin {
     "getColIndex",
     "getRowIndex",
     "getRect",
+    "isVisibleInViewport",
     "getEdgeScrollCol",
     "getEdgeScrollRow",
   ];
@@ -117,7 +118,13 @@ export class RendererPlugin extends UIPlugin {
     return [x, y, width, height];
   }
 
-  // nouvelle implémentation
+  /**
+   * Check if a given position is visible in the viewport.
+   */
+  isVisibleInViewport(col: number, row: number, viewport: Viewport): boolean {
+    const { right, left, top, bottom } = viewport;
+    return row <= bottom && row >= top && col >= left && col <= right;
+  }
 
   getEdgeScrollCol(x: number): EdgeScrollInfo {
     let canEdgeScroll = false;

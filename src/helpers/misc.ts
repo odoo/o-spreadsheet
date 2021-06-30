@@ -9,7 +9,7 @@ import {
   MIN_CF_ICON_MARGIN,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
-import { ConsecutiveIndexes, Style } from "../types";
+import { ConsecutiveIndexes, Link, Style, UID } from "../types";
 import { parseDateTime } from "./dates";
 /**
  * Stringify an object, like JSON.stringify, except that the first level of keys
@@ -130,6 +130,68 @@ export function isBoolean(str: string): boolean {
 
 export function isDateTime(str: string): boolean {
   return parseDateTime(str) !== null;
+}
+
+const MARKDOWN_LINK_REGEX = /^\[([^\[]+)\]\((.+)\)$/;
+//link must start with http or https
+//https://stackoverflow.com/a/3809435/4760614
+const WEB_LINK_REGEX =
+  /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/;
+
+export function isMarkdownLink(str: string): boolean {
+  return MARKDOWN_LINK_REGEX.test(str);
+}
+
+/**
+ * Check if the string is a web link.
+ * e.g. http://odoo.com
+ */
+export function isWebLink(str: string): boolean {
+  return WEB_LINK_REGEX.test(str);
+}
+
+/**
+ * Build a markdown link from a label and an url
+ */
+export function markdownLink(label: string, url: string): string {
+  return `[${label}](${url})`;
+}
+
+export function parseMarkdownLink(str: string): Link {
+  const matches = str.match(MARKDOWN_LINK_REGEX) || [];
+  const label = matches[1];
+  const url = matches[2];
+  if (!label || !url) {
+    throw new Error(`Could not parse markdown link ${str}.`);
+  }
+  return {
+    label,
+    url,
+  };
+}
+
+const O_SPREADSHEET_LINK_PREFIX = "o-spreadsheet://";
+
+export function isMarkdownSheetLink(str: string) {
+  if (!isMarkdownLink(str)) {
+    return false;
+  }
+  const { url } = parseMarkdownLink(str);
+  return url.startsWith(O_SPREADSHEET_LINK_PREFIX);
+}
+
+export function buildSheetLink(sheetId: UID) {
+  return `${O_SPREADSHEET_LINK_PREFIX}${sheetId}`;
+}
+
+/**
+ * Parse a sheet link and return the sheet id
+ */
+export function parseSheetLink(sheetLink: string) {
+  if (sheetLink.startsWith(O_SPREADSHEET_LINK_PREFIX)) {
+    return sheetLink.substr(O_SPREADSHEET_LINK_PREFIX.length);
+  }
+  throw new Error(`${sheetLink} is not a valid sheet link`);
 }
 
 /**

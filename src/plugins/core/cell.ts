@@ -1,8 +1,8 @@
 import { DATETIME_FORMAT, NULL_FORMAT } from "../../constants";
 import { compile } from "../../formulas/index";
 import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
-import { FormulaCell, isEmpty, isFormula } from "../../helpers/cells";
 import { cellFactory } from "../../helpers/cells/cell_factory";
+import { FormulaCell, isEmpty, isFormula } from "../../helpers/cells/index";
 import {
   isInside,
   maximumDecimalPlaces,

@@ -1,6 +1,6 @@
 import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { isEmpty, isFormula } from "../../helpers/cells";
+import { isEmpty, isFormula } from "../../helpers/cells/index";
 import { mapCellsInZone, toXC } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";

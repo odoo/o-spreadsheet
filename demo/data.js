@@ -15,10 +15,11 @@ export const demoData = {
       cols: { 1: {}, 3: {} },
       rows: {},
       cells: {
-        A21: { content: "Sheet2 => B2:" },
-        B2: { content: "Owl is awesome", style: 1 },
+        A21: { content: "[Sheet2 => B2:](o-spreadsheet://Sheet2)" },
+        B2: { content: "[Owl is awesome](https://github.com/odoo/owl)", style: 1 },
         B4: { content: "Numbers", style: 4 },
         B21: { content: "=Sheet2!B2", style: 7 },
+        A23: { content: "https://odoo.com" },
         C1: { content: "CF =42" },
         C4: { content: "12.4" },
         C5: { content: "42" },

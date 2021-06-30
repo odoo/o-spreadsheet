@@ -39,6 +39,7 @@ export interface CoreGetters {
   getSheet: SheetPlugin["getSheet"];
   tryGetSheet: SheetPlugin["tryGetSheet"];
   getSheetName: SheetPlugin["getSheetName"];
+  tryGetSheetName: SheetPlugin["tryGetSheetName"];
   getSheetIdByName: SheetPlugin["getSheetIdByName"];
   getSheets: SheetPlugin["getSheets"];
   getVisibleSheets: SheetPlugin["getVisibleSheets"];
@@ -69,6 +70,7 @@ export interface CoreGetters {
   expandZone: MergePlugin["expandZone"];
   isInMerge: MergePlugin["isInMerge"];
   getMainCell: MergePlugin["getMainCell"];
+  getBottomLeftCell: MergePlugin["getBottomLeftCell"];
   doesIntersectMerge: MergePlugin["doesIntersectMerge"];
   isInSameMerge: MergePlugin["isInSameMerge"];
   getMerges: MergePlugin["getMerges"];
@@ -137,6 +139,7 @@ export type Getters = CoreGetters & {
   getColIndex: RendererPlugin["getColIndex"];
   getRowIndex: RendererPlugin["getRowIndex"];
   getRect: RendererPlugin["getRect"];
+  isVisibleInViewport: RendererPlugin["isVisibleInViewport"];
   getEdgeScrollCol: RendererPlugin["getEdgeScrollCol"];
   getEdgeScrollRow: RendererPlugin["getEdgeScrollRow"];
 
