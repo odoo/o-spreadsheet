@@ -11,6 +11,7 @@ import {
   FormulaCell as IFormulaCell,
   ICell,
   InvalidEvaluation,
+  Link,
   NumberEvaluation,
   Range,
   Style,
@@ -18,6 +19,7 @@ import {
   UID,
 } from "../types";
 import { formatDateTime } from "./dates";
+import { parseMarkdownLink } from "./misc";
 import { formatNumber, formatStandardNumber } from "./numbers";
 
 export function isFormula(cell: ICell): cell is IFormulaCell {
@@ -52,7 +54,7 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
   readonly format?: string;
   abstract content: string;
 
-  constructor(readonly id: UID, public evaluated: T, options: CellDisplayProperties = {}) {
+  constructor(readonly id: UID, public evaluated: T, options: CellDisplayProperties) {
     this.style = options.style;
     this.format = options.format;
   }
@@ -122,6 +124,24 @@ export class DateTimeCell extends NumberCell {
   constructor(id: UID, value: number, options: CellDisplayProperties & { format: string }) {
     super(id, value, options);
     this.format = options.format;
+  }
+}
+
+export class LinkCell extends AbstractCell<TextEvaluation> {
+  readonly link: Link;
+  readonly content: string;
+  constructor(id: UID, content: string, options: CellDisplayProperties = {}) {
+    const link = parseMarkdownLink(content);
+    options = {
+      ...options,
+      style: {
+        ...options.style,
+        textColor: "#0000EE",
+      },
+    };
+    super(id, { value: link.label, type: CellValueType.text }, options);
+    this.link = link;
+    this.content = content;
   }
 }
 

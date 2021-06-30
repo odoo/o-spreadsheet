@@ -1,6 +1,7 @@
 import { Model } from "../../src";
 import { CommandResult } from "../../src/types";
-import { getCell } from "../test_helpers/getters_helpers";
+import { setCellContent } from "../test_helpers/commands_helpers";
+import { getCell, getCellText } from "../test_helpers/getters_helpers";
 
 describe("getCellText", () => {
   test("Update cell with a format is correctly set", () => {
@@ -42,5 +43,14 @@ describe("getCellText", () => {
       content: "hello",
     });
     expect(result).toBe(CommandResult.TargetOutOfSheet);
+  });
+});
+
+describe("markdown link cell", () => {
+  test("can create a markdown link cell", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "[my label](www.odoo.com)");
+    expect(getCell(model, "A1")?.content).toBe("[my label](www.odoo.com)");
+    expect(getCellText(model, "A1")).toBe("my label");
   });
 });

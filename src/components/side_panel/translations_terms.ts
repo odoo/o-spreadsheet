@@ -140,6 +140,12 @@ export const FindAndReplaceTerms = {
   ReplaceFormulas: _lt("Also modify formulas"),
 };
 
+export const LinkEditorTerms = {
+  Label: _lt("Label"),
+  Link: _lt("Link"),
+  Confirm: _lt("Confirm"),
+};
+
 export const GenericWords = {
   And: _lt("and"),
 };

@@ -1,6 +1,7 @@
 import { ChartPanel } from "../components/side_panel/chart_panel";
 import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting/conditional_formatting";
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace";
+import { LinkEditor } from "../components/side_panel/link_editor";
 import { Registry } from "../registry";
 import { _lt } from "../translation";
 import { SpreadsheetEnv } from "../types";
@@ -29,4 +30,9 @@ sidePanelRegistry.add("ChartPanel", {
 sidePanelRegistry.add("FindAndReplace", {
   title: _lt("Find and Replace"),
   Body: FindAndReplacePanel,
+});
+
+sidePanelRegistry.add("InsertLink", {
+  title: _lt("Insert Link"),
+  Body: LinkEditor,
 });

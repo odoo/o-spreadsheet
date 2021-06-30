@@ -1,5 +1,5 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
-import { numberToLetters, uuidv4, zoneToXc } from "../../helpers/index";
+import { LinkCell, numberToLetters, uuidv4, zoneToXc } from "../../helpers/index";
 import { _lt } from "../../translation";
 import { SpreadsheetEnv, Style } from "../../types/index";
 
@@ -590,6 +590,16 @@ export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetEnv) => {
 
 export const OPEN_FAR_SIDEPANEL_ACTION = (env: SpreadsheetEnv) => {
   env.openSidePanel("FindAndReplace", {});
+};
+
+export const INSERT_LINK = (env: SpreadsheetEnv) => {
+  const [col, row] = env.getters.getPosition();
+  const sheetId = env.getters.getActiveSheetId();
+  const cell = env.getters.getCell(sheetId, col, row);
+  env.openSidePanel("InsertLink", {
+    position: { col, row, sheetId },
+    link: cell instanceof LinkCell ? cell.link : undefined,
+  });
 };
 
 //------------------------------------------------------------------------------

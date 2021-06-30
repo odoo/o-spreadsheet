@@ -8,6 +8,13 @@ import { NormalizedFormula } from "./workbook_data";
 
 export type UID = string;
 
+export type LinkType = "url";
+
+export interface Link {
+  label: string;
+  url: string;
+}
+
 export interface Zone {
   left: number;
   right: number;

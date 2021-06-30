@@ -9,6 +9,7 @@ import {
   InvalidFormulaCell,
   isEmpty,
   isFormula,
+  LinkCell,
   NumberCell,
   TextCell,
 } from "../../helpers/cells";
@@ -17,7 +18,7 @@ import {
   isBoolean,
   isDateTime,
   isInside,
-  isMarkDownLink,
+  isMarkdownLink,
   isNumber,
   maximumDecimalPlaces,
   parseNumber,
@@ -664,7 +665,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       const internalDate = parseDateTime(content)!;
       const format = options.format || internalDate.format;
       return new DateTimeCell(id, internalDate.value, { ...options, format });
-    } else if (isMarkDownLink(content)) {
+    } else if (isMarkdownLink(content)) {
+      return new LinkCell(id, content, options);
     } else {
       return new TextCell(id, content, options);
     }

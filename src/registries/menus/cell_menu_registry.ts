@@ -117,6 +117,12 @@ cellMenuRegistry
     sequence: 20,
     action: ACTIONS.DELETE_CELL_SHIFT_LEFT,
   })
+  .add("insert_link", {
+    name: _lt("Insert Link"),
+    separator: true,
+    sequence: 135,
+    action: ACTIONS.INSERT_LINK,
+  })
   .add("clear_cell", {
     name: _lt("Clear cells"),
     sequence: 140,

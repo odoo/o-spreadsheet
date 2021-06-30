@@ -9,7 +9,7 @@ import {
   MIN_CF_ICON_MARGIN,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
-import { ConsecutiveIndexes, Style } from "../types";
+import { ConsecutiveIndexes, Link, Style } from "../types";
 import { parseDateTime } from "./dates";
 /**
  * Stringify an object, like JSON.stringify, except that the first level of keys
@@ -132,10 +132,23 @@ export function isDateTime(str: string): boolean {
   return parseDateTime(str) !== null;
 }
 
-const MARKDOWN_LINK_REGEX = /\[([^\[]+)\]\((.*)\)/;
+const MARKDOWN_LINK_REGEX = /^\[([^\[]+)\]\((.*)\)$/;
 
-export function isMarkDownLink(str: string): boolean {
+export function isMarkdownLink(str: string): boolean {
   return MARKDOWN_LINK_REGEX.test(str);
+}
+
+export function parseMarkdownLink(str: string): Link {
+  const matchs = str.match(MARKDOWN_LINK_REGEX) || [];
+  const label = matchs[1];
+  const url = matchs[2];
+  if (!label || !url) {
+    throw new Error(`Could not parse markdown link ${str}.`);
+  }
+  return {
+    label,
+    url,
+  };
 }
 
 /**
