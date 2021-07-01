@@ -853,6 +853,14 @@ export interface EvaluateAllSheetsCommand extends BaseCommand {
   type: "EVALUATE_ALL_SHEETS";
 }
 
+export interface ActivateNextSheetCommand extends BaseCommand {
+  type: "ACTIVATE_NEXT_SHEET";
+}
+
+export interface ActivatePreviousSheetCommand extends BaseCommand {
+  type: "ACTIVATE_PREVIOUS_SHEET";
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -970,7 +978,9 @@ export type LocalCommand =
   | DeleteCellCommand
   | InsertCellCommand
   | SetViewportOffsetCommand
-  | EvaluateAllSheetsCommand;
+  | EvaluateAllSheetsCommand
+  | ActivateNextSheetCommand
+  | ActivatePreviousSheetCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

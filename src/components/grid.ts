@@ -381,15 +381,29 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     "SHIFT+ ": () => {
       const { cols } = this.getters.getActiveSheet();
       const newZone = { ...this.getters.getSelectedZone(), left: 0, right: cols.length - 1 };
-      this.dispatch("SET_SELECTION", { anchor: this.getters.getPosition(), zones: [newZone] });
+      this.dispatch("SET_SELECTION", {
+        anchor: this.getters.getPosition(),
+        zones: [newZone],
+        anchorZone: newZone,
+      });
     },
     "CTRL+ ": () => {
       const { rows } = this.getters.getActiveSheet();
       const newZone = { ...this.getters.getSelectedZone(), top: 0, bottom: rows.length - 1 };
-      this.dispatch("SET_SELECTION", { anchor: this.getters.getPosition(), zones: [newZone] });
+      this.dispatch("SET_SELECTION", {
+        anchor: this.getters.getPosition(),
+        zones: [newZone],
+        anchorZone: newZone,
+      });
     },
     "CTRL+SHIFT+ ": () => {
       this.dispatch("SELECT_ALL");
+    },
+    "SHIFT+PAGEDOWN": () => {
+      this.dispatch("ACTIVATE_NEXT_SHEET");
+    },
+    "SHIFT+PAGEUP": () => {
+      this.dispatch("ACTIVATE_PREVIOUS_SHEET");
     },
   };
 
