@@ -400,6 +400,12 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     "CTRL+SHIFT+ ": () => {
       this.dispatch("SELECT_ALL");
     },
+    "SHIFT+PAGEDOWN": () => {
+      this.dispatch("ACTIVATE_NEXT_SHEET");
+    },
+    "SHIFT+PAGEUP": () => {
+      this.dispatch("ACTIVATE_PREVIOUS_SHEET");
+    },
   };
 
   constructor() {
