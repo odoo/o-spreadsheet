@@ -2,6 +2,7 @@ import { HEADER_WIDTH, MESSAGE_VERSION } from "../../src/constants";
 import { scrollDelay, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
+  createSheet,
   hideColumns,
   hideRows,
   merge,
@@ -511,9 +512,40 @@ describe("Grid component", () => {
 
     test("Pressing Ctrl+Shift+Space selects the whole sheet", () => {
       document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: " ", ctrlKey:true, shiftKey: true, bubbles: true })
+        new KeyboardEvent("keydown", { key: " ", ctrlKey: true, shiftKey: true, bubbles: true })
       );
       expect(model.getters.getSelectedZone()).toEqual(toZone("A1:Z100"));
+    });
+
+    test("Pressing Shift+PageDown activates the next sheet", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      createSheet(model, { sheetId: "second", activate: true });
+      createSheet(model, { sheetId: "third", position: 2 });
+
+      expect(model.getters.getActiveSheetId()).toBe("second");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "PageDown", shiftKey: true, bubbles: true })
+      );
+      expect(model.getters.getActiveSheetId()).toBe("third");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "PageDown", shiftKey: true, bubbles: true })
+      );
+      expect(model.getters.getActiveSheetId()).toBe(sheetId);
+    });
+    test("Pressing Shift+PageUp activates the previous sheet", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      createSheet(model, { sheetId: "second", activate: true });
+      createSheet(model, { sheetId: "third", position: 2 });
+
+      expect(model.getters.getActiveSheetId()).toBe("second");
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "PageUp", shiftKey: true, bubbles: true })
+      );
+      expect(model.getters.getActiveSheetId()).toBe(sheetId);
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "PageUp", shiftKey: true, bubbles: true })
+      );
+      expect(model.getters.getActiveSheetId()).toBe("third");
     });
   });
 

@@ -300,6 +300,12 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       case "SELECT_FIGURE":
         this.selectedFigureId = cmd.id;
         break;
+      case "ACTIVATE_NEXT_SHEET":
+        this.activateNextSheet("right");
+        break;
+      case "ACTIVATE_PREVIOUS_SHEET":
+        this.activateNextSheet("left");
+        break;
     }
   }
 
@@ -800,6 +806,18 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     }
     return zones;
   }
+
+  private activateNextSheet(direction: "left" | "right") {
+    const sheetIds = this.getters.getSheets().map((sheet) => sheet.id);
+    const oldSheetPosition = sheetIds.findIndex((id) => id === this.activeSheet.id);
+    const delta = direction === "left" ? sheetIds.length - 1 : 1;
+    const newPosition = (oldSheetPosition + delta) % sheetIds.length;
+    this.dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: this.getActiveSheetId(),
+      sheetIdTo: sheetIds[newPosition],
+    });
+  }
+
   // ---------------------------------------------------------------------------
   // Grid rendering
   // ---------------------------------------------------------------------------
