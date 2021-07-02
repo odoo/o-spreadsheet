@@ -122,6 +122,11 @@ export interface MenuState {
   menuItems: FullMenuItem[];
 }
 
+export interface LinkTooltipState {
+  isOpen: boolean;
+  style: string;
+  url: string;
+}
 export class Menu extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static components = { Menu };

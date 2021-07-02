@@ -12,6 +12,7 @@ import {
   ICell,
   InvalidEvaluation,
   Link,
+  LinkCell as ILinkCell,
   NumberEvaluation,
   Range,
   Style,
@@ -28,6 +29,10 @@ export function isFormula(cell: ICell): cell is IFormulaCell {
 
 export function isEmpty(cell: Cell | undefined): boolean {
   return !cell || cell instanceof EmptyCell;
+}
+
+export function hasLink(cell: Cell | undefined): cell is ILinkCell {
+  return cell instanceof LinkCell;
 }
 
 /**

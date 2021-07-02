@@ -1,4 +1,4 @@
-import { CompiledFormula, Range, Style, UID } from "./misc";
+import { CompiledFormula, Link, Range, Style, UID } from "./misc";
 
 export enum CellValueType {
   boolean = "boolean",
@@ -39,6 +39,11 @@ export interface FormulaCell extends ICell {
   readonly normalizedText: string;
   readonly compiledFormula: CompiledFormula;
   readonly dependencies: Range[];
+}
+
+export interface LinkCell extends ICell {
+  readonly link: Link;
+  readonly content: string;
 }
 
 export type InvalidCell = ICell & {

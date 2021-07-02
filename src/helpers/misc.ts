@@ -141,7 +141,8 @@ export function isMarkdownLink(str: string): boolean {
 export function parseMarkdownLink(str: string): Link {
   const matchs = str.match(MARKDOWN_LINK_REGEX) || [];
   const label = matchs[1];
-  const url = matchs[2];
+  const withHttp = (url) => (!/^https?:\/\//i.test(url) ? `https://${url}` : url);
+  const url = withHttp(matchs[2]);
   if (!label || !url) {
     throw new Error(`Could not parse markdown link ${str}.`);
   }

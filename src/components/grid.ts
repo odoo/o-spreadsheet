@@ -7,7 +7,7 @@ import {
   HEADER_WIDTH,
   SCROLLBAR_WIDTH,
 } from "../constants";
-import { findCellInNewZone, isInside, MAX_DELAY } from "../helpers/index";
+import { findCellInNewZone, hasLink, isInside, MAX_DELAY } from "../helpers/index";
 import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
@@ -18,7 +18,7 @@ import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
 import { FiguresContainer } from "./figures/container";
 import { startDnd } from "./helpers/drag_and_drop";
-import { Menu, MenuState } from "./menu";
+import { LinkTooltipState, Menu, MenuState } from "./menu";
 import { Overlay } from "./overlay";
 import { ScrollBar } from "./scrollbar";
 
@@ -44,6 +44,10 @@ const registries = {
   CELL: cellMenuRegistry,
 };
 
+const ERROR_TOOLTIP_HEIGHT = 80;
+const ERROR_TOOLTIP_WIDTH = 180;
+const LINK_TOOLTIP_HEIGHT = 23;
+const LINK_TOOLTIP_WIDTH = 200;
 // copy and paste are specific events that should not be managed by the keydown event,
 // but they shouldn't be preventDefault and stopped (else copy and paste events will not trigger)
 // and also should not result in typing the character C or V in the composer
@@ -166,6 +170,7 @@ const TEMPLATE = xml/* xml */ `
     </t>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
+      t-on-click="onClick"
       t-on-dblclick="onDoubleClick"
       tabindex="-1"
       t-on-contextmenu="onCanvasContextMenu"
@@ -180,6 +185,13 @@ const TEMPLATE = xml/* xml */ `
     </t>
     <t t-if="errorTooltip.isOpen">
       <div class="o-error-tooltip" t-esc="errorTooltip.text" t-att-style="errorTooltip.style"/>
+    </t>
+    <t t-if="linkTooltip.isOpen">
+      <div class="o-link-tooltip"  t-att-style="linkTooltip.style">
+        <a t-att-href="linkTooltip.url" target="_blank">
+          <t t-esc="linkTooltip.url"/>
+        </a>
+      </div>
     </t>
     <t t-if="getters.getEditionMode() === 'inactive'">
       <Autofill position="getAutofillPosition()"/>
@@ -219,11 +231,20 @@ const CSS = css/* scss */ `
     .o-error-tooltip {
       position: absolute;
       font-size: 13px;
-      width: 180px;
-      height: 80px;
+      width: ${ERROR_TOOLTIP_WIDTH};
+      height: ${ERROR_TOOLTIP_HEIGHT};
       background-color: white;
       box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
       border-left: 3px solid red;
+      padding: 10px;
+    }
+    .o-link-tooltip {
+      position: absolute;
+      font-size: 13px;
+      width: ${LINK_TOOLTIP_WIDTH};
+      height: ${LINK_TOOLTIP_HEIGHT};
+      background-color: white;
+      box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
       padding: 10px;
     }
     .o-scrollbar {
@@ -262,6 +283,12 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     menuItems: [],
   });
 
+  private linkTooltip: LinkTooltipState = useState({
+    isOpen: false,
+    style: "",
+    url: "",
+  });
+
   private vScrollbarRef = useRef("vscrollbar");
   private hScrollbarRef = useRef("hscrollbar");
   private vScrollbar: ScrollBar;
@@ -293,9 +320,9 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
         { left: col, top: row, right: col, bottom: row },
         viewport
       );
-      const hAlign = x + width + 200 < viewportWidth ? "left" : "right";
+      const hAlign = x + width + ERROR_TOOLTIP_WIDTH + 20 < viewportWidth ? "left" : "right";
       const hOffset = hAlign === "left" ? x + width : viewportWidth - x + (SCROLLBAR_WIDTH + 2);
-      const vAlign = y + 120 < viewportHeight ? "top" : "bottom";
+      const vAlign = y + ERROR_TOOLTIP_HEIGHT + 20 < viewportHeight ? "top" : "bottom";
       const vOffset = vAlign === "top" ? y : viewportHeight - y - height + (SCROLLBAR_WIDTH + 2);
       return {
         isOpen: true,
@@ -608,6 +635,35 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     }
   }
 
+  onClick(ev) {
+    const [col, row] = this.getCartesianCoordinates(ev);
+    const sheetId = this.getters.getActiveSheetId();
+    const [mainCol, mainRow] = this.getters.getMainCell(sheetId, col, row);
+    const cell = this.getters.getCell(sheetId, mainCol, mainRow);
+    if (hasLink(cell)) {
+      const viewport = this.getters.getActiveSnappedViewport();
+      const { width: viewportWidth, height: viewportHeight } = this.getters.getViewportDimension();
+      const [x, y, width, height] = this.getters.getRect(
+        { left: col, top: row, right: col, bottom: row },
+        viewport
+      );
+      const hAlign = x + LINK_TOOLTIP_WIDTH + 30 < viewportWidth ? "left" : "right";
+      const hOffset =
+        hAlign === "left" ? x + 10 : viewportWidth - x + (SCROLLBAR_WIDTH + 2) - width + 10;
+      let vAlign = y + LINK_TOOLTIP_HEIGHT + height + 20 < viewportHeight ? "top" : "bottom";
+      const vOffset = vAlign === "top" ? y + height : viewportHeight - y + (SCROLLBAR_WIDTH + 2);
+      this.linkTooltip.isOpen = true;
+      this.linkTooltip.style = `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`;
+      this.linkTooltip.url = cell.link.url;
+    } else {
+      this.closeLinkTooltip();
+    }
+  }
+  closeLinkTooltip() {
+    this.linkTooltip.isOpen = false;
+    this.linkTooltip.style = "";
+    this.linkTooltip.url = "";
+  }
   // ---------------------------------------------------------------------------
   // Keyboard interactions
   // ---------------------------------------------------------------------------
@@ -621,6 +677,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   processArrows(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
+    this.closeLinkTooltip();
     const deltaMap = {
       ArrowDown: [0, 1],
       ArrowLeft: [-1, 0],
