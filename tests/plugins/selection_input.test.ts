@@ -106,9 +106,9 @@ describe("selection input plugin", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, maximumRanges: 2 });
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: {
-        A1: "#000",
-        B1: "#000",
-        C1: "#000",
+        A1: { quantity: 1, color: "#000" },
+        B1: { quantity: 1, color: "#000" },
+        C1: { quantity: 1, color: "#000" },
       },
     });
     expect(model.getters.getSelectionInput(id)).toHaveLength(2);
@@ -426,7 +426,7 @@ describe("selection input plugin", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     createSheet(model, { sheetId: "42", activate: true });
     model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: { A1: "#000" },
+      ranges: { A1: { quantity: 1, color: "#000" } },
     });
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("Sheet2!A1");
   });
@@ -437,7 +437,7 @@ describe("selection input plugin", () => {
       model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
       createSheetWithName(model, { sheetId: "42", activate: true }, sheetName);
       model.dispatch("ADD_HIGHLIGHTS", {
-        ranges: { A1: "#000" },
+        ranges: { A1: { quantity: 1, color: "#000" } },
       });
       expect(model.getters.getSelectionInput(id)[0].xc).toBe(`'${sheetName}'!A1`);
     }
@@ -446,7 +446,7 @@ describe("selection input plugin", () => {
   test("focus while in other sheet", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: { A1: "#000" },
+      ranges: { A1: { quantity: 1, color: "#000" } },
     });
     createSheet(model, { sheetId: "42", activate: true });
     model.dispatch("FOCUS_RANGE", { id, rangeId: null });

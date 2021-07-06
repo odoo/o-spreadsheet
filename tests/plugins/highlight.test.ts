@@ -22,7 +22,7 @@ beforeEach(async () => {
 describe("highlight", () => {
   test("add highlight", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: { B2: "#888" },
+      ranges: { B2: { quantity: 1, color: "#888" } },
     });
     expect(model.getters.getHighlights()).toStrictEqual([
       {
@@ -35,7 +35,7 @@ describe("highlight", () => {
 
   test("remove all highlight", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: { B2: "#888", B6: "#999" },
+      ranges: { B2: { quantity: 1, color: "#888" }, B6: { quantity: 1, color: "#999" } },
     });
     expect(model.getters.getHighlights().length).toBe(2);
     model.dispatch("REMOVE_ALL_HIGHLIGHTS");
@@ -44,10 +44,10 @@ describe("highlight", () => {
 
   test("remove a single highlight", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: { B2: "#888", B6: "#999" },
+      ranges: { B2: { quantity: 1, color: "#888" }, B6: { quantity: 1, color: "#999" } },
     });
     model.dispatch("REMOVE_HIGHLIGHTS", {
-      ranges: { B6: "#999" },
+      ranges: { B6: { quantity: 1, color: "#999" } },
     });
     expect(model.getters.getHighlights()).toStrictEqual([
       {
@@ -67,10 +67,10 @@ describe("highlight", () => {
 
   test("remove highlight with another color", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: { B2: "#888" },
+      ranges: { B2: { quantity: 1, color: "#888" } },
     });
     model.dispatch("REMOVE_HIGHLIGHTS", {
-      ranges: { B2: "#999" },
+      ranges: { B2: { quantity: 1, color: "#999" } },
     });
     expect(model.getters.getHighlights()).toStrictEqual([
       {
@@ -83,13 +83,13 @@ describe("highlight", () => {
 
   test("remove highlight with same range", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: { B2: "#888" },
+      ranges: { B2: { quantity: 1, color: "#888" } },
     });
     model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: { B2: "#999" },
+      ranges: { B2: { quantity: 1, color: "#999" } },
     });
     model.dispatch("REMOVE_HIGHLIGHTS", {
-      ranges: { B2: "#999" },
+      ranges: { B2: { quantity: 1, color: "#999" } },
     });
     expect(model.getters.getHighlights()).toStrictEqual([
       {
@@ -102,10 +102,10 @@ describe("highlight", () => {
 
   test("remove highlight with sheet reference", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: { B2: "#888" },
+      ranges: { B2: { quantity: 1, color: "#888" } },
     });
     model.dispatch("REMOVE_HIGHLIGHTS", {
-      ranges: { "Sheet1!B2": "#888" },
+      ranges: { "Sheet1!B2": { quantity: 1, color: "#888" } },
     });
     expect(model.getters.getHighlights()).toHaveLength(0);
   });
@@ -113,11 +113,11 @@ describe("highlight", () => {
   test("remove highlight from another sheet", () => {
     const sheet1 = model.getters.getActiveSheetId();
     model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: { B2: "#888" },
+      ranges: { B2: { quantity: 1, color: "#888" } },
     });
     createSheet(model, { sheetId: "42", activate: true });
     model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: { B2: "#888" },
+      ranges: { B2: { quantity: 1, color: "#888" } },
     });
     expect(model.getters.getHighlights()).toStrictEqual([
       {
@@ -132,7 +132,7 @@ describe("highlight", () => {
       },
     ]);
     model.dispatch("REMOVE_HIGHLIGHTS", {
-      ranges: { B2: "#888" },
+      ranges: { B2: { quantity: 1, color: "#888" } },
     });
     expect(model.getters.getHighlights()).toStrictEqual([
       {
@@ -330,10 +330,10 @@ describe("highlight", () => {
 
   test("selection with manually set pending highlight", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: { B10: "#999" },
+      ranges: { B10: { quantity: 1, color: "#999" } },
     });
     model.dispatch("ADD_PENDING_HIGHLIGHTS", {
-      ranges: { B10: "#999" },
+      ranges: { B10: { quantity: 1, color: "#999" } },
     });
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     model.dispatch("START_SELECTION");
@@ -413,7 +413,7 @@ describe("highlight", () => {
   test("disabling selection highlighting resets pending highlights", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     model.dispatch("ADD_PENDING_HIGHLIGHTS", {
-      ranges: { B10: "#999" },
+      ranges: { B10: { quantity: 1, color: "#999" } },
     });
     expect(getPendingHighlights(model).length).toBe(1);
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: false });

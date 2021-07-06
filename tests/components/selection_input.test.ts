@@ -138,7 +138,7 @@ describe("Selection Input", () => {
     const { model } = await createSelectionInput();
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: {
-        B4: "#454545",
+        B4: { quantity: 1, color: "#454545" },
       },
     });
     await nextTick();
@@ -147,7 +147,7 @@ describe("Selection Input", () => {
     simulateClick(".o-add-selection");
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: {
-        B5: "#787878",
+        B5: { quantity: 1, color: "#787878" },
       },
     });
     await nextTick();
@@ -239,7 +239,7 @@ describe("Selection Input", () => {
     const { model } = await createSelectionInput({ onChanged });
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: {
-        B4: "#454545",
+        B4: { quantity: 1, color: "#454545" },
       },
     });
     await nextTick();
@@ -267,7 +267,7 @@ describe("Selection Input", () => {
     activateSheet(model, "42");
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: {
-        B4: "#454545",
+        B4: { quantity: 1, color: "#454545" },
       },
     });
     await nextTick();
@@ -284,7 +284,7 @@ describe("Selection Input", () => {
     activateSheet(model, "42");
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: {
-        B4: "#454545",
+        B4: { quantity: 1, color: "#454545" },
       },
     });
     await nextTick();

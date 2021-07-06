@@ -1,6 +1,13 @@
 import { getNextColor, isEqual, toZone } from "../../helpers/index";
 import { Mode } from "../../model";
-import { Command, GridRenderingContext, Highlight, LAYERS, Zone } from "../../types/index";
+import {
+  Command,
+  GridRenderingContext,
+  Highlight,
+  LAYERS,
+  Zone,
+  ZoneReference,
+} from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 /**
@@ -68,27 +75,35 @@ export class HighlightPlugin extends UIPlugin {
   // Other
   // ---------------------------------------------------------------------------
 
-  private addHighlights(ranges: { [range: string]: string }) {
+  private addHighlights(ranges: { [range: string]: ZoneReference }) {
     let highlights = this.prepareHighlights(ranges);
     this.highlights = this.highlights.concat(highlights);
   }
 
-  private addPendingHighlight(ranges: { [range: string]: string }) {
+  private addPendingHighlight(ranges: { [range: string]: ZoneReference }) {
     let highlights = this.prepareHighlights(ranges);
     this.pendingHighlights = this.pendingHighlights.concat(highlights);
   }
 
-  private prepareHighlights(ranges: { [range: string]: string }): Highlight[] {
+  private prepareHighlights(ranges: { [range: string]: ZoneReference }): Highlight[] {
     if (Object.keys(ranges).length === 0) {
       return [];
     }
     const activeSheetId = this.getters.getActiveSheetId();
+
     return Object.keys(ranges)
-      .map((r1c1) => {
+      .flatMap((r1c1) => {
         const [xc, sheet] = r1c1.split("!").reverse();
         const sheetId = this.getters.getSheetIdByName(sheet) || activeSheetId;
         const zone: Zone = this.getters.expandZone(activeSheetId, toZone(xc));
-        return { zone, color: ranges[r1c1], sheet: sheetId };
+
+        let highlights: Highlight[] = [];
+
+        for (let q = 0; q < ranges[r1c1].quantity; q++) {
+          highlights.push({ zone, color: ranges[r1c1].color, sheet: sheetId });
+        }
+
+        return highlights;
       })
       .filter(
         (x) =>
@@ -104,14 +119,14 @@ export class HighlightPlugin extends UIPlugin {
    * @param ranges {"[sheet!]XC": color}
    * @private
    */
-  private removeHighlights(ranges: { [range: string]: string }) {
+  private removeHighlights(ranges: { [range: string]: ZoneReference }) {
     const activeSheetId = this.getters.getActiveSheetId();
     const rangesBySheets = {};
-    for (let [range, color] of Object.entries(ranges)) {
+    for (let [range, zoneReference] of Object.entries(ranges)) {
       const [xc, sheetName] = range.split("!").reverse();
       const sheetId = this.getters.getSheetIdByName(sheetName);
       rangesBySheets[sheetId || activeSheetId] = Object.assign(
-        { [xc]: color },
+        { [xc]: zoneReference.color },
         rangesBySheets[sheetId || activeSheetId] || {}
       );
     }
@@ -130,12 +145,17 @@ export class HighlightPlugin extends UIPlugin {
   private highlightSelection() {
     this.removePendingHighlights();
     const zones = this.getters.getSelectedZones().filter((z) => !this.isHighlighted(z));
-    const ranges = {};
+    const ranges: { [range: string]: ZoneReference } = {};
     let color = this.color;
     const activeSheetId = this.getters.getActiveSheetId();
     for (const zone of zones) {
-      ranges[this.getters.zoneToXC(activeSheetId, zone)] = color;
-      color = getNextColor();
+      const xc = this.getters.zoneToXC(activeSheetId, zone);
+      if (!ranges[xc]) {
+        ranges[xc] = { quantity: 1, color };
+        color = getNextColor();
+      } else {
+        ranges[xc].quantity++;
+      }
     }
     this.dispatch("ADD_HIGHLIGHTS", { ranges });
     this.dispatch("ADD_PENDING_HIGHLIGHTS", { ranges });
@@ -151,7 +171,7 @@ export class HighlightPlugin extends UIPlugin {
    * pending.
    */
   private removePendingHighlights() {
-    const ranges = {};
+    const ranges: { [range: string]: ZoneReference } = {};
     const [selected, notSelected] = this.pendingHighlights.reduce(
       ([y, n], highlight) =>
         this.getters.isSelected(highlight.zone) ? [[...y, highlight], n] : [y, [...n, highlight]],
@@ -159,7 +179,12 @@ export class HighlightPlugin extends UIPlugin {
     );
     const activeSheetId = this.getters.getActiveSheetId();
     for (const { zone, color } of notSelected) {
-      ranges[this.getters.zoneToXC(activeSheetId, zone)] = color;
+      const xc = this.getters.zoneToXC(activeSheetId, zone);
+      if (!ranges[xc]) {
+        ranges[xc] = { color: color!, quantity: 1 };
+      } else {
+        ranges[xc].quantity++;
+      }
     }
     this.dispatch("REMOVE_HIGHLIGHTS", { ranges });
     this.pendingHighlights = selected;
@@ -175,13 +200,20 @@ export class HighlightPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const lineWidth = 3 * thinLineWidth;
     ctx.lineWidth = lineWidth;
-    for (let h of this.highlights.filter((highlight) => highlight.sheet === sheetId)) {
-      const [x, y, width, height] = this.getters.getRect(h.zone, viewport);
+
+    const sheetHighlights = this.highlights.filter((highlight) => highlight.sheet === sheetId);
+    const uniqueSheetHighlights: { [color: string]: Zone } = {};
+    for (let h of sheetHighlights) {
+      uniqueSheetHighlights[h.color!] = h.zone;
+    }
+
+    for (let color of Object.keys(uniqueSheetHighlights)) {
+      const [x, y, width, height] = this.getters.getRect(uniqueSheetHighlights[color], viewport);
       if (width > 0 && height > 0) {
-        ctx.strokeStyle = h.color!;
+        ctx.strokeStyle = color;
         ctx.strokeRect(x + lineWidth / 2, y + lineWidth / 2, width - lineWidth, height - lineWidth);
         ctx.globalCompositeOperation = "source-over";
-        ctx.fillStyle = h.color! + "20";
+        ctx.fillStyle = color + "20";
         ctx.fillRect(x + lineWidth, y + lineWidth, width - 2 * lineWidth, height - 2 * lineWidth);
       }
     }

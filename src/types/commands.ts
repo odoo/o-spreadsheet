@@ -2,7 +2,15 @@ import { ComposerSelection } from "../plugins/ui/edition";
 import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
 import { ChartUIDefinitionUpdate } from "./chart";
 import { BorderCommand, ChartUIDefinition, ConditionalFormat, Figure, Style, Zone } from "./index";
-import { Border, Cell, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
+import {
+  Border,
+  Cell,
+  CellPosition,
+  ClipboardOptions,
+  Dimension,
+  UID,
+  ZoneReference,
+} from "./misc";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -519,7 +527,7 @@ export interface HighlightSelectionCommand extends BaseCommand {
  */
 export interface AddPendingHighlightCommand extends BaseCommand {
   type: "ADD_PENDING_HIGHLIGHTS";
-  ranges: { [range: string]: string };
+  ranges: { [range: string]: ZoneReference };
 }
 
 /**
@@ -570,7 +578,7 @@ export interface EvaluateCellsCommand extends BaseCommand {
 
 export interface AddHighlightsCommand extends BaseCommand {
   type: "ADD_HIGHLIGHTS";
-  ranges: { [range: string]: string };
+  ranges: { [range: string]: ZoneReference };
 }
 
 /**
@@ -583,7 +591,7 @@ export interface RemoveHighlightsCommand extends BaseCommand {
    * are the associated colors.
    * e.g. { B4: "#e2e2e2" }
    */
-  ranges: { [range: string]: string };
+  ranges: { [range: string]: ZoneReference };
 }
 export interface RemoveAllHighlightsCommand extends BaseCommand {
   type: "REMOVE_ALL_HIGHLIGHTS";

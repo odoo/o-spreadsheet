@@ -535,8 +535,10 @@ export class EditionPlugin extends UIPlugin {
           (sheet ? `${sheet}!` : `${this.getters.getSheetName(this.getters.getEditionSheet())}!`) +
           xc.replace(/\$/g, "");
         if (!ranges[refSanitized]) {
-          ranges[refSanitized] = colors[lastUsedColorIndex];
+          ranges[refSanitized] = { color: colors[lastUsedColorIndex], quantity: 1 };
           lastUsedColorIndex = ++lastUsedColorIndex % colors.length;
+        } else {
+          ranges[refSanitized].quantity++;
         }
       }
     }

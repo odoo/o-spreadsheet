@@ -1,7 +1,7 @@
 import { rangeReference } from "../../formulas/index";
 import { getComposerSheetName, getNextColor, uuidv4 } from "../../helpers/index";
 import { Mode } from "../../model";
-import { Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
+import { Command, CommandResult, Highlight, LAYERS, UID, ZoneReference } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 import { SelectionMode } from "./selection";
 
@@ -349,17 +349,17 @@ export class SelectionInputPlugin extends UIPlugin {
   private inputToHighlights(
     id: UID,
     { xc, color }: Pick<RangeInputValue, "xc" | "color">
-  ): { [range: string]: string } {
+  ): { [range: string]: ZoneReference } {
     const ranges = this.cleanInputs([xc])
       .filter((range) => this.isRangeValid(range))
       .filter((reference) => this.shouldBeHighlighted(this.activeSheets[id], reference));
     if (ranges.length === 0) return {};
     const [fromInput, ...otherRanges] = ranges;
-    const highlights: { [range: string]: string } = {
-      [fromInput]: color || getNextColor(),
+    const highlights: { [range: string]: ZoneReference } = {
+      [fromInput]: { quantity: 1, color: color || getNextColor() },
     };
     for (const range of otherRanges) {
-      highlights[range] = getNextColor();
+      highlights[range] = { quantity: 1, color: getNextColor() };
     }
     return highlights;
   }
