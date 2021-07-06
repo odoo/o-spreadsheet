@@ -1030,11 +1030,12 @@ describe("composer highlights color", () => {
     expect(getHighlights(model)[1].color).toBe(colors[1]);
   });
 
-  test("highlight do not duplicate", async () => {
+  test("duplicate highlights when there are several same ranges", async () => {
     setCellContent(model, "A1", "=a1+a1");
     await startComposition();
-    expect(getHighlights(model).length).toBe(1);
+    expect(getHighlights(model).length).toBe(2);
     expect(getHighlights(model)[0].color).toBe(colors[0]);
+    expect(getHighlights(model)[1].color).toBe(colors[0]);
   });
 
   test("highlight range", async () => {

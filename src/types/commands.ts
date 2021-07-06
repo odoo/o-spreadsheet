@@ -527,7 +527,12 @@ export interface HighlightSelectionCommand extends BaseCommand {
  */
 export interface AddPendingHighlightCommand extends BaseCommand {
   type: "ADD_PENDING_HIGHLIGHTS";
-  ranges: { [range: string]: string };
+  /**
+   * First array elements are ranges in XC format.
+   * Second array elements are the associated colors.
+   * e.g. [["B4", "#e2e2e2"], ["D6:F10", "#f3f3f3"]]
+   */
+  ranges: [string, string][];
 }
 
 /**
@@ -578,7 +583,13 @@ export interface EvaluateCellsCommand extends BaseCommand {
 
 export interface AddHighlightsCommand extends BaseCommand {
   type: "ADD_HIGHLIGHTS";
-  ranges: { [range: string]: string };
+  /**
+   * Ranges to add.
+   * First array elements are ranges in XC format.
+   * Second array elements are the associated colors.
+   * e.g. [["B4", "#e2e2e2"], ["D6:F10", "#f3f3f3"]]
+   */
+  ranges: [string, string][];
 }
 
 /**
@@ -587,11 +598,12 @@ export interface AddHighlightsCommand extends BaseCommand {
 export interface RemoveHighlightsCommand extends BaseCommand {
   type: "REMOVE_HIGHLIGHTS";
   /**
-   * Ranges to remove. Keys are ranges in XC format and values
-   * are the associated colors.
-   * e.g. { B4: "#e2e2e2" }
+   * Ranges to remove.
+   * First array elements are ranges in XC format.
+   * Second array elements are the associated colors.
+   * e.g. [["B4", "#e2e2e2"], ["D6:F10", "#f3f3f3"]]
    */
-  ranges: { [range: string]: string };
+  ranges: [string, string][];
 }
 export interface RemoveAllHighlightsCommand extends BaseCommand {
   type: "REMOVE_ALL_HIGHLIGHTS";

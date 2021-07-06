@@ -350,17 +350,15 @@ export class SelectionInputPlugin extends UIPlugin {
   private inputToHighlights(
     id: UID,
     { xc, color }: Pick<RangeInputValue, "xc" | "color">
-  ): { [range: string]: string } {
+  ): [string, string][] {
     const ranges = this.cleanInputs([xc])
       .filter((range) => this.isRangeValid(range))
       .filter((reference) => this.shouldBeHighlighted(this.activeSheets[id], reference));
-    if (ranges.length === 0) return {};
+    if (ranges.length === 0) return [];
     const [fromInput, ...otherRanges] = ranges;
-    const highlights: { [range: string]: string } = {
-      [fromInput]: color || getNextColor(),
-    };
+    const highlights: [string, string][] = [[fromInput, color || getNextColor()]];
     for (const range of otherRanges) {
-      highlights[range] = getNextColor();
+      highlights.push([range, getNextColor()]);
     }
     return highlights;
   }
