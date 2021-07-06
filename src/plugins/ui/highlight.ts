@@ -68,27 +68,27 @@ export class HighlightPlugin extends UIPlugin {
   // Other
   // ---------------------------------------------------------------------------
 
-  private addHighlights(ranges: { [range: string]: string }) {
+  private addHighlights(ranges: [string, string][]) {
     let highlights = this.prepareHighlights(ranges);
     this.highlights = this.highlights.concat(highlights);
   }
 
-  private addPendingHighlight(ranges: { [range: string]: string }) {
+  private addPendingHighlight(ranges: [string, string][]) {
     let highlights = this.prepareHighlights(ranges);
     this.pendingHighlights = this.pendingHighlights.concat(highlights);
   }
 
-  private prepareHighlights(ranges: { [range: string]: string }): Highlight[] {
-    if (Object.keys(ranges).length === 0) {
+  private prepareHighlights(ranges: [string, string][]): Highlight[] {
+    if (ranges.length === 0) {
       return [];
     }
     const activeSheetId = this.getters.getActiveSheetId();
-    return Object.keys(ranges)
-      .map((r1c1) => {
+    return ranges
+      .map(([r1c1, color]) => {
         const [xc, sheet] = r1c1.split("!").reverse();
         const sheetId = this.getters.getSheetIdByName(sheet) || activeSheetId;
         const zone: Zone = this.getters.expandZone(activeSheetId, toZone(xc));
-        return { zone, color: ranges[r1c1], sheet: sheetId };
+        return { zone, color, sheet: sheetId };
       })
       .filter(
         (x) =>
@@ -104,10 +104,10 @@ export class HighlightPlugin extends UIPlugin {
    * @param ranges {"[sheet!]XC": color}
    * @private
    */
-  private removeHighlights(ranges: { [range: string]: string }) {
+  private removeHighlights(ranges: [string, string][]) {
     const activeSheetId = this.getters.getActiveSheetId();
     const rangesBySheets = {};
-    for (let [range, color] of Object.entries(ranges)) {
+    for (let [range, color] of ranges) {
       const [xc, sheetName] = range.split("!").reverse();
       const sheetId = this.getters.getSheetIdByName(sheetName);
       rangesBySheets[sheetId || activeSheetId] = Object.assign(
@@ -130,12 +130,20 @@ export class HighlightPlugin extends UIPlugin {
   private highlightSelection() {
     this.removePendingHighlights();
     const zones = this.getters.getSelectedZones().filter((z) => !this.isHighlighted(z));
-    const ranges = {};
+    const ranges: [string, string][] = [];
+    const colorByRange = {};
     let color = this.color;
     const activeSheetId = this.getters.getActiveSheetId();
     for (const zone of zones) {
-      ranges[this.getters.zoneToXC(activeSheetId, zone)] = color;
-      color = getNextColor();
+      const range = this.getters.zoneToXC(activeSheetId, zone);
+      // if the range reference is already present in ranges, we reuse its color
+      if (colorByRange[range]) {
+        ranges.push([range, colorByRange[range]]);
+      } else {
+        ranges.push([range, color]);
+        colorByRange[range] = color;
+        color = getNextColor();
+      }
     }
     this.dispatch("ADD_HIGHLIGHTS", { ranges });
     this.dispatch("ADD_PENDING_HIGHLIGHTS", { ranges });
@@ -151,7 +159,7 @@ export class HighlightPlugin extends UIPlugin {
    * pending.
    */
   private removePendingHighlights() {
-    const ranges = {};
+    const ranges: [string, string][] = [];
     const [selected, notSelected] = this.pendingHighlights.reduce(
       ([y, n], highlight) =>
         this.getters.isSelected(highlight.zone) ? [[...y, highlight], n] : [y, [...n, highlight]],
@@ -159,7 +167,7 @@ export class HighlightPlugin extends UIPlugin {
     );
     const activeSheetId = this.getters.getActiveSheetId();
     for (const { zone, color } of notSelected) {
-      ranges[this.getters.zoneToXC(activeSheetId, zone)] = color;
+      ranges.push([this.getters.zoneToXC(activeSheetId, zone), color!]);
     }
     this.dispatch("REMOVE_HIGHLIGHTS", { ranges });
     this.pendingHighlights = selected;
@@ -175,7 +183,19 @@ export class HighlightPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const lineWidth = 3 * thinLineWidth;
     ctx.lineWidth = lineWidth;
-    for (let h of this.highlights.filter((highlight) => highlight.sheet === sheetId)) {
+    /**
+     * We only need to draw the highlights of the current sheet.
+     *
+     * Note that there can be several times the same highlight in 'this.highlights'.
+     * In order to avoid superposing the same color layer and modifying the final
+     * opacity, we filter highlights to remove duplicates.
+     */
+    for (let h of this.highlights.filter(
+      (highlight, index) =>
+        // For every highlight in the sheet, deduplicated by zone
+        highlight.sheet === sheetId &&
+        this.highlights.findIndex((h) => isEqual(h.zone, highlight.zone)) === index
+    )) {
       const [x, y, width, height] = this.getters.getRect(h.zone, viewport);
       if (width > 0 && height > 0) {
         ctx.strokeStyle = h.color!;
