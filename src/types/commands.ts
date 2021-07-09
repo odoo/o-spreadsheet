@@ -609,6 +609,16 @@ export interface RemoveAllHighlightsCommand extends BaseCommand {
   type: "REMOVE_ALL_HIGHLIGHTS";
 }
 
+export interface StartChangeHighlightCommand extends BaseCommand {
+  type: "START_CHANGE_HIGHLIGHT";
+  zone: Zone;
+}
+
+export interface ChangeHighlightCommand extends BaseCommand {
+  type: "CHANGE_HIGHLIGHT";
+  zone: Zone;
+}
+
 export interface StopComposerSelectionCommand extends BaseCommand {
   type: "STOP_COMPOSER_RANGE_SELECTION";
 }
@@ -960,6 +970,8 @@ export type LocalCommand =
   | AddHighlightsCommand
   | RemoveHighlightsCommand
   | RemoveAllHighlightsCommand
+  | ChangeHighlightCommand
+  | StartChangeHighlightCommand
   | HighlightSelectionCommand
   | AddPendingHighlightCommand
   | ResetPendingHighlightCommand

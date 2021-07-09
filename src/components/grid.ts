@@ -25,6 +25,7 @@ import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
 import { FiguresContainer } from "./figures/container";
 import { startDnd } from "./helpers/drag_and_drop";
+import { Highlight } from "./highlight/highlight";
 import { Menu, MenuState } from "./menu";
 import { Overlay } from "./overlay";
 import { ScrollBar } from "./scrollbar";
@@ -191,6 +192,13 @@ const TEMPLATE = xml/* xml */ `
     <t t-if="getters.getEditionMode() === 'inactive'">
       <Autofill position="getAutofillPosition()"/>
     </t>
+    <t t-if="getters.getEditionMode() !== 'inactive'">
+      <t t-foreach="getters.getHighlights()" t-as="highlight">
+        <t t-if="highlight.sheet === getters.getActiveSheetId()">
+          <Highlight zone="highlight.zone" color="highlight.color"/>
+        </t>
+      </t>
+    </t>
     <Overlay t-on-open-contextmenu="onOverlayContextMenu" />
     <Menu t-if="menuState.isOpen"
       menuItems="menuState.menuItems"
@@ -261,7 +269,15 @@ const CSS = css/* scss */ `
 export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { GridComposer, Overlay, Menu, Autofill, FiguresContainer, ClientTag };
+  static components = {
+    GridComposer,
+    Overlay,
+    Menu,
+    Autofill,
+    FiguresContainer,
+    ClientTag,
+    Highlight,
+  };
 
   private menuState: MenuState = useState({
     isOpen: false,
