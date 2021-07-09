@@ -235,6 +235,60 @@ describe("ranges and highlights", () => {
     await keydown("ArrowDown");
     expect(composerEl.textContent).toBe("=C4");
   });
+
+  describe("change highlight position in the grid", () => {
+    test("change the associated range in the composer ", async () => {
+      await typeInComposer("=SUM(B2)");
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B2") });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C3") });
+      await nextTick();
+      expect(composerEl.textContent).toBe("=SUM(C3)");
+    });
+
+    test("change the first associated range in the composer when ranges are the same", async () => {
+      await typeInComposer("=SUM(B2, B2)");
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B2") });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C3") });
+      await nextTick();
+      expect(composerEl.textContent).toBe("=SUM(C3, B2)");
+    });
+
+    test("the first range doesn't change if other highlight transit by the first range state ", async () => {
+      await typeInComposer("=SUM(B2, B1)");
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B2") });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B3") });
+      await nextTick();
+      expect(composerEl.textContent).toBe("=SUM(B2, B3)");
+    });
+
+    test("can change references of different length", async () => {
+      await typeInComposer("=SUM(B1)");
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
+      await nextTick();
+      expect(composerEl.textContent).toBe("=SUM(B1:B2)");
+    });
+
+    test("change the edition mode", async () => {
+      await typeInComposer("=SUM(B1,");
+      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B2") });
+      await nextTick();
+      expect(model.getters.getEditionMode()).toBe("editing");
+
+      await typeInComposer("=SUM(B1,");
+      triggerMouseEvent("canvas", "mousedown", 300, 200);
+      window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+      await nextTick();
+      expect(model.getters.getEditionMode()).toBe("rangeSelected");
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B2") });
+      await nextTick();
+      expect(model.getters.getEditionMode()).toBe("editing");
+    });
+  });
 });
 
 describe("composer", () => {

@@ -55,16 +55,12 @@ describe("edition", () => {
     expect(getCellContent(model, "A2")).toBe("");
   });
 
-  test("editing a cell, then activating a new sheet: edition should be stopped", () => {
+  test("editing a cell, then activating a new sheet: edition should not be stopped", () => {
     const model = new Model();
-    const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("START_EDITION", { text: "a" });
     expect(model.getters.getEditionMode()).toBe("editing");
     createSheet(model, { activate: true, sheetId: "42" });
-    expect(model.getters.getEditionMode()).toBe("inactive");
-    expect(getCell(model, "A1")).toBeUndefined();
-    activateSheet(model, sheet1);
-    expect(getCellContent(model, "A1")).toBe("a");
+    expect(model.getters.getEditionMode()).not.toBe("inactive");
   });
 
   test("editing a cell, start a composer selection, then activating a new sheet: mode should still be 'waitingForRangeSelection'", () => {

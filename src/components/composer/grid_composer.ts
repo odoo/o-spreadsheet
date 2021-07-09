@@ -26,6 +26,7 @@ const TEMPLATE = xml/* xml */ `
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
 const CSS = css/* scss */ `
   .o-grid-composer {
+    z-index: 5;
     box-sizing: border-box;
     position: absolute;
     border: ${COMPOSER_BORDER_WIDTH}px solid #3266ca;

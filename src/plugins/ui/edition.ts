@@ -18,6 +18,7 @@ import {
   CommandResult,
   LAYERS,
   RemoveColumnsRowsCommand,
+  Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 import { SelectionMode } from "./selection";
@@ -62,6 +63,7 @@ export class EditionPlugin extends UIPlugin {
   private selectionInitialStart: number = 0;
   private multiSelectionInitialStart: number = 0;
   private initialContent: string | undefined = "";
+  private previousRef: string = "";
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -87,16 +89,6 @@ export class EditionPlugin extends UIPlugin {
         }
       default:
         return CommandResult.Success;
-    }
-  }
-
-  beforeHandle(cmd: Command) {
-    switch (cmd.type) {
-      case "ACTIVATE_SHEET":
-        if (!this.isSelectingForComposer()) {
-          this.stopEdition();
-        }
-        break;
     }
   }
 
@@ -191,6 +183,20 @@ export class EditionPlugin extends UIPlugin {
         } else {
           this.onRowsRemoved(cmd);
         }
+        break;
+      case "START_CHANGE_HIGHLIGHT":
+        this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+        this.previousRef = this.getZoneReference(cmd.zone);
+        this.selectionInitialStart = this.currentContent.toUpperCase().indexOf(this.previousRef);
+        break;
+      case "CHANGE_HIGHLIGHT":
+        const newRef = this.getZoneReference(cmd.zone);
+        this.selectionStart = this.selectionInitialStart;
+        this.selectionEnd = this.selectionInitialStart + this.previousRef.length;
+        this.replaceSelection(newRef);
+        this.previousRef = newRef;
+        this.selectionStart = this.currentContent.length;
+        this.selectionEnd = this.currentContent.length;
         break;
       case "DELETE_SHEET":
         if (cmd.sheetId === this.sheet && this.mode !== "inactive") {
@@ -440,14 +446,15 @@ export class EditionPlugin extends UIPlugin {
    */
   private insertSelectedRange() {
     const start = Math.min(this.selectionStart, this.selectionEnd);
+    const ref = this.getZoneReference(this.getters.getSelectedZone());
     if (this.mode === "waitingForRangeSelection") {
-      this.insertText(this.getZoneReference(), start);
+      this.insertText(ref, start);
       this.selectionInitialStart = start;
       this.mode = "rangeSelected";
       return;
     }
     // range already present (mean this.mode === "rangeSelected")
-    this.insertText("," + this.getZoneReference(), start);
+    this.insertText("," + ref, start);
     this.selectionInitialStart = start + 1;
   }
 
@@ -463,7 +470,7 @@ export class EditionPlugin extends UIPlugin {
       start: this.selectionInitialStart,
       end,
     });
-    this.replaceSelection(this.getZoneReference());
+    this.replaceSelection(this.getZoneReference(this.getters.getSelectedZone()));
   }
 
   /**
@@ -475,12 +482,11 @@ export class EditionPlugin extends UIPlugin {
       start: this.multiSelectionInitialStart,
       end,
     });
-    this.replaceSelection(this.getZoneReference());
+    this.replaceSelection(this.getZoneReference(this.getters.getSelectedZone()));
     this.selectionInitialStart = this.multiSelectionInitialStart;
   }
 
-  private getZoneReference(): string {
-    const zone = this.getters.getSelectedZone();
+  private getZoneReference(zone: Zone): string {
     const sheetId = this.getters.getActiveSheetId();
     let selectedXc = this.getters.zoneToXC(sheetId, zone);
     if (this.getters.getEditionSheet() !== this.getters.getActiveSheetId()) {
@@ -496,9 +502,13 @@ export class EditionPlugin extends UIPlugin {
    * Replace the current selection by a new text.
    * The cursor is then set at the end of the text.
    */
-  private replaceSelection(text) {
+  private replaceSelection(text: string) {
     const start = Math.min(this.selectionStart, this.selectionEnd);
     const end = Math.max(this.selectionStart, this.selectionEnd);
+    this.replaceText(text, start, end);
+  }
+
+  private replaceText(text: string, start: number, end: number) {
     this.currentContent =
       this.currentContent.slice(0, start) +
       this.currentContent.slice(end, this.currentContent.length);

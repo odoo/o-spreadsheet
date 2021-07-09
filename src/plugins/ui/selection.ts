@@ -823,6 +823,10 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   // ---------------------------------------------------------------------------
 
   drawGrid(renderingContext: GridRenderingContext) {
+    if (this.getters.getEditionMode() !== "inactive") {
+      return;
+    }
+
     const { viewport, ctx, thinLineWidth } = renderingContext;
     // selection
     const zones = this.getSelectedZones();
