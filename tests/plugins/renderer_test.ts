@@ -1,11 +1,18 @@
+import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+} from "../../src/constants";
 import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { GridRenderingContext, Viewport } from "../../src/types";
+import { RendererPlugin } from "../../src/plugins/renderer";
+import { Box, GridRenderingContext, Viewport } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../canvas.mock";
 import { createEqualCF } from "../helpers";
 
-MockCanvasRenderingContext2D.prototype.measureText = function () {
-  return { width: 100 };
+MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
+  return { width: text.length };
 };
 
 function setCellContent(
@@ -16,6 +23,14 @@ function setCellContent(
 ) {
   const [col, row] = toCartesian(xc);
   model.dispatch("UPDATE_CELL", { col, row, sheet, content });
+}
+
+function getBoxFromText(model: Model, text: string): Box {
+  const rendererPlugin = (model["handlers"].find(
+    (h) => h instanceof RendererPlugin
+  ) as RendererPlugin)!;
+  // @ts-ignore
+  return (rendererPlugin.boxes as Box[]).find((b) => b.text === text);
 }
 
 interface ContextObserver {
@@ -451,5 +466,133 @@ describe("renderer", () => {
 
     // 1 center for headers, 1 for cell content
     expect(textAligns).toEqual(["left", "center"]);
+  });
+
+  test("Overflowing left-aligned text is correctly clipped", () => {
+    const overflowingText = "I am a very long text";
+    let box: Box;
+    const model = new Model({
+      sheets: [
+        {
+          id: "sheet1",
+          colNumber: 3,
+          rowNumber: 1,
+          cols: { 1: { size: 5 } },
+          cells: { B1: { content: overflowingText, style: 1 } },
+        },
+      ],
+      styles: { 1: { align: "left" } },
+    });
+
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    model.drawGrid(ctx);
+
+    box = getBoxFromText(model, overflowingText);
+    // no clip
+    expect(box.clipRect).toBeNull();
+
+    // no clipping at the left
+    setCellContent(model, "A1", "Content at the left");
+    model.drawGrid(ctx);
+    box = getBoxFromText(model, overflowingText);
+    expect(box.clipRect).toBeNull();
+
+    // clipping at the right
+    setCellContent(model, "C1", "Content at the right");
+    model.drawGrid(ctx);
+    box = getBoxFromText(model, overflowingText);
+    expect(box.clipRect).toEqual([
+      HEADER_WIDTH + DEFAULT_CELL_WIDTH,
+      HEADER_HEIGHT,
+      5,
+      DEFAULT_CELL_HEIGHT,
+    ]);
+  });
+
+  test("Overflowing left-aligned text is correctly clipped", () => {
+    const overflowingText = "I am a very long text";
+    let box: Box;
+    const model = new Model({
+      sheets: [
+        {
+          id: "sheet1",
+          colNumber: 3,
+          rowNumber: 1,
+          cols: { 1: { size: 5 } },
+          cells: { B1: { content: overflowingText, style: 1 } },
+        },
+      ],
+      styles: { 1: { align: "right" } },
+    });
+
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    model.drawGrid(ctx);
+
+    box = getBoxFromText(model, overflowingText);
+    // no clip
+    expect(box.clipRect).toBeNull();
+
+    // no clipping at the right
+    setCellContent(model, "C1", "Content at the left");
+    model.drawGrid(ctx);
+    box = getBoxFromText(model, overflowingText);
+    expect(box.clipRect).toBeNull();
+
+    // clipping at the left
+    setCellContent(model, "A1", "Content at the right");
+    model.drawGrid(ctx);
+    box = getBoxFromText(model, overflowingText);
+    expect(box.clipRect).toEqual([
+      HEADER_WIDTH + DEFAULT_CELL_WIDTH,
+      HEADER_HEIGHT,
+      5,
+      DEFAULT_CELL_HEIGHT,
+    ]);
+  });
+
+  test("Overflowing centered text is clipped on both sides", () => {
+    const overflowingText = "I am a very long text";
+    let centeredBox: Box;
+    const model = new Model({
+      sheets: [
+        {
+          id: "sheet1",
+          colNumber: 3,
+          rowNumber: 1,
+          cols: { 1: { size: 5 } },
+          cells: { B1: { content: overflowingText, style: 1 } },
+        },
+      ],
+      styles: { 1: { align: "center" } },
+    });
+
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    model.drawGrid(ctx);
+
+    centeredBox = getBoxFromText(model, overflowingText);
+    // // spans from A1 to C1 <-> no clip
+    expect(centeredBox.clipRect).toBeNull();
+
+    setCellContent(model, "A1", "left");
+    model.drawGrid(ctx);
+
+    centeredBox = getBoxFromText(model, overflowingText);
+    expect(centeredBox.clipRect).toEqual([
+      HEADER_WIDTH + DEFAULT_CELL_WIDTH, // clipped to the left
+      HEADER_HEIGHT,
+      5 + DEFAULT_CELL_WIDTH,
+      DEFAULT_CELL_HEIGHT,
+    ]);
+
+    setCellContent(model, "C1", "right");
+    model.drawGrid(ctx);
+
+    centeredBox = getBoxFromText(model, overflowingText);
+    expect(centeredBox.clipRect).toEqual([
+      HEADER_WIDTH + DEFAULT_CELL_WIDTH, //clipped to the left
+      HEADER_HEIGHT,
+      5, // clipped to the right
+      DEFAULT_CELL_HEIGHT,
+    ]);
   });
 });
