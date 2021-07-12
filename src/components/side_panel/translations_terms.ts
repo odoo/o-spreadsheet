@@ -144,6 +144,7 @@ export const LinkEditorTerms = {
   Label: _lt("Label"),
   Link: _lt("Link"),
   Confirm: _lt("Confirm"),
+  Cancel: _lt("Cancel"),
 };
 
 export const GenericWords = {

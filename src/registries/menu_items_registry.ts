@@ -115,4 +115,9 @@ export class MenuItemRegistry extends Registry<FullMenuItem> {
   getAll(): FullMenuItem[] {
     return super.getAll().sort((a, b) => a.sequence - b.sequence);
   }
+
+  removeChildren(node: FullMenuItem): MenuItemRegistry {
+    node.children = [];
+    return this;
+  }
 }

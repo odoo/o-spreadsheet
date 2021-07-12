@@ -1,3 +1,4 @@
+import { LinkEditorProps } from "../../components/link_editor";
 import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { LinkCell, numberToLetters, uuidv4, zoneToXc } from "../../helpers/index";
 import { _lt } from "../../translation";
@@ -596,10 +597,16 @@ export const INSERT_LINK = (env: SpreadsheetEnv) => {
   const [col, row] = env.getters.getPosition();
   const sheetId = env.getters.getActiveSheetId();
   const cell = env.getters.getCell(sheetId, col, row);
-  env.openSidePanel("InsertLink", {
-    position: { col, row, sheetId },
+  // env.openSidePanel("InsertLink", {
+  //   position: { col, row, sheetId },
+  //   link: cell instanceof LinkCell ? cell.link : undefined,
+  // });
+  const linkEditorProps: LinkEditorProps = {
+    position: { col, row },
+    sheetId,
     link: cell instanceof LinkCell ? cell.link : undefined,
-  });
+  };
+  env.openLinkEditor(linkEditorProps);
 };
 
 //------------------------------------------------------------------------------

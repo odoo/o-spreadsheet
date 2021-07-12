@@ -88,8 +88,8 @@ const CSS = css/* scss */ `
     }
     .o-input {
       color: #666666;
-      border-radius: 4px;
       min-width: 0px;
+      border-radius: 4px;
       border: 1px solid lightgrey;
       padding: 4px 6px;
       height: 15.5px;

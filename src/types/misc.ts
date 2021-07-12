@@ -15,6 +15,15 @@ export interface Link {
   url: string;
 }
 
+export interface MenuPosition {
+  menuX: number;
+  menuY: number;
+  parentX: number;
+  parentY: number;
+  parentWidth: number;
+  parentHeight: number;
+}
+
 export interface Zone {
   left: number;
   right: number;

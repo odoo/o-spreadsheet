@@ -20,6 +20,7 @@ import {
   isInside,
   isMarkdownLink,
   isNumber,
+  isWebLink,
   maximumDecimalPlaces,
   parseNumber,
   range,
@@ -667,6 +668,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       return new DateTimeCell(id, internalDate.value, { ...options, format });
     } else if (isMarkdownLink(content)) {
       return new LinkCell(id, content, options);
+    } else if (isWebLink(content)) {
+      return new LinkCell(id, "[" + content + "](" + content + ")", options);
     } else {
       return new TextCell(id, content, options);
     }

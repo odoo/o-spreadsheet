@@ -133,9 +133,16 @@ export function isDateTime(str: string): boolean {
 }
 
 const MARKDOWN_LINK_REGEX = /^\[([^\[]+)\]\((.*)\)$/;
+//link must start with http or https
+//https://stackoverflow.com/a/3809435/4760614
+const WEB_LINK_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
 
 export function isMarkdownLink(str: string): boolean {
   return MARKDOWN_LINK_REGEX.test(str);
+}
+
+export function isWebLink(str: string): boolean {
+  return WEB_LINK_REGEX.test(str);
 }
 
 export function parseMarkdownLink(str: string): Link {

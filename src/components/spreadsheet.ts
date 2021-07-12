@@ -8,6 +8,7 @@ import { StateUpdateMessage, TransportService } from "../types/collaborative/tra
 import { BottomBar } from "./bottom_bar";
 import { ComposerFocusedEvent } from "./composer/composer";
 import { Grid } from "./grid";
+import { LinkEditor, LinkEditorProps } from "./link_editor";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
 
@@ -34,6 +35,11 @@ const TEMPLATE = xml/* xml */ `
       focusComposer="focusGridComposer"
       t-on-composer-focused="onGridComposerFocused"
       t-att-class="{'o-two-columns': !sidePanel.isOpen}"/>
+    <LinkEditor t-if="linkEditor.isOpen"
+      sheetId="linkEditor.props.sheetId"
+      position="linkEditor.props.position"
+      link="linkEditor.props.link"
+      t-on-close.stop="linkEditor.isOpen=false"/>
     <SidePanel t-if="sidePanel.isOpen"
            t-on-close-side-panel="sidePanel.isOpen = false"
            component="sidePanel.component"
@@ -88,7 +94,7 @@ const t = (s: string): string => s;
 export class Spreadsheet extends Component<Props> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { TopBar, Grid, BottomBar, SidePanel };
+  static components = { TopBar, Grid, BottomBar, SidePanel, LinkEditor };
   static _t = t;
 
   model = new Model(
@@ -121,6 +127,11 @@ export class Spreadsheet extends Component<Props> {
     grid: false,
   });
 
+  linkEditor = useState({
+    isOpen: false,
+    props: {},
+  });
+
   // last string that was cut or copied. It is necessary so we can make the
   // difference between a paste coming from the sheet itself, or from the
   // os clipboard
@@ -135,6 +146,7 @@ export class Spreadsheet extends Component<Props> {
       openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
       toggleSidePanel: (panel: string, panelProps: any = {}) =>
         this.toggleSidePanel(panel, panelProps),
+      openLinkEditor: (props: LinkEditorProps) => this.openLinkEditor(props),
       dispatch: this.model.dispatch,
       getters: this.model.getters,
       _t: Spreadsheet._t,
@@ -188,6 +200,11 @@ export class Spreadsheet extends Component<Props> {
     this.sidePanel.component = panel;
     this.sidePanel.panelProps = panelProps;
     this.sidePanel.isOpen = true;
+  }
+
+  openLinkEditor(props: LinkEditorProps) {
+    this.linkEditor.isOpen = true;
+    this.linkEditor.props = props;
   }
 
   toggleSidePanel(panel: string, panelProps: any) {

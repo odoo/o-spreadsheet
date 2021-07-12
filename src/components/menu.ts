@@ -1,7 +1,7 @@
 import { Component, hooks, tags, useState } from "@odoo/owl";
 import { FullMenuItem, MenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
-import { SpreadsheetEnv } from "../types";
+import { MenuPosition, SpreadsheetEnv } from "../types";
 import { isChildEvent } from "./helpers/dom_helpers";
 import * as icons from "./icons";
 
@@ -102,13 +102,6 @@ const CSS = css/* scss */ `
   }
 `;
 
-interface MenuPosition {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
 interface Props {
   position: MenuPosition;
   menuItems: FullMenuItem[];
@@ -120,12 +113,6 @@ export interface MenuState {
   position: null | MenuPosition;
   scrollOffset?: number;
   menuItems: FullMenuItem[];
-}
-
-export interface LinkTooltipState {
-  isOpen: boolean;
-  style: string;
-  url: string;
 }
 export class Menu extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
@@ -151,18 +138,18 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
 
   get subMenuPosition(): MenuPosition {
     const position = Object.assign({}, this.subMenu.position);
-    position.y -= this.subMenu.scrollOffset || 0;
+    position.menuY -= this.subMenu.scrollOffset || 0;
     return position;
   }
 
   private get renderRight(): boolean {
-    const { x, width } = this.props.position;
-    return x < width - MENU_WIDTH;
+    const { menuX, parentWidth } = this.props.position;
+    return menuX < parentWidth - MENU_WIDTH;
   }
 
   private get renderBottom(): boolean {
-    const { y, height } = this.props.position;
-    return y < height - this.menuHeight;
+    const { menuY, parentHeight } = this.props.position;
+    return menuY < parentHeight - this.menuHeight;
   }
 
   private get menuHeight(): number {
@@ -172,10 +159,10 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   }
 
   get style() {
-    const { x, height } = this.props.position;
-    const hStyle = `left:${this.renderRight ? x : x - MENU_WIDTH}`;
+    const { menuX, parentHeight } = this.props.position;
+    const hStyle = `left:${this.renderRight ? menuX : menuX - MENU_WIDTH}`;
     const vStyle = `top:${this.menuVerticalPosition()}`;
-    const heightStyle = `max-height:${height}`;
+    const heightStyle = `max-height:${parentHeight}`;
     return `${vStyle}px;${hStyle}px;${heightStyle}px`;
   }
 
@@ -190,29 +177,29 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   }
 
   private menuVerticalPosition(): number {
-    const { y, height } = this.props.position;
+    const { menuY, parentHeight } = this.props.position;
     if (this.renderBottom) {
-      return y;
+      return menuY;
     }
-    return Math.max(MENU_ITEM_HEIGHT, y - Math.min(this.menuHeight, height));
+    return Math.max(MENU_ITEM_HEIGHT, menuY - Math.min(this.menuHeight, parentHeight));
   }
 
   private subMenuHorizontalPosition(): number {
-    const { x, width } = this.props.position;
-    const spaceRight = x + 2 * MENU_WIDTH < width;
+    const { menuX, parentWidth } = this.props.position;
+    const spaceRight = menuX + 2 * MENU_WIDTH < parentWidth;
     if (this.renderRight && spaceRight) {
-      return x + MENU_WIDTH;
+      return menuX + MENU_WIDTH;
     } else if (this.renderRight && !spaceRight) {
-      return x - MENU_WIDTH;
+      return menuX - MENU_WIDTH;
     }
-    return x - (this.props.depth + 1) * MENU_WIDTH;
+    return menuX - (this.props.depth + 1) * MENU_WIDTH;
   }
 
   private subMenuVerticalPosition(subMenuItems: MenuItem[], position: number): number {
-    const { height } = this.props.position;
+    const { parentHeight } = this.props.position;
     const y = this.menuVerticalPosition() + this.menuItemVerticalOffset(position);
     const subMenuHeight = this.computeMenuHeight(subMenuItems);
-    const spaceBelow = y < height - subMenuHeight;
+    const spaceBelow = y < parentHeight - subMenuHeight;
     if (spaceBelow) {
       return y;
     }
@@ -290,12 +277,14 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     this.closeSubMenus();
     this.subMenu.isOpen = true;
     this.subMenu.menuItems = cellMenuRegistry.getChildren(menu, this.env);
-    const { width, height } = this.props.position;
+    const { parentWidth, parentHeight, parentX, parentY } = this.props.position;
     this.subMenu.position = {
-      x: this.subMenuHorizontalPosition(),
-      y: this.subMenuVerticalPosition(this.subMenu.menuItems, position),
-      height,
-      width,
+      menuX: this.subMenuHorizontalPosition(),
+      menuY: this.subMenuVerticalPosition(this.subMenu.menuItems, position),
+      parentX,
+      parentY,
+      parentHeight,
+      parentWidth,
     };
   }
 

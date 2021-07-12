@@ -1,6 +1,7 @@
 import * as owl from "@odoo/owl";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
+import { LinkEditorProps } from "./components/link_editor";
 import { DEFAULT_REVISION_ID, MAXIMUM_EVALUATION_CHECK_DELAY_MS } from "./constants";
 import { createEmptyExcelWorkbookData, createEmptyWorkbookData, load } from "./data";
 import { DEBUG, setIsFastStrategy, uuidv4 } from "./helpers/index";
@@ -62,6 +63,7 @@ export type Mode = "normal" | "headless" | "readonly";
 export interface ModelConfig {
   mode: Mode;
   openSidePanel: (panel: string, panelProps?: any) => void;
+  openLinkEditor: (props: LinkEditorProps) => void;
   notifyUser: (content: string) => any;
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
   editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
@@ -275,6 +277,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     return {
       mode: config.mode || "normal",
       openSidePanel: config.openSidePanel || (() => {}),
+      openLinkEditor: config.openLinkEditor || (() => {}),
       notifyUser: config.notifyUser || (() => {}),
       askConfirmation: config.askConfirmation || (() => {}),
       editText: config.editText || (() => {}),

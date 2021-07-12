@@ -105,6 +105,7 @@ cellMenuRegistry
   .add("delete_cell", {
     name: _lt("Delete cells"),
     sequence: 130,
+    separator: true,
     isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
   })
   .addChild("delete_cell_up", ["delete_cell"], {

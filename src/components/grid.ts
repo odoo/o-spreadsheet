@@ -18,7 +18,7 @@ import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
 import { FiguresContainer } from "./figures/container";
 import { startDnd } from "./helpers/drag_and_drop";
-import { LinkTooltipState, Menu, MenuState } from "./menu";
+import { Menu, MenuState } from "./menu";
 import { Overlay } from "./overlay";
 import { ScrollBar } from "./scrollbar";
 
@@ -60,6 +60,12 @@ const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
 interface HoveredPosition {
   col?: number;
   row?: number;
+}
+
+interface linkDisplayState {
+  isOpen: boolean;
+  style: string;
+  url: string;
 }
 
 export function useCellHovered(env: SpreadsheetEnv, getViewPort: () => Viewport) {
@@ -186,10 +192,10 @@ const TEMPLATE = xml/* xml */ `
     <t t-if="errorTooltip.isOpen">
       <div class="o-error-tooltip" t-esc="errorTooltip.text" t-att-style="errorTooltip.style"/>
     </t>
-    <t t-if="linkTooltip.isOpen">
-      <div class="o-link-tooltip"  t-att-style="linkTooltip.style">
-        <a t-att-href="linkTooltip.url" target="_blank">
-          <t t-esc="linkTooltip.url"/>
+    <t t-if="linkDisplay.isOpen">
+      <div class="o-link-tool"  t-att-style="linkDisplay.style">
+        <a t-att-href="linkDisplay.url" target="_blank">
+          <t t-esc="linkDisplay.url"/>
         </a>
       </div>
     </t>
@@ -238,7 +244,7 @@ const CSS = css/* scss */ `
       border-left: 3px solid red;
       padding: 10px;
     }
-    .o-link-tooltip {
+    .o-link-tool {
       position: absolute;
       font-size: 13px;
       width: ${LINK_TOOLTIP_WIDTH};
@@ -275,7 +281,14 @@ const CSS = css/* scss */ `
 export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { GridComposer, Overlay, Menu, Autofill, FiguresContainer, ClientTag };
+  static components = {
+    GridComposer,
+    Overlay,
+    Menu,
+    Autofill,
+    FiguresContainer,
+    ClientTag,
+  };
 
   private menuState: MenuState = useState({
     isOpen: false,
@@ -283,7 +296,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     menuItems: [],
   });
 
-  private linkTooltip: LinkTooltipState = useState({
+  private linkDisplay: linkDisplayState = useState({
     isOpen: false,
     style: "",
     url: "",
@@ -652,17 +665,17 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
         hAlign === "left" ? x + 10 : viewportWidth - x + (SCROLLBAR_WIDTH + 2) - width + 10;
       let vAlign = y + LINK_TOOLTIP_HEIGHT + height + 20 < viewportHeight ? "top" : "bottom";
       const vOffset = vAlign === "top" ? y + height : viewportHeight - y + (SCROLLBAR_WIDTH + 2);
-      this.linkTooltip.isOpen = true;
-      this.linkTooltip.style = `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`;
-      this.linkTooltip.url = cell.link.url;
+      this.linkDisplay.isOpen = true;
+      this.linkDisplay.style = `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`;
+      this.linkDisplay.url = cell.link.url;
     } else {
-      this.closeLinkTooltip();
+      this.closelinkDisplay();
     }
   }
-  closeLinkTooltip() {
-    this.linkTooltip.isOpen = false;
-    this.linkTooltip.style = "";
-    this.linkTooltip.url = "";
+  closelinkDisplay() {
+    this.linkDisplay.isOpen = false;
+    this.linkDisplay.style = "";
+    this.linkDisplay.url = "";
   }
   // ---------------------------------------------------------------------------
   // Keyboard interactions
@@ -677,7 +690,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   processArrows(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
-    this.closeLinkTooltip();
+    this.closelinkDisplay();
     const deltaMap = {
       ArrowDown: [0, 1],
       ArrowLeft: [-1, 0],
@@ -778,10 +791,12 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   toggleContextMenu(type: ContextMenuType, x: number, y: number) {
     this.menuState.isOpen = true;
     this.menuState.position = {
-      x,
-      y,
-      width: this.el!.clientWidth,
-      height: this.el!.clientHeight,
+      menuX: x,
+      menuY: y,
+      parentX: this.el!.clientLeft,
+      parentY: this.el!.clientTop,
+      parentWidth: this.el!.clientWidth,
+      parentHeight: this.el!.clientHeight,
     };
     this.menuState.menuItems = registries[type]
       .getAll()
