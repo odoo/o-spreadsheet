@@ -2,6 +2,8 @@ export * from "./autofill_modifiers";
 export * from "./autofill_rules";
 export * from "./figure_registry";
 export * from "./inverse_command_registry";
+export * from "./keybinds/index";
+export * from "./keybinds_registry";
 export * from "./menus/index";
 export * from "./menu_items_registry";
 export * from "./ot_registry";

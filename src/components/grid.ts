@@ -9,6 +9,7 @@ import {
 } from "../constants";
 import { findCellInNewZone, isInside, MAX_DELAY } from "../helpers/index";
 import { Model } from "../model";
+import { gridKeybindsRegistry } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
@@ -267,8 +268,8 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   private vScrollbar: ScrollBar;
   private hScrollbar: ScrollBar;
   private canvas = useRef("canvas");
-  private getters = this.env.getters;
-  private dispatch = this.env.dispatch;
+  getters = this.env.getters;
+  dispatch = this.env.dispatch;
   private currentSheet = this.getters.getActiveSheetId();
 
   private clickedCol = 0;
@@ -306,62 +307,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     return { isOpen: false };
   }
 
-  // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
-  // down itself
-  private keyDownMapping: { [key: string]: Function } = {
-    ENTER: () => this.trigger("composer-focused"),
-    TAB: () => this.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 }),
-    "SHIFT+TAB": () => this.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 }),
-    F2: () => this.trigger("composer-focused"),
-    DELETE: () => {
-      this.dispatch("DELETE_CONTENT", {
-        sheetId: this.getters.getActiveSheetId(),
-        target: this.getters.getSelectedZones(),
-      });
-    },
-    "CTRL+A": () => this.dispatch("SELECT_ALL"),
-    "CTRL+S": () => {
-      this.trigger("save-requested");
-    },
-    "CTRL+Z": () => this.dispatch("REQUEST_UNDO"),
-    "CTRL+Y": () => this.dispatch("REQUEST_REDO"),
-    "CTRL+B": () =>
-      this.dispatch("SET_FORMATTING", {
-        sheetId: this.getters.getActiveSheetId(),
-        target: this.getters.getSelectedZones(),
-        style: { bold: !this.getters.getCurrentStyle().bold },
-      }),
-    "CTRL+I": () =>
-      this.dispatch("SET_FORMATTING", {
-        sheetId: this.getters.getActiveSheetId(),
-        target: this.getters.getSelectedZones(),
-        style: { italic: !this.getters.getCurrentStyle().italic },
-      }),
-    "ALT+=": () => {
-      const sheetId = this.getters.getActiveSheetId();
-
-      const mainSelectedZone = this.getters.getSelectedZone();
-      const sums = this.getters.getAutomaticSums(
-        sheetId,
-        mainSelectedZone,
-        this.getters.getPosition()
-      );
-      if (
-        this.getters.isSingleCellOrMerge(sheetId, mainSelectedZone) ||
-        (this.getters.isEmpty(sheetId, mainSelectedZone) && sums.length <= 1)
-      ) {
-        const zone = sums[0]?.zone;
-        const zoneXc = zone ? this.getters.zoneToXC(sheetId, sums[0].zone) : "";
-        const formula = `=SUM(${zoneXc})`;
-        this.trigger("composer-focused", {
-          content: formula,
-          selection: { start: 5, end: 5 + zoneXc.length },
-        });
-      } else {
-        this.dispatch("SUM_SELECTION");
-      }
-    },
-  };
+  keybindHandlers = gridKeybindsRegistry;
 
   constructor() {
     super(...arguments);
@@ -612,12 +558,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   // Keyboard interactions
   // ---------------------------------------------------------------------------
 
-  processTabKey(ev: KeyboardEvent) {
-    ev.preventDefault();
-    const deltaX = ev.shiftKey ? -1 : 1;
-    this.dispatch("MOVE_POSITION", { deltaX, deltaY: 0 });
-  }
-
   processArrows(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
@@ -655,11 +595,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   }
 
   onKeydown(ev: KeyboardEvent) {
-    if (ev.key.startsWith("Arrow")) {
-      this.processArrows(ev);
-      return;
-    }
-
     let keyDownString = "";
     if (ev.ctrlKey) keyDownString += "CTRL+";
     if (ev.metaKey) keyDownString += "CTRL+";
@@ -667,11 +602,11 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     if (ev.shiftKey) keyDownString += "SHIFT+";
     keyDownString += ev.key.toUpperCase();
 
-    let handler = this.keyDownMapping[keyDownString];
+    let handler = this.keybindHandlers.getHandler(ev);
     if (handler) {
       ev.preventDefault();
       ev.stopPropagation();
-      handler();
+      handler.action(this, ev);
       return;
     }
     if (!keyDownMappingIgnore.includes(keyDownString)) {

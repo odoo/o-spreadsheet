@@ -3,6 +3,7 @@ import { EnrichedToken, rangeReference } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { DEBUG, zoneToXc } from "../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
+import { composerKeybindsRegistry } from "../../registries/keybinds/composer_keybinds_registry";
 import { FunctionDescription, Rect, SpreadsheetEnv } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
@@ -210,17 +211,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   shouldProcessInputEvents: boolean = false;
   tokens: EnrichedToken[] = [];
 
-  keyMapping: { [key: string]: Function } = {
-    ArrowUp: this.processArrowKeys,
-    ArrowDown: this.processArrowKeys,
-    ArrowLeft: this.processArrowKeys,
-    ArrowRight: this.processArrowKeys,
-    Enter: this.processEnterKey,
-    Escape: this.processEscapeKey,
-    F2: () => console.warn("Not implemented"),
-    F4: () => console.warn("Not implemented"),
-    Tab: (ev: KeyboardEvent) => this.processTabKey(ev),
-  };
+  keybindHandlers = composerKeybindsRegistry;
 
   constructor() {
     super(...arguments);
@@ -244,78 +235,11 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   patched() {
     this.processContent();
   }
-  // ---------------------------------------------------------------------------
-  // Handlers
-  // ---------------------------------------------------------------------------
-
-  private processArrowKeys(ev: KeyboardEvent) {
-    if (this.getters.isSelectingForComposer()) {
-      this.functionDescriptionState.showDescription = false;
-      return;
-    }
-    ev.stopPropagation();
-    const autoCompleteComp = this.autoCompleteRef.comp as TextValueProvider;
-    if (
-      ["ArrowUp", "ArrowDown"].includes(ev.key) &&
-      this.autoCompleteState.showProvider &&
-      autoCompleteComp
-    ) {
-      ev.preventDefault();
-      if (ev.key === "ArrowUp") {
-        autoCompleteComp.moveUp();
-      } else {
-        autoCompleteComp.moveDown();
-      }
-    }
-  }
-
-  private processTabKey(ev: KeyboardEvent) {
-    ev.preventDefault();
-    ev.stopPropagation();
-    const autoCompleteComp = this.autoCompleteRef.comp as TextValueProvider;
-    if (this.autoCompleteState.showProvider && autoCompleteComp) {
-      const autoCompleteValue = autoCompleteComp.getValueToFill();
-      if (autoCompleteValue) {
-        this.autoComplete(autoCompleteValue);
-        return;
-      }
-    } else {
-      // when completing with tab, if there is no value to complete, the active cell will be moved to the right.
-      // we can't let the model think that it is for a ref selection.
-      // todo: check if this can be removed someday
-      this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
-    }
-
-    const deltaX = ev.shiftKey ? -1 : 1;
-    this.dispatch("MOVE_POSITION", { deltaX, deltaY: 0 });
-  }
-
-  private processEnterKey(ev: KeyboardEvent) {
-    ev.preventDefault();
-    ev.stopPropagation();
-    const autoCompleteComp = this.autoCompleteRef.comp as TextValueProvider;
-    if (this.autoCompleteState.showProvider && autoCompleteComp) {
-      const autoCompleteValue = autoCompleteComp.getValueToFill();
-      if (autoCompleteValue) {
-        this.autoComplete(autoCompleteValue);
-        return;
-      }
-    }
-    this.dispatch("STOP_EDITION");
-    this.dispatch("MOVE_POSITION", {
-      deltaX: 0,
-      deltaY: ev.shiftKey ? -1 : 1,
-    });
-  }
-
-  private processEscapeKey() {
-    this.dispatch("STOP_EDITION", { cancel: true });
-  }
 
   onKeydown(ev: KeyboardEvent) {
-    let handler = this.keyMapping[ev.key];
+    let handler = this.keybindHandlers.getHandler(ev);
     if (handler) {
-      return handler.call(this, ev);
+      return handler.action(this, ev);
     }
     ev.stopPropagation();
   }
@@ -539,7 +463,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     }
   }
 
-  private autoComplete(value: string) {
+  autoComplete(value: string) {
     if (value) {
       const tokenAtCursor = this.getters.getTokenAtCursor();
       if (tokenAtCursor) {
