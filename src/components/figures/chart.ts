@@ -154,19 +154,15 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
   }
 
   private openContextMenu(target: HTMLElement, registry: MenuItemRegistry) {
-    const menuX = target.offsetLeft;
-    const menuY = target.offsetTop;
-    const parentX = this.el!.clientLeft;
-    const parentY = this.el!.parentElement!.clientTop;
+    const x = target.offsetLeft;
+    const y = target.offsetTop;
     this.menuState.isOpen = true;
     this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
     this.menuState.position = {
-      menuX,
-      menuY,
-      parentX,
-      parentY,
-      parentHeight: 400,
-      parentWidth: this.el!.clientWidth,
+      x,
+      y,
+      height: 400,
+      width: this.el!.clientWidth,
     };
   }
 }

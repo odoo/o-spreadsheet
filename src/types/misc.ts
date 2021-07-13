@@ -16,12 +16,12 @@ export interface Link {
 }
 
 export interface MenuPosition {
-  menuX: number;
-  menuY: number;
-  parentX: number;
-  parentY: number;
-  parentWidth: number;
-  parentHeight: number;
+  x: number;
+  y: number;
+  offsetLeft?: number;
+  offsetTop?: number;
+  width: number;
+  height: number;
 }
 
 export interface Zone {

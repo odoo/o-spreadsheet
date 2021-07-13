@@ -39,7 +39,8 @@ const TEMPLATE = xml/* xml */ `
       sheetId="linkEditor.props.sheetId"
       position="linkEditor.props.position"
       link="linkEditor.props.link"
-      t-on-close.stop="linkEditor.isOpen=false"/>
+      t-on-close-link-editor.stop="closeLinkEditor()"
+      />
     <SidePanel t-if="sidePanel.isOpen"
            t-on-close-side-panel="sidePanel.isOpen = false"
            component="sidePanel.component"
@@ -205,6 +206,13 @@ export class Spreadsheet extends Component<Props> {
   openLinkEditor(props: LinkEditorProps) {
     this.linkEditor.isOpen = true;
     this.linkEditor.props = props;
+  }
+
+  closeLinkEditor() {
+    if (this.linkEditor.isOpen) {
+      this.linkEditor.isOpen = false;
+      this.focusGrid();
+    }
   }
 
   toggleSidePanel(panel: string, panelProps: any) {

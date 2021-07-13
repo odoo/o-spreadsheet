@@ -403,17 +403,13 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     const x = (ev.target as HTMLElement).offsetLeft;
     const y = (ev.target as HTMLElement).clientHeight + (ev.target as HTMLElement).offsetTop;
     this.state.menuState.isOpen = true;
-    const parentWidth = this.el!.clientWidth;
-    const parentHeight = this.el!.parentElement!.clientHeight;
-    const parentX = this.el!.clientLeft;
-    const parentY = this.el!.parentElement!.clientTop;
+    const width = this.el!.clientWidth;
+    const height = this.el!.parentElement!.clientHeight;
     this.state.menuState.position = {
-      menuX: x,
-      menuY: y,
-      parentX,
-      parentY,
-      parentWidth,
-      parentHeight,
+      x: x,
+      y: y,
+      width,
+      height,
     };
     this.state.menuState.menuItems = topbarMenuRegistry
       .getChildren(menu, this.env)

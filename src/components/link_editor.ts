@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 import { BOTTOMBAR_HEIGHT, SCROLLBAR_WIDTH, TOPBAR_HEIGHT } from "../constants";
 import { linkMenuRegistry } from "../registries/menus/link_menu_registry";
-import { Link, Position, SpreadsheetEnv } from "../types";
+import { Link, MenuPosition, Position, Sheet, SpreadsheetEnv } from "../types";
 import { LIST } from "./icons";
 import { Menu } from "./menu";
 import { LinkEditorTerms } from "./side_panel/translations_terms";
@@ -9,7 +9,7 @@ const { Component, tags, hooks, useState } = owl;
 const { xml, css } = tags;
 const { useRef } = hooks;
 
-const WIDTH = 400;
+const WIDTH = 320;
 const HEIGHT = 160;
 const PADDING = 10;
 //------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ const TEMPLATE = xml/* xml */ `
         t-on-close.stop="menuState.isOpen=false"/>
       <div class="o-buttons">
         <button t-on-click="cancel" class="o-button" t-esc="env._t('${LinkEditorTerms.Cancel}')"></button>
-        <button t-on-click="save" class="o-button" t-esc="env._t('${LinkEditorTerms.Confirm}')"></button>
+        <button t-on-click="save" t-att-disabled="!link.url" class="o-button" t-esc="env._t('${LinkEditorTerms.Confirm}')"></button>
       </div>
     </div>`;
 
@@ -155,10 +155,14 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
       this.menus.addChild(sheet.name, ["sheet"], {
         name: sheet.name,
         sequence: i,
-        action: () => console.log("miam" + i),
+        action: () => this.selectSheet(sheet),
       });
     });
     return this.menus.getAll();
+  }
+
+  selectSheet(sheet: Sheet) {
+    console.log(sheet.name);
   }
 
   openMenu() {
@@ -184,23 +188,30 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
     return `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`;
   }
 
-  get menuPosition() {
-    const { width, height } = this.getters.getViewportDimension();
+  get menuPosition(): MenuPosition {
     return {
       x: WIDTH - PADDING - 2,
       y: HEIGHT - 37, // 37 = Height of buttons
-      width,
-      height,
+      offsetLeft: this.el!.offsetLeft,
+      offsetTop: this.el!.offsetTop,
+      width: this.el!.parentElement!.clientWidth,
+      height: this.el!.parentElement!.clientHeight - BOTTOMBAR_HEIGHT - TOPBAR_HEIGHT,
     };
   }
 
   save() {
     const [col, row] = this.getters.getPosition();
+    const label = this.link.label || this.link.url;
     this.env.dispatch("UPDATE_CELL", {
       col: col,
       row: row,
       sheetId: this.getters.getActiveSheetId(),
-      content: `[${this.link.label}](${this.link.url})`,
+      content: `[${label}](${this.link.url})`,
     });
+    this.trigger("close-link-editor");
+  }
+
+  cancel() {
+    this.trigger("close-link-editor");
   }
 }

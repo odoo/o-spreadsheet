@@ -424,6 +424,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   }
 
   focus() {
+    this.trigger("close-link-editor");
     if (!this.getters.isSelectingForComposer() && !this.getters.getSelectedFigureId()) {
       this.canvas.el!.focus();
     }
@@ -663,8 +664,9 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       const hAlign = x + LINK_TOOLTIP_WIDTH + 30 < viewportWidth ? "left" : "right";
       const hOffset =
         hAlign === "left" ? x + 10 : viewportWidth - x + (SCROLLBAR_WIDTH + 2) - width + 10;
-      let vAlign = y + LINK_TOOLTIP_HEIGHT + height + 20 < viewportHeight ? "top" : "bottom";
-      const vOffset = vAlign === "top" ? y + height : viewportHeight - y + (SCROLLBAR_WIDTH + 2);
+      let vAlign = y + LINK_TOOLTIP_HEIGHT + height < viewportHeight ? "top" : "bottom";
+      const vOffset =
+        vAlign === "top" ? y + height + 2 : viewportHeight - y + (SCROLLBAR_WIDTH + 2);
       this.linkDisplay.isOpen = true;
       this.linkDisplay.style = `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`;
       this.linkDisplay.url = cell.link.url;
@@ -791,12 +793,10 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   toggleContextMenu(type: ContextMenuType, x: number, y: number) {
     this.menuState.isOpen = true;
     this.menuState.position = {
-      menuX: x,
-      menuY: y,
-      parentX: this.el!.clientLeft,
-      parentY: this.el!.clientTop,
-      parentWidth: this.el!.clientWidth,
-      parentHeight: this.el!.clientHeight,
+      x: x,
+      y: y,
+      width: this.el!.clientWidth,
+      height: this.el!.clientHeight,
     };
     this.menuState.menuItems = registries[type]
       .getAll()
