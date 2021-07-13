@@ -432,9 +432,9 @@ export async function typeInComposer(composerEl: Element, text: string) {
   // @ts-ignore
   const cehMock = window.mockContentHelper as ContentEditableHelper;
   cehMock.insertText(text);
-  composerEl.dispatchEvent(new Event("keydown", { bubbles: true }));
+  composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: text[0], bubbles: true }));
   composerEl.dispatchEvent(new Event("input", { bubbles: true }));
-  composerEl.dispatchEvent(new Event("keyup", { bubbles: true }));
+  composerEl.dispatchEvent(new KeyboardEvent("keyup", { key: text[0], bubbles: true }));
   await nextTick();
 }
 
