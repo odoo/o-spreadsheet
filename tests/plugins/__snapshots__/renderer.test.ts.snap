@@ -121,7 +121,7 @@ Array [
   "context.font=\\"400 13px 'Roboto', arial\\";",
   "context.fillStyle=\\"#000\\";",
   "context.textAlign=\\"right\\";",
-  "context.fillText(\\"1\\", 141, 39)",
+  "context.fillText(\\"1\\", 140, 39)",
   "context.restore()",
   "context.save()",
   "context.restore()",

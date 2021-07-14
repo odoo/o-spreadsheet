@@ -23,6 +23,7 @@ export class MockCanvasRenderingContext2D {
   measureText(text: string) {
     return { width: size };
   }
+  drawImage() {}
 }
 
 const patch = {
