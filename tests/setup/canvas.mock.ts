@@ -20,14 +20,14 @@ export class MockCanvasRenderingContext2D {
   clip() {}
   restore() {}
   setLineDash() {}
-  measureText() {
+  measureText(text: string) {
     return { width: size };
   }
 }
 
 const patch = {
   getContext: function () {
-    return (new MockCanvasRenderingContext2D() as any) as CanvasRenderingContext2D;
+    return new MockCanvasRenderingContext2D() as any as CanvasRenderingContext2D;
   },
 };
 
