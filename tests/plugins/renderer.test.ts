@@ -6,8 +6,8 @@ import {
 } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import {RendererPlugin} from "../../src/plugins/ui/renderer";
-import {Box, CommandResult, GridRenderingContext, Viewport} from "../../src/types";
+import { RendererPlugin } from "../../src/plugins/ui/renderer";
+import { Box, CommandResult, GridRenderingContext, Viewport } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import { merge, setCellContent } from "../test_helpers/commands_helpers";
 import { createEqualCF } from "../test_helpers/helpers";

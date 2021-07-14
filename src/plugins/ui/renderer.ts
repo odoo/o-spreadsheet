@@ -567,11 +567,11 @@ export class RendererPlugin extends UIPlugin {
               error: cell.error,
               image: iconStyle
                 ? {
-                  type: "icon",
-                  size: iconWidth,
-                  clipIcon,
-                  image: ICONS[iconStyle].img,
-                }
+                    type: "icon",
+                    size: iconWidth,
+                    clipIcon,
+                    image: ICONS[iconStyle].img,
+                  }
                 : undefined,
             });
           } else {
@@ -645,11 +645,11 @@ export class RendererPlugin extends UIPlugin {
         const iconWidth = fontSizeMap[fontsize];
         const clipRect: Rect = iconStyle
           ? [
-            x + iconWidth + 2 * MIN_CF_ICON_MARGIN,
-            y,
-            Math.max(0, width - iconWidth + 2 * MIN_CF_ICON_MARGIN),
-            height,
-          ]
+              x + iconWidth + 2 * MIN_CF_ICON_MARGIN,
+              y,
+              Math.max(0, width - iconWidth + 2 * MIN_CF_ICON_MARGIN),
+              height,
+            ]
           : [x, y, width, height];
         const clipIcon: Rect | null = iconStyle
           ? [x, y, Math.min(iconWidth + 2 * MIN_CF_ICON_MARGIN, width), height]
@@ -668,11 +668,11 @@ export class RendererPlugin extends UIPlugin {
           error: refCell ? refCell.error : undefined,
           image: iconStyle
             ? {
-              type: "icon",
-              clipIcon,
-              size: iconWidth,
-              image: ICONS[iconStyle].img,
-            }
+                type: "icon",
+                clipIcon,
+                size: iconWidth,
+                image: ICONS[iconStyle].img,
+              }
             : undefined,
         });
       }

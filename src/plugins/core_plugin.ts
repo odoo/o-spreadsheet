@@ -35,7 +35,8 @@ export interface CorePluginConstructor {
  */
 export class CorePlugin<State = any, C = CoreCommand>
   extends BasePlugin<State, C>
-  implements RangeProvider {
+  implements RangeProvider
+{
   protected getters: CoreGetters;
   protected range: RangeAdapter;
   protected uuidGenerator: UuidGenerator;

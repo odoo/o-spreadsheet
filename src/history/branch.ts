@@ -100,9 +100,7 @@ export class Branch<T> {
    * This returns the operation itself, operations which comes before it
    * and operation which comes after it.
    */
-  private locateOperation(
-    operationId: UID
-  ): {
+  private locateOperation(operationId: UID): {
     before: Operation<T>[];
     operation: Operation<T>;
     after: Operation<T>[];

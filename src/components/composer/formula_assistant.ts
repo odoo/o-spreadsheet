@@ -149,8 +149,8 @@ export class FunctionDescriptionProvider extends Component<Props> {
     if (this.timeOutId) {
       clearTimeout(this.timeOutId);
     }
-    this.timeOutId = (setTimeout(() => {
+    this.timeOutId = setTimeout(() => {
       this.assistantState.allowCellSelectionBehind = false;
-    }, 2000) as unknown) as number;
+    }, 2000) as unknown as number;
   }
 }
