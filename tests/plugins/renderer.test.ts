@@ -3,13 +3,15 @@ import {
   DEFAULT_CELL_WIDTH,
   HEADER_HEIGHT,
   HEADER_WIDTH,
+  MIN_CF_ICON_MARGIN,
 } from "../../src/constants";
+import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { RendererPlugin } from "../../src/plugins/ui/renderer";
 import { Box, CommandResult, GridRenderingContext, Viewport } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
-import { merge, setCellContent } from "../test_helpers/commands_helpers";
+import { merge, resizeColumns, resizeRows, setCellContent } from "../test_helpers/commands_helpers";
 import { createEqualCF } from "../test_helpers/helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
@@ -611,6 +613,104 @@ describe("renderer", () => {
       HEADER_WIDTH + DEFAULT_CELL_WIDTH, //clipped to the left
       HEADER_HEIGHT,
       5, // clipped to the right
+      DEFAULT_CELL_HEIGHT,
+    ]);
+  });
+
+  test("cells with a fontsize too big for the row height are clipped", () => {
+    const overflowingText = "TOO HIGH";
+    const fontSize = 26;
+    let box: Box;
+    const model = new Model({
+      sheets: [
+        {
+          id: "sheet1",
+          colNumber: 1,
+          rowNumber: 1,
+          rows: { 0: { size: Math.floor(fontSizeMap[fontSize] + 5) } },
+          cells: { A1: { content: overflowingText, style: 1 } },
+        },
+      ],
+      styles: { 1: { fontSize } },
+    });
+
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    model.drawGrid(ctx);
+
+    box = getBoxFromText(model, overflowingText);
+    expect(box.clipRect).toBeNull();
+
+    resizeRows(model, [0], Math.floor(fontSizeMap[fontSize] / 2));
+    model.drawGrid(ctx);
+    box = getBoxFromText(model, overflowingText);
+    expect(box.clipRect).toEqual([
+      HEADER_WIDTH,
+      HEADER_HEIGHT,
+      DEFAULT_CELL_WIDTH,
+      Math.floor(fontSizeMap[fontSize] / 2),
+    ]);
+  });
+
+  test("cells with icon CF are correctly clipped", () => {
+    let box: Box;
+    const cellContent = "10000";
+    const model = new Model({
+      sheets: [
+        {
+          id: "sheet1",
+          colNumber: 1,
+          rowNumber: 1,
+          cells: { A1: { content: "10000" } },
+          conditionalFormats: [
+            {
+              id: "1",
+              ranges: ["A1"],
+              rule: {
+                type: "IconSetRule",
+                upperInflectionPoint: { type: "number", value: "1000", operator: "gt" },
+                lowerInflectionPoint: { type: "number", value: "0", operator: "gt" },
+                icons: {
+                  upper: "arrowGood",
+                  middle: "arrowNeutral",
+                  lower: "arrowBad",
+                },
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    model.drawGrid(ctx);
+    box = getBoxFromText(model, cellContent);
+    const maxIconBoxWidth = box.image!.size + 2 * MIN_CF_ICON_MARGIN;
+    expect(box.image!.clipIcon).toEqual([
+      HEADER_WIDTH,
+      HEADER_HEIGHT,
+      maxIconBoxWidth,
+      DEFAULT_CELL_HEIGHT,
+    ]);
+    expect(box.clipRect).toEqual([
+      HEADER_WIDTH + maxIconBoxWidth,
+      HEADER_HEIGHT,
+      DEFAULT_CELL_WIDTH - maxIconBoxWidth,
+      DEFAULT_CELL_HEIGHT,
+    ]);
+
+    resizeColumns(model, ["A"], maxIconBoxWidth - 3);
+    model.drawGrid(ctx);
+    box = getBoxFromText(model, cellContent);
+    expect(box.image!.clipIcon).toEqual([
+      HEADER_WIDTH,
+      HEADER_HEIGHT,
+      maxIconBoxWidth - 3,
+      DEFAULT_CELL_HEIGHT,
+    ]);
+    expect(box.clipRect).toEqual([
+      HEADER_WIDTH + maxIconBoxWidth,
+      HEADER_HEIGHT,
+      0,
       DEFAULT_CELL_HEIGHT,
     ]);
   });
