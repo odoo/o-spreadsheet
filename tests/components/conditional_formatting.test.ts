@@ -1179,9 +1179,11 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith", "change");
     await nextTick();
     expect(
-      (document.querySelector(
-        `${selectors.ruleEditor.editor.operatorInput} option:checked`
-      ) as HTMLInputElement).value
+      (
+        document.querySelector(
+          `${selectors.ruleEditor.editor.operatorInput} option:checked`
+        ) as HTMLInputElement
+      ).value
     ).toBe("BeginsWith");
 
     triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
@@ -1190,9 +1192,11 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[0], "click");
     await nextTick();
     expect(
-      (document.querySelector(
-        `${selectors.ruleEditor.editor.operatorInput} option:checked`
-      ) as HTMLInputElement).value
+      (
+        document.querySelector(
+          `${selectors.ruleEditor.editor.operatorInput} option:checked`
+        ) as HTMLInputElement
+      ).value
     ).toBe("BeginsWith");
   });
 

@@ -285,6 +285,7 @@ export class RendererPlugin extends UIPlugin {
         }
       }
     }
+
     function drawBorder([style, color], x1, y1, x2, y2) {
       ctx.strokeStyle = color;
       ctx.lineWidth = (style === "thin" ? 2 : 3) * thinLineWidth;
@@ -489,42 +490,66 @@ export class RendererPlugin extends UIPlugin {
             let clipIcon: Rect | null = null;
             const fontsize = style.fontSize || DEFAULT_FONT_SIZE;
             const iconWidth = fontSizeMap[fontsize];
-            if (
-              (text && textWidth > cols[colNumber].size) ||
-              iconStyle ||
-              fontSizeMap[fontsize] > row.size
-            ) {
-              if (align === "left") {
-                let c = colNumber;
-                while (c < right && !this.hasContent(c + 1, rowNumber)) {
-                  c++;
-                }
-                const width = cols[c].end - col.start;
-                if (width < textWidth) {
-                  clipRect = [col.start - offsetX, row.start - offsetY, width, row.size];
-                }
-              } else {
-                let c = colNumber;
-                while (c > left && !this.hasContent(c - 1, rowNumber)) {
-                  c--;
-                }
-                const width = col.end - cols[c].start;
-                if (iconStyle) {
-                  const colWidth = col.end - col.start;
-                  clipRect = [
-                    col.start - offsetX + iconWidth + 2 * MIN_CF_ICON_MARGIN,
-                    row.start - offsetY,
-                    Math.max(0, colWidth - iconWidth + 2 * MIN_CF_ICON_MARGIN),
-                    row.size,
-                  ];
-                  clipIcon = [
-                    col.start - offsetX,
-                    row.start - offsetY,
-                    Math.min(iconWidth + 2 * MIN_CF_ICON_MARGIN, colWidth),
-                    row.size,
-                  ];
-                } else {
-                  clipRect = [cols[c].start - offsetX, row.start - offsetY, width, row.size];
+            if (iconStyle) {
+              const colWidth = col.end - col.start;
+              clipRect = [
+                col.start - offsetX + iconWidth + 2 * MIN_CF_ICON_MARGIN,
+                row.start - offsetY,
+                Math.max(0, colWidth - iconWidth + 2 * MIN_CF_ICON_MARGIN),
+                row.size,
+              ];
+              clipIcon = [
+                col.start - offsetX,
+                row.start - offsetY,
+                Math.min(iconWidth + 2 * MIN_CF_ICON_MARGIN, colWidth),
+                row.size,
+              ];
+            } else {
+              if ((text && textWidth > cols[colNumber].size) || fontSizeMap[fontsize] > row.size) {
+                let c: number;
+                let width: number;
+                switch (align) {
+                  case "left":
+                    c = colNumber;
+                    while (c < right && !this.hasContent(c + 1, rowNumber)) {
+                      c++;
+                    }
+                    width = cols[c].end - col.start;
+                    if (width < textWidth) {
+                      clipRect = [col.start - offsetX, row.start - offsetY, width, row.size];
+                    }
+                    break;
+                  case "right":
+                    c = colNumber;
+                    while (c > left && !this.hasContent(c - 1, rowNumber)) {
+                      c--;
+                    }
+                    width = col.end - cols[c].start;
+                    if (width < textWidth) {
+                      clipRect = [cols[c].start - offsetX, row.start - offsetY, width, row.size];
+                    }
+                    break;
+                  case "center":
+                    let c1 = colNumber;
+                    while (c1 > left && !this.hasContent(c1 - 1, rowNumber)) {
+                      c1--;
+                    }
+                    let c2 = colNumber;
+                    while (c2 < right && !this.hasContent(c2 + 1, rowNumber)) {
+                      c2++;
+                    }
+                    const colLeft = Math.min(c1, colNumber);
+                    const colRight = Math.max(c2, colNumber);
+                    width = cols[colRight].end - cols[colLeft].start;
+                    if (width < textWidth || colLeft === colNumber || colRight === colNumber) {
+                      clipRect = [
+                        cols[colLeft].start - offsetX,
+                        row.start - offsetY,
+                        width,
+                        row.size,
+                      ];
+                    }
+                    break;
                 }
               }
             }
