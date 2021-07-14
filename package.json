@@ -14,7 +14,7 @@
     "test:watch": "jest --watch",
     "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --write",
     "check-formatting": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --check",
-    "dist":"npm run build:all && npm run build:bundle"
+    "dist": "npm run build:all && npm run build:bundle"
   },
   "browserslist": [
     "last 1 Chrome versions"
