@@ -68,6 +68,7 @@ export interface CoreGetters {
   expandZone: MergePlugin["expandZone"];
   isInMerge: MergePlugin["isInMerge"];
   getMainCell: MergePlugin["getMainCell"];
+  getBottomLeftCell: MergePlugin["getBottomLeftCell"];
   doesIntersectMerge: MergePlugin["doesIntersectMerge"];
   isInSameMerge: MergePlugin["isInSameMerge"];
   getMerges: MergePlugin["getMerges"];

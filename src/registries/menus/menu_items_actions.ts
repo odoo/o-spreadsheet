@@ -1,6 +1,6 @@
-import { LinkEditorProps } from "../../components/link_editor";
+import { LinkEditorProps } from "../../components/link/link_editor";
 import { BACKGROUND_CHART_COLOR } from "../../constants";
-import { LinkCell, numberToLetters, uuidv4, zoneToXc } from "../../helpers/index";
+import { numberToLetters, uuidv4, zoneToXc } from "../../helpers/index";
 import { _lt } from "../../translation";
 import { SpreadsheetEnv, Style } from "../../types/index";
 
@@ -596,15 +596,9 @@ export const OPEN_FAR_SIDEPANEL_ACTION = (env: SpreadsheetEnv) => {
 export const INSERT_LINK = (env: SpreadsheetEnv) => {
   const [col, row] = env.getters.getPosition();
   const sheetId = env.getters.getActiveSheetId();
-  const cell = env.getters.getCell(sheetId, col, row);
-  // env.openSidePanel("InsertLink", {
-  //   position: { col, row, sheetId },
-  //   link: cell instanceof LinkCell ? cell.link : undefined,
-  // });
+  const [mainCol, mainRow] = env.getters.getMainCell(sheetId, col, row);
   const linkEditorProps: LinkEditorProps = {
-    position: { col, row },
-    sheetId,
-    link: cell instanceof LinkCell ? cell.link : undefined,
+    position: { col: mainCol, row: mainRow },
   };
   env.openLinkEditor(linkEditorProps);
 };

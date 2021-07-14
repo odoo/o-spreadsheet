@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
-import { LinkEditorProps } from "./components/link_editor";
+import { LinkEditorProps } from "./components/link/link_editor";
 import { DEFAULT_REVISION_ID, MAXIMUM_EVALUATION_CHECK_DELAY_MS } from "./constants";
 import { createEmptyExcelWorkbookData, createEmptyWorkbookData, load } from "./data";
 import { DEBUG, setIsFastStrategy, uuidv4 } from "./helpers/index";

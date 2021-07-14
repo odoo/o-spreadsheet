@@ -18,6 +18,7 @@ import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
 import { FiguresContainer } from "./figures/container";
 import { startDnd } from "./helpers/drag_and_drop";
+import { LinkDisplay } from "./link/link_display";
 import { Menu, MenuState } from "./menu";
 import { Overlay } from "./overlay";
 import { ScrollBar } from "./scrollbar";
@@ -46,8 +47,6 @@ const registries = {
 
 const ERROR_TOOLTIP_HEIGHT = 80;
 const ERROR_TOOLTIP_WIDTH = 180;
-const LINK_TOOLTIP_HEIGHT = 23;
-const LINK_TOOLTIP_WIDTH = 200;
 // copy and paste are specific events that should not be managed by the keydown event,
 // but they shouldn't be preventDefault and stopped (else copy and paste events will not trigger)
 // and also should not result in typing the character C or V in the composer
@@ -64,8 +63,6 @@ interface HoveredPosition {
 
 interface linkDisplayState {
   isOpen: boolean;
-  style: string;
-  url: string;
 }
 
 export function useCellHovered(env: SpreadsheetEnv, getViewPort: () => Viewport) {
@@ -176,7 +173,6 @@ const TEMPLATE = xml/* xml */ `
     </t>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
-      t-on-click="onClick"
       t-on-dblclick="onDoubleClick"
       tabindex="-1"
       t-on-contextmenu="onCanvasContextMenu"
@@ -193,11 +189,7 @@ const TEMPLATE = xml/* xml */ `
       <div class="o-error-tooltip" t-esc="errorTooltip.text" t-att-style="errorTooltip.style"/>
     </t>
     <t t-if="linkDisplay.isOpen">
-      <div class="o-link-tool"  t-att-style="linkDisplay.style">
-        <a t-att-href="linkDisplay.url" target="_blank">
-          <t t-esc="linkDisplay.url"/>
-        </a>
-      </div>
+      <LinkDisplay t-on-close.stop="linkDisplay.isOpen=false"/>/>
     </t>
     <t t-if="getters.getEditionMode() === 'inactive'">
       <Autofill position="getAutofillPosition()"/>
@@ -244,15 +236,6 @@ const CSS = css/* scss */ `
       border-left: 3px solid red;
       padding: 10px;
     }
-    .o-link-tool {
-      position: absolute;
-      font-size: 13px;
-      width: ${LINK_TOOLTIP_WIDTH};
-      height: ${LINK_TOOLTIP_HEIGHT};
-      background-color: white;
-      box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
-      padding: 10px;
-    }
     .o-scrollbar {
       position: absolute;
       overflow: auto;
@@ -288,6 +271,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     Autofill,
     FiguresContainer,
     ClientTag,
+    LinkDisplay,
   };
 
   private menuState: MenuState = useState({
@@ -298,8 +282,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
 
   private linkDisplay: linkDisplayState = useState({
     isOpen: false,
-    style: "",
-    url: "",
   });
 
   private vScrollbarRef = useRef("vscrollbar");
@@ -558,6 +540,15 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.clickedCol = col;
     this.clickedRow = row;
 
+    const sheetId = this.getters.getActiveSheetId();
+    const [mainCol, mainRow] = this.getters.getMainCell(sheetId, col, row);
+    const cell = this.getters.getCell(sheetId, mainCol, mainRow);
+    if (hasLink(cell)) {
+      this.linkDisplay.isOpen = true;
+    } else {
+      this.closeLinkDisplay();
+    }
+
     this.dispatch(ev.ctrlKey ? "START_SELECTION_EXPANSION" : "START_SELECTION");
     if (ev.shiftKey) {
       this.dispatch("ALTER_SELECTION", { cell: [col, row] });
@@ -649,35 +640,8 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     }
   }
 
-  onClick(ev) {
-    const [col, row] = this.getCartesianCoordinates(ev);
-    const sheetId = this.getters.getActiveSheetId();
-    const [mainCol, mainRow] = this.getters.getMainCell(sheetId, col, row);
-    const cell = this.getters.getCell(sheetId, mainCol, mainRow);
-    if (hasLink(cell)) {
-      const viewport = this.getters.getActiveSnappedViewport();
-      const { width: viewportWidth, height: viewportHeight } = this.getters.getViewportDimension();
-      const [x, y, width, height] = this.getters.getRect(
-        { left: col, top: row, right: col, bottom: row },
-        viewport
-      );
-      const hAlign = x + LINK_TOOLTIP_WIDTH + 30 < viewportWidth ? "left" : "right";
-      const hOffset =
-        hAlign === "left" ? x + 10 : viewportWidth - x + (SCROLLBAR_WIDTH + 2) - width + 10;
-      let vAlign = y + LINK_TOOLTIP_HEIGHT + height < viewportHeight ? "top" : "bottom";
-      const vOffset =
-        vAlign === "top" ? y + height + 2 : viewportHeight - y + (SCROLLBAR_WIDTH + 2);
-      this.linkDisplay.isOpen = true;
-      this.linkDisplay.style = `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`;
-      this.linkDisplay.url = cell.link.url;
-    } else {
-      this.closelinkDisplay();
-    }
-  }
-  closelinkDisplay() {
+  closeLinkDisplay() {
     this.linkDisplay.isOpen = false;
-    this.linkDisplay.style = "";
-    this.linkDisplay.url = "";
   }
   // ---------------------------------------------------------------------------
   // Keyboard interactions
@@ -692,7 +656,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   processArrows(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
-    this.closelinkDisplay();
+    this.closeLinkDisplay();
     const deltaMap = {
       ArrowDown: [0, 1],
       ArrowLeft: [-1, 0],
@@ -793,8 +757,8 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   toggleContextMenu(type: ContextMenuType, x: number, y: number) {
     this.menuState.isOpen = true;
     this.menuState.position = {
-      x: x,
-      y: y,
+      x,
+      y,
       width: this.el!.clientWidth,
       height: this.el!.clientHeight,
     };

@@ -1,10 +1,11 @@
 import * as owl from "@odoo/owl";
-import { BOTTOMBAR_HEIGHT, SCROLLBAR_WIDTH, TOPBAR_HEIGHT } from "../constants";
-import { linkMenuRegistry } from "../registries/menus/link_menu_registry";
-import { Link, MenuPosition, Position, Sheet, SpreadsheetEnv } from "../types";
-import { LIST } from "./icons";
-import { Menu } from "./menu";
-import { LinkEditorTerms } from "./side_panel/translations_terms";
+import { BOTTOMBAR_HEIGHT, SCROLLBAR_WIDTH, TOPBAR_HEIGHT } from "../../constants";
+import { hasLink } from "../../helpers";
+import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
+import { Link, MenuPosition, Position, Sheet, SpreadsheetEnv } from "../../types";
+import { LIST } from "./../icons";
+import { Menu } from "./../menu";
+import { LinkEditorTerms } from "./../side_panel/translations_terms";
 const { Component, tags, hooks, useState } = owl;
 const { xml, css } = tags;
 const { useRef } = hooks;
@@ -12,25 +13,22 @@ const { useRef } = hooks;
 const WIDTH = 320;
 const HEIGHT = 160;
 const PADDING = 10;
-//------------------------------------------------------------------------------
-// Context Menu Component
-//------------------------------------------------------------------------------
 
 const TEMPLATE = xml/* xml */ `
-    <div class="o-link-editor" t-att-style="style">
+    <div class="o-link-editor" t-att-style="style" t-on-click.stop="">
       <div class="o-section">
         <div t-esc="env._t('${LinkEditorTerms.Label}')" class="o-section-title"/>
         <div class="d-flex">
-          <input type="text" class="o-input flex-grow-1" t-model="link.label"></input>
+          <input type="text" class="o-input flex-grow-1" t-model="linkEditorState.link.label"></input>
         </div>
 
         <div t-esc="env._t('${LinkEditorTerms.Link}')" class="o-section-title mt-3"/>
         <div class="o-input-button-inside">
-          <input type="text" t-ref="urlInput" class="o-input-inside" t-model="link.url"></input>
-          <!-- <button class="o-button-inside" t-on-click="removeLink">
+          <input type="text" t-ref="urlInput" class="o-input-inside" t-model="linkEditorState.link.url"></input>
+          <button t-if="linkEditorState.link.url" class="o-button-inside" t-on-click="removeLink">
             x
-          </button> -->
-          <button class="o-button-inside" t-ref="menuButton" t-on-click="openMenu">
+          </button>
+          <button t-if="!linkEditorState.link.url" class="o-button-inside" t-ref="menuButton" t-on-click="openMenu">
             ${LIST}
           </button>
         </div>
@@ -41,7 +39,7 @@ const TEMPLATE = xml/* xml */ `
         t-on-close.stop="menuState.isOpen=false"/>
       <div class="o-buttons">
         <button t-on-click="cancel" class="o-button" t-esc="env._t('${LinkEditorTerms.Cancel}')"></button>
-        <button t-on-click="save" t-att-disabled="!link.url" class="o-button" t-esc="env._t('${LinkEditorTerms.Confirm}')"></button>
+        <button t-on-click="save" t-att-disabled="!linkEditorState.link.url" class="o-button" t-esc="env._t('${LinkEditorTerms.Confirm}')"></button>
       </div>
     </div>`;
 
@@ -120,15 +118,13 @@ const CSS = css/* scss */ `
   }
 `;
 
-export interface linkEditorState {
-  style: string;
-  url: string;
-}
-
 export interface LinkEditorProps {
   position: Position;
-  sheetId: string;
-  link?: Link;
+}
+
+interface LinkEditorState {
+  link: Link;
+  position: Position;
 }
 
 export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
@@ -136,7 +132,10 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   static components = { Menu };
   static style = CSS;
   private getters = this.env.getters;
-  private link: Link = useState(this.props.link ? { ...this.props.link } : { label: "", url: "" });
+  private linkEditorState: LinkEditorState = useState({
+    link: this.link,
+    position: this.props.position,
+  });
   private menus = linkMenuRegistry;
   private menuState: { isOpen: boolean } = useState({
     isOpen: false,
@@ -146,6 +145,16 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
 
   mounted() {
     this.urlInput.el!.focus();
+  }
+
+  get link(): Link {
+    const { col, row } = this.props.position;
+    const sheetId = this.getters.getActiveSheetId();
+    const cell = this.getters.getCell(sheetId, col, row);
+    if (hasLink(cell)) {
+      return { url: cell.link.url, label: cell.formattedValue };
+    }
+    return { url: "", label: "" };
   }
 
   get menuItems() {
@@ -170,11 +179,16 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   }
 
   get style() {
-    const [col, row] = this.getters.getPosition();
+    const { col, row } = this.props.position;
+    const [leftCol, bottomRow] = this.getters.getBottomLeftCell(
+      this.getters.getActiveSheetId(),
+      col,
+      row
+    );
     const viewport = this.getters.getActiveSnappedViewport();
     const { width: viewportWidth, height: viewportHeight } = this.getters.getViewportDimension();
     const [x, y, width, height] = this.getters.getRect(
-      { left: col, top: row, right: col, bottom: row },
+      { left: leftCol, top: bottomRow, right: leftCol, bottom: bottomRow },
       viewport
     );
     const hAlign = x + WIDTH + 30 < viewportWidth ? "left" : "right";
@@ -191,7 +205,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   get menuPosition(): MenuPosition {
     return {
       x: WIDTH - PADDING - 2,
-      y: HEIGHT - 37, // 37 = Height of buttons
+      y: HEIGHT - 37, // 37 = Height of confirm/cancel buttons
       offsetLeft: this.el!.offsetLeft,
       offsetTop: this.el!.offsetTop,
       width: this.el!.parentElement!.clientWidth,
@@ -199,14 +213,18 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
     };
   }
 
+  removeLink() {
+    this.linkEditorState.link.url = "";
+  }
+
   save() {
-    const [col, row] = this.getters.getPosition();
-    const label = this.link.label || this.link.url;
+    const { col, row } = this.props.position;
+    const label = this.linkEditorState.link.label || this.linkEditorState.link.url;
     this.env.dispatch("UPDATE_CELL", {
       col: col,
       row: row,
       sheetId: this.getters.getActiveSheetId(),
-      content: `[${label}](${this.link.url})`,
+      content: `[${label}](${this.linkEditorState.link.url})`,
     });
     this.trigger("close-link-editor");
   }

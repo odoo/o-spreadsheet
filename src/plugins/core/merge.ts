@@ -51,6 +51,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     "isInSameMerge",
     "isMergeHidden",
     "getMainCell",
+    "getBottomLeftCell",
     "expandZone",
     "doesIntersectMerge",
     "getMerges",
@@ -222,6 +223,15 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     }
     const mergeTopLeftPos = this.getMerge(sheetId, col, row)!.topLeft;
     return [mergeTopLeftPos.col, mergeTopLeftPos.row];
+  }
+
+  getBottomLeftCell(sheetId: UID, col: number, row: number): [number, number] {
+    if (!this.isInMerge(sheetId, col, row)) {
+      return [col, row];
+    }
+    const bottom = this.getMerge(sheetId, col, row)!.bottom;
+    const left = this.getMerge(sheetId, col, row)!.left;
+    return [left, bottom];
   }
 
   isMergeHidden(sheetId: UID, merge: Merge): boolean {

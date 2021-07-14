@@ -1,5 +1,5 @@
 import { Env } from "@odoo/owl/dist/types/component/component";
-import { LinkEditorProps } from "../components/link_editor";
+import { LinkEditorProps } from "../components/link/link_editor";
 import { TranslationFunction } from "../translation";
 import { CommandDispatcher } from "./commands";
 import { Getters } from "./getters";
