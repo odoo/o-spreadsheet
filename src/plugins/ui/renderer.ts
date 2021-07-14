@@ -455,25 +455,46 @@ export class RendererPlugin extends UIPlugin {
               ? (style && style.align) || computeAlign(cell, showFormula)
               : undefined;
             let clipRect: Rect | null = null;
-            if (text && textWidth > cols[colNumber].size) {
-              if (align === "left") {
-                let c = colNumber;
+          if (text && textWidth > col.size) {
+            let c: number;
+            let width: number;
+            switch (align) {
+              case "left":
+                c = colNumber;
                 while (c < right && !this.hasContent(c + 1, rowNumber)) {
                   c++;
                 }
-                const width = cols[c].end - col.start;
+                width = cols[c].end - col.start;
                 if (width < textWidth) {
                   clipRect = [col.start - offsetX, row.start - offsetY, width, row.size];
                 }
-              } else {
-                let c = colNumber;
+                break;
+              case "right":
+                c = colNumber;
                 while (c > left && !this.hasContent(c - 1, rowNumber)) {
                   c--;
                 }
-                const width = col.end - cols[c].start;
+                width = col.end - cols[c].start;
                 if (width < textWidth) {
                   clipRect = [cols[c].start - offsetX, row.start - offsetY, width, row.size];
                 }
+                break;
+              case "center":
+                let c1 = colNumber;
+                while (c1 > left && !this.hasContent(c1 - 1, rowNumber)) {
+                  c1--;
+                }
+                let c2 = colNumber;
+                while (c2 < right && !this.hasContent(c2 + 1, rowNumber)) {
+                  c2++;
+                }
+                const colLeft = Math.min(c1, colNumber);
+                const colRight = Math.max(c2, colNumber);
+                width = cols[colRight].end - cols[colLeft].start;
+                if (width < textWidth || colLeft === colNumber || colRight === colNumber) {
+                  clipRect = [cols[colLeft].start - offsetX, row.start - offsetY, width, row.size];
+                }
+                break;
               }
             }
 
