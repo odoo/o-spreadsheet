@@ -1,5 +1,10 @@
 import * as owl from "@odoo/owl";
-import { BOTTOMBAR_HEIGHT, ICON_EDGE_LENGTH, TOPBAR_HEIGHT } from "../constants";
+import {
+  BOTTOMBAR_HEIGHT,
+  CF_ICON_EDGE_LENGTH,
+  ICON_EDGE_LENGTH,
+  TOPBAR_HEIGHT,
+} from "../constants";
 import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { SelectionMode } from "../plugins/ui/selection";
@@ -66,11 +71,12 @@ const CSS = css/* scss */ `
     width: ${ICON_EDGE_LENGTH}px;
     height: ${ICON_EDGE_LENGTH}px;
     opacity: 0.6;
+    vertical-align: middle;
   }
 
   .o-cf-icon {
-    width: 15px;
-    height: 15px;
+    width: ${CF_ICON_EDGE_LENGTH}px;
+    height: ${CF_ICON_EDGE_LENGTH}px;
     vertical-align: sub;
   }
 `;
