@@ -160,6 +160,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       display: flex;
       flex-direction: column;
       font-size: 13px;
+      line-height: 1.2;
 
       .o-topbar-top {
         border-bottom: 1px solid #e0e2e4;
@@ -200,7 +201,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
         .o-toolbar-tools {
           display: flex;
           flex-shrink: 0;
-          margin-left: 20px;
+          margin-left: 16px;
           color: #333;
           cursor: default;
 
