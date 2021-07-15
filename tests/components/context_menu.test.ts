@@ -5,7 +5,7 @@ import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { ConditionalFormat, SpreadsheetEnv } from "../../src/types";
-import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
+import { setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick, Touch } from "../test_helpers/helpers";
@@ -726,7 +726,8 @@ describe("Context Menu - CF", () => {
       sheetId: model.getters.getActiveSheetId(),
       target: cfRule.ranges.map(toZone),
     });
-    setSelection(model, ["A1:K11"]);
+    const zone = { left: 0, top: 0, bottom: 10, right: 10 };
+    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
     simulateContextMenu(240, 110); //click on C5
     await nextTick();
     await simulateClick(".o-menu div[data-name='conditional_formatting']");
@@ -773,7 +774,8 @@ describe("Context Menu - CF", () => {
       sheetId: model.getters.getActiveSheetId(),
       target: cfRule2.ranges.map(toZone),
     });
-    setSelection(model, ["A1:K11"]);
+    const zone = { left: 0, top: 0, bottom: 10, right: 10 };
+    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
     simulateContextMenu(240, 110); //click on C5
     await nextTick();
     await simulateClick(".o-menu div[data-name='conditional_formatting']");
@@ -804,7 +806,8 @@ describe("Context Menu - CF", () => {
       sheetId: model.getters.getActiveSheetId(),
       target: cfRule1.ranges.map(toZone),
     });
-    setSelection(model, ["A1:A11"]);
+    let zone = { left: 0, top: 0, bottom: 10, right: 0 };
+    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
     simulateContextMenu(80, 90);
     await nextTick();
     await simulateClick(".o-menu div[data-name='conditional_formatting']");
@@ -815,7 +818,8 @@ describe("Context Menu - CF", () => {
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
     ).toBeTruthy();
 
-    setSelection(model, ["F6"]);
+    zone = { left: 5, top: 5, bottom: 5, right: 5 };
+    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [5, 5] });
     simulateContextMenu(530, 125);
     await nextTick();
     await simulateClick(".o-menu div[data-name='conditional_formatting']");

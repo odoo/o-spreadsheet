@@ -8,7 +8,6 @@ import {
   createSheetWithName,
   merge,
   setCellContent,
-  setSelection,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText, getMerges } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
@@ -18,10 +17,21 @@ let autoFill: AutofillPlugin;
 let model: Model;
 
 /**
+ * Select a zone
+ */
+function selectZone(range: string) {
+  const zone = toZone(range);
+  model.dispatch("SET_SELECTION", {
+    anchor: [zone.left, zone.top],
+    zones: [zone],
+  });
+}
+
+/**
  * Autofill from a zone to a cell
  */
 function autofill(from: string, to: string) {
-  setSelection(model, [from]);
+  selectZone(from);
   const [col, row] = toCartesian(to);
   model.dispatch("AUTOFILL_SELECT", { col, row });
   model.dispatch("AUTOFILL");
@@ -31,7 +41,7 @@ function autofill(from: string, to: string) {
  * Retrieve the direction from a zone to a cell
  */
 function getDirection(from: string, xc: string): DIRECTION {
-  setSelection(model, [from]);
+  selectZone(from);
   const [col, row] = toCartesian(xc);
   return autoFill["getDirection"](col, row);
 }
@@ -40,7 +50,7 @@ function getDirection(from: string, xc: string): DIRECTION {
  * Select a zone to autofill
  */
 function select(from: string, xc: string) {
-  setSelection(model, [from]);
+  selectZone(from);
   const [col, row] = toCartesian(xc);
   model.dispatch("AUTOFILL_SELECT", { col, row });
 }
@@ -393,7 +403,7 @@ describe("Autofill", () => {
     setCellContent(model, "A3", "1");
     setCellContent(model, "A4", "1");
     setCellContent(model, "B2", "2");
-    setSelection(model, ["B2"]);
+    selectZone("B2");
     model.dispatch("AUTOFILL_AUTO");
     expect(getCellContent(model, "B3")).toBe("2");
     expect(getCellContent(model, "B4")).toBe("2");
@@ -405,7 +415,7 @@ describe("Autofill", () => {
     setCellContent(model, "B3", "1");
     setCellContent(model, "B4", "1");
     setCellContent(model, "A2", "2");
-    setSelection(model, ["A2"]);
+    selectZone("A2");
     model.dispatch("AUTOFILL_AUTO");
     expect(getCellContent(model, "A3")).toBe("2");
     expect(getCellContent(model, "A4")).toBe("2");

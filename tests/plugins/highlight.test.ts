@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
 import { HighlightPlugin } from "../../src/plugins/ui/highlight";
-import { createSheet, merge, selectCell, setSelection } from "../test_helpers/commands_helpers";
+import { createSheet, merge, selectCell } from "../test_helpers/commands_helpers";
 
 let model: Model;
 
@@ -158,27 +158,33 @@ describe("highlight", () => {
   test("highlight selection sequence", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     model.dispatch("START_SELECTION");
-    const zone1XC = "B2:F6";
-    const zone2XC = "G7:K11";
-    setSelection(model, [zone1XC]);
+    const zone1 = { bottom: 5, left: 1, right: 5, top: 1 };
+    const zone2 = { bottom: 10, left: 6, right: 10, top: 6 };
+    model.dispatch("SET_SELECTION", {
+      anchor: [1, 1],
+      zones: [zone1],
+    });
     model.dispatch("STOP_SELECTION");
     const firstColor = getColor(model);
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
         sheet: model.getters.getActiveSheetId(),
-        zone: toZone(zone1XC),
+        zone: zone1,
       },
     ]);
     model.dispatch("START_SELECTION");
-    setSelection(model, [zone2XC]);
+    model.dispatch("SET_SELECTION", {
+      anchor: [6, 6],
+      zones: [zone2],
+    });
     model.dispatch("STOP_SELECTION");
     expect(getColor(model)).toBe(firstColor);
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
         sheet: model.getters.getActiveSheetId(),
-        zone: toZone(zone2XC),
+        zone: zone2,
       },
     ]);
   });
@@ -186,35 +192,45 @@ describe("highlight", () => {
   test("expand selection highlights in a new color", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     model.dispatch("START_SELECTION");
-    const zone1XC = "B2:F6";
-    const zone2XC = "G7:K11";
-    setSelection(model, [zone1XC]);
+    const zone1 = { bottom: 5, left: 1, right: 5, top: 1 };
+    const zone2 = { bottom: 10, left: 6, right: 10, top: 6 };
+    model.dispatch("SET_SELECTION", {
+      anchor: [1, 1],
+      zones: [zone1],
+    });
     model.dispatch("STOP_SELECTION");
     const firstColor = getColor(model);
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
         sheet: model.getters.getActiveSheetId(),
-        zone: toZone(zone1XC),
+        zone: zone1,
       },
     ]);
     model.dispatch("PREPARE_SELECTION_EXPANSION");
     model.dispatch("START_SELECTION_EXPANSION");
-    setSelection(model, [zone2XC]);
+    model.dispatch("SET_SELECTION", {
+      anchor: [6, 6],
+      zones: [zone2],
+    });
     model.dispatch("STOP_SELECTION");
     expect(getColor(model)).not.toBe(firstColor);
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: getColor(model),
         sheet: model.getters.getActiveSheetId(),
-        zone: toZone(zone2XC),
+        zone: zone2,
       },
     ]);
   });
 
   test("selection highlights with previous selection and expand", () => {
     model.dispatch("START_SELECTION");
-    setSelection(model, ["B2:F6"]);
+    const zone1 = { bottom: 5, left: 1, right: 5, top: 1 };
+    model.dispatch("SET_SELECTION", {
+      anchor: [1, 1],
+      zones: [zone1],
+    });
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     model.dispatch("START_SELECTION_EXPANSION");
     selectCell(model, "K11");
@@ -232,15 +248,21 @@ describe("highlight", () => {
   test("color changes when manually changed", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     model.dispatch("START_SELECTION");
-    const zone1XC = "B2:F6";
-    const zone2XC = "G7:K11";
-    setSelection(model, [zone1XC]);
+    const zone1 = { bottom: 5, left: 1, right: 5, top: 1 };
+    const zone2 = { bottom: 10, left: 6, right: 10, top: 6 };
+    model.dispatch("SET_SELECTION", {
+      anchor: [1, 1],
+      zones: [zone1],
+    });
     model.dispatch("STOP_SELECTION");
     const firstColor = getColor(model);
     expect(model.getters.getHighlights().map((h) => h.color)).toEqual([firstColor]);
     model.dispatch("SET_HIGHLIGHT_COLOR", { color: "#999" });
     model.dispatch("START_SELECTION");
-    setSelection(model, [zone2XC]);
+    model.dispatch("SET_SELECTION", {
+      anchor: [6, 6],
+      zones: [zone2],
+    });
     model.dispatch("STOP_SELECTION");
     expect(getColor(model)).not.toBe(firstColor);
     expect(model.getters.getHighlights().map((h) => h.color)).toEqual(["#999"]);
@@ -248,17 +270,18 @@ describe("highlight", () => {
 
   test("select same range twice highlights once", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
-    const zoneXC = "B2:F6";
-    const zone = toZone(zoneXC);
+    const anchor: [number, number] = [1, 1];
+    const zone = { bottom: 5, left: 1, right: 5, top: 1 };
+    const zones = [zone];
     model.dispatch("START_SELECTION");
     const color = getColor(model);
-    setSelection(model, [zoneXC]);
+    model.dispatch("SET_SELECTION", { anchor, zones });
     model.dispatch("STOP_SELECTION");
     expect(model.getters.getHighlights()).toStrictEqual([
       { color, zone, sheet: model.getters.getActiveSheetId() },
     ]);
     model.dispatch("START_SELECTION");
-    setSelection(model, [zoneXC]);
+    model.dispatch("SET_SELECTION", { anchor, zones });
     expect(model.getters.getHighlights()).toStrictEqual([
       { color, zone, sheet: model.getters.getActiveSheetId() },
     ]);
@@ -267,25 +290,31 @@ describe("highlight", () => {
   test("selection without pending highlight", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     model.dispatch("START_SELECTION");
-    const zone1XC = "B2:F6";
-    const zone2XC = "G7:K11";
-    setSelection(model, [zone1XC]);
+    const zone1 = { bottom: 5, left: 1, right: 5, top: 1 };
+    const zone2 = { bottom: 10, left: 6, right: 10, top: 6 };
+    model.dispatch("SET_SELECTION", {
+      anchor: [1, 1],
+      zones: [zone1],
+    });
     const firstColor = getColor(model);
     model.dispatch("STOP_SELECTION");
     model.dispatch("RESET_PENDING_HIGHLIGHT");
     model.dispatch("START_SELECTION");
-    setSelection(model, [zone2XC]);
+    model.dispatch("SET_SELECTION", {
+      anchor: [6, 6],
+      zones: [zone2],
+    });
     model.dispatch("STOP_SELECTION");
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
         sheet: model.getters.getActiveSheetId(),
-        zone: toZone(zone1XC),
+        zone: zone1,
       },
       {
         color: getColor(model),
         sheet: model.getters.getActiveSheetId(),
-        zone: toZone(zone2XC),
+        zone: zone2,
       },
     ]);
   });
@@ -335,7 +364,10 @@ describe("highlight", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     merge(model, "A2:A4");
     model.dispatch("START_SELECTION_EXPANSION");
-    setSelection(model, ["A3:A5"], { anchor: "A5" });
+    model.dispatch("SET_SELECTION", {
+      anchor: [0, 4],
+      zones: [toZone("A3:A5")],
+    });
     const mergeColor = getColor(model);
     expect(model.getters.getHighlights()).toStrictEqual([
       {
@@ -350,7 +382,10 @@ describe("highlight", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     merge(model, "A2:A4");
     model.dispatch("START_SELECTION_EXPANSION");
-    setSelection(model, ["A3:A5"], { anchor: "A5" });
+    model.dispatch("SET_SELECTION", {
+      anchor: [0, 4],
+      zones: [toZone("A3:A5")],
+    });
     const mergeColor = getColor(model);
     model.dispatch("ALTER_SELECTION", { cell: [0, 1] }); // TopLeft
     model.dispatch("ALTER_SELECTION", { cell: [0, 0] }); // above merge

@@ -324,25 +324,6 @@ export function selectCell(model: Model, xc: string): CommandResult {
   return model.dispatch("SELECT_CELL", { col, row });
 }
 
-export function setSelection(
-  model: Model,
-  xcs: string[],
-  options: {
-    anchor?: string | undefined;
-    strict?: boolean;
-  } = { anchor: undefined, strict: false }
-) {
-  const zones = xcs.map(toZone);
-  const cartesianAnchor: [number, number] = options.anchor
-    ? toCartesian(options.anchor)
-    : [zones[0].left, zones[0].top];
-  model.dispatch("SET_SELECTION", {
-    anchor: cartesianAnchor,
-    zones: zones,
-    strict: options.strict,
-  });
-}
-
 export function merge(
   model: Model,
   range: string,
