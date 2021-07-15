@@ -4,7 +4,6 @@ import { ColorScaleRuleEditor } from "../../src/components/side_panel/conditiona
 import { IconSetRuleEditor } from "../../src/components/side_panel/conditional_formatting/icon_set_rule_editor";
 import { toZone } from "../../src/helpers/zones";
 import { CommandResult } from "../../src/types";
-import { setSelection } from "../test_helpers/commands_helpers";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
   createColorScale,
@@ -586,7 +585,12 @@ describe("UI of conditional formats", () => {
   test("Make a multiple selection, open CF panel, create a rule => Should create one line per selection", async () => {
     triggerMouseEvent(selectors.closePanel, "click");
     await nextTick();
-    setSelection(model, ["B2", "C3"]);
+    const zone1 = { bottom: 1, left: 1, right: 1, top: 1 };
+    const zone2 = { bottom: 2, left: 2, right: 2, top: 2 };
+    model.dispatch("SET_SELECTION", {
+      anchor: [1, 1],
+      zones: [zone1, zone2],
+    });
     parent.env.openSidePanel("ConditionalFormatting");
     await nextTick();
     triggerMouseEvent(selectors.buttonAdd, "click");
@@ -598,7 +602,12 @@ describe("UI of conditional formats", () => {
   });
 
   test("Open CF panel, make a multiple selection, open CF panel, create a rule => Should create one line per selection", async () => {
-    setSelection(model, ["B2", "C3"]);
+    const zone1 = { bottom: 1, left: 1, right: 1, top: 1 };
+    const zone2 = { bottom: 2, left: 2, right: 2, top: 2 };
+    model.dispatch("SET_SELECTION", {
+      anchor: [1, 1],
+      zones: [zone1, zone2],
+    });
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();
     const ranges = document.querySelectorAll(selectors.ruleEditor.range);

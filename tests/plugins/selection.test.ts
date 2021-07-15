@@ -6,11 +6,8 @@ import {
   addColumns,
   createSheet,
   deleteColumns,
-  hideColumns,
-  hideRows,
   redo,
   selectCell,
-  setSelection,
   undo,
 } from "../test_helpers/commands_helpers";
 import { getActiveXc } from "../test_helpers/getters_helpers";
@@ -158,36 +155,6 @@ describe("selection", () => {
     model.dispatch("ALTER_SELECTION", { cell: [2, 2] });
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 1, right: 3, left: 1, bottom: 2 });
-  });
-
-  test("extend selection through hidden columns", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 5,
-          rowNumber: 1,
-          cols: { 2: { isHidden: true }, 3: { isHidden: true } },
-        },
-      ],
-    });
-    selectCell(model, "B1");
-    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
-    expect(model.getters.getSelectedZone()).toEqual(toZone("B1:E1"));
-  });
-
-  test("extend selection through hidden rows", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 1,
-          rowNumber: 5,
-          rows: { 2: { isHidden: true }, 3: { isHidden: true } },
-        },
-      ],
-    });
-    selectCell(model, "A5");
-    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
-    expect(model.getters.getSelectedZone()).toEqual(toZone("A2:A5"));
   });
 
   test("can select a whole column", () => {
@@ -394,120 +361,4 @@ describe("multiple sheets", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
     expect(model.getters.getActiveSheetId()).toBe("42");
   });
-});
-
-describe("Alter selection starting from hidden cells", () => {
-  test("Cannot change selection if the current one is completely hidden", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 5,
-          rowNumber: 2,
-        },
-      ],
-    });
-    selectCell(model, "C1");
-    hideColumns(model, ["C"]);
-    hideRows(model, [0]);
-
-    const alter1 = model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
-    expect(alter1).toBe(CommandResult.SelectionOutOfBound);
-    const alter2 = model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
-    expect(alter2).toBe(CommandResult.SelectionOutOfBound);
-  });
-
-  test("Cannot move position vertically from hidden column", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 5,
-          rowNumber: 2,
-        },
-      ],
-    });
-    selectCell(model, "C1");
-    hideColumns(model, ["C"]);
-    const move1 = model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
-    expect(move1).toBe(CommandResult.SelectionOutOfBound);
-    const move2 = model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
-    expect(move2).toBe(CommandResult.SelectionOutOfBound);
-  });
-
-  test.each([
-    [["A"], "A1", 1, "A1:B1"],
-    [["A", "B"], "A1", 1, "A1:C1"],
-    [["A"], "A1", -1, "A1:B1"],
-    [["A", "B"], "A1", -1, "A1:C1"],
-    [["A", "B"], "B1", -1, "B1:C1"],
-
-    [["Z"], "Z1", -1, "Y1:Z1"],
-    [["Y", "Z"], "Z1", -1, "X1:Z1"],
-    [["Z"], "Z1", 1, "Y1:Z1"],
-    [["Y", "Z"], "Z1", 1, "X1:Z1"],
-    [["Y", "Z"], "Y1", 1, "X1:Y1"],
-  ])(
-    "Alter selection horizontally from hidden col",
-    (hiddenCols, startPosition, delta, endPosition) => {
-      const model = new Model();
-      selectCell(model, startPosition);
-      hideColumns(model, hiddenCols);
-      model.dispatch("ALTER_SELECTION", { delta: [delta, 0] });
-      expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
-    }
-  );
-
-  test.each([
-    [["A"], "A1", 1, "A1"], // won't move
-    [["A"], "A1:B1", 1, "A1:B2"],
-    [["A", "B"], "A1:B1", 1, "A1:B1"], //won't move
-    [["A", "C"], "A1:C1", 1, "A1:C2"],
-  ])(
-    "Alter selection vertically from hidden col needs at least one visible selected cell",
-    (hiddenCols, startPosition, delta, endPosition) => {
-      const model = new Model();
-      setSelection(model, [startPosition]);
-      hideColumns(model, hiddenCols);
-      model.dispatch("ALTER_SELECTION", { delta: [0, delta] });
-      expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
-    }
-  );
-
-  test.each([
-    [[0], "A1", 1, "A1:A2"],
-    [[0, 1], "A1", 1, "A1:A3"],
-    [[0], "A1", -1, "A1:A2"],
-    [[0, 1], "A1", -1, "A1:A3"],
-    [[0, 1], "A2", -1, "A2:A3"],
-
-    [[99], "A100", -1, "A99:A100"],
-    [[98, 99], "A100", -1, "A98:A100"],
-    [[99], "A100", 1, "A99:A100"],
-    [[98, 99], "A100", 1, "A98:A100"],
-    [[98, 99], "A99", 1, "A98:A99"],
-  ])(
-    "Alter selection vertically from hidden col",
-    (hiddenRows, startPosition, delta, endPosition) => {
-      const model = new Model();
-      selectCell(model, startPosition);
-      hideRows(model, hiddenRows);
-      model.dispatch("ALTER_SELECTION", { delta: [0, delta] });
-      expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
-    }
-  );
-
-  test.each([
-    [[0], "A1", 1, "A1"], // won't move
-    [[0], "A1:A2", 1, "A1:B2"],
-    [[0, 1], "A1:A2", 1, "A1:A2"], // won't move
-    [[0, 2], "A1:A3", 1, "A1:B3"],
-  ])(
-    "Alter selection horizontally from hidden col",
-    (hiddenRows, startPosition, delta, endPosition) => {
-      const model = new Model();
-      setSelection(model, [startPosition]);
-      hideRows(model, hiddenRows);
-      model.dispatch("ALTER_SELECTION", { delta: [delta, 0] });
-      expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
-    }
-  );
 });

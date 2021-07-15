@@ -1,7 +1,7 @@
 import { MESSAGE_VERSION } from "../../src/constants";
 import { scrollDelay, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { merge, selectCell, setCellContent, setSelection } from "../test_helpers/commands_helpers";
+import { merge, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick, Touch } from "../test_helpers/helpers";
@@ -382,7 +382,10 @@ describe("Grid component", () => {
     });
 
     test("can automatically sum multiple zones in an empty sheet with ALT+=", () => {
-      setSelection(model, ["A1:B2", "C4:C6"]);
+      model.dispatch("SET_SELECTION", {
+        anchor: [0, 0],
+        zones: [toZone("A1:B2"), toZone("C4:C6")],
+      });
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
       );
@@ -420,8 +423,10 @@ describe("Grid component", () => {
     test("automatic sum does not open composer when multiple zones are summed", () => {
       setCellContent(model, "A1", "2");
       setCellContent(model, "B1", "2");
-      setSelection(model, ["A2:B2"]);
-
+      model.dispatch("SET_SELECTION", {
+        anchor: [0, 1],
+        zones: [toZone("A2:B2")],
+      });
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
       );
@@ -433,8 +438,10 @@ describe("Grid component", () => {
     test("automatic sum does not open composer with column full of data", () => {
       setCellContent(model, "A1", "2");
       setCellContent(model, "A2", "2");
-      setSelection(model, ["A1:A2"]);
-
+      model.dispatch("SET_SELECTION", {
+        anchor: [0, 0],
+        zones: [toZone("A1:A2")],
+      });
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
       );
