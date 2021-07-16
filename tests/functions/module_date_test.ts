@@ -6,7 +6,7 @@ describe("date", () => {
   // DATE
   //----------------------------------------------------------------------------
 
-  test("DATE: functional tests on cell arguments", () => {
+  test("DATE: functional tests on cell arguments CHECK TIMEZONE IF FAILS", () => {
     // prettier-ignore
     const grid = {
       // YEAR / MONTH / DAY
