@@ -45,6 +45,7 @@ export class EvaluationPlugin extends UIPlugin {
   private loadingCells: number = 0;
   private isStarted: boolean = false;
   private readonly evalContext: EvalContext;
+  private schedulerTimeout: number | undefined;
 
   /**
    * For all cells that are being currently computed (asynchronously).
@@ -113,7 +114,7 @@ export class EvaluationPlugin extends UIPlugin {
             const { sheetId, col, row } = this.getters.getCellPosition(id);
             const cell = this.getters.getCell(sheetId, col, row);
             if (cell) {
-              cells.add(cell)
+              cells.add(cell);
             }
           }
           this.evaluateCells(makeSetIterator(cells), cmd.sheetId);
@@ -136,6 +137,11 @@ export class EvaluationPlugin extends UIPlugin {
   finalize() {
     const sheetId = this.getters.getActiveSheetId();
     if (!this.isUpToDate.has(sheetId)) {
+      if (this.schedulerTimeout) {
+        window.clearTimeout(this.schedulerTimeout);
+        this.schedulerTimeout = undefined;
+      }
+      this.WAITING.clear();
       this.evaluate(sheetId);
       this.isUpToDate.add(sheetId);
     }
@@ -197,6 +203,10 @@ export class EvaluationPlugin extends UIPlugin {
 
   private startScheduler() {
     if (!this.isStarted) {
+      if (this.schedulerTimeout) {
+        window.clearTimeout(this.schedulerTimeout);
+        this.schedulerTimeout = undefined;
+      }
       this.isStarted = true;
       let current = this.loadingCells;
       const recomputeCells = () => {
@@ -211,10 +221,13 @@ export class EvaluationPlugin extends UIPlugin {
           }
         }
         if (current > 0) {
-          window.setTimeout(recomputeCells, MAXIMUM_EVALUATION_CHECK_DELAY_MS);
+          this.schedulerTimeout = window.setTimeout(
+            recomputeCells,
+            MAXIMUM_EVALUATION_CHECK_DELAY_MS
+          );
         }
       };
-      window.setTimeout(recomputeCells, 5);
+      this.schedulerTimeout = window.setTimeout(recomputeCells, 5);
     }
   }
 
