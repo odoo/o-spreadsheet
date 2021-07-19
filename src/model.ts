@@ -3,6 +3,7 @@ import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID, MAXIMUM_EVALUATION_CHECK_DELAY_MS } from "./constants";
 import { createEmptyExcelWorkbookData, createEmptyWorkbookData, load } from "./data";
+import { DataSourceRegistry } from "./data_source";
 import { DEBUG, UuidGenerator } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
 import { LocalHistory } from "./history/local_history";
@@ -68,6 +69,7 @@ export interface ModelConfig {
   editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
   evalContext: EvalContext;
   moveClient: (position: ClientPosition) => void;
+  dataSources: DataSourceRegistry<any, any>;
   transportService: TransportService;
   client: Client;
   isHeadless: boolean;
@@ -91,6 +93,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   private history: LocalHistory;
 
   private range: RangeAdapter;
+
+  private dataSources: DataSourceRegistry<unknown, unknown> = new DataSourceRegistry();
 
   private session: Session;
 
@@ -299,6 +303,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       isHeadless: config.mode === "headless" || false,
       isReadonly: config.mode === "readonly" || false,
       snapshotRequested: false,
+      dataSources: this.dataSources,
     };
   }
 
@@ -474,6 +479,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * Wait until all async cells in spreadsheet are computed
    */
   async waitForIdle() {
+    await this.dataSources.waitForReady();
     return new Promise<void>((resolve) => {
       const interval = setInterval(() => {
         if (this.getters.isIdle()) {
@@ -500,8 +506,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * (e.g. open a document with several sheet and click on download before visiting each sheet)
    */
   async exportXLSX(): Promise<XLSXExport> {
-    this.dispatch("EVALUATE_ALL_SHEETS");
     await this.waitForIdle();
+    this.dispatch("EVALUATE_ALL_SHEETS");
     let data = createEmptyExcelWorkbookData();
     for (let handler of this.handlers) {
       if (handler instanceof CorePlugin) {

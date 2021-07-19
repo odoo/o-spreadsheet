@@ -47,6 +47,7 @@ export const __info__ = {};
 export { Revision } from "./collaborative/revisions";
 export { Spreadsheet } from "./components/index";
 export { DATETIME_FORMAT } from "./constants";
+export { DataSource } from "./data_source";
 export { functionCache } from "./formulas/compiler";
 export { normalize } from "./formulas/index";
 export { astToFormula, parse } from "./formulas/parser";
