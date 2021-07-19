@@ -8,7 +8,7 @@ import { StateUpdateMessage, TransportService } from "../types/collaborative/tra
 import { BottomBar } from "./bottom_bar";
 import { ComposerFocusedEvent } from "./composer/composer";
 import { Grid } from "./grid";
-import { LinkEditor, LinkEditorProps } from "./link/link_editor";
+import { LinkEditor } from "./link/link_editor";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
 
@@ -35,10 +35,6 @@ const TEMPLATE = xml/* xml */ `
       focusComposer="focusGridComposer"
       t-on-composer-focused="onGridComposerFocused"
       t-att-class="{'o-two-columns': !sidePanel.isOpen}"/>
-    <LinkEditor t-if="linkEditor.isOpen"
-      position="linkEditor.props.position"
-      t-on-close-link-editor.stop="closeLinkEditor()"
-    />
     <SidePanel t-if="sidePanel.isOpen"
            t-on-close-side-panel="sidePanel.isOpen = false"
            component="sidePanel.component"
@@ -126,11 +122,6 @@ export class Spreadsheet extends Component<Props> {
     grid: false,
   });
 
-  linkEditor = useState({
-    isOpen: false,
-    props: {},
-  });
-
   // last string that was cut or copied. It is necessary so we can make the
   // difference between a paste coming from the sheet itself, or from the
   // os clipboard
@@ -145,7 +136,7 @@ export class Spreadsheet extends Component<Props> {
       openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
       toggleSidePanel: (panel: string, panelProps: any = {}) =>
         this.toggleSidePanel(panel, panelProps),
-      openLinkEditor: (props: LinkEditorProps) => this.openLinkEditor(props),
+      // openLinkEditor: (props: LinkEditorProps) => this.openLinkEditor(props),
       dispatch: this.model.dispatch,
       getters: this.model.getters,
       _t: Spreadsheet._t,
@@ -201,17 +192,17 @@ export class Spreadsheet extends Component<Props> {
     this.sidePanel.isOpen = true;
   }
 
-  openLinkEditor(props: LinkEditorProps) {
-    this.linkEditor.isOpen = true;
-    this.linkEditor.props = props;
-  }
+  // openLinkEditor(props: LinkEditorProps) {
+  //   this.linkEditor.isOpen = true;
+  //   this.linkEditor.props = props;
+  // }
 
-  closeLinkEditor() {
-    if (this.linkEditor.isOpen) {
-      this.linkEditor.isOpen = false;
-      this.focusGrid();
-    }
-  }
+  // closeLinkEditor() {
+  //   if (this.linkEditor.isOpen) {
+  //     this.linkEditor.isOpen = false;
+  //     this.focusGrid();
+  //   }
+  // }
 
   toggleSidePanel(panel: string, panelProps: any) {
     if (this.sidePanel.isOpen && panel === this.sidePanel.component) {

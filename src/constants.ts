@@ -31,6 +31,9 @@ export const ICON_EDGE_LENGTH = 18;
 export const UNHIDE_ICON_EDGE_LENGTH = 14;
 export const MIN_CF_ICON_MARGIN = 4;
 
+export const LINK_TOOLTIP_HEIGHT = 43;
+export const LINK_TOOLTIP_WIDTH = 220;
+
 export const FIGURE_BORDER_SIZE = 1;
 
 // Fonts
