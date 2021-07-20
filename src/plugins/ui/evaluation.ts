@@ -1,10 +1,10 @@
-import { MAXIMUM_EVALUATION_CHECK_DELAY_MS } from "../../constants";
-import { compile, normalize } from "../../formulas/index";
-import { functionRegistry } from "../../functions/index";
-import { mapCellsInZone, toXC, toZone } from "../../helpers/index";
-import { Mode, ModelConfig } from "../../model";
-import { StateObserver } from "../../state_observer";
-import { _lt } from "../../translation";
+import {MAXIMUM_EVALUATION_CHECK_DELAY_MS} from "../../constants";
+import {compile, normalize} from "../../formulas/index";
+import {functionRegistry} from "../../functions/index";
+import {mapCellsInZone, toXC, toZone} from "../../helpers/index";
+import {Mode, ModelConfig} from "../../model";
+import {StateObserver} from "../../state_observer";
+import {_lt} from "../../translation";
 import {
   Cell,
   CellType,
@@ -18,7 +18,8 @@ import {
   ReferenceDenormalizer,
   UID,
 } from "../../types/index";
-import { UIPlugin } from "../ui_plugin";
+import {UIPlugin} from "../ui_plugin";
+
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {
     yield obj[i];
@@ -158,7 +159,8 @@ export class EvaluationPlugin extends UIPlugin {
   evaluateFormula(formula: string, sheetId: UID = this.getters.getActiveSheetId()): any {
     let formulaString: NormalizedFormula = normalize(formula);
     const compiledFormula = compile(formulaString);
-    const params = this.getFormulaParameters(() => {});
+    const params = this.getFormulaParameters(() => {
+    });
 
     const ranges: Range[] = [];
     for (let xc of formulaString.dependencies) {
@@ -243,7 +245,7 @@ export class EvaluationPlugin extends UIPlugin {
 
   private evaluateCells(cells: Generator<Cell>, sheetId: string) {
     const self = this;
-    const { COMPUTED, PENDING, WAITING } = this;
+    const {COMPUTED, PENDING, WAITING} = this;
     const params = this.getFormulaParameters(computeValue);
     const visited: { [sheetId: string]: { [xc: string]: boolean | null } } = {};
 
@@ -299,10 +301,11 @@ export class EvaluationPlugin extends UIPlugin {
           cell.formula
             .compiledFormula(cell.dependencies!, sheetId, ...params)
             .then((val) => {
-              const { col, row } = params[2].getters.getCellPosition(cell.id);
-              const c = params[2].getters.getCell(sheetId, col, row);
-              c.value = val;
+              const c: Cell | undefined = params[2].getters.getCellById(cell.id);
               self.loadingCells--;
+              if (c) {
+                c.value = val;
+              }
               if (PENDING.has(cell.id)) {
                 PENDING.delete(cell.id);
                 COMPUTED.add(cell.id);
@@ -338,6 +341,7 @@ export class EvaluationPlugin extends UIPlugin {
     });
     const sheets = this.getters.getEvaluationSheets();
     const PENDING = this.PENDING;
+
     function readCell(range: Range): any {
       let cell: Cell | undefined;
       const s = sheets[range.sheetId];
