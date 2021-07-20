@@ -25,7 +25,7 @@ function* makeObjectIterator(obj: Object) {
   }
 }
 
-function* makeSetIterator(set: Set<any>) {
+function* makeSetIterator(set: Set<Cell>) {
   for (let elem of set) {
     yield elem;
   }
@@ -109,10 +109,9 @@ export class EvaluationPlugin extends UIPlugin {
         if (cmd.onlyWaiting) {
           const cellIds = new Set(this.WAITING);
           this.WAITING.clear();
-          const cells = new Set();
+          const cells = new Set<Cell>();
           for (const id of cellIds) {
-            const { sheetId, col, row } = this.getters.getCellPosition(id);
-            const cell = this.getters.getCell(sheetId, col, row);
+            const cell = this.getters.getCellById(id);
             if (cell) {
               cells.add(cell);
             }
@@ -120,6 +119,7 @@ export class EvaluationPlugin extends UIPlugin {
           this.evaluateCells(makeSetIterator(cells), cmd.sheetId);
         } else {
           this.WAITING.clear();
+          this.PENDING.clear();
           this.evaluate(cmd.sheetId);
         }
         this.isUpToDate.add(cmd.sheetId);
@@ -142,6 +142,7 @@ export class EvaluationPlugin extends UIPlugin {
         this.schedulerTimeout = undefined;
       }
       this.WAITING.clear();
+      this.PENDING.clear();
       this.evaluate(sheetId);
       this.isUpToDate.add(sheetId);
     }

@@ -1,7 +1,7 @@
-import { DATETIME_FORMAT, DEFAULT_ERROR_MESSAGE } from "../../constants";
-import { compile, normalize } from "../../formulas/index";
-import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
-import { formatDateTime, parseDateTime } from "../../functions/dates";
+import {DATETIME_FORMAT, DEFAULT_ERROR_MESSAGE} from "../../constants";
+import {compile, normalize} from "../../formulas/index";
+import {FORMULA_REF_IDENTIFIER} from "../../formulas/tokenizer";
+import {formatDateTime, parseDateTime} from "../../functions/dates";
 import {
   formatNumber,
   formatStandardNumber,
@@ -33,7 +33,7 @@ import {
   WorkbookData,
   Zone,
 } from "../../types/index";
-import { CorePlugin } from "../core_plugin";
+import {CorePlugin} from "../core_plugin";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 
@@ -57,6 +57,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "getCellValue",
     "getCellStyle",
     "buildFormulaContent",
+    "getCellById",
   ];
 
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
@@ -368,6 +369,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   export(data: WorkbookData) {
     let styleId = 0;
     const styles: { [styleId: number]: Style } = {};
+
     /**
      * Get the id of the given style. If the style does not exist, it creates
      * one.
@@ -381,6 +383,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       styles[++styleId] = style;
       return styleId;
     }
+
     for (let _sheet of data.sheets) {
       const cells: { [key: string]: CellData } = {};
       for (let [cellId, cell] of Object.entries(this.cells[_sheet.id] || {})) {
@@ -422,6 +425,19 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
   getCells(sheetId: UID): Record<UID, Cell> {
     return this.cells[sheetId] || {};
+  }
+
+  /**
+   * get a cell by ID. Used in evaluation when evaluating an async cell, we need to be able to find it back after
+   * starting an async evaluation even if it has been moved or re-allocated
+   */
+  getCellById(cellId: UID): Cell | undefined {
+    for (const sheet of Object.values(this.cells)) {
+      if (sheet[cellId]) {
+        return sheet[cellId];
+      }
+    }
+    return undefined;
   }
 
   buildFormulaContent(sheetId: UID, formula: string, dependencies: Range[]): string {
@@ -489,7 +505,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         const shouldFormat = (value || value === 0) && cell.format && !cell.error;
         const dateTimeFormat = shouldFormat && cell.format!.match(DATETIME_FORMAT);
         if (dateTimeFormat) {
-          return formatDateTime({ value, format: cell.format! });
+          return formatDateTime({value, format: cell.format!});
         }
         const numberFormat = shouldFormat && !dateTimeFormat;
         if (numberFormat) {
@@ -545,7 +561,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
             sheetId,
             col,
             row,
-            style: style ? { ...cell?.style, ...style } : undefined,
+            style: style ? {...cell?.style, ...style} : undefined,
           });
         }
       }
@@ -560,7 +576,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       const format = this.getFormat(sheet.id, refColumn, row);
       if (format.style || format.format) {
         for (let col of targetCols) {
-          this.dispatch("UPDATE_CELL", { sheetId: sheet.id, col, row, ...format });
+          this.dispatch("UPDATE_CELL", {sheetId: sheet.id, col, row, ...format});
         }
       }
     }
@@ -574,7 +590,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       const format = this.getFormat(sheet.id, col, refRow);
       if (format.style || format.format) {
         for (let row of targetRows) {
-          this.dispatch("UPDATE_CELL", { sheetId: sheet.id, col, row, ...format });
+          this.dispatch("UPDATE_CELL", {sheetId: sheet.id, col, row, ...format});
         }
       }
     }
@@ -718,8 +734,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
               contentUpperCase === "TRUE"
                 ? true
                 : contentUpperCase === "FALSE"
-                ? false
-                : afterContent,
+                  ? false
+                  : afterContent,
           };
         }
       }
@@ -737,7 +753,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
 
     this.history.update("cells", sheet.id, cell.id, cell);
-    this.dispatch("UPDATE_CELL_POSITION", { cell, cellId: cell.id, col, row, sheetId: sheet.id });
+    this.dispatch("UPDATE_CELL_POSITION", {cell, cellId: cell.id, col, row, sheetId: sheet.id});
   }
 
   NULL_FORMAT = "";
