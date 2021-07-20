@@ -120,7 +120,6 @@ export class EvaluationPlugin extends UIPlugin {
           this.evaluateCells(makeSetIterator(cells), cmd.sheetId);
         } else {
           this.WAITING.clear();
-          this.PENDING.clear();
           this.evaluate(cmd.sheetId);
         }
         this.isUpToDate.add(cmd.sheetId);
@@ -143,7 +142,6 @@ export class EvaluationPlugin extends UIPlugin {
         this.schedulerTimeout = undefined;
       }
       this.WAITING.clear();
-      this.PENDING.clear();
       this.evaluate(sheetId);
       this.isUpToDate.add(sheetId);
     }

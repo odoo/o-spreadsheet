@@ -1,17 +1,19 @@
-import { args, functionRegistry } from "../../src/functions";
-import { Model } from "../../src/model";
-import { LOADING } from "../../src/plugins/ui/evaluation";
-import { FormulaCell } from "../../src/types";
-import { setCellContent } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent } from "../test_helpers/getters_helpers";
-import { initPatcher, target } from "../test_helpers/helpers";
+import {args, functionRegistry} from "../../src/functions";
+import {Model} from "../../src/model";
+import {LOADING} from "../../src/plugins/ui/evaluation";
+import {FormulaCell} from "../../src/types";
+import {setCellContent} from "../test_helpers/commands_helpers";
+import {getCell, getCellContent} from "../test_helpers/getters_helpers";
+import {initPatcher, target} from "../test_helpers/helpers";
+import {StateUpdateMessage} from "../../src/types/collaborative/transport_service";
+import * as owl from "@odoo/owl";
 
 let asyncComputations: () => Promise<void>;
 let waitForRecompute: () => Promise<void>;
 let patchCalls: any[];
 
 beforeEach(() => {
-  ({ asyncComputations, waitForRecompute, calls: patchCalls } = initPatcher());
+  ({asyncComputations, waitForRecompute, calls: patchCalls} = initPatcher());
 });
 
 describe("evaluateCells, async formulas", () => {
@@ -37,7 +39,7 @@ describe("evaluateCells, async formulas", () => {
         {
           colNumber: 10,
           rowNumber: 10,
-          cells: { B2: { content: "=WAIT(3)" } },
+          cells: {B2: {content: "=WAIT(3)"}},
         },
       ],
     });
@@ -265,11 +267,88 @@ describe("evaluateCells, async formulas", () => {
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: target("A1"),
-      style:{
+      style: {
         strikethrough: true,
       }
     })
     await waitForRecompute();
     expect(getCellContent(model, "A1")).toBe("300");
   });
+
+  test("loading a save with extra commands moving cells that depends on async failed", async () => {
+    const data = {
+      version: 7,
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 26,
+          rowNumber: 120,
+          cols: {1: {}, 3: {}},
+          rows: {},
+          cells: {
+            A1: {content: "=wait(10)"},
+            C12: {content: "=A1+A1"},
+          },
+          conditionalFormats: [
+            {
+              id: "1",
+              ranges: ["C12:C12"],
+              rule: {
+                values: ["10"],
+                operator: "Equal",
+                type: "CellIsRule",
+                style: {fillColor: "#FFA500"},
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    const stateUpdateMessages: StateUpdateMessage[] = [{
+      "type": "REMOTE_REVISION",
+      "version": 1,
+      "serverRevisionId": "START_REVISION",
+      "nextRevisionId": "d8135fad-3f59-47fb-a529-775031e8efc3",
+      "clientId": "784b2823-440c-4f54-affb-7c3ea542b70b",
+      "commands": [{"type": "CLEAR_CELL", "col": 2, "row": 11, "sheetId": "Sheet1"}, {
+        "type": "CLEAR_FORMATTING",
+        "sheetId": "Sheet1",
+        "target": [{"left": 2, "right": 2, "top": 11, "bottom": 11}]
+      }, {
+        "type": "UPDATE_CELL",
+        "col": 10,
+        "row": 12,
+        "sheetId": "Sheet1",
+        "content": "=A1+A1",
+        "style": null
+      }, {
+        "type": "ADD_CONDITIONAL_FORMAT",
+        "cf": {
+          "id": "1",
+          "rule": {"values": ["42"], "operator": "Equal", "type": "CellIsRule", "style": {"fillColor": "#FFA500"}}
+        },
+        "target": [{"top": 0, "bottom": 10, "left": 2, "right": 2}, {
+          "top": 12,
+          "bottom": 99,
+          "left": 2,
+          "right": 2
+        }, {"top": 12, "bottom": 12, "left": 10, "right": 10}],
+        "sheetId": "Sheet1"
+      }]
+    }];
+
+    jest.useFakeTimers();
+    jest.spyOn(owl.browser, "setTimeout").mockImplementation(window.setTimeout.bind(window));
+    jest.spyOn(owl.browser, "clearTimeout").mockImplementation(window.clearTimeout.bind(window));
+
+    const model = new Model(data, {}, stateUpdateMessages);
+
+    jest.advanceTimersByTime(100);
+
+    expect(getCellContent(model, "K13")).toBe(20);
+  })
 });
+
+
+
