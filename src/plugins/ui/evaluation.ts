@@ -1,10 +1,10 @@
-import {MAXIMUM_EVALUATION_CHECK_DELAY_MS} from "../../constants";
-import {compile, normalize} from "../../formulas/index";
-import {functionRegistry} from "../../functions/index";
-import {mapCellsInZone, toXC, toZone} from "../../helpers/index";
-import {Mode, ModelConfig} from "../../model";
-import {StateObserver} from "../../state_observer";
-import {_lt} from "../../translation";
+import { MAXIMUM_EVALUATION_CHECK_DELAY_MS } from "../../constants";
+import { compile, normalize } from "../../formulas/index";
+import { functionRegistry } from "../../functions/index";
+import { mapCellsInZone, toXC, toZone } from "../../helpers/index";
+import { Mode, ModelConfig } from "../../model";
+import { StateObserver } from "../../state_observer";
+import { _lt } from "../../translation";
 import {
   Cell,
   CellType,
@@ -18,7 +18,7 @@ import {
   ReferenceDenormalizer,
   UID,
 } from "../../types/index";
-import {UIPlugin} from "../ui_plugin";
+import { UIPlugin } from "../ui_plugin";
 
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {
@@ -46,7 +46,6 @@ export class EvaluationPlugin extends UIPlugin {
   private loadingCells: number = 0;
   private isStarted: boolean = false;
   private readonly evalContext: EvalContext;
-  private schedulerTimeout: number | undefined;
 
   /**
    * For all cells that are being currently computed (asynchronously).
@@ -137,10 +136,6 @@ export class EvaluationPlugin extends UIPlugin {
   finalize() {
     const sheetId = this.getters.getActiveSheetId();
     if (!this.isUpToDate.has(sheetId)) {
-      if (this.schedulerTimeout) {
-        window.clearTimeout(this.schedulerTimeout);
-        this.schedulerTimeout = undefined;
-      }
       this.WAITING.clear();
       this.evaluate(sheetId);
       this.isUpToDate.add(sheetId);
@@ -157,8 +152,7 @@ export class EvaluationPlugin extends UIPlugin {
   evaluateFormula(formula: string, sheetId: UID = this.getters.getActiveSheetId()): any {
     let formulaString: NormalizedFormula = normalize(formula);
     const compiledFormula = compile(formulaString);
-    const params = this.getFormulaParameters(() => {
-    });
+    const params = this.getFormulaParameters(() => {});
 
     const ranges: Range[] = [];
     for (let xc of formulaString.dependencies) {
@@ -204,10 +198,6 @@ export class EvaluationPlugin extends UIPlugin {
 
   private startScheduler() {
     if (!this.isStarted) {
-      if (this.schedulerTimeout) {
-        window.clearTimeout(this.schedulerTimeout);
-        this.schedulerTimeout = undefined;
-      }
       this.isStarted = true;
       let current = this.loadingCells;
       const recomputeCells = () => {
@@ -222,13 +212,10 @@ export class EvaluationPlugin extends UIPlugin {
           }
         }
         if (current > 0) {
-          this.schedulerTimeout = window.setTimeout(
-            recomputeCells,
-            MAXIMUM_EVALUATION_CHECK_DELAY_MS
-          );
+          window.setTimeout(recomputeCells, MAXIMUM_EVALUATION_CHECK_DELAY_MS);
         }
       };
-      this.schedulerTimeout = window.setTimeout(recomputeCells, 5);
+      window.setTimeout(recomputeCells, 5);
     }
   }
 
@@ -243,7 +230,7 @@ export class EvaluationPlugin extends UIPlugin {
 
   private evaluateCells(cells: Generator<Cell>, sheetId: string) {
     const self = this;
-    const {COMPUTED, PENDING, WAITING} = this;
+    const { COMPUTED, PENDING, WAITING } = this;
     const params = this.getFormulaParameters(computeValue);
     const visited: { [sheetId: string]: { [xc: string]: boolean | null } } = {};
 
