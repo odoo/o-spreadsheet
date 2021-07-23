@@ -1,8 +1,7 @@
 import * as owl from "@odoo/owl";
-import { BOTTOMBAR_HEIGHT, TOPBAR_HEIGHT } from "../../constants";
 import { hasLink } from "../../helpers";
 import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
-import { Link, MenuPosition, Position, Sheet, SpreadsheetEnv } from "../../types";
+import { Link, Position, Sheet, SpreadsheetEnv, Coordinates } from "../../types";
 import { LIST } from "./../icons";
 import { Menu } from "./../menu";
 import { LinkEditorTerms } from "./../side_panel/translations_terms";
@@ -199,16 +198,17 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   //   return `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`;
   // }
 
-  get menuPosition(): MenuPosition {
+  get menuPosition(): Coordinates {
     return {
       x: 0,
       y: 0,
       // x: WIDTH - PADDING - 2,
       // y: HEIGHT - 37, // 37 = Height of confirm/cancel buttons
-      offsetLeft: this.el!.offsetLeft,
-      offsetTop: this.el!.offsetTop,
-      width: this.el!.parentElement!.clientWidth,
-      height: this.el!.parentElement!.clientHeight - BOTTOMBAR_HEIGHT - TOPBAR_HEIGHT,
+      // offsetLeft: this.el!.offsetLeft,
+      // offsetTop: this.el!.offsetTop,
+      // getViewportDimension ;)
+      // width: this.el!.parentElement!.clientWidth,
+      // height: this.el!.parentElement!.clientHeight - BOTTOMBAR_HEIGHT - TOPBAR_HEIGHT,
     };
   }
 

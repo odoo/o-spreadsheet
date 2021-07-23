@@ -8,13 +8,21 @@ import {
   LINK_TOOLTIP_HEIGHT,
   LINK_TOOLTIP_WIDTH,
   SCROLLBAR_WIDTH,
+  MENU_WIDTH,
 } from "../constants";
 import { findCellInNewZone, hasLink, isInside, MAX_DELAY } from "../helpers/index";
 import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
-import { CellValueType, Client, Position, SpreadsheetEnv, Viewport } from "../types/index";
+import {
+  CellValueType,
+  Client,
+  Coordinates,
+  Position,
+  SpreadsheetEnv,
+  Viewport,
+} from "../types/index";
 import { Autofill } from "./autofill";
 import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
@@ -24,8 +32,9 @@ import { LinkDisplay } from "./link/link_display";
 import { LinkEditor, LinkEditorProps } from "./link/link_editor";
 import { Menu, MenuState } from "./menu";
 import { Overlay } from "./overlay";
-import { CellComponent } from "./over_grid";
+import { GridComponent } from "./grid_component";
 import { ScrollBar } from "./scrollbar";
+import { menuComponentHeight } from "./helpers/menu";
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
  * for displaying the actual grid, rendering it, managing events, ...
@@ -191,44 +200,45 @@ const TEMPLATE = xml/* xml */ `
                  active="isCellHovered(client.position.col, client.position.row)"
                  />
     </t>
-    <t t-if="errorTooltip.isOpen">
-      <CellComponent
-        position="hoveredCell"
-        width="${ERROR_TOOLTIP_WIDTH}"
-        height="${ERROR_TOOLTIP_HEIGHT}"
-      >
-        <div class="o-error-tooltip" t-esc="errorTooltip.text"/>
-      </CellComponent>
-    </t>
-    <t t-if="linkDisplay.isOpen">
-      <CellComponent
-        position="activePosition"
-        width="${LINK_TOOLTIP_WIDTH}"
-        height="${LINK_TOOLTIP_HEIGHT}"
-      >
-        <LinkDisplay t-on-close.stop="linkDisplay.isOpen=false"/>
-      </CellComponent>
-    </t>
-    <t t-if="linkEditor.isOpen">
-      <CellComponent
-        position="activePosition"
-        width="${LINK_EDITOR_WIDTH}"
-        height="${LINK_EDITOR_HEIGHT}"
-      >
-        <LinkEditor
-          position="linkEditor.props.position"
-          t-on-close-link-editor.stop="closeLinkEditor()"
-        />
-      </CellComponent>
-    </t>
+    <GridComponent
+      t-if="errorTooltip.isOpen"
+      position="errorTooltip"
+      childWidth="${ERROR_TOOLTIP_WIDTH}"
+      childHeight="${ERROR_TOOLTIP_HEIGHT}">
+      <div class="o-error-tooltip" t-esc="errorTooltip.text"/>
+    </GridComponent>
+    <GridComponent
+      t-if="linkDisplay.isOpen"
+      position="linkPosition"
+      childWidth="${LINK_TOOLTIP_WIDTH}"
+      childHeight="${LINK_TOOLTIP_HEIGHT}">
+      <LinkDisplay t-on-close.stop="linkDisplay.isOpen=false"/>
+    </GridComponent>
+    <GridComponent
+      t-if="linkEditor.isOpen"
+      position="linkPosition"
+      childWidth="${LINK_EDITOR_WIDTH}"
+      childHeight="${LINK_EDITOR_HEIGHT}">
+      <LinkEditor
+        position="linkEditor.props.position"
+        t-on-close-link-editor.stop="closeLinkEditor()"
+      />
+    </GridComponent>
     <t t-if="getters.getEditionMode() === 'inactive'">
       <Autofill position="getAutofillPosition()"/>
     </t>
     <Overlay t-on-open-contextmenu="onOverlayContextMenu" />
-    <Menu t-if="menuState.isOpen"
-      menuItems="menuState.menuItems"
+    <GridComponent
+      t-if="menuState.isOpen"
       position="menuState.position"
-      t-on-close.stop="menuState.isOpen=false"/>
+      childWidth="${MENU_WIDTH}"
+      childHeight="menuComponentHeight"
+    >
+      <Menu
+        position="menuState.position"
+        menuItems="menuState.menuItems"
+        t-on-close.stop="menuState.isOpen=false"/>
+    </GridComponent>
     <t t-set="gridSize" t-value="getters.getGridDimension(getters.getActiveSheet())"/>
     <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" t-on-figure-deleted="focus" />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
@@ -303,7 +313,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     ClientTag,
     LinkDisplay,
     LinkEditor,
-    CellComponent,
+    GridComponent,
   };
 
   private menuState: MenuState = useState({
@@ -348,6 +358,10 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     };
   }
 
+  get menuComponentHeight(): number {
+    return menuComponentHeight(this.menuState.menuItems)
+  }
+
   get errorTooltip() {
     const { col, row } = this.hoveredCell;
     if (!col || !row) {
@@ -358,12 +372,12 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     const cell = this.getters.getCell(sheetId, mainCol, mainRow);
 
     if (cell && cell.evaluated.type === CellValueType.error) {
-      // const viewport = this.getters.getActiveSnappedViewport();
+      const viewport = this.getters.getActiveSnappedViewport();
       // const { width: viewportWidth, height: viewportHeight } = this.getters.getViewportDimension();
-      // const [x, y, width, height] = this.getters.getRect(
-      //   { left: col, top: row, right: col, bottom: row },
-      //   viewport
-      // );
+      const [x, y, width,] = this.getters.getRect(
+        { left: col, top: row, right: col, bottom: row },
+        viewport
+      );
       // const hAlign = x + width + ERROR_TOOLTIP_WIDTH + 20 < viewportWidth ? "left" : "right";
       // const hOffset = hAlign === "left" ? x + width : viewportWidth - x + (SCROLLBAR_WIDTH + 2);
       // const vAlign = y + ERROR_TOOLTIP_HEIGHT + 20 < viewportHeight ? "top" : "bottom";
@@ -371,10 +385,28 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       return {
         isOpen: true,
         // style: `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`,
+        x: x + width,
+        y,
         text: cell.evaluated.error,
       };
     }
     return { isOpen: false };
+  }
+
+  get linkPosition(): Coordinates {
+    const [col, row] = this.getters.getPosition();
+    const [leftCol, bottomRow] = this.getters.getBottomLeftCell(
+      this.getters.getActiveSheetId(),
+      col,
+      row
+    );
+    const viewport = this.getters.getActiveSnappedViewport();
+    const [x, y, , height] = this.getters.getRect(
+      { left: leftCol, top: bottomRow, right: leftCol, bottom: bottomRow },
+      viewport
+    );
+    // reintroduce padding/margins
+    return { x, y: y + height };
   }
 
   private openLinkEditor(props: LinkEditorProps) {
@@ -824,8 +856,8 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.menuState.position = {
       x,
       y,
-      width: this.el!.clientWidth,
-      height: this.el!.clientHeight,
+      // width: this.el!.clientWidth,
+      // height: this.el!.clientHeight,
     };
     this.menuState.menuItems = registries[type]
       .getAll()

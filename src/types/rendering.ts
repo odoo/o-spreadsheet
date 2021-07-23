@@ -2,6 +2,11 @@ import { Align, Border, Style, Zone } from "./misc";
 
 export type Rect = [number, number, number, number];
 
+export interface Coordinates {
+  x: number;
+  y: number;
+}
+
 export interface Box {
   x: number;
   y: number;

@@ -161,8 +161,8 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
     this.menuState.position = {
       x,
       y,
-      height: 400,
-      width: this.el!.clientWidth,
+      // height: 400,
+      // width: this.el!.clientWidth,
     };
   }
 }

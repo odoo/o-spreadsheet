@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { DEFAULT_FONT_SIZE } from "../constants";
+import { DEFAULT_FONT_SIZE, MENU_WIDTH } from "../constants";
 import { fontSizes } from "../fonts";
 import { isEqual } from "../helpers/index";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../registries/index";
@@ -11,6 +11,8 @@ import { Composer } from "./composer/composer";
 import { isChildEvent } from "./helpers/dom_helpers";
 import * as icons from "./icons";
 import { Menu, MenuState } from "./menu";
+import { GridComponent } from "./grid_component"
+import { menuComponentHeight } from "./helpers/menu";
 
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
@@ -58,11 +60,18 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             <t t-esc="getMenuName(menu)"/>
           </div>
           </t>
-          <Menu t-if="state.menuState.isOpen"
-                position="state.menuState.position"
+          <!-- This makes no sense -->
+          <GridComponent
+            t-if="state.menuState.isOpen"
+            position="state.menuState.position"
+            childWidth="${MENU_WIDTH}"
+            childHeight="menuComponentHeight"
+          >
+            <Menu
                 menuItems="state.menuState.menuItems"
                 t-ref="menuRef"
                 t-on-close="state.menuState.isOpen=false"/>
+          </GridComponent>
         </div>
         <div class="o-topbar-topright">
           <div t-foreach="topbarComponents" t-as="comp" t-key="comp_index">
@@ -316,7 +325,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       }
     }
   `;
-  static components = { ColorPicker, Menu, Composer };
+  static components = { ColorPicker, Menu, Composer, GridComponent };
   formats = FORMATS;
   currentFormat = "general";
   fontSizes = fontSizes;
@@ -355,6 +364,10 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     return topbarComponentRegistry
       .getAll()
       .filter((item) => !item.isVisible || item.isVisible(this.env));
+  }
+
+  get menuComponentHeight(): number {
+    return menuComponentHeight(this.state.menuState.menuItems)
   }
 
   async willStart() {
@@ -403,13 +416,9 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     const x = (ev.target as HTMLElement).offsetLeft;
     const y = (ev.target as HTMLElement).clientHeight + (ev.target as HTMLElement).offsetTop;
     this.state.menuState.isOpen = true;
-    const width = this.el!.clientWidth;
-    const height = this.el!.parentElement!.clientHeight;
     this.state.menuState.position = {
       x: x,
       y: y,
-      width,
-      height,
     };
     this.state.menuState.menuItems = topbarMenuRegistry
       .getChildren(menu, this.env)
