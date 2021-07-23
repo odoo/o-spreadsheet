@@ -180,14 +180,14 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
   openContextMenu(target: HTMLElement, registry: MenuItemRegistry) {
     const x = target.offsetLeft;
     const y = target.offsetTop;
-    this.menuState.isOpen = true;
-    this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
     this.menuState.position = {
       x,
       y,
-      height: 400,
-      width: this.el!.clientWidth,
+      // height: 400,
+      // width: this.el!.clientWidth,
     };
+    this.menuState.isOpen = true;
+    this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
   }
 
   onIconClick(sheet: string, ev: MouseEvent) {

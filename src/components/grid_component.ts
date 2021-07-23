@@ -48,12 +48,14 @@ export class GridComponent extends Component<Props, SpreadsheetEnv> {
   private getters = this.env.getters;
 
   get style() {
+    console.log(this.props)
     const { x } = this.props.position;
     const hStyle = `left:${this.renderRight ? x : x - this.props.childWidth - this.props.flipHorizontalOffset}`;
     const vStyle = `top:${this.verticalPosition()}`;
     const heightStyle = `max-height:${this.viewportDimension.height}`;
     return `
       position: absolute;
+      z-index: 10;
       ${vStyle}px;
       ${hStyle}px;
       ${heightStyle}px;
@@ -75,20 +77,18 @@ export class GridComponent extends Component<Props, SpreadsheetEnv> {
   private get renderBottom(): boolean {
     const { y } = this.props.position;
     const offset = this.props.gridOrigin.y;
-    return y + offset < this.viewportDimension.height - this.props.childHeight;
+    console.log(this.viewportDimension)
+    return y + offset + this.props.childHeight < this.viewportDimension.height;
   }
 
   private verticalPosition(): number {
     const { y } = this.props.position;
+    console.log("renderBottom", this.renderBottom)
     if (this.renderBottom) {
       return y;
     }
-
     // ? MENU_ITEM_HEIGHT
-    return Math.max(
-      0,
-      y - Math.min(this.props.childHeight - this.props.flipVerticalOffset, this.viewportDimension.height)
-    );
+    return y - this.props.childHeight + this.props.flipVerticalOffset
   }
 
   // get style() {

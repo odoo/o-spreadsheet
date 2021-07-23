@@ -1,5 +1,7 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Menu } from "../../src/components/menu";
+import { GridComponent } from "../../src/components/grid_component";
+import { MENU_WIDTH } from "../../src/constants";
 import { toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
@@ -9,6 +11,7 @@ import { setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick, Touch } from "../test_helpers/helpers";
+import { menuComponentHeight } from "../../src/components/helpers/menu";
 
 const { xml } = tags;
 const { useSubEnv } = hooks;
@@ -31,7 +34,7 @@ function getActiveXc(model: Model): string {
 }
 
 function getPosition(selector: string): { top: number; left: number } {
-  const menu = fixture.querySelector(selector);
+  const menu = fixture.querySelector(selector)?.parentElement?.parentElement;
   const { top, left } = window.getComputedStyle(menu!);
   return {
     top: parseInt(top.replace("px", "")),
@@ -44,7 +47,14 @@ function getMenuPosition() {
 }
 
 function getSubMenuPosition() {
-  return getPosition(".o-menu + div .o-menu");
+  const { left, top } = getMenuPosition();
+  // sub menu position is defined relative to its parent menu
+  // but we want it to be relative to the grid
+  const { left: subLeft, top: subTop } = getPosition(".o-menu + div .o-menu");
+  return {
+    left: left + subLeft,
+    top: top + subTop
+  }
 }
 
 function getItemSize() {
@@ -109,13 +119,19 @@ const subMenu: FullMenuItem[] = [
 
 class ContextMenuParent extends Component<any, SpreadsheetEnv> {
   static template = xml/* xml */ `
+    <GridComponent
+      position="position"
+      childWidth="${MENU_WIDTH}"
+      childHeight="menuComponentHeight"
+    >
       <Menu
         t-on-close="onClose"
         position="position"
         menuItems="menus"
       />
+    </GridComponent>
   `;
-  static components = { Menu };
+  static components = { Menu, GridComponent };
   menus: FullMenuItem[];
   position: { x: number; y: number; width: number; height: number };
   onClose: () => void;
@@ -141,6 +157,10 @@ class ContextMenuParent extends Component<any, SpreadsheetEnv> {
         action() {},
       }),
     ];
+  }
+
+  get menuComponentHeight(): number {
+    return menuComponentHeight(this.menus)
   }
 }
 

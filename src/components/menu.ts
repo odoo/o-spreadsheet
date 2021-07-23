@@ -65,7 +65,6 @@ const CSS = css/* scss */ `
     box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
     font-size: 13px;
     overflow-y: auto;
-    z-index: 10;
     padding: 5px 0px;
     .o-menu-item {
       display: flex;
@@ -153,6 +152,8 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   }
 
   get gridOrigin(): Coordinates {
+    // const x = this.props.
+    // shit
     return {
       x: this.props.position.x,
       y: this.props.position.y,
@@ -299,8 +300,6 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
    */
   openSubMenu(menu: FullMenuItem, position: number) {
     this.closeSubMenus();
-    this.subMenu.isOpen = true;
-    this.subMenu.menuItems = cellMenuRegistry.getChildren(menu, this.env);
     const y = this.subMenuVerticalPosition(this.subMenu.menuItems, position);
     this.subMenu.position = {
       x: MENU_WIDTH,
@@ -308,6 +307,8 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
       y: y - (this.subMenu.scrollOffset || 0),
       // offsetTop: 0,
     };
+    this.subMenu.menuItems = cellMenuRegistry.getChildren(menu, this.env);
+    this.subMenu.isOpen = true;
   }
 
   onClickMenu(menu: FullMenuItem, position: number) {
