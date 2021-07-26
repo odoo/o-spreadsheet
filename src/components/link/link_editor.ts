@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 import { hasLink } from "../../helpers";
 import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
-import { Link, Position, Sheet, SpreadsheetEnv, Coordinates } from "../../types";
+import { Coordinates, Link, Position, Sheet, SpreadsheetEnv } from "../../types";
 import { LIST } from "./../icons";
 import { Menu } from "./../menu";
 import { LinkEditorTerms } from "./../side_panel/translations_terms";

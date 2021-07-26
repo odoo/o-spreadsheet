@@ -1,12 +1,18 @@
 import { Component, hooks, tags, useState } from "@odoo/owl";
+import {
+  MENU_ITEM_HEIGHT,
+  MENU_SEPARATOR_BORDER_WIDTH,
+  MENU_SEPARATOR_PADDING,
+  MENU_WIDTH,
+  TOPBAR_HEIGHT,
+} from "../constants";
 import { FullMenuItem, MenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
-import { SpreadsheetEnv, Coordinates } from "../types";
-import { isChildEvent } from "./helpers/dom_helpers";
-import * as icons from "./icons";
-import { MENU_WIDTH, MENU_ITEM_HEIGHT, MENU_SEPARATOR_BORDER_WIDTH, MENU_SEPARATOR_PADDING, TOPBAR_HEIGHT } from "../constants";
-import { menuComponentHeight } from "./helpers/menu";
+import { Coordinates, SpreadsheetEnv } from "../types";
 import { GridComponent } from "./grid_component";
+import { isChildEvent } from "./helpers/dom_helpers";
+import { menuComponentHeight } from "./helpers/menu";
+import * as icons from "./icons";
 
 const { xml, css } = tags;
 const { useExternalListener, useRef } = hooks;
@@ -147,7 +153,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   }
 
   get subMenuComponentHeight(): number {
-    return menuComponentHeight(this.subMenu.menuItems)
+    return menuComponentHeight(this.subMenu.menuItems);
   }
 
   // get gridOrigin(): Coordinates {
@@ -187,8 +193,8 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     const { top, left } = this.el!.getBoundingClientRect();
     return {
       x: left,
-      y: top - TOPBAR_HEIGHT
-    }
+      y: top - TOPBAR_HEIGHT,
+    };
   }
 
   activateMenu(menu: FullMenuItem) {
@@ -222,7 +228,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   // }
 
   private subMenuVerticalPosition(subMenuItems: MenuItem[], position: number): number {
-    return this.menuItemVerticalOffset(position)
+    return this.menuItemVerticalOffset(position);
     // const { height, offsetTop } = this.props.position;
     // const offset = offsetTop ? offsetTop : 0;
     // const y = this.menuVerticalPosition() + this.menuItemVerticalOffset(position);

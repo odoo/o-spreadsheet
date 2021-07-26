@@ -7,8 +7,8 @@ import {
   HEADER_WIDTH,
   LINK_TOOLTIP_HEIGHT,
   LINK_TOOLTIP_WIDTH,
-  SCROLLBAR_WIDTH,
   MENU_WIDTH,
+  SCROLLBAR_WIDTH,
 } from "../constants";
 import { findCellInNewZone, hasLink, isInside, MAX_DELAY } from "../helpers/index";
 import { Model } from "../model";
@@ -27,14 +27,14 @@ import { Autofill } from "./autofill";
 import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
 import { FiguresContainer } from "./figures/container";
+import { GridComponent } from "./grid_component";
 import { startDnd } from "./helpers/drag_and_drop";
+import { menuComponentHeight } from "./helpers/menu";
 import { LinkDisplay } from "./link/link_display";
 import { LinkEditor, LinkEditorProps } from "./link/link_editor";
 import { Menu, MenuState } from "./menu";
 import { Overlay } from "./overlay";
-import { GridComponent } from "./grid_component";
 import { ScrollBar } from "./scrollbar";
-import { menuComponentHeight } from "./helpers/menu";
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
  * for displaying the actual grid, rendering it, managing events, ...
@@ -359,7 +359,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   }
 
   get menuComponentHeight(): number {
-    return menuComponentHeight(this.menuState.menuItems)
+    return menuComponentHeight(this.menuState.menuItems);
   }
 
   get errorTooltip() {
@@ -374,7 +374,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     if (cell && cell.evaluated.type === CellValueType.error) {
       const viewport = this.getters.getActiveSnappedViewport();
       // const { width: viewportWidth, height: viewportHeight } = this.getters.getViewportDimension();
-      const [x, y, width,] = this.getters.getRect(
+      const [x, y, width] = this.getters.getRect(
         { left: col, top: row, right: col, bottom: row },
         viewport
       );

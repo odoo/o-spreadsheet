@@ -8,11 +8,11 @@ import { FullMenuItem } from "../registries/menu_items_registry";
 import { Align, BorderCommand, SpreadsheetEnv, Style } from "../types/index";
 import { ColorPicker } from "./color_picker";
 import { Composer } from "./composer/composer";
+import { GridComponent } from "./grid_component";
 import { isChildEvent } from "./helpers/dom_helpers";
+import { menuComponentHeight } from "./helpers/menu";
 import * as icons from "./icons";
 import { Menu, MenuState } from "./menu";
-import { GridComponent } from "./grid_component"
-import { menuComponentHeight } from "./helpers/menu";
 
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
@@ -60,9 +60,9 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             <t t-esc="getMenuName(menu)"/>
           </div>
           </t>
-          <!-- This makes no sense -->
           <GridComponent
             t-if="state.menuState.isOpen"
+            target="'.o-spreadsheet-topbar'"
             position="state.menuState.position"
             childWidth="${MENU_WIDTH}"
             childHeight="menuComponentHeight"
@@ -368,7 +368,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   }
 
   get menuComponentHeight(): number {
-    return menuComponentHeight(this.state.menuState.menuItems)
+    return menuComponentHeight(this.state.menuState.menuItems);
   }
 
   async willStart() {

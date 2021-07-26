@@ -1,7 +1,8 @@
 import { Component, hooks, tags } from "@odoo/owl";
-import { Menu } from "../../src/components/menu";
 import { GridComponent } from "../../src/components/grid_component";
-import { MENU_WIDTH } from "../../src/constants";
+import { menuComponentHeight } from "../../src/components/helpers/menu";
+import { Menu } from "../../src/components/menu";
+import { MENU_WIDTH, TOPBAR_HEIGHT } from "../../src/constants";
 import { toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
@@ -11,7 +12,6 @@ import { setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick, Touch } from "../test_helpers/helpers";
-import { menuComponentHeight } from "../../src/components/helpers/menu";
 
 const { xml } = tags;
 const { useSubEnv } = hooks;
@@ -33,9 +33,9 @@ function getActiveXc(model: Model): string {
   return toXC(...model.getters.getPosition());
 }
 
-function getPosition(selector: string): { top: number; left: number } {
-  const menu = fixture.querySelector(selector)?.parentElement?.parentElement;
-  const { top, left } = window.getComputedStyle(menu!);
+function getPosition(element: string | Element): { top: number; left: number } {
+  const menu = typeof element === "string" ? fixture.querySelector(element)! : element;
+  const { top, left } = window.getComputedStyle(menu.parentElement!.parentElement!);
   return {
     top: parseInt(top.replace("px", "")),
     left: parseInt(left.replace("px", "")),
@@ -47,14 +47,11 @@ function getMenuPosition() {
 }
 
 function getSubMenuPosition() {
-  const { left, top } = getMenuPosition();
-  // sub menu position is defined relative to its parent menu
-  // but we want it to be relative to the grid
-  const { left: subLeft, top: subTop } = getPosition(".o-menu + div .o-menu");
+  const { left, top } = getPosition(fixture.querySelectorAll(".o-menu")[1]);
   return {
-    left: left + subLeft,
-    top: top + subTop
-  }
+    left,
+    top,
+  };
 }
 
 function getItemSize() {
@@ -75,7 +72,7 @@ function getMenuSize() {
 }
 
 function getSubMenuSize() {
-  const menu = fixture.querySelector(".o-menu + div .o-menu");
+  const menu = fixture.querySelectorAll(".o-menu")[1];
   const menuItems = menu!.querySelectorAll(".o-menu-item");
   return getSize(menuItems.length);
 }
@@ -117,19 +114,37 @@ const subMenu: FullMenuItem[] = [
   }),
 ];
 
+const originalGetBoundingClientRect = HTMLDivElement.prototype.getBoundingClientRect;
+// @ts-ignore the mock should return a complete DOMRect, not only { top, left }
+jest
+  .spyOn(HTMLDivElement.prototype, "getBoundingClientRect")
+  .mockImplementation(function (this: HTMLDivElement) {
+    const menu = this.querySelector(".o-menu");
+    if (menu) {
+      const { top, left } = getPosition(menu);
+      return {
+        top: top + TOPBAR_HEIGHT,
+        left,
+      };
+    }
+    return originalGetBoundingClientRect.call(this);
+  });
+
 class ContextMenuParent extends Component<any, SpreadsheetEnv> {
   static template = xml/* xml */ `
-    <GridComponent
-      position="position"
-      childWidth="${MENU_WIDTH}"
-      childHeight="menuComponentHeight"
-    >
-      <Menu
-        t-on-close="onClose"
+    <div class="o-grid">
+      <GridComponent
         position="position"
-        menuItems="menus"
-      />
-    </GridComponent>
+        childWidth="${MENU_WIDTH}"
+        childHeight="menuComponentHeight"
+      >
+        <Menu
+          t-on-close="onClose"
+          position="position"
+          menuItems="menus"
+        />
+      </GridComponent>
+    </div>
   `;
   static components = { Menu, GridComponent };
   menus: FullMenuItem[];
@@ -157,10 +172,11 @@ class ContextMenuParent extends Component<any, SpreadsheetEnv> {
         action() {},
       }),
     ];
+    model.dispatch("RESIZE_VIEWPORT", { height, width });
   }
 
   get menuComponentHeight(): number {
-    return menuComponentHeight(this.menus)
+    return menuComponentHeight(this.menus);
   }
 }
 
@@ -178,6 +194,7 @@ describe("Context Menu", () => {
     simulateContextMenu(300, 200);
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toMatchSnapshot();
+    parent.destroy();
   });
 
   test("right click on a cell opens a context menu", async () => {
@@ -192,6 +209,7 @@ describe("Context Menu", () => {
     expect(getActiveXc(model)).toBe("C8");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
+    parent.destroy();
   });
 
   test("right click on a cell, then left click elsewhere closes a context menu", async () => {
@@ -207,6 +225,7 @@ describe("Context Menu", () => {
 
     await simulateClick("canvas", 50, 50);
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
+    parent.destroy();
   });
 
   test("can copy/paste with context menu", async () => {
@@ -233,6 +252,7 @@ describe("Context Menu", () => {
     await simulateClick(".o-menu div[data-name='paste']");
     expect(getCellContent(model, "B1")).toBe("b1");
     expect(getCellContent(model, "B2")).toBe("b1");
+    parent.destroy();
   });
 
   test("can cut/paste with context menu", async () => {
@@ -260,6 +280,7 @@ describe("Context Menu", () => {
 
     expect(getCell(model, "B1")).toBeUndefined();
     expect(getCellContent(model, "B2")).toBe("b1");
+    parent.destroy();
   });
 
   test("menu does not close when right click elsewhere", async () => {
@@ -273,6 +294,7 @@ describe("Context Menu", () => {
     simulateContextMenu(300, 300);
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
+    parent.destroy();
   });
 
   test("close contextmenu when clicking on menubar", async () => {
@@ -285,6 +307,7 @@ describe("Context Menu", () => {
     triggerMouseEvent(".o-topbar-topleft", "click");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
+    parent.destroy();
   });
 
   test("close contextmenu when clicking on menubar item", async () => {
@@ -297,6 +320,7 @@ describe("Context Menu", () => {
     triggerMouseEvent(".o-topbar-menu[data-id='insert']", "click");
     await nextTick();
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeFalsy();
+    parent.destroy();
   });
   test("close contextmenu when clicking on tools bar", async () => {
     const model = new Model();
@@ -309,6 +333,7 @@ describe("Context Menu", () => {
     triggerMouseEvent(fontSizeTool, "click");
     await nextTick();
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeFalsy();
+    parent.destroy();
   });
 
   test("menu can be hidden/displayed based on the env", async () => {
@@ -337,6 +362,7 @@ describe("Context Menu", () => {
     expect(fixture.querySelector(".o-menu div[data-name='visible_action']")).toBeTruthy();
     expect(fixture.querySelector(".o-menu div[data-name='hidden_action']")).toBeFalsy();
     cellMenuRegistry.content = menuDefinitions;
+    parent.destroy();
   });
 
   test("submenu opens and close when (un)overed", async () => {
@@ -515,6 +541,7 @@ describe("Context Menu", () => {
     // grid always at (0, 0) scroll position
     expect(parent.grid.comp.vScrollbar.scroll).toBe(0);
     expect(parent.grid.comp.hScrollbar.scroll).toBe(0);
+    parent.destroy();
   });
 
   test("scroll through the menu with the touch device prevents the grid from scrolling", async () => {
@@ -566,6 +593,7 @@ describe("Context Menu", () => {
     // grid always at (0, 0) scroll position
     expect(parent.grid.comp.vScrollbar.scroll).toBe(0);
     expect(parent.grid.comp.hScrollbar.scroll).toBe(0);
+    parent.destroy();
   });
 });
 
@@ -724,6 +752,7 @@ describe("Context Menu - CF", () => {
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
     ).toBeFalsy();
+    parent.destroy();
   });
 
   test("open sidepanel with one CF in selected zone", async () => {
@@ -757,6 +786,7 @@ describe("Context Menu - CF", () => {
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
     ).toBeTruthy();
+    parent.destroy();
   });
 
   test("open sidepanel with more then one CF in selected zone", async () => {
@@ -805,6 +835,7 @@ describe("Context Menu - CF", () => {
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
     ).toBeFalsy();
+    parent.destroy();
   });
   test("will update sidepanel if we reopen it from other cell", async () => {
     const model = new Model();
@@ -849,5 +880,6 @@ describe("Context Menu - CF", () => {
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
     ).toBeFalsy();
+    parent.destroy();
   });
 });

@@ -1,5 +1,5 @@
-import { MenuItem } from "../../registries";
 import { MENU_ITEM_HEIGHT, MENU_SEPARATOR_HEIGHT } from "../../constants";
+import { MenuItem } from "../../registries";
 
 export function menuComponentHeight(menuItems: MenuItem[]): number {
   const separators = menuItems.filter((m) => m.separator);

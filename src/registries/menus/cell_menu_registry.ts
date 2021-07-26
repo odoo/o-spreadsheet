@@ -46,6 +46,86 @@ cellMenuRegistry
     sequence: 20,
     action: ACTIONS.PASTE_FORMAT_ACTION,
   })
+  .addChild("paste_format_only", ["paste_special"], {
+    name: _lt("Paste format only"),
+    sequence: 20,
+    action: ACTIONS.PASTE_FORMAT_ACTION,
+  })
+  .addChild("paste_format_only", ["paste_special"], {
+    name: _lt("Paste format only"),
+    sequence: 20,
+    action: ACTIONS.PASTE_FORMAT_ACTION,
+  })
+  .addChild("paste_format_only", ["paste_special"], {
+    name: _lt("Paste format only"),
+    sequence: 20,
+    action: ACTIONS.PASTE_FORMAT_ACTION,
+  })
+  .addChild("paste_format_only", ["paste_special"], {
+    name: _lt("Paste format only"),
+    sequence: 20,
+    action: ACTIONS.PASTE_FORMAT_ACTION,
+  })
+  .addChild("paste_format_only", ["paste_special"], {
+    name: _lt("Paste format only"),
+    sequence: 20,
+    action: ACTIONS.PASTE_FORMAT_ACTION,
+  })
+  .addChild("paste_format_only", ["paste_special"], {
+    name: _lt("Paste format only"),
+    sequence: 20,
+    action: ACTIONS.PASTE_FORMAT_ACTION,
+  })
+  .addChild("paste_format_only", ["paste_special"], {
+    name: _lt("Paste format only"),
+    sequence: 20,
+    action: ACTIONS.PASTE_FORMAT_ACTION,
+  })
+  .addChild("paste_format_only", ["paste_special"], {
+    name: _lt("Paste format only"),
+    sequence: 20,
+    action: ACTIONS.PASTE_FORMAT_ACTION,
+  })
+  .addChild("paste_format_only", ["paste_special"], {
+    name: _lt("Paste format only"),
+    sequence: 20,
+    action: ACTIONS.PASTE_FORMAT_ACTION,
+  })
+  .addChild("paste_format_only", ["paste_special"], {
+    name: _lt("Paste format only"),
+    sequence: 20,
+    action: ACTIONS.PASTE_FORMAT_ACTION,
+  })
+  .addChild("paste_format_only", ["paste_special"], {
+    name: _lt("Paste format only"),
+    sequence: 20,
+    action: ACTIONS.PASTE_FORMAT_ACTION,
+  })
+  .addChild("paste_format_only", ["paste_special"], {
+    name: _lt("Paste format only"),
+    sequence: 20,
+    action: ACTIONS.PASTE_FORMAT_ACTION,
+  })
+  .addChild("paste_format_only", ["paste_special"], {
+    name: _lt("Paste format only"),
+    sequence: 20,
+    action: ACTIONS.PASTE_FORMAT_ACTION,
+  })
+  .addChild("paste_format_only", ["paste_special"], {
+    name: _lt("Paste format only"),
+    sequence: 20,
+    action: ACTIONS.PASTE_FORMAT_ACTION,
+  })
+  .addChild("paste_format_only", ["paste_special"], {
+    name: _lt("Paste format only"),
+    sequence: 20,
+    action: ACTIONS.PASTE_FORMAT_ACTION,
+  })
+  .addChild("paste_format_only", ["paste_special"], {
+    name: _lt("Paste format only"),
+    sequence: 20,
+    action: ACTIONS.PASTE_FORMAT_ACTION,
+  })
   .add("sort_range", {
     name: _lt("Sort range"),
     sequence: 50,

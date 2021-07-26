@@ -1,11 +1,12 @@
 import * as owl from "@odoo/owl";
-import { SpreadsheetEnv, GridDimension, Coordinates } from "../types";
+import { HEADER_HEIGHT } from "../constants";
+import { Coordinates, GridDimension, SpreadsheetEnv } from "../types";
 const { Component, tags } = owl;
-const { Portal } = owl.misc
+const { Portal } = owl.misc;
 const { xml, css } = tags;
 
 const TEMPLATE = xml/* xml */ `
-  <Portal target="'.o-grid'">
+  <Portal target="props.target">
     <div t-att-style="style">
       <t t-slot="default"/>
     </div>
@@ -20,6 +21,7 @@ const CSS = css/* scss */ ``;
  */
 interface Props {
   position: Coordinates;
+  target: string;
   /**
    * Grid origin coordinates.
    * The default value is [0, 0] and must be set to the correct value if
@@ -48,13 +50,16 @@ export class GridComponent extends Component<Props, SpreadsheetEnv> {
     gridOrigin: { x: 0, y: 0 },
     flipHorizontalOffset: 0,
     flipVerticalOffset: 0,
-  }
+    target: ".o-grid",
+  };
   private getters = this.env.getters;
 
   get style() {
-    console.log(this.props)
+    console.log(this.props);
     const { x } = this.props.position;
-    const hStyle = `left:${this.renderRight ? x : x - this.props.childWidth - this.props.flipHorizontalOffset}`;
+    const hStyle = `left:${
+      this.renderRight ? x : x - this.props.childWidth - this.props.flipHorizontalOffset
+    }`;
     const vStyle = `top:${this.verticalPosition()}`;
     const heightStyle = `max-height:${this.viewportDimension.height}`;
     return `
@@ -81,18 +86,21 @@ export class GridComponent extends Component<Props, SpreadsheetEnv> {
   private get renderBottom(): boolean {
     const { y } = this.props.position;
     const offset = this.props.gridOrigin.y;
-    console.log(this.viewportDimension)
+    console.log(this.viewportDimension);
     return y + offset + this.props.childHeight < this.viewportDimension.height;
   }
 
   private verticalPosition(): number {
     const { y } = this.props.position;
-    console.log("renderBottom", this.renderBottom)
+    console.log("renderBottom", this.renderBottom);
     if (this.renderBottom) {
       return y;
     }
     // ? MENU_ITEM_HEIGHT
-    return y - this.props.childHeight + this.props.flipVerticalOffset
+    return Math.max(
+      y - this.props.childHeight + this.props.flipVerticalOffset,
+      HEADER_HEIGHT + 6 // some margin between the header and the component
+    );
   }
 
   // get style() {
