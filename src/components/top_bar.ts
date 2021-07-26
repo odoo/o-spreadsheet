@@ -68,7 +68,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             childHeight="menuComponentHeight"
           >
             <Menu
-                position="state.menuState.position"
                 menuItems="state.menuState.menuItems"
                 t-ref="menuRef"
                 t-on-close="state.menuState.isOpen=false"/>

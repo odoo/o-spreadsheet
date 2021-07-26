@@ -235,7 +235,6 @@ const TEMPLATE = xml/* xml */ `
       childHeight="menuComponentHeight"
     >
       <Menu
-        position="menuState.position"
         menuItems="menuState.menuItems"
         t-on-close.stop="menuState.isOpen=false"/>
     </GridComponent>
@@ -342,7 +341,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   private clickedCol = 0;
   private clickedRow = 0;
 
-  // errorTooltip = useErrorTooltip(this.env, () => this.snappedViewport);
   hoveredCell = useCellHovered(this.env, () => this.getters.getActiveSnappedViewport());
 
   get activePosition(): Position {
@@ -373,18 +371,12 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
 
     if (cell && cell.evaluated.type === CellValueType.error) {
       const viewport = this.getters.getActiveSnappedViewport();
-      // const { width: viewportWidth, height: viewportHeight } = this.getters.getViewportDimension();
       const [x, y, width] = this.getters.getRect(
         { left: col, top: row, right: col, bottom: row },
         viewport
       );
-      // const hAlign = x + width + ERROR_TOOLTIP_WIDTH + 20 < viewportWidth ? "left" : "right";
-      // const hOffset = hAlign === "left" ? x + width : viewportWidth - x + (SCROLLBAR_WIDTH + 2);
-      // const vAlign = y + ERROR_TOOLTIP_HEIGHT + 20 < viewportHeight ? "top" : "bottom";
-      // const vOffset = vAlign === "top" ? y : viewportHeight - y - height + (SCROLLBAR_WIDTH + 2);
       return {
         isOpen: true,
-        // style: `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`,
         x: x + width,
         y,
         text: cell.evaluated.error,
@@ -405,7 +397,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       { left: leftCol, top: bottomRow, right: leftCol, bottom: bottomRow },
       viewport
     );
-    // reintroduce padding/margins
+    // TODO reintroduce padding/margins
     return { x, y: y + height };
   }
 
@@ -856,8 +848,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.menuState.position = {
       x,
       y,
-      // width: this.el!.clientWidth,
-      // height: this.el!.clientHeight,
     };
     this.menuState.menuItems = registries[type]
       .getAll()

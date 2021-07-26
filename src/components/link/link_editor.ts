@@ -1,7 +1,10 @@
 import * as owl from "@odoo/owl";
+import { MENU_WIDTH } from "../../constants";
 import { hasLink } from "../../helpers";
 import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
 import { Coordinates, Link, Position, Sheet, SpreadsheetEnv } from "../../types";
+import { menuComponentHeight } from "../helpers/menu";
+import { GridComponent } from "./../grid_component";
 import { LIST } from "./../icons";
 import { Menu } from "./../menu";
 import { LinkEditorTerms } from "./../side_panel/translations_terms";
@@ -9,6 +12,8 @@ const { Component, tags, hooks, useState } = owl;
 const { xml, css } = tags;
 const { useRef } = hooks;
 
+const WIDTH = 320;
+const HEIGHT = 160;
 const PADDING = 10;
 
 const TEMPLATE = xml/* xml */ `
@@ -30,10 +35,17 @@ const TEMPLATE = xml/* xml */ `
           </button>
         </div>
       </div>
-      <Menu t-if="menuState.isOpen"
-        menuItems="menuItems"
+      <GridComponent
+        t-if="menuState.isOpen"
+        target="'.o-link-editor'"
         position="menuPosition"
-        t-on-close.stop="menuState.isOpen=false"/>
+        childWidth="${MENU_WIDTH}"
+        childHeight="menuComponentHeight"
+      >
+        <Menu
+          menuItems="menuItems"
+          t-on-close.stop="menuState.isOpen=false"/>
+      </GridComponent>
       <div class="o-buttons">
         <button t-on-click="cancel" class="o-button" t-esc="env._t('${LinkEditorTerms.Cancel}')"></button>
         <button t-on-click="save" t-att-disabled="!linkEditorState.link.url" class="o-button" t-esc="env._t('${LinkEditorTerms.Confirm}')"></button>
@@ -43,8 +55,6 @@ const TEMPLATE = xml/* xml */ `
 const CSS = css/* scss */ `
   .o-link-editor {
     font-size: 13px;
-    // width: ${0};
-    // height: ${0};
     background-color: white;
     box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
     padding: ${PADDING};
@@ -125,8 +135,12 @@ interface LinkEditorState {
 
 export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   static template = TEMPLATE;
-  static components = { Menu };
+  static components = { Menu, GridComponent };
   static style = CSS;
+  static menuPosition = {
+    x: WIDTH - PADDING - 2,
+    y: HEIGHT - 37,
+  };
   private getters = this.env.getters;
   private linkEditorState: LinkEditorState = useState({
     link: this.link,
@@ -166,6 +180,10 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
     return this.menus.getAll();
   }
 
+  get menuComponentHeight(): number {
+    return menuComponentHeight(this.menuItems);
+  }
+
   selectSheet(sheet: Sheet) {
     console.log(sheet.name);
   }
@@ -174,41 +192,10 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
     this.menuState.isOpen = true;
   }
 
-  // get style() {
-  //   const { col, row } = this.props.position;
-  //   const [leftCol, bottomRow] = this.getters.getBottomLeftCell(
-  //     this.getters.getActiveSheetId(),
-  //     col,
-  //     row
-  //   );
-  //   const viewport = this.getters.getActiveSnappedViewport();
-  //   const { width: viewportWidth, height: viewportHeight } = this.getters.getViewportDimension();
-  //   const [x, y, width, height] = this.getters.getRect(
-  //     { left: leftCol, top: bottomRow, right: leftCol, bottom: bottomRow },
-  //     viewport
-  //   );
-  //   const hAlign = x + WIDTH + 30 < viewportWidth ? "left" : "right";
-  //   const hOffset =
-  //     hAlign === "left" ? x + 1 : viewportWidth - x + (SCROLLBAR_WIDTH + 2) - width + 1;
-  //   let vAlign = y + HEIGHT + height + 20 < viewportHeight ? "top" : "bottom";
-  //   const vOffset =
-  //     vAlign === "top"
-  //       ? y + height + TOPBAR_HEIGHT + 2
-  //       : viewportHeight - y + (SCROLLBAR_WIDTH + 2) + 2 + BOTTOMBAR_HEIGHT;
-  //   return `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`;
-  // }
-
   get menuPosition(): Coordinates {
     return {
-      x: 0,
-      y: 0,
-      // x: WIDTH - PADDING - 2,
-      // y: HEIGHT - 37, // 37 = Height of confirm/cancel buttons
-      // offsetLeft: this.el!.offsetLeft,
-      // offsetTop: this.el!.offsetTop,
-      // getViewportDimension ;)
-      // width: this.el!.parentElement!.clientWidth,
-      // height: this.el!.parentElement!.clientHeight - BOTTOMBAR_HEIGHT - TOPBAR_HEIGHT,
+      x: WIDTH - PADDING - 2,
+      y: HEIGHT - 37, // 37 = Height of confirm/cancel buttons
     };
   }
 

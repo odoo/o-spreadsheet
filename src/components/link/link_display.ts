@@ -1,5 +1,4 @@
 import * as owl from "@odoo/owl";
-import { LINK_TOOLTIP_HEIGHT, LINK_TOOLTIP_WIDTH } from "../../constants";
 import { hasLink } from "../../helpers";
 import { Link, SpreadsheetEnv } from "../../types";
 import { EDIT, UNLINK } from "../icons";
@@ -19,9 +18,6 @@ const TEMPLATE = xml/* xml */ `
 
 const CSS = css/* scss */ `
   .o-link-tool {
-    // width: ${LINK_TOOLTIP_WIDTH};
-    // height: ${LINK_TOOLTIP_HEIGHT};
-    // position: absolute;
     font-size: 13px;
     background-color: white;
     box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
@@ -52,27 +48,6 @@ export class LinkDisplay extends Component<{}, SpreadsheetEnv> {
     }
     return { url: "", label: "" };
   }
-
-  // get style() {
-  //   const [col, row] = this.getters.getPosition();
-  //   const [leftCol, bottomRow] = this.getters.getBottomLeftCell(
-  //     this.getters.getActiveSheetId(),
-  //     col,
-  //     row
-  //   );
-  //   const viewport = this.getters.getActiveSnappedViewport();
-  //   const { width: viewportWidth, height: viewportHeight } = this.getters.getViewportDimension();
-  //   const [x, y, width, height] = this.getters.getRect(
-  //     { left: leftCol, top: bottomRow, right: leftCol, bottom: bottomRow },
-  //     viewport
-  //   );
-  //   const hAlign = x + LINK_TOOLTIP_WIDTH + 30 < viewportWidth ? "left" : "right";
-  //   const hOffset =
-  //     hAlign === "left" ? x + 10 : viewportWidth - x + (SCROLLBAR_WIDTH + 2) - width + 10;
-  //   let vAlign = y + LINK_TOOLTIP_HEIGHT + height < viewportHeight ? "top" : "bottom";
-  //   const vOffset = vAlign === "top" ? y + height + 2 : viewportHeight - y + (SCROLLBAR_WIDTH + 2);
-  //   return `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px;`;
-  // }
 
   edit() {
     const [col, row] = this.getters.getPosition();

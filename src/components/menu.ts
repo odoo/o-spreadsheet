@@ -6,7 +6,7 @@ import {
   MENU_WIDTH,
   TOPBAR_HEIGHT,
 } from "../constants";
-import { FullMenuItem, MenuItem } from "../registries";
+import { FullMenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { Coordinates, SpreadsheetEnv } from "../types";
 import { GridComponent } from "./grid_component";
@@ -113,7 +113,6 @@ const CSS = css/* scss */ `
 `;
 
 interface Props {
-  position: Coordinates;
   menuItems: FullMenuItem[];
   depth: number;
 }
@@ -156,37 +155,9 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     return menuComponentHeight(this.subMenu.menuItems);
   }
 
-  // get gridOrigin(): Coordinates {
-  //   // const x = this.props.
-  //   // shit
-  //   return {
-  //     x: this.props.position.x,
-  //     y: this.props.position.y,
-  //   }
-  // }
-
-  // private get renderRight(): boolean {
-  //   const { x, offsetLeft, width } = this.props.position;
-  //   const offset = offsetLeft ? offsetLeft : 0;
-  //   return x + offset < width - MENU_WIDTH;
-  // }
-
-  // private get renderBottom(): boolean {
-  //   const { y, offsetTop, height } = this.props.position;
-  //   const offset = offsetTop ? offsetTop : 0;
-  //   return y + offset < height - this.menuHeight;
-  // }
-
-  // private get menuHeight(): number {
-  //   const separators = this.props.menuItems.filter((m) => m.separator);
-  //   const others = this.props.menuItems;
-  //   return MENU_ITEM_HEIGHT * others.length + separators.length * MENU_SEPARATOR_HEIGHT;
-  // }
-
   get style() {
     const { height } = this.env.getters.getViewportDimension();
     return `max-height:${height}px`;
-    // return `${vStyle}px;${hStyle}px;${heightStyle}px`;
   }
 
   private get position(): Coordinates {
@@ -207,47 +178,13 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     this.trigger("close");
   }
 
-  // private menuVerticalPosition(): number {
-  //   const { y, height } = this.props.position;
-  //   if (this.renderBottom) {
-  //     return y;
-  //   }
-  //   return Math.max(MENU_ITEM_HEIGHT, y - Math.min(this.menuHeight, height));
-  // }
-
-  // private subMenuHorizontalPosition(): number {
-  //   const { x, width } = this.props.position;
-  //   const offset = offsetLeft ? offsetLeft : 0;
-  //   const spaceRight = x + 2 * MENU_WIDTH + offset < width;
-  //   if (this.renderRight && spaceRight) {
-  //     return x + MENU_WIDTH;
-  //   } else if (this.renderRight && !spaceRight) {
-  //     return x - MENU_WIDTH;
-  //   }
-  //   return x - (this.props.depth + 1) * MENU_WIDTH;
-  // }
-
-  private subMenuVerticalPosition(subMenuItems: MenuItem[], position: number): number {
-    return this.menuItemVerticalOffset(position);
-    // const { height, offsetTop } = this.props.position;
-    // const offset = offsetTop ? offsetTop : 0;
-    // const y = this.menuVerticalPosition() + this.menuItemVerticalOffset(position);
-    // const subMenuHeight = this.computeMenuHeight(subMenuItems, height);
-    // const spaceBelow = y + offset < height - subMenuHeight;
-    // if (spaceBelow) {
-    //   return y;
-    // }
-    // return Math.max(MENU_ITEM_HEIGHT - offset, y - subMenuHeight + MENU_ITEM_HEIGHT);
-  }
-
   /**
    * Return the number of pixels between the top of the menu
    * and the menu item at a given index.
    */
-  private menuItemVerticalOffset(index: number): number {
-    const menusAbove = this.props.menuItems.slice(0, index);
+  private subMenuVerticalPosition(position: number): number {
+    const menusAbove = this.props.menuItems.slice(0, position);
     return menuComponentHeight(menusAbove) + this.position.y;
-    // return this.computeMenuHeight(menusAbove, this.props.position.height);
   }
 
   private onClick(ev: MouseEvent) {
@@ -257,18 +194,6 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     }
     this.close();
   }
-
-  /**
-   * Return the total height (in pixels) needed for some
-   * menu items
-   */
-  // private computeMenuHeight(menuItems: MenuItem[], maxHeight: number): number {
-  //   const separatorCount = menuItems.filter((menu) => menu.separator).length;
-  //   return Math.min(
-  //     maxHeight,
-  //     menuItems.length * MENU_ITEM_HEIGHT + separatorCount * MENU_SEPARATOR_HEIGHT
-  //   );
-  // }
 
   private onContextMenu(ev: MouseEvent) {
     // Don't close a root menu when clicked to open the submenus.
@@ -313,12 +238,10 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
    */
   openSubMenu(menu: FullMenuItem, position: number) {
     this.closeSubMenus();
-    const y = this.subMenuVerticalPosition(this.subMenu.menuItems, position);
+    const y = this.subMenuVerticalPosition(position);
     this.subMenu.position = {
       x: this.position.x + MENU_WIDTH,
-      // x: this.subMenuHorizontalPosition(),
       y: y - (this.subMenu.scrollOffset || 0),
-      // offsetTop: 0,
     };
     this.subMenu.menuItems = cellMenuRegistry.getChildren(menu, this.env);
     this.subMenu.isOpen = true;
