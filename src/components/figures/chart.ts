@@ -158,11 +158,6 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
     const y = target.offsetTop;
     this.menuState.isOpen = true;
     this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
-    this.menuState.position = {
-      x,
-      y,
-      // height: 400,
-      // width: this.el!.clientWidth,
-    };
+    this.menuState.position = { x, y };
   }
 }

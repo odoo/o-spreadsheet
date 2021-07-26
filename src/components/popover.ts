@@ -3,7 +3,7 @@ import { HEADER_HEIGHT } from "../constants";
 import { Coordinates, GridDimension, SpreadsheetEnv } from "../types";
 const { Component, tags } = owl;
 const { Portal } = owl.misc;
-const { xml, css } = tags;
+const { xml } = tags;
 
 const TEMPLATE = xml/* xml */ `
   <Portal target="props.target">
@@ -12,8 +12,6 @@ const TEMPLATE = xml/* xml */ `
     </div>
   </Portal>
 `;
-
-const CSS = css/* scss */ ``;
 
 interface Props {
   /**
@@ -31,9 +29,8 @@ interface Props {
   flipVerticalOffset: number;
 }
 
-export class GridComponent extends Component<Props, SpreadsheetEnv> {
+export class Popover extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
-  static style = CSS;
   static components = { Portal };
   static defaultProps = {
     flipHorizontalOffset: 0,
@@ -61,26 +58,27 @@ export class GridComponent extends Component<Props, SpreadsheetEnv> {
     return this.getters.getViewportDimension();
   }
 
-  private get renderRight(): boolean {
+  private get shouldRenderRight(): boolean {
     const { x } = this.props.position;
     return x + this.props.childWidth < this.viewportDimension.width;
   }
 
-  private get renderBottom(): boolean {
+  private get shouldRenderBottom(): boolean {
     const { y } = this.props.position;
     return y + this.props.childHeight < this.viewportDimension.height;
   }
 
   private horizontalPosition(): number {
     const { x } = this.props.position;
-    return this.renderRight ? x : x - this.props.childWidth - this.props.flipHorizontalOffset;
+    return this.shouldRenderRight ? x : x - this.props.childWidth - this.props.flipHorizontalOffset;
   }
 
   private verticalPosition(): number {
     const { y } = this.props.position;
-    if (this.renderBottom) {
+    if (this.shouldRenderBottom) {
       return y;
     }
+    // don't let the component overflow on the header and the top bar.
     return Math.max(
       y - this.props.childHeight + this.props.flipVerticalOffset,
       HEADER_HEIGHT + 6 // some margin between the header and the component

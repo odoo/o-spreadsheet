@@ -8,11 +8,11 @@ import { FullMenuItem } from "../registries/menu_items_registry";
 import { Align, BorderCommand, SpreadsheetEnv, Style } from "../types/index";
 import { ColorPicker } from "./color_picker";
 import { Composer } from "./composer/composer";
-import { GridComponent } from "./grid_component";
 import { isChildEvent } from "./helpers/dom_helpers";
 import { menuComponentHeight } from "./helpers/menu";
 import * as icons from "./icons";
 import { Menu, MenuState } from "./menu";
+import { Popover } from "./popover";
 
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
@@ -60,7 +60,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             <t t-esc="getMenuName(menu)"/>
           </div>
           </t>
-          <GridComponent
+          <Popover
             t-if="state.menuState.isOpen"
             target="'.o-spreadsheet-topbar'"
             position="state.menuState.position"
@@ -71,7 +71,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
                 menuItems="state.menuState.menuItems"
                 t-ref="menuRef"
                 t-on-close="state.menuState.isOpen=false"/>
-          </GridComponent>
+          </Popover>
         </div>
         <div class="o-topbar-topright">
           <div t-foreach="topbarComponents" t-as="comp" t-key="comp_index">
@@ -325,7 +325,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       }
     }
   `;
-  static components = { ColorPicker, Menu, Composer, GridComponent };
+  static components = { ColorPicker, Menu, Composer, Popover };
   formats = FORMATS;
   currentFormat = "general";
   fontSizes = fontSizes;

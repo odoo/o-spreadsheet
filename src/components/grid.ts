@@ -15,25 +15,18 @@ import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
-import {
-  CellValueType,
-  Client,
-  Coordinates,
-  Position,
-  SpreadsheetEnv,
-  Viewport,
-} from "../types/index";
+import { CellValueType, Client, Position, SpreadsheetEnv, Viewport } from "../types/index";
 import { Autofill } from "./autofill";
 import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
 import { FiguresContainer } from "./figures/container";
-import { GridComponent } from "./grid_component";
 import { startDnd } from "./helpers/drag_and_drop";
 import { menuComponentHeight } from "./helpers/menu";
 import { LinkDisplay } from "./link/link_display";
 import { LinkEditor, LinkEditorProps } from "./link/link_editor";
 import { Menu, MenuState } from "./menu";
 import { Overlay } from "./overlay";
+import { Popover } from "./popover";
 import { ScrollBar } from "./scrollbar";
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -200,44 +193,47 @@ const TEMPLATE = xml/* xml */ `
                  active="isCellHovered(client.position.col, client.position.row)"
                  />
     </t>
-    <GridComponent
+    <Popover
       t-if="errorTooltip.isOpen"
       position="errorTooltip"
       childWidth="${ERROR_TOOLTIP_WIDTH}"
       childHeight="${ERROR_TOOLTIP_HEIGHT}">
       <div class="o-error-tooltip" t-esc="errorTooltip.text"/>
-    </GridComponent>
-    <GridComponent
+    </Popover>
+    <Popover
       t-if="linkDisplay.isOpen"
-      position="linkPosition"
+      position="link.position"
+      flipHorizontalOffset="-link.cellWidth"
+      flipVerticalOffset="-link.cellHeight"
       childWidth="${LINK_TOOLTIP_WIDTH}"
       childHeight="${LINK_TOOLTIP_HEIGHT}">
       <LinkDisplay t-on-close.stop="linkDisplay.isOpen=false"/>
-    </GridComponent>
-    <GridComponent
+    </Popover>
+    <Popover
       t-if="linkEditor.isOpen"
-      position="linkPosition"
+      position="link.position"
+      flipHorizontalOffset="-link.cellWidth"
+      flipVerticalOffset="-link.cellHeight"
       childWidth="${LINK_EDITOR_WIDTH}"
       childHeight="${LINK_EDITOR_HEIGHT}">
       <LinkEditor
         position="linkEditor.props.position"
         t-on-close-link-editor.stop="closeLinkEditor()"
       />
-    </GridComponent>
+    </Popover>
     <t t-if="getters.getEditionMode() === 'inactive'">
       <Autofill position="getAutofillPosition()"/>
     </t>
     <Overlay t-on-open-contextmenu="onOverlayContextMenu" />
-    <GridComponent
+    <Popover
       t-if="menuState.isOpen"
       position="menuState.position"
       childWidth="${MENU_WIDTH}"
-      childHeight="menuComponentHeight"
-    >
+      childHeight="menuComponentHeight">
       <Menu
         menuItems="menuState.menuItems"
         t-on-close.stop="menuState.isOpen=false"/>
-    </GridComponent>
+    </Popover>
     <t t-set="gridSize" t-value="getters.getGridDimension(getters.getActiveSheet())"/>
     <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" t-on-figure-deleted="focus" />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
@@ -312,7 +308,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     ClientTag,
     LinkDisplay,
     LinkEditor,
-    GridComponent,
+    Popover,
   };
 
   private menuState: MenuState = useState({
@@ -385,20 +381,21 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     return { isOpen: false };
   }
 
-  get linkPosition(): Coordinates {
-    const [col, row] = this.getters.getPosition();
-    const [leftCol, bottomRow] = this.getters.getBottomLeftCell(
+  get link() {
+    const [col, row] = this.getters.getBottomLeftCell(
       this.getters.getActiveSheetId(),
-      col,
-      row
+      ...this.getters.getPosition()
     );
     const viewport = this.getters.getActiveSnappedViewport();
-    const [x, y, , height] = this.getters.getRect(
-      { left: leftCol, top: bottomRow, right: leftCol, bottom: bottomRow },
+    const [x, y, width, height] = this.getters.getRect(
+      { left: col, top: row, right: col, bottom: row },
       viewport
     );
-    // TODO reintroduce padding/margins
-    return { x, y: y + height };
+    return {
+      position: { x, y: y + height },
+      cellWidth: width,
+      cellHeight: height,
+    };
   }
 
   private openLinkEditor(props: LinkEditorProps) {

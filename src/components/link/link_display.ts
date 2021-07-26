@@ -21,11 +21,12 @@ const CSS = css/* scss */ `
     font-size: 13px;
     background-color: white;
     box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
+    margin: 2px 10px 2px 10px;
     padding: 10px;
   }
   .o-link-icon {
     float: right;
-    padding-left: 1%;
+    padding-left: 4%;
   }
   .o-link-icon:hover {
     cursor: pointer;

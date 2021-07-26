@@ -141,7 +141,7 @@ export class LinkCell extends AbstractCell<TextEvaluation> {
       ...options,
       style: {
         ...options.style,
-        textColor: "#0000EE",
+        textColor: "#007bff",
       },
     };
     super(id, { value: link.label, type: CellValueType.text }, options);

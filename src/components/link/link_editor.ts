@@ -4,7 +4,8 @@ import { hasLink } from "../../helpers";
 import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
 import { Coordinates, Link, Position, Sheet, SpreadsheetEnv } from "../../types";
 import { menuComponentHeight } from "../helpers/menu";
-import { GridComponent } from "./../grid_component";
+import { usePositionInGrid } from "../helpers/position_hook";
+import { Popover } from "../popover";
 import { LIST } from "./../icons";
 import { Menu } from "./../menu";
 import { LinkEditorTerms } from "./../side_panel/translations_terms";
@@ -17,7 +18,7 @@ const HEIGHT = 160;
 const PADDING = 10;
 
 const TEMPLATE = xml/* xml */ `
-    <div class="o-link-editor" t-on-click.stop="">
+    <div class="o-link-editor" t-on-click.stop="" t-on-keydown.stop="">
       <div class="o-section">
         <div t-esc="env._t('${LinkEditorTerms.Label}')" class="o-section-title"/>
         <div class="d-flex">
@@ -35,9 +36,8 @@ const TEMPLATE = xml/* xml */ `
           </button>
         </div>
       </div>
-      <GridComponent
+      <Popover
         t-if="menuState.isOpen"
-        target="'.o-link-editor'"
         position="menuPosition"
         childWidth="${MENU_WIDTH}"
         childHeight="menuComponentHeight"
@@ -45,7 +45,7 @@ const TEMPLATE = xml/* xml */ `
         <Menu
           menuItems="menuItems"
           t-on-close.stop="menuState.isOpen=false"/>
-      </GridComponent>
+      </Popover>
       <div class="o-buttons">
         <button t-on-click="cancel" class="o-button" t-esc="env._t('${LinkEditorTerms.Cancel}')"></button>
         <button t-on-click="save" t-att-disabled="!linkEditorState.link.url" class="o-button" t-esc="env._t('${LinkEditorTerms.Confirm}')"></button>
@@ -57,6 +57,7 @@ const CSS = css/* scss */ `
     font-size: 13px;
     background-color: white;
     box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
+    margin: 2px 10px 2px 10px;
     padding: ${PADDING};
     display: flex;
     flex-direction: column;
@@ -135,12 +136,8 @@ interface LinkEditorState {
 
 export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   static template = TEMPLATE;
-  static components = { Menu, GridComponent };
+  static components = { Menu, Popover };
   static style = CSS;
-  static menuPosition = {
-    x: WIDTH - PADDING - 2,
-    y: HEIGHT - 37,
-  };
   private getters = this.env.getters;
   private linkEditorState: LinkEditorState = useState({
     link: this.link,
@@ -150,6 +147,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   private menuState: { isOpen: boolean } = useState({
     isOpen: false,
   });
+  private position = usePositionInGrid();
   menuButton = useRef("menuButton");
   urlInput = useRef("urlInput");
 
@@ -167,6 +165,12 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
     return { url: "", label: "" };
   }
 
+  get menuPosition(): Coordinates {
+    return {
+      x: this.position.x + WIDTH - PADDING - 2,
+      y: this.position.y + HEIGHT - 37, // 37 = Height of confirm/cancel buttons
+    };
+  }
   get menuItems() {
     const sheets = this.env.getters.getSheets();
     this.menus.removeChildren(this.menus.content["sheet"]);
@@ -190,13 +194,6 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
 
   openMenu() {
     this.menuState.isOpen = true;
-  }
-
-  get menuPosition(): Coordinates {
-    return {
-      x: WIDTH - PADDING - 2,
-      y: HEIGHT - 37, // 37 = Height of confirm/cancel buttons
-    };
   }
 
   removeLink() {

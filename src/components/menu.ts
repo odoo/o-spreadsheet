@@ -4,15 +4,15 @@ import {
   MENU_SEPARATOR_BORDER_WIDTH,
   MENU_SEPARATOR_PADDING,
   MENU_WIDTH,
-  TOPBAR_HEIGHT,
 } from "../constants";
 import { FullMenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { Coordinates, SpreadsheetEnv } from "../types";
-import { GridComponent } from "./grid_component";
 import { isChildEvent } from "./helpers/dom_helpers";
 import { menuComponentHeight } from "./helpers/menu";
+import { usePositionInGrid } from "./helpers/position_hook";
 import * as icons from "./icons";
+import { Popover } from "./popover";
 
 const { xml, css } = tags;
 const { useExternalListener, useRef } = hooks;
@@ -46,7 +46,7 @@ const TEMPLATE = xml/* xml */ `
           <div t-if="menuItem.separator and !menuItem_last" class="o-separator"/>
         </t>
       </div>
-      <GridComponent
+      <Popover
         t-if="subMenu.isOpen"
         position="subMenuPosition"
         childWidth="${MENU_WIDTH}"
@@ -60,7 +60,7 @@ const TEMPLATE = xml/* xml */ `
           depth="props.depth + 1"
           t-ref="subMenuRef"
           t-on-close="subMenu.isOpen=false"/>
-      </GridComponent>
+      </Popover>
     </div>`;
 
 const CSS = css/* scss */ `
@@ -125,12 +125,13 @@ export interface MenuState {
 }
 export class Menu extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
-  static components = { Menu, GridComponent };
+  static components = { Menu, Popover };
   static style = CSS;
   static defaultProps = {
     depth: 1,
   };
   private subMenu: MenuState;
+  private position = usePositionInGrid();
   subMenuRef = useRef("subMenuRef");
 
   constructor() {
@@ -158,14 +159,6 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   get style() {
     const { height } = this.env.getters.getViewportDimension();
     return `max-height:${height}px`;
-  }
-
-  private get position(): Coordinates {
-    const { top, left } = this.el!.getBoundingClientRect();
-    return {
-      x: left,
-      y: top - TOPBAR_HEIGHT,
-    };
   }
 
   activateMenu(menu: FullMenuItem) {

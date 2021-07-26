@@ -1,7 +1,7 @@
 import { Component, hooks, tags } from "@odoo/owl";
-import { GridComponent } from "../../src/components/grid_component";
 import { menuComponentHeight } from "../../src/components/helpers/menu";
 import { Menu } from "../../src/components/menu";
+import { Popover } from "../../src/components/popover";
 import { MENU_WIDTH, TOPBAR_HEIGHT } from "../../src/constants";
 import { toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
@@ -133,7 +133,7 @@ jest
 class ContextMenuParent extends Component<any, SpreadsheetEnv> {
   static template = xml/* xml */ `
     <div class="o-grid">
-      <GridComponent
+      <Popover
         position="position"
         childWidth="${MENU_WIDTH}"
         childHeight="menuComponentHeight"
@@ -143,10 +143,10 @@ class ContextMenuParent extends Component<any, SpreadsheetEnv> {
           position="position"
           menuItems="menus"
         />
-      </GridComponent>
+      </Popover>
     </div>
   `;
-  static components = { Menu, GridComponent };
+  static components = { Menu, Popover };
   menus: FullMenuItem[];
   position: { x: number; y: number; width: number; height: number };
   onClose: () => void;
