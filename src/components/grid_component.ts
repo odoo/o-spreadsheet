@@ -1,12 +1,15 @@
 import * as owl from "@odoo/owl";
 import { SpreadsheetEnv, GridDimension, Coordinates } from "../types";
 const { Component, tags } = owl;
+const { Portal } = owl.misc
 const { xml, css } = tags;
 
 const TEMPLATE = xml/* xml */ `
-  <div t-att-style="style">
-    <t t-slot="default"/>
-  </div>
+  <Portal target="'.o-grid'">
+    <div t-att-style="style">
+      <t t-slot="default"/>
+    </div>
+  </Portal>
 `;
 
 const CSS = css/* scss */ ``;
@@ -40,6 +43,7 @@ interface Props {
 export class GridComponent extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
+  static components = { Portal };
   static defaultProps = {
     gridOrigin: { x: 0, y: 0 },
     flipHorizontalOffset: 0,

@@ -4,7 +4,7 @@ import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { SpreadsheetEnv, Coordinates } from "../types";
 import { isChildEvent } from "./helpers/dom_helpers";
 import * as icons from "./icons";
-import { MENU_WIDTH, MENU_ITEM_HEIGHT, MENU_SEPARATOR_BORDER_WIDTH, MENU_SEPARATOR_PADDING } from "../constants";
+import { MENU_WIDTH, MENU_ITEM_HEIGHT, MENU_SEPARATOR_BORDER_WIDTH, MENU_SEPARATOR_PADDING, TOPBAR_HEIGHT } from "../constants";
 import { menuComponentHeight } from "./helpers/menu";
 import { GridComponent } from "./grid_component";
 
@@ -43,7 +43,6 @@ const TEMPLATE = xml/* xml */ `
       <GridComponent
         t-if="subMenu.isOpen"
         position="subMenuPosition"
-        gridOrigin="gridOrigin"
         childWidth="${MENU_WIDTH}"
         childHeight="subMenuComponentHeight"
         flipHorizontalOffset="${MENU_WIDTH}"
@@ -151,14 +150,14 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     return menuComponentHeight(this.subMenu.menuItems)
   }
 
-  get gridOrigin(): Coordinates {
-    // const x = this.props.
-    // shit
-    return {
-      x: this.props.position.x,
-      y: this.props.position.y,
-    }
-  }
+  // get gridOrigin(): Coordinates {
+  //   // const x = this.props.
+  //   // shit
+  //   return {
+  //     x: this.props.position.x,
+  //     y: this.props.position.y,
+  //   }
+  // }
 
   // private get renderRight(): boolean {
   //   const { x, offsetLeft, width } = this.props.position;
@@ -182,6 +181,14 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     const { height } = this.env.getters.getViewportDimension();
     return `max-height:${height}px`;
     // return `${vStyle}px;${hStyle}px;${heightStyle}px`;
+  }
+
+  private get position(): Coordinates {
+    const { top, left } = this.el!.getBoundingClientRect();
+    return {
+      x: left,
+      y: top - TOPBAR_HEIGHT
+    }
   }
 
   activateMenu(menu: FullMenuItem) {
@@ -233,7 +240,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
    */
   private menuItemVerticalOffset(index: number): number {
     const menusAbove = this.props.menuItems.slice(0, index);
-    return menuComponentHeight(menusAbove);
+    return menuComponentHeight(menusAbove) + this.position.y;
     // return this.computeMenuHeight(menusAbove, this.props.position.height);
   }
 
@@ -302,7 +309,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     this.closeSubMenus();
     const y = this.subMenuVerticalPosition(this.subMenu.menuItems, position);
     this.subMenu.position = {
-      x: MENU_WIDTH,
+      x: this.position.x + MENU_WIDTH,
       // x: this.subMenuHorizontalPosition(),
       y: y - (this.subMenu.scrollOffset || 0),
       // offsetTop: 0,
