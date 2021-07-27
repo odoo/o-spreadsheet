@@ -27,11 +27,16 @@ const TEMPLATE = xml/* xml */ `
 
         <div t-esc="env._t('${LinkEditorTerms.Link}')" class="o-section-title mt-3"/>
         <div class="o-input-button-inside">
-          <input type="text" t-ref="urlInput" class="o-input-inside" t-model="state.link.destination"></input>
-          <button t-if="state.link.destination" class="o-button-inside" t-on-click="removeLink">
+          <t t-if="state.isUrlEditable">
+            <input type="text" t-ref="urlInput" class="o-input-inside" t-model="state.link.url"></input>
+          </t>
+          <t t-else="">
+            <input type="text" t-att-value="state.urlRepresentation" class="o-input-inside" disabled="1"></input>
+          </t>
+          <button t-if="state.link.url" class="o-button-inside" t-on-click="removeLink">
             ✖
           </button>
-          <button t-if="!state.link.destination" class="o-button-inside" t-on-click="openMenu">
+          <button t-if="!state.link.url" class="o-button-inside" t-on-click="openMenu">
             ${LIST}
           </button>
         </div>
@@ -44,11 +49,12 @@ const TEMPLATE = xml/* xml */ `
       >
         <Menu
           menuItems="menuItems"
+          t-on-menu-clicked="onSpecialLink"
           t-on-close.stop="menuState.isOpen=false"/>
       </Popover>
       <div class="o-buttons">
         <button t-on-click="cancel" class="o-button" t-esc="env._t('${LinkEditorTerms.Cancel}')"></button>
-        <button t-on-click="save" t-att-disabled="!state.link.destination" class="o-button" t-esc="env._t('${LinkEditorTerms.Confirm}')"></button>
+        <button t-on-click="save" t-att-disabled="!state.link.url" class="o-button" t-esc="env._t('${LinkEditorTerms.Confirm}')"></button>
       </div>
     </div>`;
 
@@ -129,9 +135,10 @@ export interface LinkEditorProps {
   position: Position;
 }
 
-interface state {
+interface State {
   link: Link;
-  position: Position;
+  urlRepresentation: string;
+  isUrlEditable: boolean;
 }
 
 export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
@@ -139,10 +146,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   static components = { Menu, Popover };
   static style = CSS;
   private getters = this.env.getters;
-  private state: state = useState({
-    link: this.link,
-    position: this.props.position,
-  });
+  private state: State = useState(this.defaultState);
   private menus = linkMenuRegistry;
   private menuState: { isOpen: boolean } = useState({
     isOpen: false,
@@ -151,17 +155,25 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   urlInput = useRef("urlInput");
 
   mounted() {
-    this.urlInput.el!.focus();
+    this.urlInput.el?.focus();
   }
 
-  get link(): Link {
+  get defaultState(): State {
     const { col, row } = this.props.position;
     const sheetId = this.getters.getActiveSheetId();
     const cell = this.getters.getCell(sheetId, col, row);
     if (hasLink(cell)) {
-      return { url: cell.link.url, label: cell.formattedValue };
+      return {
+        link: { url: cell.link.url, label: cell.formattedValue },
+        urlRepresentation: cell.urlRepresentation,
+        isUrlEditable: cell.isUrlEditable,
+      };
     }
-    return { url: "", label: "" };
+    return {
+      link: { url: "", label: cell?.formattedValue || "" },
+      isUrlEditable: true,
+      urlRepresentation: "",
+    };
   }
 
   get menuPosition(): Coordinates {
@@ -170,21 +182,20 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
       y: this.position.y + HEIGHT - 37, // 37 = Height of confirm/cancel buttons
     };
   }
+
   get menuItems() {
-    const sheets = this.env.getters.getSheets();
-    this.menus.removeChildren(this.menus.content["sheet"]);
-    sheets.forEach((sheet, i) => {
-      this.menus.addChild(sheet.name, ["sheet"], {
-        name: sheet.name,
-        sequence: i,
-        action: () => this.selectSheet(sheet),
-      });
-    });
     return this.menus.getAll();
   }
 
   get menuComponentHeight(): number {
     return menuComponentHeight(this.menuItems);
+  }
+
+  onSpecialLink(ev: CustomEvent<State>) {
+    const { detail } = ev;
+    this.state.link = detail.link;
+    this.state.isUrlEditable = detail.isUrlEditable;
+    this.state.urlRepresentation = detail.urlRepresentation;
   }
 
   selectSheet(sheet: Sheet) {
@@ -198,6 +209,8 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
 
   removeLink() {
     this.state.link.url = "";
+    this.state.urlRepresentation = "";
+    this.state.isUrlEditable = true;
   }
 
   save() {

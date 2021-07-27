@@ -15,15 +15,6 @@ export interface Link {
   url: string;
 }
 
-// export interface MenuPosition {
-//   x: number;
-//   y: number;
-//   offsetLeft?: number;
-//   offsetTop?: number;
-//   width: number;
-//   height: number;
-// }
-
 export interface Zone {
   left: number;
   right: number;

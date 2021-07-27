@@ -42,6 +42,10 @@ export interface FormulaCell extends ICell {
   readonly dependencies: Range[];
 }
 
+/**
+ * A cell that can redirect to
+ * TODO
+ */
 export interface LinkCell extends ICell {
   readonly link: Link;
   /**
@@ -49,6 +53,7 @@ export interface LinkCell extends ICell {
    */
   readonly action: (env: SpreadsheetEnv) => void;
   readonly urlRepresentation: string;
+  readonly isUrlEditable: boolean;
 }
 
 export type InvalidCell = ICell & {

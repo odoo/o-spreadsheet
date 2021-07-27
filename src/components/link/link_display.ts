@@ -9,7 +9,7 @@ const { xml, css } = tags;
 const TEMPLATE = xml/* xml */ `
     <div class="o-link-tool" t-on-click.stop="">
       <t t-set="link" t-value="cell.link"/>
-      <a t-att-href="link.destination" target="_blank" t-on-click.prevent="openLink">
+      <a t-att-href="link.url" target="_blank" t-on-click.prevent="openLink">
         <t t-esc="cell.urlRepresentation"/>
       </a>
       <span class="o-link-icon" t-on-click="unlink">${UNLINK}</span>

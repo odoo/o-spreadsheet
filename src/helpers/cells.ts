@@ -168,6 +168,7 @@ export class DateTimeCell extends NumberCell {
 export abstract class LinkCell extends AbstractCell<TextEvaluation> implements ILinkCell {
   readonly link: Link;
   readonly content: string;
+  abstract isUrlEditable: boolean;
   abstract urlRepresentation: string;
 
   constructor(id: UID, content: string, properties: CellDisplayProperties = {}) {
@@ -188,11 +189,13 @@ export abstract class LinkCell extends AbstractCell<TextEvaluation> implements I
 
 export class WebLinkCell extends LinkCell {
   readonly urlRepresentation: string;
+  readonly isUrlEditable: boolean;
 
   constructor(id: UID, content: string, properties: CellDisplayProperties = {}) {
     super(id, content, properties);
     this.link.url = this.withHttp(this.link.url);
     this.urlRepresentation = this.link.url;
+    this.isUrlEditable = true;
   }
 
   action(env: SpreadsheetEnv) {
@@ -209,6 +212,8 @@ export class WebLinkCell extends LinkCell {
 
 export class SheetLinkCell extends LinkCell {
   private sheetId: UID;
+  readonly isUrlEditable: boolean;
+
   constructor(
     id: UID,
     content: string,
@@ -217,6 +222,7 @@ export class SheetLinkCell extends LinkCell {
   ) {
     super(id, content, properties);
     this.sheetId = parseSheetLink(this.link.url);
+    this.isUrlEditable = false;
   }
 
   action(env: SpreadsheetEnv) {

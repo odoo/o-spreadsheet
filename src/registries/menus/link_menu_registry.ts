@@ -1,5 +1,6 @@
+import { buildSheetLink } from "../../helpers";
 import { _lt } from "../../translation";
-import { MenuItemRegistry } from "../menu_items_registry";
+import { createFullMenuItem, MenuItemRegistry } from "../menu_items_registry";
 
 //------------------------------------------------------------------------------
 // Link Menu Registry
@@ -11,6 +12,20 @@ linkMenuRegistry
   .add("sheet", {
     name: _lt("Link another sheet"),
     sequence: 10,
+    children: (env) => {
+      const sheets = env.getters.getSheets();
+      return sheets.map((sheet, i) =>
+        createFullMenuItem(sheet.id, {
+          name: sheet.name,
+          sequence: i,
+          action: () => ({
+            link: { label: sheet.name, url: buildSheetLink(sheet.id) },
+            urlRepresentation: sheet.name,
+            isUrlEditable: false,
+          }),
+        })
+      );
+    },
   })
   .add("dummy1", {
     //TO remove and add via odoo
