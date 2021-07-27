@@ -9,8 +9,8 @@ const { xml, css } = tags;
 const TEMPLATE = xml/* xml */ `
     <div class="o-link-tool" t-on-click.stop="">
       <t t-set="link" t-value="cell.link"/>
-      <a t-att-href="link.url" target="_blank" t-on-click.prevent="openLink">
-        <t t-esc="link.url"/>
+      <a t-att-href="link.destination" target="_blank" t-on-click.prevent="openLink">
+        <t t-esc="cell.destinationRepresentation"/>
       </a>
       <span class="o-link-icon" t-on-click="unlink">${UNLINK}</span>
       <span class="o-link-icon" t-on-click="edit">${EDIT}</span>
@@ -48,7 +48,7 @@ export class LinkDisplay extends Component<{}, SpreadsheetEnv> {
     if (hasLink(cell)) {
       return cell;
     }
-    throw new Error("LinkDisplay Component can only be used with LinkCells");
+    throw new Error("LinkDisplay Component can only be used with link cells");
   }
 
   openLink() {

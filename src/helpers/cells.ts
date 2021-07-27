@@ -1,4 +1,4 @@
-import { DATETIME_FORMAT, LOADING } from "../constants";
+import { DATETIME_FORMAT, LOADING, NULL_FORMAT } from "../constants";
 import {
   BooleanEvaluation,
   Cell,
@@ -15,6 +15,7 @@ import {
   LinkCell as ILinkCell,
   NumberEvaluation,
   Range,
+  Sheet,
   SpreadsheetEnv,
   Style,
   TextEvaluation,
@@ -53,6 +54,37 @@ export function formatValue(value: CellValue, format?: string): string {
     case "object":
       return "0";
   }
+}
+
+export function computeFormulaFormat(
+  sheets: Record<UID, Sheet | undefined>,
+  compiledFormula: CompiledFormula,
+  dependencies: Range[]
+): string | undefined {
+  const dependenciesFormat = compiledFormula.dependenciesFormat;
+  for (let dependencyFormat of dependenciesFormat) {
+    switch (typeof dependencyFormat) {
+      case "string":
+        // dependencyFormat corresponds to a literal format which can be applied
+        // directly.
+        return dependencyFormat;
+      case "number":
+        // dependencyFormat corresponds to a dependency cell from which we must
+        // find the cell and extract the associated format
+        const ref = dependencies[dependencyFormat];
+        const s = sheets[ref.sheetId];
+        if (s) {
+          // if the reference is a range --> the first cell in the range
+          // determines the format
+          const cellRef = s.rows[ref.zone.top]?.cells[ref.zone.left];
+          if (cellRef && cellRef.format) {
+            return cellRef.format;
+          }
+        }
+        break;
+    }
+  }
+  return NULL_FORMAT;
 }
 
 abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implements ICell {
@@ -136,6 +168,8 @@ export class DateTimeCell extends NumberCell {
 export abstract class LinkCell extends AbstractCell<TextEvaluation> implements ILinkCell {
   readonly link: Link;
   readonly content: string;
+  abstract destinationRepresentation: string;
+
   constructor(id: UID, content: string, properties: CellDisplayProperties = {}) {
     const link = parseMarkdownLink(content);
     properties = {
@@ -153,29 +187,48 @@ export abstract class LinkCell extends AbstractCell<TextEvaluation> implements I
 }
 
 export class WebLinkCell extends LinkCell {
+  readonly destinationRepresentation: string;
+
   constructor(id: UID, content: string, properties: CellDisplayProperties = {}) {
     super(id, content, properties);
-    this.link.url = this.withHttp(this.link.url);
+    this.link.destination = this.withHttp(this.link.destination);
+    this.destinationRepresentation = this.link.destination;
   }
+
   action(env: SpreadsheetEnv) {
-    window.open(this.link.url, "_blank");
+    window.open(this.link.destination, "_blank");
   }
 
   /**
    * Add the `https` prefix to the url if it's missing
    */
-  private withHttp(url: string) {
+  private withHttp(url: string): string {
     // TODO handle http
     return !/^https?:\/\//i.test(url) ? `https://${url}` : url;
   }
 }
 
 export class SheetLinkCell extends LinkCell {
+  private sheetId: UID;
+  constructor(
+    id: UID,
+    content: string,
+    properties: CellDisplayProperties = {},
+    private sheetName: (sheetId: UID) => string
+  ) {
+    super(id, content, properties);
+    this.sheetId = parseSheetLink(this.link.destination);
+  }
+
   action(env: SpreadsheetEnv) {
     env.dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: env.getters.getActiveSheetId(),
-      sheetIdTo: parseSheetLink(this.link.url),
+      sheetIdTo: this.sheetId,
     });
+  }
+
+  get destinationRepresentation(): string {
+    return this.sheetName(this.sheetId);
   }
 }
 

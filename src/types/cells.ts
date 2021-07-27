@@ -44,8 +44,11 @@ export interface FormulaCell extends ICell {
 
 export interface LinkCell extends ICell {
   readonly link: Link;
+  /**
+   * Go to the link destination
+   */
   readonly action: (env: SpreadsheetEnv) => void;
-  readonly content: string;
+  readonly destinationRepresentation: string;
 }
 
 export type InvalidCell = ICell & {

@@ -12,7 +12,7 @@ export type LinkType = "url" | "sheet";
 
 export interface Link {
   label: string;
-  url: string;
+  destination: string;
 }
 
 // export interface MenuPosition {

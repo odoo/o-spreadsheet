@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { MENU_WIDTH } from "../../constants";
-import { buildSheetLink, hasLink } from "../../helpers";
+import { buildSheetLink, hasLink, markdownLink } from "../../helpers";
 import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
 import { Coordinates, Link, Position, Sheet, SpreadsheetEnv } from "../../types";
 import { menuComponentHeight } from "../helpers/menu";
@@ -27,11 +27,11 @@ const TEMPLATE = xml/* xml */ `
 
         <div t-esc="env._t('${LinkEditorTerms.Link}')" class="o-section-title mt-3"/>
         <div class="o-input-button-inside">
-          <input type="text" t-ref="urlInput" class="o-input-inside" t-model="state.link.url"></input>
-          <button t-if="state.link.url" class="o-button-inside" t-on-click="removeLink">
+          <input type="text" t-ref="urlInput" class="o-input-inside" t-model="state.link.destination" autofocus=""></input>
+          <button t-if="state.link.destination" class="o-button-inside" t-on-click="removeLink">
             ✖
           </button>
-          <button t-if="!state.link.url" class="o-button-inside" t-ref="menuButton" t-on-click="openMenu">
+          <button t-if="!state.link.destination" class="o-button-inside" t-on-click="openMenu">
             ${LIST}
           </button>
         </div>
@@ -48,7 +48,7 @@ const TEMPLATE = xml/* xml */ `
       </Popover>
       <div class="o-buttons">
         <button t-on-click="cancel" class="o-button" t-esc="env._t('${LinkEditorTerms.Cancel}')"></button>
-        <button t-on-click="save" t-att-disabled="!state.link.url" class="o-button" t-esc="env._t('${LinkEditorTerms.Confirm}')"></button>
+        <button t-on-click="save" t-att-disabled="!state.link.destination" class="o-button" t-esc="env._t('${LinkEditorTerms.Confirm}')"></button>
       </div>
     </div>`;
 
@@ -148,7 +148,6 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
     isOpen: false,
   });
   private position = usePositionInGrid();
-  menuButton = useRef("menuButton");
   urlInput = useRef("urlInput");
 
   mounted() {
@@ -160,9 +159,9 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
     const sheetId = this.getters.getActiveSheetId();
     const cell = this.getters.getCell(sheetId, col, row);
     if (hasLink(cell)) {
-      return { url: cell.link.url, label: cell.formattedValue };
+      return { destination: cell.link.destination, label: cell.formattedValue };
     }
-    return { url: "", label: "" };
+    return { destination: "", label: "" };
   }
 
   get menuPosition(): Coordinates {
@@ -189,7 +188,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   }
 
   selectSheet(sheet: Sheet) {
-    this.state.link.url = buildSheetLink(sheet.id);
+    this.state.link.destination = buildSheetLink(sheet.id);
     this.state.link.label = sheet.name;
   }
 
@@ -198,17 +197,17 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   }
 
   removeLink() {
-    this.state.link.url = "";
+    this.state.link.destination = "";
   }
 
   save() {
     const { col, row } = this.props.position;
-    const label = this.state.link.label || this.state.link.url;
+    const label = this.state.link.label || this.state.link.destination;
     this.env.dispatch("UPDATE_CELL", {
       col: col,
       row: row,
       sheetId: this.getters.getActiveSheetId(),
-      content: `[${label}](${this.state.link.url})`,
+      content: markdownLink(label, this.state.link.destination),
     });
     this.trigger("close-link-editor");
   }

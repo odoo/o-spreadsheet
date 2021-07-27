@@ -1,30 +1,11 @@
-import { DATETIME_FORMAT, DEFAULT_ERROR_MESSAGE } from "../../constants";
-import { compile, normalize } from "../../formulas/index";
+import { DATETIME_FORMAT, NULL_FORMAT } from "../../constants";
+import { compile } from "../../formulas/index";
 import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
+import { FormulaCell, isEmpty, isFormula } from "../../helpers/cells";
+import { cellFactory } from "../../helpers/cell_factory";
 import {
-  BooleanCell,
-  DateTimeCell,
-  EmptyCell,
-  FormulaCell,
-  InvalidFormulaCell,
-  isEmpty,
-  isFormula,
-  NumberCell,
-  SheetLinkCell,
-  TextCell,
-  WebLinkCell,
-} from "../../helpers/cells";
-import { parseDateTime } from "../../helpers/dates";
-import {
-  isBoolean,
-  isDateTime,
   isInside,
-  isMarkdownLink,
-  isMarkdownSheetLink,
-  isNumber,
-  isWebLink,
   maximumDecimalPlaces,
-  parseNumber,
   range,
   stringify,
   toCartesian,
@@ -36,11 +17,9 @@ import {
   ApplyRangeChange,
   Cell,
   CellData,
-  CellDisplayProperties,
   CellPosition,
   CellValueType,
   CommandResult,
-  CompiledFormula,
   CoreCommand,
   ExcelWorkbookData,
   Range,
@@ -76,6 +55,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   ];
 
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
+
+  private createCell = cellFactory(this.getters);
 
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
     for (const sheet of Object.keys(this.cells)) {
@@ -441,10 +422,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         { format: cellData?.format, style }
       );
     } else {
-      return this.createCell(sheet, uuidv4(), cellData?.content || "", {
-        format: cellData?.format,
-        style,
-      });
+      const properties = { format: cellData?.format, style };
+      return this.createCell(uuidv4(), cellData?.content || "", properties, sheet.id);
     }
   }
 
@@ -587,7 +566,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     } else {
       style = before ? before.style : undefined;
     }
-    let format = ("format" in after ? after.format : before && before.format) || this.NULL_FORMAT;
+    let format = ("format" in after ? after.format : before && before.format) || NULL_FORMAT;
 
     /* Read the following IF as:
      * we need to remove the cell if it is completely empty, but we can know if it completely empty if:
@@ -621,107 +600,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     if (before && !didContentChange) {
       cell = before.withDisplayProperties({ format, style });
     } else {
-      cell = this.createCell(sheet, cellId, afterContent, {
-        style,
-        format,
-      });
+      const properties = { style, format };
+      cell = this.createCell(cellId, afterContent, properties, sheet.id);
     }
     this.history.update("cells", sheet.id, cell.id, cell);
     this.dispatch("UPDATE_CELL_POSITION", { cell, cellId: cell.id, col, row, sheetId: sheet.id });
-  }
-
-  private createCell(
-    sheet: Sheet,
-    id: UID,
-    content: string,
-    properties: CellDisplayProperties
-  ): Cell {
-    debugger;
-    if (content.startsWith("=")) {
-      const formula = normalize(content);
-      try {
-        const normalizedText = formula.text;
-        const compiledFormula = compile(formula);
-        const ranges = formula.dependencies.map((xc) =>
-          this.getters.getRangeFromSheetXC(sheet.id, xc)
-        );
-        const format = properties.format || this.computeFormulaFormat(compiledFormula, ranges);
-        return new FormulaCell(
-          (normalizedText, dependencies) =>
-            this.getters.buildFormulaContent(sheet.id, normalizedText, dependencies),
-          id,
-          normalizedText,
-          compiledFormula,
-          ranges,
-          {
-            ...properties,
-            format,
-          }
-        );
-      } catch (error) {
-        return new InvalidFormulaCell(
-          id,
-          content,
-          error.message || DEFAULT_ERROR_MESSAGE,
-          properties
-        );
-      }
-    } else if (content === "") {
-      return new EmptyCell(id, properties);
-    } else if (isNumber(content)) {
-      if (!properties.format && content.includes("%")) {
-        properties.format = content.includes(".") ? "0.00%" : "0%";
-      }
-      return new NumberCell(id, parseNumber(content), properties);
-    } else if (isBoolean(content)) {
-      return new BooleanCell(id, content.toUpperCase() === "TRUE" ? true : false, properties);
-    } else if (isDateTime(content)) {
-      const internalDate = parseDateTime(content)!;
-      const format = properties.format || internalDate.format;
-      return new DateTimeCell(id, internalDate.value, { ...properties, format });
-    } else if (isMarkdownSheetLink(content)) {
-      debugger;
-      return new SheetLinkCell(id, content, properties);
-    } else if (isMarkdownLink(content)) {
-      return new WebLinkCell(id, content, properties);
-    } else if (isWebLink(content)) {
-      return new WebLinkCell(id, `[${content}](${content})`, properties);
-    } else {
-      return new TextCell(id, content, properties);
-    }
-  }
-
-  NULL_FORMAT = undefined;
-
-  private computeFormulaFormat(
-    compiledFormula: CompiledFormula,
-    dependencies: Range[]
-  ): string | undefined {
-    const dependenciesFormat = compiledFormula.dependenciesFormat;
-    for (let dependencyFormat of dependenciesFormat) {
-      switch (typeof dependencyFormat) {
-        case "string":
-          // dependencyFormat corresponds to a literal format which can be applied
-          // directly.
-          return dependencyFormat;
-        case "number":
-          // dependencyFormat corresponds to a dependency cell from which we must
-          // find the cell and extract the associated format
-          const ref = dependencies[dependencyFormat];
-          const sheets = this.getters.getEvaluationSheets();
-          const s = sheets[ref.sheetId];
-          if (s) {
-            // if the reference is a range --> the first cell in the range
-            // determines the format
-            const cellRef = s.rows[ref.zone.top]?.cells[ref.zone.left];
-            if (cellRef && cellRef.format) {
-              return cellRef.format;
-            }
-          }
-          break;
-      }
-    }
-    return this.NULL_FORMAT;
   }
 
   private checkCellOutOfSheet(sheetId: UID, col: number, row: number): CommandResult {

@@ -145,37 +145,46 @@ export function isWebLink(str: string): boolean {
   return WEB_LINK_REGEX.test(str);
 }
 
+/**
+ * Build a markdown link from a label and an url
+ */
+export function markdownLink(label: string, url: string): string {
+  return `[${label}](${url})`;
+}
+
 export function parseMarkdownLink(str: string): Link {
   const matches = str.match(MARKDOWN_LINK_REGEX) || [];
   const label = matches[1];
-  const url = matches[2];
-  if (!label || !url) {
+  const destination = matches[2];
+  if (!label || !destination) {
     throw new Error(`Could not parse markdown link ${str}.`);
   }
   return {
     label,
-    url,
+    destination,
   };
 }
+
+const O_SPREADSHEET_LINK_PREFIX = "o-spreadsheet://";
 
 export function isMarkdownSheetLink(str: string) {
   if (!isMarkdownLink(str)) {
     return false;
   }
-  const { url } = parseMarkdownLink(str);
-  return url.startsWith("sheet:");
+  const { destination } = parseMarkdownLink(str);
+  return destination.startsWith(O_SPREADSHEET_LINK_PREFIX);
 }
 
 export function buildSheetLink(sheetId: UID) {
-  return `sheet:${sheetId}`;
+  return `${O_SPREADSHEET_LINK_PREFIX}${sheetId}`;
 }
 
 /**
  * Return the sheet id
  */
 export function parseSheetLink(sheetLink: UID) {
-  if (sheetLink.startsWith("sheet:")) {
-    return sheetLink.substr(6);
+  if (sheetLink.startsWith(O_SPREADSHEET_LINK_PREFIX)) {
+    return sheetLink.substr(O_SPREADSHEET_LINK_PREFIX.length);
   }
   throw new Error(`${sheetLink} is not a valid sheet link`);
 }

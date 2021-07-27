@@ -84,3 +84,5 @@ export const DEFAULT_ERROR_MESSAGE = _lt("Invalid expression");
 
 export const FORBIDDEN_SHEET_CHARS = ["'", "*", "?", "/", "\\", "[", "]"] as const;
 export const FORBIDDEN_IN_EXCEL_REGEX = /'|\*|\?|\/|\\|\[|\]/;
+
+export const NULL_FORMAT = undefined;
