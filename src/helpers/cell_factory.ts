@@ -1,6 +1,6 @@
 import { DEFAULT_ERROR_MESSAGE } from "../constants";
 import { compile, normalize } from "../formulas";
-import { cellTypes } from "../registries/cell_registry";
+import { cellRegistry } from "../registries/cell_types";
 import { CellDisplayProperties, CoreGetters, UID } from "../types";
 import {
   BooleanCell,
@@ -25,7 +25,7 @@ import {
 } from "./misc";
 import { isNumber, parseNumber } from "./numbers";
 
-cellTypes
+cellRegistry
   .add("Formula", {
     sequence: 10,
     match: (content) => content.startsWith("="),
@@ -100,7 +100,7 @@ cellTypes
         content,
         properties,
         (sheetId) => getters.getSheetName(sheetId) || ""
-      ); // TODO check this crap: || ""
+      ); // TODO check this crappy fallback
     },
   })
   .add("MarkdownLink", {
@@ -127,7 +127,7 @@ cellTypes
  * Return a factory function which can create cells
  */
 export function cellFactory(getters: CoreGetters) {
-  const factories = cellTypes.getAll().sort((a, b) => a.sequence - b.sequence);
+  const factories = cellRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
   return function createCell(
     id: UID,
     content: string,

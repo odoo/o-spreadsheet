@@ -164,7 +164,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   activateMenu(menu: FullMenuItem) {
     const result = menu.action(this.env);
     this.close();
-    this.trigger(`menu-clicked-${menu.id}`, result)
+    this.trigger(`menu-clicked-${menu.id}`, result);
   }
 
   private close() {

@@ -6,10 +6,8 @@ import { Cell, CellDisplayProperties, CoreGetters, UID } from "../types";
 //------------------------------------------------------------------------------
 
 /**
- * This registry is intended to map a type of cell (tag) to a class of
- * component, that will be used in the UI to represent the figure.
- *
- * The most important type of figure will be the Chart
+ * This registry is intended to map a cell content (raw string) to
+ * an instance of a cell.
  */
 
 interface CellFactory {
@@ -24,4 +22,4 @@ interface CellFactory {
   ) => Cell;
 }
 
-export const cellTypes = new Registry<CellFactory>();
+export const cellRegistry = new Registry<CellFactory>();

@@ -155,13 +155,13 @@ export function markdownLink(label: string, url: string): string {
 export function parseMarkdownLink(str: string): Link {
   const matches = str.match(MARKDOWN_LINK_REGEX) || [];
   const label = matches[1];
-  const destination = matches[2];
-  if (!label || !destination) {
+  const url = matches[2];
+  if (!label || !url) {
     throw new Error(`Could not parse markdown link ${str}.`);
   }
   return {
     label,
-    destination,
+    url,
   };
 }
 
@@ -171,8 +171,8 @@ export function isMarkdownSheetLink(str: string) {
   if (!isMarkdownLink(str)) {
     return false;
   }
-  const { destination } = parseMarkdownLink(str);
-  return destination.startsWith(O_SPREADSHEET_LINK_PREFIX);
+  const { url } = parseMarkdownLink(str);
+  return url.startsWith(O_SPREADSHEET_LINK_PREFIX);
 }
 
 export function buildSheetLink(sheetId: UID) {

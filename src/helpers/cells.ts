@@ -168,7 +168,7 @@ export class DateTimeCell extends NumberCell {
 export abstract class LinkCell extends AbstractCell<TextEvaluation> implements ILinkCell {
   readonly link: Link;
   readonly content: string;
-  abstract destinationRepresentation: string;
+  abstract urlRepresentation: string;
 
   constructor(id: UID, content: string, properties: CellDisplayProperties = {}) {
     const link = parseMarkdownLink(content);
@@ -187,16 +187,16 @@ export abstract class LinkCell extends AbstractCell<TextEvaluation> implements I
 }
 
 export class WebLinkCell extends LinkCell {
-  readonly destinationRepresentation: string;
+  readonly urlRepresentation: string;
 
   constructor(id: UID, content: string, properties: CellDisplayProperties = {}) {
     super(id, content, properties);
-    this.link.destination = this.withHttp(this.link.destination);
-    this.destinationRepresentation = this.link.destination;
+    this.link.url = this.withHttp(this.link.url);
+    this.urlRepresentation = this.link.url;
   }
 
   action(env: SpreadsheetEnv) {
-    window.open(this.link.destination, "_blank");
+    window.open(this.link.url, "_blank");
   }
 
   /**
@@ -216,7 +216,7 @@ export class SheetLinkCell extends LinkCell {
     private sheetName: (sheetId: UID) => string
   ) {
     super(id, content, properties);
-    this.sheetId = parseSheetLink(this.link.destination);
+    this.sheetId = parseSheetLink(this.link.url);
   }
 
   action(env: SpreadsheetEnv) {
@@ -226,7 +226,7 @@ export class SheetLinkCell extends LinkCell {
     });
   }
 
-  get destinationRepresentation(): string {
+  get urlRepresentation(): string {
     return this.sheetName(this.sheetId);
   }
 }

@@ -48,7 +48,7 @@ export interface LinkCell extends ICell {
    * Go to the link destination
    */
   readonly action: (env: SpreadsheetEnv) => void;
-  readonly destinationRepresentation: string;
+  readonly urlRepresentation: string;
 }
 
 export type InvalidCell = ICell & {

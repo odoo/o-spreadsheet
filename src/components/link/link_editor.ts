@@ -159,9 +159,9 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
     const sheetId = this.getters.getActiveSheetId();
     const cell = this.getters.getCell(sheetId, col, row);
     if (hasLink(cell)) {
-      return { destination: cell.link.destination, label: cell.formattedValue };
+      return { url: cell.link.url, label: cell.formattedValue };
     }
-    return { destination: "", label: "" };
+    return { url: "", label: "" };
   }
 
   get menuPosition(): Coordinates {
@@ -188,7 +188,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   }
 
   selectSheet(sheet: Sheet) {
-    this.state.link.destination = buildSheetLink(sheet.id);
+    this.state.link.url = buildSheetLink(sheet.id);
     this.state.link.label = sheet.name;
   }
 
@@ -197,17 +197,17 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   }
 
   removeLink() {
-    this.state.link.destination = "";
+    this.state.link.url = "";
   }
 
   save() {
     const { col, row } = this.props.position;
-    const label = this.state.link.label || this.state.link.destination;
+    const label = this.state.link.label || this.state.link.url;
     this.env.dispatch("UPDATE_CELL", {
       col: col,
       row: row,
       sheetId: this.getters.getActiveSheetId(),
-      content: markdownLink(label, this.state.link.destination),
+      content: markdownLink(label, this.state.link.url),
     });
     this.trigger("close-link-editor");
   }
