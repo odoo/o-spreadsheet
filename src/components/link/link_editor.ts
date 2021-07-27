@@ -18,7 +18,7 @@ const HEIGHT = 160;
 const PADDING = 10;
 
 const TEMPLATE = xml/* xml */ `
-    <div class="o-link-editor" t-on-click.stop="" t-on-keydown.stop="">
+    <div class="o-link-editor" t-on-click.stop="" t-on-keydown.stop="onKeyDown">
       <div class="o-section">
         <div t-esc="env._t('${LinkEditorTerms.Text}')" class="o-section-title"/>
         <div class="d-flex">
@@ -27,7 +27,7 @@ const TEMPLATE = xml/* xml */ `
 
         <div t-esc="env._t('${LinkEditorTerms.Link}')" class="o-section-title mt-3"/>
         <div class="o-input-button-inside">
-          <input type="text" t-ref="urlInput" class="o-input-inside" t-model="state.link.destination" autofocus=""></input>
+          <input type="text" t-ref="urlInput" class="o-input-inside" t-model="state.link.destination"></input>
           <button t-if="state.link.destination" class="o-button-inside" t-on-click="removeLink">
             ✖
           </button>
@@ -214,5 +214,16 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
 
   cancel() {
     this.trigger("close-link-editor");
+  }
+
+  onKeyDown(ev: KeyboardEvent) {
+    switch (ev.key) {
+      case "Enter":
+        this.save();
+        break;
+      case "Escape":
+        this.cancel();
+        break;
+    }
   }
 }

@@ -1,6 +1,6 @@
 import { DEFAULT_ERROR_MESSAGE } from "../constants";
 import { compile, normalize } from "../formulas";
-import { cellRegistry } from "../registries/cell_registry";
+import { cellTypes } from "../registries/cell_registry";
 import { CellDisplayProperties, CoreGetters, UID } from "../types";
 import {
   BooleanCell,
@@ -25,8 +25,8 @@ import {
 } from "./misc";
 import { isNumber, parseNumber } from "./numbers";
 
-cellRegistry
-  .add("formula", {
+cellTypes
+  .add("Formula", {
     sequence: 10,
     match: (content) => content.startsWith("="),
     createCell: (id, content, properties, sheetId, getters) => {
@@ -60,12 +60,12 @@ cellRegistry
       }
     },
   })
-  .add("empty", {
+  .add("Empty", {
     sequence: 20,
     match: (content) => content === "",
     createCell: (id, content, properties) => new EmptyCell(id, properties),
   })
-  .add("number", {
+  .add("Number", {
     sequence: 30,
     match: (content) => isNumber(content),
     createCell: (id, content, properties) => {
@@ -75,14 +75,14 @@ cellRegistry
       return new NumberCell(id, parseNumber(content), properties);
     },
   })
-  .add("boolean", {
+  .add("Boolean", {
     sequence: 40,
     match: (content) => isBoolean(content),
     createCell: (id, content, properties) => {
       return new BooleanCell(id, content.toUpperCase() === "TRUE" ? true : false, properties);
     },
   })
-  .add("dateTime", {
+  .add("DateTime", {
     sequence: 50,
     match: (content) => isDateTime(content),
     createCell: (id, content, properties) => {
@@ -91,7 +91,7 @@ cellRegistry
       return new DateTimeCell(id, internalDate.value, { ...properties, format });
     },
   })
-  .add("markdownSheetLink", {
+  .add("MarkdownSheetLink", {
     sequence: 60,
     match: (content) => isMarkdownSheetLink(content),
     createCell: (id, content, properties, sheetId, getters) => {
@@ -127,7 +127,7 @@ cellRegistry
  * Return a factory function which can create cells
  */
 export function cellFactory(getters: CoreGetters) {
-  const factories = cellRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
+  const factories = cellTypes.getAll().sort((a, b) => a.sequence - b.sequence);
   return function createCell(
     id: UID,
     content: string,

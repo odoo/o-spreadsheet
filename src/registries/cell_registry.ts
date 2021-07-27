@@ -24,4 +24,4 @@ interface CellFactory {
   ) => Cell;
 }
 
-export const cellRegistry = new Registry<CellFactory>();
+export const cellTypes = new Registry<CellFactory>();

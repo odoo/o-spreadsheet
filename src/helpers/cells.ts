@@ -203,7 +203,6 @@ export class WebLinkCell extends LinkCell {
    * Add the `https` prefix to the url if it's missing
    */
   private withHttp(url: string): string {
-    // TODO handle http
     return !/^https?:\/\//i.test(url) ? `https://${url}` : url;
   }
 }
