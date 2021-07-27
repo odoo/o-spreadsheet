@@ -9,7 +9,7 @@ import {
   MIN_CF_ICON_MARGIN,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
-import { ConsecutiveIndexes, Link, Style } from "../types";
+import { ConsecutiveIndexes, Link, Style, UID } from "../types";
 import { parseDateTime } from "./dates";
 /**
  * Stringify an object, like JSON.stringify, except that the first level of keys
@@ -146,10 +146,9 @@ export function isWebLink(str: string): boolean {
 }
 
 export function parseMarkdownLink(str: string): Link {
-  const matchs = str.match(MARKDOWN_LINK_REGEX) || [];
-  const label = matchs[1];
-  const withHttp = (url) => (!/^https?:\/\//i.test(url) ? `https://${url}` : url);
-  const url = withHttp(matchs[2]);
+  const matches = str.match(MARKDOWN_LINK_REGEX) || [];
+  const label = matches[1];
+  const url = matches[2];
   if (!label || !url) {
     throw new Error(`Could not parse markdown link ${str}.`);
   }
@@ -157,6 +156,28 @@ export function parseMarkdownLink(str: string): Link {
     label,
     url,
   };
+}
+
+export function isMarkdownSheetLink(str: string) {
+  if (!isMarkdownLink(str)) {
+    return false;
+  }
+  const { url } = parseMarkdownLink(str);
+  return url.startsWith("sheet:");
+}
+
+export function buildSheetLink(sheetId: UID) {
+  return `sheet:${sheetId}`;
+}
+
+/**
+ * Return the sheet id
+ */
+export function parseSheetLink(sheetLink: UID) {
+  if (sheetLink.startsWith("sheet:")) {
+    return sheetLink.substr(6);
+  }
+  throw new Error(`${sheetLink} is not a valid sheet link`);
 }
 
 /**

@@ -141,7 +141,7 @@ export const FindAndReplaceTerms = {
 };
 
 export const LinkEditorTerms = {
-  Label: _lt("Label"),
+  Text: _lt("Text"),
   Link: _lt("Link"),
   Confirm: _lt("Confirm"),
   Cancel: _lt("Cancel"),

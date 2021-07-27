@@ -15,12 +15,13 @@ import {
   LinkCell as ILinkCell,
   NumberEvaluation,
   Range,
+  SpreadsheetEnv,
   Style,
   TextEvaluation,
   UID,
 } from "../types";
 import { formatDateTime } from "./dates";
-import { parseMarkdownLink } from "./misc";
+import { parseMarkdownLink, parseSheetLink } from "./misc";
 import { formatNumber, formatStandardNumber } from "./numbers";
 
 export function isFormula(cell: ICell): cell is IFormulaCell {
@@ -132,21 +133,49 @@ export class DateTimeCell extends NumberCell {
   }
 }
 
-export class LinkCell extends AbstractCell<TextEvaluation> {
+export abstract class LinkCell extends AbstractCell<TextEvaluation> implements ILinkCell {
   readonly link: Link;
   readonly content: string;
-  constructor(id: UID, content: string, options: CellDisplayProperties = {}) {
+  constructor(id: UID, content: string, properties: CellDisplayProperties = {}) {
     const link = parseMarkdownLink(content);
-    options = {
-      ...options,
+    properties = {
+      ...properties,
       style: {
-        ...options.style,
+        ...properties.style,
         textColor: "#007bff",
       },
     };
-    super(id, { value: link.label, type: CellValueType.text }, options);
+    super(id, { value: link.label, type: CellValueType.text }, properties);
     this.link = link;
     this.content = content;
+  }
+  abstract action(env: SpreadsheetEnv): void;
+}
+
+export class WebLinkCell extends LinkCell {
+  constructor(id: UID, content: string, properties: CellDisplayProperties = {}) {
+    super(id, content, properties);
+    this.link.url = this.withHttp(this.link.url);
+  }
+  action(env: SpreadsheetEnv) {
+    window.open(this.link.url, "_blank");
+  }
+
+  /**
+   * Add the `https` prefix to the url if it's missing
+   */
+  private withHttp(url: string) {
+    // TODO handle http
+    return !/^https?:\/\//i.test(url) ? `https://${url}` : url;
+  }
+}
+
+export class SheetLinkCell extends LinkCell {
+  action(env: SpreadsheetEnv) {
+    env.dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: env.getters.getActiveSheetId(),
+      sheetIdTo: parseSheetLink(this.link.url),
+    });
   }
 }
 
@@ -191,7 +220,7 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
         };
         break;
       // the two following cases seem wrong.
-      //`null` and `undefined` values are not allowed according to `CellValue`
+      // `null` and `undefined` values are not allowed according to `CellValue`
       // `CellValue` is incomplete
       case "object": // null ?
         this.evaluated = {

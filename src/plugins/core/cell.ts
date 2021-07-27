@@ -9,9 +9,10 @@ import {
   InvalidFormulaCell,
   isEmpty,
   isFormula,
-  LinkCell,
   NumberCell,
+  SheetLinkCell,
   TextCell,
+  WebLinkCell,
 } from "../../helpers/cells";
 import { parseDateTime } from "../../helpers/dates";
 import {
@@ -19,6 +20,7 @@ import {
   isDateTime,
   isInside,
   isMarkdownLink,
+  isMarkdownSheetLink,
   isNumber,
   isWebLink,
   maximumDecimalPlaces,
@@ -628,7 +630,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     this.dispatch("UPDATE_CELL_POSITION", { cell, cellId: cell.id, col, row, sheetId: sheet.id });
   }
 
-  private createCell(sheet: Sheet, id: UID, content: string, options: CellDisplayProperties): Cell {
+  private createCell(
+    sheet: Sheet,
+    id: UID,
+    content: string,
+    properties: CellDisplayProperties
+  ): Cell {
+    debugger;
     if (content.startsWith("=")) {
       const formula = normalize(content);
       try {
@@ -637,7 +645,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         const ranges = formula.dependencies.map((xc) =>
           this.getters.getRangeFromSheetXC(sheet.id, xc)
         );
-        const format = options.format || this.computeFormulaFormat(compiledFormula, ranges);
+        const format = properties.format || this.computeFormulaFormat(compiledFormula, ranges);
         return new FormulaCell(
           (normalizedText, dependencies) =>
             this.getters.buildFormulaContent(sheet.id, normalizedText, dependencies),
@@ -646,32 +654,40 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           compiledFormula,
           ranges,
           {
-            ...options,
+            ...properties,
             format,
           }
         );
       } catch (error) {
-        return new InvalidFormulaCell(id, content, error.message || DEFAULT_ERROR_MESSAGE, options);
+        return new InvalidFormulaCell(
+          id,
+          content,
+          error.message || DEFAULT_ERROR_MESSAGE,
+          properties
+        );
       }
     } else if (content === "") {
-      return new EmptyCell(id, options);
+      return new EmptyCell(id, properties);
     } else if (isNumber(content)) {
-      if (!options.format && content.includes("%")) {
-        options.format = content.includes(".") ? "0.00%" : "0%";
+      if (!properties.format && content.includes("%")) {
+        properties.format = content.includes(".") ? "0.00%" : "0%";
       }
-      return new NumberCell(id, parseNumber(content), options);
+      return new NumberCell(id, parseNumber(content), properties);
     } else if (isBoolean(content)) {
-      return new BooleanCell(id, content.toUpperCase() === "TRUE" ? true : false, options);
+      return new BooleanCell(id, content.toUpperCase() === "TRUE" ? true : false, properties);
     } else if (isDateTime(content)) {
       const internalDate = parseDateTime(content)!;
-      const format = options.format || internalDate.format;
-      return new DateTimeCell(id, internalDate.value, { ...options, format });
+      const format = properties.format || internalDate.format;
+      return new DateTimeCell(id, internalDate.value, { ...properties, format });
+    } else if (isMarkdownSheetLink(content)) {
+      debugger;
+      return new SheetLinkCell(id, content, properties);
     } else if (isMarkdownLink(content)) {
-      return new LinkCell(id, content, options);
+      return new WebLinkCell(id, content, properties);
     } else if (isWebLink(content)) {
-      return new LinkCell(id, "[" + content + "](" + content + ")", options);
+      return new WebLinkCell(id, `[${content}](${content})`, properties);
     } else {
-      return new TextCell(id, content, options);
+      return new TextCell(id, content, properties);
     }
   }
 

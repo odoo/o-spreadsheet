@@ -8,7 +8,7 @@ import { NormalizedFormula } from "./workbook_data";
 
 export type UID = string;
 
-export type LinkType = "url";
+export type LinkType = "url" | "sheet";
 
 export interface Link {
   label: string;

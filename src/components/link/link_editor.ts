@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { MENU_WIDTH } from "../../constants";
-import { hasLink } from "../../helpers";
+import { buildSheetLink, hasLink } from "../../helpers";
 import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
 import { Coordinates, Link, Position, Sheet, SpreadsheetEnv } from "../../types";
 import { menuComponentHeight } from "../helpers/menu";
@@ -20,18 +20,18 @@ const PADDING = 10;
 const TEMPLATE = xml/* xml */ `
     <div class="o-link-editor" t-on-click.stop="" t-on-keydown.stop="">
       <div class="o-section">
-        <div t-esc="env._t('${LinkEditorTerms.Label}')" class="o-section-title"/>
+        <div t-esc="env._t('${LinkEditorTerms.Text}')" class="o-section-title"/>
         <div class="d-flex">
-          <input type="text" class="o-input flex-grow-1" t-model="linkEditorState.link.label"></input>
+          <input type="text" class="o-input flex-grow-1" t-model="state.link.label"></input>
         </div>
 
         <div t-esc="env._t('${LinkEditorTerms.Link}')" class="o-section-title mt-3"/>
         <div class="o-input-button-inside">
-          <input type="text" t-ref="urlInput" class="o-input-inside" t-model="linkEditorState.link.url"></input>
-          <button t-if="linkEditorState.link.url" class="o-button-inside" t-on-click="removeLink">
+          <input type="text" t-ref="urlInput" class="o-input-inside" t-model="state.link.url"></input>
+          <button t-if="state.link.url" class="o-button-inside" t-on-click="removeLink">
             ✖
           </button>
-          <button t-if="!linkEditorState.link.url" class="o-button-inside" t-ref="menuButton" t-on-click="openMenu">
+          <button t-if="!state.link.url" class="o-button-inside" t-ref="menuButton" t-on-click="openMenu">
             ${LIST}
           </button>
         </div>
@@ -48,7 +48,7 @@ const TEMPLATE = xml/* xml */ `
       </Popover>
       <div class="o-buttons">
         <button t-on-click="cancel" class="o-button" t-esc="env._t('${LinkEditorTerms.Cancel}')"></button>
-        <button t-on-click="save" t-att-disabled="!linkEditorState.link.url" class="o-button" t-esc="env._t('${LinkEditorTerms.Confirm}')"></button>
+        <button t-on-click="save" t-att-disabled="!state.link.url" class="o-button" t-esc="env._t('${LinkEditorTerms.Confirm}')"></button>
       </div>
     </div>`;
 
@@ -129,7 +129,7 @@ export interface LinkEditorProps {
   position: Position;
 }
 
-interface LinkEditorState {
+interface state {
   link: Link;
   position: Position;
 }
@@ -139,7 +139,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   static components = { Menu, Popover };
   static style = CSS;
   private getters = this.env.getters;
-  private linkEditorState: LinkEditorState = useState({
+  private state: state = useState({
     link: this.link,
     position: this.props.position,
   });
@@ -189,7 +189,8 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   }
 
   selectSheet(sheet: Sheet) {
-    console.log(sheet.name);
+    this.state.link.url = buildSheetLink(sheet.id);
+    this.state.link.label = sheet.name;
   }
 
   openMenu() {
@@ -197,17 +198,17 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   }
 
   removeLink() {
-    this.linkEditorState.link.url = "";
+    this.state.link.url = "";
   }
 
   save() {
     const { col, row } = this.props.position;
-    const label = this.linkEditorState.link.label || this.linkEditorState.link.url;
+    const label = this.state.link.label || this.state.link.url;
     this.env.dispatch("UPDATE_CELL", {
       col: col,
       row: row,
       sheetId: this.getters.getActiveSheetId(),
-      content: `[${label}](${this.linkEditorState.link.url})`,
+      content: `[${label}](${this.state.link.url})`,
     });
     this.trigger("close-link-editor");
   }

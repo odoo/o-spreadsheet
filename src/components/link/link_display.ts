@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { hasLink } from "../../helpers";
-import { Link, SpreadsheetEnv } from "../../types";
+import { LinkCell, SpreadsheetEnv } from "../../types";
 import { EDIT, UNLINK } from "../icons";
 import { Menu } from "../menu";
 const { Component, tags } = owl;
@@ -8,7 +8,8 @@ const { xml, css } = tags;
 
 const TEMPLATE = xml/* xml */ `
     <div class="o-link-tool" t-on-click.stop="">
-      <a t-att-href="link.url" target="_blank">
+      <t t-set="link" t-value="cell.link"/>
+      <a t-att-href="link.url" target="_blank" t-on-click.prevent="openLink">
         <t t-esc="link.url"/>
       </a>
       <span class="o-link-icon" t-on-click="unlink">${UNLINK}</span>
@@ -39,15 +40,20 @@ export class LinkDisplay extends Component<{}, SpreadsheetEnv> {
   static style = CSS;
   private getters = this.env.getters;
 
-  get link(): Link {
+  get cell(): LinkCell {
     const [col, row] = this.getters.getPosition();
     const sheetId = this.getters.getActiveSheetId();
     const [mainCol, mainRow] = this.getters.getMainCell(sheetId, col, row);
     const cell = this.getters.getCell(sheetId, mainCol, mainRow);
     if (hasLink(cell)) {
-      return { url: cell.link.url, label: cell.formattedValue };
+      return cell;
     }
-    return { url: "", label: "" };
+    throw new Error("LinkDisplay Component can only be used with LinkCells");
+  }
+
+  openLink() {
+    this.cell.action(this.env);
+    this.trigger("close");
   }
 
   edit() {
@@ -62,7 +68,7 @@ export class LinkDisplay extends Component<{}, SpreadsheetEnv> {
       col: mainCol,
       row: mainRow,
       sheetId: this.getters.getActiveSheetId(),
-      content: this.link.label,
+      content: this.cell.link.label,
     });
     this.trigger("close");
   }

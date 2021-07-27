@@ -1,12 +1,15 @@
 import * as owl from "@odoo/owl";
 import { Component, hooks, tags } from "@odoo/owl";
 import Chart, { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../constants";
+import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../constants";
 import { MenuItemRegistry } from "../../registries/index";
 import { _lt } from "../../translation";
 import { Figure, SpreadsheetEnv } from "../../types";
+import { menuComponentHeight } from "../helpers/menu";
+import { usePositionInGrid } from "../helpers/position_hook";
 import { LIST } from "../icons";
 import { Menu, MenuState } from "../menu";
+import { Popover } from "../popover";
 const { useState } = owl;
 
 const { xml, css } = tags;
@@ -16,10 +19,15 @@ const TEMPLATE = xml/* xml */ `
 <div class="o-chart-container">
   <div class="o-chart-menu" t-on-click="showMenu">${LIST}</div>
   <canvas t-att-style="canvasStyle" t-ref="graphContainer"/>
-  <Menu t-if="menuState.isOpen"
+  <Popover
+    t-if="menuState.isOpen"
     position="menuState.position"
-    menuItems="menuState.menuItems"
-    t-on-close="menuState.isOpen=false"/>
+    childWidth="${MENU_WIDTH}"
+    childHeight="menuComponentHeight">
+    <Menu
+      menuItems="menuState.menuItems"
+      t-on-close="menuState.isOpen=false"/>
+  </Popover>
 </div>`;
 
 // -----------------------------------------------------------------------------
@@ -60,15 +68,20 @@ interface State {
 export class ChartFigure extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { Menu };
+  static components = { Menu, Popover };
   private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
   canvas = useRef("graphContainer");
   private chart?: Chart;
   private state: State = { background: BACKGROUND_CHART_COLOR };
+  private position = usePositionInGrid();
 
   get canvasStyle() {
     return `background-color: ${this.state.background}`;
+  }
+
+  get menuComponentHeight(): number {
+    return menuComponentHeight(this.menuState.menuItems);
   }
 
   mounted() {
@@ -158,6 +171,9 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
     const y = target.offsetTop;
     this.menuState.isOpen = true;
     this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
-    this.menuState.position = { x, y };
+    this.menuState.position = {
+      x: this.position.x + x - MENU_WIDTH,
+      y: this.position.y + y,
+    };
   }
 }

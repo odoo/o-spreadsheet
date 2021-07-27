@@ -1,3 +1,4 @@
+import { SpreadsheetEnv } from "./env";
 import { CompiledFormula, Link, Range, Style, UID } from "./misc";
 
 export enum CellValueType {
@@ -43,6 +44,7 @@ export interface FormulaCell extends ICell {
 
 export interface LinkCell extends ICell {
   readonly link: Link;
+  readonly action: (env: SpreadsheetEnv) => void;
   readonly content: string;
 }
 

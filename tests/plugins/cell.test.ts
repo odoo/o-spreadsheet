@@ -46,11 +46,16 @@ describe("getCellText", () => {
   });
 });
 
-describe("markdown link cell", () => {
+describe("link cell", () => {
   test("can create a markdown link cell", () => {
     const model = new Model();
     setCellContent(model, "A1", "[my label](www.odoo.com)");
     expect(getCell(model, "A1")?.content).toBe("[my label](www.odoo.com)");
     expect(getCellText(model, "A1")).toBe("my label");
+  });
+
+  test("default sheet link label is not changed if sheet is renamed", () => {
+    // TODO
+    expect(2).toBe(3);
   });
 });
