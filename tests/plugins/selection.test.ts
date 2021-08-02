@@ -156,11 +156,53 @@ describe("selection", () => {
 
     // select right cell C3
     model.dispatch("ALTER_SELECTION", { cell: [2, 2] });
-
-    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 1, right: 3, left: 1, bottom: 2 });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("B2:D3"));
   });
 
-  test("extend selection through hidden columns", () => {
+  test("expand selection when starting from a merge", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          merges: ["B2:B3", "E2:G2"],
+        },
+      ],
+    });
+    selectCell(model, "B2");
+    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("B2:B4"));
+
+    selectCell(model, "B2");
+    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("B1:B3"));
+
+    selectCell(model, "B3");
+    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("B2:B4"));
+
+    selectCell(model, "B3");
+    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("B1:B3"));
+
+    selectCell(model, "E2");
+    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("E2:H2"));
+
+    selectCell(model, "E2");
+    model.dispatch("ALTER_SELECTION", { delta: [-1, 0] });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("D2:G2"));
+
+    selectCell(model, "G2");
+    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("E2:H2"));
+
+    selectCell(model, "G2");
+    model.dispatch("ALTER_SELECTION", { delta: [-1, 0] });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("D2:G2"));
+  });
+
+  test("extend and reduce selection through hidden columns", () => {
     const model = new Model({
       sheets: [
         {
@@ -173,9 +215,11 @@ describe("selection", () => {
     selectCell(model, "B1");
     model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
     expect(model.getters.getSelectedZone()).toEqual(toZone("B1:E1"));
+    model.dispatch("ALTER_SELECTION", { delta: [-1, 0] });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("B1"));
   });
 
-  test("extend selection through hidden rows", () => {
+  test("extend and reduce selection through hidden rows", () => {
     const model = new Model({
       sheets: [
         {
@@ -188,6 +232,8 @@ describe("selection", () => {
     selectCell(model, "A5");
     model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A2:A5"));
+    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A5"));
   });
 
   test("can select a whole column", () => {

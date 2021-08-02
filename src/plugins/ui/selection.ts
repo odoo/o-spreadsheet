@@ -5,6 +5,7 @@ import {
   formatStandardNumber,
   getNextVisibleCellCoords,
   isEqual,
+  organizeZone,
   range,
   union,
   uniqueZones,
@@ -565,7 +566,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   private getNextAvailableCol(delta: Increment, colIndex: number, rowIndex: number): number {
     const { cols, id: sheetId } = this.getActiveSheet();
     const position = { col: colIndex, row: rowIndex };
-    const isInPositionMerge = (nextCol) =>
+    const isInPositionMerge = (nextCol: number) =>
       this.getters.isInSameMerge(sheetId, colIndex, rowIndex, nextCol, rowIndex);
     return this.getNextAvailableHeader(delta, cols, colIndex, position, isInPositionMerge);
   }
@@ -573,7 +574,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   private getNextAvailableRow(delta: Increment, colIndex: number, rowIndex: number): number {
     const { rows, id: sheetId } = this.getActiveSheet();
     const position = { col: colIndex, row: rowIndex };
-    const isInPositionMerge = (nextRow) =>
+    const isInPositionMerge = (nextRow: number) =>
       this.getters.isInSameMerge(sheetId, colIndex, rowIndex, colIndex, nextRow);
     return this.getNextAvailableHeader(delta, rows, rowIndex, position, isInPositionMerge);
   }
@@ -643,9 +644,28 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     this.selection.anchor = anchor;
   }
 
-  private moveSelection(deltaX: Increment, deltaY: Increment) {
-    // adapt this to the hidden flow.
+  /**
+   * Finds a visible cell in the currently selected zone starting with the anchor.
+   * If the anchor is hidden, browses from left to right and top to bottom to
+   * find a visible cell.
+   */
+  private getReferencePosition(): Position {
     const sheet = this.getters.getActiveSheet();
+    const selection = this.selection;
+    const { left, right, top, bottom } = selection.anchorZone;
+    const [anchorCol, anchorRow] = selection.anchor;
+
+    return {
+      col: sheet.cols[anchorCol].isHidden
+        ? findVisibleHeader(sheet, "cols", range(left, right + 1)) || anchorCol
+        : anchorCol,
+      row: sheet.rows[anchorRow].isHidden
+        ? findVisibleHeader(sheet, "rows", range(top, bottom + 1)) || anchorRow
+        : anchorRow,
+    };
+  }
+
+  private moveSelection(deltaX: Increment, deltaY: Increment) {
     const selection = this.selection;
     let newZones: Zone[] = [];
     const [anchorCol, anchorRow] = selection.anchor;
@@ -662,24 +682,28 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       };
     };
 
-    const refCol = findVisibleHeader(sheet, "cols", range(left, right + 1));
-    const refRow = findVisibleHeader(sheet, "rows", range(top, bottom + 1));
+    const { col: refCol, row: refRow } = this.getReferencePosition();
     // check if we can shrink selection
     let n = 0;
     while (result !== null) {
       n++;
       if (deltaX < 0) {
-        result = anchorCol <= right - n ? expand({ top, left, bottom, right: right - n }) : null;
+        const newRight = this.getNextAvailableCol(deltaX, right - (n - 1), refRow);
+        result = refCol <= right - n ? expand({ top, left, bottom, right: newRight }) : null;
       }
       if (deltaX > 0) {
-        result = left + n <= anchorCol ? expand({ top, left: left + n, bottom, right }) : null;
+        const newLeft = this.getNextAvailableCol(deltaX, left + (n - 1), refRow);
+        result = left + n <= refCol ? expand({ top, left: newLeft, bottom, right }) : null;
       }
       if (deltaY < 0) {
-        result = anchorRow <= bottom - n ? expand({ top, left, bottom: bottom - n, right }) : null;
+        const newBottom = this.getNextAvailableRow(deltaY, refCol, bottom - (n - 1));
+        result = refRow <= bottom - n ? expand({ top, left, bottom: newBottom, right }) : null;
       }
       if (deltaY > 0) {
-        result = top + n <= anchorRow ? expand({ top: top + n, left, bottom, right }) : null;
+        const newTop = this.getNextAvailableRow(deltaY, refCol, top + (n - 1));
+        result = top + n <= refRow ? expand({ top: newTop, left, bottom, right }) : null;
       }
+      result = result ? organizeZone(result) : result;
       if (result && !isEqual(result, selection.anchorZone)) {
         newZones = this.updateSelectionZones(result);
         this.dispatch("SET_SELECTION", {
@@ -691,12 +715,13 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       }
     }
     const currentZone = { top: anchorRow, bottom: anchorRow, left: anchorCol, right: anchorCol };
-    const zoneWithDelta = {
-      top: this.getNextAvailableRow(deltaY, refCol!, top),
-      left: this.getNextAvailableCol(deltaX, left, refRow!),
-      bottom: this.getNextAvailableRow(deltaY, refCol!, bottom),
-      right: this.getNextAvailableCol(deltaX, right, refRow!),
-    };
+    const zoneWithDelta = organizeZone({
+      top: this.getNextAvailableRow(deltaY, refCol, top),
+      left: this.getNextAvailableCol(deltaX, left, refRow),
+      bottom: this.getNextAvailableRow(deltaY, refCol, bottom),
+      right: this.getNextAvailableCol(deltaX, right, refRow),
+    });
+
     result = expand(union(currentZone, zoneWithDelta));
     if (!isEqual(result, selection.anchorZone)) {
       newZones = this.updateSelectionZones(result);

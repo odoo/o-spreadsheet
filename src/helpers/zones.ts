@@ -493,3 +493,12 @@ export function findCellInNewZone(
   }
   return [col, row];
 }
+
+export function organizeZone(zone: Zone): Zone {
+  return {
+    top: Math.min(zone.top, zone.bottom),
+    bottom: Math.max(zone.top, zone.bottom),
+    left: Math.min(zone.left, zone.right),
+    right: Math.max(zone.left, zone.right),
+  };
+}
