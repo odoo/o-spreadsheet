@@ -276,9 +276,9 @@ export class ViewportPlugin extends UIPlugin {
     const { cols, rows } = sheet;
     const adjustedViewport = this.getSnappedViewport(sheetId);
     position = position || this.getters.getSheetPosition(sheetId);
-    const [col, row] = this.getters.getMainCell(
-      sheetId,
-      ...getNextVisibleCellCoords(sheet, position[0], position[1])
+    const [col, row] = getNextVisibleCellCoords(
+      sheet,
+      ...this.getters.getMainCell(sheetId, position[0], position[1])
     );
     while (
       cols[col].end > adjustedViewport.offsetX + this.clientWidth - HEADER_WIDTH &&
