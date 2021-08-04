@@ -551,4 +551,12 @@ describe("edition", () => {
     setCellContent(model, "B1", "");
     expect(model.getters.getCurrentContent()).toBe("");
   });
+
+  test("Setting a partial reference as content should not throw an error", () => {
+    const model = new Model();
+    model.dispatch("START_EDITION");
+    model.dispatch("SET_CURRENT_CONTENT", { content: "=Sheet1" });
+    model.dispatch("STOP_EDITION");
+    expect(model.getters.getCurrentContent()).toBe("=Sheet1");
+  });
 });

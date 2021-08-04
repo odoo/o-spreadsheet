@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
-import { EnrichedToken, rangeReference } from "../../formulas/index";
+import { EnrichedToken } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { DEBUG, zoneToXc } from "../../helpers/index";
+import { DEBUG, rangeReference, zoneToXc } from "../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
 import { FunctionDescription, Rect, SpreadsheetEnv } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";

@@ -1,6 +1,5 @@
 import * as owl from "@odoo/owl";
-import { rangeReference } from "../../../formulas";
-import { colorNumberString, toZone } from "../../../helpers/index";
+import { colorNumberString, rangeReference, toZone } from "../../../helpers/index";
 import {
   ColorScaleRule,
   CommandResult,
