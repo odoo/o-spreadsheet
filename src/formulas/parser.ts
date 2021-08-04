@@ -109,12 +109,6 @@ function bindingPower(token: Token): number {
   throw new Error(_lt("Unknown token: %s", token.value));
 }
 
-export const cellReference = new RegExp(/\$?[A-Z]+\$?[0-9]+/, "i");
-export const rangeReference = new RegExp(
-  /^\s*(.*!)?\$?[A-Z]+\$?[0-9]+\s*(\s*:\s*\$?[A-Z]+\$?[0-9]+\s*)?$/,
-  "i"
-);
-
 function parsePrefix(current: Token, tokens: Token[]): AST {
   switch (current.type) {
     case "DEBUGGER":
