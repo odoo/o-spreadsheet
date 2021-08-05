@@ -12,6 +12,7 @@ import {
   mapCellsInZone,
   numberToLetters,
   parseNumber,
+  recomputeZones,
   toCartesian,
   toXC,
   toZone,
@@ -1082,31 +1083,6 @@ export class CorePlugin extends BasePlugin {
   };
 
   /**
-   * Update a part of a range by appling an offset. If the current column is
-   * removed, adapt the range accordingly
-   *
-   * @param ref Reference to update
-   * @param sheet Id of the sheet, if cross-sheet reference
-   * @param base Index of the element added/removed
-   * @param step Number of elements added or -1 if removed
-   * @param direction 1 if it's the left part, -1 if it's the right part
-   */
-  private updateColumnsRangePart = (
-    ref: string,
-    sheet: string | undefined,
-    base: number,
-    step: number,
-    direction: number
-  ): string => {
-    let [x, y] = toCartesian(ref);
-    if (x === base && step === -1) {
-      x += direction;
-    }
-    const [xcRef] = this.updateColumnsRef(toXC(x, y), sheet, base, step).split("!").reverse();
-    return xcRef;
-  };
-
-  /**
    * Update a full range by appling an offset.
    *
    * @param ref Reference to update
@@ -1120,21 +1096,34 @@ export class CorePlugin extends BasePlugin {
     base: number,
     step: number
   ): string => {
-    let [left, right] = ref.split(":");
-    left = this.updateColumnsRangePart(left, sheet, base, step, 1);
-    right = this.updateColumnsRangePart(right, sheet, base, step, -1);
-    if (left === "#REF" || right === "#REF") {
+    const currentZone = toZone(ref);
+    const recomputedRefs =
+      step < 0
+        ? recomputeZones(
+            [ref],
+            [this.zoneToXC({ ...currentZone, left: base + step + 1, right: base })]
+          )
+        : [ref];
+
+    if (recomputedRefs.length === 0) {
       return "#REF";
     }
-    const columnLeft = toCartesian(left)[0];
-    const columnRight = toCartesian(right)[0];
-    if (columnLeft > columnRight) {
-      return "#REF";
-    }
-    if (left === right) {
-      return left;
-    }
-    const range = `${left}:${right}`;
+
+    const leftZone = toZone(recomputedRefs[0]);
+
+    const rightZone =
+      step < 0 && currentZone.left < base + step + 1 && base < currentZone.right
+        ? toZone(recomputedRefs[1])
+        : leftZone;
+
+    const left = base < leftZone.left ? leftZone.left + step : leftZone.left;
+    const right = base < rightZone.right ? rightZone.right + step : rightZone.right;
+    const range = this.zoneToXC({
+      ...leftZone,
+      left,
+      right,
+    });
+
     return sheet ? `${sheet}!${range}` : range;
   };
 
@@ -1160,34 +1149,6 @@ export class CorePlugin extends BasePlugin {
   };
 
   /**
-   * Update a part of a range by appling an offset. If the current row is
-   * removed, adapt the range accordingly
-   *
-   * @param ref Reference to update
-   * @param sheet Id of the sheet, if cross-sheet reference
-   * @param base Index of the element added/removed
-   * @param step Number of elements added/removed (negative when removed)
-   * @param direction 1 if it's the left part, -1 if it's the right part
-   */
-  private updateRowsRangePart = (
-    value: string,
-    sheet: string | undefined,
-    base: number,
-    step: number,
-    direction: number
-  ): string => {
-    let [x, y] = toCartesian(value);
-    if (base + step < y && y <= base) {
-      if (direction === -1) {
-        y = Math.max(base, y) + step;
-      }
-      step = 0;
-    }
-    const [xcRef] = this.updateRowsRef(toXC(x, y), sheet, base, step).split("!").reverse();
-    return xcRef;
-  };
-
-  /**
    * Update a full range by appling an offset.
    *
    * @param ref Reference to update
@@ -1196,26 +1157,41 @@ export class CorePlugin extends BasePlugin {
    * @param step Number of elements added/removed (negative when removed)
    */
   private updateRowsRange = (
-    value: string,
+    ref: string,
     sheet: string | undefined,
     base: number,
     step: number
   ): string => {
-    let [left, right] = value.split(":");
-    left = this.updateRowsRangePart(left, sheet, base, step, 1);
-    right = this.updateRowsRangePart(right, sheet, base, step, -1);
-    if (left === "#REF" || right === "#REF") {
+    const currentZone = toZone(ref);
+    // base+step+1 === left element of the zone to remove
+    const recomputedRefs =
+      step < 0
+        ? recomputeZones(
+            [ref],
+            [this.zoneToXC({ ...currentZone, top: base + step + 1, bottom: base })]
+          )
+        : [ref];
+
+    if (recomputedRefs.length === 0) {
       return "#REF";
     }
-    const rowLeft = toCartesian(left)[1];
-    const rowRight = toCartesian(right)[1];
-    if (rowLeft > rowRight) {
-      return "#REF";
-    }
-    if (left === right) {
-      return left;
-    }
-    const range = `${left}:${right}`;
+
+    const topZone = toZone(recomputedRefs[0]);
+
+    // base+step+1 === top element of the zone to remove
+    const bottomZone =
+      step < 0 && currentZone.top < base + step + 1 && base < currentZone.bottom
+        ? toZone(recomputedRefs[1])
+        : topZone;
+
+    const top = base < topZone.top ? topZone.top + step : topZone.top;
+    const bottom = base < bottomZone.bottom ? bottomZone.bottom + step : bottomZone.bottom;
+    const range = this.zoneToXC({
+      ...topZone,
+      top,
+      bottom,
+    });
+
     return sheet ? `${sheet}!${range}` : range;
   };
 
