@@ -379,7 +379,7 @@ describe("Columns", () => {
         sheets: [
           {
             colNumber: 7,
-            rowNumber: 4,
+            rowNumber: 7,
             cells: {
               A1: { content: "=B1" },
               A2: { content: "=Sheet1!B1" },
@@ -388,6 +388,9 @@ describe("Columns", () => {
               D2: { content: "=B1" },
               D3: { content: "=$E1" },
               D4: { content: "=D3" },
+              A5: { content: "=SUM(A1:D1)" },
+              A6: { content: "=SUM(C1:D1)" },
+              A7: { content: "=SUM(B1:B2)" },
             },
           },
           {
@@ -512,13 +515,17 @@ describe("Columns", () => {
         sheets: [
           {
             colNumber: 9,
-            rowNumber: 3,
+            rowNumber: 5,
             cells: {
-              A1: { content: "=SUM(A2:E5)" },
+              A1: { content: "=SUM(B2:E5)" },
+              A2: { content: "=SUM(F1:F2)" }, // single column range
             },
           },
         ],
       });
+
+      removeColumns([5]);
+      expect(getSheet(model, 0).cells.A2.content).toBe("=SUM(#REF)");
       removeColumns([1, 2, 3, 4]);
       expect(getSheet(model, 0).cells.A1.content).toBe("=SUM(#REF)");
     });
@@ -586,6 +593,9 @@ describe("Columns", () => {
         F2: { content: "=D1" },
         F3: { content: "=$G1" },
         F4: { content: "=F3" },
+        A5: { content: "=SUM(A1:F1)" },
+        A6: { content: "=SUM(E1:F1)" },
+        A7: { content: "=SUM(D1:D2)" },
       });
       expect(getSheet(model, 1).cells).toMatchObject({
         A1: { content: "=B1" },
@@ -759,14 +769,17 @@ describe("Rows", () => {
       model = new Model({
         sheets: [
           {
-            colNumber: 3,
+            colNumber: 5,
             rowNumber: 9,
             cells: {
               A1: { content: "=SUM(A2:A5)" },
+              B1: { content: "=SUM(B6:C6)" }, // single line range
             },
           },
         ],
       });
+      removeRows([5]);
+      expect(getSheet(model, 0).cells.B1.content).toBe("=SUM(#REF)");
       removeRows([1, 2, 3, 4]);
       expect(getSheet(model, 0).cells.A1.content).toBe("=SUM(#REF)");
     });
@@ -982,7 +995,7 @@ describe("Rows", () => {
       model = new Model({
         sheets: [
           {
-            colNumber: 4,
+            colNumber: 7,
             rowNumber: 7,
             cells: {
               A1: { content: "=A2" },
@@ -992,6 +1005,9 @@ describe("Rows", () => {
               C1: { content: "=Sheet2!A2" },
               C4: { content: "=A$5" },
               D4: { content: "=C4" },
+              E1: { content: "=SUM(A1:A4)" },
+              F1: { content: "=SUM(A3:A4)" },
+              G1: { content: "=SUM(B2:C2)" },
             },
           },
           {
@@ -1219,6 +1235,9 @@ describe("Rows", () => {
         C1: { content: "=Sheet2!A2" },
         C6: { content: "=A$7" },
         D6: { content: "=C6" },
+        E1: { content: "=SUM(A1:A6)" },
+        F1: { content: "=SUM(A5:A6)" },
+        G1: { content: "=SUM(B4:C4)" },
       });
       expect(getSheet(model, 1).cells).toMatchObject({
         A1: { content: "=A2" },
