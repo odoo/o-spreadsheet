@@ -1,5 +1,4 @@
-import { BACKGROUND_CHART_COLOR } from "../../constants";
-import { numberToLetters, uuidv4, zoneToXc } from "../../helpers/index";
+import { numberToLetters } from "../../helpers/index";
 import { _lt } from "../../translation";
 import { SpreadsheetEnv, Style } from "../../types/index";
 
@@ -501,7 +500,7 @@ export const CREATE_SHEET_ACTION = (env: SpreadsheetEnv) => {
   const activeSheetId = env.getters.getActiveSheetId();
   const position =
     env.getters.getVisibleSheets().findIndex((sheetId) => sheetId === activeSheetId) + 1;
-  const sheetId = uuidv4();
+  const sheetId = env.uuidGenerator.uuidv4();
   env.dispatch("CREATE_SHEET", { sheetId, position });
   env.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
 };
@@ -511,45 +510,7 @@ export const CREATE_SHEET_ACTION = (env: SpreadsheetEnv) => {
 //------------------------------------------------------------------------------
 
 export const CREATE_CHART = (env: SpreadsheetEnv) => {
-  const zone = env.getters.getSelectedZone();
-  let dataSetZone = zone;
-  const id = uuidv4();
-  let labelRange: string | undefined;
-  if (zone.left !== zone.right) {
-    labelRange = zoneToXc({ ...zone, right: zone.left, top: zone.top + 1 });
-    dataSetZone = { ...zone, left: zone.left + 1 };
-  }
-  const dataSets = [zoneToXc(dataSetZone)];
-  const sheetId = env.getters.getActiveSheetId();
-  const position = {
-    x: env.getters.getCol(sheetId, zone.right + 1)?.start || 0,
-    y: env.getters.getRow(sheetId, zone.top)?.start || 0,
-  };
-  let dataSetsHaveTitle = false;
-  for (let x = dataSetZone.left; x <= dataSetZone.right; x++) {
-    const cell = env.getters.getCell(sheetId, x, zone.top);
-    if (cell && typeof cell.value !== "number") {
-      dataSetsHaveTitle = true;
-    }
-  }
-  env.dispatch("CREATE_CHART", {
-    sheetId,
-    id,
-    position,
-    definition: {
-      title: "",
-      dataSets,
-      labelRange,
-      type: "bar",
-      stackedBar: false,
-      dataSetsHaveTitle,
-      background: BACKGROUND_CHART_COLOR,
-      verticalAxisPosition: "left",
-      legendPosition: "top",
-    },
-  });
-  const figure = env.getters.getFigure(sheetId, id);
-  env.openSidePanel("ChartPanel", { figure });
+  env.openSidePanel("ChartPanel");
 };
 
 //------------------------------------------------------------------------------

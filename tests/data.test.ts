@@ -1,11 +1,9 @@
 import { DEFAULT_REVISION_ID } from "../src/constants";
 import { CURRENT_VERSION, load } from "../src/data";
-import { mockUuidV4To } from "./test_helpers/helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
 describe("load data", () => {
   test("create empty workbookdata when loading nothing", () => {
-    mockUuidV4To(123);
     expect(load()).toEqual({
       version: CURRENT_VERSION,
       borders: {},
@@ -144,7 +142,6 @@ describe("load data", () => {
   });
 
   test("sanitize input data, even if versioned", () => {
-    mockUuidV4To(133);
     expect(
       load({
         version: 3,

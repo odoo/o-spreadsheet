@@ -16,7 +16,8 @@ import {
   undo,
   updateChart,
 } from "../test_helpers/commands_helpers";
-import { initPatcher, mockUuidV4To } from "../test_helpers/helpers";
+import { initPatcher } from "../test_helpers/helpers";
+
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -24,8 +25,6 @@ let model: Model;
 let waitForRecompute: () => Promise<void>;
 
 beforeEach(() => {
-  mockUuidV4To(1);
-
   model = new Model({
     sheets: [
       {
@@ -1068,10 +1067,14 @@ describe("multiple sheets", function () {
   });
   test("change source data then activate the chart sheet (it should be up-to-date)", () => {
     createSheet(model, { sheetId: "42", activate: true });
-    createChart(model, {
-      dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
-      labelRange: "Sheet1!A2:A4",
-    });
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        labelRange: "Sheet1!A2:A4",
+      },
+      "28"
+    );
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: "Sheet1" });
     model.dispatch("UPDATE_CELL", {
       col: 1,
@@ -1085,10 +1088,14 @@ describe("multiple sheets", function () {
   });
   test("change dataset label then activate the chart sheet (it should be up-to-date)", () => {
     createSheet(model, { sheetId: "42", activate: true });
-    createChart(model, {
-      dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
-      labelRange: "Sheet1!A2:A4",
-    });
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        labelRange: "Sheet1!A2:A4",
+      },
+      "28"
+    );
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: "Sheet1" });
     model.dispatch("UPDATE_CELL", {
       col: 0,
@@ -1102,10 +1109,14 @@ describe("multiple sheets", function () {
   });
   test("create a chart with data from another sheet", () => {
     createSheet(model, { sheetId: "42", activate: true });
-    createChart(model, {
-      dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
-      labelRange: "Sheet1!A2:A4",
-    });
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        labelRange: "Sheet1!A2:A4",
+      },
+      "28"
+    );
     const chart = model.getters.getChartRuntime("28")!;
     const chartDefinition = model.getters.getChartDefinition("28");
     expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
@@ -1217,10 +1228,14 @@ describe("multiple sheets", function () {
   test("export with chart data from a sheet that was deleted, than import data does not crash", () => {
     const originSheet = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
-    createChart(model, {
-      dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
-      labelRange: "Sheet1!A2:A4",
-    });
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        labelRange: "Sheet1!A2:A4",
+      },
+      "28"
+    );
     model.dispatch("DELETE_SHEET", { sheetId: originSheet });
     const exportedData = model.exportData();
     const newModel = new Model(exportedData);
@@ -1240,11 +1255,15 @@ describe("undo/redo", () => {
     expect(model).toExport(after);
   });
   test("undo/redo chart dataset rebuild the chart runtime", () => {
-    createChart(model, {
-      dataSets: ["Sheet1!B1:B4"],
-      labelRange: "Sheet1!A2:A4",
-      type: "line",
-    });
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B4"],
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+      "27"
+    );
     let chart = model.getters.getChartRuntime("27")!;
     expect(chart.data!.datasets![0].data).toEqual(["10", "11", "12"]);
     setCellContent(model, "B2", "99");

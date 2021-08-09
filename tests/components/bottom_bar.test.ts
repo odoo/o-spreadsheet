@@ -24,6 +24,7 @@ class Parent extends Component<any, any> {
       getters: model.getters,
       _t: (s: string) => s,
       askConfirmation: jest.fn(),
+      uuidGenerator: model.uuidGenerator,
     });
     this.model = model;
   }
@@ -53,10 +54,11 @@ describe("BottomBar component", () => {
   });
 
   test("Can create a new sheet", async () => {
-    const parent = new Parent(new Model());
+    const model = new Model();
+    const parent = new Parent(model);
     await parent.mount(fixture);
 
-    mockUuidV4To(42);
+    mockUuidV4To(model, 42);
     triggerMouseEvent(".o-add-sheet", "click");
     const activeSheetId = parent.env.getters.getActiveSheetId();
     expect(parent.env.dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
@@ -183,7 +185,7 @@ describe("BottomBar component", () => {
     const model = new Model();
     const parent = new Parent(model);
     await parent.mount(fixture);
-    mockUuidV4To(123);
+    mockUuidV4To(model, 123);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();

@@ -18,7 +18,7 @@ import {
   toCartesian,
   toXC,
   toZone,
-  uuidv4,
+  UuidGenerator,
 } from "./helpers/index";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import {
@@ -107,7 +107,7 @@ export const helpers = {
   toCartesian,
   numberToLetters,
   createFullMenuItem,
-  uuidv4,
+  UuidGenerator,
   formatDecimal,
   computeTextWidth,
 };

@@ -382,7 +382,7 @@ export function mapCellsInZone<T, U>(
   zone: Zone,
   sheet: Sheet,
   callback: (cell: Cell) => T,
-  emptyCellValue: U = (undefined as unknown) as U,
+  emptyCellValue: U = undefined as unknown as U,
   stepX: number = 1,
   stepY: number = 1
 ): (T | U)[][] {

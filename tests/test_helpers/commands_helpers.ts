@@ -1,5 +1,5 @@
+import { lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
 import { BACKGROUND_CHART_COLOR } from "../../src/constants";
-import { lettersToNumber, toCartesian, toZone, uuidv4 } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import {
   BorderCommand,
@@ -41,7 +41,7 @@ export function createSheet(
   model: Model,
   data: Partial<CreateSheetCommand & { activate: boolean }>
 ) {
-  const sheetId = data.sheetId || uuidv4();
+  const sheetId = data.sheetId || model.uuidGenerator.uuidv4();
   const result = model.dispatch("CREATE_SHEET", {
     position: data.position !== undefined ? data.position : 1,
     sheetId,
@@ -82,11 +82,14 @@ export function deleteSheet(model: Model, sheetId: UID): CommandResult {
 export function createChart(
   model: Model,
   data: Partial<ChartUIDefinition>,
-  chartId: UID = uuidv4(),
-  sheetId: UID = model.getters.getActiveSheetId()
+  chartId?: UID ,
+  sheetId?: UID
 ) {
+  const id = chartId || model.uuidGenerator.uuidv4();
+  sheetId = sheetId || model.getters.getActiveSheetId();
+
   return model.dispatch("CREATE_CHART", {
-    id: chartId,
+    id,
     sheetId,
     definition: {
       title: data.title || "test",
@@ -337,6 +340,26 @@ export function setCellContent(
 export function selectCell(model: Model, xc: string): CommandResult {
   const [col, row] = toCartesian(xc);
   return model.dispatch("SELECT_CELL", { col, row });
+}
+
+export function setSelection(
+  model: Model,
+  xcs: string[],
+  options: {
+    anchor?: string | undefined;
+    strict?: boolean;
+  } = { anchor: undefined, strict: false }
+) {
+  const zones = xcs.map(toZone);
+  const cartesianAnchor: [number, number] = options.anchor
+    ? toCartesian(options.anchor)
+    : [zones[0].left, zones[0].top];
+  model.dispatch("SET_SELECTION", {
+    anchorZone: zones[zones.length-1], // the default for most tests is to have the anchor as the last zone
+    anchor: cartesianAnchor,
+    zones: zones,
+    strict: options.strict,
+  });
 }
 
 export function merge(

@@ -1,7 +1,7 @@
 import { toCartesian, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { Viewport } from "../../src/types";
-import { merge, selectCell } from "../test_helpers/commands_helpers";
+import { CommandResult, Increment, Viewport } from "../../src/types";
+import { hideColumns, hideRows, merge, selectCell } from "../test_helpers/commands_helpers";
 import { getActiveXc } from "../test_helpers/getters_helpers";
 
 function getViewport(
@@ -60,7 +60,7 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([0, rowNumber - 1]);
   });
 
-  test("move bottom from merge in last postition", () => {
+  test("move bottom from merge in last position", () => {
     const model = new Model();
     const activeSheet = model.getters.getActiveSheet();
     const rowNumber = activeSheet.rows.length;
@@ -74,7 +74,26 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([0, rowNumber - 2]);
   });
 
-  test("move right from merge in last postition", () => {
+  test("Cannot move bottom from merge in last position if last row is hidden", () => {
+    const model = new Model();
+    const activeSheet = model.getters.getActiveSheet();
+    const rowNumber = activeSheet.rows.length;
+    model.dispatch("ADD_MERGE", {
+      sheetId: activeSheet.id,
+      target: [{ top: rowNumber - 3, bottom: rowNumber - 2, left: 0, right: 0 }],
+    });
+    model.dispatch("HIDE_COLUMNS_ROWS", {
+      sheetId: activeSheet.id,
+      dimension: "ROW",
+      elements: [rowNumber - 1],
+    });
+    selectCell(model, toXC(0, rowNumber - 3));
+    expect(model.getters.getPosition()).toEqual([0, rowNumber - 3]);
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    expect(model.getters.getPosition()).toEqual([0, rowNumber - 3]);
+  });
+
+  test("move right from merge in last position", () => {
     const model = new Model();
     const activeSheet = model.getters.getActiveSheet();
     const colNumber = activeSheet.cols.length;
@@ -267,6 +286,7 @@ describe("navigation", () => {
     model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
     expect(model.getters.getPosition()).toEqual(toCartesian("D1"));
   });
+
   test("move through hidden row", () => {
     const model = new Model({
       sheets: [
@@ -288,4 +308,85 @@ describe("navigation", () => {
     model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
     expect(model.getters.getPosition()).toEqual(toCartesian("A4"));
   });
+});
+
+describe("Navigation starting from hidden cells", () => {
+  test("Cannot move position horizontally from hidden row", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 2,
+        },
+      ],
+    });
+    selectCell(model, "C1");
+    hideRows(model, [0]);
+    const move1 = model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    expect(move1).toBe(CommandResult.SelectionOutOfBound);
+    const move2 = model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 });
+    expect(move2).toBe(CommandResult.SelectionOutOfBound);
+  });
+
+  test("Cannot move position vertically from hidden column", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 2,
+        },
+      ],
+    });
+    selectCell(model, "C1");
+    hideColumns(model, ["C"]);
+    const move1 = model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    expect(move1).toBe(CommandResult.SelectionOutOfBound);
+    const move2 = model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
+    expect(move2).toBe(CommandResult.SelectionOutOfBound);
+  });
+
+  test.each([
+    [["A"], "A1", 1, "B1"], // move right from A1 if column A is hidden => B1
+    [["A", "B"], "A1", 1, "C1"], // move right from A1 if columns A and B are hidden => C1
+    [["A"], "A1", -1, "B1"], // move left from A1 if column A is hidden => B1
+    [["A", "B"], "A1", -1, "C1"], // move left from A1 if column A and B are hidden => C1
+    [["A", "B"], "B1", -1, "C1"], // move left from B1 if column A and B are hidden => C1
+
+    [["Z"], "Z1", -1, "Y1"], // move left from Z1 if column Z is hidden => Y1
+    [["Y", "Z"], "Z1", -1, "X1"], // move left from Z1 if column Y and Z are hidden => X1
+    [["Z"], "Z1", 1, "Y1"], // move right from Z1 if column Z is hidden => Y1
+    [["Y", "Z"], "Z1", 1, "X1"], // move right from Z1 if column Y and Z are hidden => X1
+    [["Y", "Z"], "Y1", 1, "X1"], // move right from Y1 if column Y and Z are hidden => X1
+  ])(
+    "Move from position horizontally from hidden col",
+    (hiddenCols, startPosition, delta, endPosition) => {
+      const model = new Model();
+      selectCell(model, startPosition);
+      hideColumns(model, hiddenCols);
+      model.dispatch("MOVE_POSITION", { deltaX: delta as Increment, deltaY: 0 });
+      expect(model.getters.getPosition()).toEqual(toCartesian(endPosition));
+    }
+  );
+  test.each([
+    [[0], "A1", 1, "A2"], // move bottom from A1 if row 1 is hidden => A2
+    [[0, 1], "A1", 1, "A3"], // move bottom from A1 if rows 1 and 2 are hidden => A3
+    [[0], "A1", -1, "A2"], // move top from A1 if row 1 is hidden => A2
+    [[0, 1], "A1", -1, "A3"], // move top from A1 if rows 1 and 2 are hidden => A3
+    [[0, 1], "A2", -1, "A3"], // move top from A2 if rows 1 and 2 are hidden => A3
+
+    [[99], "A100", -1, "A99"], // move top from A100 if row 100 is hidden => A99
+    [[98, 99], "A100", -1, "A98"], // move top from A100 if rows 99 and 100 are hidden => A98
+    [[99], "A100", 1, "A99"], // move bottom from A100 if row 100 is hidden => A99
+    [[98, 99], "A100", 1, "A98"], // move bottom from A100 if rows 99 and 100 are hidden => A98
+    [[98, 99], "A99", 1, "A98"], // move bottom from A99 if rows 99 and 100 are hidden => A98
+  ])(
+    "Move from position vertically from hidden col",
+    (hiddenRows, startPosition, delta, endPosition) => {
+      const model = new Model();
+      selectCell(model, startPosition);
+      hideRows(model, hiddenRows);
+      model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: delta as Increment });
+      expect(model.getters.getPosition()).toEqual(toCartesian(endPosition));
+    }
+  );
 });

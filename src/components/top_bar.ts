@@ -313,6 +313,16 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             }
           }
         }
+
+        /* Cell Content */
+        .o-toolbar-cell-content {
+          font-size: 12px;
+          font-weight: 500;
+          padding: 0 12px;
+          margin: 0;
+          line-height: 34px;
+          white-space: nowrap;
+        }
       }
     }
   `;

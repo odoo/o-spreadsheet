@@ -1,9 +1,11 @@
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import {
   clip,
+  findVisibleHeader,
   formatStandardNumber,
   getNextVisibleCellCoords,
   isEqual,
+  range,
   union,
   uniqueZones,
   updateSelectionOnDeletion,
@@ -22,7 +24,10 @@ import {
   Figure,
   Getters,
   GridRenderingContext,
+  Header,
+  Increment,
   LAYERS,
+  Position,
   RemoveColumnsRowsCommand,
   Sheet,
   Style,
@@ -119,29 +124,37 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
         }
         break;
       }
-      case "MOVE_POSITION": {
-        const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
-        let targetCol = this.activeCol;
-        let targetRow = this.activeRow;
-        if (this.getters.isInMerge(sheetId, this.activeCol, this.activeRow)) {
-          while (
-            this.getters.isInSameMerge(
-              sheetId,
-              this.activeCol,
-              this.activeRow,
-              targetCol + cmd.deltaX,
-              targetRow + cmd.deltaY
-            )
+      case "ALTER_SELECTION":
+        if (cmd.delta) {
+          const { left, right, top, bottom } = this.getSelectedZone();
+          const sheet = this.getters.getActiveSheet();
+          const refCol = findVisibleHeader(sheet, "cols", range(left, right + 1));
+          const refRow = findVisibleHeader(sheet, "rows", range(top, bottom + 1));
+          if (
+            (cmd.delta[0] !== 0 && refRow === undefined) ||
+            (cmd.delta[1] !== 0 && refCol === undefined)
           ) {
-            targetCol += cmd.deltaX;
-            targetRow += cmd.deltaY;
+            return CommandResult.SelectionOutOfBound;
           }
         }
+        break;
+      case "MOVE_POSITION": {
+        const { cols, rows } = this.getters.getActiveSheet();
+        if (
+          (cmd.deltaX !== 0 && rows[this.activeRow].isHidden) ||
+          (cmd.deltaY !== 0 && cols[this.activeCol].isHidden)
+        ) {
+          return CommandResult.SelectionOutOfBound;
+        }
+        const { col: targetCol, row: targetRow } = this.getNextAvailablePosition(
+          cmd.deltaX,
+          cmd.deltaY
+        );
         const outOfBound =
-          (cmd.deltaY < 0 && targetRow === 0) ||
-          (cmd.deltaY > 0 && targetRow === rows.length - 1) ||
-          (cmd.deltaX < 0 && targetCol === 0) ||
-          (cmd.deltaX > 0 && targetCol === cols.length - 1);
+          targetRow < 0 ||
+          targetRow > rows.length - 1 ||
+          targetCol < 0 ||
+          targetCol > cols.length - 1;
         if (outOfBound) {
           return CommandResult.SelectionOutOfBound;
         }
@@ -519,46 +532,82 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     this.activeSheet = sheet;
   }
 
+  /** Computes the next cell position in the direction of deltaX and deltaY
+   * by crossing through merges and skipping hidden cells.
+   * Note that the resulting position might be out of the sheet, it needs to be validated.
+   */
+  private getNextAvailablePosition(deltaX: Increment, deltaY: Increment): Position {
+    return {
+      col: this.getNextAvailableCol(deltaX, this.activeCol, this.activeRow),
+      row: this.getNextAvailableRow(deltaY, this.activeCol, this.activeRow),
+    };
+  }
+
+  private getNextAvailableCol(delta: Increment, colIndex: number, rowIndex: number): number {
+    const { cols, id: sheetId } = this.getActiveSheet();
+    const position = { col: colIndex, row: rowIndex };
+    const isInPositionMerge = (nextCol) =>
+      this.getters.isInSameMerge(sheetId, colIndex, rowIndex, nextCol, rowIndex);
+    return this.getNextAvailableHeader(delta, cols, colIndex, position, isInPositionMerge);
+  }
+
+  private getNextAvailableRow(delta: Increment, colIndex: number, rowIndex: number): number {
+    const { rows, id: sheetId } = this.getActiveSheet();
+    const position = { col: colIndex, row: rowIndex };
+    const isInPositionMerge = (nextRow) =>
+      this.getters.isInSameMerge(sheetId, colIndex, rowIndex, colIndex, nextRow);
+    return this.getNextAvailableHeader(delta, rows, rowIndex, position, isInPositionMerge);
+  }
+
+  private getNextAvailableHeader(
+    delta: Increment,
+    headers: Header[],
+    startingHeaderIndex: number,
+    position: Position,
+    isInPositionMerge: (nextHeader: number) => boolean
+  ): number {
+    const sheetId = this.getters.getActiveSheetId();
+    const { col, row } = position;
+    if (delta === 0) {
+      return startingHeaderIndex;
+    }
+    let header = startingHeaderIndex + delta;
+
+    if (this.getters.isInMerge(sheetId, col, row)) {
+      while (isInPositionMerge(header)) {
+        header += delta;
+      }
+      while (headers[header]?.isHidden) {
+        header += delta;
+      }
+    } else if (headers[header]?.isHidden) {
+      while (headers[header]?.isHidden) {
+        header += delta;
+      }
+    }
+    const outOfBound = header < 0 || header > headers.length - 1;
+    if (outOfBound) {
+      if (headers[startingHeaderIndex].isHidden) {
+        return this.getNextAvailableHeader(
+          -delta as Increment,
+          headers,
+          startingHeaderIndex,
+          position,
+          isInPositionMerge
+        );
+      } else {
+        return startingHeaderIndex;
+      }
+    }
+    return header;
+  }
+
   /**
    * Moves the position of either the active cell of the anchor of the current selection by a number of rows / cols delta
    */
-  movePosition(deltaX: number, deltaY: number) {
-    const sheet = this.getters.getActiveSheet();
-    if (this.getters.isInMerge(sheet.id, this.activeCol, this.activeRow)) {
-      let targetCol = this.activeCol;
-      let targetRow = this.activeRow;
-      while (
-        this.getters.isInSameMerge(sheet.id, this.activeCol, this.activeRow, targetCol, targetRow)
-      ) {
-        targetCol += deltaX;
-        targetRow += deltaY;
-      }
-      if (targetCol >= 0 && targetRow >= 0) {
-        this.selectCell(targetCol, targetRow);
-      }
-    } else if (
-      sheet.cols[this.activeCol + deltaX]?.isHidden ||
-      sheet.rows[this.activeRow + deltaY]?.isHidden
-    ) {
-      let targetCol = this.activeCol + deltaX;
-      let targetRow = this.activeRow + deltaY;
-      while (sheet.cols[targetCol]?.isHidden) {
-        targetCol += deltaX;
-      }
-      while (sheet.rows[targetRow]?.isHidden) {
-        targetRow += deltaY;
-      }
-      if (
-        targetCol >= 0 &&
-        targetCol < sheet.cols.length &&
-        targetRow >= 0 &&
-        targetRow < sheet.rows.length
-      ) {
-        this.selectCell(targetCol, targetRow);
-      }
-    } else {
-      this.selectCell(this.activeCol + deltaX, this.activeRow + deltaY);
-    }
+  movePosition(deltaX: Increment, deltaY: Increment) {
+    const { col: targetCol, row: targetRow } = this.getNextAvailablePosition(deltaX, deltaY);
+    this.selectCell(targetCol, targetRow);
   }
 
   setSelection(anchor: [number, number], zones: Zone[], anchorZone: Zone, strict: boolean = false) {
@@ -575,7 +624,9 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     this.selection.anchor = anchor;
   }
 
-  private moveSelection(deltaX: number, deltaY: number) {
+  private moveSelection(deltaX: Increment, deltaY: Increment) {
+    // adapt this to the hidden flow.
+    const sheet = this.getters.getActiveSheet();
     const selection = this.selection;
     let newZones: Zone[] = [];
     const [anchorCol, anchorRow] = selection.anchor;
@@ -592,6 +643,8 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       };
     };
 
+    const refCol = findVisibleHeader(sheet, "cols", range(left, right + 1));
+    const refRow = findVisibleHeader(sheet, "rows", range(top, bottom + 1));
     // check if we can shrink selection
     let n = 0;
     while (result !== null) {
@@ -620,10 +673,10 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     }
     const currentZone = { top: anchorRow, bottom: anchorRow, left: anchorCol, right: anchorCol };
     const zoneWithDelta = {
-      top: top + deltaY,
-      left: left + deltaX,
-      bottom: bottom + deltaY,
-      right: right + deltaX,
+      top: this.getNextAvailableRow(deltaY, refCol!, top),
+      left: this.getNextAvailableCol(deltaX, left, refRow!),
+      bottom: this.getNextAvailableRow(deltaY, refCol!, bottom),
+      right: this.getNextAvailableCol(deltaX, right, refRow!),
     };
     result = expand(union(currentZone, zoneWithDelta));
     if (!isEqual(result, selection.anchorZone)) {
@@ -764,10 +817,8 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     ctx.globalCompositeOperation = "multiply";
     for (const zone of zones) {
       const [x, y, width, height] = this.getters.getRect(zone, viewport);
-      if (width > 0 && height > 0) {
-        ctx.fillRect(x, y, width, height);
-        ctx.strokeRect(x, y, width, height);
-      }
+      ctx.fillRect(x, y, width, height);
+      ctx.strokeRect(x, y, width, height);
     }
     ctx.globalCompositeOperation = "source-over";
 

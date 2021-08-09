@@ -6,4 +6,5 @@ export * from "./misc";
 export * from "./numbers";
 export * from "./sheet";
 export * from "./uuid";
+export * from "./visibility";
 export * from "./zones";
