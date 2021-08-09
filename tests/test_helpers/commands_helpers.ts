@@ -1,5 +1,5 @@
-import { lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
 import { BACKGROUND_CHART_COLOR } from "../../src/constants";
+import { lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import {
   BorderCommand,
@@ -82,7 +82,7 @@ export function deleteSheet(model: Model, sheetId: UID): CommandResult {
 export function createChart(
   model: Model,
   data: Partial<ChartUIDefinition>,
-  chartId?: UID ,
+  chartId?: UID,
   sheetId?: UID
 ) {
   const id = chartId || model.uuidGenerator.uuidv4();
@@ -355,7 +355,7 @@ export function setSelection(
     ? toCartesian(options.anchor)
     : [zones[0].left, zones[0].top];
   model.dispatch("SET_SELECTION", {
-    anchorZone: zones[zones.length-1], // the default for most tests is to have the anchor as the last zone
+    anchorZone: zones[zones.length - 1], // the default for most tests is to have the anchor as the last zone
     anchor: cartesianAnchor,
     zones: zones,
     strict: options.strict,
