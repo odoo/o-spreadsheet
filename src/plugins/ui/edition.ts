@@ -484,7 +484,7 @@ export class EditionPlugin extends UIPlugin {
     let selectedXc = this.getters.zoneToXC(sheetId, zone);
     if (this.getters.getEditionSheet() !== this.getters.getActiveSheetId()) {
       const sheetName = getComposerSheetName(
-        this.getters.getSheetName(this.getters.getActiveSheetId())!
+        this.getters.getSheetName(this.getters.getActiveSheetId())
       );
       selectedXc = `${sheetName}!${selectedXc}`;
     }

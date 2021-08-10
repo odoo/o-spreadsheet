@@ -120,7 +120,7 @@ export class SheetUIPlugin extends UIPlugin {
   }
 
   private interactiveRenameSheet(sheetId: UID, title: string) {
-    const placeholder = this.getters.getSheetName(sheetId)!;
+    const placeholder = this.getters.getSheetName(sheetId);
     this.ui.editText(title, placeholder, (name: string | null) => {
       if (!name) {
         return;
