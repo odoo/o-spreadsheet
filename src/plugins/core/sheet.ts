@@ -274,8 +274,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return sheet;
   }
 
-  getSheetName(sheetId: UID): string | undefined {
-    return this.sheets[sheetId]?.name;
+  /**
+   * Return the sheet name. Throw if the sheet is not found.
+   */
+  getSheetName(sheetId: UID): string {
+    return this.getSheet(sheetId).name;
   }
 
   getSheetIdByName(name: string | undefined): UID | undefined {

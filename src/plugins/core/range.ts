@@ -327,10 +327,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       if (range.invalidSheetName) {
         sheetName = range.invalidSheetName;
       } else {
-        const s = this.getters.getSheetName(range.sheetId);
-        if (s) {
-          sheetName = getComposerSheetName(s);
-        }
+        sheetName = getComposerSheetName(this.getters.getSheetName(range.sheetId));
       }
     }
 

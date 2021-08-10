@@ -329,10 +329,7 @@ export class SelectionInputPlugin extends UIPlugin {
       Object.freeze({
         xc:
           h.sheet !== activeSheetId
-            ? `${getComposerSheetName(this.getters.getSheetName(h.sheet)!)}!${toXC(
-                sheetId,
-                h.zone
-              )}`
+            ? `${getComposerSheetName(this.getters.getSheetName(h.sheet))}!${toXC(sheetId, h.zone)}`
             : toXC(sheetId, h.zone),
         id: uuidv4(),
         color: h.color,
