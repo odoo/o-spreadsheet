@@ -138,14 +138,6 @@ describe("parser", () => {
       ],
     });
   });
-
-  test("can parse async functions", () => {
-    expect(parse("=WAIT(12)")).toEqual({
-      type: "ASYNC_FUNCALL",
-      value: "WAIT",
-      args: [{ type: "NUMBER", value: 12 }],
-    });
-  });
 });
 
 describe("parsing other stuff", () => {

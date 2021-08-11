@@ -1,10 +1,7 @@
 import { DEFAULT_ERROR_MESSAGE } from "../constants";
-import { functionRegistry } from "../functions/index";
 import { parseNumber } from "../helpers/index";
 import { _lt } from "../translation";
 import { FORMULA_REF_IDENTIFIER, Token, tokenize } from "./tokenizer";
-
-const functions = functionRegistry.content;
 
 const UNARY_OPERATORS = ["-", "+"];
 
@@ -53,12 +50,6 @@ export interface ASTFuncall extends ASTBase {
   args: AST[];
 }
 
-export interface ASTAsyncFuncall extends ASTBase {
-  type: "ASYNC_FUNCALL";
-  value: string;
-  args: AST[];
-}
-
 interface ASTUnknown extends ASTBase {
   type: "UNKNOWN";
   value: string;
@@ -68,7 +59,6 @@ export type AST =
   | ASTOperation
   | ASTUnaryOperation
   | ASTFuncall
-  | ASTAsyncFuncall
   | ASTNumber
   | ASTBoolean
   | ASTString
@@ -146,9 +136,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
         if (tokens.shift()!.type !== "RIGHT_PAREN") {
           throw new Error(_lt("Wrong function call"));
         }
-        const isAsync = functions[current.value.toUpperCase()].async;
-        const type = isAsync ? "ASYNC_FUNCALL" : "FUNCALL";
-        return { type, value: current.value, args };
+        return { type: "FUNCALL", value: current.value, args };
       }
     case "REFERENCE":
       return {
@@ -231,7 +219,6 @@ export function parse(str: string): AST {
 export function astToFormula(ast: AST): string {
   switch (ast.type) {
     case "FUNCALL":
-    case "ASYNC_FUNCALL":
       const args = ast.args.map((arg) => astToFormula(arg));
       return `${ast.value}(${args.join(",")})`;
     case "NUMBER":

@@ -197,7 +197,6 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
     switch (threshold) {
       case "minimum":
         return (
-          this.props.errors.includes(CommandResult.MinAsyncFormulaNotSupported) ||
           this.props.errors.includes(CommandResult.MinInvalidFormula) ||
           this.props.errors.includes(CommandResult.MinBiggerThanMid) ||
           this.props.errors.includes(CommandResult.MinBiggerThanMax) ||
@@ -205,14 +204,12 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
         );
       case "midpoint":
         return (
-          this.props.errors.includes(CommandResult.MidAsyncFormulaNotSupported) ||
           this.props.errors.includes(CommandResult.MidInvalidFormula) ||
           this.props.errors.includes(CommandResult.MidNaN) ||
           this.props.errors.includes(CommandResult.MidBiggerThanMax)
         );
       case "maximum":
         return (
-          this.props.errors.includes(CommandResult.MaxAsyncFormulaNotSupported) ||
           this.props.errors.includes(CommandResult.MaxInvalidFormula) ||
           this.props.errors.includes(CommandResult.MaxNaN)
         );

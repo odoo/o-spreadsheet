@@ -98,7 +98,6 @@ export type _CompiledFormula = (
 ) => any;
 
 export interface CompiledFormula extends _CompiledFormula {
-  async: boolean;
   dependenciesFormat: (string | number)[];
 }
 

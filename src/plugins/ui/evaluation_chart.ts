@@ -100,6 +100,7 @@ export class EvaluationChartPlugin extends UIPlugin {
         break;
       case "EVALUATE_CELLS":
         // if there was an async evaluation of cell, there is no way to know which was updated so all charts must be updated
+        //TODO Need to check that someday
         for (let id in this.chartRuntime) {
           this.outOfDate.add(id);
         }

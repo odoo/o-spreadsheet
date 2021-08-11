@@ -35,7 +35,6 @@ export interface ReturnSpecificFormat {
 export interface AddFunctionDescription {
   description: string;
   compute: (this: EvalContext, ...args: (Argument | (() => Argument))[]) => any;
-  async?: boolean;
   category?: string;
   args: Arg[];
   returns: [ArgType];

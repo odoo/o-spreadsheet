@@ -28,17 +28,14 @@
 - [InvalidSortZone](commandresult.md#invalidsortzone)
 - [InvalidViewportSize](commandresult.md#invalidviewportsize)
 - [LowerBiggerThanUpper](commandresult.md#lowerbiggerthanupper)
-- [MaxAsyncFormulaNotSupported](commandresult.md#maxasyncformulanotsupported)
 - [MaxInvalidFormula](commandresult.md#maxinvalidformula)
 - [MaxNaN](commandresult.md#maxnan)
 - [MaximumRangesReached](commandresult.md#maximumrangesreached)
 - [MergeIsDestructive](commandresult.md#mergeisdestructive)
 - [MergeOverlap](commandresult.md#mergeoverlap)
-- [MidAsyncFormulaNotSupported](commandresult.md#midasyncformulanotsupported)
 - [MidBiggerThanMax](commandresult.md#midbiggerthanmax)
 - [MidInvalidFormula](commandresult.md#midinvalidformula)
 - [MidNaN](commandresult.md#midnan)
-- [MinAsyncFormulaNotSupported](commandresult.md#minasyncformulanotsupported)
 - [MinBiggerThanMax](commandresult.md#minbiggerthanmax)
 - [MinBiggerThanMid](commandresult.md#minbiggerthanmid)
 - [MinInvalidFormula](commandresult.md#mininvalidformula)
@@ -52,10 +49,8 @@
 - [Success](commandresult.md#success)
 - [TargetOutOfSheet](commandresult.md#targetoutofsheet)
 - [TooManyHiddenElements](commandresult.md#toomanyhiddenelements)
-- [ValueLowerAsyncFormulaNotSupported](commandresult.md#valuelowerasyncformulanotsupported)
 - [ValueLowerInflectionNaN](commandresult.md#valuelowerinflectionnan)
 - [ValueLowerInvalidFormula](commandresult.md#valuelowerinvalidformula)
-- [ValueUpperAsyncFormulaNotSupported](commandresult.md#valueupperasyncformulanotsupported)
 - [ValueUpperInflectionNaN](commandresult.md#valueupperinflectionnan)
 - [ValueUpperInvalidFormula](commandresult.md#valueupperinvalidformula)
 - [WaitingSessionConfirmation](commandresult.md#waitingsessionconfirmation)
@@ -165,7 +160,7 @@ ___
 
 ### InvalidOffset
 
-• **InvalidOffset**: = 56
+• **InvalidOffset**: = 51
 
 ___
 
@@ -183,13 +178,13 @@ ___
 
 ### InvalidSortZone
 
-• **InvalidSortZone**: = 51
+• **InvalidSortZone**: = 46
 
 ___
 
 ### InvalidViewportSize
 
-• **InvalidViewportSize**: = 57
+• **InvalidViewportSize**: = 52
 
 ___
 
@@ -199,15 +194,9 @@ ___
 
 ___
 
-### MaxAsyncFormulaNotSupported
-
-• **MaxAsyncFormulaNotSupported**: = 43
-
-___
-
 ### MaxInvalidFormula
 
-• **MaxInvalidFormula**: = 48
+• **MaxInvalidFormula**: = 43
 
 ___
 
@@ -231,13 +220,7 @@ ___
 
 ### MergeOverlap
 
-• **MergeOverlap**: = 53
-
-___
-
-### MidAsyncFormulaNotSupported
-
-• **MidAsyncFormulaNotSupported**: = 42
+• **MergeOverlap**: = 48
 
 ___
 
@@ -249,19 +232,13 @@ ___
 
 ### MidInvalidFormula
 
-• **MidInvalidFormula**: = 47
+• **MidInvalidFormula**: = 42
 
 ___
 
 ### MidNaN
 
 • **MidNaN**: = 37
-
-___
-
-### MinAsyncFormulaNotSupported
-
-• **MinAsyncFormulaNotSupported**: = 41
 
 ___
 
@@ -279,7 +256,7 @@ ___
 
 ### MinInvalidFormula
 
-• **MinInvalidFormula**: = 46
+• **MinInvalidFormula**: = 41
 
 ___
 
@@ -309,7 +286,7 @@ ___
 
 ### Readonly
 
-• **Readonly**: = 55
+• **Readonly**: = 50
 
 ___
 
@@ -339,13 +316,7 @@ ___
 
 ### TooManyHiddenElements
 
-• **TooManyHiddenElements**: = 54
-
-___
-
-### ValueLowerAsyncFormulaNotSupported
-
-• **ValueLowerAsyncFormulaNotSupported**: = 45
+• **TooManyHiddenElements**: = 49
 
 ___
 
@@ -357,13 +328,7 @@ ___
 
 ### ValueLowerInvalidFormula
 
-• **ValueLowerInvalidFormula**: = 50
-
-___
-
-### ValueUpperAsyncFormulaNotSupported
-
-• **ValueUpperAsyncFormulaNotSupported**: = 44
+• **ValueLowerInvalidFormula**: = 45
 
 ___
 
@@ -375,13 +340,13 @@ ___
 
 ### ValueUpperInvalidFormula
 
-• **ValueUpperInvalidFormula**: = 49
+• **ValueUpperInvalidFormula**: = 44
 
 ___
 
 ### WaitingSessionConfirmation
 
-• **WaitingSessionConfirmation**: = 52
+• **WaitingSessionConfirmation**: = 47
 
 ___
 

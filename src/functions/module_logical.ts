@@ -1,24 +1,7 @@
 import { _lt } from "../translation";
 import { AddFunctionDescription, Argument, ArgValue } from "../types";
 import { args } from "./arguments";
-import { assert, conditionalVisitBoolean, toBoolean, toNumber } from "./helpers";
-
-// -----------------------------------------------------------------------------
-// WAIT
-// -----------------------------------------------------------------------------
-export const WAIT: AddFunctionDescription = {
-  description: _lt("Wait"),
-  args: args(`ms (number) ${_lt("wait time in milliseconds")}`),
-  returns: ["ANY"],
-  async: true,
-  compute: function (delay: ArgValue) {
-    return new Promise(function (resolve, reject) {
-      setTimeout(function () {
-        resolve(delay);
-      }, toNumber(delay));
-    });
-  },
-};
+import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // AND

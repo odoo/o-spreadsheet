@@ -11,6 +11,7 @@ o-spreadsheet API
 ### Classes
 
 - [CorePlugin](classes/coreplugin.md)
+- [DataSource](classes/datasource.md)
 - [DispatchResult](classes/dispatchresult.md)
 - [Model](classes/model.md)
 - [Revision](classes/revision.md)

@@ -95,7 +95,7 @@ export function adaptFormulaToExcel(formula: NormalizedFormula): string {
  *
  * We cannot use astToFormula directly; since the function is of recursive form,
  * it will call itself when we'd need it to call astToExcelFormula to process
- * the specific cases of FUNCALL and ASYNC_FUNCALL.
+ * the specific cases of FUNCALL.
  * Function calls are different because:
  * - non retrocompatible function needs to be prepended
  * - required args which are optional in o-spreadsheet
@@ -104,7 +104,6 @@ function astToExcelFormula(ast: AST): string {
   let value: string;
   switch (ast.type) {
     case "FUNCALL":
-    case "ASYNC_FUNCALL":
       value = ast.value.toUpperCase();
       // In this case, the Excel function will need required args that might not be mandatory in Spreadsheet
       const exportDefaultArgs = FORCE_DEFAULT_ARGS_FUNCTIONS[value];

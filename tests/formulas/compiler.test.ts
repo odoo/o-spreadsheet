@@ -72,11 +72,6 @@ describe("expression compiler", () => {
     expect(compiledFormula.toString()).toMatchSnapshot();
   });
 
-  test("async functions", () => {
-    const compiledFormula = compiledBaseFunction("=WAIT(5)");
-    expect(compiledFormula.toString()).toMatchSnapshot();
-  });
-
   test("cells are converted to ranges if function require a range", () => {
     const compiledFormula = compiledBaseFunction("=sum(A1)");
     expect(compiledFormula.toString()).toMatchSnapshot();

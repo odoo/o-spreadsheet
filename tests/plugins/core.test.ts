@@ -1,6 +1,5 @@
 import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
-import { LOADING } from "../../src/plugins/ui/evaluation";
 import { CommandResult } from "../../src/types";
 import {
   activateSheet,
@@ -18,13 +17,6 @@ import {
   getRangeFormattedValues,
   getRangeValues,
 } from "../test_helpers/getters_helpers";
-import { initPatcher } from "../test_helpers/helpers";
-
-let waitForRecompute: () => Promise<void>;
-
-beforeEach(() => {
-  ({ waitForRecompute } = initPatcher());
-});
 
 describe("core", () => {
   describe("aggregate", () => {
@@ -83,23 +75,6 @@ describe("core", () => {
         `Invalid number of arguments for the TWOARGSNEEDED function. Expected 2 minimum, but got 1 instead.`
       );
     });
-
-    test("ignore async cells while they are not ready", async () => {
-      const model = new Model();
-      setCellContent(model, "A1", "=Wait(1000)");
-      setCellContent(model, "A2", "44");
-
-      // select A1
-      selectCell(model, "A1");
-      expect(model.getters.getAggregate()).toBe(null);
-
-      // select A1:A2
-      model.dispatch("ALTER_SELECTION", { cell: [0, 1] });
-      expect(model.getters.getAggregate()).toBe(null);
-
-      await waitForRecompute();
-      expect(model.getters.getAggregate()).toBe("1044");
-    });
   });
 
   describe("format", () => {
@@ -139,18 +114,6 @@ describe("core", () => {
         format: "0.00%",
       });
       expect(getCellContent(model, "A2")).toBe("0.00%");
-    });
-
-    test("format a pendingcell: should not apply format to Loading...", () => {
-      const model = new Model();
-      setCellContent(model, "B2", "=Wait(1000)");
-      selectCell(model, "B2");
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: model.getters.getSelectedZones(),
-        format: "#,##0.00",
-      });
-      expect(getCellContent(model, "B2")).toBe(LOADING);
     });
 
     test("evaluate properly a cell with a style just recently applied", () => {

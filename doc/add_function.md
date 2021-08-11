@@ -16,7 +16,6 @@ The properties of a function are:
 
 - `description` (string) : the description of the function that will be shown as help for the user when he types the formula (don't forget the translations)
 - `compute` (function) : the function that will be called to evaluate the formula.
-- `async` (boolean, default=false): if the function is doing asynchronous work that must be waited before showing the result. Useful for formulas that needs to call an external API
 - `category` (string) : Not used
 - `args` (object): the arguments the user has to provide, in order, with the following properties
   - `name`\* (string) used in the help of the user (should NOT be translated)
@@ -120,9 +119,7 @@ const NEW_FORMULA : {
       throw new Error ("function [[FUNCTION_NAME]] doesn't want the parameters to be 0")
     }
 
-    // this.env contains the (OWL) environment of the spreadsheet,
-    // that means it contains `this.env.services.rpc` to make calls to the server.
-    // don't forget to mark the formula as async if you need to wait for a rpc
+    // this.env contains the (OWL) environment of the spreadsheet.
     const env = this.env;
 
     // this.getters contains all the getters defined in all the plugins of o_spreadsheet,

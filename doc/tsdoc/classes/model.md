@@ -236,8 +236,8 @@ ___
 
 ### waitForIdle
 
-▸ **waitForIdle**(): *Promise*<void\>
+▸ **waitForIdle**(): *Promise*<unknown[]\>
 
-Wait until all async cells in spreadsheet are computed
+Wait until all cells that depends on dataSources in spreadsheet are computed
 
-**Returns:** *Promise*<void\>
+**Returns:** *Promise*<unknown[]\>

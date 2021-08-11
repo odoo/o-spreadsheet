@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
-import { DEFAULT_REVISION_ID, MAXIMUM_EVALUATION_CHECK_DELAY_MS } from "./constants";
+import { DEFAULT_REVISION_ID } from "./constants";
 import { createEmptyExcelWorkbookData, createEmptyWorkbookData, load } from "./data";
 import { DataSourceRegistry } from "./data_source";
 import { DEBUG, UuidGenerator } from "./helpers/index";
@@ -476,24 +476,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   }
 
   /**
-   * Wait until all async cells in spreadsheet are computed
+   * Wait until all cells that depends on dataSources in spreadsheet are computed
    */
-  async waitForIdle() {
-    await this.dataSources.waitForReady();
-    return new Promise<void>((resolve) => {
-      const interval = setInterval(() => {
-        if (this.getters.isIdle()) {
-          clearInterval(interval);
-          // after the last cell has been evaluated, the dependencies of that cell still need to
-          // be evaluated at the next scheduler "tick" so we are waiting a little more than the
-          // next scheduler tick to ensure it's done.
-          setTimeout(() => {
-            this.getters.isIdle();
-            resolve();
-          }, MAXIMUM_EVALUATION_CHECK_DELAY_MS + 1);
-        }
-      }, 20);
-    });
+  waitForIdle(): Promise<unknown[]> {
+    return this.dataSources.waitForReady();
   }
 
   /**

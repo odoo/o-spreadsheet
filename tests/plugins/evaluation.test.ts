@@ -954,11 +954,6 @@ describe("evaluate formula getter", () => {
     expect(() => model.getters.evaluateFormula("=A1")).toThrow();
   });
 
-  test("evaluate a pending cell (async)", () => {
-    setCellContent(model, "A1", "=wait(99999)");
-    expect(() => model.getters.evaluateFormula("=A1")).toThrow();
-  });
-
   test("EVALUATE_CELLS with no argument re-evaluate all the cells", () => {
     let value = 1;
     functionRegistry.add("GETVALUE", {

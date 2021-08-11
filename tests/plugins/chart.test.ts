@@ -16,13 +16,9 @@ import {
   undo,
   updateChart,
 } from "../test_helpers/commands_helpers";
-import { initPatcher } from "../test_helpers/helpers";
-
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
-
-let waitForRecompute: () => Promise<void>;
 
 beforeEach(() => {
   model = new Model({
@@ -63,7 +59,6 @@ beforeEach(() => {
       },
     ],
   });
-  ({ waitForRecompute } = initPatcher());
 });
 
 describe("datasource tests", function () {
@@ -379,25 +374,6 @@ describe("datasource tests", function () {
     expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
-  test("create chart with async as label", async () => {
-    setCellContent(model, "B7", "=WAIT(1000)");
-    createChart(
-      model,
-      {
-        dataSets: ["B7:B8"],
-        labelRange: "B7",
-        type: "line",
-      },
-      "1"
-    );
-    let datasets = model.getters.getChartRuntime("1")!.data!.datasets!;
-    expect(datasets).toHaveLength(1);
-    expect(datasets[0].label!.toString()).toEqual("Loading...");
-    await waitForRecompute();
-    datasets = model.getters.getChartRuntime("1")!.data!.datasets!;
-    expect(datasets).toHaveLength(1);
-    expect(datasets[0].label!.toString()).toEqual("1000");
-  });
   test("ranges in definition change automatically", () => {
     createChart(
       model,

@@ -125,7 +125,6 @@ export type Getters = CoreGetters & {
 
   getRangeFormattedValues: EvaluationPlugin["getRangeFormattedValues"];
   evaluateFormula: EvaluationPlugin["evaluateFormula"];
-  isIdle: EvaluationPlugin["isIdle"];
   getRangeValues: EvaluationPlugin["getRangeValues"];
 
   shouldShowFormulas: UIOptionsPlugin["shouldShowFormulas"];

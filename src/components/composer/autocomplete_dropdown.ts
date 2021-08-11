@@ -15,11 +15,11 @@ interface AutocompleteValue {
   description: string;
 }
 
-type AutocompleteProvider = () => Promise<AutocompleteValue[]>;
+type AutocompleteProvider = () => AutocompleteValue[];
 
 const providerRegistry = new Registry<AutocompleteProvider>();
 
-providerRegistry.add("functions", async function () {
+providerRegistry.add("functions", () => {
   return Object.keys(functions).map((key) => {
     return {
       text: key,
@@ -99,7 +99,7 @@ export abstract class TextValueProvider extends Component<Props> {
 
   async filter(searchTerm: string) {
     const provider = providerRegistry.get(this.props.provider);
-    let values = await provider();
+    let values = provider();
     if (this.props.filter) {
       values = this.props.filter(searchTerm, values);
     } else {
