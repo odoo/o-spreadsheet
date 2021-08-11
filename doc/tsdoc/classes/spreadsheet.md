@@ -36,7 +36,8 @@
 - [destroy](spreadsheet.md#destroy)
 - [focusGrid](spreadsheet.md#focusgrid)
 - [mounted](spreadsheet.md#mounted)
-- [onGridComposerFocused](spreadsheet.md#ongridcomposerfocused)
+- [onGridComposerCellFocused](spreadsheet.md#ongridcomposercellfocused)
+- [onGridComposerContentFocused](spreadsheet.md#ongridcomposercontentfocused)
 - [onKeydown](spreadsheet.md#onkeydown)
 - [onKeyup](spreadsheet.md#onkeyup)
 - [onTopBarComposerFocused](spreadsheet.md#ontopbarcomposerfocused)
@@ -65,8 +66,8 @@
 
 Name | Type |
 :------ | :------ |
-`grid` | *boolean* |
-`topBar` | *boolean* |
+`gridFocusMode` | *inactive* \| *contentFocus* \| *cellFocus* |
+`topBarFocus` | *inactive* \| *contentFocus* |
 
 ___
 
@@ -143,17 +144,17 @@ ___
 
 ### focusGridComposer
 
-• get **focusGridComposer**(): *boolean*
+• get **focusGridComposer**(): *inactive* \| *contentFocus* \| *cellFocus*
 
-**Returns:** *boolean*
+**Returns:** *inactive* \| *contentFocus* \| *cellFocus*
 
 ___
 
 ### focusTopBarComposer
 
-• get **focusTopBarComposer**(): *boolean*
+• get **focusTopBarComposer**(): *inactive* \| *contentFocus*
 
-**Returns:** *boolean*
+**Returns:** *inactive* \| *contentFocus*
 
 ## Methods
 
@@ -196,9 +197,23 @@ ___
 
 ___
 
-### onGridComposerFocused
+### onGridComposerCellFocused
 
-▸ **onGridComposerFocused**(`ev`: ComposerFocusedEvent): *void*
+▸ **onGridComposerCellFocused**(`ev`: ComposerFocusedEvent): *void*
+
+#### Parameters:
+
+Name | Type |
+:------ | :------ |
+`ev` | ComposerFocusedEvent |
+
+**Returns:** *void*
+
+___
+
+### onGridComposerContentFocused
+
+▸ **onGridComposerContentFocused**(`ev`: ComposerFocusedEvent): *void*
 
 #### Parameters:
 

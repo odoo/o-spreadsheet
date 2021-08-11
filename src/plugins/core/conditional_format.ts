@@ -281,7 +281,6 @@ export class ConditionalFormatPlugin
           rule,
           this.chainValidations(
             this.checkThresholds(this.checkFormulaCompilation),
-            this.checkThresholds(this.checkAsyncFormula)
           ),
           this.chainValidations(
             this.checkThresholds(this.checkNaN),
@@ -303,7 +302,6 @@ export class ConditionalFormatPlugin
           ),
           this.chainValidations(
             this.checkInflectionPoints(this.checkFormulaCompilation),
-            this.checkInflectionPoints(this.checkAsyncFormula)
           )
         );
       }
@@ -379,29 +377,6 @@ export class ConditionalFormatPlugin
           return CommandResult.ValueUpperInvalidFormula;
         case "lowerInflectionPoint":
           return CommandResult.ValueLowerInvalidFormula;
-      }
-    }
-    return CommandResult.Success;
-  }
-
-  private checkAsyncFormula(
-    threshold: ColorScaleThreshold | ColorScaleMidPointThreshold | IconThreshold,
-    thresholdName: string
-  ): CommandResult {
-    if (threshold.type !== "formula") return CommandResult.Success;
-    const compiledFormula = compile(normalize(threshold.value || ""));
-    if (compiledFormula.async) {
-      switch (thresholdName) {
-        case "min":
-          return CommandResult.MinAsyncFormulaNotSupported;
-        case "max":
-          return CommandResult.MaxAsyncFormulaNotSupported;
-        case "mid":
-          return CommandResult.MidAsyncFormulaNotSupported;
-        case "upperInflectionPoint":
-          return CommandResult.ValueUpperAsyncFormulaNotSupported;
-        case "lowerInflectionPoint":
-          return CommandResult.ValueLowerAsyncFormulaNotSupported;
       }
     }
     return CommandResult.Success;

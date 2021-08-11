@@ -1,10 +1,6 @@
 import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import {
-  CancelledReason,
-  CommandResult,
-  ConditionalFormattingOperatorValues,
-} from "../../src/types";
+import { CommandResult, ConditionalFormattingOperatorValues } from "../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -1135,14 +1131,7 @@ describe("conditional formats types", () => {
       }
     );
 
-    test.each([
-      [
-        "=WAIT(10)",
-        CommandResult.ValueLowerAsyncFormulaNotSupported,
-        CommandResult.ValueUpperAsyncFormulaNotSupported,
-      ],
-      ["=WAI", CommandResult.ValueLowerInvalidFormula, CommandResult.ValueUpperInvalidFormula],
-    ])("refuse invalid and async formulas %s", (formula, ...expectedResults: CancelledReason[]) => {
+    test("refuse invalid and async formulas %s", () => {
       const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
         sheetId: model.getters.getActiveSheetId(),
         target: [toZone("A1")],
@@ -1150,8 +1139,8 @@ describe("conditional formats types", () => {
           id: "1",
           rule: {
             type: "IconSetRule",
-            lowerInflectionPoint: { type: "formula", value: formula, operator: "gt" },
-            upperInflectionPoint: { type: "formula", value: formula, operator: "gt" },
+            lowerInflectionPoint: { type: "formula", value: "=INVALID", operator: "gt" },
+            upperInflectionPoint: { type: "formula", value: "=INVALID", operator: "gt" },
             icons: {
               upper: "arrowGood",
               middle: "arrowNeutral",
@@ -1160,7 +1149,10 @@ describe("conditional formats types", () => {
           },
         },
       });
-      expect(result).toBeCancelledBecause(...expectedResults);
+      expect(result).toBeCancelledBecause(
+        CommandResult.ValueLowerInvalidFormula,
+        CommandResult.ValueUpperInvalidFormula
+      );
     });
 
     describe.each([
@@ -1584,22 +1576,6 @@ describe("conditional formats types", () => {
 
       expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual(undefined);
       expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toEqual(undefined);
-    });
-
-    test("async values do not crash the evaluation", () => {
-      setCellContent(model, "A1", "=wait(100)");
-      setCellContent(model, "A2", "110");
-
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createColorScale(
-          "1",
-          { type: "value", color: 0xff00ff },
-          { type: "value", color: 0x123456 }
-        ),
-        target: [toZone("A1:A2")],
-        sheetId: model.getters.getActiveSheetId(),
-      });
-      expect(true).toBeTruthy(); // no error
     });
 
     test("CF is not updated with insert/delete cells", () => {

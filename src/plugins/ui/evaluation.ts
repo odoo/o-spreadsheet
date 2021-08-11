@@ -1,4 +1,3 @@
-import { MAXIMUM_EVALUATION_CHECK_DELAY_MS } from "../../constants";
 import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { mapCellsInZone, toXC } from "../../helpers/index";
@@ -26,54 +25,16 @@ function* makeObjectIterator(obj: Object) {
   }
 }
 
-function* makeSetIterator(set: Set<Cell>) {
-  for (let elem of set) {
-    yield elem;
-  }
-}
-
 const functionMap = functionRegistry.mapping;
 
 type FormulaParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 
-export const LOADING = "Loading...";
-
 export class EvaluationPlugin extends UIPlugin {
-  static getters = ["evaluateFormula", "isIdle", "getRangeFormattedValues", "getRangeValues"];
+  static getters = ["evaluateFormula", "getRangeFormattedValues", "getRangeValues"];
   static modes: Mode[] = ["normal", "readonly"];
 
   private isUpToDate: Set<UID> = new Set(); // Set<sheetIds>
-  private loadingCells: number = 0;
-  private isStarted: boolean = false;
   private readonly evalContext: EvalContext;
-
-  /**
-   * For all cells that are being currently computed (asynchronously).
-   *
-   * For example: =Wait(3)
-   */
-  private PENDING: Set<UID> = new Set();
-
-  /**
-   * For all cells that are NOT being currently computed, but depend on another
-   * asynchronous computation.
-   *
-   * For example: A2 is in WAITING (initially) and A1 in PENDING
-   *   A1: =Wait(3)
-   *   A2: =A1
-   */
-  private WAITING: Set<UID> = new Set();
-
-  /**
-   * For all cells that have been async computed.
-   *
-   * For example:
-   *  A1: =Wait(3)
-   *  A2: =A1
-   *
-   * When A1 is computed, A1 is moved in COMPUTED
-   */
-  private COMPUTED: Set<UID> = new Set();
 
   constructor(
     getters: Getters,
@@ -109,21 +70,7 @@ export class EvaluationPlugin extends UIPlugin {
         }
         break;
       case "EVALUATE_CELLS":
-        if (cmd.onlyWaiting) {
-          const cellIds = new Set(this.WAITING);
-          this.WAITING.clear();
-          const cells = new Set<Cell>();
-          for (const id of cellIds) {
-            const cell = this.getters.getCellById(id);
-            if (cell) {
-              cells.add(cell);
-            }
-          }
-          this.evaluateCells(makeSetIterator(cells), cmd.sheetId);
-        } else {
-          this.WAITING.clear();
-          this.evaluate(cmd.sheetId);
-        }
+        this.evaluate(cmd.sheetId);
         this.isUpToDate.add(cmd.sheetId);
         break;
       case "EVALUATE_ALL_SHEETS":
@@ -139,12 +86,8 @@ export class EvaluationPlugin extends UIPlugin {
   finalize() {
     const sheetId = this.getters.getActiveSheetId();
     if (!this.isUpToDate.has(sheetId)) {
-      this.WAITING.clear();
       this.evaluate(sheetId);
       this.isUpToDate.add(sheetId);
-    }
-    if (this.loadingCells > 0) {
-      this.startScheduler();
     }
   }
 
@@ -163,10 +106,6 @@ export class EvaluationPlugin extends UIPlugin {
     }
 
     return compiledFormula(ranges, sheetId, ...params);
-  }
-
-  isIdle() {
-    return this.loadingCells === 0 && this.WAITING.size === 0 && this.PENDING.size === 0;
   }
 
   /**
@@ -193,44 +132,14 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   // ---------------------------------------------------------------------------
-  // Scheduler
-  // ---------------------------------------------------------------------------
-
-  private startScheduler() {
-    if (!this.isStarted) {
-      this.isStarted = true;
-      let current = this.loadingCells;
-      const recomputeCells = () => {
-        if (this.loadingCells !== current) {
-          this.dispatch("EVALUATE_CELLS", {
-            onlyWaiting: true,
-            sheetId: this.getters.getActiveSheetId(),
-          });
-          current = this.loadingCells;
-          if (current === 0) {
-            this.isStarted = false;
-          }
-        }
-        if (current > 0) {
-          window.setTimeout(recomputeCells, MAXIMUM_EVALUATION_CHECK_DELAY_MS);
-        }
-      };
-      window.setTimeout(recomputeCells, 5);
-    }
-  }
-
-  // ---------------------------------------------------------------------------
   // Evaluator
   // ---------------------------------------------------------------------------
 
   private evaluate(sheetId: UID) {
-    this.COMPUTED.clear();
     this.evaluateCells(makeObjectIterator(this.getters.getCells(sheetId)), sheetId);
   }
 
   private evaluateCells(cells: Generator<Cell>, sheetId: string) {
-    const self = this;
-    const { COMPUTED, PENDING, WAITING } = this;
     const params = this.getFormulaParameters(computeValue);
     const visited: { [sheetId: string]: { [xc: string]: boolean | null } } = {};
 
@@ -242,14 +151,7 @@ export class EvaluationPlugin extends UIPlugin {
       if (!(e instanceof Error)) {
         e = new Error(e);
       }
-      if (PENDING.has(cell.id)) {
-        PENDING.delete(cell.id);
-        self.loadingCells--;
-      }
-      if (e.message === "not ready") {
-        WAITING.add(cell.id);
-        cell.value = LOADING;
-      } else if (!cell.error) {
+      if (!cell.error) {
         cell.value = "#ERROR";
 
         // apply function name
@@ -272,35 +174,11 @@ export class EvaluationPlugin extends UIPlugin {
         }
         return;
       }
-      if (COMPUTED.has(cell.id) || PENDING.has(cell.id)) {
-        return;
-      }
       visited[sheetId][xc] = null;
       cell.error = undefined;
       try {
         params[2].__originCellXC = xc;
-        if (cell.formula.compiledFormula.async) {
-          cell.value = LOADING;
-          PENDING.add(cell.id);
-
-          cell.formula
-            .compiledFormula(cell.dependencies!, sheetId, ...params)
-            .then((val) => {
-              const c: Cell | undefined = params[2].getters.getCellById(cell.id);
-              self.loadingCells--;
-              if (c) {
-                c.value = val;
-              }
-              if (PENDING.has(cell.id)) {
-                PENDING.delete(cell.id);
-                COMPUTED.add(cell.id);
-              }
-            })
-            .catch((e: Error) => handleError(e, cell));
-          self.loadingCells++;
-        } else {
-          cell.value = cell.formula.compiledFormula(cell.dependencies!, sheetId, ...params);
-        }
+        cell.value = cell.formula.compiledFormula(cell.dependencies!, sheetId, ...params);
         if (Array.isArray(cell.value)) {
           // if a value returns an array (like =A1:A3)
           throw new Error(_lt("This formula depends on invalid values"));
@@ -325,8 +203,6 @@ export class EvaluationPlugin extends UIPlugin {
       getters: this.getters,
     });
     const sheets = this.getters.getEvaluationSheets();
-    const PENDING = this.PENDING;
-
     function readCell(range: Range): any {
       let cell: Cell | undefined;
       const s = sheets[range.sheetId];
@@ -342,22 +218,13 @@ export class EvaluationPlugin extends UIPlugin {
     }
 
     function getCellValue(cell: Cell, sheetId: UID): any {
-      if (
-        cell.type === CellType.formula &&
-        cell.formula.compiledFormula.async &&
-        cell.error &&
-        !PENDING.has(cell.id)
-      ) {
+      if (cell.type === CellType.formula && cell.error) {
         throw new Error(_lt("This formula depends on invalid values"));
       }
       computeValue(cell, sheetId);
       if (cell.error) {
         throw new Error(_lt("This formula depends on invalid values"));
       }
-      if (cell.value === LOADING) {
-        throw new Error("not ready");
-      }
-
       return cell.value;
     }
 
@@ -456,6 +323,5 @@ export class EvaluationPlugin extends UIPlugin {
         this.isUpToDate.add(sheetId);
       }
     }
-    this.startScheduler();
   }
 }

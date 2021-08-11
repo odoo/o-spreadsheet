@@ -34,21 +34,6 @@ export const conditionalFormattingTerms = {
     [CommandResult.MidInvalidFormula]: _lt("Invalid Midpoint formula"),
     [CommandResult.ValueUpperInvalidFormula]: _lt("Invalid upper inflection point formula"),
     [CommandResult.ValueLowerInvalidFormula]: _lt("Invalid lower inflection point formula"),
-    [CommandResult.MinAsyncFormulaNotSupported]: _lt(
-      "Some formulas are not supported for the Minpoint"
-    ),
-    [CommandResult.MaxAsyncFormulaNotSupported]: _lt(
-      "Some formulas are not supported for the Maxpoint"
-    ),
-    [CommandResult.MidAsyncFormulaNotSupported]: _lt(
-      "Some formulas are not supported for the Midpoint"
-    ),
-    [CommandResult.ValueUpperAsyncFormulaNotSupported]: _lt(
-      "Some formulas are not supported for the upper inflection point"
-    ),
-    [CommandResult.ValueLowerAsyncFormulaNotSupported]: _lt(
-      "Some formulas are not supported for the lower inflection point"
-    ),
     [CommandResult.EmptyRange]: _lt("A range needs to be defined"),
     unexpected: _lt("The rule is invalid for an unknown reason"),
   },

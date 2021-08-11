@@ -298,62 +298,6 @@ export function makeDeferred(): Deferred {
   return <Deferred>def;
 }
 
-interface PatchResult {
-  calls: any[];
-  resolveAll: () => void;
-}
-
-interface ComputePatch {
-  calls: any[];
-  waitForRecompute: () => Promise<void>;
-  asyncComputations: () => Promise<void>;
-}
-
-export function patchWaitFunction(): PatchResult {
-  const result: PatchResult = {
-    calls: [],
-    resolveAll() {
-      result.calls.forEach((c) => c.def.resolve(c.val));
-      result.calls.length = 0;
-    },
-  };
-  functionMap["WAIT"] = (arg) => {
-    const def = makeDeferred();
-    const call = { def, val: arg };
-    result.calls.push(call);
-    return def;
-  };
-  return result;
-}
-
-export function initPatcher(): ComputePatch {
-  let timeHandlers: Function[] = [];
-  (window as any).setTimeout = (cb) => {
-    timeHandlers.push(cb);
-  };
-
-  const patch = patchWaitFunction();
-  function clearTimers() {
-    let handlers = timeHandlers.slice();
-    timeHandlers = [];
-    for (let cb of handlers) {
-      cb();
-    }
-  }
-
-  async function waitForRecompute() {
-    patch.resolveAll();
-    await nextTick();
-    clearTimers();
-  }
-
-  async function asyncComputations() {
-    clearTimers();
-    await nextTick();
-  }
-  return { asyncComputations, waitForRecompute, calls: patch.calls };
-}
-
 /*
  * Remove all functions from the internal function list.
  */

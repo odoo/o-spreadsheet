@@ -68,16 +68,6 @@ return _1;
 }"
 `;
 
-exports[`expression compiler async functions 1`] = `
-"async function anonymous(deps,sheetId,ref,range,ctx
-) {
-// =WAIT(5)
-ctx.__lastFnCalled = 'WAIT'
-let _1 = await ctx['WAIT'](5)
-return _1;
-}"
-`;
-
 exports[`expression compiler cells are converted to ranges if function require a range 1`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {

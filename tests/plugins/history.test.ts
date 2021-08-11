@@ -14,13 +14,6 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getBorder, getCell, getCellContent } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
-import { initPatcher } from "../test_helpers/helpers";
-
-let waitForRecompute: () => Promise<void>;
-
-beforeEach(() => {
-  ({ waitForRecompute } = initPatcher());
-});
 
 // we test here the undo/redo feature
 
@@ -258,8 +251,7 @@ describe("Model history", () => {
   });
 
   test("undo when undo stack is empty does nothing", async () => {
-    const model = new Model({ sheets: [{ cells: { A1: { content: "=WAIT(10)" } } }] });
-    await waitForRecompute();
+    const model = new Model({ sheets: [{ cells: { A1: { content: "=10" } } }] });
 
     expect(getCell(model, "A1")!.value).toBe(10);
 
@@ -268,8 +260,7 @@ describe("Model history", () => {
   });
 
   test("undo when redo stack is empty does nothing", async () => {
-    const model = new Model({ sheets: [{ cells: { A1: { content: "=WAIT(10)" } } }] });
-    await waitForRecompute();
+    const model = new Model({ sheets: [{ cells: { A1: { content: "=10" } } }] });
 
     expect(getCell(model, "A1")!.value).toBe(10);
 

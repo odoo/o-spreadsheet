@@ -758,44 +758,6 @@ describe("UI of conditional formats", () => {
     );
   });
 
-  test("will show error if async formula used", async () => {
-    triggerMouseEvent(selectors.buttonAdd, "click");
-    await nextTick();
-
-    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
-    await nextTick();
-
-    // change every value
-    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
-
-    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
-    setInputValueAndTrigger(selectors.colorScaleEditor.midType, "number", "change");
-    setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "formula", "change");
-    await nextTick();
-    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "1", "input");
-    setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "2", "input");
-    setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "=WAIT(1000)", "input");
-    await nextTick();
-
-    expect(errorMessages()).toHaveLength(0);
-
-    //  click save
-    triggerMouseEvent(selectors.buttonSave, "click");
-    await nextTick();
-
-    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
-    expect(errorMessages()).toEqual(["Some formulas are not supported for the Maxpoint"]);
-    expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).not.toContain(
-      "o-invalid"
-    );
-    expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.className).not.toContain(
-      "o-invalid"
-    );
-    expect(fixture.querySelector(selectors.colorScaleEditor.maxValue)?.className).toContain(
-      "o-invalid"
-    );
-  });
-
   test.each(["", "aaaa", "=SUM(1, 2)"])(
     "will display error if wrong minValue",
     async (invalidValue) => {
@@ -1268,10 +1230,6 @@ describe("UI of conditional formats", () => {
 
   test.each([
     [CommandResult.ValueLowerInflectionNaN, "The second value must be a number"],
-    [
-      CommandResult.ValueLowerAsyncFormulaNotSupported,
-      "Some formulas are not supported for the lower inflection point",
-    ],
     [CommandResult.ValueLowerInvalidFormula, "Invalid lower inflection point formula"],
     [CommandResult.ValueLowerInvalidFormula, "Invalid lower inflection point formula"],
   ])(
@@ -1295,10 +1253,6 @@ describe("UI of conditional formats", () => {
   );
   test.each([
     [CommandResult.ValueUpperInflectionNaN, "The first value must be a number"],
-    [
-      CommandResult.ValueUpperAsyncFormulaNotSupported,
-      "Some formulas are not supported for the upper inflection point",
-    ],
     [CommandResult.ValueUpperInvalidFormula, "Invalid upper inflection point formula"],
   ])(
     "Show right upperInflection point error message (Command result: %s , Message: %s)",

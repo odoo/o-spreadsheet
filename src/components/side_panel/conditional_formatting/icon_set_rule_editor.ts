@@ -268,14 +268,12 @@ export class IconSetRuleEditor extends Component<Props, SpreadsheetEnv> {
       case "lowerInflectionPoint":
         return (
           this.props.errors.includes(CommandResult.ValueLowerInflectionNaN) ||
-          this.props.errors.includes(CommandResult.ValueLowerAsyncFormulaNotSupported) ||
           this.props.errors.includes(CommandResult.ValueLowerInvalidFormula) ||
           this.props.errors.includes(CommandResult.LowerBiggerThanUpper)
         );
       case "upperInflectionPoint":
         return (
           this.props.errors.includes(CommandResult.ValueUpperInflectionNaN) ||
-          this.props.errors.includes(CommandResult.ValueUpperAsyncFormulaNotSupported) ||
           this.props.errors.includes(CommandResult.ValueUpperInvalidFormula) ||
           this.props.errors.includes(CommandResult.LowerBiggerThanUpper)
         );

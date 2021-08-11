@@ -1,7 +1,7 @@
 import { functionRegistry } from "../functions/index";
 import { _lt } from "../translation";
 import { CompiledFormula, FunctionDescription, NormalizedFormula } from "../types/index";
-import { AST, ASTAsyncFuncall, ASTFuncall, parse } from "./parser";
+import { AST, ASTFuncall, parse } from "./parser";
 
 const functions = functionRegistry.content;
 
@@ -34,11 +34,8 @@ export const functionCache: { [key: string]: CompiledFormula } = {};
 // -----------------------------------------------------------------------------
 // COMPILER
 // -----------------------------------------------------------------------------
-const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 export function compile(str: NormalizedFormula): CompiledFormula {
-  let isAsync = false;
-
   if (!functionCache[str.text]) {
     const ast = parse(str.text);
     let nextId = 1;
@@ -53,8 +50,7 @@ export function compile(str: NormalizedFormula): CompiledFormula {
 
     code.push(`return ${compileAST(ast)};`);
 
-    const Constructor = isAsync ? AsyncFunction : Function;
-    let baseFunction = new Constructor(
+    let baseFunction = new Function(
       "deps", // the dependencies in the current formula
       "sheetId", // the sheet the formula is currently evaluating
       "ref", // a function to access a certain dependency at a given index
@@ -63,8 +59,8 @@ export function compile(str: NormalizedFormula): CompiledFormula {
       code.join("\n")
     );
 
+    //@ts-ignore
     functionCache[str.text] = baseFunction;
-    functionCache[str.text].async = isAsync;
     functionCache[str.text].dependenciesFormat = formatAST(ast);
 
     /**
@@ -75,7 +71,7 @@ export function compile(str: NormalizedFormula): CompiledFormula {
      * the cell value into a range. This allow the grid model to differentiate
      * between a cell value and a non cell value.
      */
-    function compileFunctionArgs(ast: ASTAsyncFuncall | ASTFuncall): string[] {
+    function compileFunctionArgs(ast: ASTFuncall): string[] {
       const functionDefinition = functions[ast.value.toUpperCase()];
       const currentFunctionArguments = ast.args;
 
@@ -247,14 +243,6 @@ export function compile(str: NormalizedFormula): CompiledFormula {
           code.push(`ctx.__lastFnCalled = '${fnName}'`);
           statement = `ctx['${fnName}'](${args})`;
           break;
-        case "ASYNC_FUNCALL":
-          id = nextId++;
-          isAsync = true;
-          args = compileFunctionArgs(ast);
-          fnName = ast.value.toUpperCase();
-          code.push(`ctx.__lastFnCalled = '${fnName}'`);
-          statement = `await ctx['${fnName}'](${args})`;
-          break;
         case "UNARY_OPERATION":
           id = nextId++;
           right = compileAST(ast.right);
@@ -301,7 +289,6 @@ export function compile(str: NormalizedFormula): CompiledFormula {
           }
           break;
         case "FUNCALL":
-        case "ASYNC_FUNCALL":
           fnDef = functions[ast.value.toUpperCase()];
           if (fnDef.returnFormat) {
             if (fnDef.returnFormat === "FormatFromArgument") {

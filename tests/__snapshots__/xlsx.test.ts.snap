@@ -9535,9 +9535,9 @@ Object {
     </cols>
     <sheetData>
         <row r=\\"1\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A1\\" s=\\"1\\" t=\\"n\\">
+            <c r=\\"A1\\" s=\\"1\\" t=\\"s\\">
                 <v>
-                    100
+                    0
                 </v>
             </c>
         </row>
@@ -9549,9 +9549,9 @@ Object {
             </c>
         </row>
         <row r=\\"3\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A3\\" s=\\"1\\" t=\\"n\\">
+            <c r=\\"A3\\" s=\\"1\\" t=\\"s\\">
                 <v>
-                    200
+                    1
                 </v>
             </c>
         </row>
@@ -9593,7 +9593,7 @@ Object {
         <row r=\\"9\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
             <c r=\\"A9\\" s=\\"1\\" t=\\"s\\">
                 <v>
-                    0
+                    2
                 </v>
             </c>
         </row>
@@ -9720,7 +9720,17 @@ Object {
       "path": "xl/styles.xml",
     },
     Object {
-      "content": "<sst xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" count=\\"1\\" uniqueCount=\\"1\\">
+      "content": "<sst xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" count=\\"3\\" uniqueCount=\\"3\\">
+    <si>
+        <t>
+            =WAIT(100)
+        </t>
+    </si>
+    <si>
+        <t>
+            =sum(A1,wait(100))
+        </t>
+    </si>
     <si>
         <t>
             =LT(4;42)
@@ -11657,9 +11667,9 @@ Object {
     </cols>
     <sheetData>
         <row r=\\"1\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A1\\" s=\\"1\\" t=\\"n\\">
+            <c r=\\"A1\\" s=\\"1\\" t=\\"s\\">
                 <v>
-                    10
+                    20
                 </v>
             </c>
         </row>
@@ -11727,7 +11737,7 @@ Object {
       "path": "xl/styles.xml",
     },
     Object {
-      "content": "<sst xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" count=\\"20\\" uniqueCount=\\"20\\">
+      "content": "<sst xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" count=\\"21\\" uniqueCount=\\"21\\">
     <si>
         <t>
             evaluation
@@ -11826,6 +11836,11 @@ Object {
     <si>
         <t>
             &gt;25
+        </t>
+    </si>
+    <si>
+        <t>
+            =wait(10)
         </t>
     </si>
 </sst>",
