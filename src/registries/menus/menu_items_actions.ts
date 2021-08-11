@@ -1,5 +1,5 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
-import { numberToLetters, uuidv4, zoneToXc } from "../../helpers/index";
+import { numberToLetters, zoneToXc } from "../../helpers/index";
 import { _lt } from "../../translation";
 import { SpreadsheetEnv, Style } from "../../types/index";
 
@@ -501,7 +501,7 @@ export const CREATE_SHEET_ACTION = (env: SpreadsheetEnv) => {
   const activeSheetId = env.getters.getActiveSheetId();
   const position =
     env.getters.getVisibleSheets().findIndex((sheetId) => sheetId === activeSheetId) + 1;
-  const sheetId = uuidv4();
+  const sheetId = env.uuidGenerator.uuidv4();
   env.dispatch("CREATE_SHEET", { sheetId, position });
   env.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
 };
@@ -513,7 +513,7 @@ export const CREATE_SHEET_ACTION = (env: SpreadsheetEnv) => {
 export const CREATE_CHART = (env: SpreadsheetEnv) => {
   const zone = env.getters.getSelectedZone();
   let dataSetZone = zone;
-  const id = uuidv4();
+  const id = env.uuidGenerator.uuidv4();
   let labelRange: string | undefined;
   if (zone.left !== zone.right) {
     labelRange = zoneToXc({ ...zone, right: zone.left, top: zone.top + 1 });

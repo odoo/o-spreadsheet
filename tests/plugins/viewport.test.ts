@@ -1,3 +1,4 @@
+import { CommandResult } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -246,6 +247,25 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
+  test("cannot set offset outside of the grid", () => {
+    // negative
+    const negativeOffsetResult = model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: -1,
+      offsetY: 0,
+    });
+    expect(negativeOffsetResult).toBe(CommandResult.InvalidOffset);
+
+    // too large
+    model.dispatch("RESIZE_VIEWPORT", { height: 1000, width: 1000 });
+    const { height } = model.getters.getGridDimension(model.getters.getActiveSheet());
+
+    const tooLargeOffsetResult = model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: 0,
+      offsetY: height + HEADER_HEIGHT - 1000 + 1,
+    });
+    expect(tooLargeOffsetResult).toBe(CommandResult.InvalidOffset);
+  });
+
   test("Resize (increase) columns correctly affects viewport without changing the offset", () => {
     const { cols } = model.getters.getActiveSheet();
     model.dispatch("SET_VIEWPORT_OFFSET", {
@@ -399,9 +419,9 @@ describe("Viewport of Simple sheet", () => {
     });
   });
   test("Horizontally move position to top right then back to top left correctly affects offset", () => {
-    const { cols } = model.getters.getActiveSheet();
     const { right } = model.getters.getActiveViewport();
-    model.dispatch("MOVE_POSITION", { deltaX: right, deltaY: 0 });
+    selectCell(model, toXC(right - 1, 0));
+    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 42,
@@ -413,40 +433,30 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveViewport()).toMatchObject(
       model.getters.getActiveSnappedViewport()
     );
-    model.dispatch("MOVE_POSITION", { deltaX: 5, deltaY: 0 });
+    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 42,
-      left: 6,
-      right: 15,
-      offsetX: DEFAULT_CELL_WIDTH * 6,
+      left: 3,
+      right: 12,
+      offsetX: DEFAULT_CELL_WIDTH * 3,
       offsetY: 0,
     });
     expect(model.getters.getActiveViewport()).toMatchObject(
       model.getters.getActiveSnappedViewport()
     );
-    model.dispatch("MOVE_POSITION", {
-      deltaX: cols.length - 2 - model.getters.getPosition()[0], // target penultimate cell to trigger a move
-      deltaY: 0,
-    });
+
+    const { left } = model.getters.getActiveSnappedViewport();
+    selectCell(model, toXC(left, 0));
+    model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 });
+    model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 });
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 42,
-      left: 16,
-      right: 25,
-      offsetX: DEFAULT_CELL_WIDTH * 16,
-      offsetY: 0,
-    });
-    expect(model.getters.getActiveViewport()).toMatchObject(
-      model.getters.getActiveSnappedViewport()
-    );
-    model.dispatch("MOVE_POSITION", { deltaX: -24, deltaY: 0 });
-    expect(model.getters.getActiveViewport()).toMatchObject({
-      top: 0,
-      bottom: 42,
-      left: 0,
-      right: 9,
-      offsetX: 0,
+      left: 1,
+      right: 10,
+      offsetX: DEFAULT_CELL_WIDTH,
       offsetY: 0,
     });
     expect(model.getters.getActiveViewport()).toMatchObject(
@@ -455,9 +465,9 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Vertically move position to bottom left then back to top left correctly affects offset", () => {
-    const { rows } = model.getters.getActiveSheet();
     const { bottom } = model.getters.getActiveViewport();
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: bottom });
+    selectCell(model, toXC(0, bottom - 1));
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 1,
       bottom: 43,
@@ -469,41 +479,30 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveViewport()).toMatchObject(
       model.getters.getActiveSnappedViewport()
     );
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 5 });
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
     expect(model.getters.getActiveViewport()).toMatchObject({
-      top: 6,
-      bottom: 48,
+      top: 3,
+      bottom: 45,
       left: 0,
       right: 9,
       offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 6,
+      offsetY: DEFAULT_CELL_HEIGHT * 3,
     });
     expect(model.getters.getActiveViewport()).toMatchObject(
       model.getters.getActiveSnappedViewport()
     );
-    model.dispatch("MOVE_POSITION", {
-      deltaX: 0,
-      deltaY: rows.length - 2 - model.getters.getPosition()[1], // target penultimate cell to trigger a move
-    });
+    const { top } = model.getters.getActiveViewport();
+    selectCell(model, toXC(0, top));
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
     expect(model.getters.getActiveViewport()).toMatchObject({
-      top: 57,
-      bottom: 99,
+      top: 1,
+      bottom: 43,
       left: 0,
       right: 9,
       offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 57,
-    });
-    expect(model.getters.getActiveViewport()).toMatchObject(
-      model.getters.getActiveSnappedViewport()
-    );
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -98 });
-    expect(model.getters.getActiveViewport()).toMatchObject({
-      top: 0,
-      bottom: 42,
-      left: 0,
-      right: 9,
-      offsetX: 0,
-      offsetY: 0,
+      offsetY: DEFAULT_CELL_HEIGHT,
     });
     expect(model.getters.getActiveViewport()).toMatchObject(
       model.getters.getActiveSnappedViewport()
@@ -512,46 +511,47 @@ describe("Viewport of Simple sheet", () => {
 
   test("Move position on cells that are taller than the client's height", () => {
     const { height } = model.getters.getViewportDimension();
-    resizeRows(model, [1], height + 50);
+    resizeRows(model, [0], height + 50);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
-      bottom: 1,
+      bottom: 0,
       left: 0,
       right: 9,
       offsetX: 0,
       offsetY: 0,
     });
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 2 });
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
     expect(model.getters.getActiveViewport()).toMatchObject({
-      top: 2,
-      bottom: 44,
+      top: 1,
+      bottom: 43,
       left: 0,
       right: 9,
       offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT + height + 50, // row1 + row2
+      offsetY: height + 50, // row1 + row2
     });
     expect(model.getters.getActiveViewport()).toMatchObject(
       model.getters.getActiveSnappedViewport()
     );
   });
+
   test("Move position on cells wider than the client's width", () => {
     const { width } = model.getters.getViewportDimension();
-    resizeColumns(model, ["B"], width + 50);
+    resizeColumns(model, ["A"], width + 50);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 42,
       left: 0,
-      right: 1,
+      right: 0,
       offsetX: 0,
       offsetY: 0,
     });
-    model.dispatch("MOVE_POSITION", { deltaX: 2, deltaY: 0 });
+    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 42,
-      left: 2,
-      right: 11,
-      offsetX: DEFAULT_CELL_WIDTH + width + 50, // colA + colB
+      left: 1,
+      right: 10,
+      offsetX: width + 50, // colA + colB
       offsetY: 0,
     });
     expect(model.getters.getActiveViewport()).toMatchObject(
@@ -582,6 +582,36 @@ describe("Viewport of Simple sheet", () => {
       ...viewport,
       bottom: viewport.top + Math.ceil((500 - HEADER_HEIGHT) / DEFAULT_CELL_HEIGHT) - 1,
       right: viewport.left + Math.ceil((500 - HEADER_WIDTH) / DEFAULT_CELL_WIDTH) - 1,
+    });
+  });
+
+  test("Resizing the viewport impacts current Offset", () => {
+    // set coherent size and offset limit
+    model.dispatch("RESIZE_VIEWPORT", {
+      width: 1000,
+      height: 1000,
+    });
+    let { width: gridWidth, height: gridHeight } = model.getters.getGridDimension(
+      model.getters.getActiveSheet()
+    );
+    let { width, height } = model.getters.getViewportDimension();
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: gridWidth - width + HEADER_WIDTH,
+      offsetY: gridHeight - height + HEADER_HEIGHT,
+    });
+    // de-zoom
+    model.dispatch("RESIZE_VIEWPORT", {
+      width: 1250,
+      height: 1250,
+    });
+    ({ width, height } = model.getters.getViewportDimension());
+    ({ width: gridWidth, height: gridHeight } = model.getters.getGridDimension(
+      model.getters.getActiveSheet()
+    ));
+
+    expect(model.getters.getActiveViewport()).toMatchObject({
+      offsetX: gridWidth - width + HEADER_WIDTH,
+      offsetY: gridHeight - height + HEADER_HEIGHT,
     });
   });
 });
@@ -675,8 +705,7 @@ describe("multi sheet with different sizes", () => {
       right: 2,
     });
   });
-  test.skip("can undo/redo actions on other sheets", () => {
-    // Currently broken due to issue with selection
+  test("can undo/redo actions on other sheets", () => {
     activateSheet(model, "small");
     addColumns(model, "after", "A", 200);
     selectCell(model, toXC(200, 0));

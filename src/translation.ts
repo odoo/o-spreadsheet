@@ -34,11 +34,11 @@ export const _lt: TranslationFunction = function (
   s,
   ...values: string[] | [{ [key: string]: string }]
 ) {
-  return ({
+  return {
     toString: function () {
       return sprintf(_t(s), ...values);
     },
     // casts the object to unknown then to string to trick typescript into thinking that the object it receives is actually a string
     // this way it will be typed correctly (behaves like a string) but tests like typeof _lt("whatever") will be object and not string !
-  } as unknown) as string;
+  } as unknown as string;
 };

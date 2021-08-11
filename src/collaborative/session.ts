@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
-import { uuidv4 } from "../helpers";
+import { UuidGenerator } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
 import { isDefined } from "../helpers/misc";
 import { SelectiveHistory as RevisionLog } from "../history/selective_history";
@@ -38,6 +38,7 @@ export class Session extends EventBus<CollaborativeEvent> {
 
   private processedRevisions: Set<UID> = new Set();
 
+  private uuidGenerator = new UuidGenerator();
   /**
    * Manages the collaboration between multiple users on the same spreadsheet.
    * It can forward local state changes to other users to ensure they all eventually
@@ -73,7 +74,7 @@ export class Session extends EventBus<CollaborativeEvent> {
    */
   save(commands: CoreCommand[], changes: HistoryChange[]) {
     if (!commands.length || !changes.length) return;
-    const revision = new Revision(uuidv4(), this.clientId, commands, changes);
+    const revision = new Revision(this.uuidGenerator.uuidv4(), this.clientId, commands, changes);
     this.revisions.append(revision.id, revision);
     this.trigger("new-local-state-update", { id: revision.id });
     this.sendUpdateMessage({
@@ -91,7 +92,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       type: "REVISION_UNDONE",
       version: MESSAGE_VERSION,
       serverRevisionId: this.serverRevisionId,
-      nextRevisionId: uuidv4(),
+      nextRevisionId: this.uuidGenerator.uuidv4(),
       undoneRevisionId: revisionId,
     });
   }
@@ -101,7 +102,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       type: "REVISION_REDONE",
       version: MESSAGE_VERSION,
       serverRevisionId: this.serverRevisionId,
-      nextRevisionId: uuidv4(),
+      nextRevisionId: this.uuidGenerator.uuidv4(),
       redoneRevisionId: revisionId,
     });
   }
@@ -141,7 +142,7 @@ export class Session extends EventBus<CollaborativeEvent> {
    * Send a snapshot of the spreadsheet to the collaboration server
    */
   snapshot(data: WorkbookData) {
-    const snapshotId = uuidv4();
+    const snapshotId = this.uuidGenerator.uuidv4();
     this.transportService.sendMessage({
       type: "SNAPSHOT",
       nextRevisionId: snapshotId,

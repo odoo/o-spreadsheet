@@ -1,7 +1,7 @@
-import { MESSAGE_VERSION } from "../../src/constants";
+import { HEADER_WIDTH, MESSAGE_VERSION } from "../../src/constants";
 import { scrollDelay, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { merge, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { merge, selectCell, setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick, Touch } from "../test_helpers/helpers";
@@ -382,11 +382,7 @@ describe("Grid component", () => {
     });
 
     test("can automatically sum multiple zones in an empty sheet with ALT+=", () => {
-      model.dispatch("SET_SELECTION", {
-        anchor: [0, 0],
-        zones: [toZone("A1:B2"), toZone("C4:C6")],
-        anchorZone: toZone("C4:C6"),
-      });
+      setSelection(model, ["A1:B2", "C4:C6"]);
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
       );
@@ -424,11 +420,8 @@ describe("Grid component", () => {
     test("automatic sum does not open composer when multiple zones are summed", () => {
       setCellContent(model, "A1", "2");
       setCellContent(model, "B1", "2");
-      model.dispatch("SET_SELECTION", {
-        anchor: [0, 1],
-        zones: [toZone("A2:B2")],
-        anchorZone: toZone("A2:B2"),
-      });
+      setSelection(model, ["A2:B2"]);
+
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
       );
@@ -440,11 +433,8 @@ describe("Grid component", () => {
     test("automatic sum does not open composer with column full of data", () => {
       setCellContent(model, "A1", "2");
       setCellContent(model, "A2", "2");
-      model.dispatch("SET_SELECTION", {
-        anchor: [0, 0],
-        zones: [toZone("A1:A2")],
-        anchorZone: toZone("A1:A2"),
-      });
+      setSelection(model, ["A1:A2"]);
+
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
       );
@@ -737,6 +727,31 @@ describe("Events on Grid update viewport correctly", () => {
       left: 1,
       right: 10,
     });
+  });
+
+  test("Scroll viewport then alter selection with keyboard from before last cell to last cell does not shift viewport", async () => {
+    await simulateClick("canvas"); // gain focus on grid element
+    const { width } = model.getters.getGridDimension(model.getters.getActiveSheet());
+    const { width: viewportWidth } = model.getters.getViewportDimension();
+    document.activeElement!.dispatchEvent(
+      // scroll completely to the right
+      new WheelEvent("wheel", {
+        deltaY: width - viewportWidth + HEADER_WIDTH,
+        deltaX: 0,
+        shiftKey: true,
+        deltaMode: 0,
+        bubbles: true,
+      })
+    );
+    const viewport = model.getters.getActiveSnappedViewport();
+    selectCell(model, "Y1");
+    await nextTick();
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject(viewport);
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowRight", shiftKey: true, bubbles: true })
+    );
+    await nextTick();
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject(viewport);
   });
 
   describe("Edge-Scrolling on mouseMove in selection", () => {

@@ -3,7 +3,7 @@ import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID, MAXIMUM_EVALUATION_CHECK_DELAY_MS } from "./constants";
 import { createEmptyExcelWorkbookData, createEmptyWorkbookData, load } from "./data";
-import { DEBUG, setIsFastStrategy, uuidv4 } from "./helpers/index";
+import { DEBUG, UuidGenerator } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
 import { LocalHistory } from "./history/local_history";
 import { RangeAdapter } from "./plugins/core/range";
@@ -120,10 +120,13 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   getters: Getters;
 
+  uuidGenerator: UuidGenerator;
+
   constructor(
     data: any = {},
     config: Partial<ModelConfig> = {},
-    stateUpdateMessages: StateUpdateMessage[] = []
+    stateUpdateMessages: StateUpdateMessage[] = [],
+    uuidGenerator: UuidGenerator = new UuidGenerator()
   ) {
     super();
     DEBUG.model = this;
@@ -131,6 +134,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     const workbookData = load(data);
 
     this.state = new StateObserver();
+
+    this.uuidGenerator = uuidGenerator;
 
     this.config = this.setupConfig(config);
 
@@ -154,7 +159,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     this.getters.getRangeFromSheetXC = this.range.getRangeFromSheetXC.bind(this.range);
     this.getters.createAdaptedRanges = this.range.createAdaptedRanges.bind(this.range);
 
-    setIsFastStrategy(true);
+    this.uuidGenerator.setIsFastStrategy(true);
     // registering plugins
     for (let Plugin of corePluginRegistry.getAll()) {
       this.setupCorePlugin(Plugin, workbookData);
@@ -164,7 +169,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       this.setupUiPlugin(Plugin);
     }
 
-    setIsFastStrategy(false);
+    this.uuidGenerator.setIsFastStrategy(false);
 
     // starting plugins
     this.dispatch("START");
@@ -222,7 +227,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         this.state,
         this.range,
         this.dispatchFromCorePlugin,
-        this.config
+        this.config,
+        this.uuidGenerator
       );
       plugin.import(data);
       for (let name of Plugin.getters) {
@@ -270,7 +276,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   }
 
   private setupConfig(config: Partial<ModelConfig>): ModelConfig {
-    const client = config.client || { id: uuidv4(), name: _lt("Anonymous").toString() };
+    const client = config.client || {
+      id: this.uuidGenerator.uuidv4(),
+      name: _lt("Anonymous").toString(),
+    };
     const transportService = config.transportService || new LocalTransportService();
     return {
       mode: config.mode || "normal",

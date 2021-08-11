@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { rangeReference } from "../../../formulas";
-import { colorNumberString, toZone, uuidv4 } from "../../../helpers/index";
+import { colorNumberString, toZone } from "../../../helpers/index";
 import {
   ColorScaleRule,
   CommandResult,
@@ -438,7 +438,8 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
       const result = this.env.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: this.getEditorRule(),
-          id: this.state.mode === "edit" ? this.state.currentCF.id : uuidv4(),
+          id:
+            this.state.mode === "edit" ? this.state.currentCF.id : this.env.uuidGenerator.uuidv4(),
         },
         target: this.state.currentCF.ranges.map(toZone),
         sheetId: this.getters.getActiveSheetId(),
@@ -468,7 +469,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     this.state.currentCFType = "CellIsRule";
     this.state.rules["CellIsRule"] = CellIsRuleEditor.getDefaultRule();
     this.state.currentCF = {
-      id: uuidv4(),
+      id: this.env.uuidGenerator.uuidv4(),
       ranges: this.getters
         .getSelectedZones()
         .map((zone) => this.getters.zoneToXC(this.getters.getActiveSheetId(), zone)),

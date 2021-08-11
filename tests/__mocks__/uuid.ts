@@ -1,9 +1,13 @@
-let nextId = 1;
+export class UuidGenerator {
+  private nextId = 1;
 
-export function setIsFastStrategy() {}
+  setIsFastStrategy(isFast: boolean) {}
 
-export function uuidv4(): string {
-  return String(nextId++);
+  uuidv4(): string {
+    return String(this.nextId++);
+  }
+
+  setNextId(i: number) {
+    this.nextId = i;
+  }
 }
-
-export const setNextId = (i) => (nextId = i);

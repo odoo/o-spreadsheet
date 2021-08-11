@@ -6,7 +6,7 @@ import { Model } from "../../src/model";
 import { topbarComponentRegistry } from "../../src/registries";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { ConditionalFormat } from "../../src/types";
-import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { selectCell, setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getBorder, getCell } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
@@ -366,8 +366,7 @@ describe("TopBar - CF", () => {
       sheetId: model.getters.getActiveSheetId(),
       target: cfRule.ranges.map(toZone),
     });
-    const zone = { left: 0, top: 0, bottom: 10, right: 10 };
-    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0], anchorZone: zone });
+    setSelection(model, ["A1:K11"]);
 
     triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
     await nextTick();
@@ -416,8 +415,7 @@ describe("TopBar - CF", () => {
       sheetId: model.getters.getActiveSheetId(),
       target: cfRule2.ranges.map(toZone),
     });
-    const zone = { left: 0, top: 0, bottom: 10, right: 10 };
-    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0], anchorZone: zone });
+    setSelection(model, ["A1:K11"]);
 
     triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
     await nextTick();

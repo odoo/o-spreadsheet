@@ -2,8 +2,6 @@
 // Coordinate
 //------------------------------------------------------------------------------
 
-import { Sheet } from "../types";
-
 /**
  * Convert a (col) number to the corresponding letter.
  *
@@ -70,11 +68,4 @@ export function toCartesian(xc: string): [number, number] {
  */
 export function toXC(col: number, row: number): string {
   return numberToLetters(col) + String(row + 1);
-}
-
-export function getNextVisibleCellCoords(sheet: Sheet, col: number, row: number): [number, number] {
-  return [
-    sheet.cols.slice(col).findIndex((c) => !c.isHidden) + col,
-    sheet.rows.slice(row).findIndex((r) => !r.isHidden) + row,
-  ];
 }

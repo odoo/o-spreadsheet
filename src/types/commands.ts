@@ -1,7 +1,15 @@
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
-import { ChartUIDefinitionUpdate } from "./chart";
-import { BorderCommand, ChartUIDefinition, ConditionalFormat, Figure, Style, Zone } from "./index";
+import {
+  BorderCommand,
+  ChartUIDefinition,
+  ChartUIDefinitionUpdate,
+  ConditionalFormat,
+  Figure,
+  Increment,
+  Style,
+  Zone,
+} from "./index";
 import { Border, Cell, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
 
 // -----------------------------------------------------------------------------
@@ -444,8 +452,8 @@ export interface AutoresizeRowsCommand extends BaseCommand {
 
 export interface MovePositionCommand extends BaseCommand {
   type: "MOVE_POSITION";
-  deltaX: number;
-  deltaY: number;
+  deltaX: Increment;
+  deltaY: Increment;
 }
 
 export interface ActivateSheetCommand extends BaseCommand {
@@ -558,7 +566,7 @@ export interface SelectAllCommand extends BaseCommand {
 
 export interface AlterSelectionCommand extends BaseCommand {
   type: "ALTER_SELECTION";
-  delta?: [number, number];
+  delta?: [Increment, Increment];
   cell?: [number, number];
 }
 
@@ -1020,6 +1028,8 @@ export const enum CommandResult {
   MergeOverlap,
   TooManyHiddenElements,
   Readonly,
+  InvalidOffset,
+  InvalidViewportSize,
 }
 
 export interface CommandHandler<T> {

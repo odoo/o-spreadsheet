@@ -346,10 +346,10 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     class="o-grid o-two-columns"
   >
     <canvas
-      height="150"
-      style="width:-15px;height:-15px;"
+      height="985"
+      style="width:985px;height:985px;"
       tabindex="-1"
-      width="300"
+      width="985"
     />
     <div
       class="o-autofill"

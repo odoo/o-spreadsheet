@@ -13,7 +13,6 @@ import {
   stringify,
   toCartesian,
   toXC,
-  uuidv4,
 } from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
@@ -58,6 +57,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "getCellValue",
     "getCellStyle",
     "buildFormulaContent",
+    "getCellById",
   ];
 
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
@@ -369,6 +369,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   export(data: WorkbookData) {
     let styleId = 0;
     const styles: { [styleId: number]: Style } = {};
+
     /**
      * Get the id of the given style. If the style does not exist, it creates
      * one.
@@ -382,6 +383,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       styles[++styleId] = style;
       return styleId;
     }
+
     for (let _sheet of data.sheets) {
       const cells: { [key: string]: CellData } = {};
       for (let [cellId, cell] of Object.entries(this.cells[_sheet.id] || {})) {
@@ -423,6 +425,19 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
   getCells(sheetId: UID): Record<UID, Cell> {
     return this.cells[sheetId] || {};
+  }
+
+  /**
+   * get a cell by ID. Used in evaluation when evaluating an async cell, we need to be able to find it back after
+   * starting an async evaluation even if it has been moved or re-allocated
+   */
+  getCellById(cellId: UID): Cell | undefined {
+    for (const sheet of Object.values(this.cells)) {
+      if (sheet[cellId]) {
+        return sheet[cellId];
+      }
+    }
+    return undefined;
   }
 
   buildFormulaContent(sheetId: UID, formula: string, dependencies: Range[]): string {
@@ -642,7 +657,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     } else {
       // the current content cannot be reused, so we need to recompute the
       // derived
-      const cellId = before?.id || uuidv4();
+      const cellId = before?.id || this.uuidGenerator.uuidv4();
 
       let formulaString = after.formula;
       if (!formulaString && afterContent[0] === "=") {

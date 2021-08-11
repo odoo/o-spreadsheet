@@ -324,9 +324,10 @@ export class Tree<T = unknown> {
     this.insertPrevious(previousBranch, operationToInsert, insertAfter);
   }
 
-  private findPreviousBranchingOperation(
-    branch: Branch<T>
-  ): { previousBranch?: Branch<T>; branchingOperation?: Operation<T> } {
+  private findPreviousBranchingOperation(branch: Branch<T>): {
+    previousBranch?: Branch<T>;
+    branchingOperation?: Operation<T>;
+  } {
     const previousBranch = this.previousBranch(branch);
     if (!previousBranch) return { previousBranch: undefined, branchingOperation: undefined };
     const previousBranchingId = this.branchingOperationIds.get(previousBranch);

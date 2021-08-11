@@ -18,8 +18,9 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getMerges } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers";
-import { mockUuidV4To, toPosition } from "../test_helpers/helpers";
+import { toPosition } from "../test_helpers/helpers";
 
+jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 describe("data", () => {
   test("give default col size if not specified", () => {
     const model = new Model();
@@ -32,7 +33,6 @@ describe("data", () => {
 
 describe("Migrations", () => {
   test("Can upgrade from 1 to 9", () => {
-    mockUuidV4To(333);
     const model = new Model({
       version: 1,
       sheets: [
@@ -60,7 +60,6 @@ describe("Migrations", () => {
     expect(data.sheets[0].cells.A1!.formula!.dependencies).toBeDefined();
   });
   test("migration 6 to 9: charts", () => {
-    mockUuidV4To(333);
     const model = new Model({
       version: 6,
       sheets: [
