@@ -1,4 +1,5 @@
-import { numberToLetters } from "../../helpers/index";
+import { BACKGROUND_CHART_COLOR } from "../../constants";
+import { numberToLetters, zoneToXc } from "../../helpers/index";
 import { _lt } from "../../translation";
 import { SpreadsheetEnv, Style } from "../../types/index";
 
@@ -510,7 +511,45 @@ export const CREATE_SHEET_ACTION = (env: SpreadsheetEnv) => {
 //------------------------------------------------------------------------------
 
 export const CREATE_CHART = (env: SpreadsheetEnv) => {
-  env.openSidePanel("ChartPanel");
+  const zone = env.getters.getSelectedZone();
+  let dataSetZone = zone;
+  const id = env.uuidGenerator.uuidv4();
+  let labelRange: string | undefined;
+  if (zone.left !== zone.right) {
+    labelRange = zoneToXc({ ...zone, right: zone.left, top: zone.top + 1 });
+    dataSetZone = { ...zone, left: zone.left + 1 };
+  }
+  const dataSets = [zoneToXc(dataSetZone)];
+  const sheetId = env.getters.getActiveSheetId();
+  const position = {
+    x: env.getters.getCol(sheetId, zone.right + 1)?.start || 0,
+    y: env.getters.getRow(sheetId, zone.top)?.start || 0,
+  };
+  let dataSetsHaveTitle = false;
+  for (let x = dataSetZone.left; x <= dataSetZone.right; x++) {
+    const cell = env.getters.getCell(sheetId, x, zone.top);
+    if (cell && typeof cell.value !== "number") {
+      dataSetsHaveTitle = true;
+    }
+  }
+  env.dispatch("CREATE_CHART", {
+    sheetId,
+    id,
+    position,
+    definition: {
+      title: "",
+      dataSets,
+      labelRange,
+      type: "bar",
+      stackedBar: false,
+      dataSetsHaveTitle,
+      background: BACKGROUND_CHART_COLOR,
+      verticalAxisPosition: "left",
+      legendPosition: "top",
+    },
+  });
+  const figure = env.getters.getFigure(sheetId, id);
+  env.openSidePanel("ChartPanel", { figure });
 };
 
 //------------------------------------------------------------------------------
