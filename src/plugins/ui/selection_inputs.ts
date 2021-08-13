@@ -1,8 +1,15 @@
-import { getComposerSheetName, getNextColor, rangeReference } from "../../helpers/index";
+import {
+  getComposerSheetName,
+  getNextColor,
+  rangeReference,
+  UuidGenerator,
+} from "../../helpers/index";
 import { Mode } from "../../model";
 import { Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 import { SelectionMode } from "./selection";
+
+const uuidGenerator = new UuidGenerator();
 
 export interface RangeInputValue {
   id: UID;
@@ -329,13 +336,13 @@ export class SelectionInputPlugin extends UIPlugin {
   private highlightsToInput(highlights: Highlight[], activeSheetId: UID): RangeInputValue[] {
     const toXC = this.getters.zoneToXC;
     const sheetId = this.getters.getActiveSheetId();
-    return highlights.map((h, i) =>
+    return highlights.map((h) =>
       Object.freeze({
         xc:
           h.sheet !== activeSheetId
             ? `${getComposerSheetName(this.getters.getSheetName(h.sheet))}!${toXC(sheetId, h.zone)}`
             : toXC(sheetId, h.zone),
-        id: i.toString(),
+        id: uuidGenerator.uuidv4(),
         color: h.color,
       })
     );
