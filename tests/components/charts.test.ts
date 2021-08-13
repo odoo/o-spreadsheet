@@ -50,7 +50,7 @@ jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(()
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
 
 let fixture: HTMLElement;
-let model;
+let model: Model;
 let mockChartData = mockChart();
 let chartId: string;
 
@@ -392,6 +392,25 @@ describe("figures", () => {
     await nextTick();
     await simulateClick(".o-data-labels .o-selection-ok");
     expect(errorMessages()).toEqual(["Labels are invalid"]);
+  });
+
+  test("Can remove the last data series", async () => {
+    await simulateClick(".o-figure");
+    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-menu div[data-name='edit']");
+    await simulateClick(".o-data-series .o-add-selection");
+    const element = document.querySelectorAll(".o-data-series input")[1];
+    setInputValueAndTrigger(element, "C1:C4", "change");
+    await nextTick();
+    await simulateClick(".o-data-series .o-selection-ok");
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getChartDefinitionUI(sheetId, chartId).dataSets).toEqual([
+      "B1:B4",
+      "C1:C4",
+    ]);
+    const remove = document.querySelectorAll(".o-data-series .o-remove-selection")[1];
+    await simulateClick(remove);
+    expect(model.getters.getChartDefinitionUI(sheetId, chartId).dataSets).toEqual(["B1:B4"]);
   });
 });
 describe("charts with multiple sheets", () => {
