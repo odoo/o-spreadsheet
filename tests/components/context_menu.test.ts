@@ -423,6 +423,28 @@ describe("Context Menu", () => {
     expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeTruthy();
   });
 
+  test("Menu with icon is correctly displayed", async () => {
+    const menuItems: FullMenuItem[] = [
+      createFullMenuItem("root1", {
+        name: "root1",
+        sequence: 1,
+        icon: "not-displayed-class",
+        children: () => [
+          createFullMenuItem("root2", {
+            name: "root2",
+            sequence: 1,
+            action() {},
+            icon: "my-class",
+          }),
+        ],
+      }),
+    ];
+    await renderContextMenu(300, 990, { menuItems });
+    expect(fixture.querySelector("div[data-name='root1'] > i")).toBeNull();
+    await simulateClick("div[data-name='root1']");
+    expect(fixture.querySelector("div[data-name='root2'] > i")?.classList).toContain("my-class");
+  });
+
   test("Submenus are correctly hidden", async () => {
     const menuItems: FullMenuItem[] = [
       createFullMenuItem("root_1", {

@@ -39,6 +39,9 @@ const TEMPLATE = xml/* xml */ `
             <t t-if="isMenuRoot">
               ${icons.TRIANGLE_RIGHT_ICON}
             </t>
+            <t t-elif="menuItem.icon">
+              <i t-att-class="menuItem.icon" class="o-menu-item-icon"/>
+            </t>
           </div>
           <div t-if="menuItem.separator and !menuItem_last" class="o-separator"/>
         </t>
@@ -88,7 +91,10 @@ const CSS = css/* scss */ `
       .o-menu-item-shortcut {
         color: grey;
       }
-
+      .o-menu-item-icon {
+        margin-top: auto;
+        margin-bottom: auto;
+      }
       .o-icon {
         width: 10px;
       }
