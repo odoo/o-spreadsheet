@@ -34,6 +34,7 @@ export interface MenuItem {
   action?: (env: SpreadsheetEnv) => void;
   children?: menuChildren;
   separator?: boolean;
+  icon?: string;
 }
 
 export type FullMenuItem = Required<MenuItem>;
@@ -48,6 +49,7 @@ const DEFAULT_MENU_ITEM = (key: string) => ({
   action: false,
   children: [],
   separator: false,
+  icon: false,
   id: key,
 });
 
