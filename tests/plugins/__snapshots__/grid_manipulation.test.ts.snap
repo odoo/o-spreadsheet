@@ -89,6 +89,105 @@ Object {
     "type": "formula",
     "value": null,
   },
+  "A5": Object {
+    "dependencies": Array [
+      Object {
+        "invalidSheetName": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 5,
+          "top": 0,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=SUM(|0|)",
+    },
+    "id": "9",
+    "type": "formula",
+    "value": 0,
+  },
+  "A6": Object {
+    "dependencies": Array [
+      Object {
+        "invalidSheetName": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 4,
+          "right": 5,
+          "top": 0,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=SUM(|0|)",
+    },
+    "id": "10",
+    "type": "formula",
+    "value": 0,
+  },
+  "A7": Object {
+    "dependencies": Array [
+      Object {
+        "invalidSheetName": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 1,
+          "left": 3,
+          "right": 3,
+          "top": 0,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=SUM(|0|)",
+    },
+    "id": "11",
+    "type": "formula",
+    "value": 0,
+  },
   "F1": Object {
     "dependencies": Array [
       Object {
@@ -234,7 +333,7 @@ Object {
       "compiledFormula": [Function],
       "text": "=|0|",
     },
-    "id": "9",
+    "id": "12",
     "type": "formula",
   },
   "A2": Object {
@@ -261,7 +360,7 @@ Object {
       "compiledFormula": [Function],
       "text": "=|0|",
     },
-    "id": "10",
+    "id": "13",
     "type": "formula",
   },
   "A3": Object {
@@ -288,7 +387,7 @@ Object {
       "compiledFormula": [Function],
       "text": "=|0|",
     },
-    "id": "11",
+    "id": "14",
     "type": "formula",
   },
 }
@@ -382,6 +481,105 @@ Object {
     "id": "4",
     "type": "formula",
     "value": null,
+  },
+  "A5": Object {
+    "dependencies": Array [
+      Object {
+        "invalidSheetName": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 1,
+          "top": 0,
+        },
+      },
+    ],
+    "error": "This formula depends on invalid values",
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=SUM(|0|)",
+    },
+    "id": "9",
+    "type": "formula",
+    "value": "#ERROR",
+  },
+  "A6": Object {
+    "dependencies": Array [
+      Object {
+        "invalidSheetName": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 1,
+          "top": 0,
+        },
+      },
+    ],
+    "error": "This formula depends on invalid values",
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=SUM(|0|)",
+    },
+    "id": "10",
+    "type": "formula",
+    "value": "#ERROR",
+  },
+  "A7": Object {
+    "dependencies": Array [
+      Object {
+        "invalidSheetName": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 1,
+          "left": 1,
+          "right": 0,
+          "top": 0,
+        },
+      },
+    ],
+    "error": "Cannot read property 'length' of undefined",
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=SUM(|0|)",
+    },
+    "id": "11",
+    "type": "formula",
+    "value": "#ERROR",
   },
   "B1": Object {
     "dependencies": Array [
@@ -528,7 +726,7 @@ Object {
       "compiledFormula": [Function],
       "text": "=|0|",
     },
-    "id": "9",
+    "id": "12",
     "type": "formula",
   },
   "A2": Object {
@@ -555,7 +753,7 @@ Object {
       "compiledFormula": [Function],
       "text": "=|0|",
     },
-    "id": "10",
+    "id": "13",
     "type": "formula",
   },
   "A3": Object {
@@ -582,7 +780,7 @@ Object {
       "compiledFormula": [Function],
       "text": "=|0|",
     },
-    "id": "11",
+    "id": "14",
     "type": "formula",
   },
 }
@@ -793,6 +991,105 @@ Object {
     "type": "formula",
     "value": null,
   },
+  "E1": Object {
+    "dependencies": Array [
+      Object {
+        "invalidSheetName": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 5,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=SUM(|0|)",
+    },
+    "id": "9",
+    "type": "formula",
+    "value": 0,
+  },
+  "F1": Object {
+    "dependencies": Array [
+      Object {
+        "invalidSheetName": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 5,
+          "left": 0,
+          "right": 0,
+          "top": 4,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=SUM(|0|)",
+    },
+    "id": "10",
+    "type": "formula",
+    "value": 0,
+  },
+  "G1": Object {
+    "dependencies": Array [
+      Object {
+        "invalidSheetName": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 3,
+          "left": 1,
+          "right": 2,
+          "top": 3,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=SUM(|0|)",
+    },
+    "id": "11",
+    "type": "formula",
+    "value": 0,
+  },
 }
 `;
 
@@ -822,7 +1119,7 @@ Object {
       "compiledFormula": [Function],
       "text": "=|0|",
     },
-    "id": "9",
+    "id": "12",
     "type": "formula",
   },
   "B1": Object {
@@ -849,7 +1146,7 @@ Object {
       "compiledFormula": [Function],
       "text": "=|0|",
     },
-    "id": "10",
+    "id": "13",
     "type": "formula",
   },
   "C1": Object {
@@ -876,7 +1173,7 @@ Object {
       "compiledFormula": [Function],
       "text": "=|0|",
     },
-    "id": "11",
+    "id": "14",
     "type": "formula",
   },
 }
@@ -1087,6 +1384,105 @@ Object {
     "type": "formula",
     "value": null,
   },
+  "E1": Object {
+    "dependencies": Array [
+      Object {
+        "invalidSheetName": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
+      },
+    ],
+    "error": "This formula depends on invalid values",
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=SUM(|0|)",
+    },
+    "id": "9",
+    "type": "formula",
+    "value": "#ERROR",
+  },
+  "F1": Object {
+    "dependencies": Array [
+      Object {
+        "invalidSheetName": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
+      },
+    ],
+    "error": "This formula depends on invalid values",
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=SUM(|0|)",
+    },
+    "id": "10",
+    "type": "formula",
+    "value": "#ERROR",
+  },
+  "G1": Object {
+    "dependencies": Array [
+      Object {
+        "invalidSheetName": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 2,
+          "top": 1,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=SUM(|0|)",
+    },
+    "id": "11",
+    "type": "formula",
+    "value": 0,
+  },
 }
 `;
 
@@ -1116,7 +1512,7 @@ Object {
       "compiledFormula": [Function],
       "text": "=|0|",
     },
-    "id": "9",
+    "id": "12",
     "type": "formula",
   },
   "B1": Object {
@@ -1143,7 +1539,7 @@ Object {
       "compiledFormula": [Function],
       "text": "=|0|",
     },
-    "id": "10",
+    "id": "13",
     "type": "formula",
   },
   "C1": Object {
@@ -1170,7 +1566,7 @@ Object {
       "compiledFormula": [Function],
       "text": "=|0|",
     },
-    "id": "11",
+    "id": "14",
     "type": "formula",
   },
 }

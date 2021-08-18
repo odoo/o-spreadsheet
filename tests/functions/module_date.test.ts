@@ -7,7 +7,7 @@ import {
 } from "../test_helpers/helpers";
 
 describe("DATE formula", () => {
-  test("functional tests on cell arguments", () => {
+  test("functional tests on cell arguments CHECK TIMEZONE IF FAILS", () => {
     // prettier-ignore
     const grid = {
       // YEAR / MONTH / DAY
