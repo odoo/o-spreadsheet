@@ -1,5 +1,4 @@
-import { rangeReference } from "../../formulas/index";
-import { getComposerSheetName, getNextColor } from "../../helpers/index";
+import { getComposerSheetName, getNextColor, rangeReference } from "../../helpers/index";
 import { Mode } from "../../model";
 import { Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";

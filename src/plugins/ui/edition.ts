@@ -1,9 +1,10 @@
 import { DATETIME_FORMAT } from "../../constants";
-import { composerTokenize, EnrichedToken, rangeReference } from "../../formulas/index";
+import { composerTokenize, EnrichedToken } from "../../formulas/index";
 import { formatDateTime } from "../../functions/dates";
 import {
   colors,
   getComposerSheetName,
+  rangeReference,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";

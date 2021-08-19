@@ -58,6 +58,13 @@ describe("clipboard", () => {
     expect(result).toBe(CommandResult.EmptyClipboard);
   });
 
+  test("paste without copied value interactively", () => {
+    const model = new Model();
+    const result = model.dispatch("PASTE", { target: [toZone("D2")], interactive: true });
+    expect(result).toBe(CommandResult.Success);
+    expect(getCellContent(model, "D2")).toBe("");
+  });
+
   test("paste zones without copied value", () => {
     const model = new Model();
     const zones = [toZone("A1"), toZone("B2")];

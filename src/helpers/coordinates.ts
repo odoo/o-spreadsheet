@@ -2,6 +2,8 @@
 // Coordinate
 //------------------------------------------------------------------------------
 
+import { cellReference } from "./references";
+
 /**
  * Convert a (col) number to the corresponding letter.
  *
@@ -48,7 +50,7 @@ export function lettersToNumber(letters: string): number {
  */
 export function toCartesian(xc: string): [number, number] {
   xc = xc.toUpperCase().trim();
-  const [m, letters, numbers] = xc.match(/\$?([A-Z]{1,3})\$?([0-9]{1,7})/)!;
+  const [m, letters, numbers] = xc.match(cellReference)!;
   if (m !== xc) {
     throw new Error(`Invalid cell description: ${xc}`);
   }

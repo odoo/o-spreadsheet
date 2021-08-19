@@ -1,10 +1,10 @@
 import { INCORRECT_RANGE_STRING } from "../../constants";
-import { rangeReference } from "../../formulas";
 import {
   createAdaptedZone,
   getComposerSheetName,
   groupConsecutive,
   numberToLetters,
+  rangeReference,
   toZoneWithoutBoundaryChanges,
 } from "../../helpers/index";
 import {

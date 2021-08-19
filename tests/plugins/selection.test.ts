@@ -337,6 +337,28 @@ describe("selection", () => {
       CommandResult.InvalidAnchorZone
     );
   });
+
+  test("Select a merge when its topLeft column is hidden", () => {
+    const model = new Model({
+      sheets: [{ colNumber: 3, rowNumber: 2, merges: ["A1:B2"], cols: { 0: { isHidden: true } } }],
+    });
+    selectCell(model, "B1");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
+    selectCell(model, "C2");
+    model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
+  });
+
+  test("Select a merge when its topLeft row is hidden", () => {
+    const model = new Model({
+      sheets: [{ colNumber: 2, rowNumber: 3, merges: ["A1:B2"], rows: { 0: { isHidden: true } } }],
+    });
+    selectCell(model, "A2");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
+    selectCell(model, "A3");
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
+  });
 });
 
 describe("multiple selections", () => {
