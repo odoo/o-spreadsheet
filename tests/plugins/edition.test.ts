@@ -219,6 +219,54 @@ describe("edition", () => {
     ]);
   });
 
+  test("different ranges have different colors", () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", {
+      text: "=SUM(A2:A3, B5)",
+    });
+    const [firstColor, secondColor] = model.getters.getHighlights().map((h) => h.color);
+    expect(firstColor).not.toBe(secondColor);
+  });
+
+  test("same ranges have same colors", () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", {
+      text: "=SUM(B5, B5)",
+    });
+    const [firstColor, secondColor] = model.getters.getHighlights().map((h) => h.color);
+    expect(firstColor).toBe(secondColor);
+  });
+
+  test("remove a range does not change colors of the next ranges", () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", {
+      text: "=SUM(A2, B5)",
+    });
+    let rangesColor = model.getters.getHighlights().map((h) => h.color);
+    const colorB5 = rangesColor[1];
+
+    model.dispatch("SET_CURRENT_CONTENT", {
+      content: "=SUM(B5)",
+    });
+    rangesColor = model.getters.getHighlights().map((h) => h.color);
+    expect(colorB5).toBe(rangesColor[0]);
+  });
+
+  test("add a range does not change colors of the next ranges", () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", {
+      text: "=SUM(B5)",
+    });
+    let rangesColor = model.getters.getHighlights().map((h) => h.color);
+    const colorB5 = rangesColor[0];
+
+    model.dispatch("SET_CURRENT_CONTENT", {
+      content: "=SUM(A2, B5)",
+    });
+    rangesColor = model.getters.getHighlights().map((h) => h.color);
+    expect(colorB5).toBe(rangesColor[1]);
+  });
+
   test("stop edition removes highlighted zones", () => {
     const model = new Model();
     model.dispatch("START_EDITION", {
