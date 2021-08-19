@@ -64,6 +64,7 @@ export class EditionPlugin extends UIPlugin {
   private multiSelectionInitialStart: number = 0;
   private initialContent: string | undefined = "";
   private previousRef: string = "";
+  private colorIndexByRange: { [xc: string]: number } = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -365,6 +366,7 @@ export class EditionPlugin extends UIPlugin {
     this.sheet = this.getters.getActiveSheetId();
     this.setContent(str || this.initialContent, selection);
     this.dispatch("REMOVE_ALL_HIGHLIGHTS");
+    this.colorIndexByRange = {};
   }
 
   private stopEdition() {
@@ -536,9 +538,9 @@ export class EditionPlugin extends UIPlugin {
       return;
     }
     this.dispatch("REMOVE_ALL_HIGHLIGHTS"); //cleanup highlights for references
-    const ranges: [string, string][] = [];
-    const colorByRange = {};
-    let lastUsedColorIndex = 0;
+    const ranges: string[] = [];
+    const colorIndexByRange: { [xc: string]: number } = {};
+
     for (let token of this.currentTokens.filter((token) => token.type === "SYMBOL")) {
       let value = token.value;
       const [xc, sheet] = value.split("!").reverse();
@@ -546,15 +548,32 @@ export class EditionPlugin extends UIPlugin {
         const refSanitized =
           (sheet ? `${sheet}!` : `${this.getters.getSheetName(this.getters.getEditionSheet())}!`) +
           xc.replace(/\$/g, "");
-        if (!colorByRange[refSanitized]) {
-          colorByRange[refSanitized] = colors[lastUsedColorIndex];
-          lastUsedColorIndex = ++lastUsedColorIndex % colors.length;
+
+        ranges.push(refSanitized);
+        const colorIndex = this.colorIndexByRange[refSanitized];
+        if (colorIndex !== undefined) {
+          colorIndexByRange[refSanitized] = colorIndex;
         }
-        ranges.push([refSanitized, colorByRange[refSanitized]]);
       }
     }
+
+    this.colorIndexByRange = colorIndexByRange;
+    let colorIndexes = Object.values(colorIndexByRange);
+    let nextColorIndex = 0;
     if (ranges.length) {
-      this.dispatch("ADD_HIGHLIGHTS", { ranges });
+      this.dispatch("ADD_HIGHLIGHTS", {
+        ranges: ranges.map((r): [string, string] => {
+          if (this.colorIndexByRange[r] === undefined) {
+            while (colorIndexes.includes(nextColorIndex)) {
+              nextColorIndex++;
+            }
+            colorIndexes.push(nextColorIndex);
+            this.colorIndexByRange[r] = nextColorIndex;
+          }
+
+          return [r, colors[this.colorIndexByRange[r] % colors.length]];
+        }),
+      });
     }
   }
 
