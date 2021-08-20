@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { DEFAULT_CELL_HEIGHT } from "../../constants";
+import { DEFAULT_CELL_HEIGHT, SELECTION_BORDER_COLOR } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
 import { getTextDecoration } from "../helpers/dom_helpers";
@@ -29,7 +29,7 @@ const CSS = css/* scss */ `
     z-index: 5;
     box-sizing: border-box;
     position: absolute;
-    border: ${COMPOSER_BORDER_WIDTH}px solid #3266ca;
+    border: ${COMPOSER_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};
   }
 `;
 
@@ -123,7 +123,7 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
 
   get composerStyle(): string {
     return `
-      line-height:${DEFAULT_CELL_HEIGHT - 2 * COMPOSER_BORDER_WIDTH}px;
+      line-height: ${DEFAULT_CELL_HEIGHT}px;
       max-height: inherit;
       overflow: hidden;
     `;

@@ -1,4 +1,5 @@
 import * as owl from "@odoo/owl";
+import { SELECTION_BORDER_COLOR } from "../constants";
 import { UuidGenerator } from "../helpers/index";
 import { RangeInputValue } from "../plugins/ui/selection_inputs";
 import { SpreadsheetEnv } from "../types";
@@ -69,7 +70,7 @@ const CSS = css/* scss */ `
         padding: 3px 5px;
       }
       input.o-focused {
-        border-color: #3266ca;
+        border-color: ${SELECTION_BORDER_COLOR};
       }
       input.o-invalid {
         border-color: red;

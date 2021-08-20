@@ -1,3 +1,4 @@
+import { SELECTION_BORDER_COLOR } from "../../constants";
 import { formatValue, isFormula } from "../../helpers/cells/index";
 import { clip, overlap } from "../../helpers/index";
 import { Mode } from "../../model";
@@ -657,7 +658,7 @@ export class ClipboardPlugin extends UIPlugin {
       return;
     }
     ctx.setLineDash([8, 5]);
-    ctx.strokeStyle = "#3266ca";
+    ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 3.3 * thinLineWidth;
     for (const zone of this.state.zones) {
       const [x, y, width, height] = this.getters.getRect(zone, viewport);

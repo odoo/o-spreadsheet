@@ -930,7 +930,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     const activeSheet = this.getters.getActiveSheetId();
     const [col, row] = this.getPosition();
 
-    ctx.strokeStyle = "#3266ca";
+    ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 3 * thinLineWidth;
     let zone: Zone;
     if (this.getters.isInMerge(activeSheet, col, row)) {

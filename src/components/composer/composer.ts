@@ -1,4 +1,5 @@
 import * as owl from "@odoo/owl";
+import { SELECTION_BORDER_COLOR } from "../../constants";
 import { EnrichedToken } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { DEBUG, rangeReference, zoneToXc } from "../../helpers/index";
@@ -97,8 +98,8 @@ const CSS = css/* scss */ `
     max-height: inherit;
     .o-composer {
       caret-color: black;
-      padding-left: 8px;
-      padding-right: 2px;
+      padding-left: 3px;
+      padding-right: 3px;
       word-break: break-all;
       &:focus {
         outline: none;
@@ -123,7 +124,7 @@ const CSS = css/* scss */ `
 
   /* Custom css to highlight topbar composer on focus */
   .o-topbar-toolbar .o-composer-container:focus-within {
-    box-shadow: 0px 0px 4px 5px rgba(60, 64, 67, 0.35);
+    border: 1px solid ${SELECTION_BORDER_COLOR};
   }
 `;
 
@@ -206,7 +207,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
       }
       return (assistantStyle += `width:${ASSISTANT_WIDTH}px;`);
     }
-    return "";
+    return `width:${ASSISTANT_WIDTH}px;`;
   }
 
   borderStyle = `box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);`;
