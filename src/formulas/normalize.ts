@@ -1,5 +1,5 @@
+import { cellReference } from "../helpers";
 import { NormalizedFormula } from "../types";
-import { cellReference } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
 import { FORMULA_REF_IDENTIFIER } from "./tokenizer";
 

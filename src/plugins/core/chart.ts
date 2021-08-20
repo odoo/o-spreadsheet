@@ -1,5 +1,4 @@
-import { rangeReference } from "../../formulas/parser";
-import { zoneToDimension, zoneToXc } from "../../helpers/index";
+import { rangeReference, zoneToDimension, zoneToXc } from "../../helpers/index";
 import {
   ApplyRangeChange,
   ChartDefinition,

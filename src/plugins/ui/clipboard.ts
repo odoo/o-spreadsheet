@@ -81,7 +81,7 @@ export class ClipboardPlugin extends UIPlugin {
         break;
       case "PASTE":
         if (!this.state) {
-          throw new Error("Clipboard state is empty");
+          break;
         }
         const pasteOption: ClipboardOptions | undefined =
           cmd.pasteOption || (this._isPaintingFormat ? "onlyFormat" : undefined);

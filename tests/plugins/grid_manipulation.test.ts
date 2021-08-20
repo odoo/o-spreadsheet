@@ -655,7 +655,7 @@ describe("Columns", () => {
           {
             id: "sheet1",
             colNumber: 7,
-            rowNumber: 4,
+            rowNumber: 7,
             cells: {
               A1: { content: "=B1" },
               A2: { content: "=Sheet1!B1" },
@@ -664,6 +664,9 @@ describe("Columns", () => {
               D2: { content: "=B1" },
               D3: { content: "=$E1" },
               D4: { content: "=D3" },
+              A5: { content: "=SUM(A1:D1)" },
+              A6: { content: "=SUM(C1:D1)" },
+              A7: { content: "=SUM(B1:B2)" },
             },
           },
           {
@@ -800,10 +803,13 @@ describe("Columns", () => {
             rowNumber: 9,
             cells: {
               A1: { content: "=SUM(B2:E5)" },
+              A2: { content: "=SUM(F1:F2)" }, // single column range
             },
           },
         ],
       });
+      deleteColumns(model, ["F"]);
+      expect(getCellText(model, "A2")).toBe("=SUM(#REF)");
       deleteColumns(model, ["B", "C", "D", "E"]);
       expect(getCellText(model, "A1", "s1")).toBe(`=SUM(${INCORRECT_RANGE_STRING})`);
     });
@@ -1097,14 +1103,17 @@ describe("Rows", () => {
         sheets: [
           {
             id: "sheet1",
-            colNumber: 3,
+            colNumber: 5,
             rowNumber: 9,
             cells: {
               A1: { content: "=SUM(A2:A5)" },
+              B1: { content: "=SUM(B6:C6)" }, // single line range
             },
           },
         ],
       });
+      deleteRows(model, [5]);
+      expect(getCellText(model, "B1")).toBe("=SUM(#REF)");
       deleteRows(model, [1, 2, 3, 4]);
       expect(getCellText(model, "A1")).toBe(`=SUM(${INCORRECT_RANGE_STRING})`);
     });
@@ -1421,7 +1430,7 @@ describe("Rows", () => {
         sheets: [
           {
             id: "sheet1",
-            colNumber: 4,
+            colNumber: 7,
             rowNumber: 7,
             cells: {
               A1: { content: "=A2" },
@@ -1431,6 +1440,9 @@ describe("Rows", () => {
               C1: { content: "=Sheet2!A2" },
               C4: { content: "=A$5" },
               D4: { content: "=C4" },
+              E1: { content: "=SUM(A1:A4)" },
+              F1: { content: "=SUM(A3:A4)" },
+              G1: { content: "=SUM(B2:C2)" },
             },
           },
           {
