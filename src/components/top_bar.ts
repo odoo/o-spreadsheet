@@ -162,6 +162,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   static style = css/* scss */ `
     .o-spreadsheet-topbar {
       background-color: white;
+      line-height: 1.2;
       display: flex;
       flex-direction: column;
       font-size: 13px;
@@ -204,6 +205,13 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           background-color: ${BACKGROUND_HEADER_COLOR};
           padding-left: 18px;
           padding-right: 18px;
+          }
+        .o-composer-container {
+          height: 34px;
+          border: 1px solid #e0e2e4;
+          margin-top: -1px;
+          margin-bottom: -1px;
+          margin-right: -1px;
         }
 
         /* Toolbar */

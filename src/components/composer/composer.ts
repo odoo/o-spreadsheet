@@ -97,7 +97,7 @@ const CSS = css/* scss */ `
     max-height: inherit;
     .o-composer {
       caret-color: black;
-      padding-left: 8px;
+      padding-left: 2px;
       padding-right: 2px;
       word-break: break-all;
       &:focus {
@@ -123,7 +123,7 @@ const CSS = css/* scss */ `
 
   /* Custom css to highlight topbar composer on focus */
   .o-topbar-toolbar .o-composer-container:focus-within {
-    box-shadow: 0px 0px 4px 5px rgba(60, 64, 67, 0.35);
+    border: 1px solid #3266ca;
   }
 `;
 
