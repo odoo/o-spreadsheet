@@ -21,6 +21,8 @@ import {
 } from "../types/collaborative/transport_service";
 import { Revision } from "./revisions";
 
+export class ClientDisconnectedError extends Error {}
+
 export class Session extends EventBus<CollaborativeEvent> {
   /**
    * Positions of the others client.
@@ -155,7 +157,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   getClient(): Client {
     const client = this.clients[this.clientId];
     if (!client) {
-      throw new Error("The client left the session");
+      throw new ClientDisconnectedError("The client left the session");
     }
     return client;
   }

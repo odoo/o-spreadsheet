@@ -1,3 +1,4 @@
+import { ClientDisconnectedError } from "../../collaborative/session";
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE } from "../../constants";
 import { Mode } from "../../model";
 import { Client, ClientPosition, GridRenderingContext, LAYERS, UID } from "../../types";
@@ -52,6 +53,15 @@ export class SelectionMultiUserPlugin extends UIPlugin {
    * and with a valid position
    */
   getClientsToDisplay(): ClientToDisplay[] {
+    try {
+      this.getters.getClient();
+    } catch (e) {
+      if (e instanceof ClientDisconnectedError) {
+        return [];
+      } else {
+        throw e;
+      }
+    }
     const sheetId = this.getters.getActiveSheetId();
     const clients: ClientToDisplay[] = [];
     for (const client of this.getters.getConnectedClients()) {
