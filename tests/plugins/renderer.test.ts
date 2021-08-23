@@ -125,6 +125,58 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["left", "left", "center"]); // center for headers
   });
 
+  test("Cells evaluating to a number are properly aligned on overflow", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: 1,
+          cols: { 0: { size: 5 }, 2: { size: 25 } },
+          colNumber: 3,
+          cells: {
+            A1: { content: "123456" },
+            A2: { content: "=A1" },
+            C1: { content: "123456" },
+            C2: { content: "=C1" },
+          },
+          conditionalFormats: [
+            {
+              id: "1",
+              ranges: ["C1:C2"],
+              rule: {
+                type: "IconSetRule",
+                upperInflectionPoint: { type: "number", value: "1000", operator: "gt" },
+                lowerInflectionPoint: { type: "number", value: "0", operator: "gt" },
+                icons: {
+                  upper: "arrowGood",
+                  middle: "arrowNeutral",
+                  lower: "arrowBad",
+                },
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    let textAligns: string[] = [];
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "textAlign") {
+          textAligns.push(value);
+        }
+      },
+    });
+
+    model.drawGrid(ctx);
+    expect(textAligns).toEqual(["left", "left", "left", "left", "center"]); // A1-C1-A2-C2 and center for headers
+
+    textAligns = [];
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "C1", "1");
+    model.drawGrid(ctx);
+    expect(textAligns).toEqual(["right", "right", "right", "right", "center"]); // A1-C1-A2-C2 and center for headers
+  });
+
   test("fillstyle of cell will be rendered", () => {
     const model = new Model({
       sheets: [
@@ -367,6 +419,59 @@ describe("renderer", () => {
     setCellContent(model, "A1", "true");
     model.drawGrid(ctx);
     expect(textAligns).toEqual(["center", "center", "center"]); // center for headers
+  });
+
+  test("Cells in a merge evaluating to a number are properly aligned on overflow", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: 1,
+          colNumber: 4,
+          cols: { 0: { size: 2 }, 1: { size: 2 }, 2: { size: 12 }, 3: { size: 12 } },
+          merges: ["A2:B2", "C2:D2"],
+          cells: {
+            A1: { content: "123456" },
+            A2: { content: "=A1" },
+            C1: { content: "123456891" },
+            C2: { content: "=C1" },
+          },
+          conditionalFormats: [
+            {
+              id: "1",
+              ranges: ["C1:D2"],
+              rule: {
+                type: "IconSetRule",
+                upperInflectionPoint: { type: "number", value: "1000", operator: "gt" },
+                lowerInflectionPoint: { type: "number", value: "0", operator: "gt" },
+                icons: {
+                  upper: "arrowGood",
+                  middle: "arrowNeutral",
+                  lower: "arrowBad",
+                },
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    let textAligns: string[] = [];
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "textAlign") {
+          textAligns.push(value);
+        }
+      },
+    });
+
+    model.drawGrid(ctx);
+    expect(textAligns).toEqual(["left", "left", "left", "left", "center"]); // A1-C1-A2:B2-C2:D2 and center for headers
+
+    textAligns = [];
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "C1", "1");
+    model.drawGrid(ctx);
+    expect(textAligns).toEqual(["right", "left", "right", "right", "center"]); // A1-C1-A2:B2-C2:D2 and center for headers. C1 is stil lin overflow
   });
 
   test("formulas in a merge, evaluating to a boolean are properly aligned", () => {
