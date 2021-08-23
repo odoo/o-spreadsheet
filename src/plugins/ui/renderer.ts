@@ -483,7 +483,7 @@ export class RendererPlugin extends UIPlugin {
             if (conditionalStyle) {
               style = Object.assign({}, style, conditionalStyle);
             }
-            const align = text
+            let align = text
               ? (style && style.align) || computeAlign(cell, showFormula)
               : undefined;
             let clipRect: Rect | null = null;
@@ -496,6 +496,10 @@ export class RendererPlugin extends UIPlugin {
 
             const isOverflowing =
               contentWidth > cols[colNumber].size || fontSizeMap[fontsize] > row.size;
+
+            if (isOverflowing && typeof cell.value === "number") {
+              align = align !== "center" ? "left" : align;
+            }
 
             if (iconStyle) {
               const colWidth = col.end - col.start;
@@ -656,6 +660,13 @@ export class RendererPlugin extends UIPlugin {
         const fontsize = style.fontSize || DEFAULT_FONT_SIZE;
         const iconWidth = fontSizeMap[fontsize];
         const iconBoxWidth = iconStyle ? 2 * MIN_CF_ICON_MARGIN + iconWidth : 0;
+
+        /** alignment of a number cell should be put to left once the text overflows from the cell */
+        const contentWidth = iconBoxWidth + textWidth;
+        align =
+          text && typeof refCell!.value === "number" && contentWidth > width && align !== "center"
+            ? "left"
+            : align;
 
         const clipRect: Rect = iconStyle
           ? [x + iconBoxWidth, y, Math.max(0, width - iconBoxWidth), height]
