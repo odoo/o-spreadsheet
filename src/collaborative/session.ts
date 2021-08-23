@@ -113,7 +113,13 @@ export class Session extends EventBus<CollaborativeEvent> {
    * Notify that the position of the client has changed
    */
   move(position: ClientPosition) {
+    if (!this.clients[this.clientId]) return;
+    const currentPosition = this.clients[this.clientId]?.position;
+    if (!currentPosition) {
+      this._move(position);
+    } else {
     this.debouncedMove(position);
+    }
   }
 
   join(messages: StateUpdateMessage[]) {
