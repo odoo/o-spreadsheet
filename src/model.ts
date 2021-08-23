@@ -179,8 +179,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     this.setupSessionEvents();
 
     // Load the initial revisions
-    this.session.loadInitialMessages(stateUpdateMessages);
-    this.joinSession(config.client);
+    this.session.join(stateUpdateMessages);
 
     if (config.snapshotRequested) {
       this.session.snapshot(this.exportData());
@@ -189,10 +188,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
   get handlers(): CommandHandler<Command>[] {
     return [this.range, ...this.corePlugins, ...this.uiPlugins, this.history];
-  }
-
-  joinSession(client?: Client) {
-    this.session.join(client);
   }
 
   leaveSession() {
@@ -262,6 +257,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
           this.dispatchToHandlers([this.range, ...this.corePlugins], command)
       ),
       this.config.transportService,
+      this.config.client,
       revisionId
     );
     return session;
