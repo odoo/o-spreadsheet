@@ -11,7 +11,6 @@ import {
   DeleteContentCommand,
   DeleteSheetCommand,
   DuplicateSheetCommand,
-  Figure,
   MoveSheetCommand,
   RemoveColumnsRowsCommand,
   RemoveConditionalFormatCommand,
@@ -23,7 +22,8 @@ import {
   SetFormattingCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
-} from "../../../src/types";
+} from "../../../src/types/commands";
+import { Figure } from "../../../src/types/figure";
 import { createEqualCF, target } from "../../test_helpers/helpers";
 
 describe("OT with DELETE_SHEET", () => {

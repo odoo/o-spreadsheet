@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { zoneToXc } from "../../src/helpers";
-import { CommandResult } from "../../src/types";
+import { CommandResult } from "../../src/types/commands";
 import {
   activateSheet,
   createSheet,

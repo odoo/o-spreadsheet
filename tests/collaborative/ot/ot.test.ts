@@ -1,10 +1,8 @@
 import { transform } from "../../../src/collaborative/ot/ot";
 import {
   ChartUIDefinition,
-  DeleteFigureCommand,
-  UpdateChartCommand,
-  UpdateFigureCommand,
 } from "../../../src/types";
+import { DeleteFigureCommand, UpdateChartCommand, UpdateFigureCommand } from "../../../src/types/commands";
 
 describe("OT with DELETE_FIGURE", () => {
   const deleteFigure: DeleteFigureCommand = {

@@ -1,12 +1,12 @@
-import * as owl from "@odoo/owl";
-import { IconSetRule, IconThreshold, SpreadsheetEnv } from "../../../types";
+import { Component, hooks, tags, useState } from "@odoo/owl";
+import { IconSetRule, IconThreshold } from "../../../types";
+import { SpreadsheetEnv } from "../../../types/env";
 import { ICONS, ICON_SETS, REFRESH } from "../../icons";
 import { IconPicker } from "../../icon_picker";
 import { conditionalFormattingTerms, iconSetRule } from "../translations_terms";
 
-const { Component, useState, hooks } = owl;
 const { useExternalListener } = hooks;
-const { xml, css } = owl.tags;
+const { xml, css } = tags;
 
 export const ICON_SETS_TEMPLATE = xml/* xml */ `
   <div>

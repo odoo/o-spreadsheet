@@ -1,14 +1,8 @@
 import { BACKGROUND_CHART_COLOR } from "../../src/constants";
 import { lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import {
-  BorderCommand,
-  ChartUIDefinition,
-  ChartUIDefinitionUpdate,
-  CommandResult,
-  CreateSheetCommand,
-  UID,
-} from "../../src/types";
+import { BorderCommand, ChartUIDefinition, ChartUIDefinitionUpdate, UID } from "../../src/types";
+import { CommandResult, CreateSheetCommand } from "../../src/types/commands";
 import { target } from "./helpers";
 
 /**

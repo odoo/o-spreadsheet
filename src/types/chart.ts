@@ -1,4 +1,4 @@
-import { Range, UID } from ".";
+import { Range, UID } from "./misc";
 
 export interface DataSet {
   labelCell?: Range; // range of the label

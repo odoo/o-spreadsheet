@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { browser } from "@odoo/owl";
 import { Client, Model } from "../../src";
 import { DEBOUNCE_TIME } from "../../src/constants";
 import { addColumns, createSheet, selectCell } from "../test_helpers/commands_helpers";
@@ -14,8 +14,8 @@ describe("Collaborative selection", () => {
   beforeEach(() => {
     jest.useFakeTimers();
 
-    jest.spyOn(owl.browser, "setTimeout").mockImplementation(window.setTimeout.bind(window));
-    jest.spyOn(owl.browser, "clearTimeout").mockImplementation(window.clearTimeout.bind(window));
+    jest.spyOn(browser, "setTimeout").mockImplementation(window.setTimeout.bind(window));
+    jest.spyOn(browser, "clearTimeout").mockImplementation(window.clearTimeout.bind(window));
     ({ alice, bob, charlie, network } = setupCollaborativeEnv());
   });
 

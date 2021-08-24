@@ -3,7 +3,7 @@ import { ConditionalFormattingPanel } from "../components/side_panel/conditional
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace";
 import { Registry } from "../registry";
 import { _lt } from "../translation";
-import { SpreadsheetEnv } from "../types";
+import { SpreadsheetEnv } from "../types/env";
 
 //------------------------------------------------------------------------------
 // Side Panel Registry

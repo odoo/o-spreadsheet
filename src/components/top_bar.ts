@@ -1,19 +1,19 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags, useState } from "@odoo/owl";
 import { DEFAULT_FONT_SIZE } from "../constants";
 import { fontSizes } from "../fonts";
 import { isEqual } from "../helpers/index";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../registries/index";
 import { topbarMenuRegistry } from "../registries/menus/topbar_menu_registry";
 import { FullMenuItem } from "../registries/menu_items_registry";
-import { Align, BorderCommand, SpreadsheetEnv, Style } from "../types/index";
+import { SpreadsheetEnv } from "../types/env";
+import { Align, BorderCommand, Style } from "../types/index";
 import { ColorPicker } from "./color_picker";
 import { Composer } from "./composer/composer";
 import { isChildEvent } from "./helpers/dom_helpers";
 import * as icons from "./icons";
 import { Menu, MenuState } from "./menu";
 
-const { Component, useState, hooks } = owl;
-const { xml, css } = owl.tags;
+const { xml, css } = tags;
 const { useExternalListener, useRef } = hooks;
 
 type Tool =

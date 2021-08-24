@@ -1,5 +1,6 @@
 import { createEmptyStructure } from "./helpers/state_manager_helpers";
-import { CoreCommand, HistoryChange } from "./types";
+import { HistoryChange } from "./types";
+import { CoreCommand } from "./types/commands";
 
 export class StateObserver {
   private changes: HistoryChange[] = [];

@@ -2,8 +2,13 @@
 // MISC
 // -----------------------------------------------------------------------------
 
-import { CommandResult } from "./commands";
-import { NormalizedFormula } from "./workbook_data";
+export declare type NormalizedFormula = {
+  // if the content is a formula (ex. =sum(  a1:b3, 3) + a1, should be stored as
+  // {formula: "=sum(  |ref1|, 3) + |ref2|"), ["a1:b3","a1"]
+  text: string;
+  dependencies: string[];
+  value?: any;
+};
 
 export type UID = string;
 
@@ -213,8 +218,71 @@ export interface RangeProvider {
   adaptRanges: (applyChange: ApplyRangeChange, sheetId?: UID) => void;
 }
 
-export type Validation<T> = (toValidate: T) => CommandResult;
-
 export type ClipboardOptions = "onlyFormat" | "onlyValue";
 
 export type Increment = 1 | -1 | 0;
+
+export type Mode = "normal" | "headless" | "readonly";
+
+export interface ComposerSelection {
+  start: number;
+  end: number;
+}
+
+export interface SearchOptions {
+  matchCase: boolean;
+  exactMatch: boolean;
+  searchFormulas: boolean;
+}
+
+export interface ReplaceOptions {
+  modifyFormulas: boolean;
+}
+
+export interface Selection {
+  anchor: [number, number];
+  zones: Zone[];
+  anchorZone: Zone;
+}
+
+export enum SelectionMode {
+  idle,
+  selecting,
+  readyToExpand, //The next selection will add another zone to the current selection
+  expanding,
+}
+
+export type EditionMode =
+  | "editing"
+  | "waitingForRangeSelection"
+  | "rangeSelected" // should tell if you need to underline the current range selected.
+  | "inactive"
+  | "resettingPosition";
+
+export interface RangeInputValue {
+  id: UID;
+  xc: string;
+  color?: string | null;
+}
+
+export interface SearchMatch {
+  selected: boolean;
+  col: number;
+  row: number;
+}
+
+export interface AutomaticSum {
+  position: [number, number];
+  zone: Zone;
+}
+
+export type HtmlContent = {
+  value: string;
+  color: string;
+  class?: string;
+};
+
+export interface ComposerDimension {
+  width: number;
+  height: number;
+}

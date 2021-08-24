@@ -17,14 +17,17 @@ import {
 import { _lt } from "../../translation";
 import {
   AddMergeCommand,
-  CellType,
   CommandResult,
   CoreCommand,
+  UpdateCellCommand,
+} from "../../types/commands";
+import { MergePluginGetters } from "../../types/getters";
+import {
+  CellType,
   ExcelWorkbookData,
   Merge,
   Sheet,
   UID,
-  UpdateCellCommand,
   WorkbookData,
   Zone,
 } from "../../types/index";
@@ -45,7 +48,7 @@ interface MergeState {
   readonly pending: PendingMerges | null;
 }
 
-export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
+export class MergePlugin extends CorePlugin<MergeState> implements MergeState, MergePluginGetters {
   static getters = [
     "isInMerge",
     "isInSameMerge",

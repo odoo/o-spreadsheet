@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags } from "@odoo/owl";
 import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
@@ -7,14 +7,13 @@ import {
   MIN_ROW_HEIGHT,
   UNHIDE_ICON_EDGE_LENGTH,
 } from "../constants";
-import { Col, EdgeScrollInfo, Row, SpreadsheetEnv } from "../types/index";
-import { ContextMenuType } from "./grid";
+import { SpreadsheetEnv } from "../types/env";
+import { Col, ContextMenuType, EdgeScrollInfo, Row } from "../types/index";
 import { startDnd } from "./helpers/drag_and_drop";
 import * as icons from "./icons";
 
-const { Component } = owl;
-const { xml, css } = owl.tags;
-const { useState } = owl.hooks;
+const { xml, css } = tags;
+const { useState } = hooks;
 
 // -----------------------------------------------------------------------------
 // Resizer component

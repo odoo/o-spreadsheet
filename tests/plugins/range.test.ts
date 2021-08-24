@@ -1,7 +1,8 @@
 import { CorePlugin, Model } from "../../src";
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
 import { corePluginRegistry } from "../../src/plugins";
-import { ApplyRangeChange, BaseCommand, Command, Range, UID } from "../../src/types";
+import { ApplyRangeChange, Range, UID } from "../../src/types";
+import { BaseCommand, Command } from "../../src/types/commands";
 import {
   addColumns,
   addRows,

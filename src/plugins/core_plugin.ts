@@ -1,16 +1,16 @@
 import { UuidGenerator } from "../helpers";
-import { Mode, ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
 import {
   ApplyRangeChange,
-  CoreCommand,
-  CoreCommandDispatcher,
   ExcelWorkbookData,
+  Mode,
   RangeProvider,
   UID,
   WorkbookData,
 } from "../types";
+import { CoreCommand, CoreCommandDispatcher } from "../types/commands";
 import { CoreGetters } from "../types/getters";
+import { ModelConfig } from "../types/model";
 import { BasePlugin } from "./base_plugin";
 import { RangeAdapter } from "./core/range";
 

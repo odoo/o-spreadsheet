@@ -1,17 +1,16 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags } from "@odoo/owl";
 import { EnrichedToken } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { DEBUG, rangeReference, zoneToXc } from "../../helpers/index";
-import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
-import { FunctionDescription, Rect, SpreadsheetEnv } from "../../types/index";
+import { SelectionIndicator } from "../../plugins/ui/edition";
+import { SpreadsheetEnv } from "../../types/env";
+import { ComposerDimension, FunctionDescription, HtmlContent, Rect } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
 import { FunctionDescriptionProvider } from "./formula_assistant";
-import { Dimension } from "./grid_composer";
 
-const { Component } = owl;
-const { useRef, useState } = owl.hooks;
-const { xml, css } = owl.tags;
+const { useRef, useState } = hooks;
+const { xml, css } = tags;
 const functions = functionRegistry.content;
 
 const ASSISTANT_WIDTH = 300;
@@ -24,19 +23,6 @@ export const NumberColor = "#02c39a";
 export const MatchingParenColor = "pink";
 
 export const SelectionIndicatorClass = "selector-flag";
-
-interface ComposerFocusedEventData {
-  content?: string;
-  selection?: ComposerSelection;
-}
-
-export type HtmlContent = {
-  value: string;
-  color: string;
-  class?: string;
-};
-
-export type ComposerFocusedEvent = CustomEvent<ComposerFocusedEventData>;
 
 export const tokenColor = {
   OPERATOR: OperatorColor,
@@ -126,7 +112,7 @@ const CSS = css/* scss */ `
 interface Props {
   inputStyle: string;
   rect?: Rect;
-  delimitation?: Dimension;
+  delimitation?: ComposerDimension;
   focus: "inactive" | "cellFocus" | "contentFocus";
 }
 

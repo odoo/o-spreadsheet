@@ -1,9 +1,9 @@
-import * as owl from "@odoo/owl";
+import { Component, tags } from "@odoo/owl";
 import { DEFAULT_FONT_SIZE } from "../constants";
-import { SpreadsheetEnv, Viewport } from "../types";
+import { Viewport } from "../types";
+import { SpreadsheetEnv } from "../types/env";
 
-const { Component } = owl;
-const { css, xml } = owl.tags;
+const { css, xml } = tags;
 
 interface ClientTagProps {
   active: boolean;

@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { ReplaceOptions, SearchOptions } from "../../src/plugins/ui/find_and_replace";
+import { ReplaceOptions, SearchOptions } from "../../src/types/misc";
 import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
 

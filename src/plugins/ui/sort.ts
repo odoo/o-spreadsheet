@@ -1,17 +1,9 @@
 import { DATETIME_FORMAT } from "../../constants";
 import { isEqual, isInside, mapCellsInZone, overlap, zoneToDimension } from "../../helpers/index";
 import { _lt } from "../../translation";
-import {
-  Cell,
-  CellType,
-  Command,
-  CommandResult,
-  Sheet,
-  SortCommand,
-  SortDirection,
-  UID,
-  Zone,
-} from "../../types/index";
+import { Command, CommandResult, SortCommand, SortDirection } from "../../types/commands";
+import { SortPluginGetters } from "../../types/getters";
+import { Cell, CellType, Sheet, UID, Zone } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 type Item = Cell | undefined;
@@ -22,7 +14,7 @@ type SortTypeValueMap = { type: SortType; value: any };
 type IndexSortTypeValueMap = { index: number; val: SortTypeValueMap }[];
 type IndexSTVMapItem = { index: number; val: Item | SortTypeValueMap }[];
 
-export class SortPlugin extends UIPlugin {
+export class SortPlugin extends UIPlugin implements SortPluginGetters {
   static getters = ["getContiguousZone"];
 
   allowDispatch(cmd: Command): CommandResult {
@@ -247,7 +239,7 @@ export class SortPlugin extends UIPlugin {
    * @param zone Zone
    *
    */
-  private getContiguousZone(sheetId: UID, zone: Zone): Zone {
+  getContiguousZone(sheetId: UID, zone: Zone): Zone {
     let { top, bottom, left, right } = zone;
     let canExpand: boolean;
     const sheet = this.getters.getSheet(sheetId);

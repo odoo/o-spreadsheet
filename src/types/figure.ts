@@ -1,4 +1,4 @@
-import { UID } from ".";
+import { UID } from "./misc";
 
 export interface Figure {
   id: UID;

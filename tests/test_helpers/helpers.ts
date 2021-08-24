@@ -7,18 +7,18 @@ import { functionRegistry } from "../../src/functions/index";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
-import { ComposerSelection } from "../../src/plugins/ui/edition";
 import {
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
-  CommandTypes,
+  ComposerSelection,
   ConditionalFormat,
   GridRenderingContext,
   Position,
-  SpreadsheetEnv,
   Style,
   Zone,
 } from "../../src/types";
+import { CommandTypes } from "../../src/types/commands";
+import { SpreadsheetEnv } from "../../src/types/env";
 import { XLSXExport } from "../../src/types/xlsx";
 import { redo, setCellContent, undo } from "./commands_helpers";
 import { getCell, getCellContent } from "./getters_helpers";

@@ -1,7 +1,8 @@
 import { colorNumberString, isInside, recomputeZones, toXC, toZone } from "../../helpers/index";
 import { clip } from "../../helpers/misc";
-import { Mode } from "../../model";
 import { _lt } from "../../translation";
+import { Command } from "../../types/commands";
+import { EvaluationConditionalFormatPluginGetters } from "../../types/getters";
 import {
   Cell,
   CellIsRule,
@@ -10,7 +11,6 @@ import {
   ColorScaleMidPointThreshold,
   ColorScaleRule,
   ColorScaleThreshold,
-  Command,
   ConditionalFormat,
   IconSetRule,
   IconThreshold,
@@ -18,13 +18,17 @@ import {
   UID,
   Zone,
 } from "../../types/index";
+import { Mode } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 // -----------------------------------------------------------------------------
 // Constants
 // -----------------------------------------------------------------------------
 
-export class EvaluationConditionalFormatPlugin extends UIPlugin {
+export class EvaluationConditionalFormatPlugin
+  extends UIPlugin
+  implements EvaluationConditionalFormatPluginGetters
+{
   static getters = ["getConditionalStyle", "getConditionalIcon"];
   static modes: Mode[] = ["normal", "readonly"];
   private isStale: boolean = true;

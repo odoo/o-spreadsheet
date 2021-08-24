@@ -3,7 +3,8 @@ import { Revision } from "../collaborative/revisions";
 import { inverseCommand } from "../helpers/inverse_commands";
 import { createEmptyStructure } from "../helpers/state_manager_helpers";
 import { StateObserver } from "../state_observer";
-import { CoreCommand, HistoryChange, UID } from "../types";
+import { HistoryChange, UID } from "../types";
+import { CoreCommand } from "../types/commands";
 import { SelectiveHistory } from "./selective_history";
 
 export function buildRevisionLog(

@@ -1,18 +1,13 @@
-import * as owl from "@odoo/owl";
-import {
-  ChartUIDefinition,
-  ChartUIDefinitionUpdate,
-  CommandResult,
-  Figure,
-  SpreadsheetEnv,
-} from "../../types/index";
+import { Component, tags, useState } from "@odoo/owl";
+import { CommandResult } from "../../types/commands";
+import { SpreadsheetEnv } from "../../types/env";
+import { ChartUIDefinition, ChartUIDefinitionUpdate, Figure } from "../../types/index";
 import { ColorPicker } from "../color_picker";
 import * as icons from "../icons";
 import { SelectionInput } from "../selection_input";
 import { chartTerms } from "./translations_terms";
 
-const { Component, useState } = owl;
-const { xml, css } = owl.tags;
+const { xml, css } = tags;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-chart">

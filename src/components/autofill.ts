@@ -1,12 +1,11 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../constants";
 import { clip } from "../helpers/misc";
-import { SpreadsheetEnv } from "../types";
+import { SpreadsheetEnv } from "../types/env";
 import { startDnd } from "./helpers/drag_and_drop";
 
-const { Component } = owl;
-const { xml, css } = owl.tags;
-const { useState } = owl.hooks;
+const { xml, css } = tags;
+const { useState } = hooks;
 
 // -----------------------------------------------------------------------------
 // Autofill

@@ -1,20 +1,23 @@
 import { rangeReference, zoneToDimension, zoneToXc } from "../../helpers/index";
 import {
-  ApplyRangeChange,
-  ChartDefinition,
-  ChartUIDefinition,
-  ChartUIDefinitionUpdate,
   Command,
   CommandResult,
   CoreCommand,
   CreateChartCommand,
+  UpdateChartCommand,
+} from "../../types/commands";
+import { ChartPluginGetters } from "../../types/getters";
+import {
+  ApplyRangeChange,
+  ChartDefinition,
+  ChartUIDefinition,
+  ChartUIDefinitionUpdate,
   DataSet,
   ExcelChartDataset,
   ExcelChartDefinition,
   ExcelWorkbookData,
   FigureData,
   UID,
-  UpdateChartCommand,
   WorkbookData,
   Zone,
 } from "../../types/index";
@@ -30,7 +33,7 @@ interface ChartState {
   readonly chartFigures: Record<UID, ChartDefinition | undefined>;
 }
 
-export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
+export class ChartPlugin extends CorePlugin<ChartState> implements ChartState, ChartPluginGetters {
   static getters = ["getChartDefinition", "getChartDefinitionUI", "getChartsIdBySheet"];
   readonly chartFigures: Record<UID, ChartDefinition> = {};
 
@@ -194,7 +197,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     return this.chartFigures[figureId];
   }
 
-  getChartsIdBySheet(sheetId: UID) {
+  getChartsIdBySheet(sheetId: UID): UID[] {
     return Object.entries(this.chartFigures)
       .filter((chart) => {
         return chart[1].sheetId === sheetId;

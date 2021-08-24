@@ -17,7 +17,7 @@ import {
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { overlap, scrollDelay } from "../../helpers/index";
-import { Mode } from "../../model";
+import { RendererPluginGetters } from "../../types/getters";
 import {
   Box,
   Cell,
@@ -32,6 +32,7 @@ import {
   Viewport,
   Zone,
 } from "../../types/index";
+import { Mode } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 // -----------------------------------------------------------------------------
@@ -74,7 +75,7 @@ function searchIndex(headers: Header[], offset: number): number {
   return -1;
 }
 
-export class RendererPlugin extends UIPlugin {
+export class RendererPlugin extends UIPlugin implements RendererPluginGetters {
   static layers = [LAYERS.Background, LAYERS.Headers];
   static getters = [
     "getColIndex",

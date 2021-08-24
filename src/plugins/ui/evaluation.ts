@@ -2,22 +2,22 @@ import { MAXIMUM_EVALUATION_CHECK_DELAY_MS } from "../../constants";
 import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { mapCellsInZone, toXC } from "../../helpers/index";
-import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
+import { Command, CommandDispatcher } from "../../types/commands";
+import { EvaluationPluginGetters, Getters } from "../../types/getters";
 import {
   Cell,
   CellType,
-  Command,
-  CommandDispatcher,
   EnsureRange,
   EvalContext,
-  Getters,
+  Mode,
   NormalizedFormula,
   Range,
   ReferenceDenormalizer,
   UID,
 } from "../../types/index";
+import { ModelConfig } from "../../types/model";
 import { UIPlugin } from "../ui_plugin";
 
 function* makeObjectIterator(obj: Object) {
@@ -38,7 +38,7 @@ type FormulaParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 
 export const LOADING = "Loading...";
 
-export class EvaluationPlugin extends UIPlugin {
+export class EvaluationPlugin extends UIPlugin implements EvaluationPluginGetters {
   static getters = ["evaluateFormula", "isIdle", "getRangeFormattedValues", "getRangeValues"];
   static modes: Mode[] = ["normal", "readonly"];
 
@@ -162,7 +162,7 @@ export class EvaluationPlugin extends UIPlugin {
     return compiledFormula(ranges, sheetId, ...params);
   }
 
-  isIdle() {
+  isIdle(): boolean {
     return this.loadingCells === 0 && this.WAITING.size === 0 && this.PENDING.size === 0;
   }
 

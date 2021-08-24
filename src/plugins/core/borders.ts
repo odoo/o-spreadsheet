@@ -1,11 +1,11 @@
 import { DEFAULT_BORDER_DESC } from "../../constants";
 import { range, stringify, toCartesian, toXC, toZone } from "../../helpers/index";
+import { AddColumnsRowsCommand, Command } from "../../types/commands";
+import { BordersPluginGetters } from "../../types/getters";
 import {
-  AddColumnsRowsCommand,
   Border,
   BorderCommand,
   BorderDescription,
-  Command,
   ExcelWorkbookData,
   Sheet,
   UID,
@@ -23,7 +23,10 @@ interface BordersPluginState {
  * This plugin manages all things related to a cell look:
  * - borders
  */
-export class BordersPlugin extends CorePlugin<BordersPluginState> implements BordersPluginState {
+export class BordersPlugin
+  extends CorePlugin<BordersPluginState>
+  implements BordersPluginState, BordersPluginGetters
+{
   static getters = ["getCellBorder"];
 
   public readonly borders: BordersPluginState["borders"] = {};

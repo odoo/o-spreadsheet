@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags, useState } from "@odoo/owl";
 import {
   AUTOFILL_EDGE_LENGTH,
   BACKGROUND_GRAY_COLOR,
@@ -19,7 +19,9 @@ import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
-import { CellType, Client, SpreadsheetEnv, Viewport } from "../types/index";
+import { Client } from "../types/collaborative/session";
+import { SpreadsheetEnv } from "../types/env";
+import { CellType, ContextMenuType, Viewport } from "../types/index";
 import { Autofill } from "./autofill";
 import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
@@ -40,10 +42,8 @@ import { ScrollBar } from "./scrollbar";
  * - a vertical resizer (same, for rows)
  */
 
-const { Component, useState } = owl;
-const { xml, css } = owl.tags;
-const { useRef, onMounted, onWillUnmount, useExternalListener } = owl.hooks;
-export type ContextMenuType = "ROW" | "COL" | "CELL";
+const { xml, css } = tags;
+const { useRef, onMounted, onWillUnmount, useExternalListener } = hooks;
 
 const registries = {
   ROW: rowMenuRegistry,

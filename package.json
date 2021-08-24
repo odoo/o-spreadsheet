@@ -52,12 +52,14 @@
     "prettier": "2.3.1",
     "prettier-plugin-organize-imports": "^1.1.1",
     "rollup": "^2.38.5",
+    "rollup-plugin-dts": "1.4.10",
     "ts-jest": "^25.3.1",
     "typedoc": "0.20.30",
     "typedoc-plugin-markdown": "3.6.1",
     "typescript": "^3.9.7",
     "xml-formatter": "^2.4.0"
   },
+  "types": "dist/o_spreadsheet.d.ts",
   "prettier": {
     "printWidth": 100,
     "endOfLine": "auto"

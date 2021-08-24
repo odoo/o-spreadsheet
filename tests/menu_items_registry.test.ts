@@ -7,7 +7,8 @@ import {
   rowMenuRegistry,
   topbarMenuRegistry,
 } from "../src/registries/index";
-import { CommandResult, SpreadsheetEnv } from "../src/types";
+import { CommandResult } from "../src/types/commands";
+import { SpreadsheetEnv } from "../src/types/env";
 import { hideColumns, hideRows, selectCell, setSelection } from "./test_helpers/commands_helpers";
 import { GridParent, makeTestFixture, mockUuidV4To, nextTick } from "./test_helpers/helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));

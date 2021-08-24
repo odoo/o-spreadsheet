@@ -1,7 +1,8 @@
 import { ClientDisconnectedError } from "../../collaborative/session";
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE } from "../../constants";
-import { Mode } from "../../model";
-import { Client, ClientPosition, GridRenderingContext, LAYERS, UID } from "../../types";
+import { GridRenderingContext, LAYERS, Mode, UID } from "../../types";
+import { ClientPosition, ClientToDisplay } from "../../types/collaborative/session";
+import { SelectionMultiUserPluginGetters } from "../../types/getters";
 import { UIPlugin } from "../ui_plugin";
 
 function randomChoice(arr: string[]): string {
@@ -23,11 +24,7 @@ export const colors = [
   "#001f3f",
 ];
 
-interface ClientToDisplay extends Required<Client> {
-  color: string;
-}
-
-export class SelectionMultiUserPlugin extends UIPlugin {
+export class SelectionMultiUserPlugin extends UIPlugin implements SelectionMultiUserPluginGetters {
   static getters = ["getClientsToDisplay"];
   static layers = [LAYERS.Selection];
   static modes: Mode[] = ["normal", "readonly"];

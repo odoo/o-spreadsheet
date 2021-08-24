@@ -8,37 +8,23 @@ import {
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
-import { Mode } from "../../model";
 import { _lt } from "../../translation";
 import {
   AddColumnsRowsCommand,
-  Cell,
-  CellType,
   Command,
   CommandResult,
-  LAYERS,
   RemoveColumnsRowsCommand,
-} from "../../types/index";
+} from "../../types/commands";
+import { EditionPluginGetters } from "../../types/getters";
+import { Cell, CellType, LAYERS } from "../../types/index";
+import { ComposerSelection, EditionMode, Mode, SelectionMode } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
-import { SelectionMode } from "./selection";
-
-export type EditionMode =
-  | "editing"
-  | "waitingForRangeSelection"
-  | "rangeSelected" // should tell if you need to underline the current range selected.
-  | "inactive"
-  | "resettingPosition";
 
 const CELL_DELETED_MESSAGE = _lt("The cell you are trying to edit has been deleted.");
 
-export interface ComposerSelection {
-  start: number;
-  end: number;
-}
-
 export const SelectionIndicator = "␣";
 
-export class EditionPlugin extends UIPlugin {
+export class EditionPlugin extends UIPlugin implements EditionPluginGetters {
   static layers = [LAYERS.Highlights];
   static getters = [
     "getEditionMode",

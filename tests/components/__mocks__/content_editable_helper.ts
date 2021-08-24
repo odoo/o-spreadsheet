@@ -1,4 +1,4 @@
-import { HtmlContent } from "../../../src/components/composer/composer";
+import { HtmlContent } from "../../../src/types/misc";
 
 export class ContentEditableHelper {
   currentState = {

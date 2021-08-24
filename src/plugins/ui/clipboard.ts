@@ -1,13 +1,12 @@
 import { clip, overlap } from "../../helpers/index";
-import { Mode } from "../../model";
 import { _lt } from "../../translation";
+import { Command, CommandResult, isCoreCommand } from "../../types/commands";
+import { ClipboardPluginGetters } from "../../types/getters";
 import {
   CellPosition,
   CellType,
   ClipboardCell,
   ClipboardOptions,
-  Command,
-  CommandResult,
   Dimension,
   FormulaCell,
   GridRenderingContext,
@@ -16,8 +15,8 @@ import {
   Sheet,
   UID,
   Zone,
-  isCoreCommand,
 } from "../../types/index";
+import { Mode } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 type ClipboardOperation = "CUT" | "COPY";
@@ -41,7 +40,7 @@ interface ClipboardState {
  * This clipboard manages all cut/copy/paste interactions internal to the
  * application, and with the OS clipboard as well.
  */
-export class ClipboardPlugin extends UIPlugin {
+export class ClipboardPlugin extends UIPlugin implements ClipboardPluginGetters {
   static layers = [LAYERS.Clipboard];
   static getters = ["getClipboardContent", "isPaintingFormat"];
   static modes: Mode[] = ["normal", "readonly"];

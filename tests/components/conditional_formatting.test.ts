@@ -3,7 +3,7 @@ import { CellIsRuleEditor } from "../../src/components/side_panel/conditional_fo
 import { ColorScaleRuleEditor } from "../../src/components/side_panel/conditional_formatting/color_scale_rule_editor";
 import { IconSetRuleEditor } from "../../src/components/side_panel/conditional_formatting/icon_set_rule_editor";
 import { toZone } from "../../src/helpers/zones";
-import { CommandResult } from "../../src/types";
+import { CommandResult } from "../../src/types/commands";
 import { setSelection } from "../test_helpers/commands_helpers";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {

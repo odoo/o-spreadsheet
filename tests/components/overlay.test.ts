@@ -11,7 +11,7 @@ import {
 import { fontSizeMap } from "../../src/fonts";
 import { lettersToNumber, scrollDelay, toXC } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { SelectionMode } from "../../src/plugins/ui/selection";
+import { SelectionMode } from "../../src/types/misc";
 import {
   hideColumns,
   hideRows,

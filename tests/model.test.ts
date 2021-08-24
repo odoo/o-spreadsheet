@@ -1,7 +1,6 @@
-import { CommandResult, CorePlugin } from "../src";
 import { toZone } from "../src/helpers";
 import { LocalHistory } from "../src/history/local_history";
-import { Mode, Model } from "../src/model";
+import { Model } from "../src/model";
 import { BordersPlugin } from "../src/plugins/core/borders";
 import { CellPlugin } from "../src/plugins/core/cell";
 import { ChartPlugin } from "../src/plugins/core/chart";
@@ -10,13 +9,15 @@ import { FigurePlugin } from "../src/plugins/core/figures";
 import { MergePlugin } from "../src/plugins/core/merge";
 import { RangeAdapter } from "../src/plugins/core/range";
 import { SheetPlugin } from "../src/plugins/core/sheet";
+import { CorePlugin } from "../src/plugins/core_plugin";
 import { corePluginRegistry, uiPluginRegistry } from "../src/plugins/index";
 import { AutomaticSumPlugin } from "../src/plugins/ui/automatic_sum";
 import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
 import { SortPlugin } from "../src/plugins/ui/sort";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
 import { UIPlugin } from "../src/plugins/ui_plugin";
-import { Command, CoreCommand } from "../src/types";
+import { Command, CommandResult, CoreCommand } from "../src/types/commands";
+import { Mode } from "../src/types/misc";
 import { selectCell, setCellContent } from "./test_helpers/commands_helpers";
 import { getCell, getCellText } from "./test_helpers/getters_helpers";
 

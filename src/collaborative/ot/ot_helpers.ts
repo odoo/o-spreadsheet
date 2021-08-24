@@ -1,5 +1,6 @@
 import { expandZoneOnInsertion, reduceZoneOnDeletion } from "../../helpers";
-import { CoreCommand, Zone } from "../../types";
+import { CoreCommand } from "../../types/commands";
+import { Zone } from "../../types/misc";
 
 export function transformZone(zone: Zone, executed: CoreCommand): Zone | undefined {
   if (executed.type === "REMOVE_COLUMNS_ROWS") {

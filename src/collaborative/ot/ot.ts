@@ -13,8 +13,8 @@ import {
   RemoveColumnsRowsCommand,
   SheetDependentCommand,
   TargetDependentCommand,
-  Zone,
-} from "../../types";
+} from "../../types/commands";
+import { Zone } from "../../types/misc";
 import { transformZone } from "./ot_helpers";
 import "./ot_specific";
 

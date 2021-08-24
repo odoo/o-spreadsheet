@@ -1,5 +1,5 @@
 import { _lt } from "../../translation";
-import { SpreadsheetEnv } from "../../types";
+import { SpreadsheetEnv } from "../../types/env";
 import { MenuItemRegistry } from "../menu_items_registry";
 import * as ACTIONS from "./menu_items_actions";
 

@@ -66,3 +66,7 @@ export type CollaborativeEvent =
   | CollaborativeEventReceived;
 
 export type CollaborativeEventTypes = CollaborativeEvent["type"];
+
+export interface ClientToDisplay extends Required<Client> {
+  color: string;
+}

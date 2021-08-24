@@ -1,7 +1,8 @@
 import { Model } from "../../src";
 import { chartTerms } from "../../src/components/side_panel/translations_terms";
 import { toZone } from "../../src/helpers/zones";
-import { ChartUIDefinition, CommandResult } from "../../src/types";
+import { ChartUIDefinition } from "../../src/types";
+import { CommandResult } from "../../src/types/commands";
 import {
   addColumns,
   addRows,

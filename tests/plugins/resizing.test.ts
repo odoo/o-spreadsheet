@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { CommandResult } from "../../src/types";
+import { CommandResult } from "../../src/types/commands";
 import {
   activateSheet,
   createSheet,

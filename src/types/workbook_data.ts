@@ -1,14 +1,6 @@
 import { ExcelChartDefinition } from "./chart";
 import { ConditionalFormat } from "./conditional_formatting";
-import { Border, Style, UID } from "./misc";
-
-export type NormalizedFormula = {
-  // if the content is a formula (ex. =sum(  a1:b3, 3) + a1, should be stored as
-  // {formula: "=sum(  |ref1|, 3) + |ref2|"), ["a1:b3","a1"]
-  text: string;
-  dependencies: string[];
-  value?: any;
-};
+import { Border, NormalizedFormula, Style, UID } from "./misc";
 
 export interface CellData {
   content?: string;

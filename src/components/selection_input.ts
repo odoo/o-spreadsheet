@@ -1,11 +1,9 @@
-import * as owl from "@odoo/owl";
+import { Component, tags } from "@odoo/owl";
 import { UuidGenerator } from "../helpers/index";
-import { RangeInputValue } from "../plugins/ui/selection_inputs";
-import { SpreadsheetEnv } from "../types";
+import { SpreadsheetEnv } from "../types/env";
+import { RangeInputValue } from "../types/misc";
 
-const { Component } = owl;
-
-const { xml, css } = owl.tags;
+const { xml, css } = tags;
 
 const uuidGenerator = new UuidGenerator();
 

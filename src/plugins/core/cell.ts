@@ -14,15 +14,14 @@ import {
   toCartesian,
   toXC,
 } from "../../helpers/index";
+import { AddColumnsRowsCommand, CommandResult, CoreCommand } from "../../types/commands";
+import { CellPluginGetters } from "../../types/getters";
 import {
-  AddColumnsRowsCommand,
   ApplyRangeChange,
   Cell,
   CellData,
   CellPosition,
   CellType,
-  CommandResult,
-  CoreCommand,
   ExcelWorkbookData,
   FormulaCell,
   Range,
@@ -48,7 +47,7 @@ interface CoreState {
  * This is the most fundamental of all plugins. It defines how to interact with
  * cell and sheet content.
  */
-export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
+export class CellPlugin extends CorePlugin<CoreState> implements CoreState, CellPluginGetters {
   static getters = [
     "zoneToXC",
     "getCells",

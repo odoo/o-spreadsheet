@@ -5,7 +5,8 @@ import {
 } from "../../src/constants";
 import { lettersToNumber, toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { Border, CellType, CommandResult, UID } from "../../src/types";
+import { Border, CellType, UID } from "../../src/types";
+import { CommandResult } from "../../src/types/commands";
 import {
   activateSheet,
   addColumns,

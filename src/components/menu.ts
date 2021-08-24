@@ -1,7 +1,7 @@
 import { Component, hooks, tags, useState } from "@odoo/owl";
 import { FullMenuItem, MenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
-import { SpreadsheetEnv } from "../types";
+import { SpreadsheetEnv } from "../types/env";
 import { isChildEvent } from "./helpers/dom_helpers";
 import * as icons from "./icons";
 

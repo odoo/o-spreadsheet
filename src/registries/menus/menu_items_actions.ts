@@ -1,7 +1,9 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { numberToLetters, zoneToXc } from "../../helpers/index";
 import { _lt } from "../../translation";
-import { SpreadsheetEnv, Style } from "../../types/index";
+import { CommandResult } from "../../types/commands";
+import { SpreadsheetEnv } from "../../types/env";
+import { Style } from "../../types/misc";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -47,9 +49,9 @@ export function setStyle(env: SpreadsheetEnv, style: Style) {
 // Simple actions
 //------------------------------------------------------------------------------
 
-export const UNDO_ACTION = (env: SpreadsheetEnv) => env.dispatch("REQUEST_UNDO");
+export const UNDO_ACTION = (env: SpreadsheetEnv): CommandResult => env.dispatch("REQUEST_UNDO");
 
-export const REDO_ACTION = (env: SpreadsheetEnv) => env.dispatch("REQUEST_REDO");
+export const REDO_ACTION = (env: SpreadsheetEnv): CommandResult => env.dispatch("REQUEST_REDO");
 
 export const COPY_ACTION = async (env: SpreadsheetEnv) => {
   env.dispatch("COPY", { target: env.getters.getSelectedZones() });

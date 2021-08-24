@@ -1,10 +1,9 @@
 import { Component, hooks, tags } from "@odoo/owl";
-import { Model } from "../../src";
+import { Client, Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
 import { DEBUG } from "../../src/helpers";
-import { SelectionMode } from "../../src/plugins/ui/selection";
-import { Client } from "../../src/types";
+import { SelectionMode } from "../../src/types/misc";
 import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, MockClipboard, nextTick, typeInComposer } from "../test_helpers/helpers";

@@ -1,11 +1,11 @@
-import * as owl from "@odoo/owl";
+import { core } from "@odoo/owl";
 
 /**
  * This is a generic event bus based on the Owl event bus.
  * This bus however ensures type safety across events and subscription callbacks.
  */
 export class EventBus<Event extends { type: string }> {
-  private bus = new owl.core.EventBus();
+  private bus = new core.EventBus();
 
   on<T extends Event["type"], E extends Extract<Event, { type: T }>>(
     type: T,
