@@ -15,7 +15,10 @@ import { isFormula, LinkCell } from "./helpers/cells";
 import {
   computeTextWidth,
   formatDecimal,
+  isMarkdownLink,
+  markdownLink,
   numberToLetters,
+  parseMarkdownLink,
   toCartesian,
   toXC,
   toZone,
@@ -118,4 +121,7 @@ export const helpers = {
   formatDecimal,
   computeTextWidth,
   isFormula,
+  isMarkdownLink,
+  parseMarkdownLink,
+  markdownLink,
 };

@@ -171,8 +171,8 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     };
   }
 
-  activateMenu(menu: FullMenuItem) {
-    const result = menu.action(this.env);
+  async activateMenu(menu: FullMenuItem) {
+    const result = await menu.action(this.env);
     this.close();
     this.trigger(`menu-clicked`, result);
   }

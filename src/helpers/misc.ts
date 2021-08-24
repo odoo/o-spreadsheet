@@ -187,7 +187,7 @@ export function buildSheetLink(sheetId: UID) {
 /**
  * Parse a sheet link and return the sheet id
  */
-export function parseSheetLink(sheetLink: UID) {
+export function parseSheetLink(sheetLink: string) {
   if (sheetLink.startsWith(O_SPREADSHEET_LINK_PREFIX)) {
     return sheetLink.substr(O_SPREADSHEET_LINK_PREFIX.length);
   }
