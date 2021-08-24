@@ -173,6 +173,7 @@ export type Getters = CoreGetters & {
   getActiveViewport: ViewportPlugin["getActiveViewport"];
   getActiveSnappedViewport: ViewportPlugin["getActiveSnappedViewport"];
   getGridDimension: ViewportPlugin["getGridDimension"];
+  getMaximumViewportOffset: ViewportPlugin["getMaximumViewportOffset"];
 
   getAutomaticSums: AutomaticSumPlugin["getAutomaticSums"];
 };

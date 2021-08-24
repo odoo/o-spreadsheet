@@ -552,9 +552,12 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
   onScroll() {
     const { offsetX, offsetY } = this.getters.getActiveViewport();
     if (offsetX !== this.hScrollbar.scroll || offsetY !== this.vScrollbar.scroll) {
+      const { maxOffsetX, maxOffsetY } = this.getters.getMaximumViewportOffset(
+        this.getters.getActiveSheet()
+      );
       this.dispatch("SET_VIEWPORT_OFFSET", {
-        offsetX: this.hScrollbar.scroll,
-        offsetY: this.vScrollbar.scroll,
+        offsetX: Math.min(this.hScrollbar.scroll, maxOffsetX),
+        offsetY: Math.min(this.vScrollbar.scroll, maxOffsetY),
       });
     }
   }
