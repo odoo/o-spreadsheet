@@ -31,6 +31,7 @@ export class ViewportPlugin extends UIPlugin {
     "getActiveSnappedViewport",
     "getViewportDimension",
     "getGridDimension",
+    "getMaximumViewportOffset",
   ];
   static modes: Mode[] = ["normal"];
 
@@ -153,18 +154,22 @@ export class ViewportPlugin extends UIPlugin {
     return { width, height };
   }
 
+  getMaximumViewportOffset(sheet: Sheet): { maxOffsetX: number; maxOffsetY: number } {
+    const { width, height } = this.getters.getGridDimension(sheet);
+    return {
+      maxOffsetX: Math.max(0, width - this.clientWidth + HEADER_WIDTH + 1),
+      maxOffsetY: Math.max(0, height - this.clientHeight + HEADER_HEIGHT + 1),
+    };
+  }
+
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
 
   private checkOffsetValidity(offsetX: number, offsetY: number): CommandResult {
-    const { width, height } = this.getters.getGridDimension(this.getters.getActiveSheet());
-    if (
-      offsetX < 0 ||
-      offsetY < 0 ||
-      this.clientHeight - HEADER_HEIGHT + offsetY > height ||
-      this.clientWidth - HEADER_WIDTH + offsetX > width
-    ) {
+    const sheet = this.getters.getActiveSheet();
+    const { maxOffsetX, maxOffsetY } = this.getMaximumViewportOffset(sheet);
+    if (offsetX < 0 || offsetY < 0 || offsetY > maxOffsetY || offsetX > maxOffsetX) {
       return CommandResult.InvalidOffset;
     }
     return CommandResult.Success;
