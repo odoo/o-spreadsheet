@@ -11,6 +11,7 @@ import {
 } from "./constants";
 import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
+import { isFormula, LinkCell } from "./helpers/cells";
 import {
   computeTextWidth,
   formatDecimal,
@@ -29,6 +30,7 @@ import {
   colMenuRegistry,
   createFullMenuItem,
   inverseCommandRegistry,
+  linkMenuRegistry,
   otRegistry,
   rowMenuRegistry,
   sheetMenuRegistry,
@@ -86,6 +88,7 @@ export const registries = {
   autofillRulesRegistry,
   cellMenuRegistry,
   colMenuRegistry,
+  linkMenuRegistry,
   functionRegistry,
   uiPluginRegistry,
   corePluginRegistry,
@@ -98,7 +101,9 @@ export const registries = {
   inverseCommandRegistry,
   cellRegistry,
 };
-
+export const cellTypes = {
+  LinkCell,
+};
 export const helpers = {
   args,
   toBoolean,
@@ -112,4 +117,5 @@ export const helpers = {
   UuidGenerator,
   formatDecimal,
   computeTextWidth,
+  isFormula,
 };
