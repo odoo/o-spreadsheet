@@ -8,8 +8,7 @@
  *  - Formula: update the formula, with the same behavior than paste
  */
 
-import { Getters } from ".";
-import { Border, Cell, DIRECTION, UID, UpdateCellData } from "./misc";
+import { Border, Cell, UID, UpdateCellData } from "./misc";
 
 export interface IncrementModifier {
   type: "INCREMENT_MODIFIER";
@@ -57,13 +56,4 @@ export interface AutofillResult {
 export interface GeneratorCell {
   data: AutofillData;
   rule: AutofillModifier;
-}
-
-export interface AutofillModifierImplementation {
-  apply: (
-    rule: AutofillModifier,
-    data: AutofillData,
-    getters: Getters,
-    direction: DIRECTION
-  ) => Omit<AutofillResult, "origin">;
 }

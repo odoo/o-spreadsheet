@@ -1,5 +1,3 @@
-import { ComposerSelection } from "../plugins/ui/edition";
-import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
 import {
   BorderCommand,
   ChartUIDefinition,
@@ -10,7 +8,17 @@ import {
   Style,
   Zone,
 } from "./index";
-import { Border, Cell, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
+import {
+  Border,
+  Cell,
+  CellPosition,
+  ClipboardOptions,
+  ComposerSelection,
+  Dimension,
+  ReplaceOptions,
+  SearchOptions,
+  UID,
+} from "./misc";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -1071,3 +1079,5 @@ export interface CoreCommandDispatcher {
 
 export type CommandTypes = Command["type"];
 export type CoreCommandTypes = CoreCommand["type"];
+
+export type Validation<T> = (toValidate: T) => CommandResult;

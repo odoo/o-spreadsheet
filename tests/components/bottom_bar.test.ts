@@ -1,7 +1,7 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar";
 import { Model } from "../../src/model";
-import { CommandResult } from "../../src/types";
+import { CommandResult } from "../../src/types/commands";
 import { activateSheet, createSheet } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, mockUuidV4To, nextTick } from "../test_helpers/helpers";

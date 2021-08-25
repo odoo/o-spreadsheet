@@ -1,5 +1,5 @@
 import { Registry } from "../registry";
-import { CoreCommand, CoreCommandTypes } from "../types";
+import { CoreCommand, CoreCommandTypes } from "../types/commands";
 
 /*
  * Operation Transform Registry

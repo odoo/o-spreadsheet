@@ -10,13 +10,13 @@ import { chartTerms } from "../../components/side_panel/translations_terms";
 import { MAX_CHAR_LABEL } from "../../constants";
 import { ChartColors } from "../../helpers/chart";
 import { isDefined, isInside, overlap, recomputeZones, zoneToXc } from "../../helpers/index";
-import { Mode } from "../../model";
 import { ChartDefinition, DataSet } from "../../types/chart";
 import { Command } from "../../types/commands";
-import { Cell, UID, Zone } from "../../types/misc";
+import { EvaluationChartPluginGetters } from "../../types/getters";
+import { Cell, Mode, UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
-export class EvaluationChartPlugin extends UIPlugin {
+export class EvaluationChartPlugin extends UIPlugin implements EvaluationChartPluginGetters {
   static getters = ["getChartRuntime"];
   static modes: Mode[] = ["normal", "readonly"];
   // contains the configuration of the chart with it's values like they should be displayed,

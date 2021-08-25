@@ -2,10 +2,12 @@ import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { computeIconWidth, computeTextWidth } from "../../helpers/index";
 import { _lt } from "../../translation";
-import { Cell, Command, CommandResult, UID, Zone } from "../../types";
+import { Cell, UID, Zone } from "../../types";
+import { Command, CommandResult } from "../../types/commands";
+import { SheetUIPluginGetters } from "../../types/getters";
 import { UIPlugin } from "../ui_plugin";
 
-export class SheetUIPlugin extends UIPlugin {
+export class SheetUIPlugin extends UIPlugin implements SheetUIPluginGetters {
   static getters = ["getCellWidth", "getCellHeight", "getTextWidth"];
 
   private ctx = document.createElement("canvas").getContext("2d")!;

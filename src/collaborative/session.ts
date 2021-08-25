@@ -1,10 +1,10 @@
-import * as owl from "@odoo/owl";
+import { utils } from "@odoo/owl";
 import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
 import { UuidGenerator } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
 import { isDefined } from "../helpers/misc";
 import { SelectiveHistory as RevisionLog } from "../history/selective_history";
-import { CoreCommand, HistoryChange, UID, WorkbookData } from "../types";
+import { HistoryChange, UID, WorkbookData } from "../types";
 import {
   Client,
   ClientId,
@@ -19,11 +19,13 @@ import {
   StateUpdateMessage,
   TransportService,
 } from "../types/collaborative/transport_service";
+import { CoreCommand } from "../types/commands";
+import { SessionGetters } from "../types/getters";
 import { Revision } from "./revisions";
 
 export class ClientDisconnectedError extends Error {}
 
-export class Session extends EventBus<CollaborativeEvent> {
+export class Session extends EventBus<CollaborativeEvent> implements SessionGetters {
   /**
    * Positions of the others client.
    */
@@ -61,10 +63,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   ) {
     super();
 
-    this.debouncedMove = owl.utils.debounce(
-      this._move.bind(this),
-      DEBOUNCE_TIME
-    ) as Session["move"];
+    this.debouncedMove = utils.debounce(this._move.bind(this), DEBOUNCE_TIME) as Session["move"];
   }
 
   /**

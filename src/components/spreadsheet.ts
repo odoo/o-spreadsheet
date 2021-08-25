@@ -1,20 +1,17 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags, useState } from "@odoo/owl";
 import { BOTTOMBAR_HEIGHT, ICON_EDGE_LENGTH, TOPBAR_HEIGHT } from "../constants";
 import { Model } from "../model";
-import { ComposerSelection } from "../plugins/ui/edition";
-import { SelectionMode } from "../plugins/ui/selection";
 import { Client } from "../types/collaborative/session";
 import { StateUpdateMessage, TransportService } from "../types/collaborative/transport_service";
+import { ComposerSelection, SelectionMode } from "../types/misc";
+import { ComposerFocusedEvent } from "../types/rendering";
 import { BottomBar } from "./bottom_bar";
-import { ComposerFocusedEvent } from "./composer/composer";
 import { Grid } from "./grid";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
 
-const { Component, useState } = owl;
-const { useRef, useExternalListener } = owl.hooks;
-const { xml, css } = owl.tags;
-const { useSubEnv } = owl.hooks;
+const { useRef, useExternalListener, useSubEnv } = hooks;
+const { xml, css } = tags;
 
 // -----------------------------------------------------------------------------
 // SpreadSheet

@@ -1,14 +1,9 @@
 import { getComposerSheetName, getNextColor, rangeReference } from "../../helpers/index";
-import { Mode } from "../../model";
-import { Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
+import { Command, CommandResult } from "../../types/commands";
+import { SelectionInputPluginGetters } from "../../types/getters";
+import { Highlight, LAYERS, UID } from "../../types/index";
+import { Mode, RangeInputValue, SelectionMode } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
-import { SelectionMode } from "./selection";
-
-export interface RangeInputValue {
-  id: UID;
-  xc: string;
-  color?: string | null;
-}
 
 /**
  * Selection input Plugin
@@ -17,7 +12,7 @@ export interface RangeInputValue {
  * it requires an intermediary internal state to work.
  * This plugin handles this internal state.
  */
-export class SelectionInputPlugin extends UIPlugin {
+export class SelectionInputPlugin extends UIPlugin implements SelectionInputPluginGetters {
   static modes: Mode[] = ["normal", "readonly"];
   static layers = [LAYERS.Highlights];
   static getters = ["getSelectionInput", "getSelectionInputValue", "isRangeValid"];

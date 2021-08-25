@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { core } from "@odoo/owl";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID, MAXIMUM_EVALUATION_CHECK_DELAY_MS } from "./constants";
@@ -12,24 +12,20 @@ import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstructor } from "./plugins/ui_plugin";
 import { StateObserver } from "./state_observer";
 import { _lt } from "./translation";
-import { StateUpdateMessage, TransportService } from "./types/collaborative/transport_service";
+import { Client } from "./types/collaborative/session";
+import { StateUpdateMessage } from "./types/collaborative/transport_service";
 import {
   canExecuteInReadonly,
-  Client,
-  ClientPosition,
   Command,
   CommandDispatcher,
   CommandHandler,
   CommandResult,
   CoreCommand,
-  EvalContext,
-  Getters,
-  GridRenderingContext,
   isCoreCommand,
-  LAYERS,
-  UID,
-  WorkbookData,
-} from "./types/index";
+} from "./types/commands";
+import { Getters } from "./types/getters";
+import { GridRenderingContext, LAYERS, UID, WorkbookData } from "./types/index";
+import { ModelConfig } from "./types/model";
 import { XLSXExport } from "./types/xlsx";
 import { getXLSX } from "./xlsx/xlsx_writer";
 
@@ -58,22 +54,6 @@ import { getXLSX } from "./xlsx/xlsx_writer";
  * programmatically a spreadsheet.
  */
 
-export type Mode = "normal" | "headless" | "readonly";
-export interface ModelConfig {
-  mode: Mode;
-  openSidePanel: (panel: string, panelProps?: any) => void;
-  notifyUser: (content: string) => any;
-  askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
-  editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
-  evalContext: EvalContext;
-  moveClient: (position: ClientPosition) => void;
-  transportService: TransportService;
-  client: Client;
-  isHeadless: boolean;
-  isReadonly: boolean;
-  snapshotRequested: boolean;
-}
-
 const enum Status {
   Ready,
   Running,
@@ -82,7 +62,7 @@ const enum Status {
   Interactive,
 }
 
-export class Model extends owl.core.EventBus implements CommandDispatcher {
+export class Model extends core.EventBus implements CommandDispatcher {
   private corePlugins: CorePlugin[] = [];
 
   private uiPlugins: UIPlugin[] = [];

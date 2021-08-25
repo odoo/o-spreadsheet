@@ -16,20 +16,23 @@ import {
 } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
+  Command,
+  CommandResult,
+  CoreCommand,
+  RenameSheetCommand,
+  UpdateCellPositionCommand,
+} from "../../types/commands";
+import { SheetPluginGetters } from "../../types/getters";
+import {
   Cell,
   CellPosition,
   CellType,
   Col,
-  Command,
-  CommandResult,
   ConsecutiveIndexes,
-  CoreCommand,
   ExcelWorkbookData,
-  RenameSheetCommand,
   Row,
   Sheet,
   UID,
-  UpdateCellPositionCommand,
   WorkbookData,
   Zone,
 } from "../../types/index";
@@ -42,7 +45,7 @@ export interface SheetState {
   readonly cellPosition: Record<UID, CellPosition | undefined>;
 }
 
-export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
+export class SheetPlugin extends CorePlugin<SheetState> implements SheetState, SheetPluginGetters {
   static getters = [
     "getSheetName",
     "getSheet",
@@ -354,11 +357,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   getHiddenRowsGroups(sheetId: UID): ConsecutiveIndexes[] {
     return this.sheets[sheetId]?.hiddenRowsGroups || [];
   }
-  getNumberCols(sheetId: UID) {
+  getNumberCols(sheetId: UID): number {
     return this.getSheet(sheetId).cols.length;
   }
 
-  getNumberRows(sheetId: UID) {
+  getNumberRows(sheetId: UID): number {
     return this.getSheet(sheetId).rows.length;
   }
 

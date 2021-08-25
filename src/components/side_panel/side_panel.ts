@@ -1,10 +1,9 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags } from "@odoo/owl";
 import { SidePanelContent, sidePanelRegistry } from "../../registries/side_panel_registry";
-import { SpreadsheetEnv } from "../../types";
+import { SpreadsheetEnv } from "../../types/env";
 
-const { Component } = owl;
-const { xml, css } = owl.tags;
-const { useState } = owl.hooks;
+const { xml, css } = tags;
+const { useState } = hooks;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-sidePanel" >

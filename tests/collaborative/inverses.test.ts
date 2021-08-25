@@ -1,9 +1,9 @@
 import { toZone } from "../../src/helpers";
 import { inverseCommand } from "../../src/helpers/inverse_commands";
+import { ChartUIDefinition } from "../../src/types/chart";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
-  ChartUIDefinition,
   ClearCellCommand,
   ClearFormattingCommand,
   CoreCommand,
@@ -21,7 +21,7 @@ import {
   UpdateCellPositionCommand,
   UpdateChartCommand,
   UpdateFigureCommand,
-} from "../../src/types";
+} from "../../src/types/commands";
 import { target } from "../test_helpers/helpers";
 
 describe("Inverses commands", () => {

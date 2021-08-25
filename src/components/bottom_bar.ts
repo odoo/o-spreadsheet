@@ -1,12 +1,11 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags } from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../constants";
 import { MenuItemRegistry, sheetMenuRegistry } from "../registries/index";
-import { SpreadsheetEnv } from "../types";
+import { SpreadsheetEnv } from "../types/env";
 import { LIST, PLUS, TRIANGLE_DOWN_ICON } from "./icons";
 import { Menu, MenuState } from "./menu";
-const { Component } = owl;
-const { xml, css } = owl.tags;
-const { useState } = owl.hooks;
+const { xml, css } = tags;
+const { useState } = hooks;
 
 // -----------------------------------------------------------------------------
 // SpreadSheet

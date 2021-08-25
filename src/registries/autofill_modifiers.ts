@@ -1,19 +1,28 @@
 import { Registry } from "../registry";
 import {
   AutofillData,
-  AutofillModifierImplementation,
-  CellType,
+  AutofillModifier,
+  AutofillResult,
   CopyModifier,
-  DIRECTION,
   FormulaModifier,
-  Getters,
   IncrementModifier,
-} from "../types/index";
+} from "../types/autofill";
+import { Getters } from "../types/getters";
+import { CellType, DIRECTION } from "../types/index";
 
 /**
  * An AutofillModifierImplementation is used to describe how to handle a
  * AutofillModifier.
  */
+
+export interface AutofillModifierImplementation {
+  apply: (
+    rule: AutofillModifier,
+    data: AutofillData,
+    getters: Getters,
+    direction: DIRECTION
+  ) => Omit<AutofillResult, "origin">;
+}
 
 export const autofillModifiersRegistry = new Registry<AutofillModifierImplementation>();
 

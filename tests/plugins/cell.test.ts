@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { CommandResult } from "../../src/types";
+import { CommandResult } from "../../src/types/commands";
 import { getCell } from "../test_helpers/getters_helpers";
 
 describe("getCellText", () => {

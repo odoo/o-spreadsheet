@@ -1,21 +1,16 @@
 import { clip, isInside, toCartesian, toXC, union } from "../../helpers/index";
-import { Mode } from "../../model";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
 import {
   AutofillData,
   AutofillModifier,
   AutofillResult,
-  Cell,
-  Command,
-  CommandResult,
-  DIRECTION,
   GeneratorCell,
-  Getters,
-  GridRenderingContext,
-  LAYERS,
   Tooltip,
-  Zone,
-} from "../../types/index";
+} from "../../types/autofill";
+import { Command, CommandResult } from "../../types/commands";
+import { AutofillPluginGetters, Getters } from "../../types/getters";
+import { Cell, DIRECTION, GridRenderingContext, LAYERS, Zone } from "../../types/index";
+import { Mode } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 /**
@@ -79,7 +74,7 @@ class AutofillGenerator {
  * Autofill Plugin
  *
  */
-export class AutofillPlugin extends UIPlugin {
+export class AutofillPlugin extends UIPlugin implements AutofillPluginGetters {
   static layers = [LAYERS.Autofill];
   static getters = ["getAutofillTooltip"];
   static modes: Mode[] = ["normal", "readonly"];

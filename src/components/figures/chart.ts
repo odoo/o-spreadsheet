@@ -1,13 +1,12 @@
-import * as owl from "@odoo/owl";
-import { Component, hooks, tags } from "@odoo/owl";
+import { Component, hooks, tags, useState } from "@odoo/owl";
 import Chart, { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { MenuItemRegistry } from "../../registries/index";
 import { _lt } from "../../translation";
-import { Figure, SpreadsheetEnv } from "../../types";
+import { Figure } from "../../types";
+import { SpreadsheetEnv } from "../../types/env";
 import { LIST } from "../icons";
 import { Menu, MenuState } from "../menu";
-const { useState } = owl;
 
 const { xml, css } = tags;
 const { useRef } = hooks;

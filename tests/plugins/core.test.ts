@@ -1,7 +1,7 @@
 import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { LOADING } from "../../src/plugins/ui/evaluation";
-import { CommandResult } from "../../src/types";
+import { CommandResult } from "../../src/types/commands";
 import {
   activateSheet,
   createSheet,

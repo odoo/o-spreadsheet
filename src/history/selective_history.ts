@@ -1,4 +1,5 @@
-import { TransformationFactory, UID } from "../types";
+import { TransformationFactory } from "../types/history";
+import { UID } from "../types/misc";
 import { Branch } from "./branch";
 import { Operation } from "./operation";
 import { OperationSequence } from "./operation_sequence";

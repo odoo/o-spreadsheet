@@ -1,8 +1,9 @@
-import { Mode } from "../../model";
-import { Command } from "../../types/index";
+import { Command } from "../../types/commands";
+import { UIOptionsPluginGetters } from "../../types/getters";
+import { Mode } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
-export class UIOptionsPlugin extends UIPlugin {
+export class UIOptionsPlugin extends UIPlugin implements UIOptionsPluginGetters {
   static modes: Mode[] = ["normal", "readonly"];
   static getters = ["shouldShowFormulas"];
   private showFormulas: boolean = false;

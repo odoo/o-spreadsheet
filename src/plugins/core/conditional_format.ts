@@ -6,21 +6,19 @@ import {
   ColorScaleMidPointThreshold,
   ColorScaleRule,
   ColorScaleThreshold,
-  Command,
-  CommandResult,
   ConditionalFormat,
   ConditionalFormatInternal,
   ConditionalFormattingOperatorValues,
-  CoreCommand,
   ExcelWorkbookData,
   IconSetRule,
   IconThreshold,
   SingleColorRules,
   UID,
-  Validation,
   WorkbookData,
   Zone,
 } from "../../types";
+import { Command, CommandResult, CoreCommand, Validation } from "../../types/commands";
+import { ConditionalFormatPluginGetters } from "../../types/getters";
 import { CorePlugin } from "../core_plugin";
 
 // -----------------------------------------------------------------------------
@@ -40,7 +38,7 @@ interface ConditionalFormatState {
 
 export class ConditionalFormatPlugin
   extends CorePlugin<ConditionalFormatState>
-  implements ConditionalFormatState
+  implements ConditionalFormatState, ConditionalFormatPluginGetters
 {
   static getters = ["getConditionalFormats", "getRulesSelection", "getRulesByCell"];
 

@@ -2,8 +2,8 @@ import { Model, UIPlugin } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { uiPluginRegistry } from "../../src/plugins";
-import { CommandResult, UpdateCellCommand } from "../../src/types";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
+import { CommandResult, UpdateCellCommand } from "../../src/types/commands";
 import {
   addColumns,
   createSheet,

@@ -11,7 +11,7 @@ import {
   SetFormattingCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
-} from "../../../src/types";
+} from "../../../src/types/commands";
 import { target } from "../../test_helpers/helpers";
 
 describe("OT with ADD_MERGE", () => {

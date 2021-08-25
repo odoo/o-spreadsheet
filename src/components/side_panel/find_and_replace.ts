@@ -1,9 +1,8 @@
-import * as owl from "@odoo/owl";
-import { SpreadsheetEnv } from "../../types/index";
+import { Component, tags, useState } from "@odoo/owl";
+import { SpreadsheetEnv } from "../../types/env";
 import { FindAndReplaceTerms } from "./translations_terms";
 
-const { Component, useState } = owl;
-const { xml, css } = owl.tags;
+const { xml, css } = tags;
 
 const TEMPLATE = xml/* xml */ `
 <div class="o-find-and-replace" tabindex="0" t-on-focusin="onFocusSidePanel">
@@ -29,7 +28,7 @@ const TEMPLATE = xml/* xml */ `
         <label class="o-far-checkbox">
           <input t-model="state.searchOptions.exactMatch" t-on-change="updateSearch()" class="o-far-input" type="checkbox" />
           <span class="o-far-label"><t t-esc="env._t('${FindAndReplaceTerms.ExactMatch}')"/></span>
-        </label>                                                                            
+        </label>
       </div>
       <div class="o-far-item">
         <label class="o-far-checkbox">

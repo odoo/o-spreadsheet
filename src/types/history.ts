@@ -1,5 +1,3 @@
-import { Branch } from "../history/branch";
-import { Operation } from "../history/operation";
 import { UID } from "./misc";
 
 export interface CreateRevisionOptions {
@@ -91,14 +89,4 @@ export interface TransformationFactory<T = unknown> {
    * executed before.
    */
   with: (operation: T) => Transformation<T>;
-}
-
-export interface OperationSequenceNode<T> {
-  operation: Operation<T>;
-  branch: Branch<T>;
-  isCancelled: boolean;
-  next?: {
-    operation: Operation<T>;
-    branch: Branch<T>;
-  };
 }

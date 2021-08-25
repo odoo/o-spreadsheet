@@ -1,10 +1,9 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags } from "@odoo/owl";
 import { FunctionDescription } from "../../types";
 import { formulaAssistantTerms } from "./translation_terms";
 
-const { Component } = owl;
-const { xml, css } = owl.tags;
-const { useState } = owl.hooks;
+const { xml, css } = tags;
+const { useState } = hooks;
 
 // -----------------------------------------------------------------------------
 // Formula Assistant component

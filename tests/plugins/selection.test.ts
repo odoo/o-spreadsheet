@@ -1,6 +1,7 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult, Increment } from "../../src/types";
+import { Increment } from "../../src/types";
+import { CommandResult } from "../../src/types/commands";
 import {
   activateSheet,
   addColumns,

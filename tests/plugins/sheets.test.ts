@@ -1,7 +1,7 @@
 import { FORBIDDEN_SHEET_CHARS } from "../../src/constants";
 import { getComposerSheetName, toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult } from "../../src/types";
+import { CommandResult } from "../../src/types/commands";
 import {
   activateSheet,
   createChart,

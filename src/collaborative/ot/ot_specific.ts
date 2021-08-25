@@ -1,17 +1,17 @@
 import { isDefined, overlap, toZone, zoneToXc } from "../../helpers";
 import { otRegistry } from "../../registries";
+import { ChartUIDefinition } from "../../types/chart";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
-  ChartUIDefinition,
   CreateChartCommand,
   DeleteFigureCommand,
   RemoveColumnsRowsCommand,
   RemoveMergeCommand,
   UpdateChartCommand,
   UpdateFigureCommand,
-  Zone,
-} from "../../types";
+} from "../../types/commands";
+import { Zone } from "../../types/misc";
 import { transformZone } from "./ot_helpers";
 
 /*

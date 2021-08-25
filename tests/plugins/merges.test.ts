@@ -1,6 +1,7 @@
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { CommandResult, Style } from "../../src/types/index";
+import { CommandResult } from "../../src/types/commands";
+import { Style } from "../../src/types/index";
 import {
   deleteRows,
   merge,

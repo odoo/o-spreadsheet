@@ -1,12 +1,8 @@
-import { Mode, ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
-import {
-  CommandDispatcher,
-  CommandHandler,
-  CommandResult,
-  Validation,
-  WorkbookHistory,
-} from "../types/index";
+import { CommandDispatcher, CommandHandler, CommandResult, Validation } from "../types/commands";
+import { WorkbookHistory } from "../types/history";
+import { Mode } from "../types/misc";
+import { ModelConfig } from "../types/model";
 
 /**
  * BasePlugin

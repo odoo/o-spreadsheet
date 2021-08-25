@@ -1,4 +1,4 @@
-import { Align, Border, Style, Zone } from "./misc";
+import { Align, Border, ComposerSelection, Style, Zone } from "./misc";
 
 export type Rect = [number, number, number, number];
 
@@ -58,3 +58,12 @@ export interface EdgeScrollInfo {
 }
 
 export type ScrollDirection = 1 | 0 | -1;
+
+export type ContextMenuType = "ROW" | "COL" | "CELL";
+
+interface ComposerFocusedEventData {
+  content?: string;
+  selection?: ComposerSelection;
+}
+
+export type ComposerFocusedEvent = CustomEvent<ComposerFocusedEventData>;

@@ -1,173 +1,259 @@
-import { Session } from "../collaborative/session";
-import { LocalHistory } from "../history/local_history";
-import { BordersPlugin } from "../plugins/core/borders";
-import { CellPlugin } from "../plugins/core/cell";
-import { ChartPlugin } from "../plugins/core/chart";
-import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
-import { FigurePlugin } from "../plugins/core/figures";
-import { MergePlugin } from "../plugins/core/merge";
-import { RangeAdapter } from "../plugins/core/range";
-import { SheetPlugin } from "../plugins/core/sheet";
-import { AutofillPlugin } from "../plugins/ui/autofill";
-import { AutomaticSumPlugin } from "../plugins/ui/automatic_sum";
-import { ClipboardPlugin } from "../plugins/ui/clipboard";
-import { EditionPlugin } from "../plugins/ui/edition";
-import { EvaluationPlugin } from "../plugins/ui/evaluation";
-import { EvaluationChartPlugin } from "../plugins/ui/evaluation_chart";
-import { EvaluationConditionalFormatPlugin } from "../plugins/ui/evaluation_conditional_format";
-import { FindAndReplacePlugin } from "../plugins/ui/find_and_replace";
-import { HighlightPlugin } from "../plugins/ui/highlight";
-import { RendererPlugin } from "../plugins/ui/renderer";
-import { SelectionPlugin } from "../plugins/ui/selection";
-import { SelectionInputPlugin } from "../plugins/ui/selection_inputs";
-import { SelectionMultiUserPlugin } from "../plugins/ui/selection_multiuser";
-import { SortPlugin } from "../plugins/ui/sort";
-import { UIOptionsPlugin } from "../plugins/ui/ui_options";
-import { SheetUIPlugin } from "../plugins/ui/ui_sheet";
-import { ViewportPlugin } from "../plugins/ui/viewport";
+import { ChartConfiguration } from "chart.js";
+import { EnrichedToken } from "../formulas/range_tokenizer";
+import { Tooltip } from "./autofill";
+import { ChartDefinition, ChartUIDefinition } from "./chart";
+import { Client, ClientToDisplay } from "./collaborative/session";
+import { ConditionalFormat } from "./conditional_formatting";
+import { Figure } from "./figure";
+import {
+  AutomaticSum,
+  Border,
+  Cell,
+  CellPosition,
+  Col,
+  ComposerSelection,
+  ConsecutiveIndexes,
+  Dimension,
+  EditionMode,
+  FormulaCell,
+  Highlight,
+  Merge,
+  Range,
+  RangeInputValue,
+  Row,
+  SearchMatch,
+  Selection,
+  SelectionMode,
+  Sheet,
+  Style,
+  UID,
+  Zone,
+  ZoneDimension,
+} from "./misc";
+import { EdgeScrollInfo, Rect, Viewport } from "./rendering";
+
 // -----------------------------------------------------------------------------
-// Getters
+// Core
 // -----------------------------------------------------------------------------
 
-export interface CoreGetters {
-  isReadonly: () => boolean;
-
-  canUndo: LocalHistory["canUndo"];
-  canRedo: LocalHistory["canRedo"];
-
-  getEvaluationSheets: SheetPlugin["getEvaluationSheets"];
-  getSheet: SheetPlugin["getSheet"];
-  tryGetSheet: SheetPlugin["tryGetSheet"];
-  getSheetName: SheetPlugin["getSheetName"];
-  getSheetIdByName: SheetPlugin["getSheetIdByName"];
-  getSheets: SheetPlugin["getSheets"];
-  getVisibleSheets: SheetPlugin["getVisibleSheets"];
-  getCol: SheetPlugin["getCol"];
-  getRow: SheetPlugin["getRow"];
-  getCell: SheetPlugin["getCell"];
-  getCellPosition: SheetPlugin["getCellPosition"];
-  getColCells: SheetPlugin["getColCells"];
-  getColsZone: SheetPlugin["getColsZone"];
-  getRowsZone: SheetPlugin["getRowsZone"];
-  getHiddenColsGroups: SheetPlugin["getHiddenColsGroups"];
-  getHiddenRowsGroups: SheetPlugin["getHiddenColsGroups"];
-  getGridLinesVisibility: SheetPlugin["getGridLinesVisibility"];
-  getNumberRows: SheetPlugin["getNumberRows"];
-  getNumberCols: SheetPlugin["getNumberCols"];
-  isEmpty: SheetPlugin["isEmpty"];
-
-  zoneToXC: CellPlugin["zoneToXC"];
-  getCells: CellPlugin["getCells"];
-  getFormulaCellContent: CellPlugin["getFormulaCellContent"];
-  buildFormulaContent: CellPlugin["buildFormulaContent"];
-  getCellText: CellPlugin["getCellText"];
-  getCellValue: CellPlugin["getCellValue"];
-  getCellStyle: CellPlugin["getCellStyle"];
-  getCellById: CellPlugin["getCellById"];
-
-  getClipboardContent: ClipboardPlugin["getClipboardContent"];
-  isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
-
-  expandZone: MergePlugin["expandZone"];
-  isInMerge: MergePlugin["isInMerge"];
-  getMainCell: MergePlugin["getMainCell"];
-  doesIntersectMerge: MergePlugin["doesIntersectMerge"];
-  isInSameMerge: MergePlugin["isInSameMerge"];
-  getMerges: MergePlugin["getMerges"];
-  getMerge: MergePlugin["getMerge"];
-  isMergeHidden: MergePlugin["isMergeHidden"];
-  isSingleCellOrMerge: MergePlugin["isSingleCellOrMerge"];
-
-  getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
-  getRulesSelection: ConditionalFormatPlugin["getRulesSelection"];
-  getRulesByCell: ConditionalFormatPlugin["getRulesByCell"];
-
-  getFigures: FigurePlugin["getFigures"];
-  getFigure: FigurePlugin["getFigure"];
-
-  getCellBorder: BordersPlugin["getCellBorder"];
-
-  getChartDefinition: ChartPlugin["getChartDefinition"];
-  getChartsIdBySheet: ChartPlugin["getChartsIdBySheet"];
-  getChartDefinitionUI: ChartPlugin["getChartDefinitionUI"];
-
-  getRangeString: RangeAdapter["getRangeString"];
-  getRangeFromSheetXC: RangeAdapter["getRangeFromSheetXC"];
-  createAdaptedRanges: RangeAdapter["createAdaptedRanges"];
+export interface LocalHistoryGetters {
+  canUndo: () => boolean;
+  canRedo: () => boolean;
 }
 
-export type Getters = CoreGetters & {
-  getActiveSheetId: SelectionPlugin["getActiveSheetId"];
-  getActiveSheet: SelectionPlugin["getActiveSheet"];
-  getActiveCell: SelectionPlugin["getActiveCell"];
-  getActiveCols: SelectionPlugin["getActiveCols"];
-  getActiveRows: SelectionPlugin["getActiveRows"];
-  getCurrentStyle: SelectionPlugin["getCurrentStyle"];
-  getSelectedZones: SelectionPlugin["getSelectedZones"];
-  getSelectedZone: SelectionPlugin["getSelectedZone"];
-  getSelection: SelectionPlugin["getSelection"];
-  getSelectedFigureId: SelectionPlugin["getSelectedFigureId"];
-  getVisibleFigures: SelectionPlugin["getVisibleFigures"];
-  getPosition: SelectionPlugin["getPosition"];
-  getSheetPosition: SelectionPlugin["getSheetPosition"];
-  getAggregate: SelectionPlugin["getAggregate"];
-  getSelectionMode: SelectionPlugin["getSelectionMode"];
-  isSelected: SelectionPlugin["isSelected"];
-  getElementsFromSelection: SelectionPlugin["getElementsFromSelection"];
+export interface SheetPluginGetters {
+  getEvaluationSheets: () => Record<UID, Sheet | undefined>;
+  getSheet: (sheetId: UID) => Sheet;
+  tryGetSheet: (sheetId: UID) => Sheet | undefined;
+  getSheetName: (sheetId: UID) => string;
+  getSheetIdByName: (name: string | undefined) => UID | undefined;
+  getSheets: () => Sheet[];
+  getVisibleSheets: () => UID[];
+  getCol: (sheetId: UID, index: number) => Col | undefined;
+  getRow: (sheetId: UID, index: number) => Row | undefined;
+  getCell: (sheetId: UID, col: number, row: number) => Cell | undefined;
+  getCellPosition: (cellId: UID) => CellPosition;
+  getColCells: (sheetId: UID, col: number) => Cell[];
+  getColsZone: (sheetId: UID, start: number, end: number) => Zone;
+  getRowsZone: (sheetId: UID, start: number, end: number) => Zone;
+  getHiddenColsGroups: (sheetId: UID) => ConsecutiveIndexes[];
+  getHiddenRowsGroups: (sheetId: UID) => ConsecutiveIndexes[];
+  getGridLinesVisibility: (sheetId: UID) => boolean;
+  getNumberRows: (sheetId: UID) => number;
+  getNumberCols: (sheetId: UID) => number;
+  isEmpty: (sheetId: UID, zone: Zone) => boolean;
+}
 
-  getClient: Session["getClient"];
-  getConnectedClients: Session["getConnectedClients"];
-  isFullySynchronized: Session["isFullySynchronized"];
+export interface CellPluginGetters {
+  zoneToXC: (sheetId: UID, zone: Zone) => string;
+  getCells: (sheetId: UID) => Record<UID, Cell>;
+  getFormulaCellContent: (sheetId: UID, cell: FormulaCell) => string;
+  buildFormulaContent: (sheetId: UID, formula: string, dependencies: Range[]) => string;
+  getCellText: (cell: Cell, sheetId: UID, showFormula?: boolean) => string;
+  getCellValue: (cell: Cell, sheetId: UID, showFormula?: boolean) => any;
+  getCellStyle: (cell: Cell) => Style;
+  getCellById: (cellId: UID) => Cell | undefined;
+}
 
-  getCellWidth: SheetUIPlugin["getCellWidth"];
-  getTextWidth: SheetUIPlugin["getTextWidth"];
-  getCellHeight: SheetUIPlugin["getCellHeight"];
+export interface MergePluginGetters {
+  expandZone: (sheetId: UID, zone: Zone) => Zone;
+  isInMerge: (sheetId: UID, col: number, row: number) => boolean;
+  getMainCell: (sheetId: UID, col: number, row: number) => [number, number];
+  doesIntersectMerge: (sheetId: UID, zone: Zone) => boolean;
+  isInSameMerge: (sheetId: UID, colA: number, rowA: number, colB: number, rowB: number) => boolean;
+  getMerges: (sheetId: UID) => Merge[];
+  getMerge: (sheetId: UID, col: number, row: number) => Merge | undefined;
+  isMergeHidden: (sheetId: UID, merge: Merge) => boolean;
+  isSingleCellOrMerge: (sheetId: UID, zone: Zone) => boolean;
+}
+export interface ConditionalFormatPluginGetters {
+  getConditionalFormats: (sheetId: UID) => ConditionalFormat[];
+  getRulesSelection: (sheetId: UID, selection: Zone[]) => UID[];
+  getRulesByCell: (sheetId: UID, cellCol: number, cellRow: number) => Set<ConditionalFormat>;
+}
+export interface FigurePluginGetters {
+  getFigures: (sheetId: UID) => Figure[];
+  getFigure: (sheetId: string, figureId: string) => Figure | undefined;
+}
+export interface BordersPluginGetters {
+  getCellBorder: (sheetId: UID, col: number, row: number) => Border | null;
+}
+export interface ChartPluginGetters {
+  getChartDefinition: (figureId: UID) => ChartDefinition | undefined;
+  getChartsIdBySheet: (sheetId: UID) => UID[];
+  getChartDefinitionUI: (sheetId: UID, figureId: UID) => ChartUIDefinition;
+}
+export interface RangeAdapterGetters {
+  getRangeString: (range: Range, forSheetId: UID) => string;
+  getRangeFromSheetXC: (defaultSheetId: UID, sheetXC: string) => Range;
+  createAdaptedRanges: (ranges: Range[], offsetX: number, offsetY: number, sheetId: UID) => Range[];
+}
 
-  getRangeFormattedValues: EvaluationPlugin["getRangeFormattedValues"];
-  evaluateFormula: EvaluationPlugin["evaluateFormula"];
-  isIdle: EvaluationPlugin["isIdle"];
-  getRangeValues: EvaluationPlugin["getRangeValues"];
+export type CoreGetters = LocalHistoryGetters &
+  SheetPluginGetters &
+  CellPluginGetters &
+  MergePluginGetters &
+  ConditionalFormatPluginGetters &
+  FigurePluginGetters &
+  BordersPluginGetters &
+  ChartPluginGetters &
+  RangeAdapterGetters & {
+    isReadonly: () => boolean;
+  };
 
-  shouldShowFormulas: UIOptionsPlugin["shouldShowFormulas"];
-  getChartRuntime: EvaluationChartPlugin["getChartRuntime"];
+// -----------------------------------------------------------------------------
+// UI
+// -----------------------------------------------------------------------------
+export interface ClipboardPluginGetters {
+  getClipboardContent: () => string;
+  isPaintingFormat: () => boolean;
+}
 
-  getConditionalStyle: EvaluationConditionalFormatPlugin["getConditionalStyle"];
-  getConditionalIcon: EvaluationConditionalFormatPlugin["getConditionalIcon"];
+export interface SelectionPluginGetters {
+  getActiveSheetId: () => UID;
+  getActiveSheet: () => Sheet;
+  getActiveCell: () => Cell | undefined;
+  getActiveCols: () => Set<number>;
+  getActiveRows: () => Set<number>;
+  getCurrentStyle: () => Style;
+  getSelectedZones: () => Zone[];
+  getSelectedZone: () => Zone;
+  getSelection: () => Selection;
+  getSelectedFigureId: () => string | null;
+  getVisibleFigures: (sheetId: UID) => Figure[];
+  getPosition: () => [number, number];
+  getSheetPosition: (sheetId: UID) => [number, number];
+  getAggregate: () => string | null;
+  getSelectionMode: () => SelectionMode;
+  isSelected: (zone: Zone) => boolean;
+  getElementsFromSelection: (dimension: Dimension) => number[];
+}
 
-  getHighlights: HighlightPlugin["getHighlights"];
+export interface SessionGetters {
+  getClient: () => Client;
+  getConnectedClients: () => Set<Client>;
+  isFullySynchronized: () => boolean;
+}
 
-  getColIndex: RendererPlugin["getColIndex"];
-  getRowIndex: RendererPlugin["getRowIndex"];
-  getRect: RendererPlugin["getRect"];
-  getEdgeScrollCol: RendererPlugin["getEdgeScrollCol"];
-  getEdgeScrollRow: RendererPlugin["getEdgeScrollRow"];
+export interface SheetUIPluginGetters {
+  getCellWidth: (cell: Cell) => number;
+  getTextWidth: (cell: Cell) => number;
+  getCellHeight: (cell: Cell) => number;
+}
 
-  getEditionMode: EditionPlugin["getEditionMode"];
-  isSelectingForComposer: EditionPlugin["isSelectingForComposer"];
-  getCurrentContent: EditionPlugin["getCurrentContent"];
-  getEditionSheet: EditionPlugin["getEditionSheet"];
-  getComposerSelection: EditionPlugin["getComposerSelection"];
-  getCurrentTokens: EditionPlugin["getCurrentTokens"];
-  getTokenAtCursor: EditionPlugin["getTokenAtCursor"];
+export interface EvaluationPluginGetters {
+  getRangeFormattedValues: (range: Range) => string[][];
+  evaluateFormula: (formula: string, sheetId?: UID) => any;
+  isIdle: () => boolean;
+  getRangeValues: (range: Range) => any[][];
+}
 
-  getAutofillTooltip: AutofillPlugin["getAutofillTooltip"];
+export interface UIOptionsPluginGetters {
+  shouldShowFormulas: () => boolean;
+}
 
-  getSelectionInput: SelectionInputPlugin["getSelectionInput"];
-  getSelectionInputValue: SelectionInputPlugin["getSelectionInputValue"];
-  isRangeValid: SelectionInputPlugin["isRangeValid"];
+export interface EvaluationChartPluginGetters {
+  getChartRuntime: (figureId: string) => ChartConfiguration | undefined;
+}
 
-  getSearchMatches: FindAndReplacePlugin["getSearchMatches"];
-  getCurrentSelectedMatchIndex: FindAndReplacePlugin["getCurrentSelectedMatchIndex"];
+export interface EvaluationConditionalFormatPluginGetters {
+  getConditionalStyle: (col: number, row: number) => Style | undefined;
+  getConditionalIcon: (col: number, row: number) => string | undefined;
+}
 
-  getContiguousZone: SortPlugin["getContiguousZone"];
+export interface HighlightPluginGetters {
+  getHighlights: () => Highlight[];
+}
 
-  getClientsToDisplay: SelectionMultiUserPlugin["getClientsToDisplay"];
+export interface RendererPluginGetters {
+  getColIndex: (x: number, left: number, sheet?: Sheet) => number;
+  getRowIndex: (y: number, top: number, sheet?: Sheet) => number;
+  getRect: (zone: Zone, viewport: Viewport) => Rect;
+  getEdgeScrollCol: (x: number) => EdgeScrollInfo;
+  getEdgeScrollRow: (y: number) => EdgeScrollInfo;
+}
 
-  getSnappedViewport: ViewportPlugin["getViewport"];
-  getViewportDimension: ViewportPlugin["getViewportDimension"];
-  getActiveViewport: ViewportPlugin["getActiveViewport"];
-  getActiveSnappedViewport: ViewportPlugin["getActiveSnappedViewport"];
-  getGridDimension: ViewportPlugin["getGridDimension"];
+export interface EditionPluginGetters {
+  getEditionMode: () => EditionMode;
+  isSelectingForComposer: () => boolean;
+  getCurrentContent: () => string;
+  getEditionSheet: () => string;
+  getComposerSelection: () => ComposerSelection;
+  getCurrentTokens: () => EnrichedToken[];
+  getTokenAtCursor: () => EnrichedToken | undefined;
+}
 
-  getAutomaticSums: AutomaticSumPlugin["getAutomaticSums"];
-};
+export interface AutofillPluginGetters {
+  getAutofillTooltip: () => Tooltip | undefined;
+}
+
+export interface SelectionInputPluginGetters {
+  getSelectionInput: (id: UID) => (RangeInputValue & { isFocused: boolean })[];
+  getSelectionInputValue: (id: UID) => string[];
+  isRangeValid: (xc: string) => boolean;
+}
+
+export interface FindAndReplacePluginGetters {
+  getSearchMatches: () => SearchMatch[];
+  getCurrentSelectedMatchIndex: () => number | null;
+}
+
+export interface SortPluginGetters {
+  getContiguousZone: (sheetId: UID, zone: Zone) => Zone;
+}
+
+export interface SelectionMultiUserPluginGetters {
+  getClientsToDisplay: () => ClientToDisplay[];
+}
+
+export interface ViewportPluginGetters {
+  getSnappedViewport: (sheetId: UID) => Viewport;
+  getViewportDimension: () => ZoneDimension;
+  getActiveViewport: () => Viewport;
+  getActiveSnappedViewport: () => Viewport;
+  getGridDimension: (sheet: Sheet) => ZoneDimension;
+}
+
+export interface AutomaticSumPluginGetters {
+  getAutomaticSums: (sheetId: UID, zone: Zone, anchor: [number, number]) => AutomaticSum[];
+}
+
+export type Getters = CoreGetters &
+  ClipboardPluginGetters &
+  SelectionPluginGetters &
+  SessionGetters &
+  SheetUIPluginGetters &
+  EvaluationPluginGetters &
+  UIOptionsPluginGetters &
+  EvaluationChartPluginGetters &
+  EvaluationConditionalFormatPluginGetters &
+  HighlightPluginGetters &
+  RendererPluginGetters &
+  EditionPluginGetters &
+  AutofillPluginGetters &
+  SelectionInputPluginGetters &
+  FindAndReplacePluginGetters &
+  SortPluginGetters &
+  SelectionMultiUserPluginGetters &
+  ViewportPluginGetters &
+  AutomaticSumPluginGetters;

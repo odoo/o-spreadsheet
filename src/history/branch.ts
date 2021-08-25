@@ -1,4 +1,5 @@
-import { Transformation, TransformationFactory, UID } from "../types";
+import { Transformation, TransformationFactory } from "../types/history";
+import { UID } from "../types/misc";
 import { Operation } from "./operation";
 
 /**
@@ -115,4 +116,14 @@ export class Branch<T> {
       after: this.operations.slice(operationIndex + 1),
     };
   }
+}
+
+export interface OperationSequenceNode<T> {
+  operation: Operation<T>;
+  branch: Branch<T>;
+  isCancelled: boolean;
+  next?: {
+    operation: Operation<T>;
+    branch: Branch<T>;
+  };
 }

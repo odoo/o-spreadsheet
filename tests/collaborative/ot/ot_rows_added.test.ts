@@ -15,7 +15,7 @@ import {
   SetFormattingCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
-} from "../../../src/types";
+} from "../../../src/types/commands";
 import { createEqualCF, target } from "../../test_helpers/helpers";
 
 describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {

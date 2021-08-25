@@ -1,6 +1,7 @@
 import { toCartesian, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult, Increment, Viewport } from "../../src/types";
+import { Increment, Viewport } from "../../src/types";
+import { CommandResult } from "../../src/types/commands";
 import { hideColumns, hideRows, merge, selectCell } from "../test_helpers/commands_helpers";
 import { getActiveXc } from "../test_helpers/getters_helpers";
 

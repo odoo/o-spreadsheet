@@ -1,6 +1,8 @@
-import { Mode, ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
-import { Command, CommandDispatcher, Getters, GridRenderingContext, LAYERS } from "../types/index";
+import { Command, CommandDispatcher } from "../types/commands";
+import { Getters } from "../types/getters";
+import { GridRenderingContext, LAYERS, Mode } from "../types/index";
+import { ModelConfig } from "../types/model";
 import { BasePlugin } from "./base_plugin";
 
 type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSidePanel" | "editText">;

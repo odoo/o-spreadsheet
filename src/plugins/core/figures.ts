@@ -1,12 +1,18 @@
 import { isDefined } from "../../helpers/index";
-import { CoreCommand, ExcelWorkbookData, Figure, UID, WorkbookData } from "../../types/index";
+import { CoreCommand } from "../../types/commands";
+import { FigurePluginGetters } from "../../types/getters";
+import { ExcelWorkbookData, Figure, WorkbookData } from "../../types/index";
+import { UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
 
 interface FigureState {
   readonly figures: { [sheet: string]: Record<UID, Figure | undefined> | undefined };
 }
 
-export class FigurePlugin extends CorePlugin<FigureState> implements FigureState {
+export class FigurePlugin
+  extends CorePlugin<FigureState>
+  implements FigureState, FigurePluginGetters
+{
   static getters = ["getFigures", "getFigure"];
   readonly figures: {
     [sheet: string]: Record<UID, Figure | undefined> | undefined;

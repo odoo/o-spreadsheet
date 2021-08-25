@@ -1,7 +1,7 @@
 import { ChartConfiguration } from "chart.js";
 import { Model } from "../../src";
 import { BACKGROUND_CHART_COLOR } from "../../src/constants";
-import { CommandResult } from "../../src/types";
+import { CommandResult } from "../../src/types/commands";
 import { createChart } from "../test_helpers/commands_helpers";
 import {
   setInputValueAndTrigger,

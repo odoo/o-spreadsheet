@@ -7,15 +7,12 @@ import {
   rangeReference,
   toZoneWithoutBoundaryChanges,
 } from "../../helpers/index";
+import { Command, CommandHandler, CommandResult, CoreCommand } from "../../types/commands";
+import { Getters, RangeAdapterGetters } from "../../types/getters";
 import {
   ApplyRangeChange,
   ApplyRangeChangeResult,
   ChangeType,
-  Command,
-  CommandHandler,
-  CommandResult,
-  CoreCommand,
-  Getters,
   Range,
   RangePart,
   RangeProvider,
@@ -23,7 +20,7 @@ import {
   Zone,
 } from "../../types/index";
 
-export class RangeAdapter implements CommandHandler<CoreCommand> {
+export class RangeAdapter implements CommandHandler<CoreCommand>, RangeAdapterGetters {
   private getters: Getters;
   private providers: Array<RangeProvider["adaptRanges"]> = [];
   constructor(getters: Getters) {

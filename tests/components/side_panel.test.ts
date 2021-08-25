@@ -3,7 +3,7 @@ import { Spreadsheet } from "../../src/components";
 import { Model } from "../../src/model";
 import { sidePanelRegistry } from "../../src/registries/index";
 import { SidePanelContent } from "../../src/registries/side_panel_registry";
-import { SpreadsheetEnv } from "../../src/types";
+import { SpreadsheetEnv } from "../../src/types/env";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { makeTestFixture, nextTick } from "../test_helpers/helpers";
 

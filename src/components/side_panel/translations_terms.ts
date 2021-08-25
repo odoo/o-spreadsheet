@@ -1,5 +1,5 @@
 import { _lt } from "../../translation";
-import { CommandResult } from "../../types/index";
+import { CommandResult } from "../../types/commands";
 
 export const conditionalFormattingTerms = {
   CF_TITLE: _lt("Format rules"),

@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { core } from "@odoo/owl";
 import { Session } from "../collaborative/session";
 import { MAX_HISTORY_STEPS } from "../constants";
 import {
@@ -7,8 +7,9 @@ import {
   CommandHandler,
   CommandResult,
   CoreCommand,
-  UID,
-} from "../types";
+} from "../types/commands";
+import { LocalHistoryGetters } from "../types/getters";
+import { UID } from "../types/misc";
 
 /**
  * Local History
@@ -17,7 +18,10 @@ import {
  * It maintains the local undo and redo stack to allow to undo/redo only local
  * changes
  */
-export class LocalHistory extends owl.core.EventBus implements CommandHandler<Command> {
+export class LocalHistory
+  extends core.EventBus
+  implements CommandHandler<Command>, LocalHistoryGetters
+{
   /**
    * Ids of the revisions which can be undone
    */
@@ -95,7 +99,7 @@ export class LocalHistory extends owl.core.EventBus implements CommandHandler<Co
     }
   }
 
-  canUndo(): boolean {
+  canUndo() {
     return this.undoStack.length > 0;
   }
 

@@ -1,10 +1,14 @@
+import { Command } from "../../types/commands";
+import { FindAndReplacePluginGetters } from "../../types/getters";
 import {
   Cell,
   CellType,
-  Command,
   FormulaCell,
   GridRenderingContext,
   LAYERS,
+  ReplaceOptions,
+  SearchMatch,
+  SearchOptions,
   UID,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
@@ -12,26 +16,10 @@ import { UIPlugin } from "../ui_plugin";
 const BORDER_COLOR: string = "#8B008B";
 const BACKGROUND_COLOR: string = "#8B008B33";
 
-export interface SearchOptions {
-  matchCase: boolean;
-  exactMatch: boolean;
-  searchFormulas: boolean;
-}
-
-export interface ReplaceOptions {
-  modifyFormulas: boolean;
-}
-
 export enum Direction {
   previous = -1,
   current = 0,
   next = 1,
-}
-
-interface SearchMatch {
-  selected: boolean;
-  col: number;
-  row: number;
 }
 
 /**
@@ -44,7 +32,7 @@ interface SearchMatch {
  * the search with a new value.
  */
 
-export class FindAndReplacePlugin extends UIPlugin {
+export class FindAndReplacePlugin extends UIPlugin implements FindAndReplacePluginGetters {
   static layers = [LAYERS.Search];
   static getters = ["getSearchMatches", "getCurrentSelectedMatchIndex"];
   private searchMatches: SearchMatch[] = [];

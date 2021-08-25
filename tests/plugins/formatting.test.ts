@@ -3,7 +3,8 @@ import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { SheetUIPlugin } from "../../src/plugins/ui/ui_sheet";
-import { Cell, CommandResult, UID } from "../../src/types";
+import { Cell, UID } from "../../src/types";
+import { CommandResult } from "../../src/types/commands";
 import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 

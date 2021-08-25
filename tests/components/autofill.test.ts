@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { Component, tags } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types/commands";
@@ -6,8 +6,7 @@ import { setCellContent } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
 
-const { Component } = owl;
-const { xml } = owl.tags;
+const { xml } = tags;
 
 jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);

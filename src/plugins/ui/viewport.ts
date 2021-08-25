@@ -5,13 +5,10 @@ import {
   HEADER_WIDTH,
 } from "../../constants";
 import { findLastVisibleColRow, getNextVisibleCellCoords } from "../../helpers";
-import { Mode } from "../../model";
-import { Command, CommandResult, Sheet, UID, Viewport, ZoneDimension } from "../../types/index";
+import { Command, CommandResult } from "../../types/commands";
+import { ViewportPluginGetters } from "../../types/getters";
+import { Mode, Sheet, UID, Viewport, ZoneDimension } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
-
-interface ViewportPluginState {
-  readonly viewports: Record<UID, Viewport>;
-}
 
 /**
  * Viewport plugin.
@@ -24,7 +21,7 @@ interface ViewportPluginState {
  *     the col/row structure, so, the offsets are correct for computations necessary
  *     to align elements to the grid.
  */
-export class ViewportPlugin extends UIPlugin {
+export class ViewportPlugin extends UIPlugin implements ViewportPluginGetters {
   static getters = [
     "getActiveViewport",
     "getSnappedViewport",
@@ -34,8 +31,8 @@ export class ViewportPlugin extends UIPlugin {
   ];
   static modes: Mode[] = ["normal", "readonly"];
 
-  readonly viewports: ViewportPluginState["viewports"] = {};
-  readonly snappedViewports: ViewportPluginState["viewports"] = {};
+  readonly viewports: Record<UID, Viewport> = {};
+  readonly snappedViewports: Record<UID, Viewport> = {};
   private updateSnap: boolean = false;
   /**
    * The viewport dimensions (clientWidth and clientHeight) are usually set by one of the components
@@ -170,7 +167,7 @@ export class ViewportPlugin extends UIPlugin {
     return CommandResult.Success;
   }
 
-  private getSnappedViewport(sheetId: UID) {
+  getSnappedViewport(sheetId: UID): Viewport {
     this.snapViewportToCell(sheetId);
     return this.snappedViewports[sheetId];
   }

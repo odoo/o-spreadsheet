@@ -1,12 +1,12 @@
-import * as owl from "@odoo/owl";
+import { Component, hooks, tags } from "@odoo/owl";
 import { DEFAULT_CELL_HEIGHT } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
+import { SpreadsheetEnv } from "../../types/env";
+import { ComposerDimension, Rect, Zone } from "../../types/index";
 import { Composer } from "./composer";
 
-const { Component } = owl;
-const { useState } = owl.hooks;
-const { xml, css } = owl.tags;
+const { useState } = hooks;
+const { xml, css } = tags;
 
 const SCROLLBAR_WIDTH = 14;
 const SCROLLBAR_HIGHT = 15;
@@ -31,14 +31,9 @@ const CSS = css/* scss */ `
   }
 `;
 
-export interface Dimension {
-  width: number;
-  height: number;
-}
-
 interface ComposerState {
   rect: Rect | null;
-  delimitation: Dimension | null;
+  delimitation: ComposerDimension | null;
 }
 
 interface Props {

@@ -9,16 +9,13 @@ import {
   union,
   zoneToDimension,
 } from "../../helpers";
-import { Mode } from "../../model";
-import { Cell, CellType, Command, Dimension, Sheet, UID, Zone } from "../../types";
+import { Cell, CellType, Dimension, Sheet, UID, Zone } from "../../types";
+import { Command } from "../../types/commands";
+import { AutomaticSumPluginGetters } from "../../types/getters";
+import { AutomaticSum, Mode } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
-interface AutomaticSum {
-  position: [number, number];
-  zone: Zone;
-}
-
-export class AutomaticSumPlugin extends UIPlugin {
+export class AutomaticSumPlugin extends UIPlugin implements AutomaticSumPluginGetters {
   static getters = ["getAutomaticSums"];
   static modes: Mode[] = ["normal", "headless"];
 

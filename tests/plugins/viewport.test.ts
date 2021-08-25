@@ -1,4 +1,3 @@
-import { CommandResult } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -7,6 +6,7 @@ import {
 } from "../../src/constants";
 import { numberToLetters, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
+import { CommandResult } from "../../src/types/commands";
 import {
   activateSheet,
   addColumns,

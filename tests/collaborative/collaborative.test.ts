@@ -1,8 +1,8 @@
 import { Model } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers";
-import { CoreCommand } from "../../src/types";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
+import { CoreCommand } from "../../src/types/commands";
 import {
   activateSheet,
   addColumns,

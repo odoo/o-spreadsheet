@@ -1,12 +1,14 @@
 import { getNextColor, isEqual, toZone } from "../../helpers/index";
-import { Mode } from "../../model";
-import { Command, GridRenderingContext, Highlight, LAYERS, Zone } from "../../types/index";
+import { Command } from "../../types/commands";
+import { HighlightPluginGetters } from "../../types/getters";
+import { GridRenderingContext, Highlight, LAYERS, Zone } from "../../types/index";
+import { Mode } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 /**
  * HighlightPlugin
  */
-export class HighlightPlugin extends UIPlugin {
+export class HighlightPlugin extends UIPlugin implements HighlightPluginGetters {
   static modes: Mode[] = ["normal", "readonly"];
   static layers = [LAYERS.Highlights];
   static getters = ["getHighlights"];

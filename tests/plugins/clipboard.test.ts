@@ -1,7 +1,8 @@
 import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
-import { CommandResult, Zone } from "../../src/types/index";
+import { CommandResult } from "../../src/types/commands";
+import { Zone } from "../../src/types/index";
 import {
   activateSheet,
   createSheet,

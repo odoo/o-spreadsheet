@@ -1,13 +1,12 @@
-import * as owl from "@odoo/owl";
-import { Component } from "@odoo/owl";
+import { Component, tags, useState } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH, SELECTION_BORDER_COLOR } from "../../constants";
 import { figureRegistry } from "../../registries/index";
-import { Figure, SpreadsheetEnv } from "../../types/index";
+import { SpreadsheetEnv } from "../../types/env";
+import { Figure } from "../../types/index";
 import { startDnd } from "../helpers/drag_and_drop";
 import { ChartFigure } from "./chart";
 
-const { xml, css } = owl.tags;
-const { useState } = owl;
+const { xml, css } = tags;
 
 interface FigureInfo {
   id: string;

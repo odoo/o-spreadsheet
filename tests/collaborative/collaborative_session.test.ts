@@ -1,9 +1,9 @@
-import * as owl from "@odoo/owl";
-import { Model } from "../../src";
+import { browser } from "@odoo/owl";
+import { Client, Model } from "../../src";
 import { Session } from "../../src/collaborative/session";
 import { DEBOUNCE_TIME, MESSAGE_VERSION } from "../../src/constants";
 import { buildRevisionLog } from "../../src/history/factory";
-import { Client, CommandResult } from "../../src/types";
+import { CommandResult } from "../../src/types/commands";
 import { selectCell } from "../test_helpers/commands_helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 
@@ -15,8 +15,8 @@ describe("Collaborative session", () => {
   beforeEach(() => {
     jest.useFakeTimers();
 
-    jest.spyOn(owl.browser, "setTimeout").mockImplementation(window.setTimeout.bind(window));
-    jest.spyOn(owl.browser, "clearTimeout").mockImplementation(window.clearTimeout.bind(window));
+    jest.spyOn(browser, "setTimeout").mockImplementation(window.setTimeout.bind(window));
+    jest.spyOn(browser, "clearTimeout").mockImplementation(window.clearTimeout.bind(window));
     transport = new MockTransportService();
     client = {
       id: "alice",

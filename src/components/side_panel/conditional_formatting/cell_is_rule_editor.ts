@@ -1,12 +1,12 @@
-import * as owl from "@odoo/owl";
-import { CellIsRule, ConditionalFormatRule, SpreadsheetEnv, Style } from "../../../types";
+import { Component, hooks, tags, useState } from "@odoo/owl";
+import { CellIsRule, ConditionalFormatRule, Style } from "../../../types";
+import { SpreadsheetEnv } from "../../../types/env";
 import { ColorPicker } from "../../color_picker";
 import * as icons from "../../icons";
 import { cellIsOperators, conditionalFormattingTerms } from "../translations_terms";
 
-const { Component, useState, hooks } = owl;
 const { useExternalListener } = hooks;
-const { xml, css } = owl.tags;
+const { xml, css } = tags;
 
 const PREVIEW_TEMPLATE = xml/* xml */ `
     <div class="o-cf-preview-line"

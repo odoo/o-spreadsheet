@@ -9,7 +9,8 @@ import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { RendererPlugin } from "../../src/plugins/ui/renderer";
-import { Box, CommandResult, GridRenderingContext, Viewport } from "../../src/types";
+import { Box, GridRenderingContext, Viewport } from "../../src/types";
+import { CommandResult } from "../../src/types/commands";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   addColumns,

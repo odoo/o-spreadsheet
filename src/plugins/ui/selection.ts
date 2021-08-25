@@ -11,48 +11,40 @@ import {
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
-import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
+import { ClientPosition } from "../../types/collaborative/session";
 import {
   AddColumnsRowsCommand,
-  Cell,
-  ClientPosition,
   Command,
   CommandDispatcher,
   CommandResult,
+  RemoveColumnsRowsCommand,
+} from "../../types/commands";
+import { Getters, SelectionPluginGetters } from "../../types/getters";
+import {
+  Cell,
   Dimension,
   Figure,
-  Getters,
   GridRenderingContext,
   Header,
   Increment,
   LAYERS,
+  Mode,
   Position,
-  RemoveColumnsRowsCommand,
+  Selection,
+  SelectionMode,
   Sheet,
   Style,
   UID,
   Zone,
 } from "../../types/index";
+import { ModelConfig } from "../../types/model";
 import { UIPlugin } from "../ui_plugin";
-
-export interface Selection {
-  anchor: [number, number];
-  zones: Zone[];
-  anchorZone: Zone;
-}
 
 interface SheetInfo {
   selection: Selection;
   activeCol: number;
   activeRow: number;
-}
-
-export enum SelectionMode {
-  idle,
-  selecting,
-  readyToExpand, //The next selection will add another zone to the current selection
-  expanding,
 }
 
 interface SelectionPluginState {
@@ -62,7 +54,10 @@ interface SelectionPluginState {
 /**
  * SelectionPlugin
  */
-export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
+export class SelectionPlugin
+  extends UIPlugin<SelectionPluginState>
+  implements SelectionPluginGetters
+{
   static layers = [LAYERS.Selection];
   static modes: Mode[] = ["normal", "readonly"];
   static getters = [
