@@ -64,7 +64,7 @@ export class Popover extends Component<Props, SpreadsheetEnv> {
   }
 
   private get viewportDimension(): GridDimension {
-    return this.getters.getViewportDimension();
+    return this.getters.getViewportDimension2(this.getters.getActiveSheet());
   }
 
   private get shouldRenderRight(): boolean {

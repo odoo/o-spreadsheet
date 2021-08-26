@@ -1,3 +1,4 @@
+import { Component } from "@odoo/owl";
 import { SpreadsheetEnv } from "../../types/env";
 type EventFn = (ev: MouseEvent) => void;
 
@@ -27,12 +28,12 @@ export function startDnd(onMouseMove: EventFn, onMouseUp: EventFn) {
  * performed during the mouseup event.
  */
 export function dragAndDropBeyondTheViewport(
+  comp: Component,
   element: HTMLElement,
   env: SpreadsheetEnv,
   cbMouseMove: (col: number, row: number) => void,
   cbMouseUp: () => void
 ) {
-  const position = element.getBoundingClientRect();
   let timeOutId: any = null;
   let currentEv: MouseEvent;
 
@@ -41,33 +42,45 @@ export function dragAndDropBeyondTheViewport(
     if (timeOutId) {
       return;
     }
+    const position = element.getBoundingClientRect();
+
     const offsetX = currentEv.clientX - position.left;
     const offsetY = currentEv.clientY - position.top;
     const edgeScrollInfoX = env.getters.getEdgeScrollCol(offsetX);
     const edgeScrollInfoY = env.getters.getEdgeScrollRow(offsetY);
-    const { top, left, bottom, right } = env.getters.getActiveSnappedViewport();
+    const {
+      top,
+      left,
+      bottom,
+      right,
+      offsetX: viewportOffsetX,
+      offsetY: viewportOffsetY,
+    } = env.getters.getActiveViewport();
 
     let colIndex: number;
     if (edgeScrollInfoX.canEdgeScroll) {
       colIndex = edgeScrollInfoX.direction > 0 ? right : left - 1;
     } else {
-      colIndex = env.getters.getColIndex(offsetX, left);
+      colIndex = env.getters.getColIndex(offsetX, viewportOffsetX);
     }
 
     let rowIndex: number;
     if (edgeScrollInfoY.canEdgeScroll) {
       rowIndex = edgeScrollInfoY.direction > 0 ? bottom : top - 1;
     } else {
-      rowIndex = env.getters.getRowIndex(offsetY, top);
+      rowIndex = env.getters.getRowIndex(offsetY, viewportOffsetY);
     }
 
     cbMouseMove(colIndex, rowIndex);
 
+    // TODO: mettre les conditions ensemble, c'est du code dupliqué
+
     if (edgeScrollInfoX.canEdgeScroll) {
-      const { left, offsetY } = env.getters.getActiveSnappedViewport();
+      const { left, offsetY } = env.getters.getActiveViewport();
       const { cols } = env.getters.getActiveSheet();
       const offsetX = cols[left + edgeScrollInfoX.direction].start;
-      env.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
+      // env.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
+      comp.trigger("tabouret", { offsetX, offsetY });
       timeOutId = setTimeout(() => {
         timeOutId = null;
         onMouseMove(currentEv);
@@ -75,14 +88,15 @@ export function dragAndDropBeyondTheViewport(
     }
 
     if (edgeScrollInfoY.canEdgeScroll) {
-      const { top, offsetX } = env.getters.getActiveSnappedViewport();
+      const { top, offsetX } = env.getters.getActiveViewport();
       const { rows } = env.getters.getActiveSheet();
       const offsetY = rows[top + edgeScrollInfoY.direction].start;
-      env.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
+      // env.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
+      comp.trigger("tabouret", { offsetX, offsetY });
       timeOutId = setTimeout(() => {
         timeOutId = null;
         onMouseMove(currentEv);
-      }, Math.round(edgeScrollInfoX.delay));
+      }, Math.round(edgeScrollInfoY.delay));
     }
   };
 

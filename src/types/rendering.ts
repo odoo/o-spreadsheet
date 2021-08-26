@@ -36,12 +36,14 @@ export interface GridDimension {
   height: number;
 }
 
-export interface Viewport extends Zone {
+export interface Offsets {
   offsetX: number;
   offsetY: number;
 }
 
-export interface GridRenderingContext {
+export interface Viewport extends Zone, Offsets {}
+
+export interface PluginRenderingContext {
   ctx: CanvasRenderingContext2D;
   viewport: Viewport;
   dpr: number;
@@ -56,7 +58,8 @@ export const enum LAYERS {
   Chart,
   Selection,
   Autofill,
-  Headers, // Probably keep this at the end
+  ColumnHeader, // Probably keep this at the end
+  RowHeader, // Probably keep this at the end
 }
 
 export interface EdgeScrollInfo {

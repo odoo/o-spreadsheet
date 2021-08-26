@@ -25,11 +25,11 @@ import {
   Dimension,
   Figure,
   Getters,
-  GridRenderingContext,
   Header,
   Increment,
   LAYERS,
   MoveColumnsRowsCommand,
+  PluginRenderingContext,
   Position,
   RemoveColumnsRowsCommand,
   Sheet,
@@ -904,12 +904,11 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(renderingContext: GridRenderingContext) {
+  drawGrid(renderingContexts: PluginRenderingContext[]) {
     if (this.getters.getEditionMode() !== "inactive") {
       return;
     }
-
-    const { viewport, ctx, thinLineWidth } = renderingContext;
+    const { viewport, ctx, thinLineWidth } = renderingContexts[0];
     // selection
     const zones = this.getSelectedZones();
     ctx.fillStyle = "#f3f7fe";
@@ -920,7 +919,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     ctx.lineWidth = 1.5 * thinLineWidth;
     ctx.globalCompositeOperation = "multiply";
     for (const zone of zones) {
-      const [x, y, width, height] = this.getters.getRect(zone, viewport);
+      const [x, y, width, height] = this.getters.getCanvasRect(zone, viewport);
       ctx.fillRect(x, y, width, height);
       ctx.strokeRect(x, y, width, height);
     }
@@ -943,7 +942,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
         right: col,
       };
     }
-    const [x, y, width, height] = this.getters.getRect(zone, viewport);
+    const [x, y, width, height] = this.getters.getCanvasRect(zone, viewport);
     if (width > 0 && height > 0) {
       ctx.strokeRect(x, y, width, height);
     }

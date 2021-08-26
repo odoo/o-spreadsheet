@@ -75,7 +75,7 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
       top: row,
       bottom: row,
     });
-    this.rect = this.getters.getRect(this.zone, this.getters.getActiveSnappedViewport());
+    this.rect = this.getters.getComponentRect(this.zone, this.getters.getActiveViewport());
   }
 
   get containerStyle(): string {
@@ -102,7 +102,7 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
       const cell = this.getters.getActiveCell();
       textAlign = style.align || cell?.defaultAlign || "left";
     }
-
+    // rajouter le décallage gauche et droite
     return `
       left: ${left - 1}px;
       top: ${top}px;
@@ -118,6 +118,7 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
       text-decoration: ${textDecoration};
 
       text-align: ${textAlign};
+      z-index:1;
     `;
   }
 

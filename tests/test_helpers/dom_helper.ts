@@ -25,7 +25,7 @@ export async function simulateClick(selector: string | any, x: number = 10, y: n
 export async function clickCell(model: Model, xc: string) {
   const zone = toZone(xc);
   const viewport = model.getters.getActiveViewport();
-  const [x, y, ,] = model.getters.getRect(zone, viewport);
+  const [x, y, ,] = model.getters.getCanvasRect(zone, viewport);
 
   await simulateClick("canvas", x, y);
 }
@@ -33,7 +33,7 @@ export async function clickCell(model: Model, xc: string) {
 export async function rightClickCell(model: Model, xc: string) {
   const zone = toZone(xc);
   const viewport = model.getters.getActiveViewport();
-  const [x, y, ,] = model.getters.getRect(zone, viewport);
+  const [x, y, ,] = model.getters.getCanvasRect(zone, viewport);
   triggerMouseEvent("canvas", "contextmenu", x, y);
   await nextTick();
 }

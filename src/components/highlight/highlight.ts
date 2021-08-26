@@ -93,6 +93,7 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
     };
 
     dragAndDropBeyondTheViewport(
+      this,
       this.el!.parentElement! as HTMLElement,
       this.env,
       mouseMove,
@@ -100,6 +101,8 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
     );
   }
 
+  // => le repositionnement des highlights a l'air de pas du tout apprécier le fait qu'on scroll :)
+  // il faut regarder la computation des currentcol /current row en fonction de la position du curseur. il manque un calcul d'offset quelque part
   onMoveHighlight(ev: CustomEvent) {
     this.highlightState.shiftingMode = "isMoving";
     const z = this.props.zone;
@@ -107,7 +110,7 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
     const parent = this.el!.parentElement! as HTMLElement;
     const position = parent.getBoundingClientRect();
     const activeSheet = this.env.getters.getActiveSheet();
-    const { top: viewportTop, left: viewportLeft } = this.env.getters.getActiveSnappedViewport();
+    const { offsetX: viewportTop, offsetY: viewportLeft } = this.env.getters.getActiveViewport();
 
     const initCol = this.env.getters.getColIndex(ev.detail.clientX - position.left, viewportLeft);
     const initRow = this.env.getters.getRowIndex(ev.detail.clientY - position.top, viewportTop);
@@ -141,6 +144,7 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
         newZone = this.env.getters.expandZone(activeSheet.id, newZone);
 
         if (!isEqual(newZone, currentZone)) {
+          console.log(newZone.top);
           this.env.dispatch("CHANGE_HIGHLIGHT", { zone: newZone });
           currentZone = newZone;
         }
@@ -155,6 +159,6 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
       this.env.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     };
 
-    dragAndDropBeyondTheViewport(parent, this.env, mouseMove, mouseUp);
+    dragAndDropBeyondTheViewport(this, parent, this.env, mouseMove, mouseUp);
   }
 }

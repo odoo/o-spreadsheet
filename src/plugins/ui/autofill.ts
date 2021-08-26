@@ -12,8 +12,8 @@ import {
   DIRECTION,
   GeneratorCell,
   Getters,
-  GridRenderingContext,
   LAYERS,
+  PluginRenderingContext,
   Tooltip,
   Zone,
 } from "../../types/index";
@@ -429,12 +429,13 @@ export class AutofillPlugin extends UIPlugin {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(renderingContext: GridRenderingContext) {
+  drawGrid(renderingContexts: PluginRenderingContext[]) {
+    const renderingContext = renderingContexts[0];
     if (!this.autofillZone) {
       return;
     }
     const { viewport, ctx, thinLineWidth } = renderingContext;
-    const [x, y, width, height] = this.getters.getRect(this.autofillZone, viewport);
+    const [x, y, width, height] = this.getters.getCanvasRect(this.autofillZone, viewport);
     if (width > 0 && height > 0) {
       ctx.strokeStyle = "black";
       ctx.lineWidth = thinLineWidth;

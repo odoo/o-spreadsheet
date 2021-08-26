@@ -11,9 +11,9 @@ import {
   CommandResult,
   Dimension,
   FormulaCell,
-  GridRenderingContext,
   isCoreCommand,
   LAYERS,
+  PluginRenderingContext,
   Range,
   Sheet,
   UID,
@@ -646,8 +646,8 @@ export class ClipboardPlugin extends UIPlugin {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(renderingContext: GridRenderingContext) {
-    const { viewport, ctx, thinLineWidth } = renderingContext;
+  drawGrid(renderingContexts: PluginRenderingContext[]) {
+    const { viewport, ctx, thinLineWidth } = renderingContexts[0];
     if (
       this.status !== "visible" ||
       !this.state ||
@@ -661,7 +661,7 @@ export class ClipboardPlugin extends UIPlugin {
     ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 3.3 * thinLineWidth;
     for (const zone of this.state.zones) {
-      const [x, y, width, height] = this.getters.getRect(zone, viewport);
+      const [x, y, width, height] = this.getters.getCanvasRect(zone, viewport);
       if (width > 0 && height > 0) {
         ctx.strokeRect(x, y, width, height);
       }

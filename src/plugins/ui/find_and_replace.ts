@@ -1,5 +1,5 @@
 import { isFormula } from "../../helpers/cells/index";
-import { Cell, Command, GridRenderingContext, LAYERS, UID } from "../../types/index";
+import { Cell, Command, LAYERS, PluginRenderingContext, UID } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 const BORDER_COLOR: string = "#8B008B";
@@ -284,8 +284,8 @@ export class FindAndReplacePlugin extends UIPlugin {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(renderingContext: GridRenderingContext) {
-    const { ctx, viewport } = renderingContext;
+  drawGrid(renderingContexts: PluginRenderingContext[]) {
+    const { ctx, viewport } = renderingContexts[0];
     const sheetId = this.getters.getActiveSheetId();
     for (const match of this.searchMatches) {
       const merge = this.getters.getMerge(sheetId, match.col, match.row);
@@ -293,7 +293,10 @@ export class FindAndReplacePlugin extends UIPlugin {
       const right = merge ? merge.right : match.col;
       const top = merge ? merge.top : match.row;
       const bottom = merge ? merge.bottom : match.row;
-      const [x, y, width, height] = this.getters.getRect({ top, left, right, bottom }, viewport);
+      const [x, y, width, height] = this.getters.getCanvasRect(
+        { top, left, right, bottom },
+        viewport
+      );
       if (width > 0 && height > 0) {
         ctx.fillStyle = BACKGROUND_COLOR;
         ctx.fillRect(x, y, width, height);

@@ -2,7 +2,6 @@ import * as owl from "@odoo/owl";
 import {
   AUTOFILL_EDGE_LENGTH,
   BACKGROUND_GRAY_COLOR,
-  DEFAULT_CELL_HEIGHT,
   HEADER_HEIGHT,
   HEADER_WIDTH,
   LINK_TOOLTIP_HEIGHT,
@@ -13,7 +12,6 @@ import {
 import { isEmpty } from "../helpers/cells";
 import { isLink } from "../helpers/cells/index";
 import {
-  findCellInNewZone,
   findVisibleHeader,
   getNextVisibleCellCoords,
   isInside,
@@ -24,20 +22,20 @@ import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
-import { CellValueType, Client, Position, SpreadsheetEnv, Viewport } from "../types/index";
+import { CellValueType, Client, Offsets, Position, SpreadsheetEnv, Viewport } from "../types/index";
 import { Autofill } from "./autofill";
 import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
 import { ErrorToolTip } from "./error_tooltip";
 import { FiguresContainer } from "./figures/container";
 import { startDnd } from "./helpers/drag_and_drop";
+import { useAbsolutePosition } from "./helpers/position_hook";
 import { Highlight } from "./highlight/highlight";
 import { LinkDisplay } from "./link/link_display";
 import { LinkEditor } from "./link/link_editor";
 import { Menu, MenuState } from "./menu";
 import { Overlay } from "./overlay";
 import { Popover } from "./popover";
-import { ScrollBar } from "./scrollbar";
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
  * for displaying the actual grid, rendering it, managing events, ...
@@ -53,6 +51,8 @@ const { Component, useState } = owl;
 const { xml, css } = owl.tags;
 const { useRef, onMounted, onWillUnmount, useExternalListener } = owl.hooks;
 export type ContextMenuType = "ROW" | "COL" | "CELL";
+
+export type MoveCanvasEvent = CustomEvent<Offsets>;
 
 const registries = {
   ROW: rowMenuRegistry,
@@ -83,7 +83,7 @@ export function useCellHovered(env: SpreadsheetEnv, getViewPort: () => Viewport)
   const hoveredPosition: HoveredPosition = useState({});
   const { browser, getters } = env;
   const { Date, setInterval, clearInterval } = browser;
-  const canvasRef = useRef("canvas");
+  const gridCanvasRef = useRef("gridCanvas");
   let x = 0;
   let y = 0;
   let lastMoved = 0;
@@ -91,8 +91,8 @@ export function useCellHovered(env: SpreadsheetEnv, getViewPort: () => Viewport)
 
   function getPosition(): [number, number] {
     const viewport = getViewPort();
-    const col = getters.getColIndex(x, viewport.left);
-    const row = getters.getRowIndex(y, viewport.top);
+    const col = getters.getColIndex(x, viewport.offsetX);
+    const row = getters.getRowIndex(y, viewport.offsetY);
     return [col, row];
   }
 
@@ -118,79 +118,83 @@ export function useCellHovered(env: SpreadsheetEnv, getViewPort: () => Viewport)
   }
 
   onMounted(() => {
-    canvasRef.el!.addEventListener("mousemove", updateMousePosition);
+    gridCanvasRef.el!.addEventListener("mousemove", updateMousePosition);
     interval = setInterval(checkTiming, 200);
   });
 
   onWillUnmount(() => {
-    canvasRef.el!.removeEventListener("mousemove", updateMousePosition);
+    gridCanvasRef.el!.removeEventListener("mousemove", updateMousePosition);
     clearInterval(interval);
   });
   return hoveredPosition;
 }
 
-function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMoveUp: () => boolean) {
-  const canvasRef = useRef("canvas");
-  let x = null as number | null;
-  let y = null as number | null;
+// function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMoveUp: () => boolean) {
+//   const canvasRef = useRef("canvas");
+//   let x = null as number | null;
+//   let y = null as number | null;
 
-  function onTouchStart(ev: TouchEvent) {
-    if (ev.touches.length !== 1) return;
-    x = ev.touches[0].clientX;
-    y = ev.touches[0].clientY;
-  }
+//   function onTouchStart(ev: TouchEvent) {
+//     if (ev.touches.length !== 1) return;
+//     x = ev.touches[0].clientX;
+//     y = ev.touches[0].clientY;
+//   }
 
-  function onTouchEnd() {
-    x = null;
-    y = null;
-  }
+//   function onTouchEnd() {
+//     x = null;
+//     y = null;
+//   }
 
-  function onTouchMove(ev: TouchEvent) {
-    if (ev.touches.length !== 1) return;
-    // On mobile browsers, swiping down is often associated with "pull to refresh".
-    // We only want this behavior if the grid is already at the top.
-    // Otherwise we only want to move the canvas up, without triggering any refresh.
-    if (canMoveUp()) {
-      ev.preventDefault();
-      ev.stopPropagation();
-    }
-    const currentX = ev.touches[0].clientX;
-    const currentY = ev.touches[0].clientY;
-    handler(x! - currentX, y! - currentY);
-    x = currentX;
-    y = currentY;
-  }
+//   function onTouchMove(ev: TouchEvent) {
+//     if (ev.touches.length !== 1) return;
+//     // On mobile browsers, swiping down is often associated with "pull to refresh".
+//     // We only want this behavior if the grid is already at the top.
+//     // Otherwise we only want to move the canvas up, without triggering any refresh.
+//     if (canMoveUp()) {
+//       ev.preventDefault();
+//       ev.stopPropagation();
+//     }
+//     const currentX = ev.touches[0].clientX;
+//     const currentY = ev.touches[0].clientY;
+//     handler(x! - currentX, y! - currentY);
+//     x = currentX;
+//     y = currentY;
+//   }
 
-  onMounted(() => {
-    canvasRef.el!.addEventListener("touchstart", onTouchStart);
-    canvasRef.el!.addEventListener("touchend", onTouchEnd);
-    canvasRef.el!.addEventListener("touchmove", onTouchMove);
-  });
+//   onMounted(() => {
+//     canvasRef.el!.addEventListener("touchstart", onTouchStart);
+//     canvasRef.el!.addEventListener("touchend", onTouchEnd);
+//     canvasRef.el!.addEventListener("touchmove", onTouchMove);
+//   });
 
-  onWillUnmount(() => {
-    canvasRef.el!.removeEventListener("touchstart", onTouchStart);
-    canvasRef.el!.removeEventListener("touchend", onTouchEnd);
-    canvasRef.el!.removeEventListener("touchmove", onTouchMove);
-  });
-}
+//   onWillUnmount(() => {
+//     canvasRef.el!.removeEventListener("touchstart", onTouchStart);
+//     canvasRef.el!.removeEventListener("touchend", onTouchEnd);
+//     canvasRef.el!.removeEventListener("touchmove", onTouchMove);
+//   });
+// }
 
 // -----------------------------------------------------------------------------
 // TEMPLATE
 // -----------------------------------------------------------------------------
 const TEMPLATE = xml/* xml */ `
-  <div class="o-grid" t-on-click="focus" t-on-keydown="onKeydown" t-on-wheel="onMouseWheel">
+  <div class="o-grid" t-on-click="focus" t-on-keydown="onKeydown" t-on-wheel="onMouseWheel" t-on-tabouret="tabouret">
     <t t-if="getters.getEditionMode() !== 'inactive'">
       <GridComposer
         t-on-composer-unmounted="focus"
         focus="props.focusComposer"
         />
     </t>
-    <canvas t-ref="canvas"
-      t-on-mousedown="onMouseDown"
-      t-on-dblclick="onDoubleClick"
-      tabindex="-1"
-      t-on-contextmenu="onCanvasContextMenu"
-       />
+    <canvas tabindex="-1" t-ref="columnsCanvas" class="o-columns-canvas"/>
+    <canvas tabindex="-1" t-ref="rowsCanvas" class="o-rows-canvas" />
+    <div class="o-grid-canvas" t-ref="gridCanvasContainer" t-on-scroll="onScroll">
+      <canvas t-ref="gridCanvas"
+        t-on-mousedown="onMouseDown"
+        t-on-dblclick="onDoubleClick"
+        tabindex="-1"
+        t-on-contextmenu="onCanvasContextMenu"
+        />
+    </div>
     <t t-foreach="getters.getClientsToDisplay()" t-as="client" t-key="getClientPositionKey(client)">
       <ClientTag name="client.name"
                  color="client.color"
@@ -234,19 +238,13 @@ const TEMPLATE = xml/* xml */ `
         </t>
       </t>
     </t>
-    <Overlay t-on-open-contextmenu="onOverlayContextMenu" />
+    <Overlay t-on-open-contextmenu="onOverlayContextMenu" t-on-tabouret=""/>
     <Menu t-if="menuState.isOpen"
       menuItems="menuState.menuItems"
       position="menuState.position"
       t-on-close.stop="menuState.isOpen=false"/>
     <t t-set="gridSize" t-value="getters.getGridDimension(getters.getActiveSheet())"/>
     <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" t-on-figure-deleted="focus" />
-    <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
-      <div t-attf-style="width:1px;height:{{gridSize.height}}px"/>
-    </div>
-    <div class="o-scrollbar horizontal" t-on-scroll="onScroll" t-ref="hscrollbar">
-      <div t-attf-style="height:1px;width:{{gridSize.width}}px"/>
-    </div>
   </div>`;
 
 // -----------------------------------------------------------------------------
@@ -258,14 +256,34 @@ const CSS = css/* scss */ `
     overflow: hidden;
     background-color: ${BACKGROUND_GRAY_COLOR};
 
-    > canvas {
-      border-top: 1px solid #e2e3e3;
-      border-bottom: 1px solid #e2e3e3;
-
-      &:focus {
-        outline: none;
+    .o-grid-canvas {
+      position: absolute;
+      left: ${HEADER_WIDTH}px;
+      top: ${HEADER_HEIGHT}px;
+      overflow: scroll;
+      width: calc(100% - ${HEADER_WIDTH}px);
+      height: calc(100% - ${HEADER_HEIGHT}px);
+    }
+    canvas {
+      outline: none;
+      &.o-columns-canvas {
+        height: ${HEADER_HEIGHT}px;
+        left: ${HEADER_WIDTH}px;
+        background-color: blue;
+        width: calc(100% - ${HEADER_WIDTH}px);
+        position: absolute;
+        z-index: 5;
+      }
+      &.o-rows-canvas {
+        width: ${HEADER_WIDTH}px;
+        top: ${HEADER_HEIGHT}px;
+        background-color: red;
+        height: calc(100% - ${HEADER_HEIGHT}px);
+        position: absolute;
+        z-index: 5;
       }
     }
+
     .o-scrollbar {
       position: absolute;
       overflow: auto;
@@ -320,19 +338,19 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     menuItems: [],
   });
 
-  private vScrollbarRef = useRef("vscrollbar");
-  private hScrollbarRef = useRef("hscrollbar");
-  private vScrollbar: ScrollBar;
-  private hScrollbar: ScrollBar;
-  private canvas = useRef("canvas");
+  private gridCanvas = useRef("gridCanvas");
+  private columnsCanvas = useRef("columnsCanvas");
+  private rowsCanvas = useRef("rowsCanvas");
+  private gridCanvasContainer = useRef("gridCanvasContainer");
   private getters = this.env.getters;
   private dispatch = this.env.dispatch;
   private currentSheet = this.getters.getActiveSheetId();
+  private canvasPosition = useAbsolutePosition(this.gridCanvas);
 
   private clickedCol = 0;
   private clickedRow = 0;
 
-  hoveredCell = useCellHovered(this.env, () => this.getters.getActiveSnappedViewport());
+  hoveredCell = useCellHovered(this.env, () => this.getters.getActiveViewport());
 
   get errorTooltip() {
     const { col, row } = this.hoveredCell;
@@ -344,8 +362,8 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     const cell = this.getters.getCell(sheetId, mainCol, mainRow);
 
     if (cell && cell.evaluated.type === CellValueType.error) {
-      const viewport = this.getters.getActiveSnappedViewport();
-      const [x, y, width] = this.getters.getRect(
+      const viewport = this.getters.getActiveViewport();
+      const [x, y, width] = this.getters.getCanvasRect(
         { left: col, top: row, right: col, bottom: row },
         viewport
       );
@@ -369,7 +387,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
   get shouldDisplayLink(): boolean {
     const sheetId = this.getters.getActiveSheetId();
     const { col, row } = this.activeCellPosition;
-    const viewport = this.getters.getActiveSnappedViewport();
+    const viewport = this.getters.getActiveViewport();
     const cell = this.getters.getCell(sheetId, col, row);
     return (
       this.getters.isVisibleInViewport(col, row, viewport) &&
@@ -389,13 +407,14 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
       this.getters.getActiveSheetId(),
       ...this.getters.getPosition()
     );
-    const viewport = this.getters.getActiveSnappedViewport();
-    const [x, y, width, height] = this.getters.getRect(
+    const viewport = this.getters.getActiveViewport();
+    const [x, y, width, height] = this.getters.getComponentRect(
       { left: col, top: row, right: col, bottom: row },
       viewport
     );
+
     return {
-      position: { x, y: y + height + TOPBAR_HEIGHT },
+      position: { x: x - viewport.offsetX, y: y + height + TOPBAR_HEIGHT },
       cellWidth: width,
       cellHeight: height,
     };
@@ -514,18 +533,20 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
   constructor() {
     super(...arguments);
-    this.vScrollbar = new ScrollBar(this.vScrollbarRef.el, "vertical");
-    this.hScrollbar = new ScrollBar(this.hScrollbarRef.el, "horizontal");
-    useTouchMove(this.moveCanvas.bind(this), () => this.vScrollbar.scroll > 0);
+    // useTouchMove(this.moveCanvas.bind(this), () => this.vScrollbar.scroll > 0);
     useExternalListener(window, "resize", this.resizeGrid.bind(this));
   }
 
   mounted() {
-    this.vScrollbar.el = this.vScrollbarRef.el!;
-    this.hScrollbar.el = this.hScrollbarRef.el!;
+    this.props.model.on("tabouret", this, (ev: Offsets) => {
+      this.moveCanvas({ offsetX: ev.offsetX, offsetY: ev.offsetY });
+    });
     this.focus();
     this.resizeGrid();
     this.drawGrid();
+    const { offsetX, offsetY } = this.getters.getActiveViewport();
+    this.moveCanvas({ offsetX, offsetY });
+    // => rajouter un bind on('qqchose')
   }
 
   patched() {
@@ -534,25 +555,34 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
   focus() {
     if (!this.getters.isSelectingForComposer() && !this.getters.getSelectedFigureId()) {
-      this.canvas.el!.focus();
+      this.gridCanvas.el!.focus();
     }
   }
 
   resizeGrid() {
+    const container = this.gridCanvasContainer.el!;
     this.dispatch("RESIZE_VIEWPORT", {
-      height: this.el!.clientHeight - SCROLLBAR_WIDTH,
-      width: this.el!.clientWidth - SCROLLBAR_WIDTH,
+      height: container.clientHeight,
+      width: container.clientWidth,
     });
   }
 
   onScroll() {
     const { offsetX, offsetY } = this.getters.getActiveViewport();
-    if (offsetX !== this.hScrollbar.scroll || offsetY !== this.vScrollbar.scroll) {
+    const container = this.gridCanvasContainer.el!;
+    if (offsetX !== container.scrollLeft || offsetY !== container.scrollTop) {
       this.dispatch("SET_VIEWPORT_OFFSET", {
-        offsetX: this.hScrollbar.scroll,
-        offsetY: this.vScrollbar.scroll,
+        offsetX: container.scrollLeft,
+        offsetY: container.scrollTop,
       });
+      // '-> this will trigger a render
+    } else {
+      this.render();
     }
+  }
+
+  tabouret(ev: MoveCanvasEvent) {
+    this.moveCanvas({ offsetX: ev.detail.offsetX, offsetY: ev.detail.offsetY });
   }
 
   checkSheetChanges() {
@@ -566,49 +596,112 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
   getAutofillPosition() {
     const zone = this.getters.getSelectedZone();
     const sheet = this.getters.getActiveSheet();
-    const { offsetX, offsetY } = this.getters.getActiveSnappedViewport();
+    // const { offsetX, offsetY } = this.getters.getActiveViewport();
+    // const canvasContainer = this.gridCanvasContainer.el;
+    // const [offsetX, offsetY] = canvasContainer
+    //   ? [canvasContainer.scrollLeft, canvasContainer.scrollTop]
+    //   : [0, 0];
+    // return {
+    //   left: sheet.cols[zone.right].end - AUTOFILL_EDGE_LENGTH / 2 + HEADER_WIDTH - offsetX,
+    //   top: sheet.rows[zone.bottom].end - AUTOFILL_EDGE_LENGTH / 2 + HEADER_HEIGHT - offsetY,
+    // };
+    const gridPosition = this.el?.getBoundingClientRect() || { x: 0, y: 0 };
+    const { x, y } = this.canvasPosition;
     return {
-      left: sheet.cols[zone.right].end - AUTOFILL_EDGE_LENGTH / 2 + HEADER_WIDTH - offsetX,
-      top: sheet.rows[zone.bottom].end - AUTOFILL_EDGE_LENGTH / 2 + HEADER_HEIGHT - offsetY,
+      left: sheet.cols[zone.right].end - AUTOFILL_EDGE_LENGTH / 2 + x - gridPosition.x,
+      top: sheet.rows[zone.bottom].end - AUTOFILL_EDGE_LENGTH / 2 + y - gridPosition.y,
     };
   }
 
   drawGrid() {
-    //reposition scrollbar
-    const { offsetX, offsetY } = this.getters.getActiveViewport();
-    this.hScrollbar.scroll = offsetX;
-    this.vScrollbar.scroll = offsetY;
     // check for position changes
     this.checkSheetChanges();
     // drawing grid on canvas
-    const canvas = this.canvas.el as HTMLCanvasElement;
+    const sheet = this.getters.getActiveSheet();
+    const { width, height } = this.getters.getGridDimension(sheet);
+    const { width: viewportWidth, height: viewportHeight } = this.getters.getViewportDimension();
     const dpr = window.devicePixelRatio || 1;
-    const ctx = canvas.getContext("2d", { alpha: false })!;
     const thinLineWidth = 0.4 * dpr;
-    const renderingContext = {
+    const viewport = this.getters.getActiveViewport();
+
+    // grid canvas
+    let canvas = this.gridCanvas.el as HTMLCanvasElement;
+    let ctx = canvas.getContext("2d", { alpha: false })!;
+
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
+    // ctx.translate(-0.5, -0.5);
+    ctx.scale(dpr, dpr);
+
+    const gridRenderingContext = {
+      ctx,
+      viewport,
+      dpr,
+      thinLineWidth,
+    };
+
+    // column canvas
+    canvas = this.columnsCanvas.el as HTMLCanvasElement;
+    ctx = canvas.getContext("2d", { alpha: false })!;
+
+    canvas.width = viewportWidth * dpr;
+    canvas.height = HEADER_HEIGHT * dpr;
+    canvas.setAttribute(
+      "style",
+      `width:${viewportWidth}px;height:${HEADER_HEIGHT}px;left:${
+        HEADER_WIDTH - thinLineWidth / 2
+      }px`
+    );
+    // ctx.translate(-0.5, -0.5);
+    ctx.scale(dpr, dpr);
+
+    const columnsRenderingContext = {
       ctx,
       viewport: this.getters.getActiveViewport(),
       dpr,
       thinLineWidth,
     };
-    const { width, height } = this.getters.getViewportDimension();
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
-    ctx.translate(-0.5, -0.5);
+
+    // row canvas
+    canvas = this.rowsCanvas.el as HTMLCanvasElement;
+    ctx = canvas.getContext("2d", { alpha: false })!;
+
+    canvas.width = HEADER_WIDTH * dpr;
+    canvas.height = viewportHeight * dpr;
+    canvas.setAttribute(
+      "style",
+      `width:${HEADER_WIDTH}px;height:${viewportHeight}px;top:${
+        HEADER_HEIGHT - thinLineWidth / 2
+      }px`
+    );
+    // ctx.translate(-0.5, -0.5);
     ctx.scale(dpr, dpr);
-    this.props.model.drawGrid(renderingContext);
+
+    const rowsRenderingContext = {
+      ctx,
+      viewport: this.getters.getActiveViewport(),
+      dpr,
+      thinLineWidth,
+    };
+
+    this.props.model.drawGrid([
+      gridRenderingContext,
+      columnsRenderingContext,
+      rowsRenderingContext,
+    ]);
   }
 
-  private moveCanvas(deltaX, deltaY) {
-    this.vScrollbar.scroll = this.vScrollbar.scroll + deltaY;
-    this.hScrollbar.scroll = this.hScrollbar.scroll + deltaX;
-    this.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: this.hScrollbar.scroll,
-      offsetY: this.vScrollbar.scroll,
-    });
+  // TODO : réparer pour que ça marche sur les headers aussi (dans tout grid en soi)
+  private moveCanvas(ev: Offsets) {
+    this.gridCanvasContainer.el!.scrollTo(ev.offsetX, ev.offsetY);
+
+    // this.vScrollbar.scroll = this.vScrollbar.scroll + deltaY;
+    // this.hScrollbar.scroll = this.hScrollbar.scroll + deltaX;
+    // this.dispatch("SET_VIEWPORT_OFFSET", {
+    //   offsetX: this.hScrollbar.scroll,
+    //   offsetY: this.vScrollbar.scroll,
+    // });
   }
 
   getClientPositionKey(client: Client) {
@@ -616,16 +709,15 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
   }
 
   onMouseWheel(ev: WheelEvent) {
-    if (ev.ctrlKey) {
-      return;
-    }
-    function normalize(val: number): number {
-      return val * (ev.deltaMode === 0 ? 1 : DEFAULT_CELL_HEIGHT);
-    }
-
-    const deltaX = ev.shiftKey ? ev.deltaY : ev.deltaX;
-    const deltaY = ev.shiftKey ? ev.deltaX : ev.deltaY;
-    this.moveCanvas(normalize(deltaX), normalize(deltaY));
+    // if (ev.ctrlKey) {
+    //   return;
+    // }
+    // function normalize(val: number): number {
+    //   return val * (ev.deltaMode === 0 ? 1 : DEFAULT_CELL_HEIGHT);
+    // }
+    // const deltaX = ev.shiftKey ? ev.deltaY : ev.deltaX;
+    // const deltaY = ev.shiftKey ? ev.deltaX : ev.deltaY;
+    // this.moveCanvas({ offsetX: normalize(deltaX), offsetY: normalize(deltaY) });
   }
 
   isCellHovered(col: number, row: number): boolean {
@@ -648,9 +740,9 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
   getCartesianCoordinates(ev: MouseEvent): [number, number] {
     const [x, y] = this.getCoordinates(ev);
-    const { left, top } = this.getters.getActiveSnappedViewport();
-    const colIndex = this.getters.getColIndex(x, left);
-    const rowIndex = this.getters.getRowIndex(y, top);
+    const { offsetX, offsetY } = this.getters.getActiveViewport();
+    const colIndex = this.getters.getColIndex(x, offsetX);
+    const rowIndex = this.getters.getRowIndex(y, offsetY);
     return [colIndex, rowIndex];
   }
 
@@ -689,7 +781,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
     let currentEv: MouseEvent;
 
-    const sheet = this.getters.getActiveSheet();
+    // const sheet = this.getters.getActiveSheet();
 
     const onMouseMove = (ev: MouseEvent) => {
       currentEv = ev;
@@ -704,20 +796,20 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
       const colEdgeScroll = this.getters.getEdgeScrollCol(x);
       const rowEdgeScroll = this.getters.getEdgeScrollRow(y);
-
-      const { left, right, top, bottom } = this.getters.getActiveSnappedViewport();
+      const sheet = this.getters.getActiveSheet();
+      const { left, right, top, bottom, offsetX, offsetY } = this.getters.getActiveViewport();
       let col: number, row: number;
       if (colEdgeScroll.canEdgeScroll) {
         col = colEdgeScroll.direction > 0 ? right : left - 1;
       } else {
-        col = this.getters.getColIndex(x, left);
+        col = this.getters.getColIndex(x, offsetX);
         col = col === -1 ? prevCol : col;
       }
 
       if (rowEdgeScroll.canEdgeScroll) {
         row = rowEdgeScroll.direction > 0 ? bottom : top - 1;
       } else {
-        row = this.getters.getRowIndex(y, top);
+        row = this.getters.getRowIndex(y, offsetY);
         row = row === -1 ? prevRow : row;
       }
 
@@ -736,7 +828,10 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
       if (isEdgeScrolling) {
         const offsetX = sheet.cols[left + colEdgeScroll.direction].start;
         const offsetY = sheet.rows[top + rowEdgeScroll.direction].start;
-        this.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
+
+        // this.gridCanvasContainer.el!.scrollTo(offsetX, offsetY);
+        this.trigger("tabouret", { offsetX, offsetY });
+        // this.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
         timeOutId = setTimeout(() => {
           timeOutId = null;
           onMouseMove(currentEv);
@@ -746,7 +841,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     const onMouseUp = (ev: MouseEvent) => {
       clearTimeout(timeOutId);
       this.dispatch(ev.ctrlKey ? "PREPARE_SELECTION_EXPANSION" : "STOP_SELECTION");
-      this.canvas.el!.removeEventListener("mousemove", onMouseMove);
+      this.gridCanvas.el!.removeEventListener("mousemove", onMouseMove);
       if (this.getters.isPaintingFormat()) {
         this.dispatch("PASTE", {
           target: this.getters.getSelectedZones(),
@@ -792,20 +887,20 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     };
     const delta = deltaMap[ev.key];
     if (ev.shiftKey) {
-      const oldZone = this.getters.getSelectedZone();
+      // const oldZone = this.getters.getSelectedZone();
       this.dispatch("ALTER_SELECTION", { delta });
-      const newZone = this.getters.getSelectedZone();
-      const viewport = this.getters.getActiveSnappedViewport();
-      const sheet = this.getters.getActiveSheet();
-      const [col, row] = findCellInNewZone(oldZone, newZone, viewport);
+      // const newZone = this.getters.getSelectedZone();
+      // const viewport = this.getters.getActiveViewport();
+      // const sheet = this.getters.getActiveSheet();
+      // const [col, row] = findCellInNewZone(oldZone, newZone, viewport);
 
-      const { left, right, top, bottom, offsetX, offsetY } = viewport;
-      const newOffsetX =
-        col < left || col > right - 1 ? sheet.cols[left + delta[0]].start : offsetX;
-      const newOffsetY = row < top || row > bottom - 1 ? sheet.rows[top + delta[1]].start : offsetY;
-      if (newOffsetX !== offsetX || newOffsetY !== offsetY) {
-        this.dispatch("SET_VIEWPORT_OFFSET", { offsetX: newOffsetX, offsetY: newOffsetY });
-      }
+      // const { left, right, top, bottom, offsetX, offsetY } = viewport;
+      // const newOffsetX =
+      //   col < left || col > right - 1 ? sheet.cols[left + delta[0]].start : offsetX;
+      // const newOffsetY = row < top || row > bottom - 1 ? sheet.rows[top + delta[1]].start : offsetY;
+      // if (newOffsetX !== offsetX || newOffsetY !== offsetY) {
+      //   this.dispatch("SET_VIEWPORT_OFFSET", { offsetX: newOffsetX, offsetY: newOffsetY });
+      // }
     } else {
       this.dispatch("MOVE_POSITION", { deltaX: delta[0], deltaY: delta[1] });
     }

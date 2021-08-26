@@ -24,9 +24,9 @@ import {
   Cell,
   CellValueType,
   EdgeScrollInfo,
-  GridRenderingContext,
   Header,
   LAYERS,
+  PluginRenderingContext,
   Rect,
   ScrollDirection,
   Sheet,
@@ -66,11 +66,12 @@ function searchIndex(headers: Header[], offset: number): number {
 }
 
 export class RendererPlugin extends UIPlugin {
-  static layers = [LAYERS.Background, LAYERS.Headers];
+  static layers = [LAYERS.Background, LAYERS.RowHeader, LAYERS.ColumnHeader];
   static getters = [
     "getColIndex",
     "getRowIndex",
-    "getRect",
+    "getCanvasRect",
+    "getComponentRect",
     "isVisibleInViewport",
     "getEdgeScrollCol",
     "getEdgeScrollRow",
@@ -87,35 +88,40 @@ export class RendererPlugin extends UIPlugin {
    * Return the index of a column given an offset x and a visible left col index.
    * It returns -1 if no column is found.
    */
-  getColIndex(x: number, left: number, sheet?: Sheet): number {
+  getColIndex(x: number, offsetLeft: number, sheet?: Sheet): number {
     if (x < HEADER_WIDTH) {
       return -1;
     }
     const cols = (sheet || this.getters.getActiveSheet()).cols;
-    const adjustedX = x - HEADER_WIDTH + cols[left].start + 1;
+    const adjustedX = x - HEADER_WIDTH + offsetLeft + 1;
     return searchIndex(cols, adjustedX);
   }
 
-  getRowIndex(y: number, top: number, sheet?: Sheet): number {
+  getRowIndex(y: number, offsetTop: number, sheet?: Sheet): number {
     if (y < HEADER_HEIGHT) {
       return -1;
     }
     const rows = (sheet || this.getters.getActiveSheet()).rows;
-    const adjustedY = y - HEADER_HEIGHT + rows[top].start + 1;
+    const adjustedY = y - HEADER_HEIGHT + offsetTop + 1;
     return searchIndex(rows, adjustedY);
   }
 
-  getRect(zone: Zone, viewport: Viewport): Rect {
+  getCanvasRect(zone: Zone, viewport: Viewport): Rect {
     const { left, top, right, bottom } = zone;
-    let { offsetY, offsetX } = viewport;
-    offsetX -= HEADER_WIDTH;
-    offsetY -= HEADER_HEIGHT;
+    // offsetX -= 0;
+    // offsetY -= 0;
     const { cols, rows } = this.getters.getActiveSheet();
-    const x = Math.max(cols[left].start - offsetX, HEADER_WIDTH);
-    const width = cols[right].end - offsetX - x;
-    const y = Math.max(rows[top].start - offsetY, HEADER_HEIGHT);
-    const height = rows[bottom].end - offsetY - y;
+    const x = Math.max(cols[left].start, 0);
+    const width = cols[right].end - x;
+    const y = Math.max(rows[top].start, 0);
+    const height = rows[bottom].end - y;
     return [x, y, width, height];
+  }
+
+  getComponentRect(zone: Zone, viewport: Viewport): Rect {
+    let { offsetY, offsetX } = viewport;
+    const [x, y, width, height] = this.getCanvasRect(zone, viewport);
+    return [x + HEADER_WIDTH - offsetX, y + HEADER_HEIGHT - offsetY, width, height];
   }
 
   /**
@@ -130,14 +136,15 @@ export class RendererPlugin extends UIPlugin {
     let canEdgeScroll = false;
     let direction: ScrollDirection = 0;
     let delay = 0;
+    const sheet = this.getters.getActiveSheet();
     const { width } = this.getters.getViewportDimension();
-    const { width: gridWidth } = this.getters.getGridDimension(this.getters.getActiveSheet());
-    const { left, offsetX } = this.getters.getActiveSnappedViewport();
+    const { width: gridWidth } = this.getters.getGridDimension(sheet);
+    const { left, offsetX } = this.getters.getActiveViewport();
     if (x < HEADER_WIDTH && left > 0) {
       canEdgeScroll = true;
       direction = -1;
       delay = scrollDelay(HEADER_WIDTH - x);
-    } else if (x > width && offsetX < gridWidth - width) {
+    } else if (x > width + HEADER_WIDTH && offsetX < gridWidth - width) {
       canEdgeScroll = true;
       direction = +1;
       delay = scrollDelay(x - width);
@@ -152,12 +159,12 @@ export class RendererPlugin extends UIPlugin {
     let delay = 0;
     const { height } = this.getters.getViewportDimension();
     const { height: gridHeight } = this.getters.getGridDimension(this.getters.getActiveSheet());
-    const { top, offsetY } = this.getters.getActiveSnappedViewport();
+    const { top, offsetY } = this.getters.getActiveViewport();
     if (y < HEADER_HEIGHT && top > 0) {
       canEdgeScroll = true;
       direction = -1;
       delay = scrollDelay(HEADER_HEIGHT - y);
-    } else if (y > height && offsetY < gridHeight - height) {
+    } else if (y > height + HEADER_HEIGHT && offsetY < gridHeight - height) {
       canEdgeScroll = true;
       direction = +1;
       delay = scrollDelay(y - height);
@@ -169,38 +176,41 @@ export class RendererPlugin extends UIPlugin {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(renderingContext: GridRenderingContext, layer: LAYERS) {
+  drawGrid(renderingContexts: PluginRenderingContext[], layer: LAYERS) {
     switch (layer) {
       case LAYERS.Background:
+        const renderingContext = renderingContexts[0];
         this.boxes = this.getGridBoxes(renderingContext);
         this.drawBackground(renderingContext);
         this.drawCellBackground(renderingContext);
         this.drawBorders(renderingContext);
         this.drawTexts(renderingContext);
         this.drawIcon(renderingContext);
+        this.drawGridBorders(renderingContext);
         break;
-      case LAYERS.Headers:
-        this.drawHeaders(renderingContext);
+      case LAYERS.ColumnHeader:
+        this.drawColumnHeaders(renderingContexts[1]);
+        break;
+      case LAYERS.RowHeader:
+        this.drawRowHeaders(renderingContexts[2]);
         break;
     }
   }
 
-  private drawBackground(renderingContext: GridRenderingContext) {
+  private drawBackground(renderingContext: PluginRenderingContext) {
     const { ctx, viewport, thinLineWidth } = renderingContext;
     let { offsetX, offsetY, top, left, bottom, right } = viewport;
     const { width, height } = this.getters.getViewportDimension();
     const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
     // white background
     ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(offsetX, offsetY, offsetX + width, offsetY + height);
 
     // background grid
-    offsetX -= HEADER_WIDTH;
-    offsetY -= HEADER_HEIGHT;
-
     if (!this.getters.getGridLinesVisibility(sheetId)) {
       return;
     }
+
     ctx.lineWidth = 2 * thinLineWidth;
     ctx.strokeStyle = CELL_BORDER_COLOR;
     ctx.beginPath();
@@ -211,9 +221,9 @@ export class RendererPlugin extends UIPlugin {
       if (cols[i].isHidden) {
         continue;
       }
-      const x = cols[i].end - offsetX;
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, lineHeight);
+      const x = cols[i].end;
+      ctx.moveTo(x, offsetY);
+      ctx.lineTo(x, offsetY + lineHeight);
     }
 
     // horizontal lines
@@ -222,14 +232,30 @@ export class RendererPlugin extends UIPlugin {
       if (rows[i].isHidden) {
         continue;
       }
-      const y = rows[i].end - offsetY;
-      ctx.moveTo(0, y);
-      ctx.lineTo(lineWidth, y);
+      const y = rows[i].end;
+      ctx.moveTo(offsetX, y);
+      ctx.lineTo(offsetX + lineWidth, y);
     }
     ctx.stroke();
   }
 
-  private drawCellBackground(renderingContext: GridRenderingContext) {
+  private drawGridBorders(renderingContext: PluginRenderingContext) {
+    const { ctx, viewport, thinLineWidth } = renderingContext;
+    let { offsetX, offsetY } = viewport;
+    const { width, height } = this.getters.getViewportDimension();
+
+    ctx.lineWidth = thinLineWidth;
+
+    ctx.beginPath();
+    ctx.strokeStyle = HEADER_BORDER_COLOR;
+    ctx.moveTo(offsetX, offsetY);
+    ctx.lineTo(width, offsetY);
+    ctx.moveTo(offsetX, offsetY);
+    ctx.lineTo(offsetX, height);
+    ctx.stroke();
+  }
+
+  private drawCellBackground(renderingContext: PluginRenderingContext) {
     const { ctx, thinLineWidth } = renderingContext;
     ctx.lineWidth = 0.3 * thinLineWidth;
     const inset = 0.1 * thinLineWidth;
@@ -263,7 +289,7 @@ export class RendererPlugin extends UIPlugin {
     }
   }
 
-  private drawBorders(renderingContext: GridRenderingContext) {
+  private drawBorders(renderingContext: PluginRenderingContext) {
     const { ctx, thinLineWidth } = renderingContext;
     for (let box of this.boxes) {
       // fill color
@@ -295,7 +321,7 @@ export class RendererPlugin extends UIPlugin {
     }
   }
 
-  private drawTexts(renderingContext: GridRenderingContext) {
+  private drawTexts(renderingContext: PluginRenderingContext) {
     const { ctx, thinLineWidth } = renderingContext;
     ctx.textBaseline = "middle";
     let currentFont;
@@ -351,7 +377,7 @@ export class RendererPlugin extends UIPlugin {
     }
   }
 
-  private async drawIcon(renderingContext: GridRenderingContext) {
+  private async drawIcon(renderingContext: PluginRenderingContext) {
     const { ctx } = renderingContext;
     for (let box of this.boxes) {
       if (box.image) {
@@ -374,16 +400,16 @@ export class RendererPlugin extends UIPlugin {
     }
   }
 
-  private drawHeaders(renderingContext: GridRenderingContext) {
+  private drawColumnHeaders(renderingContext: PluginRenderingContext) {
     const { ctx, viewport, thinLineWidth } = renderingContext;
-    let { offsetX, offsetY, left, top, right, bottom } = viewport;
-    const { width, height } = this.getters.getViewportDimension();
-    offsetX -= HEADER_WIDTH;
-    offsetY -= HEADER_HEIGHT;
+    let { offsetX, left, right } = viewport;
+    const { width } = this.getters.getViewportDimension();
+
+    // # TODO : référencer le pourquoi du comment
+    const lineOffset = thinLineWidth / 2;
     const selection = this.getters.getSelectedZones();
-    const { cols, rows } = this.getters.getActiveSheet();
+    const { cols } = this.getters.getActiveSheet();
     const activeCols = this.getters.getActiveCols();
-    const activeRows = this.getters.getActiveRows();
 
     ctx.fillStyle = BACKGROUND_HEADER_COLOR;
     ctx.font = `400 ${HEADER_FONT_SIZE}px ${DEFAULT_FONT}`;
@@ -394,35 +420,28 @@ export class RendererPlugin extends UIPlugin {
 
     // background
     ctx.fillRect(0, 0, width, HEADER_HEIGHT);
-    ctx.fillRect(0, 0, HEADER_WIDTH, height);
     // selection background
     ctx.fillStyle = BACKGROUND_HEADER_SELECTED_COLOR;
+
     for (let zone of selection) {
-      const x1 = Math.max(HEADER_WIDTH, cols[zone.left].start - offsetX);
-      const x2 = Math.max(HEADER_WIDTH, cols[zone.right].end - offsetX);
-      const y1 = Math.max(HEADER_HEIGHT, rows[zone.top].start - offsetY);
-      const y2 = Math.max(HEADER_HEIGHT, rows[zone.bottom].end - offsetY);
+      const x1 = Math.max(0, cols[zone.left].start - offsetX + lineOffset);
+      const x2 = Math.max(0, cols[zone.right].end - offsetX + lineOffset);
       ctx.fillStyle = activeCols.has(zone.left)
         ? BACKGROUND_HEADER_ACTIVE_COLOR
         : BACKGROUND_HEADER_SELECTED_COLOR;
       ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
-      ctx.fillStyle = activeRows.has(zone.top)
-        ? BACKGROUND_HEADER_ACTIVE_COLOR
-        : BACKGROUND_HEADER_SELECTED_COLOR;
-      ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
     }
 
-    // 2 main lines
+    // Border line
     ctx.beginPath();
-    ctx.moveTo(HEADER_WIDTH, 0);
-    ctx.lineTo(HEADER_WIDTH, height);
-    ctx.moveTo(0, HEADER_HEIGHT);
-    ctx.lineTo(width, HEADER_HEIGHT);
     ctx.strokeStyle = HEADER_BORDER_COLOR;
+    ctx.moveTo(lineOffset, 0);
+    ctx.lineTo(lineOffset, HEADER_HEIGHT);
+    ctx.moveTo(0, HEADER_HEIGHT);
+    ctx.lineTo(ctx.canvas.clientWidth, HEADER_HEIGHT);
     ctx.stroke();
 
     ctx.beginPath();
-
     // column text + separator
     for (let i = left; i <= right; i++) {
       const col = cols[i];
@@ -430,10 +449,57 @@ export class RendererPlugin extends UIPlugin {
         continue;
       }
       ctx.fillStyle = activeCols.has(i) ? "#fff" : TEXT_HEADER_COLOR;
-      ctx.fillText(col.name, (col.start + col.end) / 2 - offsetX, HEADER_HEIGHT / 2);
-      ctx.moveTo(col.end - offsetX, 0);
-      ctx.lineTo(col.end - offsetX, HEADER_HEIGHT);
+      ctx.fillText(col.name, (col.start + col.end) / 2 - offsetX + lineOffset, HEADER_HEIGHT / 2);
+      ctx.moveTo(col.end - offsetX + lineOffset, 0);
+      ctx.lineTo(col.end - offsetX + lineOffset, HEADER_HEIGHT);
     }
+
+    ctx.stroke();
+  }
+
+  private drawRowHeaders(renderingContext: PluginRenderingContext) {
+    const { ctx, viewport, thinLineWidth } = renderingContext;
+    let { offsetY, top, bottom } = viewport;
+    const { height } = this.getters.getGridDimension(this.getters.getActiveSheet());
+
+    // # TODO : référencer le pourquoi du comment
+    const lineOffset = thinLineWidth / 2;
+    const selection = this.getters.getSelectedZones();
+    const { rows } = this.getters.getActiveSheet();
+    const activeRows = this.getters.getActiveRows();
+
+    ctx.fillStyle = BACKGROUND_HEADER_COLOR;
+    ctx.font = `400 ${HEADER_FONT_SIZE}px ${DEFAULT_FONT}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.lineWidth = thinLineWidth;
+    ctx.strokeStyle = "#333";
+
+    // background
+    ctx.fillRect(0, 0, HEADER_WIDTH, height);
+    // selection background
+    ctx.fillStyle = BACKGROUND_HEADER_SELECTED_COLOR;
+
+    for (let zone of selection) {
+      const y1 = Math.max(0, rows[zone.top].start - offsetY + lineOffset);
+      const y2 = Math.max(0, rows[zone.bottom].end - offsetY + lineOffset);
+      ctx.fillStyle = activeRows.has(zone.top)
+        ? BACKGROUND_HEADER_ACTIVE_COLOR
+        : BACKGROUND_HEADER_SELECTED_COLOR;
+      ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
+    }
+
+    // Border line
+    ctx.beginPath();
+    ctx.strokeStyle = HEADER_BORDER_COLOR;
+    ctx.moveTo(0, lineOffset);
+    ctx.lineTo(HEADER_WIDTH, lineOffset);
+    ctx.moveTo(HEADER_WIDTH, 0);
+    ctx.lineTo(HEADER_WIDTH, ctx.canvas.clientHeight);
+    ctx.stroke();
+
+    ctx.beginPath();
+
     // row text + separator
     for (let i = top; i <= bottom; i++) {
       const row = rows[i];
@@ -442,9 +508,9 @@ export class RendererPlugin extends UIPlugin {
       }
       ctx.fillStyle = activeRows.has(i) ? "#fff" : TEXT_HEADER_COLOR;
 
-      ctx.fillText(row.name, HEADER_WIDTH / 2, (row.start + row.end) / 2 - offsetY);
-      ctx.moveTo(0, row.end - offsetY);
-      ctx.lineTo(HEADER_WIDTH, row.end - offsetY);
+      ctx.fillText(row.name, HEADER_WIDTH / 2, (row.start + row.end) / 2 - offsetY + lineOffset);
+      ctx.moveTo(0, row.end - offsetY + lineOffset);
+      ctx.lineTo(HEADER_WIDTH, row.end - offsetY + lineOffset);
     }
 
     ctx.stroke();
@@ -456,11 +522,9 @@ export class RendererPlugin extends UIPlugin {
     return !isEmpty(cell) || this.getters.isInMerge(sheetId, col, row);
   }
 
-  private getGridBoxes(renderingContext: GridRenderingContext): Box[] {
+  private getGridBoxes(renderingContext: PluginRenderingContext): Box[] {
     const { viewport } = renderingContext;
-    let { right, left, top, bottom, offsetX, offsetY } = viewport;
-    offsetX -= HEADER_WIDTH;
-    offsetY -= HEADER_HEIGHT;
+    let { right, left, top, bottom } = viewport;
 
     const showFormula: boolean = this.getters.shouldShowFormulas();
     const result: Box[] = [];
@@ -508,17 +572,12 @@ export class RendererPlugin extends UIPlugin {
             if (iconStyle) {
               const colWidth = col.end - col.start;
               clipRect = [
-                col.start - offsetX + iconBoxWidth,
-                row.start - offsetY,
+                col.start + iconBoxWidth,
+                row.start,
                 Math.max(0, colWidth - iconBoxWidth),
                 row.size,
               ];
-              clipIcon = [
-                col.start - offsetX,
-                row.start - offsetY,
-                Math.min(iconBoxWidth, colWidth),
-                row.size,
-              ];
+              clipIcon = [col.start, row.start, Math.min(iconBoxWidth, colWidth), row.size];
             } else {
               if (isOverflowing) {
                 let c: number;
@@ -531,7 +590,7 @@ export class RendererPlugin extends UIPlugin {
                     }
                     width = cols[c].end - col.start;
                     if (width < textWidth || fontSizeMap[fontsize] > row.size) {
-                      clipRect = [col.start - offsetX, row.start - offsetY, width, row.size];
+                      clipRect = [col.start, row.start, width, row.size];
                     }
                     break;
                   case "right":
@@ -541,7 +600,7 @@ export class RendererPlugin extends UIPlugin {
                     }
                     width = col.end - cols[c].start;
                     if (width < textWidth || fontSizeMap[fontsize] > row.size) {
-                      clipRect = [cols[c].start - offsetX, row.start - offsetY, width, row.size];
+                      clipRect = [cols[c].start, row.start, width, row.size];
                     }
                     break;
                   case "center":
@@ -562,20 +621,15 @@ export class RendererPlugin extends UIPlugin {
                       colRight === colNumber ||
                       fontSizeMap[fontsize] > row.size
                     ) {
-                      clipRect = [
-                        cols[colLeft].start - offsetX,
-                        row.start - offsetY,
-                        width,
-                        row.size,
-                      ];
+                      clipRect = [cols[colLeft].start, row.start, width, row.size];
                     }
                     break;
                 }
               }
             }
             result.push({
-              x: col.start - offsetX,
-              y: row.start - offsetY,
+              x: col.start,
+              y: row.start,
               width: col.size,
               height: row.size,
               text,
@@ -596,8 +650,8 @@ export class RendererPlugin extends UIPlugin {
             });
           } else {
             result.push({
-              x: col.start - offsetX,
-              y: row.start - offsetY,
+              x: col.start,
+              y: row.start,
               width: col.size,
               height: row.size,
               text: "",
@@ -657,8 +711,8 @@ export class RendererPlugin extends UIPlugin {
           style = Object.create(style);
           style.fillColor = "#fff";
         }
-        const x = cols[merge.left].start - offsetX;
-        const y = rows[merge.top].start - offsetY;
+        const x = cols[merge.left].start;
+        const y = rows[merge.top].start;
         const height = rows[merge.bottom].end - rows[merge.top].start;
         const iconStyle = this.getters.getConditionalIcon(merge.left, merge.top);
         const fontsize = style.fontSize || DEFAULT_FONT_SIZE;

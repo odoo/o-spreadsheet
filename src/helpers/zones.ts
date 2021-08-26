@@ -475,21 +475,21 @@ export function findCellInNewZone(
   viewport: Viewport
 ): [number, number] {
   let col: number, row: number;
-  const { left: oldLeft, right: oldRight, top: oldTop, bottom: oldBottom } = oldZone!;
+  const { left: oldLeft, right: oldRight, top: oldTop, bottom: oldBottom } = oldZone;
   const { left, right, top, bottom } = currentZone;
   if (left != oldLeft) {
     col = left;
   } else if (right != oldRight) {
     col = right;
   } else {
-    col = viewport.left;
+    col = left;
   }
   if (top != oldTop) {
     row = top;
   } else if (bottom != oldBottom) {
     row = bottom;
   } else {
-    row = viewport.top;
+    row = top;
   }
   return [col, row];
 }

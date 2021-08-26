@@ -140,7 +140,8 @@ export type Getters = CoreGetters & {
 
   getColIndex: RendererPlugin["getColIndex"];
   getRowIndex: RendererPlugin["getRowIndex"];
-  getRect: RendererPlugin["getRect"];
+  getCanvasRect: RendererPlugin["getCanvasRect"];
+  getComponentRect: RendererPlugin["getComponentRect"];
   isVisibleInViewport: RendererPlugin["isVisibleInViewport"];
   getEdgeScrollCol: RendererPlugin["getEdgeScrollCol"];
   getEdgeScrollRow: RendererPlugin["getEdgeScrollRow"];
@@ -168,6 +169,7 @@ export type Getters = CoreGetters & {
 
   getSnappedViewport: ViewportPlugin["getViewport"];
   getViewportDimension: ViewportPlugin["getViewportDimension"];
+  getViewportDimension2: ViewportPlugin["getViewportDimension2"];
   getActiveViewport: ViewportPlugin["getActiveViewport"];
   getActiveSnappedViewport: ViewportPlugin["getActiveSnappedViewport"];
   getGridDimension: ViewportPlugin["getGridDimension"];

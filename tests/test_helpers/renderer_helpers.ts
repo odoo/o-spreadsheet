@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { GridRenderingContext, Viewport, Zone } from "../../src/types";
+import { PluginRenderingContext, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {
@@ -12,7 +12,7 @@ interface ContextObserver {
   onFunctionCall?(fn: string, args: any[]): void;
 }
 
-export class MockGridRenderingContext implements GridRenderingContext {
+export class MockGridRenderingContext implements PluginRenderingContext {
   _context = document.createElement("canvas").getContext("2d");
   ctx: CanvasRenderingContext2D;
   viewport: Viewport;
@@ -79,7 +79,7 @@ export function watchClipboardOutline(model: Model) {
   });
   const isDotOutlined = (zones: Zone[]): boolean => {
     return zones.every((zone) => {
-      const [x, y, width, height] = model.getters.getRect(zone, viewport);
+      const [x, y, width, height] = model.getters.getCanvasRect(zone, viewport);
       return outlinedRects.some(
         (rect) => rect[0] === x && rect[1] === y && rect[2] === width && rect[3] === height
       );

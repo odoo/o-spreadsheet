@@ -1,7 +1,7 @@
 import { ClientDisconnectedError } from "../../collaborative/session";
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE } from "../../constants";
 import { Mode } from "../../model";
-import { Client, ClientPosition, GridRenderingContext, LAYERS, UID } from "../../types";
+import { Client, ClientPosition, LAYERS, PluginRenderingContext, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 function randomChoice(arr: string[]): string {
@@ -82,8 +82,8 @@ export class SelectionMultiUserPlugin extends UIPlugin {
     return clients;
   }
 
-  drawGrid(renderingContext: GridRenderingContext) {
-    const { viewport, ctx, thinLineWidth } = renderingContext;
+  drawGrid(renderingContexts: PluginRenderingContext[]) {
+    const { viewport, ctx, thinLineWidth } = renderingContexts[0];
     const activeSheetId = this.getters.getActiveSheetId();
     for (const client of this.getClientsToDisplay()) {
       const { row, col } = client.position!;
@@ -93,7 +93,7 @@ export class SelectionMultiUserPlugin extends UIPlugin {
         left: col,
         right: col,
       });
-      const [x, y, width, height] = this.getters.getRect(zone, viewport);
+      const [x, y, width, height] = this.getters.getCanvasRect(zone, viewport);
       if (width <= 0 || height <= 0) {
         continue;
       }

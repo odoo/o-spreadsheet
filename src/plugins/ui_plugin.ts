@@ -1,9 +1,18 @@
 import { Mode, ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
-import { Command, CommandDispatcher, Getters, GridRenderingContext, LAYERS } from "../types/index";
+import {
+  Command,
+  CommandDispatcher,
+  Getters,
+  LAYERS,
+  PluginRenderingContext,
+} from "../types/index";
 import { BasePlugin } from "./base_plugin";
 
-type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSidePanel" | "editText">;
+type UIActions = Pick<
+  ModelConfig,
+  "askConfirmation" | "notifyUser" | "openSidePanel" | "editText" | "trigger"
+>;
 
 export interface UIPluginConstructor {
   new (
@@ -42,5 +51,5 @@ export class UIPlugin<State = any, C = Command> extends BasePlugin<State, C> {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(ctx: GridRenderingContext, layer: LAYERS) {}
+  drawGrid(ctx: PluginRenderingContext[], layer: LAYERS) {}
 }

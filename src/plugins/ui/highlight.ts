@@ -1,6 +1,6 @@
 import { getNextColor, isEqual, toZone } from "../../helpers/index";
 import { Mode } from "../../model";
-import { Command, GridRenderingContext, Highlight, LAYERS, Zone } from "../../types/index";
+import { Command, Highlight, LAYERS, PluginRenderingContext, Zone } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 /**
@@ -179,9 +179,9 @@ export class HighlightPlugin extends UIPlugin {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(renderingContext: GridRenderingContext) {
+  drawGrid(renderingContexts: PluginRenderingContext[]) {
     // rendering selection highlights
-    const { ctx, viewport, thinLineWidth } = renderingContext;
+    const { ctx, viewport, thinLineWidth } = renderingContexts[0];
     const sheetId = this.getters.getActiveSheetId();
     const lineWidth = 3 * thinLineWidth;
     ctx.lineWidth = lineWidth;
@@ -198,7 +198,7 @@ export class HighlightPlugin extends UIPlugin {
         this.highlights.findIndex((h) => isEqual(h.zone, highlight.zone) && h.sheet === sheetId) ===
         index
     )) {
-      const [x, y, width, height] = this.getters.getRect(h.zone, viewport);
+      const [x, y, width, height] = this.getters.getCanvasRect(h.zone, viewport);
       if (width > 0 && height > 0) {
         ctx.strokeStyle = h.color!;
         ctx.strokeRect(x + lineWidth / 2, y + lineWidth / 2, width - lineWidth, height - lineWidth);
