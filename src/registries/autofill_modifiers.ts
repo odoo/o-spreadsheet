@@ -1,4 +1,4 @@
-import { isFormula } from "../helpers/cells/index";
+import { formatValue, isFormula } from "../helpers/cells/index";
 import { Registry } from "../registry";
 import {
   AutofillData,
@@ -22,6 +22,7 @@ autofillModifiersRegistry
     apply: (rule: IncrementModifier, data: AutofillData) => {
       rule.current += rule.increment;
       const content = rule.current.toString();
+      const tooltipValue = formatValue(rule.current, data.cell?.format);
       return {
         cellData: {
           border: data.border,
@@ -29,7 +30,7 @@ autofillModifiersRegistry
           format: data.cell && data.cell.format,
           content,
         },
-        tooltip: content ? { props: { content } } : undefined,
+        tooltip: content ? { props: { content: tooltipValue } } : undefined,
       };
     },
   })
