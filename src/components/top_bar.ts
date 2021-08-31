@@ -1,4 +1,5 @@
 import * as owl from "@odoo/owl";
+import { DEFAULT_FONT_SIZE, SELECTION_BORDER_COLOR } from "../constants";
 import { BACKGROUND_HEADER_COLOR, DEFAULT_FONT_SIZE } from "../constants";
 import { fontSizes } from "../fonts";
 import { isEqual } from "../helpers/index";
@@ -29,6 +30,9 @@ interface State {
   menuState: MenuState;
   activeTool: Tool;
 }
+
+// TODO - this should adapt with the devicePixelRatio (which can change overtime) -> should it be part of static css ?
+const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
 
 const FORMATS = [
   { name: "general", text: "General (no specific format)" },
@@ -159,6 +163,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
 
       </div>
     </div>`;
+
   static style = css/* scss */ `
     .o-spreadsheet-topbar {
       background-color: white;
@@ -207,7 +212,14 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           }
         .o-composer-container {
           height: 34px;
-          border-left: 1px solid #e0e2e4;
+          &:not(focus-within) {
+            border-left: 1px solid #e0e2e4;
+          }
+          &:focus-within {
+            border: ${COMPOSER_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};
+            // box-shadow: 0px 0px 1px 1px #3266ca;
+            box-sizing: border-box;
+          }
         }
 
         /* Toolbar */

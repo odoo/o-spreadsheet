@@ -1,5 +1,4 @@
 import * as owl from "@odoo/owl";
-import { SELECTION_BORDER_COLOR } from "../../constants";
 import { EnrichedToken } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { DEBUG, rangeReference, zoneToXc } from "../../helpers/index";
@@ -88,6 +87,7 @@ const TEMPLATE = xml/* xml */ `
   </div>
 </div>
   `;
+
 const CSS = css/* scss */ `
   .o-composer-container {
     padding: 0;
@@ -96,11 +96,14 @@ const CSS = css/* scss */ `
     z-index: 5;
     flex-grow: 1;
     max-height: inherit;
+    display: flex;
     .o-composer {
       caret-color: black;
       padding-left: 3px;
       padding-right: 3px;
       word-break: break-all;
+      display: flex;
+      align-items: center;
       &:focus {
         outline: none;
       }
@@ -121,15 +124,7 @@ const CSS = css/* scss */ `
       pointer-events: none;
     }
   }
-
-  /* Custom css to highlight topbar composer on focus */
-  .o-topbar-toolbar .o-composer-container:focus-within {
-    // border: 1px solid ${SELECTION_BORDER_COLOR};
-    box-shadow: 0px 0px 1px 1px #3266ca;
-    box-sizing: border-box;
-  }
 `;
-
 interface Props {
   inputStyle: string;
   rect?: Rect;

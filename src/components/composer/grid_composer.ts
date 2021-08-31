@@ -23,6 +23,7 @@ const TEMPLATE = xml/* xml */ `
     />
   </div>
 `;
+// TODO - this should adapt with the devicePixelRatio (which can change overtime) -> should it depend on devicePixelRatio in a static css?
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
 const CSS = css/* scss */ `
   .o-grid-composer {
@@ -123,7 +124,7 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
 
   get composerStyle(): string {
     return `
-      line-height:${DEFAULT_CELL_HEIGHT - 2 * COMPOSER_BORDER_WIDTH}px;
+      line-height: ${DEFAULT_CELL_HEIGHT}px;
       max-height: inherit;
       overflow: hidden;
     `;
