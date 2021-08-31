@@ -8,7 +8,6 @@
     "dev": "npm-run-all build --parallel server serve \"build:* -- --watch\"",
     "server": "node tools/server/main.js",
     "build:js": "tsc --module es6 --outDir dist/js --incremental",
-    "build:all": "tsc --module es6 --outDir dist/js",
     "build:bundle": "rollup -c -m",
     "build": "npm run build:js && npm run build:bundle",
     "doc": "typedoc",
@@ -17,7 +16,7 @@
     "test:watch": "jest --watch",
     "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --write",
     "check-formatting": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --check",
-    "dist": "npm run build:all && npm run build:bundle"
+    "dist": "tsc --module es6 --outDir dist/js && npm run build:bundle"
   },
   "browserslist": [
     "last 1 Chrome versions"
