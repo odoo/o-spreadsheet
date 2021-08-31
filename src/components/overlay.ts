@@ -5,6 +5,7 @@ import {
   ICON_EDGE_LENGTH,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
+  SELECTION_BORDER_COLOR,
   UNHIDE_ICON_EDGE_LENGTH,
 } from "../constants";
 import { Col, EdgeScrollInfo, Row, SpreadsheetEnv } from "../types/index";
@@ -377,7 +378,7 @@ export class ColResizer extends AbstractResizer {
         height: ${HEADER_HEIGHT}px;
         width: 4px;
         cursor: e-resize;
-        background-color: #3266ca;
+        background-color: ${SELECTION_BORDER_COLOR};
       }
       .dragging-resizer {
         top: ${HEADER_HEIGHT}px;
@@ -385,7 +386,7 @@ export class ColResizer extends AbstractResizer {
         margin-left: 2px;
         width: 1px;
         height: 10000px;
-        background-color: #3266ca;
+        background-color: ${SELECTION_BORDER_COLOR};
       }
       .o-unhide {
         width: ${UNHIDE_ICON_EDGE_LENGTH}px;
@@ -606,7 +607,7 @@ export class RowResizer extends AbstractResizer {
         height: 4px;
         width: ${HEADER_WIDTH}px;
         cursor: n-resize;
-        background-color: #3266ca;
+        background-color: ${SELECTION_BORDER_COLOR}#;
       }
       .dragging-resizer {
         left: ${HEADER_WIDTH}px;
@@ -614,7 +615,7 @@ export class RowResizer extends AbstractResizer {
         margin-top: 2px;
         width: 10000px;
         height: 1px;
-        background-color: #3266ca;
+        background-color: ${SELECTION_BORDER_COLOR};
       }
       .o-unhide {
         width: ${UNHIDE_ICON_EDGE_LENGTH}px;
