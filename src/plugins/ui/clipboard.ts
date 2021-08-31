@@ -11,12 +11,12 @@ import {
   Dimension,
   FormulaCell,
   GridRenderingContext,
+  isCoreCommand,
   LAYERS,
   Range,
   Sheet,
   UID,
   Zone,
-  isCoreCommand,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 

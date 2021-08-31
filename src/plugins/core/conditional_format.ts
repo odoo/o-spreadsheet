@@ -279,9 +279,7 @@ export class ConditionalFormatPlugin
       case "ColorScaleRule": {
         return this.checkValidations(
           rule,
-          this.chainValidations(
-            this.checkThresholds(this.checkFormulaCompilation),
-          ),
+          this.chainValidations(this.checkThresholds(this.checkFormulaCompilation)),
           this.chainValidations(
             this.checkThresholds(this.checkNaN),
             this.batchValidations(
@@ -300,9 +298,7 @@ export class ConditionalFormatPlugin
             this.checkInflectionPoints(this.checkNaN),
             this.checkLowerBiggerThanUpper
           ),
-          this.chainValidations(
-            this.checkInflectionPoints(this.checkFormulaCompilation),
-          )
+          this.chainValidations(this.checkInflectionPoints(this.checkFormulaCompilation))
         );
       }
     }
