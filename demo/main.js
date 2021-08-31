@@ -10,6 +10,8 @@ const { useSubEnv } = owl.hooks;
 const { Spreadsheet } = o_spreadsheet;
 const { topbarMenuRegistry } = o_spreadsheet.registries;
 
+const uuidGenerator = new o_spreadsheet.helpers.UuidGenerator();
+
 topbarMenuRegistry.addChild("clear", ["file"], {
   name: "Clear & reload",
   sequence: 10,
@@ -44,6 +46,10 @@ class App extends Component {
     // this.data = makeLargeDataset(20, 10_000);
     this.stateUpdateMessages = [];
     this.state = useState({ isReadonly: false });
+    this.client = {
+      id: uuidGenerator.uuidv4(),
+      name: "Local",
+    };
 
     topbarMenuRegistry.addChild("readonly", ["file"], {
       name: "Open in read-only",
@@ -121,6 +127,7 @@ App.template = xml/* xml */ `
       stateUpdateMessages="stateUpdateMessages"
       transportService="transportService"
       isReadonly="state.isReadonly"
+      client="client"
       t-on-ask-confirmation="askConfirmation"
       t-on-notify-user="notifyUser"
       t-on-edit-text="editText"/>
