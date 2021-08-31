@@ -505,6 +505,46 @@ describe("Autofill", () => {
     expect(getCellText(model, "A3")).toBe("='Sheet 2'!A3");
   });
 
+  test("date tooltip is formatted", () => {
+    setCellContent(model, "A1", "10/10/2021");
+    expect(autofillTooltip("A1", "A2")).toBe("10/11/2021");
+    expect(autofillTooltip("A1", "A3")).toBe("10/12/2021");
+  });
+
+  test("copy number tooltip is formatted", () => {
+    model.dispatch("UPDATE_CELL", {
+      col: 0,
+      row: 0,
+      sheetId: model.getters.getActiveSheetId(),
+      content: "1",
+      format: "0.00%",
+    });
+    expect(autofillTooltip("A1", "A2")).toBe("100.00%");
+  });
+
+  test("increment number tooltip is formatted", () => {
+    model.dispatch("UPDATE_CELL", {
+      col: 0,
+      row: 0,
+      sheetId: model.getters.getActiveSheetId(),
+      content: "1",
+      format: "0.00%",
+    });
+    model.dispatch("UPDATE_CELL", {
+      col: 0,
+      row: 1,
+      sheetId: model.getters.getActiveSheetId(),
+      content: "2",
+      format: "0.00%",
+    });
+    expect(autofillTooltip("A1:A2", "A3")).toBe("300.00%");
+  });
+
+  test("formula tooltip shows the adapted formula", () => {
+    setCellContent(model, "A1", "=B1");
+    expect(autofillTooltip("A1", "A2")).toBe("=B2");
+  });
+
   test("link tooltip is formatted", () => {
     setCellContent(model, "A1", "[label](url)");
     expect(autofillTooltip("A1", "A2")).toBe("label");
