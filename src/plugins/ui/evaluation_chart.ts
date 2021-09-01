@@ -123,7 +123,10 @@ export class EvaluationChartPlugin extends UIPlugin {
     return this.chartRuntime[figureId];
   }
 
-  private truncateLabel(label: string): string {
+  private truncateLabel(label: string | undefined): string {
+    if (!label) {
+      return "";
+    }
     if (label.length > MAX_CHAR_LABEL) {
       return label.substring(0, MAX_CHAR_LABEL) + "…";
     }
