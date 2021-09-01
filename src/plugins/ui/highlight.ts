@@ -83,20 +83,22 @@ export class HighlightPlugin extends UIPlugin {
       return [];
     }
     const activeSheetId = this.getters.getActiveSheetId();
-    return ranges
-      .map(([r1c1, color]) => {
-        const [xc, sheet] = r1c1.split("!").reverse();
-        const sheetId = this.getters.getSheetIdByName(sheet) || activeSheetId;
+    const preparedHighlights: Highlight[] = [];
+    for (let [r1c1, color] of ranges) {
+      const [xc, sheet] = r1c1.split("!").reverse();
+      const sheetId = sheet ? this.getters.getSheetIdByName(sheet) : activeSheetId;
+      if (sheetId) {
         const zone: Zone = this.getters.expandZone(activeSheetId, toZone(xc));
-        return { zone, color, sheet: sheetId };
-      })
-      .filter(
-        (x) =>
-          x.zone.top >= 0 &&
-          x.zone.left >= 0 &&
-          x.zone.bottom < this.getters.getSheet(x.sheet).rows.length &&
-          x.zone.right < this.getters.getSheet(x.sheet).cols.length
-      );
+        preparedHighlights.push({ zone, color, sheet: sheetId });
+      }
+    }
+    return preparedHighlights.filter(
+      (x) =>
+        x.zone.top >= 0 &&
+        x.zone.left >= 0 &&
+        x.zone.bottom < this.getters.getSheet(x.sheet).rows.length &&
+        x.zone.right < this.getters.getSheet(x.sheet).cols.length
+    );
   }
 
   /**
@@ -193,8 +195,8 @@ export class HighlightPlugin extends UIPlugin {
     for (let h of this.highlights.filter(
       (highlight, index) =>
         // For every highlight in the sheet, deduplicated by zone
-        highlight.sheet === sheetId &&
-        this.highlights.findIndex((h) => isEqual(h.zone, highlight.zone)) === index
+        this.highlights.findIndex((h) => isEqual(h.zone, highlight.zone) && h.sheet === sheetId) ===
+        index
     )) {
       const [x, y, width, height] = this.getters.getRect(h.zone, viewport);
       if (width > 0 && height > 0) {

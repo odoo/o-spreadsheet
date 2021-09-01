@@ -2,6 +2,7 @@
 // Coordinate
 //------------------------------------------------------------------------------
 
+import { RangePart } from "../types";
 import { cellReference } from "./references";
 
 /**
@@ -63,11 +64,20 @@ export function toCartesian(xc: string): [number, number] {
  * Convert from cartesian coordinate to the "XC" coordinate system.
  *
  * Examples:
- *   [0,0] => A1
- *   [1,2] => B3
- *
- * Note: it does not support fixed references
+ *   - 0,0 => A1
+ *   - 1,2 => B3
+ *   - 0,0, {colFixed: false, rowFixed: true} => A$1
+ *   - 1,2, {colFixed: true, rowFixed: false} => $B3
  */
-export function toXC(col: number, row: number): string {
-  return numberToLetters(col) + String(row + 1);
+export function toXC(
+  col: number,
+  row: number,
+  rangePart: RangePart = { colFixed: false, rowFixed: false }
+): string {
+  return (
+    (rangePart.colFixed ? "$" : "") +
+    numberToLetters(col) +
+    (rangePart.rowFixed ? "$" : "") +
+    String(row + 1)
+  );
 }
