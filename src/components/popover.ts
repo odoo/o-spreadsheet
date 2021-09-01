@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { TOPBAR_HEIGHT } from "../constants";
+import { BOTTOMBAR_HEIGHT, SCROLLBAR_WIDTH, TOPBAR_HEIGHT } from "../constants";
 import { DOMCoordinates, GridDimension, SpreadsheetEnv } from "../types";
 const { Component, tags } = owl;
 const { Portal } = owl.misc;
@@ -47,7 +47,9 @@ export class Popover extends Component<Props, SpreadsheetEnv> {
   get style() {
     const horizontalPosition = `left:${this.horizontalPosition()}`;
     const verticalPosition = `top:${this.verticalPosition()}`;
-    const height = `max-height:${this.viewportDimension.height}`;
+    const height = `max-height:${
+      this.viewportDimension.height - BOTTOMBAR_HEIGHT - SCROLLBAR_WIDTH
+    }`;
     return `
       position: absolute;
       z-index: 5;
@@ -55,7 +57,9 @@ export class Popover extends Component<Props, SpreadsheetEnv> {
       ${horizontalPosition}px;
       ${height}px;
       width:${this.props.childWidth}px;
-      height:${this.props.childHeight}px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      box-shadow: 1px 2px 5px 2px rgb(51 51 51 / 15%);
     `;
   }
 

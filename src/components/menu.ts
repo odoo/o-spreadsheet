@@ -68,11 +68,7 @@ const TEMPLATE = xml/* xml */ `
 
 const CSS = css/* scss */ `
   .o-menu {
-    width: ${MENU_WIDTH}px;
     background-color: white;
-    box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-    font-size: 13px;
-    overflow-y: auto;
     padding: 5px 0px;
     .o-menu-item {
       display: flex;
