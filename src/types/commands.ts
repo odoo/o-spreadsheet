@@ -75,6 +75,18 @@ export function isPositionDependent(cmd: CoreCommand): boolean {
   return "col" in cmd && "row" in cmd;
 }
 
+export const invalidateEvaluationCommands = new Set<CommandTypes>([
+  "RENAME_SHEET",
+  "DELETE_SHEET",
+  "CREATE_SHEET",
+  "ADD_COLUMNS_ROWS",
+  "REMOVE_COLUMNS_ROWS",
+  "DELETE_CELL",
+  "INSERT_CELL",
+  "UNDO",
+  "REDO",
+]);
+
 export const readonlyAllowedCommands = new Set<CommandTypes>([
   "START",
   "ACTIVATE_SHEET",

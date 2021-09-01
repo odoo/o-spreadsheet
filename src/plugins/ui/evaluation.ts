@@ -15,6 +15,7 @@ import {
   EvalContext,
   FormulaCell,
   Getters,
+  invalidateEvaluationCommands,
   NormalizedFormula,
   Range,
   ReferenceDenormalizer,
@@ -57,16 +58,10 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   handle(cmd: Command) {
+    if (invalidateEvaluationCommands.has(cmd.type)) {
+      this.isUpToDate.clear();
+    }
     switch (cmd.type) {
-      case "RENAME_SHEET":
-      case "DELETE_SHEET":
-      case "CREATE_SHEET":
-      case "ADD_COLUMNS_ROWS":
-      case "REMOVE_COLUMNS_ROWS":
-      case "DELETE_CELL":
-      case "INSERT_CELL":
-        this.isUpToDate.clear();
-        break;
       case "UPDATE_CELL":
         if ("content" in cmd) {
           this.isUpToDate.clear();
@@ -78,10 +73,6 @@ export class EvaluationPlugin extends UIPlugin {
         break;
       case "EVALUATE_ALL_SHEETS":
         this.evaluateAllSheets();
-        break;
-      case "UNDO":
-      case "REDO":
-        this.isUpToDate.clear();
         break;
     }
   }
