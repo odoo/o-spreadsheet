@@ -271,6 +271,61 @@ describe("ranges and highlights", () => {
       expect(composerEl.textContent).toBe("=SUM(B1:B2)");
     });
 
+    test("can change references with sheetname", async () => {
+      await typeInComposer("=Sheet42!B1");
+      createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B2") });
+      await nextTick();
+      expect(composerEl.textContent).toBe("=Sheet42!B2");
+    });
+
+    test("change references of the current sheet", async () => {
+      await typeInComposer("=SUM(B1,Sheet42!B1)");
+      createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B2") });
+      await nextTick();
+      expect(composerEl.textContent).toBe("=SUM(B1,Sheet42!B2)");
+    });
+
+    test.each([
+      ["=b$1", "=C$1"],
+      ["=$b1", "=$C1"],
+    ])("can change cells reference with index fixed", async (ref, resultRef) => {
+      await typeInComposer(ref);
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C1") });
+      await nextTick();
+      expect(composerEl.textContent).toBe(resultRef);
+    });
+
+    test.each([
+      ["=B1:B$2", "=C1:C$2"],
+      ["=B1:$B$2", "=C1:$C$2"],
+      ["=B1:$B2", "=C1:$C2"],
+      ["=$B1:B2", "=$C1:C2"],
+      ["=$B$1:B2", "=$C$1:C2"],
+      ["=B$1:B2", "=C$1:C2"],
+      ["=$B1:$B2", "=$C1:$C2"],
+      ["=B$1:B$2", "=C$1:C$2"],
+      ["=$B$1:$B$2", "=$C$1:$C$2"],
+    ])("can change ranges reference with index fixed", async (ref, resultRef) => {
+      await typeInComposer(ref);
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C1:C2") });
+      await nextTick();
+      expect(composerEl.textContent).toBe(resultRef);
+    });
+
+    test("can change references of different length with index fixed", async () => {
+      await typeInComposer("=SUM($B$1)");
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
+      await nextTick();
+      expect(composerEl.textContent).toBe("=SUM($B$1:$B$2)");
+    });
+
     test("change the edition mode", async () => {
       await typeInComposer("=SUM(B1,");
       expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");

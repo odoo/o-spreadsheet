@@ -22,6 +22,7 @@ import {
   CoreCommand,
   ExcelWorkbookData,
   Range,
+  RangePart,
   Sheet,
   Style,
   UID,
@@ -493,10 +494,18 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * if A1:B2 and A4:B5 are merges:
    * {top:1,left:0,right:1,bottom:3} ==> A1:A5
    */
-  zoneToXC(sheetId: UID, zone: Zone): string {
+  zoneToXC(
+    sheetId: UID,
+    zone: Zone,
+    fixedParts: RangePart[] = [{ colFixed: false, rowFixed: false }]
+  ): string {
     zone = this.getters.expandZone(sheetId, zone);
-    const topLeft = toXC(zone.left, zone.top);
-    const botRight = toXC(zone.right, zone.bottom);
+    const topLeft = toXC(zone.left, zone.top, fixedParts[0]);
+    const botRight = toXC(
+      zone.right,
+      zone.bottom,
+      fixedParts.length > 1 ? fixedParts[1] : fixedParts[0]
+    );
     const cellTopLeft = this.getters.getMainCell(sheetId, zone.left, zone.top);
     const cellBotRight = this.getters.getMainCell(sheetId, zone.right, zone.bottom);
     const sameCell = cellTopLeft[0] == cellBotRight[0] && cellTopLeft[1] == cellBotRight[1];

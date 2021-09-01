@@ -1,7 +1,13 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
 import { HighlightPlugin } from "../../src/plugins/ui/highlight";
-import { createSheet, merge, selectCell, setSelection } from "../test_helpers/commands_helpers";
+import {
+  createSheet,
+  createSheetWithName,
+  merge,
+  selectCell,
+  setSelection,
+} from "../test_helpers/commands_helpers";
 
 let model: Model;
 
@@ -64,11 +70,26 @@ describe("highlight", () => {
     ]);
   });
 
-  test("add no hightlight", () => {
+  test("add no highlight", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: [],
     });
     expect(model.getters.getHighlights()).toStrictEqual([]);
+  });
+
+  test("can add highlight when valid sheet name", () => {
+    createSheetWithName(model, { sheetId: "42" }, "kikou");
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: [["kikou!B2", "#888"]],
+    });
+    expect(model.getters.getHighlights()).toHaveLength(1);
+  });
+
+  test("can't add highlight with invalid sheet name", () => {
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: [["kikou!B2", "#888"]],
+    });
+    expect(model.getters.getHighlights()).toHaveLength(0);
   });
 
   test("remove highlight with another color", () => {
