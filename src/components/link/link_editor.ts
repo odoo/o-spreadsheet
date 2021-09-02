@@ -13,7 +13,7 @@ const { useRef } = hooks;
 
 const MENU_OFFSET_X = 320;
 const MENU_OFFSET_Y = 100;
-const PADDING = 10;
+const PADDING = 12;
 
 const TEMPLATE = xml/* xml */ `
     <div class="o-link-editor" t-on-click.stop="menu.isOpen=false" t-on-keydown.stop="onKeyDown">
@@ -52,7 +52,6 @@ const CSS = css/* scss */ `
     font-size: 13px;
     background-color: white;
     box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
-    margin: 2px 10px 2px 10px;
     padding: ${PADDING}px;
     display: flex;
     flex-direction: column;
