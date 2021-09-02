@@ -105,7 +105,6 @@ cellMenuRegistry
   .add("delete_cell", {
     name: _lt("Delete cells"),
     sequence: 130,
-    separator: true,
     isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
   })
   .addChild("delete_cell_up", ["delete_cell"], {
@@ -118,12 +117,6 @@ cellMenuRegistry
     sequence: 20,
     action: ACTIONS.DELETE_CELL_SHIFT_LEFT,
   })
-  .add("insert_link", {
-    name: _lt("Insert link"),
-    separator: true,
-    sequence: 135,
-    action: ACTIONS.INSERT_LINK,
-  })
   .add("clear_cell", {
     name: _lt("Clear cells"),
     sequence: 140,
@@ -134,9 +127,15 @@ cellMenuRegistry
     },
     separator: true,
   })
+  .add("insert_link", {
+    name: _lt("Insert link"),
+    separator: true,
+    sequence: 150,
+    action: ACTIONS.INSERT_LINK,
+  })
   .add("conditional_formatting", {
     name: _lt("Conditional formatting"),
-    sequence: 140,
+    sequence: 160,
     action: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
     separator: true,
   });

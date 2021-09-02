@@ -1,6 +1,6 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Menu } from "../../src/components/menu";
-import { TOPBAR_HEIGHT } from "../../src/constants";
+import { MENU_ITEM_HEIGHT, TOPBAR_HEIGHT } from "../../src/constants";
 import { toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
@@ -53,7 +53,7 @@ function getSubMenuPosition() {
 }
 
 function getItemSize() {
-  return 32;
+  return MENU_ITEM_HEIGHT;
 }
 
 function getSize(menuItemsCount: number): { width: number; height: number } {
@@ -625,6 +625,7 @@ describe("Context Menu position on large screen 1000px/1000px", () => {
     const [clickX, clickY] = await renderContextMenu(990, 300);
     const { left, top } = getMenuPosition();
     const { width } = getMenuSize();
+    debugger;
     expect(left).toBe(clickX - width);
     expect(top).toBe(clickY);
   });
@@ -716,7 +717,7 @@ describe("Context Menu position on small screen 1000px/300px", () => {
     const [clickX] = await renderContextMenu(300, 150, { menuItems: longMenuItems }, 1000, 300);
     const { left, top } = getMenuPosition();
     expect(left).toBe(clickX);
-    expect(top).toBe(32);
+    expect(top).toBe(150);
   });
 
   test("it renders menu at the top of the screen on the left, if not enough space above, below and on the right", async () => {
@@ -724,7 +725,7 @@ describe("Context Menu position on small screen 1000px/300px", () => {
     const { left, top } = getMenuPosition();
     const { width } = getMenuSize();
     expect(left).toBe(clickX - width);
-    expect(top).toBe(32);
+    expect(top).toBe(150);
   });
 
   test("it renders submenu at the top of the screen on the right, if not enough space above and below", async () => {
@@ -733,7 +734,7 @@ describe("Context Menu position on small screen 1000px/300px", () => {
     const { left, top } = getSubMenuPosition();
     const { width } = getMenuSize();
     expect(left).toBe(clickX + width);
-    expect(top).toBe(32);
+    expect(top).toBe(102);
   });
 
   test("it renders submenu at the top of the screen on the left, if not enough space above, below and on the right", async () => {
@@ -742,7 +743,7 @@ describe("Context Menu position on small screen 1000px/300px", () => {
     const { left, top } = getSubMenuPosition();
     const { width } = getMenuSize();
     expect(left).toBe(clickX - width);
-    expect(top).toBe(32);
+    expect(top).toBe(102);
   });
 });
 

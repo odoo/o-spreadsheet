@@ -70,13 +70,13 @@ const TEMPLATE = xml/* xml */ `
 const CSS = css/* scss */ `
   .o-menu {
     background-color: white;
-    padding: 5px 0px;
+    padding: 8px 0px;
     .o-menu-item {
       display: flex;
       justify-content: space-between;
       box-sizing: border-box;
       height: ${MENU_ITEM_HEIGHT}px;
-      padding: 7px 20px;
+      padding: 4px 16px;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
