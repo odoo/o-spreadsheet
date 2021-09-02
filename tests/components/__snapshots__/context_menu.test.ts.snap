@@ -182,14 +182,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </svg>
   </div>
   <div
-    class="o-separator"
-  />
-  <div
-    class="o-menu-item"
-    data-name="insert_link"
-    title="Insert link"
+    class="o-menu-item disabled"
+    data-name="clear_cell"
+    title="Clear cells"
   >
-    Insert link
+    Clear cells
     <span
       class="o-menu-item-shortcut"
     >
@@ -200,11 +197,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     class="o-separator"
   />
   <div
-    class="o-menu-item disabled"
-    data-name="clear_cell"
-    title="Clear cells"
+    class="o-menu-item"
+    data-name="insert_link"
+    title="Insert link"
   >
-    Clear cells
+    Insert link
     <span
       class="o-menu-item-shortcut"
     >

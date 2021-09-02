@@ -38,7 +38,7 @@ export const LINK_TOOLTIP_WIDTH = 220;
 
 // Menus
 export const MENU_WIDTH = 200;
-export const MENU_ITEM_HEIGHT = 32;
+export const MENU_ITEM_HEIGHT = 24;
 export const MENU_SEPARATOR_BORDER_WIDTH = 1;
 export const MENU_SEPARATOR_PADDING = 5;
 export const MENU_SEPARATOR_HEIGHT = MENU_SEPARATOR_BORDER_WIDTH + 2 * MENU_SEPARATOR_PADDING;
