@@ -22,12 +22,10 @@ const TEMPLATE = xml/* xml */ `
 
 const CSS = css/* scss */ `
   .o-link-tool {
-    border
     font-size: 13px;
     background-color: white;
     box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
-    margin: 2px 10px 2px 10px;
-    padding: 10px;
+    padding: 12px;
     border-radius: 4px;
     display: flex;
     justify-content: space-between;
