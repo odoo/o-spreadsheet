@@ -12,7 +12,18 @@ const { xml, css } = tags;
 const TEMPLATE = xml/* xml */ `
   <div class="o-link-tool">
     <t t-set="link" t-value="cell.link"/>
-    <a t-att-href="link.url" target="_blank" t-on-click.prevent="openLink" t-att-title="link.url">
+    <a t-if="link.isExternal"
+      class="o-link"
+      t-att-href="link.url"
+      target="_blank"
+      t-on-click.prevent="openLink"
+      t-att-title="link.url">
+      <t t-esc="cell.urlRepresentation"/>
+    </a>
+    <a t-else=""
+      class="o-link"
+      t-on-click.prevent="openLink"
+      t-att-title="cell.urlRepresentation">
       <t t-esc="cell.urlRepresentation"/>
     </a>
     <span class="o-link-icon o-unlink" t-on-click="unlink" title="${LinkEditorTerms.Remove}">${UNLINK}</span>
@@ -29,11 +40,17 @@ const CSS = css/* scss */ `
     border-radius: 4px;
     display: flex;
     justify-content: space-between;
-    a {
+    a.o-link {
+      color: #007bff;
       flex-grow: 2;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+    a.o-link:hover {
+      text-decoration: underline;
+      color: #0056b3;
+      cursor: pointer;
     }
   }
   .o-link-icon {

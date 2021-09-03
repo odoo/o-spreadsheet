@@ -172,6 +172,7 @@ export class WebLinkCell extends LinkCell {
   constructor(id: UID, content: string, properties: CellDisplayProperties = {}) {
     super(id, content, properties);
     this.link.url = this.withHttp(this.link.url);
+    this.link.isExternal = true;
     this.content = markdownLink(this.link.label, this.link.url);
     this.urlRepresentation = this.link.url;
     this.isUrlEditable = true;
