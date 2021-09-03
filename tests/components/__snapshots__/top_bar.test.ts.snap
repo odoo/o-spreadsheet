@@ -374,6 +374,7 @@ exports[`TopBar component can set cell format 1`] = `
     border-bottom: 1px solid #e0e2e4;
     border-left: 1px solid #e0e2e4;
     background-color: white;
+    padding-left: 8px;
   "
         tabindex="1"
       />
@@ -716,6 +717,7 @@ exports[`TopBar component simple rendering 1`] = `
     border-bottom: 1px solid #e0e2e4;
     border-left: 1px solid #e0e2e4;
     background-color: white;
+    padding-left: 8px;
   "
         tabindex="1"
       />

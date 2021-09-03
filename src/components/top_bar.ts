@@ -1,6 +1,5 @@
 import * as owl from "@odoo/owl";
-import { DEFAULT_FONT_SIZE, SELECTION_BORDER_COLOR } from "../constants";
-import { BACKGROUND_HEADER_COLOR, DEFAULT_FONT_SIZE } from "../constants";
+import { BACKGROUND_HEADER_COLOR, DEFAULT_FONT_SIZE, SELECTION_BORDER_COLOR } from "../constants";
 import { fontSizes } from "../fonts";
 import { isEqual } from "../helpers/index";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../registries/index";
@@ -209,7 +208,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           background-color: ${BACKGROUND_HEADER_COLOR};
           padding-left: 18px;
           padding-right: 18px;
-          }
+        }
         .o-composer-container {
           height: 34px;
           &:not(focus-within) {
