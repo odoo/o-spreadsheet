@@ -11,6 +11,11 @@ export type UID = string;
 export interface Link {
   label: string;
   url: string;
+  /**
+   * Specifies if the resource is external and can
+   * be opened in a new tab.
+   */
+  isExternal?: boolean;
 }
 
 export interface Zone {
