@@ -210,7 +210,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           padding-right: 18px;
         }
         .o-composer-container {
-          height: 34px;
           &:not(focus-within) {
             border-left: 1px solid #e0e2e4;
           }
@@ -375,9 +374,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   menus: FullMenuItem[] = [];
   menuRef = useRef("menuRef");
   composerStyle = `
-    line-height: 34px;
-    height: 34px;
-    border-bottom: 1px solid #e0e2e4;
     border-left: 1px solid #e0e2e4;
     background-color: white;
     padding-left: 8px;
