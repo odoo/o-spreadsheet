@@ -279,7 +279,15 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   getSheetIdByName(name: string | undefined): UID | undefined {
-    return name && this.sheetIds[getUnquotedSheetName(name)];
+    if (name) {
+      const unquotedName = getUnquotedSheetName(name);
+      for (const key in this.sheetIds) {
+        if (key.toUpperCase() === unquotedName.toUpperCase()) {
+          return this.sheetIds[key];
+        }
+      }
+    }
+    return undefined;
   }
 
   getSheets(): Sheet[] {
