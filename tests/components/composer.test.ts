@@ -846,6 +846,10 @@ describe("composer", () => {
       await typeInComposer("Hello");
       const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
       expect(gridComposer.style.color).toBe("rgb(18, 52, 86)");
+      // @ts-ignore
+      const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
+      // the composer doesn't force any color
+      expect(contentColors["Hello"]).toBeUndefined();
     });
 
     test("with background color", async () => {
