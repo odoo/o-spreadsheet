@@ -184,9 +184,10 @@ export class EditionPlugin extends UIPlugin {
             let value = token.value;
             const [xc, sheet] = value.split("!").reverse();
             const sheetName = sheet || this.getters.getSheetName(this.sheet);
+            const activeSheetId = this.getters.getActiveSheetId();
             return (
-              isEqual(toZone(xc), cmd.zone) &&
-              this.getters.getSheetName(this.getters.getActiveSheetId()) === sheetName
+              isEqual(this.getters.expandZone(activeSheetId, toZone(xc)), cmd.zone) &&
+              this.getters.getSheetName(activeSheetId) === sheetName
             );
           });
         this.previousRef = previousRefToken!.value;
