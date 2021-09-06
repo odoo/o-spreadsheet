@@ -318,6 +318,30 @@ describe("ranges and highlights", () => {
       expect(composerEl.textContent).toBe(resultRef);
     });
 
+    test("can change cells merged reference", async () => {
+      merge(model, "B1:B2");
+      await typeInComposer("=B1");
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C1") });
+      await nextTick();
+      expect(composerEl.textContent).toBe("=C1");
+
+      await typeInComposer("+B2");
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C2") });
+      await nextTick();
+      expect(composerEl.textContent).toBe("=C1+C2");
+    });
+
+    test("can change cells merged reference with index fixed", async () => {
+      merge(model, "B1:B2");
+      await typeInComposer("=B$2");
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C1:C2") });
+      await nextTick();
+      expect(composerEl.textContent).toBe("=C$1:C$2");
+    });
+
     test("can change references of different length with index fixed", async () => {
       await typeInComposer("=SUM($B$1)");
       model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
