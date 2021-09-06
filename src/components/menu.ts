@@ -67,6 +67,7 @@ const CSS = css/* scss */ `
       white-space: nowrap;
       text-overflow: ellipsis;
       cursor: pointer;
+      user-select: none;
 
       &:hover {
         background-color: #ebebeb;
