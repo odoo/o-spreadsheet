@@ -108,8 +108,6 @@ export class RendererPlugin extends UIPlugin {
 
   getCanvasRect(zone: Zone, viewport: Viewport): Rect {
     const { left, top, right, bottom } = zone;
-    // offsetX -= 0;
-    // offsetY -= 0;
     const { cols, rows } = this.getters.getActiveSheet();
     const x = Math.max(cols[left].start, 0);
     const width = cols[right].end - x;

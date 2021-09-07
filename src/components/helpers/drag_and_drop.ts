@@ -74,12 +74,10 @@ export function dragAndDropBeyondTheViewport(
     cbMouseMove(colIndex, rowIndex);
 
     // TODO: mettre les conditions ensemble, c'est du code dupliqué
-
     if (edgeScrollInfoX.canEdgeScroll) {
       const { left, offsetY } = env.getters.getActiveViewport();
       const { cols } = env.getters.getActiveSheet();
       const offsetX = cols[left + edgeScrollInfoX.direction].start;
-      // env.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
       comp.trigger("tabouret", { offsetX, offsetY });
       timeOutId = setTimeout(() => {
         timeOutId = null;
@@ -91,7 +89,6 @@ export function dragAndDropBeyondTheViewport(
       const { top, offsetX } = env.getters.getActiveViewport();
       const { rows } = env.getters.getActiveSheet();
       const offsetY = rows[top + edgeScrollInfoY.direction].start;
-      // env.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
       comp.trigger("tabouret", { offsetX, offsetY });
       timeOutId = setTimeout(() => {
         timeOutId = null;
