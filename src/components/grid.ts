@@ -194,7 +194,7 @@ const TEMPLATE = xml/* xml */ `
         tabindex="-1"
         t-on-contextmenu="onCanvasContextMenu"
         />
-    </div>
+    
     <t t-foreach="getters.getClientsToDisplay()" t-as="client" t-key="getClientPositionKey(client)">
       <ClientTag name="client.name"
                  color="client.color"
@@ -245,6 +245,7 @@ const TEMPLATE = xml/* xml */ `
       t-on-close.stop="menuState.isOpen=false"/>
     <t t-set="gridSize" t-value="getters.getGridDimension(getters.getActiveSheet())"/>
     <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" t-on-figure-deleted="focus" />
+    </div>
   </div>`;
 
 // -----------------------------------------------------------------------------
