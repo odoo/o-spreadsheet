@@ -1,7 +1,12 @@
 import { args, functionRegistry } from "../../src/functions";
 import { Model } from "../../src/model";
-import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent } from "../test_helpers/getters_helpers";
+import {
+  activateSheet,
+  createSheet,
+  deleteRows,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
+import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import { evaluateCell, evaluateGrid, target } from "../test_helpers/helpers";
 import resetAllMocks = jest.resetAllMocks;
 
@@ -972,6 +977,20 @@ describe("evaluate formula getter", () => {
     value = 2;
     model.dispatch("EVALUATE_CELLS", { sheetId: model.getters.getActiveSheetId() });
     expect(getCell(model, "A1")!.value).toBe(2);
+  });
+
+  test("Formula with #REF is correctly marked as error", () => {
+    setCellContent(model, "A5", "=SUM(A1:A2,A3:A4)");
+    deleteRows(model, [0, 1]);
+    expect(getCellText(model, "A3")).toBe("=SUM(#REF,A1:A2)");
+    const cell = getCell(model, "A3")!;
+    expect(cell.error).toEqual("Invalid range: #REF");
+  });
+
+  test("Formula with invalid range", () => {
+    setCellContent(model, "A1", "=SUM(AZ100)");
+    const cell = getCell(model, "A1")!;
+    expect(cell.error).toEqual("Invalid range: Sheet1!AZ100");
   });
 
   test("using cells in other sheets", () => {

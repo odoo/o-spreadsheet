@@ -1,7 +1,7 @@
 import { MAXIMUM_EVALUATION_CHECK_DELAY_MS } from "../../constants";
 import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { mapCellsInZone, toXC, toZone } from "../../helpers/index";
+import { isZoneValid, mapCellsInZone, toXC, toZone } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
@@ -376,6 +376,9 @@ export class EvaluationPlugin extends UIPlugin {
         right: Math.min(range.zone.right, sheet.cols.length - 1),
         bottom: Math.min(range.zone.bottom, sheet.rows.length - 1),
       };
+      if (!isZoneValid(zone)) {
+        throw new Error(_lt("Invalid range: %s", evalContext.getters.getRangeString(range)));
+      }
       return mapCellsInZone(zone, sheet, (cell) => getCellValue(cell, range.sheetId));
     }
 

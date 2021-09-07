@@ -572,7 +572,7 @@ Object {
         },
       },
     ],
-    "error": "Cannot read property 'length' of undefined",
+    "error": "Invalid range: #REF",
     "formula": Object {
       "compiledFormula": [Function],
       "text": "=SUM(|0|)",
@@ -1474,14 +1474,14 @@ Object {
         },
       },
     ],
-    "error": undefined,
+    "error": "Invalid range: #REF",
     "formula": Object {
       "compiledFormula": [Function],
       "text": "=SUM(|0|)",
     },
     "id": "11",
     "type": "formula",
-    "value": 0,
+    "value": "#ERROR",
   },
 }
 `;
