@@ -29,9 +29,9 @@ import {
   Increment,
   LAYERS,
   MoveColumnsRowsCommand,
-  PluginRenderingContext,
   Position,
   RemoveColumnsRowsCommand,
+  RenderingContexts,
   Sheet,
   Style,
   UID,
@@ -904,11 +904,11 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(renderingContexts: PluginRenderingContext[]) {
+  drawGrid(renderingContexts: RenderingContexts) {
     if (this.getters.getEditionMode() !== "inactive") {
       return;
     }
-    const { viewport, ctx, thinLineWidth } = renderingContexts[0];
+    const { viewport, ctx, thinLineWidth } = renderingContexts.grid;
     // selection
     const zones = this.getSelectedZones();
     ctx.fillStyle = "#f3f7fe";

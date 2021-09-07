@@ -13,8 +13,8 @@ import {
   ColorScaleThreshold,
   CommandTypes,
   ConditionalFormat,
-  PluginRenderingContext,
   Position,
+  RenderingContexts,
   SpreadsheetEnv,
   Style,
   Zone,
@@ -131,7 +131,7 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
     });
 
     const drawGrid = model.drawGrid;
-    model.drawGrid = function (contexts: PluginRenderingContext[]) {
+    model.drawGrid = function (contexts: RenderingContexts) {
       drawGrid.call(this, contexts);
     };
     this.model = model;

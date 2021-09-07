@@ -1,12 +1,6 @@
 import { Mode, ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
-import {
-  Command,
-  CommandDispatcher,
-  Getters,
-  LAYERS,
-  PluginRenderingContext,
-} from "../types/index";
+import { Command, CommandDispatcher, Getters, LAYERS, RenderingContexts } from "../types/index";
 import { BasePlugin } from "./base_plugin";
 
 type UIActions = Pick<
@@ -51,5 +45,5 @@ export class UIPlugin<State = any, C = Command> extends BasePlugin<State, C> {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(ctx: PluginRenderingContext[], layer: LAYERS) {}
+  drawGrid(ctx: RenderingContexts, layer: LAYERS) {}
 }

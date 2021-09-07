@@ -28,6 +28,7 @@ import {
   LAYERS,
   PluginRenderingContext,
   Rect,
+  RenderingContexts,
   ScrollDirection,
   Sheet,
   Viewport,
@@ -174,10 +175,10 @@ export class RendererPlugin extends UIPlugin {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(renderingContexts: PluginRenderingContext[], layer: LAYERS) {
+  drawGrid(renderingContexts: RenderingContexts, layer: LAYERS) {
     switch (layer) {
       case LAYERS.Background:
-        const renderingContext = renderingContexts[0];
+        const renderingContext = renderingContexts.grid;
         this.boxes = this.getGridBoxes(renderingContext);
         this.drawBackground(renderingContext);
         this.drawCellBackground(renderingContext);
@@ -187,10 +188,10 @@ export class RendererPlugin extends UIPlugin {
         this.drawGridBorders(renderingContext);
         break;
       case LAYERS.ColumnHeader:
-        this.drawColumnHeaders(renderingContexts[1]);
+        this.drawColumnHeaders(renderingContexts.columns);
         break;
       case LAYERS.RowHeader:
-        this.drawRowHeaders(renderingContexts[2]);
+        this.drawRowHeaders(renderingContexts.rows);
         break;
     }
   }

@@ -71,9 +71,10 @@ export function dragAndDropBeyondTheViewport(
       rowIndex = env.getters.getRowIndex(offsetY, viewportOffsetY);
     }
 
+    console.log("drag & drop", colIndex, rowIndex);
     cbMouseMove(colIndex, rowIndex);
 
-    // TODO: mettre les conditions ensemble, c'est du code dupliqué
+    // TODO: mettre les conditions ensemble, c'est du code dupliqué et ça trigger 2 rendus au lieu d'un seul
     if (edgeScrollInfoX.canEdgeScroll) {
       const { left, offsetY } = env.getters.getActiveViewport();
       const { cols } = env.getters.getActiveSheet();

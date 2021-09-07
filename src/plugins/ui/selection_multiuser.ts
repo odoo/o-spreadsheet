@@ -1,7 +1,7 @@
 import { ClientDisconnectedError } from "../../collaborative/session";
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE } from "../../constants";
 import { Mode } from "../../model";
-import { Client, ClientPosition, LAYERS, PluginRenderingContext, UID } from "../../types";
+import { Client, ClientPosition, LAYERS, RenderingContexts, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 function randomChoice(arr: string[]): string {
@@ -82,8 +82,8 @@ export class SelectionMultiUserPlugin extends UIPlugin {
     return clients;
   }
 
-  drawGrid(renderingContexts: PluginRenderingContext[]) {
-    const { viewport, ctx, thinLineWidth } = renderingContexts[0];
+  drawGrid(renderingContexts: RenderingContexts) {
+    const { viewport, ctx, thinLineWidth } = renderingContexts.grid;
     const activeSheetId = this.getters.getActiveSheetId();
     for (const client of this.getClientsToDisplay()) {
       const { row, col } = client.position!;

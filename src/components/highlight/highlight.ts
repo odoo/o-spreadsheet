@@ -110,7 +110,7 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
     const parent = this.el!.parentElement! as HTMLElement;
     const position = parent.getBoundingClientRect();
     const activeSheet = this.env.getters.getActiveSheet();
-    const { offsetX: viewportTop, offsetY: viewportLeft } = this.env.getters.getActiveViewport();
+    const { offsetX: viewportLeft, offsetY: viewportTop } = this.env.getters.getActiveViewport();
 
     const initCol = this.env.getters.getColIndex(ev.detail.clientX - position.left, viewportLeft);
     const initRow = this.env.getters.getRowIndex(ev.detail.clientY - position.top, viewportTop);
@@ -127,6 +127,7 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
     let lastCol = initCol;
     let lastRow = initRow;
 
+    console.log("init", initCol, initRow);
     const mouseMove = (col, row) => {
       if (lastCol !== col || lastRow !== row) {
         lastCol = col === -1 ? lastCol : col;

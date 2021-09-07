@@ -50,6 +50,12 @@ export interface PluginRenderingContext {
   thinLineWidth: number;
 }
 
+export interface RenderingContexts {
+  grid: PluginRenderingContext;
+  columns: PluginRenderingContext;
+  rows: PluginRenderingContext;
+}
+
 export const enum LAYERS {
   Background,
   Highlights,

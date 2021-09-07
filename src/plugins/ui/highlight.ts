@@ -1,6 +1,6 @@
 import { getNextColor, isEqual, toZone } from "../../helpers/index";
 import { Mode } from "../../model";
-import { Command, Highlight, LAYERS, PluginRenderingContext, Zone } from "../../types/index";
+import { Command, Highlight, LAYERS, RenderingContexts, Zone } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 /**
@@ -179,9 +179,9 @@ export class HighlightPlugin extends UIPlugin {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(renderingContexts: PluginRenderingContext[]) {
+  drawGrid(renderingContexts: RenderingContexts) {
     // rendering selection highlights
-    const { ctx, viewport, thinLineWidth } = renderingContexts[0];
+    const { ctx, viewport, thinLineWidth } = renderingContexts.grid;
     const sheetId = this.getters.getActiveSheetId();
     const lineWidth = 3 * thinLineWidth;
     ctx.lineWidth = lineWidth;

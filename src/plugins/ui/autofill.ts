@@ -13,7 +13,7 @@ import {
   GeneratorCell,
   Getters,
   LAYERS,
-  PluginRenderingContext,
+  RenderingContexts,
   Tooltip,
   Zone,
 } from "../../types/index";
@@ -429,8 +429,8 @@ export class AutofillPlugin extends UIPlugin {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(renderingContexts: PluginRenderingContext[]) {
-    const renderingContext = renderingContexts[0];
+  drawGrid(renderingContexts: RenderingContexts) {
+    const renderingContext = renderingContexts.grid;
     if (!this.autofillZone) {
       return;
     }

@@ -685,11 +685,13 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
       thinLineWidth,
     };
 
-    this.props.model.drawGrid([
-      gridRenderingContext,
-      columnsRenderingContext,
-      rowsRenderingContext,
-    ]);
+    const renderingContexts = {
+      grid: gridRenderingContext,
+      columns: columnsRenderingContext,
+      rows: rowsRenderingContext,
+    };
+
+    this.props.model.drawGrid(renderingContexts);
   }
 
   // TODO : réparer pour que ça marche sur les headers aussi (dans tout grid en soi)
@@ -829,9 +831,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
         const offsetX = sheet.cols[left + colEdgeScroll.direction].start;
         const offsetY = sheet.rows[top + rowEdgeScroll.direction].start;
 
-        // this.gridCanvasContainer.el!.scrollTo(offsetX, offsetY);
         this.trigger("tabouret", { offsetX, offsetY });
-        // this.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
         timeOutId = setTimeout(() => {
           timeOutId = null;
           onMouseMove(currentEv);

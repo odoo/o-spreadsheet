@@ -13,8 +13,8 @@ import {
   FormulaCell,
   isCoreCommand,
   LAYERS,
-  PluginRenderingContext,
   Range,
+  RenderingContexts,
   Sheet,
   UID,
   Zone,
@@ -646,8 +646,8 @@ export class ClipboardPlugin extends UIPlugin {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(renderingContexts: PluginRenderingContext[]) {
-    const { viewport, ctx, thinLineWidth } = renderingContexts[0];
+  drawGrid(renderingContexts: RenderingContexts) {
+    const { viewport, ctx, thinLineWidth } = renderingContexts.grid;
     if (
       this.status !== "visible" ||
       !this.state ||

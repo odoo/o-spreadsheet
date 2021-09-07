@@ -1,5 +1,5 @@
 import { isFormula } from "../../helpers/cells/index";
-import { Cell, Command, LAYERS, PluginRenderingContext, UID } from "../../types/index";
+import { Cell, Command, LAYERS, RenderingContexts, UID } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 const BORDER_COLOR: string = "#8B008B";
@@ -284,8 +284,8 @@ export class FindAndReplacePlugin extends UIPlugin {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(renderingContexts: PluginRenderingContext[]) {
-    const { ctx, viewport } = renderingContexts[0];
+  drawGrid(renderingContexts: RenderingContexts) {
+    const { ctx, viewport } = renderingContexts.grid;
     const sheetId = this.getters.getActiveSheetId();
     for (const match of this.searchMatches) {
       const merge = this.getters.getMerge(sheetId, match.col, match.row);

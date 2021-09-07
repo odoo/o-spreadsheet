@@ -28,7 +28,7 @@ import {
   Getters,
   isCoreCommand,
   LAYERS,
-  PluginRenderingContext,
+  RenderingContexts,
   UID,
   WorkbookData,
 } from "./types/index";
@@ -435,7 +435,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * context. This is probably the way we should do if we want to be able to
    * freeze a part of the grid (so, we would need to render different zones)
    */
-  drawGrid(context: PluginRenderingContext[]) {
+  drawGrid(context: RenderingContexts) {
     // we make sure here that the viewport is properly positioned: the offsets
     // correspond exactly to a cell
     // context.viewport = this.getters.getActiveViewport(); //snaped one
