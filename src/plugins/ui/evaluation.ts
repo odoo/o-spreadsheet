@@ -226,7 +226,7 @@ export class EvaluationPlugin extends UIPlugin {
       const sheet = sheets[range.sheetId]!;
 
       if (!isZoneValid(range.zone)) {
-        throw new Error(_lt("Invalid reference"));
+        throw new Error(_lt("Invalid range: %s", evalContext.getters.getRangeString(range)));
       }
 
       // Return an array with undefined if the range is totally outside of the sheet rather than trying
