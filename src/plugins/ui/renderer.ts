@@ -90,20 +90,20 @@ export class RendererPlugin extends UIPlugin {
    * It returns -1 if no column is found.
    */
   getColIndex(x: number, offsetLeft: number, sheet?: Sheet): number {
-    if (x < HEADER_WIDTH) {
+    if (x < 0) {
       return -1;
     }
     const cols = (sheet || this.getters.getActiveSheet()).cols;
-    const adjustedX = x - HEADER_WIDTH + offsetLeft + 1;
+    const adjustedX = x + offsetLeft + 1;
     return searchIndex(cols, adjustedX);
   }
 
   getRowIndex(y: number, offsetTop: number, sheet?: Sheet): number {
-    if (y < HEADER_HEIGHT) {
+    if (y < 0) {
       return -1;
     }
     const rows = (sheet || this.getters.getActiveSheet()).rows;
-    const adjustedY = y - HEADER_HEIGHT + offsetTop + 1;
+    const adjustedY = y + offsetTop + 1;
     return searchIndex(rows, adjustedY);
   }
 
@@ -139,11 +139,11 @@ export class RendererPlugin extends UIPlugin {
     const { width } = this.getters.getViewportDimension();
     const { width: gridWidth } = this.getters.getGridDimension(sheet);
     const { left, offsetX } = this.getters.getActiveViewport();
-    if (x < HEADER_WIDTH && left > 0) {
+    if (x < 0 && left > 0) {
       canEdgeScroll = true;
       direction = -1;
-      delay = scrollDelay(HEADER_WIDTH - x);
-    } else if (x > width + HEADER_WIDTH && offsetX < gridWidth - width) {
+      delay = scrollDelay(-x);
+    } else if (x > width && offsetX < gridWidth - width) {
       canEdgeScroll = true;
       direction = +1;
       delay = scrollDelay(x - width);
@@ -159,11 +159,11 @@ export class RendererPlugin extends UIPlugin {
     const { height } = this.getters.getViewportDimension();
     const { height: gridHeight } = this.getters.getGridDimension(this.getters.getActiveSheet());
     const { top, offsetY } = this.getters.getActiveViewport();
-    if (y < HEADER_HEIGHT && top > 0) {
+    if (y < 0 && top > 0) {
       canEdgeScroll = true;
       direction = -1;
-      delay = scrollDelay(HEADER_HEIGHT - y);
-    } else if (y > height + HEADER_HEIGHT && offsetY < gridHeight - height) {
+      delay = scrollDelay(-y);
+    } else if (y > height && offsetY < gridHeight - height) {
       canEdgeScroll = true;
       direction = +1;
       delay = scrollDelay(y - height);
@@ -248,9 +248,9 @@ export class RendererPlugin extends UIPlugin {
     ctx.beginPath();
     ctx.strokeStyle = HEADER_BORDER_COLOR;
     ctx.moveTo(offsetX, offsetY);
-    ctx.lineTo(width, offsetY);
+    ctx.lineTo(offsetX + width, offsetY);
     ctx.moveTo(offsetX, offsetY);
-    ctx.lineTo(offsetX, height);
+    ctx.lineTo(offsetX, offsetY + height);
     ctx.stroke();
   }
 

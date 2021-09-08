@@ -3,6 +3,7 @@ import { AUTOFILL_EDGE_LENGTH } from "../constants";
 import { clip } from "../helpers/misc";
 import { SpreadsheetEnv } from "../types";
 import { startDnd } from "./helpers/drag_and_drop";
+import { gridCanvasPosition } from "./helpers/position_hook";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -115,8 +116,8 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
         left: ev.clientX - start.left,
         top: ev.clientY - start.top,
       };
-      const parent = this.el!.parentElement! as HTMLElement;
-      const position = parent.getBoundingClientRect();
+      // const parent = this.el!.parentElement! as HTMLElement;
+      const position = gridCanvasPosition();
       const { offsetX, offsetY } = this.env.getters.getActiveViewport();
       const col = this.env.getters.getColIndex(ev.clientX - position.left, offsetX);
       const row = this.env.getters.getRowIndex(ev.clientY - position.top, offsetY);

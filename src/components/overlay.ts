@@ -63,8 +63,6 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
 
   abstract _getElement(index: number): Col | Row;
 
-  abstract _getHeaderSize(): number;
-
   abstract _getMaxSize(): number;
 
   abstract _updateSize(): void;
@@ -102,11 +100,11 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
       elementIndex !== this._getViewportOffset()
     ) {
       this.state.resizerIsActive = true;
-      this.state.draggerLinePosition = element.start - offset - this._getHeaderSize();
+      this.state.draggerLinePosition = element.start - offset;
       this.state.activeElement = this._getPreviousVisibleElement(elementIndex);
     } else if (element.end - offset - position < this.PADDING) {
       this.state.resizerIsActive = true;
-      this.state.draggerLinePosition = element.end - offset - this._getHeaderSize();
+      this.state.draggerLinePosition = element.end - offset;
       this.state.activeElement = elementIndex;
     } else {
       this.state.resizerIsActive = false;
@@ -197,7 +195,7 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
     const startElement = this._getElement(this._getSelectedZoneStart());
     const endElement = this._getElement(this._getSelectedZoneEnd());
     const initialPosition = this._getClientPosition(ev);
-    const defaultPosition = startElement.start - this._getStateOffset() - this._getHeaderSize();
+    const defaultPosition = startElement.start - this._getStateOffset();
     this.state.draggerLinePosition = defaultPosition;
     this.state.base = this._getSelectedZoneStart();
     this.state.draggerShadowPosition = defaultPosition;
@@ -206,7 +204,7 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
       if (elementIndex >= 0) {
         // define draggerLinePosition
         const element = this._getElement(elementIndex);
-        const offset = this._getStateOffset() + this._getHeaderSize();
+        const offset = this._getStateOffset();
         if (elementIndex <= this._getSelectedZoneStart()) {
           this.state.draggerLinePosition = element.start - offset;
           this.state.base = elementIndex;
@@ -413,11 +411,11 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getEvOffset(ev: MouseEvent): number {
-    return ev.offsetX + HEADER_WIDTH;
+    return ev.offsetX;
   }
 
   _getStateOffset(): number {
-    return this.getters.getActiveViewport().offsetX - HEADER_WIDTH;
+    return this.getters.getActiveViewport().offsetX;
   }
 
   _getViewportOffset(): number {
@@ -455,10 +453,6 @@ export class ColResizer extends AbstractResizer {
 
   _getBottomRightValue(element: Col): number {
     return element.end;
-  }
-
-  _getHeaderSize(): number {
-    return HEADER_WIDTH;
   }
 
   _getMaxSize(): number {
@@ -546,7 +540,7 @@ export class ColResizer extends AbstractResizer {
   unhideStyleValue(hiddenIndex: number): number {
     const col = this.getters.getCol(this.getters.getActiveSheetId(), hiddenIndex);
     const offset = this._getStateOffset();
-    return col!.start - offset - this._getHeaderSize();
+    return col!.start - offset;
   }
 }
 
@@ -649,11 +643,11 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getEvOffset(ev: MouseEvent): number {
-    return ev.offsetY + HEADER_HEIGHT;
+    return ev.offsetY;
   }
 
   _getStateOffset(): number {
-    return this.getters.getActiveViewport().offsetY - HEADER_HEIGHT;
+    return this.getters.getActiveViewport().offsetY;
   }
 
   _getViewportOffset(): number {
@@ -687,10 +681,6 @@ export class RowResizer extends AbstractResizer {
 
   _getElement(index: number): Row {
     return this.getters.getRow(this.getters.getActiveSheetId(), index)!;
-  }
-
-  _getHeaderSize(): number {
-    return HEADER_HEIGHT;
   }
 
   _getMaxSize(): number {
@@ -778,7 +768,7 @@ export class RowResizer extends AbstractResizer {
   unhideStyleValue(hiddenIndex: number): number {
     const row = this.getters.getRow(this.getters.getActiveSheetId(), hiddenIndex);
     const offset = this._getStateOffset();
-    return row!.start - offset - this._getHeaderSize();
+    return row!.start - offset;
   }
 }
 

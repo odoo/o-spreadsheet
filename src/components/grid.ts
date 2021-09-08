@@ -194,7 +194,7 @@ const TEMPLATE = xml/* xml */ `
         tabindex="-1"
         t-on-contextmenu="onCanvasContextMenu"
         />
-    
+        </div>
     <t t-foreach="getters.getClientsToDisplay()" t-as="client" t-key="getClientPositionKey(client)">
       <ClientTag name="client.name"
                  color="client.color"
@@ -245,7 +245,7 @@ const TEMPLATE = xml/* xml */ `
       t-on-close.stop="menuState.isOpen=false"/>
     <t t-set="gridSize" t-value="getters.getGridDimension(getters.getActiveSheet())"/>
     <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" t-on-figure-deleted="focus" />
-    </div>
+
   </div>`;
 
 // -----------------------------------------------------------------------------
@@ -540,6 +540,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
   mounted() {
     this.props.model.on("tabouret", this, (ev: Offsets) => {
+      console.log("in model Tabouret");
       this.moveCanvas({ offsetX: ev.offsetX, offsetY: ev.offsetY });
     });
     this.focus();
@@ -583,6 +584,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
   }
 
   tabouret(ev: MoveCanvasEvent) {
+    console.log("in tabouret");
     this.moveCanvas({ offsetX: ev.detail.offsetX, offsetY: ev.detail.offsetY });
   }
 
@@ -735,7 +737,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
    * Get the coordinates in pixels, with 0,0 being the top left of the grid itself
    */
   getCoordinates(ev: MouseEvent): [number, number] {
-    const rect = this.el!.getBoundingClientRect();
+    const rect = this.gridCanvasContainer.el!.getBoundingClientRect();
     const x = ev.pageX - rect.left;
     const y = ev.pageY - rect.top;
     return [x, y];

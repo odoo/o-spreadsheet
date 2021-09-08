@@ -1,5 +1,6 @@
 import { Component } from "@odoo/owl";
 import { SpreadsheetEnv } from "../../types/env";
+import { gridCanvasPosition } from "./position_hook";
 type EventFn = (ev: MouseEvent) => void;
 
 export function startDnd(onMouseMove: EventFn, onMouseUp: EventFn) {
@@ -7,6 +8,7 @@ export function startDnd(onMouseMove: EventFn, onMouseUp: EventFn) {
     onMouseUp(ev);
     window.removeEventListener("mouseup", _onMouseUp);
     window.removeEventListener("dragstart", _onDragStart);
+    // window.removeEventListener("drag", _onDragStart);
     window.removeEventListener("mousemove", onMouseMove);
   };
   function _onDragStart(ev: DragEvent) {
@@ -15,6 +17,7 @@ export function startDnd(onMouseMove: EventFn, onMouseUp: EventFn) {
 
   window.addEventListener("mouseup", _onMouseUp);
   window.addEventListener("dragstart", _onDragStart);
+  // window.addEventListener("drag", _onDragStart);
   window.addEventListener("mousemove", onMouseMove);
 }
 
@@ -38,11 +41,13 @@ export function dragAndDropBeyondTheViewport(
   let currentEv: MouseEvent;
 
   const onMouseMove = (ev: MouseEvent) => {
+    ev.preventDefault();
+    ev.stopPropagation();
     currentEv = ev;
     if (timeOutId) {
       return;
     }
-    const position = element.getBoundingClientRect();
+    const position = gridCanvasPosition();
 
     const offsetX = currentEv.clientX - position.left;
     const offsetY = currentEv.clientY - position.top;
@@ -71,7 +76,7 @@ export function dragAndDropBeyondTheViewport(
       rowIndex = env.getters.getRowIndex(offsetY, viewportOffsetY);
     }
 
-    console.log("drag & drop", colIndex, rowIndex);
+    // console.log("drag & drop", colIndex, rowIndex);
     cbMouseMove(colIndex, rowIndex);
 
     // TODO: mettre les conditions ensemble, c'est du code dupliqué et ça trigger 2 rendus au lieu d'un seul

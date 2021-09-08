@@ -14,6 +14,15 @@ function spreadsheetPosition() {
   return { top: 0, left: 0 };
 }
 
+export function gridCanvasPosition() {
+  const gridCanvasElement = document.querySelector(".o-grid-canvas");
+  if (gridCanvasElement) {
+    const { top, left } = gridCanvasElement?.getBoundingClientRect();
+    return { top, left };
+  }
+  return { top: 0, left: 0 };
+}
+
 /**
  * Return the component (or ref's component) top left position (in pixels) relative
  * to the upper left corner of the spreadsheet.

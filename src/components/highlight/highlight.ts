@@ -3,11 +3,12 @@ import { useState } from "@odoo/owl";
 import { clip, isEqual } from "../../helpers";
 import { SpreadsheetEnv, Zone } from "../../types";
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
+import { gridCanvasPosition } from "../helpers/position_hook";
 import { Border } from "./border";
 import { Corner } from "./corner";
 
 const { Component } = owl;
-const { xml } = owl.tags;
+const { xml, css } = owl.tags;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-highlight">
@@ -31,6 +32,12 @@ const TEMPLATE = xml/* xml */ `
   </div>
 `;
 
+const CSS = css/* scss */ `
+  .o-highlight {
+    z-index: 5;
+  }
+`;
+
 interface Props {
   zone: Zone;
   color: string;
@@ -41,6 +48,7 @@ interface HighlightState {
 }
 export class Highlight extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
+  static style = CSS;
   static components = {
     Corner,
     Border,
@@ -108,7 +116,8 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
     const z = this.props.zone;
 
     const parent = this.el!.parentElement! as HTMLElement;
-    const position = parent.getBoundingClientRect();
+    // const position = parent.getBoundingClientRect();
+    const position = gridCanvasPosition();
     const activeSheet = this.env.getters.getActiveSheet();
     const { offsetX: viewportLeft, offsetY: viewportTop } = this.env.getters.getActiveViewport();
 
@@ -127,7 +136,7 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
     let lastCol = initCol;
     let lastRow = initRow;
 
-    console.log("init", initCol, initRow);
+    // console.log("init", initCol, initRow);
     const mouseMove = (col, row) => {
       if (lastCol !== col || lastRow !== row) {
         lastCol = col === -1 ? lastCol : col;
@@ -145,7 +154,7 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
         newZone = this.env.getters.expandZone(activeSheet.id, newZone);
 
         if (!isEqual(newZone, currentZone)) {
-          console.log(newZone.top);
+          // console.log(newZone.top);
           this.env.dispatch("CHANGE_HIGHLIGHT", { zone: newZone });
           currentZone = newZone;
         }
