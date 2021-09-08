@@ -151,6 +151,7 @@ export class Spreadsheet extends Component<Props> {
       getters: this.model.getters,
       uuidGenerator: this.model.uuidGenerator,
       _t: Spreadsheet._t,
+      modelBusTrigger: this.model.trigger.bind(this.model),
       clipboard: navigator.clipboard,
       export: this.model.exportData.bind(this.model),
       waitForIdle: this.model.waitForIdle.bind(this.model),

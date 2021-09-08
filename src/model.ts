@@ -441,10 +441,14 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     // context.viewport = this.getters.getActiveViewport(); //snaped one
     for (let [renderer, layer] of this.renderers) {
       // context.forEach((context) => context.ctx.save());
-      // context[0].ctx.save();
+      context.grid.ctx.save();
+      context.columns.ctx.save();
+      context.rows.ctx.save();
       renderer.drawGrid(context, layer);
       // context.forEach((context) => context.ctx.restore());
-      // context[0].ctx.restore();
+      context.grid.ctx.restore();
+      context.columns.ctx.restore();
+      context.rows.ctx.restore();
     }
   }
 

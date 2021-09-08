@@ -187,7 +187,10 @@ const TEMPLATE = xml/* xml */ `
     </t>
     <canvas tabindex="-1" t-ref="columnsCanvas" class="o-columns-canvas"/>
     <canvas tabindex="-1" t-ref="rowsCanvas" class="o-rows-canvas" />
+    <t t-set="gridSize" t-value="getters.getGridDimension(getters.getActiveSheet())"/>
     <div class="o-grid-canvas" t-ref="gridCanvasContainer" t-on-scroll="onScroll">
+    <div t-attf-style="height:1px;width:{{gridSize.width}}px;top:0px;position:absolute;"/>
+    <div t-attf-style="width:1px;height:{{gridSize.height}}px;left:0px;position:absolute;"/>
       <canvas t-ref="gridCanvas"
         t-on-mousedown="onMouseDown"
         t-on-dblclick="onDoubleClick"
@@ -243,7 +246,6 @@ const TEMPLATE = xml/* xml */ `
       menuItems="menuState.menuItems"
       position="menuState.position"
       t-on-close.stop="menuState.isOpen=false"/>
-    <t t-set="gridSize" t-value="getters.getGridDimension(getters.getActiveSheet())"/>
     <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" t-on-figure-deleted="focus" />
 
   </div>`;
@@ -258,7 +260,7 @@ const CSS = css/* scss */ `
     background-color: ${BACKGROUND_GRAY_COLOR};
 
     .o-grid-canvas {
-      position: absolute;
+      position: relative;
       left: ${HEADER_WIDTH}px;
       top: ${HEADER_HEIGHT}px;
       overflow: scroll;
@@ -633,7 +635,11 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
     canvas.width = width * dpr;
     canvas.height = height * dpr;
-    canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
+
+    canvas.setAttribute(
+      "style",
+      `width:${width}px;height:${height}px;left:${viewport.offsetX}px;top:${viewport.offsetY}px`
+    );
     // ctx.translate(-0.5, -0.5);
     ctx.scale(dpr, dpr);
 

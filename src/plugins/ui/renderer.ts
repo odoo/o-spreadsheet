@@ -433,12 +433,14 @@ export class RendererPlugin extends UIPlugin {
 
     // Border line
     ctx.beginPath();
-    ctx.strokeStyle = HEADER_BORDER_COLOR;
+    ctx.strokeStyle = "green";
     ctx.moveTo(lineOffset, 0);
     ctx.lineTo(lineOffset, HEADER_HEIGHT);
     ctx.moveTo(0, HEADER_HEIGHT);
     ctx.lineTo(ctx.canvas.clientWidth, HEADER_HEIGHT);
     ctx.stroke();
+
+    ctx.strokeStyle = HEADER_BORDER_COLOR;
 
     ctx.beginPath();
     // column text + separator
