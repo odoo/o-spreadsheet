@@ -72,6 +72,7 @@ export interface ModelConfig {
   isHeadless: boolean;
   isReadonly: boolean;
   snapshotRequested: boolean;
+  trigger: (eventType: string, ...args: any[]) => void;
 }
 
 const enum Status {
@@ -294,6 +295,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       isHeadless: config.mode === "headless" || false,
       isReadonly: config.mode === "readonly" || false,
       snapshotRequested: false,
+      trigger: this.trigger.bind(this),
     };
   }
 
@@ -423,7 +425,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * canvas and need to draw the grid on it.  This is then done by calling this
    * method, which will dispatch the call to all registered plugins.
    *
-   * Note that nothing prevent multiple grid components from calling this method
+   * Note that nothing prevents multiple grid components from calling this method
    * each, or one grid component calling it multiple times with a different
    * context. This is probably the way we should do if we want to be able to
    * freeze a part of the grid (so, we would need to render different zones)
@@ -431,7 +433,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   drawGrid(context: GridRenderingContext) {
     // we make sure here that the viewport is properly positioned: the offsets
     // correspond exactly to a cell
-    context.viewport = this.getters.getActiveSnappedViewport(); //snaped one
+    // context.viewport = this.getters.getActiveViewport(); //snaped one
     for (let [renderer, layer] of this.renderers) {
       context.ctx.save();
       renderer.drawGrid(context, layer);

@@ -73,7 +73,7 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
       top: row,
       bottom: row,
     });
-    this.rect = this.getters.getRect(this.zone, this.getters.getActiveSnappedViewport());
+    this.rect = this.getters.getRect(this.zone, this.getters.getActiveViewport());
   }
 
   get containerStyle(): string {

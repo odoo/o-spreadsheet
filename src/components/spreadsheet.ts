@@ -143,6 +143,7 @@ export class Spreadsheet extends Component<Props> {
       export: this.model.exportData.bind(this.model),
       waitForIdle: this.model.waitForIdle.bind(this.model),
       exportXLSX: this.model.exportXLSX.bind(this.model),
+      modelBusTrigger: this.model.trigger.bind(this.model),
     });
     useExternalListener(window as any, "resize", this.render);
     useExternalListener(document.body, "cut", this.copy.bind(this, true));

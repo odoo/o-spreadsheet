@@ -294,11 +294,11 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getStateOffset(): number {
-    return this.getters.getActiveSnappedViewport().offsetX - HEADER_WIDTH;
+    return this.getters.getActiveViewport().offsetX - HEADER_WIDTH;
   }
 
   _getViewportOffset(): number {
-    return this.getters.getActiveSnappedViewport().left;
+    return this.getters.getActiveViewport().left;
   }
 
   _getClientPosition(ev: MouseEvent): number {
@@ -306,7 +306,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getElementIndex(index: number): number {
-    return this.getters.getColIndex(index, this.getters.getActiveSnappedViewport().left);
+    return this.getters.getColIndex(index, this.getters.getActiveViewport().offsetX);
   }
 
   _getEdgeScroll(position: number): EdgeScrollInfo {
@@ -314,7 +314,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getBoundaries(): { first: number; last: number } {
-    const { left, right } = this.getters.getActiveSnappedViewport();
+    const { left, right } = this.getters.getActiveViewport();
     return { first: left, last: right };
   }
 
@@ -355,7 +355,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _adjustViewport(direction: number): void {
-    const { left, offsetY } = this.getters.getActiveSnappedViewport();
+    const { left, offsetY } = this.getters.getActiveViewport();
     const { cols } = this.getters.getActiveSheet();
     const offsetX = cols[left + direction].start;
     this.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
@@ -483,11 +483,11 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getStateOffset(): number {
-    return this.getters.getActiveSnappedViewport().offsetY - HEADER_HEIGHT;
+    return this.getters.getActiveViewport().offsetY - HEADER_HEIGHT;
   }
 
   _getViewportOffset(): number {
-    return this.getters.getActiveSnappedViewport().top;
+    return this.getters.getActiveViewport().top;
   }
 
   _getClientPosition(ev: MouseEvent): number {
@@ -495,7 +495,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getElementIndex(index: number): number {
-    return this.getters.getRowIndex(index, this.getters.getActiveSnappedViewport().top);
+    return this.getters.getRowIndex(index, this.getters.getActiveViewport().offsetY);
   }
 
   _getEdgeScroll(position: number): EdgeScrollInfo {
@@ -503,7 +503,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getBoundaries(): { first: number; last: number } {
-    const { top, bottom } = this.getters.getActiveSnappedViewport();
+    const { top, bottom } = this.getters.getActiveViewport();
     return { first: top, last: bottom };
   }
 
@@ -540,7 +540,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _adjustViewport(direction: number): void {
-    const { top, offsetX } = this.getters.getActiveSnappedViewport();
+    const { top, offsetX } = this.getters.getActiveViewport();
     const { rows } = this.getters.getActiveSheet();
     const offsetY = rows[top + direction].start;
     this.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });

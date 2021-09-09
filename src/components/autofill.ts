@@ -117,9 +117,9 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
       };
       const parent = this.el!.parentElement! as HTMLElement;
       const position = parent.getBoundingClientRect();
-      const { top: viewportTop, left: viewportLeft } = this.env.getters.getActiveSnappedViewport();
-      const col = this.env.getters.getColIndex(ev.clientX - position.left, viewportLeft);
-      const row = this.env.getters.getRowIndex(ev.clientY - position.top, viewportTop);
+      const { offsetX, offsetY } = this.env.getters.getActiveViewport();
+      const col = this.env.getters.getColIndex(ev.clientX - position.left, offsetX);
+      const row = this.env.getters.getRowIndex(ev.clientY - position.top, offsetY);
       if (lastCol !== col || lastRow !== row) {
         const activeSheet = this.env.getters.getActiveSheet();
         lastCol = col === -1 ? lastCol : clip(col, 0, activeSheet.cols.length);

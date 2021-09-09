@@ -50,7 +50,7 @@ export class ClientTag extends Component<ClientTagProps, SpreadsheetEnv> {
 
   get tagStyle(): string {
     const { col, row, color } = this.props;
-    const viewport = this.env.getters.getActiveSnappedViewport();
+    const viewport = this.env.getters.getActiveViewport();
     const { height } = this.env.getters.getViewportDimension();
     const [x, y, ,] = this.env.getters.getRect(
       { left: col, top: row, right: col, bottom: row },

@@ -482,14 +482,14 @@ export function findCellInNewZone(
   } else if (right != oldRight) {
     col = right;
   } else {
-    col = viewport.left;
+    col = left;
   }
   if (top != oldTop) {
     row = top;
   } else if (bottom != oldBottom) {
     row = bottom;
   } else {
-    row = viewport.top;
+    row = top;
   }
   return [col, row];
 }
