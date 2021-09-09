@@ -150,6 +150,9 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "MOVE_SHEET",
   "RENAME_SHEET",
 
+  /** RANGES MANIPULATION */
+  "MOVE_RANGES",
+
   /** CONDITIONAL FORMAT */
   "ADD_CONDITIONAL_FORMAT",
   "REMOVE_CONDITIONAL_FORMAT",
@@ -309,6 +312,23 @@ export interface MoveSheetCommand extends BaseCommand, SheetDependentCommand {
 export interface RenameSheetCommand extends BaseCommand, SheetDependentCommand {
   type: "RENAME_SHEET";
   name?: string;
+}
+
+//------------------------------------------------------------------------------
+// Ranges Manipulation
+//------------------------------------------------------------------------------
+
+/**
+ * Command created in order to apply a translational movement for all references
+ * to cells/ranges within a specific zone.
+ * Command particularly useful during CUT / PATE.
+ */
+export interface MoveRangeCommand extends BaseCommand, SheetDependentCommand {
+  type: "MOVE_RANGES";
+  targetSheetId: string;
+  zone: Zone;
+  col: number;
+  row: number;
 }
 
 //------------------------------------------------------------------------------
@@ -881,6 +901,9 @@ export type CoreCommand =
   | MoveSheetCommand
   | RenameSheetCommand
 
+  /** RANGES MANIPULATION */
+  | MoveRangeCommand
+
   /** CONDITIONAL FORMAT */
   | AddConditionalFormatCommand
   | RemoveConditionalFormatCommand
@@ -1029,7 +1052,9 @@ export const enum CommandResult {
   InvalidAnchorZone,
   SelectionOutOfBound,
   TargetOutOfSheet,
+  WrongCutSelection,
   WrongPasteSelection,
+  WrongPasteOption,
   EmptyClipboard,
   EmptyRange,
   InvalidRange,

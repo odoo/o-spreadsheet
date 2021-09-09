@@ -3,6 +3,7 @@ import {
   createAdaptedZone,
   getComposerSheetName,
   groupConsecutive,
+  isZoneInside,
   numberToLetters,
   rangeReference,
   toZoneWithoutBoundaryChanges,
@@ -148,6 +149,23 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         });
         break;
       }
+      case "MOVE_RANGES": {
+        this.executeOnAllRanges((range: Range) => {
+          if (range.sheetId !== cmd.sheetId || !isZoneInside(range.zone, cmd.zone)) {
+            return { changeType: "NONE" };
+          }
+          const targetSheetId = cmd.targetSheetId;
+          const offsetX = cmd.col - cmd.zone.left;
+          const offsetY = cmd.row - cmd.zone.top;
+          const adaptedRange = this.createAdaptedRange(range, "both", "MOVE", [offsetX, offsetY]);
+          const prefixSheet = cmd.sheetId === targetSheetId ? adaptedRange.prefixSheet : true;
+          return {
+            changeType: "MOVE",
+            range: { ...adaptedRange, sheetId: targetSheetId, prefixSheet },
+          };
+        });
+        break;
+      }
     }
   }
 
@@ -174,11 +192,11 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     };
   }
 
-  private createAdaptedRange(
+  private createAdaptedRange<Dimension extends "columns" | "rows" | "both">(
     range: Range,
-    dimension: "columns" | "rows",
+    dimension: Dimension,
     operation: "MOVE" | "RESIZE",
-    by: number
+    by: Dimension extends "both" ? [number, number] : number
   ) {
     return {
       ...range,

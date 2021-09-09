@@ -250,9 +250,12 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     if (this.model.getters.getEditionMode() !== "inactive") {
       return;
     }
-    const type = cut ? "CUT" : "COPY";
     const target = this.model.getters.getSelectedZones();
-    this.model.dispatch(type, { target });
+    if (cut) {
+      this.model.dispatch("CUT", { target, interactive: true });
+    } else {
+      this.model.dispatch("COPY", { target });
+    }
     const content = this.model.getters.getClipboardContent();
     this.clipBoardString = content;
     ev.clipboardData!.setData("text/plain", content);

@@ -18,6 +18,7 @@
 
 - [composer](spreadsheet.md#composer)
 - [grid](spreadsheet.md#grid)
+- [linkEditor](spreadsheet.md#linkeditor)
 - [model](spreadsheet.md#model)
 - [sidePanel](spreadsheet.md#sidepanel)
 - [\_t](spreadsheet.md#_t)
@@ -32,6 +33,7 @@
 
 ### Methods
 
+- [closeLinkEditor](spreadsheet.md#closelinkeditor)
 - [copy](spreadsheet.md#copy)
 - [destroy](spreadsheet.md#destroy)
 - [focusGrid](spreadsheet.md#focusgrid)
@@ -41,6 +43,7 @@
 - [onKeydown](spreadsheet.md#onkeydown)
 - [onKeyup](spreadsheet.md#onkeyup)
 - [onTopBarComposerFocused](spreadsheet.md#ontopbarcomposerfocused)
+- [openLinkEditor](spreadsheet.md#openlinkeditor)
 - [openSidePanel](spreadsheet.md#opensidepanel)
 - [paste](spreadsheet.md#paste)
 - [save](spreadsheet.md#save)
@@ -74,6 +77,18 @@ ___
 ### grid
 
 • **grid**: *Ref*<Component<any, Env\>\>
+
+___
+
+### linkEditor
+
+• **linkEditor**: *object*
+
+#### Type declaration:
+
+Name | Type |
+:------ | :------ |
+`isOpen` | *boolean* |
 
 ___
 
@@ -125,6 +140,7 @@ Name | Type |
 :------ | :------ |
 `BottomBar` | *typeof* BottomBar |
 `Grid` | *typeof* Grid |
+`LinkEditor` | *typeof* LinkEditor |
 `SidePanel` | *typeof* SidePanel |
 `TopBar` | *typeof* TopBar |
 
@@ -157,6 +173,14 @@ ___
 **Returns:** *inactive* \| *contentFocus*
 
 ## Methods
+
+### closeLinkEditor
+
+▸ **closeLinkEditor**(): *void*
+
+**Returns:** *void*
+
+___
 
 ### copy
 
@@ -262,6 +286,14 @@ ___
 Name | Type |
 :------ | :------ |
 `ev` | ComposerFocusedEvent |
+
+**Returns:** *void*
+
+___
+
+### openLinkEditor
+
+▸ **openLinkEditor**(): *void*
 
 **Returns:** *void*
 

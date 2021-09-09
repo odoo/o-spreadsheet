@@ -140,6 +140,7 @@ describe("Menu Item actions", () => {
     doAction(["edit", "cut"], env);
     expect(env.dispatch).toHaveBeenCalledWith("CUT", {
       target: env.getters.getSelectedZones(),
+      interactive: true,
     });
     expect(env.clipboard.writeText).toHaveBeenCalledWith(env.getters.getClipboardContent());
   });
@@ -164,6 +165,16 @@ describe("Menu Item actions", () => {
       interactive: true,
       target: [{ bottom: 0, left: 0, right: 0, top: 0 }],
     });
+  });
+
+  test("Edit -> paste_special should be hidden after a CUT ", () => {
+    model.dispatch("CUT", { target: env.getters.getSelectedZones() });
+    expect(getNode(["edit", "paste_special"]).isVisible(env)).toBeFalsy();
+  });
+
+  test("Edit -> paste_special should not be hidden after a COPY ", () => {
+    model.dispatch("COPY", { target: env.getters.getSelectedZones() });
+    expect(getNode(["edit", "paste_special"]).isVisible(env)).toBeTruthy();
   });
 
   test("Edit -> paste_special -> paste_special_value", () => {

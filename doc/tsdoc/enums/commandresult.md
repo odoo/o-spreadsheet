@@ -56,6 +56,8 @@
 - [WaitingSessionConfirmation](commandresult.md#waitingsessionconfirmation)
 - [WillRemoveExistingMerge](commandresult.md#willremoveexistingmerge)
 - [WrongComposerSelection](commandresult.md#wrongcomposerselection)
+- [WrongCutSelection](commandresult.md#wrongcutselection)
+- [WrongPasteOption](commandresult.md#wrongpasteoption)
 - [WrongPasteSelection](commandresult.md#wrongpasteselection)
 - [WrongSheetMove](commandresult.md#wrongsheetmove)
 - [WrongSheetPosition](commandresult.md#wrongsheetposition)
@@ -82,19 +84,19 @@ ___
 
 ### EmptyClipboard
 
-• **EmptyClipboard**: = 18
+• **EmptyClipboard**: = 20
 
 ___
 
 ### EmptyDataSet
 
-• **EmptyDataSet**: = 25
+• **EmptyDataSet**: = 27
 
 ___
 
 ### EmptyRange
 
-• **EmptyRange**: = 19
+• **EmptyRange**: = 21
 
 ___
 
@@ -112,7 +114,7 @@ ___
 
 ### FirstArgMissing
 
-• **FirstArgMissing**: = 34
+• **FirstArgMissing**: = 36
 
 ___
 
@@ -124,7 +126,7 @@ ___
 
 ### InputAlreadyFocused
 
-• **InputAlreadyFocused**: = 22
+• **InputAlreadyFocused**: = 24
 
 ___
 
@@ -136,79 +138,79 @@ ___
 
 ### InvalidAutofillSelection
 
-• **InvalidAutofillSelection**: = 28
+• **InvalidAutofillSelection**: = 30
 
 ___
 
 ### InvalidChartDefinition
 
-• **InvalidChartDefinition**: = 24
+• **InvalidChartDefinition**: = 26
 
 ___
 
 ### InvalidDataSet
 
-• **InvalidDataSet**: = 26
+• **InvalidDataSet**: = 28
 
 ___
 
 ### InvalidLabelRange
 
-• **InvalidLabelRange**: = 27
+• **InvalidLabelRange**: = 29
 
 ___
 
 ### InvalidOffset
 
-• **InvalidOffset**: = 51
+• **InvalidOffset**: = 53
 
 ___
 
 ### InvalidRange
 
-• **InvalidRange**: = 20
+• **InvalidRange**: = 22
 
 ___
 
 ### InvalidSheetId
 
-• **InvalidSheetId**: = 21
+• **InvalidSheetId**: = 23
 
 ___
 
 ### InvalidSortZone
 
-• **InvalidSortZone**: = 46
+• **InvalidSortZone**: = 48
 
 ___
 
 ### InvalidViewportSize
 
-• **InvalidViewportSize**: = 52
+• **InvalidViewportSize**: = 54
 
 ___
 
 ### LowerBiggerThanUpper
 
-• **LowerBiggerThanUpper**: = 31
+• **LowerBiggerThanUpper**: = 33
 
 ___
 
 ### MaxInvalidFormula
 
-• **MaxInvalidFormula**: = 43
+• **MaxInvalidFormula**: = 45
 
 ___
 
 ### MaxNaN
 
-• **MaxNaN**: = 38
+• **MaxNaN**: = 40
 
 ___
 
 ### MaximumRangesReached
 
-• **MaximumRangesReached**: = 23
+• **MaximumRangesReached**: = 25
 
 ___
 
@@ -220,49 +222,49 @@ ___
 
 ### MergeOverlap
 
-• **MergeOverlap**: = 48
+• **MergeOverlap**: = 50
 
 ___
 
 ### MidBiggerThanMax
 
-• **MidBiggerThanMax**: = 32
+• **MidBiggerThanMax**: = 34
 
 ___
 
 ### MidInvalidFormula
 
-• **MidInvalidFormula**: = 42
+• **MidInvalidFormula**: = 44
 
 ___
 
 ### MidNaN
 
-• **MidNaN**: = 37
+• **MidNaN**: = 39
 
 ___
 
 ### MinBiggerThanMax
 
-• **MinBiggerThanMax**: = 30
+• **MinBiggerThanMax**: = 32
 
 ___
 
 ### MinBiggerThanMid
 
-• **MinBiggerThanMid**: = 33
+• **MinBiggerThanMid**: = 35
 
 ___
 
 ### MinInvalidFormula
 
-• **MinInvalidFormula**: = 41
+• **MinInvalidFormula**: = 43
 
 ___
 
 ### MinNaN
 
-• **MinNaN**: = 36
+• **MinNaN**: = 38
 
 ___
 
@@ -286,13 +288,13 @@ ___
 
 ### Readonly
 
-• **Readonly**: = 50
+• **Readonly**: = 52
 
 ___
 
 ### SecondArgMissing
 
-• **SecondArgMissing**: = 35
+• **SecondArgMissing**: = 37
 
 ___
 
@@ -316,37 +318,37 @@ ___
 
 ### TooManyHiddenElements
 
-• **TooManyHiddenElements**: = 49
+• **TooManyHiddenElements**: = 51
 
 ___
 
 ### ValueLowerInflectionNaN
 
-• **ValueLowerInflectionNaN**: = 40
+• **ValueLowerInflectionNaN**: = 42
 
 ___
 
 ### ValueLowerInvalidFormula
 
-• **ValueLowerInvalidFormula**: = 45
+• **ValueLowerInvalidFormula**: = 47
 
 ___
 
 ### ValueUpperInflectionNaN
 
-• **ValueUpperInflectionNaN**: = 39
+• **ValueUpperInflectionNaN**: = 41
 
 ___
 
 ### ValueUpperInvalidFormula
 
-• **ValueUpperInvalidFormula**: = 44
+• **ValueUpperInvalidFormula**: = 46
 
 ___
 
 ### WaitingSessionConfirmation
 
-• **WaitingSessionConfirmation**: = 47
+• **WaitingSessionConfirmation**: = 49
 
 ___
 
@@ -358,13 +360,25 @@ ___
 
 ### WrongComposerSelection
 
-• **WrongComposerSelection**: = 29
+• **WrongComposerSelection**: = 31
+
+___
+
+### WrongCutSelection
+
+• **WrongCutSelection**: = 17
+
+___
+
+### WrongPasteOption
+
+• **WrongPasteOption**: = 19
 
 ___
 
 ### WrongPasteSelection
 
-• **WrongPasteSelection**: = 17
+• **WrongPasteSelection**: = 18
 
 ___
 
