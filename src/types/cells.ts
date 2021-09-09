@@ -46,6 +46,7 @@ export interface ICell {
 export interface FormulaCell extends ICell {
   assignValue: (value: CellValue) => void;
   assignError: (value: string, errorMessage: string) => void;
+  startEvaluation: () => void;
   readonly normalizedText: string;
   readonly compiledFormula: CompiledFormula;
   readonly dependencies: Range[];

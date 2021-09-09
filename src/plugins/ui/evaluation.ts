@@ -130,14 +130,16 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   private evaluate(sheetId: UID) {
-    this.evaluateCells(makeObjectIterator(this.getters.getCells(sheetId)), sheetId);
-  }
-
-  private evaluateCells(cells: Generator<Cell>, sheetId: string) {
+    const cells = this.getters.getCells(sheetId);
     const params = this.getFormulaParameters(computeValue);
     const visited: { [sheetId: string]: { [xc: string]: boolean | null } } = {};
+    for (let cell of makeObjectIterator(cells)) {
+      if (isFormula(cell)) {
+        cell.startEvaluation();
+      }
+    }
 
-    for (let cell of cells) {
+    for (let cell of makeObjectIterator(cells)) {
       computeValue(cell, sheetId);
     }
 

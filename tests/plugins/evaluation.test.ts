@@ -1,5 +1,6 @@
 import { args, functionRegistry } from "../../src/functions";
 import { Model } from "../../src/model";
+import { CellValueType } from "../../src/types";
 import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellError } from "../test_helpers/getters_helpers";
 import { evaluateCell, evaluateGrid, target } from "../test_helpers/helpers";
@@ -1007,5 +1008,23 @@ describe("evaluate formula getter", () => {
     resetAllMocks();
     setCellContent(model, "A2", "1");
     expect(mockCompute).toHaveBeenCalledTimes(1);
+  });
+
+  test("cells in error are correctly reset", () => {
+    let value: string | number = "LOADING...";
+    functionRegistry.add("GETVALUE", {
+      description: "Get value",
+      compute: () => value,
+      args: args(``),
+      returns: ["ANY"],
+    });
+    setCellContent(model, "A1", "=SUM(A2)");
+    setCellContent(model, "A2", "=-GETVALUE()");
+    expect(getCell(model, "A1")!.evaluated.type).toBe(CellValueType.error);
+    expect(getCell(model, "A1")!.evaluated.type).toBe(CellValueType.error);
+    value = 2;
+    model.dispatch("EVALUATE_CELLS", { sheetId: model.getters.getActiveSheetId() });
+    expect(getCell(model, "A1")!.evaluated.value).toBe(-2);
+    expect(getCell(model, "A1")!.evaluated.value).toBe(-2);
   });
 });
