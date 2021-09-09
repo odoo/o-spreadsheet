@@ -426,20 +426,21 @@ export function positions(zone: Zone): [number, number][] {
   return positions;
 }
 
-export function createAdaptedZone(
+export function createAdaptedZone<Dimension extends "columns" | "rows" | "both">(
   zone: Zone,
-  dimension: "columns" | "rows",
+  dimension: Dimension,
   operation: "MOVE" | "RESIZE",
-  by: number
+  by: Dimension extends "both" ? [number, number] : number
 ): Zone {
-  const start: "left" | "top" = dimension === "columns" ? "left" : "top";
-  const end: "right" | "bottom" = dimension === "columns" ? "right" : "bottom";
-
+  const offsetX = dimension === "both" ? by[0] : dimension === "columns" ? by : 0;
+  const offsetY = dimension === "both" ? by[1] : dimension === "rows" ? by : 0;
   const newZone = { ...zone };
   if (operation === "MOVE") {
-    newZone[start] += by;
+    newZone["left"] += offsetX;
+    newZone["top"] += offsetY;
   }
-  newZone[end] += by;
+  newZone["right"] += offsetX;
+  newZone["bottom"] += offsetY;
   return newZone;
 }
 

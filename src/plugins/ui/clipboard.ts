@@ -1,6 +1,6 @@
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { formatValue } from "../../helpers/cells/index";
-import { clip, overlap } from "../../helpers/index";
+import { clip } from "../../helpers/index";
 import { Mode } from "../../model";
 import { _lt } from "../../translation";
 import {
@@ -14,7 +14,6 @@ import {
   GridRenderingContext,
   isCoreCommand,
   LAYERS,
-  Range,
   Sheet,
   UID,
   Zone,
@@ -44,7 +43,7 @@ interface ClipboardState {
  */
 export class ClipboardPlugin extends UIPlugin {
   static layers = [LAYERS.Clipboard];
-  static getters = ["getClipboardContent", "isPaintingFormat"];
+  static getters = ["getClipboardContent", "getClipboardOperation", "isPaintingFormat"];
   static modes: Mode[] = ["normal"];
 
   private status: "visible" | "invisible" = "invisible";
@@ -57,17 +56,20 @@ export class ClipboardPlugin extends UIPlugin {
 
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
+      case "CUT":
+        return this.isCutAllowed(cmd.target);
       case "PASTE":
-        return this.isPasteAllowed(this.state, cmd.target, !!cmd.force);
+        const pasteOption = cmd.pasteOption || (this._isPaintingFormat ? "onlyFormat" : undefined);
+        return this.isPasteAllowed(this.state, cmd.target, pasteOption, !!cmd.force);
       case "INSERT_CELL": {
         const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
         const state = this.getClipboardState(cut, "CUT");
-        return this.isPasteAllowed(state, paste, false);
+        return this.isPasteAllowed(state, paste);
       }
       case "DELETE_CELL": {
         const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
         const state = this.getClipboardState(cut, "CUT");
-        return this.isPasteAllowed(state, paste, false);
+        return this.isPasteAllowed(state, paste);
       }
     }
     return CommandResult.Success;
@@ -76,19 +78,27 @@ export class ClipboardPlugin extends UIPlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "COPY":
-      case "CUT":
         this.state = this.getClipboardState(cmd.target, cmd.type);
         this.status = "visible";
+        break;
+      case "CUT":
+        if (cmd.interactive) {
+          const cmdResult = this.isCutAllowed(cmd.target);
+          this.interactiveCommand(cmdResult, cmd);
+        } else {
+          this.state = this.getClipboardState(cmd.target, cmd.type);
+          this.status = "visible";
+        }
         break;
       case "PASTE":
         if (!this.state) {
           break;
         }
-        const pasteOption: ClipboardOptions | undefined =
-          cmd.pasteOption || (this._isPaintingFormat ? "onlyFormat" : undefined);
+        const pasteOption = cmd.pasteOption || (this._isPaintingFormat ? "onlyFormat" : undefined);
         this._isPaintingFormat = false;
         if (cmd.interactive) {
-          this.interactivePaste(this.state, cmd.target, cmd);
+          const cmdResult = this.isPasteAllowed(this.state, cmd.target, pasteOption);
+          this.interactiveCommand(cmdResult, cmd);
         } else {
           this.selectPastedZone(this.state, cmd.target);
           this.paste(this.state, cmd.target, pasteOption);
@@ -99,7 +109,8 @@ export class ClipboardPlugin extends UIPlugin {
         const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
         const state = this.getClipboardState(cut, "CUT");
         if (cmd.interactive) {
-          this.interactivePaste(state, paste, cmd);
+          const cmdResult = this.isPasteAllowed(state, paste);
+          this.interactiveCommand(cmdResult, cmd);
         } else {
           this.paste(state, paste);
         }
@@ -109,7 +120,8 @@ export class ClipboardPlugin extends UIPlugin {
         const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
         const state = this.getClipboardState(cut, "CUT");
         if (cmd.interactive) {
-          this.interactivePaste(state, paste, cmd);
+          const cmdResult = this.isPasteAllowed(state, paste);
+          this.interactiveCommand(cmdResult, cmd);
         } else {
           this.paste(state, paste);
         }
@@ -162,6 +174,10 @@ export class ClipboardPlugin extends UIPlugin {
     );
   }
 
+  getClipboardOperation(): ClipboardOperation | undefined {
+    return this.state?.operation;
+  }
+
   isPaintingFormat(): boolean {
     return this._isPaintingFormat;
   }
@@ -169,6 +185,25 @@ export class ClipboardPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Private methods
   // ---------------------------------------------------------------------------
+
+  private interactiveCommand(cmdResult: CommandResult, cmd: Command) {
+    switch (cmdResult) {
+      case CommandResult.Success:
+        this.dispatch(cmd.type, { ...cmd, interactive: false });
+        break;
+      case CommandResult.WrongPasteSelection:
+      case CommandResult.WrongCutSelection:
+        this.ui.notifyUser(_lt("This operation is not allowed with multiple selections."));
+        break;
+      case CommandResult.WillRemoveExistingMerge:
+        this.ui.notifyUser(
+          _lt(
+            "This operation is not possible due to a merge. Please remove the merges first than try again."
+          )
+        );
+        break;
+    }
+  }
 
   private getDeleteCellsTargets(zone: Zone, dimension: Dimension): InsertDeleteCellsTargets {
     const sheet = this.getters.getActiveSheet();
@@ -360,14 +395,26 @@ export class ClipboardPlugin extends UIPlugin {
     });
   }
 
+  private isCutAllowed(target: Zone[]) {
+    if (target.length !== 1) {
+      return CommandResult.WrongCutSelection;
+    }
+    return CommandResult.Success;
+  }
+
   private isPasteAllowed(
     state: ClipboardState | undefined,
     target: Zone[],
-    force: boolean
+    pasteOption: ClipboardOptions | undefined = undefined,
+    force: boolean = false
   ): CommandResult {
     const sheetId = this.getters.getActiveSheetId();
     if (!state) {
       return CommandResult.EmptyClipboard;
+    }
+    // cannot paste only format or only value if the previous operation is a CUT
+    if (state.operation === "CUT" && pasteOption !== undefined) {
+      return CommandResult.WrongPasteOption;
     }
     if (target.length > 1) {
       // cannot paste if we have a clipped zone larger than a cell and multiple
@@ -390,21 +437,22 @@ export class ClipboardPlugin extends UIPlugin {
    * Paste the clipboard content in the given target
    */
   private paste(state: ClipboardState, target: Zone[], options?: ClipboardOptions) {
-    if (state.operation === "CUT") {
-      this.clearClippedZones(state);
-    }
-    if (target.length > 1) {
-      for (const zone of target) {
-        for (let col = zone.left; col <= zone.right; col++) {
-          for (let row = zone.top; row <= zone.bottom; row++) {
-            this.pasteZone(state, col, row, options);
-          }
-        }
-      }
+    if (state.operation === "COPY") {
+      this.pasteFromCopy(state, target, options);
     } else {
+      this.pasteFromCut(state, target);
+    }
+  }
+
+  private pasteFromCopy(state: ClipboardState, target: Zone[], options?: ClipboardOptions) {
+    if (target.length === 1) {
+      // in this specific case, due to the isPasteAllowed function:
+      // state.cells can contains several cells.
+      // So if the target zone is larger than the copied zone,
+      // we duplicate each cells as many times as possible to fill the zone.
+      const selection = target[0];
       const height = state.cells.length;
       const width = state.cells[0].length;
-      const selection = target[0];
       const repX = Math.max(1, Math.floor((selection.right + 1 - selection.left) / width));
       const repY = Math.max(1, Math.floor((selection.bottom + 1 - selection.top) / height));
       for (let x = 0; x < repX; x++) {
@@ -412,12 +460,46 @@ export class ClipboardPlugin extends UIPlugin {
           this.pasteZone(state, selection.left + x * width, selection.top + y * height, options);
         }
       }
+    } else {
+      // in this case, due to the isPasteAllowed function: state.cells contains
+      // only one cell
+      for (const zone of target) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            this.pasteZone(state, col, row, options);
+          }
+        }
+      }
     }
+  }
 
-    if (state.operation === "CUT") {
-      this.dispatch("REMOVE_MERGE", { sheetId: state.sheetId, target: state.merges });
-      this.state = undefined;
-    }
+  private pasteFromCut(state: ClipboardState, target: Zone[]) {
+    this.clearClippedZones(state);
+    const selection = target[0];
+    /**
+     * The paste from a "CUT" operation involve (for all the formulas of each cell
+     * present on all sheets) the updating of the references of the cells (or
+     * the ranges) which have been cut. For these reasons we only paste the cutting
+     * zone once, even if the target contains more than one zone or a zone larger
+     * than the cutting zone.
+     */
+    this.pasteZone(state, selection.left, selection.top);
+    /**
+     * Precision on updating references: if ranges dimensions exceed those of the
+     * cut zone, these references must not be updated. For this reason, the update
+     * of the references cannot be done during the "pasteCell" function because
+     * we lack information to validate this case. A new command "MOVE_RANGE" was
+     * therefore created to perform this job.
+     */
+    this.dispatch("MOVE_RANGES", {
+      sheetId: state.sheetId,
+      targetSheetId: this.getters.getActiveSheetId(),
+      zone: state.zones[0],
+      col: selection.left,
+      row: selection.top,
+    });
+    this.dispatch("REMOVE_MERGE", { sheetId: state.sheetId, target: state.merges });
+    this.state = undefined;
   }
 
   /**
@@ -429,9 +511,22 @@ export class ClipboardPlugin extends UIPlugin {
     const selection = target[0];
     const col = selection.left;
     const row = selection.top;
-    const repX = Math.max(1, Math.floor((selection.right + 1 - selection.left) / width));
-    const repY = Math.max(1, Math.floor((selection.bottom + 1 - selection.top) / height));
-    if (height > 1 || width > 1) {
+
+    if (state.operation === "CUT") {
+      const newSelection = {
+        left: col,
+        top: row,
+        right: col + width - 1,
+        bottom: row + height - 1,
+      };
+      this.dispatch("SET_SELECTION", {
+        anchor: [col, row],
+        zones: [newSelection],
+        anchorZone: newSelection,
+      });
+    } else if (height > 1 || width > 1) {
+      const repX = Math.max(1, Math.floor((selection.right + 1 - selection.left) / width));
+      const repY = Math.max(1, Math.floor((selection.bottom + 1 - selection.top) / height));
       const newSelection = {
         left: col,
         top: row,
@@ -489,7 +584,7 @@ export class ClipboardPlugin extends UIPlugin {
         const position = { col: col + c, row: row + r, sheetId: sheet.id };
         this.removeMergeIfTopLeft(position);
         this.pasteMergeIfExist(origin.position, position);
-        this.pasteCell(origin, position, state.operation, state.zones, pasteOption);
+        this.pasteCell(origin, position, state.operation, pasteOption);
         if (shouldPasteCF) {
           this.dispatch("PASTE_CONDITIONAL_FORMAT", {
             origin: origin.position,
@@ -542,7 +637,6 @@ export class ClipboardPlugin extends UIPlugin {
     origin: ClipboardCell,
     target: CellPosition,
     operation: ClipboardOperation,
-    zones: Zone[],
     pasteOption?: ClipboardOptions
   ) {
     const { sheetId, col, row } = target;
@@ -571,7 +665,7 @@ export class ClipboardPlugin extends UIPlugin {
       if (origin.cell.isFormula()) {
         const offsetX = col - origin.position.col;
         const offsetY = row - origin.position.row;
-        content = this.getUpdatedContent(sheetId, origin.cell, offsetX, offsetY, zones, operation);
+        content = this.getUpdatedContent(sheetId, origin.cell, offsetX, offsetY, operation);
       }
       this.dispatch("UPDATE_CELL", {
         ...target,
@@ -598,48 +692,13 @@ export class ClipboardPlugin extends UIPlugin {
     cell: FormulaCell,
     offsetX: number,
     offsetY: number,
-    zones: Zone[],
     operation: ClipboardOperation
   ): string {
     if (operation === "CUT") {
-      const ranges: Range[] = [];
-      for (const range of cell.dependencies) {
-        if (this.isZoneOverlapClippedZone(zones, range.zone)) {
-          ranges.push(...this.getters.createAdaptedRanges([range], offsetX, offsetY, sheetId));
-        } else {
-          ranges.push(range);
-        }
-      }
-      return this.getters.buildFormulaContent(sheetId, cell.normalizedText, ranges);
+      return this.getters.buildFormulaContent(sheetId, cell.normalizedText, cell.dependencies);
     }
     const ranges = this.getters.createAdaptedRanges(cell.dependencies, offsetX, offsetY, sheetId);
     return this.getters.buildFormulaContent(sheetId, cell.normalizedText, ranges);
-  }
-
-  /**
-   * Check if the given zone and at least one of the clipped zones overlap
-   */
-  private isZoneOverlapClippedZone(zones: Zone[], zone: Zone): boolean {
-    return zones.some((clippedZone) => overlap(zone, clippedZone));
-  }
-
-  private interactivePaste(state: ClipboardState, target: Zone[], cmd: Command) {
-    const result = this.isPasteAllowed(state, target, false);
-
-    if (result !== CommandResult.Success) {
-      if (result === CommandResult.WrongPasteSelection) {
-        this.ui.notifyUser(_lt("This operation is not allowed with multiple selections."));
-      }
-      if (result === CommandResult.WillRemoveExistingMerge) {
-        this.ui.notifyUser(
-          _lt(
-            "This operation is not possible due to a merge. Please remove the merges first than try again."
-          )
-        );
-      }
-    } else {
-      this.dispatch(cmd.type, { ...cmd, interactive: false });
-    }
   }
 
   // ---------------------------------------------------------------------------

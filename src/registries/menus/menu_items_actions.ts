@@ -57,7 +57,7 @@ export const COPY_ACTION = async (env: SpreadsheetEnv) => {
 };
 
 export const CUT_ACTION = async (env: SpreadsheetEnv) => {
-  env.dispatch("CUT", { target: env.getters.getSelectedZones() });
+  env.dispatch("CUT", { target: env.getters.getSelectedZones(), interactive: true });
   await env.clipboard.writeText(env.getters.getClipboardContent());
 };
 
@@ -103,6 +103,10 @@ export const SET_GRID_LINES_VISIBILITY_ACTION = (env: SpreadsheetEnv) => {
     sheetId,
     areGridLinesVisible: !env.getters.getGridLinesVisibility(sheetId),
   });
+};
+
+export const IS_NOT_CUT_OPERATION = (env: SpreadsheetEnv): boolean => {
+  return env.getters.getClipboardOperation() !== "CUT";
 };
 
 //------------------------------------------------------------------------------
