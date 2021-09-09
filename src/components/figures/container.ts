@@ -164,7 +164,7 @@ export class FiguresContainer extends Component<{ sidePanelIsOpen: Boolean }, Sp
 
   getStyle(info: FigureInfo) {
     const { figure, isSelected } = info;
-    const { offsetX, offsetY } = this.getters.getActiveSnappedViewport();
+    const { offsetX, offsetY } = this.getters.getActiveViewport();
     const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
     const { width, height } = target;
     let x = target.x - offsetX + HEADER_WIDTH - 1;

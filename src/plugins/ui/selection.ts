@@ -433,7 +433,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   getVisibleFigures(sheetId: UID): Figure[] {
     const result: Figure[] = [];
     const figures = this.getters.getFigures(sheetId);
-    const { offsetX, offsetY } = this.getters.getSnappedViewport(sheetId);
+    const { offsetX, offsetY } = this.getters.getViewport(sheetId);
     const { width, height } = this.getters.getViewportDimension();
     for (let figure of figures) {
       if (figure.x >= offsetX + width || figure.x + figure.width <= offsetX) {

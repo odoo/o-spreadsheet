@@ -25,18 +25,11 @@ interface ViewportPluginState {
  *     to align elements to the grid.
  */
 export class ViewportPlugin extends UIPlugin {
-  static getters = [
-    "getActiveViewport",
-    "getSnappedViewport",
-    "getActiveSnappedViewport",
-    "getViewportDimension",
-    "getGridDimension",
-  ];
+  static getters = ["getActiveViewport", "getViewport", "getViewportDimension", "getGridDimension"];
   static modes: Mode[] = ["normal"];
 
   readonly viewports: ViewportPluginState["viewports"] = {};
-  readonly snappedViewports: ViewportPluginState["viewports"] = {};
-  private updateSnap: boolean = false;
+
   /**
    * The viewport dimensions (clientWidth and clientHeight) are usually set by one of the components
    * (i.e. when grid component is mounted) to properly reflect its state in the DOM.
@@ -70,10 +63,12 @@ export class ViewportPlugin extends UIPlugin {
       case "REDO":
         this.cleanViewports();
         this.resetViewports();
+        this._scroll(this.getters.getActiveSheetId());
         break;
       case "RESIZE_VIEWPORT":
         this.cleanViewports();
         this.resizeViewport(cmd.height, cmd.width);
+        this._scroll(this.getters.getActiveSheetId());
         break;
       case "SET_VIEWPORT_OFFSET":
         this.setViewportOffset(cmd.offsetX, cmd.offsetY);
@@ -86,6 +81,7 @@ export class ViewportPlugin extends UIPlugin {
         } else {
           this.adjustViewportOffsetY(cmd.sheetId, this.getViewport(cmd.sheetId));
         }
+        this._scroll(cmd.sheetId);
         break;
       case "ADD_COLUMNS_ROWS":
       case "UNHIDE_COLUMNS_ROWS":
@@ -94,21 +90,18 @@ export class ViewportPlugin extends UIPlugin {
         } else {
           this.adjustViewportZoneY(cmd.sheetId, this.getViewport(cmd.sheetId));
         }
+        this._scroll(cmd.sheetId);
         break;
       case "ACTIVATE_SHEET":
         this.refreshViewport(cmd.sheetIdTo);
+        this._scroll(cmd.sheetIdTo);
         break;
       case "SELECT_CELL":
       case "MOVE_POSITION":
-        this.refreshViewport(this.getters.getActiveSheetId());
+        const sheetId = this.getters.getActiveSheetId();
+        this.refreshViewport(sheetId);
+        this._scroll(sheetId);
         break;
-    }
-  }
-
-  finalize() {
-    if (this.updateSnap) {
-      this.snapViewportToCell(this.getters.getActiveSheetId());
-      this.updateSnap = false;
     }
   }
 
@@ -123,11 +116,6 @@ export class ViewportPlugin extends UIPlugin {
   getActiveViewport(): Viewport {
     const sheetId = this.getters.getActiveSheetId();
     return this.getViewport(sheetId);
-  }
-
-  getActiveSnappedViewport(): Viewport {
-    const sheetId = this.getters.getActiveSheetId();
-    return this.getSnappedViewport(sheetId);
   }
 
   getGridDimension(sheet: Sheet): ZoneDimension {
@@ -153,9 +141,27 @@ export class ViewportPlugin extends UIPlugin {
     return { width, height };
   }
 
+  getViewport(sheetId: UID): Viewport {
+    if (!this.viewports[sheetId]) {
+      const viewport = this.generateViewportState(sheetId);
+      this.adjustViewportZone(sheetId, viewport);
+      this.adjustViewportsPosition(sheetId);
+    }
+    return this.viewports[sheetId];
+  }
+
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
+
+  /**
+   * Broadcasts the expected viewport scroll value following the alteration of a sheet structure.
+   * Meant to be caught by the rendering side to synchronize.
+   */
+  private _scroll(sheetId: UID) {
+    const { offsetX, offsetY } = this.getViewport(sheetId);
+    this.ui.modelBus.trigger("set-scrollbar-values", { offsetX, offsetY });
+  }
 
   private checkOffsetValidity(offsetX: number, offsetY: number): CommandResult {
     const { width, height } = this.getters.getGridDimension(this.getters.getActiveSheet());
@@ -168,18 +174,6 @@ export class ViewportPlugin extends UIPlugin {
       return CommandResult.InvalidOffset;
     }
     return CommandResult.Success;
-  }
-
-  private getSnappedViewport(sheetId: UID) {
-    this.snapViewportToCell(sheetId);
-    return this.snappedViewports[sheetId];
-  }
-
-  private getViewport(sheetId: UID): Viewport {
-    if (!this.viewports[sheetId]) {
-      return this.generateViewportState(sheetId);
-    }
-    return this.viewports[sheetId];
   }
 
   /** gets rid of deprecated sheetIds */
@@ -201,7 +195,7 @@ export class ViewportPlugin extends UIPlugin {
   }
 
   /** Corrects the viewport's horizontal offset based on the current structure
-   *  To make sure that at least on column is visible inside the viewport.
+   *  To make sure that at least one column is visible inside the viewport.
    */
   private adjustViewportOffsetX(sheetId: UID, viewport: Viewport) {
     const { offsetX } = viewport;
@@ -214,7 +208,7 @@ export class ViewportPlugin extends UIPlugin {
   }
 
   /** Corrects the viewport's vertical offset based on the current structure
-   *  To make sure that at least on row is visible inside the viewport.
+   *  To make sure that at least one row is visible inside the viewport.
    */
   private adjustViewportOffsetY(sheetId: UID, viewport: Viewport) {
     const { offsetY } = viewport;
@@ -283,7 +277,6 @@ export class ViewportPlugin extends UIPlugin {
         break;
       }
     }
-    this.updateSnap = true;
   }
 
   /** Updates the viewport zone based on its vertical offset (will find Top) and its width (will find Bottom) */
@@ -299,7 +292,6 @@ export class ViewportPlugin extends UIPlugin {
         break;
       }
     }
-    this.updateSnap = true;
   }
 
   /**
@@ -312,7 +304,7 @@ export class ViewportPlugin extends UIPlugin {
   private adjustViewportsPosition(sheetId: UID, position?: [number, number]) {
     const sheet = this.getters.getSheet(sheetId);
     const { cols, rows } = sheet;
-    const adjustedViewport = this.getSnappedViewport(sheetId);
+    const adjustedViewport = this.getViewport(sheetId);
     position = position || this.getters.getSheetPosition(sheetId);
     const [col, row] = getNextVisibleCellCoords(
       sheet,
@@ -348,24 +340,5 @@ export class ViewportPlugin extends UIPlugin {
       adjustedViewport.offsetY = rows[adjustedViewport.top - 1 - step].start;
       this.adjustViewportZoneY(sheetId, adjustedViewport);
     }
-    // cast the new snappedViewport in the standard viewport
-    const { top, left } = this.viewports[sheetId];
-    if (top !== adjustedViewport.top || left !== adjustedViewport.left)
-      this.viewports[sheetId] = adjustedViewport;
-    this.updateSnap = false;
-  }
-
-  /** Will update the snapped viewport based on the "standard" viewport to ensure its
-   * offsets match the start of the viewport left (resp. top) column (resp. row). */
-  private snapViewportToCell(sheetId: UID) {
-    const { cols, rows } = this.getters.getSheet(sheetId);
-    const viewport = this.getViewport(sheetId);
-    const adjustedViewport = Object.assign({}, viewport);
-    this.adjustViewportOffsetX(sheetId, adjustedViewport);
-    this.adjustViewportOffsetY(sheetId, adjustedViewport);
-    adjustedViewport.offsetX = cols[adjustedViewport.left].start;
-    adjustedViewport.offsetY = rows[adjustedViewport.top].start;
-    this.adjustViewportZone(sheetId, adjustedViewport);
-    this.snappedViewports[sheetId] = adjustedViewport;
   }
 }

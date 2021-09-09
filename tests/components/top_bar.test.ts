@@ -55,7 +55,7 @@ class Parent extends Component<any, SpreadsheetEnv> {
   }
 
   mounted() {
-    this.model.on("update", this, this.render);
+    this.model.on("update", this, () => this.render());
   }
 
   willUnmount() {

@@ -64,7 +64,7 @@ class Parent extends Component<any> {
   }
 
   mounted() {
-    this.model.on("update", this, this.render);
+    this.model.on("update", this, () => this.render());
     this.render();
   }
 
@@ -98,7 +98,7 @@ class MultiParent extends Component<any> {
   }
 
   mounted() {
-    this.model.on("update", this, this.render);
+    this.model.on("update", this, () => this.render());
     this.render();
   }
 

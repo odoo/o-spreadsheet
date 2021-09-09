@@ -471,7 +471,7 @@ describe("renderer", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "C1", "1");
     model.drawGrid(ctx);
-    expect(textAligns).toEqual(["right", "left", "right", "right", "center"]); // A1-C1-A2:B2-C2:D2 and center for headers. C1 is stil lin overflow
+    expect(textAligns).toEqual(["right", "left", "right", "right", "center"]); // A1-C1-A2:B2-C2:D2 and center for headers. C1 is still in overflow
   });
 
   test("formulas in a merge, evaluating to a boolean are properly aligned", () => {

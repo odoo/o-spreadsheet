@@ -1,9 +1,9 @@
-import * as owl from "@odoo/owl";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { createEmptyExcelWorkbookData, createEmptyWorkbookData, load } from "./data";
 import { DataSourceRegistry } from "./data_source";
+import { ModelBus } from "./helpers/event_bus";
 import { DEBUG, UuidGenerator } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
 import { LocalHistory } from "./history/local_history";
@@ -75,6 +75,7 @@ export interface ModelConfig {
   isHeadless: boolean;
   isReadonly: boolean;
   snapshotRequested: boolean;
+  modelBus: ModelBus;
 }
 
 const enum Status {
@@ -85,7 +86,7 @@ const enum Status {
   Interactive,
 }
 
-export class Model extends owl.core.EventBus implements CommandDispatcher {
+export class Model extends ModelBus implements CommandDispatcher {
   private corePlugins: CorePlugin[] = [];
 
   private uiPlugins: UIPlugin[] = [];
@@ -304,6 +305,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       isReadonly: config.isReadonly || false,
       snapshotRequested: false,
       dataSources: this.dataSources,
+      modelBus: this,
     };
   }
 
@@ -428,7 +430,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * canvas and need to draw the grid on it.  This is then done by calling this
    * method, which will dispatch the call to all registered plugins.
    *
-   * Note that nothing prevent multiple grid components from calling this method
+   * Note that nothing prevents multiple grid components from calling this method
    * each, or one grid component calling it multiple times with a different
    * context. This is probably the way we should do if we want to be able to
    * freeze a part of the grid (so, we would need to render different zones)
@@ -436,7 +438,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   drawGrid(context: GridRenderingContext) {
     // we make sure here that the viewport is properly positioned: the offsets
     // correspond exactly to a cell
-    context.viewport = this.getters.getActiveSnappedViewport(); //snaped one
     for (let [renderer, layer] of this.renderers) {
       context.ctx.save();
       renderer.drawGrid(context, layer);

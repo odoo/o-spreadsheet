@@ -22,7 +22,15 @@ import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
-import { CellValueType, Client, Position, SpreadsheetEnv, Viewport } from "../types/index";
+import {
+  CellValueType,
+  Client,
+  Getters,
+  Offsets,
+  Position,
+  SpreadsheetEnv,
+  Viewport,
+} from "../types/index";
 import { Autofill } from "./autofill";
 import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
@@ -88,9 +96,9 @@ export function useCellHovered(env: SpreadsheetEnv, getViewPort: () => Viewport)
   let interval;
 
   function getPosition(): [number, number] {
-    const viewport = getViewPort();
-    const col = getters.getColIndex(x, viewport.left);
-    const row = getters.getRowIndex(y, viewport.top);
+    const { offsetX, offsetY } = getViewPort();
+    const col = getters.getColIndex(x, offsetX);
+    const row = getters.getRowIndex(y, offsetY);
     return [col, row];
   }
 
@@ -127,7 +135,7 @@ export function useCellHovered(env: SpreadsheetEnv, getViewPort: () => Viewport)
   return hoveredPosition;
 }
 
-function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMoveUp: () => boolean) {
+function useTouchMove(handler: (ev: Offsets) => void, canMoveUp: () => boolean, getters: Getters) {
   const canvasRef = useRef("canvas");
   let x = null as number | null;
   let y = null as number | null;
@@ -154,7 +162,8 @@ function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMove
     }
     const currentX = ev.touches[0].clientX;
     const currentY = ev.touches[0].clientY;
-    handler(x! - currentX, y! - currentY);
+    const { offsetX, offsetY } = getters.getActiveViewport();
+    handler({ offsetX: offsetX + x! - currentX, offsetY: offsetY + y! - currentY });
     x = currentX;
     y = currentY;
   }
@@ -330,7 +339,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
   private clickedCol = 0;
   private clickedRow = 0;
 
-  hoveredCell = useCellHovered(this.env, () => this.getters.getActiveSnappedViewport());
+  hoveredCell = useCellHovered(this.env, () => this.getters.getActiveViewport());
 
   get errorTooltip() {
     const { col, row } = this.hoveredCell;
@@ -342,7 +351,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     const cell = this.getters.getCell(sheetId, mainCol, mainRow);
 
     if (cell && cell.evaluated.type === CellValueType.error) {
-      const viewport = this.getters.getActiveSnappedViewport();
+      const viewport = this.getters.getActiveViewport();
       const [x, y, width] = this.getters.getRect(
         { left: col, top: row, right: col, bottom: row },
         viewport
@@ -367,7 +376,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
   get shouldDisplayLink(): boolean {
     const sheetId = this.getters.getActiveSheetId();
     const { col, row } = this.activeCellPosition;
-    const viewport = this.getters.getActiveSnappedViewport();
+    const viewport = this.getters.getActiveViewport();
     const cell = this.getters.getCell(sheetId, col, row);
     return (
       this.getters.isVisibleInViewport(col, row, viewport) &&
@@ -388,7 +397,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
       this.getters.getActiveSheetId(),
       ...this.getters.getPosition()
     );
-    const viewport = this.getters.getActiveSnappedViewport();
+    const viewport = this.getters.getActiveViewport();
     const [x, y, width, height] = this.getters.getRect(
       { left: col, top: row, right: col, bottom: row },
       viewport
@@ -515,15 +524,24 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     super(...arguments);
     this.vScrollbar = new ScrollBar(this.vScrollbarRef.el, "vertical");
     this.hScrollbar = new ScrollBar(this.hScrollbarRef.el, "horizontal");
-    useTouchMove(this.moveCanvas.bind(this), () => this.vScrollbar.scroll > 0);
+    useTouchMove(this.moveCanvas.bind(this), () => this.vScrollbar.scroll > 0, this.getters);
   }
 
   mounted() {
     this.vScrollbar.el = this.vScrollbarRef.el!;
     this.hScrollbar.el = this.hScrollbarRef.el!;
+    this.env.modelBus.on("set-scrollbar-values", this, (ev: Offsets) => {
+      this.moveCanvas(ev);
+    });
     this.focus();
     this.resizeGrid();
     this.drawGrid();
+    const { offsetX, offsetY } = this.getters.getActiveViewport();
+    this.moveCanvas({ offsetX, offsetY });
+  }
+
+  willUnmount() {
+    this.env.modelBus.off("set-scrollbar-values", this);
   }
 
   patched() {
@@ -556,6 +574,8 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
         offsetX: this.hScrollbar.scroll,
         offsetY: this.vScrollbar.scroll,
       });
+    } else {
+      this.render();
     }
   }
 
@@ -570,7 +590,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
   getAutofillPosition() {
     const zone = this.getters.getSelectedZone();
     const sheet = this.getters.getActiveSheet();
-    const { offsetX, offsetY } = this.getters.getActiveSnappedViewport();
+    const { offsetX, offsetY } = this.getters.getActiveViewport();
     return {
       left: sheet.cols[zone.right].end - AUTOFILL_EDGE_LENGTH / 2 + HEADER_WIDTH - offsetX,
       top: sheet.rows[zone.bottom].end - AUTOFILL_EDGE_LENGTH / 2 + HEADER_HEIGHT - offsetY,
@@ -578,10 +598,6 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
   }
 
   drawGrid() {
-    //reposition scrollbar
-    const { offsetX, offsetY } = this.getters.getActiveViewport();
-    this.hScrollbar.scroll = offsetX;
-    this.vScrollbar.scroll = offsetY;
     // check for position changes
     this.checkSheetChanges();
     // drawing grid on canvas
@@ -606,13 +622,9 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     this.props.model.drawGrid(renderingContext);
   }
 
-  private moveCanvas(deltaX, deltaY) {
-    this.vScrollbar.scroll = this.vScrollbar.scroll + deltaY;
-    this.hScrollbar.scroll = this.hScrollbar.scroll + deltaX;
-    this.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: this.hScrollbar.scroll,
-      offsetY: this.vScrollbar.scroll,
-    });
+  private moveCanvas(ev: Offsets) {
+    this.hScrollbar.scroll = ev.offsetX;
+    this.vScrollbar.scroll = ev.offsetY;
   }
 
   getClientPositionKey(client: Client) {
@@ -629,7 +641,10 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
     const deltaX = ev.shiftKey ? ev.deltaY : ev.deltaX;
     const deltaY = ev.shiftKey ? ev.deltaX : ev.deltaY;
-    this.moveCanvas(normalize(deltaX), normalize(deltaY));
+    this.moveCanvas({
+      offsetX: this.hScrollbar.scroll + normalize(deltaX),
+      offsetY: this.vScrollbar.scroll + normalize(deltaY),
+    });
   }
 
   isCellHovered(col: number, row: number): boolean {
@@ -652,9 +667,9 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
   getCartesianCoordinates(ev: MouseEvent): [number, number] {
     const [x, y] = this.getCoordinates(ev);
-    const { left, top } = this.getters.getActiveSnappedViewport();
-    const colIndex = this.getters.getColIndex(x, left);
-    const rowIndex = this.getters.getRowIndex(y, top);
+    const { offsetX, offsetY } = this.getters.getActiveViewport();
+    const colIndex = this.getters.getColIndex(x, offsetX);
+    const rowIndex = this.getters.getRowIndex(y, offsetY);
     return [colIndex, rowIndex];
   }
 
@@ -709,19 +724,19 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
       const colEdgeScroll = this.getters.getEdgeScrollCol(x);
       const rowEdgeScroll = this.getters.getEdgeScrollRow(y);
 
-      const { left, right, top, bottom } = this.getters.getActiveSnappedViewport();
+      const { left, right, top, bottom, offsetX, offsetY } = this.getters.getActiveViewport();
       let col: number, row: number;
       if (colEdgeScroll.canEdgeScroll) {
         col = colEdgeScroll.direction > 0 ? right : left - 1;
       } else {
-        col = this.getters.getColIndex(x, left);
+        col = this.getters.getColIndex(x, offsetX);
         col = col === -1 ? prevCol : col;
       }
 
       if (rowEdgeScroll.canEdgeScroll) {
         row = rowEdgeScroll.direction > 0 ? bottom : top - 1;
       } else {
-        row = this.getters.getRowIndex(y, top);
+        row = this.getters.getRowIndex(y, offsetY);
         row = row === -1 ? prevRow : row;
       }
 
@@ -740,7 +755,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
       if (isEdgeScrolling) {
         const offsetX = sheet.cols[left + colEdgeScroll.direction].start;
         const offsetY = sheet.rows[top + rowEdgeScroll.direction].start;
-        this.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
+        this.env.modelBus.trigger("set-scrollbar-values", { offsetX, offsetY });
         timeOutId = setTimeout(() => {
           timeOutId = null;
           onMouseMove(currentEv);
@@ -799,16 +814,19 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
       const oldZone = this.getters.getSelectedZone();
       this.dispatch("ALTER_SELECTION", { delta });
       const newZone = this.getters.getSelectedZone();
-      const viewport = this.getters.getActiveSnappedViewport();
+      const viewport = this.getters.getActiveViewport();
       const sheet = this.getters.getActiveSheet();
-      const [col, row] = findCellInNewZone(oldZone, newZone, viewport);
+      const [col, row] = findCellInNewZone(oldZone, newZone);
 
       const { left, right, top, bottom, offsetX, offsetY } = viewport;
       const newOffsetX =
         col < left || col > right - 1 ? sheet.cols[left + delta[0]].start : offsetX;
       const newOffsetY = row < top || row > bottom - 1 ? sheet.rows[top + delta[1]].start : offsetY;
       if (newOffsetX !== offsetX || newOffsetY !== offsetY) {
-        this.dispatch("SET_VIEWPORT_OFFSET", { offsetX: newOffsetX, offsetY: newOffsetY });
+        this.env.modelBus.trigger("set-scrollbar-values", {
+          offsetX: newOffsetX,
+          offsetY: newOffsetY,
+        });
       }
     } else {
       this.dispatch("MOVE_POSITION", { deltaX: delta[0], deltaY: delta[1] });

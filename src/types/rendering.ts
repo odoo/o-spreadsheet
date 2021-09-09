@@ -36,10 +36,12 @@ export interface GridDimension {
   height: number;
 }
 
-export interface Viewport extends Zone {
+export interface Offsets {
   offsetX: number;
   offsetY: number;
 }
+
+export interface Viewport extends Zone, Offsets {}
 
 export interface GridRenderingContext {
   ctx: CanvasRenderingContext2D;

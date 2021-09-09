@@ -30,3 +30,21 @@ export class EventBus<Event extends { type: string }> {
     this.bus.clear();
   }
 }
+
+interface SetScrollBarEvent {
+  type: "set-scrollbar-values";
+  offsetX: number;
+  offsetY: number;
+}
+
+interface ModelUpdateEvent {
+  type: "update";
+}
+
+interface UnexpectedCollaborativeRevision {
+  type: "unexpected-revision-id";
+}
+
+type ModelEvent = SetScrollBarEvent | ModelUpdateEvent | UnexpectedCollaborativeRevision;
+
+export class ModelBus extends EventBus<ModelEvent> {}

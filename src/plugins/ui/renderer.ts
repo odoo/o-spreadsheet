@@ -86,21 +86,21 @@ export class RendererPlugin extends UIPlugin {
    * Return the index of a column given an offset x and a visible left col index.
    * It returns -1 if no column is found.
    */
-  getColIndex(x: number, left: number, sheet?: Sheet): number {
+  getColIndex(x: number, offsetLeft: number, sheet?: Sheet): number {
     if (x < HEADER_WIDTH) {
       return -1;
     }
     const cols = (sheet || this.getters.getActiveSheet()).cols;
-    const adjustedX = x - HEADER_WIDTH + cols[left].start + 1;
+    const adjustedX = x - HEADER_WIDTH + offsetLeft + 1;
     return searchIndex(cols, adjustedX);
   }
 
-  getRowIndex(y: number, top: number, sheet?: Sheet): number {
+  getRowIndex(y: number, offsetTop: number, sheet?: Sheet): number {
     if (y < HEADER_HEIGHT) {
       return -1;
     }
     const rows = (sheet || this.getters.getActiveSheet()).rows;
-    const adjustedY = y - HEADER_HEIGHT + rows[top].start + 1;
+    const adjustedY = y - HEADER_HEIGHT + offsetTop + 1;
     return searchIndex(rows, adjustedY);
   }
 
@@ -131,7 +131,7 @@ export class RendererPlugin extends UIPlugin {
     let delay = 0;
     const { width } = this.getters.getViewportDimension();
     const { width: gridWidth } = this.getters.getGridDimension(this.getters.getActiveSheet());
-    const { left, offsetX } = this.getters.getActiveSnappedViewport();
+    const { left, offsetX } = this.getters.getActiveViewport();
     if (x < HEADER_WIDTH && left > 0) {
       canEdgeScroll = true;
       direction = -1;
@@ -151,7 +151,7 @@ export class RendererPlugin extends UIPlugin {
     let delay = 0;
     const { height } = this.getters.getViewportDimension();
     const { height: gridHeight } = this.getters.getGridDimension(this.getters.getActiveSheet());
-    const { top, offsetY } = this.getters.getActiveSnappedViewport();
+    const { top, offsetY } = this.getters.getActiveViewport();
     if (y < HEADER_HEIGHT && top > 0) {
       canEdgeScroll = true;
       direction = -1;
@@ -446,6 +446,12 @@ export class RendererPlugin extends UIPlugin {
       ctx.lineTo(HEADER_WIDTH, row.end - offsetY);
     }
 
+    ctx.stroke();
+
+    // draw over the text
+    ctx.beginPath();
+    ctx.fillStyle = BACKGROUND_HEADER_COLOR;
+    ctx.fillRect(0, 0, HEADER_WIDTH, HEADER_HEIGHT);
     ctx.stroke();
   }
 

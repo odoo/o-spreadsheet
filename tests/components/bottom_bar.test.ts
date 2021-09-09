@@ -33,7 +33,7 @@ class Parent extends Component<any, any> {
     this.model = model;
   }
   mounted() {
-    this.model.on("update", this, this.render);
+    this.model.on("update", this, () => this.render());
   }
 
   willUnmount() {

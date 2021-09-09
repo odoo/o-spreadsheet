@@ -47,7 +47,7 @@ export function dragAndDropBeyondTheViewport(
     const offsetY = currentEv.clientY - position.top;
     const edgeScrollInfoX = env.getters.getEdgeScrollCol(offsetX);
     const edgeScrollInfoY = env.getters.getEdgeScrollRow(offsetY);
-    const { top, left, bottom, right } = env.getters.getActiveSnappedViewport();
+    const { top, left, bottom, right } = env.getters.getActiveViewport();
 
     let colIndex: number;
     if (edgeScrollInfoX.canEdgeScroll) {
@@ -66,7 +66,7 @@ export function dragAndDropBeyondTheViewport(
     cbMouseMove(colIndex, rowIndex);
 
     if (edgeScrollInfoX.canEdgeScroll) {
-      const { left, offsetY } = env.getters.getActiveSnappedViewport();
+      const { left, offsetY } = env.getters.getActiveViewport();
       const { cols } = env.getters.getActiveSheet();
       const offsetX = cols[left + edgeScrollInfoX.direction].start;
       env.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
@@ -77,7 +77,7 @@ export function dragAndDropBeyondTheViewport(
     }
 
     if (edgeScrollInfoY.canEdgeScroll) {
-      const { top, offsetX } = env.getters.getActiveSnappedViewport();
+      const { top, offsetX } = env.getters.getActiveViewport();
       const { rows } = env.getters.getActiveSheet();
       const offsetY = rows[top + edgeScrollInfoY.direction].start;
       env.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });

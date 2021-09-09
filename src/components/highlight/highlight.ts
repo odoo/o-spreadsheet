@@ -107,7 +107,7 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
     const parent = this.el!.parentElement! as HTMLElement;
     const position = parent.getBoundingClientRect();
     const activeSheet = this.env.getters.getActiveSheet();
-    const { top: viewportTop, left: viewportLeft } = this.env.getters.getActiveSnappedViewport();
+    const { top: viewportTop, left: viewportLeft } = this.env.getters.getActiveViewport();
 
     const initCol = this.env.getters.getColIndex(ev.detail.clientX - position.left, viewportLeft);
     const initRow = this.env.getters.getRowIndex(ev.detail.clientY - position.top, viewportTop);

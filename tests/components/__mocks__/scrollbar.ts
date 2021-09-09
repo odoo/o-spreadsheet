@@ -14,5 +14,6 @@ export class ScrollBar {
 
   set scroll(value: number) {
     this.scrollValue = value;
+    this.el.dispatchEvent(new MouseEvent("scroll", { bubbles: true }));
   }
 }

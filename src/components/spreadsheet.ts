@@ -157,6 +157,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
       waitForIdle: this.model.waitForIdle.bind(this.model),
       exportXLSX: this.model.exportXLSX.bind(this.model),
       openLinkEditor: () => this.openLinkEditor(),
+      modelBus: this.model,
     });
     useExternalListener(window as any, "resize", this.render);
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
@@ -180,7 +181,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
   }
 
   mounted() {
-    this.model.on("update", this, this.render);
+    this.model.on("update", this, () => this.render());
     this.model.on("unexpected-revision-id", this, () => this.trigger("unexpected-revision-id"));
     if (this.props.client) {
       this.model.joinSession(this.props.client);
