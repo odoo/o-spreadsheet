@@ -1,10 +1,12 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
+import { DEFAULT_REVISION_ID } from "../../src/constants";
 import { args, functionRegistry } from "../../src/functions";
 import { DEBUG } from "../../src/helpers";
 import { SelectionMode } from "../../src/plugins/ui/selection";
 import { Client } from "../../src/types";
+import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, MockClipboard, nextTick, typeInComposer } from "../test_helpers/helpers";
@@ -351,5 +353,33 @@ describe("Composer interactions", () => {
     await nextTick();
     const sheets = document.querySelectorAll(".o-all-sheets .o-sheet");
     expect(sheets).toHaveLength(parent.model.getters.getVisibleSheets().length - 1);
+  });
+
+  test("The activate sheet is the sheet in first position, after replaying commands", async () => {
+    class Parent extends Component<any> {
+      static template = xml/* xml */ `<Spreadsheet t-ref="spreadsheet" data="data" stateUpdateMessages="stateUpdateMessages"/>`;
+      static components = { Spreadsheet };
+      private spreadsheet: any = useRef("spreadsheet");
+      readonly data: any = { sheets: [{ id: "1" }, { id: "2" }] };
+      readonly stateUpdateMessages: StateUpdateMessage[] = [
+        {
+          type: "REMOTE_REVISION",
+          version: 1,
+          serverRevisionId: DEFAULT_REVISION_ID,
+          nextRevisionId: "NEXT",
+          clientId: "alice",
+          commands: [{ type: "MOVE_SHEET", sheetId: "1", direction: "right" }],
+        },
+      ];
+
+      get model(): Model {
+        return this.spreadsheet.comp.model;
+      }
+    }
+
+    fixture = makeTestFixture();
+    const container = new Parent();
+    await container.mount(fixture);
+    expect(container.model.getters.getActiveSheetId()).toBe("2");
   });
 });
