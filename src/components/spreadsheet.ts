@@ -150,6 +150,7 @@ export class Spreadsheet extends Component<Props> {
     useExternalListener(document.body, "paste", this.paste);
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
     useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
+    this.activateFirstSheet();
   }
 
   get focusTopBarComposer(): boolean {
@@ -178,6 +179,14 @@ export class Spreadsheet extends Component<Props> {
   private leaveCollaborativeSession() {
     this.model.off("update", this);
     this.model.leaveSession();
+  }
+
+  private activateFirstSheet() {
+    const sheetId = this.model.getters.getActiveSheetId();
+    const [firstSheet] = this.model.getters.getSheets();
+    if (firstSheet.id !== sheetId) {
+      this.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: firstSheet.id });
+    }
   }
 
   destroy() {
