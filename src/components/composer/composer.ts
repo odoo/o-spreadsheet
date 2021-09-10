@@ -17,6 +17,8 @@ const functions = functionRegistry.content;
 
 const ASSISTANT_WIDTH = 300;
 
+export const COMPOSER_PADDING = 3;
+
 export const FunctionColor = "#4a4e4d";
 export const OperatorColor = "#3da4ab";
 export const StringColor = "#f6cd61";
@@ -98,8 +100,8 @@ const CSS = css/* scss */ `
     max-height: inherit;
     .o-composer {
       caret-color: black;
-      padding-left: 3px;
-      padding-right: 3px;
+      padding-left: ${COMPOSER_PADDING}px;
+      padding-right: ${COMPOSER_PADDING}px;
       word-break: break-all;
       &:focus {
         outline: none;
@@ -108,7 +110,6 @@ const CSS = css/* scss */ `
         pointer-events: none;
       }
       span {
-        white-space: pre;
         &.${SelectionIndicatorClass}:after {
           content: "${SelectionIndicator}";
           color: ${SelectionIndicatorColor};
