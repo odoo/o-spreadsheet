@@ -133,7 +133,7 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
         ? height - 2 * COMPOSER_BORDER_WIDTH
         : viewportHeight - 2 * COMPOSER_BORDER_WIDTH - top;
     return `
-    max-height: ${maxHeight - top}px;
+    max-height: ${maxHeight}px;
     min-width: ${composerMinWidth}px;
     max-width: ${maxWidth - left - 2 * COMPOSER_BORDER_WIDTH - 4}px;
     overflow: hidden;

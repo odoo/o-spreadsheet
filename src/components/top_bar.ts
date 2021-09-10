@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { BACKGROUND_HEADER_COLOR, DEFAULT_FONT_SIZE } from "../constants";
+import { BACKGROUND_HEADER_COLOR, DEFAULT_FONT_SIZE, SELECTION_BORDER_COLOR } from "../constants";
 import { fontSizes } from "../fonts";
 import { isEqual } from "../helpers/index";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../registries/index";
@@ -71,92 +71,93 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
         </div>
       </div>
       <!-- Toolbar and Cell Content -->
-      <div class="o-topbar-toolbar">
-        <!-- Toolbar -->
-        <div t-if="getters.isReadonly()" class="o-readonly-toolbar text-muted">
-          <span>
-            <i class="fa fa-eye" /> <t t-esc="env._t('Readonly Access')" />
-          </span>
-        </div>
-        <div t-else="" class="o-toolbar-tools">
-          <div class="o-tool" title="Undo" t-att-class="{'o-disabled': !undoTool}" t-on-click="undo" >${icons.UNDO_ICON}</div>
-          <div class="o-tool" t-att-class="{'o-disabled': !redoTool}" title="Redo"  t-on-click="redo">${icons.REDO_ICON}</div>
-          <div class="o-tool" title="Paint Format" t-att-class="{active:paintFormatTool}" t-on-click="paintFormat">${icons.PAINT_FORMAT_ICON}</div>
-          <div class="o-tool" title="Clear Format" t-on-click="clearFormatting()">${icons.CLEAR_FORMAT_ICON}</div>
-          <div class="o-divider"/>
-          <div class="o-tool" title="Format as percent" t-on-click="toogleFormat('percent')">%</div>
-          <div class="o-tool" title="Decrease decimal places" t-on-click="setDecimal(-1)">.0</div>
-          <div class="o-tool" title="Increase decimal places" t-on-click="setDecimal(+1)">.00</div>
-          <div class="o-tool o-dropdown" title="More formats" t-on-click="toggleDropdownTool('formatTool')">
-            <div class="o-text-icon">123${icons.TRIANGLE_DOWN_ICON}</div>
-            <div class="o-dropdown-content o-text-options  o-format-tool "  t-if="state.activeTool === 'formatTool'" t-on-click="setFormat">
-              <t t-foreach="formats" t-as="format" t-key="format.name">
-                <div t-att-data-format="format.name" t-att-class="{active: currentFormat === format.name}"><t t-esc="format.text"/></div>
-              </t>
-            </div>
-          </div>
-          <div class="o-divider"/>
-          <!-- <div class="o-tool" title="Font"><span>Roboto</span> ${icons.TRIANGLE_DOWN_ICON}</div> -->
-          <div class="o-tool o-dropdown" title="Font Size" t-on-click="toggleDropdownTool('fontSizeTool')">
-            <div class="o-text-icon"><t t-esc="style.fontSize || ${DEFAULT_FONT_SIZE}"/> ${icons.TRIANGLE_DOWN_ICON}</div>
-            <div class="o-dropdown-content o-text-options "  t-if="state.activeTool === 'fontSizeTool'" t-on-click="setSize">
-              <t t-foreach="fontSizes" t-as="font" t-key="font_index">
-                <div t-esc="font.pt" t-att-data-size="font.pt"/>
-              </t>
-            </div>
-          </div>
-          <div class="o-divider"/>
-          <div class="o-tool" title="Bold" t-att-class="{active:style.bold}" t-on-click="toogleStyle('bold')">${icons.BOLD_ICON}</div>
-          <div class="o-tool" title="Italic" t-att-class="{active:style.italic}" t-on-click="toogleStyle('italic')">${icons.ITALIC_ICON}</div>
-          <div class="o-tool" title="Strikethrough"  t-att-class="{active:style.strikethrough}" t-on-click="toogleStyle('strikethrough')">${icons.STRIKE_ICON}</div>
-          <div class="o-tool o-dropdown o-with-color">
-            <span t-attf-style="border-color:{{textColor}}" title="Text Color" t-on-click="toggleDropdownTool('textColorTool')">${icons.TEXT_COLOR_ICON}</span>
-            <ColorPicker t-if="state.activeTool === 'textColorTool'" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
-          </div>
-          <div class="o-divider"/>
-          <div class="o-tool  o-dropdown o-with-color">
-            <span t-attf-style="border-color:{{fillColor}}" title="Fill Color" t-on-click="toggleDropdownTool('fillColorTool')">${icons.FILL_COLOR_ICON}</span>
-            <ColorPicker t-if="state.activeTool === 'fillColorTool'" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
-          </div>
-          <div class="o-tool o-dropdown">
-            <span title="Borders" t-on-click="toggleDropdownTool('borderTool')">${icons.BORDERS_ICON}</span>
-            <div class="o-dropdown-content o-border" t-if="state.activeTool === 'borderTool'">
-              <div class="o-dropdown-line">
-                <span class="o-line-item" t-on-click="setBorder('all')">${icons.BORDERS_ICON}</span>
-                <span class="o-line-item" t-on-click="setBorder('hv')">${icons.BORDER_HV}</span>
-                <span class="o-line-item" t-on-click="setBorder('h')">${icons.BORDER_H}</span>
-                <span class="o-line-item" t-on-click="setBorder('v')">${icons.BORDER_V}</span>
-                <span class="o-line-item" t-on-click="setBorder('external')">${icons.BORDER_EXTERNAL}</span>
-              </div>
-              <div class="o-dropdown-line">
-                <span class="o-line-item" t-on-click="setBorder('left')">${icons.BORDER_LEFT}</span>
-                <span class="o-line-item" t-on-click="setBorder('top')">${icons.BORDER_TOP}</span>
-                <span class="o-line-item" t-on-click="setBorder('right')">${icons.BORDER_RIGHT}</span>
-                <span class="o-line-item" t-on-click="setBorder('bottom')">${icons.BORDER_BOTTOM}</span>
-                <span class="o-line-item" t-on-click="setBorder('clear')">${icons.BORDER_CLEAR}</span>
-              </div>
-            </div>
-          </div>
-          <div class="o-tool" title="Merge Cells"  t-att-class="{active:inMerge, 'o-disabled': cannotMerge}" t-on-click="toggleMerge">${icons.MERGE_CELL_ICON}</div>
-          <div class="o-divider"/>
-          <div class="o-tool o-dropdown" title="Horizontal align" t-on-click="toggleDropdownTool('alignTool')">
+      <div class="o-topbar-bottom"> 
+        <div class="o-topbar-toolbar">
+          <!-- Toolbar -->
+          <div t-if="getters.isReadonly()" class="o-readonly-toolbar text-muted">
             <span>
-              <t t-if="style.align === 'right'">${icons.ALIGN_RIGHT_ICON}</t>
-              <t t-elif="style.align === 'center'">${icons.ALIGN_CENTER_ICON}</t>
-              <t t-else="">${icons.ALIGN_LEFT_ICON}</t>
-              ${icons.TRIANGLE_DOWN_ICON}
+              <i class="fa fa-eye" /> <t t-esc="env._t('Readonly Access')" />
             </span>
-            <div t-if="state.activeTool === 'alignTool'" class="o-dropdown-content">
-              <div class="o-dropdown-item" t-on-click="toggleAlign('left')">${icons.ALIGN_LEFT_ICON}</div>
-              <div class="o-dropdown-item" t-on-click="toggleAlign('center')">${icons.ALIGN_CENTER_ICON}</div>
-              <div class="o-dropdown-item" t-on-click="toggleAlign('right')">${icons.ALIGN_RIGHT_ICON}</div>
-            </div>
           </div>
-          <!-- <div class="o-tool" title="Vertical align"><span>${icons.ALIGN_MIDDLE_ICON}</span> ${icons.TRIANGLE_DOWN_ICON}</div> -->
-          <!-- <div class="o-tool" title="Text Wrapping">${icons.TEXT_WRAPPING_ICON}</div> -->
+          <div t-else="" class="o-toolbar-tools">
+            <div class="o-tool" title="Undo" t-att-class="{'o-disabled': !undoTool}" t-on-click="undo" >${icons.UNDO_ICON}</div>
+            <div class="o-tool" t-att-class="{'o-disabled': !redoTool}" title="Redo"  t-on-click="redo">${icons.REDO_ICON}</div>
+            <div class="o-tool" title="Paint Format" t-att-class="{active:paintFormatTool}" t-on-click="paintFormat">${icons.PAINT_FORMAT_ICON}</div>
+            <div class="o-tool" title="Clear Format" t-on-click="clearFormatting()">${icons.CLEAR_FORMAT_ICON}</div>
+            <div class="o-divider"/>
+            <div class="o-tool" title="Format as percent" t-on-click="toogleFormat('percent')">%</div>
+            <div class="o-tool" title="Decrease decimal places" t-on-click="setDecimal(-1)">.0</div>
+            <div class="o-tool" title="Increase decimal places" t-on-click="setDecimal(+1)">.00</div>
+            <div class="o-tool o-dropdown" title="More formats" t-on-click="toggleDropdownTool('formatTool')">
+              <div class="o-text-icon">123${icons.TRIANGLE_DOWN_ICON}</div>
+              <div class="o-dropdown-content o-text-options  o-format-tool "  t-if="state.activeTool === 'formatTool'" t-on-click="setFormat">
+                <t t-foreach="formats" t-as="format" t-key="format.name">
+                  <div t-att-data-format="format.name" t-att-class="{active: currentFormat === format.name}"><t t-esc="format.text"/></div>
+                </t>
+              </div>
+            </div>
+            <div class="o-divider"/>
+            <!-- <div class="o-tool" title="Font"><span>Roboto</span> ${icons.TRIANGLE_DOWN_ICON}</div> -->
+            <div class="o-tool o-dropdown" title="Font Size" t-on-click="toggleDropdownTool('fontSizeTool')">
+              <div class="o-text-icon"><t t-esc="style.fontSize || ${DEFAULT_FONT_SIZE}"/> ${icons.TRIANGLE_DOWN_ICON}</div>
+              <div class="o-dropdown-content o-text-options "  t-if="state.activeTool === 'fontSizeTool'" t-on-click="setSize">
+                <t t-foreach="fontSizes" t-as="font" t-key="font_index">
+                  <div t-esc="font.pt" t-att-data-size="font.pt"/>
+                </t>
+              </div>
+            </div>
+            <div class="o-divider"/>
+            <div class="o-tool" title="Bold" t-att-class="{active:style.bold}" t-on-click="toogleStyle('bold')">${icons.BOLD_ICON}</div>
+            <div class="o-tool" title="Italic" t-att-class="{active:style.italic}" t-on-click="toogleStyle('italic')">${icons.ITALIC_ICON}</div>
+            <div class="o-tool" title="Strikethrough"  t-att-class="{active:style.strikethrough}" t-on-click="toogleStyle('strikethrough')">${icons.STRIKE_ICON}</div>
+            <div class="o-tool o-dropdown o-with-color">
+              <span t-attf-style="border-color:{{textColor}}" title="Text Color" t-on-click="toggleDropdownTool('textColorTool')">${icons.TEXT_COLOR_ICON}</span>
+              <ColorPicker t-if="state.activeTool === 'textColorTool'" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
+            </div>
+            <div class="o-divider"/>
+            <div class="o-tool  o-dropdown o-with-color">
+              <span t-attf-style="border-color:{{fillColor}}" title="Fill Color" t-on-click="toggleDropdownTool('fillColorTool')">${icons.FILL_COLOR_ICON}</span>
+              <ColorPicker t-if="state.activeTool === 'fillColorTool'" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
+            </div>
+            <div class="o-tool o-dropdown">
+              <span title="Borders" t-on-click="toggleDropdownTool('borderTool')">${icons.BORDERS_ICON}</span>
+              <div class="o-dropdown-content o-border" t-if="state.activeTool === 'borderTool'">
+                <div class="o-dropdown-line">
+                  <span class="o-line-item" t-on-click="setBorder('all')">${icons.BORDERS_ICON}</span>
+                  <span class="o-line-item" t-on-click="setBorder('hv')">${icons.BORDER_HV}</span>
+                  <span class="o-line-item" t-on-click="setBorder('h')">${icons.BORDER_H}</span>
+                  <span class="o-line-item" t-on-click="setBorder('v')">${icons.BORDER_V}</span>
+                  <span class="o-line-item" t-on-click="setBorder('external')">${icons.BORDER_EXTERNAL}</span>
+                </div>
+                <div class="o-dropdown-line">
+                  <span class="o-line-item" t-on-click="setBorder('left')">${icons.BORDER_LEFT}</span>
+                  <span class="o-line-item" t-on-click="setBorder('top')">${icons.BORDER_TOP}</span>
+                  <span class="o-line-item" t-on-click="setBorder('right')">${icons.BORDER_RIGHT}</span>
+                  <span class="o-line-item" t-on-click="setBorder('bottom')">${icons.BORDER_BOTTOM}</span>
+                  <span class="o-line-item" t-on-click="setBorder('clear')">${icons.BORDER_CLEAR}</span>
+                </div>
+              </div>
+            </div>
+            <div class="o-tool" title="Merge Cells"  t-att-class="{active:inMerge, 'o-disabled': cannotMerge}" t-on-click="toggleMerge">${icons.MERGE_CELL_ICON}</div>
+            <div class="o-divider"/>
+            <div class="o-tool o-dropdown" title="Horizontal align" t-on-click="toggleDropdownTool('alignTool')">
+              <span>
+                <t t-if="style.align === 'right'">${icons.ALIGN_RIGHT_ICON}</t>
+                <t t-elif="style.align === 'center'">${icons.ALIGN_CENTER_ICON}</t>
+                <t t-else="">${icons.ALIGN_LEFT_ICON}</t>
+                ${icons.TRIANGLE_DOWN_ICON}
+              </span>
+              <div t-if="state.activeTool === 'alignTool'" class="o-dropdown-content">
+                <div class="o-dropdown-item" t-on-click="toggleAlign('left')">${icons.ALIGN_LEFT_ICON}</div>
+                <div class="o-dropdown-item" t-on-click="toggleAlign('center')">${icons.ALIGN_CENTER_ICON}</div>
+                <div class="o-dropdown-item" t-on-click="toggleAlign('right')">${icons.ALIGN_RIGHT_ICON}</div>
+              </div>
+            </div>
+            <!-- <div class="o-tool" title="Vertical align"><span>${icons.ALIGN_MIDDLE_ICON}</span> ${icons.TRIANGLE_DOWN_ICON}</div> -->
+            <!-- <div class="o-tool" title="Text Wrapping">${icons.TEXT_WRAPPING_ICON}</div> -->
+          </div>
         </div>
         <Composer inputStyle="composerStyle" focus="props.focusComposer"/>
-
       </div>
     </div>`;
   static style = css/* scss */ `
@@ -195,150 +196,168 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
         }
       }
       /* Toolbar + Cell Content */
-      .o-topbar-toolbar {
-        border-bottom: 1px solid #e0e2e4;
+      .o-topbar-bottom {
         display: flex;
-
-        .o-readonly-toolbar {
-          display: flex;
-          align-items: center;
-          background-color: ${BACKGROUND_HEADER_COLOR};
-          padding-left: 18px;
-          padding-right: 18px;
-          }
-        .o-composer-container {
-          height: 34px;
-          border: 1px solid #e0e2e4;
-          margin-top: -1px;
-          margin-bottom: -1px;
-        }
-
-        /* Toolbar */
-        .o-toolbar-tools {
-          display: flex;
+        height: 35px;
+        .o-topbar-toolbar {
           flex-shrink: 0;
-          margin-left: 16px;
-          color: #333;
-          cursor: default;
+          border-bottom: 1px solid #e0e2e4;
+          display: flex;
 
-          .o-tool {
+          .o-readonly-toolbar {
             display: flex;
             align-items: center;
-            margin: 2px;
-            padding: 0 3px;
-            border-radius: 2px;
-            cursor: pointer;
-            min-width: fit-content;
+            background-color: ${BACKGROUND_HEADER_COLOR};
+            padding-left: 18px;
+            padding-right: 18px;
           }
+          /* Toolbar */
+          .o-toolbar-tools {
+            display: flex;
+            flex-shrink: 0;
+            margin-left: 16px;
+            color: #333;
+            cursor: default;
 
-          .o-tool.active,
-          .o-tool:not(.o-disabled):hover {
-            background-color: #f1f3f4;
-          }
-
-          .o-with-color > span {
-            border-bottom: 4px solid;
-            height: 16px;
-            margin-top: 2px;
-          }
-
-          .o-with-color {
-            .o-line-item:hover {
-              outline: 1px solid gray;
-            }
-          }
-
-          .o-border {
-            .o-line-item {
-              padding: 4px;
-              margin: 1px;
-            }
-          }
-
-          .o-divider {
-            display: inline-block;
-            border-right: 1px solid #e0e2e4;
-            width: 0;
-            margin: 0 6px;
-          }
-
-          .o-disabled {
-            opacity: 0.6;
-          }
-
-          .o-dropdown {
-            position: relative;
-
-            .o-text-icon {
-              height: 100%;
-              line-height: 30px;
+            .o-tool {
+              display: flex;
+              align-items: center;
+              margin: 2px;
+              padding: 0 3px;
+              border-radius: 2px;
+              cursor: pointer;
+              min-width: fit-content;
             }
 
-            .o-text-options > div {
-              line-height: 26px;
-              padding: 3px 12px;
-              &:hover {
-                background-color: rgba(0, 0, 0, 0.08);
+            .o-tool.active,
+            .o-tool:not(.o-disabled):hover {
+              background-color: #f1f3f4;
+            }
+
+            .o-with-color > span {
+              border-bottom: 4px solid;
+              height: 16px;
+              margin-top: 2px;
+            }
+
+            .o-with-color {
+              .o-line-item:hover {
+                outline: 1px solid gray;
               }
             }
 
-            .o-dropdown-content {
-              position: absolute;
-              top: calc(100% + 5px);
-              left: 0;
-              z-index: 10;
-              box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-              background-color: white;
+            .o-border {
+              .o-line-item {
+                padding: 4px;
+                margin: 1px;
+              }
+            }
 
-              .o-dropdown-item {
-                padding: 7px 10px;
+            .o-divider {
+              display: inline-block;
+              border-right: 1px solid #e0e2e4;
+              width: 0;
+              margin: 0 6px;
+            }
+
+            .o-disabled {
+              opacity: 0.6;
+            }
+
+            .o-dropdown {
+              position: relative;
+
+              .o-text-icon {
+                height: 100%;
+                line-height: 30px;
               }
 
-              .o-dropdown-item:hover {
-                background-color: rgba(0, 0, 0, 0.08);
-              }
-
-              .o-dropdown-line {
-                display: flex;
-                padding: 3px 6px;
-
-                .o-line-item {
-                  width: 16px;
-                  height: 16px;
-                  margin: 1px 3px;
-
-                  &:hover {
-                    background-color: rgba(0, 0, 0, 0.08);
-                  }
+              .o-text-options > div {
+                line-height: 26px;
+                padding: 3px 12px;
+                &:hover {
+                  background-color: rgba(0, 0, 0, 0.08);
                 }
               }
 
-              &.o-format-tool {
-                width: 180px;
-                padding: 7px 0;
-                > div {
-                  padding-left: 25px;
+              .o-dropdown-content {
+                position: absolute;
+                top: calc(100% + 5px);
+                left: 0;
+                z-index: 10;
+                box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
+                background-color: white;
 
-                  &.active:before {
-                    content: "✓";
-                    font-weight: bold;
-                    position: absolute;
-                    left: 10px;
+                .o-dropdown-item {
+                  padding: 7px 10px;
+                }
+
+                .o-dropdown-item:hover {
+                  background-color: rgba(0, 0, 0, 0.08);
+                }
+
+                .o-dropdown-line {
+                  display: flex;
+                  padding: 3px 6px;
+
+                  .o-line-item {
+                    width: 16px;
+                    height: 16px;
+                    margin: 1px 3px;
+
+                    &:hover {
+                      background-color: rgba(0, 0, 0, 0.08);
+                    }
+                  }
+                }
+
+                &.o-format-tool {
+                  width: 180px;
+                  padding: 7px 0;
+                  > div {
+                    padding-left: 25px;
+
+                    &.active:before {
+                      content: "✓";
+                      font-weight: bold;
+                      position: absolute;
+                      left: 10px;
+                    }
                   }
                 }
               }
             }
+          }
+
+          /* Cell Content */
+          .o-toolbar-cell-content {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 0 12px;
+            margin: 0;
+            line-height: 34px;
+            white-space: nowrap;
           }
         }
 
-        /* Cell Content */
-        .o-toolbar-cell-content {
-          font-size: 12px;
-          font-weight: 500;
-          padding: 0 12px;
-          margin: 0;
-          line-height: 34px;
-          white-space: nowrap;
+        .o-composer-container {
+          border: 1px solid #e0e2e4;
+          margin-top: -1px;
+          z-index: 10;
+        }
+        .o-composer {
+          padding-top: 5px;
+          padding-bottom: 5px;
+          line-height: 23px;
+          padding-left: 8px;
+          background-color: white;
+        }
+        .o-composer:focus-within {
+          border: 1px solid ${SELECTION_BORDER_COLOR};
+        }
+        .o-composer:not(:focus-within) {
+          height: 24px;
+          overflow: hidden;
         }
       }
     }
@@ -366,12 +385,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   textColor: string = "black";
   menus: FullMenuItem[] = [];
   menuRef = useRef("menuRef");
-  composerStyle = `
-    line-height: 34px;
-    padding-left: 8px;
-    height: 34px;
-    background-color: white;
-  `;
 
   constructor() {
     super(...arguments);
@@ -382,6 +395,14 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     return topbarComponentRegistry
       .getAll()
       .filter((item) => !item.isVisible || item.isVisible(this.env));
+  }
+
+  get composerStyle() {
+    const { height } = this.getters.getViewportDimension();
+    return `
+        max-height: ${height / 2}px;
+        overflow:hidden;
+      `;
   }
 
   async willStart() {

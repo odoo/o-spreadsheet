@@ -1,5 +1,4 @@
 import * as owl from "@odoo/owl";
-import { SELECTION_BORDER_COLOR } from "../../constants";
 import { EnrichedToken } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { DEBUG, isEqual, rangeReference, toZone } from "../../helpers/index";
@@ -121,11 +120,6 @@ const CSS = css/* scss */ `
       margin: 4px;
       pointer-events: none;
     }
-  }
-
-  /* Custom css to highlight topbar composer on focus */
-  .o-topbar-toolbar .o-composer-container:focus-within {
-    border: 1px solid ${SELECTION_BORDER_COLOR};
   }
 `;
 
