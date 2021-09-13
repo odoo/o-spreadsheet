@@ -622,38 +622,6 @@ describe("clipboard", () => {
     expect(getCell(model, "C3")?.evaluated.value).toBe(3);
   });
 
-  test("incompatible multiple selections: only last one is actually copied", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "a1");
-    setCellContent(model, "A2", "a2");
-    setCellContent(model, "C1", "c1");
-    model.dispatch("COPY", { target: [toZone("A1:A2"), toZone("C1")] });
-
-    expect(getClipboardVisibleZones(model).length).toBe(1);
-
-    selectCell(model, "E1");
-    model.dispatch("PASTE", { target: [toZone("E1")] });
-    expect(getCellContent(model, "E1")).toBe("c1");
-    expect(getCell(model, "E2")).toBeUndefined();
-  });
-
-  test("compatible multiple selections: each column is copied", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "a1");
-    setCellContent(model, "A2", "a2");
-    setCellContent(model, "C1", "c1");
-    setCellContent(model, "C2", "c2");
-    model.dispatch("COPY", { target: [toZone("A1:A2"), toZone("C1:C2")] });
-
-    expect(getClipboardVisibleZones(model).length).toBe(2);
-
-    model.dispatch("PASTE", { target: [toZone("E1")] });
-    expect(getCellContent(model, "E1")).toBe("a1");
-    expect(getCellContent(model, "E2")).toBe("a2");
-    expect(getCellContent(model, "F1")).toBe("c1");
-    expect(getCellContent(model, "F2")).toBe("c2");
-  });
-
   test("pasting a value in a larger selection", () => {
     const model = new Model();
     setCellContent(model, "A1", "1");
@@ -735,6 +703,162 @@ describe("clipboard", () => {
     expect(notifyUser).toHaveBeenCalled();
   });
 
+  describe("copy/paste several zones", () => {
+    const model = new Model();
+
+    beforeEach(() => {
+      setCellContent(model, "A1", "a1");
+      setCellContent(model, "A2", "a2");
+      setCellContent(model, "A3", "a3");
+      setCellContent(model, "B1", "b1");
+      setCellContent(model, "B2", "b2");
+      setCellContent(model, "B3", "b3");
+      setCellContent(model, "C1", "c1");
+      setCellContent(model, "C2", "c2");
+      setCellContent(model, "C3", "c3");
+    });
+
+    describe("if they have same left and same right", () => {
+      test("copy all zones", () => {
+        model.dispatch("COPY", { target: target("A1:B1, A2:B2") });
+        expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:B1"));
+        expect(getClipboardVisibleZones(model)[1]).toEqual(toZone("A2:B2"));
+        expect(getClipboardVisibleZones(model).length).toBe(2);
+        model.dispatch("PASTE", { target: target("F6") });
+        expect(getCellContent(model, "F6")).toBe("a1");
+        expect(getCellContent(model, "F7")).toBe("a2");
+        expect(getCellContent(model, "G6")).toBe("b1");
+        expect(getCellContent(model, "G7")).toBe("b2");
+      });
+
+      test("Copy cells only once", () => {
+        model.dispatch("COPY", { target: target("A1:A3, A1:A2, A2:A3, A1, A2, A3") });
+        expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:A3"));
+        expect(getClipboardVisibleZones(model).length).toBe(1);
+        model.dispatch("PASTE", { target: target("F6") });
+        expect(getCellContent(model, "F6")).toBe("a1");
+        expect(getCellContent(model, "F7")).toBe("a2");
+        expect(getCellContent(model, "F8")).toBe("a3");
+        expect(getCellContent(model, "F9")).toBe("");
+      });
+
+      test("paste zones without gap", () => {
+        // gap between 1st selection and 2nd selection is one row
+        model.dispatch("COPY", { target: target("A1:B1, A3:B3") });
+        expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:B1"));
+        expect(getClipboardVisibleZones(model)[1]).toEqual(toZone("A3:B3"));
+        expect(getClipboardVisibleZones(model).length).toBe(2);
+        model.dispatch("PASTE", { target: target("F6") });
+        expect(getCellContent(model, "F6")).toBe("a1");
+        expect(getCellContent(model, "F7")).toBe("a3");
+        expect(getCellContent(model, "G6")).toBe("b1");
+        expect(getCellContent(model, "G7")).toBe("b3");
+      });
+
+      test("paste zones selected from different orders does not influence the final result", () => {
+        model.dispatch("COPY", { target: target("A1, A2") });
+        model.dispatch("PASTE", { target: target("F6") });
+        expect(getCellContent(model, "F6")).toBe("a1");
+        expect(getCellContent(model, "F7")).toBe("a2");
+
+        model.dispatch("COPY", { target: target("A2, A1") });
+        model.dispatch("PASTE", { target: target("F6") });
+        expect(getCellContent(model, "F6")).toBe("a1");
+        expect(getCellContent(model, "F7")).toBe("a2");
+      });
+    });
+
+    describe("if zones have same top and same bottom", () => {
+      test("copy all zones", () => {
+        model.dispatch("COPY", { target: target("A1:A2, B1:B2") });
+        expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:A2"));
+        expect(getClipboardVisibleZones(model)[1]).toEqual(toZone("B1:B2"));
+        expect(getClipboardVisibleZones(model).length).toBe(2);
+        model.dispatch("PASTE", { target: target("F6") });
+        expect(getCellContent(model, "F6")).toBe("a1");
+        expect(getCellContent(model, "F7")).toBe("a2");
+        expect(getCellContent(model, "G6")).toBe("b1");
+        expect(getCellContent(model, "G7")).toBe("b2");
+      });
+
+      test("Copy cells only once", () => {
+        model.dispatch("COPY", { target: target("A1:C1, A1:B1, B1:C1, A1, B1, C1") });
+        expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:C1"));
+        expect(getClipboardVisibleZones(model).length).toBe(1);
+        model.dispatch("PASTE", { target: target("F6") });
+        expect(getCellContent(model, "F6")).toBe("a1");
+        expect(getCellContent(model, "G6")).toBe("b1");
+        expect(getCellContent(model, "H6")).toBe("c1");
+        expect(getCellContent(model, "I6")).toBe("");
+      });
+
+      test("paste zones without gap", () => {
+        // gap between 1st selection and 2nd selection is one column
+        model.dispatch("COPY", { target: target("A1:A2, C1:C2") });
+        model.dispatch("PASTE", { target: target("F6") });
+        expect(getCellContent(model, "F6")).toBe("a1");
+        expect(getCellContent(model, "F7")).toBe("a2");
+        expect(getCellContent(model, "G6")).toBe("c1");
+        expect(getCellContent(model, "G7")).toBe("c2");
+      });
+
+      test("paste zones selected from different orders does not influence the final result", () => {
+        model.dispatch("COPY", { target: target("A1, B1") });
+        model.dispatch("PASTE", { target: target("F6") });
+        expect(getCellContent(model, "F6")).toBe("a1");
+        expect(getCellContent(model, "G6")).toBe("b1");
+
+        model.dispatch("COPY", { target: target("A1, B1") });
+        model.dispatch("PASTE", { target: target("F6") });
+        expect(getCellContent(model, "F6")).toBe("a1");
+        expect(getCellContent(model, "G6")).toBe("b1");
+      });
+    });
+
+    describe("copy/paste the last zone if zones don't have [same top and same bottom] or [same left and same right]", () => {
+      test("test with dissociated zones", () => {
+        model.dispatch("COPY", { target: target("A1:A2, B2:B3") });
+        expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("B2:B3"));
+        expect(getClipboardVisibleZones(model).length).toBe(1);
+        model.dispatch("PASTE", { target: target("F6") });
+        expect(getCellContent(model, "F6")).toBe("b2");
+        expect(getCellContent(model, "F7")).toBe("b3");
+      });
+
+      test("test with overlapped zones", () => {
+        model.dispatch("COPY", { target: target("A1:B2, B2:B3") });
+        expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("B2:B3"));
+        expect(getClipboardVisibleZones(model).length).toBe(1);
+        model.dispatch("PASTE", { target: target("F6") });
+        expect(getCellContent(model, "F6")).toBe("b2");
+        expect(getCellContent(model, "F7")).toBe("b3");
+      });
+    });
+
+    test("can paste zones in a larger selection", () => {
+      model.dispatch("COPY", { target: target("A1, C1") });
+      model.dispatch("PASTE", { target: target("E1:I1") });
+      expect(getCellContent(model, "E1")).toBe("a1");
+      expect(getCellContent(model, "F1")).toBe("c1");
+      expect(getCellContent(model, "G1")).toBe("a1");
+      expect(getCellContent(model, "H1")).toBe("c1");
+      expect(getCellContent(model, "I1")).toBe("");
+    });
+
+    test("is not allowed if paste in several selection", () => {
+      model.dispatch("COPY", { target: target("A1, C1") });
+      const result = model.dispatch("PASTE", { target: target("A2, B2") });
+      expect(result).toBeCancelledBecause(CommandResult.WrongPasteSelection);
+    });
+
+    test("will warn user if paste in several selection", () => {
+      const notifyUser = jest.fn();
+      const model = new Model({}, { notifyUser });
+      model.dispatch("COPY", { target: target("A1, C1") });
+      model.dispatch("PASTE", { target: target("A2, B2"), interactive: true });
+      expect(notifyUser).toHaveBeenCalled();
+    });
+  });
   test("can copy and paste a cell with STRING content", () => {
     const model = new Model();
     setCellContent(model, "B2", '="test"');

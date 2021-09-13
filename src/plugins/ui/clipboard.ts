@@ -1,6 +1,6 @@
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { formatValue } from "../../helpers/cells/index";
-import { clip, overlap } from "../../helpers/index";
+import { clip, mergeOverlappingZones, overlap, positions } from "../../helpers/index";
 import { Mode } from "../../model";
 import { _lt } from "../../translation";
 import {
@@ -289,33 +289,46 @@ export class ClipboardPlugin extends UIPlugin {
    * Get the clipboard state from the given zones.
    */
   private getClipboardState(zones: Zone[], operation: ClipboardOperation) {
+    const lefts = new Set(zones.map((z) => z.left));
+    const rights = new Set(zones.map((z) => z.right));
     const tops = new Set(zones.map((z) => z.top));
     const bottoms = new Set(zones.map((z) => z.bottom));
-    const areZonesCompatible = tops.size === 1 && bottoms.size === 1;
-    let clippedZones = areZonesCompatible ? zones : [zones[zones.length - 1]];
-    clippedZones = clippedZones.map((zone) => ({ ...zone }));
 
-    const rows: ClipboardCell[][] = [];
+    const areZonesCompatible =
+      (tops.size === 1 && bottoms.size === 1) || (lefts.size === 1 && rights.size === 1);
+
+    // In order to don't paste several times the same cells in intersected zones
+    // --> we merge zones that have common cells
+    const clippedZones = areZonesCompatible
+      ? mergeOverlappingZones(zones)
+      : [zones[zones.length - 1]];
+
+    const cellsPosition = clippedZones.map((zone) => positions(zone)).flat();
+    const columnsIndex = [...new Set(cellsPosition.map((p) => p[0]))].sort((a, b) => a - b);
+    const rowsIndex = [...new Set(cellsPosition.map((p) => p[1]))].sort((a, b) => a - b);
+
+    const cellsInClipboard: ClipboardCell[][] = [];
     const merges: Zone[] = [];
     const sheetId = this.getters.getActiveSheetId();
-    const { top, bottom } = clippedZones[0];
-    for (let row = top; row <= bottom; row++) {
-      const cells: ClipboardCell[] = [];
-      rows.push(cells);
-      for (let zone of clippedZones) {
-        for (let col = zone.left; col <= zone.right; col++) {
-          const cell = this.getters.getCell(sheetId, col, row);
-          const border = this.getters.getCellBorder(sheetId, col, row) || undefined;
-          cells.push({ cell, border, position: { col, row, sheetId } });
-          const merge = this.getters.getMerge(sheetId, col, row);
-          if (merge && merge.top === row && merge.left === col) {
-            merges.push(merge);
-          }
+
+    for (let row of rowsIndex) {
+      let cellsInRow: ClipboardCell[] = [];
+      for (let col of columnsIndex) {
+        cellsInRow.push({
+          cell: this.getters.getCell(sheetId, col, row),
+          border: this.getters.getCellBorder(sheetId, col, row) || undefined,
+          position: { col, row, sheetId },
+        });
+        const merge = this.getters.getMerge(sheetId, col, row);
+        if (merge && merge.top === row && merge.left === col) {
+          merges.push(merge);
         }
       }
+      cellsInClipboard.push(cellsInRow);
     }
+
     return {
-      cells: rows,
+      cells: cellsInClipboard,
       operation,
       sheetId,
       zones: clippedZones,
