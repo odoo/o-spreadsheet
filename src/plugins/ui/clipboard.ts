@@ -324,24 +324,28 @@ export class ClipboardPlugin extends UIPlugin {
    * Get the clipboard state from the given zones.
    */
   private getClipboardState(zones: Zone[], operation: ClipboardOperation) {
+    const lefts = new Set(zones.map((z) => z.left));
+    const rights = new Set(zones.map((z) => z.right));
     const tops = new Set(zones.map((z) => z.top));
     const bottoms = new Set(zones.map((z) => z.bottom));
-    const areZonesCompatible = tops.size === 1 && bottoms.size === 1;
+    const areZonesCompatible =
+      (tops.size === 1 && bottoms.size === 1) || (lefts.size === 1 && rights.size === 1);
     let clippedZones = areZonesCompatible ? zones : [zones[zones.length - 1]];
     clippedZones = clippedZones.map((zone) => ({ ...zone }));
 
-    const rows: ClipboardCell[][] = [];
+    const rows: { [row: number]: ClipboardCell[] } = {};
     const merges: Zone[] = [];
     const sheetId = this.getters.getActiveSheetId();
-    const { top, bottom } = clippedZones[0];
-    for (let row = top; row <= bottom; row++) {
-      const cells: ClipboardCell[] = [];
-      rows.push(cells);
-      for (let zone of clippedZones) {
+
+    for (let zone of clippedZones) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        if (rows[row] === undefined) {
+          rows[row] = [] as ClipboardCell[];
+        }
         for (let col = zone.left; col <= zone.right; col++) {
           const cell = this.getters.getCell(sheetId, col, row);
           const border = this.getters.getCellBorder(sheetId, col, row) || undefined;
-          cells.push({ cell, border, position: { col, row, sheetId } });
+          rows[row].push({ cell, border, position: { col, row, sheetId } });
           const merge = this.getters.getMerge(sheetId, col, row);
           if (merge && merge.top === row && merge.left === col) {
             merges.push(merge);
@@ -350,7 +354,7 @@ export class ClipboardPlugin extends UIPlugin {
       }
     }
     return {
-      cells: rows,
+      cells: Object.values(rows),
       operation,
       sheetId,
       zones: clippedZones,
