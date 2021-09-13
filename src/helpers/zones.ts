@@ -445,6 +445,24 @@ export function uniqueZones(zones: Zone[]): Zone[] {
 }
 
 /**
+ * This function will find all overlapping zones in an array and transform them
+ * into an union of each one.
+ * */
+export function mergeOverlappingZones(zones: Zone[]) {
+  return zones.reduce((dissociatedZones: Zone[], zone) => {
+    const nextIndex = dissociatedZones.length;
+    for (let i = 0; i < nextIndex; i++) {
+      if (overlap(dissociatedZones[i], zone)) {
+        dissociatedZones[i] = union(dissociatedZones[i], zone);
+        return dissociatedZones;
+      }
+    }
+    dissociatedZones[nextIndex] = zone;
+    return dissociatedZones;
+  }, []);
+}
+
+/**
  * This function will compare the modifications of selection to determine
  * a cell that is part of the new zone and not the previous one.
  */
