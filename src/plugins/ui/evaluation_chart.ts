@@ -10,6 +10,7 @@ import { chartTerms } from "../../components/side_panel/translations_terms";
 import { INCORRECT_RANGE_STRING } from "../../constants";
 import { ChartColors } from "../../helpers/chart";
 import { isDefined, isInside, overlap, recomputeZones, zoneToXc } from "../../helpers/index";
+import { range } from "../../helpers/misc";
 import { Mode } from "../../model";
 import { ChartDefinition, DataSet } from "../../types/chart";
 import { Command } from "../../types/commands";
@@ -266,6 +267,11 @@ export class EvaluationChartPlugin extends UIPlugin {
       const rangeString = this.getters.getRangeString(definition.labelRange, definition.sheetId);
       if (rangeString !== INCORRECT_RANGE_STRING) {
         labels = this.getters.getRangeFormattedValues(rangeString, definition.sheetId).flat(1);
+      }
+    } else {
+      if (definition.dataSets[0]) {
+        const ranges = this.getData(definition.dataSets[0], definition.sheetId);
+        labels = range(0, ranges.length).map((r) => r.toString());
       }
     }
     const runtime = this.getDefaultConfiguration(definition.type, definition.title, labels);
