@@ -103,12 +103,8 @@ export class ContentEditableHelper {
    * finds the indexes of the current selection.
    * */
   getCurrentSelection() {
-    let {
-      startElement,
-      endElement,
-      startSelectionOffset,
-      endSelectionOffset,
-    } = this.getStartAndEndSelection();
+    let { startElement, endElement, startSelectionOffset, endSelectionOffset } =
+      this.getStartAndEndSelection();
     let startSizeBefore = this.findSizeBeforeElement(startElement!);
     let endSizeBefore = this.findSizeBeforeElement(endElement!);
 

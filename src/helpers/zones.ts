@@ -247,7 +247,7 @@ export function mapCellsInZone<T, U>(
   zone: Zone,
   sheet: Sheet,
   callback: (cell: Cell) => T,
-  emptyCellValue: U = (undefined as unknown) as U
+  emptyCellValue: U = undefined as unknown as U
 ): (T | U)[][] {
   const { top, bottom, left, right } = zone;
   const result: any[] = new Array(right - left + 1);

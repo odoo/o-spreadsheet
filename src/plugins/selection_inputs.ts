@@ -287,10 +287,9 @@ export class SelectionInputPlugin extends BasePlugin {
    * Convert highlights input format to the command format.
    * The first xc in the input range will keep its color.
    */
-  private inputToHighlights({
-    xc,
-    color,
-  }: Pick<RangeInputValue, "xc" | "color">): { [range: string]: string } {
+  private inputToHighlights({ xc, color }: Pick<RangeInputValue, "xc" | "color">): {
+    [range: string]: string;
+  } {
     const ranges = this.cleanInputs([xc]);
     if (ranges.length === 0) return {};
     const [fromInput, ...otherRanges] = ranges;

@@ -1,9 +1,9 @@
 node_modules/
-package-lock.json
 .idea/
 .vscode/
 dist/
 .npmrc
 /coverage/
+logs/
 
 debug.log
