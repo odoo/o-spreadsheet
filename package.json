@@ -14,7 +14,7 @@
     "test:watch": "jest --watch",
     "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --write",
     "check-formatting": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --check",
-    "dist":"npm run build:all && npm run build:bundle"
+    "dist": "npm run build:all && npm run build:bundle"
   },
   "browserslist": [
     "last 1 Chrome versions"
@@ -27,6 +27,7 @@
   "author": "Gery Debongnie",
   "license": "LGPL-3.0-or-later",
   "devDependencies": {
+    "@types/chart.js": "^2.9.24",
     "@types/jest": "^25.2.1",
     "@types/node": "^13.11.1",
     "babel-eslint": "^10.1.0",
@@ -37,11 +38,10 @@
     "live-server": "^1.2.1",
     "mockdate": "^3.0.2",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.0.4",
+    "prettier": "2.3.1",
     "rollup": "^2.38.5",
     "ts-jest": "^25.3.1",
-    "typescript": "^3.8.3",
-    "@types/chart.js": "^2.9.24"
+    "typescript": "^3.8.3"
   },
   "prettier": {
     "printWidth": 100,
