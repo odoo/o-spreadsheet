@@ -1,6 +1,6 @@
 import { ChartConfiguration } from "chart.js";
 import { Model, Spreadsheet } from "../../src";
-import { BACKGROUND_CHART_COLOR } from "../../src/constants";
+import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../src/constants";
 import { DispatchResult } from "../../src/types";
 import { createChart } from "../test_helpers/commands_helpers";
 import {
@@ -142,6 +142,27 @@ describe("figures", () => {
     expect(fixture.querySelector(".o-chart-menu")).toBeDefined();
     await simulateClick(".o-chart-menu");
     expect(fixture.querySelector(".o-menu")).toBeDefined();
+  });
+
+  test("Context menu is positioned according to the spreadsheet position", async () => {
+    const originalGetBoundingClientRect = HTMLDivElement.prototype.getBoundingClientRect;
+    jest
+      .spyOn(HTMLDivElement.prototype, "getBoundingClientRect")
+      // @ts-ignore the mock should return a complete DOMRect, not only { top, left }
+      .mockImplementation(function (this: HTMLDivElement) {
+        if (this.className.includes("o-spreadsheet")) {
+          return { top: 100, left: 200 };
+        } else if (this.className.includes("o-chart-container")) {
+          return { top: 500, left: 500 };
+        }
+        return originalGetBoundingClientRect.call(this);
+      });
+
+    await simulateClick(".o-figure");
+    await simulateClick(".o-chart-menu");
+    const menuPopover = fixture.querySelector(".o-menu")?.parentElement;
+    expect(menuPopover?.style.top).toBe(`${500 - 100}px`);
+    expect(menuPopover?.style.left).toBe(`${500 - 200 - MENU_WIDTH}px`);
   });
 
   test("Click on Delete button will delete the chart", async () => {
