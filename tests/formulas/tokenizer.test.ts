@@ -56,6 +56,17 @@ describe("tokenizer", () => {
       { type: "NUMBER", value: "1" },
     ]);
   });
+
+  test("#REF formula token", () => {
+    expect(tokenize("#REF")).toEqual([{ type: "INVALID_REFERENCE", value: "#REF" }]);
+    expect(tokenize("=#REF+1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "INVALID_REFERENCE", value: "#REF" },
+      { type: "OPERATOR", value: "+" },
+      { type: "NUMBER", value: "1" },
+    ]);
+  });
+
   test("String", () => {
     expect(tokenize('"hello"')).toEqual([{ type: "STRING", value: '"hello"' }]);
     expect(tokenize("'hello'")).toEqual([{ type: "SYMBOL", value: "'hello'" }]);

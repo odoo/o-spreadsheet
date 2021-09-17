@@ -10,7 +10,13 @@ import {
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getBorder, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
+import {
+  getBorder,
+  getCell,
+  getCellContent,
+  getCellError,
+  getCellText,
+} from "../test_helpers/getters_helpers";
 import { createEqualCF, getGrid, target } from "../test_helpers/helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
@@ -1337,6 +1343,15 @@ describe("clipboard: pasting outside of sheet", () => {
     model.dispatch("PASTE", { target: [toZone("B2")] });
     expect(activeSheet.cols.length).toBe(currentColNumber + 1);
     expect(getCellContent(model, "B2")).toBe("txt");
+  });
+
+  test("Copy a formula which lead to #REF", () => {
+    const model = new Model();
+    setCellContent(model, "B3", "=A1");
+    model.dispatch("COPY", { target: target("B3") });
+    model.dispatch("PASTE", { target: target("B2") });
+    expect(getCellContent(model, "B2", "#BAD_EXPR"));
+    expect(getCellError(model, "B2")).toEqual("Invalid reference");
   });
 
   test("Can cut & paste a formula", () => {

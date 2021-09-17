@@ -1,3 +1,4 @@
+import { INCORRECT_RANGE_STRING } from "../constants";
 import { functionRegistry } from "../functions/index";
 import { formulaNumberRegexp } from "../helpers/index";
 import { _lt } from "../translation";
@@ -35,6 +36,7 @@ export type TokenType =
   | "LEFT_PAREN"
   | "RIGHT_PAREN"
   | "REFERENCE"
+  | "INVALID_REFERENCE"
   | "UNKNOWN";
 
 export interface Token {
@@ -64,6 +66,7 @@ export function tokenize(str: string): Token[] {
       tokenizeString(chars) ||
       tokenizeDebugger(chars) ||
       tokenizeNormalizedReferences(chars) ||
+      tokenizeInvalidRange(chars) ||
       tokenizeSymbol(chars);
 
     if (!token) {
@@ -226,6 +229,14 @@ function tokenizeSpace(chars: string[]): Token | null {
 
   if (length) {
     return { type: "SPACE", value: " ".repeat(length) };
+  }
+  return null;
+}
+
+function tokenizeInvalidRange(chars: string[]): Token | null {
+  if (startsWith(chars, INCORRECT_RANGE_STRING)) {
+    chars.splice(0, INCORRECT_RANGE_STRING.length);
+    return { type: "INVALID_REFERENCE", value: INCORRECT_RANGE_STRING };
   }
   return null;
 }
