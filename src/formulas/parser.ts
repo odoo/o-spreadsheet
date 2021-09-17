@@ -143,6 +143,8 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
         type: "REFERENCE",
         value: parseInt(current.value, 10),
       };
+    case "INVALID_REFERENCE":
+      throw new Error(_lt("Invalid reference"));
     case "SYMBOL":
       if (["TRUE", "FALSE"].includes(current.value.toUpperCase())) {
         return { type: "BOOLEAN", value: current.value.toUpperCase() === "TRUE" } as AST;
