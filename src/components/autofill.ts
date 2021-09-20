@@ -101,7 +101,11 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
   onMouseDown(ev: MouseEvent) {
     this.state.handler = true;
     this.state.position = { left: 0, top: 0 };
-    const start = { left: ev.clientX, top: ev.clientY };
+    const { offsetY, offsetX } = this.env.getters.getActiveSnappedViewport();
+    const start = {
+      left: ev.clientX + offsetX,
+      top: ev.clientY + offsetY,
+    };
     let lastCol: number | undefined;
     let lastRow: number | undefined;
 
@@ -111,13 +115,18 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
     };
 
     const onMouseMove = (ev: MouseEvent) => {
-      this.state.position = {
-        left: ev.clientX - start.left,
-        top: ev.clientY - start.top,
-      };
       const parent = this.el!.parentElement! as HTMLElement;
       const position = parent.getBoundingClientRect();
-      const { top: viewportTop, left: viewportLeft } = this.env.getters.getActiveSnappedViewport();
+      const {
+        top: viewportTop,
+        left: viewportLeft,
+        offsetY,
+        offsetX,
+      } = this.env.getters.getActiveSnappedViewport();
+      this.state.position = {
+        left: ev.clientX - start.left + offsetX,
+        top: ev.clientY - start.top + offsetY,
+      };
       const col = this.env.getters.getColIndex(ev.clientX - position.left, viewportLeft);
       const row = this.env.getters.getRowIndex(ev.clientY - position.top, viewportTop);
       if (lastCol !== col || lastRow !== row) {

@@ -7,6 +7,7 @@ export function startDnd(onMouseMove: EventFn, onMouseUp: EventFn) {
     window.removeEventListener("mouseup", _onMouseUp);
     window.removeEventListener("dragstart", _onDragStart);
     window.removeEventListener("mousemove", onMouseMove);
+    window.removeEventListener("wheel", onMouseMove);
   };
   function _onDragStart(ev: DragEvent) {
     ev.preventDefault();
@@ -15,6 +16,7 @@ export function startDnd(onMouseMove: EventFn, onMouseUp: EventFn) {
   window.addEventListener("mouseup", _onMouseUp);
   window.addEventListener("dragstart", _onDragStart);
   window.addEventListener("mousemove", onMouseMove);
+  window.addEventListener("wheel", onMouseMove);
 }
 
 /**
