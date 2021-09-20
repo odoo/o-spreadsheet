@@ -76,6 +76,94 @@ describe("Autofill component", () => {
     expect(parent.env.dispatch).toHaveBeenCalledWith("AUTOFILL_AUTO");
   });
 
+  test("tooltip position when moving the mouse", async () => {
+    const autofill = fixture.querySelector(".o-autofill");
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
+    setCellContent(model, "A1", "test");
+    await nextTick();
+    triggerMouseEvent(autofill, "mousedown", 40, 40);
+    await nextTick();
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
+    const sheetId = parent.env.getters.getActiveSheetId();
+    const x = HEADER_WIDTH + parent.env.getters.getCol(sheetId, 1)!.end + 20;
+    const y = HEADER_HEIGHT + parent.env.getters.getRow(sheetId, 0)!.start + 20;
+    triggerMouseEvent(autofill, "mousemove", x, y);
+    await nextTick();
+    expect(fixture.querySelector(".o-autofill")).not.toBeNull();
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
+      <div
+        class="o-autofill-nextvalue"
+        style="top:11px;left:235px;"
+      >
+        <div>
+          test
+        </div>
+      </div>
+    `);
+  });
+
+  test("tooltip position when scrolling", async () => {
+    const autofill = fixture.querySelector(".o-autofill");
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
+    setCellContent(model, "A1", "test");
+    await nextTick();
+    triggerMouseEvent(autofill, "mousedown", 40, 40);
+    await nextTick();
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
+    const sheetId = parent.env.getters.getActiveSheetId();
+    const x = HEADER_WIDTH + parent.env.getters.getCol(sheetId, 1)!.end + 20;
+    const y = HEADER_HEIGHT + parent.env.getters.getRow(sheetId, 0)!.start + 20;
+    fixture.querySelector(".o-grid")!.dispatchEvent(
+      new WheelEvent("wheel", {
+        clientX: x,
+        clientY: y,
+        bubbles: true,
+      })
+    );
+    await nextTick();
+    expect(fixture.querySelector(".o-autofill")).not.toBeNull();
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
+      <div
+        class="o-autofill-nextvalue"
+        style="top:11px;left:235px;"
+      >
+        <div>
+          test
+        </div>
+      </div>
+    `);
+  });
+
+  test("tooltip position when viewport is not at the top", async () => {
+    const autofill = fixture.querySelector(".o-autofill");
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: 500,
+      offsetY: 500,
+    });
+    setCellContent(model, "A1", "test");
+    await nextTick();
+    triggerMouseEvent(autofill, "mousedown", 40, 40);
+    await nextTick();
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
+    const sheetId = parent.env.getters.getActiveSheetId();
+    const x = HEADER_WIDTH + parent.env.getters.getCol(sheetId, 1)!.end + 20;
+    const y = HEADER_HEIGHT + parent.env.getters.getRow(sheetId, 0)!.start + 20;
+    triggerMouseEvent(autofill, "mousemove", x, y);
+    await nextTick();
+    expect(fixture.querySelector(".o-autofill")).not.toBeNull();
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
+      <div
+        class="o-autofill-nextvalue"
+        style="top:11px;left:235px;"
+      >
+        <div>
+          test
+        </div>
+      </div>
+    `);
+  });
+
   test("Can display tooltip with autofill", async () => {
     const autofill = fixture.querySelector(".o-autofill");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
