@@ -71,6 +71,78 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-color-line").length).toBe(0);
   });
 
+  test("toolMenu item background color select/unselect", async () => {
+    const model = new Model();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    const toolMenu = fixture.querySelector('.o-tool[title="Horizontal align"]')!;
+    expect(toolMenu.classList.contains("o-dropdown-selected")).toBeFalsy();
+    fixture.querySelector('div[title="Horizontal align"]')!.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
+    expect(toolMenu.classList.contains("o-dropdown-selected")).toBeTruthy();
+    fixture.querySelector('div[title="Horizontal align"]')!.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
+    expect(toolMenu.classList.contains("o-dropdown-selected")).toBeFalsy();
+  });
+
+  test("toolMenu item background color select/select other", async () => {
+    const model = new Model();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    const toolMenuHA = fixture.querySelector('.o-tool[title="Horizontal align"]')!;
+    const toolMenuMF = fixture.querySelector('.o-tool[title="More formats"]')!;
+    expect(toolMenuHA.classList.contains("o-dropdown-selected")).toBeFalsy();
+    expect(toolMenuMF.classList.contains("o-dropdown-selected")).toBeFalsy();
+    fixture.querySelector('div[title="Horizontal align"]')!.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
+    expect(toolMenuHA.classList.contains("o-dropdown-selected")).toBeTruthy();
+    expect(toolMenuMF.classList.contains("o-dropdown-selected")).toBeFalsy();
+    fixture.querySelector('div[title="More formats"]')!.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
+    expect(toolMenuHA.classList.contains("o-dropdown-selected")).toBeFalsy();
+    expect(toolMenuMF.classList.contains("o-dropdown-selected")).toBeTruthy();
+  });
+
+  test("ContextMenu item background color select/unselect", async () => {
+    const model = new Model();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    const ContextMenu = fixture.querySelector('.o-topbar-menu[data-id="file"]')!;
+    expect(ContextMenu.classList.contains("o-context-menu-selected")).toBeFalsy();
+    ContextMenu.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu").length).toBe(1);
+    expect(ContextMenu.classList.contains("o-context-menu-selected")).toBeTruthy();
+    ContextMenu.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu").length).toBe(0);
+    expect(ContextMenu.classList.contains("o-context-menu-selected")).toBeFalsy();
+  });
+
+  test("ContextMenu item background color select/select other", async () => {
+    const model = new Model();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    const ContextMenuFile = fixture.querySelector('.o-topbar-menu[data-id="file"]')!;
+    const ContextMenuEdit = fixture.querySelector('.o-topbar-menu[data-id="edit"]')!;
+    expect(ContextMenuFile.classList.contains("o-context-menu-selected")).toBeFalsy();
+    expect(ContextMenuEdit.classList.contains("o-context-menu-selected")).toBeFalsy();
+    ContextMenuFile.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu").length).toBe(1);
+    expect(ContextMenuFile.classList.contains("o-context-menu-selected")).toBeTruthy();
+    expect(ContextMenuEdit.classList.contains("o-context-menu-selected")).toBeFalsy();
+    ContextMenuEdit.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu").length).toBe(1);
+    expect(ContextMenuFile.classList.contains("o-context-menu-selected")).toBeFalsy();
+    expect(ContextMenuEdit.classList.contains("o-context-menu-selected")).toBeTruthy();
+  });
+
   test("merging cell button state is correct", async () => {
     const model = new Model({
       sheets: [

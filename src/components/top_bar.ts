@@ -24,9 +24,12 @@ type Tool =
   | "borderTool"
   | "fontSizeTool";
 
+type ContextMenu = "" | "file" | "edit" | "view" | "insert" | "format";
+
 interface State {
   menuState: MenuState;
   activeTool: Tool;
+  activeContextMenu: ContextMenu;
 }
 
 const FORMATS = [
@@ -53,6 +56,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
               class="o-topbar-menu"
               t-on-click="toggleContextMenu(menu)"
               t-on-mouseover="onMenuMouseOver(menu)"
+              t-att-class="{'o-context-menu-selected': state.activeContextMenu === menu.id}"
               t-att-data-id="menu.id">
             <t t-esc="getMenuName(menu)"/>
           </div>
@@ -81,8 +85,8 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           <div class="o-tool" title="Format as percent" t-on-click="toogleFormat('percent')">%</div>
           <div class="o-tool" title="Decrease decimal places" t-on-click="setDecimal(-1)">.0</div>
           <div class="o-tool" title="Increase decimal places" t-on-click="setDecimal(+1)">.00</div>
-          <div class="o-tool o-dropdown" title="More formats" t-on-click="toggleDropdownTool('formatTool')">
-            <div class="o-text-icon">123${icons.TRIANGLE_DOWN_ICON}</div>
+          <div class="o-tool o-dropdown" t-att-class="{'o-dropdown-selected': state.activeTool === 'formatTool'}" title="More formats" t-on-click="toggleDropdownTool('formatTool')">
+            <div class="o-text-icon" >123${icons.TRIANGLE_DOWN_ICON}</div>
             <div class="o-dropdown-content o-text-options  o-format-tool "  t-if="state.activeTool === 'formatTool'" t-on-click="setFormat">
               <t t-foreach="formats" t-as="format" t-key="format.name">
                 <div t-att-data-format="format.name" t-att-class="{active: currentFormat === format.name}"><t t-esc="format.text"/></div>
@@ -91,7 +95,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           </div>
           <div class="o-divider"/>
           <!-- <div class="o-tool" title="Font"><span>Roboto</span> ${icons.TRIANGLE_DOWN_ICON}</div> -->
-          <div class="o-tool o-dropdown" title="Font Size" t-on-click="toggleDropdownTool('fontSizeTool')">
+          <div class="o-tool o-dropdown" t-att-class="{'o-dropdown-selected': state.activeTool === 'fontSizeTool'}" title="Font Size" t-on-click="toggleDropdownTool('fontSizeTool')">
             <div class="o-text-icon"><t t-esc="style.fontSize || ${DEFAULT_FONT_SIZE}"/> ${icons.TRIANGLE_DOWN_ICON}</div>
             <div class="o-dropdown-content o-text-options "  t-if="state.activeTool === 'fontSizeTool'" t-on-click="setSize">
               <t t-foreach="fontSizes" t-as="font" t-key="font_index">
@@ -103,16 +107,16 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           <div class="o-tool" title="Bold" t-att-class="{active:style.bold}" t-on-click="toogleStyle('bold')">${icons.BOLD_ICON}</div>
           <div class="o-tool" title="Italic" t-att-class="{active:style.italic}" t-on-click="toogleStyle('italic')">${icons.ITALIC_ICON}</div>
           <div class="o-tool" title="Strikethrough"  t-att-class="{active:style.strikethrough}" t-on-click="toogleStyle('strikethrough')">${icons.STRIKE_ICON}</div>
-          <div class="o-tool o-dropdown o-with-color">
+          <div class="o-tool o-dropdown o-with-color" t-att-class="{'o-dropdown-selected': state.activeTool === 'textColorTool'}">
             <span t-attf-style="border-color:{{textColor}}" title="Text Color" t-on-click="toggleDropdownTool('textColorTool')">${icons.TEXT_COLOR_ICON}</span>
             <ColorPicker t-if="state.activeTool === 'textColorTool'" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
           </div>
           <div class="o-divider"/>
-          <div class="o-tool  o-dropdown o-with-color">
+          <div class="o-tool  o-dropdown o-with-color" t-att-class="{'o-dropdown-selected': state.activeTool === 'fillColorTool'}">
             <span t-attf-style="border-color:{{fillColor}}" title="Fill Color" t-on-click="toggleDropdownTool('fillColorTool')">${icons.FILL_COLOR_ICON}</span>
             <ColorPicker t-if="state.activeTool === 'fillColorTool'" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
           </div>
-          <div class="o-tool o-dropdown">
+          <div class="o-tool o-dropdown" t-att-class="{'o-dropdown-selected': state.activeTool === 'borderTool'}">
             <span title="Borders" t-on-click="toggleDropdownTool('borderTool')">${icons.BORDERS_ICON}</span>
             <div class="o-dropdown-content o-border" t-if="state.activeTool === 'borderTool'">
               <div class="o-dropdown-line">
@@ -133,7 +137,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           </div>
           <div class="o-tool" title="Merge Cells"  t-att-class="{active:inMerge, 'o-disabled': cannotMerge}" t-on-click="toggleMerge">${icons.MERGE_CELL_ICON}</div>
           <div class="o-divider"/>
-          <div class="o-tool o-dropdown" title="Horizontal align" t-on-click="toggleDropdownTool('alignTool')">
+          <div t-att-class="{'o-tool':true,'o-dropdown':true, 'o-dropdown-selected':state.activeTool === 'alignTool'}" title="Horizontal align" t-on-click="toggleDropdownTool('alignTool')">
             <span>
               <t t-if="style.align === 'right'">${icons.ALIGN_RIGHT_ICON}</t>
               <t t-elif="style.align === 'center'">${icons.ALIGN_CENTER_ICON}</t>
@@ -179,7 +183,9 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             margin: 0 2px;
             cursor: pointer;
           }
-
+          .o-context-menu-selected {
+            background-color: #f1f3f4;
+          }
           .o-topbar-menu:hover {
             background-color: #f1f3f4;
             border-radius: 2px;
@@ -248,7 +254,9 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           .o-disabled {
             opacity: 0.6;
           }
-
+          .o-dropdown-selected {
+            background-color: #f1f3f4;
+          }
           .o-dropdown {
             position: relative;
 
@@ -340,6 +348,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   state: State = useState({
     menuState: { isOpen: false, position: null, menuItems: [] },
     activeTool: "",
+    activeContextMenu: "",
   });
   isSelectingMenu = false;
   openedEl: HTMLElement | null = null;
@@ -356,6 +365,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   constructor() {
     super(...arguments);
     useExternalListener(window as any, "click", this.onClick);
+    useExternalListener(window as any, "contextmenu", this.onClick);
   }
 
   get topbarComponents() {
@@ -406,22 +416,31 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   }
 
   toggleContextMenu(menu: FullMenuItem, ev: MouseEvent) {
+    const isOpen = this.state.activeContextMenu === menu.id && ev.type === "click";
     this.closeMenus();
-    const x = (ev.target as HTMLElement).offsetLeft;
-    const y = (ev.target as HTMLElement).clientHeight + (ev.target as HTMLElement).offsetTop;
-    this.state.menuState.isOpen = true;
-    const width = this.el!.clientWidth;
-    const height = this.el!.parentElement!.clientHeight;
-    this.state.menuState.position = { x, y, width, height };
-    this.state.menuState.menuItems = topbarMenuRegistry
-      .getChildren(menu, this.env)
-      .filter((item) => !item.isVisible || item.isVisible(this.env));
-    this.isSelectingMenu = true;
-    this.openedEl = ev.target as HTMLElement;
+    this.state.activeContextMenu = isOpen ? "" : (menu.id as ContextMenu);
+    this.state.menuState.isOpen = !isOpen;
+    if (isOpen) {
+      this.state.menuState = { isOpen: false, position: null, menuItems: [] };
+      this.isSelectingMenu = false;
+      this.openedEl = null;
+    } else {
+      const x = (ev.target as HTMLElement).offsetLeft;
+      const y = (ev.target as HTMLElement).clientHeight + (ev.target as HTMLElement).offsetTop;
+      const width = this.el!.clientWidth;
+      const height = this.el!.parentElement!.clientHeight;
+      this.state.menuState.position = { x, y, width, height };
+      this.state.menuState.menuItems = topbarMenuRegistry
+        .getChildren(menu, this.env)
+        .filter((item) => !item.isVisible || item.isVisible(this.env));
+      this.isSelectingMenu = true;
+      this.openedEl = ev.target as HTMLElement;
+    }
   }
 
   closeMenus() {
     this.state.activeTool = "";
+    this.state.activeContextMenu = "";
     this.state.menuState.isOpen = false;
     this.isSelectingMenu = false;
     this.openedEl = null;

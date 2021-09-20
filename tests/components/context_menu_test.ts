@@ -142,7 +142,7 @@ class ContextMenuParent extends Component<any, SpreadsheetEnv> {
   }
 }
 
-function simulateContextMenu(x, y) {
+export function simulateContextMenu(x, y) {
   triggerMouseEvent("canvas", "mousedown", x, y, { button: 1, bubbles: true });
   triggerMouseEvent("canvas", "mouseup", x, y, { button: 1, bubbles: true });
   triggerMouseEvent("canvas", "contextmenu", x, y, { button: 1, bubbles: true });
@@ -542,6 +542,43 @@ describe("Context Menu", () => {
     // grid always at (0, 0) scroll position
     expect(parent.grid.comp.vScrollbar.scroll).toBe(0);
     expect(parent.grid.comp.hScrollbar.scroll).toBe(0);
+  });
+
+  test("Opening context menu closes topbar menu", async () => {
+    const model = new Model();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    const ContextMenuFile = fixture.querySelector('.o-topbar-menu[data-id="file"]')!;
+    expect(ContextMenuFile.classList.contains("o-context-menu-selected")).toBeFalsy();
+    expect(fixture.querySelector(".o-menu-item[data-name='clear_cell']")).toBeFalsy();
+    ContextMenuFile.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu-item[data-name='save']").length).toBe(1);
+    expect(ContextMenuFile.classList.contains("o-context-menu-selected")).toBeTruthy();
+    expect(fixture.querySelector(".o-menu-item[data-name='clear_cell']")).toBeFalsy();
+    simulateContextMenu(300, 200);
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu-item[data-name='save']").length).toBe(0);
+    expect(ContextMenuFile.classList.contains("o-context-menu-selected")).toBeFalsy();
+    expect(fixture.querySelector(".o-menu-item[data-name='clear_cell']")).toBeTruthy();
+  });
+
+  test("Opening topbar menu closes context menu", async () => {
+    const model = new Model();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    const ContextMenuFile = fixture.querySelector('.o-topbar-menu[data-id="file"]')!;
+    expect(ContextMenuFile.classList.contains("o-context-menu-selected")).toBeFalsy();
+    expect(fixture.querySelector(".o-menu-item[data-name='clear_cell']")).toBeFalsy();
+    simulateContextMenu(300, 200);
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu-item[data-name='save']").length).toBe(0);
+    expect(ContextMenuFile.classList.contains("o-context-menu-selected")).toBeFalsy();
+    expect(fixture.querySelector(".o-menu-item[data-name='clear_cell']")).toBeTruthy();
+    await simulateClick('.o-topbar-menu[data-id="file"]');
+    expect(fixture.querySelectorAll(".o-menu-item[data-name='save']").length).toBe(1);
+    expect(ContextMenuFile.classList.contains("o-context-menu-selected")).toBeTruthy();
+    expect(fixture.querySelector(".o-menu-item[data-name='clear_cell']")).toBeFalsy();
   });
 });
 

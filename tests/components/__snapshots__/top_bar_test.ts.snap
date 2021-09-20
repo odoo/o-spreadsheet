@@ -132,7 +132,7 @@ exports[`TopBar component can set cell format 1`] = `
         .00
       </div>
       <div
-        class="o-tool o-dropdown"
+        class="o-tool o-dropdown o-dropdown-selected"
         title="More formats"
       >
         <div
