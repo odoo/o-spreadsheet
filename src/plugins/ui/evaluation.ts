@@ -1,6 +1,5 @@
 import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { isEmpty, isFormula } from "../../helpers/cells/index";
 import { mapCellsInZone, toXC } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
@@ -134,7 +133,7 @@ export class EvaluationPlugin extends UIPlugin {
     const params = this.getFormulaParameters(computeValue);
     const visited: { [sheetId: string]: { [xc: string]: boolean | null } } = {};
     for (let cell of makeObjectIterator(cells)) {
-      if (isFormula(cell)) {
+      if (cell.isFormula()) {
         cell.startEvaluation();
       }
     }
@@ -157,7 +156,7 @@ export class EvaluationPlugin extends UIPlugin {
     }
 
     function computeValue(cell: Cell, sheetId: string) {
-      if (!isFormula(cell)) {
+      if (!cell.isFormula()) {
         return;
       }
       const position = params[2].getters.getCellPosition(cell.id);
@@ -203,7 +202,7 @@ export class EvaluationPlugin extends UIPlugin {
       } else {
         throw new Error(_lt("Invalid sheet name"));
       }
-      if (!cell || isEmpty(cell)) {
+      if (!cell || cell.isEmpty()) {
         // magic "empty" value
         return null;
       }
@@ -211,7 +210,7 @@ export class EvaluationPlugin extends UIPlugin {
     }
 
     function getCellValue(cell: Cell, sheetId: UID): any {
-      if (isFormula(cell) && cell.evaluated.type === CellValueType.error) {
+      if (cell.isFormula() && cell.evaluated.type === CellValueType.error) {
         throw new Error(_lt("This formula depends on invalid values"));
       }
       computeValue(cell, sheetId);

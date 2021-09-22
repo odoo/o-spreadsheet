@@ -1,4 +1,3 @@
-import { isFormula } from "../../helpers/cells/index";
 import { Cell, Command, GridRenderingContext, LAYERS, UID } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
@@ -152,7 +151,7 @@ export class FindAndReplacePlugin extends UIPlugin {
           this.currentSearchRegex &&
           this.currentSearchRegex.test(
             this.searchOptions.searchFormulas
-              ? isFormula(cell)
+              ? cell.isFormula()
                 ? cell.content
                 : String(cell.evaluated.value)
               : String(cell.evaluated.value)
@@ -271,9 +270,9 @@ export class FindAndReplacePlugin extends UIPlugin {
    */
   private toReplace(cell: Cell | undefined, sheetId: UID): string | null {
     if (cell) {
-      if (this.searchOptions.searchFormulas && isFormula(cell)) {
+      if (this.searchOptions.searchFormulas && cell.isFormula()) {
         return cell.content;
-      } else if (this.replaceOptions.modifyFormulas || !isFormula(cell)) {
+      } else if (this.replaceOptions.modifyFormulas || !cell.isFormula()) {
         return (cell.evaluated.value as any).toString();
       }
     }

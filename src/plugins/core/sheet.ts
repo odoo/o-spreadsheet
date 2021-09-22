@@ -1,5 +1,4 @@
 import { FORBIDDEN_IN_EXCEL_REGEX } from "../../constants";
-import { isEmpty } from "../../helpers/cells/index";
 import {
   createCols,
   createDefaultCols,
@@ -381,7 +380,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const sheet = this.getSheet(sheetId);
     return mapCellsInZone(zone, sheet, (cell) => cell, undefined)
       .flat()
-      .every(isEmpty);
+      .every((cell) => !cell || cell.isEmpty());
   }
 
   private setHeaderSize(sheet: Sheet, dimension: "cols" | "rows", index: number, size: number) {

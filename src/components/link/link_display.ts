@@ -1,7 +1,6 @@
 import * as owl from "@odoo/owl";
 import { LINK_COLOR } from "../../constants";
 import { toXC } from "../../helpers";
-import { isLink } from "../../helpers/cells/index";
 import { LinkCell, Position, SpreadsheetEnv } from "../../types";
 import { EDIT, UNLINK } from "../icons";
 import { Menu } from "../menu";
@@ -80,7 +79,7 @@ export class LinkDisplay extends Component<{ cellPosition: Position }, Spreadshe
     const { col, row } = this.props.cellPosition;
     const sheetId = this.getters.getActiveSheetId();
     const cell = this.getters.getCell(sheetId, col, row);
-    if (isLink(cell)) {
+    if (cell?.isLink()) {
       return cell;
     }
     throw new Error(

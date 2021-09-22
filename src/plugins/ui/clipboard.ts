@@ -1,5 +1,5 @@
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import { formatValue, isFormula } from "../../helpers/cells/index";
+import { formatValue } from "../../helpers/cells/index";
 import { clip, overlap } from "../../helpers/index";
 import { Mode } from "../../model";
 import { _lt } from "../../translation";
@@ -568,7 +568,7 @@ export class ClipboardPlugin extends UIPlugin {
       }
       let content = origin.cell.content;
 
-      if (isFormula(origin.cell)) {
+      if (origin.cell.isFormula()) {
         const offsetX = col - origin.position.col;
         const offsetY = row - origin.position.row;
         content = this.getUpdatedContent(sheetId, origin.cell, offsetX, offsetY, zones, operation);

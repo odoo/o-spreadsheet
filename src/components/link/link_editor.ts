@@ -1,5 +1,4 @@
 import * as owl from "@odoo/owl";
-import { isLink } from "../../helpers/cells/index";
 import { markdownLink } from "../../helpers/index";
 import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
 import { DOMCoordinates, Link, Position, SpreadsheetEnv } from "../../types";
@@ -150,7 +149,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
     const { col, row } = this.props.cellPosition;
     const sheetId = this.getters.getActiveSheetId();
     const cell = this.getters.getCell(sheetId, col, row);
-    if (isLink(cell)) {
+    if (cell?.isLink()) {
       return {
         link: { url: cell.link.url, label: cell.formattedValue },
         urlRepresentation: cell.urlRepresentation,

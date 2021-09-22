@@ -2,7 +2,7 @@ import { DATETIME_FORMAT, NULL_FORMAT } from "../../constants";
 import { compile } from "../../formulas/index";
 import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
 import { cellFactory } from "../../helpers/cells/cell_factory";
-import { FormulaCell, isEmpty, isFormula } from "../../helpers/cells/index";
+import { FormulaCell } from "../../helpers/cells/index";
 import {
   isInside,
   maximumDecimalPlaces,
@@ -61,7 +61,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
-        if (isFormula(cell)) {
+        if (cell.isFormula()) {
           for (const range of cell.dependencies) {
             if (!sheetId || range.sheetId === sheetId) {
               const change = applyChange(range);
@@ -391,7 +391,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           style: cell.style && getStyleId(cell.style),
           format: cell.format,
         };
-        if (isFormula(cell)) {
+        if (cell.isFormula()) {
           cells[xc].formula = {
             text: cell.normalizedText || "",
             dependencies:
@@ -601,7 +601,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
      *  */
     if (
       ((hasContent && !afterContent && !after.formula) ||
-        (!hasContent && (isEmpty(before) || !before))) &&
+        (!hasContent && (!before || before.isEmpty()))) &&
       !style &&
       !format
     ) {

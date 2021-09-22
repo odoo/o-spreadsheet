@@ -41,6 +41,9 @@ export interface ICell {
    * Return a copy of the cell with new display properties.
    */
   withDisplayProperties: (properties: CellDisplayProperties) => this;
+  isFormula(): this is FormulaCell;
+  isLink(): this is LinkCell;
+  isEmpty(): boolean;
 }
 
 export interface FormulaCell extends ICell {

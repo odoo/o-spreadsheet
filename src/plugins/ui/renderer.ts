@@ -16,7 +16,6 @@ import {
   TEXT_HEADER_COLOR,
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { isEmpty, isFormula } from "../../helpers/cells/index";
 import { overlap, scrollDelay } from "../../helpers/index";
 import { Mode } from "../../model";
 import {
@@ -40,7 +39,7 @@ import { UIPlugin } from "../ui_plugin";
 // -----------------------------------------------------------------------------
 
 function computeAlign(cell: Cell, isShowingFormulas: boolean): "right" | "center" | "left" {
-  if (isFormula(cell) && isShowingFormulas) {
+  if (cell.isFormula() && isShowingFormulas) {
     return "left";
   }
   return cell.defaultAlign;
@@ -453,7 +452,7 @@ export class RendererPlugin extends UIPlugin {
   private hasContent(col: number, row: number): boolean {
     const sheetId = this.getters.getActiveSheetId();
     const cell = this.getters.getCell(sheetId, col, row);
-    return !isEmpty(cell) || this.getters.isInMerge(sheetId, col, row);
+    return (cell && !cell.isEmpty()) || this.getters.isInMerge(sheetId, col, row);
   }
 
   private getGridBoxes(renderingContext: GridRenderingContext): Box[] {
