@@ -1,4 +1,4 @@
-import { formatValue, isFormula } from "../helpers/cells/index";
+import { formatValue } from "../helpers/cells/index";
 import { Registry } from "../registry";
 import {
   AutofillData,
@@ -71,7 +71,7 @@ autofillModifiersRegistry
           y = 0;
           break;
       }
-      if (!data.cell || !isFormula(data.cell)) {
+      if (!data.cell || !data.cell.isFormula()) {
         return { cellData: {} };
       }
       const sheetId = data.sheetId;

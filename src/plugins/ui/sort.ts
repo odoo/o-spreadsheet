@@ -1,4 +1,3 @@
-import { isFormula } from "../../helpers/cells/index";
 import { isEqual, isInside, mapCellsInZone, overlap, zoneToDimension } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
@@ -430,7 +429,7 @@ export class SortPlugin extends UIPlugin {
         };
         if (cell) {
           let content: string = cell.content;
-          if (isFormula(cell)) {
+          if (cell.isFormula()) {
             const position = this.getters.getCellPosition(cell.id);
             const offsetY = newRow - position.row;
             // we only have a vertical offset

@@ -1,5 +1,4 @@
 import { DATETIME_FORMAT } from "../constants";
-import { isFormula } from "../helpers/cells/index";
 import { Registry } from "../registry";
 import { AutofillModifier, Cell, CellValueType } from "../types/index";
 
@@ -58,7 +57,7 @@ function getAverageIncrement(group: number[]) {
 autofillRulesRegistry
   .add("simple_value_copy", {
     condition: (cell: Cell, cells: (Cell | undefined)[]) => {
-      return cells.length === 1 && !isFormula(cell) && !cell.format?.match(DATETIME_FORMAT);
+      return cells.length === 1 && !cell.isFormula() && !cell.format?.match(DATETIME_FORMAT);
     },
     generateRule: () => {
       return { type: "COPY_MODIFIER" };
@@ -66,14 +65,14 @@ autofillRulesRegistry
     sequence: 10,
   })
   .add("copy_text", {
-    condition: (cell: Cell) => !isFormula(cell) && cell.evaluated.type === CellValueType.text,
+    condition: (cell: Cell) => !cell.isFormula() && cell.evaluated.type === CellValueType.text,
     generateRule: () => {
       return { type: "COPY_MODIFIER" };
     },
     sequence: 20,
   })
   .add("update_formula", {
-    condition: isFormula,
+    condition: (cell: Cell) => cell.isFormula(),
     generateRule: (_, cells: (Cell | undefined)[]) => {
       return { type: "FORMULA_MODIFIER", increment: cells.length, current: 0 };
     },

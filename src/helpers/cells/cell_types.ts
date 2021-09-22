@@ -2,7 +2,6 @@ import { DATETIME_FORMAT, LINK_COLOR, LOADING } from "../../constants";
 import { _lt } from "../../translation";
 import {
   BooleanEvaluation,
-  Cell,
   CellDisplayProperties,
   CellEvaluation,
   CellValue,
@@ -39,6 +38,17 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
   constructor(readonly id: UID, public evaluated: T, properties: CellDisplayProperties) {
     this.style = properties.style;
     this.format = properties.format;
+  }
+  isFormula(): this is IFormulaCell {
+    return false;
+  }
+
+  isLink(): this is ILinkCell {
+    return false;
+  }
+
+  isEmpty(): boolean {
+    return false;
   }
 
   get formattedValue() {
@@ -94,6 +104,10 @@ export class EmptyCell extends AbstractCell<EmptyEvaluation> {
   readonly content = "";
   constructor(id: UID, properties: CellDisplayProperties = {}) {
     super(id, { value: "", type: CellValueType.empty }, properties);
+  }
+
+  isEmpty() {
+    return true;
   }
 }
 
@@ -155,6 +169,10 @@ export abstract class LinkCell extends AbstractCell<TextEvaluation> implements I
     this.content = content;
   }
   abstract action(env: SpreadsheetEnv): void;
+
+  isLink() {
+    return true;
+  }
 
   get composerContent() {
     return this.link.label;
@@ -240,6 +258,10 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
     return this.buildFormulaString(this.normalizedText, this.dependencies);
   }
 
+  isFormula() {
+    return true;
+  }
+
   startEvaluation() {
     this.evaluated = { value: LOADING, type: CellValueType.text };
   }
@@ -305,16 +327,4 @@ export class BadExpressionCell extends AbstractCell<InvalidEvaluation> {
   constructor(id: UID, readonly content: string, error: string, properties: CellDisplayProperties) {
     super(id, { value: "#BAD_EXPR", type: CellValueType.error, error }, properties);
   }
-}
-
-export function isFormula(cell: ICell): cell is IFormulaCell {
-  return cell instanceof FormulaCell;
-}
-
-export function isEmpty(cell: Cell | undefined): boolean {
-  return !cell || cell instanceof EmptyCell;
-}
-
-export function isLink(cell: ICell | undefined): cell is ILinkCell {
-  return cell instanceof LinkCell;
 }

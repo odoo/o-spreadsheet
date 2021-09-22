@@ -1,4 +1,3 @@
-import { isEmpty } from "../../helpers/cells/index";
 import {
   updateAddColumns,
   updateAddRows,
@@ -307,7 +306,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
       for (let col = left; col <= right; col++) {
         if (col !== left || row !== top) {
           const cell = actualRow.cells[col];
-          if (cell && !isEmpty(cell)) {
+          if (cell && !cell.isEmpty()) {
             return true;
           }
         }

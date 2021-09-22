@@ -1,5 +1,4 @@
 import { composerTokenize, EnrichedToken } from "../../formulas/index";
-import { isLink } from "../../helpers/cells/index";
 import {
   colors,
   getComposerSheetName,
@@ -378,7 +377,7 @@ export class EditionPlugin extends UIPlugin {
           if (missing > 0) {
             content += new Array(missing).fill(")").join("");
           }
-        } else if (isLink(cell)) {
+        } else if (cell?.isLink()) {
           content = markdownLink(content, cell.link.url);
         }
         this.dispatch("UPDATE_CELL", {

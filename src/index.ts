@@ -11,7 +11,7 @@ import {
 } from "./constants";
 import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
-import { isFormula, LinkCell } from "./helpers/cells/index";
+import { LinkCell } from "./helpers/cells/index";
 import {
   computeTextWidth,
   formatDecimal,
@@ -121,7 +121,6 @@ export const helpers = {
   UuidGenerator,
   formatDecimal,
   computeTextWidth,
-  isFormula,
   isMarkdownLink,
   parseMarkdownLink,
   markdownLink,

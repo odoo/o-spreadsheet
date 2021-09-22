@@ -1,6 +1,5 @@
 import { Model } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
-import { isLink } from "../../../src/helpers/cells/index";
 import { clearCell, createSheet, setCellContent } from "../../test_helpers/commands_helpers";
 import { clickCell, rightClickCell, simulateClick } from "../../test_helpers/dom_helper";
 import { getCell } from "../../test_helpers/getters_helpers";
@@ -102,7 +101,7 @@ describe("link display component", () => {
     await simulateClick(".o-unlink");
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
     const cell = getCell(model, "A1");
-    expect(isLink(cell)).toBeFalsy();
+    expect(cell?.isLink()).toBeFalsy();
     expect(cell?.content).toBe("label");
   });
 

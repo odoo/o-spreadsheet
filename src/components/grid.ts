@@ -10,8 +10,6 @@ import {
   SCROLLBAR_WIDTH,
   TOPBAR_HEIGHT,
 } from "../constants";
-import { isEmpty } from "../helpers/cells";
-import { isLink } from "../helpers/cells/index";
 import {
   findCellInNewZone,
   findVisibleHeader,
@@ -373,7 +371,8 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     const cell = this.getters.getCell(sheetId, col, row);
     return (
       this.getters.isVisibleInViewport(col, row, viewport) &&
-      isLink(cell) &&
+      !!cell &&
+      cell.isLink() &&
       !this.menuState.isOpen &&
       !this.props.linkEditorIsOpen &&
       !this.props.sidePanelIsOpen
@@ -406,7 +405,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
   private keyDownMapping: { [key: string]: Function } = {
     ENTER: () => {
       const cell = this.getters.getActiveCell();
-      isEmpty(cell)
+      !cell || cell.isEmpty()
         ? this.trigger("composer-cell-focused")
         : this.trigger("composer-content-focused");
     },
@@ -414,7 +413,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     "SHIFT+TAB": () => this.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 }),
     F2: () => {
       const cell = this.getters.getActiveCell();
-      isEmpty(cell)
+      !cell || cell.isEmpty()
         ? this.trigger("composer-cell-focused")
         : this.trigger("composer-content-focused");
     },
@@ -669,7 +668,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     const sheetId = this.getters.getActiveSheetId();
     const [mainCol, mainRow] = this.getters.getMainCell(sheetId, col, row);
     const cell = this.getters.getCell(sheetId, mainCol, mainRow);
-    if (!isLink(cell)) {
+    if (!cell?.isLink()) {
       this.closeLinkEditor();
     }
 
@@ -761,7 +760,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     const [col, row] = this.getCartesianCoordinates(ev);
     if (this.clickedCol === col && this.clickedRow === row) {
       const cell = this.getters.getActiveCell();
-      isEmpty(cell)
+      !cell || cell.isEmpty()
         ? this.trigger("composer-cell-focused")
         : this.trigger("composer-content-focused");
     }
