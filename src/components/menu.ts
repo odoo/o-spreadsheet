@@ -123,7 +123,7 @@ interface Props {
 }
 
 export interface MenuState {
-  isOpen: boolean;
+  isOpen?: boolean;
   position: null | DOMCoordinates;
   scrollOffset?: number;
   menuItems: FullMenuItem[];

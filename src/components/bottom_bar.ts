@@ -30,10 +30,9 @@ const TEMPLATE = xml/* xml */ `
     </div>
     <t t-set="aggregate" t-value="getters.getAggregate()"/>
     <div t-if="aggregate !== null" class="o-aggregate">Sum: <t t-esc="aggregate"/></div>
-    <Menu t-if="menuState.isOpen"
+    <Menu t-if="props.menuIsOpen"
           position="menuState.position"
-          menuItems="menuState.menuItems"
-          t-on-close="menuState.isOpen=false"/>
+          menuItems="menuState.menuItems"/>
   </div>`;
 
 const CSS = css/* scss */ `
@@ -121,13 +120,17 @@ const CSS = css/* scss */ `
   }
 `;
 
-export class BottomBar extends Component<{}, SpreadsheetEnv> {
+interface Props {
+  menuIsOpen: Boolean;
+}
+
+export class BottomBar extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { Menu };
 
   getters = this.env.getters;
-  menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
+  menuState: MenuState = useState({ position: null, menuItems: [] });
 
   mounted() {
     this.focusSheet();
@@ -183,22 +186,22 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
   openContextMenu(target: HTMLElement, registry: MenuItemRegistry) {
     const x = target.offsetLeft;
     const y = target.offsetTop;
-    this.menuState.isOpen = true;
     this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
     this.menuState.position = { x, y };
+    this.trigger("open-menu", { menu: "bottomBarMenu" });
   }
 
   onIconClick(sheet: string, ev: MouseEvent) {
     if (this.getters.getActiveSheetId() !== sheet) {
       this.activateSheet(sheet);
     }
-    if (this.menuState.isOpen) {
-      this.menuState.isOpen = false;
-    } else {
+    if (!this.props.menuIsOpen) {
       this.openContextMenu(
         (ev.currentTarget as HTMLElement).parentElement as HTMLElement,
         sheetMenuRegistry
       );
+    } else {
+      this.trigger("open-menu", { menu: "" });
     }
   }
 

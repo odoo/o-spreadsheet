@@ -625,7 +625,6 @@ describe("Context Menu position on large screen 1000px/1000px", () => {
     const [clickX, clickY] = await renderContextMenu(990, 300);
     const { left, top } = getMenuPosition();
     const { width } = getMenuSize();
-    debugger;
     expect(left).toBe(clickX - width);
     expect(top).toBe(clickY);
   });

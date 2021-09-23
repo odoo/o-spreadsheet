@@ -332,6 +332,7 @@ describe("TopBar component", () => {
   test("Can open a Topbar menu", async () => {
     const parent = new Parent(new Model());
     await parent.mount(fixture);
+    debugger;
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     const items = topbarMenuRegistry.getAll();
     const number = items.filter((item) => item.children.length !== 0).length;

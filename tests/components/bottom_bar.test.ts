@@ -14,7 +14,7 @@ let fixture: HTMLElement;
 
 class Parent extends Component<any, any> {
   static template = xml/* xml */ `
-    <div class="o-spreadsheet">
+    <div class="o-spreadsheet" t-on-open-menu="openMenu">
       <BottomBar model="model"/>
     </div>
   `;

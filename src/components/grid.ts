@@ -235,10 +235,9 @@ const TEMPLATE = xml/* xml */ `
       </t>
     </t>
     <Overlay t-on-open-contextmenu="onOverlayContextMenu" />
-    <Menu t-if="menuState.isOpen"
+    <Menu t-if="props.contextMenuIsOpen"
       menuItems="menuState.menuItems"
-      position="menuState.position"
-      t-on-close.stop="menuState.isOpen=false"/>
+      position="menuState.position"/>
     <t t-set="gridSize" t-value="getters.getGridDimension(getters.getActiveSheet())"/>
     <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" t-on-figure-deleted="focus" />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
@@ -292,6 +291,7 @@ interface Props {
   sidePanelIsOpen: boolean;
   model: Model;
   linkEditorIsOpen: boolean;
+  contextMenuIsOpen: Boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -315,7 +315,6 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
   };
 
   private menuState: MenuState = useState({
-    isOpen: false,
     position: null,
     menuItems: [],
   });
@@ -374,7 +373,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     return (
       this.getters.isVisibleInViewport(col, row, viewport) &&
       isLink(cell) &&
-      !this.menuState.isOpen &&
+      !this.props.contextMenuIsOpen &&
       !this.props.linkEditorIsOpen &&
       !this.props.sidePanelIsOpen
     );
@@ -883,10 +882,10 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
   toggleContextMenu(type: ContextMenuType, x: number, y: number) {
     this.closeLinkEditor();
-    this.menuState.isOpen = true;
     this.menuState.position = { x, y: y + TOPBAR_HEIGHT };
     this.menuState.menuItems = registries[type]
       .getAll()
       .filter((item) => !item.isVisible || item.isVisible(this.env));
+    this.trigger("open-menu", { menu: "contextMenu" });
   }
 }

@@ -22,21 +22,29 @@ const { useRef, useExternalListener } = owl.hooks;
 const { xml, css } = owl.tags;
 const { useSubEnv } = owl.hooks;
 
+interface MenuData {
+  menu: Menus | "";
+}
+
+export type OpenMenuEvent = CustomEvent<MenuData>;
+
 // -----------------------------------------------------------------------------
 // SpreadSheet
 // -----------------------------------------------------------------------------
 
 const TEMPLATE = xml/* xml */ `
-  <div class="o-spreadsheet" t-on-save-requested="save" t-on-keydown="onKeydown">
-  <TopBar
-  t-on-click="focusGrid"
-  t-on-composer-content-focused="onTopBarComposerFocused"
-  focusComposer="focusTopBarComposer"
-  class="o-two-columns"/>
+  <div class="o-spreadsheet" t-on-open-menu="openMenu" t-on-save-requested="save" t-on-keydown="onKeydown">
+    <TopBar
+    t-on-click="focusGrid"
+    t-on-composer-content-focused="onTopBarComposerFocused"
+    focusComposer="focusTopBarComposer"
+    openMenu="menu.isOpen"
+    class="o-two-columns"/>
     <Grid
       model="model"
       sidePanelIsOpen="sidePanel.isOpen"
       linkEditorIsOpen="linkEditor.isOpen"
+      contextMenuIsOpen="menu.isOpen==='contextMenu'"
       t-on-link-editor-closed="closeLinkEditor"
       t-ref="grid"
       focusComposer="focusGridComposer"
@@ -44,10 +52,10 @@ const TEMPLATE = xml/* xml */ `
       t-on-composer-cell-focused="onGridComposerCellFocused"
       t-att-class="{'o-two-columns': !sidePanel.isOpen}"/>
     <SidePanel t-if="sidePanel.isOpen"
-           t-on-close-side-panel="sidePanel.isOpen = false"
-           component="sidePanel.component"
-           panelProps="sidePanel.panelProps"/>
-    <BottomBar t-on-click="focusGrid" class="o-two-columns"/>
+            t-on-close-side-panel="sidePanel.isOpen = false"
+            component="sidePanel.component"
+            panelProps="sidePanel.panelProps"/>
+    <BottomBar t-on-click="focusGrid" menuIsOpen="menu.isOpen==='bottomBarMenu'" class="o-two-columns"/>
   </div>`;
 
 const CSS = css/* scss */ `
@@ -95,6 +103,7 @@ interface Props {
 }
 
 const t = (s: string): string => s;
+export type Menus = "topBarContextMenu" | "topBarToolMenu" | "contextMenu" | "bottomBarMenu";
 
 export class Spreadsheet extends Component<Props> {
   static template = TEMPLATE;
@@ -127,6 +136,10 @@ export class Spreadsheet extends Component<Props> {
     panelProps: any;
   });
   linkEditor = useState({ isOpen: false });
+
+  menu = useState({ isOpen: "" } as {
+    isOpen: "" | Menus;
+  });
 
   composer = useState({
     topBarFocus: "inactive",
@@ -163,6 +176,7 @@ export class Spreadsheet extends Component<Props> {
     useExternalListener(document.body, "paste", this.paste);
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
     useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
+    useExternalListener(window as any, "click", this.onClick);
   }
 
   get focusTopBarComposer(): "inactive" | "contentFocus" {
@@ -218,6 +232,13 @@ export class Spreadsheet extends Component<Props> {
   closeLinkEditor() {
     this.linkEditor.isOpen = false;
     this.focusGrid();
+  }
+  openMenu(ev: OpenMenuEvent) {
+    this.menu.isOpen = ev.detail.menu;
+  }
+
+  onClick() {
+    this.menu.isOpen = "";
   }
 
   toggleSidePanel(panel: string, panelProps: any) {
