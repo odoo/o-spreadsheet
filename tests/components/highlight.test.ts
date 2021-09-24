@@ -3,7 +3,8 @@ import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { DispatchResult } from "../../src/types/commands";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
-import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
+import { makeTestFixture, nextTick, mountSpreadsheet } from "../test_helpers/helpers";
+import { Spreadsheet } from "../../src";
 
 function getColStartPosition(col: number) {
   return (
@@ -81,15 +82,14 @@ async function moveToCell(el: Element, xc: string) {
 
 let model: Model;
 let fixture: HTMLElement;
-let parent: GridParent;
+let parent: Spreadsheet;
 let cornerEl: Element;
 let borderEl: Element;
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  model = new Model();
-  parent = new GridParent(model);
-  await parent.mount(fixture);
+  parent = await mountSpreadsheet(fixture);
+  model = parent.model;
 
   model.dispatch("RESIZE_VIEWPORT", {
     width: 1000,

@@ -1,7 +1,7 @@
-import { Model } from "../../src";
+import { Model, Spreadsheet } from "../../src";
 import { DispatchResult } from "../../src/types/commands";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
+import { makeTestFixture, nextTick, mountSpreadsheet } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 jest.useFakeTimers();
 
@@ -32,12 +32,11 @@ const selectors = {
 
 describe("find and replace sidePanel component", () => {
   let fixture: HTMLElement;
-  let parent: GridParent;
+  let parent: Spreadsheet;
   beforeEach(async () => {
-    model = new Model();
     fixture = makeTestFixture();
-    parent = new GridParent(model);
-    await parent.mount(fixture);
+    parent = await mountSpreadsheet(fixture);
+    model = parent.model;
     parent.env.openSidePanel("FindAndReplace");
     await nextTick();
   });

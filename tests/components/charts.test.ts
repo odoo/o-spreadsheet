@@ -1,5 +1,5 @@
 import { ChartConfiguration } from "chart.js";
-import { Model } from "../../src";
+import { Model, Spreadsheet } from "../../src";
 import { BACKGROUND_CHART_COLOR } from "../../src/constants";
 import { DispatchResult } from "../../src/types";
 import { createChart } from "../test_helpers/commands_helpers";
@@ -8,7 +8,7 @@ import {
   simulateClick,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
-import { GridParent, makeTestFixture, nextTick, textContentAll } from "../test_helpers/helpers";
+import { makeTestFixture, nextTick, textContentAll, mountSpreadsheet } from "../test_helpers/helpers";
 
 const mockChart = () => {
   const mockChartData: ChartConfiguration = {
@@ -50,13 +50,13 @@ let model: Model;
 let mockChartData = mockChart();
 let chartId: string;
 
-let parent: GridParent;
+let parent: Spreadsheet;
 describe("figures", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();
     mockChartData = mockChart();
     chartId = "someuuid";
-    model = new Model({
+    const data = {
       sheets: [
         {
           name: "Sheet1",
@@ -80,9 +80,9 @@ describe("figures", () => {
           },
         },
       ],
-    });
-    parent = new GridParent(model);
-    await parent.mount(fixture);
+    };
+    parent = await mountSpreadsheet(fixture, { data });
+    model = parent.model;
     await nextTick();
     createChart(
       model,
@@ -438,7 +438,7 @@ describe("charts with multiple sheets", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();
     mockChartData = mockChart();
-    model = new Model({
+    const data = {
       sheets: [
         {
           name: "Sheet1",
@@ -477,9 +477,9 @@ describe("charts with multiple sheets", () => {
           ],
         },
       ],
-    });
-    parent = new GridParent(model);
-    await parent.mount(fixture);
+    };
+    parent = await mountSpreadsheet(fixture, { data });
+    model = parent.model;
     await nextTick();
   });
   afterEach(() => {

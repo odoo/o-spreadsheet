@@ -4,14 +4,15 @@ import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
-  GridParent,
   makeTestFixture,
   nextTick,
   resetFunctions,
   startGridComposition,
   typeInComposer as typeInComposerHelper,
+  mountSpreadsheet,
 } from "../test_helpers/helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
+import { Spreadsheet } from "../../src";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
@@ -19,7 +20,7 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
-let parent: any;
+let parent: Spreadsheet;
 async function typeInComposer(text: string, fromScratch: boolean = true) {
   if (fromScratch) {
     composerEl = await startGridComposition();
@@ -29,12 +30,11 @@ async function typeInComposer(text: string, fromScratch: boolean = true) {
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  model = new Model();
-  parent = new GridParent(model);
-  await parent.mount(fixture);
+  parent = await mountSpreadsheet(fixture);
+  model = parent.model;
 
   // start composition
-  parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+  parent.grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
   await nextTick();
   composerEl = fixture.querySelector(".o-grid div.o-composer")!;
 });
@@ -268,7 +268,7 @@ describe("Autocomplete parenthesis", () => {
     await nextTick();
     selectCell(model, "A1");
     //edit A1
-    parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    parent.grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
     composerEl = fixture.querySelector(".o-grid div.o-composer")!;
     // @ts-ignore

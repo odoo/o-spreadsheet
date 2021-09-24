@@ -1,4 +1,4 @@
-import { Model } from "../src";
+import { Model, Spreadsheet } from "../src";
 import { fontSizes } from "../src/fonts";
 import {
   colMenuRegistry,
@@ -9,7 +9,7 @@ import {
 } from "../src/registries/index";
 import { DispatchResult, SpreadsheetEnv } from "../src/types";
 import { hideColumns, hideRows, selectCell, setSelection } from "./test_helpers/commands_helpers";
-import { GridParent, makeTestFixture, mockUuidV4To, nextTick } from "./test_helpers/helpers";
+import { makeTestFixture, mockUuidV4To, nextTick, MockClipboard, mountSpreadsheet } from "./test_helpers/helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
 function getNode(
@@ -89,15 +89,21 @@ describe("Menu Item Registry", () => {
 describe("Menu Item actions", () => {
   let fixture: HTMLElement;
   let model: Model;
-  let parent: GridParent;
+  let parent: Spreadsheet;
   let env: SpreadsheetEnv;
 
   beforeEach(async () => {
+    const clipboard = new MockClipboard();
+    Object.defineProperty(navigator, "clipboard", {
+      get() {
+        return clipboard;
+      },
+      configurable: true,
+    });
     fixture = makeTestFixture();
-    model = new Model();
-    parent = new GridParent(model);
+    parent = await mountSpreadsheet(fixture);
+    model = parent.model;
     env = parent.env;
-    await parent.mount(fixture);
     env.dispatch = jest.fn(() => DispatchResult.Success);
   });
 
@@ -112,6 +118,8 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> copy", () => {
+    const clipboard = new MockClipboard();
+    jest.spyOn(navigator, "clipboard", "get").mockImplementation(() => clipboard);
     env.clipboard.writeText = jest.fn(() => Promise.resolve());
     doAction(["edit", "copy"], env);
     expect(env.dispatch).toHaveBeenCalledWith("COPY", {

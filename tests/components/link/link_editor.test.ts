@@ -1,4 +1,4 @@
-import { Model } from "../../../src";
+import { Model, Spreadsheet } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
 import { LinkCell } from "../../../src/types";
 import { createSheet, setCellContent } from "../../test_helpers/commands_helpers";
@@ -8,12 +8,12 @@ import {
   simulateClick,
 } from "../../test_helpers/dom_helper";
 import { getCell } from "../../test_helpers/getters_helpers";
-import { GridParent, makeTestFixture, nextTick } from "../../test_helpers/helpers";
+import { makeTestFixture, nextTick, mountSpreadsheet } from "../../test_helpers/helpers";
 
 describe("link editor component", () => {
   let fixture: HTMLElement;
   let model: Model;
-  let grid: GridParent;
+  let grid: Spreadsheet;
 
   async function openLinkEditor(model: Model, xc: string) {
     await rightClickCell(model, xc);
@@ -31,9 +31,8 @@ describe("link editor component", () => {
 
   beforeEach(async () => {
     fixture = makeTestFixture();
-    model = new Model();
-    grid = new GridParent(model);
-    await grid.mount(fixture);
+    grid = await mountSpreadsheet(fixture);
+    model = grid.model;
   });
 
   afterEach(() => {

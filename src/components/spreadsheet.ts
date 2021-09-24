@@ -16,6 +16,7 @@ import { Grid } from "./grid";
 import { LinkEditor } from "./link/link_editor";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
+import { SpreadsheetEnv } from "../types";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -96,7 +97,7 @@ interface Props {
 
 const t = (s: string): string => s;
 
-export class Spreadsheet extends Component<Props> {
+export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { TopBar, Grid, BottomBar, SidePanel, LinkEditor };
@@ -141,8 +142,8 @@ export class Spreadsheet extends Component<Props> {
     "CTRL+H": () => this.toggleSidePanel("FindAndReplace", {}),
     "CTRL+F": () => this.toggleSidePanel("FindAndReplace", {}),
   };
-  constructor() {
-    super(...arguments);
+  constructor(parent?: owl.Component<any, SpreadsheetEnv> | null, props: Props = {}) {
+    super(parent, props);
     useSubEnv({
       openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
       toggleSidePanel: (panel: string, panelProps: any = {}) =>

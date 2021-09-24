@@ -1,5 +1,5 @@
 import { Component, tags } from "@odoo/owl";
-import { Model } from "../../src";
+import { Spreadsheet } from "../../src";
 import { corePluginRegistry } from "../../src/plugins";
 import { CorePlugin } from "../../src/plugins/core_plugin";
 import { figureRegistry } from "../../src/registries/figure_registry";
@@ -7,14 +7,14 @@ import { BaseCommand, Command, Figure, SpreadsheetEnv, UID } from "../../src/typ
 import { activateSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
+import { makeTestFixture, nextTick, mountSpreadsheet } from "../test_helpers/helpers";
 
 jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
 
 let fixture: HTMLElement;
 let model;
-let parent: GridParent;
+let parent: Spreadsheet;
 
 //Test Plugin
 interface CreateTextFigure extends BaseCommand {
@@ -78,9 +78,8 @@ figureRegistry.add("text", { Component: TextFigure });
 describe("figures", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();
-    model = new Model();
-    parent = new GridParent(model);
-    await parent.mount(fixture);
+    parent = await mountSpreadsheet(fixture);
+    model = parent.model;
   });
 
   afterEach(() => {
