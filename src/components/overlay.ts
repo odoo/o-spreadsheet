@@ -10,7 +10,11 @@ import {
 } from "../constants";
 import { Col, EdgeScrollInfo, Row, SpreadsheetEnv } from "../types/index";
 import { ContextMenuType } from "./grid";
-import { startDnd } from "./helpers/drag_and_drop";
+import {
+  dragAndDrop,
+  dragAndDropCellHandler,
+  dragAndDropWithEdgeScrolling,
+} from "./helpers/drag_and_drop";
 import * as icons from "./icons";
 
 const { Component } = owl;
@@ -154,14 +158,14 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
     const size = this._getElement(this.state.activeElement).size;
     const minSize = styleValue - size + this.MIN_ELEMENT_SIZE;
     const maxSize = this._getMaxSize();
-    const onMouseUp = (ev: MouseEvent) => {
+    const onMouseUp = () => {
       this.state.isResizing = false;
       if (this.state.delta !== 0) {
         this._updateSize();
       }
     };
-    const onMouseMove = (ev: MouseEvent) => {
-      this.state.delta = this._getClientPosition(ev) - initialPosition;
+    const onMouseMove = (x: number, y: number) => {
+      this.state.delta = (this._getType() === "COL" ? x : y) - initialPosition;
       this.state.draggerLinePosition = styleValue + this.state.delta;
       if (this.state.draggerLinePosition < minSize) {
         this.state.draggerLinePosition = minSize;
@@ -172,7 +176,7 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
         this.state.delta = maxSize - styleValue;
       }
     };
-    startDnd(onMouseMove, onMouseUp);
+    dragAndDrop({ onMouseMove, onMouseUp });
   }
 
   select(ev: MouseEvent) {
@@ -202,34 +206,39 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
     this.state.base = this._getSelectedZoneStart();
     this.state.draggerShadowPosition = defaultPosition;
     this.state.draggerShadowThickness = endElement.end - startElement.start;
-    const mouseMoveMovement = (elementIndex: number, currentEv: MouseEvent) => {
-      if (elementIndex >= 0) {
-        // define draggerLinePosition
-        const element = this._getElement(elementIndex);
-        const offset = this._getStateOffset() + this._getHeaderSize();
-        if (elementIndex <= this._getSelectedZoneStart()) {
-          this.state.draggerLinePosition = element.start - offset;
-          this.state.base = elementIndex;
-        } else if (this._getSelectedZoneEnd() < elementIndex) {
-          this.state.draggerLinePosition = element.end - offset;
-          this.state.base = elementIndex + 1;
-        } else {
-          this.state.draggerLinePosition = startElement.start - offset;
-          this.state.base = this._getSelectedZoneStart();
-        }
-        // define draggerShadowPosition
-        const delta = this._getClientPosition(currentEv) - initialPosition;
+
+    // define dragger shadow position
+    const shadowPositionHandler = {
+      onMouseMove: (x, y) => {
+        const delta = (this._getType() === "COL" ? x : y) - initialPosition;
         this.state.draggerShadowPosition = Math.max(defaultPosition + delta, 0);
+      },
+    };
+
+    // define dragger line position
+    const onCellChange = (colIndex, rowIndex) => {
+      const elementIndex = this._getType() === "COL" ? colIndex : rowIndex;
+      const element = this._getElement(elementIndex);
+      const offset = this._getStateOffset() + this._getHeaderSize();
+      if (elementIndex <= this._getSelectedZoneStart()) {
+        this.state.draggerLinePosition = element.start - offset;
+        this.state.base = elementIndex;
+      } else if (this._getSelectedZoneEnd() < elementIndex) {
+        this.state.draggerLinePosition = element.end - offset;
+        this.state.base = elementIndex + 1;
+      } else {
+        this.state.draggerLinePosition = startElement.start - offset;
+        this.state.base = this._getSelectedZoneStart();
       }
     };
-    const mouseUpMovement = (finalEv: MouseEvent) => {
+    const onMouseUp = () => {
       this.state.isMoving = false;
       if (this.state.base !== this._getSelectedZoneStart()) {
         this._moveElements();
       }
-      this._computeGrabDisplay(finalEv);
     };
-    this.dragOverlayBeyondTheViewport(ev, mouseMoveMovement, mouseUpMovement);
+    const draggerLinePositionHandler = dragAndDropCellHandler(this.env, onCellChange, onMouseUp);
+    dragAndDropWithEdgeScrolling(this.env, shadowPositionHandler, draggerLinePositionHandler);
   }
 
   private startSelection(ev: MouseEvent, index: number) {
@@ -242,65 +251,22 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
     }
     this.lastSelectedElementIndex = index;
 
-    const mouseMoveSelect = (elementIndex: number, currentEv) => {
+    const onCellChange = (colIndex: number, rowIndex: number) => {
+      const elementIndex = this._getType() === "COL" ? colIndex : rowIndex;
       if (elementIndex !== this.lastSelectedElementIndex && elementIndex !== -1) {
         this._increaseSelection(elementIndex);
         this.lastSelectedElementIndex = elementIndex;
       }
     };
-    const mouseUpSelect = () => {
+    const onMouseUp = () => {
       this.state.isSelecting = false;
       this.lastSelectedElementIndex = null;
       this.dispatch(ev.ctrlKey ? "PREPARE_SELECTION_EXPANSION" : "STOP_SELECTION");
       this._computeGrabDisplay(ev);
     };
 
-    this.dragOverlayBeyondTheViewport(ev, mouseMoveSelect, mouseUpSelect);
-  }
-
-  private dragOverlayBeyondTheViewport(
-    ev: MouseEvent,
-    cbMouseMove: (elementIndex: number, currentEv: MouseEvent) => void,
-    cbMouseUp: (finalEv: MouseEvent) => void
-  ) {
-    let timeOutId: any = null;
-    let currentEv: MouseEvent;
-    const initialPosition = this._getClientPosition(ev);
-    const initialOffset = this._getEvOffset(ev);
-
-    const onMouseMove = (ev: MouseEvent) => {
-      currentEv = ev;
-      if (timeOutId) {
-        return;
-      }
-      const position = this._getClientPosition(currentEv) - initialPosition + initialOffset;
-      const EdgeScrollInfo = this._getEdgeScroll(position);
-      const { first, last } = this._getBoundaries();
-      let elementIndex;
-      if (EdgeScrollInfo.canEdgeScroll) {
-        elementIndex = EdgeScrollInfo.direction > 0 ? last : first - 1;
-      } else {
-        elementIndex = this._getElementIndex(position);
-      }
-
-      cbMouseMove(elementIndex, currentEv);
-
-      // adjust viewport if necessary
-      if (EdgeScrollInfo.canEdgeScroll) {
-        this._adjustViewport(EdgeScrollInfo.direction);
-        timeOutId = setTimeout(() => {
-          timeOutId = null;
-          onMouseMove(currentEv);
-        }, Math.round(EdgeScrollInfo.delay));
-      }
-    };
-
-    const onMouseUp = (finalEv: MouseEvent) => {
-      clearTimeout(timeOutId);
-      cbMouseUp(finalEv);
-    };
-
-    startDnd(onMouseMove, onMouseUp);
+    const draggerSelectionHandler = dragAndDropCellHandler(this.env, onCellChange, onMouseUp);
+    dragAndDropWithEdgeScrolling(this.env, draggerSelectionHandler);
   }
 
   onMouseUp(ev: MouseEvent) {

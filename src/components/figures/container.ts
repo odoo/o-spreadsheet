@@ -3,7 +3,7 @@ import { Component } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH, SELECTION_BORDER_COLOR } from "../../constants";
 import { figureRegistry } from "../../registries/index";
 import { Figure, SpreadsheetEnv } from "../../types/index";
-import { startDnd } from "../helpers/drag_and_drop";
+import { dragAndDrop } from "../helpers/drag_and_drop";
 import { ChartFigure } from "./chart";
 
 const { xml, css } = owl.tags;
@@ -210,9 +210,9 @@ export class FiguresContainer extends Component<{ sidePanelIsOpen: Boolean }, Sp
     this.dnd.width = figure.width;
     this.dnd.height = figure.height;
 
-    const onMouseMove = (ev: MouseEvent) => {
-      const deltaX = dirX * (ev.clientX - initialX);
-      const deltaY = dirY * (ev.clientY - initialY);
+    const onMouseMove = (x, y) => {
+      const deltaX = dirX * (x - initialX);
+      const deltaY = dirY * (y - initialY);
       this.dnd.width = Math.max(figure.width + deltaX, MIN_FIG_SIZE);
       this.dnd.height = Math.max(figure.height + deltaY, MIN_FIG_SIZE);
       if (dirX < 0) {
@@ -222,7 +222,7 @@ export class FiguresContainer extends Component<{ sidePanelIsOpen: Boolean }, Sp
         this.dnd.y = figure.y - deltaY;
       }
     };
-    const onMouseUp = (ev: MouseEvent) => {
+    const onMouseUp = () => {
       this.dnd.figureId = "";
       const update: Partial<Figure> = {
         x: this.dnd.x,
@@ -240,7 +240,7 @@ export class FiguresContainer extends Component<{ sidePanelIsOpen: Boolean }, Sp
         ...update,
       });
     };
-    startDnd(onMouseMove, onMouseUp);
+    dragAndDrop({ onMouseMove, onMouseUp });
   }
 
   onMouseDown(figure: Figure, ev: MouseEvent) {
@@ -260,11 +260,11 @@ export class FiguresContainer extends Component<{ sidePanelIsOpen: Boolean }, Sp
     this.dnd.width = figure.width;
     this.dnd.height = figure.height;
 
-    const onMouseMove = (ev: MouseEvent) => {
-      this.dnd.x = Math.max(figure.x - initialX + ev.clientX, 0);
-      this.dnd.y = Math.max(figure.y - initialY + ev.clientY, 0);
+    const onMouseMove = (x, y) => {
+      this.dnd.x = Math.max(figure.x - initialX + x, 0);
+      this.dnd.y = Math.max(figure.y - initialY + y, 0);
     };
-    const onMouseUp = (ev: MouseEvent) => {
+    const onMouseUp = () => {
       this.dnd.figureId = "";
       this.dispatch("UPDATE_FIGURE", {
         sheetId: this.getters.getActiveSheetId(),
@@ -273,7 +273,7 @@ export class FiguresContainer extends Component<{ sidePanelIsOpen: Boolean }, Sp
         y: this.dnd.y,
       });
     };
-    startDnd(onMouseMove, onMouseUp);
+    dragAndDrop({ onMouseMove, onMouseUp });
   }
 
   onKeyDown(figure: Figure, ev: KeyboardEvent) {

@@ -15,7 +15,6 @@ import {
   findVisibleHeader,
   getNextVisibleCellCoords,
   isInside,
-  MAX_DELAY,
   range,
 } from "../helpers/index";
 import { Model } from "../model";
@@ -28,7 +27,7 @@ import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
 import { ErrorToolTip } from "./error_tooltip";
 import { FiguresContainer } from "./figures/container";
-import { startDnd } from "./helpers/drag_and_drop";
+import { dragAndDropCellHandler, dragAndDropWithEdgeScrolling } from "./helpers/drag_and_drop";
 import { Highlight } from "./highlight/highlight";
 import { LinkDisplay } from "./link/link_display";
 import { LinkEditor } from "./link/link_editor";
@@ -690,81 +689,25 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
       this.dispatch("SELECT_CELL", { col, row });
       this.checkSheetChanges();
     }
-    let prevCol = col;
-    let prevRow = row;
 
-    let isEdgeScrolling: boolean = false;
-    let timeOutId: any = null;
-    let timeoutDelay: number = 0;
-
-    let currentEv: MouseEvent;
-
-    const sheet = this.getters.getActiveSheet();
-
-    const onMouseMove = (ev: MouseEvent) => {
-      currentEv = ev;
-      if (timeOutId) {
+    const onCellChange = (col, row) => {
+      if (col === -1 || row === -1) {
         return;
       }
-
-      const [x, y] = this.getCoordinates(currentEv);
-
-      isEdgeScrolling = false;
-      timeoutDelay = 0;
-
-      const colEdgeScroll = this.getters.getEdgeScrollCol(x);
-      const rowEdgeScroll = this.getters.getEdgeScrollRow(y);
-
-      const { left, right, top, bottom } = this.getters.getActiveSnappedViewport();
-      let col: number, row: number;
-      if (colEdgeScroll.canEdgeScroll) {
-        col = colEdgeScroll.direction > 0 ? right : left - 1;
-      } else {
-        col = this.getters.getColIndex(x, left);
-        col = col === -1 ? prevCol : col;
-      }
-
-      if (rowEdgeScroll.canEdgeScroll) {
-        row = rowEdgeScroll.direction > 0 ? bottom : top - 1;
-      } else {
-        row = this.getters.getRowIndex(y, top);
-        row = row === -1 ? prevRow : row;
-      }
-
-      isEdgeScrolling = colEdgeScroll.canEdgeScroll || rowEdgeScroll.canEdgeScroll;
-
-      timeoutDelay = Math.min(
-        colEdgeScroll.canEdgeScroll ? colEdgeScroll.delay : MAX_DELAY,
-        rowEdgeScroll.canEdgeScroll ? rowEdgeScroll.delay : MAX_DELAY
-      );
-
-      if (col !== prevCol || row !== prevRow) {
-        prevCol = col;
-        prevRow = row;
-        this.dispatch("ALTER_SELECTION", { cell: [col, row] });
-      }
-      if (isEdgeScrolling) {
-        const offsetX = sheet.cols[left + colEdgeScroll.direction].start;
-        const offsetY = sheet.rows[top + rowEdgeScroll.direction].start;
-        this.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
-        timeOutId = setTimeout(() => {
-          timeOutId = null;
-          onMouseMove(currentEv);
-        }, Math.round(timeoutDelay));
-      }
+      this.dispatch("ALTER_SELECTION", { cell: [col, row] });
     };
     const onMouseUp = (ev: MouseEvent) => {
-      clearTimeout(timeOutId);
       this.dispatch(ev.ctrlKey ? "PREPARE_SELECTION_EXPANSION" : "STOP_SELECTION");
-      this.canvas.el!.removeEventListener("mousemove", onMouseMove);
       if (this.getters.isPaintingFormat()) {
         this.dispatch("PASTE", {
           target: this.getters.getSelectedZones(),
         });
       }
     };
-
-    startDnd(onMouseMove, onMouseUp);
+    dragAndDropWithEdgeScrolling(
+      this.env,
+      dragAndDropCellHandler(this.env, onCellChange, onMouseUp)
+    );
   }
 
   onDoubleClick(ev) {

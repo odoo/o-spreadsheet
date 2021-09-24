@@ -2,7 +2,7 @@ import * as owl from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../constants";
 import { clip } from "../helpers/misc";
 import { SpreadsheetEnv } from "../types";
-import { startDnd } from "./helpers/drag_and_drop";
+import { dragAndDrop } from "./helpers/drag_and_drop";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -114,7 +114,7 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
       this.env.dispatch("AUTOFILL");
     };
 
-    const onMouseMove = (ev: MouseEvent) => {
+    const onMouseMove = (x, y) => {
       const parent = this.el!.parentElement! as HTMLElement;
       const position = parent.getBoundingClientRect();
       const {
@@ -124,11 +124,11 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
         offsetX,
       } = this.env.getters.getActiveSnappedViewport();
       this.state.position = {
-        left: ev.clientX - start.left + offsetX,
-        top: ev.clientY - start.top + offsetY,
+        left: x - start.left + offsetX,
+        top: y - start.top + offsetY,
       };
-      const col = this.env.getters.getColIndex(ev.clientX - position.left, viewportLeft);
-      const row = this.env.getters.getRowIndex(ev.clientY - position.top, viewportTop);
+      const col = this.env.getters.getColIndex(x - position.left, viewportLeft);
+      const row = this.env.getters.getRowIndex(y - position.top, viewportTop);
       if (lastCol !== col || lastRow !== row) {
         const activeSheet = this.env.getters.getActiveSheet();
         lastCol = col === -1 ? lastCol : clip(col, 0, activeSheet.cols.length);
@@ -138,7 +138,7 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
         }
       }
     };
-    startDnd(onMouseMove, onMouseUp);
+    dragAndDrop({ onMouseMove, onMouseUp });
   }
 
   onDblClick() {

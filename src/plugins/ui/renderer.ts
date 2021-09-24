@@ -79,21 +79,16 @@ export class RendererPlugin extends UIPlugin {
 
   /**
    * Return the index of a column given an offset x and a visible left col index.
+   * Offsets are relative top the upper left grid corner (including headers).
    * It returns -1 if no column is found.
    */
   getColIndex(x: number, left: number, sheet?: Sheet): number {
-    if (x < HEADER_WIDTH) {
-      return -1;
-    }
     const cols = (sheet || this.getters.getActiveSheet()).cols;
     const adjustedX = x - HEADER_WIDTH + cols[left].start + 1;
     return searchIndex(cols, adjustedX);
   }
 
   getRowIndex(y: number, top: number, sheet?: Sheet): number {
-    if (y < HEADER_HEIGHT) {
-      return -1;
-    }
     const rows = (sheet || this.getters.getActiveSheet()).rows;
     const adjustedY = y - HEADER_HEIGHT + rows[top].start + 1;
     return searchIndex(rows, adjustedY);

@@ -1,8 +1,8 @@
 import * as owl from "@odoo/owl";
 import { useState } from "@odoo/owl";
-import { clip, isEqual } from "../../helpers";
+import { clip } from "../../helpers";
 import { SpreadsheetEnv, Zone } from "../../types";
-import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
+import { dragAndDropCellHandler, dragAndDropWithEdgeScrolling } from "../helpers/drag_and_drop";
 import { Border } from "./border";
 import { Corner } from "./corner";
 
@@ -56,35 +56,28 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
 
     const pivotCol = ev.detail.isLeft ? z.right : z.left;
     const pivotRow = ev.detail.isTop ? z.bottom : z.top;
-    let lastCol = ev.detail.isLeft ? z.left : z.right;
-    let lastRow = ev.detail.isTop ? z.top : z.bottom;
-    let currentZone = z;
 
-    this.env.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
+    this.env.dispatch("START_CHANGE_HIGHLIGHT", { zone: z });
 
-    const mouseMove = (col, row) => {
-      if (lastCol !== col || lastRow !== row) {
-        const activeSheet = this.env.getters.getActiveSheet();
-        lastCol = clip(col === -1 ? lastCol : col, 0, activeSheet.cols.length - 1);
-        lastRow = clip(row === -1 ? lastRow : row, 0, activeSheet.rows.length - 1);
-
-        let newZone: Zone = {
-          left: Math.min(pivotCol, lastCol),
-          top: Math.min(pivotRow, lastRow),
-          right: Math.max(pivotCol, lastCol),
-          bottom: Math.max(pivotRow, lastRow),
-        };
-
-        newZone = this.env.getters.expandZone(activeSheet.id, newZone);
-
-        if (!isEqual(newZone, currentZone)) {
-          this.env.dispatch("CHANGE_HIGHLIGHT", { zone: newZone });
-          currentZone = newZone;
-        }
+    const onCellChange = (col, row) => {
+      if (col === -1 || row === -1) {
+        return;
       }
+
+      let newZone: Zone = {
+        left: Math.min(pivotCol, col),
+        top: Math.min(pivotRow, row),
+        right: Math.max(pivotCol, col),
+        bottom: Math.max(pivotRow, row),
+      };
+
+      const activeSheet = this.env.getters.getActiveSheet();
+      newZone = this.env.getters.expandZone(activeSheet.id, newZone);
+
+      this.env.dispatch("CHANGE_HIGHLIGHT", { zone: newZone });
     };
 
-    const mouseUp = () => {
+    const onMouseUp = () => {
       this.highlightState.shiftingMode = "none";
       // To do:
       // Command used here to restore focus to the current composer,
@@ -92,12 +85,8 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
       this.env.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     };
 
-    dragAndDropBeyondTheViewport(
-      this.el!.parentElement! as HTMLElement,
-      this.env,
-      mouseMove,
-      mouseUp
-    );
+    const resizeHighlightHandler = dragAndDropCellHandler(this.env, onCellChange, onMouseUp);
+    dragAndDropWithEdgeScrolling(this.env, resizeHighlightHandler);
   }
 
   onMoveHighlight(ev: CustomEvent) {
@@ -118,36 +107,26 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
     const deltaRowMin = -z.top;
     const deltaRowMax = activeSheet.rows.length - z.bottom - 1;
 
-    let currentZone = z;
-    this.env.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
+    this.env.dispatch("START_CHANGE_HIGHLIGHT", { zone: z });
 
-    let lastCol = initCol;
-    let lastRow = initRow;
-
-    const mouseMove = (col, row) => {
-      if (lastCol !== col || lastRow !== row) {
-        lastCol = col === -1 ? lastCol : col;
-        lastRow = row === -1 ? lastRow : row;
-
-        const deltaCol = clip(lastCol - initCol, deltaColMin, deltaColMax);
-        const deltaRow = clip(lastRow - initRow, deltaRowMin, deltaRowMax);
-        let newZone: Zone = {
-          left: z.left + deltaCol,
-          top: z.top + deltaRow,
-          right: z.right + deltaCol,
-          bottom: z.bottom + deltaRow,
-        };
-
-        newZone = this.env.getters.expandZone(activeSheet.id, newZone);
-
-        if (!isEqual(newZone, currentZone)) {
-          this.env.dispatch("CHANGE_HIGHLIGHT", { zone: newZone });
-          currentZone = newZone;
-        }
+    const onCellChange = (col, row) => {
+      if (col === -1 || row === -1) {
+        return;
       }
+      const deltaCol = clip(col - initCol, deltaColMin, deltaColMax);
+      const deltaRow = clip(row - initRow, deltaRowMin, deltaRowMax);
+      let newZone: Zone = {
+        left: z.left + deltaCol,
+        top: z.top + deltaRow,
+        right: z.right + deltaCol,
+        bottom: z.bottom + deltaRow,
+      };
+
+      newZone = this.env.getters.expandZone(activeSheet.id, newZone);
+      this.env.dispatch("CHANGE_HIGHLIGHT", { zone: newZone });
     };
 
-    const mouseUp = () => {
+    const onMouseUp = () => {
       this.highlightState.shiftingMode = "none";
       // To do:
       // Command used here to restore focus to the current composer,
@@ -155,6 +134,7 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
       this.env.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     };
 
-    dragAndDropBeyondTheViewport(parent, this.env, mouseMove, mouseUp);
+    const moveHighlightHandler = dragAndDropCellHandler(this.env, onCellChange, onMouseUp);
+    dragAndDropWithEdgeScrolling(this.env, moveHighlightHandler);
   }
 }
