@@ -1,4 +1,4 @@
-import { Model } from "../../src";
+import { Model, Spreadsheet } from "../../src";
 import { CellIsRuleEditor } from "../../src/components/side_panel/conditional_formatting/cell_is_rule_editor";
 import { ColorScaleRuleEditor } from "../../src/components/side_panel/conditional_formatting/color_scale_rule_editor";
 import { IconSetRuleEditor } from "../../src/components/side_panel/conditional_formatting/icon_set_rule_editor";
@@ -9,11 +9,11 @@ import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_
 import {
   createColorScale,
   createEqualCF,
-  GridParent,
   makeTestFixture,
   mockUuidV4To,
   nextTick,
   textContentAll,
+  mountSpreadsheet,
 } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -21,14 +21,12 @@ let model: Model;
 
 describe("UI of conditional formats", () => {
   let fixture: HTMLElement;
-  let parent: GridParent;
+  let parent: Spreadsheet;
 
   beforeEach(async () => {
     fixture = makeTestFixture();
-    model = new Model();
-    parent = new GridParent(model);
-    await parent.mount(fixture);
-
+    parent = await mountSpreadsheet(fixture);
+    model = parent.model;
     parent.env.openSidePanel("ConditionalFormatting");
     await nextTick();
   });

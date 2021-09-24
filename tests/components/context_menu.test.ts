@@ -9,20 +9,31 @@ import { ConditionalFormat, SpreadsheetEnv } from "../../src/types";
 import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
-import { GridParent, makeTestFixture, nextTick, Touch } from "../test_helpers/helpers";
+import { makeTestFixture, nextTick, Touch, mountSpreadsheet, MockClipboard } from "../test_helpers/helpers";
 
 const { xml } = tags;
 const { useSubEnv } = hooks;
 
 let fixture: HTMLElement;
 let parent: Component;
+let model: Model;
 
-beforeEach(() => {
+beforeEach(async () => {
+  const clipboard = new MockClipboard();
+  Object.defineProperty(navigator, "clipboard", {
+    get() {
+      return clipboard;
+    },
+    configurable: true,
+  });
   fixture = makeTestFixture();
+  parent = await mountSpreadsheet(fixture);
+  // @ts-ignore
+  model = parent.model;
 });
 
 afterEach(() => {
-  parent?.destroy();
+  parent.destroy();
   fixture.remove();
 });
 
@@ -174,36 +185,21 @@ function simulateContextMenu(x, y) {
 
 describe("Context Menu", () => {
   test("context menu simple rendering", async () => {
-    const model = new Model();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
     simulateContextMenu(300, 200);
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toMatchSnapshot();
-    parent.destroy();
   });
 
   test("right click on a cell opens a context menu", async () => {
-    const model = new Model();
-
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
-
     expect(getActiveXc(model)).toBe("A1");
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
     simulateContextMenu(300, 200);
     expect(getActiveXc(model)).toBe("C8");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
-    parent.destroy();
   });
 
   test("right click on a cell, then left click elsewhere closes a context menu", async () => {
-    const model = new Model();
-
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
-
     simulateContextMenu(300, 200);
     expect(getActiveXc(model)).toBe("C8");
     await nextTick();
@@ -211,15 +207,10 @@ describe("Context Menu", () => {
 
     await simulateClick("canvas", 50, 50);
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
-    parent.destroy();
   });
 
   test("can copy/paste with context menu", async () => {
-    const model = new Model();
     setCellContent(model, "B1", "b1");
-
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
 
     // right click on B1
     simulateContextMenu(230, 30);
@@ -238,15 +229,10 @@ describe("Context Menu", () => {
     await simulateClick(".o-menu div[data-name='paste']");
     expect(getCellContent(model, "B1")).toBe("b1");
     expect(getCellContent(model, "B2")).toBe("b1");
-    parent.destroy();
   });
 
   test("can cut/paste with context menu", async () => {
-    const model = new Model();
     setCellContent(model, "B1", "b1");
-
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
 
     // right click on B1
     simulateContextMenu(230, 30);
@@ -266,52 +252,35 @@ describe("Context Menu", () => {
 
     expect(getCell(model, "B1")).toBeUndefined();
     expect(getCellContent(model, "B2")).toBe("b1");
-    parent.destroy();
   });
 
   test("menu does not close when right click elsewhere", async () => {
-    const model = new Model();
-
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
     simulateContextMenu(100, 100);
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
     simulateContextMenu(300, 300);
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
-    parent.destroy();
   });
 
   test("close contextmenu when clicking on menubar", async () => {
-    const model = new Model();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
     simulateContextMenu(100, 100);
     await nextTick();
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
     triggerMouseEvent(".o-topbar-topleft", "click");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
-    parent.destroy();
   });
 
   test("close contextmenu when clicking on menubar item", async () => {
-    const model = new Model();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
     simulateContextMenu(100, 100);
     await nextTick();
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
     triggerMouseEvent(".o-topbar-menu[data-id='insert']", "click");
     await nextTick();
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeFalsy();
-    parent.destroy();
   });
   test("close contextmenu when clicking on tools bar", async () => {
-    const model = new Model();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
     simulateContextMenu(100, 100);
     await nextTick();
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
@@ -319,7 +288,6 @@ describe("Context Menu", () => {
     triggerMouseEvent(fontSizeTool, "click");
     await nextTick();
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeFalsy();
-    parent.destroy();
   });
 
   test("menu can be hidden/displayed based on the env", async () => {
@@ -339,16 +307,12 @@ describe("Context Menu", () => {
           env.getters.getCell(env.getters.getActiveSheetId(), 1, 0)!.evaluated.value !== "b1",
         action() {},
       });
-    const model = new Model();
     setCellContent(model, "B1", "b1");
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
     simulateContextMenu(230, 30);
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='visible_action']")).toBeTruthy();
     expect(fixture.querySelector(".o-menu div[data-name='hidden_action']")).toBeFalsy();
     cellMenuRegistry.content = menuDefinitions;
-    parent.destroy();
   });
 
   test("submenu opens and close when (un)overed", async () => {
@@ -527,13 +491,12 @@ describe("Context Menu", () => {
   });
 
   test("scroll through the menu with the wheel / scrollbar prevents the grid from scrolling", async () => {
-    const model = new Model();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
-
-    // grid initially at (0, 0) scroll position
-    expect(parent.grid.comp.vScrollbar.scroll).toBe(0);
-    expect(parent.grid.comp.hScrollbar.scroll).toBe(0);
+    // @ts-ignore
+    const verticalScrollBar = parent.grid.comp.vScrollbar
+    // @ts-ignore
+    const horizontalScrollBar = parent.grid.comp.hScrollbar
+    expect(verticalScrollBar.scroll).toBe(0);
+    expect(horizontalScrollBar.scroll).toBe(0);
 
     simulateContextMenu(300, 200);
     await nextTick();
@@ -547,19 +510,17 @@ describe("Context Menu", () => {
     await nextTick();
 
     // grid always at (0, 0) scroll position
-    expect(parent.grid.comp.vScrollbar.scroll).toBe(0);
-    expect(parent.grid.comp.hScrollbar.scroll).toBe(0);
-    parent.destroy();
+    expect(verticalScrollBar.scroll).toBe(0);
+    expect(horizontalScrollBar.scroll).toBe(0);
   });
 
   test("scroll through the menu with the touch device prevents the grid from scrolling", async () => {
-    const model = new Model();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
-
-    // grid initially at (0, 0) scroll position
-    expect(parent.grid.comp.vScrollbar.scroll).toBe(0);
-    expect(parent.grid.comp.hScrollbar.scroll).toBe(0);
+    // @ts-ignore
+    const verticalScrollBar = parent.grid.comp.vScrollbar
+    // @ts-ignore
+    const horizontalScrollBar = parent.grid.comp.hScrollbar
+    expect(verticalScrollBar.scroll).toBe(0);
+    expect(horizontalScrollBar.scroll).toBe(0);
 
     simulateContextMenu(300, 200);
     await nextTick();
@@ -599,9 +560,8 @@ describe("Context Menu", () => {
 
     await nextTick();
     // grid always at (0, 0) scroll position
-    expect(parent.grid.comp.vScrollbar.scroll).toBe(0);
-    expect(parent.grid.comp.hScrollbar.scroll).toBe(0);
-    parent.destroy();
+    expect(verticalScrollBar.scroll).toBe(0);
+    expect(horizontalScrollBar.scroll).toBe(0);
   });
 });
 
@@ -625,7 +585,6 @@ describe("Context Menu position on large screen 1000px/1000px", () => {
     const [clickX, clickY] = await renderContextMenu(990, 300);
     const { left, top } = getMenuPosition();
     const { width } = getMenuSize();
-    debugger;
     expect(left).toBe(clickX - width);
     expect(top).toBe(clickY);
   });
@@ -749,9 +708,6 @@ describe("Context Menu position on small screen 1000px/300px", () => {
 
 describe("Context Menu - CF", () => {
   test("open sidepanel with no CF in selected zone", async () => {
-    const model = new Model();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
     simulateContextMenu(240, 110);
     await nextTick();
     await simulateClick(".o-menu div[data-name='conditional_formatting']");
@@ -761,14 +717,9 @@ describe("Context Menu - CF", () => {
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
     ).toBeFalsy();
-    parent.destroy();
   });
 
   test("open sidepanel with one CF in selected zone", async () => {
-    const model = new Model();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
-
     const cfRule: ConditionalFormat = {
       ranges: ["A1:C7"],
       id: "1",
@@ -794,14 +745,9 @@ describe("Context Menu - CF", () => {
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
     ).toBeTruthy();
-    parent.destroy();
   });
 
   test("open sidepanel with more then one CF in selected zone", async () => {
-    const model = new Model();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
-
     const cfRule1: ConditionalFormat = {
       ranges: ["A1:C7"],
       id: "1",
@@ -842,13 +788,8 @@ describe("Context Menu - CF", () => {
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
     ).toBeFalsy();
-    parent.destroy();
   });
   test("will update sidepanel if we reopen it from other cell", async () => {
-    const model = new Model();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
-
     const cfRule1: ConditionalFormat = {
       ranges: ["A1:A10"],
       id: "1",
@@ -885,6 +826,5 @@ describe("Context Menu - CF", () => {
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
     ).toBeFalsy();
-    parent.destroy();
   });
 });

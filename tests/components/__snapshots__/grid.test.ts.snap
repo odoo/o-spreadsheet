@@ -2,7 +2,7 @@
 
 exports[`Grid component simple rendering snapshot 1`] = `
 <div
-  class="o-grid"
+  class="o-grid o-two-columns"
 >
   <canvas
     height="985"
@@ -57,7 +57,7 @@ exports[`error tooltip can display error tooltip 1`] = `
       z-index: 5;
       top:250px;
       left:336px;
-      max-height:949px;
+      max-height:934px;
       width:180px;
       overflow-y: auto;
       overflow-x: hidden;

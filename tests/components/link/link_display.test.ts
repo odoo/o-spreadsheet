@@ -1,21 +1,20 @@
-import { Model } from "../../../src";
+import { Model, Spreadsheet } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
 import { isLink } from "../../../src/helpers/cells/index";
 import { clearCell, createSheet, setCellContent } from "../../test_helpers/commands_helpers";
 import { clickCell, rightClickCell, simulateClick } from "../../test_helpers/dom_helper";
 import { getCell } from "../../test_helpers/getters_helpers";
-import { GridParent, makeTestFixture, nextTick } from "../../test_helpers/helpers";
+import { makeTestFixture, nextTick, mountSpreadsheet } from "../../test_helpers/helpers";
 
 describe("link display component", () => {
   let fixture: HTMLElement;
   let model: Model;
-  let grid: GridParent;
+  let grid: Spreadsheet;
 
   beforeEach(async () => {
     fixture = makeTestFixture();
-    model = new Model();
-    grid = new GridParent(model);
-    await grid.mount(fixture);
+    grid = await mountSpreadsheet(fixture);
+    model = grid.model;
   });
 
   afterEach(() => {

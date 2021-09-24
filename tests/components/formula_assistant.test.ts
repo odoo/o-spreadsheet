@@ -1,12 +1,13 @@
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import {
-  GridParent,
   makeTestFixture,
   nextTick,
   resetFunctions,
   typeInComposer as typeInComposerHelper,
+  mountSpreadsheet,
 } from "../test_helpers/helpers";
+import { Spreadsheet } from "../../src";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
@@ -14,19 +15,18 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
-let parent: any;
+let parent: Spreadsheet;
 async function typeInComposer(text: string) {
   await typeInComposerHelper(composerEl, text);
 }
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  model = new Model();
-  parent = new GridParent(model);
-  await parent.mount(fixture);
+  parent = await mountSpreadsheet(fixture);
+  model = parent.model;
 
   // start composition
-  parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+  parent.grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
   await nextTick();
   composerEl = fixture.querySelector(".o-grid div.o-composer")!;
 });

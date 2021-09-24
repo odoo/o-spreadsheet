@@ -1,21 +1,16 @@
-import { Component, hooks, tags, useState } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import format from "xml-formatter";
-import { Grid } from "../../src/components/grid";
-import { SidePanel } from "../../src/components/side_panel/side_panel";
-import { TopBar } from "../../src/components/top_bar";
+import { Spreadsheet } from "../../src/components/spreadsheet";
 import { functionRegistry } from "../../src/functions/index";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
-import { ComposerSelection } from "../../src/plugins/ui/edition";
 import {
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
   CommandTypes,
   ConditionalFormat,
-  GridRenderingContext,
   Position,
-  SpreadsheetEnv,
   Style,
   Zone,
 } from "../../src/types";
@@ -25,8 +20,6 @@ import { getCell, getCellContent } from "./getters_helpers";
 
 const functions = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
-const { xml } = tags;
-const { useRef, useSubEnv } = hooks;
 
 export function nextMicroTick(): Promise<void> {
   return Promise.resolve();
@@ -44,8 +37,6 @@ export function makeTestFixture() {
   document.body.appendChild(fixture);
   return fixture;
 }
-
-const t = (s: string): string => s;
 
 export class MockClipboard {
   private content: string = "Some random clipboard content";
@@ -76,142 +67,10 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
   expect(model).toExport(after);
 }
 
-export class GridParent extends Component<any, SpreadsheetEnv> {
-  static template = xml/* xml */ `
-    <div class="parent o-spreadsheet">
-      <TopBar
-        model="model"
-        t-on-ask-confirmation="askConfirmation"
-        focusComposer="focusTopBarComposer"
-        t-on-composer-content-focused="onTopBarComposerFocused"/>
-      <Grid
-        model="model"
-        sidePanelIsOpen="sidePanel.isOpen"
-        linkEditorIsOpen="linkEditor.isOpen"
-        t-on-link-editor-closed="closeLinkEditor"
-        t-ref="grid"
-        t-on-composer-cell-focused="onGridComposerCellFocused"
-        t-on-composer-content-focused="onGridComposerContentFocused"
-        focusComposer="focusGridComposer"/>
-      <SidePanel t-if="sidePanel.isOpen"
-             t-on-close-side-panel="sidePanel.isOpen = false"
-             model="model"
-             component="sidePanel.component"
-             panelProps="sidePanel.panelProps" />
-    </div>`;
-
-  static _t = t;
-  static components = { Grid, SidePanel, TopBar };
-  model: Model;
-  grid: any = useRef("grid");
-  sidePanel = useState({ isOpen: false, panelProps: {} } as {
-    isOpen: boolean;
-    component?: string;
-    panelProps: any;
-  });
-  linkEditor = useState({ isOpen: false });
-
-  composer = useState({
-    topBarFocus: "inactive",
-    gridFocusMode: "inactive",
-  } as { topBarFocus: "inactive" | "contentFocus"; gridFocusMode: "inactive" | "contentFocus" | "cellFocus" });
-
-  constructor(model: Model) {
-    super();
-    useSubEnv({
-      openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
-      toggleSidePanel: (panel: string, panelProps: any = {}) =>
-        this.toggleSidePanel(panel, panelProps),
-      dispatch: model.dispatch,
-      getters: model.getters,
-      _t: GridParent._t,
-      clipboard: new MockClipboard(),
-      uuidGenerator: model.uuidGenerator,
-      openLinkEditor: () => this.openLinkEditor(),
-    });
-
-    const drawGrid = model.drawGrid;
-    model.drawGrid = function (context: GridRenderingContext) {
-      drawGrid.call(this, context);
-    };
-    this.model = model;
-  }
-
-  get focusTopBarComposer(): "inactive" | "contentFocus" {
-    return this.model.getters.getEditionMode() === "inactive"
-      ? "inactive"
-      : this.composer.topBarFocus;
-  }
-
-  get focusGridComposer(): "inactive" | "cellFocus" | "contentFocus" {
-    return this.model.getters.getEditionMode() === "inactive"
-      ? "inactive"
-      : this.composer.gridFocusMode;
-  }
-
-  mounted() {
-    this.model.on("update", this, this.render);
-    this.model.dispatch("RESIZE_VIEWPORT", {
-      width: this.el!.clientWidth,
-      height: this.el!.clientWidth,
-    });
-  }
-
-  willUnmount() {
-    this.model.off("update", this);
-  }
-
-  openSidePanel(panel: string, panelProps: any) {
-    this.sidePanel.component = panel;
-    this.sidePanel.panelProps = panelProps;
-    this.sidePanel.isOpen = true;
-  }
-  toggleSidePanel(panel: string, panelProps: any) {
-    if (this.sidePanel.isOpen && panel === this.sidePanel.component) {
-      this.sidePanel.isOpen = false;
-    } else {
-      this.openSidePanel(panel, panelProps);
-    }
-  }
-
-  openLinkEditor() {
-    this.linkEditor.isOpen = true;
-  }
-
-  closeLinkEditor() {
-    this.linkEditor.isOpen = false;
-  }
-
-  onTopBarComposerFocused(ev: CustomEvent) {
-    this.composer.topBarFocus = "contentFocus";
-    this.composer.gridFocusMode = "inactive";
-    this.setComposerContent(ev.detail || {});
-  }
-  onGridComposerContentFocused(ev: CustomEvent) {
-    this.composer.topBarFocus = "inactive";
-    this.composer.gridFocusMode = "contentFocus";
-    this.setComposerContent(ev.detail || {});
-  }
-
-  onGridComposerCellFocused(ev: CustomEvent) {
-    this.composer.topBarFocus = "inactive";
-    this.composer.gridFocusMode = "cellFocus";
-    this.setComposerContent(ev.detail || {});
-  }
-
-  private setComposerContent({
-    content,
-    selection,
-  }: {
-    content?: string | undefined;
-    selection?: ComposerSelection;
-  }) {
-    if (this.model.getters.getEditionMode() === "inactive") {
-      this.model.dispatch("START_EDITION", { text: content, selection });
-    } else if (content) {
-      this.model.dispatch("SET_CURRENT_CONTENT", { content, selection });
-    }
-  }
+export async function mountSpreadsheet(fixture: HTMLElement, props: Spreadsheet["props"] = {}){
+  const spreadsheet = new Spreadsheet(undefined, props);
+  await spreadsheet.mount(fixture);
+  return spreadsheet
 }
 
 type GridDescr = { [xc: string]: string | undefined };

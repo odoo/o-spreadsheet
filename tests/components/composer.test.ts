@@ -20,13 +20,14 @@ import {
 import { clickCell, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
-  GridParent,
   makeTestFixture,
   nextTick,
   startGridComposition as startComposition,
   typeInComposer as typeInComposerHelper,
+  mountSpreadsheet,
 } from "../test_helpers/helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
+import { Spreadsheet } from "../../src";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
@@ -35,7 +36,7 @@ let model: Model;
 let composerEl: Element;
 let canvasEl: Element;
 let fixture: HTMLElement;
-let parent: GridParent;
+let parent: Spreadsheet;
 
 function getHighlights(model: Model): any[] {
   const highlightPlugin = (model as any).handlers.find((h) => h instanceof HighlightPlugin);
@@ -66,14 +67,13 @@ async function keyup(key: string, options: any = {}) {
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  model = new Model();
-  parent = new GridParent(model);
-  await parent.mount(fixture);
+  parent = await mountSpreadsheet(fixture);
+  model = parent.model;
   model.dispatch("RESIZE_VIEWPORT", {
     width: 1000,
     height: 1000,
   });
-  canvasEl = parent.grid.el;
+  canvasEl = parent.el?.querySelector(".o-grid")!;
 });
 
 afterEach(() => {
@@ -798,7 +798,8 @@ describe("composer", () => {
   });
 
   test("Select a right-to-left range with the keyboard", async () => {
-    await typeInComposer("Hello");
+    setCellContent(model, "A1", "Hello");
+    await keydown("Enter");
     const { end } = model.getters.getComposerSelection();
     await keydown("ArrowLeft", { shiftKey: true });
     await keyup("ArrowLeft", { shiftKey: true });

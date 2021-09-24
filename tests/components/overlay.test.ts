@@ -21,7 +21,8 @@ import {
 } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell } from "../test_helpers/getters_helpers";
-import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
+import { makeTestFixture, nextTick, mountSpreadsheet } from "../test_helpers/helpers";
+import { Spreadsheet } from "../../src";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -144,21 +145,23 @@ async function dblClickRow(index: number) {
 }
 
 describe("Resizer component", () => {
+  let parent: Spreadsheet;
   beforeEach(async () => {
     fixture = makeTestFixture();
-    model = new Model({
+    const data = {
       sheets: [
         {
           colNumber: 10,
           rowNumber: 10,
         },
       ],
-    });
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
+    };
+    parent = await mountSpreadsheet(fixture, { data });
+    model = parent.model;
   });
 
   afterEach(() => {
+    parent.destroy();
     fixture.remove();
   });
 
@@ -766,15 +769,16 @@ describe("Resizer component", () => {
 });
 
 describe("Edge-Scrolling on mouseMove in selection", () => {
+  let parent: Spreadsheet;
   beforeEach(async () => {
     jest.useFakeTimers();
     fixture = makeTestFixture();
-    model = new Model();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
+    parent = await mountSpreadsheet(fixture);
+    model = parent.model;
   });
 
   afterEach(() => {
+    parent.destroy();
     fixture.remove();
   });
   test("Can edge-scroll horizontally", async () => {
@@ -791,7 +795,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
       left: 6,
       right: 15,
       top: 0,
-      bottom: 42,
+      bottom: 41,
     });
 
     triggerMouseEvent(".o-col-resizer", "mousedown", width / 2, y);
@@ -804,7 +808,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
       left: 3,
       right: 12,
       top: 0,
-      bottom: 42,
+      bottom: 41,
     });
   });
 
@@ -821,7 +825,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
       left: 0,
       right: 9,
       top: 6,
-      bottom: 48,
+      bottom: 47,
     });
 
     triggerMouseEvent(".o-row-resizer", "mousedown", x, height / 2);
@@ -834,15 +838,16 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
       left: 0,
       right: 9,
       top: 3,
-      bottom: 45,
+      bottom: 44,
     });
   });
 });
 
 describe("move selected element(s)", () => {
+  let parent: Spreadsheet;
   beforeEach(async () => {
     fixture = makeTestFixture();
-    model = new Model({
+    const data = {
       sheets: [
         {
           id: "sheet1",
@@ -850,12 +855,13 @@ describe("move selected element(s)", () => {
           rowNumber: 10,
         },
       ],
-    });
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
+    };
+    parent = await mountSpreadsheet(fixture, { data });
+    model = parent.model;
   });
 
   afterEach(() => {
+    parent.destroy();
     fixture.remove();
   });
 

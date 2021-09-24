@@ -9,7 +9,7 @@ import { ConditionalFormat, SpreadsheetEnv } from "../../src/types";
 import { selectCell, setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getBorder, getCell } from "../test_helpers/getters_helpers";
-import { GridParent, makeTestFixture, nextTick, typeInComposer } from "../test_helpers/helpers";
+import { makeTestFixture, nextTick, typeInComposer, mountSpreadsheet } from "../test_helpers/helpers";
 
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
@@ -386,9 +386,7 @@ test("Can show/hide a TopBarComponent based on condition", async () => {
 
 describe("TopBar - CF", () => {
   test("open sidepanel with no CF in selected zone", async () => {
-    const model = new Model();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
+    const parent = await mountSpreadsheet(fixture);
     triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
     await nextTick();
     triggerMouseEvent(".o-menu-item[data-name='format_cf']", "click");
@@ -403,9 +401,8 @@ describe("TopBar - CF", () => {
   });
 
   test("open sidepanel with one CF in selected zone", async () => {
-    const model = new Model();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
+    const parent = await mountSpreadsheet(fixture);
+    const model = parent.model;
 
     const cfRule: ConditionalFormat = {
       ranges: ["A1:C7"],
@@ -438,9 +435,8 @@ describe("TopBar - CF", () => {
   });
 
   test("open sidepanel with with more then one CF in selected zone", async () => {
-    const model = new Model();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
+    const parent = await mountSpreadsheet(fixture);
+    const model = parent.model;
 
     const cfRule1: ConditionalFormat = {
       ranges: ["A1:C7"],

@@ -12,8 +12,9 @@ import {
 } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
-import { GridParent, makeTestFixture, nextTick, Touch } from "../test_helpers/helpers";
+import { makeTestFixture, nextTick, Touch, mountSpreadsheet } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { Spreadsheet, TransportService } from "../../src";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
@@ -32,7 +33,7 @@ jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation((
 
 let fixture: HTMLElement;
 let model: Model;
-let parent: GridParent;
+let parent: Spreadsheet;
 
 beforeEach(async () => {
   fixture = makeTestFixture();
@@ -44,10 +45,9 @@ afterEach(() => {
 
 describe("Grid component", () => {
   beforeEach(async () => {
-    model = new Model();
-    parent = new GridParent(model);
     fixture = makeTestFixture();
-    await parent.mount(fixture);
+    parent = await mountSpreadsheet(fixture);
+    model = parent.model;
   });
 
   afterEach(() => {
@@ -217,9 +217,9 @@ describe("Grid component", () => {
 
   describe("keybindings", () => {
     test("pressing ENTER put current cell in edit mode", async () => {
-      // note: this behavious is not like excel. Maybe someone will want to
+      // note: this behaviour is not like excel. Maybe someone will want to
       // change this
-      parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+      parent.grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       expect(getActiveXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("editing");
     });
@@ -260,14 +260,14 @@ describe("Grid component", () => {
     });
 
     test("pressing TAB move to next cell", async () => {
-      parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
+      parent.grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       expect(getActiveXc(model)).toBe("B1");
     });
 
     test("pressing shift+TAB move to previous cell", async () => {
       selectCell(model, "B1");
       expect(getActiveXc(model)).toBe("B1");
-      parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
+      parent.grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
       expect(getActiveXc(model)).toBe("A1");
     });
 
@@ -595,11 +595,16 @@ describe("Grid component", () => {
 });
 
 describe("Multi User selection", () => {
+
+  let transportService: TransportService
+  beforeEach(async () => {
+    transportService = new MockTransportService();
+    fixture = makeTestFixture();
+    parent = await mountSpreadsheet(fixture, { transportService });
+    model = parent.model;
+  });
+
   test("Do not render multi user selection with invalid sheet", async () => {
-    const transportService = new MockTransportService();
-    const model = new Model({}, { transportService });
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
     transportService.sendMessage({
       type: "CLIENT_JOINED",
       version: MESSAGE_VERSION,
@@ -611,10 +616,6 @@ describe("Multi User selection", () => {
   });
 
   test("Do not render multi user selection with invalid col", async () => {
-    const transportService = new MockTransportService();
-    const model = new Model({}, { transportService });
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
     const sheet = model.getters.getActiveSheet();
     transportService.sendMessage({
       type: "CLIENT_JOINED",
@@ -631,10 +632,6 @@ describe("Multi User selection", () => {
   });
 
   test("Do not render multi user selection with invalid row", async () => {
-    const transportService = new MockTransportService();
-    const model = new Model({}, { transportService });
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
     const sheet = model.getters.getActiveSheet();
     transportService.sendMessage({
       type: "CLIENT_JOINED",
@@ -657,9 +654,10 @@ describe("error tooltip", () => {
 
   beforeEach(async () => {
     currentTime = 0;
-    model = new Model();
-    parent = new GridParent(model);
+    parent = new Spreadsheet();
+    model = parent.model;
 
+    // TODO use jest mock timers
     // mock setinterval and Date.now
     parent.env.browser.setInterval = ((cb) => {
       intervalCb = cb;
@@ -736,10 +734,9 @@ describe("error tooltip", () => {
 
 describe("Events on Grid update viewport correctly", () => {
   beforeEach(async () => {
-    model = new Model();
-    parent = new GridParent(model);
     fixture = makeTestFixture();
-    await parent.mount(fixture);
+    parent = await mountSpreadsheet(fixture);
+    model = parent.model;
   });
   afterEach(() => {
     parent.destroy();
@@ -750,7 +747,7 @@ describe("Events on Grid update viewport correctly", () => {
     await nextTick();
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 52,
-      bottom: 94,
+      bottom: 93,
       left: 0,
       right: 9,
       offsetX: 0,
@@ -758,7 +755,7 @@ describe("Events on Grid update viewport correctly", () => {
     });
     expect(model.getters.getActiveSnappedViewport()).toMatchObject({
       top: 52,
-      bottom: 94,
+      bottom: 93,
       left: 0,
       right: 9,
       offsetX: 0,
@@ -772,15 +769,15 @@ describe("Events on Grid update viewport correctly", () => {
     await nextTick();
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
-      bottom: 42,
+      bottom: 41,
       left: 2,
-      right: 12,
+      right: 11,
       offsetX: 200,
       offsetY: 0,
     });
     expect(model.getters.getActiveSnappedViewport()).toMatchObject({
       top: 0,
-      bottom: 42,
+      bottom: 41,
       left: 2,
       right: 11,
       offsetX: 192,
@@ -871,7 +868,7 @@ describe("Events on Grid update viewport correctly", () => {
         left: 6,
         right: 15,
         top: 0,
-        bottom: 42,
+        bottom: 41,
       });
 
       triggerMouseEvent("canvas", "mousedown", width / 2, y);
@@ -884,7 +881,7 @@ describe("Events on Grid update viewport correctly", () => {
         left: 3,
         right: 12,
         top: 0,
-        bottom: 42,
+        bottom: 41,
       });
     });
 
@@ -901,7 +898,7 @@ describe("Events on Grid update viewport correctly", () => {
         left: 0,
         right: 9,
         top: 6,
-        bottom: 48,
+        bottom: 47,
       });
 
       triggerMouseEvent("canvas", "mousedown", x, height / 2);
@@ -914,7 +911,7 @@ describe("Events on Grid update viewport correctly", () => {
         left: 0,
         right: 9,
         top: 3,
-        bottom: 45,
+        bottom: 44,
       });
     });
   });
