@@ -152,12 +152,14 @@ export type Getters = CoreGetters & {
   getComposerSelection: EditionPlugin["getComposerSelection"];
   getCurrentTokens: EditionPlugin["getCurrentTokens"];
   getTokenAtCursor: EditionPlugin["getTokenAtCursor"];
+  getComposerHighlights: EditionPlugin["getComposerHighlights"];
 
   getAutofillTooltip: AutofillPlugin["getAutofillTooltip"];
 
   getSelectionInput: SelectionInputPlugin["getSelectionInput"];
   getSelectionInputValue: SelectionInputPlugin["getSelectionInputValue"];
   isRangeValid: SelectionInputPlugin["isRangeValid"];
+  getSelectionInputHighlights: SelectionInputPlugin["getSelectionInputHighlights"];
 
   getSearchMatches: FindAndReplacePlugin["getSearchMatches"];
   getCurrentSelectedMatchIndex: FindAndReplacePlugin["getCurrentSelectedMatchIndex"];

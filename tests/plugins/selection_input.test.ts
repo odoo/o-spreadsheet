@@ -1,12 +1,15 @@
 import { Model } from "../../src";
-import { zoneToXc } from "../../src/helpers";
+import { toZone, zoneToXc } from "../../src/helpers";
 import { CommandResult } from "../../src/types";
 import {
   activateSheet,
   createSheet,
   createSheetWithName,
+  merge,
   selectCell,
+  setSelection,
 } from "../test_helpers/commands_helpers";
+import { target } from "../test_helpers/helpers";
 
 function select(model: Model, xc: string) {
   model.dispatch("START_SELECTION");
@@ -44,6 +47,13 @@ describe("selection input plugin", () => {
     expect(model.getters.getSelectionInput(id).length).toBe(1);
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("D4");
     expect(model.getters.getSelectionInput(id)[0].isFocused).toBeFalsy();
+    expect(highlightedZones(model)).toStrictEqual([]);
+  });
+
+  test("multiple initial values have different ids", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["D4", "D5"] });
+    const [range1, range2] = model.getters.getSelectionInput(id);
+    expect(range1.id).not.toBe(range2.id);
   });
 
   test("focused input should change with selection", () => {
@@ -51,6 +61,22 @@ describe("selection input plugin", () => {
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
     select(model, "C2");
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("C2");
+    const firstColor = model.getters.getSelectionInput(id)[0].color;
+    expect(highlightedZones(model)).toStrictEqual(["C2"]);
+    select(model, "D4");
+    const secondColor = model.getters.getSelectionInput(id)[0].color;
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("D4");
+    expect(highlightedZones(model)).toStrictEqual(["D4"]);
+    expect(firstColor).toBe(secondColor);
+  });
+
+  test("select cell inside a merge expands the selection", () => {
+    merge(model, "A2:A4");
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+    model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+    setSelection(model, ["A3:A5"]);
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("A2:A5");
+    expect(highlightedZones(model)).toStrictEqual(["A2:A5"]);
   });
 
   test("focus input which is already focused", () => {
@@ -75,11 +101,15 @@ describe("selection input plugin", () => {
     selectCell(model, "C2");
     expect(model.getters.getSelectionInput(id).length).toBe(1);
     expect(model.getters.getSelectionInput(id).map((i) => i.xc)).toEqual(["C2"]);
+    expect(highlightedZones(model)).toStrictEqual(["C2"]);
     model.dispatch("PREPARE_SELECTION_EXPANSION");
     model.dispatch("START_SELECTION_EXPANSION");
     selectCell(model, "D2");
     expect(model.getters.getSelectionInput(id).length).toBe(2);
     expect(model.getters.getSelectionInput(id).map((i) => i.xc)).toEqual(["C2", "D2"]);
+    expect(highlightedZones(model)).toStrictEqual(["C2", "D2"]);
+    const [firstColor, secondColor] = model.getters.getSelectionInput(id).map((i) => i.color);
+    expect(firstColor).not.toBe(secondColor);
   });
 
   test("expanding a selection focuses the last range", () => {
@@ -104,12 +134,10 @@ describe("selection input plugin", () => {
 
   test("adding multiple ranges does not add more input than maximum", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, maximumRanges: 2 });
-    model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: [
-        ["A1", "#000"],
-        ["B1", "#000"],
-        ["C1", "#000"],
-      ],
+    model.dispatch("SET_SELECTION", {
+      anchor: [0, 0],
+      anchorZone: toZone("A1"),
+      zones: target("A1,B1,C1"),
     });
     expect(model.getters.getSelectionInput(id)).toHaveLength(2);
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("A1");
@@ -273,12 +301,17 @@ describe("selection input plugin", () => {
   test("setting multiple ranges in one input", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     model.dispatch("ADD_EMPTY_RANGE", { id });
-    model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "C5, D8" });
-    expect(model.getters.getSelectionInput(id)[0].xc).toBe("C5");
-    expect(model.getters.getSelectionInput(id)[1].xc).toBe("D8");
-    expect(highlightedZones(model)).toStrictEqual(["C5", "D8"]);
-    const [firstColor, secondColor] = model.getters.getHighlights().map((h) => h.color);
+    model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "C5, D8, B2" });
+    const [range1, range2, range3] = model.getters.getSelectionInput(id);
+    expect(range1.xc).toBe("C5");
+    expect(range2.xc).toBe("D8");
+    expect(range3.xc).toBe("B2");
+    expect(range1.id).not.toBe(range2.id);
+    expect(range2.id).not.toBe(range3.id);
+    expect(highlightedZones(model)).toStrictEqual(["C5", "D8", "B2"]);
+    const [firstColor, secondColor, thirdColor] = model.getters.getHighlights().map((h) => h.color);
     expect(firstColor).not.toBe(secondColor);
+    expect(thirdColor).not.toBe(secondColor);
   });
 
   test("writing an invalid range does not crash", () => {
@@ -304,7 +337,7 @@ describe("selection input plugin", () => {
       rangeId: idOfRange(model, id, 0),
       value: "A1, This is invalid",
     });
-    expect(highlightedZones(model)).toEqual(["E3", "A1"]);
+    expect(highlightedZones(model)).toEqual(["A1", "E3"]);
     expect(model.getters.getSelectionInput(id)).toHaveLength(3);
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("A1");
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("This is invalid");
@@ -402,6 +435,8 @@ describe("selection input plugin", () => {
     model.dispatch("FOCUS_RANGE", { id: "1", rangeId: idOfRange(model, "1", 0) });
     expect(model.getters.getSelectionInput("1")[0].isFocused).toBe(true);
     expect(model.getters.getSelectionInput("2")[0].isFocused).toBe(false);
+    expect(model.getters.getSelectionInput("1")[0].color).toBeTruthy();
+    expect(model.getters.getSelectionInput("2")[0].color).toBeFalsy();
     expect(highlightedZones(model)).toEqual(["D4"]);
     model.dispatch("FOCUS_RANGE", { id: "2", rangeId: idOfRange(model, "2", 0) });
     expect(model.getters.getSelectionInput("1")[0].isFocused).toBe(false);
@@ -424,11 +459,13 @@ describe("selection input plugin", () => {
 
   test("can select a range in another sheet", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+    const firstSheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
-    model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: [["A1", "#000"]],
-    });
+    select(model, "A1");
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("Sheet2!A1");
+    expect(highlightedZones(model)).toEqual(["A1"]);
+    activateSheet(model, firstSheetId);
+    expect(highlightedZones(model)).toEqual([]);
   });
 
   test.each(["sheet name", "Sheet+", "Sheet:)"])(
@@ -436,18 +473,14 @@ describe("selection input plugin", () => {
     (sheetName) => {
       model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
       createSheetWithName(model, { sheetId: "42", activate: true }, sheetName);
-      model.dispatch("ADD_HIGHLIGHTS", {
-        ranges: [["A1", "#000"]],
-      });
+      select(model, "A1");
       expect(model.getters.getSelectionInput(id)[0].xc).toBe(`'${sheetName}'!A1`);
     }
   );
 
   test("focus while in other sheet", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: [["A1", "#000"]],
-    });
+    select(model, "A1");
     createSheet(model, { sheetId: "42", activate: true });
     model.dispatch("FOCUS_RANGE", { id, rangeId: null });
     let [range] = model.getters.getSelectionInput(id);
@@ -507,7 +540,7 @@ describe("selection input plugin", () => {
     });
     expect(highlightedZones(model)).toEqual(["A1"]);
     activateSheet(model, "42");
-    expect(highlightedZones(model)).toEqual(["A1", "B3"]);
+    expect(highlightedZones(model)).toEqual(["B3"]);
   });
 
   test("input not focused when changing sheet", () => {
