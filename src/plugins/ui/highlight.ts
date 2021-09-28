@@ -1,6 +1,6 @@
-import { getNextColor, isEqual, toZone } from "../../helpers/index";
+import { isEqual, toZone } from "../../helpers/index";
 import { Mode } from "../../model";
-import { Command, GridRenderingContext, Highlight, LAYERS, Zone } from "../../types/index";
+import { GridRenderingContext, Highlight, LAYERS, Zone } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 /**
@@ -10,73 +10,20 @@ export class HighlightPlugin extends UIPlugin {
   static modes: Mode[] = ["normal"];
   static layers = [LAYERS.Highlights];
   static getters = ["getHighlights"];
-  private highlights: Highlight[] = [];
-  private color: string = "#000";
-  private highlightSelectionEnabled = false;
-  private pendingHighlights: Highlight[] = [];
-
-  // ---------------------------------------------------------------------------
-  // Command Handling
-  // ---------------------------------------------------------------------------
-
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "ADD_HIGHLIGHTS":
-        this.addHighlights(cmd.ranges);
-        break;
-      case "REMOVE_ALL_HIGHLIGHTS":
-        this.highlights = [];
-        break;
-      case "REMOVE_HIGHLIGHTS":
-        this.removeHighlights(cmd.ranges);
-        break;
-      case "SELECT_CELL":
-      case "SET_SELECTION":
-        if (this.highlightSelectionEnabled) {
-          this.highlightSelection();
-        }
-        break;
-      case "START_SELECTION_EXPANSION":
-        this.color = getNextColor();
-        break;
-      case "HIGHLIGHT_SELECTION":
-        this.highlightSelectionEnabled = cmd.enabled;
-        if (!cmd.enabled) {
-          this.dispatch("RESET_PENDING_HIGHLIGHT");
-        }
-        break;
-      case "RESET_PENDING_HIGHLIGHT":
-        this.pendingHighlights = [];
-        break;
-      case "ADD_PENDING_HIGHLIGHTS":
-        this.addPendingHighlight(cmd.ranges);
-        break;
-      case "SET_HIGHLIGHT_COLOR":
-        this.color = cmd.color;
-    }
-  }
 
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
 
   getHighlights(): Highlight[] {
-    return this.highlights;
+    return this.prepareHighlights(
+      this.getters.getComposerHighlights().concat(this.getters.getSelectionInputHighlights())
+    );
   }
 
   // ---------------------------------------------------------------------------
   // Other
   // ---------------------------------------------------------------------------
-
-  private addHighlights(ranges: [string, string][]) {
-    let highlights = this.prepareHighlights(ranges);
-    this.highlights = this.highlights.concat(highlights);
-  }
-
-  private addPendingHighlight(ranges: [string, string][]) {
-    let highlights = this.prepareHighlights(ranges);
-    this.pendingHighlights = this.pendingHighlights.concat(highlights);
-  }
 
   private prepareHighlights(ranges: [string, string][]): Highlight[] {
     if (ranges.length === 0) {
@@ -101,80 +48,6 @@ export class HighlightPlugin extends UIPlugin {
     );
   }
 
-  /**
-   *
-   * @param ranges {"[sheet!]XC": color}
-   * @private
-   */
-  private removeHighlights(ranges: [string, string][]) {
-    const activeSheetId = this.getters.getActiveSheetId();
-    const rangesBySheets = {};
-    for (let [range, color] of ranges) {
-      const [xc, sheetName] = range.split("!").reverse();
-      const sheetId = this.getters.getSheetIdByName(sheetName);
-      rangesBySheets[sheetId || activeSheetId] = Object.assign(
-        { [xc]: color },
-        rangesBySheets[sheetId || activeSheetId] || {}
-      );
-    }
-    const shouldBeKept = (highlight: Highlight) =>
-      !(
-        rangesBySheets[highlight.sheet] &&
-        rangesBySheets[highlight.sheet][this.getters.zoneToXC(activeSheetId, highlight.zone)] ===
-          highlight.color
-      );
-    this.highlights = this.highlights.filter(shouldBeKept);
-  }
-
-  /**
-   * Highlight selected zones (which are not already highlighted).
-   */
-  private highlightSelection() {
-    this.removePendingHighlights();
-    const zones = this.getters.getSelectedZones().filter((z) => !this.isHighlighted(z));
-    const ranges: [string, string][] = [];
-    const colorByRange = {};
-    let color = this.color;
-    const activeSheetId = this.getters.getActiveSheetId();
-    for (const zone of zones) {
-      const range = this.getters.zoneToXC(activeSheetId, zone);
-      // if the range reference is already present in ranges, we reuse its color
-      if (colorByRange[range]) {
-        ranges.push([range, colorByRange[range]]);
-      } else {
-        ranges.push([range, color]);
-        colorByRange[range] = color;
-        color = getNextColor();
-      }
-    }
-    this.dispatch("ADD_HIGHLIGHTS", { ranges });
-    this.dispatch("ADD_PENDING_HIGHLIGHTS", { ranges });
-  }
-
-  private isHighlighted(zone: Zone): boolean {
-    return !!this.highlights.find((h) => isEqual(h.zone, zone));
-  }
-
-  /**
-   * Remove pending highlights which are not selected.
-   * Highlighted zones which are selected are still considered
-   * pending.
-   */
-  private removePendingHighlights() {
-    const ranges: [string, string][] = [];
-    const [selected, notSelected] = this.pendingHighlights.reduce(
-      ([y, n], highlight) =>
-        this.getters.isSelected(highlight.zone) ? [[...y, highlight], n] : [y, [...n, highlight]],
-      [[], []]
-    );
-    const activeSheetId = this.getters.getActiveSheetId();
-    for (const { zone, color } of notSelected) {
-      ranges.push([this.getters.zoneToXC(activeSheetId, zone), color!]);
-    }
-    this.dispatch("REMOVE_HIGHLIGHTS", { ranges });
-    this.pendingHighlights = selected;
-  }
-
   // ---------------------------------------------------------------------------
   // Grid rendering
   // ---------------------------------------------------------------------------
@@ -192,11 +65,13 @@ export class HighlightPlugin extends UIPlugin {
      * In order to avoid superposing the same color layer and modifying the final
      * opacity, we filter highlights to remove duplicates.
      */
-    for (let h of this.highlights.filter(
+
+    for (let h of this.getHighlights().filter(
       (highlight, index) =>
         // For every highlight in the sheet, deduplicated by zone
-        this.highlights.findIndex((h) => isEqual(h.zone, highlight.zone) && h.sheet === sheetId) ===
-        index
+        this.getHighlights().findIndex(
+          (h) => isEqual(h.zone, highlight.zone) && h.sheet === sheetId
+        ) === index
     )) {
       const [x, y, width, height] = this.getters.getRect(h.zone, viewport);
       if (width > 0 && height > 0) {
