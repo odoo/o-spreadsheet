@@ -206,9 +206,6 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       case "UPDATE_FIGURE":
       case "EVALUATE_CELLS":
       case "DISABLE_SELECTION_INPUT":
-      case "HIGHLIGHT_SELECTION":
-      case "RESET_PENDING_HIGHLIGHT":
-      case "REMOVE_ALL_HIGHLIGHTS":
       case "ENABLE_NEW_SELECTION_INPUT":
         break;
       case "DELETE_FIGURE":
