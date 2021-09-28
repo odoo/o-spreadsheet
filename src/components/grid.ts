@@ -190,10 +190,11 @@ const TEMPLATE = xml/* xml */ `
       <Autofill position="getAutofillPosition()" viewport="snappedViewport"/>
     </t>
     <Overlay t-on-open-contextmenu="onOverlayContextMenu" viewport="snappedViewport"/>
-    <Menu t-if="menuState.isOpen"
-      menuItems="menuState.menuItems"
-      position="menuState.position"
-      t-on-close.stop="menuState.isOpen=false"/>
+    <div class="o-grid-context-menu">
+      <Menu t-if="props.contextMenuIsOpen"
+        menuItems="menuState.menuItems"
+        position="menuState.position"/>
+    </div>
     <t t-set="gridSize" t-value="getters.getGridSize()"/>
     <FiguresContainer viewport="snappedViewport" model="props.model" t-on-figure-deleted="focus" />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
@@ -262,7 +263,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   static components = { Composer, Overlay, Menu, Autofill, FiguresContainer };
 
   private menuState: MenuState = useState({
-    isOpen: false,
     position: null,
     menuItems: [],
   });
@@ -621,7 +621,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   }
 
   toggleContextMenu(type: ContextMenuType, x: number, y: number) {
-    this.menuState.isOpen = true;
     this.menuState.position = {
       x,
       y,
@@ -631,5 +630,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.menuState.menuItems = registries[type]
       .getAll()
       .filter((item) => !item.isVisible || item.isVisible(this.env));
+    this.trigger("open-menu", { menu: "contextMenu" });
   }
 }

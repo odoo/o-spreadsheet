@@ -1,6 +1,7 @@
-import { Component, hooks, tags, useState } from "@odoo/owl";
+import * as owl from "@odoo/owl";
 import { Grid } from "../src/components/grid";
 import { SidePanel } from "../src/components/side_panel/side_panel";
+import { Menus, OpenMenuEvent, Spreadsheet } from "../src/components/spreadsheet";
 import { TopBar } from "../src/components/top_bar";
 import { functionRegistry } from "../src/functions/index";
 import { toCartesian, toXC } from "../src/helpers/index";
@@ -17,6 +18,8 @@ import {
   Zone,
 } from "../src/types";
 import "./canvas.mock";
+const { Component, useState, hooks, tags } = owl;
+const { useExternalListener } = owl.hooks;
 export { setNextId as mockUuidV4To } from "./__mocks__/uuid";
 
 const functions = functionRegistry.content;
@@ -78,9 +81,9 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
 
 export class GridParent extends Component<any, SpreadsheetEnv> {
   static template = xml`
-    <div class="parent">
-    <TopBar model="model" t-on-ask-confirmation="askConfirmation"/>
-      <Grid model="model" t-ref="grid"/>
+    <div class="parent" t-on-focus-grid="focusGrid" t-on-open-menu="openMenu">
+    <TopBar model="model" openMenu="menu.isOpen"/>
+      <Grid model="model" t-ref="grid" contextMenuIsOpen="menu.isOpen==='contextMenu'"/>
       <SidePanel t-if="sidePanel.isOpen"
              t-on-close-side-panel="sidePanel.isOpen = false"
              model="model"
@@ -97,6 +100,9 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
     component?: string;
     panelProps: any;
   });
+  menu = useState({ isOpen: "" } as {
+    isOpen: "" | Menus;
+  });
 
   constructor(model: Model) {
     super();
@@ -107,7 +113,7 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
       _t: GridParent._t,
       clipboard: new MockClipboard(),
     });
-
+    useExternalListener(window as any, "click", this.onClick);
     const drawGrid = model.drawGrid;
     model.drawGrid = function (context: GridRenderingContext) {
       context.viewport.width = 1000;
@@ -124,11 +130,36 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
   willUnmount() {
     this.model.off("update", this);
   }
-
+  focusGrid() {
+    (<any>this.grid.comp).focus();
+  }
   openSidePanel(panel: string, panelProps: any) {
     this.sidePanel.component = panel;
     this.sidePanel.panelProps = panelProps;
     this.sidePanel.isOpen = true;
+  }
+
+  openMenu(ev: OpenMenuEvent) {
+    this.menu.isOpen = ev.detail.menu;
+  }
+
+  onClick() {
+    this.menu.isOpen = "";
+  }
+}
+
+export class SpreadSheetParent extends Component<any> {
+  static template = xml`<Spreadsheet t-ref="spreadsheet" data="data"/>`;
+  static components = { Spreadsheet };
+  private spreadsheet: any = useRef("spreadsheet");
+  readonly data: any;
+  get model(): Model {
+    return this.spreadsheet.comp.model;
+  }
+
+  constructor(data?) {
+    super();
+    this.data = data;
   }
 }
 

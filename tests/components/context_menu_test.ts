@@ -6,11 +6,20 @@ import { createFullMenuItem, FullMenuItem } from "../../src/registries";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { ConditionalFormat, SpreadsheetEnv } from "../../src/types";
 import { simulateClick, triggerMouseEvent } from "../dom_helper";
-import { getCell, GridParent, makeTestFixture, nextTick, Touch } from "../helpers";
+import {
+  getCell,
+  GridParent,
+  makeTestFixture,
+  nextTick,
+  SpreadSheetParent,
+  Touch,
+} from "../helpers";
 
 const { xml } = tags;
 const { useSubEnv } = hooks;
 
+let spreadsheetModel: Model;
+let spreadsheetParent: SpreadSheetParent;
 let fixture: HTMLElement;
 
 beforeEach(() => {
@@ -142,7 +151,7 @@ class ContextMenuParent extends Component<any, SpreadsheetEnv> {
   }
 }
 
-function simulateContextMenu(x, y) {
+export function simulateContextMenu(x, y) {
   triggerMouseEvent("canvas", "mousedown", x, y, { button: 1, bubbles: true });
   triggerMouseEvent("canvas", "mouseup", x, y, { button: 1, bubbles: true });
   triggerMouseEvent("canvas", "contextmenu", x, y, { button: 1, bubbles: true });
@@ -260,7 +269,7 @@ describe("Context Menu", () => {
     simulateContextMenu(100, 100);
     await nextTick();
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
-    triggerMouseEvent(".o-topbar-topleft", "click");
+    triggerMouseEvent(".o-topbar-top", "click");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
   });
@@ -821,5 +830,57 @@ describe("Context Menu - CF", () => {
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
     ).toBeFalsy();
+  });
+});
+
+describe("Spreadsheet menu interactions", () => {
+  beforeEach(async () => {
+    fixture = makeTestFixture();
+    spreadsheetModel = new Model();
+    spreadsheetParent = new SpreadSheetParent(spreadsheetModel);
+    await spreadsheetParent.mount(fixture);
+  });
+
+  afterEach(() => {
+    fixture.remove();
+    spreadsheetParent.destroy();
+  });
+  test("opening topbar tool menu closes context", async () => {
+    expect(fixture.querySelectorAll(".o-grid-context-menu .o-menu")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
+    simulateContextMenu(300, 200); //grid context menu
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-grid-context-menu .o-menu")).toHaveLength(1);
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
+    fixture.querySelector('span[title="Borders"]')!.dispatchEvent(new Event("click")); //opens topbar tool menu
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-grid-context-menu .o-menu")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
+  });
+
+  test("opening topbar context menu closes closes context", async () => {
+    expect(fixture.querySelectorAll(".o-grid-context-menu .o-menu")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-topbar-topleft .o-menu")).toHaveLength(0);
+    simulateContextMenu(300, 200); //grid context menu
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-grid-context-menu .o-menu")).toHaveLength(1);
+    expect(fixture.querySelectorAll(".o-topbar-topleft .o-menu")).toHaveLength(0);
+    triggerMouseEvent(".o-topbar-menu[data-id='file']", "click"); //opens topbar context menu
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-grid-context-menu .o-menu")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-topbar-topleft .o-menu")).toHaveLength(1);
+  });
+
+  test("opening bottombar menu closes closes context", async () => {
+    expect(fixture.querySelectorAll(".o-grid-context-menu .o-menu")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-spreadsheet-bottom-bar .o-menu")).toHaveLength(0);
+    simulateContextMenu(300, 200); //grid context menu
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-grid-context-menu .o-menu")).toHaveLength(1);
+    expect(fixture.querySelectorAll(".o-spreadsheet-bottom-bar .o-menu")).toHaveLength(0);
+    triggerMouseEvent(".o-sheet", "contextmenu"); //opens bottombarMenu
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-grid-context-menu .o-menu")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-spreadsheet-bottom-bar .o-menu")).toHaveLength(1);
   });
 });

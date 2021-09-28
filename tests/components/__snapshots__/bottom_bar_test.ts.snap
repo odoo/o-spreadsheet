@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`BottomBar component simple rendering 1`] = `
+exports[`Bottombar simple rendering 1`] = `
 <div
   class="o-spreadsheet-bottom-bar"
 >
@@ -48,7 +48,7 @@ exports[`BottomBar component simple rendering 1`] = `
   >
     <div
       class="o-sheet-item o-sheet active"
-      data-id="1"
+      data-id="89"
       title="Sheet1"
     >
       <span
@@ -70,6 +70,93 @@ exports[`BottomBar component simple rendering 1`] = `
         </svg>
       </span>
     </div>
+  </div>
+</div>
+`;
+
+exports[`Context Menu context menu simple rendering 1`] = `
+<div
+  class="o-menu"
+  style="top:200px;left:300px;max-height:1000px"
+>
+  <div
+    class="o-menu-item"
+    data-name="cut"
+    title="Cut"
+  >
+    Cut
+  </div>
+  <div
+    class="o-menu-item"
+    data-name="copy"
+    title="Copy"
+  >
+    Copy
+  </div>
+  <div
+    class="o-menu-item"
+    data-name="paste"
+    title="Paste"
+  >
+    Paste
+  </div>
+  <div
+    class="o-menu-item o-menu-root o-separator"
+    data-name="paste_special"
+    title="Paste special"
+  >
+    Paste special
+    <svg
+      class="o-icon"
+    >
+      <polygon
+        fill="#000000"
+        points="0 0 4 4 0 8"
+        transform="translate(5 3)"
+      />
+    </svg>
+  </div>
+  <div
+    class="o-menu-item"
+    data-name="add_row_before"
+    title="Insert row"
+  >
+    Insert row
+  </div>
+  <div
+    class="o-menu-item o-separator"
+    data-name="add_column_before"
+    title="Insert column"
+  >
+    Insert column
+  </div>
+  <div
+    class="o-menu-item"
+    data-name="delete_row"
+    title="Delete row 8"
+  >
+    Delete row 8
+  </div>
+  <div
+    class="o-menu-item o-separator"
+    data-name="delete_column"
+    title="Delete column C"
+  >
+    Delete column C
+  </div>
+  <div
+    class="o-menu-item disabled"
+    data-name="clear_cell"
+    title="Clear cell"
+  >
+    Clear cell
+  </div>
+  <div
+    class="o-menu-item"
+    data-name="conditional_formatting"
+    title="Conditional formatting"
+  >
+    Conditional formatting
   </div>
 </div>
 `;

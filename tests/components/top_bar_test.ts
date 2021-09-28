@@ -1,4 +1,5 @@
-import { Component, hooks, tags } from "@odoo/owl";
+import * as owl from "@odoo/owl";
+import { Menus, OpenMenuEvent } from "../../src/components/spreadsheet";
 import { TopBar } from "../../src/components/top_bar";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { Model } from "../../src/model";
@@ -8,15 +9,25 @@ import { ConditionalFormat } from "../../src/types";
 import { triggerMouseEvent } from "../dom_helper";
 import { getCell, GridParent, makeTestFixture, nextTick } from "../helpers";
 
+const { Component, useState, hooks, tags } = owl;
+const { useExternalListener } = owl.hooks;
+
 const { xml } = tags;
 const { useSubEnv } = hooks;
 
 let fixture: HTMLElement;
 
+// <TopBar openMenu="menu.isOpen" model="model" t-on-ask-confirmation="askConfirmation"/>
 class Parent extends Component<any, any> {
-  static template = xml`<TopBar model="model" t-on-ask-confirmation="askConfirmation"/>`;
+  static template = xml`
+    <div class="parent" t-on-open-menu="openMenu">
+        <TopBar openMenu="menu.isOpen"/>
+    </div>`;
   static components = { TopBar };
   model: Model;
+  menu = useState({ isOpen: "" } as {
+    isOpen: "" | Menus;
+  });
   constructor(model: Model) {
     super();
     useSubEnv({
@@ -25,6 +36,7 @@ class Parent extends Component<any, any> {
       getters: model.getters,
       askConfirmation: jest.fn(),
     });
+    useExternalListener(window as any, "click", this.onClick);
     this.model = model;
   }
   mounted() {
@@ -33,6 +45,14 @@ class Parent extends Component<any, any> {
 
   willUnmount() {
     this.model.off("update", this);
+  }
+
+  openMenu(ev: OpenMenuEvent) {
+    this.menu.isOpen = ev.detail.menu;
+  }
+
+  onClick() {
+    this.menu.isOpen = "";
   }
 }
 

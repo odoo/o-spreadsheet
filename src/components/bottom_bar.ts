@@ -16,7 +16,7 @@ const { useState } = owl.hooks;
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-bottom-bar">
     <div class="o-sheet-item o-add-sheet" t-on-click="addSheet">${PLUS}</div>
-    <div class="o-sheet-item o-list-sheets" t-on-click="listSheets">${LIST}</div>
+    <div class="o-sheet-item o-list-sheets" t-on-click.stop="listSheets">${LIST}</div>
     <div class="o-all-sheets">
       <t t-foreach="getters.getSheets()" t-as="sheet" t-key="sheet.id">
         <div class="o-sheet-item o-sheet" t-on-click="activateSheet(sheet.id)"
@@ -31,10 +31,10 @@ const TEMPLATE = xml/* xml */ `
     </div>
     <t t-set="aggregate" t-value="getters.getAggregate()"/>
     <div t-if="aggregate !== null" class="o-aggregate">Sum: <t t-esc="aggregate"/></div>
-    <Menu t-if="menuState.isOpen"
+    <Menu t-if="props.menuIsOpen"
           position="menuState.position"
           menuItems="menuState.menuItems"
-          t-on-close="menuState.isOpen=false"/>
+    />
   </div>`;
 
 const CSS = css/* scss */ `
@@ -113,13 +113,17 @@ const CSS = css/* scss */ `
   }
 `;
 
-export class BottomBar extends Component<{}, SpreadsheetEnv> {
+interface Props {
+  menuIsOpen: Boolean;
+}
+
+export class BottomBar extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { Menu };
 
   getters = this.env.getters;
-  menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
+  menuState: MenuState = useState({ position: null, menuItems: [] });
 
   mounted() {
     this.focusSheet();
@@ -141,18 +145,22 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
   }
 
   listSheets(ev: MouseEvent) {
-    const registry = new MenuItemRegistry();
-    const from = this.getters.getActiveSheet();
-    let i = 0;
-    for (let sheet of this.getters.getSheets()) {
-      registry.add(sheet.id, {
-        name: sheet.name,
-        sequence: i,
-        action: (env) => env.dispatch("ACTIVATE_SHEET", { from, to: sheet.id }),
-      });
-      i++;
+    if (!this.props.menuIsOpen) {
+      const registry = new MenuItemRegistry();
+      const from = this.getters.getActiveSheet();
+      let i = 0;
+      for (let sheet of this.getters.getSheets()) {
+        registry.add(sheet.id, {
+          name: sheet.name,
+          sequence: i,
+          action: (env) => env.dispatch("ACTIVATE_SHEET", { from, to: sheet.id }),
+        });
+        i++;
+      }
+      this.openContextMenu(ev.currentTarget as HTMLElement, registry);
+    } else {
+      this.trigger("open-menu", { menu: "" });
     }
-    this.openContextMenu(ev.currentTarget as HTMLElement, registry);
   }
 
   activateSheet(name: string) {
@@ -174,19 +182,20 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
       height: 400,
       width: this.el!.clientWidth,
     };
+    this.trigger("open-menu", { menu: "bottomBarMenu" });
   }
 
   onIconClick(sheet: string, ev: MouseEvent) {
     if (this.getters.getActiveSheet() !== sheet) {
       this.activateSheet(sheet);
     }
-    if (this.menuState.isOpen) {
-      this.menuState.isOpen = false;
-    } else {
+    if (!this.props.menuIsOpen) {
       this.openContextMenu(
         (ev.currentTarget as HTMLElement).parentElement as HTMLElement,
         sheetMenuRegistry
       );
+    } else {
+      this.trigger("open-menu", { menu: "" });
     }
   }
 

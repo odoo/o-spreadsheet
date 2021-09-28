@@ -12,19 +12,35 @@ const { useRef, useExternalListener } = owl.hooks;
 const { xml, css } = owl.tags;
 const { useSubEnv } = owl.hooks;
 
+export type Menus = "topBarContextMenu" | "topBarToolMenu" | "contextMenu" | "bottomBarMenu";
+interface MenuData {
+  menu: Menus | "";
+}
+
+export type OpenMenuEvent = CustomEvent<MenuData>;
+
 // -----------------------------------------------------------------------------
 // SpreadSheet
 // -----------------------------------------------------------------------------
 
 const TEMPLATE = xml/* xml */ `
-  <div class="o-spreadsheet" t-on-save-requested="save" t-on-keydown="onKeydown">
-    <TopBar t-on-click="focusGrid" class="o-two-columns"/>
-    <Grid model="model" t-ref="grid" t-att-class="{'o-two-columns': !sidePanel.isOpen}"/>
+  <div class="o-spreadsheet" t-on-focus-grid="focusGrid" t-on-open-menu="openMenu" t-on-save-requested="save" t-on-keydown="onKeydown">
+    <TopBar
+      openMenu="menu.isOpen"
+      class="o-two-columns"/>
+    <Grid
+      contextMenuIsOpen="menu.isOpen==='contextMenu'"
+      model="model"
+      t-ref="grid"
+      t-att-class="{'o-two-columns': !sidePanel.isOpen}"/>
     <SidePanel t-if="sidePanel.isOpen"
            t-on-close-side-panel="sidePanel.isOpen = false"
            component="sidePanel.component"
            panelProps="sidePanel.panelProps"/>
-    <BottomBar t-on-click="focusGrid" class="o-two-columns"/>
+    <BottomBar
+      t-on-click="focusGrid"
+      menuIsOpen="menu.isOpen==='bottomBarMenu'"
+      class="o-two-columns"/>
   </div>`;
 
 const CSS = css/* scss */ `
@@ -83,6 +99,10 @@ export class Spreadsheet extends Component<Props> {
     panelProps: any;
   });
 
+  menu = useState({ isOpen: "" } as {
+    isOpen: "" | Menus;
+  });
+
   // last string that was cut or copied. It is necessary so we can make the
   // difference between a paste coming from the sheet itself, or from the
   // os clipboard
@@ -105,6 +125,7 @@ export class Spreadsheet extends Component<Props> {
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
+    useExternalListener(window as any, "click", this.onClick);
   }
 
   mounted() {
@@ -194,5 +215,12 @@ export class Spreadsheet extends Component<Props> {
           : "START_SELECTION_EXPANSION"
       );
     }
+  }
+  openMenu(ev: OpenMenuEvent) {
+    this.menu.isOpen = ev.detail.menu;
+  }
+
+  onClick() {
+    this.menu.isOpen = "";
   }
 }

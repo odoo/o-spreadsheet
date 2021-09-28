@@ -364,6 +364,9 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
         class="all"
       />
     </div>
+    <div
+      class="o-grid-context-menu"
+    />
     <div />
     <div
       class="o-scrollbar vertical"

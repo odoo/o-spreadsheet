@@ -1,17 +1,11 @@
-import { Component, hooks, tags } from "@odoo/owl";
-import { Model } from "../../src";
-import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
 import { DEBUG } from "../../src/helpers";
 import { SelectionMode } from "../../src/plugins/selection";
 import { simulateClick, triggerMouseEvent } from "../dom_helper";
-import { makeTestFixture, MockClipboard, nextTick } from "../helpers";
-
-const { xml } = tags;
-const { useRef } = hooks;
+import { makeTestFixture, MockClipboard, nextTick, SpreadSheetParent } from "../helpers";
 
 let fixture: HTMLElement;
-let parent: Parent;
+let parent: SpreadSheetParent;
 const clipboard = new MockClipboard();
 
 Object.defineProperty(navigator, "clipboard", {
@@ -21,24 +15,9 @@ Object.defineProperty(navigator, "clipboard", {
   configurable: true,
 });
 
-class Parent extends Component<any> {
-  static template = xml`<Spreadsheet t-ref="spreadsheet" data="data"/>`;
-  static components = { Spreadsheet };
-  private spreadsheet: any = useRef("spreadsheet");
-  readonly data: any;
-  get model(): Model {
-    return this.spreadsheet.comp.model;
-  }
-
-  constructor(data?) {
-    super();
-    this.data = data;
-  }
-}
-
 beforeEach(async () => {
   fixture = makeTestFixture();
-  parent = new Parent({
+  parent = new SpreadSheetParent({
     sheets: [
       {
         id: 1,
@@ -50,6 +29,7 @@ beforeEach(async () => {
 
 afterEach(() => {
   fixture.remove();
+  parent.destroy();
 });
 
 describe("Spreadsheet", () => {
@@ -95,7 +75,7 @@ describe("Spreadsheet", () => {
       args: args(``),
       returns: ["STRING"],
     });
-    const parent = new Parent({
+    const parent = new SpreadSheetParent({
       version: 2,
       sheets: [
         {
