@@ -102,9 +102,10 @@ interface Props {
   isInvalid?: boolean;
 }
 
-interface SelectionRange extends RangeInputValue {
+interface SelectionRange extends Omit<RangeInputValue, "color"> {
   isFocused: boolean;
   isValidRange: boolean;
+  color?: string;
 }
 /**
  * This component can be used when the user needs to input some

@@ -15,7 +15,6 @@ import {
   AddColumnsRowsCommand,
   Command,
   CommandResult,
-  LAYERS,
   RemoveColumnsRowsCommand,
   Zone,
 } from "../../types/index";
@@ -40,7 +39,6 @@ export interface ComposerSelection {
 export const SelectionIndicator = "␣";
 
 export class EditionPlugin extends UIPlugin {
-  static layers = [LAYERS.Highlights];
   static getters = [
     "getEditionMode",
     "isSelectingForComposer",
@@ -49,6 +47,7 @@ export class EditionPlugin extends UIPlugin {
     "getComposerSelection",
     "getCurrentTokens",
     "getTokenAtCursor",
+    "getComposerHighlights",
   ];
   static modes: Mode[] = ["normal"];
 
@@ -107,7 +106,6 @@ export class EditionPlugin extends UIPlugin {
         break;
       case "START_EDITION":
         this.startEdition(cmd.text, cmd.selection);
-        this.highlightRanges();
         break;
       case "STOP_EDITION":
         if (cmd.cancel) {
@@ -119,9 +117,6 @@ export class EditionPlugin extends UIPlugin {
         break;
       case "SET_CURRENT_CONTENT":
         this.setContent(cmd.content, cmd.selection);
-        if (this.mode !== "inactive") {
-          this.highlightRanges();
-        }
         break;
       case "REPLACE_COMPOSER_CURSOR_SELECTION":
         this.replaceSelection(cmd.text);
@@ -354,7 +349,6 @@ export class EditionPlugin extends UIPlugin {
     this.row = row;
     this.sheet = this.getters.getActiveSheetId();
     this.setContent(str || this.initialContent, selection);
-    this.dispatch("REMOVE_ALL_HIGHLIGHTS");
     this.colorIndexByRange = {};
   }
 
@@ -406,7 +400,6 @@ export class EditionPlugin extends UIPlugin {
 
   private cancelEdition() {
     this.mode = "inactive";
-    this.dispatch("REMOVE_ALL_HIGHLIGHTS");
   }
 
   /**
@@ -528,11 +521,10 @@ export class EditionPlugin extends UIPlugin {
   /**
    * Highlight all ranges that can be found in the composer content.
    */
-  private highlightRanges() {
-    if (!this.currentContent.startsWith("=")) {
-      return;
+  getComposerHighlights(): [string, string][] {
+    if (!this.currentContent.startsWith("=") || this.mode === "inactive") {
+      return [];
     }
-    this.dispatch("REMOVE_ALL_HIGHLIGHTS"); //cleanup highlights for references
     const ranges: string[] = [];
     const colorIndexByRange: { [xc: string]: number } = {};
 
@@ -555,21 +547,16 @@ export class EditionPlugin extends UIPlugin {
     this.colorIndexByRange = colorIndexByRange;
     let colorIndexes = Object.values(colorIndexByRange);
     let nextColorIndex = 0;
-    if (ranges.length) {
-      this.dispatch("ADD_HIGHLIGHTS", {
-        ranges: ranges.map((r): [string, string] => {
-          if (this.colorIndexByRange[r] === undefined) {
-            while (colorIndexes.includes(nextColorIndex)) {
-              nextColorIndex++;
-            }
-            colorIndexes.push(nextColorIndex);
-            this.colorIndexByRange[r] = nextColorIndex;
-          }
-
-          return [r, colors[this.colorIndexByRange[r] % colors.length]];
-        }),
-      });
-    }
+    return ranges.map((r): [string, string] => {
+      if (this.colorIndexByRange[r] === undefined) {
+        while (colorIndexes.includes(nextColorIndex)) {
+          nextColorIndex++;
+        }
+        colorIndexes.push(nextColorIndex);
+        this.colorIndexByRange[r] = nextColorIndex;
+      }
+      return [r, colors[this.colorIndexByRange[r] % colors.length]];
+    });
   }
 
   /**
