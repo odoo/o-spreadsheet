@@ -1,3 +1,4 @@
+import { Spreadsheet } from "../../src";
 import { SelectionIndicatorClass } from "../../src/components/composer/composer";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
@@ -5,14 +6,13 @@ import { selectCell } from "../test_helpers/commands_helpers";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
+  mountSpreadsheet,
   nextTick,
   resetFunctions,
   startGridComposition,
   typeInComposer as typeInComposerHelper,
-  mountSpreadsheet,
 } from "../test_helpers/helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
-import { Spreadsheet } from "../../src";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );

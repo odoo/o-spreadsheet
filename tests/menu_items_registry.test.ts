@@ -9,7 +9,13 @@ import {
 } from "../src/registries/index";
 import { DispatchResult, SpreadsheetEnv } from "../src/types";
 import { hideColumns, hideRows, selectCell, setSelection } from "./test_helpers/commands_helpers";
-import { makeTestFixture, mockUuidV4To, nextTick, MockClipboard, mountSpreadsheet } from "./test_helpers/helpers";
+import {
+  makeTestFixture,
+  MockClipboard,
+  mockUuidV4To,
+  mountSpreadsheet,
+  nextTick,
+} from "./test_helpers/helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
 function getNode(

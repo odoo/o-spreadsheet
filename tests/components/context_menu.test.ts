@@ -9,7 +9,13 @@ import { ConditionalFormat, SpreadsheetEnv } from "../../src/types";
 import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
-import { makeTestFixture, nextTick, Touch, mountSpreadsheet, MockClipboard } from "../test_helpers/helpers";
+import {
+  makeTestFixture,
+  MockClipboard,
+  mountSpreadsheet,
+  nextTick,
+  Touch,
+} from "../test_helpers/helpers";
 
 const { xml } = tags;
 const { useSubEnv } = hooks;
@@ -492,9 +498,9 @@ describe("Context Menu", () => {
 
   test("scroll through the menu with the wheel / scrollbar prevents the grid from scrolling", async () => {
     // @ts-ignore
-    const verticalScrollBar = parent.grid.comp.vScrollbar
+    const verticalScrollBar = parent.grid.comp.vScrollbar;
     // @ts-ignore
-    const horizontalScrollBar = parent.grid.comp.hScrollbar
+    const horizontalScrollBar = parent.grid.comp.hScrollbar;
     expect(verticalScrollBar.scroll).toBe(0);
     expect(horizontalScrollBar.scroll).toBe(0);
 
@@ -516,9 +522,9 @@ describe("Context Menu", () => {
 
   test("scroll through the menu with the touch device prevents the grid from scrolling", async () => {
     // @ts-ignore
-    const verticalScrollBar = parent.grid.comp.vScrollbar
+    const verticalScrollBar = parent.grid.comp.vScrollbar;
     // @ts-ignore
-    const horizontalScrollBar = parent.grid.comp.hScrollbar
+    const horizontalScrollBar = parent.grid.comp.hScrollbar;
     expect(verticalScrollBar.scroll).toBe(0);
     expect(horizontalScrollBar.scroll).toBe(0);
 

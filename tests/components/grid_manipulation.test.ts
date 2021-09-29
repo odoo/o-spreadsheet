@@ -1,10 +1,10 @@
+import { Spreadsheet } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { DispatchResult } from "../../src/types/commands";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc } from "../test_helpers/getters_helpers";
-import { makeTestFixture, nextTick, mountSpreadsheet } from "../test_helpers/helpers";
-import { Spreadsheet } from "../../src";
+import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 const COLUMN_D = { x: 340, y: 10 };
 const ROW_5 = { x: 30, y: 100 };

@@ -9,7 +9,12 @@ import { ConditionalFormat, SpreadsheetEnv } from "../../src/types";
 import { selectCell, setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getBorder, getCell } from "../test_helpers/getters_helpers";
-import { makeTestFixture, nextTick, typeInComposer, mountSpreadsheet } from "../test_helpers/helpers";
+import {
+  makeTestFixture,
+  mountSpreadsheet,
+  nextTick,
+  typeInComposer,
+} from "../test_helpers/helpers";
 
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")

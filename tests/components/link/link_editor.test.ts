@@ -8,7 +8,7 @@ import {
   simulateClick,
 } from "../../test_helpers/dom_helper";
 import { getCell } from "../../test_helpers/getters_helpers";
-import { makeTestFixture, nextTick, mountSpreadsheet } from "../../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
 describe("link editor component", () => {
   let fixture: HTMLElement;

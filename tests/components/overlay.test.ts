@@ -1,3 +1,4 @@
+import { Spreadsheet } from "../../src";
 import { ColResizer, RowResizer } from "../../src/components/overlay";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -21,8 +22,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell } from "../test_helpers/getters_helpers";
-import { makeTestFixture, nextTick, mountSpreadsheet } from "../test_helpers/helpers";
-import { Spreadsheet } from "../../src";
+import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;

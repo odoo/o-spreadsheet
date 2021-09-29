@@ -1,3 +1,4 @@
+import { Spreadsheet, TransportService } from "../../src";
 import { HEADER_WIDTH, MESSAGE_VERSION } from "../../src/constants";
 import { scrollDelay, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
@@ -12,9 +13,8 @@ import {
 } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
-import { makeTestFixture, nextTick, Touch, mountSpreadsheet } from "../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick, Touch } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
-import { Spreadsheet, TransportService } from "../../src";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
@@ -595,8 +595,7 @@ describe("Grid component", () => {
 });
 
 describe("Multi User selection", () => {
-
-  let transportService: TransportService
+  let transportService: TransportService;
   beforeEach(async () => {
     transportService = new MockTransportService();
     fixture = makeTestFixture();

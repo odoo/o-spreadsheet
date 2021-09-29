@@ -67,10 +67,10 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
   expect(model).toExport(after);
 }
 
-export async function mountSpreadsheet(fixture: HTMLElement, props: Spreadsheet["props"] = {}){
+export async function mountSpreadsheet(fixture: HTMLElement, props: Spreadsheet["props"] = {}) {
   const spreadsheet = new Spreadsheet(undefined, props);
   await spreadsheet.mount(fixture);
-  return spreadsheet
+  return spreadsheet;
 }
 
 type GridDescr = { [xc: string]: string | undefined };
