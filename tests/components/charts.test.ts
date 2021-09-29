@@ -8,7 +8,12 @@ import {
   simulateClick,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
-import { makeTestFixture, nextTick, textContentAll, mountSpreadsheet } from "../test_helpers/helpers";
+import {
+  makeTestFixture,
+  mountSpreadsheet,
+  nextTick,
+  textContentAll,
+} from "../test_helpers/helpers";
 
 const mockChart = () => {
   const mockChartData: ChartConfiguration = {

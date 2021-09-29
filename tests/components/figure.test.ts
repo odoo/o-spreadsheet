@@ -7,7 +7,7 @@ import { BaseCommand, Command, Figure, SpreadsheetEnv, UID } from "../../src/typ
 import { activateSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { makeTestFixture, nextTick, mountSpreadsheet } from "../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);

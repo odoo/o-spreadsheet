@@ -1,10 +1,10 @@
+import { Spreadsheet } from "../../src";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { DispatchResult } from "../../src/types/commands";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
-import { makeTestFixture, nextTick, mountSpreadsheet } from "../test_helpers/helpers";
-import { Spreadsheet } from "../../src";
+import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 function getColStartPosition(col: number) {
   return (

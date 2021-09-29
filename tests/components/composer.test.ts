@@ -1,3 +1,4 @@
+import { Spreadsheet } from "../../src";
 import {
   MatchingParenColor,
   NumberColor,
@@ -21,13 +22,12 @@ import { clickCell, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
+  mountSpreadsheet,
   nextTick,
   startGridComposition as startComposition,
   typeInComposer as typeInComposerHelper,
-  mountSpreadsheet,
 } from "../test_helpers/helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
-import { Spreadsheet } from "../../src";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );

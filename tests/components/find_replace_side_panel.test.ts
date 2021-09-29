@@ -1,7 +1,7 @@
 import { Model, Spreadsheet } from "../../src";
 import { DispatchResult } from "../../src/types/commands";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { makeTestFixture, nextTick, mountSpreadsheet } from "../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 jest.useFakeTimers();
 

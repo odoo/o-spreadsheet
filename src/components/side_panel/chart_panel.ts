@@ -1,12 +1,12 @@
 import * as owl from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR } from "../../constants";
 import {
-ChartUIDefinition,
-ChartUIDefinitionUpdate,
-CommandResult,
-DispatchResult,
-Figure,
-SpreadsheetEnv
+  ChartUIDefinition,
+  ChartUIDefinitionUpdate,
+  CommandResult,
+  DispatchResult,
+  Figure,
+  SpreadsheetEnv,
 } from "../../types/index";
 import { ColorPicker } from "../color_picker";
 import * as icons from "../icons";

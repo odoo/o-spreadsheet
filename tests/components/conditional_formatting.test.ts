@@ -11,9 +11,9 @@ import {
   createEqualCF,
   makeTestFixture,
   mockUuidV4To,
+  mountSpreadsheet,
   nextTick,
   textContentAll,
-  mountSpreadsheet,
 } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 

@@ -1,13 +1,13 @@
+import { Spreadsheet } from "../../src";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import {
   makeTestFixture,
+  mountSpreadsheet,
   nextTick,
   resetFunctions,
   typeInComposer as typeInComposerHelper,
-  mountSpreadsheet,
 } from "../test_helpers/helpers";
-import { Spreadsheet } from "../../src";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );

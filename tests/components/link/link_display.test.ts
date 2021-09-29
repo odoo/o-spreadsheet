@@ -3,7 +3,7 @@ import { buildSheetLink } from "../../../src/helpers";
 import { clearCell, createSheet, setCellContent } from "../../test_helpers/commands_helpers";
 import { clickCell, rightClickCell, simulateClick } from "../../test_helpers/dom_helper";
 import { getCell } from "../../test_helpers/getters_helpers";
-import { makeTestFixture, nextTick, mountSpreadsheet } from "../../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
 describe("link display component", () => {
   let fixture: HTMLElement;

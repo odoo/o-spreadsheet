@@ -8,6 +8,7 @@ import {
 import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { SelectionMode } from "../plugins/ui/selection";
+import { SpreadsheetEnv } from "../types";
 import { Client } from "../types/collaborative/session";
 import { StateUpdateMessage, TransportService } from "../types/collaborative/transport_service";
 import { BottomBar } from "./bottom_bar";
@@ -16,7 +17,6 @@ import { Grid } from "./grid";
 import { LinkEditor } from "./link/link_editor";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
-import { SpreadsheetEnv } from "../types";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
