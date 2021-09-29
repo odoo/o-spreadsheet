@@ -91,6 +91,11 @@ export class ClipboardPlugin extends UIPlugin {
         this.selectPastedZone(width, height, isCutOperation, cmd.target);
         this.status = "invisible";
         break;
+      case "CLEAR_CLIPBOARD": {
+        this.state = undefined;
+        this.status = "invisible";
+        break;
+      }
       case "DELETE_CELL": {
         const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
         const state = this.getClipboardState(cut, "CUT");
@@ -488,7 +493,6 @@ export class ClipboardPlugin extends UIPlugin {
       col: selection.left,
       row: selection.top,
     });
-    this.dispatch("REMOVE_MERGE", { sheetId: state.sheetId, target: state.merges });
     this.state = undefined;
   }
 

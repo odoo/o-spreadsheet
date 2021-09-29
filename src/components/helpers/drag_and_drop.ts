@@ -31,12 +31,11 @@ export function startDnd(onMouseMove: EventFn, onMouseUp: EventFn) {
  * performed during the mouseup event.
  */
 export function dragAndDropBeyondTheViewport(
-  element: HTMLElement,
+  gridDOMSize: DOMRect,
   env: SpreadsheetChildEnv,
   cbMouseMove: (col: HeaderIndex, row: HeaderIndex) => void,
   cbMouseUp: () => void
 ) {
-  const position = element.getBoundingClientRect();
   let timeOutId: any = null;
   let currentEv: MouseEvent;
 
@@ -45,8 +44,8 @@ export function dragAndDropBeyondTheViewport(
     if (timeOutId) {
       return;
     }
-    const offsetX = currentEv.clientX - position.left;
-    const offsetY = currentEv.clientY - position.top;
+    const offsetX = currentEv.clientX - gridDOMSize.left;
+    const offsetY = currentEv.clientY - gridDOMSize.top;
     const edgeScrollInfoX = env.model.getters.getEdgeScrollCol(offsetX - HEADER_WIDTH);
     const edgeScrollInfoY = env.model.getters.getEdgeScrollRow(offsetY - HEADER_HEIGHT);
     const { top, left, bottom, right } = env.model.getters.getActiveViewport();

@@ -21,7 +21,7 @@ interface Props {
   zone: Zone;
   orientation: Orientation;
   isMoving: boolean;
-  onMoveHighlight: (x: Pixel, y: Pixel) => void;
+  onMoveBorder: (x: Pixel, y: Pixel) => void;
 }
 
 export class Border extends Component<Props, SpreadsheetChildEnv> {
@@ -58,6 +58,6 @@ export class Border extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onMouseDown(ev: MouseEvent) {
-    this.props.onMoveHighlight(ev.clientX, ev.clientY);
+    this.props.onMoveBorder(ev.clientX, ev.clientY);
   }
 }

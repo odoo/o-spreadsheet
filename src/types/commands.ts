@@ -408,6 +408,10 @@ export interface PasteCommand {
   force?: boolean;
 }
 
+export interface ClearClipboardCommand {
+  type: "CLEAR_CLIPBOARD";
+}
+
 export interface AutoFillCellCommand {
   type: "AUTOFILL_CELL";
   originCol: number;
@@ -858,6 +862,7 @@ export type LocalCommand =
   | CopyCommand
   | CutCommand
   | PasteCommand
+  | ClearClipboardCommand
   | AutoFillCellCommand
   | PasteFromOSClipboardCommand
   | ActivatePaintFormatCommand

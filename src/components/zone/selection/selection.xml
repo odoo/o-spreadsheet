@@ -1,0 +1,14 @@
+<templates>
+  <t t-name="o-spreadsheet.Selection" owl="1">
+    <div class="o-selection">
+      <t t-foreach="['n', 's', 'w', 'e']" t-as="orientation" t-key="orientation">
+        <Border
+          onMoveBorder="(x, y) => this.onMoveSelection(x,y)"
+          isMoving='selectionState.shiftingMode === "isMoving"'
+          orientation="orientation"
+          zone="props.zone"
+        />
+      </t>
+    </div>
+  </t>
+</templates>

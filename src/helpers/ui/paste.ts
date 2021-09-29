@@ -21,7 +21,8 @@ export function interactivePaste(
   env: SpreadsheetChildEnv,
   target: Zone[],
   pasteOption?: ClipboardOptions
-) {
+): DispatchResult {
   const result = env.model.dispatch("PASTE", { target, pasteOption });
   handlePasteResult(env, result);
+  return result;
 }

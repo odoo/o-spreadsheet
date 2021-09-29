@@ -1,3 +1,4 @@
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { toCartesian, toXC } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import {
@@ -124,4 +125,36 @@ export function automaticSumMulti(
   }
   setSelection(model, xcs, { anchor });
   return model.dispatch("SUM_SELECTION");
+}
+
+export function getColStartPosition(model: Model, col: number) {
+  return (
+    HEADER_WIDTH +
+    model.getters.getColDimensions(model.getters.getActiveSheetId(), col)!.start -
+    model.getters.getActiveViewport().offsetX
+  );
+}
+
+export function getColEndPosition(model: Model, col: number) {
+  return (
+    HEADER_WIDTH +
+    model.getters.getColDimensions(model.getters.getActiveSheetId(), col)!.end -
+    model.getters.getActiveViewport().offsetX
+  );
+}
+
+export function getRowStartPosition(model: Model, row: number) {
+  return (
+    HEADER_HEIGHT +
+    model.getters.getRowDimensions(model.getters.getActiveSheetId(), row)!.start -
+    model.getters.getActiveViewport().offsetY
+  );
+}
+
+export function getRowEndPosition(model: Model, row: number) {
+  return (
+    HEADER_HEIGHT +
+    model.getters.getRowDimensions(model.getters.getActiveSheetId(), row)!.end -
+    model.getters.getActiveViewport().offsetY
+  );
 }

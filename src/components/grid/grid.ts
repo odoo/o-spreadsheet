@@ -44,10 +44,11 @@ import { css } from "../helpers/css";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useAbsolutePosition } from "../helpers/position_hook";
 import { useInterval } from "../helpers/time_hooks";
-import { Highlight } from "../highlight/highlight/highlight";
 import { Menu, MenuState } from "../menu/menu";
 import { Popover } from "../popover/popover";
 import { ScrollBar } from "../scrollbar";
+import { Highlight } from "../zone/highlight/highlight";
+import { Selection } from "../zone/selection/selection";
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
  * for displaying the actual grid, rendering it, managing events, ...
@@ -186,10 +187,6 @@ function useTouchMove(handler: (deltaX: Pixel, deltaY: Pixel) => void, canMoveUp
 }
 
 // -----------------------------------------------------------------------------
-// TEMPLATE
-// -----------------------------------------------------------------------------
-
-// -----------------------------------------------------------------------------
 // STYLE
 // -----------------------------------------------------------------------------
 css/* scss */ `
@@ -251,6 +248,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     Autofill,
     FiguresContainer,
     ClientTag,
+    Selection,
     Highlight,
     Popover,
   };
@@ -496,7 +494,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     return this.gridRef.el;
   }
 
-  getGridBoundingClientRect(): DOMRect {
+  getGridDOMSize(): DOMRect {
     return this.gridEl.getBoundingClientRect();
   }
 

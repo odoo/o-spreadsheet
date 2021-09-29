@@ -130,10 +130,28 @@ describe("clipboard", () => {
 
   test("paste zones without copied value", () => {
     const model = new Model();
-    const zones = [toZone("A1"), toZone("B2")];
+    const zones = target("A1,B2");
     const clipboardPlugin = getPlugin(model, ClipboardPlugin);
     const pasteZone = clipboardPlugin["getPasteZones"](zones, []);
     expect(pasteZone).toEqual(zones);
+  });
+
+  test("clear the clipboard after a cut --> paste nothing", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "a1");
+    setCellContent(model, "B2", "b2");
+    cut(model, "A1");
+    model.dispatch("CLEAR_CLIPBOARD");
+    const result = paste(model, "B2");
+    expect(result).toBeCancelledBecause(CommandResult.EmptyClipboard);
+
+    expect(getCell(model, "B2")).toMatchObject({
+      content: "b2",
+      evaluated: {
+        type: CellValueType.text,
+        value: "b2",
+      },
+    });
   });
 
   test("can cut and paste a cell in different sheets", () => {
