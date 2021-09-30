@@ -22,6 +22,7 @@ import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
+import stateMachine, { STATES } from "../state_machine";
 import { CellValueType, Client, Position, SpreadsheetEnv, Viewport } from "../types/index";
 import { Autofill } from "./autofill";
 import { ClientTag } from "./collaborative_client_tag";
@@ -406,8 +407,9 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     ENTER: () => {
       const cell = this.getters.getActiveCell();
       !cell || cell.isEmpty()
-        ? this.trigger("composer-cell-focused")
-        : this.trigger("composer-content-focused");
+        ? stateMachine.goTo(STATES.COMPOSER_OPEN_SELECTION_MOVE)
+        : stateMachine.goTo(STATES.COMPOSER_OPEN_CURSOR_MOVE);
+      this.trigger("state-machine-update"); //Should be removed, a re-render should be triggered
     },
     TAB: () => this.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 }),
     "SHIFT+TAB": () => this.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 }),

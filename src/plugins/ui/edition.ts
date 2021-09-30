@@ -132,7 +132,6 @@ export class EditionPlugin extends UIPlugin {
         break;
       case "SELECT_CELL":
       case "SET_SELECTION":
-      case "MOVE_POSITION":
         switch (this.mode) {
           case "editing":
             this.dispatch("STOP_EDITION");
@@ -142,9 +141,6 @@ export class EditionPlugin extends UIPlugin {
             break;
           case "rangeSelected":
             switch (cmd.type) {
-              case "MOVE_POSITION":
-                this.replaceAllSelectedRanges();
-                break;
               case "SELECT_CELL":
                 if (this.getters.getSelectionMode() === SelectionMode.expanding) {
                   this.insertSelectedRange();
@@ -162,6 +158,19 @@ export class EditionPlugin extends UIPlugin {
                 }
                 break;
             }
+            break;
+        }
+        break
+      case "MOVE_POSITION":
+        switch (this.mode) {
+          case "editing":
+            this.dispatch("STOP_EDITION");
+            break;
+          case "waitingForRangeSelection":
+            this.insertSelectedRange();
+            break;
+          case "rangeSelected":
+            this.replaceAllSelectedRanges();
             break;
         }
         break;

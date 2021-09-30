@@ -5,9 +5,11 @@ import {
   ICON_EDGE_LENGTH,
   TOPBAR_HEIGHT,
 } from "../constants";
+import state from "../global_state";
 import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { SelectionMode } from "../plugins/ui/selection";
+import { SpreadsheetEnv } from "../types";
 import { Client } from "../types/collaborative/session";
 import { StateUpdateMessage, TransportService } from "../types/collaborative/transport_service";
 import { BottomBar } from "./bottom_bar";
@@ -16,7 +18,6 @@ import { Grid } from "./grid";
 import { LinkEditor } from "./link/link_editor";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
-import { SpreadsheetEnv } from "../types";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -43,6 +44,7 @@ const TEMPLATE = xml/* xml */ `
       focusComposer="focusGridComposer"
       t-on-composer-content-focused="onGridComposerContentFocused"
       t-on-composer-cell-focused="onGridComposerCellFocused"
+      t-on-state-machine-update="onStateMachineUpdate"
       t-att-class="{'o-two-columns': !sidePanel.isOpen}"/>
     <SidePanel t-if="sidePanel.isOpen"
            t-on-close-side-panel="sidePanel.isOpen = false"
@@ -330,6 +332,17 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "cellFocus";
     this.setComposerContent(ev.detail || {});
+  }
+
+  onStateMachineUpdate() {
+    if (this.model.getters.isReadonly()) {
+      // Should be moved in state machine
+      return;
+    }
+    // Should be a re-render !
+    this.composer.topBarFocus = "inactive";
+    this.composer.gridFocusMode = state.composer;
+    this.setComposerContent({});
   }
 
   /**

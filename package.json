@@ -63,7 +63,8 @@
   },
   "dependencies": {
     "@odoo/owl": "^1.2.1",
-    "bootstrap": "^4.6.0"
+    "bootstrap": "^4.6.0",
+    "xstate": "^4.25.0"
   },
   "jest": {
     "roots": [
