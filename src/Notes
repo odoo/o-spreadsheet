@@ -1,0 +1,50 @@
+Select cell/zone
+Open a context menu (cell, topbar, bottombar)
+Open a side panel
+Edit a cell -> composer (diff with create a cell -> arrow navigation)
+Open link editor
+Scrollbar
+Move selection (+ctrl + shift)
+Select Figure
+Display error tooltip
+Autofill
+Resize col/rows
+Selection input
+
+
+
+Dans le truc qui gère SELECTION_SELECTION_INPUT: 
+
+Focus Machin : {
+  SELECTION_SELECTION_INPUT: {
+
+  }
+}
+
+Actions on spreadsheet:
+Add a sheet
+Select a sheet
+
+Grid: 
+- dblClick : arrow move cursor => COMPOSER_OPEN_CURSOR_MOVE
+- enter : arrow move selection => COMPOSER_OPEN_SELECTION_MOVE
+onDblClick() {
+  this.state.goTo(COMPOSER_OPEN_CURSOR_MOVE);
+}
+onEnter() {
+  this.state.goTo(COMPOSER_OPEN_SELECTION_MOVE);
+}
+
+
+
+Dans UI:
+Global State:
+{
+  INITIAL: {
+    COMPOSER_OPEN_CURSOR_MOVE: () => {}
+  }
+}
+
+transition() {
+  this.composer.state = "cursor_move"
+}
