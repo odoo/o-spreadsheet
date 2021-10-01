@@ -668,31 +668,31 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     const refCol = findVisibleHeader(sheet, "cols", range(left, right + 1));
     const refRow = findVisibleHeader(sheet, "rows", range(top, bottom + 1));
     // check if we can shrink selection
-    let n = 0;
-    while (result !== null) {
-      n++;
-      if (deltaX < 0) {
-        result = anchorCol <= right - n ? expand({ top, left, bottom, right: right - n }) : null;
-      }
-      if (deltaX > 0) {
-        result = left + n <= anchorCol ? expand({ top, left: left + n, bottom, right }) : null;
-      }
-      if (deltaY < 0) {
-        result = anchorRow <= bottom - n ? expand({ top, left, bottom: bottom - n, right }) : null;
-      }
-      if (deltaY > 0) {
-        result = top + n <= anchorRow ? expand({ top: top + n, left, bottom, right }) : null;
-      }
-      if (result && !isEqual(result, selection.anchorZone)) {
-        newZones = this.updateSelectionZones(result);
-        this.dispatch("SET_SELECTION", {
-          zones: newZones,
-          anchor: [anchorCol, anchorRow],
-          anchorZone: result,
-        });
-        return;
-      }
-    }
+    // let n = 0;
+    // while (result !== null) {
+    //   n++;
+    //   if (deltaX < 0) {
+    //     result = anchorCol <= right - n ? expand({ top, left, bottom, right: right - n }) : null;
+    //   }
+    //   if (deltaX > 0) {
+    //     result = left + n <= anchorCol ? expand({ top, left: left + n, bottom, right }) : null;
+    //   }
+    //   if (deltaY < 0) {
+    //     result = anchorRow <= bottom - n ? expand({ top, left, bottom: bottom - n, right }) : null;
+    //   }
+    //   if (deltaY > 0) {
+    //     result = top + n <= anchorRow ? expand({ top: top + n, left, bottom, right }) : null;
+    //   }
+    //   if (result && !isEqual(result, selection.anchorZone)) {
+    //     newZones = this.updateSelectionZones(result);
+    //     this.dispatch("SET_SELECTION", {
+    //       zones: newZones,
+    //       anchor: [anchorCol, anchorRow],
+    //       anchorZone: result,
+    //     });
+    //     return;
+    //   }
+    // }
     const currentZone = { top: anchorRow, bottom: anchorRow, left: anchorCol, right: anchorCol };
     const zoneWithDelta = {
       top: this.getNextAvailableRow(deltaY, refCol!, top),

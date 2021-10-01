@@ -17,6 +17,7 @@ import { Grid } from "./grid";
 import { LinkEditor } from "./link/link_editor";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
+import { composerState } from "../states/toplevel";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -321,6 +322,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "contentFocus";
     this.setComposerContent(ev.detail || {});
+    composerState.send("openComposerWithContentFocus")
   }
 
   onGridComposerCellFocused(ev: ComposerFocusedEvent) {
@@ -328,6 +330,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
       return;
     }
     this.composer.topBarFocus = "inactive";
+    composerState.send("openComposerWithCellFocus")
     this.composer.gridFocusMode = "cellFocus";
     this.setComposerContent(ev.detail || {});
   }

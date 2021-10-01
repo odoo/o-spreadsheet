@@ -22,6 +22,7 @@ import {
 import { Range, RangePart } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 import { SelectionMode } from "./selection";
+import { composerState } from "../../states/toplevel";
 
 export type EditionMode =
   | "editing"
@@ -135,6 +136,7 @@ export class EditionPlugin extends UIPlugin {
       case "MOVE_POSITION":
         switch (this.mode) {
           case "editing":
+            composerState.send("composerClosed");
             this.dispatch("STOP_EDITION");
             break;
           case "waitingForRangeSelection":
@@ -208,6 +210,7 @@ export class EditionPlugin extends UIPlugin {
       case "DELETE_SHEET":
         if (cmd.sheetId === this.sheet && this.mode !== "inactive") {
           this.dispatch("STOP_EDITION", { cancel: true });
+          composerState.send("composerClosed");
           this.ui.notifyUser(CELL_DELETED_MESSAGE);
         }
         break;
@@ -283,6 +286,7 @@ export class EditionPlugin extends UIPlugin {
   private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
     if (cmd.elements.includes(this.col) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
+      composerState.send("composerClosed");
       this.ui.notifyUser(CELL_DELETED_MESSAGE);
       return;
     }
@@ -298,6 +302,7 @@ export class EditionPlugin extends UIPlugin {
   private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
     if (cmd.elements.includes(this.row) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
+      composerState.send("composerClosed");
       this.ui.notifyUser(CELL_DELETED_MESSAGE);
       return;
     }

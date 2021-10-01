@@ -1,11 +1,17 @@
 import { version } from "./package.json";
 import git from "git-rev-sync";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
+import rollupPluginInjectProcessEnv from "rollup-plugin-inject-process-env";
 
 export default {
   input: "dist/js/src/index.js",
   external: ["@odoo/owl"],
-  plugins: [nodeResolve()],
+  plugins: [
+    nodeResolve(),
+    rollupPluginInjectProcessEnv({
+      NODE_ENV: 'dev',
+  }),
+  ],
   output: {
     file: "dist/o_spreadsheet.js",
     format: "iife",

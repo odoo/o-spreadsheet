@@ -9,6 +9,7 @@ import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
 import { FunctionDescriptionProvider } from "./formula_assistant";
 import { Dimension } from "./grid_composer";
+import { composerState } from "../../states/toplevel";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;
@@ -313,6 +314,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
       }
     }
     this.dispatch("STOP_EDITION");
+    composerState.send("composerClosed");
     this.dispatch("MOVE_POSITION", {
       deltaX: 0,
       deltaY: ev.shiftKey ? -1 : 1,

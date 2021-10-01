@@ -51,6 +51,7 @@
     "prettier": "2.3.1",
     "prettier-plugin-organize-imports": "^1.1.1",
     "rollup": "^2.38.5",
+    "rollup-plugin-inject-process-env": "^1.3.1",
     "ts-jest": "^25.3.1",
     "typedoc": "0.20.30",
     "typedoc-plugin-markdown": "3.6.1",
@@ -63,7 +64,8 @@
   },
   "dependencies": {
     "@odoo/owl": "^1.2.1",
-    "bootstrap": "^4.6.0"
+    "bootstrap": "^4.6.0",
+    "xstate": "^4.25.0"
   },
   "jest": {
     "roots": [

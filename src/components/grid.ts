@@ -1,4 +1,5 @@
 import * as owl from "@odoo/owl";
+import { interpret } from "xstate";
 import {
   AUTOFILL_EDGE_LENGTH,
   BACKGROUND_GRAY_COLOR,
@@ -17,11 +18,13 @@ import {
   isInside,
   MAX_DELAY,
   range,
+  zoneToXc,
 } from "../helpers/index";
 import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
+import { SelectionContext, selectionMachine } from "../states/selection";
 import { CellValueType, Client, Position, SpreadsheetEnv, Viewport } from "../types/index";
 import { Autofill } from "./autofill";
 import { ClientTag } from "./collaborative_client_tag";
@@ -176,7 +179,7 @@ function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMove
 // TEMPLATE
 // -----------------------------------------------------------------------------
 const TEMPLATE = xml/* xml */ `
-  <div class="o-grid" t-on-click="focus" t-on-keydown="onKeydown" t-on-wheel="onMouseWheel">
+  <div class="o-grid" t-on-click="focus" t-on-keyup="onKeyup" t-on-keydown="onKeydown" t-on-wheel="onMouseWheel">
     <t t-if="getters.getEditionMode() !== 'inactive'">
       <GridComposer
         t-on-composer-unmounted="focus"
@@ -185,6 +188,8 @@ const TEMPLATE = xml/* xml */ `
     </t>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
+      t-on-mouseup="onMouseUp"
+      t-on-mousemove="onMouseMove"
       t-on-dblclick="onDoubleClick"
       tabindex="-1"
       t-on-contextmenu="onCanvasContextMenu"
@@ -329,6 +334,13 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
   private clickedCol = 0;
   private clickedRow = 0;
+
+  private selectionState = interpret(selectionMachine.withContext(new SelectionContext()))
+    .onTransition((state) => {
+      console.log(state.value);
+      console.log(state.context.selection.zones.map(zoneToXc));
+    })
+    .start();
 
   hoveredCell = useCellHovered(this.env, () => this.getters.getActiveSnappedViewport());
 
@@ -653,6 +665,18 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     return [colIndex, rowIndex];
   }
 
+  onMouseMove(ev: MouseEvent) {
+    const [col, row] = this.getCartesianCoordinates(ev);
+    if (col < 0 || row < 0) {
+      return;
+    }
+    this.selectionState.send("mouseMoved", { col, row });
+  }
+
+  onMouseUp() {
+    this.selectionState.send("mouseUp");
+  }
+
   onMouseDown(ev: MouseEvent) {
     if (ev.button > 0) {
       // not main button, probably a context menu
@@ -673,6 +697,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     }
 
     this.dispatch(ev.ctrlKey ? "START_SELECTION_EXPANSION" : "START_SELECTION");
+    this.selectionState.send("click", { col, row });
     if (ev.shiftKey) {
       this.dispatch("ALTER_SELECTION", { cell: [col, row] });
     } else {
@@ -816,7 +841,25 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     }
   }
 
+  onKeyup(ev: KeyboardEvent) {
+    switch (ev.key) {
+      case "Control":
+        this.selectionState.send("ctrlReleased");
+        break;
+      case "Shift":
+        this.selectionState.send("shiftReleased");
+        break;
+    }
+  }
   onKeydown(ev: KeyboardEvent) {
+    switch (ev.key) {
+      case "Control":
+        this.selectionState.send("ctrlPressed");
+        break;
+      case "Shift":
+        this.selectionState.send("shiftPressed");
+        break;
+    }
     if (ev.key.startsWith("Arrow")) {
       this.processArrows(ev);
       return;
