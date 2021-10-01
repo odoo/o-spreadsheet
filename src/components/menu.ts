@@ -70,7 +70,7 @@ const TEMPLATE = xml/* xml */ `
 const CSS = css/* scss */ `
   .o-menu {
     background-color: white;
-    padding: 8px 0px;
+    padding: 5px 0px;
     .o-menu-item {
       display: flex;
       justify-content: space-between;
