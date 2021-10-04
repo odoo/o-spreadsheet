@@ -18,7 +18,6 @@ import {
   isInside,
   MAX_DELAY,
   range,
-  zoneToXc,
 } from "../helpers/index";
 import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
@@ -337,10 +336,10 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
   private selectionState = interpret(selectionMachine.withContext(new SelectionContext()))
     .onTransition((state) => {
-      console.log(state.value);
-      console.log(state.context.selection.zones.map(zoneToXc));
+      // console.log(state.value);
+      // console.log(state.context.selection.zones.map(zoneToXc));
     })
-    .start();
+    // .start();
 
   hoveredCell = useCellHovered(this.env, () => this.getters.getActiveSnappedViewport());
 
@@ -805,6 +804,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
   }
 
   processArrows(ev: KeyboardEvent) {
+
     ev.preventDefault();
     ev.stopPropagation();
     this.closeLinkEditor();
@@ -815,6 +815,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
       ArrowUp: [0, -1],
     };
     const delta = deltaMap[ev.key];
+    this.selectionState.send("arrowKeyPressed", { deltaX: delta[0], deltaY: delta[1] })
     if (ev.shiftKey) {
       const oldZone = this.getters.getSelectedZone();
       this.dispatch("ALTER_SELECTION", { delta });

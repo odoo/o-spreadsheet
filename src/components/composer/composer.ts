@@ -10,6 +10,8 @@ import { ContentEditableHelper } from "./content_editable_helper";
 import { FunctionDescriptionProvider } from "./formula_assistant";
 import { Dimension } from "./grid_composer";
 import { composerState } from "../../states/toplevel";
+import { interpret } from "xstate";
+import { composerMachine, ComposerContext } from "../../states/composer";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;
@@ -162,6 +164,13 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     inputStyle: "",
     focus: "inactive",
   };
+
+  composerState2 = interpret(composerMachine.withContext(new ComposerContext()))
+  .onTransition((state) => {
+    console.log(state.value);
+    console.log(state.context.content);
+  })
+  .start();
 
   composerRef = useRef("o_composer");
   autoCompleteRef = useRef("o_autocomplete_provider");
@@ -326,6 +335,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   }
 
   onKeydown(ev: KeyboardEvent) {
+    this.composerState2.send("characterInserted", { character: ev.key })
     let handler = this.keyMapping[ev.key];
     if (handler) {
       handler.call(this, ev);
