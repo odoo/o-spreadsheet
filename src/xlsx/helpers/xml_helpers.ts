@@ -41,7 +41,7 @@ export function parseXML(xmlString: XMLString): XMLDocument {
   const parserError = document.querySelector("parsererror");
   if (parserError) {
     const errorString = parserError.innerHTML;
-    const lineNumber = parseInt(errorString.split(":")[1], 10);
+    const lineNumber = parseInt(errorString.split(":")[0], 10);
     const xmlStringArray = xmlString.trim().split("\n");
     const xmlPreview = xmlStringArray
       .slice(Math.max(lineNumber - 3, 0), Math.min(lineNumber + 2, xmlStringArray.length))

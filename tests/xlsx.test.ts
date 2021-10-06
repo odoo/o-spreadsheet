@@ -721,13 +721,12 @@ describe("XML parser", () => {
 
   test("error on the first line", () => {
     expect(() => parseXML("<hello>Raoul/hello>")).toThrowError(
-      `XML string could not be parsed: null:1:19: unclosed tag: hello\n<hello>Raoul/hello>`
+      `XML string could not be parsed: 1:19: unclosed tag: hello\n<hello>Raoul/hello>`
     );
   });
 
   test("error in the middle", () => {
-    const xmlString = /*xml*/ `
-      <root>
+    const xmlString = /*xml*/ `<root>
         <hello>1</hello>
         <hello>2</hello>
         <hello>3</WRONG_TAG>
@@ -736,7 +735,7 @@ describe("XML parser", () => {
         <hello>6</hello>
       </root>
     `;
-    const errorMessage = `XML string could not be parsed: null:4:28: unexpected close tag.
+    const errorMessage = `XML string could not be parsed: 4:28: unexpected close tag.
         <hello>1</hello>
         <hello>2</hello>
         <hello>3</WRONG_TAG>
@@ -746,14 +745,13 @@ describe("XML parser", () => {
   });
 
   test("error at the end", () => {
-    const xmlString = /*xml*/ `
-      <root>
+    const xmlString = /*xml*/ `<root>
         <hello>1</hello>
         <hello>2</hello>
         <hello>3</hello>
       </WRONG_TAG>
     `;
-    const errorMessage = `XML string could not be parsed: null:5:18: unexpected close tag.
+    const errorMessage = `XML string could not be parsed: 5:18: unexpected close tag.
         <hello>2</hello>
         <hello>3</hello>
       </WRONG_TAG>`;

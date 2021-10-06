@@ -32,7 +32,7 @@
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^11.0.1",
     "@types/chart.js": "2.9.3",
-    "@types/jest": "^25.2.1",
+    "@types/jest": "^27.0.1",
     "@types/node": "^13.13.23",
     "babel-eslint": "^10.1.0",
     "body-parser": "^1.19.0",
@@ -43,8 +43,8 @@
     "file-saver": "^2.0.5",
     "fs": "^0.0.1-security",
     "git-rev-sync": "^2.1.0",
-    "jest": "^25.3.0",
-    "jest-environment-jsdom": "^25.3.0",
+    "jest": "^27.2.0",
+    "jest-environment-jsdom": "^27.2.0",
     "jszip": "^3.6.0",
     "live-server": "^1.2.1",
     "mockdate": "^3.0.2",
@@ -52,10 +52,10 @@
     "prettier": "2.3.1",
     "prettier-plugin-organize-imports": "^1.1.1",
     "rollup": "^2.38.5",
-    "ts-jest": "^25.3.1",
-    "typedoc": "0.20.30",
+    "ts-jest": "^27.0.5",
+    "typedoc": "0.22.5",
     "typedoc-plugin-markdown": "3.6.1",
-    "typescript": "^3.9.7",
+    "typescript": "^4.4.3",
     "xml-formatter": "^2.4.0"
   },
   "prettier": {
@@ -63,7 +63,7 @@
     "endOfLine": "auto"
   },
   "dependencies": {
-    "@odoo/owl": "^1.2.1",
+    "@odoo/owl": "^1.4.6",
     "bootstrap": "^4.6.0"
   },
   "jest": {
@@ -75,6 +75,7 @@
       "^.+\\.ts?$": "ts-jest"
     },
     "verbose": false,
+    "testEnvironment": "jsdom",
     "testRegex": "(/tests/.*(test|spec))\\.ts?$",
     "moduleFileExtensions": [
       "ts",
