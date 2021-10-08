@@ -14,7 +14,7 @@ import {
   mapCellsInZone,
   numberToLetters,
 } from "../../helpers/index";
-import { _lt } from "../../translation";
+import { _lt, _t } from "../../translation";
 import {
   Cell,
   CellPosition,
@@ -208,7 +208,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
 
     for (let sheetData of data.sheets) {
-      const name = sheetData.name || `Sheet${Object.keys(this.sheets).length + 1}`;
+      const name = sheetData.name || _t("Sheet") + (Object.keys(this.sheets).length + 1);
       const sheet: Sheet = {
         id: sheetData.id,
         name: name,
