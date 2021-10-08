@@ -39,6 +39,7 @@ const TEMPLATE = xml/* xml */ `
 const CSS = css/* scss */ `
   .o-selection {
     input {
+      display: inline-block;
       padding: 4px 6px;
       border-radius: 4px;
       box-sizing: border-box;
