@@ -1,4 +1,4 @@
-import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../constants";
+import { DEFAULT_FONT_SIZE, FORBIDDEN_SHEET_CHARS, PADDING_AUTORESIZE } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { computeIconWidth, computeTextWidth } from "../../helpers/index";
 import { _lt } from "../../translation";
@@ -126,13 +126,31 @@ export class SheetUIPlugin extends UIPlugin {
   private interactiveRenameSheet(sheetId: UID, title: string) {
     const placeholder = this.getters.getSheetName(sheetId);
     this.ui.editText(title, placeholder, (name: string | null) => {
+      if (name === "") {
+        this.interactiveRenameSheet(sheetId, _lt("The sheet name cannot be empty."));
+        return;
+      }
       if (!name) {
         return;
       }
       const result = this.dispatch("RENAME_SHEET", { sheetId: sheetId, name });
       const sheetName = this.getters.getSheetName(sheetId);
       if (!result.isSuccessful && sheetName !== name) {
-        this.interactiveRenameSheet(sheetId, _lt("Please enter a valid sheet name"));
+        if (result.reasons.includes(CommandResult.DuplicatedSheetName)) {
+          this.interactiveRenameSheet(
+            sheetId,
+            _lt("A sheet with the name %s already exists. Please select another name.", name)
+          );
+        }
+        if (result.reasons.includes(CommandResult.ForbiddenCharactersInSheetName)) {
+          this.interactiveRenameSheet(
+            sheetId,
+            _lt(
+              "Some used characters are not allowed in a sheet name (Forbidden characters are %s).",
+              FORBIDDEN_SHEET_CHARS.join(" ")
+            )
+          );
+        }
       }
     });
   }
