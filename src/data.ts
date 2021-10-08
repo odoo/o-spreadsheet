@@ -1,6 +1,7 @@
 import { BACKGROUND_CHART_COLOR, DEFAULT_REVISION_ID, FORBIDDEN_IN_EXCEL_REGEX } from "./constants";
 import { normalize } from "./formulas/index";
 import { toXC, toZone } from "./helpers/index";
+import { _t } from "./translation";
 import { ExcelSheetData, ExcelWorkbookData, SheetData, WorkbookData } from "./types/index";
 
 /**
@@ -241,7 +242,7 @@ const MIGRATIONS: Migration[] = [
 // -----------------------------------------------------------------------------
 // Helpers
 // -----------------------------------------------------------------------------
-function createEmptySheet(name: string = "Sheet1"): SheetData {
+function createEmptySheet(name: string = _t("Sheet") + 1): SheetData {
   return {
     id: name,
     name,
@@ -259,7 +260,7 @@ function createEmptySheet(name: string = "Sheet1"): SheetData {
 export function createEmptyWorkbookData(): WorkbookData {
   const data = {
     version: CURRENT_VERSION,
-    sheets: [createEmptySheet("Sheet1")],
+    sheets: [createEmptySheet(_t("Sheet") + 1)],
     entities: {},
     styles: {},
     borders: {},
@@ -268,7 +269,7 @@ export function createEmptyWorkbookData(): WorkbookData {
   return data;
 }
 
-function createEmptyExcelSheet(name: string = "Sheet1"): ExcelSheetData {
+function createEmptyExcelSheet(name: string = _t("Sheet") + 1): ExcelSheetData {
   return {
     ...createEmptySheet(name),
     charts: [],
@@ -278,6 +279,6 @@ function createEmptyExcelSheet(name: string = "Sheet1"): ExcelSheetData {
 export function createEmptyExcelWorkbookData(): ExcelWorkbookData {
   return {
     ...createEmptyWorkbookData(),
-    sheets: [createEmptyExcelSheet("Sheet1")],
+    sheets: [createEmptyExcelSheet(_t("Sheet") + 1)],
   };
 }
