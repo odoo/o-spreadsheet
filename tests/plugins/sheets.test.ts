@@ -533,6 +533,63 @@ describe("sheets", () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("new name");
   });
 
+  test.each([
+    ["", "The sheet name cannot be empty."],
+    [
+      "hééélo///",
+      "Some used characters are not allowed in a sheet name (Forbidden characters are ' * ? / \\ [ ]).",
+    ],
+  ])(
+    "Rename a sheet with interaction with wrong name %s",
+    async (sheetName, expectedErrorMessage) => {
+      const nameCallback = jest.fn().mockReturnValueOnce(sheetName).mockReturnValueOnce("new name");
+      const editTextSpy = jest.fn();
+      const editText = (
+        title: string,
+        placeholder: string,
+        callback: (text: string | null) => any
+      ) => {
+        editTextSpy(title.toString());
+        callback(nameCallback());
+      };
+      const model = new Model({}, { editText });
+      model.dispatch("RENAME_SHEET", {
+        sheetId: model.getters.getActiveSheetId(),
+        interactive: true,
+      });
+      expect(editTextSpy).toHaveBeenCalledTimes(2);
+      expect(editTextSpy).toHaveBeenNthCalledWith(1, "Rename Sheet");
+      expect(editTextSpy).toHaveBeenNthCalledWith(2, expectedErrorMessage);
+    }
+  );
+
+  test("Rename a sheet with interaction with same name as other sheet", async () => {
+    const sheetName = "existing sheet";
+    const nameCallback = jest.fn().mockReturnValueOnce(sheetName).mockReturnValueOnce("new name");
+    const editTextSpy = jest.fn();
+    const editText = (
+      title: string,
+      placeholder: string,
+      callback: (text: string | null) => any
+    ) => {
+      editTextSpy(title.toString());
+      callback(nameCallback());
+    };
+    const model = new Model({}, { editText });
+    createSheetWithName(model, { sheetId: "42", activate: false }, sheetName);
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("RENAME_SHEET", {
+      sheetId,
+      interactive: true,
+    });
+    expect(editTextSpy).toHaveBeenCalledTimes(2);
+    expect(editTextSpy).toHaveBeenNthCalledWith(1, "Rename Sheet");
+    expect(editTextSpy).toHaveBeenNthCalledWith(
+      2,
+      `A sheet with the name ${sheetName} already exists. Please select another name.`
+    );
+  });
+
   test("Can duplicate a sheet", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
