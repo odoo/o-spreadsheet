@@ -23,6 +23,8 @@ export class DataSourceRegistry<M, D> extends EventBus<any> {
     this.registry.add(key, value);
     const debouncedLoaded: Function = debounce(() => this.trigger("data-loaded", { id: key }), 0);
     value.on("data-loaded", this, () => debouncedLoaded());
+    value.on("metadata-loaded", this, () => this.trigger("metadata-loaded"));
+    value.on("error-caught", this, (data) => this.trigger("error-caught", { id: key, data }));
     value.loadMetadata();
     return this;
   }
@@ -54,6 +56,8 @@ export class DataSourceRegistry<M, D> extends EventBus<any> {
   remove(key: string) {
     const value = this.get(key);
     value.off("data-loaded", this);
+    value.off("metadata-loaded", this);
+    value.off("error-caught", this);
     this.registry.remove(key);
   }
 
@@ -100,6 +104,7 @@ export abstract class DataSource<M, D> extends EventBus<any> {
     if (!this.metadataPromise) {
       this.metadataPromise = this._fetchMetadata().then((metadata) => {
         this.metadata = metadata;
+        this.trigger("metadata-loaded");
         return metadata;
       });
     }
