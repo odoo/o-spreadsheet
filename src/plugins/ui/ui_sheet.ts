@@ -1,6 +1,6 @@
 import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { computeIconWidth, computeTextWidth } from "../../helpers/index";
+import { computeIconWidth, computeTextWidth, isDefined } from "../../helpers/index";
 import { _lt } from "../../translation";
 import { Cell, CellValueType, Command, CommandResult, UID, Zone } from "../../types";
 import { UIPlugin } from "../ui_plugin";
@@ -118,7 +118,9 @@ export class SheetUIPlugin extends UIPlugin {
 
   private getRowMaxHeight(sheetId: UID, index: number): number {
     const sheet = this.getters.getSheet(sheetId);
-    const cells = Object.values(sheet.rows[index].cells);
+    const cells = Object.values(sheet.rows[index].cells)
+      .filter(isDefined)
+      .map((cellId) => this.getters.getCellById(cellId));
     const sizes = cells.map((cell: Cell) => this.getCellHeight(cell));
     return Math.max(0, ...sizes);
   }

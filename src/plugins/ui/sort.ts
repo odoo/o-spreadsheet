@@ -1,4 +1,4 @@
-import { isEqual, isInside, mapCellsInZone, overlap, zoneToDimension } from "../../helpers/index";
+import { isEqual, isInside, overlap, range, zoneToDimension } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
   Cell,
@@ -196,8 +196,9 @@ export class SortPlugin extends UIPlugin {
         }
       }
     } else {
-      const values = mapCellsInZone(expandedZone, sheet, (cell) => cell.formattedValue, "");
-      line = values.flat();
+      line = this.getters
+        .getCellsInZone(sheetId, expandedZone)
+        .map((cell) => cell?.formattedValue || "");
     }
     return line.some((item) => item !== "");
   }
@@ -312,17 +313,10 @@ export class SortPlugin extends UIPlugin {
    *  For the second criteria, we ignore columns on which the cell below is empty.
    *
    */
-  private hasHeader(sheet: Sheet, zone: Zone, deltaX: number, deltaY: number): boolean {
-    const { left, right, top, bottom } = zone;
-    if (bottom - top + 1 === 1) return false;
-
-    let cells: HeaderType[][] = mapCellsInZone(
-      { left, right, top: top, bottom: top + 2 * deltaY - 1 },
-      sheet,
-      (cell) => cell.evaluated.type,
-      CellValueType.empty,
-      deltaX,
-      deltaY
+  private hasHeader(items: Item[][]): boolean {
+    if (items[0].length === 1) return false;
+    let cells: HeaderType[][] = items.map((col) =>
+      col.map((cell) => cell?.evaluated.type || CellValueType.empty)
     );
 
     // ignore left-most column when topLeft cell is empty
@@ -386,27 +380,17 @@ export class SortPlugin extends UIPlugin {
     zone: Zone,
     sortDirection: SortDirection
   ) {
-    let stepX: number = 1,
-      stepY: number = 1,
-      sortingCol: number = anchor[0]; // fetch anchor
-
+    const [stepX, stepY] = this.mainCellsSteps(sheetId, zone);
+    let sortingCol: number = this.getters.getMainCell(sheetId, ...anchor)[0]; // fetch anchor
     let sortZone = Object.assign({}, zone);
     // Update in case of merges in the zone
-    if (this.getters.doesIntersectMerge(sheetId, sortZone)) {
-      const [col, row] = anchor;
-      const merge = this.getters.getMerge(sheetId, col, row)!;
-      stepX = merge.right - merge.left + 1;
-      stepY = merge.bottom - merge.top + 1;
-      sortingCol = merge.topLeft.col;
-    }
+    let cells = this.mainCells(sheetId, zone);
 
-    const sheet = this.getters.getSheet(sheetId);
-    const hasHeader = this.hasHeader(sheet, sortZone, stepX, stepY);
-    if (hasHeader) {
+    if (this.hasHeader(cells)) {
       sortZone.top += stepY;
     }
+    cells = this.mainCells(sheetId, sortZone);
 
-    const cells = mapCellsInZone(sortZone, sheet, (cell) => cell, undefined, stepX, stepY);
     const sortingCells = cells[sortingCol - sortZone.left];
     const sortedIndexOfSortTypeCells: IndexSTVMapItem = this.sortCellsList(
       sortingCells,
@@ -445,5 +429,35 @@ export class SortPlugin extends UIPlugin {
         this.dispatch("UPDATE_CELL", newCellValues);
       }
     }
+  }
+
+  /**
+   * Return the distances between main merge cells in the zone.
+   * (1 if there are no merges).
+   * Note: it is assumed all merges are the same in the zone.
+   */
+  private mainCellsSteps(sheetId: UID, zone: Zone): [number, number] {
+    const merge = this.getters.getMerge(sheetId, zone.left, zone.top);
+    const stepX = merge ? merge.right - merge.left + 1 : 1;
+    const stepY = merge ? merge.bottom - merge.top + 1 : 1;
+    return [stepX, stepY];
+  }
+
+  /**
+   * Return a 2D array of cells in the zone (main merge cells if there are merges)
+   */
+  private mainCells(sheetId: UID, zone: Zone): Item[][] {
+    const [stepX, stepY] = this.mainCellsSteps(sheetId, zone);
+    const cells: Item[][] = [];
+    const cols = range(zone.left, zone.right + 1, stepX);
+    const rows = range(zone.top, zone.bottom + 1, stepY);
+    for (const col of cols) {
+      const colCells: Item[] = [];
+      cells.push(colCells);
+      for (const row of rows) {
+        colCells.push(this.getters.getCell(sheetId, col, row));
+      }
+    }
+    return cells;
   }
 }

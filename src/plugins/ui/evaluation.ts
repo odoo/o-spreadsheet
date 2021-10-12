@@ -1,6 +1,6 @@
 import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { isZoneValid, mapCellsInZone, toXC } from "../../helpers/index";
+import { isZoneValid, range as rangeSequence, toXC } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
@@ -104,24 +104,21 @@ export class EvaluationPlugin extends UIPlugin {
   /**
    * Return the value of each cell in the range as they are displayed in the grid.
    */
-  getRangeFormattedValues(range: Range): string[][] {
+  getRangeFormattedValues(range: Range): string[] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
-    if (sheet === undefined) return [[]];
-    return mapCellsInZone(
-      range.zone,
-      sheet,
-      (cell) => this.getters.getCellText(cell, this.getters.shouldShowFormulas()),
-      ""
-    );
+    if (sheet === undefined) return [];
+    return this.getters
+      .getCellsInZone(sheet.id, range.zone)
+      .map((cell) => cell?.formattedValue || "");
   }
 
   /**
    * Return the value of each cell in the range.
    */
-  getRangeValues(range: Range): CellValue[][] {
+  getRangeValues(range: Range): (CellValue | undefined)[] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
-    if (sheet === undefined) return [[]];
-    return mapCellsInZone(range.zone, sheet, (cell) => cell.evaluated.value);
+    if (sheet === undefined) return [];
+    return this.getters.getCellsInZone(sheet.id, range.zone).map((cell) => cell?.evaluated.value);
   }
 
   // ---------------------------------------------------------------------------
@@ -193,15 +190,13 @@ export class EvaluationPlugin extends UIPlugin {
     const evalContext = Object.assign(Object.create(functionMap), this.evalContext, {
       getters: this.getters,
     });
-    const sheets = this.getters.getEvaluationSheets();
+    const getters = this.getters;
     function readCell(range: Range): any {
       let cell: Cell | undefined;
-      const s = sheets[range.sheetId];
-      if (s) {
-        cell = s.rows[range.zone.top]?.cells[range.zone.left];
-      } else {
+      if (!getters.tryGetSheet(range.sheetId)) {
         throw new Error(_lt("Invalid sheet name"));
       }
+      cell = getters.getCell(range.sheetId, range.zone.left, range.zone.top);
       if (!cell || cell.isEmpty()) {
         // magic "empty" value
         return null;
@@ -209,7 +204,7 @@ export class EvaluationPlugin extends UIPlugin {
       return getCellValue(cell, range.sheetId);
     }
 
-    function getCellValue(cell: Cell, sheetId: UID): any {
+    function getCellValue(cell: Cell, sheetId: UID): CellValue {
       if (cell.isFormula() && cell.evaluated.type === CellValueType.error) {
         throw new Error(_lt("This formula depends on invalid values"));
       }
@@ -226,8 +221,8 @@ export class EvaluationPlugin extends UIPlugin {
      * Note that each col is possibly sparse: it only contain the values of cells
      * that are actually present in the grid.
      */
-    function _range(range: Range): any[][] {
-      const sheet = sheets[range.sheetId]!;
+    function _range(range: Range): (CellValue | undefined)[][] {
+      const sheetId = range.sheetId;
 
       if (!isZoneValid(range.zone)) {
         throw new Error(_lt("Invalid reference"));
@@ -236,10 +231,14 @@ export class EvaluationPlugin extends UIPlugin {
       const zone = {
         left: range.zone.left,
         top: range.zone.top,
-        right: Math.min(range.zone.right, sheet.cols.length - 1),
-        bottom: Math.min(range.zone.bottom, sheet.rows.length - 1),
+        right: Math.min(range.zone.right, getters.getNumberCols(sheetId) - 1),
+        bottom: Math.min(range.zone.bottom, getters.getNumberRows(sheetId) - 1),
       };
-      return mapCellsInZone(zone, sheet, (cell) => getCellValue(cell, range.sheetId));
+      return rangeSequence(zone.left, zone.right + 1).map((col) =>
+        getters
+          .getCellsInZone(sheetId, { ...zone, left: col, right: col })
+          .map((cell) => (cell ? getCellValue(cell, range.sheetId) : undefined))
+      );
     }
 
     /**

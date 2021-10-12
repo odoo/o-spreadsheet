@@ -290,7 +290,7 @@ export class EvaluationChartPlugin extends UIPlugin {
     let labels: string[] = [];
     if (definition.labelRange) {
       if (!definition.labelRange.invalidXc && !definition.labelRange.invalidSheetName) {
-        labels = this.getters.getRangeFormattedValues(definition.labelRange).flat(1);
+        labels = this.getters.getRangeFormattedValues(definition.labelRange);
       }
     } else if (definition.dataSets.length === 1) {
       for (let i = 0; i < this.getData(definition.dataSets[0], definition.sheetId).length; i++) {
@@ -355,7 +355,7 @@ export class EvaluationChartPlugin extends UIPlugin {
         return [];
       }
       const dataRange = this.getters.getRangeFromSheetXC(ds.dataRange.sheetId, dataXC);
-      return this.getters.getRangeValues(dataRange).flat(1);
+      return this.getters.getRangeValues(dataRange);
     }
     return [];
   }

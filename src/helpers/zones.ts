@@ -1,4 +1,4 @@
-import { Cell, Sheet, Viewport, Zone, ZoneDimension } from "../types";
+import { Viewport, Zone, ZoneDimension } from "../types";
 import { toCartesian, toXC } from "./coordinates";
 import { range } from "./misc";
 
@@ -376,27 +376,6 @@ function mergeColumns(
   }
 
   return finalZones;
-}
-
-export function mapCellsInZone<T, U>(
-  zone: Zone,
-  sheet: Sheet,
-  callback: (cell: Cell) => T,
-  emptyCellValue: U = undefined as unknown as U,
-  stepX: number = 1,
-  stepY: number = 1
-): (T | U)[][] {
-  const { top, bottom, left, right } = zone;
-  const result: any[] = new Array(Math.floor((right - left + 1) / stepX));
-  for (let c = left; c <= right; c += stepX) {
-    let col: any[] = new Array(Math.floor((bottom - top + 1) / stepY));
-    result[c - left] = col;
-    for (let r = top; r <= bottom; r += stepY) {
-      let cell = sheet.rows[r]?.cells[c];
-      col[(r - top) / stepY] = cell ? callback(cell) : emptyCellValue;
-    }
-  }
-  return result;
 }
 
 export function zoneToDimension(zone: Zone): ZoneDimension {

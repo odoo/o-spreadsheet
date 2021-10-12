@@ -475,7 +475,7 @@ export class RendererPlugin extends UIPlugin {
         if (col.isHidden) {
           continue;
         }
-        let cell = row.cells[colNumber];
+        let cell = this.getters.getCell(sheetId, colNumber, rowNumber);
         const border = this.getters.getCellBorder(sheetId, colNumber, rowNumber);
         const conditionalStyle = this.getters.getConditionalStyle(colNumber, rowNumber);
         const iconStyle = this.getters.getConditionalIcon(colNumber, rowNumber);
