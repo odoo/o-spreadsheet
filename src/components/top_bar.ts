@@ -149,7 +149,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           </div>
           <!-- <div class="o-tool" title="Vertical align"><span>${icons.ALIGN_MIDDLE_ICON}</span> ${icons.TRIANGLE_DOWN_ICON}</div> -->
           <!-- <div class="o-tool" title="Text Wrapping">${icons.TEXT_WRAPPING_ICON}</div> -->
-          <div class="o-divider"/>
         </div>
         <Composer inputStyle="composerStyle" focus="props.focusComposer"/>
 
