@@ -153,6 +153,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** CONDITIONAL FORMAT */
   "ADD_CONDITIONAL_FORMAT",
   "REMOVE_CONDITIONAL_FORMAT",
+  "CHANGE_PRIORITY_CONDITIONAL_FORMAT",
 
   /** FIGURES */
   "CREATE_FIGURE",
@@ -330,6 +331,12 @@ export interface AddConditionalFormatCommand
 export interface RemoveConditionalFormatCommand extends BaseCommand, SheetDependentCommand {
   type: "REMOVE_CONDITIONAL_FORMAT";
   id: string;
+}
+
+export interface SwapOrderConditionalFormatCommand extends BaseCommand, SheetDependentCommand {
+  type: "CHANGE_PRIORITY_CONDITIONAL_FORMAT";
+  id: string;
+  direction: Increment;
 }
 
 //------------------------------------------------------------------------------
@@ -880,6 +887,7 @@ export type CoreCommand =
   /** CONDITIONAL FORMAT */
   | AddConditionalFormatCommand
   | RemoveConditionalFormatCommand
+  | SwapOrderConditionalFormatCommand
 
   /** FIGURES */
   | CreateFigureCommand
@@ -1060,6 +1068,7 @@ export const enum CommandResult {
   Readonly,
   InvalidOffset,
   InvalidViewportSize,
+  OutOfBonds,
 }
 
 export interface CommandHandler<T> {

@@ -33,6 +33,77 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
           >
             <div
               class="o-cf-preview-image"
+              style="background-image: linear-gradient(to right, #ff00ff, #123456)"
+            >
+               123 
+            </div>
+            <div
+              class="o-cf-preview-description"
+            >
+              <div
+                class="o-cf-preview-ruletype"
+              >
+                <div
+                  class="o-cf-preview-description-rule"
+                >
+                  Color scale
+                </div>
+              </div>
+              <div
+                class="o-cf-preview-range"
+              >
+                B1:B5
+              </div>
+            </div>
+            <div
+              class="o-cf-icons-left"
+            >
+              <div
+                class="o-cf-button"
+              >
+                <div
+                  aria-label="Remove rule"
+                  class="o-cf-delete-button"
+                  style="margin-right: 0.7%"
+                >
+                  <svg
+                    class="o-cf-icon trash"
+                    viewBox="0 0 448 512"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                     
+                    <path
+                      d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
+                      fill="currentColor"
+                    >
+                       
+                    </path>
+                  </svg>
+                </div>
+                <div
+                  aria-label="Move rule down"
+                  class="o-cf-move-down"
+                >
+                  <svg
+                    class="o-icon"
+                  >
+                    <polygon
+                      fill="#000000"
+                      points="0 0 4 4 8 0"
+                      transform="translate(5 7)"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div
+            class="o-cf-preview"
+          >
+            <div
+              class="o-cf-preview-image"
               style="font-weight:normal;
                text-decoration:none;
                font-style:normal;
@@ -51,11 +122,9 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
                   class="o-cf-preview-description-rule"
                 >
                   Is equal to
-                </div>
-                <div
-                  class="o-cf-preview-description-values"
-                >
+                   "
                   2
+                  " 
                 </div>
               </div>
               <div
@@ -65,80 +134,44 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
               </div>
             </div>
             <div
-              class="o-cf-delete"
+              class="o-cf-icons-left"
             >
               <div
-                aria-label="Remove rule"
-                class="o-cf-delete-button"
-              >
-                <svg
-                  class="o-cf-icon trash"
-                  viewBox="0 0 448 512"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                   
-                  <path
-                    d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
-                    fill="currentColor"
-                  >
-                     
-                  </path>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div
-            class="o-cf-preview"
-          >
-            <div
-              class="o-cf-preview-image"
-              style="background-image: linear-gradient(to right, #ff00ff, #123456)"
-            >
-               123 
-            </div>
-            <div
-              class="o-cf-preview-description"
-            >
-              <div
-                class="o-cf-preview-ruletype"
+                class="o-cf-button"
               >
                 <div
-                  class="o-cf-preview-description-rule"
+                  aria-label="Move rule up"
+                  class="o-cf-move-up"
                 >
-                  Color scale
+                  <svg
+                    class="o-icon"
+                  >
+                    <polygon
+                      fill="#000000"
+                      points="4 0 0 4 8 4"
+                      transform="translate(5 7)"
+                    />
+                  </svg>
                 </div>
                 <div
-                  class="o-cf-preview-description-values"
-                />
-              </div>
-              <div
-                class="o-cf-preview-range"
-              >
-                B1:B5
-              </div>
-            </div>
-            <div
-              class="o-cf-delete"
-            >
-              <div
-                aria-label="Remove rule"
-                class="o-cf-delete-button"
-              >
-                <svg
-                  class="o-cf-icon trash"
-                  viewBox="0 0 448 512"
-                  xmlns="http://www.w3.org/2000/svg"
+                  aria-label="Remove rule"
+                  class="o-cf-delete-button"
+                  style="margin-right: 0.7%"
                 >
-                   
-                  <path
-                    d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
-                    fill="currentColor"
+                  <svg
+                    class="o-cf-icon trash"
+                    viewBox="0 0 448 512"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
                      
-                  </path>
-                </svg>
+                    <path
+                      d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
+                      fill="currentColor"
+                    >
+                       
+                    </path>
+                  </svg>
+                </div>
               </div>
             </div>
           </div>

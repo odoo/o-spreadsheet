@@ -17,6 +17,7 @@ import {
   ExcelWorkbookData,
   IconSetRule,
   IconThreshold,
+  Increment,
   UID,
   Validation,
   WorkbookData,
@@ -107,6 +108,15 @@ export class ConditionalFormatPlugin
     if (cmd.type === "ADD_CONDITIONAL_FORMAT") {
       return this.checkValidations(cmd, this.checkCFRule, this.checkEmptyRange);
     }
+    if (cmd.type === "CHANGE_PRIORITY_CONDITIONAL_FORMAT") {
+      const cfIndex = this.cfRules[cmd.sheetId].findIndex((s) => s.id === cmd.id);
+      if (
+        (cfIndex === 0 && cmd.direction === -1) ||
+        (cfIndex === this.cfRules[cmd.sheetId].length - 1 && cmd.direction === 1)
+      ) {
+        return CommandResult.OutOfBonds;
+      }
+    }
     return CommandResult.Success;
   }
 
@@ -129,6 +139,9 @@ export class ConditionalFormatPlugin
           ranges: cmd.target.map(zoneToXc),
         };
         this.addConditionalFormatting(cf, cmd.sheetId);
+        break;
+      case "CHANGE_PRIORITY_CONDITIONAL_FORMAT":
+        this.swapRules(cmd.sheetId, cmd.id, cmd.direction);
         break;
       case "REMOVE_CONDITIONAL_FORMAT":
         this.removeConditionalFormatting(cmd.id, cmd.sheetId);
@@ -446,12 +459,21 @@ export class ConditionalFormatPlugin
     return CommandResult.Success;
   }
 
-  private removeConditionalFormatting(id: string, sheet: string) {
-    const cfIndex = this.cfRules[sheet].findIndex((s) => s.id === id);
+  private removeConditionalFormatting(id: string, sheetId: string) {
+    const cfIndex = this.cfRules[sheetId].findIndex((s) => s.id === id);
     if (cfIndex !== -1) {
-      const currentCF = this.cfRules[sheet].slice();
+      const currentCF = this.cfRules[sheetId].slice();
       currentCF.splice(cfIndex, 1);
-      this.history.update("cfRules", sheet, currentCF);
+      this.history.update("cfRules", sheetId, currentCF);
     }
+  }
+
+  private swapRules(sheetId: string, id: string, direction: Increment) {
+    const cfIndex = this.cfRules[sheetId].findIndex((s) => s.id === id);
+    const rules = [...this.cfRules[sheetId]];
+    let t = rules[cfIndex];
+    rules[cfIndex] = rules[cfIndex + direction];
+    rules[cfIndex + direction] = t;
+    this.history.update("cfRules", sheetId, rules);
   }
 }

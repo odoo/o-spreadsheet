@@ -68,6 +68,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       case "REDO":
       case "DELETE_CELL":
       case "INSERT_CELL":
+      case "CHANGE_PRIORITY_CONDITIONAL_FORMAT":
         this.isStale = true;
         break;
     }

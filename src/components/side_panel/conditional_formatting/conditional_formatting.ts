@@ -6,12 +6,13 @@ import {
   CommandResult,
   ConditionalFormat,
   ConditionalFormatRule,
+  Increment,
   SingleColorRules,
   SpreadsheetEnv,
   Zone,
 } from "../../../types";
 import { getTextDecoration } from "../../helpers/dom_helpers";
-import { ICONS, TRASH } from "../../icons";
+import { ICONS, TRASH, TRIANGLE_DOWN_ICON, TRIANGLE_UP_ICON } from "../../icons";
 import { SelectionInput } from "../../selection_input";
 import { cellIsOperators, conditionalFormattingTerms, GenericWords } from "../translations_terms";
 import { CellIsRuleEditor } from "./cell_is_rule_editor";
@@ -40,22 +41,28 @@ const PREVIEW_TEMPLATE = xml/* xml */ `
   <div class="o-cf-preview-description">
     <div class="o-cf-preview-ruletype">
       <div class="o-cf-preview-description-rule">
-        <t t-esc="getDescription(cf)" />
-      </div>
-      <div class="o-cf-preview-description-values">
-      <t t-if="cf.rule.values">
-        <t t-esc="cf.rule.values[0]" />
-        <t t-if="cf.rule.values[1]">
-        <t t-esc="' ' + env._t('${GenericWords.And}')"/> <t t-esc="cf.rule.values[1]"/>
+        <t t-esc="getDescription(cf)+''" />
+        <t t-if="cf.rule.values">
+          "<t t-esc="cf.rule.values[0]"/>"
+          <t t-if="cf.rule.values[1]">
+          <t t-esc="' ' + env._t('${GenericWords.And}')"/> "<t t-esc="cf.rule.values[1]"/>"
+          </t>
         </t>
-      </t>
       </div>
     </div>
     <div class="o-cf-preview-range" t-esc="cf.ranges"/>
   </div>
-  <div class="o-cf-delete">
-    <div class="o-cf-delete-button" t-on-click.stop="deleteConditionalFormat(cf)" aria-label="Remove rule">
-    <t t-raw="trashIcon"/>
+  <div class="o-cf-icons-left">
+    <div class="o-cf-button">
+      <div t-if="!cf_first" class="o-cf-move-up" t-on-click.stop="changePriority(cf,1)" aria-label="Move rule up">
+        <t t-raw="TriangleUpIcon"/>
+      </div>
+      <div class="o-cf-delete-button" style="margin-right: 0.7%" t-on-click.stop="deleteConditionalFormat(cf)" aria-label="Remove rule">
+        <t t-raw="trashIcon"/>
+      </div>
+      <div t-if="!cf_last" class="o-cf-move-down" t-on-click.stop="changePriority(cf,-1)" aria-label="Move rule down">
+        <t t-raw="TriangleDownIcon"/>
+      </div>
     </div>
   </div>
 </div>`;
@@ -64,8 +71,9 @@ const TEMPLATE = xml/* xml */ `
   <div class="o-cf">
     <t t-if="state.mode === 'list'">
       <div class="o-cf-preview-list" >
-        <div t-on-click="editConditionalFormat(cf)" t-foreach="conditionalFormats" t-as="cf" t-key="cf.id">
-            <t t-call="${PREVIEW_TEMPLATE}"/>
+        <div t-on-click="editConditionalFormat(cf)" t-foreach="conditionalFormats.reverse()" t-as="cf" t-key="cf.id">
+            <t t-call="${PREVIEW_TEMPLATE}">
+            </t>
         </div>
       </div>
       <div class="btn btn-link o-cf-add" t-on-click.prevent.stop="addConditionalFormat">
@@ -162,17 +170,15 @@ const CSS = css/* scss */ `
     }
     .o-cf-preview {
       background-color: #fff;
-      border-bottom: 1px solid #ccc;
-      cursor: pointer;
-      display: flex;
-      height: 60px;
-      padding: 10px;
-      position: relative;
+    border-bottom: 1px solid #ccc;
+    cursor: pointer;
+    display: flex;
+    height: 60px;
+    padding: 10px;
+    position: relative;
+    align-items: center;
       &:hover {
         background-color: rgba(0, 0, 0, 0.08);
-      }
-      &:not(:hover) .o-cf-delete-button {
-        display: none;
       }
       .o-cf-preview-image {
         border: 1px solid lightgrey;
@@ -203,9 +209,7 @@ const CSS = css/* scss */ `
         .o-cf-preview-description-rule {
           margin-bottom: 4px;
           overflow: hidden;
-        }
-        .o-cf-preview-description-values{
-          overflow: hidden;
+          font-weight: 550;
         }
         .o-cf-preview-range{
           text-overflow: ellipsis;
@@ -213,11 +217,20 @@ const CSS = css/* scss */ `
           overflow: hidden;
         }
       }
-      .o-cf-delete{
+      .o-cf-icons-left{
         color:dimgrey;
-        left: 90%;
-        top: 39%;
-        position: absolute;
+        position: relative;
+        width: 100%;
+        align-self: center;
+        .o-cf-button{
+          display: flex;
+          flex-direction: column;
+          align-content: flex-end;
+          align-items: flex-end;
+        }
+      }
+      &:not(:hover) .o-cf-icons-left {
+        display: none;
       }
     }
     .o-cf-ruleEditor {
@@ -286,11 +299,6 @@ const CSS = css/* scss */ `
             outline: 1px solid gray;
           }
         }
-        .o-border {
-          .o-line-item {
-            padding: 4px;
-            margin: 1px;
-          }
         }
       }
       .o-cell-content {
@@ -338,6 +346,8 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
   static template = TEMPLATE;
   static style = CSS;
   icons = ICONS;
+  TriangleUpIcon = TRIANGLE_UP_ICON;
+  TriangleDownIcon = TRIANGLE_DOWN_ICON;
   trashIcon = TRASH;
   static components = { CellIsRuleEditor, ColorScaleRuleEditor, IconSetRuleEditor, SelectionInput };
 
@@ -503,6 +513,13 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     });
   }
 
+  changePriority(cf: ConditionalFormat, direction: Increment) {
+    this.env.dispatch("CHANGE_PRIORITY_CONDITIONAL_FORMAT", {
+      id: cf.id,
+      direction: direction,
+      sheetId: this.getters.getActiveSheetId(),
+    });
+  }
   /**
    * Edit an existing CF
    */

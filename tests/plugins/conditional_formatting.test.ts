@@ -367,6 +367,71 @@ describe("conditional format", () => {
     });
   });
 
+  test("swap priority conditional formating", () => {
+    setCellContent(model, "A1", "2");
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("2", { textColor: "#FF0000" }, "1"),
+      target: [toZone("A1")],
+      sheetId,
+    });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("2", { textColor: "#445566" }, "2"),
+      target: [toZone("A1")],
+      sheetId,
+    });
+    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+      textColor: "#445566",
+    });
+    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())[0].id).toEqual(
+      "1"
+    );
+    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())[1].id).toEqual(
+      "2"
+    );
+    model.dispatch("CHANGE_PRIORITY_CONDITIONAL_FORMAT", {
+      id: "1",
+      direction: 1,
+      sheetId,
+    });
+    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+      textColor: "#FF0000",
+    });
+    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())[0].id).toEqual(
+      "2"
+    );
+    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())[1].id).toEqual(
+      "1"
+    );
+  });
+
+  test("can't swap out of bounds", () => {
+    setCellContent(model, "A1", "2");
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("2", { textColor: "#FF0000" }, "1"),
+      target: [toZone("A1")],
+      sheetId,
+    });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("2", { textColor: "#445566" }, "2"),
+      target: [toZone("A1")],
+      sheetId,
+    });
+    let result = model.dispatch("CHANGE_PRIORITY_CONDITIONAL_FORMAT", {
+      id: "1",
+      direction: -1,
+      sheetId,
+    });
+    expect(result).toBeCancelledBecause(CommandResult.OutOfBonds);
+    result = model.dispatch("CHANGE_PRIORITY_CONDITIONAL_FORMAT", {
+      id: "2",
+      direction: 1,
+      sheetId,
+    });
+    expect(result).toBeCancelledBecause(CommandResult.OutOfBonds);
+  });
+
   test("multiple conditional formats with same style", () => {
     setCellContent(model, "A1", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {

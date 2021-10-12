@@ -91,6 +91,8 @@ describe("UI of conditional formats", () => {
     cfTabSelector: ".o-cf-type-selector .o_form_label",
     buttonSave: ".o-sidePanelButtons .o-cf-save",
     buttonDelete: ".o-cf-delete-button",
+    buttonMoveUp: ".o-cf-move-up",
+    buttonMoveDown: ".o-cf-move-down",
     buttonAdd: ".o-cf-add",
     error: ".o-cf-error",
     closePanel: ".o-sidePanelClose",
@@ -123,26 +125,23 @@ describe("UI of conditional formats", () => {
       expect(previews).toHaveLength(2);
 
       // --> should be the style for CellIsRule
-      expect(previews[0].querySelector(selectors.description.ruletype.rule)!.textContent).toBe(
-        "Is equal to"
+      expect(previews[1].querySelector(selectors.description.ruletype.rule)!.textContent).toBe(
+        'Is equal to "2" '
       );
-      expect(previews[0].querySelector(selectors.description.ruletype.values)!.textContent).toBe(
-        "2"
-      );
-      expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
+      expect(previews[1].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
       expect(
-        window.getComputedStyle(previews[0].querySelector(selectors.previewImage)!).backgroundColor
+        window.getComputedStyle(previews[1].querySelector(selectors.previewImage)!).backgroundColor
       ).toBe("rgb(255, 0, 0)");
 
       // --> should be a nothing of color gradient for ColorScaleRule
-      expect(previews[1].querySelector(selectors.description.range)!.textContent).toBe("B1:B5");
+      expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("B1:B5");
       expect(
-        window.getComputedStyle(previews[1].querySelector(selectors.previewImage)!).backgroundColor
+        window.getComputedStyle(previews[0].querySelector(selectors.previewImage)!).backgroundColor
       ).toBe("");
       // TODO VSC: see how we can test the gradient background image
     });
     test("can edit an existing CellIsRule", async () => {
-      triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[0], "click");
+      triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[1], "click");
       await nextTick();
 
       // change every value
@@ -194,12 +193,12 @@ describe("UI of conditional formats", () => {
       await nextTick();
 
       let previews = document.querySelectorAll(selectors.listPreview);
-      let line = previews[2].querySelector(selectors.previewImage);
+      let line = previews[0].querySelector(selectors.previewImage);
       expect(line!.getAttribute("style")).toMatch("font-weight:bold;");
     });
 
     test("can edit an existing ColorScaleRule", async () => {
-      triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[1], "click");
+      triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[0], "click");
       await nextTick();
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
@@ -256,7 +255,7 @@ describe("UI of conditional formats", () => {
     });
 
     test("color-picker closes when click elsewhere", async () => {
-      triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[0], "click");
+      triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[1], "click");
       await nextTick();
       triggerMouseEvent(selectors.ruleEditor.editor.colorDropdown, "click");
       await nextTick();
@@ -323,11 +322,11 @@ describe("UI of conditional formats", () => {
     });
     test("displayed range is updated if range changes", async () => {
       const previews = document.querySelectorAll(selectors.listPreview);
-      expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
+      expect(previews[1].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
       model.dispatch("COPY", { target: [toZone("A1:A2")] });
       model.dispatch("PASTE", { target: [toZone("C1")] });
       await nextTick();
-      expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe(
+      expect(previews[1].querySelector(selectors.description.range)!.textContent).toBe(
         "A1:A2,C1:C2"
       );
     });
@@ -335,11 +334,35 @@ describe("UI of conditional formats", () => {
     test("can delete Rule", async () => {
       parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
       const previews = document.querySelectorAll(selectors.listPreview);
-      triggerMouseEvent(previews[0].querySelector(selectors.buttonDelete), "click");
+      triggerMouseEvent(previews[1].querySelector(selectors.buttonDelete), "click");
       await nextTick();
       expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_CONDITIONAL_FORMAT", {
         id: "1",
         sheetId: model.getters.getActiveSheetId(),
+      });
+    });
+
+    test("can move rule up in list", async () => {
+      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const previews = document.querySelectorAll(selectors.listPreview);
+      triggerMouseEvent(previews[1].querySelector(selectors.buttonMoveUp), "click");
+      await nextTick();
+      expect(parent.env.dispatch).toHaveBeenCalledWith("CHANGE_PRIORITY_CONDITIONAL_FORMAT", {
+        id: "1",
+        sheetId: model.getters.getActiveSheetId(),
+        direction: 1,
+      });
+    });
+
+    test("can move rule down in list", async () => {
+      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const previews = document.querySelectorAll(selectors.listPreview);
+      triggerMouseEvent(previews[0].querySelector(selectors.buttonMoveDown), "click");
+      await nextTick();
+      expect(parent.env.dispatch).toHaveBeenCalledWith("CHANGE_PRIORITY_CONDITIONAL_FORMAT", {
+        id: "2",
+        sheetId: model.getters.getActiveSheetId(),
+        direction: -1,
       });
     });
   });
