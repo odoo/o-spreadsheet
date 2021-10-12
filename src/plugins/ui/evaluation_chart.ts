@@ -10,6 +10,7 @@ import { chartTerms } from "../../components/side_panel/translations_terms";
 import { MAX_CHAR_LABEL } from "../../constants";
 import { ChartColors } from "../../helpers/chart";
 import { isDefined, isInside, overlap, recomputeZones, zoneToXc } from "../../helpers/index";
+import { range } from "../../helpers/misc";
 import { Mode } from "../../model";
 import { Cell } from "../../types";
 import { ChartDefinition, DataSet } from "../../types/chart";
@@ -294,6 +295,11 @@ export class EvaluationChartPlugin extends UIPlugin {
     } else if (definition.dataSets.length === 1) {
       for (let i = 0; i < this.getData(definition.dataSets[0], definition.sheetId).length; i++) {
         labels.push("");
+      }
+    } else {
+      if (definition.dataSets[0]) {
+        const ranges = this.getData(definition.dataSets[0], definition.sheetId);
+        labels = range(0, ranges.length).map((r) => r.toString());
       }
     }
     const runtime = this.getDefaultConfiguration(definition, labels);

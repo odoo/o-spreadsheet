@@ -1,3 +1,4 @@
+import { INCORRECT_RANGE_STRING } from "../../constants";
 import { rangeReference, zoneToDimension, zoneToXc } from "../../helpers/index";
 import {
   ApplyRangeChange,
@@ -80,14 +81,23 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         case "RESIZE":
         case "MOVE":
         case "CHANGE":
-          this.history.update(
-            "chartFigures",
-            chartId,
-            "dataSets",
-            chart.dataSets.indexOf(ds),
-            "dataRange",
-            dataRangeChange.range
-          );
+          // We have to remove the ranges that are #REF
+          if (
+            this.getters.getRangeString(dataRangeChange.range, dataRangeChange.range.sheetId) !==
+            INCORRECT_RANGE_STRING
+          ) {
+            this.history.update(
+              "chartFigures",
+              chartId,
+              "dataSets",
+              chart.dataSets.indexOf(ds),
+              "dataRange",
+              dataRangeChange.range
+            );
+          } else {
+            const newDataSets = chart.dataSets.filter((dataset) => dataset !== ds);
+            this.history.update("chartFigures", chartId, "dataSets", newDataSets);
+          }
           break;
       }
     }
