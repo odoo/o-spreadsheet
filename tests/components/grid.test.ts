@@ -1,5 +1,5 @@
 import { Spreadsheet, TransportService } from "../../src";
-import { HEADER_WIDTH, MESSAGE_VERSION } from "../../src/constants";
+import { HEADER_WIDTH, MESSAGE_VERSION, SCROLLBAR_WIDTH } from "../../src/constants";
 import { scrollDelay, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
@@ -28,14 +28,14 @@ function getHorizontalScroll(): number {
   return (parent.grid as any).comp.hScrollbar.scroll;
 }
 
-jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
-jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
-
 let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
 
 beforeEach(async () => {
+  jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
+  jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
+
   fixture = makeTestFixture();
 });
 
@@ -848,6 +848,23 @@ describe("Events on Grid update viewport correctly", () => {
     );
     await nextTick();
     expect(model.getters.getActiveSnappedViewport()).toMatchObject(viewport);
+  });
+
+  test("A resize of the grid DOM element impacts the viewport", async () => {
+    expect(model.getters.getViewportDimension()).toMatchObject({
+      width: 1000 - SCROLLBAR_WIDTH,
+      height: 1000 - SCROLLBAR_WIDTH,
+    });
+    // mock a resizing of the grid DOM element. can occur if resizing the browser or opening the sidePanel
+    jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 800);
+    jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 650);
+    // force a rerendering to pass through patched() of the Grid component.
+    await parent.render();
+
+    expect(model.getters.getViewportDimension()).toMatchObject({
+      width: 800 - SCROLLBAR_WIDTH,
+      height: 650 - SCROLLBAR_WIDTH,
+    });
   });
 
   describe("Edge-Scrolling on mouseMove in selection", () => {
