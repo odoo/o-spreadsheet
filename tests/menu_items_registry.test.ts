@@ -125,6 +125,7 @@ describe("Menu Item actions", () => {
 
   test("Edit -> copy", () => {
     const clipboard = new MockClipboard();
+    //@ts-ignore
     jest.spyOn(navigator, "clipboard", "get").mockImplementation(() => clipboard);
     env.clipboard.writeText = jest.fn(() => Promise.resolve());
     doAction(["edit", "copy"], env);

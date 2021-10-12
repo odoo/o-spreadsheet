@@ -81,6 +81,7 @@ const CSS = css/* scss */ `
       white-space: nowrap;
       text-overflow: ellipsis;
       cursor: pointer;
+      user-select: none;
 
       &.o-menu-root {
         display: flex;

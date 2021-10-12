@@ -974,4 +974,14 @@ describe("sheets", () => {
     const model = new Model();
     expect(model.getters.getSheetIdByName("this name does not exist")).toBeUndefined();
   });
+
+  test("getSheetIdByName works with non-matching case", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("RENAME_SHEET", {
+      sheetId,
+      name: "Sheet1",
+    });
+    expect(model.getters.getSheetIdByName("shEeT1")).toBeDefined();
+  });
 });

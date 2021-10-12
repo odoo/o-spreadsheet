@@ -167,6 +167,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       flex-direction: column;
       font-size: 13px;
       line-height: 1.2;
+      user-select: none;
 
       .o-topbar-top {
         border-bottom: 1px solid #e0e2e4;
@@ -339,6 +340,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           margin: 0;
           line-height: 34px;
           white-space: nowrap;
+          user-select: text;
         }
       }
     }

@@ -595,11 +595,11 @@ describe("datasource tests", function () {
     );
     deleteColumns(model, ["A"]);
     // dataset in col B becomes labels in col A
-    expect(model.getters.getChartRuntime("1")!.data!.labels).toEqual([]);
+    expect(model.getters.getChartRuntime("1")!.data!.labels).toEqual(["0", "1", "2"]);
     const chart = model.getters.getChartRuntime("1")!;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
-    expect(chart.data!.labels).toEqual([]);
+    expect(chart.data!.labels).toEqual(["0", "1", "2"]);
   });
 
   test("delete last row of dataset", () => {
@@ -936,6 +936,24 @@ describe("datasource tests", function () {
     expect(model.getters.getChartRuntime("1")).not.toBeUndefined();
     model.dispatch("DELETE_SHEET", { sheetId: "2" });
     expect(model.getters.getChartRuntime("1")).toBeUndefined();
+  });
+
+  test("Chart on columns deletion", () => {
+    createChart(
+      model,
+      {
+        dataSets: ["B1:B4", "C1:C4"],
+        labelRange: "A2:A4",
+        type: "line",
+      },
+      "1"
+    );
+    deleteColumns(model, ["A", "B"]);
+    const sheetId = model.getters.getActiveSheetId();
+    const def = model.getters.getChartDefinitionUI(sheetId, "1");
+    expect(def.dataSets).toHaveLength(1);
+    expect(def.dataSets[0]).toEqual("A1:A4");
+    expect(def.labelRange).toBeUndefined();
   });
 });
 
