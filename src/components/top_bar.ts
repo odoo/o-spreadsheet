@@ -262,7 +262,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
                 onClose="() => this.state.menuState.isOpen=false"/>
         </div>
         <div class="o-topbar-topright">
-          <div t-foreach="topbarComponents" t-as="comp" t-key="comp_index">
+          <div t-foreach="topbarComponents" t-as="comp" t-key="comp.id">
             <t t-component="comp.component"/>
           </div>
         </div>

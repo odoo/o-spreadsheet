@@ -24,6 +24,7 @@ import {
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
+jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let fixture: HTMLElement;
 const t = (s: string): string => s;
@@ -324,6 +325,37 @@ describe("TopBar component", () => {
     topbarComponentRegistry.add("1", { component: Comp });
     const { app } = await mountParent();
     expect(fixture.querySelectorAll(".o-topbar-test")).toHaveLength(1);
+    topbarComponentRegistry.content = compDefinitions;
+    app.destroy();
+  });
+
+  test("Can add multiple components to topbar with different visibilities", async () => {
+    const compDefinitions = Object.assign({}, topbarComponentRegistry.content);
+    class Comp1 extends Component {
+      static template = xml`<div class="o-topbar-test1">Test1</div>`;
+    }
+    class Comp2 extends Component {
+      static template = xml`<div class="o-topbar-test2">Test2</div>`;
+    }
+    let comp1Visibility = false;
+    topbarComponentRegistry.add("first", {
+      component: Comp1,
+      isVisible: () => {
+        return comp1Visibility;
+      },
+    });
+    topbarComponentRegistry.add("second", { component: Comp2 });
+    const { app, parent } = await mountParent();
+    expect(fixture.querySelectorAll(".o-topbar-test1")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-topbar-test2")).toHaveLength(1);
+
+    comp1Visibility = true;
+    parent.render();
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-topbar-test1")).toHaveLength(1);
+    expect(fixture.querySelectorAll(".o-topbar-test2")).toHaveLength(1);
+
+    // reset Top Component Registry
     topbarComponentRegistry.content = compDefinitions;
     app.destroy();
   });
