@@ -12,7 +12,6 @@ import {
   markdownLink,
 } from "../misc";
 import { isNumber, parseNumber } from "../numbers";
-import { computeFormulaFormat } from "./cell_helpers";
 import {
   BadExpressionCell,
   BooleanCell,
@@ -34,9 +33,7 @@ cellRegistry
       const normalizedText = formula.text;
       const compiledFormula = compile(formula);
       const ranges = formula.dependencies.map((xc) => getters.getRangeFromSheetXC(sheetId, xc));
-      const format =
-        properties.format ||
-        computeFormulaFormat(getters.getEvaluationSheets(), compiledFormula, ranges);
+      const format = properties.format || getters.inferFormulaFormat(compiledFormula, ranges);
       return new FormulaCell(
         (normalizedText, dependencies) =>
           getters.buildFormulaContent(sheetId, normalizedText, dependencies),

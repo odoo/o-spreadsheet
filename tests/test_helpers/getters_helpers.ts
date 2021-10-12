@@ -1,7 +1,7 @@
 import { toCartesian, toXC } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
-import { Border, Cell, CellValueType, Merge, Sheet, UID } from "../../src/types";
+import { Border, Cell, CellValue, CellValueType, Merge, Sheet, UID } from "../../src/types";
 import { setSelection } from "./commands_helpers";
 
 /**
@@ -62,7 +62,7 @@ export function getRangeFormattedValues(
   model: Model,
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
-): string[][] {
+): string[] {
   return model.getters.getRangeFormattedValues(model.getters.getRangeFromSheetXC(sheetId, xc));
 }
 
@@ -70,7 +70,7 @@ export function getRangeValues(
   model: Model,
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
-): any[][] {
+): (CellValue | undefined)[] {
   return model.getters.getRangeValues(model.getters.getRangeFromSheetXC(sheetId, xc));
 }
 

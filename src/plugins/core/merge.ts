@@ -302,10 +302,9 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     right = clip(right, 0, sheet.cols.length - 1);
     bottom = clip(bottom, 0, sheet.rows.length - 1);
     for (let row = top; row <= bottom; row++) {
-      const actualRow = this.getters.getRow(sheet.id, row)!;
       for (let col = left; col <= right; col++) {
         if (col !== left || row !== top) {
-          const cell = actualRow.cells[col];
+          const cell = this.getters.getCell(sheet.id, col, row);
           if (cell && !cell.isEmpty()) {
             return true;
           }

@@ -15,6 +15,9 @@ import { cellReference } from "./references";
  *     27 => 'AB'
  */
 export function numberToLetters(n: number): string {
+  if (n < 0) {
+    throw new Error(`number must be positive. Got ${n}`);
+  }
   if (n < 26) {
     return String.fromCharCode(65 + n);
   } else {

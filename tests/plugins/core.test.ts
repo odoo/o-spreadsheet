@@ -488,27 +488,33 @@ describe("history", () => {
         ],
       });
       activateSheet(model, sheet2Id); // evaluate Sheet2
-      expect(getRangeFormattedValues(model, "A1:A3", sheet1Id)).toEqual([["1,000", "", "2,000"]]);
-      expect(getRangeFormattedValues(model, "$A$1:$A$3", sheet1Id)).toEqual([
-        ["1,000", "", "2,000"],
-      ]);
+      expect(getRangeFormattedValues(model, "A1:A3", sheet1Id)).toEqual(["1,000", "", "2,000"]);
+      expect(getRangeFormattedValues(model, "$A$1:$A$3", sheet1Id)).toEqual(["1,000", "", "2,000"]);
       expect(getRangeFormattedValues(model, "Sheet1!A1:A3", sheet1Id)).toEqual([
-        ["1,000", "", "2,000"],
+        "1,000",
+        "",
+        "2,000",
       ]);
       expect(getRangeFormattedValues(model, "Sheet2!A1:A3", sheet2Id)).toEqual([
-        ["21,000", "", "12/31/2020"],
+        "21,000",
+        "",
+        "12/31/2020",
       ]);
       expect(getRangeFormattedValues(model, "Sheet2!A1:A3", sheet1Id)).toEqual([
-        ["21,000", "", "12/31/2020"],
+        "21,000",
+        "",
+        "12/31/2020",
       ]);
       expect(getRangeFormattedValues(model, "'Sheet2'!A1:A3", sheet1Id)).toEqual([
-        ["21,000", "", "12/31/2020"],
+        "21,000",
+        "",
+        "12/31/2020",
       ]);
-      expect(getRangeFormattedValues(model, "B2", sheet1Id)).toEqual([["TRUE"]]);
-      expect(getRangeFormattedValues(model, "Sheet1!B2", sheet1Id)).toEqual([["TRUE"]]);
-      expect(getRangeFormattedValues(model, "Sheet2!B2", sheet2Id)).toEqual([["TRUE"]]);
-      expect(getRangeFormattedValues(model, "Sheet2!B2", sheet1Id)).toEqual([["TRUE"]]);
-      expect(getRangeFormattedValues(model, "'Sheet2'!B2", sheet1Id)).toEqual([["TRUE"]]);
+      expect(getRangeFormattedValues(model, "B2", sheet1Id)).toEqual(["TRUE"]);
+      expect(getRangeFormattedValues(model, "Sheet1!B2", sheet1Id)).toEqual(["TRUE"]);
+      expect(getRangeFormattedValues(model, "Sheet2!B2", sheet2Id)).toEqual(["TRUE"]);
+      expect(getRangeFormattedValues(model, "Sheet2!B2", sheet1Id)).toEqual(["TRUE"]);
+      expect(getRangeFormattedValues(model, "'Sheet2'!B2", sheet1Id)).toEqual(["TRUE"]);
     });
 
     test("getRangeValues", () => {
@@ -538,16 +544,16 @@ describe("history", () => {
           },
         ],
       });
-      expect(getRangeValues(model, "A1:A3", sheet1Id)).toEqual([[1000, undefined, 2000]]);
-      expect(getRangeValues(model, "$A$1:$A$3", sheet1Id)).toEqual([[1000, undefined, 2000]]);
-      expect(getRangeValues(model, "Sheet1!A1:A3", sheet1Id)).toEqual([[1000, undefined, 2000]]);
-      expect(getRangeValues(model, "Sheet2!A1:A3", sheet2Id)).toEqual([[21000, undefined, 44196]]);
-      expect(getRangeValues(model, "Sheet2!A1:A3", sheet1Id)).toEqual([[21000, undefined, 44196]]);
-      expect(getRangeValues(model, "B2", sheet1Id)).toEqual([[true]]);
-      expect(getRangeValues(model, "Sheet1!B2", sheet1Id)).toEqual([[true]]);
-      expect(getRangeValues(model, "Sheet2!B2", sheet2Id)).toEqual([[true]]);
-      expect(getRangeValues(model, "Sheet2!B2", sheet1Id)).toEqual([[true]]);
-      expect(getRangeValues(model, "B2", "invalidSheetId")).toEqual([[]]);
+      expect(getRangeValues(model, "A1:A3", sheet1Id)).toEqual([1000, undefined, 2000]);
+      expect(getRangeValues(model, "$A$1:$A$3", sheet1Id)).toEqual([1000, undefined, 2000]);
+      expect(getRangeValues(model, "Sheet1!A1:A3", sheet1Id)).toEqual([1000, undefined, 2000]);
+      expect(getRangeValues(model, "Sheet2!A1:A3", sheet2Id)).toEqual([21000, undefined, 44196]);
+      expect(getRangeValues(model, "Sheet2!A1:A3", sheet1Id)).toEqual([21000, undefined, 44196]);
+      expect(getRangeValues(model, "B2", sheet1Id)).toEqual([true]);
+      expect(getRangeValues(model, "Sheet1!B2", sheet1Id)).toEqual([true]);
+      expect(getRangeValues(model, "Sheet2!B2", sheet2Id)).toEqual([true]);
+      expect(getRangeValues(model, "Sheet2!B2", sheet1Id)).toEqual([true]);
+      expect(getRangeValues(model, "B2", "invalidSheetId")).toEqual([]);
     });
   });
 });

@@ -2,6 +2,7 @@ import { numberToLetters, toCartesian, toXC } from "../../src/helpers/index";
 
 describe("numberToLetter", () => {
   test("basic functionality", () => {
+    expect(() => numberToLetters(-1)).toThrow();
     expect(numberToLetters(0)).toBe("A");
     expect(numberToLetters(25)).toBe("Z");
     expect(numberToLetters(26)).toBe("AA");

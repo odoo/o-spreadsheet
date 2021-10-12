@@ -19,6 +19,7 @@ import {
   CellPosition,
   CellValueType,
   CommandResult,
+  CompiledFormula,
   CoreCommand,
   ExcelWorkbookData,
   Range,
@@ -50,6 +51,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "zoneToXC",
     "getCells",
     "getFormulaCellContent",
+    "inferFormulaFormat",
     "getCellStyle",
     "buildFormulaContent",
     "getCellById",
@@ -352,7 +354,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           const cell = this.importCell(imported_sheet, cellData, data.styles);
           this.history.update("cells", sheet.id, cell.id, cell);
           this.dispatch("UPDATE_CELL_POSITION", {
-            cell,
             cellId: cell.id,
             col,
             row,
@@ -452,6 +453,37 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       }
     }
     return undefined;
+  }
+
+  /**
+   * Try to infer the cell format based on the formula dependencies.
+   * e.g. if the formula is `=A1` and A1 has a given format, the
+   * same format will be used.
+   */
+  inferFormulaFormat(compiledFormula: CompiledFormula, dependencies: Range[]): string | undefined {
+    const dependenciesFormat = compiledFormula.dependenciesFormat;
+    for (let dependencyFormat of dependenciesFormat) {
+      switch (typeof dependencyFormat) {
+        case "string":
+          // dependencyFormat corresponds to a literal format which can be applied
+          // directly.
+          return dependencyFormat;
+        case "number":
+          // dependencyFormat corresponds to a dependency cell from which we must
+          // find the cell and extract the associated format
+          const ref = dependencies[dependencyFormat];
+          if (this.getters.tryGetSheet(ref.sheetId)) {
+            // if the reference is a range --> the first cell in the range
+            // determines the format
+            const cellRef = this.getters.getCell(ref.sheetId, ref.zone.left, ref.zone.top);
+            if (cellRef && cellRef.format) {
+              return cellRef.format;
+            }
+          }
+          break;
+      }
+    }
+    return NULL_FORMAT;
   }
 
   buildFormulaContent(sheetId: UID, formula: string, dependencies: Range[]): string {
@@ -579,7 +611,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   private updateCell(sheet: Sheet, col: number, row: number, after: UpdateCellData) {
-    const before = sheet.rows[row].cells[col];
+    const before = this.getters.getCell(sheet.id, col, row);
     const hasContent = "content" in after || "formula" in after;
 
     // Compute the new cell properties
@@ -608,11 +640,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       if (before) {
         this.history.update("cells", sheet.id, before.id, undefined);
         this.dispatch("UPDATE_CELL_POSITION", {
-          cellId: before.id,
+          cellId: undefined,
           col,
           row,
           sheetId: sheet.id,
-          cell: undefined,
         });
       }
       return;
@@ -628,7 +659,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       cell = this.createCell(cellId, afterContent, properties, sheet.id);
     }
     this.history.update("cells", sheet.id, cell.id, cell);
-    this.dispatch("UPDATE_CELL_POSITION", { cell, cellId: cell.id, col, row, sheetId: sheet.id });
+    this.dispatch("UPDATE_CELL_POSITION", { cellId: cell.id, col, row, sheetId: sheet.id });
   }
 
   private checkCellOutOfSheet(sheetId: UID, col: number, row: number): CommandResult {

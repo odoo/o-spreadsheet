@@ -6,6 +6,7 @@ import {
   getNextVisibleCellCoords,
   isEqual,
   organizeZone,
+  positions,
   range,
   union,
   uniqueZones,
@@ -403,19 +404,13 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   getAggregate(): string | null {
     let aggregate = 0;
     let n = 0;
-    for (let zone of this.selection.zones) {
-      for (let row = zone.top; row <= zone.bottom; row++) {
-        const r = this.getters.getRow(this.getters.getActiveSheetId(), row);
-        if (r === undefined) {
-          continue;
-        }
-        for (let col = zone.left; col <= zone.right; col++) {
-          const cell = r.cells[col];
-          if (cell?.evaluated.type === CellValueType.number) {
-            n++;
-            aggregate += cell.evaluated.value;
-          }
-        }
+    const sheetId = this.getters.getActiveSheetId();
+    const cellPositions = this.selection.zones.map(positions).flat();
+    for (const [col, row] of cellPositions) {
+      const cell = this.getters.getCell(sheetId, col, row);
+      if (cell?.evaluated.type === CellValueType.number) {
+        n++;
+        aggregate += cell.evaluated.value;
       }
     }
     return n < 2 ? null : formatStandardNumber(aggregate);

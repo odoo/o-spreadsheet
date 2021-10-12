@@ -1,6 +1,5 @@
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
-import { Cell } from "./cells";
 import {
   BorderCommand,
   ChartUIDefinition,
@@ -194,13 +193,15 @@ export interface UpdateCellCommand
   format?: string;
 }
 
+/**
+ * Move a cell to a given position or clear the position.
+ */
 export interface UpdateCellPositionCommand
   extends BaseCommand,
     SheetDependentCommand,
     PositionDependentCommand {
   type: "UPDATE_CELL_POSITION";
-  cell?: Cell;
-  cellId: UID;
+  cellId?: UID;
 }
 
 //------------------------------------------------------------------------------

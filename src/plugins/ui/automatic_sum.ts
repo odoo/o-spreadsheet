@@ -3,7 +3,6 @@ import {
   groupConsecutive,
   isInside,
   isOneDimensional,
-  mapCellsInZone,
   positions,
   range,
   union,
@@ -170,7 +169,7 @@ export class AutomaticSumPlugin extends UIPlugin {
    * @returns the starting position of the valid zone or Infinity if the zone is not valid.
    */
   private reduceZoneStart(sheet: Sheet, zone: Zone, end: number): number {
-    const cells = mapCellsInZone(zone, sheet, (cell) => cell, undefined).flat();
+    const cells = this.getters.getCellsInZone(sheet.id, zone);
     const cellPositions = range(end, -1, -1);
     const invalidCells = cellPositions.filter(
       (position) => cells[position] && !cells[position]?.isAutoSummable

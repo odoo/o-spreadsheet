@@ -240,13 +240,13 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         this.config,
         this.uuidGenerator
       );
-      plugin.import(data);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
           throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
         }
         this.getters[name] = plugin[name].bind(plugin);
       }
+      plugin.import(data);
       this.corePlugins.push(plugin);
     }
   }
