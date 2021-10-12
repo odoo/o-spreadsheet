@@ -87,7 +87,7 @@ const CSS = css/*SCSS*/ `
       background-color: #1a73e8;
       &.o-top {
         top: -${ANCHOR_SIZE / 2}px;
-        right: 50%;
+        right: calc(50% - 4px);
         cursor: n-resize;
       }
       &.o-topRight {
@@ -97,7 +97,7 @@ const CSS = css/*SCSS*/ `
       }
       &.o-right {
         right: -${ANCHOR_SIZE / 2}px;
-        top: 50%;
+        top: calc(50% - 4px);
         cursor: e-resize;
       }
       &.o-bottomRight {
@@ -107,7 +107,7 @@ const CSS = css/*SCSS*/ `
       }
       &.o-bottom {
         bottom: -${ANCHOR_SIZE / 2}px;
-        right: 50%;
+        right: calc(50% - 4px);
         cursor: s-resize;
       }
       &.o-bottomLeft {
@@ -116,7 +116,7 @@ const CSS = css/*SCSS*/ `
         cursor: sw-resize;
       }
       &.o-left {
-        bottom: 50%;
+        bottom: calc(50% - 4px);
         left: -${ANCHOR_SIZE / 2}px;
         cursor: w-resize;
       }
