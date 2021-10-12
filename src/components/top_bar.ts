@@ -149,6 +149,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           </div>
           <!-- <div class="o-tool" title="Vertical align"><span>${icons.ALIGN_MIDDLE_ICON}</span> ${icons.TRIANGLE_DOWN_ICON}</div> -->
           <!-- <div class="o-tool" title="Text Wrapping">${icons.TEXT_WRAPPING_ICON}</div> -->
+          <div class="o-divider"/>
         </div>
         <Composer inputStyle="composerStyle" focus="props.focusComposer"/>
 
@@ -160,7 +161,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       display: flex;
       flex-direction: column;
       font-size: 13px;
-
+      user-select: none;
       .o-topbar-top {
         border-bottom: 1px solid #e0e2e4;
         display: flex;
@@ -322,6 +323,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           margin: 0;
           line-height: 34px;
           white-space: nowrap;
+          user-select: text;
         }
       }
     }
