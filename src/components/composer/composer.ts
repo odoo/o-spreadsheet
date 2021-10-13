@@ -65,6 +65,7 @@ const TEMPLATE = xml/* xml */ `
     t-on-input="onInput"
     t-on-keyup="onKeyup"
     t-on-click.stop="onClick"
+    t-on-blur="onBlur"
   />
 
   <div t-if="props.focus !== 'inactive' and (autoCompleteState.showProvider or functionDescriptionState.showDescription)"
@@ -304,6 +305,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   private processEnterKey(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
+    this.isKeyStillDown = false;
     const autoCompleteComp = this.autoCompleteRef.comp as TextValueProvider;
     if (this.autoCompleteState.showProvider && autoCompleteComp) {
       const autoCompleteValue = autoCompleteComp.getValueToFill();
@@ -411,6 +413,10 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     }
     this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", newSelection);
     this.processTokenAtCursor();
+  }
+
+  onBlur() {
+    this.isKeyStillDown = false;
   }
 
   onCompleted(ev: CustomEvent) {

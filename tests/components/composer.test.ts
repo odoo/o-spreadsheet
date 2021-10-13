@@ -17,7 +17,7 @@ import {
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { clickCell, triggerMouseEvent } from "../test_helpers/dom_helper";
+import { clickCell, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
@@ -548,6 +548,31 @@ describe("composer", () => {
     expect(cell.link.label).toBe("label updated");
     expect(cell.link.url).toBe("http://odoo.com");
     expect(fixture.querySelector(".o-link-tool")).toBeNull();
+  });
+
+  test("Hitting enter on topbar composer will properly update it", async () => {
+    setCellContent(model, "A1", "I am Tabouret");
+    await clickCell(model, "A1");
+    const topbarComposerElement = fixture.querySelector(
+      ".o-topbar-toolbar .o-composer-container div"
+    )!;
+    expect(topbarComposerElement.textContent).toBe("I am Tabouret");
+    await simulateClick(topbarComposerElement);
+    await keydown("Enter");
+    expect(topbarComposerElement.textContent).toBe("");
+  });
+
+  test("Losing focus on topbar composer will properly update it", async () => {
+    setCellContent(model, "A1", "I am Tabouret");
+    await clickCell(model, "A1");
+    const topbarComposerElement = fixture.querySelector(
+      ".o-topbar-toolbar .o-composer-container div"
+    )!;
+    expect(topbarComposerElement.textContent).toBe("I am Tabouret");
+    await simulateClick(topbarComposerElement); // gain focus on topbar composer
+    await keydown("ArrowLeft");
+    await simulateClick("canvas", 300, 200); // focus another Cell (i.e. C8)
+    expect(topbarComposerElement.textContent).toBe("");
   });
 
   describe("change selecting mode when typing specific token value", () => {
