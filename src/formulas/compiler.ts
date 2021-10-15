@@ -232,7 +232,7 @@ export function compile(str: NormalizedFormula): CompiledFormula {
             statement = `range(${ast.value}, deps, sheetId)`;
           } else {
             statement = `ref(${ast.value}, deps, sheetId, ${isMeta ? "true" : "false"}, "${
-              referenceVerification.functionName
+              referenceVerification.functionName || OPERATOR_MAP["="]
             }",  ${referenceVerification.paramIndex})`;
           }
           break;
@@ -245,16 +245,22 @@ export function compile(str: NormalizedFormula): CompiledFormula {
           break;
         case "UNARY_OPERATION":
           id = nextId++;
-          right = compileAST(ast.right);
           fnName = UNARY_OPERATOR_MAP[ast.value];
+          right = compileAST(ast.right, false, false, false, {
+            functionName: fnName,
+          });
           code.push(`ctx.__lastFnCalled = '${fnName}'`);
           statement = `ctx['${fnName}']( ${right})`;
           break;
         case "BIN_OPERATION":
           id = nextId++;
-          left = compileAST(ast.left);
-          right = compileAST(ast.right);
           fnName = OPERATOR_MAP[ast.value];
+          left = compileAST(ast.left, false, false, false, {
+            functionName: fnName,
+          });
+          right = compileAST(ast.right, false, false, false, {
+            functionName: fnName,
+          });
           code.push(`ctx.__lastFnCalled = '${fnName}'`);
           statement = `ctx['${fnName}'](${left}, ${right})`;
           break;

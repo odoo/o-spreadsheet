@@ -259,7 +259,7 @@ export class EvaluationPlugin extends UIPlugin {
       sheetId: UID,
       isMeta: boolean,
       functionName: string,
-      paramNumber: number
+      paramNumber?: number
     ): any | any[][] {
       const range: Range = references[position];
 
@@ -274,11 +274,16 @@ export class EvaluationPlugin extends UIPlugin {
       // if the formula definition could have accepted a range, we would pass through the _range function and not here
       if (range.zone.bottom !== range.zone.top || range.zone.left !== range.zone.right) {
         throw new Error(
-          _lt(
-            "Function %s expects the parameter %s to be a single value or a single cell reference, not a range.",
-            functionName.toString(),
-            paramNumber.toString()
-          )
+          paramNumber
+            ? _lt(
+                "Function %s expects the parameter %s to be a single value or a single cell reference, not a range.",
+                functionName.toString(),
+                paramNumber.toString()
+              )
+            : _lt(
+                "Function %s expects its parameters to be single values or single cell references, not ranges.",
+                functionName.toString()
+              )
         );
       }
 

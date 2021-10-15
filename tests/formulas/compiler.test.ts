@@ -596,6 +596,24 @@ describe("compile functions", () => {
       expect(() => m.getters.evaluateFormula("=ANYEXPECTED(sheet2!A1:A$2)")).toThrowError(
         "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
+      expect(() => m.getters.evaluateFormula("=A2:A3")).toThrowError(
+        "Function EQ expects its parameters to be single values or single cell references, not ranges."
+      );
+      expect(() => m.getters.evaluateFormula("=+A2:A3")).toThrowError(
+        "Function UPLUS expects its parameters to be single values or single cell references, not ranges."
+      );
+      expect(() => m.getters.evaluateFormula("=A1+A2:A3")).toThrowError(
+        "Function ADD expects its parameters to be single values or single cell references, not ranges."
+      );
+      expect(() => m.getters.evaluateFormula("=-A2:A3")).toThrowError(
+        "Function UMINUS expects its parameters to be single values or single cell references, not ranges."
+      );
+      expect(() => m.getters.evaluateFormula("=A1-A2:A3")).toThrowError(
+        "Function MINUS expects its parameters to be single values or single cell references, not ranges."
+      );
+      expect(() => m.getters.evaluateFormula("=A1+A4*A5:A6-A2")).toThrowError(
+        "Function MULTIPLY expects its parameters to be single values or single cell references, not ranges."
+      );
       expect(() => m.getters.evaluateFormula("=ANYEXPECTED(A1:A1)")).not.toThrow();
     });
   });

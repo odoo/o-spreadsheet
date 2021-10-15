@@ -83,11 +83,11 @@ exports[`expression compiler expression with $ref 1`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =|0|+|1|+|2|
-let _3 = ref(0, deps, sheetId, false, \\"undefined\\",  undefined)
-let _4 = ref(1, deps, sheetId, false, \\"undefined\\",  undefined)
+let _3 = ref(0, deps, sheetId, false, \\"ADD\\",  undefined)
+let _4 = ref(1, deps, sheetId, false, \\"ADD\\",  undefined)
 ctx.__lastFnCalled = 'ADD'
 let _2 = ctx['ADD'](_3, _4)
-let _5 = ref(2, deps, sheetId, false, \\"undefined\\",  undefined)
+let _5 = ref(2, deps, sheetId, false, \\"ADD\\",  undefined)
 ctx.__lastFnCalled = 'ADD'
 let _1 = ctx['ADD'](_2, _5)
 return _1;
@@ -98,7 +98,7 @@ exports[`expression compiler expression with references with a sheet 1`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =|0|
-let _1 = ref(0, deps, sheetId, false, \\"undefined\\",  undefined)
+let _1 = ref(0, deps, sheetId, false, \\"EQ\\",  undefined)
 return _1;
 }"
 `;
@@ -108,7 +108,7 @@ exports[`expression compiler expressions with a debugger 1`] = `
 ) {
 // =? |0| / 2
 debugger;
-let _2 = ref(0, deps, sheetId, false, \\"undefined\\",  undefined)
+let _2 = ref(0, deps, sheetId, false, \\"DIVIDE\\",  undefined)
 ctx.__lastFnCalled = 'DIVIDE'
 let _1 = ctx['DIVIDE'](_2, 2)
 return _1;
@@ -119,7 +119,7 @@ exports[`expression compiler read some values and functions 1`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =|0| + sum(|1|)
-let _2 = ref(0, deps, sheetId, false, \\"undefined\\",  undefined)
+let _2 = ref(0, deps, sheetId, false, \\"ADD\\",  undefined)
 let _4 = range(1, deps, sheetId)
 ctx.__lastFnCalled = 'SUM'
 let _3 = ctx['SUM'](_4)
