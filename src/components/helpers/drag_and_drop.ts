@@ -120,17 +120,21 @@ export function dragAndDropWithEdgeScrolling(
   });
 }
 
-export function dragAndDropCellHandler(
+/**
+ * Custom event handler that reacts when the mouse is moved to a different cell.
+ *
+ * It also ensures that the cell indices used in the custom event conform to the
+ * current sheet.
+ */
+export function mouseMoveReactToCellChange(
   env: SpreadsheetEnv,
-  onCellChange: (colIndex: number, rowIndex: number) => void,
-  onMouseUp: EventHandler
-): DragAndDropHandlers {
+  onCellChange: (colIndex: number, rowIndex: number) => void
+): (x: number, y: number) => void {
   let prevCol: undefined | number = undefined;
   let prevRow: undefined | number = undefined;
 
   const onMouseMove = (offsetX, offsetY) => {
     const { left, top } = env.getters.getActiveSnappedViewport();
-
     let colIndex = env.getters.getColIndex(offsetX, left);
     let rowIndex = env.getters.getRowIndex(offsetY, top);
 
@@ -152,5 +156,5 @@ export function dragAndDropCellHandler(
       onCellChange(colIndex, rowIndex);
     }
   };
-  return { onMouseMove, onMouseUp };
+  return onMouseMove;
 }

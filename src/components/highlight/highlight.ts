@@ -2,7 +2,7 @@ import * as owl from "@odoo/owl";
 import { useState } from "@odoo/owl";
 import { clip } from "../../helpers";
 import { SpreadsheetEnv, Zone } from "../../types";
-import { dragAndDropCellHandler, dragAndDropWithEdgeScrolling } from "../helpers/drag_and_drop";
+import { dragAndDropWithEdgeScrolling, mouseMoveReactToCellChange } from "../helpers/drag_and_drop";
 import { Border } from "./border";
 import { Corner } from "./corner";
 
@@ -85,7 +85,11 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
       this.env.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     };
 
-    const resizeHighlightHandler = dragAndDropCellHandler(this.env, onCellChange, onMouseUp);
+    const resizeHighlightHandler = {
+      onMouseMove: mouseMoveReactToCellChange(this.env, onCellChange),
+      onMouseUp,
+    };
+
     dragAndDropWithEdgeScrolling(this.env, resizeHighlightHandler);
   }
 
@@ -134,7 +138,11 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
       this.env.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     };
 
-    const moveHighlightHandler = dragAndDropCellHandler(this.env, onCellChange, onMouseUp);
+    const moveHighlightHandler = {
+      onMouseMove: mouseMoveReactToCellChange(this.env, onCellChange),
+      onMouseUp,
+    };
+
     dragAndDropWithEdgeScrolling(this.env, moveHighlightHandler);
   }
 }

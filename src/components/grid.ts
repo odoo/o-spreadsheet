@@ -27,7 +27,7 @@ import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
 import { ErrorToolTip } from "./error_tooltip";
 import { FiguresContainer } from "./figures/container";
-import { dragAndDropCellHandler, dragAndDropWithEdgeScrolling } from "./helpers/drag_and_drop";
+import { dragAndDropWithEdgeScrolling, mouseMoveReactToCellChange } from "./helpers/drag_and_drop";
 import { Highlight } from "./highlight/highlight";
 import { LinkDisplay } from "./link/link_display";
 import { LinkEditor } from "./link/link_editor";
@@ -704,10 +704,13 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
         });
       }
     };
-    dragAndDropWithEdgeScrolling(
-      this.env,
-      dragAndDropCellHandler(this.env, onCellChange, onMouseUp)
-    );
+
+    const selectionHandlers = {
+      onMouseMove: mouseMoveReactToCellChange(this.env, onCellChange),
+      onMouseUp,
+    };
+
+    dragAndDropWithEdgeScrolling(this.env, selectionHandlers);
   }
 
   onDoubleClick(ev) {

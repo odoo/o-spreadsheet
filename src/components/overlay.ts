@@ -12,8 +12,8 @@ import { Col, EdgeScrollInfo, Row, SpreadsheetEnv } from "../types/index";
 import { ContextMenuType } from "./grid";
 import {
   dragAndDrop,
-  dragAndDropCellHandler,
   dragAndDropWithEdgeScrolling,
+  mouseMoveReactToCellChange,
 } from "./helpers/drag_and_drop";
 import * as icons from "./icons";
 
@@ -231,13 +231,17 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
         this.state.base = this._getSelectedZoneStart();
       }
     };
-    const onMouseUp = () => {
-      this.state.isMoving = false;
-      if (this.state.base !== this._getSelectedZoneStart()) {
-        this._moveElements();
-      }
+
+    const draggerLinePositionHandler = {
+      onMouseMove: mouseMoveReactToCellChange(this.env, onCellChange),
+      onMouseUp: () => {
+        this.state.isMoving = false;
+        if (this.state.base !== this._getSelectedZoneStart()) {
+          this._moveElements();
+        }
+      },
     };
-    const draggerLinePositionHandler = dragAndDropCellHandler(this.env, onCellChange, onMouseUp);
+
     dragAndDropWithEdgeScrolling(this.env, shadowPositionHandler, draggerLinePositionHandler);
   }
 
@@ -265,7 +269,10 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
       this._computeGrabDisplay(ev);
     };
 
-    const draggerSelectionHandler = dragAndDropCellHandler(this.env, onCellChange, onMouseUp);
+    const draggerSelectionHandler = {
+      onMouseMove: mouseMoveReactToCellChange(this.env, onCellChange),
+      onMouseUp,
+    };
     dragAndDropWithEdgeScrolling(this.env, draggerSelectionHandler);
   }
 
