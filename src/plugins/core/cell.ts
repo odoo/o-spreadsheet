@@ -474,8 +474,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return this.buildFormulaContent(sheetId, cell.normalizedText, cell.dependencies);
   }
 
-  getCellStyle(cell: Cell): Style {
-    return cell.style || {};
+  getCellStyle(cell?: Cell): Style {
+    return (cell && cell.style) || {};
   }
 
   /**

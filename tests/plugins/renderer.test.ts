@@ -32,7 +32,7 @@ function getBoxFromText(model: Model, text: string): Box {
     (h) => h instanceof RendererPlugin
   ) as RendererPlugin)!;
   // @ts-ignore
-  return (rendererPlugin.boxes as Box[]).find((b) => b.text === text);
+  return (rendererPlugin.boxes as Box[]).find((b) => b.content?.text === text);
 }
 
 interface ContextObserver {
@@ -623,13 +623,13 @@ describe("renderer", () => {
 
     box = getBoxFromText(model, overflowingText);
     // no clip
-    expect(box.clipRect).toBeNull();
+    expect(box.clipRect).toBeUndefined();
 
     // no clipping at the left
     setCellContent(model, "A1", "Content at the left");
     model.drawGrid(ctx);
     box = getBoxFromText(model, overflowingText);
-    expect(box.clipRect).toBeNull();
+    expect(box.clipRect).toBeUndefined();
 
     // clipping at the right
     setCellContent(model, "C1", "Content at the right");
@@ -664,13 +664,13 @@ describe("renderer", () => {
 
     box = getBoxFromText(model, overflowingText);
     // no clip
-    expect(box.clipRect).toBeNull();
+    expect(box.clipRect).toBeUndefined();
 
     // no clipping at the right
     setCellContent(model, "C1", "Content at the left");
     model.drawGrid(ctx);
     box = getBoxFromText(model, overflowingText);
-    expect(box.clipRect).toBeNull();
+    expect(box.clipRect).toBeUndefined();
 
     // clipping at the left
     setCellContent(model, "A1", "Content at the right");
@@ -705,7 +705,7 @@ describe("renderer", () => {
 
     centeredBox = getBoxFromText(model, overflowingText);
     // // spans from A1 to C1 <-> no clip
-    expect(centeredBox.clipRect).toBeNull();
+    expect(centeredBox.clipRect).toBeUndefined();
 
     setCellContent(model, "A1", "left");
     model.drawGrid(ctx);
@@ -751,7 +751,7 @@ describe("renderer", () => {
     model.drawGrid(ctx);
 
     box = getBoxFromText(model, overflowingText);
-    expect(box.clipRect).toBeNull();
+    expect(box.clipRect).toBeUndefined();
 
     resizeRows(model, [0], Math.floor(fontSizeMap[fontSize] / 2));
     model.drawGrid(ctx);

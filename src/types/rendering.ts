@@ -10,19 +10,24 @@ export interface DOMCoordinates {
   y: number;
 }
 
+export interface BoxTextContent {
+  text: string;
+  width: number;
+  align: Align;
+}
+
 export interface Box {
   x: number;
   y: number;
   width: number;
   height: number;
-  text: string;
-  textWidth: number;
-  style: Style | null;
-  border: Border | null;
-  align: Align;
-  clipRect: Rect | null;
+  content?: BoxTextContent;
+  style: Style;
+  border?: Border;
+  clipRect?: Rect;
   error?: string;
   image?: Image;
+  isMerge?: boolean;
 }
 export interface Image {
   clipIcon: Rect | null;

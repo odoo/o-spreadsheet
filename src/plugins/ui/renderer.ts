@@ -1,36 +1,38 @@
 import { ICONS } from "../../components/icons";
 import {
-  BACKGROUND_HEADER_ACTIVE_COLOR,
-  BACKGROUND_HEADER_COLOR,
-  BACKGROUND_HEADER_SELECTED_COLOR,
-  CELL_BORDER_COLOR,
-  DEFAULT_FONT,
-  DEFAULT_FONT_SIZE,
-  DEFAULT_FONT_WEIGHT,
-  HEADER_BORDER_COLOR,
-  HEADER_FONT_SIZE,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-  MIN_CELL_TEXT_MARGIN,
-  MIN_CF_ICON_MARGIN,
-  TEXT_HEADER_COLOR,
+BACKGROUND_HEADER_ACTIVE_COLOR,
+BACKGROUND_HEADER_COLOR,
+BACKGROUND_HEADER_SELECTED_COLOR,
+CELL_BORDER_COLOR,
+DEFAULT_FONT,
+DEFAULT_FONT_SIZE,
+DEFAULT_FONT_WEIGHT,
+HEADER_BORDER_COLOR,
+HEADER_FONT_SIZE,
+HEADER_HEIGHT,
+HEADER_WIDTH,
+MIN_CELL_TEXT_MARGIN,
+MIN_CF_ICON_MARGIN,
+TEXT_HEADER_COLOR
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { overlap, scrollDelay } from "../../helpers/index";
+import { overlap,scrollDelay } from "../../helpers/index";
 import { Mode } from "../../model";
 import {
-  Box,
-  Cell,
-  CellValueType,
-  EdgeScrollInfo,
-  GridRenderingContext,
-  Header,
-  LAYERS,
-  Rect,
-  ScrollDirection,
-  Sheet,
-  Viewport,
-  Zone,
+Box,
+Cell,
+CellValueType,
+Col,
+EdgeScrollInfo,
+GridRenderingContext,
+Header,
+LAYERS,
+Rect,
+Row,
+ScrollDirection,
+Sheet,UID,
+Viewport,
+Zone
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
@@ -106,9 +108,7 @@ export class RendererPlugin extends UIPlugin {
 
   getRect(zone: Zone, viewport: Viewport): Rect {
     const { left, top, right, bottom } = zone;
-    let { offsetY, offsetX } = viewport;
-    offsetX -= HEADER_WIDTH;
-    offsetY -= HEADER_HEIGHT;
+    const { offsetX, offsetY } = this.getShiftedViewport(viewport);
     const { cols, rows } = this.getters.getActiveSheet();
     const x = Math.max(cols[left].start - offsetX, HEADER_WIDTH);
     const width = cols[right].end - offsetX - x;
@@ -185,8 +185,7 @@ export class RendererPlugin extends UIPlugin {
   }
 
   private drawBackground(renderingContext: GridRenderingContext) {
-    const { ctx, viewport, thinLineWidth } = renderingContext;
-    let { offsetX, offsetY, top, left, bottom, right } = viewport;
+    const { ctx, thinLineWidth, viewport } = renderingContext;
     const { width, height } = this.getters.getViewportDimension();
     const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
     // white background
@@ -194,8 +193,7 @@ export class RendererPlugin extends UIPlugin {
     ctx.fillRect(0, 0, width, height);
 
     // background grid
-    offsetX -= HEADER_WIDTH;
-    offsetY -= HEADER_HEIGHT;
+    const { right, left, top, bottom, offsetX, offsetY } = this.getShiftedViewport(viewport);
 
     if (!this.getters.getGridLinesVisibility(sheetId)) {
       return;
@@ -239,8 +237,8 @@ export class RendererPlugin extends UIPlugin {
     for (let box of this.boxes) {
       // fill color
       let style = box.style;
-      if (style && style.fillColor && style.fillColor !== "#ffffff") {
-        ctx.fillStyle = style.fillColor;
+      if ((style.fillColor && style.fillColor !== "#ffffff") || box.isMerge) {
+        ctx.fillStyle = style.fillColor || "#ffffff";
         ctx.fillRect(box.x, box.y, box.width, box.height);
         if (areGridLinesVisible) {
           ctx.strokeRect(
@@ -299,9 +297,9 @@ export class RendererPlugin extends UIPlugin {
     ctx.textBaseline = "middle";
     let currentFont;
     for (let box of this.boxes) {
-      if (box.text) {
+      if (box.content) {
         const style = box.style || {};
-        const align = box.align!;
+        const align = box.content.align || "left";
         const italic = style.italic ? "italic " : "";
         const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
         const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
@@ -328,19 +326,19 @@ export class RendererPlugin extends UIPlugin {
           ctx.rect(...box.clipRect);
           ctx.clip();
         }
-        ctx.fillText(box.text, Math.round(x), Math.round(y));
+        ctx.fillText(box.content.text, Math.round(x), Math.round(y));
         if (style.strikethrough || style.underline) {
           if (align === "right") {
-            x = x - box.textWidth;
+            x = x - box.content.width;
           } else if (align === "center") {
-            x = x - box.textWidth / 2;
+            x = x - box.content.width / 2;
           }
           if (style.strikethrough) {
-            ctx.fillRect(x, y, box.textWidth, 2.6 * thinLineWidth);
+            ctx.fillRect(x, y, box.content.width, 2.6 * thinLineWidth);
           }
           if (style.underline) {
             y = box.y + box.height / 2 + 1 + size / 2;
-            ctx.fillRect(x, y, box.textWidth, 1.3 * thinLineWidth);
+            ctx.fillRect(x, y, box.content.width, 1.3 * thinLineWidth);
           }
         }
         if (box.clipRect) {
@@ -350,12 +348,10 @@ export class RendererPlugin extends UIPlugin {
     }
   }
 
-  private async drawIcon(renderingContext: GridRenderingContext) {
+  private drawIcon(renderingContext: GridRenderingContext) {
     const { ctx } = renderingContext;
-    for (let box of this.boxes) {
+    for (const box of this.boxes) {
       if (box.image) {
-        let x = box.x;
-        let y = box.y;
         const icon: HTMLImageElement = box.image.image;
         const size = box.image.size;
         const margin = (box.height - size) / 2;
@@ -365,7 +361,7 @@ export class RendererPlugin extends UIPlugin {
           ctx.rect(...box.image.clipIcon);
           ctx.clip();
         }
-        ctx.drawImage(icon, x + MIN_CF_ICON_MARGIN, y + margin, size, size);
+        ctx.drawImage(icon, box.x + MIN_CF_ICON_MARGIN, box.y + margin, size, size);
         if (box.image.clipIcon) {
           ctx.restore();
         }
@@ -374,11 +370,9 @@ export class RendererPlugin extends UIPlugin {
   }
 
   private drawHeaders(renderingContext: GridRenderingContext) {
-    const { ctx, viewport, thinLineWidth } = renderingContext;
-    let { offsetX, offsetY, left, top, right, bottom } = viewport;
+    const { ctx, thinLineWidth, viewport } = renderingContext;
+    const { right, left, top, bottom, offsetX, offsetY } = this.getShiftedViewport(viewport);
     const { width, height } = this.getters.getViewportDimension();
-    offsetX -= HEADER_WIDTH;
-    offsetY -= HEADER_HEIGHT;
     const selection = this.getters.getSelectedZones();
     const { cols, rows } = this.getters.getActiveSheet();
     const activeCols = this.getters.getActiveCols();
@@ -455,257 +449,208 @@ export class RendererPlugin extends UIPlugin {
     return (cell && !cell.isEmpty()) || this.getters.isInMerge(sheetId, col, row);
   }
 
-  private getGridBoxes(renderingContext: GridRenderingContext): Box[] {
-    const { viewport } = renderingContext;
-    let { right, left, top, bottom, offsetX, offsetY } = viewport;
-    offsetX -= HEADER_WIDTH;
-    offsetY -= HEADER_HEIGHT;
+  /**
+   * Adapt the current viewport with the headers sizes
+   */
+  private getShiftedViewport(viewport: Viewport): Viewport {
+    return {
+      ...viewport,
+      offsetX: viewport.offsetX - HEADER_WIDTH,
+      offsetY: viewport.offsetY - HEADER_HEIGHT,
+    };
+  }
 
-    const showFormula: boolean = this.getters.shouldShowFormulas();
-    const result: Box[] = [];
-    const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
-    // process all visible cells
+  private findNextEmptyCol(base: number, max: number, row: number): number {
+    let col = base;
+    while (col < max && !this.hasContent(col + 1, row)) {
+      col++;
+    }
+    return col;
+  }
+
+  private findPreviousEmptyCol(base: number, min: number, row: number): number {
+    let col = base;
+    while (col > min && !this.hasContent(col - 1, row)) {
+      col--;
+    }
+    return col;
+  }
+
+  private getCol(col: number): Col {
+    const sheetId = this.getters.getActiveSheetId();
+    const elt = this.getters.getCol(sheetId, col);
+    if (!elt) {
+      throw new Error("Unable to get the col");
+    }
+    return elt;
+  }
+
+  private getRow(row: number): Row {
+    const sheetId = this.getters.getActiveSheetId();
+    const elt = this.getters.getRow(sheetId, row);
+    if (!elt) {
+      throw new Error("Unable to get the row");
+    }
+    return elt;
+  }
+
+  private createBoxFromPosition(
+    sheetId: UID,
+    colNumber: number,
+    rowNumber: number,
+    viewport: Viewport,
+    width: number,
+    height: number
+  ): Box {
+    const { right, left, offsetX, offsetY } = this.getShiftedViewport(viewport);
+    const col = this.getCol(colNumber);
+    const row = this.getRow(rowNumber);
+    const cell = this.getters.getCell(sheetId, colNumber, rowNumber);
+    const showFormula = this.getters.shouldShowFormulas();
+    const box: Box = {
+      x: col.start - offsetX,
+      y: row.start - offsetY,
+      width,
+      height,
+      border: this.getters.getCellBorder(sheetId, colNumber, rowNumber) || undefined,
+      style: {
+        ...this.getters.getCellStyle(cell),
+        ...this.getters.getConditionalStyle(colNumber, rowNumber),
+      },
+    };
+
+    if (cell) {
+      /** Icon CF */
+      const cfIcon = this.getters.getConditionalIcon(colNumber, rowNumber);
+      const fontSize = box.style.fontSize || DEFAULT_FONT_SIZE;
+      const fontSizePX = fontSizeMap[fontSize];
+      const iconBoxWidth = cfIcon ? 2 * MIN_CF_ICON_MARGIN + fontSizePX : 0;
+      if (cfIcon) {
+        box.image = {
+          type: "icon",
+          size: fontSizePX,
+          clipIcon: [box.x, box.y, Math.min(iconBoxWidth, width), height],
+          image: ICONS[cfIcon].img,
+        };
+      }
+
+      /** Content */
+      const text = this.getters.getCellText(cell, showFormula);
+      const textWidth = this.getters.getTextWidth(cell);
+      const contentWidth = iconBoxWidth + textWidth;
+      const isOverflowing = contentWidth > width || fontSizeMap[fontSize] > height;
+
+      let align = text ? box.style?.align || computeAlign(cell, showFormula) : "left";
+      if (isOverflowing && cell.evaluated.type === CellValueType.number) {
+        align = align !== "center" ? "left" : align;
+      }
+
+      box.content = {
+        text,
+        width: textWidth,
+        align,
+      };
+
+      /** Error */
+      if (cell.evaluated.type === CellValueType.error) {
+        box.error = cell.evaluated.error;
+      }
+
+      /** ClipRect */
+      if (cfIcon) {
+        box.clipRect = [box.x + iconBoxWidth, box.y, Math.max(0, width - iconBoxWidth), height];
+      } else if (isOverflowing) {
+        switch (align) {
+          case "left": {
+            const nextColIndex = this.findNextEmptyCol(colNumber, right, rowNumber);
+            const nextCol = this.getCol(nextColIndex);
+            const width = nextCol.end - col.start;
+            if (width < textWidth || fontSizePX > row.size) {
+              box.clipRect = [col.start - offsetX, row.start - offsetY, width, row.size];
+            }
+            break;
+          }
+          case "right": {
+            const previousColIndex = this.findPreviousEmptyCol(colNumber, left, rowNumber);
+            const previousCol = this.getCol(previousColIndex);
+            const width = col.end - previousCol.start;
+            if (width < textWidth || fontSizePX > row.size) {
+              box.clipRect = [previousCol.start - offsetX, row.start - offsetY, width, row.size];
+            }
+            break;
+          }
+          case "center": {
+            const previousColIndex = this.findPreviousEmptyCol(colNumber, left, rowNumber);
+            const nextColIndex = this.findNextEmptyCol(colNumber, right, rowNumber);
+            const previousCol = this.getCol(previousColIndex);
+            const nextCol = this.getCol(nextColIndex);
+            const width = nextCol.end - previousCol.start;
+            if (
+              width < textWidth ||
+              previousColIndex === colNumber ||
+              nextColIndex === colNumber ||
+              fontSizePX > row.size
+            ) {
+              box.clipRect = [previousCol.start - offsetX, row.start - offsetY, width, row.size];
+            }
+            break;
+          }
+        }
+      }
+    }
+    return box;
+  }
+
+  private getGridBoxes(renderingContext: GridRenderingContext): Box[] {
+    const boxes: Box[] = [];
+
+    const { viewport } = renderingContext;
+    const { right, left, top, bottom } = this.getShiftedViewport(viewport);
+    const sheetId = this.getters.getActiveSheetId();
+
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
-      const row = rows[rowNumber];
-      if (row.isHidden) {
+      const row = this.getters.getRow(sheetId, rowNumber);
+      if (!row || row.isHidden) {
         continue;
       }
       for (let colNumber = left; colNumber <= right; colNumber++) {
-        const col = cols[colNumber];
-        if (col.isHidden) {
+        const col = this.getters.getCol(sheetId, colNumber);
+        if (!col || col.isHidden) {
           continue;
         }
-        let cell = row.cells[colNumber];
-        const border = this.getters.getCellBorder(sheetId, colNumber, rowNumber);
-        const conditionalStyle = this.getters.getConditionalStyle(colNumber, rowNumber);
-        const iconStyle = this.getters.getConditionalIcon(colNumber, rowNumber);
-        if (!this.getters.isInMerge(sheetId, colNumber, rowNumber)) {
-          if (cell) {
-            const text = this.getters.getCellText(cell, showFormula);
-            let style = this.getters.getCellStyle(cell);
-            if (conditionalStyle) {
-              style = Object.assign({}, style, conditionalStyle);
-            }
-            let align = text
-              ? (style && style.align) || computeAlign(cell, showFormula)
-              : undefined;
-            let clipRect: Rect | null = null;
-            let clipIcon: Rect | null = null;
-            const textWidth = this.getters.getTextWidth(cell);
-            const fontsize = style.fontSize || DEFAULT_FONT_SIZE;
-            const iconWidth = fontSizeMap[fontsize];
-            const iconBoxWidth = iconStyle ? iconWidth + 2 * MIN_CF_ICON_MARGIN : 0;
-            const contentWidth = iconBoxWidth + textWidth;
-
-            const isOverflowing =
-              contentWidth > cols[colNumber].size || fontSizeMap[fontsize] > row.size;
-
-            if (isOverflowing && cell.evaluated.type === CellValueType.number) {
-              align = align !== "center" ? "left" : align;
-            }
-
-            if (iconStyle) {
-              const colWidth = col.end - col.start;
-              clipRect = [
-                col.start - offsetX + iconBoxWidth,
-                row.start - offsetY,
-                Math.max(0, colWidth - iconBoxWidth),
-                row.size,
-              ];
-              clipIcon = [
-                col.start - offsetX,
-                row.start - offsetY,
-                Math.min(iconBoxWidth, colWidth),
-                row.size,
-              ];
-            } else {
-              if (isOverflowing) {
-                let c: number;
-                let width: number;
-                switch (align) {
-                  case "left":
-                    c = colNumber;
-                    while (c < right && !this.hasContent(c + 1, rowNumber)) {
-                      c++;
-                    }
-                    width = cols[c].end - col.start;
-                    if (width < textWidth || fontSizeMap[fontsize] > row.size) {
-                      clipRect = [col.start - offsetX, row.start - offsetY, width, row.size];
-                    }
-                    break;
-                  case "right":
-                    c = colNumber;
-                    while (c > left && !this.hasContent(c - 1, rowNumber)) {
-                      c--;
-                    }
-                    width = col.end - cols[c].start;
-                    if (width < textWidth || fontSizeMap[fontsize] > row.size) {
-                      clipRect = [cols[c].start - offsetX, row.start - offsetY, width, row.size];
-                    }
-                    break;
-                  case "center":
-                    let c1 = colNumber;
-                    while (c1 > left && !this.hasContent(c1 - 1, rowNumber)) {
-                      c1--;
-                    }
-                    let c2 = colNumber;
-                    while (c2 < right && !this.hasContent(c2 + 1, rowNumber)) {
-                      c2++;
-                    }
-                    const colLeft = Math.min(c1, colNumber);
-                    const colRight = Math.max(c2, colNumber);
-                    width = cols[colRight].end - cols[colLeft].start;
-                    if (
-                      width < textWidth ||
-                      colLeft === colNumber ||
-                      colRight === colNumber ||
-                      fontSizeMap[fontsize] > row.size
-                    ) {
-                      clipRect = [
-                        cols[colLeft].start - offsetX,
-                        row.start - offsetY,
-                        width,
-                        row.size,
-                      ];
-                    }
-                    break;
-                }
-              }
-            }
-            result.push({
-              x: col.start - offsetX,
-              y: row.start - offsetY,
-              width: col.size,
-              height: row.size,
-              text,
-              textWidth,
-              border,
-              style,
-              align,
-              clipRect,
-              error: cell.evaluated.type === CellValueType.error ? cell.evaluated.error : undefined,
-              image: iconStyle
-                ? {
-                    type: "icon",
-                    size: iconWidth,
-                    clipIcon,
-                    image: ICONS[iconStyle].img,
-                  }
-                : undefined,
-            });
-          } else {
-            result.push({
-              x: col.start - offsetX,
-              y: row.start - offsetY,
-              width: col.size,
-              height: row.size,
-              text: "",
-              textWidth: 0,
-              border,
-              style: conditionalStyle ? conditionalStyle : null,
-              align: undefined,
-              clipRect: null,
-              error: undefined,
-            });
-          }
+        if (this.getters.isInMerge(sheetId, colNumber, rowNumber)) {
+          continue;
         }
+        boxes.push(
+          this.createBoxFromPosition(sheetId, colNumber, rowNumber, viewport, col.size, row.size)
+        );
       }
     }
-
-    const activeSheetId = this.getters.getActiveSheetId();
-    // process all visible merges
-    for (let merge of this.getters.getMerges(activeSheetId)) {
-      if (this.getters.isMergeHidden(activeSheetId, merge)) {
+    for (const merge of this.getters.getMerges(sheetId)) {
+      if (this.getters.isMergeHidden(sheetId, merge)) {
         continue;
       }
       if (overlap(merge, viewport)) {
-        const refCell = this.getters.getCell(activeSheetId, merge.left, merge.top);
-        const borderTopLeft = this.getters.getCellBorder(activeSheetId, merge.left, merge.top);
-        const borderBottomRight = this.getters.getCellBorder(
-          activeSheetId,
-          merge.right,
-          merge.bottom
-        );
-        const width = cols[merge.right].end - cols[merge.left].start;
-        let text, textWidth, style, align, border;
-        style = refCell ? this.getters.getCellStyle(refCell) : null;
-        if (refCell || borderBottomRight || borderTopLeft) {
-          text = refCell ? this.getters.getCellText(refCell, showFormula) : "";
-          textWidth = refCell ? this.getters.getTextWidth(refCell) : null;
-          const conditionalStyle = this.getters.getConditionalStyle(
-            merge.topLeft.col,
-            merge.topLeft.row
-          );
-          if (conditionalStyle) {
-            style = Object.assign({}, style, conditionalStyle);
-          }
-          align = text ? (style && style.align) || computeAlign(refCell!, showFormula) : null;
-          border = {
-            bottom: borderBottomRight ? borderBottomRight.bottom : null,
-            left: borderTopLeft ? borderTopLeft.left : null,
-            right: borderBottomRight ? borderBottomRight.right : null,
-            top: borderTopLeft ? borderTopLeft.top : null,
-          };
-        }
-        style = style || {};
-        // Small trick: the code that draw the background color skips the color
-        // #ffffff.  But for merges, we actually need to draw the background,
-        // otherwise the grid is visible. So, we change the #ffffff color to the
-        // color #fff, which is actually the same.
-        if (!style.fillColor || style.fillColor === "#ffffff") {
-          style = Object.create(style);
-          style.fillColor = "#fff";
-        }
-        const x = cols[merge.left].start - offsetX;
-        const y = rows[merge.top].start - offsetY;
-        const height = rows[merge.bottom].end - rows[merge.top].start;
-        const iconStyle = this.getters.getConditionalIcon(merge.left, merge.top);
-        const fontsize = style.fontSize || DEFAULT_FONT_SIZE;
-        const iconWidth = fontSizeMap[fontsize];
-        const iconBoxWidth = iconStyle ? 2 * MIN_CF_ICON_MARGIN + iconWidth : 0;
-
-        /** alignment of a number cell should be put to left once the text overflows from the cell */
-        const contentWidth = iconBoxWidth + textWidth;
-        align =
-          text &&
-          refCell?.evaluated.type === CellValueType.number &&
-          contentWidth > width &&
-          align !== "center"
-            ? "left"
-            : align;
-
-        const clipRect: Rect = iconStyle
-          ? [x + iconBoxWidth, y, Math.max(0, width - iconBoxWidth), height]
-          : [x, y, width, height];
-        const clipIcon: Rect | null = iconStyle
-          ? [x, y, Math.min(iconBoxWidth, width), height]
-          : null;
-        result.push({
-          x: x,
-          y: y,
+        const width = this.getCol(merge.right).end - this.getCol(merge.left).start;
+        const height = this.getRow(merge.bottom).end - this.getRow(merge.top).start;
+        const box = this.createBoxFromPosition(
+          sheetId,
+          merge.left,
+          merge.top,
+          viewport,
           width,
-          height,
-          text,
-          textWidth,
-          border,
-          style,
-          align,
-          clipRect,
-          error:
-            refCell && refCell.evaluated.type === CellValueType.error
-              ? refCell.evaluated.error
-              : undefined,
-          image: iconStyle
-            ? {
-                type: "icon",
-                clipIcon,
-                size: iconWidth,
-                image: ICONS[iconStyle].img,
-              }
-            : undefined,
-        });
+          height
+        );
+        const borderBottomRight = this.getters.getCellBorder(sheetId, merge.right, merge.bottom);
+        box.border = {
+          ...box.border,
+          bottom: borderBottomRight ? borderBottomRight.bottom : undefined,
+          right: borderBottomRight ? borderBottomRight.right : undefined,
+        };
+        box.isMerge = true;
+        boxes.push(box);
       }
     }
-    return result;
+    return boxes;
   }
 }
