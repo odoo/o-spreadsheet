@@ -6,6 +6,8 @@ import {
   activateSheet,
   createSheet,
   createSheetWithName,
+  deleteColumns,
+  deleteRows,
   selectCell,
   setCellContent,
   undo,
@@ -1316,6 +1318,62 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: [toZone("A1")] });
     model.dispatch("PASTE", { target: [toZone("B1")] });
     expect(getCellText(model, "B1")).toBe("=SUM(Sheet2!B2:B5)");
+  });
+
+  test.each([
+    ["=A1", "=#REF"],
+    ["=SUM(A1:B1)", "=SUM(#REF)"],
+  ])("Copy invalid ranges due to row deletion", (initialFormula, expectedInvalidFormula) => {
+    const model = new Model();
+    setCellContent(model, "A3", initialFormula);
+    deleteRows(model, [0]);
+    expect(getCell(model, "A2")!.content).toBe(expectedInvalidFormula);
+
+    model.dispatch("COPY", { target: [toZone("A2")] });
+    model.dispatch("PASTE", { target: [toZone("C5")] });
+    expect(getCell(model, "C5")!.content).toBe(expectedInvalidFormula);
+  });
+
+  test.each([
+    ["=A1", "=#REF"],
+    ["=SUM(A1:A2)", "=SUM(#REF)"],
+  ])("Copy invalid ranges due to column deletion", (initialFormula, expectedInvalidFormula) => {
+    const model = new Model();
+    setCellContent(model, "C1", initialFormula);
+    deleteColumns(model, ["A"]);
+    expect(getCell(model, "B1")!.content).toBe(expectedInvalidFormula);
+
+    model.dispatch("COPY", { target: [toZone("B1")] });
+    model.dispatch("PASTE", { target: [toZone("C3")] });
+    expect(getCell(model, "C3")!.content).toBe(expectedInvalidFormula);
+  });
+
+  test.each([
+    ["=A1", "=#REF"],
+    ["=SUM(A1:B1)", "=SUM(#REF)"],
+  ])("Cut invalid ranges due to row deletion", (initialFormula, expectedInvalidFormula) => {
+    const model = new Model();
+    setCellContent(model, "A3", initialFormula);
+    deleteRows(model, [0]);
+    expect(getCell(model, "A2")!.content).toBe(expectedInvalidFormula);
+
+    model.dispatch("CUT", { target: [toZone("A2")] });
+    model.dispatch("PASTE", { target: [toZone("C5")] });
+    expect(getCell(model, "C5")!.content).toBe(expectedInvalidFormula);
+  });
+
+  test.each([
+    ["=A1", "=#REF"],
+    ["=SUM(A1:A2)", "=SUM(#REF)"],
+  ])("Cut invalid ranges due to column deletion", (initialFormula, expectedInvalidFormula) => {
+    const model = new Model();
+    setCellContent(model, "C1", initialFormula);
+    deleteColumns(model, ["A"]);
+    expect(getCell(model, "B1")!.content).toBe(expectedInvalidFormula);
+
+    model.dispatch("CUT", { target: [toZone("B1")] });
+    model.dispatch("PASTE", { target: [toZone("C3")] });
+    expect(getCell(model, "C3")!.content).toBe(expectedInvalidFormula);
   });
 });
 
