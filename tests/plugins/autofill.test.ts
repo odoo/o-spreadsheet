@@ -6,6 +6,8 @@ import { DIRECTION } from "../../src/types/index";
 import {
   createSheet,
   createSheetWithName,
+  deleteColumns,
+  deleteRows,
   merge,
   setCellContent,
   setSelection,
@@ -311,6 +313,32 @@ describe("Autofill", () => {
       autofill("A1:A2", "A4");
       expect(getCellContent(model, "A3")).toBe("2");
       expect(getCellContent(model, "A4")).toBe("test");
+    });
+
+    test.each([
+      ["=A1", "=#REF"],
+      ["=SUM(A1:B1)", "=SUM(#REF)"],
+    ])("Autofill invalid range  due to row deletion", (initialFormula, expectedInvalidFormula) => {
+      setCellContent(model, "C2", initialFormula);
+      deleteRows(model, [0]);
+      expect(getCell(model, "C1")?.content).toBe(expectedInvalidFormula);
+      autofill("C1", "C2");
+      autofill("C1", "D1");
+      expect(getCell(model, "C2")?.content).toBe(expectedInvalidFormula);
+      expect(getCell(model, "D1")?.content).toBe(expectedInvalidFormula);
+    });
+
+    test.each([
+      ["=A1", "=#REF"],
+      ["=SUM(A1:A2)", "=SUM(#REF)"],
+    ])("Autofill invalid range  due to col deletion", (initialFormula, expectedInvalidFormula) => {
+      setCellContent(model, "B1", initialFormula);
+      deleteColumns(model, ["A"]);
+      expect(getCell(model, "A1")?.content).toBe(expectedInvalidFormula);
+      autofill("A1", "A2");
+      autofill("A1", "B1");
+      expect(getCell(model, "A2")?.content).toBe(expectedInvalidFormula);
+      expect(getCell(model, "B1")?.content).toBe(expectedInvalidFormula);
     });
 
     test.each([

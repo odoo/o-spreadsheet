@@ -1,6 +1,6 @@
 import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { mapCellsInZone, toXC } from "../../helpers/index";
+import { isZoneValid, mapCellsInZone, toXC } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
@@ -229,6 +229,10 @@ export class EvaluationPlugin extends UIPlugin {
     function _range(range: Range): any[][] {
       const sheet = sheets[range.sheetId]!;
 
+      if (!isZoneValid(range.zone)) {
+        throw new Error(_lt("Invalid reference"));
+      }
+
       const zone = {
         left: range.zone.left,
         top: range.zone.top,
@@ -263,14 +267,8 @@ export class EvaluationPlugin extends UIPlugin {
         return evalContext.getters.getRangeString(range, sheetId);
       }
 
-      if (range.zone.top > range.zone.bottom || range.zone.left > range.zone.right) {
-        throw new Error(
-          _lt(
-            "invalid range %s:%s",
-            toXC(range.zone.left, range.zone.top),
-            toXC(range.zone.right, range.zone.bottom)
-          )
-        );
+      if (!isZoneValid(range.zone)) {
+        throw new Error(_lt("Invalid reference"));
       }
 
       // if the formula definition could have accepted a range, we would pass through the _range function and not here
