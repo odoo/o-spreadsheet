@@ -4,7 +4,9 @@ exports[`compile functions with lazy arguments functions call requesting lazy pa
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =USELAZYARG(24)
-let _2 = ()=> 24
+const _2 = () => {
+	return 24;
+}
 ctx.__lastFnCalled = 'USELAZYARG'
 let _1 = ctx['USELAZYARG'](_2)
 return _1;
@@ -15,8 +17,43 @@ exports[`compile functions with lazy arguments functions call requesting lazy pa
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =USELAZYARG(1/0)
-ctx.__lastFnCalled = 'DIVIDE'
-let _2 = ()=> ctx['DIVIDE'](1, 0)
+const _2 = () => {
+	ctx.__lastFnCalled = 'DIVIDE'
+	return ctx['DIVIDE'](1, 0);
+}
+ctx.__lastFnCalled = 'USELAZYARG'
+let _1 = ctx['USELAZYARG'](_2)
+return _1;
+}"
+`;
+
+exports[`compile functions with lazy arguments functions call requesting lazy parameters 3`] = `
+"function anonymous(deps,sheetId,ref,range,ctx
+) {
+// =USELAZYARG(1/1/0)
+const _2 = () => {
+	ctx.__lastFnCalled = 'DIVIDE'
+	let _3 = ctx['DIVIDE'](1, 1)
+	ctx.__lastFnCalled = 'DIVIDE'
+	return ctx['DIVIDE'](_3, 0);
+}
+ctx.__lastFnCalled = 'USELAZYARG'
+let _1 = ctx['USELAZYARG'](_2)
+return _1;
+}"
+`;
+
+exports[`compile functions with lazy arguments functions call requesting lazy parameters 4`] = `
+"function anonymous(deps,sheetId,ref,range,ctx
+) {
+// =USELAZYARG(USELAZYARG(24))
+const _2 = () => {
+	const _3 = () => {
+		return 24;
+	}
+	ctx.__lastFnCalled = 'USELAZYARG'
+	return ctx['USELAZYARG'](_3);
+}
 ctx.__lastFnCalled = 'USELAZYARG'
 let _1 = ctx['USELAZYARG'](_2)
 return _1;

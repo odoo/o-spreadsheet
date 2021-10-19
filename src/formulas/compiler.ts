@@ -26,6 +26,16 @@ const UNARY_OPERATOR_MAP = {
 };
 
 /**
+ * Takes a list of strings that might be single or multiline
+ * and maps them in a list of single line strings.
+ */
+function splitCodeLines(codeBlocks: string[]): string[] {
+  return codeBlocks
+    .map((code) => code.split("\n"))
+    .flat()
+    .filter((line) => line.trim() !== "");
+}
+/**
  * Used as intermediate compilation.
  * Formula `=SUM(|0|, |1|)` gives the following code.
  * ```js
@@ -70,9 +80,11 @@ export function compile(str: NormalizedFormula): CompiledFormula {
       throw new Error(_lt("Invalid formula"));
     }
     const compiledAST = compileAST(ast);
-    const code = [`// ${str.text}`, compiledAST.code, `return ${compiledAST.id};`]
-      .filter((line) => line !== "")
-      .join("\n");
+    const code = splitCodeLines([
+      `// ${str.text}`,
+      compiledAST.code,
+      `return ${compiledAST.id};`,
+    ]).join("\n");
     let baseFunction = new Function(
       "deps", // the dependencies in the current formula
       "sheetId", // the sheet the formula is currently evaluating
@@ -222,7 +234,7 @@ export function compile(str: NormalizedFormula): CompiledFormula {
         paramIndex?: number;
       } = {}
     ): CompiledAST {
-      const code: string[] = [];
+      const codeBlocks: string[] = [];
       let id, fnName, statement;
       if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
         if (isMeta) {
@@ -230,7 +242,7 @@ export function compile(str: NormalizedFormula): CompiledFormula {
         }
       }
       if (ast.debug) {
-        code.push("debugger;");
+        codeBlocks.push("debugger;");
       }
       switch (ast.type) {
         case "BOOLEAN":
@@ -261,14 +273,9 @@ export function compile(str: NormalizedFormula): CompiledFormula {
         case "FUNCALL":
           id = nextId++;
           const args = compileFunctionArgs(ast);
-          code.push(
-            args
-              .map((arg) => arg.code)
-              .filter((line) => line !== "")
-              .join("\n")
-          );
+          codeBlocks.push(splitCodeLines(args.map((arg) => arg.code)).join("\n"));
           fnName = ast.value.toUpperCase();
-          code.push(`ctx.__lastFnCalled = '${fnName}'`);
+          codeBlocks.push(`ctx.__lastFnCalled = '${fnName}'`);
           statement = `ctx['${fnName}'](${args.map((arg) => arg.id)})`;
           break;
         case "UNARY_OPERATION": {
@@ -277,8 +284,8 @@ export function compile(str: NormalizedFormula): CompiledFormula {
           const right = compileAST(ast.right, false, false, false, {
             functionName: fnName,
           });
-          code.push(right.code);
-          code.push(`ctx.__lastFnCalled = '${fnName}'`);
+          codeBlocks.push(right.code);
+          codeBlocks.push(`ctx.__lastFnCalled = '${fnName}'`);
           statement = `ctx['${fnName}']( ${right.id})`;
           break;
         }
@@ -291,9 +298,9 @@ export function compile(str: NormalizedFormula): CompiledFormula {
           const right = compileAST(ast.right, false, false, false, {
             functionName: fnName,
           });
-          code.push(left.code);
-          code.push(right.code);
-          code.push(`ctx.__lastFnCalled = '${fnName}'`);
+          codeBlocks.push(left.code);
+          codeBlocks.push(right.code);
+          codeBlocks.push(`ctx.__lastFnCalled = '${fnName}'`);
           statement = `ctx['${fnName}'](${left.id}, ${right.id})`;
           break;
         }
@@ -305,8 +312,18 @@ export function compile(str: NormalizedFormula): CompiledFormula {
           statement = `undefined`;
           break;
       }
-      code.push(`let _${id} = ` + (isLazy ? `()=> ` : ``) + statement);
-      return { id: `_${id}`, code: code.filter((line) => line !== "").join("\n") };
+      if (isLazy) {
+        // prettier-ignore
+        const lazyFunction =
+`const _${id} = () => {
+	${splitCodeLines(codeBlocks).join("\n\t")}
+	return ${statement};
+}`;
+        return { id: `_${id}`, code: lazyFunction };
+      } else {
+        codeBlocks.push(`let _${id} = ` + statement);
+        return { id: `_${id}`, code: splitCodeLines(codeBlocks).join("\n") };
+      }
     }
 
     /** Return a stack of formats corresponding to the priorities in which

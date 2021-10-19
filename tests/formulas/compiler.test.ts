@@ -391,13 +391,15 @@ describe("compile functions", () => {
       expect(count).toBe(42);
     });
 
-    test.each(["=USELAZYARG(24)", "=USELAZYARG(1/0)"])(
-      "functions call requesting lazy parameters",
-      (formula) => {
-        const compiledFormula = compiledBaseFunction(formula);
-        expect(compiledFormula.toString()).toMatchSnapshot();
-      }
-    );
+    test.each([
+      "=USELAZYARG(24)",
+      "=USELAZYARG(1/0)",
+      "=USELAZYARG(1/1/0)",
+      "=USELAZYARG(USELAZYARG(24))",
+    ])("functions call requesting lazy parameters", (formula) => {
+      const compiledFormula = compiledBaseFunction(formula);
+      expect(compiledFormula.toString()).toMatchSnapshot();
+    });
   });
 
   describe("with meta arguments", () => {
