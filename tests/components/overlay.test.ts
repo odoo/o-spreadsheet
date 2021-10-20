@@ -11,9 +11,8 @@ import {
   PADDING_AUTORESIZE,
 } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
-import { lettersToNumber, scrollDelay, toXC } from "../../src/helpers/index";
+import { lettersToNumber, scrollDelay, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { SelectionMode } from "../../src/plugins/ui/selection";
 import {
   hideColumns,
   hideRows,
@@ -170,40 +169,23 @@ describe("Resizer component", () => {
     await selectColumn("C");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(getActiveXc(model)).toBe("C1");
+    expect(model.getters.getSelectedZones()).toEqual([toZone("C1:C10")]);
   });
 
-  test("click on a header to select a column changes the selection mode", async () => {
+  test("resizing a column does not change the selection", async () => {
     const index = lettersToNumber("C");
     const x = model.getters.getCol(model.getters.getActiveSheetId(), index)!.start + 1;
-    expect(model.getters.getSelectionMode()).toBe(SelectionMode.idle);
-    triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10);
-    expect(model.getters.getSelectionMode()).toBe(SelectionMode.selecting);
-    triggerMouseEvent(window, "mouseup", x, 10);
-    expect(model.getters.getSelectionMode()).toBe(SelectionMode.idle);
-  });
-
-  test("click on a header with CTRL to select a column changes the selection mode", async () => {
-    const index = lettersToNumber("C");
-    const x = model.getters.getCol(model.getters.getActiveSheetId(), index)!.start + 1;
-    expect(model.getters.getSelectionMode()).toBe(SelectionMode.idle);
-    triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10, { ctrlKey: true });
-    expect(model.getters.getSelectionMode()).toBe(SelectionMode.expanding);
-    triggerMouseEvent(window, "mouseup", x, 10, { ctrlKey: true });
-    expect(model.getters.getSelectionMode()).toBe(SelectionMode.readyToExpand);
-  });
-
-  test("resizing a column does not change the selection mode", async () => {
-    const index = lettersToNumber("C");
-    const x = model.getters.getCol(model.getters.getActiveSheetId(), index)!.start + 1;
+    expect(getActiveXc(model)).toBe("A1");
     triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
     await nextTick();
-    expect(model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+    expect(getActiveXc(model)).toBe("A1");
     triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "mousedown", x, 10);
     triggerMouseEvent(window, "mousemove", x + 50, 10);
-    expect(model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+    await nextTick();
+    expect(getActiveXc(model)).toBe("A1");
     triggerMouseEvent(window, "mouseup", x + 50, 10);
     await nextTick();
-    expect(model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+    expect(getActiveXc(model)).toBe("A1");
   });
 
   test("can click on a row-header to select a row", async () => {
@@ -788,6 +770,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
 
     triggerMouseEvent(".o-col-resizer", "mousedown", width / 2, y);
     triggerMouseEvent(".o-col-resizer", "mousemove", 1.5 * width, y);
+    // we want 5 ticks of setTimeout
     const advanceTimer = scrollDelay(0.5 * width) * 6 - 1;
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-col-resizer", "mouseup", 1.5 * width, y);
@@ -801,6 +784,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
 
     triggerMouseEvent(".o-col-resizer", "mousedown", width / 2, y);
     triggerMouseEvent(".o-col-resizer", "mousemove", -0.5 * width, y);
+    // we want 2 ticks of setTimeout
     const advanceTimer2 = scrollDelay(0.5 * width) * 3 - 1;
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-col-resizer", "mouseup", -0.5 * width, y);

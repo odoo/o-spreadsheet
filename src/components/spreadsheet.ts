@@ -16,7 +16,6 @@ import {
 } from "../constants";
 import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
-import { SelectionMode } from "../plugins/ui/selection";
 import { SpreadsheetChildEnv, WorkbookData } from "../types";
 import { NotifyUIEvent } from "../types/ui";
 import { BottomBar } from "./bottom_bar";
@@ -223,18 +222,14 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   }
 
   onKeyup(ev: KeyboardEvent) {
-    if (ev.key === "Control" && this.model.getters.getSelectionMode() !== SelectionMode.expanding) {
-      this.model.dispatch("STOP_SELECTION");
+    if (ev.key === "Control") {
+      this.model.dispatch("STOP_SELECTION_INPUT");
     }
   }
 
   onKeydown(ev: KeyboardEvent) {
     if (ev.key === "Control" && !ev.repeat) {
-      this.model.dispatch(
-        this.model.getters.getSelectionMode() === SelectionMode.idle
-          ? "PREPARE_SELECTION_EXPANSION"
-          : "START_SELECTION_EXPANSION"
-      );
+      this.model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
     }
     let keyDownString = "";
     if (ev.ctrlKey || ev.metaKey) {
@@ -255,30 +250,30 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     if (this.model.getters.isReadonly()) {
       return;
     }
+    this.model.dispatch("UNFOCUS_SELECTION_INPUT");
     this.composer.topBarFocus = "contentFocus";
     this.composer.gridFocusMode = "inactive";
     this.setComposerContent({ selection } || {});
-    this.model.dispatch("UNFOCUS_SELECTION_INPUT");
   }
 
   onGridComposerContentFocused() {
     if (this.model.getters.isReadonly()) {
       return;
     }
+    this.model.dispatch("UNFOCUS_SELECTION_INPUT");
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "contentFocus";
     this.setComposerContent({});
-    this.model.dispatch("UNFOCUS_SELECTION_INPUT");
   }
 
   onGridComposerCellFocused(content?: string, selection?: ComposerSelection) {
     if (this.model.getters.isReadonly()) {
       return;
     }
+    this.model.dispatch("UNFOCUS_SELECTION_INPUT");
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "cellFocus";
     this.setComposerContent({ content, selection } || {});
-    this.model.dispatch("UNFOCUS_SELECTION_INPUT");
   }
 
   /**

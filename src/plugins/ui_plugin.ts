@@ -1,4 +1,5 @@
 import { Mode, ModelConfig } from "../model";
+import { SelectionStreamProcessor } from "../selection_stream/selection_stream_processor";
 import { StateObserver } from "../state_observer";
 import { Command, CommandDispatcher, Getters, GridRenderingContext, LAYERS } from "../types/index";
 import { BasePlugin } from "./base_plugin";
@@ -9,7 +10,8 @@ export interface UIPluginConstructor {
     getters: Getters,
     state: StateObserver,
     dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig
+    config: ModelConfig,
+    selection: SelectionStreamProcessor
   ): UIPlugin;
   layers: LAYERS[];
   getters: readonly string[];
@@ -25,16 +27,18 @@ export class UIPlugin<State = any, C = Command> extends BasePlugin<State, C> {
 
   protected getters: Getters;
   protected ui: UIActions;
-
+  protected selection: SelectionStreamProcessor;
   constructor(
     getters: Getters,
     state: StateObserver,
     dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig
+    config: ModelConfig,
+    selection: SelectionStreamProcessor
   ) {
     super(state, dispatch, config);
     this.getters = getters;
     this.ui = config;
+    this.selection = selection;
   }
 
   // ---------------------------------------------------------------------------

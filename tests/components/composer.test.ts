@@ -14,10 +14,17 @@ import {
   createSheet,
   createSheetWithName,
   merge,
+  resizeAnchorZone,
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { clickCell, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  clickCell,
+  keyDown,
+  keyUp,
+  simulateClick,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
@@ -57,21 +64,6 @@ async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
   return composerEl;
 }
 
-async function keydown(key: string, options: any = {}) {
-  document.activeElement!.dispatchEvent(
-    new KeyboardEvent("keydown", Object.assign({ key, bubbles: true }, options))
-  );
-  await nextTick();
-  await nextTick();
-}
-async function keyup(key: string, options: any = {}) {
-  document.activeElement!.dispatchEvent(
-    new KeyboardEvent("keyup", Object.assign({ key, bubbles: true }, options))
-  );
-  await nextTick();
-  await nextTick();
-}
-
 beforeEach(async () => {
   fixture = makeTestFixture();
   ({ app, parent } = await mountSpreadsheet(fixture));
@@ -87,9 +79,7 @@ afterEach(() => {
 describe("ranges and highlights", () => {
   test("=+Click Cell, the cell ref should be colored", async () => {
     composerEl = await typeInComposerGrid("=");
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
-    await nextTick();
+    await clickCell(model, "C8");
     expect(composerEl.textContent).toBe("=C8");
     expect(
       // @ts-ignore
@@ -137,7 +127,7 @@ describe("ranges and highlights", () => {
 
   test("=Key DOWN in A1, should select and highlight A2", async () => {
     composerEl = await typeInComposerGrid("=");
-    await keydown("ArrowDown");
+    await keyDown("ArrowDown");
     expect(composerEl.textContent).toBe("=A2");
   });
 
@@ -145,92 +135,92 @@ describe("ranges and highlights", () => {
     composerEl = await typeInComposerGrid("=");
     expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
     expect(cehMock.selectionState.position).toBe(1);
-    await keydown("ArrowDown");
+    await keyDown("ArrowDown");
     expect(composerEl.textContent).toBe("=A2");
     composerEl = await typeInComposerGrid("+", false);
     expect(composerEl.textContent).toBe("=A2+");
     expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
     expect(cehMock.selectionState.position).toBe(4);
-    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-    await keydown("ArrowDown");
+    expect(model.getters.getEditionMode()).toBe("selecting");
+    await keyDown("ArrowDown");
     expect(composerEl.textContent).toBe("=A2+A2");
   });
 
   test("=Key DOWN+DOWN in A1, should select and highlight A3", async () => {
     composerEl = await typeInComposerGrid("=");
-    await keydown("ArrowDown");
-    await keydown("ArrowDown");
+    await keyDown("ArrowDown");
+    await keyDown("ArrowDown");
     expect(composerEl.textContent).toBe("=A3");
   });
 
   test("=Key RIGHT in A1, should select and highlight B1", async () => {
     composerEl = await typeInComposerGrid("=");
-    await keydown("ArrowRight");
+    await keyDown("ArrowRight");
     expect(composerEl.textContent).toBe("=B1");
   });
 
   test("=Key RIGHT twice selects C1", async () => {
     composerEl = await typeInComposerGrid("=");
-    await keydown("ArrowRight");
-    await keyup("ArrowRight");
+    await keyDown("ArrowRight");
+    await keyUp("ArrowRight");
     expect(composerEl.textContent).toBe("=B1");
-    await keydown("ArrowRight");
-    await keyup("ArrowRight");
+    await keyDown("ArrowRight");
+    await keyUp("ArrowRight");
     expect(composerEl.textContent).toBe("=C1");
   });
 
   test("=Key UP in B2, should select and highlight B1", async () => {
     selectCell(model, "B2");
     composerEl = await typeInComposerGrid("=");
-    await keydown("ArrowUp");
+    await keyDown("ArrowUp");
     expect(composerEl.textContent).toBe("=B1");
   });
 
   test("=Key LEFT in B2, should select and highlight A2", async () => {
     selectCell(model, "B2");
     composerEl = await typeInComposerGrid("=");
-    await keydown("ArrowLeft");
+    await keyDown("ArrowLeft");
     expect(composerEl.textContent).toBe("=A2");
   });
 
   test("=Key DOWN and UP in B2, should select and highlight B2", async () => {
     selectCell(model, "B2");
     composerEl = await typeInComposerGrid("=");
-    await keydown("ArrowDown");
-    await keydown("ArrowUp");
+    await keyDown("ArrowDown");
+    await keyDown("ArrowUp");
     expect(composerEl.textContent).toBe("=B2");
   });
 
   test("=key UP 2 times and key DOWN in B2, should select and highlight B2", async () => {
     selectCell(model, "B2");
     composerEl = await typeInComposerGrid("=");
-    await keydown("ArrowUp");
-    await keydown("ArrowUp");
-    await keydown("ArrowDown");
+    await keyDown("ArrowUp");
+    await keyDown("ArrowUp");
+    await keyDown("ArrowDown");
     expect(composerEl.textContent).toBe("=B2");
   });
 
   test("While selecting a ref, Shift+UP/DOWN/LEFT/RIGHT extend the range selection and updates the composer", async () => {
     composerEl = await typeInComposerGrid("=");
-    await keydown("ArrowDown");
+    await keyDown("ArrowDown");
     expect(composerEl.textContent).toBe("=A2");
-    await keydown("ArrowDown", { shiftKey: true });
+    await keyDown("ArrowDown", { shiftKey: true });
     expect(composerEl.textContent).toBe("=A2:A3");
-    await keydown("ArrowRight", { shiftKey: true });
+    await keyDown("ArrowRight", { shiftKey: true });
     expect(composerEl.textContent).toBe("=A2:B3");
-    await keydown("ArrowUp", { shiftKey: true });
+    await keyDown("ArrowUp", { shiftKey: true });
     expect(composerEl.textContent).toBe("=A2:B2");
-    await keydown("ArrowLeft", { shiftKey: true });
+    await keyDown("ArrowLeft", { shiftKey: true });
     expect(composerEl.textContent).toBe("=A2");
   });
 
   test("Create a ref with merges with keyboard -> the merge should be treated as one cell", async () => {
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { delta: [1, 1] });
+    resizeAnchorZone(model, 1, 1);
     merge(model, "B2:C3");
     selectCell(model, "C1");
     composerEl = await typeInComposerGrid("=");
-    await keydown("ArrowDown");
+    await keyDown("ArrowDown");
     expect(composerEl.textContent).toBe("=B2");
     expect(getHighlights(model)).toHaveLength(1);
     expect(getHighlights(model)[0].zone).toMatchObject({
@@ -239,7 +229,7 @@ describe("ranges and highlights", () => {
       left: 1,
       right: 2,
     });
-    await keydown("ArrowDown");
+    await keyDown("ArrowDown");
     expect(composerEl.textContent).toBe("=C4");
   });
 
@@ -355,25 +345,6 @@ describe("ranges and highlights", () => {
       await nextTick();
       expect(composerEl.textContent).toBe("=SUM($B$1:$B$2)");
     });
-
-    test("change the edition mode", async () => {
-      await typeInComposerGrid("=SUM(B1,");
-      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B2") });
-      await nextTick();
-      expect(model.getters.getEditionMode()).toBe("editing");
-
-      await typeInComposerGrid("=SUM(B1,");
-      triggerMouseEvent("canvas", "mousedown", 300, 200);
-      window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
-      await nextTick();
-      expect(model.getters.getEditionMode()).toBe("rangeSelected");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B2") });
-      await nextTick();
-      expect(model.getters.getEditionMode()).toBe("editing");
-    });
   });
 });
 
@@ -398,23 +369,23 @@ describe("composer", () => {
   test("ArrowKeys will move to neighbour cell, if not in contentFocus mode (left/right)", async () => {
     composerEl = await startComposition("a");
     expect(composerEl.textContent).toBe("a");
-    await keydown("ArrowRight");
+    await keyDown("ArrowRight");
     expect(getCellText(model, "A1")).toBe("a");
     expect(model.getters.getPosition()).toEqual([1, 0]);
 
     composerEl = await startComposition("b");
     expect(composerEl.textContent).toBe("b");
-    await keydown("ArrowRight");
+    await keyDown("ArrowRight");
     expect(getCellText(model, "B1")).toBe("b");
     expect(model.getters.getPosition()).toEqual([2, 0]);
 
-    await keydown("ArrowLeft");
+    await keyDown("ArrowLeft");
     expect(model.getters.getPosition()).toEqual([1, 0]);
-    await keydown("ArrowLeft");
+    await keyDown("ArrowLeft");
     expect(model.getters.getPosition()).toEqual([0, 0]);
     composerEl = await startComposition("c");
     expect(composerEl.textContent).toBe("c");
-    await keydown("Enter");
+    await keyDown("Enter");
     expect(getCellText(model, "B1")).toBe("b");
     expect(getCellText(model, "A1")).toBe("c");
   });
@@ -422,23 +393,23 @@ describe("composer", () => {
   test("ArrowKeys will move to neighbour cell, if not in contentFocus mode (up/down)", async () => {
     composerEl = await startComposition("a");
     expect(composerEl.textContent).toBe("a");
-    await keydown("ArrowDown");
+    await keyDown("ArrowDown");
     expect(getCellText(model, "A1")).toBe("a");
     expect(model.getters.getPosition()).toEqual([0, 1]);
 
     composerEl = await startComposition("b");
     expect(composerEl.textContent).toBe("b");
-    await keydown("ArrowDown");
+    await keyDown("ArrowDown");
     expect(getCellText(model, "A2")).toBe("b");
     expect(model.getters.getPosition()).toEqual([0, 2]);
 
-    await keydown("ArrowUp");
+    await keyDown("ArrowUp");
     expect(model.getters.getPosition()).toEqual([0, 1]);
-    await keydown("ArrowUp");
+    await keyDown("ArrowUp");
     expect(model.getters.getPosition()).toEqual([0, 0]);
     composerEl = await startComposition("c");
     expect(composerEl.textContent).toBe("c");
-    await keydown("Enter");
+    await keyDown("Enter");
     expect(getCellText(model, "A2")).toBe("b");
     expect(getCellText(model, "A1")).toBe("c");
   });
@@ -460,34 +431,23 @@ describe("composer", () => {
     expect(composerEl.textContent).toBe("=");
     expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
     expect(cehMock.selectionState.position).toBe(1);
-    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
-    await nextTick();
+    expect(model.getters.getEditionMode()).toBe("selecting");
+    await clickCell(model, "C8");
     expect(composerEl.textContent).toBe("=C8");
   });
 
   test("type '=', select twice a cell", async () => {
     composerEl = await typeInComposerGrid("=");
-    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
-    await nextTick();
-    expect(model.getters.getEditionMode()).toBe("rangeSelected");
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
-    await nextTick();
+    await clickCell(model, "C8");
+    await clickCell(model, "C8");
     expect(composerEl.textContent).toBe("=C8");
   });
 
   test("type '=', select a cell, press enter", async () => {
     composerEl = await typeInComposerGrid("=");
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
-    await nextTick();
+    await clickCell(model, "C8");
     expect(composerEl.textContent).toBe("=C8");
-    expect(model.getters.getEditionMode()).toBe("rangeSelected");
-    await keydown("Enter");
+    await keyDown("Enter");
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(getCellText(model, "A1")).toBe("=C8");
   });
@@ -501,7 +461,7 @@ describe("composer", () => {
 
   test("typing incorrect formula then enter exits the edit mode and moves to the next cell down", async () => {
     await typeInComposerGrid("=qsdf");
-    await keydown("Enter");
+    await keyDown("Enter");
     expect(getCellText(model, "A1")).toBe("=qsdf");
     expect(getCell(model, "A1")!.evaluated.value).toBe("#BAD_EXPR");
   });
@@ -509,7 +469,7 @@ describe("composer", () => {
   test("typing text then enter exits the edit mode and moves to the next cell down", async () => {
     await startComposition();
     await typeInComposerGrid("qsdf");
-    await keydown("Enter");
+    await keyDown("Enter");
     expect(getCellContent(model, "A1")).toBe("qsdf");
     expect(getCell(model, "A1")!.evaluated.value).toBe("qsdf");
   });
@@ -550,7 +510,7 @@ describe("composer", () => {
     expect(fixture.querySelector(".o-link-tool")).not.toBeNull();
     await startComposition();
     await typeInComposerGrid(" updated");
-    await keydown("Enter");
+    await keyDown("Enter");
     const cell = getCell(model, "A1") as LinkCell;
     expect(cell.link.label).toBe("label updated");
     expect(cell.link.url).toBe("http://odoo.com");
@@ -565,7 +525,7 @@ describe("composer", () => {
     )!;
     expect(topbarComposerElement.textContent).toBe("I am Tabouret");
     await simulateClick(topbarComposerElement);
-    await keydown("Enter");
+    await keyDown("Enter");
     expect(topbarComposerElement.textContent).toBe("");
   });
 
@@ -577,7 +537,7 @@ describe("composer", () => {
     )!;
     expect(topbarComposerElement.textContent).toBe("I am Tabouret");
     await simulateClick(topbarComposerElement); // gain focus on topbar composer
-    await keydown("ArrowLeft");
+    await keyDown("ArrowLeft");
     await simulateClick("canvas", 300, 200); // focus another Cell (i.e. C8)
     expect(topbarComposerElement.textContent).toBe("");
   });
@@ -589,12 +549,12 @@ describe("composer", () => {
 
     describe.each(formulas)("typing %s followed by", (formula) => {
       test.each(matchingValues.concat(["("]))(
-        "a matching value --> activate 'waitingForRangeSelection' mode",
+        "a matching value --> activate 'selecting' mode",
         async (matchingValue) => {
           const content = formula + matchingValue;
           await startComposition();
           composerEl = await typeInComposerGrid(content);
-          expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+          expect(model.getters.getEditionMode()).toBe("selecting");
           expect(composerEl.textContent).toBe(content);
           expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
           expect(cehMock.selectionState.position).toBe(content.length);
@@ -602,25 +562,25 @@ describe("composer", () => {
       );
 
       test.each(mismatchingValues.concat([")"]))(
-        "a mismatching value --> not activate 'waitingForRangeSelection' mode",
+        "a mismatching value --> not activate 'selecting' mode",
         async (mismatchingValue) => {
           const content = formula + mismatchingValue;
-          await startComposition();
-          composerEl = await typeInComposerGrid(content);
-          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
+          composerEl = await startComposition();
+          await typeInComposerGrid(content);
+          expect(model.getters.getEditionMode()).not.toBe("selecting");
           expect(composerEl.textContent).toBe(content);
           expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
         }
       );
 
       test.each(matchingValues.concat(["("]))(
-        "a matching value & spaces --> activate 'waitingForRangeSelection' mode",
+        "a matching value & spaces --> activate 'selecting' mode",
         async (matchingValue) => {
           const content = formula + matchingValue;
           const newContent = content + "   ";
           await startComposition();
           composerEl = await typeInComposerGrid(newContent);
-          expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+          expect(model.getters.getEditionMode()).toBe("selecting");
           expect(composerEl.textContent).toBe(newContent);
           expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
           expect(cehMock.selectionState.position).toBe(newContent.length);
@@ -628,12 +588,12 @@ describe("composer", () => {
       );
 
       test.each(mismatchingValues.concat([")"]))(
-        "a mismatching value & spaces --> not activate 'waitingForRangeSelection' mode",
+        "a mismatching value & spaces --> not activate 'selecting' mode",
         async (mismatchingValue) => {
           const content = formula + mismatchingValue;
-          await startComposition();
-          composerEl = await typeInComposerGrid(content + "   ");
-          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
+          composerEl = await startComposition();
+          await typeInComposerGrid(content + "   ");
+          expect(model.getters.getEditionMode()).not.toBe("selecting");
           expect(composerEl.textContent).toBe(content + "   ");
           expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
         }
@@ -643,9 +603,9 @@ describe("composer", () => {
         "a UNKNOWN token & a matching value --> not activate 'waitingForRangeSelection' mode",
         async (matchingValue) => {
           const content = formula + "'" + matchingValue;
-          await startComposition();
-          composerEl = await typeInComposerGrid(content);
-          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
+          composerEl = await startComposition();
+          await typeInComposerGrid(content);
+          expect(model.getters.getEditionMode()).not.toBe("selecting");
           expect(composerEl.textContent).toBe(content);
         }
       );
@@ -653,11 +613,11 @@ describe("composer", () => {
       test.each(matchingValues.concat([")"]))(
         "a matching value & located before matching value --> activate 'waitingForRangeSelection' mode",
         async (matchingValue) => {
-          await startComposition();
+          composerEl = await startComposition();
           await typeInComposerGrid(matchingValue);
           await moveToStart();
           composerEl = await typeInComposerGrid(formula + ",");
-          expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+          expect(model.getters.getEditionMode()).toBe("selecting");
           expect(composerEl.textContent).toBe(formula + "," + matchingValue);
           expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
           expect(cehMock.selectionState.position).toBe((formula + ",").length);
@@ -674,11 +634,11 @@ describe("composer", () => {
       test.each(mismatchingValues.concat(["("]))(
         "a matching value & located before mismatching value --> not activate 'waitingForRangeSelection' mode",
         async (mismatchingValue) => {
-          await startComposition();
+          composerEl = await startComposition();
           await typeInComposerGrid(mismatchingValue);
           await moveToStart();
-          composerEl = await typeInComposerGrid(formula + ",");
-          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
+          await typeInComposerGrid(formula + ",");
+          expect(model.getters.getEditionMode()).not.toBe("selecting");
           expect(composerEl.textContent).toBe(formula + "," + mismatchingValue);
         }
       );
@@ -686,12 +646,12 @@ describe("composer", () => {
       test.each(matchingValues.concat([")"]))(
         "a matching value & spaces & located before matching value --> activate 'waitingForRangeSelection' mode",
         async (matchingValue) => {
-          await startComposition();
+          composerEl = await startComposition();
           await typeInComposerGrid(matchingValue);
           await moveToStart();
           const formulaInput = formula + ",  ";
           composerEl = await typeInComposerGrid(formulaInput);
-          expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+          expect(model.getters.getEditionMode()).toBe("selecting");
           expect(composerEl.textContent).toBe(formulaInput + matchingValue);
           expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
           expect(cehMock.selectionState.position).toBe(formulaInput.length);
@@ -701,11 +661,11 @@ describe("composer", () => {
       test.each(mismatchingValues.concat(["("]))(
         "a matching value & spaces & located before mismatching value --> not activate 'waitingForRangeSelection' mode",
         async (mismatchingValue) => {
-          await startComposition();
+          composerEl = await startComposition();
           await typeInComposerGrid(mismatchingValue);
           await moveToStart();
-          composerEl = await typeInComposerGrid(formula + ",  ");
-          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
+          await typeInComposerGrid(formula + ",  ");
+          expect(model.getters.getEditionMode()).not.toBe("selecting");
           expect(composerEl.textContent).toBe(formula + ",  " + mismatchingValue);
           expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
         }
@@ -714,11 +674,11 @@ describe("composer", () => {
       test.each(matchingValues.concat([")"]))(
         "a matching value & located before spaces & matching value --> activate 'waitingForRangeSelection' mode",
         async (matchingValue) => {
-          await startComposition();
+          composerEl = await startComposition();
           await typeInComposerGrid("   " + matchingValue);
           await moveToStart();
           composerEl = await typeInComposerGrid(formula + ",");
-          expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+          expect(model.getters.getEditionMode()).toBe("selecting");
           expect(composerEl.textContent).toBe(formula + ",   " + matchingValue);
           expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
           expect(cehMock.selectionState.position).toBe((formula + ",").length);
@@ -728,11 +688,11 @@ describe("composer", () => {
       test.each(mismatchingValues.concat(["("]))(
         "a matching value & located before spaces & mismatching value --> not activate 'waitingForRangeSelection' mode",
         async (mismatchingValue) => {
-          await startComposition();
+          composerEl = await startComposition();
           await typeInComposerGrid("   " + mismatchingValue);
           await moveToStart();
           composerEl = await typeInComposerGrid(formula + ",");
-          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
+          expect(model.getters.getEditionMode()).not.toBe("selecting");
           expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
           expect(composerEl.textContent).toBe(formula + ",   " + mismatchingValue);
         }
@@ -744,7 +704,7 @@ describe("composer", () => {
       async (value) => {
         await startComposition();
         composerEl = await typeInComposerGrid(value);
-        expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
+        expect(model.getters.getEditionMode()).not.toBe("selecting");
         expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
         expect(composerEl.textContent).toBe(value);
       }
@@ -753,57 +713,45 @@ describe("composer", () => {
     test("typing '='--> activate 'waitingForRangeSelection' mode", async () => {
       await startComposition();
       composerEl = await typeInComposerGrid("=");
-      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+      expect(model.getters.getEditionMode()).toBe("selecting");
       expect(composerEl.textContent).toBe("=");
       expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
       expect(cehMock.selectionState.position).toBe(1);
     });
 
-    test("typing '=' & spaces --> activate 'waitingForRangeSelection' mode", async () => {
-      await startComposition();
+    test("typing '=' & spaces --> activate 'selecting' mode", async () => {
+      composerEl = await startComposition();
       const content = "=   ";
-      composerEl = await typeInComposerGrid(content);
-      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+      await typeInComposerGrid(content);
+      expect(model.getters.getEditionMode()).toBe("selecting");
       expect(composerEl.textContent).toBe("=   ");
       expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
       expect(cehMock.selectionState.position).toBe(content.length);
     });
   });
 
-  test("type '=', select a cell in another sheet", async () => {
-    composerEl = await typeInComposerGrid("=");
-    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-    createSheet(model, { sheetId: "42", activate: true });
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
-    await nextTick();
-    expect(model.getters.getEditionMode()).toBe("rangeSelected");
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
-    await nextTick();
-    expect(composerEl.textContent).toBe("=Sheet2!C8");
+  test("dont show selection indicator if in editing mode ", async () => {
+    composerEl = await startComposition("=");
+    await simulateClick(composerEl);
+    expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
+    expect(model.getters.showSelectionIndicator()).toBeFalsy();
   });
 
-  test("type =, select a cell in another sheet which contains spaces", async () => {
-    const sheetId = model.getters.getActiveSheetId();
-    createSheetWithName(model, { sheetId: "42", position: 1 }, "Sheet 2");
-    setCellContent(model, "C8", "1", "42");
+  test.each([
+    ["Sheet2", "=Sheet2!C8"],
+    ["Sheet 2", "='Sheet 2'!C8"],
+  ])("type '=', select a cell in another sheet", async (sheetName, expectedContent) => {
     composerEl = await typeInComposerGrid("=");
-    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-    activateSheet(model, "42");
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
-    await nextTick();
-    expect(composerEl.textContent).toBe("='Sheet 2'!C8");
-    model.dispatch("STOP_EDITION");
-    expect(getCellContent(model, "A1", sheetId)).toBe("1");
+    createSheetWithName(model, { sheetId: "42", activate: true }, sheetName);
+    await clickCell(model, "C8");
+    expect(composerEl.textContent).toBe(expectedContent);
   });
 
   test("Home key sets cursor at the beginning", async () => {
     await typeInComposerGrid("Hello");
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
-    await keydown("Home");
-    await keyup("Home");
+    await keyDown("Home");
+    await keyUp("Home");
     expect(model.getters.getComposerSelection()).toEqual({ start: 0, end: 0 });
   });
 
@@ -811,26 +759,26 @@ describe("composer", () => {
     await typeInComposerGrid("Hello");
     model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 0 });
     await nextTick();
-    await keydown("End");
-    await keyup("End");
+    await keyDown("End");
+    await keyUp("End");
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
   });
 
   test("Move cursor while in edit mode with non empty cell", async () => {
     setCellContent(model, "A1", "Hello");
     await nextTick();
-    await keydown("Enter");
+    await keyDown("Enter");
     expect(model.getters.getEditionMode()).toBe("editing");
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
     for (let _ in [1, 2, 3]) {
-      await keydown("ArrowLeft");
+      await keyDown("ArrowLeft");
     }
-    await keyup("ArrowLeft");
+    await keyUp("ArrowLeft");
     expect(model.getters.getComposerSelection()).toEqual({ start: 2, end: 2 });
     for (let _ in [1, 2]) {
-      await keydown("ArrowRight");
+      await keyDown("ArrowRight");
     }
-    await keyup("ArrowRight");
+    await keyUp("ArrowRight");
 
     expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 4 });
   });
@@ -839,16 +787,16 @@ describe("composer", () => {
     await typeInComposerGrid("Hello");
     expect(model.getters.getEditionMode()).toBe("editing");
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
-    await keydown("ArrowLeft");
+    await keyDown("ArrowLeft");
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
   test("Select a right-to-left range with the keyboard", async () => {
     setCellContent(model, "A1", "Hello");
-    await keydown("Enter");
+    await keyDown("Enter");
     const { end } = model.getters.getComposerSelection();
-    await keydown("ArrowLeft", { shiftKey: true });
-    await keyup("ArrowLeft", { shiftKey: true });
+    await keyDown("ArrowLeft", { shiftKey: true });
+    await keyUp("ArrowLeft", { shiftKey: true });
     expect(model.getters.getComposerSelection()).toEqual({
       start: end,
       end: end - 1,
@@ -858,11 +806,11 @@ describe("composer", () => {
   test("Select a left-to-right range with the keyboard in a non empty cell", async () => {
     setCellContent(model, "A1", "Hello");
     await nextTick();
-    await keydown("Enter");
+    await keyDown("Enter");
     model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 0 });
     await nextTick();
-    await keydown("ArrowRight", { shiftKey: true });
-    await keyup("ArrowRight", { shiftKey: true });
+    await keyDown("ArrowRight", { shiftKey: true });
+    await keyUp("ArrowRight", { shiftKey: true });
     expect(model.getters.getComposerSelection()).toEqual({ start: 0, end: 1 });
   });
 
@@ -871,39 +819,18 @@ describe("composer", () => {
     expect(model.getters.getEditionMode()).toBe("editing");
     model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 0 });
     await nextTick();
-    await keydown("ArrowRight", { shiftKey: true });
-    await keyup("ArrowRight", { shiftKey: true });
+    await keyDown("ArrowRight", { shiftKey: true });
+    await keyUp("ArrowRight", { shiftKey: true });
     expect(model.getters.getEditionMode()).toBe("inactive");
-  });
-
-  test("type '=', select a cell in another sheet with space in name", async () => {
-    composerEl = await typeInComposerGrid("=");
-    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-    createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet 2");
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
-    await nextTick();
-    expect(model.getters.getEditionMode()).toBe("rangeSelected");
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
-    await nextTick();
-    expect(composerEl.textContent).toBe("='Sheet 2'!C8");
   });
 
   test("type '=', select a cell in another sheet, select a cell in the active sheet", async () => {
     composerEl = await typeInComposerGrid("=");
     const sheet = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
-    await nextTick();
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
-    await nextTick();
+    await clickCell(model, "C8");
     activateSheet(model, sheet);
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
-    await nextTick();
+    await clickCell(model, "C8");
     expect(composerEl.textContent).toBe("=C8");
   });
 
@@ -1093,9 +1020,9 @@ describe("composer", () => {
     });
   });
 
-  test("clicking on the composer while in 'waitingForRangeSelection' mode should put the composer in 'edition' mode", async () => {
+  test("clicking on the composer while in selecting mode should put the composer in edition mode", async () => {
     composerEl = await typeInComposerGrid("=");
-    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+    expect(model.getters.getEditionMode()).toBe("selecting");
     composerEl.dispatchEvent(new MouseEvent("click"));
     await nextTick();
     expect(model.getters.getEditionMode()).toBe("editing");
@@ -1111,22 +1038,19 @@ describe("composer", () => {
 
   test("type '=', stop editing with enter, click on the modified cell --> the edition mode should be inactive", async () => {
     // type '=' in C8
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    await clickCell(model, "C8");
     await typeInComposerGrid("=");
-    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+    expect(model.getters.getEditionMode()).toBe("selecting");
 
     // stop editing with enter
-    await keydown("Enter");
+    await keyDown("Enter");
     expect(getCellText(model, "C8")).toBe("=");
     expect(getCell(model, "C8")!.evaluated.value).toBe("#BAD_EXPR");
     expect(getActiveXc(model)).toBe("C9");
     expect(model.getters.getEditionMode()).toBe("inactive");
 
     // click on the modified cell C8
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
-    await nextTick();
+    await clickCell(model, "C8");
     expect(getActiveXc(model)).toBe("C8");
     expect(model.getters.getEditionMode()).toBe("inactive");
   });

@@ -18,8 +18,8 @@ import { EvaluationConditionalFormatPlugin } from "./ui/evaluation_conditional_f
 import { FindAndReplacePlugin } from "./ui/find_and_replace";
 import { HighlightPlugin } from "./ui/highlight";
 import { RendererPlugin } from "./ui/renderer";
-import { SelectionPlugin } from "./ui/selection";
-import { SelectionInputPlugin } from "./ui/selection_inputs";
+import { GridSelectionPlugin } from "./ui/selection";
+import { SelectionInputsManagerPlugin } from "./ui/selection_inputs_manager";
 import { SelectionMultiUserPlugin } from "./ui/selection_multiuser";
 import { UIOptionsPlugin } from "./ui/ui_options";
 import { SheetUIPlugin } from "./ui/ui_sheet";
@@ -37,7 +37,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("chart", ChartPlugin);
 
 export const uiPluginRegistry = new Registry<UIPluginConstructor>()
-  .add("selection", SelectionPlugin)
+  .add("selection", GridSelectionPlugin)
   .add("ui_sheet", SheetUIPlugin)
   .add("ui_options", UIOptionsPlugin)
   .add("evaluation", EvaluationPlugin)
@@ -45,7 +45,7 @@ export const uiPluginRegistry = new Registry<UIPluginConstructor>()
   .add("evaluation_chart", EvaluationChartPlugin)
   .add("clipboard", ClipboardPlugin)
   .add("edition", EditionPlugin)
-  .add("selectionInput", SelectionInputPlugin)
+  .add("selectionInputManager", SelectionInputsManagerPlugin)
   .add("highlight", HighlightPlugin)
   .add("viewport", ViewportPlugin)
   .add("grid renderer", RendererPlugin)

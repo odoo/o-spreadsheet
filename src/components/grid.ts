@@ -464,8 +464,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         ? this.props.onGridComposerCellFocused()
         : this.props.onComposerContentFocused();
     },
-    TAB: () => this.env.model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 }),
-    "SHIFT+TAB": () => this.env.model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 }),
+    TAB: () => this.env.model.selection.moveAnchorCell(1, 0),
+    "SHIFT+TAB": () => this.env.model.selection.moveAnchorCell(-1, 0),
     F2: () => {
       const cell = this.env.model.getters.getActiveCell();
       !cell || cell.isEmpty()
@@ -478,7 +478,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         target: this.env.model.getters.getSelectedZones(),
       });
     },
-    "CTRL+A": () => this.env.model.dispatch("SELECT_ALL"),
+    "CTRL+A": () => this.env.model.selection.selectAll(),
     "CTRL+S": () => {
       this.props.onSaveRequested?.();
     },
@@ -526,13 +526,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     "CTRL+HOME": () => {
       const sheet = this.env.model.getters.getActiveSheet();
       const [col, row] = getNextVisibleCellCoords(sheet, 0, 0);
-      this.env.model.dispatch("SELECT_CELL", { col, row });
+      this.env.model.selection.selectCell(col, row);
     },
     "CTRL+END": () => {
       const sheet = this.env.model.getters.getActiveSheet();
       const col = findVisibleHeader(sheet, "cols", range(0, sheet.cols.length).reverse())!;
       const row = findVisibleHeader(sheet, "rows", range(0, sheet.rows.length).reverse())!;
-      this.env.model.dispatch("SELECT_CELL", { col, row });
+      this.env.model.selection.selectCell(col, row);
     },
     "SHIFT+ ": () => {
       const { cols } = this.env.model.getters.getActiveSheet();
@@ -541,11 +541,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         left: 0,
         right: cols.length - 1,
       };
-      this.env.model.dispatch("SET_SELECTION", {
-        anchor: this.env.model.getters.getPosition(),
-        zones: [newZone],
-        anchorZone: newZone,
-      });
+      const [col, row] = this.env.model.getters.getPosition();
+      this.env.model.selection.selectZone({ cell: { col, row }, zone: newZone });
     },
     "CTRL+ ": () => {
       const { rows } = this.env.model.getters.getActiveSheet();
@@ -554,14 +551,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         top: 0,
         bottom: rows.length - 1,
       };
-      this.env.model.dispatch("SET_SELECTION", {
-        anchor: this.env.model.getters.getPosition(),
-        zones: [newZone],
-        anchorZone: newZone,
-      });
+      const [col, row] = this.env.model.getters.getPosition();
+      this.env.model.selection.selectZone({ cell: { col, row }, zone: newZone });
     },
     "CTRL+SHIFT+ ": () => {
-      this.env.model.dispatch("SELECT_ALL");
+      this.env.model.selection.selectAll();
     },
     "SHIFT+PAGEDOWN": () => {
       this.env.model.dispatch("ACTIVATE_NEXT_SHEET");
@@ -574,10 +568,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   };
 
   focus() {
-    if (
-      !this.env.model.getters.isSelectingForComposer() &&
-      !this.env.model.getters.getSelectedFigureId()
-    ) {
+    if (!this.env.model.getters.getSelectedFigureId()) {
       this.canvas.el!.focus();
     }
   }
@@ -736,14 +727,17 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (!cell?.isLink()) {
       this.closeLinkEditor();
     }
-
-    this.env.model.dispatch(ev.ctrlKey ? "START_SELECTION_EXPANSION" : "START_SELECTION");
-    if (ev.shiftKey) {
-      this.env.model.dispatch("ALTER_SELECTION", { cell: [col, row] });
-    } else {
-      this.env.model.dispatch("SELECT_CELL", { col, row });
-      this.checkSheetChanges();
+    if (this.env.model.getters.getEditionMode() === "editing") {
+      this.env.model.dispatch("STOP_EDITION");
     }
+    if (ev.shiftKey) {
+      this.env.model.selection.setAnchorCorner(col, row);
+    } else if (ev.ctrlKey) {
+      this.env.model.selection.addCellToSelection(col, row);
+    } else {
+      this.env.model.selection.selectCell(col, row);
+    }
+    this.checkSheetChanges();
     let prevCol = col;
     let prevRow = row;
 
@@ -795,7 +789,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       if (col !== prevCol || row !== prevRow) {
         prevCol = col;
         prevRow = row;
-        this.env.model.dispatch("ALTER_SELECTION", { cell: [col, row] });
+        this.env.model.selection.setAnchorCorner(col, row);
       }
       if (isEdgeScrolling) {
         const offsetX = sheet.cols[left + colEdgeScroll.direction].start;
@@ -809,7 +803,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     };
     const onMouseUp = (ev: MouseEvent) => {
       clearTimeout(timeOutId);
-      this.env.model.dispatch(ev.ctrlKey ? "PREPARE_SELECTION_EXPANSION" : "STOP_SELECTION");
+      this.env.model.dispatch(
+        ev.ctrlKey ? "PREPARE_SELECTION_INPUT_EXPANSION" : "STOP_SELECTION_INPUT"
+      );
       this.canvas.el!.removeEventListener("mousemove", onMouseMove);
       if (this.env.model.getters.isPaintingFormat()) {
         this.env.model.dispatch("PASTE", {
@@ -838,12 +834,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // Keyboard interactions
   // ---------------------------------------------------------------------------
 
-  processTabKey(ev: KeyboardEvent) {
-    ev.preventDefault();
-    const deltaX = ev.shiftKey ? -1 : 1;
-    this.env.model.dispatch("MOVE_POSITION", { deltaX, deltaY: 0 });
-  }
-
   processArrows(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
@@ -857,7 +847,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const delta = deltaMap[ev.key];
     if (ev.shiftKey) {
       const oldZone = this.env.model.getters.getSelectedZone();
-      this.env.model.dispatch("ALTER_SELECTION", { delta });
+      this.env.model.selection.resizeAnchorZone(delta[0], delta[1]);
       const newZone = this.env.model.getters.getSelectedZone();
       const viewport = this.env.model.getters.getActiveSnappedViewport();
       const sheet = this.env.model.getters.getActiveSheet();
@@ -874,7 +864,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         });
       }
     } else {
-      this.env.model.dispatch("MOVE_POSITION", { deltaX: delta[0], deltaY: delta[1] });
+      this.env.model.selection.moveAnchorCell(delta[0], delta[1]);
     }
 
     if (this.env.model.getters.isPaintingFormat()) {
@@ -930,8 +920,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const lastZone = zones[zones.length - 1];
     let type: ContextMenuType = "CELL";
     if (!isInside(col, row, lastZone)) {
+      this.env.model.dispatch("UNFOCUS_SELECTION_INPUT");
       this.env.model.dispatch("STOP_EDITION");
-      this.env.model.dispatch("SELECT_CELL", { col, row });
+      this.env.model.selection.selectCell(col, row);
     } else {
       if (this.env.model.getters.getActiveCols().has(col)) {
         type = "COL";

@@ -11,6 +11,7 @@ import { RangeAdapter } from "./plugins/core/range";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstructor } from "./plugins/ui_plugin";
+import { SelectionStreamProcessor } from "./selection_stream/selection_stream_processor";
 import { StateObserver } from "./state_observer";
 import { _lt } from "./translation";
 import { StateUpdateMessage, TransportService } from "./types/collaborative/transport_service";
@@ -115,6 +116,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private config: ModelConfig;
 
   private state: StateObserver;
+
+  readonly selection: SelectionStreamProcessor;
+
   /**
    * Getters are the main way the rest of the UI read data from the model. Also,
    * it is shared between all plugins, so they can also communicate with each
@@ -162,20 +166,26 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.getters.createAdaptedRanges = this.range.createAdaptedRanges.bind(this.range);
 
     this.uuidGenerator.setIsFastStrategy(true);
+
+    // Initiate stream processor
+    this.selection = new SelectionStreamProcessor(this.getters);
+
     // registering plugins
     for (let Plugin of corePluginRegistry.getAll()) {
       this.setupCorePlugin(Plugin, workbookData);
     }
-
     for (let Plugin of uiPluginRegistry.getAll()) {
       this.setupUiPlugin(Plugin);
     }
-
     this.uuidGenerator.setIsFastStrategy(false);
 
     // starting plugins
     this.dispatch("START");
-
+    // Model should be the last permanent subscriber in the list since he should render
+    // after all changes have been applied to the other subscribers (plugins)
+    this.selection.observe(this, {
+      handleEvent: () => this.trigger("update"),
+    });
     // This should be done after construction of LocalHistory due to order of
     // events
     this.setupSessionEvents();
@@ -207,7 +217,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private setupUiPlugin(Plugin: UIPluginConstructor) {
     if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(this.getters, this.state, this.dispatch, this.config);
+      const plugin = new Plugin(
+        this.getters,
+        this.state,
+        this.dispatch,
+        this.config,
+        this.selection
+      );
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
           throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);

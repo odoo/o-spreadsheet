@@ -5,11 +5,13 @@ import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
 import { CellValueType, CommandResult, Zone } from "../../src/types/index";
 import {
   activateSheet,
+  addCellToSelection,
   createSheet,
   createSheetWithName,
   deleteColumns,
   deleteRows,
   selectCell,
+  setAnchorCorner,
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
@@ -660,7 +662,7 @@ describe("clipboard", () => {
 
     // select C1:C3
     selectCell(model, "C1");
-    model.dispatch("ALTER_SELECTION", { cell: [2, 2] });
+    setAnchorCorner(model, "C3");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 2, right: 2 });
     model.dispatch("PASTE", { target: [toZone("C1:C3")] });
@@ -676,8 +678,7 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: [toZone("A1:A1")] });
 
     selectCell(model, "C1");
-    model.dispatch("START_SELECTION_EXPANSION");
-    selectCell(model, "E1");
+    addCellToSelection(model, "E1");
 
     model.dispatch("PASTE", { target: [toZone("C1"), toZone("E1")] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 0, right: 2 });
@@ -713,8 +714,7 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: [toZone("A1:A2")] });
 
     selectCell(model, "C4");
-    model.dispatch("START_SELECTION_EXPANSION");
-    selectCell(model, "F6");
+    addCellToSelection(model, "F6");
     const env = makeInteractiveTestEnv(model, { notifyUser });
     interactivePaste(env, model.getters.getSelectedZones());
     expect(notifyUser).toHaveBeenCalled();

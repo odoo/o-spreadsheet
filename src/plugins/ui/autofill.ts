@@ -231,11 +231,7 @@ export class AutofillPlugin extends UIPlugin {
       this.lastCellSelected = {};
       this.direction = undefined;
       this.tooltip = undefined;
-      this.dispatch("SET_SELECTION", {
-        zones: [zone],
-        anchor: [zone.left, zone.top],
-        anchorZone: zone,
-      });
+      this.selection.selectZone({ cell: { col: zone.left, row: zone.top }, zone });
     }
   }
 

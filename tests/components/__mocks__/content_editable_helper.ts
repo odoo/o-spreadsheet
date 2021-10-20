@@ -34,6 +34,7 @@ export class ContentEditableHelper {
   }
 
   setText(values: HtmlContent[]) {
+    this.selectionState = initialSelectionState;
     for (const content of values) {
       this.insertText(content.value, { color: content.color, className: content.class });
     }

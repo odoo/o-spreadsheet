@@ -337,7 +337,7 @@ describe("automatic sum", () => {
   test("starting point is merged with number adjacent to top-left", () => {
     setCellContent(model, "A1", "4");
     merge(model, "B1:B2");
-    automaticSum(model, "B2");
+    automaticSum(model, "B1:B2", { anchor: "B2" });
     expect(getCellText(model, "B1")).toBe("");
     automaticSum(model, "B1");
     expect(getCellText(model, "B1")).toBe("=SUM(A1)");

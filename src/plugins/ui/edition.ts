@@ -4,6 +4,7 @@ import {
   getComposerSheetName,
   isEqual,
   markdownLink,
+  positionToZone,
   rangeReference,
   toZone,
   updateSelectionOnDeletion,
@@ -11,23 +12,20 @@ import {
 } from "../../helpers/index";
 import { Mode } from "../../model";
 import { _lt } from "../../translation";
+import { SelectionEvent } from "../../types/event_stream";
 import {
   AddColumnsRowsCommand,
   Command,
   CommandResult,
   RemoveColumnsRowsCommand,
-  Zone,
 } from "../../types/index";
-import { Range, RangePart } from "../../types/misc";
+import { Range, RangePart, UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
-import { SelectionMode } from "./selection";
 
 export type EditionMode =
   | "editing"
-  | "waitingForRangeSelection"
-  | "rangeSelected" // should tell if you need to underline the current range selected.
-  | "inactive"
-  | "resettingPosition";
+  | "selecting" // should tell if you need to underline the current range selected.
+  | "inactive";
 
 const CELL_DELETED_MESSAGE = _lt("The cell you are trying to edit has been deleted.");
 
@@ -42,6 +40,7 @@ export class EditionPlugin extends UIPlugin {
   static getters = [
     "getEditionMode",
     "isSelectingForComposer",
+    "showSelectionIndicator",
     "getCurrentContent",
     "getEditionSheet",
     "getComposerSelection",
@@ -54,13 +53,12 @@ export class EditionPlugin extends UIPlugin {
   private col: number = 0;
   private row: number = 0;
   private mode: EditionMode = "inactive";
-  private sheet: string = "";
+  private sheetId: UID = "";
   private currentContent: string = "";
   private currentTokens: EnrichedToken[] = [];
   private selectionStart: number = 0;
   private selectionEnd: number = 0;
   private selectionInitialStart: number = 0;
-  private multiSelectionInitialStart: number = 0;
   private initialContent: string | undefined = "";
   private previousRef: string = "";
   private previousRange: Range | undefined = undefined;
@@ -90,6 +88,20 @@ export class EditionPlugin extends UIPlugin {
         }
       default:
         return CommandResult.Success;
+    }
+  }
+
+  private handleEvent(event: SelectionEvent) {
+    if (this.mode !== "selecting") {
+      return;
+    }
+    switch (event.mode) {
+      case "newAnchor":
+        this.insertSelectedRange(event.anchor.zone);
+        break;
+      default:
+        this.replaceSelectedRanges(event.anchor.zone);
+        break;
     }
   }
 
@@ -125,41 +137,6 @@ export class EditionPlugin extends UIPlugin {
         this.cancelEdition();
         this.resetContent();
         break;
-      case "SELECT_CELL":
-      case "SET_SELECTION":
-      case "MOVE_POSITION":
-        switch (this.mode) {
-          case "editing":
-            this.dispatch("STOP_EDITION");
-            break;
-          case "waitingForRangeSelection":
-            this.insertSelectedRange();
-            break;
-          case "rangeSelected":
-            switch (cmd.type) {
-              case "MOVE_POSITION":
-                this.replaceAllSelectedRanges();
-                break;
-              case "SELECT_CELL":
-                if (this.getters.getSelectionMode() === SelectionMode.expanding) {
-                  this.insertSelectedRange();
-                } else {
-                  this.replaceAllSelectedRanges();
-                }
-                break;
-              case "SET_SELECTION":
-                if (!cmd.strict) {
-                  this.replaceSelectedRange();
-                } else if (this.getters.getSelectionMode() === SelectionMode.expanding) {
-                  this.insertSelectedRange();
-                } else {
-                  this.replaceAllSelectedRanges();
-                }
-                break;
-            }
-            break;
-        }
-        break;
       case "ADD_COLUMNS_ROWS":
         this.onAddElements(cmd);
         break;
@@ -177,7 +154,7 @@ export class EditionPlugin extends UIPlugin {
           .find((token) => {
             let value = token.value;
             const [xc, sheet] = value.split("!").reverse();
-            const sheetName = sheet || this.getters.getSheetName(this.sheet);
+            const sheetName = sheet || this.getters.getSheetName(this.sheetId);
             const activeSheetId = this.getters.getActiveSheetId();
             return (
               isEqual(this.getters.expandZone(activeSheetId, toZone(xc)), cmd.zone) &&
@@ -203,8 +180,9 @@ export class EditionPlugin extends UIPlugin {
       case "DELETE_SHEET":
       case "UNDO":
       case "REDO":
-        const sheetIdExists = !!this.getters.tryGetSheet(this.sheet);
+        const sheetIdExists = !!this.getters.tryGetSheet(this.sheetId);
         if (!sheetIdExists && this.mode !== "inactive") {
+          this.sheetId = this.getters.getActiveSheetId();
           this.cancelEdition();
           this.resetContent();
           this.ui.notifyUI({
@@ -216,6 +194,9 @@ export class EditionPlugin extends UIPlugin {
     }
   }
 
+  unsubscribe() {
+    this.mode = "inactive";
+  }
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
@@ -233,7 +214,7 @@ export class EditionPlugin extends UIPlugin {
   }
 
   getEditionSheet(): string {
-    return this.sheet;
+    return this.sheetId;
   }
 
   getComposerSelection(): ComposerSelection {
@@ -244,11 +225,11 @@ export class EditionPlugin extends UIPlugin {
   }
 
   isSelectingForComposer(): boolean {
-    return (
-      this.mode === "waitingForRangeSelection" ||
-      this.mode === "rangeSelected" ||
-      this.mode === "resettingPosition"
-    );
+    return this.mode === "selecting";
+  }
+
+  showSelectionIndicator(): boolean {
+    return this.isSelectingForComposer() && this.canStartComposerRangeSelection();
   }
 
   getCurrentTokens(): EnrichedToken[] {
@@ -334,17 +315,10 @@ export class EditionPlugin extends UIPlugin {
    * Enable the selecting mode
    */
   private startComposerRangeSelection() {
-    this.mode = "resettingPosition";
-    this.dispatch("SELECT_CELL", {
-      col: this.col,
-      row: this.row,
-    });
-    this.mode = "waitingForRangeSelection";
-    // We set this variable to store the start of the multiple range
-    // selection. This is useful for example when we select multiple
-    // cells with ctrl, release the ctrl and select a new cell.
-    // This should result in deletions of previously selected cells.
-    this.multiSelectionInitialStart = this.selectionStart;
+    const zone = positionToZone({ col: this.col, row: this.row });
+    this.selection.resetAnchor(this, { cell: { col: this.col, row: this.row }, zone });
+    this.mode = "selecting";
+    this.selectionInitialStart = this.selectionStart;
   }
 
   /**
@@ -360,24 +334,32 @@ export class EditionPlugin extends UIPlugin {
     const [col, row] = this.getters.getPosition();
     this.col = col;
     this.row = row;
-    this.sheet = this.getters.getActiveSheetId();
+    this.sheetId = this.getters.getActiveSheetId();
     this.setContent(str || this.initialContent, selection);
     this.colorIndexByRange = {};
+    const zone = positionToZone({ col: this.col, row: this.row });
+    this.selection.capture(
+      this,
+      { cell: { col: this.col, row: this.row }, zone },
+      {
+        handleEvent: this.handleEvent.bind(this),
+        release: () => (this.mode = "inactive"),
+      }
+    );
   }
 
   private stopEdition() {
     if (this.mode !== "inactive") {
+      const activeSheetId = this.getters.getActiveSheetId();
       this.cancelEdition();
-      const sheetId = this.getters.getActiveSheetId();
-      const mergeSheetId = this.getters.getSheets().find((sheet) => sheet.id === this.sheet)!.id;
-      const [col, row] = this.getters.getMainCell(mergeSheetId, this.col, this.row);
+      const [col, row] = this.getters.getMainCell(this.sheetId, this.col, this.row);
       let content = this.currentContent;
       const didChange = this.initialContent !== content;
       if (!didChange) {
         return;
       }
       if (content) {
-        const cell = this.getters.getCell(sheetId, col, row);
+        const cell = this.getters.getCell(activeSheetId, col, row);
         if (content.startsWith("=")) {
           const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
           const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
@@ -389,23 +371,17 @@ export class EditionPlugin extends UIPlugin {
           content = markdownLink(content, cell.link.url);
         }
         this.dispatch("UPDATE_CELL", {
-          sheetId: this.sheet,
+          sheetId: this.sheetId,
           col,
           row,
           content,
         });
       } else {
         this.dispatch("UPDATE_CELL", {
-          sheetId: this.sheet,
+          sheetId: this.sheetId,
           content: "",
           col,
           row,
-        });
-      }
-      if (sheetId !== this.sheet) {
-        this.dispatch("ACTIVATE_SHEET", {
-          sheetIdFrom: this.getters.getActiveSheetId(),
-          sheetIdTo: this.sheet,
         });
       }
       this.setContent("");
@@ -413,7 +389,18 @@ export class EditionPlugin extends UIPlugin {
   }
 
   private cancelEdition() {
+    if (this.mode === "inactive") {
+      return;
+    }
     this.mode = "inactive";
+    this.selection.release(this);
+    const sheetId = this.getters.getActiveSheetId();
+    if (sheetId !== this.sheetId) {
+      this.dispatch("ACTIVATE_SHEET", {
+        sheetIdFrom: this.getters.getActiveSheetId(),
+        sheetIdTo: this.sheetId,
+      });
+    }
   }
 
   /**
@@ -441,50 +428,24 @@ export class EditionPlugin extends UIPlugin {
     }
   }
 
-  /**
-   * Insert reference of the currently selected zone in the composer content.
-   * Separates references with commas when more than one is selected.
-   */
-  private insertSelectedRange() {
+  private insertSelectedRange(zone: Zone) {
+    // infer if range selected or selecting range from cursor position
     const start = Math.min(this.selectionStart, this.selectionEnd);
-    const ref = this.getZoneReference(this.getters.getSelectedZone());
-    if (this.mode === "waitingForRangeSelection") {
+    const ref = this.getZoneReference(zone);
+    if (this.canStartComposerRangeSelection()) {
       this.insertText(ref, start);
       this.selectionInitialStart = start;
-      this.mode = "rangeSelected";
-      return;
+    } else {
+      this.insertText("," + ref, start);
+      this.selectionInitialStart = start + 1;
     }
-    // range already present (mean this.mode === "rangeSelected")
-    this.insertText("," + ref, start);
-    this.selectionInitialStart = start + 1;
   }
-
   /**
-   * Replace the last reference by the new one.
-   * This function is particularly useful when multiple cells selection is
-   * enabled and we need to change the last reference (eg: change the cell
-   * reference to a range reference)
-   */
-  private replaceSelectedRange() {
-    const { end } = this.getters.getComposerSelection();
-    this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
-      start: this.selectionInitialStart,
-      end,
-    });
-    this.replaceSelection(this.getZoneReference(this.getters.getSelectedZone()));
-  }
-
-  /**
-   * Replace all references selected by the new one.
+   * Replace the current reference selected by the new one.
    * */
-  private replaceAllSelectedRanges() {
-    const { end } = this.getters.getComposerSelection();
-    this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
-      start: this.multiSelectionInitialStart,
-      end,
-    });
-    this.replaceSelection(this.getZoneReference(this.getters.getSelectedZone()));
-    this.selectionInitialStart = this.multiSelectionInitialStart;
+  private replaceSelectedRanges(zone: Zone) {
+    const ref = this.getZoneReference(zone);
+    this.replaceText(ref, this.selectionInitialStart, this.selectionEnd);
   }
 
   private getZoneReference(
@@ -581,9 +542,6 @@ export class EditionPlugin extends UIPlugin {
    * - Previous and next tokens can be separated by spaces
    */
   private canStartComposerRangeSelection(): boolean {
-    if (this.mode !== "editing" && this.selectionStart === this.selectionEnd) {
-      return false;
-    }
     if (this.currentContent.startsWith("=")) {
       const tokenAtCursor = this.getTokenAtCursor();
       if (tokenAtCursor) {

@@ -3,21 +3,23 @@ import { SUM } from "../../functions/module_math";
 import { AVERAGE, COUNT, COUNTA, MAX, MIN } from "../../functions/module_statistical";
 import {
   clip,
-  findVisibleHeader,
+  deepCopy,
+  formatStandardNumber,
   getNextVisibleCellCoords,
   isEqual,
-  organizeZone,
-  range,
-  union,
+  positions,
   uniqueZones,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
+import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
+import { SelectionEvent } from "../../types/event_stream";
 import {
   AddColumnsRowsCommand,
+  AnchorZone,
   Cell,
   CellValueType,
   ClientPosition,
@@ -28,18 +30,22 @@ import {
   Figure,
   Getters,
   GridRenderingContext,
-  Header,
-  Increment,
   LAYERS,
   MoveColumnsRowsCommand,
-  Position,
   RemoveColumnsRowsCommand,
+  Selection,
   Sheet,
   Style,
   UID,
   Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
+
+interface SheetInfo {
+  gridSelection: Selection;
+  activeCol: number;
+  activeRow: number;
+}
 
 interface SelectionStatisticFunction {
   name: string;
@@ -79,33 +85,11 @@ const selectionStatisticFunctions: SelectionStatisticFunction[] = [
     compute: (values) => COUNT.compute([values]),
   },
 ];
-export interface Selection {
-  anchor: [number, number];
-  zones: Zone[];
-  anchorZone: Zone;
-}
-
-interface SheetInfo {
-  selection: Selection;
-  activeCol: number;
-  activeRow: number;
-}
-
-export enum SelectionMode {
-  idle,
-  selecting,
-  readyToExpand, //The next selection will add another zone to the current selection
-  expanding,
-}
-
-interface SelectionPluginState {
-  activeSheet: Sheet;
-}
 
 /**
  * SelectionPlugin
  */
-export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
+export class GridSelectionPlugin extends UIPlugin {
   static layers = [LAYERS.Selection];
   static modes: Mode[] = ["normal"];
   static getters = [
@@ -118,25 +102,27 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     "getSelectedZones",
     "getSelectedZone",
     "getStatisticFnResults",
+    "getAggregate",
     "getSelectedFigureId",
     "getVisibleFigures",
     "getSelection",
     "getPosition",
     "getSheetPosition",
-    "getSelectionMode",
     "isSelected",
     "getElementsFromSelection",
   ] as const;
 
-  private selection: Selection = {
+  private gridSelection: {
+    readonly anchor: AnchorZone; // the anchor is managed by the selection processor. It must not be reassigned
+    zones: Zone[];
+  } = {
+    anchor: {
+      cell: { col: 0, row: 0 },
+      zone: { top: 0, left: 0, bottom: 0, right: 0 },
+    },
     zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
-    anchor: [0, 0],
-    anchorZone: { top: 0, left: 0, bottom: 0, right: 0 },
   };
   private selectedFigureId: string | null = null;
-  private activeCol: number = 0;
-  private activeRow: number = 0;
-  private mode = SelectionMode.idle;
   private sheetsData: { [sheet: string]: SheetInfo } = {};
   private moveClient: (position: ClientPosition) => void;
 
@@ -149,9 +135,10 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     getters: Getters,
     state: StateObserver,
     dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig
+    config: ModelConfig,
+    selection: SelectionStreamProcessor
   ) {
-    super(getters, state, dispatch, config);
+    super(getters, state, dispatch, config, selection);
     this.moveClient = config.moveClient;
   }
 
@@ -161,62 +148,6 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
 
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
-      case "SET_SELECTION": {
-        if (cmd.zones.findIndex((z: Zone) => isEqual(z, cmd.anchorZone)) === -1) {
-          return CommandResult.InvalidAnchorZone;
-        }
-        break;
-      }
-      case "ALTER_SELECTION":
-        if (cmd.delta) {
-          const { left, right, top, bottom } = this.getSelectedZone();
-          const sheet = this.getters.getActiveSheet();
-          const refCol = findVisibleHeader(sheet, "cols", range(left, right + 1));
-          const refRow = findVisibleHeader(sheet, "rows", range(top, bottom + 1));
-          if (
-            (cmd.delta[0] !== 0 && refRow === undefined) ||
-            (cmd.delta[1] !== 0 && refCol === undefined)
-          ) {
-            return CommandResult.SelectionOutOfBound;
-          }
-        }
-        break;
-      case "MOVE_POSITION": {
-        const { cols, rows } = this.getters.getActiveSheet();
-        if (
-          (cmd.deltaX !== 0 && rows[this.activeRow].isHidden) ||
-          (cmd.deltaY !== 0 && cols[this.activeCol].isHidden)
-        ) {
-          return CommandResult.SelectionOutOfBound;
-        }
-        const { col: targetCol, row: targetRow } = this.getNextAvailablePosition(
-          cmd.deltaX,
-          cmd.deltaY
-        );
-        const outOfBound =
-          targetRow < 0 ||
-          targetRow > rows.length - 1 ||
-          targetCol < 0 ||
-          targetCol > cols.length - 1;
-        if (outOfBound) {
-          return CommandResult.SelectionOutOfBound;
-        }
-        break;
-      }
-      case "SELECT_COLUMN": {
-        const { index } = cmd;
-        if (index < 0 || index >= this.getters.getActiveSheet().cols.length) {
-          return CommandResult.SelectionOutOfBound;
-        }
-        break;
-      }
-      case "SELECT_ROW": {
-        const { index } = cmd;
-        if (index < 0 || index >= this.getters.getActiveSheet().rows.length) {
-          return CommandResult.SelectionOutOfBound;
-        }
-        break;
-      }
       case "ACTIVATE_SHEET":
         try {
           this.getters.getSheet(cmd.sheetIdTo);
@@ -230,6 +161,34 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     return CommandResult.Success;
   }
 
+  private handleEvent(event: SelectionEvent) {
+    const anchor = event.anchor;
+    let zones: Zone[] = [];
+    switch (event.mode) {
+      case "overrideSelection":
+        zones = [anchor.zone];
+        break;
+      case "updateAnchor":
+        zones = [...this.gridSelection.zones];
+        const index = zones.findIndex((z: Zone) => isEqual(z, event.previousAnchor.zone));
+        if (index >= 0) {
+          zones[index] = anchor.zone;
+        }
+        break;
+      case "newAnchor":
+        zones = [...this.gridSelection.zones, anchor.zone];
+        break;
+    }
+    this.setSelectionMixin(event.anchor, zones);
+    const { col, row } = this.gridSelection.anchor.cell;
+    this.moveClient({
+      sheetId: this.getters.getActiveSheetId(),
+      col,
+      row,
+    });
+    this.selectedFigureId = null;
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
       // some commands should not remove the current selection
@@ -241,7 +200,6 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       case "EVALUATE_CELLS":
       case "DISABLE_SELECTION_INPUT":
       case "ENABLE_NEW_SELECTION_INPUT":
-      case "RESIZE_VIEWPORT":
         break;
       case "DELETE_FIGURE":
         if (this.selectedFigureId === cmd.id) {
@@ -254,91 +212,55 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     switch (cmd.type) {
       case "START":
         const firstSheet = this.getters.getSheets()[0];
-        const firstVisiblePosition = getNextVisibleCellCoords(firstSheet, 0, 0);
-        this.activeCol = firstVisiblePosition[0];
-        this.activeRow = firstVisiblePosition[1];
-        this.dispatch("ACTIVATE_SHEET", {
-          sheetIdTo: this.getters.getSheets()[0].id,
-          sheetIdFrom: this.getters.getSheets()[0].id,
+        this.selection.registerAsDefault(this, this.gridSelection.anchor, {
+          handleEvent: this.handleEvent.bind(this),
         });
+        this.dispatch("ACTIVATE_SHEET", {
+          sheetIdTo: firstSheet.id,
+          sheetIdFrom: firstSheet.id,
+        });
+        const firstVisiblePosition = getNextVisibleCellCoords(firstSheet, 0, 0);
         this.selectCell(...firstVisiblePosition);
+        this.moveClient({ sheetId: firstSheet.id, col: 0, row: 0 });
         break;
-      case "ACTIVATE_SHEET":
-        //TODO Change the way selectCell work, perhaps take the sheet as argument ?
+      case "ACTIVATE_SHEET": {
         this.setActiveSheet(cmd.sheetIdTo);
+        const { col, row } = this.gridSelection.anchor.cell;
         this.sheetsData[cmd.sheetIdFrom] = {
-          selection: JSON.parse(JSON.stringify(this.selection)),
-          activeCol: this.activeCol,
-          activeRow: this.activeRow,
+          gridSelection: deepCopy(this.gridSelection),
+          activeCol: col,
+          activeRow: row,
         };
         if (cmd.sheetIdTo in this.sheetsData) {
           Object.assign(this, this.sheetsData[cmd.sheetIdTo]);
+          this.selection.resetDefaultAnchor(this, this.gridSelection.anchor);
         } else {
           this.selectCell(...getNextVisibleCellCoords(this.getters.getSheets()[0], 0, 0));
         }
         break;
-      case "SET_SELECTION":
-        this.setSelection(cmd.anchor, cmd.zones, cmd.anchorZone, cmd.strict);
-        break;
-      case "START_SELECTION":
-        this.mode = SelectionMode.selecting;
-        break;
-      case "PREPARE_SELECTION_EXPANSION":
-        this.mode = SelectionMode.readyToExpand;
-        break;
-      case "START_SELECTION_EXPANSION":
-        this.mode = SelectionMode.expanding;
-        break;
-      case "STOP_SELECTION":
-        this.mode = SelectionMode.idle;
-        break;
-      case "MOVE_POSITION":
-        this.movePosition(cmd.deltaX, cmd.deltaY);
-        break;
-      case "SELECT_CELL":
-        this.selectCell(cmd.col, cmd.row);
-        break;
-      case "SELECT_COLUMN":
-        this.selectColumn(cmd.index, cmd.createRange || false, cmd.updateRange || false);
-        break;
-      case "SELECT_ROW":
-        this.selectRow(cmd.index, cmd.createRange || false, cmd.updateRange || false);
-        break;
-      case "SELECT_ALL":
-        this.selectAll();
-        break;
-      case "ALTER_SELECTION":
-        if (cmd.delta) {
-          this.moveSelection(cmd.delta[0], cmd.delta[1]);
-        }
-        if (cmd.cell) {
-          this.addCellToSelection(...cmd.cell);
-        }
-        break;
-      case "UNDO":
-      case "REDO":
-      case "DELETE_SHEET":
-        if (!this.getters.tryGetSheet(this.getActiveSheetId())) {
-          const currentSheets = this.getters.getVisibleSheets();
-          this.activeSheet = this.getters.getSheet(currentSheets[0]);
-          this.selectCell(0, 0);
-        }
-        this.ensureSelectionValidity();
-        break;
-      case "REMOVE_COLUMNS_ROWS":
-        if (cmd.sheetId === this.getActiveSheetId()) {
+      }
+      case "REMOVE_COLUMNS_ROWS": {
+        const sheetId = this.getters.getActiveSheetId();
+        if (cmd.sheetId === sheetId) {
           if (cmd.dimension === "COL") {
             this.onColumnsRemoved(cmd);
           } else {
             this.onRowsRemoved(cmd);
           }
+          const { col, row } = this.gridSelection.anchor.cell;
+          this.moveClient({ sheetId, col, row });
         }
         break;
-      case "ADD_COLUMNS_ROWS":
-        if (cmd.sheetId === this.getActiveSheetId()) {
+      }
+      case "ADD_COLUMNS_ROWS": {
+        const sheetId = this.getters.getActiveSheetId();
+        if (cmd.sheetId === sheetId) {
           this.onAddElements(cmd);
+          const { col, row } = this.gridSelection.anchor.cell;
+          this.moveClient({ sheetId, col, row });
         }
         break;
+      }
       case "MOVE_COLUMNS_ROWS":
         if (cmd.sheetId === this.getActiveSheetId()) {
           this.onMoveElements(cmd);
@@ -354,6 +276,42 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       case "ACTIVATE_PREVIOUS_SHEET":
         this.activateNextSheet("left");
         break;
+      case "UNDO":
+      case "REDO":
+      case "DELETE_SHEET":
+        if (!this.getters.tryGetSheet(this.getters.getActiveSheetId())) {
+          const currentSheets = this.getters.getVisibleSheets();
+          this.activeSheet = this.getters.getSheet(currentSheets[0]);
+          this.selectCell(0, 0);
+          this.moveClient({
+            sheetId: this.getters.getActiveSheetId(),
+            col: 0,
+            row: 0,
+          });
+        }
+        const deletedSheetIds = Object.keys(this.sheetsData).filter(
+          (sheetId) => !this.getters.tryGetSheet(sheetId)
+        );
+        for (const sheetId of deletedSheetIds) {
+          delete this.sheetsData[sheetId];
+        }
+        for (const sheetId in this.sheetsData) {
+          const { anchor } = this.clipSelection(sheetId, this.sheetsData[sheetId].gridSelection);
+          this.sheetsData[sheetId] = {
+            gridSelection: this.gridSelection,
+            activeCol: anchor.cell.col,
+            activeRow: anchor.cell.row,
+          };
+        }
+        const sheetId = this.getters.getActiveSheetId();
+        this.gridSelection.zones = this.gridSelection.zones.map((z) =>
+          this.getters.expandZone(sheetId, z)
+        );
+        this.gridSelection.anchor.zone = this.getters.expandZone(
+          sheetId,
+          this.gridSelection.anchor.zone
+        );
+        this.ensureSelectionValidity();
     }
   }
 
@@ -370,13 +328,14 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   }
   getActiveCell(): Cell | undefined {
     const sheetId = this.getters.getActiveSheetId();
-    const [mainCol, mainRow] = this.getters.getMainCell(sheetId, this.activeCol, this.activeRow);
+    const { col, row } = this.gridSelection.anchor.cell;
+    const [mainCol, mainRow] = this.getters.getMainCell(sheetId, col, row);
     return this.getters.getCell(sheetId, mainCol, mainRow);
   }
 
   getActiveCols(): Set<number> {
     const activeCols = new Set<number>();
-    for (let zone of this.selection.zones) {
+    for (let zone of this.gridSelection.zones) {
       if (zone.top === 0 && zone.bottom === this.getters.getActiveSheet().rows.length - 1) {
         for (let i = zone.left; i <= zone.right; i++) {
           activeCols.add(i);
@@ -388,7 +347,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
 
   getActiveRows(): Set<number> {
     const activeRows = new Set<number>();
-    for (let zone of this.selection.zones) {
+    for (let zone of this.gridSelection.zones) {
       if (zone.left === 0 && zone.right === this.getters.getActiveSheet().cols.length - 1) {
         for (let i = zone.top; i <= zone.bottom; i++) {
           activeRows.add(i);
@@ -404,15 +363,20 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   }
 
   getSelectedZones(): Zone[] {
-    return this.selection.zones;
+    return this.gridSelection.zones;
   }
 
   getSelectedZone(): Zone {
-    return this.selection.anchorZone;
+    return this.gridSelection.anchor.zone;
   }
 
-  getSelection(): Selection {
-    return this.selection;
+  getSelection() {
+    const { col, row } = this.gridSelection.anchor.cell;
+    return {
+      anchor: [col, row] as [number, number],
+      anchorZone: this.gridSelection.anchor.zone,
+      zones: this.getSelectedZones(),
+    };
   }
 
   getSelectedFigureId(): string | null {
@@ -420,7 +384,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   }
 
   getPosition(): [number, number] {
-    return [this.activeCol, this.activeRow];
+    return [this.gridSelection.anchor.cell.col, this.gridSelection.anchor.cell.row];
   }
 
   getSheetPosition(sheetId: UID): [number, number] {
@@ -429,7 +393,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     } else {
       const sheetData = this.sheetsData[sheetId];
       return sheetData
-        ? [sheetData.activeCol, sheetData.activeRow]
+        ? [sheetData.gridSelection.anchor.cell.col, sheetData.gridSelection.anchor.cell.row]
         : getNextVisibleCellCoords(this.getters.getSheet(sheetId), 0, 0);
     }
   }
@@ -437,7 +401,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   getStatisticFnResults(): { [name: string]: number | undefined } {
     // get deduplicated cells in zones
     const cells = new Set(
-      this.selection.zones
+      this.gridSelection.zones
         .map((zone) => this.getters.getCellsInZone(this.getters.getActiveSheetId(), zone))
         .flat()
         .filter((cell) => cell !== undefined)
@@ -466,8 +430,19 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     return statisticFnResults;
   }
 
-  getSelectionMode(): SelectionMode {
-    return this.mode;
+  getAggregate(): string | null {
+    let aggregate = 0;
+    let n = 0;
+    const sheetId = this.getters.getActiveSheetId();
+    const cellPositions = this.gridSelection.zones.map(positions).flat();
+    for (const [col, row] of cellPositions) {
+      const cell = this.getters.getCell(sheetId, col, row);
+      if (cell?.evaluated.type === CellValueType.number) {
+        n++;
+        aggregate += cell.evaluated.value;
+      }
+    }
+    return n < 2 ? null : formatStandardNumber(aggregate);
   }
 
   isSelected(zone: Zone): boolean {
@@ -526,50 +501,16 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   // ---------------------------------------------------------------------------
   // Other
   // ---------------------------------------------------------------------------
-
-  private selectColumn(index: number, createRange: boolean, updateRange: boolean) {
-    const bottom = this.getters.getActiveSheet().rows.length - 1;
-    let zone = { left: index, right: index, top: 0, bottom };
-    const current = this.selection.zones;
-    let newZones: Zone[], anchor: [number, number];
-    const top = this.getters.getActiveSheet().rows.findIndex((row) => !row.isHidden);
-    if (updateRange) {
-      const [col, row] = this.selection.anchor;
-      zone = union(zone, { left: col, right: col, top, bottom });
-      newZones = this.updateSelectionZones(zone);
-      anchor = [col, row];
-    } else {
-      newZones = createRange ? current.concat(zone) : [zone];
-      anchor = [index, top];
-    }
-    this.dispatch("SET_SELECTION", { zones: newZones, anchor, strict: true, anchorZone: zone });
+  private setSelectionMixin(anchor: AnchorZone, zones: Zone[]) {
+    const { anchor: clippedAnchor, zones: clippedZones } = this.clipSelection(
+      this.getters.getActiveSheetId(),
+      { anchor, zones }
+    );
+    this.gridSelection.anchor.cell.col = clippedAnchor.cell.col;
+    this.gridSelection.anchor.cell.row = clippedAnchor.cell.row;
+    this.gridSelection.anchor.zone = clippedAnchor.zone;
+    this.gridSelection.zones = uniqueZones(clippedZones);
   }
-
-  private selectRow(index: number, createRange: boolean, updateRange: boolean) {
-    const right = this.getters.getActiveSheet().cols.length - 1;
-    let zone = { top: index, bottom: index, left: 0, right };
-    const current = this.selection.zones;
-    let zones: Zone[], anchor: [number, number];
-    const left = this.getters.getActiveSheet().cols.findIndex((col) => !col.isHidden);
-    if (updateRange) {
-      const [col, row] = this.selection.anchor;
-      zone = union(zone, { left, right, top: row, bottom: row });
-      zones = this.updateSelectionZones(zone);
-      anchor = [col, row];
-    } else {
-      zones = createRange ? current.concat(zone) : [zone];
-      anchor = [left, index];
-    }
-    this.dispatch("SET_SELECTION", { zones, anchor, strict: true, anchorZone: zone });
-  }
-
-  private selectAll() {
-    const bottom = this.getters.getActiveSheet().rows.length - 1;
-    const right = this.getters.getActiveSheet().cols.length - 1;
-    const zone = { left: 0, top: 0, bottom, right };
-    this.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0], anchorZone: zone });
-  }
-
   /**
    * Change the anchor of the selection active cell to an absolute col and row index.
    *
@@ -578,328 +519,14 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
    * range in the selection.
    */
   private selectCell(col: number, row: number) {
-    const sheet = this.getters.getActiveSheet();
-    this.moveClient({ sheetId: sheet.id, col, row });
-    const anchorZone = this.getters.expandZone(sheet.id, {
-      left: col,
-      right: col,
-      top: row,
-      bottom: row,
-    });
-    let zones: Zone[];
-    if (this.mode === SelectionMode.expanding) {
-      zones = uniqueZones([...this.selection.zones, anchorZone]);
-    } else {
-      zones = [anchorZone];
-    }
-    this.selection = this.clipSelection(sheet.id, {
-      anchor: [col, row],
-      zones,
-      anchorZone,
-    });
-    this.activeCol = this.selection.anchor[0];
-    this.activeRow = this.selection.anchor[1];
+    const sheetId = this.getters.getActiveSheetId();
+    const zone = this.getters.expandZone(sheetId, { left: col, right: col, top: row, bottom: row });
+    this.setSelectionMixin({ zone, cell: { col, row } }, [zone]);
   }
 
   private setActiveSheet(id: UID) {
     const sheet = this.getters.getSheet(id);
     this.activeSheet = sheet;
-  }
-
-  /** Computes the next cell position in the direction of deltaX and deltaY
-   * by crossing through merges and skipping hidden cells.
-   * Note that the resulting position might be out of the sheet, it needs to be validated.
-   */
-  private getNextAvailablePosition(deltaX: Increment, deltaY: Increment): Position {
-    return {
-      col: this.getNextAvailableCol(deltaX, this.activeCol, this.activeRow),
-      row: this.getNextAvailableRow(deltaY, this.activeCol, this.activeRow),
-    };
-  }
-
-  private getNextAvailableCol(delta: Increment, colIndex: number, rowIndex: number): number {
-    const { cols, id: sheetId } = this.getActiveSheet();
-    const position = { col: colIndex, row: rowIndex };
-    const isInPositionMerge = (nextCol: number) =>
-      this.getters.isInSameMerge(sheetId, colIndex, rowIndex, nextCol, rowIndex);
-    return this.getNextAvailableHeader(delta, cols, colIndex, position, isInPositionMerge);
-  }
-
-  private getNextAvailableRow(delta: Increment, colIndex: number, rowIndex: number): number {
-    const { rows, id: sheetId } = this.getActiveSheet();
-    const position = { col: colIndex, row: rowIndex };
-    const isInPositionMerge = (nextRow: number) =>
-      this.getters.isInSameMerge(sheetId, colIndex, rowIndex, colIndex, nextRow);
-    return this.getNextAvailableHeader(delta, rows, rowIndex, position, isInPositionMerge);
-  }
-
-  private getNextAvailableHeader(
-    delta: Increment,
-    headers: Header[],
-    startingHeaderIndex: number,
-    position: Position,
-    isInPositionMerge: (nextHeader: number) => boolean
-  ): number {
-    const sheetId = this.getters.getActiveSheetId();
-    const { col, row } = position;
-    if (delta === 0) {
-      return startingHeaderIndex;
-    }
-    let header = startingHeaderIndex + delta;
-
-    if (this.getters.isInMerge(sheetId, col, row)) {
-      while (isInPositionMerge(header)) {
-        header += delta;
-      }
-      while (headers[header]?.isHidden) {
-        header += delta;
-      }
-    } else if (headers[header]?.isHidden) {
-      while (headers[header]?.isHidden) {
-        header += delta;
-      }
-    }
-    const outOfBound = header < 0 || header > headers.length - 1;
-    if (outOfBound) {
-      if (headers[startingHeaderIndex].isHidden) {
-        return this.getNextAvailableHeader(
-          -delta as Increment,
-          headers,
-          startingHeaderIndex,
-          position,
-          isInPositionMerge
-        );
-      } else {
-        return startingHeaderIndex;
-      }
-    }
-    return header;
-  }
-
-  /**
-   * Moves the position of either the active cell of the anchor of the current selection by a number of rows / cols delta
-   */
-  movePosition(deltaX: Increment, deltaY: Increment) {
-    const { col: targetCol, row: targetRow } = this.getNextAvailablePosition(deltaX, deltaY);
-    this.selectCell(targetCol, targetRow);
-  }
-
-  setSelection(anchor: [number, number], zones: Zone[], anchorZone: Zone, strict: boolean = false) {
-    this.selectCell(...anchor);
-    const sheetId = this.getters.getActiveSheetId();
-    let selection: Selection;
-    zones = uniqueZones(zones);
-    if (strict) {
-      selection = { zones, anchorZone, anchor };
-    } else {
-      selection = {
-        anchor,
-        zones: zones.map((zone: Zone) => this.getters.expandZone(sheetId, zone)),
-        anchorZone: this.getters.expandZone(sheetId, anchorZone),
-      };
-    }
-    this.selection = this.clipSelection(sheetId, selection);
-  }
-
-  /**
-   * Finds a visible cell in the currently selected zone starting with the anchor.
-   * If the anchor is hidden, browses from left to right and top to bottom to
-   * find a visible cell.
-   */
-  private getReferencePosition(): Position {
-    const sheet = this.getters.getActiveSheet();
-    const selection = this.selection;
-    const { left, right, top, bottom } = selection.anchorZone;
-    const [anchorCol, anchorRow] = selection.anchor;
-
-    return {
-      col: sheet.cols[anchorCol].isHidden
-        ? findVisibleHeader(sheet, "cols", range(left, right + 1)) || anchorCol
-        : anchorCol,
-      row: sheet.rows[anchorRow].isHidden
-        ? findVisibleHeader(sheet, "rows", range(top, bottom + 1)) || anchorRow
-        : anchorRow,
-    };
-  }
-
-  private moveSelection(deltaX: Increment, deltaY: Increment) {
-    const selection = this.selection;
-    let newZones: Zone[] = [];
-    const [anchorCol, anchorRow] = selection.anchor;
-    const { left, right, top, bottom } = selection.anchorZone;
-    let result: Zone | null = selection.anchorZone;
-    const activeSheet = this.getters.getActiveSheet();
-    const expand = (z: Zone) => {
-      const { left, right, top, bottom } = this.getters.expandZone(activeSheet.id, z);
-      return {
-        left: Math.max(0, left),
-        right: Math.min(activeSheet.cols.length - 1, right),
-        top: Math.max(0, top),
-        bottom: Math.min(activeSheet.rows.length - 1, bottom),
-      };
-    };
-
-    const { col: refCol, row: refRow } = this.getReferencePosition();
-    // check if we can shrink selection
-    let n = 0;
-    while (result !== null) {
-      n++;
-      if (deltaX < 0) {
-        const newRight = this.getNextAvailableCol(deltaX, right - (n - 1), refRow);
-        result = refCol <= right - n ? expand({ top, left, bottom, right: newRight }) : null;
-      }
-      if (deltaX > 0) {
-        const newLeft = this.getNextAvailableCol(deltaX, left + (n - 1), refRow);
-        result = left + n <= refCol ? expand({ top, left: newLeft, bottom, right }) : null;
-      }
-      if (deltaY < 0) {
-        const newBottom = this.getNextAvailableRow(deltaY, refCol, bottom - (n - 1));
-        result = refRow <= bottom - n ? expand({ top, left, bottom: newBottom, right }) : null;
-      }
-      if (deltaY > 0) {
-        const newTop = this.getNextAvailableRow(deltaY, refCol, top + (n - 1));
-        result = top + n <= refRow ? expand({ top: newTop, left, bottom, right }) : null;
-      }
-      result = result ? organizeZone(result) : result;
-      if (result && !isEqual(result, selection.anchorZone)) {
-        newZones = this.updateSelectionZones(result);
-        this.dispatch("SET_SELECTION", {
-          zones: newZones,
-          anchor: [anchorCol, anchorRow],
-          anchorZone: result,
-        });
-        return;
-      }
-    }
-    const currentZone = { top: anchorRow, bottom: anchorRow, left: anchorCol, right: anchorCol };
-    const zoneWithDelta = organizeZone({
-      top: this.getNextAvailableRow(deltaY, refCol, top),
-      left: this.getNextAvailableCol(deltaX, left, refRow),
-      bottom: this.getNextAvailableRow(deltaY, refCol, bottom),
-      right: this.getNextAvailableCol(deltaX, right, refRow),
-    });
-
-    result = expand(union(currentZone, zoneWithDelta));
-    if (!isEqual(result, selection.anchorZone)) {
-      newZones = this.updateSelectionZones(result);
-      this.dispatch("SET_SELECTION", {
-        zones: newZones,
-        anchor: [anchorCol, anchorRow],
-        anchorZone: result,
-      });
-    }
-  }
-
-  private addCellToSelection(col: number, row: number) {
-    const selection = this.selection;
-    const [anchorCol, anchorRow] = selection.anchor;
-    const zone: Zone = {
-      left: Math.min(anchorCol, col),
-      top: Math.min(anchorRow, row),
-      right: Math.max(anchorCol, col),
-      bottom: Math.max(anchorRow, row),
-    };
-    const newZones = this.updateSelectionZones(zone);
-    this.dispatch("SET_SELECTION", {
-      zones: newZones,
-      anchor: [anchorCol, anchorRow],
-      anchorZone: zone,
-    });
-  }
-
-  /**
-   * Ensure selections are not outside sheet boundaries.
-   * They are clipped to fit inside the sheet if needed.
-   */
-  private ensureSelectionValidity() {
-    const { anchor, zones, anchorZone } = this.clipSelection(
-      this.getActiveSheetId(),
-      this.selection
-    );
-    this.setSelection(anchor, zones, anchorZone);
-    const deletedSheetIds = Object.keys(this.sheetsData).filter(
-      (sheetId) => !this.getters.tryGetSheet(sheetId)
-    );
-    for (const sheetId of deletedSheetIds) {
-      delete this.sheetsData[sheetId];
-    }
-    for (const sheetId in this.sheetsData) {
-      const { anchor, zones, anchorZone } = this.clipSelection(
-        sheetId,
-        this.sheetsData[sheetId].selection
-      );
-      this.sheetsData[sheetId] = {
-        selection: { anchor, zones, anchorZone },
-        activeCol: anchor[0],
-        activeRow: anchor[1],
-      };
-    }
-  }
-
-  /**
-   * Clip the selection if it spans outside the sheet
-   */
-  private clipSelection(sheetId: UID, selection: Selection): Selection {
-    const sheet = this.getters.getSheet(sheetId);
-    const cols = sheet.cols.length - 1;
-    const rows = sheet.rows.length - 1;
-    const zones = selection.zones.map((z) => ({
-      left: clip(z.left, 0, cols),
-      right: clip(z.right, 0, cols),
-      top: clip(z.top, 0, rows),
-      bottom: clip(z.bottom, 0, rows),
-    }));
-    const anchorCol = clip(selection.anchor[0], 0, cols);
-    const anchorRow = clip(selection.anchor[1], 0, rows);
-    const anchorZone = {
-      left: clip(selection.anchorZone.left, 0, cols),
-      right: clip(selection.anchorZone.right, 0, cols),
-      top: clip(selection.anchorZone.top, 0, rows),
-      bottom: clip(selection.anchorZone.bottom, 0, rows),
-    };
-    return {
-      anchor: [anchorCol, anchorRow],
-      zones,
-      anchorZone,
-    };
-  }
-
-  private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
-    const zone = updateSelectionOnDeletion(this.getSelectedZone(), "left", [...cmd.elements]);
-    this.setSelection([zone.left, zone.top], [zone], zone, true);
-    this.ensureSelectionValidity();
-  }
-
-  private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
-    const zone = updateSelectionOnDeletion(this.getSelectedZone(), "top", [...cmd.elements]);
-    this.setSelection([zone.left, zone.top], [zone], zone, true);
-    this.ensureSelectionValidity();
-  }
-
-  private onAddElements(cmd: AddColumnsRowsCommand) {
-    const selection = this.getSelectedZone();
-    const zone = updateSelectionOnInsertion(
-      selection,
-      cmd.dimension === "COL" ? "left" : "top",
-      cmd.base,
-      cmd.position,
-      cmd.quantity
-    );
-    this.setSelection([zone.left, zone.top], [zone], zone, true);
-  }
-
-  /**
-   * this function searches for anchorZone in selection.zones
-   * and modifies it by newZone
-   */
-  private updateSelectionZones(newZone: Zone): Zone[] {
-    let zones = [...this.selection.zones];
-    const current = this.selection.anchorZone;
-    const index = zones.findIndex((z: Zone) => isEqual(z, current));
-    if (index >= 0) {
-      zones[index] = newZone;
-    }
-    return zones;
   }
 
   private activateNextSheet(direction: "left" | "right") {
@@ -911,6 +538,52 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       sheetIdFrom: this.getActiveSheetId(),
       sheetIdTo: sheetIds[newPosition],
     });
+  }
+
+  private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
+    const { cell, zone } = this.gridSelection.anchor;
+    const selectedZone = updateSelectionOnDeletion(zone, "left", [...cmd.elements]);
+    let anchorZone = { left: cell.col, right: cell.col, top: cell.row, bottom: cell.row };
+    anchorZone = updateSelectionOnDeletion(anchorZone, "left", [...cmd.elements]);
+
+    const anchor = {
+      cell: {
+        col: anchorZone.left,
+        row: anchorZone.top,
+      },
+      zone: selectedZone,
+    };
+    this.setSelectionMixin(anchor, [selectedZone]);
+    this.ensureSelectionValidity();
+  }
+
+  private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
+    const { cell, zone } = this.gridSelection.anchor;
+    const selectedZone = updateSelectionOnDeletion(zone, "top", [...cmd.elements]);
+    let anchorZone = { left: cell.col, right: cell.col, top: cell.row, bottom: cell.row };
+    anchorZone = updateSelectionOnDeletion(anchorZone, "top", [...cmd.elements]);
+    const anchor = {
+      cell: {
+        col: anchorZone.left,
+        row: anchorZone.top,
+      },
+      zone: selectedZone,
+    };
+    this.setSelectionMixin(anchor, [selectedZone]);
+    this.ensureSelectionValidity();
+  }
+
+  private onAddElements(cmd: AddColumnsRowsCommand) {
+    const selection = this.gridSelection.anchor.zone;
+    const zone = updateSelectionOnInsertion(
+      selection,
+      cmd.dimension === "COL" ? "left" : "top",
+      cmd.base,
+      cmd.position,
+      cmd.quantity
+    );
+    const anchor = { cell: { col: zone.left, row: zone.top }, zone };
+    this.setSelectionMixin(anchor, [zone]);
   }
 
   private onMoveElements(cmd: MoveColumnsRowsCommand) {
@@ -979,15 +652,58 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     return CommandResult.Success;
   }
 
+  //-------------------------------------------
+  // Helpers for extensions
+  // ------------------------------------------
+  /**
+   * Ensure selections are not outside sheet boundaries.
+   * They are clipped to fit inside the sheet if needed.
+   */
+  private ensureSelectionValidity() {
+    let { anchor, zones } = this.clipSelection(this.getters.getActiveSheetId(), this.gridSelection);
+    this.gridSelection.zones = uniqueZones(zones);
+    this.gridSelection.anchor.cell.col = anchor.cell.col;
+    this.gridSelection.anchor.cell.row = anchor.cell.row;
+    this.gridSelection.anchor.zone = anchor.zone;
+  }
+
+  /**
+   * Clip the selection if it spans outside the sheet
+   */
+  private clipSelection(sheetId: UID, selection: Selection): Selection {
+    const sheet = this.getters.getSheet(sheetId);
+    const cols = sheet.cols.length - 1;
+    const rows = sheet.rows.length - 1;
+    const zones = selection.zones.map((z) => {
+      return {
+        left: clip(z.left, 0, cols),
+        right: clip(z.right, 0, cols),
+        top: clip(z.top, 0, rows),
+        bottom: clip(z.bottom, 0, rows),
+      };
+    });
+    const anchorCol = clip(selection.anchor.cell.col, 0, cols);
+    const anchorRow = clip(selection.anchor.cell.row, 0, rows);
+    const anchorZone = {
+      left: clip(selection.anchor.zone.left, 0, cols),
+      right: clip(selection.anchor.zone.right, 0, cols),
+      top: clip(selection.anchor.zone.top, 0, rows),
+      bottom: clip(selection.anchor.zone.bottom, 0, rows),
+    };
+    return {
+      zones,
+      anchor: {
+        cell: { col: anchorCol, row: anchorRow },
+        zone: anchorZone,
+      },
+    };
+  }
+
   // ---------------------------------------------------------------------------
   // Grid rendering
   // ---------------------------------------------------------------------------
 
   drawGrid(renderingContext: GridRenderingContext) {
-    if (this.getters.getEditionMode() !== "inactive") {
-      return;
-    }
-
     const { viewport, ctx, thinLineWidth } = renderingContext;
     // selection
     const zones = this.getSelectedZones();

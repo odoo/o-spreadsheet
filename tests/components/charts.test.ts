@@ -1,5 +1,4 @@
 import { App } from "@odoo/owl";
-import { ChartConfiguration } from "chart.js";
 import { Model, Spreadsheet } from "../../src";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../src/constants";
 import { createChart } from "../test_helpers/commands_helpers";
@@ -15,34 +14,7 @@ import {
   spyDispatch,
   textContentAll,
 } from "../test_helpers/helpers";
-
-const mockChart = () => {
-  const mockChartData: ChartConfiguration = {
-    data: undefined,
-    options: {
-      title: undefined,
-    },
-    type: undefined,
-  };
-  class ChartMock {
-    constructor(ctx: unknown, chartData: ChartConfiguration) {
-      Object.assign(mockChartData, chartData);
-    }
-    set data(value) {
-      mockChartData.data = value;
-    }
-    get data() {
-      return mockChartData.data;
-    }
-    destroy = () => {};
-    update = () => {};
-    options = mockChartData.options;
-    config = mockChartData;
-  }
-  //@ts-ignore
-  window.Chart = ChartMock;
-  return mockChartData;
-};
+import { mockChart } from "./__mocks__/chart";
 
 function errorMessages(): string[] {
   return textContentAll(".o-sidepanel-error div");

@@ -1,9 +1,15 @@
 import { App, Component, onMounted, onWillUnmount, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { SelectionInput } from "../../src/components/selection_input";
+import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
 import { activateSheet, createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
-import { simulateClick } from "../test_helpers/dom_helper";
-import { getChildFromComponent, makeTestFixture, nextTick } from "../test_helpers/helpers";
+import { clickCell, keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
+import {
+  getChildFromComponent,
+  makeTestFixture,
+  mountSpreadsheet,
+  nextTick,
+} from "../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -142,11 +148,32 @@ describe("Selection Input", () => {
     app.destroy();
   });
 
+  test("ctrl + select cell --> add new input", async () => {
+    const { app, parent } = await mountSpreadsheet(fixture);
+    OPEN_CF_SIDEPANEL_ACTION(parent.env);
+    await nextTick();
+    await simulateClick(".o-cf-add");
+    await nextTick();
+    const input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
+    await simulateClick(input);
+    clickCell(parent.model, "B4");
+    await nextTick();
+    await keyDown("Control");
+    clickCell(parent.model, "B5");
+    await keyUp("Control");
+    const inputs = fixture.querySelectorAll(
+      ".o-selection-input input"
+    ) as unknown as HTMLInputElement[];
+    expect(inputs.length).toBe(2);
+    expect(inputs[0].value).toBe("B4");
+    expect(inputs[1].value).toBe("B5");
+    app.destroy();
+  });
+
   test("input is not filled with highlight when maximum ranges reached", async () => {
     const { app, model } = await createSelectionInput({ hasSingleRange: true });
     expect(fixture.querySelectorAll("input")).toHaveLength(1);
-    model.dispatch("PREPARE_SELECTION_EXPANSION");
-    model.dispatch("START_SELECTION_EXPANSION");
+    model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
     selectCell(model, "B2");
     await nextTick();
     expect(fixture.querySelectorAll("input")).toHaveLength(1);
@@ -316,6 +343,24 @@ describe("Selection Input", () => {
   test("don't show red border initially", async () => {
     const { app } = await createSelectionInput();
     expect(fixture.querySelectorAll("input")[0].classList).not.toContain("o-invalid");
+    app.destroy();
+  });
+
+  test("pressing and releasing control has no effect on future clicks", async () => {
+    const { app, parent } = await mountSpreadsheet(fixture);
+    OPEN_CF_SIDEPANEL_ACTION(parent.env);
+    await nextTick();
+    await simulateClick(".o-cf-add");
+    await nextTick();
+    let input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
+    await simulateClick(input);
+    expect(input.value).toBe("A1");
+    await keyDown("Control");
+    await keyUp("Control");
+    await clickCell(parent.model, "A2");
+    expect(fixture.querySelectorAll(".o-selection-input input")).toHaveLength(1);
+    input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
+    expect(input.value).toBe("A2");
     app.destroy();
   });
 });

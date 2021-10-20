@@ -4,7 +4,12 @@ import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { SheetUIPlugin } from "../../src/plugins/ui/ui_sheet";
 import { Cell, CommandResult, UID } from "../../src/types";
-import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import {
+  createSheet,
+  selectCell,
+  setAnchorCorner,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { getPlugin } from "../test_helpers/helpers";
 
@@ -350,9 +355,10 @@ describe("formatting values (when change decimal)", () => {
     // select A1, then expand selection to A1:C3
 
     selectCell(model, "A1");
-    model.dispatch("ALTER_SELECTION", { cell: [2, 2] });
 
-    // incrase decimalformat on the selection
+    setAnchorCorner(model, "C3");
+
+    // increase decimalFormat on the selection
 
     setDecimal(model, 1);
 
@@ -389,11 +395,11 @@ describe("formatting values (when change decimal)", () => {
     expect(getCellContent(model, "C1")).toBe("LEBLEBI");
 
     // select A1, then expand selection to A1:C3
-
     selectCell(model, "A1");
-    model.dispatch("ALTER_SELECTION", { cell: [2, 2] });
 
-    // incrase decimalformat on the selection
+    setAnchorCorner(model, "C3");
+
+    // increase decimalFormat on the selection
 
     setDecimal(model, 1);
 

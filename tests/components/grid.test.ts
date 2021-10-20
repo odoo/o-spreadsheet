@@ -13,7 +13,7 @@ import {
   setCellContent,
   setSelection,
 } from "../test_helpers/commands_helpers";
-import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import { clickCell, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
   getChildFromComponent,
@@ -404,7 +404,7 @@ describe("Grid component", () => {
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
       );
-      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+      expect(model.getters.getEditionMode()).toBe("selecting");
       expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
       expect(model.getters.getCurrentContent()).toBe("=SUM()");
     });
@@ -414,7 +414,7 @@ describe("Grid component", () => {
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
       );
-      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+      expect(model.getters.getEditionMode()).toBe("selecting");
       expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
       expect(model.getters.getCurrentContent()).toBe("=SUM()");
     });
@@ -476,7 +476,7 @@ describe("Grid component", () => {
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
       );
-      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+      expect(model.getters.getEditionMode()).toBe("selecting");
       expect(model.getters.getCurrentContent()).toBe("=SUM()");
     });
 
@@ -487,7 +487,7 @@ describe("Grid component", () => {
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
       );
-      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+      expect(model.getters.getEditionMode()).toBe("selecting");
       expect(model.getters.getCurrentContent()).toBe("=SUM()");
     });
 
@@ -874,6 +874,26 @@ describe("Events on Grid update viewport correctly", () => {
       width: 800 - SCROLLBAR_WIDTH,
       height: 650 - SCROLLBAR_WIDTH,
     });
+  });
+
+  test("Scroll viewport then alter selection with mouse from before last cell to last cell does not shift viewport", async () => {
+    await simulateClick("canvas"); // gain focus on grid element
+    const { width } = model.getters.getMaxViewportSize(model.getters.getActiveSheet());
+    const { width: viewportWidth } = model.getters.getViewportDimensionWithHeaders();
+    document.activeElement!.dispatchEvent(
+      // scroll completely to the right
+      new WheelEvent("wheel", {
+        deltaY: width - viewportWidth + HEADER_WIDTH,
+        deltaX: 0,
+        shiftKey: true,
+        deltaMode: 0,
+        bubbles: true,
+      })
+    );
+    const viewport = model.getters.getActiveSnappedViewport();
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject(viewport);
+    await clickCell(model, "Y1", { shiftKey: true });
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject(viewport);
   });
 
   describe("Edge-Scrolling on mouseMove in selection", () => {

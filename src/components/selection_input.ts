@@ -1,7 +1,7 @@
 import { Component, onMounted, onPatched, onWillUnmount, useState, xml } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../constants";
 import { UuidGenerator } from "../helpers/index";
-import { RangeInputValue } from "../plugins/ui/selection_inputs";
+import { RangeInputValue } from "../plugins/ui/selection_input";
 import { SpreadsheetChildEnv } from "../types";
 import { css } from "./helpers/css";
 
@@ -187,7 +187,6 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
 
   focus(rangeId: string) {
     this.state.isMissing = false;
-    this.env.model.dispatch("STOP_EDITION", { cancel: true });
     this.env.model.dispatch("FOCUS_RANGE", {
       id: this.id,
       rangeId,
