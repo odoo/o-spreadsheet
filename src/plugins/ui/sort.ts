@@ -23,7 +23,7 @@ type IndexSortTypeValueMap = { index: number; val: SortTypeValueMap }[];
 type IndexSTVMapItem = { index: number; val: Item | SortTypeValueMap }[];
 
 export class SortPlugin extends UIPlugin {
-  static getters = ["getContiguousZone"];
+  static getters = ["getContiguousZone"] as const;
 
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
@@ -238,7 +238,8 @@ export class SortPlugin extends UIPlugin {
    * @param zone Zone
    *
    */
-  private getContiguousZone(sheetId: UID, zone: Zone): Zone {
+  getContiguousZone(sheetId: UID, zone: Zone): Zone {
+    // public only for tests :/
     let { top, bottom, left, right } = zone;
     let canExpand: boolean;
     const sheet = this.getters.getSheet(sheetId);

@@ -32,7 +32,7 @@ interface ChartState {
 }
 
 export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
-  static getters = ["getChartDefinition", "getChartDefinitionUI", "getChartsIdBySheet"];
+  static getters = ["getChartDefinition", "getChartDefinitionUI", "getChartsIdBySheet"] as const;
   readonly chartFigures: Record<UID, ChartDefinition> = {};
 
   adaptRanges(applyChange: ApplyRangeChange) {

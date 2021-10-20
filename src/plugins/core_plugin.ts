@@ -23,7 +23,7 @@ export interface CorePluginConstructor {
     config: ModelConfig,
     uuidGenerator: UuidGenerator
   ): CorePlugin;
-  getters: string[];
+  getters: readonly string[];
   modes: Mode[];
 }
 

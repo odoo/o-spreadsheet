@@ -13,7 +13,7 @@ export interface UIPluginConstructor {
     config: ModelConfig
   ): UIPlugin;
   layers: LAYERS[];
-  getters: string[];
+  getters: readonly string[];
   modes: Mode[];
 }
 

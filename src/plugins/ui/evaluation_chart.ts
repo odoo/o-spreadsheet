@@ -19,7 +19,7 @@ import { UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class EvaluationChartPlugin extends UIPlugin {
-  static getters = ["getChartRuntime"];
+  static getters = ["getChartRuntime"] as const;
   static modes: Mode[] = ["normal"];
   // contains the configuration of the chart with it's values like they should be displayed,
   // as well as all the options needed for the chart library to work correctly

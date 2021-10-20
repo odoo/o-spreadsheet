@@ -81,7 +81,7 @@ class AutofillGenerator {
  */
 export class AutofillPlugin extends UIPlugin {
   static layers = [LAYERS.Autofill];
-  static getters = ["getAutofillTooltip"];
+  static getters = ["getAutofillTooltip"] as const;
   static modes: Mode[] = ["normal"];
 
   private autofillZone: Zone | undefined;

@@ -49,7 +49,7 @@ export class EditionPlugin extends UIPlugin {
     "getComposerSelection",
     "getCurrentTokens",
     "getTokenAtCursor",
-  ];
+  ] as const;
   static modes: Mode[] = ["normal"];
 
   private col: number = 0;

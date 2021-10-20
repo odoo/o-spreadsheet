@@ -53,7 +53,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "getCellStyle",
     "buildFormulaContent",
     "getCellById",
-  ];
+  ] as const;
 
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
   private createCell = cellFactory(this.getters);

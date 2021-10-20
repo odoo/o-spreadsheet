@@ -4,7 +4,7 @@ import { UIPlugin } from "../ui_plugin";
 
 export class UIOptionsPlugin extends UIPlugin {
   static modes: Mode[] = ["normal"];
-  static getters = ["shouldShowFormulas"];
+  static getters = ["shouldShowFormulas"] as const;
   private showFormulas: boolean = false;
 
   // ---------------------------------------------------------------------------

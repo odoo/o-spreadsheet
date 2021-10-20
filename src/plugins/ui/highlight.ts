@@ -9,7 +9,7 @@ import { UIPlugin } from "../ui_plugin";
 export class HighlightPlugin extends UIPlugin {
   static modes: Mode[] = ["normal"];
   static layers = [LAYERS.Highlights];
-  static getters = ["getHighlights"];
+  static getters = ["getHighlights"] as const;
   private highlights: Highlight[] = [];
   private color: string = "#000";
   private highlightSelectionEnabled = false;

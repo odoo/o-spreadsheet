@@ -47,7 +47,7 @@ export class ConditionalFormatPlugin
   extends CorePlugin<ConditionalFormatState>
   implements ConditionalFormatState
 {
-  static getters = ["getConditionalFormats", "getRulesSelection", "getRulesByCell"];
+  static getters = ["getConditionalFormats", "getRulesSelection", "getRulesByCell"] as const;
 
   readonly cfRules: { [sheet: string]: ConditionalFormatInternal[] } = {};
 

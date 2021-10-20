@@ -73,7 +73,7 @@ export class RendererPlugin extends UIPlugin {
     "isVisibleInViewport",
     "getEdgeScrollCol",
     "getEdgeScrollRow",
-  ];
+  ] as const;
   static modes: Mode[] = ["normal"];
 
   private boxes: Box[] = [];
