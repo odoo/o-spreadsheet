@@ -23,29 +23,6 @@ return _1;
 }"
 `;
 
-exports[`compile functions with lazy arguments functions call requesting lazy parameters 3`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
-) {
-// =USELAZYARG(24)
-let _2 = ()=> 24
-ctx.__lastFnCalled = 'USELAZYARG'
-let _1 = ctx['USELAZYARG'](_2)
-return _1;
-}"
-`;
-
-exports[`compile functions with lazy arguments functions call requesting lazy parameters 4`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
-) {
-// =USELAZYARG(1/0)
-ctx.__lastFnCalled = 'DIVIDE'
-let _2 = ()=> ctx['DIVIDE'](1, 0)
-ctx.__lastFnCalled = 'USELAZYARG'
-let _1 = ctx['USELAZYARG'](_2)
-return _1;
-}"
-`;
-
 exports[`compile functions with meta arguments function call requesting meta parameter 1`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
