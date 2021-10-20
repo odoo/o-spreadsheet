@@ -38,7 +38,7 @@ interface SearchMatch {
 
 export class FindAndReplacePlugin extends UIPlugin {
   static layers = [LAYERS.Search];
-  static getters = ["getSearchMatches", "getCurrentSelectedMatchIndex"];
+  static getters = ["getSearchMatches", "getCurrentSelectedMatchIndex"] as const;
   private searchMatches: SearchMatch[] = [];
   private selectedMatchIndex: number | null = null;
   private currentSearchRegex: RegExp | null = null;

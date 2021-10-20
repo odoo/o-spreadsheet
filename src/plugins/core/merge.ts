@@ -58,7 +58,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     "getMerges",
     "getMerge",
     "isSingleCellOrMerge",
-  ];
+  ] as const;
 
   private nextId: number = 1;
   pending: PendingMerges | null = null;

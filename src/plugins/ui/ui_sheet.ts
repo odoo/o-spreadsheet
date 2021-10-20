@@ -6,7 +6,7 @@ import { Cell, CellValueType, Command, CommandResult, UID, Zone } from "../../ty
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
-  static getters = ["getCellWidth", "getCellHeight", "getTextWidth", "getCellText"];
+  static getters = ["getCellWidth", "getCellHeight", "getTextWidth", "getCellText"] as const;
 
   private ctx = document.createElement("canvas").getContext("2d")!;
 

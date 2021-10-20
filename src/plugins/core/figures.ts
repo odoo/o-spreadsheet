@@ -7,7 +7,7 @@ interface FigureState {
 }
 
 export class FigurePlugin extends CorePlugin<FigureState> implements FigureState {
-  static getters = ["getFigures", "getFigure"];
+  static getters = ["getFigures", "getFigure"] as const;
   readonly figures: {
     [sheet: string]: Record<UID, Figure | undefined> | undefined;
   } = {};

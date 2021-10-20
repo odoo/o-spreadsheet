@@ -44,7 +44,7 @@ interface ClipboardState {
  */
 export class ClipboardPlugin extends UIPlugin {
   static layers = [LAYERS.Clipboard];
-  static getters = ["getClipboardContent", "isPaintingFormat"];
+  static getters = ["getClipboardContent", "isPaintingFormat"] as const;
   static modes: Mode[] = ["normal"];
 
   private status: "visible" | "invisible" = "invisible";

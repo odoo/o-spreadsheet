@@ -28,7 +28,7 @@ interface ClientToDisplay extends Required<Client> {
 }
 
 export class SelectionMultiUserPlugin extends UIPlugin {
-  static getters = ["getClientsToDisplay"];
+  static getters = ["getClientsToDisplay"] as const;
   static layers = [LAYERS.Selection];
   static modes: Mode[] = ["normal"];
   private availableColors = new Set(colors);

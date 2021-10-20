@@ -64,7 +64,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getHiddenRowsGroups",
     "getGridLinesVisibility",
     "isEmpty",
-  ];
+  ] as const;
 
   readonly sheetIds: Record<string, UID | undefined> = {};
   readonly visibleSheets: UID[] = []; // ids of visible sheets

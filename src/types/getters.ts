@@ -29,147 +29,110 @@ import { ViewportPlugin } from "../plugins/ui/viewport";
 // Getters
 // -----------------------------------------------------------------------------
 
-export interface CoreGetters {
-  isReadonly: () => boolean;
+/**
+ * Union of all getter names of a plugin.
+ *
+ * e.g. With the following plugin
+ * ```ts
+ * class MyPlugin {
+ *   static getters = [
+ *     "getCell",
+ *     "getCellValue",
+ *   ] as const;
+ *   getCell() { ... }
+ *   getCellValue() { ... }
+ * }
+ * ```
+ * `type Names = GetterNames<typeof MyPlugin>` is equivalent to
+ * `type Names = "getCell" | "getCellValue"`
+ *
+ * Some technical comments:
+ *
+ * - Since the getter names are in a static array, the type of the plugin must
+ *   be given, not the class itself.
+ *
+ * - we need to index the getters array with every index:
+ *   `Plugin["getters"][0] | Plugin["getters"][1] | Plugin["getters"][2] | ...`
+ *   which is equivalent to `Plugin["getters"][0 | 1 | 2 | ...]`.
+ *   This can be generalized because the union of all indices `0 | 1 | 2 | 3 | ...`
+ *   is actually the type `number`.
+ */
+type GetterNames<Plugin extends { getters: readonly string[] }> = Plugin["getters"][number];
 
+type SheetGetters = Pick<SheetPlugin, GetterNames<typeof SheetPlugin>>;
+type CellGetters = Pick<CellPlugin, GetterNames<typeof CellPlugin>>;
+type MergeGetters = Pick<MergePlugin, GetterNames<typeof MergePlugin>>;
+type BordersGetters = Pick<BordersPlugin, GetterNames<typeof BordersPlugin>>;
+type ChartGetters = Pick<ChartPlugin, GetterNames<typeof ChartPlugin>>;
+type FigureGetters = Pick<FigurePlugin, GetterNames<typeof FigurePlugin>>;
+type RangeAdapterGetters = Pick<RangeAdapter, GetterNames<typeof RangeAdapter>>;
+type ConditionalFormatGetters = Pick<
+  ConditionalFormatPlugin,
+  GetterNames<typeof ConditionalFormatPlugin>
+>;
+type LocalHistoryGetters = {
   canUndo: LocalHistory["canUndo"];
   canRedo: LocalHistory["canRedo"];
+};
 
-  getEvaluationSheets: SheetPlugin["getEvaluationSheets"];
-  getSheet: SheetPlugin["getSheet"];
-  tryGetSheet: SheetPlugin["tryGetSheet"];
-  getSheetName: SheetPlugin["getSheetName"];
-  tryGetSheetName: SheetPlugin["tryGetSheetName"];
-  getSheetIdByName: SheetPlugin["getSheetIdByName"];
-  getSheets: SheetPlugin["getSheets"];
-  getVisibleSheets: SheetPlugin["getVisibleSheets"];
-  getCol: SheetPlugin["getCol"];
-  getRow: SheetPlugin["getRow"];
-  getCell: SheetPlugin["getCell"];
-  getCellPosition: SheetPlugin["getCellPosition"];
-  getColCells: SheetPlugin["getColCells"];
-  getColsZone: SheetPlugin["getColsZone"];
-  getRowsZone: SheetPlugin["getRowsZone"];
-  getHiddenColsGroups: SheetPlugin["getHiddenColsGroups"];
-  getHiddenRowsGroups: SheetPlugin["getHiddenColsGroups"];
-  getGridLinesVisibility: SheetPlugin["getGridLinesVisibility"];
-  getNumberRows: SheetPlugin["getNumberRows"];
-  getNumberCols: SheetPlugin["getNumberCols"];
-  isEmpty: SheetPlugin["isEmpty"];
+export type CoreGetters = { isReadonly: () => boolean } & LocalHistoryGetters &
+  SheetGetters &
+  CellGetters &
+  MergeGetters &
+  BordersGetters &
+  ChartGetters &
+  ConditionalFormatGetters &
+  FigureGetters &
+  RangeAdapterGetters;
 
-  zoneToXC: CellPlugin["zoneToXC"];
-  getCells: CellPlugin["getCells"];
-  getFormulaCellContent: CellPlugin["getFormulaCellContent"];
-  buildFormulaContent: CellPlugin["buildFormulaContent"];
-  getCellStyle: CellPlugin["getCellStyle"];
-  getCellById: CellPlugin["getCellById"];
-
-  getClipboardContent: ClipboardPlugin["getClipboardContent"];
-  isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
-
-  expandZone: MergePlugin["expandZone"];
-  isInMerge: MergePlugin["isInMerge"];
-  getMainCell: MergePlugin["getMainCell"];
-  getBottomLeftCell: MergePlugin["getBottomLeftCell"];
-  doesIntersectMerge: MergePlugin["doesIntersectMerge"];
-  doesColumnsHaveCommonMerges: MergePlugin["doesColumnsHaveCommonMerges"];
-  doesRowsHaveCommonMerges: MergePlugin["doesRowsHaveCommonMerges"];
-  isInSameMerge: MergePlugin["isInSameMerge"];
-  getMerges: MergePlugin["getMerges"];
-  getMerge: MergePlugin["getMerge"];
-  isMergeHidden: MergePlugin["isMergeHidden"];
-  isSingleCellOrMerge: MergePlugin["isSingleCellOrMerge"];
-
-  getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
-  getRulesSelection: ConditionalFormatPlugin["getRulesSelection"];
-  getRulesByCell: ConditionalFormatPlugin["getRulesByCell"];
-
-  getFigures: FigurePlugin["getFigures"];
-  getFigure: FigurePlugin["getFigure"];
-
-  getCellBorder: BordersPlugin["getCellBorder"];
-
-  getChartDefinition: ChartPlugin["getChartDefinition"];
-  getChartsIdBySheet: ChartPlugin["getChartsIdBySheet"];
-  getChartDefinitionUI: ChartPlugin["getChartDefinitionUI"];
-
-  getRangeString: RangeAdapter["getRangeString"];
-  getRangeFromSheetXC: RangeAdapter["getRangeFromSheetXC"];
-  createAdaptedRanges: RangeAdapter["createAdaptedRanges"];
-}
-
-export type Getters = CoreGetters & {
-  getActiveSheetId: SelectionPlugin["getActiveSheetId"];
-  getActiveSheet: SelectionPlugin["getActiveSheet"];
-  getActiveCell: SelectionPlugin["getActiveCell"];
-  getActiveCols: SelectionPlugin["getActiveCols"];
-  getActiveRows: SelectionPlugin["getActiveRows"];
-  getCurrentStyle: SelectionPlugin["getCurrentStyle"];
-  getSelectedZones: SelectionPlugin["getSelectedZones"];
-  getSelectedZone: SelectionPlugin["getSelectedZone"];
-  getSelection: SelectionPlugin["getSelection"];
-  getSelectedFigureId: SelectionPlugin["getSelectedFigureId"];
-  getVisibleFigures: SelectionPlugin["getVisibleFigures"];
-  getPosition: SelectionPlugin["getPosition"];
-  getSheetPosition: SelectionPlugin["getSheetPosition"];
-  getAggregate: SelectionPlugin["getAggregate"];
-  getSelectionMode: SelectionPlugin["getSelectionMode"];
-  isSelected: SelectionPlugin["isSelected"];
-  getElementsFromSelection: SelectionPlugin["getElementsFromSelection"];
-
+type AutofillGetters = Pick<AutofillPlugin, GetterNames<typeof AutofillPlugin>>;
+type AutomaticSumGetters = Pick<AutomaticSumPlugin, GetterNames<typeof AutomaticSumPlugin>>;
+type ClipboardGetters = Pick<ClipboardPlugin, GetterNames<typeof ClipboardPlugin>>;
+type EditionGetters = Pick<EditionPlugin, GetterNames<typeof EditionPlugin>>;
+type EvaluationGetters = Pick<EvaluationPlugin, GetterNames<typeof EvaluationPlugin>>;
+type EvaluationChartGetters = Pick<
+  EvaluationChartPlugin,
+  GetterNames<typeof EvaluationChartPlugin>
+>;
+type EvaluationConditionalFormatGetters = Pick<
+  EvaluationConditionalFormatPlugin,
+  GetterNames<typeof EvaluationConditionalFormatPlugin>
+>;
+type FindAndReplaceGetters = Pick<FindAndReplacePlugin, GetterNames<typeof FindAndReplacePlugin>>;
+type HighlightGetters = Pick<HighlightPlugin, GetterNames<typeof HighlightPlugin>>;
+type RendererGetters = Pick<RendererPlugin, GetterNames<typeof RendererPlugin>>;
+type SelectionGetters = Pick<SelectionPlugin, GetterNames<typeof SelectionPlugin>>;
+type SelectionInputGetters = Pick<SelectionInputPlugin, GetterNames<typeof SelectionInputPlugin>>;
+type SelectionMultiUserGetters = Pick<
+  SelectionMultiUserPlugin,
+  GetterNames<typeof SelectionMultiUserPlugin>
+>;
+type SortGetters = Pick<SortPlugin, GetterNames<typeof SortPlugin>>;
+type UIOptionsGetters = Pick<UIOptionsPlugin, GetterNames<typeof UIOptionsPlugin>>;
+type SheetUIGetters = Pick<SheetUIPlugin, GetterNames<typeof SheetUIPlugin>>;
+type ViewportGetters = Pick<ViewportPlugin, GetterNames<typeof ViewportPlugin>>;
+type SessionGetters = {
   getClient: Session["getClient"];
   getConnectedClients: Session["getConnectedClients"];
   isFullySynchronized: Session["isFullySynchronized"];
-
-  getCellWidth: SheetUIPlugin["getCellWidth"];
-  getTextWidth: SheetUIPlugin["getTextWidth"];
-  getCellHeight: SheetUIPlugin["getCellHeight"];
-  getCellText: SheetUIPlugin["getCellText"];
-
-  getRangeFormattedValues: EvaluationPlugin["getRangeFormattedValues"];
-  evaluateFormula: EvaluationPlugin["evaluateFormula"];
-  getRangeValues: EvaluationPlugin["getRangeValues"];
-
-  shouldShowFormulas: UIOptionsPlugin["shouldShowFormulas"];
-  getChartRuntime: EvaluationChartPlugin["getChartRuntime"];
-
-  getConditionalStyle: EvaluationConditionalFormatPlugin["getConditionalStyle"];
-  getConditionalIcon: EvaluationConditionalFormatPlugin["getConditionalIcon"];
-
-  getHighlights: HighlightPlugin["getHighlights"];
-
-  getColIndex: RendererPlugin["getColIndex"];
-  getRowIndex: RendererPlugin["getRowIndex"];
-  getRect: RendererPlugin["getRect"];
-  isVisibleInViewport: RendererPlugin["isVisibleInViewport"];
-  getEdgeScrollCol: RendererPlugin["getEdgeScrollCol"];
-  getEdgeScrollRow: RendererPlugin["getEdgeScrollRow"];
-
-  getEditionMode: EditionPlugin["getEditionMode"];
-  isSelectingForComposer: EditionPlugin["isSelectingForComposer"];
-  getCurrentContent: EditionPlugin["getCurrentContent"];
-  getEditionSheet: EditionPlugin["getEditionSheet"];
-  getComposerSelection: EditionPlugin["getComposerSelection"];
-  getCurrentTokens: EditionPlugin["getCurrentTokens"];
-  getTokenAtCursor: EditionPlugin["getTokenAtCursor"];
-
-  getAutofillTooltip: AutofillPlugin["getAutofillTooltip"];
-
-  getSelectionInput: SelectionInputPlugin["getSelectionInput"];
-  getSelectionInputValue: SelectionInputPlugin["getSelectionInputValue"];
-  isRangeValid: SelectionInputPlugin["isRangeValid"];
-
-  getSearchMatches: FindAndReplacePlugin["getSearchMatches"];
-  getCurrentSelectedMatchIndex: FindAndReplacePlugin["getCurrentSelectedMatchIndex"];
-
-  getContiguousZone: SortPlugin["getContiguousZone"];
-
-  getClientsToDisplay: SelectionMultiUserPlugin["getClientsToDisplay"];
-
-  getViewportDimension: ViewportPlugin["getViewportDimension"];
-  getActiveViewport: ViewportPlugin["getActiveViewport"];
-  getActiveSnappedViewport: ViewportPlugin["getActiveSnappedViewport"];
-  getGridDimension: ViewportPlugin["getGridDimension"];
-
-  getAutomaticSums: AutomaticSumPlugin["getAutomaticSums"];
 };
+
+export type Getters = CoreGetters &
+  SessionGetters &
+  AutofillGetters &
+  AutomaticSumGetters &
+  ClipboardGetters &
+  EditionGetters &
+  EvaluationGetters &
+  EvaluationChartGetters &
+  EvaluationConditionalFormatGetters &
+  FindAndReplaceGetters &
+  HighlightGetters &
+  RendererGetters &
+  SelectionGetters &
+  SelectionInputGetters &
+  SelectionMultiUserGetters &
+  SortGetters &
+  UIOptionsGetters &
+  SheetUIGetters &
+  ViewportGetters;

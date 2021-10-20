@@ -27,7 +27,7 @@ export interface RangeInputValue {
 export class SelectionInputPlugin extends UIPlugin {
   static modes: Mode[] = ["normal"];
   static layers = [LAYERS.Highlights];
-  static getters = ["getSelectionInput", "getSelectionInputValue", "isRangeValid"];
+  static getters = ["getSelectionInput", "getSelectionInputValue", "isRangeValid"] as const;
 
   private inputs: Record<UID, RangeInputValue[]> = {};
   private activeSheets: Record<UID, UID> = {};

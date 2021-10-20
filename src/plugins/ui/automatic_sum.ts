@@ -19,7 +19,7 @@ interface AutomaticSum {
 }
 
 export class AutomaticSumPlugin extends UIPlugin {
-  static getters = ["getAutomaticSums"];
+  static getters = ["getAutomaticSums"] as const;
   static modes: Mode[] = ["normal", "headless"];
 
   handle(cmd: Command) {

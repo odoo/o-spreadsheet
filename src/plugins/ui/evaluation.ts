@@ -33,7 +33,7 @@ const functionMap = functionRegistry.mapping;
 type FormulaParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 
 export class EvaluationPlugin extends UIPlugin {
-  static getters = ["evaluateFormula", "getRangeFormattedValues", "getRangeValues"];
+  static getters = ["evaluateFormula", "getRangeFormattedValues", "getRangeValues"] as const;
   static modes: Mode[] = ["normal"];
 
   private isUpToDate: Set<UID> = new Set(); // Set<sheetIds>

@@ -24,7 +24,7 @@ interface BordersPluginState {
  * - borders
  */
 export class BordersPlugin extends CorePlugin<BordersPluginState> implements BordersPluginState {
-  static getters = ["getCellBorder"];
+  static getters = ["getCellBorder"] as const;
 
   public readonly borders: BordersPluginState["borders"] = {};
 

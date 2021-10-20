@@ -30,7 +30,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     this.getters = getters;
   }
 
-  static getters = ["getRangeString", "getRangeFromSheetXC", "createAdaptedRanges"];
+  static getters = ["getRangeString", "getRangeFromSheetXC", "createAdaptedRanges"] as const;
 
   // ---------------------------------------------------------------------------
   // Command Handling

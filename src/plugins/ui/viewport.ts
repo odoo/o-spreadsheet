@@ -30,7 +30,7 @@ export class ViewportPlugin extends UIPlugin {
     "getActiveSnappedViewport",
     "getViewportDimension",
     "getGridDimension",
-  ];
+  ] as const;
   static modes: Mode[] = ["normal"];
 
   readonly viewports: ViewportPluginState["viewports"] = {};
