@@ -254,9 +254,13 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   private processArrowKeys(ev: KeyboardEvent) {
     if (this.env.model.getters.isSelectingForComposer()) {
       this.functionDescriptionState.showDescription = false;
+      // let the event bubble to the grid. Arrows are supposed
+      // to select cells
       return;
     }
+    // only for arrow up and down
     if (this.props.focus === "cellFocus" && !this.autoCompleteState.showProvider) {
+      this.env.model.dispatch("STOP_EDITION");
       return;
     }
     ev.stopPropagation();
@@ -290,8 +294,9 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     }
 
-    const deltaX = ev.shiftKey ? -1 : 1;
-    this.env.model.dispatch("MOVE_POSITION", { deltaX, deltaY: 0 });
+    const deltaCol = ev.shiftKey ? -1 : 1;
+    this.env.model.dispatch("STOP_EDITION");
+    this.env.model.selection.moveAnchorCell(deltaCol, 0);
   }
 
   private processEnterKey(ev: KeyboardEvent) {
@@ -306,10 +311,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       }
     }
     this.env.model.dispatch("STOP_EDITION");
-    this.env.model.dispatch("MOVE_POSITION", {
-      deltaX: 0,
-      deltaY: ev.shiftKey ? -1 : 1,
-    });
+    this.env.model.selection.moveAnchorCell(0, ev.shiftKey ? -1 : 1);
   }
 
   private processEscapeKey() {
@@ -451,7 +453,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     let value = this.env.model.getters.getCurrentContent();
     if (value === "") {
       content = [];
-    } else if (value.startsWith("=") && this.env.model.getters.getEditionMode() !== "inactive") {
+    } else if (value.startsWith("=") && this.props.focus !== "inactive") {
       content = this.getColoredTokens();
     } else {
       content = [{ value }];
@@ -463,7 +465,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     const tokens = this.env.model.getters.getCurrentTokens();
     const tokenAtCursor = this.env.model.getters.getTokenAtCursor();
     const result: any[] = [];
-    const { end } = this.env.model.getters.getComposerSelection();
+    const { end, start } = this.env.model.getters.getComposerSelection();
     for (let token of tokens) {
       switch (token.type) {
         case "OPERATOR":
@@ -503,11 +505,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
           result.push({ value: token.value, color: "#000" });
           break;
       }
-      // Note: mode === waitingForRangeSelection implies end === start
-      if (
-        this.env.model.getters.getEditionMode() === "waitingForRangeSelection" &&
-        end === token.end
-      ) {
+      if (this.env.model.getters.showSelectionIndicator() && end === start && end === token.end) {
         result[result.length - 1].class = SelectionIndicatorClass;
       }
     }
@@ -515,7 +513,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private rangeColor(xc: string, sheetName?: string): string | undefined {
-    if (this.env.model.getters.getEditionMode() === "inactive") {
+    if (this.props.focus === "inactive") {
       return undefined;
     }
     const highlights = this.env.model.getters.getHighlights();

@@ -4,11 +4,13 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "../../constants";
-import { findLastVisibleColRow, getNextVisibleCellCoords } from "../../helpers";
+import { findCellInNewZone, findLastVisibleColRow, getNextVisibleCellCoords } from "../../helpers";
 import { Mode } from "../../model";
+import { SelectionEvent } from "../../types/event_stream";
 import {
   Command,
   CommandResult,
+  Position,
   Row,
   Sheet,
   UID,
@@ -72,8 +74,34 @@ export class ViewportPlugin extends UIPlugin {
     }
   }
 
+  private handleEvent(event: SelectionEvent) {
+    switch (event.type) {
+      case "HeadersSelected":
+      case "AlterZoneCorner":
+        break;
+      case "ZonesSelected":
+        if (event.mode === "updateAnchor") {
+          // altering a zone should not move the viewport
+          const [col, row] = findCellInNewZone(
+            event.previousAnchor.zone,
+            event.anchor.zone,
+            this.getActiveSnappedViewport()
+          );
+          this.refreshViewport(this.getters.getActiveSheetId(), { col, row });
+        } else {
+          this.refreshViewport(this.getters.getActiveSheetId());
+        }
+        break;
+    }
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
+      case "START":
+        this.selection.observe(this, {
+          handleEvent: this.handleEvent.bind(this),
+        });
+        break;
       case "UNDO":
       case "REDO":
         this.cleanViewports();
@@ -116,10 +144,6 @@ export class ViewportPlugin extends UIPlugin {
         break;
       case "ACTIVATE_SHEET":
         this.refreshViewport(cmd.sheetIdTo);
-        break;
-      case "SELECT_CELL":
-      case "MOVE_POSITION":
-        this.refreshViewport(this.getters.getActiveSheetId());
         break;
     }
   }
@@ -220,9 +244,10 @@ export class ViewportPlugin extends UIPlugin {
 
   private resetViewports() {
     for (let [sheetId, viewport] of Object.entries(this.viewports)) {
+      const [col, row] = this.getters.getSheetPosition(sheetId);
       this.adjustViewportOffsetX(sheetId, viewport);
       this.adjustViewportOffsetY(sheetId, viewport);
-      this.adjustViewportsPosition(sheetId);
+      this.adjustViewportsPosition(sheetId, { col, row });
     }
   }
 
@@ -311,10 +336,13 @@ export class ViewportPlugin extends UIPlugin {
     return this.viewports[sheetId];
   }
 
-  private refreshViewport(sheetId: UID) {
+  /**
+   * Adjust the viewport such that the anchor position is visible
+   */
+  private refreshViewport(sheetId: UID, anchorPosition?: Position) {
     const viewport = this.getViewport(sheetId);
     this.adjustViewportZone(sheetId, viewport);
-    this.adjustViewportsPosition(sheetId);
+    this.adjustViewportsPosition(sheetId, anchorPosition);
   }
 
   private adjustViewportZone(sheetId: UID, viewport: Viewport) {
@@ -361,14 +389,17 @@ export class ViewportPlugin extends UIPlugin {
    * In order to keep the coherence of both viewports, it is also necessary to update the standard viewport
    * if the zones of both viewports don't match.
    */
-  private adjustViewportsPosition(sheetId: UID, position?: [number, number]) {
+  private adjustViewportsPosition(sheetId: UID, position?: Position) {
     const sheet = this.getters.getSheet(sheetId);
     const { cols, rows } = sheet;
     const adjustedViewport = this.getSnappedViewport(sheetId);
-    position = position || this.getters.getSheetPosition(sheetId);
+    if (!position) {
+      const sheetPosition = this.getters.getSheetPosition(sheetId);
+      position = { col: sheetPosition[0], row: sheetPosition[1] };
+    }
     const [col, row] = getNextVisibleCellCoords(
       sheet,
-      ...this.getters.getMainCell(sheetId, position[0], position[1])
+      ...this.getters.getMainCell(sheetId, position.col, position.row)
     );
     while (
       cols[col].end > adjustedViewport.offsetX + this.viewportWidth &&
@@ -431,10 +462,7 @@ export class ViewportPlugin extends UIPlugin {
     this.setViewportOffset(offsetX, offset);
     const { anchor } = this.getters.getSelection();
     const deltaRow = this.getActiveSnappedViewport().top - top;
-    this.dispatch("SELECT_CELL", {
-      col: anchor[0],
-      row: anchor[1] + deltaRow,
-    });
+    this.selection.selectCell(anchor[0], anchor[1] + deltaRow);
   }
 
   /**

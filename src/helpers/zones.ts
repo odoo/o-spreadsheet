@@ -1,4 +1,4 @@
-import { Viewport, Zone, ZoneDimension } from "../types";
+import { Position, Viewport, Zone, ZoneDimension } from "../types";
 import { toCartesian, toXC } from "./coordinates";
 import { range } from "./misc";
 
@@ -499,4 +499,8 @@ export function organizeZone(zone: Zone): Zone {
     left: Math.min(zone.left, zone.right),
     right: Math.max(zone.left, zone.right),
   };
+}
+
+export function positionToZone(position: Position) {
+  return { left: position.col, right: position.col, top: position.row, bottom: position.row };
 }

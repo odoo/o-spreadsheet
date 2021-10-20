@@ -16,10 +16,14 @@ import {
   hideColumns,
   hideRows,
   merge,
+  moveAnchorCell,
   redo,
   resizeColumns,
   resizeRows,
+  selectAll,
   selectCell,
+  selectColumn,
+  selectRow,
   setSelection,
   undo,
 } from "../test_helpers/commands_helpers";
@@ -319,7 +323,7 @@ describe("Viewport of Simple sheet", () => {
     const { cols } = model.getters.getActiveSheet();
     //scroll max
     selectCell(model, "Z1");
-    model.dispatch("SELECT_ALL");
+    selectAll(model);
 
     resizeColumns(
       model,
@@ -367,7 +371,7 @@ describe("Viewport of Simple sheet", () => {
     const { rows } = model.getters.getActiveSheet();
     //scroll max
     selectCell(model, "A100");
-    model.dispatch("SELECT_ALL");
+    model.selection.selectAll();
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 57,
       bottom: 99,
@@ -445,7 +449,7 @@ describe("Viewport of Simple sheet", () => {
   test("Horizontally move position to top right then back to top left correctly affects offset", () => {
     const { right } = model.getters.getActiveViewport();
     selectCell(model, toXC(right - 1, 0));
-    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    moveAnchorCell(model, 1, 0);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 43,
@@ -457,8 +461,8 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveViewport()).toMatchObject(
       model.getters.getActiveSnappedViewport()
     );
-    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
-    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    moveAnchorCell(model, 1, 0);
+    moveAnchorCell(model, 1, 0);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 43,
@@ -473,8 +477,8 @@ describe("Viewport of Simple sheet", () => {
 
     const { left } = model.getters.getActiveSnappedViewport();
     selectCell(model, toXC(left, 0));
-    model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 });
-    model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 });
+    moveAnchorCell(model, -1, 0);
+    moveAnchorCell(model, -1, 0);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 43,
@@ -491,7 +495,7 @@ describe("Viewport of Simple sheet", () => {
   test("Vertically move position to bottom left then back to top left correctly affects offset", () => {
     const { bottom } = model.getters.getActiveViewport();
     selectCell(model, toXC(0, bottom - 1));
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    moveAnchorCell(model, 0, 1);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 1,
       bottom: 44,
@@ -503,8 +507,8 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveViewport()).toMatchObject(
       model.getters.getActiveSnappedViewport()
     );
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    moveAnchorCell(model, 0, 1);
+    moveAnchorCell(model, 0, 1);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 3,
       bottom: 46,
@@ -518,8 +522,8 @@ describe("Viewport of Simple sheet", () => {
     );
     const { top } = model.getters.getActiveViewport();
     selectCell(model, toXC(0, top));
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
+    moveAnchorCell(model, 0, -1);
+    moveAnchorCell(model, 0, -1);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 1,
       bottom: 44,
@@ -544,7 +548,7 @@ describe("Viewport of Simple sheet", () => {
       offsetX: 0,
       offsetY: 0,
     });
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    moveAnchorCell(model, 0, 1);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 1,
       bottom: 44,
@@ -569,7 +573,7 @@ describe("Viewport of Simple sheet", () => {
       offsetX: 0,
       offsetY: 0,
     });
-    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    moveAnchorCell(model, 1, 0);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 43,
@@ -585,13 +589,13 @@ describe("Viewport of Simple sheet", () => {
   test("Select Column while updating range does not update viewport", () => {
     selectCell(model, "C51");
     const viewport = model.getters.getActiveViewport();
-    model.dispatch("SELECT_COLUMN", { index: 3 });
+    selectColumn(model, 3, "overrideSelection");
     expect(model.getters.getActiveViewport()).toMatchObject(viewport);
   });
   test("Select Row does not update viewport", () => {
     selectCell(model, "U5");
     const viewport = model.getters.getActiveViewport();
-    model.dispatch("SELECT_ROW", { index: 3 });
+    selectRow(model, 3, "overrideSelection");
     expect(model.getters.getActiveViewport()).toMatchObject(viewport);
   });
   test("Resize Viewport is correctly computed and does not adjust position", () => {

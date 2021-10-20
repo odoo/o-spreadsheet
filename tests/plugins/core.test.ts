@@ -3,6 +3,7 @@ import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
   activateSheet,
+  addCellToSelection,
   addColumns,
   addRows,
   createSheet,
@@ -10,7 +11,9 @@ import {
   resizeColumns,
   resizeRows,
   selectCell,
+  setAnchorCorner,
   setCellContent,
+  setSelection,
   undo,
 } from "../test_helpers/commands_helpers";
 import {
@@ -29,17 +32,13 @@ describe("core", () => {
       setCellContent(model, "A2", "2");
       setCellContent(model, "A3", "3");
 
-      // select the range A1:A2
-      selectCell(model, "A1");
-      model.dispatch("ALTER_SELECTION", { cell: [0, 1] }); // A2
+      setSelection(model, ["A1:A2"]);
       let statisticFnResults = model.getters.getStatisticFnResults();
       expect(statisticFnResults["Count"]).toBe(2);
 
       // expand selection with the range A3:A2
-      model.dispatch("PREPARE_SELECTION_EXPANSION");
-      model.dispatch("START_SELECTION_EXPANSION");
-      selectCell(model, "A3");
-      model.dispatch("ALTER_SELECTION", { cell: [0, 1] }); // A2
+      addCellToSelection(model, "A3");
+      setAnchorCorner(model, "A2");
 
       // A2 is now present in two selection
       statisticFnResults = model.getters.getStatisticFnResults();
@@ -58,12 +57,12 @@ describe("core", () => {
       test('return the "SUM" value only on cells interpreted as number', () => {
         // select the range A1:A7
         selectCell(model, "A1");
-        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        setAnchorCorner(model, "A7");
         let statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Sum"]).toBe(66);
         // select the range A3:A7
         selectCell(model, "A3");
-        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        setAnchorCorner(model, "A7");
         statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Sum"]).toBe(undefined);
       });
@@ -71,12 +70,12 @@ describe("core", () => {
       test('return the "Avg" result only on cells interpreted as number', () => {
         // select the range A1:A7
         selectCell(model, "A1");
-        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        setAnchorCorner(model, "A7");
         let statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Avg"]).toBe(33);
         // select the range A3:A7
         selectCell(model, "A3");
-        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        setAnchorCorner(model, "A7");
         statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Avg"]).toBe(undefined);
       });
@@ -84,12 +83,12 @@ describe("core", () => {
       test('return "Min" value only on cells interpreted as number', () => {
         // select the range A1:A7
         selectCell(model, "A1");
-        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        setAnchorCorner(model, "A7");
         let statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Min"]).toBe(24);
         // select the range A3:A7
         selectCell(model, "A3");
-        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        setAnchorCorner(model, "A7");
         statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Min"]).toBe(undefined);
       });
@@ -97,12 +96,12 @@ describe("core", () => {
       test('return the "Max" value only on cells interpreted as number', () => {
         // select the range A1:A7
         selectCell(model, "A1");
-        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        setAnchorCorner(model, "A7");
         let statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Max"]).toBe(42);
         // select the range A3:A7
         selectCell(model, "A3");
-        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        setAnchorCorner(model, "A7");
         statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Max"]).toBe(undefined);
       });
@@ -110,12 +109,12 @@ describe("core", () => {
       test('return the "Count" value on all types of interpreted cells except on cells interpreted as empty', () => {
         // select the range A1:A7
         selectCell(model, "A1");
-        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        setAnchorCorner(model, "A7");
         let statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Count"]).toBe(5);
         // select the range A6:A7
         selectCell(model, "A6");
-        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        setAnchorCorner(model, "A7");
         statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Count"]).toBe(undefined);
       });
@@ -143,7 +142,7 @@ describe("core", () => {
 
         // select the range A6:A7
         selectCell(model, "A6");
-        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        setAnchorCorner(model, "A7");
         statisticFnResults = model.getters.getStatisticFnResults();
         expect(statisticFnResults["Count"]).toBe(undefined);
       });

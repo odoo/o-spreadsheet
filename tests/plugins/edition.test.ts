@@ -3,11 +3,15 @@ import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
   activateSheet,
+  addCellToSelection,
   createSheet,
   createSheetWithName,
   merge,
+  moveAnchorCell,
   renameSheet,
+  resizeAnchorZone,
   selectCell,
+  setAnchorCorner,
   setCellContent,
   setSelection,
 } from "../test_helpers/commands_helpers";
@@ -69,10 +73,10 @@ describe("edition", () => {
     const model = new Model();
     const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("START_EDITION", { text: "=" });
-    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+    expect(model.getters.getEditionMode()).toBe("selecting");
     expect(model.getters.getEditionSheet()).toBe(sheet1);
     createSheet(model, { activate: true, sheetId: "42" });
-    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+    expect(model.getters.getEditionMode()).toBe("selecting");
     expect(model.getters.getEditionSheet()).toBe(sheet1);
     model.dispatch("STOP_EDITION");
     expect(model.getters.getActiveSheetId()).toBe(sheet1);
@@ -86,6 +90,20 @@ describe("edition", () => {
     expect(model.getters.getEditionMode()).toBe("inactive");
     model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     expect(model.getters.getEditionMode()).toBe("inactive");
+  });
+
+  test("select cells in another sheet", () => {
+    const model = new Model();
+    const sheet2 = "42";
+    createSheet(model, { sheetId: sheet2 });
+    model.dispatch("START_EDITION", { text: "=SUM(" });
+    selectCell(model, "A4");
+    expect(model.getters.getCurrentContent()).toBe("=SUM(A4");
+    activateSheet(model, sheet2);
+    addCellToSelection(model, "B3");
+    expect(model.getters.getCurrentContent()).toBe("=SUM(A4,Sheet2!B3");
+    resizeAnchorZone(model, 1, 0);
+    expect(model.getters.getCurrentContent()).toBe("=SUM(A4,Sheet2!B3:C3");
   });
 
   test("Composer has the content with the updated sheet name", () => {
@@ -362,16 +380,9 @@ describe("edition", () => {
 
     selectCell(model, "A1");
     expect(model.getters.getCurrentContent()).toBe("=A1");
-
-    model.dispatch("MOVE_POSITION", {
-      deltaX: 1,
-      deltaY: 1,
-    });
+    moveAnchorCell(model, 1, 1);
     expect(model.getters.getCurrentContent()).toBe("=B2");
-
-    model.dispatch("ALTER_SELECTION", {
-      delta: [1, 1],
-    });
+    resizeAnchorZone(model, 1, 1);
     expect(model.getters.getCurrentContent()).toBe("=B2:C3");
   });
 
@@ -380,13 +391,11 @@ describe("edition", () => {
     selectCell(model, "C3");
     model.dispatch("START_EDITION", { text: "=SUM(" });
 
-    model.dispatch("START_SELECTION_EXPANSION");
-    selectCell(model, "D4");
+    addCellToSelection(model, "D4");
     expect(model.getters.getCurrentContent()).toBe("=SUM(D4");
-    model.dispatch("PREPARE_SELECTION_EXPANSION");
+    model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
 
-    model.dispatch("START_SELECTION_EXPANSION");
-    selectCell(model, "E5");
+    addCellToSelection(model, "E5");
     expect(model.getters.getCurrentContent()).toBe("=SUM(D4,E5");
   });
 
@@ -395,35 +404,28 @@ describe("edition", () => {
     selectCell(model, "C3");
     model.dispatch("START_EDITION", { text: "=SUM(" });
 
-    model.dispatch("START_SELECTION_EXPANSION");
-    selectCell(model, "D4");
+    addCellToSelection(model, "D4");
     expect(model.getters.getCurrentContent()).toBe("=SUM(D4");
-    model.dispatch("PREPARE_SELECTION_EXPANSION");
 
-    model.dispatch("START_SELECTION_EXPANSION");
-    selectCell(model, "E5");
+    addCellToSelection(model, "E5");
     expect(model.getters.getCurrentContent()).toBe("=SUM(D4,E5");
-    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    resizeAnchorZone(model, 0, 1);
     expect(model.getters.getCurrentContent()).toBe("=SUM(D4,E5:E6");
   });
 
-  test("stopping expansion should reset the reference of the affected cells after a new selection", () => {
+  test("new selection should only affect the last selection", () => {
     const model = new Model();
     selectCell(model, "C3");
     model.dispatch("START_EDITION", { text: "=SUM(" });
 
-    model.dispatch("START_SELECTION_EXPANSION");
-    selectCell(model, "D4");
-    model.dispatch("PREPARE_SELECTION_EXPANSION");
-
-    model.dispatch("START_SELECTION_EXPANSION");
-    selectCell(model, "E5");
-    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
-    model.dispatch("STOP_SELECTION");
+    addCellToSelection(model, "D4");
+    addCellToSelection(model, "E5");
+    resizeAnchorZone(model, 0, 1);
+    model.dispatch("STOP_SELECTION_INPUT");
 
     expect(model.getters.getCurrentContent()).toBe("=SUM(D4,E5:E6");
     selectCell(model, "F6");
-    expect(model.getters.getCurrentContent()).toBe("=SUM(F6");
+    expect(model.getters.getCurrentContent()).toBe("=SUM(D4,F6");
   });
 
   test("start edition without selection set cursor at the end", () => {
@@ -461,14 +463,6 @@ describe("edition", () => {
     ).toBeCancelledBecause(CommandResult.WrongComposerSelection);
   });
 
-  test("select another cell while editing set the content to the selected cell", () => {
-    const model = new Model();
-    setCellContent(model, "A2", "Hello sir");
-    model.dispatch("START_EDITION", { text: "coucou" });
-    selectCell(model, "A2");
-    expect(model.getters.getCurrentContent()).toBe("Hello sir");
-  });
-
   test("set value of the active cell updates the content", () => {
     const model = new Model();
     expect(model.getters.getPosition()).toEqual(toCartesian("A1"));
@@ -502,7 +496,8 @@ describe("edition", () => {
 
     model.dispatch("START_EDITION", { text: "=" });
     selectCell(model, "D4");
-    model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
+
+    setAnchorCorner(model, "E5");
 
     expect(model.getters.getCurrentContent()).toBe("=D4:E5");
   });
@@ -514,9 +509,9 @@ describe("edition", () => {
     model.dispatch("START_EDITION", { text: "=" });
     selectCell(model, "D4");
     expect(model.getters.getCurrentContent()).toBe("=D4");
-    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    resizeAnchorZone(model, 0, 1);
     expect(model.getters.getCurrentContent()).toBe("=D4:D5");
-    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
+    resizeAnchorZone(model, 0, -1);
     expect(model.getters.getCurrentContent()).toBe("=D4");
   });
 
@@ -524,11 +519,11 @@ describe("edition", () => {
     const model = new Model();
     selectCell(model, "D3");
     model.dispatch("START_EDITION", { text: "=" });
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    moveAnchorCell(model, 0, 1);
     expect(model.getters.getCurrentContent()).toBe("=D4");
     model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     model.dispatch("SET_CURRENT_CONTENT", { content: "=D4+" });
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    moveAnchorCell(model, 0, 1);
     expect(model.getters.getCurrentContent()).toBe("=D4+D4");
   });
 
@@ -538,17 +533,14 @@ describe("edition", () => {
     expect(model.getters.getCell(model.getters.getActiveSheetId(), col, row)).toBeUndefined();
     selectCell(model, "A2");
     model.dispatch("START_EDITION", { text: "=" });
-    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    moveAnchorCell(model, 1, 0);
     expect(model.getters.getCurrentContent()).toBe("=B2");
-    expect(model.getters.getEditionMode()).toBe("rangeSelected");
   });
 
   test("content is the raw cell content, not the evaluated text", () => {
     const model = new Model();
-    setCellContent(model, "A2", "=SUM(5)");
+    setCellContent(model, "A1", "=SUM(5)");
     model.dispatch("START_EDITION");
-    selectCell(model, "A2");
     expect(model.getters.getCurrentContent()).toBe("=SUM(5)");
   });
 

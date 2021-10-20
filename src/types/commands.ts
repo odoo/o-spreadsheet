@@ -96,21 +96,11 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
 
   "COPY",
 
-  "START_SELECTION",
-  "SET_SELECTION",
-  "ALTER_SELECTION",
-  "START_SELECTION_EXPANSION",
-  "PREPARE_SELECTION_EXPANSION",
-  "STOP_SELECTION",
+  "PREPARE_SELECTION_INPUT_EXPANSION",
+  "STOP_SELECTION_INPUT",
 
   "RESIZE_VIEWPORT",
   "SET_VIEWPORT_OFFSET",
-
-  "SELECT_ALL",
-  "SELECT_CELL",
-  "SELECT_COLUMN",
-  "SELECT_ROW",
-  "SELECT_FIGURE",
 
   "MOVE_POSITION",
 
@@ -451,28 +441,6 @@ export interface ActivateSheetCommand {
   sheetIdTo: UID;
 }
 
-export interface SelectCellCommand {
-  type: "SELECT_CELL";
-  col: number;
-  row: number;
-}
-
-export interface SetSelectionCommand {
-  type: "SET_SELECTION";
-  anchor: [number, number];
-  zones: Zone[];
-  anchorZone: Zone;
-  strict?: boolean;
-}
-
-/**
- * Set the selection mode to `selecting`.
- * The user is currently selecting some cells.
- */
-export interface StartSelectionCommand {
-  type: "START_SELECTION";
-}
-
 /**
  * Set the selection mode to `readyToExpand`.
  * The user is ready to expand the selected zones with a new
@@ -481,23 +449,14 @@ export interface StartSelectionCommand {
  * current selection if this mode is active.
  */
 export interface PrepareExpansionCommand {
-  type: "PREPARE_SELECTION_EXPANSION";
-}
-
-/**
- * Set the selection mode to `expanding`.
- * This mode means that the user is currently selecting
- * a new zone which will be added to the current selection.
- */
-export interface StartExpansionCommand {
-  type: "START_SELECTION_EXPANSION";
+  type: "PREPARE_SELECTION_INPUT_EXPANSION";
 }
 
 /**
  * Set the selection mode to `idle`.
  */
 export interface StopSelectionCommand {
-  type: "STOP_SELECTION";
+  type: "STOP_SELECTION_INPUT";
 }
 
 /**
@@ -900,16 +859,8 @@ export type LocalCommand =
   | MoveColumnsRowsCommand
   | MovePositionCommand
   | ActivateSheetCommand
-  | StartSelectionCommand
-  | StartExpansionCommand
   | PrepareExpansionCommand
   | StopSelectionCommand
-  | SelectCellCommand
-  | SetSelectionCommand
-  | SelectColumnCommand
-  | SelectRowCommand
-  | SelectAllCommand
-  | AlterSelectionCommand
   | EvaluateCellsCommand
   | ChangeHighlightCommand
   | StartChangeHighlightCommand

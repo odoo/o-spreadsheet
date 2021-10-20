@@ -9,8 +9,10 @@ import {
   deleteSheet,
   interactiveMerge,
   merge,
+  moveAnchorCell,
   redo,
   selectCell,
+  setAnchorCorner,
   setCellContent,
   undo,
   unMerge,
@@ -203,7 +205,7 @@ describe("merges", () => {
     selectCell(model, "C4");
     expect(getActiveXc(model)).toBe("C4");
     expect(model.getters.getActiveCell()).toBeUndefined(); // no active cell in C4
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
+    moveAnchorCell(model, 0, -1);
     expect(getActiveXc(model)).toBe("C3");
     expect(model.getters.getCellPosition(model.getters.getActiveCell()!.id)).toEqual({
       col: 1,
@@ -317,7 +319,8 @@ describe("merges", () => {
     const parent = await mount(Parent, fixture);
     const model = parent.model;
     setCellContent(model, "B2", "b2");
-    model.dispatch("ALTER_SELECTION", { cell: [5, 5] });
+
+    setAnchorCorner(model, "F6");
     await simulateClick(".o-merge-tool");
     expect(askConfirmation).toHaveBeenCalled();
   });
@@ -375,7 +378,8 @@ describe("merges", () => {
   test("merging => setting background color => unmerging", () => {
     const model = new Model();
     const sheet1 = model.getters.getVisibleSheets()[0];
-    model.dispatch("ALTER_SELECTION", { cell: [1, 0] });
+
+    setAnchorCorner(model, "B1");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
 
@@ -397,7 +401,7 @@ describe("merges", () => {
   test("setting background color => merging => unmerging", () => {
     const model = new Model();
     const sheet1 = model.getters.getVisibleSheets()[0];
-    model.dispatch("ALTER_SELECTION", { cell: [1, 0] });
+    setAnchorCorner(model, "B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
       target: [{ left: 0, right: 1, top: 0, bottom: 0 }],
@@ -424,7 +428,7 @@ describe("merges", () => {
       target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
       style: { fillColor: "red" },
     });
-    model.dispatch("ALTER_SELECTION", { cell: [1, 0] });
+    setAnchorCorner(model, "B1");
 
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
 
@@ -458,7 +462,7 @@ describe("merges", () => {
   test("setting border => merging => unmerging", () => {
     const model = new Model();
     const sheet1 = model.getters.getVisibleSheets()[0];
-    model.dispatch("ALTER_SELECTION", { cell: [1, 0] });
+    setAnchorCorner(model, "B1");
 
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,

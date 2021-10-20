@@ -3,19 +3,25 @@ import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
 import { DEBUG, toZone } from "../../src/helpers";
-import { SelectionMode } from "../../src/plugins/ui/selection";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
-import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
-import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  createChart,
+  createSheet,
+  selectCell,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
+import { clickCell, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
   makeTestFixture,
   MockClipboard,
   mountSpreadsheet,
   nextTick,
+  startGridComposition,
   target,
   typeInComposerGrid,
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
+import { mockChart } from "./__mocks__/chart";
 
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
@@ -116,65 +122,6 @@ describe("Spreadsheet", () => {
 
   test("Clipboard is in spreadsheet env", () => {
     expect(parent.env.clipboard).toBe(clipboard);
-  });
-
-  test("selection mode is changed with a simple select", async () => {
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.selecting);
-    triggerMouseEvent(window, "mouseup", 300, 200);
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
-  });
-
-  test("selection mode is changed when selecting with CTRL pressed", async () => {
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Control", ctrlKey: true, bubbles: true })
-    );
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.readyToExpand);
-    triggerMouseEvent("canvas", "mousedown", 300, 200, { ctrlKey: true });
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.expanding);
-    triggerMouseEvent(window, "mouseup", 300, 200, { ctrlKey: true });
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.readyToExpand);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keyup", { key: "Control", bubbles: true })
-    );
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
-  });
-
-  test("selection mode is changed when releasing CTRL while selecting", async () => {
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Control", ctrlKey: true, bubbles: true })
-    );
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.readyToExpand);
-    triggerMouseEvent("canvas", "mousedown", 300, 200, { ctrlKey: true });
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keyup", { key: "Control", bubbles: true })
-    );
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.expanding);
-    triggerMouseEvent(window, "mouseup", 300, 200);
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
-  });
-
-  test("selection mode is changed when pressing CTRL while selecting", async () => {
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.selecting);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Control", ctrlKey: true, bubbles: true })
-    );
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.expanding);
-    triggerMouseEvent(window, "mouseup", 300, 200, { ctrlKey: true });
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.readyToExpand);
-  });
-
-  test("repeating CTRL keydown events does not trigger command", async () => {
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
-    document.activeElement!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Control", ctrlKey: true, bubbles: true, repeat: true })
-    );
-    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
   });
 
   test("Debug informations are removed when Spreadsheet is destroyed", async () => {
@@ -405,7 +352,24 @@ describe("Composer / selectionInput interactions", () => {
     expect(parent.model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("A1")]);
     expect(document.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
   });
-  test("Switching from composer to selection input should update the highlihts and hide the highlight components", async () => {
+  test.each(["A", "="])(
+    "Switching from grid composer to selection input should update the highlights and hide the highlight components",
+    async (composerContent) => {
+      selectCell(parent.model, "B2");
+      OPEN_CF_SIDEPANEL_ACTION(parent.env);
+      await nextTick();
+
+      await startGridComposition(composerContent);
+      expect(document.querySelectorAll(".o-grid-composer")).toHaveLength(1);
+
+      // focus selection input
+      await simulateClick(".o-selection-input input");
+
+      expect(document.querySelectorAll(".o-grid-composer")).toHaveLength(0);
+    }
+  );
+
+  test("Switching from composer to selection input should update the highlights and hide the highlight components", async () => {
     selectCell(parent.model, "B2");
     OPEN_CF_SIDEPANEL_ACTION(parent.env);
     await nextTick();
@@ -419,5 +383,23 @@ describe("Composer / selectionInput interactions", () => {
 
     expect(parent.model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("B2:C4")]);
     expect(document.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(0);
+  });
+
+  test("Switching from composer to focusing a figure should resubscribe grid_selection", async () => {
+    const model = parent.model;
+    mockChart();
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        labelRange: "Sheet1!A2:A4",
+        type: "bar",
+      },
+      "1"
+    );
+    await typeInComposerTopBar("=");
+    await simulateClick(".o-figure");
+    await clickCell(model, "D1");
+    expect(model.getters.getSelectedZones()).toEqual([toZone("D1")]);
   });
 });

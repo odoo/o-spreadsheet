@@ -3,6 +3,7 @@ import { compile } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { isZoneValid, range as rangeSequence, toXC } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
+import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
 import { InvalidReferenceError } from "../../types/errors";
@@ -38,9 +39,10 @@ export class EvaluationPlugin extends UIPlugin {
     getters: Getters,
     state: StateObserver,
     dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig
+    config: ModelConfig,
+    selection: SelectionStreamProcessor
   ) {
-    super(getters, state, dispatch, config);
+    super(getters, state, dispatch, config, selection);
     this.evalContext = config.evalContext;
     config.dataSources.on("data-loaded", this, () => {
       this.dispatch("EVALUATE_CELLS", { sheetId: this.getters.getActiveSheetId() });

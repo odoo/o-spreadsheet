@@ -7,6 +7,7 @@ import {
   addRows,
   deleteCells,
   selectCell,
+  setAnchorCorner,
   setBorder,
   setCellContent,
   undo,
@@ -70,7 +71,7 @@ describe("borders", () => {
 
     // select B2:C2
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { cell: [2, 1] });
+    setAnchorCorner(model, "C2");
 
     // set a border top
     setBorder(model, "top");
@@ -87,9 +88,9 @@ describe("borders", () => {
     setBorder(model, "top");
     expect(getBorder(model, "C3")).toBeDefined();
 
-    // select A1:E6
+    // select A1:F6
     selectCell(model, "A1");
-    model.dispatch("ALTER_SELECTION", { cell: [5, 5] });
+    setAnchorCorner(model, "F6");
 
     // clear all borders
     setBorder(model, "clear");
@@ -102,7 +103,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:C3
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { cell: [2, 2] });
+    setAnchorCorner(model, "C3");
 
     // set all borders
     setBorder(model, "all");
@@ -123,7 +124,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:C3
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { cell: [2, 2] });
+    setAnchorCorner(model, "C3");
 
     // set all borders
     setBorder(model, "top");
@@ -155,7 +156,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:D4
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { cell: [3, 3] });
+    setAnchorCorner(model, "D4");
 
     // set external borders
     setBorder(model, "external");
@@ -176,7 +177,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:C4
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { cell: [2, 3] });
+    setAnchorCorner(model, "C4");
 
     setBorder(model, "h");
     const s = ["thin", "#000"];
@@ -193,7 +194,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:D4
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { cell: [3, 3] });
+    setAnchorCorner(model, "D4");
 
     setBorder(model, "v");
     const s = ["thin", "#000"];
@@ -211,9 +212,9 @@ describe("borders", () => {
   test("setting internal  borders in a zone works", () => {
     const model = new Model();
 
-    // select B2, then expand selection to B2:C4
+    // select B2, then expand selection to B2:D4
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { cell: [3, 3] });
+    setAnchorCorner(model, "D4");
 
     setBorder(model, "hv");
     const s = ["thin", "#000"];
@@ -274,7 +275,8 @@ describe("borders", () => {
   test("can clear formatting (border) after selecting all cells", () => {
     const model = new Model();
     selectCell(model, "A1");
-    model.dispatch("ALTER_SELECTION", { cell: [25, 99] });
+
+    setAnchorCorner(model, "Z100");
     const activeSheet = model.getters.getActiveSheet();
     expect(model.getters.getSelectedZones()[0]).toEqual({
       left: 0,

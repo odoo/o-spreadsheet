@@ -125,11 +125,8 @@ export function interactiveSortSelection(
     }
   }
   if (result.isCancelledBecause(CommandResult.InvalidSortZone)) {
-    env.model.dispatch("SET_SELECTION", {
-      anchor: anchor,
-      zones: [zone],
-      anchorZone: zone,
-    });
+    const [col, row] = anchor;
+    env.model.selection.selectZone({ cell: { col, row }, zone });
     env.notifyUser(
       _lt("Cannot sort. To sort, select only cells or only merges that have the same size.")
     );

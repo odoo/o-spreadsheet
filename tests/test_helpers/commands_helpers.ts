@@ -1,12 +1,14 @@
 import { BACKGROUND_CHART_COLOR } from "../../src/constants";
-import { lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
+import { isInside, lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import {
+  AnchorZone,
   BorderCommand,
   ChartUIDefinition,
   ChartUIDefinitionUpdate,
   CreateSheetCommand,
   DispatchResult,
+  Increment,
   SortDirection,
   UID,
 } from "../../src/types";
@@ -338,7 +340,33 @@ export function setCellContent(
  */
 export function selectCell(model: Model, xc: string): DispatchResult {
   const [col, row] = toCartesian(xc);
-  return model.dispatch("SELECT_CELL", { col, row });
+  return model.selection.selectCell(col, row);
+}
+
+export function moveAnchorCell(
+  model: Model,
+  deltaCol: Increment,
+  deltaRow: Increment
+): DispatchResult {
+  return model.selection.moveAnchorCell(deltaCol, deltaRow);
+}
+
+export function resizeAnchorZone(
+  model: Model,
+  deltaCol: Increment,
+  deltaRow: Increment
+): DispatchResult {
+  return model.selection.resizeAnchorZone(deltaCol, deltaRow);
+}
+
+export function setAnchorCorner(model: Model, xc: string): DispatchResult {
+  const [col, row] = toCartesian(xc);
+  return model.selection.setAnchorCorner(col, row);
+}
+
+export function addCellToSelection(model: Model, xc: string): DispatchResult {
+  const [col, row] = toCartesian(xc);
+  return model.selection.addCellToSelection(col, row);
 }
 
 export function setSelection(
@@ -349,16 +377,72 @@ export function setSelection(
     strict?: boolean;
   } = { anchor: undefined, strict: false }
 ) {
-  const zones = xcs.map(toZone);
-  const cartesianAnchor: [number, number] = options.anchor
-    ? toCartesian(options.anchor)
-    : [zones[0].left, zones[0].top];
-  model.dispatch("SET_SELECTION", {
-    anchorZone: zones[zones.length - 1], // the default for most tests is to have the anchor as the last zone
-    anchor: cartesianAnchor,
-    zones: zones,
-    strict: options.strict,
-  });
+  const sheetId = model.getters.getActiveSheetId();
+  let zones = xcs
+    .reverse()
+    .map(toZone)
+    .map((z) => model.getters.expandZone(sheetId, z));
+  let anchor: AnchorZone;
+
+  if (options.anchor) {
+    const [col, row] = toCartesian(options.anchor);
+
+    // find the zones that contain the anchor and if several found ,select the last one as the anchorZone
+    const anchorZoneIndex = zones.findIndex((zone) => isInside(col, row, zone));
+    if (anchorZoneIndex === -1) {
+      throw new Error(`Anchor cell ${options.anchor} should be inside a selected zone`);
+    }
+    const anchorZone = zones.splice(anchorZoneIndex, 1)[0]; // remove the zone from zones
+    anchor = {
+      cell: {
+        col,
+        row,
+      },
+      zone: anchorZone,
+    };
+  } else {
+    const anchorZone = zones.splice(0, 1)[0]; // the default for most tests is to have the anchor as the first zone
+    anchor = {
+      cell: {
+        col: anchorZone.left,
+        row: anchorZone.top,
+      },
+      zone: anchorZone,
+    };
+  }
+
+  if (zones.length !== 0) {
+    const z1 = zones.splice(0, 1)[0];
+    model.selection.selectZone({ cell: { col: z1.left, row: z1.top }, zone: z1 });
+    for (const zone of zones) {
+      model.selection.addCellToSelection(zone.left, zone.top);
+      model.selection.setAnchorCorner(zone.right, zone.bottom);
+    }
+    model.selection.addCellToSelection(anchor.zone.left, anchor.zone.top);
+    model.selection.setAnchorCorner(anchor.zone.right, anchor.zone.bottom);
+  } else {
+    model.selection.selectZone(anchor);
+  }
+}
+
+export function selectColumn(
+  model: Model,
+  col: number,
+  mode: "overrideSelection" | "updateAnchor" | "newAnchor"
+) {
+  return model.selection.selectColumn(col, mode);
+}
+
+export function selectRow(
+  model: Model,
+  row: number,
+  mode: "overrideSelection" | "updateAnchor" | "newAnchor"
+) {
+  return model.selection.selectRow(row, mode);
+}
+
+export function selectAll(model: Model) {
+  return model.selection.selectAll();
 }
 
 export function sort(

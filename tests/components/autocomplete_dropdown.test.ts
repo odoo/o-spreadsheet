@@ -3,6 +3,7 @@ import { Spreadsheet } from "../../src";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
+import { clickCell } from "../test_helpers/dom_helper";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
@@ -330,8 +331,7 @@ describe("Autocomplete parenthesis", () => {
 
   test("=sum(sum(1,2) + click outside composer should add the missing parenthesis", async () => {
     await typeInComposerGrid("=sum(sum(1,2");
-
-    selectCell(model, "B2");
+    clickCell(model, "B2");
     await nextTick();
     expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
   });
@@ -347,7 +347,7 @@ describe("Autocomplete parenthesis", () => {
     await typeInComposerGrid("=s");
     composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
     await nextTick();
-    expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
+    expect(model.getters.getEditionMode()).toBe("selecting");
   });
 });
 

@@ -10,7 +10,15 @@ import {
   topbarMenuRegistry,
 } from "../src/registries/index";
 import { SpreadsheetChildEnv } from "../src/types";
-import { hideColumns, hideRows, selectCell, setSelection } from "./test_helpers/commands_helpers";
+import {
+  hideColumns,
+  hideRows,
+  selectCell,
+  selectColumn,
+  selectRow,
+  setAnchorCorner,
+  setSelection,
+} from "./test_helpers/commands_helpers";
 import { getCellContent } from "./test_helpers/getters_helpers";
 import {
   makeTestFixture,
@@ -203,13 +211,13 @@ describe("Menu Item actions", () => {
     const path = ["edit", "edit_delete_row"];
 
     test("A selected row", () => {
-      model.dispatch("SELECT_ROW", { index: 4, createRange: true });
+      selectRow(model, 4, "newAnchor");
       expect(getName(path, env)).toBe("Delete row 5");
     });
 
     test("Multiple selected rows", () => {
-      model.dispatch("SELECT_ROW", { index: 4, createRange: true });
-      model.dispatch("SELECT_ROW", { index: 5, updateRange: true });
+      selectRow(model, 4, "newAnchor");
+      selectRow(model, 5, "updateAnchor");
       expect(getName(path, env)).toBe("Delete rows 5 - 6");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -226,7 +234,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
+      setAnchorCorner(model, "E5");
       expect(getName(path, env)).toBe("Delete rows 4 - 5");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -241,7 +249,7 @@ describe("Menu Item actions", () => {
     const path = ["edit", "edit_delete_column"];
 
     test("A selected column", () => {
-      model.dispatch("SELECT_COLUMN", { index: 4, createRange: true });
+      selectColumn(model, 4, "newAnchor");
       expect(getName(path, env)).toBe("Delete column E");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -252,8 +260,8 @@ describe("Menu Item actions", () => {
     });
 
     test("Multiple selected columns", () => {
-      model.dispatch("SELECT_COLUMN", { index: 4, createRange: true });
-      model.dispatch("SELECT_COLUMN", { index: 5, updateRange: true });
+      selectColumn(model, 4, "newAnchor");
+      selectColumn(model, 5, "updateAnchor");
       expect(getName(path, env)).toBe("Delete columns E - F");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -276,7 +284,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
+      setAnchorCorner(model, "E5");
       expect(getName(path, env)).toBe("Delete columns D - E");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -291,14 +299,14 @@ describe("Menu Item actions", () => {
     const path = ["insert", "insert_row_before"];
 
     test("A selected row", () => {
-      model.dispatch("SELECT_ROW", { index: 4, createRange: true });
+      selectRow(model, 4, "newAnchor");
       expect(getName(path, env)).toBe("Row above");
       expect(getNode(path).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected rows", () => {
-      model.dispatch("SELECT_ROW", { index: 4, createRange: true });
-      model.dispatch("SELECT_ROW", { index: 5, updateRange: true });
+      selectRow(model, 4, "newAnchor");
+      selectRow(model, 5, "updateAnchor");
       expect(getName(path, env)).toBe("2 Rows above");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -312,7 +320,7 @@ describe("Menu Item actions", () => {
     });
 
     test("A selected column should hide the item", () => {
-      model.dispatch("SELECT_COLUMN", { index: 4, createRange: true });
+      selectColumn(model, 4, "newAnchor");
       expect(getNode(path).isVisible(env)).toBeFalsy();
     });
 
@@ -324,7 +332,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
+      setAnchorCorner(model, "E5");
       expect(getName(path, env)).toBe("2 Rows above");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -342,14 +350,14 @@ describe("Menu Item actions", () => {
     const path = ["insert", "insert_row_after"];
 
     test("A selected row", () => {
-      model.dispatch("SELECT_ROW", { index: 4, createRange: true });
+      selectRow(model, 4, "newAnchor");
       expect(getName(path, env)).toBe("Row below");
       expect(getNode(path).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected rows", () => {
-      model.dispatch("SELECT_ROW", { index: 4, createRange: true });
-      model.dispatch("SELECT_ROW", { index: 5, updateRange: true });
+      selectRow(model, 4, "newAnchor");
+      selectRow(model, 5, "updateAnchor");
       expect(getName(path, env)).toBe("2 Rows below");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -363,7 +371,7 @@ describe("Menu Item actions", () => {
     });
 
     test("A selected column should hide the item", () => {
-      model.dispatch("SELECT_COLUMN", { index: 4, createRange: true });
+      selectColumn(model, 4, "newAnchor");
       expect(getNode(path).isVisible(env)).toBeFalsy();
     });
 
@@ -375,7 +383,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
+      setAnchorCorner(model, "E5");
       expect(getName(path, env)).toBe("2 Rows below");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -393,14 +401,14 @@ describe("Menu Item actions", () => {
     const path = ["insert", "insert_column_before"];
 
     test("A selected column", () => {
-      model.dispatch("SELECT_COLUMN", { index: 4, createRange: true });
+      selectColumn(model, 4, "newAnchor");
       expect(getName(path, env)).toBe("Column left");
       expect(getNode(path).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected columns", () => {
-      model.dispatch("SELECT_COLUMN", { index: 4, createRange: true });
-      model.dispatch("SELECT_COLUMN", { index: 5, updateRange: true });
+      selectColumn(model, 4, "newAnchor");
+      selectColumn(model, 5, "updateAnchor");
       expect(getName(path, env)).toBe("2 Columns left");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -414,7 +422,7 @@ describe("Menu Item actions", () => {
     });
 
     test("A selected row should hide the item", () => {
-      model.dispatch("SELECT_ROW", { index: 4, createRange: true });
+      selectRow(model, 4, "newAnchor");
       expect(getNode(path).isVisible(env)).toBeFalsy();
     });
 
@@ -426,7 +434,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
+      setAnchorCorner(model, "E5");
       expect(getName(path, env)).toBe("2 Columns left");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -444,14 +452,14 @@ describe("Menu Item actions", () => {
     const path = ["insert", "insert_column_after"];
 
     test("A selected column", () => {
-      model.dispatch("SELECT_COLUMN", { index: 4, createRange: true });
+      selectColumn(model, 4, "newAnchor");
       expect(getName(path, env)).toBe("Column right");
       expect(getNode(path).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected columns", () => {
-      model.dispatch("SELECT_COLUMN", { index: 4, createRange: true });
-      model.dispatch("SELECT_COLUMN", { index: 5, updateRange: true });
+      selectColumn(model, 4, "newAnchor");
+      selectColumn(model, 5, "updateAnchor");
       expect(getName(path, env)).toBe("2 Columns right");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -465,7 +473,7 @@ describe("Menu Item actions", () => {
     });
 
     test("A selected row should hide the item", () => {
-      model.dispatch("SELECT_ROW", { index: 4, createRange: true });
+      selectRow(model, 4, "newAnchor");
       expect(getNode(path).isVisible(env)).toBeFalsy();
     });
 
@@ -477,7 +485,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
+      setAnchorCorner(model, "E5");
       expect(getName(path, env)).toBe("2 Columns right");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -659,7 +667,7 @@ describe("Menu Item actions", () => {
     const hidePath = ["hide_columns"];
     const unhidePath = ["unhide_columns"];
     test("Action on single column selection", () => {
-      model.dispatch("SELECT_COLUMN", { index: 1 });
+      selectColumn(model, 1, "overrideSelection");
       expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide column B");
       expect(getNode(hidePath, colMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(hidePath, env, colMenuRegistry);
@@ -730,7 +738,7 @@ describe("Menu Item actions", () => {
     const hidePath = ["hide_rows"];
     const unhidePath = ["unhide_rows"];
     test("Action on single row selection", () => {
-      model.dispatch("SELECT_ROW", { index: 1 });
+      selectRow(model, 1, "overrideSelection");
       expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide row 2");
       expect(getNode(hidePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(hidePath, env, rowMenuRegistry);

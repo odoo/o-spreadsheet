@@ -4,6 +4,7 @@ import { args, functionRegistry } from "../src/functions";
 import { Model, ModelConfig } from "../src/model";
 import { uiPluginRegistry } from "../src/plugins";
 import { UIPluginConstructor } from "../src/plugins/ui_plugin";
+import { SelectionStreamProcessor } from "../src/selection_stream/selection_stream_processor";
 import { StateObserver } from "../src/state_observer";
 import { CommandDispatcher, Getters, UID } from "../src/types";
 import { setCellContent } from "./test_helpers/commands_helpers";
@@ -28,9 +29,10 @@ class DataSourcePlugin extends UIPlugin {
     getters: Getters,
     state: StateObserver,
     dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig
+    config: ModelConfig,
+    selection: SelectionStreamProcessor
   ) {
-    super(getters, state, dispatch, config);
+    super(getters, state, dispatch, config, selection);
     this.dataSources = config.dataSources;
   }
 

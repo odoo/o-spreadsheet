@@ -19,8 +19,8 @@ import { EvaluationConditionalFormatPlugin } from "../plugins/ui/evaluation_cond
 import { FindAndReplacePlugin } from "../plugins/ui/find_and_replace";
 import { HighlightPlugin } from "../plugins/ui/highlight";
 import { RendererPlugin } from "../plugins/ui/renderer";
-import { SelectionPlugin } from "../plugins/ui/selection";
-import { SelectionInputPlugin } from "../plugins/ui/selection_inputs";
+import { GridSelectionPlugin } from "../plugins/ui/selection";
+import { SelectionInputsManagerPlugin } from "../plugins/ui/selection_inputs_manager";
 import { SelectionMultiUserPlugin } from "../plugins/ui/selection_multiuser";
 import { UIOptionsPlugin } from "../plugins/ui/ui_options";
 import { SheetUIPlugin } from "../plugins/ui/ui_sheet";
@@ -101,8 +101,11 @@ type EvaluationConditionalFormatGetters = Pick<
 type FindAndReplaceGetters = Pick<FindAndReplacePlugin, GetterNames<typeof FindAndReplacePlugin>>;
 type HighlightGetters = Pick<HighlightPlugin, GetterNames<typeof HighlightPlugin>>;
 type RendererGetters = Pick<RendererPlugin, GetterNames<typeof RendererPlugin>>;
-type SelectionGetters = Pick<SelectionPlugin, GetterNames<typeof SelectionPlugin>>;
-type SelectionInputGetters = Pick<SelectionInputPlugin, GetterNames<typeof SelectionInputPlugin>>;
+type SelectionGetters = Pick<GridSelectionPlugin, GetterNames<typeof GridSelectionPlugin>>;
+type SelectionInputGetters = Pick<
+  SelectionInputsManagerPlugin,
+  GetterNames<typeof SelectionInputsManagerPlugin>
+>;
 type SelectionMultiUserGetters = Pick<
   SelectionMultiUserPlugin,
   GetterNames<typeof SelectionMultiUserPlugin>

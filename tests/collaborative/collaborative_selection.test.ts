@@ -1,6 +1,12 @@
 import { Client, Model } from "../../src";
 import { DEBOUNCE_TIME } from "../../src/constants";
-import { addColumns, createSheet, selectCell } from "../test_helpers/commands_helpers";
+import {
+  addColumns,
+  createSheet,
+  moveAnchorCell,
+  selectCell,
+  selectColumn,
+} from "../test_helpers/commands_helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -43,10 +49,7 @@ describe("Collaborative selection", () => {
 
   test("active cell is transferred to other users", () => {
     selectCell(alice, "C3");
-    bob.dispatch("MOVE_POSITION", {
-      deltaX: 1,
-      deltaY: 1,
-    });
+    moveAnchorCell(bob, 1, 1);
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     const sheetId = alice.getters.getActiveSheetId();
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -137,7 +140,7 @@ describe("Collaborative selection", () => {
 
   test("Cell selected is updated select an entire column", () => {
     const sheetId = alice.getters.getActiveSheetId();
-    bob.dispatch("SELECT_COLUMN", { index: 1 });
+    selectColumn(bob, 1, "overrideSelection");
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getConnectedClients(),

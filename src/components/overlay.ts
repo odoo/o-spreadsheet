@@ -230,7 +230,6 @@ abstract class AbstractResizer extends Component<any, SpreadsheetChildEnv> {
 
   private startSelection(ev: MouseEvent, index: number) {
     this.state.isSelecting = true;
-    this.env.model.dispatch(ev.ctrlKey ? "START_SELECTION_EXPANSION" : "START_SELECTION");
     if (ev.shiftKey) {
       this._increaseSelection(index);
     } else {
@@ -247,7 +246,9 @@ abstract class AbstractResizer extends Component<any, SpreadsheetChildEnv> {
     const mouseUpSelect = () => {
       this.state.isSelecting = false;
       this.lastSelectedElementIndex = null;
-      this.env.model.dispatch(ev.ctrlKey ? "PREPARE_SELECTION_EXPANSION" : "STOP_SELECTION");
+      this.env.model.dispatch(
+        ev.ctrlKey ? "PREPARE_SELECTION_INPUT_EXPANSION" : "STOP_SELECTION_INPUT"
+      );
       this._computeGrabDisplay(ev);
     };
 
@@ -503,11 +504,11 @@ export class ColResizer extends AbstractResizer {
   }
 
   _selectElement(index: number, ctrlKey: boolean): void {
-    this.env.model.dispatch("SELECT_COLUMN", { index, createRange: ctrlKey });
+    this.env.model.selection.selectColumn(index, ctrlKey ? "newAnchor" : "overrideSelection");
   }
 
   _increaseSelection(index: number): void {
-    this.env.model.dispatch("SELECT_COLUMN", { index, updateRange: true });
+    this.env.model.selection.selectColumn(index, "updateAnchor");
   }
 
   _adjustViewport(direction: number): void {
@@ -747,11 +748,11 @@ export class RowResizer extends AbstractResizer {
   }
 
   _selectElement(index: number, ctrlKey: boolean): void {
-    this.env.model.dispatch("SELECT_ROW", { index, createRange: ctrlKey });
+    this.env.model.selection.selectRow(index, ctrlKey ? "newAnchor" : "overrideSelection");
   }
 
   _increaseSelection(index: number): void {
-    this.env.model.dispatch("SELECT_ROW", { index, updateRange: true });
+    this.env.model.selection.selectRow(index, "updateAnchor");
   }
 
   _adjustViewport(direction: number): void {
@@ -831,6 +832,6 @@ export class Overlay extends Component<any, SpreadsheetChildEnv> {
   static components = { ColResizer, RowResizer };
 
   selectAll() {
-    this.env.model.dispatch("SELECT_ALL");
+    this.env.model.selection.selectAll();
   }
 }

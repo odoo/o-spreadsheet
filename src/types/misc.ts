@@ -23,6 +23,16 @@ export interface Zone {
   bottom: number;
 }
 
+export interface AnchorZone {
+  zone: Zone;
+  cell: Position;
+}
+
+export interface Selection {
+  anchor: AnchorZone;
+  zones: Zone[];
+}
+
 export interface ZoneDimension {
   height: number;
   width: number;

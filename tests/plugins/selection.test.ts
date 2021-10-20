@@ -3,13 +3,20 @@ import { Model } from "../../src/model";
 import { CommandResult, Increment } from "../../src/types";
 import {
   activateSheet,
+  addCellToSelection,
   addColumns,
   createSheet,
   deleteColumns,
   hideColumns,
   hideRows,
+  moveAnchorCell,
   redo,
+  resizeAnchorZone,
+  selectAll,
   selectCell,
+  selectColumn,
+  selectRow,
+  setAnchorCorner,
   setSelection,
   undo,
 } from "../test_helpers/commands_helpers";
@@ -41,17 +48,16 @@ describe("selection", () => {
       ],
     });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    resizeAnchorZone(model, 1, 0);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
   test("can grow/shrink selection with shift-arrow", () => {
     const model = new Model();
-
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    resizeAnchorZone(model, 1, 0);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 1, bottom: 0 });
-    model.dispatch("ALTER_SELECTION", { delta: [-1, 0] });
+    resizeAnchorZone(model, -1, 0);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
   });
 
@@ -65,16 +71,16 @@ describe("selection", () => {
       ],
     });
     selectCell(model, "A2");
-    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
+    resizeAnchorZone(model, 0, -1);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
-    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
+    resizeAnchorZone(model, 0, -1);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
 
     selectCell(model, "J1");
-    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    resizeAnchorZone(model, 1, 0);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 9, top: 0, right: 9, bottom: 0 });
     selectCell(model, "A10");
-    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    resizeAnchorZone(model, 0, 1);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 9, right: 0, bottom: 9 });
   });
 
@@ -89,7 +95,7 @@ describe("selection", () => {
       ],
     });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    model.dispatch("ALTER_SELECTION", { cell: [1, 0] });
+    setAnchorCorner(model, "B1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
@@ -106,13 +112,13 @@ describe("selection", () => {
     selectCell(model, "B1");
 
     // move to the right, inside the merge
-    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    resizeAnchorZone(model, 1, 0);
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 3, left: 1, bottom: 1 });
     expect(getActiveXc(model)).toBe("B1");
 
     // move to the left, outside the merge
-    model.dispatch("ALTER_SELECTION", { delta: [-1, 0] });
+    resizeAnchorZone(model, -1, 0);
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 1 });
     expect(getActiveXc(model)).toBe("B1");
   });
@@ -126,17 +132,14 @@ describe("selection", () => {
         },
       ],
     });
-    model.dispatch("SELECT_CELL", {
-      col: 3,
-      row: 3,
-    });
-    const C3Zone = toZone("C3");
+    selectCell(model, "D4");
+    const A1Zone = toZone("A1");
     expect(model.getters.getSelection()).toEqual({
-      anchorZone: C3Zone,
-      zones: [C3Zone],
-      anchor: [C3Zone.left, C3Zone.top],
+      anchorZone: A1Zone,
+      zones: [A1Zone],
+      anchor: [A1Zone.left, A1Zone.top],
     });
-    expect(model.getters.getPosition()).toEqual([C3Zone.left, C3Zone.top]);
+    expect(model.getters.getPosition()).toEqual([A1Zone.left, A1Zone.top]);
   });
   test("update selection in some different directions", () => {
     const model = new Model({
@@ -153,12 +156,12 @@ describe("selection", () => {
     expect(getActiveXc(model)).toBe("B4");
 
     // move up, inside the merge
-    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
+    resizeAnchorZone(model, 0, -1);
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 1, right: 2, left: 1, bottom: 3 });
 
     // move to the left, outside the merge
-    model.dispatch("ALTER_SELECTION", { delta: [-1, 0] });
+    resizeAnchorZone(model, -1, 0);
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 1, right: 2, left: 0, bottom: 3 });
   });
 
@@ -177,7 +180,7 @@ describe("selection", () => {
     expect(getActiveXc(model)).toBe("B3");
 
     // select right cell C3
-    model.dispatch("ALTER_SELECTION", { cell: [2, 2] });
+    setAnchorCorner(model, "C3");
     expect(model.getters.getSelectedZone()).toEqual(toZone("B2:D3"));
   });
 
@@ -192,35 +195,35 @@ describe("selection", () => {
       ],
     });
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    resizeAnchorZone(model, 0, 1);
     expect(model.getters.getSelectedZone()).toEqual(toZone("B2:B4"));
 
     selectCell(model, "B2");
-    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
+    resizeAnchorZone(model, 0, -1);
     expect(model.getters.getSelectedZone()).toEqual(toZone("B1:B3"));
 
     selectCell(model, "B3");
-    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    resizeAnchorZone(model, 0, 1);
     expect(model.getters.getSelectedZone()).toEqual(toZone("B2:B4"));
 
     selectCell(model, "B3");
-    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
+    resizeAnchorZone(model, 0, -1);
     expect(model.getters.getSelectedZone()).toEqual(toZone("B1:B3"));
 
     selectCell(model, "E2");
-    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    resizeAnchorZone(model, 1, 0);
     expect(model.getters.getSelectedZone()).toEqual(toZone("E2:H2"));
 
     selectCell(model, "E2");
-    model.dispatch("ALTER_SELECTION", { delta: [-1, 0] });
+    resizeAnchorZone(model, -1, 0);
     expect(model.getters.getSelectedZone()).toEqual(toZone("D2:G2"));
 
     selectCell(model, "G2");
-    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    resizeAnchorZone(model, 1, 0);
     expect(model.getters.getSelectedZone()).toEqual(toZone("E2:H2"));
 
     selectCell(model, "G2");
-    model.dispatch("ALTER_SELECTION", { delta: [-1, 0] });
+    resizeAnchorZone(model, -1, 0);
     expect(model.getters.getSelectedZone()).toEqual(toZone("D2:G2"));
   });
 
@@ -235,9 +238,9 @@ describe("selection", () => {
       ],
     });
     selectCell(model, "B1");
-    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    resizeAnchorZone(model, 1, 0);
     expect(model.getters.getSelectedZone()).toEqual(toZone("B1:E1"));
-    model.dispatch("ALTER_SELECTION", { delta: [-1, 0] });
+    resizeAnchorZone(model, -1, 0);
     expect(model.getters.getSelectedZone()).toEqual(toZone("B1"));
   });
 
@@ -252,9 +255,9 @@ describe("selection", () => {
       ],
     });
     selectCell(model, "A5");
-    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
+    resizeAnchorZone(model, 0, -1);
     expect(model.getters.getSelectedZone()).toEqual(toZone("A2:A5"));
-    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    resizeAnchorZone(model, 0, 1);
     expect(model.getters.getSelectedZone()).toEqual(toZone("A5"));
   });
 
@@ -267,7 +270,8 @@ describe("selection", () => {
         },
       ],
     });
-    model.dispatch("SELECT_COLUMN", { index: 4 });
+    selectColumn(model, 4, "overrideSelection");
+
     expect(getActiveXc(model)).toBe("E1");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 4, top: 0, right: 4, bottom: 9 });
@@ -283,7 +287,8 @@ describe("selection", () => {
         },
       ],
     });
-    model.dispatch("SELECT_COLUMN", { index: 0 });
+    selectColumn(model, 0, "overrideSelection");
+
     expect(getActiveXc(model)).toBe("A1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 9 });
   });
@@ -292,11 +297,7 @@ describe("selection", () => {
     const model = new Model({
       sheets: [{ colNumber: 3, rowNumber: 3 }],
     });
-    model.dispatch("SET_SELECTION", {
-      anchor: [0, 0],
-      anchorZone: toZone("A1:Z20"),
-      zones: target("A1:Z20"),
-    });
+    setSelection(model, ["A1:Z20"]);
     expect(model.getters.getSelection()).toEqual({
       anchor: [0, 0],
       anchorZone: toZone("A1:C3"),
@@ -314,7 +315,7 @@ describe("selection", () => {
       ],
     });
 
-    model.dispatch("SELECT_ROW", { index: 4 });
+    selectRow(model, 4, "overrideSelection");
     expect(getActiveXc(model)).toBe("A5");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 4, right: 9, bottom: 4 });
@@ -331,7 +332,7 @@ describe("selection", () => {
       ],
     });
 
-    model.dispatch("SELECT_ROW", { index: 0 });
+    selectRow(model, 0, "overrideSelection");
     expect(getActiveXc(model)).toBe("A1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 0 });
   });
@@ -345,10 +346,10 @@ describe("selection", () => {
         },
       ],
     });
-    expect(model.dispatch("SELECT_ROW", { index: -1 })).toBeCancelledBecause(
+    expect(selectRow(model, -1, "overrideSelection")).toBeCancelledBecause(
       CommandResult.SelectionOutOfBound
     );
-    expect(model.dispatch("SELECT_ROW", { index: 11 })).toBeCancelledBecause(
+    expect(selectRow(model, 11, "overrideSelection")).toBeCancelledBecause(
       CommandResult.SelectionOutOfBound
     );
   });
@@ -362,10 +363,10 @@ describe("selection", () => {
         },
       ],
     });
-    expect(model.dispatch("SELECT_COLUMN", { index: -1 })).toBeCancelledBecause(
+    expect(selectColumn(model, -1, "overrideSelection")).toBeCancelledBecause(
       CommandResult.SelectionOutOfBound
     );
-    expect(model.dispatch("SELECT_COLUMN", { index: 11 })).toBeCancelledBecause(
+    expect(selectColumn(model, 11, "overrideSelection")).toBeCancelledBecause(
       CommandResult.SelectionOutOfBound
     );
   });
@@ -379,7 +380,7 @@ describe("selection", () => {
         },
       ],
     });
-    model.dispatch("SELECT_ALL");
+    selectAll(model);
     expect(getActiveXc(model)).toBe("A1");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
@@ -419,16 +420,6 @@ describe("selection", () => {
     expect(model.getters.getPosition()).toEqual([1, 0]);
     expect(model.getters.getSheetPosition("42")).toEqual([1, 0]);
   });
-  test("cannot set a selection with an anchor zone not present in the zones provided", () => {
-    const model = new Model();
-    const zone = { top: 0, bottom: 0, left: 0, right: 0 };
-    const anchorZone = { top: 1, bottom: 2, left: 1, right: 2 };
-    const zones = [zone];
-    const anchor: [number, number] = [1, 1];
-    expect(model.dispatch("SET_SELECTION", { zones, anchor, anchorZone })).toBeCancelledBecause(
-      CommandResult.InvalidAnchorZone
-    );
-  });
 
   test("Select a merge when its topLeft column is hidden", () => {
     const model = new Model({
@@ -437,7 +428,7 @@ describe("selection", () => {
     selectCell(model, "B1");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
     selectCell(model, "C2");
-    model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 });
+    moveAnchorCell(model, -1, 0);
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
   });
 
@@ -448,7 +439,7 @@ describe("selection", () => {
     selectCell(model, "A2");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
     selectCell(model, "A3");
-    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
+    moveAnchorCell(model, 0, -1);
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
   });
 });
@@ -467,14 +458,13 @@ describe("multiple selections", () => {
     let selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
     expect(selection.anchor).toEqual([2, 2]);
-    model.dispatch("ALTER_SELECTION", { cell: [2, 3] });
+    setAnchorCorner(model, "C4");
     selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
     expect(selection.anchor).toEqual([2, 2]);
 
     // create new range
-    model.dispatch("START_SELECTION_EXPANSION");
-    selectCell(model, "F3");
+    addCellToSelection(model, "F3");
     selection = model.getters.getSelection();
     expect(selection.zones).toHaveLength(2);
     expect(selection.anchor).toEqual([5, 2]);
@@ -534,9 +524,9 @@ describe("Alter selection starting from hidden cells", () => {
     hideColumns(model, ["C"]);
     hideRows(model, [0]);
 
-    const alter1 = model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    const alter1 = resizeAnchorZone(model, 0, 1);
     expect(alter1).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
-    const alter2 = model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
+    const alter2 = resizeAnchorZone(model, 1, 0);
     expect(alter2).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
   });
 
@@ -551,9 +541,9 @@ describe("Alter selection starting from hidden cells", () => {
     });
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
-    const move1 = model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    const move1 = moveAnchorCell(model, 0, 1);
     expect(move1).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
-    const move2 = model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
+    const move2 = moveAnchorCell(model, 0, -1);
     expect(move2).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
   });
 
@@ -571,11 +561,11 @@ describe("Alter selection starting from hidden cells", () => {
     [["Y", "Z"], "Y1", 1, "X1:Y1"],
   ])(
     "Alter selection horizontally from hidden col",
-    (hiddenCols, startPosition, delta, endPosition) => {
+    (hiddenCols, startPosition, delta: Increment, endPosition) => {
       const model = new Model();
       selectCell(model, startPosition);
       hideColumns(model, hiddenCols);
-      model.dispatch("ALTER_SELECTION", { delta: [delta as Increment, 0] });
+      resizeAnchorZone(model, delta, 0);
       expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
     }
   );
@@ -587,11 +577,11 @@ describe("Alter selection starting from hidden cells", () => {
     [["A", "C"], "A1:C1", 1, "A1:C2"],
   ])(
     "Alter selection vertically from hidden col needs at least one visible selected cell",
-    (hiddenCols, startPosition, delta, endPosition) => {
+    (hiddenCols, startPosition, delta: Increment, endPosition) => {
       const model = new Model();
       setSelection(model, [startPosition]);
       hideColumns(model, hiddenCols);
-      model.dispatch("ALTER_SELECTION", { delta: [0, delta as Increment] });
+      resizeAnchorZone(model, 0, delta);
       expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
     }
   );
@@ -610,11 +600,11 @@ describe("Alter selection starting from hidden cells", () => {
     [[98, 99], "A99", 1, "A98:A99"],
   ])(
     "Alter selection vertically from hidden col",
-    (hiddenRows, startPosition, delta, endPosition) => {
+    (hiddenRows, startPosition, delta: Increment, endPosition) => {
       const model = new Model();
       selectCell(model, startPosition);
       hideRows(model, hiddenRows);
-      model.dispatch("ALTER_SELECTION", { delta: [0, delta as Increment] });
+      resizeAnchorZone(model, 0, delta);
       expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
     }
   );
@@ -626,11 +616,11 @@ describe("Alter selection starting from hidden cells", () => {
     [[0, 2], "A1:A3", 1, "A1:B3"],
   ])(
     "Alter selection horizontally from hidden col",
-    (hiddenRows, startPosition, delta, endPosition) => {
+    (hiddenRows, startPosition, delta: Increment, endPosition) => {
       const model = new Model();
       setSelection(model, [startPosition]);
       hideRows(model, hiddenRows);
-      model.dispatch("ALTER_SELECTION", { delta: [delta as Increment, 0] });
+      resizeAnchorZone(model, delta, 0);
       expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
     }
   );

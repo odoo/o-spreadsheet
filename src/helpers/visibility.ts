@@ -14,7 +14,7 @@ export function findVisibleHeader(
   indexes: number[]
 ): number | undefined {
   const headers = sheet[dimension];
-  return indexes.find((index) => !headers[index].isHidden);
+  return indexes.find((index) => headers[index] && !headers[index].isHidden);
 }
 
 export function findLastVisibleColRow(sheet: Sheet, dimension: "cols" | "rows") {

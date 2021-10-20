@@ -1,6 +1,6 @@
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { formatValue } from "../../helpers/cells/index";
-import { clip, mergeOverlappingZones, overlap, positions } from "../../helpers/index";
+import { mergeOverlappingZones, overlap, positions } from "../../helpers/index";
 import { Mode } from "../../model";
 import {
   CellPosition,
@@ -356,11 +356,7 @@ export class ClipboardPlugin extends UIPlugin {
       right: activeCol + width - 1,
       bottom: activeRow + height - 1,
     };
-    this.dispatch("SET_SELECTION", {
-      anchor: [activeCol, activeRow],
-      zones: [zone],
-      anchorZone: zone,
-    });
+    this.selection.selectZone({ cell: { col: activeCol, row: activeRow }, zone });
   }
 
   private isPasteAllowed(
@@ -433,20 +429,13 @@ export class ClipboardPlugin extends UIPlugin {
     const repX = Math.max(1, Math.floor((selection.right + 1 - selection.left) / width));
     const repY = Math.max(1, Math.floor((selection.bottom + 1 - selection.top) / height));
     if (height > 1 || width > 1) {
-      const newSelection = {
+      const newZone = {
         left: col,
         top: row,
         right: col + repX * width - 1,
         bottom: row + repY * height - 1,
       };
-      const [anchorCol, anchorRow] = this.getters.getSelection().anchor;
-      const newCol = clip(anchorCol, col, col + repX * width - 1);
-      const newRow = clip(anchorRow, row, row + repY * height - 1);
-      this.dispatch("SET_SELECTION", {
-        anchor: [newCol, newRow],
-        zones: [newSelection],
-        anchorZone: newSelection,
-      });
+      this.selection.selectZone({ cell: { col, row }, zone: newZone });
     }
   }
 

@@ -2,6 +2,7 @@ import { App } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
+import { selectColumn, selectRow } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
@@ -193,8 +194,8 @@ describe("Context Menu hide col/row", () => {
       elements: [2], // COL_C
       dimension: "COL",
     });
-    parent.model.dispatch("SELECT_COLUMN", { index: 1 });
-    parent.model.dispatch("SELECT_COLUMN", { index: 3, updateRange: true });
+    selectColumn(parent.model, 1, "overrideSelection");
+    selectColumn(parent.model, 3, "updateAnchor");
     const NEW_COL_D = { x: COLUMN_D.x - DEFAULT_CELL_WIDTH, y: COLUMN_D.y };
     simulateContextMenu(".o-col-resizer", NEW_COL_D);
     await nextTick();
@@ -223,8 +224,8 @@ describe("Context Menu hide col/row", () => {
       elements: [3], // ROW_4
       dimension: "ROW",
     });
-    parent.model.dispatch("SELECT_ROW", { index: 2 });
-    parent.model.dispatch("SELECT_ROW", { index: 4, updateRange: true });
+    selectRow(parent.model, 2, "overrideSelection");
+    selectRow(parent.model, 4, "updateAnchor");
     const NEW_ROW_5 = { x: ROW_5.x, y: ROW_5.y - DEFAULT_CELL_HEIGHT };
     simulateContextMenu(".o-row-resizer", NEW_ROW_5);
     await nextTick();
