@@ -431,10 +431,11 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     return !!this.getters.getSelectedZones().find((z) => isEqual(z, zone));
   }
 
-  getVisibleFigures(sheetId: UID): Figure[] {
+  getVisibleFigures(): Figure[] {
+    const sheetId = this.getters.getActiveSheetId();
     const result: Figure[] = [];
     const figures = this.getters.getFigures(sheetId);
-    const { offsetX, offsetY } = this.getters.getSnappedViewport(sheetId);
+    const { offsetX, offsetY } = this.getters.getActiveSnappedViewport();
     const { width, height } = this.getters.getViewportDimension();
     for (let figure of figures) {
       if (figure.x >= offsetX + width || figure.x + figure.width <= offsetX) {

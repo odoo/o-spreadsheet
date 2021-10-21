@@ -166,7 +166,6 @@ export type Getters = CoreGetters & {
 
   getClientsToDisplay: SelectionMultiUserPlugin["getClientsToDisplay"];
 
-  getSnappedViewport: ViewportPlugin["getViewport"];
   getViewportDimension: ViewportPlugin["getViewportDimension"];
   getActiveViewport: ViewportPlugin["getActiveViewport"];
   getActiveSnappedViewport: ViewportPlugin["getActiveSnappedViewport"];

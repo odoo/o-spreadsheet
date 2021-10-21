@@ -22,7 +22,7 @@ describe("figure plugin", () => {
       { id: "someuuid", height: 100, tag: "hey", width: 100, x: 100, y: 100 },
     ]);
 
-    expect(model.getters.getVisibleFigures(model.getters.getActiveSheetId())).toEqual([
+    expect(model.getters.getVisibleFigures()).toEqual([
       { id: "someuuid", height: 100, tag: "hey", width: 100, x: 100, y: 100 },
     ]);
   });
@@ -46,9 +46,9 @@ describe("figure plugin", () => {
         y: 100,
       },
     });
-    expect(model.getters.getVisibleFigures(model.getters.getActiveSheetId()).length).toBe(1);
+    expect(model.getters.getVisibleFigures().length).toBe(1);
     undo(model);
-    expect(model.getters.getVisibleFigures(model.getters.getActiveSheetId()).length).toBe(0);
+    expect(model.getters.getVisibleFigures().length).toBe(0);
   });
 
   test("can create a figure in a different sheet", () => {
@@ -74,7 +74,7 @@ describe("figure plugin", () => {
       { id: "someuuid", height: 100, tag: "hey", width: 100, x: 100, y: 100 },
     ]);
 
-    expect(model.getters.getVisibleFigures(model.getters.getActiveSheetId())).toEqual([]); // empty because active sheet is sheet1
+    expect(model.getters.getVisibleFigures()).toEqual([]); // empty because active sheet is sheet1
   });
 
   test("getVisibleFigures only returns visible figures", () => {
@@ -90,13 +90,13 @@ describe("figure plugin", () => {
         height: 100,
       },
     });
-    expect(model.getters.getVisibleFigures(model.getters.getActiveSheetId()).length).toBe(1);
+    expect(model.getters.getVisibleFigures().length).toBe(1);
 
     model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 200, offsetY: 200 });
-    expect(model.getters.getVisibleFigures(model.getters.getActiveSheetId()).length).toBe(0);
+    expect(model.getters.getVisibleFigures().length).toBe(0);
 
     model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 10, offsetY: 10 });
-    expect(model.getters.getVisibleFigures(model.getters.getActiveSheetId()).length).toBe(1);
+    expect(model.getters.getVisibleFigures().length).toBe(1);
   });
 
   test("selecting a figure, then clicking on a cell unselect figure", () => {
@@ -156,7 +156,7 @@ describe("figure plugin", () => {
       },
     });
 
-    const { x, y } = model.getters.getVisibleFigures(model.getters.getActiveSheetId())[0];
+    const { x, y } = model.getters.getVisibleFigures()[0];
     expect(x).toBe(10);
     expect(y).toBe(10);
 
@@ -166,9 +166,7 @@ describe("figure plugin", () => {
       x: 100,
       y: 200,
     });
-    const { x: newx, y: newy } = model.getters.getVisibleFigures(
-      model.getters.getActiveSheetId()
-    )[0];
+    const { x: newx, y: newy } = model.getters.getVisibleFigures()[0];
     expect(newx).toBe(100);
     expect(newy).toBe(200);
   });
@@ -193,12 +191,12 @@ describe("figure plugin", () => {
       x: 100,
       y: 200,
     });
-    const { x: x1, y: y1 } = model.getters.getVisibleFigures(model.getters.getActiveSheetId())[0];
+    const { x: x1, y: y1 } = model.getters.getVisibleFigures()[0];
     expect(x1).toBe(100);
     expect(y1).toBe(200);
 
     undo(model);
-    const { x: x2, y: y2 } = model.getters.getVisibleFigures(model.getters.getActiveSheetId())[0];
+    const { x: x2, y: y2 } = model.getters.getVisibleFigures()[0];
     expect(x2).toBe(10);
     expect(y2).toBe(10);
   });
@@ -224,7 +222,7 @@ describe("figure plugin", () => {
       y: 50,
     });
 
-    const { x, y } = model.getters.getVisibleFigures(model.getters.getActiveSheetId())[0];
+    const { x, y } = model.getters.getVisibleFigures()[0];
     expect(x).toBe(0);
     expect(y).toBe(50);
   });
@@ -245,13 +243,13 @@ describe("figure plugin", () => {
     });
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
-    expect(model.getters.getVisibleFigures(sheetId)).toHaveLength(1);
+    expect(model.getters.getVisibleFigures()).toHaveLength(1);
     model.dispatch("DELETE_FIGURE", { sheetId, id: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBeNull();
-    expect(model.getters.getVisibleFigures(sheetId)).toHaveLength(0);
+    expect(model.getters.getVisibleFigures()).toHaveLength(0);
     undo(model);
     expect(model.getters.getSelectedFigureId()).toBeNull();
-    expect(model.getters.getVisibleFigures(sheetId)).toHaveLength(1);
+    expect(model.getters.getVisibleFigures()).toHaveLength(1);
   });
 
   test("change sheet deselect figure", () => {
