@@ -3,6 +3,7 @@ import { chartTerms } from "../../src/components/side_panel/translations_terms";
 import { toZone } from "../../src/helpers/zones";
 import { ChartUIDefinition, CommandResult } from "../../src/types";
 import {
+  activateSheet,
   addColumns,
   addRows,
   createChart,
@@ -416,7 +417,6 @@ describe("datasource tests", function () {
   });
 
   test("can delete an imported chart", () => {
-    const sheetId = model.getters.getActiveSheetId();
     createChart(
       model,
       {
@@ -428,10 +428,10 @@ describe("datasource tests", function () {
     );
     const exportedData = model.exportData();
     const newModel = new Model(exportedData);
-    expect(newModel.getters.getVisibleFigures(sheetId)).toHaveLength(1);
+    expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
     newModel.dispatch("DELETE_FIGURE", { sheetId: model.getters.getActiveSheetId(), id: "1" });
-    expect(newModel.getters.getVisibleFigures(sheetId)).toHaveLength(0);
+    expect(newModel.getters.getVisibleFigures()).toHaveLength(0);
     expect(newModel.getters.getChartRuntime("1")).toBeUndefined();
   });
 
@@ -876,15 +876,16 @@ describe("datasource tests", function () {
       sheetId: "1",
       sheetIdTo: "SheetNoFigure",
     });
-    expect(model.getters.getVisibleFigures("SheetNoFigure")).toEqual([]);
+    activateSheet(model, "SheetNoFigure");
+    expect(model.getters.getVisibleFigures()).toEqual([]);
     model.dispatch("DUPLICATE_SHEET", {
       sheetId: "2",
       sheetIdTo: "SheetWithFigure",
     });
-    const { x, y, height, width, tag } = model.getters.getVisibleFigures("2")[0];
-    expect(model.getters.getVisibleFigures("SheetWithFigure")).toMatchObject([
-      { x, y, height, width, tag },
-    ]);
+    activateSheet(model, "2");
+    const { x, y, height, width, tag } = model.getters.getVisibleFigures()[0];
+    activateSheet(model, "SheetWithFigure");
+    expect(model.getters.getVisibleFigures()).toMatchObject([{ x, y, height, width, tag }]);
   });
   test("extend data source to new values manually", () => {
     createChart(

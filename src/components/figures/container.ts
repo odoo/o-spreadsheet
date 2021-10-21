@@ -148,7 +148,7 @@ export class FiguresContainer extends Component<{ sidePanelIsOpen: Boolean }, Sp
 
   getVisibleFigures(): FigureInfo[] {
     const selectedId = this.getters.getSelectedFigureId();
-    return this.getters.getVisibleFigures(this.getters.getActiveSheetId()).map((f) => ({
+    return this.getters.getVisibleFigures().map((f) => ({
       id: f.id,
       isSelected: f.id === selectedId,
       figure: f,

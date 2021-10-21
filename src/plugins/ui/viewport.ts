@@ -27,7 +27,6 @@ interface ViewportPluginState {
 export class ViewportPlugin extends UIPlugin {
   static getters = [
     "getActiveViewport",
-    "getSnappedViewport",
     "getActiveSnappedViewport",
     "getViewportDimension",
     "getGridDimension",
