@@ -187,8 +187,9 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
     this.previousRanges = ranges;
   }
 
-  focus(rangeId: string | null) {
+  focus(rangeId: string) {
     this.state.isMissing = false;
+    this.dispatch("STOP_EDITION", { cancel: true });
     this.dispatch("FOCUS_RANGE", {
       id: this.id,
       rangeId,
@@ -217,10 +218,7 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
   }
 
   disable() {
-    this.dispatch("FOCUS_RANGE", {
-      id: this.id,
-      rangeId: null,
-    });
+    this.dispatch("UNFOCUS_SELECTION_INPUT");
     const ranges = this.getters.getSelectionInputValue(this.id);
     if (this.props.required && ranges.length === 0) {
       this.state.isMissing = true;

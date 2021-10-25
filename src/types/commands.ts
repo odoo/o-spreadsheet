@@ -697,6 +697,10 @@ export interface RemoveInputCommand extends BaseCommand {
   id: string;
 }
 
+export interface UnfocusInputCommand extends BaseCommand {
+  type: "UNFOCUS_SELECTION_INPUT";
+}
+
 /**
  * Set the focus on a given range of a SelectionComponent state.
  */
@@ -705,9 +709,9 @@ export interface FocusInputCommand extends BaseCommand {
   /** SelectionComponent id */
   id: string;
   /**
-   * Range to focus. If `null` is given, removes the focus entirely.
+   * Range to focus
    */
-  rangeId: string | null;
+  rangeId: string;
 }
 
 /**
@@ -902,6 +906,7 @@ export type LocalCommand =
   | RedoCommand
   | NewInputCommand
   | RemoveInputCommand
+  | UnfocusInputCommand
   | FocusInputCommand
   | AddEmptyRangeCommand
   | RemoveRangeCommand

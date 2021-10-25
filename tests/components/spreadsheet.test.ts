@@ -3,13 +3,20 @@ import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
 import { DEFAULT_REVISION_ID } from "../../src/constants";
 import { args, functionRegistry } from "../../src/functions";
-import { DEBUG } from "../../src/helpers";
+import { DEBUG, toZone } from "../../src/helpers";
 import { SelectionMode } from "../../src/plugins/ui/selection";
+import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
 import { Client } from "../../src/types";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { makeTestFixture, MockClipboard, nextTick, typeInComposer } from "../test_helpers/helpers";
+import {
+  makeTestFixture,
+  MockClipboard,
+  nextTick,
+  target,
+  typeInComposer,
+} from "../test_helpers/helpers";
 
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
@@ -35,7 +42,7 @@ jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation((
 class Parent extends Component<any> {
   static template = xml/* xml */ `<Spreadsheet t-ref="spreadsheet" data="data" client="client"/>`;
   static components = { Spreadsheet };
-  private spreadsheet: any = useRef("spreadsheet");
+  spreadsheet: any = useRef("spreadsheet");
   readonly data: any;
   readonly client: Client;
   get model(): Model {
@@ -392,5 +399,58 @@ describe("Composer interactions", () => {
     const container = new Parent();
     await container.mount(fixture);
     expect(container.model.getters.getActiveSheetId()).toBe("2");
+  });
+});
+
+describe("Composer / selectionInput interactions", () => {
+  let spreadsheet: Spreadsheet;
+  beforeEach(() => {
+    parent.model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      sheetId: parent.model.getters.getActiveSheetId(),
+      target: target("B2:C4"),
+      cf: {
+        id: "42",
+        rule: {
+          type: "CellIsRule",
+          operator: "Equal",
+          values: ["1"],
+          style: { bold: true },
+        },
+      },
+    });
+    spreadsheet = parent.spreadsheet.comp as Spreadsheet;
+    // input some stuff in B2
+    setCellContent(parent.model, "B2", "=A1");
+  });
+  test("Switching from selection input to composer should update the highlihts", async () => {
+    //open cf sidepanel
+    selectCell(parent.model, "B2");
+    OPEN_CF_SIDEPANEL_ACTION(spreadsheet.env);
+    await nextTick();
+    await simulateClick(".o-selection-input input");
+
+    expect(parent.model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("B2:C4")]);
+    expect(document.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(0);
+
+    // select Composer
+    await simulateClick(".o-spreadsheet-topbar .o-composer");
+
+    expect(parent.model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("A1")]);
+    expect(document.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
+  });
+  test("Switching from composer to selection input should update the highlihts and hide the highlight components", async () => {
+    selectCell(parent.model, "B2");
+    OPEN_CF_SIDEPANEL_ACTION(spreadsheet.env);
+    await nextTick();
+
+    await simulateClick(".o-spreadsheet-topbar .o-composer");
+    expect(parent.model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("A1")]);
+    expect(document.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
+
+    //open cf sidepanel
+    await simulateClick(".o-selection-input input");
+
+    expect(parent.model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("B2:C4")]);
+    expect(document.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(0);
   });
 });
