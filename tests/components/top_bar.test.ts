@@ -13,7 +13,7 @@ import {
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
-  typeInComposer,
+  typeInComposerTopBar,
 } from "../test_helpers/helpers";
 
 jest.mock("../../src/components/composer/content_editable_helper", () =>
@@ -350,7 +350,7 @@ describe("TopBar component", () => {
     parent = new Parent(model);
     await parent.mount(fixture);
 
-    const composerEl = fixture.querySelector(".o-spreadsheet-topbar div.o-composer")!;
+    let composerEl = fixture.querySelector(".o-spreadsheet-topbar div.o-composer")!;
 
     expect(composerEl.classList.contains("unfocusable")).toBeTruthy();
     expect(composerEl.attributes.getNamedItem("contentEditable")!.value).toBe("false");
@@ -360,7 +360,7 @@ describe("TopBar component", () => {
     // Won't update the current content
     const content = model.getters.getCurrentContent();
     expect(content).toBe("");
-    typeInComposer(composerEl, "tabouret");
+    composerEl = await typeInComposerTopBar("tabouret", false);
     expect(model.getters.getCurrentContent()).toBe(content);
   });
 });

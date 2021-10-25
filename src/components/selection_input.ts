@@ -33,9 +33,6 @@ const TEMPLATE = xml/* xml */ `
     </div>
 
     <div class="o-selection-input">
-    </div>
-
-    <div class="o-selection-input">
       <button
         class="o-btn-action o-add-selection"
         t-if="canAddRange"

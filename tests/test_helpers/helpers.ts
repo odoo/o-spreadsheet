@@ -247,7 +247,11 @@ export function createColorScale(
   };
 }
 
-export async function typeInComposer(composerEl: Element, text: string) {
+async function typeInComposerHelper(selector: string, text: string, fromScratch: boolean) {
+  let composerEl: Element = document.querySelector(selector)!;
+  if (fromScratch) {
+    composerEl = await startGridComposition();
+  }
   // @ts-ignore
   const cehMock = window.mockContentHelper as ContentEditableHelper;
   cehMock.insertText(text);
@@ -255,6 +259,15 @@ export async function typeInComposer(composerEl: Element, text: string) {
   composerEl.dispatchEvent(new Event("input", { bubbles: true }));
   composerEl.dispatchEvent(new Event("keyup", { bubbles: true }));
   await nextTick();
+  return composerEl;
+}
+
+export async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
+  return await typeInComposerHelper(".o-grid .o-composer", text,fromScratch);
+}
+
+export async function typeInComposerTopBar(text: string, fromScratch: boolean = true) {
+  return await typeInComposerHelper(".o-spreadsheet-topbar .o-composer", text,fromScratch);
 }
 
 export async function startGridComposition(key: string = "Enter") {
