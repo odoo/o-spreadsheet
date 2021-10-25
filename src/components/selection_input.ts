@@ -97,7 +97,7 @@ const CSS = css/* scss */ `
 
 interface Props {
   ranges: string[];
-  maximumRanges?: number;
+  hasSingleRange?: boolean;
   required?: boolean;
   isInvalid?: boolean;
 }
@@ -149,7 +149,7 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
   }
 
   get canAddRange(): boolean {
-    return !this.props.maximumRanges || this.ranges.length < this.props.maximumRanges;
+    return !this.props.hasSingleRange;
   }
 
   get isInvalid(): boolean {
@@ -160,7 +160,7 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
     this.dispatch("ENABLE_NEW_SELECTION_INPUT", {
       id: this.id,
       initialRanges: this.props.ranges,
-      maximumRanges: this.props.maximumRanges,
+      hasSingleRange: this.props.hasSingleRange,
     });
   }
 

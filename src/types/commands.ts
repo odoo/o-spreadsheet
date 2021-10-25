@@ -683,9 +683,9 @@ export interface NewInputCommand extends BaseCommand {
    */
   initialRanges?: string[];
   /**
-   * Maximum number of ranges allowed
+   * is the input limited to one range or has no limit ?
    */
-  maximumRanges?: number;
+  hasSingleRange?: boolean;
 }
 
 /**

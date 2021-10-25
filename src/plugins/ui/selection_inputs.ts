@@ -37,7 +37,7 @@ export class SelectionInputPlugin extends UIPlugin {
 
   private inputs: Record<UID, RangeInputValue[]> = {};
   private activeSheets: Record<UID, UID> = {};
-  private inputMaximums: Record<UID, number> = {};
+  private inputHasSingleRange: Record<UID, boolean> = {};
   private focusedInputId: UID | null = null;
   private focusedRange: number | null = null;
   private willAddNewRange: boolean = false;
@@ -55,7 +55,7 @@ export class SelectionInputPlugin extends UIPlugin {
         }
         break;
       case "ADD_EMPTY_RANGE":
-        if (this.inputs[cmd.id].length === this.inputMaximums[cmd.id]) {
+        if (this.inputHasSingleRange[cmd.id] && this.inputs[cmd.id].length === 1) {
           return CommandResult.MaximumRangesReached;
         }
         break;
@@ -66,7 +66,7 @@ export class SelectionInputPlugin extends UIPlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ENABLE_NEW_SELECTION_INPUT":
-        this.initInput(cmd.id, cmd.initialRanges || [], cmd.maximumRanges);
+        this.initInput(cmd.id, cmd.initialRanges || [], cmd.hasSingleRange);
         break;
       case "DISABLE_SELECTION_INPUT":
         if (this.focusedInputId === cmd.id) {
@@ -74,7 +74,7 @@ export class SelectionInputPlugin extends UIPlugin {
         }
         delete this.inputs[cmd.id];
         delete this.activeSheets[cmd.id];
-        delete this.inputMaximums[cmd.id];
+        delete this.inputHasSingleRange[cmd.id];
         break;
       case "UNFOCUS_SELECTION_INPUT":
         this.unfocus();
@@ -110,22 +110,22 @@ export class SelectionInputPlugin extends UIPlugin {
           break;
         }
         const all = this.getSelectionInputValue(this.focusedInputId);
-        const selectedZones = this.getters
-          .getSelectedZones()
-          .map(zoneToXc)
-          .filter((zoneXc) => !all.includes(zoneXc));
+        const selectedZones = this.inputHasSingleRange[this.focusedInputId]
+          ? [this.getters.getSelectedZone()]
+          : this.getters.getSelectedZones();
+        const selectedXCs = selectedZones.map(zoneToXc).filter((zoneXc) => !all.includes(zoneXc));
         const inputSheetId = this.activeSheets[this.focusedInputId];
         const sheetId = this.getters.getActiveSheetId();
         const sheetName = this.getters.getSheetName(sheetId);
         this.add(
-          selectedZones.map((xc) =>
+          selectedXCs.map((xc) =>
             sheetId === inputSheetId ? xc : `${getComposerSheetName(sheetName)}!${xc}`
           )
         );
         break;
       case "PREPARE_SELECTION_EXPANSION": {
         const [id, index] = [this.focusedInputId, this.focusedRange];
-        if (id !== null && index !== null) {
+        if (id !== null && index !== null && !this.inputHasSingleRange[id]) {
           this.willAddNewRange = this.inputs[id][index].xc.trim() !== "";
         }
         break;
@@ -187,13 +187,11 @@ export class SelectionInputPlugin extends UIPlugin {
   // Other
   // ---------------------------------------------------------------------------
 
-  private initInput(id: UID, initialRanges: string[], maximumRanges?: number) {
+  private initInput(id: UID, initialRanges: string[], inputHasSingleRange: boolean = false) {
     this.inputs[id] = [];
     this.insertNewRange(id, 0, initialRanges);
     this.activeSheets[id] = this.getters.getActiveSheetId();
-    if (maximumRanges !== undefined) {
-      this.inputMaximums[id] = maximumRanges;
-    }
+    this.inputHasSingleRange[id] = inputHasSingleRange;
     if (this.inputs[id].length === 0) {
       this.dispatch("ADD_EMPTY_RANGE", { id });
     }
@@ -248,9 +246,6 @@ export class SelectionInputPlugin extends UIPlugin {
    * Insert new inputs after the given index.
    */
   private insertNewRange(id: string, index: number, values: string[]) {
-    if (this.inputs[id].length + values.length > this.inputMaximums[id]) {
-      values = values.slice(0, this.inputMaximums[id] - this.inputs[id].length);
-    }
     this.inputs[id].splice(
       index,
       0,
@@ -267,7 +262,7 @@ export class SelectionInputPlugin extends UIPlugin {
    * new inputs will be added.
    */
   private setRange(id: UID, index: number, values: string[]) {
-    let [, ...additionalValues] = values;
+    const [, ...additionalValues] = values;
     this.setContent(id, index, values[0]);
     this.insertNewRange(id, index + 1, additionalValues);
     // focus the last newly added range
