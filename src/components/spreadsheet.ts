@@ -321,6 +321,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     this.composer.topBarFocus = "contentFocus";
     this.composer.gridFocusMode = "inactive";
     this.setComposerContent(ev.detail || {});
+    this.env.dispatch("UNFOCUS_SELECTION_INPUT");
   }
 
   onGridComposerContentFocused(ev: ComposerFocusedEvent) {
@@ -330,6 +331,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "contentFocus";
     this.setComposerContent(ev.detail || {});
+    this.env.dispatch("UNFOCUS_SELECTION_INPUT");
   }
 
   onGridComposerCellFocused(ev: ComposerFocusedEvent) {
@@ -339,6 +341,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "cellFocus";
     this.setComposerContent(ev.detail || {});
+    this.env.dispatch("UNFOCUS_SELECTION_INPUT");
   }
 
   /**

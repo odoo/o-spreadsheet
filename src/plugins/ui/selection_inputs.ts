@@ -70,12 +70,14 @@ export class SelectionInputPlugin extends UIPlugin {
         break;
       case "DISABLE_SELECTION_INPUT":
         if (this.focusedInputId === cmd.id) {
-          this.focusedRange = null;
-          this.focusedInputId = null;
+          this.unfocus();
         }
         delete this.inputs[cmd.id];
         delete this.activeSheets[cmd.id];
         delete this.inputMaximums[cmd.id];
+        break;
+      case "UNFOCUS_SELECTION_INPUT":
+        this.unfocus();
         break;
       case "FOCUS_RANGE":
         this.focus(cmd.id, this.getIndex(cmd.id, cmd.rangeId));
@@ -207,6 +209,11 @@ export class SelectionInputPlugin extends UIPlugin {
 
   private focusLast(id: UID) {
     this.focus(id, this.inputs[id].length - 1);
+  }
+
+  private unfocus() {
+    this.focusedInputId = null;
+    this.focusedRange = null;
   }
 
   private add(newRanges: string[]) {

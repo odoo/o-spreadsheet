@@ -193,7 +193,7 @@ describe("selection input plugin", () => {
   test("ranges are unfocused", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     expect(model.getters.getSelectionInput(id)[0].isFocused).toBe(true);
-    model.dispatch("FOCUS_RANGE", { id, rangeId: null });
+    model.dispatch("UNFOCUS_SELECTION_INPUT");
     expect(model.getters.getSelectionInput(id)[0].isFocused).toBeFalsy();
   });
 
@@ -451,7 +451,7 @@ describe("selection input plugin", () => {
     model.dispatch("FOCUS_RANGE", { id: "1", rangeId: idOfRange(model, "1", 0) });
     const color = model.getters.getSelectionInput(id)[0].color;
     expect(color).toBeTruthy();
-    model.dispatch("FOCUS_RANGE", { id, rangeId: null });
+    model.dispatch("UNFOCUS_SELECTION_INPUT");
     expect(model.getters.getSelectionInput(id)[0].color).toBe(null);
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
     expect(model.getters.getSelectionInput(id)[0].color).toBe(color);
@@ -482,7 +482,7 @@ describe("selection input plugin", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     select(model, "A1");
     createSheet(model, { sheetId: "42", activate: true });
-    model.dispatch("FOCUS_RANGE", { id, rangeId: null });
+    model.dispatch("UNFOCUS_SELECTION_INPUT");
     let [range] = model.getters.getSelectionInput(id);
     model.dispatch("FOCUS_RANGE", { id, rangeId: range.id });
     [range] = model.getters.getSelectionInput(id);
@@ -547,7 +547,7 @@ describe("selection input plugin", () => {
     model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["Sheet2!B2"] });
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
-    model.dispatch("FOCUS_RANGE", { id, rangeId: null });
+    model.dispatch("UNFOCUS_SELECTION_INPUT");
     expect(model.getters.getSelectionInput(id)[0].isFocused).toBe(false);
     activateSheet(model, "42");
     expect(model.getters.getSelectionInput(id)[0].isFocused).toBe(false);
