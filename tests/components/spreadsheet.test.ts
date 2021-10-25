@@ -9,7 +9,13 @@ import { Client } from "../../src/types";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { makeTestFixture, MockClipboard, nextTick, typeInComposer } from "../test_helpers/helpers";
+import {
+  makeTestFixture,
+  MockClipboard,
+  nextTick,
+  typeInComposerGrid,
+  typeInComposerTopBar,
+} from "../test_helpers/helpers";
 
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
@@ -253,7 +259,7 @@ describe("Composer interactions", () => {
     const gridComposer = document.querySelector(".o-grid .o-composer");
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
     expect(document.activeElement).toBe(gridComposer);
-    await typeInComposer(gridComposer!, "text");
+    await typeInComposerGrid("text");
     expect(topBarComposer!.textContent).toBe("text");
     expect(gridComposer!.textContent).toBe("text");
   });
@@ -266,7 +272,7 @@ describe("Composer interactions", () => {
     expect(topBarComposer).toBeDefined();
     expect(document.activeElement).toBe(topBarComposer);
     expect(gridComposer).toBeDefined();
-    await typeInComposer(topBarComposer!, "text");
+    await typeInComposerTopBar("text");
     await nextTick();
     expect(topBarComposer!.textContent).toBe("text");
     expect(gridComposer!.textContent).toBe("text");
@@ -279,14 +285,14 @@ describe("Composer interactions", () => {
     const gridComposer = document.querySelector(".o-grid .o-composer");
 
     // Type in top bar composer
-    await typeInComposer(topBarComposer!, "from topbar");
+    await typeInComposerTopBar("from topbar");
     expect(topBarComposer!.textContent).toBe("from topbar");
     expect(gridComposer!.textContent).toBe("from topbar");
 
     // Focus grid composer and type
     triggerMouseEvent(".o-grid .o-composer", "click");
     await nextTick();
-    await typeInComposer(gridComposer!, "from grid");
+    await typeInComposerGrid("from grid");
     expect(topBarComposer!.textContent).toBe("from topbarfrom grid");
     expect(gridComposer!.textContent).toBe("from topbarfrom grid");
   });
@@ -316,8 +322,7 @@ describe("Composer interactions", () => {
     );
     await nextTick();
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
-    const gridComposer = document.querySelector(".o-grid .o-composer")!;
-    await typeInComposer(gridComposer, "=SU");
+    await typeInComposerGrid("=SU");
     expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeDefined();
     topBarComposer.dispatchEvent(new Event("click"));
     await nextTick();
@@ -331,9 +336,8 @@ describe("Composer interactions", () => {
     await nextTick();
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
     const gridComposerContainer = document.querySelector(".o-grid-composer")! as HTMLElement;
-    const gridComposer = document.querySelector(".o-grid .o-composer")! as HTMLElement;
     const spy = jest.spyOn(gridComposerContainer.style, "width", "set");
-    await typeInComposer(gridComposer, "=SU");
+    await typeInComposerGrid("=SU");
     await nextTick();
     topBarComposer.dispatchEvent(new Event("click"));
     await nextTick();
@@ -344,10 +348,9 @@ describe("Composer interactions", () => {
   test("selecting ranges multiple times in topbar bar does not resize grid composer", async () => {
     triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
     await nextTick();
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
     const gridComposerContainer = document.querySelector(".o-grid-composer")! as HTMLElement;
     // Type in top bar composer
-    await typeInComposer(topBarComposer!, "=");
+    await typeInComposerTopBar("=");
     const spy = jest.spyOn(gridComposerContainer.style, "width", "set");
     await nextTick();
     selectCell(parent.model, "B2");
