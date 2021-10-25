@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { toZone, zoneToXc } from "../../src/helpers";
+import { zoneToXc } from "../../src/helpers";
 import { CommandResult } from "../../src/types";
 import {
   activateSheet,
@@ -9,7 +9,6 @@ import {
   selectCell,
   setSelection,
 } from "../test_helpers/commands_helpers";
-import { target } from "../test_helpers/helpers";
 
 function select(model: Model, xc: string) {
   model.dispatch("START_SELECTION");
@@ -79,6 +78,22 @@ describe("selection input plugin", () => {
     expect(highlightedZones(model)).toStrictEqual(["A2:A5"]);
   });
 
+  test("select cell inside a merge expands the selection", () => {
+    selectCell(model, "B1");
+    merge(model, "A2:A4");
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, hasSingleRange: true });
+    model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+    model.dispatch("PREPARE_SELECTION_EXPANSION");
+    model.dispatch("START_SELECTION_EXPANSION");
+    selectCell(model, "A4");
+    model.dispatch("ALTER_SELECTION", { cell: [0, 2] });
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("A2:A4");
+    expect(highlightedZones(model)).toStrictEqual(["A2:A4"]);
+    model.dispatch("ALTER_SELECTION", { cell: [0, 1] });
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("A2:A4");
+    expect(highlightedZones(model)).toStrictEqual(["A2:A4"]);
+  });
+
   test("focus input which is already focused", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
@@ -123,32 +138,21 @@ describe("selection input plugin", () => {
   });
 
   test("expanding a selection does not add input if maximum is reached", () => {
-    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, maximumRanges: 1 });
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, hasSingleRange: true });
     select(model, "C2");
     model.dispatch("PREPARE_SELECTION_EXPANSION");
     model.dispatch("START_SELECTION_EXPANSION");
     selectCell(model, "D2");
     expect(model.getters.getSelectionInput(id)).toHaveLength(1);
-    expect(model.getters.getSelectionInput(id)[0].xc).toBe("C2");
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("D2");
   });
 
-  test("adding multiple ranges does not add more input than maximum", () => {
-    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, maximumRanges: 2 });
-    model.dispatch("SET_SELECTION", {
-      anchor: [0, 0],
-      anchorZone: toZone("A1"),
-      zones: target("A1,B1,C1"),
-    });
-    expect(model.getters.getSelectionInput(id)).toHaveLength(2);
-    expect(model.getters.getSelectionInput(id)[0].xc).toBe("A1");
-    expect(model.getters.getSelectionInput(id)[1].xc).toBe("B1");
-  });
-
-  test("cannot add emty range when maximum ranges reached", async () => {
-    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, maximumRanges: 1 });
+  test("cannot add empty range when maximum ranges reached", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, hasSingleRange: true });
     expect(model.getters.getSelectionInput(id)).toHaveLength(1);
-    model.dispatch("ADD_EMPTY_RANGE", { id });
-    expect(model.getters.getSelectionInput(id)).toHaveLength(1);
+    expect(model.dispatch("ADD_EMPTY_RANGE", { id })).toBeCancelledBecause(
+      CommandResult.MaximumRangesReached
+    );
   });
 
   test("add an empty range", () => {
@@ -412,6 +416,24 @@ describe("selection input plugin", () => {
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("C4");
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("C2");
     expect(model.getters.getSelectionInput(id)[2].xc).toBe("D2");
+  });
+
+  test("multiple alter selection in a single range component", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", {
+      id,
+      initialRanges: ["C4"],
+      hasSingleRange: true,
+    });
+    selectCell(model, "C2");
+    model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+    model.dispatch("PREPARE_SELECTION_EXPANSION");
+    model.dispatch("START_SELECTION_EXPANSION");
+    selectCell(model, "E1");
+    model.dispatch("ALTER_SELECTION", { cell: [4, 1] }); // E2
+    model.dispatch("ALTER_SELECTION", { cell: [4, 2] }); // E3
+    model.dispatch("STOP_SELECTION");
+    expect(highlightedZones(model)).toEqual(["E1:E3"]);
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("E1:E3");
   });
 
   test("selection expansion by altering selection adds inputs", () => {

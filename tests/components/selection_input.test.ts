@@ -27,7 +27,7 @@ async function writeInput(index: number, text: string) {
 
 interface SelectionInputTestConfig {
   initialRanges?: string[];
-  maximumRanges?: number;
+  hasSingleRange?: boolean;
   onChanged?: jest.Mock<void, [any]>;
 }
 
@@ -36,13 +36,13 @@ class Parent extends Component<any> {
     <SelectionInput
       t-ref="selection-input"
       ranges="initialRanges"
-      maximumRanges="maximumRanges"
+      hasSingleRange="hasSingleRange"
       t-on-selection-changed="onChanged"/>
   `;
   static components = { SelectionInput };
   model: Model;
   initialRanges: string[] | undefined;
-  maximumRanges: number | undefined;
+  hasSingleRange: boolean | undefined;
   ref = useRef("selection-input");
   onChanged: jest.Mock<void, [any]>;
 
@@ -54,7 +54,7 @@ class Parent extends Component<any> {
       uuidGenerator: model.uuidGenerator,
     });
     this.initialRanges = config.initialRanges;
-    this.maximumRanges = config.maximumRanges;
+    this.hasSingleRange = config.hasSingleRange;
     this.model = model;
     this.onChanged = config.onChanged || jest.fn();
   }
@@ -159,14 +159,14 @@ describe("Selection Input", () => {
   });
 
   test("input is not filled with highlight when maximum ranges reached", async () => {
-    const { model } = await createSelectionInput({ maximumRanges: 1 });
+    const { model } = await createSelectionInput({ hasSingleRange: true });
     expect(fixture.querySelectorAll("input")).toHaveLength(1);
     model.dispatch("PREPARE_SELECTION_EXPANSION");
     model.dispatch("START_SELECTION_EXPANSION");
     selectCell(model, "B2");
     await nextTick();
     expect(fixture.querySelectorAll("input")).toHaveLength(1);
-    expect(fixture.querySelector("input")!.value).toBe("A1");
+    expect(fixture.querySelector("input")!.value).toBe("B2");
     expect(fixture.querySelector(".o-add-selection")).toBeNull();
   });
 
@@ -175,16 +175,6 @@ describe("Selection Input", () => {
     expect(fixture.querySelectorAll("input").length).toBe(1);
     await simulateClick(".o-add-selection");
     expect(fixture.querySelectorAll("input").length).toBe(2);
-  });
-
-  test("cannot add more ranges than the maximum", async () => {
-    await createSelectionInput({ maximumRanges: 2 });
-    expect(fixture.querySelectorAll("input").length).toBe(1);
-    await simulateClick(".o-add-selection");
-    expect(fixture.querySelectorAll("input").length).toBe(2);
-    expect(fixture.querySelector(".o-add-selection")).toBeNull();
-    await simulateClick(".o-remove-selection");
-    expect(fixture.querySelector(".o-add-selection")).toBeDefined();
   });
 
   test("can set initial ranges", async () => {

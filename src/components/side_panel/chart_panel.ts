@@ -47,7 +47,7 @@ const CONFIGURATION_TEMPLATE = xml/* xml */ `
     <SelectionInput t-key="getKey('label')"
                     ranges="[state.labelRange || '']"
                     isInvalid="isLabelInvalid"
-                    maximumRanges="1"
+                    hasSingleRange="true"
                     t-on-selection-changed="onLabelRangeChanged"
                     t-on-selection-confirmed="updateLabelRange" />
   </div>
