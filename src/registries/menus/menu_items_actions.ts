@@ -115,7 +115,7 @@ export const DELETE_CONTENT_ROWS_NAME = (env: SpreadsheetEnv) => {
   if (first === last) {
     return _lt("Clear row %s", (first + 1).toString());
   }
-  return _lt("Clear rows %s - %s", (first + 1).toString(), (last + 1).toString());
+  return _lt("Clear selected rows");
 };
 
 export const DELETE_CONTENT_ROWS_ACTION = (env: SpreadsheetEnv) => {
@@ -143,7 +143,7 @@ export const DELETE_CONTENT_COLUMNS_NAME = (env: SpreadsheetEnv) => {
   if (first === last) {
     return _lt("Clear column %s", numberToLetters(first));
   }
-  return _lt("Clear columns %s - %s", numberToLetters(first), numberToLetters(last));
+  return _lt("Clear selected columns");
 };
 
 export const DELETE_CONTENT_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
@@ -171,7 +171,7 @@ export const REMOVE_ROWS_NAME = (env: SpreadsheetEnv) => {
   if (first === last) {
     return _lt("Delete row %s", (first + 1).toString());
   }
-  return _lt("Delete rows %s - %s", (first + 1).toString(), (last + 1).toString());
+  return _lt("Delete selected rows");
 };
 
 export const REMOVE_ROWS_ACTION = (env: SpreadsheetEnv) => {
@@ -203,7 +203,7 @@ export const REMOVE_COLUMNS_NAME = (env: SpreadsheetEnv) => {
   if (first === last) {
     return _lt("Delete column %s", numberToLetters(first));
   }
-  return _lt("Delete columns %s - %s", numberToLetters(first), numberToLetters(last));
+  return _lt("Delete selected columns");
 };
 
 export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
