@@ -118,6 +118,9 @@ export const SET_GRID_LINES_VISIBILITY_ACTION = (env: SpreadsheetChildEnv) => {
 //------------------------------------------------------------------------------
 
 export const DELETE_CONTENT_ROWS_NAME = (env: SpreadsheetChildEnv) => {
+  if (env.model.getters.getSelectedZones().length > 1) {
+    return _lt("Clear rows");
+  }
   let first: number;
   let last: number;
   const activesRows = env.model.getters.getActiveRows();
@@ -147,6 +150,9 @@ export const DELETE_CONTENT_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
 };
 
 export const DELETE_CONTENT_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
+  if (env.model.getters.getSelectedZones().length > 1) {
+    return _lt("Clear columns");
+  }
   let first: number;
   let last: number;
   const activeCols = env.model.getters.getActiveCols();
@@ -176,6 +182,9 @@ export const DELETE_CONTENT_COLUMNS_ACTION = (env: SpreadsheetChildEnv) => {
 };
 
 export const REMOVE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
+  if (env.model.getters.getSelectedZones().length > 1) {
+    return _lt("Delete rows");
+  }
   let first: number;
   let last: number;
   const activesRows = env.model.getters.getActiveRows();
@@ -209,6 +218,9 @@ export const REMOVE_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
 };
 
 export const REMOVE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
+  if (env.model.getters.getSelectedZones().length > 1) {
+    return _lt("Delete columns");
+  }
   let first: number;
   let last: number;
   const activeCols = env.model.getters.getActiveCols();

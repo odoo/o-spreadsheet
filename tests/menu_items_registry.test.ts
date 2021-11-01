@@ -211,14 +211,26 @@ describe("Menu Item actions", () => {
     const path = ["edit", "edit_delete_row"];
 
     test("A selected row", () => {
-      selectRow(model, 4, "newAnchor");
+      selectRow(model, 4, "overrideSelection");
       expect(getName(path, env)).toBe("Delete row 5");
     });
 
     test("Multiple selected rows", () => {
-      selectRow(model, 4, "newAnchor");
+      selectRow(model, 4, "overrideSelection");
       selectRow(model, 5, "updateAnchor");
       expect(getName(path, env)).toBe("Delete rows 5 - 6");
+      doAction(path, env);
+      expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
+        sheetId: env.model.getters.getActiveSheetId(),
+        dimension: "ROW",
+        elements: [4, 5],
+      });
+    });
+
+    test("Multiple zones of selected rows", () => {
+      selectRow(model, 4, "newAnchor");
+      selectRow(model, 5, "updateAnchor");
+      expect(getName(path, env)).toBe("Delete rows");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
@@ -249,7 +261,7 @@ describe("Menu Item actions", () => {
     const path = ["edit", "edit_delete_column"];
 
     test("A selected column", () => {
-      selectColumn(model, 4, "newAnchor");
+      selectColumn(model, 4, "overrideSelection");
       expect(getName(path, env)).toBe("Delete column E");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -260,9 +272,21 @@ describe("Menu Item actions", () => {
     });
 
     test("Multiple selected columns", () => {
-      selectColumn(model, 4, "newAnchor");
+      selectColumn(model, 4, "overrideSelection");
       selectColumn(model, 5, "updateAnchor");
       expect(getName(path, env)).toBe("Delete columns E - F");
+      doAction(path, env);
+      expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
+        sheetId: env.model.getters.getActiveSheetId(),
+        dimension: "COL",
+        elements: [4, 5],
+      });
+    });
+
+    test("Multiple zones of selected columns", () => {
+      selectColumn(model, 4, "newAnchor");
+      selectColumn(model, 5, "updateAnchor");
+      expect(getName(path, env)).toBe("Delete columns");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
