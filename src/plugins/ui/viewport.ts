@@ -36,8 +36,8 @@ export class ViewportPlugin extends UIPlugin {
   static getters = [
     "getActiveViewport",
     "getActiveSnappedViewport",
-    "getViewportDimension",
-    "getGridDimension",
+    "getViewportDimensionWithHeaders",
+    "getMaxViewportSize",
   ] as const;
   static modes: Mode[] = ["normal"];
 
@@ -45,13 +45,13 @@ export class ViewportPlugin extends UIPlugin {
   readonly snappedViewports: ViewportPluginState["viewports"] = {};
   private updateSnap: boolean = false;
   /**
-   * The viewport dimensions (clientWidth and clientHeight) are usually set by one of the components
+   * The viewport dimensions are usually set by one of the components
    * (i.e. when grid component is mounted) to properly reflect its state in the DOM.
    * In the absence of a component (standalone model), is it mandatory to set reasonable default values
    * to ensure the correct operation of this plugin.
    */
-  private clientWidth: number = 1000;
-  private clientHeight: number = 1000;
+  private viewportWidth: number = 1000 - HEADER_WIDTH;
+  private viewportHeight: number = 1000 - HEADER_HEIGHT;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -80,19 +80,19 @@ export class ViewportPlugin extends UIPlugin {
         break;
       case "RESIZE_VIEWPORT":
         this.cleanViewports();
-        this.resizeViewport(cmd.height, cmd.width);
+        this.resizeViewport(cmd.height - HEADER_HEIGHT, cmd.width - HEADER_WIDTH);
         break;
       case "SET_VIEWPORT_OFFSET":
         this.setViewportOffset(cmd.offsetX, cmd.offsetY);
         break;
       case "SHIFT_VIEWPORT_DOWN":
         const topRow = this.getActiveTopRow();
-        const shiftedOffsetY = topRow.start + (this.clientHeight - HEADER_HEIGHT);
+        const shiftedOffsetY = topRow.start + this.viewportHeight;
         this.shiftVertically(shiftedOffsetY);
         break;
       case "SHIFT_VIEWPORT_UP": {
         const topRow = this.getActiveTopRow();
-        const shiftedOffsetY = topRow.end - (this.clientHeight - HEADER_HEIGHT);
+        const shiftedOffsetY = topRow.end - this.viewportHeight;
         this.shiftVertically(shiftedOffsetY);
         break;
       }
@@ -134,8 +134,11 @@ export class ViewportPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getViewportDimension(): ZoneDimension {
-    return { width: this.clientWidth, height: this.clientHeight };
+  getViewportDimensionWithHeaders(): ZoneDimension {
+    return {
+      width: this.viewportWidth + HEADER_WIDTH,
+      height: this.viewportHeight + HEADER_HEIGHT,
+    };
   }
 
   getActiveViewport(): Viewport {
@@ -148,25 +151,27 @@ export class ViewportPlugin extends UIPlugin {
     return this.getSnappedViewport(sheetId);
   }
 
-  getGridDimension(sheet: Sheet): ZoneDimension {
+  /**
+   * Return the maximum viewport size. That is the sheet dimension
+   * with some bottom and right padding.
+   */
+  getMaxViewportSize(sheet: Sheet): ZoneDimension {
     const lastCol = findLastVisibleColRow(sheet, "cols");
-    const effectiveWidth = this.clientWidth - HEADER_WIDTH;
     const lastRow = findLastVisibleColRow(sheet, "rows");
-    const effectiveHeight = this.clientHeight - HEADER_HEIGHT;
 
     const leftCol =
-      sheet.cols.find((col) => col.end > lastCol!.end - effectiveWidth) ||
+      sheet.cols.find((col) => col.end > lastCol!.end - this.viewportWidth) ||
       sheet.cols[sheet.cols.length - 1];
     const topRow =
-      sheet.rows.find((row) => row.end > lastRow!.end - effectiveHeight) ||
+      sheet.rows.find((row) => row.end > lastRow!.end - this.viewportHeight) ||
       sheet.rows[sheet.rows.length - 1];
 
     const width =
       lastCol!.end +
-      Math.max(DEFAULT_CELL_WIDTH, Math.min(leftCol.size, effectiveWidth - lastCol!.size));
+      Math.max(DEFAULT_CELL_WIDTH, Math.min(leftCol.size, this.viewportWidth - lastCol!.size));
     const height =
       lastRow!.end +
-      Math.max(DEFAULT_CELL_HEIGHT + 5, Math.min(topRow.size, effectiveHeight - lastRow!.size));
+      Math.max(DEFAULT_CELL_HEIGHT + 5, Math.min(topRow.size, this.viewportHeight - lastRow!.size));
 
     return { width, height };
   }
@@ -217,9 +222,9 @@ export class ViewportPlugin extends UIPlugin {
    */
   private adjustViewportOffsetX(sheetId: UID, viewport: Viewport) {
     const { offsetX } = viewport;
-    const { width: sheetWidth } = this.getGridDimension(this.getters.getSheet(sheetId));
-    if (this.clientWidth - HEADER_WIDTH + offsetX > sheetWidth) {
-      const diff = this.clientWidth - HEADER_WIDTH + offsetX - sheetWidth;
+    const { width: sheetWidth } = this.getMaxViewportSize(this.getters.getSheet(sheetId));
+    if (this.viewportWidth + offsetX > sheetWidth) {
+      const diff = this.viewportWidth + offsetX - sheetWidth;
       viewport.offsetX = Math.max(0, offsetX - diff);
     }
     this.adjustViewportZoneX(sheetId, viewport);
@@ -230,17 +235,17 @@ export class ViewportPlugin extends UIPlugin {
    */
   private adjustViewportOffsetY(sheetId: UID, viewport: Viewport) {
     const { offsetY } = viewport;
-    const { height: sheetHeight } = this.getGridDimension(this.getters.getSheet(sheetId));
-    if (this.clientHeight - HEADER_HEIGHT + offsetY > sheetHeight) {
-      const diff = this.clientHeight - HEADER_HEIGHT + offsetY - sheetHeight;
+    const { height: sheetHeight } = this.getMaxViewportSize(this.getters.getSheet(sheetId));
+    if (this.viewportHeight + offsetY > sheetHeight) {
+      const diff = this.viewportHeight + offsetY - sheetHeight;
       viewport.offsetY = Math.max(0, offsetY - diff);
     }
     this.adjustViewportZoneY(sheetId, viewport);
   }
 
   private resizeViewport(height: number, width: number) {
-    this.clientHeight = height;
-    this.clientWidth = width;
+    this.viewportHeight = height;
+    this.viewportWidth = width;
     this.recomputeViewports();
   }
 
@@ -266,8 +271,8 @@ export class ViewportPlugin extends UIPlugin {
    * Not above the sheet, nor below the sheet.
    */
   private clipOffsetY(offsetY: number): number {
-    const { height } = this.getters.getGridDimension(this.getters.getActiveSheet());
-    const maxOffset = height - (this.clientHeight - HEADER_HEIGHT);
+    const { height } = this.getters.getMaxViewportSize(this.getters.getActiveSheet());
+    const maxOffset = height - this.viewportHeight;
     offsetY = Math.min(offsetY, maxOffset);
     offsetY = Math.max(offsetY, 0);
     return offsetY;
@@ -278,8 +283,8 @@ export class ViewportPlugin extends UIPlugin {
    * Not before the first column, nor after the last.
    */
   private clipOffsetX(offsetX: number): number {
-    const { width } = this.getters.getGridDimension(this.getters.getActiveSheet());
-    const maxOffset = width - (this.clientWidth - HEADER_WIDTH);
+    const { width } = this.getters.getMaxViewportSize(this.getters.getActiveSheet());
+    const maxOffset = width - this.viewportWidth;
     offsetX = Math.min(offsetX, maxOffset);
     offsetX = Math.max(offsetX, 0);
     return offsetX;
@@ -313,7 +318,7 @@ export class ViewportPlugin extends UIPlugin {
     const sheet = this.getters.getSheet(sheetId);
     const cols = sheet.cols;
     viewport.left = this.getters.getColIndex(viewport.offsetX + HEADER_WIDTH, 0, sheet);
-    const x = this.clientWidth + viewport.offsetX - HEADER_WIDTH;
+    const x = this.viewportWidth + viewport.offsetX;
     viewport.right = cols.length - 1;
     for (let i = viewport.left; i < cols.length; i++) {
       if (x < cols[i].end) {
@@ -329,7 +334,7 @@ export class ViewportPlugin extends UIPlugin {
     const sheet = this.getters.getSheet(sheetId);
     const rows = sheet.rows;
     viewport.top = this.getters.getRowIndex(viewport.offsetY + HEADER_HEIGHT, 0, sheet);
-    const y = this.clientHeight + viewport.offsetY - HEADER_HEIGHT;
+    const y = this.viewportHeight + viewport.offsetY;
     viewport.bottom = rows.length - 1;
     for (let i = viewport.top; i < rows.length; i++) {
       if (y < rows[i].end) {
@@ -357,7 +362,7 @@ export class ViewportPlugin extends UIPlugin {
       ...this.getters.getMainCell(sheetId, position[0], position[1])
     );
     while (
-      cols[col].end > adjustedViewport.offsetX + this.clientWidth - HEADER_WIDTH &&
+      cols[col].end > adjustedViewport.offsetX + this.viewportWidth &&
       adjustedViewport.offsetX < cols[col].start
     ) {
       adjustedViewport.offsetX = cols[adjustedViewport.left].end;
@@ -372,7 +377,7 @@ export class ViewportPlugin extends UIPlugin {
       this.adjustViewportZoneX(sheetId, adjustedViewport);
     }
     while (
-      rows[row].end > adjustedViewport.offsetY + this.clientHeight - HEADER_HEIGHT &&
+      rows[row].end > adjustedViewport.offsetY + this.viewportHeight &&
       adjustedViewport.offsetY < rows[row].start
     ) {
       adjustedViewport.offsetY = rows[adjustedViewport.top].end;

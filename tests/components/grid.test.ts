@@ -827,8 +827,8 @@ describe("Events on Grid update viewport correctly", () => {
 
   test("Scroll viewport then alter selection with keyboard from before last cell to last cell does not shift viewport", async () => {
     await simulateClick("canvas"); // gain focus on grid element
-    const { width } = model.getters.getGridDimension(model.getters.getActiveSheet());
-    const { width: viewportWidth } = model.getters.getViewportDimension();
+    const { width } = model.getters.getMaxViewportSize(model.getters.getActiveSheet());
+    const { width: viewportWidth } = model.getters.getViewportDimensionWithHeaders();
     document.activeElement!.dispatchEvent(
       // scroll completely to the right
       new WheelEvent("wheel", {
@@ -855,7 +855,7 @@ describe("Events on Grid update viewport correctly", () => {
       jest.useFakeTimers();
     });
     test("Can edge-scroll horizontally", async () => {
-      const { width, height } = model.getters.getViewportDimension();
+      const { width, height } = model.getters.getViewportDimensionWithHeaders();
       const y = height / 2;
       triggerMouseEvent("canvas", "mousedown", width / 2, y);
       triggerMouseEvent("canvas", "mousemove", 1.5 * width, y);
@@ -885,7 +885,7 @@ describe("Events on Grid update viewport correctly", () => {
     });
 
     test("Can edge-scroll vertically", () => {
-      const { width, height } = model.getters.getViewportDimension();
+      const { width, height } = model.getters.getViewportDimensionWithHeaders();
       const x = width / 2;
       triggerMouseEvent("canvas", "mousedown", x, height / 2);
       triggerMouseEvent("canvas", "mousemove", x, 1.5 * height);

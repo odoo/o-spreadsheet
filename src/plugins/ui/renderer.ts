@@ -129,8 +129,8 @@ export class RendererPlugin extends UIPlugin {
     let canEdgeScroll = false;
     let direction: ScrollDirection = 0;
     let delay = 0;
-    const { width } = this.getters.getViewportDimension();
-    const { width: gridWidth } = this.getters.getGridDimension(this.getters.getActiveSheet());
+    const { width } = this.getters.getViewportDimensionWithHeaders();
+    const { width: gridWidth } = this.getters.getMaxViewportSize(this.getters.getActiveSheet());
     const { left, offsetX } = this.getters.getActiveSnappedViewport();
     if (x < HEADER_WIDTH && left > 0) {
       canEdgeScroll = true;
@@ -149,8 +149,8 @@ export class RendererPlugin extends UIPlugin {
     let canEdgeScroll = false;
     let direction: ScrollDirection = 0;
     let delay = 0;
-    const { height } = this.getters.getViewportDimension();
-    const { height: gridHeight } = this.getters.getGridDimension(this.getters.getActiveSheet());
+    const { height } = this.getters.getViewportDimensionWithHeaders();
+    const { height: gridHeight } = this.getters.getMaxViewportSize(this.getters.getActiveSheet());
     const { top, offsetY } = this.getters.getActiveSnappedViewport();
     if (y < HEADER_HEIGHT && top > 0) {
       canEdgeScroll = true;
@@ -187,7 +187,7 @@ export class RendererPlugin extends UIPlugin {
   private drawBackground(renderingContext: GridRenderingContext) {
     const { ctx, viewport, thinLineWidth } = renderingContext;
     let { offsetX, offsetY, top, left, bottom, right } = viewport;
-    const { width, height } = this.getters.getViewportDimension();
+    const { width, height } = this.getters.getViewportDimensionWithHeaders();
     const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
     // white background
     ctx.fillStyle = "white";
@@ -376,7 +376,7 @@ export class RendererPlugin extends UIPlugin {
   private drawHeaders(renderingContext: GridRenderingContext) {
     const { ctx, viewport, thinLineWidth } = renderingContext;
     let { offsetX, offsetY, left, top, right, bottom } = viewport;
-    const { width, height } = this.getters.getViewportDimension();
+    const { width, height } = this.getters.getViewportDimensionWithHeaders();
     offsetX -= HEADER_WIDTH;
     offsetY -= HEADER_HEIGHT;
     const selection = this.getters.getSelectedZones();
