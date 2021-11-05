@@ -537,17 +537,25 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   private selectCell(col: number, row: number) {
     const sheet = this.getters.getActiveSheet();
     this.moveClient({ sheetId: sheet.id, col, row });
-    let zone = this.getters.expandZone(sheet.id, { left: col, right: col, top: row, bottom: row });
+    const anchorZone = this.getters.expandZone(sheet.id, {
+      left: col,
+      right: col,
+      top: row,
+      bottom: row,
+    });
+    let zones: Zone[];
     if (this.mode === SelectionMode.expanding) {
-      this.selection.zones.push(zone);
+      zones = uniqueZones([...this.selection.zones, anchorZone]);
     } else {
-      this.selection.zones = [zone];
+      zones = [anchorZone];
     }
-    this.selection.zones = uniqueZones(this.selection.zones);
-    this.selection.anchorZone = zone;
-    this.selection.anchor = [col, row];
-    this.activeCol = col;
-    this.activeRow = row;
+    this.selection = this.clipSelection(sheet.id, {
+      anchor: [col, row],
+      zones,
+      anchorZone,
+    });
+    this.activeCol = this.selection.anchor[0];
+    this.activeRow = this.selection.anchor[1];
   }
 
   private setActiveSheet(id: UID) {
