@@ -263,11 +263,11 @@ async function typeInComposerHelper(selector: string, text: string, fromScratch:
 }
 
 export async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
-  return await typeInComposerHelper(".o-grid .o-composer", text,fromScratch);
+  return await typeInComposerHelper(".o-grid .o-composer", text, fromScratch);
 }
 
 export async function typeInComposerTopBar(text: string, fromScratch: boolean = true) {
-  return await typeInComposerHelper(".o-spreadsheet-topbar .o-composer", text,fromScratch);
+  return await typeInComposerHelper(".o-spreadsheet-topbar .o-composer", text, fromScratch);
 }
 
 export async function startGridComposition(key: string = "Enter") {

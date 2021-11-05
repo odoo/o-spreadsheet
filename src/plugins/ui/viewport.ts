@@ -6,7 +6,15 @@ import {
 } from "../../constants";
 import { findLastVisibleColRow, getNextVisibleCellCoords } from "../../helpers";
 import { Mode } from "../../model";
-import { Command, CommandResult, Sheet, UID, Viewport, ZoneDimension } from "../../types/index";
+import {
+  Command,
+  CommandResult,
+  Row,
+  Sheet,
+  UID,
+  Viewport,
+  ZoneDimension,
+} from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 interface ViewportPluginState {
@@ -77,6 +85,17 @@ export class ViewportPlugin extends UIPlugin {
       case "SET_VIEWPORT_OFFSET":
         this.setViewportOffset(cmd.offsetX, cmd.offsetY);
         break;
+      case "SHIFT_VIEWPORT_DOWN":
+        const topRow = this.getActiveTopRow();
+        const shiftedOffsetY = topRow.start + (this.clientHeight - HEADER_HEIGHT);
+        this.shiftVertically(shiftedOffsetY);
+        break;
+      case "SHIFT_VIEWPORT_UP": {
+        const topRow = this.getActiveTopRow();
+        const shiftedOffsetY = topRow.end - (this.clientHeight - HEADER_HEIGHT);
+        this.shiftVertically(shiftedOffsetY);
+        break;
+      }
       case "REMOVE_COLUMNS_ROWS":
       case "RESIZE_COLUMNS_ROWS":
       case "HIDE_COLUMNS_ROWS":
@@ -157,13 +176,7 @@ export class ViewportPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   private checkOffsetValidity(offsetX: number, offsetY: number): CommandResult {
-    const { width, height } = this.getters.getGridDimension(this.getters.getActiveSheet());
-    if (
-      offsetX < 0 ||
-      offsetY < 0 ||
-      this.clientHeight - HEADER_HEIGHT + offsetY > height ||
-      this.clientWidth - HEADER_WIDTH + offsetX > width
-    ) {
+    if (offsetX !== this.clipOffsetX(offsetX) || offsetY !== this.clipOffsetY(offsetY)) {
       return CommandResult.InvalidOffset;
     }
     return CommandResult.Success;
@@ -239,11 +252,37 @@ export class ViewportPlugin extends UIPlugin {
   }
 
   private setViewportOffset(offsetX: number, offsetY: number) {
+    offsetY = this.clipOffsetY(offsetY);
+    offsetX = this.clipOffsetX(offsetX);
     const sheetId = this.getters.getActiveSheetId();
     this.getActiveViewport();
     this.viewports[sheetId].offsetX = offsetX;
     this.viewports[sheetId].offsetY = offsetY;
     this.adjustViewportZone(sheetId, this.viewports[sheetId]);
+  }
+
+  /**
+   * Clip the vertical offset within the allowed range.
+   * Not above the sheet, nor below the sheet.
+   */
+  private clipOffsetY(offsetY: number): number {
+    const { height } = this.getters.getGridDimension(this.getters.getActiveSheet());
+    const maxOffset = height - (this.clientHeight - HEADER_HEIGHT);
+    offsetY = Math.min(offsetY, maxOffset);
+    offsetY = Math.max(offsetY, 0);
+    return offsetY;
+  }
+
+  /**
+   * Clip the horizontal offset within the allowed range.
+   * Not before the first column, nor after the last.
+   */
+  private clipOffsetX(offsetX: number): number {
+    const { width } = this.getters.getGridDimension(this.getters.getActiveSheet());
+    const maxOffset = width - (this.clientWidth - HEADER_WIDTH);
+    offsetX = Math.min(offsetX, maxOffset);
+    offsetX = Math.max(offsetX, 0);
+    return offsetX;
   }
 
   private generateViewportState(sheetId: UID): Viewport {
@@ -366,5 +405,30 @@ export class ViewportPlugin extends UIPlugin {
     adjustedViewport.offsetY = rows[adjustedViewport.top].start;
     this.adjustViewportZone(sheetId, adjustedViewport);
     this.snappedViewports[sheetId] = adjustedViewport;
+  }
+
+  /**
+   * Shift the viewport vertically and move the selection anchor
+   * such that it remains at the same place relative to the
+   * viewport top.
+   */
+  private shiftVertically(offset: number) {
+    const { top, offsetX } = this.getActiveSnappedViewport();
+    this.setViewportOffset(offsetX, offset);
+    const { anchor } = this.getters.getSelection();
+    const deltaRow = this.getActiveSnappedViewport().top - top;
+    this.dispatch("SELECT_CELL", {
+      col: anchor[0],
+      row: anchor[1] + deltaRow,
+    });
+  }
+
+  /**
+   * Return the row at the viewport's top
+   */
+  private getActiveTopRow(): Row {
+    const { top } = this.getActiveSnappedViewport();
+    const sheet = this.getters.getActiveSheet();
+    return this.getters.getRow(sheet.id, top)!;
   }
 }

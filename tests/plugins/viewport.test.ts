@@ -5,7 +5,7 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "../../src/constants";
-import { numberToLetters, toXC } from "../../src/helpers";
+import { numberToLetters, range, toXC, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
   activateSheet,
@@ -15,24 +15,16 @@ import {
   deleteRows,
   hideColumns,
   hideRows,
+  merge,
   redo,
   resizeColumns,
   resizeRows,
   selectCell,
+  setSelection,
   undo,
 } from "../test_helpers/commands_helpers";
-import { makeTestFixture } from "../test_helpers/helpers";
 
-let fixture: HTMLElement;
 let model: Model;
-
-beforeEach(async () => {
-  fixture = makeTestFixture();
-});
-
-afterEach(() => {
-  fixture.remove();
-});
 
 describe("Viewport of Simple sheet", () => {
   beforeEach(async () => {
@@ -712,4 +704,256 @@ describe("multi sheet with different sizes", () => {
     activateSheet(model, "big");
     undo(model);
   });
+});
+
+describe("shift viewport up/down", () => {
+  beforeEach(() => {
+    model = new Model();
+  });
+
+  test("basic move viewport", () => {
+    const { bottom } = model.getters.getActiveSnappedViewport();
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getActiveSnappedViewport().top).toBe(bottom);
+    model.dispatch("SHIFT_VIEWPORT_UP");
+    expect(model.getters.getActiveSnappedViewport().top).toBe(0);
+  });
+
+  test("move viewport with non-default size", () => {
+    model.dispatch("RESIZE_VIEWPORT", {
+      height: 100,
+      width: 100,
+    });
+    const { bottom } = model.getters.getActiveSnappedViewport();
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getActiveSnappedViewport().top).toBe(bottom);
+    model.dispatch("SHIFT_VIEWPORT_UP");
+    expect(model.getters.getActiveSnappedViewport().top).toBe(0);
+  });
+
+  test("RENAME move viewport not starting from the top", () => {
+    selectCell(model, "A4");
+    const { bottom } = model.getters.getActiveSnappedViewport();
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: 0,
+      offsetY: DEFAULT_CELL_HEIGHT * 3,
+    });
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getActiveSnappedViewport().top).toBe(bottom + 3);
+    model.dispatch("SHIFT_VIEWPORT_UP");
+    expect(model.getters.getActiveSnappedViewport().top).toBe(3);
+  });
+
+  test("RENAME move viewport not starting from the top", () => {
+    selectCell(model, "A4");
+    const { bottom } = model.getters.getActiveSnappedViewport();
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: 0,
+      offsetY: DEFAULT_CELL_HEIGHT * 3 + 1,
+    });
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getActiveSnappedViewport().top).toBe(bottom + 3);
+    model.dispatch("SHIFT_VIEWPORT_UP");
+    expect(model.getters.getActiveSnappedViewport().top).toBe(3);
+  });
+
+  test("RENAME move viewport not starting from the top", () => {
+    selectCell(model, "A4");
+    const { bottom } = model.getters.getActiveSnappedViewport();
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: 0,
+      offsetY: DEFAULT_CELL_HEIGHT * 3 - 1,
+    });
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getActiveSnappedViewport().top).toBe(bottom + 2);
+    model.dispatch("SHIFT_VIEWPORT_UP");
+    expect(model.getters.getActiveSnappedViewport().top).toBe(2);
+  });
+
+  test("move all the way down and up again", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const numberOfRows = model.getters.getNumberRows(sheetId);
+    let { bottom } = model.getters.getActiveSnappedViewport();
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getActiveSnappedViewport().top).toBe(bottom);
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getActiveSnappedViewport().bottom).toBe(numberOfRows - 1);
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getActiveSnappedViewport().bottom).toBe(numberOfRows - 1);
+
+    let { top } = model.getters.getActiveSnappedViewport();
+    model.dispatch("SHIFT_VIEWPORT_UP");
+    expect(model.getters.getActiveSnappedViewport().bottom).toBe(top);
+    model.dispatch("SHIFT_VIEWPORT_UP");
+    expect(model.getters.getActiveSnappedViewport().top).toBe(0);
+    model.dispatch("SHIFT_VIEWPORT_UP");
+    expect(model.getters.getActiveSnappedViewport().top).toBe(0);
+  });
+
+  test("move viewport does not changes its dimension", () => {
+    const viewportDimension = model.getters.getViewportDimension();
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getViewportDimension()).toEqual(viewportDimension);
+    model.dispatch("SHIFT_VIEWPORT_UP");
+    expect(model.getters.getViewportDimension()).toEqual(viewportDimension);
+  });
+
+  test("X offset does not change", () => {
+    selectCell(model, "D1");
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: DEFAULT_CELL_WIDTH * 3,
+      offsetY: 0,
+    });
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getActiveSnappedViewport().offsetX).toBe(DEFAULT_CELL_WIDTH * 3);
+    model.dispatch("SHIFT_VIEWPORT_UP");
+    expect(model.getters.getActiveSnappedViewport().offsetX).toBe(DEFAULT_CELL_WIDTH * 3);
+  });
+
+  test("anchor cell at the viewport top is shifted", () => {
+    const { bottom } = model.getters.getActiveSnappedViewport();
+    selectCell(model, "A1");
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getSelectedZones()).toHaveLength(1);
+    expect(model.getters.getSelectedZone()).toEqual({ top: bottom, bottom, left: 0, right: 0 });
+    model.dispatch("SHIFT_VIEWPORT_UP");
+    expect(model.getters.getSelectedZones()).toHaveLength(1);
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
+  });
+
+  test("anchor cell not at the viewport top is shifted", () => {
+    const { bottom } = model.getters.getActiveSnappedViewport();
+    selectCell(model, "B4");
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getSelectedZone()).toEqual({
+      top: bottom + 3,
+      bottom: bottom + 3,
+      left: 1,
+      right: 1,
+    });
+    model.dispatch("SHIFT_VIEWPORT_UP");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("B4"));
+  });
+
+  test("only anchor cell is kept (and shifted) when moving the viewport", () => {
+    setSelection(model, ["A1:A2", "B5", "D1:D2"], {
+      anchor: "D1",
+    });
+    const { bottom } = model.getters.getActiveSnappedViewport();
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getSelectedZones()).toHaveLength(1);
+    expect(model.getters.getSelectedZone()).toEqual({
+      top: bottom,
+      bottom,
+      left: 3,
+      right: 3,
+    });
+  });
+
+  test("hidden rows are skipped", () => {
+    const { bottom } = model.getters.getActiveSnappedViewport();
+    model.dispatch("HIDE_COLUMNS_ROWS", {
+      dimension: "ROW",
+      elements: [2, 3, 4],
+      sheetId: model.getters.getActiveSheetId(),
+    });
+    const { bottom: bottomWithHiddenRows } = model.getters.getActiveSnappedViewport();
+    expect(bottomWithHiddenRows).toBe(bottom + 3);
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getActiveSnappedViewport().top).toBe(bottomWithHiddenRows);
+    model.dispatch("SHIFT_VIEWPORT_UP");
+    expect(model.getters.getActiveSnappedViewport().bottom).toBe(bottomWithHiddenRows);
+  });
+
+  test("bottom cell is in a merge and new anchor in the merge", () => {
+    const { bottom } = model.getters.getActiveSnappedViewport();
+    const mergeTop = bottom - 1;
+    const mergeBottom = bottom + 1;
+    merge(
+      model,
+      zoneToXc({
+        top: mergeTop,
+        bottom: mergeBottom,
+        left: 0,
+        right: 0,
+      })
+    );
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getActiveSnappedViewport().top).toBe(mergeTop);
+    model.dispatch("SHIFT_VIEWPORT_UP");
+    expect(model.getters.getActiveSnappedViewport().bottom).toBe(bottom);
+  });
+
+  test("bottom cell is in a merge and new anchor *not* in the merge", () => {
+    const { bottom } = model.getters.getActiveSnappedViewport();
+    const mergeTop = bottom - 1;
+    const mergeBottom = bottom + 1;
+    merge(
+      model,
+      zoneToXc({
+        top: mergeTop,
+        bottom: mergeBottom,
+        left: 0,
+        right: 0,
+      })
+    );
+    selectCell(model, "B1");
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getActiveSnappedViewport().top).toBe(bottom);
+  });
+
+  test("anchor ends up at the last row", () => {
+    const { bottom } = model.getters.getActiveSnappedViewport();
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("RESIZE_VIEWPORT", {
+      width: 1000,
+      height: bottom * DEFAULT_CELL_HEIGHT,
+    });
+    deleteRows(model, range(bottom + 1, model.getters.getNumberRows(sheetId)));
+    selectCell(model, toXC(0, bottom));
+    expect(model.getters.getActiveSnappedViewport().bottom).toBe(bottom);
+    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    expect(model.getters.getSelectedZone()).toEqual({
+      top: bottom,
+      bottom: model.getters.getNumberRows(sheetId) - 1,
+      left: 0,
+      right: 0,
+    });
+  });
+
+  test.each(["A1", "A2"])(
+    "viewport and selection %s do not move when its already the end of the sheet",
+    (selectedCell) => {
+      const sheetId = model.getters.getActiveSheetId();
+      // delete all rows except the first two ones
+      deleteRows(model, range(2, model.getters.getNumberRows(sheetId)));
+      selectCell(model, selectedCell);
+      model.dispatch("SHIFT_VIEWPORT_DOWN");
+      expect(model.getters.getActiveSnappedViewport().top).toBe(0);
+      expect(model.getters.getSelectedZone()).toEqual(toZone(selectedCell));
+      model.dispatch("SHIFT_VIEWPORT_UP");
+      expect(model.getters.getActiveSnappedViewport().top).toBe(0);
+      expect(model.getters.getSelectedZone()).toEqual(toZone(selectedCell));
+    }
+  );
+
+  test.each(["A1", "A2", "A15"])(
+    "anchor %s is shifted by the correct amount when the sheet end is reached",
+    (selectedCell) => {
+      const { bottom } = model.getters.getActiveSnappedViewport();
+      const sheetId = model.getters.getActiveSheetId();
+      // delete all rows after the viewport except three
+      deleteRows(model, range(bottom + 3, model.getters.getNumberRows(sheetId)));
+      selectCell(model, selectedCell);
+      model.dispatch("SHIFT_VIEWPORT_DOWN");
+      expect(model.getters.getSelectedZone()).toEqual({
+        top: toZone(selectedCell).top + 3,
+        bottom: toZone(selectedCell).bottom + 3,
+        left: 0,
+        right: 0,
+      });
+      model.dispatch("SHIFT_VIEWPORT_UP");
+      expect(model.getters.getSelectedZone()).toEqual(toZone(selectedCell));
+    }
+  );
 });

@@ -116,6 +116,27 @@ describe("selection", () => {
     expect(getActiveXc(model)).toBe("B1");
   });
 
+  test("select a cell outside the sheet", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 3,
+          rowNumber: 3,
+        },
+      ],
+    });
+    model.dispatch("SELECT_CELL", {
+      col: 3,
+      row: 3,
+    });
+    const C3Zone = toZone("C3");
+    expect(model.getters.getSelection()).toEqual({
+      anchorZone: C3Zone,
+      zones: [C3Zone],
+      anchor: [C3Zone.left, C3Zone.top],
+    });
+    expect(model.getters.getPosition()).toEqual([C3Zone.left, C3Zone.top]);
+  });
   test("update selection in some different directions", () => {
     const model = new Model({
       sheets: [

@@ -509,6 +509,8 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     "SHIFT+PAGEUP": () => {
       this.dispatch("ACTIVATE_PREVIOUS_SHEET");
     },
+    PAGEDOWN: () => this.dispatch("SHIFT_VIEWPORT_DOWN"),
+    PAGEUP: () => this.dispatch("SHIFT_VIEWPORT_UP"),
   };
 
   constructor() {

@@ -866,6 +866,20 @@ export interface SetViewportOffsetCommand extends BaseCommand {
 }
 
 /**
+ * Shift the viewport down by the viewport height
+ */
+export interface MoveViewportDownCommand extends BaseCommand {
+  type: "SHIFT_VIEWPORT_DOWN";
+}
+
+/**
+ * Shift the viewport up by the viewport height
+ */
+export interface MoveViewportUpCommand extends BaseCommand {
+  type: "SHIFT_VIEWPORT_UP";
+}
+
+/**
  * Sum data according to the selected zone(s) in the appropriated
  * cells.
  */
@@ -1025,6 +1039,8 @@ export type LocalCommand =
   | DeleteCellCommand
   | InsertCellCommand
   | SetViewportOffsetCommand
+  | MoveViewportDownCommand
+  | MoveViewportUpCommand
   | EvaluateAllSheetsCommand
   | ActivateNextSheetCommand
   | ActivatePreviousSheetCommand;
