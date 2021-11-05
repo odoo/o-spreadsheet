@@ -249,7 +249,7 @@ describe("Viewport of Simple sheet", () => {
 
     // too large
     model.dispatch("RESIZE_VIEWPORT", { height: 1000, width: 1000 });
-    const { height } = model.getters.getGridDimension(model.getters.getActiveSheet());
+    const { height } = model.getters.getMaxViewportSize(model.getters.getActiveSheet());
 
     const tooLargeOffsetResult = model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
@@ -502,7 +502,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Move position on cells that are taller than the client's height", () => {
-    const { height } = model.getters.getViewportDimension();
+    const { height } = model.getters.getViewportDimensionWithHeaders();
     resizeRows(model, [0], height + 50);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
@@ -527,7 +527,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Move position on cells wider than the client's width", () => {
-    const { width } = model.getters.getViewportDimension();
+    const { width } = model.getters.getViewportDimensionWithHeaders();
     resizeColumns(model, ["A"], width + 50);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
@@ -583,10 +583,10 @@ describe("Viewport of Simple sheet", () => {
       width: 1000,
       height: 1000,
     });
-    let { width: gridWidth, height: gridHeight } = model.getters.getGridDimension(
+    let { width: gridWidth, height: gridHeight } = model.getters.getMaxViewportSize(
       model.getters.getActiveSheet()
     );
-    let { width, height } = model.getters.getViewportDimension();
+    let { width, height } = model.getters.getViewportDimensionWithHeaders();
     model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: gridWidth - width + HEADER_WIDTH,
       offsetY: gridHeight - height + HEADER_HEIGHT,
@@ -596,8 +596,8 @@ describe("Viewport of Simple sheet", () => {
       width: 1250,
       height: 1250,
     });
-    ({ width, height } = model.getters.getViewportDimension());
-    ({ width: gridWidth, height: gridHeight } = model.getters.getGridDimension(
+    ({ width, height } = model.getters.getViewportDimensionWithHeaders());
+    ({ width: gridWidth, height: gridHeight } = model.getters.getMaxViewportSize(
       model.getters.getActiveSheet()
     ));
 
@@ -791,11 +791,11 @@ describe("shift viewport up/down", () => {
   });
 
   test("move viewport does not changes its dimension", () => {
-    const viewportDimension = model.getters.getViewportDimension();
+    const viewportDimension = model.getters.getViewportDimensionWithHeaders();
     model.dispatch("SHIFT_VIEWPORT_DOWN");
-    expect(model.getters.getViewportDimension()).toEqual(viewportDimension);
+    expect(model.getters.getViewportDimensionWithHeaders()).toEqual(viewportDimension);
     model.dispatch("SHIFT_VIEWPORT_UP");
-    expect(model.getters.getViewportDimension()).toEqual(viewportDimension);
+    expect(model.getters.getViewportDimensionWithHeaders()).toEqual(viewportDimension);
   });
 
   test("X offset does not change", () => {

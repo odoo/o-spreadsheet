@@ -224,7 +224,7 @@ describe("Corner component", () => {
   });
 
   test("can edge-scroll horizontally", async () => {
-    const { width } = model.getters.getViewportDimension();
+    const { width } = model.getters.getViewportDimensionWithHeaders();
     model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "COL",
       sheetId: model.getters.getActiveSheetId(),
@@ -251,7 +251,7 @@ describe("Corner component", () => {
   });
 
   test("can edge-scroll vertically", async () => {
-    const { height } = model.getters.getViewportDimension();
+    const { height } = model.getters.getViewportDimensionWithHeaders();
     model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "ROW",
       sheetId: model.getters.getActiveSheetId(),
@@ -434,7 +434,7 @@ describe("Border component", () => {
   });
 
   test("can edge-scroll horizontally", async () => {
-    const { width } = model.getters.getViewportDimension();
+    const { width } = model.getters.getViewportDimensionWithHeaders();
     model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "COL",
       sheetId: model.getters.getActiveSheetId(),
@@ -461,7 +461,7 @@ describe("Border component", () => {
   });
 
   test("can edge-scroll vertically", async () => {
-    const { height } = model.getters.getViewportDimension();
+    const { height } = model.getters.getViewportDimensionWithHeaders();
     model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "ROW",
       sheetId: model.getters.getActiveSheetId(),

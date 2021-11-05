@@ -237,7 +237,7 @@ const TEMPLATE = xml/* xml */ `
       menuItems="menuState.menuItems"
       position="menuState.position"
       t-on-close.stop="menuState.isOpen=false"/>
-    <t t-set="gridSize" t-value="getters.getGridDimension(getters.getActiveSheet())"/>
+    <t t-set="gridSize" t-value="getters.getMaxViewportSize(getters.getActiveSheet())"/>
     <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" t-on-figure-deleted="focus" />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
       <div t-attf-style="width:1px;height:{{gridSize.height}}px"/>
@@ -592,7 +592,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
       dpr,
       thinLineWidth,
     };
-    const { width, height } = this.getters.getViewportDimension();
+    const { width, height } = this.getters.getViewportDimensionWithHeaders();
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     canvas.width = width * dpr;

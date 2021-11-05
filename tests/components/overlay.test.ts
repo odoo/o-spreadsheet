@@ -782,7 +782,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     fixture.remove();
   });
   test("Can edge-scroll horizontally", async () => {
-    const { width } = model.getters.getViewportDimension();
+    const { width } = model.getters.getViewportDimensionWithHeaders();
     const y = DEFAULT_CELL_HEIGHT;
 
     triggerMouseEvent(".o-col-resizer", "mousedown", width / 2, y);
@@ -813,7 +813,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
   });
 
   test("Can edge-scroll vertically", () => {
-    const { height } = model.getters.getViewportDimension();
+    const { height } = model.getters.getViewportDimensionWithHeaders();
     const x = DEFAULT_CELL_WIDTH / 2;
     triggerMouseEvent(".o-row-resizer", "mousedown", x, height / 2);
     triggerMouseEvent(".o-row-resizer", "mousemove", x, 1.5 * height);
