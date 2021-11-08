@@ -1,6 +1,6 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Menu } from "../../src/components/menu";
-import { MENU_ITEM_HEIGHT, TOPBAR_HEIGHT } from "../../src/constants";
+import { HEADER_HEIGHT, HEADER_WIDTH, MENU_ITEM_HEIGHT, TOPBAR_HEIGHT } from "../../src/constants";
 import { toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
@@ -179,7 +179,10 @@ class ContextMenuParent extends Component<any, SpreadsheetEnv> {
         action() {},
       }),
     ];
-    model.dispatch("RESIZE_VIEWPORT", { height, width });
+    model.dispatch("RESIZE_VIEWPORT", {
+      height: height - HEADER_HEIGHT,
+      width: width - HEADER_WIDTH,
+    });
   }
 }
 

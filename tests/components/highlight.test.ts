@@ -91,11 +91,6 @@ beforeEach(async () => {
   parent = await mountSpreadsheet(fixture);
   model = parent.model;
 
-  model.dispatch("RESIZE_VIEWPORT", {
-    width: 1000,
-    height: 1000,
-  });
-
   // to do: remove this line when highlight component isn't longer exclusive to the edition plugin
   model.dispatch("START_EDITION");
   parent.env.dispatch = jest.fn((command) => DispatchResult.Success);

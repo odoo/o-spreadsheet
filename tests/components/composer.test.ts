@@ -62,10 +62,6 @@ beforeEach(async () => {
   fixture = makeTestFixture();
   parent = await mountSpreadsheet(fixture);
   model = parent.model;
-  model.dispatch("RESIZE_VIEWPORT", {
-    width: 1000,
-    height: 1000,
-  });
   canvasEl = parent.el?.querySelector(".o-grid")!;
 });
 

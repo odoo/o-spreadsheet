@@ -541,8 +541,8 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
   resizeGrid() {
     this.dispatch("RESIZE_VIEWPORT", {
-      height: this.el!.clientHeight - SCROLLBAR_WIDTH,
-      width: this.el!.clientWidth - SCROLLBAR_WIDTH,
+      height: this.el!.clientHeight - SCROLLBAR_WIDTH - HEADER_HEIGHT,
+      width: this.el!.clientWidth - SCROLLBAR_WIDTH - HEADER_WIDTH,
     });
   }
 

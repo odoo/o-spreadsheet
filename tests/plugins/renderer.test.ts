@@ -49,7 +49,10 @@ class MockGridRenderingContext implements GridRenderingContext {
   thinLineWidth = 0.4;
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    model.dispatch("RESIZE_VIEWPORT", { width, height });
+    model.dispatch("RESIZE_VIEWPORT", {
+      width: width - HEADER_WIDTH,
+      height: height - HEADER_HEIGHT,
+    });
     this.viewport = model.getters.getActiveViewport();
 
     const handler = {
