@@ -1,4 +1,5 @@
 import { isEqual, isInside, overlap, range, zoneToDimension } from "../../helpers/index";
+import { sortCells } from "../../helpers/sort";
 import { _lt } from "../../translation";
 import {
   Cell,
@@ -13,14 +14,6 @@ import {
   Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
-
-type Item = Cell | undefined;
-type IndexItemMap = { index: number; val: Item }[];
-type HeaderType = CellValueType;
-type SortType = HeaderType;
-type SortTypeValueMap = { type: SortType; value: any };
-type IndexSortTypeValueMap = { index: number; val: SortTypeValueMap }[];
-type IndexSTVMapItem = { index: number; val: Item | SortTypeValueMap }[];
 
 export class SortPlugin extends UIPlugin {
   static getters = ["getContiguousZone"] as const;
@@ -309,13 +302,13 @@ export class SortPlugin extends UIPlugin {
    * by checking the following criteria:
    * * If the left-most column top row value (topLeft) is empty, we ignore it while evaluating the criteria.
    * 1 - Apart from the left-most column, every element of the top row must be non-empty, i.e. a cell should be present in the sheet.
-   * 2 - There should be at least one column in which the type (HeaderType) of the rop row cell differs from the type of the cell below.
+   * 2 - There should be at least one column in which the type (CellValueType) of the rop row cell differs from the type of the cell below.
    *  For the second criteria, we ignore columns on which the cell below is empty.
    *
    */
-  private hasHeader(items: Item[][]): boolean {
+  private hasHeader(items: (Cell | undefined)[][]): boolean {
     if (items[0].length === 1) return false;
-    let cells: HeaderType[][] = items.map((col) =>
+    let cells: CellValueType[][] = items.map((col) =>
       col.map((cell) => cell?.evaluated.type || CellValueType.empty)
     );
 
@@ -331,47 +324,6 @@ export class SortPlugin extends UIPlugin {
     } else {
       return false;
     }
-  }
-
-  private sortCellsList(list: Item[], sortDirection: SortDirection): IndexSTVMapItem {
-    const cellsIndex: IndexItemMap = list.map((val, index) => ({ index, val }));
-    const sortingCellsIndexes: IndexItemMap = cellsIndex.filter(
-      (x) => !(x.val == undefined || x.val.evaluated.value === "")
-    );
-    const emptyCellsIndexes: IndexItemMap = cellsIndex.filter(
-      (x) => x.val == undefined || x.val.evaluated.value === ""
-    );
-    const inverse = sortDirection === "descending" ? -1 : 1;
-    const sortTypes: SortType[] = [
-      CellValueType.number,
-      CellValueType.error,
-      CellValueType.text,
-      CellValueType.boolean,
-    ];
-
-    const convertCell = (cell: Cell): SortTypeValueMap => {
-      let type = cell.evaluated.type;
-      return { type: type, value: cell.evaluated.value };
-    };
-
-    const sortingTypeValueMapIndexes: IndexSortTypeValueMap = sortingCellsIndexes.map((item) => {
-      return {
-        index: item.index,
-        val: convertCell(item.val!),
-      };
-    });
-
-    const sortedIndex = sortingTypeValueMapIndexes.sort((left, right) => {
-      let typeOrder = sortTypes.indexOf(left.val.type) - sortTypes.indexOf(right.val.type);
-      if (typeOrder === 0) {
-        if (left.val.type === CellValueType.text || left.val.type === CellValueType.error) {
-          typeOrder = left.val.value.localeCompare(right.val.value);
-        } else typeOrder = left.val.value - right.val.value;
-      }
-      return inverse * typeOrder;
-    });
-
-    return (sortedIndex as IndexSTVMapItem).concat(emptyCellsIndexes as IndexSTVMapItem);
   }
 
   private sortZone(
@@ -392,10 +344,7 @@ export class SortPlugin extends UIPlugin {
     cells = this.mainCells(sheetId, sortZone);
 
     const sortingCells = cells[sortingCol - sortZone.left];
-    const sortedIndexOfSortTypeCells: IndexSTVMapItem = this.sortCellsList(
-      sortingCells,
-      sortDirection
-    );
+    const sortedIndexOfSortTypeCells = sortCells(sortingCells, sortDirection);
     const sortedIndex: number[] = sortedIndexOfSortTypeCells.map((x) => x.index);
 
     const [width, height]: [number, number] = [cells.length, cells[0].length];
@@ -446,13 +395,13 @@ export class SortPlugin extends UIPlugin {
   /**
    * Return a 2D array of cells in the zone (main merge cells if there are merges)
    */
-  private mainCells(sheetId: UID, zone: Zone): Item[][] {
+  private mainCells(sheetId: UID, zone: Zone): (Cell | undefined)[][] {
     const [stepX, stepY] = this.mainCellsSteps(sheetId, zone);
-    const cells: Item[][] = [];
+    const cells: (Cell | undefined)[][] = [];
     const cols = range(zone.left, zone.right + 1, stepX);
     const rows = range(zone.top, zone.bottom + 1, stepY);
     for (const col of cols) {
-      const colCells: Item[] = [];
+      const colCells: (Cell | undefined)[] = [];
       cells.push(colCells);
       for (const row of rows) {
         colCells.push(this.getters.getCell(sheetId, col, row));
