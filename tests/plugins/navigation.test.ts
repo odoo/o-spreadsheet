@@ -165,87 +165,87 @@ describe("navigation", () => {
     const model = new Model();
     let viewport = getViewport(model, 600, 300, 0, 0);
     expect(viewport.left).toBe(0);
-    expect(viewport.right).toBe(5);
+    expect(viewport.right).toBe(6);
 
     selectCell(model, "E1");
     viewport = model.getters.getActiveViewport();
     expect(viewport.left).toBe(0);
-    expect(viewport.right).toBe(5);
+    expect(viewport.right).toBe(6);
 
-    selectCell(model, "F1");
+    selectCell(model, "G1");
     viewport = model.getters.getActiveViewport();
     expect(viewport.left).toBe(1);
-    expect(viewport.right).toBe(6);
+    expect(viewport.right).toBe(7);
   });
 
   test("move left from left col (of the viewport)", () => {
     const model = new Model();
     let viewport = getViewport(model, 600, 300, 100, 0);
     expect(viewport.left).toBe(1);
-    expect(viewport.right).toBe(6);
+    expect(viewport.right).toBe(7);
 
     selectCell(model, "B1");
     viewport = model.getters.getActiveViewport();
     expect(viewport.left).toBe(1);
-    expect(viewport.right).toBe(6);
+    expect(viewport.right).toBe(7);
 
     selectCell(model, "A1");
     viewport = model.getters.getActiveViewport();
     expect(viewport.left).toBe(0);
-    expect(viewport.right).toBe(5);
+    expect(viewport.right).toBe(6);
   });
 
   test("move bottom from bottom row (of the viewport)", () => {
     const model = new Model();
     let viewport = getViewport(model, 600, 300, 0, 0);
     expect(viewport.top).toBe(0);
-    expect(viewport.bottom).toBe(11);
+    expect(viewport.bottom).toBe(13);
 
-    selectCell(model, "A11");
+    selectCell(model, "A13");
     viewport = model.getters.getActiveViewport();
     expect(viewport.top).toBe(0);
-    expect(viewport.bottom).toBe(11);
+    expect(viewport.bottom).toBe(13);
 
-    selectCell(model, "A12");
+    selectCell(model, "A14");
     viewport = model.getters.getActiveViewport();
     expect(viewport.top).toBe(1);
-    expect(viewport.bottom).toBe(12);
+    expect(viewport.bottom).toBe(14);
   });
 
   test("move top from top row (of the viewport)", () => {
     const model = new Model();
     let viewport = getViewport(model, 600, 300, 0, 60);
     expect(viewport.top).toBe(2);
-    expect(viewport.bottom).toBe(14);
+    expect(viewport.bottom).toBe(15);
 
     selectCell(model, "A3");
     viewport = model.getters.getActiveViewport();
     expect(viewport.top).toBe(2);
-    expect(viewport.bottom).toBe(14);
+    expect(viewport.bottom).toBe(15);
 
     selectCell(model, "A2");
     viewport = model.getters.getActiveViewport();
     expect(viewport.top).toBe(1);
-    expect(viewport.bottom).toBe(12);
+    expect(viewport.bottom).toBe(14);
   });
 
   test("move top from top row (of the viewport) with a merge", () => {
     const model = new Model();
     let viewport = getViewport(model, 600, 300, 0, 60);
     expect(viewport.top).toBe(2);
-    expect(viewport.bottom).toBe(14);
+    expect(viewport.bottom).toBe(15);
 
     merge(model, "A1:A2");
 
     selectCell(model, "A3");
     viewport = model.getters.getActiveViewport();
     expect(viewport.top).toBe(2);
-    expect(viewport.bottom).toBe(14);
+    expect(viewport.bottom).toBe(15);
 
     selectCell(model, "A2");
     viewport = model.getters.getActiveViewport();
     expect(viewport.top).toBe(0);
-    expect(viewport.bottom).toBe(11);
+    expect(viewport.bottom).toBe(13);
   });
 
   test("move through hidden column", () => {

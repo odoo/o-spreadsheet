@@ -50,8 +50,8 @@ export class ViewportPlugin extends UIPlugin {
    * In the absence of a component (standalone model), is it mandatory to set reasonable default values
    * to ensure the correct operation of this plugin.
    */
-  private viewportWidth: number = 1000 - HEADER_WIDTH;
-  private viewportHeight: number = 1000 - HEADER_HEIGHT;
+  private viewportWidth: number = 1000;
+  private viewportHeight: number = 1000;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -80,7 +80,7 @@ export class ViewportPlugin extends UIPlugin {
         break;
       case "RESIZE_VIEWPORT":
         this.cleanViewports();
-        this.resizeViewport(cmd.height - HEADER_HEIGHT, cmd.width - HEADER_WIDTH);
+        this.resizeViewport(cmd.height, cmd.width);
         break;
       case "SET_VIEWPORT_OFFSET":
         this.setViewportOffset(cmd.offsetX, cmd.offsetY);
