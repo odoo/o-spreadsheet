@@ -1,4 +1,5 @@
 import { args, functionRegistry } from "../../src/functions";
+import { toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { LOADING } from "../../src/plugins/evaluation";
 import { asyncComputations, patch, waitForRecompute } from "../helpers";
@@ -246,5 +247,35 @@ describe("evaluateCells, async formulas", () => {
     expect(model.getters.getCell(0, 0)!.error).toBe("This is an error");
     expect(model.getters.getCell(0, 1)!.error).toBe("");
     expect(model.getters.getCell(0, 2)!.error).toBe("4");
+  });
+
+  test("sync formula that depends on multiple async formula should not require as many evaluation as they have async dependencies", async () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "Sheet1",
+          name: "Sheet1",
+          cells: {
+            A1: { content: "=sum(Sheet2!a1:a2)" },
+            A2: { content: "=Sheet2!a2+Sheet2!a3" },
+          },
+        },
+        {
+          id: "Sheet2",
+          name: "Sheet2",
+          cells: {
+            A1: { content: "=wait(100)" },
+            A2: { content: "=wait(100)" },
+            A3: { content: "=wait(100)" },
+          },
+        },
+      ],
+    });
+    await waitForRecompute();
+    expect(model.getters.getCell(...toCartesian("A1"))!.value).toBe(200);
+    // this one will not be able to compute in one go because there is no relation between all the depending cells
+    expect(model.getters.getCell(...toCartesian("A2"))!.value).toBe("Loading...");
+    await waitForRecompute();
+    expect(model.getters.getCell(...toCartesian("A2"))!.value).toBe(200);
   });
 });

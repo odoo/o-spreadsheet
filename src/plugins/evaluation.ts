@@ -281,7 +281,11 @@ export class EvaluationPlugin extends BasePlugin {
       if (!cell || cell.content === "") {
         return null;
       }
-      return getCellValue(cell, sheet);
+      const value = getCellValue(cell, sheet);
+      if (value === LOADING) {
+        throw new Error("not ready");
+      }
+      return value;
     }
 
     function getCellValue(cell: Cell, sheetId: string): any {
@@ -291,9 +295,6 @@ export class EvaluationPlugin extends BasePlugin {
       computeValue(cell, sheetId);
       if (cell.error) {
         throw new Error(_lt("This formula depends on invalid values"));
-      }
-      if (cell.value === LOADING) {
-        throw new Error("not ready");
       }
       return cell.value;
     }
@@ -311,7 +312,15 @@ export class EvaluationPlugin extends BasePlugin {
       right = Math.min(right, sheet.colNumber - 1);
       bottom = Math.min(bottom, sheet.rowNumber - 1);
       const zone = { left, top, right, bottom };
-      return mapCellsInZone(zone, sheet, (cell) => getCellValue(cell, sheetId));
+      const result = mapCellsInZone(zone, sheet, (cell) => getCellValue(cell, sheetId));
+      for (const col of result) {
+        for (const value of col) {
+          if (value === LOADING) {
+            throw new Error("not ready");
+          }
+        }
+      }
+      return result;
     }
 
     return [readCell, range, evalContext];
