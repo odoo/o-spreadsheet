@@ -1095,6 +1095,43 @@ describe("Rows", () => {
         B1: { content: "=SUM(A1:A2)" },
       });
     });
+
+    test("with space in the sheet name", () => {
+      model = new Model({
+        sheets: [
+          {
+            id: "sheet1",
+            name: "Sheet 1",
+            colNumber: 3,
+            rowNumber: 3,
+            cells: {
+              C2: { content: "=SUM('Sheet 1'!B2)" },
+              C3: { content: "=SUM('Sheet 1'!B2:B3)" },
+            },
+          },
+        ],
+      });
+      removeRows([0]);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        C1: { content: "=SUM('Sheet 1'!B1)" },
+        C2: { content: "=SUM('Sheet 1'!B1:B2)" },
+      });
+      removeColumns([0]);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        B1: { content: "=SUM('Sheet 1'!A1)" },
+        B2: { content: "=SUM('Sheet 1'!A1:A2)" },
+      });
+      addColumns(0, "before", 1);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        C1: { content: "=SUM('Sheet 1'!B1)" },
+        C2: { content: "=SUM('Sheet 1'!B1:B2)" },
+      });
+      addRows(0, "before", 1);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        C2: { content: "=SUM('Sheet 1'!B2)" },
+        C3: { content: "=SUM('Sheet 1'!B2:B3)" },
+      });
+    });
     test("On multiple row deletion including the first one", () => {
       model = new Model({
         sheets: [

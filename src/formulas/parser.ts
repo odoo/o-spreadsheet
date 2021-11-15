@@ -1,5 +1,11 @@
 import { functionRegistry } from "../functions/index";
-import { getUnquotedSheetName, parseNumber, toCartesian, toXC } from "../helpers/index";
+import {
+  getComposerSheetName,
+  getUnquotedSheetName,
+  parseNumber,
+  toCartesian,
+  toXC,
+} from "../helpers/index";
 import { _lt } from "../translation";
 import { Token, tokenize } from "./tokenizer";
 
@@ -267,7 +273,7 @@ export function astToFormula(ast: AST): string {
     case "BIN_OPERATION":
       return astToFormula(ast.left) + ast.value + astToFormula(ast.right);
     case "REFERENCE":
-      return ast.sheet ? `${ast.sheet}!${ast.value}` : ast.value;
+      return ast.sheet ? `${getComposerSheetName(ast.sheet)}!${ast.value}` : ast.value;
     default:
       return ast.value;
   }

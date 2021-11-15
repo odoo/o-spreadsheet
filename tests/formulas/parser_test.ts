@@ -329,6 +329,8 @@ describe("Converting AST to string", () => {
     expect(astToFormula(parse("A10"))).toBe("A10");
     expect(astToFormula(parse("$A$10"))).toBe("A10");
     expect(astToFormula(parse("Sheet1!A10"))).toBe("Sheet1!A10");
+    expect(astToFormula(parse("'Sheet 1'!A10"))).toBe("'Sheet 1'!A10");
+    expect(astToFormula(parse("'Sheet 1'!A10:A11"))).toBe("'Sheet 1'!A10:A11");
   });
   test("Convert function", () => {
     expect(astToFormula(parse("SUM(5,9,8)"))).toBe("SUM(5,9,8)");
