@@ -1124,7 +1124,7 @@ export class CorePlugin extends BasePlugin {
       right,
     });
 
-    return sheet ? `${sheet}!${range}` : range;
+    return sheet ? `${getComposerSheetName(sheet)}!${range}` : range;
   };
 
   /**
@@ -1192,7 +1192,7 @@ export class CorePlugin extends BasePlugin {
       bottom,
     });
 
-    return sheet ? `${sheet}!${range}` : range;
+    return sheet ? `${getComposerSheetName(sheet)}!${range}` : range;
   };
 
   // ---------------------------------------------------------------------------
