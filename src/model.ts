@@ -411,6 +411,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * It will call `beforeHandle` and `handle`
    */
   private dispatchToHandlers(handlers: CommandHandler<Command>[], command: Command) {
+    command = JSON.parse(JSON.stringify(command));
     for (const handler of handlers) {
       handler.beforeHandle(command);
     }
