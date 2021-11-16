@@ -403,6 +403,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * It will call `beforeHandle` and `handle`
    */
   private dispatchToHandlers(handlers: CommandHandler<Command>[], command: Command) {
+    command = JSON.parse(JSON.stringify(command));
     for (const handler of handlers) {
       handler.beforeHandle(command);
     }
