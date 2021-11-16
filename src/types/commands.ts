@@ -534,37 +534,6 @@ export interface StopSelectionCommand extends BaseCommand {
 }
 
 /**
- * When selection highlight is enabled, every selection will
- * be highlighted. Each selected zone have a different color.
- */
-export interface HighlightSelectionCommand extends BaseCommand {
-  type: "HIGHLIGHT_SELECTION";
-  enabled: boolean;
-}
-
-/**
- * Add some highlights as pending highlights.
- * When highlight selection is enabled, pending highlights
- * are removed at every new selection.
- */
-export interface AddPendingHighlightCommand extends BaseCommand {
-  type: "ADD_PENDING_HIGHLIGHTS";
-  /**
-   * First array elements are ranges in XC format.
-   * Second array elements are the associated colors.
-   * e.g. [["B4", "#e2e2e2"], ["D6:F10", "#f3f3f3"]]
-   */
-  ranges: [string, string][];
-}
-
-/**
- * Removes all pending highlights.
- */
-export interface ResetPendingHighlightCommand extends BaseCommand {
-  type: "RESET_PENDING_HIGHLIGHT";
-}
-
-/**
  * Set a color to be used for the next selection to highlight.
  * The color is only used when selection highlight is enabled.
  */
@@ -601,34 +570,6 @@ export interface EvaluateCellsCommand extends BaseCommand {
   type: "EVALUATE_CELLS";
   sheetId: UID;
   onlyWaiting?: boolean;
-}
-
-export interface AddHighlightsCommand extends BaseCommand {
-  type: "ADD_HIGHLIGHTS";
-  /**
-   * Ranges to add.
-   * First array elements are ranges in XC format.
-   * Second array elements are the associated colors.
-   * e.g. [["B4", "#e2e2e2"], ["D6:F10", "#f3f3f3"]]
-   */
-  ranges: [string, string][];
-}
-
-/**
- * Remove the given highlights.
- */
-export interface RemoveHighlightsCommand extends BaseCommand {
-  type: "REMOVE_HIGHLIGHTS";
-  /**
-   * Ranges to remove.
-   * First array elements are ranges in XC format.
-   * Second array elements are the associated colors.
-   * e.g. [["B4", "#e2e2e2"], ["D6:F10", "#f3f3f3"]]
-   */
-  ranges: [string, string][];
-}
-export interface RemoveAllHighlightsCommand extends BaseCommand {
-  type: "REMOVE_ALL_HIGHLIGHTS";
 }
 
 export interface StartChangeHighlightCommand extends BaseCommand {
@@ -742,9 +683,9 @@ export interface NewInputCommand extends BaseCommand {
    */
   initialRanges?: string[];
   /**
-   * Maximum number of ranges allowed
+   * is the input limited to one range or has no limit ?
    */
-  maximumRanges?: number;
+  hasSingleRange?: boolean;
 }
 
 /**
@@ -756,6 +697,10 @@ export interface RemoveInputCommand extends BaseCommand {
   id: string;
 }
 
+export interface UnfocusInputCommand extends BaseCommand {
+  type: "UNFOCUS_SELECTION_INPUT";
+}
+
 /**
  * Set the focus on a given range of a SelectionComponent state.
  */
@@ -764,9 +709,9 @@ export interface FocusInputCommand extends BaseCommand {
   /** SelectionComponent id */
   id: string;
   /**
-   * Range to focus. If `null` is given, removes the focus entirely.
+   * Range to focus
    */
-  rangeId: string | null;
+  rangeId: string;
 }
 
 /**
@@ -975,6 +920,7 @@ export type LocalCommand =
   | RedoCommand
   | NewInputCommand
   | RemoveInputCommand
+  | UnfocusInputCommand
   | FocusInputCommand
   | AddEmptyRangeCommand
   | RemoveRangeCommand
@@ -1004,14 +950,8 @@ export type LocalCommand =
   | SelectAllCommand
   | AlterSelectionCommand
   | EvaluateCellsCommand
-  | AddHighlightsCommand
-  | RemoveHighlightsCommand
-  | RemoveAllHighlightsCommand
   | ChangeHighlightCommand
   | StartChangeHighlightCommand
-  | HighlightSelectionCommand
-  | AddPendingHighlightCommand
-  | ResetPendingHighlightCommand
   | SetColorCommand
   | StopComposerSelectionCommand
   | StartEditionCommand

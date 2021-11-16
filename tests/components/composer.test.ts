@@ -8,7 +8,6 @@ import {
 import { fontSizes } from "../../src/fonts";
 import { colors, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { HighlightPlugin } from "../../src/plugins/ui/highlight";
 import { LinkCell } from "../../src/types";
 import {
   activateSheet,
@@ -39,8 +38,7 @@ let fixture: HTMLElement;
 let parent: Spreadsheet;
 
 function getHighlights(model: Model): any[] {
-  const highlightPlugin = (model as any).handlers.find((h) => h instanceof HighlightPlugin);
-  return highlightPlugin.highlights;
+  return model.getters.getHighlights();
 }
 
 async function keydown(key: string, options: any = {}) {

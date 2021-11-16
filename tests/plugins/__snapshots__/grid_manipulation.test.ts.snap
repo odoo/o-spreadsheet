@@ -450,7 +450,7 @@ Object {
       },
     ],
     "evaluated": Object {
-      "error": "invalid range B1:A1",
+      "error": "Invalid reference",
       "type": "error",
       "value": "#ERROR",
     },
@@ -482,7 +482,7 @@ Object {
       },
     ],
     "evaluated": Object {
-      "error": "invalid range B1:A1",
+      "error": "Invalid reference",
       "type": "error",
       "value": "#ERROR",
     },
@@ -621,7 +621,7 @@ Object {
       },
     ],
     "evaluated": Object {
-      "error": "Cannot read property 'length' of undefined",
+      "error": "Invalid reference",
       "type": "error",
       "value": "#ERROR",
     },
@@ -685,7 +685,7 @@ Object {
       },
     ],
     "evaluated": Object {
-      "error": "invalid range B1:A1",
+      "error": "Invalid reference",
       "type": "error",
       "value": "#ERROR",
     },
@@ -1307,7 +1307,7 @@ Object {
       },
     ],
     "evaluated": Object {
-      "error": "invalid range A2:A1",
+      "error": "Invalid reference",
       "type": "error",
       "value": "#ERROR",
     },
@@ -1371,7 +1371,7 @@ Object {
       },
     ],
     "evaluated": Object {
-      "error": "invalid range A2:A1",
+      "error": "Invalid reference",
       "type": "error",
       "value": "#ERROR",
     },
@@ -1604,8 +1604,9 @@ Object {
       },
     ],
     "evaluated": Object {
-      "type": "number",
-      "value": 0,
+      "error": "Invalid reference",
+      "type": "error",
+      "value": "#ERROR",
     },
     "format": undefined,
     "id": "11",

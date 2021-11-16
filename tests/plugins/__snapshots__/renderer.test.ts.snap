@@ -124,8 +124,6 @@ Array [
   "context.fillText(\\"1\\", 140, 39)",
   "context.restore()",
   "context.save()",
-  "context.restore()",
-  "context.save()",
   "context.lineWidth=1.2000000000000002;",
   "context.restore()",
   "context.save()",

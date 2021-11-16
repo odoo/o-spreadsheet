@@ -94,14 +94,15 @@ const CSS = css/* scss */ `
 
 interface Props {
   ranges: string[];
-  maximumRanges?: number;
+  hasSingleRange?: boolean;
   required?: boolean;
   isInvalid?: boolean;
 }
 
-interface SelectionRange extends RangeInputValue {
+interface SelectionRange extends Omit<RangeInputValue, "color"> {
   isFocused: boolean;
   isValidRange: boolean;
+  color?: string;
 }
 /**
  * This component can be used when the user needs to input some
@@ -145,7 +146,7 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
   }
 
   get canAddRange(): boolean {
-    return !this.props.maximumRanges || this.ranges.length < this.props.maximumRanges;
+    return !this.props.hasSingleRange;
   }
 
   get isInvalid(): boolean {
@@ -156,7 +157,7 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
     this.dispatch("ENABLE_NEW_SELECTION_INPUT", {
       id: this.id,
       initialRanges: this.props.ranges,
-      maximumRanges: this.props.maximumRanges,
+      hasSingleRange: this.props.hasSingleRange,
     });
   }
 
@@ -183,8 +184,9 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
     this.previousRanges = ranges;
   }
 
-  focus(rangeId: string | null) {
+  focus(rangeId: string) {
     this.state.isMissing = false;
+    this.dispatch("STOP_EDITION", { cancel: true });
     this.dispatch("FOCUS_RANGE", {
       id: this.id,
       rangeId,
@@ -213,10 +215,7 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
   }
 
   disable() {
-    this.dispatch("FOCUS_RANGE", {
-      id: this.id,
-      rangeId: null,
-    });
+    this.dispatch("UNFOCUS_SELECTION_INPUT");
     const ranges = this.getters.getSelectionInputValue(this.id);
     if (this.props.required && ranges.length === 0) {
       this.state.isMissing = true;

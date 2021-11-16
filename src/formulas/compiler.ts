@@ -25,6 +25,39 @@ const UNARY_OPERATOR_MAP = {
   "+": "UPLUS",
 };
 
+/**
+ * Takes a list of strings that might be single or multiline
+ * and maps them in a list of single line strings.
+ */
+function splitCodeLines(codeBlocks: string[]): string[] {
+  return codeBlocks
+    .map((code) => code.split("\n"))
+    .flat()
+    .filter((line) => line.trim() !== "");
+}
+/**
+ * Used as intermediate compilation.
+ * Formula `=SUM(|0|, |1|)` gives the following code.
+ * ```js
+ * let _2 = range(0, deps, sheetId)
+ * let _3 = range(1, deps, sheetId)
+ * ctx.__lastFnCalled = 'SUM'
+ * let _1 = ctx['SUM'](_2,_3)
+ * ```
+ * The result id is `_1`.
+ */
+type CompiledAST = {
+  /**
+   * The result of the code is stored in this identifier.
+   * Can be a variable or a primitive value.
+   */
+  id: string;
+  /**
+   * String containing the compiled code
+   */
+  code: string;
+};
+
 // this cache contains all compiled function code, grouped by "structure". For
 // example, "=2*sum(A1:A4)" and "=2*sum(B1:B4)" are compiled into the same
 // structural function.
@@ -39,7 +72,6 @@ export function compile(str: NormalizedFormula): CompiledFormula {
   if (!functionCache[str.text]) {
     const ast = parse(str.text);
     let nextId = 1;
-    const code = [`// ${str.text}`];
 
     if (ast.type === "BIN_OPERATION" && ast.value === ":") {
       throw new Error(_lt("Invalid formula"));
@@ -47,16 +79,19 @@ export function compile(str: NormalizedFormula): CompiledFormula {
     if (ast.type === "UNKNOWN") {
       throw new Error(_lt("Invalid formula"));
     }
-
-    code.push(`return ${compileAST(ast)};`);
-
+    const compiledAST = compileAST(ast);
+    const code = splitCodeLines([
+      `// ${str.text}`,
+      compiledAST.code,
+      `return ${compiledAST.id};`,
+    ]).join("\n");
     let baseFunction = new Function(
       "deps", // the dependencies in the current formula
       "sheetId", // the sheet the formula is currently evaluating
       "ref", // a function to access a certain dependency at a given index
       "range", // same as above, but guarantee that the result is in the form of a range
       "ctx",
-      code.join("\n")
+      code
     );
 
     //@ts-ignore
@@ -71,7 +106,7 @@ export function compile(str: NormalizedFormula): CompiledFormula {
      * the cell value into a range. This allow the grid model to differentiate
      * between a cell value and a non cell value.
      */
-    function compileFunctionArgs(ast: ASTFuncall): string[] {
+    function compileFunctionArgs(ast: ASTFuncall): CompiledAST[] {
       const functionDefinition = functions[ast.value.toUpperCase()];
       const currentFunctionArguments = ast.args;
 
@@ -117,7 +152,7 @@ export function compile(str: NormalizedFormula): CompiledFormula {
         }
       }
 
-      let listArgs: string[] = [];
+      let listArgs: CompiledAST[] = [];
       for (let i = 0; i < nbrArg; i++) {
         const argPosition = functionDefinition.getArgToFocus(i + 1) - 1;
         if (0 <= argPosition && argPosition < functionDefinition.args.length) {
@@ -159,13 +194,11 @@ export function compile(str: NormalizedFormula): CompiledFormula {
             }
           }
 
-          let argValue = compileAST(currentArg, isLazy, isMeta, hasRange, {
+          const compiledAST = compileAST(currentArg, isLazy, isMeta, hasRange, {
             functionName: ast.value.toUpperCase(),
             paramIndex: i + 1,
           });
-          if (currentArg.type === "REFERENCE") {
-          }
-          listArgs.push(argValue);
+          listArgs.push(compiledAST);
         }
       }
 
@@ -200,22 +233,23 @@ export function compile(str: NormalizedFormula): CompiledFormula {
         functionName?: string;
         paramIndex?: number;
       } = {}
-    ): string {
-      let id, left, right, args, fnName, statement;
+    ): CompiledAST {
+      const codeBlocks: string[] = [];
+      let id, fnName, statement;
       if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
         if (isMeta) {
           throw new Error(_lt(`Argument must be a reference to a cell or range.`));
         }
       }
       if (ast.debug) {
-        code.push("debugger;");
+        codeBlocks.push("debugger;");
       }
       switch (ast.type) {
         case "BOOLEAN":
         case "NUMBER":
         case "STRING":
           if (!isLazy) {
-            return ast.value as string;
+            return { id: ast.value as string, code: "" };
           }
           id = nextId++;
           statement = `${ast.value}`;
@@ -232,42 +266,64 @@ export function compile(str: NormalizedFormula): CompiledFormula {
             statement = `range(${ast.value}, deps, sheetId)`;
           } else {
             statement = `ref(${ast.value}, deps, sheetId, ${isMeta ? "true" : "false"}, "${
-              referenceVerification.functionName
+              referenceVerification.functionName || OPERATOR_MAP["="]
             }",  ${referenceVerification.paramIndex})`;
           }
           break;
         case "FUNCALL":
           id = nextId++;
-          args = compileFunctionArgs(ast);
+          const args = compileFunctionArgs(ast);
+          codeBlocks.push(splitCodeLines(args.map((arg) => arg.code)).join("\n"));
           fnName = ast.value.toUpperCase();
-          code.push(`ctx.__lastFnCalled = '${fnName}'`);
-          statement = `ctx['${fnName}'](${args})`;
+          codeBlocks.push(`ctx.__lastFnCalled = '${fnName}'`);
+          statement = `ctx['${fnName}'](${args.map((arg) => arg.id)})`;
           break;
-        case "UNARY_OPERATION":
+        case "UNARY_OPERATION": {
           id = nextId++;
-          right = compileAST(ast.right);
           fnName = UNARY_OPERATOR_MAP[ast.value];
-          code.push(`ctx.__lastFnCalled = '${fnName}'`);
-          statement = `ctx['${fnName}']( ${right})`;
+          const right = compileAST(ast.right, false, false, false, {
+            functionName: fnName,
+          });
+          codeBlocks.push(right.code);
+          codeBlocks.push(`ctx.__lastFnCalled = '${fnName}'`);
+          statement = `ctx['${fnName}']( ${right.id})`;
           break;
-        case "BIN_OPERATION":
+        }
+        case "BIN_OPERATION": {
           id = nextId++;
-          left = compileAST(ast.left);
-          right = compileAST(ast.right);
           fnName = OPERATOR_MAP[ast.value];
-          code.push(`ctx.__lastFnCalled = '${fnName}'`);
-          statement = `ctx['${fnName}'](${left}, ${right})`;
+          const left = compileAST(ast.left, false, false, false, {
+            functionName: fnName,
+          });
+          const right = compileAST(ast.right, false, false, false, {
+            functionName: fnName,
+          });
+          codeBlocks.push(left.code);
+          codeBlocks.push(right.code);
+          codeBlocks.push(`ctx.__lastFnCalled = '${fnName}'`);
+          statement = `ctx['${fnName}'](${left.id}, ${right.id})`;
           break;
+        }
         case "UNKNOWN":
           if (!isLazy) {
-            return "undefined";
+            return { id: "undefined", code: "" };
           }
           id = nextId++;
           statement = `undefined`;
           break;
       }
-      code.push(`let _${id} = ` + (isLazy ? `()=> ` : ``) + statement);
-      return `_${id}`;
+      if (isLazy) {
+        // prettier-ignore
+        const lazyFunction =
+`const _${id} = () => {
+	${splitCodeLines(codeBlocks).join("\n\t")}
+	return ${statement};
+}`;
+        return { id: `_${id}`, code: lazyFunction };
+      } else {
+        codeBlocks.push(`let _${id} = ` + statement);
+        return { id: `_${id}`, code: splitCodeLines(codeBlocks).join("\n") };
+      }
     }
 
     /** Return a stack of formats corresponding to the priorities in which
