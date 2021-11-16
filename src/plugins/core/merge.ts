@@ -388,7 +388,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
             col,
             row,
             style: topLeft ? topLeft.style : undefined,
-            content: undefined,
+            content: "",
           });
         }
         const merge = this.getMerge(sheet.id, col, row);
