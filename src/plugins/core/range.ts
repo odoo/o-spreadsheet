@@ -3,6 +3,7 @@ import {
   createAdaptedZone,
   getComposerSheetName,
   groupConsecutive,
+  isZoneValid,
   numberToLetters,
   rangeReference,
   toZoneWithoutBoundaryChanges,
@@ -239,6 +240,9 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
 
   createAdaptedRanges(ranges: Range[], offsetX: number, offsetY: number, sheetId: UID): Range[] {
     return ranges.map((range) => {
+      if (!isZoneValid(range.zone)) {
+        return range;
+      }
       range = {
         ...range,
         sheetId: range.prefixSheet ? range.sheetId : sheetId,

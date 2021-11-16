@@ -120,6 +120,10 @@ describe("parser", () => {
     });
   });
 
+  test("Can parse invalid references", () => {
+    expect(() => parse("#REF")).toThrowError("Invalid reference");
+  });
+
   test("AND", () => {
     expect(parse("=AND(true, false)")).toEqual({
       type: "FUNCALL",

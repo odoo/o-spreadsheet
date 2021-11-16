@@ -1,10 +1,17 @@
-import { Spreadsheet } from "../../src";
+import * as owl from "@odoo/owl";
+import { Highlight } from "../../src/components/highlight/highlight";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
+import { SpreadsheetEnv } from "../../src/types";
 import { DispatchResult } from "../../src/types/commands";
+import { merge } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
-import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import { makeTestFixture, nextTick } from "../test_helpers/helpers";
+
+const { Component } = owl;
+const { useSubEnv } = owl.hooks;
+const { xml } = owl.tags;
 
 function getColStartPosition(col: number) {
   return (
@@ -82,18 +89,39 @@ async function moveToCell(el: Element, xc: string) {
 
 let model: Model;
 let fixture: HTMLElement;
-let parent: Spreadsheet;
+let parent: owl.Component<any, SpreadsheetEnv>;
 let cornerEl: Element;
 let borderEl: Element;
 
+class Parent extends Component<Highlight["props"], SpreadsheetEnv> {
+  static components = { Highlight };
+  static template = xml/*xml*/ `
+    <Highlight zone="props.zone" color="props.color"/>
+  `;
+  constructor(model: Model, props: Highlight["props"]) {
+    super(undefined, props);
+    useSubEnv({
+      getters: model.getters,
+      dispatch: jest.fn((command) => DispatchResult.Success),
+    });
+  }
+}
+
+async function mountHighlight(zone: string, color: string) {
+  parent = new Parent(model, {
+    zone: toZone(zone),
+    color,
+  });
+  await parent.mount(fixture);
+}
+
 beforeEach(async () => {
   fixture = makeTestFixture();
-  parent = await mountSpreadsheet(fixture);
-  model = parent.model;
-
-  // to do: remove this line when highlight component isn't longer exclusive to the edition plugin
-  model.dispatch("START_EDITION");
-  parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+  model = new Model();
+  model.dispatch("RESIZE_VIEWPORT", {
+    width: 1000,
+    height: 1000,
+  });
 });
 
 afterEach(() => {
@@ -104,8 +132,7 @@ afterEach(() => {
 describe("Corner component", () => {
   describe("can drag all corners", () => {
     test("start on nw corner", async () => {
-      model.dispatch("ADD_HIGHLIGHTS", { ranges: [["B2", "#666"]] });
-      await nextTick();
+      await mountHighlight("B2", "#666");
       cornerEl = fixture.querySelector(".o-corner-nw")!;
 
       // select B2 nw corner
@@ -122,8 +149,7 @@ describe("Corner component", () => {
     });
 
     test("start on ne corner", async () => {
-      model.dispatch("ADD_HIGHLIGHTS", { ranges: [["B2", "#666"]] });
-      await nextTick();
+      await mountHighlight("B2", "#666");
       cornerEl = fixture.querySelector(".o-corner-ne")!;
 
       // select B2 ne corner
@@ -140,8 +166,7 @@ describe("Corner component", () => {
     });
 
     test("start on sw corner", async () => {
-      model.dispatch("ADD_HIGHLIGHTS", { ranges: [["B2", "#666"]] });
-      await nextTick();
+      await mountHighlight("B2", "#666");
       cornerEl = fixture.querySelector(".o-corner-sw")!;
 
       // select B2 sw corner
@@ -158,8 +183,7 @@ describe("Corner component", () => {
     });
 
     test("start on se corner", async () => {
-      model.dispatch("ADD_HIGHLIGHTS", { ranges: [["B2", "#666"]] });
-      await nextTick();
+      await mountHighlight("B2", "#666");
       cornerEl = fixture.querySelector(".o-corner-se")!;
 
       // select B2 se corner
@@ -177,8 +201,7 @@ describe("Corner component", () => {
   });
 
   test("do nothing if drag outside the grid", async () => {
-    model.dispatch("ADD_HIGHLIGHTS", { ranges: [["A1", "#666"]] });
-    await nextTick();
+    await mountHighlight("A1", "#666");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select A1 nw corner
@@ -199,10 +222,8 @@ describe("Corner component", () => {
   });
 
   test("drag highlight corner on merged cells expands the final highlight zone", async () => {
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_MERGE", { sheetId, target: [toZone("B1:C1")] });
-    model.dispatch("ADD_HIGHLIGHTS", { ranges: [["B2", "#666"]] });
-    await nextTick();
+    merge(model, "B1:C1");
+    await mountHighlight("B2", "#666");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select B2 se corner
@@ -226,9 +247,7 @@ describe("Corner component", () => {
       elements: [0, 1],
       size: width / 2,
     });
-
-    model.dispatch("ADD_HIGHLIGHTS", { ranges: [["B1", "#666"]] });
-    await nextTick();
+    await mountHighlight("B1", "#666");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select B1 nw corner
@@ -253,9 +272,7 @@ describe("Corner component", () => {
       elements: [0, 1],
       size: height / 2,
     });
-
-    model.dispatch("ADD_HIGHLIGHTS", { ranges: [["A2", "#666"]] });
-    await nextTick();
+    await mountHighlight("A2", "#666");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select A2 nw corner
@@ -276,8 +293,7 @@ describe("Corner component", () => {
 describe("Border component", () => {
   describe("can drag all borders", () => {
     test("start on top border", async () => {
-      model.dispatch("ADD_HIGHLIGHTS", { ranges: [["B2", "#666"]] });
-      await nextTick();
+      await mountHighlight("B2", "#666");
       borderEl = fixture.querySelector(".o-border-n")!;
 
       // select B2 top border
@@ -292,8 +308,7 @@ describe("Border component", () => {
     });
 
     test("start on left border", async () => {
-      model.dispatch("ADD_HIGHLIGHTS", { ranges: [["B2", "#666"]] });
-      await nextTick();
+      await mountHighlight("B2", "#666");
       borderEl = fixture.querySelector(".o-border-w")!;
 
       // select B2 left border
@@ -308,8 +323,7 @@ describe("Border component", () => {
     });
 
     test("start on right border", async () => {
-      model.dispatch("ADD_HIGHLIGHTS", { ranges: [["B2", "#666"]] });
-      await nextTick();
+      await mountHighlight("B2", "#666");
       borderEl = fixture.querySelector(".o-border-w")!;
 
       // select B2 right border
@@ -324,8 +338,7 @@ describe("Border component", () => {
     });
 
     test("start on bottom border", async () => {
-      model.dispatch("ADD_HIGHLIGHTS", { ranges: [["B2", "#666"]] });
-      await nextTick();
+      await mountHighlight("B2", "#666");
       borderEl = fixture.querySelector(".o-border-w")!;
 
       // select B2 bottom border
@@ -341,8 +354,7 @@ describe("Border component", () => {
   });
 
   test("drag the A1:B2 highlight, start on A1 top border, finish on C1 --> set C1:D2 highlight", async () => {
-    model.dispatch("ADD_HIGHLIGHTS", { ranges: [["A1:B2", "#666"]] });
-    await nextTick();
+    await mountHighlight("A1:B2", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select A1 top border
@@ -361,8 +373,7 @@ describe("Border component", () => {
   });
 
   test("drag the A1:B2 highlight, start on B1 top border, finish on C1 --> set B1:C2 highlight", async () => {
-    model.dispatch("ADD_HIGHLIGHTS", { ranges: [["A1:B2", "#666"]] });
-    await nextTick();
+    await mountHighlight("A1:B2", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select B1 top border
@@ -377,8 +388,7 @@ describe("Border component", () => {
   });
 
   test("cannot drag highlight zone if already beside limit border", async () => {
-    model.dispatch("ADD_HIGHLIGHTS", { ranges: [["A1:B2", "#666"]] });
-    await nextTick();
+    await mountHighlight("A1:B2", "#666");
     borderEl = fixture.querySelector(".o-border-s")!;
 
     // select B2 bottom border
@@ -393,10 +403,8 @@ describe("Border component", () => {
   });
 
   test("drag highlight order on merged cells expands the final highlight zone", async () => {
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_MERGE", { sheetId, target: [toZone("B1:C1")] });
-    model.dispatch("ADD_HIGHLIGHTS", { ranges: [["A1", "#666"]] });
-    await nextTick();
+    merge(model, "B1:C1");
+    await mountHighlight("A1", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select A1 top border
@@ -411,10 +419,8 @@ describe("Border component", () => {
   });
 
   test("drag highlight on merged cells expands the highlight zone", async () => {
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_MERGE", { sheetId, target: [toZone("B1:C1")] });
-    model.dispatch("ADD_HIGHLIGHTS", { ranges: [["A1", "#666"]] });
-    await nextTick();
+    merge(model, "B1:C1");
+    await mountHighlight("A1", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select A1 top border
@@ -436,9 +442,7 @@ describe("Border component", () => {
       elements: [0, 1],
       size: width / 2,
     });
-
-    model.dispatch("ADD_HIGHLIGHTS", { ranges: [["B1", "#666"]] });
-    await nextTick();
+    await mountHighlight("B1", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select B1 top border
@@ -463,9 +467,7 @@ describe("Border component", () => {
       elements: [0, 1],
       size: height / 2,
     });
-
-    model.dispatch("ADD_HIGHLIGHTS", { ranges: [["A2", "#666"]] });
-    await nextTick();
+    await mountHighlight("A2", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select A2 top border

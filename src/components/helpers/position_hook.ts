@@ -5,13 +5,26 @@ const { useComponent, useState, onPatched, useRef, onMounted } = hooks;
 // type Ref is not exported by owl :(
 type Ref = ReturnType<typeof useRef>;
 
-function spreadsheetPosition() {
-  const spreadsheetElement = document.querySelector(".o-spreadsheet");
-  if (spreadsheetElement) {
-    const { top, left } = spreadsheetElement?.getBoundingClientRect();
-    return { top, left };
+/**
+ * Return the o-spreadsheet element position relative
+ * to the browser viewport.
+ */
+function useSpreadsheetPosition(): DOMCoordinates {
+  const position = useState({ x: 0, y: 0 });
+  let spreadsheetElement = document.querySelector(".o-spreadsheet");
+  function updatePosition() {
+    if (!spreadsheetElement) {
+      spreadsheetElement = document.querySelector(".o-spreadsheet");
+    }
+    if (spreadsheetElement) {
+      const { top, left } = spreadsheetElement.getBoundingClientRect();
+      position.x = left;
+      position.y = top;
+    }
   }
-  return { top: 0, left: 0 };
+  onMounted(updatePosition);
+  onPatched(updatePosition);
+  return position;
 }
 
 /**
@@ -24,12 +37,12 @@ function spreadsheetPosition() {
 export function useAbsolutePosition(ref?: Ref): DOMCoordinates {
   const position = useState({ x: 0, y: 0 });
   const component = useComponent();
-  const { top: spreadsheetTop, left: spreadsheetLeft } = spreadsheetPosition();
+  const spreadsheet = useSpreadsheetPosition();
   function updateElPosition() {
     const el = ref?.el || component.el;
     const { top, left } = el!.getBoundingClientRect();
-    const x = left - spreadsheetLeft;
-    const y = top - spreadsheetTop;
+    const x = left - spreadsheet.x;
+    const y = top - spreadsheet.y;
     if (x !== position.x || y !== position.y) {
       position.x = x;
       position.y = y;

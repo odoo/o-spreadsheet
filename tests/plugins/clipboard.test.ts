@@ -6,11 +6,19 @@ import {
   activateSheet,
   createSheet,
   createSheetWithName,
+  deleteColumns,
+  deleteRows,
   selectCell,
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getBorder, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
+import {
+  getBorder,
+  getCell,
+  getCellContent,
+  getCellError,
+  getCellText,
+} from "../test_helpers/getters_helpers";
 import { createEqualCF, getGrid, target } from "../test_helpers/helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
@@ -1311,6 +1319,62 @@ describe("clipboard", () => {
     model.dispatch("PASTE", { target: [toZone("B1")] });
     expect(getCellText(model, "B1")).toBe("=SUM(Sheet2!B2:B5)");
   });
+
+  test.each([
+    ["=A1", "=#REF"],
+    ["=SUM(A1:B1)", "=SUM(#REF)"],
+  ])("Copy invalid ranges due to row deletion", (initialFormula, expectedInvalidFormula) => {
+    const model = new Model();
+    setCellContent(model, "A3", initialFormula);
+    deleteRows(model, [0]);
+    expect(getCell(model, "A2")!.content).toBe(expectedInvalidFormula);
+
+    model.dispatch("COPY", { target: [toZone("A2")] });
+    model.dispatch("PASTE", { target: [toZone("C5")] });
+    expect(getCell(model, "C5")!.content).toBe(expectedInvalidFormula);
+  });
+
+  test.each([
+    ["=A1", "=#REF"],
+    ["=SUM(A1:A2)", "=SUM(#REF)"],
+  ])("Copy invalid ranges due to column deletion", (initialFormula, expectedInvalidFormula) => {
+    const model = new Model();
+    setCellContent(model, "C1", initialFormula);
+    deleteColumns(model, ["A"]);
+    expect(getCell(model, "B1")!.content).toBe(expectedInvalidFormula);
+
+    model.dispatch("COPY", { target: [toZone("B1")] });
+    model.dispatch("PASTE", { target: [toZone("C3")] });
+    expect(getCell(model, "C3")!.content).toBe(expectedInvalidFormula);
+  });
+
+  test.each([
+    ["=A1", "=#REF"],
+    ["=SUM(A1:B1)", "=SUM(#REF)"],
+  ])("Cut invalid ranges due to row deletion", (initialFormula, expectedInvalidFormula) => {
+    const model = new Model();
+    setCellContent(model, "A3", initialFormula);
+    deleteRows(model, [0]);
+    expect(getCell(model, "A2")!.content).toBe(expectedInvalidFormula);
+
+    model.dispatch("CUT", { target: [toZone("A2")] });
+    model.dispatch("PASTE", { target: [toZone("C5")] });
+    expect(getCell(model, "C5")!.content).toBe(expectedInvalidFormula);
+  });
+
+  test.each([
+    ["=A1", "=#REF"],
+    ["=SUM(A1:A2)", "=SUM(#REF)"],
+  ])("Cut invalid ranges due to column deletion", (initialFormula, expectedInvalidFormula) => {
+    const model = new Model();
+    setCellContent(model, "C1", initialFormula);
+    deleteColumns(model, ["A"]);
+    expect(getCell(model, "B1")!.content).toBe(expectedInvalidFormula);
+
+    model.dispatch("CUT", { target: [toZone("B1")] });
+    model.dispatch("PASTE", { target: [toZone("C3")] });
+    expect(getCell(model, "C3")!.content).toBe(expectedInvalidFormula);
+  });
 });
 
 describe("clipboard: pasting outside of sheet", () => {
@@ -1337,6 +1401,15 @@ describe("clipboard: pasting outside of sheet", () => {
     model.dispatch("PASTE", { target: [toZone("B2")] });
     expect(activeSheet.cols.length).toBe(currentColNumber + 1);
     expect(getCellContent(model, "B2")).toBe("txt");
+  });
+
+  test("Copy a formula which lead to #REF", () => {
+    const model = new Model();
+    setCellContent(model, "B3", "=A1");
+    model.dispatch("COPY", { target: target("B3") });
+    model.dispatch("PASTE", { target: target("B2") });
+    expect(getCellContent(model, "B2", "#BAD_EXPR"));
+    expect(getCellError(model, "B2")).toEqual("Invalid reference");
   });
 
   test("Can cut & paste a formula", () => {

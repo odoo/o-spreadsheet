@@ -391,13 +391,15 @@ describe("compile functions", () => {
       expect(count).toBe(42);
     });
 
-    test.each(["=USELAZYARG(24)", "=USELAZYARG(1/0)"])(
-      "functions call requesting lazy parameters",
-      (formula) => {
-        const compiledFormula = compiledBaseFunction(formula);
-        expect(compiledFormula.toString()).toMatchSnapshot();
-      }
-    );
+    test.each([
+      "=USELAZYARG(24)",
+      "=USELAZYARG(1/0)",
+      "=USELAZYARG(1/1/0)",
+      "=USELAZYARG(USELAZYARG(24))",
+    ])("functions call requesting lazy parameters", (formula) => {
+      const compiledFormula = compiledBaseFunction(formula);
+      expect(compiledFormula.toString()).toMatchSnapshot();
+    });
   });
 
   describe("with meta arguments", () => {
@@ -596,64 +598,25 @@ describe("compile functions", () => {
       expect(() => m.getters.evaluateFormula("=ANYEXPECTED(sheet2!A1:A$2)")).toThrowError(
         "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
+      expect(() => m.getters.evaluateFormula("=A2:A3")).toThrowError(
+        "Function EQ expects its parameters to be single values or single cell references, not ranges."
+      );
+      expect(() => m.getters.evaluateFormula("=+A2:A3")).toThrowError(
+        "Function UPLUS expects its parameters to be single values or single cell references, not ranges."
+      );
+      expect(() => m.getters.evaluateFormula("=A1+A2:A3")).toThrowError(
+        "Function ADD expects its parameters to be single values or single cell references, not ranges."
+      );
+      expect(() => m.getters.evaluateFormula("=-A2:A3")).toThrowError(
+        "Function UMINUS expects its parameters to be single values or single cell references, not ranges."
+      );
+      expect(() => m.getters.evaluateFormula("=A1-A2:A3")).toThrowError(
+        "Function MINUS expects its parameters to be single values or single cell references, not ranges."
+      );
+      expect(() => m.getters.evaluateFormula("=A1+A4*A5:A6-A2")).toThrowError(
+        "Function MULTIPLY expects its parameters to be single values or single cell references, not ranges."
+      );
       expect(() => m.getters.evaluateFormula("=ANYEXPECTED(A1:A1)")).not.toThrow();
     });
-  });
-
-  describe("with lazy arguments", () => {
-    // this tests performs controls inside formula functions. For this reason, we
-    // don't use mocked functions. Errors would be caught during evaluation of
-    // formulas and not during the tests. So here we use a simple counter
-
-    let count = 0;
-
-    beforeAll(() => {
-      functionRegistry.add("ANYFUNCTION", {
-        description: "any function",
-        compute: () => {
-          count += 1;
-          return true;
-        },
-        args: [],
-        returns: ["ANY"],
-      });
-
-      functionRegistry.add("USELAZYARG", {
-        description: "function with a lazy argument",
-        compute: (arg: () => ArgValue) => {
-          count *= 42;
-          return arg();
-        },
-        args: [{ name: "lazyArg", description: "", type: ["ANY"], lazy: true }],
-        returns: ["ANY"],
-      });
-
-      functionRegistry.add("NOTUSELAZYARG", {
-        description: "any function",
-        compute: (arg) => {
-          count *= 42;
-          return arg;
-        },
-        args: [{ name: "any", description: "", type: ["ANY"] }],
-        returns: ["ANY"],
-      });
-    });
-
-    test("with function as argument --> change the order in which functions are evaluated ", () => {
-      count = 0;
-      evaluateCell("A1", { A1: "=USELAZYARG(ANYFUNCTION())" });
-      expect(count).toBe(1);
-      count = 0;
-      evaluateCell("A2", { A2: "=NOTUSELAZYARG(ANYFUNCTION())" });
-      expect(count).toBe(42);
-    });
-
-    test.each(["=USELAZYARG(24)", "=USELAZYARG(1/0)"])(
-      "functions call requesting lazy parameters",
-      (formula) => {
-        const compiledFormula = compiledBaseFunction(formula);
-        expect(compiledFormula.toString()).toMatchSnapshot();
-      }
-    );
   });
 });

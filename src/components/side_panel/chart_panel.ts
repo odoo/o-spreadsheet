@@ -20,14 +20,14 @@ const CONFIGURATION_TEMPLATE = xml/* xml */ `
 <div>
   <div class="o-section">
     <div class="o-section-title" t-esc="env._t('${chartTerms.ChartType}')"/>
-    <select t-model="state.type" class="o-input o-type-selector" t-on-change="updateSelect('type')">
+    <select t-model="state.chart.type" class="o-input o-type-selector" t-on-change="updateSelect('type')">
       <option value="bar" t-esc="env._t('${chartTerms.Bar}')"/>
       <option value="line" t-esc="env._t('${chartTerms.Line}')"/>
       <option value="pie" t-esc="env._t('${chartTerms.Pie}')"/>
     </select>
-    <t t-if="state.type === 'bar'">
+    <t t-if="state.chart.type === 'bar'">
       <div class="o_checkbox">
-        <input type="checkbox" name="stackedBar" t-model="state.stackedBar" t-on-change="updateStacked"/>
+        <input type="checkbox" name="stackedBar" t-model="state.chart.stackedBar" t-on-change="updateStacked"/>
         <t t-esc="env._t('${chartTerms.StackedBar}')"/>
       </div>
     </t>
@@ -35,19 +35,19 @@ const CONFIGURATION_TEMPLATE = xml/* xml */ `
   <div class="o-section o-data-series">
     <div class="o-section-title" t-esc="env._t('${chartTerms.DataSeries}')"/>
     <SelectionInput t-key="getKey('dataSets')"
-                    ranges="state.dataSets"
+                    ranges="state.chart.dataSets"
                     isInvalid="isDatasetInvalid"
                     required="true"
                     t-on-selection-changed="onSeriesChanged"
                     t-on-selection-confirmed="updateDataSet" />
-    <input type="checkbox" t-model="state.dataSetsHaveTitle" t-on-change="updateDataSet"/><t t-esc="env._t('${chartTerms.MyDataHasTitle}')"/>
+    <input type="checkbox" t-model="state.chart.dataSetsHaveTitle" t-on-change="updateDataSet"/><t t-esc="env._t('${chartTerms.MyDataHasTitle}')"/>
   </div>
   <div class="o-section o-data-labels">
     <div class="o-section-title" t-esc="env._t('${chartTerms.DataCategories}')"/>
     <SelectionInput t-key="getKey('label')"
-                    ranges="[state.labelRange || '']"
+                    ranges="[state.chart.labelRange || '']"
                     isInvalid="isLabelInvalid"
-                    maximumRanges="1"
+                    hasSingleRange="true"
                     t-on-selection-changed="onLabelRangeChanged"
                     t-on-selection-confirmed="updateLabelRange" />
   </div>
@@ -65,25 +65,25 @@ const DESIGN_TEMPLATE = xml/* xml */ `
     <div class="o-section-title" t-esc="env._t('${chartTerms.BackgroundColor}')"/>
     <div class="o-with-color-picker">
       <t t-esc="env._t('${chartTerms.SelectColor}')"/>
-      <span t-attf-style="border-color:{{state.background}}"
+      <span t-attf-style="border-color:{{state.chart.background}}"
             t-on-click.stop="toggleColorPicker">${icons.FILL_COLOR_ICON}</span>
       <ColorPicker t-if="state.fillColorTool" t-on-color-picked="setColor" t-key="backgroundColor"/>
     </div>
   </div>
   <div class="o-section o-chart-title">
     <div class="o-section-title" t-esc="env._t('${chartTerms.Title}')"/>
-    <input type="text" t-model="state.title" t-on-change="updateTitle" class="o-input" t-att-placeholder="env._t('${chartTerms.TitlePlaceholder}')"/>
+    <input type="text" t-model="state.chart.title" t-on-change="updateTitle" class="o-input" t-att-placeholder="env._t('${chartTerms.TitlePlaceholder}')"/>
   </div>
   <div class="o-section">
     <div class="o-section-title"><t t-esc="env._t('${chartTerms.VerticalAxisPosition}')"/></div>
-    <select t-model="state.verticalAxisPosition" class="o-input o-type-selector" t-on-change="updateSelect('verticalAxisPosition')">
+    <select t-model="state.chart.verticalAxisPosition" class="o-input o-type-selector" t-on-change="updateSelect('verticalAxisPosition')">
       <option value="left" t-esc="env._t('${chartTerms.Left}')"/>
       <option value="right" t-esc="env._t('${chartTerms.Right}')"/>
     </select>
   </div>
   <div class="o-section">
     <div class="o-section-title"><t t-esc="env._t('${chartTerms.LegendPosition}')"/></div>
-    <select t-model="state.legendPosition" class="o-input o-type-selector" t-on-change="updateSelect('legendPosition')">
+    <select t-model="state.chart.legendPosition" class="o-input o-type-selector" t-on-change="updateSelect('legendPosition')">
       <option value="top" t-esc="env._t('${chartTerms.Top}')"/>
       <option value="bottom" t-esc="env._t('${chartTerms.Bottom}')"/>
       <option value="left" t-esc="env._t('${chartTerms.Left}')"/>
@@ -153,7 +153,8 @@ interface Props {
   figure: Figure;
 }
 
-interface ChartPanelState extends ChartUIDefinition {
+interface ChartPanelState {
+  chart: ChartUIDefinition;
   datasetDispatchResult?: DispatchResult;
   labelsDispatchResult?: DispatchResult;
   panel: "configuration" | "design";
@@ -174,7 +175,14 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
       return;
     }
     if (nextProps.figure.id !== this.props.figure.id) {
-      this.state = this.initialState(nextProps.figure);
+      this.state.panel = "configuration";
+      this.state.fillColorTool = false;
+      this.state.datasetDispatchResult = undefined;
+      this.state.labelsDispatchResult = undefined;
+      this.state.chart = this.env.getters.getChartDefinitionUI(
+        this.env.getters.getActiveSheetId(),
+        nextProps.figure.id
+      );
     }
   }
 
@@ -200,32 +208,32 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   }
 
   onSeriesChanged(ev: CustomEvent) {
-    this.state.dataSets = ev.detail.ranges;
+    this.state.chart.dataSets = ev.detail.ranges;
   }
 
   updateDataSet() {
     this.state.datasetDispatchResult = this.updateChart({
-      dataSets: this.state.dataSets,
-      dataSetsHaveTitle: this.state.dataSetsHaveTitle,
+      dataSets: this.state.chart.dataSets,
+      dataSetsHaveTitle: this.state.chart.dataSetsHaveTitle,
     });
   }
 
   updateStacked() {
-    this.updateChart({ stackedBar: this.state.stackedBar });
+    this.updateChart({ stackedBar: this.state.chart.stackedBar });
   }
 
   updateTitle() {
-    this.updateChart({ title: this.state.title });
+    this.updateChart({ title: this.state.chart.title });
   }
 
   updateSelect(attr: string, ev) {
-    this.state[attr] = ev.target.value;
+    this.state.chart[attr] = ev.target.value;
     this.updateChart({ [attr]: ev.target.value });
   }
 
   updateLabelRange() {
     this.state.labelsDispatchResult = this.updateChart({
-      labelRange: this.state.labelRange || null,
+      labelRange: this.state.chart.labelRange || null,
     });
   }
 
@@ -238,7 +246,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   }
 
   onLabelRangeChanged(ev: CustomEvent) {
-    this.state.labelRange = ev.detail.ranges[0];
+    this.state.chart.labelRange = ev.detail.ranges[0];
   }
 
   getKey(label: string) {
@@ -250,9 +258,9 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   }
 
   setColor(ev: CustomEvent) {
-    this.state.background = ev.detail.color;
+    this.state.chart.background = ev.detail.color;
     this.state.fillColorTool = false;
-    this.updateChart({ background: this.state.background });
+    this.updateChart({ background: this.state.chart.background });
   }
 
   activate(panel: "configuration" | "design") {
@@ -261,7 +269,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
 
   private initialState(figure: Figure): ChartPanelState {
     return {
-      ...this.env.getters.getChartDefinitionUI(this.env.getters.getActiveSheetId(), figure.id),
+      chart: this.env.getters.getChartDefinitionUI(this.env.getters.getActiveSheetId(), figure.id),
       panel: "configuration",
       fillColorTool: false,
     };

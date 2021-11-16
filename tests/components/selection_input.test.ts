@@ -27,7 +27,7 @@ async function writeInput(index: number, text: string) {
 
 interface SelectionInputTestConfig {
   initialRanges?: string[];
-  maximumRanges?: number;
+  hasSingleRange?: boolean;
   onChanged?: jest.Mock<void, [any]>;
 }
 
@@ -36,13 +36,13 @@ class Parent extends Component<any> {
     <SelectionInput
       t-ref="selection-input"
       ranges="initialRanges"
-      maximumRanges="maximumRanges"
+      hasSingleRange="hasSingleRange"
       t-on-selection-changed="onChanged"/>
   `;
   static components = { SelectionInput };
   model: Model;
   initialRanges: string[] | undefined;
-  maximumRanges: number | undefined;
+  hasSingleRange: boolean | undefined;
   ref = useRef("selection-input");
   onChanged: jest.Mock<void, [any]>;
 
@@ -54,7 +54,7 @@ class Parent extends Component<any> {
       uuidGenerator: model.uuidGenerator,
     });
     this.initialRanges = config.initialRanges;
-    this.maximumRanges = config.maximumRanges;
+    this.hasSingleRange = config.hasSingleRange;
     this.model = model;
     this.onChanged = config.onChanged || jest.fn();
   }
@@ -125,6 +125,11 @@ describe("Selection Input", () => {
     fixture.remove();
   });
 
+  test("empty input is not colored", async () => {
+    await createSelectionInput();
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #000;");
+  });
+
   test("remove button is not displayed with a single input", async () => {
     await createSelectionInput();
     expect(fixture.querySelectorAll(".o-remove-selection").length).toBeFalsy();
@@ -136,34 +141,32 @@ describe("Selection Input", () => {
     expect(fixture.querySelectorAll(".o-remove-selection").length).toBe(2);
   });
 
-  test("input is filled when new highlight is added", async () => {
+  test("input is filled when new cells are selected", async () => {
     const { model } = await createSelectionInput();
-    model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: [["B4", "#454545"]],
-    });
+    selectCell(model, "B4");
     await nextTick();
     expect(fixture.querySelector("input")!.value).toBe("B4");
-    expect(fixture.querySelector("input")!.getAttribute("style")).toBe("color: #454545;");
+    const color = model.getters.getHighlights()[0].color;
+    expect(fixture.querySelector("input")!.getAttribute("style")).toBe(`color: ${color};`);
     simulateClick(".o-add-selection");
-    model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: [["B5", "#787878"]],
-    });
+    selectCell(model, "B5");
     await nextTick();
+    const color2 = model.getters.getHighlights()[1].color;
     expect(fixture.querySelectorAll("input")[0].value).toBe("B4");
-    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #454545;");
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe(`color: ${color};`);
     expect(fixture.querySelectorAll("input")[1].value).toBe("B5");
-    expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe("color: #787878;");
+    expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe(`color: ${color2};`);
   });
 
   test("input is not filled with highlight when maximum ranges reached", async () => {
-    const { model } = await createSelectionInput({ maximumRanges: 1 });
+    const { model } = await createSelectionInput({ hasSingleRange: true });
     expect(fixture.querySelectorAll("input")).toHaveLength(1);
     model.dispatch("PREPARE_SELECTION_EXPANSION");
     model.dispatch("START_SELECTION_EXPANSION");
     selectCell(model, "B2");
     await nextTick();
     expect(fixture.querySelectorAll("input")).toHaveLength(1);
-    expect(fixture.querySelector("input")!.value).toBe("A1");
+    expect(fixture.querySelector("input")!.value).toBe("B2");
     expect(fixture.querySelector(".o-add-selection")).toBeNull();
   });
 
@@ -172,16 +175,6 @@ describe("Selection Input", () => {
     expect(fixture.querySelectorAll("input").length).toBe(1);
     await simulateClick(".o-add-selection");
     expect(fixture.querySelectorAll("input").length).toBe(2);
-  });
-
-  test("cannot add more ranges than the maximum", async () => {
-    await createSelectionInput({ maximumRanges: 2 });
-    expect(fixture.querySelectorAll("input").length).toBe(1);
-    await simulateClick(".o-add-selection");
-    expect(fixture.querySelectorAll("input").length).toBe(2);
-    expect(fixture.querySelector(".o-add-selection")).toBeNull();
-    await simulateClick(".o-remove-selection");
-    expect(fixture.querySelector(".o-add-selection")).toBeDefined();
   });
 
   test("can set initial ranges", async () => {
@@ -216,6 +209,32 @@ describe("Selection Input", () => {
     await createSelectionInput();
     expect(fixture.querySelector(".o-focused")).toBeTruthy();
     await simulateClick(".o-selection-ok");
+    expect(fixture.querySelector(".o-focused")).toBeFalsy();
+  });
+
+  test("manually input a single cell", async () => {
+    const { model, id } = await createSelectionInput();
+    await writeInput(0, "C2");
+    expect(fixture.querySelectorAll("input")[0].value).toBe("C2");
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("C2");
+  });
+
+  test("manually input multiple cells", async () => {
+    const { model, id } = await createSelectionInput();
+    await writeInput(0, "C2,A1");
+    expect(fixture.querySelectorAll("input")[0].value).toBe("C2");
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("C2");
+    expect(fixture.querySelectorAll("input")[1].value).toBe("A1");
+    expect(model.getters.getSelectionInput(id)[1].xc).toBe("A1");
+  });
+
+  test("manually add another cell", async () => {
+    const { model, id } = await createSelectionInput({ initialRanges: ["C2"] });
+    await writeInput(0, "C2,A1");
+    expect(fixture.querySelectorAll("input")[0].value).toBe("C2");
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("C2");
+    expect(fixture.querySelectorAll("input")[1].value).toBe("A1");
+    expect(model.getters.getSelectionInput(id)[1].xc).toBe("A1");
   });
 
   test("changed event is triggered when input changed", async () => {
@@ -229,15 +248,13 @@ describe("Selection Input", () => {
     expect(newRanges).toStrictEqual(["C2"]);
   });
 
-  test("changed event is triggered when highlight added", async () => {
+  test("changed event is triggered when cell is selected", async () => {
     let newRanges;
     const onChanged = jest.fn(({ detail }) => {
       newRanges = detail.ranges;
     });
     const { model } = await createSelectionInput({ onChanged });
-    model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: [["B4", "#454545"]],
-    });
+    selectCell(model, "B4");
     await nextTick();
     expect(onChanged).toHaveBeenCalled();
     expect(newRanges).toStrictEqual(["B4"]);
@@ -261,9 +278,7 @@ describe("Selection Input", () => {
     createSheet(model, { sheetId: "42", activate: true });
     await createSelectionInput();
     activateSheet(model, "42");
-    model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: [["B4", "#454545"]],
-    });
+    selectCell(model, "B4");
     await nextTick();
     expect(fixture.querySelector("input")!.value).toBe("Sheet2!B4");
     await simulateClick(".o-selection-ok");
@@ -276,9 +291,7 @@ describe("Selection Input", () => {
     createSheet(model, { sheetId: "42" });
     await createSelectionInput();
     activateSheet(model, "42");
-    model.dispatch("ADD_HIGHLIGHTS", {
-      ranges: [["B4", "#454545"]],
-    });
+    selectCell(model, "B4");
     await nextTick();
     await simulateClick(".o-selection-ok");
     expect(model.getters.getActiveSheetId()).toBe(sheet1Id);
@@ -289,16 +302,19 @@ describe("Selection Input", () => {
     await createSelectionInput();
     await writeInput(0, "A1");
     expect(fixture.querySelectorAll("input")[0].value).toBe("A1");
-    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #0074d9;");
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).not.toBe("color: #000;");
+    expect(fixture.querySelectorAll("input")[0].classList).not.toContain("o-invalid");
     await writeInput(0, "aaaaa");
     expect(fixture.querySelectorAll("input")[0].value).toBe("aaaaa");
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #000;");
+    expect(fixture.querySelectorAll("input")[0].classList).toContain("o-invalid");
     await writeInput(0, "B1");
     expect(fixture.querySelectorAll("input")[0].value).toBe("B1");
-    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #ad8e00;");
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).not.toBe("color: #000;");
+    expect(fixture.querySelectorAll("input")[0].classList).not.toContain("o-invalid");
   });
   test("don't show red border initially", async () => {
     await createSelectionInput();
-    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #000;");
+    expect(fixture.querySelectorAll("input")[0].classList).not.toContain("o-invalid");
   });
 });
