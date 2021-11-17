@@ -2,7 +2,12 @@ import { Component, hooks, tags } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
-import { activateSheet, createSheet } from "../test_helpers/commands_helpers";
+import {
+  activateSheet,
+  createSheet,
+  selectCell,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, mockUuidV4To, nextTick } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -276,6 +281,70 @@ describe("BottomBar component", () => {
       sheetIdFrom: sheet,
       sheetIdTo: "42",
     });
+    parent.destroy();
+  });
+
+  test("Display the statistic button only if no-empty cells are selected", async () => {
+    const model = new Model();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    setCellContent(model, "A2", "24");
+    setCellContent(model, "A3", "=A1");
+
+    selectCell(model, "A1");
+    await nextTick();
+    expect(fixture.querySelector(".o-selection-statistic")).toBeFalsy();
+
+    selectCell(model, "A2");
+    await nextTick();
+    expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Sum: 24");
+
+    selectCell(model, "A3");
+    await nextTick();
+    expect(fixture.querySelector(".o-selection-statistic")).toBeFalsy();
+    parent.destroy();
+  });
+
+  test("Display empty information if the statistic function doesn't handle the types of the selected cells", async () => {
+    const model = new Model();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    setCellContent(model, "A2", "I am not a number");
+
+    selectCell(model, "A2");
+    await nextTick();
+    expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Sum: __");
+  });
+
+  test("Can open the list of statistics", async () => {
+    const model = new Model();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    setCellContent(model, "A2", "24");
+
+    selectCell(model, "A2");
+    await nextTick();
+    triggerMouseEvent(".o-selection-statistic", "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu")).toMatchSnapshot();
+    parent.destroy();
+  });
+
+  test("Can activate a statistic from the list of statistics", async () => {
+    const model = new Model();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    setCellContent(model, "A2", "24");
+
+    selectCell(model, "A2");
+    await nextTick();
+    expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Sum: 24");
+
+    triggerMouseEvent(".o-selection-statistic", "click");
+    await nextTick();
+    triggerMouseEvent(".o-menu-item[data-name='Count Numbers'", "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Count Numbers: 1");
     parent.destroy();
   });
 });
