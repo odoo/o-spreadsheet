@@ -278,4 +278,55 @@ describe("evaluateCells, async formulas", () => {
     await waitForRecompute();
     expect(model.getters.getCell(...toCartesian("A2"))!.value).toBe(200);
   });
+
+  describe("Async evaluation with cells that are at the same position on different sheets", () => {
+    test("Sheet at position 1", async () => {
+      const model = new Model({
+        sheets: [
+          {
+            id: "Sheet1",
+            name: "Sheet1",
+            cells: {
+              B2: { content: "=Sheet2!B2" },
+            },
+          },
+          {
+            id: "Sheet2",
+            name: "Sheet2",
+            cells: {
+              B1: { content: "=WAIT(50)" },
+              B2: { content: "=B1" },
+            },
+          },
+        ],
+        activeSheet: "Sheet1",
+      });
+      await waitForRecompute();
+      expect(model.getters.getCell(1, 1, "Sheet1")!.value).toBe(50);
+    });
+    test("Sheet at position 2", async () => {
+      const model = new Model({
+        sheets: [
+          {
+            id: "Sheet1",
+            name: "Sheet1",
+            cells: {
+              A1: { content: "=WAIT(50)" },
+              A2: { content: "=A1" },
+            },
+          },
+          {
+            id: "Sheet2",
+            name: "Sheet2",
+            cells: {
+              A2: { content: "=Sheet1!A2" },
+            },
+          },
+        ],
+        activeSheet: "Sheet2",
+      });
+      await waitForRecompute();
+      expect(model.getters.getCell(0, 1, "Sheet2")!.value).toBe(50);
+    });
+  });
 });
