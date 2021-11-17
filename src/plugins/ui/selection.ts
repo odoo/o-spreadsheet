@@ -1,12 +1,12 @@
 import { SELECTION_BORDER_COLOR } from "../../constants";
+import { SUM } from "../../functions/module_math";
+import { AVERAGE, COUNT, COUNTA, MAX, MIN } from "../../functions/module_statistical";
 import {
   clip,
   findVisibleHeader,
-  formatStandardNumber,
   getNextVisibleCellCoords,
   isEqual,
   organizeZone,
-  positions,
   range,
   union,
   uniqueZones,
@@ -41,6 +41,44 @@ import {
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
+interface SelectionStatisticFunction {
+  name: string;
+  compute: (values: (number | string | boolean)[]) => number;
+  types: CellValueType[];
+}
+
+const selectionStatisticFunctions: SelectionStatisticFunction[] = [
+  {
+    name: _lt("Sum"),
+    types: [CellValueType.number],
+    compute: (values) => SUM.compute([values]),
+  },
+  {
+    name: _lt("Avg"),
+    types: [CellValueType.number],
+    compute: (values) => AVERAGE.compute([values]),
+  },
+  {
+    name: _lt("Min"),
+    types: [CellValueType.number],
+    compute: (values) => MIN.compute([values]),
+  },
+  {
+    name: _lt("Max"),
+    types: [CellValueType.number],
+    compute: (values) => MAX.compute([values]),
+  },
+  {
+    name: _lt("Count"),
+    types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
+    compute: (values) => COUNTA.compute([values]),
+  },
+  {
+    name: _lt("Count Numbers"),
+    types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
+    compute: (values) => COUNT.compute([values]),
+  },
+];
 export interface Selection {
   anchor: [number, number];
   zones: Zone[];
@@ -79,7 +117,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     "getCurrentStyle",
     "getSelectedZones",
     "getSelectedZone",
-    "getAggregate",
+    "getStatisticFnResults",
     "getSelectedFigureId",
     "getVisibleFigures",
     "getSelection",
@@ -401,19 +439,36 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     }
   }
 
-  getAggregate(): string | null {
-    let aggregate = 0;
-    let n = 0;
-    const sheetId = this.getters.getActiveSheetId();
-    const cellPositions = this.selection.zones.map(positions).flat();
-    for (const [col, row] of cellPositions) {
-      const cell = this.getters.getCell(sheetId, col, row);
-      if (cell?.evaluated.type === CellValueType.number) {
-        n++;
-        aggregate += cell.evaluated.value;
-      }
+  getStatisticFnResults(): { [name: string]: number | undefined } {
+    // get deduplicated cells in zones
+    const cells = new Set(
+      this.selection.zones
+        .map((zone) => this.getters.getCellsInZone(this.getters.getActiveSheetId(), zone))
+        .flat()
+        .filter((cell) => cell !== undefined)
+    );
+
+    let cellsTypes = new Set<CellValueType>();
+    let cellsValues: (string | number | boolean)[] = [];
+    for (let cell of cells) {
+      cellsTypes.add(cell!.evaluated.type);
+      cellsValues.push(cell!.evaluated.value);
     }
-    return n < 2 ? null : formatStandardNumber(aggregate);
+
+    let statisticFnResults: { [name: string]: number | undefined } = {};
+    for (let fn of selectionStatisticFunctions) {
+      // We don't want to display statistical information when there is no interest:
+      // We set the statistical result to undefined if the data handled by the selection
+      // does not match the data handled by the function.
+      // Ex: if there are only texts in the selection, we prefer that the SUM result
+      // be displayed as undefined rather than 0.
+      let fnResult: number | undefined = undefined;
+      if (fn.types.some((t) => cellsTypes.has(t))) {
+        fnResult = fn.compute(cellsValues);
+      }
+      statisticFnResults[fn.name] = fnResult;
+    }
+    return statisticFnResults;
   }
 
   getSelectionMode(): SelectionMode {

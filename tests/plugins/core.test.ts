@@ -1,4 +1,4 @@
-import { functionRegistry } from "../../src/functions/index";
+import { functionRegistry } from "../../src/functions";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
@@ -20,39 +20,131 @@ import {
 } from "../test_helpers/getters_helpers";
 
 describe("core", () => {
-  describe("aggregate", () => {
-    test("properly compute sum of current cells", () => {
+  describe("statistic functions", () => {
+    test("functions are applied on deduplicated cells in zones", () => {
       const model = new Model();
-      setCellContent(model, "A2", "3");
-      setCellContent(model, "A3", "54");
-
-      expect(model.getters.getAggregate()).toBe(null);
-
-      selectCell(model, "A1");
-
-      expect(model.getters.getAggregate()).toBe(null);
-
-      model.dispatch("ALTER_SELECTION", { cell: [0, 2] });
-      expect(model.getters.getAggregate()).toBe("57");
-    });
-
-    test("ignore cells with an error", () => {
-      const model = new Model();
-      setCellContent(model, "A1", "2");
-      setCellContent(model, "A2", "=A2");
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "2");
       setCellContent(model, "A3", "3");
 
-      // select A1
+      // select the range A1:A2
       selectCell(model, "A1");
-      expect(model.getters.getAggregate()).toBe(null);
+      model.dispatch("ALTER_SELECTION", { cell: [0, 1] }); // A2
+      let statisticFnResults = model.getters.getStatisticFnResults();
+      expect(statisticFnResults["Count"]).toBe(2);
 
-      // select A1:A2
-      model.dispatch("ALTER_SELECTION", { cell: [0, 1] });
-      expect(model.getters.getAggregate()).toBe(null);
+      // expand selection with the range A3:A2
+      model.dispatch("PREPARE_SELECTION_EXPANSION");
+      model.dispatch("START_SELECTION_EXPANSION");
+      selectCell(model, "A3");
+      model.dispatch("ALTER_SELECTION", { cell: [0, 1] }); // A2
 
-      // select A1:A3
-      model.dispatch("ALTER_SELECTION", { cell: [0, 2] });
-      expect(model.getters.getAggregate()).toBe("5");
+      // A2 is now present in two selection
+      statisticFnResults = model.getters.getStatisticFnResults();
+      expect(statisticFnResults["Count"]).toBe(3);
+    });
+
+    describe("return undefined if the types handled by the function are not present among the types of the selected cells", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "24");
+      setCellContent(model, "A2", "=42");
+      setCellContent(model, "A3", "107% of people don't get statistics");
+      setCellContent(model, "A4", "TRUE");
+      setCellContent(model, "A5", "=A5");
+      setCellContent(model, "A6", "=A7");
+
+      test('return the "SUM" value only on cells interpreted as number', () => {
+        // select the range A1:A7
+        selectCell(model, "A1");
+        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        let statisticFnResults = model.getters.getStatisticFnResults();
+        expect(statisticFnResults["Sum"]).toBe(66);
+        // select the range A3:A7
+        selectCell(model, "A3");
+        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        statisticFnResults = model.getters.getStatisticFnResults();
+        expect(statisticFnResults["Sum"]).toBe(undefined);
+      });
+
+      test('return the "Avg" result only on cells interpreted as number', () => {
+        // select the range A1:A7
+        selectCell(model, "A1");
+        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        let statisticFnResults = model.getters.getStatisticFnResults();
+        expect(statisticFnResults["Avg"]).toBe(33);
+        // select the range A3:A7
+        selectCell(model, "A3");
+        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        statisticFnResults = model.getters.getStatisticFnResults();
+        expect(statisticFnResults["Avg"]).toBe(undefined);
+      });
+
+      test('return "Min" value only on cells interpreted as number', () => {
+        // select the range A1:A7
+        selectCell(model, "A1");
+        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        let statisticFnResults = model.getters.getStatisticFnResults();
+        expect(statisticFnResults["Min"]).toBe(24);
+        // select the range A3:A7
+        selectCell(model, "A3");
+        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        statisticFnResults = model.getters.getStatisticFnResults();
+        expect(statisticFnResults["Min"]).toBe(undefined);
+      });
+
+      test('return the "Max" value only on cells interpreted as number', () => {
+        // select the range A1:A7
+        selectCell(model, "A1");
+        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        let statisticFnResults = model.getters.getStatisticFnResults();
+        expect(statisticFnResults["Max"]).toBe(42);
+        // select the range A3:A7
+        selectCell(model, "A3");
+        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        statisticFnResults = model.getters.getStatisticFnResults();
+        expect(statisticFnResults["Max"]).toBe(undefined);
+      });
+
+      test('return the "Count" value on all types of interpreted cells except on cells interpreted as empty', () => {
+        // select the range A1:A7
+        selectCell(model, "A1");
+        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        let statisticFnResults = model.getters.getStatisticFnResults();
+        expect(statisticFnResults["Count"]).toBe(5);
+        // select the range A6:A7
+        selectCell(model, "A6");
+        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        statisticFnResults = model.getters.getStatisticFnResults();
+        expect(statisticFnResults["Count"]).toBe(undefined);
+      });
+
+      test('return the "Count numbers" value on all types of interpreted cells except on cells interpreted as empty', () => {
+        selectCell(model, "A1");
+        let statisticFnResults = model.getters.getStatisticFnResults();
+        expect(statisticFnResults["Count Numbers"]).toBe(1);
+
+        selectCell(model, "A2");
+        statisticFnResults = model.getters.getStatisticFnResults();
+        expect(statisticFnResults["Count Numbers"]).toBe(1);
+
+        selectCell(model, "A3");
+        statisticFnResults = model.getters.getStatisticFnResults();
+        expect(statisticFnResults["Count Numbers"]).toBe(0);
+
+        selectCell(model, "A4");
+        statisticFnResults = model.getters.getStatisticFnResults();
+        expect(statisticFnResults["Count Numbers"]).toBe(0);
+
+        selectCell(model, "A5");
+        statisticFnResults = model.getters.getStatisticFnResults();
+        expect(statisticFnResults["Count Numbers"]).toBe(0);
+
+        // select the range A6:A7
+        selectCell(model, "A6");
+        model.dispatch("ALTER_SELECTION", { cell: [0, 6] }); // A7
+        statisticFnResults = model.getters.getStatisticFnResults();
+        expect(statisticFnResults["Count"]).toBe(undefined);
+      });
     });
 
     describe("raise error from compilation with specific error message", () => {

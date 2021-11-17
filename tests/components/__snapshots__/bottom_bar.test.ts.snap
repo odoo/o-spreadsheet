@@ -1,5 +1,84 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`BottomBar component Can open the list of statistics 1`] = `
+<div
+  class="o-menu"
+>
+  <div
+    class="o-menu-item"
+    data-name="Sum"
+    title="Sum: 24"
+  >
+    Sum: 24
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
+  </div>
+  <div
+    class="o-menu-item"
+    data-name="Avg"
+    title="Avg: 24"
+  >
+    Avg: 24
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
+  </div>
+  <div
+    class="o-menu-item"
+    data-name="Min"
+    title="Min: 24"
+  >
+    Min: 24
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
+  </div>
+  <div
+    class="o-menu-item"
+    data-name="Max"
+    title="Max: 24"
+  >
+    Max: 24
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
+  </div>
+  <div
+    class="o-menu-item"
+    data-name="Count"
+    title="Count: 1"
+  >
+    Count: 1
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
+  </div>
+  <div
+    class="o-menu-item"
+    data-name="Count Numbers"
+    title="Count Numbers: 1"
+  >
+    Count Numbers: 1
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
+  </div>
+</div>
+`;
+
 exports[`BottomBar component simple rendering 1`] = `
 <div
   class="o-spreadsheet-bottom-bar"

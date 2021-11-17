@@ -1,5 +1,6 @@
 import * as owl from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../constants";
+import { formatStandardNumber } from "../helpers";
 import { MenuItemRegistry, sheetMenuRegistry } from "../registries/index";
 import { SpreadsheetEnv } from "../types";
 import { LIST, PLUS, TRIANGLE_DOWN_ICON } from "./icons";
@@ -28,8 +29,13 @@ const TEMPLATE = xml/* xml */ `
         </div>
       </t>
     </div>
-    <t t-set="aggregate" t-value="getters.getAggregate()"/>
-    <div t-if="aggregate !== null" class="o-aggregate">Sum: <t t-esc="aggregate"/></div>
+
+    <t t-set="selectedStatistic" t-value="getSelectedStatistic()"/>
+    <div t-if="selectedStatistic !== undefined" class="o-selection-statistic" t-on-click="listSelectionStatistics">
+      <t t-esc="selectedStatistic"/>
+      <span>${TRIANGLE_DOWN_ICON}</span>
+    </div>
+
     <Menu t-if="menuState.isOpen"
           position="menuState.position"
           menuItems="menuState.menuItems"
@@ -101,7 +107,7 @@ const CSS = css/* scss */ `
       }
     }
 
-    .o-aggregate {
+    .o-selection-statistic {
       background-color: white;
       margin-left: auto;
       font-size: 14px;
@@ -110,7 +116,13 @@ const CSS = css/* scss */ `
       color: #333;
       border-radius: 3px;
       box-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+      user-select: none;
+      cursor: pointer;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.08);
+      }
     }
+
     .fade-enter-active {
       transition: opacity 0.5s;
     }
@@ -128,6 +140,7 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
 
   getters = this.env.getters;
   menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
+  selectedStatisticFn: string = "";
 
   setup() {
     onMounted(() => this.focusSheet());
@@ -163,7 +176,8 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
       });
       i++;
     }
-    this.openContextMenu(ev.currentTarget as HTMLElement, registry);
+    const target = ev.currentTarget as HTMLElement;
+    this.openContextMenu(target.offsetLeft, target.offsetTop, registry);
   }
 
   activateSheet(name: string) {
@@ -177,9 +191,7 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
     this.env.dispatch("RENAME_SHEET", { interactive: true, sheetId });
   }
 
-  openContextMenu(target: HTMLElement, registry: MenuItemRegistry) {
-    const x = target.offsetLeft;
-    const y = target.offsetTop;
+  openContextMenu(x: number, y: number, registry: MenuItemRegistry) {
     this.menuState.isOpen = true;
     this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
     this.menuState.position = { x, y };
@@ -192,10 +204,8 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
     if (this.menuState.isOpen) {
       this.menuState.isOpen = false;
     } else {
-      this.openContextMenu(
-        (ev.currentTarget as HTMLElement).parentElement as HTMLElement,
-        sheetMenuRegistry
-      );
+      const target = (ev.currentTarget as HTMLElement).parentElement as HTMLElement;
+      this.openContextMenu(target.offsetLeft, target.offsetTop, sheetMenuRegistry);
     }
   }
 
@@ -203,6 +213,44 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
     if (this.getters.getActiveSheetId() !== sheet) {
       this.activateSheet(sheet);
     }
-    this.openContextMenu(ev.currentTarget as HTMLElement, sheetMenuRegistry);
+    const target = ev.currentTarget as HTMLElement;
+    this.openContextMenu(target.offsetLeft, target.offsetTop, sheetMenuRegistry);
+  }
+
+  getSelectedStatistic() {
+    const statisticFnResults = this.getters.getStatisticFnResults();
+    // don't display button if no function has a result
+    if (Object.values(statisticFnResults).every((result) => result === undefined)) {
+      return undefined;
+    }
+    if (this.selectedStatisticFn === "") {
+      this.selectedStatisticFn = Object.keys(statisticFnResults)[0];
+    }
+    return this.getComposedFnName(
+      this.selectedStatisticFn,
+      statisticFnResults[this.selectedStatisticFn]
+    );
+  }
+
+  listSelectionStatistics(ev: MouseEvent) {
+    const registry = new MenuItemRegistry();
+    let i = 0;
+    for (let [fnName, fnValue] of Object.entries(this.getters.getStatisticFnResults())) {
+      registry.add(fnName, {
+        name: this.getComposedFnName(fnName, fnValue),
+        sequence: i,
+        isReadonlyAllowed: true,
+        action: () => {
+          this.selectedStatisticFn = fnName;
+        },
+      });
+      i++;
+    }
+    const target = ev.currentTarget as HTMLElement;
+    this.openContextMenu(target.offsetLeft + target.offsetWidth, target.offsetTop, registry);
+  }
+
+  private getComposedFnName(fnName: string, fnValue: number | undefined): string {
+    return fnName + ": " + (fnValue !== undefined ? formatStandardNumber(fnValue) : "__");
   }
 }
