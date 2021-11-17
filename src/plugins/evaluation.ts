@@ -52,7 +52,7 @@ export class EvaluationPlugin extends BasePlugin {
    *   A1: =Wait(3)
    *   A2: =A1
    */
-  private WAITING: Set<Cell> = new Set();
+  private WAITING: { [key: string]: Set<Cell> } = {};
 
   /**
    * For all cells that have been async computed.
@@ -92,11 +92,15 @@ export class EvaluationPlugin extends BasePlugin {
         break;
       case "EVALUATE_CELLS":
         if (cmd.onlyWaiting) {
-          const cells = new Set(this.WAITING);
-          this.WAITING.clear();
-          this.evaluateCells(makeSetIterator(cells), this.workbook.activeSheet.id);
+          for (const sheetId in this.WAITING) {
+            const cells = new Set(this.WAITING[sheetId]);
+            this.WAITING[sheetId].clear();
+            this.evaluateCells(makeSetIterator(cells), sheetId);
+          }
         } else {
-          this.WAITING.clear();
+          for (const sheetId in this.WAITING) {
+            delete this.WAITING[sheetId];
+          }
           this.evaluate();
         }
         this.isUptodate.add(this.workbook.activeSheet.id);
@@ -190,22 +194,25 @@ export class EvaluationPlugin extends BasePlugin {
       computeValue(cell, sheetId);
     }
 
-    function handleError(e: Error | any, cell: Cell) {
+    function handleError(e: Error | any, currentCell: Cell, currentSheetId: string) {
       if (!(e instanceof Error)) {
         e = new Error(e);
       }
-      if (PENDING.has(cell)) {
-        PENDING.delete(cell);
+      if (PENDING.has(currentCell)) {
+        PENDING.delete(currentCell);
         self.loadingCells--;
       }
       if (e.message === "not ready") {
-        WAITING.add(cell);
-        cell.pending = true;
-        cell.value = LOADING;
-      } else if (!cell.error) {
-        cell.value = "#ERROR";
+        if (!WAITING[currentSheetId]) {
+          WAITING[currentSheetId] = new Set<Cell>();
+        }
+        WAITING[currentSheetId].add(currentCell);
+        currentCell.pending = true;
+        currentCell.value = LOADING;
+      } else if (!currentCell.error) {
+        currentCell.value = "#ERROR";
         const __lastFnCalled = params[2].__lastFnCalled || "";
-        cell.error = e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled);
+        currentCell.error = e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled);
       }
     }
 
@@ -244,7 +251,7 @@ export class EvaluationPlugin extends BasePlugin {
                 COMPUTED.add(cell);
               }
             })
-            .catch((e: Error) => handleError(e, cell));
+            .catch((e: Error) => handleError(e, cell, sheetId));
           self.loadingCells++;
         } else {
           cell.value = cell.formula(...params);
@@ -252,7 +259,7 @@ export class EvaluationPlugin extends BasePlugin {
         }
         cell.error = undefined;
       } catch (e) {
-        handleError(e, cell);
+        handleError(e, cell, sheetId);
       }
       visited[sheetId][xc] = true;
     }
@@ -270,6 +277,7 @@ export class EvaluationPlugin extends BasePlugin {
     });
     const sheets = this.workbook.sheets;
     const PENDING = this.PENDING;
+
     function readCell(xc: string, sheet: string): any {
       let cell;
       const s = sheets[sheet];
