@@ -51,7 +51,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getSheets",
     "getVisibleSheets",
     "getEvaluationSheets",
+    "tryGetCol",
     "getCol",
+    "tryGetRow",
     "getRow",
     "getCell",
     "getCellsInZone",
@@ -318,12 +320,28 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return this.sheets;
   }
 
-  getCol(sheetId: UID, index: number): Col | undefined {
+  tryGetCol(sheetId: UID, index: number): Col | undefined {
     return this.sheets[sheetId]?.cols[index];
   }
 
-  getRow(sheetId: UID, index: number): Row | undefined {
+  getCol(sheetId: UID, index: number): Col {
+    const col = this.getSheet(sheetId).cols[index];
+    if (!col) {
+      throw new Error(`Col ${col} not found.`);
+    }
+    return col;
+  }
+
+  tryGetRow(sheetId: UID, index: number): Row | undefined {
     return this.sheets[sheetId]?.rows[index];
+  }
+
+  getRow(sheetId: UID, index: number): Row {
+    const row = this.getSheet(sheetId).rows[index];
+    if (!row) {
+      throw new Error(`Row ${row} not found.`);
+    }
+    return row;
   }
 
   getCell(sheetId: UID, col: number, row: number): Cell | undefined {
