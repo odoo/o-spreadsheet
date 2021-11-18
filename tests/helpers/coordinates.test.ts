@@ -22,15 +22,15 @@ describe("toCartesian", () => {
   });
 
   test("invalid ranges", () => {
-    expect(() => toCartesian("C5A")).toThrow();
-    expect(() => toCartesian("C5C5")).toThrow();
-    expect(() => toCartesian("C")).toThrow();
-    expect(() => toCartesian("5")).toThrow();
-    expect(() => toCartesian("C 5")).toThrow();
-    expect(() => toCartesian("")).toThrow();
-    expect(() => toCartesian(" ")).toThrow();
-    expect(() => toCartesian("AAAA1")).toThrow();
-    expect(() => toCartesian("A10000000")).toThrow();
+    expect(() => toCartesian("C5A")).toThrow("Invalid cell description: C5A");
+    expect(() => toCartesian("C5C5")).toThrow("Invalid cell description: C5C5");
+    expect(() => toCartesian("C")).toThrow("Invalid cell description: C");
+    expect(() => toCartesian("5")).toThrow("Invalid cell description: 5");
+    expect(() => toCartesian("C 5")).toThrow("Invalid cell description: C 5");
+    expect(() => toCartesian("")).toThrow("Invalid cell description: ");
+    expect(() => toCartesian(" ")).toThrow("Invalid cell description: ");
+    expect(() => toCartesian("AAAA1")).toThrow("Invalid cell description: AAAA1");
+    expect(() => toCartesian("A10000000")).toThrow("Invalid cell description: A10000000");
   });
 });
 
