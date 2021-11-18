@@ -448,7 +448,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getElement(index: number): Col {
-    return this.getters.getCol(this.getters.getActiveSheetId(), index)!;
+    return this.getters.getCol(this.getters.getActiveSheetId(), index);
   }
 
   _getBottomRightValue(element: Col): number {
@@ -544,7 +544,7 @@ export class ColResizer extends AbstractResizer {
   unhideStyleValue(hiddenIndex: number): number {
     const col = this.getters.getCol(this.getters.getActiveSheetId(), hiddenIndex);
     const offset = this._getStateOffset();
-    return col!.start - offset - this._getHeaderSize();
+    return col.start - offset - this._getHeaderSize();
   }
 }
 
@@ -682,7 +682,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getElement(index: number): Row {
-    return this.getters.getRow(this.getters.getActiveSheetId(), index)!;
+    return this.getters.getRow(this.getters.getActiveSheetId(), index);
   }
 
   _getHeaderSize(): number {
@@ -774,7 +774,7 @@ export class RowResizer extends AbstractResizer {
   unhideStyleValue(hiddenIndex: number): number {
     const row = this.getters.getRow(this.getters.getActiveSheetId(), hiddenIndex);
     const offset = this._getStateOffset();
-    return row!.start - offset - this._getHeaderSize();
+    return row.start - offset - this._getHeaderSize();
   }
 }
 
