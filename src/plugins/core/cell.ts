@@ -507,7 +507,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   getCellStyle(cell: Cell): Style {
-    return cell.style || {};
+    return {
+      align: cell.defaultAlign,
+      ...cell.style,
+    };
   }
 
   /**

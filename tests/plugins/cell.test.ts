@@ -9,6 +9,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellText } from "../test_helpers/getters_helpers";
+import { target } from "../test_helpers/helpers";
 
 describe("getCellText", () => {
   test("Update cell with a format is correctly set", () => {
@@ -50,6 +51,29 @@ describe("getCellText", () => {
       content: "hello",
     });
     expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
+  });
+});
+
+describe("getters.getCellStyle", () => {
+  test("set alignment", () => {
+    const model = new Model();
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      style: { align: "center" },
+    });
+    const A1 = getCell(model, "A1")!;
+    expect(model.getters.getCellStyle(A1)).toEqual({ align: "center" });
+  });
+
+  test("default alignment", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "10");
+    setCellContent(model, "A2", "TRUE");
+    const A1 = getCell(model, "A1")!;
+    const A2 = getCell(model, "A2")!;
+    expect(model.getters.getCellStyle(A1)).toEqual({ align: "right" });
+    expect(model.getters.getCellStyle(A2)).toEqual({ align: "center" });
   });
 });
 

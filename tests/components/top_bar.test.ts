@@ -7,7 +7,7 @@ import { topbarComponentRegistry } from "../../src/registries";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { ConditionalFormat, SpreadsheetEnv } from "../../src/types";
 import { selectCell, setCellContent, setSelection } from "../test_helpers/commands_helpers";
-import { triggerMouseEvent } from "../test_helpers/dom_helper";
+import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getBorder, getCell } from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
@@ -387,6 +387,21 @@ test("Can show/hide a TopBarComponent based on condition", async () => {
   expect(fixture.querySelectorAll(".o-topbar-test2")).toHaveLength(0);
   topbarComponentRegistry.content = compDefinitions;
   parent.destroy();
+});
+
+describe("top bar align tool", () => {
+  test.each([
+    [0, "left"],
+    [1, "center"],
+    [2, "right"],
+  ])("can set alignment", async (dropdownItem, alignment) => {
+    const model = new Model();
+    parent = new Parent(model);
+    await parent.mount(fixture);
+    await simulateClick('.o-tool[title="Horizontal align"] span');
+    await simulateClick(fixture.querySelectorAll(".o-dropdown-item")[dropdownItem]);
+    expect(getCell(model, "A1")?.style?.align).toBe(alignment);
+  });
 });
 
 describe("TopBar - CF", () => {
