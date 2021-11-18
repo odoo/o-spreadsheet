@@ -4,7 +4,7 @@ import { formulaAssistantTerms } from "./translation_terms";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
-const { useState } = owl.hooks;
+const { useState, onWillUnmount } = owl.hooks;
 
 // -----------------------------------------------------------------------------
 // Formula Assistant component
@@ -134,10 +134,12 @@ export class FunctionDescriptionProvider extends Component<Props> {
 
   private timeOutId = 0;
 
-  willUnmount() {
-    if (this.timeOutId) {
-      clearTimeout(this.timeOutId);
-    }
+  setup() {
+    onWillUnmount(() => {
+      if (this.timeOutId) {
+        clearTimeout(this.timeOutId);
+      }
+    });
   }
 
   getContext(): Props {

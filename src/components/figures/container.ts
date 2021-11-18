@@ -7,6 +7,7 @@ import { startDnd } from "../helpers/drag_and_drop";
 import { ChartFigure } from "./chart";
 
 const { xml, css } = owl.tags;
+const { onMounted } = owl.hooks;
 const { useState } = owl;
 
 interface FigureInfo {
@@ -186,15 +187,17 @@ export class FiguresContainer extends Component<{ sidePanelIsOpen: Boolean }, Sp
     }px; height:${height - correctionY + offset}px`;
   }
 
-  mounted() {
-    // horrible, but necessary
-    // the following line ensures that we render the figures with the correct
-    // viewport.  The reason is that whenever we initialize the grid
-    // component, we do not know yet the actual size of the viewport, so the
-    // first owl rendering is done with an empty viewport.  Only then we can
-    // compute which figures should be displayed, so we have to force a
-    // new rendering
-    this.render();
+  setup() {
+    onMounted(() => {
+      // horrible, but necessary
+      // the following line ensures that we render the figures with the correct
+      // viewport.  The reason is that whenever we initialize the grid
+      // component, we do not know yet the actual size of the viewport, so the
+      // first owl rendering is done with an empty viewport.  Only then we can
+      // compute which figures should be displayed, so we have to force a
+      // new rendering
+      this.render();
+    });
   }
 
   resize(figure: Figure, dirX: number, dirY: number, ev: MouseEvent) {

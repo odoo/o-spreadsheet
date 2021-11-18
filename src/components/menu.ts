@@ -136,20 +136,18 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   static defaultProps = {
     depth: 1,
   };
-  private subMenu: MenuState;
+  private subMenu: MenuState = useState({
+    isOpen: false,
+    position: null,
+    scrollOffset: 0,
+    menuItems: [],
+  });
   private position = useAbsolutePosition(useRef("menu"));
   subMenuRef = useRef("subMenuRef");
 
-  constructor() {
-    super(...arguments);
+  setup() {
     useExternalListener(window, "click", this.onClick);
     useExternalListener(window, "contextmenu", this.onContextMenu);
-    this.subMenu = useState({
-      isOpen: false,
-      position: null,
-      scrollOffset: 0,
-      menuItems: [],
-    });
   }
 
   get subMenuPosition(): DOMCoordinates {

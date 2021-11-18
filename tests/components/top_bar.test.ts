@@ -21,7 +21,7 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 );
 
 const { xml } = tags;
-const { useSubEnv } = hooks;
+const { useSubEnv, onMounted, onWillUnmount } = hooks;
 
 let fixture: HTMLElement;
 let parent: Parent;
@@ -50,16 +50,13 @@ class Parent extends Component<any, SpreadsheetEnv> {
     this.state.focusComposer = focusComposer;
   }
 
+  setup() {
+    onMounted(() => this.model.on("update", this, this.render));
+    onWillUnmount(() => this.model.off("update", this));
+  }
+
   setFocusComposer(isFocused: boolean) {
     this.state.focusComposer = isFocused;
-  }
-
-  mounted() {
-    this.model.on("update", this, this.render);
-  }
-
-  willUnmount() {
-    this.model.off("update", this);
   }
 }
 

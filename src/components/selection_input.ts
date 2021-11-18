@@ -7,6 +7,7 @@ import { SpreadsheetEnv } from "../types";
 const { Component, useState } = owl;
 
 const { xml, css } = owl.tags;
+const { onMounted, onWillUnmount, onPatched } = owl.hooks;
 
 const uuidGenerator = new UuidGenerator();
 
@@ -153,7 +154,13 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
     return this.props.isInvalid || this.state.isMissing;
   }
 
-  mounted() {
+  setup() {
+    onMounted(() => this.enableNewSelectionInput());
+    onWillUnmount(async () => this.disableNewSelectionInput());
+    onPatched(() => this.checkChange());
+  }
+
+  enableNewSelectionInput() {
     this.dispatch("ENABLE_NEW_SELECTION_INPUT", {
       id: this.id,
       initialRanges: this.props.ranges,
@@ -161,11 +168,11 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
     });
   }
 
-  async willUnmount() {
+  disableNewSelectionInput() {
     this.dispatch("DISABLE_SELECTION_INPUT", { id: this.id });
   }
 
-  async patched() {
+  checkChange() {
     const value = this.getters.getSelectionInputValue(this.id);
     if (this.previousRanges.join() !== value.join()) {
       this.triggerChange();

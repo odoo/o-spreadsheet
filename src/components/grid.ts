@@ -49,7 +49,7 @@ import { ScrollBar } from "./scrollbar";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
-const { useRef, onMounted, onWillUnmount, useExternalListener } = owl.hooks;
+const { useRef, onMounted, onWillUnmount, useExternalListener, onPatched } = owl.hooks;
 export type ContextMenuType = "ROW" | "COL" | "CELL";
 
 const registries = {
@@ -332,6 +332,27 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
   hoveredCell = useCellHovered(this.env, () => this.getters.getActiveSnappedViewport());
 
+  constructor() {
+    super(...arguments);
+    this.vScrollbar = new ScrollBar(this.vScrollbarRef.el, "vertical");
+    this.hScrollbar = new ScrollBar(this.hScrollbarRef.el, "horizontal");
+  }
+
+  setup() {
+    useTouchMove(this.moveCanvas.bind(this), () => this.vScrollbar.scroll > 0);
+    useExternalListener(window, "resize", this.resizeGrid.bind(this));
+    onMounted(() => this.initGrid());
+    onPatched(() => this.drawGrid());
+  }
+
+  private initGrid() {
+    this.vScrollbar.el = this.vScrollbarRef.el!;
+    this.hScrollbar.el = this.hScrollbarRef.el!;
+    this.focus();
+    this.resizeGrid();
+    this.drawGrid();
+  }
+
   get errorTooltip() {
     const { col, row } = this.hoveredCell;
     if (col === undefined || row === undefined) {
@@ -512,26 +533,6 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     PAGEDOWN: () => this.dispatch("SHIFT_VIEWPORT_DOWN"),
     PAGEUP: () => this.dispatch("SHIFT_VIEWPORT_UP"),
   };
-
-  constructor() {
-    super(...arguments);
-    this.vScrollbar = new ScrollBar(this.vScrollbarRef.el, "vertical");
-    this.hScrollbar = new ScrollBar(this.hScrollbarRef.el, "horizontal");
-    useTouchMove(this.moveCanvas.bind(this), () => this.vScrollbar.scroll > 0);
-    useExternalListener(window, "resize", this.resizeGrid.bind(this));
-  }
-
-  mounted() {
-    this.vScrollbar.el = this.vScrollbarRef.el!;
-    this.hScrollbar.el = this.hScrollbarRef.el!;
-    this.focus();
-    this.resizeGrid();
-    this.drawGrid();
-  }
-
-  patched() {
-    this.drawGrid();
-  }
 
   focus() {
     if (!this.getters.isSelectingForComposer() && !this.getters.getSelectedFigureId()) {

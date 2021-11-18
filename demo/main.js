@@ -5,7 +5,7 @@ owl.config.mode = "dev";
 const { whenReady } = owl.utils;
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
-const { useSubEnv } = owl.hooks;
+const { useSubEnv, onWillStart, onMounted } = owl.hooks;
 
 const { Spreadsheet } = o_spreadsheet;
 const { topbarMenuRegistry } = o_spreadsheet.registries;
@@ -39,8 +39,7 @@ topbarMenuRegistry.addChild("xlsx", ["file"], {
 let start;
 
 class App extends Component {
-  constructor() {
-    super();
+  setup() {
     this.key = 1;
     this.data = demoData;
     // this.data = makeLargeDataset(20, 10_000);
@@ -67,9 +66,13 @@ class App extends Component {
         this.state.isReadonly = false;
       },
     });
+
+    onWillStart(() => this.initiateConnection());
+
+    onMounted(() => console.log("Mounted: ", Date.now() - start));
   }
 
-  async willStart() {
+  async initiateConnection() {
     this.transportService = new WebsocketTransport();
     try {
       const [history, _] = await Promise.all([
@@ -85,10 +88,6 @@ class App extends Component {
       this.transportService = undefined;
       this.stateUpdateMessages = [];
     }
-  }
-
-  mounted() {
-    console.log("Mounted: ", Date.now() - start);
   }
 
   askConfirmation(ev) {

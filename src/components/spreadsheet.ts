@@ -21,7 +21,7 @@ import { TopBar } from "./top_bar";
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
 const { xml, css } = owl.tags;
-const { useSubEnv } = owl.hooks;
+const { useSubEnv, onMounted, onWillUnmount, onWillUpdateProps } = owl.hooks;
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -158,13 +158,19 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
       exportXLSX: this.model.exportXLSX.bind(this.model),
       openLinkEditor: () => this.openLinkEditor(),
     });
+    this.activateFirstSheet();
+  }
+
+  setup() {
     useExternalListener(window as any, "resize", this.render);
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
     useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
-    this.activateFirstSheet();
+    onMounted(() => this.initiateModelEvents());
+    onWillUnmount(() => this.leaveCollaborativeSession());
+    onWillUpdateProps((nextProps: Props) => this.checkReadonly(nextProps));
   }
 
   get focusTopBarComposer(): "inactive" | "contentFocus" {
@@ -179,7 +185,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
       : this.composer.gridFocusMode;
   }
 
-  mounted() {
+  initiateModelEvents() {
     this.model.on("update", this, this.render);
     this.model.on("unexpected-revision-id", this, () => this.trigger("unexpected-revision-id"));
     if (this.props.client) {
@@ -187,11 +193,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     }
   }
 
-  willUnmount() {
-    this.leaveCollaborativeSession();
-  }
-
-  async willUpdateProps(nextProps: Props) {
+  checkReadonly(nextProps: Props) {
     if (this.props.isReadonly !== nextProps.isReadonly) {
       this.model.updateReadOnly(nextProps.isReadonly);
     }

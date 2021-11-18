@@ -20,7 +20,7 @@ import { IconSetRuleEditor } from "./icon_set_rule_editor";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
-const { useRef } = owl.hooks;
+const { useRef, onWillUpdateProps } = owl.hooks;
 
 // TODO vsc: add ordering of rules
 const PREVIEW_TEMPLATE = xml/* xml */ `
@@ -370,6 +370,23 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     }
   }
 
+  setup() {
+    onWillUpdateProps((nextProps: Props) => {
+      if (nextProps.selection !== this.props.selection) {
+        const sheetId = this.getters.getActiveSheetId();
+        const rules = this.getters.getRulesSelection(sheetId, nextProps.selection || []);
+        if (rules.length === 1) {
+          const cf = this.conditionalFormats.find((c) => c.id === rules[0]);
+          if (cf) {
+            this.editConditionalFormat(cf);
+          }
+        } else {
+          this.switchToList();
+        }
+      }
+    });
+  }
+
   get conditionalFormats(): ConditionalFormat[] {
     return this.getters.getConditionalFormats(this.getters.getActiveSheetId());
   }
@@ -382,21 +399,6 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     return this.env._t(
       conditionalFormattingTerms.Errors[error] || conditionalFormattingTerms.Errors.unexpected
     );
-  }
-
-  async willUpdateProps(nextProps: Props) {
-    if (nextProps.selection !== this.props.selection) {
-      const sheetId = this.getters.getActiveSheetId();
-      const rules = this.getters.getRulesSelection(sheetId, nextProps.selection || []);
-      if (rules.length === 1) {
-        const cf = this.conditionalFormats.find((c) => c.id === rules[0]);
-        if (cf) {
-          this.editConditionalFormat(cf);
-        }
-      } else {
-        this.switchToList();
-      }
-    }
   }
 
   /**

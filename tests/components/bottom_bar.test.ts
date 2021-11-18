@@ -8,7 +8,7 @@ import { makeTestFixture, mockUuidV4To, nextTick } from "../test_helpers/helpers
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 const { xml } = tags;
-const { useSubEnv } = hooks;
+const { useSubEnv, onMounted, onWillUnmount } = hooks;
 
 let fixture: HTMLElement;
 
@@ -32,12 +32,9 @@ class Parent extends Component<any, any> {
     });
     this.model = model;
   }
-  mounted() {
-    this.model.on("update", this, this.render);
-  }
-
-  willUnmount() {
-    this.model.off("update", this);
+  setup() {
+    onMounted(() => this.model.on("update", this, this.render));
+    onWillUnmount(() => this.model.off("update", this));
   }
 }
 

@@ -1,9 +1,9 @@
 import * as owl from "@odoo/owl";
 import { functionRegistry } from "../../functions/index";
 import { Registry } from "../../registry";
-
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
+const { onMounted, onWillUpdateProps } = owl.hooks;
 const functions = functionRegistry.content;
 
 // -----------------------------------------------------------------------------
@@ -86,15 +86,15 @@ export abstract class TextValueProvider extends Component<Props> {
     selectedIndex: 0,
   });
 
-  mounted() {
-    this.filter(this.props.search);
+  setup() {
+    onMounted(() => this.filter(this.props.search));
+    onWillUpdateProps((nextProps: Props) => this.checkUpdateProps(nextProps));
   }
 
-  willUpdateProps(nextProps: any): Promise<void> {
+  checkUpdateProps(nextProps: any) {
     if (nextProps.search !== this.props.search) {
       this.filter(nextProps.search);
     }
-    return super.willUpdateProps(nextProps);
   }
 
   async filter(searchTerm: string) {

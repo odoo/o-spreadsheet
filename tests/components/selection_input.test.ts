@@ -6,7 +6,7 @@ import { simulateClick } from "../test_helpers/dom_helper";
 import { makeTestFixture, nextTick } from "../test_helpers/helpers";
 
 const { xml } = tags;
-const { useSubEnv, useRef } = hooks;
+const { useSubEnv, useRef, onMounted, onWillUnmount } = hooks;
 
 let model: Model;
 let fixture: HTMLElement;
@@ -63,13 +63,12 @@ class Parent extends Component<any> {
     return (this.ref.comp as any).id;
   }
 
-  mounted() {
-    this.model.on("update", this, this.render);
-    this.render();
-  }
-
-  willUnmount() {
-    this.model.off("update", this);
+  setup() {
+    onMounted(() => {
+      this.model.on("update", this, this.render);
+      this.render();
+    });
+    onWillUnmount(() => this.model.off("update", this));
   }
 }
 
@@ -97,13 +96,12 @@ class MultiParent extends Component<any> {
     this.model = model;
   }
 
-  mounted() {
-    this.model.on("update", this, this.render);
-    this.render();
-  }
-
-  willUnmount() {
-    this.model.off("update", this);
+  setup() {
+    onMounted(() => {
+      this.model.on("update", this, this.render);
+      this.render();
+    });
+    onWillUnmount(() => this.model.off("update", this));
   }
 }
 

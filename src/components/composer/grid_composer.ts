@@ -6,7 +6,7 @@ import { getTextDecoration } from "../helpers/dom_helpers";
 import { Composer } from "./composer";
 
 const { Component } = owl;
-const { useState } = owl.hooks;
+const { useState, onMounted } = owl.hooks;
 const { xml, css } = owl.tags;
 
 const SCROLLBAR_WIDTH = 14;
@@ -78,6 +78,24 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
     this.rect = this.getters.getRect(this.zone, this.getters.getActiveSnappedViewport());
   }
 
+  setup() {
+    onMounted(() => {
+      const el = this.el!;
+
+      const maxHeight = el.parentElement!.clientHeight - this.rect[1] - SCROLLBAR_HIGHT;
+      el.style.maxHeight = (maxHeight + "px") as string;
+
+      const maxWidth = el.parentElement!.clientWidth - this.rect[0] - SCROLLBAR_WIDTH;
+      el.style.maxWidth = (maxWidth + "px") as string;
+
+      this.composerState.rect = [this.rect[0], this.rect[1], el!.clientWidth, el!.clientHeight];
+      this.composerState.delimitation = {
+        width: el!.parentElement!.clientWidth,
+        height: el!.parentElement!.clientHeight,
+      };
+    });
+  }
+
   get containerStyle(): string {
     const isFormula = this.getters.getCurrentContent().startsWith("=");
     const style = this.getters.getCurrentStyle();
@@ -127,22 +145,6 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
       max-height: inherit;
       overflow: hidden;
     `;
-  }
-
-  mounted() {
-    const el = this.el!;
-
-    const maxHeight = el.parentElement!.clientHeight - this.rect[1] - SCROLLBAR_HIGHT;
-    el.style.maxHeight = (maxHeight + "px") as string;
-
-    const maxWidth = el.parentElement!.clientWidth - this.rect[0] - SCROLLBAR_WIDTH;
-    el.style.maxWidth = (maxWidth + "px") as string;
-
-    this.composerState.rect = [this.rect[0], this.rect[1], el!.clientWidth, el!.clientHeight];
-    this.composerState.delimitation = {
-      width: el!.parentElement!.clientWidth,
-      height: el!.parentElement!.clientHeight,
-    };
   }
 
   onKeydown(ev: KeyboardEvent) {

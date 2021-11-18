@@ -5,7 +5,7 @@ import { SpreadsheetEnv } from "../../types";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
-const { useState } = owl.hooks;
+const { useState, onWillUpdateProps } = owl.hooks;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-sidePanel" >
@@ -135,8 +135,10 @@ export class SidePanel extends Component<Props, SpreadsheetEnv> {
     panel: sidePanelRegistry.get(this.props.component),
   });
 
-  async willUpdateProps(nextProps: Props) {
-    this.state.panel = sidePanelRegistry.get(nextProps.component);
+  setup() {
+    onWillUpdateProps(
+      (nextProps: Props) => (this.state.panel = sidePanelRegistry.get(nextProps.component))
+    );
   }
 
   getTitle() {

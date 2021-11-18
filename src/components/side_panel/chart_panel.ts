@@ -15,6 +15,7 @@ import { chartTerms } from "./translations_terms";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
+const { onWillUpdateProps } = owl.hooks;
 
 const CONFIGURATION_TEMPLATE = xml/* xml */ `
 <div>
@@ -169,21 +170,23 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
 
   private state: ChartPanelState = useState(this.initialState(this.props.figure));
 
-  async willUpdateProps(nextProps: Props) {
-    if (!this.getters.getChartDefinition(nextProps.figure.id)) {
-      this.trigger("close-side-panel");
-      return;
-    }
-    if (nextProps.figure.id !== this.props.figure.id) {
-      this.state.panel = "configuration";
-      this.state.fillColorTool = false;
-      this.state.datasetDispatchResult = undefined;
-      this.state.labelsDispatchResult = undefined;
-      this.state.chart = this.env.getters.getChartDefinitionUI(
-        this.env.getters.getActiveSheetId(),
-        nextProps.figure.id
-      );
-    }
+  setup() {
+    onWillUpdateProps((nextProps: Props) => {
+      if (!this.getters.getChartDefinition(nextProps.figure.id)) {
+        this.trigger("close-side-panel");
+        return;
+      }
+      if (nextProps.figure.id !== this.props.figure.id) {
+        this.state.panel = "configuration";
+        this.state.fillColorTool = false;
+        this.state.datasetDispatchResult = undefined;
+        this.state.labelsDispatchResult = undefined;
+        this.state.chart = this.env.getters.getChartDefinitionUI(
+          this.env.getters.getActiveSheetId(),
+          nextProps.figure.id
+        );
+      }
+    });
   }
 
   get errorMessages(): string[] {

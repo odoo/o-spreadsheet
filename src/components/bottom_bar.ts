@@ -6,7 +6,7 @@ import { LIST, PLUS, TRIANGLE_DOWN_ICON } from "./icons";
 import { Menu, MenuState } from "./menu";
 const { Component } = owl;
 const { xml, css } = owl.tags;
-const { useState } = owl.hooks;
+const { useState, onMounted, onPatched } = owl.hooks;
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -129,12 +129,9 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
   getters = this.env.getters;
   menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
-  mounted() {
-    this.focusSheet();
-  }
-
-  patched() {
-    this.focusSheet();
+  setup() {
+    onMounted(() => this.focusSheet());
+    onPatched(() => this.focusSheet());
   }
 
   focusSheet() {
