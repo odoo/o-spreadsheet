@@ -54,13 +54,16 @@ export function lettersToNumber(letters: string): number {
  */
 export function toCartesian(xc: string): [number, number] {
   xc = xc.toUpperCase().trim();
-  const [m, letters, numbers] = xc.match(cellReference)!;
-  if (m !== xc) {
-    throw new Error(`Invalid cell description: ${xc}`);
+  const match = xc.match(cellReference);
+  if (match !== null) {
+    const [m, letters, numbers] = match;
+    if (m === xc) {
+      const col = lettersToNumber(letters);
+      const row = parseInt(numbers, 10) - 1;
+      return [col, row];
+    }
   }
-  const col = lettersToNumber(letters);
-  const row = parseInt(numbers, 10) - 1;
-  return [col, row];
+  throw new Error(`Invalid cell description: ${xc}`);
 }
 
 /**
