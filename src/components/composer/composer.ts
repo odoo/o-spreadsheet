@@ -11,7 +11,7 @@ import { FunctionDescriptionProvider } from "./formula_assistant";
 import { Dimension } from "./grid_composer";
 
 const { Component } = owl;
-const { useRef, useState } = owl.hooks;
+const { useRef, useState, onMounted, onPatched, onWillUnmount } = owl.hooks;
 const { xml, css } = owl.tags;
 const functions = functionRegistry.content;
 
@@ -233,25 +233,28 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     this.contentHelper = new ContentEditableHelper(this.composerRef.el!);
   }
 
-  mounted() {
-    DEBUG.composer = this;
+  setup() {
+    onMounted(() => {
+      DEBUG.composer = this;
 
-    const el = this.composerRef.el!;
+      const el = this.composerRef.el!;
 
-    this.contentHelper.updateEl(el);
-    this.processContent();
-  }
-
-  willUnmount(): void {
-    delete DEBUG.composer;
-    this.trigger("composer-unmounted");
-  }
-
-  patched() {
-    if (!this.isKeyStillDown) {
+      this.contentHelper.updateEl(el);
       this.processContent();
-    }
+    });
+
+    onWillUnmount(() => {
+      delete DEBUG.composer;
+      this.trigger("composer-unmounted");
+    });
+
+    onPatched(() => {
+      if (!this.isKeyStillDown) {
+        this.processContent();
+      }
+    });
   }
+
   // ---------------------------------------------------------------------------
   // Handlers
   // ---------------------------------------------------------------------------

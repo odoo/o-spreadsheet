@@ -14,7 +14,7 @@ import { Menu, MenuState } from "./menu";
 
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
-const { useExternalListener, useRef } = hooks;
+const { useExternalListener, useRef, onWillUpdateProps, onWillStart } = hooks;
 
 type Tool =
   | ""
@@ -375,22 +375,16 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     background-color: white;
   `;
 
-  constructor() {
-    super(...arguments);
+  setup() {
     useExternalListener(window as any, "click", this.onClick);
+    onWillStart(() => this.updateCellState());
+    onWillUpdateProps(() => this.updateCellState());
   }
 
   get topbarComponents() {
     return topbarComponentRegistry
       .getAll()
       .filter((item) => !item.isVisible || item.isVisible(this.env));
-  }
-
-  async willStart() {
-    this.updateCellState();
-  }
-  async willUpdateProps() {
-    this.updateCellState();
   }
 
   onClick(ev: MouseEvent) {

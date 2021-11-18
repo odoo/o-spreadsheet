@@ -4,6 +4,7 @@ import { FindAndReplaceTerms } from "./translations_terms";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
+const { onMounted, onWillUnmount } = owl.hooks;
 
 const TEMPLATE = xml/* xml */ `
 <div class="o-find-and-replace" tabindex="0" t-on-focusin="onFocusSidePanel">
@@ -134,12 +135,10 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetEnv> {
     return this.env.getters.getCurrentSelectedMatchIndex() !== null;
   }
 
-  mounted() {
-    this.focusInput();
-  }
+  setup() {
+    onMounted(() => this.focusInput());
 
-  async willUnmount() {
-    this.env.dispatch("CLEAR_SEARCH");
+    onWillUnmount(() => this.env.dispatch("CLEAR_SEARCH"));
   }
 
   onInput(ev) {

@@ -152,8 +152,7 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
       underline: this.props.rule.style.underline,
     },
   });
-  constructor() {
-    super(...arguments);
+  setup() {
     useExternalListener(window as any, "click", this.closeMenus);
   }
 

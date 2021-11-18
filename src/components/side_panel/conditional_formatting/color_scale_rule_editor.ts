@@ -154,8 +154,7 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
     midpointColorTool: false,
   });
 
-  constructor() {
-    super(...arguments);
+  setup() {
     useExternalListener(window as any, "click", this.closeMenus);
   }
 

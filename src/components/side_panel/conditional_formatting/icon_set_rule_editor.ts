@@ -256,8 +256,7 @@ export class IconSetRuleEditor extends Component<Props, SpreadsheetEnv> {
     lowerIconTool: false,
   });
 
-  constructor() {
-    super(...arguments);
+  setup() {
     useExternalListener(window as any, "click", this.closeMenus);
   }
 

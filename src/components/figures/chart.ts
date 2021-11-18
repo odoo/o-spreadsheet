@@ -11,7 +11,7 @@ import { Menu, MenuState } from "../menu";
 const { useState } = owl;
 
 const { xml, css } = tags;
-const { useRef } = hooks;
+const { useRef, onMounted, onPatched } = hooks;
 
 const TEMPLATE = xml/* xml */ `
 <div class="o-chart-container">
@@ -73,43 +73,45 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
     return `background-color: ${this.state.background}`;
   }
 
-  mounted() {
-    const figure = this.props.figure;
-    const chartData = this.env.getters.getChartRuntime(figure.id);
-    if (chartData) {
-      this.createChart(chartData);
-    }
-  }
-
-  patched() {
-    const figure = this.props.figure;
-    const chartData = this.env.getters.getChartRuntime(figure.id);
-    if (chartData) {
-      if (chartData.type !== this.chart!.config.type) {
-        // Updating a chart type requires to update its options accordingly, if feasible at all.
-        // Since we trust Chart.js to generate most of its options, it is safer to just start from scratch.
-        // See https://www.chartjs.org/docs/latest/developers/updates.html
-        // and https://stackoverflow.com/questions/36949343/chart-js-dynamic-changing-of-chart-type-line-to-bar-as-example
-        this.chart && this.chart.destroy();
+  setup() {
+    onMounted(() => {
+      const figure = this.props.figure;
+      const chartData = this.env.getters.getChartRuntime(figure.id);
+      if (chartData) {
         this.createChart(chartData);
-      } else if (chartData.data && chartData.data.datasets) {
-        this.chart!.data = chartData.data;
-        if (chartData.options?.title) {
-          this.chart!.config.options!.title = chartData.options.title;
-        }
-      } else {
-        this.chart!.data.datasets = undefined;
       }
-      this.chart!.config.options!.legend = chartData.options?.legend;
-      this.chart!.config.options!.scales = chartData.options?.scales;
-      this.chart!.update({ duration: 0 });
-    } else {
-      this.chart && this.chart.destroy();
-    }
-    const def = this.env.getters.getChartDefinition(figure.id);
-    if (def) {
-      this.state.background = def.background;
-    }
+    });
+
+    onPatched(() => {
+      const figure = this.props.figure;
+      const chartData = this.env.getters.getChartRuntime(figure.id);
+      if (chartData) {
+        if (chartData.type !== this.chart!.config.type) {
+          // Updating a chart type requires to update its options accordingly, if feasible at all.
+          // Since we trust Chart.js to generate most of its options, it is safer to just start from scratch.
+          // See https://www.chartjs.org/docs/latest/developers/updates.html
+          // and https://stackoverflow.com/questions/36949343/chart-js-dynamic-changing-of-chart-type-line-to-bar-as-example
+          this.chart && this.chart.destroy();
+          this.createChart(chartData);
+        } else if (chartData.data && chartData.data.datasets) {
+          this.chart!.data = chartData.data;
+          if (chartData.options?.title) {
+            this.chart!.config.options!.title = chartData.options.title;
+          }
+        } else {
+          this.chart!.data.datasets = undefined;
+        }
+        this.chart!.config.options!.legend = chartData.options?.legend;
+        this.chart!.config.options!.scales = chartData.options?.scales;
+        this.chart!.update({ duration: 0 });
+      } else {
+        this.chart && this.chart.destroy();
+      }
+      const def = this.env.getters.getChartDefinition(figure.id);
+      if (def) {
+        this.state.background = def.background;
+      }
+    });
   }
 
   private createChart(chartData: ChartConfiguration) {

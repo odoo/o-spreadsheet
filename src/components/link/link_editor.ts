@@ -8,7 +8,7 @@ import { Menu } from "./../menu";
 import { LinkEditorTerms } from "./../side_panel/translations_terms";
 const { Component, tags, hooks, useState } = owl;
 const { xml, css } = tags;
-const { useRef } = hooks;
+const { useRef, onMounted } = hooks;
 
 const MENU_OFFSET_X = 320;
 const MENU_OFFSET_Y = 100;
@@ -141,8 +141,8 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   private position = useAbsolutePosition();
   urlInput = useRef("urlInput");
 
-  mounted() {
-    this.urlInput.el?.focus();
+  setup() {
+    onMounted(() => this.urlInput.el?.focus());
   }
 
   get defaultState(): State {
