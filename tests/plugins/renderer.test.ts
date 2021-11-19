@@ -567,6 +567,35 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["left", "center"]);
     expect(getCellTextMock).toHaveBeenLastCalledWith(expect.objectContaining({}), true);
   });
+
+  test("functions with centered content are aligned to the left", () => {
+    const model = new Model();
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      style: { align: "center" },
+    });
+    setCellContent(model, "A1", "=SUM(1,2)");
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    let textAligns: string[] = [];
+
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "textAlign") {
+          textAligns.push(value);
+        }
+      },
+    });
+
+    const getCellTextMock = jest.fn(() => "=SUM(1,2)");
+    model.getters.getCellText = getCellTextMock;
+
+    model.drawGrid(ctx);
+
+    // 1 center for headers, 1 for cell content
+    expect(textAligns).toEqual(["left", "center"]);
+    expect(getCellTextMock).toHaveBeenLastCalledWith(expect.objectContaining({}), true);
+  });
   test("CF on empty cell", () => {
     const model = new Model({
       sheets: [
