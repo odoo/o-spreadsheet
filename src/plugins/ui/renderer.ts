@@ -19,6 +19,7 @@ import { fontSizeMap } from "../../fonts";
 import { overlap, scrollDelay } from "../../helpers/index";
 import { Mode } from "../../model";
 import {
+  Align,
   Box,
   Cell,
   CellValueType,
@@ -38,13 +39,6 @@ import { UIPlugin } from "../ui_plugin";
 // -----------------------------------------------------------------------------
 // Constants, types, helpers, ...
 // -----------------------------------------------------------------------------
-
-function computeAlign(cell: Cell, isShowingFormulas: boolean): "right" | "center" | "left" {
-  if (cell.isFormula() && isShowingFormulas) {
-    return "left";
-  }
-  return cell.defaultAlign;
-}
 
 function searchIndex(headers: Header[], offset: number): number {
   let left = 0;
@@ -475,6 +469,17 @@ export class RendererPlugin extends UIPlugin {
     return col;
   }
 
+  private computeCellAlignment(cell: Cell, isOverflowing: boolean): Align {
+    if (cell.isFormula() && this.getters.shouldShowFormulas()) {
+      return "left";
+    }
+    const { align } = this.getters.getCellStyle(cell);
+    if (isOverflowing && cell.evaluated.type === CellValueType.number) {
+      return align === "right" ? "left" : align;
+    }
+    return align || cell.defaultAlign;
+  }
+
   private createBoxFromPosition(
     sheetId: UID,
     colNumber: number,
@@ -522,12 +527,7 @@ export class RendererPlugin extends UIPlugin {
     const textWidth = this.getters.getTextWidth(cell);
     const contentWidth = iconBoxWidth + textWidth;
     const isOverflowing = contentWidth > width || fontSizeMap[fontSize] > height;
-
-    let align = text ? box.style?.align || computeAlign(cell, showFormula) : "left";
-    if (isOverflowing && cell.evaluated.type === CellValueType.number) {
-      align = align !== "center" ? "left" : align;
-    }
-
+    const align = this.computeCellAlignment(cell, isOverflowing);
     box.content = {
       text,
       width: textWidth,
