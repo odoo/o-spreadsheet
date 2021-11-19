@@ -18,7 +18,7 @@ import * as icons from "./icons";
 import { Popover } from "./popover";
 
 const { xml, css } = tags;
-const { useExternalListener, useRef } = hooks;
+const { useExternalListener, useRef, onWillUpdateProps } = hooks;
 
 //------------------------------------------------------------------------------
 // Context Menu Component
@@ -63,7 +63,6 @@ const TEMPLATE = xml/* xml */ `
         position="subMenuPosition"
         menuItems="subMenu.menuItems"
         depth="props.depth + 1"
-        t-ref="subMenuRef"
         t-on-close="subMenu.isOpen=false"/>
     </Popover>`;
 
@@ -143,11 +142,15 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     menuItems: [],
   });
   private position = useAbsolutePosition(useRef("menu"));
-  subMenuRef = useRef("subMenuRef");
 
   setup() {
     useExternalListener(window, "click", this.onClick);
     useExternalListener(window, "contextmenu", this.onContextMenu);
+    onWillUpdateProps((nextProps: Props) => {
+      if (nextProps.menuItems !== this.props.menuItems) {
+        this.subMenu.isOpen = false;
+      }
+    });
   }
 
   get subMenuPosition(): DOMCoordinates {
@@ -238,13 +241,6 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     return false;
   }
 
-  closeSubMenus() {
-    if (this.subMenuRef.comp) {
-      (<Menu>this.subMenuRef.comp).closeSubMenus();
-    }
-    this.subMenu.isOpen = false;
-  }
-
   onScroll(ev) {
     this.subMenu.scrollOffset = ev.target.scrollTop;
   }
@@ -254,7 +250,6 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
    * correct position according to available surrounding space.
    */
   openSubMenu(menu: FullMenuItem, position: number) {
-    this.closeSubMenus();
     const y = this.subMenuVerticalPosition(position);
     this.subMenu.position = {
       x: this.position.x + MENU_WIDTH,

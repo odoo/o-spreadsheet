@@ -14,7 +14,7 @@ import { Menu, MenuState } from "./menu";
 
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
-const { useExternalListener, useRef, onWillUpdateProps, onWillStart } = hooks;
+const { useExternalListener, onWillUpdateProps, onWillStart } = hooks;
 
 type Tool =
   | ""
@@ -61,7 +61,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           <Menu t-if="state.menuState.isOpen"
                 position="state.menuState.position"
                 menuItems="state.menuState.menuItems"
-                t-ref="menuRef"
                 t-on-close="state.menuState.isOpen=false"/>
         </div>
         <div class="o-topbar-topright">
@@ -367,7 +366,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   fillColor: string = "white";
   textColor: string = "black";
   menus: FullMenuItem[] = [];
-  menuRef = useRef("menuRef");
   composerStyle = `
     line-height: 34px;
     padding-left: 8px;
@@ -439,9 +437,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     this.state.menuState.isOpen = false;
     this.isSelectingMenu = false;
     this.openedEl = null;
-    if (this.menuRef.comp) {
-      (<Menu>this.menuRef.comp).closeSubMenus();
-    }
   }
 
   updateCellState() {
