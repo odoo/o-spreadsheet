@@ -58,6 +58,7 @@ export enum SelectionMode {
   selecting,
   readyToExpand, //The next selection will add another zone to the current selection
   expanding,
+  unselect,
 }
 
 interface SelectionPluginState {
@@ -252,6 +253,9 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
         break;
       case "PREPARE_SELECTION_EXPANSION":
         this.mode = SelectionMode.readyToExpand;
+        break;
+      case "UNSELECT_HIGHLIGHTED_CELL":
+        this.mode = SelectionMode.unselect;
         break;
       case "START_SELECTION_EXPANSION":
         this.mode = SelectionMode.expanding;
@@ -539,6 +543,8 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     let zones: Zone[];
     if (this.mode === SelectionMode.expanding) {
       zones = uniqueZones([...this.selection.zones, anchorZone]);
+    } else if (this.mode === SelectionMode.unselect) {
+      zones = this.selection.zones.filter(item => !(item.left == anchorZone.left && item.right == anchorZone.right && item.top == anchorZone.top && item.bottom == anchorZone.bottom));
     } else {
       zones = [anchorZone];
     }

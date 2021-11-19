@@ -674,7 +674,10 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
       this.closeLinkEditor();
     }
 
-    this.dispatch(ev.ctrlKey ? "START_SELECTION_EXPANSION" : "START_SELECTION");
+    let alreadySelected = this.getters.getSelectedZones().find(item => item.left == this.clickedCol && item.top == this.clickedRow);
+    this.dispatch(ev.ctrlKey
+      ? alreadySelected ? "UNSELECT_HIGHLIGHTED_CELL" : "START_SELECTION_EXPANSION"
+      : "START_SELECTION");
     if (ev.shiftKey) {
       this.dispatch("ALTER_SELECTION", { cell: [col, row] });
     } else {

@@ -96,6 +96,7 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "SET_SELECTION",
   "ALTER_SELECTION",
   "START_SELECTION_EXPANSION",
+  "UNSELECT_HIGHLIGHTED_CELL",
   "PREPARE_SELECTION_EXPANSION",
   "STOP_SELECTION",
 
@@ -535,6 +536,13 @@ export interface StopSelectionCommand extends BaseCommand {
 }
 
 /**
+ * Set the selection mode to `unselect`.
+ */
+ export interface UnselectCellCommand extends BaseCommand {
+  type: "UNSELECT_HIGHLIGHTED_CELL";
+}
+
+/**
  * Set a color to be used for the next selection to highlight.
  * The color is only used when selection highlight is enabled.
  */
@@ -944,6 +952,7 @@ export type LocalCommand =
   | StartExpansionCommand
   | PrepareExpansionCommand
   | StopSelectionCommand
+  | UnselectCellCommand
   | SelectCellCommand
   | SetSelectionCommand
   | SelectColumnCommand
