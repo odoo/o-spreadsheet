@@ -183,6 +183,21 @@ topbarMenuRegistry
     action: ACTIONS.CREATE_SHEET_ACTION,
     separator: true,
   })
+  .addChild("freeze", ["view"], {
+    name: _lt("Freeze"),
+    sequence: 1,
+    separator: true,
+  })
+  .addChild("freeze_col", ["view", "freeze"], {
+    name: _lt("Freeze 1 row"),
+    action: (env: SpreadsheetEnv) => {
+      env.dispatch("FREEZE", {
+        sheetId: env.getters.getActiveSheetId(),
+        col: 0,
+      });
+    },
+    sequence: 1,
+  })
   .addChild("view_gridlines", ["view"], {
     name: (env: SpreadsheetEnv) =>
       env.getters.getGridLinesVisibility(env.getters.getActiveSheetId())

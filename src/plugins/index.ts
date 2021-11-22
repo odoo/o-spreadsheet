@@ -4,6 +4,7 @@ import { CellPlugin } from "./core/cell";
 import { ChartPlugin } from "./core/chart";
 import { ConditionalFormatPlugin } from "./core/conditional_format";
 import { FigurePlugin } from "./core/figures";
+import { FreezePlugin } from "./core/freeze_pane";
 import { MergePlugin } from "./core/merge";
 import { SheetPlugin } from "./core/sheet";
 import { CorePluginConstructor } from "./core_plugin";
@@ -33,6 +34,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("borders", BordersPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
   .add("figures", FigurePlugin)
+  .add("freeze_pane", FreezePlugin)
   .add("chart", ChartPlugin);
 
 export const uiPluginRegistry = new Registry<UIPluginConstructor>()

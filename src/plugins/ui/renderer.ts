@@ -475,6 +475,25 @@ export class RendererPlugin extends UIPlugin {
     return col;
   }
 
+  private cellPositionToPixels(viewport: Viewport, colIndex: number, rowIndex: number) {
+    const sheetId = this.getters.getActiveSheetId();
+    const col = this.getters.getCol(sheetId, colIndex);
+    const row = this.getters.getRow(sheetId, rowIndex);
+    const { offsetX, offsetY } = this.getShiftedViewport(viewport);
+    const { col: freezedColIndex } = this.getters.getFreezed();
+    if (freezedColIndex !== undefined) {
+      const freezedCol = this.getters.getCol(sheetId, freezedColIndex);
+      return {
+        x: col.start - offsetX - freezedCol.end,
+        y: row.start - offsetY,
+      };
+    }
+    return {
+      x: col.start - offsetX,
+      y: row.start - offsetY,
+    };
+  }
+
   private createBoxFromPosition(
     sheetId: UID,
     colNumber: number,
@@ -488,9 +507,10 @@ export class RendererPlugin extends UIPlugin {
     const row = this.getters.getRow(sheetId, rowNumber);
     const cell = this.getters.getCell(sheetId, colNumber, rowNumber);
     const showFormula = this.getters.shouldShowFormulas();
+    const { x, y } = this.cellPositionToPixels(viewport, colNumber, rowNumber);
     const box: Box = {
-      x: col.start - offsetX,
-      y: row.start - offsetY,
+      x,
+      y,
       width,
       height,
       border: this.getters.getCellBorder(sheetId, colNumber, rowNumber) || undefined,

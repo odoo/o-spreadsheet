@@ -167,6 +167,8 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** CHART */
   "CREATE_CHART",
   "UPDATE_CHART",
+
+  "FREEZE",
 ]);
 
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
@@ -405,6 +407,13 @@ export interface SetDecimalCommand
     TargetDependentCommand {
   type: "SET_DECIMAL";
   step: number;
+}
+
+export interface FreezePaneCommand
+  extends BaseCommand,
+    SheetDependentCommand,
+    Partial<PositionDependentCommand> {
+  type: "FREEZE";
 }
 //#endregion
 
@@ -909,6 +918,9 @@ export type CoreCommand =
   | SetFormattingCommand
   | ClearFormattingCommand
   | SetBorderCommand
+
+  /** FREEZE PANE */
+  | FreezePaneCommand
 
   /** CHART */
   | CreateChartCommand

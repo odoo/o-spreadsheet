@@ -100,9 +100,9 @@ export class ViewportPlugin extends UIPlugin {
       case "RESIZE_COLUMNS_ROWS":
       case "HIDE_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {
-          this.adjustViewportOffsetX(cmd.sheetId, this.getViewport(cmd.sheetId));
+          this.adjustViewportToSheetX(cmd.sheetId, this.getViewport(cmd.sheetId));
         } else {
-          this.adjustViewportOffsetY(cmd.sheetId, this.getViewport(cmd.sheetId));
+          this.adjustViewportToSheetY(cmd.sheetId, this.getViewport(cmd.sheetId));
         }
         break;
       case "ADD_COLUMNS_ROWS":
@@ -181,7 +181,8 @@ export class ViewportPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   private checkOffsetValidity(offsetX: number, offsetY: number): CommandResult {
-    if (offsetX !== this.clipOffsetX(offsetX) || offsetY !== this.clipOffsetY(offsetY)) {
+    const sheetId = this.getters.getActiveSheetId();
+    if (offsetX !== this.clipOffsetX(sheetId, offsetX) || offsetY !== this.clipOffsetY(offsetY)) {
       return CommandResult.InvalidOffset;
     }
     return CommandResult.Success;
@@ -211,8 +212,8 @@ export class ViewportPlugin extends UIPlugin {
 
   private resetViewports() {
     for (let [sheetId, viewport] of Object.entries(this.viewports)) {
-      this.adjustViewportOffsetX(sheetId, viewport);
-      this.adjustViewportOffsetY(sheetId, viewport);
+      this.adjustViewportToSheetX(sheetId, viewport);
+      this.adjustViewportToSheetY(sheetId, viewport);
       this.adjustViewportsPosition(sheetId);
     }
   }
@@ -220,7 +221,7 @@ export class ViewportPlugin extends UIPlugin {
   /** Corrects the viewport's horizontal offset based on the current structure
    *  To make sure that at least on column is visible inside the viewport.
    */
-  private adjustViewportOffsetX(sheetId: UID, viewport: Viewport) {
+  private adjustViewportToSheetX(sheetId: UID, viewport: Viewport) {
     const { offsetX } = viewport;
     const { width: sheetWidth } = this.getMaxViewportSize(this.getters.getSheet(sheetId));
     if (this.viewportWidth + offsetX > sheetWidth) {
@@ -233,7 +234,7 @@ export class ViewportPlugin extends UIPlugin {
   /** Corrects the viewport's vertical offset based on the current structure
    *  To make sure that at least on row is visible inside the viewport.
    */
-  private adjustViewportOffsetY(sheetId: UID, viewport: Viewport) {
+  private adjustViewportToSheetY(sheetId: UID, viewport: Viewport) {
     const { offsetY } = viewport;
     const { height: sheetHeight } = this.getMaxViewportSize(this.getters.getSheet(sheetId));
     if (this.viewportHeight + offsetY > sheetHeight) {
@@ -251,15 +252,15 @@ export class ViewportPlugin extends UIPlugin {
 
   private recomputeViewports() {
     for (let sheetId of Object.keys(this.viewports)) {
-      this.adjustViewportOffsetX(sheetId, this.viewports[sheetId]);
-      this.adjustViewportOffsetY(sheetId, this.viewports[sheetId]);
+      this.adjustViewportToSheetX(sheetId, this.viewports[sheetId]);
+      this.adjustViewportToSheetY(sheetId, this.viewports[sheetId]);
     }
   }
 
   private setViewportOffset(offsetX: number, offsetY: number) {
-    offsetY = this.clipOffsetY(offsetY);
-    offsetX = this.clipOffsetX(offsetX);
     const sheetId = this.getters.getActiveSheetId();
+    offsetY = this.clipOffsetY(offsetY);
+    offsetX = this.clipOffsetX(sheetId, offsetX);
     this.getActiveViewport();
     this.viewports[sheetId].offsetX = offsetX;
     this.viewports[sheetId].offsetY = offsetY;
@@ -282,11 +283,19 @@ export class ViewportPlugin extends UIPlugin {
    * Clip the horizontal offset within the allowed range.
    * Not before the first column, nor after the last.
    */
-  private clipOffsetX(offsetX: number): number {
-    const { width } = this.getters.getMaxViewportSize(this.getters.getActiveSheet());
-    const maxOffset = width - this.viewportWidth;
+  private clipOffsetX(sheetId: UID, offsetX: number): number {
+    // const { width } = this.getters.getMaxViewportSize(sheetId);
+    // const maxOffset = width - this.viewportWidth;
+    // offsetX = Math.min(offsetX, maxOffset);
+    // offsetX = Math.max(offsetX, 0);
+    // return offsetX;
+    const { width: sheetWidth } = this.getMaxViewportSize(this.getters.getSheet(sheetId));
+    const maxOffset = sheetWidth - this.viewportWidth;
+    if (this.viewportWidth + offsetX > sheetWidth) {
+      const diff = this.viewportWidth + offsetX - sheetWidth;
+      offsetX = Math.max(0, offsetX - diff);
+    }
     offsetX = Math.min(offsetX, maxOffset);
-    offsetX = Math.max(offsetX, 0);
     return offsetX;
   }
 
@@ -326,6 +335,12 @@ export class ViewportPlugin extends UIPlugin {
         break;
       }
     }
+    // const { col: freezedCol } = this.getters.getFreezed();
+    // if (freezedCol !== undefined) {
+    //   debugger
+    //   viewport.right += freezedCol + 1;
+    //   viewport.left += freezedCol + 1;
+    // }
     this.updateSnap = true;
   }
 
@@ -404,8 +419,8 @@ export class ViewportPlugin extends UIPlugin {
     const { cols, rows } = this.getters.getSheet(sheetId);
     const viewport = this.getViewport(sheetId);
     const adjustedViewport = Object.assign({}, viewport);
-    this.adjustViewportOffsetX(sheetId, adjustedViewport);
-    this.adjustViewportOffsetY(sheetId, adjustedViewport);
+    this.adjustViewportToSheetX(sheetId, adjustedViewport);
+    this.adjustViewportToSheetY(sheetId, adjustedViewport);
     adjustedViewport.offsetX = cols[adjustedViewport.left].start;
     adjustedViewport.offsetY = rows[adjustedViewport.top].start;
     this.adjustViewportZone(sheetId, adjustedViewport);

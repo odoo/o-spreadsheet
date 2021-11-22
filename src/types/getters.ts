@@ -5,6 +5,7 @@ import { CellPlugin } from "../plugins/core/cell";
 import { ChartPlugin } from "../plugins/core/chart";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { FigurePlugin } from "../plugins/core/figures";
+import { FreezePlugin } from "../plugins/core/freeze_pane";
 import { MergePlugin } from "../plugins/core/merge";
 import { RangeAdapter } from "../plugins/core/range";
 import { SheetPlugin } from "../plugins/core/sheet";
@@ -66,6 +67,7 @@ type BordersGetters = Pick<BordersPlugin, GetterNames<typeof BordersPlugin>>;
 type ChartGetters = Pick<ChartPlugin, GetterNames<typeof ChartPlugin>>;
 type FigureGetters = Pick<FigurePlugin, GetterNames<typeof FigurePlugin>>;
 type RangeAdapterGetters = Pick<RangeAdapter, GetterNames<typeof RangeAdapter>>;
+type FreezePluginGetters = Pick<FreezePlugin, GetterNames<typeof FreezePlugin>>;
 type ConditionalFormatGetters = Pick<
   ConditionalFormatPlugin,
   GetterNames<typeof ConditionalFormatPlugin>
@@ -83,6 +85,7 @@ export type CoreGetters = { isReadonly: () => boolean } & LocalHistoryGetters &
   ChartGetters &
   ConditionalFormatGetters &
   FigureGetters &
+  FreezePluginGetters &
   RangeAdapterGetters;
 
 type AutofillGetters = Pick<AutofillPlugin, GetterNames<typeof AutofillPlugin>>;
