@@ -2,7 +2,6 @@ import { Spreadsheet } from "../../src";
 import {
   MatchingParenColor,
   NumberColor,
-  SelectionIndicatorClass,
   tokenColor,
 } from "../../src/components/composer/composer";
 import { fontSizes } from "../../src/fonts";
@@ -23,7 +22,7 @@ import {
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
-  startGridComposition as startComposition,
+  startGridComposition,
   typeInComposer as typeInComposerHelper,
 } from "../test_helpers/helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
@@ -36,15 +35,24 @@ let composerEl: Element;
 let canvasEl: Element;
 let fixture: HTMLElement;
 let parent: Spreadsheet;
+let cehMock: ContentEditableHelper;
 
 function getHighlights(model: Model): any[] {
   return model.getters.getHighlights();
+}
+
+async function startComposition(key?: string) {
+  const composerEl = await startGridComposition(key);
+  // @ts-ignore
+  cehMock = window.mockContentHelper;
+  return composerEl;
 }
 
 async function typeInComposer(text: string, fromScratch: boolean = true) {
   if (fromScratch) {
     composerEl = await startComposition();
   }
+
   await typeInComposerHelper(composerEl, text);
 }
 
@@ -77,6 +85,8 @@ beforeEach(async () => {
 afterEach(() => {
   parent.destroy();
   fixture.remove();
+  // @ts-ignore
+  // delete window.mockContentHelper;
 });
 
 describe("ranges and highlights", () => {
@@ -138,11 +148,14 @@ describe("ranges and highlights", () => {
 
   test("reference position is reset at each selection", async () => {
     await typeInComposer("=");
+    expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+    expect(cehMock.selectionState.position).toBe(1);
     await keydown("ArrowDown");
     expect(composerEl.textContent).toBe("=A2");
     await typeInComposer("+", false);
     expect(composerEl.textContent).toBe("=A2+");
-    expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
+    expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+    expect(cehMock.selectionState.position).toBe(4);
     expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
     await keydown("ArrowDown");
     expect(composerEl.textContent).toBe("=A2+A2");
@@ -438,8 +451,6 @@ describe("composer", () => {
   test("type '=', backspace and select a cell should not add it", async () => {
     await typeInComposer("=");
     model.dispatch("SET_CURRENT_CONTENT", { content: "" });
-    // @ts-ignore
-    const cehMock = window.mockContentHelper as ContentEditableHelper;
     cehMock.removeAll();
     composerEl.dispatchEvent(new Event("input"));
     composerEl.dispatchEvent(new Event("keyup"));
@@ -452,7 +463,8 @@ describe("composer", () => {
   test("type '=' in the sheet and select a cell", async () => {
     composerEl = await startComposition("=");
     expect(composerEl.textContent).toBe("=");
-    expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
+    expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+    expect(cehMock.selectionState.position).toBe(1);
     expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
@@ -588,8 +600,9 @@ describe("composer", () => {
           await startComposition();
           await typeInComposer(content);
           expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-          expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
           expect(composerEl.textContent).toBe(content);
+          expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+          expect(cehMock.selectionState.position).toBe(content.length);
         }
       );
 
@@ -601,6 +614,7 @@ describe("composer", () => {
           await typeInComposer(content);
           expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
           expect(composerEl.textContent).toBe(content);
+          expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
         }
       );
 
@@ -608,10 +622,13 @@ describe("composer", () => {
         "a matching value & spaces --> activate 'waitingForRangeSelection' mode",
         async (matchingValue) => {
           const content = formula + matchingValue;
+          const newContent = content + "   ";
           await startComposition();
-          await typeInComposer(content + "   ");
+          await typeInComposer(newContent);
           expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-          expect(composerEl.textContent).toBe(content + "   ");
+          expect(composerEl.textContent).toBe(newContent);
+          expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+          expect(cehMock.selectionState.position).toBe(newContent.length);
         }
       );
 
@@ -623,6 +640,7 @@ describe("composer", () => {
           await typeInComposer(content + "   ");
           expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
           expect(composerEl.textContent).toBe(content + "   ");
+          expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
         }
       );
 
@@ -645,8 +663,9 @@ describe("composer", () => {
           await moveToStart();
           await typeInComposer(formula + ",");
           expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-          expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
           expect(composerEl.textContent).toBe(formula + "," + matchingValue);
+          expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+          expect(cehMock.selectionState.position).toBe((formula + ",").length);
         }
       );
 
@@ -675,10 +694,12 @@ describe("composer", () => {
           await startComposition();
           await typeInComposer(matchingValue);
           await moveToStart();
-          await typeInComposer(formula + ",  ");
+          const formulaInput = formula + ",  ";
+          await typeInComposer(formulaInput);
           expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-          expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
-          expect(composerEl.textContent).toBe(formula + ",  " + matchingValue);
+          expect(composerEl.textContent).toBe(formulaInput + matchingValue);
+          expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+          expect(cehMock.selectionState.position).toBe(formulaInput.length);
         }
       );
 
@@ -691,6 +712,7 @@ describe("composer", () => {
           await typeInComposer(formula + ",  ");
           expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
           expect(composerEl.textContent).toBe(formula + ",  " + mismatchingValue);
+          expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
         }
       );
 
@@ -702,8 +724,9 @@ describe("composer", () => {
           await moveToStart();
           await typeInComposer(formula + ",");
           expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-          expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
           expect(composerEl.textContent).toBe(formula + ",   " + matchingValue);
+          expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+          expect(cehMock.selectionState.position).toBe((formula + ",").length);
         }
       );
 
@@ -715,6 +738,7 @@ describe("composer", () => {
           await moveToStart();
           await typeInComposer(formula + ",");
           expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
+          expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
           expect(composerEl.textContent).toBe(formula + ",   " + mismatchingValue);
         }
       );
@@ -726,6 +750,7 @@ describe("composer", () => {
         await startComposition();
         await typeInComposer(value);
         expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
+        expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
         expect(composerEl.textContent).toBe(value);
       }
     );
@@ -734,16 +759,19 @@ describe("composer", () => {
       await startComposition();
       await typeInComposer("=");
       expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-      expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
       expect(composerEl.textContent).toBe("=");
+      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+      expect(cehMock.selectionState.position).toBe(1);
     });
 
     test("typing '=' & spaces --> activate 'waitingForRangeSelection' mode", async () => {
       await startComposition();
-      await typeInComposer("=   ");
+      const content = "=   ";
+      await typeInComposer(content);
       expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-      expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
       expect(composerEl.textContent).toBe("=   ");
+      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+      expect(cehMock.selectionState.position).toBe(content.length);
     });
   });
 
