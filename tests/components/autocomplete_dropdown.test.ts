@@ -1,5 +1,4 @@
 import { Spreadsheet } from "../../src";
-import { SelectionIndicatorClass } from "../../src/components/composer/composer";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
@@ -21,9 +20,18 @@ let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
 let parent: Spreadsheet;
+let cehMock: ContentEditableHelper;
+
+async function startComposition(key?: string) {
+  const composerEl = await startGridComposition(key);
+  // @ts-ignore
+  cehMock = window.mockContentHelper;
+  return composerEl;
+}
+
 async function typeInComposer(text: string, fromScratch: boolean = true) {
   if (fromScratch) {
-    composerEl = await startGridComposition();
+    composerEl = await startComposition();
   }
   await typeInComposerHelper(composerEl, text);
 }
@@ -92,7 +100,8 @@ describe("Functions autocomplete", () => {
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
       expect(composerEl.textContent).toBe("=SUM(");
-      expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
+      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+      expect(cehMock.selectionState.position).toBe(5);
     });
 
     test("=S+ENTER complete the function --> =SUM(␣", async () => {
@@ -100,7 +109,8 @@ describe("Functions autocomplete", () => {
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       await nextTick();
       expect(composerEl.textContent).toBe("=SUM(");
-      expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
+      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+      expect(cehMock.selectionState.position).toBe(5);
     });
 
     test("=SX not show autocomplete (nothing matches SX)", async () => {
@@ -182,7 +192,8 @@ describe("Functions autocomplete", () => {
         .children[1].dispatchEvent(new MouseEvent("click"));
       await nextTick();
       expect(composerEl.textContent).toBe("=SZZ(");
-      expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
+      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+      expect(cehMock.selectionState.position).toBe(5);
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
@@ -217,7 +228,8 @@ describe("Functions autocomplete", () => {
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
       expect(composerEl.textContent).toBe("=IF(");
-      expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
+      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+      expect(cehMock.selectionState.position).toBe(4);
     });
     test("= and CTRL+Space & DOWN move to next autocomplete", async () => {
       await typeInComposer("=");
@@ -276,7 +288,7 @@ describe("Autocomplete parenthesis", () => {
     // select SUM
     cehMock.selectRange(1, 4);
     // replace SUM with if
-    cehMock.insertText("if", "black");
+    cehMock.insertText("if", { color: "black" });
     composerEl.dispatchEvent(new KeyboardEvent("keydown"));
     composerEl.dispatchEvent(new Event("input"));
     composerEl.dispatchEvent(new KeyboardEvent("keyup"));
@@ -300,7 +312,9 @@ describe("Autocomplete parenthesis", () => {
     fixture.querySelector(".o-autocomplete-value-focus")!.dispatchEvent(new MouseEvent("click"));
     await nextTick();
     expect(composerEl.textContent).toBe("=SUM(");
-    expect(composerEl.getElementsByClassName(SelectionIndicatorClass)).not.toBe(undefined);
+    // @ts-ignore
+    expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+    expect(cehMock.selectionState.position).toBe(5);
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
   });
 

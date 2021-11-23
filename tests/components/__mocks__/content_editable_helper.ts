@@ -1,5 +1,9 @@
-import { HtmlContent } from "../../../src/components/composer/composer";
+import { HtmlContent, SelectionIndicatorClass } from "../../../src/components/composer/composer";
 
+const initialSelectionState = {
+  isSelectingRange: false,
+  position: -1,
+};
 export class ContentEditableHelper {
   currentState = {
     cursorStart: 0,
@@ -8,6 +12,7 @@ export class ContentEditableHelper {
   colors = {};
   el: HTMLElement | null = null;
   manualRange: boolean = false;
+  selectionState: { isSelectingRange: boolean; position: number } = initialSelectionState;
 
   updateEl(el: HTMLElement) {
     this.el = el;
@@ -18,7 +23,7 @@ export class ContentEditableHelper {
     this.attachEventHandlers();
     this.colors = {};
   }
-  selectRange(start, end) {
+  selectRange(start: number, end: number) {
     // TODO: find a way not to depend on selectRange to gain focus and push mockContentHelper
     this.el!.focus();
     // @ts-ignore
@@ -30,13 +35,12 @@ export class ContentEditableHelper {
 
   setText(values: HtmlContent[]) {
     for (const content of values) {
-      this.insertText(content.value, content.color);
+      this.insertText(content.value, { color: content.color, className: content.class });
     }
   }
 
-  insertText(value, color?: string) {
+  insertText(value: string, { color, className }: { color?: string; className?: string } = {}) {
     const text = this.el!.textContent!;
-
     if (this.manualRange) {
       let start = text.substring(0, this.currentState.cursorStart);
       let end = text.substring(this.currentState.cursorEnd);
@@ -57,7 +61,12 @@ export class ContentEditableHelper {
       this.manualRange = false;
     }
     this.colors[value] = color;
-
+    if (className === SelectionIndicatorClass) {
+      this.selectionState = {
+        isSelectingRange: true,
+        position: this.currentState.cursorEnd,
+      };
+    }
     this.el!.dispatchEvent(new Event("input"));
   }
   removeSelection() {
@@ -65,6 +74,7 @@ export class ContentEditableHelper {
     this.currentState.cursorEnd = 0;
   }
   removeAll() {
+    this.selectionState = initialSelectionState;
     this.currentState.cursorStart = 0;
     this.currentState.cursorEnd = 0;
     while (this.el!.firstChild) {
