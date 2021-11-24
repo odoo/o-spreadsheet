@@ -85,8 +85,6 @@ beforeEach(async () => {
 afterEach(() => {
   parent.destroy();
   fixture.remove();
-  // @ts-ignore
-  // delete window.mockContentHelper;
 });
 
 describe("ranges and highlights", () => {
@@ -1111,6 +1109,7 @@ describe("composer", () => {
     triggerMouseEvent("canvas", "contextmenu", 300, 200);
     await nextTick();
     expect(model.getters.getEditionMode()).toBe("inactive");
+    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
   });
 
   test("type '=', stop editing with enter, click on the modified cell --> the edition mode should be inactive", async () => {
@@ -1133,6 +1132,13 @@ describe("composer", () => {
     await nextTick();
     expect(getActiveXc(model)).toBe("C8");
     expect(model.getters.getEditionMode()).toBe("inactive");
+  });
+
+  test("Add a character changing the edition mode to waitingForRangeSelection correctly renders the composer", async () => {
+    await typeInComposer("=sum(4");
+    expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
+    await typeInComposer(",");
+    expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
   });
 });
 

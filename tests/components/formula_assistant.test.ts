@@ -16,10 +16,12 @@ let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
 let parent: Spreadsheet;
+
 async function typeInComposer(text: string) {
   await typeInComposerHelper(composerEl, text);
 }
-
+jest.useRealTimers();
+jest.setTimeout(300 * 1000);
 beforeEach(async () => {
   fixture = makeTestFixture();
   parent = await mountSpreadsheet(fixture);
@@ -320,6 +322,15 @@ describe("formula assistant", () => {
         fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
           .textContent
       ).toBe("f1Arg1");
+    });
+
+    test("=FUNC1(42 then add ',' focus index on 2nd arg", async () => {
+      await typeInComposer("=FUNC1(42");
+      await typeInComposer(",");
+      expect(
+        fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
+          .textContent
+      ).toBe("f1Arg2");
     });
 
     test("=FUNC1(42, focus index on 2nd arg", async () => {
