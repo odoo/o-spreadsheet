@@ -67,7 +67,6 @@ export class ContentEditableHelper {
         position: this.currentState.cursorEnd,
       };
     }
-    this.el!.dispatchEvent(new Event("input"));
   }
   removeSelection() {
     this.currentState.cursorStart = 0;

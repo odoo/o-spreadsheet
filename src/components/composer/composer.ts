@@ -389,6 +389,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     }
 
     this.processTokenAtCursor();
+    this.processContent();
   }
 
   onMousedown(ev: MouseEvent) {
@@ -556,12 +557,10 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
           const description = functions[parentFunction];
           const argPosition = tokenContext.argPosition;
 
-          this.functionDescriptionState = {
-            functionName: parentFunction,
-            functionDescription: description,
-            argToFocus: description.getArgToFocus(argPosition + 1) - 1,
-            showDescription: true,
-          };
+          this.functionDescriptionState.functionName = parentFunction;
+          this.functionDescriptionState.functionDescription = description;
+          this.functionDescriptionState.argToFocus = description.getArgToFocus(argPosition + 1) - 1;
+          this.functionDescriptionState.showDescription = true;
         }
       }
     }

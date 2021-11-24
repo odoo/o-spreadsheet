@@ -312,7 +312,6 @@ describe("Autocomplete parenthesis", () => {
     fixture.querySelector(".o-autocomplete-value-focus")!.dispatchEvent(new MouseEvent("click"));
     await nextTick();
     expect(composerEl.textContent).toBe("=SUM(");
-    // @ts-ignore
     expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
     expect(cehMock.selectionState.position).toBe(5);
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
