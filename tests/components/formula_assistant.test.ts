@@ -20,8 +20,7 @@ let parent: Spreadsheet;
 async function typeInComposer(text: string) {
   await typeInComposerHelper(composerEl, text);
 }
-jest.useRealTimers();
-jest.setTimeout(300 * 1000);
+
 beforeEach(async () => {
   fixture = makeTestFixture();
   parent = await mountSpreadsheet(fixture);
