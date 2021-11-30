@@ -171,6 +171,8 @@ describe("Converting AST to string", () => {
     expect(astToFormula(parse(normalize("A10").text))).toBe("|0|");
     expect(astToFormula(parse(normalize("$A$10").text))).toBe("|0|");
     expect(astToFormula(parse(normalize("Sheet1!A10").text))).toBe("|0|");
+    expect(astToFormula(parse(normalize("'Sheet 1'!A10").text))).toBe("|0|");
+    expect(astToFormula(parse(normalize("'Sheet 1'!A10:A11").text))).toBe("|0|:|1|");
   });
   test("Convert function", () => {
     expect(astToFormula(parse("SUM(5,9,8)"))).toBe("SUM(5,9,8)");

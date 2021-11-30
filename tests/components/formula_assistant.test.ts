@@ -319,6 +319,15 @@ describe("formula assistant", () => {
       ).toBe("f1Arg1");
     });
 
+    test("=FUNC1(42 then add ',' focus index on 2nd arg", async () => {
+      await typeInComposerGrid("=FUNC1(42");
+      await typeInComposerGrid(",");
+      expect(
+        fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
+          .textContent
+      ).toBe("f1Arg2");
+    });
+
     test("=FUNC1(42, focus index on 2nd arg", async () => {
       await typeInComposerGrid("=FUNC1(42,");
       expect(

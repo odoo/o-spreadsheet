@@ -247,6 +247,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       case "EVALUATE_CELLS":
       case "DISABLE_SELECTION_INPUT":
       case "ENABLE_NEW_SELECTION_INPUT":
+      case "RESIZE_VIEWPORT":
         break;
       case "DELETE_FIGURE":
         if (this.selectedFigureId === cmd.id) {
