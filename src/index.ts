@@ -61,6 +61,7 @@ export { DEBUG as __DEBUG__ } from "./helpers/index";
 export { Model } from "./model";
 export { CorePlugin } from "./plugins/core_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";
+export { Registry } from "./registry";
 export { setTranslationMethod } from "./translation";
 export { CancelledReason, CommandResult, DispatchResult } from "./types";
 export { Client } from "./types/collaborative/session";
