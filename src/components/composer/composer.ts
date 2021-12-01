@@ -65,6 +65,7 @@ const TEMPLATE = xml/* xml */ `
     t-on-input="onInput"
     t-on-keyup="onKeyup"
     t-on-click.stop="onClick"
+    t-on-blur="onBlur"
   />
 
   <div t-if="props.focus !== 'inactive' and (autoCompleteState.showProvider or functionDescriptionState.showDescription)"
@@ -307,6 +308,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   private processEnterKey(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
+    this.isKeyStillDown = false;
     const autoCompleteComp = this.autoCompleteRef.comp as TextValueProvider;
     if (this.autoCompleteState.showProvider && autoCompleteComp) {
       const autoCompleteValue = autoCompleteComp.getValueToFill();
@@ -390,6 +392,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     }
 
     this.processTokenAtCursor();
+    this.processContent();
   }
 
   onMousedown(ev: MouseEvent) {
@@ -414,6 +417,10 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     }
     this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", newSelection);
     this.processTokenAtCursor();
+  }
+
+  onBlur() {
+    this.isKeyStillDown = false;
   }
 
   onCompleted(ev: CustomEvent) {
@@ -553,12 +560,10 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
           const description = functions[parentFunction];
           const argPosition = tokenContext.argPosition;
 
-          this.functionDescriptionState = {
-            functionName: parentFunction,
-            functionDescription: description,
-            argToFocus: description.getArgToFocus(argPosition + 1) - 1,
-            showDescription: true,
-          };
+          this.functionDescriptionState.functionName = parentFunction;
+          this.functionDescriptionState.functionDescription = description;
+          this.functionDescriptionState.argToFocus = description.getArgToFocus(argPosition + 1) - 1;
+          this.functionDescriptionState.showDescription = true;
         }
       }
     }

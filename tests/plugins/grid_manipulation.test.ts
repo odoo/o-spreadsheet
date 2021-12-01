@@ -1517,6 +1517,44 @@ describe("Rows", () => {
         B1: { normalizedText: "=SUM(|0|)", dependencies: [{ zone: toZone("A1:A2") }] },
       });
     });
+
+    test("with space in the sheet name", () => {
+      model = new Model({
+        sheets: [
+          {
+            id: "sheet1",
+            name: "Sheet 1",
+            colNumber: 3,
+            rowNumber: 3,
+            cells: {
+              C2: { content: "=SUM('Sheet 1'!B2)" },
+              C3: { content: "=SUM('Sheet 1'!B2:B3)" },
+            },
+          },
+        ],
+      });
+      deleteRows(model, [0]);
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
+        C1: { content: "=SUM('Sheet 1'!B1)" },
+        C2: { content: "=SUM('Sheet 1'!B1:B2)" },
+      });
+      deleteColumns(model, ["A"]);
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
+        B1: { content: "=SUM('Sheet 1'!A1)" },
+        B2: { content: "=SUM('Sheet 1'!A1:A2)" },
+      });
+      addColumns(model, "before", "A", 1);
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
+        C1: { content: "=SUM('Sheet 1'!B1)" },
+        C2: { content: "=SUM('Sheet 1'!B1:B2)" },
+      });
+      addRows(model, "before", 0, 1);
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
+        C2: { content: "=SUM('Sheet 1'!B2)" },
+        C3: { content: "=SUM('Sheet 1'!B2:B3)" },
+      });
+    });
+
     test("On multiple row deletion including the first one", () => {
       model = new Model({
         sheets: [

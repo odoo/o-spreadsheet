@@ -49,7 +49,7 @@ import { ScrollBar } from "./scrollbar";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
-const { useRef, onMounted, onWillUnmount, useExternalListener, onPatched } = owl.hooks;
+const { useRef, onMounted, onWillUnmount, onPatched } = owl.hooks;
 export type ContextMenuType = "ROW" | "COL" | "CELL";
 
 const registries = {
@@ -340,9 +340,11 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
   setup() {
     useTouchMove(this.moveCanvas.bind(this), () => this.vScrollbar.scroll > 0);
-    useExternalListener(window, "resize", this.resizeGrid.bind(this));
     onMounted(() => this.initGrid());
-    onPatched(() => this.drawGrid());
+    onPatched(() => {
+      this.drawGrid();
+      this.resizeGrid();
+    });
   }
 
   private initGrid() {
@@ -541,10 +543,16 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
   }
 
   resizeGrid() {
-    this.dispatch("RESIZE_VIEWPORT", {
-      height: this.el!.clientHeight - SCROLLBAR_WIDTH - HEADER_HEIGHT,
-      width: this.el!.clientWidth - SCROLLBAR_WIDTH - HEADER_WIDTH,
-    });
+    const currentHeight = this.el!.clientHeight - SCROLLBAR_WIDTH;
+    const currentWidth = this.el!.clientWidth - SCROLLBAR_WIDTH;
+    const { height: viewportHeight, width: viewportWidth } =
+      this.getters.getViewportDimensionWithHeaders();
+    if (currentHeight != viewportHeight || currentWidth !== viewportWidth) {
+      this.dispatch("RESIZE_VIEWPORT", {
+        height: currentHeight - HEADER_HEIGHT,
+        width: currentWidth - HEADER_WIDTH,
+      });
+    }
   }
 
   onScroll() {

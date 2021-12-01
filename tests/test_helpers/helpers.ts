@@ -256,7 +256,9 @@ async function typeInComposerHelper(selector: string, text: string, fromScratch:
   const cehMock = window.mockContentHelper as ContentEditableHelper;
   cehMock.insertText(text);
   composerEl.dispatchEvent(new Event("keydown", { bubbles: true }));
+  await nextTick();
   composerEl.dispatchEvent(new Event("input", { bubbles: true }));
+  await nextTick();
   composerEl.dispatchEvent(new Event("keyup", { bubbles: true }));
   await nextTick();
   return composerEl;
