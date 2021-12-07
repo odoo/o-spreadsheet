@@ -163,9 +163,30 @@ describe("Converting AST to string", () => {
   test("Convert unary operator", () => {
     expect(astToFormula(parse("-45"))).toBe("-45");
     expect(astToFormula(parse("+45"))).toBe("+45");
+    expect(astToFormula(parse("-(4+5)"))).toBe("-(4+5)");
+    expect(astToFormula(parse("-4+5"))).toBe("-4+5");
+    expect(astToFormula(parse("-SUM(1)"))).toBe("-SUM(1)");
+    expect(astToFormula(parse("-(1+2)/5"))).toBe("-(1+2)/5");
   });
   test("Convert binary operator", () => {
     expect(astToFormula(parse("89-45"))).toBe("89-45");
+    expect(astToFormula(parse("1+2+5"))).toBe("1+2+5");
+    expect(astToFormula(parse("(1+2)/5"))).toBe("(1+2)/5");
+    expect(astToFormula(parse("5/(1+2)"))).toBe("5/(1+2)");
+    expect(astToFormula(parse("2/(1*2)"))).toBe("2/(1*2)");
+    expect(astToFormula(parse("1-2+3"))).toBe("1-2+3");
+    expect(astToFormula(parse("1-(2+3)"))).toBe("1-(2+3)");
+    expect(astToFormula(parse("(1+2)-3"))).toBe("1+2-3");
+    expect(astToFormula(parse("(1<5)+5"))).toBe("(1<5)+5");
+    expect(astToFormula(parse("1*(4*2+3)"))).toBe("1*(4*2+3)");
+    expect(astToFormula(parse("1*(4+2*3)"))).toBe("1*(4+2*3)");
+    expect(astToFormula(parse("1*(4*2+3*9)"))).toBe("1*(4*2+3*9)");
+    expect(astToFormula(parse("2<(1<1)"))).toBe("2<(1<1)");
+    expect(astToFormula(parse("2<=(1<1)"))).toBe("2<=(1<1)");
+    expect(astToFormula(parse("2>(1<1)"))).toBe("2>(1<1)");
+    expect(astToFormula(parse("2>=(1<1)"))).toBe("2>=(1<1)");
+    expect(astToFormula(parse("TRUE=1=1"))).toBe("TRUE=1=1");
+    expect(astToFormula(parse("TRUE=(1=1)"))).toBe("TRUE=(1=1)");
   });
   test("Convert reference", () => {
     expect(astToFormula(parse(normalize("A10").text))).toBe("|0|");

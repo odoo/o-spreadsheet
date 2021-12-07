@@ -5,6 +5,8 @@ import { FORMULA_REF_IDENTIFIER, Token, tokenize } from "./tokenizer";
 
 const UNARY_OPERATORS = ["-", "+"];
 
+const ASSOCIATIVE_OPERATORS = ["*", "+", "&"];
+
 // -----------------------------------------------------------------------------
 // PARSER
 // -----------------------------------------------------------------------------
@@ -21,7 +23,7 @@ interface ASTReference extends ASTBase {
   value: number;
 }
 
-interface ASTString extends ASTBase {
+export interface ASTString extends ASTBase {
   type: "STRING";
   value: string;
 }
@@ -216,6 +218,40 @@ export function parse(str: string): AST {
 }
 
 /**
+ * Allows to visit all nodes of an AST and apply a mapping function
+ * to nodes of a specific type.
+ */
+export function convertAstNodes<T extends AST["type"]>(
+  ast: AST,
+  type: T,
+  fn: (ast: Extract<AST, { type: T }>) => AST
+) {
+  if (type === ast.type) {
+    ast = fn(ast as Extract<AST, { type: T }>);
+  }
+  switch (ast.type) {
+    case "FUNCALL":
+      return {
+        ...ast,
+        args: ast.args.map((child) => convertAstNodes(child, type, fn)),
+      };
+    case "UNARY_OPERATION":
+      return {
+        ...ast,
+        right: convertAstNodes(ast.right, type, fn),
+      };
+    case "BIN_OPERATION":
+      return {
+        ...ast,
+        right: convertAstNodes(ast.right, type, fn),
+        left: convertAstNodes(ast.left, type, fn),
+      };
+    default:
+      return ast;
+  }
+}
+
+/**
  * Converts an ast formula to the corresponding string
  */
 export function astToFormula(ast: AST): string {
@@ -230,12 +266,45 @@ export function astToFormula(ast: AST): string {
     case "BOOLEAN":
       return ast.value ? "TRUE" : "FALSE";
     case "UNARY_OPERATION":
-      return ast.value + astToFormula(ast.right);
+      return ast.value + rightOperandToFormula(ast);
     case "BIN_OPERATION":
-      return astToFormula(ast.left) + ast.value + astToFormula(ast.right);
+      return leftOperandToFormula(ast) + ast.value + rightOperandToFormula(ast);
     case "REFERENCE":
       return `${FORMULA_REF_IDENTIFIER}${ast.value}${FORMULA_REF_IDENTIFIER}`;
     default:
       return ast.value;
   }
+}
+
+/**
+ * Convert the left operand of a binary operation to the corresponding string
+ * and enclose the result inside parenthesis if necessary.
+ */
+function leftOperandToFormula(binaryOperationAST: ASTOperation): string {
+  const mainOperator = binaryOperationAST.value;
+  const leftOperation = binaryOperationAST.left;
+  const leftOperator = leftOperation.value;
+  const needParenthesis =
+    leftOperation.type === "BIN_OPERATION" && OP_PRIORITY[leftOperator] < OP_PRIORITY[mainOperator];
+  return needParenthesis ? `(${astToFormula(leftOperation)})` : astToFormula(leftOperation);
+}
+
+/**
+ * Convert the right operand of a binary or unary operation to the corresponding string
+ * and enclose the result inside parenthesis if necessary.
+ */
+function rightOperandToFormula(binaryOperationAST: ASTOperation | ASTUnaryOperation): string {
+  const mainOperator = binaryOperationAST.value;
+  const rightOperation = binaryOperationAST.right;
+  const rightPriority = OP_PRIORITY[rightOperation.value];
+  const mainPriority = OP_PRIORITY[mainOperator];
+  let needParenthesis = false;
+  if (rightOperation.type !== "BIN_OPERATION") {
+    needParenthesis = false;
+  } else if (rightPriority < mainPriority) {
+    needParenthesis = true;
+  } else if (rightPriority === mainPriority && !ASSOCIATIVE_OPERATORS.includes(mainOperator)) {
+    needParenthesis = true;
+  }
+  return needParenthesis ? `(${astToFormula(rightOperation)})` : astToFormula(rightOperation);
 }
