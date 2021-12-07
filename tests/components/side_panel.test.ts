@@ -1,5 +1,6 @@
-import { Component, hooks, tags } from "@odoo/owl";
+import { Component, tags } from "@odoo/owl";
 import { Spreadsheet } from "../../src/components";
+import { SpreadsheetComponentAPI } from "../../src/components/spreadsheet";
 import { Model } from "../../src/model";
 import { sidePanelRegistry } from "../../src/registries/index";
 import { SidePanelContent } from "../../src/registries/side_panel_registry";
@@ -7,19 +8,26 @@ import { SpreadsheetEnv } from "../../src/types";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { makeTestFixture, nextTick } from "../test_helpers/helpers";
 
-const { useRef } = hooks;
 const { xml } = tags;
 
 class Parent extends Component<any> {
-  //TODOPRO T-ref
-  static template = xml`<Spreadsheet t-ref="spreadsheet" data="data"/>`;
+  static template = xml/* xml */ `
+    <Spreadsheet data="data"
+                 exposeAPI="(api) => this.spreadsheetAPI = api"/>
+  `;
   static components = { Spreadsheet };
-  private spreadsheet: any = useRef("spreadsheet");
+  private spreadsheetAPI: SpreadsheetComponentAPI | undefined;
   get spreadsheetEnv(): SpreadsheetEnv {
-    return this.spreadsheet.comp.env;
+    if (!this.spreadsheetAPI) {
+      throw new Error("API not loaded");
+    }
+    return this.spreadsheetAPI.getEnv();
   }
   get model(): Model {
-    return this.spreadsheet.comp.model;
+    if (!this.spreadsheetAPI) {
+      throw new Error("API not loaded");
+    }
+    return this.spreadsheetAPI.getModel();
   }
 }
 

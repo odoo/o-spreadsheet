@@ -47,7 +47,7 @@ class Parent extends Component<any> {
                  exposeAPI="(api) => this.spreadsheetAPI = api" />
   `;
   static components = { Spreadsheet };
-  spreadsheetAPI: SpreadsheetComponentAPI | undefined;
+  private spreadsheetAPI: SpreadsheetComponentAPI | undefined;
   readonly data: any;
   readonly client: Client;
 
