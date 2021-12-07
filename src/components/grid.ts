@@ -29,6 +29,7 @@ import { GridComposer } from "./composer/grid_composer";
 import { ErrorToolTip } from "./error_tooltip";
 import { FiguresContainer } from "./figures/container";
 import { startDnd } from "./helpers/drag_and_drop";
+import { exposeAPI } from "./helpers/expose_api";
 import { Highlight } from "./highlight/highlight";
 import { LinkDisplay } from "./link/link_display";
 import { LinkEditor } from "./link/link_editor";
@@ -290,6 +291,12 @@ interface Props {
   sidePanelIsOpen: boolean;
   model: Model;
   linkEditorIsOpen: boolean;
+  exposeAPI?: (api: GridComponentAPI) => void;
+}
+
+export interface GridComponentAPI {
+  focus: () => void;
+  isActiveElement: () => boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -344,6 +351,10 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     onPatched(() => {
       this.drawGrid();
       this.resizeGrid();
+    });
+    exposeAPI<GridComponentAPI>({
+      focus: () => this.focus(),
+      isActiveElement: () => !!this.el?.contains(document.activeElement),
     });
   }
 

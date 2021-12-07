@@ -23,7 +23,7 @@ beforeEach(async () => {
   model = parent.model;
 
   // start composition
-  parent.grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+  document.querySelector(".o-grid")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
   await nextTick();
   composerEl = fixture.querySelector(".o-grid div.o-composer")!;
 });

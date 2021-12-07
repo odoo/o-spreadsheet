@@ -13,21 +13,20 @@ import { Client } from "../types/collaborative/session";
 import { StateUpdateMessage, TransportService } from "../types/collaborative/transport_service";
 import { BottomBar } from "./bottom_bar";
 import { ComposerFocusedEvent } from "./composer/composer";
-import { Grid } from "./grid";
+import { Grid, GridComponentAPI } from "./grid";
 import { exposeAPI } from "./helpers/expose_api";
 import { LinkEditor } from "./link/link_editor";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
 
 const { Component, useState } = owl;
-const { useRef, useExternalListener } = owl.hooks;
+const { useExternalListener } = owl.hooks;
 const { xml, css } = owl.tags;
 const { useSubEnv, onMounted, onWillUnmount, onWillUpdateProps } = owl.hooks;
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
 // -----------------------------------------------------------------------------
-//TODOPRO t-ref="grid"
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet" t-on-save-requested="save" t-on-keydown="onKeydown">
   <TopBar
@@ -40,7 +39,7 @@ const TEMPLATE = xml/* xml */ `
       sidePanelIsOpen="sidePanel.isOpen"
       linkEditorIsOpen="linkEditor.isOpen"
       t-on-link-editor-closed="closeLinkEditor"
-      t-ref="grid"
+      exposeAPI="(api) => this.gridAPI = api"
       focusComposer="focusGridComposer"
       t-on-composer-content-focused="onGridComposerContentFocused"
       t-on-composer-cell-focused="onGridComposerCellFocused"
@@ -127,7 +126,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     },
     this.props.stateUpdateMessages
   );
-  grid = useRef("grid");
+  gridAPI: GridComponentAPI | undefined;
 
   sidePanel = useState({ isOpen: false, panelProps: {} } as {
     isOpen: boolean;
@@ -178,7 +177,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     onMounted(() => this.initiateModelEvents());
     onWillUnmount(() => this.leaveCollaborativeSession());
     onWillUpdateProps((nextProps: Props) => this.checkReadonly(nextProps));
-    exposeAPI({
+    exposeAPI<SpreadsheetComponentAPI>({
       getModel: () => this.model,
       getEnv: () => this.env,
     });
@@ -252,11 +251,11 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     }
   }
   focusGrid() {
-    (<any>this.grid.comp).focus();
+    this.gridAPI?.focus();
   }
 
   copy(cut: boolean, ev: ClipboardEvent) {
-    if (!this.grid.el!.contains(document.activeElement)) {
+    if (!this.gridAPI?.isActiveElement()) {
       return;
     }
     /* If we are currently editing a cell, let the default behavior */
@@ -273,7 +272,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
   }
 
   paste(ev: ClipboardEvent) {
-    if (!this.grid.el!.contains(document.activeElement)) {
+    if (!this.gridAPI?.isActiveElement()) {
       return;
     }
     const clipboardData = ev.clipboardData!;
