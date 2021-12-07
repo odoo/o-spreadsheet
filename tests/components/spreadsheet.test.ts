@@ -1,4 +1,4 @@
-import { Component, hooks, tags } from "@odoo/owl";
+import { Component, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
 import { SpreadsheetComponentAPI } from "../../src/components/spreadsheet";
@@ -25,7 +25,6 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 );
 
 const { xml } = tags;
-const { useRef } = hooks;
 
 let fixture: HTMLElement;
 let parent: Parent;
@@ -389,10 +388,13 @@ describe("Composer interactions", () => {
 
   test("The activate sheet is the sheet in first position, after replaying commands", async () => {
     class Parent extends Component<any> {
-      //TODOPRO
-      static template = xml/* xml */ `<Spreadsheet t-ref="spreadsheet" data="data" stateUpdateMessages="stateUpdateMessages"/>`;
+      static template = xml/* xml */ `
+        <Spreadsheet data="data"
+                     exposeAPI="(api) => this.spreadsheetAPI = api"
+                     stateUpdateMessages="stateUpdateMessages"/>
+      `;
       static components = { Spreadsheet };
-      private spreadsheet: any = useRef("spreadsheet");
+      spreadsheetAPI: SpreadsheetComponentAPI | undefined;
       readonly data: any = { sheets: [{ id: "1" }, { id: "2" }] };
       readonly stateUpdateMessages: StateUpdateMessage[] = [
         {
@@ -406,7 +408,10 @@ describe("Composer interactions", () => {
       ];
 
       get model(): Model {
-        return this.spreadsheet.comp.model;
+        if (!this.spreadsheetAPI) {
+          throw new Error("API not loaded");
+        }
+        return this.spreadsheetAPI.getModel();
       }
     }
 
