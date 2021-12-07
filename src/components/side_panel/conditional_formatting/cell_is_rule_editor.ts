@@ -67,24 +67,20 @@ const TEMPLATE = xml/* xml */ `
         <div class="o-tool" t-att-title="env._t('${conditionalFormattingTerms.STRIKE_THROUGH}')" t-att-class="{active:state.style.strikethrough}"
              t-on-click="toggleTool('strikethrough')">${icons.STRIKE_ICON}
         </div>
-        <div class="o-tool o-with-color">
+        <div class="o-tool o-dropdown o-with-color">
               <span t-att-title="env._t('${conditionalFormattingTerms.TEXT_COLOR}')" t-attf-style="border-color:{{state.style.textColor}}"
                     t-on-click.stop="toggleMenu('textColorTool')">
                     ${icons.TEXT_COLOR_ICON}
               </span>
-              <div class="o-colorpicker-container" >
-                <ColorPicker t-if="state.textColorTool" dropdownDirection="'left'" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
-              </div>
+              <ColorPicker t-if="state.textColorTool" dropdownDirection="'center'" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
         </div>
         <div class="o-divider"/>
-        <div class="o-tool o-with-color">
+        <div class="o-tool o-dropdown o-with-color">
           <span t-att-title="env._t('${conditionalFormattingTerms.FILL_COLOR}')" t-attf-style="border-color:{{state.style.fillColor}}"
                 t-on-click.stop="toggleMenu('fillColorTool')">
                 ${icons.FILL_COLOR_ICON}
           </span>
-          <div class="o-colorpicker-container" >
-            <ColorPicker t-if="state.fillColorTool" dropdownDirection="'left'" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
-          </div>
+          <ColorPicker t-if="state.fillColorTool" dropdownDirection="'center'" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
         </div>
     </div>
 </div>
@@ -103,15 +99,8 @@ const CSS = css/* scss */ `
     margin-bottom: 5px;
     width: 96%;
   }
-  .o-colorpicker-container {
-    position: absolute;
-    padding-left: 20px;
-    padding-bottom: 18px;
-    pointer-events: none;
-
-    .o-color-picker {
-      pointer-events: all;
-    }
+  .o-color-picker {
+    pointer-events: all;
   }
 `;
 
@@ -152,6 +141,7 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
       underline: this.props.rule.style.underline,
     },
   });
+
   constructor() {
     super(...arguments);
     useExternalListener(window as any, "click", this.closeMenus);
@@ -194,7 +184,7 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
     };
   }
 
-  toggleMenu(tool: string) {
+  toggleMenu(tool: "textColorTool" | "fillColorTool") {
     const current = this.state[tool];
     this.closeMenus();
     this.state[tool] = !current;
