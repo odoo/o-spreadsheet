@@ -6,10 +6,12 @@ import {
   ColorScaleRule,
   ColorScaleThreshold,
   CommandResult,
+  ConditionalFormatEditorComponentAPI,
   ConditionalFormatRule,
   SpreadsheetEnv,
 } from "../../../types";
 import { ColorPicker } from "../../color_picker";
+import { exposeAPI } from "../../helpers/expose_api";
 import * as icons from "../../icons";
 import { colorScale, conditionalFormattingTerms } from ".././translations_terms";
 
@@ -117,6 +119,7 @@ const CSS = css/* scss */ `
 interface Props {
   rule: ColorScaleRule;
   errors: CancelledReason[];
+  exposeAPI?: (api: ConditionalFormatEditorComponentAPI) => void;
 }
 
 type ComponentColorScaleMidPointThreshold = {
@@ -156,6 +159,9 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
 
   setup() {
     useExternalListener(window as any, "click", this.closeMenus);
+    exposeAPI<ConditionalFormatEditorComponentAPI>({
+      getRule: () => this.getRule(),
+    });
   }
 
   getRule(): ColorScaleRule {

@@ -1,14 +1,16 @@
 import * as owl from "@odoo/owl";
 import {
-  CancelledReason,
-  CommandResult,
-  IconSetRule,
-  IconThreshold,
-  SpreadsheetEnv,
+CancelledReason,
+CommandResult,
+ConditionalFormatEditorComponentAPI,
+IconSetRule,
+IconThreshold,
+SpreadsheetEnv
 } from "../../../types";
-import { ICONS, ICON_SETS, REFRESH } from "../../icons";
+import { exposeAPI } from "../../helpers/expose_api";
+import { ICONS,ICON_SETS,REFRESH } from "../../icons";
 import { IconPicker } from "../../icon_picker";
-import { conditionalFormattingTerms, iconSetRule } from "../translations_terms";
+import { conditionalFormattingTerms,iconSetRule } from "../translations_terms";
 
 const { Component, useState, hooks } = owl;
 const { useExternalListener } = hooks;
@@ -222,6 +224,7 @@ const CSS = css/* scss */ `
 interface Props {
   rule: IconSetRule;
   errors: CancelledReason[];
+  exposeAPI?: (api: ConditionalFormatEditorComponentAPI) => void;
 }
 
 interface IconSetRuleState {
@@ -258,6 +261,9 @@ export class IconSetRuleEditor extends Component<Props, SpreadsheetEnv> {
 
   setup() {
     useExternalListener(window as any, "click", this.closeMenus);
+    exposeAPI<ConditionalFormatEditorComponentAPI>({
+      getRule: () => this.getRule(),
+    });
   }
 
   isInflectionPointInvalid(

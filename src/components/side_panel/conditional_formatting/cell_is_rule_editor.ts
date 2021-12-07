@@ -3,12 +3,14 @@ import {
   CancelledReason,
   CellIsRule,
   CommandResult,
+  ConditionalFormatEditorComponentAPI,
   ConditionalFormatRule,
   SpreadsheetEnv,
   Style,
 } from "../../../types";
 import { ColorPicker } from "../../color_picker";
 import { getTextDecoration } from "../../helpers/dom_helpers";
+import { exposeAPI } from "../../helpers/expose_api";
 import * as icons from "../../icons";
 import { cellIsOperators, conditionalFormattingTerms } from "../translations_terms";
 
@@ -118,6 +120,7 @@ const CSS = css/* scss */ `
 interface Props {
   rule: CellIsRule;
   errors: CancelledReason[];
+  exposeAPI?: (api: ConditionalFormatEditorComponentAPI) => void;
 }
 
 export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
@@ -154,6 +157,9 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
   });
   setup() {
     useExternalListener(window as any, "click", this.closeMenus);
+    exposeAPI<ConditionalFormatEditorComponentAPI>({
+      getRule: () => this.getRule(),
+    });
   }
 
   get isValue1Invalid(): boolean {

@@ -5,6 +5,7 @@ import {
   ColorScaleRule,
   CommandResult,
   ConditionalFormat,
+  ConditionalFormatEditorComponentAPI,
   ConditionalFormatRule,
   SingleColorRules,
   SpreadsheetEnv,
@@ -20,7 +21,7 @@ import { IconSetRuleEditor } from "./icon_set_rule_editor";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
-const { useRef, onWillUpdateProps } = owl.hooks;
+const { onWillUpdateProps } = owl.hooks;
 
 // TODO vsc: add ordering of rules
 const PREVIEW_TEMPLATE = xml/* xml */ `
@@ -59,7 +60,6 @@ const PREVIEW_TEMPLATE = xml/* xml */ `
     </div>
   </div>
 </div>`;
-//TODOPRO t-ref editorRef
 const TEMPLATE = xml/* xml */ `
   <div class="o-cf">
     <t t-if="state.mode === 'list'">
@@ -109,7 +109,7 @@ const TEMPLATE = xml/* xml */ `
             </div>
             <div class="o-section o-cf-editor">
               <t t-component="editors[state.currentCFType]"
-                 t-ref="editorRef"
+                 exposeAPI="(api) => this.editorRuleAPI = api"
                  errors="state.errors"
                  t-key="state.currentCF.id + state.currentCFType"
                  rule="state.rules[state.currentCFType]"/>
@@ -323,7 +323,6 @@ interface Props {
 }
 
 type CFType = "CellIsRule" | "ColorScaleRule" | "IconSetRule";
-type CFEditor = CellIsRuleEditor | ColorScaleRuleEditor | IconSetRuleEditor;
 type Mode = "list" | "add" | "edit";
 
 interface State {
@@ -343,7 +342,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
 
   //@ts-ignore --> used in XML template
   private cellIsOperators = cellIsOperators;
-  private editor = useRef("editorRef");
+  private editorRuleAPI: ConditionalFormatEditorComponentAPI | undefined;
   private getters = this.env.getters;
 
   private state: State = useState({
@@ -477,7 +476,10 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
    * Get the rule currently edited with the editor
    */
   private getEditorRule(): ConditionalFormatRule {
-    return (<CFEditor>this.editor.comp).getRule();
+    if (!this.editorRuleAPI) {
+      throw new Error("Editor rule is not correctly instantiated");
+    }
+    return this.editorRuleAPI.getRule();
   }
 
   /**

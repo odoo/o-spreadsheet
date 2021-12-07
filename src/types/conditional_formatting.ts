@@ -4,6 +4,10 @@ import { Range, Style, UID } from "./misc";
 // Conditional Formatting
 // -----------------------------------------------------------------------------
 
+export interface ConditionalFormatEditorComponentAPI {
+  getRule: () => ConditionalFormatRule;
+}
+
 /**
  * https://docs.microsoft.com/en-us/openspecs/office_standards/ms-xlsx/025ea6e4-ad42-43ea-a016-16f4e4688ac8
  */
