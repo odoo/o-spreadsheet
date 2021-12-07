@@ -6,7 +6,7 @@ import { simulateClick } from "../test_helpers/dom_helper";
 import { makeTestFixture, nextTick } from "../test_helpers/helpers";
 
 const { xml } = tags;
-const { useSubEnv, useRef, onMounted, onWillUnmount } = hooks;
+const { useSubEnv, onMounted, onWillUnmount } = hooks;
 
 let model: Model;
 let fixture: HTMLElement;
@@ -32,10 +32,8 @@ interface SelectionInputTestConfig {
 }
 
 class Parent extends Component<any> {
-  //TODOPRO t-ref=selection-input
   static template = xml/* xml */ `
     <SelectionInput
-      t-ref="selection-input"
       ranges="initialRanges"
       hasSingleRange="hasSingleRange"
       t-on-selection-changed="onChanged"/>
@@ -44,7 +42,6 @@ class Parent extends Component<any> {
   model: Model;
   initialRanges: string[] | undefined;
   hasSingleRange: boolean | undefined;
-  ref = useRef("selection-input");
   onChanged: jest.Mock<void, [any]>;
 
   constructor(model: Model, config: SelectionInputTestConfig) {
@@ -61,7 +58,8 @@ class Parent extends Component<any> {
   }
 
   get id(): string {
-    return (this.ref.comp as any).id;
+    const selectionInput = Object.values(this.__owl__.children)[0] as SelectionInput;
+    return selectionInput["id"];
   }
 
   setup() {
