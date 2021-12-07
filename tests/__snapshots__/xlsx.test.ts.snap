@@ -7431,6 +7431,13 @@ Object {
                 </v>
             </c>
         </row>
+        <row r=\\"40\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A40\\" s=\\"3\\">
+                <f>
+                    (1+2)/3
+                </f>
+            </c>
+        </row>
     </sheetData>
 </worksheet>",
       "contentType": "sheet",
@@ -8000,6 +8007,11 @@ Object {
             <c r=\\"A5\\" s=\\"1\\">
                 <f>
                     _xlfn.ACOT(1)
+                </f>
+            </c>
+            <c r=\\"B5\\" s=\\"1\\">
+                <f>
+                    _xlfn.ACOT(_xlfn.ACOT(1))
                 </f>
             </c>
             <c r=\\"G5\\" s=\\"1\\" t=\\"s\\">
@@ -10341,6 +10353,11 @@ Object {
             <c r=\\"A5\\" s=\\"1\\">
                 <f>
                     _xlfn.ACOT(1)
+                </f>
+            </c>
+            <c r=\\"B5\\" s=\\"1\\">
+                <f>
+                    _xlfn.ACOT(_xlfn.ACOT(1))
                 </f>
             </c>
             <c r=\\"G5\\" s=\\"1\\" t=\\"s\\">
