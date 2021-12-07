@@ -14,6 +14,7 @@ import { StateUpdateMessage, TransportService } from "../types/collaborative/tra
 import { BottomBar } from "./bottom_bar";
 import { ComposerFocusedEvent } from "./composer/composer";
 import { Grid } from "./grid";
+import { exposeAPI } from "./helpers/expose_api";
 import { LinkEditor } from "./link/link_editor";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
@@ -26,7 +27,7 @@ const { useSubEnv, onMounted, onWillUnmount, onWillUpdateProps } = owl.hooks;
 // -----------------------------------------------------------------------------
 // SpreadSheet
 // -----------------------------------------------------------------------------
-
+//TODOPRO t-ref="grid"
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet" t-on-save-requested="save" t-on-keydown="onKeydown">
   <TopBar
@@ -93,9 +94,15 @@ interface Props {
   transportService?: TransportService;
   isReadonly?: boolean;
   snapshotRequested?: boolean;
+  exposeAPI?: (api: SpreadsheetComponentAPI) => void;
 }
 
 const t = (s: string): string => s;
+
+export interface SpreadsheetComponentAPI {
+  getModel: () => Model;
+  getEnv: () => SpreadsheetEnv;
+}
 
 export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
@@ -171,6 +178,10 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     onMounted(() => this.initiateModelEvents());
     onWillUnmount(() => this.leaveCollaborativeSession());
     onWillUpdateProps((nextProps: Props) => this.checkReadonly(nextProps));
+    exposeAPI({
+      getModel: () => this.model,
+      getEnv: () => this.env,
+    });
   }
 
   get focusTopBarComposer(): "inactive" | "contentFocus" {

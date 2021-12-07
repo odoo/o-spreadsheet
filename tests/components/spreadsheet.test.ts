@@ -1,12 +1,13 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
+import { SpreadsheetComponentAPI } from "../../src/components/spreadsheet";
 import { DEFAULT_REVISION_ID } from "../../src/constants";
 import { args, functionRegistry } from "../../src/functions";
 import { DEBUG, toZone } from "../../src/helpers";
 import { SelectionMode } from "../../src/plugins/ui/selection";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
-import { Client } from "../../src/types";
+import { Client, SpreadsheetEnv } from "../../src/types";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
@@ -41,13 +42,28 @@ jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(()
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
 
 class Parent extends Component<any> {
-  static template = xml/* xml */ `<Spreadsheet t-ref="spreadsheet" data="data" client="client"/>`;
+  static template = xml/* xml */ `
+    <Spreadsheet data="data"
+                 client="client"
+                 exposeAPI="(api) => this.spreadsheetAPI = api" />
+  `;
   static components = { Spreadsheet };
-  spreadsheet: any = useRef("spreadsheet");
+  spreadsheetAPI: SpreadsheetComponentAPI | undefined;
   readonly data: any;
   readonly client: Client;
+
+  getEnv(): SpreadsheetEnv {
+    if (!this.spreadsheetAPI) {
+      throw new Error("API not yet set");
+    }
+    return this.spreadsheetAPI.getEnv();
+  }
+
   get model(): Model {
-    return this.spreadsheet.comp.model;
+    if (!this.spreadsheetAPI) {
+      throw new Error("API not yet set");
+    }
+    return this.spreadsheetAPI.getModel();
   }
 
   constructor(data?, client?) {
@@ -137,7 +153,7 @@ describe("Spreadsheet", () => {
   });
 
   test("Clipboard is in spreadsheet env", () => {
-    expect((parent as any).spreadsheet.comp.env.clipboard).toBe(clipboard);
+    expect(parent.getEnv().clipboard).toBe(clipboard);
   });
 
   test("selection mode is changed with a simple select", async () => {
@@ -199,8 +215,8 @@ describe("Spreadsheet", () => {
     expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
   });
 
-  test("Debug informations are removed when Spreadsheet is destroyed", async () => {
-    parent["spreadsheet"].comp.destroy();
+  test("Debug information are removed when Spreadsheet is destroyed", async () => {
+    Object.values(parent.__owl__.children)[0].destroy();
     expect(Object.keys(DEBUG)).toHaveLength(0);
   });
 
@@ -401,7 +417,6 @@ describe("Composer interactions", () => {
 });
 
 describe("Composer / selectionInput interactions", () => {
-  let spreadsheet: Spreadsheet;
   beforeEach(() => {
     parent.model.dispatch("ADD_CONDITIONAL_FORMAT", {
       sheetId: parent.model.getters.getActiveSheetId(),
@@ -416,14 +431,13 @@ describe("Composer / selectionInput interactions", () => {
         },
       },
     });
-    spreadsheet = parent.spreadsheet.comp as Spreadsheet;
     // input some stuff in B2
     setCellContent(parent.model, "B2", "=A1");
   });
   test("Switching from selection input to composer should update the highlihts", async () => {
     //open cf sidepanel
     selectCell(parent.model, "B2");
-    OPEN_CF_SIDEPANEL_ACTION(spreadsheet.env);
+    OPEN_CF_SIDEPANEL_ACTION(parent.getEnv());
     await nextTick();
     await simulateClick(".o-selection-input input");
 
@@ -438,7 +452,7 @@ describe("Composer / selectionInput interactions", () => {
   });
   test("Switching from composer to selection input should update the highlihts and hide the highlight components", async () => {
     selectCell(parent.model, "B2");
-    OPEN_CF_SIDEPANEL_ACTION(spreadsheet.env);
+    OPEN_CF_SIDEPANEL_ACTION(parent.getEnv());
     await nextTick();
 
     await simulateClick(".o-spreadsheet-topbar .o-composer");
