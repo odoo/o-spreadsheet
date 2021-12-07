@@ -11,6 +11,7 @@ const { useRef } = hooks;
 const { xml } = tags;
 
 class Parent extends Component<any> {
+  //TODOPRO T-ref
   static template = xml`<Spreadsheet t-ref="spreadsheet" data="data"/>`;
   static components = { Spreadsheet };
   private spreadsheet: any = useRef("spreadsheet");

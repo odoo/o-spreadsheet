@@ -389,6 +389,7 @@ describe("Composer interactions", () => {
 
   test("The activate sheet is the sheet in first position, after replaying commands", async () => {
     class Parent extends Component<any> {
+      //TODOPRO
       static template = xml/* xml */ `<Spreadsheet t-ref="spreadsheet" data="data" stateUpdateMessages="stateUpdateMessages"/>`;
       static components = { Spreadsheet };
       private spreadsheet: any = useRef("spreadsheet");

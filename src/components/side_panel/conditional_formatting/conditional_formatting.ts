@@ -59,7 +59,7 @@ const PREVIEW_TEMPLATE = xml/* xml */ `
     </div>
   </div>
 </div>`;
-
+//TODOPRO t-ref editorRef
 const TEMPLATE = xml/* xml */ `
   <div class="o-cf">
     <t t-if="state.mode === 'list'">

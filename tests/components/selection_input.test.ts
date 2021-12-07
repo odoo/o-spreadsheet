@@ -32,6 +32,7 @@ interface SelectionInputTestConfig {
 }
 
 class Parent extends Component<any> {
+  //TODOPRO t-ref=selection-input
   static template = xml/* xml */ `
     <SelectionInput
       t-ref="selection-input"

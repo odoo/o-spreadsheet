@@ -50,6 +50,7 @@ export const tokenColor = {
   COMMA: FunctionColor,
 };
 
+//TODOPRO t-ref TextValueProvider and FunctionDescriptionProvider
 const TEMPLATE = xml/* xml */ `
 <div class="o-composer-container">
   <div
