@@ -102,16 +102,29 @@ const COLORS = [
   ],
 ];
 
+const PICKER_VERTICAL_PADDING = 6;
+
+const LINE_VERTICAL_PADDING = 3;
+const LINE_HORIZONTAL_PADDING = 6;
+
+const ITEM_HORIZONTAL_MARGIN = 2;
+const ITEM_EDGE_LENGTH = 18;
+const ITEM_BORDER_WIDTH = 1;
+
+const ITEMS_PER_LINE = Math.max(...COLORS.map((line) => line.length));
+const PICKER_WIDTH =
+  ITEMS_PER_LINE * (ITEM_EDGE_LENGTH + ITEM_HORIZONTAL_MARGIN * 2 + 2 * ITEM_BORDER_WIDTH) +
+  2 * LINE_HORIZONTAL_PADDING;
+
 interface Props {
-  dropdownDirection?: "left" | "right";
+  dropdownDirection?: "left" | "right" | "center";
 }
 
 export class ColorPicker extends Component<Props, SpreadsheetEnv> {
   static template = xml/* xml */ `
-  <div class="o-color-picker" t-att-class="{
-    'right': isDropdownRight(),
-    'left': !isDropdownRight()
-    }" t-on-click="onColorClick">
+  <div class="o-color-picker"
+    t-att-class="props.dropdownDirection || 'right'"
+    t-on-click="onColorClick">
     <div class="o-color-picker-line" t-foreach="COLORS" t-as="colors" t-key="colors">
       <t t-foreach="colors" t-as="color" t-key="color">
         <div class="o-color-picker-line-item" t-att-data-color="color" t-attf-style="background-color:{{color}};"></div>
@@ -126,17 +139,17 @@ export class ColorPicker extends Component<Props, SpreadsheetEnv> {
       z-index: 10;
       box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
       background-color: white;
-      padding: 6px 0px;
+      padding: ${PICKER_VERTICAL_PADDING}px 0px;
 
       .o-color-picker-line {
         display: flex;
-        padding: 3px 6px;
+        padding: ${LINE_VERTICAL_PADDING}px ${LINE_HORIZONTAL_PADDING}px;
         .o-color-picker-line-item {
-          width: 18px;
-          height: 18px;
-          margin: 0px 2px;
+          width: ${ITEM_EDGE_LENGTH}px;
+          height: ${ITEM_EDGE_LENGTH}px;
+          margin: 0px ${ITEM_HORIZONTAL_MARGIN}px;
           border-radius: 50px;
-          border: 1px solid #c0c0c0;
+          border: ${ITEM_BORDER_WIDTH}px solid #c0c0c0;
           &:hover {
             cursor: pointer;
             background-color: rgba(0, 0, 0, 0.08);
@@ -152,13 +165,12 @@ export class ColorPicker extends Component<Props, SpreadsheetEnv> {
       &.left {
         right: 0;
       }
+      &.center {
+        left: calc(50% - ${PICKER_WIDTH / 2}px);
+      }
     }
   `;
   COLORS = COLORS;
-
-  isDropdownRight() {
-    return this.props.dropdownDirection !== "left";
-  }
 
   onColorClick(ev: MouseEvent) {
     const color = (ev.target as HTMLElement).dataset.color;

@@ -282,7 +282,7 @@ export class IconSetRuleEditor extends Component<Props, SpreadsheetEnv> {
     }
   }
 
-  toggleMenu(tool) {
+  toggleMenu(tool: "upperIconTool" | "middleIconTool" | "lowerIconTool") {
     const current = this.stateIconSetCF[tool];
     this.closeMenus();
     this.stateIconSetCF[tool] = !current;
