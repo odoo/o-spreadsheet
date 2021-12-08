@@ -69,6 +69,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       case "REDO":
       case "DELETE_CELL":
       case "INSERT_CELL":
+      case "MOVE_CONDITIONAL_FORMAT":
         this.isStale = true;
         break;
     }
@@ -119,7 +120,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     this.computedStyles[activeSheetId] = {};
     this.computedIcons[activeSheetId] = {};
     const computedStyle = this.computedStyles[activeSheetId];
-    for (let cf of this.getters.getConditionalFormats(activeSheetId)) {
+    for (let cf of this.getters.getConditionalFormats(activeSheetId).reverse()) {
       try {
         switch (cf.rule.type) {
           case "ColorScaleRule":

@@ -29,7 +29,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
       >
         <div>
           <div
-            class="o-cf-preview"
+            class="o-cf-preview o-cf-cursor-ptr"
           >
             
             <div
@@ -53,11 +53,8 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
                   class="o-cf-preview-description-rule"
                 >
                   Is equal to
-                </div>
-                <div
-                  class="o-cf-preview-description-values"
-                >
-                  2
+                   2
+                  
                   
                 </div>
               </div>
@@ -67,6 +64,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
                 A1:A2
               </div>
             </div>
+            
             <div
               class="o-cf-delete"
             >
@@ -89,11 +87,12 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
                 </svg>
               </div>
             </div>
+            
           </div>
         </div>
         <div>
           <div
-            class="o-cf-preview"
+            class="o-cf-preview o-cf-cursor-ptr"
           >
             
             <div
@@ -113,10 +112,8 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
                   class="o-cf-preview-description-rule"
                 >
                   Color scale
+                  
                 </div>
-                <div
-                  class="o-cf-preview-description-values"
-                />
               </div>
               <div
                 class="o-cf-preview-range"
@@ -124,6 +121,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
                 B1:B5
               </div>
             </div>
+            
             <div
               class="o-cf-delete"
             >
@@ -146,15 +144,22 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
                 </svg>
               </div>
             </div>
+            
           </div>
         </div>
         
       </div>
       <div
-        class="btn btn-link o-cf-add"
+        class="btn btn-link o-cf-btn-link o-cf-add"
       >
         + Add another rule
       </div>
+      <div
+        class="btn btn-link o-cf-btn-link o-cf-reorder"
+      >
+        Reorder rules
+      </div>
+      
       
       
       

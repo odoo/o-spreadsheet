@@ -18,6 +18,7 @@ import {
   IconSetRule,
   IconThreshold,
   UID,
+  UpDown,
   Validation,
   WorkbookData,
   Zone,
@@ -104,8 +105,11 @@ export class ConditionalFormatPlugin
   // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: Command) {
-    if (cmd.type === "ADD_CONDITIONAL_FORMAT") {
-      return this.checkValidations(cmd, this.checkCFRule, this.checkEmptyRange);
+    switch (cmd.type) {
+      case "ADD_CONDITIONAL_FORMAT":
+        return this.checkValidations(cmd, this.checkCFRule, this.checkEmptyRange);
+      case "MOVE_CONDITIONAL_FORMAT":
+        return this.checkValidReordering(cmd.cfId, cmd.direction, cmd.sheetId);
     }
     return CommandResult.Success;
   }
@@ -135,6 +139,9 @@ export class ConditionalFormatPlugin
         break;
       case "REMOVE_CONDITIONAL_FORMAT":
         this.removeConditionalFormatting(cmd.id, cmd.sheetId);
+        break;
+      case "MOVE_CONDITIONAL_FORMAT":
+        this.reorderConditionalFormatting(cmd.cfId, cmd.direction, cmd.sheetId);
         break;
     }
   }
@@ -254,6 +261,19 @@ export class ConditionalFormatPlugin
       currentCF.push(newCF);
     }
     this.history.update("cfRules", sheet, currentCF);
+  }
+
+  private checkValidReordering(cfId: string, direction: string, sheetId: string) {
+    if (!this.cfRules[sheetId]) return CommandResult.InvalidSheetId;
+    const ruleIndex = this.cfRules[sheetId].findIndex((cf) => cf.id === cfId);
+    if (ruleIndex === -1) return CommandResult.InvalidConditionalFormatId;
+
+    const cfIndex2 = direction === "up" ? ruleIndex - 1 : ruleIndex + 1;
+    if (cfIndex2 < 0 || cfIndex2 >= this.cfRules[sheetId].length) {
+      return CommandResult.InvalidConditionalFormatId;
+    }
+
+    return CommandResult.Success;
   }
 
   private checkEmptyRange(cmd: AddConditionalFormatCommand) {
@@ -455,6 +475,20 @@ export class ConditionalFormatPlugin
       const currentCF = this.cfRules[sheet].slice();
       currentCF.splice(cfIndex, 1);
       this.history.update("cfRules", sheet, currentCF);
+    }
+  }
+
+  private reorderConditionalFormatting(cfId: UID, direction: UpDown, sheetId: UID) {
+    const cfIndex1 = this.cfRules[sheetId].findIndex((s) => s.id === cfId);
+    const cfIndex2 = direction === "up" ? cfIndex1 - 1 : cfIndex1 + 1;
+    if (cfIndex2 < 0 || cfIndex2 >= this.cfRules[sheetId].length) return;
+
+    if (cfIndex1 !== -1 && cfIndex2 !== -1) {
+      const currentCF = [...this.cfRules[sheetId]];
+      const tmp = currentCF[cfIndex1];
+      currentCF[cfIndex1] = currentCF[cfIndex2];
+      currentCF[cfIndex2] = tmp;
+      this.history.update("cfRules", sheetId, currentCF);
     }
   }
 }

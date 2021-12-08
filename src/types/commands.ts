@@ -1,5 +1,6 @@
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
+import { UpDown } from "./conditional_formatting";
 import {
   BorderCommand,
   ChartUIDefinition,
@@ -146,6 +147,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** CONDITIONAL FORMAT */
   "ADD_CONDITIONAL_FORMAT",
   "REMOVE_CONDITIONAL_FORMAT",
+  "MOVE_CONDITIONAL_FORMAT",
 
   /** FIGURES */
   "CREATE_FIGURE",
@@ -295,6 +297,12 @@ export interface AddConditionalFormatCommand extends SheetDependentCommand, Targ
 export interface RemoveConditionalFormatCommand extends SheetDependentCommand {
   type: "REMOVE_CONDITIONAL_FORMAT";
   id: string;
+}
+
+export interface MoveConditionalFormatCommand extends SheetDependentCommand {
+  type: "MOVE_CONDITIONAL_FORMAT";
+  cfId: UID;
+  direction: UpDown;
 }
 
 //------------------------------------------------------------------------------
@@ -820,6 +828,7 @@ export type CoreCommand =
   /** CONDITIONAL FORMAT */
   | AddConditionalFormatCommand
   | RemoveConditionalFormatCommand
+  | MoveConditionalFormatCommand
 
   /** FIGURES */
   | CreateFigureCommand
@@ -998,6 +1007,7 @@ export const enum CommandResult {
   InvalidOffset,
   InvalidViewportSize,
   FigureDoesNotExist,
+  InvalidConditionalFormatId,
 }
 
 export interface CommandHandler<T> {

@@ -41,6 +41,8 @@ export const conditionalFormattingTerms = {
   ColorScale: _lt("Color scale"),
   IconSet: _lt("Icon set"),
   newRule: _lt("Add another rule"),
+  reorderRules: _lt("Reorder rules"),
+  exitReorderMode: _lt("Stop reordering rules"),
   FixedNumber: _lt("Number"),
   Percentage: _lt("Percentage"),
   Percentile: _lt("Percentile"),

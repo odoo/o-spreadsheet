@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
-import { toZone } from "../../src/helpers";
+import { toCartesian, toZone } from "../../src/helpers";
 import { CommandResult, CoreCommand } from "../../src/types";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
 import {
@@ -13,13 +13,14 @@ import {
   deleteColumns,
   deleteRows,
   merge,
+  moveConditionalFormat,
   redo,
   selectCell,
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
 import { getBorder, getCell, getCellContent } from "../test_helpers/getters_helpers";
-import { target, toPosition } from "../test_helpers/helpers";
+import { createEqualCF, target, toPosition } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -739,5 +740,71 @@ describe("Multi users synchronisation", () => {
         5
       );
     });
+  });
+
+  test("Reorder formatting rules concurrently", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    setCellContent(alice, "A1", "1");
+    alice.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1")],
+      sheetId,
+    });
+    alice.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { fillColor: "#0000FF" }, "2"),
+      target: [toZone("A1")],
+      sheetId,
+    });
+    alice.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { fillColor: "#00FF00" }, "3"),
+      target: [toZone("A1")],
+      sheetId,
+    });
+    network.concurrent(() => {
+      moveConditionalFormat(bob, "3", "up", sheetId);
+      moveConditionalFormat(alice, "3", "up", sheetId);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getConditionalStyle(...toCartesian("A1")),
+      { fillColor: "#00FF00" }
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getConditionalFormats(sheetId)[0].id,
+      "3"
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getConditionalFormats(sheetId)[1].id,
+      "1"
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getConditionalFormats(sheetId)[2].id,
+      "2"
+    );
+  });
+
+  test("Reorder and delete formatting rules concurrently", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    setCellContent(alice, "A1", "1");
+    alice.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
+      target: [toZone("A1")],
+      sheetId,
+    });
+    alice.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { fillColor: "#0000FF" }, "2"),
+      target: [toZone("A1")],
+      sheetId,
+    });
+    network.concurrent(() => {
+      moveConditionalFormat(bob, "2", "up", sheetId);
+      alice.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+        id: "2",
+        sheetId: sheetId,
+      });
+    });
+    expect([alice, bob]).toHaveSynchronizedValue(
+      (user) => user.getters.getConditionalStyle(...toCartesian("A1")),
+      { fillColor: "#FF0000" }
+    );
   });
 });

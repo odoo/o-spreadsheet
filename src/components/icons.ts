@@ -46,6 +46,10 @@ export const UNLINK = `<svg class="o-icon" viewBox="0 0 512 512"><path fill="cur
  *  http://fontawesome.io/
  *  https://fontawesome.com/license
  */
+export const CARET_UP =
+  '<svg xmlns="http://www.w3.org/2000/svg" class="caret-up" viewBox="0 0 320 512"><path fill="currentColor" d="M288.662 352H31.338c-17.818 0-26.741-21.543-14.142-34.142l128.662-128.662c7.81-7.81 20.474-7.81 28.284 0l128.662 128.662c12.6 12.599 3.676 34.142-14.142 34.142z"></path></svg>';
+export const CARET_DOWN =
+  '<svg xmlns="http://www.w3.org/2000/svg" class="caret-down"  viewBox="0 0 320 512"><path fill="currentColor" d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"></path></svg>';
 
 export const TRASH =
   '<svg xmlns ="http://www.w3.org/2000/svg" class="o-cf-icon trash" viewBox = "0 0 448 512" > <path fill="currentColor" d = "M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z" > </path></svg >';
