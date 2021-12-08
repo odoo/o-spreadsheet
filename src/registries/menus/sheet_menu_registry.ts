@@ -1,3 +1,4 @@
+import { interactiveRenameSheet } from "../../helpers/ui/sheet";
 import { _lt } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
 
@@ -11,7 +12,9 @@ sheetMenuRegistry
       return env.getters.getSheets().length > 1;
     },
     action: (env) =>
-      env.dispatch("DELETE_SHEET_CONFIRMATION", { sheetId: env.getters.getActiveSheetId() }),
+      env.askConfirmation(_lt("Are you sure you want to delete this sheet ?"), () => {
+        env.dispatch("DELETE_SHEET", { sheetId: env.getters.getActiveSheetId() });
+      }),
   })
   .add("duplicate", {
     name: _lt("Duplicate"),
@@ -29,11 +32,7 @@ sheetMenuRegistry
   .add("rename", {
     name: _lt("Rename"),
     sequence: 30,
-    action: (env) =>
-      env.dispatch("RENAME_SHEET", {
-        interactive: true,
-        sheetId: env.getters.getActiveSheetId(),
-      }),
+    action: (env) => interactiveRenameSheet(env, env.getters.getActiveSheetId()),
   })
   .add("move_right", {
     name: _lt("Move right"),

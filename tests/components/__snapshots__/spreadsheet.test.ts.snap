@@ -281,7 +281,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           </span>
         </div>
         <div
-          class="o-tool o-disabled"
+          class="o-tool o-merge-tool o-disabled"
           title="Merge Cells"
         >
           <svg

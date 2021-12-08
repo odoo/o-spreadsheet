@@ -8,7 +8,8 @@ import {
   SELECTION_BORDER_COLOR,
   UNHIDE_ICON_EDGE_LENGTH,
 } from "../constants";
-import { Col, EdgeScrollInfo, Row, SpreadsheetEnv } from "../types/index";
+import { _lt } from "../translation";
+import { Col, CommandResult, EdgeScrollInfo, Row, SpreadsheetEnv } from "../types/index";
 import { ContextMenuType } from "./grid";
 import { startDnd } from "./helpers/drag_and_drop";
 import * as icons from "./icons";
@@ -482,12 +483,17 @@ export class ColResizer extends AbstractResizer {
     for (let colIndex = start; colIndex <= end; colIndex++) {
       elements.push(colIndex);
     }
-    this.dispatch("MOVE_COLUMNS_ROWS", {
+    const result = this.dispatch("MOVE_COLUMNS_ROWS", {
       sheetId: this.getters.getActiveSheetId(),
       dimension: "COL",
       base: this.state.base,
       elements,
     });
+    if (!result.isSuccessful && result.reasons.includes(CommandResult.WillRemoveExistingMerge)) {
+      this.env.notifyUser(
+        _lt("Merged cells are preventing this operation. Unmerge those cells and try again.")
+      );
+    }
   }
 
   _selectElement(index: number, ctrlKey: boolean): void {
@@ -712,12 +718,17 @@ export class RowResizer extends AbstractResizer {
     for (let rowIndex = start; rowIndex <= end; rowIndex++) {
       elements.push(rowIndex);
     }
-    this.dispatch("MOVE_COLUMNS_ROWS", {
+    const result = this.dispatch("MOVE_COLUMNS_ROWS", {
       sheetId: this.getters.getActiveSheetId(),
       dimension: "ROW",
       base: this.state.base,
       elements,
     });
+    if (!result.isSuccessful && result.reasons.includes(CommandResult.WillRemoveExistingMerge)) {
+      this.env.notifyUser(
+        _lt("Merged cells are preventing this operation. Unmerge those cells and try again.")
+      );
+    }
   }
 
   _selectElement(index: number, ctrlKey: boolean): void {

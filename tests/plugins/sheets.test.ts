@@ -171,9 +171,9 @@ describe("sheets", () => {
 
   test("Cannot delete an invalid sheet; confirmation", async () => {
     const model = new Model();
-    expect(
-      model.dispatch("DELETE_SHEET_CONFIRMATION", { sheetId: "invalid" })
-    ).toBeCancelledBecause(CommandResult.InvalidSheetId);
+    expect(model.dispatch("DELETE_SHEET", { sheetId: "invalid" })).toBeCancelledBecause(
+      CommandResult.InvalidSheetId
+    );
   });
 
   test("can read a value in same sheet", () => {
@@ -398,25 +398,22 @@ describe("sheets", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
     const name = "NEW_NAME";
-    model.dispatch("RENAME_SHEET", { sheetId: sheet, name });
+    renameSheet(model, sheet, name);
     expect(model.getters.getSheets().find((s) => s.id === sheet)!.name).toBe(name);
   });
 
   test("Cannot rename an invalid sheet", async () => {
     const model = new Model();
-    expect(
-      model.dispatch("RENAME_SHEET", {
-        sheetId: "invalid",
-        name: "hello",
-      })
-    ).toBeCancelledBecause(CommandResult.InvalidSheetId);
+    expect(renameSheet(model, "invalid", "hello")).toBeCancelledBecause(
+      CommandResult.InvalidSheetId
+    );
   });
 
   test("New sheet name is trimmed", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
     const name = " NEW_NAME   ";
-    model.dispatch("RENAME_SHEET", { sheetId: sheet, name });
+    renameSheet(model, sheet, name);
     expect(model.getters.getSheets().find((s) => s.id === sheet)!.name).toBe("NEW_NAME");
   });
 
@@ -425,26 +422,23 @@ describe("sheets", () => {
     const sheet = model.getters.getActiveSheetId();
     const name = "NEW_NAME";
     createSheetWithName(model, { sheetId: "42" }, name);
-    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name })).toBeCancelledBecause(
+    expect(renameSheet(model, sheet, name)).toBeCancelledBecause(CommandResult.DuplicatedSheetName);
+    expect(renameSheet(model, sheet, "new_name")).toBeCancelledBecause(
       CommandResult.DuplicatedSheetName
     );
-    expect(
-      model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "new_name" })
-    ).toBeCancelledBecause(CommandResult.DuplicatedSheetName);
-    expect(
-      model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "new_name " })
-    ).toBeCancelledBecause(CommandResult.DuplicatedSheetName);
+    expect(renameSheet(model, sheet, "new_name ")).toBeCancelledBecause(
+      CommandResult.DuplicatedSheetName
+    );
   });
 
   test("Cannot rename a sheet without name", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
     expect(
-      model.dispatch("RENAME_SHEET", { sheetId: sheet, name: undefined })
+      //@ts-ignore undefined is not a string
+      renameSheet(model, sheet, undefined)
     ).toBeCancelledBecause(CommandResult.MissingSheetName);
-    expect(model.dispatch("RENAME_SHEET", { sheetId: sheet, name: "    " })).toBeCancelledBecause(
-      CommandResult.MissingSheetName
-    );
+    expect(renameSheet(model, sheet, "    ")).toBeCancelledBecause(CommandResult.MissingSheetName);
   });
 
   test("Sheet reference are correctly updated", () => {
@@ -456,7 +450,7 @@ describe("sheets", () => {
     const sheet2 = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
     const nextName = "NEXT NAME";
-    model.dispatch("RENAME_SHEET", { sheetId: sheet2, name: nextName });
+    renameSheet(model, sheet2, nextName);
     activateSheet(model, sheet1);
     expect(getCellText(model, "A1")).toBe("='NEXT NAME'!A1");
     undo(model); // Activate Sheet
@@ -473,7 +467,7 @@ describe("sheets", () => {
     setCellContent(model, "A1", "=NEW_NAME!A1");
     setCellContent(model, "A1", "24", sheet2);
     const nextName = "NEXT NAME";
-    model.dispatch("RENAME_SHEET", { sheetId: sheet2, name: nextName });
+    renameSheet(model, sheet2, nextName);
     expect(getCellText(model, "A1")).toBe("='NEXT NAME'!A1");
     expect(getCell(model, "A1")!.evaluated.value).toBe(24);
   });
@@ -487,107 +481,6 @@ describe("sheets", () => {
   test("tryGetSheetName with a sheet which does not exist", () => {
     const model = new Model();
     expect(model.getters.tryGetSheetName("Sheet999")).toBeUndefined();
-  });
-
-  test("Rename a sheet will call editText", async () => {
-    const editText = jest.fn();
-    const model = new Model(
-      {
-        sheets: [
-          {
-            colNumber: 5,
-            rowNumber: 5,
-          },
-        ],
-      },
-      { editText }
-    );
-    model.dispatch("RENAME_SHEET", {
-      sheetId: model.getters.getActiveSheetId(),
-      interactive: true,
-    });
-    expect(editText).toHaveBeenCalled();
-  });
-
-  test("Rename a sheet with interaction", async () => {
-    const editText = jest.fn(
-      (title: string, placeholder: string, callback: (text: string | null) => any) => {
-        callback("new name");
-      }
-    );
-    const model = new Model(
-      {
-        sheets: [
-          {
-            colNumber: 5,
-            rowNumber: 5,
-          },
-        ],
-      },
-      { editText }
-    );
-    model.dispatch("RENAME_SHEET", {
-      sheetId: model.getters.getActiveSheetId(),
-      interactive: true,
-    });
-    expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("new name");
-  });
-
-  test.each([
-    ["", "The sheet name cannot be empty."],
-    [
-      "hééélo///",
-      "Some used characters are not allowed in a sheet name (Forbidden characters are ' * ? / \\ [ ]).",
-    ],
-  ])(
-    "Rename a sheet with interaction with wrong name %s",
-    async (sheetName, expectedErrorMessage) => {
-      const nameCallback = jest.fn().mockReturnValueOnce(sheetName).mockReturnValueOnce("new name");
-      const editTextSpy = jest.fn();
-      const editText = (
-        title: string,
-        placeholder: string,
-        callback: (text: string | null) => any
-      ) => {
-        editTextSpy(title.toString());
-        callback(nameCallback());
-      };
-      const model = new Model({}, { editText });
-      model.dispatch("RENAME_SHEET", {
-        sheetId: model.getters.getActiveSheetId(),
-        interactive: true,
-      });
-      expect(editTextSpy).toHaveBeenCalledTimes(2);
-      expect(editTextSpy).toHaveBeenNthCalledWith(1, "Rename Sheet");
-      expect(editTextSpy).toHaveBeenNthCalledWith(2, expectedErrorMessage);
-    }
-  );
-
-  test("Rename a sheet with interaction with same name as other sheet", async () => {
-    const sheetName = "existing sheet";
-    const nameCallback = jest.fn().mockReturnValueOnce(sheetName).mockReturnValueOnce("new name");
-    const editTextSpy = jest.fn();
-    const editText = (
-      title: string,
-      placeholder: string,
-      callback: (text: string | null) => any
-    ) => {
-      editTextSpy(title.toString());
-      callback(nameCallback());
-    };
-    const model = new Model({}, { editText });
-    createSheetWithName(model, { sheetId: "42", activate: false }, sheetName);
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("RENAME_SHEET", {
-      sheetId,
-      interactive: true,
-    });
-    expect(editTextSpy).toHaveBeenCalledTimes(2);
-    expect(editTextSpy).toHaveBeenNthCalledWith(1, "Rename Sheet");
-    expect(editTextSpy).toHaveBeenNthCalledWith(
-      2,
-      `A sheet with the name ${sheetName} already exists. Please select another name.`
-    );
   });
 
   test("Can duplicate a sheet", () => {
@@ -1017,10 +910,7 @@ describe("sheets", () => {
   test.each(["Sheet", "My sheet"])("getSheetIdByName", (name) => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("RENAME_SHEET", {
-      sheetId,
-      name,
-    });
+    renameSheet(model, sheetId, name);
     expect(model.getters.getSheetIdByName(name)).toBe(sheetId);
     expect(model.getters.getSheetIdByName(`'${name}'`)).toBe(sheetId);
     expect(model.getters.getSheetIdByName(getComposerSheetName(name))).toBe(sheetId);
@@ -1034,10 +924,7 @@ describe("sheets", () => {
   test("getSheetIdByName works with non-matching case", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("RENAME_SHEET", {
-      sheetId,
-      name: "Sheet1",
-    });
+    renameSheet(model, sheetId, "Sheet1");
     expect(model.getters.getSheetIdByName("shEeT1")).toBeDefined();
   });
 });

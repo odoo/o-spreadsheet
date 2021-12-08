@@ -37,10 +37,6 @@ import { Border, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
  * can use inferred information from the local internal state, such as the
  * active sheet.
  */
-export interface BaseCommand {
-  interactive?: boolean;
-}
-
 export interface SheetDependentCommand {
   sheetId: UID;
 }
@@ -183,10 +179,7 @@ export function canExecuteInReadonly(cmd: Command): boolean {
 //------------------------------------------------------------------------------
 // Cells
 //------------------------------------------------------------------------------
-export interface UpdateCellCommand
-  extends BaseCommand,
-    SheetDependentCommand,
-    PositionDependentCommand {
+export interface UpdateCellCommand extends SheetDependentCommand, PositionDependentCommand {
   type: "UPDATE_CELL";
   content?: string;
   style?: Style | null;
@@ -196,10 +189,7 @@ export interface UpdateCellCommand
 /**
  * Move a cell to a given position or clear the position.
  */
-export interface UpdateCellPositionCommand
-  extends BaseCommand,
-    SheetDependentCommand,
-    PositionDependentCommand {
+export interface UpdateCellPositionCommand extends SheetDependentCommand, PositionDependentCommand {
   type: "UPDATE_CELL_POSITION";
   cellId?: UID;
 }
@@ -208,57 +198,39 @@ export interface UpdateCellPositionCommand
 // Grid Shape
 //------------------------------------------------------------------------------
 
-export interface AddColumnsRowsCommand
-  extends BaseCommand,
-    SheetDependentCommand,
-    GridDependentCommand {
+export interface AddColumnsRowsCommand extends SheetDependentCommand, GridDependentCommand {
   type: "ADD_COLUMNS_ROWS";
   base: number;
   quantity: number;
   position: "before" | "after";
 }
 
-export interface RemoveColumnsRowsCommand
-  extends BaseCommand,
-    SheetDependentCommand,
-    GridDependentCommand {
+export interface RemoveColumnsRowsCommand extends SheetDependentCommand, GridDependentCommand {
   type: "REMOVE_COLUMNS_ROWS";
   elements: number[];
 }
 
-export interface MoveColumnsRowsCommand
-  extends BaseCommand,
-    SheetDependentCommand,
-    GridDependentCommand {
+export interface MoveColumnsRowsCommand extends SheetDependentCommand, GridDependentCommand {
   type: "MOVE_COLUMNS_ROWS";
   base: number;
   elements: number[];
 }
 
-export interface ResizeColumnsRowsCommand
-  extends BaseCommand,
-    SheetDependentCommand,
-    GridDependentCommand {
+export interface ResizeColumnsRowsCommand extends SheetDependentCommand, GridDependentCommand {
   type: "RESIZE_COLUMNS_ROWS";
   elements: number[];
   size: number;
 }
 
-export interface HideColumnsRowsCommand
-  extends BaseCommand,
-    SheetDependentCommand,
-    GridDependentCommand {
+export interface HideColumnsRowsCommand extends SheetDependentCommand, GridDependentCommand {
   type: "HIDE_COLUMNS_ROWS";
   elements: number[];
 }
-export interface UnhideColumnsRowsCommand
-  extends BaseCommand,
-    SheetDependentCommand,
-    GridDependentCommand {
+export interface UnhideColumnsRowsCommand extends SheetDependentCommand, GridDependentCommand {
   type: "UNHIDE_COLUMNS_ROWS";
   elements: number[];
 }
-export interface SetGridLinesVisibilityCommand extends BaseCommand, SheetDependentCommand {
+export interface SetGridLinesVisibilityCommand extends SheetDependentCommand {
   type: "SET_GRID_LINES_VISIBILITY";
   areGridLinesVisible: boolean;
 }
@@ -267,18 +239,12 @@ export interface SetGridLinesVisibilityCommand extends BaseCommand, SheetDepende
 // Merge
 //------------------------------------------------------------------------------
 
-export interface AddMergeCommand
-  extends BaseCommand,
-    SheetDependentCommand,
-    TargetDependentCommand {
+export interface AddMergeCommand extends SheetDependentCommand, TargetDependentCommand {
   type: "ADD_MERGE";
   force?: boolean;
 }
 
-export interface RemoveMergeCommand
-  extends BaseCommand,
-    SheetDependentCommand,
-    TargetDependentCommand {
+export interface RemoveMergeCommand extends SheetDependentCommand, TargetDependentCommand {
   type: "REMOVE_MERGE";
 }
 
@@ -286,28 +252,28 @@ export interface RemoveMergeCommand
 // Sheets Manipulation
 //------------------------------------------------------------------------------
 
-export interface CreateSheetCommand extends BaseCommand, SheetDependentCommand {
+export interface CreateSheetCommand extends SheetDependentCommand {
   type: "CREATE_SHEET";
   position: number;
   cols?: number;
   rows?: number;
 }
 
-export interface DeleteSheetCommand extends BaseCommand, SheetDependentCommand {
+export interface DeleteSheetCommand extends SheetDependentCommand {
   type: "DELETE_SHEET";
 }
 
-export interface DuplicateSheetCommand extends BaseCommand, SheetDependentCommand {
+export interface DuplicateSheetCommand extends SheetDependentCommand {
   type: "DUPLICATE_SHEET";
   sheetIdTo: UID;
 }
 
-export interface MoveSheetCommand extends BaseCommand, SheetDependentCommand {
+export interface MoveSheetCommand extends SheetDependentCommand {
   type: "MOVE_SHEET";
   direction: "left" | "right";
 }
 
-export interface RenameSheetCommand extends BaseCommand, SheetDependentCommand {
+export interface RenameSheetCommand extends SheetDependentCommand {
   type: "RENAME_SHEET";
   name?: string;
 }
@@ -320,15 +286,12 @@ export interface RenameSheetCommand extends BaseCommand, SheetDependentCommand {
  * todo: use id instead of a list. this is not safe to serialize and send to
  * another user
  */
-export interface AddConditionalFormatCommand
-  extends BaseCommand,
-    SheetDependentCommand,
-    TargetDependentCommand {
+export interface AddConditionalFormatCommand extends SheetDependentCommand, TargetDependentCommand {
   type: "ADD_CONDITIONAL_FORMAT";
   cf: Omit<ConditionalFormat, "ranges">;
 }
 
-export interface RemoveConditionalFormatCommand extends BaseCommand, SheetDependentCommand {
+export interface RemoveConditionalFormatCommand extends SheetDependentCommand {
   type: "REMOVE_CONDITIONAL_FORMAT";
   id: string;
 }
@@ -337,17 +300,17 @@ export interface RemoveConditionalFormatCommand extends BaseCommand, SheetDepend
 // Figures
 //------------------------------------------------------------------------------
 
-export interface CreateFigureCommand extends BaseCommand, SheetDependentCommand {
+export interface CreateFigureCommand extends SheetDependentCommand {
   type: "CREATE_FIGURE";
   figure: Figure;
 }
 
-export interface UpdateFigureCommand extends BaseCommand, Partial<Figure>, SheetDependentCommand {
+export interface UpdateFigureCommand extends Partial<Figure>, SheetDependentCommand {
   type: "UPDATE_FIGURE";
   id: UID;
 }
 
-export interface DeleteFigureCommand extends BaseCommand, SheetDependentCommand {
+export interface DeleteFigureCommand extends SheetDependentCommand {
   type: "DELETE_FIGURE";
   id: UID;
 }
@@ -356,53 +319,41 @@ export interface DeleteFigureCommand extends BaseCommand, SheetDependentCommand 
 // Chart
 //------------------------------------------------------------------------------
 
-export interface CreateChartCommand extends BaseCommand, SheetDependentCommand {
+export interface CreateChartCommand extends SheetDependentCommand {
   type: "CREATE_CHART";
   id: UID;
   position?: { x: number; y: number };
   definition: ChartUIDefinition;
 }
 
-export interface UpdateChartCommand extends BaseCommand, SheetDependentCommand {
+export interface UpdateChartCommand extends SheetDependentCommand {
   type: "UPDATE_CHART";
   id: UID;
   definition: ChartUIDefinitionUpdate;
 }
 
-export interface RefreshChartCommand extends BaseCommand {
+export interface RefreshChartCommand {
   type: "REFRESH_CHART";
   id: UID;
 }
 
-export interface SetFormattingCommand
-  extends BaseCommand,
-    SheetDependentCommand,
-    TargetDependentCommand {
+export interface SetFormattingCommand extends SheetDependentCommand, TargetDependentCommand {
   type: "SET_FORMATTING";
   style?: Style;
   border?: BorderCommand;
   format?: string;
 }
 
-export interface SetBorderCommand
-  extends BaseCommand,
-    SheetDependentCommand,
-    PositionDependentCommand {
+export interface SetBorderCommand extends SheetDependentCommand, PositionDependentCommand {
   type: "SET_BORDER";
   border: Border | undefined;
 }
 
-export interface ClearFormattingCommand
-  extends BaseCommand,
-    SheetDependentCommand,
-    TargetDependentCommand {
+export interface ClearFormattingCommand extends SheetDependentCommand, TargetDependentCommand {
   type: "CLEAR_FORMATTING";
 }
 
-export interface SetDecimalCommand
-  extends BaseCommand,
-    SheetDependentCommand,
-    TargetDependentCommand {
+export interface SetDecimalCommand extends SheetDependentCommand, TargetDependentCommand {
   type: "SET_DECIMAL";
   step: number;
 }
@@ -410,35 +361,30 @@ export interface SetDecimalCommand
 
 //#region Local Commands
 // ------------------------------------------------
-export interface DeleteSheetConfirmationCommand extends BaseCommand {
-  type: "DELETE_SHEET_CONFIRMATION";
-  sheetId: UID;
-}
-
-export interface CopyCommand extends BaseCommand {
+export interface CopyCommand {
   type: "COPY";
   target: Zone[];
 }
 
-export interface CutCommand extends BaseCommand {
+export interface CutCommand {
   type: "CUT";
   target: Zone[];
 }
 
-export interface PasteCommand extends BaseCommand {
+export interface PasteCommand {
   type: "PASTE";
   target: Zone[];
   pasteOption?: ClipboardOptions;
   force?: boolean;
 }
 
-export interface CutAndPasteCommand extends BaseCommand {
+export interface CutAndPasteCommand {
   type: "CUT_AND_PASTE";
   source: Zone;
   target: Zone;
 }
 
-export interface AutoFillCellCommand extends BaseCommand {
+export interface AutoFillCellCommand {
   type: "AUTOFILL_CELL";
   originCol: number;
   originRow: number;
@@ -450,48 +396,48 @@ export interface AutoFillCellCommand extends BaseCommand {
   format?: string;
 }
 
-export interface ActivatePaintFormatCommand extends BaseCommand {
+export interface ActivatePaintFormatCommand {
   type: "ACTIVATE_PAINT_FORMAT";
   target: Zone[];
 }
 
-export interface PasteFromOSClipboardCommand extends BaseCommand {
+export interface PasteFromOSClipboardCommand {
   type: "PASTE_FROM_OS_CLIPBOARD";
   target: Zone[];
   text: string;
 }
 
-export interface AutoresizeColumnsCommand extends BaseCommand {
+export interface AutoresizeColumnsCommand {
   type: "AUTORESIZE_COLUMNS";
   sheetId: UID;
   cols: number[];
 }
 
-export interface AutoresizeRowsCommand extends BaseCommand {
+export interface AutoresizeRowsCommand {
   type: "AUTORESIZE_ROWS";
   sheetId: UID;
   rows: number[];
 }
 
-export interface MovePositionCommand extends BaseCommand {
+export interface MovePositionCommand {
   type: "MOVE_POSITION";
   deltaX: Increment;
   deltaY: Increment;
 }
 
-export interface ActivateSheetCommand extends BaseCommand {
+export interface ActivateSheetCommand {
   type: "ACTIVATE_SHEET";
   sheetIdFrom: UID;
   sheetIdTo: UID;
 }
 
-export interface SelectCellCommand extends BaseCommand {
+export interface SelectCellCommand {
   type: "SELECT_CELL";
   col: number;
   row: number;
 }
 
-export interface SetSelectionCommand extends BaseCommand {
+export interface SetSelectionCommand {
   type: "SET_SELECTION";
   anchor: [number, number];
   zones: Zone[];
@@ -503,7 +449,7 @@ export interface SetSelectionCommand extends BaseCommand {
  * Set the selection mode to `selecting`.
  * The user is currently selecting some cells.
  */
-export interface StartSelectionCommand extends BaseCommand {
+export interface StartSelectionCommand {
   type: "START_SELECTION";
 }
 
@@ -514,7 +460,7 @@ export interface StartSelectionCommand extends BaseCommand {
  * In other words, the next selection will be added to the
  * current selection if this mode is active.
  */
-export interface PrepareExpansionCommand extends BaseCommand {
+export interface PrepareExpansionCommand {
   type: "PREPARE_SELECTION_EXPANSION";
 }
 
@@ -523,14 +469,14 @@ export interface PrepareExpansionCommand extends BaseCommand {
  * This mode means that the user is currently selecting
  * a new zone which will be added to the current selection.
  */
-export interface StartExpansionCommand extends BaseCommand {
+export interface StartExpansionCommand {
   type: "START_SELECTION_EXPANSION";
 }
 
 /**
  * Set the selection mode to `idle`.
  */
-export interface StopSelectionCommand extends BaseCommand {
+export interface StopSelectionCommand {
   type: "STOP_SELECTION";
 }
 
@@ -538,141 +484,141 @@ export interface StopSelectionCommand extends BaseCommand {
  * Set a color to be used for the next selection to highlight.
  * The color is only used when selection highlight is enabled.
  */
-export interface SetColorCommand extends BaseCommand {
+export interface SetColorCommand {
   type: "SET_HIGHLIGHT_COLOR";
   color: string;
 }
 
-export interface SelectColumnCommand extends BaseCommand {
+export interface SelectColumnCommand {
   type: "SELECT_COLUMN";
   index: number;
   createRange?: boolean;
   updateRange?: boolean;
 }
 
-export interface SelectRowCommand extends BaseCommand {
+export interface SelectRowCommand {
   type: "SELECT_ROW";
   index: number;
   createRange?: boolean;
   updateRange?: boolean;
 }
 
-export interface SelectAllCommand extends BaseCommand {
+export interface SelectAllCommand {
   type: "SELECT_ALL";
 }
 
-export interface AlterSelectionCommand extends BaseCommand {
+export interface AlterSelectionCommand {
   type: "ALTER_SELECTION";
   delta?: [Increment, Increment];
   cell?: [number, number];
 }
 
-export interface EvaluateCellsCommand extends BaseCommand {
+export interface EvaluateCellsCommand {
   type: "EVALUATE_CELLS";
   sheetId: UID;
   onlyWaiting?: boolean;
 }
 
-export interface StartChangeHighlightCommand extends BaseCommand {
+export interface StartChangeHighlightCommand {
   type: "START_CHANGE_HIGHLIGHT";
   zone: Zone;
 }
 
-export interface ChangeHighlightCommand extends BaseCommand {
+export interface ChangeHighlightCommand {
   type: "CHANGE_HIGHLIGHT";
   zone: Zone;
 }
 
-export interface StopComposerSelectionCommand extends BaseCommand {
+export interface StopComposerSelectionCommand {
   type: "STOP_COMPOSER_RANGE_SELECTION";
 }
 
-export interface StartEditionCommand extends BaseCommand {
+export interface StartEditionCommand {
   type: "START_EDITION";
   text?: string;
   selection?: ComposerSelection;
 }
 
-export interface StopEditionCommand extends BaseCommand {
+export interface StopEditionCommand {
   type: "STOP_EDITION";
   cancel?: boolean;
 }
 
-export interface SetCurrentContentCommand extends BaseCommand {
+export interface SetCurrentContentCommand {
   type: "SET_CURRENT_CONTENT";
   content: string;
   selection?: ComposerSelection;
 }
 
-export interface ChangeComposerSelectionCommand extends BaseCommand {
+export interface ChangeComposerSelectionCommand {
   type: "CHANGE_COMPOSER_CURSOR_SELECTION";
   start: number;
   end: number;
 }
 
-export interface ReplaceComposerSelectionCommand extends BaseCommand {
+export interface ReplaceComposerSelectionCommand {
   type: "REPLACE_COMPOSER_CURSOR_SELECTION";
   text: string;
 }
 
-export interface ShowFormulaCommand extends BaseCommand {
+export interface ShowFormulaCommand {
   type: "SET_FORMULA_VISIBILITY";
   show: boolean;
 }
 
-export interface DeleteContentCommand extends BaseCommand {
+export interface DeleteContentCommand {
   type: "DELETE_CONTENT";
   sheetId: UID;
   target: Zone[];
 }
 
-export interface ClearCellCommand extends BaseCommand {
+export interface ClearCellCommand {
   type: "CLEAR_CELL";
   sheetId: UID;
   col: number;
   row: number;
 }
 
-export interface UndoCommand extends BaseCommand {
+export interface UndoCommand {
   type: "UNDO";
   commands: readonly CoreCommand[];
 }
 
-export interface RedoCommand extends BaseCommand {
+export interface RedoCommand {
   type: "REDO";
   commands: readonly CoreCommand[];
 }
 
-export interface RequestUndoCommand extends BaseCommand {
+export interface RequestUndoCommand {
   type: "REQUEST_UNDO";
 }
 
-export interface RequestRedoCommand extends BaseCommand {
+export interface RequestRedoCommand {
   type: "REQUEST_REDO";
 }
 
-export interface StartCommand extends BaseCommand {
+export interface StartCommand {
   type: "START";
 }
 
-export interface AutofillCommand extends BaseCommand {
+export interface AutofillCommand {
   type: "AUTOFILL";
 }
 
-export interface AutofillSelectCommand extends BaseCommand {
+export interface AutofillSelectCommand {
   type: "AUTOFILL_SELECT";
   col: number;
   row: number;
 }
 
-export interface AutofillAutoCommand extends BaseCommand {
+export interface AutofillAutoCommand {
   type: "AUTOFILL_AUTO";
 }
 
 /**
  * Create a new state for a SelectionInput component
  */
-export interface NewInputCommand extends BaseCommand {
+export interface NewInputCommand {
   type: "ENABLE_NEW_SELECTION_INPUT";
   /**
    * Identifier to use to reference this state.
@@ -692,20 +638,20 @@ export interface NewInputCommand extends BaseCommand {
 /**
  * Delete an identified SelectionInput state.
  */
-export interface RemoveInputCommand extends BaseCommand {
+export interface RemoveInputCommand {
   type: "DISABLE_SELECTION_INPUT";
   /** SelectionComponent id */
   id: string;
 }
 
-export interface UnfocusInputCommand extends BaseCommand {
+export interface UnfocusInputCommand {
   type: "UNFOCUS_SELECTION_INPUT";
 }
 
 /**
  * Set the focus on a given range of a SelectionComponent state.
  */
-export interface FocusInputCommand extends BaseCommand {
+export interface FocusInputCommand {
   type: "FOCUS_RANGE";
   /** SelectionComponent id */
   id: string;
@@ -719,7 +665,7 @@ export interface FocusInputCommand extends BaseCommand {
  * Add an empty range at the end of a SelectionComponent state
  * and focus it.
  */
-export interface AddEmptyRangeCommand extends BaseCommand {
+export interface AddEmptyRangeCommand {
   type: "ADD_EMPTY_RANGE";
   /** SelectionComponent id */
   id: string;
@@ -728,7 +674,7 @@ export interface AddEmptyRangeCommand extends BaseCommand {
 /**
  * Remove a given range in a SelectionComponent state
  */
-export interface RemoveRangeCommand extends BaseCommand {
+export interface RemoveRangeCommand {
   type: "REMOVE_RANGE";
   /** SelectionComponent id */
   id: string;
@@ -739,7 +685,7 @@ export interface RemoveRangeCommand extends BaseCommand {
 /**
  * Set a new value for a given range of a SelectionComponent state.
  */
-export interface ChangeRangeCommand extends BaseCommand {
+export interface ChangeRangeCommand {
   type: "CHANGE_RANGE";
   /** SelectionComponent id */
   id: string;
@@ -752,44 +698,44 @@ export interface ChangeRangeCommand extends BaseCommand {
   value: string;
 }
 
-export interface SelectFigureCommand extends BaseCommand {
+export interface SelectFigureCommand {
   type: "SELECT_FIGURE";
   id: UID;
 }
 
-export interface UpdateSearchCommand extends BaseCommand {
+export interface UpdateSearchCommand {
   type: "UPDATE_SEARCH";
   toSearch: string;
   searchOptions: SearchOptions;
 }
 
-export interface ClearSearchCommand extends BaseCommand {
+export interface ClearSearchCommand {
   type: "CLEAR_SEARCH";
 }
-export interface RefreshSearchCommand extends BaseCommand {
+export interface RefreshSearchCommand {
   type: "REFRESH_SEARCH";
 }
 
-export interface SelectSearchPreviousCommand extends BaseCommand {
+export interface SelectSearchPreviousCommand {
   type: "SELECT_SEARCH_PREVIOUS_MATCH";
 }
 
-export interface SelectSearchNextCommand extends BaseCommand {
+export interface SelectSearchNextCommand {
   type: "SELECT_SEARCH_NEXT_MATCH";
 }
 
-export interface ReplaceSearchCommand extends BaseCommand {
+export interface ReplaceSearchCommand {
   type: "REPLACE_SEARCH";
   replaceWith: string;
   replaceOptions: ReplaceOptions;
 }
-export interface ReplaceAllSearchCommand extends BaseCommand {
+export interface ReplaceAllSearchCommand {
   type: "REPLACE_ALL_SEARCH";
   replaceWith: string;
   replaceOptions: ReplaceOptions;
 }
 
-export interface SortCommand extends BaseCommand {
+export interface SortCommand {
   type: "SORT_CELLS";
   sheetId: UID;
   anchor: [number, number];
@@ -799,13 +745,13 @@ export interface SortCommand extends BaseCommand {
 
 export type SortDirection = "ascending" | "descending";
 
-export interface ResizeViewportCommand extends BaseCommand {
+export interface ResizeViewportCommand {
   type: "RESIZE_VIEWPORT";
   width: number;
   height: number;
 }
 
-export interface SetViewportOffsetCommand extends BaseCommand {
+export interface SetViewportOffsetCommand {
   type: "SET_VIEWPORT_OFFSET";
   offsetX: number;
   offsetY: number;
@@ -814,14 +760,14 @@ export interface SetViewportOffsetCommand extends BaseCommand {
 /**
  * Shift the viewport down by the viewport height
  */
-export interface MoveViewportDownCommand extends BaseCommand {
+export interface MoveViewportDownCommand {
   type: "SHIFT_VIEWPORT_DOWN";
 }
 
 /**
  * Shift the viewport up by the viewport height
  */
-export interface MoveViewportUpCommand extends BaseCommand {
+export interface MoveViewportUpCommand {
   type: "SHIFT_VIEWPORT_UP";
 }
 
@@ -829,39 +775,39 @@ export interface MoveViewportUpCommand extends BaseCommand {
  * Sum data according to the selected zone(s) in the appropriated
  * cells.
  */
-export interface SumSelectionCommand extends BaseCommand {
+export interface SumSelectionCommand {
   type: "SUM_SELECTION";
 }
 
-export interface DeleteCellCommand extends BaseCommand {
+export interface DeleteCellCommand {
   type: "DELETE_CELL";
   shiftDimension: Dimension;
   zone: Zone;
 }
 
-export interface InsertCellCommand extends BaseCommand {
+export interface InsertCellCommand {
   type: "INSERT_CELL";
   shiftDimension: Dimension;
   zone: Zone;
 }
 
-export interface PasteCFCommand extends BaseCommand {
+export interface PasteCFCommand {
   type: "PASTE_CONDITIONAL_FORMAT";
   origin: CellPosition;
   target: CellPosition;
   operation: "CUT" | "COPY";
 }
 
-export interface EvaluateAllSheetsCommand extends BaseCommand {
+export interface EvaluateAllSheetsCommand {
   type: "EVALUATE_ALL_SHEETS";
 }
 //#endregion
 
-export interface ActivateNextSheetCommand extends BaseCommand {
+export interface ActivateNextSheetCommand {
   type: "ACTIVATE_NEXT_SHEET";
 }
 
-export interface ActivatePreviousSheetCommand extends BaseCommand {
+export interface ActivatePreviousSheetCommand {
   type: "ACTIVATE_PREVIOUS_SHEET";
 }
 
@@ -938,7 +884,6 @@ export type LocalCommand =
   | AutoresizeRowsCommand
   | MoveColumnsRowsCommand
   | MovePositionCommand
-  | DeleteSheetConfirmationCommand
   | ActivateSheetCommand
   | StartSelectionCommand
   | StartExpansionCommand

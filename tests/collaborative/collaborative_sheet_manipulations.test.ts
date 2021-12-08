@@ -13,6 +13,7 @@ import {
   deleteRows,
   hideColumns,
   hideRows,
+  renameSheet,
   selectCell,
   setCellContent,
   unhideColumns,
@@ -155,10 +156,7 @@ describe("Collaborative Sheet manipulation", () => {
     const sheetId = alice.getters.getActiveSheetId();
     const sheetName = bob.getters.getSheet(sheetId).name;
     network.concurrent(() => {
-      alice.dispatch("RENAME_SHEET", {
-        sheetId,
-        name: "NewName",
-      });
+      renameSheet(alice, sheetId, "NewName");
       setCellContent(bob, "A1", `=${sheetName}!A2`);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(

@@ -139,10 +139,8 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         );
         break;
       case "ADD_MERGE":
-        if (!cmd.interactive) {
-          for (const zone of cmd.target) {
-            this.addMerge(this.getters.getSheet(cmd.sheetId)!, zone);
-          }
+        for (const zone of cmd.target) {
+          this.addMerge(this.getters.getSheet(cmd.sheetId)!, zone);
         }
         break;
       case "REMOVE_MERGE":

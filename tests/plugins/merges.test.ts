@@ -1,3 +1,5 @@
+import { Component, hooks, tags } from "@odoo/owl";
+import { Spreadsheet } from "../../src";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CommandResult, Style } from "../../src/types/index";
@@ -10,6 +12,7 @@ import {
   undo,
   unMerge,
 } from "../test_helpers/commands_helpers";
+import { simulateClick } from "../test_helpers/dom_helper";
 import {
   getActiveXc,
   getBorder,
@@ -17,7 +20,16 @@ import {
   getCellContent,
   getMerges,
 } from "../test_helpers/getters_helpers";
-import { getMergeCellMap, target, toPosition, XCToMergeCellMap } from "../test_helpers/helpers";
+import {
+  getMergeCellMap,
+  makeTestFixture,
+  target,
+  toPosition,
+  XCToMergeCellMap,
+} from "../test_helpers/helpers";
+
+const { xml } = tags;
+const { useRef, useSubEnv } = hooks;
 
 function getCellsXC(model: Model): string[] {
   return Object.values(model.getters.getCells(model.getters.getActiveSheetId())).map((cell) => {
@@ -250,14 +262,26 @@ describe("merges", () => {
 
   test("merging destructively a selection ask for confirmation", async () => {
     const askConfirmation = jest.fn();
-    const model = new Model({}, { askConfirmation });
+    class Parent extends Component<any> {
+      static template = xml/* xml */ `<Spreadsheet t-ref="spreadsheet"/>`;
+      static components = { Spreadsheet };
+      spreadsheet: any = useRef("spreadsheet");
+      setup() {
+        useSubEnv({
+          askConfirmation,
+        });
+      }
+      get model(): Model {
+        return this.spreadsheet.comp.model;
+      }
+    }
+    const parent = new Parent();
+    const fixture = makeTestFixture();
+    await parent.mount(fixture);
+    const model = parent.model;
     setCellContent(model, "B2", "b2");
     model.dispatch("ALTER_SELECTION", { cell: [5, 5] });
-    model.dispatch("ADD_MERGE", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [model.getters.getSelectedZone()],
-      interactive: true,
-    });
+    await simulateClick(".o-merge-tool");
     expect(askConfirmation).toHaveBeenCalled();
   });
 

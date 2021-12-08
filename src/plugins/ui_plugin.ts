@@ -3,8 +3,7 @@ import { StateObserver } from "../state_observer";
 import { Command, CommandDispatcher, Getters, GridRenderingContext, LAYERS } from "../types/index";
 import { BasePlugin } from "./base_plugin";
 
-type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSidePanel" | "editText">;
-
+type UIActions = Pick<ModelConfig, "notifyUI">;
 export interface UIPluginConstructor {
   new (
     getters: Getters,

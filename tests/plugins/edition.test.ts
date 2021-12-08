@@ -5,6 +5,7 @@ import {
   activateSheet,
   createSheet,
   createSheetWithName,
+  renameSheet,
   selectCell,
   setCellContent,
   setSelection,
@@ -94,7 +95,7 @@ describe("edition", () => {
     setCellContent(model, "A1", "=NEW_NAME!A1");
     setCellContent(model, "A1", "24", sheet2);
     const nextName = "NEXT NAME";
-    model.dispatch("RENAME_SHEET", { sheetId: sheet2, name: nextName });
+    renameSheet(model, sheet2, nextName);
     model.dispatch("START_EDITION");
     expect(getCellText(model, "A1")).toBe("='NEXT NAME'!A1");
     expect(model.getters.getCurrentContent()).toBe("='NEXT NAME'!A1");

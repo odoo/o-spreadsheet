@@ -32,6 +32,7 @@ import {
   UID,
   WorkbookData,
 } from "./types/index";
+import { NotifyUIEvent } from "./types/ui";
 import { XLSXExport } from "./types/xlsx";
 import { getXLSX } from "./xlsx/xlsx_writer";
 
@@ -63,10 +64,6 @@ import { getXLSX } from "./xlsx/xlsx_writer";
 export type Mode = "normal" | "headless";
 export interface ModelConfig {
   mode: Mode;
-  openSidePanel: (panel: string, panelProps?: any) => void;
-  notifyUser: (content: string) => any;
-  askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
-  editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
   evalContext: EvalContext;
   moveClient: (position: ClientPosition) => void;
   dataSources: DataSourceRegistry<any, any>;
@@ -75,6 +72,7 @@ export interface ModelConfig {
   isHeadless: boolean;
   isReadonly: boolean;
   snapshotRequested: boolean;
+  notifyUI: (payload: NotifyUIEvent) => void;
 }
 
 const enum Status {
@@ -82,7 +80,6 @@ const enum Status {
   Running,
   RunningCore,
   Finalizing,
-  Interactive,
 }
 
 export class Model extends owl.core.EventBus implements CommandDispatcher {
@@ -292,10 +289,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     const transportService = config.transportService || new LocalTransportService();
     return {
       mode: config.mode || "normal",
-      openSidePanel: config.openSidePanel || (() => {}),
-      notifyUser: config.notifyUser || (() => {}),
-      askConfirmation: config.askConfirmation || (() => {}),
-      editText: config.editText || (() => {}),
       evalContext: config.evalContext || {},
       transportService,
       client,
@@ -304,6 +297,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       isReadonly: config.isReadonly || false,
       snapshotRequested: false,
       dataSources: this.dataSources,
+      notifyUI: (payload: NotifyUIEvent) => this.trigger("notify-ui", payload),
     };
   }
 
@@ -343,7 +337,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
     const command: Command = { type, ...payload };
-    let status: Status = command.interactive ? Status.Interactive : this.status;
+    let status: Status = this.status;
     if (this.config.isReadonly && !canExecuteInReadonly(command)) {
       return new DispatchResult(CommandResult.Readonly);
     }
@@ -378,12 +372,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         } else {
           this.dispatchToHandlers(this.handlers, command);
         }
-        break;
-      case Status.Interactive:
-        if (isCoreCommand(command)) {
-          this.state.addCommand(command);
-        }
-        this.dispatchToHandlers(this.handlers, command);
         break;
       case Status.Finalizing:
         throw new Error(_lt("Cannot dispatch commands in the finalize state"));

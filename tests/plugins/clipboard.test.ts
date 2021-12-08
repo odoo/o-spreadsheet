@@ -1,4 +1,5 @@
 import { toCartesian, toZone } from "../../src/helpers";
+import { interactivePaste } from "../../src/helpers/ui/paste";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
 import { CellValueType, CommandResult, Zone } from "../../src/types/index";
@@ -19,7 +20,7 @@ import {
   getCellError,
   getCellText,
 } from "../test_helpers/getters_helpers";
-import { createEqualCF, getGrid, target } from "../test_helpers/helpers";
+import { createEqualCF, getGrid, makeInteractiveTestEnv, target } from "../test_helpers/helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
@@ -104,8 +105,8 @@ describe("clipboard", () => {
 
   test("paste without copied value interactively", () => {
     const model = new Model();
-    const result = model.dispatch("PASTE", { target: [toZone("D2")], interactive: true });
-    expect(result).toBeSuccessfullyDispatched();
+    const env = makeInteractiveTestEnv(model);
+    interactivePaste(env, target("D2"));
     expect(getCellContent(model, "D2")).toBe("");
   });
 
@@ -423,29 +424,27 @@ describe("clipboard", () => {
 
   test("Pasting content that will destroy a merge will notify the user", async () => {
     const notifyUser = jest.fn();
-    const model = new Model(
-      {
-        sheets: [
-          {
-            colNumber: 5,
-            rowNumber: 5,
-            merges: ["B2:C3"],
-          },
-          {
-            colNumber: 5,
-            rowNumber: 5,
-          },
-        ],
-      },
-      { notifyUser }
-    );
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 5,
+          merges: ["B2:C3"],
+        },
+        {
+          colNumber: 5,
+          rowNumber: 5,
+        },
+      ],
+    });
 
     selectCell(model, "B2");
     const selection = model.getters.getSelection().zones;
     model.dispatch("COPY", { target: selection });
 
     selectCell(model, "A1");
-    model.dispatch("PASTE", { target: model.getters.getSelectedZones(), interactive: true });
+    const env = makeInteractiveTestEnv(model, { notifyUser });
+    interactivePaste(env, model.getters.getSelectedZones());
     expect(notifyUser).toHaveBeenCalled();
   });
 
@@ -457,9 +456,10 @@ describe("clipboard", () => {
     model.dispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, style });
 
     model.dispatch("COPY", { target: target("A1") });
-    model.dispatch("PASTE", { target: target("B1"), interactive: true, pasteOption: "onlyFormat" });
-    model.dispatch("PASTE", { target: target("B2"), interactive: true, pasteOption: "onlyValue" });
-    model.dispatch("PASTE", { target: target("B3"), interactive: true });
+    const env = makeInteractiveTestEnv(model);
+    interactivePaste(env, target("B1"), "onlyFormat");
+    interactivePaste(env, target("B2"), "onlyValue");
+    interactivePaste(env, target("B3"));
 
     expect(getCellText(model, "B1")).toBe("");
     expect(getCell(model, "B1")!.style).toEqual(style);
@@ -691,7 +691,7 @@ describe("clipboard", () => {
 
   test("pasting with multiple selection and more than one value will warn user", async () => {
     const notifyUser = jest.fn();
-    const model = new Model({}, { notifyUser });
+    const model = new Model();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     model.dispatch("COPY", { target: [toZone("A1:A2")] });
@@ -699,7 +699,8 @@ describe("clipboard", () => {
     selectCell(model, "C4");
     model.dispatch("START_SELECTION_EXPANSION");
     selectCell(model, "F6");
-    model.dispatch("PASTE", { target: model.getters.getSelectedZones(), interactive: true });
+    const env = makeInteractiveTestEnv(model, { notifyUser });
+    interactivePaste(env, model.getters.getSelectedZones());
     expect(notifyUser).toHaveBeenCalled();
   });
 
@@ -853,9 +854,10 @@ describe("clipboard", () => {
 
     test("will warn user if paste in several selection", () => {
       const notifyUser = jest.fn();
-      const model = new Model({}, { notifyUser });
+      const model = new Model();
       model.dispatch("COPY", { target: target("A1, C1") });
-      model.dispatch("PASTE", { target: target("A2, B2"), interactive: true });
+      const env = makeInteractiveTestEnv(model, { notifyUser });
+      interactivePaste(env, target("A2, B2"));
       expect(notifyUser).toHaveBeenCalled();
     });
   });

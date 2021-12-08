@@ -3,7 +3,7 @@ import { Spreadsheet } from "../../src";
 import { corePluginRegistry } from "../../src/plugins";
 import { CorePlugin } from "../../src/plugins/core_plugin";
 import { figureRegistry } from "../../src/registries/figure_registry";
-import { BaseCommand, Command, Figure, SpreadsheetEnv, UID } from "../../src/types";
+import { Command, Figure, SpreadsheetEnv, UID } from "../../src/types";
 import { activateSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
@@ -17,7 +17,7 @@ let model;
 let parent: Spreadsheet;
 
 //Test Plugin
-interface CreateTextFigure extends BaseCommand {
+interface CreateTextFigure {
   type: "CREATE_TEXT_FIGURE";
   id: string;
   sheetId: UID;

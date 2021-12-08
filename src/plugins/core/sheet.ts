@@ -151,9 +151,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         this.moveSheet(cmd.sheetId, cmd.direction);
         break;
       case "RENAME_SHEET":
-        if (!cmd.interactive) {
-          this.renameSheet(this.sheets[cmd.sheetId]!, cmd.name!);
-        }
+        this.renameSheet(this.sheets[cmd.sheetId]!, cmd.name!);
         break;
       case "DUPLICATE_SHEET":
         this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo);
@@ -552,9 +550,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   private isRenameAllowed(cmd: RenameSheetCommand): CommandResult {
-    if (cmd.interactive) {
-      return CommandResult.Success;
-    }
     const name = cmd.name && cmd.name.trim().toLowerCase();
     if (!name) {
       return CommandResult.MissingSheetName;
