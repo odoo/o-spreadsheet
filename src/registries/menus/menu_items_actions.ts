@@ -1,5 +1,7 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { numberToLetters, zoneToXc } from "../../helpers/index";
+import { interactiveSortSelection } from "../../helpers/sort";
+import { handlePasteResult, interactivePaste } from "../../helpers/ui/paste";
 import { _lt } from "../../translation";
 import { CellValueType, SpreadsheetEnv, Style } from "../../types/index";
 
@@ -78,7 +80,7 @@ export const PASTE_ACTION = async (env: SpreadsheetEnv) => {
       text: osClipboard,
     });
   } else {
-    env.dispatch("PASTE", { target, interactive: true });
+    interactivePaste(env, target);
   }
 };
 
@@ -235,22 +237,26 @@ export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
 
 export const INSERT_CELL_SHIFT_DOWN = (env: SpreadsheetEnv) => {
   const zone = env.getters.getSelectedZone();
-  env.dispatch("INSERT_CELL", { shiftDimension: "ROW", zone, interactive: true });
+  const result = env.dispatch("INSERT_CELL", { zone, shiftDimension: "ROW" });
+  handlePasteResult(env, result);
 };
 
 export const INSERT_CELL_SHIFT_RIGHT = (env: SpreadsheetEnv) => {
   const zone = env.getters.getSelectedZone();
-  env.dispatch("INSERT_CELL", { shiftDimension: "COL", zone, interactive: true });
+  const result = env.dispatch("INSERT_CELL", { zone, shiftDimension: "COL" });
+  handlePasteResult(env, result);
 };
 
 export const DELETE_CELL_SHIFT_UP = (env: SpreadsheetEnv) => {
   const zone = env.getters.getSelectedZone();
-  env.dispatch("DELETE_CELL", { shiftDimension: "ROW", zone, interactive: true });
+  const result = env.dispatch("DELETE_CELL", { zone, shiftDimension: "ROW" });
+  handlePasteResult(env, result);
 };
 
 export const DELETE_CELL_SHIFT_LEFT = (env: SpreadsheetEnv) => {
   const zone = env.getters.getSelectedZone();
-  env.dispatch("DELETE_CELL", { shiftDimension: "COL", zone, interactive: true });
+  const result = env.dispatch("DELETE_CELL", { zone, shiftDimension: "COL" });
+  handlePasteResult(env, result);
 };
 
 export const MENU_INSERT_ROWS_BEFORE_NAME = (env: SpreadsheetEnv) => {
@@ -605,24 +611,14 @@ export const INSERT_LINK = (env: SpreadsheetEnv) => {
 
 export const SORT_CELLS_ASCENDING = (env: SpreadsheetEnv) => {
   const { anchor, zones } = env.getters.getSelection();
-  env.dispatch("SORT_CELLS", {
-    interactive: true,
-    sheetId: env.getters.getActiveSheetId(),
-    anchor: anchor,
-    zone: zones[0],
-    sortDirection: "ascending",
-  });
+  const sheetId = env.getters.getActiveSheetId();
+  interactiveSortSelection(env, sheetId, anchor, zones[0], "ascending");
 };
 
 export const SORT_CELLS_DESCENDING = (env: SpreadsheetEnv) => {
   const { anchor, zones } = env.getters.getSelection();
-  env.dispatch("SORT_CELLS", {
-    interactive: true,
-    sheetId: env.getters.getActiveSheetId(),
-    anchor: anchor,
-    zone: zones[0],
-    sortDirection: "descending",
-  });
+  const sheetId = env.getters.getActiveSheetId();
+  interactiveSortSelection(env, sheetId, anchor, zones[0], "descending");
 };
 
 export const IS_ONLY_ONE_RANGE = (env: SpreadsheetEnv): boolean => {

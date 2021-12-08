@@ -225,13 +225,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
           return CommandResult.InvalidSheetId;
         }
       case "MOVE_COLUMNS_ROWS":
-        const result = this.isMoveElementAllowed(cmd);
-        if (result === CommandResult.WillRemoveExistingMerge) {
-          this.ui.notifyUser(
-            _lt("Merged cells are preventing this operation. Unmerge those cells and try again.")
-          );
-        }
-        return result;
+        return this.isMoveElementAllowed(cmd);
     }
     return CommandResult.Success;
   }

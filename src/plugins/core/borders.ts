@@ -35,10 +35,8 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ADD_MERGE":
-        if (!cmd.interactive) {
-          for (const zone of cmd.target) {
-            this.addBordersToMerge(cmd.sheetId, zone);
-          }
+        for (const zone of cmd.target) {
+          this.addBordersToMerge(cmd.sheetId, zone);
         }
         break;
       case "DUPLICATE_SHEET":

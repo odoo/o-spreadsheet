@@ -1,8 +1,7 @@
-import { DEFAULT_FONT_SIZE, FORBIDDEN_SHEET_CHARS, PADDING_AUTORESIZE } from "../../constants";
+import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { computeIconWidth, computeTextWidth, isDefined } from "../../helpers/index";
-import { _lt } from "../../translation";
-import { Cell, CellValueType, Command, CommandResult, UID, Zone } from "../../types";
+import { Cell, CellValueType, Command, CommandResult, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
@@ -18,7 +17,6 @@ export class SheetUIPlugin extends UIPlugin {
     switch (cmd.type) {
       case "AUTORESIZE_ROWS":
       case "AUTORESIZE_COLUMNS":
-      case "DELETE_SHEET_CONFIRMATION":
         try {
           this.getters.getSheet(cmd.sheetId);
           break;
@@ -31,19 +29,6 @@ export class SheetUIPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "RENAME_SHEET":
-        if (cmd.interactive) {
-          this.interactiveRenameSheet(cmd.sheetId, _lt("Rename Sheet"));
-        }
-        break;
-      case "DELETE_SHEET_CONFIRMATION":
-        this.interactiveDeleteSheet(cmd.sheetId);
-        break;
-      case "ADD_MERGE":
-        if (cmd.interactive) {
-          this.interactiveMerge(cmd.sheetId, cmd.target);
-        }
-        break;
       case "AUTORESIZE_COLUMNS":
         for (let col of cmd.cols) {
           const size = this.getColMaxWidth(cmd.sheetId, col);
@@ -123,58 +108,5 @@ export class SheetUIPlugin extends UIPlugin {
       .map((cellId) => this.getters.getCellById(cellId));
     const sizes = cells.map((cell: Cell) => this.getCellHeight(cell));
     return Math.max(0, ...sizes);
-  }
-
-  private interactiveRenameSheet(sheetId: UID, title: string) {
-    const placeholder = this.getters.getSheetName(sheetId);
-    this.ui.editText(title, placeholder, (name: string | null) => {
-      if (name === "") {
-        this.interactiveRenameSheet(sheetId, _lt("The sheet name cannot be empty."));
-        return;
-      }
-      if (!name) {
-        return;
-      }
-      const result = this.dispatch("RENAME_SHEET", { sheetId: sheetId, name });
-      const sheetName = this.getters.getSheetName(sheetId);
-      if (!result.isSuccessful && sheetName !== name) {
-        if (result.reasons.includes(CommandResult.DuplicatedSheetName)) {
-          this.interactiveRenameSheet(
-            sheetId,
-            _lt("A sheet with the name %s already exists. Please select another name.", name)
-          );
-        }
-        if (result.reasons.includes(CommandResult.ForbiddenCharactersInSheetName)) {
-          this.interactiveRenameSheet(
-            sheetId,
-            _lt(
-              "Some used characters are not allowed in a sheet name (Forbidden characters are %s).",
-              FORBIDDEN_SHEET_CHARS.join(" ")
-            )
-          );
-        }
-      }
-    });
-  }
-
-  private interactiveDeleteSheet(sheetId: UID) {
-    this.ui.askConfirmation(_lt("Are you sure you want to delete this sheet ?"), () => {
-      this.dispatch("DELETE_SHEET", { sheetId: sheetId });
-    });
-  }
-
-  private interactiveMerge(sheet: string, target: Zone[]) {
-    const result = this.dispatch("ADD_MERGE", { sheetId: sheet, target });
-
-    if (!result.isSuccessful) {
-      if (result.isCancelledBecause(CommandResult.MergeIsDestructive)) {
-        this.ui.askConfirmation(
-          _lt("Merging these cells will only preserve the top-leftmost value. Merge anyway?"),
-          () => {
-            this.dispatch("ADD_MERGE", { sheetId: sheet, target, force: true });
-          }
-        );
-      }
-    }
   }
 }

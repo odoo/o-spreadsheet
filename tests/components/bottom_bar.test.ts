@@ -174,12 +174,10 @@ describe("BottomBar component", () => {
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    const sheetId = model.getters.getActiveSheetId();
+    parent.env.dispatch = model.dispatch;
+    parent.env.editText = jest.fn((title, placeholder, callback) => callback("new_name"));
     triggerMouseEvent(".o-menu-item[data-name='rename'", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("RENAME_SHEET", {
-      sheetId,
-      interactive: true,
-    });
+    expect(model.getters.getActiveSheet().name).toEqual("new_name");
     parent.destroy();
   });
 
@@ -188,13 +186,11 @@ describe("BottomBar component", () => {
     const parent = new Parent(model);
     await parent.mount(fixture);
 
+    parent.env.dispatch = model.dispatch;
+    parent.env.editText = jest.fn((title, placeholder, callback) => callback("new_name"));
     triggerMouseEvent(".o-sheet-name", "dblclick");
     await nextTick();
-    const sheetId = model.getters.getActiveSheetId();
-    expect(parent.env.dispatch).toHaveBeenCalledWith("RENAME_SHEET", {
-      sheetId,
-      interactive: true,
-    });
+    expect(model.getters.getActiveSheet().name).toEqual("new_name");
     parent.destroy();
   });
 
@@ -219,13 +215,14 @@ describe("BottomBar component", () => {
     const model = new Model();
     createSheet(model, { sheetId: "42" });
     const parent = new Parent(model);
+    parent.env.askConfirmation = jest.fn((title, callback) => callback());
     await parent.mount(fixture);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     const sheetId = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='delete'", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_SHEET_CONFIRMATION", { sheetId });
+    expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_SHEET", { sheetId });
     parent.destroy();
   });
 

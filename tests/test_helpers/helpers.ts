@@ -11,6 +11,7 @@ import {
   CommandTypes,
   ConditionalFormat,
   Position,
+  SpreadsheetEnv,
   Style,
   Zone,
 } from "../../src/types";
@@ -344,4 +345,18 @@ export async function exportPrettifiedXlsx(model: Model): Promise<XLSXExport> {
 export function mockUuidV4To(model: Model, value: number | string) {
   //@ts-ignore
   return model.uuidGenerator.setNextId(value);
+}
+
+/**
+ * Make a test environment for testing interactive actions
+ */
+export function makeInteractiveTestEnv(
+  model: Model,
+  env?: Partial<SpreadsheetEnv>
+): SpreadsheetEnv {
+  return {
+    getters: model.getters,
+    dispatch: model.dispatch,
+    ...env,
+  } as unknown as SpreadsheetEnv;
 }

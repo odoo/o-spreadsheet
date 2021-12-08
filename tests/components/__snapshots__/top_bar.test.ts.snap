@@ -318,7 +318,7 @@ exports[`TopBar component can set cell format 1`] = `
         </span>
       </div>
       <div
-        class="o-tool o-disabled"
+        class="o-tool o-merge-tool o-disabled"
         title="Merge Cells"
       >
         <svg
@@ -659,7 +659,7 @@ exports[`TopBar component simple rendering 1`] = `
         </span>
       </div>
       <div
-        class="o-tool o-disabled"
+        class="o-tool o-merge-tool o-disabled"
         title="Merge Cells"
       >
         <svg

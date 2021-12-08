@@ -2,10 +2,11 @@ import { INCORRECT_RANGE_STRING } from "../../src/constants";
 import { normalize } from "../../src/formulas";
 import { parseDateTime } from "../../src/helpers/dates";
 import { toXC, toZone } from "../../src/helpers/index";
+import { interactiveSortSelection } from "../../src/helpers/sort";
 import { Model } from "../../src/model";
 import { CellValueType, CommandResult, UID } from "../../src/types";
 import { redo, setCellContent, undo } from "../test_helpers/commands_helpers";
-import { target } from "../test_helpers/helpers";
+import { makeInteractiveTestEnv, target } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -328,7 +329,6 @@ describe("Trigger sort generic errors", () => {
         zone: zone,
         anchor: anchor,
         sortDirection: "ascending",
-        interactive: true,
       });
     }).toThrowError();
   });
@@ -363,46 +363,31 @@ describe("Sort multi adjacent columns", () => {
 
   test("Sort with adjacent values to the selection ask for confirmation", () => {
     askConfirmation = jest.fn();
-    model = new Model(modelData, { askConfirmation });
+    model = new Model(modelData);
     const zone = toZone("A2:A3");
     anchor = [0, 1];
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: zone,
-      sortDirection: "descending",
-      interactive: true,
-    });
+    const env = makeInteractiveTestEnv(model, { askConfirmation });
+    interactiveSortSelection(env, sheetId, anchor, zone, "descending");
     expect(askConfirmation).toHaveBeenCalled();
   });
   test("Sort without adjacent values to the selection does not ask for confirmation", () => {
     askConfirmation = jest.fn();
-    model = new Model(modelData, { askConfirmation });
+    model = new Model(modelData);
     const zone = toZone("A2:A3");
     anchor = [0, 1];
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: contiguousZone,
-      sortDirection: "descending",
-      interactive: true,
-    });
+    const env = makeInteractiveTestEnv(model, { askConfirmation });
+    interactiveSortSelection(env, sheetId, anchor, contiguousZone, "descending");
     expect(askConfirmation).not.toHaveBeenCalled();
   });
 
   test("Sort on first column w/ confirming contiguous", () => {
     askConfirmation = jest.fn((text, confirm, cancel) => confirm());
-    model = new Model(modelData, { askConfirmation });
+    model = new Model(modelData);
     const zone = toZone("A3:A4");
     anchor = [0, 2];
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: zone,
-      sortDirection: "descending",
-      interactive: true,
-    });
+    const env = makeInteractiveTestEnv(model, { askConfirmation });
+    interactiveSortSelection(env, sheetId, anchor, zone, "descending");
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "Zulu" },
       A2: { content: "Tango" },
@@ -418,16 +403,11 @@ describe("Sort multi adjacent columns", () => {
   });
   test("Sort on first column w/ refusing contiguous", () => {
     askConfirmation = jest.fn((text, confirm, cancel) => cancel());
-    model = new Model(modelData, { askConfirmation });
+    model = new Model(modelData);
     const zone = toZone("A3:A4");
     anchor = [0, 2];
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: zone,
-      sortDirection: "descending",
-      interactive: true,
-    });
+    const env = makeInteractiveTestEnv(model, { askConfirmation });
+    interactiveSortSelection(env, sheetId, anchor, zone, "descending");
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "Alpha" },
       A2: { content: "Tango" },
@@ -521,7 +501,7 @@ describe("Sort multi adjacent columns", () => {
 
   test("Sort w/ multicolumn selection", () => {
     askConfirmation = jest.fn();
-    model = new Model(modelData, { askConfirmation });
+    model = new Model(modelData);
     const zone = toZone("B2:C3");
     anchor = [1, 2];
     model.dispatch("SORT_CELLS", {
@@ -714,7 +694,7 @@ describe("Sort Merges", () => {
     ],
   };
   beforeEach(() => {
-    model = new Model(modelData, { notifyUser });
+    model = new Model(modelData);
   });
   test("Sort of merges w/ contiguous", () => {
     const zone = toZone("B2:B4");
@@ -747,14 +727,8 @@ describe("Sort Merges", () => {
     const zone = toZone("B2:B8");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
     anchor = [1, 1];
-    // interactive
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: contiguousZone,
-      sortDirection: "ascending",
-      interactive: true,
-    });
+    const env = makeInteractiveTestEnv(model, { notifyUser });
+    interactiveSortSelection(env, sheetId, anchor, contiguousZone, "ascending");
     expect(notifyUser).toHaveBeenCalled();
     expect(model.getters.getSelection()).toEqual({
       anchor: anchor,
@@ -786,13 +760,8 @@ describe("Sort Merges", () => {
     const zone = toZone("B2:B8");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
     anchor = [1, 1];
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: contiguousZone,
-      sortDirection: "ascending",
-      interactive: true,
-    });
+    const env = makeInteractiveTestEnv(model, { notifyUser });
+    interactiveSortSelection(env, sheetId, anchor, contiguousZone, "ascending");
     expect(notifyUser).toHaveBeenCalled();
     expect(model.getters.getSelection()).toEqual({
       anchor: anchor,

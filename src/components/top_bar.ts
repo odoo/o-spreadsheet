@@ -5,7 +5,8 @@ import { isEqual } from "../helpers/index";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../registries/index";
 import { topbarMenuRegistry } from "../registries/menus/topbar_menu_registry";
 import { FullMenuItem } from "../registries/menu_items_registry";
-import { Align, BorderCommand, SpreadsheetEnv, Style } from "../types/index";
+import { _lt } from "../translation";
+import { Align, BorderCommand, CommandResult, SpreadsheetEnv, Style } from "../types/index";
 import { ColorPicker } from "./color_picker";
 import { Composer } from "./composer/composer";
 import { isChildEvent } from "./helpers/dom_helpers";
@@ -136,7 +137,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
               </div>
             </div>
           </div>
-          <div class="o-tool" title="Merge Cells"  t-att-class="{active:inMerge, 'o-disabled': cannotMerge}" t-on-click="toggleMerge">${icons.MERGE_CELL_ICON}</div>
+          <div class="o-tool o-merge-tool" title="Merge Cells"  t-att-class="{active:inMerge, 'o-disabled': cannotMerge}" t-on-click="toggleMerge">${icons.MERGE_CELL_ICON}</div>
           <div class="o-divider"/>
           <div class="o-tool o-dropdown" title="Horizontal align" t-on-click="toggleDropdownTool('alignTool')">
             <span>
@@ -479,11 +480,21 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   toggleMerge() {
     const zones = this.getters.getSelectedZones();
     const target = [zones[zones.length - 1]];
-    const sheet = this.getters.getActiveSheetId();
+    const sheetId = this.getters.getActiveSheetId();
     if (this.inMerge) {
-      this.dispatch("REMOVE_MERGE", { sheetId: sheet, target });
+      this.dispatch("REMOVE_MERGE", { sheetId, target });
     } else {
-      this.dispatch("ADD_MERGE", { sheetId: sheet, target, interactive: true });
+      const result = this.dispatch("ADD_MERGE", { sheetId, target });
+      if (!result.isSuccessful) {
+        if (result.isCancelledBecause(CommandResult.MergeIsDestructive)) {
+          this.env.askConfirmation(
+            _lt("Merging these cells will only preserve the top-leftmost value. Merge anyway?"),
+            () => {
+              this.dispatch("ADD_MERGE", { sheetId, target, force: true });
+            }
+          );
+        }
+      }
     }
   }
 

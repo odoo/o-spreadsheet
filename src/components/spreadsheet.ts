@@ -5,12 +5,14 @@ import {
   ICON_EDGE_LENGTH,
   TOPBAR_HEIGHT,
 } from "../constants";
+import { interactivePaste } from "../helpers/ui/paste";
 import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { SelectionMode } from "../plugins/ui/selection";
 import { SpreadsheetEnv } from "../types";
 import { Client } from "../types/collaborative/session";
 import { StateUpdateMessage, TransportService } from "../types/collaborative/transport_service";
+import { NotifyUIEvent } from "../types/ui";
 import { BottomBar } from "./bottom_bar";
 import { ComposerFocusedEvent } from "./composer/composer";
 import { Grid } from "./grid";
@@ -106,12 +108,6 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
   model = new Model(
     this.props.data,
     {
-      notifyUser: (content: string) => this.trigger("notify-user", { content }),
-      askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
-        this.trigger("ask-confirmation", { content, confirm, cancel }),
-      editText: (title: string, placeholder: string, callback: (text: string | null) => any) =>
-        this.trigger("edit-text", { title, placeholder, callback }),
-      openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
       evalContext: { env: this.env },
       transportService: this.props.transportService,
       client: this.props.client,
@@ -145,6 +141,11 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
   constructor(parent?: owl.Component<any, SpreadsheetEnv> | null, props: Props = {}) {
     super(parent, props);
     useSubEnv({
+      notifyUser: (content: string) => this.trigger("notify-user", { content }),
+      askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
+        this.trigger("ask-confirmation", { content, confirm, cancel }),
+      editText: (title: string, placeholder: string, callback: (text: string | null) => any) =>
+        this.trigger("edit-text", { title, placeholder, callback }),
       openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
       toggleSidePanel: (panel: string, panelProps: any = {}) =>
         this.toggleSidePanel(panel, panelProps),
@@ -187,9 +188,18 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
 
   initiateModelEvents() {
     this.model.on("update", this, this.render);
+    this.model.on("notify-ui", this, this.onNotifyUI);
     this.model.on("unexpected-revision-id", this, () => this.trigger("unexpected-revision-id"));
     if (this.props.client) {
       this.model.joinSession(this.props.client);
+    }
+  }
+
+  private onNotifyUI(payload: NotifyUIEvent) {
+    switch (payload.type) {
+      case "TEXT":
+        this.trigger("notify-user", { content: payload.text });
+        break;
     }
   }
 
@@ -271,7 +281,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
       const target = this.model.getters.getSelectedZones();
       if (this.clipBoardString === content) {
         // the paste actually comes from o-spreadsheet itself
-        this.model.dispatch("PASTE", { target, interactive: true });
+        interactivePaste(this.env, target);
       } else {
         this.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
           target,

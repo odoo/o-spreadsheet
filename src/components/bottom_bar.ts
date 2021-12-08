@@ -1,8 +1,9 @@
 import * as owl from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../constants";
 import { formatStandardNumber } from "../helpers";
+import { interactiveRenameSheet } from "../helpers/ui/sheet";
 import { MenuItemRegistry, sheetMenuRegistry } from "../registries/index";
-import { SpreadsheetEnv } from "../types";
+import { SpreadsheetEnv, UID } from "../types";
 import { LIST, PLUS, TRIANGLE_DOWN_ICON } from "./icons";
 import { Menu, MenuState } from "./menu";
 const { Component } = owl;
@@ -187,8 +188,8 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
     });
   }
 
-  onDblClick(sheetId: string) {
-    this.env.dispatch("RENAME_SHEET", { interactive: true, sheetId });
+  onDblClick(sheetId: UID) {
+    interactiveRenameSheet(this.env, sheetId);
   }
 
   openContextMenu(x: number, y: number, registry: MenuItemRegistry) {

@@ -1,5 +1,6 @@
 import { Model, Spreadsheet } from "../src";
 import { fontSizes } from "../src/fonts";
+import { interactivePaste } from "../src/helpers/ui/paste";
 import {
   colMenuRegistry,
   FullMenuItem,
@@ -9,12 +10,14 @@ import {
 } from "../src/registries/index";
 import { DispatchResult, SpreadsheetEnv } from "../src/types";
 import { hideColumns, hideRows, selectCell, setSelection } from "./test_helpers/commands_helpers";
+import { getCellContent } from "./test_helpers/getters_helpers";
 import {
   makeTestFixture,
   MockClipboard,
   mockUuidV4To,
   mountSpreadsheet,
   nextTick,
+  target,
 } from "./test_helpers/helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
@@ -160,10 +163,8 @@ describe("Menu Item actions", () => {
     doAction(["edit", "copy"], env); // then copy from grid
     doAction(["edit", "paste"], env);
     await nextTick();
-    expect(env.dispatch).toHaveBeenCalledWith("PASTE", {
-      interactive: true,
-      target: [{ bottom: 0, left: 0, right: 0, top: 0 }],
-    });
+    interactivePaste(env, target("A1"));
+    expect(getCellContent(model, "A1")).toEqual("");
   });
 
   test("Edit -> paste_special -> paste_special_value", () => {
@@ -615,7 +616,6 @@ describe("Menu Item actions", () => {
       anchor: anchor,
       zone: zones[0],
       sortDirection: "ascending",
-      interactive: true,
     });
   });
 
@@ -627,7 +627,6 @@ describe("Menu Item actions", () => {
       anchor: anchor,
       zone: zones[0],
       sortDirection: "descending",
-      interactive: true,
     });
   });
 

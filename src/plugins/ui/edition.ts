@@ -203,7 +203,10 @@ export class EditionPlugin extends UIPlugin {
       case "DELETE_SHEET":
         if (cmd.sheetId === this.sheet && this.mode !== "inactive") {
           this.dispatch("STOP_EDITION", { cancel: true });
-          this.ui.notifyUser(CELL_DELETED_MESSAGE);
+          this.ui.notifyUI({
+            type: "TEXT",
+            text: CELL_DELETED_MESSAGE,
+          });
         }
         break;
     }
@@ -278,7 +281,10 @@ export class EditionPlugin extends UIPlugin {
   private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
     if (cmd.elements.includes(this.col) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
-      this.ui.notifyUser(CELL_DELETED_MESSAGE);
+      this.ui.notifyUI({
+        type: "TEXT",
+        text: CELL_DELETED_MESSAGE,
+      });
       return;
     }
     const { top, left } = updateSelectionOnDeletion(
@@ -293,7 +299,10 @@ export class EditionPlugin extends UIPlugin {
   private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
     if (cmd.elements.includes(this.row) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
-      this.ui.notifyUser(CELL_DELETED_MESSAGE);
+      this.ui.notifyUI({
+        type: "TEXT",
+        text: CELL_DELETED_MESSAGE,
+      });
       return;
     }
     const { top, left } = updateSelectionOnDeletion(

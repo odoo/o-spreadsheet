@@ -1,7 +1,7 @@
 import { CorePlugin, Model } from "../../src";
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
 import { corePluginRegistry } from "../../src/plugins";
-import { ApplyRangeChange, BaseCommand, Command, Range, UID } from "../../src/types";
+import { ApplyRangeChange, Command, Range, UID } from "../../src/types";
 import {
   addColumns,
   addRows,
@@ -9,18 +9,19 @@ import {
   deleteColumns,
   deleteRows,
   deleteSheet,
+  renameSheet,
 } from "../test_helpers/commands_helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let m;
 
-export interface UseRange extends BaseCommand {
+export interface UseRange {
   type: "USE_RANGE";
   sheetId: string;
   rangesXC: string[];
 }
 
-export interface UseTransientRange extends BaseCommand {
+export interface UseTransientRange {
   type: "USE_TRANSIENT_RANGE";
   sheetId: string;
   rangesXC: string[];
@@ -392,10 +393,7 @@ describe("range plugin", () => {
     test.each(["Sheet 0", "<Sheet1>", "&Sheet2", "Sheet4;", "Sheet5🐻"])(
       "sheet name with special character %s",
       (name) => {
-        m.dispatch("RENAME_SHEET", {
-          sheetId: "s1",
-          name,
-        });
+        renameSheet(m, "s1", name);
         const range = m.getters.getRangeFromSheetXC("s1", "A1");
         expect(m.getters.getRangeString(range, "tao")).toBe(`'${name}'!A1`);
       }

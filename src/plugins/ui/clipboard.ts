@@ -2,7 +2,6 @@ import { SELECTION_BORDER_COLOR } from "../../constants";
 import { formatValue } from "../../helpers/cells/index";
 import { clip, mergeOverlappingZones, overlap, positions } from "../../helpers/index";
 import { Mode } from "../../model";
-import { _lt } from "../../translation";
 import {
   CellPosition,
   ClipboardCell,
@@ -87,32 +86,20 @@ export class ClipboardPlugin extends UIPlugin {
         const pasteOption: ClipboardOptions | undefined =
           cmd.pasteOption || (this._isPaintingFormat ? "onlyFormat" : undefined);
         this._isPaintingFormat = false;
-        if (cmd.interactive) {
-          this.interactivePaste(this.state, cmd.target, cmd);
-        } else {
-          this.selectPastedZone(this.state, cmd.target);
-          this.paste(this.state, cmd.target, pasteOption);
-          this.status = "invisible";
-        }
+        this.selectPastedZone(this.state, cmd.target);
+        this.paste(this.state, cmd.target, pasteOption);
+        this.status = "invisible";
         break;
       case "DELETE_CELL": {
         const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
         const state = this.getClipboardState(cut, "CUT");
-        if (cmd.interactive) {
-          this.interactivePaste(state, paste, cmd);
-        } else {
-          this.paste(state, paste);
-        }
+        this.paste(state, paste);
         break;
       }
       case "INSERT_CELL": {
         const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
         const state = this.getClipboardState(cut, "CUT");
-        if (cmd.interactive) {
-          this.interactivePaste(state, paste, cmd);
-        } else {
-          this.paste(state, paste);
-        }
+        this.paste(state, paste);
         break;
       }
       case "PASTE_FROM_OS_CLIPBOARD":
@@ -634,25 +621,6 @@ export class ClipboardPlugin extends UIPlugin {
    */
   private isZoneOverlapClippedZone(zones: Zone[], zone: Zone): boolean {
     return zones.some((clippedZone) => overlap(zone, clippedZone));
-  }
-
-  private interactivePaste(state: ClipboardState, target: Zone[], cmd: Command) {
-    const result = this.isPasteAllowed(state, target, false);
-
-    if (result !== CommandResult.Success) {
-      if (result === CommandResult.WrongPasteSelection) {
-        this.ui.notifyUser(_lt("This operation is not allowed with multiple selections."));
-      }
-      if (result === CommandResult.WillRemoveExistingMerge) {
-        this.ui.notifyUser(
-          _lt(
-            "This operation is not possible due to a merge. Please remove the merges first than try again."
-          )
-        );
-      }
-    } else {
-      this.dispatch(cmd.type, { ...cmd, interactive: false });
-    }
   }
 
   // ---------------------------------------------------------------------------
