@@ -9,6 +9,7 @@ import {
   deleteCells,
   deleteColumns,
   deleteRows,
+  moveConditionalFormat,
   redo,
   setCellContent,
   undo,
@@ -578,6 +579,111 @@ describe("conditional format", () => {
       ]);
       expect(model.getters.getConditionalStyle(...toCartesian("D2"))).toBeUndefined();
       expect(model.getters.getConditionalStyle(...toCartesian("D3"))!.fillColor).toBe("orange");
+    });
+  });
+
+  test("cannot send invalid arguments to conditional format rules command", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const idRule1 = "1";
+    const idRule2 = "2";
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, idRule1),
+      target: [toZone("A1")],
+      sheetId,
+    });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { fillColor: "#0000FF" }, idRule2),
+      target: [toZone("A1")],
+      sheetId,
+    });
+
+    expect(moveConditionalFormat(model, "3", "up", sheetId).isSuccessful).toBeFalsy();
+    expect(moveConditionalFormat(model, idRule2, "up", "notAnId").isSuccessful).toBeFalsy();
+    expect(moveConditionalFormat(model, idRule1, "up", sheetId).isSuccessful).toBeFalsy();
+    expect(moveConditionalFormat(model, idRule2, "down", sheetId).isSuccessful).toBeFalsy();
+  });
+
+  test("Reorde conditional format rules command", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const idRule1 = "1";
+    const idRule2 = "2";
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, idRule1),
+      target: [toZone("A1")],
+      sheetId,
+    });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { fillColor: "#0000FF" }, idRule2),
+      target: [toZone("A1")],
+      sheetId,
+    });
+    let formats = model.getters.getConditionalFormats(sheetId);
+    expect(formats[0].id).toEqual(idRule1);
+    expect(formats[1].id).toEqual(idRule2);
+
+    moveConditionalFormat(model, idRule1, "down", sheetId);
+    formats = model.getters.getConditionalFormats(sheetId);
+    expect(formats[0].id).toEqual(idRule2);
+    expect(formats[1].id).toEqual(idRule1);
+
+    moveConditionalFormat(model, idRule1, "up", sheetId);
+    formats = model.getters.getConditionalFormats(sheetId);
+    expect(formats[0].id).toEqual(idRule1);
+    expect(formats[1].id).toEqual(idRule2);
+  });
+
+  test("Reorder format rules command can be undo/redo", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const idRule1 = "1";
+    const idRule2 = "2";
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, idRule1),
+      target: [toZone("A1")],
+      sheetId,
+    });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { fillColor: "#0000FF" }, idRule2),
+      target: [toZone("A1")],
+      sheetId,
+    });
+    let formats = model.getters.getConditionalFormats(sheetId);
+    moveConditionalFormat(model, idRule1, "down", sheetId);
+    formats = model.getters.getConditionalFormats(sheetId);
+    expect(formats[0].id).toEqual(idRule2);
+    expect(formats[1].id).toEqual(idRule1);
+
+    undo(model);
+    formats = model.getters.getConditionalFormats(sheetId);
+    expect(formats[0].id).toEqual(idRule1);
+    expect(formats[1].id).toEqual(idRule2);
+
+    redo(model);
+    formats = model.getters.getConditionalFormats(sheetId);
+    expect(formats[0].id).toEqual(idRule2);
+    expect(formats[1].id).toEqual(idRule1);
+  });
+
+  test("conditional format is re-evaluated when order changes", () => {
+    setCellContent(model, "A1", "1");
+    const sheetId = model.getters.getActiveSheetId();
+    const idRule1 = "1";
+    const idRule2 = "2";
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, idRule1),
+      target: [toZone("A1")],
+      sheetId,
+    });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { fillColor: "#0000FF" }, idRule2),
+      target: [toZone("A1")],
+      sheetId,
+    });
+    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+      fillColor: "#FF0000",
+    });
+    moveConditionalFormat(model, idRule1, "down", sheetId);
+    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+      fillColor: "#0000FF",
     });
   });
 });

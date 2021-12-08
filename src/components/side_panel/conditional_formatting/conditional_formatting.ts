@@ -20,12 +20,13 @@ import {
   SingleColorRules,
   SpreadsheetChildEnv,
   UID,
+  UpDown,
   Zone,
 } from "../../../types";
 import { ColorPicker } from "../../color_picker";
 import { css } from "../../helpers/css";
 import { getTextDecoration } from "../../helpers/dom_helpers";
-import { ICONS, ICON_SETS, REFRESH, TRASH } from "../../icons";
+import { CARET_DOWN, CARET_UP, ICONS, ICON_SETS, REFRESH, TRASH } from "../../icons";
 import { IconPicker } from "../../icon_picker";
 import { SelectionInput } from "../../selection_input";
 import { cellIsOperators, conditionalFormattingTerms, GenericWords } from "../translations_terms";
@@ -35,7 +36,7 @@ import { TEMPLATE_ICON_SET_EDITOR } from "./icon_set_rule_editor";
 
 // TODO vsc: add ordering of rules
 const PREVIEW_TEMPLATE = xml/* xml */ `
-<div class="o-cf-preview">
+<div class="o-cf-preview" t-att-class="{ 'o-cf-cursor-ptr': state.mode !== 'reorder' }">
   <t t-if="cf.rule.type==='IconSetRule'">
     <div class="o-cf-preview-icon">
       <t t-out="icons[cf.rule.icons.upper].svg"/>
@@ -52,36 +53,61 @@ const PREVIEW_TEMPLATE = xml/* xml */ `
     <div class="o-cf-preview-ruletype">
       <div class="o-cf-preview-description-rule">
         <t t-esc="getDescription(cf)" />
-      </div>
-      <div class="o-cf-preview-description-values">
-      <t t-if="cf.rule.values">
-        <t t-esc="cf.rule.values[0]" />
-        <t t-if="cf.rule.values[1]">
-        <t t-esc="' ' + env._t('${GenericWords.And}')"/> <t t-esc="cf.rule.values[1]"/>
+        <t t-if="cf.rule.values">
+          <t t-esc="' ' + cf.rule.values[0]" />
+          <t t-if="cf.rule.values[1]">
+            <t t-esc="' ' + env._t('${GenericWords.And}')"/> <t t-esc="cf.rule.values[1]"/>
+          </t>
         </t>
-      </t>
       </div>
     </div>
     <div class="o-cf-preview-range" t-esc="cf.ranges"/>
   </div>
-  <div class="o-cf-delete">
-    <div class="o-cf-delete-button" t-on-click.stop="(ev) => this.deleteConditionalFormat(cf, ev)" aria-label="Remove rule">
-    <t t-out="trashIcon"/>
+  <t t-if="state.mode === 'reorder'">
+    <div class="o-cf-reorder">
+      <t t-if="!cf_first">
+        <div class="o-cf-reorder-button-up o-cf-reorder-button" t-on-click="(ev) => this.reorderRule(cf, 'up', ev)">
+          <t t-out="caretUpIcon"/>
+        </div>
+      </t>
+      <t t-if="!cf_last">
+        <div class="o-cf-reorder-button-down o-cf-reorder-button" t-on-click="(ev) => this.reorderRule(cf, 'down', ev)">
+          <t t-out="caretDownIcon"/>
+        </div>
+      </t>
     </div>
-  </div>
-</div>`;
+  </t>
+  <t t-else="">
+    <div class="o-cf-delete">
+      <div class="o-cf-delete-button" t-on-click.stop="(ev) => this.deleteConditionalFormat(cf, ev)" aria-label="Remove rule">
+        <t t-out="trashIcon"/>
+      </div>
+    </div>
+  </t>
+</div>
+`;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-cf">
-    <t t-if="state.mode === 'list'">
+    <t t-if="state.mode === 'list' || state.mode === 'reorder'">
       <div class="o-cf-preview-list" >
         <div t-on-click="(ev) => this.editConditionalFormat(cf, ev)" t-foreach="conditionalFormats" t-as="cf" t-key="cf.id">
             <t t-call="${PREVIEW_TEMPLATE}"/>
         </div>
       </div>
-      <div class="btn btn-link o-cf-add" t-on-click.prevent.stop="addConditionalFormat">
-        <t t-esc="'+ ' + env._t('${conditionalFormattingTerms.newRule}')"/>
-      </div>
+      <t t-if="state.mode === 'list'">
+        <div class="btn btn-link o-cf-btn-link o-cf-add" t-on-click.prevent.stop="addConditionalFormat">
+          <t t-esc="'+ ' + env._t('${conditionalFormattingTerms.newRule}')"/>
+        </div>
+        <div class="btn btn-link o-cf-btn-link o-cf-reorder" t-on-click="reorderConditionalFormats">
+          <t t-esc="env._t('${conditionalFormattingTerms.reorderRules}')"/>
+        </div>
+      </t>
+      <t t-if="state.mode === 'reorder'">
+        <div class="btn btn-link o-cf-btn-link o-cf-exit-reorder" t-on-click="switchToList">
+            <t t-esc="env._t('${conditionalFormattingTerms.exitReorderMode}')"/>
+        </div>
+      </t>
     </t>
     <t t-if="state.mode === 'edit' || state.mode === 'add'" t-key="state.currentCF.id">
         <div class="o-cf-ruleEditor">
@@ -180,10 +206,12 @@ css/* scss */ `
     .o-cf-title-text:first-child {
       margin-top: 0px;
     }
+    .o-cf-cursor-ptr {
+      cursor: pointer;
+    }
     .o-cf-preview {
       background-color: #fff;
       border-bottom: 1px solid #ccc;
-      cursor: pointer;
       display: flex;
       height: 60px;
       padding: 10px;
@@ -199,6 +227,7 @@ css/* scss */ `
         height: 50px;
         line-height: 50px;
         margin-right: 15px;
+        margin-top: 3px;
         position: absolute;
         text-align: center;
         width: 50px;
@@ -209,6 +238,7 @@ css/* scss */ `
         height: 50px;
         line-height: 50px;
         margin-right: 15px;
+        margin-top: 3px;
         display: flex;
         justify-content: space-around;
         align-items: center;
@@ -223,9 +253,11 @@ css/* scss */ `
         .o-cf-preview-description-rule {
           margin-bottom: 4px;
           overflow: hidden;
-        }
-        .o-cf-preview-description-values {
-          overflow: hidden;
+          text-overflow: ellipsis;
+          font-weight: 600;
+          color: #303030;
+          max-height: 2.8em;
+          line-height: 1.4em;
         }
         .o-cf-preview-range {
           text-overflow: ellipsis;
@@ -237,6 +269,31 @@ css/* scss */ `
         color: dimgrey;
         left: 90%;
         top: 39%;
+        position: absolute;
+      }
+      .o-cf-reorder {
+        color: gray;
+        left: 90%;
+        position: absolute;
+        height: 100%;
+        width: 10%;
+      }
+      .o-cf-reorder-button:hover {
+        cursor: pointer;
+        background-color: rgba(0, 0, 0, 0.08);
+      }
+      .o-cf-reorder-button-up {
+        width: 15px;
+        height: 20px;
+        padding: 5px;
+        padding-top: 0px;
+      }
+      .o-cf-reorder-button-down {
+        width: 15px;
+        height: 20px;
+        bottom: 20px;
+        padding: 5px;
+        padding-top: 0px;
         position: absolute;
       }
     }
@@ -321,14 +378,14 @@ css/* scss */ `
         line-height: 35px;
       }
     }
-    .o-cf-add {
+    .o-cf-btn-link {
       font-size: 14px;
       padding: 20px 24px 11px 24px;
       height: 44px;
       cursor: pointer;
       text-decoration: none;
     }
-    .o-cf-add:hover {
+    .o-cf-btn-link:hover {
       color: #003a39;
       text-decoration: none;
     }
@@ -460,7 +517,7 @@ interface Props {
 }
 
 type CFType = "CellIsRule" | "ColorScaleRule" | "IconSetRule";
-type Mode = "list" | "add" | "edit";
+type Mode = "list" | "add" | "edit" | "reorder";
 
 interface Rules {
   cellIs: CellIsRule;
@@ -495,6 +552,8 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
   iconSets = ICON_SETS;
   reverseIcon = markup(REFRESH);
   trashIcon = markup(TRASH);
+  caretUpIcon = markup(CARET_UP);
+  caretDownIcon = markup(CARET_DOWN);
   cellIsOperators = cellIsOperators;
   getTextDecoration = getTextDecoration;
   colorNumberString = colorNumberString;
@@ -702,9 +761,11 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
   }
 
   /**
-   * Edit an existing CF
+   * Edit an existing CF. Return without doing anything in reorder mode.
    */
   editConditionalFormat(cf: ConditionalFormat) {
+    if (this.state.mode === "reorder") return;
+
     this.state.mode = "edit";
     this.state.currentCF = cf;
     this.state.currentCFType = cf.rule.type;
@@ -719,6 +780,21 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
         this.state.rules.iconSet = cf.rule;
         break;
     }
+  }
+
+  /**
+   * Reorder existing CFs
+   */
+  reorderConditionalFormats() {
+    this.state.mode = "reorder";
+  }
+
+  reorderRule(cf: ConditionalFormat, direction: UpDown) {
+    this.env.model.dispatch("MOVE_CONDITIONAL_FORMAT", {
+      cfId: cf.id,
+      direction: direction,
+      sheetId: this.env.model.getters.getActiveSheetId(),
+    });
   }
 
   changeRuleType(ruleType: CFType) {

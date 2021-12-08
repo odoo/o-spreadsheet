@@ -90,10 +90,16 @@ describe("UI of conditional formats", () => {
       colorPickerOrange: ".o-color-picker div[data-color='#ff9900']",
       colorPickerYellow: ".o-color-picker div[data-color='#ffff00']",
     },
+    cfReorder: {
+      buttonUp: ".o-cf-reorder-button-up",
+      buttonDown: ".o-cf-reorder-button-down",
+    },
     cfTabSelector: ".o-cf-type-selector .o_form_label",
     buttonSave: ".o-sidePanelButtons .o-cf-save",
     buttonDelete: ".o-cf-delete-button",
     buttonAdd: ".o-cf-add",
+    buttonReoder: ".o-cf-reorder",
+    buttonExitReorder: ".o-cf-exit-reorder",
     error: ".o-cf-error",
     closePanel: ".o-sidePanelClose",
   };
@@ -126,10 +132,7 @@ describe("UI of conditional formats", () => {
 
       // --> should be the style for CellIsRule
       expect(previews[0].querySelector(selectors.description.ruletype.rule)!.textContent).toBe(
-        "Is equal to"
-      );
-      expect(previews[0].querySelector(selectors.description.ruletype.values)!.textContent).toBe(
-        "2"
+        "Is equal to 2"
       );
       expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
       expect(
@@ -346,7 +349,52 @@ describe("UI of conditional formats", () => {
         sheetId: model.getters.getActiveSheetId(),
       });
     });
+
+    test("can the reordering CF Rules menu be opened/closed", async () => {
+      const previews = document.querySelectorAll(selectors.listPreview);
+
+      expect(document.querySelector(selectors.buttonExitReorder)).toBeFalsy();
+      expect(document.querySelector(selectors.cfReorder.buttonUp)).toBeFalsy();
+      expect(document.querySelector(selectors.cfReorder.buttonDown)).toBeFalsy();
+
+      triggerMouseEvent(selectors.buttonReoder, "click");
+      await nextTick();
+
+      expect(document.querySelector(selectors.buttonExitReorder)).toBeTruthy();
+      // Minus one because top rule has no up button, bottom rule no down button
+      expect(document.querySelectorAll(selectors.cfReorder.buttonUp).length).toEqual(
+        previews.length - 1
+      );
+      expect(document.querySelectorAll(selectors.cfReorder.buttonDown).length).toEqual(
+        previews.length - 1
+      );
+
+      triggerMouseEvent(selectors.buttonExitReorder, "click");
+      await nextTick();
+
+      expect(document.querySelector(selectors.buttonExitReorder)).toBeFalsy();
+      expect(document.querySelector(selectors.cfReorder.buttonUp)).toBeFalsy();
+      expect(document.querySelector(selectors.cfReorder.buttonDown)).toBeFalsy();
+    });
+
+    test("can reorder CF rules with up/down buttons", async () => {
+      const sheetId = model.getters.getActiveSheetId();
+
+      triggerMouseEvent(selectors.buttonReoder, "click");
+      await nextTick();
+
+      let previews = document.querySelectorAll(selectors.listPreview);
+      triggerMouseEvent(previews[0].querySelector(selectors.cfReorder.buttonDown), "click");
+      await nextTick();
+      expect(model.getters.getConditionalFormats(sheetId)[0].id).toEqual("2");
+
+      previews = document.querySelectorAll(selectors.listPreview);
+      triggerMouseEvent(previews[1].querySelector(selectors.cfReorder.buttonUp), "click");
+      await nextTick();
+      expect(model.getters.getConditionalFormats(sheetId)[0].id).toEqual("1");
+    });
   });
+
   test("can create a new ColorScaleRule with cell values", async () => {
     mockUuidV4To(model, "43");
     triggerMouseEvent(selectors.buttonAdd, "click");

@@ -11,6 +11,7 @@ import {
   Increment,
   SortDirection,
   UID,
+  UpDown,
 } from "../../src/types";
 import { target } from "./helpers";
 
@@ -367,6 +368,22 @@ export function setAnchorCorner(model: Model, xc: string): DispatchResult {
 export function addCellToSelection(model: Model, xc: string): DispatchResult {
   const [col, row] = toCartesian(xc);
   return model.selection.addCellToSelection(col, row);
+}
+
+/**
+ * Move a conditianal formatting rule
+ */
+export function moveConditionalFormat(
+  model: Model,
+  cfId: UID,
+  direction: UpDown,
+  sheetId: UID
+): DispatchResult {
+  return model.dispatch("MOVE_CONDITIONAL_FORMAT", {
+    cfId: cfId,
+    direction: direction,
+    sheetId,
+  });
 }
 
 export function setSelection(
