@@ -1,4 +1,5 @@
 import {
+  formatComposerNumber,
   formatDecimal,
   formatNumber,
   formatPercent,
@@ -21,11 +22,25 @@ describe("isNumber", () => {
     expect(isNumber("1.2e4")).toBe(true);
     expect(isNumber("1e5")).toBe(true);
     expect(isNumber("-1e3")).toBe(true);
+    expect(isNumber(".3%")).toBe(true);
+    expect(isNumber("-  3")).toBe(true);
+    expect(isNumber(".3e10")).toBe(true);
+    expect(isNumber("3E14")).toBe(true);
+    expect(isNumber("3E+14")).toBe(true);
+    expect(isNumber("3E-0")).toBe(true);
+    expect(isNumber("3E-42")).toBe(true);
+    expect(isNumber("3    %")).toBe(true); // doesn't work on google sheet
+    expect(isNumber("3e10%")).toBe(true); // works on google sheet and Excel online
+    expect(isNumber("3e10 %")).toBe(true); // works on google sheet and Excel online
   });
 
   test("some other checks for isNumber", () => {
     expect(isNumber("")).toBe(false);
     expect(isNumber("1.1.1")).toBe(false);
+    expect(isNumber("e10")).toBe(false);
+    expect(isNumber(".")).toBe(false);
+    expect(isNumber(" - .e10")).toBe(false);
+    expect(isNumber("3 E14")).toBe(false);
   });
 });
 
@@ -44,9 +59,13 @@ describe("parseNumber", () => {
     expect(parseNumber("1 %")).toBe(0.01);
     expect(parseNumber("1.5%")).toBe(0.015);
     expect(parseNumber("-3.3%")).toBe(-0.033);
+    expect(parseNumber(".3%")).toBe(0.003);
     expect(parseNumber("1.2e4")).toBe(12000);
     expect(parseNumber("1e5")).toBe(100000);
-    expect(parseNumber("-1e3")).toBe(-1000);
+    expect(parseNumber("-1E3")).toBe(-1000);
+    expect(parseNumber("3e+4")).toBe(30000);
+    expect(parseNumber("3E-4")).toBe(0.0003);
+    expect(parseNumber("1e2 %")).toBe(1);
   });
 });
 
@@ -75,6 +94,20 @@ describe("formatNumber", () => {
 
     expect(formatStandardNumber(123.10000000001)).toBe("123.1");
     expect(formatStandardNumber(123.10000000000000001)).toBe("123.1");
+  });
+
+  test("formatComposerNumber", () => {
+    expect(formatComposerNumber(0)).toBe("0");
+    expect(formatComposerNumber(123)).toBe("123");
+    expect(formatComposerNumber(-456.123)).toBe("-456.123");
+    expect(formatComposerNumber(1234567890.12345)).toBe("1234567890.12345");
+    expect(formatComposerNumber(9999999999)).toBe("9999999999");
+    expect(formatComposerNumber(10000000000)).toBe("1E+10");
+    expect(formatComposerNumber(12345678901)).toBe("1.2345678901E+10");
+    expect(formatComposerNumber(0.000000001)).toBe("0.000000001");
+    expect(formatComposerNumber(0.00000000123456)).toBe("0.00000000123456");
+    expect(formatComposerNumber(0.0000000009876543)).toBe("9.876543E-10");
+    expect(formatComposerNumber(0.000000000987654321012345)).toBe("9.87654321012345E-10");
   });
 
   test("formatDecimal", () => {
