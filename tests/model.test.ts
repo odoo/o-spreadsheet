@@ -1,24 +1,25 @@
-import { CommandResult, CorePlugin } from "../src";
+import { CommandResult,CorePlugin } from "../src";
 import { toZone } from "../src/helpers";
 import { LocalHistory } from "../src/history/local_history";
-import { Mode, Model } from "../src/model";
+import { Mode,Model } from "../src/model";
 import { BordersPlugin } from "../src/plugins/core/borders";
 import { CellPlugin } from "../src/plugins/core/cell";
 import { ChartPlugin } from "../src/plugins/core/chart";
 import { ConditionalFormatPlugin } from "../src/plugins/core/conditional_format";
 import { FigurePlugin } from "../src/plugins/core/figures";
+import { FiltersPlugin } from "../src/plugins/core/filters";
 import { MergePlugin } from "../src/plugins/core/merge";
 import { RangeAdapter } from "../src/plugins/core/range";
 import { SheetPlugin } from "../src/plugins/core/sheet";
 import { SortPlugin } from "../src/plugins/core/sort";
-import { corePluginRegistry, uiPluginRegistry } from "../src/plugins/index";
+import { corePluginRegistry,uiPluginRegistry } from "../src/plugins/index";
 import { AutomaticSumPlugin } from "../src/plugins/ui/automatic_sum";
 import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
 import { UIPlugin } from "../src/plugins/ui_plugin";
-import { Command, CoreCommand, DispatchResult } from "../src/types";
-import { selectCell, setCellContent } from "./test_helpers/commands_helpers";
-import { getCell, getCellText } from "./test_helpers/getters_helpers";
+import { Command,CoreCommand,DispatchResult } from "../src/types";
+import { selectCell,setCellContent } from "./test_helpers/commands_helpers";
+import { getCell,getCellText } from "./test_helpers/getters_helpers";
 
 function getNbrPlugin(mode: Mode): number {
   return (
@@ -34,20 +35,21 @@ function getNbrPlugin(mode: Mode): number {
 describe("Model", () => {
   test("can create model in headless mode", () => {
     const model = new Model({}, { mode: "headless" });
-    expect(model["handlers"]).toHaveLength(13);
+    expect(model["handlers"]).toHaveLength(14);
     expect(model["handlers"][0]).toBeInstanceOf(RangeAdapter);
     expect(model["handlers"][1]).toBeInstanceOf(SheetPlugin);
     expect(model["handlers"][2]).toBeInstanceOf(CellPlugin);
     expect(model["handlers"][3]).toBeInstanceOf(MergePlugin);
     expect(model["handlers"][4]).toBeInstanceOf(BordersPlugin);
     expect(model["handlers"][5]).toBeInstanceOf(ConditionalFormatPlugin);
-    expect(model["handlers"][6]).toBeInstanceOf(FigurePlugin);
-    expect(model["handlers"][7]).toBeInstanceOf(SortPlugin);
-    expect(model["handlers"][8]).toBeInstanceOf(ChartPlugin);
-    expect(model["handlers"][9]).toBeInstanceOf(SheetUIPlugin);
-    expect(model["handlers"][10]).toBeInstanceOf(FindAndReplacePlugin);
-    expect(model["handlers"][11]).toBeInstanceOf(AutomaticSumPlugin);
-    expect(model["handlers"][12]).toBeInstanceOf(LocalHistory);
+    expect(model["handlers"][6]).toBeInstanceOf(FiltersPlugin);
+    expect(model["handlers"][7]).toBeInstanceOf(FigurePlugin);
+    expect(model["handlers"][8]).toBeInstanceOf(SortPlugin);
+    expect(model["handlers"][9]).toBeInstanceOf(ChartPlugin);
+    expect(model["handlers"][10]).toBeInstanceOf(SheetUIPlugin);
+    expect(model["handlers"][11]).toBeInstanceOf(FindAndReplacePlugin);
+    expect(model["handlers"][12]).toBeInstanceOf(AutomaticSumPlugin);
+    expect(model["handlers"][13]).toBeInstanceOf(LocalHistory);
   });
 
   test("All plugin compatible with normal mode are loaded on normal mode", () => {

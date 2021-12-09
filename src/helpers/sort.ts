@@ -11,7 +11,7 @@ import {
 } from "../types";
 import { isEqual } from "./zones";
 
-type CellWithIndex = { index: number; type: CellValueType; value: any };
+type CellWithIndex = { index: number; type: CellValueType; value: any; content: string };
 
 const SORT_TYPES: CellValueType[] = [
   CellValueType.number,
@@ -25,6 +25,7 @@ function convertCell(cell: Cell | undefined, index: number): CellWithIndex {
     index,
     type: cell ? cell.evaluated.type : CellValueType.empty,
     value: cell ? cell.evaluated.value : "",
+    content: cell ? cell.content : "",
   };
 }
 

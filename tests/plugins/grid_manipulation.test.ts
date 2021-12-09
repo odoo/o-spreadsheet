@@ -3,13 +3,16 @@ import {
   DEFAULT_CELL_WIDTH,
   INCORRECT_RANGE_STRING,
 } from "../../src/constants";
-import { lettersToNumber, toXC, toZone } from "../../src/helpers";
+import { toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { Border, CommandResult, UID } from "../../src/types";
 import {
   activateSheet,
   addColumns,
   addRows,
+  clearColumns,
+  clearRows,
+  createFilter,
   createSheet,
   deleteCells,
   deleteColumns,
@@ -43,30 +46,6 @@ import {
 } from "../test_helpers/helpers";
 let model: Model;
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
-
-function clearColumns(indexes: string[]) {
-  const sheetId = model.getters.getActiveSheetId();
-  const target = indexes
-    .map((index) => lettersToNumber(index))
-    .map((index) => {
-      return model.getters.getColsZone(sheetId, index, index);
-    });
-  model.dispatch("DELETE_CONTENT", {
-    target,
-    sheetId: model.getters.getActiveSheetId(),
-  });
-}
-
-function clearRows(indexes: number[]) {
-  const sheetId = model.getters.getActiveSheetId();
-  const target = indexes.map((index) => {
-    return model.getters.getRowsZone(sheetId, index, index);
-  });
-  model.dispatch("DELETE_CONTENT", {
-    target,
-    sheetId: model.getters.getActiveSheetId(),
-  });
-}
 
 function getCellsObject(model: Model, sheetId: UID) {
   const cells = {};
@@ -130,7 +109,7 @@ describe("Clear columns", () => {
       borders: { 1: border },
       merges: ["A3:B3"],
     });
-    clearColumns(["B", "C"]);
+    clearColumns(model, ["B", "C"]);
     const style = { textColor: "#fe0000" };
     expect(getCell(model, "B2")).toBeUndefined();
     expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(5);
@@ -142,6 +121,16 @@ describe("Clear columns", () => {
     expect(getCell(model, "C1")).toMatchObject({ style });
     expect(getBorder(model, "C2")).toEqual(border);
   });
+
+  test("Clear a column does not remove the filter", () => {
+    const model = new Model();
+    setCellContent(model, "A2", "1");
+    createFilter(model, "A1:A4");
+    clearColumns(model, ["A"]);
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.isSheetContainsFilter(sheetId)).toBe(true);
+  });
+
   test("cannot delete column in invalid sheet", () => {
     expect(deleteColumns(model, ["A"], "INVALID")).toBeCancelledBecause(
       CommandResult.InvalidSheetId
@@ -173,7 +162,7 @@ describe("Clear rows", () => {
       merges: ["C1:C2"],
     });
 
-    clearRows([1, 2]);
+    clearRows(model, [1, 2]);
     const style = { textColor: "#fe0000" };
     expect(getCell(model, "B2")).toBeUndefined();
     expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(5);
@@ -185,6 +174,16 @@ describe("Clear rows", () => {
     expect(getCell(model, "C1")).toMatchObject({ content: "C1" });
     expect(getCell(model, "C2")).toMatchObject({ style });
   });
+
+  test("Clear a row does not remove the filter", () => {
+    const model = new Model();
+    setCellContent(model, "A2", "1");
+    createFilter(model, "A1:A4");
+    clearRows(model, [1]);
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.isSheetContainsFilter(sheetId)).toBe(true);
+  });
+
   test("cannot delete row in invalid sheet", () => {
     expect(deleteRows(model, [0], "INVALID")).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });

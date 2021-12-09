@@ -1,9 +1,16 @@
 import { Spreadsheet, TransportService } from "../../src";
 import { Grid } from "../../src/components/grid";
-import { HEADER_WIDTH, MESSAGE_VERSION, SCROLLBAR_WIDTH } from "../../src/constants";
+import {
+  FILTER_EDGE_LENGTH,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+  MESSAGE_VERSION,
+  SCROLLBAR_WIDTH,
+} from "../../src/constants";
 import { scrollDelay, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
+  createFilter,
   createSheet,
   hideColumns,
   hideRows,
@@ -222,6 +229,34 @@ describe("Grid component", () => {
       })
     );
     expect(mockCallback).toBeCalledTimes(2);
+  });
+
+  test("Filter icon is correctly rendered", async () => {
+    createFilter(model, "A1:B2");
+    await nextTick();
+
+    const icons = fixture.querySelectorAll(".o-filter-icon");
+    expect(icons).toHaveLength(2);
+    const sheet = model.getters.getActiveSheet();
+    const top = `${sheet.rows[0].end - FILTER_EDGE_LENGTH + HEADER_HEIGHT}px`;
+    const leftA = `${sheet.cols[0].end - FILTER_EDGE_LENGTH + HEADER_WIDTH}px`;
+    const leftB = `${sheet.cols[1].end - FILTER_EDGE_LENGTH + HEADER_WIDTH}px`;
+    expect((icons[0] as HTMLElement).style["_values"]).toEqual({ top, left: leftA });
+    expect((icons[1] as HTMLElement).style["_values"]).toEqual({ top, left: leftB });
+  });
+
+  test("Clicking on a filter icon correctly open context menu", async () => {
+    createFilter(model, "A1:A2");
+    await nextTick();
+    await simulateClick(".o-filter-icon");
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+  });
+
+  test("Ensure that the custom component is present in the filter menu", async () => {
+    createFilter(model, "A1:A2");
+    await nextTick();
+    await simulateClick(".o-filter-icon");
+    expect(fixture.querySelectorAll(".o-filter-menu-item")).toHaveLength(1);
   });
 
   describe("keybindings", () => {

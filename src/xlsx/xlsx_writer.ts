@@ -20,7 +20,13 @@ import {
   addNumberFormats,
   addStyles,
 } from "./functions/styles";
-import { addColumns, addHyperlinks, addMerges, addRows } from "./functions/worksheet";
+import {
+  addAutoFilters,
+  addColumns,
+  addHyperlinks,
+  addMerges,
+  addRows,
+} from "./functions/worksheet";
 import {
   addRelsToFile,
   convertChartId,
@@ -147,6 +153,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
         ${joinXmlNodes(addConditionalFormatting(construct.dxfs, sheet.conditionalFormats))}
         ${addHyperlinks(construct, data, sheetIndex)}
         ${drawingNode}
+        ${addAutoFilters(sheet)}
       </worksheet>
     `;
     files.push(createXMLFile(parseXML(sheetXml), `xl/worksheets/sheet${sheetIndex}.xml`, "sheet"));

@@ -6,6 +6,7 @@ import {
   DEFAULT_REVISION_ID,
   FORBIDDEN_SHEET_CHARS,
 } from "../../src/constants";
+import { toZone } from "../../src/helpers";
 import { CURRENT_VERSION } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { corePluginRegistry } from "../../src/plugins";
@@ -508,7 +509,7 @@ describe("Export", () => {
 });
 
 test("complete import, then export", () => {
-  const modelData = {
+  const modelData: WorkbookData = {
     version: CURRENT_VERSION,
     revisionId: DEFAULT_REVISION_ID,
     sheets: [
@@ -523,6 +524,7 @@ test("complete import, then export", () => {
         rows: {
           1: { size: 13 },
         },
+        filter: toZone("A1:B2"),
         cells: {
           A1: { content: "hello" },
           B1: {

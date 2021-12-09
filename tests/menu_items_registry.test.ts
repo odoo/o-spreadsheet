@@ -1,5 +1,6 @@
 import { Model, Spreadsheet } from "../src";
 import { fontSizes } from "../src/fonts";
+import { toZone } from "../src/helpers";
 import { interactivePaste } from "../src/helpers/ui/paste";
 import {
   colMenuRegistry,
@@ -8,8 +9,16 @@ import {
   rowMenuRegistry,
   topbarMenuRegistry,
 } from "../src/registries/index";
+import { filterMenuRegistry } from "../src/registries/menus/filter_menu_registry";
 import { DispatchResult, SpreadsheetEnv } from "../src/types";
-import { hideColumns, hideRows, selectCell, setSelection } from "./test_helpers/commands_helpers";
+import {
+  activateFilter,
+  createFilter,
+  hideColumns,
+  hideRows,
+  selectCell,
+  setSelection,
+} from "./test_helpers/commands_helpers";
 import { getCellContent } from "./test_helpers/getters_helpers";
 import {
   makeTestFixture,
@@ -823,6 +832,34 @@ describe("Menu Item actions", () => {
     expect(env.dispatch).toHaveBeenCalledWith("SET_GRID_LINES_VISIBILITY", {
       sheetId,
       areGridLinesVisible: false,
+    });
+  });
+
+  describe("Filters", () => {
+    test("Filters -> static menus", () => {
+      createFilter(model, "A1:A2");
+      activateFilter(model, "A");
+      const sheetId = model.getters.getActiveSheetId();
+
+      /** SORT ASC */
+      doAction(["sort_asc"], env, filterMenuRegistry);
+      expect(env.dispatch).toHaveBeenCalledWith("SORT_CELLS", {
+        sheetId,
+        col: 0,
+        row: 1,
+        zone: toZone("A2"),
+        sortDirection: "ascending",
+      });
+
+      /** SORT DESC */
+      doAction(["sort_desc"], env, filterMenuRegistry);
+      expect(env.dispatch).toHaveBeenCalledWith("SORT_CELLS", {
+        sheetId,
+        col: 0,
+        row: 1,
+        zone: toZone("A2"),
+        sortDirection: "descending",
+      });
     });
   });
 });

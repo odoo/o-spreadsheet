@@ -35,27 +35,32 @@ const TEMPLATE = xml/* xml */ `
       >
       <div t-ref="menu" class="o-menu" t-on-scroll="onScroll" t-on-wheel.stop="" t-on-click.stop="">
         <t t-foreach="props.menuItems" t-as="menuItem" t-key="menuItem.id">
-          <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
           <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>
-          <div
-            t-att-title="getName(menuItem)"
-            t-att-data-name="menuItem.id"
-            t-on-click="onClickMenu(menuItem, menuItem_index)"
-            t-on-mouseover="onMouseOver(menuItem, menuItem_index)"
-            class="o-menu-item"
-            t-att-class="{
-              'o-menu-root': isMenuRoot,
-              'disabled': !isMenuEnabled,
-            }">
-            <t t-esc="getName(menuItem)"/>
-            <span class="o-menu-item-shortcut" t-esc="getShortCut(menuItem)"/>
-            <t t-if="isMenuRoot">
-              ${icons.TRIANGLE_RIGHT_ICON}
-            </t>
-            <t t-elif="menuItem.icon">
-              <i t-att-class="menuItem.icon" class="o-menu-item-icon"/>
-            </t>
-          </div>
+          <t t-if="menuItem.component">
+            <t t-component="menuItem.component" menuItem="menuItem" t-on-close="close"/>
+          </t>
+          <t t-else="">
+            <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
+            <div
+              t-att-title="getName(menuItem)"
+              t-att-data-name="menuItem.id"
+              t-on-click="onClickMenu(menuItem, menuItem_index)"
+              t-on-mouseover="onMouseOver(menuItem, menuItem_index)"
+              class="o-menu-item"
+              t-att-class="{
+                'o-menu-root': isMenuRoot,
+                'disabled': !isMenuEnabled,
+              }">
+              <t t-esc="getName(menuItem)"/>
+              <span class="o-menu-item-shortcut" t-esc="getShortCut(menuItem)"/>
+              <t t-if="isMenuRoot">
+                ${icons.TRIANGLE_RIGHT_ICON}
+              </t>
+              <t t-elif="menuItem.icon">
+                <i t-att-class="menuItem.icon" class="o-menu-item-icon"/>
+              </t>
+            </div>
+          </t>
           <div t-if="menuItem.separator and !menuItem_last" class="o-separator"/>
         </t>
       </div>

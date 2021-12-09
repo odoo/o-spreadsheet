@@ -1,4 +1,9 @@
-import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../constants";
+import {
+  DEFAULT_FONT_SIZE,
+  ICON_EDGE_LENGTH,
+  MIN_CF_ICON_MARGIN,
+  PADDING_AUTORESIZE,
+} from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { computeIconWidth, computeTextWidth, isDefined } from "../../helpers/index";
 import { Cell, CellValueType, Command, CommandResult, UID } from "../../types";
@@ -68,6 +73,14 @@ export class SheetUIPlugin extends UIPlugin {
     const icon = this.getters.getConditionalIcon(cellPosition.col, cellPosition.row);
     if (icon) {
       width += computeIconWidth(this.ctx, this.getters.getCellStyle(cell));
+    }
+    const isHeader = this.getters.isFilterHeader(
+      cellPosition.sheetId,
+      cellPosition.col,
+      cellPosition.row
+    );
+    if (isHeader) {
+      width += 2 * MIN_CF_ICON_MARGIN + ICON_EDGE_LENGTH;
     }
     return width;
   }

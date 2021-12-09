@@ -5,8 +5,9 @@ import {
   parseMarkdownLink,
   parseSheetLink,
   toXC,
+  zoneToXc,
 } from "../../helpers";
-import { ExcelSheetData, ExcelWorkbookData, HeaderData } from "../../types";
+import { ExcelSheetData, ExcelWorkbookData, HeaderData, Zone } from "../../types";
 import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
 import {
   addRelsToFile,
@@ -159,4 +160,44 @@ export function addMerges(merges: string[]): XMLString {
       </mergeCells>
     `;
   } else return escapeXml``;
+}
+
+export function addAutoFilters(sheet: ExcelSheetData): XMLString {
+  const filter = sheet.filter;
+  if (!filter) {
+    return escapeXml``;
+  }
+  const columns: XMLString[] = [];
+  let colId = 0;
+  for (let col = filter.left; col <= filter.right; col++) {
+    const values = getActiveFilterValues(sheet, filter, col).map(
+      (val) => escapeXml/*xml*/ `<filter val="${val}">`
+    );
+    columns.push(escapeXml/*xml*/ `
+      <filterColumn colId="${colId}">
+        <filters>
+          ${joinXmlNodes(values)}
+        </filters>
+      </filterColumn>
+    `);
+    colId++;
+  }
+  return escapeXml/*xml*/ `
+    <autoFilter ref="${zoneToXc(filter)}">
+      ${joinXmlNodes(columns)}
+    </autoFilter>
+  `;
+}
+
+function getActiveFilterValues(sheet: ExcelSheetData, zone: Zone, col: number): string[] {
+  const values: string[] = [];
+  for (let row = zone.top; row <= zone.bottom; row++) {
+    if (!sheet.rows[row].isHidden) {
+      const cell = sheet.cells[toXC(col, row)];
+      if (cell) {
+        values.push(cell.content || "");
+      }
+    }
+  }
+  return [...new Set(values)];
 }

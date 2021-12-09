@@ -24,10 +24,12 @@ export interface Box {
   content?: BoxTextContent;
   style: Style;
   border?: Border;
+  filterBorder?: Border;
   clipRect?: Rect;
   error?: string;
   image?: Image;
   isMerge?: boolean;
+  isFilterHeader?: boolean;
 }
 export interface Image {
   clipIcon: Rect | null;

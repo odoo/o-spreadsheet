@@ -5,6 +5,7 @@ import { CellPlugin } from "../plugins/core/cell";
 import { ChartPlugin } from "../plugins/core/chart";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { FigurePlugin } from "../plugins/core/figures";
+import { FiltersPlugin } from "../plugins/core/filters";
 import { MergePlugin } from "../plugins/core/merge";
 import { RangeAdapter } from "../plugins/core/range";
 import { SheetPlugin } from "../plugins/core/sheet";
@@ -74,6 +75,7 @@ type LocalHistoryGetters = {
   canUndo: LocalHistory["canUndo"];
   canRedo: LocalHistory["canRedo"];
 };
+type FilterGetters = Pick<FiltersPlugin, GetterNames<typeof FiltersPlugin>>;
 
 export type CoreGetters = { isReadonly: () => boolean } & LocalHistoryGetters &
   SheetGetters &
@@ -83,6 +85,7 @@ export type CoreGetters = { isReadonly: () => boolean } & LocalHistoryGetters &
   ChartGetters &
   ConditionalFormatGetters &
   FigureGetters &
+  FilterGetters &
   RangeAdapterGetters;
 
 type AutofillGetters = Pick<AutofillPlugin, GetterNames<typeof AutofillPlugin>>;

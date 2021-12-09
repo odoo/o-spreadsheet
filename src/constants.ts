@@ -32,6 +32,8 @@ export const AUTOFILL_EDGE_LENGTH = 8;
 export const ICON_EDGE_LENGTH = 18;
 export const UNHIDE_ICON_EDGE_LENGTH = 14;
 export const MIN_CF_ICON_MARGIN = 4;
+export const FILTER_ICON_MARGIN = 4;
+export const FILTER_EDGE_LENGTH = 20;
 export const MIN_CELL_TEXT_MARGIN = 4;
 export const CF_ICON_EDGE_LENGTH = 15;
 
@@ -55,6 +57,7 @@ export const DEFAULT_FONT = "'Roboto', arial";
 
 // Borders
 export const DEFAULT_BORDER_DESC: BorderDescr = ["thin", "#000"];
+export const DEFAULT_FILTER_BORDER_DESC: BorderDescr = ["thin", "#168037"];
 
 // Style
 export const DEFAULT_STYLE: Style = {

@@ -3,8 +3,10 @@ import {
   AUTOFILL_EDGE_LENGTH,
   BACKGROUND_GRAY_COLOR,
   DEFAULT_CELL_HEIGHT,
+  FILTER_EDGE_LENGTH,
   HEADER_HEIGHT,
   HEADER_WIDTH,
+  ICON_EDGE_LENGTH,
   LINK_TOOLTIP_HEIGHT,
   LINK_TOOLTIP_WIDTH,
   SCROLLBAR_WIDTH,
@@ -23,13 +25,22 @@ import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
+import { filterMenuRegistry } from "../registries/menus/filter_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
-import { CellValueType, Client, Position, SpreadsheetEnv, Viewport } from "../types/index";
+import {
+  CellValueType,
+  Client,
+  DOMCoordinates,
+  Position,
+  SpreadsheetEnv,
+  Viewport,
+} from "../types/index";
 import { Autofill } from "./autofill";
 import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
 import { ErrorToolTip } from "./error_tooltip";
 import { FiguresContainer } from "./figures/container";
+import { FilterIcon } from "./filters/filter_icon";
 import { startDnd } from "./helpers/drag_and_drop";
 import { Highlight } from "./highlight/highlight";
 import { LinkDisplay } from "./link/link_display";
@@ -52,12 +63,13 @@ import { ScrollBar } from "./scrollbar";
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
 const { useRef, onMounted, onWillUnmount, onPatched, useExternalListener } = owl.hooks;
-export type ContextMenuType = "ROW" | "COL" | "CELL";
+export type ContextMenuType = "ROW" | "COL" | "CELL" | "FILTER";
 
 const registries = {
   ROW: rowMenuRegistry,
   COL: colMenuRegistry,
   CELL: cellMenuRegistry,
+  FILTER: filterMenuRegistry,
 };
 
 const LINK_EDITOR_WIDTH = 340;
@@ -239,6 +251,11 @@ const TEMPLATE = xml/* xml */ `
       menuItems="menuState.menuItems"
       position="menuState.position"
       onClose="() => this.menuState.isOpen=false"/>
+    <t t-foreach="getFilterHeaders()" t-as="header" t-key="header.col + '_' + header.row">
+      <FilterIcon position="getFilterHeaderPosition(header)"
+                  isActive="isFilterActive(header)"
+                  t-on-click="() => this.openFilterMenu(header, ev)"/>
+    </t>
     <t t-set="gridSize" t-value="getters.getMaxViewportSize(getters.getActiveSheet())"/>
     <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" onFigureDeleted="() => this.focus()" />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
@@ -316,6 +333,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     LinkDisplay,
     LinkEditor,
     Popover,
+    FilterIcon,
   };
 
   private menuState: MenuState = useState({
@@ -586,6 +604,26 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
       this.focus();
       this.currentSheet = currentSheet;
     }
+  }
+
+  getFilterHeaders(): Position[] {
+    const sheetId = this.getters.getActiveSheetId();
+    return this.getters.getFilterHeaders(sheetId);
+  }
+
+  getFilterHeaderPosition(position: Position): DOMCoordinates {
+    const sheet = this.getters.getActiveSheet();
+    const { offsetX, offsetY } = this.getters.getActiveSnappedViewport();
+    return {
+      x: sheet.cols[position.col].end - FILTER_EDGE_LENGTH + HEADER_WIDTH - offsetX,
+      y: sheet.rows[position.row].end - FILTER_EDGE_LENGTH + HEADER_HEIGHT - offsetY,
+    };
+  }
+
+  isFilterActive(position: Position): boolean {
+    const sheetId = this.getters.getActiveSheetId();
+    const col = position.col;
+    return this.getters.isFilterActive(sheetId, col);
   }
 
   getAutofillPosition() {
@@ -944,5 +982,11 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
         });
       }
     }
+  }
+
+  openFilterMenu(position: Position) {
+    const { x, y } = this.getFilterHeaderPosition(position);
+    this.dispatch("SET_CURRENT_USED_FILTER", { col: position.col });
+    this.toggleContextMenu("FILTER", x, y + ICON_EDGE_LENGTH);
   }
 }

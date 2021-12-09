@@ -606,6 +606,58 @@ export const INSERT_LINK = (env: SpreadsheetEnv) => {
 };
 
 //------------------------------------------------------------------------------
+// Filters action
+//------------------------------------------------------------------------------
+
+export const FILTERS_SORT_CELLS_ASCENDING = (env: SpreadsheetEnv) => {
+  const filterId = env.getters.getActiveFilterCol();
+  if (filterId === undefined) {
+    return;
+  }
+  const sheetId = env.getters.getActiveSheetId();
+  const zone = env.getters.getFilterZoneOfCOl(sheetId, filterId);
+  if (zone) {
+    env.dispatch("SORT_CELLS", {
+      sheetId,
+      col: zone.left,
+      row: zone.top,
+      zone,
+      sortDirection: "ascending",
+    });
+  }
+};
+
+export const FILTERS_SORT_CELLS_DESCENDING = (env: SpreadsheetEnv) => {
+  const filterId = env.getters.getActiveFilterCol();
+  if (filterId === undefined) {
+    return;
+  }
+  const sheetId = env.getters.getActiveSheetId();
+  const zone = env.getters.getFilterZoneOfCOl(sheetId, filterId);
+  if (zone) {
+    env.dispatch("SORT_CELLS", {
+      sheetId,
+      col: zone.left,
+      row: zone.top,
+      zone,
+      sortDirection: "descending",
+    });
+  }
+};
+
+export const CLEAR_FILTERS = (env: SpreadsheetEnv) => {
+  const filterId = env.getters.getActiveFilterCol();
+  if (filterId === undefined) {
+    return;
+  }
+  const sheetId = env.getters.getActiveSheetId();
+  const zone = env.getters.getFilterZoneOfCOl(sheetId, filterId);
+  if (zone) {
+    env.dispatch("EVALUATE_FILTER", { col: zone.left, values: "ANY" });
+  }
+};
+
+//------------------------------------------------------------------------------
 // Sorting action
 //------------------------------------------------------------------------------
 

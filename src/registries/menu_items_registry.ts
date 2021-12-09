@@ -35,6 +35,7 @@ export interface MenuItem {
   action?: (env: SpreadsheetEnv) => unknown;
   children?: menuChildren;
   separator?: boolean;
+  component?: any;
   icon?: string;
 }
 
@@ -51,6 +52,7 @@ const DEFAULT_MENU_ITEM = (key: string) => ({
   children: [],
   separator: false,
   icon: false,
+  component: false,
   id: key,
 });
 

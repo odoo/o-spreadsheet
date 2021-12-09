@@ -1,15 +1,18 @@
 import { compile } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { isZoneValid, range as rangeSequence, toXC } from "../../helpers/index";
+import { isZoneValid, positions, range as rangeSequence, toXC } from "../../helpers/index";
+import { sortCells } from "../../helpers/sort";
 import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
+import { FilterValue } from "../../types/filters";
 import {
   Cell,
   CellValue,
   CellValueType,
   Command,
   CommandDispatcher,
+  CommandResult,
   EnsureRange,
   EvalContext,
   FormulaCell,
@@ -18,6 +21,7 @@ import {
   Range,
   ReferenceDenormalizer,
   UID,
+  Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
@@ -32,7 +36,12 @@ const functionMap = functionRegistry.mapping;
 type FormulaParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 
 export class EvaluationPlugin extends UIPlugin {
-  static getters = ["evaluateFormula", "getRangeFormattedValues", "getRangeValues"] as const;
+  static getters = [
+    "evaluateFormula",
+    "getRangeFormattedValues",
+    "getRangeValues",
+    "getFilterZoneValues",
+  ] as const;
   static modes: Mode[] = ["normal"];
 
   private isUpToDate: Set<UID> = new Set(); // Set<sheetIds>
@@ -55,11 +64,35 @@ export class EvaluationPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
+  allowDispatch(cmd: Command) {
+    switch (cmd.type) {
+      case "EVALUATE_FILTER":
+        const sheetId = this.getters.getActiveSheetId();
+        if (
+          !this.getters.isSheetContainsFilter(sheetId) ||
+          !this.getters.getFilterZoneOfCOl(sheetId, cmd.col)
+        ) {
+          return CommandResult.MissingFilter;
+        }
+        break;
+    }
+    return CommandResult.Success;
+  }
+
   handle(cmd: Command) {
     if (invalidateEvaluationCommands.has(cmd.type)) {
       this.isUpToDate.clear();
     }
     switch (cmd.type) {
+      case "EVALUATE_FILTER":
+        {
+          const sheetId = this.getters.getActiveSheetId();
+          const col = cmd.col;
+          /* The following line is covered by allowDispatch */
+          const zone = this.getters.getFilterZoneOfCOl(sheetId, col)!;
+          this.evaluateFilter(sheetId, zone, cmd.values);
+        }
+        break;
       case "UPDATE_CELL":
         if ("content" in cmd) {
           this.isUpToDate.clear();
@@ -116,6 +149,86 @@ export class EvaluationPlugin extends UIPlugin {
     const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [];
     return this.getters.getCellsInZone(sheet.id, range.zone).map((cell) => cell?.evaluated.value);
+  }
+
+  /**
+   * Return the distinct values in the given zone, ordered ascending
+   */
+  getFilterZoneValues(zone: Zone, ignoreHiddenRows?: boolean): string[] {
+    const sheetId = this.getters.getActiveSheetId();
+    const cells = positions(zone)
+      .filter(([, row]) => !ignoreHiddenRows || !this.getters.getRow(sheetId, row)?.isHidden)
+      .map(([col, row]) => this.getters.getCell(sheetId, col, row));
+    return [...new Set(sortCells(cells, "ascending").map((cell) => cell.content))];
+  }
+
+  // ---------------------------------------------------------------------------
+  // Filters Evaluator
+  // ---------------------------------------------------------------------------
+
+  private evaluateFilter(sheetId: UID, zone: Zone, values: FilterValue) {
+    if (values === "ANY") {
+      this.unhideRowsInZone(sheetId, zone);
+      return;
+    }
+    if (values.length === 0) {
+      this.hideRowsInZone(sheetId, zone);
+      return;
+    }
+    const rowsToHide: number[] = [];
+    const rowsToUnhide: number[] = [];
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      const cell = this.getters.getCell(sheetId, zone.left, row);
+      if (!cell) {
+        if (!values.includes("")) {
+          rowsToHide.push(row);
+        } else {
+          rowsToUnhide.push(row);
+        }
+      } else if (!values.includes(cell.evaluated.value.toString())) {
+        rowsToHide.push(row);
+      } else {
+        rowsToUnhide.push(row);
+      }
+    }
+    if (rowsToHide.length > 0) {
+      this.dispatch("HIDE_COLUMNS_ROWS", {
+        sheetId,
+        dimension: "ROW",
+        elements: rowsToHide,
+      });
+    }
+    if (rowsToUnhide.length > 0) {
+      this.dispatch("UNHIDE_COLUMNS_ROWS", {
+        sheetId,
+        dimension: "ROW",
+        elements: rowsToUnhide,
+      });
+    }
+  }
+
+  private unhideRowsInZone(sheetId: UID, zone: Zone) {
+    const elements: number[] = [];
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      if (this.getters.getRow(sheetId, row)!.isHidden) {
+        elements.push(row);
+      }
+    }
+    if (elements.length > 0) {
+      this.dispatch("UNHIDE_COLUMNS_ROWS", { dimension: "ROW", sheetId, elements });
+    }
+  }
+
+  private hideRowsInZone(sheetId: UID, zone: Zone) {
+    const elements: number[] = [];
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      if (!this.getters.getRow(sheetId, row)!.isHidden) {
+        elements.push(row);
+      }
+    }
+    if (elements.length > 0) {
+      this.dispatch("HIDE_COLUMNS_ROWS", { dimension: "ROW", sheetId, elements });
+    }
   }
 
   // ---------------------------------------------------------------------------

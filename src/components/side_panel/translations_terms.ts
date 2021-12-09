@@ -139,4 +139,7 @@ export const LinkEditorTerms = {
 
 export const GenericWords = {
   And: _lt("and"),
+  Blanks: _lt("(Blanks)"),
+  Confirm: _lt("Confirm"),
+  Cancel: _lt("Cancel"),
 };

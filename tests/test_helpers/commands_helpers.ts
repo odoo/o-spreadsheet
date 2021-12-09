@@ -10,6 +10,7 @@ import {
   SortDirection,
   UID,
 } from "../../src/types";
+import { FilterValue } from "../../src/types/filters";
 import { target } from "./helpers";
 
 /**
@@ -282,6 +283,30 @@ export function unhideRows(
   });
 }
 
+export function clearColumns(model: Model, indexes: string[]): DispatchResult {
+  const sheetId = model.getters.getActiveSheetId();
+  const target = indexes
+    .map((index) => lettersToNumber(index))
+    .map((index) => {
+      return model.getters.getColsZone(sheetId, index, index);
+    });
+  return model.dispatch("DELETE_CONTENT", {
+    target,
+    sheetId: model.getters.getActiveSheetId(),
+  });
+}
+
+export function clearRows(model: Model, indexes: number[]): DispatchResult {
+  const sheetId = model.getters.getActiveSheetId();
+  const target = indexes.map((index) => {
+    return model.getters.getRowsZone(sheetId, index, index);
+  });
+  return model.dispatch("DELETE_CONTENT", {
+    target,
+    sheetId: model.getters.getActiveSheetId(),
+  });
+}
+
 export function deleteCells(model: Model, range: string, shift: "left" | "up"): DispatchResult {
   return model.dispatch("DELETE_CELL", {
     zone: toZone(range),
@@ -422,4 +447,41 @@ export function unMerge(
 
 export function snapshot(model: Model) {
   model["session"].snapshot(model.exportData());
+}
+
+export function createFilter(
+  model: Model,
+  range: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("CREATE_FILTERS", {
+    sheetId,
+    target: [toZone(range)],
+  });
+}
+
+export function setFilterValue(
+  model: Model,
+  xc: string,
+  hiddenValues: FilterValue,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  const [col, row] = toCartesian(xc);
+  return model.dispatch("SET_FILTER_VALUE", { col, row, sheetId, hiddenValues });
+}
+
+export function deleteFilter(
+  model: Model,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("DELETE_FILTERS", { sheetId });
+}
+
+export function evaluateFilter(model: Model, col: string, values: FilterValue): DispatchResult {
+  return model.dispatch("EVALUATE_FILTER", { col: lettersToNumber(col), values });
+}
+
+export function activateFilter(model: Model, column: string) {
+  const col = lettersToNumber(column);
+  model.dispatch("SET_CURRENT_USED_FILTER", { col });
 }

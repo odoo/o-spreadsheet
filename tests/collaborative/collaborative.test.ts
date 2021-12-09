@@ -9,9 +9,11 @@ import {
   addRows,
   clearCell,
   createChart,
+  createFilter,
   createSheet,
   deleteColumns,
   deleteRows,
+  evaluateFilter,
   merge,
   selectCell,
   setCellContent,
@@ -686,6 +688,26 @@ describe("Multi users synchronisation", () => {
     expect([alice, bob, charlie, david]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "hello"
+    );
+  });
+
+  test("Filters are correctly shared and applied", () => {
+    setCellContent(alice, "A2", "1");
+    setCellContent(alice, "A3", "2");
+    createFilter(alice, "A1:A3");
+    const sheetId = alice.getters.getActiveSheetId();
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.isSheetContainsFilter(sheetId),
+      true
+    );
+    evaluateFilter(alice, "A", ["1"]);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getRow(sheetId, 1)?.isHidden,
+      false
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getRow(sheetId, 2)?.isHidden,
+      true
     );
   });
 

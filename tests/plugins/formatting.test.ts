@@ -1,10 +1,20 @@
-import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../src/constants";
+import {
+  DEFAULT_FONT_SIZE,
+  ICON_EDGE_LENGTH,
+  MIN_CF_ICON_MARGIN,
+  PADDING_AUTORESIZE,
+} from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { SheetUIPlugin } from "../../src/plugins/ui/ui_sheet";
 import { Cell, CommandResult, UID } from "../../src/types";
-import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import {
+  createFilter,
+  createSheet,
+  selectCell,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 
 function setFormat(model: Model, format: string) {
@@ -419,7 +429,7 @@ describe("Autoresize", () => {
     const sheetUIPlugin = model["handlers"].find(
       (p) => p instanceof SheetUIPlugin
     )! as SheetUIPlugin;
-    sheetUIPlugin.getCellWidth = jest.fn((cell: Cell) => {
+    sheetUIPlugin.getTextWidth = jest.fn((cell: Cell) => {
       if (cell["content"] === "size0") return sizes[0];
       return sizes[1];
     });
@@ -472,5 +482,13 @@ describe("Autoresize", () => {
     model.dispatch("AUTORESIZE_ROWS", { sheetId: newSheetId, rows: [0] });
     expect(model.getters.getRow(sheetId, 0)?.size).toBe(initialSize);
     expect(model.getters.getRow(newSheetId, 0)?.size).toBe(rowSize + padding);
+  });
+
+  test("Can autoresize a column with a filter", () => {
+    setCellContent(model, "A1", "size0");
+    createFilter(model, "A1:B1");
+    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    const filterWidth = 2 * MIN_CF_ICON_MARGIN + ICON_EDGE_LENGTH;
+    expect(model.getters.getCol(sheetId, 0)?.size).toBe(sizes[0] + padding + filterWidth);
   });
 });

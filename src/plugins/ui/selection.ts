@@ -125,6 +125,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     "getSheetPosition",
     "getSelectionMode",
     "isSelected",
+    "getActiveFilterCol",
     "getElementsFromSelection",
   ] as const;
 
@@ -139,6 +140,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   private mode = SelectionMode.idle;
   private sheetsData: { [sheet: string]: SheetInfo } = {};
   private moveClient: (position: ClientPosition) => void;
+  private activeFilterCol?: number;
 
   // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
   // the main command.
@@ -252,6 +254,9 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
         this.selectedFigureId = null;
     }
     switch (cmd.type) {
+      case "SET_CURRENT_USED_FILTER":
+        this.activeFilterCol = cmd.col;
+        break;
       case "START":
         const firstSheet = this.getters.getSheets()[0];
         const firstVisiblePosition = getNextVisibleCellCoords(firstSheet, 0, 0);
@@ -360,6 +365,10 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
+
+  getActiveFilterCol(): number | undefined {
+    return this.activeFilterCol;
+  }
 
   getActiveSheet(): Sheet {
     return this.activeSheet;

@@ -1,0 +1,81 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Filter menu component Filter menu is correctly rendered 1`] = `
+<div
+  class="o-filter-menu-item"
+>
+  <div
+    class="o-filter-menu-actions"
+  >
+    <div
+      class="o-filter-menu-action-text"
+    >
+      Select all
+    </div>
+    <div
+      class="o-filter-menu-action-text"
+    >
+      Clear
+    </div>
+  </div>
+  <input
+    type="text"
+  />
+  <div
+    class="o-filter-menu-value"
+  >
+    <div>
+      <div
+        class="o-filter-menu-value-checked"
+      >
+        ✓
+      </div>
+    </div>
+    <div>
+      1
+    </div>
+  </div>
+  <div
+    class="o-filter-menu-value"
+  >
+    <div>
+      <div
+        class="o-filter-menu-value-checked"
+      >
+        ✓
+      </div>
+    </div>
+    <div>
+      2
+    </div>
+  </div>
+  <div
+    class="o-filter-menu-value"
+  >
+    <div>
+      <div
+        class="o-filter-menu-value-checked"
+      >
+        ✓
+      </div>
+    </div>
+    <div>
+      3
+    </div>
+  </div>
+  <div
+    class="o-filter-menu-buttons"
+  >
+    <div
+      class="o-filter-menu-button"
+    >
+      Cancel
+    </div>
+    <div
+      class="o-filter-menu-button"
+    >
+      Confirm
+    </div>
+  </div>
+</div>
+`;

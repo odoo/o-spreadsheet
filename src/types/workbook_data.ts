@@ -1,4 +1,4 @@
-import { CellValue, ExcelChartDefinition } from ".";
+import { CellValue, ExcelChartDefinition, Zone } from ".";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Border, Style, UID } from "./misc";
 
@@ -42,6 +42,7 @@ export interface SheetData {
   rows: { [key: number]: HeaderData };
   conditionalFormats: ConditionalFormat[];
   areGridLinesVisible?: boolean;
+  filter?: Zone;
 }
 
 export interface WorkbookData {

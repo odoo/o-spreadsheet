@@ -276,6 +276,28 @@ topbarMenuRegistry
     sequence: 70,
     action: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
     separator: true,
+  })
+  .addChild("data_filter", ["data"], {
+    name: _lt("Filter"),
+    sequence: 10,
+    action: (env) => {
+      const target = env.getters.getSelectedZones();
+      const sheetId = env.getters.getActiveSheetId();
+      env.dispatch("CREATE_FILTERS", { sheetId, target });
+    },
+    isEnabled: (env: SpreadsheetEnv) => env.getters.getSelectedZones().length === 1,
+    isVisible: (env: SpreadsheetEnv) =>
+      !env.getters.isSheetContainsFilter(env.getters.getActiveSheetId()),
+  })
+  .addChild("data_turn_off_filter", ["data"], {
+    name: _lt("Turn off filter"),
+    sequence: 10,
+    action: (env) => {
+      const sheetId = env.getters.getActiveSheetId();
+      env.dispatch("DELETE_FILTERS", { sheetId });
+    },
+    isVisible: (env: SpreadsheetEnv) =>
+      env.getters.isSheetContainsFilter(env.getters.getActiveSheetId()),
   });
 
 // Font-sizes

@@ -1,5 +1,6 @@
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
+import { FilterValue } from "./filters";
 import {
   BorderCommand,
   ChartUIDefinition,
@@ -157,6 +158,11 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "ADD_CONDITIONAL_FORMAT",
   "REMOVE_CONDITIONAL_FORMAT",
 
+  /** Filters */
+  "CREATE_FILTERS",
+  "SET_FILTER_VALUE",
+  "DELETE_FILTERS",
+
   /** FIGURES */
   "CREATE_FIGURE",
   "DELETE_FIGURE",
@@ -305,6 +311,23 @@ export interface AddConditionalFormatCommand extends SheetDependentCommand, Targ
 export interface RemoveConditionalFormatCommand extends SheetDependentCommand {
   type: "REMOVE_CONDITIONAL_FORMAT";
   id: string;
+}
+
+//------------------------------------------------------------------------------
+// Filters
+//------------------------------------------------------------------------------
+
+export interface CreateFiltersCommand extends SheetDependentCommand, TargetDependentCommand {
+  type: "CREATE_FILTERS";
+}
+
+export interface SetFilterValueCommand extends SheetDependentCommand, PositionDependentCommand {
+  type: "SET_FILTER_VALUE";
+  hiddenValues?: FilterValue;
+}
+
+export interface DeleteFiltersCommand extends SheetDependentCommand {
+  type: "DELETE_FILTERS";
 }
 
 //------------------------------------------------------------------------------
@@ -823,6 +846,17 @@ export interface ActivatePreviousSheetCommand {
   type: "ACTIVATE_PREVIOUS_SHEET";
 }
 
+export interface SetCurrentUsedFilter {
+  type: "SET_CURRENT_USED_FILTER";
+  col: number;
+}
+
+export interface FilterCommand {
+  type: "EVALUATE_FILTER";
+  col: number;
+  values: FilterValue;
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -857,6 +891,11 @@ export type CoreCommand =
   /** CONDITIONAL FORMAT */
   | AddConditionalFormatCommand
   | RemoveConditionalFormatCommand
+
+  /** Filters */
+  | CreateFiltersCommand
+  | SetFilterValueCommand
+  | DeleteFiltersCommand
 
   /** FIGURES */
   | CreateFigureCommand
@@ -943,6 +982,8 @@ export type LocalCommand =
   | MoveViewportUpCommand
   | EvaluateAllSheetsCommand
   | ActivateNextSheetCommand
+  | SetCurrentUsedFilter
+  | FilterCommand
   | ActivatePreviousSheetCommand;
 
 export type Command = CoreCommand | LocalCommand;
@@ -1041,6 +1082,9 @@ export const enum CommandResult {
   Readonly,
   InvalidOffset,
   InvalidViewportSize,
+  TooManyFilters,
+  MissingFilter,
+  InvalidFilterZone,
 }
 
 export interface CommandHandler<T> {

@@ -4,6 +4,7 @@ import { CellPlugin } from "./core/cell";
 import { ChartPlugin } from "./core/chart";
 import { ConditionalFormatPlugin } from "./core/conditional_format";
 import { FigurePlugin } from "./core/figures";
+import { FiltersPlugin } from "./core/filters";
 import { MergePlugin } from "./core/merge";
 import { SheetPlugin } from "./core/sheet";
 import { SortPlugin } from "./core/sort";
@@ -32,6 +33,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("merge", MergePlugin)
   .add("borders", BordersPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
+  .add("filters", FiltersPlugin)
   .add("figures", FigurePlugin)
   .add("sort", SortPlugin)
   .add("chart", ChartPlugin);
