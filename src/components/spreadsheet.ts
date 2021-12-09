@@ -141,11 +141,6 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
   constructor(parent?: owl.Component<any, SpreadsheetEnv> | null, props: Props = {}) {
     super(parent, props);
     useSubEnv({
-      notifyUser: (content: string) => this.trigger("notify-user", { content }),
-      askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
-        this.trigger("ask-confirmation", { content, confirm, cancel }),
-      editText: (title: string, placeholder: string, callback: (text: string | null) => any) =>
-        this.trigger("edit-text", { title, placeholder, callback }),
       openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
       toggleSidePanel: (panel: string, panelProps: any = {}) =>
         this.toggleSidePanel(panel, panelProps),
@@ -197,8 +192,8 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
 
   private onNotifyUI(payload: NotifyUIEvent) {
     switch (payload.type) {
-      case "TEXT":
-        this.trigger("notify-user", { content: payload.text });
+      case "NOTIFICATION":
+        this.env.notifyUser(payload.text);
         break;
     }
   }

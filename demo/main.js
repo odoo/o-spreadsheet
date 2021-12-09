@@ -67,6 +67,12 @@ class App extends Component {
       },
     });
 
+    useSubEnv({
+      notifyUser: this.notifyUser,
+      askConfirmation: this.askConfirmation,
+      editText: this.editText,
+    });
+
     onWillStart(() => this.initiateConnection());
 
     onMounted(() => console.log("Mounted: ", Date.now() - start));
@@ -90,21 +96,21 @@ class App extends Component {
     }
   }
 
-  askConfirmation(ev) {
-    if (window.confirm(ev.detail.content)) {
-      ev.detail.confirm();
+  askConfirmation(content, confirm, cancel) {
+    if (window.confirm(content)) {
+      confirm();
     } else {
-      ev.detail.cancel();
+      cancel();
     }
   }
 
-  notifyUser(ev) {
-    window.alert(ev.detail.content);
+  notifyUser(content) {
+    window.alert(content);
   }
 
-  editText(ev) {
-    const text = window.prompt(ev.detail.title, ev.detail.placeholder);
-    ev.detail.callback(text);
+  editText(title, placeholder, callback) {
+    const text = window.prompt(title, placeholder);
+    callback(text);
   }
 
   /**
@@ -126,10 +132,7 @@ App.template = xml/* xml */ `
       stateUpdateMessages="stateUpdateMessages"
       transportService="transportService"
       isReadonly="state.isReadonly"
-      client="client"
-      t-on-ask-confirmation="askConfirmation"
-      t-on-notify-user="notifyUser"
-      t-on-edit-text="editText"/>
+      client="client"/>
   </div>`;
 App.style = css/* scss */ `
   html {

@@ -204,7 +204,7 @@ export class EditionPlugin extends UIPlugin {
         if (cmd.sheetId === this.sheet && this.mode !== "inactive") {
           this.dispatch("STOP_EDITION", { cancel: true });
           this.ui.notifyUI({
-            type: "TEXT",
+            type: "NOTIFICATION",
             text: CELL_DELETED_MESSAGE,
           });
         }
@@ -282,7 +282,7 @@ export class EditionPlugin extends UIPlugin {
     if (cmd.elements.includes(this.col) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
       this.ui.notifyUI({
-        type: "TEXT",
+        type: "NOTIFICATION",
         text: CELL_DELETED_MESSAGE,
       });
       return;
@@ -300,7 +300,7 @@ export class EditionPlugin extends UIPlugin {
     if (cmd.elements.includes(this.row) && this.mode !== "inactive") {
       this.dispatch("STOP_EDITION", { cancel: true });
       this.ui.notifyUI({
-        type: "TEXT",
+        type: "NOTIFICATION",
         text: CELL_DELETED_MESSAGE,
       });
       return;
