@@ -7,9 +7,17 @@
  * - it does not accept "," as thousand separator, because when we tokenize a
  *   formula, commas are used to separate arguments
  */
-export const formulaNumberRegexp = /^-?\d+(\.?\d*(e\d+)?)?(\s*%)?|^-?\.\d+(\s*%)?/;
+export const formulaNumberRegexp = /^(-\s*)?((\d+(\.\d*)?)|(\.\d+))(e(\+|-)?\d+)?(\s*%)?/i;
 
-export const numberRegexp = /^-?\d+(,\d+)*(\.?\d*(e\d+)?)?(\s*%)?$|^-?\.\d+(\s*%)?$/;
+// (-\s*)?                match negative symbol between zero and one time
+// (
+// (\d+(,\d+)*(\.\d*)?)   match integer number with or without decimal digits
+// |                      or
+// (\.\d+)                match only expression with decimal digits
+// )
+// (e(\+|-)?\d+)?         match scientific format between zero and one time
+// (s*%)?                 match percent symbol between zero and one time
+export const numberRegexp = /^(-\s*)?((\d+(,\d+)*(\.\d*)?)|(\.\d+))(e(\+|-)?\d+)?(\s*%)?$/i;
 
 /**
  * Return true if the argument is a "number string".
@@ -50,6 +58,59 @@ export function formatStandardNumber(n: number): string {
     return n.toString();
   }
   return decimalStandardRepresentation.format(n);
+}
+
+/** This function aims to give a format for number to display in the composer.
+ * - the number will be displayed with all the digits stored on it
+ * - the number will be displayed in scientific language if 10 digits isn't enough
+ * to represent its magnitude order (mean if it is greater or equal than
+ * 10 000 000 000 or less than 0.000 000 001)
+ */
+export function formatComposerNumber(n: number): string {
+  if (n < 0) {
+    return "-" + formatComposerNumber(-n);
+  }
+
+  if (n === 0) {
+    return "0";
+  }
+
+  if (10000000000 > Math.abs(n) && Math.abs(n) >= 0.000000001) {
+    // for numbers value smaller  than '0.000001' --> javascript will display number
+    // with a scientific language without displaying all digits on the number.
+    // return n.toString() isn't enough to manage smaller numbers.
+
+    // we use the "toExponential" function to extract all digits on the value.
+    const [exponentialRepresentation, magnitudeOrder] = n.toExponential().split("e");
+    const decimalDigits = exponentialRepresentation.replace(".", "");
+    const decimalMagnitudeOrder = Number(magnitudeOrder) + 1;
+
+    // exponentialRepresentation: 1.234, magnitudeOrder: E+3
+    // --> decimalDigits 1234, decimalMagnitudeOrder: 4
+
+    if (decimalMagnitudeOrder <= 0) {
+      // ex: decimalDigits "1234", decimalMagnitudeOrder: 0 --> "0.1234"
+      // ex: decimalDigits "1234", decimalMagnitudeOrder: -2 --> "0.001234"
+      return "0." + Array(-decimalMagnitudeOrder + 1).join("0") + decimalDigits;
+    }
+
+    const decimalDigitsLength = decimalDigits.length;
+    if (decimalDigitsLength > decimalMagnitudeOrder) {
+      // decimalDigits 123456, decimalMagnitudeOrder: E+3 --> 123.456
+      // decimalDigits 123456, decimalMagnitudeOrder: E+1 --> 1.23456
+      return (
+        decimalDigits.slice(0, decimalMagnitudeOrder) +
+        "." +
+        decimalDigits.slice(decimalMagnitudeOrder)
+      );
+    }
+
+    // decimalDigitsLength <= decimalMagnitudeOrder)
+    // decimalDigits 123456, decimalMagnitudeOrder: E+6 --> 123456
+    // decimalDigits 123456, decimalMagnitudeOrder: E+8 --> 12345600
+    return decimalDigits + Array(decimalMagnitudeOrder - decimalDigitsLength + 1).join("0");
+  }
+  return n.toExponential().toUpperCase();
 }
 
 // this is a cache than can contains decimal representation formats
