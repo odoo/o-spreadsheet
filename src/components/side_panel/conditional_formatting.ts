@@ -80,15 +80,15 @@ const TEMPLATE = xml/* xml */ `
 const CSS = css/* scss */ `
   .o-cf {
     min-width: 350px;
-    .o-cf-type-selector{
+    .o-cf-type-selector {
       margin-top: 20px;
       display: flex;
-      .o-cf-type-tab{
-        cursor:pointer;
+      .o-cf-type-tab {
+        cursor: pointer;
         flex-grow: 1;
         text-align: center;
       }
-      .o-cf-tab-selected{
+      .o-cf-tab-selected {
         text-decoration: underline;
       }
     }
@@ -126,16 +126,16 @@ const CSS = css/* scss */ `
           margin-bottom: 4px;
           overflow: hidden;
         }
-        .o-cf-preview-description-values{
+        .o-cf-preview-description-values {
           overflow: hidden;
         }
-        .o-cf-preview-range{
+        .o-cf-preview-range {
           text-overflow: ellipsis;
           font-size: 12px;
           overflow: hidden;
         }
       }
-      .o-cf-delete{
+      .o-cf-delete {
         height: 56px;
         left: 90%;
         line-height: 56px;
@@ -226,7 +226,7 @@ const CSS = css/* scss */ `
       cursor: pointer;
     }
   }
-  }`;
+`;
 interface Props {
   selection: Zone | undefined;
 }
