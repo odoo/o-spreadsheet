@@ -24,7 +24,7 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 );
 
 const { xml } = tags;
-const { useRef } = hooks;
+const { useRef, useSubEnv } = hooks;
 
 let fixture: HTMLElement;
 let parent: Parent;
@@ -397,6 +397,31 @@ describe("Composer interactions", () => {
     const container = new Parent();
     await container.mount(fixture);
     expect(container.model.getters.getActiveSheetId()).toBe("2");
+  });
+
+  test("Notify ui correctly with type notification correctly use notifyUser in the env", async () => {
+    const notifyUser = jest.fn();
+    class Parent extends Component<any> {
+      static template = xml/* xml */ `<Spreadsheet t-ref="spreadsheet" data="data"/>`;
+      static components = { Spreadsheet };
+      private spreadsheet: any = useRef("spreadsheet");
+      readonly data: any = {};
+
+      setup() {
+        useSubEnv({
+          notifyUser,
+        });
+      }
+
+      get model(): Model {
+        return this.spreadsheet.comp.model;
+      }
+    }
+    fixture = makeTestFixture();
+    const container = new Parent();
+    await container.mount(fixture);
+    container.model["config"].notifyUI({ type: "NOTIFICATION", text: "hello" });
+    expect(notifyUser).toHaveBeenCalledWith("hello");
   });
 });
 
