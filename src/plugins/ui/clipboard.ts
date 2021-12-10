@@ -104,6 +104,19 @@ export class ClipboardPlugin extends UIPlugin {
         this.paste(state, paste);
         break;
       }
+      case "ADD_COLUMNS_ROWS": {
+        // If we add a col/row inside a cut clipped area, we want to clear that area
+        const isClipboardDirty = this.isAddRowColDirtyingClipboard(
+          cmd.base,
+          cmd.position,
+          cmd.dimension
+        );
+        if (this.state && this.state.operation == "CUT" && isClipboardDirty) {
+          this.state = undefined;
+        }
+        this.status = "invisible";
+        break;
+      }
       case "PASTE_FROM_OS_CLIPBOARD":
         this.pasteFromClipboard(cmd.target, cmd.text);
         break;
@@ -619,6 +632,36 @@ export class ClipboardPlugin extends UIPlugin {
    */
   private isZoneOverlapClippedZone(zones: Zone[], zone: Zone): boolean {
     return zones.some((clippedZone) => overlap(zone, clippedZone));
+  }
+
+  /**
+   * Check if a ADD_COLUMNS_ROWS command is affecting an area inside the clipboard
+   */
+  private isAddRowColDirtyingClipboard(
+    base: number,
+    position: "before" | "after",
+    dimension: Dimension
+  ) {
+    if (!this.state || !this.state.zones) return false;
+
+    // Use halves in position to avoid doing separate cases if the added col/row is inside the clipped zone or beside it
+    const affectedPosition = position === "before" ? base - 0.5 : base + 0.5;
+
+    if (dimension === "COL") {
+      for (let zone of this.state.zones) {
+        if (affectedPosition > zone.left && affectedPosition < zone.right) {
+          return true;
+        }
+      }
+    } else {
+      for (let zone of this.state.zones) {
+        if (affectedPosition > zone.top && affectedPosition < zone.bottom) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   // ---------------------------------------------------------------------------
