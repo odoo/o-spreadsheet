@@ -92,8 +92,8 @@ describe("merges", () => {
     });
     merge(model, "B2:B3", secondSheetId);
     expect(model.getters.getMerges(secondSheetId)).toEqual([
-      { ...toZone("C2:C3"), id: 1, topLeft: toPosition("C2") },
-      { ...toZone("B2:B3"), id: 2, topLeft: toPosition("B2") },
+      { ...toZone("C2:C3"), id: 2, topLeft: toPosition("C2") },
+      { ...toZone("B2:B3"), id: 3, topLeft: toPosition("B2") },
     ]);
   });
 

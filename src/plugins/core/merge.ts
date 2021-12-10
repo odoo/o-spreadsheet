@@ -1,26 +1,24 @@
 import {
-  updateAddColumns,
-  updateAddRows,
-  updateRemoveColumns,
-  updateRemoveRows,
-} from "../../helpers/grid_manipulation";
-import {
   clip,
   isDefined,
   isEqual,
   overlap,
+  positions,
   toXC,
   toZone,
   union,
   zoneToDimension,
+  zoneToXc,
 } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
   AddMergeCommand,
+  ApplyRangeChange,
   CommandResult,
   CoreCommand,
   ExcelWorkbookData,
   Merge,
+  Range,
   Sheet,
   UID,
   UpdateCellCommand,
@@ -29,19 +27,13 @@ import {
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
-interface PendingMerges {
-  sheet: string;
-  merges: string[];
-}
-
 // type SheetMergeCellMap = Record<string, number | undefined>;
 type SheetMergeCellMap = Record<number, Record<number, number | undefined> | undefined>;
 
 interface MergeState {
-  readonly merges: Record<UID, Record<number, Merge | undefined> | undefined>;
+  readonly merges: Record<UID, Record<number, Range | undefined> | undefined>;
   // readonly mergeCellMap: Record<UID, SheetMergeCellMap | undefined>; // SheetId [ XC ] --> merge ID
   readonly mergeCellMap: Record<UID, SheetMergeCellMap | undefined>; // SheetId [ col ][ row ] --> merge ID
-  readonly pending: PendingMerges | null;
 }
 
 export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
@@ -61,9 +53,8 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   ] as const;
 
   private nextId: number = 1;
-  pending: PendingMerges | null = null;
 
-  readonly merges: Record<UID, Record<number, Merge | undefined> | undefined> = {};
+  readonly merges: Record<UID, Record<number, Range | undefined> | undefined> = {};
   readonly mergeCellMap: Record<UID, SheetMergeCellMap | undefined> = {};
 
   // ---------------------------------------------------------------------------
@@ -85,41 +76,6 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     }
   }
 
-  beforeHandle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "REMOVE_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.exportAndRemoveMerges(
-            cmd.sheetId,
-            (range) => updateRemoveColumns(range, cmd.elements),
-            true
-          );
-        } else {
-          this.exportAndRemoveMerges(
-            cmd.sheetId,
-            (range) => updateRemoveRows(range, cmd.elements),
-            false
-          );
-        }
-        break;
-      case "ADD_COLUMNS_ROWS":
-        const base = cmd.position === "before" ? cmd.base : cmd.base + 1;
-        if (cmd.dimension === "COL") {
-          this.exportAndRemoveMerges(
-            cmd.sheetId,
-            (range) => updateAddColumns(range, base, cmd.quantity),
-            true
-          );
-        } else {
-          this.exportAndRemoveMerges(
-            cmd.sheetId,
-            (range) => updateAddRows(range, base, cmd.quantity),
-            false
-          );
-        }
-    }
-  }
-
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_SHEET":
@@ -131,7 +87,20 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         this.history.update("mergeCellMap", cmd.sheetId, {});
         break;
       case "DUPLICATE_SHEET":
-        this.history.update("merges", cmd.sheetIdTo, Object.assign({}, this.merges[cmd.sheetId]));
+        const merges = this.merges[cmd.sheetId];
+        if (!merges) return;
+        const mergesCopy: Record<UID, Range> = {};
+        for (const range of Object.values(merges).filter(isDefined)) {
+          mergesCopy[this.nextId++] = {
+            sheetId: cmd.sheetIdTo,
+            zone: { ...range.zone },
+            parts: [...range.parts],
+            prefixSheet: range.prefixSheet,
+            invalidSheetName: range.invalidSheetName,
+            invalidXc: range.invalidXc,
+          };
+        }
+        this.history.update("merges", cmd.sheetIdTo, mergesCopy);
         this.history.update(
           "mergeCellMap",
           cmd.sheetIdTo,
@@ -148,13 +117,13 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
           this.removeMerge(cmd.sheetId, zone);
         }
         break;
-      case "ADD_COLUMNS_ROWS":
-      case "REMOVE_COLUMNS_ROWS":
-        if (this.pending) {
-          this.importMerges(this.pending.sheet, this.pending.merges);
-          this.pending = null;
-        }
-        break;
+    }
+  }
+
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
+    const sheetIds = sheetId ? [sheetId] : Object.keys(this.merges);
+    for (const sheetId of sheetIds) {
+      this.applyRangeChangeOnSheet(sheetId, applyChange);
     }
   }
 
@@ -163,7 +132,9 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   // ---------------------------------------------------------------------------
 
   getMerges(sheetId: UID): Merge[] {
-    return Object.values(this.merges[sheetId] || {}).filter(isDefined);
+    return Object.keys(this.merges[sheetId] || {})
+      .map((mergeId) => this.getMergeById(sheetId, parseInt(mergeId, 10)))
+      .filter(isDefined);
   }
 
   getMerge(sheetId: UID, col: number, row: number): Merge | undefined {
@@ -231,10 +202,12 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   }
 
   isInSameMerge(sheetId: UID, colA: number, rowA: number, colB: number, rowB: number): boolean {
-    if (!this.isInMerge(sheetId, colA, rowA) || !this.isInMerge(sheetId, colB, rowB)) {
+    const mergeA = this.getMerge(sheetId, colA, rowA);
+    const mergeB = this.getMerge(sheetId, colB, rowB);
+    if (!mergeA || !mergeB) {
       return false;
     }
-    return this.getMerge(sheetId, colA, rowA) === this.getMerge(sheetId, colB, rowB);
+    return isEqual(mergeA, mergeB);
   }
 
   isInMerge(sheetId: UID, col: number, row: number): boolean {
@@ -313,8 +286,8 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   }
 
   private getMergeById(sheetId: UID, mergeId: number): Merge | undefined {
-    const merges = this.merges[sheetId];
-    return merges !== undefined ? merges[mergeId] : undefined;
+    const range = this.merges[sheetId]?.[mergeId];
+    return range !== undefined ? rangeToMerge(mergeId, range) : undefined;
   }
 
   private checkDestructiveMerge({ sheetId, target }: AddMergeCommand): CommandResult {
@@ -369,14 +342,12 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     const topLeft = this.getters.getCell(sheet.id, left, top);
 
     let id = this.nextId++;
-    this.history.update("merges", sheet.id, id, {
+    this.history.update(
+      "merges",
+      sheet.id,
       id,
-      left,
-      top,
-      right,
-      bottom,
-      topLeft: { col: left, row: top },
-    });
+      this.getters.getRangeFromSheetXC(sheet.id, zoneToXc({ left, top, right, bottom }))
+    );
     let previousMerges: Set<number> = new Set();
     for (let row = top; row <= bottom; row++) {
       for (let col = left; col <= right; col++) {
@@ -430,40 +401,38 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Add/Remove columns
-  // ---------------------------------------------------------------------------
-
-  private removeAllMerges(sheetId: UID) {
-    for (let id in this.merges[sheetId]) {
-      this.history.update("merges", sheetId, parseInt(id), undefined);
-    }
-
-    for (let colNumber in this.mergeCellMap[sheetId]) {
-      this.history.update("mergeCellMap", sheetId, parseInt(colNumber), undefined);
-    }
-  }
-
-  private exportAndRemoveMerges(
-    sheetId: UID,
-    updater: (s: string) => string | null,
-    isCol: boolean
-  ) {
-    const merges = this.merges[sheetId];
-    if (!merges) return;
-    const mergeXcs = exportMerges(merges);
-    const updatedMerges: string[] = [];
-    for (let m of mergeXcs) {
-      const update = updater(m);
-      if (update) {
-        const [tl, br] = update.split(":");
-        if (tl !== br) {
-          updatedMerges.push(update);
+  /**
+   * Apply a range change on merges of a particular sheet.
+   */
+  private applyRangeChangeOnSheet(sheetId: UID, applyChange: ApplyRangeChange) {
+    const merges = Object.entries(this.merges[sheetId] || {});
+    for (const [mergeId, range] of merges) {
+      if (range) {
+        const currentZone = range.zone;
+        const result = applyChange(range);
+        switch (result.changeType) {
+          case "NONE":
+            break;
+          case "REMOVE":
+            this.removeMerge(sheetId, currentZone);
+            break;
+          default:
+            const { width, height } = zoneToDimension(result.range.zone);
+            if (width === 1 && height === 1) {
+              this.removeMerge(sheetId, currentZone);
+            } else {
+              this.history.update("merges", sheetId, parseInt(mergeId, 10), result.range);
+            }
+            break;
         }
       }
     }
-    this.removeAllMerges(sheetId);
-    this.pending = { sheet: sheetId, merges: updatedMerges };
+    this.history.update("mergeCellMap", sheetId, {});
+    for (const merge of this.getMerges(sheetId)) {
+      for (const [col, row] of positions(merge)) {
+        this.history.update("mergeCellMap", sheetId, col, row, merge.id);
+      }
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -501,8 +470,17 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   }
 }
 
-function exportMerges(merges: Record<number, Merge | undefined>): string[] {
-  return Object.values(merges)
+function exportMerges(merges: Record<number, Range | undefined>): string[] {
+  return Object.entries(merges)
+    .map(([mergeId, range]) => (range ? rangeToMerge(parseInt(mergeId, 10), range) : undefined))
     .filter(isDefined)
     .map((merge) => toXC(merge.left, merge.top) + ":" + toXC(merge.right, merge.bottom));
+}
+
+function rangeToMerge(mergeId: number, range: Range): Merge {
+  return {
+    ...range.zone,
+    topLeft: { col: range.zone.left, row: range.zone.top },
+    id: mergeId,
+  };
 }

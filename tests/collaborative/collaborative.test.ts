@@ -338,7 +338,7 @@ describe("Multi users synchronisation", () => {
       [
         {
           ...toZone("A80:A98"),
-          id: 2,
+          id: 1,
           topLeft: {
             col: 0,
             row: 79,

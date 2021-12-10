@@ -1,6 +1,5 @@
 import { toCartesian, toXC } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { MergePlugin } from "../../src/plugins/core/merge";
 import { Border, Cell, CellValue, CellValueType, Merge, Sheet, UID } from "../../src/types";
 import { setSelection } from "./commands_helpers";
 
@@ -97,15 +96,8 @@ export function getBorder(
  * Get the list of the merges
  */
 export function getMerges(model: Model): Record<number, Merge> {
-  const mergePlugin = model["handlers"].find(
-    (handler) => handler instanceof MergePlugin
-  )! as MergePlugin;
-  const sheetMerges = mergePlugin["merges"][model.getters.getActiveSheetId()];
-  return sheetMerges
-    ? (Object.fromEntries(
-        Object.entries(sheetMerges).filter(([mergeId, merge]) => merge !== undefined)
-      ) as Record<number, Merge>)
-    : {};
+  const merges = model.getters.getMerges(model.getters.getActiveSheetId());
+  return Object.fromEntries(merges.map((merge) => [merge.id, merge]));
 }
 
 export function automaticSum(
