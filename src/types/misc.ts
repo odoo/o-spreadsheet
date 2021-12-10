@@ -6,6 +6,8 @@ import { Cell, CellValue } from "./cells";
 import { CommandResult } from "./commands";
 import { NormalizedFormula } from "./workbook_data";
 
+export type SortDirection = "ascending" | "descending";
+
 export type UID = string;
 export interface Link {
   label: string;

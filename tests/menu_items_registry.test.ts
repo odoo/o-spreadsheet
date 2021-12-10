@@ -613,8 +613,9 @@ describe("Menu Item actions", () => {
     const { anchor, zones } = env.getters.getSelection();
     expect(env.dispatch).toHaveBeenCalledWith("SORT_CELLS", {
       sheetId: env.getters.getActiveSheetId(),
-      anchor: anchor,
-      zone: zones[0],
+      col: anchor[0],
+      row: anchor[1],
+      target: zones,
       sortDirection: "ascending",
     });
   });
@@ -624,8 +625,9 @@ describe("Menu Item actions", () => {
     const { anchor, zones } = env.getters.getSelection();
     expect(env.dispatch).toHaveBeenCalledWith("SORT_CELLS", {
       sheetId: env.getters.getActiveSheetId(),
-      anchor: anchor,
-      zone: zones[0],
+      col: anchor[0],
+      row: anchor[1],
+      target: zones,
       sortDirection: "descending",
     });
   });

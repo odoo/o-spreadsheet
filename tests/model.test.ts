@@ -1,7 +1,7 @@
-import { CommandResult, CorePlugin } from "../src";
+import { CommandResult,CorePlugin } from "../src";
 import { toZone } from "../src/helpers";
 import { LocalHistory } from "../src/history/local_history";
-import { Mode, Model } from "../src/model";
+import { Mode,Model } from "../src/model";
 import { BordersPlugin } from "../src/plugins/core/borders";
 import { CellPlugin } from "../src/plugins/core/cell";
 import { ChartPlugin } from "../src/plugins/core/chart";
@@ -10,15 +10,15 @@ import { FigurePlugin } from "../src/plugins/core/figures";
 import { MergePlugin } from "../src/plugins/core/merge";
 import { RangeAdapter } from "../src/plugins/core/range";
 import { SheetPlugin } from "../src/plugins/core/sheet";
-import { corePluginRegistry, uiPluginRegistry } from "../src/plugins/index";
+import { SortPlugin } from "../src/plugins/core/sort";
+import { corePluginRegistry,uiPluginRegistry } from "../src/plugins/index";
 import { AutomaticSumPlugin } from "../src/plugins/ui/automatic_sum";
 import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
-import { SortPlugin } from "../src/plugins/ui/sort";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
 import { UIPlugin } from "../src/plugins/ui_plugin";
-import { Command, CoreCommand, DispatchResult } from "../src/types";
-import { selectCell, setCellContent } from "./test_helpers/commands_helpers";
-import { getCell, getCellText } from "./test_helpers/getters_helpers";
+import { Command,CoreCommand,DispatchResult } from "../src/types";
+import { selectCell,setCellContent } from "./test_helpers/commands_helpers";
+import { getCell,getCellText } from "./test_helpers/getters_helpers";
 
 function getNbrPlugin(mode: Mode): number {
   return (
@@ -43,9 +43,9 @@ describe("Model", () => {
     expect(model["handlers"][5]).toBeInstanceOf(ConditionalFormatPlugin);
     expect(model["handlers"][6]).toBeInstanceOf(FigurePlugin);
     expect(model["handlers"][7]).toBeInstanceOf(ChartPlugin);
-    expect(model["handlers"][8]).toBeInstanceOf(SheetUIPlugin);
-    expect(model["handlers"][9]).toBeInstanceOf(FindAndReplacePlugin);
-    expect(model["handlers"][10]).toBeInstanceOf(SortPlugin);
+    expect(model["handlers"][8]).toBeInstanceOf(SortPlugin);
+    expect(model["handlers"][9]).toBeInstanceOf(SheetUIPlugin);
+    expect(model["handlers"][10]).toBeInstanceOf(FindAndReplacePlugin);
     expect(model["handlers"][11]).toBeInstanceOf(AutomaticSumPlugin);
     expect(model["handlers"][12]).toBeInstanceOf(LocalHistory);
   });

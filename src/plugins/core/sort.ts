@@ -1,26 +1,30 @@
-import { isInside, overlap, range, zoneToDimension } from "../../helpers/index";
+import { isInside,overlap,range,zoneToDimension } from "../../helpers/index";
 import { sortCells } from "../../helpers/sort";
 import { _lt } from "../../translation";
 import {
-  Cell,
-  CellValueType,
-  Command,
-  CommandResult,
-  Sheet,
-  SortCommand,
-  SortDirection,
-  UID,
-  Zone,
+Cell,
+CellValueType,
+Command,
+CommandResult,
+Sheet,
+SortCommand,
+SortDirection,
+UID,
+Zone
 } from "../../types/index";
-import { UIPlugin } from "../ui_plugin";
+import { CorePlugin } from "../core_plugin";
 
-export class SortPlugin extends UIPlugin {
+export class SortPlugin extends CorePlugin {
   static getters = ["getContiguousZone"] as const;
 
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
       case "SORT_CELLS":
-        if (!isInside(cmd.anchor[0], cmd.anchor[1], cmd.zone)) {
+        if (cmd.target.length !== 1) {
+          return CommandResult.InvalidSortZone;
+        }
+        if (!isInside(cmd.col, cmd.row, cmd.target[0])) {
+          //TODOPRO Why trigger error ?
           throw new Error(_lt("The anchor must be part of the provided zone"));
         }
         return this.checkValidations(cmd, this.checkMerge, this.checkMergeSizes);
@@ -31,12 +35,13 @@ export class SortPlugin extends UIPlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "SORT_CELLS":
-        this.sortZone(cmd.sheetId, cmd.anchor, cmd.zone, cmd.sortDirection);
+        this.sortZone(cmd.sheetId, [cmd.col, cmd.row], cmd.target[0], cmd.sortDirection);
         break;
     }
   }
 
-  private checkMerge({ sheetId, zone }: SortCommand): CommandResult {
+  private checkMerge({ sheetId, target }: SortCommand): CommandResult {
+    const zone = target[0];
     if (!this.getters.doesIntersectMerge(sheetId, zone)) {
       return CommandResult.Success;
     }
@@ -51,7 +56,8 @@ export class SortPlugin extends UIPlugin {
     return CommandResult.Success;
   }
 
-  private checkMergeSizes({ sheetId, zone }: SortCommand): CommandResult {
+  private checkMergeSizes({ sheetId, target }: SortCommand): CommandResult {
+    const zone = target[0];
     if (!this.getters.doesIntersectMerge(sheetId, zone)) {
       return CommandResult.Success;
     }

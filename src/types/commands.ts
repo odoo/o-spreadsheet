@@ -10,7 +10,7 @@ import {
   Style,
   Zone,
 } from "./index";
-import { Border, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
+import { Border, CellPosition, ClipboardOptions, Dimension, SortDirection, UID } from "./misc";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -80,6 +80,7 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "INSERT_CELL",
   "UNDO",
   "REDO",
+  "SORT_CELLS",
 ]);
 
 export const readonlyAllowedCommands = new Set<CommandTypes>([
@@ -163,6 +164,9 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** CHART */
   "CREATE_CHART",
   "UPDATE_CHART",
+
+  /** SORT */
+  "SORT_CELLS",
 ]);
 
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
@@ -357,6 +361,19 @@ export interface SetDecimalCommand extends SheetDependentCommand, TargetDependen
   type: "SET_DECIMAL";
   step: number;
 }
+
+//------------------------------------------------------------------------------
+// Sort
+//------------------------------------------------------------------------------
+
+export interface SortCommand
+  extends SheetDependentCommand,
+    TargetDependentCommand,
+    PositionDependentCommand {
+  type: "SORT_CELLS";
+  sortDirection: SortDirection;
+}
+
 //#endregion
 
 //#region Local Commands
@@ -735,16 +752,6 @@ export interface ReplaceAllSearchCommand {
   replaceOptions: ReplaceOptions;
 }
 
-export interface SortCommand {
-  type: "SORT_CELLS";
-  sheetId: UID;
-  anchor: [number, number];
-  zone: Zone;
-  sortDirection: SortDirection;
-}
-
-export type SortDirection = "ascending" | "descending";
-
 export interface ResizeViewportCommand {
   type: "RESIZE_VIEWPORT";
   width: number;
@@ -858,7 +865,10 @@ export type CoreCommand =
 
   /** CHART */
   | CreateChartCommand
-  | UpdateChartCommand;
+  | UpdateChartCommand
+
+  /** SORT */
+  | SortCommand;
 
 export type LocalCommand =
   | RequestUndoCommand
@@ -918,7 +928,6 @@ export type LocalCommand =
   | SelectSearchNextCommand
   | ReplaceSearchCommand
   | ReplaceAllSearchCommand
-  | SortCommand
   | ResizeViewportCommand
   | RefreshChartCommand
   | SumSelectionCommand

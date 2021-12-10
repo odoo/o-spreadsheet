@@ -7,7 +7,9 @@ import {
   ChartUIDefinitionUpdate,
   CreateSheetCommand,
   DispatchResult,
+  SortDirection,
   UID,
+  Zone,
 } from "../../src/types";
 import { target } from "./helpers";
 
@@ -386,4 +388,21 @@ export function unMerge(
 
 export function snapshot(model: Model) {
   model["session"].snapshot(model.exportData());
+}
+
+export function sortCells(
+  model: Model,
+  target: Zone[],
+  anchor: string,
+  sortDirection: SortDirection,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  const [col, row] = toCartesian(anchor);
+  return model.dispatch("SORT_CELLS", {
+    sheetId,
+    target,
+    col,
+    row,
+    sortDirection,
+  });
 }

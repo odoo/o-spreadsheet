@@ -8,6 +8,7 @@ import { FigurePlugin } from "../plugins/core/figures";
 import { MergePlugin } from "../plugins/core/merge";
 import { RangeAdapter } from "../plugins/core/range";
 import { SheetPlugin } from "../plugins/core/sheet";
+import { SortPlugin } from "../plugins/core/sort";
 import { AutofillPlugin } from "../plugins/ui/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui/automatic_sum";
 import { ClipboardPlugin } from "../plugins/ui/clipboard";
@@ -21,7 +22,6 @@ import { RendererPlugin } from "../plugins/ui/renderer";
 import { SelectionPlugin } from "../plugins/ui/selection";
 import { SelectionInputPlugin } from "../plugins/ui/selection_inputs";
 import { SelectionMultiUserPlugin } from "../plugins/ui/selection_multiuser";
-import { SortPlugin } from "../plugins/ui/sort";
 import { UIOptionsPlugin } from "../plugins/ui/ui_options";
 import { SheetUIPlugin } from "../plugins/ui/ui_sheet";
 import { ViewportPlugin } from "../plugins/ui/viewport";
@@ -70,6 +70,7 @@ type ConditionalFormatGetters = Pick<
   ConditionalFormatPlugin,
   GetterNames<typeof ConditionalFormatPlugin>
 >;
+type SortGetters = Pick<SortPlugin, GetterNames<typeof SortPlugin>>;
 type LocalHistoryGetters = {
   canUndo: LocalHistory["canUndo"];
   canRedo: LocalHistory["canRedo"];
@@ -83,7 +84,8 @@ export type CoreGetters = { isReadonly: () => boolean } & LocalHistoryGetters &
   ChartGetters &
   ConditionalFormatGetters &
   FigureGetters &
-  RangeAdapterGetters;
+  RangeAdapterGetters &
+  SortGetters;
 
 type AutofillGetters = Pick<AutofillPlugin, GetterNames<typeof AutofillPlugin>>;
 type AutomaticSumGetters = Pick<AutomaticSumPlugin, GetterNames<typeof AutomaticSumPlugin>>;
@@ -107,7 +109,6 @@ type SelectionMultiUserGetters = Pick<
   SelectionMultiUserPlugin,
   GetterNames<typeof SelectionMultiUserPlugin>
 >;
-type SortGetters = Pick<SortPlugin, GetterNames<typeof SortPlugin>>;
 type UIOptionsGetters = Pick<UIOptionsPlugin, GetterNames<typeof UIOptionsPlugin>>;
 type SheetUIGetters = Pick<SheetUIPlugin, GetterNames<typeof SheetUIPlugin>>;
 type ViewportGetters = Pick<ViewportPlugin, GetterNames<typeof ViewportPlugin>>;
@@ -132,7 +133,6 @@ export type Getters = CoreGetters &
   SelectionGetters &
   SelectionInputGetters &
   SelectionMultiUserGetters &
-  SortGetters &
   UIOptionsGetters &
   SheetUIGetters &
   ViewportGetters;

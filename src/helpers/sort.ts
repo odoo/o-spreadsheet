@@ -1,13 +1,13 @@
 import { _lt } from "../translation";
 import {
-  Cell,
-  CellValueType,
-  CommandResult,
-  DispatchResult,
-  SortDirection,
-  SpreadsheetEnv,
-  UID,
-  Zone,
+Cell,
+CellValueType,
+CommandResult,
+DispatchResult,
+SortDirection,
+SpreadsheetEnv,
+UID,
+Zone
 } from "../types";
 import { isEqual } from "./zones";
 
@@ -83,7 +83,7 @@ export function interactiveSortSelection(
   }
 
   if (multiColumns) {
-    result = env.dispatch("SORT_CELLS", { sheetId, anchor, zone, sortDirection });
+    result = env.dispatch("SORT_CELLS", { sheetId, col: anchor[0], row: anchor[1], target:[zone], sortDirection });
   } else {
     // check contiguity
     const contiguousZone = env.getters.getContiguousZone(sheetId, zone);
@@ -91,8 +91,9 @@ export function interactiveSortSelection(
       // merge as it is
       result = env.dispatch("SORT_CELLS", {
         sheetId,
-        anchor,
-        zone,
+        col: anchor[0],
+        row: anchor[1],
+        target: [zone],
         sortDirection,
       });
     } else {
@@ -104,16 +105,18 @@ export function interactiveSortSelection(
           zone = contiguousZone;
           result = env.dispatch("SORT_CELLS", {
             sheetId,
-            anchor,
-            zone,
+            col: anchor[0],
+            row: anchor[1],
+            target: [zone],
             sortDirection,
           });
         },
         () => {
           result = env.dispatch("SORT_CELLS", {
             sheetId,
-            anchor,
-            zone,
+            col: anchor[0],
+            row: anchor[1],
+            target: [zone],
             sortDirection,
           });
         }
