@@ -11,6 +11,7 @@ import {
   LAYERS,
   UID,
 } from "../../types/index";
+import { RangeAdapter } from "../core/range";
 import { UIPlugin } from "../ui_plugin";
 import { SelectionInputPlugin } from "./selection_input";
 
@@ -46,11 +47,12 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
   constructor(
     getters: Getters,
     private state: StateObserver,
+    range: RangeAdapter,
     dispatch: CommandDispatcher["dispatch"],
     private config: ModelConfig,
     selection: SelectionStreamProcessor
   ) {
-    super(getters, state, dispatch, config, selection);
+    super(getters, state, range, dispatch, config, selection);
   }
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -162,6 +164,7 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
     this.inputs[id] = new SelectionInputPlugin(
       this.getters,
       this.state,
+      this.range,
       this.dispatch,
       this.config,
       this.selection,

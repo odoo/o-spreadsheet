@@ -218,7 +218,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private setupUiPlugin(Plugin: UIPluginConstructor) {
-    const plugin = new Plugin(this.getters, this.state, this.dispatch, this.config, this.selection);
+    const plugin = new Plugin(
+      this.getters,
+      this.state,
+      this.range,
+      this.dispatch,
+      this.config,
+      this.selection
+    );
     for (let name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);

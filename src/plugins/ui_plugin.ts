@@ -3,12 +3,14 @@ import { SelectionStreamProcessor } from "../selection_stream/selection_stream_p
 import { StateObserver } from "../state_observer";
 import { Command, CommandDispatcher, Getters, GridRenderingContext, LAYERS } from "../types/index";
 import { BasePlugin } from "./base_plugin";
+import { RangeAdapter } from "./core/range";
 
 type UIActions = Pick<ModelConfig, "notifyUI">;
 export interface UIPluginConstructor {
   new (
     getters: Getters,
     state: StateObserver,
+    range: RangeAdapter,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig,
     selection: SelectionStreamProcessor
@@ -30,11 +32,12 @@ export class UIPlugin<State = any, C = Command> extends BasePlugin<State, C> {
   constructor(
     getters: Getters,
     state: StateObserver,
+    range: RangeAdapter,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig,
     selection: SelectionStreamProcessor
   ) {
-    super(state, dispatch, config);
+    super(state, range, dispatch, config);
     this.getters = getters;
     this.ui = config;
     this.selection = selection;

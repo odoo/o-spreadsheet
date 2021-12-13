@@ -23,6 +23,7 @@ import {
   ReferenceDenormalizer,
   UID,
 } from "../../types/index";
+import { RangeAdapter } from "../core/range";
 import { UIPlugin } from "../ui_plugin";
 
 const functionMap = functionRegistry.mapping;
@@ -38,11 +39,12 @@ export class EvaluationPlugin extends UIPlugin {
   constructor(
     getters: Getters,
     state: StateObserver,
+    range: RangeAdapter,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig,
     selection: SelectionStreamProcessor
   ) {
-    super(getters, state, dispatch, config, selection);
+    super(getters, state, range, dispatch, config, selection);
     this.evalContext = config.evalContext;
   }
 

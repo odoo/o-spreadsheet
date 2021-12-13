@@ -1,5 +1,6 @@
 import { ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
+import { ApplyRangeChange, RangeProvider, UID } from "../types";
 import {
   CommandDispatcher,
   CommandHandler,
@@ -7,6 +8,7 @@ import {
   Validation,
   WorkbookHistory,
 } from "../types/index";
+import { RangeAdapter } from "./core/range";
 
 /**
  * BasePlugin
@@ -20,17 +22,21 @@ import {
  * and UI plugins handling transient data.
  */
 
-export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
+export class BasePlugin<State = any, C = any> implements CommandHandler<C>, RangeProvider {
   static getters: readonly string[] = [];
+  protected range: RangeAdapter;
 
   protected history: WorkbookHistory<State>;
   protected dispatch: CommandDispatcher["dispatch"];
 
   constructor(
     stateObserver: StateObserver,
+    range: RangeAdapter,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
+    this.range = range;
+    range.addRangeProvider(this.adaptRanges.bind(this));
     this.history = Object.assign(Object.create(stateObserver), {
       update: stateObserver.addChange.bind(stateObserver, this),
       selectCell: () => {},
@@ -109,4 +115,16 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
   ): CommandResult | CommandResult[] {
     return this.batchValidations(...validations)(command);
   }
+
+  /**
+   * This method can be implemented in any plugin, to loop over the plugin's data structure and adapt the plugin's ranges.
+   * To adapt them, the implementation of the function must have a perfect knowledge of the data structure, thus
+   * implementing the loops over it makes sense in the plugin itself.
+   * When calling the method applyChange, the range will be adapted if necessary, then a copy will be returned along with
+   * the type of change that occurred.
+   *
+   * @param applyChange a function that, when called, will adapt the range according to the change on the grid
+   * @param sheetId an optional sheetId to adapt either range of that sheet specifically, or ranges pointing to that sheet
+   */
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID): void {}
 }

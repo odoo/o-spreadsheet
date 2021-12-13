@@ -19,6 +19,7 @@ import {
   LAYERS,
   UID,
 } from "../../types/index";
+import { RangeAdapter } from "../core/range";
 import { UIPlugin } from "../ui_plugin";
 
 const uuidGenerator = new UuidGenerator();
@@ -48,13 +49,14 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
   constructor(
     getters: Getters,
     state: StateObserver,
+    range: RangeAdapter,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig,
     selection: SelectionStreamProcessor,
     initialRanges: string[],
     private readonly inputHasSingleRange: boolean
   ) {
-    super(getters, state, dispatch, config, selection);
+    super(getters, state, range, dispatch, config, selection);
     this.insertNewRange(0, initialRanges);
     this.activeSheet = this.getters.getActiveSheetId();
     if (this.ranges.length === 0) {

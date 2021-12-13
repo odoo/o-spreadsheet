@@ -40,6 +40,7 @@ import {
   UID,
   Zone,
 } from "../../types/index";
+import { RangeAdapter } from "../core/range";
 import { UIPlugin } from "../ui_plugin";
 
 interface SheetInfo {
@@ -134,11 +135,12 @@ export class GridSelectionPlugin extends UIPlugin {
   constructor(
     getters: Getters,
     state: StateObserver,
+    range: RangeAdapter,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig,
     selection: SelectionStreamProcessor
   ) {
-    super(getters, state, dispatch, config, selection);
+    super(getters, state, range, dispatch, config, selection);
     this.moveClient = config.moveClient;
   }
 
