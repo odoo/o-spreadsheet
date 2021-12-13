@@ -217,6 +217,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         }
         this.getters[name] = plugin[name].bind(plugin);
       }
+      this.range.addRangeProvider(plugin.adaptRanges.bind(plugin));
       this.uiPlugins.push(plugin);
       const layers = Plugin.layers.map((l) => [plugin, l] as [UIPlugin, LAYERS]);
       this.renderers.push(...layers);
@@ -235,7 +236,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       const plugin = new Plugin(
         this.getters,
         this.state,
-        this.range,
         this.dispatchFromCorePlugin,
         this.config,
         this.uuidGenerator
@@ -247,6 +247,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         }
         this.getters[name] = plugin[name].bind(plugin);
       }
+      this.range.addRangeProvider(plugin.adaptRanges.bind(plugin));
       this.corePlugins.push(plugin);
     }
   }
