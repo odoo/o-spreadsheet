@@ -18,6 +18,7 @@ describe("Color Picker tests", () => {
     await colorPicker.mount(fixture);
     expect(document.querySelector(".o-color-picker")?.classList).toContain("right");
     expect(document.querySelector(".o-color-picker")?.classList).not.toContain("left");
+    expect(document.querySelector(".o-color-picker")?.classList).not.toContain("center");
   });
 
   test("Color picker is correctly positioned right", async () => {
@@ -25,6 +26,7 @@ describe("Color Picker tests", () => {
     await colorPicker.mount(fixture);
     expect(document.querySelector(".o-color-picker")?.classList).toContain("right");
     expect(document.querySelector(".o-color-picker")?.classList).not.toContain("left");
+    expect(document.querySelector(".o-color-picker")?.classList).not.toContain("center");
   });
 
   test("Color picker is correctly positioned left", async () => {
@@ -32,5 +34,14 @@ describe("Color Picker tests", () => {
     await colorPicker.mount(fixture);
     expect(document.querySelector(".o-color-picker")?.classList).toContain("left");
     expect(document.querySelector(".o-color-picker")?.classList).not.toContain("right");
+    expect(document.querySelector(".o-color-picker")?.classList).not.toContain("center");
+  });
+
+  test("Color picker is correctly centered", async () => {
+    colorPicker = new ColorPicker(null, { dropdownDirection: "center" });
+    await colorPicker.mount(fixture);
+    expect(document.querySelector(".o-color-picker")?.classList).toContain("center");
+    expect(document.querySelector(".o-color-picker")?.classList).not.toContain("right");
+    expect(document.querySelector(".o-color-picker")?.classList).not.toContain("left");
   });
 });
