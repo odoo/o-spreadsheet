@@ -1,13 +1,17 @@
 import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
-import { CellValueType, CommandResult, Zone } from "../../src/types/index";
+import { CellValueType, CommandResult, Range, Zone } from "../../src/types/index";
 import {
   activateSheet,
+  addColumns,
+  addRows,
   createSheet,
   createSheetWithName,
   deleteColumns,
   deleteRows,
+  merge,
+  redo,
   selectCell,
   setCellContent,
   undo,
@@ -23,7 +27,9 @@ import { createEqualCF, getGrid, target } from "../test_helpers/helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
-  return clipboardPlugin.status === "visible" ? clipboardPlugin.state.zones : [];
+  return clipboardPlugin.status === "visible"
+    ? clipboardPlugin.state.ranges.map((range: Range) => range.zone)
+    : [];
 }
 
 describe("clipboard", () => {
@@ -404,6 +410,45 @@ describe("clipboard", () => {
     expect(model.getters.isInMerge(sheet2, ...toCartesian("B2"))).toBe(true);
   });
 
+  test("a merge added inside a clipped zone will be copied", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("COPY", { target: target("A1:C1") });
+    merge(model, "B1:C1", sheetId);
+    model.dispatch("PASTE", { target: target("A2") });
+    expect(model.getters.isInMerge(sheetId, ...toCartesian("B1"))).toBe(true);
+    expect(model.getters.isInMerge(sheetId, ...toCartesian("C1"))).toBe(true);
+    expect(model.getters.isInMerge(sheetId, ...toCartesian("B2"))).toBe(true);
+    expect(model.getters.isInMerge(sheetId, ...toCartesian("C2"))).toBe(true);
+  });
+
+  test("a merge added partially inside a clipped zone will invalidate the clipboard", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "1");
+    model.dispatch("COPY", { target: target("A1:C1") });
+    merge(model, "C1:D1", sheetId);
+    expect(model.dispatch("PASTE", { target: target("A2") })).toBeCancelledBecause(
+      CommandResult.EmptyClipboard
+    );
+    expect(model.getters.isInMerge(sheetId, ...toCartesian("C1"))).toBe(true);
+    expect(model.getters.isInMerge(sheetId, ...toCartesian("D1"))).toBe(true);
+    expect(model.getters.isInMerge(sheetId, ...toCartesian("C2"))).toBe(false);
+    expect(model.getters.isInMerge(sheetId, ...toCartesian("D2"))).toBe(false);
+  });
+
+  test("a merge added outside a clipped zone do nothing to the clipboard", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "B1", "2");
+    model.dispatch("COPY", { target: target("A1:B1") });
+    merge(model, "C1:D1", sheetId);
+    model.dispatch("PASTE", { target: target("A2") });
+    expect(getCellContent(model, "A2")).toBe("1");
+    expect(getCellContent(model, "B2")).toBe("2");
+  });
+
   test("copy/paste a formula that has no sheet specific reference to another", () => {
     const model = new Model({
       sheets: [
@@ -593,6 +638,139 @@ describe("clipboard", () => {
     expect(getCellContent(model, "D2")).toBe("b3");
     expect(getCellContent(model, "E1")).toBe("c2");
     expect(getCellContent(model, "E2")).toBe("c3");
+  });
+
+  describe("paste reflect current state of sheet and not state at time of copying", () => {
+    test("paste takes current value of copied cell", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "1");
+      model.dispatch("COPY", { target: target("A1") });
+      setCellContent(model, "A1", "2");
+      model.dispatch("PASTE", { target: target("A2") });
+      expect(getCellContent(model, "A2")).toBe("2");
+    });
+
+    test("paste takes current style of copied cell", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "a1");
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: target("A1"),
+        style: { fillColor: "#fefefe" },
+      });
+      model.dispatch("COPY", { target: target("A1") });
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: target("A1"),
+        style: { fillColor: "#ffff00" },
+      });
+
+      model.dispatch("PASTE", { target: target("A2") });
+      expect(getCell(model, "A2")).toMatchObject({
+        style: { fillColor: "#ffff00" },
+      });
+    });
+
+    test("inserting col & row before cut zone update the zone of the cut", () => {
+      const model = new Model();
+      setCellContent(model, "B2", "b2");
+      model.dispatch("CUT", { target: target("B2") });
+
+      addColumns(model, "before", "A", 1, model.getters.getActiveSheetId());
+      addRows(model, "before", 0, 1, model.getters.getActiveSheetId());
+      expect(getCellContent(model, "C3")).toBe("b2");
+
+      model.dispatch("PASTE", { target: target("C4") });
+      expect(getCellContent(model, "C3")).toBeFalsy();
+      expect(getCellContent(model, "C4")).toEqual("b2");
+    });
+
+    test("deleting row/col inside cut area update the area accordingly", () => {
+      const model = new Model();
+
+      setCellContent(model, "A1", "a1");
+      setCellContent(model, "A2", "a2");
+      setCellContent(model, "B1", "b1");
+      setCellContent(model, "B2", "b2");
+
+      model.dispatch("CUT", { target: target("A1:B2") });
+      deleteColumns(model, ["B"], model.getters.getActiveSheetId());
+      deleteRows(model, [1]);
+      setCellContent(model, "A2", "aa");
+
+      model.dispatch("PASTE", { target: target("C3") });
+      expect(getCellContent(model, "C3")).toEqual("a1");
+      expect(getCellContent(model, "C4")).toBeFalsy();
+      expect(getCellContent(model, "D3")).toBeFalsy();
+      expect(getCellContent(model, "D4")).toBeFalsy();
+
+      expect(getCellContent(model, "A2")).toEqual("aa");
+    });
+
+    test("multiple copied cells, deleting the column of a cell remove this cell from clipboard and keep the other", () => {
+      const model = new Model();
+
+      setCellContent(model, "A1", "a1");
+      setCellContent(model, "C1", "c1");
+
+      model.dispatch("COPY", { target: target("A1,C1") });
+      deleteColumns(model, ["A"], model.getters.getActiveSheetId());
+
+      model.dispatch("PASTE", { target: target("C3") });
+      expect(getCellContent(model, "C3")).toBe("c1");
+    });
+
+    test("delete col/row before cut zone update the zone of the cut", () => {
+      const model = new Model();
+      setCellContent(model, "B2", "b2");
+      model.dispatch("CUT", { target: target("B2") });
+
+      deleteColumns(model, ["A"]);
+      deleteRows(model, [0]);
+      expect(getCellContent(model, "A1")).toEqual("b2");
+
+      model.dispatch("PASTE", { target: target("C4") });
+      expect(getCellContent(model, "A1")).toBeFalsy();
+      expect(getCellContent(model, "C4")).toEqual("b2");
+    });
+
+    test("undo inserting col & row before cut zone update the zone of the cut", () => {
+      const model = new Model();
+      setCellContent(model, "B2", "b2");
+      model.dispatch("CUT", { target: target("B2") });
+
+      addColumns(model, "before", "A", 1, model.getters.getActiveSheetId());
+      addRows(model, "before", 0, 1, model.getters.getActiveSheetId());
+      expect(getCellContent(model, "C3")).toBe("b2");
+
+      undo(model);
+      undo(model);
+      expect(getCellContent(model, "B2")).toBe("b2");
+
+      model.dispatch("PASTE", { target: target("C4") });
+      expect(getCell(model, "B2")).toBeFalsy();
+      expect(getCellContent(model, "C4")).toEqual("b2");
+    });
+
+    test("redo inserting col & row before cut zone update the zone of the cut", () => {
+      const model = new Model();
+      setCellContent(model, "B2", "b2");
+      model.dispatch("CUT", { target: target("B2") });
+
+      addColumns(model, "before", "A", 1, model.getters.getActiveSheetId());
+      addRows(model, "before", 0, 1, model.getters.getActiveSheetId());
+      expect(getCellContent(model, "C3")).toBe("b2");
+
+      undo(model);
+      undo(model);
+      redo(model);
+      redo(model);
+      expect(getCellContent(model, "C3")).toBe("b2");
+
+      model.dispatch("PASTE", { target: target("C4") });
+      expect(getCell(model, "C3")).toBeFalsy();
+      expect(getCellContent(model, "C4")).toEqual("b2");
+    });
   });
 
   test("empty clipboard: getClipboardContent returns a tab", () => {

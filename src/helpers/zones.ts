@@ -1,4 +1,4 @@
-import { Cell, Sheet, Viewport, Zone, ZoneDimension } from "../types";
+import { Cell, Range, Sheet, Viewport, Zone, ZoneDimension } from "../types";
 import { toCartesian, toXC } from "./coordinates";
 import { range } from "./misc";
 
@@ -501,4 +501,8 @@ export function organizeZone(zone: Zone): Zone {
     left: Math.min(zone.left, zone.right),
     right: Math.max(zone.left, zone.right),
   };
+}
+
+export function rangesToZones(ranges: Range[]) {
+  return ranges.map((range) => range.zone);
 }

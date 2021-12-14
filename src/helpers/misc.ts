@@ -240,3 +240,7 @@ export function isDefined<T>(argument: T | undefined): argument is T {
 }
 
 export const DEBUG: { [key: string]: any } = {};
+
+export function sumOfArray(arr: Array<number>) {
+  return arr.reduce((partial_sum, a) => partial_sum + a, 0);
+}
