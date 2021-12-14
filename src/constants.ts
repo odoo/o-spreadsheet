@@ -15,6 +15,7 @@ export const HEADER_BORDER_COLOR = "#C0C0C0";
 export const CELL_BORDER_COLOR = "#E2E3E3";
 export const BACKGROUND_CHART_COLOR = "#FFFFFF";
 export const MENU_ITEM_DISABLED_COLOR = "#CACACA";
+export const DEFAULT_COLOR_SCALE_MIDPOINT_COLOR = 0xb6d7a8;
 
 // Dimensions
 export const MIN_ROW_HEIGHT = 10;

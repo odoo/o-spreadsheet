@@ -1,7 +1,4 @@
 import { Model, Spreadsheet } from "../../src";
-import { CellIsRuleEditor } from "../../src/components/side_panel/conditional_formatting/cell_is_rule_editor";
-import { ColorScaleRuleEditor } from "../../src/components/side_panel/conditional_formatting/color_scale_rule_editor";
-import { IconSetRuleEditor } from "../../src/components/side_panel/conditional_formatting/icon_set_rule_editor";
 import { toZone } from "../../src/helpers/zones";
 import { CommandResult, DispatchResult } from "../../src/types";
 import { setSelection } from "../test_helpers/commands_helpers";
@@ -174,7 +171,7 @@ describe("UI of conditional formats", () => {
               underline: true,
             },
             type: "CellIsRule",
-            values: ["3", ""],
+            values: ["3"],
           },
         },
         target: [toZone("A1:A3")],
@@ -299,7 +296,7 @@ describe("UI of conditional formats", () => {
               underline: true,
             },
             type: "CellIsRule",
-            values: ["3", ""],
+            values: ["3"],
           },
         },
         target: [toZone("A1:A3")],
@@ -555,11 +552,11 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "0", "input");
 
+    setInputValueAndTrigger(selectors.colorScaleEditor.midType, "number", "change");
+    await nextTick();
     triggerMouseEvent(selectors.colorScaleEditor.midColor, "click");
     await nextTick();
     triggerMouseEvent(selectors.colorScaleEditor.colorPickerOrange, "click");
-    setInputValueAndTrigger(selectors.colorScaleEditor.midType, "number", "change");
-    await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50", "input");
 
     triggerMouseEvent(selectors.colorScaleEditor.maxColor, "click");
@@ -1346,46 +1343,5 @@ describe("UI of conditional formats", () => {
         ) as HTMLInputElement
       ).value
     ).toBe("BeginsWith");
-  });
-
-  describe("Default rules", () => {
-    test("Default CellIsRule", () => {
-      expect(CellIsRuleEditor.getDefaultRule()).toEqual({
-        type: "CellIsRule",
-        operator: "IsNotEmpty",
-        values: [],
-        style: { fillColor: "#b6d7a8" },
-      });
-    });
-
-    test("Default ColorScaleRule", () => {
-      expect(ColorScaleRuleEditor.getDefaultRule()).toEqual({
-        type: "ColorScaleRule",
-        minimum: { type: "value", color: 0xffffff },
-        midpoint: undefined,
-        maximum: { type: "value", color: 0x6aa84f },
-      });
-    });
-
-    test("Default IconSetRule", () => {
-      expect(IconSetRuleEditor.getDefaultRule()).toEqual({
-        type: "IconSetRule",
-        icons: {
-          upper: "arrowGood",
-          middle: "arrowNeutral",
-          lower: "arrowBad",
-        },
-        upperInflectionPoint: {
-          type: "percentage",
-          value: "66",
-          operator: "gt",
-        },
-        lowerInflectionPoint: {
-          type: "percentage",
-          value: "33",
-          operator: "gt",
-        },
-      });
-    });
   });
 });
