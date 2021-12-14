@@ -1,6 +1,18 @@
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import { formatValue, mergeOverlappingZones, overlap, positions, union } from "../../helpers/index";
 import {
+  formatValue,
+  isZoneInside,
+  mergeOverlappingZones,
+  overlap,
+  positions,
+  rangesToZones,
+  sumOfArray,
+  union,
+  zoneToDimension,
+  zoneToXc,
+} from "../../helpers/index";
+import {
+  ApplyRangeChange,
   CellPosition,
   ClipboardCell,
   ClipboardOptions,
@@ -11,13 +23,20 @@ import {
   GridRenderingContext,
   isCoreCommand,
   LAYERS,
+  Range,
   Sheet,
   UID,
   Zone,
+  ZoneDimension,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 type ClipboardOperation = "CUT" | "COPY";
+
+interface CellsAndMerges {
+  cells: ClipboardCell[][];
+  merges: Zone[];
+}
 
 interface InsertDeleteCellsTargets {
   cut: Zone[];
@@ -25,10 +44,10 @@ interface InsertDeleteCellsTargets {
 }
 
 interface ClipboardState {
+  operation: ClipboardOperation;
+  ranges: Range[];
   cells: ClipboardCell[][];
   merges: Zone[];
-  operation: ClipboardOperation;
-  zones: Zone[];
   sheetId: UID;
 }
 
@@ -45,6 +64,25 @@ export class ClipboardPlugin extends UIPlugin {
   private status: "visible" | "invisible" = "invisible";
   private state?: ClipboardState;
   private _isPaintingFormat: boolean = false;
+
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
+    if (this.state && (!sheetId || sheetId === this.state.sheetId)) {
+      for (let range of this.state.ranges) {
+        const change = applyChange(range);
+        if (change.changeType === "REMOVE") {
+          const copy = this.state.ranges.slice();
+          copy.splice(this.state.ranges.indexOf(range), 1);
+          if (copy.length > 0) {
+            this.history.update("state", "ranges", copy);
+          } else {
+            this.history.update("state", undefined);
+          }
+        } else if (change.changeType !== "NONE") {
+          this.history.update("state", "ranges", this.state.ranges.indexOf(range), change.range);
+        }
+      }
+    }
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -84,8 +122,7 @@ export class ClipboardPlugin extends UIPlugin {
         }
         const pasteOption = cmd.pasteOption || (this._isPaintingFormat ? "onlyFormat" : undefined);
         this._isPaintingFormat = false;
-        const height = this.state.cells.length;
-        const width = this.state.cells[0].length;
+        const { height, width } = this.getClippedDims(this.state);
         const isCutOperation = this.state.operation === "CUT";
         this.paste(this.state, cmd.target, pasteOption);
         this.selectPastedZone(width, height, isCutOperation, cmd.target);
@@ -103,19 +140,6 @@ export class ClipboardPlugin extends UIPlugin {
         this.paste(state, paste);
         break;
       }
-      case "ADD_COLUMNS_ROWS": {
-        // If we add a col/row inside a cut clipped area, we invalidate the clipboard
-        const isClipboardDirty = this.isAddRowColDirtyingClipboard(
-          cmd.base,
-          cmd.position,
-          cmd.dimension
-        );
-        if (this.state && this.state.operation == "CUT" && isClipboardDirty) {
-          this.state = undefined;
-        }
-        this.status = "invisible";
-        break;
-      }
       case "PASTE_FROM_OS_CLIPBOARD":
         this.pasteFromClipboard(cmd.target, cmd.text);
         break;
@@ -124,6 +148,23 @@ export class ClipboardPlugin extends UIPlugin {
         this._isPaintingFormat = true;
         this.status = "visible";
         break;
+      case "ADD_MERGE": {
+        if (!this.state) return;
+        let isClipboardDirty = false;
+        for (let mergedZone of cmd.target) {
+          for (let clipboardZone of rangesToZones(this.state.ranges)) {
+            if (overlap(clipboardZone, mergedZone) && !isZoneInside(mergedZone, clipboardZone)) {
+              isClipboardDirty = true;
+              break;
+            }
+          }
+        }
+        if (isClipboardDirty) {
+          this.state = undefined;
+        }
+        this.status = "invisible";
+        break;
+      }
       default:
         if (isCoreCommand(cmd)) {
           this.status = "invisible";
@@ -147,11 +188,14 @@ export class ClipboardPlugin extends UIPlugin {
    * considered as a copy content.
    */
   getClipboardContent(): string {
-    if (!this.state || !this.state.cells.length) {
+    const { height, width } = this.getClippedDims(this.state);
+    if (!this.state || !width || !height) {
       return "\t";
     }
+
+    const { cells } = this.getCellsInRanges(this.state.ranges);
     return (
-      this.state.cells
+      cells
         .map((cells) => {
           return cells
             .map((c) =>
@@ -268,13 +312,13 @@ export class ClipboardPlugin extends UIPlugin {
   /**
    * Compute the complete zones where to paste the current clipboard
    */
-  private getPasteZones(target: Zone[], cells: ClipboardCell[][]): Zone[] {
-    if (!cells.length || !cells[0].length) {
+  private getPasteZones(target: Zone[], dims: ZoneDimension): Zone[] {
+    if (!dims.height || !dims.width) {
       return target;
     }
     const pasteZones: Zone[] = [];
-    const height = cells.length;
-    const width = cells[0].length;
+    const height = dims.height;
+    const width = dims.width;
     const selection = target[target.length - 1];
 
     const col = selection.left;
@@ -298,7 +342,7 @@ export class ClipboardPlugin extends UIPlugin {
   /**
    * Get the clipboard state from the given zones.
    */
-  private getClipboardState(zones: Zone[], operation: ClipboardOperation) {
+  private getClipboardState(zones: Zone[], operation: ClipboardOperation): ClipboardState {
     const lefts = new Set(zones.map((z) => z.left));
     const rights = new Set(zones.map((z) => z.right));
     const tops = new Set(zones.map((z) => z.top));
@@ -313,13 +357,57 @@ export class ClipboardPlugin extends UIPlugin {
       ? mergeOverlappingZones(zones)
       : [zones[zones.length - 1]];
 
-    const cellsPosition = clippedZones.map((zone) => positions(zone)).flat();
-    const columnsIndex = [...new Set(cellsPosition.map((p) => p.col))].sort((a, b) => a - b);
-    const rowsIndex = [...new Set(cellsPosition.map((p) => p.row))].sort((a, b) => a - b);
+    const sheetId = this.getters.getActiveSheetId();
+    const ranges = clippedZones.map((zone) =>
+      this.getters.getRangeFromSheetXC(sheetId, zoneToXc(zone))
+    );
+    const { cells, merges } = this.getCellsInRanges(ranges);
 
+    return {
+      operation,
+      sheetId,
+      ranges,
+      cells,
+      merges,
+    };
+  }
+
+  /**
+   * Get dimensions of the clipped zones.
+   *
+   * If given multiple zones, the zones should be compatibles, ie. they should all be aligned inside the same
+   * rows/columns
+   */
+  private getClippedZoneDims(clippedZones: Zone[]): ZoneDimension {
+    if (clippedZones.length === 1) {
+      return zoneToDimension(clippedZones[0]);
+    }
+
+    // As the zones are compatible, they all have either the same height or width,
+    // and we need only to compute the other dimension.
+    const dims = zoneToDimension(clippedZones[0]);
+    const zonesDimensions = clippedZones.map(zoneToDimension);
+    const isVertical = clippedZones[0].left === clippedZones[1].left;
+    if (isVertical) {
+      dims.height = sumOfArray(zonesDimensions.map((dim) => dim.height));
+    } else {
+      dims.width = sumOfArray(zonesDimensions.map((dim) => dim.width));
+    }
+
+    return dims;
+  }
+
+  /**
+   * Get the cells and merges from the given ranges.
+   */
+  private getCellsInRanges(ranges: Range[]): CellsAndMerges {
     const cellsInClipboard: ClipboardCell[][] = [];
     const merges: Zone[] = [];
-    const sheetId = this.getters.getActiveSheetId();
+
+    const sheetId = ranges[0].sheetId;
+    const cellsPosition = ranges.map((range) => positions(range.zone)).flat();
+    const columnsIndex = [...new Set(cellsPosition.map((p) => p.col))].sort((a, b) => a - b);
+    const rowsIndex = [...new Set(cellsPosition.map((p) => p.row))].sort((a, b) => a - b);
 
     for (let row of rowsIndex) {
       let cellsInRow: ClipboardCell[] = [];
@@ -336,13 +424,9 @@ export class ClipboardPlugin extends UIPlugin {
       }
       cellsInClipboard.push(cellsInRow);
     }
-
     return {
       cells: cellsInClipboard,
-      operation,
-      sheetId,
-      zones: clippedZones,
-      merges,
+      merges: merges,
     };
   }
 
@@ -401,14 +485,16 @@ export class ClipboardPlugin extends UIPlugin {
       return CommandResult.WrongPasteOption;
     }
     if (target.length > 1) {
+      const { height, width } = this.getClippedDims(state);
+
       // cannot paste if we have a clipped zone larger than a cell and multiple
       // zones selected
-      if (state.cells.length > 1 || state.cells[0].length > 1) {
+      if (height > 1 || width > 1) {
         return CommandResult.WrongPasteSelection;
       }
     }
     if (!ignoreMerges) {
-      for (let zone of this.getPasteZones(target, state.cells)) {
+      for (let zone of this.getPasteZones(target, this.getClippedDims(state))) {
         if (this.getters.doesIntersectMerge(sheetId, zone)) {
           return CommandResult.WillRemoveExistingMerge;
         }
@@ -438,7 +524,7 @@ export class ClipboardPlugin extends UIPlugin {
       const width = state.cells[0].length;
       const pasteZones = this.pastedZones(target, width, height);
       for (const zone of pasteZones) {
-        this.pasteZone(state, zone.left, zone.top, options);
+        this.pasteZone(state, state.cells, zone.left, zone.top, options);
       }
     } else {
       // in this case, due to the isPasteAllowed function: state.cells contains
@@ -446,7 +532,7 @@ export class ClipboardPlugin extends UIPlugin {
       for (const zone of target) {
         for (let col = zone.left; col <= zone.right; col++) {
           for (let row = zone.top; row <= zone.bottom; row++) {
-            this.pasteZone(state, col, row, options);
+            this.pasteZone(state, state.cells, col, row, options);
           }
         }
       }
@@ -454,11 +540,12 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   private pasteFromCut(state: ClipboardState, target: Zone[]) {
+    const { cells } = this.getCellsInRanges(state.ranges);
     this.clearClippedZones(state);
     const selection = target[0];
-    this.pasteZone(state, selection.left, selection.top);
+    this.pasteZone(state, cells, selection.left, selection.top);
     this.dispatch("MOVE_RANGES", {
-      target: state.zones,
+      target: rangesToZones(state.ranges),
       sheetId: state.sheetId,
       targetSheetId: this.getters.getActiveSheetId(),
       col: selection.left,
@@ -515,27 +602,30 @@ export class ClipboardPlugin extends UIPlugin {
    * Clear the clipped zones: remove the cells and clear the formatting
    */
   private clearClippedZones(state: ClipboardState) {
-    for (const row of state.cells) {
-      for (const cell of row) {
-        if (cell.cell) {
-          this.dispatch("CLEAR_CELL", cell.position);
-        }
+    for (let zone of rangesToZones(state.ranges)) {
+      for (const { col, row } of positions(zone)) {
+        this.dispatch("CLEAR_CELL", {
+          sheetId: state.sheetId,
+          col: col,
+          row: row,
+        });
       }
     }
     this.dispatch("CLEAR_FORMATTING", {
       sheetId: state.sheetId,
-      target: state.zones,
+      target: rangesToZones(state.ranges),
     });
   }
 
   private pasteZone(
     state: ClipboardState,
+    cells: ClipboardCell[][],
     col: number,
     row: number,
     pasteOption?: ClipboardOptions
   ) {
-    const height = state.cells.length;
-    const width = state.cells[0].length;
+    const height = cells.length;
+    const width = cells[0].length;
     // This condition is used to determine if we have to paste the CF or not.
     // We have to do it when the command handled is "PASTE", not "INSERT_CELL"
     // or "DELETE_CELL". So, the state should be the local state
@@ -545,7 +635,7 @@ export class ClipboardPlugin extends UIPlugin {
     this.addMissingDimensions(sheet, width, height, col, row);
     // then, perform the actual paste operation
     for (let r = 0; r < height; r++) {
-      const rowCells = state.cells[r];
+      const rowCells = cells[r];
       for (let c = 0; c < width; c++) {
         const origin = rowCells[c];
         const position = { col: col + c, row: row + r, sheetId: sheet.id };
@@ -673,41 +763,6 @@ export class ClipboardPlugin extends UIPlugin {
     return this.getters.buildFormulaContent(sheetId, cell, ranges);
   }
 
-  /**
-   * Check if the given zone and at least one of the clipped zones overlap
-   */
-  private isZoneOverlapClippedZone(zones: Zone[], zone: Zone): boolean {
-    return zones.some((clippedZone) => overlap(zone, clippedZone));
-  }
-
-  /**
-   * Check if a ADD_COLUMNS_ROWS command is affecting an area inside the clipboard
-   */
-  private isAddRowColDirtyingClipboard(
-    base: number,
-    position: "before" | "after",
-    dimension: Dimension
-  ) {
-    if (!this.state || !this.state.zones) return false;
-    const sheet = this.getters.getActiveSheet();
-    const affectedZone: Zone = {
-      top: 0,
-      bottom: sheet.rows.length - 1,
-      left: 0,
-      right: sheet.cols.length - 1,
-    };
-    if (dimension === "COL") {
-      const affectedCol = position === "before" ? base - 1 : base + 1;
-      affectedZone.left = affectedCol;
-      affectedZone.right = affectedCol;
-    } else {
-      const affectedRow = position === "before" ? base - 1 : base + 1;
-      affectedZone.top = affectedRow;
-      affectedZone.bottom = affectedRow;
-    }
-    return this.isZoneOverlapClippedZone(this.state.zones, affectedZone);
-  }
-
   // ---------------------------------------------------------------------------
   // Grid rendering
   // ---------------------------------------------------------------------------
@@ -717,8 +772,8 @@ export class ClipboardPlugin extends UIPlugin {
     if (
       this.status !== "visible" ||
       !this.state ||
-      !this.state.zones ||
-      !this.state.zones.length ||
+      !this.state.ranges ||
+      !this.state.ranges.length ||
       this.state.sheetId !== this.getters.getActiveSheetId()
     ) {
       return;
@@ -726,11 +781,21 @@ export class ClipboardPlugin extends UIPlugin {
     ctx.setLineDash([8, 5]);
     ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 3.3 * thinLineWidth;
-    for (const zone of this.state.zones) {
-      const [x, y, width, height] = this.getters.getRect(zone, viewport);
+    for (const range of this.state.ranges) {
+      const [x, y, width, height] = this.getters.getRect(range.zone, viewport);
       if (width > 0 && height > 0) {
         ctx.strokeRect(x, y, width, height);
       }
+    }
+  }
+
+  private getClippedDims(state: ClipboardState | undefined): ZoneDimension {
+    if (!state) {
+      return { height: 0, width: 0 };
+    } else if (state.operation === "COPY") {
+      return { height: state.cells.length, width: state.cells[0].length };
+    } else {
+      return this.getClippedZoneDims(state.ranges.map((range) => range.zone));
     }
   }
 }

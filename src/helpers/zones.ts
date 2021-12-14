@@ -1,4 +1,4 @@
-import { Position, Zone, ZoneDimension } from "../types";
+import { Position, Range, Zone, ZoneDimension } from "../types";
 import { toCartesian, toXC } from "./coordinates";
 import { range } from "./misc";
 
@@ -529,4 +529,8 @@ export function organizeZone(zone: Zone): Zone {
 
 export function positionToZone(position: Position) {
   return { left: position.col, right: position.col, top: position.row, bottom: position.row };
+}
+
+export function rangesToZones(ranges: Range[]) {
+  return ranges.map((range) => range.zone);
 }

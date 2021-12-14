@@ -811,4 +811,35 @@ describe("Multi users synchronisation", () => {
       { fillColor: "#FF0000" }
     );
   });
+  describe("actions of other users on copied zone are taken into account for cut/paster", () => {
+    test("paste takes current value of copied cell", () => {
+      setCellContent(alice, "A1", "1");
+      alice.dispatch("CUT", { target: target("A1") });
+      setCellContent(bob, "A1", "2");
+      alice.dispatch("PASTE", { target: target("A2") });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "A2"),
+        "2"
+      );
+    });
+
+    test("inserting col & row before cut zone update the zone of the cut", () => {
+      setCellContent(alice, "B2", "b2");
+      alice.dispatch("CUT", { target: target("B2") });
+
+      addColumns(bob, "before", "A", 1, bob.getters.getActiveSheetId());
+      addRows(bob, "before", 0, 1, bob.getters.getActiveSheetId());
+      expect(getCellContent(alice, "C3")).toBe("b2");
+
+      alice.dispatch("PASTE", { target: target("C4") });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "C3"),
+        ""
+      );
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "C4"),
+        "b2"
+      );
+    });
+  });
 });

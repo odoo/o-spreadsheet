@@ -347,3 +347,7 @@ export function findNextDefinedValue(arr: string[], index: number): string {
   }
   return value || "";
 }
+
+export function sumOfArray(arr: Array<number>) {
+  return arr.reduce((partial_sum, a) => partial_sum + a, 0);
+}
