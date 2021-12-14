@@ -326,6 +326,37 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "D2")).toEqual({ left: b });
   });
 
+  test("move duplicated border when col is inserted before", () => {
+    const model = new Model();
+    const firstSheetId = model.getters.getActiveSheetId();
+    const secondSheetId = "42";
+    setBorder(model, "external", "B2");
+    expect(getBorder(model, "B2", firstSheetId)).toEqual({ top: b, left: b, right: b, bottom: b });
+    model.dispatch("DUPLICATE_SHEET", {
+      sheetId: firstSheetId,
+      sheetIdTo: secondSheetId,
+    });
+    addColumns(model, "before", "A", 1, secondSheetId);
+    expect(getBorder(model, "B2", firstSheetId)).toEqual({ top: b, left: b, right: b, bottom: b });
+    expect(getBorder(model, "B2", secondSheetId)).toEqual({ right: b });
+    expect(getBorder(model, "C2", secondSheetId)).toEqual({ top: b, left: b, right: b, bottom: b });
+  });
+
+  test("move duplicated border when row is inserted before", () => {
+    const model = new Model();
+    const firstSheetId = model.getters.getActiveSheetId();
+    const secondSheetId = "42";
+    setBorder(model, "external", "B2");
+    model.dispatch("DUPLICATE_SHEET", {
+      sheetId: firstSheetId,
+      sheetIdTo: secondSheetId,
+    });
+    addRows(model, "before", 0, 1, secondSheetId);
+    expect(getBorder(model, "B2", firstSheetId)).toEqual({ top: b, left: b, right: b, bottom: b });
+    expect(getBorder(model, "B2", secondSheetId)).toEqual({ bottom: b });
+    expect(getBorder(model, "B3", secondSheetId)).toEqual({ top: b, left: b, right: b, bottom: b });
+  });
+
   test.skip("[ok] ADD_COLUMNS_ROWS with dimension col before with external borders in the column before", () => {
     setBorder(model, "external", "B2");
     addColumns(model, "before", "C", 1);
