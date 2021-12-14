@@ -16,7 +16,8 @@
     "test:watch": "jest --watch",
     "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --write",
     "check-formatting": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --check",
-    "dist": "tsc --module es6 --outDir dist/js && npm run build:bundle"
+    "dist": "tsc --module es6 --outDir dist/js && npm run build:bundle",
+    "prepare": "husky install"
   },
   "browserslist": [
     "last 1 Chrome versions"
@@ -42,9 +43,11 @@
     "file-saver": "^2.0.5",
     "fs": "^0.0.1-security",
     "git-rev-sync": "^2.1.0",
+    "husky": "^7.0.4",
     "jest": "^27.2.0",
     "jest-environment-jsdom": "^27.2.0",
     "jszip": "^3.6.0",
+    "lint-staged": "^12.1.2",
     "live-server": "^1.2.1",
     "mockdate": "^3.0.2",
     "npm-run-all": "^4.1.5",
@@ -53,7 +56,7 @@
     "rollup": "^2.38.5",
     "ts-jest": "^27.0.5",
     "typedoc": "0.22.5",
-    "typedoc-plugin-markdown": "3.6.1",
+    "typedoc-plugin-markdown": "3.11.1",
     "typescript": "^4.4.3",
     "xml-formatter": "^2.4.0"
   },
@@ -87,5 +90,8 @@
     "setupFilesAfterEnv": [
       "<rootDir>/tests/setup/jest.setup.ts"
     ]
+  },
+  "lint-staged": {
+    "{src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md}": "prettier --write"
   }
 }

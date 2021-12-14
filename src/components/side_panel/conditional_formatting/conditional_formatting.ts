@@ -128,24 +128,26 @@ const TEMPLATE = xml/* xml */ `
   </div>`;
 
 const CSS = css/* scss */ `
-  label{
+  label {
     vertical-align: middle;
   }
-  .o_cf_radio_item{
-      margin-right: 10%;
+  .o_cf_radio_item {
+    margin-right: 10%;
   }
   .radio input:checked {
     color: #e9ecef;
-    border-color: #00A09D;
-    background-color: #00A09D;
+    border-color: #00a09d;
+    background-color: #00a09d;
   }
-  .o-cf-editor{
+  .o-cf-editor {
     border-bottom: solid;
     border-color: lightgrey;
   }
   .o-cf {
-    .o-cf-type-selector{
-      *, ::after, ::before {
+    .o-cf-type-selector {
+      *,
+      ::after,
+      ::before {
         box-sizing: border-box;
       }
       margin-top: 10px;
@@ -183,7 +185,7 @@ const CSS = css/* scss */ `
         text-align: center;
         width: 50px;
       }
-      .o-cf-preview-icon{
+      .o-cf-preview-icon {
         border: 1px solid lightgrey;
         position: absolute;
         height: 50px;
@@ -204,17 +206,17 @@ const CSS = css/* scss */ `
           margin-bottom: 4px;
           overflow: hidden;
         }
-        .o-cf-preview-description-values{
+        .o-cf-preview-description-values {
           overflow: hidden;
         }
-        .o-cf-preview-range{
+        .o-cf-preview-range {
           text-overflow: ellipsis;
           font-size: 12px;
           overflow: hidden;
         }
       }
-      .o-cf-delete{
-        color:dimgrey;
+      .o-cf-delete {
+        color: dimgrey;
         left: 90%;
         top: 39%;
         position: absolute;
@@ -223,7 +225,7 @@ const CSS = css/* scss */ `
     .o-cf-ruleEditor {
       font-size: 12px;
       line-height: 1.5;
-      .o-selection-cf{
+      .o-selection-cf {
         margin-bottom: 3%;
       }
       .o-dropdown {
@@ -317,7 +319,7 @@ const CSS = css/* scss */ `
       margin-top: 10px;
     }
   }
-  }`;
+`;
 interface Props {
   selection: Zone[] | undefined;
 }

@@ -10,7 +10,7 @@ export type TranslationFunction = (
 ) => string;
 
 // define a mock translation function, when o-spreadsheet runs in standalone it doesn't translate any string
-let _t: TranslationFunction = (s) => s;
+let _translate: TranslationFunction = (s) => s;
 
 function sprintf(s: string, ...values: string[] | [{ [key: string]: string }]): string {
   if (values.length === 1 && typeof values[0] === "object") {
@@ -27,8 +27,15 @@ function sprintf(s: string, ...values: string[] | [{ [key: string]: string }]): 
  * @param tfn the function that will do the translation
  */
 export function setTranslationMethod(tfn: TranslationFunction) {
-  _t = tfn;
+  _translate = tfn;
 }
+
+export const _t: TranslationFunction = function (
+  s: string,
+  ...values: string[] | [{ [key: string]: string }]
+) {
+  return sprintf(_translate(s), ...values);
+};
 
 export const _lt: TranslationFunction = function (
   s,
@@ -36,7 +43,7 @@ export const _lt: TranslationFunction = function (
 ) {
   return {
     toString: function () {
-      return sprintf(_t(s), ...values);
+      return sprintf(_translate(s), ...values);
     },
     // casts the object to unknown then to string to trick typescript into thinking that the object it receives is actually a string
     // this way it will be typed correctly (behaves like a string) but tests like typeof _lt("whatever") will be object and not string !
