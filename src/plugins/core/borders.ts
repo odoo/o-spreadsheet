@@ -42,7 +42,12 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       case "DUPLICATE_SHEET":
         const borders = this.borders[cmd.sheetId];
         if (borders) {
-          this.history.update("borders", cmd.sheetIdTo, JSON.parse(JSON.stringify(borders)));
+          // borders is a sparse 2D array.
+          // map and slice preserve empty values and do not set `undefined` instead
+          const bordersCopy = borders
+            .slice()
+            .map((col) => col?.slice().map((border) => ({ ...border })));
+          this.history.update("borders", cmd.sheetIdTo, bordersCopy);
         }
         break;
       case "DELETE_SHEET":

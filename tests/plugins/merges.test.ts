@@ -4,6 +4,7 @@ import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CommandResult, Style } from "../../src/types/index";
 import {
+  addColumns,
   deleteRows,
   merge,
   redo,
@@ -78,6 +79,22 @@ describe("merges", () => {
     expect(getCellsXC(model)).toEqual(["B2"]);
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
     expect(Object.keys(getMerges(model))).toEqual([]);
+  });
+
+  test("add a merge cells in a duplicated sheet", () => {
+    const model = new Model();
+    const firstSheetId = model.getters.getActiveSheetId();
+    const secondSheetId = "42";
+    merge(model, "C2:C3", firstSheetId);
+    model.dispatch("DUPLICATE_SHEET", {
+      sheetId: firstSheetId,
+      sheetIdTo: secondSheetId,
+    });
+    merge(model, "B2:B3", secondSheetId);
+    expect(model.getters.getMerges(secondSheetId)).toEqual([
+      { ...toZone("C2:C3"), id: 1, topLeft: toPosition("C2") },
+      { ...toZone("B2:B3"), id: 2, topLeft: toPosition("B2") },
+    ]);
   });
 
   test("a single cell is not merged", () => {
@@ -582,6 +599,24 @@ describe("merges", () => {
     merge(model, "A1:A2");
     expect(setCellContent(model, "A2", "hello")).toBeCancelledBecause(CommandResult.CellIsMerged);
     expect(getCell(model, "A2")).toBeUndefined();
+  });
+
+  test("move duplicated merge when col is inserted before", () => {
+    const model = new Model();
+    const firstSheetId = model.getters.getActiveSheetId();
+    const secondSheetId = "42";
+    merge(model, "C1:C2");
+    model.dispatch("DUPLICATE_SHEET", {
+      sheetId: firstSheetId,
+      sheetIdTo: secondSheetId,
+    });
+    addColumns(model, "before", "A", 1, "42");
+    expect(model.getters.getMerges(firstSheetId)).toEqual([
+      { ...toZone("C1:C2"), id: 1, topLeft: toPosition("C1") },
+    ]);
+    expect(model.getters.getMerges(secondSheetId)).toEqual([
+      { ...toZone("D1:D2"), id: 2, topLeft: toPosition("D1") },
+    ]);
   });
 
   describe("isSingleCellOrMerge getter", () => {

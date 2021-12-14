@@ -1,5 +1,5 @@
 import { tokenize } from "../../formulas";
-import { AST, parse } from "../../formulas/parser";
+import { ASTFuncall, ASTString, astToFormula, convertAstNodes, parse } from "../../formulas/parser";
 import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
 import { functionRegistry } from "../../functions";
 import { isNumber } from "../../helpers";
@@ -85,72 +85,73 @@ export function adaptFormulaToExcel(formula: NormalizedFormula): string {
   if (formulaText[0] === "=") {
     formulaText = formulaText.slice(1);
   }
-  const ast = parse(formulaText);
-  let newFormulaText = ast ? astToExcelFormula(ast) : formula.text;
+  let ast = parse(formulaText);
+  ast = convertAstNodes(ast, "STRING", convertDateFormat);
+  ast = convertAstNodes(ast, "FUNCALL", (ast) => {
+    ast = { ...ast, value: ast.value.toUpperCase() };
+    ast = prependNonRetrocompatibleFunction(ast);
+    ast = addMissingRequiredArgs(ast);
+    return ast;
+  });
+  let newFormulaText = ast ? astToFormula(ast) : formula.text;
   return getFormulaContent(newFormulaText, formula.dependencies);
 }
 
 /**
- * Converts an ast formula to the corresponding string
- *
- * We cannot use astToFormula directly; since the function is of recursive form,
- * it will call itself when we'd need it to call astToExcelFormula to process
- * the specific cases of FUNCALL.
- * Function calls are different because:
- * - non retrocompatible function needs to be prepended
- * - required args which are optional in o-spreadsheet
+ * Some Excel function need required args that might not be mandatory in o-spreadsheet.
+ * This adds those missing args.
  */
-function astToExcelFormula(ast: AST): string {
-  let value: string;
-  switch (ast.type) {
-    case "FUNCALL":
-      value = ast.value.toUpperCase();
-      // In this case, the Excel function will need required args that might not be mandatory in Spreadsheet
-      const exportDefaultArgs = FORCE_DEFAULT_ARGS_FUNCTIONS[value];
-      if (exportDefaultArgs) {
-        const requiredArgs = functionRegistry.content[value].args.filter((el) => !el.optional);
-        const diffArgs = requiredArgs.length - ast.args.length;
-        if (diffArgs) {
-          // We know that we have at least 1 default Value missing
-          for (let i = ast.args.length; i < requiredArgs.length; i++) {
-            const currentDefaultArg = exportDefaultArgs[i - diffArgs];
-            ast.args.push({ type: currentDefaultArg.type, value: currentDefaultArg.value });
-          }
-        }
+function addMissingRequiredArgs(ast: ASTFuncall): ASTFuncall {
+  const formulaName = ast.value.toUpperCase();
+  const args = ast.args;
+  const exportDefaultArgs = FORCE_DEFAULT_ARGS_FUNCTIONS[formulaName];
+  if (exportDefaultArgs) {
+    const requiredArgs = functionRegistry.content[formulaName].args.filter((el) => !el.optional);
+    const diffArgs = requiredArgs.length - ast.args.length;
+    if (diffArgs) {
+      // We know that we have at least 1 default Value missing
+      for (let i = ast.args.length; i < requiredArgs.length; i++) {
+        const currentDefaultArg = exportDefaultArgs[i - diffArgs];
+        args.push({ type: currentDefaultArg.type, value: currentDefaultArg.value });
       }
+    }
+  }
+  return { ...ast, args };
+}
 
-      // Prepend function names that are not compatible with Old Excel versions
-      ast.value = NON_RETROCOMPATIBLE_FUNCTIONS.includes(value) ? `_xlfn.${value}` : value;
-      const args = ast.args.map((arg) => astToExcelFormula(arg));
-      return `${ast.value}(${args.join(",")})`;
-    case "NUMBER":
-      return ast.value.toString();
-    case "STRING":
-      // strings that correspond to a date should be converted to the format YYYY-DD-MM
-      value = ast.value.replace(new RegExp('"', "g"), "");
-      const internalDate = parseDateTime(value);
-      if (internalDate) {
-        let format: string[] = [];
-        if (value.match(mdyDateRegexp) || value.match(ymdDateRegexp)) {
-          format.push("yyyy-mm-dd");
-        }
-        if (value.match(timeRegexp)) {
-          format.push("hh:mm:ss");
-        }
-        return `"${formatDateTime({ value: internalDate.value, format: format.join(" ") })}"`;
-      } else {
-        return ast.value.replace(/\\"/g, `""`);
-      }
-    case "BOOLEAN":
-      return ast.value ? "TRUE" : "FALSE";
-    case "UNARY_OPERATION":
-      return ast.value + astToExcelFormula(ast.right);
-    case "BIN_OPERATION":
-      return astToExcelFormula(ast.left) + ast.value + astToExcelFormula(ast.right);
-    case "REFERENCE":
-      return `${FORMULA_REF_IDENTIFIER}${ast.value}${FORMULA_REF_IDENTIFIER}`;
-    default:
-      return ast.value;
+/**
+ * Prepend function names that are not compatible with Old Excel versions
+ */
+function prependNonRetrocompatibleFunction(ast: ASTFuncall): ASTFuncall {
+  const formulaName = ast.value.toUpperCase();
+  return {
+    ...ast,
+    value: NON_RETROCOMPATIBLE_FUNCTIONS.includes(formulaName)
+      ? `_xlfn.${formulaName}`
+      : formulaName,
+  };
+}
+
+/**
+ * Convert strings that correspond to a date to the format YYYY-DD-MM
+ */
+function convertDateFormat(ast: ASTString): ASTString {
+  const value = ast.value.replace(new RegExp('"', "g"), "");
+  const internalDate = parseDateTime(value);
+  if (internalDate) {
+    let format: string[] = [];
+    if (value.match(mdyDateRegexp) || value.match(ymdDateRegexp)) {
+      format.push("yyyy-mm-dd");
+    }
+    if (value.match(timeRegexp)) {
+      format.push("hh:mm:ss");
+    }
+    return {
+      ...ast,
+      value: `"${formatDateTime({ value: internalDate.value, format: format.join(" ") })}"`,
+    };
+  } else {
+    return { ...ast, value: ast.value.replace(/\\"/g, `""`) };
   }
 }
 
