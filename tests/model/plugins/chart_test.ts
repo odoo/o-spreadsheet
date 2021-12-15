@@ -1,7 +1,8 @@
 import { Model } from "../../../src";
 import { CancelledReason, Viewport } from "../../../src/types";
 import "../../canvas.mock";
-import { testUndoRedo } from "../../helpers";
+import { mockUuidV4To, testUndoRedo } from "../../helpers";
+jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
 let model: Model;
 const viewport: Viewport = {
@@ -469,6 +470,53 @@ test("Chart is deleted on sheet deletion", () => {
   expect(model.getters.getChartRuntime("1")).not.toBeUndefined();
   model.dispatch("DELETE_SHEET", { sheet: "2" });
   expect(model.getters.getChartRuntime("1")).toBeUndefined();
+});
+
+test("Chart is copied on sheet duplication", () => {
+  const firstSheetId = model.getters.getActiveSheet();
+  const secondSheetId = "42";
+  const chartId = "1";
+  model.dispatch("CREATE_CHART", {
+    id: chartId,
+    sheetId: firstSheetId,
+    definition: {
+      title: "test 1",
+      dataSets: ["B1:B4", "C1:C4"],
+      seriesHasTitle: true,
+      labelRange: "A2:A4",
+      type: "line",
+    },
+  });
+  mockUuidV4To(456);
+  model.dispatch("DUPLICATE_SHEET", {
+    id: secondSheetId,
+    name: "Sheet2",
+    sheet: firstSheetId,
+  });
+  model.dispatch("ACTIVATE_SHEET", {
+    from: firstSheetId,
+    to: secondSheetId,
+  });
+  const figure = model.getters.getFigure(chartId);
+  const duplicatedChart = {
+    ...figure,
+    id: "456",
+    data: {
+      dataSets: [
+        { dataRange: "B2:B4", labelCell: "B1" },
+        { dataRange: "C2:C4", labelCell: "C1" },
+      ],
+      labelRange: "A2:A4",
+      sheetId: secondSheetId,
+      title: "test 1",
+      type: "line",
+    },
+  };
+  expect(model.getters.getFigures(viewport)[0]).toEqual(duplicatedChart);
+  // duplicated chart is not deleted if original sheet is deleted
+  model.dispatch("DELETE_SHEET", { sheet: firstSheetId });
+  expect(model.getters.getSheets()).toHaveLength(1);
+  expect(model.getters.getFigures(viewport)[0]).toEqual(duplicatedChart);
 });
 
 describe.skip("title", function () {

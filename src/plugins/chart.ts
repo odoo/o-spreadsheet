@@ -2,7 +2,7 @@ import { ChartColor, ChartConfiguration, ChartData, ChartTooltipItem, ChartType 
 import { BasePlugin } from "../base_plugin";
 import { chartTerms } from "../components/side_panel/translations_terms";
 import { rangeReference } from "../formulas/parser";
-import { isInside, toXC, toZone, zoneToXc } from "../helpers/index";
+import { deepCopy, isInside, toXC, toZone, uuidv4, zoneToXc } from "../helpers/index";
 import {
   CancelledReason,
   ChartDefinition,
@@ -10,6 +10,7 @@ import {
   CommandResult,
   CreateChartDefinition,
   DataSet,
+  Figure,
   LAYERS,
   WorkbookData,
   Zone,
@@ -76,25 +77,15 @@ export class ChartPlugin extends BasePlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "CREATE_CHART":
-        const chartDefinition = this.createChartDefinition(cmd.definition, cmd.sheetId);
-        this.dispatch("CREATE_FIGURE", {
-          sheet: cmd.sheetId,
-          figure: {
-            id: cmd.id,
-            data: chartDefinition,
-            x: 0,
-            y: 0,
-            height: 500,
-            width: 800,
-            tag: "chart",
-          },
+        this.addChartFigure(cmd.sheetId, {
+          id: cmd.id,
+          data: this.createChartDefinition(cmd.definition, cmd.sheetId),
+          x: 0,
+          y: 0,
+          height: 500,
+          width: 800,
+          tag: "chart",
         });
-
-        this.history.updateLocalState(["chartFigures"], new Set(this.chartFigures).add(cmd.id));
-        this.history.updateLocalState(
-          ["chartRuntime", cmd.id],
-          this.mapDefinitionToRuntime(chartDefinition)
-        );
         break;
       case "UPDATE_CHART": {
         const chartDefinition = this.createChartDefinition(
@@ -119,6 +110,19 @@ export class ChartPlugin extends BasePlugin {
           this.history.updateLocalState(["chartRuntime", cmd.id], undefined);
         }
         break;
+      case "DUPLICATE_SHEET": {
+        const newSheetId = cmd.id;
+        const figures = [...this.chartFigures]
+          .map((figureId) => this.getters.getFigure<ChartDefinition>(figureId))
+          .filter((figure) => figure.data.sheetId === cmd.sheet)
+          .map(deepCopy);
+        for (let figure of figures) {
+          figure.data.sheetId = newSheetId;
+          figure.id = uuidv4();
+          this.addChartFigure(newSheetId, figure);
+        }
+        break;
+      }
       case "DELETE_SHEET":
         const figures = new Set(this.chartFigures);
         const runtime = { ...this.chartRuntime };
@@ -369,6 +373,18 @@ export class ChartPlugin extends BasePlugin {
       runtime.data!.datasets!.push(dataset);
     }
     return runtime;
+  }
+
+  private addChartFigure(sheetId: string, figure: Figure<ChartDefinition>) {
+    this.dispatch("CREATE_FIGURE", {
+      sheet: sheetId,
+      figure,
+    });
+    this.history.updateLocalState(["chartFigures"], new Set(this.chartFigures).add(figure.id));
+    this.history.updateLocalState(
+      ["chartRuntime", figure.id],
+      this.mapDefinitionToRuntime(figure.data)
+    );
   }
 
   private isCellUsedInChart(chart: ChartDefinition, col: number, row: number): boolean {

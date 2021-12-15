@@ -1,5 +1,4 @@
 import { BasePlugin } from "../base_plugin";
-import { uuidv4 } from "../helpers/index";
 import { Command, Figure, Viewport, WorkbookData } from "../types/index";
 
 export class FigurePlugin extends BasePlugin {
@@ -15,15 +14,6 @@ export class FigurePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "DUPLICATE_SHEET":
-        for (let fig of this.sheetFigures[cmd.sheet] || []) {
-          const figure = Object.assign({}, fig, { id: uuidv4() });
-          this.dispatch("CREATE_FIGURE", {
-            sheet: cmd.id,
-            figure,
-          });
-        }
-        break;
       case "DELETE_SHEET":
         this.deleteSheet(cmd.sheet);
         break;
