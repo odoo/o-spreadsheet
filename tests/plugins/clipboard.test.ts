@@ -448,6 +448,30 @@ describe("clipboard", () => {
     expect(notifyUser).toHaveBeenCalled();
   });
 
+  test("Pasting a merge that will destroy content will ask the user if he wants to continue", async () => {
+    const askConfirmation = jest.fn();
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 5,
+          merges: ["A1:B2"],
+        },
+        {
+          colNumber: 5,
+          rowNumber: 5,
+        },
+      ],
+    });
+
+    model.dispatch("COPY", { target: target("A1") });
+
+    setCellContent(model, "A4", "a4");
+    const env = makeInteractiveTestEnv(model, { askConfirmation });
+    interactivePaste(env, target("A3"));
+    expect(askConfirmation).toHaveBeenCalled();
+  });
+
   test("Dispatch a PASTE command with interactive=true correctly takes pasteOption into account", async () => {
     const model = new Model();
     const style = { fontSize: 42 };

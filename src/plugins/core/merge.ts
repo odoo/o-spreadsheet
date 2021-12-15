@@ -58,6 +58,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     "getMerges",
     "getMerge",
     "isSingleCellOrMerge",
+    "isMergeDestructive",
   ] as const;
 
   private nextId: number = 1;
@@ -286,16 +287,13 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     const { width, height } = zoneToDimension(zone);
     return width === 1 && height === 1;
   }
-  // ---------------------------------------------------------------------------
-  // Merges
-  // ---------------------------------------------------------------------------
 
   /**
-   * Return true if the current selection requires losing state if it is merged.
+   * Return true if the selected zone requires losing state if it is merged.
    * This happens when there is some textual content in other cells than the
    * top left.
    */
-  private isMergeDestructive(sheet: Sheet, zone: Zone): boolean {
+  isMergeDestructive(sheet: Sheet, zone: Zone): boolean {
     let { left, right, top, bottom } = zone;
     right = clip(right, 0, sheet.cols.length - 1);
     bottom = clip(bottom, 0, sheet.rows.length - 1);
@@ -311,6 +309,10 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     }
     return false;
   }
+
+  // ---------------------------------------------------------------------------
+  // Merges
+  // ---------------------------------------------------------------------------
 
   private getMergeById(sheetId: UID, mergeId: number): Merge | undefined {
     const merges = this.merges[sheetId];

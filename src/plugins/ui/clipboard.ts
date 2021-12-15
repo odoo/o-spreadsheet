@@ -230,6 +230,7 @@ export class ClipboardPlugin extends UIPlugin {
       ({ sheetId, col, row } = target);
       this.dispatch("ADD_MERGE", {
         sheetId,
+        force: true,
         target: [
           {
             left: col,
@@ -381,6 +382,12 @@ export class ClipboardPlugin extends UIPlugin {
         if (this.getters.doesIntersectMerge(sheetId, zone)) {
           return CommandResult.WillRemoveExistingMerge;
         }
+      }
+      // Check if some merges are destructives
+      const sheet = this.getters.getSheet(sheetId);
+      const newMergesPositions = this.getMergesPositionsInTarget(target[0], state);
+      if (newMergesPositions.some((zone) => this.getters.isMergeDestructive(sheet, zone))) {
+        return CommandResult.MergeIsDestructive;
       }
     }
     return CommandResult.Success;
@@ -621,6 +628,25 @@ export class ClipboardPlugin extends UIPlugin {
    */
   private isZoneOverlapClippedZone(zones: Zone[], zone: Zone): boolean {
     return zones.some((clippedZone) => overlap(zone, clippedZone));
+  }
+
+  /**
+   * Return the merges contained in the state, with their position shifted to their new positions
+   * if they had beed pasted to the given target
+   */
+  private getMergesPositionsInTarget(target: Zone, state: ClipboardState) {
+    const shiftedMerges: Zone[] = [];
+    const originOfCopy = state.cells[0][0].position;
+    for (let merge of state.merges) {
+      shiftedMerges.push({
+        top: merge.top + (target.top - originOfCopy.row),
+        bottom: merge.bottom + (target.top - originOfCopy.row),
+        left: merge.left + (target.left - originOfCopy.col),
+        right: merge.right + (target.left - originOfCopy.col),
+      });
+    }
+
+    return shiftedMerges;
   }
 
   // ---------------------------------------------------------------------------
