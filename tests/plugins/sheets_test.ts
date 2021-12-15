@@ -525,35 +525,6 @@ describe("sheets", () => {
     expect(getText(model, "A1")).toBe("42");
   });
 
-  test("Figures are correctly duplicated", () => {
-    const model = new Model();
-    const sheet = model.getters.getActiveSheet();
-    model.dispatch("CREATE_FIGURE", {
-      sheet,
-      figure: {
-        id: "someuuid",
-        tag: "hey",
-        width: 100,
-        height: 100,
-        x: 100,
-        y: 100,
-        data: undefined,
-      },
-    });
-    model.dispatch("DUPLICATE_SHEET", { sheet, id: "42", name: "dup" });
-    model.dispatch("UPDATE_FIGURE", { id: "someuuid", x: 40 });
-    const data = model.exportData();
-
-    const sheet1 = data.sheets.find((s) => s.id === sheet)!;
-    const sheet2 = data.sheets.find((s) => s.id === "42")!;
-
-    expect(sheet1.figures).toEqual([
-      { id: "someuuid", height: 100, tag: "hey", width: 100, x: 40, y: 100 },
-    ]);
-    const id = sheet2.figures[0].id;
-    expect(sheet2.figures).toEqual([{ id, height: 100, tag: "hey", width: 100, x: 100, y: 100 }]);
-  });
-
   test("Cols and Rows are correctly duplicated", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheet();
