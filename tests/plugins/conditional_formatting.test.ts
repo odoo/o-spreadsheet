@@ -13,7 +13,7 @@ import {
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
-import { createColorScale, createEqualCF } from "../test_helpers/helpers";
+import { createColorScale, createEqualCF, target } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -569,27 +569,55 @@ describe("conditional format", () => {
 
 describe("conditional formats types", () => {
   describe("CellIs condition", () => {
-    test("Operator BeginsWith", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "BeginsWith",
-            values: ["qsdf"],
-            style: { fillColor: "#ff0f0f" },
+    describe("Operator BeginsWith", () => {
+      test.each([
+        ["aaa", false],
+        ["42", false],
+        ["ahi", false],
+        ["hi", true],
+        ["highway to hell", true],
+        [`="highway to hell"`, true],
+      ])("a string %s", (cellContent, shouldMatch) => {
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "BeginsWith",
+              values: ["hi"],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
           },
-          id: "11",
-        },
-        target: [toZone("A1")],
-        sheetId: model.getters.getActiveSheetId(),
+          target: target("A1"),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        setCellContent(model, "A1", cellContent);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
+        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
       });
 
-      setCellContent(model, "A1", "aaa");
-      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
-
-      setCellContent(model, "A1", "qsdfmlkqjsdf");
-      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
-        fillColor: "#ff0f0f",
+      test.each([
+        ["aaa", false],
+        ["42", true],
+        ["422", true],
+        ["=422", true],
+      ])("a number %s", (cellContent, shouldMatch) => {
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "BeginsWith",
+              values: ["42"],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
+          },
+          target: target("A1"),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        setCellContent(model, "A1", cellContent);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
+        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
       });
     });
 
@@ -630,50 +658,108 @@ describe("conditional formats types", () => {
       expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
     });
 
-    test("Operator ContainsText", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "ContainsText",
-            values: ["abc"],
-            style: { fillColor: "#ff0f0f" },
+    describe("Operator ContainsText", () => {
+      test.each([
+        ["aaa", false],
+        ["42", false],
+        ["hi", true],
+        ["highway to hell", true],
+        ["this", true],
+        ["ahi", true],
+        [`="ahi"`, true],
+      ])("a string %s", (cellContent, shouldMatch) => {
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "ContainsText",
+              values: ["hi"],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
           },
-          id: "11",
-        },
-        target: [toZone("A1")],
-        sheetId: model.getters.getActiveSheetId(),
+          target: target("A1"),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        setCellContent(model, "A1", cellContent);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
+        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
       });
-      setCellContent(model, "A1", "hello");
-      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
 
-      setCellContent(model, "A1", "helabclo");
-      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
-        fillColor: "#ff0f0f",
+      test.each([
+        ["aaa", false],
+        ["42", true],
+        ["422", true],
+        ["2422", true],
+        [`="2422"`, true],
+      ])("a number %s", (cellContent, shouldMatch) => {
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "ContainsText",
+              values: ["42"],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
+          },
+          target: target("A1"),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        setCellContent(model, "A1", cellContent);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
+        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
       });
     });
 
-    test("Operator EndsWith", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "EndsWith",
-            values: ["qsdf"],
-            style: { fillColor: "#ff0f0f" },
+    describe("Operator EndsWith", () => {
+      test.each([
+        ["aaa", false],
+        ["42", false],
+        ["highway to hell", false],
+        ["hi", true],
+        ["ahi", true],
+      ])("a string %s", (cellContent, shouldMatch) => {
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "EndsWith",
+              values: ["hi"],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
           },
-          id: "11",
-        },
-        target: [toZone("A1")],
-        sheetId: model.getters.getActiveSheetId(),
+          target: [toZone("A1")],
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        setCellContent(model, "A1", cellContent);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
+        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
       });
 
-      setCellContent(model, "A1", "hello");
-      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
-
-      setCellContent(model, "A1", "helloqsdf");
-      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
-        fillColor: "#ff0f0f",
+      test.each([
+        ["aaa", false],
+        ["422", false],
+        ["442", true],
+        ["=442", true],
+      ])("a number %s", (cellContent, shouldMatch) => {
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "EndsWith",
+              values: ["42"],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
+          },
+          target: [toZone("A1")],
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        setCellContent(model, "A1", cellContent);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
+        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
       });
     });
 
@@ -852,33 +938,208 @@ describe("conditional formats types", () => {
       });
     });
 
-    test("Operator NotEqual", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "NotEqual",
-            values: ["qsdf"],
-            style: { fillColor: "#ff0f0f" },
+    describe("Operator BeginsWith", () => {
+      test.each([
+        ["aaa", false],
+        ["42", false],
+        ["ahi", false],
+        ["hi", true],
+        ["highway to hell", true],
+        [`="highway to hell"`, true],
+      ])("a string %s", (cellContent, shouldMatch) => {
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "BeginsWith",
+              values: ["hi"],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
           },
-          id: "11",
-        },
-        target: [toZone("A1")],
-        sheetId: model.getters.getActiveSheetId(),
+          target: target("A1"),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        setCellContent(model, "A1", cellContent);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
+        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
       });
 
-      setCellContent(model, "A1", "hellqsdfo");
-      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
-        fillColor: "#ff0f0f",
+      test.each([
+        ["aaa", false],
+        ["42", true],
+        ["422", true],
+        ["=422", true],
+      ])("a number %s", (cellContent, shouldMatch) => {
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "BeginsWith",
+              values: ["42"],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
+          },
+          target: target("A1"),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        setCellContent(model, "A1", cellContent);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
+        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+      });
+    });
+
+    describe("Operator NotEqual", () => {
+      test.each([
+        ["hi", false],
+        [`="hi"`, false],
+        ["aaa", true],
+        ["42", true],
+      ])("a string %s", (cellContent, shouldMatch) => {
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "NotEqual",
+              values: ["hi"],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
+          },
+          target: target("A1"),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        setCellContent(model, "A1", cellContent);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
+        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
       });
 
-      setCellContent(model, "A1", "hello");
-      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
-        fillColor: "#ff0f0f",
+      test.each([
+        ["42", false],
+        [`=42`, false],
+        [`="42"`, true],
+        ["aaa", true],
+        ["422", true],
+      ])("a number %s", (cellContent, shouldMatch) => {
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "NotEqual",
+              values: ["42"],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
+          },
+          target: target("A1"),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        setCellContent(model, "A1", cellContent);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
+        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
       });
 
-      setCellContent(model, "A1", "qsdf");
-      expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
+      test.each([
+        ["12/12/2021", false],
+        ["=DATE(2021, 12, 12)", false],
+        [`=42`, true],
+        ["aaa", true],
+        ["42", true],
+      ])("a date %s", (cellContent, shouldMatch) => {
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "NotEqual",
+              values: ["12/12/2021"],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
+          },
+          target: target("A1"),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        setCellContent(model, "A1", cellContent);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
+        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+      });
+    });
+
+    describe("Operator Equal", () => {
+      test.each([
+        ["hi", true],
+        [`="hi"`, true],
+        ["aaa", false],
+        ["42", false],
+      ])("a string %s", (cellContent, shouldMatch) => {
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "Equal",
+              values: ["hi"],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
+          },
+          target: target("A1"),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        setCellContent(model, "A1", cellContent);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
+        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+      });
+
+      test.each([
+        ["42", true],
+        [`=42`, true],
+        [`="42"`, false],
+        ["aaa", false],
+        ["422", false],
+      ])("a number %s", (cellContent, shouldMatch) => {
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "Equal",
+              values: ["42"],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
+          },
+          target: target("A1"),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        setCellContent(model, "A1", cellContent);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
+        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+      });
+
+      test.each([
+        ["12/12/2021", true],
+        ["=DATE(2021, 12, 12)", true],
+        [`=42`, false],
+        ["aaa", false],
+        ["42", false],
+      ])("a date %s", (cellContent, shouldMatch) => {
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "Equal",
+              values: ["12/12/2021"],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
+          },
+          target: target("A1"),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        setCellContent(model, "A1", cellContent);
+        const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : undefined;
+        expect(model.getters.getConditionalStyle(0, 0)).toEqual(computedStyle);
+      });
     });
 
     test("Operator IsEmpty", () => {
