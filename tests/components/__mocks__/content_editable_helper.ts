@@ -29,6 +29,8 @@ export class ContentEditableHelper {
     // @ts-ignore
     window.mockContentHelper = this;
     this.manualRange = true;
+    // We cannot set the cursor position beyond the text of the editor
+    if (!this.el || !this.el.textContent || start < 0 || end > this.el.textContent.length) return;
     this.currentState.cursorStart = start;
     this.currentState.cursorEnd = end;
   }

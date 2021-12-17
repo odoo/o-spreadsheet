@@ -221,7 +221,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     Enter: this.processEnterKey,
     Escape: this.processEscapeKey,
     F2: () => console.warn("Not implemented"),
-    F4: () => console.warn("Not implemented"),
+    F4: this.processF4Key,
     Tab: (ev: KeyboardEvent) => this.processTabKey(ev),
   };
 
@@ -318,6 +318,11 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     this.env.model.dispatch("STOP_EDITION", { cancel: true });
   }
 
+  private processF4Key() {
+    this.env.model.dispatch("CYCLE_EDITION_REFERENCES");
+    this.processContent();
+  }
+
   onKeydown(ev: KeyboardEvent) {
     let handler = this.keyMapping[ev.key];
     let isStopped = false;
@@ -354,7 +359,10 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
 
   onKeyup(ev: KeyboardEvent) {
     this.isKeyStillDown = false;
-    if (this.props.focus === "inactive" || ["Control", "Shift", "Tab", "Enter"].includes(ev.key)) {
+    if (
+      this.props.focus === "inactive" ||
+      ["Control", "Shift", "Tab", "Enter", "F4"].includes(ev.key)
+    ) {
       return;
     }
 
