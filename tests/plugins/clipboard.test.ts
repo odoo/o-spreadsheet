@@ -354,6 +354,30 @@ describe("clipboard", () => {
     expect(model.getters.isInMerge("s1", ...toCartesian("C2"))).toBe(false);
   });
 
+  test("Pasting merge on content will remove the content", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "s1",
+          colNumber: 5,
+          rowNumber: 5,
+          cells: {
+            A1: { content: "merge" },
+            C1: { content: "a" },
+            D2: { content: "a" },
+          },
+          merges: ["A1:B2"],
+        },
+      ],
+    });
+    model.dispatch("COPY", { target: target("A1") });
+    model.dispatch("PASTE", { target: target("C1") });
+    expect(model.getters.isInMerge("s1", ...toCartesian("C1"))).toBe(true);
+    expect(model.getters.isInMerge("s1", ...toCartesian("D2"))).toBe(true);
+    expect(getCellContent(model, "C1")).toBe("merge");
+    expect(getCellContent(model, "D2")).toBe("");
+  });
+
   test("copy/paste a merge from one page to another", () => {
     const model = new Model({
       sheets: [

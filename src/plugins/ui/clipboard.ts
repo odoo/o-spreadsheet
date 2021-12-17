@@ -243,6 +243,7 @@ export class ClipboardPlugin extends UIPlugin {
       ({ sheetId, col, row } = target);
       this.dispatch("ADD_MERGE", {
         sheetId,
+        force: true,
         target: [
           {
             left: col,
