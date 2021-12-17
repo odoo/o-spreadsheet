@@ -562,9 +562,9 @@ describe("history", () => {
             colNumber: 10,
             rowNumber: 10,
             cells: {
-              A1: { content: "1000", format: "#,##0" },
-              A3: { content: "2000", format: "#,##0" },
-              B2: { content: "TRUE", format: "#,##0" },
+              A1: { content: "1000", format: 1 },
+              A3: { content: "2000", format: 1 },
+              B2: { content: "TRUE", format: 1 },
             },
           },
           {
@@ -572,12 +572,16 @@ describe("history", () => {
             colNumber: 10,
             rowNumber: 10,
             cells: {
-              A1: { content: "21000", format: "#,##0" },
-              A3: { content: "12-31-2020", format: "mm/dd/yyyy" },
-              B2: { content: "TRUE", format: "#,##0" },
+              A1: { content: "21000", format: 1 },
+              A3: { content: "12-31-2020", format: 2 },
+              B2: { content: "TRUE", format: 1 },
             },
           },
         ],
+        formats: {
+          "1": "#,##0",
+          "2": "mm/dd/yyyy",
+        },
       });
       activateSheet(model, sheet2Id); // evaluate Sheet2
       expect(getRangeFormattedValues(model, "A1:A3", sheet1Id)).toEqual(["1,000", "", "2,000"]);

@@ -52,6 +52,7 @@ export function extractStyle(cell: CellData, data: WorkbookData): ExtractedStyle
   if (cell.style) {
     style = data.styles[cell.style];
   }
+  const format = cell.format ? data.formats[cell.format] : undefined;
   let border: Border = {};
   if (cell.border) {
     border = data.borders[cell.border];
@@ -68,7 +69,7 @@ export function extractStyle(cell: CellData, data: WorkbookData): ExtractedStyle
           fgColor: style!.fillColor,
         }
       : { reservedAttribute: "none" },
-    numFmt: cell.format,
+    numFmt: format,
     border: border || {},
     verticalAlignment: "center" as Align, // we always center vertically for now
     horizontalAlignment: style?.align,

@@ -8,6 +8,7 @@ describe("load data", () => {
       version: CURRENT_VERSION,
       borders: {},
       styles: {},
+      formats: {},
       entities: {},
       revisionId: DEFAULT_REVISION_ID,
       sheets: [
@@ -30,6 +31,7 @@ describe("load data", () => {
       version: CURRENT_VERSION,
       borders: {},
       styles: {},
+      formats: {},
       entities: {},
       revisionId: DEFAULT_REVISION_ID,
       sheets: [
@@ -58,6 +60,7 @@ describe("load data", () => {
       version: CURRENT_VERSION,
       borders: {},
       styles: {},
+      formats: {},
       entities: {},
       revisionId: DEFAULT_REVISION_ID,
       sheets: [
@@ -86,6 +89,7 @@ describe("load data", () => {
       version: CURRENT_VERSION,
       borders: {},
       styles: {},
+      formats: {},
       entities: {},
       revisionId: DEFAULT_REVISION_ID,
       sheets: [
@@ -151,6 +155,7 @@ describe("load data", () => {
       version: CURRENT_VERSION,
       borders: {},
       styles: {},
+      formats: {},
       entities: {},
       revisionId: DEFAULT_REVISION_ID,
       sheets: [

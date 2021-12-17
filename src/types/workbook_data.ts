@@ -15,7 +15,7 @@ export interface CellData {
   formula?: NormalizedFormula;
   style?: number;
   border?: number;
-  format?: string;
+  format?: number;
 }
 
 export interface HeaderData {
@@ -51,6 +51,7 @@ export interface WorkbookData {
   version: number;
   sheets: SheetData[];
   styles: { [key: number]: Style };
+  formats: { [key: number]: string };
   borders: { [key: number]: Border };
   entities: { [key: string]: { [key: string]: any } };
   revisionId: UID;

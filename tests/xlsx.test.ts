@@ -26,9 +26,9 @@ const simpleData = {
         C20: { content: "left", border: 1 },
         E20: { content: "top", border: 2 },
         G20: { content: "all", border: 3 },
-        C23: { content: "0.43", format: "0.00%" },
-        C24: { content: "10", format: "#,##0.00" },
-        C25: { content: "10.123", format: "#,##0.00" },
+        C23: { content: "0.43", format: 1 },
+        C24: { content: "10", format: 2 },
+        C25: { content: "10.123", format: 2 },
         A27: { content: "Emily Anderson (Emmy)" },
         A28: { content: "Sophie Allen (Saffi)" },
         A29: { content: "Chloe Adams" },
@@ -58,6 +58,10 @@ const simpleData = {
       },
     },
   ],
+  formats: {
+    1: "0.00%",
+    2: "#,##0.00",
+  },
   styles: {
     1: { bold: true, textColor: "#3A3791", fontSize: 12 },
     2: { italic: true },

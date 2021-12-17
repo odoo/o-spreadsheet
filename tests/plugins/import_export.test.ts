@@ -32,7 +32,7 @@ describe("data", () => {
 });
 
 describe("Migrations", () => {
-  test("Can upgrade from 1 to 9", () => {
+  test("Can upgrade from 1 to 10", () => {
     const model = new Model({
       version: 1,
       sheets: [
@@ -52,7 +52,7 @@ describe("Migrations", () => {
       ],
     });
     const data = model.exportData();
-    expect(data.version).toBe(9);
+    expect(data.version).toBe(10);
     expect(data.sheets[0].id).toBeDefined();
     expect(data.sheets[0].figures).toBeDefined();
     expect(data.sheets[0].cells.A1!.formula).toBeDefined();
@@ -318,6 +318,41 @@ describe("Migrations", () => {
     expect(data.sheets[5].name).toBe("__");
     expect(data.sheets[6].name).toBe("__1");
   });
+
+  test("migration 9 to 10: normalized cell formats", () => {
+    const model = new Model({
+      version: 9,
+      sheets: [
+        {
+          id: "1",
+          colNumber: 10,
+          rowNumber: 10,
+          cells: {
+            A1: { content: "1000", format: "#,##0" },
+            A2: { content: "1000" },
+          },
+        },
+        {
+          id: "2",
+          colNumber: 10,
+          rowNumber: 10,
+          cells: {
+            A1: { content: "21000", format: "#,##0" },
+            A2: { content: "12-31-2020", format: "mm/dd/yyyy" },
+          },
+        },
+      ],
+    });
+    const data = model.exportData();
+    expect(data.formats).toEqual({
+      "1": "#,##0",
+      "2": "mm/dd/yyyy",
+    });
+    expect(data.sheets[0].cells["A1"]?.format).toEqual(1);
+    expect(data.sheets[0].cells["A2"]?.format).toBeUndefined();
+    expect(data.sheets[1].cells["A1"]?.format).toEqual(1);
+    expect(data.sheets[1].cells["A2"]?.format).toEqual(2);
+  });
 });
 
 describe("Import", () => {
@@ -417,13 +452,16 @@ describe("Export", () => {
           colNumber: 10,
           rowNumber: 10,
           cells: {
-            A1: { content: "145", format: "0.00%" },
+            A1: { content: "145", format: 1 },
           },
         },
       ],
+      formats: {
+        1: "0.00%",
+      },
     });
     const exp = model.exportData();
-    expect(exp.sheets![0].cells!.A1!.format).toBe("0.00%");
+    expect(exp.sheets![0].cells!.A1!.format).toBe(1);
   });
 });
 
@@ -449,7 +487,7 @@ test("complete import, then export", () => {
             formula: { text: "=|0|", dependencies: ["A1"], value: "hello" },
             style: 1,
             border: 1,
-            format: "0.00%",
+            format: 1,
           },
           C1: { content: "=mqdlskjfqmslfkj(++%//@@@)" },
           D1: {
@@ -484,6 +522,9 @@ test("complete import, then export", () => {
     entities: {},
     styles: {
       1: { bold: true, textColor: "#3A3791", fontSize: 12 },
+    },
+    formats: {
+      1: "0.00%",
     },
     borders: {
       1: {
@@ -531,6 +572,7 @@ test("import then export (figures)", () => {
     ],
     entities: {},
     styles: {},
+    formats: {},
     borders: {},
   };
   const model = new Model(modelData);

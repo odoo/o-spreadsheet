@@ -563,7 +563,7 @@ describe("Columns", () => {
               A3: { style: 1, border: 1 },
               B1: { style: 1 },
               B2: { border: 1 },
-              B3: { style: 1, border: 1, format: "0.00%" },
+              B3: { style: 1, border: 1, format: 1 },
               B4: { style: 1, border: 1 },
               D1: { style: 1 },
               D2: { border: 1 },
@@ -573,6 +573,7 @@ describe("Columns", () => {
           },
         ],
         styles: { 1: { textColor: "#fe0000" } },
+        formats: { 1: "0.00%" },
         borders: { 1: border },
       });
     });
@@ -1306,7 +1307,7 @@ describe("Rows", () => {
               B2: { border: 1 },
               B4: { border: 1 },
               C1: { style: 1, border: 1 },
-              C2: { style: 1, border: 1, format: "0.00%" },
+              C2: { style: 1, border: 1, format: 1 },
               C4: { style: 1, border: 1 },
               D2: { style: 1, border: 1 },
             },
@@ -1314,6 +1315,7 @@ describe("Rows", () => {
           },
         ],
         styles: { 1: { textColor: "#fe0000" } },
+        formats: { 1: "0.00%" },
         borders: { 1: { top: ["thin", "#000"] } },
       });
     });
