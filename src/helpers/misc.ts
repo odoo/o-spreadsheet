@@ -203,3 +203,22 @@ export function isDefined<T>(argument: T | undefined): argument is T {
 }
 
 export const DEBUG: { [key: string]: any } = {};
+
+/**
+ * Get the id of the given item (its key in the given dictionnary).
+ * If the given item does not exist in the dictionary, it creates one with a new id.
+ */
+export function getItemId<T>(item: T, itemsDic: { [id: number]: T }) {
+  for (let [key, value] of Object.entries(itemsDic)) {
+    if (stringify(value) === stringify(item)) {
+      return parseInt(key, 10);
+    }
+  }
+
+  // Generate new Id if the item didn't exist in the dictionary
+  const ids = Object.keys(itemsDic);
+  const maxId = ids.length === 0 ? 0 : Math.max(...ids.map((id) => parseInt(id, 10)));
+
+  itemsDic[maxId + 1] = item;
+  return maxId + 1;
+}

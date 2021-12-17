@@ -3,14 +3,8 @@ import { compile } from "../../formulas/index";
 import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
 import { cellFactory } from "../../helpers/cells/cell_factory";
 import { FormulaCell } from "../../helpers/cells/index";
-import {
-  isInside,
-  maximumDecimalPlaces,
-  range,
-  stringify,
-  toCartesian,
-  toXC,
-} from "../../helpers/index";
+import { isInside, maximumDecimalPlaces, range, toCartesian, toXC } from "../../helpers/index";
+import { getItemId } from "../../helpers/misc";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -351,7 +345,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         const cellData = sheet.cells[xc];
         const [col, row] = toCartesian(xc);
         if (cellData?.formula || cellData?.content || cellData?.format || cellData?.style) {
-          const cell = this.importCell(imported_sheet, cellData, data.styles);
+          const cell = this.importCell(imported_sheet, cellData, data.styles, data.formats);
           this.history.update("cells", sheet.id, cell.id, cell);
           this.dispatch("UPDATE_CELL_POSITION", {
             cellId: cell.id,
@@ -365,22 +359,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   export(data: WorkbookData) {
-    let styleId = 0;
     const styles: { [styleId: number]: Style } = {};
-
-    /**
-     * Get the id of the given style. If the style does not exist, it creates
-     * one.
-     */
-    function getStyleId(style: Style) {
-      for (let [key, value] of Object.entries(styles)) {
-        if (stringify(value) === stringify(style)) {
-          return parseInt(key, 10);
-        }
-      }
-      styles[++styleId] = style;
-      return styleId;
-    }
+    const formats: { [formatId: number]: string } = {};
 
     for (let _sheet of data.sheets) {
       const cells: { [key: string]: CellData } = {};
@@ -389,8 +369,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         let xc = toXC(position.col, position.row);
 
         cells[xc] = {
-          style: cell.style && getStyleId(cell.style),
-          format: cell.format,
+          style: cell.style ? getItemId<Style>(cell.style, styles) : undefined,
+          format: cell.format ? getItemId<string>(cell.format, formats) : undefined,
         };
         if (cell.isFormula()) {
           cells[xc].formula = {
@@ -406,10 +386,17 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       _sheet.cells = cells;
     }
     data.styles = styles;
+    data.formats = formats;
   }
 
-  importCell(sheet: Sheet, cellData: CellData, normalizedStyles: { [key: number]: Style }): Cell {
+  importCell(
+    sheet: Sheet,
+    cellData: CellData,
+    normalizedStyles: { [key: number]: Style },
+    normalizedFormats: { [key: number]: string }
+  ): Cell {
     const style = (cellData.style && normalizedStyles[cellData.style]) || undefined;
+    const format = (cellData.format && normalizedFormats[cellData.format]) || undefined;
     // For perf reasons, formula are already normalized at export/import
     const cellId = this.uuidGenerator.uuidv4();
     if (cellData.formula) {
@@ -423,10 +410,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         cellData.formula.text,
         compile(cellData.formula),
         ranges,
-        { format: cellData?.format, style }
+        { format, style }
       );
     } else {
-      const properties = { format: cellData?.format, style };
+      const properties = { format, style };
       return this.createCell(cellId, cellData?.content || "", properties, sheet.id);
     }
   }

@@ -1,6 +1,7 @@
 import { BACKGROUND_CHART_COLOR, DEFAULT_REVISION_ID, FORBIDDEN_IN_EXCEL_REGEX } from "./constants";
 import { normalize } from "./formulas/index";
 import { toXC, toZone } from "./helpers/index";
+import { getItemId } from "./helpers/misc";
 import { _t } from "./translation";
 import { ExcelSheetData, ExcelWorkbookData, SheetData, WorkbookData } from "./types/index";
 
@@ -9,7 +10,7 @@ import { ExcelSheetData, ExcelWorkbookData, SheetData, WorkbookData } from "./ty
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 9;
+export const CURRENT_VERSION = 10;
 
 /**
  * This function tries to load anything that could look like a valid
@@ -237,6 +238,25 @@ const MIGRATIONS: Migration[] = [
       return data;
     },
   },
+  {
+    description: "normalize the formats of the cells",
+    from: 9,
+    to: 10,
+    applyMigration(data: any): any {
+      const formats: { [formatId: number]: string } = {};
+
+      for (let sheet of data.sheets || []) {
+        for (let xc in sheet.cells || []) {
+          const cell = sheet.cells[xc];
+          if (cell.format) {
+            cell.format = getItemId(cell.format, formats);
+          }
+        }
+      }
+      data.formats = formats;
+      return data;
+    },
+  },
 ];
 
 // -----------------------------------------------------------------------------
@@ -263,6 +283,7 @@ export function createEmptyWorkbookData(): WorkbookData {
     sheets: [createEmptySheet(_t("Sheet") + 1)],
     entities: {},
     styles: {},
+    formats: {},
     borders: {},
     revisionId: DEFAULT_REVISION_ID,
   };
