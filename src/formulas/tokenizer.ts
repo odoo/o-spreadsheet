@@ -19,6 +19,7 @@ import { _lt } from "../translation";
  * formulas.
  */
 
+const dependencyIdentifierRegex = /^[S|N]?\d+/;
 const functions = functionRegistry.content;
 const OPERATORS = "+,-,*,/,:,=,<>,>=,>,<=,<,%,^,&".split(",");
 
@@ -35,6 +36,8 @@ export type TokenType =
   | "LEFT_PAREN"
   | "RIGHT_PAREN"
   | "REFERENCE"
+  | "NORMALIZED_NUMBER"
+  | "NORMALIZED_STRING"
   | "UNKNOWN";
 
 export interface Token {
@@ -80,7 +83,7 @@ export const FORMULA_REF_IDENTIFIER = "|";
 function tokenizeNormalizedReferences(chars: string[]): Token | null {
   if (chars[0] === FORMULA_REF_IDENTIFIER) {
     chars.shift(); // consume the | even if it is incorrect
-    const match = chars.join("").match(formulaNumberRegexp);
+    const match = chars.join("").match(dependencyIdentifierRegex);
     if (match) {
       chars.splice(0, match[0].length);
     } else {
@@ -89,7 +92,15 @@ function tokenizeNormalizedReferences(chars: string[]): Token | null {
     if (chars[0] === FORMULA_REF_IDENTIFIER) {
       chars.shift();
     }
-    return { type: "REFERENCE", value: match[0] };
+    const value = match[0];
+    switch (value[0]) {
+      case "S":
+        return { type: "NORMALIZED_STRING", value: value.substring(1) };
+      case "N":
+        return { type: "NORMALIZED_NUMBER", value: value.substring(1) };
+      default:
+        return { type: "REFERENCE", value };
+    }
   }
   return null;
 }

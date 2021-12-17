@@ -1,4 +1,4 @@
-import { astToFormula } from "../../src";
+import { astToFormula, normalize } from "../../src";
 import { parse } from "../../src/formulas";
 
 describe("parser", () => {
@@ -155,31 +155,50 @@ describe("parsing other stuff", () => {
 });
 describe("Converting AST to string", () => {
   test("Convert number", () => {
-    expect(astToFormula(parse("1"))).toBe("1");
+    expect(astToFormula(parse("1"), [])).toBe("1");
   });
   test("Convert string", () => {
-    expect(astToFormula(parse(`"hello"`))).toBe(`"hello"`);
+    expect(astToFormula(parse(`"hello"`), [])).toBe(`"hello"`);
   });
   test("Convert boolean", () => {
-    expect(astToFormula(parse("TRUE"))).toBe("TRUE");
-    expect(astToFormula(parse("FALSE"))).toBe("FALSE");
+    expect(astToFormula(parse("TRUE"), [])).toBe("TRUE");
+    expect(astToFormula(parse("FALSE"), [])).toBe("FALSE");
   });
   test("Convert unary operator", () => {
-    expect(astToFormula(parse("-45"))).toBe("-45");
-    expect(astToFormula(parse("+45"))).toBe("+45");
+    expect(astToFormula(parse("-45"), [])).toBe("-45");
+    expect(astToFormula(parse("+45"), [])).toBe("+45");
   });
   test("Convert binary operator", () => {
-    expect(astToFormula(parse("89-45"))).toBe("89-45");
-  });
-  test.skip("Convert reference", () => {
-    expect(astToFormula(parse("A10"))).toBe("A10");
-    expect(astToFormula(parse("$A$10"))).toBe("A10");
-    expect(astToFormula(parse("Sheet1!A10"))).toBe("Sheet1!A10");
-    expect(astToFormula(parse("'Sheet 1'!A10"))).toBe("'Sheet 1'!A10");
-    expect(astToFormula(parse("'Sheet 1'!A10:A11"))).toBe("'Sheet 1'!A10:A11");
+    expect(astToFormula(parse("89-45"), [])).toBe("89-45");
   });
   test("Convert function", () => {
-    expect(astToFormula(parse("SUM(5,9,8)"))).toBe("SUM(5,9,8)");
-    expect(astToFormula(parse("-SUM(5,9,SUM(5,9,8))"))).toBe("-SUM(5,9,SUM(5,9,8))");
+    expect(astToFormula(parse("SUM(5,9,8)"), [])).toBe("SUM(5,9,8)");
+    expect(astToFormula(parse("-SUM(5,9,SUM(5,9,8))"), [])).toBe("-SUM(5,9,SUM(5,9,8))");
+  });
+  test("Convert normalized references", () => {
+    let { text, dependencies } = normalize("A10");
+    expect(astToFormula(parse(text), dependencies)).toBe("A10");
+    ({ text, dependencies } = normalize("Sheet1!A10"));
+    expect(astToFormula(parse(text), dependencies)).toBe("Sheet1!A10");
+    ({ text, dependencies } = normalize("'Sheet 1'!A10"));
+    expect(astToFormula(parse(text), dependencies)).toBe("'Sheet 1'!A10");
+    ({ text, dependencies } = normalize("'Sheet 1'!A10:A11"));
+    expect(astToFormula(parse(text), dependencies)).toBe("'Sheet 1'!A10:A11");
+    ({ text, dependencies } = normalize("SUM(A1,A2)"));
+    expect(astToFormula(parse(text), dependencies)).toBe("SUM(A1,A2)");
+  });
+  test("Convert normalized strings", () => {
+    let { text, dependencies } = normalize('"R"');
+    expect(astToFormula(parse(text), dependencies)).toBe('"R"');
+    ({ text, dependencies } = normalize('CONCAT("R", "EM")'));
+    expect(astToFormula(parse(text), dependencies)).toBe('CONCAT("R","EM")');
+  });
+  test("Convert normalized numbers", () => {
+    let { text, dependencies } = normalize("5");
+    expect(astToFormula(parse(text), dependencies)).toBe("5");
+    ({ text, dependencies } = normalize("5+4"));
+    expect(astToFormula(parse(text), dependencies)).toBe("5+4");
+    ({ text, dependencies } = normalize("+5"));
+    expect(astToFormula(parse(text), dependencies)).toBe("+5");
   });
 });

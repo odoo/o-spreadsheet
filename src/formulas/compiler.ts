@@ -38,6 +38,7 @@ export const functionCache: { [key: string]: CompiledFormula } = {};
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 export function compile(str: NormalizedFormula): CompiledFormula {
+  // TODO: rename that 'str' variable. Doesn't make sense
   let isAsync = false;
 
   if (!functionCache[str.text]) {
@@ -114,7 +115,7 @@ export function compile(str: NormalizedFormula): CompiledFormula {
               "Function %s expects the parameter %s to be reference to a cell or range, not a %s.",
               ast.value.toUpperCase(),
               (i + 1).toString(),
-              arg.type.toLowerCase()
+              arg.type.toLowerCase().replace("normalized_", "")
             )
           );
         }
@@ -172,13 +173,15 @@ export function compile(str: NormalizedFormula): CompiledFormula {
       }
       switch (ast.type) {
         case "BOOLEAN":
-        case "NUMBER":
-        case "STRING":
-          if (!isLazy) {
-            return ast.value as string;
-          }
+        case "NUMBER": // probably dead case
+        case "STRING": // probably dead case
           id = nextId++;
-          statement = `${ast.value}`;
+          statement = ast.value;
+          break;
+        case "NORMALIZED_NUMBER":
+        case "NORMALIZED_STRING":
+          id = nextId++;
+          statement = `deps[${ast.value}]`;
           break;
         case "REFERENCE":
           const referenceText = str.dependencies[ast.value];

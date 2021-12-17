@@ -1,5 +1,7 @@
 // -----------------------------------------------------------------------------
-// WorkBook
+
+import { Dependencies } from ".";
+
 // -----------------------------------------------------------------------------
 export type UID = string;
 export interface Zone {
@@ -61,8 +63,10 @@ export type ReferenceDenormalizer = (
 
 export type EnsureRange = (position: number, references: string[], sheetId: UID) => any[][];
 
+export type NumberParser = (str: string) => number;
+
 export type _CompiledFormula = (
-  deps: string[],
+  deps: Dependencies,
   sheetId: UID,
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
@@ -82,7 +86,7 @@ export interface Cell extends NewCell {
   value: any;
   formula?: {
     text: string;
-    dependencies: string[];
+    dependencies: Dependencies;
     compiledFormula: CompiledFormula;
   };
   type: "formula" | "text" | "number" | "date";
