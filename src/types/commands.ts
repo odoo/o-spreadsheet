@@ -540,6 +540,10 @@ export interface ReplaceComposerSelectionCommand {
   text: string;
 }
 
+export interface CycleEditionReferencesCommand {
+  type: "CYCLE_EDITION_REFERENCES";
+}
+
 export interface ShowFormulaCommand {
   type: "SET_FORMULA_VISIBILITY";
   show: boolean;
@@ -871,6 +875,7 @@ export type LocalCommand =
   | SetCurrentContentCommand
   | ChangeComposerSelectionCommand
   | ReplaceComposerSelectionCommand
+  | CycleEditionReferencesCommand
   | StartCommand
   | AutofillCommand
   | AutofillSelectCommand

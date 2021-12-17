@@ -10,6 +10,7 @@ import {
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
+import { loopThroughReferenceType } from "../../helpers/reference_type";
 import { Mode } from "../../model";
 import { _lt } from "../../translation";
 import { SelectionEvent } from "../../types/event_stream";
@@ -191,6 +192,9 @@ export class EditionPlugin extends UIPlugin {
           });
         }
         break;
+      case "CYCLE_EDITION_REFERENCES":
+        this.cycleReferences();
+        break;
     }
   }
 
@@ -252,6 +256,28 @@ export class EditionPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Misc
   // ---------------------------------------------------------------------------
+
+  private cycleReferences() {
+    const tokens = this.getTokensInSelection();
+    const refTokens = tokens.filter((token) => token.type === "REFERENCE");
+    if (refTokens.length === 0) return;
+
+    const updatedReferences = tokens
+      .map(loopThroughReferenceType)
+      .map((token) => token.value)
+      .join("");
+
+    const content = this.currentContent;
+    const start = tokens[0].start;
+    const end = tokens[tokens.length - 1].end;
+    const newContent = content.slice(0, start) + updatedReferences + content.slice(end);
+
+    const lengthDiff = newContent.length - content.length;
+    this.setContent(newContent, {
+      start: refTokens[0].start,
+      end: refTokens[refTokens.length - 1].end + lengthDiff,
+    });
+  }
 
   private validateSelection(
     length: number,
@@ -544,31 +570,29 @@ export class EditionPlugin extends UIPlugin {
   private canStartComposerRangeSelection(): boolean {
     if (this.currentContent.startsWith("=")) {
       const tokenAtCursor = this.getTokenAtCursor();
-      if (tokenAtCursor) {
-        const tokenIdex = this.currentTokens
-          .map((token) => token.start)
-          .indexOf(tokenAtCursor.start);
+      if (!tokenAtCursor) {
+        return false;
+      }
 
-        let count = tokenIdex;
-        let currentToken = tokenAtCursor;
-        // check previous token
-        while (!["COMMA", "LEFT_PAREN", "OPERATOR"].includes(currentToken.type)) {
-          if (currentToken.type !== "SPACE" || count < 1) {
-            return false;
-          }
-          count--;
-          currentToken = this.currentTokens[count];
+      const tokenIdex = this.currentTokens.map((token) => token.start).indexOf(tokenAtCursor.start);
+
+      let count = tokenIdex;
+      let currentToken = tokenAtCursor;
+      // check previous token
+      while (!["COMMA", "LEFT_PAREN", "OPERATOR"].includes(currentToken.type)) {
+        if (currentToken.type !== "SPACE" || count < 1) {
+          return false;
         }
-
-        count = tokenIdex + 1;
+        count--;
         currentToken = this.currentTokens[count];
-        // check next token
-        while (currentToken && !["COMMA", "RIGHT_PAREN", "OPERATOR"].includes(currentToken.type)) {
-          if (currentToken.type !== "SPACE") {
-            return false;
-          }
-          count++;
-          currentToken = this.currentTokens[count];
+      }
+
+      count = tokenIdex + 1;
+      currentToken = this.currentTokens[count];
+      // check next token
+      while (currentToken && !["COMMA", "RIGHT_PAREN", "OPERATOR"].includes(currentToken.type)) {
+        if (currentToken.type !== "SPACE") {
+          return false;
         }
         count++;
         currentToken = this.currentTokens[count];
@@ -576,5 +600,17 @@ export class EditionPlugin extends UIPlugin {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Return all the tokens between selectionStart and selectionEnd.
+   * Includes token that begin right on selectionStart or end right on selectionEnd.
+   */
+  private getTokensInSelection(): EnrichedToken[] {
+    const start = Math.min(this.selectionStart, this.selectionEnd);
+    const end = Math.max(this.selectionStart, this.selectionEnd);
+    return this.currentTokens.filter(
+      (t) => (t.start <= start && t.end >= start) || (t.start >= start && t.start < end)
+    );
   }
 }

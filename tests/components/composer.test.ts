@@ -1061,6 +1061,128 @@ describe("composer", () => {
     await typeInComposerGrid(",");
     expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
   });
+
+  test("f4 shortcut on cell symbol", async () => {
+    composerEl = await typeInComposerGrid("=A1");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 1 });
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toBe("=$A$1");
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toBe("=A$1");
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toBe("=$A1");
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toBe("=A1");
+  });
+
+  test("f4 shortcut on range symbol", async () => {
+    composerEl = await typeInComposerGrid("=A1:B1");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 1 });
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toEqual("=$A$1:$B$1");
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toEqual("=A$1:B$1");
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toEqual("=$A1:$B1");
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toEqual("=A1:B1");
+  });
+
+  test("f4 shortcut on mixed selection", async () => {
+    composerEl = await typeInComposerGrid("=SUM(A1,34,42+3,B$1:C$2,$A1+B$2)");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 30 });
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toEqual("=SUM($A$1,34,42+3,$B1:$C2,A1+$B2)");
+  });
+
+  test("f4 shortcut on reference to another sheet", async () => {
+    composerEl = await typeInComposerGrid("=SUM(s2!A1:B1, s2!$A$1)");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 20 });
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toEqual("=SUM(s2!$A$1:$B$1, s2!A$1)");
+  });
+
+  test("f4 shortcut on range with cell that have different fixed mode", async () => {
+    composerEl = await typeInComposerGrid("=A$1:B2");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 1 });
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toEqual("=$A1:$B$2");
+  });
+
+  test("f4 shortcut set composer selection to entire cell symbol on which f4 is applied", async () => {
+    composerEl = await typeInComposerGrid("=A1");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 1 });
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toEqual("=$A$1");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 1, end: 5 });
+    expect(cehMock.currentState).toEqual({ cursorStart: 1, cursorEnd: 5 });
+  });
+
+  test("f4 shortcut set composer selection to entire range symbol on which f4 is applied", async () => {
+    composerEl = await typeInComposerGrid("=A1:B2");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 1 });
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toEqual("=$A$1:$B$2");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 1, end: 10 });
+    expect(cehMock.currentState).toEqual({ cursorStart: 1, cursorEnd: 10 });
+  });
+
+  test("f4 shortcut set selection from the first range/cell symbol to the last", async () => {
+    composerEl = await typeInComposerGrid("=SUM(A1,34,42+3,B$1:C$2)");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 20 });
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toEqual("=SUM($A$1,34,42+3,$B1:$C2)");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 25 });
+    expect(cehMock.currentState).toEqual({ cursorStart: 5, cursorEnd: 25 });
+  });
+
+  test("f4 shortcut changes adjacent references", async () => {
+    composerEl = await typeInComposerGrid("=A1+A2");
+    // cursor just before +
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 3, end: 6 });
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toEqual("=$A$1+$A$2");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 1, end: 10 });
+    expect(cehMock.currentState).toEqual({ cursorStart: 1, cursorEnd: 10 });
+  });
+
+  test("f4 shortcut only change selected elements", async () => {
+    composerEl = await typeInComposerGrid("=A1+A2");
+    // cursor just after +
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 4, end: 6 });
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toEqual("=A1+$A$2");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 8 });
+    expect(cehMock.currentState).toEqual({ cursorStart: 4, cursorEnd: 8 });
+  });
+
+  test("f4 shortcut reduces selection to select references only", async () => {
+    composerEl = await typeInComposerGrid("=SUM(A1+A2)+SUM(B1)");
+    // selection in the middle of SUMs
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 6, end: 13 });
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toEqual("=SUM($A$1+$A$2)+SUM(B1)");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 14 });
+    expect(cehMock.currentState).toEqual({ cursorStart: 5, cursorEnd: 14 });
+  });
+
+  test("f4 shortcut when no range is selected", async () => {
+    composerEl = await typeInComposerGrid("=A1+1");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 4, end: 5 });
+    await keyDown("F4");
+    expect(model.getters.getCurrentContent()).toEqual("=A1+1");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 5 });
+    expect(cehMock.currentState).toEqual({ cursorStart: 4, cursorEnd: 5 });
+  });
+
+  test("f4 shortcut doesn't make selection caret appear and allow range selection", async () => {
+    composerEl = await typeInComposerGrid("=SUM(A1,C2)");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 10 });
+    await keyDown("F4");
+    expect(composerEl.textContent).toEqual("=SUM($A$1,$C$2)");
+    await keyDown("ArrowDown");
+    expect(composerEl.textContent).toEqual("=SUM($A$1,$C$2)");
+  });
 });
 
 describe("composer formula color", () => {
