@@ -127,13 +127,14 @@ function createEmptySheet(name: string = "Sheet1"): SheetData {
 }
 
 export function createEmptyWorkbookData(): WorkbookData {
-  const data = {
+  const data: WorkbookData = {
     version: CURRENT_VERSION,
     sheets: [createEmptySheet("Sheet1")],
     activeSheet: "",
     entities: {},
     styles: {},
     borders: {},
+    texts: [],
   };
   data.activeSheet = data.sheets[0].id;
   return data;

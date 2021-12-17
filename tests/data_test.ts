@@ -10,6 +10,7 @@ describe("load data", () => {
       borders: {},
       styles: {},
       entities: {},
+      texts: [],
       sheets: [
         {
           id: "123",
@@ -32,6 +33,7 @@ describe("load data", () => {
       borders: {},
       styles: {},
       entities: {},
+      texts: [],
       sheets: [
         {
           id: "124",
@@ -60,6 +62,7 @@ describe("load data", () => {
       borders: {},
       styles: {},
       entities: {},
+      texts: [],
       sheets: [
         {
           id: "asdf",
@@ -89,6 +92,7 @@ describe("load data", () => {
       borders: {},
       styles: {},
       entities: {},
+      texts: [],
       sheets: [
         {
           id: "13",
@@ -154,6 +158,7 @@ describe("load data", () => {
       version: 5,
       borders: {},
       styles: {},
+      texts: [],
       entities: {},
       sheets: [
         {

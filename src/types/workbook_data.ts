@@ -27,7 +27,7 @@ export interface SheetData {
   name: string;
   colNumber: number;
   rowNumber: number;
-  cells: { [key: string]: CellData };
+  cells: { [key: string]: Omit<CellData, "content"> & { content: number | undefined | string } };
   merges: string[];
   figures: Figure<any>[];
   cols: { [key: number]: HeaderData };
@@ -37,6 +37,7 @@ export interface SheetData {
 
 export interface WorkbookData {
   version: number;
+  texts?: string[];
   sheets: SheetData[];
   activeSheet: string;
   styles: { [key: number]: Style };

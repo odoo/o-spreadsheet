@@ -1,5 +1,6 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
+import { WorkbookData } from "../../src/types";
 import { getSheet, makeTestFixture } from "../helpers";
 let model: Model;
 
@@ -9,6 +10,18 @@ function undo() {
 
 function redo() {
   model.dispatch("REDO");
+}
+
+function sanitizeExport(data: WorkbookData): WorkbookData {
+  for (let sheet of data.sheets) {
+    for (let cell of Object.values(sheet.cells)) {
+      if (cell.content !== undefined) {
+        cell.content = data.texts![cell.content];
+      }
+    }
+  }
+  data.texts = undefined;
+  return data;
 }
 
 function clearColumns(indexes: number[]) {
@@ -608,13 +621,13 @@ describe("Columns", () => {
   describe("Correctly handle undo/redo", () => {
     test("On deletion", () => {
       model = new Model(fullData);
-      const beforeRemove = model.exportData();
+      const beforeRemove = sanitizeExport(model.exportData());
       removeColumns([0, 2]);
-      const afterRemove = model.exportData();
+      const afterRemove = sanitizeExport(model.exportData());
       undo();
-      expect(model.exportData()).toEqual(beforeRemove);
+      expect(sanitizeExport(model.exportData())).toEqual(beforeRemove);
       redo();
-      expect(model.exportData()).toEqual(afterRemove);
+      expect(sanitizeExport(model.exportData())).toEqual(afterRemove);
     });
     test("On addition", () => {
       model = new Model(fullData);

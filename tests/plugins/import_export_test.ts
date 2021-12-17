@@ -178,9 +178,9 @@ test("complete import, then export", () => {
           1: { size: 13 },
         },
         cells: {
-          A1: { content: "hello" },
-          B1: { content: "=a1", style: 99, border: 8, format: "0.00%" },
-          C1: { content: "=mqdlskjfqmslfkj(++%//@@@)" },
+          A1: { content: 0 },
+          B1: { content: 1, style: 99, border: 8, format: "0.00%" },
+          C1: { content: 2 },
         },
         name: "My sheet",
         conditionalFormats: [],
@@ -194,13 +194,14 @@ test("complete import, then export", () => {
         cols: {},
         rows: {},
         cells: {
-          A1: { content: "hello" },
+          A1: { content: 0 },
         },
         name: "My sheet 2",
         conditionalFormats: [],
         figures: [],
       },
     ],
+    texts: ["hello", "=a1", "=mqdlskjfqmslfkj(++%//@@@)"],
     activeSheet: "someuuid_2",
     entities: {},
     styles: {
@@ -240,6 +241,7 @@ test("import then export (figures)", () => {
     entities: {},
     styles: {},
     borders: {},
+    texts: [],
   };
   const model = new Model(modelData);
   expect(model.exportData()).toEqual(modelData);

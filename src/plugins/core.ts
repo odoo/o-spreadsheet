@@ -1318,12 +1318,12 @@ export class CorePlugin extends BasePlugin {
     }
 
     for (let sheet of data.sheets) {
-      this.importSheet(sheet);
+      this.importSheet(sheet, data.texts || []);
     }
     this.workbook.activeSheet = this.workbook.sheets[data.activeSheet];
   }
 
-  importSheet(data: SheetData) {
+  importSheet(data: SheetData, texts: string[]) {
     let { sheets, visibleSheets } = this.workbook;
     const name = data.name || `Sheet${Object.keys(sheets).length + 1}`;
     const sheet: Sheet = {
@@ -1345,17 +1345,37 @@ export class CorePlugin extends BasePlugin {
     for (let xc in data.cells) {
       const cell = data.cells[xc];
       const [col, row] = toCartesian(xc);
-      this.updateCell(data.id, col, row, cell);
+      const content =
+        cell.content !== undefined
+          ? typeof cell.content === "number"
+            ? texts[cell.content]
+            : cell.content
+          : undefined;
+      this.updateCell(data.id, col, row, {
+        content,
+        border: cell.border,
+        format: cell.format,
+        style: cell.style,
+      });
     }
   }
 
   export(data: WorkbookData) {
+    const texts: string[] = [];
     data.sheets = this.workbook.visibleSheets.map((id) => {
       const sheet = this.workbook.sheets[id];
-      const cells: { [key: string]: CellData } = {};
+      const cells: { [key: string]: Omit<CellData, "content"> & { content: number | undefined } } =
+        {};
       for (let [key, cell] of Object.entries(sheet.cells)) {
+        let index: number | undefined = undefined;
+        if (cell.content) {
+          index = texts.findIndex((text) => text === cell.content);
+          if (index === -1) {
+            index = texts.push(cell.content) - 1;
+          }
+        }
         cells[key] = {
-          content: cell.content,
+          content: index,
           border: cell.border,
           style: cell.style,
           format: cell.format,
@@ -1375,6 +1395,7 @@ export class CorePlugin extends BasePlugin {
       };
     });
     data.activeSheet = this.workbook.activeSheet.id;
+    data.texts = texts;
   }
 }
 
