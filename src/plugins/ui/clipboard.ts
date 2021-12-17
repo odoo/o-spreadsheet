@@ -90,8 +90,10 @@ export class ClipboardPlugin extends UIPlugin {
         if (cmd.interactive) {
           this.interactivePaste(this.state, cmd.target, cmd);
         } else {
-          this.selectPastedZone(this.state, cmd.target);
+          const height = this.state.cells.length;
+          const width = this.state.cells[0].length;
           this.paste(this.state, cmd.target, pasteOption);
+          this.selectPastedZone(width, height, cmd.target);
           this.status = "invisible";
         }
         break;
@@ -424,9 +426,7 @@ export class ClipboardPlugin extends UIPlugin {
   /**
    * Update the selection with the newly pasted zone
    */
-  private selectPastedZone(state: ClipboardState, target: Zone[]) {
-    const height = state.cells.length;
-    const width = state.cells[0].length;
+  private selectPastedZone(width: number, height: number, target: Zone[]) {
     const selection = target[0];
     const col = selection.left;
     const row = selection.top;

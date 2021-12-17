@@ -14,6 +14,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getActiveXc } from "../test_helpers/getters_helpers";
+import { target } from "../test_helpers/helpers";
 
 describe("selection", () => {
   test("if A1 is in a merge, it is initially properly selected", () => {
@@ -264,6 +265,22 @@ describe("selection", () => {
     model.dispatch("SELECT_COLUMN", { index: 0 });
     expect(getActiveXc(model)).toBe("A1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 9 });
+  });
+
+  test("selection is clipped to sheet size", () => {
+    const model = new Model({
+      sheets: [{ colNumber: 3, rowNumber: 3 }],
+    });
+    model.dispatch("SET_SELECTION", {
+      anchor: [0, 0],
+      anchorZone: toZone("A1:Z20"),
+      zones: target("A1:Z20"),
+    });
+    expect(model.getters.getSelection()).toEqual({
+      anchor: [0, 0],
+      anchorZone: toZone("A1:C3"),
+      zones: target("A1:C3"),
+    });
   });
 
   test("can select a whole row", () => {
