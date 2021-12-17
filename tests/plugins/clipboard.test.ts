@@ -1412,6 +1412,7 @@ describe("clipboard: pasting outside of sheet", () => {
     model.dispatch("PASTE", { target: [toZone("B2")] });
     expect(activeSheet.rows.length).toBe(currentRowNumber + 1);
     expect(getCellContent(model, "B2")).toBe("txt");
+    expect(model.getters.getSelectedZones()).toEqual([toZone("B2:B101")]);
   });
 
   test("can copy and paste a full row", () => {
@@ -1425,6 +1426,7 @@ describe("clipboard: pasting outside of sheet", () => {
     model.dispatch("PASTE", { target: [toZone("B2")] });
     expect(activeSheet.cols.length).toBe(currentColNumber + 1);
     expect(getCellContent(model, "B2")).toBe("txt");
+    expect(model.getters.getSelectedZones()).toEqual([toZone("B2:AA2")]);
   });
 
   test("Copy a formula which lead to #REF", () => {
