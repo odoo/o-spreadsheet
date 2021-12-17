@@ -1,11 +1,20 @@
 import { ConditionalFormat } from "./conditional_formatting";
 import { Border, Style } from "./misc";
 
+export type Dependencies = (string | number)[];
+
+/**
+ * Represents a string in which all range references, strings and numbers are
+ * replaced by dependencies references.
+ */
+export type NormalizedFormulaString = string;
+
 export type NormalizedFormula = {
   // if the content is a formula (ex. =sum(  a1:b3, 3) + a1, should be stored as
-  // {formula: "=sum(  |ref1|, 3) + |ref2|"), ["a1:b3","a1"]
-  text: string;
-  dependencies: string[];
+  // {formula: "=sum(  |ref1|, |ref2|) + |ref3|"), ["a1:b3","a1"]
+  // This normalization applies to range references, numbers and string values
+  text: NormalizedFormulaString;
+  dependencies: Dependencies;
 };
 
 export interface CellData {

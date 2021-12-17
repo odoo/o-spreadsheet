@@ -1,7 +1,8 @@
 import { functionRegistry } from "../functions/index";
 import { parseNumber } from "../helpers/index";
 import { _lt } from "../translation";
-import { FORMULA_REF_IDENTIFIER, Token, tokenize } from "./tokenizer";
+import { Dependencies, NormalizedFormulaString } from "../types";
+import { Token, tokenize } from "./tokenizer";
 
 const functions = functionRegistry.content;
 
@@ -18,13 +19,23 @@ interface ASTNumber extends ASTBase {
   type: "NUMBER";
   value: number;
 }
+
+interface ASTNormalizedNumber extends ASTBase {
+  type: "NORMALIZED_NUMBER";
+  value: string;
+}
+
 interface ASTReference extends ASTBase {
   type: "REFERENCE";
   value: number;
 }
-
 interface ASTString extends ASTBase {
   type: "STRING";
+  value: string;
+}
+
+interface ASTNormalizedString extends ASTBase {
+  type: "NORMALIZED_STRING";
   value: string;
 }
 
@@ -72,6 +83,8 @@ export type AST =
   | ASTBoolean
   | ASTString
   | ASTReference
+  | ASTNormalizedNumber
+  | ASTNormalizedString
   | ASTUnknown;
 
 const OP_PRIORITY = {
@@ -121,9 +134,13 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
       next.debug = true;
       return next;
     case "NUMBER":
-      return { type: current.type, value: parseNumber(current.value) };
+      return { type: "NUMBER", value: parseNumber(current.value) };
+    case "NORMALIZED_NUMBER":
+      return { type: "NORMALIZED_NUMBER", value: current.value };
     case "STRING":
-      return { type: current.type, value: current.value };
+      return { type: "STRING", value: current.value };
+    case "NORMALIZED_STRING":
+      return { type: "NORMALIZED_STRING", value: current.value };
     case "FUNCTION":
       if (tokens.shift()!.type !== "LEFT_PAREN") {
         throw new Error(_lt("wrong function call"));
@@ -215,7 +232,7 @@ function parseExpression(tokens: Token[], bp: number): AST {
 /**
  * Parse an expression (as a string) into an AST.
  */
-export function parse(str: string): AST {
+export function parse(str: NormalizedFormulaString): AST {
   const tokens = tokenize(str).filter((x) => x.type !== "SPACE");
   if (tokens[0].type === "OPERATOR" && tokens[0].value === "=") {
     tokens.splice(0, 1);
@@ -230,24 +247,29 @@ export function parse(str: string): AST {
 /**
  * Converts an ast formula to the corresponding string
  */
-export function astToFormula(ast: AST): string {
+export function astToFormula(ast: AST, dependencies: Dependencies): string {
   switch (ast.type) {
     case "FUNCALL":
     case "ASYNC_FUNCALL":
-      const args = ast.args.map((arg) => astToFormula(arg));
+      const args = ast.args.map((arg) => astToFormula(arg, dependencies));
       return `${ast.value}(${args.join(",")})`;
     case "NUMBER":
       return ast.value.toString();
+    case "NORMALIZED_STRING":
+      return `"${dependencies[ast.value]}"`;
+    case "NORMALIZED_NUMBER":
+    case "REFERENCE":
+      return dependencies[ast.value].toString();
     case "STRING":
       return ast.value;
     case "BOOLEAN":
       return ast.value ? "TRUE" : "FALSE";
     case "UNARY_OPERATION":
-      return ast.value + astToFormula(ast.right);
+      return ast.value + astToFormula(ast.right, dependencies);
     case "BIN_OPERATION":
-      return astToFormula(ast.left) + ast.value + astToFormula(ast.right);
-    case "REFERENCE":
-      return `${FORMULA_REF_IDENTIFIER}${ast.value}${FORMULA_REF_IDENTIFIER}`;
+      return (
+        astToFormula(ast.left, dependencies) + ast.value + astToFormula(ast.right, dependencies)
+      );
     default:
       return ast.value;
   }
