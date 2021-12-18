@@ -1,9 +1,8 @@
 import {
+  defaultNumberFormat,
   formatComposerNumber,
   formatDecimal,
   formatNumber,
-  formatPercent,
-  formatStandardNumber,
   isNumber,
   parseNumber,
 } from "../../src/helpers/index";
@@ -69,47 +68,178 @@ describe("parseNumber", () => {
   });
 });
 
-describe("formatNumber", () => {
-  test("formatNumber", () => {
-    expect(formatStandardNumber(1)).toBe("1");
-    expect(formatStandardNumber(0)).toBe("0");
-    expect(formatStandardNumber(-1)).toBe("-1");
-    expect(formatStandardNumber(0.1)).toBe("0.1");
-    expect(formatStandardNumber(0.01)).toBe("0.01");
-    expect(formatStandardNumber(0.001)).toBe("0.001");
-    expect(formatStandardNumber(0.0001)).toBe("0.0001");
-    expect(formatStandardNumber(0.00001)).toBe("0.00001");
-    expect(formatStandardNumber(0.000001)).toBe("0.000001");
-    expect(formatStandardNumber(0.0000001)).toBe("0.0000001");
-    expect(formatStandardNumber(0.00000001)).toBe("0.00000001");
-    expect(formatStandardNumber(0.000000001)).toBe("0.000000001");
-    expect(formatStandardNumber(0.0000000001)).toBe("0.0000000001");
-    expect(formatStandardNumber(0.00000000001)).toBe("0");
-    expect(formatStandardNumber(0.000000000001)).toBe("0");
+test("formatComposerNumber function", () => {
+  expect(formatComposerNumber(0)).toBe("0");
+  expect(formatComposerNumber(123)).toBe("123");
+  expect(formatComposerNumber(-456.123)).toBe("-456.123");
+  expect(formatComposerNumber(1234567890.12345)).toBe("1234567890.12345");
+  expect(formatComposerNumber(9999999999)).toBe("9999999999");
+  expect(formatComposerNumber(10000000000)).toBe("1E+10");
+  expect(formatComposerNumber(12345678901)).toBe("1.2345678901E+10");
+  expect(formatComposerNumber(0.000000001)).toBe("0.000000001");
+  expect(formatComposerNumber(0.00000000123456)).toBe("0.00000000123456");
+  expect(formatComposerNumber(0.0000000009876543)).toBe("9.876543E-10");
+  expect(formatComposerNumber(0.000000000987654321012345)).toBe("9.87654321012345E-10");
+});
 
-    // @compatibility note: in Google Sheets, the next three tests result in 1234512345
-    expect(formatStandardNumber(1234512345.1)).toBe("1234512345.1");
-    expect(formatStandardNumber(1234512345.12)).toBe("1234512345.12");
-    expect(formatStandardNumber(1234512345.123)).toBe("1234512345.123");
+describe("defaultNumberFormat function", () => {
+  describe("test with moderate magnitude order", () => {
+    test("test without exceed 10 digits", () => {
+      expect(defaultNumberFormat(0)).toBe("0");
+      expect(defaultNumberFormat(1)).toBe("0");
+      expect(defaultNumberFormat(123)).toBe("0");
+      expect(defaultNumberFormat(1234567890)).toBe("0");
+      expect(defaultNumberFormat(123.456)).toBe("0.000");
+      expect(defaultNumberFormat(123.456789)).toBe("0.000000");
+      expect(defaultNumberFormat(0.01)).toBe("0.00");
+      expect(defaultNumberFormat(0.001)).toBe("0.000");
+      expect(defaultNumberFormat(0.0001)).toBe("0.0000");
+      expect(defaultNumberFormat(0.00001)).toBe("0.00000");
+      expect(defaultNumberFormat(0.000001)).toBe("0.000000");
+      expect(defaultNumberFormat(0.0000001)).toBe("0.0000000");
+      expect(defaultNumberFormat(0.00000001)).toBe("0.00000000");
+      expect(defaultNumberFormat(0.000000001)).toBe("0.000000000");
+    });
 
-    expect(formatStandardNumber(123.10000000001)).toBe("123.1");
-    expect(formatStandardNumber(123.10000000000000001)).toBe("123.1");
+    test("exceed 10 digits --> limit the number take into account in the decimal part", () => {
+      expect(defaultNumberFormat(1234567890.9)).toBe("0");
+      expect(defaultNumberFormat(123456789.88)).toBe("0.0");
+      expect(defaultNumberFormat(123456789.99)).toBe("0");
+      expect(defaultNumberFormat(12345.678888888)).toBe("0.00000");
+      expect(defaultNumberFormat(12345.678999999)).toBe("0.000");
+      expect(defaultNumberFormat(1.2345678888)).toBe("0.000000000");
+      expect(defaultNumberFormat(1.2345678999)).toBe("0.0000000");
+      expect(defaultNumberFormat(0.00000123456789)).toBe("0.000000000");
+    });
+
+    test("exceed 10 digits --> not count 0 digits located at the end of the decimal part taking into account", () => {
+      expect(defaultNumberFormat(12345.678901)).toBe("0.0000");
+      expect(defaultNumberFormat(12345.600001)).toBe("0.0");
+      expect(defaultNumberFormat(123456789.01)).toBe("0");
+      expect(defaultNumberFormat(1.1000000001)).toBe("0.0");
+      expect(defaultNumberFormat(1.1000100001)).toBe("0.00000");
+    });
+  });
+  describe("adopt exponential format if the value is bigger the most bigger number with 10 digits", () => {
+    // the most bigger number with 10 digits is 9999999999
+
+    test("test values at limit of 10 digits", () => {
+      expect(defaultNumberFormat(9999999999)).toBe("0");
+      expect(defaultNumberFormat(9999999999.9999)).toBe("0");
+      expect(defaultNumberFormat(10000000000)).toBe("0E+0");
+    });
+
+    test("limit the format to take into account a maximum of 5 digits ", () => {
+      expect(defaultNumberFormat(98888888888)).toBe("0.0000E+0");
+      expect(defaultNumberFormat(99999999999)).toBe("0E+0");
+      expect(defaultNumberFormat(99998888888)).toBe("0.0000E+0");
+      expect(defaultNumberFormat(99999888888)).toBe("0E+0");
+      expect(defaultNumberFormat(33333333333.8)).toBe("0.0000E+0");
+      expect(defaultNumberFormat(333333333333)).toBe("0.0000E+0");
+      expect(defaultNumberFormat(12000000000)).toBe("0.0E+0");
+      expect(defaultNumberFormat(12340000000)).toBe("0.000E+0");
+      expect(defaultNumberFormat(12345000000)).toBe("0.0000E+0");
+      expect(defaultNumberFormat(12345600000)).toBe("0.0000E+0");
+    });
+
+    test("not count 0 digits that located at the end of the 5 maximum digits", () => {
+      expect(defaultNumberFormat(12040399999)).toBe("0.000E+0");
+      expect(defaultNumberFormat(12040699999)).toBe("0.0000E+0");
+      expect(defaultNumberFormat(12300278901)).toBe("0.00E+0");
+      expect(defaultNumberFormat(12300778901)).toBe("0.0000E+0");
+    });
   });
 
-  test("formatComposerNumber", () => {
-    expect(formatComposerNumber(0)).toBe("0");
-    expect(formatComposerNumber(123)).toBe("123");
-    expect(formatComposerNumber(-456.123)).toBe("-456.123");
-    expect(formatComposerNumber(1234567890.12345)).toBe("1234567890.12345");
-    expect(formatComposerNumber(9999999999)).toBe("9999999999");
-    expect(formatComposerNumber(10000000000)).toBe("1E+10");
-    expect(formatComposerNumber(12345678901)).toBe("1.2345678901E+10");
-    expect(formatComposerNumber(0.000000001)).toBe("0.000000001");
-    expect(formatComposerNumber(0.00000000123456)).toBe("0.00000000123456");
-    expect(formatComposerNumber(0.0000000009876543)).toBe("9.876543E-10");
-    expect(formatComposerNumber(0.000000000987654321012345)).toBe("9.87654321012345E-10");
+  describe("adopt exponential format if the value is smaller the most smaller number with 10 digits", () => {
+    // the most smaller number with 10 digits is 0.000000001
+    test("test values at limit of 10 digits", () => {
+      expect(defaultNumberFormat(0.000000001)).toBe("0.000000000");
+      expect(defaultNumberFormat(0.0000000011)).toBe("0.000000000");
+      expect(defaultNumberFormat(0.0000000009)).toBe("0E+0");
+    });
+
+    test("limit the format to take into account a maximum of 5 digits ", () => {
+      expect(defaultNumberFormat(0.000000000999)).toBe("0.00E+0");
+      expect(defaultNumberFormat(0.00000000012345)).toBe("0.0000E+0");
+      expect(defaultNumberFormat(0.000000000123456)).toBe("0.0000E+0");
+    });
+
+    test("not count 0 digits that located at the end of the 5 maximum digits", () => {
+      expect(defaultNumberFormat(0.000000000120402)).toBe("0.000E+0");
+      expect(defaultNumberFormat(0.000000000120406)).toBe("0.0000E+0");
+      expect(defaultNumberFormat(0.000000000120002)).toBe("0.0E+0");
+      expect(defaultNumberFormat(0.000000000120006)).toBe("0.0000E+0");
+    });
+  });
+});
+
+describe("formatNumber function", () => {
+  test("a normal number: #,##0.00", () => {
+    expect(formatNumber(0, "#,##0.00")).toBe("0.00");
+    expect(formatNumber(1, "#,##0.00")).toBe("1.00");
+    expect(formatNumber(1.1, "#,##0.00")).toBe("1.10");
+    expect(formatNumber(5.1, "#,##0.00")).toBe("5.10");
+    expect(formatNumber(-1, "#,##0.00")).toBe("-1.00");
+    expect(formatNumber(10, "#,##0.00")).toBe("10.00");
+    expect(formatNumber(100, "#,##0.00")).toBe("100.00");
+    expect(formatNumber(-100, "#,##0.00")).toBe("-100.00");
+    expect(formatNumber(1000, "#,##0.00")).toBe("1,000.00");
+    expect(formatNumber(10000, "#,##0.00")).toBe("10,000.00");
+    expect(formatNumber(100000, "#,##0.00")).toBe("100,000.00");
+    expect(formatNumber(1000000, "#,##0.00")).toBe("1,000,000.00");
+    expect(formatNumber(-1000000, "#,##0.00")).toBe("-1,000,000.00");
+    expect(formatNumber(0.1, "#,##0.00")).toBe("0.10");
+    expect(formatNumber(0.01, "#,##0.00")).toBe("0.01");
+    expect(formatNumber(0.001, "#,##0.00")).toBe("0.00");
+    expect(formatNumber(0.0001, "#,##0.00")).toBe("0.00");
+    expect(formatNumber(0.00001, "#,##0.00")).toBe("0.00");
+    expect(formatNumber(0.000001, "#,##0.00")).toBe("0.00");
+    expect(formatNumber(0.0000001, "#,##0.00")).toBe("0.00");
+    expect(formatNumber(0.00000001, "#,##0.00")).toBe("0.00");
+    expect(formatNumber(0.000000001, "#,##0.00")).toBe("0.00");
+    expect(formatNumber(0.0000000001, "#,##0.00")).toBe("0.00");
   });
 
+  test("formatPercent, with various number of decimals", () => {
+    expect(formatNumber(0.1234, "0%")).toBe("12%");
+    expect(formatNumber(0.1234, "0.0%")).toBe("12.3%");
+    expect(formatNumber(0.1234, "0.00%")).toBe("12.34%");
+    expect(formatNumber(0.1234, "0.000%")).toBe("12.340%");
+  });
+
+  test("can apply exponential format", () => {
+    expect(formatNumber(0.1234, "0E+0")).toBe("1E-1");
+    expect(formatNumber(0.1234, "0.0E+0")).toBe("1.2E-1");
+    expect(formatNumber(0.01234, "0.0E+0")).toBe("1.2E-2");
+    expect(formatNumber(0.01234, "0.00000E+0")).toBe("1.23400E-2");
+
+    expect(formatNumber(1234, "0E+0")).toBe("1E+3");
+    expect(formatNumber(1234, "0.0E+0")).toBe("1.2E+3");
+    expect(formatNumber(12340, "0.0E+0")).toBe("1.2E+4");
+    expect(formatNumber(12340, "0.00000E+0")).toBe("1.23400E+4");
+
+    expect(formatNumber(1678, "0E+0")).toBe("2E+3");
+    expect(formatNumber(1678, "0.0E+0")).toBe("1.7E+3");
+    expect(formatNumber(16789, "0.0E+0")).toBe("1.7E+4");
+    expect(formatNumber(16789, "0.00000E+0")).toBe("1.67890E+4");
+  });
+
+  test("can select different formatting for positive/negative", () => {
+    const format = "#,##0.00;0.00%";
+    expect(formatNumber(12345.54, format)).toBe("12,345.54");
+    expect(formatNumber(0, format)).toBe("0.00");
+    expect(formatNumber(-1.2, format)).toBe("120.00%"); // note the lack of - sign
+  });
+
+  test("can select different formatting for positive/negative/zero", () => {
+    const format = "#,##0.0;0.00%;0.000";
+    expect(formatNumber(12345.54, format)).toBe("12,345.5");
+    expect(formatNumber(0, format)).toBe("0.000");
+    expect(formatNumber(-1.2, format)).toBe("120.00%"); // note the lack of - sign
+  });
+});
+
+describe("formatDecimal function", () => {
   test("formatDecimal", () => {
     expect(formatDecimal(0, 0)).toBe("0");
     expect(formatDecimal(0, 1)).toBe("0.0");
@@ -152,11 +282,6 @@ describe("formatNumber", () => {
     expect(formatDecimal(-0.5, 3)).toBe("-0.500");
   });
 
-  test("formatDecimal limitied to 20 decimals", () => {
-    expect(formatDecimal(0.42, 20)).toBe("0.42000000000000000000");
-    expect(formatDecimal(0.42, 21)).toBe("0.42000000000000000000");
-  });
-
   test("formatDecimal, thousand separator", () => {
     expect(formatDecimal(100, 2, "s")).toBe("100.00");
     expect(formatDecimal(1000, 2, "s")).toBe("1s000.00");
@@ -165,65 +290,8 @@ describe("formatNumber", () => {
     expect(formatDecimal(1000000, 2, "s")).toBe("1s000s000.00");
   });
 
-  test("formatPercent", () => {
-    expect(formatPercent(0)).toBe("0.00%");
-    expect(formatPercent(0.123)).toBe("12.30%");
-    expect(formatPercent(0.1234)).toBe("12.34%");
-  });
-});
-
-describe("formatNumber function", () => {
-  test("a normal number: #,##0.00", () => {
-    expect(formatNumber(0, "#,##0.00")).toBe("0.00");
-    expect(formatNumber(1, "#,##0.00")).toBe("1.00");
-    expect(formatNumber(1.1, "#,##0.00")).toBe("1.10");
-    expect(formatNumber(5.1, "#,##0.00")).toBe("5.10");
-    expect(formatNumber(-1, "#,##0.00")).toBe("-1.00");
-    expect(formatNumber(10, "#,##0.00")).toBe("10.00");
-    expect(formatNumber(100, "#,##0.00")).toBe("100.00");
-    expect(formatNumber(-100, "#,##0.00")).toBe("-100.00");
-    expect(formatNumber(1000, "#,##0.00")).toBe("1,000.00");
-    expect(formatNumber(10000, "#,##0.00")).toBe("10,000.00");
-    expect(formatNumber(100000, "#,##0.00")).toBe("100,000.00");
-    expect(formatNumber(1000000, "#,##0.00")).toBe("1,000,000.00");
-    expect(formatNumber(-1000000, "#,##0.00")).toBe("-1,000,000.00");
-    expect(formatNumber(0.1, "#,##0.00")).toBe("0.10");
-    expect(formatNumber(0.01, "#,##0.00")).toBe("0.01");
-    expect(formatNumber(0.001, "#,##0.00")).toBe("0.00");
-    expect(formatNumber(0.0001, "#,##0.00")).toBe("0.00");
-    expect(formatNumber(0.00001, "#,##0.00")).toBe("0.00");
-    expect(formatNumber(0.000001, "#,##0.00")).toBe("0.00");
-    expect(formatNumber(0.0000001, "#,##0.00")).toBe("0.00");
-    expect(formatNumber(0.00000001, "#,##0.00")).toBe("0.00");
-    expect(formatNumber(0.000000001, "#,##0.00")).toBe("0.00");
-    expect(formatNumber(0.0000000001, "#,##0.00")).toBe("0.00");
-  });
-
-  test("formatPercent", () => {
-    expect(formatNumber(0, "0.00%")).toBe("0.00%");
-    expect(formatNumber(0.123, "0.00%")).toBe("12.30%");
-    expect(formatNumber(0.1234, "0.00%")).toBe("12.34%");
-    expect(formatNumber(0.12345, "0.00%")).toBe("12.35%");
-  });
-
-  test("formatPercent, with various number of decimals", () => {
-    expect(formatNumber(0.1234, "0%")).toBe("12%");
-    expect(formatNumber(0.1234, "0.0%")).toBe("12.3%");
-    expect(formatNumber(0.1234, "0.00%")).toBe("12.34%");
-    expect(formatNumber(0.1234, "0.000%")).toBe("12.340%");
-  });
-
-  test("can select different formatting for positive/negative", () => {
-    const format = "#,##0.00;0.00%";
-    expect(formatNumber(12345.54, format)).toBe("12,345.54");
-    expect(formatNumber(0, format)).toBe("0.00");
-    expect(formatNumber(-1.2, format)).toBe("120.00%"); // note the lack of - sign
-  });
-
-  test("can select different formatting for positive/negative/zero", () => {
-    const format = "#,##0.0;0.00%;0.000";
-    expect(formatNumber(12345.54, format)).toBe("12,345.5");
-    expect(formatNumber(0, format)).toBe("0.000");
-    expect(formatNumber(-1.2, format)).toBe("120.00%"); // note the lack of - sign
+  test("formatDecimal limitied to 20 decimals", () => {
+    expect(formatDecimal(0.42, 20)).toBe("0.42000000000000000000");
+    expect(formatDecimal(0.42, 21)).toBe("0.42000000000000000000");
   });
 });
