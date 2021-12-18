@@ -241,6 +241,12 @@ describe("formatting values (when change decimal)", () => {
     setDecimal(model, 1);
     expect(getCell(model, "C3")!.format).toBe("0.0E+00");
 
+    setCellContent(model, "C3", "707");
+    selectCell(model, "C3");
+    setFormat(model, "0E+0");
+    setDecimal(model, 1);
+    expect(getCell(model, "C3")!.format).toBe("0.0E+0");
+
     setCellContent(model, "C4", "707");
     selectCell(model, "C4");
     setFormat(model, "0E+00");
