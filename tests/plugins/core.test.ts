@@ -240,6 +240,17 @@ describe("core", () => {
       expect(getCell(model, "A2")!.format).toBe("0.00%");
     });
 
+    test("detect and format scientific values automatically", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "3e3");
+      setCellContent(model, "A2", "3.12678901E-123");
+
+      expect(getCellContent(model, "A1")).toBe("3.00E+03");
+      expect(getCell(model, "A1")!.format).toBe("0.00E+00");
+      expect(getCellContent(model, "A2")).toBe("3.13E-123");
+      expect(getCell(model, "A2")!.format).toBe("0.00E+00");
+    });
+
     describe("detect format formula automatically", () => {
       test("from formula without return format", () => {
         const model = new Model();

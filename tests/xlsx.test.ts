@@ -29,6 +29,7 @@ const simpleData = {
         C23: { content: "0.43", format: "0.00%" },
         C24: { content: "10", format: "#,##0.00" },
         C25: { content: "10.123", format: "#,##0.00" },
+        C26: { content: "1234", format: "0.00E+00" },
         A27: { content: "Emily Anderson (Emmy)" },
         A28: { content: "Sophie Allen (Saffi)" },
         A29: { content: "Chloe Adams" },

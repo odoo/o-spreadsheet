@@ -169,6 +169,11 @@ exports[`TopBar component can set cell format 1`] = `
             Percent (10.12%)
           </div>
           <div
+            data-format="scientific"
+          >
+            Scientific (1.01E+03)
+          </div>
+          <div
             data-format="date"
           >
             Date (9/26/2008)

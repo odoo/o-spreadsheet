@@ -166,7 +166,7 @@ function formatAbsNumber(absValue: number, format: string): string {
   let formattedNumber = formatDecimal(absValue, decimals, separator);
 
   if (isExponentialFormat) {
-    formattedNumber += "E" + magnitudeOrder;
+    formattedNumber += formatMagnitudeOrder(magnitudeOrder, format);
   }
 
   if (isPercentFormat) {
@@ -190,6 +190,21 @@ export function formatDecimal(n: number, decimals: number, sep: string = ""): st
     );
   }
   return result;
+}
+
+function formatMagnitudeOrder(magnitudeOrder: string, format: string) {
+  // ex: format: 00.0E00 --> 2 is the minimum of digits for the magnitude oder
+  // ex: format: 0E0000 --> 4 is the minimum of digits for the magnitude oder
+  const minimumMagnitudeOrderDigits = format.split("E")[1].match(/0/g)!.length;
+  const magnitudeOrderDigits = magnitudeOrder.substr(1);
+  const missingZero = minimumMagnitudeOrderDigits - magnitudeOrderDigits.length;
+  const magnitudeOrderSign = magnitudeOrder[0];
+  return (
+    "E" +
+    magnitudeOrderSign +
+    (missingZero > 0 ? Array(missingZero + 1).join("0") : "") +
+    magnitudeOrderDigits
+  );
 }
 
 // this next two variable are caches that can contains decimal representation formats

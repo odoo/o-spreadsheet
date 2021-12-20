@@ -218,8 +218,13 @@ topbarMenuRegistry
   .addChild("format_number_percent", ["format", "format_number"], {
     name: _lt("Percent (10.12%)"),
     sequence: 30,
-    separator: true,
     action: ACTIONS.FORMAT_PERCENT_ACTION,
+  })
+  .addChild("format_number_scientific", ["format", "format_number"], {
+    name: _lt("Scientific (1.01E+03)"),
+    sequence: 35,
+    separator: true,
+    action: ACTIONS.FORMAT_SCIENTIFIC_ACTION,
   })
   .addChild("format_number_date", ["format", "format_number"], {
     name: _lt("Date (9/26/2008)"),
