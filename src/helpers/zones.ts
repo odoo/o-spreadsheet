@@ -60,12 +60,13 @@ export function toZone(xc: string): Zone {
  * the correct order.
  */
 export function isZoneValid(zone: Zone): boolean {
+  const { bottom, top, left, right } = zone;
   // Typescript *should* prevent this kind of errors but
   // it's better to be on the safe side at runtime as well.
-  if (isNaN(zone.bottom) || isNaN(zone.top) || isNaN(zone.left) || isNaN(zone.right)) {
+  if (isNaN(bottom) || isNaN(top) || isNaN(left) || isNaN(right)) {
     return false;
   }
-  return zone.bottom >= zone.top && zone.right >= zone.left;
+  return bottom >= top && right >= left && bottom >= 0 && top >= 0 && right >= 0 && left >= 0;
 }
 
 /**

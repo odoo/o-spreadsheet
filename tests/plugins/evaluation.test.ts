@@ -1,7 +1,12 @@
 import { args, functionRegistry } from "../../src/functions";
 import { Model } from "../../src/model";
 import { CellValueType } from "../../src/types";
-import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import {
+  activateSheet,
+  createSheet,
+  deleteColumns,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellError } from "../test_helpers/getters_helpers";
 import { evaluateCell, evaluateGrid, target } from "../test_helpers/helpers";
 import resetAllMocks = jest.resetAllMocks;
@@ -933,6 +938,19 @@ describe("evaluateCells", () => {
     expect(getCell(model, "A3")!.evaluated.value).toBe("old");
     setCellContent(model, "A1", "new");
     expect(getCell(model, "A3")!.evaluated.value).toBe("new");
+  });
+
+  test("Coherent handling of #REF when it occurs following a column deletion or a copy/paste", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=SUM(B1,C1)");
+    deleteColumns(model, ["B"]);
+    expect(getCell(model, "A1")!.evaluated.value).toBe("#REF");
+    expect(getCellError(model, "A1")).toBe("Invalid reference");
+
+    model.dispatch("COPY", { target: target("A1") });
+    model.dispatch("PASTE", { target: target("A2") });
+    expect(getCell(model, "A2")!.evaluated.value).toBe("#REF");
+    expect(getCellError(model, "A1")).toBe("Invalid reference");
   });
 
   // TO DO: add tests for exp format (ex: 4E10)

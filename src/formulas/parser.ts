@@ -1,6 +1,7 @@
 import { DEFAULT_ERROR_MESSAGE } from "../constants";
 import { parseNumber, removeStringQuotes } from "../helpers/index";
 import { _lt } from "../translation";
+import { InvalidReferenceError } from "../types/errors";
 import { Token, tokenize } from "./tokenizer";
 
 const UNARY_OPERATORS = ["-", "+"];
@@ -143,7 +144,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
         return { type: "FUNCALL", value: current.value, args };
       }
     case "INVALID_REFERENCE":
-      throw new Error(_lt("Invalid reference"));
+      throw new InvalidReferenceError();
     case "REFERENCE":
       if (tokens[0]?.value === ":" && tokens[1]?.type === "REFERENCE") {
         tokens.shift();

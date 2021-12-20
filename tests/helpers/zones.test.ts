@@ -1,4 +1,4 @@
-import { overlap, positions, recomputeZones, toZone } from "../../src/helpers/index";
+import { isZoneValid, overlap, positions, recomputeZones, toZone } from "../../src/helpers/index";
 import { Zone } from "../../src/types";
 
 describe("overlap", () => {
@@ -10,6 +10,27 @@ describe("overlap", () => {
   });
 });
 
+describe("isZoneValid", () => {
+  test("single cell zone", () => {
+    expect(isZoneValid({ bottom: 1, top: 1, right: 1, left: 1 })).toBe(true);
+    expect(isZoneValid({ bottom: 0, top: 0, right: 0, left: 0 })).toBe(true);
+  });
+  test("multiple cells zone", () => {
+    expect(isZoneValid({ bottom: 10, top: 1, right: 10, left: 1 })).toBe(true);
+  });
+  test("bottom before top", () => {
+    expect(isZoneValid({ bottom: 1, top: 2, right: 1, left: 1 })).toBe(false);
+  });
+  test("right before left", () => {
+    expect(isZoneValid({ bottom: 1, top: 1, right: 1, left: 2 })).toBe(false);
+  });
+  test("negative values", () => {
+    expect(isZoneValid({ bottom: -1, top: 1, right: 1, left: 1 })).toBe(false);
+    expect(isZoneValid({ bottom: 1, top: -1, right: 1, left: 1 })).toBe(false);
+    expect(isZoneValid({ bottom: 1, top: 1, right: -1, left: 1 })).toBe(false);
+    expect(isZoneValid({ bottom: 1, top: 1, right: 1, left: -1 })).toBe(false);
+  });
+});
 describe("recomputeZones", () => {
   test("add a cell to zone(1)", () => {
     const toKeep = ["A1:C3", "A4"];
