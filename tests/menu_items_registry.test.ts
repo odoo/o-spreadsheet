@@ -524,6 +524,15 @@ describe("Menu Item actions", () => {
       });
     });
 
+    test("Percent", () => {
+      doAction(["format", "format_number", "format_number_scientific"], env);
+      expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+        sheetId: env.getters.getActiveSheetId(),
+        target: env.getters.getSelectedZones(),
+        format: "0.00E+00",
+      });
+    });
+
     test("Date", () => {
       doAction(["format", "format_number", "format_number_date"], env);
       expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {

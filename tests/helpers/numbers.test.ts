@@ -224,6 +224,16 @@ describe("formatNumber function", () => {
     expect(formatNumber(16789, "0.00000E+0")).toBe("1.67890E+4");
   });
 
+  test("can apply exponential format with specific magnitude order length", () => {
+    expect(formatNumber(123, "0E+0")).toBe("1E+2");
+    expect(formatNumber(123, "0E+00")).toBe("1E+02");
+    expect(formatNumber(123, "0E+000")).toBe("1E+002");
+
+    expect(formatNumber(12345678901, "0.00E+0")).toBe("1.23E+10");
+    expect(formatNumber(12345678901, "0.00E+00")).toBe("1.23E+10");
+    expect(formatNumber(12345678901, "0.00E+000")).toBe("1.23E+010");
+  });
+
   test("can select different formatting for positive/negative", () => {
     const format = "#,##0.00;0.00%";
     expect(formatNumber(12345.54, format)).toBe("12,345.54");

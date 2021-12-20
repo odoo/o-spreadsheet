@@ -34,6 +34,7 @@ const FORMATS = [
   { name: "general", text: "General (no specific format)" },
   { name: "number", text: "Number (1,000.12)", value: "#,##0.00" },
   { name: "percent", text: "Percent (10.12%)", value: "0.00%" },
+  { name: "scientific", text: "Scientific (1.01E+03)", value: "0.00E+00" },
   { name: "date", text: "Date (9/26/2008)", value: "m/d/yyyy" },
   { name: "time", text: "Time (10:43:00 PM)", value: "hh:mm:ss a" },
   { name: "datetime", text: "Date time (9/26/2008 22:43:00)", value: "m/d/yyyy hh:mm:ss" },

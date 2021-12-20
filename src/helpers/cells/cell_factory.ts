@@ -57,8 +57,8 @@ cellRegistry
     sequence: 30,
     match: (content) => isNumber(content),
     createCell: (id, content, properties) => {
-      if (!properties.format && content.includes("%")) {
-        properties.format = content.includes(".") ? "0.00%" : "0%";
+      if (!properties.format) {
+        properties.format = detectFormat(content);
       }
       return new NumberCell(id, parseNumber(content), properties);
     },
@@ -102,6 +102,16 @@ cellRegistry
       return new WebLinkCell(id, markdownLink(content, content), properties);
     },
   });
+
+function detectFormat(content: string): string | undefined {
+  if (content.toUpperCase().includes("E")) {
+    return "0.00E+00";
+  }
+  if (content.includes("%")) {
+    return content.includes(".") ? "0.00%" : "0%";
+  }
+  return undefined;
+}
 
 /**
  * Return a factory function which can instantiate cells of
