@@ -63,10 +63,10 @@ export function tokenize(str: string): Token[] {
       tokenizeSpace(chars) ||
       tokenizeMisc(chars) ||
       tokenizeOperator(chars) ||
-      tokenizeNumber(chars) ||
       tokenizeString(chars) ||
       tokenizeDebugger(chars) ||
       tokenizeNormalizedReferences(chars) ||
+      tokenizeNumber(chars) ||
       tokenizeSymbol(chars);
 
     if (!token) {
