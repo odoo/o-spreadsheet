@@ -431,6 +431,7 @@ function compilationCacheKey(
         case "NUMBER":
           return `|N${constantValues.numbers.indexOf(parseNumber(token.value))}|`;
         case "REFERENCE":
+        case "INVALID_REFERENCE":
           return `|${dependencies.indexOf(token.value)}|`;
         default:
           return token.value;
@@ -450,6 +451,7 @@ function formulaArguments(tokens: Token[]) {
   const dependencies: string[] = [];
   for (const token of tokens) {
     switch (token.type) {
+      case "INVALID_REFERENCE":
       case "REFERENCE":
         dependencies.push(token.value);
         break;

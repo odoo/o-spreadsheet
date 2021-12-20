@@ -1,9 +1,11 @@
+import { INCORRECT_RANGE_STRING } from "../../constants";
 import { compile } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { isZoneValid, range as rangeSequence, toXC } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
+import { InvalidReferenceError } from "../../types/errors";
 import {
   Cell,
   CellValue,
@@ -141,11 +143,10 @@ export class EvaluationPlugin extends UIPlugin {
         e = new Error(e);
       }
       if (cell.evaluated.type !== CellValueType.error) {
-        cell.assignValue("#ERROR");
-
+        const msg = e instanceof InvalidReferenceError ? INCORRECT_RANGE_STRING : "#ERROR";
         // apply function name
         const __lastFnCalled = params[2].__lastFnCalled || "";
-        cell.assignError("#ERROR", e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled));
+        cell.assignError(msg, e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled));
       }
     }
 
@@ -222,7 +223,7 @@ export class EvaluationPlugin extends UIPlugin {
       const sheetId = range.sheetId;
 
       if (!isZoneValid(range.zone)) {
-        throw new Error(_lt("Invalid reference"));
+        throw new InvalidReferenceError();
       }
 
       const zone = range.zone;
@@ -259,7 +260,7 @@ export class EvaluationPlugin extends UIPlugin {
       }
 
       if (!isZoneValid(range.zone)) {
-        throw new Error(_lt("Invalid reference"));
+        throw new InvalidReferenceError();
       }
 
       // if the formula definition could have accepted a range, we would pass through the _range function and not here

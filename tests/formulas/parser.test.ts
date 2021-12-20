@@ -1,4 +1,5 @@
 import { astToFormula, parse } from "../../src";
+import { InvalidReferenceError } from "../../src/types/errors";
 
 describe("parser", () => {
   test("can parse a function call with no argument", () => {
@@ -120,7 +121,7 @@ describe("parser", () => {
   });
 
   test("Can parse invalid references", () => {
-    expect(() => parse("#REF")).toThrowError("Invalid reference");
+    expect(() => parse("#REF")).toThrowError(new InvalidReferenceError().message);
   });
 
   test("AND", () => {
