@@ -1,18 +1,18 @@
-import { isEqual, isInside, mapCellsInZone, overlap, zoneToDimension } from "../../helpers/index";
+import { isInside, mapCellsInZone, overlap, zoneToDimension } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
   Cell,
   CellValueType,
   Command,
   CommandResult,
-  DispatchResult,
+  Position,
   Sheet,
   SortCommand,
   SortDirection,
   UID,
   Zone,
 } from "../../types/index";
-import { UIPlugin } from "../ui_plugin";
+import { CorePlugin } from "../core_plugin";
 
 type Item = Cell | undefined;
 type IndexItemMap = { index: number; val: Item }[];
@@ -22,13 +22,13 @@ type SortTypeValueMap = { type: SortType; value: any };
 type IndexSortTypeValueMap = { index: number; val: SortTypeValueMap }[];
 type IndexSTVMapItem = { index: number; val: Item | SortTypeValueMap }[];
 
-export class SortPlugin extends UIPlugin {
+export class SortPlugin extends CorePlugin {
   static getters = ["getContiguousZone"];
 
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
       case "SORT_CELLS":
-        if (!isInside(cmd.anchor[0], cmd.anchor[1], cmd.zone)) {
+        if (!isInside(cmd.col, cmd.row, cmd.zone)) {
           throw new Error(_lt("The anchor must be part of the provided zone"));
         }
         return this.checkValidations(cmd, this.checkMerge, this.checkMergeSizes);
@@ -40,10 +40,9 @@ export class SortPlugin extends UIPlugin {
     switch (cmd.type) {
       case "SORT_CELLS":
         if (cmd.interactive) {
-          this.interactiveSortSelection(cmd.sheetId, cmd.anchor, cmd.zone, cmd.sortDirection);
-        } else {
-          this.sortZone(cmd.sheetId, cmd.anchor, cmd.zone, cmd.sortDirection);
+          break;
         }
+        this.sortZone(cmd.sheetId, cmd, cmd.zone, cmd.sortDirection);
         break;
     }
   }
@@ -83,84 +82,6 @@ export class SortPlugin extends UIPlugin {
       return CommandResult.InvalidSortZone;
     }
     return CommandResult.Success;
-  }
-
-  private interactiveSortSelection(
-    sheetId: UID,
-    anchor: [number, number],
-    zone: Zone,
-    sortDirection: SortDirection
-  ) {
-    let result: DispatchResult = DispatchResult.Success;
-
-    //several columns => bypass the contiguity check
-    let multiColumns: boolean = zone.right > zone.left;
-    if (this.getters.doesIntersectMerge(sheetId, zone)) {
-      multiColumns = false;
-      let table: UID[];
-      for (let r = zone.top; r <= zone.bottom; r++) {
-        table = [];
-        for (let c = zone.left; c <= zone.right; c++) {
-          let merge = this.getters.getMerge(sheetId, c, r);
-          if (merge && !table.includes(merge.id.toString())) {
-            table.push(merge.id.toString());
-          }
-        }
-        if (table.length >= 2) {
-          multiColumns = true;
-          break;
-        }
-      }
-    }
-
-    if (multiColumns) {
-      result = this.dispatch("SORT_CELLS", { sheetId, anchor, zone, sortDirection });
-    } else {
-      // check contiguity
-      const contiguousZone = this.getContiguousZone(sheetId, zone);
-      if (isEqual(contiguousZone, zone)) {
-        // merge as it is
-        result = this.dispatch("SORT_CELLS", {
-          sheetId,
-          anchor,
-          zone,
-          sortDirection,
-        });
-      } else {
-        this.ui.askConfirmation(
-          _lt(
-            "We found data next to your selection. Since this data was not selected, it will not be sorted. Do you want to extend your selection?"
-          ),
-          () => {
-            zone = contiguousZone;
-            result = this.dispatch("SORT_CELLS", {
-              sheetId,
-              anchor,
-              zone,
-              sortDirection,
-            });
-          },
-          () => {
-            result = this.dispatch("SORT_CELLS", {
-              sheetId,
-              anchor,
-              zone,
-              sortDirection,
-            });
-          }
-        );
-      }
-    }
-    if (result.isCancelledBecause(CommandResult.InvalidSortZone)) {
-      this.dispatch("SET_SELECTION", {
-        anchor: anchor,
-        zones: [zone],
-        anchorZone: zone,
-      });
-      this.ui.notifyUser(
-        _lt("Cannot sort. To sort, select only cells or only merges that have the same size.")
-      );
-    }
   }
 
   // getContiguousZone helpers
@@ -238,7 +159,7 @@ export class SortPlugin extends UIPlugin {
    * @param zone Zone
    *
    */
-  private getContiguousZone(sheetId: UID, zone: Zone): Zone {
+  getContiguousZone(sheetId: UID, zone: Zone): Zone {
     let { top, bottom, left, right } = zone;
     let canExpand: boolean;
     const sheet = this.getters.getSheet(sheetId);
@@ -379,20 +300,15 @@ export class SortPlugin extends UIPlugin {
     return (sortedIndex as IndexSTVMapItem).concat(emptyCellsIndexes as IndexSTVMapItem);
   }
 
-  private sortZone(
-    sheetId: UID,
-    anchor: [number, number],
-    zone: Zone,
-    sortDirection: SortDirection
-  ) {
+  private sortZone(sheetId: UID, anchor: Position, zone: Zone, sortDirection: SortDirection) {
     let stepX: number = 1,
       stepY: number = 1,
-      sortingCol: number = anchor[0]; // fetch anchor
+      sortingCol: number = anchor.col; // fetch anchor
 
     let sortZone = Object.assign({}, zone);
     // Update in case of merges in the zone
     if (this.getters.doesIntersectMerge(sheetId, sortZone)) {
-      const [col, row] = anchor;
+      const { col, row } = anchor;
       const merge = this.getters.getMerge(sheetId, col, row)!;
       stepX = merge.right - merge.left + 1;
       stepY = merge.bottom - merge.top + 1;

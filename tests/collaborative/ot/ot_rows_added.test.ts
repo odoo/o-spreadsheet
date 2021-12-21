@@ -13,6 +13,7 @@ import {
   SetBorderCommand,
   SetDecimalCommand,
   SetFormattingCommand,
+  SortCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
 } from "../../../src/types";
@@ -36,6 +37,16 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
     quantity: 2,
     sheetId,
   };
+
+  const sortCommand: SortCommand = {
+    type: "SORT_CELLS",
+    sheetId,
+    col: 0,
+    row: 0,
+    zone: toZone("A1"),
+    sortDirection: "ascending",
+  };
+
   const updateCell: Omit<UpdateCellCommand, "row"> = {
     type: "UPDATE_CELL",
     sheetId,
@@ -60,7 +71,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
     border: { left: ["thin", "#000"] },
   };
 
-  describe.each([updateCell, updateCellPosition, clearCell, setBorder])(
+  describe.each([updateCell, updateCellPosition, clearCell, setBorder, sortCommand])(
     "OT with ADD_COLUMNS_ROW with dimension ROW",
     (cmd) => {
       test(`${cmd.type} before added rows`, () => {
@@ -149,6 +160,29 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
       });
     }
   );
+
+  describe.each([sortCommand])("zone commands", (cmd) => {
+    test(`add rows before ${cmd.type}`, () => {
+      const command = { ...cmd, zone: toZone("A1:C1") };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual(command);
+    });
+    test(`add rows after ${cmd.type}`, () => {
+      const command = { ...cmd, zone: toZone("A10:B11") };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual({ ...command, zone: toZone("A12:B13") });
+    });
+    test(`add rows in ${cmd.type}`, () => {
+      const command = { ...cmd, zone: toZone("A5:B6") };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual({ ...command, zone: toZone("A5:B8") });
+    });
+    test(`${cmd.type} and rows added in different sheets`, () => {
+      const command = { ...cmd, zone: toZone("A1:F3"), sheetId: "42" };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual(command);
+    });
+  });
 
   const resizeRowsCommand: Omit<ResizeColumnsRowsCommand, "elements"> = {
     type: "RESIZE_COLUMNS_ROWS",
