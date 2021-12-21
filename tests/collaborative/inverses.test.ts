@@ -300,7 +300,6 @@ describe("Inverses commands", () => {
     };
     const updateChart: UpdateChartCommand = {
       type: "UPDATE_CHART",
-      sheetId: "42",
       definition: {} as ChartUIDefinition,
       id: "1",
     };

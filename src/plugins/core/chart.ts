@@ -350,7 +350,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   private updateChartDefinition(id: UID, definition: ChartUIDefinitionUpdate) {
     const chart = this.chartFigures[id];
     if (!chart) {
-      throw new Error(`There is no chart with the given id: ${id}`);
+      return;
     }
     if (definition.title !== undefined) {
       this.history.update("chartFigures", id, "title", definition.title);

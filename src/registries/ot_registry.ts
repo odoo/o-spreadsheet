@@ -35,7 +35,7 @@ import { CoreCommand, CoreCommandTypes } from "../types";
 export type TransformationFunction<U extends CoreCommandTypes, V extends CoreCommandTypes> = (
   toTransform: Extract<CoreCommand, { type: U }>,
   executed: Extract<CoreCommand, { type: V }>
-) => CoreCommand | undefined;
+) => CoreCommand | CoreCommand[] | undefined;
 
 export class OTRegistry extends Registry<
   Map<CoreCommandTypes, TransformationFunction<CoreCommandTypes, CoreCommandTypes>>
