@@ -1,63 +1,11 @@
 import { Token, tokenize, TokenType } from "./tokenizer";
 
 /**
- * Enriched Token is used by the composer to add information on the tokens that
- * are only needed during the edition of a formula.
- *
- * The information added are:
- * - parenthesis matching
- * - range detection (replaces the tokens that composes the range with 1 token)
- * - length, start and end of each token
- */
-
-export interface EnrichedToken extends Token {
-  start: number;
-  end: number;
-  length: number;
-  parenIndex?: number;
-}
-
-/**
- * Add the following informations on tokens:
- * - length
- * - start
- * - end
- */
-export function enrichTokens(tokens: Token[]): EnrichedToken[] {
-  let current = 0;
-  return tokens.map((x) => {
-    const len = x.value.toString().length;
-    const token: EnrichedToken = Object.assign({}, x, {
-      start: current,
-      end: current + len,
-      length: len,
-    });
-    current = token.end;
-    return token;
-  });
-}
-
-/**
- * Remove information added on EnrichedToken to make a Token
- */
-function toSimpleTokens(composerTokens: EnrichedToken[]): Token[] {
-  return composerTokens.map((x) => {
-    return {
-      type: x.type,
-      value: x.value,
-    };
-  });
-}
-
-/**
  * finds a sequence of token that represent a range and replace them with a single token
  * The range can be
  *  ?spaces symbol ?spaces operator: ?spaces symbol ?spaces
  */
-export function mergeSymbolsIntoRanges(
-  result: EnrichedToken[],
-  removeSpace = false
-): EnrichedToken[] {
+export function mergeSymbolsIntoRanges(result: Token[], removeSpace = false): Token[] {
   let operator: number | void = undefined;
   let refStart: number | void = undefined;
   let refEnd: number | void = undefined;
@@ -85,9 +33,6 @@ export function mergeSymbolsIntoRanges(
           if (startIncludingSpaces && refStart && operator && refEnd) {
             const newToken = {
               type: <TokenType>"SYMBOL",
-              start: result[startIncludingSpaces].start,
-              end: result[i - 1].end,
-              length: result[i - 1].end - result[startIncludingSpaces].start,
               value: result
                 .slice(startIncludingSpaces, i)
                 .filter((x) => !removeSpace || x.type !== "SPACE")
@@ -129,9 +74,6 @@ export function mergeSymbolsIntoRanges(
   if (startIncludingSpaces && refStart && operator && refEnd) {
     const newToken = {
       type: <TokenType>"SYMBOL",
-      start: result[startIncludingSpaces].start,
-      end: result[i].end,
-      length: result[i].end - result[startIncludingSpaces].start,
       value: result
         .slice(startIncludingSpaces, i + 1)
         .filter((x) => !removeSpace || x.type !== "SPACE")
@@ -151,5 +93,5 @@ export function mergeSymbolsIntoRanges(
  */
 export function rangeTokenize(formula: string): Token[] {
   const tokens = tokenize(formula);
-  return toSimpleTokens(mergeSymbolsIntoRanges(enrichTokens(tokens), true));
+  return mergeSymbolsIntoRanges(tokens, true);
 }
