@@ -1,5 +1,43 @@
-import { EnrichedToken, enrichTokens, mergeSymbolsIntoRanges } from "./range_tokenizer";
+import { Token } from ".";
+import { mergeSymbolsIntoRanges } from "./range_tokenizer";
 import { tokenize } from "./tokenizer";
+
+/**
+ * Enriched Token is used by the composer to add information on the tokens that
+ * are only needed during the edition of a formula.
+ *
+ * The information added are:
+ * - parenthesis matching
+ * - range detection (replaces the tokens that composes the range with 1 token)
+ * - length, start and end of each token
+ */
+
+export interface EnrichedToken extends Token {
+  start: number;
+  end: number;
+  length: number;
+  parenIndex?: number;
+}
+
+/**
+ * Add the following information on tokens:
+ * - length
+ * - start
+ * - end
+ */
+function enrichTokens(tokens: Token[]): EnrichedToken[] {
+  let current = 0;
+  return tokens.map((x) => {
+    const len = x.value.toString().length;
+    const token: EnrichedToken = Object.assign({}, x, {
+      start: current,
+      end: current + len,
+      length: len,
+    });
+    current = token.end;
+    return token;
+  });
+}
 
 /**
  * add on each token the length, start and end
@@ -28,5 +66,5 @@ function mapParenthesis(tokens: EnrichedToken[]): EnrichedToken[] {
 export function composerTokenize(formula: string): EnrichedToken[] {
   const tokens = tokenize(formula);
 
-  return mergeSymbolsIntoRanges(mapParenthesis(enrichTokens(tokens)));
+  return mapParenthesis(enrichTokens(mergeSymbolsIntoRanges(tokens)));
 }
