@@ -1,4 +1,5 @@
-import { Range, Style, UID } from "./misc";
+import { Style, UID } from "./misc";
+import { Range } from "./range";
 
 // -----------------------------------------------------------------------------
 // Conditional Formatting

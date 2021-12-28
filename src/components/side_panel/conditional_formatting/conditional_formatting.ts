@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { colorNumberString, rangeReference, toZone } from "../../../helpers/index";
+import { colorNumberString, rangeReference, toUnboundZone } from "../../../helpers/index";
 import {
   CancelledReason,
   ColorScaleRule,
@@ -464,7 +464,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
           id:
             this.state.mode === "edit" ? this.state.currentCF.id : this.env.uuidGenerator.uuidv4(),
         },
-        target: this.state.currentCF.ranges.map(toZone),
+        target: this.state.currentCF.ranges.map(toUnboundZone),
         sheetId: this.getters.getActiveSheetId(),
       });
       if (!result.isSuccessful) {

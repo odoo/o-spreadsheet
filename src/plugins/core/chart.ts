@@ -258,10 +258,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       }
     }
 
-    const dataRange = {
-      ...ds.dataRange,
-      zone: dataZone,
-    };
+    const dataRange = ds.dataRange.clone();
+    dataRange.zone = dataZone;
 
     return {
       label: ds.labelCell

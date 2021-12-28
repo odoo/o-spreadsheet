@@ -118,7 +118,7 @@ describe("compile dependencies format", () => {
     expect(compiledFormula.dependenciesFormat.length).toEqual(0);
   });
 
-  test.each(["=A1", "=A1:B9", "=Sheet34!B3"])(
+  test.each(["=A1", "=A1:B9", "=Sheet34!B3", "=A:A", "=Sheet2!1:B1"])(
     "expression with ref return ref dependency",
     (formula) => {
       const compiledFormula = compiledBaseFunction(formula);

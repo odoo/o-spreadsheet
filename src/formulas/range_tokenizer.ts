@@ -1,3 +1,4 @@
+import { isColumnReference } from "../helpers";
 import { Token, tokenize, TokenType } from "./tokenizer";
 
 /**
@@ -66,30 +67,49 @@ export function mergeSymbolsIntoRanges(
   result: EnrichedToken[],
   removeSpace = false
 ): EnrichedToken[] {
-  let operator: number | void = undefined;
-  let refStart: number | void = undefined;
-  let refEnd: number | void = undefined;
-  let startIncludingSpaces: number | void = undefined;
+  let operator: number | void = undefined; // Index of operator ":" in range
+  let refStart: number | void = undefined; // Index of start of range
+  let refEnd: number | void = undefined; // Index of end of range
+  let startIncludingSpaces: number | void = undefined; // Index of start of range, including spaces before range
+  let isRefOfFullRow: boolean = false; // If we work on a range of a full row (eg. 1:1)
+  let isRefOfFullCol: boolean = false; // If we work on a range of a full column (eg. A2:A)
 
   const reset = () => {
     startIncludingSpaces = undefined;
     refStart = undefined;
     operator = undefined;
     refEnd = undefined;
+    isRefOfFullRow = false;
+    isRefOfFullCol = false;
   };
 
   for (let i = 0; i < result.length; i++) {
     const token = result[i];
 
+    // If we already have a token that could be the start of a range, or a SPACE token
     if (startIncludingSpaces) {
+      // If we already have a token that could be the start of a range
       if (refStart) {
+        // Skip spaces
         if (token.type === "SPACE") {
           continue;
-        } else if (token.type === "OPERATOR" && token.value === ":") {
+        }
+        // Find the ":" operator of a range
+        else if (token.type === "OPERATOR" && token.value === ":") {
           operator = i;
-        } else if (operator && token.type === "SYMBOL") {
+        }
+        // Find the second symbol of a range
+        // Be careful not to build a range A:1 or A:1. A2:3 and A:A2 are both valid ranges.
+        else if (
+          operator &&
+          ((token.type === "SYMBOL" && !(isRefOfFullRow && isColumnReference(token.value))) ||
+            (token.type === "NUMBER" && !isRefOfFullCol))
+        ) {
           refEnd = i;
-        } else {
+        }
+        // Cannot add the current token to the range we're currently building
+        else {
+          // We have all the token needed to build a new range
           if (startIncludingSpaces && refStart && operator && refEnd) {
             const newToken = {
               type: <TokenType>"SYMBOL",
@@ -105,34 +125,50 @@ export function mergeSymbolsIntoRanges(
             result.splice(startIncludingSpaces, i - startIncludingSpaces, newToken);
             i = startIncludingSpaces + 1;
             reset();
-          } else {
-            if (token.type === "SYMBOL") {
+          }
+          // Cannot build a range with the current tokens
+          else {
+            // Start building a new range beginning with the current token if possible, else reset
+            if (["SYMBOL", "NUMBER"].includes(token.type)) {
               startIncludingSpaces = i;
               refStart = i;
               operator = undefined;
+              isRefOfFullRow = token.type === "NUMBER";
+              isRefOfFullCol = isColumnReference(token.value);
             } else {
               reset();
             }
           }
         }
-      } else {
-        if (token.type === "SYMBOL") {
+      }
+      // If we only have found a SPACE token
+      else {
+        // Start building a new range beginning with the current token if possible, else reset
+        if (["SYMBOL", "NUMBER"].includes(token.type)) {
           refStart = i;
           operator = refEnd = undefined;
+          isRefOfFullRow = token.type === "NUMBER";
+          isRefOfFullCol = isColumnReference(token.value);
         } else {
           reset();
         }
       }
-    } else {
-      if (["SPACE", "SYMBOL"].includes(token.type)) {
+    }
+    // We found nothing yet, try to find a token that could be the beginning of a range
+    else {
+      if (["SPACE", "SYMBOL", "NUMBER"].includes(token.type)) {
         startIncludingSpaces = i;
-        refStart = token.type === "SYMBOL" ? i : undefined;
+        refStart = ["SYMBOL", "NUMBER"].includes(token.type) ? i : undefined;
         operator = refEnd = undefined;
+        isRefOfFullRow = token.type === "NUMBER";
+        isRefOfFullCol = isColumnReference(token.value);
       } else {
         reset();
       }
     }
   }
+
+  // Try to build a range with the last tokens we used
   const i = result.length - 1;
   if (startIncludingSpaces && refStart && operator && refEnd) {
     const newToken = {
@@ -148,6 +184,7 @@ export function mergeSymbolsIntoRanges(
     };
     result.splice(startIncludingSpaces, i - startIncludingSpaces + 1, newToken);
   }
+
   return result;
 }
 

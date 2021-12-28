@@ -91,14 +91,9 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         if (!merges) return;
         const mergesCopy: Record<UID, Range> = {};
         for (const range of Object.values(merges).filter(isDefined)) {
-          mergesCopy[this.nextId++] = {
-            sheetId: cmd.sheetIdTo,
-            zone: { ...range.zone },
-            parts: [...range.parts],
-            prefixSheet: range.prefixSheet,
-            invalidSheetName: range.invalidSheetName,
-            invalidXc: range.invalidXc,
-          };
+          const copy = range.clone();
+          copy.sheetId = cmd.sheetIdTo;
+          mergesCopy[this.nextId++] = copy;
         }
         this.history.update("merges", cmd.sheetIdTo, mergesCopy);
         this.history.update(

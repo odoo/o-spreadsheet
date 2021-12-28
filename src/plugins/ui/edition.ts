@@ -5,7 +5,7 @@ import {
   isEqual,
   markdownLink,
   rangeReference,
-  toZone,
+  toZoneStateful,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
@@ -18,7 +18,7 @@ import {
   RemoveColumnsRowsCommand,
   Zone,
 } from "../../types/index";
-import { Range, RangePart } from "../../types/misc";
+import { Range, RangePart } from "../../types/range";
 import { UIPlugin } from "../ui_plugin";
 import { SelectionMode } from "./selection";
 
@@ -180,8 +180,13 @@ export class EditionPlugin extends UIPlugin {
             const sheetName = sheet || this.getters.getSheetName(this.sheet);
             const activeSheetId = this.getters.getActiveSheetId();
             return (
-              isEqual(this.getters.expandZone(activeSheetId, toZone(xc)), cmd.zone) &&
-              this.getters.getSheetName(activeSheetId) === sheetName
+              isEqual(
+                this.getters.expandZone(
+                  activeSheetId,
+                  toZoneStateful(xc, this.getters.getSheetSize(activeSheetId))
+                ),
+                cmd.zone
+              ) && this.getters.getSheetName(activeSheetId) === sheetName
             );
           });
         this.previousRef = previousRefToken!.value;

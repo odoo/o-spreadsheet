@@ -2,7 +2,7 @@ import * as owl from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { EnrichedToken } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { DEBUG, isEqual, rangeReference, toZone } from "../../helpers/index";
+import { DEBUG, isEqual, rangeReference, toZoneStateful } from "../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
 import { FunctionDescription, Rect, SpreadsheetEnv } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
@@ -527,7 +527,13 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     const highlight = highlights.find(
       (highlight) =>
         highlight.sheet === refSheet &&
-        isEqual(this.getters.expandZone(refSheet, toZone(xc)), highlight.zone)
+        isEqual(
+          this.getters.expandZone(
+            refSheet,
+            toZoneStateful(xc, this.getters.getSheetSize(refSheet))
+          ),
+          highlight.zone
+        )
     );
     return highlight && highlight.color ? highlight.color : undefined;
   }

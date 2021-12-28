@@ -7,7 +7,7 @@ export function transformZone(zone: Zone, executed: CoreCommand): Zone | undefin
       zone,
       executed.dimension === "COL" ? "left" : "top",
       executed.elements
-    );
+    ) as Zone; //TODO maybe improve that
   }
   if (executed.type === "ADD_COLUMNS_ROWS") {
     return expandZoneOnInsertion(
@@ -16,7 +16,7 @@ export function transformZone(zone: Zone, executed: CoreCommand): Zone | undefin
       executed.base,
       executed.position,
       executed.quantity
-    );
+    ) as Zone; //TODO maybe improve that
   }
   return { ...zone };
 }

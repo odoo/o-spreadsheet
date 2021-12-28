@@ -10,7 +10,7 @@ import {
   Style,
   Zone,
 } from "./index";
-import { Border, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
+import { Border, CellPosition, ClipboardOptions, Dimension, UID, UnboundZone } from "./misc";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -55,6 +55,10 @@ export function isGridDependent(cmd: CoreCommand): boolean {
 
 export interface TargetDependentCommand {
   target: Zone[];
+}
+
+export interface UnboundTargetDependentCommand {
+  target: UnboundZone[];
 }
 
 export function isTargetDependent(cmd: CoreCommand): boolean {
@@ -286,7 +290,9 @@ export interface RenameSheetCommand extends SheetDependentCommand {
  * todo: use id instead of a list. this is not safe to serialize and send to
  * another user
  */
-export interface AddConditionalFormatCommand extends SheetDependentCommand, TargetDependentCommand {
+export interface AddConditionalFormatCommand
+  extends SheetDependentCommand,
+    UnboundTargetDependentCommand {
   type: "ADD_CONDITIONAL_FORMAT";
   cf: Omit<ConditionalFormat, "ranges">;
 }

@@ -23,6 +23,12 @@ describe("recomputeZones", () => {
     expect(recomputeZones(toKeep, [])).toEqual(expectedZone);
   });
 
+  test("add a cell to a full column zone", () => {
+    const toKeep = ["A:B", "A4"];
+    const expectedZone = ["A:B"];
+    expect(recomputeZones(toKeep, [])).toEqual(expectedZone);
+  });
+
   test("add a row to a zone", () => {
     const toKeep = ["A1:C3", "A4:C4"];
     const expectedZone = ["A1:C4"];

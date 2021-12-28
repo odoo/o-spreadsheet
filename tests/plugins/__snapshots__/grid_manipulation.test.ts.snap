@@ -6,8 +6,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 3,
+          "right": 3,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -16,12 +24,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 3,
-          "right": 3,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -37,8 +39,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 3,
+          "right": 3,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -47,12 +57,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 3,
-          "right": 3,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -68,8 +72,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -78,12 +90,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "sheet2",
-        "zone": Object {
-          "bottom": 0,
-          "left": 1,
-          "right": 1,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -99,8 +105,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 5,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -113,12 +127,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 0,
-          "right": 5,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -134,8 +142,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 4,
+          "right": 5,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -148,12 +164,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 4,
-          "right": 5,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -169,8 +179,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 1,
+          "left": 3,
+          "right": 3,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -183,12 +201,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 1,
-          "left": 3,
-          "right": 3,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -204,8 +216,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -214,12 +234,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 0,
-          "right": 0,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -235,8 +249,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 3,
+          "right": 3,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -245,12 +267,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 3,
-          "right": 3,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -266,8 +282,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 6,
+          "right": 6,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": true,
@@ -276,12 +300,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 6,
-          "right": 6,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -297,8 +315,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 2,
+          "left": 5,
+          "right": 5,
+          "top": 2,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -307,12 +333,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 2,
-          "left": 5,
-          "right": 5,
-          "top": 2,
-        },
       },
     ],
     "evaluated": Object {
@@ -333,8 +353,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -343,12 +371,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet2",
-        "zone": Object {
-          "bottom": 0,
-          "left": 1,
-          "right": 1,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -364,8 +386,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 3,
+          "right": 3,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -374,12 +404,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 3,
-          "right": 3,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -395,8 +419,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -405,12 +437,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "sheet2",
-        "zone": Object {
-          "bottom": 0,
-          "left": 1,
-          "right": 1,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -431,8 +457,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 0,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -441,12 +475,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 1,
-          "right": 0,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -463,8 +491,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 0,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -473,12 +509,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 1,
-          "right": 0,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -495,8 +525,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -505,12 +543,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "sheet2",
-        "zone": Object {
-          "bottom": 0,
-          "left": 1,
-          "right": 1,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -526,8 +558,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 1,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -540,12 +580,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 0,
-          "right": 1,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -562,8 +596,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 1,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -576,12 +618,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 0,
-          "right": 1,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -598,8 +634,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 1,
+          "left": 1,
+          "right": 0,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -612,12 +656,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 1,
-          "left": 1,
-          "right": 0,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -634,8 +672,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -644,12 +690,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 0,
-          "right": 0,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -666,8 +706,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 0,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -676,12 +724,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 1,
-          "right": 0,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -698,8 +740,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 2,
+          "right": 2,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": true,
@@ -708,12 +758,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 2,
-          "right": 2,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -729,8 +773,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 2,
+          "left": 1,
+          "right": 1,
+          "top": 2,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -739,12 +791,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 2,
-          "left": 1,
-          "right": 1,
-          "top": 2,
-        },
       },
     ],
     "evaluated": Object {
@@ -765,8 +811,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -775,12 +829,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet2",
-        "zone": Object {
-          "bottom": 0,
-          "left": 1,
-          "right": 1,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -796,8 +844,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 0,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -806,12 +862,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 1,
-          "right": 0,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -827,8 +877,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -837,12 +895,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "sheet2",
-        "zone": Object {
-          "bottom": 0,
-          "left": 1,
-          "right": 1,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -863,8 +915,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 3,
+          "left": 0,
+          "right": 0,
+          "top": 3,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -873,12 +933,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 3,
-          "left": 0,
-          "right": 0,
-          "top": 3,
-        },
       },
     ],
     "evaluated": Object {
@@ -894,8 +948,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -904,12 +966,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 0,
-          "right": 0,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -925,8 +981,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 3,
+          "left": 0,
+          "right": 0,
+          "top": 3,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -935,12 +999,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 3,
-          "left": 0,
-          "right": 0,
-          "top": 3,
-        },
       },
     ],
     "evaluated": Object {
@@ -956,8 +1014,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -966,12 +1032,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 1,
-          "right": 1,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -987,8 +1047,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -997,12 +1065,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "sheet2",
-        "zone": Object {
-          "bottom": 1,
-          "left": 0,
-          "right": 0,
-          "top": 1,
-        },
       },
     ],
     "evaluated": Object {
@@ -1018,8 +1080,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 6,
+          "left": 0,
+          "right": 0,
+          "top": 6,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1028,12 +1098,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 6,
-          "left": 0,
-          "right": 0,
-          "top": 6,
-        },
       },
     ],
     "evaluated": Object {
@@ -1049,8 +1113,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 5,
+          "left": 2,
+          "right": 2,
+          "top": 5,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1059,12 +1131,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 5,
-          "left": 2,
-          "right": 2,
-          "top": 5,
-        },
       },
     ],
     "evaluated": Object {
@@ -1080,8 +1146,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 5,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1094,12 +1168,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 5,
-          "left": 0,
-          "right": 0,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -1115,8 +1183,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 5,
+          "left": 0,
+          "right": 0,
+          "top": 4,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1129,12 +1205,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 5,
-          "left": 0,
-          "right": 0,
-          "top": 4,
-        },
       },
     ],
     "evaluated": Object {
@@ -1150,8 +1220,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 3,
+          "left": 1,
+          "right": 2,
+          "top": 3,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1164,12 +1242,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 3,
-          "left": 1,
-          "right": 2,
-          "top": 3,
-        },
       },
     ],
     "evaluated": Object {
@@ -1190,8 +1262,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1200,12 +1280,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet2",
-        "zone": Object {
-          "bottom": 1,
-          "left": 0,
-          "right": 0,
-          "top": 1,
-        },
       },
     ],
     "evaluated": Object {
@@ -1221,8 +1295,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 3,
+          "left": 0,
+          "right": 0,
+          "top": 3,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1231,12 +1313,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 3,
-          "left": 0,
-          "right": 0,
-          "top": 3,
-        },
       },
     ],
     "evaluated": Object {
@@ -1252,8 +1328,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1262,12 +1346,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "sheet2",
-        "zone": Object {
-          "bottom": 1,
-          "left": 0,
-          "right": 0,
-          "top": 1,
-        },
       },
     ],
     "evaluated": Object {
@@ -1288,8 +1366,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1298,12 +1384,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 0,
-          "right": 0,
-          "top": 1,
-        },
       },
     ],
     "evaluated": Object {
@@ -1320,8 +1400,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1330,12 +1418,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 0,
-          "right": 0,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -1352,8 +1434,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1362,12 +1452,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 0,
-          "right": 0,
-          "top": 1,
-        },
       },
     ],
     "evaluated": Object {
@@ -1384,8 +1468,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1394,12 +1486,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 1,
-          "right": 1,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -1416,8 +1502,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1426,12 +1520,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "sheet2",
-        "zone": Object {
-          "bottom": 1,
-          "left": 0,
-          "right": 0,
-          "top": 1,
-        },
       },
     ],
     "evaluated": Object {
@@ -1447,8 +1535,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 2,
+          "left": 0,
+          "right": 0,
+          "top": 2,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1457,12 +1553,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 2,
-          "left": 0,
-          "right": 0,
-          "top": 2,
-        },
       },
     ],
     "evaluated": Object {
@@ -1478,8 +1568,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 1,
+          "left": 2,
+          "right": 2,
+          "top": 1,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1488,12 +1586,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 1,
-          "left": 2,
-          "right": 2,
-          "top": 1,
-        },
       },
     ],
     "evaluated": Object {
@@ -1509,8 +1601,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1523,12 +1623,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 1,
-          "left": 0,
-          "right": 0,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -1545,8 +1639,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1559,12 +1661,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 1,
-          "left": 0,
-          "right": 0,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -1581,8 +1677,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 2,
+          "top": 1,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1595,12 +1699,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 1,
-          "right": 2,
-          "top": 1,
-        },
       },
     ],
     "evaluated": Object {
@@ -1622,8 +1720,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1632,12 +1738,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "sheet2",
-        "zone": Object {
-          "bottom": 1,
-          "left": 0,
-          "right": 0,
-          "top": 1,
-        },
       },
     ],
     "evaluated": Object {
@@ -1653,8 +1753,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1663,12 +1771,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "sheet1",
-        "zone": Object {
-          "bottom": 0,
-          "left": 0,
-          "right": 0,
-          "top": 1,
-        },
       },
     ],
     "evaluated": Object {
@@ -1684,8 +1786,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1694,12 +1804,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "sheet2",
-        "zone": Object {
-          "bottom": 1,
-          "left": 0,
-          "right": 0,
-          "top": 1,
-        },
       },
     ],
     "evaluated": Object {
@@ -1720,8 +1824,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1730,12 +1842,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "s1",
-        "zone": Object {
-          "bottom": 1,
-          "left": 0,
-          "right": 0,
-          "top": 1,
-        },
       },
     ],
     "evaluated": Object {
@@ -1751,8 +1857,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1761,12 +1875,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "s2",
-        "zone": Object {
-          "bottom": 0,
-          "left": 0,
-          "right": 0,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -1787,8 +1895,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1797,12 +1913,6 @@ Object {
         ],
         "prefixSheet": false,
         "sheetId": "s2",
-        "zone": Object {
-          "bottom": 0,
-          "left": 1,
-          "right": 1,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {
@@ -1818,8 +1928,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1828,12 +1946,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "s1",
-        "zone": Object {
-          "bottom": 1,
-          "left": 0,
-          "right": 0,
-          "top": 1,
-        },
       },
     ],
     "evaluated": Object {
@@ -1849,8 +1961,16 @@ Object {
     "buildFormulaString": [Function],
     "compiledFormula": [Function],
     "dependencies": Array [
-      Object {
+      Range {
+        "_getSheetSize": [Function],
+        "_zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
         "invalidSheetName": undefined,
+        "invalidXc": undefined,
         "parts": Array [
           Object {
             "colFixed": false,
@@ -1859,12 +1979,6 @@ Object {
         ],
         "prefixSheet": true,
         "sheetId": "s2",
-        "zone": Object {
-          "bottom": 0,
-          "left": 0,
-          "right": 0,
-          "top": 0,
-        },
       },
     ],
     "evaluated": Object {

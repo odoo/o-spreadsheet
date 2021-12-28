@@ -1,5 +1,6 @@
 import { FORBIDDEN_IN_EXCEL_REGEX } from "../../constants";
 import {
+  bindZone,
   createCols,
   createDefaultCols,
   createDefaultRows,
@@ -28,9 +29,11 @@ import {
   Row,
   Sheet,
   UID,
+  UnboundZone,
   UpdateCellPositionCommand,
   WorkbookData,
   Zone,
+  ZoneDimension,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
@@ -67,6 +70,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getHiddenRowsGroups",
     "getGridLinesVisibility",
     "isEmpty",
+    "getSheetSize",
   ] as const;
 
   readonly sheetIds: Record<string, UID | undefined> = {};
@@ -401,6 +405,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   getNumberRows(sheetId: UID) {
     return this.getSheet(sheetId).rows.length;
+  }
+
+  getSheetSize(sheetId: UID): ZoneDimension {
+    return {
+      height: this.getSheet(sheetId).rows.length,
+      width: this.getSheet(sheetId).cols.length,
+    };
   }
 
   // ---------------------------------------------------------------------------
@@ -1024,7 +1035,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * not outside the sheet.
    */
   private checkZones(cmd: Command): CommandResult {
-    const zones: Zone[] = [];
+    const zones: UnboundZone[] = [];
     if ("zone" in cmd) {
       zones.push(cmd.zone);
     }
@@ -1041,7 +1052,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         bottom: sheet.rows.length - 1,
         right: sheet.cols.length - 1,
       };
-      return zones.every((zone) => isZoneInside(zone, sheetZone))
+      return zones.every((zone) =>
+        isZoneInside(
+          bindZone(zone, { width: sheetZone.right, height: sheetZone.bottom }),
+          sheetZone
+        )
+      )
         ? CommandResult.Success
         : CommandResult.TargetOutOfSheet;
     }

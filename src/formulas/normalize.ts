@@ -1,4 +1,4 @@
-import { cellReference } from "../helpers";
+import { rangeReference } from "../helpers";
 import { NormalizedFormula } from "../types";
 import { rangeTokenize } from "./range_tokenizer";
 import { FORMULA_REF_IDENTIFIER } from "./tokenizer";
@@ -18,7 +18,7 @@ export function normalize(formula: string): NormalizedFormula {
 
   let noRefFormula = "".concat(
     ...tokens.map<string>((token) => {
-      if (token.type === "SYMBOL" && cellReference.test(token.value)) {
+      if (token.type === "SYMBOL" && rangeReference.test(token.value)) {
         const value = token.value.trim();
         if (!references.includes(value)) {
           references.push(value);

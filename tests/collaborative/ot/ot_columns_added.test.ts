@@ -1,5 +1,5 @@
 import { transform } from "../../../src/collaborative/ot/ot";
-import { toZone } from "../../../src/helpers/zones";
+import { toUnboundZone, toZone } from "../../../src/helpers/zones";
 import {
   AddColumnsRowsCommand,
   AddConditionalFormatCommand,
@@ -149,6 +149,23 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
       });
     }
   );
+  describe.each([addConditionalFormat])("target commands with unbound zones", (cmd) => {
+    test(`add columns  before ${cmd.type}`, () => {
+      const command = { ...cmd, target: [toUnboundZone("A:A")] };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual(command);
+    });
+    test(`add columns after ${cmd.type}`, () => {
+      const command = { ...cmd, target: [toUnboundZone("M5:O")] };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual({ ...command, target: [toUnboundZone("O5:Q")] });
+    });
+    test(`add columns in ${cmd.type}`, () => {
+      const command = { ...cmd, target: [toUnboundZone("F:G")] };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual({ ...command, target: [toUnboundZone("F:I")] });
+    });
+  });
   const addMerge: Omit<AddMergeCommand, "target"> = {
     type: "ADD_MERGE",
     sheetId,

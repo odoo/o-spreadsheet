@@ -1,11 +1,13 @@
 import { composerTokenize } from "../../src/formulas/composer_tokenizer";
 
 describe("composerTokenizer", () => {
-  test("only range", () => {
-    expect(composerTokenize("=A1:A2")).toEqual([
-      { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
-      { start: 1, end: 6, length: 5, type: "SYMBOL", value: "A1:A2" },
-    ]);
+  describe.each(["A1:B1", "A:A", "1:1", "A1:A", "B3:4"])("tokenise ranges", (xc) => {
+    test(`range ${xc}`, () => {
+      expect(composerTokenize("=" + xc)).toEqual([
+        { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
+        { start: 1, end: 1 + xc.length, length: xc.length, type: "SYMBOL", value: xc },
+      ]);
+    });
   });
   test("operation and no range", () => {
     expect(composerTokenize("=A3+A1")).toEqual([

@@ -1,5 +1,5 @@
 import { transform } from "../../../src/collaborative/ot/ot";
-import { toZone } from "../../../src/helpers";
+import { toUnboundZone, toZone } from "../../../src/helpers";
 import {
   AddColumnsRowsCommand,
   AddConditionalFormatCommand,
@@ -150,6 +150,33 @@ describe("OT with REMOVE_COLUMN", () => {
       });
     }
   );
+  describe.each([addConditionalFormat])("target commands with unbound zones", (cmd) => {
+    test(`remove columns before ${cmd.type}`, () => {
+      const command = { ...cmd, target: [toUnboundZone("A:A")] };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual(command);
+    });
+    test(`remove columns after ${cmd.type}`, () => {
+      const command = { ...cmd, target: [toUnboundZone("M5:O")] };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual({ ...command, target: [toUnboundZone("J5:L")] });
+    });
+    test(`${cmd.type} in removed columns`, () => {
+      const command = { ...cmd, target: [toUnboundZone("F:G")] };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual({ ...command, target: [toUnboundZone("D:D")] });
+    });
+    test(`${cmd.type} with a target removed`, () => {
+      const command = { ...cmd, target: [toUnboundZone("C:D")] };
+      const result = transform(command, removeColumns);
+      expect(result).toBeUndefined();
+    });
+    test(`${cmd.type} with a target removed, but another valid`, () => {
+      const command = { ...cmd, target: [toUnboundZone("C:D"), toUnboundZone("A2:A")] };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual({ ...command, target: [toUnboundZone("A2:A")] });
+    });
+  });
 
   describe("OT with RemoveColumns - AddColumns", () => {
     const toTransform: Omit<AddColumnsRowsCommand, "base"> = {

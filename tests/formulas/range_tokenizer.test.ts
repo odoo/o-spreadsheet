@@ -52,6 +52,16 @@ describe("rangeTokenizer", () => {
       { type: "RIGHT_PAREN", value: ")" },
     ]);
   });
+
+  test("=SUM(A:A)", () => {
+    expect(rangeTokenize("=SUM(A:A)")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "FUNCTION", value: "SUM" },
+      { type: "LEFT_PAREN", value: "(" },
+      { type: "SYMBOL", value: "A:A" },
+      { type: "RIGHT_PAREN", value: ")" },
+    ]);
+  });
 });
 
 describe("knows what's a reference and what's not", () => {

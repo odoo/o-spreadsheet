@@ -1,4 +1,4 @@
-import { toCartesian, toZone } from "../../src/helpers";
+import { toCartesian, toZone, toZoneStateful } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
@@ -212,11 +212,12 @@ describe("edition", () => {
     ]);
 
     model.dispatch("SET_CURRENT_CONTENT", {
-      content: "=SUM(B2:B3, C5)",
+      content: "=SUM(B2:B3, C5, B2:B)",
     });
     expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([
       toZone("B2:B3"),
       toZone("C5"),
+      toZoneStateful("B2:B", model.getters.getSheetSize(model.getters.getActiveSheetId())),
     ]);
   });
 

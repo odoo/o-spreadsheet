@@ -4,6 +4,7 @@
 
 import { Cell, CellValue } from "./cells";
 import { CommandResult } from "./commands";
+import { Range } from "./range";
 import { NormalizedFormula } from "./workbook_data";
 
 export type UID = string;
@@ -22,6 +23,15 @@ export interface Zone {
   right: number;
   top: number;
   bottom: number;
+}
+
+export interface UnboundZone {
+  left: number;
+  right: number | undefined;
+  top: number;
+  bottom: number | undefined;
+  // Indicate if a full col/row zone begins at the start of the col/row or have an offset (eg. B2:C vs B:C)
+  hasHeader?: boolean;
 }
 
 export interface ZoneDimension {
@@ -75,19 +85,6 @@ export interface Border {
   right?: BorderDescr;
 }
 
-export interface RangePart {
-  colFixed: boolean;
-  rowFixed: boolean;
-}
-
-export type Range = {
-  zone: Zone; // the zone the range actually spans
-  sheetId: UID; // the sheet on which the range is defined
-  invalidSheetName?: string; // the name of any sheet that is invalid
-  invalidXc?: string;
-  parts: RangePart[];
-  prefixSheet: boolean; // true if the user provided the range with the sheet name, so it has to be recomputed with the sheet name too
-};
 export type ReferenceDenormalizer = (
   position: number,
   references: Range[],

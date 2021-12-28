@@ -1,5 +1,5 @@
 import { transform } from "../../../src/collaborative/ot/ot";
-import { toZone } from "../../../src/helpers";
+import { toUnboundZone, toZone } from "../../../src/helpers";
 import {
   AddColumnsRowsCommand,
   AddConditionalFormatCommand,
@@ -149,6 +149,23 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
       });
     }
   );
+  describe.each([addConditionalFormat])("target commands with unbound zones", (cmd) => {
+    test(`add rows before ${cmd.type}`, () => {
+      const command = { ...cmd, target: [toUnboundZone("1:1")] };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual(command);
+    });
+    test(`add rows after ${cmd.type}`, () => {
+      const command = { ...cmd, target: [toUnboundZone("A10:11")] };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual({ ...command, target: [toUnboundZone("A12:13")] });
+    });
+    test(`add rows in ${cmd.type}`, () => {
+      const command = { ...cmd, target: [toUnboundZone("5:6")] };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual({ ...command, target: [toUnboundZone("5:8")] });
+    });
+  });
 
   const resizeRowsCommand: Omit<ResizeColumnsRowsCommand, "elements"> = {
     type: "RESIZE_COLUMNS_ROWS",

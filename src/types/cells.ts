@@ -1,5 +1,6 @@
 import { SpreadsheetEnv } from "./env";
-import { CompiledFormula, Link, Range, Style, UID } from "./misc";
+import { CompiledFormula, Link, Style, UID } from "./misc";
+import { Range } from "./range";
 
 export enum CellValueType {
   boolean = "boolean",

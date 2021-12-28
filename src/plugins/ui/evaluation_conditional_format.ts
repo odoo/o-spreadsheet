@@ -1,4 +1,11 @@
-import { colorNumberString, isInside, recomputeZones, toXC, toZone } from "../../helpers/index";
+import {
+  colorNumberString,
+  isInside,
+  recomputeZones,
+  toUnboundZone,
+  toXC,
+  toZoneStateful,
+} from "../../helpers/index";
 import { clip, isDefined } from "../../helpers/misc";
 import { Mode } from "../../model";
 import { _lt } from "../../translation";
@@ -133,7 +140,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
             break;
           default:
             for (let ref of cf.ranges) {
-              const zone: Zone = toZone(ref);
+              const zone: Zone = toZoneStateful(ref, this.getters.getSheetSize(activeSheetId));
               for (let row = zone.top; row <= zone.bottom; row++) {
                 for (let col = zone.left; col <= zone.right; col++) {
                   const pr: (cell: Cell | undefined, rule: CellIsRule) => boolean =
@@ -195,8 +202,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     ) {
       return;
     }
-    const zone: Zone = toZone(range);
     const activeSheetId = this.getters.getActiveSheetId();
+    const zone: Zone = toZoneStateful(range, this.getters.getSheetSize(activeSheetId));
     const computedIcons = this.computedIcons[activeSheetId];
     const iconSet: string[] = [rule.icons.upper, rule.icons.middle, rule.icons.lower];
     for (let row = zone.top; row <= zone.bottom; row++) {
@@ -254,8 +261,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     ) {
       return;
     }
-    const zone: Zone = toZone(range);
     const activeSheetId = this.getters.getActiveSheetId();
+    const zone: Zone = toZoneStateful(range, this.getters.getSheetSize(activeSheetId));
     const computedStyle = this.computedStyles[activeSheetId];
     const colorCellArgs: {
       minValue: number;
@@ -459,7 +466,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         rule: cf.rule,
         stopIfTrue: cf.stopIfTrue,
       },
-      target: newRange.map(toZone),
+      target: newRange.map(toUnboundZone),
       sheetId,
     });
   }
@@ -468,7 +475,13 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     const xc = toXC(target.col, target.row);
     for (let rule of this.getters.getConditionalFormats(origin.sheetId)) {
       for (let range of rule.ranges) {
-        if (isInside(origin.col, origin.row, toZone(range))) {
+        if (
+          isInside(
+            origin.col,
+            origin.row,
+            toZoneStateful(range, this.getters.getSheetSize(origin.sheetId))
+          )
+        ) {
           const cf = rule;
           const toRemoveRange: string[] = [];
           if (operation === "CUT") {

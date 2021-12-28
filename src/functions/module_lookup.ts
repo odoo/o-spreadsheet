@@ -62,6 +62,8 @@ export const COLUMN: AddFunctionDescription = {
 // COLUMNS
 // -----------------------------------------------------------------------------
 
+// TODO add check we don't try to count cols in 1:1 OR add a way to get the sheet size OR use args (range)
+// and allow (range) to give value for range out of bound of sheet
 export const COLUMNS: AddFunctionDescription = {
   description: _lt("Number of columns in a specified array or range."),
   args: args(`range (meta) ${_lt("The range whose column count will be returned.")}`),
@@ -265,6 +267,8 @@ export const ROW: AddFunctionDescription = {
 // ROWS
 // -----------------------------------------------------------------------------
 
+// TODO add check we don't try to count rows in A:A OR add a way to get the sheet size OR use args (range)
+// and allow (range) to give value for range out of bound of sheet
 export const ROWS: AddFunctionDescription = {
   description: _lt("Number of rows in a specified array or range."),
   args: args(`range (meta) ${_lt("The range whose row count will be returned.")}`),

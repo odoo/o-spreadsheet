@@ -1,4 +1,4 @@
-import { toCartesian, toZone } from "../../src/helpers";
+import { toCartesian, toUnboundZone, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult, ConditionalFormattingOperatorValues } from "../../src/types";
 import {
@@ -35,7 +35,7 @@ describe("conditional format", () => {
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("4", { fillColor: "#0000FF" }, "2"),
-      target: [toZone("A1:A4")],
+      target: [toUnboundZone("A:A")],
       sheetId: model.getters.getActiveSheetId(),
     });
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toEqual([
@@ -61,7 +61,7 @@ describe("conditional format", () => {
           },
         },
         id: "2",
-        ranges: ["A1:A4"],
+        ranges: ["A:A"],
       },
     ]);
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();

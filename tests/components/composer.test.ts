@@ -490,6 +490,12 @@ describe("composer", () => {
     expect(getCellText(model, "A1")).toBe("=C8");
   });
 
+  test("full rows/cols ranges are correctly displayed", async () => {
+    composerEl = await typeInComposerGrid("=SUM(A:A)");
+    await keydown("Enter");
+    expect(getCellText(model, "A1")).toBe("=SUM(A:A)");
+  });
+
   test("clicking on the composer while typing text (not formula) does not duplicates text", async () => {
     composerEl = await typeInComposerGrid("a");
     composerEl.dispatchEvent(new MouseEvent("click"));
