@@ -1,13 +1,13 @@
-import { Spreadsheet } from "../../src";
+import { Spreadsheet } from "../../../src";
 import {
   MatchingParenColor,
   NumberColor,
   tokenColor,
-} from "../../src/components/composer/composer";
-import { fontSizes } from "../../src/fonts";
-import { colors, toZone } from "../../src/helpers/index";
-import { Model } from "../../src/model";
-import { LinkCell } from "../../src/types";
+} from "../../../src/components/composer/composer";
+import { fontSizes } from "../../../src/fonts";
+import { colors, toZone } from "../../../src/helpers/index";
+import { Model } from "../../../src/model";
+import { LinkCell } from "../../../src/types";
 import {
   activateSheet,
   createSheet,
@@ -15,19 +15,26 @@ import {
   merge,
   selectCell,
   setCellContent,
-} from "../test_helpers/commands_helpers";
-import { clickCell, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
+} from "../../test_helpers/commands_helpers";
+import { clickCell, simulateClick, triggerMouseEvent } from "../../test_helpers/dom_helper";
+import {
+  getActiveXc,
+  getCell,
+  getCellContent,
+  getCellText,
+} from "../../test_helpers/getters_helpers";
 import {
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
   startGridComposition,
   typeInComposerGrid as typeInComposerGridHelper,
-} from "../test_helpers/helpers";
-import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
-jest.mock("../../src/components/composer/content_editable_helper", () =>
-  require("./__mocks__/content_editable_helper")
+} from "../../test_helpers/helpers";
+import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
+import { getHighlights, keydown, keyup } from "./composer_helper";
+
+jest.mock("../../../src/components/composer/content_editable_helper", () =>
+  require("../__mocks__/content_editable_helper")
 );
 
 let model: Model;
@@ -36,10 +43,6 @@ let canvasEl: Element;
 let fixture: HTMLElement;
 let parent: Spreadsheet;
 let cehMock: ContentEditableHelper;
-
-function getHighlights(model: Model): any[] {
-  return model.getters.getHighlights();
-}
 
 async function startComposition(key?: string) {
   const composerEl = await startGridComposition(key);
@@ -53,21 +56,6 @@ async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
   // @ts-ignore
   cehMock = window.mockContentHelper;
   return composerEl;
-}
-
-async function keydown(key: string, options: any = {}) {
-  document.activeElement!.dispatchEvent(
-    new KeyboardEvent("keydown", Object.assign({ key, bubbles: true }, options))
-  );
-  await nextTick();
-  await nextTick();
-}
-async function keyup(key: string, options: any = {}) {
-  document.activeElement!.dispatchEvent(
-    new KeyboardEvent("keyup", Object.assign({ key, bubbles: true }, options))
-  );
-  await nextTick();
-  await nextTick();
 }
 
 beforeEach(async () => {
@@ -578,194 +566,6 @@ describe("composer", () => {
     await keydown("ArrowLeft");
     await simulateClick("canvas", 300, 200); // focus another Cell (i.e. C8)
     expect(topbarComposerElement.textContent).toBe("");
-  });
-
-  describe("change selecting mode when typing specific token value", () => {
-    const matchingValues = [",", "+", "*", "="];
-    const mismatchingValues = ["1", '"coucou"', "TRUE", "SUM", "A2"];
-    const formulas = ["=", "=SUM("];
-
-    describe.each(formulas)("typing %s followed by", (formula) => {
-      test.each(matchingValues.concat(["("]))(
-        "a matching value --> activate 'waitingForRangeSelection' mode",
-        async (matchingValue) => {
-          const content = formula + matchingValue;
-          await startComposition();
-          composerEl = await typeInComposerGrid(content);
-          expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-          expect(composerEl.textContent).toBe(content);
-          expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-          expect(cehMock.selectionState.position).toBe(content.length);
-        }
-      );
-
-      test.each(mismatchingValues.concat([")"]))(
-        "a mismatching value --> not activate 'waitingForRangeSelection' mode",
-        async (mismatchingValue) => {
-          const content = formula + mismatchingValue;
-          await startComposition();
-          composerEl = await typeInComposerGrid(content);
-          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
-          expect(composerEl.textContent).toBe(content);
-          expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
-        }
-      );
-
-      test.each(matchingValues.concat(["("]))(
-        "a matching value & spaces --> activate 'waitingForRangeSelection' mode",
-        async (matchingValue) => {
-          const content = formula + matchingValue;
-          const newContent = content + "   ";
-          await startComposition();
-          composerEl = await typeInComposerGrid(newContent);
-          expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-          expect(composerEl.textContent).toBe(newContent);
-          expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-          expect(cehMock.selectionState.position).toBe(newContent.length);
-        }
-      );
-
-      test.each(mismatchingValues.concat([")"]))(
-        "a mismatching value & spaces --> not activate 'waitingForRangeSelection' mode",
-        async (mismatchingValue) => {
-          const content = formula + mismatchingValue;
-          await startComposition();
-          composerEl = await typeInComposerGrid(content + "   ");
-          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
-          expect(composerEl.textContent).toBe(content + "   ");
-          expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
-        }
-      );
-
-      test.each(mismatchingValues.concat([")"]))(
-        "a UNKNOWN token & a matching value --> not activate 'waitingForRangeSelection' mode",
-        async (matchingValue) => {
-          const content = formula + "'" + matchingValue;
-          await startComposition();
-          composerEl = await typeInComposerGrid(content);
-          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
-          expect(composerEl.textContent).toBe(content);
-        }
-      );
-
-      test.each(matchingValues.concat([")"]))(
-        "a matching value & located before matching value --> activate 'waitingForRangeSelection' mode",
-        async (matchingValue) => {
-          await startComposition();
-          await typeInComposerGrid(matchingValue);
-          await moveToStart();
-          composerEl = await typeInComposerGrid(formula + ",");
-          expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-          expect(composerEl.textContent).toBe(formula + "," + matchingValue);
-          expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-          expect(cehMock.selectionState.position).toBe((formula + ",").length);
-        }
-      );
-
-      async function moveToStart() {
-        model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 0 });
-        await nextTick();
-        model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
-        await nextTick();
-      }
-
-      test.each(mismatchingValues.concat(["("]))(
-        "a matching value & located before mismatching value --> not activate 'waitingForRangeSelection' mode",
-        async (mismatchingValue) => {
-          await startComposition();
-          await typeInComposerGrid(mismatchingValue);
-          await moveToStart();
-          composerEl = await typeInComposerGrid(formula + ",");
-          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
-          expect(composerEl.textContent).toBe(formula + "," + mismatchingValue);
-        }
-      );
-
-      test.each(matchingValues.concat([")"]))(
-        "a matching value & spaces & located before matching value --> activate 'waitingForRangeSelection' mode",
-        async (matchingValue) => {
-          await startComposition();
-          await typeInComposerGrid(matchingValue);
-          await moveToStart();
-          const formulaInput = formula + ",  ";
-          composerEl = await typeInComposerGrid(formulaInput);
-          expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-          expect(composerEl.textContent).toBe(formulaInput + matchingValue);
-          expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-          expect(cehMock.selectionState.position).toBe(formulaInput.length);
-        }
-      );
-
-      test.each(mismatchingValues.concat(["("]))(
-        "a matching value & spaces & located before mismatching value --> not activate 'waitingForRangeSelection' mode",
-        async (mismatchingValue) => {
-          await startComposition();
-          await typeInComposerGrid(mismatchingValue);
-          await moveToStart();
-          composerEl = await typeInComposerGrid(formula + ",  ");
-          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
-          expect(composerEl.textContent).toBe(formula + ",  " + mismatchingValue);
-          expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
-        }
-      );
-
-      test.each(matchingValues.concat([")"]))(
-        "a matching value & located before spaces & matching value --> activate 'waitingForRangeSelection' mode",
-        async (matchingValue) => {
-          await startComposition();
-          await typeInComposerGrid("   " + matchingValue);
-          await moveToStart();
-          composerEl = await typeInComposerGrid(formula + ",");
-          expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-          expect(composerEl.textContent).toBe(formula + ",   " + matchingValue);
-          expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-          expect(cehMock.selectionState.position).toBe((formula + ",").length);
-        }
-      );
-
-      test.each(mismatchingValues.concat(["("]))(
-        "a matching value & located before spaces & mismatching value --> not activate 'waitingForRangeSelection' mode",
-        async (mismatchingValue) => {
-          await startComposition();
-          await typeInComposerGrid("   " + mismatchingValue);
-          await moveToStart();
-          composerEl = await typeInComposerGrid(formula + ",");
-          expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
-          expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
-          expect(composerEl.textContent).toBe(formula + ",   " + mismatchingValue);
-        }
-      );
-    });
-
-    test.each([",", "+", "*", ")", "("])(
-      "typing a matching values (except '=') --> not activate 'waitingForRangeSelection' mode",
-      async (value) => {
-        await startComposition();
-        composerEl = await typeInComposerGrid(value);
-        expect(model.getters.getEditionMode()).not.toBe("waitingForRangeSelection");
-        expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
-        expect(composerEl.textContent).toBe(value);
-      }
-    );
-
-    test("typing '='--> activate 'waitingForRangeSelection' mode", async () => {
-      await startComposition();
-      composerEl = await typeInComposerGrid("=");
-      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-      expect(composerEl.textContent).toBe("=");
-      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-      expect(cehMock.selectionState.position).toBe(1);
-    });
-
-    test("typing '=' & spaces --> activate 'waitingForRangeSelection' mode", async () => {
-      await startComposition();
-      const content = "=   ";
-      composerEl = await typeInComposerGrid(content);
-      expect(model.getters.getEditionMode()).toBe("waitingForRangeSelection");
-      expect(composerEl.textContent).toBe("=   ");
-      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-      expect(cehMock.selectionState.position).toBe(content.length);
-    });
   });
 
   test("type '=', select a cell in another sheet", async () => {
