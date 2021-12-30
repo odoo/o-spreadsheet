@@ -139,13 +139,13 @@ export const demoData = {
           ranges: ["H23:H33"],
           rule: {
             type: "IconSetRule",
-                upperInflectionPoint: { type: "percentage", value: "66", operator: "gt" },
-                lowerInflectionPoint: { type: "percentage", value: "33", operator: "gt" },
-                icons: {
-                  upper: "arrowGood",
-                  middle: "dotNeutral",
-                  lower: "arrowBad",
-                },
+            upperInflectionPoint: { type: "percentage", value: "66", operator: "gt" },
+            lowerInflectionPoint: { type: "percentage", value: "33", operator: "gt" },
+            icons: {
+              upper: "arrowGood",
+              middle: "dotNeutral",
+              lower: "arrowBad",
+            },
           },
         },
         {
@@ -153,13 +153,13 @@ export const demoData = {
           ranges: ["I23:I33"],
           rule: {
             type: "IconSetRule",
-                upperInflectionPoint: { type: "number", value: "4", operator: "ge" },
-                lowerInflectionPoint: { type: "number", value: "2", operator: "ge" },
-                icons: {
-                  upper: "smileyGood",
-                  middle: "smileyNeutral",
-                  lower: "smileyBad",
-                },
+            upperInflectionPoint: { type: "number", value: "4", operator: "ge" },
+            lowerInflectionPoint: { type: "number", value: "2", operator: "ge" },
+            icons: {
+              upper: "smileyGood",
+              middle: "smileyNeutral",
+              lower: "smileyBad",
+            },
           },
         },
       ],
@@ -369,7 +369,7 @@ export const demoData = {
         C31: { content: "4" },
         D31: { content: "=IF(B31=C31,1, 0)" },
         A32: { content: "COUNTBLANK" },
-        B32: { content: '=COUNTBLANK(F1:G1)' },
+        B32: { content: "=COUNTBLANK(F1:G1)" },
         C32: { content: "1" },
         D32: { content: "=IF(B32=C32,1, 0)" },
         A33: { content: "COUNTIF" },
@@ -886,6 +886,10 @@ export const demoData = {
         B160: { content: '=YEAR("3/12/2012")' },
         C160: { content: "2012" },
         D160: { content: "=IF(B160=C160,1, 0)" },
+        A161: { content: "DELTA" },
+        B161: { content: "=DELTA(1,1)" },
+        C161: { content: "1" },
+        D161: { content: "=IF(B161=C161,1, 0)" },
 
         // DATA
         G1: { content: "Name", style: 8 },

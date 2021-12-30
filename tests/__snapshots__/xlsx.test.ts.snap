@@ -9300,6 +9300,13 @@ Object {
                 </f>
             </c>
         </row>
+        <row r=\\"161\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A161\\" s=\\"1\\">
+                <f>
+                    DELTA(1,1)
+                </f>
+            </c>
+        </row>
     </sheetData>
 </worksheet>",
       "contentType": "sheet",
@@ -11643,6 +11650,13 @@ Object {
             <c r=\\"A160\\" s=\\"1\\">
                 <f>
                     YEAR(\\"2012-03-12\\")
+                </f>
+            </c>
+        </row>
+        <row r=\\"161\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A161\\" s=\\"1\\">
+                <f>
+                    DELTA(1,1)
                 </f>
             </c>
         </row>
