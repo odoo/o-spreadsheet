@@ -256,6 +256,7 @@ const allExportableFormulasData = {
         A158: { content: '=WORKDAY.INTL("3/15/2021", 6, "0111111")' },
         A159: { content: "=XOR(false, true, false, false)" },
         A160: { content: '=YEAR("3/12/2012")' },
+        A161: { content: "=DELTA(1, 1)" },
 
         // DATA
         G1: { content: "Name", style: 8 },

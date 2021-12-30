@@ -3,6 +3,7 @@ import { AddFunctionDescription, FunctionDescription } from "../types";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
 import * as database from "./module_database";
 import * as date from "./module_date";
+import * as engineering from "./module_engineering";
 import * as financial from "./module_financial";
 import * as info from "./module_info";
 import * as logical from "./module_logical";
@@ -25,6 +26,7 @@ const functions: { [category: string]: { [name: string]: AddFunctionDescription 
   operators,
   statistical,
   text,
+  engineering,
 };
 
 //------------------------------------------------------------------------------
