@@ -84,6 +84,11 @@ describe("evaluateCells", () => {
     expect(evaluateCell("C1", grid)).toBe(1);
   });
 
+  test("With cell outside of sheet", () => {
+    const grid = { C1: "=SUM(A11111,AAA1)" };
+    expect(evaluateCell("C1", grid)).toBe(0);
+  });
+
   test("handling some errors", () => {
     const grid = { A1: "=A1", A2: "=A1", A3: "=+", A4: "=1 + A3", A5: "=sum('asdf')" };
     const result = evaluateGrid(grid);
@@ -187,6 +192,21 @@ describe("evaluateCells", () => {
     setCellContent(model, "A1", "=sum(A2:Z10)");
 
     expect(getCell(model, "A1")!.evaluated.value).toBe(42);
+  });
+
+  test("range partially outside of sheet", () => {
+    const model = new Model();
+    setCellContent(model, "D4", "42");
+    setCellContent(model, "A1", "=sum(B2:AZ999)");
+
+    expect(getCell(model, "A1")!.evaluated.value).toBe(42);
+  });
+
+  test("range totally outside of sheet", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=sum(AB1:AZ999)");
+
+    expect(getCell(model, "A1")!.evaluated.value).toBe(0);
   });
 
   test("=Range", () => {
