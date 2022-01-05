@@ -275,7 +275,7 @@ export function compile(str: NormalizedFormula): CompiledFormula {
           const args = compileFunctionArgs(ast);
           codeBlocks.push(splitCodeLines(args.map((arg) => arg.code)).join("\n"));
           fnName = ast.value.toUpperCase();
-          codeBlocks.push(`ctx.__lastFnCalled = '${fnName}'`);
+          codeBlocks.push(`ctx.__lastFnCalled = '${fnName}';`);
           statement = `ctx['${fnName}'](${args.map((arg) => arg.id)})`;
           break;
         case "UNARY_OPERATION": {
@@ -285,7 +285,7 @@ export function compile(str: NormalizedFormula): CompiledFormula {
             functionName: fnName,
           });
           codeBlocks.push(right.code);
-          codeBlocks.push(`ctx.__lastFnCalled = '${fnName}'`);
+          codeBlocks.push(`ctx.__lastFnCalled = '${fnName}';`);
           statement = `ctx['${fnName}']( ${right.id})`;
           break;
         }
@@ -300,7 +300,7 @@ export function compile(str: NormalizedFormula): CompiledFormula {
           });
           codeBlocks.push(left.code);
           codeBlocks.push(right.code);
-          codeBlocks.push(`ctx.__lastFnCalled = '${fnName}'`);
+          codeBlocks.push(`ctx.__lastFnCalled = '${fnName}';`);
           statement = `ctx['${fnName}'](${left.id}, ${right.id})`;
           break;
         }
@@ -313,15 +313,14 @@ export function compile(str: NormalizedFormula): CompiledFormula {
           break;
       }
       if (isLazy) {
-        // prettier-ignore
         const lazyFunction =
-`const _${id} = () => {
-	${splitCodeLines(codeBlocks).join("\n\t")}
-	return ${statement};
-}`;
+          `const _${id} = () => {\n` +
+          `\t${splitCodeLines(codeBlocks).join("\n\t")}\n` +
+          `\treturn ${statement};\n` +
+          "}";
         return { id: `_${id}`, code: lazyFunction };
       } else {
-        codeBlocks.push(`let _${id} = ` + statement);
+        codeBlocks.push(`let _${id} = ${statement};`);
         return { id: `_${id}`, code: splitCodeLines(codeBlocks).join("\n") };
       }
     }
