@@ -1,6 +1,6 @@
 import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { isZoneValid, mapCellsInZone, toXC } from "../../helpers/index";
+import { isZoneValid, mapCellsInZone, overlap, toXC } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
@@ -233,13 +233,18 @@ export class EvaluationPlugin extends UIPlugin {
         throw new Error(_lt("Invalid reference"));
       }
 
-      const zone = {
-        left: range.zone.left,
-        top: range.zone.top,
-        right: Math.min(range.zone.right, sheet.cols.length - 1),
-        bottom: Math.min(range.zone.bottom, sheet.rows.length - 1),
+      // Return an array with undefined if the range is totally outside of the sheet rather than trying
+      // to call mapCellsInZone() with an invalid zone and throw an error
+      const sheetZone = {
+        top: 0,
+        bottom: sheet.rows.length - 1,
+        left: 0,
+        right: sheet.cols.length - 1,
       };
-      return mapCellsInZone(zone, sheet, (cell) => getCellValue(cell, range.sheetId));
+      if (!overlap(range.zone, sheetZone)) {
+        return [[]];
+      }
+      return mapCellsInZone(range.zone, sheet, (cell) => getCellValue(cell, range.sheetId));
     }
 
     /**
