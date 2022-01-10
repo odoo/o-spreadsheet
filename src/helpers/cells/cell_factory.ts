@@ -110,6 +110,9 @@ function detectFormat(content: string): string | undefined {
   if (content.includes("%")) {
     return content.includes(".") ? "0.00%" : "0%";
   }
+  if (content.includes(",")) {
+    return content.includes(".") ? "#,##0.00" : "#,##0";
+  }
   return undefined;
 }
 

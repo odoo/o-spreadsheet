@@ -229,26 +229,63 @@ describe("core", () => {
       expect(getCellContent(model, "A2")).toBe("TRUE");
     });
 
-    test("detect and format percentage values automatically", () => {
-      const model = new Model();
-      setCellContent(model, "A1", "3%");
-      setCellContent(model, "A2", "3.4%");
+    describe("detect format number automatically", () => {
+      test("if contain scientific exponent", () => {
+        const model = new Model();
+        setCellContent(model, "A1", "3e3");
+        setCellContent(model, "A2", "3.12678901E-123");
 
-      expect(getCellContent(model, "A1")).toBe("3%");
-      expect(getCell(model, "A1")!.format).toBe("0%");
-      expect(getCellContent(model, "A2")).toBe("3.40%");
-      expect(getCell(model, "A2")!.format).toBe("0.00%");
-    });
+        expect(getCellContent(model, "A1")).toBe("3.00E+03");
+        expect(getCell(model, "A1")!.format).toBe("0.00E+00");
+        expect(getCellContent(model, "A2")).toBe("3.13E-123");
+        expect(getCell(model, "A2")!.format).toBe("0.00E+00");
+      });
 
-    test("detect and format scientific values automatically", () => {
-      const model = new Model();
-      setCellContent(model, "A1", "3e3");
-      setCellContent(model, "A2", "3.12678901E-123");
+      test("if contain percent", () => {
+        const model = new Model();
+        setCellContent(model, "A1", "3%");
+        setCellContent(model, "A2", "3.4%");
 
-      expect(getCellContent(model, "A1")).toBe("3.00E+03");
-      expect(getCell(model, "A1")!.format).toBe("0.00E+00");
-      expect(getCellContent(model, "A2")).toBe("3.13E-123");
-      expect(getCell(model, "A2")!.format).toBe("0.00E+00");
+        expect(getCellContent(model, "A1")).toBe("3%");
+        expect(getCell(model, "A1")!.format).toBe("0%");
+        expect(getCellContent(model, "A2")).toBe("3.40%");
+        expect(getCell(model, "A2")!.format).toBe("0.00%");
+      });
+
+      test("if contain comma separator", () => {
+        const model = new Model();
+        setCellContent(model, "A1", "1,2345");
+        setCellContent(model, "A2", "1,234,567.4254");
+
+        expect(getCellContent(model, "A1")).toBe("12,345");
+        expect(getCell(model, "A1")!.format).toBe("#,##0");
+        expect(getCellContent(model, "A2")).toBe("1,234,567.43");
+        expect(getCell(model, "A2")!.format).toBe("#,##0.00");
+      });
+
+      test("scientific exponent format most important than percent format", () => {
+        const model = new Model();
+        setCellContent(model, "A1", "123E0%");
+
+        expect(getCellContent(model, "A1")).toBe("1.23E+00");
+        expect(getCell(model, "A1")!.format).toBe("0.00E+00");
+      });
+
+      test("scientific exponent format most important than comma separator format", () => {
+        const model = new Model();
+        setCellContent(model, "A1", "1,234E0");
+
+        expect(getCellContent(model, "A1")).toBe("1.23E+03");
+        expect(getCell(model, "A1")!.format).toBe("0.00E+00");
+      });
+
+      test("percent format most important than comma separator format", () => {
+        const model = new Model();
+        setCellContent(model, "A1", "1,234%");
+
+        expect(getCellContent(model, "A1")).toBe("1234%");
+        expect(getCell(model, "A1")!.format).toBe("0%");
+      });
     });
 
     describe("detect format formula automatically", () => {
