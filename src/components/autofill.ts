@@ -98,7 +98,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
   onMouseDown(ev: MouseEvent) {
     this.state.handler = true;
     this.state.position = { left: 0, top: 0 };
-    const { offsetY, offsetX } = this.env.model.getters.getActiveSnappedViewport();
+    const { offsetY, offsetX } = this.env.model.getters.getActiveViewport();
     const start = {
       left: ev.clientX + offsetX,
       top: ev.clientY + offsetY,
@@ -118,7 +118,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
         left: viewportLeft,
         offsetY,
         offsetX,
-      } = this.env.model.getters.getActiveSnappedViewport();
+      } = this.env.model.getters.getActiveViewport();
       this.state.position = {
         left: ev.clientX - start.left + offsetX,
         top: ev.clientY - start.top + offsetY,
