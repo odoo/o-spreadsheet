@@ -23,13 +23,13 @@ export const formulaNumberRegexp = /^(-\s*)?((\d+(\.\d*)?)|(\.\d+))(e(\+|-)?\d+)
 
 // (-\s*)?                match negative symbol between zero and one time
 // (
-// (\d+(,\d+)*(\.\d*)?)   match integer number with or without decimal digits
+// (\d+(,\d{3,})*(\.\d*)?)   match integer number with or without decimal digits
 // |                      or
 // (\.\d+)                match only expression with decimal digits
 // )
 // (e(\+|-)?\d+)?         match scientific format between zero and one time
 // (s*%)?                 match percent symbol between zero and one time
-export const numberRegexp = /^(-\s*)?((\d+(,\d+)*(\.\d*)?)|(\.\d+))(e(\+|-)?\d+)?(\s*%)?$/i;
+export const numberRegexp = /^(-\s*)?((\d+(,\d{3,})*(\.\d*)?)|(\.\d+))(e(\+|-)?\d+)?(\s*%)?$/i;
 
 /**
  * Return true if the argument is a "number string".
@@ -50,7 +50,8 @@ const commaRegexp = /,/g;
  * number from the point of view of the isNumber function.
  */
 export function parseNumber(str: string): number {
-  let n = Number(str.replace(commaRegexp, ""));
+  str = str.replace(commaRegexp, "");
+  let n = Number(str);
   if (isNaN(n) && str.includes("%")) {
     n = Number(str.split("%")[0]);
     if (!isNaN(n)) {

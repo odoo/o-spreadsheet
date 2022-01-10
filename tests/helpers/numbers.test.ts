@@ -13,6 +13,8 @@ describe("isNumber", () => {
     expect(isNumber("1.1")).toBe(true);
     expect(isNumber(".3")).toBe(true);
     expect(isNumber("1,234")).toBe(true);
+    expect(isNumber("1234567,123,123")).toBe(true);
+    expect(isNumber("1234567,12345,567")).toBe(true);
     expect(isNumber("1,234.56")).toBe(true);
     expect(isNumber("1%")).toBe(true);
     expect(isNumber("1.5%")).toBe(true);
@@ -40,6 +42,7 @@ describe("isNumber", () => {
     expect(isNumber(".")).toBe(false);
     expect(isNumber(" - .e10")).toBe(false);
     expect(isNumber("3 E14")).toBe(false);
+    expect(isNumber("1234567,24,567")).toBe(false);
   });
 });
 
@@ -54,6 +57,7 @@ describe("parseNumber", () => {
     expect(parseNumber(".3")).toBe(0.3);
     expect(parseNumber("1,234")).toBe(1234);
     expect(parseNumber("1,234.5")).toBe(1234.5);
+    expect(parseNumber("1,234%")).toBe(12.34);
     expect(parseNumber("1%")).toBe(0.01);
     expect(parseNumber("1 %")).toBe(0.01);
     expect(parseNumber("1.5%")).toBe(0.015);
@@ -65,6 +69,7 @@ describe("parseNumber", () => {
     expect(parseNumber("3e+4")).toBe(30000);
     expect(parseNumber("3E-4")).toBe(0.0003);
     expect(parseNumber("1e2 %")).toBe(1);
+    expect(parseNumber("1,234e1")).toBe(12340);
   });
 });
 
