@@ -19,7 +19,12 @@ import * as icons from "./icons";
 // Resizer component
 // -----------------------------------------------------------------------------
 
-abstract class AbstractResizer extends Component<any, SpreadsheetChildEnv> {
+interface Props {
+  onOpenContextMenu: (type: ContextMenuType, x: number, y: number) => void;
+  onSetScrollbarValue: (offsetX: number, offsetY: number) => void;
+}
+
+abstract class AbstractResizer extends Component<Props, SpreadsheetChildEnv> {
   PADDING: number = 0;
   MAX_SIZE_MARGIN: number = 0;
   MIN_ELEMENT_SIZE: number = 0;
@@ -420,11 +425,11 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getStateOffset(): number {
-    return this.env.model.getters.getActiveSnappedViewport().offsetX - HEADER_WIDTH;
+    return this.env.model.getters.getActiveViewport().offsetX - HEADER_WIDTH;
   }
 
   _getViewportOffset(): number {
-    return this.env.model.getters.getActiveSnappedViewport().left;
+    return this.env.model.getters.getActiveViewport().left;
   }
 
   _getClientPosition(ev: MouseEvent): number {
@@ -434,7 +439,7 @@ export class ColResizer extends AbstractResizer {
   _getElementIndex(index: number): number {
     return this.env.model.getters.getColIndex(
       index,
-      this.env.model.getters.getActiveSnappedViewport().left
+      this.env.model.getters.getActiveViewport().offsetX
     );
   }
 
@@ -451,7 +456,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getBoundaries(): { first: number; last: number } {
-    const { left, right } = this.env.model.getters.getActiveSnappedViewport();
+    const { left, right } = this.env.model.getters.getActiveViewport();
     return { first: left, last: right };
   }
 
@@ -512,10 +517,10 @@ export class ColResizer extends AbstractResizer {
   }
 
   _adjustViewport(direction: number): void {
-    const { left, offsetY } = this.env.model.getters.getActiveSnappedViewport();
+    const { left, offsetY } = this.env.model.getters.getActiveViewport();
     const { cols } = this.env.model.getters.getActiveSheet();
     const offsetX = cols[left + direction].start;
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
+    this.props.onSetScrollbarValue(offsetX, offsetY);
   }
 
   _fitElementSize(index: number): void {
@@ -668,11 +673,11 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getStateOffset(): number {
-    return this.env.model.getters.getActiveSnappedViewport().offsetY - HEADER_HEIGHT;
+    return this.env.model.getters.getActiveViewport().offsetY - HEADER_HEIGHT;
   }
 
   _getViewportOffset(): number {
-    return this.env.model.getters.getActiveSnappedViewport().top;
+    return this.env.model.getters.getActiveViewport().top;
   }
 
   _getClientPosition(ev: MouseEvent): number {
@@ -682,7 +687,7 @@ export class RowResizer extends AbstractResizer {
   _getElementIndex(index: number): number {
     return this.env.model.getters.getRowIndex(
       index,
-      this.env.model.getters.getActiveSnappedViewport().top
+      this.env.model.getters.getActiveViewport().offsetY
     );
   }
 
@@ -699,7 +704,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getBoundaries(): { first: number; last: number } {
-    const { top, bottom } = this.env.model.getters.getActiveSnappedViewport();
+    const { top, bottom } = this.env.model.getters.getActiveViewport();
     return { first: top, last: bottom };
   }
 
@@ -756,10 +761,10 @@ export class RowResizer extends AbstractResizer {
   }
 
   _adjustViewport(direction: number): void {
-    const { top, offsetX } = this.env.model.getters.getActiveSnappedViewport();
+    const { top, offsetX } = this.env.model.getters.getActiveViewport();
     const { rows } = this.env.model.getters.getActiveSheet();
     const offsetY = rows[top + direction].start;
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
+    this.props.onSetScrollbarValue(offsetX, offsetY);
   }
 
   _fitElementSize(index: number): void {
@@ -821,11 +826,11 @@ css/* scss */ `
   }
 `;
 
-export class Overlay extends Component<any, SpreadsheetChildEnv> {
+export class Overlay extends Component<Props, SpreadsheetChildEnv> {
   static template = xml/* xml */ `
     <div class="o-overlay">
-      <ColResizer onOpenContextMenu="props.onOpenContextMenu" />
-      <RowResizer onOpenContextMenu="props.onOpenContextMenu" />
+      <ColResizer onOpenContextMenu="props.onOpenContextMenu" onSetScrollbarValue="props.onSetScrollbarValue"/>
+      <RowResizer onOpenContextMenu="props.onOpenContextMenu" onSetScrollbarValue="props.onSetScrollbarValue"/>
       <div class="all" t-on-mousedown.self="selectAll"/>
     </div>`;
 

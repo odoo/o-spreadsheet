@@ -105,11 +105,11 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
     const parent = this.highlightRef.el!.parentElement!;
     const position = parent.getBoundingClientRect();
     const activeSheet = this.env.model.getters.getActiveSheet();
-    const { top: viewportTop, left: viewportLeft } =
-      this.env.model.getters.getActiveSnappedViewport();
+    const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
 
-    const initCol = this.env.model.getters.getColIndex(clientX - position.left, viewportLeft);
-    const initRow = this.env.model.getters.getRowIndex(clientY - position.top, viewportTop);
+    // TODO: probably false, should be offsetX and offsetY from viewport
+    const initCol = this.env.model.getters.getColIndex(clientX - position.left, offsetX);
+    const initRow = this.env.model.getters.getRowIndex(clientY - position.top, offsetY);
 
     const deltaColMin = -z.left;
     const deltaColMax = activeSheet.cols.length - z.right - 1;

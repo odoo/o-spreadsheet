@@ -1,6 +1,11 @@
 import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Highlight } from "../../src/components/highlight/highlight";
-import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
+import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+} from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { DispatchResult } from "../../src/types/commands";
@@ -9,19 +14,35 @@ import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, nextTick } from "../test_helpers/helpers";
 
 function getColStartPosition(col: number) {
-  return HEADER_WIDTH + model.getters.getCol(model.getters.getActiveSheetId(), col)!.start;
+  return (
+    HEADER_WIDTH +
+    model.getters.getCol(model.getters.getActiveSheetId(), col)!.start -
+    model.getters.getActiveViewport().offsetX
+  );
 }
 
 function getColEndPosition(col: number) {
-  return HEADER_WIDTH + model.getters.getCol(model.getters.getActiveSheetId(), col)!.end;
+  return (
+    HEADER_WIDTH +
+    model.getters.getCol(model.getters.getActiveSheetId(), col)!.end -
+    model.getters.getActiveViewport().offsetX
+  );
 }
 
 function getRowStartPosition(row: number) {
-  return HEADER_HEIGHT + model.getters.getRow(model.getters.getActiveSheetId(), row)!.start;
+  return (
+    HEADER_HEIGHT +
+    model.getters.getRow(model.getters.getActiveSheetId(), row)!.start -
+    model.getters.getActiveViewport().offsetY
+  );
 }
 
 function getRowEndPosition(row: number) {
-  return HEADER_HEIGHT + model.getters.getRow(model.getters.getActiveSheetId(), row)!.end;
+  return (
+    HEADER_HEIGHT +
+    model.getters.getRow(model.getters.getActiveSheetId(), row)!.end -
+    model.getters.getActiveViewport().offsetY
+  );
 }
 
 async function selectNWCellCorner(el: Element, xc: string) {
@@ -43,6 +64,7 @@ async function selectSWCellCorner(el: Element, xc: string) {
 }
 
 async function selectSECellCorner(el: Element, xc: string) {
+  debugger;
   const { top, left } = toZone(xc);
   triggerMouseEvent(el, "mousedown", getColEndPosition(left), getRowEndPosition(top));
   await nextTick();
@@ -440,6 +462,42 @@ describe("Border component", () => {
     moveToCell(borderEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
       zone: toZone("B1:C1"),
+    });
+  });
+
+  test("resize highlights on a scrolled viewport", async () => {
+    //scroll between B2/C3
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: (DEFAULT_CELL_WIDTH * 3) / 2,
+      offsetY: (DEFAULT_CELL_HEIGHT * 3) / 2,
+    });
+    parent = await mountHighlight("A1:D4", "#666");
+    borderEl = fixture.querySelector(".o-corner-se")!;
+    selectSECellCorner(borderEl, "D4");
+    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      zone: toZone("A1:D4"),
+    });
+    moveToCell(borderEl, "E5");
+    expect(parent.model.dispatch).toHaveBeenLastCalledWith("CHANGE_HIGHLIGHT", {
+      zone: toZone("A1:E5"),
+    });
+  });
+
+  test("drag highlights on a scrolled viewport", async () => {
+    //scroll between B2/C3
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: (DEFAULT_CELL_WIDTH * 3) / 2,
+      offsetY: (DEFAULT_CELL_HEIGHT * 3) / 2,
+    });
+    parent = await mountHighlight("A1:D4", "#666");
+    borderEl = fixture.querySelector(".o-border-s")!;
+    selectBottomCellBorder(borderEl, "D4");
+    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      zone: toZone("A1:D4"),
+    });
+    moveToCell(borderEl, "E5");
+    expect(parent.model.dispatch).toHaveBeenLastCalledWith("CHANGE_HIGHLIGHT", {
+      zone: toZone("B2:E5"),
     });
   });
 
