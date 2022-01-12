@@ -18,6 +18,7 @@ import {
   MAX_DELAY,
   range,
 } from "../helpers/index";
+import { interactivePaste } from "../helpers/ui/paste";
 import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
@@ -49,7 +50,7 @@ import { ScrollBar } from "./scrollbar";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
-const { useRef, onMounted, onWillUnmount, onPatched } = owl.hooks;
+const { useRef, onMounted, onWillUnmount, onPatched, useExternalListener } = owl.hooks;
 export type ContextMenuType = "ROW" | "COL" | "CELL";
 
 const registries = {
@@ -330,6 +331,11 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
   private clickedCol = 0;
   private clickedRow = 0;
 
+  // last string that was cut or copied. It is necessary so we can make the
+  // difference between a paste coming from the sheet itself, or from the
+  // os clipboard
+  private clipBoardString: string = "";
+
   hoveredCell = useCellHovered(this.env, () => this.getters.getActiveSnappedViewport());
 
   constructor() {
@@ -339,6 +345,9 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
   }
 
   setup() {
+    useExternalListener(document.body, "cut", this.copy.bind(this, true));
+    useExternalListener(document.body, "copy", this.copy.bind(this, false));
+    useExternalListener(document.body, "paste", this.paste);
     useTouchMove(this.moveCanvas.bind(this), () => this.vScrollbar.scroll > 0);
     onMounted(() => this.initGrid());
     onPatched(() => {
@@ -901,5 +910,42 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     this.menuState.menuItems = registries[type]
       .getAll()
       .filter((item) => !item.isVisible || item.isVisible(this.env));
+  }
+
+  copy(cut: boolean, ev: ClipboardEvent) {
+    if (!this.el!.contains(document.activeElement)) {
+      return;
+    }
+    /* If we are currently editing a cell, let the default behavior */
+    if (this.getters.getEditionMode() !== "inactive") {
+      return;
+    }
+    const type = cut ? "CUT" : "COPY";
+    const target = this.getters.getSelectedZones();
+    this.dispatch(type, { target });
+    const content = this.getters.getClipboardContent();
+    this.clipBoardString = content;
+    ev.clipboardData!.setData("text/plain", content);
+    ev.preventDefault();
+  }
+
+  paste(ev: ClipboardEvent) {
+    if (!this.el!.contains(document.activeElement)) {
+      return;
+    }
+    const clipboardData = ev.clipboardData!;
+    if (clipboardData.types.indexOf("text/plain") > -1) {
+      const content = clipboardData.getData("text/plain");
+      const target = this.getters.getSelectedZones();
+      if (this.clipBoardString === content) {
+        // the paste actually comes from o-spreadsheet itself
+        interactivePaste(this.env, target);
+      } else {
+        this.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+          target,
+          text: content,
+        });
+      }
+    }
   }
 }
