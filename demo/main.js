@@ -137,8 +137,13 @@ class Demo extends Component {
     window.alert(content);
   }
 
-  editText(title, placeholder, callback) {
-    const text = window.prompt(title, placeholder);
+  editText(title, callback, options = {}) {
+    let text;
+    if (!options.error) {
+      text = window.prompt(title, options.placeholder);
+    } else {
+      text = window.prompt(options.error, options.placeholder);
+    }
     callback(text);
   }
 
