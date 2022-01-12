@@ -5,7 +5,6 @@ import {
   ICON_EDGE_LENGTH,
   TOPBAR_HEIGHT,
 } from "../constants";
-import { interactivePaste } from "../helpers/ui/paste";
 import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { SelectionMode } from "../plugins/ui/selection";
@@ -130,10 +129,6 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     gridFocusMode: "inactive",
   } as { topBarFocus: "inactive" | "contentFocus"; gridFocusMode: "inactive" | "cellFocus" | "contentFocus" });
 
-  // last string that was cut or copied. It is necessary so we can make the
-  // difference between a paste coming from the sheet itself, or from the
-  // os clipboard
-  private clipBoardString: string = "";
   private keyDownMapping: { [key: string]: Function } = {
     "CTRL+H": () => this.toggleSidePanel("FindAndReplace", {}),
     "CTRL+F": () => this.toggleSidePanel("FindAndReplace", {}),
@@ -159,9 +154,6 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
 
   setup() {
     useExternalListener(window as any, "resize", this.render);
-    useExternalListener(document.body, "cut", this.copy.bind(this, true));
-    useExternalListener(document.body, "copy", this.copy.bind(this, false));
-    useExternalListener(document.body, "paste", this.paste);
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
     useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
     onMounted(() => this.initiateModelEvents());
@@ -247,43 +239,6 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
   }
   focusGrid() {
     (<any>this.grid.comp).focus();
-  }
-
-  copy(cut: boolean, ev: ClipboardEvent) {
-    if (!this.grid.el!.contains(document.activeElement)) {
-      return;
-    }
-    /* If we are currently editing a cell, let the default behavior */
-    if (this.model.getters.getEditionMode() !== "inactive") {
-      return;
-    }
-    const type = cut ? "CUT" : "COPY";
-    const target = this.model.getters.getSelectedZones();
-    this.model.dispatch(type, { target });
-    const content = this.model.getters.getClipboardContent();
-    this.clipBoardString = content;
-    ev.clipboardData!.setData("text/plain", content);
-    ev.preventDefault();
-  }
-
-  paste(ev: ClipboardEvent) {
-    if (!this.grid.el!.contains(document.activeElement)) {
-      return;
-    }
-    const clipboardData = ev.clipboardData!;
-    if (clipboardData.types.indexOf("text/plain") > -1) {
-      const content = clipboardData.getData("text/plain");
-      const target = this.model.getters.getSelectedZones();
-      if (this.clipBoardString === content) {
-        // the paste actually comes from o-spreadsheet itself
-        interactivePaste(this.env, target);
-      } else {
-        this.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
-          target,
-          text: content,
-        });
-      }
-    }
   }
 
   save() {
