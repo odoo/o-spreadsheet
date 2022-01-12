@@ -51,7 +51,7 @@
     "endOfLine": "auto"
   },
   "dependencies": {
-    "@odoo/owl": "^1.4.6"
+    "@odoo/owl": "^1.4.10"
   },
   "jest": {
     "roots": [
