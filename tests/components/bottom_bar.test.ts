@@ -184,7 +184,7 @@ describe("BottomBar component", () => {
           model: this.props.model,
           _t: (s: string) => s,
           askConfirmation: jest.fn(),
-          editText: jest.fn((title, placeholder, callback) => callback("new_name")),
+          editText: jest.fn((title, callback, options) => callback("new_name")),
         });
         onMounted(() => this.props.model.on("update", this, this.render));
         onWillUnmount(() => this.props.model.off("update", this));
@@ -221,7 +221,7 @@ describe("BottomBar component", () => {
           model: this.props.model,
           _t: (s: string) => s,
           askConfirmation: jest.fn(),
-          editText: jest.fn((title, placeholder, callback) => callback("new_name")),
+          editText: jest.fn((title, callback, options) => callback("new_name")),
         });
         onMounted(() => this.props.model.on("update", this, this.render));
         onWillUnmount(() => this.props.model.off("update", this));

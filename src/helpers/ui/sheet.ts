@@ -2,11 +2,10 @@ import { FORBIDDEN_SHEET_CHARS } from "../../constants";
 import { _lt } from "../../translation";
 import { CommandResult, SpreadsheetChildEnv, UID } from "../../types";
 
-export function interactiveRenameSheet(env: SpreadsheetChildEnv, sheetId: UID, message?: string) {
+export function interactiveRenameSheet(env: SpreadsheetChildEnv, sheetId: UID, errorText?: string) {
   const placeholder = env.model.getters.getSheetName(sheetId);
-  //TODO We should update editText to take a message in addition to the title
-  const t = _lt("Rename Sheet") + (message ? " - " + message : "");
-  env.editText(t, placeholder, (name: string | null) => {
+  const title = _lt("Rename Sheet");
+  const callback = (name: string | null) => {
     if (name === null || name === placeholder) {
       return;
     }
@@ -33,5 +32,9 @@ export function interactiveRenameSheet(env: SpreadsheetChildEnv, sheetId: UID, m
         );
       }
     }
+  };
+  env.editText(title, callback, {
+    placeholder: placeholder,
+    error: errorText,
   });
 }
