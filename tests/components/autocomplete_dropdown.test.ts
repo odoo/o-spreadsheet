@@ -4,6 +4,7 @@ import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
+  getGridFromSpreadsheet,
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
@@ -34,7 +35,8 @@ beforeEach(async () => {
   model = parent.model;
 
   // start composition
-  parent.grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+  const grid = getGridFromSpreadsheet(parent);
+  grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
   await nextTick();
   composerEl = fixture.querySelector(".o-grid div.o-composer")!;
 });
@@ -272,7 +274,8 @@ describe("Autocomplete parenthesis", () => {
     await nextTick();
     selectCell(model, "A1");
     //edit A1
-    parent.grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    const grid = getGridFromSpreadsheet(parent);
+    grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
     composerEl = fixture.querySelector(".o-grid div.o-composer")!;
     // @ts-ignore

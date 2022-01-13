@@ -20,7 +20,7 @@ import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
 
 const { Component, useState } = owl;
-const { useRef, useExternalListener } = owl.hooks;
+const { useExternalListener } = owl.hooks;
 const { xml, css } = owl.tags;
 const { useSubEnv, onMounted, onWillUnmount, onWillUpdateProps } = owl.hooks;
 
@@ -40,8 +40,8 @@ const TEMPLATE = xml/* xml */ `
       sidePanelIsOpen="sidePanel.isOpen"
       linkEditorIsOpen="linkEditor.isOpen"
       t-on-link-editor-closed="closeLinkEditor"
-      t-ref="grid"
       focusComposer="focusGridComposer"
+      exposeFocus="(focus) => this._focusGrid = focus"
       t-on-composer-content-focused="onGridComposerContentFocused"
       t-on-composer-cell-focused="onGridComposerCellFocused"
       t-att-class="{'o-two-columns': !sidePanel.isOpen}"/>
@@ -115,7 +115,6 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     },
     this.props.stateUpdateMessages
   );
-  grid = useRef("grid");
 
   sidePanel = useState({ isOpen: false, panelProps: {} } as {
     isOpen: boolean;
@@ -128,6 +127,8 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     topBarFocus: "inactive",
     gridFocusMode: "inactive",
   } as { topBarFocus: "inactive" | "contentFocus"; gridFocusMode: "inactive" | "cellFocus" | "contentFocus" });
+
+  private _focusGrid?: () => void;
 
   private keyDownMapping: { [key: string]: Function } = {
     "CTRL+H": () => this.toggleSidePanel("FindAndReplace", {}),
@@ -238,7 +239,10 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     }
   }
   focusGrid() {
-    (<any>this.grid.comp).focus();
+    if (!this._focusGrid) {
+      throw new Error("_focusGrid should be exposed by the grid component");
+    }
+    this._focusGrid();
   }
 
   save() {

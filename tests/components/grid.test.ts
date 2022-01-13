@@ -13,7 +13,13 @@ import {
 } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick, Touch } from "../test_helpers/helpers";
+import {
+  getGridFromSpreadsheet,
+  makeTestFixture,
+  mountSpreadsheet,
+  nextTick,
+  Touch,
+} from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
@@ -21,11 +27,13 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 jest.mock("../../src/components/scrollbar", () => require("./__mocks__/scrollbar"));
 
 function getVerticalScroll(): number {
-  return (parent.grid as any).comp.vScrollbar.scroll;
+  const grid = getGridFromSpreadsheet(parent);
+  return grid["vScrollbar"].scroll;
 }
 
 function getHorizontalScroll(): number {
-  return (parent.grid as any).comp.hScrollbar.scroll;
+  const grid = getGridFromSpreadsheet(parent);
+  return grid["hScrollbar"].scroll;
 }
 
 let fixture: HTMLElement;
@@ -219,7 +227,8 @@ describe("Grid component", () => {
     test("pressing ENTER put current cell in edit mode", async () => {
       // note: this behaviour is not like excel. Maybe someone will want to
       // change this
-      parent.grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+      const grid = getGridFromSpreadsheet(parent);
+      grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       expect(getActiveXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("editing");
     });
@@ -260,14 +269,16 @@ describe("Grid component", () => {
     });
 
     test("pressing TAB move to next cell", async () => {
-      parent.grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
+      const grid = getGridFromSpreadsheet(parent);
+      grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       expect(getActiveXc(model)).toBe("B1");
     });
 
     test("pressing shift+TAB move to previous cell", async () => {
       selectCell(model, "B1");
       expect(getActiveXc(model)).toBe("B1");
-      parent.grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
+      const grid = getGridFromSpreadsheet(parent);
+      grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
       expect(getActiveXc(model)).toBe("A1");
     });
 
