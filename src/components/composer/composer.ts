@@ -5,7 +5,7 @@ import { functionRegistry } from "../../functions/index";
 import { DEBUG, isEqual, rangeReference, toZone } from "../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
 import { FunctionDescription, Rect, SpreadsheetEnv } from "../../types/index";
-import { TextValueProvider } from "./autocomplete_dropdown";
+import { TextValueProvider, TextValueProviderApi } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
 import { FunctionDescriptionProvider } from "./formula_assistant";
 import { Dimension } from "./grid_composer";
@@ -72,7 +72,7 @@ const TEMPLATE = xml/* xml */ `
     class="o-composer-assistant" t-att-style="assistantStyle">
     <TextValueProvider
         t-if="autoCompleteState.showProvider"
-        t-ref="o_autocomplete_provider"
+        exposeAPI="(api) => this.autocompleteAPI = api"
         search="autoCompleteState.search"
         provider="autoCompleteState.provider"
         t-on-completed="onCompleted"
@@ -80,7 +80,6 @@ const TEMPLATE = xml/* xml */ `
     />
     <FunctionDescriptionProvider
         t-if="functionDescriptionState.showDescription"
-        t-ref="o_function_description_provider"
         functionName = "functionDescriptionState.functionName"
         functionDescription = "functionDescriptionState.functionDescription"
         argToFocus = "functionDescriptionState.argToFocus"
@@ -164,7 +163,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   };
 
   composerRef = useRef("o_composer");
-  autoCompleteRef = useRef("o_autocomplete_provider");
+  private autocompleteAPI?: TextValueProviderApi;
 
   getters = this.env.getters;
   dispatch = this.env.dispatch;
@@ -269,17 +268,16 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
       return;
     }
     ev.stopPropagation();
-    const autoCompleteComp = this.autoCompleteRef.comp as TextValueProvider;
     if (
       ["ArrowUp", "ArrowDown"].includes(ev.key) &&
       this.autoCompleteState.showProvider &&
-      autoCompleteComp
+      this.autocompleteAPI
     ) {
       ev.preventDefault();
       if (ev.key === "ArrowUp") {
-        autoCompleteComp.moveUp();
+        this.autocompleteAPI.moveUp();
       } else {
-        autoCompleteComp.moveDown();
+        this.autocompleteAPI.moveDown();
       }
     }
   }
@@ -287,9 +285,8 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   private processTabKey(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
-    const autoCompleteComp = this.autoCompleteRef.comp as TextValueProvider;
-    if (this.autoCompleteState.showProvider && autoCompleteComp) {
-      const autoCompleteValue = autoCompleteComp.getValueToFill();
+    if (this.autoCompleteState.showProvider && this.autocompleteAPI) {
+      const autoCompleteValue = this.autocompleteAPI.getValueToFill();
       if (autoCompleteValue) {
         this.autoComplete(autoCompleteValue);
         return;
@@ -309,9 +306,8 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     ev.preventDefault();
     ev.stopPropagation();
     this.isKeyStillDown = false;
-    const autoCompleteComp = this.autoCompleteRef.comp as TextValueProvider;
-    if (this.autoCompleteState.showProvider && autoCompleteComp) {
-      const autoCompleteValue = autoCompleteComp.getValueToFill();
+    if (this.autoCompleteState.showProvider && this.autocompleteAPI) {
+      const autoCompleteValue = this.autocompleteAPI.getValueToFill();
       if (autoCompleteValue) {
         this.autoComplete(autoCompleteValue);
         return;

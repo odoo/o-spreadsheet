@@ -75,9 +75,16 @@ interface Props {
   filter?: (searchTerm: string, vals: AutocompleteValue[]) => AutocompleteValue[];
   search: string;
   borderStyle: string;
+  exposeAPI: (api: TextValueProviderApi) => void;
 }
 
-export abstract class TextValueProvider extends Component<Props> {
+export interface TextValueProviderApi {
+  moveUp: () => void;
+  moveDown: () => void;
+  getValueToFill: () => string | undefined;
+}
+
+export abstract class TextValueProvider extends Component<Props> implements TextValueProviderApi {
   static template = TEMPLATE;
   static style = CSS;
 
@@ -89,6 +96,11 @@ export abstract class TextValueProvider extends Component<Props> {
   setup() {
     onMounted(() => this.filter(this.props.search));
     onWillUpdateProps((nextProps: Props) => this.checkUpdateProps(nextProps));
+    this.props.exposeAPI({
+      getValueToFill: () => this.getValueToFill(),
+      moveDown: () => this.moveDown(),
+      moveUp: () => this.moveUp(),
+    });
   }
 
   checkUpdateProps(nextProps: any) {
@@ -127,9 +139,10 @@ export abstract class TextValueProvider extends Component<Props> {
     }
   }
 
-  getValueToFill(): string | void {
+  getValueToFill(): string | undefined {
     if (this.state.values.length) {
       return this.state.values[this.state.selectedIndex].text;
     }
+    return undefined;
   }
 }
