@@ -1,15 +1,20 @@
-import { BACKGROUND_CHART_COLOR, DEFAULT_REVISION_ID, FORBIDDEN_IN_EXCEL_REGEX } from "./constants";
-import { normalize } from "./formulas/index";
-import { toXC, toZone } from "./helpers/index";
-import { _t } from "./translation";
-import { ExcelSheetData, ExcelWorkbookData, SheetData, WorkbookData } from "./types/index";
+import {
+  BACKGROUND_CHART_COLOR,
+  DEFAULT_REVISION_ID,
+  FORBIDDEN_IN_EXCEL_REGEX,
+  FORMULA_REF_IDENTIFIER,
+} from "../constants";
+import { toXC, toZone } from "../helpers/index";
+import { _t } from "../translation";
+import { ExcelSheetData, ExcelWorkbookData, SheetData, WorkbookData } from "../types/index";
+import { normalizeV9 } from "./legacy_tools";
 
 /**
  * This is the current state version number. It should be incremented each time
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 9;
+export const CURRENT_VERSION = 10;
 
 /**
  * This function tries to load anything that could look like a valid
@@ -119,7 +124,7 @@ const MIGRATIONS: Migration[] = [
         for (let xc in sheet.cells || []) {
           const cell = sheet.cells[xc];
           if (cell.content && cell.content.startsWith("=")) {
-            cell.formula = normalize(cell.content);
+            cell.formula = normalizeV9(cell.content);
           }
         }
       }
@@ -237,6 +242,28 @@ const MIGRATIONS: Migration[] = [
       return data;
     },
   },
+  {
+    description: "de-normalize formula to reduce exported json size (~30%)",
+    from: 9,
+    to: 10,
+    applyMigration(data: any): any {
+      for (let sheet of data.sheets || []) {
+        for (let xc in sheet.cells || []) {
+          const cell = sheet.cells[xc];
+          if (cell.formula) {
+            let { text, dependencies } = cell.formula;
+            for (let [index, d] of Object.entries(dependencies)) {
+              const stringPosition = `\\${FORMULA_REF_IDENTIFIER}${index}\\${FORMULA_REF_IDENTIFIER}`;
+              text = text.replace(new RegExp(stringPosition, "g"), d);
+            }
+            cell.content = text;
+            delete cell.formula;
+          }
+        }
+      }
+      return data;
+    },
+  },
 ];
 
 // -----------------------------------------------------------------------------
@@ -271,7 +298,7 @@ export function createEmptyWorkbookData(): WorkbookData {
 
 function createEmptyExcelSheet(name: string = _t("Sheet") + 1): ExcelSheetData {
   return {
-    ...createEmptySheet(name),
+    ...(createEmptySheet(name) as Omit<ExcelSheetData, "charts">),
     charts: [],
   };
 }

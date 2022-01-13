@@ -787,7 +787,7 @@ describe("composer", () => {
     expect(composerEl.textContent).toBe("=Sheet2!C8");
   });
 
-  test("type '=', select a cell in another sheet which contains spaces", async () => {
+  test("type =, select a cell in another sheet which contains spaces", async () => {
     const sheetId = model.getters.getActiveSheetId();
     createSheetWithName(model, { sheetId: "42", position: 1 }, "Sheet 2");
     setCellContent(model, "C8", "1", "42");

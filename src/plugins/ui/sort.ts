@@ -433,8 +433,16 @@ export class SortPlugin extends UIPlugin {
             const position = this.getters.getCellPosition(cell.id);
             const offsetY = newRow - position.row;
             // we only have a vertical offset
-            const ranges = this.getters.createAdaptedRanges(cell.dependencies, 0, offsetY, sheetId);
-            content = this.getters.buildFormulaContent(sheetId, cell.normalizedText, ranges);
+            const ranges = this.getters.createAdaptedRanges(
+              cell.dependencies.references,
+              0,
+              offsetY,
+              sheetId
+            );
+            content = this.getters.buildFormulaContent(sheetId, cell.normalizedText, {
+              ...cell.dependencies,
+              references: ranges,
+            });
           }
           newCellValues.style = cell.style;
           newCellValues.content = content;

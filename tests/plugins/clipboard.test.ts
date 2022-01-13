@@ -411,7 +411,7 @@ describe("clipboard", () => {
           id: "s1",
           colNumber: 5,
           rowNumber: 5,
-          cells: { A1: { formula: { text: "=|0|", dependencies: ["a2"] } } },
+          cells: { A1: { content: "=A2" } },
         },
         {
           id: "s2",
@@ -429,20 +429,6 @@ describe("clipboard", () => {
 
     expect(getCellText(model, "A1", "s1")).toBe("=A2");
     expect(getCellText(model, "A1", "s2")).toBe("=A2");
-    expect(getCell(model, "A1", "s2")).toMatchObject({
-      dependencies: [
-        {
-          prefixSheet: false,
-          sheetId: "s2",
-          zone: {
-            bottom: 1,
-            left: 0,
-            right: 0,
-            top: 1,
-          },
-        },
-      ],
-    });
   });
 
   test("Pasting content that will destroy a merge will notify the user", async () => {

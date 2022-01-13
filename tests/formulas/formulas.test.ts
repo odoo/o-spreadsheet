@@ -6,11 +6,14 @@ function moveFormula(model: Model, formula: string, offsetX: number, offsetY: nu
   const sheetId = model.getters.getActiveSheetId();
   const normalizedFormula = normalize(formula);
   const content = normalizedFormula.text;
-  const dependencies = normalizedFormula.dependencies.map((dep) =>
+  const dependencies = normalizedFormula.dependencies.references.map((dep) =>
     model.getters.getRangeFromSheetXC(sheetId, dep)
   );
   const ranges = model.getters.createAdaptedRanges(dependencies, offsetX, offsetY, sheetId);
-  return model.getters.buildFormulaContent(sheetId, content, ranges);
+  return model.getters.buildFormulaContent(sheetId, content, {
+    ...normalizedFormula.dependencies,
+    references: ranges,
+  });
 }
 
 describe("createAdaptedRanges", () => {
