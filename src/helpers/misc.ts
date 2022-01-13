@@ -20,6 +20,43 @@ export function stringify(obj: any): string {
 }
 
 /**
+ * Deep copy arrays, plain objects and primitive values.
+ * Throws an error for other types such as class instances.
+ * Sparse arrays remain sparse.
+ */
+export function deepCopy<T>(obj: T): T {
+  const result: any = Array.isArray(obj) ? [] : {};
+  switch (typeof obj) {
+    case "object": {
+      if (obj === null) {
+        return obj;
+      } else if (!(isPlainObject(obj) || obj instanceof Array)) {
+        throw new Error("Unsupported type: only objects and arrays are supported");
+      }
+      for (const key in obj) {
+        result[key] = deepCopy(obj[key]);
+      }
+      return result;
+    }
+    case "number":
+    case "string":
+    case "boolean":
+    case "function":
+    case "undefined":
+      return obj;
+    default:
+      throw new Error(`Unsupported type: ${typeof obj}`);
+  }
+}
+
+/**
+ * Check if the object is a plain old javascript object.
+ */
+function isPlainObject(obj: unknown): boolean {
+  return typeof obj === "object" && obj?.constructor === Object;
+}
+
+/**
  * Sanitize the name of a sheet, by eventually removing quotes
  * @param sheetName name of the sheet, potentially quoted with single quotes
  */
