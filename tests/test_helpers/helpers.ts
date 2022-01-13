@@ -1,6 +1,5 @@
 import { Component } from "@odoo/owl";
 import format from "xml-formatter";
-import { Grid } from "../../src/components/grid";
 import { Spreadsheet } from "../../src/components/spreadsheet";
 import { functionRegistry } from "../../src/functions/index";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
@@ -34,8 +33,19 @@ export async function nextTick(): Promise<void> {
   });
 }
 
-export function getGridFromSpreadsheet(spreadsheet: Spreadsheet): Grid {
-  return Object.values(spreadsheet.__owl__.children).find((child) => child instanceof Grid) as Grid;
+/**
+ * Get the instance of the given cls, which is a child of the component.
+ *
+ * new (...args: any) => any is a constructor, which ensure us to have
+ * a return value correctly typed.
+ */
+export function getChildFromComponent<T extends new (...args: any) => any>(
+  component: Component,
+  cls: T
+): InstanceType<T> {
+  return Object.values(component.__owl__.children).find(
+    (child) => child instanceof cls
+  ) as unknown as InstanceType<T>;
 }
 
 export function makeTestFixture() {

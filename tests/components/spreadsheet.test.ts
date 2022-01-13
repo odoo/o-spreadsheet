@@ -11,6 +11,7 @@ import { StateUpdateMessage } from "../../src/types/collaborative/transport_serv
 import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
+  getChildFromComponent,
   makeTestFixture,
   MockClipboard,
   nextTick,
@@ -24,7 +25,7 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 );
 
 const { xml } = tags;
-const { useRef, useSubEnv } = hooks;
+const { useSubEnv } = hooks;
 
 let fixture: HTMLElement;
 let parent: Parent;
@@ -41,13 +42,17 @@ jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(()
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
 
 class Parent extends Component<any> {
-  static template = xml/* xml */ `<Spreadsheet t-ref="spreadsheet" data="data" client="client"/>`;
+  static template = xml/* xml */ `<Spreadsheet data="data" client="client"/>`;
   static components = { Spreadsheet };
-  spreadsheet: any = useRef("spreadsheet");
   readonly data: any;
   readonly client: Client;
+
+  get spreadsheet(): Spreadsheet {
+    return getChildFromComponent(this, Spreadsheet);
+  }
+
   get model(): Model {
-    return this.spreadsheet.comp.model;
+    return this.spreadsheet.model;
   }
 
   constructor(data?, client?) {
@@ -137,7 +142,8 @@ describe("Spreadsheet", () => {
   });
 
   test("Clipboard is in spreadsheet env", () => {
-    expect((parent as any).spreadsheet.comp.env.clipboard).toBe(clipboard);
+    const spreadsheet = getChildFromComponent(parent, Spreadsheet);
+    expect(spreadsheet.env.clipboard).toBe(clipboard);
   });
 
   test("selection mode is changed with a simple select", async () => {
@@ -200,7 +206,8 @@ describe("Spreadsheet", () => {
   });
 
   test("Debug informations are removed when Spreadsheet is destroyed", async () => {
-    parent["spreadsheet"].comp.destroy();
+    const spreadsheet = getChildFromComponent(parent, Spreadsheet);
+    spreadsheet.destroy();
     expect(Object.keys(DEBUG)).toHaveLength(0);
   });
 
@@ -373,9 +380,8 @@ describe("Composer interactions", () => {
 
   test("The activate sheet is the sheet in first position, after replaying commands", async () => {
     class Parent extends Component<any> {
-      static template = xml/* xml */ `<Spreadsheet t-ref="spreadsheet" data="data" stateUpdateMessages="stateUpdateMessages"/>`;
+      static template = xml/* xml */ `<Spreadsheet data="data" stateUpdateMessages="stateUpdateMessages"/>`;
       static components = { Spreadsheet };
-      private spreadsheet: any = useRef("spreadsheet");
       readonly data: any = { sheets: [{ id: "1" }, { id: "2" }] };
       readonly stateUpdateMessages: StateUpdateMessage[] = [
         {
@@ -388,8 +394,12 @@ describe("Composer interactions", () => {
         },
       ];
 
+      get spreadsheet(): Spreadsheet {
+        return getChildFromComponent(this, Spreadsheet);
+      }
+
       get model(): Model {
-        return this.spreadsheet.comp.model;
+        return this.spreadsheet.model;
       }
     }
 
@@ -402,9 +412,8 @@ describe("Composer interactions", () => {
   test("Notify ui correctly with type notification correctly use notifyUser in the env", async () => {
     const notifyUser = jest.fn();
     class Parent extends Component<any> {
-      static template = xml/* xml */ `<Spreadsheet t-ref="spreadsheet" data="data"/>`;
+      static template = xml/* xml */ `<Spreadsheet data="data"/>`;
       static components = { Spreadsheet };
-      private spreadsheet: any = useRef("spreadsheet");
       readonly data: any = {};
 
       setup() {
@@ -413,8 +422,12 @@ describe("Composer interactions", () => {
         });
       }
 
+      get spreadsheet(): Spreadsheet {
+        return getChildFromComponent(this, Spreadsheet);
+      }
+
       get model(): Model {
-        return this.spreadsheet.comp.model;
+        return this.spreadsheet.model;
       }
     }
     fixture = makeTestFixture();
@@ -441,7 +454,7 @@ describe("Composer / selectionInput interactions", () => {
         },
       },
     });
-    spreadsheet = parent.spreadsheet.comp as Spreadsheet;
+    spreadsheet = getChildFromComponent(parent, Spreadsheet);
     // input some stuff in B2
     setCellContent(parent.model, "B2", "=A1");
   });
