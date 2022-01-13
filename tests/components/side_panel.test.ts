@@ -1,24 +1,27 @@
-import { Component, hooks, tags } from "@odoo/owl";
+import { Component, tags } from "@odoo/owl";
 import { Spreadsheet } from "../../src/components";
 import { Model } from "../../src/model";
 import { sidePanelRegistry } from "../../src/registries/index";
 import { SidePanelContent } from "../../src/registries/side_panel_registry";
 import { SpreadsheetEnv } from "../../src/types";
 import { simulateClick } from "../test_helpers/dom_helper";
-import { makeTestFixture, nextTick } from "../test_helpers/helpers";
+import { getChildFromComponent, makeTestFixture, nextTick } from "../test_helpers/helpers";
 
-const { useRef } = hooks;
 const { xml } = tags;
 
 class Parent extends Component<any> {
-  static template = xml`<Spreadsheet t-ref="spreadsheet" data="data"/>`;
+  static template = xml`<Spreadsheet data="data"/>`;
   static components = { Spreadsheet };
-  private spreadsheet: any = useRef("spreadsheet");
+
+  get spreadsheet(): Spreadsheet {
+    return getChildFromComponent(this, Spreadsheet);
+  }
+
   get spreadsheetEnv(): SpreadsheetEnv {
-    return this.spreadsheet.comp.env;
+    return this.spreadsheet.env;
   }
   get model(): Model {
-    return this.spreadsheet.comp.model;
+    return this.spreadsheet.model;
   }
 }
 

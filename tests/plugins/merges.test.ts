@@ -22,6 +22,7 @@ import {
   getMerges,
 } from "../test_helpers/getters_helpers";
 import {
+  getChildFromComponent,
   getMergeCellMap,
   makeTestFixture,
   target,
@@ -30,7 +31,7 @@ import {
 } from "../test_helpers/helpers";
 
 const { xml } = tags;
-const { useRef, useSubEnv } = hooks;
+const { useSubEnv } = hooks;
 
 function getCellsXC(model: Model): string[] {
   return Object.values(model.getters.getCells(model.getters.getActiveSheetId())).map((cell) => {
@@ -280,16 +281,20 @@ describe("merges", () => {
   test("merging destructively a selection ask for confirmation", async () => {
     const askConfirmation = jest.fn();
     class Parent extends Component<any> {
-      static template = xml/* xml */ `<Spreadsheet t-ref="spreadsheet"/>`;
+      static template = xml/* xml */ `<Spreadsheet/>`;
       static components = { Spreadsheet };
-      spreadsheet: any = useRef("spreadsheet");
       setup() {
         useSubEnv({
           askConfirmation,
         });
       }
+
+      get spreadsheet(): Spreadsheet {
+        return getChildFromComponent(this, Spreadsheet);
+      }
+
       get model(): Model {
-        return this.spreadsheet.comp.model;
+        return this.spreadsheet.model;
       }
     }
     const parent = new Parent();

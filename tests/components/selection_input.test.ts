@@ -3,7 +3,7 @@ import { Model } from "../../src";
 import { SelectionInput } from "../../src/components/selection_input";
 import { activateSheet, createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
-import { makeTestFixture, nextTick } from "../test_helpers/helpers";
+import { getChildFromComponent, makeTestFixture, nextTick } from "../test_helpers/helpers";
 
 const { xml } = tags;
 const { useSubEnv, useRef, onMounted, onWillUnmount } = hooks;
@@ -34,7 +34,6 @@ interface SelectionInputTestConfig {
 class Parent extends Component<any> {
   static template = xml/* xml */ `
     <SelectionInput
-      t-ref="selection-input"
       ranges="initialRanges"
       hasSingleRange="hasSingleRange"
       t-on-selection-changed="onChanged"/>
@@ -60,7 +59,8 @@ class Parent extends Component<any> {
   }
 
   get id(): string {
-    return (this.ref.comp as any).id;
+    const selectionInput = getChildFromComponent(this, SelectionInput);
+    return selectionInput["id"];
   }
 
   setup() {

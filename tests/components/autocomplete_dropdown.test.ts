@@ -1,10 +1,11 @@
-import { Spreadsheet } from "../../src";
+import { Grid } from "../../src/components/grid";
+import { Spreadsheet } from "../../src/components/spreadsheet";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
-  getGridFromSpreadsheet,
+  getChildFromComponent,
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
@@ -35,7 +36,7 @@ beforeEach(async () => {
   model = parent.model;
 
   // start composition
-  const grid = getGridFromSpreadsheet(parent);
+  const grid = getChildFromComponent(parent, Grid);
   grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
   await nextTick();
   composerEl = fixture.querySelector(".o-grid div.o-composer")!;
@@ -274,7 +275,7 @@ describe("Autocomplete parenthesis", () => {
     await nextTick();
     selectCell(model, "A1");
     //edit A1
-    const grid = getGridFromSpreadsheet(parent);
+    const grid = getChildFromComponent(parent, Grid);
     grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
     composerEl = fixture.querySelector(".o-grid div.o-composer")!;
