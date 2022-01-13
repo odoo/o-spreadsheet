@@ -1,5 +1,6 @@
 import { Component } from "@odoo/owl";
 import format from "xml-formatter";
+import { Grid } from "../../src/components/grid";
 import { Spreadsheet } from "../../src/components/spreadsheet";
 import { functionRegistry } from "../../src/functions/index";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
@@ -31,6 +32,10 @@ export async function nextTick(): Promise<void> {
   return new Promise(function (resolve) {
     origSetTimeout(() => Component.scheduler.requestAnimationFrame(() => resolve()));
   });
+}
+
+export function getGridFromSpreadsheet(spreadsheet: Spreadsheet): Grid {
+  return Object.values(spreadsheet.__owl__.children).find((child) => child instanceof Grid) as Grid;
 }
 
 export function makeTestFixture() {

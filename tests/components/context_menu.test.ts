@@ -1,4 +1,5 @@
 import { Component, hooks, tags } from "@odoo/owl";
+import { Spreadsheet } from "../../src";
 import { Menu } from "../../src/components/menu";
 import { HEADER_HEIGHT, HEADER_WIDTH, MENU_ITEM_HEIGHT, TOPBAR_HEIGHT } from "../../src/constants";
 import { toXC, toZone } from "../../src/helpers";
@@ -10,6 +11,7 @@ import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import {
+  getGridFromSpreadsheet,
   makeTestFixture,
   MockClipboard,
   mountSpreadsheet,
@@ -500,10 +502,9 @@ describe("Context Menu", () => {
   });
 
   test("scroll through the menu with the wheel / scrollbar prevents the grid from scrolling", async () => {
-    // @ts-ignore
-    const verticalScrollBar = parent.grid.comp.vScrollbar;
-    // @ts-ignore
-    const horizontalScrollBar = parent.grid.comp.hScrollbar;
+    const grid = getGridFromSpreadsheet(parent as Spreadsheet);
+    const verticalScrollBar = grid["vScrollbar"];
+    const horizontalScrollBar = grid["hScrollbar"];
     expect(verticalScrollBar.scroll).toBe(0);
     expect(horizontalScrollBar.scroll).toBe(0);
 
@@ -524,10 +525,9 @@ describe("Context Menu", () => {
   });
 
   test("scroll through the menu with the touch device prevents the grid from scrolling", async () => {
-    // @ts-ignore
-    const verticalScrollBar = parent.grid.comp.vScrollbar;
-    // @ts-ignore
-    const horizontalScrollBar = parent.grid.comp.hScrollbar;
+    const grid = getGridFromSpreadsheet(parent as Spreadsheet);
+    const verticalScrollBar = grid["vScrollbar"];
+    const horizontalScrollBar = grid["hScrollbar"];
     expect(verticalScrollBar.scroll).toBe(0);
     expect(horizontalScrollBar.scroll).toBe(0);
 

@@ -291,6 +291,7 @@ interface Props {
   sidePanelIsOpen: boolean;
   model: Model;
   linkEditorIsOpen: boolean;
+  exposeFocus: (focus: () => void) => void;
 }
 
 // -----------------------------------------------------------------------------
@@ -354,6 +355,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
       this.drawGrid();
       this.resizeGrid();
     });
+    this.props.exposeFocus(() => this.focus());
   }
 
   private initGrid() {
