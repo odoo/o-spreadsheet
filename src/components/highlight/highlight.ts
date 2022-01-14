@@ -1,16 +1,12 @@
-import * as owl from "@odoo/owl";
-import { useState } from "@odoo/owl";
+import { Component, useRef, useState, xml } from "@odoo/owl";
 import { clip, isEqual } from "../../helpers";
 import { SpreadsheetEnv, Zone } from "../../types";
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 import { Border } from "./border";
 import { Corner } from "./corner";
 
-const { Component } = owl;
-const { xml } = owl.tags;
-
 const TEMPLATE = xml/* xml */ `
-  <div class="o-highlight">
+  <div class="o-highlight" t-ref="highlight">
     <t t-foreach="['nw', 'ne', 'sw', 'se']" t-as="orientation" t-key="orientation">
       <Corner
         onResizeHighlight="(isLeft, isTop) => this.onResizeHighlight(isLeft, isTop)"
@@ -45,6 +41,8 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
     Corner,
     Border,
   };
+
+  private highlightRef = useRef("highlight");
 
   highlightState: HighlightState = useState({
     shiftingMode: "none",
@@ -93,7 +91,7 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
     };
 
     dragAndDropBeyondTheViewport(
-      this.el!.parentElement! as HTMLElement,
+      this.highlightRef.el!.parentElement!,
       this.env,
       mouseMove,
       mouseUp
@@ -104,7 +102,7 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
     this.highlightState.shiftingMode = "isMoving";
     const z = this.props.zone;
 
-    const parent = this.el!.parentElement! as HTMLElement;
+    const parent = this.highlightRef.el!.parentElement!;
     const position = parent.getBoundingClientRect();
     const activeSheet = this.env.getters.getActiveSheet();
     const { top: viewportTop, left: viewportLeft } = this.env.getters.getActiveSnappedViewport();

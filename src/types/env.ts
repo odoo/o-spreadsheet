@@ -1,4 +1,4 @@
-import { Env } from "@odoo/owl/dist/types/component/component";
+import { Env } from "@odoo/owl/dist/types/app/app";
 import { UuidGenerator } from "../helpers";
 import { TranslationFunction } from "../translation";
 import { CommandDispatcher } from "./commands";

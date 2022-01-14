@@ -1,8 +1,7 @@
-import * as owl from "@odoo/owl";
+import { Component, xml } from "@odoo/owl";
 import { SpreadsheetEnv } from "../types/env";
+import { css } from "./helpers/css";
 import { ICONS, ICON_SETS } from "./icons";
-const { Component } = owl;
-const { css, xml } = owl.tags;
 
 interface Props {
   onIconPicked: (icon: string) => void;
@@ -11,16 +10,16 @@ interface Props {
 export class IconPicker extends Component<Props, SpreadsheetEnv> {
   static template = xml/* xml */ `
   <div class="o-icon-picker" >
-    <t t-foreach="iconSets" t-as="iconSet" t-key="iconset">
+    <t t-foreach="iconSets" t-as="iconSet" t-key="iconSet">
       <div class="o-cf-icon-line">
-        <div class="o-icon-picker-item" t-on-click="onIconClick(iconSets[iconSet].good)">
-          <t t-raw="icons[iconSets[iconSet].good].svg"/>
+        <div class="o-icon-picker-item" t-on-click="() => this.onIconClick(iconSets[iconSet].good)">
+          <t t-out="icons[iconSets[iconSet].good].svg"/>
         </div>
-        <div class="o-icon-picker-item" t-on-click="onIconClick(iconSets[iconSet].neutral)">
-          <t t-raw="icons[iconSets[iconSet].neutral].svg"/>
+        <div class="o-icon-picker-item" t-on-click="() => this.onIconClick(iconSets[iconSet].neutral)">
+          <t t-out="icons[iconSets[iconSet].neutral].svg"/>
         </div>
-        <div class="o-icon-picker-item" t-on-click="onIconClick(iconSets[iconSet].bad)">
-          <t t-raw="icons[iconSets[iconSet].bad].svg"/>
+        <div class="o-icon-picker-item" t-on-click="() => this.onIconClick(iconSets[iconSet].bad)">
+          <t t-out="icons[iconSets[iconSet].bad].svg"/>
         </div>
       </div>
     </t>

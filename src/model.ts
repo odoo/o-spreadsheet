@@ -1,8 +1,8 @@
-import * as owl from "@odoo/owl";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { DataSourceRegistry } from "./data_source";
+import { EventBus } from "./helpers/event_bus";
 import { DEBUG, UuidGenerator } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
 import { LocalHistory } from "./history/local_history";
@@ -82,7 +82,7 @@ const enum Status {
   Finalizing,
 }
 
-export class Model extends owl.core.EventBus implements CommandDispatcher {
+export class Model extends EventBus<any> implements CommandDispatcher {
   private corePlugins: CorePlugin[] = [];
 
   private uiPlugins: UIPlugin[] = [];

@@ -1,17 +1,14 @@
-import * as owl from "@odoo/owl";
+import { Component, onWillUpdateProps, useState, xml } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR } from "../../constants";
 import { SidePanelContent, sidePanelRegistry } from "../../registries/side_panel_registry";
 import { SpreadsheetEnv } from "../../types";
-
-const { Component } = owl;
-const { xml, css } = owl.tags;
-const { useState, onWillUpdateProps } = owl.hooks;
+import { css } from "../helpers/css";
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-sidePanel" >
     <div class="o-sidePanelHeader">
         <div class="o-sidePanelTitle" t-esc="getTitle()"/>
-        <div class="o-sidePanelClose" t-on-click="props.onCloseSidePanel()">×</div>
+        <div class="o-sidePanelClose" t-on-click="() => this.props.onCloseSidePanel()">×</div>
     </div>
     <div class="o-sidePanelBody">
       <t t-component="state.panel.Body" t-props="props.panelProps" onCloseSidePanel="props.onCloseSidePanel" t-key="'Body_' + props.component"/>
@@ -128,15 +125,20 @@ interface Props {
   onCloseSidePanel: () => void;
 }
 
+interface State {
+  panel: SidePanelContent;
+}
+
 export class SidePanel extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
 
-  state: { panel: SidePanelContent } = useState({
-    panel: sidePanelRegistry.get(this.props.component),
-  });
+  state!: State;
 
   setup() {
+    this.state = useState({
+      panel: sidePanelRegistry.get(this.props.component),
+    });
     onWillUpdateProps(
       (nextProps: Props) => (this.state.panel = sidePanelRegistry.get(nextProps.component))
     );

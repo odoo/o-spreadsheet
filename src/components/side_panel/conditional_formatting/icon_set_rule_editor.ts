@@ -1,7 +1,5 @@
-import * as owl from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { conditionalFormattingTerms, iconSetRule } from "../translations_terms";
-
-const { xml } = owl.tags;
 
 const ICON_SETS_TEMPLATE = xml/* xml */ `
   <div>
@@ -9,15 +7,15 @@ const ICON_SETS_TEMPLATE = xml/* xml */ `
     <t t-esc="env._t('${iconSetRule.Icons}')"/>
   </div>
     <div class="o-cf-iconsets">
-      <div class="o-cf-iconset" t-foreach="['arrows', 'smiley', 'dots']" t-as="iconSet" t-on-click="setIconSet(iconSet)">
+      <div class="o-cf-iconset" t-foreach="['arrows', 'smiley', 'dots']" t-as="iconSet" t-key="iconSet" t-on-click="(ev) => this.setIconSet(iconSet, ev)">
         <div class="o-cf-icon">
-          <t t-raw="icons[iconSets[iconSet].good].svg"/>
+          <t t-out="icons[iconSets[iconSet].good].svg"/>
         </div>
         <div class="o-cf-icon">
-          <t t-raw="icons[iconSets[iconSet].neutral].svg"/>
+          <t t-out="icons[iconSets[iconSet].neutral].svg"/>
         </div>
         <div class="o-cf-icon">
-          <t t-raw="icons[iconSets[iconSet].bad].svg"/>
+          <t t-out="icons[iconSets[iconSet].bad].svg"/>
         </div>
       </div>
     </div>
@@ -27,9 +25,9 @@ const ICON_SETS_TEMPLATE = xml/* xml */ `
 const INFLECTION_POINTS_TEMPLATE_ROW = xml/* xml */ `
   <tr>
     <td>
-      <div t-on-click.stop="toggleMenu('iconSet-'+icon+'Icon')">
+      <div t-on-click.stop="(ev) => this.toggleMenu('iconSet-'+icon+'Icon', ev)">
         <div class="o-cf-icon-button">
-          <t t-raw="icons[iconValue].svg"/>
+          <t t-out="icons[iconValue].svg"/>
         </div>
       </div>
       <IconPicker t-if="state.openedMenu === 'iconSet-'+icon+'Icon'" onIconPicked="(i) => this.setIcon(icon, i)"/>
@@ -100,9 +98,9 @@ const INFLECTION_POINTS_TEMPLATE = xml/* xml */ `
     </t>
     <tr>
       <td>
-        <div t-on-click.stop="toggleMenu('iconSet-lowerIcon')">
+        <div t-on-click.stop="(ev) => this.toggleMenu('iconSet-lowerIcon', ev)">
           <div class="o-cf-icon-button" >
-            <t t-raw="icons[rule.icons.lower].svg"/>
+            <t t-out="icons[rule.icons.lower].svg"/>
           </div>
         </div>
         <IconPicker t-if="state.openedMenu === 'iconSet-lowerIcon'" onIconPicked="(icon) => setIcon('lower', icon)"/>
@@ -121,7 +119,7 @@ export const TEMPLATE_ICON_SET_EDITOR = xml/* xml */ `
       <t t-call="${INFLECTION_POINTS_TEMPLATE}"/>
       <div class="btn btn-link o_refresh_measures o-cf-iconset-reverse" t-on-click="reverseIcons">
         <div class="mr-1 d-inline-block">
-          <t t-raw="reverseIcon"/>
+          <t t-out="reverseIcon"/>
         </div>
         <t t-esc="env._t('${iconSetRule.ReverseIcons}')"/>
       </div>

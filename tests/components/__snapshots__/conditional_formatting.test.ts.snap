@@ -31,6 +31,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
           <div
             class="o-cf-preview"
           >
+            
             <div
               class="o-cf-preview-image"
               style="font-weight:normal;
@@ -41,6 +42,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
             >
                123 
             </div>
+            
             <div
               class="o-cf-preview-description"
             >
@@ -56,6 +58,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
                   class="o-cf-preview-description-values"
                 >
                   2
+                  
                 </div>
               </div>
               <div
@@ -92,12 +95,14 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
           <div
             class="o-cf-preview"
           >
+            
             <div
               class="o-cf-preview-image"
               style="background-image: linear-gradient(to right, #ff00ff, #123456)"
             >
                123 
             </div>
+            
             <div
               class="o-cf-preview-description"
             >
@@ -143,13 +148,18 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
             </div>
           </div>
         </div>
+        
       </div>
       <div
         class="btn btn-link o-cf-add"
       >
         + Add another rule
       </div>
+      
+      
+      
     </div>
   </div>
+  
 </div>
 `;

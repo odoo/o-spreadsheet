@@ -194,3 +194,7 @@ export type Validation<T> = (toValidate: T) => CommandResult | CommandResult[];
 export type ClipboardOptions = "onlyFormat" | "onlyValue";
 
 export type Increment = 1 | -1 | 0;
+
+export interface Ref<T> {
+  el: T | null;
+}

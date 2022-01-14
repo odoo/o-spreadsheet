@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { Component, useRef, useState, xml } from "@odoo/owl";
 import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
@@ -9,14 +9,11 @@ import {
   UNHIDE_ICON_EDGE_LENGTH,
 } from "../constants";
 import { _lt } from "../translation";
-import { Col, CommandResult, EdgeScrollInfo, Row, SpreadsheetEnv } from "../types/index";
+import { Col, CommandResult, EdgeScrollInfo, Ref, Row, SpreadsheetEnv } from "../types/index";
 import { ContextMenuType } from "./grid";
+import { css } from "./helpers/css";
 import { startDnd } from "./helpers/drag_and_drop";
 import * as icons from "./icons";
-
-const { Component } = owl;
-const { xml, css } = owl.tags;
-const { useState } = owl.hooks;
 
 // -----------------------------------------------------------------------------
 // Resizer component
@@ -324,7 +321,7 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
 
 export class ColResizer extends AbstractResizer {
   static template = xml/* xml */ `
-    <div class="o-col-resizer" t-on-mousemove.self="onMouseMove" t-on-mouseleave="onMouseLeave" t-on-mousedown.self.prevent="select"
+    <div class="o-col-resizer" t-on-mousemove.self="onMouseMove" t-on-mouseleave="onMouseLeave" t-on-mousedown.self.prevent="select" t-ref="colResizer"
       t-on-mouseup.self="onMouseUp" t-on-contextmenu.self="onContextMenu" t-att-class="{'o-grab': state.waitingForMove, 'o-dragging': state.isMoving, }">
       <div t-if="state.isMoving" class="dragging-col-line" t-attf-style="left:{{state.draggerLinePosition}}px;"/>
       <div t-if="state.isMoving" class="dragging-col-shadow" t-attf-style="left:{{state.draggerShadowPosition}}px; width:{{state.draggerShadowThickness}}px"/>
@@ -336,12 +333,12 @@ export class ColResizer extends AbstractResizer {
       </t>
       <t t-foreach="getters.getHiddenColsGroups(getters.getActiveSheetId())" t-as="hiddenItem" t-key="hiddenItem_index">
         <t t-if="!hiddenItem.includes(0)">
-          <div class="o-unhide" t-att-data-index="hiddenItem_index" t-attf-style="left:{{unhideStyleValue(hiddenItem[0]) - 17}}px; margin-right:6px;" t-on-click="unhide(hiddenItem)">
+          <div class="o-unhide" t-att-data-index="hiddenItem_index" t-attf-style="left:{{unhideStyleValue(hiddenItem[0]) - 17}}px; margin-right:6px;" t-on-click="() => this.unhide(hiddenItem)">
           ${icons.TRIANGLE_LEFT_ICON}
           </div>
         </t>
         <t t-if="!hiddenItem.includes(getters.getActiveSheet().cols.length-1)">
-          <div class="o-unhide" t-att-data-index="hiddenItem_index" t-attf-style="left:{{unhideStyleValue(hiddenItem[0]) + 3}}px;" t-on-click="unhide(hiddenItem)">
+          <div class="o-unhide" t-att-data-index="hiddenItem_index" t-attf-style="left:{{unhideStyleValue(hiddenItem[0]) + 3}}px;" t-on-click="() => this.unhide(hiddenItem)">
           ${icons.TRIANGLE_RIGHT_ICON}
           </div>
         </t>
@@ -409,8 +406,11 @@ export class ColResizer extends AbstractResizer {
     }
   `;
 
-  constructor() {
-    super(...arguments);
+  private colResizerRef!: Ref<HTMLElement>;
+
+  setup() {
+    super.setup();
+    this.colResizerRef = useRef("colResizer");
     this.PADDING = 15;
     this.MAX_SIZE_MARGIN = 90;
     this.MIN_ELEMENT_SIZE = MIN_COL_WIDTH;
@@ -466,7 +466,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getMaxSize(): number {
-    return this.el!.clientWidth;
+    return this.colResizerRef.el!.clientWidth;
   }
 
   _updateSize(): void {
@@ -561,7 +561,7 @@ export class ColResizer extends AbstractResizer {
 
 export class RowResizer extends AbstractResizer {
   static template = xml/* xml */ `
-    <div class="o-row-resizer" t-on-mousemove.self="onMouseMove" t-on-mouseleave="onMouseLeave" t-on-mousedown.self.prevent="select"
+    <div class="o-row-resizer" t-on-mousemove.self="onMouseMove" t-on-mouseleave="onMouseLeave" t-on-mousedown.self.prevent="select" t-ref="rowResizer"
     t-on-mouseup.self="onMouseUp" t-on-contextmenu.self="onContextMenu" t-att-class="{'o-grab': state.waitingForMove, 'o-dragging': state.isMoving}">
       <div t-if="state.isMoving" class="dragging-row-line" t-attf-style="top:{{state.draggerLinePosition}}px;"/>
       <div t-if="state.isMoving" class="dragging-row-shadow" t-attf-style="top:{{state.draggerShadowPosition}}px; height:{{state.draggerShadowThickness}}px;"/>
@@ -573,12 +573,12 @@ export class RowResizer extends AbstractResizer {
       </t>
       <t t-foreach="getters.getHiddenRowsGroups(getters.getActiveSheetId())" t-as="hiddenItem" t-key="hiddenItem_index">
         <t t-if="!hiddenItem.includes(0)">
-          <div class="o-unhide" t-att-data-index="hiddenItem_index" t-attf-style="top:{{unhideStyleValue(hiddenItem[0]) - 17}}px;" t-on-click="unhide(hiddenItem)">
+          <div class="o-unhide" t-att-data-index="hiddenItem_index" t-attf-style="top:{{unhideStyleValue(hiddenItem[0]) - 17}}px;" t-on-click="() => this.unhide(hiddenItem)">
           ${icons.TRIANGLE_UP_ICON}
           </div>
         </t>
         <t t-if="!hiddenItem.includes(getters.getActiveSheet().rows.length-1)">
-         <div class="o-unhide" t-att-data-index="hiddenItem_index"  t-attf-style="top:{{unhideStyleValue(hiddenItem[0]) + 3}}px;" t-on-click="unhide(hiddenItem)">
+         <div class="o-unhide" t-att-data-index="hiddenItem_index"  t-attf-style="top:{{unhideStyleValue(hiddenItem[0]) + 3}}px;" t-on-click="() => this.unhide(hiddenItem)">
          ${icons.TRIANGLE_DOWN_ICON}
          </div>
         </t>
@@ -648,12 +648,15 @@ export class RowResizer extends AbstractResizer {
     }
   `;
 
-  constructor() {
-    super(...arguments);
+  setup() {
+    super.setup();
+    this.rowResizerRef = useRef("rowResizer");
     this.PADDING = 5;
     this.MAX_SIZE_MARGIN = 60;
     this.MIN_ELEMENT_SIZE = MIN_ROW_HEIGHT;
   }
+
+  private rowResizerRef!: Ref<HTMLElement>;
 
   _getEvOffset(ev: MouseEvent): number {
     return ev.offsetY + HEADER_HEIGHT;
@@ -701,7 +704,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getMaxSize(): number {
-    return this.el!.clientHeight;
+    return this.rowResizerRef.el!.clientHeight;
   }
 
   _updateSize(): void {

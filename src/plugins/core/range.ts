@@ -48,9 +48,10 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         let end: "right" | "bottom" = cmd.dimension === "COL" ? "right" : "bottom";
         let dimension: "columns" | "rows" = cmd.dimension === "COL" ? "columns" : "rows";
 
-        cmd.elements.sort((a, b) => b - a);
+        const elements = [...cmd.elements];
+        elements.sort((a, b) => b - a);
 
-        const groups = groupConsecutive(cmd.elements);
+        const groups = groupConsecutive(elements);
         this.executeOnAllRanges((range: Range) => {
           if (range.sheetId !== cmd.sheetId) {
             return { changeType: "NONE" };

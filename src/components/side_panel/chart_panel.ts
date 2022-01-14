@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { Component, onWillUpdateProps, useState, xml } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR } from "../../constants";
 import {
   ChartUIDefinition,
@@ -9,19 +9,16 @@ import {
   SpreadsheetEnv,
 } from "../../types/index";
 import { ColorPicker } from "../color_picker";
+import { css } from "../helpers/css";
 import * as icons from "../icons";
 import { SelectionInput } from "../selection_input";
 import { chartTerms } from "./translations_terms";
-
-const { Component, useState } = owl;
-const { xml, css } = owl.tags;
-const { onWillUpdateProps } = owl.hooks;
 
 const CONFIGURATION_TEMPLATE = xml/* xml */ `
 <div>
   <div class="o-section">
     <div class="o-section-title" t-esc="env._t('${chartTerms.ChartType}')"/>
-    <select t-model="state.chart.type" class="o-input o-type-selector" t-on-change="updateSelect('type')">
+    <select t-model="state.chart.type" class="o-input o-type-selector" t-on-change="(ev) => this.updateSelect('type', ev)">
       <option value="bar" t-esc="env._t('${chartTerms.Bar}')"/>
       <option value="line" t-esc="env._t('${chartTerms.Line}')"/>
       <option value="pie" t-esc="env._t('${chartTerms.Pie}')"/>
@@ -39,9 +36,9 @@ const CONFIGURATION_TEMPLATE = xml/* xml */ `
                     ranges="state.chart.dataSets"
                     isInvalid="isDatasetInvalid"
                     required="true"
-                    t-on-selection-changed="onSeriesChanged"
-                    t-on-selection-confirmed="updateDataSet" />
-    <input type="checkbox" t-model="state.chart.dataSetsHaveTitle" t-on-change="updateDataSet"/><t t-esc="env._t('${chartTerms.MyDataHasTitle}')"/>
+                    onSelectionChanged="(ranges) => this.onSeriesChanged(ranges)"
+                    onSelectionConfirmed="() => this.updateDataSet()" />
+    <input type="checkbox" t-model="state.chart.dataSetsHaveTitle" t-on-change="() => this.updateDataSet()"/><t t-esc="env._t('${chartTerms.MyDataHasTitle}')"/>
   </div>
   <div class="o-section o-data-labels">
     <div class="o-section-title" t-esc="env._t('${chartTerms.DataCategories}')"/>
@@ -49,11 +46,11 @@ const CONFIGURATION_TEMPLATE = xml/* xml */ `
                     ranges="[state.chart.labelRange || '']"
                     isInvalid="isLabelInvalid"
                     hasSingleRange="true"
-                    t-on-selection-changed="onLabelRangeChanged"
-                    t-on-selection-confirmed="updateLabelRange" />
+                    onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
+                    onSelectionConfirmed="() => this.updateLabelRange()" />
   </div>
   <div class="o-section o-sidepanel-error" t-if="errorMessages">
-    <div t-foreach="errorMessages" t-as="error">
+    <div t-foreach="errorMessages" t-as="error" t-key="error">
       <t t-esc="error"/>
     </div>
   </div>
@@ -77,14 +74,14 @@ const DESIGN_TEMPLATE = xml/* xml */ `
   </div>
   <div class="o-section">
     <div class="o-section-title"><t t-esc="env._t('${chartTerms.VerticalAxisPosition}')"/></div>
-    <select t-model="state.chart.verticalAxisPosition" class="o-input o-type-selector" t-on-change="updateSelect('verticalAxisPosition')">
+    <select t-model="state.chart.verticalAxisPosition" class="o-input o-type-selector" t-on-change="(ev) => this.updateSelect('verticalAxisPosition', ev)">
       <option value="left" t-esc="env._t('${chartTerms.Left}')"/>
       <option value="right" t-esc="env._t('${chartTerms.Right}')"/>
     </select>
   </div>
   <div class="o-section">
     <div class="o-section-title"><t t-esc="env._t('${chartTerms.LegendPosition}')"/></div>
-    <select t-model="state.chart.legendPosition" class="o-input o-type-selector" t-on-change="updateSelect('legendPosition')">
+    <select t-model="state.chart.legendPosition" class="o-input o-type-selector" t-on-change="(ev) => this.updateSelect('legendPosition', ev)">
       <option value="top" t-esc="env._t('${chartTerms.Top}')"/>
       <option value="bottom" t-esc="env._t('${chartTerms.Bottom}')"/>
       <option value="left" t-esc="env._t('${chartTerms.Left}')"/>
@@ -99,12 +96,12 @@ const TEMPLATE = xml/* xml */ `
     <div class="o-panel">
       <div class="o-panel-element"
           t-att-class="state.panel !== 'configuration' ? 'inactive' : ''"
-          t-on-click="activate('configuration')">
+          t-on-click="() => this.activate('configuration')">
         <i class="fa fa-sliders"/>Configuration
       </div>
       <div class="o-panel-element"
           t-att-class="state.panel !== 'design' ? 'inactive' : ''"
-          t-on-click="activate('design')">
+          t-on-click="() => this.activate('design')">
         <i class="fa fa-paint-brush"/>Design
       </div>
     </div>
@@ -211,8 +208,8 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
     return !!this.state.labelsDispatchResult?.isCancelledBecause(CommandResult.InvalidLabelRange);
   }
 
-  onSeriesChanged(ev: CustomEvent) {
-    this.state.chart.dataSets = ev.detail.ranges;
+  onSeriesChanged(ranges: string[]) {
+    this.state.chart.dataSets = ranges;
   }
 
   updateDataSet() {
@@ -248,8 +245,8 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
     });
   }
 
-  onLabelRangeChanged(ev: CustomEvent) {
-    this.state.chart.labelRange = ev.detail.ranges[0];
+  onLabelRangeChanged(ranges: string[]) {
+    this.state.chart.labelRange = ranges[0];
   }
 
   getKey(label: string) {

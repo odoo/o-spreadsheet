@@ -1,9 +1,7 @@
-import { Model, Spreadsheet } from "../../src";
-import { DispatchResult } from "../../src/types/commands";
+import { Model } from "../../src";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick, Parent } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
-jest.useFakeTimers();
 
 let model: Model;
 
@@ -32,18 +30,18 @@ const selectors = {
 
 describe("find and replace sidePanel component", () => {
   let fixture: HTMLElement;
-  let parent: Spreadsheet;
+  let parent: Parent;
   beforeEach(async () => {
     fixture = makeTestFixture();
     parent = await mountSpreadsheet(fixture);
     model = parent.model;
-    parent.env.openSidePanel("FindAndReplace");
+    parent.getSpreadsheetEnv().openSidePanel("FindAndReplace");
     await nextTick();
   });
 
   afterEach(() => {
     fixture.remove();
-    parent.destroy();
+    parent.__owl__.destroy();
   });
   describe("Sidepanel", () => {
     test("Can close the find and replace side panel", async () => {
@@ -61,7 +59,6 @@ describe("find and replace sidePanel component", () => {
 
     test("focusing the sidepanel will update the search", async () => {
       setInputValueAndTrigger(selectors.inputSearch, "hello", "input");
-      jest.runAllTimers();
       await nextTick();
       const inputSearch: HTMLElement = document.activeElement as HTMLButtonElement;
       expect(document.activeElement).toBe(document.querySelector(selectors.inputSearch));
@@ -70,15 +67,14 @@ describe("find and replace sidePanel component", () => {
       expect(document.activeElement).toBe(document.querySelector("body"));
 
       const sidePanel = document.querySelector(".o-find-and-replace");
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
       sidePanel!.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("REFRESH_SEARCH");
+      expect(dispatch).toHaveBeenCalledWith("REFRESH_SEARCH");
     });
 
     test("disable next/previous/replace/replaceAll if searching on empty string", async () => {
       setInputValueAndTrigger(selectors.inputSearch, "", "input");
-      jest.runAllTimers();
       await nextTick();
       expect((document.querySelector(selectors.previousButton) as HTMLButtonElement).disabled).toBe(
         true
@@ -95,89 +91,87 @@ describe("find and replace sidePanel component", () => {
     });
   });
   describe("basic search", () => {
+    let dispatch;
     beforeEach(() => {
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      dispatch = parent.observeDispatch();
     });
 
     test("simple search", async () => {
+      /** Fake timers use to control debounceSearch in Find and Replace */
+      jest.useFakeTimers();
       setInputValueAndTrigger(selectors.inputSearch, "1", "input");
       jest.runAllTimers();
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
+      expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
         searchOptions: { exactMatch: false, matchCase: false, searchFormulas: false },
         toSearch: "1",
       });
+      jest.useRealTimers();
     });
 
     test("clicking on next", async () => {
       setInputValueAndTrigger(selectors.inputSearch, "1", "input");
-      jest.runAllTimers();
       triggerMouseEvent(document.querySelector(selectors.nextButton), "click");
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("SELECT_SEARCH_NEXT_MATCH");
+      expect(dispatch).toHaveBeenCalledWith("SELECT_SEARCH_NEXT_MATCH");
     });
 
     test("Going to next with Enter key", async () => {
       setInputValueAndTrigger(selectors.inputSearch, "1", "input");
-      jest.runAllTimers();
       document
         .querySelector(selectors.inputSearch)!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("SELECT_SEARCH_NEXT_MATCH");
+      expect(dispatch).toHaveBeenCalledWith("SELECT_SEARCH_NEXT_MATCH");
     });
 
     test("clicking on previous", async () => {
       setInputValueAndTrigger(selectors.inputSearch, "1", "input");
-      jest.runAllTimers();
       triggerMouseEvent(document.querySelector(selectors.previousButton), "click");
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("SELECT_SEARCH_PREVIOUS_MATCH");
+      expect(dispatch).toHaveBeenCalledWith("SELECT_SEARCH_PREVIOUS_MATCH");
     });
 
     test("won't search on empty string", async () => {
+      dispatch = parent.observeDispatch();
       setInputValueAndTrigger(selectors.inputSearch, "", "input");
-      jest.runAllTimers();
       await nextTick();
-      expect(parent.env.dispatch).not.toHaveBeenCalled();
+      expect(dispatch).not.toHaveBeenCalledWith();
     });
   });
 
   describe("search options", () => {
     test("Can search matching case", async () => {
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
 
       setInputValueAndTrigger(selectors.inputSearch, "Hell", "input");
-      jest.runAllTimers();
       triggerMouseEvent(document.querySelector(selectors.checkBoxMatchingCase), "click");
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
+      expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
         searchOptions: { exactMatch: false, matchCase: true, searchFormulas: false },
         toSearch: "Hell",
       });
     });
 
     test("Can search matching entire cell", async () => {
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
 
       setInputValueAndTrigger(selectors.inputSearch, "Hell", "input");
-      jest.runAllTimers();
       triggerMouseEvent(document.querySelector(selectors.checkBoxExactMatch), "click");
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
+      expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
         searchOptions: { exactMatch: true, matchCase: false, searchFormulas: false },
         toSearch: "Hell",
       });
     });
 
     test("can search in formulas", async () => {
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
 
       setInputValueAndTrigger(selectors.inputSearch, "Hell", "input");
-      jest.runAllTimers();
       triggerMouseEvent(document.querySelector(selectors.checkBoxSearchFormulas), "click");
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
+      expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
         searchOptions: { exactMatch: false, matchCase: false, searchFormulas: true },
         toSearch: "Hell",
       });
@@ -192,12 +186,11 @@ describe("find and replace sidePanel component", () => {
   describe("replace options", () => {
     test("Can replace a simple text value", async () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "hello", "input");
-      jest.runAllTimers();
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "kikou", "input");
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
       triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
+      expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
         replaceOptions: { modifyFormulas: false },
         replaceWith: "kikou",
       });
@@ -205,13 +198,12 @@ describe("find and replace sidePanel component", () => {
 
     test("Can replace a value in a formula", async () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "2", "input");
-      jest.runAllTimers();
       triggerMouseEvent(document.querySelector(selectors.checkBoxSearchFormulas), "click");
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "4", "input");
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
       triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
+      expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
         replaceOptions: { modifyFormulas: true },
         replaceWith: "4",
       });
@@ -219,13 +211,12 @@ describe("find and replace sidePanel component", () => {
 
     test("formulas will be overwritten if modify formula is checked", async () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "4", "input");
-      jest.runAllTimers();
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "2", "input");
       triggerMouseEvent(document.querySelector(selectors.checkBoxReplaceFormulas), "click");
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
       triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
+      expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
         replaceOptions: { modifyFormulas: true },
         replaceWith: "2",
       });
@@ -233,12 +224,11 @@ describe("find and replace sidePanel component", () => {
 
     test("formulas wont be modified if not looking in formulas or not modifying formulas", async () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "4", "input");
-      jest.runAllTimers();
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "2", "input");
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
       triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
+      expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
         replaceOptions: { modifyFormulas: false },
         replaceWith: "2",
       });
@@ -247,11 +237,10 @@ describe("find and replace sidePanel component", () => {
     test("can replace all", async () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "hell", "input");
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "kikou", "input");
-      jest.runAllTimers();
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
       triggerMouseEvent(document.querySelector(selectors.replaceAllButton), "click");
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("REPLACE_ALL_SEARCH", {
+      expect(dispatch).toHaveBeenCalledWith("REPLACE_ALL_SEARCH", {
         replaceOptions: { modifyFormulas: false },
         replaceWith: "kikou",
       });
@@ -260,13 +249,12 @@ describe("find and replace sidePanel component", () => {
     test("Can replace with Enter key", async () => {
       setInputValueAndTrigger(selectors.inputSearch, "hell", "input");
       setInputValueAndTrigger(selectors.inputReplace, "kikou", "input");
-      jest.runAllTimers();
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
       document
         .querySelector(selectors.inputReplace)!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
+      expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
         replaceOptions: { modifyFormulas: false },
         replaceWith: "kikou",
       });

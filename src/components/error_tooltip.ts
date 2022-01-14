@@ -1,7 +1,6 @@
-import * as owl from "@odoo/owl";
+import { Component, xml } from "@odoo/owl";
 import { SpreadsheetEnv } from "../types";
-const { Component, tags } = owl;
-const { xml, css } = tags;
+import { css } from "./helpers/css";
 
 const TEMPLATE = xml/* xml */ `
     <div class="o-error-tooltip"> 

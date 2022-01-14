@@ -1,20 +1,16 @@
-import * as owl from "@odoo/owl";
-import { Component, hooks, tags } from "@odoo/owl";
+import { Component, onMounted, onPatched, useRef, useState, xml } from "@odoo/owl";
 import Chart, { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../constants";
 import { MenuItemRegistry } from "../../registries/index";
 import { _lt } from "../../translation";
 import { Figure, SpreadsheetEnv } from "../../types";
+import { css } from "../helpers/css";
 import { useAbsolutePosition } from "../helpers/position_hook";
 import { LIST } from "../icons";
 import { Menu, MenuState } from "../menu";
-const { useState } = owl;
-
-const { xml, css } = tags;
-const { useRef, onMounted, onPatched } = hooks;
 
 const TEMPLATE = xml/* xml */ `
-<div class="o-chart-container">
+<div class="o-chart-container" t-ref="chartContainer">
   <div class="o-chart-menu" t-on-click="showMenu">${LIST}</div>
   <canvas t-att-style="canvasStyle" t-ref="graphContainer"/>
   <Menu t-if="menuState.isOpen"
@@ -66,9 +62,10 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
   private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
   canvas = useRef("graphContainer");
+  private chartContainerRef = useRef("chartContainer");
   private chart?: Chart;
   private state: State = { background: BACKGROUND_CHART_COLOR };
-  private position = useAbsolutePosition();
+  private position = useAbsolutePosition(this.chartContainerRef);
 
   get canvasStyle() {
     return `background-color: ${this.state.background}`;

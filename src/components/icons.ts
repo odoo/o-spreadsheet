@@ -1,5 +1,7 @@
 // -----------------------------------------------------------------------------
 
+import { markup } from "@odoo/owl";
+
 // -----------------------------------------------------------------------------
 export const UNDO_ICON = `<svg class="o-icon"><path fill="#000000" d="M11.5656391,4.43436088 L9,7 L16,7 L16,0 L13.0418424,2.95815758 C11.5936787,1.73635959 9.72260775,1 7.67955083,1 C4.22126258,1 1.25575599,3.10984908 0,6 L2,7 C2.93658775,4.60974406 5.12943697,3.08011229 7.67955083,3 C9.14881247,3.0528747 10.4994783,3.57862053 11.5656391,4.43436088 Z" transform="matrix(-1 0 0 1 17 5)"/></svg>`;
 export const REDO_ICON = `<svg class="o-icon"><path fill="#000000" d="M11.5656391,4.43436088 L9,7 L16,7 L16,0 L13.0418424,2.95815758 C11.5936787,1.73635959 9.72260775,1 7.67955083,1 C4.22126258,1 1.25575599,3.10984908 0,6 L2,7 C2.93658775,4.60974406 5.12943697,3.08011229 7.67955083,3 C9.14881247,3.0528747 10.4994783,3.57862053 11.5656391,4.43436088 Z" transform="translate(1 5)"/></svg>`;
@@ -84,39 +86,39 @@ function loadIconImage(svg) {
 export const ICONS = {
   arrowGood: {
     img: loadIconImage(ARROW_UP),
-    svg: ARROW_UP,
+    svg: markup(ARROW_UP),
   },
   arrowNeutral: {
     img: loadIconImage(ARROW_RIGHT),
-    svg: ARROW_RIGHT,
+    svg: markup(ARROW_RIGHT),
   },
   arrowBad: {
     img: loadIconImage(ARROW_DOWN),
-    svg: ARROW_DOWN,
+    svg: markup(ARROW_DOWN),
   },
   smileyGood: {
     img: loadIconImage(SMILE),
-    svg: SMILE,
+    svg: markup(SMILE),
   },
   smileyNeutral: {
     img: loadIconImage(MEH),
-    svg: MEH,
+    svg: markup(MEH),
   },
   smileyBad: {
     img: loadIconImage(FROWN),
-    svg: FROWN,
+    svg: markup(FROWN),
   },
   dotGood: {
     img: loadIconImage(GREEN_DOT),
-    svg: GREEN_DOT,
+    svg: markup(GREEN_DOT),
   },
   dotNeutral: {
     img: loadIconImage(YELLOW_DOT),
-    svg: YELLOW_DOT,
+    svg: markup(YELLOW_DOT),
   },
   dotBad: {
     img: loadIconImage(RED_DOT),
-    svg: RED_DOT,
+    svg: markup(RED_DOT),
   },
 };
 

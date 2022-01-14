@@ -1,8 +1,6 @@
-import * as owl from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import * as icons from "../../icons";
 import { conditionalFormattingTerms } from "../translations_terms";
-
-const { xml } = owl.tags;
 
 const PREVIEW_TEMPLATE = xml/* xml */ `
     <div class="o-cf-preview-line"
@@ -43,21 +41,21 @@ export const TEMPLATE_CELL_IS_RULE_EDITOR = xml/* xml */ `
         <t t-set="currentStyle" t-value="rule.style"/>
     </t>
     <div class="o-tools">
-        <div class="o-tool" t-att-title="env._t('${conditionalFormattingTerms.BOLD}')" t-att-class="{active:rule.style.bold}" t-on-click="toggleStyle('bold')">
+        <div class="o-tool" t-att-title="env._t('${conditionalFormattingTerms.BOLD}')" t-att-class="{active:rule.style.bold}" t-on-click="() => this.toggleStyle('bold')">
             ${icons.BOLD_ICON}
         </div>
-        <div class="o-tool" t-att-title="env._t('${conditionalFormattingTerms.ITALIC}')" t-att-class="{active:rule.style.italic}" t-on-click="toggleStyle('italic')">
+        <div class="o-tool" t-att-title="env._t('${conditionalFormattingTerms.ITALIC}')" t-att-class="{active:rule.style.italic}" t-on-click="() => this.toggleStyle('italic')">
             ${icons.ITALIC_ICON}
         </div>
         <div class="o-tool" t-att-title="env._t('${conditionalFormattingTerms.UNDERLINE}')" t-att-class="{active:rule.style.underline}"
-             t-on-click="toggleStyle('underline')">${icons.UNDERLINE_ICON}
+             t-on-click="(ev) => this.toggleStyle('underline', ev)">${icons.UNDERLINE_ICON}
         </div>
         <div class="o-tool" t-att-title="env._t('${conditionalFormattingTerms.STRIKE_THROUGH}')" t-att-class="{active:rule.style.strikethrough}"
-             t-on-click="toggleStyle('strikethrough')">${icons.STRIKE_ICON}
+             t-on-click="(ev) => this.toggleStyle('strikethrough', ev)">${icons.STRIKE_ICON}
         </div>
         <div class="o-tool o-dropdown o-with-color">
               <span t-att-title="env._t('${conditionalFormattingTerms.TEXT_COLOR}')" t-attf-style="border-color:{{rule.style.textColor}}"
-                    t-on-click.stop="toggleMenu('cellIsRule-textColor')">
+                    t-on-click.stop="(ev) => this.toggleMenu('cellIsRule-textColor', ev)">
                     ${icons.TEXT_COLOR_ICON}
               </span>
               <ColorPicker t-if="state.openedMenu === 'cellIsRule-textColor'" dropdownDirection="'center'" onColorPicked="(color) => this.setColor('textColor', color)" t-key="textColor"/>
@@ -65,7 +63,7 @@ export const TEMPLATE_CELL_IS_RULE_EDITOR = xml/* xml */ `
         <div class="o-divider"/>
         <div class="o-tool o-dropdown o-with-color">
           <span t-att-title="env._t('${conditionalFormattingTerms.FILL_COLOR}')" t-attf-style="border-color:{{rule.style.fillColor}}"
-                t-on-click.stop="toggleMenu('cellIsRule-fillColor')">
+                t-on-click.stop="(ev) => this.toggleMenu('cellIsRule-fillColor', ev)">
                 ${icons.FILL_COLOR_ICON}
           </span>
           <ColorPicker t-if="state.openedMenu === 'cellIsRule-fillColor'" dropdownDirection="'center'" onColorPicked="(color) => this.setColor('fillColor', color)" t-key="fillColor"/>

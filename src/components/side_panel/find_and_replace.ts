@@ -1,13 +1,10 @@
-import * as owl from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useRef, useState, xml } from "@odoo/owl";
 import { SpreadsheetEnv } from "../../types/index";
+import { css } from "../helpers/css";
 import { FindAndReplaceTerms } from "./translations_terms";
 
-const { Component, useState } = owl;
-const { xml, css } = owl.tags;
-const { onMounted, onWillUnmount } = owl.hooks;
-
 const TEMPLATE = xml/* xml */ `
-<div class="o-find-and-replace" tabindex="0" t-on-focusin="onFocusSidePanel">
+<div class="o-find-and-replace" tabindex="0" t-on-focusin="onFocusSidePanel" t-ref="findAndReplace">
   <div class="o-section">
     <div class="o-section-title" t-esc="env._t('${FindAndReplaceTerms.Search}')"/>
     <div class="o-input-search-container">
@@ -21,13 +18,13 @@ const TEMPLATE = xml/* xml */ `
     <div>
       <div class="o-far-item">
         <label class="o-far-checkbox">
-          <input t-model="state.searchOptions.matchCase" t-on-change="updateSearch()" class="o-far-input" type="checkbox"/>
+          <input t-model="state.searchOptions.matchCase" t-on-change="updateSearch" class="o-far-input" type="checkbox"/>
           <span class="o-far-label"><t t-esc="env._t('${FindAndReplaceTerms.MatchCase}')"/></span>
         </label>
       </div>
       <div class="o-far-item">
         <label class="o-far-checkbox">
-          <input t-model="state.searchOptions.exactMatch" t-on-change="updateSearch()" class="o-far-input" type="checkbox"/>
+          <input t-model="state.searchOptions.exactMatch" t-on-change="updateSearch" class="o-far-input" type="checkbox"/>
           <span class="o-far-label"><t t-esc="env._t('${FindAndReplaceTerms.ExactMatch}')"/></span>
         </label>
       </div>
@@ -131,6 +128,8 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetEnv> {
   private state: FindAndReplaceState = useState(this.initialState());
   private inDebounce;
 
+  private findAndReplaceRef = useRef("findAndReplace");
+
   get hasSearchResult() {
     return this.env.getters.getCurrentSelectedMatchIndex() !== null;
   }
@@ -211,7 +210,8 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetEnv> {
   // Private
   // ---------------------------------------------------------------------------
   private focusInput() {
-    const input = this.el!.querySelector(`input`);
+    const el = this.findAndReplaceRef.el!;
+    const input = el.querySelector(`input`);
     if (input) {
       input.focus();
     }

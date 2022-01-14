@@ -20,11 +20,17 @@ import {
   getCellError,
   getCellText,
 } from "../test_helpers/getters_helpers";
-import { createEqualCF, getGrid, makeInteractiveTestEnv, target } from "../test_helpers/helpers";
+import {
+  createEqualCF,
+  getGrid,
+  getPlugin,
+  makeInteractiveTestEnv,
+  target,
+} from "../test_helpers/helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
-  const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
-  return clipboardPlugin.status === "visible" ? clipboardPlugin.state.zones : [];
+  const clipboardPlugin = getPlugin(model, ClipboardPlugin);
+  return clipboardPlugin["status"] === "visible" ? clipboardPlugin["state"]!.zones : [];
 }
 
 describe("clipboard", () => {
@@ -113,8 +119,8 @@ describe("clipboard", () => {
   test("paste zones without copied value", () => {
     const model = new Model();
     const zones = [toZone("A1"), toZone("B2")];
-    const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
-    const pasteZone = clipboardPlugin.getPasteZones(zones, []);
+    const clipboardPlugin = getPlugin(model, ClipboardPlugin);
+    const pasteZone = clipboardPlugin["getPasteZones"](zones, []);
     expect(pasteZone).toEqual(zones);
   });
 

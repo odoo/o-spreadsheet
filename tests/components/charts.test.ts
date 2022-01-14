@@ -1,7 +1,6 @@
 import { ChartConfiguration } from "chart.js";
-import { Model, Spreadsheet } from "../../src";
+import { Model } from "../../src";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../src/constants";
-import { DispatchResult } from "../../src/types";
 import { createChart } from "../test_helpers/commands_helpers";
 import {
   setInputValueAndTrigger,
@@ -12,6 +11,7 @@ import {
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
+  Parent,
   textContentAll,
 } from "../test_helpers/helpers";
 
@@ -55,7 +55,7 @@ let model: Model;
 let mockChartData = mockChart();
 let chartId: string;
 
-let parent: Spreadsheet;
+let parent: Parent;
 describe("figures", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();
@@ -101,7 +101,7 @@ describe("figures", () => {
     await nextTick();
   });
   afterEach(() => {
-    parent.destroy();
+    parent.__owl__.destroy();
     fixture.remove();
   });
   test("can export a chart", () => {
@@ -241,6 +241,7 @@ describe("figures", () => {
     const editButton = fixture.querySelectorAll(".o-menu-item")[0];
     expect(editButton.textContent).toBe("Edit");
     await simulateClick(".o-menu div[data-name='edit']");
+    await nextTick();
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
     const chartType = fixture.querySelectorAll(".o-input")[0] as HTMLSelectElement;
     const dataSeries = fixture.querySelectorAll(
@@ -248,19 +249,17 @@ describe("figures", () => {
     )[0] as HTMLInputElement;
     const dataSeriesValues = dataSeries.querySelector("input");
     const hasTitle = dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement;
-    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+    let dispatch = parent.observeDispatch();
     setInputValueAndTrigger(chartType, "pie", "change");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_CHART", {
+    expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
       id: chartId,
       definition: {
         type: "pie",
       },
     });
-
-    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     setInputValueAndTrigger(dataSeriesValues, "B2:B4", "change");
     triggerMouseEvent(hasTitle, "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_CHART", {
+    expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
       id: chartId,
       definition: {
         dataSets: ["B2:B4"],
@@ -268,10 +267,9 @@ describe("figures", () => {
       },
     });
 
-    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
     await simulateClick(".o-panel .inactive");
     setInputValueAndTrigger(".o-chart-title input", "hello", "change");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_CHART", {
+    expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
       id: chartId,
       definition: {
         title: "hello",
@@ -284,10 +282,11 @@ describe("figures", () => {
     const sheetId = model.getters.getActiveSheetId();
     const figure = model.getters.getFigure(sheetId, chartId);
     expect(parent.model.getters.getChartDefinition(chartId)?.labelRange).not.toBeUndefined();
-    parent.env.openSidePanel("ChartPanel", { figure });
+    parent.getSpreadsheetEnv().openSidePanel("ChartPanel", { figure });
     await nextTick();
     await simulateClick(".o-data-labels input");
     setInputValueAndTrigger(".o-data-labels input", "", "change");
+    await nextTick();
     await simulateClick(".o-data-labels .o-selection-ok");
     expect(parent.model.getters.getChartDefinition(chartId)?.labelRange).toBeUndefined();
   });
@@ -296,23 +295,24 @@ describe("figures", () => {
     const model = parent.model;
     const sheetId = model.getters.getActiveSheetId();
     const figure = model.getters.getFigure(sheetId, chartId);
-    parent.env.openSidePanel("ChartPanel", { figure });
+    parent.getSpreadsheetEnv().openSidePanel("ChartPanel", { figure });
     await nextTick();
 
     // empty dataset
     await simulateClick(".o-data-series input");
     setInputValueAndTrigger(".o-data-series input", "", "change");
+    await nextTick();
     await simulateClick(".o-data-series .o-selection-ok");
-    expect(parent.el?.querySelector(".o-data-series input")?.classList).toContain("o-invalid");
-    expect(parent.el?.querySelector(".o-data-labels input")?.classList).not.toContain("o-invalid");
+    expect(document.querySelector(".o-data-series input")?.classList).toContain("o-invalid");
+    expect(document.querySelector(".o-data-labels input")?.classList).not.toContain("o-invalid");
     expect(errorMessages()).toEqual(["A dataset needs to be defined"]);
 
     // invalid labels
     await simulateClick(".o-data-labels input");
     setInputValueAndTrigger(".o-data-labels input", "Invalid Label Range", "change");
     await simulateClick(".o-data-labels .o-selection-ok");
-    expect(parent.el?.querySelector(".o-data-series input")?.classList).toContain("o-invalid");
-    expect(parent.el?.querySelector(".o-data-labels input")?.classList).toContain("o-invalid");
+    expect(document.querySelector(".o-data-series input")?.classList).toContain("o-invalid");
+    expect(document.querySelector(".o-data-labels input")?.classList).toContain("o-invalid");
     expect(errorMessages()).toEqual(["A dataset needs to be defined", "Labels are invalid"]);
   });
 
@@ -322,6 +322,7 @@ describe("figures", () => {
     const editButton = fixture.querySelectorAll(".o-menu-item")[0];
     expect(editButton.textContent).toBe("Edit");
     await simulateClick(".o-menu div[data-name='edit']");
+    await nextTick();
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
     const chartType = fixture.querySelectorAll(".o-input")[0] as HTMLSelectElement;
     const dataSeries = fixture.querySelectorAll(
@@ -363,9 +364,9 @@ describe("figures", () => {
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
     await simulateClick(".o-figure");
     await simulateClick(".o-chart-menu");
-    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+    const dispatch = parent.observeDispatch();
     await simulateClick(".o-menu div[data-name='refresh']");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("REFRESH_CHART", {
+    expect(dispatch).toHaveBeenCalledWith("REFRESH_CHART", {
       id: "someuuid",
     });
   });

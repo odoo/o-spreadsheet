@@ -1,11 +1,7 @@
 import { demoData, makeLargeDataset } from "./data.js";
 import { WebsocketTransport } from "./transport.js";
-owl.config.mode = "dev";
 
-const { whenReady } = owl.utils;
-const { Component, useState } = owl;
-const { xml, css } = owl.tags;
-const { useSubEnv, onWillStart, onMounted } = owl.hooks;
+const { xml, Component, useState, whenReady, useSubEnv, onWillStart, onMounted, mount } = owl;
 
 const { Spreadsheet } = o_spreadsheet;
 const { topbarMenuRegistry } = o_spreadsheet.registries;
@@ -38,7 +34,7 @@ topbarMenuRegistry.addChild("xlsx", ["file"], {
 
 let start;
 
-class App extends Component {
+class Demo extends Component {
   setup() {
     this.key = 1;
     this.data = demoData;
@@ -125,7 +121,7 @@ class App extends Component {
   }
 }
 
-App.template = xml/* xml */ `
+Demo.template = xml/* xml */ `
   <div>
     <Spreadsheet data="data"
       t-key="key"
@@ -134,26 +130,11 @@ App.template = xml/* xml */ `
       isReadonly="state.isReadonly"
       client="client"/>
   </div>`;
-App.style = css/* scss */ `
-  html {
-    height: 100%;
-    body {
-      height: 100%;
-      margin: 0px;
-    }
-    .o-spreadsheet {
-      width: 100%;
-      height: 100%;
-    }
-  }
-`;
-App.components = { Spreadsheet };
+Demo.components = { Spreadsheet };
 
 // Setup code
 function setup() {
   start = Date.now();
-  const app = new App();
-
-  app.mount(document.body);
+  mount(Demo, document.body, { dev: true });
 }
 whenReady(setup);

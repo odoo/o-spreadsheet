@@ -1,6 +1,5 @@
-import { hooks } from "@odoo/owl";
+import { onMounted, onPatched, useRef, useState } from "@odoo/owl";
 import { DOMCoordinates } from "../../types";
-const { useComponent, useState, onPatched, useRef, onMounted } = hooks;
 
 // type Ref is not exported by owl :(
 type Ref = ReturnType<typeof useRef>;
@@ -34,12 +33,11 @@ function useSpreadsheetPosition(): DOMCoordinates {
  * Note: when used with a <Portal/> component, it will
  * return the portal position, not the teleported position.
  */
-export function useAbsolutePosition(ref?: Ref): DOMCoordinates {
+export function useAbsolutePosition(ref: Ref): DOMCoordinates {
   const position = useState({ x: 0, y: 0 });
-  const component = useComponent();
   const spreadsheet = useSpreadsheetPosition();
   function updateElPosition() {
-    const el = ref?.el || component.el;
+    const el = ref.el;
     const { top, left } = el!.getBoundingClientRect();
     const x = left - spreadsheet.x;
     const y = top - spreadsheet.y;

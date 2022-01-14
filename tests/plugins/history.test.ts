@@ -14,6 +14,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getBorder, getCell, getCellContent } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
+import { getPlugin } from "../test_helpers/helpers";
 
 // we test here the undo/redo feature
 
@@ -310,7 +311,7 @@ describe("Model history", () => {
     class TestPlugin extends UIPlugin {}
     uiPluginRegistry.add("test-plugin", TestPlugin);
     const model = new Model();
-    const plugin = model["handlers"].find((handler) => handler instanceof TestPlugin)!;
+    const plugin = getPlugin(model, TestPlugin);
     plugin.handle = jest.fn((cmd) => {});
     const command: UpdateCellCommand = {
       type: "UPDATE_CELL",

@@ -15,13 +15,17 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
         FUNC1
       </span>
        ( 
+      
       <span
         class="o-formula-assistant-focus"
       >
         <span>
+          
           <span>
             f1Arg1
           </span>
+          
+          
         </span>
       </span>
       <span>
@@ -29,11 +33,16 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
       </span>
       <span>
         <span>
+          
           <span>
             f1Arg2
           </span>
+          
+          
         </span>
       </span>
+      
+      
        ) 
     </div>
     <div
@@ -55,6 +64,9 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
         <span>
           f1Arg1
         </span>
+        
+        
+        
       </div>
       <div
         class="o-formula-assistant-arg-description"
@@ -69,6 +81,9 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
         <span>
           f1Arg2
         </span>
+        
+        
+        
       </div>
       <div
         class="o-formula-assistant-arg-description"
@@ -76,6 +91,8 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
         f1 Arg2 def
       </div>
     </div>
+    
+    
   </div>
 </div>
 `;

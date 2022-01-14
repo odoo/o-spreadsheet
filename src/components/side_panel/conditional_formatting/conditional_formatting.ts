@@ -1,4 +1,11 @@
-import * as owl from "@odoo/owl";
+import {
+  Component,
+  markup,
+  onWillUpdateProps,
+  useExternalListener,
+  useState,
+  xml,
+} from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../constants";
 import { colorNumberString, rangeReference, toZone } from "../../../helpers/index";
 import {
@@ -16,6 +23,7 @@ import {
   Zone,
 } from "../../../types";
 import { ColorPicker } from "../../color_picker";
+import { css } from "../../helpers/css";
 import { getTextDecoration } from "../../helpers/dom_helpers";
 import { ICONS, ICON_SETS, REFRESH, TRASH } from "../../icons";
 import { IconPicker } from "../../icon_picker";
@@ -25,18 +33,14 @@ import { TEMPLATE_CELL_IS_RULE_EDITOR } from "./cell_is_rule_editor";
 import { TEMPLATE_COLOR_SCALE_EDITOR } from "./color_scale_rule_editor";
 import { TEMPLATE_ICON_SET_EDITOR } from "./icon_set_rule_editor";
 
-const { Component, useState } = owl;
-const { xml, css } = owl.tags;
-const { onWillUpdateProps, useExternalListener } = owl.hooks;
-
 // TODO vsc: add ordering of rules
 const PREVIEW_TEMPLATE = xml/* xml */ `
 <div class="o-cf-preview">
   <t t-if="cf.rule.type==='IconSetRule'">
     <div class="o-cf-preview-icon">
-      <t t-raw="icons[cf.rule.icons.upper].svg"/>
-      <t t-raw="icons[cf.rule.icons.middle].svg"/>
-      <t t-raw="icons[cf.rule.icons.lower].svg"/>
+      <t t-out="icons[cf.rule.icons.upper].svg"/>
+      <t t-out="icons[cf.rule.icons.middle].svg"/>
+      <t t-out="icons[cf.rule.icons.lower].svg"/>
     </div>
   </t>
   <t t-else="">
@@ -61,8 +65,8 @@ const PREVIEW_TEMPLATE = xml/* xml */ `
     <div class="o-cf-preview-range" t-esc="cf.ranges"/>
   </div>
   <div class="o-cf-delete">
-    <div class="o-cf-delete-button" t-on-click.stop="deleteConditionalFormat(cf)" aria-label="Remove rule">
-    <t t-raw="trashIcon"/>
+    <div class="o-cf-delete-button" t-on-click.stop="(ev) => this.deleteConditionalFormat(cf, ev)" aria-label="Remove rule">
+    <t t-out="trashIcon"/>
     </div>
   </div>
 </div>`;
@@ -71,7 +75,7 @@ const TEMPLATE = xml/* xml */ `
   <div class="o-cf">
     <t t-if="state.mode === 'list'">
       <div class="o-cf-preview-list" >
-        <div t-on-click="editConditionalFormat(cf)" t-foreach="conditionalFormats" t-as="cf" t-key="cf.id">
+        <div t-on-click="(ev) => this.editConditionalFormat(cf, ev)" t-foreach="conditionalFormats" t-as="cf" t-key="cf.id">
             <t t-call="${PREVIEW_TEMPLATE}"/>
         </div>
       </div>
@@ -86,27 +90,27 @@ const TEMPLATE = xml/* xml */ `
               <div class="o-selection-cf">
                 <SelectionInput
                   ranges="state.currentCF.ranges"
-                  class="o-range"
+                  class="'o-range'"
                   isInvalid="isRangeValid"
-                  t-on-selection-changed="onRangesChanged"
+                  onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
                   required="true"/>
               </div>
               <div class="o-section-title" t-esc="env._t('${conditionalFormattingTerms.CF_TITLE}')"></div>
               <div class="o_field_radio o_horizontal o_field_widget o-cf-type-selector">
-                <div class="custom-control custom-radio o_cf_radio_item" t-on-click="changeRuleType('CellIsRule')">
+                <div class="custom-control custom-radio o_cf_radio_item" t-on-click="() => this.changeRuleType('CellIsRule')">
                   <input class="custom-control-input o_radio_input" t-attf-checked="{{state.currentCFType === 'CellIsRule'}}" type="radio" id="cellIsRule" name="ruleType" value="CellIsRule"/>
                   <label for="cellIsRule" class="custom-control-label o_form_label">
                     <t t-esc="env._t('${conditionalFormattingTerms.SingleColor}')"/>
                   </label>
                 </div>
-                <div class="custom-control custom-radio o_cf_radio_item" t-on-click="changeRuleType('ColorScaleRule')">
+                <div class="custom-control custom-radio o_cf_radio_item" t-on-click="() => this.changeRuleType('ColorScaleRule')">
                   <input class="custom-control-input o_radio_input" t-attf-checked="{{state.currentCFType === 'ColorScaleRule'}}" type="radio" id="colorScaleRule" name="ruleType" value="ColorScaleRule"/>
                   <label for="colorScaleRule" class="custom-control-label o_form_label">
                   <t t-esc="env._t('${conditionalFormattingTerms.ColorScale}')"/>
                   </label>
                 </div>
 
-                <div class="custom-control custom-radio o_cf_radio_item" t-on-click="changeRuleType('IconSetRule')">
+                <div class="custom-control custom-radio o_cf_radio_item" t-on-click="() => this.changeRuleType('IconSetRule')">
                   <input class="custom-control-input o_radio_input" t-attf-checked="{{state.currentCFType === 'IconSetRule'}}" type="radio" id="iconSetRule" name="ruleType" value="IconSetRule"/>
                   <label for="iconSetRule" class="custom-control-label o_form_label">
                   <t t-esc="env._t('${conditionalFormattingTerms.IconSet}')"/>
@@ -133,7 +137,7 @@ const TEMPLATE = xml/* xml */ `
               </div>
             </div>
             <div class="o-section">
-              <div class="o-cf-error" t-foreach="state.errors || []" t-as="error">
+              <div class="o-cf-error" t-foreach="state.errors || []" t-as="error" t-key="error_index">
                 <t t-esc="errorMessage(error)"/>
               </div>
             </div>
@@ -486,41 +490,36 @@ interface State {
 export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
-  icons = ICONS;
-  iconSets = ICON_SETS;
-  reverseIcon = REFRESH;
-  trashIcon = TRASH;
   static components = { SelectionInput, IconPicker, ColorPicker };
 
-  //@ts-ignore --> used in XML template
-  private cellIsOperators = cellIsOperators;
-  // @ts-ignore used in XML template
-  private getTextDecoration = getTextDecoration;
-
+  icons = ICONS;
+  iconSets = ICON_SETS;
+  reverseIcon = markup(REFRESH);
+  trashIcon = markup(TRASH);
+  cellIsOperators = cellIsOperators;
+  getTextDecoration = getTextDecoration;
   colorNumberString = colorNumberString;
 
-  private getters = this.env.getters;
-  private activeSheetId: UID;
+  private getters!: SpreadsheetEnv["getters"];
+  private activeSheetId!: UID;
+  private state!: State;
 
-  private state: State = useState({
-    mode: "list",
-    errors: [],
-    rules: this.getDefaultRules(),
-  });
-
-  constructor(parent: any, props: Props) {
-    super(parent, props);
+  setup() {
+    this.getters = this.env.getters;
     this.activeSheetId = this.getters.getActiveSheetId();
-    const rules = this.getters.getRulesSelection(this.activeSheetId, props.selection || []);
+    this.state = useState({
+      mode: "list",
+      errors: [],
+      rules: this.getDefaultRules(),
+    });
+    const sheetId = this.getters.getActiveSheetId();
+    const rules = this.getters.getRulesSelection(sheetId, this.props.selection || []);
     if (rules.length === 1) {
       const cf = this.conditionalFormats.find((c) => c.id === rules[0]);
       if (cf) {
         this.editConditionalFormat(cf);
       }
     }
-  }
-
-  setup() {
     onWillUpdateProps((nextProps: Props) => {
       const newActiveSheetId = this.getters.getActiveSheetId();
       if (newActiveSheetId !== this.activeSheetId) {
@@ -729,9 +728,9 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     this.state.currentCFType = ruleType;
   }
 
-  onRangesChanged({ detail }: { detail: { ranges: string[] } }) {
+  onRangesChanged(ranges: string[]) {
     if (this.state.currentCF) {
-      this.state.currentCF.ranges = detail.ranges;
+      this.state.currentCF.ranges = ranges;
     }
   }
 

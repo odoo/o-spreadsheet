@@ -65,7 +65,7 @@
     "endOfLine": "auto"
   },
   "dependencies": {
-    "@odoo/owl": "^1.4.10",
+    "@odoo/owl": "2.0.0-alpha.1",
     "bootstrap": "^4.6.0"
   },
   "jest": {

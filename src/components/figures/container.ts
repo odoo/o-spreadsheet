@@ -1,14 +1,10 @@
-import * as owl from "@odoo/owl";
-import { Component } from "@odoo/owl";
+import { Component, onMounted, useState, xml } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH, SELECTION_BORDER_COLOR } from "../../constants";
 import { figureRegistry } from "../../registries/index";
 import { Figure, SpreadsheetEnv } from "../../types/index";
+import { css } from "../helpers/css";
 import { startDnd } from "../helpers/drag_and_drop";
 import { ChartFigure } from "./chart";
-
-const { xml, css } = owl.tags;
-const { onMounted } = owl.hooks;
-const { useState } = owl;
 
 interface FigureInfo {
   id: string;
@@ -20,27 +16,27 @@ const TEMPLATE = xml/* xml */ `<div>
     <t t-foreach="getVisibleFigures()" t-as="info" t-key="info.id">
         <div class="o-figure-wrapper"
              t-att-style="getStyle(info)"
-             t-on-mousedown="onMouseDown(info.figure)"
+             t-on-mousedown="(ev) => this.onMouseDown(info.figure, ev)"
              >
             <div class="o-figure"
                  t-att-class="{active: info.isSelected, 'o-dragging': info.id === dnd.figureId}"
                  t-att-style="getDims(info)"
                  tabindex="0"
-                 t-on-keydown.stop="onKeyDown(info.figure)">
+                 t-on-keydown.stop="(ev) => this.onKeyDown(info.figure, ev)">
                 <t t-component="figureRegistry.get(info.figure.tag).Component"
                    t-key="info.id"
                    sidePanelIsOpen="props.sidePanelIsOpen"
                    onFigureDeleted="props.onFigureDeleted"
                    figure="info.figure"/>
                 <t t-if="info.isSelected">
-                    <div class="o-anchor o-top" t-on-mousedown.stop="resize(info.figure, 0,-1)"/>
-                    <div class="o-anchor o-topRight" t-on-mousedown.stop="resize(info.figure, 1,-1)"/>
-                    <div class="o-anchor o-right" t-on-mousedown.stop="resize(info.figure, 1,0)"/>
-                    <div class="o-anchor o-bottomRight" t-on-mousedown.stop="resize(info.figure, 1,1)"/>
-                    <div class="o-anchor o-bottom" t-on-mousedown.stop="resize(info.figure, 0,1)"/>
-                    <div class="o-anchor o-bottomLeft" t-on-mousedown.stop="resize(info.figure, -1,1)"/>
-                    <div class="o-anchor o-left" t-on-mousedown.stop="resize(info.figure, -1,0)"/>
-                    <div class="o-anchor o-topLeft" t-on-mousedown.stop="resize(info.figure, -1,-1)"/>
+                    <div class="o-anchor o-top" t-on-mousedown.stop="(ev) => resize(info.figure, 0,-1, ev)"/>
+                    <div class="o-anchor o-topRight" t-on-mousedown.stop="(ev) => resize(info.figure, 1,-1, ev)"/>
+                    <div class="o-anchor o-right" t-on-mousedown.stop="(ev) => resize(info.figure, 1,0, ev)"/>
+                    <div class="o-anchor o-bottomRight" t-on-mousedown.stop="(ev) => resize(info.figure, 1,1, ev)"/>
+                    <div class="o-anchor o-bottom" t-on-mousedown.stop="(ev) => resize(info.figure, 0,1, ev)"/>
+                    <div class="o-anchor o-bottomLeft" t-on-mousedown.stop="(ev) => resize(info.figure, -1,1, ev)"/>
+                    <div class="o-anchor o-left" t-on-mousedown.stop="(ev) => resize(info.figure, -1,0, ev)"/>
+                    <div class="o-anchor o-topLeft" t-on-mousedown.stop="(ev) => resize(info.figure, -1,-1, ev)"/>
                 </t>
             </div>
         </div>

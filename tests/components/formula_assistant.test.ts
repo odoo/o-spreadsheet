@@ -1,12 +1,10 @@
-import { Spreadsheet } from "../../src";
-import { Grid } from "../../src/components/grid";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import {
-  getChildFromComponent,
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
+  Parent,
   resetFunctions,
   typeInComposerGrid,
 } from "../test_helpers/helpers";
@@ -17,7 +15,7 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
-let parent: Spreadsheet;
+let parent: Parent;
 
 beforeEach(async () => {
   fixture = makeTestFixture();
@@ -25,14 +23,13 @@ beforeEach(async () => {
   model = parent.model;
 
   // start composition
-  const grid = getChildFromComponent(parent, Grid);
-  grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+  document.querySelector(".o-grid")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
   await nextTick();
   composerEl = fixture.querySelector(".o-grid div.o-composer")!;
 });
 
 afterEach(() => {
-  parent.destroy();
+  parent.__owl__.destroy();
   fixture.remove();
 });
 

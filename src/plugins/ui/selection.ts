@@ -865,13 +865,13 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
   }
 
   private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
-    const zone = updateSelectionOnDeletion(this.getSelectedZone(), "left", cmd.elements);
+    const zone = updateSelectionOnDeletion(this.getSelectedZone(), "left", [...cmd.elements]);
     this.setSelection([zone.left, zone.top], [zone], zone, true);
     this.ensureSelectionValidity();
   }
 
   private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
-    const zone = updateSelectionOnDeletion(this.getSelectedZone(), "top", cmd.elements);
+    const zone = updateSelectionOnDeletion(this.getSelectedZone(), "top", [...cmd.elements]);
     this.setSelection([zone.left, zone.top], [zone], zone, true);
     this.ensureSelectionValidity();
   }

@@ -1,4 +1,5 @@
-import * as owl from "@odoo/owl";
+import { EventBus } from "./helpers/event_bus";
+import { debounce } from "./helpers/misc";
 import { Registry } from "./registry";
 
 interface FetchParams {
@@ -10,7 +11,7 @@ interface FetchParams {
  * It's role is to ensure that an evaluation is triggered when a data source is
  * ready, and to provide a way to wait for the loading of all the data sources
  */
-export class DataSourceRegistry<M, D> extends owl.core.EventBus {
+export class DataSourceRegistry<M, D> extends EventBus<any> {
   private registry: Registry<DataSource<M, D>> = new Registry();
 
   /**
@@ -20,10 +21,7 @@ export class DataSourceRegistry<M, D> extends owl.core.EventBus {
    */
   add(key: string, value: DataSource<M, D>): DataSourceRegistry<M, D> {
     this.registry.add(key, value);
-    const debouncedLoaded: Function = owl.utils.debounce(
-      () => this.trigger("data-loaded", { id: key }),
-      0
-    );
+    const debouncedLoaded: Function = debounce(() => this.trigger("data-loaded", { id: key }), 0);
     value.on("data-loaded", this, () => debouncedLoaded());
     value.loadMetadata();
     return this;
@@ -80,7 +78,7 @@ export class DataSourceRegistry<M, D> extends owl.core.EventBus {
  * * specific method: Subclass can implement concrete method to have access to a
  * particular data.
  */
-export abstract class DataSource<M, D> extends owl.core.EventBus {
+export abstract class DataSource<M, D> extends EventBus<any> {
   protected data: D | undefined;
   protected metadata: M | undefined;
 

@@ -1,18 +1,16 @@
-import * as owl from "@odoo/owl";
+import { Component, onMounted, onPatched, onWillUnmount, useRef, useState, xml } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { EnrichedToken } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { DEBUG, isEqual, rangeReference, toZone } from "../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
 import { FunctionDescription, Rect, SpreadsheetEnv } from "../../types/index";
+import { css } from "../helpers/css";
 import { TextValueProvider, TextValueProviderApi } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
 import { FunctionDescriptionProvider } from "./formula_assistant";
 import { Dimension } from "./grid_composer";
 
-const { Component } = owl;
-const { useRef, useState, onMounted, onPatched, onWillUnmount } = owl.hooks;
-const { xml, css } = owl.tags;
 const functions = functionRegistry.content;
 
 const ASSISTANT_WIDTH = 300;
@@ -171,7 +169,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   getters = this.env.getters;
   dispatch = this.env.dispatch;
 
-  contentHelper: ContentEditableHelper;
+  contentHelper: ContentEditableHelper = new ContentEditableHelper(this.composerRef.el!);
 
   composerState: ComposerState = useState({
     positionStart: 0,
@@ -230,11 +228,6 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     F4: () => console.warn("Not implemented"),
     Tab: (ev: KeyboardEvent) => this.processTabKey(ev),
   };
-
-  constructor() {
-    super(...arguments);
-    this.contentHelper = new ContentEditableHelper(this.composerRef.el!);
-  }
 
   setup() {
     onMounted(() => {

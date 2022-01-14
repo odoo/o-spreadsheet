@@ -15,7 +15,11 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     >
       
     </span>
+    
+    
+    
   </div>
+  
   <div
     class="o-menu-item"
     data-name="Avg"
@@ -27,7 +31,11 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     >
       
     </span>
+    
+    
+    
   </div>
+  
   <div
     class="o-menu-item"
     data-name="Min"
@@ -39,7 +47,11 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     >
       
     </span>
+    
+    
+    
   </div>
+  
   <div
     class="o-menu-item"
     data-name="Max"
@@ -51,7 +63,11 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     >
       
     </span>
+    
+    
+    
   </div>
+  
   <div
     class="o-menu-item"
     data-name="Count"
@@ -63,7 +79,11 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     >
       
     </span>
+    
+    
+    
   </div>
+  
   <div
     class="o-menu-item"
     data-name="Count Numbers"
@@ -75,13 +95,18 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     >
       
     </span>
+    
+    
+    
   </div>
+  
+  
 </div>
 `;
 
 exports[`BottomBar component simple rendering 1`] = `
 <div
-  class="o-spreadsheet-bottom-bar"
+  class="o-spreadsheet-bottom-bar o-two-columns"
 >
   <div
     class="o-sheet-item o-add-sheet"
@@ -149,6 +174,9 @@ exports[`BottomBar component simple rendering 1`] = `
         </svg>
       </span>
     </div>
+    
   </div>
+  
+  
 </div>
 `;

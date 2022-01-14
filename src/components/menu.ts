@@ -1,4 +1,11 @@
-import { Component, hooks, tags, useState } from "@odoo/owl";
+import {
+  Component,
+  onWillUpdateProps,
+  useExternalListener,
+  useRef,
+  useState,
+  xml,
+} from "@odoo/owl";
 import {
   HEADER_HEIGHT,
   MENU_ITEM_DISABLED_COLOR,
@@ -12,13 +19,11 @@ import {
 import { FullMenuItem, MenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { DOMCoordinates, SpreadsheetEnv } from "../types";
+import { css } from "./helpers/css";
 import { isChildEvent } from "./helpers/dom_helpers";
 import { useAbsolutePosition } from "./helpers/position_hook";
 import * as icons from "./icons";
 import { Popover } from "./popover";
-
-const { xml, css } = tags;
-const { useExternalListener, useRef, onWillUpdateProps } = hooks;
 
 //------------------------------------------------------------------------------
 // Context Menu Component
@@ -40,8 +45,8 @@ const TEMPLATE = xml/* xml */ `
           <div
             t-att-title="getName(menuItem)"
             t-att-data-name="menuItem.id"
-            t-on-click="onClickMenu(menuItem, menuItem_index)"
-            t-on-mouseover="onMouseOver(menuItem, menuItem_index)"
+            t-on-click="() => this.onClickMenu(menuItem, menuItem_index)"
+            t-on-mouseover="() => this.onMouseOver(menuItem, menuItem_index)"
             class="o-menu-item"
             t-att-class="{
               'o-menu-root': isMenuRoot,
@@ -144,7 +149,8 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     scrollOffset: 0,
     menuItems: [],
   });
-  private position = useAbsolutePosition(useRef("menu"));
+  private menuRef = useRef("menu");
+  private position = useAbsolutePosition(this.menuRef);
 
   setup() {
     useExternalListener(window, "click", this.onClick);
@@ -202,7 +208,8 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
 
   private onClick(ev: MouseEvent) {
     // Don't close a root menu when clicked to open the submenus.
-    if (this.el && isChildEvent(this.el, ev)) {
+    const el = this.menuRef.el;
+    if (el && isChildEvent(el, ev)) {
       return;
     }
     this.close();
@@ -210,7 +217,8 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
 
   private onContextMenu(ev: MouseEvent) {
     // Don't close a root menu when clicked to open the submenus.
-    if (this.el && isChildEvent(this.el, ev)) {
+    const el = this.menuRef.el;
+    if (el && isChildEvent(el, ev)) {
       return;
     }
     this.subMenu.isOpen = false;
