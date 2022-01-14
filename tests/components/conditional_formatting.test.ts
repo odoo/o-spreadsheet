@@ -1,15 +1,18 @@
-import { Model, Spreadsheet } from "../../src";
+import { Model } from "../../src";
 import { toZone } from "../../src/helpers/zones";
-import { CommandResult, DispatchResult } from "../../src/types";
+import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
+import { CommandResult } from "../../src/types";
 import { activateSheet, createSheet, setSelection } from "../test_helpers/commands_helpers";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
   createColorScale,
   createEqualCF,
+  getPlugin,
   makeTestFixture,
   mockUuidV4To,
   mountSpreadsheet,
   nextTick,
+  Parent,
   textContentAll,
 } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -18,19 +21,19 @@ let model: Model;
 
 describe("UI of conditional formats", () => {
   let fixture: HTMLElement;
-  let parent: Spreadsheet;
+  let parent: Parent;
 
   beforeEach(async () => {
     fixture = makeTestFixture();
     parent = await mountSpreadsheet(fixture);
     model = parent.model;
-    parent.env.openSidePanel("ConditionalFormatting");
+    parent.getSpreadsheetEnv().openSidePanel("ConditionalFormatting");
     await nextTick();
   });
 
   afterEach(() => {
     fixture.remove();
-    parent.destroy();
+    parent.__owl__.destroy();
   });
 
   function errorMessages(): string[] {
@@ -141,6 +144,7 @@ describe("UI of conditional formats", () => {
     test("can edit an existing CellIsRule", async () => {
       triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[0], "click");
       await nextTick();
+      await nextTick();
 
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3", "change");
@@ -153,12 +157,12 @@ describe("UI of conditional formats", () => {
       triggerMouseEvent(selectors.ruleEditor.editor.underline, "click");
       triggerMouseEvent(selectors.ruleEditor.editor.strikethrough, "click");
 
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
       //  click save
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
 
-      expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+      expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "1",
           rule: {
@@ -180,8 +184,6 @@ describe("UI of conditional formats", () => {
     });
 
     test("the preview should be bold when the rule is bold", async () => {
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
-
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
         target: [toZone("C1:C5")],
@@ -198,6 +200,7 @@ describe("UI of conditional formats", () => {
     test("can edit an existing ColorScaleRule", async () => {
       triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[1], "click");
       await nextTick();
+      await nextTick();
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
 
@@ -208,12 +211,12 @@ describe("UI of conditional formats", () => {
       await nextTick();
       triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
 
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
       //  click save
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
 
-      expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+      expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "2",
           rule: {
@@ -267,6 +270,7 @@ describe("UI of conditional formats", () => {
       mockUuidV4To(model, "42");
       triggerMouseEvent(selectors.buttonAdd, "click");
       await nextTick();
+      await nextTick();
 
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3", "change");
@@ -279,11 +283,11 @@ describe("UI of conditional formats", () => {
       triggerMouseEvent(selectors.ruleEditor.editor.underline, "click");
       triggerMouseEvent(selectors.ruleEditor.editor.strikethrough, "click");
 
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
       //  click save
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+      expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "43",
           rule: {
@@ -307,14 +311,15 @@ describe("UI of conditional formats", () => {
     test("cannot create a new CF with invalid range", async () => {
       triggerMouseEvent(selectors.buttonAdd, "click");
       await nextTick();
+      await nextTick();
 
       setInputValueAndTrigger(selectors.ruleEditor.range, "hello", "change");
 
-      parent.env.dispatch = jest.fn(() => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
       //  click save
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
-      expect(parent.env.dispatch).not.toHaveBeenCalled();
+      expect(dispatch).not.toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT");
       const errorString = document.querySelector(selectors.error);
       expect(errorString!.textContent).toBe("The range is invalid");
     });
@@ -330,11 +335,11 @@ describe("UI of conditional formats", () => {
     });
 
     test("can delete Rule", async () => {
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
       const previews = document.querySelectorAll(selectors.listPreview);
       triggerMouseEvent(previews[0].querySelector(selectors.buttonDelete), "click");
       await nextTick();
-      expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_CONDITIONAL_FORMAT", {
+      expect(dispatch).toHaveBeenCalledWith("REMOVE_CONDITIONAL_FORMAT", {
         id: "1",
         sheetId: model.getters.getActiveSheetId(),
       });
@@ -356,12 +361,12 @@ describe("UI of conditional formats", () => {
     await nextTick();
     triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
 
-    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+    const dispatch = parent.observeDispatch();
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
-    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+    expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "44",
         rule: {
@@ -405,12 +410,12 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "20", "input");
 
-    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+    const dispatch = parent.observeDispatch();
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
-    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+    expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "45",
         rule: {
@@ -456,12 +461,12 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90", "input");
 
-    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+    const dispatch = parent.observeDispatch();
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
-    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+    expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "45",
         rule: {
@@ -507,12 +512,12 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90", "input");
 
-    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+    const dispatch = parent.observeDispatch();
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
-    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+    expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "45",
         rule: {
@@ -566,12 +571,12 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "100", "input");
 
-    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+    const dispatch = parent.observeDispatch();
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
-    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+    expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "45",
         rule: {
@@ -602,9 +607,10 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.closePanel, "click");
     await nextTick();
     setSelection(model, ["B2", "C3"]);
-    parent.env.openSidePanel("ConditionalFormatting");
+    parent.getSpreadsheetEnv().openSidePanel("ConditionalFormatting");
     await nextTick();
     triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
     await nextTick();
     const ranges = document.querySelectorAll(selectors.ruleEditor.range);
     expect(ranges).toHaveLength(2);
@@ -632,7 +638,7 @@ describe("UI of conditional formats", () => {
     createSheet(model, { sheetId: "42" });
     await nextTick();
     const zone = toZone("A1:A2");
-    parent.env.openSidePanel("ConditionalFormatting", { selection: [zone] });
+    parent.getSpreadsheetEnv().openSidePanel("ConditionalFormatting", { selection: [zone] });
     await nextTick();
     expect(fixture.querySelector(selectors.listPreview)).toBeNull();
     expect(fixture.querySelector(selectors.ruleEditor.range! as "input")!.value).toBe("A1:A2");
@@ -643,6 +649,7 @@ describe("UI of conditional formats", () => {
   });
   test("error if range is empty", async () => {
     triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
     await nextTick();
     setInputValueAndTrigger(selectors.ruleEditor.range, "", "change");
     await nextTick();
@@ -1043,7 +1050,7 @@ describe("UI of conditional formats", () => {
 
       triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
       await nextTick();
-      const icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
+      let icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
       expect(icons[0].classList.value).toBe("o-cf-icon arrow-up");
       expect(icons[1].classList.value).toBe("o-cf-icon arrow-right");
       expect(icons[2].classList.value).toBe("o-cf-icon arrow-down");
@@ -1053,6 +1060,7 @@ describe("UI of conditional formats", () => {
         "click"
       );
       await nextTick();
+      icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
       expect(icons[0].classList.value).toBe("o-cf-icon smile");
       expect(icons[1].classList.value).toBe("o-cf-icon meh");
       expect(icons[2].classList.value).toBe("o-cf-icon frown");
@@ -1062,6 +1070,7 @@ describe("UI of conditional formats", () => {
         "click"
       );
       await nextTick();
+      icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
       expect(icons[0].classList.value).toBe("o-cf-icon green-dot");
       expect(icons[1].classList.value).toBe("o-cf-icon yellow-dot");
       expect(icons[2].classList.value).toBe("o-cf-icon red-dot");
@@ -1074,13 +1083,14 @@ describe("UI of conditional formats", () => {
       triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
       await nextTick();
 
-      const icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
+      let icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
       expect(icons[0].classList.value).toBe("o-cf-icon arrow-up");
       expect(icons[1].classList.value).toBe("o-cf-icon arrow-right");
       expect(icons[2].classList.value).toBe("o-cf-icon arrow-down");
 
       triggerMouseEvent(selectors.ruleEditor.editor.iconSetRule.reverse, "click");
       await nextTick();
+      icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
       expect(icons[2].classList.value).toBe("o-cf-icon arrow-up");
       expect(icons[1].classList.value).toBe("o-cf-icon arrow-right");
       expect(icons[0].classList.value).toBe("o-cf-icon arrow-down");
@@ -1097,12 +1107,12 @@ describe("UI of conditional formats", () => {
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
 
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
       //  click save
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
 
-      expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+      expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "45",
           rule: {
@@ -1158,12 +1168,12 @@ describe("UI of conditional formats", () => {
       setInputValueAndTrigger(inputinflectionUpper, "0", "input");
       await nextTick();
 
-      parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+      const dispatch = parent.observeDispatch();
       //  click save
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
 
-      expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+      expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "45",
           rule: {
@@ -1208,12 +1218,12 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(newIcon, "click");
     await nextTick();
 
-    parent.env.dispatch = jest.fn((command) => DispatchResult.Success);
+    const dispatch = parent.observeDispatch();
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
-    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+    expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "45",
         rule: {
@@ -1252,7 +1262,9 @@ describe("UI of conditional formats", () => {
       triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
       await nextTick();
 
-      parent.env.dispatch = jest.fn(() => new DispatchResult(error));
+      const cfPlugin = getPlugin(parent.model, ConditionalFormatPlugin);
+      cfPlugin.allowDispatch = jest.fn(() => error);
+
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
       const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
@@ -1275,7 +1287,9 @@ describe("UI of conditional formats", () => {
       triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
       await nextTick();
 
-      parent.env.dispatch = jest.fn(() => new DispatchResult(error));
+      const cfPlugin = getPlugin(parent.model, ConditionalFormatPlugin);
+      cfPlugin.allowDispatch = jest.fn(() => error);
+
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
       const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);

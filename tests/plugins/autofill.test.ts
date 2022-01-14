@@ -14,7 +14,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText, getMerges } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
-import { getMergeCellMap, toPosition, XCToMergeCellMap } from "../test_helpers/helpers";
+import { getMergeCellMap, getPlugin, toPosition, XCToMergeCellMap } from "../test_helpers/helpers";
 
 let autoFill: AutofillPlugin;
 let model: Model;
@@ -56,9 +56,7 @@ function select(from: string, xc: string) {
 
 beforeEach(() => {
   model = new Model();
-  autoFill = model["handlers"].find(
-    (handler) => handler instanceof AutofillPlugin
-  )! as AutofillPlugin;
+  autoFill = getPlugin(model, AutofillPlugin);
 });
 
 describe("Autofill", () => {

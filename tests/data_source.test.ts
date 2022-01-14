@@ -1,4 +1,3 @@
-import * as owl from "@odoo/owl";
 import { DataSource, UIPlugin } from "../src";
 import { DataSourceRegistry } from "../src/data_source";
 import { args, functionRegistry } from "../src/functions";
@@ -9,7 +8,7 @@ import { StateObserver } from "../src/state_observer";
 import { CommandDispatcher, Getters, UID } from "../src/types";
 import { setCellContent } from "./test_helpers/commands_helpers";
 import { getCellContent } from "./test_helpers/getters_helpers";
-import { nextTick, resetFunctions } from "./test_helpers/helpers";
+import { getPlugin, nextTick, resetFunctions } from "./test_helpers/helpers";
 
 class StringDataSource extends DataSource<string, string> {
   async _fetchMetadata(): Promise<string> {
@@ -68,7 +67,7 @@ afterAll(() => {
 
 beforeEach(() => {
   model = new Model();
-  dataSourcePlugin = (model as any).handlers.find((h) => h instanceof DataSourcePlugin);
+  dataSourcePlugin = getPlugin(model, DataSourcePlugin);
 });
 
 describe("DataSource", () => {
@@ -103,8 +102,6 @@ describe("DataSource", () => {
 
   test("Functions can rely on dataSource, and are evaluated right after the dataSource is ready", async () => {
     jest.useFakeTimers();
-    jest.spyOn(owl.browser, "setTimeout").mockImplementation(window.setTimeout.bind(window));
-    jest.spyOn(owl.browser, "clearTimeout").mockImplementation(window.clearTimeout.bind(window));
     const stringDs = new StringDataSource();
     dataSourcePlugin.addDataSource("1", stringDs);
     setCellContent(model, "A1", "=WAIT2(1)");

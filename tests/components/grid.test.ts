@@ -1,4 +1,4 @@
-import { Spreadsheet, TransportService } from "../../src";
+import { TransportService } from "../../src";
 import { Grid } from "../../src/components/grid";
 import { HEADER_WIDTH, MESSAGE_VERSION, SCROLLBAR_WIDTH } from "../../src/constants";
 import { scrollDelay, toZone } from "../../src/helpers";
@@ -19,6 +19,7 @@ import {
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
+  Parent,
   Touch,
 } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -28,18 +29,18 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 jest.mock("../../src/components/scrollbar", () => require("./__mocks__/scrollbar"));
 
 function getVerticalScroll(): number {
-  const grid = getChildFromComponent(parent, Grid);
+  const grid = getChildFromComponent(parent.spreadsheet, Grid);
   return grid["vScrollbar"].scroll;
 }
 
 function getHorizontalScroll(): number {
-  const grid = getChildFromComponent(parent, Grid);
+  const grid = getChildFromComponent(parent.spreadsheet, Grid);
   return grid["hScrollbar"].scroll;
 }
 
 let fixture: HTMLElement;
 let model: Model;
-let parent: Spreadsheet;
+let parent: Parent;
 
 beforeEach(async () => {
   jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
@@ -60,7 +61,7 @@ describe("Grid component", () => {
   });
 
   afterEach(() => {
-    parent.destroy();
+    parent.__owl__.destroy();
     fixture.remove();
   });
 
@@ -104,7 +105,7 @@ describe("Grid component", () => {
   });
 
   test("Can open the Conditional Format side panel", async () => {
-    parent.env.openSidePanel("ConditionalFormatting");
+    parent.getSpreadsheetEnv().openSidePanel("ConditionalFormatting");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
   });
@@ -228,8 +229,9 @@ describe("Grid component", () => {
     test("pressing ENTER put current cell in edit mode", async () => {
       // note: this behaviour is not like excel. Maybe someone will want to
       // change this
-      const grid = getChildFromComponent(parent, Grid);
-      grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+      document
+        .querySelector(".o-grid")!
+        .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       expect(getActiveXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("editing");
     });
@@ -270,16 +272,18 @@ describe("Grid component", () => {
     });
 
     test("pressing TAB move to next cell", async () => {
-      const grid = getChildFromComponent(parent, Grid);
-      grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
+      document
+        .querySelector(".o-grid")!
+        .dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       expect(getActiveXc(model)).toBe("B1");
     });
 
     test("pressing shift+TAB move to previous cell", async () => {
       selectCell(model, "B1");
       expect(getActiveXc(model)).toBe("B1");
-      const grid = getChildFromComponent(parent, Grid);
-      grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
+      document
+        .querySelector(".o-grid")!
+        .dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
       expect(getActiveXc(model)).toBe("A1");
     });
 
@@ -368,8 +372,10 @@ describe("Grid component", () => {
 
     test("can save the sheet with CTRL+S", async () => {
       let saveContentCalled = false;
-      parent.el!.addEventListener("save-requested", () => {
-        saveContentCalled = true;
+      parent = await mountSpreadsheet(fixture, {
+        onContentSaved: () => {
+          saveContentCalled = true;
+        },
       });
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "S", ctrlKey: true, bubbles: true })
@@ -384,7 +390,7 @@ describe("Grid component", () => {
         new KeyboardEvent("keydown", { key: "=", altKey: true, bubbles: true })
       );
       await nextTick();
-      expect(document.activeElement).toBe(parent.el?.querySelector(".o-grid-composer .o-composer"));
+      expect(document.activeElement).toBe(document.querySelector(".o-grid-composer .o-composer"));
       expect(model.getters.getEditionMode()).toBe("editing");
       expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 10 });
       expect(model.getters.getCurrentContent()).toBe("=SUM(B2:B4)");
@@ -622,8 +628,8 @@ describe("Multi User selection", () => {
       client: { id: "david", name: "David", position: { sheetId: "invalid", col: 1, row: 1 } },
     });
     await nextTick();
-    expect(parent.el?.querySelectorAll(".o-client-tag")).toHaveLength(0);
-    parent.destroy();
+    expect(document.querySelectorAll(".o-client-tag")).toHaveLength(0);
+    parent.__owl__.destroy();
   });
 
   test("Do not render multi user selection with invalid col", async () => {
@@ -638,8 +644,8 @@ describe("Multi User selection", () => {
       },
     });
     await nextTick();
-    expect(parent.el?.querySelectorAll(".o-client-tag")).toHaveLength(0);
-    parent.destroy();
+    expect(document.querySelectorAll(".o-client-tag")).toHaveLength(0);
+    parent.__owl__.destroy();
   });
 
   test("Do not render multi user selection with invalid row", async () => {
@@ -654,82 +660,68 @@ describe("Multi User selection", () => {
       },
     });
     await nextTick();
-    expect(parent.el?.querySelectorAll(".o-client-tag")).toHaveLength(0);
-    parent.destroy();
+    expect(document.querySelectorAll(".o-client-tag")).toHaveLength(0);
+    parent.__owl__.destroy();
   });
 });
 
 describe("error tooltip", () => {
-  let intervalCb: Function;
-  let currentTime = 0;
-
   beforeEach(async () => {
-    currentTime = 0;
-    parent = new Spreadsheet();
+    jest.useFakeTimers();
+    parent = await mountSpreadsheet(fixture);
     model = parent.model;
-
-    // TODO use jest mock timers
-    // mock setinterval and Date.now
-    parent.env.browser.setInterval = ((cb) => {
-      intervalCb = cb;
-    }) as any;
-    parent.env.browser.Date = {
-      now() {
-        return currentTime;
-      },
-    } as any;
-
-    await parent.mount(fixture);
   });
 
   afterEach(() => {
-    parent.destroy();
+    jest.useRealTimers();
+    parent.__owl__.destroy();
   });
 
   test("can display error on A1", async () => {
+    Date.now = jest.fn(() => 0);
     setCellContent(model, "A1", "=1/0");
     await nextTick();
     triggerMouseEvent("canvas", "mousemove", 80, 30); // A1
-
-    currentTime = 500;
-    intervalCb();
+    Date.now = jest.fn(() => 500);
+    jest.advanceTimersByTime(300);
     await nextTick();
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
   });
 
   test("can display error tooltip", async () => {
+    Date.now = jest.fn(() => 0);
     setCellContent(model, "C8", "=1/0");
     await nextTick();
     triggerMouseEvent("canvas", "mousemove", 300, 200);
-
-    currentTime = 250;
-    intervalCb();
+    Date.now = jest.fn(() => 250);
+    jest.advanceTimersByTime(300);
 
     await nextTick();
     expect(document.querySelector(".o-error-tooltip")).toBeNull();
 
-    currentTime = 500;
-    intervalCb();
+    Date.now = jest.fn(() => 500);
+    jest.advanceTimersByTime(300);
     await nextTick();
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
     expect(document.querySelector(".o-error-tooltip")?.parentElement).toMatchSnapshot();
 
     // moving mouse await
     triggerMouseEvent("canvas", "mousemove", 100, 200);
-    currentTime = 550;
-    intervalCb();
+    Date.now = jest.fn(() => 1050);
+    jest.advanceTimersByTime(300);
     await nextTick();
     expect(document.querySelector(".o-error-tooltip")).toBeNull();
   });
 
   test("can display error when move on merge", async () => {
+    Date.now = jest.fn(() => 0);
     merge(model, "C1:C8");
     setCellContent(model, "C1", "=1/0");
     await nextTick();
     triggerMouseEvent("canvas", "mousemove", 300, 200); // C8
 
-    currentTime = 500;
-    intervalCb();
+    Date.now = jest.fn(() => 500);
+    jest.advanceTimersByTime(300);
     await nextTick();
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
   });
@@ -750,7 +742,7 @@ describe("Events on Grid update viewport correctly", () => {
     model = parent.model;
   });
   afterEach(() => {
-    parent.destroy();
+    parent.__owl__.destroy();
     fixture.remove();
   });
   test("Vertical scroll", async () => {
@@ -871,7 +863,8 @@ describe("Events on Grid update viewport correctly", () => {
     jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 800);
     jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 650);
     // force a rerendering to pass through patched() of the Grid component.
-    await parent.render();
+    parent.render();
+    await nextTick();
 
     expect(model.getters.getViewportDimensionWithHeaders()).toMatchObject({
       width: 800 - SCROLLBAR_WIDTH,
@@ -945,7 +938,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("resize event handler is removed", () => {
-    parent.destroy();
+    parent.__owl__.destroy();
     window.dispatchEvent(new Event("resize"));
   });
 });

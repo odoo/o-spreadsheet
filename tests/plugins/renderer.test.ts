@@ -19,7 +19,7 @@ import {
   resizeRows,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { createEqualCF, target } from "../test_helpers/helpers";
+import { createEqualCF, getPlugin, target } from "../test_helpers/helpers";
 import { watchClipboardOutline } from "../test_helpers/renderer_helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
@@ -28,9 +28,7 @@ MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 function getBoxFromText(model: Model, text: string): Box {
-  const rendererPlugin = (model["handlers"].find(
-    (h) => h instanceof RendererPlugin
-  ) as RendererPlugin)!;
+  const rendererPlugin = getPlugin(model, RendererPlugin);
   // @ts-ignore
   return (rendererPlugin.boxes as Box[]).find((b) => b.content?.text === text);
 }

@@ -1,32 +1,30 @@
-import * as owl from "@odoo/owl";
+import { Component, onMounted, onPatched, useRef, useState, xml } from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../constants";
 import { formatStandardNumber } from "../helpers";
 import { interactiveRenameSheet } from "../helpers/ui/sheet";
 import { MenuItemRegistry, sheetMenuRegistry } from "../registries/index";
 import { SpreadsheetEnv, UID } from "../types";
+import { css } from "./helpers/css";
 import { LIST, PLUS, TRIANGLE_DOWN_ICON } from "./icons";
 import { Menu, MenuState } from "./menu";
-const { Component } = owl;
-const { xml, css } = owl.tags;
-const { useState, onMounted, onPatched } = owl.hooks;
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
 // -----------------------------------------------------------------------------
 
 const TEMPLATE = xml/* xml */ `
-  <div class="o-spreadsheet-bottom-bar" t-on-click="props.onClick()">
+  <div class="o-spreadsheet-bottom-bar o-two-columns" t-on-click="props.onClick" t-ref="bottomBar">
     <div class="o-sheet-item o-add-sheet" t-att-class="{'disabled': getters.isReadonly()}" t-on-click="addSheet">${PLUS}</div>
     <div class="o-sheet-item o-list-sheets" t-on-click="listSheets">${LIST}</div>
     <div class="o-all-sheets">
       <t t-foreach="getters.getSheets()" t-as="sheet" t-key="sheet.id">
-        <div class="o-sheet-item o-sheet" t-on-click="activateSheet(sheet.id)"
-             t-on-contextmenu.prevent="onContextMenu(sheet.id)"
+        <div class="o-sheet-item o-sheet" t-on-click="(ev) => this.activateSheet(sheet.id, ev)"
+             t-on-contextmenu.prevent="(ev) => this.onContextMenu(sheet.id, ev)"
              t-att-title="sheet.name"
              t-att-data-id="sheet.id"
              t-att-class="{active: sheet.id === getters.getActiveSheetId()}">
-          <span class="o-sheet-name" t-esc="sheet.name" t-on-dblclick="onDblClick(sheet.id)"/>
-          <span class="o-sheet-icon" t-on-click.stop="onIconClick(sheet.id)">${TRIANGLE_DOWN_ICON}</span>
+          <span class="o-sheet-name" t-esc="sheet.name" t-on-dblclick="(ev) => this.onDblClick(sheet.id, ev)"/>
+          <span class="o-sheet-icon" t-on-click.stop="(ev) => this.onIconClick(sheet.id, ev)">${TRIANGLE_DOWN_ICON}</span>
         </div>
       </t>
     </div>
@@ -143,6 +141,8 @@ export class BottomBar extends Component<Props, SpreadsheetEnv> {
   static style = CSS;
   static components = { Menu };
 
+  private bottomBarRef = useRef("bottomBar");
+
   getters = this.env.getters;
   menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
   selectedStatisticFn: string = "";
@@ -153,7 +153,9 @@ export class BottomBar extends Component<Props, SpreadsheetEnv> {
   }
 
   focusSheet() {
-    const div = this.el!.querySelector(`[data-id="${this.getters.getActiveSheetId()}"]`);
+    const div = this.bottomBarRef.el!.querySelector(
+      `[data-id="${this.getters.getActiveSheetId()}"]`
+    );
     if (div && div.scrollIntoView) {
       div.scrollIntoView();
     }

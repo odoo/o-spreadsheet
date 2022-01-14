@@ -15,7 +15,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       Ctrl+X
     </span>
+    
+    
+    
   </div>
+  
   <div
     class="o-menu-item"
     data-name="copy"
@@ -27,7 +31,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       Ctrl+C
     </span>
+    
+    
+    
   </div>
+  
   <div
     class="o-menu-item"
     data-name="paste"
@@ -39,7 +47,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       Ctrl+V
     </span>
+    
+    
+    
   </div>
+  
   <div
     class="o-menu-item o-menu-root"
     data-name="paste_special"
@@ -51,6 +63,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
+    
     <svg
       class="o-icon"
     >
@@ -60,6 +73,8 @@ exports[`Context Menu context menu simple rendering 1`] = `
         transform="translate(5 5)"
       />
     </svg>
+    
+    
   </div>
   <div
     class="o-separator"
@@ -75,6 +90,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
+    
     <svg
       class="o-icon"
     >
@@ -84,6 +100,8 @@ exports[`Context Menu context menu simple rendering 1`] = `
         transform="translate(5 5)"
       />
     </svg>
+    
+    
   </div>
   <div
     class="o-separator"
@@ -99,7 +117,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
+    
+    
+    
   </div>
+  
   <div
     class="o-menu-item"
     data-name="add_column_before"
@@ -111,7 +133,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
+    
+    
+    
   </div>
+  
   <div
     class="o-menu-item o-menu-root"
     data-name="insert_cell"
@@ -123,6 +149,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
+    
     <svg
       class="o-icon"
     >
@@ -132,6 +159,8 @@ exports[`Context Menu context menu simple rendering 1`] = `
         transform="translate(5 5)"
       />
     </svg>
+    
+    
   </div>
   <div
     class="o-separator"
@@ -147,7 +176,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
+    
+    
+    
   </div>
+  
   <div
     class="o-menu-item"
     data-name="delete_column"
@@ -159,7 +192,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
+    
+    
+    
   </div>
+  
   <div
     class="o-menu-item o-menu-root"
     data-name="delete_cell"
@@ -171,6 +208,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
+    
     <svg
       class="o-icon"
     >
@@ -180,7 +218,10 @@ exports[`Context Menu context menu simple rendering 1`] = `
         transform="translate(5 5)"
       />
     </svg>
+    
+    
   </div>
+  
   <div
     class="o-menu-item disabled"
     data-name="clear_cell"
@@ -192,6 +233,9 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
+    
+    
+    
   </div>
   <div
     class="o-separator"
@@ -207,6 +251,9 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
+    
+    
+    
   </div>
   <div
     class="o-separator"
@@ -222,6 +269,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
+    
+    
+    
   </div>
+  
+  
 </div>
 `;

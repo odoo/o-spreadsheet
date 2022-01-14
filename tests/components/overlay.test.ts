@@ -1,4 +1,3 @@
-import { Spreadsheet } from "../../src";
 import { ColResizer, RowResizer } from "../../src/components/overlay";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -22,7 +21,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell } from "../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick, Parent } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -145,7 +144,7 @@ async function dblClickRow(index: number) {
 }
 
 describe("Resizer component", () => {
-  let parent: Spreadsheet;
+  let parent: Parent;
   beforeEach(async () => {
     fixture = makeTestFixture();
     const data = {
@@ -161,7 +160,7 @@ describe("Resizer component", () => {
   });
 
   afterEach(() => {
-    parent.destroy();
+    parent.__owl__.destroy();
     fixture.remove();
   });
 
@@ -769,7 +768,7 @@ describe("Resizer component", () => {
 });
 
 describe("Edge-Scrolling on mouseMove in selection", () => {
-  let parent: Spreadsheet;
+  let parent: Parent;
   beforeEach(async () => {
     jest.useFakeTimers();
     fixture = makeTestFixture();
@@ -778,7 +777,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
   });
 
   afterEach(() => {
-    parent.destroy();
+    parent.__owl__.destroy();
     fixture.remove();
   });
   test("Can edge-scroll horizontally", async () => {
@@ -844,7 +843,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
 });
 
 describe("move selected element(s)", () => {
-  let parent: Spreadsheet;
+  let parent: Parent;
   beforeEach(async () => {
     fixture = makeTestFixture();
     const data = {
@@ -861,7 +860,7 @@ describe("move selected element(s)", () => {
   });
 
   afterEach(() => {
-    parent.destroy();
+    parent.__owl__.destroy();
     fixture.remove();
   });
 

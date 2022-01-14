@@ -1,21 +1,19 @@
-import * as owl from "@odoo/owl";
+import { Component, onMounted, useRef, useState, xml } from "@odoo/owl";
 import { markdownLink } from "../../helpers/index";
 import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
 import { DOMCoordinates, Link, Position, SpreadsheetEnv } from "../../types";
+import { css } from "../helpers/css";
 import { useAbsolutePosition } from "../helpers/position_hook";
 import { LIST } from "./../icons";
 import { Menu } from "./../menu";
 import { LinkEditorTerms } from "./../side_panel/translations_terms";
-const { Component, tags, hooks, useState } = owl;
-const { xml, css } = tags;
-const { useRef, onMounted } = hooks;
 
 const MENU_OFFSET_X = 320;
 const MENU_OFFSET_Y = 100;
 const PADDING = 12;
 
 const TEMPLATE = xml/* xml */ `
-    <div class="o-link-editor" t-on-click.stop="menu.isOpen=false" t-on-keydown.stop="onKeyDown">
+    <div class="o-link-editor" t-on-click.stop="() => this.menu.isOpen=false" t-on-keydown.stop="onKeyDown" t-ref="linkEditor">
       <div class="o-section">
         <div t-esc="env._t('${LinkEditorTerms.Text}')" class="o-section-title"/>
         <div class="d-flex">
@@ -139,7 +137,8 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   private menu = useState({
     isOpen: false,
   });
-  private position = useAbsolutePosition();
+  private linkEditorRef = useRef("linkEditor");
+  private position = useAbsolutePosition(this.linkEditorRef);
   urlInput = useRef("urlInput");
 
   setup() {

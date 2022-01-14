@@ -1,24 +1,20 @@
-import * as owl from "@odoo/owl";
+import { Component, onMounted, onPatched, onWillUnmount, useState, xml } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../constants";
 import { UuidGenerator } from "../helpers/index";
 import { RangeInputValue } from "../plugins/ui/selection_inputs";
 import { SpreadsheetEnv } from "../types";
-
-const { Component, useState } = owl;
-
-const { xml, css } = owl.tags;
-const { onMounted, onWillUnmount, onPatched } = owl.hooks;
+import { css } from "./helpers/css";
 
 const uuidGenerator = new UuidGenerator();
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-selection">
-    <div t-foreach="ranges" t-as="range" t-key="range.id" class="o-selection-input">
+    <div t-foreach="ranges" t-as="range" t-key="range.id" class="o-selection-input" t-att-class="props.class">
       <input
         type="text"
         spellcheck="false"
-        t-on-change="onInputChanged(range.id)"
-        t-on-focus="focus(range.id)"
+        t-on-change="(ev) => this.onInputChanged(range.id, ev)"
+        t-on-focus="() => this.focus(range.id)"
         t-att-value="range.xc"
         t-att-style="getColor(range)"
         t-att-class="{
@@ -30,7 +26,7 @@ const TEMPLATE = xml/* xml */ `
       <button
         class="o-btn o-remove-selection"
         t-if="ranges.length > 1"
-        t-on-click="removeInput(range.id)">✖</button>
+        t-on-click="() => this.removeInput(range.id)">✖</button>
     </div>
 
     <div class="o-selection-input">
@@ -98,6 +94,8 @@ interface Props {
   hasSingleRange?: boolean;
   required?: boolean;
   isInvalid?: boolean;
+  onSelectionChanged?: (ranges: string[]) => void;
+  onSelectionConfirmed?: () => void;
 }
 
 interface SelectionRange extends Omit<RangeInputValue, "color"> {
@@ -110,7 +108,7 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
  * ranges. He can either input the ranges with the regular DOM `<input/>`
  * displayed or by selecting zones on the grid.
  *
- * A `selection-changed` event is triggered every time the input value
+ * onSelectionChanged is called every time the input value
  * changes.
  */
 export class SelectionInput extends Component<Props, SpreadsheetEnv> {
@@ -186,8 +184,7 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
 
   private triggerChange() {
     const ranges = this.getters.getSelectionInputValue(this.id);
-
-    this.trigger("selection-changed", { ranges });
+    this.props.onSelectionChanged?.(ranges);
     this.previousRanges = ranges;
   }
 
@@ -207,7 +204,7 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
   removeInput(rangeId: string) {
     this.dispatch("REMOVE_RANGE", { id: this.id, rangeId });
     this.triggerChange();
-    this.trigger("selection-confirmed");
+    this.props.onSelectionConfirmed?.();
   }
 
   onInputChanged(rangeId: string, ev: InputEvent) {
@@ -234,6 +231,6 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
         sheetIdTo: this.originSheet,
       });
     }
-    this.trigger("selection-confirmed");
+    this.props.onSelectionConfirmed?.();
   }
 }

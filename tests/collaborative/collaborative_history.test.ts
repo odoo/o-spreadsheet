@@ -15,6 +15,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { getPlugin } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -599,8 +600,8 @@ describe("Collaborative local history", () => {
       addColumns(alice, "before", "A", 1);
       david.dispatch(command.type, command);
     });
-    const pluginDavid = david["handlers"].find((handler) => handler instanceof TestPlugin)!;
-    const pluginElisa = elisa["handlers"].find((handler) => handler instanceof TestPlugin)!;
+    const pluginDavid = getPlugin(david, TestPlugin);
+    const pluginElisa = getPlugin(elisa, TestPlugin);
     pluginDavid.handle = jest.fn((cmd) => {});
     pluginElisa.handle = jest.fn((cmd) => {});
     undo(david);

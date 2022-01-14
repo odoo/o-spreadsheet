@@ -1,12 +1,9 @@
-import * as owl from "@odoo/owl";
+import { Component, useState, xml } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../constants";
 import { clip } from "../helpers/misc";
 import { SpreadsheetEnv } from "../types";
+import { css } from "./helpers/css";
 import { startDnd } from "./helpers/drag_and_drop";
-
-const { Component } = owl;
-const { xml, css } = owl.tags;
-const { useState } = owl.hooks;
 
 // -----------------------------------------------------------------------------
 // Autofill
@@ -54,6 +51,7 @@ const CSS = css/* scss */ `
 
 interface Props {
   position: Position;
+  getGridBoundingClientRect: () => DOMRect;
 }
 
 interface Position {
@@ -115,8 +113,7 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
     };
 
     const onMouseMove = (ev: MouseEvent) => {
-      const parent = this.el!.parentElement! as HTMLElement;
-      const position = parent.getBoundingClientRect();
+      const position = this.props.getGridBoundingClientRect();
       const {
         top: viewportTop,
         left: viewportLeft,

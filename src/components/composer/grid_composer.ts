@@ -1,19 +1,16 @@
-import * as owl from "@odoo/owl";
+import { Component, onMounted, useRef, useState, xml } from "@odoo/owl";
 import { DEFAULT_CELL_HEIGHT, SELECTION_BORDER_COLOR } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
+import { Rect, Ref, SpreadsheetEnv, Zone } from "../../types/index";
+import { css } from "../helpers/css";
 import { getTextDecoration } from "../helpers/dom_helpers";
 import { Composer } from "./composer";
-
-const { Component } = owl;
-const { useState, onMounted } = owl.hooks;
-const { xml, css } = owl.tags;
 
 const SCROLLBAR_WIDTH = 14;
 const SCROLLBAR_HIGHT = 15;
 
 const TEMPLATE = xml/* xml */ `
-  <div class="o-grid-composer" t-att-style="containerStyle">
+  <div class="o-grid-composer" t-att-style="containerStyle" t-ref="gridComposer">
     <Composer
       focus = "props.focus"
       inputStyle = "composerStyle"
@@ -59,17 +56,21 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
   static style = CSS;
   static components = { Composer };
 
-  private getters = this.env.getters;
-  private zone: Zone;
-  private rect: Rect;
+  private gridComposerRef!: Ref<HTMLElement>;
 
-  private composerState: ComposerState = useState({
-    rect: null,
-    delimitation: null,
-  });
+  private getters!: SpreadsheetEnv["getters"];
+  private zone!: Zone;
+  private rect!: Rect;
 
-  constructor() {
-    super(...arguments);
+  private composerState!: ComposerState;
+
+  setup() {
+    this.gridComposerRef = useRef("gridComposer");
+    this.getters = this.env.getters;
+    this.composerState = useState({
+      rect: null,
+      delimitation: null,
+    });
     const [col, row] = this.getters.getPosition();
     this.zone = this.getters.expandZone(this.getters.getActiveSheetId(), {
       left: col,
@@ -78,12 +79,10 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
       bottom: row,
     });
     this.rect = this.getters.getRect(this.zone, this.getters.getActiveSnappedViewport());
-  }
-
-  setup() {
     onMounted(() => {
-      const el = this.el!;
+      const el = this.gridComposerRef.el!;
 
+      //TODO Should be more correct to have a props that give the parent's clientHeight and clientWidth
       const maxHeight = el.parentElement!.clientHeight - this.rect[1] - SCROLLBAR_HIGHT;
       el.style.maxHeight = (maxHeight + "px") as string;
 

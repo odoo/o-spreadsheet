@@ -1,5 +1,4 @@
-import { Component, tags } from "@odoo/owl";
-import { Spreadsheet } from "../../src";
+import { Component, xml } from "@odoo/owl";
 import { corePluginRegistry } from "../../src/plugins";
 import { CorePlugin } from "../../src/plugins/core_plugin";
 import { figureRegistry } from "../../src/registries/figure_registry";
@@ -7,14 +6,14 @@ import { Command, Figure, SpreadsheetEnv, UID } from "../../src/types";
 import { activateSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick, Parent } from "../test_helpers/helpers";
 
 jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
 
 let fixture: HTMLElement;
 let model;
-let parent: Spreadsheet;
+let parent: Parent;
 
 //Test Plugin
 interface CreateTextFigure {
@@ -53,7 +52,6 @@ class PluginTestFigureText extends CorePlugin {
 corePluginRegistry.add("testFigureText", PluginTestFigureText);
 
 //Test Composant
-const { xml } = tags;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-fig-text">
@@ -83,7 +81,7 @@ describe("figures", () => {
   });
 
   afterEach(() => {
-    parent.unmount();
+    parent.__owl__.destroy();
   });
 
   test("can create a figure with some data", () => {

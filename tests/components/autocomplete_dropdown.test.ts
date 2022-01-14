@@ -1,14 +1,12 @@
-import { Grid } from "../../src/components/grid";
-import { Spreadsheet } from "../../src/components/spreadsheet";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
-  getChildFromComponent,
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
+  Parent,
   resetFunctions,
   typeInComposerGrid as typeInComposerGridHelper,
 } from "../test_helpers/helpers";
@@ -20,13 +18,14 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
-let parent: Spreadsheet;
+let parent: Parent;
 let cehMock: ContentEditableHelper;
 
 async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
   const composerEl = await typeInComposerGridHelper(text, fromScratch);
   // @ts-ignore
   cehMock = window.mockContentHelper;
+  await nextTick();
   return composerEl;
 }
 
@@ -36,15 +35,14 @@ beforeEach(async () => {
   model = parent.model;
 
   // start composition
-  const grid = getChildFromComponent(parent, Grid);
-  grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+  fixture.querySelector(".o-grid")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
   await nextTick();
   composerEl = fixture.querySelector(".o-grid div.o-composer")!;
 });
 
 afterEach(() => {
-  parent.destroy();
   fixture.remove();
+  parent.__owl__.destroy();
 });
 
 describe("Functions autocomplete", () => {
@@ -219,6 +217,8 @@ describe("Functions autocomplete", () => {
       await typeInComposerGrid("=");
       composerEl.dispatchEvent(new KeyboardEvent("keyup", { key: " ", ctrlKey: true }));
       await nextTick();
+      //TODO Need a second nextTick to wait the re-render of SelectionInput (onMounted => uuid assignation). But why not before ?
+      await nextTick();
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
@@ -275,8 +275,7 @@ describe("Autocomplete parenthesis", () => {
     await nextTick();
     selectCell(model, "A1");
     //edit A1
-    const grid = getChildFromComponent(parent, Grid);
-    grid.el!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    fixture.querySelector(".o-grid")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
     composerEl = fixture.querySelector(".o-grid div.o-composer")!;
     // @ts-ignore

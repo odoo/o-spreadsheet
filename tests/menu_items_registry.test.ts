@@ -1,4 +1,4 @@
-import { Model, Spreadsheet } from "../src";
+import { Model } from "../src";
 import { fontSizes } from "../src/fonts";
 import { interactivePaste } from "../src/helpers/ui/paste";
 import {
@@ -8,7 +8,7 @@ import {
   rowMenuRegistry,
   topbarMenuRegistry,
 } from "../src/registries/index";
-import { DispatchResult, SpreadsheetEnv } from "../src/types";
+import { SpreadsheetEnv } from "../src/types";
 import { hideColumns, hideRows, selectCell, setSelection } from "./test_helpers/commands_helpers";
 import { getCellContent } from "./test_helpers/getters_helpers";
 import {
@@ -17,6 +17,7 @@ import {
   mockUuidV4To,
   mountSpreadsheet,
   nextTick,
+  Parent,
   target,
 } from "./test_helpers/helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
@@ -98,8 +99,9 @@ describe("Menu Item Registry", () => {
 describe("Menu Item actions", () => {
   let fixture: HTMLElement;
   let model: Model;
-  let parent: Spreadsheet;
+  let parent: Parent;
   let env: SpreadsheetEnv;
+  let dispatch;
 
   beforeEach(async () => {
     const clipboard = new MockClipboard();
@@ -112,18 +114,18 @@ describe("Menu Item actions", () => {
     fixture = makeTestFixture();
     parent = await mountSpreadsheet(fixture);
     model = parent.model;
-    env = parent.env;
-    env.dispatch = jest.fn(() => DispatchResult.Success);
+    env = parent.getSpreadsheetEnv();
+    dispatch = parent.observeDispatch();
   });
 
   test("Edit -> undo", () => {
     doAction(["edit", "undo"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("REQUEST_UNDO");
+    expect(dispatch).toHaveBeenCalledWith("REQUEST_UNDO");
   });
 
   test("Edit -> redo", () => {
     doAction(["edit", "redo"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("REQUEST_REDO");
+    expect(dispatch).toHaveBeenCalledWith("REQUEST_REDO");
   });
 
   test("Edit -> copy", () => {
@@ -132,7 +134,7 @@ describe("Menu Item actions", () => {
     jest.spyOn(navigator, "clipboard", "get").mockImplementation(() => clipboard);
     env.clipboard.writeText = jest.fn(() => Promise.resolve());
     doAction(["edit", "copy"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("COPY", {
+    expect(dispatch).toHaveBeenCalledWith("COPY", {
       target: env.getters.getSelectedZones(),
     });
     expect(env.clipboard.writeText).toHaveBeenCalledWith(env.getters.getClipboardContent());
@@ -141,7 +143,7 @@ describe("Menu Item actions", () => {
   test("Edit -> cut", () => {
     env.clipboard.writeText = jest.fn(() => Promise.resolve());
     doAction(["edit", "cut"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("CUT", {
+    expect(dispatch).toHaveBeenCalledWith("CUT", {
       target: env.getters.getSelectedZones(),
     });
     expect(env.clipboard.writeText).toHaveBeenCalledWith(env.getters.getClipboardContent());
@@ -152,7 +154,7 @@ describe("Menu Item actions", () => {
     await env.clipboard.writeText("Then copy in OS clipboard");
     doAction(["edit", "paste"], env);
     await nextTick();
-    expect(env.dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
+    expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       text: await env.clipboard.readText(),
       target: [{ bottom: 0, left: 0, right: 0, top: 0 }],
     });
@@ -169,7 +171,7 @@ describe("Menu Item actions", () => {
 
   test("Edit -> paste_special -> paste_special_value", () => {
     doAction(["edit", "paste_special", "paste_special_value"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("PASTE", {
+    expect(dispatch).toHaveBeenCalledWith("PASTE", {
       target: env.getters.getSelectedZones(),
       pasteOption: "onlyValue",
     });
@@ -177,7 +179,7 @@ describe("Menu Item actions", () => {
 
   test("Edit -> paste_special -> paste_special_format", () => {
     doAction(["edit", "paste_special", "paste_special_format"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("PASTE", {
+    expect(dispatch).toHaveBeenCalledWith("PASTE", {
       target: env.getters.getSelectedZones(),
       pasteOption: "onlyFormat",
     });
@@ -185,7 +187,7 @@ describe("Menu Item actions", () => {
 
   test("Edit -> edit_delete_cell_values", () => {
     doAction(["edit", "edit_delete_cell_values"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
+    expect(dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
       sheetId: env.getters.getActiveSheetId(),
       target: env.getters.getSelectedZones(),
     });
@@ -204,7 +206,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_ROW", { index: 5, updateRange: true });
       expect(getName(path, env)).toBe("Delete rows 5 - 6");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         dimension: "ROW",
         elements: [4, 5],
@@ -221,7 +223,7 @@ describe("Menu Item actions", () => {
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("Delete rows 4 - 5");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         dimension: "ROW",
         elements: [3, 4],
@@ -236,7 +238,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_COLUMN", { index: 4, createRange: true });
       expect(getName(path, env)).toBe("Delete column E");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         dimension: "COL",
         elements: [4],
@@ -248,7 +250,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_COLUMN", { index: 5, updateRange: true });
       expect(getName(path, env)).toBe("Delete columns E - F");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         dimension: "COL",
         elements: [4, 5],
@@ -259,7 +261,7 @@ describe("Menu Item actions", () => {
       selectCell(model, "D4");
       expect(getName(path, env)).toBe("Delete column D");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         dimension: "COL",
         elements: [3],
@@ -271,7 +273,7 @@ describe("Menu Item actions", () => {
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("Delete columns D - E");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         dimension: "COL",
         elements: [3, 4],
@@ -293,7 +295,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_ROW", { index: 5, updateRange: true });
       expect(getName(path, env)).toBe("2 Rows above");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         dimension: "ROW",
         base: 4,
@@ -319,7 +321,7 @@ describe("Menu Item actions", () => {
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("2 Rows above");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         dimension: "ROW",
         base: 3,
@@ -344,7 +346,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_ROW", { index: 5, updateRange: true });
       expect(getName(path, env)).toBe("2 Rows below");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         dimension: "ROW",
         base: 5,
@@ -370,7 +372,7 @@ describe("Menu Item actions", () => {
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("2 Rows below");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         dimension: "ROW",
         base: 4,
@@ -395,7 +397,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_COLUMN", { index: 5, updateRange: true });
       expect(getName(path, env)).toBe("2 Columns left");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         base: 4,
         dimension: "COL",
@@ -421,7 +423,7 @@ describe("Menu Item actions", () => {
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("2 Columns left");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         base: 3,
         dimension: "COL",
@@ -446,7 +448,7 @@ describe("Menu Item actions", () => {
       model.dispatch("SELECT_COLUMN", { index: 5, updateRange: true });
       expect(getName(path, env)).toBe("2 Columns right");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         base: 5,
         dimension: "COL",
@@ -472,7 +474,7 @@ describe("Menu Item actions", () => {
       model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
       expect(getName(path, env)).toBe("2 Columns right");
       doAction(path, env);
-      expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         base: 4,
         dimension: "COL",
@@ -485,13 +487,14 @@ describe("Menu Item actions", () => {
 
   test("Insert -> new sheet", () => {
     mockUuidV4To(model, 42);
-    doAction(["insert", "insert_sheet"], env);
+    dispatch = parent.observeDispatch();
     const activeSheetId = env.getters.getActiveSheetId();
-    expect(env.dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
+    doAction(["insert", "insert_sheet"], env);
+    expect(dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
       sheetId: "42",
       position: 1,
     });
-    expect(env.dispatch).toHaveBeenNthCalledWith(2, "ACTIVATE_SHEET", {
+    expect(dispatch).toHaveBeenNthCalledWith(2, "ACTIVATE_SHEET", {
       sheetIdTo: "42",
       sheetIdFrom: activeSheetId,
     });
@@ -500,7 +503,7 @@ describe("Menu Item actions", () => {
   describe("Format -> numbers", () => {
     test("General", () => {
       doAction(["format", "format_number", "format_number_general"], env);
-      expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.getters.getActiveSheetId(),
         target: env.getters.getSelectedZones(),
         format: "",
@@ -509,7 +512,7 @@ describe("Menu Item actions", () => {
 
     test("Number", () => {
       doAction(["format", "format_number", "format_number_number"], env);
-      expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.getters.getActiveSheetId(),
         target: env.getters.getSelectedZones(),
         format: "#,##0.00",
@@ -518,7 +521,7 @@ describe("Menu Item actions", () => {
 
     test("Percent", () => {
       doAction(["format", "format_number", "format_number_percent"], env);
-      expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.getters.getActiveSheetId(),
         target: env.getters.getSelectedZones(),
         format: "0.00%",
@@ -527,7 +530,7 @@ describe("Menu Item actions", () => {
 
     test("Date", () => {
       doAction(["format", "format_number", "format_number_date"], env);
-      expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.getters.getActiveSheetId(),
         target: env.getters.getSelectedZones(),
         format: "m/d/yyyy",
@@ -536,7 +539,7 @@ describe("Menu Item actions", () => {
 
     test("Time", () => {
       doAction(["format", "format_number", "format_number_time"], env);
-      expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.getters.getActiveSheetId(),
         target: env.getters.getSelectedZones(),
         format: "hh:mm:ss a",
@@ -545,7 +548,7 @@ describe("Menu Item actions", () => {
 
     test("Date time", () => {
       doAction(["format", "format_number", "format_number_date_time"], env);
-      expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.getters.getActiveSheetId(),
         target: env.getters.getSelectedZones(),
         format: "m/d/yyyy hh:mm:ss",
@@ -554,7 +557,7 @@ describe("Menu Item actions", () => {
 
     test("Duration", () => {
       doAction(["format", "format_number", "format_number_duration"], env);
-      expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.getters.getActiveSheetId(),
         target: env.getters.getSelectedZones(),
         format: "hhhh:mm:ss",
@@ -564,7 +567,7 @@ describe("Menu Item actions", () => {
 
   test("Format -> bold", () => {
     doAction(["format", "format_bold"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+    expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
       sheetId: env.getters.getActiveSheetId(),
       target: env.getters.getSelectedZones(),
       style: { bold: true },
@@ -573,7 +576,7 @@ describe("Menu Item actions", () => {
 
   test("Format -> italic", () => {
     doAction(["format", "format_italic"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+    expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
       sheetId: env.getters.getActiveSheetId(),
       target: env.getters.getSelectedZones(),
       style: { italic: true },
@@ -582,7 +585,7 @@ describe("Menu Item actions", () => {
 
   test("Format -> underline", () => {
     doAction(["format", "format_underline"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+    expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
       sheetId: env.getters.getActiveSheetId(),
       target: env.getters.getSelectedZones(),
       style: { underline: true },
@@ -591,7 +594,7 @@ describe("Menu Item actions", () => {
 
   test("Format -> strikethrough", () => {
     doAction(["format", "format_strikethrough"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+    expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
       sheetId: env.getters.getActiveSheetId(),
       target: env.getters.getSelectedZones(),
       style: { strikethrough: true },
@@ -601,7 +604,7 @@ describe("Menu Item actions", () => {
   test("Format -> font-size", () => {
     const fontSize = fontSizes[0];
     doAction(["format", "format_font_size", `format_font_size_${fontSize.pt}`], env);
-    expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+    expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
       sheetId: env.getters.getActiveSheetId(),
       target: env.getters.getSelectedZones(),
       style: { fontSize: fontSize.pt },
@@ -611,7 +614,7 @@ describe("Menu Item actions", () => {
   test("Edit -> Sort ascending", () => {
     doAction(["edit", "sort_range", "sort_ascending"], env);
     const { anchor, zones } = env.getters.getSelection();
-    expect(env.dispatch).toHaveBeenCalledWith("SORT_CELLS", {
+    expect(dispatch).toHaveBeenCalledWith("SORT_CELLS", {
       sheetId: env.getters.getActiveSheetId(),
       col: anchor[0],
       row: anchor[1],
@@ -623,7 +626,7 @@ describe("Menu Item actions", () => {
   test("Edit -> Sort descending", () => {
     doAction(["edit", "sort_range", "sort_descending"], env);
     const { anchor, zones } = env.getters.getSelection();
-    expect(env.dispatch).toHaveBeenCalledWith("SORT_CELLS", {
+    expect(dispatch).toHaveBeenCalledWith("SORT_CELLS", {
       sheetId: env.getters.getActiveSheetId(),
       col: anchor[0],
       row: anchor[1],
@@ -654,7 +657,7 @@ describe("Menu Item actions", () => {
       expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide column B");
       expect(getNode(hidePath, colMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(hidePath, env, colMenuRegistry);
-      expect(env.dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         elements: [1],
         dimension: "COL",
@@ -665,7 +668,7 @@ describe("Menu Item actions", () => {
       expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide columns B - C");
       expect(getNode(hidePath, colMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(hidePath, env, colMenuRegistry);
-      expect(env.dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         elements: [1, 2],
         dimension: "COL",
@@ -676,7 +679,7 @@ describe("Menu Item actions", () => {
       expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide columns");
       expect(getNode(hidePath, colMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(hidePath, env, colMenuRegistry);
-      expect(env.dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         elements: [],
         dimension: "COL",
@@ -693,7 +696,7 @@ describe("Menu Item actions", () => {
       setSelection(model, ["B1:E100"]);
       expect(getNode(unhidePath, colMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(unhidePath, env, colMenuRegistry);
-      expect(env.dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         elements: [1, 2, 3, 4],
         dimension: "COL",
@@ -710,7 +713,7 @@ describe("Menu Item actions", () => {
       expect(getNode(["edit", "edit_unhide_columns"]).isVisible(env)).toBeTruthy();
       doAction(["edit", "edit_unhide_columns"], env);
       const sheet = env.getters.getActiveSheet();
-      expect(env.dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
         sheetId: sheet.id,
         dimension: "COL",
         elements: Array.from(Array(sheet.cols.length).keys()),
@@ -725,7 +728,7 @@ describe("Menu Item actions", () => {
       expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide row 2");
       expect(getNode(hidePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(hidePath, env, rowMenuRegistry);
-      expect(env.dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         elements: [1],
         dimension: "ROW",
@@ -736,7 +739,7 @@ describe("Menu Item actions", () => {
       expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide rows 2 - 3");
       expect(getNode(hidePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(hidePath, env, rowMenuRegistry);
-      expect(env.dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         elements: [1, 2],
         dimension: "ROW",
@@ -747,7 +750,7 @@ describe("Menu Item actions", () => {
       expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide rows");
       expect(getNode(hidePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(hidePath, env, rowMenuRegistry);
-      expect(env.dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         elements: [],
         dimension: "ROW",
@@ -764,7 +767,7 @@ describe("Menu Item actions", () => {
       setSelection(model, ["A1:Z4"]);
       expect(getNode(unhidePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(unhidePath, env, rowMenuRegistry);
-      expect(env.dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
         sheetId: env.getters.getActiveSheetId(),
         elements: [0, 1, 2, 3],
         dimension: "ROW",
@@ -782,7 +785,7 @@ describe("Menu Item actions", () => {
       expect(getNode(["edit", "edit_unhide_rows"]).isVisible(env)).toBeTruthy();
       doAction(["edit", "edit_unhide_rows"], env);
       const sheet = env.getters.getActiveSheet();
-      expect(env.dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
+      expect(dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
         sheetId: sheet.id,
         elements: Array.from(Array(sheet.rows.length).keys()),
         dimension: "ROW",
@@ -810,7 +813,7 @@ describe("Menu Item actions", () => {
     expect(getNode(path_gridlines).isVisible(env)).toBeTruthy();
 
     doAction(path_gridlines, env);
-    expect(env.dispatch).toHaveBeenCalledWith("SET_GRID_LINES_VISIBILITY", {
+    expect(dispatch).toHaveBeenCalledWith("SET_GRID_LINES_VISIBILITY", {
       sheetId,
       areGridLinesVisible: true,
     });
@@ -820,7 +823,7 @@ describe("Menu Item actions", () => {
     });
 
     doAction(path_gridlines, env);
-    expect(env.dispatch).toHaveBeenCalledWith("SET_GRID_LINES_VISIBILITY", {
+    expect(dispatch).toHaveBeenCalledWith("SET_GRID_LINES_VISIBILITY", {
       sheetId,
       areGridLinesVisible: false,
     });

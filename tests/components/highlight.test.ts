@@ -1,36 +1,27 @@
-import * as owl from "@odoo/owl";
+import { Component, mount, useSubEnv, xml } from "@odoo/owl";
 import { Highlight } from "../../src/components/highlight/highlight";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { SpreadsheetEnv } from "../../src/types";
 import { DispatchResult } from "../../src/types/commands";
 import { merge } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, nextTick } from "../test_helpers/helpers";
 
-const { Component } = owl;
-const { useSubEnv } = owl.hooks;
-const { xml } = owl.tags;
-
 function getColStartPosition(col: number) {
-  return (
-    HEADER_WIDTH + parent.env.getters.getCol(parent.env.getters.getActiveSheetId(), col)!.start
-  );
+  return HEADER_WIDTH + model.getters.getCol(model.getters.getActiveSheetId(), col)!.start;
 }
 
 function getColEndPosition(col: number) {
-  return HEADER_WIDTH + parent.env.getters.getCol(parent.env.getters.getActiveSheetId(), col)!.end;
+  return HEADER_WIDTH + model.getters.getCol(model.getters.getActiveSheetId(), col)!.end;
 }
 
 function getRowStartPosition(row: number) {
-  return (
-    HEADER_HEIGHT + parent.env.getters.getRow(parent.env.getters.getActiveSheetId(), row)!.start
-  );
+  return HEADER_HEIGHT + model.getters.getRow(model.getters.getActiveSheetId(), row)!.start;
 }
 
 function getRowEndPosition(row: number) {
-  return HEADER_HEIGHT + parent.env.getters.getRow(parent.env.getters.getActiveSheetId(), row)!.end;
+  return HEADER_HEIGHT + model.getters.getRow(model.getters.getActiveSheetId(), row)!.end;
 }
 
 async function selectNWCellCorner(el: Element, xc: string) {
@@ -89,30 +80,29 @@ async function moveToCell(el: Element, xc: string) {
 
 let model: Model;
 let fixture: HTMLElement;
-let parent: owl.Component<any, SpreadsheetEnv>;
+let parent: Parent;
 let cornerEl: Element;
 let borderEl: Element;
 
-class Parent extends Component<Highlight["props"], SpreadsheetEnv> {
+class Parent extends Component {
   static components = { Highlight };
   static template = xml/*xml*/ `
     <Highlight zone="props.zone" color="props.color"/>
   `;
-  constructor(model: Model, props: Highlight["props"]) {
-    super(undefined, props);
+  setup() {
     useSubEnv({
-      getters: model.getters,
+      getters: this.props.model.getters,
       dispatch: jest.fn((command) => DispatchResult.Success),
     });
   }
+
+  getSubEnv() {
+    return this.__owl__.childEnv;
+  }
 }
 
-async function mountHighlight(zone: string, color: string) {
-  parent = new Parent(model, {
-    zone: toZone(zone),
-    color,
-  });
-  await parent.mount(fixture);
+async function mountHighlight(zone: string, color: string): Promise<Parent> {
+  return await mount(Parent, fixture, { props: { zone: toZone(zone), color, model } });
 }
 
 beforeEach(async () => {
@@ -125,88 +115,88 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
-  parent.destroy();
+  parent.__owl__.destroy();
   fixture.remove();
 });
 
 describe("Corner component", () => {
   describe("can drag all corners", () => {
     test("start on nw corner", async () => {
-      await mountHighlight("B2", "#666");
+      parent = await mountHighlight("B2", "#666");
       cornerEl = fixture.querySelector(".o-corner-nw")!;
 
       // select B2 nw corner
       selectNWCellCorner(cornerEl, "B2");
-      expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to A1
       moveToCell(cornerEl, "A1");
-      expect(parent.env.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
         zone: toZone("A1:B2"),
       });
     });
 
     test("start on ne corner", async () => {
-      await mountHighlight("B2", "#666");
+      parent = await mountHighlight("B2", "#666");
       cornerEl = fixture.querySelector(".o-corner-ne")!;
 
       // select B2 ne corner
       selectNECellCorner(cornerEl, "B2");
-      expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C1
       moveToCell(cornerEl, "C1");
-      expect(parent.env.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
         zone: toZone("B1:C2"),
       });
     });
 
     test("start on sw corner", async () => {
-      await mountHighlight("B2", "#666");
+      parent = await mountHighlight("B2", "#666");
       cornerEl = fixture.querySelector(".o-corner-sw")!;
 
       // select B2 sw corner
       selectSWCellCorner(cornerEl, "B2");
-      expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to A3
       moveToCell(cornerEl, "A3");
-      expect(parent.env.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
         zone: toZone("A2:B3"),
       });
     });
 
     test("start on se corner", async () => {
-      await mountHighlight("B2", "#666");
+      parent = await mountHighlight("B2", "#666");
       cornerEl = fixture.querySelector(".o-corner-se")!;
 
       // select B2 se corner
       selectSECellCorner(cornerEl, "B2");
-      expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C3
       moveToCell(cornerEl, "C3");
-      expect(parent.env.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
         zone: toZone("B2:C3"),
       });
     });
   });
 
   test("do nothing if drag outside the grid", async () => {
-    await mountHighlight("A1", "#666");
+    parent = await mountHighlight("A1", "#666");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select A1 nw corner
     selectNWCellCorner(cornerEl, "A1");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1"),
     });
 
@@ -218,23 +208,23 @@ describe("Corner component", () => {
       getRowStartPosition(0) - 100
     );
     await nextTick();
-    expect(parent.env.dispatch).toHaveBeenCalledTimes(1);
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledTimes(1);
   });
 
   test("drag highlight corner on merged cells expands the final highlight zone", async () => {
     merge(model, "B1:C1");
-    await mountHighlight("B2", "#666");
+    parent = await mountHighlight("B2", "#666");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select B2 se corner
     selectNWCellCorner(cornerEl, "B2");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("B2"),
     });
 
     // move to B1
     moveToCell(cornerEl, "B1");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
       zone: toZone("B1:C2"),
     });
   });
@@ -247,18 +237,18 @@ describe("Corner component", () => {
       elements: [0, 1],
       size: width / 2,
     });
-    await mountHighlight("B1", "#666");
+    parent = await mountHighlight("B1", "#666");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select B1 nw corner
     selectNWCellCorner(cornerEl, "B1");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("B1"),
     });
 
     // move to C1
     moveToCell(cornerEl, "C1");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
       offsetX: width / 2,
       offsetY: 0,
     });
@@ -272,18 +262,18 @@ describe("Corner component", () => {
       elements: [0, 1],
       size: height / 2,
     });
-    await mountHighlight("A2", "#666");
+    parent = await mountHighlight("A2", "#666");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select A2 nw corner
     selectTopCellBorder(cornerEl, "A2");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A2"),
     });
 
     // move to A3
     moveToCell(cornerEl, "A3");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
       offsetY: height / 2,
     });
@@ -293,145 +283,163 @@ describe("Corner component", () => {
 describe("Border component", () => {
   describe("can drag all borders", () => {
     test("start on top border", async () => {
-      await mountHighlight("B2", "#666");
+      parent = await mountHighlight("B2", "#666");
       borderEl = fixture.querySelector(".o-border-n")!;
 
       // select B2 top border
       selectTopCellBorder(borderEl, "B2");
-      expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
-      expect(parent.env.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", { zone: toZone("C2") });
+      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        zone: toZone("C2"),
+      });
     });
 
     test("start on left border", async () => {
-      await mountHighlight("B2", "#666");
+      parent = await mountHighlight("B2", "#666");
       borderEl = fixture.querySelector(".o-border-w")!;
 
       // select B2 left border
       selectLeftCellBorder(borderEl, "B2");
-      expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
-      expect(parent.env.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", { zone: toZone("C2") });
+      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        zone: toZone("C2"),
+      });
     });
 
     test("start on right border", async () => {
-      await mountHighlight("B2", "#666");
+      parent = await mountHighlight("B2", "#666");
       borderEl = fixture.querySelector(".o-border-w")!;
 
       // select B2 right border
       selectRightCellBorder(borderEl, "B2");
-      expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
-      expect(parent.env.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", { zone: toZone("C2") });
+      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        zone: toZone("C2"),
+      });
     });
 
     test("start on bottom border", async () => {
-      await mountHighlight("B2", "#666");
+      parent = await mountHighlight("B2", "#666");
       borderEl = fixture.querySelector(".o-border-w")!;
 
       // select B2 bottom border
       selectBottomCellBorder(borderEl, "B2");
-      expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
-      expect(parent.env.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", { zone: toZone("C2") });
+      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+        zone: toZone("C2"),
+      });
     });
   });
 
   test("drag the A1:B2 highlight, start on A1 top border, finish on C1 --> set C1:D2 highlight", async () => {
-    await mountHighlight("A1:B2", "#666");
+    parent = await mountHighlight("A1:B2", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select A1 top border
     selectTopCellBorder(borderEl, "A1");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1:B2"),
     });
 
     // move to B1
     moveToCell(borderEl, "B1");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", { zone: toZone("B1:C2") });
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      zone: toZone("B1:C2"),
+    });
 
     // move to C1
     moveToCell(borderEl, "C1");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", { zone: toZone("C1:D2") });
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      zone: toZone("C1:D2"),
+    });
   });
 
   test("drag the A1:B2 highlight, start on B1 top border, finish on C1 --> set B1:C2 highlight", async () => {
-    await mountHighlight("A1:B2", "#666");
+    parent = await mountHighlight("A1:B2", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select B1 top border
     selectTopCellBorder(borderEl, "B1");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1:B2"),
     });
 
     // move to C1
     moveToCell(borderEl, "C1");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", { zone: toZone("B1:C2") });
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      zone: toZone("B1:C2"),
+    });
   });
 
   test("cannot drag highlight zone if already beside limit border", async () => {
-    await mountHighlight("A1:B2", "#666");
+    parent = await mountHighlight("A1:B2", "#666");
     borderEl = fixture.querySelector(".o-border-s")!;
 
     // select B2 bottom border
     selectBottomCellBorder(borderEl, "B2");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1:B2"),
     });
 
     // move to A2
     moveToCell(borderEl, "A2");
-    expect(parent.env.dispatch).toHaveBeenCalledTimes(1);
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledTimes(1);
   });
 
   test("drag highlight order on merged cells expands the final highlight zone", async () => {
     merge(model, "B1:C1");
-    await mountHighlight("A1", "#666");
+    parent = await mountHighlight("A1", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select A1 top border
     selectTopCellBorder(borderEl, "A1");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1"),
     });
 
     // move to B1
     moveToCell(borderEl, "B1");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", { zone: toZone("B1:C1") });
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      zone: toZone("B1:C1"),
+    });
   });
 
   test("drag highlight on merged cells expands the highlight zone", async () => {
     merge(model, "B1:C1");
-    await mountHighlight("A1", "#666");
+    parent = await mountHighlight("A1", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select A1 top border
     selectTopCellBorder(borderEl, "A1");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1"),
     });
 
     // move to B1
     moveToCell(borderEl, "B1");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", { zone: toZone("B1:C1") });
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      zone: toZone("B1:C1"),
+    });
   });
 
   test("can edge-scroll horizontally", async () => {
@@ -442,18 +450,18 @@ describe("Border component", () => {
       elements: [0, 1],
       size: width / 2,
     });
-    await mountHighlight("B1", "#666");
+    parent = await mountHighlight("B1", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select B1 top border
     selectTopCellBorder(borderEl, "B1");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("B1"),
     });
 
     // move to C1
     moveToCell(borderEl, "C1");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
       offsetX: width / 2,
       offsetY: 0,
     });
@@ -467,18 +475,18 @@ describe("Border component", () => {
       elements: [0, 1],
       size: height / 2,
     });
-    await mountHighlight("A2", "#666");
+    parent = await mountHighlight("A2", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select A2 top border
     selectTopCellBorder(borderEl, "A2");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A2"),
     });
 
     // move to A3
     moveToCell(borderEl, "A3");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
+    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
       offsetY: height / 2,
     });

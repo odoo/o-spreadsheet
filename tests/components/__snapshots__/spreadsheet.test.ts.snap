@@ -44,16 +44,23 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
         >
           Format
         </div>
+        
+        
+        
+        
       </div>
       <div
         class="o-topbar-topright"
-      />
+      >
+        
+      </div>
     </div>
     <!-- Toolbar and Cell Content -->
     <div
       class="o-topbar-toolbar"
     >
       <!-- Toolbar -->
+      
       <div
         class="o-toolbar-tools"
       >
@@ -151,7 +158,9 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
                 transform="translate(5 7)"
               />
             </svg>
+            
           </div>
+          
         </div>
         <div
           class="o-divider"
@@ -175,7 +184,9 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
                 transform="translate(5 7)"
               />
             </svg>
+            
           </div>
+          
         </div>
         <div
           class="o-divider"
@@ -242,12 +253,14 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
               />
             </svg>
           </span>
+          
+          
         </div>
         <div
           class="o-divider"
         />
         <div
-          class="o-tool o-dropdown o-with-color"
+          class="o-tool  o-dropdown o-with-color"
         >
           <span
             style="border-color:white"
@@ -262,6 +275,8 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
               />
             </svg>
           </span>
+          
+          
         </div>
         <div
           class="o-tool o-dropdown"
@@ -279,6 +294,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
               />
             </svg>
           </span>
+          
         </div>
         <div
           class="o-tool o-merge-tool o-disabled"
@@ -301,6 +317,11 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           title="Horizontal align"
         >
           <span>
+            
+            
+            
+            
+            
             <svg
               class="o-icon"
             >
@@ -310,6 +331,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
                 transform="translate(2 2)"
               />
             </svg>
+            
             <svg
               class="o-icon"
             >
@@ -319,11 +341,14 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
                 transform="translate(5 7)"
               />
             </svg>
+            
           </span>
+          
         </div>
         <!-- &lt;div class="o-tool" title="Vertical align"&gt;&lt;span&gt;&lt;svg class="o-icon"&gt;&lt;path fill="#000000" d="M9.5,3 L7,3 L7,0 L5,0 L5,3 L2.5,3 L6,6.5 L9.5,3 L9.5,3 Z M0,8 L0,10 L12,10 L12,8 L0,8 L0,8 Z M2.5,15 L5,15 L5,18 L7,18 L7,15 L9.5,15 L6,11.5 L2.5,15 L2.5,15 Z" transform="translate(3)"/&gt;&lt;/svg&gt;&lt;/span&gt; &lt;svg class="o-icon"&gt;&lt;polygon fill="#000000" points="0 0 4 4 8 0" transform="translate(5 7)"/&gt;&lt;/svg&gt;&lt;/div&gt; -->
         <!-- &lt;div class="o-tool" title="Text Wrapping"&gt;&lt;svg class="o-icon"&gt;&lt;path fill="#000000" d="M14,0 L0,0 L0,2 L14,2 L14,0 Z M0,12 L4,12 L4,10 L0,10 L0,12 Z M11.5,5 L0,5 L0,7 L11.75,7 C12.58,7 13.25,7.67 13.25,8.5 C13.25,9.33 12.58,10 11.75,10 L9,10 L9,8 L6,11 L9,14 L9,12 L11.5,12 C13.43,12 15,10.43 15,8.5 C15,6.57 13.43,5 11.5,5 Z" transform="translate(2 3)"/&gt;&lt;/svg&gt;&lt;/div&gt; -->
       </div>
+      
       <div
         class="o-composer-container"
       >
@@ -339,18 +364,27 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
   "
           tabindex="1"
         />
+        
       </div>
+      
     </div>
   </div>
+  
   <div
     class="o-grid o-two-columns"
   >
+    
     <canvas
       height="985"
       style="width:985px;height:985px;"
       tabindex="-1"
       width="985"
     />
+    
+    
+    
+    
+    
     <div
       class="o-autofill"
       style="top:45px;left:140px"
@@ -359,21 +393,44 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
         class="o-autofill-handler"
         style="top:0px;left:0px;"
       />
+      
     </div>
+    
+    
+    
     <div
       class="o-overlay"
     >
       <div
         class="o-col-resizer"
-      />
+      >
+        
+        
+        
+        
+        
+      </div>
+      
       <div
         class="o-row-resizer"
-      />
+      >
+        
+        
+        
+        
+        
+      </div>
+      
       <div
         class="all"
       />
     </div>
-    <div />
+    
+    
+    <div>
+      
+    </div>
+    
     <div
       class="o-scrollbar vertical"
     >
@@ -389,6 +446,8 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
       />
     </div>
   </div>
+  
+  
   <div
     class="o-spreadsheet-bottom-bar o-two-columns"
   >
@@ -458,7 +517,11 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           </svg>
         </span>
       </div>
+      
     </div>
+    
+    
   </div>
+  
 </div>
 `;

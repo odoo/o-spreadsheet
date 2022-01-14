@@ -6,6 +6,7 @@ import { SheetUIPlugin } from "../../src/plugins/ui/ui_sheet";
 import { Cell, CommandResult, UID } from "../../src/types";
 import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { getPlugin } from "../test_helpers/helpers";
 
 function setFormat(model: Model, format: string) {
   model.dispatch("SET_FORMATTING", {
@@ -416,9 +417,7 @@ describe("Autoresize", () => {
   beforeEach(() => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
-    const sheetUIPlugin = model["handlers"].find(
-      (p) => p instanceof SheetUIPlugin
-    )! as SheetUIPlugin;
+    const sheetUIPlugin = getPlugin(model, SheetUIPlugin);
     sheetUIPlugin.getCellWidth = jest.fn((cell: Cell) => {
       if (cell["content"] === "size0") return sizes[0];
       return sizes[1];

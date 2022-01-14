@@ -1,4 +1,3 @@
-import { Spreadsheet } from "../../src";
 import {
   MatchingParenColor,
   NumberColor,
@@ -22,6 +21,7 @@ import {
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
+  Parent,
   startGridComposition,
   typeInComposerGrid as typeInComposerGridHelper,
 } from "../test_helpers/helpers";
@@ -34,7 +34,7 @@ let model: Model;
 let composerEl: Element;
 let canvasEl: Element;
 let fixture: HTMLElement;
-let parent: Spreadsheet;
+let parent: Parent;
 let cehMock: ContentEditableHelper;
 
 function getHighlights(model: Model): any[] {
@@ -74,11 +74,11 @@ beforeEach(async () => {
   fixture = makeTestFixture();
   parent = await mountSpreadsheet(fixture);
   model = parent.model;
-  canvasEl = parent.el?.querySelector(".o-grid")!;
+  canvasEl = document.querySelector(".o-grid")!;
 });
 
 afterEach(() => {
-  parent.destroy();
+  parent.__owl__.destroy();
   fixture.remove();
 });
 

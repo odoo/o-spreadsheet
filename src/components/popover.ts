@@ -1,16 +1,13 @@
-import * as owl from "@odoo/owl";
+import { Component, xml } from "@odoo/owl";
 import { BOTTOMBAR_HEIGHT, SCROLLBAR_WIDTH, TOPBAR_HEIGHT } from "../constants";
 import { DOMCoordinates, GridDimension, SpreadsheetEnv } from "../types";
-const { Component, tags } = owl;
-const { Portal } = owl.misc;
-const { xml } = tags;
 
 const TEMPLATE = xml/* xml */ `
-  <Portal target="'.o-spreadsheet'">
+  <t t-portal="'.o-spreadsheet'">
     <div t-att-style="style">
       <t t-slot="default"/>
     </div>
-  </Portal>
+  </t>
 `;
 
 interface Props {
@@ -35,7 +32,6 @@ interface Props {
 
 export class Popover extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
-  static components = { Portal };
   static defaultProps = {
     flipHorizontalOffset: 0,
     flipVerticalOffset: 0,

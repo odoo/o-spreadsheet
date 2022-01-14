@@ -1,20 +1,20 @@
-import { Component, hooks, tags } from "@odoo/owl";
-import { Model } from "../../src";
+import { mount, useSubEnv } from "@odoo/owl";
 import { Spreadsheet } from "../../src/components";
 import { DEFAULT_REVISION_ID } from "../../src/constants";
 import { args, functionRegistry } from "../../src/functions";
 import { DEBUG, toZone } from "../../src/helpers";
 import { SelectionMode } from "../../src/plugins/ui/selection";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
-import { Client } from "../../src/types";
-import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
+import { SpreadsheetEnv } from "../../src/types";
 import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
   getChildFromComponent,
   makeTestFixture,
   MockClipboard,
+  mountSpreadsheet,
   nextTick,
+  Parent,
   target,
   typeInComposerGrid,
   typeInComposerTopBar,
@@ -23,9 +23,6 @@ import {
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
-
-const { xml } = tags;
-const { useSubEnv } = hooks;
 
 let fixture: HTMLElement;
 let parent: Parent;
@@ -41,41 +38,13 @@ Object.defineProperty(navigator, "clipboard", {
 jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
 
-class Parent extends Component<any> {
-  static template = xml/* xml */ `<Spreadsheet data="data" client="client"/>`;
-  static components = { Spreadsheet };
-  readonly data: any;
-  readonly client: Client;
-
-  get spreadsheet(): Spreadsheet {
-    return getChildFromComponent(this, Spreadsheet);
-  }
-
-  get model(): Model {
-    return this.spreadsheet.model;
-  }
-
-  constructor(data?, client?) {
-    super();
-    this.data = data;
-    this.client = client;
-  }
-}
-
 beforeEach(async () => {
   fixture = makeTestFixture();
-  parent = new Parent({
-    sheets: [
-      {
-        id: 1,
-      },
-    ],
-  });
-  await parent.mount(fixture);
+  parent = await mountSpreadsheet(fixture, { data: { sheets: [{ id: 1 }] } });
 });
 
 afterEach(() => {
-  parent.destroy();
+  parent.__owl__.destroy();
   fixture.remove();
 });
 
@@ -122,28 +91,28 @@ describe("Spreadsheet", () => {
       args: args(``),
       returns: ["STRING"],
     });
-    const parent = new Parent({
-      version: 2,
-      sheets: [
-        {
-          name: "Sheet1",
-          colNumber: 26,
-          rowNumber: 100,
-          cells: {
-            A1: { content: "=GETACTIVESHEET()" },
+    await mountSpreadsheet(fixture, {
+      data: {
+        version: 2,
+        sheets: [
+          {
+            name: "Sheet1",
+            colNumber: 26,
+            rowNumber: 100,
+            cells: {
+              A1: { content: "=GETACTIVESHEET()" },
+            },
+            conditionalFormats: [],
           },
-          conditionalFormats: [],
-        },
-      ],
-      activeSheet: "Sheet1",
+        ],
+        activeSheet: "Sheet1",
+      },
     });
-    await parent.mount(fixture);
     expect(env).toBeTruthy();
   });
 
   test("Clipboard is in spreadsheet env", () => {
-    const spreadsheet = getChildFromComponent(parent, Spreadsheet);
-    expect(spreadsheet.env.clipboard).toBe(clipboard);
+    expect(parent.getSpreadsheetEnv().clipboard).toBe(clipboard);
   });
 
   test("selection mode is changed with a simple select", async () => {
@@ -207,7 +176,7 @@ describe("Spreadsheet", () => {
 
   test("Debug informations are removed when Spreadsheet is destroyed", async () => {
     const spreadsheet = getChildFromComponent(parent, Spreadsheet);
-    spreadsheet.destroy();
+    spreadsheet.__owl__.destroy();
     expect(Object.keys(DEBUG)).toHaveLength(0);
   });
 
@@ -252,10 +221,9 @@ describe("Spreadsheet", () => {
 
   test("Can instantiate a spreadsheet with a given client id-name", async () => {
     const client = { id: "alice", name: "Alice" };
-    const parent = new Parent({}, client);
-    await parent.mount(fixture);
+    const parent = await mountSpreadsheet(fixture, { client });
     expect(parent.model.getters.getClient()).toEqual(client);
-    parent.destroy();
+    parent.__owl__.destroy();
   });
 });
 
@@ -379,11 +347,9 @@ describe("Composer interactions", () => {
   });
 
   test("The activate sheet is the sheet in first position, after replaying commands", async () => {
-    class Parent extends Component<any> {
-      static template = xml/* xml */ `<Spreadsheet data="data" stateUpdateMessages="stateUpdateMessages"/>`;
-      static components = { Spreadsheet };
-      readonly data: any = { sheets: [{ id: "1" }, { id: "2" }] };
-      readonly stateUpdateMessages: StateUpdateMessage[] = [
+    const parent = await mountSpreadsheet(fixture, {
+      data: { sheets: [{ id: "1" }, { id: "2" }] },
+      stateUpdateMessages: [
         {
           type: "REMOTE_REVISION",
           version: 1,
@@ -392,55 +358,31 @@ describe("Composer interactions", () => {
           clientId: "alice",
           commands: [{ type: "MOVE_SHEET", sheetId: "1", direction: "right" }],
         },
-      ];
-
-      get spreadsheet(): Spreadsheet {
-        return getChildFromComponent(this, Spreadsheet);
-      }
-
-      get model(): Model {
-        return this.spreadsheet.model;
-      }
-    }
-
-    fixture = makeTestFixture();
-    const container = new Parent();
-    await container.mount(fixture);
-    expect(container.model.getters.getActiveSheetId()).toBe("2");
+      ],
+    });
+    expect(parent.model.getters.getActiveSheetId()).toBe("2");
+    parent.__owl__.destroy();
   });
 
   test("Notify ui correctly with type notification correctly use notifyUser in the env", async () => {
     const notifyUser = jest.fn();
-    class Parent extends Component<any> {
-      static template = xml/* xml */ `<Spreadsheet data="data"/>`;
-      static components = { Spreadsheet };
-      readonly data: any = {};
-
+    class App extends Parent {
       setup() {
         useSubEnv({
           notifyUser,
         });
       }
-
-      get spreadsheet(): Spreadsheet {
-        return getChildFromComponent(this, Spreadsheet);
-      }
-
-      get model(): Model {
-        return this.spreadsheet.model;
-      }
     }
-    fixture = makeTestFixture();
-    const container = new Parent();
-    await container.mount(fixture);
-    container.model["config"].notifyUI({ type: "NOTIFICATION", text: "hello" });
+    const fixture = makeTestFixture();
+    const parent = await mount(App, fixture);
+    parent.model["config"].notifyUI({ type: "NOTIFICATION", text: "hello" });
     expect(notifyUser).toHaveBeenCalledWith("hello");
+    parent.__owl__.destroy();
   });
 });
 
 describe("Composer / selectionInput interactions", () => {
-  let spreadsheet: Spreadsheet;
-  beforeEach(() => {
+  beforeEach(async () => {
     parent.model.dispatch("ADD_CONDITIONAL_FORMAT", {
       sheetId: parent.model.getters.getActiveSheetId(),
       target: target("B2:C4"),
@@ -454,14 +396,14 @@ describe("Composer / selectionInput interactions", () => {
         },
       },
     });
-    spreadsheet = getChildFromComponent(parent, Spreadsheet);
     // input some stuff in B2
     setCellContent(parent.model, "B2", "=A1");
   });
+
   test("Switching from selection input to composer should update the highlihts", async () => {
     //open cf sidepanel
     selectCell(parent.model, "B2");
-    OPEN_CF_SIDEPANEL_ACTION(spreadsheet.env);
+    OPEN_CF_SIDEPANEL_ACTION(parent.getSpreadsheetEnv() as SpreadsheetEnv);
     await nextTick();
     await simulateClick(".o-selection-input input");
 
@@ -476,7 +418,7 @@ describe("Composer / selectionInput interactions", () => {
   });
   test("Switching from composer to selection input should update the highlihts and hide the highlight components", async () => {
     selectCell(parent.model, "B2");
-    OPEN_CF_SIDEPANEL_ACTION(spreadsheet.env);
+    OPEN_CF_SIDEPANEL_ACTION(parent.getSpreadsheetEnv() as SpreadsheetEnv);
     await nextTick();
 
     await simulateClick(".o-spreadsheet-topbar .o-composer");

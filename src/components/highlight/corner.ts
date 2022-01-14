@@ -1,8 +1,7 @@
-import * as owl from "@odoo/owl";
+import { Component, xml } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { SpreadsheetEnv, Zone } from "../../types";
-const { Component } = owl;
-const { xml, css } = owl.tags;
+import { css } from "../helpers/css";
 
 const TEMPLATE = xml/* xml */ `
     <div class="o-corner"

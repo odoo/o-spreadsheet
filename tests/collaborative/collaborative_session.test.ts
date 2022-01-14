@@ -1,4 +1,3 @@
-import * as owl from "@odoo/owl";
 import { Model } from "../../src";
 import { Session } from "../../src/collaborative/session";
 import { DEBOUNCE_TIME, MESSAGE_VERSION } from "../../src/constants";
@@ -15,8 +14,6 @@ describe("Collaborative session", () => {
   beforeEach(() => {
     jest.useFakeTimers();
 
-    jest.spyOn(owl.browser, "setTimeout").mockImplementation(window.setTimeout.bind(window));
-    jest.spyOn(owl.browser, "clearTimeout").mockImplementation(window.clearTimeout.bind(window));
     transport = new MockTransportService();
     client = {
       id: "alice",

@@ -1,5 +1,6 @@
-import { Component } from "@odoo/owl";
+import { App, Component, mount, useSubEnv, xml } from "@odoo/owl";
 import format from "xml-formatter";
+import { Grid } from "../../src/components/grid";
 import { Spreadsheet } from "../../src/components/spreadsheet";
 import { functionRegistry } from "../../src/functions/index";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
@@ -22,15 +23,76 @@ import { getCell, getCellContent } from "./getters_helpers";
 const functions = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
 
-export function nextMicroTick(): Promise<void> {
-  return Promise.resolve();
+export class Parent extends Component {
+  static template = xml/* xml */ `
+    <Spreadsheet data="props.data"
+                 client="props.client"
+                 onContentSaved="props.onContentSaved"
+                 stateUpdateMessages="props.stateUpdateMessages" />`;
+
+  static components = { Spreadsheet };
+
+  private dispatchFn: jest.SpyInstance | undefined;
+
+  /**
+   * Add a spyOn function to `dispatch` method
+   */
+  setup() {
+    const setup = Spreadsheet.prototype.setup;
+    const self = this;
+    Spreadsheet.prototype.setup = function () {
+      setup.call(this);
+      self.dispatchFn = jest.spyOn(this.model, "dispatch");
+      useSubEnv({
+        dispatch: this.model.dispatch.bind(this.model),
+      });
+    };
+  }
+
+  get spreadsheet(): Spreadsheet {
+    return getChildFromComponent(this, Spreadsheet);
+  }
+
+  get model(): Model {
+    return this.spreadsheet.model;
+  }
+
+  getSpreadsheetEnv(): SpreadsheetEnv {
+    return getChildFromComponent(this.spreadsheet, Grid).env;
+  }
+
+  /**
+   * Return the jest spyOn method on dispatch. It also clear all the calls that
+   * were done before the call to this functions
+   */
+  observeDispatch() {
+    this.dispatchFn!.mockClear();
+    return this.dispatchFn!;
+  }
 }
 
-const origSetTimeout = window.setTimeout;
+export function getPlugin<T extends new (...args: any) => any>(
+  model: Model,
+  cls: T
+): InstanceType<T> {
+  return model["handlers"].find((handler) => handler instanceof cls) as unknown as InstanceType<T>;
+}
+
+const realTimeSetTimeout = window.setTimeout.bind(window);
+class Root extends Component {
+  static template = xml`<div/>`;
+}
+const Scheduler = new App(Root).scheduler.constructor as unknown as { requestAnimationFrame: any };
+
+// modifies scheduler to make it faster to test components
+Scheduler.requestAnimationFrame = function (callback: FrameRequestCallback) {
+  realTimeSetTimeout(callback, 1);
+  return 1;
+};
+
 export async function nextTick(): Promise<void> {
-  return new Promise(function (resolve) {
-    origSetTimeout(() => Component.scheduler.requestAnimationFrame(() => resolve()));
-  });
+  await new Promise((resolve) => realTimeSetTimeout(resolve));
+  await new Promise((resolve) => Scheduler.requestAnimationFrame(resolve));
 }
 
 /**
@@ -43,9 +105,8 @@ export function getChildFromComponent<T extends new (...args: any) => any>(
   component: Component,
   cls: T
 ): InstanceType<T> {
-  return Object.values(component.__owl__.children).find(
-    (child) => child instanceof cls
-  ) as unknown as InstanceType<T>;
+  return Object.values(component.__owl__.children).find((child) => child.component instanceof cls)
+    ?.component as unknown as InstanceType<T>;
 }
 
 export function makeTestFixture() {
@@ -83,10 +144,12 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
   expect(model).toExport(after);
 }
 
-export async function mountSpreadsheet(fixture: HTMLElement, props: Spreadsheet["props"] = {}) {
-  const spreadsheet = new Spreadsheet(undefined, props);
-  await spreadsheet.mount(fixture);
-  return spreadsheet;
+// Requires to be called wit jest realTimers
+export async function mountSpreadsheet(
+  fixture: HTMLElement,
+  props: Spreadsheet["props"] = {}
+): Promise<Parent> {
+  return await mount(Parent, fixture, { props });
 }
 
 type GridDescr = { [xc: string]: string | undefined };
@@ -163,28 +226,6 @@ export function evaluateCellText(xc: string, grid: GridDescr): string {
 // DOM/Misc Mocks
 //------------------------------------------------------------------------------
 
-// modifies scheduler to make it faster to test components
-Component.scheduler.requestAnimationFrame = function (callback: FrameRequestCallback) {
-  origSetTimeout(callback, 1);
-  return 1;
-};
-
-interface Deferred extends Promise<any> {
-  resolve(val?: any): void;
-  reject(): void;
-}
-
-export function makeDeferred(): Deferred {
-  let resolve, reject;
-  let def = new Promise((_resolve, _reject) => {
-    resolve = _resolve;
-    reject = _reject;
-  });
-  (<Deferred>def).resolve = resolve;
-  (<Deferred>def).reject = reject;
-  return <Deferred>def;
-}
-
 /*
  * Remove all functions from the internal function list.
  */
@@ -199,9 +240,7 @@ export function resetFunctions() {
 }
 
 export function getMergeCellMap(model: Model): Record<number, Record<number, number | undefined>> {
-  const mergePlugin = model["handlers"].find(
-    (handler) => handler instanceof MergePlugin
-  )! as MergePlugin;
+  const mergePlugin = getPlugin(model, MergePlugin);
   const sheetCellMap = mergePlugin["mergeCellMap"][model.getters.getActiveSheetId()];
   return sheetCellMap
     ? (Object.fromEntries(

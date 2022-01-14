@@ -162,9 +162,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
       case "REMOVE_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {
-          this.removeColumns(this.sheets[cmd.sheetId]!, cmd.elements);
+          this.removeColumns(this.sheets[cmd.sheetId]!, [...cmd.elements]);
         } else {
-          this.removeRows(this.sheets[cmd.sheetId]!, cmd.elements);
+          this.removeRows(this.sheets[cmd.sheetId]!, [...cmd.elements]);
         }
         break;
       case "ADD_COLUMNS_ROWS":

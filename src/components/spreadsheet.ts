@@ -1,4 +1,14 @@
-import * as owl from "@odoo/owl";
+import {
+  Component,
+  onMounted,
+  onWillDestroy,
+  onWillUnmount,
+  onWillUpdateProps,
+  useExternalListener,
+  useState,
+  useSubEnv,
+  xml,
+} from "@odoo/owl";
 import {
   BOTTOMBAR_HEIGHT,
   CF_ICON_EDGE_LENGTH,
@@ -8,20 +18,16 @@ import {
 import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { SelectionMode } from "../plugins/ui/selection";
-import { SpreadsheetEnv } from "../types";
+import { SpreadsheetEnv, WorkbookData } from "../types";
 import { Client } from "../types/collaborative/session";
 import { StateUpdateMessage, TransportService } from "../types/collaborative/transport_service";
 import { NotifyUIEvent } from "../types/ui";
 import { BottomBar } from "./bottom_bar";
 import { Grid } from "./grid";
+import { css } from "./helpers/css";
 import { LinkEditor } from "./link/link_editor";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
-
-const { Component, useState } = owl;
-const { useExternalListener } = owl.hooks;
-const { xml, css } = owl.tags;
-const { useSubEnv, onMounted, onWillUnmount, onWillUpdateProps } = owl.hooks;
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -30,27 +36,26 @@ const { useSubEnv, onMounted, onWillUnmount, onWillUpdateProps } = owl.hooks;
 export type ComposerFocusType = "inactive" | "cellFocus" | "contentFocus";
 
 const TEMPLATE = xml/* xml */ `
-  <div class="o-spreadsheet" t-on-save-requested="save" t-on-keydown="onKeydown">
+  <div class="o-spreadsheet"  t-on-keydown="onKeydown">
     <TopBar
-    onClick="() => focusGrid()"
-    onComposerContentFocused="(selection) => this.onTopBarComposerFocused(selection)"
-    focusComposer="focusTopBarComposer"
-    class="o-two-columns"/>
+      onClick="() => this.focusGrid()"
+      onComposerContentFocused="(selection) => this.onTopBarComposerFocused(selection)"
+      focusComposer="focusTopBarComposer"/>
     <Grid
       model="model"
       sidePanelIsOpen="sidePanel.isOpen"
       linkEditorIsOpen="linkEditor.isOpen"
       onLinkEditorClosed="() => this.closeLinkEditor()"
+      onSaveRequested="() => this.save()"
       focusComposer="focusGridComposer"
       exposeFocus="(focus) => this._focusGrid = focus"
       onComposerContentFocused="() => this.onGridComposerContentFocused()"
-      onGridComposerCellFocused="(content, selection) => this.onGridComposerCellFocused(content, selection)"
-      t-att-class="{'o-two-columns': !sidePanel.isOpen}"/>
+      onGridComposerCellFocused="(content, selection) => this.onGridComposerCellFocused(content, selection)"/>
     <SidePanel t-if="sidePanel.isOpen"
            onCloseSidePanel="() => this.sidePanel.isOpen = false"
            component="sidePanel.component"
            panelProps="sidePanel.panelProps"/>
-    <BottomBar onClick="() => this.focusGrid()" class="o-two-columns"/>
+    <BottomBar onClick="() => this.focusGrid()"/>
   </div>`;
 
 const CSS = css/* scss */ `
@@ -95,9 +100,28 @@ interface Props {
   transportService?: TransportService;
   isReadonly?: boolean;
   snapshotRequested?: boolean;
+  exposeModel?: (model: Model) => void;
+  exposeSpreadsheet?: (spreadsheet: Spreadsheet) => void;
+  onUnexpectedRevisionId?: () => void;
+  onContentSaved?: (data: WorkbookData) => void;
 }
 
 const t = (s: string): string => s;
+
+interface SidePanelState {
+  isOpen: boolean;
+  component?: string;
+  panelProps: any;
+}
+
+interface LinkEditorState {
+  isOpen: boolean;
+}
+
+interface ComposerState {
+  topBarFocus: "inactive" | "contentFocus";
+  gridFocusMode: "inactive" | "cellFocus" | "contentFocus";
+}
 
 export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
@@ -105,38 +129,44 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
   static components = { TopBar, Grid, BottomBar, SidePanel, LinkEditor };
   static _t = t;
 
-  model = new Model(
-    this.props.data,
-    {
-      evalContext: { env: this.env },
-      transportService: this.props.transportService,
-      client: this.props.client,
-      isReadonly: this.props.isReadonly,
-      snapshotRequested: this.props.snapshotRequested,
-    },
-    this.props.stateUpdateMessages
-  );
+  model!: Model;
 
-  sidePanel = useState({ isOpen: false, panelProps: {} } as {
-    isOpen: boolean;
-    component?: string;
-    panelProps: any;
-  });
-  linkEditor = useState({ isOpen: false });
-
-  composer = useState({
-    topBarFocus: "inactive",
-    gridFocusMode: "inactive",
-  } as { topBarFocus: "inactive" | "contentFocus"; gridFocusMode: "inactive" | "cellFocus" | "contentFocus" });
+  sidePanel!: SidePanelState;
+  linkEditor!: LinkEditorState;
+  composer!: ComposerState;
 
   private _focusGrid?: () => void;
 
-  private keyDownMapping: { [key: string]: Function } = {
-    "CTRL+H": () => this.toggleSidePanel("FindAndReplace", {}),
-    "CTRL+F": () => this.toggleSidePanel("FindAndReplace", {}),
-  };
-  constructor(parent?: owl.Component<any, SpreadsheetEnv> | null, props: Props = {}) {
-    super(parent, props);
+  private keyDownMapping!: { [key: string]: Function };
+
+  setup() {
+    this.model = new Model(
+      this.props.data,
+      {
+        evalContext: { env: this.env },
+        transportService: this.props.transportService,
+        client: this.props.client,
+        isReadonly: this.props.isReadonly,
+        snapshotRequested: this.props.snapshotRequested,
+      },
+      this.props.stateUpdateMessages
+    );
+    if (this.props.exposeModel) {
+      this.props.exposeModel(this.model);
+    }
+    if (this.props.exposeSpreadsheet) {
+      this.props.exposeSpreadsheet(this);
+    }
+    this.sidePanel = useState({ isOpen: false, panelProps: {} });
+    this.linkEditor = useState({ isOpen: false });
+    this.composer = useState({
+      topBarFocus: "inactive",
+      gridFocusMode: "inactive",
+    });
+    this.keyDownMapping = {
+      "CTRL+H": () => this.toggleSidePanel("FindAndReplace", {}),
+      "CTRL+F": () => this.toggleSidePanel("FindAndReplace", {}),
+    };
     useSubEnv({
       openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
       toggleSidePanel: (panel: string, panelProps: any = {}) =>
@@ -152,15 +182,14 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
       openLinkEditor: () => this.openLinkEditor(),
     });
     this.activateFirstSheet();
-  }
 
-  setup() {
     useExternalListener(window as any, "resize", this.render);
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
     useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
     onMounted(() => this.initiateModelEvents());
     onWillUnmount(() => this.leaveCollaborativeSession());
     onWillUpdateProps((nextProps: Props) => this.checkReadonly(nextProps));
+    onWillDestroy(() => this.model.destroy());
   }
 
   get focusTopBarComposer(): Omit<ComposerFocusType, "cellFocus"> {
@@ -178,7 +207,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
   initiateModelEvents() {
     this.model.on("update", this, this.render);
     this.model.on("notify-ui", this, this.onNotifyUI);
-    this.model.on("unexpected-revision-id", this, () => this.trigger("unexpected-revision-id"));
+    this.model.on("unexpected-revision-id", this, () => this.props.onUnexpectedRevisionId?.());
     if (this.props.client) {
       this.model.joinSession(this.props.client);
     }
@@ -209,11 +238,6 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     if (firstSheet.id !== sheetId) {
       this.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: firstSheet.id });
     }
-  }
-
-  destroy() {
-    this.model.destroy();
-    super.destroy();
   }
 
   openSidePanel(panel: string, panelProps: any) {
@@ -247,9 +271,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
   }
 
   save() {
-    this.trigger("save-content", {
-      data: this.model.exportData(),
-    });
+    this.props.onContentSaved?.(this.model.exportData());
   }
 
   onKeyup(ev: KeyboardEvent) {
@@ -288,7 +310,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     this.composer.topBarFocus = "contentFocus";
     this.composer.gridFocusMode = "inactive";
     this.setComposerContent({ selection } || {});
-    this.env.dispatch("UNFOCUS_SELECTION_INPUT");
+    this.model.dispatch("UNFOCUS_SELECTION_INPUT");
   }
 
   onGridComposerContentFocused() {
@@ -298,7 +320,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "contentFocus";
     this.setComposerContent({});
-    this.env.dispatch("UNFOCUS_SELECTION_INPUT");
+    this.model.dispatch("UNFOCUS_SELECTION_INPUT");
   }
 
   onGridComposerCellFocused(content?: string, selection?: ComposerSelection) {
@@ -308,7 +330,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "cellFocus";
     this.setComposerContent({ content, selection } || {});
-    this.env.dispatch("UNFOCUS_SELECTION_INPUT");
+    this.model.dispatch("UNFOCUS_SELECTION_INPUT");
   }
 
   /**

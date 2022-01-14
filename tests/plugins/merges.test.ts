@@ -1,4 +1,4 @@
-import { Component, hooks, tags } from "@odoo/owl";
+import { Component, mount, useSubEnv, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
@@ -31,9 +31,6 @@ import {
   toPosition,
   XCToMergeCellMap,
 } from "../test_helpers/helpers";
-
-const { xml } = tags;
-const { useSubEnv } = hooks;
 
 function getCellsXC(model: Model): string[] {
   return Object.values(model.getters.getCells(model.getters.getActiveSheetId())).map((cell) => {
@@ -314,9 +311,8 @@ describe("merges", () => {
         return this.spreadsheet.model;
       }
     }
-    const parent = new Parent();
     const fixture = makeTestFixture();
-    await parent.mount(fixture);
+    const parent = await mount(Parent, fixture);
     const model = parent.model;
     setCellContent(model, "B2", "b2");
     model.dispatch("ALTER_SELECTION", { cell: [5, 5] });

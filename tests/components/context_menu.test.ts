@@ -1,5 +1,4 @@
-import { Component, hooks, tags } from "@odoo/owl";
-import { Spreadsheet } from "../../src";
+import { Component, mount, useSubEnv, xml } from "@odoo/owl";
 import { Grid } from "../../src/components/grid";
 import { Menu } from "../../src/components/menu";
 import { HEADER_HEIGHT, HEADER_WIDTH, MENU_ITEM_HEIGHT, TOPBAR_HEIGHT } from "../../src/constants";
@@ -7,7 +6,7 @@ import { toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
-import { ConditionalFormat, SpreadsheetEnv } from "../../src/types";
+import { ConditionalFormat } from "../../src/types";
 import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
@@ -17,11 +16,9 @@ import {
   MockClipboard,
   mountSpreadsheet,
   nextTick,
+  Parent,
   Touch,
 } from "../test_helpers/helpers";
-
-const { xml } = tags;
-const { useSubEnv } = hooks;
 
 let fixture: HTMLElement;
 let parent: Component;
@@ -42,7 +39,7 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
-  parent.destroy();
+  parent.__owl__.destroy();
   fixture.remove();
 });
 
@@ -109,8 +106,16 @@ async function renderContextMenu(
 ): Promise<[number, number]> {
   // x, y are relative to the upper left grid corner, but the menu
   // props must take the top bar into account.
-  parent = new ContextMenuParent(x, y + TOPBAR_HEIGHT, width, height, new Model(), testConfig);
-  await parent.mount(fixture);
+  parent = await mount(ContextMenuParent, fixture, {
+    props: {
+      x,
+      y: y + TOPBAR_HEIGHT,
+      width,
+      height,
+      model: new Model(),
+      config: testConfig,
+    },
+  });
   await nextTick();
   return [x, y];
 }
@@ -146,7 +151,7 @@ jest
     return originalGetBoundingClientRect.call(this);
   });
 
-class ContextMenuParent extends Component<any, SpreadsheetEnv> {
+class ContextMenuParent extends Component {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
       <Menu
@@ -157,34 +162,31 @@ class ContextMenuParent extends Component<any, SpreadsheetEnv> {
     </div>
   `;
   static components = { Menu };
-  menus: FullMenuItem[];
-  position: { x: number; y: number; width: number; height: number };
-  onClose: () => void;
+  menus!: FullMenuItem[];
+  position!: { x: number; y: number; width: number; height: number };
+  onClose!: () => void;
 
-  constructor(
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    model: Model,
-    { onClose, menuItems }: ContextMenuTestConfig = {}
-  ) {
-    super();
+  setup() {
     useSubEnv({
-      getters: model.getters,
+      getters: this.props.model.getters,
     });
-    this.onClose = onClose || (() => {});
-    this.position = { x, y, width, height };
-    this.menus = menuItems || [
+    this.onClose = this.props.config.onClose || (() => {});
+    this.position = {
+      x: this.props.x,
+      y: this.props.y,
+      width: this.props.width,
+      height: this.props.height,
+    };
+    this.menus = this.props.config.menuItems || [
       createFullMenuItem("Action", {
         name: "Action",
         sequence: 1,
         action() {},
       }),
     ];
-    model.dispatch("RESIZE_VIEWPORT", {
-      height: height - HEADER_HEIGHT,
-      width: width - HEADER_WIDTH,
+    this.props.model.dispatch("RESIZE_VIEWPORT", {
+      height: this.props.height - HEADER_HEIGHT,
+      width: this.props.width - HEADER_WIDTH,
     });
   }
 }
@@ -503,7 +505,7 @@ describe("Context Menu", () => {
   });
 
   test("scroll through the menu with the wheel / scrollbar prevents the grid from scrolling", async () => {
-    const grid = getChildFromComponent(parent as Spreadsheet, Grid);
+    const grid = getChildFromComponent((parent as Parent).spreadsheet, Grid);
     const verticalScrollBar = grid["vScrollbar"];
     const horizontalScrollBar = grid["hScrollbar"];
     expect(verticalScrollBar.scroll).toBe(0);
@@ -526,7 +528,7 @@ describe("Context Menu", () => {
   });
 
   test("scroll through the menu with the touch device prevents the grid from scrolling", async () => {
-    const grid = getChildFromComponent(parent as Spreadsheet, Grid);
+    const grid = getChildFromComponent((parent as Parent).spreadsheet, Grid);
     const verticalScrollBar = grid["vScrollbar"];
     const horizontalScrollBar = grid["hScrollbar"];
     expect(verticalScrollBar.scroll).toBe(0);

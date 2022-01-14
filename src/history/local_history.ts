@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { EventBus } from "@odoo/owl";
 import { Session } from "../collaborative/session";
 import { MAX_HISTORY_STEPS } from "../constants";
 import {
@@ -17,7 +17,7 @@ import {
  * It maintains the local undo and redo stack to allow to undo/redo only local
  * changes
  */
-export class LocalHistory extends owl.core.EventBus implements CommandHandler<Command> {
+export class LocalHistory extends EventBus implements CommandHandler<Command> {
   /**
    * Ids of the revisions which can be undone
    */

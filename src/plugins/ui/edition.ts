@@ -294,7 +294,7 @@ export class EditionPlugin extends UIPlugin {
     const { top, left } = updateSelectionOnDeletion(
       { left: this.col, right: this.col, top: this.row, bottom: this.row },
       "left",
-      cmd.elements
+      [...cmd.elements]
     );
     this.col = left;
     this.row = top;
@@ -312,7 +312,7 @@ export class EditionPlugin extends UIPlugin {
     const { top, left } = updateSelectionOnDeletion(
       { left: this.col, right: this.col, top: this.row, bottom: this.row },
       "top",
-      cmd.elements
+      [...cmd.elements]
     );
     this.col = left;
     this.row = top;

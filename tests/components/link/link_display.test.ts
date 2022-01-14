@@ -1,23 +1,23 @@
-import { Model, Spreadsheet } from "../../../src";
+import { Model } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
 import { clearCell, createSheet, setCellContent } from "../../test_helpers/commands_helpers";
 import { clickCell, rightClickCell, simulateClick } from "../../test_helpers/dom_helper";
 import { getCell } from "../../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick, Parent } from "../../test_helpers/helpers";
 
 describe("link display component", () => {
   let fixture: HTMLElement;
   let model: Model;
-  let grid: Spreadsheet;
+  let parent: Parent;
 
   beforeEach(async () => {
     fixture = makeTestFixture();
-    grid = await mountSpreadsheet(fixture);
-    model = grid.model;
+    parent = await mountSpreadsheet(fixture);
+    model = parent.model;
   });
 
   afterEach(() => {
-    grid.destroy();
+    parent.__owl__.destroy();
     fixture.remove();
   });
 
@@ -89,7 +89,7 @@ describe("link display component", () => {
     setCellContent(model, "A1", "[label](url.com)");
     await clickCell(model, "A1");
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
-    grid.env.openSidePanel("FindAndReplace");
+    parent.getSpreadsheetEnv().openSidePanel("FindAndReplace");
     await nextTick();
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
   });

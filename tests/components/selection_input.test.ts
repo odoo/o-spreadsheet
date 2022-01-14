@@ -1,12 +1,9 @@
-import { Component, hooks, tags } from "@odoo/owl";
+import { Component, mount, onMounted, onWillUnmount, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { SelectionInput } from "../../src/components/selection_input";
 import { activateSheet, createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { getChildFromComponent, makeTestFixture, nextTick } from "../test_helpers/helpers";
-
-const { xml } = tags;
-const { useSubEnv, useRef, onMounted, onWillUnmount } = hooks;
 
 let model: Model;
 let fixture: HTMLElement;
@@ -36,27 +33,13 @@ class Parent extends Component<any> {
     <SelectionInput
       ranges="initialRanges"
       hasSingleRange="hasSingleRange"
-      t-on-selection-changed="onChanged"/>
+      onSelectionChanged="(ranges) => this.onChanged(ranges)" />
   `;
   static components = { SelectionInput };
-  model: Model;
+  model!: Model;
   initialRanges: string[] | undefined;
   hasSingleRange: boolean | undefined;
-  ref = useRef("selection-input");
-  onChanged: jest.Mock<void, [any]>;
-
-  constructor(model: Model, config: SelectionInputTestConfig) {
-    super();
-    useSubEnv({
-      dispatch: model.dispatch,
-      getters: model.getters,
-      uuidGenerator: model.uuidGenerator,
-    });
-    this.initialRanges = config.initialRanges;
-    this.hasSingleRange = config.hasSingleRange;
-    this.model = model;
-    this.onChanged = config.onChanged || jest.fn();
-  }
+  onChanged!: jest.Mock<void, [any]>;
 
   get id(): string {
     const selectionInput = getChildFromComponent(this, SelectionInput);
@@ -64,6 +47,15 @@ class Parent extends Component<any> {
   }
 
   setup() {
+    useSubEnv({
+      dispatch: this.props.model.dispatch,
+      getters: this.props.model.getters,
+      uuidGenerator: this.props.model.uuidGenerator,
+    });
+    this.initialRanges = this.props.config.initialRanges;
+    this.hasSingleRange = this.props.config.hasSingleRange;
+    this.model = model;
+    this.onChanged = this.props.config.onChanged || jest.fn();
     onMounted(() => {
       this.model.on("update", this, this.render);
       this.render();
@@ -84,31 +76,24 @@ class MultiParent extends Component<any> {
     </div>
   `;
   static components = { SelectionInput };
-  model: Model;
-
-  constructor(model: Model) {
-    super();
-    useSubEnv({
-      dispatch: model.dispatch,
-      getters: model.getters,
-      uuidGenerator: model.uuidGenerator,
-    });
-    this.model = model;
-  }
 
   setup() {
-    onMounted(() => {
-      this.model.on("update", this, this.render);
-      this.render();
+    useSubEnv({
+      dispatch: this.props.model.dispatch,
+      getters: this.props.model.getters,
+      uuidGenerator: this.props.model.uuidGenerator,
     });
-    onWillUnmount(() => this.model.off("update", this));
+    onMounted(() => {
+      this.props.model.on("update", this, this.render);
+      this.__owl__.render();
+    });
+    onWillUnmount(() => this.props.model.off("update", this));
   }
 }
 
 async function createSelectionInput(config: SelectionInputTestConfig = {}) {
   model = new Model();
-  const parent = new Parent(model, config);
-  await parent.mount(fixture);
+  const parent = await mount(Parent, fixture, { props: { model, config } });
   await nextTick();
   const id = parent.id;
   return { parent, model, id };
@@ -199,7 +184,7 @@ describe("Selection Input", () => {
   test("unmounting deletes the state", async () => {
     const { parent, model, id } = await createSelectionInput();
     expect(model.getters.getSelectionInput(id).length).toBe(1);
-    parent.unmount();
+    parent.__owl__.destroy();
     expect(model.getters.getSelectionInput(id).length).toBe(0);
   });
 
@@ -237,8 +222,8 @@ describe("Selection Input", () => {
 
   test("changed event is triggered when input changed", async () => {
     let newRanges;
-    const onChanged = jest.fn(({ detail }) => {
-      newRanges = detail.ranges;
+    const onChanged = jest.fn((ranges) => {
+      newRanges = ranges;
     });
     await createSelectionInput({ onChanged });
     await writeInput(0, "C2");
@@ -248,8 +233,8 @@ describe("Selection Input", () => {
 
   test("changed event is triggered when cell is selected", async () => {
     let newRanges;
-    const onChanged = jest.fn(({ detail }) => {
-      newRanges = detail.ranges;
+    const onChanged = jest.fn((ranges) => {
+      newRanges = ranges;
     });
     const { model } = await createSelectionInput({ onChanged });
     selectCell(model, "B4");
@@ -260,8 +245,7 @@ describe("Selection Input", () => {
 
   test("focus is transferred from one input to another", async () => {
     model = new Model();
-    const parent = new MultiParent(model);
-    await parent.mount(fixture);
+    await mount(MultiParent, fixture, { props: { model } });
     await nextTick();
     expect(fixture.querySelector(".input-1 .o-focused")).toBeTruthy();
     expect(fixture.querySelector(".input-2 .o-focused")).toBeFalsy();
