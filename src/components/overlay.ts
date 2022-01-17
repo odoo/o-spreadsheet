@@ -400,6 +400,10 @@ export class ColResizer extends AbstractResizer {
         z-index: 1;
         background-color: lightgrey;
       }
+      .o-unhide > svg {
+        position: relative;
+        top: calc(${UNHIDE_ICON_EDGE_LENGTH}px / 2 - ${ICON_EDGE_LENGTH}px / 2);
+      }
     }
   `;
 

@@ -32,7 +32,9 @@ cellRegistry
       const formula = normalize(content);
       const normalizedText = formula.text;
       const compiledFormula = compile(formula);
-      const ranges = formula.dependencies.map((xc) => getters.getRangeFromSheetXC(sheetId, xc));
+      const ranges = formula.dependencies.references.map((xc) =>
+        getters.getRangeFromSheetXC(sheetId, xc)
+      );
       const format = properties.format || getters.inferFormulaFormat(compiledFormula, ranges);
       return new FormulaCell(
         (normalizedText, dependencies) =>
@@ -40,7 +42,7 @@ cellRegistry
         id,
         normalizedText,
         compiledFormula,
-        ranges,
+        { ...formula.dependencies, references: ranges },
         {
           ...properties,
           format,

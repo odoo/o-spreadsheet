@@ -72,8 +72,8 @@ export function addRows(
         let additionalAttrs: XMLAttributes = [];
         let cellNode = escapeXml``;
         // Either formula or static value inside the cell
-        if (cell.formula) {
-          ({ attrs: additionalAttrs, node: cellNode } = addFormula(cell.formula));
+        if (cell.isFormula) {
+          ({ attrs: additionalAttrs, node: cellNode } = addFormula(cell));
         } else if (cell.content && isMarkdownLink(cell.content)) {
           const { label } = parseMarkdownLink(cell.content);
           ({ attrs: additionalAttrs, node: cellNode } = addContent(label, construct.sharedStrings));

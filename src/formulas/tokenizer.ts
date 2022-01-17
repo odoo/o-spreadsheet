@@ -1,4 +1,4 @@
-import { INCORRECT_RANGE_STRING } from "../constants";
+import { FORMULA_REF_IDENTIFIER, INCORRECT_RANGE_STRING } from "../constants";
 import { functionRegistry } from "../functions/index";
 import { formulaNumberRegexp } from "../helpers/index";
 import { _lt } from "../translation";
@@ -20,6 +20,7 @@ import { _lt } from "../translation";
  * formulas.
  */
 
+const dependencyIdentifierRegex = /^[S|N]?\d+/;
 const functions = functionRegistry.content;
 const OPERATORS = "+,-,*,/,:,=,<>,>=,>,<=,<,%,^,&".split(",");
 
@@ -37,6 +38,8 @@ export type TokenType =
   | "RIGHT_PAREN"
   | "REFERENCE"
   | "INVALID_REFERENCE"
+  | "NORMALIZED_NUMBER"
+  | "NORMALIZED_STRING"
   | "UNKNOWN";
 
 export interface Token {
@@ -62,11 +65,11 @@ export function tokenize(str: string): Token[] {
       tokenizeSpace(chars) ||
       tokenizeMisc(chars) ||
       tokenizeOperator(chars) ||
-      tokenizeNumber(chars) ||
       tokenizeString(chars) ||
       tokenizeDebugger(chars) ||
       tokenizeNormalizedReferences(chars) ||
       tokenizeInvalidRange(chars) ||
+      tokenizeNumber(chars) ||
       tokenizeSymbol(chars);
 
     if (!token) {
@@ -78,12 +81,10 @@ export function tokenize(str: string): Token[] {
   return result;
 }
 
-export const FORMULA_REF_IDENTIFIER = "|";
-
 function tokenizeNormalizedReferences(chars: string[]): Token | null {
   if (chars[0] === FORMULA_REF_IDENTIFIER) {
     chars.shift(); // consume the | even if it is incorrect
-    const match = chars.join("").match(formulaNumberRegexp);
+    const match = chars.join("").match(dependencyIdentifierRegex);
     if (match) {
       chars.splice(0, match[0].length);
     } else {
@@ -92,7 +93,15 @@ function tokenizeNormalizedReferences(chars: string[]): Token | null {
     if (chars[0] === FORMULA_REF_IDENTIFIER) {
       chars.shift();
     }
-    return { type: "REFERENCE", value: match[0] };
+    const value = match[0];
+    switch (value[0]) {
+      case "S":
+        return { type: "NORMALIZED_STRING", value: value.substring(1) };
+      case "N":
+        return { type: "NORMALIZED_NUMBER", value: value.substring(1) };
+      default:
+        return { type: "REFERENCE", value };
+    }
   }
   return null;
 }

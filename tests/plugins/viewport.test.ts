@@ -186,6 +186,24 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
+  test("can horizontal scroll on sheet smaller than viewport", () => {
+    model = new Model({
+      sheets: [{ rowNumber: 2 }],
+    });
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: DEFAULT_CELL_WIDTH * 2,
+      offsetY: 0,
+    });
+    expect(model.getters.getActiveViewport()).toMatchObject({
+      top: 0,
+      bottom: 1,
+      left: 2,
+      right: 12,
+      offsetX: DEFAULT_CELL_WIDTH * 2,
+      offsetY: 0,
+    });
+  });
+
   test("Vertical scroll correctly affects offset", () => {
     model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
@@ -239,6 +257,24 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
+  test("can vertical scroll on sheet smaller than viewport", () => {
+    model = new Model({
+      sheets: [{ colNumber: 2 }],
+    });
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: 0,
+      offsetY: DEFAULT_CELL_HEIGHT * 2,
+    });
+    expect(model.getters.getActiveViewport()).toMatchObject({
+      top: 2,
+      bottom: 45,
+      left: 0,
+      right: 1,
+      offsetX: 0,
+      offsetY: DEFAULT_CELL_HEIGHT * 2,
+    });
+  });
+
   test("cannot set offset outside of the grid", () => {
     // negative
     const negativeOffsetResult = model.dispatch("SET_VIEWPORT_OFFSET", {
@@ -249,11 +285,11 @@ describe("Viewport of Simple sheet", () => {
 
     // too large
     model.dispatch("RESIZE_VIEWPORT", { height: 1000, width: 1000 });
-    const { height } = model.getters.getMaxViewportSize(model.getters.getActiveSheet());
+    const { maxOffsetY } = model.getters.getMaximumViewportOffset(model.getters.getActiveSheet());
 
     const tooLargeOffsetResult = model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
-      offsetY: height - 1000 + 1,
+      offsetY: maxOffsetY + 1,
     });
     expect(tooLargeOffsetResult).toBeCancelledBecause(CommandResult.InvalidOffset);
   });

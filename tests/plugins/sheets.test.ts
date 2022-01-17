@@ -17,7 +17,6 @@ import {
   setCellContent,
   undo,
   unMerge,
-  updateChart,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers";
@@ -733,79 +732,6 @@ describe("sheets", () => {
     const figure2 = model.getters.getFigures("42");
     expect(figure1).toEqual([{ height: 335, id: chartId, tag: "chart", width: 536, x: 40, y: 0 }]);
     expect(figure2).toMatchObject([{ height: 335, tag: "chart", width: 536, x: 0, y: 0 }]);
-  });
-
-  test("Charts are correctly duplicated", () => {
-    const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
-    const chartId = "1234";
-    createChart(
-      model,
-      {
-        dataSets: ["Sheet1!B1:B4"],
-        labelRange: "Sheet1!A2:A4",
-        title: "test 1",
-        type: "line",
-      },
-      chartId
-    );
-    model.dispatch("DUPLICATE_SHEET", { sheetId: sheetId, sheetIdTo: "42" });
-    updateChart(model, chartId, {
-      title: "hello1",
-      dataSets: ["Sheet1!B1:B3"],
-      dataSetsHaveTitle: true,
-      labelRange: "Sheet1!A2:A3",
-      type: "bar",
-    });
-    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
-      dataSets: [
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("B1:B3"),
-          },
-          labelCell: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("B1"),
-          },
-        },
-      ],
-      labelRange: {
-        prefixSheet: true,
-        sheetId,
-        zone: toZone("A2:A3"),
-      },
-      sheetId,
-      title: "hello1",
-      type: "bar",
-    });
-    const duplicatedFigure = model.getters.getFigures("42")[0];
-    expect(model.getters.getChartDefinition(duplicatedFigure.id)).toMatchObject({
-      dataSets: [
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("B1:B4"),
-          },
-          labelCell: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("B1"),
-          },
-        },
-      ],
-      labelRange: {
-        prefixSheet: true,
-        sheetId,
-        zone: toZone("A2:A4"),
-      },
-      sheetId,
-      title: "test 1",
-      type: "line",
-    });
   });
 
   test("Cols and Rows are correctly duplicated", () => {

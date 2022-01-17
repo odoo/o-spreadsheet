@@ -208,7 +208,7 @@ function thresholdAttributes(
     if (type === "formula") {
       try {
         checkRelativeReferences(threshold.value!);
-        val = adaptFormulaToExcel(normalize(threshold.value!));
+        val = adaptFormulaToExcel(threshold.value!);
       } catch (error) {
         val = threshold.value!;
       }
@@ -247,7 +247,7 @@ function getExcelThresholdType(
  */
 function checkRelativeReferences(formula: string) {
   const { dependencies } = normalize(formula);
-  if (dependencies.length) {
+  if (dependencies.references.length) {
     console.warn(
       "Relative references might not work in conditional format formula thresholds in Excel."
     );

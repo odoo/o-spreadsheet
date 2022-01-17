@@ -1,18 +1,30 @@
-import { ExcelChartDefinition } from "./chart";
+import { CellValue, ExcelChartDefinition } from ".";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Border, Style, UID } from "./misc";
 
+export interface Dependencies {
+  references: string[];
+  numbers: number[];
+  strings: string[];
+}
+
+/**
+ * Represents a string in which all range references, strings and numbers are
+ * replaced by dependencies references.
+ */
+export type NormalizedFormulaString = string;
+
 export type NormalizedFormula = {
   // if the content is a formula (ex. =sum(  a1:b3, 3) + a1, should be stored as
-  // {formula: "=sum(  |ref1|, 3) + |ref2|"), ["a1:b3","a1"]
-  text: string;
-  dependencies: string[];
+  // {formula: "=sum(  |ref1|, |ref2|) + |ref3|"), ["a1:b3","a1"]
+  // This normalization applies to range references, numbers and string values
+  text: NormalizedFormulaString;
+  dependencies: Dependencies;
   value?: any;
 };
 
 export interface CellData {
   content?: string;
-  formula?: NormalizedFormula;
   style?: number;
   border?: number;
   format?: string;
@@ -60,6 +72,11 @@ export interface ExcelWorkbookData extends WorkbookData {
   sheets: ExcelSheetData[];
 }
 
+export interface ExcelCellData extends CellData {
+  value: CellValue;
+  isFormula: Boolean;
+}
 export interface ExcelSheetData extends SheetData {
+  cells: { [key: string]: ExcelCellData | undefined };
   charts: FigureData<ExcelChartDefinition>[];
 }

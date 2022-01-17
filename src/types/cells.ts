@@ -11,6 +11,12 @@ export enum CellValueType {
 
 export type CellValue = string | number | boolean;
 
+export interface CellDependencies {
+  references: Range[];
+  strings: string[];
+  numbers: number[];
+}
+
 export interface ICell {
   readonly id: UID;
   /**
@@ -52,7 +58,7 @@ export interface FormulaCell extends ICell {
   startEvaluation: () => void;
   readonly normalizedText: string;
   readonly compiledFormula: CompiledFormula;
-  readonly dependencies: Range[];
+  readonly dependencies: CellDependencies;
 }
 
 /**
