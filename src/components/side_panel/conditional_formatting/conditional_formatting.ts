@@ -763,8 +763,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     this.closeMenus();
   }
 
-  setColor(target: string, ev: CustomEvent) {
-    const color = ev.detail.color;
+  setColor(target: string, color: string) {
     this.state.rules.cellIs.style[target] = color;
     this.closeMenus();
   }
@@ -799,8 +798,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     }
   }
 
-  setColorScaleColor(target: string, ev: CustomEvent) {
-    const color: string = ev.detail.color;
+  setColorScaleColor(target: string, color: string) {
     const point = this.state.rules.colorScale[target];
     if (point) {
       point.color = Number.parseInt(color.substr(1), 16);
@@ -879,7 +877,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     icons.lower = this.iconSets[iconSet].bad;
   }
 
-  setIcon(target: "upper" | "middle" | "lower", ev: CustomEvent) {
-    this.state.rules.iconSet.icons[target] = ev.detail.icon;
+  setIcon(target: "upper" | "middle" | "lower", icon: string) {
+    this.state.rules.iconSet.icons[target] = icon;
   }
 }

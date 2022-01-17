@@ -317,7 +317,8 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
     }
     const type = this._getType();
     const { x, y } = this._getXY(ev);
-    this.trigger("open-contextmenu", { type, x, y });
+    // todo: define props
+    this.props.onOpenContextMenu(type, x, y);
   }
 }
 
@@ -796,8 +797,8 @@ export class RowResizer extends AbstractResizer {
 export class Overlay extends Component<any, SpreadsheetEnv> {
   static template = xml/* xml */ `
     <div class="o-overlay">
-      <ColResizer />
-      <RowResizer />
+      <ColResizer onOpenContextMenu="props.onOpenContextMenu" />
+      <RowResizer onOpenContextMenu="props.onOpenContextMenu" />
       <div class="all" t-on-mousedown.self="selectAll"/>
     </div>`;
 

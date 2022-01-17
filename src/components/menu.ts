@@ -63,7 +63,8 @@ const TEMPLATE = xml/* xml */ `
         position="subMenuPosition"
         menuItems="subMenu.menuItems"
         depth="props.depth + 1"
-        t-on-close="subMenu.isOpen=false"/>
+        onMenuClicked="props.onMenuClicked"
+        onClose="() => this.close()"/>
     </Popover>`;
 
 const CSS = css/* scss */ `
@@ -120,6 +121,8 @@ interface Props {
   position: DOMCoordinates;
   menuItems: FullMenuItem[];
   depth: number;
+  onClose: () => void;
+  onMenuClicked?: (ev: CustomEvent) => void;
 }
 
 export interface MenuState {
@@ -180,12 +183,12 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   async activateMenu(menu: FullMenuItem) {
     const result = await menu.action(this.env);
     this.close();
-    this.trigger(`menu-clicked`, result);
+    this.props.onMenuClicked?.({ detail: result } as CustomEvent);
   }
 
   private close() {
     this.subMenu.isOpen = false;
-    this.trigger("close");
+    this.props.onClose();
   }
 
   /**

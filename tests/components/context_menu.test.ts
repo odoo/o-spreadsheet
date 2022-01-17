@@ -150,7 +150,7 @@ class ContextMenuParent extends Component<any, SpreadsheetEnv> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
       <Menu
-        t-on-close="onClose"
+        onClose="() => this.onClose()"
         position="position"
         menuItems="menus"
       />

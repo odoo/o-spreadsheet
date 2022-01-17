@@ -14,7 +14,7 @@ afterEach(() => {
 
 describe("Color Picker tests", () => {
   test("Color picker is correctly positioned right without props given", async () => {
-    colorPicker = new ColorPicker(null, {});
+    colorPicker = new ColorPicker(null, { onColorPicked: () => ({}) });
     await colorPicker.mount(fixture);
     expect(document.querySelector(".o-color-picker")?.classList).toContain("right");
     expect(document.querySelector(".o-color-picker")?.classList).not.toContain("left");
@@ -22,7 +22,7 @@ describe("Color Picker tests", () => {
   });
 
   test("Color picker is correctly positioned right", async () => {
-    colorPicker = new ColorPicker(null, { dropdownDirection: "right" });
+    colorPicker = new ColorPicker(null, { dropdownDirection: "right", onColorPicked: () => ({}) });
     await colorPicker.mount(fixture);
     expect(document.querySelector(".o-color-picker")?.classList).toContain("right");
     expect(document.querySelector(".o-color-picker")?.classList).not.toContain("left");
@@ -30,7 +30,7 @@ describe("Color Picker tests", () => {
   });
 
   test("Color picker is correctly positioned left", async () => {
-    colorPicker = new ColorPicker(null, { dropdownDirection: "left" });
+    colorPicker = new ColorPicker(null, { dropdownDirection: "left", onColorPicked: () => ({}) });
     await colorPicker.mount(fixture);
     expect(document.querySelector(".o-color-picker")?.classList).toContain("left");
     expect(document.querySelector(".o-color-picker")?.classList).not.toContain("right");
@@ -38,7 +38,7 @@ describe("Color Picker tests", () => {
   });
 
   test("Color picker is correctly centered", async () => {
-    colorPicker = new ColorPicker(null, { dropdownDirection: "center" });
+    colorPicker = new ColorPicker(null, { dropdownDirection: "center", onColorPicked: () => ({}) });
     await colorPicker.mount(fixture);
     expect(document.querySelector(".o-color-picker")?.classList).toContain("center");
     expect(document.querySelector(".o-color-picker")?.classList).not.toContain("right");

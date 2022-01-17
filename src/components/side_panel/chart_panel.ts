@@ -68,7 +68,7 @@ const DESIGN_TEMPLATE = xml/* xml */ `
       <t t-esc="env._t('${chartTerms.SelectColor}')"/>
       <span t-attf-style="border-color:{{state.chart.background}}"
             t-on-click.stop="toggleColorPicker">${icons.FILL_COLOR_ICON}</span>
-      <ColorPicker t-if="state.fillColorTool" t-on-color-picked="setColor" t-key="backgroundColor"/>
+      <ColorPicker t-if="state.fillColorTool" onColorPicked="(color) => this.setColor(color)" t-key="backgroundColor"/>
     </div>
   </div>
   <div class="o-section o-chart-title">
@@ -152,6 +152,7 @@ const STYLE = css/* scss */ `
 
 interface Props {
   figure: Figure;
+  onCloseSidePanel: () => void;
 }
 
 interface ChartPanelState {
@@ -173,7 +174,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   setup() {
     onWillUpdateProps((nextProps: Props) => {
       if (!this.getters.getChartDefinition(nextProps.figure.id)) {
-        this.trigger("close-side-panel");
+        this.props.onCloseSidePanel();
         return;
       }
       if (nextProps.figure.id !== this.props.figure.id) {
@@ -260,8 +261,8 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
     this.state.fillColorTool = !this.state.fillColorTool;
   }
 
-  setColor(ev: CustomEvent) {
-    this.state.chart.background = ev.detail.color;
+  setColor(color: string) {
+    this.state.chart.background = color;
     this.state.fillColorTool = false;
     this.updateChart({ background: this.state.chart.background });
   }

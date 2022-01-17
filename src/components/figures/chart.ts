@@ -20,7 +20,7 @@ const TEMPLATE = xml/* xml */ `
   <Menu t-if="menuState.isOpen"
     position="menuState.position"
     menuItems="menuState.menuItems"
-    t-on-close="menuState.isOpen=false"/>
+    onClose="() => this.menuState.isOpen=false"/>
 </div>`;
 
 // -----------------------------------------------------------------------------
@@ -52,6 +52,7 @@ const CSS = css/* scss */ `
 interface Props {
   figure: Figure;
   sidePanelIsOpen: boolean;
+  onFigureDeleted: () => void;
 }
 
 interface State {
@@ -142,7 +143,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
         if (this.props.sidePanelIsOpen) {
           this.env.toggleSidePanel("ChartPanel", { figure: this.props.figure });
         }
-        this.trigger("figure-deleted");
+        this.props.onFigureDeleted();
       },
     });
     registry.add("refresh", {

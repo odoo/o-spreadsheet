@@ -75,7 +75,7 @@ const TEMPLATE = xml/* xml */ `
         exposeAPI="(api) => this.autocompleteAPI = api"
         search="autoCompleteState.search"
         provider="autoCompleteState.provider"
-        t-on-completed="onCompleted"
+        onCompleted="(text) => this.onCompleted(text)"
         borderStyle="borderStyle"
     />
     <FunctionDescriptionProvider
@@ -133,6 +133,9 @@ interface Props {
   rect?: Rect;
   delimitation?: Dimension;
   focus: "inactive" | "cellFocus" | "contentFocus";
+  onComposerUnmounted?: () => void;
+  onKeyDown?: (ev: KeyboardEvent) => void;
+  onComposerContentFocused: (selection: { start: number; end: number }) => void;
 }
 
 interface ComposerState {
@@ -245,7 +248,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
 
     onWillUnmount(() => {
       delete DEBUG.composer;
-      this.trigger("composer-unmounted");
+      this.props.onComposerUnmounted?.();
     });
 
     onPatched(() => {
@@ -326,15 +329,20 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
 
   onKeydown(ev: KeyboardEvent) {
     let handler = this.keyMapping[ev.key];
+    let isStopped = false;
     if (handler) {
       handler.call(this, ev);
     } else {
+      isStopped = true;
       ev.stopPropagation();
     }
     const { start, end } = this.contentHelper.getCurrentSelection();
     if (!this.getters.isSelectingForComposer()) {
       this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
       this.isKeyStillDown = true;
+    }
+    if (!isStopped) {
+      this.props.onKeyDown?.(ev);
     }
   }
 
@@ -407,9 +415,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
 
     this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     if (this.props.focus === "inactive") {
-      this.trigger("composer-content-focused", {
-        selection: newSelection,
-      });
+      this.props.onComposerContentFocused(newSelection);
     }
     this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", newSelection);
     this.processTokenAtCursor();
@@ -419,8 +425,8 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     this.isKeyStillDown = false;
   }
 
-  onCompleted(ev: CustomEvent) {
-    this.autoComplete(ev.detail.text);
+  onCompleted(text: string | undefined) {
+    text && this.autoComplete(text);
   }
 
   // ---------------------------------------------------------------------------

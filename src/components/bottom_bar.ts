@@ -15,7 +15,7 @@ const { useState, onMounted, onPatched } = owl.hooks;
 // -----------------------------------------------------------------------------
 
 const TEMPLATE = xml/* xml */ `
-  <div class="o-spreadsheet-bottom-bar">
+  <div class="o-spreadsheet-bottom-bar" t-on-click="props.onClick()">
     <div class="o-sheet-item o-add-sheet" t-att-class="{'disabled': getters.isReadonly()}" t-on-click="addSheet">${PLUS}</div>
     <div class="o-sheet-item o-list-sheets" t-on-click="listSheets">${LIST}</div>
     <div class="o-all-sheets">
@@ -40,7 +40,7 @@ const TEMPLATE = xml/* xml */ `
     <Menu t-if="menuState.isOpen"
           position="menuState.position"
           menuItems="menuState.menuItems"
-          t-on-close="menuState.isOpen=false"/>
+          onClose="() => this.menuState.isOpen=false"/>
   </div>`;
 
 const CSS = css/* scss */ `
@@ -134,7 +134,11 @@ const CSS = css/* scss */ `
   }
 `;
 
-export class BottomBar extends Component<{}, SpreadsheetEnv> {
+interface Props {
+  onClick: () => void;
+}
+
+export class BottomBar extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { Menu };

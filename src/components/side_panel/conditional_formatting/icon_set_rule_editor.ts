@@ -32,7 +32,7 @@ const INFLECTION_POINTS_TEMPLATE_ROW = xml/* xml */ `
           <t t-raw="icons[iconValue].svg"/>
         </div>
       </div>
-      <IconPicker t-if="state.openedMenu === 'iconSet-'+icon+'Icon'" t-on-icon-picked="setIcon(icon)"/>
+      <IconPicker t-if="state.openedMenu === 'iconSet-'+icon+'Icon'" onIconPicked="(i) => this.setIcon(icon, i)"/>
     </td>
     <td>
       <t t-esc="env._t('${iconSetRule.WhenValueIs}')"/>
@@ -105,7 +105,7 @@ const INFLECTION_POINTS_TEMPLATE = xml/* xml */ `
             <t t-raw="icons[rule.icons.lower].svg"/>
           </div>
         </div>
-        <IconPicker t-if="state.openedMenu === 'iconSet-lowerIcon'" t-on-icon-picked="setIcon('lower')"/>
+        <IconPicker t-if="state.openedMenu === 'iconSet-lowerIcon'" onIconPicked="(icon) => setIcon('lower', icon)"/>
       </td>
       <td><t t-esc="env._t('${iconSetRule.Else}')"/></td>
       <td></td>

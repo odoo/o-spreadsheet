@@ -20,6 +20,7 @@ import {
 } from "../helpers/index";
 import { interactivePaste } from "../helpers/ui/paste";
 import { Model } from "../model";
+import { ComposerSelection } from "../plugins/ui/edition";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
@@ -180,7 +181,7 @@ const TEMPLATE = xml/* xml */ `
   <div class="o-grid" t-on-click="focus" t-on-keydown="onKeydown" t-on-wheel="onMouseWheel">
     <t t-if="getters.getEditionMode() !== 'inactive'">
       <GridComposer
-        t-on-composer-unmounted="focus"
+        onComposerUnmounted="() => this.focus()"
         focus="props.focusComposer"
         />
     </t>
@@ -221,7 +222,7 @@ const TEMPLATE = xml/* xml */ `
       flipVerticalOffset="-popoverPosition.cellHeight"
       childWidth="${LINK_EDITOR_WIDTH}"
       childHeight="${LINK_EDITOR_HEIGHT}">
-      <LinkEditor cellPosition="activeCellPosition"/>
+      <LinkEditor cellPosition="activeCellPosition" onLinkEditorClosed="props.onLinkEditorClosed"/>
     </Popover>
     <t t-if="getters.getEditionMode() === 'inactive'">
       <Autofill position="getAutofillPosition()"/>
@@ -233,13 +234,13 @@ const TEMPLATE = xml/* xml */ `
         </t>
       </t>
     </t>
-    <Overlay t-on-open-contextmenu="onOverlayContextMenu" />
+    <Overlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)" />
     <Menu t-if="menuState.isOpen"
       menuItems="menuState.menuItems"
       position="menuState.position"
-      t-on-close.stop="menuState.isOpen=false"/>
+      onClose="() => this.menuState.isOpen=false"/>
     <t t-set="gridSize" t-value="getters.getMaxViewportSize(getters.getActiveSheet())"/>
-    <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" t-on-figure-deleted="focus" />
+    <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" onFigureDeleted="() => this.focus()" />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
       <div t-attf-style="width:1px;height:{{gridSize.height}}px"/>
     </div>
@@ -292,6 +293,9 @@ interface Props {
   model: Model;
   linkEditorIsOpen: boolean;
   exposeFocus: (focus: () => void) => void;
+  onComposerContentFocused: () => void;
+  onGridComposerCellFocused: (content?: string, selection?: ComposerSelection) => void;
+  onLinkEditorClosed: () => void;
 }
 
 // -----------------------------------------------------------------------------
@@ -440,16 +444,16 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     ENTER: () => {
       const cell = this.getters.getActiveCell();
       !cell || cell.isEmpty()
-        ? this.trigger("composer-cell-focused")
-        : this.trigger("composer-content-focused");
+        ? this.props.onGridComposerCellFocused()
+        : this.props.onComposerContentFocused();
     },
     TAB: () => this.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 }),
     "SHIFT+TAB": () => this.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 }),
     F2: () => {
       const cell = this.getters.getActiveCell();
       !cell || cell.isEmpty()
-        ? this.trigger("composer-cell-focused")
-        : this.trigger("composer-content-focused");
+        ? this.props.onGridComposerCellFocused()
+        : this.props.onComposerContentFocused();
     },
     DELETE: () => {
       this.dispatch("DELETE_CONTENT", {
@@ -497,10 +501,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
         const zone = sums[0]?.zone;
         const zoneXc = zone ? this.getters.zoneToXC(sheetId, sums[0].zone) : "";
         const formula = `=SUM(${zoneXc})`;
-        this.trigger("composer-cell-focused", {
-          content: formula,
-          selection: { start: 5, end: 5 + zoneXc.length },
-        });
+        this.props.onGridComposerCellFocused(formula, { start: 5, end: 5 + zoneXc.length });
       } else {
         this.dispatch("SUM_SELECTION");
       }
@@ -786,13 +787,13 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     if (this.clickedCol === col && this.clickedRow === row) {
       const cell = this.getters.getActiveCell();
       !cell || cell.isEmpty()
-        ? this.trigger("composer-cell-focused")
-        : this.trigger("composer-content-focused");
+        ? this.props.onGridComposerCellFocused()
+        : this.props.onComposerContentFocused();
     }
   }
 
   closeLinkEditor() {
-    this.trigger("link-editor-closed");
+    this.props.onLinkEditorClosed();
   }
   // ---------------------------------------------------------------------------
   // Keyboard interactions
@@ -867,7 +868,8 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
         // character
         ev.preventDefault();
         ev.stopPropagation();
-        this.trigger("composer-cell-focused", { content: ev.key });
+
+        this.props.onGridComposerCellFocused(ev.key);
       }
     }
   }
@@ -896,13 +898,6 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
       }
     }
     this.toggleContextMenu(type, ev.offsetX, ev.offsetY);
-  }
-
-  onOverlayContextMenu(ev: CustomEvent) {
-    const type = ev.detail.type as ContextMenuType;
-    const x = ev.detail.x;
-    const y = ev.detail.y;
-    this.toggleContextMenu(type, x, y);
   }
 
   toggleContextMenu(type: ContextMenuType, x: number, y: number) {

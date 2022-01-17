@@ -12,6 +12,7 @@ import { Composer } from "./composer/composer";
 import { isChildEvent } from "./helpers/dom_helpers";
 import * as icons from "./icons";
 import { Menu, MenuState } from "./menu";
+import { ComposerFocusType } from "./spreadsheet";
 
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
@@ -41,12 +42,18 @@ const FORMATS = [
   { name: "duration", text: "Duration (27:51:38)", value: "hhhh:mm:ss" },
 ];
 
+interface Props {
+  onClick: () => void;
+  focusComposer: Omit<ComposerFocusType, "cellFocus">;
+  onComposerContentFocused: (selection: { start: number; end: number }) => void;
+}
+
 // -----------------------------------------------------------------------------
 // TopBar
 // -----------------------------------------------------------------------------
-export class TopBar extends Component<any, SpreadsheetEnv> {
+export class TopBar extends Component<Props, SpreadsheetEnv> {
   static template = xml/* xml */ `
-    <div class="o-spreadsheet-topbar">
+    <div class="o-spreadsheet-topbar" t-on-click="props.onClick">
       <div class="o-topbar-top">
         <!-- Menus -->
         <div class="o-topbar-topleft">
@@ -62,7 +69,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           <Menu t-if="state.menuState.isOpen"
                 position="state.menuState.position"
                 menuItems="state.menuState.menuItems"
-                t-on-close="state.menuState.isOpen=false"/>
+                onClose="() => this.state.menuState.isOpen=false"/>
         </div>
         <div class="o-topbar-topright">
           <div t-foreach="topbarComponents" t-as="comp" t-key="comp_index">
@@ -111,12 +118,12 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           <div class="o-tool" title="Strikethrough"  t-att-class="{active:style.strikethrough}" t-on-click="toogleStyle('strikethrough')">${icons.STRIKE_ICON}</div>
           <div class="o-tool o-dropdown o-with-color">
             <span t-attf-style="border-color:{{textColor}}" title="Text Color" t-on-click="toggleDropdownTool('textColorTool')">${icons.TEXT_COLOR_ICON}</span>
-            <ColorPicker t-if="state.activeTool === 'textColorTool'" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
+            <ColorPicker t-if="state.activeTool === 'textColorTool'" onColorPicked="(color) => this.setColor('textColor', color)" t-key="textColor"/>
           </div>
           <div class="o-divider"/>
           <div class="o-tool  o-dropdown o-with-color">
             <span t-attf-style="border-color:{{fillColor}}" title="Fill Color" t-on-click="toggleDropdownTool('fillColorTool')">${icons.FILL_COLOR_ICON}</span>
-            <ColorPicker t-if="state.activeTool === 'fillColorTool'" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
+            <ColorPicker t-if="state.activeTool === 'fillColorTool'" onColorPicked="(color) => this.setColor('fillColor', color)" t-key="fillColor"/>
           </div>
           <div class="o-tool o-dropdown">
             <span title="Borders" t-on-click="toggleDropdownTool('borderTool')">${icons.BORDERS_ICON}</span>
@@ -155,7 +162,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           <!-- <div class="o-tool" title="Vertical align"><span>${icons.ALIGN_MIDDLE_ICON}</span> ${icons.TRIANGLE_DOWN_ICON}</div> -->
           <!-- <div class="o-tool" title="Text Wrapping">${icons.TEXT_WRAPPING_ICON}</div> -->
         </div>
-        <Composer inputStyle="composerStyle" focus="props.focusComposer"/>
+        <Composer inputStyle="composerStyle" focus="props.focusComposer" onComposerContentFocused="props.onComposerContentFocused"/>
 
       </div>
     </div>`;
@@ -498,8 +505,8 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     }
   }
 
-  setColor(target: string, ev: CustomEvent) {
-    setStyle(this.env, { [target]: ev.detail.color });
+  setColor(target: string, color: string) {
+    setStyle(this.env, { [target]: color });
   }
 
   setBorder(command: BorderCommand) {

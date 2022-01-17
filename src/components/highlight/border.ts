@@ -38,6 +38,7 @@ interface Props {
   zone: Zone;
   orientation: Orientation;
   isMoving: boolean;
+  onMoveHighlight: (x: number, y: number) => void;
 }
 
 export class Border extends Component<Props, SpreadsheetEnv> {
@@ -75,6 +76,6 @@ export class Border extends Component<Props, SpreadsheetEnv> {
   }
 
   onMouseDown(ev: MouseEvent) {
-    this.trigger("move-highlight", { clientX: ev.clientX, clientY: ev.clientY });
+    this.props.onMoveHighlight(ev.clientX, ev.clientY);
   }
 }
