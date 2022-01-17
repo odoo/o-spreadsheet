@@ -20,7 +20,7 @@ let fixture: HTMLElement;
 class Parent extends Component<any, any> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
-      <BottomBar model="model"/>
+      <BottomBar onClick="()=>{}" model="model"/>
     </div>
   `;
   static components = { BottomBar };

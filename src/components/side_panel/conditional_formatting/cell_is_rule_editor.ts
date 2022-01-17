@@ -60,7 +60,7 @@ export const TEMPLATE_CELL_IS_RULE_EDITOR = xml/* xml */ `
                     t-on-click.stop="toggleMenu('cellIsRule-textColor')">
                     ${icons.TEXT_COLOR_ICON}
               </span>
-              <ColorPicker t-if="state.openedMenu === 'cellIsRule-textColor'" dropdownDirection="'center'" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
+              <ColorPicker t-if="state.openedMenu === 'cellIsRule-textColor'" dropdownDirection="'center'" onColorPicked="(color) => this.setColor('textColor', color)" t-key="textColor"/>
         </div>
         <div class="o-divider"/>
         <div class="o-tool o-dropdown o-with-color">
@@ -68,7 +68,7 @@ export const TEMPLATE_CELL_IS_RULE_EDITOR = xml/* xml */ `
                 t-on-click.stop="toggleMenu('cellIsRule-fillColor')">
                 ${icons.FILL_COLOR_ICON}
           </span>
-          <ColorPicker t-if="state.openedMenu === 'cellIsRule-fillColor'" dropdownDirection="'center'" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
+          <ColorPicker t-if="state.openedMenu === 'cellIsRule-fillColor'" dropdownDirection="'center'" onColorPicked="(color) => this.setColor('fillColor', color)" t-key="fillColor"/>
         </div>
     </div>
 </div>

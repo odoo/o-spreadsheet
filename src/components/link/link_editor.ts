@@ -38,8 +38,8 @@ const TEMPLATE = xml/* xml */ `
         t-if="menu.isOpen"
         position="menuPosition"
         menuItems="menuItems"
-        t-on-menu-clicked="onSpecialLink"
-        t-on-close.stop="menu.isOpen=false"/>
+        onMenuClicked="(ev) => this.onSpecialLink(ev)"
+        onClose="() => this.menu.isOpen=false"/>
       <div class="o-buttons">
         <button t-on-click="cancel" class="o-button o-cancel" t-esc="env._t('${LinkEditorTerms.Cancel}')"></button>
         <button t-on-click="save" class="o-button o-save" t-esc="env._t('${LinkEditorTerms.Confirm}')" t-att-disabled="!state.link.url" ></button>
@@ -120,6 +120,7 @@ const CSS = css/* scss */ `
 
 interface LinkEditorProps {
   cellPosition: Position;
+  onLinkEditorClosed: () => void;
 }
 
 interface State {
@@ -197,11 +198,11 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
       sheetId: this.getters.getActiveSheetId(),
       content: markdownLink(label, this.state.link.url),
     });
-    this.trigger("link-editor-closed");
+    this.props.onLinkEditorClosed();
   }
 
   cancel() {
-    this.trigger("link-editor-closed");
+    this.props.onLinkEditorClosed();
   }
 
   onKeyDown(ev: KeyboardEvent) {

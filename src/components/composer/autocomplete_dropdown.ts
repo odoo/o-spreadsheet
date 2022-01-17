@@ -76,6 +76,7 @@ interface Props {
   search: string;
   borderStyle: string;
   exposeAPI: (api: TextValueProviderApi) => void;
+  onCompleted: (text?: string) => void;
 }
 
 export interface TextValueProviderApi {
@@ -125,7 +126,7 @@ export abstract class TextValueProvider extends Component<Props> implements Text
 
   fillValue(index) {
     this.state.selectedIndex = index;
-    this.trigger("completed", { text: this.getValueToFill() });
+    this.props.onCompleted(this.getValueToFill());
   }
 
   moveDown() {

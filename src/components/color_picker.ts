@@ -118,6 +118,7 @@ const PICKER_WIDTH =
 
 interface Props {
   dropdownDirection?: "left" | "right" | "center";
+  onColorPicked: (color: string) => void;
 }
 
 export class ColorPicker extends Component<Props, SpreadsheetEnv> {
@@ -175,7 +176,7 @@ export class ColorPicker extends Component<Props, SpreadsheetEnv> {
   onColorClick(ev: MouseEvent) {
     const color = (ev.target as HTMLElement).dataset.color;
     if (color) {
-      this.trigger("color-picked", { color });
+      this.props.onColorPicked(color);
     }
   }
 }

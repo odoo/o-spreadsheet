@@ -30,6 +30,7 @@ const TEMPLATE = xml/* xml */ `<div>
                 <t t-component="figureRegistry.get(info.figure.tag).Component"
                    t-key="info.id"
                    sidePanelIsOpen="props.sidePanelIsOpen"
+                   onFigureDeleted="props.onFigureDeleted"
                    figure="info.figure"/>
                 <t t-if="info.isSelected">
                     <div class="o-anchor o-top" t-on-mousedown.stop="resize(info.figure, 0,-1)"/>
@@ -130,7 +131,12 @@ const CSS = css/*SCSS*/ `
   }
 `;
 
-export class FiguresContainer extends Component<{ sidePanelIsOpen: Boolean }, SpreadsheetEnv> {
+interface Props {
+  sidePanelIsOpen: Boolean;
+  onFigureDeleted: () => void;
+}
+
+export class FiguresContainer extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = {};
@@ -281,7 +287,7 @@ export class FiguresContainer extends Component<{ sidePanelIsOpen: Boolean }, Sp
     switch (ev.key) {
       case "Delete":
         this.dispatch("DELETE_FIGURE", { sheetId: this.getters.getActiveSheetId(), id: figure.id });
-        this.trigger("figure-deleted");
+        this.props.onFigureDeleted();
         break;
       case "ArrowDown":
       case "ArrowLeft":

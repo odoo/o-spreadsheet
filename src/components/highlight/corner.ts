@@ -49,6 +49,7 @@ interface Props {
   color: string;
   orientation: Orientation;
   isResizing: boolean;
+  onResizeHighlight: (isLeft: boolean, isRight: boolean) => void;
 }
 
 export class Corner extends Component<Props, SpreadsheetEnv> {
@@ -72,6 +73,6 @@ export class Corner extends Component<Props, SpreadsheetEnv> {
   }
 
   onMouseDown(ev: MouseEvent) {
-    this.trigger("resize-highlight", { isLeft: this.isLeft, isTop: this.isTop });
+    this.props.onResizeHighlight(this.isLeft, this.isTop);
   }
 }

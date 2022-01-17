@@ -13,7 +13,7 @@ const TEMPLATE = xml/* xml */ `
   <div class="o-highlight">
     <t t-foreach="['nw', 'ne', 'sw', 'se']" t-as="orientation" t-key="orientation">
       <Corner
-        t-on-resize-highlight="onResizeHighlight"
+        onResizeHighlight="(isLeft, isTop) => this.onResizeHighlight(isLeft, isTop)"
         isResizing='highlightState.shiftingMode === "isResizing"'
         orientation="orientation"
         zone="props.zone"
@@ -22,7 +22,7 @@ const TEMPLATE = xml/* xml */ `
     </t>
     <t t-foreach="['n', 's', 'w', 'e']" t-as="orientation" t-key="orientation">
       <Border
-        t-on-move-highlight="onMoveHighlight"
+        onMoveHighlight="(x, y) => this.onMoveHighlight(x,y)"
         isMoving='highlightState.shiftingMode === "isMoving"'
         orientation="orientation"
         zone="props.zone"
@@ -50,14 +50,14 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
     shiftingMode: "none",
   });
 
-  onResizeHighlight(ev: CustomEvent) {
+  onResizeHighlight(isLeft: boolean, isTop: boolean) {
     this.highlightState.shiftingMode = "isResizing";
     const z = this.props.zone;
 
-    const pivotCol = ev.detail.isLeft ? z.right : z.left;
-    const pivotRow = ev.detail.isTop ? z.bottom : z.top;
-    let lastCol = ev.detail.isLeft ? z.left : z.right;
-    let lastRow = ev.detail.isTop ? z.top : z.bottom;
+    const pivotCol = isLeft ? z.right : z.left;
+    const pivotRow = isTop ? z.bottom : z.top;
+    let lastCol = isLeft ? z.left : z.right;
+    let lastRow = isTop ? z.top : z.bottom;
     let currentZone = z;
 
     this.env.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
@@ -100,7 +100,7 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
     );
   }
 
-  onMoveHighlight(ev: CustomEvent) {
+  onMoveHighlight(clientX: number, clientY: number) {
     this.highlightState.shiftingMode = "isMoving";
     const z = this.props.zone;
 
@@ -109,8 +109,8 @@ export class Highlight extends Component<Props, SpreadsheetEnv> {
     const activeSheet = this.env.getters.getActiveSheet();
     const { top: viewportTop, left: viewportLeft } = this.env.getters.getActiveSnappedViewport();
 
-    const initCol = this.env.getters.getColIndex(ev.detail.clientX - position.left, viewportLeft);
-    const initRow = this.env.getters.getRowIndex(ev.detail.clientY - position.top, viewportTop);
+    const initCol = this.env.getters.getColIndex(clientX - position.left, viewportLeft);
+    const initRow = this.env.getters.getRowIndex(clientY - position.top, viewportTop);
 
     const deltaColMin = -z.left;
     const deltaColMax = activeSheet.cols.length - z.right - 1;

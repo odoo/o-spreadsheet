@@ -4,7 +4,11 @@ import { ICONS, ICON_SETS } from "./icons";
 const { Component } = owl;
 const { css, xml } = owl.tags;
 
-export class IconPicker extends Component<any, SpreadsheetEnv> {
+interface Props {
+  onIconPicked: (icon: string) => void;
+}
+
+export class IconPicker extends Component<Props, SpreadsheetEnv> {
   static template = xml/* xml */ `
   <div class="o-icon-picker" >
     <t t-foreach="iconSets" t-as="iconSet" t-key="iconset">
@@ -48,7 +52,7 @@ export class IconPicker extends Component<any, SpreadsheetEnv> {
 
   onIconClick(icon: string) {
     if (icon) {
-      this.trigger("icon-picked", { icon });
+      this.props.onIconPicked(icon);
     }
   }
 }

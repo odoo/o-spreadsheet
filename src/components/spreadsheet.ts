@@ -13,7 +13,6 @@ import { Client } from "../types/collaborative/session";
 import { StateUpdateMessage, TransportService } from "../types/collaborative/transport_service";
 import { NotifyUIEvent } from "../types/ui";
 import { BottomBar } from "./bottom_bar";
-import { ComposerFocusedEvent } from "./composer/composer";
 import { Grid } from "./grid";
 import { LinkEditor } from "./link/link_editor";
 import { SidePanel } from "./side_panel/side_panel";
@@ -28,28 +27,30 @@ const { useSubEnv, onMounted, onWillUnmount, onWillUpdateProps } = owl.hooks;
 // SpreadSheet
 // -----------------------------------------------------------------------------
 
+export type ComposerFocusType = "inactive" | "cellFocus" | "contentFocus";
+
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet" t-on-save-requested="save" t-on-keydown="onKeydown">
-  <TopBar
-  t-on-click="focusGrid"
-  t-on-composer-content-focused="onTopBarComposerFocused"
-  focusComposer="focusTopBarComposer"
-  class="o-two-columns"/>
+    <TopBar
+    onClick="() => focusGrid()"
+    onComposerContentFocused="(selection) => this.onTopBarComposerFocused(selection)"
+    focusComposer="focusTopBarComposer"
+    class="o-two-columns"/>
     <Grid
       model="model"
       sidePanelIsOpen="sidePanel.isOpen"
       linkEditorIsOpen="linkEditor.isOpen"
-      t-on-link-editor-closed="closeLinkEditor"
+      onLinkEditorClosed="() => this.closeLinkEditor()"
       focusComposer="focusGridComposer"
       exposeFocus="(focus) => this._focusGrid = focus"
-      t-on-composer-content-focused="onGridComposerContentFocused"
-      t-on-composer-cell-focused="onGridComposerCellFocused"
+      onComposerContentFocused="() => this.onGridComposerContentFocused()"
+      onGridComposerCellFocused="(content, selection) => this.onGridComposerCellFocused(content, selection)"
       t-att-class="{'o-two-columns': !sidePanel.isOpen}"/>
     <SidePanel t-if="sidePanel.isOpen"
-           t-on-close-side-panel="sidePanel.isOpen = false"
+           onCloseSidePanel="() => this.sidePanel.isOpen = false"
            component="sidePanel.component"
            panelProps="sidePanel.panelProps"/>
-    <BottomBar t-on-click="focusGrid" class="o-two-columns"/>
+    <BottomBar onClick="() => this.focusGrid()" class="o-two-columns"/>
   </div>`;
 
 const CSS = css/* scss */ `
@@ -162,13 +163,13 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     onWillUpdateProps((nextProps: Props) => this.checkReadonly(nextProps));
   }
 
-  get focusTopBarComposer(): "inactive" | "contentFocus" {
+  get focusTopBarComposer(): Omit<ComposerFocusType, "cellFocus"> {
     return this.model.getters.getEditionMode() === "inactive"
       ? "inactive"
       : this.composer.topBarFocus;
   }
 
-  get focusGridComposer(): "inactive" | "cellFocus" | "contentFocus" {
+  get focusGridComposer(): ComposerFocusType {
     return this.model.getters.getEditionMode() === "inactive"
       ? "inactive"
       : this.composer.gridFocusMode;
@@ -280,33 +281,33 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     }
   }
 
-  onTopBarComposerFocused(ev: ComposerFocusedEvent) {
+  onTopBarComposerFocused(selection: ComposerSelection) {
     if (this.model.getters.isReadonly()) {
       return;
     }
     this.composer.topBarFocus = "contentFocus";
     this.composer.gridFocusMode = "inactive";
-    this.setComposerContent(ev.detail || {});
+    this.setComposerContent({ selection } || {});
     this.env.dispatch("UNFOCUS_SELECTION_INPUT");
   }
 
-  onGridComposerContentFocused(ev: ComposerFocusedEvent) {
+  onGridComposerContentFocused() {
     if (this.model.getters.isReadonly()) {
       return;
     }
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "contentFocus";
-    this.setComposerContent(ev.detail || {});
+    this.setComposerContent({});
     this.env.dispatch("UNFOCUS_SELECTION_INPUT");
   }
 
-  onGridComposerCellFocused(ev: ComposerFocusedEvent) {
+  onGridComposerCellFocused(content?: string, selection?: ComposerSelection) {
     if (this.model.getters.isReadonly()) {
       return;
     }
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "cellFocus";
-    this.setComposerContent(ev.detail || {});
+    this.setComposerContent({ content, selection } || {});
     this.env.dispatch("UNFOCUS_SELECTION_INPUT");
   }
 
