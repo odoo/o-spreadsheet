@@ -4,6 +4,7 @@ import { CommandResult, Style } from "../../src/types/index";
 import {
   addColumns,
   deleteRows,
+  interactiveMerge,
   merge,
   redo,
   selectCell,
@@ -243,10 +244,10 @@ describe("merges", () => {
     });
     // B2 is not top left, so it is destructive
 
-    expect(merge(model, "A1:C4")).toBeCancelledBecause(CommandResult.MergeIsDestructive);
+    expect(interactiveMerge(model, "A1:C4")).toBeCancelledBecause(CommandResult.MergeIsDestructive);
 
     // B2 is top left, so it is not destructive
-    expect(merge(model, "B2:C4")).toBeSuccessfullyDispatched();
+    expect(interactiveMerge(model, "B2:C4")).toBeSuccessfullyDispatched();
   });
 
   test("a merge with only style should not be considered destructive", () => {
@@ -295,7 +296,7 @@ describe("merges", () => {
       ],
     });
     expect(getCell(model, "A4")!.evaluated.value).toBe(6);
-    merge(model, "A1:A3");
+    interactiveMerge(model, "A1:A3");
 
     expect(getCell(model, "A1")!.evaluated.value).toBe(1);
     expect(getCell(model, "A2")!.evaluated.value).toBe(2);
