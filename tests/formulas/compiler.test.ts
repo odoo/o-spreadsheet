@@ -6,6 +6,7 @@ import { toZone } from "../../src/helpers";
 import {
   ArgType,
   ArgValue,
+  CellDependencies,
   CompiledFormula,
   NormalizedFormula,
   Range,
@@ -113,7 +114,7 @@ describe("compile dependencies format", () => {
     returnFormat: ReturnFormatType.FormatFromArgument,
   });
 
-  test.each(["=1", "=true", `="abc"`])("simple expressions don't return formats", (formula) => {
+  test.each(["=1", "=true", `="abc"`])("simple expressions don t return formats", (formula) => {
     const compiledFormula = compiledBaseFunction(formula);
     expect(compiledFormula.dependenciesFormat.length).toEqual(0);
   });
@@ -452,27 +453,32 @@ describe("compile functions", () => {
       let refFn = jest.fn();
       let ensureRange = jest.fn();
 
+      const ranges2CellDependencies = (ranges: Range[]): CellDependencies => ({
+        strings: [],
+        numbers: [],
+        references: ranges,
+      });
       const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
 
       const rangeA1 = [{ zone: toZone("A1"), sheetId: "ABC" }] as Range[];
       const rangeA1ToB2 = [{ zone: toZone("A1:B2"), sheetId: "ABC" }] as Range[];
 
-      compiledFormula1(rangeA1, "ABC", refFn, ensureRange, ctx);
+      compiledFormula1(ranges2CellDependencies(rangeA1), "ABC", refFn, ensureRange, ctx);
       expect(refFn).toHaveBeenCalledWith(0, rangeA1, "ABC", true, "USEMETAARG", 1);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
 
-      compiledFormula2(rangeA1ToB2, "ABC", refFn, ensureRange, ctx);
+      compiledFormula2(ranges2CellDependencies(rangeA1ToB2), "ABC", refFn, ensureRange, ctx);
       expect(refFn).toHaveBeenCalledWith(0, rangeA1ToB2, "ABC", true, "USEMETAARG", 1);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
 
-      compiledFormula3(rangeA1, "ABC", refFn, ensureRange, ctx);
+      compiledFormula3(ranges2CellDependencies(rangeA1), "ABC", refFn, ensureRange, ctx);
       expect(refFn).toHaveBeenCalledWith(0, rangeA1, "ABC", false, "NOTUSEMETAARG", 1);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
 
-      compiledFormula4(rangeA1ToB2, "ABC", refFn, ensureRange, ctx);
+      compiledFormula4(ranges2CellDependencies(rangeA1ToB2), "ABC", refFn, ensureRange, ctx);
       expect(refFn).toHaveBeenCalledWith(0, rangeA1ToB2, "ABC", false, "NOTUSEMETAARG", 1);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();

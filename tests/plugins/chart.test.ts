@@ -7,6 +7,7 @@ import {
   addRows,
   createChart,
   createSheet,
+  createSheetWithName,
   deleteColumns,
   deleteRows,
   deleteSheet,
@@ -936,6 +937,86 @@ describe("datasource tests", function () {
     expect(model.getters.getChartRuntime("1")).not.toBeUndefined();
     model.dispatch("DELETE_SHEET", { sheetId: "2" });
     expect(model.getters.getChartRuntime("1")).toBeUndefined();
+  });
+
+  test("Chart is copied on sheet duplication", () => {
+    const firstSheetId = model.getters.getActiveSheetId();
+    const secondSheetId = "42";
+    createChart(
+      model,
+      {
+        dataSets: ["B1:B4", "C1:C4"],
+        labelRange: "A2:A4",
+      },
+      firstSheetId
+    );
+    const figure = model.getters.getFigures(firstSheetId)[0]!;
+    model.dispatch("DUPLICATE_SHEET", {
+      sheetIdTo: secondSheetId,
+      sheetId: firstSheetId,
+    });
+
+    expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
+    const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
+    const duplicatedChartDefinition = model.getters.getChartDefinition(duplicatedFigure.id);
+    const expectedDuplicatedChartDefinition = {
+      dataSets: [
+        {
+          dataRange: model.getters.getRangeFromSheetXC(secondSheetId, "B1:B4"),
+          labelCell: model.getters.getRangeFromSheetXC(secondSheetId, "B1"),
+        },
+        {
+          dataRange: model.getters.getRangeFromSheetXC(secondSheetId, "C1:C4"),
+          labelCell: model.getters.getRangeFromSheetXC(secondSheetId, "C1"),
+        },
+      ],
+      labelRange: model.getters.getRangeFromSheetXC(secondSheetId, "A2:A4"),
+      sheetId: secondSheetId,
+      title: "test",
+    };
+    expect(duplicatedFigure).toMatchObject({ ...figure, id: expect.any(String) });
+    expect(duplicatedFigure.id).not.toBe(figure?.id);
+    expect(duplicatedChartDefinition).toMatchObject(expectedDuplicatedChartDefinition);
+    // duplicated chart is not deleted if original sheet is deleted
+    deleteSheet(model, firstSheetId);
+    expect(model.getters.getSheets()).toHaveLength(1);
+    expect(model.getters.getFigures(secondSheetId)).toEqual([duplicatedFigure]);
+    expect(model.getters.getChartDefinition(duplicatedFigure.id)).toMatchObject(
+      expectedDuplicatedChartDefinition
+    );
+  });
+
+  test("Chart foreign ranges unchanged on sheet duplication", () => {
+    const firstSheetId = model.getters.getActiveSheetId();
+    const secondSheetName = "FixedRef";
+    const secondSheetId = "41";
+    const thirdSheetId = "42";
+    createSheetWithName(model, { sheetId: secondSheetId }, secondSheetName);
+    createChart(
+      model,
+      {
+        dataSets: [`${secondSheetName}!C1:C4`],
+        labelRange: `${secondSheetName}!A2:A4`,
+      },
+      firstSheetId
+    );
+    model.dispatch("DUPLICATE_SHEET", {
+      sheetIdTo: thirdSheetId,
+      sheetId: firstSheetId,
+    });
+    const duplicatedFigure = model.getters.getFigures(thirdSheetId)[0];
+    const duplicatedChartDefinition = model.getters.getChartDefinition(duplicatedFigure.id);
+    expect(duplicatedChartDefinition).toMatchObject({
+      dataSets: [
+        {
+          dataRange: model.getters.getRangeFromSheetXC(secondSheetId, `C1:C4`),
+          labelCell: model.getters.getRangeFromSheetXC(secondSheetId, `C1`),
+        },
+      ],
+      labelRange: model.getters.getRangeFromSheetXC(secondSheetId, `${secondSheetName}!A2:A4`),
+      sheetId: thirdSheetId,
+      title: "test",
+    });
   });
 
   test("Chart on columns deletion", () => {

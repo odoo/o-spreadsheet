@@ -604,17 +604,24 @@ export class ClipboardPlugin extends UIPlugin {
   ): string {
     if (operation === "CUT") {
       const ranges: Range[] = [];
-      for (const range of cell.dependencies) {
+      for (const range of cell.dependencies.references) {
         if (this.isZoneOverlapClippedZone(zones, range.zone)) {
           ranges.push(...this.getters.createAdaptedRanges([range], offsetX, offsetY, sheetId));
         } else {
           ranges.push(range);
         }
       }
-      return this.getters.buildFormulaContent(sheetId, cell.normalizedText, ranges);
+      const dependencies = { ...cell.dependencies, references: ranges };
+      return this.getters.buildFormulaContent(sheetId, cell.normalizedText, dependencies);
     }
-    const ranges = this.getters.createAdaptedRanges(cell.dependencies, offsetX, offsetY, sheetId);
-    return this.getters.buildFormulaContent(sheetId, cell.normalizedText, ranges);
+    const ranges = this.getters.createAdaptedRanges(
+      cell.dependencies.references,
+      offsetX,
+      offsetY,
+      sheetId
+    );
+    const dependencies = { ...cell.dependencies, references: ranges };
+    return this.getters.buildFormulaContent(sheetId, cell.normalizedText, dependencies);
   }
 
   /**

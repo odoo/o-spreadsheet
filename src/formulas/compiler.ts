@@ -68,9 +68,9 @@ export const functionCache: { [key: string]: CompiledFormula } = {};
 // COMPILER
 // -----------------------------------------------------------------------------
 
-export function compile(str: NormalizedFormula): CompiledFormula {
-  if (!functionCache[str.text]) {
-    const ast = parse(str.text);
+export function compile(formula: NormalizedFormula): CompiledFormula {
+  if (!functionCache[formula.text]) {
+    const ast = parse(formula.text);
     let nextId = 1;
 
     if (ast.type === "BIN_OPERATION" && ast.value === ":") {
@@ -81,7 +81,7 @@ export function compile(str: NormalizedFormula): CompiledFormula {
     }
     const compiledAST = compileAST(ast);
     const code = splitCodeLines([
-      `// ${str.text}`,
+      `// ${formula.text}`,
       compiledAST.code,
       `return ${compiledAST.id};`,
     ]).join("\n");
@@ -95,8 +95,8 @@ export function compile(str: NormalizedFormula): CompiledFormula {
     );
 
     //@ts-ignore
-    functionCache[str.text] = baseFunction;
-    functionCache[str.text].dependenciesFormat = formatAST(ast);
+    functionCache[formula.text] = baseFunction;
+    functionCache[formula.text].dependenciesFormat = formatAST(ast);
 
     /**
      * This function compile the function arguments. It is mostly straightforward,
@@ -182,13 +182,13 @@ export function compile(str: NormalizedFormula): CompiledFormula {
               t === "RANGE<STRING>"
           );
           if (isRangeOnly) {
-            if (currentArg.type !== "REFERENCE") {
+            if (currentArg.type !== "NORMALIZED_REFERENCE") {
               throw new Error(
                 _lt(
                   "Function %s expects the parameter %s to be reference to a cell or range, not a %s.",
                   ast.value.toUpperCase(),
                   (i + 1).toString(),
-                  currentArg.type.toLowerCase()
+                  currentArg.type.toLowerCase().replace("normalized_", "")
                 )
               );
             }
@@ -236,7 +236,10 @@ export function compile(str: NormalizedFormula): CompiledFormula {
     ): CompiledAST {
       const codeBlocks: string[] = [];
       let id, fnName, statement;
-      if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
+      if (
+        ast.type !== "NORMALIZED_REFERENCE" &&
+        !(ast.type === "BIN_OPERATION" && ast.value === ":")
+      ) {
         if (isMeta) {
           throw new Error(_lt(`Argument must be a reference to a cell or range.`));
         }
@@ -246,16 +249,26 @@ export function compile(str: NormalizedFormula): CompiledFormula {
       }
       switch (ast.type) {
         case "BOOLEAN":
-        case "NUMBER":
-        case "STRING":
+        case "NUMBER": // probably dead case
+        case "STRING": // probably dead case
           if (!isLazy) {
             return { id: ast.value as string, code: "" };
           }
           id = nextId++;
           statement = `${ast.value}`;
           break;
+        case "NORMALIZED_NUMBER":
+          id = nextId++;
+          statement = `deps.numbers[${ast.value}]`;
+          break;
+        case "NORMALIZED_STRING":
+          id = nextId++;
+          statement = `deps.strings[${ast.value}]`;
+          break;
         case "REFERENCE":
-          const referenceIndex = str.dependencies[ast.value];
+          throw new Error(`Only normalized references can be compiled: ${ast.value}`);
+        case "NORMALIZED_REFERENCE":
+          const referenceIndex = formula.dependencies.references[ast.value];
           if (!referenceIndex) {
             id = nextId++;
             statement = `null`;
@@ -263,11 +276,13 @@ export function compile(str: NormalizedFormula): CompiledFormula {
           }
           id = nextId++;
           if (hasRange) {
-            statement = `range(${ast.value}, deps, sheetId)`;
+            statement = `range(${ast.value}, deps.references, sheetId)`;
           } else {
-            statement = `ref(${ast.value}, deps, sheetId, ${isMeta ? "true" : "false"}, "${
-              referenceVerification.functionName || OPERATOR_MAP["="]
-            }",  ${referenceVerification.paramIndex})`;
+            statement = `ref(${ast.value}, deps.references, sheetId, ${
+              isMeta ? "true" : "false"
+            }, "${referenceVerification.functionName || OPERATOR_MAP["="]}",  ${
+              referenceVerification.paramIndex
+            })`;
           }
           break;
         case "FUNCALL":
@@ -337,8 +352,8 @@ export function compile(str: NormalizedFormula): CompiledFormula {
     function formatAST(ast: AST): (string | number)[] {
       let fnDef: FunctionDescription;
       switch (ast.type) {
-        case "REFERENCE":
-          const referenceIndex = str.dependencies[ast.value];
+        case "NORMALIZED_REFERENCE":
+          const referenceIndex = formula.dependencies.references[ast.value];
           if (referenceIndex) {
             return [ast.value];
           }
@@ -385,5 +400,5 @@ export function compile(str: NormalizedFormula): CompiledFormula {
       return [];
     }
   }
-  return functionCache[str.text];
+  return functionCache[formula.text];
 }
