@@ -4,40 +4,40 @@ describe("composerTokenizer", () => {
   test("only range", () => {
     expect(composerTokenize("=A1:A2")).toEqual([
       { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
-      { start: 1, end: 6, length: 5, type: "SYMBOL", value: "A1:A2" },
+      { start: 1, end: 6, length: 5, type: "REFERENCE", value: "A1:A2" },
     ]);
   });
   test("operation and no range", () => {
     expect(composerTokenize("=A3+A1")).toEqual([
       { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
-      { start: 1, end: 3, length: 2, type: "SYMBOL", value: "A3" },
+      { start: 1, end: 3, length: 2, type: "REFERENCE", value: "A3" },
       { start: 3, end: 4, length: 1, type: "OPERATOR", value: "+" },
-      { start: 4, end: 6, length: 2, type: "SYMBOL", value: "A1" },
+      { start: 4, end: 6, length: 2, type: "REFERENCE", value: "A1" },
     ]);
   });
   test("operation and range", () => {
     expect(composerTokenize("=A3+A1:A2")).toEqual([
       { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
-      { start: 1, end: 3, length: 2, type: "SYMBOL", value: "A3" },
+      { start: 1, end: 3, length: 2, type: "REFERENCE", value: "A3" },
       { start: 3, end: 4, length: 1, type: "OPERATOR", value: "+" },
-      { start: 4, end: 9, length: 5, type: "SYMBOL", value: "A1:A2" },
+      { start: 4, end: 9, length: 5, type: "REFERENCE", value: "A1:A2" },
     ]);
   });
   test("operation and range with spaces", () => {
     expect(composerTokenize("=A3+  A1 : A2   ")).toEqual([
       { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
-      { start: 1, end: 3, length: 2, type: "SYMBOL", value: "A3" },
+      { start: 1, end: 3, length: 2, type: "REFERENCE", value: "A3" },
       { start: 3, end: 4, length: 1, type: "OPERATOR", value: "+" },
-      { start: 4, end: 16, length: 12, type: "SYMBOL", value: "  A1 : A2   " },
+      { start: 4, end: 16, length: 12, type: "REFERENCE", value: "  A1 : A2   " },
     ]);
   });
 
   test("range with spaces then operation", () => {
     expect(composerTokenize("=  A1 : A2   +a3")).toEqual([
       { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
-      { start: 1, end: 13, length: 12, type: "SYMBOL", value: "  A1 : A2   " },
+      { start: 1, end: 13, length: 12, type: "REFERENCE", value: "  A1 : A2   " },
       { start: 13, end: 14, length: 1, type: "OPERATOR", value: "+" },
-      { start: 14, end: 16, length: 2, type: "SYMBOL", value: "a3" },
+      { start: 14, end: 16, length: 2, type: "REFERENCE", value: "a3" },
     ]);
   }); //"= SUM ( C4 : C5 )"
 

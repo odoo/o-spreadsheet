@@ -26,7 +26,7 @@ export function normalizeV9(formula: string): LegacyNormalizedFormula {
 
   let noRefFormula = "".concat(
     ...tokens.map<string>((token) => {
-      if (token.type === "SYMBOL" && cellReference.test(token.value)) {
+      if (token.type === "REFERENCE" && cellReference.test(token.value)) {
         const value = token.value.trim();
         if (!dependencies.includes(value)) {
           dependencies.push(value);

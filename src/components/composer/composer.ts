@@ -481,12 +481,13 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
         case "STRING":
           result.push({ value: token.value, color: tokenColor[token.type] || "#000" });
           break;
+        case "REFERENCE":
+          const [xc, sheet] = token.value.split("!").reverse() as [string, string | undefined];
+          result.push({ value: token.value, color: this.rangeColor(xc, sheet) || "#000" });
+          break;
         case "SYMBOL":
           let value = token.value;
-          const [xc, sheet] = value.split("!").reverse() as [string, string | undefined];
-          if (rangeReference.test(xc)) {
-            result.push({ value: token.value, color: this.rangeColor(xc, sheet) || "#000" });
-          } else if (["TRUE", "FALSE"].includes(value.toUpperCase())) {
+          if (["TRUE", "FALSE"].includes(value.toUpperCase())) {
             result.push({ value: token.value, color: NumberColor });
           } else {
             result.push({ value: token.value, color: "#000" });
@@ -578,6 +579,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
         let start = tokenAtCursor.end;
         let end = tokenAtCursor.end;
 
+        // shouldn't it be REFERENCE ?
         if (["SYMBOL", "FUNCTION"].includes(tokenAtCursor.type)) {
           start = tokenAtCursor.start;
         }

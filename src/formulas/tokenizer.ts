@@ -1,6 +1,6 @@
 import { FORMULA_REF_IDENTIFIER, INCORRECT_RANGE_STRING } from "../constants";
 import { functionRegistry } from "../functions/index";
-import { formulaNumberRegexp } from "../helpers/index";
+import { formulaNumberRegexp, rangeReference } from "../helpers/index";
 import { _lt } from "../translation";
 
 /**
@@ -36,6 +36,7 @@ export type TokenType =
   | "COMMA"
   | "LEFT_PAREN"
   | "RIGHT_PAREN"
+  | "REFERENCE"
   | "INVALID_REFERENCE"
   | "NORMALIZED_REFERENCE"
   | "NORMALIZED_NUMBER"
@@ -221,8 +222,15 @@ function tokenizeSymbol(chars: string[]): Token | null {
   if (result.length) {
     const value = result.join("");
     const isFunction = value.toUpperCase() in functions;
-    const type = isFunction ? "FUNCTION" : "SYMBOL";
-    return { type, value };
+    if (isFunction) {
+      return { type: "FUNCTION", value };
+    }
+    const isReference = value.match(rangeReference);
+    if (isReference) {
+      return { type: "REFERENCE", value };
+    } else {
+      return { type: "SYMBOL", value };
+    }
   }
   return null;
 }
