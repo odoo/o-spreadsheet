@@ -1,3 +1,4 @@
+import { parsePrimitiveContent } from "../../helpers/cells";
 import { colorNumberString, isInside, recomputeZones, toXC, toZone } from "../../helpers/index";
 import { clip, isDefined } from "../../helpers/misc";
 import { Mode } from "../../model";
@@ -371,59 +372,64 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       if (cell && cell.evaluated.type === CellValueType.error) {
         return false;
       }
+      const values = rule.values.map(parsePrimitiveContent);
       switch (rule.operator) {
         case "IsEmpty":
           return !isDefined(cell) || cell.evaluated.value.toString().trim() === "";
         case "IsNotEmpty":
           return isDefined(cell) && cell.evaluated.value.toString().trim() !== "";
         case "BeginsWith":
-          if (!cell && rule.values[0] === "") {
+          if (!cell && values[0] === "") {
             return false;
           }
-          return isDefined(cell) && cell?.evaluated.value.toString().startsWith(rule.values[0]);
+          return (
+            isDefined(cell) && cell?.evaluated.value.toString().startsWith(values[0].toString())
+          );
         case "EndsWith":
-          if (!cell && rule.values[0] === "") {
+          if (!cell && values[0] === "") {
             return false;
           }
-          return isDefined(cell) && cell.evaluated.value.toString().endsWith(rule.values[0]);
+          return isDefined(cell) && cell.evaluated.value.toString().endsWith(values[0].toString());
         case "Between":
           return (
             isDefined(cell) &&
-            cell.evaluated.value >= rule.values[0] &&
-            cell.evaluated.value <= rule.values[1]
+            cell.evaluated.value >= values[0] &&
+            cell.evaluated.value <= values[1]
           );
         case "NotBetween":
           return !(
             isDefined(cell) &&
-            cell.evaluated.value >= rule.values[0] &&
-            cell.evaluated.value <= rule.values[1]
+            cell.evaluated.value >= values[0] &&
+            cell.evaluated.value <= values[1]
           );
         case "ContainsText":
-          return isDefined(cell) && cell.evaluated.value.toString().indexOf(rule.values[0]) > -1;
+          return (
+            isDefined(cell) && cell.evaluated.value.toString().indexOf(values[0].toString()) > -1
+          );
         case "NotContains":
           return (
             !isDefined(cell) ||
             !cell.evaluated.value ||
-            cell.evaluated.value.toString().indexOf(rule.values[0]) == -1
+            cell.evaluated.value.toString().indexOf(values[0].toString()) == -1
           );
         case "GreaterThan":
-          return isDefined(cell) && cell.evaluated.value > rule.values[0];
+          return isDefined(cell) && cell.evaluated.value > values[0];
         case "GreaterThanOrEqual":
-          return isDefined(cell) && cell.evaluated.value >= rule.values[0];
+          return isDefined(cell) && cell.evaluated.value >= values[0];
         case "LessThan":
-          return isDefined(cell) && cell.evaluated.value < rule.values[0];
+          return isDefined(cell) && cell.evaluated.value < values[0];
         case "LessThanOrEqual":
-          return isDefined(cell) && cell.evaluated.value <= rule.values[0];
+          return isDefined(cell) && cell.evaluated.value <= values[0];
         case "NotEqual":
-          if (!isDefined(cell) && rule.values[0] === "") {
+          if (!isDefined(cell) && values[0] === "") {
             return false;
           }
-          return isDefined(cell) && cell.evaluated.value !== rule.values[0];
+          return isDefined(cell) && cell.evaluated.value !== values[0];
         case "Equal":
-          if (!cell && rule.values[0] === "") {
+          if (!cell && values[0] === "") {
             return true;
           }
-          return isDefined(cell) && cell.evaluated.value.toString() === rule.values[0];
+          return isDefined(cell) && cell.evaluated.value === values[0];
         default:
           console.warn(
             _lt(

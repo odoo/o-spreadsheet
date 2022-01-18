@@ -57,7 +57,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
       <polygon
         fill="#000000"
         points="0 0 4 4 0 8"
-        transform="translate(5 3)"
+        transform="translate(5 5)"
       />
     </svg>
   </div>
@@ -81,7 +81,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
       <polygon
         fill="#000000"
         points="0 0 4 4 0 8"
-        transform="translate(5 3)"
+        transform="translate(5 5)"
       />
     </svg>
   </div>
@@ -129,7 +129,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
       <polygon
         fill="#000000"
         points="0 0 4 4 0 8"
-        transform="translate(5 3)"
+        transform="translate(5 5)"
       />
     </svg>
   </div>
@@ -177,7 +177,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
       <polygon
         fill="#000000"
         points="0 0 4 4 0 8"
-        transform="translate(5 3)"
+        transform="translate(5 5)"
       />
     </svg>
   </div>

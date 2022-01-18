@@ -90,3 +90,5 @@ export const FORBIDDEN_IN_EXCEL_REGEX = /'|\*|\?|\/|\\|\[|\]/;
 
 // Cells
 export const NULL_FORMAT = undefined;
+
+export const FORMULA_REF_IDENTIFIER = "|";

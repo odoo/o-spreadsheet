@@ -38,6 +38,7 @@ export class ViewportPlugin extends UIPlugin {
     "getActiveSnappedViewport",
     "getViewportDimensionWithHeaders",
     "getMaxViewportSize",
+    "getMaximumViewportOffset",
   ] as const;
   static modes: Mode[] = ["normal"];
 
@@ -174,6 +175,14 @@ export class ViewportPlugin extends UIPlugin {
       Math.max(DEFAULT_CELL_HEIGHT + 5, Math.min(topRow.size, this.viewportHeight - lastRow!.size));
 
     return { width, height };
+  }
+
+  getMaximumViewportOffset(sheet: Sheet): { maxOffsetX: number; maxOffsetY: number } {
+    const { width, height } = this.getters.getMaxViewportSize(sheet);
+    return {
+      maxOffsetX: Math.max(0, width - this.viewportWidth + 1),
+      maxOffsetY: Math.max(0, height - this.viewportHeight + 1),
+    };
   }
 
   // ---------------------------------------------------------------------------

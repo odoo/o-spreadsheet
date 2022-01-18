@@ -686,16 +686,19 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
 
   setSelection(anchor: [number, number], zones: Zone[], anchorZone: Zone, strict: boolean = false) {
     this.selectCell(...anchor);
+    const sheetId = this.getters.getActiveSheetId();
+    let selection: Selection;
+    zones = uniqueZones(zones);
     if (strict) {
-      this.selection.zones = zones;
-      this.selection.anchorZone = anchorZone;
+      selection = { zones, anchorZone, anchor };
     } else {
-      const sheetId = this.getters.getActiveSheetId();
-      this.selection.zones = zones.map((zone: Zone) => this.getters.expandZone(sheetId, zone));
-      this.selection.anchorZone = this.getters.expandZone(sheetId, anchorZone);
+      selection = {
+        anchor,
+        zones: zones.map((zone: Zone) => this.getters.expandZone(sheetId, zone)),
+        anchorZone: this.getters.expandZone(sheetId, anchorZone),
+      };
     }
-    this.selection.zones = uniqueZones(this.selection.zones);
-    this.selection.anchor = anchor;
+    this.selection = this.clipSelection(sheetId, selection);
   }
 
   /**

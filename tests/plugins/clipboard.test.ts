@@ -355,6 +355,30 @@ describe("clipboard", () => {
     expect(model.getters.isInMerge("s1", ...toCartesian("C2"))).toBe(false);
   });
 
+  test("Pasting merge on content will remove the content", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "s1",
+          colNumber: 5,
+          rowNumber: 5,
+          cells: {
+            A1: { content: "merge" },
+            C1: { content: "a" },
+            D2: { content: "a" },
+          },
+          merges: ["A1:B2"],
+        },
+      ],
+    });
+    model.dispatch("COPY", { target: target("A1") });
+    model.dispatch("PASTE", { target: target("C1") });
+    expect(model.getters.isInMerge("s1", ...toCartesian("C1"))).toBe(true);
+    expect(model.getters.isInMerge("s1", ...toCartesian("D2"))).toBe(true);
+    expect(getCellContent(model, "C1")).toBe("merge");
+    expect(getCellContent(model, "D2")).toBe("");
+  });
+
   test("copy/paste a merge from one page to another", () => {
     const model = new Model({
       sheets: [
@@ -388,7 +412,7 @@ describe("clipboard", () => {
           id: "s1",
           colNumber: 5,
           rowNumber: 5,
-          cells: { A1: { formula: { text: "=|0|", dependencies: ["a2"] } } },
+          cells: { A1: { content: "=A2" } },
         },
         {
           id: "s2",
@@ -406,20 +430,6 @@ describe("clipboard", () => {
 
     expect(getCellText(model, "A1", "s1")).toBe("=A2");
     expect(getCellText(model, "A1", "s2")).toBe("=A2");
-    expect(getCell(model, "A1", "s2")).toMatchObject({
-      dependencies: [
-        {
-          prefixSheet: false,
-          sheetId: "s2",
-          zone: {
-            bottom: 1,
-            left: 0,
-            right: 0,
-            top: 1,
-          },
-        },
-      ],
-    });
   });
 
   test("Pasting content that will destroy a merge will notify the user", async () => {
@@ -1514,6 +1524,7 @@ describe("clipboard: pasting outside of sheet", () => {
     model.dispatch("PASTE", { target: [toZone("B2")] });
     expect(activeSheet.rows.length).toBe(currentRowNumber + 1);
     expect(getCellContent(model, "B2")).toBe("txt");
+    expect(model.getters.getSelectedZones()).toEqual([toZone("B2:B101")]);
   });
 
   test("can copy and paste a full row", () => {
@@ -1527,6 +1538,7 @@ describe("clipboard: pasting outside of sheet", () => {
     model.dispatch("PASTE", { target: [toZone("B2")] });
     expect(activeSheet.cols.length).toBe(currentColNumber + 1);
     expect(getCellContent(model, "B2")).toBe("txt");
+    expect(model.getters.getSelectedZones()).toEqual([toZone("B2:AA2")]);
   });
 
   test("Copy a formula which lead to #REF", () => {
