@@ -164,7 +164,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
         }
         return { type: "FUNCALL", value: current.value, args };
       }
-    case "REFERENCE":
+    case "NORMALIZED_REFERENCE":
       return {
         type: "NORMALIZED_REFERENCE",
         value: parseInt(current.value, 10),
