@@ -1,5 +1,4 @@
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
-import { normalize } from "../../src/formulas";
 import { parseDateTime } from "../../src/helpers/dates";
 import { toXC, toZone } from "../../src/helpers/index";
 import { interactiveSortSelection } from "../../src/helpers/sort";
@@ -24,16 +23,6 @@ function getCellsObject(model: Model, sheetId: UID) {
     };
   }
   return cells;
-}
-
-function cellFormula(formula: string) {
-  const normalizedFormula = normalize(formula);
-  return {
-    normalizedText: normalizedFormula.text,
-    dependencies: normalizedFormula.dependencies.map((elem) => ({
-      zone: toZone(elem),
-    })),
-  };
 }
 
 describe("Basic Sorting", () => {
@@ -188,15 +177,15 @@ describe("Basic Sorting", () => {
       sortDirection: "ascending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
-      C1: cellFormula("=SUM(A1, A2)"),
-      C2: cellFormula("=A4*10"),
+      C1: { content: "=SUM(A1, A2)" },
+      C2: { content: "=A4*10" },
       C3: { content: "=BADBUNNY", evaluated: { type: CellValueType.error } },
       C4: {
         content: `=${INCORRECT_RANGE_STRING}/${INCORRECT_RANGE_STRING}`,
         evaluated: { type: CellValueType.error },
       },
-      C5: cellFormula('=CONCAT("ki", "kou")'),
-      C6: cellFormula("=EQ(A4, 4)"),
+      C5: { content: '=CONCAT("ki", "kou")' },
+      C6: { content: "=EQ(A4, 4)" },
     });
   });
   test("Sort all types of cells then undo then redo", () => {
@@ -233,7 +222,7 @@ describe("Basic Sorting", () => {
       A1: { content: "4" },
       A2: { content: "23" },
       A3: { content: `=SUM(4, ${INCORRECT_RANGE_STRING})` },
-      A4: cellFormula("=DATE(2012, 12, 21)"),
+      A4: { content: "=DATE(2012, 12, 21)" },
       A5: { value: parseDateTime("2020/09/01")!.value },
       A6: { content: "=BADBUNNY", evaluated: { type: CellValueType.error } },
       A7: {
@@ -242,27 +231,27 @@ describe("Basic Sorting", () => {
       },
       A8: { content: "Kills" },
       A9: { content: "Machette" },
-      A10: cellFormula('=CONCAT("Zor", "glub")'),
+      A10: { content: '=CONCAT("Zor", "glub")' },
     });
     undo(model);
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "23" },
       A2: { content: "4" },
-      A3: cellFormula('=CONCAT("Zor", "glub")'),
-      A4: cellFormula("=DATE(2012, 12, 21)"),
+      A3: { content: '=CONCAT("Zor", "glub")' },
+      A4: { content: "=DATE(2012, 12, 21)" },
       A5: { content: "Machette" },
       A7: { content: "Kills" },
       A8: { content: "=BADBUNNY" },
-      A9: cellFormula("=SUM(4, A1)"),
+      A9: { content: "=SUM(4, A1)" },
       A10: { value: parseDateTime("2020/09/01")!.value },
-      A11: cellFormula("=B1/B2"),
+      A11: { content: "=B1/B2" },
     });
     redo(model);
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
       A2: { content: "23" },
       A3: { content: `=SUM(4, ${INCORRECT_RANGE_STRING})` },
-      A4: cellFormula("=DATE(2012, 12, 21)"),
+      A4: { content: "=DATE(2012, 12, 21)" },
       A5: { value: parseDateTime("2020/09/01")!.value },
       A6: { content: "=BADBUNNY", evaluated: { type: CellValueType.error } },
       A7: {
@@ -271,7 +260,7 @@ describe("Basic Sorting", () => {
       },
       A8: { content: "Kills" },
       A9: { content: "Machette" },
-      A10: cellFormula('=CONCAT("Zor", "glub")'),
+      A10: { content: '=CONCAT("Zor", "glub")' },
     });
   });
   test("Sort style", () => {
@@ -564,7 +553,7 @@ describe("Sort adjacent columns with headers", () => {
       sortDirection: "ascending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
-      A1: cellFormula("=B2"),
+      A1: { content: "=B2" },
       A2: { content: "Alpha" },
       A3: { content: "Delta" },
       A4: { content: "Tango" },
@@ -616,7 +605,7 @@ describe("Sort adjacent columns with headers", () => {
       A1: { content: "Tango" },
       A2: { content: "Alpha" },
       A3: { content: "Delta" },
-      A4: cellFormula("=B5"),
+      A4: { content: "=B5" },
       B1: { content: "49" },
       B2: { content: "192" },
       B3: { content: "2500" },

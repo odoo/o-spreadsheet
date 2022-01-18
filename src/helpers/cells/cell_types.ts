@@ -2,6 +2,7 @@ import { DATETIME_FORMAT, LINK_COLOR, LOADING } from "../../constants";
 import { _lt } from "../../translation";
 import {
   BooleanEvaluation,
+  CellDependencies,
   CellDisplayProperties,
   CellEvaluation,
   CellValue,
@@ -14,7 +15,6 @@ import {
   Link,
   LinkCell as ILinkCell,
   NumberEvaluation,
-  Range,
   SpreadsheetEnv,
   Style,
   TextEvaluation,
@@ -244,11 +244,11 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
    */
   readonly error?: string;
   constructor(
-    private buildFormulaString: (normalizedText: string, dependencies: Range[]) => string,
+    private buildFormulaString: (normalizedText: string, dependencies: CellDependencies) => string,
     id: UID,
     readonly normalizedText: string,
     readonly compiledFormula: CompiledFormula,
-    readonly dependencies: Range[],
+    readonly dependencies: CellDependencies,
     properties: CellDisplayProperties
   ) {
     super(id, { value: LOADING, type: CellValueType.text }, properties);

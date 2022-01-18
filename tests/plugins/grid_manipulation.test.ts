@@ -73,7 +73,7 @@ function getCellsObject(model: Model, sheetId: UID) {
   for (let cell of Object.values(model.getters.getCells(sheetId))) {
     const { col, row } = model.getters.getCellPosition(cell.id);
     cell = model.getters.getCell(sheetId, col, row)!;
-    cells[toXC(col, row)] = cell;
+    cells[toXC(col, row)] = { content: cell.content, style: cell.style, format: cell.format };
   }
   return cells;
 }
@@ -720,12 +720,12 @@ describe("Columns", () => {
       expect(sheet2.id).not.toBe(model.getters.getActiveSheetId());
       deleteColumns(model, ["A"], sheet2.id);
       expect(getCellsObject(model, sheet1.id)).toMatchObject({
-        B2: { normalizedText: "=|0|", dependencies: [{ sheetId: "s1", zone: toZone("B3") }] },
-        C1: { normalizedText: "=|0|", dependencies: [{ sheetId: "s2", zone: toZone("A3") }] },
+        B2: { content: "=Sheet1!B3" },
+        C1: { content: "=Sheet2!A3" },
       });
       expect(getCellsObject(model, sheet2.id)).toMatchObject({
-        A2: { normalizedText: "=|0|", dependencies: [{ sheetId: "s1", zone: toZone("B2") }] },
-        B2: { normalizedText: "=|0|", dependencies: [{ sheetId: "s2", zone: toZone("A2") }] },
+        A2: { content: "=Sheet1!B2" },
+        B2: { content: "=Sheet2!A2" },
       });
     });
     test("On first col deletion", () => {
@@ -743,7 +743,7 @@ describe("Columns", () => {
       });
       deleteColumns(model, ["A"]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A2: { normalizedText: "=SUM(|0|)", dependencies: [{ zone: toZone("A1:B1") }] },
+        A2: { content: "=SUM(A1:B1)" },
       });
     });
     test("On multiple col deletion including the first one", () => {
@@ -761,7 +761,7 @@ describe("Columns", () => {
       });
       deleteColumns(model, ["A", "B"]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A2: { normalizedText: "=SUM(|0|)", dependencies: [{ zone: toZone("A1:B1") }] },
+        A2: { content: "=SUM(A1:B1)" },
       });
     });
     test("On last col deletion", () => {
@@ -779,7 +779,7 @@ describe("Columns", () => {
       });
       deleteColumns(model, ["C"]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A2: { normalizedText: "=SUM(|0|)", dependencies: [{ zone: toZone("A1:B1") }] },
+        A2: { content: "=SUM(A1:B1)" },
       });
     });
     test("delete almost all columns of a range", () => {
@@ -870,7 +870,7 @@ describe("Columns", () => {
       });
       deleteColumns(model, ["C", "D"]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A2: { normalizedText: "=SUM(|0|)", dependencies: [{ zone: toZone("A1:B1") }] },
+        A2: { content: "=SUM(A1:B1)" },
       });
     });
     test("On addition", () => {
@@ -1516,7 +1516,7 @@ describe("Rows", () => {
       });
       deleteRows(model, [0]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        B1: { normalizedText: "=SUM(|0|)", dependencies: [{ zone: toZone("A1:A2") }] },
+        B1: { content: "=SUM(A1:A2)" },
       });
     });
 
@@ -1572,7 +1572,7 @@ describe("Rows", () => {
       });
       deleteRows(model, [1, 2]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        B1: { normalizedText: "=SUM(|0|)", dependencies: [{ zone: toZone("A2:A3") }] },
+        B1: { content: "=SUM(A2:A3)" },
       });
     });
     test("strange test in Odoo", () => {
@@ -1599,8 +1599,8 @@ describe("Rows", () => {
 
       deleteRows(model, rows);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A5: { normalizedText: "=SUM(|0|)", dependencies: [{ zone: toZone("A6") }] },
-        A7: { normalizedText: "=SUM(|0|)", dependencies: [{ zone: toZone("A8") }] },
+        A5: { content: "=SUM(A6)" },
+        A7: { content: "=SUM(A8)" },
       });
     });
     test("On last row deletion", () => {
@@ -1618,7 +1618,7 @@ describe("Rows", () => {
       });
       deleteRows(model, [2]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        B1: { normalizedText: "=SUM(|0|)", dependencies: [{ zone: toZone("A1:A2") }] },
+        B1: { content: "=SUM(A1:A2)" },
       });
     });
     test("On multiple row", () => {
@@ -1636,10 +1636,7 @@ describe("Rows", () => {
       });
       deleteRows(model, [2, 3]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A1: {
-          dependencies: [{ zone: { top: 1, left: 0, bottom: 2, right: 0 } }],
-          normalizedText: "=SUM(|0|)",
-        },
+        A1: { content: "=SUM(A2:A3)" },
       });
     });
     test("On multiple rows (7)", () => {
@@ -1657,10 +1654,7 @@ describe("Rows", () => {
       });
       deleteRows(model, [1, 2, 3, 4, 5, 6]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A1: {
-          dependencies: [{ zone: { top: 1, left: 0, bottom: 1, right: 0 } }],
-          normalizedText: "=SUM(|0|)",
-        },
+        A1: { content: "=SUM(A2)" },
       });
     });
     test("On multiple row deletion including the last one", () => {
@@ -1678,10 +1672,7 @@ describe("Rows", () => {
       });
       deleteRows(model, [2, 3]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        B1: {
-          dependencies: [{ zone: { top: 0, left: 0, bottom: 1, right: 0 } }],
-          normalizedText: "=SUM(|0|)",
-        },
+        B1: { content: "=SUM(A1:A2)" },
       });
     });
     test("On multiple row deletion including the last and beyond", () => {
@@ -1699,10 +1690,7 @@ describe("Rows", () => {
       });
       deleteRows(model, [3, 4, 5, 6, 7]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        B2: {
-          dependencies: [{ zone: { top: 0, left: 0, bottom: 2, right: 0 } }],
-          normalizedText: "=SUM(|0|)",
-        },
+        B2: { content: "=SUM(A1:A3)" },
       });
     });
     test("On addition", () => {

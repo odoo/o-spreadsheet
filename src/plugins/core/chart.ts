@@ -1,5 +1,5 @@
 import { INCORRECT_RANGE_STRING } from "../../constants";
-import { rangeReference, zoneToDimension, zoneToXc } from "../../helpers/index";
+import { deepCopy, rangeReference, zoneToDimension, zoneToXc } from "../../helpers/index";
 import {
   ApplyRangeChange,
   ChartDefinition,
@@ -13,6 +13,7 @@ import {
   ExcelChartDataset,
   ExcelChartDefinition,
   ExcelWorkbookData,
+  Figure,
   FigureData,
   UID,
   UpdateChartCommand,
@@ -140,21 +141,16 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_CHART":
-        const chartDefinition = this.createChartDefinition(cmd.definition, cmd.sheetId);
         const x = cmd.position ? cmd.position.x : 0;
         const y = cmd.position ? cmd.position.y : 0;
-        this.dispatch("CREATE_FIGURE", {
-          sheetId: cmd.sheetId,
-          figure: {
-            id: cmd.id,
-            x,
-            y,
-            height: 335,
-            width: 536,
-            tag: "chart",
-          },
+        this.addChartFigure(cmd.sheetId, this.createChartDefinition(cmd.definition, cmd.sheetId), {
+          id: cmd.id,
+          x,
+          y,
+          height: 335,
+          width: 536,
+          tag: "chart",
         });
-        this.history.update("chartFigures", cmd.id, chartDefinition);
         break;
       case "UPDATE_CHART": {
         this.updateChartDefinition(cmd.id, cmd.definition);
@@ -165,19 +161,29 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         for (const fig of sheetFiguresFrom) {
           if (fig.tag === "chart") {
             const id = this.uuidGenerator.uuidv4();
-            const chartDefinition = { ...this.chartFigures[fig.id], id };
-            this.dispatch("CREATE_FIGURE", {
-              sheetId: cmd.sheetIdTo,
-              figure: {
-                id: id,
-                x: fig.x,
-                y: fig.y,
-                height: fig.height,
-                width: fig.width,
-                tag: "chart",
-              },
+            const chartDefinition = { ...deepCopy(this.chartFigures[fig.id]), id };
+            chartDefinition.sheetId = cmd.sheetIdTo;
+            chartDefinition.dataSets.forEach((dataset) => {
+              if (dataset.dataRange.sheetId === cmd.sheetId) {
+                dataset.dataRange.sheetId = cmd.sheetIdTo;
+              }
+              if (dataset.labelCell?.sheetId === cmd.sheetId) {
+                dataset.labelCell.sheetId = cmd.sheetIdTo;
+              }
             });
-            this.history.update("chartFigures", id, chartDefinition);
+            if (chartDefinition.labelRange?.sheetId === cmd.sheetId) {
+              chartDefinition.labelRange.sheetId = cmd.sheetIdTo;
+            }
+
+            const figure: Figure = {
+              id: id,
+              x: fig.x,
+              y: fig.y,
+              height: fig.height,
+              width: fig.width,
+              tag: "chart",
+            };
+            this.addChartFigure(cmd.sheetIdTo, chartDefinition, figure);
           }
         }
         break;
@@ -442,6 +448,14 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       }
     }
     return dataSets;
+  }
+
+  private addChartFigure(sheetId: string, data: ChartDefinition, figure: Figure) {
+    this.dispatch("CREATE_FIGURE", {
+      sheetId,
+      figure,
+    });
+    this.history.update("chartFigures", figure.id, data);
   }
 
   private createDataSet(sheetId: UID, fullZone: Zone, titleZone: Zone | undefined): DataSet {

@@ -1,6 +1,6 @@
 import { buildSheetLink } from "../src/helpers";
 import { Model } from "../src/model";
-import { ChartTypes, NormalizedFormula } from "../src/types";
+import { ChartTypes } from "../src/types";
 import { adaptFormulaToExcel } from "../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../src/xlsx/helpers/xml_helpers";
 import { createChart, createSheet, merge, setCellContent } from "./test_helpers/commands_helpers";
@@ -360,32 +360,29 @@ const allNonExportableFormulasData = {
   ],
 };
 
-const formula = (text: string, dependencies: string[] = []) =>
-  ({ text, dependencies } as NormalizedFormula);
-
 describe("Test XLSX export", () => {
   describe("Formula Helper : adaptFormulaToExcel", () => {
     test("simple functions", () => {
       // simple
-      expect(adaptFormulaToExcel(formula("=SUM(1,2)"))).toEqual("SUM(1,2)");
+      expect(adaptFormulaToExcel("=SUM(1,2)")).toEqual("SUM(1,2)");
       // date as argument
-      expect(adaptFormulaToExcel(formula('=DAY("02/04/2020")'))).toEqual('DAY("2020-02-04")');
+      expect(adaptFormulaToExcel('=DAY("02/04/2020")')).toEqual('DAY("2020-02-04")');
       // non-retrocompatible on Excel
-      expect(adaptFormulaToExcel(formula("=ACOT(2)"))).toEqual("_xlfn.ACOT(2)");
+      expect(adaptFormulaToExcel("=ACOT(2)")).toEqual("_xlfn.ACOT(2)");
     });
     test("composite functions", () => {
       // simple
-      expect(adaptFormulaToExcel(formula("=SUM(PRODUCT(2,3),2)"))).toEqual("SUM(PRODUCT(2,3),2)");
+      expect(adaptFormulaToExcel("=SUM(PRODUCT(2,3),2)")).toEqual("SUM(PRODUCT(2,3),2)");
       // date as argument
-      expect(adaptFormulaToExcel(formula('=DAY(EDATE("4/5/2020",-2))'))).toEqual(
+      expect(adaptFormulaToExcel('=DAY(EDATE("4/5/2020",-2))')).toEqual(
         'DAY(EDATE("2020-04-05",-2))'
       );
       // // non-retrocompatible on Excel
-      expect(adaptFormulaToExcel(formula("=ROUND(ACOT(2),5)"))).toEqual("ROUND(_xlfn.ACOT(2),5)");
+      expect(adaptFormulaToExcel("=ROUND(ACOT(2),5)")).toEqual("ROUND(_xlfn.ACOT(2),5)");
     });
 
     test("formula with dependencies", () => {
-      expect(adaptFormulaToExcel(formula("=SUM(|0|,|1|)", ["A1", "A2"]))).toEqual("SUM(A1,A2)");
+      expect(adaptFormulaToExcel("=SUM(A1, A2)")).toEqual("SUM(A1,A2)");
     });
   });
   describe("Generic sheets (style, hidden, size, cf)", () => {

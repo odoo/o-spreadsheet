@@ -75,8 +75,12 @@ autofillModifiersRegistry
         return { cellData: {} };
       }
       const sheetId = data.sheetId;
-      const ranges = getters.createAdaptedRanges(data.cell.dependencies, x, y, sheetId);
-      const content = getters.buildFormulaContent(sheetId, data.cell.normalizedText, ranges);
+
+      const ranges = getters.createAdaptedRanges(data.cell.dependencies.references, x, y, sheetId);
+      const content = getters.buildFormulaContent(sheetId, data.cell.normalizedText, {
+        ...data.cell.dependencies,
+        references: ranges,
+      });
       return {
         cellData: {
           border: data.border,

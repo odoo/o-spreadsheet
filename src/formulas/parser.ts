@@ -1,7 +1,8 @@
 import { DEFAULT_ERROR_MESSAGE } from "../constants";
-import { parseNumber } from "../helpers/index";
+import { cellReference, parseNumber } from "../helpers/index";
 import { _lt } from "../translation";
-import { FORMULA_REF_IDENTIFIER, Token, tokenize } from "./tokenizer";
+import { Dependencies, NormalizedFormulaString } from "../types";
+import { Token, tokenize } from "./tokenizer";
 
 const UNARY_OPERATORS = ["-", "+"];
 
@@ -18,14 +19,30 @@ interface ASTNumber extends ASTBase {
   type: "NUMBER";
   value: number;
 }
+
+interface ASTNormalizedNumber extends ASTBase {
+  type: "NORMALIZED_NUMBER";
+  value: number;
+}
+
 interface ASTReference extends ASTBase {
   type: "REFERENCE";
+  value: string;
+}
+
+interface ASTNormalizedReference extends ASTBase {
+  type: "NORMALIZED_REFERENCE";
   value: number;
 }
 
 export interface ASTString extends ASTBase {
   type: "STRING";
   value: string;
+}
+
+interface ASTNormalizedString extends ASTBase {
+  type: "NORMALIZED_STRING";
+  value: number;
 }
 
 interface ASTBoolean extends ASTBase {
@@ -65,6 +82,9 @@ export type AST =
   | ASTBoolean
   | ASTString
   | ASTReference
+  | ASTNormalizedReference
+  | ASTNormalizedNumber
+  | ASTNormalizedString
   | ASTUnknown;
 
 const OP_PRIORITY = {
@@ -108,9 +128,13 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
       next.debug = true;
       return next;
     case "NUMBER":
-      return { type: current.type, value: parseNumber(current.value) };
+      return { type: "NUMBER", value: parseNumber(current.value) };
+    case "NORMALIZED_NUMBER":
+      return { type: "NORMALIZED_NUMBER", value: parseInt(current.value, 10) };
     case "STRING":
-      return { type: current.type, value: current.value };
+      return { type: "STRING", value: current.value };
+    case "NORMALIZED_STRING":
+      return { type: "NORMALIZED_STRING", value: parseInt(current.value, 10) };
     case "FUNCTION":
       if (tokens.shift()!.type !== "LEFT_PAREN") {
         throw new Error(_lt("Wrong function call"));
@@ -142,19 +166,26 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
       }
     case "REFERENCE":
       return {
-        type: "REFERENCE",
+        type: "NORMALIZED_REFERENCE",
         value: parseInt(current.value, 10),
       };
     case "INVALID_REFERENCE":
       throw new Error(_lt("Invalid reference"));
     case "SYMBOL":
-      if (["TRUE", "FALSE"].includes(current.value.toUpperCase())) {
-        return { type: "BOOLEAN", value: current.value.toUpperCase() === "TRUE" } as AST;
+      if (cellReference.test(current.value)) {
+        return {
+          type: "REFERENCE",
+          value: current.value,
+        };
       } else {
-        if (current.value) {
-          throw new Error(_lt("Invalid formula"));
+        if (["TRUE", "FALSE"].includes(current.value.toUpperCase())) {
+          return { type: "BOOLEAN", value: current.value.toUpperCase() === "TRUE" } as AST;
+        } else {
+          if (current.value) {
+            throw new Error(_lt("Invalid formula"));
+          }
+          return { type: "STRING", value: current.value };
         }
-        return { type: "UNKNOWN", value: current.value };
       }
     case "LEFT_PAREN":
       const result = parseExpression(tokens, 5);
@@ -205,7 +236,7 @@ function parseExpression(tokens: Token[], bp: number): AST {
 /**
  * Parse an expression (as a string) into an AST.
  */
-export function parse(str: string): AST {
+export function parse(str: NormalizedFormulaString): AST {
   const tokens = tokenize(str).filter((x) => x.type !== "SPACE");
   if (tokens[0].type === "OPERATOR" && tokens[0].value === "=") {
     tokens.splice(0, 1);
@@ -265,23 +296,35 @@ export function convertAstNodes<T extends AST["type"]>(
 /**
  * Converts an ast formula to the corresponding string
  */
-export function astToFormula(ast: AST): string {
+export function astToFormula(
+  ast: AST,
+  dependencies: Dependencies = { references: [], numbers: [], strings: [] }
+): string {
   switch (ast.type) {
     case "FUNCALL":
-      const args = ast.args.map((arg) => astToFormula(arg));
+      const args = ast.args.map((arg) => astToFormula(arg, dependencies));
       return `${ast.value}(${args.join(",")})`;
     case "NUMBER":
       return ast.value.toString();
+    case "NORMALIZED_STRING":
+      return `"${dependencies.strings[ast.value]}"`;
+    case "NORMALIZED_NUMBER":
+      return dependencies.numbers[ast.value].toString();
+    case "NORMALIZED_REFERENCE":
+      return dependencies.references[ast.value].toString();
+    case "REFERENCE":
     case "STRING":
       return ast.value;
     case "BOOLEAN":
       return ast.value ? "TRUE" : "FALSE";
     case "UNARY_OPERATION":
-      return ast.value + rightOperandToFormula(ast);
+      return ast.value + rightOperandToFormula(ast, dependencies);
     case "BIN_OPERATION":
-      return leftOperandToFormula(ast) + ast.value + rightOperandToFormula(ast);
-    case "REFERENCE":
-      return `${FORMULA_REF_IDENTIFIER}${ast.value}${FORMULA_REF_IDENTIFIER}`;
+      return (
+        leftOperandToFormula(ast, dependencies) +
+        ast.value +
+        rightOperandToFormula(ast, dependencies)
+      );
     default:
       return ast.value;
   }
@@ -291,20 +334,28 @@ export function astToFormula(ast: AST): string {
  * Convert the left operand of a binary operation to the corresponding string
  * and enclose the result inside parenthesis if necessary.
  */
-function leftOperandToFormula(binaryOperationAST: ASTOperation): string {
+function leftOperandToFormula(
+  binaryOperationAST: ASTOperation,
+  dependencies: Dependencies
+): string {
   const mainOperator = binaryOperationAST.value;
   const leftOperation = binaryOperationAST.left;
   const leftOperator = leftOperation.value;
   const needParenthesis =
     leftOperation.type === "BIN_OPERATION" && OP_PRIORITY[leftOperator] < OP_PRIORITY[mainOperator];
-  return needParenthesis ? `(${astToFormula(leftOperation)})` : astToFormula(leftOperation);
+  return needParenthesis
+    ? `(${astToFormula(leftOperation, dependencies)})`
+    : astToFormula(leftOperation, dependencies);
 }
 
 /**
  * Convert the right operand of a binary or unary operation to the corresponding string
  * and enclose the result inside parenthesis if necessary.
  */
-function rightOperandToFormula(binaryOperationAST: ASTOperation | ASTUnaryOperation): string {
+function rightOperandToFormula(
+  binaryOperationAST: ASTOperation | ASTUnaryOperation,
+  dependencies: Dependencies
+): string {
   const mainOperator = binaryOperationAST.value;
   const rightOperation = binaryOperationAST.right;
   const rightPriority = OP_PRIORITY[rightOperation.value];
@@ -317,5 +368,7 @@ function rightOperandToFormula(binaryOperationAST: ASTOperation | ASTUnaryOperat
   } else if (rightPriority === mainPriority && !ASSOCIATIVE_OPERATORS.includes(mainOperator)) {
     needParenthesis = true;
   }
-  return needParenthesis ? `(${astToFormula(rightOperation)})` : astToFormula(rightOperation);
+  return needParenthesis
+    ? `(${astToFormula(rightOperation, dependencies)})`
+    : astToFormula(rightOperation, dependencies);
 }

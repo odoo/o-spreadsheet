@@ -6,7 +6,7 @@ import {
   DEFAULT_REVISION_ID,
   FORBIDDEN_SHEET_CHARS,
 } from "../../src/constants";
-import { CURRENT_VERSION } from "../../src/data";
+import { CURRENT_VERSION } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { corePluginRegistry } from "../../src/plugins";
 import { BorderDescr, ColorScaleRule, IconSetRule, WorkbookData } from "../../src/types/index";
@@ -32,7 +32,7 @@ describe("data", () => {
 });
 
 describe("Migrations", () => {
-  test("Can upgrade from 1 to 10", () => {
+  test("Can upgrade from 1 to 11", () => {
     const model = new Model({
       version: 1,
       sheets: [
@@ -52,14 +52,12 @@ describe("Migrations", () => {
       ],
     });
     const data = model.exportData();
-    expect(data.version).toBe(10);
+    expect(data.version).toBe(11);
     expect(data.sheets[0].id).toBeDefined();
     expect(data.sheets[0].figures).toBeDefined();
-    expect(data.sheets[0].cells.A1!.formula).toBeDefined();
-    expect(data.sheets[0].cells.A1!.formula!.text).toBeDefined();
-    expect(data.sheets[0].cells.A1!.formula!.dependencies).toBeDefined();
+    expect(data.sheets[0].cells.A1!.content).toBe("=A1");
   });
-  test("migration 6 to 9: charts", () => {
+  test("migrate version 6: charts", () => {
     const model = new Model({
       version: 6,
       sheets: [
@@ -188,7 +186,7 @@ describe("Migrations", () => {
       stackedBar: false,
     });
   });
-  test.each(FORBIDDEN_SHEET_CHARS)("migration 7 to 8: sheet Names", (char) => {
+  test.each(FORBIDDEN_SHEET_CHARS)("migrate version 7: sheet Names", (char) => {
     const model = new Model({
       version: 7,
       sheets: [
@@ -267,11 +265,7 @@ describe("Migrations", () => {
     expect(data.sheets[1].name).toBe("sheetName_");
 
     const cells = data.sheets[1].cells;
-    expect(cells.A1!.formula).toEqual({
-      dependencies: ["sheetName_!A2"],
-      text: "=|0|",
-      value: "Loading...",
-    });
+    expect(cells.A1!.content).toBe("=sheetName_!A2");
 
     const figures = data.sheets[1].figures;
     expect(figures[0].data?.dataSets).toEqual(["=sheetName_!A1:A2", "My sheet!A1:A2"]);
@@ -296,7 +290,7 @@ describe("Migrations", () => {
     expect(rule3.maximum.value).toBeUndefined();
   });
 
-  test("migration 7 to 8: duplicated sheet Names without forbidden characters", () => {
+  test("migrate version 7: duplicated sheet Names without forbidden characters", () => {
     const model = new Model({
       version: 7,
       sheets: [
@@ -319,9 +313,32 @@ describe("Migrations", () => {
     expect(data.sheets[6].name).toBe("__1");
   });
 
-  test("migration 9 to 10: normalized cell formats", () => {
+  test("migrate version 9: de-normalize formulas", () => {
     const model = new Model({
       version: 9,
+      sheets: [
+        {
+          cells: {
+            A1: { content: "1" },
+            A2: {
+              formula: {
+                text: "=|0|+|1|",
+                dependencies: ["A1", "A3"],
+              },
+            },
+          },
+        },
+      ],
+    });
+    const data = model.exportData();
+    expect(data.sheets[0].cells.A1!.content).toBe("1");
+    expect(data.sheets[0].cells.A2!.content).toBe("=A1+A3");
+    expect("formula" in data.sheets[0].cells.A2!).toBe(false);
+  });
+
+  test("migrate version 10: normalized cell formats", () => {
+    const model = new Model({
+      version: 10,
       sheets: [
         {
           id: "1",
@@ -484,19 +501,13 @@ test("complete import, then export", () => {
         cells: {
           A1: { content: "hello" },
           B1: {
-            formula: { text: "=|0|", dependencies: ["A1"], value: "hello" },
+            content: "=A1",
             style: 1,
             border: 1,
             format: 1,
           },
           C1: { content: "=mqdlskjfqmslfkj(++%//@@@)" },
-          D1: {
-            formula: {
-              text: '="This is a quote \\""',
-              dependencies: [],
-              value: 'This is a quote "',
-            },
-          },
+          D1: { content: '="This is a quote \\""' },
         },
         name: "My sheet",
         conditionalFormats: [],
