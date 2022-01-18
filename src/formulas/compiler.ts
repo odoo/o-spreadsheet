@@ -1,7 +1,10 @@
+import { Token } from ".";
 import { functionRegistry } from "../functions/index";
+import { parseNumber, removeStringQuotes } from "../helpers";
 import { _lt } from "../translation";
-import { CompiledFormula, FunctionDescription, NormalizedFormula } from "../types/index";
-import { AST, ASTFuncall, parse } from "./parser";
+import { CompiledFormula, FunctionDescription } from "../types/index";
+import { AST, ASTFuncall, parseTokens } from "./parser";
+import { rangeTokenize } from "./range_tokenizer";
 
 const functions = functionRegistry.content;
 
@@ -58,19 +61,32 @@ type CompiledAST = {
   code: string;
 };
 
+interface ConstantValues {
+  numbers: number[];
+  strings: string[];
+}
+
+type InternalCompiledFormula = CompiledFormula & {
+  constantValues: ConstantValues;
+};
+
 // this cache contains all compiled function code, grouped by "structure". For
 // example, "=2*sum(A1:A4)" and "=2*sum(B1:B4)" are compiled into the same
 // structural function.
 // It is only exported for testing purposes
-export const functionCache: { [key: string]: CompiledFormula } = {};
+export const functionCache: { [key: string]: Omit<CompiledFormula, "dependencies" | "tokens"> } =
+  {};
 
 // -----------------------------------------------------------------------------
 // COMPILER
 // -----------------------------------------------------------------------------
 
-export function compile(formula: NormalizedFormula): CompiledFormula {
-  if (!functionCache[formula.text]) {
-    const ast = parse(formula.text);
+export function compile(formula: string): CompiledFormula {
+  const tokens = rangeTokenize(formula);
+  const { dependencies, constantValues } = formulaArguments(tokens);
+  const cacheKey = compilationCacheKey(tokens, dependencies, constantValues);
+  if (!functionCache[cacheKey]) {
+    const ast = parseTokens([...tokens]);
     let nextId = 1;
 
     if (ast.type === "BIN_OPERATION" && ast.value === ":") {
@@ -81,7 +97,7 @@ export function compile(formula: NormalizedFormula): CompiledFormula {
     }
     const compiledAST = compileAST(ast);
     const code = splitCodeLines([
-      `// ${formula.text}`,
+      `// ${cacheKey}`,
       compiledAST.code,
       `return ${compiledAST.id};`,
     ]).join("\n");
@@ -94,10 +110,11 @@ export function compile(formula: NormalizedFormula): CompiledFormula {
       code
     );
 
-    //@ts-ignore
-    functionCache[formula.text] = baseFunction;
-    functionCache[formula.text].dependenciesFormat = formatAST(ast);
-
+    functionCache[cacheKey] = {
+      // @ts-ignore
+      execute: baseFunction,
+      dependenciesFormat: formatAST(ast),
+    };
     /**
      * This function compile the function arguments. It is mostly straightforward,
      * except that there is a non trivial transformation in one situation:
@@ -182,13 +199,13 @@ export function compile(formula: NormalizedFormula): CompiledFormula {
               t === "RANGE<STRING>"
           );
           if (isRangeOnly) {
-            if (currentArg.type !== "NORMALIZED_REFERENCE") {
+            if (currentArg.type !== "REFERENCE") {
               throw new Error(
                 _lt(
                   "Function %s expects the parameter %s to be reference to a cell or range, not a %s.",
                   ast.value.toUpperCase(),
                   (i + 1).toString(),
-                  currentArg.type.toLowerCase().replace("normalized_", "")
+                  currentArg.type.toLowerCase()
                 )
               );
             }
@@ -236,10 +253,7 @@ export function compile(formula: NormalizedFormula): CompiledFormula {
     ): CompiledAST {
       const codeBlocks: string[] = [];
       let id, fnName, statement;
-      if (
-        ast.type !== "NORMALIZED_REFERENCE" &&
-        !(ast.type === "BIN_OPERATION" && ast.value === ":")
-      ) {
+      if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
         if (isMeta) {
           throw new Error(_lt(`Argument must be a reference to a cell or range.`));
         }
@@ -249,40 +263,29 @@ export function compile(formula: NormalizedFormula): CompiledFormula {
       }
       switch (ast.type) {
         case "BOOLEAN":
-        case "NUMBER": // probably dead case
-        case "STRING": // probably dead case
           if (!isLazy) {
-            return { id: ast.value as string, code: "" };
+            return { id: `${ast.value}`, code: "" };
           }
           id = nextId++;
           statement = `${ast.value}`;
           break;
-        case "NORMALIZED_NUMBER":
+        case "NUMBER":
           id = nextId++;
-          statement = `deps.numbers[${ast.value}]`;
+          statement = `this.constantValues.numbers[${constantValues.numbers.indexOf(ast.value)}]`;
           break;
-        case "NORMALIZED_STRING":
+        case "STRING":
           id = nextId++;
-          statement = `deps.strings[${ast.value}]`;
+          statement = `this.constantValues.strings[${constantValues.strings.indexOf(ast.value)}]`;
           break;
         case "REFERENCE":
-          throw new Error(`Only normalized references can be compiled: ${ast.value}`);
-        case "NORMALIZED_REFERENCE":
-          const referenceIndex = formula.dependencies.references[ast.value];
-          if (!referenceIndex) {
-            id = nextId++;
-            statement = `null`;
-            break;
-          }
+          const referenceIndex = dependencies.indexOf(ast.value);
           id = nextId++;
           if (hasRange) {
-            statement = `range(${ast.value}, deps.references, sheetId)`;
+            statement = `range(${referenceIndex}, deps, sheetId)`;
           } else {
-            statement = `ref(${ast.value}, deps.references, sheetId, ${
-              isMeta ? "true" : "false"
-            }, "${referenceVerification.functionName || OPERATOR_MAP["="]}",  ${
-              referenceVerification.paramIndex
-            })`;
+            statement = `ref(${referenceIndex}, deps, sheetId, ${isMeta ? "true" : "false"}, "${
+              referenceVerification.functionName || OPERATOR_MAP["="]
+            }",  ${referenceVerification.paramIndex})`;
           }
           break;
         case "FUNCALL":
@@ -352,12 +355,8 @@ export function compile(formula: NormalizedFormula): CompiledFormula {
     function formatAST(ast: AST): (string | number)[] {
       let fnDef: FunctionDescription;
       switch (ast.type) {
-        case "NORMALIZED_REFERENCE":
-          const referenceIndex = formula.dependencies.references[ast.value];
-          if (referenceIndex) {
-            return [ast.value];
-          }
-          break;
+        case "REFERENCE":
+          return [dependencies.indexOf(ast.value)];
         case "FUNCALL":
           fnDef = functions[ast.value.toUpperCase()];
           if (fnDef.returnFormat) {
@@ -400,5 +399,77 @@ export function compile(formula: NormalizedFormula): CompiledFormula {
       return [];
     }
   }
-  return functionCache[formula.text];
+  const compiledFormula: InternalCompiledFormula = {
+    dependenciesFormat: functionCache[cacheKey].dependenciesFormat,
+    execute: functionCache[cacheKey].execute,
+    dependencies,
+    constantValues,
+    tokens,
+  };
+  return compiledFormula;
+}
+
+/**
+ * Compute a cache key for the formula.
+ * References, numbers and strings are replaced with placeholders because
+ * the compiled formula does not depend on their actual value.
+ * Both `=A1+1+"2"` and `=A2+2+"3"` are compiled to the exact same function.
+ *
+ * A formula `=A1+A2+SUM(2, 2, "2")` have the cache key `=|0|+|1|+SUM(|N0|, |N0|, |S0|)`
+ */
+function compilationCacheKey(
+  tokens: Token[],
+  dependencies: string[],
+  constantValues: ConstantValues
+): string {
+  return tokens
+    .map((token) => {
+      switch (token.type) {
+        case "STRING":
+          const value = removeStringQuotes(token.value);
+          return `|S${constantValues.strings.indexOf(value)}|`;
+        case "NUMBER":
+          return `|N${constantValues.numbers.indexOf(parseNumber(token.value))}|`;
+        case "REFERENCE":
+          return `|${dependencies.indexOf(token.value)}|`;
+        default:
+          return token.value;
+      }
+    })
+    .join("");
+}
+
+/**
+ * Return formula arguments which are references, strings and numbers.
+ */
+function formulaArguments(tokens: Token[]) {
+  const constantValues: ConstantValues = {
+    numbers: [],
+    strings: [],
+  };
+  const dependencies: string[] = [];
+  for (const token of tokens) {
+    switch (token.type) {
+      case "REFERENCE":
+        dependencies.push(token.value);
+        break;
+      case "STRING":
+        const value = removeStringQuotes(token.value);
+        if (!constantValues.strings.includes(value)) {
+          constantValues.strings.push(value);
+        }
+        break;
+      case "NUMBER": {
+        const value = parseNumber(token.value);
+        if (!constantValues.numbers.includes(value)) {
+          constantValues.numbers.push(value);
+        }
+        break;
+      }
+    }
+  }
+  return {
+    dependencies,
+    constantValues,
+  };
 }

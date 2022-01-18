@@ -9,7 +9,6 @@
 
 export { compile } from "./compiler";
 export { composerTokenize, EnrichedToken } from "./composer_tokenizer";
-export { normalize } from "./normalize";
 export { parse } from "./parser";
 export { rangeTokenize } from "./range_tokenizer";
 export { Token, tokenize } from "./tokenizer";

@@ -158,7 +158,7 @@ function convertDateFormat(ast: ASTString): ASTString {
     }
     return {
       ...ast,
-      value: `"${formatDateTime({ value: internalDate.value, format: format.join(" ") })}"`,
+      value: formatDateTime({ value: internalDate.value, format: format.join(" ") }),
     };
   } else {
     return { ...ast, value: ast.value.replace(/\\"/g, `""`) };

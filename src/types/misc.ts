@@ -1,10 +1,9 @@
 // -----------------------------------------------------------------------------
 // MISC
 // -----------------------------------------------------------------------------
-import { CellDependencies } from ".";
+import { Token } from "../formulas";
 import { Cell, CellValue } from "./cells";
 import { CommandResult } from "./commands";
-import { NormalizedFormula } from "./workbook_data";
 
 export type UID = string;
 export interface Link {
@@ -43,7 +42,7 @@ export interface Style {
 
 export interface UpdateCellData {
   content?: string;
-  formula?: NormalizedFormula;
+  formula?: string;
   style?: Style | null;
   format?: string;
 }
@@ -102,15 +101,18 @@ export type EnsureRange = (position: number, references: Range[], sheetId: UID) 
 export type NumberParser = (str: string) => number;
 
 export type _CompiledFormula = (
-  deps: CellDependencies,
+  deps: Range[],
   sheetId: UID,
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
   ctx: {}
 ) => any;
 
-export interface CompiledFormula extends _CompiledFormula {
+export interface CompiledFormula {
+  execute: _CompiledFormula;
+  tokens: Token[];
   dependenciesFormat: (string | number)[];
+  dependencies: string[];
 }
 
 export type ArgValue = CellValue | undefined;
