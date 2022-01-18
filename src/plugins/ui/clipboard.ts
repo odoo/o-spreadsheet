@@ -90,8 +90,10 @@ export class ClipboardPlugin extends UIPlugin {
         if (cmd.interactive) {
           this.interactivePaste(this.state, cmd.target, cmd);
         } else {
-          this.selectPastedZone(this.state, cmd.target);
+          const height = this.state.cells.length;
+          const width = this.state.cells[0].length;
           this.paste(this.state, cmd.target, pasteOption);
+          this.selectPastedZone(width, height, cmd.target);
           this.status = "invisible";
         }
         break;
@@ -243,6 +245,7 @@ export class ClipboardPlugin extends UIPlugin {
       ({ sheetId, col, row } = target);
       this.dispatch("ADD_MERGE", {
         sheetId,
+        force: true,
         target: [
           {
             left: col,
@@ -423,9 +426,7 @@ export class ClipboardPlugin extends UIPlugin {
   /**
    * Update the selection with the newly pasted zone
    */
-  private selectPastedZone(state: ClipboardState, target: Zone[]) {
-    const height = state.cells.length;
-    const width = state.cells[0].length;
+  private selectPastedZone(width: number, height: number, target: Zone[]) {
     const selection = target[0];
     const col = selection.left;
     const row = selection.top;
@@ -603,17 +604,24 @@ export class ClipboardPlugin extends UIPlugin {
   ): string {
     if (operation === "CUT") {
       const ranges: Range[] = [];
-      for (const range of cell.dependencies) {
+      for (const range of cell.dependencies.references) {
         if (this.isZoneOverlapClippedZone(zones, range.zone)) {
           ranges.push(...this.getters.createAdaptedRanges([range], offsetX, offsetY, sheetId));
         } else {
           ranges.push(range);
         }
       }
-      return this.getters.buildFormulaContent(sheetId, cell.normalizedText, ranges);
+      const dependencies = { ...cell.dependencies, references: ranges };
+      return this.getters.buildFormulaContent(sheetId, cell.normalizedText, dependencies);
     }
-    const ranges = this.getters.createAdaptedRanges(cell.dependencies, offsetX, offsetY, sheetId);
-    return this.getters.buildFormulaContent(sheetId, cell.normalizedText, ranges);
+    const ranges = this.getters.createAdaptedRanges(
+      cell.dependencies.references,
+      offsetX,
+      offsetY,
+      sheetId
+    );
+    const dependencies = { ...cell.dependencies, references: ranges };
+    return this.getters.buildFormulaContent(sheetId, cell.normalizedText, dependencies);
   }
 
   /**

@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 // MISC
 // -----------------------------------------------------------------------------
-
+import { CellDependencies } from ".";
 import { Cell, CellValue } from "./cells";
 import { CommandResult } from "./commands";
 import { NormalizedFormula } from "./workbook_data";
@@ -100,8 +100,10 @@ export type ReferenceDenormalizer = (
 
 export type EnsureRange = (position: number, references: Range[], sheetId: UID) => any[][];
 
+export type NumberParser = (str: string) => number;
+
 export type _CompiledFormula = (
-  deps: Range[],
+  deps: CellDependencies,
   sheetId: UID,
   refFn: ReferenceDenormalizer,
   range: EnsureRange,

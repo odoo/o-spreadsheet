@@ -1,6 +1,12 @@
 import { tokenize } from "../../formulas";
-import { ASTFuncall, ASTString, astToFormula, convertAstNodes, parse } from "../../formulas/parser";
-import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
+import {
+  AST,
+  ASTFuncall,
+  ASTString,
+  astToFormula,
+  convertAstNodes,
+  parse,
+} from "../../formulas/parser";
 import { functionRegistry } from "../../functions";
 import { isNumber } from "../../helpers";
 import {
@@ -10,18 +16,19 @@ import {
   timeRegexp,
   ymdDateRegexp,
 } from "../../helpers/dates";
-import { NormalizedFormula } from "../../types";
+import { ExcelCellData } from "../../types";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../constants";
 import { getCellType, pushElement } from "../helpers/content_helpers";
 import { escapeXml } from "../helpers/xml_helpers";
 
-export function addFormula(formula: NormalizedFormula): {
+export function addFormula(cell: ExcelCellData): {
   attrs: XMLAttributes;
   node: XMLString;
 } {
+  const formula = cell.content!;
   const functions = functionRegistry.content;
-  const tokens = tokenize(formula.text);
+  const tokens = tokenize(formula);
 
   const attrs: XMLAttributes = [];
   let node = escapeXml``;
@@ -35,9 +42,9 @@ export function addFormula(formula: NormalizedFormula): {
     const XlsxFormula = adaptFormulaToExcel(formula);
     // hack for cycles : if we don't set a value (be it 0 or #VALUE!), it will appear as invisible on excel,
     // Making it very hard for the client to find where the recursion is.
-    if (formula.value === "#CYCLE") {
+    if (cell.value === "#CYCLE") {
       attrs.push(["t", "str"]);
-      cycle = escapeXml/*xml*/ `<v>${formula.value}</v>`;
+      cycle = escapeXml/*xml*/ `<v>${cell.value}</v>`;
     }
     node = escapeXml/*xml*/ `
       <f>
@@ -48,7 +55,7 @@ export function addFormula(formula: NormalizedFormula): {
     return { attrs, node };
   } else {
     // Shouldn't we always output the value then ?
-    const value = formula.value;
+    const value = cell.value;
     // what if value = 0? Is this condition correct?
     if (value) {
       const type = getCellType(value);
@@ -80,12 +87,16 @@ export function addContent(
   return { attrs, node: escapeXml/*xml*/ `<v>${value}</v>` };
 }
 
-export function adaptFormulaToExcel(formula: NormalizedFormula): string {
-  let formulaText = formula.text;
+export function adaptFormulaToExcel(formulaText: string): string {
   if (formulaText[0] === "=") {
     formulaText = formulaText.slice(1);
   }
-  let ast = parse(formulaText);
+  let ast: AST;
+  try {
+    ast = parse(formulaText);
+  } catch (error) {
+    return formulaText;
+  }
   ast = convertAstNodes(ast, "STRING", convertDateFormat);
   ast = convertAstNodes(ast, "FUNCALL", (ast) => {
     ast = { ...ast, value: ast.value.toUpperCase() };
@@ -93,8 +104,7 @@ export function adaptFormulaToExcel(formula: NormalizedFormula): string {
     ast = addMissingRequiredArgs(ast);
     return ast;
   });
-  let newFormulaText = ast ? astToFormula(ast) : formula.text;
-  return getFormulaContent(newFormulaText, formula.dependencies);
+  return ast ? astToFormula(ast) : formulaText;
 }
 
 /**
@@ -153,15 +163,4 @@ function convertDateFormat(ast: ASTString): ASTString {
   } else {
     return { ...ast, value: ast.value.replace(/\\"/g, `""`) };
   }
-}
-
-function getFormulaContent(formula: string, dependencies: string[]): string {
-  let newContent = formula;
-  if (dependencies) {
-    for (let [index, d] of Object.entries(dependencies)) {
-      const stringPosition = `\\${FORMULA_REF_IDENTIFIER}${index}\\${FORMULA_REF_IDENTIFIER}`;
-      newContent = newContent.replace(new RegExp(stringPosition, "g"), d);
-    }
-  }
-  return newContent;
 }

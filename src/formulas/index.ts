@@ -8,8 +8,8 @@
  */
 
 export { compile } from "./compiler";
-export { composerTokenize } from "./composer_tokenizer";
+export { composerTokenize, EnrichedToken } from "./composer_tokenizer";
 export { normalize } from "./normalize";
 export { parse } from "./parser";
-export { EnrichedToken, FunctionContext, rangeTokenize } from "./range_tokenizer";
+export { rangeTokenize } from "./range_tokenizer";
 export { Token, tokenize } from "./tokenizer";

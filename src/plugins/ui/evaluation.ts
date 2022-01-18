@@ -88,17 +88,17 @@ export class EvaluationPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  evaluateFormula(formula: string, sheetId: UID = this.getters.getActiveSheetId()): any {
-    let formulaString: NormalizedFormula = normalize(formula);
-    const compiledFormula = compile(formulaString);
+  evaluateFormula(formulaString: string, sheetId: UID = this.getters.getActiveSheetId()): any {
+    let formula: NormalizedFormula = normalize(formulaString);
+    const compiledFormula = compile(formula);
     const params = this.getFormulaParameters(() => {});
 
     const ranges: Range[] = [];
-    for (let xc of formulaString.dependencies) {
+    for (let xc of formula.dependencies.references) {
       ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
     }
-
-    return compiledFormula(ranges, sheetId, ...params);
+    const dependencies = { ...formula.dependencies, references: ranges };
+    return compiledFormula(dependencies, sheetId, ...params);
   }
 
   /**
@@ -228,12 +228,7 @@ export class EvaluationPlugin extends UIPlugin {
         throw new Error(_lt("Invalid reference"));
       }
 
-      const zone = {
-        left: range.zone.left,
-        top: range.zone.top,
-        right: Math.min(range.zone.right, getters.getNumberCols(sheetId) - 1),
-        bottom: Math.min(range.zone.bottom, getters.getNumberRows(sheetId) - 1),
-      };
+      const zone = range.zone;
       return rangeSequence(zone.left, zone.right + 1).map((col) =>
         getters
           .getCellsInZone(sheetId, { ...zone, left: col, right: col })
