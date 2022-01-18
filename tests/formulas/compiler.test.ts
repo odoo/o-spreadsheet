@@ -1,36 +1,26 @@
 import { Model } from "../../src";
 import { functionCache } from "../../src/formulas/compiler";
-import { compile, normalize } from "../../src/formulas/index";
+import { compile } from "../../src/formulas/index";
 import { functionRegistry } from "../../src/functions/index";
 import { toZone } from "../../src/helpers";
-import {
-  ArgType,
-  ArgValue,
-  CellDependencies,
-  CompiledFormula,
-  NormalizedFormula,
-  Range,
-  ReturnFormatType,
-} from "../../src/types";
+import { ArgType, ArgValue, CompiledFormula, Range, ReturnFormatType } from "../../src/types";
 import { evaluateCell } from "../test_helpers/helpers";
 
 function compiledBaseFunction(formula: string): CompiledFormula {
   for (let f in functionCache) {
     delete functionCache[f];
   }
-  compileFromCompleteFormula(formula);
-  return Object.values(functionCache)[0];
+  return compileFromCompleteFormula(formula);
 }
 
 function compileFromCompleteFormula(formula: string) {
-  let formulaString: NormalizedFormula = normalize(formula);
-  return compile(formulaString);
+  return compile(formula);
 }
 
 describe("expression compiler", () => {
   test.each(["=1", "=true", `="abc"`])("some arithmetic expressions", (formula) => {
     const compiledFormula = compiledBaseFunction(formula);
-    expect(compiledFormula.toString()).toMatchSnapshot();
+    expect(compiledFormula.execute.toString()).toMatchSnapshot();
   });
 
   test("simple values that throw error", () => {
@@ -41,7 +31,7 @@ describe("expression compiler", () => {
     "some arithmetic expressions",
     (formula) => {
       const compiledFormula = compiledBaseFunction(formula);
-      expect(compiledFormula.toString()).toMatchSnapshot();
+      expect(compiledFormula.execute.toString()).toMatchSnapshot();
     }
   );
 
@@ -49,33 +39,38 @@ describe("expression compiler", () => {
     "some arithmetic expressions",
     (formula) => {
       const compiledFormula = compiledBaseFunction(formula);
-      expect(compiledFormula.toString()).toMatchSnapshot();
+      expect(compiledFormula.execute.toString()).toMatchSnapshot();
     }
   );
 
   test("read some values and functions", () => {
     const compiledFormula = compiledBaseFunction("=A1 + sum(A2:C3)");
-    expect(compiledFormula.toString()).toMatchSnapshot();
+    expect(compiledFormula.execute.toString()).toMatchSnapshot();
+  });
+
+  test("with the same reference multiple times", () => {
+    const compiledFormula = compiledBaseFunction("=SUM(A1, A1, A2)");
+    expect(compiledFormula.execute.toString()).toMatchSnapshot();
   });
 
   test("expression with $ref", () => {
     const compiledFormula = compiledBaseFunction("=$A1+$A$2+A$3");
-    expect(compiledFormula.toString()).toMatchSnapshot();
+    expect(compiledFormula.execute.toString()).toMatchSnapshot();
   });
 
   test("expression with references with a sheet", () => {
     const compiledFormula = compiledBaseFunction("=Sheet34!B3");
-    expect(compiledFormula.toString()).toMatchSnapshot();
+    expect(compiledFormula.execute.toString()).toMatchSnapshot();
   });
 
   test("expressions with a debugger", () => {
     const compiledFormula = compiledBaseFunction("=? A1 / 2");
-    expect(compiledFormula.toString()).toMatchSnapshot();
+    expect(compiledFormula.execute.toString()).toMatchSnapshot();
   });
 
   test("cells are converted to ranges if function require a range", () => {
     const compiledFormula = compiledBaseFunction("=sum(A1)");
-    expect(compiledFormula.toString()).toMatchSnapshot();
+    expect(compiledFormula.execute.toString()).toMatchSnapshot();
   });
 
   test("cannot compile some invalid formulas", () => {
@@ -399,7 +394,7 @@ describe("compile functions", () => {
       "=USELAZYARG(USELAZYARG(24))",
     ])("functions call requesting lazy parameters", (formula) => {
       const compiledFormula = compiledBaseFunction(formula);
-      expect(compiledFormula.toString()).toMatchSnapshot();
+      expect(compiledFormula.execute.toString()).toMatchSnapshot();
     });
   });
 
@@ -423,7 +418,7 @@ describe("compile functions", () => {
       "function call requesting meta parameter",
       (formula) => {
         const compiledFormula = compiledBaseFunction(formula);
-        expect(compiledFormula.toString()).toMatchSnapshot();
+        expect(compiledFormula.execute.toString()).toMatchSnapshot();
       }
     );
 
@@ -453,32 +448,27 @@ describe("compile functions", () => {
       let refFn = jest.fn();
       let ensureRange = jest.fn();
 
-      const ranges2CellDependencies = (ranges: Range[]): CellDependencies => ({
-        strings: [],
-        numbers: [],
-        references: ranges,
-      });
       const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
 
       const rangeA1 = [{ zone: toZone("A1"), sheetId: "ABC" }] as Range[];
       const rangeA1ToB2 = [{ zone: toZone("A1:B2"), sheetId: "ABC" }] as Range[];
 
-      compiledFormula1(ranges2CellDependencies(rangeA1), "ABC", refFn, ensureRange, ctx);
+      compiledFormula1.execute(rangeA1, "ABC", refFn, ensureRange, ctx);
       expect(refFn).toHaveBeenCalledWith(0, rangeA1, "ABC", true, "USEMETAARG", 1);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
 
-      compiledFormula2(ranges2CellDependencies(rangeA1ToB2), "ABC", refFn, ensureRange, ctx);
+      compiledFormula2.execute(rangeA1ToB2, "ABC", refFn, ensureRange, ctx);
       expect(refFn).toHaveBeenCalledWith(0, rangeA1ToB2, "ABC", true, "USEMETAARG", 1);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
 
-      compiledFormula3(ranges2CellDependencies(rangeA1), "ABC", refFn, ensureRange, ctx);
+      compiledFormula3.execute(rangeA1, "ABC", refFn, ensureRange, ctx);
       expect(refFn).toHaveBeenCalledWith(0, rangeA1, "ABC", false, "NOTUSEMETAARG", 1);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
 
-      compiledFormula4(ranges2CellDependencies(rangeA1ToB2), "ABC", refFn, ensureRange, ctx);
+      compiledFormula4.execute(rangeA1ToB2, "ABC", refFn, ensureRange, ctx);
       expect(refFn).toHaveBeenCalledWith(0, rangeA1ToB2, "ABC", false, "NOTUSEMETAARG", 1);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();

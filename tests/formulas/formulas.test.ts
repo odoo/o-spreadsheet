@@ -1,19 +1,20 @@
-import { Model, normalize } from "../../src";
+import { Model } from "../../src";
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
+import { cellFactory } from "../../src/helpers/cells";
+import { FormulaCell } from "../../src/types";
 import { createSheetWithName } from "../test_helpers/commands_helpers";
 
 function moveFormula(model: Model, formula: string, offsetX: number, offsetY: number): string {
   const sheetId = model.getters.getActiveSheetId();
-  const normalizedFormula = normalize(formula);
-  const content = normalizedFormula.text;
-  const dependencies = normalizedFormula.dependencies.references.map((dep) =>
-    model.getters.getRangeFromSheetXC(sheetId, dep)
+  const createCell = cellFactory(model.getters);
+  const cell = createCell("cellId", formula, {}, sheetId) as FormulaCell;
+  const newDependencies = model.getters.createAdaptedRanges(
+    cell.dependencies,
+    offsetX,
+    offsetY,
+    sheetId
   );
-  const ranges = model.getters.createAdaptedRanges(dependencies, offsetX, offsetY, sheetId);
-  return model.getters.buildFormulaContent(sheetId, content, {
-    ...normalizedFormula.dependencies,
-    references: ranges,
-  });
+  return model.getters.buildFormulaContent(sheetId, cell, newDependencies);
 }
 
 describe("createAdaptedRanges", () => {

@@ -1,5 +1,5 @@
 import { DEFAULT_ERROR_MESSAGE } from "../../constants";
-import { compile, normalize } from "../../formulas";
+import { compile } from "../../formulas";
 import { cellRegistry } from "../../registries/cell_types";
 import { Cell, CellDisplayProperties, CoreGetters, UID } from "../../types";
 import { parseDateTime } from "../dates";
@@ -29,20 +29,17 @@ cellRegistry
     sequence: 10,
     match: (content) => content.startsWith("="),
     createCell: (id, content, properties, sheetId, getters) => {
-      const formula = normalize(content);
-      const normalizedText = formula.text;
-      const compiledFormula = compile(formula);
-      const ranges = formula.dependencies.references.map((xc) =>
+      const compiledFormula = compile(content);
+      const dependencies = compiledFormula.dependencies.map((xc) =>
         getters.getRangeFromSheetXC(sheetId, xc)
       );
-      const format = properties.format || getters.inferFormulaFormat(compiledFormula, ranges);
+      const format = properties.format || getters.inferFormulaFormat(compiledFormula, dependencies);
       return new FormulaCell(
-        (normalizedText, dependencies) =>
-          getters.buildFormulaContent(sheetId, normalizedText, dependencies),
+        (cell: FormulaCell) => getters.buildFormulaContent(sheetId, cell),
         id,
-        normalizedText,
+        content,
         compiledFormula,
-        { ...formula.dependencies, references: ranges },
+        dependencies,
         {
           ...properties,
           format,

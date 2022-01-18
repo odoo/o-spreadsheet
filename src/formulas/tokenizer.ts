@@ -1,4 +1,4 @@
-import { FORMULA_REF_IDENTIFIER, INCORRECT_RANGE_STRING } from "../constants";
+import { INCORRECT_RANGE_STRING } from "../constants";
 import { functionRegistry } from "../functions/index";
 import { formulaNumberRegexp, rangeReference } from "../helpers/index";
 import { _lt } from "../translation";
@@ -20,7 +20,6 @@ import { _lt } from "../translation";
  * formulas.
  */
 
-const dependencyIdentifierRegex = /^[S|N]?\d+/;
 const functions = functionRegistry.content;
 const OPERATORS = "+,-,*,/,:,=,<>,>=,>,<=,<,%,^,&".split(",");
 
@@ -38,9 +37,6 @@ export type TokenType =
   | "RIGHT_PAREN"
   | "REFERENCE"
   | "INVALID_REFERENCE"
-  | "NORMALIZED_REFERENCE"
-  | "NORMALIZED_NUMBER"
-  | "NORMALIZED_STRING"
   | "UNKNOWN";
 
 export interface Token {
@@ -68,7 +64,6 @@ export function tokenize(str: string): Token[] {
       tokenizeOperator(chars) ||
       tokenizeString(chars) ||
       tokenizeDebugger(chars) ||
-      tokenizeNormalizedReferences(chars) ||
       tokenizeInvalidRange(chars) ||
       tokenizeNumber(chars) ||
       tokenizeSymbol(chars);
@@ -80,31 +75,6 @@ export function tokenize(str: string): Token[] {
     result.push(token);
   }
   return result;
-}
-
-function tokenizeNormalizedReferences(chars: string[]): Token | null {
-  if (chars[0] === FORMULA_REF_IDENTIFIER) {
-    chars.shift(); // consume the | even if it is incorrect
-    const match = chars.join("").match(dependencyIdentifierRegex);
-    if (match) {
-      chars.splice(0, match[0].length);
-    } else {
-      return null;
-    }
-    if (chars[0] === FORMULA_REF_IDENTIFIER) {
-      chars.shift();
-    }
-    const value = match[0];
-    switch (value[0]) {
-      case "S":
-        return { type: "NORMALIZED_STRING", value: value.substring(1) };
-      case "N":
-        return { type: "NORMALIZED_NUMBER", value: value.substring(1) };
-      default:
-        return { type: "NORMALIZED_REFERENCE", value };
-    }
-  }
-  return null;
 }
 
 function tokenizeDebugger(chars: string[]): Token | null {

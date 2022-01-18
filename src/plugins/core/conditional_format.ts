@@ -1,4 +1,4 @@
-import { compile, normalize } from "../../formulas/index";
+import { compile } from "../../formulas/index";
 import { isInside, zoneToXc } from "../../helpers/index";
 import {
   AddConditionalFormatCommand,
@@ -360,7 +360,7 @@ export class ConditionalFormatPlugin
   ) {
     if (threshold.type !== "formula") return CommandResult.Success;
     try {
-      compile(normalize(threshold.value || ""));
+      compile(threshold.value || "");
     } catch (error) {
       switch (thresholdName) {
         case "min":

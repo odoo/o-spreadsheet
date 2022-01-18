@@ -1,4 +1,4 @@
-import { compile, normalize } from "../../formulas/index";
+import { compile } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { isZoneValid, range as rangeSequence, toXC } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
@@ -15,7 +15,6 @@ import {
   FormulaCell,
   Getters,
   invalidateEvaluationCommands,
-  NormalizedFormula,
   Range,
   ReferenceDenormalizer,
   UID,
@@ -89,16 +88,14 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   evaluateFormula(formulaString: string, sheetId: UID = this.getters.getActiveSheetId()): any {
-    let formula: NormalizedFormula = normalize(formulaString);
-    const compiledFormula = compile(formula);
+    const compiledFormula = compile(formulaString);
     const params = this.getFormulaParameters(() => {});
 
     const ranges: Range[] = [];
-    for (let xc of formula.dependencies.references) {
+    for (let xc of compiledFormula.dependencies) {
       ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
     }
-    const dependencies = { ...formula.dependencies, references: ranges };
-    return compiledFormula(dependencies, sheetId, ...params);
+    return compiledFormula.execute(ranges, sheetId, ...params);
   }
 
   /**
@@ -168,7 +165,7 @@ export class EvaluationPlugin extends UIPlugin {
       visited[sheetId][xc] = null;
       try {
         params[2].__originCellXC = xc;
-        cell.assignValue(cell.compiledFormula(cell.dependencies!, sheetId, ...params));
+        cell.assignValue(cell.compiledFormula.execute(cell.dependencies, sheetId, ...params));
         if (Array.isArray(cell.evaluated.value)) {
           // if a value returns an array (like =A1:A3)
           throw new Error(_lt("This formula depends on invalid values"));

@@ -20,6 +20,20 @@ export function stringify(obj: any): string {
 }
 
 /**
+ * Remove quotes from a quoted string
+ * ```js
+ * removeStringQuotes('"Hello"')
+ * > 'Hello'
+ * ```
+ */
+export function removeStringQuotes(str: string): string {
+  if (str[0] === '"' && str[str.length - 1] === '"') {
+    return str.slice(1).slice(0, str.length - 2);
+  }
+  return str;
+}
+
+/**
  * Deep copy arrays, plain objects and primitive values.
  * Throws an error for other types such as class instances.
  * Sparse arrays remain sparse.

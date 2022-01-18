@@ -1,6 +1,5 @@
-import { DATETIME_FORMAT, FORMULA_REF_IDENTIFIER, NULL_FORMAT } from "../../constants";
+import { DATETIME_FORMAT, NULL_FORMAT } from "../../constants";
 import { cellFactory } from "../../helpers/cells/cell_factory";
-import { FormulaCell } from "../../helpers/cells/index";
 import { isInside, maximumDecimalPlaces, range, toCartesian, toXC } from "../../helpers/index";
 import { getItemId } from "../../helpers/misc";
 import {
@@ -8,13 +7,13 @@ import {
   ApplyRangeChange,
   Cell,
   CellData,
-  CellDependencies,
   CellPosition,
   CellValueType,
   CommandResult,
   CompiledFormula,
   CoreCommand,
   ExcelWorkbookData,
+  FormulaCell,
   Range,
   RangePart,
   Sheet,
@@ -57,7 +56,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
         if (cell.isFormula()) {
-          for (const range of cell.dependencies.references) {
+          for (const range of cell.dependencies) {
             if (!sheetId || range.sheetId === sheetId) {
               const change = applyChange(range);
               if (change.changeType !== "NONE") {
@@ -66,8 +65,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
                   sheet,
                   cell.id,
                   "dependencies" as any,
-                  "references",
-                  cell.dependencies.references.indexOf(range),
+                  cell.dependencies.indexOf(range),
                   change.range
                 );
               }
@@ -451,7 +449,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
               return cellRef.format;
             }
           }
-          break;
       }
     }
     return NULL_FORMAT;
@@ -459,26 +456,21 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /*
    * Reconstructs the original formula string based on a normalized form and its dependencies
    */
-  buildFormulaContent(sheetId: UID, formula: string, dependencies: CellDependencies): string {
-    let newContent = formula;
-    for (let [index, range] of Object.entries(dependencies.references)) {
-      const xc = this.getters.getRangeString(range, sheetId);
-      const stringPosition = `\\${FORMULA_REF_IDENTIFIER}${index}\\${FORMULA_REF_IDENTIFIER}`;
-      newContent = newContent.replace(new RegExp(stringPosition, "g"), xc);
-    }
-    for (let [index, d] of Object.entries(dependencies.strings)) {
-      const stringPosition = `\\${FORMULA_REF_IDENTIFIER}S${index}\\${FORMULA_REF_IDENTIFIER}`;
-      newContent = newContent.replace(new RegExp(stringPosition, "g"), `"${d}"`);
-    }
-    for (let [index, d] of Object.entries(dependencies.numbers)) {
-      const stringPosition = `\\${FORMULA_REF_IDENTIFIER}N${index}\\${FORMULA_REF_IDENTIFIER}`;
-      newContent = newContent.replace(new RegExp(stringPosition, "g"), d.toString());
-    }
-    return newContent;
+  buildFormulaContent(sheetId: UID, cell: FormulaCell, dependencies?: Range[]): string {
+    const ranges = dependencies || [...cell.dependencies];
+    return cell.compiledFormula.tokens
+      .map((token) => {
+        if (token.type === "REFERENCE") {
+          const range = ranges.shift()!;
+          return this.getters.getRangeString(range, sheetId);
+        }
+        return token.value;
+      })
+      .join("");
   }
 
   getFormulaCellContent(sheetId: UID, cell: FormulaCell): string {
-    return this.buildFormulaContent(sheetId, cell.normalizedText, cell.dependencies);
+    return this.buildFormulaContent(sheetId, cell);
   }
 
   getCellStyle(cell?: Cell): Style {
