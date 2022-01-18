@@ -50,7 +50,7 @@ Array [
     },
     "length": 9,
     "start": 7,
-    "type": "SYMBOL",
+    "type": "REFERENCE",
     "value": " C4 : C5 ",
   },
   Object {

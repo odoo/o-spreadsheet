@@ -1,4 +1,4 @@
-import { Token, tokenize, TokenType } from "./tokenizer";
+import { Token, tokenize } from "./tokenizer";
 
 /**
  * finds a sequence of token that represent a range and replace them with a single token
@@ -27,12 +27,12 @@ export function mergeSymbolsIntoRanges(result: Token[], removeSpace = false): To
           continue;
         } else if (token.type === "OPERATOR" && token.value === ":") {
           operator = i;
-        } else if (operator && token.type === "SYMBOL") {
+        } else if (operator && token.type === "REFERENCE") {
           refEnd = i;
         } else {
           if (startIncludingSpaces && refStart && operator && refEnd) {
-            const newToken = {
-              type: <TokenType>"SYMBOL",
+            const newToken: Token = {
+              type: "REFERENCE",
               value: result
                 .slice(startIncludingSpaces, i)
                 .filter((x) => !removeSpace || x.type !== "SPACE")
@@ -43,7 +43,7 @@ export function mergeSymbolsIntoRanges(result: Token[], removeSpace = false): To
             i = startIncludingSpaces + 1;
             reset();
           } else {
-            if (token.type === "SYMBOL") {
+            if (token.type === "REFERENCE") {
               startIncludingSpaces = i;
               refStart = i;
               operator = undefined;
@@ -53,7 +53,7 @@ export function mergeSymbolsIntoRanges(result: Token[], removeSpace = false): To
           }
         }
       } else {
-        if (token.type === "SYMBOL") {
+        if (token.type === "REFERENCE") {
           refStart = i;
           operator = refEnd = undefined;
         } else {
@@ -61,9 +61,9 @@ export function mergeSymbolsIntoRanges(result: Token[], removeSpace = false): To
         }
       }
     } else {
-      if (["SPACE", "SYMBOL"].includes(token.type)) {
+      if (["SPACE", "REFERENCE"].includes(token.type)) {
         startIncludingSpaces = i;
-        refStart = token.type === "SYMBOL" ? i : undefined;
+        refStart = token.type === "REFERENCE" ? i : undefined;
         operator = refEnd = undefined;
       } else {
         reset();
@@ -72,8 +72,8 @@ export function mergeSymbolsIntoRanges(result: Token[], removeSpace = false): To
   }
   const i = result.length - 1;
   if (startIncludingSpaces && refStart && operator && refEnd) {
-    const newToken = {
-      type: <TokenType>"SYMBOL",
+    const newToken: Token = {
+      type: "REFERENCE",
       value: result
         .slice(startIncludingSpaces, i + 1)
         .filter((x) => !removeSpace || x.type !== "SPACE")

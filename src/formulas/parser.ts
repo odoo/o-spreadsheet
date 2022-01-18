@@ -108,6 +108,7 @@ function bindingPower(token: Token): number {
   switch (token.type) {
     case "NUMBER":
     case "SYMBOL":
+    case "REFERENCE":
       return 0;
     case "COMMA":
       return 3;
@@ -171,6 +172,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
       };
     case "INVALID_REFERENCE":
       throw new Error(_lt("Invalid reference"));
+    case "REFERENCE":
     case "SYMBOL":
       if (cellReference.test(current.value)) {
         return {

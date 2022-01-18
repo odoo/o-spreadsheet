@@ -173,7 +173,7 @@ export class EditionPlugin extends UIPlugin {
       case "START_CHANGE_HIGHLIGHT":
         this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
         const previousRefToken = this.currentTokens
-          .filter((token) => token.type === "SYMBOL")
+          .filter((token) => token.type === "REFERENCE")
           .find((token) => {
             let value = token.value;
             const [xc, sheet] = value.split("!").reverse();
@@ -537,7 +537,7 @@ export class EditionPlugin extends UIPlugin {
     const ranges: string[] = [];
     const colorIndexByRange: { [xc: string]: number } = {};
 
-    for (let token of this.currentTokens.filter((token) => token.type === "SYMBOL")) {
+    for (let token of this.currentTokens.filter((token) => token.type === "REFERENCE")) {
       let value = token.value;
       const [xc, sheet] = value.split("!").reverse();
       if (rangeReference.test(xc)) {

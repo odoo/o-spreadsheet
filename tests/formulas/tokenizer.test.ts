@@ -98,6 +98,20 @@ describe("tokenizer", () => {
         value: "false",
       },
     ]);
+    expect(tokenize("TRUE")).toEqual([{ type: "SYMBOL", value: "TRUE" }]);
+    expect(tokenize("FALSE")).toEqual([
+      {
+        type: "SYMBOL",
+        value: "FALSE",
+      },
+    ]);
+    expect(tokenize("TrUe")).toEqual([{ type: "SYMBOL", value: "TrUe" }]);
+    expect(tokenize("FalSe")).toEqual([
+      {
+        type: "SYMBOL",
+        value: "FalSe",
+      },
+    ]);
     expect(tokenize("=AND(true,false)")).toEqual([
       { type: "OPERATOR", value: "=" },
       { type: "FUNCTION", value: "AND" },
@@ -113,51 +127,74 @@ describe("tokenizer", () => {
     ]);
   });
 
+  test("references", () => {
+    expect(tokenize("=A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "REFERENCE", value: "A1" },
+    ]);
+    expect(tokenize("= A1 ")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SPACE", value: " " },
+      { type: "REFERENCE", value: "A1" },
+      { type: "SPACE", value: " " },
+    ]);
+  });
+
   test("$references", () => {
     expect(tokenize("=$A$1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "$A$1" },
+      { type: "REFERENCE", value: "$A$1" },
     ]);
     expect(tokenize("=C$1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "C$1" },
+      { type: "REFERENCE", value: "C$1" },
     ]);
     expect(tokenize("=$C1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "$C1" },
+      { type: "REFERENCE", value: "$C1" },
     ]);
   });
 
   test("reference and sheets", () => {
     expect(tokenize("=Sheet1!A1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "Sheet1!A1" },
+      { type: "REFERENCE", value: "Sheet1!A1" },
     ]);
     expect(tokenize("='Sheet1'!A1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "'Sheet1'!A1" },
+      { type: "REFERENCE", value: "'Sheet1'!A1" },
     ]);
     expect(tokenize("='Aryl Nibor Xela Nalim'!A1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "'Aryl Nibor Xela Nalim'!A1" },
+      { type: "REFERENCE", value: "'Aryl Nibor Xela Nalim'!A1" },
     ]);
     expect(tokenize("=Sheet1!$A1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "Sheet1!$A1" },
+      { type: "REFERENCE", value: "Sheet1!$A1" },
     ]);
     expect(tokenize("=Sheet1!A$1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "Sheet1!A$1" },
+      { type: "REFERENCE", value: "Sheet1!A$1" },
     ]);
     expect(tokenize("='a '' b'!A1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "'a '' b'!A1" },
+      { type: "REFERENCE", value: "'a '' b'!A1" },
     ]);
+  });
 
+  test("wrong references", () => {
     // note the missing ' in the following test:
     expect(tokenize("='Sheet1!A1")).toEqual([
       { type: "OPERATOR", value: "=" },
       { type: "UNKNOWN", value: "'Sheet1!A1" },
+    ]);
+    expect(tokenize("=!A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "!A1" },
+    ]);
+    expect(tokenize("=''!A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "''!A1" },
     ]);
   });
 

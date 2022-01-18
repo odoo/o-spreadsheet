@@ -57,6 +57,31 @@ describe("Migrations", () => {
     expect(data.sheets[0].figures).toBeDefined();
     expect(data.sheets[0].cells.A1!.content).toBe("=A1");
   });
+  test("migrate version 5: normalize formulas", () => {
+    const model = new Model({
+      version: 5,
+      sheets: [
+        {
+          cells: {
+            A1: { content: "=A1" },
+            A2: { content: "=1" },
+            A3: { content: `="hello"` },
+            A4: { content: "=A1+A1+A2" },
+            A5: { content: `=A1+1+"2"` },
+          },
+        },
+      ],
+    });
+    const data = model.exportData();
+    const cells = data.sheets[0].cells;
+    expect(data.version).toBe(11);
+    // formulas are de-normalized with version 9
+    expect(cells.A1?.content).toBe("=A1");
+    expect(cells.A2?.content).toBe("=1");
+    expect(cells.A3?.content).toBe(`="hello"`);
+    expect(cells.A4?.content).toBe("=A1+A1+A2");
+    expect(cells.A5?.content).toBe(`=A1+1+"2"`);
+  });
   test("migrate version 6: charts", () => {
     const model = new Model({
       version: 6,
