@@ -36,8 +36,8 @@ export type TokenType =
   | "COMMA"
   | "LEFT_PAREN"
   | "RIGHT_PAREN"
-  | "REFERENCE"
   | "INVALID_REFERENCE"
+  | "NORMALIZED_REFERENCE"
   | "NORMALIZED_NUMBER"
   | "NORMALIZED_STRING"
   | "UNKNOWN";
@@ -100,7 +100,7 @@ function tokenizeNormalizedReferences(chars: string[]): Token | null {
       case "N":
         return { type: "NORMALIZED_NUMBER", value: value.substring(1) };
       default:
-        return { type: "REFERENCE", value };
+        return { type: "NORMALIZED_REFERENCE", value };
     }
   }
   return null;
