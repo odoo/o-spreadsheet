@@ -5,6 +5,7 @@ import {
   ConditionalFormat,
   SingleColorRules,
   SpreadsheetEnv,
+  UID,
   Zone,
 } from "../../types";
 import { SelectionInput } from "../selection_input";
@@ -228,7 +229,7 @@ const CSS = css/* scss */ `
   }
 `;
 interface Props {
-  selection: Zone | undefined;
+  selection?: [Zone];
 }
 export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
@@ -236,6 +237,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
   static components = { CellIsRuleEditor, ColorScaleRuleEditor, SelectionInput };
   colorNumberString = colorNumberString;
   getters = this.env.getters;
+  private activeSheetId: UID;
 
   //@ts-ignore --> used in XML template
   private cellIsOperators = cellIsOperators;
@@ -251,14 +253,19 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     ColorScaleRule: ColorScaleRuleEditor,
   };
 
-  constructor(parent, props) {
+  constructor(parent, props: Props) {
     super(parent, props);
+    this.activeSheetId = this.getters.getActiveSheet();
     if (props.selection && this.getters.getRulesSelection(props.selection).length === 1) {
       this.openCf(this.getters.getRulesSelection(props.selection)[0]);
     }
   }
-  async willUpdateProps(nextProps) {
-    if (nextProps.selection && nextProps.selection !== this.props.selection)
+  async willUpdateProps(nextProps: Props) {
+    const newActiveSheetId = this.getters.getActiveSheet();
+    if (newActiveSheetId !== this.activeSheetId) {
+      this.activeSheetId = newActiveSheetId;
+      this.resetState();
+    } else if (nextProps.selection && nextProps.selection !== this.props.selection)
       if (nextProps.selection && this.getters.getRulesSelection(nextProps.selection).length === 1) {
         this.openCf(this.getters.getRulesSelection(nextProps.selection)[0]);
       } else {

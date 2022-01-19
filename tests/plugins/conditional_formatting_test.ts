@@ -1,3 +1,4 @@
+import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import "../canvas.mock";
@@ -1235,5 +1236,18 @@ describe("UI of conditional formats", () => {
     expect(ranges[1]["value"]).toBe("C3");
   });
 
-  test("switching sheet changes the content of CF and cancels the edition", async () => {});
+  test("switching sheet resets CF Editor to list", async () => {
+    triggerMouseEvent(selectors.closePanel, "click");
+    model.dispatch("CREATE_SHEET", { id: "42" });
+    await nextTick();
+    const zone = toZone("A1:A2");
+    parent.env.openSidePanel("ConditionalFormatting", { selection: [zone] });
+    await nextTick();
+    expect(fixture.querySelector(selectors.listPreview)).toBeNull();
+    expect(fixture.querySelector(selectors.ruleEditor.range! as "input")!.value).toBe("A1:A2");
+    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: "42" });
+    await nextTick();
+    expect(fixture.querySelector(selectors.ruleEditor.range)).toBeNull();
+    expect(fixture.querySelector(selectors.listPreview)).toBeDefined();
+  });
 });
