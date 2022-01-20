@@ -164,6 +164,16 @@ exports[`TopBar component can set cell format 1`] = `
             Number (1,000.12)
           </div>
           <div
+            data-format="currency"
+          >
+            Currency ($1,000.12)
+          </div>
+          <div
+            data-format="currency_rounded"
+          >
+            Currency rounded ($1,000)
+          </div>
+          <div
             data-format="percent"
           >
             Percent (10.12%)

@@ -564,6 +564,11 @@ export const FORMAT_PERCENT_ACTION = (env: SpreadsheetEnv) => setFormatter(env, 
 
 export const FORMAT_SCIENTIFIC_ACTION = (env: SpreadsheetEnv) => setFormatter(env, "0.00E+00");
 
+export const FORMAT_CURRENCY_ACTION = (env: SpreadsheetEnv) => setFormatter(env, '"$"#,##0.00');
+
+export const FORMAT_CURRENCY_ROUNDED_ACTION = (env: SpreadsheetEnv) =>
+  setFormatter(env, '"$"#,##0');
+
 export const FORMAT_DATE_ACTION = (env: SpreadsheetEnv) => setFormatter(env, "m/d/yyyy");
 
 export const FORMAT_TIME_ACTION = (env: SpreadsheetEnv) => setFormatter(env, "hh:mm:ss a");

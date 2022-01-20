@@ -104,14 +104,24 @@ cellRegistry
   });
 
 function detectFormat(content: string): string | undefined {
+  const digitBase = content.includes(".") ? "0.00" : "0";
+  const matchedCurrencies = content.match(/[\$€]/);
+  if (matchedCurrencies) {
+    const matchedFirstDigit = content.match(/[\d]/);
+    const currency = '"' + matchedCurrencies.values().next().value + '"';
+    if (matchedFirstDigit!.index! < matchedCurrencies.index!) {
+      return "#,##" + digitBase + currency;
+    }
+    return currency + "#,##" + digitBase;
+  }
   if (content.toUpperCase().includes("E")) {
     return "0.00E+00";
   }
   if (content.includes("%")) {
-    return content.includes(".") ? "0.00%" : "0%";
+    return digitBase + "%";
   }
   if (content.includes(",")) {
-    return content.includes(".") ? "#,##0.00" : "#,##0";
+    return "#,##" + digitBase;
   }
   return undefined;
 }

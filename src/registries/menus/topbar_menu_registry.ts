@@ -222,9 +222,20 @@ topbarMenuRegistry
   })
   .addChild("format_number_scientific", ["format", "format_number"], {
     name: _lt("Scientific (1.01E+03)"),
-    sequence: 35,
+    sequence: 32,
     separator: true,
     action: ACTIONS.FORMAT_SCIENTIFIC_ACTION,
+  })
+  .addChild("format_number_currency", ["format", "format_number"], {
+    name: _lt("Currency ($1,000.12)"),
+    sequence: 37,
+    action: ACTIONS.FORMAT_CURRENCY_ACTION,
+  })
+  .addChild("format_number_currency_rounded", ["format", "format_number"], {
+    name: _lt("Currency rounded ($1,000)"),
+    sequence: 38,
+    separator: true,
+    action: ACTIONS.FORMAT_CURRENCY_ROUNDED_ACTION,
   })
   .addChild("format_number_date", ["format", "format_number"], {
     name: _lt("Date (9/26/2008)"),

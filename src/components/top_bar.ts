@@ -33,6 +33,8 @@ interface State {
 const FORMATS = [
   { name: "general", text: "General (no specific format)" },
   { name: "number", text: "Number (1,000.12)", value: "#,##0.00" },
+  { name: "currency", text: "Currency ($1,000.12)", value: '"$"#,##0.00' },
+  { name: "currency_rounded", text: "Currency rounded ($1,000)", value: '"$"#,##0' },
   { name: "percent", text: "Percent (10.12%)", value: "0.00%" },
   { name: "scientific", text: "Scientific (1.01E+03)", value: "0.00E+00" },
   { name: "date", text: "Date (9/26/2008)", value: "m/d/yyyy" },

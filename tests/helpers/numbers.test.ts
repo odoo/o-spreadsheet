@@ -33,6 +33,16 @@ describe("isNumber", () => {
     expect(isNumber("3    %")).toBe(true); // doesn't work on google sheet
     expect(isNumber("3e10%")).toBe(true); // works on google sheet and Excel online
     expect(isNumber("3e10 %")).toBe(true); // works on google sheet and Excel online
+    expect(isNumber("123$")).toBe(true); // doesn't work on Excel online
+    expect(isNumber("123 $")).toBe(true); // doesn't work on Excel online
+    expect(isNumber("$123")).toBe(true); // doesn't work ond Excel online
+    expect(isNumber("$ 123")).toBe(true); // doesn't work ond Excel online
+    expect(isNumber("-123 $")).toBe(true); // doesn't work on Excel online
+    expect(isNumber("-$ 123")).toBe(true); // doesn't work on Excel online
+    expect(isNumber("$ - 123")).toBe(true); // doesn't work on Excel online
+    expect(isNumber("- 3E10 $")).toBe(true); // doesn't work on Excel online
+    expect(isNumber("€ 123")).toBe(true); // doesn't work on Excel online
+    expect(isNumber("-€ 12,123.123E02")).toBe(true); // doesn't work on Excel online
   });
 
   test("some other checks for isNumber", () => {
@@ -43,6 +53,9 @@ describe("isNumber", () => {
     expect(isNumber(" - .e10")).toBe(false);
     expect(isNumber("3 E14")).toBe(false);
     expect(isNumber("1234567,24,567")).toBe(false);
+    expect(isNumber("$123$")).toBe(false);
+    expect(isNumber("$123€")).toBe(false);
+    expect(isNumber("12$3")).toBe(false);
   });
 });
 
@@ -53,6 +66,7 @@ describe("parseNumber", () => {
 
   test("can parse various number representations", () => {
     expect(parseNumber("1")).toBe(1);
+    expect(parseNumber("-1")).toBe(-1);
     expect(parseNumber("1.1")).toBe(1.1);
     expect(parseNumber(".3")).toBe(0.3);
     expect(parseNumber("1,234")).toBe(1234);
@@ -70,6 +84,15 @@ describe("parseNumber", () => {
     expect(parseNumber("3E-4")).toBe(0.0003);
     expect(parseNumber("1e2 %")).toBe(1);
     expect(parseNumber("1,234e1")).toBe(12340);
+    expect(parseNumber("$123")).toBe(123);
+    expect(parseNumber("€123")).toBe(123);
+    expect(parseNumber("$ 123")).toBe(123);
+    expect(parseNumber("123$")).toBe(123);
+    expect(parseNumber("123 $")).toBe(123);
+    expect(parseNumber("-$123")).toBe(-123);
+    expect(parseNumber("$-123")).toBe(-123);
+    expect(parseNumber("-123$")).toBe(-123);
+    expect(parseNumber("-123E2$")).toBe(-12300);
   });
 });
 

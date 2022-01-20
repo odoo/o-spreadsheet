@@ -230,6 +230,37 @@ describe("core", () => {
     });
 
     describe("detect format number automatically", () => {
+      test("if contain currency", () => {
+        const model = new Model();
+        setCellContent(model, "A1", "3$");
+        setCellContent(model, "A2", "-$3");
+        setCellContent(model, "A3", "$-3");
+        setCellContent(model, "A4", "$-3.123");
+
+        setCellContent(model, "A5", "3€");
+        setCellContent(model, "A6", "-€3");
+        setCellContent(model, "A7", "€-3");
+        setCellContent(model, "A8", "€-3.123");
+
+        expect(getCellContent(model, "A1")).toBe("3$");
+        expect(getCell(model, "A1")!.format).toBe('#,##0"$"');
+        expect(getCellContent(model, "A2")).toBe("-$3");
+        expect(getCell(model, "A2")!.format).toBe('"$"#,##0');
+        expect(getCellContent(model, "A3")).toBe("-$3");
+        expect(getCell(model, "A3")!.format).toBe('"$"#,##0');
+        expect(getCellContent(model, "A4")).toBe("-$3.12");
+        expect(getCell(model, "A4")!.format).toBe('"$"#,##0.00');
+
+        expect(getCellContent(model, "A5")).toBe("3€");
+        expect(getCell(model, "A5")!.format).toBe('#,##0"€"');
+        expect(getCellContent(model, "A6")).toBe("-€3");
+        expect(getCell(model, "A6")!.format).toBe('"€"#,##0');
+        expect(getCellContent(model, "A7")).toBe("-€3");
+        expect(getCell(model, "A7")!.format).toBe('"€"#,##0');
+        expect(getCellContent(model, "A8")).toBe("-€3.12");
+        expect(getCell(model, "A8")!.format).toBe('"€"#,##0.00');
+      });
+
       test("if contain scientific exponent", () => {
         const model = new Model();
         setCellContent(model, "A1", "3e3");
@@ -261,6 +292,14 @@ describe("core", () => {
         expect(getCell(model, "A1")!.format).toBe("#,##0");
         expect(getCellContent(model, "A2")).toBe("1,234,567.43");
         expect(getCell(model, "A2")!.format).toBe("#,##0.00");
+      });
+
+      test("currency format most important than scientific exponent format", () => {
+        const model = new Model();
+        setCellContent(model, "A1", "123E0$");
+
+        expect(getCellContent(model, "A1")).toBe("123$");
+        expect(getCell(model, "A1")!.format).toBe('#,##0"$"');
       });
 
       test("scientific exponent format most important than percent format", () => {
