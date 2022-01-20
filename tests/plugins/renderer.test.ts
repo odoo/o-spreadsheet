@@ -634,46 +634,92 @@ describe("renderer", () => {
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 48, y: 26 }]);
   });
 
-  test("Overflowing left-aligned text is correctly clipped", () => {
-    const overflowingText = "I am a very long text";
-    let box: Box;
-    const model = new Model({
-      sheets: [
-        {
-          id: "sheet1",
-          colNumber: 3,
-          rowNumber: 1,
-          cols: { 1: { size: 5 } },
-          cells: { B1: { content: overflowingText, style: 1 } },
-        },
-      ],
-      styles: { 1: { align: "left" } },
-    });
+  test.each(["I am a very long text", "100000000000000"])(
+    "Overflowing left-aligned content is correctly clipped",
+    (overflowingContent) => {
+      let box: Box;
+      const model = new Model({
+        sheets: [
+          {
+            id: "sheet1",
+            colNumber: 3,
+            rowNumber: 1,
+            cols: { 1: { size: 5 } },
+            cells: { B1: { content: overflowingContent, style: 1 } },
+          },
+        ],
+        styles: { 1: { align: "left" } },
+      });
 
-    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-    model.drawGrid(ctx);
+      let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+      model.drawGrid(ctx);
 
-    box = getBoxFromText(model, overflowingText);
-    // no clip
-    expect(box.clipRect).toBeUndefined();
+      box = getBoxFromText(model, overflowingContent);
+      // no clip
+      expect(box.clipRect).toBeUndefined();
 
-    // no clipping at the left
-    setCellContent(model, "A1", "Content at the left");
-    model.drawGrid(ctx);
-    box = getBoxFromText(model, overflowingText);
-    expect(box.clipRect).toBeUndefined();
+      // no clipping at the left
+      setCellContent(model, "A1", "Content at the left");
+      model.drawGrid(ctx);
+      box = getBoxFromText(model, overflowingContent);
+      expect(box.clipRect).toBeUndefined();
 
-    // clipping at the right
-    setCellContent(model, "C1", "Content at the right");
-    model.drawGrid(ctx);
-    box = getBoxFromText(model, overflowingText);
-    expect(box.clipRect).toEqual([
-      HEADER_WIDTH + DEFAULT_CELL_WIDTH,
-      HEADER_HEIGHT,
-      5,
-      DEFAULT_CELL_HEIGHT,
-    ]);
-  });
+      // clipping at the right
+      setCellContent(model, "C1", "Content at the right");
+      model.drawGrid(ctx);
+      box = getBoxFromText(model, overflowingContent);
+      expect(box.clipRect).toEqual([
+        HEADER_WIDTH + DEFAULT_CELL_WIDTH,
+        HEADER_HEIGHT,
+        5,
+        DEFAULT_CELL_HEIGHT,
+      ]);
+    }
+  );
+
+  test.each([{ align: "left" }, { align: undefined }])(
+    "Overflowing number with % align is correctly clipped",
+    (style) => {
+      const overflowingNumber = "100000000000000";
+      let box: Box;
+      const model = new Model({
+        sheets: [
+          {
+            id: "sheet1",
+            colNumber: 3,
+            rowNumber: 1,
+            cols: { 1: { size: 5 } },
+            cells: { B1: { content: overflowingNumber, style: 1 } },
+          },
+        ],
+        styles: { 1: style },
+      });
+
+      let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+      model.drawGrid(ctx);
+
+      box = getBoxFromText(model, overflowingNumber);
+      // no clip
+      expect(box.clipRect).toBeUndefined();
+
+      // no clipping at the left
+      setCellContent(model, "A1", "Content at the left");
+      model.drawGrid(ctx);
+      box = getBoxFromText(model, overflowingNumber);
+      expect(box.clipRect).toBeUndefined();
+
+      // clipping at the right
+      setCellContent(model, "C1", "Content at the right");
+      model.drawGrid(ctx);
+      box = getBoxFromText(model, overflowingNumber);
+      expect(box.clipRect).toEqual([
+        HEADER_WIDTH + DEFAULT_CELL_WIDTH,
+        HEADER_HEIGHT,
+        5,
+        DEFAULT_CELL_HEIGHT,
+      ]);
+    }
+  );
 
   test("Overflowing right-aligned text is correctly clipped", () => {
     const overflowingText = "I am a very long text";
@@ -716,51 +762,53 @@ describe("renderer", () => {
     ]);
   });
 
-  test("Overflowing centered text is clipped on both sides", () => {
-    const overflowingText = "I am a very long text";
-    let centeredBox: Box;
-    const model = new Model({
-      sheets: [
-        {
-          id: "sheet1",
-          colNumber: 3,
-          rowNumber: 1,
-          cols: { 1: { size: 5 } },
-          cells: { B1: { content: overflowingText, style: 1 } },
-        },
-      ],
-      styles: { 1: { align: "center" } },
-    });
+  test.each(["I am a very long text", "100000000000000"])(
+    "Overflowing centered content is clipped on both sides",
+    (overflowingContent) => {
+      let centeredBox: Box;
+      const model = new Model({
+        sheets: [
+          {
+            id: "sheet1",
+            colNumber: 3,
+            rowNumber: 1,
+            cols: { 1: { size: 5 } },
+            cells: { B1: { content: overflowingContent, style: 1 } },
+          },
+        ],
+        styles: { 1: { align: "center" } },
+      });
 
-    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-    model.drawGrid(ctx);
+      let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+      model.drawGrid(ctx);
 
-    centeredBox = getBoxFromText(model, overflowingText);
-    // // spans from A1 to C1 <-> no clip
-    expect(centeredBox.clipRect).toBeUndefined();
+      centeredBox = getBoxFromText(model, overflowingContent);
+      // // spans from A1 to C1 <-> no clip
+      expect(centeredBox.clipRect).toBeUndefined();
 
-    setCellContent(model, "A1", "left");
-    model.drawGrid(ctx);
+      setCellContent(model, "A1", "left");
+      model.drawGrid(ctx);
 
-    centeredBox = getBoxFromText(model, overflowingText);
-    expect(centeredBox.clipRect).toEqual([
-      HEADER_WIDTH + DEFAULT_CELL_WIDTH, // clipped to the left
-      HEADER_HEIGHT,
-      5 + DEFAULT_CELL_WIDTH,
-      DEFAULT_CELL_HEIGHT,
-    ]);
+      centeredBox = getBoxFromText(model, overflowingContent);
+      expect(centeredBox.clipRect).toEqual([
+        HEADER_WIDTH + DEFAULT_CELL_WIDTH, // clipped to the left
+        HEADER_HEIGHT,
+        5 + DEFAULT_CELL_WIDTH,
+        DEFAULT_CELL_HEIGHT,
+      ]);
 
-    setCellContent(model, "C1", "right");
-    model.drawGrid(ctx);
+      setCellContent(model, "C1", "right");
+      model.drawGrid(ctx);
 
-    centeredBox = getBoxFromText(model, overflowingText);
-    expect(centeredBox.clipRect).toEqual([
-      HEADER_WIDTH + DEFAULT_CELL_WIDTH, //clipped to the left
-      HEADER_HEIGHT,
-      5, // clipped to the right
-      DEFAULT_CELL_HEIGHT,
-    ]);
-  });
+      centeredBox = getBoxFromText(model, overflowingContent);
+      expect(centeredBox.clipRect).toEqual([
+        HEADER_WIDTH + DEFAULT_CELL_WIDTH, //clipped to the left
+        HEADER_HEIGHT,
+        5, // clipped to the right
+        DEFAULT_CELL_HEIGHT,
+      ]);
+    }
+  );
 
   test("cells with a fontsize too big for the row height are clipped", () => {
     const overflowingText = "TOO HIGH";
