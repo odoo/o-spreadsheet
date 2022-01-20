@@ -475,7 +475,7 @@ export class RendererPlugin extends UIPlugin {
     }
     const { align } = this.getters.getCellStyle(cell);
     if (isOverflowing && cell.evaluated.type === CellValueType.number) {
-      return align === "right" ? "left" : align;
+      return align !== "center" ? "left" : align;
     }
     return align || cell.defaultAlign;
   }
