@@ -31,8 +31,8 @@ const UNARY_OPERATOR_MAP = {
  */
 function splitCodeLines(codeBlocks: string[]): string[] {
   return codeBlocks
-    .map((code) => code.split("\n"))
-    .flat()
+    .join("\n")
+    .split("\n")
     .filter((line) => line.trim() !== "");
 }
 /**
@@ -288,7 +288,7 @@ export function compile(formula: NormalizedFormula): CompiledFormula {
         case "FUNCALL":
           id = nextId++;
           const args = compileFunctionArgs(ast);
-          codeBlocks.push(splitCodeLines(args.map((arg) => arg.code)).join("\n"));
+          codeBlocks.push(args.map((arg) => arg.code).join("\n"));
           fnName = ast.value.toUpperCase();
           codeBlocks.push(`ctx.__lastFnCalled = '${fnName}';`);
           statement = `ctx['${fnName}'](${args.map((arg) => arg.id)})`;
@@ -336,7 +336,7 @@ export function compile(formula: NormalizedFormula): CompiledFormula {
         return { id: `_${id}`, code: lazyFunction };
       } else {
         codeBlocks.push(`let _${id} = ${statement};`);
-        return { id: `_${id}`, code: splitCodeLines(codeBlocks).join("\n") };
+        return { id: `_${id}`, code: codeBlocks.join("\n") };
       }
     }
 
