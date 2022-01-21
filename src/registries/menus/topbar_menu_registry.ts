@@ -1,4 +1,5 @@
 import { fontSizes } from "../../fonts";
+import { compile, normalize, rangeTokenize } from "../../formulas";
 import { _lt } from "../../translation";
 import { SpreadsheetEnv } from "../../types/env";
 import { MenuItemRegistry } from "../menu_items_registry";
@@ -13,6 +14,32 @@ topbarMenuRegistry
   .add("insert", { name: _lt("Insert"), sequence: 40 })
   .add("format", { name: _lt("Format"), sequence: 50 })
   .add("data", { name: _lt("Data"), sequence: 60 })
+  .addChild("perf", ["file"], {
+    name: _lt("perf full"),
+    sequence: 0,
+    action: () => {
+      let n = 10000;
+      console.log(n);
+      console.time("master");
+      for (let i = 0; i < n; i++) {
+        compile(normalize("=A1+A2:A5+Sheet1!A2:A5"));
+      }
+      console.timeEnd("master");
+    },
+  })
+  .addChild("perf_tokenize", ["file"], {
+    name: _lt("perf tokenize"),
+    sequence: 0,
+    action: () => {
+      let n = 100000;
+      console.log(n);
+      console.time("master");
+      for (let i = 0; i < n; i++) {
+        rangeTokenize("=A1+A2:A5+Sheet1!A2:A5");
+      }
+      console.timeEnd("master");
+    },
+  })
   .addChild("save", ["file"], {
     name: _lt("Save"),
     shortCut: "Ctrl+S",

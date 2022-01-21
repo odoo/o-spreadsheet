@@ -69,7 +69,7 @@ export const functionCache: { [key: string]: CompiledFormula } = {};
 // -----------------------------------------------------------------------------
 
 export function compile(formula: NormalizedFormula): CompiledFormula {
-  if (!functionCache[formula.text]) {
+  if (true) {
     const ast = parse(formula.text);
     let nextId = 1;
 
