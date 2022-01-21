@@ -88,24 +88,11 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         break;
       case "DUPLICATE_SHEET":
         const merges = this.merges[cmd.sheetId];
-        if (!merges) return;
-        const mergesCopy: Record<UID, Range> = {};
+        if (!merges) break;
+        const sheet = this.getters.getSheet(cmd.sheetIdTo);
         for (const range of Object.values(merges).filter(isDefined)) {
-          mergesCopy[this.nextId++] = {
-            sheetId: cmd.sheetIdTo,
-            zone: { ...range.zone },
-            parts: [...range.parts],
-            prefixSheet: range.prefixSheet,
-            invalidSheetName: range.invalidSheetName,
-            invalidXc: range.invalidXc,
-          };
+          this.addMerge(sheet, range.zone);
         }
-        this.history.update("merges", cmd.sheetIdTo, mergesCopy);
-        this.history.update(
-          "mergeCellMap",
-          cmd.sheetIdTo,
-          Object.assign({}, this.mergeCellMap[cmd.sheetId])
-        );
         break;
       case "ADD_MERGE":
         for (const zone of cmd.target) {

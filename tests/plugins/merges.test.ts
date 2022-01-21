@@ -6,6 +6,7 @@ import { CommandResult, Style } from "../../src/types/index";
 import {
   addColumns,
   deleteRows,
+  deleteSheet,
   merge,
   redo,
   selectCell,
@@ -96,6 +97,21 @@ describe("merges", () => {
       { ...toZone("C2:C3"), id: 2, topLeft: toPosition("C2") },
       { ...toZone("B2:B3"), id: 3, topLeft: toPosition("B2") },
     ]);
+    expect(model.getters.getMerge(secondSheetId, 2, 1)?.id).toBe(2);
+    expect(model.getters.getMerge(secondSheetId, 1, 1)?.id).toBe(3);
+  });
+
+  test("delete a duplicated sheet with merge", () => {
+    const model = new Model();
+    const firstSheetId = model.getters.getActiveSheetId();
+    const secondSheetId = "42";
+    merge(model, "C2:C3", firstSheetId);
+    model.dispatch("DUPLICATE_SHEET", {
+      sheetId: firstSheetId,
+      sheetIdTo: secondSheetId,
+    });
+    deleteSheet(model, secondSheetId);
+    expect(model.getters.getMerges(secondSheetId)).toEqual([]);
   });
 
   test("a single cell is not merged", () => {
