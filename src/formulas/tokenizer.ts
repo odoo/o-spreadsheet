@@ -119,7 +119,7 @@ function tokenizeOperator(chars: string[]): Token | null {
 }
 
 function tokenizeNumber(chars: string[]): Token | null {
-  const match = chars.join("").match(formulaNumberRegexp);
+  const match = concat(chars).match(formulaNumberRegexp);
   if (match) {
     chars.splice(0, match[0].length);
     return { type: "NUMBER", value: match[0] };
@@ -129,17 +129,17 @@ function tokenizeNumber(chars: string[]): Token | null {
 
 function tokenizeString(chars: string[]): Token | null {
   if (chars[0] === '"') {
-    const startChar = chars.shift();
-    const letters: any[] = [startChar];
+    const startChar = chars.shift()!;
+    let letters: string = startChar;
     while (chars[0] && (chars[0] !== startChar || letters[letters.length - 1] === "\\")) {
-      letters.push(chars.shift());
+      letters += chars.shift();
     }
     if (chars[0] === '"') {
-      letters.push(chars.shift());
+      letters += chars.shift();
     }
     return {
       type: "STRING",
-      value: letters.join(""),
+      value: letters,
     };
   }
   return null;
@@ -160,19 +160,19 @@ const separatorRegexp = /\w|\.|!|\$/;
  * are examples of symbols
  */
 function tokenizeSymbol(chars: string[]): Token | null {
-  const result: any[] = [];
+  let result: string = "";
   // there are two main cases to manage: either something which starts with
   // a ', like 'Sheet 2'A2, or a word-like element.
   if (chars[0] === "'") {
     let lastChar = chars.shift();
-    result.push(lastChar);
+    result += lastChar;
     while (chars[0]) {
       lastChar = chars.shift();
-      result.push(lastChar);
+      result += lastChar;
       if (lastChar === "'") {
         if (chars[0] && chars[0] === "'") {
           lastChar = chars.shift();
-          result.push(lastChar);
+          result += lastChar;
         } else {
           break;
         }
@@ -182,15 +182,15 @@ function tokenizeSymbol(chars: string[]): Token | null {
     if (lastChar !== "'") {
       return {
         type: "UNKNOWN",
-        value: result.join(""),
+        value: result,
       };
     }
   }
   while (chars[0] && chars[0].match(separatorRegexp)) {
-    result.push(chars.shift());
+    result += chars.shift();
   }
   if (result.length) {
-    const value = result.join("");
+    const value = result;
     const isFunction = value.toUpperCase() in functions;
     if (isFunction) {
       return { type: "FUNCTION", value };
@@ -226,4 +226,16 @@ function tokenizeInvalidRange(chars: string[]): Token | null {
     return { type: "INVALID_REFERENCE", value: INCORRECT_RANGE_STRING };
   }
   return null;
+}
+
+/**
+ * Concatenate an array of strings.
+ */
+function concat(chars: string[]): string {
+  // ~40% faster than chars.join("")
+  let output = "";
+  for (let i = 0, len = chars.length; i < len; i++) {
+    output += chars[i];
+  }
+  return output;
 }
