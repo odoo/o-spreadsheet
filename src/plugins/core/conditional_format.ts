@@ -116,7 +116,10 @@ export class ConditionalFormatPlugin
         this.cfRules[cmd.sheetId] = [];
         break;
       case "DUPLICATE_SHEET":
-        this.history.update("cfRules", cmd.sheetIdTo, this.cfRules[cmd.sheetId].slice());
+        this.history.update("cfRules", cmd.sheetIdTo, []);
+        for (const cf of this.getConditionalFormats(cmd.sheetId)) {
+          this.addConditionalFormatting(cf, cmd.sheetIdTo);
+        }
         break;
       case "DELETE_SHEET":
         const cfRules = Object.assign({}, this.cfRules);
