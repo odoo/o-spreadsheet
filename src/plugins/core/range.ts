@@ -1,5 +1,6 @@
 import { INCORRECT_RANGE_STRING } from "../../constants";
 import {
+  concat,
   createAdaptedZone,
   getComposerSheetName,
   groupConsecutive,
@@ -340,7 +341,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       return INCORRECT_RANGE_STRING;
     }
 
-    let ref: string[] = Array(9);
+    let ref: string[] = Array(9).fill("");
     ref[0] = range.parts && range.parts[0].colFixed ? "$" : "";
     ref[1] = numberToLetters(range.zone.left);
     ref[2] = range.parts && range.parts[0].rowFixed ? "$" : "";
@@ -363,7 +364,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       }
     }
 
-    return `${prefixSheet ? sheetName + "!" : ""}${ref.join("")}`;
+    return `${prefixSheet ? sheetName + "!" : ""}${concat(ref)}`;
   }
 
   // ---------------------------------------------------------------------------

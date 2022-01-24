@@ -1,6 +1,7 @@
 import { composerTokenize, EnrichedToken } from "../../formulas/index";
 import {
   colors,
+  concat,
   getComposerSheetName,
   isEqual,
   isNumber,
@@ -396,7 +397,7 @@ export class EditionPlugin extends UIPlugin {
           const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
           const missing = left - right;
           if (missing > 0) {
-            content += new Array(missing).fill(")").join("");
+            content += concat(new Array(missing).fill(")"));
           }
         } else if (cell?.isLink()) {
           content = markdownLink(content, cell.link.url);

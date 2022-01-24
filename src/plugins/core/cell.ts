@@ -1,7 +1,14 @@
 import { DATETIME_FORMAT, NULL_FORMAT } from "../../constants";
 import { cellFactory } from "../../helpers/cells/cell_factory";
-import { isInside, maximumDecimalPlaces, range, toCartesian, toXC } from "../../helpers/index";
-import { getItemId } from "../../helpers/misc";
+import {
+  concat,
+  getItemId,
+  isInside,
+  maximumDecimalPlaces,
+  range,
+  toCartesian,
+  toXC,
+} from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -460,15 +467,15 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   buildFormulaContent(sheetId: UID, cell: FormulaCell, dependencies?: Range[]): string {
     const ranges = dependencies || [...cell.dependencies];
-    return cell.compiledFormula.tokens
-      .map((token) => {
+    return concat(
+      cell.compiledFormula.tokens.map((token) => {
         if (token.type === "REFERENCE") {
           const range = ranges.shift()!;
           return this.getters.getRangeString(range, sheetId);
         }
         return token.value;
       })
-      .join("");
+    );
   }
 
   getFormulaCellContent(sheetId: UID, cell: FormulaCell): string {

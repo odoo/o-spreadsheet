@@ -1,3 +1,5 @@
+import { concat } from ".";
+
 export const colors = [
   "#eb6d00",
   "#0074d9",
@@ -62,10 +64,10 @@ export function toHex6(color: string): string {
  * >> "1E5010"
  */
 function rgbToHex6(color: string): string {
-  return color
-    .slice(4, -1)
-    .split(",")
-    .map((valueString) => parseInt(valueString, 10).toString(16).padStart(2, "0"))
-    .join("")
-    .toUpperCase();
+  return concat(
+    color
+      .slice(4, -1)
+      .split(",")
+      .map((valueString) => parseInt(valueString, 10).toString(16).padStart(2, "0"))
+  ).toUpperCase();
 }

@@ -1,4 +1,5 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
+import { concat } from "../../helpers";
 import {
   XLSXExportFile,
   XLSXStructure,
@@ -104,5 +105,5 @@ export function escapeXml(strings: TemplateStringsArray, ...expressions): XMLStr
     const value = expressions[i] instanceof XMLString ? expressions[i] : xmlEscape(expressions[i]);
     str.push(value + strings[i + 1]);
   }
-  return new XMLString(str.join(""));
+  return new XMLString(concat(str));
 }

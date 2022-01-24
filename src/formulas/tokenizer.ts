@@ -1,6 +1,6 @@
 import { INCORRECT_RANGE_STRING } from "../constants";
 import { functionRegistry } from "../functions/index";
-import { formulaNumberRegexp, rangeReference } from "../helpers/index";
+import { concat, formulaNumberRegexp, rangeReference } from "../helpers/index";
 import { _lt } from "../translation";
 
 /**
@@ -226,16 +226,4 @@ function tokenizeInvalidRange(chars: string[]): Token | null {
     return { type: "INVALID_REFERENCE", value: INCORRECT_RANGE_STRING };
   }
   return null;
-}
-
-/**
- * Concatenate an array of strings.
- */
-function concat(chars: string[]): string {
-  // ~40% faster than chars.join("")
-  let output = "";
-  for (let i = 0, len = chars.length; i < len; i++) {
-    output += chars[i];
-  }
-  return output;
 }
