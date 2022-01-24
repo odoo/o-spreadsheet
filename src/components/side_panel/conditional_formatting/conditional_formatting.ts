@@ -151,13 +151,7 @@ const CSS = css/* scss */ `
       margin-top: 10px;
       display: flex;
     }
-    .o-cf-title-text {
-      color: gray;
-      font-size: 12px;
-      line-height: 14px;
-      margin: 8px 0 4px 0;
-    }
-    .o-cf-title-text:first-child {
+    .o-section-subtitle:first-child {
       margin-top: 0px;
     }
     .o-cf-preview {

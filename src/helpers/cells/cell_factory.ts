@@ -107,9 +107,9 @@ function detectFormat(content: string): string | undefined {
   const digitBase = content.includes(".") ? "0.00" : "0";
   const matchedCurrencies = content.match(/[\$€]/);
   if (matchedCurrencies) {
-    const matchedFirstDigit = content.match(/[\d]/);
+    const matchedFirstDigit = content.match(/[\d]/)!;
     const currency = '"' + matchedCurrencies.values().next().value + '"';
-    if (matchedFirstDigit!.index! < matchedCurrencies.index!) {
+    if (matchedFirstDigit.index! < matchedCurrencies.index!) {
       return "#,##" + digitBase + currency;
     }
     return currency + "#,##" + digitBase;

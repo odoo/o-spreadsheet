@@ -386,6 +386,18 @@ test("Can show/hide a TopBarComponent based on condition", async () => {
   parent.destroy();
 });
 
+describe("TopBar - Custom currency", () => {
+  test("can open custom currency sidepanel from tool", async () => {
+    const parent = await mountSpreadsheet(fixture);
+    triggerMouseEvent(".o-tool[title='More formats']", "click");
+    await nextTick();
+    triggerMouseEvent(".o-format-tool div[data-custom='custom_currency']", "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-custom-currency")).toBeTruthy();
+    parent.destroy();
+  });
+});
+
 describe("TopBar - CF", () => {
   test("open sidepanel with no CF in selected zone", async () => {
     const parent = await mountSpreadsheet(fixture);

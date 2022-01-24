@@ -89,6 +89,7 @@ const CSS = css/* scss */ `
 interface Props {
   client?: Client;
   data?: any;
+  currencies?: Object;
   stateUpdateMessages?: StateUpdateMessage[];
   transportService?: TransportService;
   isReadonly?: boolean;
@@ -122,6 +123,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
   );
   grid = useRef("grid");
 
+  private currencies = this.props.currencies;
   sidePanel = useState({ isOpen: false, panelProps: {} } as {
     isOpen: boolean;
     component?: string;
@@ -157,6 +159,7 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
       waitForIdle: this.model.waitForIdle.bind(this.model),
       exportXLSX: this.model.exportXLSX.bind(this.model),
       openLinkEditor: () => this.openLinkEditor(),
+      currencies: this.currencies,
     });
     this.activateFirstSheet();
   }

@@ -16,7 +16,7 @@ const { xml, css } = owl.tags;
 
 export const ICON_SETS_TEMPLATE = xml/* xml */ `
   <div>
-  <div class="o-cf-title-text">
+  <div class="o-section-subtitle">
     <t t-esc="env._t('${iconSetRule.Icons}')"/>
   </div>
     <div class="o-cf-iconsets">

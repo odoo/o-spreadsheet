@@ -29,7 +29,7 @@ const PREVIEW_TEMPLATE = xml/* xml */ `
 
 const TEMPLATE = xml/* xml */ `
 <div>
-    <div class="o-cf-title-text" t-esc="env._t('${conditionalFormattingTerms.IS_RULE}')"></div>
+    <div class="o-section-subtitle" t-esc="env._t('${conditionalFormattingTerms.IS_RULE}')"></div>
     <select t-model="state.condition.operator" class="o-input o-cell-is-operator">
         <t t-foreach="Object.keys(cellIsOperators)" t-as="op" t-key="op_index">
             <option t-att-value="op" t-esc="cellIsOperators[op]"/>
@@ -49,7 +49,7 @@ const TEMPLATE = xml/* xml */ `
                  class="o-input o-cell-is-value o-required"/>
       </t>
     </t>
-    <div class="o-cf-title-text" t-esc="env._t('${conditionalFormattingTerms.FORMATTING_STYLE}')"></div>
+    <div class="o-section-subtitle" t-esc="env._t('${conditionalFormattingTerms.FORMATTING_STYLE}')"></div>
 
     <t t-call="${PREVIEW_TEMPLATE}">
         <t t-set="currentStyle" t-value="state.style"/>

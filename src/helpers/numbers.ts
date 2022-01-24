@@ -22,6 +22,8 @@ const STANDARD_EXPONENTIAL_MAX_SIGNIFICANT_DIGITS = 5;
  */
 export const formulaNumberRegexp = /^(-\s*)?((\d+(\.\d*)?)|(\.\d+))(e(\+|-)?\d+)?(\s*%)?/i;
 
+const decimalRegexp = /0/g;
+
 const pIntegerAndDecimals = "(\\d+(,\\d{3,})*(\\.\\d*)?)"; // pattern that match integer number with or without decimal digits
 const pOnlyDecimals = "(\\.\\d+)"; // pattern that match only expression with decimal digits
 const pScientificFormat = "(e(\\+|-)?\\d+)?"; // pattern that match scientific format between zero and one time
@@ -29,7 +31,7 @@ const pPercentFormat = "(\\s*%)?"; // pattern that match percent symbol between 
 const pNumber =
   "(\\s*" + pIntegerAndDecimals + "|" + pOnlyDecimals + ")" + pScientificFormat + pPercentFormat;
 const pMinus = "(\\s*-)?"; // pattern that match negative symbol between zero and one time
-const pCurrencyFormat = "(\\s*\\$|€)?";
+const pCurrencyFormat = "(\\s*[\\$€])?";
 
 const p1 = pMinus + pCurrencyFormat + pNumber;
 const p2 = pMinus + pNumber + pCurrencyFormat;
@@ -152,39 +154,83 @@ export function formatNumber(value: number, format: string): string {
 }
 
 function formatAbsNumber(absValue: number, format: string): string {
-  const parts = format.split(".");
-  const decimals = parts.length === 1 ? 0 : parts[1].split("E")[0].match(/0/g)!.length;
-  const separator = parts[0].includes(",") ? "," : "";
+  // 1 - looking for currency format expression
+  // currencies format could be :
+  // - simple char between quotes, '"$"' or '"€"'
+  // - text between hooks started by dollar symbol "[$ £ GB]"
 
+  let currencyFormat = "";
+  let currencyFormatIndex: undefined | number = undefined;
+
+  const leftHookIndex = format.indexOf("[$");
+  if (leftHookIndex >= 0) {
+    currencyFormatIndex = leftHookIndex;
+    const rightHookIndex = format.lastIndexOf("]");
+    currencyFormat = format.substring(leftHookIndex + 2, rightHookIndex);
+
+    // we remove the currency part from the initial format. This is to avoid
+    // disturbing the analysis of the format in the rest of the code
+    format = format.substr(0, leftHookIndex) + format.substr(rightHookIndex + 1);
+  }
+
+  let quoteIndex = format.indexOf('"');
+  if (quoteIndex >= 0) {
+    currencyFormatIndex = quoteIndex;
+    currencyFormat = format.charAt(quoteIndex + 1);
+
+    // we remove the currency part from the initial format. This is to avoid
+    // disturbing the analysis of the format in the rest of the code
+    format = format.substr(0, quoteIndex) + format.substr(quoteIndex + 3);
+  }
+
+  // 2 - looking for decimal part length
+  // we looking for here the number of "0" between:
+  // - the decimal separator "." (if exist)
+  // - the exponent "E" (if exist)
+
+  let decimalPartLength = 0;
+  let [, decimalPart] = format.split(".");
+  if (decimalPart) {
+    [decimalPart] = decimalPart.split("E");
+    decimalPartLength = decimalPart.match(decimalRegexp)!.length;
+  }
+
+  // 3 - looking for integer separator
+  const integerSeparator = format.includes(",") ? "," : "";
+
+  // 4 - looking for percent format
   const isPercentFormat = format.includes("%");
   if (isPercentFormat) {
     absValue = absValue * 100;
   }
 
+  // 5 - looking for exponent format
   const isExponentialFormat = format.includes("E");
   const [exponentialDigitsValue, magnitudeOrder] = absValue.toExponential().split("e");
   if (isExponentialFormat) {
     absValue = Number(exponentialDigitsValue);
   }
 
-  let formattedNumber = formatDecimal(absValue, decimals, separator);
+  // Apply format on digits
+  let formattedNumber = formatDecimal(absValue, decimalPartLength, integerSeparator);
 
+  // inv 5 - apply exponent format
   if (isExponentialFormat) {
     formattedNumber += formatMagnitudeOrder(magnitudeOrder, format);
   }
 
+  // inv 4 - apply percent format
   if (isPercentFormat) {
     formattedNumber += "%";
   }
 
-  const currenciesMatched = format.match(/[\$€]/);
-  if (currenciesMatched) {
-    const currency = currenciesMatched.values().next().value;
-    const firstDigit = format.match(/[0]/);
-    if (currenciesMatched.index! < firstDigit!.index!) {
-      formattedNumber = currency + formattedNumber;
+  // inv 1 - apply currency format
+  if (currencyFormat) {
+    const firstDigitIndex = format.indexOf("0");
+    if (currencyFormatIndex! < firstDigitIndex) {
+      formattedNumber = currencyFormat + formattedNumber;
     } else {
-      formattedNumber = formattedNumber + currency;
+      formattedNumber = formattedNumber + currencyFormat;
     }
   }
 

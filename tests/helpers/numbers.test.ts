@@ -42,6 +42,9 @@ describe("isNumber", () => {
     expect(isNumber("$ - 123")).toBe(true); // doesn't work on Excel online
     expect(isNumber("- 3E10 $")).toBe(true); // doesn't work on Excel online
     expect(isNumber("€ 123")).toBe(true); // doesn't work on Excel online
+    expect(isNumber("- € 123")).toBe(true); // doesn't work on Excel online
+    expect(isNumber("€  - 123")).toBe(true); // doesn't work on Excel online
+    expect(isNumber(" 123 €")).toBe(true); // doesn't work on Excel online
     expect(isNumber("-€ 12,123.123E02")).toBe(true); // doesn't work on Excel online
   });
 
@@ -260,6 +263,35 @@ describe("formatNumber function", () => {
     expect(formatNumber(12345678901, "0.00E+0")).toBe("1.23E+10");
     expect(formatNumber(12345678901, "0.00E+00")).toBe("1.23E+10");
     expect(formatNumber(12345678901, "0.00E+000")).toBe("1.23E+010");
+  });
+
+  test("can apply currency format", () => {
+    expect(formatNumber(1234, '#,##0"€"')).toBe("1,234€");
+    expect(formatNumber(1234, '#,##0.00"€"')).toBe("1,234.00€");
+    expect(formatNumber(1234, '"€"#,##0')).toBe("€1,234");
+    expect(formatNumber(1234, '"€"#,##0.00')).toBe("€1,234.00");
+    expect(formatNumber(1234, '#,##0"$"')).toBe("1,234$");
+    expect(formatNumber(1234, '#,##0.00"$"')).toBe("1,234.00$");
+    expect(formatNumber(1234, '"$"#,##0')).toBe("$1,234");
+    expect(formatNumber(1234, '"$"#,##0.00')).toBe("$1,234.00");
+  });
+
+  test("can apply custom currency format", () => {
+    expect(formatNumber(1234, "#,##0[$TEST]")).toBe("1,234TEST");
+    expect(formatNumber(1234, "#,##0[$ TEST]")).toBe("1,234 TEST");
+    expect(formatNumber(1234, "#,##0[$  TEST ]")).toBe("1,234  TEST ");
+    expect(formatNumber(1234, "#,##0[$ kikou lol ]")).toBe("1,234 kikou lol ");
+
+    expect(formatNumber(1234, "[$ tune ]#,##0.0")).toBe(" tune 1,234.0");
+    expect(formatNumber(1234, "[$ toulmonde il veut seulement la thune ]#,##0.0")).toBe(
+      " toulmonde il veut seulement la thune 1,234.0"
+    );
+    expect(formatNumber(1234, "[$kama]#,##0.0")).toBe("kama1,234.0");
+    expect(formatNumber(1234, "[$兔]#,##0.0")).toBe("兔1,234.0");
+
+    // test with char used in the format reading
+    expect(formatNumber(1234, "[$][]#,##0.0")).toBe("][1,234.0");
+    expect(formatNumber(1234, '[$#,##0.0E+00 %"$"]#,##0.0')).toBe('#,##0.0E+00 %"$"1,234.0');
   });
 
   test("can select different formatting for positive/negative", () => {

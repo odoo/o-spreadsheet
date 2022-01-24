@@ -524,7 +524,7 @@ describe("Menu Item actions", () => {
       });
     });
 
-    test("Percent", () => {
+    test("Scientific", () => {
       doAction(["format", "format_number", "format_number_scientific"], env);
       expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.getters.getActiveSheetId(),
@@ -533,6 +533,23 @@ describe("Menu Item actions", () => {
       });
     });
 
+    test("Currency", () => {
+      doAction(["format", "format_number", "format_number_currency"], env);
+      expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+        sheetId: env.getters.getActiveSheetId(),
+        target: env.getters.getSelectedZones(),
+        format: '"$"#,##0.00',
+      });
+    });
+
+    test("Currency rounded", () => {
+      doAction(["format", "format_number", "format_number_currency_rounded"], env);
+      expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+        sheetId: env.getters.getActiveSheetId(),
+        target: env.getters.getSelectedZones(),
+        format: '"$"#,##0',
+      });
+    });
     test("Date", () => {
       doAction(["format", "format_number", "format_number_date"], env);
       expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
@@ -567,6 +584,13 @@ describe("Menu Item actions", () => {
         target: env.getters.getSelectedZones(),
         format: "hhhh:mm:ss",
       });
+    });
+
+    test("Custom currency", async () => {
+      doAction(["format", "format_number", "format_custom_currency"], env);
+      await nextTick();
+      expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
+      expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Custom currency");
     });
   });
 

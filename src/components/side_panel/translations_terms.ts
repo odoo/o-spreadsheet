@@ -128,6 +128,14 @@ export const FindAndReplaceTerms = {
   ReplaceFormulas: _lt("Also modify formulas"),
 };
 
+export const CustomCurrencyTerms = {
+  Search: _lt("Search"),
+  Custom: _lt("Custom"),
+  Symbol: _lt("Symbol"),
+  Code: _lt("Code"),
+  Apply: _lt("Apply"),
+};
+
 export const LinkEditorTerms = {
   Text: _lt("Text"),
   Link: _lt("Link"),

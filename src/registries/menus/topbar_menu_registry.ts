@@ -258,6 +258,12 @@ topbarMenuRegistry
     separator: true,
     action: ACTIONS.FORMAT_DURATION_ACTION,
   })
+  .addChild("format_custom_currency", ["format", "format_number"], {
+    name: _lt("Custom currency"),
+    sequence: 80,
+    separator: true,
+    action: ACTIONS.OPEN_CUSTOM_CURRENCY_SIDEPANEL_ACTION,
+  })
   .addChild("format_bold", ["format"], {
     name: _lt("Bold"),
     sequence: 20,

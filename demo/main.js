@@ -1,4 +1,5 @@
 import { demoData } from "./data.js";
+import { currenciesData } from "./currencies.js";
 import { WebsocketTransport } from "./transport.js";
 owl.config.mode = "dev";
 
@@ -8,9 +9,13 @@ const { xml, css } = owl.tags;
 const { useSubEnv, onWillStart, onMounted } = owl.hooks;
 
 const { Spreadsheet } = o_spreadsheet;
-const { topbarMenuRegistry } = o_spreadsheet.registries;
+const { topbarMenuRegistry, currenciesRegistry } = o_spreadsheet.registries;
 
 const uuidGenerator = new o_spreadsheet.helpers.UuidGenerator();
+
+currenciesData.forEach((currency, index) => {
+  currenciesRegistry.add(index, currency);
+});
 
 topbarMenuRegistry.addChild("clear", ["file"], {
   name: "Clear & reload",

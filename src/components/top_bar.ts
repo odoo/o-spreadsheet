@@ -33,14 +33,18 @@ interface State {
 const FORMATS = [
   { name: "general", text: "General (no specific format)" },
   { name: "number", text: "Number (1,000.12)", value: "#,##0.00" },
-  { name: "currency", text: "Currency ($1,000.12)", value: '"$"#,##0.00' },
-  { name: "currency_rounded", text: "Currency rounded ($1,000)", value: '"$"#,##0' },
   { name: "percent", text: "Percent (10.12%)", value: "0.00%" },
   { name: "scientific", text: "Scientific (1.01E+03)", value: "0.00E+00" },
+  { name: "currency", text: "Currency ($1,000.12)", value: '"$"#,##0.00' },
+  { name: "currency_rounded", text: "Currency rounded ($1,000)", value: '"$"#,##0' },
   { name: "date", text: "Date (9/26/2008)", value: "m/d/yyyy" },
   { name: "time", text: "Time (10:43:00 PM)", value: "hh:mm:ss a" },
   { name: "datetime", text: "Date time (9/26/2008 22:43:00)", value: "m/d/yyyy hh:mm:ss" },
   { name: "duration", text: "Duration (27:51:38)", value: "hhhh:mm:ss" },
+];
+
+const CUSTOM_FORMATS = [
+  { name: "custom_currency", text: "Custom currency", value: "CustomCurrency" },
 ];
 
 // -----------------------------------------------------------------------------
@@ -94,6 +98,9 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             <div class="o-dropdown-content o-text-options  o-format-tool "  t-if="state.activeTool === 'formatTool'" t-on-click="setFormat">
               <t t-foreach="formats" t-as="format" t-key="format.name">
                 <div t-att-data-format="format.name" t-att-class="{active: currentFormat === format.name}"><t t-esc="format.text"/></div>
+              </t>
+              <t t-foreach="customFormats" t-as="customFormat" t-key="customFormat.name">
+                <div t-att-data-custom="customFormat.name"><t t-esc="customFormat.text"/></div>
               </t>
             </div>
           </div>
@@ -349,6 +356,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   `;
   static components = { ColorPicker, Menu, Composer };
   formats = FORMATS;
+  customFormats = CUSTOM_FORMATS;
   currentFormat = "general";
   fontSizes = fontSizes;
   dispatch = this.env.dispatch;
@@ -506,7 +514,18 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     const format = (ev.target as HTMLElement).dataset.format;
     if (format) {
       this.toogleFormat(format);
+      return;
     }
+    const custom = (ev.target as HTMLElement).dataset.custom;
+    if (custom) {
+      this.openCustomFormatSidePanel(custom);
+    }
+  }
+
+  openCustomFormatSidePanel(custom: string) {
+    const customFormatter = CUSTOM_FORMATS.find((c) => c.name === custom);
+    const value = (customFormatter && customFormatter.value) || "";
+    this.env.openSidePanel(value);
   }
 
   setDecimal(step: number) {

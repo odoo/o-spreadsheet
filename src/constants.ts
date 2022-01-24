@@ -62,8 +62,10 @@ export const DEFAULT_STYLE: Style = {
   fontSize: DEFAULT_FONT_SIZE,
 };
 export const LINK_COLOR = "#00f";
+
 // DateTimeRegex
-export const DATETIME_FORMAT = /[ymd:]/;
+// (?!\[\$.*) and (?!.*\]) allow to don't catch date time format in custom currency
+export const DATETIME_FORMAT = /(?!\[\$.*)[ymd:](?!.*\])/;
 
 // Ranges
 export const INCORRECT_RANGE_STRING = "#REF";

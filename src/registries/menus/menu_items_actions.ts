@@ -602,6 +602,10 @@ export const OPEN_FAR_SIDEPANEL_ACTION = (env: SpreadsheetEnv) => {
   env.openSidePanel("FindAndReplace", {});
 };
 
+export const OPEN_CUSTOM_CURRENCY_SIDEPANEL_ACTION = (env: SpreadsheetEnv) => {
+  env.openSidePanel("CustomCurrency", {});
+};
+
 export const INSERT_LINK = (env: SpreadsheetEnv) => {
   env.openLinkEditor();
 };

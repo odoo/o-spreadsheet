@@ -64,25 +64,25 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
 
 const TEMPLATE = xml/* xml */ `
   <div>
-      <div class="o-cf-title-text">
+      <div class="o-section-subtitle">
         <t t-esc="env._t('${colorScale.Preview}')"/>
       </div>
       <t t-call="${PREVIEW_TEMPLATE}"/>
-      <div class="o-cf-title-text">
+      <div class="o-section-subtitle">
         <t t-esc="env._t('${colorScale.Minpoint}')"/>
       </div>
       <t t-call="${THRESHOLD_TEMPLATE}">
           <t t-set="threshold" t-value="stateColorScale.minimum" ></t>
           <t t-set="thresholdType" t-value="'minimum'" ></t>
       </t>
-      <div class="o-cf-title-text">
+      <div class="o-section-subtitle">
         <t t-esc="env._t('${colorScale.MidPoint}')"/>
       </div>
       <t t-call="${THRESHOLD_TEMPLATE}">
           <t t-set="threshold" t-value="stateColorScale.midpoint" ></t>
           <t t-set="thresholdType" t-value="'midpoint'" ></t>
       </t>
-      <div class="o-cf-title-text">
+      <div class="o-section-subtitle">
         <t t-esc="env._t('${colorScale.MaxPoint}')"/>
       </div>
       <t t-call="${THRESHOLD_TEMPLATE}">
