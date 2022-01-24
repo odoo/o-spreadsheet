@@ -1,6 +1,6 @@
 import { Token } from ".";
 import { functionRegistry } from "../functions/index";
-import { parseNumber, removeStringQuotes } from "../helpers";
+import { concat, parseNumber, removeStringQuotes } from "../helpers";
 import { _lt } from "../translation";
 import { CompiledFormula, FunctionDescription } from "../types/index";
 import { AST, ASTFuncall, parseTokens } from "./parser";
@@ -422,8 +422,8 @@ function compilationCacheKey(
   dependencies: string[],
   constantValues: ConstantValues
 ): string {
-  return tokens
-    .map((token) => {
+  return concat(
+    tokens.map((token) => {
       switch (token.type) {
         case "STRING":
           const value = removeStringQuotes(token.value);
@@ -437,7 +437,7 @@ function compilationCacheKey(
           return token.value;
       }
     })
-    .join("");
+  );
 }
 
 /**

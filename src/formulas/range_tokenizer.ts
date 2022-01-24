@@ -1,3 +1,4 @@
+import { concat } from "../helpers";
 import { Token, tokenize } from "./tokenizer";
 
 /**
@@ -33,11 +34,12 @@ export function mergeSymbolsIntoRanges(result: Token[], removeSpace = false): To
           if (startIncludingSpaces && refStart && operator && refEnd) {
             const newToken: Token = {
               type: "REFERENCE",
-              value: result
-                .slice(startIncludingSpaces, i)
-                .filter((x) => !removeSpace || x.type !== "SPACE")
-                .map((x) => x.value)
-                .join(""),
+              value: concat(
+                result
+                  .slice(startIncludingSpaces, i)
+                  .filter((x) => !removeSpace || x.type !== "SPACE")
+                  .map((x) => x.value)
+              ),
             };
             result.splice(startIncludingSpaces, i - startIncludingSpaces, newToken);
             i = startIncludingSpaces + 1;
@@ -74,11 +76,12 @@ export function mergeSymbolsIntoRanges(result: Token[], removeSpace = false): To
   if (startIncludingSpaces && refStart && operator && refEnd) {
     const newToken: Token = {
       type: "REFERENCE",
-      value: result
-        .slice(startIncludingSpaces, i + 1)
-        .filter((x) => !removeSpace || x.type !== "SPACE")
-        .map((x) => x.value)
-        .join(""),
+      value: concat(
+        result
+          .slice(startIncludingSpaces, i + 1)
+          .filter((x) => !removeSpace || x.type !== "SPACE")
+          .map((x) => x.value)
+      ),
     };
     result.splice(startIncludingSpaces, i - startIncludingSpaces + 1, newToken);
   }

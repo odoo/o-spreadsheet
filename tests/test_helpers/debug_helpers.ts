@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { concat } from "../../src/helpers";
 import { Branch } from "../../src/history/branch";
 import { Tree } from "../../src/history/tree";
 import { UID } from "../../src/types";
@@ -34,7 +35,7 @@ export function getDebugInfo(tree: Tree) {
         id: instruction.id,
       };
     }
-    allStrings.push(stringArray.join(""));
+    allStrings.push(concat(stringArray));
   }
   let level = 0;
   for (const branch of tree["branches"]) {
