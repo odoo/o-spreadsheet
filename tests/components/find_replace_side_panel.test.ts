@@ -1,6 +1,12 @@
 import { Model } from "../../src";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { makeTestFixture, mountSpreadsheet, nextTick, Parent } from "../test_helpers/helpers";
+import {
+  makeTestFixture,
+  mountSpreadsheet,
+  nextTick,
+  Parent,
+  spyDispatch,
+} from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -67,7 +73,7 @@ describe("find and replace sidePanel component", () => {
       expect(document.activeElement).toBe(document.querySelector("body"));
 
       const sidePanel = document.querySelector(".o-find-and-replace");
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
       sidePanel!.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
       await nextTick();
       expect(dispatch).toHaveBeenCalledWith("REFRESH_SEARCH");
@@ -93,7 +99,7 @@ describe("find and replace sidePanel component", () => {
   describe("basic search", () => {
     let dispatch;
     beforeEach(() => {
-      dispatch = parent.observeDispatch();
+      dispatch = spyDispatch(parent);
     });
 
     test("simple search", async () => {
@@ -133,7 +139,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("won't search on empty string", async () => {
-      dispatch = parent.observeDispatch();
+      dispatch = spyDispatch(parent);
       setInputValueAndTrigger(selectors.inputSearch, "", "input");
       await nextTick();
       expect(dispatch).not.toHaveBeenCalledWith();
@@ -142,7 +148,7 @@ describe("find and replace sidePanel component", () => {
 
   describe("search options", () => {
     test("Can search matching case", async () => {
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
 
       setInputValueAndTrigger(selectors.inputSearch, "Hell", "input");
       triggerMouseEvent(document.querySelector(selectors.checkBoxMatchingCase), "click");
@@ -154,7 +160,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("Can search matching entire cell", async () => {
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
 
       setInputValueAndTrigger(selectors.inputSearch, "Hell", "input");
       triggerMouseEvent(document.querySelector(selectors.checkBoxExactMatch), "click");
@@ -166,7 +172,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("can search in formulas", async () => {
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
 
       setInputValueAndTrigger(selectors.inputSearch, "Hell", "input");
       triggerMouseEvent(document.querySelector(selectors.checkBoxSearchFormulas), "click");
@@ -187,7 +193,7 @@ describe("find and replace sidePanel component", () => {
     test("Can replace a simple text value", async () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "hello", "input");
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "kikou", "input");
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
       triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
       await nextTick();
       expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
@@ -200,7 +206,7 @@ describe("find and replace sidePanel component", () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "2", "input");
       triggerMouseEvent(document.querySelector(selectors.checkBoxSearchFormulas), "click");
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "4", "input");
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
       triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
       await nextTick();
       expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
@@ -213,7 +219,7 @@ describe("find and replace sidePanel component", () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "4", "input");
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "2", "input");
       triggerMouseEvent(document.querySelector(selectors.checkBoxReplaceFormulas), "click");
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
       triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
       await nextTick();
       expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
@@ -225,7 +231,7 @@ describe("find and replace sidePanel component", () => {
     test("formulas wont be modified if not looking in formulas or not modifying formulas", async () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "4", "input");
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "2", "input");
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
       triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
       await nextTick();
       expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
@@ -237,7 +243,7 @@ describe("find and replace sidePanel component", () => {
     test("can replace all", async () => {
       setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "hell", "input");
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "kikou", "input");
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
       triggerMouseEvent(document.querySelector(selectors.replaceAllButton), "click");
       await nextTick();
       expect(dispatch).toHaveBeenCalledWith("REPLACE_ALL_SEARCH", {
@@ -249,7 +255,7 @@ describe("find and replace sidePanel component", () => {
     test("Can replace with Enter key", async () => {
       setInputValueAndTrigger(selectors.inputSearch, "hell", "input");
       setInputValueAndTrigger(selectors.inputReplace, "kikou", "input");
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
       document
         .querySelector(selectors.inputReplace)!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));

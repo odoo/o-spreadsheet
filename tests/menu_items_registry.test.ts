@@ -18,6 +18,7 @@ import {
   mountSpreadsheet,
   nextTick,
   Parent,
+  spyDispatch,
   target,
 } from "./test_helpers/helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
@@ -115,7 +116,7 @@ describe("Menu Item actions", () => {
     parent = await mountSpreadsheet(fixture);
     model = parent.model;
     env = parent.getSpreadsheetEnv();
-    dispatch = parent.observeDispatch();
+    dispatch = spyDispatch(parent);
   });
 
   test("Edit -> undo", () => {
@@ -487,7 +488,7 @@ describe("Menu Item actions", () => {
 
   test("Insert -> new sheet", () => {
     mockUuidV4To(model, 42);
-    dispatch = parent.observeDispatch();
+    dispatch = spyDispatch(parent);
     const activeSheetId = env.model.getters.getActiveSheetId();
     doAction(["insert", "insert_sheet"], env);
     expect(dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {

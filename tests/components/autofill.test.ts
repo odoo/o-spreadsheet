@@ -3,7 +3,13 @@ import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
-import { makeTestFixture, mountSpreadsheet, nextTick, Parent } from "../test_helpers/helpers";
+import {
+  makeTestFixture,
+  mountSpreadsheet,
+  nextTick,
+  Parent,
+  spyDispatch,
+} from "../test_helpers/helpers";
 
 jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
@@ -24,7 +30,7 @@ afterEach(() => {
 
 describe("Autofill component", () => {
   test("Can drag and drop autofill on columns", async () => {
-    const dispatch = parent.observeDispatch();
+    const dispatch = spyDispatch(parent);
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();
@@ -46,7 +52,7 @@ describe("Autofill component", () => {
   });
 
   test("Can drag and drop autofill on rows", async () => {
-    const dispatch = parent.observeDispatch();
+    const dispatch = spyDispatch(parent);
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();
@@ -68,7 +74,7 @@ describe("Autofill component", () => {
   });
 
   test("Can auto-autofill with dblclick", async () => {
-    const dispatch = parent.observeDispatch();
+    const dispatch = spyDispatch(parent);
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "dblclick", 4, 4);
     await nextTick();
@@ -255,7 +261,7 @@ describe("Autofill component", () => {
   });
 
   test("Autofill on the last col/row", async () => {
-    const dispatch = parent.observeDispatch();
+    const dispatch = spyDispatch(parent);
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();
