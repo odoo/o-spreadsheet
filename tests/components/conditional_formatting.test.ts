@@ -13,6 +13,7 @@ import {
   mountSpreadsheet,
   nextTick,
   Parent,
+  spyDispatch,
   textContentAll,
 } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -157,7 +158,7 @@ describe("UI of conditional formats", () => {
       triggerMouseEvent(selectors.ruleEditor.editor.underline, "click");
       triggerMouseEvent(selectors.ruleEditor.editor.strikethrough, "click");
 
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
       //  click save
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
@@ -211,7 +212,7 @@ describe("UI of conditional formats", () => {
       await nextTick();
       triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
 
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
       //  click save
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
@@ -283,7 +284,7 @@ describe("UI of conditional formats", () => {
       triggerMouseEvent(selectors.ruleEditor.editor.underline, "click");
       triggerMouseEvent(selectors.ruleEditor.editor.strikethrough, "click");
 
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
       //  click save
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
@@ -315,7 +316,7 @@ describe("UI of conditional formats", () => {
 
       setInputValueAndTrigger(selectors.ruleEditor.range, "hello", "change");
 
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
       //  click save
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
@@ -335,7 +336,7 @@ describe("UI of conditional formats", () => {
     });
 
     test("can delete Rule", async () => {
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
       const previews = document.querySelectorAll(selectors.listPreview);
       triggerMouseEvent(previews[0].querySelector(selectors.buttonDelete), "click");
       await nextTick();
@@ -361,7 +362,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
 
-    const dispatch = parent.observeDispatch();
+    const dispatch = spyDispatch(parent);
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
@@ -410,7 +411,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "20", "input");
 
-    const dispatch = parent.observeDispatch();
+    const dispatch = spyDispatch(parent);
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
@@ -461,7 +462,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90", "input");
 
-    const dispatch = parent.observeDispatch();
+    const dispatch = spyDispatch(parent);
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
@@ -512,7 +513,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90", "input");
 
-    const dispatch = parent.observeDispatch();
+    const dispatch = spyDispatch(parent);
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
@@ -571,7 +572,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "100", "input");
 
-    const dispatch = parent.observeDispatch();
+    const dispatch = spyDispatch(parent);
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
@@ -1107,7 +1108,7 @@ describe("UI of conditional formats", () => {
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
 
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
       //  click save
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
@@ -1168,7 +1169,7 @@ describe("UI of conditional formats", () => {
       setInputValueAndTrigger(inputinflectionUpper, "0", "input");
       await nextTick();
 
-      const dispatch = parent.observeDispatch();
+      const dispatch = spyDispatch(parent);
       //  click save
       triggerMouseEvent(selectors.buttonSave, "click");
       await nextTick();
@@ -1218,7 +1219,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(newIcon, "click");
     await nextTick();
 
-    const dispatch = parent.observeDispatch();
+    const dispatch = spyDispatch(parent);
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();

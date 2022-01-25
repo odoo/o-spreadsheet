@@ -1,4 +1,4 @@
-import { App, Component, mount, useSubEnv, xml } from "@odoo/owl";
+import { App, Component, mount, xml } from "@odoo/owl";
 import format from "xml-formatter";
 import { Grid } from "../../src/components/grid";
 import { Spreadsheet } from "../../src/components/spreadsheet";
@@ -32,23 +32,6 @@ export class Parent extends Component {
 
   static components = { Spreadsheet };
 
-  private dispatchFn: jest.SpyInstance | undefined;
-
-  /**
-   * Add a spyOn function to `dispatch` method
-   */
-  setup() {
-    const setup = Spreadsheet.prototype.setup;
-    const self = this;
-    Spreadsheet.prototype.setup = function () {
-      setup.call(this);
-      self.dispatchFn = jest.spyOn(this.model, "dispatch");
-      useSubEnv({
-        dispatch: this.model.dispatch.bind(this.model),
-      });
-    };
-  }
-
   get spreadsheet(): Spreadsheet {
     return getChildFromComponent(this, Spreadsheet);
   }
@@ -60,15 +43,10 @@ export class Parent extends Component {
   getSpreadsheetEnv(): SpreadsheetChildEnv {
     return getChildFromComponent(this.spreadsheet, Grid).env;
   }
+}
 
-  /**
-   * Return the jest spyOn method on dispatch. It also clear all the calls that
-   * were done before the call to this functions
-   */
-  observeDispatch() {
-    this.dispatchFn!.mockClear();
-    return this.dispatchFn!;
-  }
+export function spyDispatch(parent: Parent): jest.SpyInstance {
+  return jest.spyOn(parent.model, "dispatch");
 }
 
 export function getPlugin<T extends new (...args: any) => any>(

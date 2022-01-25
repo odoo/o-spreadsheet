@@ -12,6 +12,7 @@ import {
   mountSpreadsheet,
   nextTick,
   Parent,
+  spyDispatch,
   textContentAll,
 } from "../test_helpers/helpers";
 
@@ -249,7 +250,7 @@ describe("figures", () => {
     )[0] as HTMLInputElement;
     const dataSeriesValues = dataSeries.querySelector("input");
     const hasTitle = dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement;
-    let dispatch = parent.observeDispatch();
+    const dispatch = spyDispatch(parent);
     setInputValueAndTrigger(chartType, "pie", "change");
     expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
       id: chartId,
@@ -364,7 +365,7 @@ describe("figures", () => {
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
     await simulateClick(".o-figure");
     await simulateClick(".o-chart-menu");
-    const dispatch = parent.observeDispatch();
+    const dispatch = spyDispatch(parent);
     await simulateClick(".o-menu div[data-name='refresh']");
     expect(dispatch).toHaveBeenCalledWith("REFRESH_CHART", {
       id: "someuuid",
