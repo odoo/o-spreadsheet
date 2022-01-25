@@ -1,6 +1,6 @@
 import { fontSizes } from "../../fonts";
 import { _lt } from "../../translation";
-import { SpreadsheetEnv } from "../../types/env";
+import { SpreadsheetChildEnv } from "../../types/env";
 import { MenuItemRegistry } from "../menu_items_registry";
 import * as ACTIONS from "./menu_items_actions";
 
@@ -119,40 +119,40 @@ topbarMenuRegistry
     name: _lt("Unhide all columns"),
     sequence: 100,
     action: ACTIONS.UNHIDE_ALL_COLUMNS_ACTION,
-    isVisible: (env: SpreadsheetEnv) =>
-      env.getters.getHiddenColsGroups(env.getters.getActiveSheetId()).length > 0,
+    isVisible: (env: SpreadsheetChildEnv) =>
+      env.model.getters.getHiddenColsGroups(env.model.getters.getActiveSheetId()).length > 0,
   })
   .addChild("edit_unhide_rows", ["edit"], {
     name: _lt("Unhide all rows"),
     sequence: 100,
     action: ACTIONS.UNHIDE_ALL_ROWS_ACTION,
-    isVisible: (env: SpreadsheetEnv) =>
-      env.getters.getHiddenRowsGroups(env.getters.getActiveSheetId()).length > 0,
+    isVisible: (env: SpreadsheetChildEnv) =>
+      env.model.getters.getHiddenRowsGroups(env.model.getters.getActiveSheetId()).length > 0,
   })
   .addChild("insert_row_before", ["insert"], {
     name: ACTIONS.MENU_INSERT_ROWS_BEFORE_NAME,
     sequence: 10,
     action: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
-    isVisible: (env: SpreadsheetEnv) => env.getters.getActiveCols().size === 0,
+    isVisible: (env: SpreadsheetChildEnv) => env.model.getters.getActiveCols().size === 0,
   })
   .addChild("insert_row_after", ["insert"], {
     name: ACTIONS.MENU_INSERT_ROWS_AFTER_NAME,
     sequence: 20,
     action: ACTIONS.INSERT_ROWS_AFTER_ACTION,
-    isVisible: (env: SpreadsheetEnv) => env.getters.getActiveCols().size === 0,
+    isVisible: (env: SpreadsheetChildEnv) => env.model.getters.getActiveCols().size === 0,
     separator: true,
   })
   .addChild("insert_column_before", ["insert"], {
     name: ACTIONS.MENU_INSERT_COLUMNS_BEFORE_NAME,
     sequence: 30,
     action: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
-    isVisible: (env: SpreadsheetEnv) => env.getters.getActiveRows().size === 0,
+    isVisible: (env: SpreadsheetChildEnv) => env.model.getters.getActiveRows().size === 0,
   })
   .addChild("insert_column_after", ["insert"], {
     name: ACTIONS.MENU_INSERT_COLUMNS_AFTER_NAME,
     sequence: 40,
     action: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
-    isVisible: (env: SpreadsheetEnv) => env.getters.getActiveRows().size === 0,
+    isVisible: (env: SpreadsheetChildEnv) => env.model.getters.getActiveRows().size === 0,
     separator: true,
   })
   .addChild("insert_insert_cell_shift_down", ["insert"], {
@@ -184,8 +184,8 @@ topbarMenuRegistry
     separator: true,
   })
   .addChild("view_gridlines", ["view"], {
-    name: (env: SpreadsheetEnv) =>
-      env.getters.getGridLinesVisibility(env.getters.getActiveSheetId())
+    name: (env: SpreadsheetChildEnv) =>
+      env.model.getters.getGridLinesVisibility(env.model.getters.getActiveSheetId())
         ? _lt("Hide gridlines")
         : _lt("Show gridlines"),
     action: ACTIONS.SET_GRID_LINES_VISIBILITY_ACTION,
@@ -193,8 +193,8 @@ topbarMenuRegistry
     separator: true,
   })
   .addChild("view_formulas", ["view"], {
-    name: (env: SpreadsheetEnv) =>
-      env.getters.shouldShowFormulas() ? _lt("Hide formulas") : _lt("Show formulas"),
+    name: (env: SpreadsheetChildEnv) =>
+      env.model.getters.shouldShowFormulas() ? _lt("Hide formulas") : _lt("Show formulas"),
     action: ACTIONS.SET_FORMULA_VISIBILITY_ACTION,
     isReadonlyAllowed: true,
     sequence: 10,
@@ -283,6 +283,6 @@ for (let fs of fontSizes) {
   topbarMenuRegistry.addChild(`format_font_size_${fs.pt}`, ["format", "format_font_size"], {
     name: fs.pt.toString(),
     sequence: fs.pt,
-    action: (env: SpreadsheetEnv) => ACTIONS.setStyle(env, { fontSize: fs.pt }),
+    action: (env: SpreadsheetChildEnv) => ACTIONS.setStyle(env, { fontSize: fs.pt }),
   });
 }

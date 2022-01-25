@@ -1,5 +1,5 @@
 import { _lt } from "../../translation";
-import { SpreadsheetEnv } from "../../types";
+import { SpreadsheetChildEnv } from "../../types";
 import { MenuItemRegistry } from "../menu_items_registry";
 import * as ACTIONS from "./menu_items_actions";
 
@@ -42,7 +42,7 @@ colMenuRegistry
   })
   .add("sort_columns", {
     name: (env) =>
-      env.getters.getActiveCols().size > 1 ? _lt("Sort columns") : _lt("Sort column"),
+      env.model.getters.getActiveCols().size > 1 ? _lt("Sort columns") : _lt("Sort column"),
     sequence: 50,
     isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
     separator: true,
@@ -81,11 +81,12 @@ colMenuRegistry
     name: ACTIONS.HIDE_COLUMNS_NAME,
     sequence: 85,
     action: ACTIONS.HIDE_COLUMNS_ACTION,
-    isVisible: (env: SpreadsheetEnv) => {
-      const sheet = env.getters.getActiveSheet();
-      const hiddenCols = env.getters.getHiddenColsGroups(sheet.id).flat();
+    isVisible: (env: SpreadsheetChildEnv) => {
+      const sheet = env.model.getters.getActiveSheet();
+      const hiddenCols = env.model.getters.getHiddenColsGroups(sheet.id).flat();
       return (
-        sheet.cols.length > hiddenCols.length + env.getters.getElementsFromSelection("COL").length
+        sheet.cols.length >
+        hiddenCols.length + env.model.getters.getElementsFromSelection("COL").length
       );
     },
     separator: true,
@@ -94,9 +95,11 @@ colMenuRegistry
     name: "Unhide columns",
     sequence: 86,
     action: ACTIONS.UNHIDE_COLUMNS_ACTION,
-    isVisible: (env: SpreadsheetEnv) => {
-      const hiddenCols = env.getters.getHiddenColsGroups(env.getters.getActiveSheetId()).flat();
-      const currentCols = env.getters.getElementsFromSelection("COL");
+    isVisible: (env: SpreadsheetChildEnv) => {
+      const hiddenCols = env.model.getters
+        .getHiddenColsGroups(env.model.getters.getActiveSheetId())
+        .flat();
+      const currentCols = env.model.getters.getElementsFromSelection("COL");
       return currentCols.some((col) => hiddenCols.includes(col));
     },
     separator: true,

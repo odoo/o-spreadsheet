@@ -1,6 +1,6 @@
 import { Component, xml } from "@odoo/owl";
 import { BOTTOMBAR_HEIGHT, SCROLLBAR_WIDTH, TOPBAR_HEIGHT } from "../constants";
-import { DOMCoordinates, GridDimension, SpreadsheetEnv } from "../types";
+import { DOMCoordinates, GridDimension, SpreadsheetChildEnv } from "../types";
 
 const TEMPLATE = xml/* xml */ `
   <t t-portal="'.o-spreadsheet'">
@@ -30,7 +30,7 @@ interface Props {
   flipVerticalOffset: number;
 }
 
-export class Popover extends Component<Props, SpreadsheetEnv> {
+export class Popover extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static defaultProps = {
     flipHorizontalOffset: 0,
@@ -38,7 +38,6 @@ export class Popover extends Component<Props, SpreadsheetEnv> {
     verticalOffset: 0,
     marginTop: 0,
   };
-  private getters = this.env.getters;
 
   get style() {
     const horizontalPosition = `left:${this.horizontalPosition()}`;
@@ -60,7 +59,7 @@ export class Popover extends Component<Props, SpreadsheetEnv> {
   }
 
   private get viewportDimension(): GridDimension {
-    return this.getters.getViewportDimensionWithHeaders();
+    return this.env.model.getters.getViewportDimensionWithHeaders();
   }
 
   private get shouldRenderRight(): boolean {

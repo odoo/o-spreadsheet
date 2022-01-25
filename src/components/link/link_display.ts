@@ -1,7 +1,7 @@
 import { Component, xml } from "@odoo/owl";
 import { LINK_COLOR } from "../../constants";
 import { toXC } from "../../helpers";
-import { LinkCell, Position, SpreadsheetEnv } from "../../types";
+import { LinkCell, Position, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { EDIT, UNLINK } from "../icons";
 import { Menu } from "../menu";
@@ -68,16 +68,15 @@ const CSS = css/* scss */ `
   }
 `;
 
-export class LinkDisplay extends Component<{ cellPosition: Position }, SpreadsheetEnv> {
+export class LinkDisplay extends Component<{ cellPosition: Position }, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static components = { Menu };
   static style = CSS;
-  private getters = this.env.getters;
 
   get cell(): LinkCell {
     const { col, row } = this.props.cellPosition;
-    const sheetId = this.getters.getActiveSheetId();
-    const cell = this.getters.getCell(sheetId, col, row);
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const cell = this.env.model.getters.getCell(sheetId, col, row);
     if (cell?.isLink()) {
       return cell;
     }
@@ -95,12 +94,12 @@ export class LinkDisplay extends Component<{ cellPosition: Position }, Spreadshe
   }
 
   unlink() {
-    const sheetId = this.getters.getActiveSheetId();
-    const [col, row] = this.getters.getPosition();
-    const [mainCol, mainRow] = this.getters.getMainCell(sheetId, col, row);
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const [col, row] = this.env.model.getters.getPosition();
+    const [mainCol, mainRow] = this.env.model.getters.getMainCell(sheetId, col, row);
     const style = this.cell.style;
     const textColor = style?.textColor === LINK_COLOR ? undefined : style?.textColor;
-    this.env.dispatch("UPDATE_CELL", {
+    this.env.model.dispatch("UPDATE_CELL", {
       col: mainCol,
       row: mainRow,
       sheetId,

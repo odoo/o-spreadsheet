@@ -1,19 +1,17 @@
-import { Env } from "@odoo/owl/dist/types/app/app";
-import { UuidGenerator } from "../helpers";
+import { Model } from "..";
 import { TranslationFunction } from "../translation";
-import { CommandDispatcher } from "./commands";
-import { Getters } from "./getters";
 
-export interface SpreadsheetEnv extends Env {
+export interface SpreadsheetEnv {
   notifyUser: (content: string) => any;
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
   editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
+}
+
+export interface SpreadsheetChildEnv extends SpreadsheetEnv {
+  model: Model;
   openSidePanel: (panel: string, panelProps?: any) => void;
   openLinkEditor: () => void;
   toggleSidePanel: (panel: string, panelProps?: any) => void;
-  dispatch: CommandDispatcher["dispatch"];
-  getters: Getters;
-  uuidGenerator: UuidGenerator;
   clipboard: Clipboard;
   _t: TranslationFunction;
 }

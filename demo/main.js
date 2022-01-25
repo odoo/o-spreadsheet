@@ -21,7 +21,7 @@ topbarMenuRegistry.addChild("xlsx", ["file"], {
   name: "Save as XLSX",
   sequence: 20,
   action: async (env) => {
-    const doc = await env.exportXLSX();
+    const doc = await env.model.exportXLSX();
     const zip = new JSZip();
     for (const file of doc.files) {
       zip.file(file.path, file.content.replaceAll(` xmlns=""`, ""));

@@ -3,13 +3,13 @@ import { ConditionalFormattingPanel } from "../components/side_panel/conditional
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace";
 import { Registry } from "../registry";
 import { _lt } from "../translation";
-import { SpreadsheetEnv } from "../types";
+import { SpreadsheetChildEnv } from "../types";
 
 //------------------------------------------------------------------------------
 // Side Panel Registry
 //------------------------------------------------------------------------------
 export interface SidePanelContent {
-  title: string | ((env: SpreadsheetEnv) => string);
+  title: string | ((env: SpreadsheetChildEnv) => string);
   Body: any;
   Footer?: any;
 }

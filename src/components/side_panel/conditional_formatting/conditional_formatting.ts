@@ -18,8 +18,8 @@ import {
   ConditionalFormatRule,
   IconSetRule,
   SingleColorRules,
-  SpreadsheetEnv,
   UID,
+  SpreadsheetChildEnv,
   Zone,
 } from "../../../types";
 import { ColorPicker } from "../../color_picker";
@@ -487,7 +487,7 @@ interface State {
   openedMenu?: CFMenu;
 }
 
-export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv> {
+export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { SelectionInput, IconPicker, ColorPicker };
@@ -500,20 +500,18 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
   getTextDecoration = getTextDecoration;
   colorNumberString = colorNumberString;
 
-  private getters!: SpreadsheetEnv["getters"];
   private activeSheetId!: UID;
   private state!: State;
 
   setup() {
-    this.getters = this.env.getters;
-    this.activeSheetId = this.getters.getActiveSheetId();
+    this.activeSheetId = this.env.model.getters.getActiveSheetId();
     this.state = useState({
       mode: "list",
       errors: [],
       rules: this.getDefaultRules(),
     });
-    const sheetId = this.getters.getActiveSheetId();
-    const rules = this.getters.getRulesSelection(sheetId, this.props.selection || []);
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const rules = this.env.model.getters.getRulesSelection(sheetId, this.props.selection || []);
     if (rules.length === 1) {
       const cf = this.conditionalFormats.find((c) => c.id === rules[0]);
       if (cf) {
@@ -521,13 +519,13 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
       }
     }
     onWillUpdateProps((nextProps: Props) => {
-      const newActiveSheetId = this.getters.getActiveSheetId();
+      const newActiveSheetId = this.env.model.getters.getActiveSheetId();
       if (newActiveSheetId !== this.activeSheetId) {
         this.activeSheetId = newActiveSheetId;
         this.switchToList();
       } else if (nextProps.selection !== this.props.selection) {
-        const sheetId = this.getters.getActiveSheetId();
-        const rules = this.getters.getRulesSelection(sheetId, nextProps.selection || []);
+        const sheetId = this.env.model.getters.getActiveSheetId();
+        const rules = this.env.model.getters.getRulesSelection(sheetId, nextProps.selection || []);
         if (rules.length === 1) {
           const cf = this.conditionalFormats.find((c) => c.id === rules[0]);
           if (cf) {
@@ -542,7 +540,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
   }
 
   get conditionalFormats(): ConditionalFormat[] {
-    return this.getters.getConditionalFormats(this.getters.getActiveSheetId());
+    return this.env.model.getters.getConditionalFormats(this.env.model.getters.getActiveSheetId());
   }
 
   get isRangeValid(): boolean {
@@ -609,14 +607,16 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
         this.state.errors = [CommandResult.InvalidRange];
         return;
       }
-      const result = this.env.dispatch("ADD_CONDITIONAL_FORMAT", {
+      const result = this.env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: this.getEditorRule(),
           id:
-            this.state.mode === "edit" ? this.state.currentCF.id : this.env.uuidGenerator.uuidv4(),
+            this.state.mode === "edit"
+              ? this.state.currentCF.id
+              : this.env.model.uuidGenerator.uuidv4(),
         },
         target: this.state.currentCF.ranges.map(toZone),
-        sheetId: this.getters.getActiveSheetId(),
+        sheetId: this.env.model.getters.getActiveSheetId(),
       });
       if (!result.isSuccessful) {
         this.state.errors = result.reasons;
@@ -683,10 +683,12 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     this.state.mode = "add";
     this.state.currentCFType = "CellIsRule";
     this.state.currentCF = {
-      id: this.env.uuidGenerator.uuidv4(),
-      ranges: this.getters
+      id: this.env.model.uuidGenerator.uuidv4(),
+      ranges: this.env.model.getters
         .getSelectedZones()
-        .map((zone) => this.getters.zoneToXC(this.getters.getActiveSheetId(), zone)),
+        .map((zone) =>
+          this.env.model.getters.zoneToXC(this.env.model.getters.getActiveSheetId(), zone)
+        ),
     };
   }
 
@@ -694,9 +696,9 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
    * Delete a CF
    */
   deleteConditionalFormat(cf: ConditionalFormat) {
-    this.env.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+    this.env.model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
       id: cf.id,
-      sheetId: this.getters.getActiveSheetId(),
+      sheetId: this.env.model.getters.getActiveSheetId(),
     });
   }
 

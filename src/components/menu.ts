@@ -18,7 +18,7 @@ import {
 } from "../constants";
 import { FullMenuItem, MenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
-import { DOMCoordinates, SpreadsheetEnv } from "../types";
+import { DOMCoordinates, SpreadsheetChildEnv } from "../types";
 import { css } from "./helpers/css";
 import { isChildEvent } from "./helpers/dom_helpers";
 import { useAbsolutePosition } from "./helpers/position_hook";
@@ -136,7 +136,7 @@ export interface MenuState {
   scrollOffset?: number;
   menuItems: FullMenuItem[];
 }
-export class Menu extends Component<Props, SpreadsheetEnv> {
+export class Menu extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static components = { Menu, Popover };
   static style = CSS;
@@ -247,7 +247,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
 
   isEnabled(menu: FullMenuItem) {
     if (menu.isEnabled(this.env)) {
-      return this.env.getters.isReadonly() ? menu.isReadonlyAllowed : true;
+      return this.env.model.getters.isReadonly() ? menu.isReadonlyAllowed : true;
     }
     return false;
   }

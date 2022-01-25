@@ -13,7 +13,7 @@ import { setFormatter, setStyle, topbarComponentRegistry } from "../registries/i
 import { topbarMenuRegistry } from "../registries/menus/topbar_menu_registry";
 import { FullMenuItem } from "../registries/menu_items_registry";
 import { _lt } from "../translation";
-import { Align, BorderCommand, CommandResult, SpreadsheetEnv, Style } from "../types/index";
+import { Align, BorderCommand, CommandResult, SpreadsheetChildEnv, Style } from "../types/index";
 import { ColorPicker } from "./color_picker";
 import { Composer } from "./composer/composer";
 import { css } from "./helpers/css";
@@ -55,7 +55,7 @@ interface Props {
 // -----------------------------------------------------------------------------
 // TopBar
 // -----------------------------------------------------------------------------
-export class TopBar extends Component<Props, SpreadsheetEnv> {
+export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet-topbar o-two-columns" t-on-click="props.onClick">
       <div class="o-topbar-top">
@@ -84,7 +84,7 @@ export class TopBar extends Component<Props, SpreadsheetEnv> {
       <!-- Toolbar and Cell Content -->
       <div class="o-topbar-toolbar">
         <!-- Toolbar -->
-        <div t-if="getters.isReadonly()" class="o-readonly-toolbar text-muted">
+        <div t-if="env.model.getters.isReadonly()" class="o-readonly-toolbar text-muted">
           <span>
             <i class="fa fa-eye" /> <t t-esc="env._t('Readonly Access')" />
           </span>
@@ -359,8 +359,6 @@ export class TopBar extends Component<Props, SpreadsheetEnv> {
   formats = FORMATS;
   currentFormat = "general";
   fontSizes = fontSizes;
-  dispatch = this.env.dispatch;
-  getters = this.env.getters;
 
   style: Style = {};
   state: State = useState({
@@ -451,16 +449,16 @@ export class TopBar extends Component<Props, SpreadsheetEnv> {
   }
 
   updateCellState() {
-    this.style = this.getters.getCurrentStyle();
+    this.style = this.env.model.getters.getCurrentStyle();
     this.fillColor = this.style.fillColor || "white";
     this.textColor = this.style.textColor || "black";
-    const zones = this.getters.getSelectedZones();
+    const zones = this.env.model.getters.getSelectedZones();
     const { top, left, right, bottom } = zones[0];
     this.cannotMerge = zones.length > 1 || (top === bottom && left === right);
     this.inMerge = false;
     if (!this.cannotMerge) {
-      const [col, row] = this.getters.getPosition();
-      const zone = this.getters.expandZone(this.getters.getActiveSheetId(), {
+      const [col, row] = this.env.model.getters.getPosition();
+      const zone = this.env.model.getters.expandZone(this.env.model.getters.getActiveSheetId(), {
         left: col,
         right: col,
         top: row,
@@ -468,10 +466,10 @@ export class TopBar extends Component<Props, SpreadsheetEnv> {
       });
       this.inMerge = isEqual(zones[0], zone);
     }
-    this.undoTool = this.getters.canUndo();
-    this.redoTool = this.getters.canRedo();
-    this.paintFormatTool = this.getters.isPaintingFormat();
-    const cell = this.getters.getActiveCell();
+    this.undoTool = this.env.model.getters.canUndo();
+    this.redoTool = this.env.model.getters.canRedo();
+    this.paintFormatTool = this.env.model.getters.isPaintingFormat();
+    const cell = this.env.model.getters.getActiveCell();
     if (cell && cell.format) {
       const format = this.formats.find((f) => f.value === cell.format);
       this.currentFormat = format ? format.name : "";
@@ -488,19 +486,19 @@ export class TopBar extends Component<Props, SpreadsheetEnv> {
   }
 
   toggleMerge() {
-    const zones = this.getters.getSelectedZones();
+    const zones = this.env.model.getters.getSelectedZones();
     const target = [zones[zones.length - 1]];
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.env.model.getters.getActiveSheetId();
     if (this.inMerge) {
-      this.dispatch("REMOVE_MERGE", { sheetId, target });
+      this.env.model.dispatch("REMOVE_MERGE", { sheetId, target });
     } else {
-      const result = this.dispatch("ADD_MERGE", { sheetId, target });
+      const result = this.env.model.dispatch("ADD_MERGE", { sheetId, target });
       if (!result.isSuccessful) {
         if (result.isCancelledBecause(CommandResult.MergeIsDestructive)) {
           this.env.askConfirmation(
             _lt("Merging these cells will only preserve the top-leftmost value. Merge anyway?"),
             () => {
-              this.dispatch("ADD_MERGE", { sheetId, target, force: true });
+              this.env.model.dispatch("ADD_MERGE", { sheetId, target, force: true });
             }
           );
         }
@@ -513,9 +511,9 @@ export class TopBar extends Component<Props, SpreadsheetEnv> {
   }
 
   setBorder(command: BorderCommand) {
-    this.dispatch("SET_FORMATTING", {
-      sheetId: this.getters.getActiveSheetId(),
-      target: this.getters.getSelectedZones(),
+    this.env.model.dispatch("SET_FORMATTING", {
+      sheetId: this.env.model.getters.getActiveSheetId(),
+      target: this.env.model.getters.getSelectedZones(),
       border: command,
     });
   }
@@ -528,23 +526,23 @@ export class TopBar extends Component<Props, SpreadsheetEnv> {
   }
 
   setDecimal(step: number) {
-    this.dispatch("SET_DECIMAL", {
-      sheetId: this.getters.getActiveSheetId(),
-      target: this.getters.getSelectedZones(),
+    this.env.model.dispatch("SET_DECIMAL", {
+      sheetId: this.env.model.getters.getActiveSheetId(),
+      target: this.env.model.getters.getSelectedZones(),
       step: step,
     });
   }
 
   paintFormat() {
-    this.dispatch("ACTIVATE_PAINT_FORMAT", {
-      target: this.getters.getSelectedZones(),
+    this.env.model.dispatch("ACTIVATE_PAINT_FORMAT", {
+      target: this.env.model.getters.getSelectedZones(),
     });
   }
 
   clearFormatting() {
-    this.dispatch("CLEAR_FORMATTING", {
-      sheetId: this.getters.getActiveSheetId(),
-      target: this.getters.getSelectedZones(),
+    this.env.model.dispatch("CLEAR_FORMATTING", {
+      sheetId: this.env.model.getters.getActiveSheetId(),
+      target: this.env.model.getters.getSelectedZones(),
     });
   }
 
@@ -553,16 +551,16 @@ export class TopBar extends Component<Props, SpreadsheetEnv> {
     setStyle(this.env, { fontSize });
   }
 
-  doAction(action: (env: SpreadsheetEnv) => void) {
+  doAction(action: (env: SpreadsheetChildEnv) => void) {
     action(this.env);
     this.closeMenus();
   }
 
   undo() {
-    this.dispatch("REQUEST_UNDO");
+    this.env.model.dispatch("REQUEST_UNDO");
   }
 
   redo() {
-    this.dispatch("REQUEST_REDO");
+    this.env.model.dispatch("REQUEST_REDO");
   }
 }

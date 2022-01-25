@@ -1,5 +1,5 @@
 import { Component, xml } from "@odoo/owl";
-import { SpreadsheetEnv } from "../types";
+import { SpreadsheetChildEnv } from "../types";
 import { css } from "./helpers/css";
 
 const TEMPLATE = xml/* xml */ `
@@ -21,7 +21,7 @@ export interface ErrorToolTipProps {
   text: string;
 }
 
-export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetEnv> {
+export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static style = CSS;
 }

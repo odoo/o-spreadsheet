@@ -90,14 +90,14 @@ class Parent extends Component {
     <Highlight zone="props.zone" color="props.color"/>
   `;
   setup() {
+    this.props.model.dispatch = jest.fn((command) => DispatchResult.Success);
     useSubEnv({
-      getters: this.props.model.getters,
-      dispatch: jest.fn((command) => DispatchResult.Success),
+      model: this.props.model,
     });
   }
 
-  getSubEnv() {
-    return this.__owl__.childEnv;
+  get model(): Model {
+    return this.props.model;
   }
 }
 
@@ -127,13 +127,12 @@ describe("Corner component", () => {
 
       // select B2 nw corner
       selectNWCellCorner(cornerEl, "B2");
-      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
-
       // move to A1
       moveToCell(cornerEl, "A1");
-      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      expect(model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
         zone: toZone("A1:B2"),
       });
     });
@@ -144,13 +143,13 @@ describe("Corner component", () => {
 
       // select B2 ne corner
       selectNECellCorner(cornerEl, "B2");
-      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C1
       moveToCell(cornerEl, "C1");
-      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
         zone: toZone("B1:C2"),
       });
     });
@@ -161,13 +160,13 @@ describe("Corner component", () => {
 
       // select B2 sw corner
       selectSWCellCorner(cornerEl, "B2");
-      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to A3
       moveToCell(cornerEl, "A3");
-      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
         zone: toZone("A2:B3"),
       });
     });
@@ -178,13 +177,13 @@ describe("Corner component", () => {
 
       // select B2 se corner
       selectSECellCorner(cornerEl, "B2");
-      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C3
       moveToCell(cornerEl, "C3");
-      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
         zone: toZone("B2:C3"),
       });
     });
@@ -196,7 +195,7 @@ describe("Corner component", () => {
 
     // select A1 nw corner
     selectNWCellCorner(cornerEl, "A1");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1"),
     });
 
@@ -208,7 +207,7 @@ describe("Corner component", () => {
       getRowStartPosition(0) - 100
     );
     await nextTick();
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledTimes(1);
+    expect(parent.model.dispatch).toHaveBeenCalledTimes(1);
   });
 
   test("drag highlight corner on merged cells expands the final highlight zone", async () => {
@@ -218,13 +217,13 @@ describe("Corner component", () => {
 
     // select B2 se corner
     selectNWCellCorner(cornerEl, "B2");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("B2"),
     });
 
     // move to B1
     moveToCell(cornerEl, "B1");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
       zone: toZone("B1:C2"),
     });
   });
@@ -242,13 +241,13 @@ describe("Corner component", () => {
 
     // select B1 nw corner
     selectNWCellCorner(cornerEl, "B1");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("B1"),
     });
 
     // move to C1
     moveToCell(cornerEl, "C1");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
       offsetX: width / 2,
       offsetY: 0,
     });
@@ -267,13 +266,13 @@ describe("Corner component", () => {
 
     // select A2 nw corner
     selectTopCellBorder(cornerEl, "A2");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A2"),
     });
 
     // move to A3
     moveToCell(cornerEl, "A3");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
       offsetY: height / 2,
     });
@@ -288,13 +287,13 @@ describe("Border component", () => {
 
       // select B2 top border
       selectTopCellBorder(borderEl, "B2");
-      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
-      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
         zone: toZone("C2"),
       });
     });
@@ -305,13 +304,13 @@ describe("Border component", () => {
 
       // select B2 left border
       selectLeftCellBorder(borderEl, "B2");
-      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
-      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
         zone: toZone("C2"),
       });
     });
@@ -322,13 +321,13 @@ describe("Border component", () => {
 
       // select B2 right border
       selectRightCellBorder(borderEl, "B2");
-      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
-      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
         zone: toZone("C2"),
       });
     });
@@ -339,13 +338,13 @@ describe("Border component", () => {
 
       // select B2 bottom border
       selectBottomCellBorder(borderEl, "B2");
-      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
-      expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
         zone: toZone("C2"),
       });
     });
@@ -357,19 +356,19 @@ describe("Border component", () => {
 
     // select A1 top border
     selectTopCellBorder(borderEl, "A1");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1:B2"),
     });
 
     // move to B1
     moveToCell(borderEl, "B1");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
       zone: toZone("B1:C2"),
     });
 
     // move to C1
     moveToCell(borderEl, "C1");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
       zone: toZone("C1:D2"),
     });
   });
@@ -380,13 +379,13 @@ describe("Border component", () => {
 
     // select B1 top border
     selectTopCellBorder(borderEl, "B1");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1:B2"),
     });
 
     // move to C1
     moveToCell(borderEl, "C1");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
       zone: toZone("B1:C2"),
     });
   });
@@ -397,13 +396,13 @@ describe("Border component", () => {
 
     // select B2 bottom border
     selectBottomCellBorder(borderEl, "B2");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1:B2"),
     });
 
     // move to A2
     moveToCell(borderEl, "A2");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledTimes(1);
+    expect(parent.model.dispatch).toHaveBeenCalledTimes(1);
   });
 
   test("drag highlight order on merged cells expands the final highlight zone", async () => {
@@ -413,13 +412,13 @@ describe("Border component", () => {
 
     // select A1 top border
     selectTopCellBorder(borderEl, "A1");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1"),
     });
 
     // move to B1
     moveToCell(borderEl, "B1");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
       zone: toZone("B1:C1"),
     });
   });
@@ -431,13 +430,13 @@ describe("Border component", () => {
 
     // select A1 top border
     selectTopCellBorder(borderEl, "A1");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1"),
     });
 
     // move to B1
     moveToCell(borderEl, "B1");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
       zone: toZone("B1:C1"),
     });
   });
@@ -455,13 +454,13 @@ describe("Border component", () => {
 
     // select B1 top border
     selectTopCellBorder(borderEl, "B1");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("B1"),
     });
 
     // move to C1
     moveToCell(borderEl, "C1");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
       offsetX: width / 2,
       offsetY: 0,
     });
@@ -480,13 +479,13 @@ describe("Border component", () => {
 
     // select A2 top border
     selectTopCellBorder(borderEl, "A2");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A2"),
     });
 
     // move to A3
     moveToCell(borderEl, "A3");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
+    expect(parent.model.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
       offsetY: height / 2,
     });

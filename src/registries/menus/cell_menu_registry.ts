@@ -1,5 +1,5 @@
 import { _lt } from "../../translation";
-import { SpreadsheetEnv } from "../../types";
+import { SpreadsheetChildEnv } from "../../types";
 import { MenuItemRegistry } from "../menu_items_registry";
 import * as ACTIONS from "./menu_items_actions";
 
@@ -121,8 +121,8 @@ cellMenuRegistry
     name: _lt("Clear cells"),
     sequence: 140,
     action: ACTIONS.DELETE_CONTENT_ACTION,
-    isEnabled: (env: SpreadsheetEnv) => {
-      const cell = env.getters.getActiveCell();
+    isEnabled: (env: SpreadsheetChildEnv) => {
+      const cell = env.model.getters.getActiveCell();
       return Boolean(cell);
     },
     separator: true,

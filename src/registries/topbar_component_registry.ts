@@ -1,12 +1,12 @@
 import { Registry } from "../registry";
-import { SpreadsheetEnv } from "../types/env";
+import { SpreadsheetChildEnv } from "../types/env";
 
 //------------------------------------------------------------------------------
 // Topbar Component Registry
 //------------------------------------------------------------------------------
 interface TopbarComponent {
   component: any;
-  isVisible?: (env: SpreadsheetEnv) => boolean;
+  isVisible?: (env: SpreadsheetChildEnv) => boolean;
 }
 
 export const topbarComponentRegistry = new Registry<TopbarComponent>();

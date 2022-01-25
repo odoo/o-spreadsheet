@@ -1,6 +1,6 @@
 import { Component, xml } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
-import { SpreadsheetEnv, Zone } from "../../types";
+import { SpreadsheetChildEnv, Zone } from "../../types";
 import { css } from "../helpers/css";
 
 const TEMPLATE = xml/* xml */ `
@@ -38,7 +38,7 @@ interface Props {
   onMoveHighlight: (x: number, y: number) => void;
 }
 
-export class Border extends Component<Props, SpreadsheetEnv> {
+export class Border extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static style = CSS;
 
@@ -48,7 +48,7 @@ export class Border extends Component<Props, SpreadsheetEnv> {
     const isHorizontal = ["n", "s"].includes(this.props.orientation);
     const isVertical = ["w", "e"].includes(this.props.orientation);
 
-    const s = this.env.getters.getActiveSheet();
+    const s = this.env.model.getters.getActiveSheet();
     const z = this.props.zone;
     const margin = 2;
 
@@ -63,7 +63,7 @@ export class Border extends Component<Props, SpreadsheetEnv> {
     const widthValue = isHorizontal ? right - left : lineWidth;
     const heightValue = isVertical ? bottom - top : lineWidth;
 
-    const { offsetX, offsetY } = this.env.getters.getActiveSnappedViewport();
+    const { offsetX, offsetY } = this.env.model.getters.getActiveSnappedViewport();
     return `
         left:${leftValue + HEADER_WIDTH - offsetX}px;
         top:${topValue + HEADER_HEIGHT - offsetY}px;

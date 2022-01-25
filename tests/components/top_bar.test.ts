@@ -38,8 +38,7 @@ class Parent extends Component {
   setup() {
     useSubEnv({
       openSidePanel: () => {},
-      dispatch: this.props.model.dispatch,
-      getters: this.props.model.getters,
+      model: this.props.model,
       askConfirmation: jest.fn(),
       _t: Parent._t,
     });

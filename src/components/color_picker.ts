@@ -1,5 +1,5 @@
 import { Component, xml } from "@odoo/owl";
-import { SpreadsheetEnv } from "../types/env";
+import { SpreadsheetChildEnv } from "../types/env";
 import { css } from "./helpers/css";
 
 const COLORS = [
@@ -120,7 +120,7 @@ interface Props {
   onColorPicked: (color: string) => void;
 }
 
-export class ColorPicker extends Component<Props, SpreadsheetEnv> {
+export class ColorPicker extends Component<Props, SpreadsheetChildEnv> {
   static template = xml/* xml */ `
   <div class="o-color-picker"
     t-att-class="props.dropdownDirection || 'right'"

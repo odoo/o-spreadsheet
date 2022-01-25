@@ -1,5 +1,5 @@
 import { Registry } from "../registry";
-import { SpreadsheetEnv } from "../types/env";
+import { SpreadsheetChildEnv } from "../types/env";
 
 //------------------------------------------------------------------------------
 // Menu Item Registry
@@ -25,14 +25,14 @@ import { SpreadsheetEnv } from "../types/env";
  *
  */
 export interface MenuItem {
-  name: string | ((env: SpreadsheetEnv) => string);
+  name: string | ((env: SpreadsheetChildEnv) => string);
   shortCut?: string;
   sequence: number;
   id?: string;
-  isVisible?: (env: SpreadsheetEnv) => boolean;
-  isEnabled?: (env: SpreadsheetEnv) => boolean;
+  isVisible?: (env: SpreadsheetChildEnv) => boolean;
+  isEnabled?: (env: SpreadsheetChildEnv) => boolean;
   isReadonlyAllowed?: boolean;
-  action?: (env: SpreadsheetEnv) => unknown;
+  action?: (env: SpreadsheetChildEnv) => unknown;
   children?: menuChildren;
   separator?: boolean;
   icon?: string;
@@ -40,7 +40,7 @@ export interface MenuItem {
 
 export type FullMenuItem = Required<MenuItem>;
 
-type menuChildren = FullMenuItem[] | ((env: SpreadsheetEnv) => FullMenuItem[]);
+type menuChildren = FullMenuItem[] | ((env: SpreadsheetChildEnv) => FullMenuItem[]);
 
 const DEFAULT_MENU_ITEM = (key: string) => ({
   isVisible: () => true,
@@ -94,14 +94,14 @@ export class MenuItemRegistry extends Registry<FullMenuItem> {
     return this;
   }
 
-  getChildren(node: FullMenuItem, env: SpreadsheetEnv): FullMenuItem[] {
+  getChildren(node: FullMenuItem, env: SpreadsheetChildEnv): FullMenuItem[] {
     if (typeof node.children === "function") {
       return node.children(env).sort((a, b) => a.sequence - b.sequence);
     }
     return node.children.sort((a, b) => a.sequence - b.sequence);
   }
 
-  getName(node: FullMenuItem, env: SpreadsheetEnv): string {
+  getName(node: FullMenuItem, env: SpreadsheetChildEnv): string {
     if (typeof node.name === "function") {
       return node.name(env);
     }

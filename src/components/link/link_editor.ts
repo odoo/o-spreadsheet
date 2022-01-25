@@ -1,7 +1,7 @@
 import { Component, onMounted, useRef, useState, xml } from "@odoo/owl";
 import { markdownLink } from "../../helpers/index";
 import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
-import { DOMCoordinates, Link, Position, SpreadsheetEnv } from "../../types";
+import { DOMCoordinates, Link, Position, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { useAbsolutePosition } from "../helpers/position_hook";
 import { LIST } from "./../icons";
@@ -127,12 +127,11 @@ interface State {
   isUrlEditable: boolean;
 }
 
-export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
+export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static components = { Menu };
   static style = CSS;
   menuItems = linkMenuRegistry.getAll();
-  private getters = this.env.getters;
   private state: State = useState(this.defaultState);
   private menu = useState({
     isOpen: false,
@@ -147,8 +146,8 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
 
   get defaultState(): State {
     const { col, row } = this.props.cellPosition;
-    const sheetId = this.getters.getActiveSheetId();
-    const cell = this.getters.getCell(sheetId, col, row);
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const cell = this.env.model.getters.getCell(sheetId, col, row);
     if (cell?.isLink()) {
       return {
         link: { url: cell.link.url, label: cell.formattedValue },
@@ -191,10 +190,10 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetEnv> {
   save() {
     const { col, row } = this.props.cellPosition;
     const label = this.state.link.label || this.state.link.url;
-    this.env.dispatch("UPDATE_CELL", {
+    this.env.model.dispatch("UPDATE_CELL", {
       col: col,
       row: row,
-      sheetId: this.getters.getActiveSheetId(),
+      sheetId: this.env.model.getters.getActiveSheetId(),
       content: markdownLink(label, this.state.link.url),
     });
     this.props.onLinkEditorClosed();

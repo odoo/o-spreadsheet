@@ -12,7 +12,7 @@ import {
   CommandTypes,
   ConditionalFormat,
   Position,
-  SpreadsheetEnv,
+  SpreadsheetChildEnv,
   Style,
   Zone,
 } from "../../src/types";
@@ -57,7 +57,7 @@ export class Parent extends Component {
     return this.spreadsheet.model;
   }
 
-  getSpreadsheetEnv(): SpreadsheetEnv {
+  getSpreadsheetEnv(): SpreadsheetChildEnv {
     return getChildFromComponent(this.spreadsheet, Grid).env;
   }
 
@@ -406,11 +406,10 @@ export function mockUuidV4To(model: Model, value: number | string) {
  */
 export function makeInteractiveTestEnv(
   model: Model,
-  env?: Partial<SpreadsheetEnv>
-): SpreadsheetEnv {
+  env?: Partial<SpreadsheetChildEnv>
+): SpreadsheetChildEnv {
   return {
-    getters: model.getters,
-    dispatch: model.dispatch,
+    model,
     ...env,
-  } as unknown as SpreadsheetEnv;
+  } as unknown as SpreadsheetChildEnv;
 }

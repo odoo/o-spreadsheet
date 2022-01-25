@@ -5,7 +5,7 @@ import { args, functionRegistry } from "../../src/functions";
 import { DEBUG, toZone } from "../../src/helpers";
 import { SelectionMode } from "../../src/plugins/ui/selection";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
-import { SpreadsheetEnv } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types";
 import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
@@ -403,7 +403,7 @@ describe("Composer / selectionInput interactions", () => {
   test("Switching from selection input to composer should update the highlihts", async () => {
     //open cf sidepanel
     selectCell(parent.model, "B2");
-    OPEN_CF_SIDEPANEL_ACTION(parent.getSpreadsheetEnv() as SpreadsheetEnv);
+    OPEN_CF_SIDEPANEL_ACTION(parent.getSpreadsheetEnv() as SpreadsheetChildEnv);
     await nextTick();
     await simulateClick(".o-selection-input input");
 
@@ -418,7 +418,7 @@ describe("Composer / selectionInput interactions", () => {
   });
   test("Switching from composer to selection input should update the highlihts and hide the highlight components", async () => {
     selectCell(parent.model, "B2");
-    OPEN_CF_SIDEPANEL_ACTION(parent.getSpreadsheetEnv() as SpreadsheetEnv);
+    OPEN_CF_SIDEPANEL_ACTION(parent.getSpreadsheetEnv() as SpreadsheetChildEnv);
     await nextTick();
 
     await simulateClick(".o-spreadsheet-topbar .o-composer");

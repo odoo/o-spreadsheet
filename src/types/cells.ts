@@ -1,4 +1,4 @@
-import { SpreadsheetEnv } from "./env";
+import { SpreadsheetChildEnv } from "./env";
 import { CompiledFormula, Link, Range, Style, UID } from "./misc";
 
 export enum CellValueType {
@@ -64,7 +64,7 @@ export interface LinkCell extends ICell {
   /**
    * Go to the link destination
    */
-  readonly action: (env: SpreadsheetEnv) => void;
+  readonly action: (env: SpreadsheetChildEnv) => void;
   /**
    * String used to display the URL in components.
    * Particularly useful for special links (sheet, etc.)
