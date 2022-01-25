@@ -61,7 +61,7 @@ const TEMPLATE = xml/* xml */ `
   </div>
 `;
 
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-formula-assistant {
     white-space: normal;
     background-color: #fff;
@@ -123,7 +123,6 @@ interface AssistantState {
 
 export class FunctionDescriptionProvider extends Component<Props> {
   static template = TEMPLATE;
-  static style = CSS;
 
   assistantState: AssistantState = useState({
     allowCellSelectionBehind: false,

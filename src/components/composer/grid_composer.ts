@@ -22,7 +22,7 @@ const TEMPLATE = xml/* xml */ `
   </div>
 `;
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-grid-composer {
     z-index: 5;
     box-sizing: border-box;
@@ -53,7 +53,6 @@ interface Props {
  */
 export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static style = CSS;
   static components = { Composer };
 
   private gridComposerRef!: Ref<HTMLElement>;

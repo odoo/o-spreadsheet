@@ -22,7 +22,7 @@ const TEMPLATE = xml/* xml */ `
 // -----------------------------------------------------------------------------
 // STYLE
 // -----------------------------------------------------------------------------
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-chart-container {
     width: 100%;
     height: 100%;
@@ -57,7 +57,6 @@ interface State {
 
 export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static style = CSS;
   static components = { Menu };
   private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 

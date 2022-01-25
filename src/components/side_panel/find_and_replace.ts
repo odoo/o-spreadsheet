@@ -71,7 +71,7 @@ const TEMPLATE = xml/* xml */ `
 </div>
 `;
 
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-find-and-replace {
     .o-far-item {
       display: block;
@@ -123,7 +123,6 @@ interface FindAndReplaceState {
 
 export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static style = CSS;
   private state: FindAndReplaceState = useState(this.initialState());
   private inDebounce;
 

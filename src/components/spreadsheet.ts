@@ -58,7 +58,7 @@ const TEMPLATE = xml/* xml */ `
     <BottomBar onClick="() => this.focusGrid()"/>
   </div>`;
 
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-spreadsheet {
     position: relative;
     display: grid;
@@ -125,7 +125,6 @@ interface ComposerState {
 
 export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
-  static style = CSS;
   static components = { TopBar, Grid, BottomBar, SidePanel, LinkEditor };
   static _t = t;
 

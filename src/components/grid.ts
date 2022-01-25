@@ -266,7 +266,7 @@ const TEMPLATE = xml/* xml */ `
 // -----------------------------------------------------------------------------
 // STYLE
 // -----------------------------------------------------------------------------
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-grid {
     position: relative;
     overflow: hidden;
@@ -318,7 +318,6 @@ interface Props {
 // -----------------------------------------------------------------------------
 export class Grid extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static style = CSS;
   static components = {
     GridComposer,
     Overlay,

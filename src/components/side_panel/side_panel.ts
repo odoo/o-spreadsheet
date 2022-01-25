@@ -18,7 +18,7 @@ const TEMPLATE = xml/* xml */ `
     </div>
   </div>`;
 
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-sidePanel {
     display: flex;
     flex-direction: column;
@@ -131,7 +131,6 @@ interface State {
 
 export class SidePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static style = CSS;
 
   state!: State;
 

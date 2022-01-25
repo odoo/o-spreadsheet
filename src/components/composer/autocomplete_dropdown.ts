@@ -42,7 +42,7 @@ const TEMPLATE = xml/* xml */ `
     </t>
   </div>`;
 
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-autocomplete-dropdown {
     pointer-events: auto;
     background-color: #fff;
@@ -85,7 +85,6 @@ export interface TextValueProviderApi {
 
 export abstract class TextValueProvider extends Component<Props> implements TextValueProviderApi {
   static template = TEMPLATE;
-  static style = CSS;
 
   state = useState({
     values: <AutocompleteValue[]>[],

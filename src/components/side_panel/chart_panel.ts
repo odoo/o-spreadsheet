@@ -115,7 +115,7 @@ const TEMPLATE = xml/* xml */ `
   </div>
 `;
 
-const STYLE = css/* scss */ `
+css/* scss */ `
   .o-chart {
     .o-panel {
       display: flex;
@@ -162,7 +162,6 @@ interface ChartPanelState {
 
 export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static style = STYLE;
   static components = { SelectionInput, ColorPicker };
 
   private state: ChartPanelState = useState(this.initialState(this.props.figure));
