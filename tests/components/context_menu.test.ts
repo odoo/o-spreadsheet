@@ -168,8 +168,12 @@ class ContextMenuParent extends Component {
 
   setup() {
     useSubEnv({
-      getters: this.props.model.getters,
+      model: this.props.model,
     });
+  }
+
+  constructor(props, env, node) {
+    super(props, env, node);
     this.onClose = this.props.config.onClose || (() => {});
     this.position = {
       x: this.props.x,
@@ -311,14 +315,16 @@ describe("Context Menu", () => {
         name: "visible_action",
         sequence: 1,
         isVisible: (env) =>
-          env.getters.getCell(env.getters.getActiveSheetId(), 1, 0)!.evaluated.value === "b1",
+          env.model.getters.getCell(env.model.getters.getActiveSheetId(), 1, 0)!.evaluated.value ===
+          "b1",
         action() {},
       })
       .add("hidden_action", {
         name: "hidden_action",
         sequence: 2,
         isVisible: (env) =>
-          env.getters.getCell(env.getters.getActiveSheetId(), 1, 0)!.evaluated.value !== "b1",
+          env.model.getters.getCell(env.model.getters.getActiveSheetId(), 1, 0)!.evaluated.value !==
+          "b1",
         action() {},
       });
     setCellContent(model, "B1", "b1");

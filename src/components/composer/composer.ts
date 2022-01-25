@@ -4,7 +4,7 @@ import { EnrichedToken } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { DEBUG, isEqual, rangeReference, toZone } from "../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
-import { FunctionDescription, Rect, SpreadsheetEnv } from "../../types/index";
+import { FunctionDescription, Rect, SpreadsheetChildEnv } from "../../types/index";
 import { css } from "../helpers/css";
 import { TextValueProvider, TextValueProviderApi } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
@@ -51,11 +51,11 @@ export const tokenColor = {
 const TEMPLATE = xml/* xml */ `
 <div class="o-composer-container">
   <div
-    t-att-class="{ 'o-composer': true, 'text-muted': getters.isReadonly(), 'unfocusable': getters.isReadonly() }"
+    t-att-class="{ 'o-composer': true, 'text-muted': env.model.getters.isReadonly(), 'unfocusable': env.model.getters.isReadonly() }"
     t-att-style="props.inputStyle"
     t-ref="o_composer"
     tabindex="1"
-    t-att-contenteditable="getters.isReadonly() ? 'false' : 'true'"
+    t-att-contenteditable="env.model.getters.isReadonly() ? 'false' : 'true'"
     spellcheck="false"
 
     t-on-keydown="onKeydown"
@@ -154,7 +154,7 @@ interface FunctionDescriptionState {
   argToFocus: number;
 }
 
-export class Composer extends Component<Props, SpreadsheetEnv> {
+export class Composer extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { TextValueProvider, FunctionDescriptionProvider };
@@ -165,9 +165,6 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
 
   composerRef = useRef("o_composer");
   private autocompleteAPI?: TextValueProviderApi;
-
-  getters = this.env.getters;
-  dispatch = this.env.dispatch;
 
   contentHelper: ContentEditableHelper = new ContentEditableHelper(this.composerRef.el!);
 
@@ -256,7 +253,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   // ---------------------------------------------------------------------------
 
   private processArrowKeys(ev: KeyboardEvent) {
-    if (this.getters.isSelectingForComposer()) {
+    if (this.env.model.getters.isSelectingForComposer()) {
       this.functionDescriptionState.showDescription = false;
       return;
     }
@@ -291,11 +288,11 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
       // when completing with tab, if there is no value to complete, the active cell will be moved to the right.
       // we can't let the model think that it is for a ref selection.
       // todo: check if this can be removed someday
-      this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+      this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     }
 
     const deltaX = ev.shiftKey ? -1 : 1;
-    this.dispatch("MOVE_POSITION", { deltaX, deltaY: 0 });
+    this.env.model.dispatch("MOVE_POSITION", { deltaX, deltaY: 0 });
   }
 
   private processEnterKey(ev: KeyboardEvent) {
@@ -309,15 +306,15 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
         return;
       }
     }
-    this.dispatch("STOP_EDITION");
-    this.dispatch("MOVE_POSITION", {
+    this.env.model.dispatch("STOP_EDITION");
+    this.env.model.dispatch("MOVE_POSITION", {
       deltaX: 0,
       deltaY: ev.shiftKey ? -1 : 1,
     });
   }
 
   private processEscapeKey() {
-    this.dispatch("STOP_EDITION", { cancel: true });
+    this.env.model.dispatch("STOP_EDITION", { cancel: true });
   }
 
   onKeydown(ev: KeyboardEvent) {
@@ -330,8 +327,8 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
       ev.stopPropagation();
     }
     const { start, end } = this.contentHelper.getCurrentSelection();
-    if (!this.getters.isSelectingForComposer()) {
-      this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
+    if (!this.env.model.getters.isSelectingForComposer()) {
+      this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
       this.isKeyStillDown = true;
     }
     if (!isStopped) {
@@ -346,9 +343,9 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     if (this.props.focus === "inactive" || !this.shouldProcessInputEvents) {
       return;
     }
-    this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+    this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     const el = this.composerRef.el! as HTMLInputElement;
-    this.dispatch("SET_CURRENT_CONTENT", {
+    this.env.model.dispatch("SET_CURRENT_CONTENT", {
       content: el.childNodes.length ? el.textContent! : "",
       selection: this.contentHelper.getCurrentSelection(),
     });
@@ -365,7 +362,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     }
 
     if (
-      this.getters.isSelectingForComposer() &&
+      this.env.model.getters.isSelectingForComposer() &&
       ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(ev.key)
     ) {
       return; // already processed in keydown
@@ -377,15 +374,18 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     if (ev.ctrlKey && ev.key === " ") {
       this.autoCompleteState.search = "";
       this.autoCompleteState.showProvider = true;
-      this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+      this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
       return;
     }
 
-    const { start: oldStart, end: oldEnd } = this.getters.getComposerSelection();
+    const { start: oldStart, end: oldEnd } = this.env.model.getters.getComposerSelection();
     const { start, end } = this.contentHelper.getCurrentSelection();
 
     if (start !== oldStart || end !== oldEnd) {
-      this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", this.contentHelper.getCurrentSelection());
+      this.env.model.dispatch(
+        "CHANGE_COMPOSER_CURSOR_SELECTION",
+        this.contentHelper.getCurrentSelection()
+      );
     }
 
     this.processTokenAtCursor();
@@ -401,16 +401,16 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   }
 
   onClick() {
-    if (this.getters.isReadonly()) {
+    if (this.env.model.getters.isReadonly()) {
       return;
     }
     const newSelection = this.contentHelper.getCurrentSelection();
 
-    this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+    this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     if (this.props.focus === "inactive") {
       this.props.onComposerContentFocused(newSelection);
     }
-    this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", newSelection);
+    this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", newSelection);
     this.processTokenAtCursor();
   }
 
@@ -436,7 +436,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     const content = this.getContent();
     if (content.length !== 0) {
       this.contentHelper.setText(content);
-      const { start, end } = this.getters.getComposerSelection();
+      const { start, end } = this.env.model.getters.getComposerSelection();
 
       if (this.props.focus !== "inactive") {
         // Put the cursor back where it was before the rendering
@@ -449,10 +449,10 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
 
   private getContent(): HtmlContent[] {
     let content: HtmlContent[];
-    let value = this.getters.getCurrentContent();
+    let value = this.env.model.getters.getCurrentContent();
     if (value === "") {
       content = [];
-    } else if (value.startsWith("=") && this.getters.getEditionMode() !== "inactive") {
+    } else if (value.startsWith("=") && this.env.model.getters.getEditionMode() !== "inactive") {
       content = this.getColoredTokens();
     } else {
       content = [{ value }];
@@ -461,10 +461,10 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   }
 
   private getColoredTokens(): any[] {
-    const tokens = this.getters.getCurrentTokens();
-    const tokenAtCursor = this.getters.getTokenAtCursor();
+    const tokens = this.env.model.getters.getCurrentTokens();
+    const tokenAtCursor = this.env.model.getters.getTokenAtCursor();
     const result: any[] = [];
-    const { end } = this.getters.getComposerSelection();
+    const { end } = this.env.model.getters.getComposerSelection();
     for (let token of tokens) {
       switch (token.type) {
         case "OPERATOR":
@@ -505,7 +505,10 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
           break;
       }
       // Note: mode === waitingForRangeSelection implies end === start
-      if (this.getters.getEditionMode() === "waitingForRangeSelection" && end === token.end) {
+      if (
+        this.env.model.getters.getEditionMode() === "waitingForRangeSelection" &&
+        end === token.end
+      ) {
         result[result.length - 1].class = SelectionIndicatorClass;
       }
     }
@@ -513,17 +516,17 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   }
 
   private rangeColor(xc: string, sheetName?: string): string | undefined {
-    if (this.getters.getEditionMode() === "inactive") {
+    if (this.env.model.getters.getEditionMode() === "inactive") {
       return undefined;
     }
-    const highlights = this.getters.getHighlights();
+    const highlights = this.env.model.getters.getHighlights();
     const refSheet = sheetName
-      ? this.getters.getSheetIdByName(sheetName)
-      : this.getters.getEditionSheet();
+      ? this.env.model.getters.getSheetIdByName(sheetName)
+      : this.env.model.getters.getEditionSheet();
     const highlight = highlights.find(
       (highlight) =>
         highlight.sheet === refSheet &&
-        isEqual(this.getters.expandZone(refSheet, toZone(xc)), highlight.zone)
+        isEqual(this.env.model.getters.expandZone(refSheet, toZone(xc)), highlight.zone)
     );
     return highlight && highlight.color ? highlight.color : undefined;
   }
@@ -534,12 +537,12 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
    * the autocomplete engine otherwise we initialize the formula assistant.
    */
   private processTokenAtCursor(): void {
-    let content = this.getters.getCurrentContent();
+    let content = this.env.model.getters.getCurrentContent();
     this.autoCompleteState.showProvider = false;
     this.functionDescriptionState.showDescription = false;
 
     if (content.startsWith("=")) {
-      const tokenAtCursor = this.getters.getTokenAtCursor();
+      const tokenAtCursor = this.env.model.getters.getTokenAtCursor();
       if (tokenAtCursor) {
         const [xc] = tokenAtCursor.value.split("!").reverse();
         if (
@@ -567,7 +570,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
 
   private autoComplete(value: string) {
     if (value) {
-      const tokenAtCursor = this.getters.getTokenAtCursor();
+      const tokenAtCursor = this.env.model.getters.getTokenAtCursor();
       if (tokenAtCursor) {
         let start = tokenAtCursor.end;
         let end = tokenAtCursor.end;
@@ -577,7 +580,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
           start = tokenAtCursor.start;
         }
 
-        const tokens = this.getters.getCurrentTokens();
+        const tokens = this.env.model.getters.getCurrentTokens();
         if (this.autoCompleteState.provider && tokens.length) {
           value += "(";
 
@@ -590,13 +593,13 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
           }
         }
 
-        this.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
+        this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
           start,
           end,
         });
       }
 
-      this.dispatch("REPLACE_COMPOSER_CURSOR_SELECTION", {
+      this.env.model.dispatch("REPLACE_COMPOSER_CURSOR_SELECTION", {
         text: value,
       });
     }

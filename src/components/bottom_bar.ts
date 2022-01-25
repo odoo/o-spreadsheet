@@ -3,7 +3,7 @@ import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../consta
 import { formatStandardNumber } from "../helpers";
 import { interactiveRenameSheet } from "../helpers/ui/sheet";
 import { MenuItemRegistry, sheetMenuRegistry } from "../registries/index";
-import { SpreadsheetEnv, UID } from "../types";
+import { SpreadsheetChildEnv, UID } from "../types";
 import { css } from "./helpers/css";
 import { LIST, PLUS, TRIANGLE_DOWN_ICON } from "./icons";
 import { Menu, MenuState } from "./menu";
@@ -14,15 +14,15 @@ import { Menu, MenuState } from "./menu";
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-bottom-bar o-two-columns" t-on-click="props.onClick" t-ref="bottomBar">
-    <div class="o-sheet-item o-add-sheet" t-att-class="{'disabled': getters.isReadonly()}" t-on-click="addSheet">${PLUS}</div>
+    <div class="o-sheet-item o-add-sheet" t-att-class="{'disabled': env.model.getters.isReadonly()}" t-on-click="addSheet">${PLUS}</div>
     <div class="o-sheet-item o-list-sheets" t-on-click="listSheets">${LIST}</div>
     <div class="o-all-sheets">
-      <t t-foreach="getters.getSheets()" t-as="sheet" t-key="sheet.id">
+      <t t-foreach="env.model.getters.getSheets()" t-as="sheet" t-key="sheet.id">
         <div class="o-sheet-item o-sheet" t-on-click="(ev) => this.activateSheet(sheet.id, ev)"
              t-on-contextmenu.prevent="(ev) => this.onContextMenu(sheet.id, ev)"
              t-att-title="sheet.name"
              t-att-data-id="sheet.id"
-             t-att-class="{active: sheet.id === getters.getActiveSheetId()}">
+             t-att-class="{active: sheet.id === env.model.getters.getActiveSheetId()}">
           <span class="o-sheet-name" t-esc="sheet.name" t-on-dblclick="(ev) => this.onDblClick(sheet.id, ev)"/>
           <span class="o-sheet-icon" t-on-click.stop="(ev) => this.onIconClick(sheet.id, ev)">${TRIANGLE_DOWN_ICON}</span>
         </div>
@@ -136,14 +136,13 @@ interface Props {
   onClick: () => void;
 }
 
-export class BottomBar extends Component<Props, SpreadsheetEnv> {
+export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { Menu };
 
   private bottomBarRef = useRef("bottomBar");
 
-  getters = this.env.getters;
   menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
   selectedStatisticFn: string = "";
 
@@ -154,7 +153,7 @@ export class BottomBar extends Component<Props, SpreadsheetEnv> {
 
   focusSheet() {
     const div = this.bottomBarRef.el!.querySelector(
-      `[data-id="${this.getters.getActiveSheetId()}"]`
+      `[data-id="${this.env.model.getters.getActiveSheetId()}"]`
     );
     if (div && div.scrollIntoView) {
       div.scrollIntoView();
@@ -162,24 +161,26 @@ export class BottomBar extends Component<Props, SpreadsheetEnv> {
   }
 
   addSheet() {
-    const activeSheetId = this.env.getters.getActiveSheetId();
+    const activeSheetId = this.env.model.getters.getActiveSheetId();
     const position =
-      this.env.getters.getVisibleSheets().findIndex((sheetId) => sheetId === activeSheetId) + 1;
-    const sheetId = this.env.uuidGenerator.uuidv4();
-    this.env.dispatch("CREATE_SHEET", { sheetId, position });
-    this.env.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
+      this.env.model.getters.getVisibleSheets().findIndex((sheetId) => sheetId === activeSheetId) +
+      1;
+    const sheetId = this.env.model.uuidGenerator.uuidv4();
+    this.env.model.dispatch("CREATE_SHEET", { sheetId, position });
+    this.env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
   }
 
   listSheets(ev: MouseEvent) {
     const registry = new MenuItemRegistry();
-    const from = this.getters.getActiveSheetId();
+    const from = this.env.model.getters.getActiveSheetId();
     let i = 0;
-    for (let sheet of this.getters.getSheets()) {
+    for (let sheet of this.env.model.getters.getSheets()) {
       registry.add(sheet.id, {
         name: sheet.name,
         sequence: i,
         isReadonlyAllowed: true,
-        action: (env) => env.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheet.id }),
+        action: (env) =>
+          env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheet.id }),
       });
       i++;
     }
@@ -188,8 +189,8 @@ export class BottomBar extends Component<Props, SpreadsheetEnv> {
   }
 
   activateSheet(name: string) {
-    this.env.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: this.getters.getActiveSheetId(),
+    this.env.model.dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: this.env.model.getters.getActiveSheetId(),
       sheetIdTo: name,
     });
   }
@@ -205,7 +206,7 @@ export class BottomBar extends Component<Props, SpreadsheetEnv> {
   }
 
   onIconClick(sheet: string, ev: MouseEvent) {
-    if (this.getters.getActiveSheetId() !== sheet) {
+    if (this.env.model.getters.getActiveSheetId() !== sheet) {
       this.activateSheet(sheet);
     }
     if (this.menuState.isOpen) {
@@ -217,7 +218,7 @@ export class BottomBar extends Component<Props, SpreadsheetEnv> {
   }
 
   onContextMenu(sheet: string, ev: MouseEvent) {
-    if (this.getters.getActiveSheetId() !== sheet) {
+    if (this.env.model.getters.getActiveSheetId() !== sheet) {
       this.activateSheet(sheet);
     }
     const target = ev.currentTarget as HTMLElement;
@@ -225,7 +226,7 @@ export class BottomBar extends Component<Props, SpreadsheetEnv> {
   }
 
   getSelectedStatistic() {
-    const statisticFnResults = this.getters.getStatisticFnResults();
+    const statisticFnResults = this.env.model.getters.getStatisticFnResults();
     // don't display button if no function has a result
     if (Object.values(statisticFnResults).every((result) => result === undefined)) {
       return undefined;
@@ -242,7 +243,7 @@ export class BottomBar extends Component<Props, SpreadsheetEnv> {
   listSelectionStatistics(ev: MouseEvent) {
     const registry = new MenuItemRegistry();
     let i = 0;
-    for (let [fnName, fnValue] of Object.entries(this.getters.getStatisticFnResults())) {
+    for (let [fnName, fnValue] of Object.entries(this.env.model.getters.getStatisticFnResults())) {
       registry.add(fnName, {
         name: this.getComposedFnName(fnName, fnValue),
         sequence: i,

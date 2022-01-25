@@ -1,7 +1,7 @@
 import { Component, onMounted, useState, xml } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH, SELECTION_BORDER_COLOR } from "../../constants";
 import { figureRegistry } from "../../registries/index";
-import { Figure, SpreadsheetEnv } from "../../types/index";
+import { Figure, SpreadsheetChildEnv } from "../../types/index";
 import { css } from "../helpers/css";
 import { startDnd } from "../helpers/drag_and_drop";
 import { ChartFigure } from "./chart";
@@ -132,7 +132,7 @@ interface Props {
   onFigureDeleted: () => void;
 }
 
-export class FiguresContainer extends Component<Props, SpreadsheetEnv> {
+export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = {};
@@ -146,12 +146,9 @@ export class FiguresContainer extends Component<Props, SpreadsheetEnv> {
     height: 0,
   });
 
-  getters = this.env.getters;
-  dispatch = this.env.dispatch;
-
   getVisibleFigures(): FigureInfo[] {
-    const selectedId = this.getters.getSelectedFigureId();
-    return this.getters.getVisibleFigures().map((f) => ({
+    const selectedId = this.env.model.getters.getSelectedFigureId();
+    return this.env.model.getters.getVisibleFigures().map((f) => ({
       id: f.id,
       isSelected: f.id === selectedId,
       figure: f,
@@ -167,7 +164,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetEnv> {
 
   getStyle(info: FigureInfo) {
     const { figure, isSelected } = info;
-    const { offsetX, offsetY } = this.getters.getActiveSnappedViewport();
+    const { offsetX, offsetY } = this.env.model.getters.getActiveSnappedViewport();
     const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
     const { width, height } = target;
     let x = target.x - offsetX + HEADER_WIDTH - 1;
@@ -236,8 +233,8 @@ export class FiguresContainer extends Component<Props, SpreadsheetEnv> {
       if (dirY) {
         update.height = this.dnd.height;
       }
-      this.dispatch("UPDATE_FIGURE", {
-        sheetId: this.getters.getActiveSheetId(),
+      this.env.model.dispatch("UPDATE_FIGURE", {
+        sheetId: this.env.model.getters.getActiveSheetId(),
         id: figure.id,
         ...update,
       });
@@ -250,7 +247,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetEnv> {
       // not main button, probably a context menu
       return;
     }
-    this.dispatch("SELECT_FIGURE", { id: figure.id });
+    this.env.model.dispatch("SELECT_FIGURE", { id: figure.id });
     if (this.props.sidePanelIsOpen) {
       this.env.openSidePanel("ChartPanel", { figure });
     }
@@ -268,8 +265,8 @@ export class FiguresContainer extends Component<Props, SpreadsheetEnv> {
     };
     const onMouseUp = (ev: MouseEvent) => {
       this.dnd.figureId = "";
-      this.dispatch("UPDATE_FIGURE", {
-        sheetId: this.getters.getActiveSheetId(),
+      this.env.model.dispatch("UPDATE_FIGURE", {
+        sheetId: this.env.model.getters.getActiveSheetId(),
         id: figure.id,
         x: this.dnd.x,
         y: this.dnd.y,
@@ -282,7 +279,10 @@ export class FiguresContainer extends Component<Props, SpreadsheetEnv> {
     ev.preventDefault();
     switch (ev.key) {
       case "Delete":
-        this.dispatch("DELETE_FIGURE", { sheetId: this.getters.getActiveSheetId(), id: figure.id });
+        this.env.model.dispatch("DELETE_FIGURE", {
+          sheetId: this.env.model.getters.getActiveSheetId(),
+          id: figure.id,
+        });
         this.props.onFigureDeleted();
         break;
       case "ArrowDown":
@@ -296,8 +296,8 @@ export class FiguresContainer extends Component<Props, SpreadsheetEnv> {
           ArrowUp: [0, -1],
         };
         const delta = deltaMap[ev.key];
-        this.dispatch("UPDATE_FIGURE", {
-          sheetId: this.getters.getActiveSheetId(),
+        this.env.model.dispatch("UPDATE_FIGURE", {
+          sheetId: this.env.model.getters.getActiveSheetId(),
           id: figure.id,
           x: figure.x + delta[0],
           y: figure.y + delta[1],

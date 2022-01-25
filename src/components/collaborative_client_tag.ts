@@ -1,6 +1,6 @@
 import { Component, xml } from "@odoo/owl";
 import { DEFAULT_FONT_SIZE } from "../constants";
-import { SpreadsheetEnv, Viewport } from "../types";
+import { SpreadsheetChildEnv, Viewport } from "../types";
 import { css } from "./helpers/css";
 
 interface ClientTagProps {
@@ -33,16 +33,16 @@ const CSS = css/* scss */ `
     pointer-events: none;
   }
 `;
-export class ClientTag extends Component<ClientTagProps, SpreadsheetEnv> {
+export class ClientTag extends Component<ClientTagProps, SpreadsheetChildEnv> {
   static template = TEMPLATE;
 
   static style = CSS;
 
   get tagStyle(): string {
     const { col, row, color } = this.props;
-    const viewport = this.env.getters.getActiveSnappedViewport();
-    const { height } = this.env.getters.getViewportDimensionWithHeaders();
-    const [x, y, ,] = this.env.getters.getRect(
+    const viewport = this.env.model.getters.getActiveSnappedViewport();
+    const { height } = this.env.model.getters.getViewportDimensionWithHeaders();
+    const [x, y, ,] = this.env.model.getters.getRect(
       { left: col, top: row, right: col, bottom: row },
       viewport
     );

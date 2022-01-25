@@ -3,7 +3,7 @@ import Chart, { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../constants";
 import { MenuItemRegistry } from "../../registries/index";
 import { _lt } from "../../translation";
-import { Figure, SpreadsheetEnv } from "../../types";
+import { Figure, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { useAbsolutePosition } from "../helpers/position_hook";
 import { LIST } from "../icons";
@@ -55,7 +55,7 @@ interface State {
   background: string;
 }
 
-export class ChartFigure extends Component<Props, SpreadsheetEnv> {
+export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { Menu };
@@ -74,7 +74,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
   setup() {
     onMounted(() => {
       const figure = this.props.figure;
-      const chartData = this.env.getters.getChartRuntime(figure.id);
+      const chartData = this.env.model.getters.getChartRuntime(figure.id);
       if (chartData) {
         this.createChart(chartData);
       }
@@ -82,7 +82,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
 
     onPatched(() => {
       const figure = this.props.figure;
-      const chartData = this.env.getters.getChartRuntime(figure.id);
+      const chartData = this.env.model.getters.getChartRuntime(figure.id);
       if (chartData) {
         if (chartData.type !== this.chart!.config.type) {
           // Updating a chart type requires to update its options accordingly, if feasible at all.
@@ -105,7 +105,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
       } else {
         this.chart && this.chart.destroy();
       }
-      const def = this.env.getters.getChartDefinition(figure.id);
+      const def = this.env.model.getters.getChartDefinition(figure.id);
       if (def) {
         this.state.background = def.background;
       }
@@ -116,7 +116,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
     this.chart = new window.Chart(ctx, chartData);
-    const def = this.env.getters.getChartDefinition(this.props.figure.id);
+    const def = this.env.model.getters.getChartDefinition(this.props.figure.id);
     if (def) {
       this.state.background = def.background;
     }
@@ -133,8 +133,8 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
       name: _lt("Delete"),
       sequence: 10,
       action: () => {
-        this.env.dispatch("DELETE_FIGURE", {
-          sheetId: this.env.getters.getActiveSheetId(),
+        this.env.model.dispatch("DELETE_FIGURE", {
+          sheetId: this.env.model.getters.getActiveSheetId(),
           id: this.props.figure.id,
         });
         if (this.props.sidePanelIsOpen) {
@@ -147,7 +147,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
       name: _lt("Refresh"),
       sequence: 11,
       action: () => {
-        this.env.dispatch("REFRESH_CHART", {
+        this.env.model.dispatch("REFRESH_CHART", {
           id: this.props.figure.id,
         });
       },

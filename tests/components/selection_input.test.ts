@@ -48,9 +48,7 @@ class Parent extends Component<any> {
 
   setup() {
     useSubEnv({
-      dispatch: this.props.model.dispatch,
-      getters: this.props.model.getters,
-      uuidGenerator: this.props.model.uuidGenerator,
+      model: this.props.model,
     });
     this.initialRanges = this.props.config.initialRanges;
     this.hasSingleRange = this.props.config.hasSingleRange;
@@ -79,9 +77,7 @@ class MultiParent extends Component<any> {
 
   setup() {
     useSubEnv({
-      dispatch: this.props.model.dispatch,
-      getters: this.props.model.getters,
-      uuidGenerator: this.props.model.uuidGenerator,
+      model: this.props.model,
     });
     onMounted(() => {
       this.props.model.on("update", this, this.render);

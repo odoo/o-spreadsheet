@@ -6,7 +6,7 @@ import {
   CommandResult,
   DispatchResult,
   Figure,
-  SpreadsheetEnv,
+  SpreadsheetChildEnv,
 } from "../../types/index";
 import { ColorPicker } from "../color_picker";
 import { css } from "../helpers/css";
@@ -160,17 +160,16 @@ interface ChartPanelState {
   fillColorTool: boolean;
 }
 
-export class ChartPanel extends Component<Props, SpreadsheetEnv> {
+export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static style = STYLE;
   static components = { SelectionInput, ColorPicker };
-  private getters = this.env.getters;
 
   private state: ChartPanelState = useState(this.initialState(this.props.figure));
 
   setup() {
     onWillUpdateProps((nextProps: Props) => {
-      if (!this.getters.getChartDefinition(nextProps.figure.id)) {
+      if (!this.env.model.getters.getChartDefinition(nextProps.figure.id)) {
         this.props.onCloseSidePanel();
         return;
       }
@@ -179,8 +178,8 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
         this.state.fillColorTool = false;
         this.state.datasetDispatchResult = undefined;
         this.state.labelsDispatchResult = undefined;
-        this.state.chart = this.env.getters.getChartDefinitionUI(
-          this.env.getters.getActiveSheetId(),
+        this.state.chart = this.env.model.getters.getChartDefinitionUI(
+          this.env.model.getters.getActiveSheetId(),
           nextProps.figure.id
         );
       }
@@ -239,7 +238,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   }
 
   private updateChart(definition: ChartUIDefinitionUpdate): DispatchResult {
-    return this.env.dispatch("UPDATE_CHART", {
+    return this.env.model.dispatch("UPDATE_CHART", {
       id: this.props.figure.id,
       definition,
     });
@@ -269,7 +268,10 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
 
   private initialState(figure: Figure): ChartPanelState {
     return {
-      chart: this.env.getters.getChartDefinitionUI(this.env.getters.getActiveSheetId(), figure.id),
+      chart: this.env.model.getters.getChartDefinitionUI(
+        this.env.model.getters.getActiveSheetId(),
+        figure.id
+      ),
       panel: "configuration",
       fillColorTool: false,
     };

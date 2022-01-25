@@ -1,7 +1,7 @@
 import { Component, onWillUpdateProps, useState, xml } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR } from "../../constants";
 import { SidePanelContent, sidePanelRegistry } from "../../registries/side_panel_registry";
-import { SpreadsheetEnv } from "../../types";
+import { SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 
 const TEMPLATE = xml/* xml */ `
@@ -129,7 +129,7 @@ interface State {
   panel: SidePanelContent;
 }
 
-export class SidePanel extends Component<Props, SpreadsheetEnv> {
+export class SidePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static style = CSS;
 

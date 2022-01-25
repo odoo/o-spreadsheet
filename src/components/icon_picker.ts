@@ -1,5 +1,5 @@
 import { Component, xml } from "@odoo/owl";
-import { SpreadsheetEnv } from "../types/env";
+import { SpreadsheetChildEnv } from "../types/env";
 import { css } from "./helpers/css";
 import { ICONS, ICON_SETS } from "./icons";
 
@@ -7,7 +7,7 @@ interface Props {
   onIconPicked: (icon: string) => void;
 }
 
-export class IconPicker extends Component<Props, SpreadsheetEnv> {
+export class IconPicker extends Component<Props, SpreadsheetChildEnv> {
   static template = xml/* xml */ `
   <div class="o-icon-picker" >
     <t t-foreach="iconSets" t-as="iconSet" t-key="iconSet">

@@ -168,18 +168,12 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
       "CTRL+F": () => this.toggleSidePanel("FindAndReplace", {}),
     };
     useSubEnv({
-      openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
-      toggleSidePanel: (panel: string, panelProps: any = {}) =>
-        this.toggleSidePanel(panel, panelProps),
-      dispatch: this.model.dispatch,
-      getters: this.model.getters,
-      uuidGenerator: this.model.uuidGenerator,
+      model: this.model,
+      openSidePanel: this.openSidePanel.bind(this),
+      toggleSidePanel: this.toggleSidePanel.bind(this),
+      openLinkEditor: this.openLinkEditor.bind(this),
       _t: Spreadsheet._t,
       clipboard: navigator.clipboard,
-      export: this.model.exportData.bind(this.model),
-      waitForIdle: this.model.waitForIdle.bind(this.model),
-      exportXLSX: this.model.exportXLSX.bind(this.model),
-      openLinkEditor: () => this.openLinkEditor(),
     });
     this.activateFirstSheet();
 

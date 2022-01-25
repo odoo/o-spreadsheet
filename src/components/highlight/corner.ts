@@ -1,6 +1,6 @@
 import { Component, xml } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
-import { SpreadsheetEnv, Zone } from "../../types";
+import { SpreadsheetChildEnv, Zone } from "../../types";
 import { css } from "../helpers/css";
 
 const TEMPLATE = xml/* xml */ `
@@ -51,7 +51,7 @@ interface Props {
   onResizeHighlight: (isLeft: boolean, isRight: boolean) => void;
 }
 
-export class Corner extends Component<Props, SpreadsheetEnv> {
+export class Corner extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static style = CSS;
 
@@ -59,8 +59,8 @@ export class Corner extends Component<Props, SpreadsheetEnv> {
   private isLeft = this.props.orientation[1] === "w";
 
   get style() {
-    const { offsetX, offsetY } = this.env.getters.getActiveSnappedViewport();
-    const s = this.env.getters.getActiveSheet();
+    const { offsetX, offsetY } = this.env.model.getters.getActiveSnappedViewport();
+    const s = this.env.model.getters.getActiveSheet();
     const z = this.props.zone;
     const leftValue = this.isLeft ? s.cols[z.left].start : s.cols[z.right].end;
     const topValue = this.isTop ? s.rows[z.top].start : s.rows[z.bottom].end;

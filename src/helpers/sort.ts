@@ -5,7 +5,7 @@ import {
   CommandResult,
   DispatchResult,
   SortDirection,
-  SpreadsheetEnv,
+  SpreadsheetChildEnv,
   UID,
   Zone,
 } from "../types";
@@ -54,7 +54,7 @@ export function sortCells(
 }
 
 export function interactiveSortSelection(
-  env: SpreadsheetEnv,
+  env: SpreadsheetChildEnv,
   sheetId: UID,
   anchor: [number, number],
   zone: Zone,
@@ -64,13 +64,13 @@ export function interactiveSortSelection(
 
   //several columns => bypass the contiguity check
   let multiColumns: boolean = zone.right > zone.left;
-  if (env.getters.doesIntersectMerge(sheetId, zone)) {
+  if (env.model.getters.doesIntersectMerge(sheetId, zone)) {
     multiColumns = false;
     let table: UID[];
     for (let r = zone.top; r <= zone.bottom; r++) {
       table = [];
       for (let c = zone.left; c <= zone.right; c++) {
-        let merge = env.getters.getMerge(sheetId, c, r);
+        let merge = env.model.getters.getMerge(sheetId, c, r);
         if (merge && !table.includes(merge.id.toString())) {
           table.push(merge.id.toString());
         }
@@ -84,13 +84,13 @@ export function interactiveSortSelection(
 
   const [col, row] = anchor;
   if (multiColumns) {
-    result = env.dispatch("SORT_CELLS", { sheetId, col, row, zone, sortDirection });
+    result = env.model.dispatch("SORT_CELLS", { sheetId, col, row, zone, sortDirection });
   } else {
     // check contiguity
-    const contiguousZone = env.getters.getContiguousZone(sheetId, zone);
+    const contiguousZone = env.model.getters.getContiguousZone(sheetId, zone);
     if (isEqual(contiguousZone, zone)) {
       // merge as it is
-      result = env.dispatch("SORT_CELLS", {
+      result = env.model.dispatch("SORT_CELLS", {
         sheetId,
         col,
         row,
@@ -104,7 +104,7 @@ export function interactiveSortSelection(
         ),
         () => {
           zone = contiguousZone;
-          result = env.dispatch("SORT_CELLS", {
+          result = env.model.dispatch("SORT_CELLS", {
             sheetId,
             col,
             row,
@@ -113,7 +113,7 @@ export function interactiveSortSelection(
           });
         },
         () => {
-          result = env.dispatch("SORT_CELLS", {
+          result = env.model.dispatch("SORT_CELLS", {
             sheetId,
             col,
             row,
@@ -125,7 +125,7 @@ export function interactiveSortSelection(
     }
   }
   if (result.isCancelledBecause(CommandResult.InvalidSortZone)) {
-    env.dispatch("SET_SELECTION", {
+    env.model.dispatch("SET_SELECTION", {
       anchor: anchor,
       zones: [zone],
       anchorZone: zone,

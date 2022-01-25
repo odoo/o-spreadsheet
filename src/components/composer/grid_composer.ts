@@ -1,7 +1,7 @@
 import { Component, onMounted, useRef, useState, xml } from "@odoo/owl";
 import { DEFAULT_CELL_HEIGHT, SELECTION_BORDER_COLOR } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { Rect, Ref, SpreadsheetEnv, Zone } from "../../types/index";
+import { Rect, Ref, SpreadsheetChildEnv, Zone } from "../../types/index";
 import { css } from "../helpers/css";
 import { getTextDecoration } from "../helpers/dom_helpers";
 import { Composer } from "./composer";
@@ -51,14 +51,13 @@ interface Props {
  * This component is a composer which positions itself on the grid at the anchor cell.
  * It also applies the style of the cell to the composer input.
  */
-export class GridComposer extends Component<Props, SpreadsheetEnv> {
+export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { Composer };
 
   private gridComposerRef!: Ref<HTMLElement>;
 
-  private getters!: SpreadsheetEnv["getters"];
   private zone!: Zone;
   private rect!: Rect;
 
@@ -66,19 +65,21 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
 
   setup() {
     this.gridComposerRef = useRef("gridComposer");
-    this.getters = this.env.getters;
     this.composerState = useState({
       rect: null,
       delimitation: null,
     });
-    const [col, row] = this.getters.getPosition();
-    this.zone = this.getters.expandZone(this.getters.getActiveSheetId(), {
+    const [col, row] = this.env.model.getters.getPosition();
+    this.zone = this.env.model.getters.expandZone(this.env.model.getters.getActiveSheetId(), {
       left: col,
       right: col,
       top: row,
       bottom: row,
     });
-    this.rect = this.getters.getRect(this.zone, this.getters.getActiveSnappedViewport());
+    this.rect = this.env.model.getters.getRect(
+      this.zone,
+      this.env.model.getters.getActiveSnappedViewport()
+    );
     onMounted(() => {
       const el = this.gridComposerRef.el!;
 
@@ -98,8 +99,8 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
   }
 
   get containerStyle(): string {
-    const isFormula = this.getters.getCurrentContent().startsWith("=");
-    const style = this.getters.getCurrentStyle();
+    const isFormula = this.env.model.getters.getCurrentContent().startsWith("=");
+    const style = this.env.model.getters.getCurrentStyle();
 
     // position style
     const [left, top, width, height] = this.rect;
@@ -118,7 +119,7 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
     let textAlign = "left";
 
     if (!isFormula) {
-      const cell = this.getters.getActiveCell();
+      const cell = this.env.model.getters.getActiveCell();
       textAlign = style.align || cell?.defaultAlign || "left";
     }
 

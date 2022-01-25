@@ -1,7 +1,7 @@
 import { Component, useState, xml } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../constants";
 import { clip } from "../helpers/misc";
-import { SpreadsheetEnv } from "../types";
+import { SpreadsheetChildEnv } from "../types";
 import { css } from "./helpers/css";
 import { startDnd } from "./helpers/drag_and_drop";
 
@@ -64,7 +64,7 @@ interface State {
   handler: boolean;
 }
 
-export class Autofill extends Component<Props, SpreadsheetEnv> {
+export class Autofill extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static style = CSS;
 
@@ -89,7 +89,7 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
   }
 
   getTooltip() {
-    const tooltip = this.env.getters.getAutofillTooltip();
+    const tooltip = this.env.model.getters.getAutofillTooltip();
     if (tooltip && !tooltip.component) {
       tooltip.component = TooltipComponent;
     }
@@ -99,7 +99,7 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
   onMouseDown(ev: MouseEvent) {
     this.state.handler = true;
     this.state.position = { left: 0, top: 0 };
-    const { offsetY, offsetX } = this.env.getters.getActiveSnappedViewport();
+    const { offsetY, offsetX } = this.env.model.getters.getActiveSnappedViewport();
     const start = {
       left: ev.clientX + offsetX,
       top: ev.clientY + offsetY,
@@ -109,7 +109,7 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
 
     const onMouseUp = () => {
       this.state.handler = false;
-      this.env.dispatch("AUTOFILL");
+      this.env.model.dispatch("AUTOFILL");
     };
 
     const onMouseMove = (ev: MouseEvent) => {
@@ -119,19 +119,19 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
         left: viewportLeft,
         offsetY,
         offsetX,
-      } = this.env.getters.getActiveSnappedViewport();
+      } = this.env.model.getters.getActiveSnappedViewport();
       this.state.position = {
         left: ev.clientX - start.left + offsetX,
         top: ev.clientY - start.top + offsetY,
       };
-      const col = this.env.getters.getColIndex(ev.clientX - position.left, viewportLeft);
-      const row = this.env.getters.getRowIndex(ev.clientY - position.top, viewportTop);
+      const col = this.env.model.getters.getColIndex(ev.clientX - position.left, viewportLeft);
+      const row = this.env.model.getters.getRowIndex(ev.clientY - position.top, viewportTop);
       if (lastCol !== col || lastRow !== row) {
-        const activeSheet = this.env.getters.getActiveSheet();
+        const activeSheet = this.env.model.getters.getActiveSheet();
         lastCol = col === -1 ? lastCol : clip(col, 0, activeSheet.cols.length);
         lastRow = row === -1 ? lastRow : clip(row, 0, activeSheet.rows.length);
         if (lastCol !== undefined && lastRow !== undefined) {
-          this.env.dispatch("AUTOFILL_SELECT", { col: lastCol, row: lastRow });
+          this.env.model.dispatch("AUTOFILL_SELECT", { col: lastCol, row: lastRow });
         }
       }
     };
@@ -139,7 +139,7 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
   }
 
   onDblClick() {
-    this.env.dispatch("AUTOFILL_AUTO");
+    this.env.model.dispatch("AUTOFILL_AUTO");
   }
 }
 

@@ -12,7 +12,7 @@ linkMenuRegistry.add("sheet", {
   name: _lt("Link sheet"),
   sequence: 10,
   children: (env) => {
-    const sheets = env.getters.getSheets();
+    const sheets = env.model.getters.getSheets();
     return sheets.map((sheet, i) =>
       createFullMenuItem(sheet.id, {
         name: sheet.name,

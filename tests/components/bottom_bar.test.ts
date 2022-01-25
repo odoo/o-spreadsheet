@@ -23,13 +23,12 @@ class Parent extends Component<any, any> {
   static components = { BottomBar };
 
   setup() {
+    this.props.model.dispatch = jest.fn(() => CommandResult.Success as CommandResult);
     useSubEnv({
       openSidePanel: (panel: string) => {},
-      dispatch: jest.fn(() => CommandResult.Success as CommandResult),
-      getters: this.props.model.getters,
+      model: this.props.model,
       _t: (s: string) => s,
       askConfirmation: jest.fn(),
-      uuidGenerator: this.props.model.uuidGenerator,
     });
     onMounted(() => this.props.model.on("update", this, this.render));
     onWillUnmount(() => this.props.model.off("update", this));
@@ -66,11 +65,11 @@ describe("BottomBar component", () => {
     mockUuidV4To(model, 42);
     triggerMouseEvent(".o-add-sheet", "click");
     const activeSheetId = model.getters.getActiveSheetId();
-    expect(parent.getSubEnv().dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
+    expect(model.dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
       sheetId: "42",
       position: 1,
     });
-    expect(parent.getSubEnv().dispatch).toHaveBeenNthCalledWith(2, "ACTIVATE_SHEET", {
+    expect(model.dispatch).toHaveBeenNthCalledWith(2, "ACTIVATE_SHEET", {
       sheetIdTo: "42",
       sheetIdFrom: activeSheetId,
     });
@@ -83,7 +82,7 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-sheet", "click");
     const sheetIdFrom = parent.props.model.getters.getActiveSheetId();
     const sheetIdTo = sheetIdFrom;
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", {
+    expect(parent.props.model.dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", {
       sheetIdFrom,
       sheetIdTo,
     });
@@ -132,7 +131,7 @@ describe("BottomBar component", () => {
     await nextTick();
     const sheetId = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='move_right'", "click");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("MOVE_SHEET", {
+    expect(model.dispatch).toHaveBeenCalledWith("MOVE_SHEET", {
       sheetId,
       direction: "right",
     });
@@ -149,7 +148,7 @@ describe("BottomBar component", () => {
     await nextTick();
     const sheetId = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='move_left'", "click");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("MOVE_SHEET", {
+    expect(model.dispatch).toHaveBeenCalledWith("MOVE_SHEET", {
       sheetId,
       direction: "left",
     });
@@ -180,11 +179,9 @@ describe("BottomBar component", () => {
       setup() {
         useSubEnv({
           openSidePanel: (panel: string) => {},
-          dispatch: this.props.model.dispatch,
-          getters: this.props.model.getters,
+          model: this.props.model,
           _t: (s: string) => s,
           askConfirmation: jest.fn(),
-          uuidGenerator: this.props.model.uuidGenerator,
           editText: jest.fn((title, placeholder, callback) => callback("new_name")),
         });
         onMounted(() => this.props.model.on("update", this, this.render));
@@ -218,11 +215,9 @@ describe("BottomBar component", () => {
       setup() {
         useSubEnv({
           openSidePanel: (panel: string) => {},
-          dispatch: this.props.model.dispatch,
-          getters: this.props.model.getters,
+          model: this.props.model,
           _t: (s: string) => s,
           askConfirmation: jest.fn(),
-          uuidGenerator: this.props.model.uuidGenerator,
           editText: jest.fn((title, placeholder, callback) => callback("new_name")),
         });
         onMounted(() => this.props.model.on("update", this, this.render));
@@ -250,7 +245,7 @@ describe("BottomBar component", () => {
     await nextTick();
     const sheet = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='duplicate'", "click");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", {
+    expect(model.dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", {
       sheetId: sheet,
       sheetIdTo: "123",
     });
@@ -270,13 +265,12 @@ describe("BottomBar component", () => {
       static components = { BottomBar };
 
       setup() {
+        this.props.model.dispatch = jest.fn(() => CommandResult.Success as CommandResult);
         useSubEnv({
           openSidePanel: (panel: string) => {},
-          dispatch: jest.fn(() => CommandResult.Success as CommandResult),
-          getters: this.props.model.getters,
+          model: this.props.model,
           _t: (s: string) => s,
           askConfirmation: jest.fn((title, callback) => callback()),
-          uuidGenerator: this.props.model.uuidGenerator,
         });
         onMounted(() => this.props.model.on("update", this, this.render));
         onWillUnmount(() => this.props.model.off("update", this));
@@ -292,7 +286,7 @@ describe("BottomBar component", () => {
     await nextTick();
     const sheetId = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='delete'", "click");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("DELETE_SHEET", { sheetId });
+    expect(model.dispatch).toHaveBeenCalledWith("DELETE_SHEET", { sheetId });
     parent.__owl__.destroy();
   });
 
@@ -340,7 +334,7 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-list-sheets", "click");
     await nextTick();
     triggerMouseEvent(".o-menu-item[data-name='42'", "click");
-    expect(parent.getSubEnv().dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", {
+    expect(model.dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", {
       sheetIdFrom: sheet,
       sheetIdTo: "42",
     });
@@ -349,7 +343,9 @@ describe("BottomBar component", () => {
 
   test("Display the statistic button only if no-empty cells are selected", async () => {
     const model = new Model();
+    const nonMockedDispatch = model.dispatch;
     const parent = await mountTopBar(model);
+    model.dispatch = nonMockedDispatch;
     setCellContent(model, "A2", "24");
     setCellContent(model, "A3", "=A1");
 
@@ -369,7 +365,9 @@ describe("BottomBar component", () => {
 
   test("Display empty information if the statistic function doesn't handle the types of the selected cells", async () => {
     const model = new Model();
+    const nonMockedDispatch = model.dispatch;
     await mountTopBar(model);
+    model.dispatch = nonMockedDispatch;
     setCellContent(model, "A2", "I am not a number");
 
     selectCell(model, "A2");
@@ -379,7 +377,9 @@ describe("BottomBar component", () => {
 
   test("Can open the list of statistics", async () => {
     const model = new Model();
+    const nonMockedDispatch = model.dispatch;
     const parent = await mountTopBar(model);
+    model.dispatch = nonMockedDispatch;
     setCellContent(model, "A2", "24");
 
     selectCell(model, "A2");
@@ -392,7 +392,9 @@ describe("BottomBar component", () => {
 
   test("Can activate a statistic from the list of statistics", async () => {
     const model = new Model();
+    const nonMockedDispatch = model.dispatch;
     const parent = await mountTopBar(model);
+    model.dispatch = nonMockedDispatch;
     setCellContent(model, "A2", "24");
 
     selectCell(model, "A2");

@@ -15,7 +15,7 @@ import {
   LinkCell as ILinkCell,
   NumberEvaluation,
   Range,
-  SpreadsheetEnv,
+  SpreadsheetChildEnv,
   Style,
   TextEvaluation,
   UID,
@@ -168,7 +168,7 @@ export abstract class LinkCell extends AbstractCell<TextEvaluation> implements I
     this.link = link;
     this.content = content;
   }
-  abstract action(env: SpreadsheetEnv): void;
+  abstract action(env: SpreadsheetChildEnv): void;
 
   isLink() {
     return true;
@@ -196,7 +196,7 @@ export class WebLinkCell extends LinkCell {
     this.isUrlEditable = true;
   }
 
-  action(env: SpreadsheetEnv) {
+  action(env: SpreadsheetChildEnv) {
     window.open(this.link.url, "_blank");
   }
 
@@ -226,9 +226,9 @@ export class SheetLinkCell extends LinkCell {
     this.isUrlEditable = false;
   }
 
-  action(env: SpreadsheetEnv) {
-    env.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: env.getters.getActiveSheetId(),
+  action(env: SpreadsheetChildEnv) {
+    env.model.dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: env.model.getters.getActiveSheetId(),
       sheetIdTo: this.sheetId,
     });
   }

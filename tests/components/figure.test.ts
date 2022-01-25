@@ -2,7 +2,7 @@ import { Component, xml } from "@odoo/owl";
 import { corePluginRegistry } from "../../src/plugins";
 import { CorePlugin } from "../../src/plugins/core_plugin";
 import { figureRegistry } from "../../src/registries/figure_registry";
-import { Command, Figure, SpreadsheetEnv, UID } from "../../src/types";
+import { Command, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
 import { activateSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
@@ -50,23 +50,20 @@ class PluginTestFigureText extends CorePlugin {
   }
 }
 corePluginRegistry.add("testFigureText", PluginTestFigureText);
-
 //Test Composant
-
 const TEMPLATE = xml/* xml */ `
   <div class="o-fig-text">
     <t t-esc="getText()"/>
   </div>
 `;
-
 interface Props {
   figure: Figure;
 }
-class TextFigure extends Component<Props, SpreadsheetEnv> {
+class TextFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   getText() {
     //@ts-ignore
-    const texts = this.env.getters.getTextFigures();
+    const texts = this.env.model.getters.getTextFigures();
     return texts[this.props.figure.id];
   }
 }

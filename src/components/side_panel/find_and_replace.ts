@@ -1,5 +1,5 @@
 import { Component, onMounted, onWillUnmount, useRef, useState, xml } from "@odoo/owl";
-import { SpreadsheetEnv } from "../../types/index";
+import { SpreadsheetChildEnv } from "../../types/index";
 import { css } from "../helpers/css";
 import { FindAndReplaceTerms } from "./translations_terms";
 
@@ -10,9 +10,9 @@ const TEMPLATE = xml/* xml */ `
     <div class="o-input-search-container">
       <input type="text" class="o-input o-input-with-count" t-on-input="onInput" t-on-keydown="onKeydownSearch"/>
       <div class="o-input-count" t-if="hasSearchResult">
-        <t t-esc="env.getters.getCurrentSelectedMatchIndex()+1"/>
+        <t t-esc="env.model.getters.getCurrentSelectedMatchIndex()+1"/>
         /
-        <t t-esc="env.getters.getSearchMatches().length"/>
+        <t t-esc="env.model.getters.getSearchMatches().length"/>
       </div>
     </div>
     <div>
@@ -46,7 +46,7 @@ const TEMPLATE = xml/* xml */ `
             class="o-sidePanelButton"
             t-esc="env._t('${FindAndReplaceTerms.Next}')"/>
   </div>
-  <div class="o-section" t-if="!getters.isReadonly()">
+  <div class="o-section" t-if="!env.model.getters.isReadonly()">
     <div t-esc="env._t('${FindAndReplaceTerms.Replace}')" class="o-section-title"/>
     <div class="o-input-search-container">
       <input type="text" class="o-input o-input-without-count" t-model="state.replaceWith" t-on-keydown="onKeydownReplace"/>
@@ -61,10 +61,10 @@ const TEMPLATE = xml/* xml */ `
     </div>
   </div>
 
-  <div class="o-sidePanelButtons" t-if="!getters.isReadonly()">
-    <button t-att-disabled="env.getters.getCurrentSelectedMatchIndex() === null" t-on-click="replace"
+  <div class="o-sidePanelButtons" t-if="!env.model.getters.isReadonly()">
+    <button t-att-disabled="env.model.getters.getCurrentSelectedMatchIndex() === null" t-on-click="replace"
             class="o-sidePanelButton" t-esc="env._t('${FindAndReplaceTerms.Replace}')"/>
-    <button t-att-disabled="env.getters.getCurrentSelectedMatchIndex() === null" t-on-click="replaceAll"
+    <button t-att-disabled="env.model.getters.getCurrentSelectedMatchIndex() === null" t-on-click="replaceAll"
             class="o-sidePanelButton" t-esc="env._t('${FindAndReplaceTerms.ReplaceAll}')"/>
   </div>
 
@@ -121,8 +121,7 @@ interface FindAndReplaceState {
   };
 }
 
-export class FindAndReplacePanel extends Component<Props, SpreadsheetEnv> {
-  private getters = this.env.getters;
+export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static style = CSS;
   private state: FindAndReplaceState = useState(this.initialState());
@@ -131,13 +130,13 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetEnv> {
   private findAndReplaceRef = useRef("findAndReplace");
 
   get hasSearchResult() {
-    return this.env.getters.getCurrentSelectedMatchIndex() !== null;
+    return this.env.model.getters.getCurrentSelectedMatchIndex() !== null;
   }
 
   setup() {
     onMounted(() => this.focusInput());
 
-    onWillUnmount(() => this.env.dispatch("CLEAR_SEARCH"));
+    onWillUnmount(() => this.env.model.dispatch("CLEAR_SEARCH"));
   }
 
   onInput(ev) {
@@ -160,28 +159,30 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetEnv> {
   }
 
   onFocusSidePanel() {
-    this.state.searchOptions.searchFormulas = this.getters.shouldShowFormulas();
+    this.state.searchOptions.searchFormulas = this.env.model.getters.shouldShowFormulas();
     this.state.replaceOptions.modifyFormulas = this.state.searchOptions.searchFormulas
       ? this.state.searchOptions.searchFormulas
       : this.state.replaceOptions.modifyFormulas;
-    this.env.dispatch("REFRESH_SEARCH");
+    this.env.model.dispatch("REFRESH_SEARCH");
   }
 
   searchFormulas() {
-    this.env.dispatch("SET_FORMULA_VISIBILITY", { show: this.state.searchOptions.searchFormulas });
+    this.env.model.dispatch("SET_FORMULA_VISIBILITY", {
+      show: this.state.searchOptions.searchFormulas,
+    });
     this.state.replaceOptions.modifyFormulas = this.state.searchOptions.searchFormulas;
     this.updateSearch();
   }
 
   onSelectPreviousCell() {
-    this.env.dispatch("SELECT_SEARCH_PREVIOUS_MATCH");
+    this.env.model.dispatch("SELECT_SEARCH_PREVIOUS_MATCH");
   }
   onSelectNextCell() {
-    this.env.dispatch("SELECT_SEARCH_NEXT_MATCH");
+    this.env.model.dispatch("SELECT_SEARCH_NEXT_MATCH");
   }
   updateSearch() {
     if (this.state.toSearch) {
-      this.env.dispatch("UPDATE_SEARCH", {
+      this.env.model.dispatch("UPDATE_SEARCH", {
         toSearch: this.state.toSearch,
         searchOptions: this.state.searchOptions,
       });
@@ -193,14 +194,14 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetEnv> {
   }
 
   replace() {
-    this.env.dispatch("REPLACE_SEARCH", {
+    this.env.model.dispatch("REPLACE_SEARCH", {
       replaceWith: this.state.replaceWith,
       replaceOptions: this.state.replaceOptions,
     });
   }
 
   replaceAll() {
-    this.env.dispatch("REPLACE_ALL_SEARCH", {
+    this.env.model.dispatch("REPLACE_ALL_SEARCH", {
       replaceWith: this.state.replaceWith,
       replaceOptions: this.state.replaceOptions,
     });
