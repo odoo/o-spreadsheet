@@ -44,7 +44,7 @@ const TEMPLATE = xml/* xml */ `
       </div>
     </div>`;
 
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-link-editor {
     font-size: 13px;
     background-color: white;
@@ -130,7 +130,6 @@ interface State {
 export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static components = { Menu };
-  static style = CSS;
   menuItems = linkMenuRegistry.getAll();
   private state: State = useState(this.defaultState);
   private menu = useState({

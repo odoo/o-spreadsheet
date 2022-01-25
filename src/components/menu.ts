@@ -72,7 +72,7 @@ const TEMPLATE = xml/* xml */ `
         onClose="() => this.close()"/>
     </Popover>`;
 
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-menu {
     background-color: white;
     padding: 8px 0px;
@@ -139,7 +139,6 @@ export interface MenuState {
 export class Menu extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static components = { Menu, Popover };
-  static style = CSS;
   static defaultProps = {
     depth: 1,
   };

@@ -115,6 +115,44 @@ const PICKER_WIDTH =
   ITEMS_PER_LINE * (ITEM_EDGE_LENGTH + ITEM_HORIZONTAL_MARGIN * 2 + 2 * ITEM_BORDER_WIDTH) +
   2 * LINE_HORIZONTAL_PADDING;
 
+css/* scss */ `
+  .o-color-picker {
+    position: absolute;
+    top: calc(100% + 5px);
+    z-index: 10;
+    box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
+    background-color: white;
+    padding: ${PICKER_VERTICAL_PADDING}px 0px;
+
+    .o-color-picker-line {
+      display: flex;
+      padding: ${LINE_VERTICAL_PADDING}px ${LINE_HORIZONTAL_PADDING}px;
+      .o-color-picker-line-item {
+        width: ${ITEM_EDGE_LENGTH}px;
+        height: ${ITEM_EDGE_LENGTH}px;
+        margin: 0px ${ITEM_HORIZONTAL_MARGIN}px;
+        border-radius: 50px;
+        border: ${ITEM_BORDER_WIDTH}px solid #c0c0c0;
+        &:hover {
+          cursor: pointer;
+          background-color: rgba(0, 0, 0, 0.08);
+          outline: 1px solid gray;
+        }
+      }
+    }
+
+    &.right {
+      left: 0;
+    }
+
+    &.left {
+      right: 0;
+    }
+    &.center {
+      left: calc(50% - ${PICKER_WIDTH / 2}px);
+    }
+  }
+`;
 interface Props {
   dropdownDirection?: "left" | "right" | "center";
   onColorPicked: (color: string) => void;
@@ -132,44 +170,6 @@ export class ColorPicker extends Component<Props, SpreadsheetChildEnv> {
     </div>
   </div>`;
 
-  static style = css/* scss */ `
-    .o-color-picker {
-      position: absolute;
-      top: calc(100% + 5px);
-      z-index: 10;
-      box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-      background-color: white;
-      padding: ${PICKER_VERTICAL_PADDING}px 0px;
-
-      .o-color-picker-line {
-        display: flex;
-        padding: ${LINE_VERTICAL_PADDING}px ${LINE_HORIZONTAL_PADDING}px;
-        .o-color-picker-line-item {
-          width: ${ITEM_EDGE_LENGTH}px;
-          height: ${ITEM_EDGE_LENGTH}px;
-          margin: 0px ${ITEM_HORIZONTAL_MARGIN}px;
-          border-radius: 50px;
-          border: ${ITEM_BORDER_WIDTH}px solid #c0c0c0;
-          &:hover {
-            cursor: pointer;
-            background-color: rgba(0, 0, 0, 0.08);
-            outline: 1px solid gray;
-          }
-        }
-      }
-
-      &.right {
-        left: 0;
-      }
-
-      &.left {
-        right: 0;
-      }
-      &.center {
-        left: calc(50% - ${PICKER_WIDTH / 2}px);
-      }
-    }
-  `;
   COLORS = COLORS;
 
   onColorClick(ev: MouseEvent) {

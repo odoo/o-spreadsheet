@@ -29,7 +29,7 @@ const TEMPLATE = xml/* xml */ `
   </div>
 `;
 
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-link-tool {
     font-size: 13px;
     background-color: white;
@@ -71,7 +71,6 @@ const CSS = css/* scss */ `
 export class LinkDisplay extends Component<{ cellPosition: Position }, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static components = { Menu };
-  static style = CSS;
 
   get cell(): LinkCell {
     const { col, row } = this.props.cellPosition;

@@ -41,7 +41,7 @@ const TEMPLATE = xml/* xml */ `
           onClose="() => this.menuState.isOpen=false"/>
   </div>`;
 
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-spreadsheet-bottom-bar {
     background-color: ${BACKGROUND_GRAY_COLOR};
     padding-left: ${HEADER_WIDTH}px;
@@ -138,7 +138,6 @@ interface Props {
 
 export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static style = CSS;
   static components = { Menu };
 
   private bottomBarRef = useRef("bottomBar");

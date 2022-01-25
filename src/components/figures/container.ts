@@ -52,7 +52,7 @@ const BORDER_WIDTH = 1;
 const ACTIVE_BORDER_WIDTH = 2;
 const MIN_FIG_SIZE = 80;
 
-const CSS = css/*SCSS*/ `
+css/*SCSS*/ `
   .o-figure-wrapper {
     overflow: hidden;
   }
@@ -134,7 +134,6 @@ interface Props {
 
 export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static style = CSS;
   static components = {};
   figureRegistry = figureRegistry;
 

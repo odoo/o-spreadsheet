@@ -145,7 +145,7 @@ const TEMPLATE = xml/* xml */ `
     </t>
   </div>`;
 
-const CSS = css/* scss */ `
+css/* scss */ `
   label {
     vertical-align: middle;
   }
@@ -489,7 +489,6 @@ interface State {
 
 export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static style = CSS;
   static components = { SelectionInput, IconPicker, ColorPicker };
 
   icons = ICONS;

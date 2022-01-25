@@ -19,7 +19,7 @@ const TEMPLATE = xml/* xml */ `
   </div>
 `;
 
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-autofill {
     height: 6px;
     width: 6px;
@@ -66,7 +66,6 @@ interface State {
 
 export class Autofill extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static style = CSS;
 
   state: State = useState({
     position: { left: 0, top: 0 },

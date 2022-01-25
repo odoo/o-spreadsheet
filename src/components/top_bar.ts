@@ -55,6 +55,192 @@ interface Props {
 // -----------------------------------------------------------------------------
 // TopBar
 // -----------------------------------------------------------------------------
+css/* scss */ `
+  .o-spreadsheet-topbar {
+    background-color: white;
+    line-height: 1.2;
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+    line-height: 1.2;
+    user-select: none;
+
+    .o-topbar-top {
+      border-bottom: 1px solid #e0e2e4;
+      display: flex;
+      padding: 2px 10px;
+      justify-content: space-between;
+
+      /* Menus */
+      .o-topbar-topleft {
+        display: flex;
+        .o-topbar-menu {
+          padding: 4px 6px;
+          margin: 0 2px;
+          cursor: pointer;
+        }
+
+        .o-topbar-menu:hover {
+          background-color: #f1f3f4;
+          border-radius: 2px;
+        }
+      }
+
+      .o-topbar-topright {
+        display: flex;
+        justify-content: flex-end;
+      }
+    }
+    /* Toolbar + Cell Content */
+    .o-topbar-toolbar {
+      border-bottom: 1px solid #e0e2e4;
+      display: flex;
+
+      .o-readonly-toolbar {
+        display: flex;
+        align-items: center;
+        background-color: ${BACKGROUND_HEADER_COLOR};
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+      .o-composer-container {
+        height: 34px;
+        border: 1px solid #e0e2e4;
+        margin-top: -1px;
+        margin-bottom: -1px;
+      }
+
+      /* Toolbar */
+      .o-toolbar-tools {
+        display: flex;
+        flex-shrink: 0;
+        margin-left: 16px;
+        color: #333;
+        cursor: default;
+
+        .o-tool {
+          display: flex;
+          align-items: center;
+          margin: 2px;
+          padding: 0 3px;
+          border-radius: 2px;
+          cursor: pointer;
+          min-width: fit-content;
+        }
+
+        .o-tool.active,
+        .o-tool:not(.o-disabled):hover {
+          background-color: #f1f3f4;
+        }
+
+        .o-with-color > span {
+          border-bottom: 4px solid;
+          height: 16px;
+          margin-top: 2px;
+        }
+
+        .o-with-color {
+          .o-line-item:hover {
+            outline: 1px solid gray;
+          }
+        }
+
+        .o-border {
+          .o-line-item {
+            padding: 4px;
+            margin: 1px;
+          }
+        }
+
+        .o-divider {
+          display: inline-block;
+          border-right: 1px solid #e0e2e4;
+          width: 0;
+          margin: 0 6px;
+        }
+
+        .o-disabled {
+          opacity: 0.6;
+        }
+
+        .o-dropdown {
+          position: relative;
+
+          .o-text-icon {
+            height: 100%;
+            line-height: 30px;
+          }
+
+          .o-text-options > div {
+            line-height: 26px;
+            padding: 3px 12px;
+            &:hover {
+              background-color: rgba(0, 0, 0, 0.08);
+            }
+          }
+
+          .o-dropdown-content {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            z-index: 10;
+            box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
+            background-color: white;
+
+            .o-dropdown-item {
+              padding: 7px 10px;
+            }
+
+            .o-dropdown-item:hover {
+              background-color: rgba(0, 0, 0, 0.08);
+            }
+
+            .o-dropdown-line {
+              display: flex;
+              padding: 3px 6px;
+
+              .o-line-item {
+                width: 16px;
+                height: 16px;
+                margin: 1px 3px;
+
+                &:hover {
+                  background-color: rgba(0, 0, 0, 0.08);
+                }
+              }
+            }
+
+            &.o-format-tool {
+              width: 180px;
+              padding: 7px 0;
+              > div {
+                padding-left: 25px;
+
+                &.active:before {
+                  content: "✓";
+                  font-weight: bold;
+                  position: absolute;
+                  left: 10px;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      /* Cell Content */
+      .o-toolbar-cell-content {
+        font-size: 12px;
+        font-weight: 500;
+        padding: 0 12px;
+        margin: 0;
+        line-height: 34px;
+        white-space: nowrap;
+        user-select: text;
+      }
+    }
+  }
+`;
 export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet-topbar o-two-columns" t-on-click="props.onClick">
@@ -170,191 +356,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
       </div>
     </div>`;
-  static style = css/* scss */ `
-    .o-spreadsheet-topbar {
-      background-color: white;
-      line-height: 1.2;
-      display: flex;
-      flex-direction: column;
-      font-size: 13px;
-      line-height: 1.2;
-      user-select: none;
 
-      .o-topbar-top {
-        border-bottom: 1px solid #e0e2e4;
-        display: flex;
-        padding: 2px 10px;
-        justify-content: space-between;
-
-        /* Menus */
-        .o-topbar-topleft {
-          display: flex;
-          .o-topbar-menu {
-            padding: 4px 6px;
-            margin: 0 2px;
-            cursor: pointer;
-          }
-
-          .o-topbar-menu:hover {
-            background-color: #f1f3f4;
-            border-radius: 2px;
-          }
-        }
-
-        .o-topbar-topright {
-          display: flex;
-          justify-content: flex-end;
-        }
-      }
-      /* Toolbar + Cell Content */
-      .o-topbar-toolbar {
-        border-bottom: 1px solid #e0e2e4;
-        display: flex;
-
-        .o-readonly-toolbar {
-          display: flex;
-          align-items: center;
-          background-color: ${BACKGROUND_HEADER_COLOR};
-          padding-left: 18px;
-          padding-right: 18px;
-        }
-        .o-composer-container {
-          height: 34px;
-          border: 1px solid #e0e2e4;
-          margin-top: -1px;
-          margin-bottom: -1px;
-        }
-
-        /* Toolbar */
-        .o-toolbar-tools {
-          display: flex;
-          flex-shrink: 0;
-          margin-left: 16px;
-          color: #333;
-          cursor: default;
-
-          .o-tool {
-            display: flex;
-            align-items: center;
-            margin: 2px;
-            padding: 0 3px;
-            border-radius: 2px;
-            cursor: pointer;
-            min-width: fit-content;
-          }
-
-          .o-tool.active,
-          .o-tool:not(.o-disabled):hover {
-            background-color: #f1f3f4;
-          }
-
-          .o-with-color > span {
-            border-bottom: 4px solid;
-            height: 16px;
-            margin-top: 2px;
-          }
-
-          .o-with-color {
-            .o-line-item:hover {
-              outline: 1px solid gray;
-            }
-          }
-
-          .o-border {
-            .o-line-item {
-              padding: 4px;
-              margin: 1px;
-            }
-          }
-
-          .o-divider {
-            display: inline-block;
-            border-right: 1px solid #e0e2e4;
-            width: 0;
-            margin: 0 6px;
-          }
-
-          .o-disabled {
-            opacity: 0.6;
-          }
-
-          .o-dropdown {
-            position: relative;
-
-            .o-text-icon {
-              height: 100%;
-              line-height: 30px;
-            }
-
-            .o-text-options > div {
-              line-height: 26px;
-              padding: 3px 12px;
-              &:hover {
-                background-color: rgba(0, 0, 0, 0.08);
-              }
-            }
-
-            .o-dropdown-content {
-              position: absolute;
-              top: calc(100% + 5px);
-              left: 0;
-              z-index: 10;
-              box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-              background-color: white;
-
-              .o-dropdown-item {
-                padding: 7px 10px;
-              }
-
-              .o-dropdown-item:hover {
-                background-color: rgba(0, 0, 0, 0.08);
-              }
-
-              .o-dropdown-line {
-                display: flex;
-                padding: 3px 6px;
-
-                .o-line-item {
-                  width: 16px;
-                  height: 16px;
-                  margin: 1px 3px;
-
-                  &:hover {
-                    background-color: rgba(0, 0, 0, 0.08);
-                  }
-                }
-              }
-
-              &.o-format-tool {
-                padding: 7px 0;
-                > div {
-                  padding-left: 25px;
-                  white-space: nowrap;
-                  &.active:before {
-                    content: "✓";
-                    font-weight: bold;
-                    position: absolute;
-                    left: 10px;
-                  }
-                }
-              }
-            }
-          }
-        }
-
-        /* Cell Content */
-        .o-toolbar-cell-content {
-          font-size: 12px;
-          font-weight: 500;
-          padding: 0 12px;
-          margin: 0;
-          line-height: 34px;
-          white-space: nowrap;
-          user-select: text;
-        }
-      }
-    }
-  `;
   static components = { ColorPicker, Menu, Composer };
   formats = FORMATS;
   currentFormat = "general";

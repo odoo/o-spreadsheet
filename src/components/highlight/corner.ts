@@ -17,7 +17,7 @@ const TEMPLATE = xml/* xml */ `
         >
     </div>
 `;
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-corner {
     position: absolute;
     height: 6px;
@@ -53,7 +53,6 @@ interface Props {
 
 export class Corner extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static style = CSS;
 
   private isTop = this.props.orientation[0] === "n";
   private isLeft = this.props.orientation[1] === "w";

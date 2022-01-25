@@ -22,7 +22,7 @@ const TEMPLATE = xml/* xml */ `
   </div>
 `;
 
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-client-tag {
     position: absolute;
     border-top-left-radius: 4px;
@@ -35,8 +35,6 @@ const CSS = css/* scss */ `
 `;
 export class ClientTag extends Component<ClientTagProps, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-
-  static style = CSS;
 
   get tagStyle(): string {
     const { col, row, color } = this.props;

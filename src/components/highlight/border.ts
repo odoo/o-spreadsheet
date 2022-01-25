@@ -17,7 +17,7 @@ const TEMPLATE = xml/* xml */ `
         >
     </div>
 `;
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-border {
     position: absolute;
     &:hover {
@@ -40,7 +40,6 @@ interface Props {
 
 export class Border extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static style = CSS;
 
   get style() {
     const isTop = ["n", "w", "e"].includes(this.props.orientation);

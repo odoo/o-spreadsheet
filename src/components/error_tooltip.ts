@@ -8,7 +8,7 @@ const TEMPLATE = xml/* xml */ `
     </div>
 `;
 
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-error-tooltip {
     font-size: 13px;
     background-color: white;
@@ -23,5 +23,4 @@ export interface ErrorToolTipProps {
 
 export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static style = CSS;
 }

@@ -86,7 +86,7 @@ const TEMPLATE = xml/* xml */ `
   </div>
 </div>
   `;
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-composer-container {
     padding: 0;
     margin: 0;
@@ -156,7 +156,6 @@ interface FunctionDescriptionState {
 
 export class Composer extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static style = CSS;
   static components = { TextValueProvider, FunctionDescriptionProvider };
   static defaultProps = {
     inputStyle: "",
