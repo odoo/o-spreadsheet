@@ -45,7 +45,7 @@ const TEMPLATE = xml/* xml */ `
       t-on-composer-cell-focused="onGridComposerCellFocused"
       t-att-class="{'o-two-columns': !sidePanel.isOpen}"/>
     <SidePanel t-if="sidePanel.isOpen"
-           t-on-close-side-panel="sidePanel.isOpen = false"
+           t-on-close-side-panel="closeSidePanel"
            component="sidePanel.component"
            panelProps="sidePanel.panelProps"/>
     <BottomBar t-on-click="focusGrid" class="o-two-columns"/>
@@ -221,6 +221,11 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     this.sidePanel.component = panel;
     this.sidePanel.panelProps = panelProps;
     this.sidePanel.isOpen = true;
+  }
+
+  closeSidePanel() {
+    this.sidePanel.isOpen = false;
+    this.focusGrid();
   }
 
   openLinkEditor() {
