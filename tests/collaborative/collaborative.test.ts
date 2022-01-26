@@ -8,6 +8,7 @@ import {
   addColumns,
   addRows,
   clearCell,
+  createChart,
   createSheet,
   deleteColumns,
   deleteRows,
@@ -443,6 +444,23 @@ describe("Multi users synchronisation", () => {
       (user) => getCellContent(user, "A2"),
       "hello"
     );
+  });
+
+  test("duplicated chart are the same", () => {
+    createChart(
+      alice,
+      {
+        dataSets: ["A8:D8", "A9:D9"],
+        labelRange: "B7:D7",
+        type: "line",
+      },
+      "1"
+    );
+    alice.dispatch("DUPLICATE_SHEET", {
+      sheetId: alice.getters.getActiveSheetId(),
+      sheetIdTo: "Sheet2",
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
   test("Composer is moved when column is removed before it", () => {
