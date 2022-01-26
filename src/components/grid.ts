@@ -236,7 +236,7 @@ const TEMPLATE = xml/* xml */ `
     <Menu t-if="menuState.isOpen"
       menuItems="menuState.menuItems"
       position="menuState.position"
-      t-on-close.stop="menuState.isOpen=false"/>
+      t-on-close.stop="closeMenu"/>
     <t t-set="gridSize" t-value="getters.getGridDimension(getters.getActiveSheet())"/>
     <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" t-on-figure-deleted="focus" />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
@@ -895,5 +895,10 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
     this.menuState.menuItems = registries[type]
       .getAll()
       .filter((item) => !item.isVisible || item.isVisible(this.env));
+  }
+
+  closeMenu() {
+    this.menuState.isOpen = false;
+    this.focus();
   }
 }
