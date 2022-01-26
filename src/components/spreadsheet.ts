@@ -46,9 +46,9 @@ const TEMPLATE = xml/* xml */ `
       onComposerContentFocused="() => this.onGridComposerContentFocused()"
       onGridComposerCellFocused="(content, selection) => this.onGridComposerCellFocused(content, selection)"/>
     <SidePanel t-if="sidePanel.isOpen"
-           onCloseSidePanel="() => this.sidePanel.isOpen = false"
-           component="sidePanel.component"
-           panelProps="sidePanel.panelProps"/>
+      onCloseSidePanel="() => this.closeSidePanel()"
+      component="sidePanel.component"
+      panelProps="sidePanel.panelProps"/>
     <BottomBar onClick="() => this.focusGrid()"/>
   </div>`;
 
@@ -189,6 +189,11 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     this.sidePanel.component = panel;
     this.sidePanel.panelProps = panelProps;
     this.sidePanel.isOpen = true;
+  }
+
+  closeSidePanel() {
+    this.sidePanel.isOpen = false;
+    this.focusGrid();
   }
 
   openLinkEditor() {

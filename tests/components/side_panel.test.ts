@@ -129,4 +129,16 @@ describe("Side Panel", () => {
     expect(document.querySelector(".props_body_2")).toBeDefined();
     expect(document.querySelector(".props_body_2")!.textContent).toBe("field");
   });
+
+  test("Closing a side panel focuses the grid/canvas", async () => {
+    sidePanelRegistry.add("CUSTOM_PANEL", {
+      title: "Custom Panel",
+      Body: Body,
+    });
+    parent.env.openSidePanel("CUSTOM_PANEL");
+    await nextTick();
+    simulateClick(".o-sidePanelClose");
+    await nextTick();
+    expect(document.activeElement).toBe(fixture.querySelector("canvas"));
+  });
 });
