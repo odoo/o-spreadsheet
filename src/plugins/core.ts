@@ -1120,13 +1120,23 @@ export class CorePlugin extends BasePlugin {
 
     const left = base < leftZone.left ? leftZone.left + step : leftZone.left;
     const right = base < rightZone.right ? rightZone.right + step : rightZone.right;
-    const range = this.zoneToXC({
-      ...leftZone,
-      left,
-      right,
-    });
 
-    return sheet ? `${getComposerSheetName(sheet)}!${range}` : range;
+    const [leftXc, rightXc] = ref.split(":");
+    const sheetId = this.getters.getSheetIdByName(sheet);
+    const newLeft = this.updateReference(leftXc, left - currentZone.left, 0, sheetId, false, false);
+    const newRight = this.updateReference(
+      rightXc,
+      right - currentZone.right,
+      0,
+      sheetId,
+      false,
+      false
+    );
+    if (newLeft === newRight) {
+      return newLeft;
+    }
+    //As updateReference put the sheet in the ref, we need to remove it from the right part
+    return `${newLeft}:${newRight.split("!").pop()!}`;
   };
 
   /**
@@ -1188,13 +1198,23 @@ export class CorePlugin extends BasePlugin {
 
     const top = base < topZone.top ? topZone.top + step : topZone.top;
     const bottom = base < bottomZone.bottom ? bottomZone.bottom + step : bottomZone.bottom;
-    const range = this.zoneToXC({
-      ...topZone,
-      top,
-      bottom,
-    });
 
-    return sheet ? `${getComposerSheetName(sheet)}!${range}` : range;
+    const [left, right] = ref.split(":");
+    const sheetId = this.getters.getSheetIdByName(sheet);
+    const newLeft = this.updateReference(left, 0, top - currentZone.top, sheetId, false, false);
+    const newRight = this.updateReference(
+      right,
+      0,
+      bottom - currentZone.bottom,
+      sheetId,
+      false,
+      false
+    );
+    if (newLeft === newRight) {
+      return newLeft;
+    }
+    //As updateReference put the sheet in the ref, we need to remove it from the right part
+    return `${newLeft}:${newRight.split("!").pop()!}`;
   };
 
   // ---------------------------------------------------------------------------
