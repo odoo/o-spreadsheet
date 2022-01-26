@@ -23,6 +23,11 @@ import { getCell, getCellContent } from "./getters_helpers";
 const functions = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
 
+/**
+ * Mock console.info in order to avoid being spammed by owl running in dev mode
+ */
+console.info = () => {};
+
 export class Parent extends Component {
   static template = xml/* xml */ `
     <Spreadsheet data="props.data"
@@ -127,7 +132,7 @@ export async function mountSpreadsheet(
   fixture: HTMLElement,
   props: Spreadsheet["props"] = {}
 ): Promise<Parent> {
-  return await mount(Parent, fixture, { props });
+  return await mount(Parent, fixture, { props, dev: true });
 }
 
 type GridDescr = { [xc: string]: string | undefined };
