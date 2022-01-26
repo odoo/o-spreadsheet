@@ -258,6 +258,102 @@ describe("core", () => {
     expect(model.getters.getNumberRows("2")).toEqual(29);
     expect(model.getters.getNumberCols("2")).toEqual(19);
   });
+
+  test("Range with absolute references are correctly updated on rows manipulation", () => {
+    const model = new Model();
+    model.dispatch("UPDATE_CELL", {
+      col: 0,
+      row: 0,
+      sheet: model.getters.getActiveSheet(),
+      content: "=SUM($C$1:$C$5)",
+    });
+    model.dispatch("ADD_ROWS", {
+      position: "after",
+      row: 2,
+      quantity: 1,
+      sheet: model.getters.getActiveSheet(),
+    });
+    expect(model.getters.getCell(0, 0)!.content).toBe("=SUM($C$1:$C$6)");
+    model.dispatch("ADD_ROWS", {
+      position: "before",
+      row: 0,
+      quantity: 1,
+      sheet: model.getters.getActiveSheet(),
+    });
+    expect(model.getters.getCell(0, 1)!.content).toBe("=SUM($C$2:$C$7)");
+  });
+
+  test("Absolute references are correctly updated on rows manipulation", () => {
+    const model = new Model();
+    model.dispatch("UPDATE_CELL", {
+      col: 0,
+      row: 0,
+      sheet: model.getters.getActiveSheet(),
+      content: "=SUM($C$1)",
+    });
+    model.dispatch("ADD_ROWS", {
+      position: "after",
+      row: 2,
+      quantity: 1,
+      sheet: model.getters.getActiveSheet(),
+    });
+    expect(model.getters.getCell(0, 0)!.content).toBe("=SUM($C$1)");
+    model.dispatch("ADD_ROWS", {
+      position: "before",
+      row: 0,
+      quantity: 1,
+      sheet: model.getters.getActiveSheet(),
+    });
+    expect(model.getters.getCell(0, 1)!.content).toBe("=SUM($C$2)");
+  });
+
+  test("Range with absolute references are correctly updated on columns manipulation", () => {
+    const model = new Model();
+    model.dispatch("UPDATE_CELL", {
+      col: 0,
+      row: 0,
+      sheet: model.getters.getActiveSheet(),
+      content: "=SUM($A$2:$E$2)",
+    });
+    model.dispatch("ADD_COLUMNS", {
+      position: "after",
+      column: 2,
+      quantity: 1,
+      sheet: model.getters.getActiveSheet(),
+    });
+    expect(model.getters.getCell(0, 0)!.content).toBe("=SUM($A$2:$F$2)");
+    model.dispatch("ADD_COLUMNS", {
+      position: "before",
+      column: 0,
+      quantity: 1,
+      sheet: model.getters.getActiveSheet(),
+    });
+    expect(model.getters.getCell(1, 0)!.content).toBe("=SUM($B$2:$G$2)");
+  });
+
+  test("Absolute references are correctly updated on columns manipulation", () => {
+    const model = new Model();
+    model.dispatch("UPDATE_CELL", {
+      col: 0,
+      row: 0,
+      sheet: model.getters.getActiveSheet(),
+      content: "=SUM($A$2)",
+    });
+    model.dispatch("ADD_COLUMNS", {
+      position: "after",
+      column: 2,
+      quantity: 1,
+      sheet: model.getters.getActiveSheet(),
+    });
+    expect(model.getters.getCell(0, 0)!.content).toBe("=SUM($A$2)");
+    model.dispatch("ADD_COLUMNS", {
+      position: "before",
+      column: 0,
+      quantity: 1,
+      sheet: model.getters.getActiveSheet(),
+    });
+    expect(model.getters.getCell(1, 0)!.content).toBe("=SUM($B$2)");
+  });
 });
 
 describe("history", () => {
