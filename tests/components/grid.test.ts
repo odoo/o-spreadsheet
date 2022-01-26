@@ -13,7 +13,12 @@ import {
   setCellContent,
   setSelection,
 } from "../test_helpers/commands_helpers";
-import { clickCell, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  clickCell,
+  rightClickCell,
+  simulateClick,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
   getChildFromComponent,
@@ -610,6 +615,12 @@ describe("Grid component", () => {
         .dispatchEvent(new WheelEvent("wheel", { deltaY: 1500, shiftKey: true }));
       expect(getVerticalScroll()).toBe(baseVertical);
       expect(getHorizontalScroll()).toBe(baseHorizontal + 1500);
+    });
+    test("closing contextmenu focuses the grid", async () => {
+      await rightClickCell(model, "B2");
+      await simulateClick(".o-menu div[data-name='add_row_before']");
+      expect(fixture.querySelector(".o-menu div[data-name='add_row_before']")).toBeFalsy();
+      expect(document.activeElement).toBe(fixture.querySelector("canvas"));
     });
   });
 });

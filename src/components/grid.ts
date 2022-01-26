@@ -260,7 +260,7 @@ const TEMPLATE = xml/* xml */ `
     <Menu t-if="menuState.isOpen"
       menuItems="menuState.menuItems"
       position="menuState.position"
-      onClose="() => this.menuState.isOpen=false"/>
+      onClose="() => this.closeMenu()"/>
     <t t-set="gridSize" t-value="env.model.getters.getMaxViewportSize(env.model.getters.getActiveSheet())"/>
     <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" onFigureDeleted="() => this.focus()" />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
@@ -997,5 +997,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         });
       }
     }
+  }
+
+  closeMenu() {
+    this.menuState.isOpen = false;
+    this.focus();
   }
 }
