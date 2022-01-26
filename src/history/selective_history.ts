@@ -83,6 +83,7 @@ export class SelectiveHistory<T = unknown> {
     this.revertBefore(operationId);
     this.tree.undo(branch, operation);
     this.fastForward();
+    // should be inserted at the correct place ?
     this.append(undoId, this.buildEmpty(undoId));
   }
 

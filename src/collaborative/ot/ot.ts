@@ -48,10 +48,17 @@ export function transform(
   toTransform: CoreCommand,
   executed: CoreCommand
 ): CoreCommand | undefined {
+  // console.log("before", toTransform)
   const specificTransform = otRegistry.getTransformation(toTransform.type, executed.type);
-  return specificTransform
+  const result = specificTransform
     ? specificTransform(toTransform, executed)
     : genericTransform(toTransform, executed);
+  // console.log("after", result)
+  if (result === undefined) {
+    debugger;
+  }
+
+  return result;
 }
 
 /**

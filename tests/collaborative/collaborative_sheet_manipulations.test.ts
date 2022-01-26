@@ -1,3 +1,4 @@
+import seedrandom from "seedrandom";
 import { Model } from "../../src";
 import { BACKGROUND_CHART_COLOR } from "../../src/constants";
 import { lettersToNumber, numberToLetters, range, toZone } from "../../src/helpers";
@@ -16,10 +17,12 @@ import {
   renameSheet,
   selectCell,
   setCellContent,
+  undo,
   unhideColumns,
   unhideRows,
   updateChart,
 } from "../test_helpers/commands_helpers";
+import { printDebugModel } from "../test_helpers/debug_helpers";
 import { getCellContent, getCellError } from "../test_helpers/getters_helpers";
 import { createEqualCF } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -679,6 +682,30 @@ describe("Collaborative Sheet manipulation", () => {
           labelRange: "F8",
         }
       );
+    });
+    // function autofill(from: string, to: string) {
+    //   setSelection(model, [from]);
+    //   const [col, row] = toCartesian(to);
+    //   model.dispatch("AUTOFILL_SELECT", { col, row });
+    //   model.dispatch("AUTOFILL");
+    // }
+    test("coucou", () => {
+      seedrandom("1643123155749", { global: true });
+      addColumns(bob, "before", "A", 1);
+      addColumns(charlie, "before", "B", 1);
+      network.concurrent(() => {
+        undo(bob);
+        setCellContent(charlie, "D25", "D");
+      });
+      printDebugModel(bob);
+      setCellContent(bob, "A13", "A");
+      printDebugModel(bob);
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "A13"),
+        "A"
+      );
+      expect([bob, charlie]).toHaveSynchronizedExportedData();
+      // expect([alice, bob, charlie]).toHaveSynchronizedExportedData()
     });
   });
 });

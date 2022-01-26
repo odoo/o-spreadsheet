@@ -69,5 +69,5 @@ export function getDebugInfo(tree: Tree) {
  */
 export function printDebugModel(model: Model) {
   // @ts-ignore
-  console.log(getDebugInfo(model["session"]["revisions"]["HEAD_BRANCH"]));
+  console.log(getDebugInfo(model["session"]["revisions"]["tree"]));
 }
