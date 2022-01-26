@@ -28,7 +28,6 @@ import {
   range,
 } from "../helpers/index";
 import { interactivePaste } from "../helpers/ui/paste";
-import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
@@ -304,7 +303,6 @@ css/* scss */ `
 
 interface Props {
   sidePanelIsOpen: boolean;
-  model: Model;
   linkEditorIsOpen: boolean;
   exposeFocus: (focus: () => void) => void;
   onComposerContentFocused: () => void;
@@ -665,7 +663,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
     ctx.translate(-0.5, -0.5);
     ctx.scale(dpr, dpr);
-    this.props.model.drawGrid(renderingContext);
+    this.env.model.drawGrid(renderingContext);
   }
 
   private moveCanvas(deltaX, deltaY) {

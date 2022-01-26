@@ -42,7 +42,6 @@ const TEMPLATE = xml/* xml */ `
       onComposerContentFocused="(selection) => this.onTopBarComposerFocused(selection)"
       focusComposer="focusTopBarComposer"/>
     <Grid
-      model="model"
       sidePanelIsOpen="sidePanel.isOpen"
       linkEditorIsOpen="linkEditor.isOpen"
       onLinkEditorClosed="() => this.closeLinkEditor()"
