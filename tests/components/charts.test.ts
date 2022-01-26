@@ -374,6 +374,20 @@ describe("figures", () => {
     );
   });
 
+  test("Selecting a figure and hitting Ctrl does not unselect it", async () => {
+    await simulateClick(".o-figure");
+    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Control", bubbles: true })
+    );
+    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keyup", { key: "Control", bubbles: true })
+    );
+
+    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+  });
+
   test("update chart with empty dataset and empty labels", async () => {
     await simulateClick(".o-figure");
     await simulateClick(".o-chart-menu");
