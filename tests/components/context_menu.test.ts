@@ -1,4 +1,4 @@
-import { Component, mount, useSubEnv, xml } from "@odoo/owl";
+import { App, Component, mount, useSubEnv, xml } from "@odoo/owl";
 import { Grid } from "../../src/components/grid";
 import { Menu } from "../../src/components/menu";
 import { HEADER_HEIGHT, HEADER_WIDTH, MENU_ITEM_HEIGHT, TOPBAR_HEIGHT } from "../../src/constants";
@@ -22,6 +22,7 @@ import {
 
 let fixture: HTMLElement;
 let parent: Component;
+let app: App;
 let model: Model;
 
 beforeEach(async () => {
@@ -33,13 +34,12 @@ beforeEach(async () => {
     configurable: true,
   });
   fixture = makeTestFixture();
-  parent = await mountSpreadsheet(fixture);
-  // @ts-ignore
-  model = parent.model;
+  ({ app, parent } = await mountSpreadsheet(fixture));
+  model = (parent as Parent).model;
 });
 
 afterEach(() => {
-  parent.__owl__.destroy();
+  app.destroy();
   fixture.remove();
 });
 

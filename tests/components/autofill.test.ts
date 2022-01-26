@@ -1,4 +1,4 @@
-import { Component, xml } from "@odoo/owl";
+import { App, Component, xml } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { setCellContent } from "../test_helpers/commands_helpers";
@@ -17,15 +17,17 @@ jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation((
 let fixture: HTMLElement;
 let model: Model;
 let parent: Parent;
+let app: App;
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  parent = await mountSpreadsheet(fixture);
+  ({ app, parent } = await mountSpreadsheet(fixture));
   model = parent.model;
 });
 
 afterEach(() => {
   fixture.remove();
+  app.destroy();
 });
 
 describe("Autofill component", () => {

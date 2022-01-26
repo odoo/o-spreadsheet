@@ -1,4 +1,4 @@
-import { Component, xml } from "@odoo/owl";
+import { App, Component, xml } from "@odoo/owl";
 import { sidePanelRegistry } from "../../src/registries/index";
 import { SidePanelContent } from "../../src/registries/side_panel_registry";
 import { simulateClick } from "../test_helpers/dom_helper";
@@ -6,6 +6,7 @@ import { makeTestFixture, mountSpreadsheet, nextTick, Parent } from "../test_hel
 
 let fixture: HTMLElement;
 let parent: Parent;
+let app: App;
 let sidePanelContent: { [key: string]: SidePanelContent };
 
 class Body extends Component<any, any> {
@@ -26,12 +27,12 @@ class Body2 extends Component<any, any> {
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  parent = await mountSpreadsheet(fixture);
+  ({ app, parent } = await mountSpreadsheet(fixture));
   sidePanelContent = Object.assign({}, sidePanelRegistry.content);
 });
 
 afterEach(() => {
-  parent.__owl__.destroy();
+  app.destroy();
   fixture.remove();
   sidePanelRegistry.content = sidePanelContent;
 });

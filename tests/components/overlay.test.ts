@@ -1,3 +1,4 @@
+import { App } from "@odoo/owl";
 import { ColResizer, RowResizer } from "../../src/components/overlay";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -25,6 +26,7 @@ import { makeTestFixture, mountSpreadsheet, nextTick, Parent } from "../test_hel
 
 let fixture: HTMLElement;
 let model: Model;
+let app: App;
 
 ColResizer.prototype._getMaxSize = () => 1000;
 RowResizer.prototype._getMaxSize = () => 1000;
@@ -155,12 +157,12 @@ describe("Resizer component", () => {
         },
       ],
     };
-    parent = await mountSpreadsheet(fixture, { data });
+    ({ app, parent } = await mountSpreadsheet(fixture, { data }));
     model = parent.model;
   });
 
   afterEach(() => {
-    parent.__owl__.destroy();
+    app.destroy();
     fixture.remove();
   });
 
@@ -772,12 +774,12 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
   beforeEach(async () => {
     jest.useFakeTimers();
     fixture = makeTestFixture();
-    parent = await mountSpreadsheet(fixture);
+    ({ app, parent } = await mountSpreadsheet(fixture));
     model = parent.model;
   });
 
   afterEach(() => {
-    parent.__owl__.destroy();
+    app.destroy();
     fixture.remove();
   });
   test("Can edge-scroll horizontally", async () => {
@@ -855,12 +857,12 @@ describe("move selected element(s)", () => {
         },
       ],
     };
-    parent = await mountSpreadsheet(fixture, { data });
+    ({ app, parent } = await mountSpreadsheet(fixture, { data }));
     model = parent.model;
   });
 
   afterEach(() => {
-    parent.__owl__.destroy();
+    app.destroy();
     fixture.remove();
   });
 

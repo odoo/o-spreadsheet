@@ -1,4 +1,4 @@
-import { Component, mount, useSubEnv, xml } from "@odoo/owl";
+import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Highlight } from "../../src/components/highlight/highlight";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { toZone } from "../../src/helpers";
@@ -79,6 +79,7 @@ async function moveToCell(el: Element, xc: string) {
 }
 
 let model: Model;
+let app: App;
 let fixture: HTMLElement;
 let parent: Parent;
 let cornerEl: Element;
@@ -102,7 +103,8 @@ class Parent extends Component {
 }
 
 async function mountHighlight(zone: string, color: string): Promise<Parent> {
-  return await mount(Parent, fixture, { props: { zone: toZone(zone), color, model } });
+  app = new App(Parent, { props: { zone: toZone(zone), color, model } });
+  return await app.mount(fixture);
 }
 
 beforeEach(async () => {
@@ -115,7 +117,7 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
-  parent.__owl__.destroy();
+  app.destroy();
   fixture.remove();
 });
 

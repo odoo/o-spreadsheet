@@ -1,3 +1,4 @@
+import { App } from "@odoo/owl";
 import { Model } from "../../src";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
@@ -37,9 +38,10 @@ const selectors = {
 describe("find and replace sidePanel component", () => {
   let fixture: HTMLElement;
   let parent: Parent;
+  let app: App;
   beforeEach(async () => {
     fixture = makeTestFixture();
-    parent = await mountSpreadsheet(fixture);
+    ({ app, parent } = await mountSpreadsheet(fixture));
     model = parent.model;
     parent.getSpreadsheetEnv().openSidePanel("FindAndReplace");
     await nextTick();
@@ -47,7 +49,7 @@ describe("find and replace sidePanel component", () => {
 
   afterEach(() => {
     fixture.remove();
-    parent.__owl__.destroy();
+    app.destroy();
   });
   describe("Sidepanel", () => {
     test("Can close the find and replace side panel", async () => {

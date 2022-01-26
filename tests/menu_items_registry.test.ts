@@ -1,3 +1,4 @@
+import { App } from "@odoo/owl";
 import { Model } from "../src";
 import { fontSizes } from "../src/fonts";
 import { interactivePaste } from "../src/helpers/ui/paste";
@@ -101,6 +102,7 @@ describe("Menu Item actions", () => {
   let fixture: HTMLElement;
   let model: Model;
   let parent: Parent;
+  let app: App;
   let env: SpreadsheetChildEnv;
   let dispatch;
 
@@ -113,10 +115,14 @@ describe("Menu Item actions", () => {
       configurable: true,
     });
     fixture = makeTestFixture();
-    parent = await mountSpreadsheet(fixture);
+    ({ app, parent } = await mountSpreadsheet(fixture));
     model = parent.model;
     env = parent.getSpreadsheetEnv();
     dispatch = spyDispatch(parent);
+  });
+
+  afterEach(() => {
+    app.destroy();
   });
 
   test("Edit -> undo", () => {

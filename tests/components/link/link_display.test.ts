@@ -1,3 +1,4 @@
+import { App } from "@odoo/owl";
 import { Model } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
 import { clearCell, createSheet, setCellContent } from "../../test_helpers/commands_helpers";
@@ -8,16 +9,17 @@ import { makeTestFixture, mountSpreadsheet, nextTick, Parent } from "../../test_
 describe("link display component", () => {
   let fixture: HTMLElement;
   let model: Model;
+  let app: App;
   let parent: Parent;
 
   beforeEach(async () => {
     fixture = makeTestFixture();
-    parent = await mountSpreadsheet(fixture);
+    ({ app, parent } = await mountSpreadsheet(fixture));
     model = parent.model;
   });
 
   afterEach(() => {
-    parent.__owl__.destroy();
+    app.destroy();
     fixture.remove();
   });
 

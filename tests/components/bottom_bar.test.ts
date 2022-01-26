@@ -1,4 +1,4 @@
-import { Component, mount, onMounted, onWillUnmount, useSubEnv, xml } from "@odoo/owl";
+import { App, Component, onMounted, onWillUnmount, useSubEnv, xml } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
@@ -38,8 +38,10 @@ class Parent extends Component<any, any> {
   }
 }
 
-async function mountTopBar(model: Model = new Model()): Promise<Parent> {
-  return await mount(Parent, fixture, { props: { model } });
+async function mountTopBar(model: Model = new Model()): Promise<{ parent: Parent; app: App }> {
+  const app = new App(Parent, { props: { model } });
+  const parent = await app.mount(fixture);
+  return { app, parent };
 }
 
 beforeEach(() => {
@@ -52,15 +54,15 @@ afterEach(() => {
 
 describe("BottomBar component", () => {
   test("simple rendering", async () => {
-    const parent = await mountTopBar();
+    const { app } = await mountTopBar();
 
     expect(fixture.querySelector(".o-spreadsheet-bottom-bar")).toMatchSnapshot();
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Can create a new sheet", async () => {
     const model = new Model();
-    const parent = await mountTopBar(model);
+    const { app } = await mountTopBar(model);
 
     mockUuidV4To(model, 42);
     triggerMouseEvent(".o-add-sheet", "click");
@@ -73,11 +75,11 @@ describe("BottomBar component", () => {
       sheetIdTo: "42",
       sheetIdFrom: activeSheetId,
     });
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Can activate a sheet", async () => {
-    const parent = await mountTopBar();
+    const { app, parent } = await mountTopBar();
 
     triggerMouseEvent(".o-sheet", "click");
     const sheetIdFrom = parent.props.model.getters.getActiveSheetId();
@@ -86,31 +88,31 @@ describe("BottomBar component", () => {
       sheetIdFrom,
       sheetIdTo,
     });
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Can open context menu of a sheet", async () => {
-    const parent = await mountTopBar();
+    const { app } = await mountTopBar();
 
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Can open context menu of a sheet with the arrow", async () => {
-    const parent = await mountTopBar();
+    const { app } = await mountTopBar();
 
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     triggerMouseEvent(".o-sheet-icon", "click");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Click on the arrow when the context menu is open should close it", async () => {
-    const parent = await mountTopBar();
+    const { app } = await mountTopBar();
 
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     triggerMouseEvent(".o-sheet-icon", "click");
@@ -119,13 +121,13 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-sheet-icon", "click");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Can move right a sheet", async () => {
     const model = new Model();
     createSheet(model, { sheetId: "42" });
-    const parent = await mountTopBar(model);
+    const { app } = await mountTopBar(model);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
@@ -135,14 +137,14 @@ describe("BottomBar component", () => {
       sheetId,
       direction: "right",
     });
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Can move left a sheet", async () => {
     const model = new Model();
     createSheet(model, { sheetId: "42" });
     activateSheet(model, "42");
-    const parent = await mountTopBar(model);
+    const { app } = await mountTopBar(model);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
@@ -152,18 +154,18 @@ describe("BottomBar component", () => {
       sheetId,
       direction: "left",
     });
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Move right and left are not visible when it's not possible to move", async () => {
     const model = new Model();
-    const parent = await mountTopBar(model);
+    const { app } = await mountTopBar(model);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     expect(fixture.querySelector(".o-menu-item[data-name='move_left'")).toBeNull();
     expect(fixture.querySelector(".o-menu-item[data-name='move_right'")).toBeNull();
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Can rename a sheet", async () => {
@@ -192,13 +194,14 @@ describe("BottomBar component", () => {
       }
     }
 
-    const parent = await mount(Parent, fixture, { props: { model } });
+    const app = new App(Parent, { props: { model } });
+    await app.mount(fixture);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     triggerMouseEvent(".o-menu-item[data-name='rename'", "click");
     expect(model.getters.getActiveSheet().name).toEqual("new_name");
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Can rename a sheet with dblclick", async () => {
@@ -228,17 +231,18 @@ describe("BottomBar component", () => {
       }
     }
 
-    const parent = await mount(Parent, fixture, { props: { model } });
+    const app = new App(Parent, { props: { model } });
+    await app.mount(fixture);
 
     triggerMouseEvent(".o-sheet-name", "dblclick");
     await nextTick();
     expect(model.getters.getActiveSheet().name).toEqual("new_name");
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Can duplicate a sheet", async () => {
     const model = new Model();
-    const parent = await mountTopBar(model);
+    const { app } = await mountTopBar(model);
     mockUuidV4To(model, 123);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
@@ -249,7 +253,7 @@ describe("BottomBar component", () => {
       sheetId: sheet,
       sheetIdTo: "123",
     });
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Can delete a sheet", async () => {
@@ -280,41 +284,42 @@ describe("BottomBar component", () => {
       }
     }
 
-    const parent = await mount(Parent, fixture, { props: { model } });
+    const app = new App(Parent, { props: { model } });
+    await app.mount(fixture);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     const sheetId = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='delete'", "click");
     expect(model.dispatch).toHaveBeenCalledWith("DELETE_SHEET", { sheetId });
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Delete sheet is not visible when there is only one sheet", async () => {
     const model = new Model();
-    const parent = await mountTopBar(model);
+    const { app } = await mountTopBar(model);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     expect(fixture.querySelector(".o-menu-item[data-name='delete'")).toBeNull();
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Can open the list of sheets", async () => {
-    const parent = await mountTopBar();
+    const { app } = await mountTopBar();
 
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     triggerMouseEvent(".o-list-sheets", "click");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Can open the list of sheets", async () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
-    const parent = await mountTopBar(model);
+    const { app } = await mountTopBar(model);
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     triggerMouseEvent(".o-list-sheets", "click");
     await nextTick();
@@ -323,14 +328,14 @@ describe("BottomBar component", () => {
     expect(sheets.length).toBe(2);
     expect((sheets[0] as HTMLElement).dataset.name).toBe(sheet);
     expect((sheets[1] as HTMLElement).dataset.name).toBe("42");
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Can activate a sheet from the list of sheets", async () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
-    const parent = await mountTopBar(model);
+    const { app } = await mountTopBar(model);
     triggerMouseEvent(".o-list-sheets", "click");
     await nextTick();
     triggerMouseEvent(".o-menu-item[data-name='42'", "click");
@@ -338,13 +343,13 @@ describe("BottomBar component", () => {
       sheetIdFrom: sheet,
       sheetIdTo: "42",
     });
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Display the statistic button only if no-empty cells are selected", async () => {
     const model = new Model();
     const nonMockedDispatch = model.dispatch;
-    const parent = await mountTopBar(model);
+    const { app } = await mountTopBar(model);
     model.dispatch = nonMockedDispatch;
     setCellContent(model, "A2", "24");
     setCellContent(model, "A3", "=A1");
@@ -360,7 +365,7 @@ describe("BottomBar component", () => {
     selectCell(model, "A3");
     await nextTick();
     expect(fixture.querySelector(".o-selection-statistic")).toBeFalsy();
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Display empty information if the statistic function doesn't handle the types of the selected cells", async () => {
@@ -378,7 +383,7 @@ describe("BottomBar component", () => {
   test("Can open the list of statistics", async () => {
     const model = new Model();
     const nonMockedDispatch = model.dispatch;
-    const parent = await mountTopBar(model);
+    const { app } = await mountTopBar(model);
     model.dispatch = nonMockedDispatch;
     setCellContent(model, "A2", "24");
 
@@ -387,13 +392,13 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-selection-statistic", "click");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toMatchSnapshot();
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Can activate a statistic from the list of statistics", async () => {
     const model = new Model();
     const nonMockedDispatch = model.dispatch;
-    const parent = await mountTopBar(model);
+    const { app } = await mountTopBar(model);
     model.dispatch = nonMockedDispatch;
     setCellContent(model, "A2", "24");
 
@@ -406,6 +411,6 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-menu-item[data-name='Count Numbers'", "click");
     await nextTick();
     expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Count Numbers: 1");
-    parent.__owl__.destroy();
+    app.destroy();
   });
 });

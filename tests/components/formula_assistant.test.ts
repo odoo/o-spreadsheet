@@ -1,3 +1,4 @@
+import { App } from "@odoo/owl";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import {
@@ -16,10 +17,11 @@ let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
 let parent: Parent;
+let app: App;
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  parent = await mountSpreadsheet(fixture);
+  ({ app, parent } = await mountSpreadsheet(fixture));
   model = parent.model;
 
   // start composition
@@ -29,7 +31,7 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
-  parent.__owl__.destroy();
+  app.destroy();
   fixture.remove();
 });
 

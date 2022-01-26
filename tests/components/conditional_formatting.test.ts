@@ -1,3 +1,4 @@
+import { App } from "@odoo/owl";
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers/zones";
 import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
@@ -23,10 +24,11 @@ let model: Model;
 describe("UI of conditional formats", () => {
   let fixture: HTMLElement;
   let parent: Parent;
+  let app: App;
 
   beforeEach(async () => {
     fixture = makeTestFixture();
-    parent = await mountSpreadsheet(fixture);
+    ({ app, parent } = await mountSpreadsheet(fixture));
     model = parent.model;
     parent.getSpreadsheetEnv().openSidePanel("ConditionalFormatting");
     await nextTick();
@@ -34,7 +36,7 @@ describe("UI of conditional formats", () => {
 
   afterEach(() => {
     fixture.remove();
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   function errorMessages(): string[] {

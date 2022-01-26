@@ -1,4 +1,4 @@
-import { App, Component, mount, xml } from "@odoo/owl";
+import { App, Component, xml } from "@odoo/owl";
 import format from "xml-formatter";
 import { Grid } from "../../src/components/grid";
 import { Spreadsheet } from "../../src/components/spreadsheet";
@@ -131,8 +131,10 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
 export async function mountSpreadsheet(
   fixture: HTMLElement,
   props: Spreadsheet["props"] = {}
-): Promise<Parent> {
-  return await mount(Parent, fixture, { props, dev: true });
+): Promise<{ app: App; parent: Parent }> {
+  const app = new App(Parent, { props, dev: true });
+  const parent = await app.mount(fixture);
+  return { app, parent };
 }
 
 type GridDescr = { [xc: string]: string | undefined };
