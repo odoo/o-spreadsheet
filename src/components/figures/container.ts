@@ -25,7 +25,8 @@ const TEMPLATE = xml/* xml */ `<div>
                  t-att-class="{active: info.isSelected, 'o-dragging': info.id === dnd.figureId}"
                  t-att-style="getDims(info)"
                  tabindex="0"
-                 t-on-keydown.stop="onKeyDown(info.figure)">
+                 t-on-keydown.stop="onKeyDown(info.figure)"
+                 t-on-keyup.stop="">
                 <t t-component="figureRegistry.get(info.figure.tag).Component"
                    t-key="info.id"
                    sidePanelIsOpen="props.sidePanelIsOpen"
