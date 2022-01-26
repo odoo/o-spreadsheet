@@ -1,3 +1,4 @@
+import { App } from "@odoo/owl";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
@@ -19,6 +20,7 @@ let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
 let parent: Parent;
+let app: App;
 let cehMock: ContentEditableHelper;
 
 async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
@@ -31,7 +33,7 @@ async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  parent = await mountSpreadsheet(fixture);
+  ({ app, parent } = await mountSpreadsheet(fixture));
   model = parent.model;
 
   // start composition
@@ -42,7 +44,7 @@ beforeEach(async () => {
 
 afterEach(() => {
   fixture.remove();
-  parent.__owl__.destroy();
+  app.destroy();
 });
 
 describe("Functions autocomplete", () => {

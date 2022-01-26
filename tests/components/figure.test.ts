@@ -1,4 +1,4 @@
-import { Component, xml } from "@odoo/owl";
+import { App, Component, xml } from "@odoo/owl";
 import { corePluginRegistry } from "../../src/plugins";
 import { CorePlugin } from "../../src/plugins/core_plugin";
 import { figureRegistry } from "../../src/registries/figure_registry";
@@ -14,6 +14,7 @@ jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation((
 let fixture: HTMLElement;
 let model;
 let parent: Parent;
+let app: App;
 
 //Test Plugin
 interface CreateTextFigure {
@@ -73,12 +74,12 @@ figureRegistry.add("text", { Component: TextFigure });
 describe("figures", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();
-    parent = await mountSpreadsheet(fixture);
+    ({ app, parent } = await mountSpreadsheet(fixture));
     model = parent.model;
   });
 
   afterEach(() => {
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("can create a figure with some data", () => {

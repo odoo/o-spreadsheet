@@ -1,3 +1,4 @@
+import { App } from "@odoo/owl";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
@@ -17,17 +18,19 @@ const OUTSIDE_CM = { x: 50, y: 50 };
 let fixture: HTMLElement;
 let model: Model;
 let parent: Parent;
+let app: App;
 
 jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  parent = await mountSpreadsheet(fixture);
+  ({ app, parent } = await mountSpreadsheet(fixture));
   model = parent.model;
 });
 
 afterEach(() => {
+  app.destroy();
   fixture.remove();
 });
 

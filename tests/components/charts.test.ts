@@ -1,3 +1,4 @@
+import { App } from "@odoo/owl";
 import { ChartConfiguration } from "chart.js";
 import { Model } from "../../src";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../src/constants";
@@ -57,6 +58,7 @@ let mockChartData = mockChart();
 let chartId: string;
 
 let parent: Parent;
+let app: App;
 describe("figures", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();
@@ -87,7 +89,7 @@ describe("figures", () => {
         },
       ],
     };
-    parent = await mountSpreadsheet(fixture, { data });
+    ({ app, parent } = await mountSpreadsheet(fixture, { data }));
     model = parent.model;
     await nextTick();
     createChart(
@@ -102,7 +104,7 @@ describe("figures", () => {
     await nextTick();
   });
   afterEach(() => {
-    parent.__owl__.destroy();
+    app.destroy();
     fixture.remove();
   });
   test("can export a chart", () => {
@@ -506,12 +508,13 @@ describe("charts with multiple sheets", () => {
         },
       ],
     };
-    parent = await mountSpreadsheet(fixture, { data });
+    ({ app, parent } = await mountSpreadsheet(fixture, { data }));
     model = parent.model;
     await nextTick();
   });
   afterEach(() => {
     fixture.remove();
+    app.destroy();
   });
   test("delete sheet containing chart data does not crash", async () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");

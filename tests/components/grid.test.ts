@@ -1,3 +1,4 @@
+import { App } from "@odoo/owl";
 import { TransportService } from "../../src";
 import { Grid } from "../../src/components/grid";
 import { HEADER_WIDTH, MESSAGE_VERSION, SCROLLBAR_WIDTH } from "../../src/constants";
@@ -41,6 +42,7 @@ function getHorizontalScroll(): number {
 let fixture: HTMLElement;
 let model: Model;
 let parent: Parent;
+let app: App;
 
 beforeEach(async () => {
   jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
@@ -56,12 +58,12 @@ afterEach(() => {
 describe("Grid component", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();
-    parent = await mountSpreadsheet(fixture);
+    ({ app, parent } = await mountSpreadsheet(fixture));
     model = parent.model;
   });
 
   afterEach(() => {
-    parent.__owl__.destroy();
+    app.destroy();
     fixture.remove();
   });
 
@@ -372,11 +374,11 @@ describe("Grid component", () => {
 
     test("can save the sheet with CTRL+S", async () => {
       let saveContentCalled = false;
-      parent = await mountSpreadsheet(fixture, {
+      ({ app, parent } = await mountSpreadsheet(fixture, {
         onContentSaved: () => {
           saveContentCalled = true;
         },
-      });
+      }));
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "S", ctrlKey: true, bubbles: true })
       );
@@ -617,8 +619,13 @@ describe("Multi User selection", () => {
   beforeEach(async () => {
     transportService = new MockTransportService();
     fixture = makeTestFixture();
-    parent = await mountSpreadsheet(fixture, { transportService });
+    ({ app, parent } = await mountSpreadsheet(fixture, { transportService }));
     model = parent.model;
+  });
+
+  afterEach(() => {
+    app.destroy();
+    fixture.remove();
   });
 
   test("Do not render multi user selection with invalid sheet", async () => {
@@ -629,7 +636,6 @@ describe("Multi User selection", () => {
     });
     await nextTick();
     expect(document.querySelectorAll(".o-client-tag")).toHaveLength(0);
-    parent.__owl__.destroy();
   });
 
   test("Do not render multi user selection with invalid col", async () => {
@@ -645,7 +651,6 @@ describe("Multi User selection", () => {
     });
     await nextTick();
     expect(document.querySelectorAll(".o-client-tag")).toHaveLength(0);
-    parent.__owl__.destroy();
   });
 
   test("Do not render multi user selection with invalid row", async () => {
@@ -661,20 +666,19 @@ describe("Multi User selection", () => {
     });
     await nextTick();
     expect(document.querySelectorAll(".o-client-tag")).toHaveLength(0);
-    parent.__owl__.destroy();
   });
 });
 
 describe("error tooltip", () => {
   beforeEach(async () => {
     jest.useFakeTimers();
-    parent = await mountSpreadsheet(fixture);
+    ({ app, parent } = await mountSpreadsheet(fixture));
     model = parent.model;
   });
 
   afterEach(() => {
     jest.useRealTimers();
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("can display error on A1", async () => {
@@ -738,11 +742,11 @@ describe("error tooltip", () => {
 describe("Events on Grid update viewport correctly", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();
-    parent = await mountSpreadsheet(fixture);
+    ({ app, parent } = await mountSpreadsheet(fixture));
     model = parent.model;
   });
   afterEach(() => {
-    parent.__owl__.destroy();
+    app.destroy();
     fixture.remove();
   });
   test("Vertical scroll", async () => {
@@ -938,7 +942,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("resize event handler is removed", () => {
-    parent.__owl__.destroy();
+    app.destroy();
     window.dispatchEvent(new Event("resize"));
   });
 });

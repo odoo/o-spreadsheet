@@ -1,3 +1,4 @@
+import { App } from "@odoo/owl";
 import {
   MatchingParenColor,
   NumberColor,
@@ -35,6 +36,7 @@ let composerEl: Element;
 let canvasEl: Element;
 let fixture: HTMLElement;
 let parent: Parent;
+let app: App;
 let cehMock: ContentEditableHelper;
 
 function getHighlights(model: Model): any[] {
@@ -72,13 +74,13 @@ async function keyup(key: string, options: any = {}) {
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  parent = await mountSpreadsheet(fixture);
+  ({ app, parent } = await mountSpreadsheet(fixture));
   model = parent.model;
   canvasEl = document.querySelector(".o-grid")!;
 });
 
 afterEach(() => {
-  parent.__owl__.destroy();
+  app.destroy();
   fixture.remove();
 });
 

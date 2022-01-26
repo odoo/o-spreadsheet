@@ -1,3 +1,4 @@
+import { App } from "@odoo/owl";
 import { Model } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
 import { LinkCell } from "../../../src/types";
@@ -14,6 +15,7 @@ describe("link editor component", () => {
   let fixture: HTMLElement;
   let model: Model;
   let grid: Parent;
+  let app: App;
 
   async function openLinkEditor(model: Model, xc: string) {
     await rightClickCell(model, xc);
@@ -31,12 +33,12 @@ describe("link editor component", () => {
 
   beforeEach(async () => {
     fixture = makeTestFixture();
-    grid = await mountSpreadsheet(fixture);
+    ({ app, parent: grid } = await mountSpreadsheet(fixture));
     model = grid.model;
   });
 
   afterEach(() => {
-    grid.__owl__.destroy();
+    app.destroy();
     fixture.remove();
   });
 

@@ -1,4 +1,4 @@
-import { mount, useSubEnv } from "@odoo/owl";
+import { App, useSubEnv } from "@odoo/owl";
 import { Spreadsheet } from "../../src/components";
 import { DEFAULT_REVISION_ID } from "../../src/constants";
 import { args, functionRegistry } from "../../src/functions";
@@ -26,6 +26,7 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 
 let fixture: HTMLElement;
 let parent: Parent;
+let app: App;
 const clipboard = new MockClipboard();
 
 Object.defineProperty(navigator, "clipboard", {
@@ -40,11 +41,11 @@ jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation((
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  parent = await mountSpreadsheet(fixture, { data: { sheets: [{ id: 1 }] } });
+  ({ app, parent } = await mountSpreadsheet(fixture, { data: { sheets: [{ id: 1 }] } }));
 });
 
 afterEach(() => {
-  parent.__owl__.destroy();
+  app.destroy();
   fixture.remove();
 });
 
@@ -221,9 +222,9 @@ describe("Spreadsheet", () => {
 
   test("Can instantiate a spreadsheet with a given client id-name", async () => {
     const client = { id: "alice", name: "Alice" };
-    const parent = await mountSpreadsheet(fixture, { client });
+    ({ app, parent } = await mountSpreadsheet(fixture, { client }));
     expect(parent.model.getters.getClient()).toEqual(client);
-    parent.__owl__.destroy();
+    app.destroy();
   });
 });
 
@@ -347,7 +348,7 @@ describe("Composer interactions", () => {
   });
 
   test("The activate sheet is the sheet in first position, after replaying commands", async () => {
-    const parent = await mountSpreadsheet(fixture, {
+    const { parent, app } = await mountSpreadsheet(fixture, {
       data: { sheets: [{ id: "1" }, { id: "2" }] },
       stateUpdateMessages: [
         {
@@ -361,12 +362,12 @@ describe("Composer interactions", () => {
       ],
     });
     expect(parent.model.getters.getActiveSheetId()).toBe("2");
-    parent.__owl__.destroy();
+    app.destroy();
   });
 
   test("Notify ui correctly with type notification correctly use notifyUser in the env", async () => {
     const notifyUser = jest.fn();
-    class App extends Parent {
+    class SuperParent extends Parent {
       setup() {
         useSubEnv({
           notifyUser,
@@ -374,10 +375,11 @@ describe("Composer interactions", () => {
       }
     }
     const fixture = makeTestFixture();
-    const parent = await mount(App, fixture);
+    const app = new App(SuperParent);
+    const parent = await app.mount(fixture);
     parent.model["config"].notifyUI({ type: "NOTIFICATION", text: "hello" });
     expect(notifyUser).toHaveBeenCalledWith("hello");
-    parent.__owl__.destroy();
+    app.destroy();
   });
 });
 
