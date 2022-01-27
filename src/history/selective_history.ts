@@ -68,9 +68,7 @@ export class SelectiveHistory<T = unknown> {
   insert(operationId: UID, data: T, insertAfter: UID) {
     const operation = new Operation<T>(operationId, data);
     this.revertTo(insertAfter);
-    // insert to branch where it first was executed!
-    const branch = this.tree.findOriginBranch(this.HEAD_BRANCH, insertAfter);
-    this.tree.insertOperationAfter(branch, operation, insertAfter);
+    this.tree.insertOperationAfter(this.HEAD_BRANCH, operation, insertAfter);
     this.fastForward();
   }
 
