@@ -635,4 +635,25 @@ describe("Collaborative local history", () => {
     );
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
+
+  test("Concurrent undo with actions from at least two users", () => {
+    setCellContent(bob, "A1", "Hello");
+    network.concurrent(() => {
+      undo(bob);
+      addColumns(alice, "before", "A", 1);
+      setCellContent(charlie, "B2", "Alice");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("Concurrent redo with actions from at least two users", () => {
+    setCellContent(bob, "A1", "Hello");
+    undo(bob);
+    network.concurrent(() => {
+      redo(bob);
+      addColumns(alice, "before", "A", 1);
+      setCellContent(charlie, "B2", "Alice");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
 });
