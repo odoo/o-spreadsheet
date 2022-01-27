@@ -429,7 +429,7 @@ describe("Undo/Redo manager", () => {
       editor.add("3", "C", 2);
 
       editor.undo("2");
-      editor.execAfter("3", ["4", "D", 3]);
+      editor.execAfter("3", ["4", "D", 2]);
       expect(editor.text).toBe("ACD");
       editor.undo("1");
       expect(editor.text).toBe("CD");
@@ -441,7 +441,7 @@ describe("Undo/Redo manager", () => {
       editor.add("2", "B", 1);
       editor.add("3", "C", 2);
       editor.undo("2");
-      editor.execAfter("3", ["4", "D", 3]);
+      editor.execAfter("3", ["4", "D", 2]);
       expect(editor.text).toBe("ACD");
       editor.redo("2");
       expect(editor.text).toBe("ABCD");

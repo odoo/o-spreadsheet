@@ -175,23 +175,6 @@ export class Tree<T = unknown> {
   }
 
   /**
-   * Find the branch in which the operation was first inserted.
-   */
-  findOriginBranch(branch: Branch<T>, operationId: UID): Branch<T> {
-    let currentBranch: Branch<T> | undefined = branch;
-    while (currentBranch) {
-      if (currentBranch.getOperation(operationId).isOriginal) {
-        return currentBranch;
-      }
-      currentBranch = this.previousBranch(currentBranch);
-    }
-    if (!currentBranch) {
-      throw new Error("Branch not found");
-    }
-    return currentBranch;
-  }
-
-  /**
    * Rebuild transformed operations of this branch based on the upper branch.
    *
    * Given the following structure:
@@ -290,7 +273,7 @@ export class Tree<T = unknown> {
   ): Operation<T> {
     const branchingOperation = branch.getOperation(branchingId);
     const branchingTransformation = this.buildTransformation.without(branchingOperation.data);
-    return operation.transformed(branchingTransformation, false);
+    return operation.transformed(branchingTransformation);
   }
 
   /**
@@ -319,7 +302,7 @@ export class Tree<T = unknown> {
     const { previousBranch, branchingOperation } = this.findPreviousBranchingOperation(branch);
     if (!previousBranch || !branchingOperation) return;
     const transformation = this.buildTransformation.with(branchingOperation.data);
-    const operationToInsert = newOperation.transformed(transformation, false);
+    const operationToInsert = newOperation.transformed(transformation);
     previousBranch.insert(operationToInsert, insertAfter);
     this.insertPrevious(previousBranch, operationToInsert, insertAfter);
   }
