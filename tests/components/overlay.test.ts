@@ -146,7 +146,6 @@ async function dblClickRow(index: number) {
 }
 
 describe("Resizer component", () => {
-  let parent: Parent;
   beforeEach(async () => {
     fixture = makeTestFixture();
     const data = {
@@ -157,8 +156,8 @@ describe("Resizer component", () => {
         },
       ],
     };
-    ({ app, parent } = await mountSpreadsheet(fixture, { data }));
-    model = parent.model;
+    model = new Model(data);
+    ({ app } = await mountSpreadsheet(fixture, { model }));
   });
 
   afterEach(() => {
@@ -845,7 +844,6 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
 });
 
 describe("move selected element(s)", () => {
-  let parent: Parent;
   beforeEach(async () => {
     fixture = makeTestFixture();
     const data = {
@@ -857,8 +855,8 @@ describe("move selected element(s)", () => {
         },
       ],
     };
-    ({ app, parent } = await mountSpreadsheet(fixture, { data }));
-    model = parent.model;
+    model = new Model(data);
+    ({ app } = await mountSpreadsheet(fixture, { model }));
   });
 
   afterEach(() => {

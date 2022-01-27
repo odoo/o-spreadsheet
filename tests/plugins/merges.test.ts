@@ -295,9 +295,11 @@ describe("merges", () => {
   test("merging destructively a selection ask for confirmation", async () => {
     const askConfirmation = jest.fn();
     class Parent extends Component<any> {
-      static template = xml/* xml */ `<Spreadsheet/>`;
+      static template = xml/* xml */ `<Spreadsheet model="_model"/>`;
       static components = { Spreadsheet };
+      private _model!: Model;
       setup() {
+        this._model = new Model();
         useSubEnv({
           askConfirmation,
         });
@@ -308,7 +310,7 @@ describe("merges", () => {
       }
 
       get model(): Model {
-        return this.spreadsheet.model;
+        return this._model;
       }
     }
     const fixture = makeTestFixture();

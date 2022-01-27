@@ -1,9 +1,19 @@
 import { demoData, makeLargeDataset } from "./data.js";
 import { WebsocketTransport } from "./transport.js";
 
-const { xml, Component, useState, whenReady, useSubEnv, onWillStart, onMounted, mount } = owl;
+const {
+  xml,
+  Component,
+  whenReady,
+  useSubEnv,
+  onWillStart,
+  onMounted,
+  mount,
+  onWillUnmount,
+  useExternalListener,
+} = owl;
 
-const { Spreadsheet } = o_spreadsheet;
+const { Spreadsheet, Model } = o_spreadsheet;
 const { topbarMenuRegistry } = o_spreadsheet.registries;
 
 const uuidGenerator = new o_spreadsheet.helpers.UuidGenerator();
@@ -36,11 +46,7 @@ let start;
 
 class Demo extends Component {
   setup() {
-    this.key = 1;
-    this.data = demoData;
-    // this.data = makeLargeDataset(20, 10_000, ["numbers"]);
     this.stateUpdateMessages = [];
-    this.state = useState({ isReadonly: false });
     this.client = {
       id: uuidGenerator.uuidv4(),
       name: "Local",
@@ -50,7 +56,7 @@ class Demo extends Component {
       name: "Open in read-only",
       sequence: 11,
       action: async (env) => {
-        this.state.isReadonly = true;
+        this.model.updateReadOnly(true);
       },
     });
 
@@ -59,7 +65,7 @@ class Demo extends Component {
       sequence: 12,
       isReadonlyAllowed: true,
       action: async (env) => {
-        this.state.isReadonly = false;
+        this.model.updateReadOnly(false);
       },
     });
 
@@ -68,10 +74,12 @@ class Demo extends Component {
       askConfirmation: this.askConfirmation,
       editText: this.editText,
     });
+    useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
 
     onWillStart(() => this.initiateConnection());
 
     onMounted(() => console.log("Mounted: ", Date.now() - start));
+    onWillUnmount(this.leaveCollaborativeSession.bind(this));
   }
 
   async initiateConnection() {
@@ -90,6 +98,19 @@ class Demo extends Component {
       this.transportService = undefined;
       this.stateUpdateMessages = [];
     }
+    this.model = new Model(
+      demoData,
+      // makeLargeDataset(26, 10_000, ["numbers"]);
+      {
+        evalContext: { env: this.env },
+        transportService: this.transportService,
+        client: this.client,
+        isReadonly: false,
+      },
+      this.stateUpdateMessages
+    );
+    this.model.joinSession(this.client);
+    this.activateFirstSheet();
   }
 
   askConfirmation(content, confirm, cancel) {
@@ -98,6 +119,18 @@ class Demo extends Component {
     } else {
       cancel();
     }
+  }
+
+  activateFirstSheet() {
+    const sheetId = this.model.getters.getActiveSheetId();
+    const [firstSheet] = this.model.getters.getSheets();
+    if (firstSheet.id !== sheetId) {
+      this.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: firstSheet.id });
+    }
+  }
+
+  leaveCollaborativeSession() {
+    this.model.leaveSession();
   }
 
   notifyUser(content) {
@@ -123,12 +156,7 @@ class Demo extends Component {
 
 Demo.template = xml/* xml */ `
   <div>
-    <Spreadsheet data="data"
-      t-key="key"
-      stateUpdateMessages="stateUpdateMessages"
-      transportService="transportService"
-      isReadonly="state.isReadonly"
-      client="client"/>
+    <Spreadsheet model="model"/>
   </div>`;
 Demo.components = { Spreadsheet };
 

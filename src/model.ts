@@ -461,6 +461,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.dispatch("STOP_EDITION", { cancel: true });
     }
     this.config.isReadonly = isReadonly || false;
+    this.trigger("update");
   }
 
   /**
