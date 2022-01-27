@@ -182,7 +182,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     // Load the initial revisions
     this.session.loadInitialMessages(stateUpdateMessages);
-    this.joinSession(config.client);
+    this.joinSession();
 
     if (config.snapshotRequested) {
       this.session.snapshot(this.exportData());
@@ -193,8 +193,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return [this.range, ...this.corePlugins, ...this.uiPlugins, this.history];
   }
 
-  joinSession(client?: Client) {
-    this.session.join(client);
+  joinSession() {
+    this.session.join(this.config.client);
   }
 
   leaveSession() {
