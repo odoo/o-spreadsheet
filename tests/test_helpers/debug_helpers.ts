@@ -10,7 +10,6 @@ interface Data {
 interface Instruction {
   data: Data;
   id: UID;
-  isOriginal: boolean;
 }
 
 export function getDebugInfo(tree: Tree) {
@@ -33,7 +32,6 @@ export function getDebugInfo(tree: Tree) {
         // @ts-ignore
         data: instruction.data,
         id: instruction.id,
-        isOriginal: instruction.isOriginal,
       };
     }
     allStrings.push(stringArray.join(""));
@@ -59,7 +57,7 @@ export function getDebugInfo(tree: Tree) {
     const data = instruction.data._commands
       ? JSON.stringify(instruction.data._commands)
       : JSON.stringify(instruction.data);
-    allStrings.push(`${id}: ${data} : ${instruction.isOriginal ? "original" : "transformed"}`);
+    allStrings.push(`${id}: ${data}`);
   }
   return allStrings.join("\n");
 }
@@ -69,5 +67,5 @@ export function getDebugInfo(tree: Tree) {
  */
 export function printDebugModel(model: Model) {
   // @ts-ignore
-  console.log(getDebugInfo(model["session"]["revisions"]["HEAD_BRANCH"]));
+  console.log(getDebugInfo(model["session"]["revisions"]["tree"]));
 }
