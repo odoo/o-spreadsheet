@@ -622,4 +622,17 @@ describe("Collaborative local history", () => {
       commands: [{ ...command, col: 1 }],
     });
   });
+  test("dispatch command after concurrent action with another user", () => {
+    addColumns(bob, "before", "A", 1);
+    network.concurrent(() => {
+      undo(bob);
+      setCellContent(charlie, "D25", "D");
+    });
+    setCellContent(bob, "A13", "A");
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A13"),
+      "A"
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
 });

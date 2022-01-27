@@ -90,9 +90,7 @@ export class Branch<T> {
    * Transform all the operations in this branch with the given transformation
    */
   transform(transformation: Transformation<T>) {
-    this.operations = this.operations.map((operation) =>
-      operation.transformed(transformation, false)
-    );
+    this.operations = this.operations.map((operation) => operation.transformed(transformation));
   }
 
   /**
