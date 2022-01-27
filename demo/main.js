@@ -109,7 +109,7 @@ class Demo extends Component {
       },
       this.stateUpdateMessages
     );
-    this.model.joinSession(this.client);
+    this.model.joinSession();
     this.activateFirstSheet();
   }
 
