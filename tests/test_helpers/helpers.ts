@@ -30,10 +30,8 @@ console.info = () => {};
 
 export class Parent extends Component {
   static template = xml/* xml */ `
-    <Spreadsheet data="props.data"
-                 client="props.client"
-                 onContentSaved="props.onContentSaved"
-                 stateUpdateMessages="props.stateUpdateMessages" />`;
+    <Spreadsheet model="props.model"
+                 onContentSaved="props.onContentSaved" />`;
 
   static components = { Spreadsheet };
 
@@ -42,7 +40,7 @@ export class Parent extends Component {
   }
 
   get model(): Model {
-    return this.spreadsheet.model;
+    return this.props.model;
   }
 
   getSpreadsheetEnv(): SpreadsheetChildEnv {
@@ -130,7 +128,7 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
 // Requires to be called wit jest realTimers
 export async function mountSpreadsheet(
   fixture: HTMLElement,
-  props: Spreadsheet["props"] = {}
+  props: Spreadsheet["props"] = { model: new Model() }
 ): Promise<{ app: App; parent: Parent }> {
   const app = new App(Parent, { props, dev: true });
   const parent = await app.mount(fixture);

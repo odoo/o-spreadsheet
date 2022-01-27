@@ -1,6 +1,6 @@
 import { App, useSubEnv } from "@odoo/owl";
+import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
-import { DEFAULT_REVISION_ID } from "../../src/constants";
 import { args, functionRegistry } from "../../src/functions";
 import { DEBUG, toZone } from "../../src/helpers";
 import { SelectionMode } from "../../src/plugins/ui/selection";
@@ -41,7 +41,8 @@ jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation((
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  ({ app, parent } = await mountSpreadsheet(fixture, { data: { sheets: [{ id: 1 }] } }));
+  const model = new Model({ sheets: [{ id: 1 }] });
+  ({ app, parent } = await mountSpreadsheet(fixture, { model }));
 });
 
 afterEach(() => {
@@ -68,6 +69,7 @@ describe("Spreadsheet", () => {
 
   test("Can use the env in a function", () => {
     let env;
+    const model = new Model({ sheets: [{ id: 1 }] }, { evalContext: { env: {} } });
     functionRegistry.add("GETACTIVESHEET", {
       description: "Get the name of the current sheet",
       compute: function () {
@@ -77,7 +79,7 @@ describe("Spreadsheet", () => {
       args: args(``),
       returns: ["STRING"],
     });
-    setCellContent(parent.model, "A1", "=GETACTIVESHEET()");
+    setCellContent(model, "A1", "=GETACTIVESHEET()");
     expect(env).toBeTruthy();
   });
 
@@ -93,21 +95,24 @@ describe("Spreadsheet", () => {
       returns: ["STRING"],
     });
     await mountSpreadsheet(fixture, {
-      data: {
-        version: 2,
-        sheets: [
-          {
-            name: "Sheet1",
-            colNumber: 26,
-            rowNumber: 100,
-            cells: {
-              A1: { content: "=GETACTIVESHEET()" },
+      model: new Model(
+        {
+          version: 2,
+          sheets: [
+            {
+              name: "Sheet1",
+              colNumber: 26,
+              rowNumber: 100,
+              cells: {
+                A1: { content: "=GETACTIVESHEET()" },
+              },
+              conditionalFormats: [],
             },
-            conditionalFormats: [],
-          },
-        ],
-        activeSheet: "Sheet1",
-      },
+          ],
+          activeSheet: "Sheet1",
+        },
+        { evalContext: { env: {} } }
+      ),
     });
     expect(env).toBeTruthy();
   });
@@ -222,7 +227,7 @@ describe("Spreadsheet", () => {
 
   test("Can instantiate a spreadsheet with a given client id-name", async () => {
     const client = { id: "alice", name: "Alice" };
-    ({ app, parent } = await mountSpreadsheet(fixture, { client }));
+    ({ app, parent } = await mountSpreadsheet(fixture, { model: new Model({}, { client }) }));
     expect(parent.model.getters.getClient()).toEqual(client);
     app.destroy();
   });
@@ -347,24 +352,6 @@ describe("Composer interactions", () => {
     expect(sheets).toHaveLength(parent.model.getters.getVisibleSheets().length - 1);
   });
 
-  test("The activate sheet is the sheet in first position, after replaying commands", async () => {
-    const { parent, app } = await mountSpreadsheet(fixture, {
-      data: { sheets: [{ id: "1" }, { id: "2" }] },
-      stateUpdateMessages: [
-        {
-          type: "REMOTE_REVISION",
-          version: 1,
-          serverRevisionId: DEFAULT_REVISION_ID,
-          nextRevisionId: "NEXT",
-          clientId: "alice",
-          commands: [{ type: "MOVE_SHEET", sheetId: "1", direction: "right" }],
-        },
-      ],
-    });
-    expect(parent.model.getters.getActiveSheetId()).toBe("2");
-    app.destroy();
-  });
-
   test("Notify ui correctly with type notification correctly use notifyUser in the env", async () => {
     const notifyUser = jest.fn();
     class SuperParent extends Parent {
@@ -375,7 +362,7 @@ describe("Composer interactions", () => {
       }
     }
     const fixture = makeTestFixture();
-    const app = new App(SuperParent);
+    const app = new App(SuperParent, { props: { model: new Model() } });
     const parent = await app.mount(fixture);
     parent.model["config"].notifyUI({ type: "NOTIFICATION", text: "hello" });
     expect(notifyUser).toHaveBeenCalledWith("hello");

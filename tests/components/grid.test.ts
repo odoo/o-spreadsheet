@@ -375,6 +375,7 @@ describe("Grid component", () => {
     test("can save the sheet with CTRL+S", async () => {
       let saveContentCalled = false;
       ({ app, parent } = await mountSpreadsheet(fixture, {
+        model: new Model(),
         onContentSaved: () => {
           saveContentCalled = true;
         },
@@ -619,8 +620,8 @@ describe("Multi User selection", () => {
   beforeEach(async () => {
     transportService = new MockTransportService();
     fixture = makeTestFixture();
-    ({ app, parent } = await mountSpreadsheet(fixture, { transportService }));
-    model = parent.model;
+    model = new Model({}, { transportService });
+    ({ app, parent } = await mountSpreadsheet(fixture, { model }));
   });
 
   afterEach(() => {

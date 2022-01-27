@@ -3,7 +3,6 @@ import {
   onMounted,
   onWillDestroy,
   onWillUnmount,
-  onWillUpdateProps,
   useExternalListener,
   useState,
   useSubEnv,
@@ -19,8 +18,6 @@ import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { SelectionMode } from "../plugins/ui/selection";
 import { SpreadsheetEnv, WorkbookData } from "../types";
-import { Client } from "../types/collaborative/session";
-import { StateUpdateMessage, TransportService } from "../types/collaborative/transport_service";
 import { NotifyUIEvent } from "../types/ui";
 import { BottomBar } from "./bottom_bar";
 import { Grid } from "./grid";
@@ -93,13 +90,7 @@ css/* scss */ `
 `;
 
 interface Props {
-  client?: Client;
-  data?: any;
-  stateUpdateMessages?: StateUpdateMessage[];
-  transportService?: TransportService;
-  isReadonly?: boolean;
-  snapshotRequested?: boolean;
-  exposeModel?: (model: Model) => void;
+  model: Model;
   exposeSpreadsheet?: (spreadsheet: Spreadsheet) => void;
   onUnexpectedRevisionId?: () => void;
   onContentSaved?: (data: WorkbookData) => void;
@@ -138,23 +129,8 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
   private keyDownMapping!: { [key: string]: Function };
 
   setup() {
-    this.model = new Model(
-      this.props.data,
-      {
-        evalContext: { env: this.env },
-        transportService: this.props.transportService,
-        client: this.props.client,
-        isReadonly: this.props.isReadonly,
-        snapshotRequested: this.props.snapshotRequested,
-      },
-      this.props.stateUpdateMessages
-    );
-    if (this.props.exposeModel) {
-      this.props.exposeModel(this.model);
-    }
-    if (this.props.exposeSpreadsheet) {
-      this.props.exposeSpreadsheet(this);
-    }
+    this.props.exposeSpreadsheet?.(this);
+    this.model = this.props.model;
     this.sidePanel = useState({ isOpen: false, panelProps: {} });
     this.linkEditor = useState({ isOpen: false });
     this.composer = useState({
@@ -173,14 +149,12 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
       _t: Spreadsheet._t,
       clipboard: navigator.clipboard,
     });
-    this.activateFirstSheet();
 
     useExternalListener(window as any, "resize", this.render);
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
-    useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
-    onMounted(() => this.initiateModelEvents());
-    onWillUnmount(() => this.leaveCollaborativeSession());
-    onWillUpdateProps((nextProps: Props) => this.checkReadonly(nextProps));
+    useExternalListener(window, "beforeunload", this.unbindModelEvents.bind(this));
+    onMounted(() => this.bindModelEvents());
+    onWillUnmount(() => this.unbindModelEvents());
     onWillDestroy(() => this.model.destroy());
   }
 
@@ -196,13 +170,14 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
       : this.composer.gridFocusMode;
   }
 
-  initiateModelEvents() {
+  private bindModelEvents() {
     this.model.on("update", this, this.render);
     this.model.on("notify-ui", this, this.onNotifyUI);
-    this.model.on("unexpected-revision-id", this, () => this.props.onUnexpectedRevisionId?.());
-    if (this.props.client) {
-      this.model.joinSession(this.props.client);
-    }
+  }
+
+  private unbindModelEvents() {
+    this.model.off("update", this);
+    this.model.off("notify-ui", this);
   }
 
   private onNotifyUI(payload: NotifyUIEvent) {
@@ -210,25 +185,6 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
       case "NOTIFICATION":
         this.env.notifyUser(payload.text);
         break;
-    }
-  }
-
-  checkReadonly(nextProps: Props) {
-    if (this.props.isReadonly !== nextProps.isReadonly) {
-      this.model.updateReadOnly(nextProps.isReadonly);
-    }
-  }
-
-  private leaveCollaborativeSession() {
-    this.model.off("update", this);
-    this.model.leaveSession();
-  }
-
-  private activateFirstSheet() {
-    const sheetId = this.model.getters.getActiveSheetId();
-    const [firstSheet] = this.model.getters.getSheets();
-    if (firstSheet.id !== sheetId) {
-      this.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: firstSheet.id });
     }
   }
 
