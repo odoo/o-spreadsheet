@@ -221,7 +221,11 @@ export class Session extends EventBus<CollaborativeEvent> {
         break;
       case "REVISION_REDONE": {
         this.waitingAck = false;
-        this.revisions.redo(message.redoneRevisionId, message.nextRevisionId);
+        this.revisions.redo(
+          message.redoneRevisionId,
+          message.nextRevisionId,
+          message.serverRevisionId
+        );
         this.trigger("revision-redone", {
           revisionId: message.redoneRevisionId,
           commands: this.revisions.get(message.redoneRevisionId).commands,
@@ -230,7 +234,11 @@ export class Session extends EventBus<CollaborativeEvent> {
       }
       case "REVISION_UNDONE":
         this.waitingAck = false;
-        this.revisions.undo(message.undoneRevisionId, message.nextRevisionId);
+        this.revisions.undo(
+          message.undoneRevisionId,
+          message.nextRevisionId,
+          message.serverRevisionId
+        );
         this.trigger("revision-undone", {
           revisionId: message.undoneRevisionId,
           commands: this.revisions.get(message.undoneRevisionId).commands,
