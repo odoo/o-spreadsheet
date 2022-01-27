@@ -8,6 +8,7 @@ import {
   ConditionalFormatRule,
   SingleColorRules,
   SpreadsheetEnv,
+  UID,
   Zone,
 } from "../../../types";
 import { getTextDecoration } from "../../helpers/dom_helpers";
@@ -347,6 +348,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
   private cellIsOperators = cellIsOperators;
   private editor = useRef("editorRef");
   private getters = this.env.getters;
+  private activeSheetId: UID;
 
   private state: State = useState({
     mode: "list",
@@ -362,8 +364,8 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
 
   constructor(parent: any, props: Props) {
     super(parent, props);
-    const sheetId = this.getters.getActiveSheetId();
-    const rules = this.getters.getRulesSelection(sheetId, props.selection || []);
+    this.activeSheetId = this.getters.getActiveSheetId();
+    const rules = this.getters.getRulesSelection(this.activeSheetId, props.selection || []);
     if (rules.length === 1) {
       const cf = this.conditionalFormats.find((c) => c.id === rules[0]);
       if (cf) {
@@ -374,7 +376,11 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
 
   setup() {
     onWillUpdateProps((nextProps: Props) => {
-      if (nextProps.selection !== this.props.selection) {
+      const newActiveSheetId = this.getters.getActiveSheetId();
+      if (newActiveSheetId !== this.activeSheetId) {
+        this.activeSheetId = newActiveSheetId;
+        this.switchToList();
+      } else if (nextProps.selection !== this.props.selection) {
         const sheetId = this.getters.getActiveSheetId();
         const rules = this.getters.getRulesSelection(sheetId, nextProps.selection || []);
         if (rules.length === 1) {
