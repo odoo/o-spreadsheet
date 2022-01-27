@@ -110,13 +110,15 @@ class MiniEditor {
   }
 
   undo(commandId: UID, undoId: UID = this.uuidGenerator.uuidv4()) {
+    const last = [...this.revisionIds].pop()!;
     this.revisionIds.add(undoId);
-    this.history.undo(commandId, undoId);
+    this.history.undo(commandId, undoId, last);
   }
 
   redo(commandId: UID, redoId: UID = this.uuidGenerator.uuidv4()) {
+    const last = [...this.revisionIds].pop()!;
     this.revisionIds.add(redoId);
-    this.history.redo(commandId, redoId);
+    this.history.redo(commandId, redoId, last);
   }
 }
 
