@@ -98,6 +98,11 @@ export class SelectiveHistory<T = unknown> {
     this.insert(redoId, this.buildEmpty(redoId), insertAfter);
   }
 
+  drop(operationId: UID) {
+    this.revertBefore(operationId);
+    this.tree.drop(operationId);
+  }
+
   /**
    * Revert the state as it was *before* the given operation was executed.
    */

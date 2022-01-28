@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers";
-import { CoreCommand } from "../../src/types";
+import { CommandResult, CoreCommand } from "../../src/types";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
 import {
   activateSheet,
@@ -266,13 +266,8 @@ describe("Multi users synchronisation", () => {
     ]);
     undo(bob);
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "B3"), undefined);
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "C1"),
-      "hello"
-    );
-    undo(bob);
-    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "B3"), undefined);
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "C1"), undefined);
+    expect(undo(bob)).toBeCancelledBecause(CommandResult.EmptyUndoStack);
   });
 
   test("2-Merge a cell and update a cell concurrently, then remove the merge", () => {
