@@ -312,11 +312,27 @@ export class Session extends EventBus<CollaborativeEvent> {
     this.sendPendingMessage();
   }
 
+  /**
+   * Send the next pending message
+   */
   private sendPendingMessage() {
     let message = this.pendingMessages[0];
     if (!message) return;
     if (message.type === "REMOTE_REVISION") {
       const revision = this.revisions.get(message.nextRevisionId);
+      if (revision.commands.length === 0) {
+        /**
+         * The command is empty, we have to drop all the next local revisions
+         * to avoid issues with undo/redo
+         */
+        this.revisions.drop(revision.id);
+        const revisionIds = this.pendingMessages
+          .filter((message) => message.type === "REMOTE_REVISION")
+          .map((message) => message.nextRevisionId);
+        this.trigger("revisions-dropped", { revisionIds });
+        this.pendingMessages = [];
+        return;
+      }
       message = {
         ...message,
         clientId: revision.clientId,
