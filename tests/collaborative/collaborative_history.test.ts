@@ -656,4 +656,90 @@ describe("Collaborative local history", () => {
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
+
+  test("Concurrently undo a command on which another is based", () => {
+    /**
+     * This test is a bit tricky. Let's begin with the use case:
+     * 1) A command is created by Alice
+     * 2) Concurrently, Alice undo her command, and Bob do a command that is
+     * valid with the command of Alice, but not anymore without. (Ex: insert
+     * a cell in a sheet that was created by Alice. If the command of Alice
+     * is removed (aka undo-ed), the sheet does not exist anymore).
+     * 3) Alice redo her command.
+     *
+     * At this point, the command of Bob would be valid as the sheet is here.
+     * But, when Bob try to send his command, the command is empty (have been
+     * transformed with the inverse of CREATE_SHEET). So, if he sends his
+     * command, Alice will not be able to insert his command in all of her
+     * branches, because obviously it's not possible to retrieve the
+     * SET_CELL_CONTENT from an empty command.
+     *
+     * To solve this, the behavior is to drop a command (and all the following)
+     * is the command is *local* and is empty.
+     */
+    createSheet(alice, { sheetId: "sheet2" });
+    network.concurrent(() => {
+      undo(alice);
+      setCellContent(bob, "B2", "B2", "sheet2");
+    });
+    redo(alice);
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("All locals commands", () => {
+    createSheet(alice, { sheetId: "sheet2" });
+    network.concurrent(() => {
+      undo(alice);
+      setCellContent(bob, "B2", "B2", "sheet2");
+      setCellContent(bob, "A1", "Hello");
+    });
+    redo(alice);
+    /**
+     * // @implementation-limitation
+     * The UPDATE_CELL command triggered by Bob to insert "Hello" in B2 is done
+     * on the sheet that Alice is currently undoing the creation. So, this command
+     * should be drop.
+     * As the command is drop, the following command (UPDATE_CELL of A1) is also
+     * drop.
+     */
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "");
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("redo dropped command", () => {
+    setCellContent(charlie, "A1", "hi");
+    network.concurrent(() => {
+      deleteRows(bob, [6, 5, 4, 3, 2]);
+      setCellContent(charlie, "C5", "hi");
+      undo(charlie);
+    });
+    const result = redo(charlie);
+    expect(result).not.toBeCancelledBecause(CommandResult.WaitingSessionConfirmation);
+    expect(result).toBeCancelledBecause(CommandResult.EmptyRedoStack);
+    expect(all).toHaveSynchronizedExportedData();
+  });
+
+  test("can undo/redo command previous to dropped command", () => {
+    setCellContent(charlie, "A1", "hello");
+    network.concurrent(() => {
+      deleteRows(bob, [6, 5, 4, 3, 2]);
+      setCellContent(charlie, "C5", "hi");
+    });
+    undo(charlie);
+    expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
+    redo(charlie);
+    expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
+    expect(all).toHaveSynchronizedExportedData();
+  });
+
+  test("cannot redo command previous to dropped command", () => {
+    setCellContent(charlie, "A1", "hello");
+    undo(charlie);
+    network.concurrent(() => {
+      deleteRows(bob, [6, 5, 4, 3, 2]);
+      setCellContent(charlie, "C5", "hi");
+    });
+    expect(redo(charlie)).toBeCancelledBecause(CommandResult.EmptyRedoStack);
+    expect(all).toHaveSynchronizedExportedData();
+  });
 });
