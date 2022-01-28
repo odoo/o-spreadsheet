@@ -94,6 +94,14 @@ export class Branch<T> {
   }
 
   /**
+   * Cut the branch before the operation, meaning the operation
+   * and all following operations are dropped.
+   */
+  cutBefore(operationId: UID) {
+    this.operations = this.locateOperation(operationId).before;
+  }
+
+  /**
    * Find an operation in this branch based on its id.
    * This returns the operation itself, operations which comes before it
    * and operation which comes after it.

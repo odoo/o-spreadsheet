@@ -163,6 +163,18 @@ export class Tree<T = unknown> {
   }
 
   /**
+   * Drop the operation and all following operations in every
+   * branch
+   */
+  drop(operationId: UID) {
+    for (const branch of this.branches) {
+      if (branch.contains(operationId)) {
+        branch.cutBefore(operationId);
+      }
+    }
+  }
+
+  /**
    * Find the operation in the execution path.
    */
   findOperation(branch: Branch<T>, operationId: UID): OperationSequenceNode<T> {
