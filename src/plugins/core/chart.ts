@@ -30,11 +30,13 @@ import { CorePlugin } from "../core_plugin";
 
 interface ChartState {
   readonly chartFigures: Record<UID, ChartDefinition | undefined>;
+  readonly nextId: number;
 }
 
 export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   static getters = ["getChartDefinition", "getChartDefinitionUI", "getChartsIdBySheet"] as const;
   readonly chartFigures: Record<UID, ChartDefinition> = {};
+  readonly nextId = 1;
 
   adaptRanges(applyChange: ApplyRangeChange) {
     for (let [chartId, chart] of Object.entries(this.chartFigures)) {
@@ -160,7 +162,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
         for (const fig of sheetFiguresFrom) {
           if (fig.tag === "chart") {
-            const id = this.uuidGenerator.uuidv4();
+            const id = this.nextId.toString();
+            this.history.update("nextId", this.nextId + 1);
             const chartDefinition = { ...deepCopy(this.chartFigures[fig.id]), id };
             chartDefinition.sheetId = cmd.sheetIdTo;
             chartDefinition.dataSets.forEach((dataset) => {
@@ -350,7 +353,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   private updateChartDefinition(id: UID, definition: ChartUIDefinitionUpdate) {
     const chart = this.chartFigures[id];
     if (!chart) {
-      throw new Error(`There is no chart with the given id: ${id}`);
+      return;
     }
     if (definition.title !== undefined) {
       this.history.update("chartFigures", id, "title", definition.title);

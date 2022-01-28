@@ -101,6 +101,21 @@ describe("conditional format", () => {
     ]);
   });
 
+  test("is correctly duplicated when the sheet is duplicated", () => {
+    model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const cf = createEqualCF("4", { fillColor: "#0000FF" }, "2");
+    model.dispatch("ADD_CONDITIONAL_FORMAT", { cf, target: target("A1:A4"), sheetId });
+    model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "Sheet2" });
+    expect(model.getters.getConditionalFormats("Sheet2")).toEqual([
+      {
+        id: expect.any(String),
+        ranges: ["A1:A4"],
+        rule: cf.rule,
+      },
+    ]);
+  });
+
   test("add conditional format outside the sheet", () => {
     model = new Model();
     createSheet(model, { sheetId: "42" });

@@ -6,6 +6,7 @@ import { ConditionalFormatPlugin } from "./core/conditional_format";
 import { FigurePlugin } from "./core/figures";
 import { MergePlugin } from "./core/merge";
 import { SheetPlugin } from "./core/sheet";
+import { SortPlugin } from "./core/sort";
 import { CorePluginConstructor } from "./core_plugin";
 import { AutofillPlugin } from "./ui/autofill";
 import { AutomaticSumPlugin } from "./ui/automatic_sum";
@@ -16,11 +17,11 @@ import { EvaluationChartPlugin } from "./ui/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "./ui/evaluation_conditional_format";
 import { FindAndReplacePlugin } from "./ui/find_and_replace";
 import { HighlightPlugin } from "./ui/highlight";
+import { InteractiveSortPlugin } from "./ui/interactive_sort";
 import { RendererPlugin } from "./ui/renderer";
 import { SelectionPlugin } from "./ui/selection";
 import { SelectionInputPlugin } from "./ui/selection_inputs";
 import { SelectionMultiUserPlugin } from "./ui/selection_multiuser";
-import { SortPlugin } from "./ui/sort";
 import { UIOptionsPlugin } from "./ui/ui_options";
 import { SheetUIPlugin } from "./ui/ui_sheet";
 import { ViewportPlugin } from "./ui/viewport";
@@ -33,6 +34,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("borders", BordersPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
   .add("figures", FigurePlugin)
+  .add("sort", SortPlugin)
   .add("chart", ChartPlugin);
 
 export const uiPluginRegistry = new Registry<UIPluginConstructor>()
@@ -50,6 +52,6 @@ export const uiPluginRegistry = new Registry<UIPluginConstructor>()
   .add("grid renderer", RendererPlugin)
   .add("autofill", AutofillPlugin)
   .add("find_and_replace", FindAndReplacePlugin)
-  .add("sort", SortPlugin)
+  .add("interactive_sort", InteractiveSortPlugin)
   .add("automatic_sum", AutomaticSumPlugin)
   .add("selection_multiuser", SelectionMultiUserPlugin);

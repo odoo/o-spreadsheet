@@ -3,6 +3,8 @@ import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
   activateSheet,
+  addColumns,
+  addRows,
   createSheet,
   redo,
   resizeColumns,
@@ -379,6 +381,46 @@ describe("core", () => {
     expect(model.getters.getActiveSheetId()).not.toBe("2");
     expect(model.getters.getSheet("2").rows.length).toEqual(29);
     expect(model.getters.getSheet("2").cols.length).toEqual(19);
+  });
+
+  test("Range with absolute references are correctly updated on rows manipulation", () => {
+    const model = new Model();
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setCellContent(model, "A1", "=SUM($C$1:$C$5)");
+    addRows(model, "after", 2, 1);
+    expect(getCellContent(model, "A1")).toBe("=SUM($C$1:$C$6)");
+    addRows(model, "before", 0, 1);
+    expect(getCellContent(model, "A2")).toBe("=SUM($C$2:$C$7)");
+  });
+
+  test("Absolute references are correctly updated on rows manipulation", () => {
+    const model = new Model();
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setCellContent(model, "A1", "=SUM($C$1)");
+    addRows(model, "after", 2, 1);
+    expect(getCellContent(model, "A1")).toBe("=SUM($C$1)");
+    addRows(model, "before", 0, 1);
+    expect(getCellContent(model, "A2")).toBe("=SUM($C$2)");
+  });
+
+  test("Range with absolute references are correctly updated on columns manipulation", () => {
+    const model = new Model();
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setCellContent(model, "A1", "=SUM($A$2:$E$2)");
+    addColumns(model, "after", "C", 1);
+    expect(getCellContent(model, "A1")).toBe("=SUM($A$2:$F$2)");
+    addColumns(model, "before", "A", 1);
+    expect(getCellContent(model, "B1")).toBe("=SUM($B$2:$G$2)");
+  });
+
+  test("Absolute references are correctly updated on columns manipulation", () => {
+    const model = new Model();
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setCellContent(model, "A1", "=SUM($A$2)");
+    addColumns(model, "after", "C", 1);
+    expect(getCellContent(model, "A1")).toBe("=SUM($A$2)");
+    addColumns(model, "before", "A", 1);
+    expect(getCellContent(model, "B1")).toBe("=SUM($B$2)");
   });
 });
 
