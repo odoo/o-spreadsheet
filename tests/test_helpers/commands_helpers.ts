@@ -7,6 +7,7 @@ import {
   ChartUIDefinitionUpdate,
   CreateSheetCommand,
   DispatchResult,
+  SortDirection,
   UID,
 } from "../../src/types";
 import { target } from "./helpers";
@@ -111,12 +112,10 @@ export function createChart(
 export function updateChart(
   model: Model,
   chartId: UID,
-  definition: ChartUIDefinitionUpdate,
-  sheetId: UID = model.getters.getActiveSheetId()
+  definition: ChartUIDefinitionUpdate
 ): DispatchResult {
   return model.dispatch("UPDATE_CHART", {
     id: chartId,
-    sheetId,
     definition,
   });
 }
@@ -362,6 +361,30 @@ export function setSelection(
   });
 }
 
+export function sort(
+  model: Model,
+  {
+    zone,
+    sheetId,
+    anchor,
+    direction,
+  }: {
+    zone: string;
+    sheetId?: UID;
+    anchor: string;
+    direction: SortDirection;
+  }
+) {
+  const [col, row] = toCartesian(anchor);
+  return model.dispatch("SORT_CELLS", {
+    sheetId: sheetId || model.getters.getActiveSheetId(),
+    zone: toZone(zone),
+    col,
+    row,
+    sortDirection: direction,
+  });
+}
+
 export function merge(
   model: Model,
   range: string,
@@ -370,6 +393,19 @@ export function merge(
   return model.dispatch("ADD_MERGE", {
     sheetId,
     target: target(range),
+    force: true,
+  });
+}
+
+export function interactiveMerge(
+  model: Model,
+  range: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("ADD_MERGE", {
+    sheetId,
+    target: target(range),
+    force: false,
   });
 }
 

@@ -137,14 +137,9 @@ describe("Collaborative Sheet manipulation", () => {
     );
     network.concurrent(() => {
       alice.dispatch("DELETE_SHEET", { sheetId });
-      updateChart(
-        bob,
-        chartId,
-        {
-          dataSets: ["A1:A11"],
-        },
-        sheetId
-      );
+      updateChart(bob, chartId, {
+        dataSets: ["A1:A11"],
+      });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getFigure(sheetId, chartId),

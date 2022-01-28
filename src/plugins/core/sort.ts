@@ -6,21 +6,22 @@ import {
   CellValueType,
   Command,
   CommandResult,
+  Position,
   Sheet,
   SortCommand,
   SortDirection,
   UID,
   Zone,
 } from "../../types/index";
-import { UIPlugin } from "../ui_plugin";
+import { CorePlugin } from "../core_plugin";
 
-export class SortPlugin extends UIPlugin {
+export class SortPlugin extends CorePlugin {
   static getters = ["getContiguousZone"] as const;
 
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
       case "SORT_CELLS":
-        if (!isInside(cmd.anchor[0], cmd.anchor[1], cmd.zone)) {
+        if (!isInside(cmd.col, cmd.row, cmd.zone)) {
           throw new Error(_lt("The anchor must be part of the provided zone"));
         }
         return this.checkValidations(cmd, this.checkMerge, this.checkMergeSizes);
@@ -31,7 +32,7 @@ export class SortPlugin extends UIPlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "SORT_CELLS":
-        this.sortZone(cmd.sheetId, cmd.anchor, cmd.zone, cmd.sortDirection);
+        this.sortZone(cmd.sheetId, cmd, cmd.zone, cmd.sortDirection);
         break;
     }
   }
@@ -242,14 +243,9 @@ export class SortPlugin extends UIPlugin {
     }
   }
 
-  private sortZone(
-    sheetId: UID,
-    anchor: [number, number],
-    zone: Zone,
-    sortDirection: SortDirection
-  ) {
+  private sortZone(sheetId: UID, anchor: Position, zone: Zone, sortDirection: SortDirection) {
     const [stepX, stepY] = this.mainCellsSteps(sheetId, zone);
-    let sortingCol: number = this.getters.getMainCell(sheetId, ...anchor)[0]; // fetch anchor
+    let sortingCol: number = this.getters.getMainCell(sheetId, anchor.col, anchor.row)[0]; // fetch anchor
     let sortZone = Object.assign({}, zone);
     // Update in case of merges in the zone
     let cells = this.mainCells(sheetId, zone);
