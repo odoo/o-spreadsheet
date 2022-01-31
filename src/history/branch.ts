@@ -79,7 +79,14 @@ export class Branch<T> {
   }
 
   /**
-   * Create and return a copy of this branch, starting at the given operationId
+   * Append operations in the given branch to this branch.
+   */
+  appendBranch(branch: Branch<T>) {
+    this.operations = this.operations.concat(branch.operations);
+  }
+
+  /**
+   * Create and return a copy of this branch, starting after the given operationId
    */
   fork(operationId: UID): Branch<T> {
     const { after } = this.locateOperation(operationId);
@@ -99,6 +106,14 @@ export class Branch<T> {
    */
   cutBefore(operationId: UID) {
     this.operations = this.locateOperation(operationId).before;
+  }
+
+  /**
+   * Cut the branch after the operation, meaning all following operations are dropped.
+   */
+  cutAfter(operationId: UID) {
+    const { before, operation } = this.locateOperation(operationId);
+    this.operations = before.concat([operation]);
   }
 
   /**
