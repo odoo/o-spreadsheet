@@ -745,7 +745,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           const cellId = row.cells[i];
           if (cellId) {
             if (dimension === "rows" || colIndex >= addedElement) {
-              commands.unshift({
+              commands.push({
                 type: "UPDATE_CELL_POSITION",
                 sheetId: sheet.id,
                 cellId: cellId,
@@ -757,7 +757,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         }
       }
     }
-    for (let cmd of commands) {
+    for (let cmd of commands.reverse()) {
       this.dispatch(cmd.type, cmd);
     }
   }

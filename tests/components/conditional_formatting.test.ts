@@ -1,7 +1,7 @@
 import { Model, Spreadsheet } from "../../src";
 import { toZone } from "../../src/helpers/zones";
 import { CommandResult, DispatchResult } from "../../src/types";
-import { setSelection } from "../test_helpers/commands_helpers";
+import { activateSheet, createSheet, setSelection } from "../test_helpers/commands_helpers";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
   createColorScale,
@@ -622,8 +622,25 @@ describe("UI of conditional formats", () => {
     expect(ranges[1]["value"]).toBe("C3");
   });
 
-  test("switching sheet changes the content of CF and cancels the edition", async () => {});
-
+  test("switching sheet resets CF Editor to list", async () => {
+    triggerMouseEvent(selectors.closePanel, "click");
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
+      target: [toZone("A1:A2")],
+      sheetId: model.getters.getActiveSheetId(),
+    });
+    createSheet(model, { sheetId: "42" });
+    await nextTick();
+    const zone = toZone("A1:A2");
+    parent.env.openSidePanel("ConditionalFormatting", { selection: [zone] });
+    await nextTick();
+    expect(fixture.querySelector(selectors.listPreview)).toBeNull();
+    expect(fixture.querySelector(selectors.ruleEditor.range! as "input")!.value).toBe("A1:A2");
+    activateSheet(model, "42");
+    await nextTick();
+    expect(fixture.querySelector(selectors.ruleEditor.range)).toBeNull();
+    expect(fixture.querySelector(selectors.listPreview)).toBeDefined();
+  });
   test("error if range is empty", async () => {
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();

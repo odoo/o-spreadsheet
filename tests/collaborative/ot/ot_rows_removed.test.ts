@@ -13,6 +13,7 @@ import {
   SetBorderCommand,
   SetDecimalCommand,
   SetFormattingCommand,
+  SortCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
 } from "../../../src/types";
@@ -51,7 +52,16 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
     border: { left: ["thin", "#000"] },
   };
 
-  describe.each([updateCell, updateCellPosition, clearCell, setBorder])(
+  const sortCommand: SortCommand = {
+    type: "SORT_CELLS",
+    sheetId,
+    col: 0,
+    row: 0,
+    sortDirection: "ascending",
+    zone: toZone("A1"),
+  };
+
+  describe.each([updateCell, updateCellPosition, clearCell, setBorder, sortCommand])(
     "single cell commands",
     (cmd) => {
       test(`remove rows before ${cmd.type}`, () => {
@@ -150,6 +160,39 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
       });
     }
   );
+
+  describe.each([sortCommand])("zone commands", (cmd) => {
+    test(`remove rows before ${cmd.type}`, () => {
+      const command = { ...cmd, zone: toZone("A1:C1") };
+      const result = transform(command, removeRows);
+      expect(result).toEqual(command);
+    });
+    test(`remove rows after ${cmd.type}`, () => {
+      const command = { ...cmd, zone: toZone("A12:B14") };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command, zone: toZone("A9:B11") });
+    });
+    test(`remove rows before and after ${cmd.type}`, () => {
+      const command = { ...cmd, zone: toZone("A5:B5") };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command, zone: toZone("A3:B3") });
+    });
+    test(`${cmd.type} in removed rows`, () => {
+      const command = { ...cmd, zone: toZone("A6:B7") };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command, zone: toZone("A4:B4") });
+    });
+    test(`${cmd.type} and rows removed in different sheets`, () => {
+      const command = { ...cmd, zone: toZone("A1:C6"), sheetId: "42" };
+      const result = transform(command, removeRows);
+      expect(result).toEqual(command);
+    });
+    test(`${cmd.type} with a removed zone`, () => {
+      const command = { ...cmd, zone: toZone("A3:B4") };
+      const result = transform(command, removeRows);
+      expect(result).toBeUndefined();
+    });
+  });
 
   describe("OT with RemoveRows - ADD_COLUMNS_ROWS with dimension ROW", () => {
     const toTransform: Omit<AddColumnsRowsCommand, "base"> = {

@@ -1,11 +1,11 @@
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
 import { parseDateTime } from "../../src/helpers/dates";
-import { toXC, toZone } from "../../src/helpers/index";
+import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
 import { interactiveSortSelection } from "../../src/helpers/sort";
 import { Model } from "../../src/model";
 import { CellValueType, CommandResult, UID } from "../../src/types";
-import { redo, setCellContent, undo } from "../test_helpers/commands_helpers";
-import { makeInteractiveTestEnv, target } from "../test_helpers/helpers";
+import { merge, redo, setCellContent, sort, undo } from "../test_helpers/commands_helpers";
+import { makeInteractiveTestEnv } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -26,7 +26,6 @@ function getCellsObject(model: Model, sheetId: UID) {
 }
 
 describe("Basic Sorting", () => {
-  let anchor: [number, number];
   const sheetId: UID = "sheetId";
   test("Sort Numbers then undo then redo", () => {
     const cells = {
@@ -47,13 +46,10 @@ describe("Basic Sorting", () => {
         },
       ],
     });
-    anchor = [0, 1];
-    const zone = toZone("A1:A6");
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      zone: zone,
-      anchor: anchor,
-      sortDirection: "ascending",
+    sort(model, {
+      zone: "A1:A6",
+      anchor: "A2",
+      direction: "ascending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
@@ -93,13 +89,10 @@ describe("Basic Sorting", () => {
         },
       ],
     });
-    anchor = [0, 1];
-    const zone = toZone("A1:A6");
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      zone: zone,
-      anchor: anchor,
-      sortDirection: "ascending",
+    sort(model, {
+      zone: "A1:A6",
+      anchor: "A2",
+      direction: "ascending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "Alpha" },
@@ -128,13 +121,10 @@ describe("Basic Sorting", () => {
         },
       ],
     });
-    anchor = [0, 0];
-    const zone = toZone("A1:A6");
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      zone: zone,
-      anchor: anchor,
-      sortDirection: "ascending",
+    sort(model, {
+      zone: "A1:A6",
+      anchor: "A1",
+      direction: "ascending",
     });
 
     expect(getCellsObject(model, sheetId)).toMatchObject({
@@ -168,13 +158,10 @@ describe("Basic Sorting", () => {
         },
       ],
     });
-    anchor = [2, 0];
-    const zone = toZone("C1:C6");
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      zone: zone,
-      anchor: anchor,
-      sortDirection: "ascending",
+    sort(model, {
+      zone: "C1:C6",
+      anchor: "C1",
+      direction: "ascending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       C1: { content: "=SUM(A1, A2)" },
@@ -210,13 +197,10 @@ describe("Basic Sorting", () => {
         },
       ],
     });
-    anchor = [0, 0];
-    const zone = toZone("A1:A11");
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      zone: zone,
-      anchor: anchor,
-      sortDirection: "ascending",
+    sort(model, {
+      zone: "A1:A11",
+      anchor: "A1",
+      direction: "ascending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
@@ -280,13 +264,10 @@ describe("Basic Sorting", () => {
       ],
       styles: { 1: myStyle },
     });
-    anchor = [0, 1];
-    const zone = toZone("A1:A3");
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      zone: zone,
-      anchor: anchor,
-      sortDirection: "ascending",
+    sort(model, {
+      zone: "A1:A3",
+      anchor: "A2",
+      direction: "ascending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "11", style: myStyle },
@@ -297,7 +278,6 @@ describe("Basic Sorting", () => {
 });
 
 describe("Trigger sort generic errors", () => {
-  let anchor: [number, number];
   const sheetId: UID = "sheet2";
 
   test("Sort with anchor outside of the sorting zone", () => {
@@ -310,14 +290,11 @@ describe("Trigger sort generic errors", () => {
         },
       ],
     });
-    const zone = toZone("A1:A3");
-    anchor = [0, 5];
     expect(() => {
-      model.dispatch("SORT_CELLS", {
-        sheetId: sheetId,
-        zone: zone,
-        anchor: anchor,
-        sortDirection: "ascending",
+      sort(model, {
+        zone: "A1:A3",
+        anchor: "A6",
+        direction: "ascending",
       });
     }).toThrowError();
   });
@@ -325,9 +302,8 @@ describe("Trigger sort generic errors", () => {
 
 describe("Sort multi adjacent columns", () => {
   let askConfirmation: jest.Mock;
-  let anchor: [number, number];
   const sheetId: UID = "sheet3";
-
+  let anchor: [number, number];
   const modelData = {
     sheets: [
       {
@@ -363,7 +339,6 @@ describe("Sort multi adjacent columns", () => {
     askConfirmation = jest.fn();
     model = new Model(modelData);
     const zone = toZone("A2:A3");
-    anchor = [0, 1];
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
     const env = makeInteractiveTestEnv(model, { askConfirmation });
     interactiveSortSelection(env, sheetId, anchor, contiguousZone, "descending");
@@ -417,14 +392,12 @@ describe("Sort multi adjacent columns", () => {
   test("Sort on second column w/ contiguous", () => {
     model = new Model(modelData);
     const zone = toZone("B2:B3");
-    anchor = [1, 1];
     const sheetId = model.getters.getActiveSheetId();
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: contiguousZone,
-      sortDirection: "descending",
+    sort(model, {
+      zone: zoneToXc(contiguousZone),
+      anchor: "B2",
+      direction: "descending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "Tango" },
@@ -442,13 +415,11 @@ describe("Sort multi adjacent columns", () => {
   test("Sort on third column  w/ contiguous", () => {
     model = new Model(modelData);
     const zone = toZone("C2:C4");
-    anchor = [2, 1];
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: contiguousZone,
-      sortDirection: "descending",
+    sort(model, {
+      zone: zoneToXc(contiguousZone),
+      anchor: "C2",
+      direction: "descending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "Zulu" },
@@ -466,13 +437,11 @@ describe("Sort multi adjacent columns", () => {
   test("Sort on fourth column w/ contiguous", () => {
     model = new Model(modelData);
     const zone = toZone("D2:D5");
-    anchor = [3, 4];
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: contiguousZone,
-      sortDirection: "descending",
+    sort(model, {
+      zone: zoneToXc(contiguousZone),
+      anchor: "D5",
+      direction: "descending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A2: { content: "Alpha" },
@@ -491,15 +460,11 @@ describe("Sort multi adjacent columns", () => {
   test("Sort w/ multicolumn selection", () => {
     askConfirmation = jest.fn();
     model = new Model(modelData);
-    const zone = toZone("B2:C3");
-    anchor = [1, 2];
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: zone,
-      sortDirection: "ascending",
+    sort(model, {
+      zone: "B2:C3",
+      anchor: "B3",
+      direction: "ascending",
     });
-    expect(askConfirmation).not.toHaveBeenCalled();
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "Alpha" },
       A2: { content: "Tango" },
@@ -516,7 +481,6 @@ describe("Sort multi adjacent columns", () => {
 });
 
 describe("Sort adjacent columns with headers", () => {
-  let anchor: [number, number];
   const sheetId: UID = "sheet4";
   beforeEach(() => {
     model = new Model({
@@ -544,13 +508,10 @@ describe("Sort adjacent columns with headers", () => {
     });
   });
   test("Presence of header", () => {
-    const zone = toZone("A1:C4");
-    anchor = [0, 0];
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: zone,
-      sortDirection: "ascending",
+    sort(model, {
+      zone: "A1:C4",
+      anchor: "A1",
+      direction: "ascending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "=B2" },
@@ -569,13 +530,10 @@ describe("Sort adjacent columns with headers", () => {
   });
   test("Empty TopLeft cell does not alter the presence of header", () => {
     setCellContent(model, "A1", "", sheetId);
-    const zone = toZone("A1:C4");
-    anchor = [0, 0];
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: zone,
-      sortDirection: "ascending",
+    sort(model, {
+      zone: "A1:C4",
+      anchor: "A1",
+      direction: "ascending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A2: { content: "Alpha" },
@@ -593,13 +551,10 @@ describe("Sort adjacent columns with headers", () => {
   });
   test("No header when there is an empty cell on top row (other than topLeft)", () => {
     setCellContent(model, "C1", "", sheetId);
-    const zone = toZone("A1:C4");
-    anchor = [1, 0];
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: zone,
-      sortDirection: "ascending",
+    sort(model, {
+      zone: "A1:C4",
+      anchor: "B1",
+      direction: "ascending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "Tango" },
@@ -623,13 +578,10 @@ describe("Sort adjacent columns with headers", () => {
     // arrange empty cell in second row of 3rd col
     setCellContent(model, "C2", "", sheetId);
 
-    const zone = toZone("A1:C4");
-    anchor = [0, 0];
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: zone,
-      sortDirection: "ascending",
+    sort(model, {
+      zone: "A1:C4",
+      anchor: "A1",
+      direction: "ascending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "Alpha" },
@@ -649,8 +601,8 @@ describe("Sort adjacent columns with headers", () => {
 
 describe("Sort Merges", () => {
   const notifyUser = jest.fn();
-  let anchor: [number, number];
   const sheetId: UID = "sheet5";
+  let anchor: [number, number];
   const modelData = {
     sheets: [
       {
@@ -688,12 +640,10 @@ describe("Sort Merges", () => {
   test("Sort of merges w/ contiguous", () => {
     const zone = toZone("B2:B4");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-    anchor = [1, 1];
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: contiguousZone,
-      sortDirection: "ascending",
+    sort(model, {
+      zone: zoneToXc(contiguousZone),
+      anchor: "B2",
+      direction: "ascending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       B2: { content: "6" },
@@ -720,17 +670,16 @@ describe("Sort Merges", () => {
     interactiveSortSelection(env, sheetId, anchor, contiguousZone, "ascending");
     expect(notifyUser).toHaveBeenCalled();
     expect(model.getters.getSelection()).toEqual({
-      anchor: anchor,
+      anchor,
       anchorZone: contiguousZone,
       zones: [contiguousZone],
     });
     undo(model);
     expect(
-      model.dispatch("SORT_CELLS", {
-        sheetId: sheetId,
-        anchor: anchor,
-        zone: contiguousZone,
-        sortDirection: "ascending",
+      sort(model, {
+        zone: zoneToXc(contiguousZone),
+        anchor: "B2",
+        direction: "ascending",
       })
     ).toBeCancelledBecause(CommandResult.InvalidSortZone);
   });
@@ -739,43 +688,34 @@ describe("Sort Merges", () => {
     const sheetId = model.getters.getActiveSheetId();
     //add merge [cols:2, rows: 1] above existing merges
     setCellContent(model, "B1", "Bad Merge!", sheetId);
-
-    model.dispatch("ADD_MERGE", {
-      sheetId: sheetId,
-      target: target("B1:C1"),
-      force: true,
-    });
+    merge(model, "B1:C1");
     // sort
     const zone = toZone("B2:B8");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-    anchor = [1, 1];
+    anchor = toCartesian("B2");
     const env = makeInteractiveTestEnv(model, { notifyUser });
     interactiveSortSelection(env, sheetId, anchor, contiguousZone, "ascending");
     expect(notifyUser).toHaveBeenCalled();
     expect(model.getters.getSelection()).toEqual({
-      anchor: anchor,
+      anchor,
       anchorZone: contiguousZone,
       zones: [contiguousZone],
     });
     undo(model);
     expect(
-      model.dispatch("SORT_CELLS", {
-        sheetId: sheetId,
-        anchor: anchor,
-        zone: contiguousZone,
-        sortDirection: "ascending",
+      sort(model, {
+        zone: zoneToXc(contiguousZone),
+        anchor: "B2",
+        direction: "ascending",
       })
     ).toBeCancelledBecause(CommandResult.InvalidSortZone);
   });
 
   test("Sort w/ multicolumn selection", () => {
-    const zone = toZone("B5:C10");
-    anchor = [1, 4];
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: zone,
-      sortDirection: "descending",
+    sort(model, {
+      zone: "B5:C10",
+      anchor: "B5",
+      direction: "descending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       B2: { content: "20" },
@@ -796,12 +736,10 @@ describe("Sort Merges", () => {
 
     const zone = toZone("B2");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-    anchor = [3, 1];
-    model.dispatch("SORT_CELLS", {
-      sheetId: sheetId,
-      anchor: anchor,
-      zone: contiguousZone,
-      sortDirection: "ascending",
+    sort(model, {
+      zone: zoneToXc(contiguousZone),
+      anchor: "D2",
+      direction: "ascending",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       B2: { content: "20" },

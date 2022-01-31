@@ -82,8 +82,9 @@ export function interactiveSortSelection(
     }
   }
 
+  const [col, row] = anchor;
   if (multiColumns) {
-    result = env.dispatch("SORT_CELLS", { sheetId, anchor, zone, sortDirection });
+    result = env.dispatch("SORT_CELLS", { sheetId, col, row, zone, sortDirection });
   } else {
     // check contiguity
     const contiguousZone = env.getters.getContiguousZone(sheetId, zone);
@@ -91,7 +92,8 @@ export function interactiveSortSelection(
       // merge as it is
       result = env.dispatch("SORT_CELLS", {
         sheetId,
-        anchor,
+        col,
+        row,
         zone,
         sortDirection,
       });
@@ -104,7 +106,8 @@ export function interactiveSortSelection(
           zone = contiguousZone;
           result = env.dispatch("SORT_CELLS", {
             sheetId,
-            anchor,
+            col,
+            row,
             zone,
             sortDirection,
           });
@@ -112,7 +115,8 @@ export function interactiveSortSelection(
         () => {
           result = env.dispatch("SORT_CELLS", {
             sheetId,
-            anchor,
+            col,
+            row,
             zone,
             sortDirection,
           });
