@@ -686,6 +686,28 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
+  test("Transform command with preceding concurrent command when previous command is redone", () => {
+    setCellContent(alice, "E10", "hello");
+    addColumns(alice, "before", "F", 3);
+    undo(alice);
+    network.concurrent(() => {
+      addColumns(bob, "before", "B", 2);
+      // Charlie's command should be transformed with Bob's command when Alice redo
+      // her command
+      addColumns(charlie, "before", "E", 1);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "H10"),
+      "hello"
+    );
+    redo(alice);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "G10"),
+      "hello"
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
   test("All locals commands", () => {
     createSheet(alice, { sheetId: "sheet2" });
     network.concurrent(() => {
