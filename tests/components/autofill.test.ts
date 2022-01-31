@@ -1,22 +1,17 @@
 import { App, Component, xml } from "@odoo/owl";
+import { Spreadsheet } from "../../src";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
-import {
-  makeTestFixture,
-  mountSpreadsheet,
-  nextTick,
-  Parent,
-  spyDispatch,
-} from "../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 
 jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
 
 let fixture: HTMLElement;
 let model: Model;
-let parent: Parent;
+let parent: Spreadsheet;
 let app: App;
 
 beforeEach(async () => {

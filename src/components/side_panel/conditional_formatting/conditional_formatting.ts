@@ -18,8 +18,8 @@ import {
   ConditionalFormatRule,
   IconSetRule,
   SingleColorRules,
-  UID,
   SpreadsheetChildEnv,
+  UID,
   Zone,
 } from "../../../types";
 import { ColorPicker } from "../../color_picker";

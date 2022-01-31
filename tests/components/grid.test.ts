@@ -1,5 +1,5 @@
 import { App } from "@odoo/owl";
-import { TransportService } from "../../src";
+import { Spreadsheet, TransportService } from "../../src";
 import { Grid } from "../../src/components/grid";
 import { HEADER_WIDTH, MESSAGE_VERSION, SCROLLBAR_WIDTH } from "../../src/constants";
 import { scrollDelay, toZone } from "../../src/helpers";
@@ -20,7 +20,6 @@ import {
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
-  Parent,
   Touch,
 } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -30,18 +29,18 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 jest.mock("../../src/components/scrollbar", () => require("./__mocks__/scrollbar"));
 
 function getVerticalScroll(): number {
-  const grid = getChildFromComponent(parent.spreadsheet, Grid);
+  const grid = getChildFromComponent(parent, Grid);
   return grid["vScrollbar"].scroll;
 }
 
 function getHorizontalScroll(): number {
-  const grid = getChildFromComponent(parent.spreadsheet, Grid);
+  const grid = getChildFromComponent(parent, Grid);
   return grid["hScrollbar"].scroll;
 }
 
 let fixture: HTMLElement;
 let model: Model;
-let parent: Parent;
+let parent: Spreadsheet;
 let app: App;
 
 beforeEach(async () => {
@@ -107,7 +106,7 @@ describe("Grid component", () => {
   });
 
   test("Can open the Conditional Format side panel", async () => {
-    parent.getSpreadsheetEnv().openSidePanel("ConditionalFormatting");
+    parent.env.openSidePanel("ConditionalFormatting");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
   });

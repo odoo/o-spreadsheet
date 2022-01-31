@@ -1,20 +1,17 @@
-import { App, useSubEnv } from "@odoo/owl";
+import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
 import { DEBUG, toZone } from "../../src/helpers";
 import { SelectionMode } from "../../src/plugins/ui/selection";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
-import { SpreadsheetChildEnv } from "../../src/types";
 import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
-  getChildFromComponent,
   makeTestFixture,
   MockClipboard,
   mountSpreadsheet,
   nextTick,
-  Parent,
   target,
   typeInComposerGrid,
   typeInComposerTopBar,
@@ -25,7 +22,7 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 );
 
 let fixture: HTMLElement;
-let parent: Parent;
+let parent: Spreadsheet;
 let app: App;
 const clipboard = new MockClipboard();
 
@@ -118,7 +115,7 @@ describe("Spreadsheet", () => {
   });
 
   test("Clipboard is in spreadsheet env", () => {
-    expect(parent.getSpreadsheetEnv().clipboard).toBe(clipboard);
+    expect(parent.env.clipboard).toBe(clipboard);
   });
 
   test("selection mode is changed with a simple select", async () => {
@@ -181,8 +178,7 @@ describe("Spreadsheet", () => {
   });
 
   test("Debug informations are removed when Spreadsheet is destroyed", async () => {
-    const spreadsheet = getChildFromComponent(parent, Spreadsheet);
-    spreadsheet.__owl__.destroy();
+    parent.__owl__.destroy();
     expect(Object.keys(DEBUG)).toHaveLength(0);
   });
 
@@ -354,7 +350,10 @@ describe("Composer interactions", () => {
 
   test("Notify ui correctly with type notification correctly use notifyUser in the env", async () => {
     const notifyUser = jest.fn();
-    class SuperParent extends Parent {
+    class Parent extends Component {
+      static template = xml/* xml */ `<Spreadsheet model="props.model"/>`;
+      static components = { Spreadsheet };
+
       setup() {
         useSubEnv({
           notifyUser,
@@ -362,9 +361,10 @@ describe("Composer interactions", () => {
       }
     }
     const fixture = makeTestFixture();
-    const app = new App(SuperParent, { props: { model: new Model() } });
-    const parent = await app.mount(fixture);
-    parent.model["config"].notifyUI({ type: "NOTIFICATION", text: "hello" });
+    const model = new Model();
+    const app = new App(Parent, { props: { model } });
+    await app.mount(fixture);
+    model["config"].notifyUI({ type: "NOTIFICATION", text: "hello" });
     expect(notifyUser).toHaveBeenCalledWith("hello");
     app.destroy();
   });
@@ -392,7 +392,7 @@ describe("Composer / selectionInput interactions", () => {
   test("Switching from selection input to composer should update the highlihts", async () => {
     //open cf sidepanel
     selectCell(parent.model, "B2");
-    OPEN_CF_SIDEPANEL_ACTION(parent.getSpreadsheetEnv() as SpreadsheetChildEnv);
+    OPEN_CF_SIDEPANEL_ACTION(parent.env);
     await nextTick();
     await simulateClick(".o-selection-input input");
 
@@ -407,7 +407,7 @@ describe("Composer / selectionInput interactions", () => {
   });
   test("Switching from composer to selection input should update the highlihts and hide the highlight components", async () => {
     selectCell(parent.model, "B2");
-    OPEN_CF_SIDEPANEL_ACTION(parent.getSpreadsheetEnv() as SpreadsheetChildEnv);
+    OPEN_CF_SIDEPANEL_ACTION(parent.env);
     await nextTick();
 
     await simulateClick(".o-spreadsheet-topbar .o-composer");

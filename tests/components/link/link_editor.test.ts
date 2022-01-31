@@ -1,5 +1,5 @@
 import { App } from "@odoo/owl";
-import { Model } from "../../../src";
+import { Model, Spreadsheet } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
 import { LinkCell } from "../../../src/types";
 import { createSheet, setCellContent } from "../../test_helpers/commands_helpers";
@@ -9,12 +9,12 @@ import {
   simulateClick,
 } from "../../test_helpers/dom_helper";
 import { getCell } from "../../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick, Parent } from "../../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
 describe("link editor component", () => {
   let fixture: HTMLElement;
   let model: Model;
-  let grid: Parent;
+  let grid: Spreadsheet;
   let app: App;
 
   async function openLinkEditor(model: Model, xc: string) {

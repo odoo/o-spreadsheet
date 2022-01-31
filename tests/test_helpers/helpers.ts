@@ -1,7 +1,6 @@
 import { App, Component, xml } from "@odoo/owl";
 import format from "xml-formatter";
-import { Grid } from "../../src/components/grid";
-import { Spreadsheet } from "../../src/components/spreadsheet";
+import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet";
 import { functionRegistry } from "../../src/functions/index";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
@@ -23,32 +22,7 @@ import { getCell, getCellContent } from "./getters_helpers";
 const functions = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
 
-/**
- * Mock console.info in order to avoid being spammed by owl running in dev mode
- */
-console.info = () => {};
-
-export class Parent extends Component {
-  static template = xml/* xml */ `
-    <Spreadsheet model="props.model"
-                 onContentSaved="props.onContentSaved" />`;
-
-  static components = { Spreadsheet };
-
-  get spreadsheet(): Spreadsheet {
-    return getChildFromComponent(this, Spreadsheet);
-  }
-
-  get model(): Model {
-    return this.props.model;
-  }
-
-  getSpreadsheetEnv(): SpreadsheetChildEnv {
-    return getChildFromComponent(this.spreadsheet, Grid).env;
-  }
-}
-
-export function spyDispatch(parent: Parent): jest.SpyInstance {
+export function spyDispatch(parent: Spreadsheet): jest.SpyInstance {
   return jest.spyOn(parent.model, "dispatch");
 }
 
@@ -128,10 +102,10 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
 // Requires to be called wit jest realTimers
 export async function mountSpreadsheet(
   fixture: HTMLElement,
-  props: Spreadsheet["props"] = { model: new Model() }
-): Promise<{ app: App; parent: Parent }> {
-  const app = new App(Parent, { props, dev: true });
-  const parent = await app.mount(fixture);
+  props: SpreadsheetProps = { model: new Model() }
+): Promise<{ app: App; parent: Spreadsheet }> {
+  const app = new App(Spreadsheet, { props, test: true });
+  const parent = (await app.mount(fixture)) as Spreadsheet;
   return { app, parent };
 }
 

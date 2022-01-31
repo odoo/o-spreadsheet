@@ -1,6 +1,6 @@
 import { App } from "@odoo/owl";
 import { ChartConfiguration } from "chart.js";
-import { Model } from "../../src";
+import { Model, Spreadsheet } from "../../src";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../src/constants";
 import { createChart } from "../test_helpers/commands_helpers";
 import {
@@ -12,7 +12,6 @@ import {
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
-  Parent,
   spyDispatch,
   textContentAll,
 } from "../test_helpers/helpers";
@@ -57,7 +56,7 @@ let model: Model;
 let mockChartData = mockChart();
 let chartId: string;
 
-let parent: Parent;
+let parent: Spreadsheet;
 let app: App;
 describe("figures", () => {
   beforeEach(async () => {
@@ -285,7 +284,7 @@ describe("figures", () => {
     const sheetId = model.getters.getActiveSheetId();
     const figure = model.getters.getFigure(sheetId, chartId);
     expect(parent.model.getters.getChartDefinition(chartId)?.labelRange).not.toBeUndefined();
-    parent.getSpreadsheetEnv().openSidePanel("ChartPanel", { figure });
+    parent.env.openSidePanel("ChartPanel", { figure });
     await nextTick();
     await simulateClick(".o-data-labels input");
     setInputValueAndTrigger(".o-data-labels input", "", "change");
@@ -298,7 +297,7 @@ describe("figures", () => {
     const model = parent.model;
     const sheetId = model.getters.getActiveSheetId();
     const figure = model.getters.getFigure(sheetId, chartId);
-    parent.getSpreadsheetEnv().openSidePanel("ChartPanel", { figure });
+    parent.env.openSidePanel("ChartPanel", { figure });
     await nextTick();
 
     // empty dataset

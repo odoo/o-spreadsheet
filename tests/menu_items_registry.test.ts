@@ -1,5 +1,5 @@
 import { App } from "@odoo/owl";
-import { Model } from "../src";
+import { Model, Spreadsheet } from "../src";
 import { fontSizes } from "../src/fonts";
 import { interactivePaste } from "../src/helpers/ui/paste";
 import {
@@ -18,7 +18,6 @@ import {
   mockUuidV4To,
   mountSpreadsheet,
   nextTick,
-  Parent,
   spyDispatch,
   target,
 } from "./test_helpers/helpers";
@@ -101,7 +100,7 @@ describe("Menu Item Registry", () => {
 describe("Menu Item actions", () => {
   let fixture: HTMLElement;
   let model: Model;
-  let parent: Parent;
+  let parent: Spreadsheet;
   let app: App;
   let env: SpreadsheetChildEnv;
   let dispatch;
@@ -117,7 +116,7 @@ describe("Menu Item actions", () => {
     fixture = makeTestFixture();
     ({ app, parent } = await mountSpreadsheet(fixture));
     model = parent.model;
-    env = parent.getSpreadsheetEnv();
+    env = parent.env;
     dispatch = spyDispatch(parent);
   });
 

@@ -1,16 +1,16 @@
 import { App } from "@odoo/owl";
-import { Model } from "../../../src";
+import { Model, Spreadsheet } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
 import { clearCell, createSheet, setCellContent } from "../../test_helpers/commands_helpers";
 import { clickCell, rightClickCell, simulateClick } from "../../test_helpers/dom_helper";
 import { getCell } from "../../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick, Parent } from "../../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
 describe("link display component", () => {
   let fixture: HTMLElement;
   let model: Model;
   let app: App;
-  let parent: Parent;
+  let parent: Spreadsheet;
 
   beforeEach(async () => {
     fixture = makeTestFixture();
@@ -91,7 +91,7 @@ describe("link display component", () => {
     setCellContent(model, "A1", "[label](url.com)");
     await clickCell(model, "A1");
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
-    parent.getSpreadsheetEnv().openSidePanel("FindAndReplace");
+    parent.env.openSidePanel("FindAndReplace");
     await nextTick();
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
   });

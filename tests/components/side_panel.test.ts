@@ -1,11 +1,12 @@
 import { App, Component, xml } from "@odoo/owl";
+import { Spreadsheet } from "../../src";
 import { sidePanelRegistry } from "../../src/registries/index";
 import { SidePanelContent } from "../../src/registries/side_panel_registry";
 import { simulateClick } from "../test_helpers/dom_helper";
-import { makeTestFixture, mountSpreadsheet, nextTick, Parent } from "../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
-let parent: Parent;
+let parent: Spreadsheet;
 let app: App;
 let sidePanelContent: { [key: string]: SidePanelContent };
 
@@ -43,7 +44,7 @@ describe("Side Panel", () => {
       title: "Custom Panel",
       Body: Body,
     });
-    parent.getSpreadsheetEnv().openSidePanel("CUSTOM_PANEL");
+    parent.env.openSidePanel("CUSTOM_PANEL");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Custom Panel");
@@ -56,7 +57,7 @@ describe("Side Panel", () => {
       title: "Custom Panel",
       Body: Body,
     });
-    parent.getSpreadsheetEnv().openSidePanel("CUSTOM_PANEL");
+    parent.env.openSidePanel("CUSTOM_PANEL");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     simulateClick(".o-sidePanelClose");
@@ -69,10 +70,10 @@ describe("Side Panel", () => {
       title: "Custom Panel",
       Body: Body,
     });
-    parent.getSpreadsheetEnv().toggleSidePanel("CUSTOM_PANEL");
+    parent.env.toggleSidePanel("CUSTOM_PANEL");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
-    parent.getSpreadsheetEnv().toggleSidePanel("CUSTOM_PANEL");
+    parent.env.toggleSidePanel("CUSTOM_PANEL");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(0);
   });
@@ -86,10 +87,10 @@ describe("Side Panel", () => {
       title: "Custom Panel 2",
       Body: Body,
     });
-    parent.getSpreadsheetEnv().toggleSidePanel("CUSTOM_PANEL_1");
+    parent.env.toggleSidePanel("CUSTOM_PANEL_1");
     await nextTick();
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Custom Panel 1");
-    parent.getSpreadsheetEnv().toggleSidePanel("CUSTOM_PANEL_2");
+    parent.env.toggleSidePanel("CUSTOM_PANEL_2");
     await nextTick();
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Custom Panel 2");
   });
@@ -99,7 +100,7 @@ describe("Side Panel", () => {
       title: () => "Computed Title",
       Body: Body,
     });
-    parent.getSpreadsheetEnv().openSidePanel("CUSTOM_PANEL", { text: "context" });
+    parent.env.openSidePanel("CUSTOM_PANEL", { text: "context" });
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Computed Title");
@@ -117,9 +118,9 @@ describe("Side Panel", () => {
       title: "PANEL_2",
       Body: Body2,
     });
-    parent.getSpreadsheetEnv().openSidePanel("PANEL_1", { text: "test" });
+    parent.env.openSidePanel("PANEL_1", { text: "test" });
     await nextTick();
-    parent.getSpreadsheetEnv().openSidePanel("PANEL_2", { field: "field" });
+    parent.env.openSidePanel("PANEL_2", { field: "field" });
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("PANEL_2");
