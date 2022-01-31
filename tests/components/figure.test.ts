@@ -1,4 +1,5 @@
 import { App, Component, xml } from "@odoo/owl";
+import { Spreadsheet } from "../../src";
 import { corePluginRegistry } from "../../src/plugins";
 import { CorePlugin } from "../../src/plugins/core_plugin";
 import { figureRegistry } from "../../src/registries/figure_registry";
@@ -6,14 +7,14 @@ import { Command, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
 import { activateSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { makeTestFixture, mountSpreadsheet, nextTick, Parent } from "../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
 
 let fixture: HTMLElement;
 let model;
-let parent: Parent;
+let parent: Spreadsheet;
 let app: App;
 
 //Test Plugin

@@ -1,15 +1,10 @@
 import { App } from "@odoo/owl";
+import { Spreadsheet } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc } from "../test_helpers/getters_helpers";
-import {
-  makeTestFixture,
-  mountSpreadsheet,
-  nextTick,
-  Parent,
-  spyDispatch,
-} from "../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 
 const COLUMN_D = { x: 340, y: 10 };
 const ROW_5 = { x: 30, y: 100 };
@@ -17,7 +12,7 @@ const OUTSIDE_CM = { x: 50, y: 50 };
 
 let fixture: HTMLElement;
 let model: Model;
-let parent: Parent;
+let parent: Spreadsheet;
 let app: App;
 
 jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);

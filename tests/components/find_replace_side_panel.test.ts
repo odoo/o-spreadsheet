@@ -1,13 +1,7 @@
 import { App } from "@odoo/owl";
-import { Model } from "../../src";
+import { Model, Spreadsheet } from "../../src";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
-import {
-  makeTestFixture,
-  mountSpreadsheet,
-  nextTick,
-  Parent,
-  spyDispatch,
-} from "../test_helpers/helpers";
+import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -37,13 +31,13 @@ const selectors = {
 
 describe("find and replace sidePanel component", () => {
   let fixture: HTMLElement;
-  let parent: Parent;
+  let parent: Spreadsheet;
   let app: App;
   beforeEach(async () => {
     fixture = makeTestFixture();
     ({ app, parent } = await mountSpreadsheet(fixture));
     model = parent.model;
-    parent.getSpreadsheetEnv().openSidePanel("FindAndReplace");
+    parent.env.openSidePanel("FindAndReplace");
     await nextTick();
   });
 

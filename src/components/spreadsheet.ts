@@ -17,7 +17,7 @@ import {
 import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { SelectionMode } from "../plugins/ui/selection";
-import { SpreadsheetEnv, WorkbookData } from "../types";
+import { SpreadsheetChildEnv, WorkbookData } from "../types";
 import { NotifyUIEvent } from "../types/ui";
 import { BottomBar } from "./bottom_bar";
 import { Grid } from "./grid";
@@ -89,7 +89,7 @@ css/* scss */ `
   }
 `;
 
-interface Props {
+export interface SpreadsheetProps {
   model: Model;
   exposeSpreadsheet?: (spreadsheet: Spreadsheet) => void;
   onUnexpectedRevisionId?: () => void;
@@ -113,7 +113,7 @@ interface ComposerState {
   gridFocusMode: "inactive" | "cellFocus" | "contentFocus";
 }
 
-export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
+export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static components = { TopBar, Grid, BottomBar, SidePanel, LinkEditor };
   static _t = t;

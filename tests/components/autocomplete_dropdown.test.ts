@@ -1,4 +1,5 @@
 import { App } from "@odoo/owl";
+import { Spreadsheet } from "../../src";
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
@@ -7,7 +8,6 @@ import {
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
-  Parent,
   resetFunctions,
   typeInComposerGrid as typeInComposerGridHelper,
 } from "../test_helpers/helpers";
@@ -19,7 +19,7 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
-let parent: Parent;
+let parent: Spreadsheet;
 let app: App;
 let cehMock: ContentEditableHelper;
 

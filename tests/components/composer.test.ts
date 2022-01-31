@@ -1,4 +1,5 @@
 import { App } from "@odoo/owl";
+import { Spreadsheet } from "../../src";
 import {
   MatchingParenColor,
   NumberColor,
@@ -22,7 +23,6 @@ import {
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
-  Parent,
   startGridComposition,
   typeInComposerGrid as typeInComposerGridHelper,
 } from "../test_helpers/helpers";
@@ -35,7 +35,7 @@ let model: Model;
 let composerEl: Element;
 let canvasEl: Element;
 let fixture: HTMLElement;
-let parent: Parent;
+let parent: Spreadsheet;
 let app: App;
 let cehMock: ContentEditableHelper;
 

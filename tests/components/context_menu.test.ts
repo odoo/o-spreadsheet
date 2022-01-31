@@ -1,4 +1,5 @@
 import { App, Component, mount, useSubEnv, xml } from "@odoo/owl";
+import { Spreadsheet } from "../../src";
 import { Grid } from "../../src/components/grid";
 import { Menu } from "../../src/components/menu";
 import { HEADER_HEIGHT, HEADER_WIDTH, MENU_ITEM_HEIGHT, TOPBAR_HEIGHT } from "../../src/constants";
@@ -16,7 +17,6 @@ import {
   MockClipboard,
   mountSpreadsheet,
   nextTick,
-  Parent,
   Touch,
 } from "../test_helpers/helpers";
 
@@ -35,7 +35,7 @@ beforeEach(async () => {
   });
   fixture = makeTestFixture();
   ({ app, parent } = await mountSpreadsheet(fixture));
-  model = (parent as Parent).model;
+  model = (parent as Spreadsheet).model;
 });
 
 afterEach(() => {
@@ -511,7 +511,7 @@ describe("Context Menu", () => {
   });
 
   test("scroll through the menu with the wheel / scrollbar prevents the grid from scrolling", async () => {
-    const grid = getChildFromComponent((parent as Parent).spreadsheet, Grid);
+    const grid = getChildFromComponent(parent, Grid);
     const verticalScrollBar = grid["vScrollbar"];
     const horizontalScrollBar = grid["hScrollbar"];
     expect(verticalScrollBar.scroll).toBe(0);
@@ -534,7 +534,7 @@ describe("Context Menu", () => {
   });
 
   test("scroll through the menu with the touch device prevents the grid from scrolling", async () => {
-    const grid = getChildFromComponent((parent as Parent).spreadsheet, Grid);
+    const grid = getChildFromComponent(parent, Grid);
     const verticalScrollBar = grid["vScrollbar"];
     const horizontalScrollBar = grid["hScrollbar"];
     expect(verticalScrollBar.scroll).toBe(0);

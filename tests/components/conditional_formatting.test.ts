@@ -1,5 +1,5 @@
 import { App } from "@odoo/owl";
-import { Model } from "../../src";
+import { Model, Spreadsheet } from "../../src";
 import { toZone } from "../../src/helpers/zones";
 import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
 import { CommandResult } from "../../src/types";
@@ -13,7 +13,6 @@ import {
   mockUuidV4To,
   mountSpreadsheet,
   nextTick,
-  Parent,
   spyDispatch,
   textContentAll,
 } from "../test_helpers/helpers";
@@ -23,14 +22,14 @@ let model: Model;
 
 describe("UI of conditional formats", () => {
   let fixture: HTMLElement;
-  let parent: Parent;
+  let parent: Spreadsheet;
   let app: App;
 
   beforeEach(async () => {
     fixture = makeTestFixture();
     ({ app, parent } = await mountSpreadsheet(fixture));
     model = parent.model;
-    parent.getSpreadsheetEnv().openSidePanel("ConditionalFormatting");
+    parent.env.openSidePanel("ConditionalFormatting");
     await nextTick();
   });
 
@@ -610,7 +609,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.closePanel, "click");
     await nextTick();
     setSelection(model, ["B2", "C3"]);
-    parent.getSpreadsheetEnv().openSidePanel("ConditionalFormatting");
+    parent.env.openSidePanel("ConditionalFormatting");
     await nextTick();
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();
@@ -641,7 +640,7 @@ describe("UI of conditional formats", () => {
     createSheet(model, { sheetId: "42" });
     await nextTick();
     const zone = toZone("A1:A2");
-    parent.getSpreadsheetEnv().openSidePanel("ConditionalFormatting", { selection: [zone] });
+    parent.env.openSidePanel("ConditionalFormatting", { selection: [zone] });
     await nextTick();
     expect(fixture.querySelector(selectors.listPreview)).toBeNull();
     expect(fixture.querySelector(selectors.ruleEditor.range! as "input")!.value).toBe("A1:A2");
