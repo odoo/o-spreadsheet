@@ -314,8 +314,11 @@ export class Tree<T = unknown> {
     const { previousBranch, branchingOperation } = this.findPreviousBranchingOperation(branch);
     if (!previousBranch || !branchingOperation) return;
     const transformation = this.buildTransformation.with(branchingOperation.data);
+    const branchTail = branch.fork(insertAfter);
+    branchTail.transform(transformation);
+    previousBranch.cutAfter(insertAfter);
+    previousBranch.appendBranch(branchTail);
     const operationToInsert = newOperation.transformed(transformation);
-    previousBranch.insert(operationToInsert, insertAfter);
     this.insertPrevious(previousBranch, operationToInsert, insertAfter);
   }
 
