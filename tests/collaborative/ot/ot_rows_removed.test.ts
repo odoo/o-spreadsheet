@@ -89,6 +89,11 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
         const result = transform(command, removeRows);
         expect(result).toEqual(command);
       });
+      test(`with many row elements in growing order`, () => {
+        const command = { ...cmd, row: 8 };
+        const result = transform(command, { ...removeRows, elements: [2, 3, 4, 5, 6] });
+        expect(result).toEqual({ ...cmd, row: 3 });
+      });
     }
   );
 
