@@ -15,7 +15,6 @@ import {
   Cell,
   CellData,
   CellDependencies,
-  CellPosition,
   CellValueType,
   CommandResult,
   CoreCommand,
@@ -382,9 +381,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
     for (let _sheet of data.sheets) {
       const cells: { [key: string]: CellData } = {};
-      for (let [cellId, cell] of Object.entries(this.cells[_sheet.id] || {})) {
-        let position: CellPosition = this.getters.getCellPosition(cellId);
-        let xc = toXC(position.col, position.row);
+      const positions = Object.keys(this.cells[_sheet.id] || {})
+        .map((cellId) => this.getters.getCellPosition(cellId))
+        .sort((a, b) => (a.col === b.col ? a.row - b.row : a.col - b.col));
+      for (const { col, row } of positions) {
+        const cell = this.getters.getCell(_sheet.id, col, row)!;
+        const xc = toXC(col, row);
 
         cells[xc] = {
           style: cell.style && getStyleId(cell.style),
