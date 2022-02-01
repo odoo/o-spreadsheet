@@ -12,8 +12,8 @@
     "build": "npm run build:js && npm run build:bundle",
     "test": "jest",
     "test:watch": "jest --watch",
-    "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --write",
-    "check-formatting": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --check",
+    "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md,demo/*.js} --write",
+    "check-formatting": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md,demo/*.js} --check",
     "dist": "npm run build:all && npm run build:bundle",
     "prepare": "husky install"
   },
@@ -74,6 +74,6 @@
     ]
   },
   "lint-staged": {
-    "{src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md}": "prettier --write"
+    "{src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md,demo/*.js}": "prettier --write"
   }
 }

@@ -111,47 +111,52 @@ export const demoData = {
           },
         },
       ],
-      figures: [{
-        id: "1",
-        tag: "chart",
-        width: 400,
-        height: 300,
-        x: 800,
-        y: 230,
-        data: {
-          sheetId: "Sheet1",
-          type: "line",
-          title: "demo chart",
-          labelRange: "A27:A35",
-          dataSets: [
-            { labelCell: "B26", dataRange: "B27:B35" },
-            { labelCell: "C26", dataRange: "C27:C35" },
-          ],
-        }
-      }]
+      figures: [
+        {
+          id: "1",
+          tag: "chart",
+          width: 400,
+          height: 300,
+          x: 800,
+          y: 230,
+          data: {
+            sheetId: "Sheet1",
+            type: "line",
+            title: "demo chart",
+            labelRange: "A27:A35",
+            dataSets: [
+              { labelCell: "B26", dataRange: "B27:B35" },
+              { labelCell: "C26", dataRange: "C27:C35" },
+            ],
+          },
+        },
+      ],
     },
     {
       name: "Sheet2",
       cells: {
         B2: { content: "42" },
       },
-      figures: [{
-        id: "someId",
-        tag: "text",
-        width: 300,
-        height: 200,
-        x: 300,
-        y: 100,
-        data: "blablabla"
-      }, {
-        id: "someId2",
-        tag: "text",
-        width: 210,
-        height: 180,
-        x: 900,
-        y: 200,
-        data: "yip yip"
-      }],
+      figures: [
+        {
+          id: "someId",
+          tag: "text",
+          width: 300,
+          height: 200,
+          x: 300,
+          y: 100,
+          data: "blablabla",
+        },
+        {
+          id: "someId2",
+          tag: "text",
+          width: 210,
+          height: 180,
+          x: 900,
+          y: 200,
+          data: "yip yip",
+        },
+      ],
     },
   ],
   styles: {
@@ -176,13 +181,13 @@ export const demoData = {
     5: {
       left: ["thin", "#000"],
       right: ["thin", "#000"],
-      top: ["thin", "#000"]
+      top: ["thin", "#000"],
     },
     6: {
       left: ["thin", "#000"],
       right: ["thin", "#000"],
-      bottom: ["thin", "#000"]
-    }
+      bottom: ["thin", "#000"],
+    },
   },
 };
 
