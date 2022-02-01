@@ -15,6 +15,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { target } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -655,6 +656,24 @@ describe("Collaborative local history", () => {
       setCellContent(charlie, "B2", "Alice");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("transform target command with column addition before the target edge", () => {
+    addColumns(charlie, "before", "B", 1);
+    network.concurrent(() => {
+      undo(charlie);
+      bob.dispatch("SET_FORMATTING", {
+        sheetId: "Sheet1",
+        target: target("A1"),
+        style: { bold: true },
+      });
+    });
+    expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1")?.style, { bold: true });
+    expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1")?.style, undefined);
+    redo(charlie);
+    expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1")?.style, { bold: true });
+    expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1")?.style, undefined);
+    expect(all).toHaveSynchronizedExportedData();
   });
 
   test("Concurrently undo a command on which another is based", () => {
