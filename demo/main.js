@@ -1,4 +1,4 @@
-import { demoData } from "./data.js";
+import { demoData, makeLargeDataset } from "./data.js";
 import { WebsocketTransport } from "./transport.js";
 owl.config.mode = "dev";
 
@@ -43,7 +43,7 @@ class App extends Component {
     super();
     this.key = 1;
     this.data = demoData;
-    // this.data = makeLargeDataset(20, 10_000);
+    // this.data = makeLargeDataset(20, 10_000, ["numbers"]);
     this.stateUpdateMessages = [];
     this.state = useState({ isReadonly: false });
     this.client = {
