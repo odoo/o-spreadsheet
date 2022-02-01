@@ -89,6 +89,11 @@ describe("OT with REMOVE_COLUMN", () => {
         const result = transform(command, removeColumns);
         expect(result).toEqual(command);
       });
+      test(`with many col elements in growing order`, () => {
+        const command = { ...cmd, col: 8 };
+        const result = transform(command, { ...removeColumns, elements: [2, 3, 4, 5, 6] });
+        expect(result).toEqual({ ...cmd, col: 3 });
+      });
     }
   );
 

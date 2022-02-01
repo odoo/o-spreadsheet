@@ -216,10 +216,11 @@ function transformPositionWithGrid(
   const field = executed.dimension === "COL" ? "col" : "row";
   let base = cmd[field];
   if (executed.type === "REMOVE_COLUMNS_ROWS") {
-    if (executed.elements.includes(base)) {
+    const elements = [...executed.elements].sort((a, b) => b - a);
+    if (elements.includes(base)) {
       return "IGNORE_COMMAND";
     }
-    for (let removedElement of executed.elements) {
+    for (let removedElement of elements) {
       if (base >= removedElement) {
         base--;
       }

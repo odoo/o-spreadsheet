@@ -708,6 +708,20 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
+  test("inverse delete rows then replay the command", () => {
+    deleteRows(bob, [6, 5, 4, 3, 2]);
+    network.concurrent(() => {
+      undo(bob);
+      setCellContent(alice, "C4", "hello");
+    });
+    redo(bob);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "C4"),
+      "hello"
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
   test("All locals commands", () => {
     createSheet(alice, { sheetId: "sheet2" });
     network.concurrent(() => {
