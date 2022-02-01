@@ -23,7 +23,7 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
   const sheetId = "Sheet1";
   const removeRows: RemoveColumnsRowsCommand = {
     type: "REMOVE_COLUMNS_ROWS",
-    elements: [2, 5, 3],
+    elements: [2, 3, 5],
     dimension: "ROW",
     sheetId,
   };

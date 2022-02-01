@@ -42,7 +42,7 @@ class App extends Component {
   constructor() {
     super();
     this.key = 1;
-    this.data = demoData;
+    this.data = {};
     // this.data = makeLargeDataset(20, 10_000);
     this.stateUpdateMessages = [];
     this.state = useState({ isReadonly: false });

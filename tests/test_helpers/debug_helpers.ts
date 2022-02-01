@@ -67,5 +67,7 @@ export function getDebugInfo(tree: Tree) {
  */
 export function printDebugModel(model: Model) {
   // @ts-ignore
-  console.log(getDebugInfo(model["session"]["revisions"]["tree"]));
+  console.log(
+    `${model.getters.getClient().name}\n${getDebugInfo(model["session"]["revisions"]["tree"])}`
+  );
 }

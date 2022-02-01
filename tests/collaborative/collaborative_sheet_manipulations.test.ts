@@ -94,6 +94,14 @@ describe("Collaborative Sheet manipulation", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
+  test("transformmlkj ", () => {
+    network.concurrent(() => {
+      deleteRows(alice, [2, 3, 4, 5, 6]);
+      setCellContent(bob, "C4", "=1");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
   test("delete sheet and update figure concurrently", () => {
     const sheetId = "42";
     createSheet(bob, { sheetId, activate: true });

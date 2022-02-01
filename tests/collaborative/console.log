@@ -1,0 +1,66 @@
+      Charlie
+      STAR(0)   24e6(1)   2ad4(2)   bcb1(3)   9e57(4)   
+                          >         bcb1(5)   9e57(6)   
+      
+      Instructions:
+      0: []
+      1: [{"type":"UPDATE_CELL","col":4,"row":9,"sheetId":"Sheet1","content":"hello"}]
+      2: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":5,"quantity":3}]
+      3: []
+      4: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":4,"quantity":1}]
+      5: []
+      6: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":4,"quantity":1}]
+
+      at printDebugModel (tests/test_helpers/debug_helpers.ts:70:11)
+
+    console.log
+      Alice
+      STAR(0)   24e6(1)   2ad4(2)   bcb1(3)   aac7(4)   9e57(5)   
+                          >         bcb1(6)   aac7(7)   9e57(8)   
+      
+      Instructions:
+      0: []
+      1: [{"type":"UPDATE_CELL","col":4,"row":9,"sheetId":"Sheet1","content":"hello"}]
+      2: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":5,"quantity":3}]
+      3: []
+      4: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":1,"quantity":2}]
+      5: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":9,"quantity":1}]
+      6: []
+      7: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":1,"quantity":2}]
+      8: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":6,"quantity":1}]
+
+      at printDebugModel (tests/test_helpers/debug_helpers.ts:70:11)
+
+    console.log
+      Bob
+      STAR(0)   24e6(1)   2ad4(2)   bcb1(3)   aac7(4)   9e57(5)   
+                          >         bcb1(6)   aac7(7)   9e57(8)   
+      
+      Instructions:
+      0: []
+      1: [{"type":"UPDATE_CELL","col":4,"row":9,"sheetId":"Sheet1","content":"hello"}]
+      2: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":5,"quantity":3}]
+      3: []
+      4: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":1,"quantity":2}]
+      5: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":9,"quantity":1}]
+      6: []
+      7: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":1,"quantity":2}]
+      8: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":6,"quantity":1}]
+
+      at printDebugModel (tests/test_helpers/debug_helpers.ts:70:11)
+
+    console.log
+      Charlie
+      STAR(0)   24e6(1)   2ad4(2)   bcb1(3)   aac7(4)   9e57(5)   
+                          >         bcb1(6)   aac7(7)   9e57(8)   
+      
+      Instructions:
+      0: []
+      1: [{"type":"UPDATE_CELL","col":4,"row":9,"sheetId":"Sheet1","content":"hello"}]
+      2: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":5,"quantity":3}]
+      3: []
+      4: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":1,"quantity":2}]
+      5: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":6,"quantity":1}]
+      6: []
+      7: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":1,"quantity":2}]
+      8: [{"type":"ADD_COLUMNS_ROWS","sheetId":"Sheet1","dimension":"COL","position":"before","base":6,"quantity":1}]

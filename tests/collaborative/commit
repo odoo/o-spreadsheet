@@ -1,0 +1,95 @@
+    Alice
+      STAR(0)   14e4(1)   ee48(2)
+
+      Instructions:
+      0: []
+      1: [{"type":"UPDATE_CELL","col":1,"row":16,"sheetId":"Sheet1","content":"=78"}]
+      2: [{"type":"REMOVE_COLUMNS_ROWS","sheetId":"Sheet1","elements":[6,5,4,3,2],"dimension":"ROW"}]
+
+
+
+      Bob
+      STAR(0)   14e4(1)   ee48(2)
+
+      Instructions:
+      0: []
+      1: [{"type":"UPDATE_CELL","col":1,"row":16,"sheetId":"Sheet1","content":"=78"}]
+      2: [{"type":"REMOVE_COLUMNS_ROWS","sheetId":"Sheet1","elements":[6,5,4,3,2],"dimension":"ROW"}]
+
+
+      Charlie
+      STAR(0)   14e4(1)   ee48(2)
+
+      Instructions:
+      0: []
+      1: [{"type":"UPDATE_CELL","col":1,"row":16,"sheetId":"Sheet1","content":"=78"}]
+      2: [{"type":"REMOVE_COLUMNS_ROWS","sheetId":"Sheet1","elements":[6,5,4,3,2],"dimension":"ROW"}]
+
+
+      Alice
+      STAR(0)   14e4(1)   ee48(2)   bfd3(3)
+                          >         bfd3(4)
+
+      Instructions:
+      0: []
+      1: [{"type":"UPDATE_CELL","col":1,"row":16,"sheetId":"Sheet1","content":"=78"}]
+      2: [{"type":"REMOVE_COLUMNS_ROWS","sheetId":"Sheet1","elements":[6,5,4,3,2],"dimension":"ROW"}]
+      3: []
+      4: []
+
+
+      Bob
+      STAR(0)   14e4(1)   ee48(2)   bfd3(3)
+                          >         bfd3(4)
+
+      Instructions:
+      0: []
+      1: [{"type":"UPDATE_CELL","col":1,"row":16,"sheetId":"Sheet1","content":"=78"}]
+      2: [{"type":"REMOVE_COLUMNS_ROWS","sheetId":"Sheet1","elements":[6,5,4,3,2],"dimension":"ROW"}]
+      3: []
+      4: []
+
+
+      Charlie
+      STAR(0)   14e4(1)   ee48(2)   bfd3(3)
+                          >         bfd3(4)
+
+      Instructions:
+      0: []
+      1: [{"type":"UPDATE_CELL","col":1,"row":16,"sheetId":"Sheet1","content":"=78"}]
+      2: [{"type":"REMOVE_COLUMNS_ROWS","sheetId":"Sheet1","elements":[6,5,4,3,2],"dimension":"ROW"}]
+      3: []
+      4: []
+
+
+      Alice
+      STAR(0)   14e4(1)   ee48(2)   bfd3(3)   f94d(4)
+
+      Instructions:
+      0: []
+      1: [{"type":"UPDATE_CELL","col":1,"row":16,"sheetId":"Sheet1","content":"=78"}]
+      2: [{"type":"REMOVE_COLUMNS_ROWS","sheetId":"Sheet1","elements":[6,5,4,3,2],"dimension":"ROW"}]
+      3: []
+      4: []
+
+
+      Bob
+      STAR(0)   14e4(1)   ee48(2)   bfd3(3)   f94d(4)
+
+      Instructions:
+      0: []
+      1: [{"type":"UPDATE_CELL","col":1,"row":16,"sheetId":"Sheet1","content":"=78"}]
+      2: [{"type":"REMOVE_COLUMNS_ROWS","sheetId":"Sheet1","elements":[6,5,4,3,2],"dimension":"ROW"}]
+      3: []
+      4: []
+
+
+      Charlie
+      STAR(0)   14e4(1)   ee48(2)   bfd3(3)   f94d(4)
+
+      Instructions:
+      0: []
+      1: [{"type":"UPDATE_CELL","col":1,"row":16,"sheetId":"Sheet1","content":"=78"}]
+      2: [{"type":"REMOVE_COLUMNS_ROWS","sheetId":"Sheet1","elements":[6,5,4,3,2],"dimension":"ROW"}]
+      3: []
+      4: []
