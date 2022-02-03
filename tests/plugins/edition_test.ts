@@ -1,3 +1,4 @@
+import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 import { getCell } from "../helpers";
@@ -76,5 +77,24 @@ describe("edition", () => {
     expect(model.getters.getEditionMode()).toBe("inactive");
     model.dispatch("STOP_COMPOSER_SELECTION");
     expect(model.getters.getEditionMode()).toBe("inactive");
+  });
+
+  test("start editing where theres a merge on other sheet, change sheet, and stop edition", () => {
+    const model = new Model();
+    const sheetId1 = model.getters.getActiveSheet();
+    const sheetId2 = "42";
+    model.dispatch("ADD_MERGE", {
+      sheet: sheetId1,
+      zone: toZone("A1:D5"),
+    });
+    model.dispatch("CREATE_SHEET", { activate: true, id: sheetId2 });
+    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
+
+    model.dispatch("START_EDITION", { text: "=" });
+    model.dispatch("START_COMPOSER_SELECTION");
+    model.dispatch("ACTIVATE_SHEET", { from: sheetId2, to: sheetId1 });
+    model.dispatch("STOP_EDITION");
+    expect(model.getters.getCell(2, 2, "Sheet2")?.content).toBe("=");
+    expect(model.getters.getCell(0, 0, "Sheet2")).toBeNull();
   });
 });
