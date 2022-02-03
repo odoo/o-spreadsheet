@@ -105,7 +105,9 @@ export class EditionPlugin extends BasePlugin {
     if (this.mode !== "inactive") {
       this.cancelEdition();
       let xc = toXC(this.col, this.row);
-      const { mergeCellMap, merges, cells } = this.workbook.activeSheet;
+      const { mergeCellMap, merges, cells } = this.getters
+        .getSheets()
+        .find((sheet) => sheet.id === this.sheet)!;
       if (xc in mergeCellMap) {
         const mergeId = mergeCellMap[xc];
         xc = merges[mergeId].topLeft;
