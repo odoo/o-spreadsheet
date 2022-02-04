@@ -1,4 +1,11 @@
-import { DATETIME_FORMAT, NULL_FORMAT } from "../../constants";
+import {
+  DATETIME_FORMAT,
+  DECIMAL_POINT_PART_IN_NUMBER_FORMAT,
+  DIGIT_PART_IN_NUMBER_FORMAT,
+  EXPONENT_PART_IN_NUMBER_FORMAT,
+  NULL_FORMAT,
+  SEPARATOR_IN_NUMBER_FORMAT,
+} from "../../constants";
 import { compile } from "../../formulas/index";
 import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
 import { cellFactory } from "../../helpers/cells/cell_factory";
@@ -220,63 +227,64 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * - "#,##0;0.0%;0.000" (step = 1) --> "#,##0.0;0.00%;0.0000"
    */
   private changeDecimalFormat(format: string, step: number): string {
-    const sign = Math.sign(step);
     // According to the representation of the cell format. A format can contain
     // up to 4 sub-formats which can be applied depending on the value of the cell
-    // (among positive / negative / zero / text), each of these sub-format is separated
+    // (among: positive / negative / zero / text), each of these sub-format is separated
     // by ';' in the format. We need to make the change on each sub-format.
-    const subFormats = format.split(";");
+    const subFormats = format.split(SEPARATOR_IN_NUMBER_FORMAT);
     let newSubFormats: string[] = [];
-
     for (let subFormat of subFormats) {
-      const decimalPointPosition = subFormat.indexOf(".");
-      const exponentPosition = subFormat.toUpperCase().indexOf("E");
-      let newSubFormat: string;
-
-      // the 1st step is to find the part of the zeros located before the
-      // exponent (when existed)
-      const subPart = exponentPosition > -1 ? subFormat.slice(0, exponentPosition) : subFormat;
-      const zerosAfterDecimal =
-        decimalPointPosition > -1 ? subPart.slice(decimalPointPosition).match(/0/g)!.length : 0;
-
-      // the 2nd step is to add (or remove) zero after the last zeros obtained in
-      // step 1
-      const lastZeroPosition = subPart.lastIndexOf("0");
-      if (lastZeroPosition > -1) {
-        if (sign > 0) {
-          // in this case we want to add decimal information
-          if (zerosAfterDecimal < maximumDecimalPlaces) {
-            newSubFormat =
-              subFormat.slice(0, lastZeroPosition + 1) +
-              (zerosAfterDecimal === 0 ? ".0" : "0") +
-              subFormat.slice(lastZeroPosition + 1);
-          } else {
-            newSubFormat = subFormat;
-          }
-        } else {
-          // in this case we want to remove decimal information
-          if (zerosAfterDecimal > 0) {
-            // remove last zero
-            newSubFormat =
-              subFormat.slice(0, lastZeroPosition) + subFormat.slice(lastZeroPosition + 1);
-            // if a zero always exist after decimal point else remove decimal point
-            if (zerosAfterDecimal === 1) {
-              newSubFormat =
-                newSubFormat.slice(0, decimalPointPosition) +
-                newSubFormat.slice(decimalPointPosition + 1);
-            }
-          } else {
-            // zero after decimal isn't present, we can't remove zero
-            newSubFormat = subFormat;
-          }
-        }
-      } else {
-        // no zeros are present in this format, we do nothing
-        newSubFormat = subFormat;
-      }
-      newSubFormats.push(newSubFormat);
+      newSubFormats.push(this._changeDecimalFormat(subFormat, step));
     }
     return newSubFormats.join(";");
+  }
+
+  private _changeDecimalFormat(subFormat: string, step: number): string {
+    if (subFormat.search(DIGIT_PART_IN_NUMBER_FORMAT) < 0) {
+      // no zeros are present in this format, we change nothing
+      return subFormat;
+    }
+
+    const sign = Math.sign(step);
+    const decimalPointPosition = subFormat.search(DECIMAL_POINT_PART_IN_NUMBER_FORMAT);
+    const exponentPosition = subFormat.search(EXPONENT_PART_IN_NUMBER_FORMAT);
+
+    // The 1st step is to find the number of zeros in the decimal places. Note that
+    // we don't want to take into account zeros after exponent when existing.
+    let zerosInSubPart = 0;
+    let subPartBeforeExponent = subFormat;
+    if (exponentPosition > -1) {
+      subPartBeforeExponent = subFormat.slice(0, exponentPosition);
+    }
+    if (decimalPointPosition > -1) {
+      const subPart = subPartBeforeExponent.slice(decimalPointPosition);
+      zerosInSubPart = subPart.match(DIGIT_PART_IN_NUMBER_FORMAT)!.length;
+    }
+
+    // the 2nd step is to add (or remove) zero after the last zeros
+    const lastZeroPosition = subPartBeforeExponent.lastIndexOf(
+      subPartBeforeExponent.match(DIGIT_PART_IN_NUMBER_FORMAT)!.pop()!
+    );
+
+    let newSubFormat = subFormat;
+    if (sign > 0) {
+      // in this case we want to add decimal information
+      if (zerosInSubPart < maximumDecimalPlaces) {
+        newSubFormat =
+          subFormat.slice(0, lastZeroPosition + 1) +
+          (zerosInSubPart === 0 ? ".0" : "0") +
+          subFormat.slice(lastZeroPosition + 1);
+      }
+    } else {
+      // in this case we want to remove decimal information
+      if (zerosInSubPart > 0) {
+        // delta case to remove decimal point when only one decimal zero staying
+        const delta = zerosInSubPart === 1 ? -1 : 0;
+        newSubFormat =
+          subFormat.slice(0, lastZeroPosition + delta) + subFormat.slice(lastZeroPosition + 1);
+      }
+    }
+    return newSubFormat;
   }
 
   /**

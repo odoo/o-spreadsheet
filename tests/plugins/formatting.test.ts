@@ -172,99 +172,56 @@ describe("formatting values (when change decimal)", () => {
     expect(getCell(model, "A1")!.format).toBe("0%");
   });
 
-  test("Can change decimal format of a cell that already has format", () => {
-    const model = new Model();
+  test.each([
+    ["0%", "0.0%", "0.00%"],
+    ["#,##0", "#,##0.0", "#,##0.00"],
+    ["0E+00", "0.0E+00", "0.00E+00"],
+    ["0E+0", "0.0E+0", "0.00E+0"],
 
-    setCellContent(model, "A1", "42");
-    selectCell(model, "A1");
-    setFormat(model, "0.0%");
-    setDecimal(model, 1);
-    expect(getCell(model, "A1")!.format).toBe("0.00%");
+    ['#,##0"$"', '#,##0.0"$"', '#,##0.00"$"'],
+    ['"$"#,##0', '"$"#,##0.0', '"$"#,##0.00'],
 
-    setCellContent(model, "A2", "42");
-    selectCell(model, "A2");
-    setFormat(model, "0.0%");
-    setDecimal(model, -1);
-    expect(getCell(model, "A2")!.format).toBe("0%");
+    ["#,##0[$ THUNE ]", "#,##0.0[$ THUNE ]", "#,##0.00[$ THUNE ]"],
+    ["[$ THUNE ]#,##0", "[$ THUNE ]#,##0.0", "[$ THUNE ]#,##0.00"],
 
-    setCellContent(model, "A3", "42");
-    selectCell(model, "A3");
-    setFormat(model, "0%");
-    setDecimal(model, 1);
-    expect(getCell(model, "A3")!.format).toBe("0.0%");
+    ["#,##0[$ #,##0.00 ]", "#,##0.0[$ #,##0.00 ]", "#,##0.00[$ #,##0.00 ]"],
+    ["[$ #,##0.00 ]#,##0", "[$ #,##0.00 ]#,##0.0", "[$ #,##0.00 ]#,##0.00"],
 
-    setCellContent(model, "A4", "42");
-    selectCell(model, "A4");
-    setFormat(model, "0%");
-    setDecimal(model, -1);
-    expect(getCell(model, "A4")!.format).toBe("0%");
+    ['0E+00"[$ 0.00E+00 ]', "0.0E+00[$ 0.00E+00 ]", "0.00E+00[$ 0.00E+00 ]"],
+    ['[$ 0.00E+00 ]0E+00"', "[$ 0.00E+00 ]0.0E+00", "[$ 0.00E+00 ]0.00E+00"],
 
-    setCellContent(model, "B1", "24");
-    selectCell(model, "B1");
-    setFormat(model, "#,##0.0");
-    setDecimal(model, 1);
-    expect(getCell(model, "B1")!.format).toBe("#,##0.00");
+    ["#,##0[$[0.000E0]]", "#,##0.0[$[0.000E0]]", "#,##0.00[$[0.000E0]]"],
+    ["[$[0.000E0]]#,##0", "[$[0.000E0]]#,##0.0", "[$[0.000E0]]#,##0.00"],
+  ])(
+    "Can change decimal format of a cell that already has format",
+    (noneDecimal, oneDecimal, twoDecimal) => {
+      const model = new Model();
 
-    setCellContent(model, "B2", "24");
-    selectCell(model, "B2");
-    setFormat(model, "#,##0.0");
-    setDecimal(model, -1);
-    expect(getCell(model, "B2")!.format).toBe("#,##0");
+      setCellContent(model, "A1", "42");
+      selectCell(model, "A1");
+      setFormat(model, oneDecimal);
+      setDecimal(model, 1);
+      expect(getCell(model, "A1")!.format).toBe(twoDecimal);
 
-    setCellContent(model, "B3", "24");
-    selectCell(model, "B3");
-    setFormat(model, "#,##0");
-    setDecimal(model, 1);
-    expect(getCell(model, "B3")!.format).toBe("#,##0.0");
+      setCellContent(model, "A2", "42");
+      selectCell(model, "A2");
+      setFormat(model, oneDecimal);
+      setDecimal(model, -1);
+      expect(getCell(model, "A2")!.format).toBe(noneDecimal);
 
-    setCellContent(model, "B4", "24");
-    selectCell(model, "B4");
-    setFormat(model, "#,##0");
-    setDecimal(model, -1);
-    expect(getCell(model, "B4")!.format).toBe("#,##0");
+      setCellContent(model, "A3", "42");
+      selectCell(model, "A3");
+      setFormat(model, noneDecimal);
+      setDecimal(model, 1);
+      expect(getCell(model, "A3")!.format).toBe(oneDecimal);
 
-    setCellContent(model, "C1", "707");
-    selectCell(model, "C1");
-    setFormat(model, "0.0E+00");
-    setDecimal(model, 1);
-    expect(getCell(model, "C1")!.format).toBe("0.00E+00");
-
-    setCellContent(model, "C2", "707");
-    selectCell(model, "C2");
-    setFormat(model, "0.0E+00");
-    setDecimal(model, -1);
-    expect(getCell(model, "C2")!.format).toBe("0E+00");
-
-    setCellContent(model, "C3", "707");
-    selectCell(model, "C3");
-    setFormat(model, "0E+00");
-    setDecimal(model, 1);
-    expect(getCell(model, "C3")!.format).toBe("0.0E+00");
-
-    setCellContent(model, "C3", "707");
-    selectCell(model, "C3");
-    setFormat(model, "0E+0");
-    setDecimal(model, 1);
-    expect(getCell(model, "C3")!.format).toBe("0.0E+0");
-
-    setCellContent(model, "C4", "707");
-    selectCell(model, "C4");
-    setFormat(model, "0E+00");
-    setDecimal(model, -1);
-    expect(getCell(model, "C4")!.format).toBe("0E+00");
-
-    setCellContent(model, "D1", "39738");
-    selectCell(model, "D1");
-    setFormat(model, "#,##0;#,##0.00");
-    setDecimal(model, 1);
-    expect(getCell(model, "D1")!.format).toBe("#,##0.0;#,##0.000");
-
-    setCellContent(model, "D2", "39738");
-    selectCell(model, "D2");
-    setFormat(model, "#,##0;#,##0.0");
-    setDecimal(model, -1);
-    expect(getCell(model, "D2")!.format).toBe("#,##0;#,##0");
-  });
+      setCellContent(model, "A4", "42");
+      selectCell(model, "A4");
+      setFormat(model, noneDecimal);
+      setDecimal(model, -1);
+      expect(getCell(model, "A4")!.format).toBe(noneDecimal);
+    }
+  );
 
   test("Can change decimal format of a cell that hasn't format (case 'number' type only)", () => {
     const model = new Model();

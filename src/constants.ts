@@ -63,10 +63,6 @@ export const DEFAULT_STYLE: Style = {
 };
 export const LINK_COLOR = "#00f";
 
-// DateTimeRegex
-// (?!\[\$.*) and (?!.*\]) allow to don't catch date time format in custom currency
-export const DATETIME_FORMAT = /(?!\[\$.*)[ymd:](?!.*\])/;
-
 // Ranges
 export const INCORRECT_RANGE_STRING = "#REF";
 
@@ -92,3 +88,102 @@ export const FORBIDDEN_IN_EXCEL_REGEX = /'|\*|\?|\/|\\|\[|\]/;
 
 // Cells
 export const NULL_FORMAT = undefined;
+
+// -----------------------------------------------------------------------------
+// Format
+// -----------------------------------------------------------------------------
+
+/**
+ * Create a specific regular expression to find a character
+ * or expression of interest in a format.
+ *
+ * The resulting regex guarantees that the character/expression
+ * to be searched will not be counted if it is included in the
+ * custom part of the format.
+ *
+ */
+function createFormatterRegexp(expression: string): RegExp {
+  // (?!\[\$.*) and (?!.*\]) allow to don't catch the expression in custom currency part
+  return new RegExp("(?!\\[\\$.*)" + expression + "(?!.*\\])", "g");
+}
+
+export const DATETIME_FORMAT = createFormatterRegexp("[ymd:]");
+export const DIGIT_PART_IN_NUMBER_FORMAT = createFormatterRegexp("0");
+export const DECIMAL_POINT_PART_IN_NUMBER_FORMAT = createFormatterRegexp("\\.");
+export const EXPONENT_PART_IN_NUMBER_FORMAT = createFormatterRegexp("[Ee]");
+export const SEPARATOR_IN_NUMBER_FORMAT = createFormatterRegexp(";");
+
+interface Truc {
+  value: string;
+  type: "number" | "bracket" | "quotes";
+}
+
+// #,##0.00
+
+// #,##0.00[$դր.0]
+// [$դր.0]#,##0.00
+
+// #,##0.00[$դր.00]
+// [$դր.00]#,##0.00
+
+// #,##0.00[[$դր.0]#,##0.00]
+// [[$դր.0]#,##0.00]#,##0.00
+
+
+
+
+##0.0 "KIKOU" %
+
+/**
+ * "[$hjqs[bdq]##0.00[qsdj]" =>
+ * [
+ *  {value: "[$hjqs[bdq]", type: "bracket"},
+ *  {value: "##0.00", type:"number"},
+ *  {value: "[qsdj]", type: "bracket"}
+ * ]
+ *
+ * "[$hjqs[kikou]bdq]##0.00[qsdj]" => throws Error: nested brackets
+ *
+ * "##0.00]" => throws error: unclosed brackets
+ */
+export function splitFormat(format: string): Truc[] {
+  let currentIndex = 0;
+  let result: Truc[] = [];
+  while (currentIndex < format.length) {
+    let closingIndex: number;
+    if (format.charAt(currentIndex) === "[") {
+      // manage brackets
+      closingIndex = format.substring(currentIndex).indexOf("]") + currentIndex + 1;
+      // maybemove errors in a validateformats
+      if (closingIndex === 0) {
+        throw new Error(_lt(`Invalid format %s. You cannot have nested brackets`, format));
+      }
+      closingIndex = closingIndex || format.length;
+      result.push({
+        value: format.substring(currentIndex, closingIndex),
+        type: "bracket",
+      });
+    } else if (format.charAt(currentIndex) === '"') {
+      // manage quotes
+      closingIndex = format.substring(currentIndex).indexOf('"') + currentIndex + 1;
+      if (closingIndex === 0) {
+        throw new Error(_lt(`Invalid format %s. quotes must be closed`, format));
+      }
+      closingIndex = closingIndex || format.length;
+      result.push({
+        value: format.substring(currentIndex, closingIndex),
+        type: "quotes",
+      });
+    } else {
+      // rest of the time
+      const a = format.substring(currentIndex).match(/\[|\"/);
+      closingIndex = a ? a.index! + currentIndex : format.length;
+      result.push({
+        value: format.substring(currentIndex, closingIndex),
+        type: "number",
+      });
+    }
+    currentIndex = closingIndex;
+  }
+  return result;
+}
