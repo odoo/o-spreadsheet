@@ -20,7 +20,11 @@ export class DataSourceRegistry<M, D> extends owl.core.EventBus {
    */
   add(key: string, value: DataSource<M, D>): DataSourceRegistry<M, D> {
     this.registry.add(key, value);
-    value.on("data-loaded", this, () => this.trigger("data-loaded", { id: key }));
+    const debouncedLoaded: Function = owl.utils.debounce(
+      () => this.trigger("data-loaded", { id: key }),
+      0
+    );
+    value.on("data-loaded", this, () => debouncedLoaded());
     value.loadMetadata();
     return this;
   }

@@ -201,8 +201,12 @@ export class EditionPlugin extends UIPlugin {
         this.selectionEnd = this.currentContent.length;
         break;
       case "DELETE_SHEET":
-        if (cmd.sheetId === this.sheet && this.mode !== "inactive") {
-          this.dispatch("STOP_EDITION", { cancel: true });
+      case "UNDO":
+      case "REDO":
+        const sheetIdExists = !!this.getters.tryGetSheet(this.sheet);
+        if (!sheetIdExists && this.mode !== "inactive") {
+          this.cancelEdition();
+          this.resetContent();
           this.ui.notifyUser(CELL_DELETED_MESSAGE);
         }
         break;
@@ -356,7 +360,8 @@ export class EditionPlugin extends UIPlugin {
     if (this.mode !== "inactive") {
       this.cancelEdition();
       const sheetId = this.getters.getActiveSheetId();
-      const [col, row] = this.getters.getMainCell(sheetId, this.col, this.row);
+      const mergeSheetId = this.getters.getSheets().find((sheet) => sheet.id === this.sheet)!.id;
+      const [col, row] = this.getters.getMainCell(mergeSheetId, this.col, this.row);
       let content = this.currentContent;
       const didChange = this.initialContent !== content;
       if (!didChange) {

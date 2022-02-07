@@ -139,13 +139,13 @@ export const demoData = {
           ranges: ["H23:H33"],
           rule: {
             type: "IconSetRule",
-                upperInflectionPoint: { type: "percentage", value: "66", operator: "gt" },
-                lowerInflectionPoint: { type: "percentage", value: "33", operator: "gt" },
-                icons: {
-                  upper: "arrowGood",
-                  middle: "dotNeutral",
-                  lower: "arrowBad",
-                },
+            upperInflectionPoint: { type: "percentage", value: "66", operator: "gt" },
+            lowerInflectionPoint: { type: "percentage", value: "33", operator: "gt" },
+            icons: {
+              upper: "arrowGood",
+              middle: "dotNeutral",
+              lower: "arrowBad",
+            },
           },
         },
         {
@@ -153,13 +153,13 @@ export const demoData = {
           ranges: ["I23:I33"],
           rule: {
             type: "IconSetRule",
-                upperInflectionPoint: { type: "number", value: "4", operator: "ge" },
-                lowerInflectionPoint: { type: "number", value: "2", operator: "ge" },
-                icons: {
-                  upper: "smileyGood",
-                  middle: "smileyNeutral",
-                  lower: "smileyBad",
-                },
+            upperInflectionPoint: { type: "number", value: "4", operator: "ge" },
+            lowerInflectionPoint: { type: "number", value: "2", operator: "ge" },
+            icons: {
+              upper: "smileyGood",
+              middle: "smileyNeutral",
+              lower: "smileyBad",
+            },
           },
         },
       ],
@@ -369,7 +369,7 @@ export const demoData = {
         C31: { content: "4" },
         D31: { content: "=IF(B31=C31,1, 0)" },
         A32: { content: "COUNTBLANK" },
-        B32: { content: '=COUNTBLANK(F1:G1)' },
+        B32: { content: "=COUNTBLANK(F1:G1)" },
         C32: { content: "1" },
         D32: { content: "=IF(B32=C32,1, 0)" },
         A33: { content: "COUNTIF" },
@@ -1007,7 +1007,7 @@ function _getColumnLetter(number) {
     : "";
 }
 
-function computeCells(cols, rows) {
+function computeFormulaCells(cols, rows) {
   const cells = {};
   for (let letter = 0; letter <= cols; letter++) {
     const x = _getColumnLetter(letter);
@@ -1016,12 +1016,12 @@ function computeCells(cols, rows) {
     } else {
       const prev = _getColumnLetter(letter - 1);
       cells[x + 3] = {
-        formula: { text: "=2*|0|", dependencies: [`${prev}${rows}`] },
+        content: `=2*${prev}${rows}`,
       };
     }
     for (let index = 4; index <= rows; index++) {
       cells[x + index] = {
-        formula: { text: "=|0|+1", dependencies: [`${x}${index - 1}`] },
+        content: `=${x}${index - 1}+1`,
       };
     }
   }
@@ -1029,25 +1029,67 @@ function computeCells(cols, rows) {
   const nextLetter = _getColumnLetter(cols + 1);
   for (let i = 3; i <= rows; i++) {
     cells[nextLetter + i] = {
-      formula: { text: "=SUM(|0|)", dependencies: [`A${i}:${letter}${i}`] },
+      content: `=SUM(A${i}:${letter}${i})`,
     };
   }
   return cells;
 }
 
-export function makeLargeDataset(cols, rows) {
+function computeNumberCells(cols, rows) {
+  const cells = {};
+  for (let col = 0; col < cols; col++) {
+    const letter = _getColumnLetter(col);
+    for (let index = 1; index < rows - 1; index++) {
+      cells[letter + index] = { content: `${col + index}` };
+    }
+  }
+  return cells;
+}
+
+function computeStringCells(cols, rows) {
+  const cells = {};
+  for (let col = 0; col < cols; col++) {
+    const letter = _getColumnLetter(col);
+    for (let index = 1; index < rows; index++) {
+      cells[letter + index] = { content: Math.random().toString(36).substr(2) };
+    }
+  }
+  return cells;
+}
+
+/**
+ *
+ * @param {*} cols
+ * @param {*} rows
+ * @param {*} sheetsInfo ("numbers"|"strings"|"formulas")[]>
+ * @returns
+ */
+export function makeLargeDataset(cols, rows, sheetsInfo = ["formulas"]) {
+  const sheets = [];
+  let cells;
+  for (let index = 0; index < sheetsInfo.length; index++) {
+    switch (sheetsInfo[index]) {
+      case "formulas":
+        cells = computeFormulaCells(cols, rows);
+        break;
+      case "numbers":
+        cells = computeNumberCells(cols, rows);
+        break;
+      case "strings":
+        cells = computeStringCells(cols, rows);
+    }
+    sheets.push({
+      name: `Sheet${index + 1}`,
+      colNumber: cols,
+      rowNumber: rows,
+      cols: { 1: {}, 3: {} }, // ?
+      rows: {},
+      cells,
+    });
+  }
   return {
-    version: 6,
-    sheets: [
-      {
-        name: "Sheet1",
-        colNumber: cols,
-        rowNumber: rows,
-        cols: { 1: {}, 3: {} },
-        rows: {},
-        cells: computeCells(cols, rows),
-      },
-    ],
+    version: 10,
+    sheets,
     styles: {
       1: { bold: true, textColor: "#3A3791", fontSize: 12 },
       2: { italic: true },
