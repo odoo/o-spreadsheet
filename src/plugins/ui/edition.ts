@@ -360,7 +360,8 @@ export class EditionPlugin extends UIPlugin {
     if (this.mode !== "inactive") {
       this.cancelEdition();
       const sheetId = this.getters.getActiveSheetId();
-      const [col, row] = this.getters.getMainCell(sheetId, this.col, this.row);
+      const mergeSheetId = this.getters.getSheets().find((sheet) => sheet.id === this.sheet)!.id;
+      const [col, row] = this.getters.getMainCell(mergeSheetId, this.col, this.row);
       let content = this.currentContent;
       const didChange = this.initialContent !== content;
       if (!didChange) {
