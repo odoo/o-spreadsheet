@@ -23,12 +23,6 @@ import {
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
-function* makeObjectIterator(obj: Object) {
-  for (let i in obj) {
-    yield obj[i];
-  }
-}
-
 const functionMap = functionRegistry.mapping;
 
 type FormulaParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
@@ -128,13 +122,13 @@ export class EvaluationPlugin extends UIPlugin {
     const cells = this.getters.getCells(sheetId);
     const params = this.getFormulaParameters(computeValue);
     const visited: { [sheetId: string]: { [xc: string]: boolean | null } } = {};
-    for (let cell of makeObjectIterator(cells)) {
+    for (let cell of Object.values(cells)) {
       if (cell.isFormula()) {
         cell.startEvaluation();
       }
     }
 
-    for (let cell of makeObjectIterator(cells)) {
+    for (let cell of Object.values(cells)) {
       computeValue(cell, sheetId);
     }
 

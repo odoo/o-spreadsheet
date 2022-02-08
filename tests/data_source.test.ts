@@ -1,3 +1,4 @@
+import * as owl from "@odoo/owl";
 import { DataSource, UIPlugin } from "../src";
 import { DataSourceRegistry } from "../src/data_source";
 import { args, functionRegistry } from "../src/functions";
@@ -22,7 +23,7 @@ class StringDataSource extends DataSource<string, string> {
 class DataSourcePlugin extends UIPlugin {
   static getters = ["get"];
 
-  dataSource: DataSourceRegistry<string, string>;
+  dataSources: DataSourceRegistry<string, string>;
 
   constructor(
     getters: Getters,
@@ -31,15 +32,15 @@ class DataSourcePlugin extends UIPlugin {
     config: ModelConfig
   ) {
     super(getters, state, dispatch, config);
-    this.dataSource = config.dataSources;
+    this.dataSources = config.dataSources;
   }
 
   addDataSource(id: UID, dataSource: DataSource<string, string>) {
-    this.dataSource.add(id, dataSource);
+    this.dataSources.add(id, dataSource);
   }
 
   get(id: UID): DataSource<string, string> {
-    return this.dataSource.get(id);
+    return this.dataSources.get(id);
   }
 }
 
@@ -100,11 +101,17 @@ describe("DataSource", () => {
     expect(dataSourcePlugin.get("2").getSync()).toBe("data");
   });
 
-  test("Functions can rely on dataSource, and are evaluated as soon as the dataSource is ready", async () => {
-    dataSourcePlugin.addDataSource("1", new StringDataSource());
+  test("Functions can rely on dataSource, and are evaluated right after the dataSource is ready", async () => {
+    jest.useFakeTimers();
+    jest.spyOn(owl.browser, "setTimeout").mockImplementation(window.setTimeout.bind(window));
+    jest.spyOn(owl.browser, "clearTimeout").mockImplementation(window.clearTimeout.bind(window));
+    const stringDs = new StringDataSource();
+    dataSourcePlugin.addDataSource("1", stringDs);
     setCellContent(model, "A1", "=WAIT2(1)");
     expect(getCellContent(model, "A1")).toBe("LOADING...");
-    await model.waitForIdle();
+    // ready the dataSource
+    await stringDs.get();
+    jest.advanceTimersByTime(2);
     expect(getCellContent(model, "A1")).toBe("data");
   });
 });
