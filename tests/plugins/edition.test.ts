@@ -5,6 +5,7 @@ import {
   activateSheet,
   createSheet,
   createSheetWithName,
+  merge,
   renameSheet,
   selectCell,
   setCellContent,
@@ -603,5 +604,19 @@ describe("edition", () => {
     model.dispatch("SET_CURRENT_CONTENT", { content: "=Sheet1" });
     model.dispatch("STOP_EDITION");
     expect(model.getters.getCurrentContent()).toBe("=Sheet1");
+  });
+
+  test("start editing where theres a merge on other sheet, change sheet, and stop edition", () => {
+    const model = new Model();
+    const sheetId1 = model.getters.getActiveSheetId();
+    const sheetId2 = "42";
+    merge(model, "A1:D5");
+    createSheet(model, { sheetId: sheetId2, activate: true });
+    selectCell(model, "C3");
+    model.dispatch("START_EDITION", { text: "=" });
+    activateSheet(model, sheetId1);
+    model.dispatch("STOP_EDITION");
+    expect(getCellText(model, "C3", sheetId2)).toBe("=");
+    expect(getCell(model, "A1")).toBeUndefined();
   });
 });
