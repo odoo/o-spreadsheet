@@ -95,7 +95,6 @@ export class SortPlugin extends CorePlugin {
   private checkExpandedValues(sheet: Sheet, z: Zone): boolean {
     const expandedZone = this.expand(sheet, z);
     const sheetId = sheet.id;
-    let line: string[] = [];
     let cell: Cell | undefined;
     if (this.getters.doesIntersectMerge(sheetId, expandedZone)) {
       const { left, right, top, bottom } = expandedZone;
@@ -103,15 +102,19 @@ export class SortPlugin extends CorePlugin {
         for (let r = top; r <= bottom; r++) {
           const [mainCellCol, mainCellRow] = this.getters.getMainCell(sheetId, c, r);
           cell = this.getters.getCell(sheetId, mainCellCol, mainCellRow);
-          line.push(cell?.formattedValue || "");
+          if (cell?.formattedValue) {
+            return true;
+          }
         }
       }
     } else {
-      line = this.getters
-        .getCellsInZone(sheetId, expandedZone)
-        .map((cell) => cell?.formattedValue || "");
+      for (let cell of this.getters.getCellsInZone(sheetId, expandedZone)) {
+        if (cell?.formattedValue) {
+          return true;
+        }
+      }
     }
-    return line.some((item) => item !== "");
+    return false;
   }
 
   /**

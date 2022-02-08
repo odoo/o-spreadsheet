@@ -1,3 +1,4 @@
+import { Format } from "./format";
 import { Argument } from "./misc";
 
 export type ArgType =
@@ -29,7 +30,7 @@ export enum ReturnFormatType {
 }
 
 export interface ReturnSpecificFormat {
-  specificFormat: string;
+  specificFormat: Format;
 }
 
 export interface AddFunctionDescription {

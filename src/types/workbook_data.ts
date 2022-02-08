@@ -1,4 +1,4 @@
-import { CellValue, ExcelChartDefinition } from ".";
+import { CellValue, ExcelChartDefinition, Format } from ".";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Border, Style, UID } from "./misc";
 
@@ -48,7 +48,7 @@ export interface WorkbookData {
   version: number;
   sheets: SheetData[];
   styles: { [key: number]: Style };
-  formats: { [key: number]: string };
+  formats: { [key: number]: Format };
   borders: { [key: number]: Border };
   entities: { [key: string]: { [key: string]: any } };
   revisionId: UID;

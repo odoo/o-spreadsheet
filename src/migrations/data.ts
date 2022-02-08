@@ -6,7 +6,7 @@ import {
 } from "../constants";
 import { getItemId, toXC, toZone } from "../helpers/index";
 import { _t } from "../translation";
-import { ExcelSheetData, ExcelWorkbookData, SheetData, WorkbookData } from "../types/index";
+import { ExcelSheetData, ExcelWorkbookData, Format, SheetData, WorkbookData } from "../types/index";
 import { normalizeV9 } from "./legacy_tools";
 
 /**
@@ -269,7 +269,7 @@ const MIGRATIONS: Migration[] = [
     from: 10,
     to: 11,
     applyMigration(data: any): any {
-      const formats: { [formatId: number]: string } = {};
+      const formats: { [formatId: number]: Format } = {};
       for (let sheet of data.sheets || []) {
         for (let xc in sheet.cells || []) {
           const cell = sheet.cells[xc];

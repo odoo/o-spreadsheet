@@ -16,7 +16,7 @@ import {
   timeRegexp,
   ymdDateRegexp,
 } from "../../helpers/dates";
-import { ExcelCellData } from "../../types";
+import { ExcelCellData, Format } from "../../types";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../constants";
 import { getCellType, pushElement } from "../helpers/content_helpers";
@@ -149,7 +149,7 @@ function convertDateFormat(ast: ASTString): ASTString {
   const value = ast.value.replace(new RegExp('"', "g"), "");
   const internalDate = parseDateTime(value);
   if (internalDate) {
-    let format: string[] = [];
+    let format: Format[] = [];
     if (value.match(mdyDateRegexp) || value.match(ymdDateRegexp)) {
       format.push("yyyy-mm-dd");
     }

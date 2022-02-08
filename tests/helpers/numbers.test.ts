@@ -1,7 +1,6 @@
 import {
   formatDecimal,
   formatNumber,
-  formatPercent,
   formatStandardNumber,
   isNumber,
   parseNumber,
@@ -130,12 +129,6 @@ describe("formatNumber", () => {
     expect(formatDecimal(10000, 2, "s")).toBe("10s000.00");
     expect(formatDecimal(100000, 2, "s")).toBe("100s000.00");
     expect(formatDecimal(1000000, 2, "s")).toBe("1s000s000.00");
-  });
-
-  test("formatPercent", () => {
-    expect(formatPercent(0)).toBe("0.00%");
-    expect(formatPercent(0.123)).toBe("12.30%");
-    expect(formatPercent(0.1234)).toBe("12.34%");
   });
 });
 

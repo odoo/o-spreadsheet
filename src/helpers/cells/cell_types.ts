@@ -8,6 +8,7 @@ import {
   CellValueType,
   CompiledFormula,
   EmptyEvaluation,
+  Format,
   FormulaCell as IFormulaCell,
   ICell,
   InvalidEvaluation,
@@ -32,7 +33,7 @@ import { formatValue } from "./cell_helpers";
  */
 abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implements ICell {
   readonly style?: Style;
-  readonly format?: string;
+  readonly format?: Format;
   abstract content: string;
 
   constructor(readonly id: UID, public evaluated: T, properties: CellDisplayProperties) {
@@ -143,9 +144,9 @@ export class TextCell extends AbstractCell<TextEvaluation> {
  * date time format.
  */
 export class DateTimeCell extends NumberCell {
-  readonly format: string;
+  readonly format: Format;
 
-  constructor(id: UID, value: number, properties: CellDisplayProperties & { format: string }) {
+  constructor(id: UID, value: number, properties: CellDisplayProperties & { format: Format }) {
     super(id, value, properties);
     this.format = properties.format;
   }

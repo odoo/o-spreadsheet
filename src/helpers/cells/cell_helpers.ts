@@ -1,13 +1,13 @@
 import { isBoolean, isDateTime, isNumber, parseDateTime, parseNumber } from "..";
 import { DATETIME_FORMAT } from "../../constants";
-import { CellValue } from "../../types";
+import { CellValue, Format, FormattedValue } from "../../types";
 import { formatDateTime } from "../dates";
 import { formatNumber, formatStandardNumber } from "../numbers";
 
 /**
  * Format a cell value with its format.
  */
-export function formatValue(value: CellValue, format?: string): string {
+export function formatValue(value: CellValue, format?: Format): FormattedValue {
   switch (typeof value) {
     case "string":
       return value;

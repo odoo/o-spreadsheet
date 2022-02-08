@@ -408,8 +408,8 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     setStyle(this.env, { [style]: !this.style[style] });
   }
 
-  toogleFormat(format: string) {
-    const formatter = FORMATS.find((f) => f.name === format);
+  toogleFormat(formatName: string) {
+    const formatter = FORMATS.find((f) => f.name === formatName);
     const value = (formatter && formatter.value) || "";
     setFormatter(this.env, value);
   }

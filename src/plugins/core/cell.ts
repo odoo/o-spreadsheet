@@ -19,6 +19,7 @@ import {
   CompiledFormula,
   CoreCommand,
   ExcelWorkbookData,
+  Format,
   FormulaCell,
   Range,
   RangePart,
@@ -138,7 +139,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * Set a format to all the cells in a zone
    */
-  private setFormatter(sheetId: UID, zones: Zone[], format: string) {
+  private setFormatter(sheetId: UID, zones: Zone[], format: Format) {
     for (let zone of zones) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         for (let col = zone.left; col <= zone.right; col++) {
@@ -181,7 +182,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * number value. Returns a default format if the cell hasn't format. Returns
    * undefined if no number value in the range.
    */
-  private searchNumberFormat(sheetId: UID, zones: Zone[]): string | undefined {
+  private searchNumberFormat(sheetId: UID, zones: Zone[]): Format | undefined {
     for (let zone of zones) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         for (let col = zone.left; col <= zone.right; col++) {
@@ -210,7 +211,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * - 42.1 --> '0.0'
    * - 456.0001 --> '0.0000'
    */
-  private setDefaultNumberFormat(cellValue: number): string {
+  private setDefaultNumberFormat(cellValue: number): Format {
     const strValue = cellValue.toString();
     const parts = strValue.split(".");
     if (parts.length === 1) {
@@ -237,19 +238,19 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * - "#,##0.0" (step = -1) --> "#,##0"
    * - "#,##0;0.0%;0.000" (step = 1) --> "#,##0.0;0.00%;0.0000"
    */
-  private changeDecimalFormat(format: string, step: number): string {
+  private changeDecimalFormat(format: Format, step: number): Format {
     const sign = Math.sign(step);
     // According to the representation of the cell format. A format can contain
     // up to 4 sub-formats which can be applied depending on the value of the cell
     // (among positive / negative / zero / text), each of these sub-format is separated
     // by ';' in the format. We need to make the change on each sub-format.
     const subFormats = format.split(";");
-    let newSubFormats: string[] = [];
+    let newSubFormats: Format[] = [];
 
     for (let subFormat of subFormats) {
       const decimalPointPosition = subFormat.indexOf(".");
       const exponentPosition = subFormat.toUpperCase().indexOf("E");
-      let newSubFormat: string;
+      let newSubFormat: Format;
 
       // the 1st step is to find the part of the zeros located before the
       // exponent (when existed)
@@ -377,7 +378,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
         cells[xc] = {
           style: cell.style ? getItemId<Style>(cell.style, styles) : undefined,
-          format: cell.format ? getItemId<string>(cell.format, formats) : undefined,
+          format: cell.format ? getItemId<Format>(cell.format, formats) : undefined,
           content: cell.content,
         };
       }
@@ -391,7 +392,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     sheet: Sheet,
     cellData: CellData,
     normalizedStyles: { [key: number]: Style },
-    normalizedFormats: { [key: number]: string }
+    normalizedFormats: { [key: number]: Format }
   ): Cell {
     const style = (cellData.style && normalizedStyles[cellData.style]) || undefined;
     const format = (cellData.format && normalizedFormats[cellData.format]) || undefined;
@@ -438,7 +439,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * e.g. if the formula is `=A1` and A1 has a given format, the
    * same format will be used.
    */
-  inferFormulaFormat(compiledFormula: CompiledFormula, dependencies: Range[]): string | undefined {
+  inferFormulaFormat(compiledFormula: CompiledFormula, dependencies: Range[]): Format | undefined {
     const dependenciesFormat = compiledFormula.dependenciesFormat;
     for (let dependencyFormat of dependenciesFormat) {
       switch (typeof dependencyFormat) {
@@ -571,8 +572,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * gets the currently used style/border of a cell based on it's coordinates
    */
-  private getFormat(sheetId: UID, col: number, row: number): { style?: Style; format?: string } {
-    const format: { style?: Style; format?: string } = {};
+  private getFormat(sheetId: UID, col: number, row: number): { style?: Style; format?: Format } {
+    const format: { style?: Style; format?: Format } = {};
     const [mainCol, mainRow] = this.getters.getMainCell(sheetId, col, row);
     const cell = this.getters.getCell(sheetId, mainCol, mainRow);
     if (cell) {
