@@ -1,10 +1,10 @@
 import { isDefined, toHex6 } from "../../helpers";
-import { Border, BorderDescr } from "../../types";
+import { Border, BorderDescr, Format } from "../../types";
 import { XLSXDxf, XLSXFill, XLSXFont, XLSXStyle, XMLAttributes, XMLString } from "../../types/xlsx";
 import { FIRST_NUMFMT_ID } from "../constants";
 import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";
 
-export function addNumberFormats(numFmts: string[]): XMLString {
+export function addNumberFormats(numFmts: Format[]): XMLString {
   const numFmtNodes: XMLString[] = [];
   for (let [index, numFmt] of Object.entries(numFmts)) {
     const numFmtAttrs: XMLAttributes = [

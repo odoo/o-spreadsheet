@@ -2,7 +2,7 @@ import { Token } from ".";
 import { functionRegistry } from "../functions/index";
 import { concat, parseNumber, removeStringQuotes } from "../helpers";
 import { _lt } from "../translation";
-import { CompiledFormula, FunctionDescription } from "../types/index";
+import { CompiledFormula, Format, FunctionDescription } from "../types/index";
 import { AST, ASTFuncall, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
 
@@ -352,7 +352,7 @@ export function compile(formula: string): CompiledFormula {
      * If the value is a string it corresponds to a literal format which can be
      * applied directly.
      * */
-    function formatAST(ast: AST): (string | number)[] {
+    function formatAST(ast: AST): (Format | number)[] {
       let fnDef: FunctionDescription;
       switch (ast.type) {
         case "REFERENCE":

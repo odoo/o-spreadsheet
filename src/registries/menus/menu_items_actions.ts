@@ -3,7 +3,7 @@ import { numberToLetters, zoneToXc } from "../../helpers/index";
 import { interactiveSortSelection } from "../../helpers/sort";
 import { handlePasteResult, interactivePaste } from "../../helpers/ui/paste";
 import { _lt } from "../../translation";
-import { CellValueType, SpreadsheetChildEnv, Style } from "../../types/index";
+import { CellValueType, Format, SpreadsheetChildEnv, Style } from "../../types/index";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -29,7 +29,7 @@ function getRowsNumber(env: SpreadsheetChildEnv): number {
   }
 }
 
-export function setFormatter(env: SpreadsheetChildEnv, format: string) {
+export function setFormatter(env: SpreadsheetChildEnv, format: Format) {
   env.model.dispatch("SET_FORMATTING", {
     sheetId: env.model.getters.getActiveSheetId(),
     target: env.model.getters.getSelectedZones(),

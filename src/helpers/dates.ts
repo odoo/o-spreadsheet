@@ -2,6 +2,8 @@
 // Date Type
 // -----------------------------------------------------------------------------
 
+import { Format, FormattedValue } from "../types";
+
 /**
  * All Spreadsheet dates are internally stored as an object with two values:
  * - value (number), which represent the number of day till 30/12/1899
@@ -9,7 +11,7 @@
  */
 export interface InternalDate {
   value: number;
-  format: string;
+  format: Format;
   jsDate?: Date;
 }
 
@@ -80,7 +82,7 @@ export function parseDateTime(str: string): InternalDate | null {
   return date || time;
 }
 
-function parseDate(str: string, dateFormat: string): InternalDate | null {
+function parseDate(str: string, dateFormat: Format): InternalDate | null {
   const isMDY = dateFormat === "mdy";
   const isYMD = dateFormat === "ymd";
   if (isMDY || isYMD) {
@@ -202,7 +204,7 @@ export function numberToJsDate(value: number): Date {
 // Formatting
 // -----------------------------------------------------------------------------
 
-export function formatDateTime(internalDate: InternalDate): string {
+export function formatDateTime(internalDate: InternalDate): FormattedValue {
   // TODO: unify the format functions for date and datetime
   // This requires some code to 'parse' or 'tokenize' the format, keep it in a
   // cache, and use it in a single mapping, that recognizes the special list
@@ -211,8 +213,8 @@ export function formatDateTime(internalDate: InternalDate): string {
   const dateTimeFormat = internalDate.format;
   const jsDate = internalDate.jsDate || numberToJsDate(internalDate.value);
   const indexH = dateTimeFormat.indexOf("h");
-  let strDate = "";
-  let strTime = "";
+  let strDate: FormattedValue = "";
+  let strTime: FormattedValue = "";
   if (indexH > 0) {
     strDate = formatJSDate(jsDate, dateTimeFormat.substring(0, indexH - 1));
     strTime = formatJSTime(jsDate, dateTimeFormat.substring(indexH));
@@ -224,7 +226,7 @@ export function formatDateTime(internalDate: InternalDate): string {
   return strDate + (strDate && strTime ? " " : "") + strTime;
 }
 
-function formatJSDate(jsDate: Date, format: string): string {
+function formatJSDate(jsDate: Date, format: Format): FormattedValue {
   const sep = format.match(/\/|-|\s/)![0];
   const parts = format.split(sep);
   return parts
@@ -247,7 +249,7 @@ function formatJSDate(jsDate: Date, format: string): string {
     .join(sep);
 }
 
-function formatJSTime(jsDate: Date, format: string): string {
+function formatJSTime(jsDate: Date, format: Format): FormattedValue {
   let parts = format.split(/:|\s/);
 
   const dateHours = jsDate.getHours();

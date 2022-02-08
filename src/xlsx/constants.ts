@@ -1,7 +1,6 @@
 import { ExcelIconSet } from "../types/xlsx";
 
 export const XLSX_FORMAT_MAP = {
-  General: 0,
   "0": 1,
   "0.00": 2,
   "#,#00": 3,

@@ -1,6 +1,15 @@
 import { toCartesian, toXC } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { Border, Cell, CellValue, CellValueType, Merge, Sheet, UID } from "../../src/types";
+import {
+  Border,
+  Cell,
+  CellValue,
+  CellValueType,
+  FormattedValue,
+  Merge,
+  Sheet,
+  UID,
+} from "../../src/types";
 import { setSelection } from "./commands_helpers";
 
 /**
@@ -61,7 +70,7 @@ export function getRangeFormattedValues(
   model: Model,
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
-): string[] {
+): FormattedValue[] {
   return model.getters.getRangeFormattedValues(model.getters.getRangeFromSheetXC(sheetId, xc));
 }
 

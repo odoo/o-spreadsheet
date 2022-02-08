@@ -17,6 +17,7 @@ export * from "./commands";
 export * from "./conditional_formatting";
 export * from "./env";
 export * from "./figure";
+export * from "./format";
 export * from "./functions";
 export * from "./getters";
 export * from "./history";

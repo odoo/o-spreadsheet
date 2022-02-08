@@ -15,6 +15,7 @@ import {
   CommandDispatcher,
   EnsureRange,
   EvalContext,
+  FormattedValue,
   FormulaCell,
   Getters,
   invalidateEvaluationCommands,
@@ -99,7 +100,7 @@ export class EvaluationPlugin extends UIPlugin {
   /**
    * Return the value of each cell in the range as they are displayed in the grid.
    */
-  getRangeFormattedValues(range: Range): string[] {
+  getRangeFormattedValues(range: Range): FormattedValue[] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [];
     return this.getters

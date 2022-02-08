@@ -1,4 +1,5 @@
 import { SpreadsheetChildEnv } from "./env";
+import { Format, FormattedValue } from "./format";
 import { CompiledFormula, Link, Range, Style, UID } from "./misc";
 
 export enum CellValueType {
@@ -29,9 +30,9 @@ export interface ICell {
   /**
    * Cell value formatted based on the format
    */
-  readonly formattedValue: string;
+  readonly formattedValue: FormattedValue;
   readonly style?: Style;
-  readonly format?: string;
+  readonly format?: Format;
   readonly defaultAlign: "right" | "center" | "left";
   /**
    * Can the cell appear in an automatic sum zone.
@@ -118,5 +119,5 @@ export type Cell = ICell | FormulaCell;
 
 export interface CellDisplayProperties {
   style?: Style;
-  format?: string;
+  format?: Format;
 }

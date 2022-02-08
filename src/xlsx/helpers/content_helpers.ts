@@ -4,6 +4,7 @@ import {
   Border,
   CellData,
   ConditionalFormattingOperatorValues,
+  Format,
   Style,
   UID,
   WorkbookData,
@@ -118,7 +119,7 @@ export function normalizeStyle(construct: XLSXStructure, styles: ExtractedStyle)
   return id;
 }
 
-export function convertFormat(format: string | undefined, numFmtStructure: string[]): number {
+export function convertFormat(format: Format | undefined, numFmtStructure: string[]): number {
   if (!format) {
     return 0;
   }

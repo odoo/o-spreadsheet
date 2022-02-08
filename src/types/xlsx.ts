@@ -1,4 +1,5 @@
 import { Border } from ".";
+import { Format } from "./format";
 import { Align } from "./misc";
 
 /**
@@ -104,7 +105,7 @@ export interface ExtractedStyle {
   font: XLSXFont;
   fill: XLSXFill;
   border: Border;
-  numFmt: string | undefined;
+  numFmt: Format | undefined;
   verticalAlignment: Align;
   horizontalAlignment: Align;
 }
