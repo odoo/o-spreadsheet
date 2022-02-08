@@ -60,10 +60,11 @@ let decimalRepresentations: Intl.NumberFormat[] = [];
 
 export const maximumDecimalPlaces = 20;
 
-export function formatDecimal(n: number, decimals: number, sep: string = ""): FormattedValue {
-  if (n < 0) {
-    return "-" + formatDecimal(-n, decimals);
-  }
+export function formatDecimal(
+  absValue: number,
+  decimals: number,
+  sep: string = ""
+): FormattedValue {
   const maxDecimals = decimals >= maximumDecimalPlaces ? maximumDecimalPlaces : decimals;
 
   let formatter = decimalRepresentations[maxDecimals];
@@ -75,7 +76,7 @@ export function formatDecimal(n: number, decimals: number, sep: string = ""): Fo
     });
     decimalRepresentations[maxDecimals] = formatter;
   }
-  let result = formatter.format(n);
+  let result = formatter.format(absValue);
   if (sep) {
     let p: number = result.indexOf(".")!;
     result = result.replace(/\d(?=(?:\d{3})+(?:\.|$))/g, (m, i) =>
@@ -84,30 +85,22 @@ export function formatDecimal(n: number, decimals: number, sep: string = ""): Fo
   }
   return result;
 }
-
-export function formatNumber(value: any, format: Format): FormattedValue {
-  const parts = format.split(";");
-  const l = parts.length;
+export function formatNumber(value: number, format: Format): FormattedValue {
   if (value < 0) {
-    if (l > 1) {
-      return _formatValue(-value, parts[1]);
-    } else {
-      return "-" + _formatValue(-value, parts[0]);
-    }
+    return "-" + _formatNumber(-value, format);
   }
-  const index = l === 3 && value === 0 ? 2 : 0;
-  return _formatValue(value, parts[index]);
+  return _formatNumber(value, format);
 }
 
-function _formatValue(value: any, format: Format): FormattedValue {
+function _formatNumber(absValue: number, format: Format): FormattedValue {
   const parts = format.split(".");
   const decimals = parts.length === 1 ? 0 : parts[1].match(/0/g)!.length;
   const separator = parts[0].includes(",") ? "," : "";
   const isPercent = format.includes("%");
   if (isPercent) {
-    value = value * 100;
+    absValue = absValue * 100;
   }
-  const rawNumber = formatDecimal(value, decimals, separator);
+  const rawNumber = formatDecimal(absValue, decimals, separator);
   if (isPercent) {
     return rawNumber + "%";
   }

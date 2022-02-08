@@ -172,18 +172,4 @@ describe("formatNumber function", () => {
     expect(formatNumber(0.1234, "0.00%")).toBe("12.34%");
     expect(formatNumber(0.1234, "0.000%")).toBe("12.340%");
   });
-
-  test("can select different formatting for positive/negative", () => {
-    const format = "#,##0.00;0.00%";
-    expect(formatNumber(12345.54, format)).toBe("12,345.54");
-    expect(formatNumber(0, format)).toBe("0.00");
-    expect(formatNumber(-1.2, format)).toBe("120.00%"); // note the lack of - sign
-  });
-
-  test("can select different formatting for positive/negative/zero", () => {
-    const format = "#,##0.0;0.00%;0.000";
-    expect(formatNumber(12345.54, format)).toBe("12,345.5");
-    expect(formatNumber(0, format)).toBe("0.000");
-    expect(formatNumber(-1.2, format)).toBe("120.00%"); // note the lack of - sign
-  });
 });

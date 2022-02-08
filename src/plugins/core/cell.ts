@@ -240,62 +240,50 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   private changeDecimalFormat(format: Format, step: number): Format {
     const sign = Math.sign(step);
-    // According to the representation of the cell format. A format can contain
-    // up to 4 sub-formats which can be applied depending on the value of the cell
-    // (among positive / negative / zero / text), each of these sub-format is separated
-    // by ';' in the format. We need to make the change on each sub-format.
-    const subFormats = format.split(";");
-    let newSubFormats: Format[] = [];
+    const decimalPointPosition = format.indexOf(".");
+    const exponentPosition = format.toUpperCase().indexOf("E");
+    let newFormat: Format;
 
-    for (let subFormat of subFormats) {
-      const decimalPointPosition = subFormat.indexOf(".");
-      const exponentPosition = subFormat.toUpperCase().indexOf("E");
-      let newSubFormat: Format;
+    // the 1st step is to find the part of the zeros located before the
+    // exponent (when existed)
+    const subPart = exponentPosition > -1 ? format.slice(0, exponentPosition) : format;
+    const zerosAfterDecimal =
+      decimalPointPosition > -1 ? subPart.slice(decimalPointPosition).match(/0/g)!.length : 0;
 
-      // the 1st step is to find the part of the zeros located before the
-      // exponent (when existed)
-      const subPart = exponentPosition > -1 ? subFormat.slice(0, exponentPosition) : subFormat;
-      const zerosAfterDecimal =
-        decimalPointPosition > -1 ? subPart.slice(decimalPointPosition).match(/0/g)!.length : 0;
-
-      // the 2nd step is to add (or remove) zero after the last zeros obtained in
-      // step 1
-      const lastZeroPosition = subPart.lastIndexOf("0");
-      if (lastZeroPosition > -1) {
-        if (sign > 0) {
-          // in this case we want to add decimal information
-          if (zerosAfterDecimal < maximumDecimalPlaces) {
-            newSubFormat =
-              subFormat.slice(0, lastZeroPosition + 1) +
-              (zerosAfterDecimal === 0 ? ".0" : "0") +
-              subFormat.slice(lastZeroPosition + 1);
-          } else {
-            newSubFormat = subFormat;
-          }
+    // the 2nd step is to add (or remove) zero after the last zeros obtained in
+    // step 1
+    const lastZeroPosition = subPart.lastIndexOf("0");
+    if (lastZeroPosition > -1) {
+      if (sign > 0) {
+        // in this case we want to add decimal information
+        if (zerosAfterDecimal < maximumDecimalPlaces) {
+          newFormat =
+            format.slice(0, lastZeroPosition + 1) +
+            (zerosAfterDecimal === 0 ? ".0" : "0") +
+            format.slice(lastZeroPosition + 1);
         } else {
-          // in this case we want to remove decimal information
-          if (zerosAfterDecimal > 0) {
-            // remove last zero
-            newSubFormat =
-              subFormat.slice(0, lastZeroPosition) + subFormat.slice(lastZeroPosition + 1);
-            // if a zero always exist after decimal point else remove decimal point
-            if (zerosAfterDecimal === 1) {
-              newSubFormat =
-                newSubFormat.slice(0, decimalPointPosition) +
-                newSubFormat.slice(decimalPointPosition + 1);
-            }
-          } else {
-            // zero after decimal isn't present, we can't remove zero
-            newSubFormat = subFormat;
-          }
+          newFormat = format;
         }
       } else {
-        // no zeros are present in this format, we do nothing
-        newSubFormat = subFormat;
+        // in this case we want to remove decimal information
+        if (zerosAfterDecimal > 0) {
+          // remove last zero
+          newFormat = format.slice(0, lastZeroPosition) + format.slice(lastZeroPosition + 1);
+          // if a zero always exist after decimal point else remove decimal point
+          if (zerosAfterDecimal === 1) {
+            newFormat =
+              newFormat.slice(0, decimalPointPosition) + newFormat.slice(decimalPointPosition + 1);
+          }
+        } else {
+          // zero after decimal isn't present, we can't remove zero
+          newFormat = format;
+        }
       }
-      newSubFormats.push(newSubFormat);
+    } else {
+      // no zeros are present in this format, we do nothing
+      newFormat = format;
     }
-    return newSubFormats.join(";");
+    return newFormat;
   }
 
   /**
