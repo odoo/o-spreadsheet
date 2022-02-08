@@ -13,6 +13,7 @@ import {
   deleteColumns,
   deleteRows,
   merge,
+  redo,
   selectCell,
   setCellContent,
   undo,
@@ -634,6 +635,30 @@ describe("Multi users synchronisation", () => {
     const spy = jest.spyOn(alice["config"], "notifyUI");
     alice.dispatch("START_EDITION", { text: "hello" });
     bob.dispatch("DELETE_SHEET", { sheetId: "42" });
+    expect(spy).toHaveBeenCalled();
+    expect(alice.getters.getEditionMode()).toBe("inactive");
+  });
+
+  test("Composing in a sheet when a sheet deletion is redone", () => {
+    createSheet(alice, { sheetId: "42" });
+    selectCell(alice, "A4");
+    const spy = jest.spyOn(alice["config"], "notifyUI");
+    bob.dispatch("DELETE_SHEET", { sheetId: "42" });
+    undo(bob);
+    activateSheet(alice, "42");
+    alice.dispatch("START_EDITION", { text: "hello" });
+    redo(bob);
+    expect(spy).toHaveBeenCalled();
+    expect(alice.getters.getEditionMode()).toBe("inactive");
+  });
+
+  test("Composing in a sheet when a sheet creation is undone", () => {
+    createSheet(bob, { sheetId: "42" });
+    selectCell(alice, "A4");
+    const spy = jest.spyOn(alice["config"], "notifyUI");
+    activateSheet(alice, "42");
+    alice.dispatch("START_EDITION", { text: "hello" });
+    undo(bob);
     expect(spy).toHaveBeenCalled();
     expect(alice.getters.getEditionMode()).toBe("inactive");
   });
