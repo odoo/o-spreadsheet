@@ -66,6 +66,8 @@ export function parseNumber(str: string): number {
  * - the number will be displayed in scientific language if 10 digits isn't enough
  * to represent its magnitude order (mean if it is greater or equal than
  * 10 000 000 000 or less than 0.000 000 001)
+ *
+ * returns a number formatted
  */
 export function formatComposerNumber(n: number): string {
   if (n < 0) {

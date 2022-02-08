@@ -175,7 +175,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       // of the format
       const newFormat = this.changeDecimalFormat(numberFormat, step);
       // Apply the new format on the whole zone
-      this.setFormatter(sheetId, zones, newFormat!);
+      this.setFormatter(sheetId, zones, newFormat);
     }
   }
 
