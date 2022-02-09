@@ -8,14 +8,8 @@ import {
   parse,
 } from "../../formulas/parser";
 import { functionRegistry } from "../../functions";
-import { isNumber } from "../../helpers";
-import {
-  formatDateTime,
-  mdyDateRegexp,
-  parseDateTime,
-  timeRegexp,
-  ymdDateRegexp,
-} from "../../helpers/dates";
+import { formatValue, isNumber } from "../../helpers";
+import { mdyDateRegexp, parseDateTime, timeRegexp, ymdDateRegexp } from "../../helpers/dates";
 import { ExcelCellData, Format } from "../../types";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../constants";
@@ -158,7 +152,7 @@ function convertDateFormat(ast: ASTString): ASTString {
     }
     return {
       ...ast,
-      value: formatDateTime({ value: internalDate.value, format: format.join(" ") }),
+      value: formatValue(internalDate.value, format.join(" ")),
     };
   } else {
     return { ...ast, value: ast.value.replace(/\\"/g, `""`) };

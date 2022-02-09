@@ -21,10 +21,8 @@ import {
   TextEvaluation,
   UID,
 } from "../../types";
-import { formatDateTime } from "../dates";
+import { formatValue } from "../format";
 import { markdownLink, parseMarkdownLink, parseSheetLink } from "../misc";
-import { formatStandardNumber } from "../numbers";
-import { formatValue } from "./cell_helpers";
 
 /**
  * Abstract base implementation of a cell.
@@ -113,7 +111,7 @@ export class EmptyCell extends AbstractCell<EmptyEvaluation> {
 }
 
 export class NumberCell extends AbstractCell<NumberEvaluation> {
-  readonly content = formatStandardNumber(this.evaluated.value);
+  readonly content = formatValue(this.evaluated.value);
   constructor(id: UID, value: number, properties: CellDisplayProperties = {}) {
     super(id, { value: value, type: CellValueType.number }, properties);
   }
@@ -152,7 +150,7 @@ export class DateTimeCell extends NumberCell {
   }
 
   get composerContent() {
-    return formatDateTime({ value: this.evaluated.value, format: this.format });
+    return formatValue(this.evaluated.value, this.format);
   }
 }
 

@@ -1,14 +1,6 @@
 import { DATETIME_FORMAT, NULL_FORMAT } from "../../constants";
 import { cellFactory } from "../../helpers/cells/cell_factory";
-import {
-  concat,
-  getItemId,
-  isInside,
-  maximumDecimalPlaces,
-  range,
-  toCartesian,
-  toXC,
-} from "../../helpers/index";
+import { isInside, range, toCartesian, toXC, getItemId,concat,changeDecimalPlaces, createDefaultFormat } from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -171,7 +163,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     if (numberFormat !== undefined) {
       // Depending on the step sign, increase or decrease the decimal representation
       // of the format
-      const newFormat = this.changeDecimalFormat(numberFormat, step);
+      const newFormat = changeDecimalPlaces(numberFormat, step);
       // Apply the new format on the whole zone
       this.setFormatter(sheetId, zones, newFormat!);
     }
@@ -191,99 +183,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
             cell?.evaluated.type === CellValueType.number &&
             !cell.format?.match(DATETIME_FORMAT) // reject dates
           ) {
-            return cell.format || this.setDefaultNumberFormat(cell.evaluated.value as any);
+            return cell.format || createDefaultFormat(cell.evaluated.value);
           }
         }
       }
     }
     return undefined;
-  }
-
-  /**
-   * Function used to give the default format of a cell with a number for value.
-   * It is considered that the default format of a number is 0 followed by as many
-   * 0 as there are decimal places.
-   *
-   * Example:
-   * - 1 --> '0'
-   * - 123 --> '0'
-   * - 12345 --> '0'
-   * - 42.1 --> '0.0'
-   * - 456.0001 --> '0.0000'
-   */
-  private setDefaultNumberFormat(cellValue: number): Format {
-    const strValue = cellValue.toString();
-    const parts = strValue.split(".");
-    if (parts.length === 1) {
-      return "0";
-    }
-    return "0." + Array(parts[1].length + 1).join("0");
-  }
-
-  /**
-   * This function take a cell format representation and return a new format representation
-   * with more or less decimal places.
-   *
-   * If the format doesn't look like a digital format (means that not contain '0')
-   * or if this one cannot be increased or decreased, the returned format will be
-   * the same.
-   *
-   * This function aims to work with all possible formats as well as custom formats.
-   *
-   * Examples of format changed by this function:
-   * - "0" (step = 1) --> "0.0"
-   * - "0.000%" (step = 1) --> "0.0000%"
-   * - "0.00" (step = -1) --> "0.0"
-   * - "0%" (step = -1) --> "0%"
-   * - "#,##0.0" (step = -1) --> "#,##0"
-   * - "#,##0;0.0%;0.000" (step = 1) --> "#,##0.0;0.00%;0.0000"
-   */
-  private changeDecimalFormat(format: Format, step: number): Format {
-    const sign = Math.sign(step);
-    const decimalPointPosition = format.indexOf(".");
-    const exponentPosition = format.toUpperCase().indexOf("E");
-    let newFormat: Format;
-
-    // the 1st step is to find the part of the zeros located before the
-    // exponent (when existed)
-    const subPart = exponentPosition > -1 ? format.slice(0, exponentPosition) : format;
-    const zerosAfterDecimal =
-      decimalPointPosition > -1 ? subPart.slice(decimalPointPosition).match(/0/g)!.length : 0;
-
-    // the 2nd step is to add (or remove) zero after the last zeros obtained in
-    // step 1
-    const lastZeroPosition = subPart.lastIndexOf("0");
-    if (lastZeroPosition > -1) {
-      if (sign > 0) {
-        // in this case we want to add decimal information
-        if (zerosAfterDecimal < maximumDecimalPlaces) {
-          newFormat =
-            format.slice(0, lastZeroPosition + 1) +
-            (zerosAfterDecimal === 0 ? ".0" : "0") +
-            format.slice(lastZeroPosition + 1);
-        } else {
-          newFormat = format;
-        }
-      } else {
-        // in this case we want to remove decimal information
-        if (zerosAfterDecimal > 0) {
-          // remove last zero
-          newFormat = format.slice(0, lastZeroPosition) + format.slice(lastZeroPosition + 1);
-          // if a zero always exist after decimal point else remove decimal point
-          if (zerosAfterDecimal === 1) {
-            newFormat =
-              newFormat.slice(0, decimalPointPosition) + newFormat.slice(decimalPointPosition + 1);
-          }
-        } else {
-          // zero after decimal isn't present, we can't remove zero
-          newFormat = format;
-        }
-      }
-    } else {
-      // no zeros are present in this format, we do nothing
-      newFormat = format;
-    }
-    return newFormat;
   }
 
   /**

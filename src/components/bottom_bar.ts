@@ -1,6 +1,6 @@
 import { Component, onMounted, onPatched, useRef, useState, xml } from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../constants";
-import { formatStandardNumber } from "../helpers";
+import { formatValue } from "../helpers/format";
 import { interactiveRenameSheet } from "../helpers/ui/sheet";
 import { MenuItemRegistry, sheetMenuRegistry } from "../registries/index";
 import { SpreadsheetChildEnv, UID } from "../types";
@@ -258,6 +258,6 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getComposedFnName(fnName: string, fnValue: number | undefined): string {
-    return fnName + ": " + (fnValue !== undefined ? formatStandardNumber(fnValue) : "__");
+    return fnName + ": " + (fnValue !== undefined ? formatValue(fnValue) : "__");
   }
 }

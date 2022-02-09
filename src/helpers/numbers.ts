@@ -1,5 +1,3 @@
-import { Format, FormattedValue } from "../types";
-
 /**
  * This regexp is supposed to be as close as possible as the numberRegexp, but
  * its purpose is to be used by the tokenizer.
@@ -40,69 +38,4 @@ export function parseNumber(str: string): number {
     }
   }
   return n;
-}
-
-const decimalStandardRepresentation = new Intl.NumberFormat("en-US", {
-  useGrouping: false,
-  maximumFractionDigits: 10,
-});
-
-export function formatStandardNumber(n: number): FormattedValue {
-  if (Number.isInteger(n)) {
-    return n.toString();
-  }
-  return decimalStandardRepresentation.format(n) as FormattedValue;
-}
-
-// this is a cache than can contains decimal representation formats
-// from 0 (minimum) to 20 (maximum) digits after the decimal point
-let decimalRepresentations: Intl.NumberFormat[] = [];
-
-export const maximumDecimalPlaces = 20;
-
-export function formatDecimal(
-  absValue: number,
-  decimals: number,
-  sep: string = ""
-): FormattedValue {
-  const maxDecimals = decimals >= maximumDecimalPlaces ? maximumDecimalPlaces : decimals;
-
-  let formatter = decimalRepresentations[maxDecimals];
-  if (!formatter) {
-    formatter = new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: maxDecimals,
-      maximumFractionDigits: maxDecimals,
-      useGrouping: false,
-    });
-    decimalRepresentations[maxDecimals] = formatter;
-  }
-  let result = formatter.format(absValue);
-  if (sep) {
-    let p: number = result.indexOf(".")!;
-    result = result.replace(/\d(?=(?:\d{3})+(?:\.|$))/g, (m, i) =>
-      p < 0 || i < p ? `${m}${sep}` : m
-    );
-  }
-  return result;
-}
-export function formatNumber(value: number, format: Format): FormattedValue {
-  if (value < 0) {
-    return "-" + _formatNumber(-value, format);
-  }
-  return _formatNumber(value, format);
-}
-
-function _formatNumber(absValue: number, format: Format): FormattedValue {
-  const parts = format.split(".");
-  const decimals = parts.length === 1 ? 0 : parts[1].match(/0/g)!.length;
-  const separator = parts[0].includes(",") ? "," : "";
-  const isPercent = format.includes("%");
-  if (isPercent) {
-    absValue = absValue * 100;
-  }
-  const rawNumber = formatDecimal(absValue, decimals, separator);
-  if (isPercent) {
-    return rawNumber + "%";
-  }
-  return rawNumber;
 }

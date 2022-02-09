@@ -2,7 +2,7 @@
 // Date Type
 // -----------------------------------------------------------------------------
 
-import { Format, FormattedValue } from "../types";
+import { Format } from "../types";
 
 /**
  * All Spreadsheet dates are internally stored as an object with two values:
@@ -19,9 +19,9 @@ export interface InternalDate {
 // Parsing
 // -----------------------------------------------------------------------------
 
+export const INITIAL_1900_DAY = new Date(1899, 11, 30) as any;
 const CURRENT_MILLENIAL = 2000; // note: don't forget to update this in 2999
 const CURRENT_YEAR = new Date().getFullYear();
-const INITIAL_1900_DAY = new Date(1899, 11, 30) as any;
 const INITIAL_JS_DAY = new Date(0) as any;
 const DATE_JS_1900_OFFSET = INITIAL_JS_DAY - INITIAL_1900_DAY;
 
@@ -198,89 +198,4 @@ export function numberToJsDate(value: number): Date {
   date.setSeconds(seconds);
 
   return date;
-}
-
-// -----------------------------------------------------------------------------
-// Formatting
-// -----------------------------------------------------------------------------
-
-export function formatDateTime(internalDate: InternalDate): FormattedValue {
-  // TODO: unify the format functions for date and datetime
-  // This requires some code to 'parse' or 'tokenize' the format, keep it in a
-  // cache, and use it in a single mapping, that recognizes the special list
-  // of tokens dd,d,m,y,h, ... and preserves the rest
-
-  const dateTimeFormat = internalDate.format;
-  const jsDate = internalDate.jsDate || numberToJsDate(internalDate.value);
-  const indexH = dateTimeFormat.indexOf("h");
-  let strDate: FormattedValue = "";
-  let strTime: FormattedValue = "";
-  if (indexH > 0) {
-    strDate = formatJSDate(jsDate, dateTimeFormat.substring(0, indexH - 1));
-    strTime = formatJSTime(jsDate, dateTimeFormat.substring(indexH));
-  } else if (indexH === 0) {
-    strTime = formatJSTime(jsDate, dateTimeFormat);
-  } else if (indexH < 0) {
-    strDate = formatJSDate(jsDate, dateTimeFormat);
-  }
-  return strDate + (strDate && strTime ? " " : "") + strTime;
-}
-
-function formatJSDate(jsDate: Date, format: Format): FormattedValue {
-  const sep = format.match(/\/|-|\s/)![0];
-  const parts = format.split(sep);
-  return parts
-    .map((p) => {
-      switch (p) {
-        case "d":
-          return jsDate.getDate();
-        case "dd":
-          return jsDate.getDate().toString().padStart(2, "0");
-        case "m":
-          return jsDate.getMonth() + 1;
-        case "mm":
-          return String(jsDate.getMonth() + 1).padStart(2, "0");
-        case "yyyy":
-          return jsDate.getFullYear();
-        default:
-          throw new Error(`invalid format: ${format}`);
-      }
-    })
-    .join(sep);
-}
-
-function formatJSTime(jsDate: Date, format: Format): FormattedValue {
-  let parts = format.split(/:|\s/);
-
-  const dateHours = jsDate.getHours();
-  const isMeridian = parts[parts.length - 1] === "a";
-  let hours = dateHours;
-  let meridian = "";
-  if (isMeridian) {
-    hours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-    meridian = dateHours >= 12 ? " PM" : " AM";
-    parts.pop();
-  }
-
-  return (
-    parts
-      .map((p) => {
-        switch (p) {
-          case "hhhh":
-            const helapsedHours = Math.floor(
-              (jsDate.getTime() - INITIAL_1900_DAY) / (60 * 60 * 1000)
-            );
-            return helapsedHours.toString();
-          case "hh":
-            return hours.toString().padStart(2, "0");
-          case "mm":
-            return jsDate.getMinutes().toString().padStart(2, "0");
-          case "ss":
-            return jsDate.getSeconds().toString().padStart(2, "0");
-          default:
-            throw new Error(`invalid format: ${format}`);
-        }
-      })
-      .join(":") + meridian
-  );
 }

@@ -14,7 +14,7 @@ import { args, functionRegistry } from "./functions/index";
 import { LinkCell } from "./helpers/cells/index";
 import {
   computeTextWidth,
-  formatDecimal,
+  formatValue,
   isMarkdownLink,
   markdownLink,
   numberToLetters,
@@ -118,7 +118,7 @@ export const helpers = {
   numberToLetters,
   createFullMenuItem,
   UuidGenerator,
-  formatDecimal,
+  formatValue,
   computeTextWidth,
   isMarkdownLink,
   parseMarkdownLink,
