@@ -1,6 +1,5 @@
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import { formatValue } from "../../helpers/cells/index";
-import { mergeOverlappingZones, overlap, positions } from "../../helpers/index";
+import { formatValue, mergeOverlappingZones, overlap, positions } from "../../helpers/index";
 import { Mode } from "../../model";
 import {
   CellPosition,

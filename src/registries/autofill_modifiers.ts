@@ -1,4 +1,4 @@
-import { formatValue } from "../helpers/cells/index";
+import { formatValue } from "../helpers/format";
 import { Registry } from "../registry";
 import {
   AutofillData,

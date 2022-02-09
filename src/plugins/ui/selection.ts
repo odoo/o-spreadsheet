@@ -4,7 +4,7 @@ import { AVERAGE, COUNT, COUNTA, MAX, MIN } from "../../functions/module_statist
 import {
   clip,
   deepCopy,
-  formatStandardNumber,
+  formatValue,
   getNextVisibleCellCoords,
   isEqual,
   positions,
@@ -442,7 +442,7 @@ export class GridSelectionPlugin extends UIPlugin {
         aggregate += cell.evaluated.value;
       }
     }
-    return n < 2 ? null : formatStandardNumber(aggregate);
+    return n < 2 ? null : formatValue(aggregate);
   }
 
   isSelected(zone: Zone): boolean {

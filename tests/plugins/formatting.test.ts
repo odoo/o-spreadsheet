@@ -228,30 +228,6 @@ describe("formatting values (when change decimal)", () => {
     setFormat(model, "#,##0");
     setDecimal(model, -1);
     expect(getCell(model, "B4")!.format).toBe("#,##0");
-
-    setCellContent(model, "C1", "707");
-    selectCell(model, "C1");
-    setFormat(model, "0.0E+00");
-    setDecimal(model, 1);
-    expect(getCell(model, "C1")!.format).toBe("0.00E+00");
-
-    setCellContent(model, "C2", "707");
-    selectCell(model, "C2");
-    setFormat(model, "0.0E+00");
-    setDecimal(model, -1);
-    expect(getCell(model, "C2")!.format).toBe("0E+00");
-
-    setCellContent(model, "C3", "707");
-    selectCell(model, "C3");
-    setFormat(model, "0E+00");
-    setDecimal(model, 1);
-    expect(getCell(model, "C3")!.format).toBe("0.0E+00");
-
-    setCellContent(model, "C4", "707");
-    selectCell(model, "C4");
-    setFormat(model, "0E+00");
-    setDecimal(model, -1);
-    expect(getCell(model, "C4")!.format).toBe("0E+00");
   });
 
   test("Can change decimal format of a cell that hasn't format (case 'number' type only)", () => {

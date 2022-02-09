@@ -1,27 +1,5 @@
 import { isBoolean, isDateTime, isNumber, parseDateTime, parseNumber } from "..";
-import { DATETIME_FORMAT } from "../../constants";
-import { CellValue, Format, FormattedValue } from "../../types";
-import { formatDateTime } from "../dates";
-import { formatNumber, formatStandardNumber } from "../numbers";
-
-/**
- * Format a cell value with its format.
- */
-export function formatValue(value: CellValue, format?: Format): FormattedValue {
-  switch (typeof value) {
-    case "string":
-      return value;
-    case "boolean":
-      return value ? "TRUE" : "FALSE";
-    case "number":
-      if (format?.match(DATETIME_FORMAT)) {
-        return formatDateTime({ value, format: format });
-      }
-      return format ? formatNumber(value, format) : formatStandardNumber(value);
-    case "object":
-      return "0";
-  }
-}
+import { CellValue } from "../../types";
 
 /**
  * Parse a string representing a primitive cell value
