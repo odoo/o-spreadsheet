@@ -100,6 +100,9 @@ export class ContentEditableHelper {
    * Mock default keydown events
    */
   private onKeyDown(el: HTMLElement, ev: KeyboardEvent) {
+    if (ev.defaultPrevented) {
+      return;
+    }
     switch (ev.key) {
       case "Home":
         this.currentState.cursorStart = 0;
