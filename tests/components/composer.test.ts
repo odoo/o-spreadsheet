@@ -57,14 +57,14 @@ async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
 
 async function keydown(key: string, options: any = {}) {
   document.activeElement!.dispatchEvent(
-    new KeyboardEvent("keydown", Object.assign({ key, bubbles: true }, options))
+    new KeyboardEvent("keydown", Object.assign({ key, bubbles: true, cancelable: true }, options))
   );
   await nextTick();
   await nextTick();
 }
 async function keyup(key: string, options: any = {}) {
   document.activeElement!.dispatchEvent(
-    new KeyboardEvent("keyup", Object.assign({ key, bubbles: true }, options))
+    new KeyboardEvent("keyup", Object.assign({ key, bubbles: true, cancelable: true }, options))
   );
   await nextTick();
   await nextTick();

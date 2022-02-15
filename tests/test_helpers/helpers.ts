@@ -290,7 +290,7 @@ export async function typeInComposerTopBar(text: string, fromScratch: boolean = 
 
 export async function startGridComposition(key: string = "Enter") {
   const gridEl = document.querySelector(".o-grid");
-  gridEl!.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
+  gridEl!.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
   await nextTick();
   return document.querySelector(".o-grid .o-composer")!;
 }
