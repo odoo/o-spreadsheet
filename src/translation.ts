@@ -38,14 +38,24 @@ export const _t: TranslationFunction = function (
 };
 
 export const _lt: TranslationFunction = function (
-  s,
+  str: string,
   ...values: string[] | [{ [key: string]: string }]
 ) {
-  return {
-    toString: function () {
-      return sprintf(_translate(s), ...values);
-    },
-    // casts the object to unknown then to string to trick typescript into thinking that the object it receives is actually a string
-    // this way it will be typed correctly (behaves like a string) but tests like typeof _lt("whatever") will be object and not string !
-  } as unknown as string;
+  // casts the object to unknown then to string to trick typescript into thinking that the object it receives is actually a string
+  // this way it will be typed correctly (behaves like a string) but tests like typeof _lt("whatever") will be object and not string !
+  return new LazyTranslatedString(str, values) as unknown as string;
 };
+
+class LazyTranslatedString extends String {
+  constructor(str: string, private values: string[] | [{ [key: string]: string }]) {
+    super(str);
+  }
+
+  valueOf() {
+    const str = super.valueOf();
+    return sprintf(_translate(str), ...this.values);
+  }
+  toString() {
+    return this.valueOf();
+  }
+}
