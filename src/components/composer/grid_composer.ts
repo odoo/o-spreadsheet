@@ -21,6 +21,7 @@ const TEMPLATE = xml/* xml */ `
       delimitation = "composerState.delimitation"
       onComposerUnmounted="props.onComposerUnmounted"
       onKeyDown="(ev) => this.onKeyDown(ev)"
+      onComposerContentFocused="props.onComposerContentFocused"
     />
   </div>
 `;
