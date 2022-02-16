@@ -3,6 +3,7 @@ import {
   colors,
   getComposerSheetName,
   isEqual,
+  isNumber,
   markdownLink,
   positionToZone,
   rangeReference,
@@ -355,6 +356,10 @@ export class EditionPlugin extends UIPlugin {
    */
   private startEdition(str?: string, selection?: ComposerSelection) {
     const cell = this.getters.getActiveCell();
+    if (str && cell?.format?.includes("%") && isNumber(str)) {
+      selection = selection || { start: str.length, end: str.length };
+      str = `${str}%`;
+    }
     this.initialContent = cell?.composerContent || "";
     this.mode = "editing";
     const [col, row] = this.getters.getPosition();
