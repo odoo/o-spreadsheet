@@ -639,4 +639,40 @@ describe("edition", () => {
     expect(model.getters.getCurrentContent()).toBe("12%");
     expect(model.getters.getComposerSelection()).toEqual({ start: 2, end: 2 });
   });
+
+  test.each(["2%", "20.1%", "20.000001%"])(
+    "display percentages as percentages in composer",
+    (content) => {
+      const model = new Model();
+      setCellContent(model, "A1", content);
+      model.dispatch("START_EDITION");
+      expect(model.getters.getCurrentContent()).toBe(content);
+      const cursor = content.length;
+      expect(model.getters.getComposerSelection()).toEqual({ start: cursor, end: cursor });
+    }
+  );
+
+  test("remove percentage trailing zeros in composer", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "2.0%");
+    model.dispatch("START_EDITION");
+    expect(model.getters.getCurrentContent()).toBe("2%");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 2, end: 2 });
+    setCellContent(model, "A1", "2.10%");
+    model.dispatch("START_EDITION");
+    expect(model.getters.getCurrentContent()).toBe("2.1%");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 4 });
+  });
+
+  test("empty cell with percent format is displayed empty", () => {
+    const model = new Model();
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      format: "0.00%",
+    });
+    model.dispatch("START_EDITION");
+    expect(model.getters.getCurrentContent()).toBe("");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 0, end: 0 });
+  });
 });
