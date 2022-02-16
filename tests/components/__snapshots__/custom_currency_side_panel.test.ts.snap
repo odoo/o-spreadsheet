@@ -1,0 +1,312 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`custom currency sidePanel component Sidepanel change code input or symbol input --> change currency proposals 1`] = `
+<select
+  class="o-input o-format-proposals"
+>
+  <option
+    value="0"
+  >
+    1,000SYMBOL
+  </option>
+  <option
+    value="1"
+  >
+    1,000.00SYMBOL
+  </option>
+  <option
+    value="2"
+  >
+    1,000 CODE SYMBOL
+  </option>
+  <option
+    value="3"
+  >
+    1,000.00 CODE SYMBOL
+  </option>
+  <option
+    value="4"
+  >
+    SYMBOL1,000
+  </option>
+  <option
+    value="5"
+  >
+    SYMBOL1,000.00
+  </option>
+  <option
+    value="6"
+  >
+    CODE SYMBOL1,000
+  </option>
+  <option
+    value="7"
+  >
+    CODE SYMBOL1,000.00
+  </option>
+  
+</select>
+`;
+
+exports[`custom currency sidePanel component Sidepanel change code input or symbol input --> change currency proposals 2`] = `
+<select
+  class="o-input o-format-proposals"
+>
+  <option
+    value="0"
+  >
+    1,000SYMBOL
+  </option>
+  <option
+    value="1"
+  >
+    1,000.00SYMBOL
+  </option>
+  <option
+    value="2"
+  >
+    1,000 TEST SYMBOL
+  </option>
+  <option
+    value="3"
+  >
+    1,000.00 TEST SYMBOL
+  </option>
+  <option
+    value="4"
+  >
+    SYMBOL1,000
+  </option>
+  <option
+    value="5"
+  >
+    SYMBOL1,000.00
+  </option>
+  <option
+    value="6"
+  >
+    TEST SYMBOL1,000
+  </option>
+  <option
+    value="7"
+  >
+    TEST SYMBOL1,000.00
+  </option>
+  
+</select>
+`;
+
+exports[`custom currency sidePanel component Sidepanel change code input or symbol input --> change currency proposals 3`] = `
+<select
+  class="o-input o-format-proposals"
+>
+  <option
+    value="0"
+  >
+    1,000SYMBOL
+  </option>
+  <option
+    value="1"
+  >
+    1,000.00SYMBOL
+  </option>
+  <option
+    value="2"
+  >
+    1,000 CODE SYMBOL
+  </option>
+  <option
+    value="3"
+  >
+    1,000.00 CODE SYMBOL
+  </option>
+  <option
+    value="4"
+  >
+    SYMBOL1,000
+  </option>
+  <option
+    value="5"
+  >
+    SYMBOL1,000.00
+  </option>
+  <option
+    value="6"
+  >
+    CODE SYMBOL1,000
+  </option>
+  <option
+    value="7"
+  >
+    CODE SYMBOL1,000.00
+  </option>
+  
+</select>
+`;
+
+exports[`custom currency sidePanel component Sidepanel change code input or symbol input --> change currency proposals 4`] = `
+<select
+  class="o-input o-format-proposals"
+>
+  <option
+    value="0"
+  >
+    1,000TEST
+  </option>
+  <option
+    value="1"
+  >
+    1,000.00TEST
+  </option>
+  <option
+    value="2"
+  >
+    1,000 CODE TEST
+  </option>
+  <option
+    value="3"
+  >
+    1,000.00 CODE TEST
+  </option>
+  <option
+    value="4"
+  >
+    TEST1,000
+  </option>
+  <option
+    value="5"
+  >
+    TEST1,000.00
+  </option>
+  <option
+    value="6"
+  >
+    CODE TEST1,000
+  </option>
+  <option
+    value="7"
+  >
+    CODE TEST1,000.00
+  </option>
+  
+</select>
+`;
+
+exports[`custom currency sidePanel component Sidepanel if currencies are provided in spreadsheet --> display this currencies 1`] = `
+<select
+  class="o-input o-available-currencies"
+>
+  <option
+    value="0"
+  >
+    Custom
+  </option>
+  <option
+    value="1"
+  >
+    3 decimal places / expression position after (ABC)
+  </option>
+  <option
+    value="2"
+  >
+    4 decimal places / expression position before (DEF)
+  </option>
+  
+</select>
+`;
+
+exports[`custom currency sidePanel component Sidepanel select currency in available currencies selector --> changes currency proposals 1`] = `
+<select
+  class="o-input o-format-proposals"
+>
+  <option
+    value="0"
+  >
+    1,000µ
+  </option>
+  <option
+    value="1"
+  >
+    1,000.000µ
+  </option>
+  <option
+    value="2"
+  >
+    1,000 ABC µ
+  </option>
+  <option
+    value="3"
+  >
+    1,000.000 ABC µ
+  </option>
+  <option
+    value="4"
+  >
+    µ1,000
+  </option>
+  <option
+    value="5"
+  >
+    µ1,000.000
+  </option>
+  <option
+    value="6"
+  >
+    ABC µ1,000
+  </option>
+  <option
+    value="7"
+  >
+    ABC µ1,000.000
+  </option>
+  
+</select>
+`;
+
+exports[`custom currency sidePanel component Sidepanel select currency in available currencies selector --> changes currency proposals 2`] = `
+<select
+  class="o-input o-format-proposals"
+>
+  <option
+    value="0"
+  >
+    XD1,000
+  </option>
+  <option
+    value="1"
+  >
+    XD1,000.0000
+  </option>
+  <option
+    value="2"
+  >
+    DEF XD1,000
+  </option>
+  <option
+    value="3"
+  >
+    DEF XD1,000.0000
+  </option>
+  <option
+    value="4"
+  >
+    1,000XD
+  </option>
+  <option
+    value="5"
+  >
+    1,000.0000XD
+  </option>
+  <option
+    value="6"
+  >
+    1,000 DEF XD
+  </option>
+  <option
+    value="7"
+  >
+    1,000.0000 DEF XD
+  </option>
+  
+</select>
+`;

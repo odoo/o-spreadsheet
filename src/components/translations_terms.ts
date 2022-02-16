@@ -162,3 +162,12 @@ export const GenericTerms = {
 export const GenericWords = {
   And: _lt("and"),
 };
+
+export const CustomCurrencyTerms = {
+  Currency: _lt("Currency"),
+  Custom: _lt("Custom"),
+  Symbol: _lt("Symbol"),
+  Code: _lt("Code"),
+  Format: _lt("Format"),
+  Apply: _lt("Apply"),
+};

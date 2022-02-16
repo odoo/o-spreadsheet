@@ -1,4 +1,4 @@
-import { App, Component, useSubEnv, xml } from "@odoo/owl";
+import { App } from "@odoo/owl";
 import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
@@ -292,22 +292,13 @@ describe("Composer interactions", () => {
 
   test("Notify ui correctly with type notification correctly use notifyUser in the env", async () => {
     const notifyUser = jest.fn();
-    class Parent extends Component {
-      static template = xml/* xml */ `<Spreadsheet model="props.model"/>`;
-      static components = { Spreadsheet };
-
-      setup() {
-        useSubEnv({
-          notifyUser,
-        });
-      }
-    }
     const fixture = makeTestFixture();
     const model = new Model();
-    const app = new App(Parent, { props: { model } });
+    const { app } = await mountSpreadsheet(fixture, { model: model }, { notifyUser: notifyUser });
     await app.mount(fixture);
     model["config"].notifyUI({ type: "NOTIFICATION", text: "hello" });
     expect(notifyUser).toHaveBeenCalledWith("hello");
+    fixture.remove();
     app.destroy();
   });
 });

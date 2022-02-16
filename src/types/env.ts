@@ -1,5 +1,6 @@
 import { Model } from "..";
 import { TranslationFunction } from "../translation";
+import { Currency } from "./currency";
 
 export interface EditTextOptions {
   error?: string;
@@ -14,6 +15,7 @@ export interface SpreadsheetEnv {
     callback: (text: string | null) => any,
     options?: EditTextOptions
   ) => any;
+  loadCurrencies: () => Promise<Currency[]>;
 }
 
 export interface SpreadsheetChildEnv extends SpreadsheetEnv {

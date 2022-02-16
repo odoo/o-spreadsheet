@@ -211,6 +211,14 @@ exports[`TopBar component can set cell format 1`] = `
                 Duration (27:51:38)
               </div>
               
+              
+              <div
+                data-custom="custom_currency"
+              >
+                Custom currency
+              </div>
+              
+              
             </div>
             
           </div>

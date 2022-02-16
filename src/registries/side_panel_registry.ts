@@ -1,5 +1,6 @@
 import { ChartPanel } from "../components/side_panel/chart_panel";
 import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting/conditional_formatting";
+import { CustomCurrencyPanel } from "../components/side_panel/custom_currency";
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace";
 import { Registry } from "../registry";
 import { _lt } from "../translation";
@@ -29,4 +30,9 @@ sidePanelRegistry.add("ChartPanel", {
 sidePanelRegistry.add("FindAndReplace", {
   title: _lt("Find and Replace"),
   Body: FindAndReplacePanel,
+});
+
+sidePanelRegistry.add("CustomCurrency", {
+  title: _lt("Custom currency format"),
+  Body: CustomCurrencyPanel,
 });
