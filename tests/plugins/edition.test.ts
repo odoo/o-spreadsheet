@@ -611,4 +611,32 @@ describe("edition", () => {
     expect(getCellText(model, "C3", sheetId2)).toBe("=");
     expect(getCell(model, "A1")).toBeUndefined();
   });
+
+  test("type a number in a cell with a percentage", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "2%");
+    model.dispatch("START_EDITION", { text: "1" });
+    expect(model.getters.getCurrentContent()).toBe("1%");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 1, end: 1 });
+  });
+
+  test("type a string in a cell with a percentage", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "2%");
+    model.dispatch("START_EDITION", { text: "a" });
+    expect(model.getters.getCurrentContent()).toBe("a");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 1, end: 1 });
+  });
+
+  test("type a number in percent formatted empty cell", () => {
+    const model = new Model();
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      format: "0.00%",
+    });
+    model.dispatch("START_EDITION", { text: "12" });
+    expect(model.getters.getCurrentContent()).toBe("12%");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 2, end: 2 });
+  });
 });
