@@ -56,8 +56,8 @@ cellRegistry
     sequence: 30,
     match: (content) => isNumber(content),
     createCell: (id, content, properties) => {
-      if (!properties.format && content.includes("%")) {
-        properties.format = content.includes(".") ? "0.00%" : "0%";
+      if (!properties.format) {
+        properties.format = detectNumberFormat(content);
       }
       return new NumberCell(id, parseNumber(content), properties);
     },
@@ -130,4 +130,21 @@ export function cellFactory(getters: CoreGetters) {
       return new BadExpressionCell(id, content, error.message || DEFAULT_ERROR_MESSAGE, properties);
     }
   };
+}
+
+function detectNumberFormat(content: string): string | undefined {
+  const digitBase = content.includes(".") ? "0.00" : "0";
+  const matchedCurrencies = content.match(/[\$€]/);
+  if (matchedCurrencies) {
+    const matchedFirstDigit = content.match(/[\d]/);
+    const currency = "[$" + matchedCurrencies.values().next().value + "]";
+    if (matchedFirstDigit!.index! < matchedCurrencies.index!) {
+      return "#,##" + digitBase + currency;
+    }
+    return currency + "#,##" + digitBase;
+  }
+  if (content.includes("%")) {
+    return digitBase + "%";
+  }
+  return undefined;
 }

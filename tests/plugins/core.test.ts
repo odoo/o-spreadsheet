@@ -230,17 +230,59 @@ describe("core", () => {
       expect(getCellContent(model, "A2")).toBe("TRUE");
     });
 
-    test("detect and format percentage values automatically", () => {
-      const model = new Model();
-      setCellContent(model, "A1", "3%");
-      setCellContent(model, "A2", "3.4%");
+    describe("detect format number automatically", () => {
+      test("if contain currency", () => {
+        const model = new Model();
+        setCellContent(model, "A1", "3$");
+        setCellContent(model, "A2", "-$3");
+        setCellContent(model, "A3", "$-3");
+        setCellContent(model, "A4", "$-3.123");
 
-      expect(getCellContent(model, "A1")).toBe("3%");
-      expect(getCell(model, "A1")!.format).toBe("0%");
-      expect(getCellContent(model, "A2")).toBe("3.40%");
-      expect(getCell(model, "A2")!.format).toBe("0.00%");
+        setCellContent(model, "A5", "3€");
+        setCellContent(model, "A6", "-€3");
+        setCellContent(model, "A7", "€-3");
+        setCellContent(model, "A8", "€-3.123");
+
+        expect(getCellContent(model, "A1")).toBe("3$");
+        expect(getCell(model, "A1")!.format).toBe("#,##0[$$]");
+        expect(getCellContent(model, "A2")).toBe("-$3");
+        expect(getCell(model, "A2")!.format).toBe("[$$]#,##0");
+        expect(getCellContent(model, "A3")).toBe("-$3");
+        expect(getCell(model, "A3")!.format).toBe("[$$]#,##0");
+        expect(getCellContent(model, "A4")).toBe("-$3.12");
+        expect(getCell(model, "A4")!.format).toBe("[$$]#,##0.00");
+
+        expect(getCellContent(model, "A5")).toBe("3€");
+        expect(getCell(model, "A5")!.format).toBe("#,##0[$€]");
+        expect(getCellContent(model, "A6")).toBe("-€3");
+        expect(getCell(model, "A6")!.format).toBe("[$€]#,##0");
+        expect(getCellContent(model, "A7")).toBe("-€3");
+        expect(getCell(model, "A7")!.format).toBe("[$€]#,##0");
+        expect(getCellContent(model, "A8")).toBe("-€3.12");
+        expect(getCell(model, "A8")!.format).toBe("[$€]#,##0.00");
+      });
+
+      test("if contain percent", () => {
+        const model = new Model();
+        setCellContent(model, "A1", "3%");
+        setCellContent(model, "A2", "3.4%");
+        expect(getCellContent(model, "A1")).toBe("3%");
+        expect(getCell(model, "A1")!.format).toBe("0%");
+        expect(getCellContent(model, "A2")).toBe("3.40%");
+        expect(getCell(model, "A2")!.format).toBe("0.00%");
+      });
+
+      test("currency format most important than percent format", () => {
+        const model = new Model();
+        setCellContent(model, "A1", "12300%$");
+        expect(getCellContent(model, "A1")).toBe("123$");
+        expect(getCell(model, "A1")!.format).toBe("#,##0[$$]");
+
+        setCellContent(model, "A2", "€12300%");
+        expect(getCellContent(model, "A2")).toBe("€123");
+        expect(getCell(model, "A2")!.format).toBe("[$€]#,##0");
+      });
     });
-
     describe("detect format formula automatically", () => {
       test("from formula without return format", () => {
         const model = new Model();

@@ -221,6 +221,17 @@ topbarMenuRegistry
     separator: true,
     action: ACTIONS.FORMAT_PERCENT_ACTION,
   })
+  .addChild("format_number_currency", ["format", "format_number"], {
+    name: _lt("Currency ($1,000.12)"),
+    sequence: 37,
+    action: ACTIONS.FORMAT_CURRENCY_ACTION,
+  })
+  .addChild("format_number_currency_rounded", ["format", "format_number"], {
+    name: _lt("Currency rounded ($1,000)"),
+    sequence: 38,
+    separator: true,
+    action: ACTIONS.FORMAT_CURRENCY_ROUNDED_ACTION,
+  })
   .addChild("format_number_date", ["format", "format_number"], {
     name: _lt("Date (9/26/2008)"),
     sequence: 40,
