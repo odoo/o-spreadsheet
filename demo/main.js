@@ -1,4 +1,5 @@
 import { demoData, makeLargeDataset } from "./data.js";
+import { currenciesData } from "./currencies.js";
 import { WebsocketTransport } from "./transport.js";
 
 const {
@@ -14,7 +15,7 @@ const {
 } = owl;
 
 const { Spreadsheet, Model } = o_spreadsheet;
-const { topbarMenuRegistry } = o_spreadsheet.registries;
+const { topbarMenuRegistry, currenciesRegistry } = o_spreadsheet.registries;
 
 const uuidGenerator = new o_spreadsheet.helpers.UuidGenerator();
 
@@ -73,6 +74,9 @@ class Demo extends Component {
       notifyUser: this.notifyUser,
       askConfirmation: this.askConfirmation,
       editText: this.editText,
+      loadCurrencies: async () => {
+        return currenciesData;
+      },
     });
     useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
 

@@ -104,9 +104,10 @@ let templates: any = {};
 // Requires to be called wit jest realTimers
 export async function mountSpreadsheet(
   fixture: HTMLElement,
-  props: SpreadsheetProps = { model: new Model() }
+  props: SpreadsheetProps = { model: new Model() },
+  env: Partial<SpreadsheetChildEnv> = {}
 ): Promise<{ app: App; parent: Spreadsheet }> {
-  const app = new App(Spreadsheet, { props, test: true });
+  const app = new App(Spreadsheet, { props, env, test: true });
   app.templates = templates;
   const parent = (await app.mount(fixture)) as Spreadsheet;
   templates = app.templates;

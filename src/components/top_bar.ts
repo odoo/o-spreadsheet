@@ -49,6 +49,10 @@ const FORMATS = [
   { name: "duration", text: "Duration (27:51:38)", value: "hhhh:mm:ss" },
 ];
 
+const CUSTOM_FORMATS = [
+  { name: "custom_currency", text: "Custom currency", sidePanel: "CustomCurrency" },
+];
+
 interface Props {
   onClick: () => void;
   focusComposer: Omit<ComposerFocusType, "cellFocus">;
@@ -293,6 +297,9 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
               <t t-foreach="formats" t-as="format" t-key="format.name">
                 <div t-att-data-format="format.name" t-att-class="{active: currentFormat === format.name}"><t t-esc="format.text"/></div>
               </t>
+              <t t-foreach="customFormats" t-as="customFormat" t-key="customFormat.name">
+                <div t-att-data-custom="customFormat.name"><t t-esc="customFormat.text"/></div>
+              </t>
             </div>
           </div>
           <div class="o-divider"/>
@@ -362,6 +369,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   static components = { ColorPicker, Menu, Composer };
   formats = FORMATS;
+  customFormats = CUSTOM_FORMATS;
   currentFormat = "general";
   fontSizes = fontSizes;
 
@@ -529,7 +537,18 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     const format = (ev.target as HTMLElement).dataset.format;
     if (format) {
       this.toogleFormat(format);
+      return;
     }
+    const custom = (ev.target as HTMLElement).dataset.custom;
+    if (custom) {
+      this.openCustomFormatSidePanel(custom);
+    }
+  }
+
+  openCustomFormatSidePanel(custom: string) {
+    const customFormatter = CUSTOM_FORMATS.find((c) => c.name === custom);
+    const sidePanel = (customFormatter && customFormatter.sidePanel) || "";
+    this.env.openSidePanel(sidePanel);
   }
 
   setDecimal(step: number) {
