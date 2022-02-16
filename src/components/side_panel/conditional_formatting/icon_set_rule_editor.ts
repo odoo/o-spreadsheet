@@ -4,7 +4,7 @@ import { CfTerms, GenericTerms, IconSetRule } from "../../translations_terms";
 
 const ICON_SETS_TEMPLATE = xml/* xml */ `
   <div>
-  <div class="o-cf-title-text">
+  <div class="o-section-subtitle">
     <t t-esc="env._t('${IconSetRule.Icons}')"/>
   </div>
     <div class="o-cf-iconsets">

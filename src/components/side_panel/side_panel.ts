@@ -62,6 +62,25 @@ css/* scss */ `
           color: dimgrey;
           margin-bottom: 5px;
         }
+
+        .o-section-subtitle {
+          color: gray;
+          font-size: 12px;
+          line-height: 14px;
+          margin: 8px 0 4px 0;
+        }
+
+        .o-subsection-left {
+          display: inline-block;
+          width: 47%;
+          margin-right: 3%;
+        }
+
+        .o-subsection-right {
+          display: inline-block;
+          width: 47%;
+          margin-left: 3%;
+        }
       }
     }
 
@@ -73,27 +92,29 @@ css/* scss */ `
     .o-sidePanelButtons {
       padding: 16px;
       text-align: right;
-      .o-sidePanelButton {
-        border: 1px solid lightgrey;
-        padding: 0px 20px 0px 20px;
-        border-radius: 4px;
-        font-weight: 500;
-        font-size: 14px;
-        height: 30px;
-        line-height: 16px;
-        background: white;
-        margin-right: 8px;
-        &:hover:enabled {
-          background-color: rgba(0, 0, 0, 0.08);
-        }
-      }
-      .o-sidePanelButton:enabled {
-        cursor: pointer;
-      }
-      .o-sidePanelButton:last-child {
-        margin-right: 0px;
+    }
+
+    .o-sidePanelButton {
+      border: 1px solid lightgrey;
+      padding: 0px 20px 0px 20px;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 14px;
+      height: 30px;
+      line-height: 16px;
+      background: white;
+      margin-right: 8px;
+      &:hover:enabled {
+        background-color: rgba(0, 0, 0, 0.08);
       }
     }
+    .o-sidePanelButton:enabled {
+      cursor: pointer;
+    }
+    .o-sidePanelButton:last-child {
+      margin-right: 0px;
+    }
+
     .o-input {
       color: #666666;
       border-radius: 4px;
