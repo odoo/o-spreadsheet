@@ -116,6 +116,13 @@ export class NumberCell extends AbstractCell<NumberEvaluation> {
   constructor(id: UID, value: number, properties: CellDisplayProperties = {}) {
     super(id, { value: value, type: CellValueType.number }, properties);
   }
+
+  get composerContent() {
+    if (this.format?.includes("%")) {
+      return `${this.evaluated.value * 100}%`;
+    }
+    return super.composerContent;
+  }
 }
 
 export class BooleanCell extends AbstractCell<BooleanEvaluation> {
