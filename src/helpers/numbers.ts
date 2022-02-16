@@ -9,7 +9,22 @@
  */
 export const formulaNumberRegexp = /^-?\d+(\.?\d*(e\d+)?)?(\s*%)?|^-?\.\d+(\s*%)?/;
 
-export const numberRegexp = /^-?\d+(,\d+)*(\.?\d*(e\d+)?)?(\s*%)?$|^-?\.\d+(\s*%)?$/;
+const pIntegerAndDecimals = "(\\d+(,\\d{3,})*(\\.\\d*)?)"; // pattern that match integer number with or without decimal digits
+const pOnlyDecimals = "(\\.\\d+)"; // pattern that match only expression with decimal digits
+const pScientificFormat = "(e(\\+|-)?\\d+)?"; // pattern that match scientific format between zero and one time (should be placed before pPercentFormat)
+const pPercentFormat = "(\\s*%)?"; // pattern that match percent symbol between zero and one time
+const pNumber =
+  "(\\s*" + pIntegerAndDecimals + "|" + pOnlyDecimals + ")" + pScientificFormat + pPercentFormat;
+const pMinus = "(\\s*-)?"; // pattern that match negative symbol between zero and one time
+const pCurrencyFormat = "(\\s*[\\$€])?";
+
+const p1 = pMinus + pCurrencyFormat + pNumber;
+const p2 = pMinus + pNumber + pCurrencyFormat;
+const p3 = pCurrencyFormat + pMinus + pNumber;
+
+const pNumberExp = "^((" + [p1, p2, p3].join(")|(") + "))$";
+
+const numberRegexp = new RegExp(pNumberExp, "i");
 
 /**
  * Return true if the argument is a "number string".
@@ -21,7 +36,7 @@ export function isNumber(value: string): boolean {
   return numberRegexp.test(value.trim());
 }
 
-const commaRegexp = /,/g;
+const invaluableSymbolsRegexp = /[,\$€]+/g;
 /**
  * Convert a string into a number. It assumes that the string actually represents
  * a number (as determined by the isNumber function)
@@ -30,7 +45,9 @@ const commaRegexp = /,/g;
  * number from the point of view of the isNumber function.
  */
 export function parseNumber(str: string): number {
-  let n = Number(str.replace(commaRegexp, ""));
+  // remove invaluable characters
+  str = str.replace(invaluableSymbolsRegexp, "");
+  let n = Number(str);
   if (isNaN(n) && str.includes("%")) {
     n = Number(str.split("%")[0]);
     if (!isNaN(n)) {
