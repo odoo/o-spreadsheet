@@ -13,7 +13,34 @@ const thousandsGroupsRegexp = /(\d+?)(?=(\d{3})+(?!\d)|$)/g;
 
 const zeroRegexp = /0/g;
 
-export interface InternalNumberFormat {
+/**
+ * This internal format allows to represent a string format into subparts.
+ * This division simplifies:
+ * - the interpretation of the format when apply it to a value
+ * - its modification (ex: easier to change the number of decimals)
+ *
+ * The internal format was introduced with the custom currency. The challenge was
+ * to separate the custom currency from the rest of the format to not interfere
+ * during analysis.
+ *
+ * This internal format and functions related to its application or modification
+ * are not perfect ! Unlike implementation of custom currencies, implementation
+ * of custom formats will ask to completely revisit internal format. The custom
+ * formats request a customization character by character.
+ *
+ * For mor information, see:
+ * - ECMA 376 standard:
+ *  - Part 1 “Fundamentals And Markup Language Reference”, 5th edition, December 2016:
+ *   - 18.8.30 numFmt (Number Format)
+ *   - 18.8.31 numFmts (Number Formats)
+ */
+type InternalFormat = (
+  | { type: "NUMBER"; format: InternalNumberFormat }
+  | { type: "CURRENCY"; format: string }
+  | { type: "DATE"; format: string }
+)[];
+
+interface InternalNumberFormat {
   readonly integerPart: string;
   readonly isPercent: boolean;
   readonly thousandsSeparator: boolean;
@@ -25,19 +52,16 @@ export interface InternalNumberFormat {
   readonly decimalPart?: string;
 }
 
-export type InternalFormat = InternalNumberFormat;
-
 // -----------------------------------------------------------------------------
 // FORMAT REPRESENTATION CACHE
 // -----------------------------------------------------------------------------
 
-const internalFormatByFormatString: { [format: string]: InternalNumberFormat } = {};
+const internalFormatByFormatString: { [format: string]: InternalFormat } = {};
 
 function parseFormat(formatString: Format): InternalFormat {
   let internalFormat = internalFormatByFormatString[formatString];
   if (internalFormat === undefined) {
-    validateFormat(formatString);
-    internalFormat = convertToInternalNumberFormat(formatString);
+    internalFormat = convertFormatToInternalFormat(formatString);
     internalFormatByFormatString[formatString] = internalFormat;
   }
   return internalFormat;
@@ -57,49 +81,59 @@ export function formatValue(value: CellValue, format?: Format): FormattedValue {
     case "boolean":
       return value ? "TRUE" : "FALSE";
     case "number":
-      if (format?.match(DATETIME_FORMAT)) {
-        return applyDateTimeFormat(value, format);
-      }
       // transform to internalNumberFormat
-      if (format === undefined) {
+      if (!format) {
         format = createDefaultFormat(value);
       }
       const internalFormat = parseFormat(format);
-      return applyNumberFormat(value, internalFormat);
+      return applyInternalFormat(value, internalFormat);
     case "object":
       return "0";
   }
 }
 
-function applyNumberFormat(value: number, numberFormat: InternalNumberFormat): FormattedValue {
-  if (value < 0) {
-    return "-" + applyNumberFormat(-value, numberFormat);
+function applyInternalFormat(value: number, internalFormat: InternalFormat): FormattedValue {
+  if (internalFormat[0].type === "DATE") {
+    return applyDateTimeFormat(value, internalFormat[0].format);
   }
 
-  if (numberFormat.isPercent) {
+  let formattedValue: FormattedValue = value < 0 ? "-" : "";
+  for (let part of internalFormat) {
+    switch (part.type) {
+      case "NUMBER":
+        formattedValue += applyInternalNumberFormat(Math.abs(value), part.format);
+        break;
+      case "CURRENCY":
+        formattedValue += part.format;
+        break;
+    }
+  }
+  return formattedValue;
+}
+
+function applyInternalNumberFormat(value: number, format: InternalNumberFormat) {
+  if (format.isPercent) {
     value = value * 100;
   }
-
   let maxDecimals = 0;
-  if (numberFormat.decimalPart !== undefined) {
-    maxDecimals = numberFormat.decimalPart.length;
+  if (format.decimalPart !== undefined) {
+    maxDecimals = format.decimalPart.length;
   }
   const { integerDigits, decimalDigits } = splitNumber(value, maxDecimals);
 
   let formattedValue = applyIntegerFormat(
     integerDigits,
-    numberFormat.integerPart,
-    numberFormat.thousandsSeparator
+    format.integerPart,
+    format.thousandsSeparator
   );
 
-  if (numberFormat.decimalPart !== undefined) {
-    formattedValue += "." + applyDecimalFormat(decimalDigits || "", numberFormat.decimalPart);
+  if (format.decimalPart !== undefined) {
+    formattedValue += "." + applyDecimalFormat(decimalDigits || "", format.decimalPart);
   }
 
-  if (numberFormat.isPercent) {
+  if (format.isPercent) {
     formattedValue += "%";
   }
-
   return formattedValue;
 }
 
@@ -264,13 +298,16 @@ export function createDefaultFormat(value: number): Format {
 }
 
 export function changeDecimalPlaces(format: Format, step: number) {
-  const internalNumberFormat = parseFormat(format);
-  const newInternalNumberFormat = changeInternalNumberFormatDecimalPlaces(
-    internalNumberFormat,
-    step
-  );
-  const newFormat = convertToFormat(newInternalNumberFormat);
-  internalFormatByFormatString[newFormat] = newInternalNumberFormat;
+  const internalFormat = parseFormat(format);
+  const newInternalFormat = internalFormat.map((intFmt) => {
+    if (intFmt.type === "NUMBER") {
+      return { ...intFmt, format: changeInternalNumberFormatDecimalPlaces(intFmt.format, step) };
+    } else {
+      return intFmt;
+    }
+  });
+  const newFormat = convertInternalFormatToFormat(newInternalFormat);
+  internalFormatByFormatString[newFormat] = newInternalFormat;
   return newFormat;
 }
 
@@ -293,29 +330,68 @@ function changeInternalNumberFormatDecimalPlaces(
 // MANAGING FORMAT
 // -----------------------------------------------------------------------------
 
-function validateFormat(format: Format) {
-  const [, decimalPart] = format.split(".");
-  if (decimalPart) {
-    if (decimalPart.includes(",")) {
-      throw new Error("A format can't contain ',' sign in the decimal part");
+/**
+ * Validates the provided format string and returns an InternalFormat Object.
+ */
+function convertFormatToInternalFormat(format: Format): InternalFormat {
+  if (format === "") {
+    throw new Error("A format cannot be empty");
+  }
+  let currentIndex = 0;
+  let result: InternalFormat = [];
+  while (currentIndex < format.length) {
+    let closingIndex: number;
+    if (format.charAt(currentIndex) === "[") {
+      if (format.charAt(currentIndex + 1) !== "$") {
+        throw new Error(`Currency formats have to be prefixed by a $: ${format}`);
+      }
+      // manage brackets/customStrings
+      closingIndex = format.substring(currentIndex).lastIndexOf("]") + currentIndex + 1;
+      if (closingIndex === 0) {
+        throw new Error(`Invalid currency brackets format: ${format}`);
+      }
+      result.push({
+        type: "CURRENCY",
+        format: format.substring(currentIndex + 2, closingIndex - 1),
+      }); // remove leading "[$"" and ending "]".
+    } else {
+      // rest of the time
+      const nextPartIndex = format.substring(currentIndex).indexOf("[");
+      closingIndex = nextPartIndex > -1 ? nextPartIndex + currentIndex : format.length;
+      const subFormat = format.substring(currentIndex, closingIndex);
+      if (subFormat.match(DATETIME_FORMAT)) {
+        result.push({ type: "DATE", format: subFormat });
+      } else {
+        result.push({
+          type: "NUMBER",
+          format: convertToInternalNumberFormat(subFormat),
+        });
+      }
     }
-    if (decimalPart.replace("%", "").length > 20) {
-      throw new Error("A format can't contain more than 20 decimal places");
-    }
+    currentIndex = closingIndex;
   }
-  if (format.replace("%", "").includes("%")) {
-    throw new Error("A format can only contain a single '%' sign");
-  }
-  if (format.replace(",", "").includes(",")) {
-    throw new Error("A format can only contain a single ',' sign");
-  }
+  return result;
 }
 
+/**
+ * @param format a formatString that is only applicable to numbers. I.e. composed of characters 0 # , . %
+ */
 function convertToInternalNumberFormat(format: Format): InternalNumberFormat {
   const isPercent = format.includes("%");
   const thousandsSeparator = format.includes(",");
+  if (format.match(/\..*,/)) {
+    throw new Error("A format can't contain ',' symbol in the decimal part");
+  }
   const _format = format.replace("%", "").replace(",", "");
+
+  const extraSigns = _format.match(/[\%|,]/);
+  if (extraSigns) {
+    throw new Error(`A format can only contain a single '${extraSigns[0]}' symbol`);
+  }
   const [integerPart, decimalPart] = _format.split(".");
+  if (decimalPart && decimalPart.length > 20) {
+    throw new Error("A format can't contain more than 20 decimal places");
+  }
   if (decimalPart !== undefined) {
     return {
       integerPart,
@@ -332,16 +408,32 @@ function convertToInternalNumberFormat(format: Format): InternalNumberFormat {
   }
 }
 
-function convertToFormat(internalNumberFormat: InternalNumberFormat): Format {
-  let format = internalNumberFormat.integerPart;
-  if (internalNumberFormat.thousandsSeparator) {
-    format = format.slice(0, -3) + "," + format.slice(-3);
-  }
-  if (internalNumberFormat.decimalPart !== undefined) {
-    format += "." + internalNumberFormat.decimalPart;
-  }
-  if (internalNumberFormat.isPercent) {
-    format += "%";
+function convertInternalFormatToFormat(internalFormat: InternalFormat): Format {
+  let format: Format = "";
+  for (let part of internalFormat) {
+    let currentFormat: string;
+    switch (part.type) {
+      case "NUMBER":
+        const fmt = part.format;
+        currentFormat = fmt.integerPart;
+        if (fmt.thousandsSeparator) {
+          currentFormat = currentFormat.slice(0, -3) + "," + currentFormat.slice(-3);
+        }
+        if (fmt.decimalPart !== undefined) {
+          currentFormat += "." + fmt.decimalPart;
+        }
+        if (fmt.isPercent) {
+          currentFormat += "%";
+        }
+        break;
+      case "CURRENCY":
+        currentFormat = `[$${part.format}]`;
+        break;
+      case "DATE":
+        currentFormat = part.format;
+        break;
+    }
+    format += currentFormat;
   }
   return format;
 }

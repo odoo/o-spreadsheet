@@ -58,7 +58,6 @@ describe("formatValue on number", () => {
 
   test("apply various integer format", () => {
     expect(formatValue(0, "0")).toBe("0");
-    expect(formatValue(0, "")).toBe("");
     expect(formatValue(0, "#")).toBe("");
     expect(formatValue(0, "000")).toBe("000");
     expect(formatValue(0, "0000")).toBe("0000");
@@ -68,7 +67,6 @@ describe("formatValue on number", () => {
     expect(formatValue(0, "0#0#0#")).toBe("000");
 
     expect(formatValue(123, "0")).toBe("123");
-    expect(formatValue(123, "")).toBe("123");
     expect(formatValue(123, "#")).toBe("123");
     expect(formatValue(123, "000")).toBe("123");
     expect(formatValue(123, "0000")).toBe("0123");
@@ -78,7 +76,6 @@ describe("formatValue on number", () => {
     expect(formatValue(123, "0#0#0#")).toBe("00123");
 
     expect(formatValue(123.456, "0")).toBe("123");
-    expect(formatValue(123.456, "")).toBe("123");
     expect(formatValue(123.456, "#")).toBe("123");
     expect(formatValue(123.456, "000")).toBe("123");
     expect(formatValue(123.456, "0000")).toBe("0123");
@@ -88,7 +85,6 @@ describe("formatValue on number", () => {
     expect(formatValue(123.456, "0#0#0#")).toBe("00123");
 
     expect(formatValue(0.456, "0")).toBe("0");
-    expect(formatValue(0.456, "")).toBe("");
     expect(formatValue(0.456, "#")).toBe("");
     expect(formatValue(0.456, "000")).toBe("000");
     expect(formatValue(0.456, "0000")).toBe("0000");
@@ -97,6 +93,13 @@ describe("formatValue on number", () => {
     expect(formatValue(0.456, "#0###")).toBe("0");
     expect(formatValue(0.456, "0#0###")).toBe("00");
     expect(formatValue(0.456, "0#0#0#")).toBe("000");
+  });
+
+  test("apply empty format --> apply default format", () => {
+    expect(formatValue(0, "")).toBe("0");
+    expect(formatValue(123, "")).toBe("123");
+    expect(formatValue(123.456, "")).toBe("123.456");
+    expect(formatValue(0.456, "")).toBe("0.456");
   });
 
   test("apply various decimal format", () => {
@@ -170,6 +173,13 @@ describe("formatValue on number", () => {
     expect(formatValue(10000, "#,##0")).toBe("10,000");
     expect(formatValue(100000, "#,##0")).toBe("100,000");
     expect(formatValue(1000000, "#,##0")).toBe("1,000,000");
+
+    expect(() => formatValue(1000, "###0.0,0")).toThrow(
+      "A format can't contain ',' symbol in the decimal part"
+    );
+    expect(() => formatValue(1000, "#,##,0.0")).toThrow(
+      "A format can only contain a single ',' symbol"
+    );
   });
 
   test.each([
@@ -185,6 +195,28 @@ describe("formatValue on number", () => {
     expect(formatValue(0.1234, "0.0%")).toBe("12.3%");
     expect(formatValue(0.1234, "0.00%")).toBe("12.34%");
     expect(formatValue(0.1234, "0.000%")).toBe("12.340%");
+    expect(() => formatValue(0.1234, "0.%0%")).toThrow(
+      "A format can only contain a single '%' symbol"
+    );
+  });
+
+  test("can apply format with custom currencies", () => {
+    expect(formatValue(1234, "#,##0[$TEST]")).toBe("1,234TEST");
+    expect(formatValue(1234, "#,##0[$ TEST]")).toBe("1,234 TEST");
+    expect(formatValue(1234, "#,##0[$  TEST ]")).toBe("1,234  TEST ");
+    expect(formatValue(1234, "#,##0[$ kikou lol ]")).toBe("1,234 kikou lol ");
+    expect(formatValue(1234, "[$ tune ]#,##0.0")).toBe(" tune 1,234.0");
+    expect(formatValue(1234, "[$ toulmonde il veut seulement la thune ]#,##0.0")).toBe(
+      " toulmonde il veut seulement la thune 1,234.0"
+    );
+    expect(formatValue(1234, "[$kama]#,##0.0")).toBe("kama1,234.0");
+    expect(formatValue(1234, "[$兔]#,##0.0")).toBe("兔1,234.0");
+    // test with char used in the format reading
+    expect(formatValue(1234, '[$#,##0.0E+00 %"$"]#,##0.0')).toBe('#,##0.0E+00 %"$"1,234.0');
+    expect(formatValue(1234, "[$[]#,##0.0")).toBe("[1,234.0");
+    expect(formatValue(1234, "[$]]#,##0.0")).toBe("]1,234.0");
+    expect(formatValue(1234, "[$[]]#,##0.0")).toBe("[]1,234.0");
+    expect(formatValue(1234, "[$][]#,##0.0")).toBe("][1,234.0");
   });
 });
 
