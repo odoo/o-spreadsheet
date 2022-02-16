@@ -15,7 +15,7 @@ const PREVIEW_TEMPLATE = xml/* xml */ `
 
 export const TEMPLATE_CELL_IS_RULE_EDITOR = xml/* xml */ `
 <div class="o-cf-cell-is-rule">
-    <div class="o-cf-title-text" t-esc="env._t('${CfTerms.IsRule}')"></div>
+    <div class="o-section-subtitle" t-esc="env._t('${CfTerms.IsRule}')"></div>
     <select t-model="rule.operator" class="o-input o-cell-is-operator">
         <t t-foreach="Object.keys(cellIsOperators)" t-as="op" t-key="op_index">
             <option t-att-value="op" t-esc="cellIsOperators[op]"/>
@@ -35,7 +35,7 @@ export const TEMPLATE_CELL_IS_RULE_EDITOR = xml/* xml */ `
                  class="o-input o-cell-is-value o-required"/>
       </t>
     </t>
-    <div class="o-cf-title-text" t-esc="env._t('${CfTerms.FormattingStyle}')"></div>
+    <div class="o-section-subtitle" t-esc="env._t('${CfTerms.FormattingStyle}')"></div>
 
     <t t-call="${PREVIEW_TEMPLATE}">
         <t t-set="currentStyle" t-value="rule.style"/>

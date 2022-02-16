@@ -48,25 +48,25 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
 
 export const TEMPLATE_COLOR_SCALE_EDITOR = xml/* xml */ `
   <div class="o-cf-color-scale-editor">
-      <div class="o-cf-title-text">
+      <div class="o-section-subtitle">
         <t t-esc="env._t('${ColorScale.Preview}')"/>
       </div>
       <t t-call="${PREVIEW_TEMPLATE}"/>
-      <div class="o-cf-title-text">
+      <div class="o-section-subtitle">
         <t t-esc="env._t('${ColorScale.Minpoint}')"/>
       </div>
       <t t-call="${THRESHOLD_TEMPLATE}">
           <t t-set="threshold" t-value="rule.minimum" ></t>
           <t t-set="thresholdType" t-value="'minimum'" ></t>
       </t>
-      <div class="o-cf-title-text">
+      <div class="o-section-subtitle">
         <t t-esc="env._t('${ColorScale.MidPoint}')"/>
       </div>
       <t t-call="${THRESHOLD_TEMPLATE}">
           <t t-set="threshold" t-value="rule.midpoint" ></t>
           <t t-set="thresholdType" t-value="'midpoint'" ></t>
       </t>
-      <div class="o-cf-title-text">
+      <div class="o-section-subtitle">
         <t t-esc="env._t('${ColorScale.MaxPoint}')"/>
       </div>
       <t t-call="${THRESHOLD_TEMPLATE}">
