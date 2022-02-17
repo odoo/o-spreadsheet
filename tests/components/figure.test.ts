@@ -8,7 +8,7 @@ import {
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { simulateClick } from "../test_helpers/dom_helper";
+import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
@@ -168,5 +168,23 @@ describe("figures", () => {
     await nextTick();
     const anchors = fixture.querySelectorAll(".o-anchor");
     expect(anchors).toHaveLength(8);
+  });
+
+  test("Can resize a figure through its anchors", async () => {
+    const figureId = "someuuid";
+    createFigure(model, { id: figureId, y: 200 });
+    await nextTick();
+    await simulateClick(".o-figure");
+    expect(model.getters.getSelectedFigureId()).toBe(figureId);
+    expect(model.getters.getFigure(model.getters.getActiveSheetId(), figureId)!.height).toBe(100);
+    // increase height by 50 pixels from the top anchor
+    const resizeTopSelector = fixture.querySelector(".o-anchor.o-top");
+    triggerMouseEvent(resizeTopSelector, "mousedown", 0, 200);
+    await nextTick();
+    triggerMouseEvent(resizeTopSelector, "mousemove", 0, 150);
+    await nextTick();
+    triggerMouseEvent(resizeTopSelector, "mouseup");
+    await nextTick();
+    expect(model.getters.getFigure(model.getters.getActiveSheetId(), figureId)!.height).toBe(150);
   });
 });
