@@ -1,3 +1,5 @@
+export type IconSetType = keyof typeof ICON_SETS;
+
 // -----------------------------------------------------------------------------
 // We need here the svg of the icons that we need to convert to images for the renderer
 // -----------------------------------------------------------------------------

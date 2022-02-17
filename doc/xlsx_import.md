@@ -1,0 +1,124 @@
+# XLSX Import
+
+## General
+
+The import of an XLSX have 2 steps :
+
+1.  Parse the XMLs into intermediate XLSX objects. These objects are close to what's inside the XMLs, but can be used by o_spreadsheet.
+2.  Convert these objects into a `WorkbookData` object that can be imported in o_spreadsheet.
+
+The features not supported at parsing and at conversion are different only from a development perspective. For the end user, it does not matter whether the feature is not supported and parsing or at conversion, except for a different error message in the console.
+
+## What we don't support at parsing of the XMLs :
+
+These are the elements of the XMLs that we don't parse at all because we don't implement them inside o_spreadsheet and they have a different structure than other XLSX objects, so parsing them would require additional implementation work.
+
+- Style :
+
+  - Fills : gradients fills are not parsed
+  - Fonts :
+    - font family : this is useless for us. It's an index to the table at OpenXml §18.18.94
+  - CellStyleXfs :
+    - It's supposed to be additional style to apply to the cells, but this doesn't really seems to be used by excel.
+  - Boolean applyAlignment/applyFont/applyFill... :
+    - These booleans are supposed to signal whether or not the fills/fonts/... should be applied in this style, but these seems to be ignored by Excel.
+
+- Strings :
+
+  - richText (text with non-uniform formatting)
+    - We only extract the text, and not the formatting
+
+- ConditionalFormat :
+
+  - cf type : dataBar
+
+- Figures :
+
+  - figures that have an anchor different than twoCellAnchor (but I couldn't find when a different anchor type was used in Excel)
+  - figures that don't contain a chart (eg. Images)
+
+- Charts :
+
+  - everything not pie/doughnut/bar/line chart
+
+- Pivots :
+  - we don't support excel-like pivot. Import them as Table.
+
+## What we don't support at conversion :
+
+These are the features that we don't fully support in o_spreadsheet. At conversion, we will either drop them completely, or adapt them to be somewhat useable in our application.
+
+NW = no warning generated for these conversions.
+
+- Sheets:
+  - We don't support hidden sheets, we import them as normal sheets (NW)
+- Style :
+  - col/row style. We apply the style on each cell of the row/col. (NW)
+- Borders :
+  - most border styles. We only support thin borders, and will convert every other border style to thin border.
+  - diagonal borders
+- Align :
+  - some horizontal alignments. We only support left/right/center.
+  - vertical alignement
+  - other align options (wrapText, indent, shrinkToFit, ...) (NW)
+- Fills :
+  - we only support solid fill pattern. Convert all other patterns into solid fills.
+- Font :
+  - We only support Arial
+  - Only some font sizes are supported, imported font sizes will be rounded to the closest supported font size.
+- Number formats :
+  - See section "Number Formats"
+- Strings :
+  - We do not support newlines characters in strings and drop them at conversion (NW)
+- Conditional Formats:
+  - Types not supported :
+    - AboveAverage
+    - (Not)Contains Error
+    - Data Bar (not supported at parsing)
+    - Duplicated/uniques values
+    - TimePeriod
+    - Top10
+  - Styles of CF not supported :
+    - Border
+    - Num format
+  - IconSets :
+    - We don't support most of the icons, replace them with some we support (NW)
+    - We don't support empty icons in IconSet (It makes the cf side panel crash!)
+      - Replace empty icon by a dot icon
+    - We don't support IconSet with more than 3 icons, replace them with IconSet with 3 icons (NW)
+- Charts :
+  - convert pie charts with multiple datasets into doughnut chart (NW)
+- Tables (NW) :
+  - we don't support tables the same way as Excel, the most we can do is import cells with formatting to represent a table
+  - table style in XLSX is a string that represent a style and there's 80+ different styles supported. We currently don't support those and
+    will use a default style for all the tables.
+- External References (NW):
+  - We cannot support references to external files (obviously), but we can replace the reference by its last known value (that is stored in the xlsx)
+
+### What will look strange :
+
+Excel don't really use the theme.xml file for theme colors, but define its own somewhere in its configuration. So the colors will be different at import than in excel, since we do not have access to these Excel configuration files. Import in GSheet et Calc both correctly use the theme defined in theme.xml
+
+### Number Formats
+
+We do not currently support many features in number formats. We try to convert the number formats of Excel into something we can use, dropping what we do not support.
+If we cannot convert the number format into something we can use, we drop it completely.
+
+- Multi-parts format :
+  - They are parts separated by ; in format
+  - We don't support those, we only take the first part
+- Locale/Date System info :
+  - They are HexCodes in brackets in the format (eg . [\$-40C], [\$string-52B])
+  - We drop them completely
+- Escaped sequences of character :
+  - They are blocks in the format that are pasted as-is in the parsed format. They can either be blocks with quotes "..." or brackets [\$...]
+  - We only support one of these escaped sequence by format. Drop the format if there are multiple of these.
+  - We only support brackets, convert "..." into [\$...]
+- Spaces :
+  - We only support spaces inside escaped sequence. Drop the spaces that are not in the escaped sequence.
+- Underscore character (\_) :
+  - It marks the next character as a character to ignore when computing the alignment of the word.
+  - We don't support this, drop \_ and the character that follows it in the format.
+- Times character (\*) :
+  - It repeats the next character enough times to fill the line.
+  - We don't support this, drop \* and the character that follows it in the format.

@@ -1,6 +1,7 @@
 import { Range } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
+import { LegendPosition } from "./common_chart";
 import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
 import { LineChartDefinition, LineChartRuntime } from "./line_chart";
 import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
@@ -44,15 +45,17 @@ export interface ExcelChartDataset {
   readonly range: string;
 }
 
+export type ExcelChartType = "line" | "bar" | "pie";
+
 export interface ExcelChartDefinition {
-  readonly title: string;
-  readonly type: "line" | "bar" | "pie";
+  readonly title?: string;
+  readonly type: ExcelChartType;
   readonly dataSets: ExcelChartDataset[];
   readonly labelRange?: string;
   readonly backgroundColor: XlsxHexColor;
   readonly fontColor: XlsxHexColor;
   readonly verticalAxisPosition: "left" | "right";
-  readonly legendPosition: "top" | "bottom" | "left" | "right" | "none";
+  readonly legendPosition: LegendPosition;
   readonly stackedBar?: boolean;
 }
 

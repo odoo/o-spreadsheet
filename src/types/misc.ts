@@ -121,7 +121,7 @@ export interface CellPosition {
 
 // A border description is a pair [style, ]
 export type BorderStyle = "thin" | "medium" | "thick" | "dashed" | "dotted" | "double";
-export type BorderDescr = [BorderStyle, string];
+export type BorderDescr = [BorderStyle, Color];
 
 export interface Border {
   top?: BorderDescr;

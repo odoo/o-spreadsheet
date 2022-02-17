@@ -9,6 +9,7 @@ const {
   useSubEnv,
   onWillStart,
   onMounted,
+  useState,
   onWillUnmount,
   useExternalListener,
 } = owl;
@@ -46,6 +47,7 @@ let start;
 
 class Demo extends Component {
   setup() {
+    this.state = useState({ key: 0 });
     this.stateUpdateMessages = [];
     this.client = {
       id: uuidGenerator.uuidv4(),
@@ -79,6 +81,39 @@ class Demo extends Component {
       action: () => this.model.updateMode("normal"),
     });
 
+    topbarMenuRegistry.addChild("xlsxImport", ["file"], {
+      name: "Import XLSX",
+      sequence: 25,
+      action: async (env) => {
+        const input = document.createElement("input");
+        input.setAttribute("type", "file");
+        input.setAttribute("style", "display: none");
+        document.body.appendChild(input);
+        input.onchange = async () => {
+          if (input.files.length <= 0) {
+            return false;
+          }
+          const myjszip = new JSZip();
+          const zip = await myjszip.loadAsync(input.files[0]);
+          const files = Object.keys(zip.files);
+          const contents = await Promise.all(files.map((file) => zip.files[file].async("text")));
+          const inputFiles = {};
+          for (let i = 0; i < contents.length; i++) {
+            inputFiles[files[i]] = contents[i];
+          }
+          this.leaveCollaborativeSession();
+          await fetch("http://localhost:9000/clear");
+          await this.initiateConnection(inputFiles);
+          this.state.key = this.state.key + 1;
+
+          // note : the onchange won't be called if we cancel the dialog w/o selecting a file, so this won't be called.
+          // It's kinda annoying (or not possible?) to fire an event on close, so the hidden input will just stay there
+          input.remove();
+        };
+        input.click();
+      },
+    });
+
     useSubEnv({
       notifyUser: this.notifyUser,
       askConfirmation: this.askConfirmation,
@@ -95,7 +130,7 @@ class Demo extends Component {
     onWillUnmount(this.leaveCollaborativeSession.bind(this));
   }
 
-  async initiateConnection() {
+  async initiateConnection(data = undefined) {
     this.transportService = new WebsocketTransport();
     try {
       const [history, _] = await Promise.all([
@@ -111,9 +146,13 @@ class Demo extends Component {
       this.transportService = undefined;
       this.stateUpdateMessages = [];
     }
+    this.createModel(data || demoData);
+    // this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));
+  }
+
+  createModel(data) {
     this.model = new Model(
-      demoData,
-      // makeLargeDataset(26, 10_000, ["numbers"]),
+      data,
       {
         evalContext: { env: this.env },
         transportService: this.transportService,
@@ -127,7 +166,6 @@ class Demo extends Component {
     this.model.joinSession();
     this.activateFirstSheet();
   }
-
   askConfirmation(content, confirm, cancel) {
     if (window.confirm(content)) {
       confirm();
@@ -176,7 +214,7 @@ class Demo extends Component {
 
 Demo.template = xml/* xml */ `
   <div>
-    <Spreadsheet model="model"/>
+    <Spreadsheet model="model" t-key="state.key"/>
   </div>`;
 Demo.components = { Spreadsheet };
 

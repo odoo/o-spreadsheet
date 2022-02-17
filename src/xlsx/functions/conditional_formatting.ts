@@ -58,7 +58,7 @@ function addCellIsRule(cf: ConditionalFormat, rule: CellIsRule, dxfs: XLSXDxf[])
   );
   const dxf: XLSXDxf = {
     font: {
-      color: rule.style.textColor,
+      color: { rgb: rule.style.textColor },
       bold: rule.style.bold,
       italic: rule.style.italic,
       strike: rule.style.strikethrough,
@@ -66,7 +66,7 @@ function addCellIsRule(cf: ConditionalFormat, rule: CellIsRule, dxfs: XLSXDxf[])
     },
   };
   if (rule.style.fillColor) {
-    dxf.fill = { fgColor: rule.style.fillColor };
+    dxf.fill = { fgColor: { rgb: rule.style.fillColor } };
   }
   const { id } = pushElement(dxf, dxfs);
   ruleAttributes.push(["dxfId", id]);

@@ -96,23 +96,6 @@ function rgbToHex6(color: Color): Color {
 }
 
 /**
- *  Apply tint to a color (see OpenXml spec §18.3.1.15);
- */
-export function applyTint(color: Color, tint: number): Color {
-  const rgba = colorToRGBA(color);
-  const hsla = rgbaToHSLA(rgba);
-
-  if (tint < 0) {
-    hsla.l = hsla.l * (1 + tint);
-  }
-  if (tint > 0) {
-    hsla.l = hsla.l * (1 - tint) + (100 - 100 * (1 - tint));
-  }
-
-  return rgbaToHex(hslaToRGBA(hsla));
-}
-
-/**
  * RGBA to HEX representation (#RRGGBBAA).
  *
  * https://css-tricks.com/converting-color-spaces-in-javascript/
@@ -252,16 +235,4 @@ export function rgbaToHSLA(rgba: RGBA): HSLA {
   l = +(l * 100).toFixed(1);
 
   return { a: rgba.a, h, s, l };
-}
-
-/**
- * Convert a rgba color string to an integer representation. Also remove the alpha.
- *
- * eg. #FF0000FF => 4278190335
- */
-export function rgbaToInt(rgba: Color) {
-  if (rgba.length === 9) {
-    rgba = rgba.slice(0, 7);
-  }
-  return parseInt(rgba.replace("#", ""), 16);
 }

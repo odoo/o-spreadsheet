@@ -9,10 +9,23 @@ import {
   Format,
   Style,
   UID,
-  WorkbookData,
 } from "../../types";
-import { ExtractedStyle, XLSXRel, XLSXRelFile, XLSXStructure } from "../../types/xlsx";
-import { FIRST_NUMFMT_ID, HEIGHT_FACTOR, WIDTH_FACTOR, XLSX_FORMAT_MAP } from "../constants";
+import {
+  ExtractedStyle,
+  XLSXRel,
+  XLSXRelFile,
+  XLSXStructure,
+  XLSXStyle,
+  XLSXWorksheet,
+} from "../../types/xlsx";
+import {
+  EXCEL_DEFAULT_COL_WIDTH,
+  EXCEL_DEFAULT_ROW_HEIGHT,
+  FIRST_NUMFMT_ID,
+  HEIGHT_FACTOR,
+  WIDTH_FACTOR,
+} from "../constants";
+import { XLSX_FORMAT_MAP } from "../conversion/conversion_maps";
 
 type PropertyPosition<T> = {
   id: number;
@@ -59,15 +72,25 @@ export function getCellType(value: number | string | boolean): string {
  * For some reason, Excel will only take the devicePixelRatio (i.e. interface scale on Windows desktop)
  * into account for the height.
  */
-export function convertHeight(height: number): number {
+export function convertHeightToExcel(height: number): number {
   return Math.round(HEIGHT_FACTOR * height * window.devicePixelRatio * 100) / 100;
 }
 
-export function convertWidth(width: number): number {
+export function convertWidthToExcel(width: number): number {
   return Math.round(WIDTH_FACTOR * width * 100) / 100;
 }
 
-export function extractStyle(cell: CellData, data: WorkbookData): ExtractedStyle {
+export function convertHeightFromExcel(height: number | undefined): number | undefined {
+  if (!height) return height;
+  return Math.round((height / HEIGHT_FACTOR) * 100) / 100;
+}
+
+export function convertWidthFromExcel(width: number | undefined): number | undefined {
+  if (!width) return width;
+  return Math.round((width / WIDTH_FACTOR) * 100) / 100;
+}
+
+export function extractStyle(cell: CellData, data: ExcelWorkbookData): ExtractedStyle {
   let style: Style = {};
   if (cell.style) {
     style = data.styles[cell.style];
@@ -80,13 +103,13 @@ export function extractStyle(cell: CellData, data: WorkbookData): ExtractedStyle
   const styles = {
     font: {
       size: style?.fontSize || DEFAULT_FONT_SIZE,
-      color: style?.textColor ? style!.textColor : "000000",
+      color: { rgb: style?.textColor ? style!.textColor : "000000" },
       family: 2,
       name: "Arial",
     },
     fill: style?.fillColor
       ? {
-          fgColor: style!.fillColor,
+          fgColor: { rgb: style!.fillColor },
         }
       : { reservedAttribute: "none" },
     numFmt: format,
@@ -115,7 +138,7 @@ export function normalizeStyle(construct: XLSXStructure, styles: ExtractedStyle)
     numFmtId,
     verticalAlignment: styles["verticalAlignment"] as string,
     horizontalAlignment: styles["horizontalAlignment"] as string,
-  };
+  } as XLSXStyle;
   const { id } = pushElement(style, construct.styles);
 
   return id;
@@ -225,4 +248,45 @@ export function getRangeSize(xc: string, defaultSheetIndex: string, data: ExcelW
   }
 
   return (zone.right - zone.left + 1) * (zone.bottom - zone.top + 1);
+}
+
+export function convertEMUToDotValue(value: number) {
+  const DPI = 96;
+  return Math.round((value * DPI) / 914400);
+}
+
+/**
+ * Get the position of the start of a column in Excel (in px).
+ */
+export function getColPosition(colIndex: number, sheetData: XLSXWorksheet): number {
+  let position = 0;
+  for (let i = 0; i < colIndex; i++) {
+    const colAtIndex = sheetData.cols.find((col) => i >= col.min && i <= col.max);
+    if (colAtIndex?.width) {
+      position += colAtIndex.width;
+    } else if (sheetData.sheetFormat?.defaultColWidth) {
+      position += sheetData.sheetFormat.defaultColWidth!;
+    } else {
+      position += EXCEL_DEFAULT_COL_WIDTH;
+    }
+  }
+  return position / WIDTH_FACTOR;
+}
+
+/**
+ * Get the position of the start of a row in Excel (in px).
+ */
+export function getRowPosition(rowIndex: number, sheetData: XLSXWorksheet) {
+  let position = 0;
+  for (let i = 0; i < rowIndex; i++) {
+    const rowAtIndex = sheetData.rows[i];
+    if (rowAtIndex?.height) {
+      position += rowAtIndex.height;
+    } else if (sheetData.sheetFormat?.defaultRowHeight) {
+      position += sheetData.sheetFormat.defaultRowHeight!;
+    } else {
+      position += EXCEL_DEFAULT_ROW_HEIGHT;
+    }
+  }
+  return position / HEIGHT_FACTOR;
 }
