@@ -36,9 +36,9 @@ import {
   isCoreCommand,
   LAYERS,
   UID,
-  WorkbookData,
 } from "./types/index";
 import { NotifyUIEvent } from "./types/ui";
+import { WorkbookData } from "./types/workbook_data";
 import { XLSXExport } from "./types/xlsx";
 import { getXLSX } from "./xlsx/xlsx_writer";
 
@@ -133,13 +133,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     data: any = {},
     config: Partial<ModelConfig> = {},
     stateUpdateMessages: StateUpdateMessage[] = [],
-    uuidGenerator: UuidGenerator = new UuidGenerator()
+    uuidGenerator: UuidGenerator = new UuidGenerator(),
+    verboseImport = true
   ) {
     super();
 
     stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
 
-    const workbookData = load(data);
+    const workbookData = load(data, verboseImport);
 
     this.state = new StateObserver();
 

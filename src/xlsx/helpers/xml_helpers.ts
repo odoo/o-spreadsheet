@@ -70,7 +70,7 @@ export function getDefaultXLSXStructure(): XLSXStructure {
       {
         size: DEFAULT_FONT_SIZE,
         family: 2,
-        color: "000000",
+        color: { rgb: "000000" },
         name: "Calibri",
       },
     ],
@@ -106,4 +106,32 @@ export function escapeXml(strings: TemplateStringsArray, ...expressions): XMLStr
     str.push(value + strings[i + 1]);
   }
   return new XMLString(concat(str));
+}
+
+/**
+ * Removes the namespace of all the xml tags in the string.
+ *
+ * Eg. : "ns:test a" => "test a"
+ */
+export function removeNamespaces(query: string): string {
+  return query.replace(/[a-z0-9]+:(?=[a-z0-9]+)/gi, "");
+}
+
+/**
+ * Escape the namespace's colons of all the xml tags in the string.
+ *
+ * Eg. : "ns:test a" => "ns\\:test a"
+ */
+export function escapeNamespaces(query: string): string {
+  return query.replace(/([a-z0-9]+):(?=[a-z0-9]+)/gi, "$1\\:");
+}
+
+/**
+ * Return true if the querySelector ignores the namespaces when searching for a tag in the DOM.
+ *
+ * Should return true if it's running on a browser, and false if it's running on jest (jsdom).
+ */
+export function areNamespaceIgnoredByQuerySelector() {
+  const doc = new DOMParser().parseFromString("<t:test xmlns:t='a'/>", "text/xml");
+  return doc.querySelector("test") !== null;
 }

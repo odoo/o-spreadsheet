@@ -21,7 +21,9 @@
     "prepare": "husky install",
     "watch:bundle": "npm run bundle:js -- --watch",
     "watch:ts": "npm run build:js -- --watch",
-    "watch:xml": "node tools/bundle_xml/watch_xml_templates.js"
+    "watch:xml": "node tools/bundle_xml/watch_xml_templates.js",
+    "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.js",
+    "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.js"
   },
   "browserslist": [
     "last 1 Chrome versions"

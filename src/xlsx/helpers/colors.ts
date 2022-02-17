@@ -3,7 +3,9 @@ import { Color } from "../../types";
 import { XlsxHexColor } from "../../types/xlsx";
 
 /**
- * Convert a color string to an excel compatible hexadecimal format.
+ * Convert a JS color hexadecimal to an excel compatible color.
+ *
+ * In Excel the color don't start with a '#' and the format is AARRGGBB instead of RRGGBBAA
  */
 export function toXlsxHexColor(color: Color): XlsxHexColor {
   color = toHex(color).replace("#", "");

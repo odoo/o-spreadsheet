@@ -21,6 +21,7 @@ declare global {
       toExport<T>(expected: T): R;
       toBeCancelledBecause(...expected: CancelledReason[]): R;
       toBeSuccessfullyDispatched(): R;
+      toBeBetween(lower: number, upper: number): R;
     }
   }
 }
@@ -120,5 +121,14 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
       }
     };
     return { pass, message };
+  },
+  toBeBetween(received: number, lower: number, upper: number) {
+    if (received < lower || received > upper) {
+      return {
+        pass: false,
+        message: () => `Expected ${received} to be between ${lower} and ${upper}`,
+      };
+    }
+    return { pass: true, message: () => "" };
   },
 });

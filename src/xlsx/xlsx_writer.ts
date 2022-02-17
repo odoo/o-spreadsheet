@@ -24,8 +24,8 @@ import { addColumns, addHyperlinks, addMerges, addRows } from "./functions/works
 import {
   addRelsToFile,
   convertChartId,
-  convertHeight,
-  convertWidth,
+  convertHeightToExcel,
+  convertWidthToExcel,
 } from "./helpers/content_helpers";
 import {
   createOverride,
@@ -99,8 +99,8 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
       ["xmlns:r", RELATIONSHIP_NSR],
     ];
     const sheetFormatAttributes: XMLAttributes = [
-      ["defaultRowHeight", convertHeight(DEFAULT_CELL_HEIGHT)],
-      ["defaultColWidth", convertWidth(DEFAULT_CELL_WIDTH)],
+      ["defaultRowHeight", convertHeightToExcel(DEFAULT_CELL_HEIGHT)],
+      ["defaultColWidth", convertWidthToExcel(DEFAULT_CELL_WIDTH)],
     ];
 
     // Figures and Charts

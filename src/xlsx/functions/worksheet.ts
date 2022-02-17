@@ -10,8 +10,8 @@ import { ExcelSheetData, ExcelWorkbookData, HeaderData } from "../../types";
 import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
 import {
   addRelsToFile,
-  convertHeight,
-  convertWidth,
+  convertHeightToExcel,
+  convertWidthToExcel,
   extractStyle,
   normalizeStyle,
 } from "../helpers/content_helpers";
@@ -28,7 +28,7 @@ export function addColumns(cols: { [key: number]: HeaderData }): XMLString {
     const attributes: XMLAttributes = [
       ["min", parseInt(id) + 1],
       ["max", parseInt(id) + 1],
-      ["width", convertWidth(col.size || DEFAULT_CELL_WIDTH)],
+      ["width", convertWidthToExcel(col.size || DEFAULT_CELL_WIDTH)],
       ["customWidth", 1],
       ["hidden", col.isHidden ? 1 : 0],
     ];
@@ -54,7 +54,7 @@ export function addRows(
     const row = sheet.rows[r] || {};
     // Always force our own row height
     rowAttrs.push(
-      ["ht", convertHeight(row.size || DEFAULT_CELL_HEIGHT)],
+      ["ht", convertHeightToExcel(row.size || DEFAULT_CELL_HEIGHT)],
       ["customHeight", 1],
       ["hidden", row.isHidden ? 1 : 0]
     );
@@ -91,7 +91,7 @@ export function addRows(
         `);
       }
     }
-    if (cellNodes.length) {
+    if (cellNodes.length || row.size !== DEFAULT_CELL_HEIGHT || row.isHidden) {
       rowNodes.push(escapeXml/*xml*/ `
         <row ${formatAttributes(rowAttrs)}>
           ${joinXmlNodes(cellNodes)}

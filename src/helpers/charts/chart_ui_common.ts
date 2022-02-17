@@ -87,6 +87,7 @@ export function getDefaultChartJsRuntime(
       animation: {
         duration: 0, // general animation time
       },
+      devicePixelRatio: 1, // at import from xlsx having devicePixelRatio < 1 messes up the scale
       hover: {
         animationDuration: 10, // duration of animations when hovering an item
       },

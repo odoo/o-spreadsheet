@@ -15,6 +15,7 @@ import {
   UID,
   WorkbookData,
 } from "../types/index";
+import { XlsxReader } from "../xlsx/xlsx_reader";
 import { normalizeV9 } from "./legacy_tools";
 
 /**
@@ -32,9 +33,18 @@ const INITIAL_SHEET_ID = "Sheet1";
  *
  * It also ensures that there is at least one sheet.
  */
-export function load(data?: any): WorkbookData {
+export function load(data?: any, verboseImport?: boolean): WorkbookData {
   if (!data) {
     return createEmptyWorkbookData();
+  }
+  if (data["[Content_Types].xml"]) {
+    const reader = new XlsxReader(data);
+    data = reader.convertXlsx();
+    if (verboseImport) {
+      for (let parsingError of reader.warningManager.warnings.sort()) {
+        console.warn(parsingError);
+      }
+    }
   }
   data = JSON.parse(JSON.stringify(data));
 
