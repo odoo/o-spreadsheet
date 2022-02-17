@@ -23,7 +23,7 @@ const TEMPLATE = xml/* xml */ `
 `;
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
 css/* scss */ `
-  .o-grid-composer {
+  div.o-grid-composer {
     z-index: 5;
     box-sizing: border-box;
     position: absolute;

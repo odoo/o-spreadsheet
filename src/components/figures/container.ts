@@ -57,7 +57,7 @@ css/*SCSS*/ `
     overflow: hidden;
   }
 
-  .o-figure {
+  div.o-figure {
     border: 1px solid black;
     box-sizing: border-box;
     position: absolute;
