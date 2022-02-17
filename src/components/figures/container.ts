@@ -29,14 +29,14 @@ const TEMPLATE = xml/* xml */ `<div>
                    onFigureDeleted="props.onFigureDeleted"
                    figure="info.figure"/>
                 <t t-if="info.isSelected">
-                    <div class="o-anchor o-top" t-on-mousedown.stop="(ev) => resize(info.figure, 0,-1, ev)"/>
-                    <div class="o-anchor o-topRight" t-on-mousedown.stop="(ev) => resize(info.figure, 1,-1, ev)"/>
-                    <div class="o-anchor o-right" t-on-mousedown.stop="(ev) => resize(info.figure, 1,0, ev)"/>
-                    <div class="o-anchor o-bottomRight" t-on-mousedown.stop="(ev) => resize(info.figure, 1,1, ev)"/>
-                    <div class="o-anchor o-bottom" t-on-mousedown.stop="(ev) => resize(info.figure, 0,1, ev)"/>
-                    <div class="o-anchor o-bottomLeft" t-on-mousedown.stop="(ev) => resize(info.figure, -1,1, ev)"/>
-                    <div class="o-anchor o-left" t-on-mousedown.stop="(ev) => resize(info.figure, -1,0, ev)"/>
-                    <div class="o-anchor o-topLeft" t-on-mousedown.stop="(ev) => resize(info.figure, -1,-1, ev)"/>
+                    <div class="o-anchor o-top" t-on-mousedown.stop="(ev) => this.resize(info.figure, 0,-1, ev)"/>
+                    <div class="o-anchor o-topRight" t-on-mousedown.stop="(ev) => this.resize(info.figure, 1,-1, ev)"/>
+                    <div class="o-anchor o-right" t-on-mousedown.stop="(ev) => this.resize(info.figure, 1,0, ev)"/>
+                    <div class="o-anchor o-bottomRight" t-on-mousedown.stop="(ev) => this.resize(info.figure, 1,1, ev)"/>
+                    <div class="o-anchor o-bottom" t-on-mousedown.stop="(ev) => this.resize(info.figure, 0,1, ev)"/>
+                    <div class="o-anchor o-bottomLeft" t-on-mousedown.stop="(ev) => this.resize(info.figure, -1,1, ev)"/>
+                    <div class="o-anchor o-left" t-on-mousedown.stop="(ev) => this.resize(info.figure, -1,0, ev)"/>
+                    <div class="o-anchor o-topLeft" t-on-mousedown.stop="(ev) => this.resize(info.figure, -1,-1, ev)"/>
                 </t>
             </div>
         </div>
