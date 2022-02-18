@@ -7,6 +7,15 @@ interface CollaborativeEnv {
   charlie: Model;
 }
 
+/**
+ * Create a spreadsheet model which is edited by three users Alice, Bob and Charlie
+ * at the same time.
+ *
+ * There's a bias in the order of messages: when multiple commands are
+ * dispatched concurrently by different users, Alice will receive messages
+ * first, meaning she will also resend her pending messages first.
+ * Similarly, Bob's messages are resent before Charlie's.
+ */
 export function setupCollaborativeEnv(): CollaborativeEnv {
   const network = new MockTransportService();
   const emptySheetData = new Model().exportData();

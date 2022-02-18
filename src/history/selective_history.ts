@@ -68,34 +68,39 @@ export class SelectiveHistory<T = unknown> {
   insert(operationId: UID, data: T, insertAfter: UID) {
     const operation = new Operation<T>(operationId, data);
     this.revertTo(insertAfter);
-    // insert to branch where it first was executed!
-    const branch = this.tree.findOriginBranch(this.HEAD_BRANCH, insertAfter);
-    this.tree.insertOperationAfter(branch, operation, insertAfter);
+    this.tree.insertOperationAfter(this.HEAD_BRANCH, operation, insertAfter);
     this.fastForward();
   }
 
   /**
    * @param operationId operation to undo
    * @param undoId the id of the "undo operation"
+   * @param insertAfter the id of the operation after which to insert the undo
    */
-  undo(operationId: UID, undoId: UID) {
+  undo(operationId: UID, undoId: UID, insertAfter: UID) {
     const { branch, operation } = this.tree.findOperation(this.HEAD_BRANCH, operationId);
     this.revertBefore(operationId);
     this.tree.undo(branch, operation);
     this.fastForward();
-    this.append(undoId, this.buildEmpty(undoId));
+    this.insert(undoId, this.buildEmpty(undoId), insertAfter);
   }
 
   /**
    * @param operationId operation to redo
    * @param redoId the if of the "redo operation"
+   * @param insertAfter the id of the operation after which to insert the redo
    */
-  redo(operationId: UID, redoId: UID) {
+  redo(operationId: UID, redoId: UID, insertAfter: UID) {
     const { branch } = this.tree.findOperation(this.HEAD_BRANCH, operationId);
     this.revertBefore(operationId);
     this.tree.redo(branch);
     this.fastForward();
-    this.append(redoId, this.buildEmpty(redoId));
+    this.insert(redoId, this.buildEmpty(redoId), insertAfter);
+  }
+
+  drop(operationId: UID) {
+    this.revertBefore(operationId);
+    this.tree.drop(operationId);
   }
 
   /**

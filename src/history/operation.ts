@@ -11,13 +11,9 @@ import { Transformation, UID } from "../types";
  * to revert it).
  */
 export class Operation<T> {
-  constructor(readonly id: UID, readonly data: T, public readonly isOriginal = true) {}
+  constructor(readonly id: UID, readonly data: T) {}
 
-  transformed(transformation: Transformation<T>, isOriginal?: boolean): Operation<T> {
-    return new Operation(
-      this.id,
-      transformation(this.data),
-      isOriginal !== undefined ? isOriginal : this.isOriginal
-    );
+  transformed(transformation: Transformation<T>): Operation<T> {
+    return new Operation(this.id, transformation(this.data));
   }
 }
