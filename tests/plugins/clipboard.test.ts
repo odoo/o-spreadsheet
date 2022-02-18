@@ -253,6 +253,25 @@ describe("clipboard", () => {
     expect(getBorder(model, "C2")).toEqual({ bottom: ["thin", "#000"] });
   });
 
+  test("paste cell does not overwrite existing borders", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: target("A1"),
+      border: "all",
+    });
+    model.dispatch("COPY", { target: target("B2") });
+    model.dispatch("PASTE", { target: target("A1") });
+    const border = ["thin", "#000"];
+    expect(model.getters.getCellBorder(sheetId, 0, 0)).toEqual({
+      top: border,
+      bottom: border,
+      left: border,
+      right: border,
+    });
+  });
+
   test("can copy a cell with a format", () => {
     const model = new Model();
     setCellContent(model, "B2", "0.451");

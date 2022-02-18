@@ -539,7 +539,15 @@ export class ClipboardPlugin extends UIPlugin {
     const targetCell = this.getters.getCell(sheetId, col, row);
 
     if (pasteOption !== "onlyValue") {
-      this.dispatch("SET_BORDER", { sheetId, col, row, border: origin.border });
+      const targetBorders = this.getters.getCellBorder(sheetId, col, row);
+      const originBorders = origin.border;
+      const border = {
+        top: targetBorders?.top || originBorders?.top,
+        bottom: targetBorders?.bottom || originBorders?.bottom,
+        left: targetBorders?.left || originBorders?.left,
+        right: targetBorders?.right || originBorders?.right,
+      };
+      this.dispatch("SET_BORDER", { sheetId, col, row, border });
     }
     if (origin.cell) {
       if (pasteOption === "onlyFormat") {
