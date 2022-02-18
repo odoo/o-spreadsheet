@@ -304,6 +304,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     };
     const transportService = config.transportService || new LocalTransportService();
     return {
+      ...config,
       mode: config.mode || "normal",
       evalContext: config.evalContext || {},
       transportService,

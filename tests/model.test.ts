@@ -1,7 +1,7 @@
 import { CommandResult, CorePlugin } from "../src";
 import { toZone } from "../src/helpers";
 import { LocalHistory } from "../src/history/local_history";
-import { Mode, Model } from "../src/model";
+import { Mode, Model, ModelConfig } from "../src/model";
 import { BordersPlugin } from "../src/plugins/core/borders";
 import { CellPlugin } from "../src/plugins/core/cell";
 import { ChartPlugin } from "../src/plugins/core/chart";
@@ -189,5 +189,10 @@ describe("Model", () => {
   test("Moving the selection is allowed in readonly mode", () => {
     const model = new Model({}, { isReadonly: true });
     expect(selectCell(model, "A15")).toBeSuccessfullyDispatched();
+  });
+
+  test("Can add custom elements in the config of model", () => {
+    const model = new Model({}, { custom: "42" } as unknown as ModelConfig);
+    expect(model["config"]["custom"]).toBe("42");
   });
 });
