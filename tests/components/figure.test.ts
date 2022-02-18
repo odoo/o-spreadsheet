@@ -1,10 +1,13 @@
 import { App, Component, xml } from "@odoo/owl";
-import { Spreadsheet } from "../../src";
-import { corePluginRegistry } from "../../src/plugins";
-import { CorePlugin } from "../../src/plugins/core_plugin";
-import { figureRegistry } from "../../src/registries/figure_registry";
-import { Command, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
-import { activateSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { Model, Spreadsheet } from "../../src";
+import { figureRegistry } from "../../src/registries";
+import { CreateFigureCommand, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
+import {
+  activateSheet,
+  createSheet,
+  selectCell,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
@@ -13,61 +16,42 @@ jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(()
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
 
 let fixture: HTMLElement;
-let model;
+let model: Model;
 let parent: Spreadsheet;
 let app: App;
 
-//Test Plugin
-interface CreateTextFigure {
-  type: "CREATE_TEXT_FIGURE";
-  id: string;
-  sheetId: UID;
-  text: string;
-}
-type TestCommands = Command | CreateTextFigure;
+function createFigure(
+  model: Model,
+  figureParameters: Partial<CreateFigureCommand["figure"]> = {},
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  const defaultParameters: CreateFigureCommand["figure"] = {
+    id: "someuuid",
+    x: 1,
+    y: 1,
+    height: 100,
+    width: 100,
+    tag: "text",
+  };
 
-class PluginTestFigureText extends CorePlugin {
-  readonly textFigures = {};
-  static getters = ["getTextFigures"];
-
-  handle(cmd: TestCommands) {
-    switch (cmd.type) {
-      case "CREATE_TEXT_FIGURE":
-        this.dispatch("CREATE_FIGURE", {
-          sheetId: cmd.sheetId,
-          figure: {
-            id: cmd.id,
-            x: 1,
-            y: 1,
-            height: 100,
-            width: 100,
-            tag: "text",
-          },
-        });
-        this.textFigures[cmd.id] = cmd.text;
-    }
-  }
-  getTextFigures() {
-    return this.textFigures;
-  }
+  model.dispatch("CREATE_FIGURE", {
+    sheetId,
+    figure: { ...defaultParameters, ...figureParameters },
+  });
 }
-corePluginRegistry.add("testFigureText", PluginTestFigureText);
-//Test Composant
+
+//Test Component required as we don't especially want/need to load an entire chart
 const TEMPLATE = xml/* xml */ `
   <div class="o-fig-text">
-    <t t-esc="getText()"/>
+    <t t-esc='"coucou"'/>
   </div>
 `;
+
 interface Props {
   figure: Figure;
 }
 class TextFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  getText() {
-    //@ts-ignore
-    const texts = this.env.model.getters.getTextFigures();
-    return texts[this.props.figure.id];
-  }
 }
 
 figureRegistry.add("text", { Component: TextFigure });
@@ -84,24 +68,13 @@ describe("figures", () => {
   });
 
   test("can create a figure with some data", () => {
-    model.dispatch("CREATE_TEXT_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      id: "someuuid",
-      text: "Hello",
-    });
-    const data = model.exportData();
-    const sheet = data.sheets.find((s) => s.id === model.getters.getActiveSheetId())!;
-
-    expect(sheet.figures).toEqual([
+    createFigure(model);
+    expect(model.getters.getFigures(model.getters.getActiveSheetId())).toEqual([
       { id: "someuuid", height: 100, tag: "text", width: 100, x: 1, y: 1 },
     ]);
   });
   test("focus a figure", async () => {
-    model.dispatch("CREATE_TEXT_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      id: "someuuid",
-      text: "Hello",
-    });
+    createFigure(model);
     await nextTick();
     expect(fixture.querySelector(".o-figure")).toBeDefined();
     await simulateClick(".o-figure");
@@ -109,11 +82,7 @@ describe("figures", () => {
   });
 
   test("deleting a figure focuses the canvas", async () => {
-    model.dispatch("CREATE_TEXT_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      id: "someuuid",
-      text: "Hello",
-    });
+    createFigure(model);
     await nextTick();
     const figure = fixture.querySelector(".o-figure")!;
     await simulateClick(".o-figure");
@@ -125,11 +94,7 @@ describe("figures", () => {
   });
 
   test("deleting a figure doesn't delete selection", async () => {
-    model.dispatch("CREATE_TEXT_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      id: "someuuid",
-      text: "Hello",
-    });
+    createFigure(model);
     setCellContent(model, "A1", "content");
     selectCell(model, "A1");
     await nextTick();
@@ -142,12 +107,8 @@ describe("figures", () => {
   });
 
   test("Add a figure on sheet2, scroll down on sheet 1, switch to sheet 2, the figure should be displayed", async () => {
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
-    model.dispatch("CREATE_TEXT_FIGURE", {
-      sheetId: "42",
-      id: "someuuid",
-      text: "Hello",
-    });
+    createSheet(model, { sheetId: "42", position: 1 });
+    createFigure(model, {}, "42");
     fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaX: 1500 }));
     fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
     await nextTick();
@@ -158,11 +119,7 @@ describe("figures", () => {
 
   test("Can move a figure with keyboard", async () => {
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_TEXT_FIGURE", {
-      sheetId,
-      id: "someuuid",
-      text: "Hello",
-    });
+    createFigure(model);
     let figure = model.getters.getFigure(sheetId, "someuuid");
     expect(figure).toMatchObject({ id: "someuuid", x: 1, y: 1 });
     await nextTick();
@@ -206,11 +163,7 @@ describe("figures", () => {
   });
 
   test("select a figure, it should have the  resize handles", async () => {
-    model.dispatch("CREATE_TEXT_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      id: "someuuid",
-      text: "Hello",
-    });
+    createFigure(model);
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
     await nextTick();
     const anchors = fixture.querySelectorAll(".o-anchor");
