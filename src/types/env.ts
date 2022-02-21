@@ -1,3 +1,4 @@
+import { Position } from ".";
 import { Model } from "..";
 import { TranslationFunction } from "../translation";
 
@@ -19,7 +20,7 @@ export interface SpreadsheetEnv {
 export interface SpreadsheetChildEnv extends SpreadsheetEnv {
   model: Model;
   openSidePanel: (panel: string, panelProps?: any) => void;
-  openLinkEditor: () => void;
+  openLinkEditor: (position: Position) => void;
   toggleSidePanel: (panel: string, panelProps?: any) => void;
   clipboard: Clipboard;
   _t: TranslationFunction;

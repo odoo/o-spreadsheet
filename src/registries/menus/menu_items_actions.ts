@@ -620,7 +620,8 @@ export const OPEN_FAR_SIDEPANEL_ACTION = (env: SpreadsheetChildEnv) => {
 };
 
 export const INSERT_LINK = (env: SpreadsheetChildEnv) => {
-  env.openLinkEditor();
+  const [col, row] = env.model.getters.getPosition();
+  env.openLinkEditor({ col, row });
 };
 
 //------------------------------------------------------------------------------

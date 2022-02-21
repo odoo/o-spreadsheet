@@ -51,6 +51,7 @@ import { ErrorToolTip } from "./error_tooltip";
 import { FiguresContainer } from "./figures/container";
 import { css } from "./helpers/css";
 import { startDnd } from "./helpers/drag_and_drop";
+import { useInterval } from "./helpers/time_hooks";
 import { Highlight } from "./highlight/highlight";
 import { LinkDisplay } from "./link/link_display";
 import { LinkEditor } from "./link/link_editor";
@@ -96,14 +97,16 @@ interface HoveredPosition {
   row?: number;
 }
 
-export function useCellHovered(env: SpreadsheetChildEnv, getViewPort: () => Viewport) {
+export function useCellHovered(
+  env: SpreadsheetChildEnv,
+  getViewPort: () => Viewport
+): Partial<Position> {
   const hoveredPosition: HoveredPosition = useState({} as HoveredPosition);
-  const { Date, setInterval, clearInterval } = window;
+  const { Date } = window;
   const canvasRef = useRef("canvas");
   let x = 0;
   let y = 0;
   let lastMoved = 0;
-  let interval;
 
   function getPosition(): [number, number] {
     const { offsetX, offsetY } = getViewPort();
@@ -112,14 +115,16 @@ export function useCellHovered(env: SpreadsheetChildEnv, getViewPort: () => View
     return [col, row];
   }
 
+  const { pause, resume } = useInterval(checkTiming, 200);
+
   function checkTiming() {
     const [col, row] = getPosition();
     const delta = Date.now() - lastMoved;
-    if (col !== hoveredPosition.col || row !== hoveredPosition.row) {
+    if (delta > 300 && (col !== hoveredPosition.col || row !== hoveredPosition.row)) {
       hoveredPosition.col = undefined;
       hoveredPosition.row = undefined;
     }
-    if (400 < delta && delta < 600) {
+    if (300 < delta && delta < 500) {
       if (col < 0 || row < 0) {
         return;
       }
@@ -134,13 +139,17 @@ export function useCellHovered(env: SpreadsheetChildEnv, getViewPort: () => View
   }
 
   onMounted(() => {
-    canvasRef.el!.addEventListener("mousemove", updateMousePosition);
-    interval = setInterval(checkTiming, 200);
+    const canvas = canvasRef.el!;
+    canvas.addEventListener("mousemove", updateMousePosition);
+    canvas.addEventListener("mouseleave", pause);
+    canvas.addEventListener("mouseenter", resume);
   });
 
   onWillUnmount(() => {
-    canvasRef.el!.removeEventListener("mousemove", updateMousePosition);
-    clearInterval(interval);
+    const canvas = canvasRef.el!;
+    canvas.removeEventListener("mousemove", updateMousePosition);
+    canvas.removeEventListener("mouseleave", pause);
+    canvas.removeEventListener("mouseenter", resume);
   });
   return hoveredPosition;
 }
@@ -230,21 +239,21 @@ const TEMPLATE = xml/* xml */ `
     </Popover>
     <Popover
       t-if="shouldDisplayLink"
-      position="popoverPosition.position"
-      flipHorizontalOffset="-popoverPosition.cellWidth"
-      flipVerticalOffset="-popoverPosition.cellHeight"
+      position="popoverPosition(hoveredCell).position"
+      flipHorizontalOffset="-popoverPosition(hoveredCell).cellWidth"
+      flipVerticalOffset="-popoverPosition(hoveredCell).cellHeight"
       childWidth="${LINK_TOOLTIP_WIDTH}"
       childHeight="${LINK_TOOLTIP_HEIGHT}">
-      <LinkDisplay cellPosition="activeCellPosition"/>
+      <LinkDisplay cellPosition="hoveredCell"/>
     </Popover>
     <Popover
-      t-if="props.linkEditorIsOpen"
-      position="popoverPosition.position"
-      flipHorizontalOffset="-popoverPosition.cellWidth"
-      flipVerticalOffset="-popoverPosition.cellHeight"
+      t-if="props.linkEditor.isOpen"
+      position="popoverPosition(props.linkEditor.cellPosition).position"
+      flipHorizontalOffset="-popoverPosition(props.linkEditor.cellPosition).cellWidth"
+      flipVerticalOffset="-popoverPosition(props.linkEditor.cellPosition).cellHeight"
       childWidth="${LINK_EDITOR_WIDTH}"
       childHeight="${LINK_EDITOR_HEIGHT}">
-      <LinkEditor cellPosition="activeCellPosition" onLinkEditorClosed="props.onLinkEditorClosed"/>
+      <LinkEditor cellPosition="props.linkEditor.cellPosition" onLinkEditorClosed="props.onLinkEditorClosed"/>
     </Popover>
     <t t-if="env.model.getters.getEditionMode() === 'inactive'">
       <Autofill position="getAutofillPosition()" getGridBoundingClientRect="() => this.getGridBoundingClientRect()"/>
@@ -312,7 +321,10 @@ css/* scss */ `
 
 interface Props {
   sidePanelIsOpen: boolean;
-  linkEditorIsOpen: boolean;
+  linkEditor: {
+    isOpen: boolean;
+    cellPosition: Position;
+  };
   exposeFocus: (focus: () => void) => void;
   onComposerContentFocused: () => void;
   onGridComposerCellFocused: (content?: string, selection?: ComposerSelection) => void;
@@ -442,7 +454,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   get shouldDisplayLink(): boolean {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const { col, row } = this.activeCellPosition;
+    const { col, row } = this.hoveredCell;
+    if (col === undefined || row === undefined) {
+      return false;
+    }
     const viewport = this.env.model.getters.getActiveViewport();
     const cell = this.env.model.getters.getCell(sheetId, col, row);
     return (
@@ -450,19 +465,20 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       !!cell &&
       cell.isLink() &&
       !this.menuState.isOpen &&
-      !this.props.linkEditorIsOpen &&
+      !this.props.linkEditor.isOpen &&
       !this.props.sidePanelIsOpen
     );
   }
 
   /**
-   * Get a reasonable position to display the popover, under the active cell.
+   * Get a reasonable position to display the popover, under the given cell position.
    * Used by link popover components.
    */
-  get popoverPosition() {
+  popoverPosition(position: Position) {
     const [col, row] = this.env.model.getters.getBottomLeftCell(
       this.env.model.getters.getActiveSheetId(),
-      ...this.env.model.getters.getPosition()
+      position.col,
+      position.row
     );
     const viewport = this.env.model.getters.getActiveViewport();
     const [x, y, width, height] = this.env.model.getters.getRect(

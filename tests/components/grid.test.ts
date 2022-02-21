@@ -15,6 +15,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import {
   clickCell,
+  hoverCell,
   rightClickCell,
   simulateClick,
   triggerMouseEvent,
@@ -693,51 +694,28 @@ describe("error tooltip", () => {
   });
 
   test("can display error on A1", async () => {
-    Date.now = jest.fn(() => 0);
     setCellContent(model, "A1", "=1/0");
-    await nextTick();
-    triggerMouseEvent("canvas", "mousemove", 80, 30); // A1
-    Date.now = jest.fn(() => 500);
-    jest.advanceTimersByTime(300);
-    await nextTick();
+    await hoverCell(model, "A1", 400);
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
   });
 
   test("can display error tooltip", async () => {
-    Date.now = jest.fn(() => 0);
     setCellContent(model, "C8", "=1/0");
-    await nextTick();
-    triggerMouseEvent("canvas", "mousemove", 300, 200);
-    Date.now = jest.fn(() => 250);
-    jest.advanceTimersByTime(300);
-
-    await nextTick();
+    await hoverCell(model, "C8", 200);
     expect(document.querySelector(".o-error-tooltip")).toBeNull();
-
-    Date.now = jest.fn(() => 500);
-    jest.advanceTimersByTime(300);
-    await nextTick();
+    await hoverCell(model, "C8", 400);
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
     expect(document.querySelector(".o-error-tooltip")?.parentElement).toMatchSnapshot();
-
-    // moving mouse await
-    triggerMouseEvent("canvas", "mousemove", 100, 200);
-    Date.now = jest.fn(() => 1050);
-    jest.advanceTimersByTime(300);
-    await nextTick();
+    await hoverCell(model, "C7", 200);
+    expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
+    await hoverCell(model, "C7", 400);
     expect(document.querySelector(".o-error-tooltip")).toBeNull();
   });
 
   test("can display error when move on merge", async () => {
-    Date.now = jest.fn(() => 0);
     merge(model, "C1:C8");
     setCellContent(model, "C1", "=1/0");
-    await nextTick();
-    triggerMouseEvent("canvas", "mousemove", 300, 200); // C8
-
-    Date.now = jest.fn(() => 500);
-    jest.advanceTimersByTime(300);
-    await nextTick();
+    await hoverCell(model, "C8", 400);
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
   });
 

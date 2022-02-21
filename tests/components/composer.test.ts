@@ -20,6 +20,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import {
   clickCell,
+  hoverCell,
   keyDown,
   keyUp,
   simulateClick,
@@ -65,6 +66,7 @@ async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
 }
 
 beforeEach(async () => {
+  jest.useFakeTimers();
   fixture = makeTestFixture();
   ({ app, parent } = await mountSpreadsheet(fixture));
   model = parent.model;
@@ -505,8 +507,7 @@ describe("composer", () => {
 
   test("edit link cell changes the label", async () => {
     setCellContent(model, "A1", "[label](http://odoo.com)");
-    await clickCell(model, "A1");
-    await nextTick();
+    await hoverCell(model, "A1", 400);
     expect(fixture.querySelector(".o-link-tool")).not.toBeNull();
     await startComposition();
     await typeInComposerGrid(" updated");
@@ -514,7 +515,6 @@ describe("composer", () => {
     const cell = getCell(model, "A1") as LinkCell;
     expect(cell.link.label).toBe("label updated");
     expect(cell.link.url).toBe("http://odoo.com");
-    expect(fixture.querySelector(".o-link-tool")).toBeNull();
   });
 
   test("Hitting enter on topbar composer will properly update it", async () => {

@@ -89,7 +89,7 @@ export class LinkDisplay extends Component<{ cellPosition: Position }, Spreadshe
   }
 
   edit() {
-    this.env.openLinkEditor();
+    this.env.openLinkEditor(this.props.cellPosition);
   }
 
   unlink() {

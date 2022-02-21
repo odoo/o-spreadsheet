@@ -2,7 +2,7 @@ import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
 import { clearCell, createSheet, setCellContent } from "../../test_helpers/commands_helpers";
-import { clickCell, rightClickCell, simulateClick } from "../../test_helpers/dom_helper";
+import { hoverCell, rightClickCell, simulateClick } from "../../test_helpers/dom_helper";
 import { getCell } from "../../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
@@ -13,6 +13,7 @@ describe("link display component", () => {
   let parent: Spreadsheet;
 
   beforeEach(async () => {
+    jest.useFakeTimers();
     fixture = makeTestFixture();
     ({ app, parent } = await mountSpreadsheet(fixture));
     model = parent.model;
@@ -25,7 +26,7 @@ describe("link display component", () => {
 
   test("link shows the url", async () => {
     setCellContent(model, "A1", "[label](url.com)");
-    await clickCell(model, "A1");
+    await hoverCell(model, "A1", 400);
     expect(fixture.querySelector("a")?.innerHTML).toBe("https://url.com");
     expect(fixture.querySelector("a")?.getAttribute("href")).toBe("https://url.com");
     expect(fixture.querySelector("a")?.getAttribute("title")).toBe("https://url.com");
@@ -35,7 +36,7 @@ describe("link display component", () => {
   test("sheet link title shows the sheet name and doesn't have a href", async () => {
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", `[label](${buildSheetLink(sheetId)})`);
-    await clickCell(model, "A1");
+    await hoverCell(model, "A1", 400);
     expect(fixture.querySelector("a")?.innerHTML).toBe("Sheet1");
     expect(fixture.querySelector("a")?.getAttribute("title")).toBe("Sheet1");
     // with "href", the browser opens a new tab on CTRL+Click
@@ -43,17 +44,17 @@ describe("link display component", () => {
     expect(fixture.querySelector("a")?.getAttribute("href")).toBeNull();
   });
 
-  test("link is displayed and closed when cell is clicked", async () => {
+  test("link is displayed and closed when cell is hovered", async () => {
     setCellContent(model, "A1", "[label](url.com)");
-    await clickCell(model, "A1");
+    await hoverCell(model, "A1", 400);
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
-    await clickCell(model, "A2");
+    await hoverCell(model, "A2", 400);
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
   });
 
   test("link is displayed and closed when the cell is right-clicked", async () => {
     setCellContent(model, "A1", "[label](url.com)");
-    await clickCell(model, "A1");
+    await hoverCell(model, "A1", 400);
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
     await rightClickCell(model, "A1");
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
@@ -61,35 +62,42 @@ describe("link display component", () => {
 
   test("link is displayed and closed when other cell is right-clicked", async () => {
     setCellContent(model, "A1", "[label](url.com)");
-    await clickCell(model, "A1");
+    await hoverCell(model, "A1", 400);
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
     await rightClickCell(model, "A2");
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
   });
 
-  test("link is closed when other cell is selected with arrows", async () => {
-    setCellContent(model, "A1", "[label](url.com)");
-    await clickCell(model, "A1");
-    expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
-    fixture
-      .querySelector("canvas")
-      ?.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
-    await nextTick();
-    expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
-  });
-
   test("component is closed when cell is deleted", async () => {
     setCellContent(model, "A1", "[label](url.com)");
-    await clickCell(model, "A1");
+    await hoverCell(model, "A1", 400);
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
     clearCell(model, "A1");
     await nextTick();
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
   });
 
+  test("component is not closed when leaving grid canvas", async () => {
+    setCellContent(model, "A1", "[label](url.com)");
+    await hoverCell(model, "A1", 400);
+    expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
+    // hover an other cell then move your cursor from the canvas.
+    // i.e hover the link component itself
+    await hoverCell(model, "A2", 100);
+    fixture.querySelector(".o-grid canvas")?.dispatchEvent(new Event("mouseleave"));
+    jest.advanceTimersByTime(10000);
+    await nextTick();
+    expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
+
+    fixture.querySelector(".o-grid canvas")?.dispatchEvent(new Event("mouseenter"));
+    jest.advanceTimersByTime(400);
+    await nextTick();
+    expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
+  });
+
   test("component is closed when side panel is opened", async () => {
     setCellContent(model, "A1", "[label](url.com)");
-    await clickCell(model, "A1");
+    await hoverCell(model, "A1", 400);
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
     parent.env.openSidePanel("FindAndReplace");
     await nextTick();
@@ -98,7 +106,7 @@ describe("link display component", () => {
 
   test("remove link by clicking the unlink icon", async () => {
     setCellContent(model, "A1", "[label](url.com)");
-    await clickCell(model, "A1");
+    await hoverCell(model, "A1", 400);
     await simulateClick(".o-unlink");
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
     const cell = getCell(model, "A1");
@@ -108,7 +116,7 @@ describe("link display component", () => {
 
   test("link text color is removed when the cell is unlinked", async () => {
     setCellContent(model, "A1", "[label](url.com)");
-    await clickCell(model, "A1");
+    await hoverCell(model, "A1", 400);
     model.dispatch("UPDATE_CELL", {
       col: 0,
       row: 0,
@@ -132,7 +140,7 @@ describe("link display component", () => {
       sheetId: model.getters.getActiveSheetId(),
       style: { bold: true, textColor: "#555" },
     });
-    await clickCell(model, "A1");
+    await hoverCell(model, "A1", 400);
     await simulateClick(".o-unlink");
     expect(getCell(model, "A1")?.style).toEqual({
       bold: true,
@@ -143,7 +151,7 @@ describe("link display component", () => {
 
   test("open link editor", async () => {
     setCellContent(model, "A1", "[label](url.com)");
-    await clickCell(model, "A1");
+    await hoverCell(model, "A1", 400);
     await simulateClick(".o-edit-link");
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
     const editor = fixture.querySelector(".o-link-editor");
@@ -156,7 +164,7 @@ describe("link display component", () => {
   test("click on a web link opens the page", async () => {
     const spy = jest.spyOn(window, "open").mockImplementation();
     setCellContent(model, "A1", "[label](url.com)");
-    await clickCell(model, "A1");
+    await hoverCell(model, "A1", 400);
     await simulateClick("a");
     expect(spy).toHaveBeenCalledWith("https://url.com", "_blank");
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
@@ -166,7 +174,7 @@ describe("link display component", () => {
     const sheetId = "42";
     createSheet(model, { sheetId });
     setCellContent(model, "A1", `[label](${buildSheetLink(sheetId)})`);
-    await clickCell(model, "A1");
+    await hoverCell(model, "A1", 400);
     expect(model.getters.getActiveSheetId()).not.toBe(sheetId);
     await simulateClick("a");
     expect(model.getters.getActiveSheetId()).toBe(sheetId);

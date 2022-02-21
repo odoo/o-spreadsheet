@@ -15,7 +15,7 @@ import {
 } from "../constants";
 import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
-import { SpreadsheetChildEnv, WorkbookData } from "../types";
+import { Position, SpreadsheetChildEnv, WorkbookData } from "../types";
 import { NotifyUIEvent } from "../types/ui";
 import { BottomBar } from "./bottom_bar";
 import { Grid } from "./grid";
@@ -38,7 +38,7 @@ const TEMPLATE = xml/* xml */ `
       focusComposer="focusTopBarComposer"/>
     <Grid
       sidePanelIsOpen="sidePanel.isOpen"
-      linkEditorIsOpen="linkEditor.isOpen"
+      linkEditor="linkEditor"
       onLinkEditorClosed="() => this.closeLinkEditor()"
       onSaveRequested="() => this.save()"
       focusComposer="focusGridComposer"
@@ -104,6 +104,7 @@ interface SidePanelState {
 
 interface LinkEditorState {
   isOpen: boolean;
+  cellPosition: Position;
 }
 
 interface ComposerState {
@@ -130,7 +131,10 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     this.props.exposeSpreadsheet?.(this);
     this.model = this.props.model;
     this.sidePanel = useState({ isOpen: false, panelProps: {} });
-    this.linkEditor = useState({ isOpen: false });
+    this.linkEditor = useState({
+      isOpen: false,
+      cellPosition: { col: 0, row: 0 },
+    });
     this.composer = useState({
       topBarFocus: "inactive",
       gridFocusMode: "inactive",
@@ -196,7 +200,9 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     this.focusGrid();
   }
 
-  openLinkEditor() {
+  openLinkEditor({ col, row }: Position) {
+    this.linkEditor.cellPosition.col = col;
+    this.linkEditor.cellPosition.row = row;
     this.linkEditor.isOpen = true;
   }
 
