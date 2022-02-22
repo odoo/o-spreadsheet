@@ -88,12 +88,12 @@ export class ViewportPlugin extends UIPlugin {
         break;
       case "SHIFT_VIEWPORT_DOWN":
         const topRow = this.getActiveTopRow();
-        const shiftedOffsetY = topRow.start + this.viewportHeight;
+        const shiftedOffsetY = this.clipOffsetY(topRow.start + this.viewportHeight);
         this.shiftVertically(shiftedOffsetY);
         break;
       case "SHIFT_VIEWPORT_UP": {
         const topRow = this.getActiveTopRow();
-        const shiftedOffsetY = topRow.end - this.viewportHeight;
+        const shiftedOffsetY = this.clipOffsetY(topRow.end - this.viewportHeight);
         this.shiftVertically(shiftedOffsetY);
         break;
       }
@@ -190,7 +190,9 @@ export class ViewportPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   private checkOffsetValidity(offsetX: number, offsetY: number): CommandResult {
-    if (offsetX !== this.clipOffsetX(offsetX) || offsetY !== this.clipOffsetY(offsetY)) {
+    const sheet = this.getters.getActiveSheet();
+    const { maxOffsetX, maxOffsetY } = this.getMaximumViewportOffset(sheet);
+    if (offsetX < 0 || offsetY < 0 || offsetY > maxOffsetY || offsetX > maxOffsetX) {
       return CommandResult.InvalidOffset;
     }
     return CommandResult.Success;
@@ -266,8 +268,6 @@ export class ViewportPlugin extends UIPlugin {
   }
 
   private setViewportOffset(offsetX: number, offsetY: number) {
-    offsetY = this.clipOffsetY(offsetY);
-    offsetX = this.clipOffsetX(offsetX);
     const sheetId = this.getters.getActiveSheetId();
     this.getActiveViewport();
     this.viewports[sheetId].offsetX = offsetX;
@@ -285,18 +285,6 @@ export class ViewportPlugin extends UIPlugin {
     offsetY = Math.min(offsetY, maxOffset);
     offsetY = Math.max(offsetY, 0);
     return offsetY;
-  }
-
-  /**
-   * Clip the horizontal offset within the allowed range.
-   * Not before the first column, nor after the last.
-   */
-  private clipOffsetX(offsetX: number): number {
-    const { width } = this.getters.getMaxViewportSize(this.getters.getActiveSheet());
-    const maxOffset = width - this.viewportWidth;
-    offsetX = Math.min(offsetX, maxOffset);
-    offsetX = Math.max(offsetX, 0);
-    return offsetX;
   }
 
   private generateViewportState(sheetId: UID): Viewport {
