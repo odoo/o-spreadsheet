@@ -361,15 +361,27 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
 
   /**
    * Set the borders of a cell.
-   * Note that it override the current border
+   * It overrides the current border if override == true.
    */
-  private setBorder(sheetId: UID, col: HeaderIndex, row: HeaderIndex, border?: Border) {
-    this.history.update("borders", sheetId, col, row, {
-      vertical: border?.left,
-      horizontal: border?.top,
-    });
-    this.history.update("borders", sheetId, col + 1, row, "vertical", border?.right);
-    this.history.update("borders", sheetId, col, row + 1, "horizontal", border?.bottom);
+  private setBorder(
+    sheetId: UID,
+    col: HeaderIndex,
+    row: HeaderIndex,
+    border?: Border,
+    override = true
+  ) {
+    if (override || !this.borders?.[sheetId]?.[col]?.[row]?.vertical) {
+      this.history.update("borders", sheetId, col, row, "vertical", border?.left);
+    }
+    if (override || !this.borders?.[sheetId]?.[col]?.[row]?.horizontal) {
+      this.history.update("borders", sheetId, col, row, "horizontal", border?.top);
+    }
+    if (override || !this.borders?.[sheetId]?.[col + 1]?.[row]?.vertical) {
+      this.history.update("borders", sheetId, col + 1, row, "vertical", border?.right);
+    }
+    if (override || !this.borders?.[sheetId]?.[col]?.[row + 1]?.horizontal) {
+      this.history.update("borders", sheetId, col, row + 1, "horizontal", border?.bottom);
+    }
   }
 
   /**
@@ -479,7 +491,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
           if (cell?.border) {
             const border = data.borders[cell.border];
             const { col, row } = toCartesian(xc);
-            this.setBorder(sheet.id, col, row, border);
+            this.setBorder(sheet.id, col, row, border, false);
           }
         }
       }

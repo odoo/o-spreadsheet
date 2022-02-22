@@ -474,3 +474,59 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "C3")).toEqual({ left: b });
   });
 });
+
+test("Cells that have undefined borders don't override borders of neighboring cells at import", () => {
+  const data = {
+    sheets: [
+      {
+        id: "Sheet1",
+        name: "Sheet1",
+        colNumber: 26,
+        rowNumber: 100,
+        cells: {
+          B2: {
+            content: "5",
+            border: 1,
+          },
+          B1: {
+            content: "3",
+            border: 2,
+          },
+          A2: {
+            content: "3",
+            border: 2,
+          },
+          B3: {
+            content: "3",
+            border: 2,
+          },
+          C2: {
+            content: "3",
+            border: 2,
+          },
+        },
+      },
+    ],
+    borders: {
+      "1": {
+        top: ["thin", "#000"],
+        bottom: ["thin", "#000"],
+        left: ["thin", "#000"],
+        right: ["thin", "#000"],
+      },
+      "2": {
+        top: undefined,
+        bottom: undefined,
+        left: undefined,
+        right: undefined,
+      },
+    },
+  };
+  const model = new Model(data);
+  expect(model.getters.getCellBorder("Sheet1", 1, 1)).toEqual({
+    top: ["thin", "#000"],
+    bottom: ["thin", "#000"],
+    left: ["thin", "#000"],
+    right: ["thin", "#000"],
+  });
+});
