@@ -1,3 +1,4 @@
+import { CommandResult } from "../../src";
 import { Model } from "../../src/model";
 import { activateSheet, createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
 
@@ -225,6 +226,26 @@ describe("figure plugin", () => {
     const { x, y } = model.getters.getVisibleFigures()[0];
     expect(x).toBe(0);
     expect(y).toBe(50);
+  });
+
+  test("cannot update a figure which doesn't exist", () => {
+    const model = new Model();
+    const result = model.dispatch("UPDATE_FIGURE", {
+      sheetId: model.getters.getActiveSheetId(),
+      id: "someuuid",
+      x: -10,
+      y: 50,
+    });
+    expect(result).toBeCancelledBecause(CommandResult.FigureDoesNotExist);
+  });
+
+  test("cannot delete a figure which doesn't exist", () => {
+    const model = new Model();
+    const result = model.dispatch("DELETE_FIGURE", {
+      sheetId: model.getters.getActiveSheetId(),
+      id: "someuuid",
+    });
+    expect(result).toBeCancelledBecause(CommandResult.FigureDoesNotExist);
   });
 
   test("can delete a figure", () => {

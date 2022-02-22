@@ -1041,6 +1041,7 @@ export const enum CommandResult {
   Readonly,
   InvalidOffset,
   InvalidViewportSize,
+  FigureDoesNotExist,
 }
 
 export interface CommandHandler<T> {

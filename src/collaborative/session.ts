@@ -221,7 +221,11 @@ export class Session extends EventBus<CollaborativeEvent> {
         break;
       case "REVISION_REDONE": {
         this.waitingAck = false;
-        this.revisions.redo(message.redoneRevisionId, message.nextRevisionId);
+        this.revisions.redo(
+          message.redoneRevisionId,
+          message.nextRevisionId,
+          message.serverRevisionId
+        );
         this.trigger("revision-redone", {
           revisionId: message.redoneRevisionId,
           commands: this.revisions.get(message.redoneRevisionId).commands,
@@ -230,7 +234,11 @@ export class Session extends EventBus<CollaborativeEvent> {
       }
       case "REVISION_UNDONE":
         this.waitingAck = false;
-        this.revisions.undo(message.undoneRevisionId, message.nextRevisionId);
+        this.revisions.undo(
+          message.undoneRevisionId,
+          message.nextRevisionId,
+          message.serverRevisionId
+        );
         this.trigger("revision-undone", {
           revisionId: message.undoneRevisionId,
           commands: this.revisions.get(message.undoneRevisionId).commands,
@@ -304,11 +312,27 @@ export class Session extends EventBus<CollaborativeEvent> {
     this.sendPendingMessage();
   }
 
+  /**
+   * Send the next pending message
+   */
   private sendPendingMessage() {
     let message = this.pendingMessages[0];
     if (!message) return;
     if (message.type === "REMOTE_REVISION") {
       const revision = this.revisions.get(message.nextRevisionId);
+      if (revision.commands.length === 0) {
+        /**
+         * The command is empty, we have to drop all the next local revisions
+         * to avoid issues with undo/redo
+         */
+        this.revisions.drop(revision.id);
+        const revisionIds = this.pendingMessages
+          .filter((message) => message.type === "REMOTE_REVISION")
+          .map((message) => message.nextRevisionId);
+        this.trigger("pending-revisions-dropped", { revisionIds });
+        this.pendingMessages = [];
+        return;
+      }
       message = {
         ...message,
         clientId: revision.clientId,

@@ -94,6 +94,11 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
         const result = transform(command, addColumnsAfter);
         expect(result).toEqual(command);
       });
+      test(`${cmd.type} in pivot column with columns added before`, () => {
+        const command = { ...cmd, col: 5 };
+        const result = transform(command, addColumnsBefore);
+        expect(result).toEqual(command);
+      });
       test(`${cmd.type} after added columns, in another sheet`, () => {
         const command = { ...cmd, col: 5, sheetId: "42" };
         const result = transform(command, addColumnsAfter);

@@ -298,10 +298,8 @@ export class EvaluationPlugin extends UIPlugin {
    */
   private evaluateAllSheets() {
     for (const sheetId of this.getters.getVisibleSheets()) {
-      if (!this.isUpToDate.has(sheetId)) {
-        this.evaluate(sheetId);
-        this.isUpToDate.add(sheetId);
-      }
+      this.evaluate(sheetId);
+      this.isUpToDate.add(sheetId);
     }
   }
 }
