@@ -1,3 +1,4 @@
+import { markRaw } from "@odoo/owl";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
@@ -197,6 +198,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     if (config.snapshotRequested) {
       this.session.snapshot(this.exportData());
     }
+    // mark all models as "raw", so they will not be turned into reactive objects
+    // by owl, since we do not rely on reactivity
+    markRaw(this);
   }
 
   get handlers(): CommandHandler<Command>[] {
