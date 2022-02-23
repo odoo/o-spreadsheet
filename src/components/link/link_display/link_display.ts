@@ -14,6 +14,13 @@ css/* scss */ `
     border-radius: 4px;
     display: flex;
     justify-content: space-between;
+
+    img {
+      margin-right: 3px;
+      width: 16px;
+      height: 16px;
+    }
+
     a.o-link {
       color: #007bff;
       flex-grow: 2;
