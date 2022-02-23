@@ -10,6 +10,14 @@ import { LinkEditorTerms } from "../side_panel/translations_terms";
 const TEMPLATE = xml/* xml */ `
   <div class="o-link-tool">
     <t t-set="link" t-value="cell.link"/>
+    <!-- t-key to prevent owl from re-using the previous img element when the link changes.
+    The wrong/previous image would be displayed while the new one loads -->
+    <img
+      t-if="link.isExternal"
+      t-key="link.url"
+      width="16" height="16"
+      t-attf-src="https://www.google.com/s2/favicons?sz=16&amp;domain={{link.url}}"
+    />
     <a t-if="link.isExternal"
       class="o-link"
       t-att-href="link.url"
@@ -38,6 +46,11 @@ css/* scss */ `
     border-radius: 4px;
     display: flex;
     justify-content: space-between;
+
+    img {
+      margin-right: 3px;
+    }
+
     a.o-link {
       color: #007bff;
       flex-grow: 2;
