@@ -143,10 +143,15 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
         const result = transform(command, addRowsAfter);
         expect(result).toEqual({ ...command, target: [toZone("A12:B13")] });
       });
-      test(`add rows in ${cmd.type}`, () => {
+      test(`add rows after in ${cmd.type}`, () => {
         const command = { ...cmd, target: [toZone("A5:B6")] };
         const result = transform(command, addRowsAfter);
         expect(result).toEqual({ ...command, target: [toZone("A5:B8")] });
+      });
+      test(`add rows before in ${cmd.type}`, () => {
+        const command = { ...cmd, target: [toZone("A5:B6")] };
+        const result = transform(command, addRowsBefore);
+        expect(result).toEqual({ ...command, target: [toZone("A5:B6")] });
       });
       test(`${cmd.type} and rows added in different sheets`, () => {
         const command = { ...cmd, target: [toZone("A1:F3")], sheetId: "42" };

@@ -1,5 +1,12 @@
 import { isDefined } from "../../helpers/index";
-import { CoreCommand, ExcelWorkbookData, Figure, UID, WorkbookData } from "../../types/index";
+import {
+  CommandResult,
+  CoreCommand,
+  ExcelWorkbookData,
+  Figure,
+  UID,
+  WorkbookData,
+} from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
 interface FigureState {
@@ -14,6 +21,17 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
+
+  allowDispatch(cmd: CoreCommand) {
+    switch (cmd.type) {
+      case "UPDATE_FIGURE":
+      case "DELETE_FIGURE":
+        return this.checkFigureExists(cmd.sheetId, cmd.id);
+      default:
+        return CommandResult.Success;
+    }
+  }
+
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_SHEET":
@@ -68,6 +86,13 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
 
   private removeFigure(id: string, sheetId: UID) {
     this.history.update("figures", sheetId, id, undefined);
+  }
+
+  private checkFigureExists(sheetId: UID, figureId: UID): CommandResult {
+    if (this.figures[sheetId]?.[figureId] === undefined) {
+      return CommandResult.FigureDoesNotExist;
+    }
+    return CommandResult.Success;
   }
 
   // ---------------------------------------------------------------------------

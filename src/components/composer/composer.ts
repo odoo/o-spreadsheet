@@ -132,7 +132,6 @@ interface Props {
   delimitation?: Dimension;
   focus: "inactive" | "cellFocus" | "contentFocus";
   onComposerUnmounted?: () => void;
-  onKeyDown?: (ev: KeyboardEvent) => void;
   onComposerContentFocused: (selection: { start: number; end: number }) => void;
 }
 
@@ -254,8 +253,10 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   private processArrowKeys(ev: KeyboardEvent) {
     if (this.env.model.getters.isSelectingForComposer()) {
       this.functionDescriptionState.showDescription = false;
-      // let the event bubble to the grid. Arrows are supposed
-      // to select cells
+      // Prevent the default content editable behavior which moves the cursor
+      // but don't stop the event and let it bubble to the grid which will
+      // update the selection accordingly
+      ev.preventDefault();
       return;
     }
     // only for arrow up and down
@@ -325,20 +326,15 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
 
   onKeydown(ev: KeyboardEvent) {
     let handler = this.keyMapping[ev.key];
-    let isStopped = false;
     if (handler) {
       handler.call(this, ev);
     } else {
-      isStopped = true;
       ev.stopPropagation();
     }
     const { start, end } = this.contentHelper.getCurrentSelection();
     if (!this.env.model.getters.isSelectingForComposer()) {
       this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
       this.isKeyStillDown = true;
-    }
-    if (!isStopped) {
-      this.props.onKeyDown?.(ev);
     }
   }
 

@@ -163,6 +163,18 @@ export class Tree<T = unknown> {
   }
 
   /**
+   * Drop the operation and all following operations in every
+   * branch
+   */
+  drop(operationId: UID) {
+    for (const branch of this.branches) {
+      if (branch.contains(operationId)) {
+        branch.cutBefore(operationId);
+      }
+    }
+  }
+
+  /**
    * Find the operation in the execution path.
    */
   findOperation(branch: Branch<T>, operationId: UID): OperationSequenceNode<T> {
@@ -172,23 +184,6 @@ export class Tree<T = unknown> {
       }
     }
     throw new Error(`Operation ${operationId} not found`);
-  }
-
-  /**
-   * Find the branch in which the operation was first inserted.
-   */
-  findOriginBranch(branch: Branch<T>, operationId: UID): Branch<T> {
-    let currentBranch: Branch<T> | undefined = branch;
-    while (currentBranch) {
-      if (currentBranch.getOperation(operationId).isOriginal) {
-        return currentBranch;
-      }
-      currentBranch = this.previousBranch(currentBranch);
-    }
-    if (!currentBranch) {
-      throw new Error("Branch not found");
-    }
-    return currentBranch;
   }
 
   /**
@@ -290,7 +285,7 @@ export class Tree<T = unknown> {
   ): Operation<T> {
     const branchingOperation = branch.getOperation(branchingId);
     const branchingTransformation = this.buildTransformation.without(branchingOperation.data);
-    return operation.transformed(branchingTransformation, false);
+    return operation.transformed(branchingTransformation);
   }
 
   /**
@@ -319,8 +314,11 @@ export class Tree<T = unknown> {
     const { previousBranch, branchingOperation } = this.findPreviousBranchingOperation(branch);
     if (!previousBranch || !branchingOperation) return;
     const transformation = this.buildTransformation.with(branchingOperation.data);
-    const operationToInsert = newOperation.transformed(transformation, false);
-    previousBranch.insert(operationToInsert, insertAfter);
+    const branchTail = branch.fork(insertAfter);
+    branchTail.transform(transformation);
+    previousBranch.cutAfter(insertAfter);
+    previousBranch.appendBranch(branchTail);
+    const operationToInsert = newOperation.transformed(transformation);
     this.insertPrevious(previousBranch, operationToInsert, insertAfter);
   }
 

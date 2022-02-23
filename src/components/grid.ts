@@ -195,6 +195,7 @@ const TEMPLATE = xml/* xml */ `
     <t t-if="env.model.getters.getEditionMode() !== 'inactive'">
       <GridComposer
         onComposerUnmounted="() => this.focus()"
+        onComposerContentFocused="props.onComposerContentFocused"
         focus="props.focusComposer"
         />
     </t>
