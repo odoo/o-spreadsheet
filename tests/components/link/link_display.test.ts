@@ -30,6 +30,9 @@ describe("link display component", () => {
     expect(fixture.querySelector("a")?.getAttribute("href")).toBe("https://url.com");
     expect(fixture.querySelector("a")?.getAttribute("title")).toBe("https://url.com");
     expect(fixture.querySelector("a")?.getAttribute("target")).toBe("_blank");
+    expect(fixture.querySelector(".o-link-tool img")?.getAttribute("src")).toBe(
+      "https://www.google.com/s2/favicons?sz=16&domain=https://url.com"
+    );
   });
 
   test("sheet link title shows the sheet name and doesn't have a href", async () => {
@@ -38,6 +41,7 @@ describe("link display component", () => {
     await clickCell(model, "A1");
     expect(fixture.querySelector("a")?.innerHTML).toBe("Sheet1");
     expect(fixture.querySelector("a")?.getAttribute("title")).toBe("Sheet1");
+    expect(fixture.querySelector(".o-link-tool img")).toBeNull();
     // with "href", the browser opens a new tab on CTRL+Click
     // it won't work since the "url" is custom and only makes sense within the spreadsheet
     expect(fixture.querySelector("a")?.getAttribute("href")).toBeNull();
