@@ -113,4 +113,13 @@ describe("DataSource", () => {
     jest.advanceTimersByTime(2);
     expect(getCellContent(model, "A1")).toBe("data");
   });
+
+  test("evaluate all sheets forces evaluation", async () => {
+    dataSourcePlugin.addDataSource("1", new StringDataSource());
+    setCellContent(model, "A1", "=WAIT2(1)");
+    expect(getCellContent(model, "A1")).toBe("LOADING...");
+    await model.waitForIdle();
+    model.dispatch("EVALUATE_ALL_SHEETS");
+    expect(getCellContent(model, "A1")).toBe("data");
+  });
 });

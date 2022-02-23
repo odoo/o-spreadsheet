@@ -92,7 +92,9 @@ export function expandZoneOnInsertion(
   const dimension = start === "left" ? "columns" : "rows";
   const baseElement = position === "before" ? base - 1 : base;
   const end = start === "left" ? "right" : "bottom";
-  if (zone[start] <= baseElement && zone[end] >= baseElement) {
+  const shouldIncludeEnd =
+    position === "before" ? zone[end] > baseElement : zone[end] >= baseElement;
+  if (zone[start] <= baseElement && shouldIncludeEnd) {
     return createAdaptedZone(zone, dimension, "RESIZE", quantity);
   }
   if (baseElement < zone[start]) {

@@ -17,7 +17,7 @@ const TEMPLATE = xml/* xml */ `
       rect = "composerState.rect"
       delimitation = "composerState.delimitation"
       onComposerUnmounted="props.onComposerUnmounted"
-      onKeyDown="(ev) => this.onKeyDown(ev)"
+      onComposerContentFocused="props.onComposerContentFocused"
     />
   </div>
 `;
@@ -146,13 +146,5 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       max-height: inherit;
       overflow: hidden;
     `;
-  }
-
-  onKeyDown(ev: KeyboardEvent) {
-    // In selecting mode, arrows should not move the cursor but it should
-    // select adjacent cells on the grid.
-    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(ev.key)) {
-      ev.preventDefault();
-    }
   }
 }

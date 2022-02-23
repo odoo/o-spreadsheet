@@ -542,6 +542,17 @@ describe("composer", () => {
     expect(topbarComposerElement.textContent).toBe("");
   });
 
+  test("focus topbar composer then focus grid composer", async () => {
+    const topbarComposerElement = fixture.querySelector(
+      ".o-topbar-toolbar .o-composer-container div"
+    )!;
+    await simulateClick(topbarComposerElement);
+    expect(document.activeElement).toBe(topbarComposerElement);
+    const gridComposerElement = fixture.querySelector(".o-grid .o-composer-container div")!;
+    await simulateClick(gridComposerElement);
+    expect(document.activeElement).toBe(gridComposerElement);
+  });
+
   describe("change selecting mode when typing specific token value", () => {
     const matchingValues = [",", "+", "*", "="];
     const mismatchingValues = ["1", '"coucou"', "TRUE", "SUM", "A2"];
