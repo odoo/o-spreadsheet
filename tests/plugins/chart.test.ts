@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { ChartTerms } from "../../src/components/translations_terms";
 import { toZone } from "../../src/helpers/zones";
-import { ChartUIDefinition, CommandResult } from "../../src/types";
+import { BorderCommand, ChartUIDefinition, CommandResult } from "../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -18,6 +18,7 @@ import {
   undo,
   updateChart,
 } from "../test_helpers/commands_helpers";
+import { target } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -652,9 +653,9 @@ describe("datasource tests", function () {
     );
     addRows(model, "before", 2, 1);
     const chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual([10, undefined, 11, 12, 13]);
-    expect(chart.data!.datasets![1].data).toEqual([20, undefined, 19, 18, 17]);
-    expect(chart.data!.labels).toEqual(["P1", "", "P2", "P3", "P4"]);
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13]);
+    expect(chart.data!.datasets![1].data).toEqual([20, 19, 18, 17]);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
 
   test("Add a row on another sheet does not affect a chart", () => {
@@ -912,12 +913,14 @@ describe("datasource tests", function () {
       {
         dataSets: ["A1:A2"],
         labelRange: "A1",
+        dataSetsHaveTitle: true,
       },
       "1"
     );
     updateChart(model, "1", {
       dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
       labelRange: "Sheet1!A2:A5",
+      dataSetsHaveTitle: true,
     });
     const chart = model.getters.getChartRuntime("1")!;
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
@@ -1466,5 +1469,115 @@ describe("Chart design configuration", () => {
 
     updateChart(model, "42", { verticalAxisPosition: "right" });
     expect(model.getters.getChartRuntime("42")?.options?.scales?.yAxes![0].position).toBe("right");
+  });
+
+  test("empty data points are not displayed in the chart", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          // prettier-ignore
+          cells: {
+            // data point 1: first empty
+            A2: { content: "" },      B2: { content: "" },    C2: { content: "" },
+            // data point 2: only label
+            A3: { content: "P1" },    B3: { content: "" },    C3: { content: "" },
+            // data point 3: only first value
+            A4: { content: "" },      B4: { content: "10" },  C4: { content: "" },
+            // data point 4: empty in the middle of data points
+            A5: { content: "" },      B5: { content: "" },    C5: { content: "" },
+            // data point 5: only second value
+            A6: { content: "" },      B6: { content: "" },    C6: { content: "20" },
+          },
+        },
+      ],
+    });
+
+    createChart(model, { labelRange: "A2:A6", dataSets: ["B1:B15", "C1:C15"] }, "1");
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.labels).toEqual(["P1", "", ""]);
+    expect(chart.data!.datasets![0].data).toEqual([undefined, 10, undefined]);
+    expect(chart.data!.datasets![1].data).toEqual([undefined, undefined, 20]);
+  });
+
+  test("value without matching index in the label set", () => {
+    const model = new Model();
+    // corresponding label would be A8, but it's not part of the label range
+    setCellContent(model, "B8", "30");
+    createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B15"] }, "1");
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.labels).toEqual([""]);
+    expect(chart.data!.datasets![0].data).toEqual([30]);
+  });
+
+  test("label without matching index in the data set", () => {
+    const model = new Model();
+    // corresponding value would be B8, but it's not part of the data range
+    setCellContent(model, "A8", "P1");
+    createChart(model, { labelRange: "A2:A15", dataSets: ["B1:B3"] }, "1");
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.labels).toEqual(["P1"]);
+    expect(chart.data!.datasets![0].data).toEqual([undefined]);
+  });
+
+  test("no data points at all", () => {
+    const model = new Model();
+    createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.labels).toEqual([]);
+    expect(chart.data!.datasets![0].data).toEqual([]);
+  });
+
+  test.each([
+    { format: "0.00%" },
+    { style: { textColor: "#FFF" } },
+    { border: "bottom" as BorderCommand },
+  ])("no data points but style on a label", (formatting) => {
+    const model = new Model();
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A2:A3"),
+      ...formatting,
+    });
+    createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.labels).toEqual([]);
+    expect(chart.data!.datasets![0].data).toEqual([]);
+  });
+
+  test.each([
+    { format: "0.00%" },
+    { style: { textColor: "#FFF" } },
+    { border: "bottom" as BorderCommand },
+  ])("no data points but style on a value", (formatting) => {
+    const model = new Model();
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("B1:B3"),
+      ...formatting,
+    });
+    createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.labels).toEqual([]);
+    expect(chart.data!.datasets![0].data).toEqual([]);
+  });
+
+  test("data point with only a zero value", () => {
+    const model = new Model();
+    setCellContent(model, "B2", "0");
+    createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.labels).toEqual([""]);
+    expect(chart.data!.datasets![0].data).toEqual([0]);
+  });
+
+  test("data point with only a zero label", () => {
+    const model = new Model();
+    setCellContent(model, "A2", "0");
+    createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.labels).toEqual(["0"]);
+    expect(chart.data!.datasets![0].data).toEqual([undefined]);
   });
 });

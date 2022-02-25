@@ -1,11 +1,4 @@
-import {
-  ChartColor,
-  ChartConfiguration,
-  ChartData,
-  ChartDataSets,
-  ChartLegendOptions,
-  ChartTooltipItem,
-} from "chart.js";
+import { ChartConfiguration, ChartLegendOptions, ChartTooltipItem } from "chart.js";
 import { ChartTerms } from "../../components/translations_terms";
 import { MAX_CHAR_LABEL } from "../../constants";
 import { ChartColors } from "../../helpers/chart";
@@ -13,7 +6,7 @@ import { isDefined, isInside, overlap, recomputeZones, zoneToXc } from "../../he
 import { range } from "../../helpers/misc";
 import { Mode } from "../../model";
 import { Cell } from "../../types";
-import { ChartDefinition, DataSet } from "../../types/chart";
+import { ChartData, ChartDataSet, ChartDefinition, DataSet } from "../../types/chart";
 import { Command } from "../../types/commands";
 import { UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
@@ -305,7 +298,7 @@ export class EvaluationChartPlugin extends UIPlugin {
     const runtime = this.getDefaultConfiguration(definition, labels);
 
     const colors = new ChartColors();
-    const pieColors: ChartColor[] = [];
+    const pieColors: string[] = [];
     if (definition.type === "pie") {
       const maxLength = Math.max(
         ...definition.dataSets.map((ds) => this.getData(ds, definition.sheetId).length)
@@ -329,7 +322,7 @@ export class EvaluationChartPlugin extends UIPlugin {
         label = label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
       }
       const color = definition.type !== "pie" ? colors.next() : "#FFFFFF"; // white border for pie chart
-      const dataset: ChartDataSets = {
+      const dataset: ChartDataSet = {
         label,
         data: ds.dataRange ? this.getData(ds, definition.sheetId) : [],
         lineTension: 0, // 0 -> render straight lines, which is much faster
@@ -338,12 +331,33 @@ export class EvaluationChartPlugin extends UIPlugin {
       };
       if (definition.type === "pie") {
         // In case of pie graph, dataset.backgroundColor is an array of string
-        // @ts-ignore - we know dataset.data is an array
         dataset.backgroundColor = pieColors;
       }
       runtime.data!.datasets!.push(dataset);
     }
-    return runtime;
+    return { ...runtime, data: this.filterEmptyDataPoints(runtime.data as ChartData) };
+  }
+
+  private filterEmptyDataPoints(chartData: ChartData): ChartData {
+    const labels = chartData.labels;
+    const datasets = chartData.datasets;
+    const numberOfDataPoints = Math.max(
+      labels.length,
+      ...datasets.map((dataset) => dataset.data?.length || 0)
+    );
+    const dataPointsIndexes = range(0, numberOfDataPoints).filter((dataPointIndex) => {
+      const label = labels[dataPointIndex];
+      const values = datasets.map((dataset) => dataset.data?.[dataPointIndex]);
+      return label || values.some((value) => value === 0 || Boolean(value));
+    });
+    return {
+      ...chartData,
+      labels: dataPointsIndexes.map((i) => labels[i] || ""),
+      datasets: datasets.map((dataset) => ({
+        ...dataset,
+        data: dataPointsIndexes.map((i) => dataset.data[i]),
+      })),
+    };
   }
 
   // TODO type this with Chart.js types.
