@@ -30,6 +30,22 @@ export interface ChartUIDefinition
   labelRange?: string;
 }
 
+export interface ChartDataSet {
+  label;
+  data: (number | undefined | null)[];
+  lineTension: 0; // 0 -> render straight lines, which is much faster
+  borderColor: string;
+  /**
+   * color or list of color for pie charts
+   */
+  backgroundColor: string | string[];
+}
+
+export interface ChartData {
+  labels: Array<string | string[]>;
+  datasets: ChartDataSet[];
+}
+
 /**
  * Data to be updated on a chart definition.
  */
