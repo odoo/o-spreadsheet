@@ -1,5 +1,6 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { CURRENT_VERSION } from "../../src/data";
+import { toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { BorderDescr } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
@@ -223,6 +224,29 @@ test("complete import, then export", () => {
   // We test here a that two import with the same data give the same result.
   const model2 = new Model(modelData);
   expect(model2.exportData()).toEqual(modelData);
+});
+
+test("can import cells outside sheet size", () => {
+  const sheetId = "someuuid";
+  const modelData = {
+    version: CURRENT_VERSION,
+    sheets: [
+      {
+        id: sheetId,
+        colNumber: 10,
+        rowNumber: 10,
+        cols: {},
+        rows: {},
+        cells: {
+          Z100: { content: "hello" },
+        },
+      },
+    ],
+  };
+  const model = new Model(modelData);
+  expect(model.getters.getNumberRows(sheetId)).toBe(100);
+  expect(model.getters.getNumberCols(sheetId)).toBe(26);
+  expect(model.getters.getCell(...toCartesian("Z100"))?.content).toBe("hello");
 });
 
 test("import then export (figures)", () => {
