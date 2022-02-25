@@ -1348,14 +1348,15 @@ export class CorePlugin extends BasePlugin {
   importSheet(data: SheetData) {
     let { sheets, visibleSheets } = this.workbook;
     const name = data.name || `Sheet${Object.keys(sheets).length + 1}`;
+    const { colNumber, rowNumber } = getSheetSize(data);
     const sheet: Sheet = {
       id: data.id,
       name: name,
       cells: {},
-      colNumber: data.colNumber,
-      rowNumber: data.rowNumber,
-      cols: createCols(data.cols || {}, data.colNumber),
-      rows: createRows(data.rows || {}, data.rowNumber),
+      colNumber,
+      rowNumber,
+      cols: createCols(data.cols || {}, colNumber),
+      rows: createRows(data.rows || {}, rowNumber),
       merges: {},
       mergeCellMap: {},
     };
@@ -1398,6 +1399,14 @@ export class CorePlugin extends BasePlugin {
     });
     data.activeSheet = this.workbook.activeSheet.id;
   }
+}
+
+function getSheetSize(data: SheetData): { rowNumber: number; colNumber: number } {
+  const positions = Object.keys(data.cells).map(toCartesian);
+  return {
+    rowNumber: Math.max(data.rowNumber, ...positions.map(([col, row]) => row + 1)),
+    colNumber: Math.max(data.colNumber, ...positions.map(([col, row]) => col + 1)),
+  };
 }
 
 function createDefaultCols(colNumber: number): Col[] {
