@@ -1,4 +1,4 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, INCORRECT_RANGE_STRING } from "../../constants";
 import {
   isMarkdownLink,
   isMarkdownSheetLink,
@@ -120,9 +120,10 @@ export function addHyperlinks(
       const { label, url } = parseMarkdownLink(content);
       if (isMarkdownSheetLink(content)) {
         const sheetId = parseSheetLink(url);
-        const sheet = data.sheets.find((sheet) => sheet.id === sheetId)!;
+        const sheet = data.sheets.find((sheet) => sheet.id === sheetId);
+        const location = sheet ? `${sheet.name}!A1` : INCORRECT_RANGE_STRING;
         linkNodes.push(escapeXml/*xml*/ `
-          <hyperlink display="${label}" location="${sheet.name}!A1" ref="${xc}"/>
+          <hyperlink display="${label}" location="${location}" ref="${xc}"/>
         `);
       } else {
         const linkRelId = addRelsToFile(
