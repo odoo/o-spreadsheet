@@ -2,7 +2,7 @@ import { Component, onMounted, onPatched, onWillUnmount, useRef, useState, xml }
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { EnrichedToken } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { DEBUG, isEqual, rangeReference, toZone } from "../../helpers/index";
+import { isEqual, rangeReference, toZone } from "../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
 import { FunctionDescription, Rect, SpreadsheetChildEnv } from "../../types/index";
 import { css } from "../helpers/css";
@@ -226,8 +226,6 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     onMounted(() => {
-      DEBUG.composer = this;
-
       const el = this.composerRef.el!;
 
       this.contentHelper.updateEl(el);
@@ -235,7 +233,6 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     });
 
     onWillUnmount(() => {
-      delete DEBUG.composer;
       this.props.onComposerUnmounted?.();
     });
 
