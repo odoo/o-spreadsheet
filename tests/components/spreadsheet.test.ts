@@ -2,7 +2,7 @@ import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
-import { DEBUG, toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
 import {
   createChart,
@@ -122,11 +122,6 @@ describe("Spreadsheet", () => {
 
   test("Clipboard is in spreadsheet env", () => {
     expect(parent.env.clipboard).toBe(clipboard);
-  });
-
-  test("Debug informations are removed when Spreadsheet is destroyed", async () => {
-    parent.__owl__.destroy();
-    expect(Object.keys(DEBUG)).toHaveLength(0);
   });
 
   test("typing opens composer after toolbar clicked", async () => {

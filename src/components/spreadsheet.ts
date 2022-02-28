@@ -1,7 +1,6 @@
 import {
   Component,
   onMounted,
-  onWillDestroy,
   onWillUnmount,
   useExternalListener,
   useState,
@@ -154,7 +153,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     useExternalListener(window, "beforeunload", this.unbindModelEvents.bind(this));
     onMounted(() => this.bindModelEvents());
     onWillUnmount(() => this.unbindModelEvents());
-    onWillDestroy(() => this.model.destroy());
   }
 
   get focusTopBarComposer(): Omit<ComposerFocusType, "cellFocus"> {

@@ -253,8 +253,6 @@ export function isDefined<T>(argument: T | undefined): argument is T {
   return argument !== undefined;
 }
 
-export const DEBUG: { [key: string]: any } = {};
-
 /**
  * Get the id of the given item (its key in the given dictionnary).
  * If the given item does not exist in the dictionary, it creates one with a new id.

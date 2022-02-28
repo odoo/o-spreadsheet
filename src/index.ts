@@ -56,7 +56,6 @@ export { DATETIME_FORMAT } from "./constants";
 export { DataSource } from "./data_source";
 export { compile, functionCache } from "./formulas/compiler";
 export { astToFormula, convertAstNodes, parse } from "./formulas/parser";
-export { DEBUG as __DEBUG__ } from "./helpers/index";
 export { Model } from "./model";
 export { CorePlugin } from "./plugins/core_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";

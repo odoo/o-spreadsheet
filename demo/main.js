@@ -109,6 +109,8 @@ class Demo extends Component {
       },
       this.stateUpdateMessages
     );
+    o_spreadsheet.__DEBUG__ = o_spreadsheet.__DEBUG__ || {};
+    o_spreadsheet.__DEBUG__.model = this.model;
     this.model.joinSession();
     this.activateFirstSheet();
   }

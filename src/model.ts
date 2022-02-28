@@ -4,7 +4,7 @@ import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { DataSourceRegistry } from "./data_source";
 import { EventBus } from "./helpers/event_bus";
-import { DEBUG, UuidGenerator } from "./helpers/index";
+import { UuidGenerator } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
 import { LocalHistory } from "./history/local_history";
 import { createEmptyExcelWorkbookData, createEmptyWorkbookData, load } from "./migrations/data";
@@ -136,7 +136,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     uuidGenerator: UuidGenerator = new UuidGenerator()
   ) {
     super();
-    DEBUG.model = this;
 
     const workbookData = load(data);
 
@@ -213,10 +212,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   leaveSession() {
     this.session.leave();
-  }
-
-  destroy() {
-    delete DEBUG.model;
   }
 
   private setupUiPlugin(Plugin: UIPluginConstructor) {
