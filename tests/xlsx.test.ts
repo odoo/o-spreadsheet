@@ -775,6 +775,11 @@ describe("Test XLSX export", () => {
       "A4",
       `[custom link label](${buildSheetLink(model.getters.getActiveSheetId())})`
     );
+    setCellContent(
+      model,
+      "A5",
+      `[Sheet1](${buildSheetLink("invalid id because the sheet was deleted")})`
+    );
     expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
   });
 });
