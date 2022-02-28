@@ -1,5 +1,5 @@
-import { join } from "path";
 import { Canvas, createCanvas, registerFont } from "canvas";
+import { join } from "path";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -8,16 +8,14 @@ import {
 } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
-
-
 import { GridRenderingContext, Viewport, Zone } from "../../src/types";
 import { merge, setBorder, setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import { createEqualCF } from "../test_helpers/helpers";
 
+jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
+
 function selectZone(model: Model, zoneXc: string) {
-  setSelection(model, [zoneXc])
+  setSelection(model, [zoneXc]);
 }
 
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -71,8 +69,7 @@ export class MockGridRenderingContext implements GridRenderingContext {
   }
 }
 
-beforeEach(() => {
-});
+beforeEach(() => {});
 describe("renderer", () => {
   test("formulas evaluating to a string are properly aligned", () => {
     const model = new Model();
@@ -92,57 +89,42 @@ describe("renderer", () => {
     expect(ctx.screenshot()).toMatchImageSnapshot();
   });
 
-  // test("Cells evaluating to a number are properly aligned on overflow", () => {
-  //   const model = new Model({
-  //     sheets: [
-  //       {
-  //         id: 1,
-  //         cols: { 0: { size: 5 }, 2: { size: 25 } },
-  //         colNumber: 3,
-  //         cells: {
-  //           A1: { content: "123456" },
-  //           A2: { content: "=A1" },
-  //           C1: { content: "123456" },
-  //           C2: { content: "=C1" },
-  //         },
-  //         conditionalFormats: [
-  //           {
-  //             id: "1",
-  //             ranges: ["C1:C2"],
-  //             rule: {
-  //               type: "IconSetRule",
-  //               upperInflectionPoint: { type: "number", value: "1000", operator: "gt" },
-  //               lowerInflectionPoint: { type: "number", value: "0", operator: "gt" },
-  //               icons: {
-  //                 upper: "arrowGood",
-  //                 middle: "arrowNeutral",
-  //                 lower: "arrowBad",
-  //               },
-  //             },
-  //           },
-  //         ],
-  //       },
-  //     ],
-  //   });
-
-  //   let textAligns: string[] = [];
-  //   let ctx = new MockGridRenderingContext(model, 1000, 1000, {
-  //     onSet: (key, value) => {
-  //       if (key === "textAlign") {
-  //         textAligns.push(value);
-  //       }
-  //     },
-  //   });
-
-  //   model.drawGrid(ctx);
-  //   expect(textAligns).toEqual(["left", "left", "left", "left", "center"]); // A1-C1-A2-C2 and center for headers
-
-  //   textAligns = [];
-  //   setCellContent(model, "A1", "1");
-  //   setCellContent(model, "C1", "1");
-  //   model.drawGrid(ctx);
-  //   expect(textAligns).toEqual(["right", "right", "right", "right", "center"]); // A1-C1-A2-C2 and center for headers
-  // });
+  test("Cells evaluating to a number are properly aligned on overflow", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: 1,
+          cols: { 0: { size: 5 }, 2: { size: 25 } },
+          colNumber: 3,
+          cells: {
+            A1: { content: "123456" },
+            A2: { content: "=A1" },
+            C1: { content: "123456" },
+            C2: { content: "=C1" },
+          },
+          conditionalFormats: [
+            {
+              id: "1",
+              ranges: ["C1:C2"],
+              rule: {
+                type: "IconSetRule",
+                upperInflectionPoint: { type: "number", value: "1000", operator: "gt" },
+                lowerInflectionPoint: { type: "number", value: "0", operator: "gt" },
+                icons: {
+                  upper: "arrowGood",
+                  middle: "arrowNeutral",
+                  lower: "arrowBad",
+                },
+              },
+            },
+          ],
+        },
+      ],
+    });
+    const ctx = new MockGridRenderingContext(model, defaultPixelZone("A1:C2"));
+    model.drawGrid(ctx);
+    expect(ctx.screenshot()).toMatchImageSnapshot();
+  });
 
   test("fillstyle of cell will be rendered", () => {
     const model = new Model({
