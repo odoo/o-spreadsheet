@@ -13,6 +13,7 @@ import {
   isZoneValid,
   numberToLetters,
   positions,
+  toCartesian,
 } from "../../helpers/index";
 import { _lt, _t } from "../../translation";
 import {
@@ -27,6 +28,7 @@ import {
   RenameSheetCommand,
   Row,
   Sheet,
+  SheetData,
   UID,
   UpdateCellPositionCommand,
   WorkbookData,
@@ -212,11 +214,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
     for (let sheetData of data.sheets) {
       const name = sheetData.name || _t("Sheet") + (Object.keys(this.sheets).length + 1);
+      const { colNumber, rowNumber } = this.getImportedSheetSize(sheetData);
       const sheet: Sheet = {
         id: sheetData.id,
         name: name,
-        cols: createCols(sheetData.cols || {}, sheetData.colNumber),
-        rows: createRows(sheetData.rows || {}, sheetData.rowNumber),
+        cols: createCols(sheetData.cols || {}, colNumber),
+        rows: createRows(sheetData.rows || {}, rowNumber),
         hiddenColsGroups: [],
         hiddenRowsGroups: [],
         areGridLinesVisible:
@@ -970,6 +973,14 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       });
     }
     this.history.update("sheets", sheet.id, "rows", rows);
+  }
+
+  private getImportedSheetSize(data: SheetData): { rowNumber: number; colNumber: number } {
+    const positions = Object.keys(data.cells).map(toCartesian);
+    return {
+      rowNumber: Math.max(data.rowNumber, ...positions.map(([col, row]) => row + 1)),
+      colNumber: Math.max(data.colNumber, ...positions.map(([col, row]) => col + 1)),
+    };
   }
 
   // ----------------------------------------------------
