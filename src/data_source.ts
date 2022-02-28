@@ -42,6 +42,13 @@ export class DataSourceRegistry<M, D> extends EventBus<any> {
   }
 
   /**
+   * Get a list of all elements in the registry
+   */
+  getKeys(): string[] {
+    return this.registry.getKeys();
+  }
+
+  /**
    * Remove an item from the registry
    */
   remove(key: string) {

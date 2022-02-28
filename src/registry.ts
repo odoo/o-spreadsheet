@@ -51,6 +51,13 @@ export class Registry<T> {
   }
 
   /**
+   * Get a list of all keys in the registry
+   */
+  getKeys(): string[] {
+    return Object.keys(this.content);
+  }
+
+  /**
    * Remove an item from the registry
    */
   remove(key: string) {
