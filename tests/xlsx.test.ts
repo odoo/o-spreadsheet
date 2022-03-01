@@ -398,6 +398,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Conditional formatting", async () => {
+      const style = { fillColor: "#90EE90" };
       const model = new Model({
         sheets: [
           {
@@ -419,12 +420,72 @@ describe("Test XLSX export", () => {
               {
                 id: "1",
                 ranges: ["A1:A5"],
-                rule: {
-                  values: ["1"],
-                  operator: "Equal",
-                  type: "CellIsRule",
-                  style: { fillColor: "#90EE90" },
-                },
+                rule: { type: "CellIsRule", operator: "ContainsText", values: ["1"], style },
+              },
+              {
+                id: "11",
+                ranges: ["A1:A5"],
+                rule: { type: "CellIsRule", operator: "NotContains", values: ["1"], style },
+              },
+              {
+                id: "12",
+                ranges: ["A1:A5"],
+                rule: { type: "CellIsRule", operator: "BeginsWith", values: ["1"], style },
+              },
+              {
+                id: "13",
+                ranges: ["A1:A5"],
+                rule: { type: "CellIsRule", operator: "EndsWith", values: ["1"], style },
+              },
+              {
+                id: "14",
+                ranges: ["A1:A5"],
+                rule: { type: "CellIsRule", operator: "IsEmpty", style },
+              },
+              {
+                id: "15",
+                ranges: ["A1:A5"],
+                rule: { type: "CellIsRule", operator: "IsNotEmpty", style },
+              },
+              {
+                id: "16",
+                ranges: ["A1:A5"],
+                rule: { type: "CellIsRule", operator: "Equal", values: ["1"], style },
+              },
+              {
+                id: "17",
+                ranges: ["A1:A5"],
+                rule: { type: "CellIsRule", operator: "NotEqual", values: ["1"], style },
+              },
+              {
+                id: "18",
+                ranges: ["A1:A5"],
+                rule: { type: "CellIsRule", operator: "GreaterThan", values: ["1"], style },
+              },
+              {
+                id: "19",
+                ranges: ["A1:A5"],
+                rule: { type: "CellIsRule", operator: "GreaterThanOrEqual", values: ["1"], style },
+              },
+              {
+                id: "20",
+                ranges: ["A1:A5"],
+                rule: { type: "CellIsRule", operator: "LessThan", values: ["1"], style },
+              },
+              {
+                id: "21",
+                ranges: ["A1:A5"],
+                rule: { type: "CellIsRule", operator: "LessThanOrEqual", values: ["1"], style },
+              },
+              {
+                id: "22",
+                ranges: ["A1:A5"],
+                rule: { type: "CellIsRule", operator: "Between", values: ["1", "4"], style },
+              },
+              {
+                id: "23",
+                ranges: ["A1:A5"],
+                rule: { type: "CellIsRule", operator: "NotBetween", values: ["1", "4"], style },
               },
               {
                 id: "2",
