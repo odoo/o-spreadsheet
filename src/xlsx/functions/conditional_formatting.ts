@@ -56,10 +56,15 @@ function addCellIsRule(cf: ConditionalFormat, rule: CellIsRule, dxfs: XLSXDxf[])
   const formulas = cellRuleFormula(cf.ranges, rule).map(
     (formula) => escapeXml/*xml*/ `<formula>${formula}</formula>`
   );
-  const dxf: XLSXDxf = {};
-  if (rule.style.textColor) {
-    dxf.font = { color: rule.style.textColor };
-  }
+  const dxf: XLSXDxf = {
+    font: {
+      color: rule.style.textColor,
+      bold: rule.style.bold,
+      italic: rule.style.italic,
+      strike: rule.style.strikethrough,
+      underline: rule.style.underline,
+    },
+  };
   if (rule.style.fillColor) {
     dxf.fill = { fgColor: rule.style.fillColor };
   }
