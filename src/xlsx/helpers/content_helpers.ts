@@ -1,5 +1,13 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
-import { Align, Border, CellData, Style, UID, WorkbookData } from "../../types";
+import {
+  Align,
+  Border,
+  CellData,
+  ConditionalFormattingOperatorValues,
+  Style,
+  UID,
+  WorkbookData,
+} from "../../types";
 import { ExtractedStyle, XLSXRel, XLSXRelFile, XLSXStructure } from "../../types/xlsx";
 import { FIRST_NUMFMT_ID, HEIGHT_FACTOR, WIDTH_FACTOR, XLSX_FORMAT_MAP } from "../constants";
 
@@ -13,11 +21,20 @@ type PropertyPosition<T> = {
 // -------------------------------------
 
 /**
- * Forces the first char of a string to lowerCase
- * e.g. BeginWith --> beginWith
+ * Convert the conditional formatting o-spreadsheet operator to
+ * the corresponding excel operator.
  * */
-export function convertOperator(operator: string): string {
-  return operator.charAt(0).toLowerCase() + operator.slice(1);
+export function convertOperator(operator: ConditionalFormattingOperatorValues): string {
+  switch (operator) {
+    case "IsNotEmpty":
+      return "notContainsBlanks";
+    case "IsEmpty":
+      return "containsBlanks";
+    case "NotContains":
+      return "notContainsBlanks";
+    default:
+      return operator.charAt(0).toLowerCase() + operator.slice(1);
+  }
 }
 
 // -------------------------------------

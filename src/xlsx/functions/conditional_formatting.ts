@@ -52,8 +52,11 @@ export function addConditionalFormatting(
 
 function addCellIsRule(cf: ConditionalFormat, rule: CellIsRule, dxfs: XLSXDxf[]): XMLString {
   const ruleAttributes = commonCfAttributes(cf);
-  ruleAttributes.push(["type", "cellIs"], ["operator", convertOperator(rule.operator)]);
-  const formulas = rule.values.map((value) => escapeXml/*xml*/ `<formula>${value}</formula>`);
+  const operator = convertOperator(rule.operator);
+  ruleAttributes.push(...cellRuleTypeAttributes(rule), ["operator", operator]);
+  const formulas = cellRuleFormula(cf.ranges, rule).map(
+    (formula) => escapeXml/*xml*/ `<formula>${formula}</formula>`
+  );
   const dxf: XLSXDxf = {};
   if (rule.style.textColor) {
     dxf.font = { color: rule.style.textColor };
@@ -71,6 +74,61 @@ function addCellIsRule(cf: ConditionalFormat, rule: CellIsRule, dxfs: XLSXDxf[])
       </cfRule>
     </conditionalFormatting>
   `;
+}
+
+function cellRuleFormula(ranges: string[], rule: CellIsRule): string[] {
+  const firstCell = ranges[0].split(":")[0];
+  const values = rule.values;
+  switch (rule.operator) {
+    case "ContainsText":
+      return [`NOT(ISERROR(SEARCH("${values[0]}",${firstCell})))`];
+    case "NotContains":
+      return [`ISERROR(SEARCH("${values[0]}",${firstCell}))`];
+    case "BeginsWith":
+      return [`LEFT(${firstCell},LEN("${values[0]}"))="${values[0]}"`];
+    case "EndsWith":
+      return [`RIGHT(${firstCell},LEN("${values[0]}"))="${values[0]}"`];
+    case "IsEmpty":
+      return [`LEN(TRIM(${firstCell}))=0`];
+    case "IsNotEmpty":
+      return [`LEN(TRIM(${firstCell}))>0`];
+    case "Equal":
+    case "NotEqual":
+    case "GreaterThan":
+    case "GreaterThanOrEqual":
+    case "LessThan":
+    case "LessThanOrEqual":
+      return [values[0]];
+    case "Between":
+    case "NotBetween":
+      return [values[0], values[1]];
+  }
+}
+
+function cellRuleTypeAttributes(rule: CellIsRule): XMLAttributes {
+  const operator = convertOperator(rule.operator);
+  switch (rule.operator) {
+    case "ContainsText":
+    case "NotContains":
+    case "BeginsWith":
+    case "EndsWith":
+      return [
+        ["type", operator],
+        ["text", rule.values[0]],
+      ];
+    case "IsEmpty":
+    case "IsNotEmpty":
+      return [["type", operator]];
+    case "Equal":
+    case "NotEqual":
+    case "GreaterThan":
+    case "GreaterThanOrEqual":
+    case "LessThan":
+    case "LessThanOrEqual":
+    case "Between":
+    case "NotBetween":
+      return [["type", "cellIs"]];
+  }
 }
 
 function addColorScaleRule(cf: ConditionalFormat, rule: ColorScaleRule): XMLString {
