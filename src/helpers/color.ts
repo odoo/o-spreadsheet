@@ -1,4 +1,4 @@
-import { concat } from ".";
+import { concat } from "./misc";
 
 export const colors = [
   "#eb6d00",
