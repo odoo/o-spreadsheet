@@ -1,4 +1,5 @@
 import { xml } from "@odoo/owl";
+import { REFRESH } from "../../icons";
 import { conditionalFormattingTerms, iconSetRule } from "../translations_terms";
 
 const ICON_SETS_TEMPLATE = xml/* xml */ `
@@ -119,7 +120,7 @@ export const TEMPLATE_ICON_SET_EDITOR = xml/* xml */ `
       <t t-call="${INFLECTION_POINTS_TEMPLATE}"/>
       <div class="btn btn-link o_refresh_measures o-cf-iconset-reverse" t-on-click="reverseIcons">
         <div class="mr-1 d-inline-block">
-          <t t-out="reverseIcon"/>
+          ${REFRESH}
         </div>
         <t t-esc="env._t('${iconSetRule.ReverseIcons}')"/>
       </div>
