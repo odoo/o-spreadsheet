@@ -6747,9 +6747,106 @@ Object {
         </row>
     </sheetData>
     <conditionalFormatting sqref=\\"A1:A5\\">
+        <cfRule priority=\\"1\\" stopIfTrue=\\"0\\" type=\\"containsText\\" text=\\"1\\" operator=\\"containsText\\" dxfId=\\"0\\">
+            <formula>
+                NOT(ISERROR(SEARCH(\\"1\\",A1)))
+            </formula>
+        </cfRule>
+    </conditionalFormatting>
+    <conditionalFormatting sqref=\\"A1:A5\\">
+        <cfRule priority=\\"1\\" stopIfTrue=\\"0\\" type=\\"notContainsBlanks\\" text=\\"1\\" operator=\\"notContainsBlanks\\" dxfId=\\"0\\">
+            <formula>
+                ISERROR(SEARCH(\\"1\\",A1))
+            </formula>
+        </cfRule>
+    </conditionalFormatting>
+    <conditionalFormatting sqref=\\"A1:A5\\">
+        <cfRule priority=\\"1\\" stopIfTrue=\\"0\\" type=\\"beginsWith\\" text=\\"1\\" operator=\\"beginsWith\\" dxfId=\\"0\\">
+            <formula>
+                LEFT(A1,LEN(\\"1\\"))=\\"1\\"
+            </formula>
+        </cfRule>
+    </conditionalFormatting>
+    <conditionalFormatting sqref=\\"A1:A5\\">
+        <cfRule priority=\\"1\\" stopIfTrue=\\"0\\" type=\\"endsWith\\" text=\\"1\\" operator=\\"endsWith\\" dxfId=\\"0\\">
+            <formula>
+                RIGHT(A1,LEN(\\"1\\"))=\\"1\\"
+            </formula>
+        </cfRule>
+    </conditionalFormatting>
+    <conditionalFormatting sqref=\\"A1:A5\\">
+        <cfRule priority=\\"1\\" stopIfTrue=\\"0\\" type=\\"containsBlanks\\" operator=\\"containsBlanks\\" dxfId=\\"0\\">
+            <formula>
+                LEN(TRIM(A1))=0
+            </formula>
+        </cfRule>
+    </conditionalFormatting>
+    <conditionalFormatting sqref=\\"A1:A5\\">
+        <cfRule priority=\\"1\\" stopIfTrue=\\"0\\" type=\\"notContainsBlanks\\" operator=\\"notContainsBlanks\\" dxfId=\\"0\\">
+            <formula>
+                LEN(TRIM(A1))&gt;0
+            </formula>
+        </cfRule>
+    </conditionalFormatting>
+    <conditionalFormatting sqref=\\"A1:A5\\">
         <cfRule priority=\\"1\\" stopIfTrue=\\"0\\" type=\\"cellIs\\" operator=\\"equal\\" dxfId=\\"0\\">
             <formula>
                 1
+            </formula>
+        </cfRule>
+    </conditionalFormatting>
+    <conditionalFormatting sqref=\\"A1:A5\\">
+        <cfRule priority=\\"1\\" stopIfTrue=\\"0\\" type=\\"cellIs\\" operator=\\"notEqual\\" dxfId=\\"0\\">
+            <formula>
+                1
+            </formula>
+        </cfRule>
+    </conditionalFormatting>
+    <conditionalFormatting sqref=\\"A1:A5\\">
+        <cfRule priority=\\"1\\" stopIfTrue=\\"0\\" type=\\"cellIs\\" operator=\\"greaterThan\\" dxfId=\\"0\\">
+            <formula>
+                1
+            </formula>
+        </cfRule>
+    </conditionalFormatting>
+    <conditionalFormatting sqref=\\"A1:A5\\">
+        <cfRule priority=\\"1\\" stopIfTrue=\\"0\\" type=\\"cellIs\\" operator=\\"greaterThanOrEqual\\" dxfId=\\"0\\">
+            <formula>
+                1
+            </formula>
+        </cfRule>
+    </conditionalFormatting>
+    <conditionalFormatting sqref=\\"A1:A5\\">
+        <cfRule priority=\\"1\\" stopIfTrue=\\"0\\" type=\\"cellIs\\" operator=\\"lessThan\\" dxfId=\\"0\\">
+            <formula>
+                1
+            </formula>
+        </cfRule>
+    </conditionalFormatting>
+    <conditionalFormatting sqref=\\"A1:A5\\">
+        <cfRule priority=\\"1\\" stopIfTrue=\\"0\\" type=\\"cellIs\\" operator=\\"lessThanOrEqual\\" dxfId=\\"0\\">
+            <formula>
+                1
+            </formula>
+        </cfRule>
+    </conditionalFormatting>
+    <conditionalFormatting sqref=\\"A1:A5\\">
+        <cfRule priority=\\"1\\" stopIfTrue=\\"0\\" type=\\"cellIs\\" operator=\\"between\\" dxfId=\\"0\\">
+            <formula>
+                1
+            </formula>
+            <formula>
+                4
+            </formula>
+        </cfRule>
+    </conditionalFormatting>
+    <conditionalFormatting sqref=\\"A1:A5\\">
+        <cfRule priority=\\"1\\" stopIfTrue=\\"0\\" type=\\"cellIs\\" operator=\\"notBetween\\" dxfId=\\"0\\">
+            <formula>
+                1
+            </formula>
+            <formula>
+                4
             </formula>
         </cfRule>
     </conditionalFormatting>
