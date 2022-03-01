@@ -554,6 +554,23 @@ describe("Test XLSX export", () => {
                   },
                 },
               },
+              {
+                id: "full style",
+                ranges: ["A1:A5"],
+                rule: {
+                  type: "CellIsRule",
+                  operator: "ContainsText",
+                  values: ["1"],
+                  style: {
+                    fillColor: "#90EE80",
+                    color: "#90EE90",
+                    bold: true,
+                    italic: true,
+                    strike: true,
+                    underline: true,
+                  },
+                },
+              },
             ],
           },
         ],
