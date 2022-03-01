@@ -1,4 +1,4 @@
-import { toHex6 } from "../../helpers";
+import { isDefined, toHex6 } from "../../helpers";
 import { Border, BorderDescr } from "../../types";
 import { XLSXDxf, XLSXFill, XLSXFont, XLSXStyle, XMLAttributes, XMLString } from "../../types/xlsx";
 import { FIRST_NUMFMT_ID } from "../constants";
@@ -22,24 +22,27 @@ export function addNumberFormats(numFmts: string[]): XMLString {
   `;
 }
 
-export function addFonts(fonts: XLSXFont[]): XMLString {
-  const fontNodes: XMLString[] = [];
-  for (let font of Object.values(fonts)) {
-    fontNodes.push(escapeXml/*xml*/ `
-      <font>
-        ${font.bold ? escapeXml/*xml*/ `<b />` : ""}
-        ${font.italic ? escapeXml/*xml*/ `<i />` : ""}
-        ${font.underline ? escapeXml/*xml*/ `<u />` : ""}
-        ${font.strike ? escapeXml/*xml*/ `<strike />` : ""}
-        <sz val="${font.size}" />
-        <color rgb="${toHex6(font.color)}" />
-        <name val="${font.name}" />
-      </font>
-    `);
+function addFont(font: Partial<XLSXFont>): XMLString {
+  if (Object.values(font).filter(isDefined).length === 0) {
+    return escapeXml/*xml*/ ``;
   }
   return escapeXml/*xml*/ `
+    <font>
+      ${font.bold ? escapeXml/*xml*/ `<b />` : ""}
+      ${font.italic ? escapeXml/*xml*/ `<i />` : ""}
+      ${font.underline ? escapeXml/*xml*/ `<u />` : ""}
+      ${font.strike ? escapeXml/*xml*/ `<strike />` : ""}
+      ${font.size ? escapeXml/*xml*/ `<sz val="${font.size}" />` : ""}
+      ${font.color ? escapeXml/*xml*/ `<color rgb="${toHex6(font.color)}" />` : ""}
+      ${font.name ? escapeXml/*xml*/ `<name val="${font.name}" />` : ""}
+    </font>
+  `;
+}
+
+export function addFonts(fonts: XLSXFont[]): XMLString {
+  return escapeXml/*xml*/ `
     <fonts count="${fonts.length}">
-      ${joinXmlNodes(fontNodes)}
+      ${joinXmlNodes(Object.values(fonts).map(addFont))}
     </fonts>
   `;
 }
@@ -141,10 +144,8 @@ export function addCellWiseConditionalFormatting(
   const dxfNodes: XMLString[] = [];
   for (const dxf of dxfs) {
     let fontNode: XMLString = escapeXml``;
-    if (dxf.font?.color) {
-      fontNode = escapeXml/*xml*/ `
-        <font rgb="${toHex6(dxf.font.color)}" />
-      `;
+    if (dxf.font) {
+      fontNode = addFont(dxf.font);
     }
     let fillNode: XMLString = escapeXml``;
     if (dxf.fill) {
