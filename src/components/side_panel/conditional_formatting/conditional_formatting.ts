@@ -1,11 +1,4 @@
-import {
-  Component,
-  markup,
-  onWillUpdateProps,
-  useExternalListener,
-  useState,
-  xml,
-} from "@odoo/owl";
+import { Component, onWillUpdateProps, useExternalListener, useState, xml } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../constants";
 import { colorNumberString, rangeReference, toZone } from "../../../helpers/index";
 import {
@@ -26,7 +19,7 @@ import {
 import { ColorPicker } from "../../color_picker";
 import { css } from "../../helpers/css";
 import { getTextDecoration } from "../../helpers/dom_helpers";
-import { CARET_DOWN, CARET_UP, ICONS, ICON_SETS, REFRESH, TRASH } from "../../icons";
+import { CARET_DOWN, CARET_UP, ICONS, ICON_SETS, TRASH } from "../../icons";
 import { IconPicker } from "../../icon_picker";
 import { SelectionInput } from "../../selection_input";
 import { cellIsOperators, conditionalFormattingTerms, GenericWords } from "../translations_terms";
@@ -67,12 +60,12 @@ const PREVIEW_TEMPLATE = xml/* xml */ `
     <div class="o-cf-reorder">
       <t t-if="!cf_first">
         <div class="o-cf-reorder-button-up o-cf-reorder-button" t-on-click="(ev) => this.reorderRule(cf, 'up', ev)">
-          <t t-out="caretUpIcon"/>
+          ${CARET_UP}
         </div>
       </t>
       <t t-if="!cf_last">
         <div class="o-cf-reorder-button-down o-cf-reorder-button" t-on-click="(ev) => this.reorderRule(cf, 'down', ev)">
-          <t t-out="caretDownIcon"/>
+          ${CARET_DOWN}
         </div>
       </t>
     </div>
@@ -80,7 +73,7 @@ const PREVIEW_TEMPLATE = xml/* xml */ `
   <t t-else="">
     <div class="o-cf-delete">
       <div class="o-cf-delete-button" t-on-click.stop="(ev) => this.deleteConditionalFormat(cf, ev)" aria-label="Remove rule">
-        <t t-out="trashIcon"/>
+        ${TRASH}
       </div>
     </div>
   </t>
@@ -550,10 +543,6 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
 
   icons = ICONS;
   iconSets = ICON_SETS;
-  reverseIcon = markup(REFRESH);
-  trashIcon = markup(TRASH);
-  caretUpIcon = markup(CARET_UP);
-  caretDownIcon = markup(CARET_DOWN);
   cellIsOperators = cellIsOperators;
   getTextDecoration = getTextDecoration;
   colorNumberString = colorNumberString;
