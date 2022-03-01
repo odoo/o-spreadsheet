@@ -6900,6 +6900,13 @@ Object {
             </iconSet>
         </cfRule>
     </conditionalFormatting>
+    <conditionalFormatting sqref=\\"A1:A5\\">
+        <cfRule priority=\\"1\\" stopIfTrue=\\"0\\" type=\\"containsText\\" text=\\"1\\" operator=\\"containsText\\" dxfId=\\"1\\">
+            <formula>
+                NOT(ISERROR(SEARCH(\\"1\\",A1)))
+            </formula>
+        </cfRule>
+    </conditionalFormatting>
 </worksheet>",
       "contentType": "sheet",
       "path": "xl/worksheets/sheet0.xml",
@@ -6945,11 +6952,23 @@ Object {
             <alignment vertical=\\"center\\"/>
         </xf>
     </cellXfs>
-    <dxfs count=\\"1\\">
+    <dxfs count=\\"2\\">
         <dxf>
             <fill>
                 <patternFill>
                     <bgColor rgb=\\"90EE90\\"/>
+                </patternFill>
+            </fill>
+        </dxf>
+        <dxf>
+            <font>
+                <b/>
+                <i/>
+                <u/>
+            </font>
+            <fill>
+                <patternFill>
+                    <bgColor rgb=\\"90EE80\\"/>
                 </patternFill>
             </fill>
         </dxf>
@@ -12645,6 +12664,9 @@ Object {
     </cellXfs>
     <dxfs count=\\"1\\">
         <dxf>
+            <font>
+                <b/>
+            </font>
         </dxf>
     </dxfs>
 </styleSheet>",
