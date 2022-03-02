@@ -808,6 +808,38 @@ describe("renderer", () => {
     }
   );
 
+  test.each(["left", "right", "center"])(
+    "Content in merge is clipped and cannot overflow",
+    (align) => {
+      const overflowingText = "I am a very long text";
+      let box: Box;
+      const model = new Model({
+        sheets: [
+          {
+            id: "sheet1",
+            colNumber: 5,
+            rowNumber: 5,
+            cols: { 1: { size: 5 }, 2: { size: 5 } },
+            cells: { B1: { content: overflowingText, style: 1 } },
+            merges: ["B1:C2"],
+          },
+        ],
+        styles: { 1: { align } },
+      });
+
+      let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+      model.drawGrid(ctx);
+
+      box = getBoxFromText(model, overflowingText);
+      expect(box.clipRect).toEqual([
+        HEADER_WIDTH + DEFAULT_CELL_WIDTH,
+        HEADER_HEIGHT,
+        10,
+        DEFAULT_CELL_HEIGHT * 2,
+      ]);
+    }
+  );
+
   test("cells with a fontsize too big for the row height are clipped", () => {
     const overflowingText = "TOO HIGH";
     const fontSize = 26;
