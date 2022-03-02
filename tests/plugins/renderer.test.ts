@@ -126,6 +126,29 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["left", "left", "center"]); // center for headers
   });
 
+  test("numbers are aligned right when overflowing vertically", () => {
+    const model = new Model();
+
+    setCellContent(model, "A1", "1");
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      style: { fontSize: 36 },
+    });
+
+    let textAligns: string[] = [];
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "textAlign") {
+          textAligns.push(value);
+        }
+      },
+    });
+
+    model.drawGrid(ctx);
+    expect(textAligns).toEqual(["right", "center"]); // center for headers
+  });
+
   test("Cells evaluating to a number are properly aligned on overflow", () => {
     const model = new Model({
       sheets: [
