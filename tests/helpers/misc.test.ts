@@ -1,5 +1,5 @@
 import { deepCopy } from "../../src/helpers";
-import { groupConsecutive, range } from "../../src/helpers/misc";
+import { groupConsecutive, lazy, range } from "../../src/helpers/misc";
 
 describe("Misc", () => {
   test("range", () => {
@@ -121,5 +121,68 @@ describe("deepCopy", () => {
     expect("0" in copy).toBe(false);
     expect("1" in copy).toBe(false);
     expect("2" in copy).toBe(true);
+  });
+});
+
+describe("lazy", () => {
+  test("simple lazy value", () => {
+    const lazyValue = lazy(() => 5);
+    expect(lazyValue()).toBe(5);
+  });
+
+  test("map a lazy value", () => {
+    const lazyValue = lazy(() => 5).map((v) => v + 1);
+    expect(lazyValue()).toBe(6);
+  });
+
+  test("multiple lazy map", () => {
+    const lazyValue = lazy(() => 5)
+      .map((v) => v + 1)
+      .map((v) => v + 1);
+    expect(lazyValue()).toBe(7);
+  });
+
+  test("map does not evaluates original lazy value", () => {
+    let count = 0;
+    const lazyValue = lazy(() => ++count).map((v) => v + 1);
+    expect(count).toBe(0);
+    expect(lazyValue()).toBe(2);
+    expect(count).toBe(1);
+  });
+
+  test("mapped value and original value are independent", () => {
+    const lazyValue = lazy(() => 5);
+    const mappedValue = lazyValue.map((v) => v + 1);
+    expect(lazyValue()).toBe(5);
+    expect(mappedValue()).toBe(6);
+  });
+
+  test("value is memoized", () => {
+    let count = 0;
+    const lazyValue = lazy(() => ++count);
+    expect(lazyValue()).toBe(1);
+    expect(lazyValue()).toBe(1);
+    expect(count).toBe(1);
+  });
+
+  test("mapped value is memoized", () => {
+    let count = 0;
+    let countMap = 0;
+    const lazyValue = lazy(() => ++count).map((v) => v + ++countMap);
+    expect(lazyValue()).toBe(2);
+    expect(lazyValue()).toBe(2);
+    expect(count).toBe(1);
+    expect(countMap).toBe(1);
+  });
+
+  test("lazy undefined is memoized", () => {
+    let count = 0;
+    const lazyValue = lazy(() => {
+      ++count;
+      return undefined;
+    });
+    expect(lazyValue()).toBe(undefined);
+    expect(lazyValue()).toBe(undefined);
+    expect(count).toBe(1);
   });
 });
