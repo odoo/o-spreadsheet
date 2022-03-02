@@ -208,3 +208,26 @@ export type Increment = 1 | -1 | 0;
 export interface Ref<T> {
   el: T | null;
 }
+
+/**
+ * Container for a lazy computed value
+ */
+export interface Lazy<T> {
+  /**
+   * Return the computed value.
+   * The value is computed only once and memoized.
+   */
+  (): T;
+  /**
+   * Map a lazy value to another lazy value.
+   *
+   * ```ts
+   * // neither function is called here
+   * const lazyValue = lazy(() => veryExpensive(...)).map((result) => alsoVeryExpensive(result));
+   *
+   * // both values are computed now
+   * const value = lazyValue()
+   * ```
+   */
+  map: <U>(callback: (value: T) => U) => Lazy<U>;
+}

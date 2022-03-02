@@ -9,7 +9,7 @@ import {
   MIN_CF_ICON_MARGIN,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
-import { ConsecutiveIndexes, Link, Style, UID } from "../types";
+import { ConsecutiveIndexes, Lazy, Link, Style, UID } from "../types";
 import { parseDateTime } from "./dates";
 /**
  * Stringify an object, like JSON.stringify, except that the first level of keys
@@ -312,4 +312,21 @@ export function concat(chars: string[]): string {
     output += chars[i];
   }
   return output;
+}
+
+/**
+ * Lazy value computed by the provided function.
+ */
+export function lazy<T>(fn: () => T): Lazy<T> {
+  let isMemoized = false;
+  let memo: T | undefined;
+  const lazyValue = () => {
+    if (!isMemoized) {
+      memo = fn();
+      isMemoized = true;
+    }
+    return memo!;
+  };
+  lazyValue.map = (callback) => lazy(() => callback(lazyValue()));
+  return lazyValue as Lazy<T>;
 }
