@@ -543,38 +543,46 @@ export class RendererPlugin extends UIPlugin {
     if (cfIcon) {
       box.clipRect = [box.x + iconBoxWidth, box.y, Math.max(0, width - iconBoxWidth), height];
     } else if (isOverflowing) {
+      let nextColIndex: number, previousColIndex: number;
+
+      const isCellInMerge = this.getters.isInMerge(sheetId, colNumber, rowNumber);
+      if (isCellInMerge) {
+        // Always clip merges
+        nextColIndex = this.getters.getMerge(sheetId, colNumber, rowNumber)!.right;
+        previousColIndex = colNumber;
+      } else {
+        nextColIndex = this.findNextEmptyCol(colNumber, right, rowNumber);
+        previousColIndex = this.findPreviousEmptyCol(colNumber, left, rowNumber);
+      }
+
       switch (align) {
         case "left": {
-          const nextColIndex = this.findNextEmptyCol(colNumber, right, rowNumber);
           const nextCol = this.getters.getCol(sheetId, nextColIndex);
-          const width = nextCol.end - col.start;
-          if (width < textWidth || fontSizePX > row.size) {
-            box.clipRect = [col.start - offsetX, row.start - offsetY, width, row.size];
+          const clipWidth = nextCol.end - col.start;
+          if (clipWidth < textWidth || fontSizePX > row.size) {
+            box.clipRect = [col.start - offsetX, row.start - offsetY, clipWidth, height];
           }
           break;
         }
         case "right": {
-          const previousColIndex = this.findPreviousEmptyCol(colNumber, left, rowNumber);
           const previousCol = this.getters.getCol(sheetId, previousColIndex);
-          const width = col.end - previousCol.start;
-          if (width < textWidth || fontSizePX > row.size) {
-            box.clipRect = [previousCol.start - offsetX, row.start - offsetY, width, row.size];
+          const clipWidth = col.end + width - col.size - previousCol.start;
+          if (clipWidth < textWidth || fontSizePX > row.size) {
+            box.clipRect = [previousCol.start - offsetX, row.start - offsetY, clipWidth, height];
           }
           break;
         }
         case "center": {
-          const previousColIndex = this.findPreviousEmptyCol(colNumber, left, rowNumber);
-          const nextColIndex = this.findNextEmptyCol(colNumber, right, rowNumber);
           const previousCol = this.getters.getCol(sheetId, previousColIndex);
           const nextCol = this.getters.getCol(sheetId, nextColIndex);
-          const width = nextCol.end - previousCol.start;
+          const clipWidth = nextCol.end - previousCol.start;
           if (
-            width < textWidth ||
+            clipWidth < textWidth ||
             previousColIndex === colNumber ||
             nextColIndex === colNumber ||
             fontSizePX > row.size
           ) {
-            box.clipRect = [previousCol.start - offsetX, row.start - offsetY, width, row.size];
+            box.clipRect = [previousCol.start - offsetX, row.start - offsetY, clipWidth, height];
           }
           break;
         }
