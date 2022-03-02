@@ -526,8 +526,7 @@ export class RendererPlugin extends UIPlugin {
     const text = this.getters.getCellText(cell, showFormula);
     const textWidth = this.getters.getTextWidth(cell);
     const contentWidth = iconBoxWidth + textWidth;
-    const isOverflowing = contentWidth > width || fontSizeMap[fontSize] > height;
-    const align = this.computeCellAlignment(cell, isOverflowing);
+    const align = this.computeCellAlignment(cell, contentWidth > width);
     box.content = {
       text,
       width: textWidth,
@@ -540,6 +539,7 @@ export class RendererPlugin extends UIPlugin {
     }
 
     /** ClipRect */
+    const isOverflowing = contentWidth > width || fontSizeMap[fontSize] > height;
     if (cfIcon) {
       box.clipRect = [box.x + iconBoxWidth, box.y, Math.max(0, width - iconBoxWidth), height];
     } else if (isOverflowing) {
