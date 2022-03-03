@@ -122,4 +122,10 @@ describe("DataSource", () => {
     model.dispatch("EVALUATE_ALL_SHEETS");
     expect(getCellContent(model, "A1")).toBe("data");
   });
+
+  test("Can check the existence of a key", () => {
+    expect(model["config"].dataSources.contains("1")).toBeFalsy();
+    dataSourcePlugin.addDataSource("1", new StringDataSource());
+    expect(model["config"].dataSources.contains("1")).toBeTruthy();
+  });
 });
