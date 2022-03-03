@@ -20,6 +20,16 @@ import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Collaborative local history", () => {
+  beforeAll(() => {
+    // @ts-ignore
+    window.Transformation = 0;
+    console.time("test");
+  });
+  afterAll(() => {
+    // @ts-ignore
+    console.log(window.Transformation);
+    console.timeEnd("test");
+  });
   let network: MockTransportService;
   let alice: Model;
   let bob: Model;

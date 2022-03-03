@@ -5,7 +5,6 @@ import { createEmptyStructure } from "../helpers/state_manager_helpers";
 import { StateObserver } from "../state_observer";
 import { CoreCommand, HistoryChange, UID } from "../types";
 import { SelectiveHistory } from "./selective_history";
-let Transformation = 0;
 export function buildRevisionLog(
   initialRevisionId: UID,
   recordChanges: StateObserver["recordChanges"],
@@ -26,7 +25,8 @@ export function buildRevisionLog(
     (id: UID) => new Revision(id, "empty", [], []),
     {
       with: (revision: Revision) => (toTransform: Revision) => {
-        console.log("Transformation", Transformation++);
+        // @ts-ignore
+        // window.Transformation++;
         return new Revision(
           toTransform.id,
           toTransform.clientId,
@@ -34,7 +34,8 @@ export function buildRevisionLog(
         );
       },
       without: (revision: Revision) => (toTransform: Revision) => {
-        console.log("Transformation", Transformation++);
+        // @ts-ignore
+        // window.Transformation++;
         return new Revision(
           toTransform.id,
           toTransform.clientId,
