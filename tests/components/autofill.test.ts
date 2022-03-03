@@ -1,8 +1,9 @@
 import { App, Component, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
+import { positionToZone, toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { setCellContent } from "../test_helpers/commands_helpers";
+import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 
@@ -136,28 +137,41 @@ describe("Autofill component", () => {
     `);
   });
 
-  test("tooltip position when viewport is not at the top", async () => {
+  test.each([
+    [1, 0, "top:5px;left:111px;"],
+    // [0, 1, "top:28px;left:15px;"],
+    // [-1, 0, "top:11px;left:235px;"],
+    // [0, -1, "top:11px;left:235px;"],
+  ])("tooltip position when viewport is not at the top", async (deltaCol, deltaRow, style) => {
     const autofill = fixture.querySelector(".o-autofill");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
     model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: 500,
       offsetY: 500,
     });
-    setCellContent(model, "A1", "test");
+    const viewport = model.getters.getActiveViewport();
+    selectCell(model, "B2");
+    const [col, row] = toCartesian("B2");
+    setCellContent(model, "B2", "test");
     await nextTick();
-    triggerMouseEvent(autofill, "mousedown", 40, 40);
+    const [B2x, B2y, ,] = model.getters.getRect(toZone("B2"), viewport);
+    triggerMouseEvent(autofill, "mousedown", B2x + HEADER_WIDTH, B2y + HEADER_HEIGHT);
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    const sheetId = parent.model.getters.getActiveSheetId();
-    const x = HEADER_WIDTH + parent.model.getters.getCol(sheetId, 1)!.end + 20;
-    const y = HEADER_HEIGHT + parent.model.getters.getRow(sheetId, 0)!.start + 20;
-    triggerMouseEvent(autofill, "mousemove", x, y);
+    // const sheetId = model.getters.getActiveSheetId();
+    const [x, y] = model.getters.getRect(
+      positionToZone({ col: col + deltaCol, row: row + deltaRow }),
+      viewport
+    );
+    // const x = HEADER_WIDTH + model.getters.getCol(sheetId, col + deltaCol)!.end + 20;
+    // const y = HEADER_HEIGHT + model.getters.getRow(sheetId, row + deltaRow)!.start + 20;
+    triggerMouseEvent(autofill, "mousemove", x + HEADER_WIDTH, y + HEADER_HEIGHT);
     await nextTick();
     expect(fixture.querySelector(".o-autofill")).not.toBeNull();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
       <div
         class="o-autofill-nextvalue"
-        style="top:11px;left:235px;"
+        style="${style}"
       >
         <div>
           test

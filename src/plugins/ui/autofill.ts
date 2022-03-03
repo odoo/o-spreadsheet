@@ -124,6 +124,7 @@ export class AutofillPlugin extends UIPlugin {
         this.autofill(true);
         break;
       case "AUTOFILL_SELECT":
+        console.log(cmd);
         this.select(cmd.col, cmd.row);
         break;
       case "AUTOFILL_AUTO":

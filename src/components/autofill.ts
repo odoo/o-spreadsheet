@@ -103,6 +103,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
       left: ev.clientX + offsetX,
       top: ev.clientY + offsetY,
     };
+    console.log(this.env.model.getters.getColIndex(ev.clientX, offsetX));
     let lastCol: number | undefined;
     let lastRow: number | undefined;
 
@@ -123,6 +124,8 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
         left: ev.clientX - start.left + offsetX,
         top: ev.clientY - start.top + offsetY,
       };
+      // const col = this.env.model.getters.getColIndex(ev.clientX - position.left, offsetX);
+      // const row = this.env.model.getters.getRowIndex(ev.clientY - position.top, offsetY);
       const col = this.env.model.getters.getColIndex(ev.clientX - position.left, viewportLeft);
       const row = this.env.model.getters.getRowIndex(ev.clientY - position.top, viewportTop);
       if (lastCol !== col || lastRow !== row) {
