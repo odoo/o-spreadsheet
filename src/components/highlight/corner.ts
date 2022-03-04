@@ -58,7 +58,7 @@ export class Corner extends Component<Props, SpreadsheetChildEnv> {
   private isLeft = this.props.orientation[1] === "w";
 
   get style() {
-    const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
+    const { offsetX, offsetY } = this.env.model.getters.getActiveSnappedViewport();
     const s = this.env.model.getters.getActiveSheet();
     const z = this.props.zone;
     const leftValue = this.isLeft ? s.cols[z.left].start : s.cols[z.right].end;

@@ -1,4 +1,4 @@
-import { Position, Zone, ZoneDimension } from "../types";
+import { Position, Viewport, Zone, ZoneDimension } from "../types";
 import { toCartesian, toXC } from "./coordinates";
 import { range } from "./misc";
 
@@ -469,7 +469,11 @@ export function mergeOverlappingZones(zones: Zone[]) {
  * This function will compare the modifications of selection to determine
  * a cell that is part of the new zone and not the previous one.
  */
-export function findCellInNewZone(oldZone: Zone, currentZone: Zone): [number, number] {
+export function findCellInNewZone(
+  oldZone: Zone,
+  currentZone: Zone,
+  viewport: Viewport
+): [number, number] {
   let col: number, row: number;
   const { left: oldLeft, right: oldRight, top: oldTop, bottom: oldBottom } = oldZone!;
   const { left, right, top, bottom } = currentZone;
@@ -478,14 +482,14 @@ export function findCellInNewZone(oldZone: Zone, currentZone: Zone): [number, nu
   } else if (right != oldRight) {
     col = right;
   } else {
-    col = left;
+    col = viewport.left;
   }
   if (top != oldTop) {
     row = top;
   } else if (bottom != oldBottom) {
     row = bottom;
   } else {
-    row = top;
+    row = viewport.top;
   }
   return [col, row];
 }

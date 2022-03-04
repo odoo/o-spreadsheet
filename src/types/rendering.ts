@@ -41,7 +41,11 @@ export interface GridDimension {
   height: number;
 }
 
-export interface ViewportOffsets {
+/**
+ * The viewport is the visible area of a sheet.
+ * Column and row headers are not included in the viewport.
+ */
+export interface Viewport extends Zone {
   /**
    * The offset in the X coordinate between the viewport left side and
    * the grid left side (left of column "A").
@@ -53,12 +57,6 @@ export interface ViewportOffsets {
    */
   offsetY: number;
 }
-
-/**
- * The viewport is the visible area of a sheet.
- * Column and row headers are not included in the viewport.
- */
-export interface Viewport extends Zone, ViewportOffsets {}
 
 export interface GridRenderingContext {
   ctx: CanvasRenderingContext2D;
