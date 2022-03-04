@@ -47,33 +47,26 @@ export function dragAndDropBeyondTheViewport(
     const offsetY = currentEv.clientY - position.top;
     const edgeScrollInfoX = env.model.getters.getEdgeScrollCol(offsetX);
     const edgeScrollInfoY = env.model.getters.getEdgeScrollRow(offsetY);
-    const {
-      top,
-      left,
-      bottom,
-      right,
-      offsetX: viewportOffsetX,
-      offsetY: viewportOffsetY,
-    } = env.model.getters.getActiveViewport();
+    const { top, left, bottom, right } = env.model.getters.getActiveSnappedViewport();
 
     let colIndex: number;
     if (edgeScrollInfoX.canEdgeScroll) {
       colIndex = edgeScrollInfoX.direction > 0 ? right : left - 1;
     } else {
-      colIndex = env.model.getters.getColIndex(offsetX, viewportOffsetX);
+      colIndex = env.model.getters.getColIndex(offsetX, left);
     }
 
     let rowIndex: number;
     if (edgeScrollInfoY.canEdgeScroll) {
       rowIndex = edgeScrollInfoY.direction > 0 ? bottom : top - 1;
     } else {
-      rowIndex = env.model.getters.getRowIndex(offsetY, viewportOffsetY);
+      rowIndex = env.model.getters.getRowIndex(offsetY, top);
     }
 
     cbMouseMove(colIndex, rowIndex);
 
     if (edgeScrollInfoX.canEdgeScroll) {
-      const { left, offsetY } = env.model.getters.getActiveViewport();
+      const { left, offsetY } = env.model.getters.getActiveSnappedViewport();
       const { cols } = env.model.getters.getActiveSheet();
       const offsetX = cols[left + edgeScrollInfoX.direction].start;
       env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
@@ -84,7 +77,7 @@ export function dragAndDropBeyondTheViewport(
     }
 
     if (edgeScrollInfoY.canEdgeScroll) {
-      const { top, offsetX } = env.model.getters.getActiveViewport();
+      const { top, offsetX } = env.model.getters.getActiveSnappedViewport();
       const { rows } = env.model.getters.getActiveSheet();
       const offsetY = rows[top + edgeScrollInfoY.direction].start;
       env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });

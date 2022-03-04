@@ -567,8 +567,7 @@ describe("Multi users synchronisation", () => {
     alice.dispatch("START_EDITION", { text: "hello" });
     const spy = jest.spyOn(alice["config"], "notifyUI");
     alice.dispatch("DELETE_SHEET", { sheetId: activeSheetId });
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).not.toHaveBeenCalledWith({ type: "SCROLL" });
+    expect(spy).toHaveBeenCalled();
     expect(alice.getters.getEditionMode()).toBe("inactive");
   });
 
@@ -578,8 +577,7 @@ describe("Multi users synchronisation", () => {
     alice.dispatch("STOP_EDITION");
     const spy = jest.spyOn(alice["config"], "notifyUI");
     deleteRows(bob, [3]);
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith({ type: "SCROLL", offsetX: 0, offsetY: 0 });
+    expect(spy).not.toHaveBeenCalled();
     expect(alice.getters.getEditionMode()).toBe("inactive");
   });
 
@@ -589,8 +587,7 @@ describe("Multi users synchronisation", () => {
     alice.dispatch("STOP_EDITION");
     const spy = jest.spyOn(alice["config"], "notifyUI");
     deleteColumns(bob, ["A"]);
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith({ type: "SCROLL", offsetX: 0, offsetY: 0 });
+    expect(spy).not.toHaveBeenCalled();
     expect(alice.getters.getEditionMode()).toBe("inactive");
   });
 

@@ -62,7 +62,7 @@ export class Border extends Component<Props, SpreadsheetChildEnv> {
     const widthValue = isHorizontal ? right - left : lineWidth;
     const heightValue = isVertical ? bottom - top : lineWidth;
 
-    const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
+    const { offsetX, offsetY } = this.env.model.getters.getActiveSnappedViewport();
     return `
         left:${leftValue + HEADER_WIDTH - offsetX}px;
         top:${topValue + HEADER_HEIGHT - offsetY}px;

@@ -3,10 +3,4 @@ export interface NotificationUIEvent {
   text: string;
 }
 
-export interface ScrollUIEvent {
-  type: "SCROLL";
-  offsetX: number;
-  offsetY: number;
-}
-
-export type NotifyUIEvent = NotificationUIEvent | ScrollUIEvent;
+export type NotifyUIEvent = NotificationUIEvent;

@@ -384,10 +384,6 @@ Array [
   "context.moveTo(0, 1015)",
   "context.lineTo(48, 1015)",
   "context.stroke()",
-  "context.beginPath()",
-  "context.fillStyle=\\"#F8F9FA\\";",
-  "context.fillRect(0, 0, 48, 26)",
-  "context.stroke()",
   "context.restore()",
 ]
 `;
