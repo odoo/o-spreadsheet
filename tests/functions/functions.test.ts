@@ -17,6 +17,20 @@ describe("addFunction", () => {
     expect(evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" })).toBe(6);
   });
 
+  test("can not add a function with invalid name", () => {
+    const createBadFunction = () => {
+      functionRegistry.add("TEST_FUNCTION", {
+        description: "Double the first argument",
+        compute: () => 0,
+        args: [],
+        returns: ["NUMBER"],
+      });
+    };
+    expect(createBadFunction).toThrow(
+      "Invalid function name TEST_FUNCTION. Function names can exclusively contain alphanumerical values separated by dots (.)"
+    );
+  });
+
   test("Can use a custom evaluation context in a function", () => {
     const model = new Model(
       {},
