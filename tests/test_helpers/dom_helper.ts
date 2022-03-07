@@ -110,3 +110,11 @@ export async function keyUp(key: string, options: any = {}): Promise<void> {
   );
   return await nextTick();
 }
+
+/**
+ * Will replace "<path ...></path>" by "<path ... />" in the given html string. This is needed to compare icons html,
+ * as our icon constants use the second syntax, but the compiled HTML use the first syntax.
+ */
+export function sanitizeIconHTML(html: string): string {
+  return html.replace(/<path (.*)><\/path>/, "<path $1/>");
+}
