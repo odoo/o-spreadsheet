@@ -292,9 +292,9 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     }
 
-    const deltaCol = ev.shiftKey ? -1 : 1;
+    const direction = ev.shiftKey ? "left" : "right";
     this.env.model.dispatch("STOP_EDITION");
-    this.env.model.selection.moveAnchorCell(deltaCol, 0);
+    this.env.model.selection.moveAnchorCell(direction);
   }
 
   private processEnterKey(ev: KeyboardEvent) {
@@ -309,7 +309,8 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       }
     }
     this.env.model.dispatch("STOP_EDITION");
-    this.env.model.selection.moveAnchorCell(0, ev.shiftKey ? -1 : 1);
+    const direction = ev.shiftKey ? "up" : "down";
+    this.env.model.selection.moveAnchorCell(direction);
   }
 
   private processEscapeKey() {

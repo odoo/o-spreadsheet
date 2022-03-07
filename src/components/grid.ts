@@ -465,8 +465,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         ? this.props.onGridComposerCellFocused()
         : this.props.onComposerContentFocused();
     },
-    TAB: () => this.env.model.selection.moveAnchorCell(1, 0),
-    "SHIFT+TAB": () => this.env.model.selection.moveAnchorCell(-1, 0),
+    TAB: () => this.env.model.selection.moveAnchorCell("right"),
+    "SHIFT+TAB": () => this.env.model.selection.moveAnchorCell("left"),
     F2: () => {
       const cell = this.env.model.getters.getActiveCell();
       !cell || cell.isEmpty()
@@ -839,16 +839,16 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     ev.preventDefault();
     ev.stopPropagation();
     this.closeLinkEditor();
-    const deltaMap = {
-      ArrowDown: [0, 1],
-      ArrowLeft: [-1, 0],
-      ArrowRight: [1, 0],
-      ArrowUp: [0, -1],
+    const arrowMap = {
+      ArrowDown: { direction: "down", delta: [0, 1] },
+      ArrowLeft: { direction: "left", delta: [-1, 0] },
+      ArrowRight: { direction: "right", delta: [1, 0] },
+      ArrowUp: { direction: "up", delta: [0, -1] },
     };
-    const delta = deltaMap[ev.key];
+    const { direction, delta } = arrowMap[ev.key];
     if (ev.shiftKey) {
       const oldZone = this.env.model.getters.getSelectedZone();
-      this.env.model.selection.resizeAnchorZone(delta[0], delta[1]);
+      this.env.model.selection.resizeAnchorZone(direction);
       const newZone = this.env.model.getters.getSelectedZone();
       const viewport = this.env.model.getters.getActiveSnappedViewport();
       const sheet = this.env.model.getters.getActiveSheet();
@@ -865,7 +865,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         });
       }
     } else {
-      this.env.model.selection.moveAnchorCell(delta[0], delta[1]);
+      this.env.model.selection.moveAnchorCell(direction);
     }
 
     if (this.env.model.getters.isPaintingFormat()) {

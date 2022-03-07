@@ -205,7 +205,7 @@ describe("merges", () => {
     selectCell(model, "C4");
     expect(getActiveXc(model)).toBe("C4");
     expect(model.getters.getActiveCell()).toBeUndefined(); // no active cell in C4
-    moveAnchorCell(model, 0, -1);
+    moveAnchorCell(model, "up");
     expect(getActiveXc(model)).toBe("C3");
     expect(model.getters.getCellPosition(model.getters.getActiveCell()!.id)).toEqual({
       col: 1,

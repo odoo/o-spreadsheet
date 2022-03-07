@@ -216,7 +216,8 @@ describe("ranges and highlights", () => {
 
   test("Create a ref with merges with keyboard -> the merge should be treated as one cell", async () => {
     selectCell(model, "B2");
-    resizeAnchorZone(model, 1, 1);
+    resizeAnchorZone(model, "down");
+    resizeAnchorZone(model, "right");
     merge(model, "B2:C3");
     selectCell(model, "C1");
     composerEl = await typeInComposerGrid("=");

@@ -18,6 +18,7 @@ import {
   Zone,
 } from "../types";
 import { SelectionEvent } from "../types/event_stream";
+import { SelectionDirection } from "../types/selection";
 import { EventStream, StreamCallbacks } from "./event_stream";
 
 type StatefulStream<Event, State> = {
@@ -35,10 +36,10 @@ type StatefulStream<Event, State> = {
 export interface SelectionProcessor {
   selectZone(anchor: AnchorZone): DispatchResult;
   selectCell(col: number, row: number): DispatchResult;
-  moveAnchorCell(deltaCol: Increment, deltaRow: Increment): DispatchResult;
+  moveAnchorCell(direction: SelectionDirection): DispatchResult;
   setAnchorCorner(col: number, row: number): DispatchResult;
   addCellToSelection(col: number, row: number): DispatchResult;
-  resizeAnchorZone(deltaCol: Increment, deltaRow: Increment): DispatchResult;
+  resizeAnchorZone(direction: SelectionDirection): DispatchResult;
   selectColumn(index: number, mode: SelectionEvent["mode"]): DispatchResult;
   selectRow(
     index: number,
@@ -136,8 +137,8 @@ export class SelectionStreamProcessor
   /**
    * Set the selection to one of the cells adjacent to the current anchor cell.
    */
-  moveAnchorCell(deltaCol: Increment, deltaRow: Increment): DispatchResult {
-    const { col, row } = this.getNextAvailablePosition(deltaCol, deltaRow);
+  moveAnchorCell(direction: SelectionDirection): DispatchResult {
+    const { col, row } = this.getNextAvailablePosition(direction);
     return this.selectCell(col, row);
   }
 
@@ -182,9 +183,10 @@ export class SelectionStreamProcessor
    * The anchor cell remains where it is. It's the opposite side
    * of the anchor zone which moves.
    */
-  resizeAnchorZone(deltaCol: Increment, deltaRow: Increment): DispatchResult {
+  resizeAnchorZone(direction: SelectionDirection): DispatchResult {
     const sheet = this.getters.getActiveSheet();
     const anchor = this.anchor;
+    const delta = this.directionToDelta(direction);
     const { col: anchorCol, row: anchorRow } = anchor.cell;
     const { left, right, top, bottom } = anchor.zone;
     let result: Zone | null = anchor.zone;
@@ -204,20 +206,20 @@ export class SelectionStreamProcessor
     let n = 0;
     while (result !== null) {
       n++;
-      if (deltaCol < 0) {
-        const newRight = this.getNextAvailableCol(deltaCol, right - (n - 1), refRow);
+      if (delta[0] < 0) {
+        const newRight = this.getNextAvailableCol(delta[0], right - (n - 1), refRow);
         result = refCol <= right - n ? expand({ top, left, bottom, right: newRight }) : null;
       }
-      if (deltaCol > 0) {
-        const newLeft = this.getNextAvailableCol(deltaCol, left + (n - 1), refRow);
+      if (delta[0] > 0) {
+        const newLeft = this.getNextAvailableCol(delta[0], left + (n - 1), refRow);
         result = left + n <= refCol ? expand({ top, left: newLeft, bottom, right }) : null;
       }
-      if (deltaRow < 0) {
-        const newBottom = this.getNextAvailableRow(deltaRow, refCol, bottom - (n - 1));
+      if (delta[1] < 0) {
+        const newBottom = this.getNextAvailableRow(delta[1], refCol, bottom - (n - 1));
         result = refRow <= bottom - n ? expand({ top, left, bottom: newBottom, right }) : null;
       }
-      if (deltaRow > 0) {
-        const newTop = this.getNextAvailableRow(deltaRow, refCol, top + (n - 1));
+      if (delta[1] > 0) {
+        const newTop = this.getNextAvailableRow(delta[1], refCol, top + (n - 1));
         result = top + n <= refRow ? expand({ top: newTop, left, bottom, right }) : null;
       }
       result = result ? organizeZone(result) : result;
@@ -236,10 +238,10 @@ export class SelectionStreamProcessor
       right: anchorCol,
     };
     const zoneWithDelta = organizeZone({
-      top: this.getNextAvailableRow(deltaRow, refCol!, top),
-      left: this.getNextAvailableCol(deltaCol, left, refRow!),
-      bottom: this.getNextAvailableRow(deltaRow, refCol!, bottom),
-      right: this.getNextAvailableCol(deltaCol, right, refRow!),
+      top: this.getNextAvailableRow(delta[1], refCol!, top),
+      left: this.getNextAvailableCol(delta[0], left, refRow!),
+      bottom: this.getNextAvailableRow(delta[1], refCol!, bottom),
+      right: this.getNextAvailableCol(delta[0], right, refRow!),
     });
     result = expand(union(currentZone, zoneWithDelta));
     const newAnchor = { zone: result, cell: { col: anchorCol, row: anchorRow } };
@@ -350,15 +352,29 @@ export class SelectionStreamProcessor
    *  ---- PRIVATE ----
    */
 
+  private directionToDelta(direction: SelectionDirection): [Increment, Increment] {
+    switch (direction) {
+      case "up":
+        return [0, -1];
+      case "down":
+        return [0, 1];
+      case "left":
+        return [-1, 0];
+      case "right":
+        return [1, 0];
+    }
+  }
+
   /** Computes the next cell position in the direction of deltaX and deltaY
    * by crossing through merges and skipping hidden cells.
    * Note that the resulting position might be out of the sheet, it needs to be validated.
    */
-  private getNextAvailablePosition(deltaX: Increment, deltaY: Increment): Position {
+  private getNextAvailablePosition(direction: SelectionDirection): Position {
     const { col, row } = this.anchor.cell;
+    const delta = this.directionToDelta(direction);
     return {
-      col: this.getNextAvailableCol(deltaX, col, row),
-      row: this.getNextAvailableRow(deltaY, col, row),
+      col: this.getNextAvailableCol(delta[0], col, row),
+      row: this.getNextAvailableRow(delta[1], col, row),
     };
   }
 

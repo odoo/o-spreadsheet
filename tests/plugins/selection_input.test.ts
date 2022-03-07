@@ -433,7 +433,7 @@ describe("selection input plugin", () => {
     model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
     selectCell(model, "D2");
     expect(highlightedZones(model)).toEqual(["D4", "D2"]);
-    resizeAnchorZone(model, 1, 0);
+    resizeAnchorZone(model, "right");
     expect(highlightedZones(model)).toEqual(["D4", "D2:E2"]);
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("D4");
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("D2:E2");
@@ -446,7 +446,7 @@ describe("selection input plugin", () => {
     model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
     addCellToSelection(model, "D2");
     expect(highlightedZones(model)).toEqual(["D4", "D2"]);
-    resizeAnchorZone(model, 1, 0);
+    resizeAnchorZone(model, "right");
     expect(highlightedZones(model)).toEqual(["D4", "D2:E2"]);
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("D4");
     expect(model.getters.getSelectionInput(id)[1].xc).toBe("D2:E2");
