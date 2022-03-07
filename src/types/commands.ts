@@ -103,8 +103,6 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "RESIZE_VIEWPORT",
   "SET_VIEWPORT_OFFSET",
 
-  "MOVE_POSITION",
-
   "SELECT_SEARCH_NEXT_MATCH",
   "SELECT_SEARCH_PREVIOUS_MATCH",
   "REFRESH_SEARCH",
@@ -435,12 +433,6 @@ export interface AutoresizeRowsCommand {
   type: "AUTORESIZE_ROWS";
   sheetId: UID;
   rows: number[];
-}
-
-export interface MovePositionCommand {
-  type: "MOVE_POSITION";
-  deltaX: Increment;
-  deltaY: Increment;
 }
 
 export interface ActivateSheetCommand {
@@ -870,7 +862,6 @@ export type LocalCommand =
   | AutoresizeColumnsCommand
   | AutoresizeRowsCommand
   | MoveColumnsRowsCommand
-  | MovePositionCommand
   | ActivateSheetCommand
   | PrepareExpansionCommand
   | StopSelectionCommand
