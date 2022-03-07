@@ -1,18 +1,19 @@
 import { App, Component, onMounted, onWillUnmount, useState, useSubEnv, xml } from "@odoo/owl";
+import * as icons from "../../src/components/icons";
 import { TopBar } from "../../src/components/top_bar";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { topbarComponentRegistry } from "../../src/registries";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
-import { ConditionalFormat } from "../../src/types";
+import { ConditionalFormat, Style } from "../../src/types";
 import {
   selectCell,
   setAnchorCorner,
   setCellContent,
   setSelection,
 } from "../test_helpers/commands_helpers";
-import { triggerMouseEvent } from "../test_helpers/dom_helper";
+import { sanitizeIconHTML, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getBorder, getCell } from "../test_helpers/getters_helpers";
 import {
   makeTestFixture,
@@ -236,6 +237,48 @@ describe("TopBar component", () => {
     expect(fontSizeTool.textContent!.trim()).toBe("8");
     const style = model.getters.getCellStyle(getCell(model, "A1")!);
     expect(style.fontSize).toBe(8);
+    app.destroy();
+  });
+
+  test.each([
+    [icons.ALIGN_LEFT_ICON, { align: "left" }],
+    [icons.ALIGN_CENTER_ICON, { align: "center" }],
+    [icons.ALIGN_RIGHT_ICON, { align: "right" }],
+  ])("can set horizontal alignment with the toolbar", async (icon, expectedStyle) => {
+    const model = new Model();
+    selectCell(model, "A1");
+    const { app } = await mountParent(model);
+    const alignTool = fixture.querySelector('.o-tool[title="Horizontal align"]')!;
+    alignTool.dispatchEvent(new Event("click"));
+    await nextTick();
+
+    const alignButtons = fixture.querySelectorAll(
+      '.o-tool[title="Horizontal align"] div.o-dropdown-item'
+    )!;
+    const button = [...alignButtons].find((item) => sanitizeIconHTML(item.innerHTML) === icon)!;
+    button.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(model.getters.getCurrentStyle()).toEqual(expectedStyle);
+    app.destroy();
+  });
+
+  test.each([
+    ["text", {}, icons.ALIGN_LEFT_ICON],
+    ["0", {}, icons.ALIGN_RIGHT_ICON],
+    ["0", { align: "left" }, icons.ALIGN_LEFT_ICON],
+    ["0", { align: "center" }, icons.ALIGN_CENTER_ICON],
+    ["0", { align: "right" }, icons.ALIGN_RIGHT_ICON],
+  ])("alignment icon in top bar match the selected cell", async (content, style, expectedIcon) => {
+    const model = new Model();
+    setCellContent(model, "A1", content);
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("A1")],
+      style: style as Style,
+    });
+    const { app } = await mountParent(model);
+    const alignTool = fixture.querySelector('.o-tool[title="Horizontal align"]')!;
+    expect(sanitizeIconHTML(alignTool.querySelector("svg")!.outerHTML)).toEqual(expectedIcon);
     app.destroy();
   });
 

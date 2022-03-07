@@ -451,9 +451,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   updateCellState() {
-    this.style = this.env.model.getters.getCurrentStyle();
-    this.fillColor = this.style.fillColor || "white";
-    this.textColor = this.style.textColor || "black";
     const zones = this.env.model.getters.getSelectedZones();
     const { top, left, right, bottom } = zones[0];
     this.cannotMerge = zones.length > 1 || (top === bottom && left === right);
@@ -478,6 +475,11 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     } else {
       this.currentFormat = "general";
     }
+    this.style = { ...this.env.model.getters.getCurrentStyle() };
+    this.style.align = this.style.align || cell?.defaultAlign;
+    this.fillColor = this.style.fillColor || "white";
+    this.textColor = this.style.textColor || "black";
+
     this.menus = topbarMenuRegistry
       .getAll()
       .filter((item) => !item.isVisible || item.isVisible(this.env));
