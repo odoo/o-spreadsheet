@@ -102,7 +102,7 @@ describe("edition", () => {
     activateSheet(model, sheet2);
     addCellToSelection(model, "B3");
     expect(model.getters.getCurrentContent()).toBe("=SUM(A4,Sheet2!B3");
-    resizeAnchorZone(model, 1, 0);
+    resizeAnchorZone(model, "right");
     expect(model.getters.getCurrentContent()).toBe("=SUM(A4,Sheet2!B3:C3");
   });
 
@@ -380,9 +380,11 @@ describe("edition", () => {
 
     selectCell(model, "A1");
     expect(model.getters.getCurrentContent()).toBe("=A1");
-    moveAnchorCell(model, 1, 1);
+    moveAnchorCell(model, "down");
+    moveAnchorCell(model, "right");
     expect(model.getters.getCurrentContent()).toBe("=B2");
-    resizeAnchorZone(model, 1, 1);
+    resizeAnchorZone(model, "down");
+    resizeAnchorZone(model, "right");
     expect(model.getters.getCurrentContent()).toBe("=B2:C3");
   });
 
@@ -409,7 +411,7 @@ describe("edition", () => {
 
     addCellToSelection(model, "E5");
     expect(model.getters.getCurrentContent()).toBe("=SUM(D4,E5");
-    resizeAnchorZone(model, 0, 1);
+    resizeAnchorZone(model, "down");
     expect(model.getters.getCurrentContent()).toBe("=SUM(D4,E5:E6");
   });
 
@@ -420,7 +422,7 @@ describe("edition", () => {
 
     addCellToSelection(model, "D4");
     addCellToSelection(model, "E5");
-    resizeAnchorZone(model, 0, 1);
+    resizeAnchorZone(model, "down");
     model.dispatch("STOP_SELECTION_INPUT");
 
     expect(model.getters.getCurrentContent()).toBe("=SUM(D4,E5:E6");
@@ -509,9 +511,9 @@ describe("edition", () => {
     model.dispatch("START_EDITION", { text: "=" });
     selectCell(model, "D4");
     expect(model.getters.getCurrentContent()).toBe("=D4");
-    resizeAnchorZone(model, 0, 1);
+    resizeAnchorZone(model, "down");
     expect(model.getters.getCurrentContent()).toBe("=D4:D5");
-    resizeAnchorZone(model, 0, -1);
+    resizeAnchorZone(model, "up");
     expect(model.getters.getCurrentContent()).toBe("=D4");
   });
 
@@ -519,11 +521,11 @@ describe("edition", () => {
     const model = new Model();
     selectCell(model, "D3");
     model.dispatch("START_EDITION", { text: "=" });
-    moveAnchorCell(model, 0, 1);
+    moveAnchorCell(model, "down");
     expect(model.getters.getCurrentContent()).toBe("=D4");
     model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     model.dispatch("SET_CURRENT_CONTENT", { content: "=D4+" });
-    moveAnchorCell(model, 0, 1);
+    moveAnchorCell(model, "down");
     expect(model.getters.getCurrentContent()).toBe("=D4+D4");
   });
 
@@ -533,7 +535,7 @@ describe("edition", () => {
     expect(model.getters.getCell(model.getters.getActiveSheetId(), col, row)).toBeUndefined();
     selectCell(model, "A2");
     model.dispatch("START_EDITION", { text: "=" });
-    moveAnchorCell(model, 1, 0);
+    moveAnchorCell(model, "right");
     expect(model.getters.getCurrentContent()).toBe("=B2");
   });
 

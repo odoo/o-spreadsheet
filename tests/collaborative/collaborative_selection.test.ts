@@ -49,7 +49,8 @@ describe("Collaborative selection", () => {
 
   test("active cell is transferred to other users", () => {
     selectCell(alice, "C3");
-    moveAnchorCell(bob, 1, 1);
+    moveAnchorCell(bob, "down");
+    moveAnchorCell(bob, "right");
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     const sheetId = alice.getters.getActiveSheetId();
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
