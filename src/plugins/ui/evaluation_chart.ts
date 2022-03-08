@@ -6,7 +6,7 @@ import {
   ChartLegendOptions,
   ChartTooltipItem,
 } from "chart.js";
-import { chartTerms } from "../../components/side_panel/translations_terms";
+import { ChartTerms } from "../../components/translations_terms";
 import { MAX_CHAR_LABEL } from "../../constants";
 import { ChartColors } from "../../helpers/chart";
 import { isDefined, isInside, overlap, recomputeZones, zoneToXc } from "../../helpers/index";
@@ -326,9 +326,9 @@ export class EvaluationChartPlugin extends UIPlugin {
         label =
           cell && labelRange
             ? this.truncateLabel(cell.formattedValue)
-            : (label = `${chartTerms.Series} ${parseInt(dsIndex) + 1}`);
+            : (label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`);
       } else {
-        label = label = `${chartTerms.Series} ${parseInt(dsIndex) + 1}`;
+        label = label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
       }
       const color = definition.type !== "pie" ? colors.next() : "#FFFFFF"; // white border for pie chart
       const dataset: ChartDataSets = {

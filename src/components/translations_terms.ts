@@ -1,19 +1,11 @@
-import { _lt } from "../../translation";
-import { CommandResult } from "../../types/index";
+import { _lt } from "../translation";
+import { CommandResult } from "../types/index";
 
-export const conditionalFormattingTerms = {
-  CF_TITLE: _lt("Format rules"),
-  IS_RULE: _lt("Format cells if..."),
-  FORMATTING_STYLE: _lt("Formatting style"),
-  BOLD: _lt("Bold"),
-  ITALIC: _lt("Italic"),
-  UNDERLINE: _lt("Underline"),
-  STRIKE_THROUGH: _lt("Strikethrough"),
-  TEXT_COLOR: _lt("Text Color"),
-  FILL_COLOR: _lt("Fill Color"),
-  CANCEL: _lt("Cancel"),
-  SAVE: _lt("Save"),
-  PREVIEW_TEXT: _lt("Preview text"),
+export const CfTerms = {
+  CfTitle: _lt("Format rules"),
+  IsRule: _lt("Format cells if..."),
+  FormattingStyle: _lt("Formatting style"),
+  PreviewText: _lt("Preview text"),
   Errors: {
     [CommandResult.InvalidRange]: _lt("The range is invalid"),
     [CommandResult.FirstArgMissing]: _lt("The argument is missing. Please provide a value"),
@@ -35,20 +27,21 @@ export const conditionalFormattingTerms = {
     [CommandResult.ValueUpperInvalidFormula]: _lt("Invalid upper inflection point formula"),
     [CommandResult.ValueLowerInvalidFormula]: _lt("Invalid lower inflection point formula"),
     [CommandResult.EmptyRange]: _lt("A range needs to be defined"),
-    unexpected: _lt("The rule is invalid for an unknown reason"),
+    Unexpected: _lt("The rule is invalid for an unknown reason"),
   },
   SingleColor: _lt("Single color"),
   ColorScale: _lt("Color scale"),
   IconSet: _lt("Icon set"),
-  newRule: _lt("Add another rule"),
-  reorderRules: _lt("Reorder rules"),
-  exitReorderMode: _lt("Stop reordering rules"),
+  NewRule: _lt("Add another rule"),
+  ReorderRules: _lt("Reorder rules"),
+  ExitReorderMode: _lt("Stop reordering rules"),
   FixedNumber: _lt("Number"),
   Percentage: _lt("Percentage"),
   Percentile: _lt("Percentile"),
   Formula: _lt("Formula"),
+  ApplyToRange: _lt("Apply to range"),
 };
-export const colorScale = {
+export const ColorScale = {
   CellValues: _lt("Cell values"),
   None: _lt("None"),
   Preview: _lt("Preview"),
@@ -57,16 +50,15 @@ export const colorScale = {
   MidPoint: _lt("Midpoint"),
 };
 
-export const iconSetRule = {
+export const IconSetRule = {
   WhenValueIs: _lt("When value is"),
   Else: _lt("Else"),
   ReverseIcons: _lt("Reverse icons"),
   Icons: _lt("Icons"),
   Type: _lt("Type"),
-  Value: _lt("Value"),
 };
 
-export const cellIsOperators = {
+export const CellIsOperators = {
   IsEmpty: _lt("Is empty"),
   IsNotEmpty: _lt("Is not empty"),
   ContainsText: _lt("Contains"),
@@ -83,7 +75,7 @@ export const cellIsOperators = {
   NotBetween: _lt("Is not between"),
 };
 
-export const chartTerms = {
+export const ChartTerms = {
   ChartType: _lt("Chart type"),
   Line: _lt("Line"),
   Bar: _lt("Bar"),
@@ -114,7 +106,7 @@ export const chartTerms = {
     [CommandResult.EmptyDataSet]: _lt("A dataset needs to be defined"),
     [CommandResult.InvalidDataSet]: _lt("The dataset is invalid"),
     [CommandResult.InvalidLabelRange]: _lt("Labels are invalid"),
-    unexpected: _lt("The chart definition is invalid for an unknown reason"),
+    Unexpected: _lt("The chart definition is invalid for an unknown reason"),
   },
 };
 
@@ -133,10 +125,38 @@ export const FindAndReplaceTerms = {
 export const LinkEditorTerms = {
   Text: _lt("Text"),
   Link: _lt("Link"),
-  Confirm: _lt("Confirm"),
-  Cancel: _lt("Cancel"),
   Edit: _lt("Edit link"),
   Remove: _lt("Remove link"),
+};
+
+export const TopBarTerms = {
+  ReadonlyAccess: _lt("Readonly Access"),
+  PaintFormat: _lt("Paint Format"),
+  ClearFormat: _lt("Clear Format"),
+  FormatPercent: _lt("Format as percent"),
+  DecreaseDecimal: _lt("Decrease decimal places"),
+  IncreaseDecimal: _lt("Increase decimal places"),
+  MoreFormat: _lt("More formats"),
+  FontSize: _lt("Font Size"),
+  Borders: _lt("Borders"),
+  MergeCells: _lt("Merge Cells"),
+  HorizontalAlign: _lt("Horizontal align"),
+};
+
+export const GenericTerms = {
+  Undo: _lt("Undo"),
+  Redo: _lt("Redo"),
+  Bold: _lt("Bold"),
+  Italic: _lt("Italic"),
+  Strikethrough: _lt("Strikethrough"),
+  Underline: _lt("Underline"),
+  FillColor: _lt("Fill Color"),
+  TextColor: _lt("Text Color"),
+  Cancel: _lt("Cancel"),
+  Save: _lt("Save"),
+  Confirm: _lt("Confirm"),
+  Value: _lt("Value"),
+  AndValue: _lt("and value"),
 };
 
 export const GenericWords = {

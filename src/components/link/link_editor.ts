@@ -4,9 +4,9 @@ import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
 import { DOMCoordinates, Link, Position, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { useAbsolutePosition } from "../helpers/position_hook";
+import { GenericTerms, LinkEditorTerms } from "../translations_terms";
 import { LIST } from "./../icons";
 import { Menu } from "./../menu";
-import { LinkEditorTerms } from "./../side_panel/translations_terms";
 
 const MENU_OFFSET_X = 320;
 const MENU_OFFSET_Y = 100;
@@ -39,8 +39,8 @@ const TEMPLATE = xml/* xml */ `
         onMenuClicked="(ev) => this.onSpecialLink(ev)"
         onClose="() => this.menu.isOpen=false"/>
       <div class="o-buttons">
-        <button t-on-click="cancel" class="o-button o-cancel" t-esc="env._t('${LinkEditorTerms.Cancel}')"></button>
-        <button t-on-click="save" class="o-button o-save" t-esc="env._t('${LinkEditorTerms.Confirm}')" t-att-disabled="!state.link.url" ></button>
+        <button t-on-click="cancel" class="o-button o-cancel" t-esc="env._t('${GenericTerms.Cancel}')"></button>
+        <button t-on-click="save" class="o-button o-save" t-esc="env._t('${GenericTerms.Confirm}')" t-att-disabled="!state.link.url" ></button>
       </div>
     </div>`;
 

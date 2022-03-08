@@ -1,7 +1,7 @@
 import { Component, onMounted, onWillUnmount, useRef, useState, xml } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../types/index";
 import { css } from "../helpers/css";
-import { FindAndReplaceTerms } from "./translations_terms";
+import { FindAndReplaceTerms } from "../translations_terms";
 
 const TEMPLATE = xml/* xml */ `
 <div class="o-find-and-replace" tabindex="0" t-on-focusin="onFocusSidePanel" t-ref="findAndReplace">
