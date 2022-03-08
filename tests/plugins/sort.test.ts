@@ -3,7 +3,7 @@ import { parseDateTime } from "../../src/helpers/dates";
 import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
 import { interactiveSortSelection } from "../../src/helpers/sort";
 import { Model } from "../../src/model";
-import { CellValueType, CommandResult, UID } from "../../src/types";
+import { CellValueType, CommandResult, Position, UID } from "../../src/types";
 import { merge, redo, setCellContent, sort, undo } from "../test_helpers/commands_helpers";
 import { makeInteractiveTestEnv } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -303,7 +303,7 @@ describe("Trigger sort generic errors", () => {
 describe("Sort multi adjacent columns", () => {
   let askConfirmation: jest.Mock;
   const sheetId: UID = "sheet3";
-  let anchor: [number, number];
+  let anchor: Position;
   const modelData = {
     sheets: [
       {
@@ -330,7 +330,7 @@ describe("Sort multi adjacent columns", () => {
     askConfirmation = jest.fn();
     model = new Model(modelData);
     const zone = toZone("A2:A3");
-    anchor = [0, 1];
+    anchor = toCartesian("A2");
     const env = makeInteractiveTestEnv(model, { askConfirmation });
     interactiveSortSelection(env, sheetId, anchor, zone, "descending");
     expect(askConfirmation).toHaveBeenCalled();
@@ -349,7 +349,7 @@ describe("Sort multi adjacent columns", () => {
     askConfirmation = jest.fn((text, confirm, cancel) => confirm());
     model = new Model(modelData);
     const zone = toZone("A3:A4");
-    anchor = [0, 2];
+    anchor = toCartesian("A3");
     const env = makeInteractiveTestEnv(model, { askConfirmation });
     interactiveSortSelection(env, sheetId, anchor, zone, "descending");
     expect(getCellsObject(model, sheetId)).toMatchObject({
@@ -369,7 +369,7 @@ describe("Sort multi adjacent columns", () => {
     askConfirmation = jest.fn((text, confirm, cancel) => cancel());
     model = new Model(modelData);
     const zone = toZone("A3:A4");
-    anchor = [0, 2];
+    anchor = toCartesian("A3");
     const env = makeInteractiveTestEnv(model, { askConfirmation });
     interactiveSortSelection(env, sheetId, anchor, zone, "descending");
     expect(getCellsObject(model, sheetId)).toMatchObject({
@@ -601,8 +601,8 @@ describe("Sort adjacent columns with headers", () => {
 
 describe("Sort Merges", () => {
   const notifyUser = jest.fn();
-  let anchor: [number, number];
   const sheetId: UID = "sheet5";
+  let anchor: Position;
   const modelData = {
     sheets: [
       {
@@ -665,13 +665,12 @@ describe("Sort Merges", () => {
     // sort
     const zone = toZone("B2:B8");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-    anchor = [1, 1];
+    anchor = toCartesian("B2");
     const env = makeInteractiveTestEnv(model, { notifyUser });
     interactiveSortSelection(env, sheetId, anchor, contiguousZone, "ascending");
     expect(notifyUser).toHaveBeenCalled();
     expect(model.getters.getSelection()).toEqual({
-      anchor,
-      anchorZone: contiguousZone,
+      anchor: { cell: anchor, zone: contiguousZone },
       zones: [contiguousZone],
     });
     undo(model);
@@ -692,13 +691,13 @@ describe("Sort Merges", () => {
     // sort
     const zone = toZone("B2:B8");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-    anchor = toCartesian("B2");
+
+    const anchor = toCartesian("B2");
     const env = makeInteractiveTestEnv(model, { notifyUser });
     interactiveSortSelection(env, sheetId, anchor, contiguousZone, "ascending");
     expect(notifyUser).toHaveBeenCalled();
     expect(model.getters.getSelection()).toEqual({
-      anchor,
-      anchorZone: contiguousZone,
+      anchor: { cell: anchor, zone: contiguousZone },
       zones: [contiguousZone],
     });
     undo(model);

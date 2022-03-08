@@ -100,7 +100,11 @@ export class SortPlugin extends UIPlugin {
       const { left, right, top, bottom } = expandedZone;
       for (let c = left; c <= right; c++) {
         for (let r = top; r <= bottom; r++) {
-          const [mainCellCol, mainCellRow] = this.getters.getMainCell(sheetId, c, r);
+          const { col: mainCellCol, row: mainCellRow } = this.getters.getMainCellPosition(
+            sheetId,
+            c,
+            r
+          );
           cell = this.getters.getCell(sheetId, mainCellCol, mainCellRow);
           if (cell?.formattedValue) {
             return true;
@@ -248,7 +252,7 @@ export class SortPlugin extends UIPlugin {
 
   private sortZone(sheetId: UID, anchor: Position, zone: Zone, sortDirection: SortDirection) {
     const [stepX, stepY] = this.mainCellsSteps(sheetId, zone);
-    let sortingCol: number = this.getters.getMainCell(sheetId, anchor.col, anchor.row)[0]; // fetch anchor
+    let sortingCol: number = this.getters.getMainCellPosition(sheetId, anchor.col, anchor.row).col; // fetch anchor
     let sortZone = Object.assign({}, zone);
     // Update in case of merges in the zone
     let cells = this.mainCells(sheetId, zone);

@@ -16,7 +16,8 @@ import { setSelection } from "./commands_helpers";
  * Get the active XC
  */
 export function getActiveXc(model: Model): string {
-  return toXC(...model.getters.getPosition());
+  const { col, row } = model.getters.getPosition();
+  return toXC(col, row);
 }
 
 /**
@@ -27,7 +28,7 @@ export function getCell(
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ): Cell | undefined {
-  let [col, row] = toCartesian(xc);
+  let { col, row } = toCartesian(xc);
   return model.getters.getCell(sheetId, col, row);
 }
 
@@ -97,7 +98,7 @@ export function getBorder(
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ): Border | null {
-  const [col, row] = toCartesian(xc);
+  const { col, row } = toCartesian(xc);
   return model.getters.getCellBorder(sheetId, col, row);
 }
 

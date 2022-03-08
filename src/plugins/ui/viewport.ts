@@ -4,7 +4,11 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "../../constants";
-import { findCellInNewZone, findLastVisibleColRow, getNextVisibleCellCoords } from "../../helpers";
+import {
+  findCellInNewZone,
+  findLastVisibleColRow,
+  getNextVisibleCellPosition,
+} from "../../helpers";
 import { Mode } from "../../model";
 import { SelectionEvent } from "../../types/event_stream";
 import {
@@ -82,12 +86,12 @@ export class ViewportPlugin extends UIPlugin {
       case "ZonesSelected":
         if (event.mode === "updateAnchor") {
           // altering a zone should not move the viewport
-          const [col, row] = findCellInNewZone(
+          const cellPosition = findCellInNewZone(
             event.previousAnchor.zone,
             event.anchor.zone,
             this.getActiveSnappedViewport()
           );
-          this.refreshViewport(this.getters.getActiveSheetId(), { col, row });
+          this.refreshViewport(this.getters.getActiveSheetId(), cellPosition);
         } else {
           this.refreshViewport(this.getters.getActiveSheetId());
         }
@@ -246,10 +250,10 @@ export class ViewportPlugin extends UIPlugin {
 
   private resetViewports() {
     for (let [sheetId, viewport] of Object.entries(this.viewports)) {
-      const [col, row] = this.getters.getSheetPosition(sheetId);
+      const position = this.getters.getSheetPosition(sheetId);
       this.adjustViewportOffsetX(sheetId, viewport);
       this.adjustViewportOffsetY(sheetId, viewport);
-      this.adjustViewportsPosition(sheetId, { col, row });
+      this.adjustViewportsPosition(sheetId, position);
     }
   }
 
@@ -382,12 +386,13 @@ export class ViewportPlugin extends UIPlugin {
     const { cols, rows } = sheet;
     const adjustedViewport = this.getSnappedViewport(sheetId);
     if (!position) {
-      const sheetPosition = this.getters.getSheetPosition(sheetId);
-      position = { col: sheetPosition[0], row: sheetPosition[1] };
+      position = this.getters.getSheetPosition(sheetId);
     }
-    const [col, row] = getNextVisibleCellCoords(
+    const mainCellPosition = this.getters.getMainCellPosition(sheetId, position.col, position.row);
+    const { col, row } = getNextVisibleCellPosition(
       sheet,
-      ...this.getters.getMainCell(sheetId, position.col, position.row)
+      mainCellPosition.col,
+      mainCellPosition.row
     );
     while (
       cols[col].end > adjustedViewport.offsetX + this.viewportWidth &&
@@ -450,7 +455,7 @@ export class ViewportPlugin extends UIPlugin {
     this.setViewportOffset(offsetX, offset);
     const { anchor } = this.getters.getSelection();
     const deltaRow = this.getActiveSnappedViewport().top - top;
-    this.selection.selectCell(anchor[0], anchor[1] + deltaRow);
+    this.selection.selectCell(anchor.cell.col, anchor.cell.row + deltaRow);
   }
 
   /**

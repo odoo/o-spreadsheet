@@ -1,4 +1,9 @@
 import { numberToLetters, toCartesian, toXC } from "../../src/helpers/index";
+import { Position } from "../../src/types";
+
+function toPosition(col: number, row: number): Position {
+  return { col, row };
+}
 
 describe("numberToLetter", () => {
   test("basic functionality", () => {
@@ -11,14 +16,14 @@ describe("numberToLetter", () => {
 
 describe("toCartesian", () => {
   test("basic functionality", () => {
-    expect(toCartesian("A1")).toEqual([0, 0]);
-    expect(toCartesian("B1")).toEqual([1, 0]);
-    expect(toCartesian("C5")).toEqual([2, 4]);
-    expect(toCartesian("AA55")).toEqual([26, 54]);
-    expect(toCartesian("c5")).toEqual([2, 4]);
-    expect(toCartesian(" C5 ")).toEqual([2, 4]);
-    expect(toCartesian("AAA1")).toEqual([702, 0]);
-    expect(toCartesian("A999999")).toEqual([0, 999998]);
+    expect(toCartesian("A1")).toEqual(toPosition(0, 0));
+    expect(toCartesian("B1")).toEqual(toPosition(1, 0));
+    expect(toCartesian("C5")).toEqual(toPosition(2, 4));
+    expect(toCartesian("AA55")).toEqual(toPosition(26, 54));
+    expect(toCartesian("c5")).toEqual(toPosition(2, 4));
+    expect(toCartesian(" C5 ")).toEqual(toPosition(2, 4));
+    expect(toCartesian("AAA1")).toEqual(toPosition(702, 0));
+    expect(toCartesian("A999999")).toEqual(toPosition(0, 999998));
   });
 
   test("invalid ranges", () => {

@@ -56,7 +56,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       rect: null,
       delimitation: null,
     });
-    const [col, row] = this.env.model.getters.getPosition();
+    const { col, row } = this.env.model.getters.getPosition();
     this.zone = this.env.model.getters.expandZone(this.env.model.getters.getActiveSheetId(), {
       left: col,
       right: col,

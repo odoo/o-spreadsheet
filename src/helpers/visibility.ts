@@ -1,11 +1,11 @@
-import { Sheet } from "../types";
+import { Position, Sheet } from "../types";
 import { range } from "./misc";
 
-export function getNextVisibleCellCoords(sheet: Sheet, col: number, row: number): [number, number] {
-  return [
-    findVisibleHeader(sheet, "cols", range(col, sheet.cols.length))!,
-    findVisibleHeader(sheet, "rows", range(row, sheet.rows.length))!,
-  ];
+export function getNextVisibleCellPosition(sheet: Sheet, col: number, row: number): Position {
+  return {
+    col: findVisibleHeader(sheet, "cols", range(col, sheet.cols.length))!,
+    row: findVisibleHeader(sheet, "rows", range(row, sheet.rows.length))!,
+  };
 }
 
 export function findVisibleHeader(

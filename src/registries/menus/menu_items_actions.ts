@@ -647,13 +647,13 @@ export const INSERT_LINK = (env: SpreadsheetChildEnv) => {
 export const SORT_CELLS_ASCENDING = (env: SpreadsheetChildEnv) => {
   const { anchor, zones } = env.model.getters.getSelection();
   const sheetId = env.model.getters.getActiveSheetId();
-  interactiveSortSelection(env, sheetId, anchor, zones[0], "ascending");
+  interactiveSortSelection(env, sheetId, anchor.cell, zones[0], "ascending");
 };
 
 export const SORT_CELLS_DESCENDING = (env: SpreadsheetChildEnv) => {
   const { anchor, zones } = env.model.getters.getSelection();
   const sheetId = env.model.getters.getActiveSheetId();
-  interactiveSortSelection(env, sheetId, anchor, zones[0], "descending");
+  interactiveSortSelection(env, sheetId, anchor.cell, zones[0], "descending");
 };
 
 export const IS_ONLY_ONE_RANGE = (env: SpreadsheetChildEnv): boolean => {

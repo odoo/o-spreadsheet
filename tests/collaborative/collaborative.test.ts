@@ -20,7 +20,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getBorder, getCell, getCellContent } from "../test_helpers/getters_helpers";
-import { createEqualCF, target, toPosition } from "../test_helpers/helpers";
+import { createEqualCF, target } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -257,13 +257,13 @@ describe("Multi users synchronisation", () => {
 
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "B3"), undefined);
     expect(alice.getters.getMerges(sheetId)).toMatchObject([
-      { bottom: 2, left: 0, top: 0, right: 1, topLeft: toPosition("A1") },
+      { bottom: 2, left: 0, top: 0, right: 1, topLeft: toCartesian("A1") },
     ]);
     expect(bob.getters.getMerges(sheetId)).toMatchObject([
-      { bottom: 2, left: 0, top: 0, right: 1, topLeft: toPosition("A1") },
+      { bottom: 2, left: 0, top: 0, right: 1, topLeft: toCartesian("A1") },
     ]);
     expect(charlie.getters.getMerges(sheetId)).toMatchObject([
-      { bottom: 2, left: 0, top: 0, right: 1, topLeft: toPosition("A1") },
+      { bottom: 2, left: 0, top: 0, right: 1, topLeft: toCartesian("A1") },
     ]);
     undo(bob);
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "B3"), undefined);
@@ -764,8 +764,9 @@ describe("Multi users synchronisation", () => {
       moveConditionalFormat(bob, "3", "up", sheetId);
       moveConditionalFormat(alice, "3", "up", sheetId);
     });
+    const { col, row } = toCartesian("A1");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getConditionalStyle(...toCartesian("A1")),
+      (user) => user.getters.getConditionalStyle(col, row),
       { fillColor: "#00FF00" }
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -802,8 +803,9 @@ describe("Multi users synchronisation", () => {
         sheetId: sheetId,
       });
     });
+    const { col, row } = toCartesian("A1");
     expect([alice, bob]).toHaveSynchronizedValue(
-      (user) => user.getters.getConditionalStyle(...toCartesian("A1")),
+      (user) => user.getters.getConditionalStyle(col, row),
       { fillColor: "#FF0000" }
     );
   });

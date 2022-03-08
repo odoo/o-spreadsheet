@@ -9,11 +9,11 @@ import {
   zoneToDimension,
 } from "../../helpers";
 import { Mode } from "../../model";
-import { Cell, CellValueType, Command, Dimension, Sheet, UID, Zone } from "../../types";
+import { Cell, CellValueType, Command, Dimension, Position, Sheet, UID, Zone } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 interface AutomaticSum {
-  position: [number, number];
+  position: Position;
   zone: Zone;
 }
 
@@ -27,14 +27,14 @@ export class AutomaticSumPlugin extends UIPlugin {
         const sheetId = this.getters.getActiveSheetId();
         const { zones, anchor } = this.getters.getSelection();
         for (const zone of zones) {
-          const sums = this.getAutomaticSums(sheetId, zone, anchor);
+          const sums = this.getAutomaticSums(sheetId, zone, anchor.cell);
           this.dispatchCellUpdates(sheetId, sums);
         }
         break;
     }
   }
 
-  getAutomaticSums(sheetId: UID, zone: Zone, anchor: [number, number]): AutomaticSum[] {
+  getAutomaticSums(sheetId: UID, zone: Zone, anchor: Position): AutomaticSum[] {
     return this.shouldFindData(sheetId, zone)
       ? this.sumAdjacentData(sheetId, zone, anchor)
       : this.sumData(sheetId, zone);
@@ -55,8 +55,10 @@ export class AutomaticSumPlugin extends UIPlugin {
     return sums;
   }
 
-  private sumAdjacentData(sheetId: UID, zone: Zone, anchor: [number, number]): AutomaticSum[] {
-    const [col, row] = isInside(anchor[0], anchor[1], zone) ? anchor : [zone.left, zone.top];
+  private sumAdjacentData(sheetId: UID, zone: Zone, anchor: Position): AutomaticSum[] {
+    const { col, row } = isInside(anchor.col, anchor.row, zone)
+      ? anchor
+      : { col: zone.left, row: zone.top };
     const dataZone = this.findAdjacentData(sheetId, col, row);
     if (!dataZone) {
       return [];
@@ -65,7 +67,7 @@ export class AutomaticSumPlugin extends UIPlugin {
       this.getters.isSingleCellOrMerge(sheetId, zone) ||
       isOneDimensional(union(dataZone, zone))
     ) {
-      return [{ position: [col, row], zone: dataZone }];
+      return [{ position: { col, row }, zone: dataZone }];
     } else {
       return this.sumDimensions(
         sheetId,
@@ -109,7 +111,8 @@ export class AutomaticSumPlugin extends UIPlugin {
    */
   private findAdjacentData(sheetId: UID, col: number, row: number): Zone | undefined {
     const sheet = this.getters.getSheet(sheetId);
-    const zone = this.findSuitableZoneToSum(sheet, ...this.getters.getMainCell(sheetId, col, row));
+    const mainCellPosition = this.getters.getMainCellPosition(sheetId, col, row);
+    const zone = this.findSuitableZoneToSum(sheet, mainCellPosition.col, mainCellPosition.row);
     if (zone) {
       return this.getters.expandZone(sheetId, zone);
     }
@@ -244,7 +247,10 @@ export class AutomaticSumPlugin extends UIPlugin {
    */
   private sumTotal(zone: Zone): AutomaticSum {
     const { bottom, right } = zone;
-    return { position: [right, bottom], zone: { ...zone, top: bottom, right: right - 1 } };
+    return {
+      position: { col: right, row: bottom },
+      zone: { ...zone, top: bottom, right: right - 1 },
+    };
   }
 
   private sumColumns(zone: Zone, sheetId: UID): AutomaticSum[] {
@@ -252,7 +258,7 @@ export class AutomaticSumPlugin extends UIPlugin {
     zone = { ...zone, bottom: Math.min(zone.bottom, target.bottom - 1) };
     return positions(target).map((position) => ({
       position,
-      zone: { ...zone, right: position[0], left: position[0] },
+      zone: { ...zone, right: position.col, left: position.col },
     }));
   }
 
@@ -261,13 +267,13 @@ export class AutomaticSumPlugin extends UIPlugin {
     zone = { ...zone, right: Math.min(zone.right, target.right - 1) };
     return positions(target).map((position) => ({
       position,
-      zone: { ...zone, top: position[1], bottom: position[1] },
+      zone: { ...zone, top: position.row, bottom: position.row },
     }));
   }
 
   private dispatchCellUpdates(sheetId: UID, sums: AutomaticSum[]): void {
     for (const sum of sums) {
-      const [col, row] = sum.position;
+      const { col, row } = sum.position;
       this.dispatch("UPDATE_CELL", {
         sheetId,
         col,

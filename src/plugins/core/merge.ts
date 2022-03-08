@@ -18,6 +18,7 @@ import {
   CoreCommand,
   ExcelWorkbookData,
   Merge,
+  Position,
   Range,
   Sheet,
   UID,
@@ -41,7 +42,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     "isInMerge",
     "isInSameMerge",
     "isMergeHidden",
-    "getMainCell",
+    "getMainCellPosition",
     "getBottomLeftCell",
     "expandZone",
     "doesIntersectMerge",
@@ -202,20 +203,20 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     return sheetMap ? col in sheetMap && Boolean(sheetMap[col]?.[row]) : false;
   }
 
-  getMainCell(sheetId: UID, col: number, row: number): [number, number] {
+  getMainCellPosition(sheetId: UID, col: number, row: number): Position {
     if (!this.isInMerge(sheetId, col, row)) {
-      return [col, row];
+      return { col, row };
     }
     const mergeTopLeftPos = this.getMerge(sheetId, col, row)!.topLeft;
-    return [mergeTopLeftPos.col, mergeTopLeftPos.row];
+    return { col: mergeTopLeftPos.col, row: mergeTopLeftPos.row };
   }
 
-  getBottomLeftCell(sheetId: UID, col: number, row: number): [number, number] {
+  getBottomLeftCell(sheetId: UID, col: number, row: number): Position {
     if (!this.isInMerge(sheetId, col, row)) {
-      return [col, row];
+      return { col, row };
     }
     const { bottom, left } = this.getMerge(sheetId, col, row)!;
-    return [left, bottom];
+    return { col: left, row: bottom };
   }
 
   isMergeHidden(sheetId: UID, merge: Merge): boolean {
@@ -304,7 +305,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     if (content === undefined) {
       return CommandResult.Success;
     }
-    const [mainCol, mainRow] = this.getMainCell(sheetId, col, row);
+    const { col: mainCol, row: mainRow } = this.getMainCellPosition(sheetId, col, row);
     if (mainCol === col && mainRow === row) {
       return CommandResult.Success;
     }
@@ -416,7 +417,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     }
     this.history.update("mergeCellMap", sheetId, {});
     for (const merge of this.getMerges(sheetId)) {
-      for (const [col, row] of positions(merge)) {
+      for (const { col, row } of positions(merge)) {
         this.history.update("mergeCellMap", sheetId, col, row, merge.id);
       }
     }

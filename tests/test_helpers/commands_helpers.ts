@@ -322,7 +322,7 @@ export function clearCell(
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  const [col, row] = toCartesian(xc);
+  const { col, row } = toCartesian(xc);
   model.dispatch("CLEAR_CELL", { col, row, sheetId });
 }
 
@@ -335,7 +335,7 @@ export function setCellContent(
   content: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  const [col, row] = toCartesian(xc);
+  const { col, row } = toCartesian(xc);
   return model.dispatch("UPDATE_CELL", { col, row, sheetId, content });
 }
 
@@ -343,7 +343,7 @@ export function setCellContent(
  * Select a cell
  */
 export function selectCell(model: Model, xc: string): DispatchResult {
-  const [col, row] = toCartesian(xc);
+  const { col, row } = toCartesian(xc);
   return model.selection.selectCell(col, row);
 }
 
@@ -364,12 +364,12 @@ export function resizeAnchorZone(
 }
 
 export function setAnchorCorner(model: Model, xc: string): DispatchResult {
-  const [col, row] = toCartesian(xc);
+  const { col, row } = toCartesian(xc);
   return model.selection.setAnchorCorner(col, row);
 }
 
 export function addCellToSelection(model: Model, xc: string): DispatchResult {
-  const [col, row] = toCartesian(xc);
+  const { col, row } = toCartesian(xc);
   return model.selection.addCellToSelection(col, row);
 }
 
@@ -405,7 +405,7 @@ export function setSelection(
   let anchor: AnchorZone;
 
   if (options.anchor) {
-    const [col, row] = toCartesian(options.anchor);
+    const { col, row } = toCartesian(options.anchor);
 
     // find the zones that contain the anchor and if several found ,select the last one as the anchorZone
     const anchorZoneIndex = zones.findIndex((zone) => isInside(col, row, zone));
@@ -479,7 +479,7 @@ export function sort(
     direction: SortDirection;
   }
 ) {
-  const [col, row] = toCartesian(anchor);
+  const { col, row } = toCartesian(anchor);
   return model.dispatch("SORT_CELLS", {
     sheetId: sheetId || model.getters.getActiveSheetId(),
     zone: toZone(zone),

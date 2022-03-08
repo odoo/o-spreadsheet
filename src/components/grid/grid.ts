@@ -19,7 +19,7 @@ import {
 import {
   findCellInNewZone,
   findVisibleHeader,
-  getNextVisibleCellCoords,
+  getNextVisibleCellPosition,
   isInside,
   MAX_DELAY,
   range,
@@ -94,15 +94,15 @@ export function useCellHovered(env: SpreadsheetChildEnv, getViewPort: () => View
   let lastMoved = 0;
   let interval;
 
-  function getPosition(): [number, number] {
+  function getPosition(): Position {
     const viewport = getViewPort();
     const col = env.model.getters.getColIndex(x, viewport.left);
     const row = env.model.getters.getRowIndex(y, viewport.top);
-    return [col, row];
+    return { col, row };
   }
 
   function checkTiming() {
-    const [col, row] = getPosition();
+    const { col, row } = getPosition();
     const delta = Date.now() - lastMoved;
     if (col !== hoveredPosition.col || row !== hoveredPosition.row) {
       hoveredPosition.col = undefined;
@@ -321,7 +321,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       return { isOpen: false };
     }
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const [mainCol, mainRow] = this.env.model.getters.getMainCell(sheetId, col, row);
+    const { col: mainCol, row: mainRow } = this.env.model.getters.getMainCellPosition(
+      sheetId,
+      col,
+      row
+    );
     const cell = this.env.model.getters.getCell(sheetId, mainCol, mainRow);
 
     if (cell && cell.evaluated.type === CellValueType.error) {
@@ -341,11 +345,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get activeCellPosition(): Position {
-    const [col, row] = this.env.model.getters.getMainCell(
+    const { col, row } = this.env.model.getters.getPosition();
+    return this.env.model.getters.getMainCellPosition(
       this.env.model.getters.getActiveSheetId(),
-      ...this.env.model.getters.getPosition()
+      col,
+      row
     );
-    return { col, row };
   }
 
   get shouldDisplayLink(): boolean {
@@ -368,9 +373,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
    * Used by link popover components.
    */
   get popoverPosition() {
-    const [col, row] = this.env.model.getters.getBottomLeftCell(
+    const position = this.env.model.getters.getPosition();
+    const { col, row } = this.env.model.getters.getBottomLeftCell(
       this.env.model.getters.getActiveSheetId(),
-      ...this.env.model.getters.getPosition()
+      position.col,
+      position.row
     );
     const viewport = this.env.model.getters.getActiveSnappedViewport();
     const [x, y, width, height] = this.env.model.getters.getRect(
@@ -435,11 +442,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const sheetId = this.env.model.getters.getActiveSheetId();
 
       const mainSelectedZone = this.env.model.getters.getSelectedZone();
-      const sums = this.env.model.getters.getAutomaticSums(
-        sheetId,
-        mainSelectedZone,
-        this.env.model.getters.getPosition()
-      );
+      const { anchor } = this.env.model.getters.getSelection();
+      const sums = this.env.model.getters.getAutomaticSums(sheetId, mainSelectedZone, anchor.cell);
       if (
         this.env.model.getters.isSingleCellOrMerge(sheetId, mainSelectedZone) ||
         (this.env.model.getters.isEmpty(sheetId, mainSelectedZone) && sums.length <= 1)
@@ -454,7 +458,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     },
     "CTRL+HOME": () => {
       const sheet = this.env.model.getters.getActiveSheet();
-      const [col, row] = getNextVisibleCellCoords(sheet, 0, 0);
+      const { col, row } = getNextVisibleCellPosition(sheet, 0, 0);
       this.env.model.selection.selectCell(col, row);
     },
     "CTRL+END": () => {
@@ -470,8 +474,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         left: 0,
         right: cols.length - 1,
       };
-      const [col, row] = this.env.model.getters.getPosition();
-      this.env.model.selection.selectZone({ cell: { col, row }, zone: newZone });
+      const position = this.env.model.getters.getPosition();
+      this.env.model.selection.selectZone({ cell: position, zone: newZone });
     },
     "CTRL+ ": () => {
       const { rows } = this.env.model.getters.getActiveSheet();
@@ -480,8 +484,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         top: 0,
         bottom: rows.length - 1,
       };
-      const [col, row] = this.env.model.getters.getPosition();
-      this.env.model.selection.selectZone({ cell: { col, row }, zone: newZone });
+      const position = this.env.model.getters.getPosition();
+      this.env.model.selection.selectZone({ cell: position, zone: newZone });
     },
     "CTRL+SHIFT+ ": () => {
       this.env.model.selection.selectAll();
@@ -651,7 +655,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.clickedRow = row;
 
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const [mainCol, mainRow] = this.env.model.getters.getMainCell(sheetId, col, row);
+    const { col: mainCol, row: mainRow } = this.env.model.getters.getMainCellPosition(
+      sheetId,
+      col,
+      row
+    );
     const cell = this.env.model.getters.getCell(sheetId, mainCol, mainRow);
     if (!cell?.isLink()) {
       this.closeLinkEditor();
@@ -780,7 +788,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const newZone = this.env.model.getters.getSelectedZone();
       const viewport = this.env.model.getters.getActiveSnappedViewport();
       const sheet = this.env.model.getters.getActiveSheet();
-      const [col, row] = findCellInNewZone(oldZone, newZone, viewport);
+      const { col, row } = findCellInNewZone(oldZone, newZone, viewport);
 
       const { left, right, top, bottom, offsetX, offsetY } = viewport;
       const newOffsetX =

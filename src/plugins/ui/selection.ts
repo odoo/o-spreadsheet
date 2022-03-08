@@ -5,7 +5,7 @@ import {
   clip,
   deepCopy,
   formatValue,
-  getNextVisibleCellCoords,
+  getNextVisibleCellPosition,
   isEqual,
   positions,
   uniqueZones,
@@ -32,6 +32,7 @@ import {
   GridRenderingContext,
   LAYERS,
   MoveColumnsRowsCommand,
+  Position,
   RemoveColumnsRowsCommand,
   Selection,
   Sheet,
@@ -219,8 +220,8 @@ export class GridSelectionPlugin extends UIPlugin {
           sheetIdTo: firstSheet.id,
           sheetIdFrom: firstSheet.id,
         });
-        const firstVisiblePosition = getNextVisibleCellCoords(firstSheet, 0, 0);
-        this.selectCell(...firstVisiblePosition);
+        const { col, row } = getNextVisibleCellPosition(firstSheet, 0, 0);
+        this.selectCell(col, row);
         this.moveClient({ sheetId: firstSheet.id, col: 0, row: 0 });
         break;
       case "ACTIVATE_SHEET": {
@@ -235,7 +236,8 @@ export class GridSelectionPlugin extends UIPlugin {
           Object.assign(this, this.sheetsData[cmd.sheetIdTo]);
           this.selection.resetDefaultAnchor(this, this.gridSelection.anchor);
         } else {
-          this.selectCell(...getNextVisibleCellCoords(this.getters.getSheets()[0], 0, 0));
+          const { col, row } = getNextVisibleCellPosition(this.getters.getSheets()[0], 0, 0);
+          this.selectCell(col, row);
         }
         break;
       }
@@ -329,7 +331,7 @@ export class GridSelectionPlugin extends UIPlugin {
   getActiveCell(): Cell | undefined {
     const sheetId = this.getters.getActiveSheetId();
     const { col, row } = this.gridSelection.anchor.cell;
-    const [mainCol, mainRow] = this.getters.getMainCell(sheetId, col, row);
+    const { col: mainCol, row: mainRow } = this.getters.getMainCellPosition(sheetId, col, row);
     return this.getters.getCell(sheetId, mainCol, mainRow);
   }
 
@@ -363,38 +365,36 @@ export class GridSelectionPlugin extends UIPlugin {
   }
 
   getSelectedZones(): Zone[] {
-    return this.gridSelection.zones;
+    return deepCopy(this.gridSelection.zones);
   }
 
   getSelectedZone(): Zone {
-    return this.gridSelection.anchor.zone;
+    return deepCopy(this.gridSelection.anchor.zone);
   }
 
-  getSelection() {
-    const { col, row } = this.gridSelection.anchor.cell;
-    return {
-      anchor: [col, row] as [number, number],
-      anchorZone: this.gridSelection.anchor.zone,
-      zones: this.getSelectedZones(),
-    };
+  getSelection(): Selection {
+    return deepCopy(this.gridSelection);
   }
 
   getSelectedFigureId(): string | null {
     return this.selectedFigureId;
   }
 
-  getPosition(): [number, number] {
-    return [this.gridSelection.anchor.cell.col, this.gridSelection.anchor.cell.row];
+  getPosition(): Position {
+    return { col: this.gridSelection.anchor.cell.col, row: this.gridSelection.anchor.cell.row };
   }
 
-  getSheetPosition(sheetId: UID): [number, number] {
+  getSheetPosition(sheetId: UID): Position {
     if (sheetId === this.getters.getActiveSheetId()) {
       return this.getPosition();
     } else {
       const sheetData = this.sheetsData[sheetId];
       return sheetData
-        ? [sheetData.gridSelection.anchor.cell.col, sheetData.gridSelection.anchor.cell.row]
-        : getNextVisibleCellCoords(this.getters.getSheet(sheetId), 0, 0);
+        ? {
+            col: sheetData.gridSelection.anchor.cell.col,
+            row: sheetData.gridSelection.anchor.cell.row,
+          }
+        : getNextVisibleCellPosition(this.getters.getSheet(sheetId), 0, 0);
     }
   }
 
@@ -435,7 +435,7 @@ export class GridSelectionPlugin extends UIPlugin {
     let n = 0;
     const sheetId = this.getters.getActiveSheetId();
     const cellPositions = this.gridSelection.zones.map(positions).flat();
-    for (const [col, row] of cellPositions) {
+    for (const { col, row } of cellPositions) {
       const cell = this.getters.getCell(sheetId, col, row);
       if (cell?.evaluated.type === CellValueType.number) {
         n++;
@@ -739,7 +739,7 @@ export class GridSelectionPlugin extends UIPlugin {
 
     // active zone
     const activeSheet = this.getters.getActiveSheetId();
-    const [col, row] = this.getPosition();
+    const { col, row } = this.getPosition();
 
     ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 3 * thinLineWidth;

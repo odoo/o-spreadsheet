@@ -1,4 +1,4 @@
-import { toCartesian, toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers";
 import { interactivePaste } from "../../src/helpers/ui/paste";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
@@ -30,6 +30,7 @@ import {
   getPlugin,
   makeInteractiveTestEnv,
   target,
+  toCartesianArray,
 } from "../test_helpers/helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
@@ -304,18 +305,18 @@ describe("clipboard", () => {
     });
     model.dispatch("COPY", { target: target("B1") });
     model.dispatch("PASTE", { target: target("B4") });
-    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), ...toCartesian("B4"))).toBe(
-      true
-    );
-    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), ...toCartesian("B5"))).toBe(
-      true
-    );
-    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), ...toCartesian("C4"))).toBe(
-      true
-    );
-    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), ...toCartesian("B5"))).toBe(
-      true
-    );
+    expect(
+      model.getters.isInMerge(model.getters.getActiveSheetId(), ...toCartesianArray("B4"))
+    ).toBe(true);
+    expect(
+      model.getters.isInMerge(model.getters.getActiveSheetId(), ...toCartesianArray("B5"))
+    ).toBe(true);
+    expect(
+      model.getters.isInMerge(model.getters.getActiveSheetId(), ...toCartesianArray("C4"))
+    ).toBe(true);
+    expect(
+      model.getters.isInMerge(model.getters.getActiveSheetId(), ...toCartesianArray("B5"))
+    ).toBe(true);
   });
 
   test("can cut and paste merged content", () => {
@@ -331,14 +332,14 @@ describe("clipboard", () => {
     });
     model.dispatch("CUT", { target: target("B1") });
     model.dispatch("PASTE", { target: target("B4") });
-    expect(model.getters.isInMerge("s2", ...toCartesian("B1"))).toBe(false);
-    expect(model.getters.isInMerge("s2", ...toCartesian("B2"))).toBe(false);
-    expect(model.getters.isInMerge("s2", ...toCartesian("C1"))).toBe(false);
-    expect(model.getters.isInMerge("s2", ...toCartesian("B2"))).toBe(false);
-    expect(model.getters.isInMerge("s2", ...toCartesian("B4"))).toBe(true);
-    expect(model.getters.isInMerge("s2", ...toCartesian("B5"))).toBe(true);
-    expect(model.getters.isInMerge("s2", ...toCartesian("C4"))).toBe(true);
-    expect(model.getters.isInMerge("s2", ...toCartesian("B5"))).toBe(true);
+    expect(model.getters.isInMerge("s2", ...toCartesianArray("B1"))).toBe(false);
+    expect(model.getters.isInMerge("s2", ...toCartesianArray("B2"))).toBe(false);
+    expect(model.getters.isInMerge("s2", ...toCartesianArray("C1"))).toBe(false);
+    expect(model.getters.isInMerge("s2", ...toCartesianArray("B2"))).toBe(false);
+    expect(model.getters.isInMerge("s2", ...toCartesianArray("B4"))).toBe(true);
+    expect(model.getters.isInMerge("s2", ...toCartesianArray("B5"))).toBe(true);
+    expect(model.getters.isInMerge("s2", ...toCartesianArray("C4"))).toBe(true);
+    expect(model.getters.isInMerge("s2", ...toCartesianArray("B5"))).toBe(true);
   });
 
   test("paste merge on existing merge removes existing merge", () => {
@@ -354,12 +355,12 @@ describe("clipboard", () => {
     });
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("A1") });
-    expect(model.getters.isInMerge("s3", ...toCartesian("B2"))).toBe(true);
-    expect(model.getters.isInMerge("s3", ...toCartesian("B3"))).toBe(true);
-    expect(model.getters.isInMerge("s3", ...toCartesian("B4"))).toBe(false);
-    expect(model.getters.isInMerge("s3", ...toCartesian("C2"))).toBe(false);
-    expect(model.getters.isInMerge("s3", ...toCartesian("C3"))).toBe(false);
-    expect(model.getters.isInMerge("s3", ...toCartesian("C4"))).toBe(false);
+    expect(model.getters.isInMerge("s3", ...toCartesianArray("B2"))).toBe(true);
+    expect(model.getters.isInMerge("s3", ...toCartesianArray("B3"))).toBe(true);
+    expect(model.getters.isInMerge("s3", ...toCartesianArray("B4"))).toBe(false);
+    expect(model.getters.isInMerge("s3", ...toCartesianArray("C2"))).toBe(false);
+    expect(model.getters.isInMerge("s3", ...toCartesianArray("C3"))).toBe(false);
+    expect(model.getters.isInMerge("s3", ...toCartesianArray("C4"))).toBe(false);
   });
 
   test("Pasting content on merge will remove the merge", () => {
@@ -378,10 +379,10 @@ describe("clipboard", () => {
     });
     model.dispatch("COPY", { target: target("A1") });
     model.dispatch("PASTE", { target: target("B1"), force: true });
-    expect(model.getters.isInMerge("s1", ...toCartesian("B1"))).toBe(false);
-    expect(model.getters.isInMerge("s1", ...toCartesian("B2"))).toBe(false);
-    expect(model.getters.isInMerge("s1", ...toCartesian("C1"))).toBe(false);
-    expect(model.getters.isInMerge("s1", ...toCartesian("C2"))).toBe(false);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("B1"))).toBe(false);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("B2"))).toBe(false);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("C1"))).toBe(false);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("C2"))).toBe(false);
   });
 
   test("Pasting merge on content will remove the content", () => {
@@ -402,8 +403,8 @@ describe("clipboard", () => {
     });
     model.dispatch("COPY", { target: target("A1") });
     model.dispatch("PASTE", { target: target("C1") });
-    expect(model.getters.isInMerge("s1", ...toCartesian("C1"))).toBe(true);
-    expect(model.getters.isInMerge("s1", ...toCartesian("D2"))).toBe(true);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("C1"))).toBe(true);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("D2"))).toBe(true);
     expect(getCellContent(model, "C1")).toBe("merge");
     expect(getCellContent(model, "D2")).toBe("");
   });
@@ -428,10 +429,10 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: [toZone("B2")] });
     activateSheet(model, sheet2);
     model.dispatch("PASTE", { target: target("A1") });
-    expect(model.getters.isInMerge(sheet2, ...toCartesian("A1"))).toBe(true);
-    expect(model.getters.isInMerge(sheet2, ...toCartesian("A2"))).toBe(true);
-    expect(model.getters.isInMerge(sheet2, ...toCartesian("B1"))).toBe(true);
-    expect(model.getters.isInMerge(sheet2, ...toCartesian("B2"))).toBe(true);
+    expect(model.getters.isInMerge(sheet2, ...toCartesianArray("A1"))).toBe(true);
+    expect(model.getters.isInMerge(sheet2, ...toCartesianArray("A2"))).toBe(true);
+    expect(model.getters.isInMerge(sheet2, ...toCartesianArray("B1"))).toBe(true);
+    expect(model.getters.isInMerge(sheet2, ...toCartesianArray("B2"))).toBe(true);
   });
 
   test("copy/paste a formula that has no sheet specific reference to another", () => {
@@ -532,13 +533,13 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: selection });
     const result = model.dispatch("PASTE", { target: [toZone("A1")] });
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
-    expect(model.getters.isInMerge("s1", ...toCartesian("A1"))).toBe(false);
-    expect(model.getters.isInMerge("s1", ...toCartesian("A2"))).toBe(false);
-    expect(model.getters.isInMerge("s1", ...toCartesian("B1"))).toBe(false);
-    expect(model.getters.isInMerge("s1", ...toCartesian("B2"))).toBe(true);
-    expect(model.getters.isInMerge("s1", ...toCartesian("B3"))).toBe(true);
-    expect(model.getters.isInMerge("s1", ...toCartesian("C2"))).toBe(true);
-    expect(model.getters.isInMerge("s1", ...toCartesian("C3"))).toBe(true);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("A1"))).toBe(false);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("A2"))).toBe(false);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("B1"))).toBe(false);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("B2"))).toBe(true);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("B3"))).toBe(true);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("C2"))).toBe(true);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("C3"))).toBe(true);
   });
 
   test("Pasting content that will destroy a merge will be applied if forced", async () => {
@@ -556,13 +557,13 @@ describe("clipboard", () => {
     const selection = model.getters.getSelection().zones;
     model.dispatch("COPY", { target: selection });
     model.dispatch("PASTE", { target: target("A1"), force: true });
-    expect(model.getters.isInMerge("s1", ...toCartesian("A1"))).toBe(true);
-    expect(model.getters.isInMerge("s1", ...toCartesian("A2"))).toBe(true);
-    expect(model.getters.isInMerge("s1", ...toCartesian("B1"))).toBe(true);
-    expect(model.getters.isInMerge("s1", ...toCartesian("B2"))).toBe(true);
-    expect(model.getters.isInMerge("s1", ...toCartesian("B3"))).toBe(false);
-    expect(model.getters.isInMerge("s1", ...toCartesian("C2"))).toBe(false);
-    expect(model.getters.isInMerge("s1", ...toCartesian("C3"))).toBe(false);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("A1"))).toBe(true);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("A2"))).toBe(true);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("B1"))).toBe(true);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("B2"))).toBe(true);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("B3"))).toBe(false);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("C2"))).toBe(false);
+    expect(model.getters.isInMerge("s1", ...toCartesianArray("C3"))).toBe(false);
   });
 
   test("cutting a cell with style remove the cell", () => {
@@ -1083,12 +1084,12 @@ describe("clipboard", () => {
     model.dispatch("PASTE", { target: target("C1"), pasteOption: "onlyValue" });
     model.dispatch("COPY", { target: target("A2") });
     model.dispatch("PASTE", { target: target("C2"), pasteOption: "onlyValue" });
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesian("C1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesian("C2"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("C1"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("C2"))).toBeUndefined();
   });
 
   test("paste value only does not remove style", () => {
@@ -1256,14 +1257,14 @@ describe("clipboard", () => {
     model.dispatch("PASTE", { target: target("C1") });
     model.dispatch("COPY", { target: target("A2") });
     model.dispatch("PASTE", { target: target("C2") });
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesian("C1"))).toEqual({
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("C1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesian("C2"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("C2"))).toBeUndefined();
   });
   test("can cut and paste a conditional formatted cell", () => {
     const model = new Model({
@@ -1287,12 +1288,12 @@ describe("clipboard", () => {
     model.dispatch("PASTE", { target: target("C1") });
     model.dispatch("CUT", { target: target("A2") });
     model.dispatch("PASTE", { target: target("C2") });
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesian("C1"))).toEqual({
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("C1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesian("C2"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("C2"))).toBeUndefined();
   });
 
   test("can copy and paste a conditional formatted zone", () => {
@@ -1314,22 +1315,22 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: target("A1:A2") });
     model.dispatch("PASTE", { target: target("B1") });
     model.dispatch("PASTE", { target: target("C1") });
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesian("B1"))).toEqual({
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("B1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesian("B2"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesian("C1"))).toEqual({
+    expect(model.getters.getConditionalStyle(...toCartesianArray("B2"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("C1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesian("C2"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("C2"))).toBeUndefined();
     setCellContent(model, "C1", "2");
     setCellContent(model, "C2", "1");
-    expect(model.getters.getConditionalStyle(...toCartesian("C1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesian("C2"))).toEqual({
+    expect(model.getters.getConditionalStyle(...toCartesianArray("C1"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("C2"))).toEqual({
       fillColor: "#FF0000",
     });
   });
@@ -1352,16 +1353,16 @@ describe("clipboard", () => {
     });
     model.dispatch("CUT", { target: target("A1:A2") });
     model.dispatch("PASTE", { target: target("B1") });
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesian("B1"))).toEqual({
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("B1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesian("B2"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("B2"))).toBeUndefined();
     setCellContent(model, "B1", "2");
     setCellContent(model, "B2", "1");
-    expect(model.getters.getConditionalStyle(...toCartesian("B1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesian("B2"))).toEqual({
+    expect(model.getters.getConditionalStyle(...toCartesianArray("B1"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("B2"))).toEqual({
       fillColor: "#FF0000",
     });
   });
@@ -1391,14 +1392,14 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: [toZone("A1:A2")] });
     activateSheet(model, "s2");
     model.dispatch("PASTE", { target: target("A1") });
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
     setCellContent(model, "A1", "2");
     setCellContent(model, "A2", "1");
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toEqual({
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
       fillColor: "#FF0000",
     });
   });
@@ -1428,19 +1429,19 @@ describe("clipboard", () => {
     model.dispatch("CUT", { target: [toZone("A1:A2")] });
     activateSheet(model, sheet2);
     model.dispatch("PASTE", { target: target("A1") });
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
     setCellContent(model, "A1", "2");
     setCellContent(model, "A2", "1");
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toEqual({
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toEqual({
       fillColor: "#FF0000",
     });
     activateSheet(model, sheet1);
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toBeUndefined();
+    expect(model.getters.getConditionalStyle(...toCartesianArray("A2"))).toBeUndefined();
   });
 
   test("can copy and paste a cell which contains a cross-sheet reference", () => {

@@ -75,8 +75,12 @@ export class LinkDisplay extends Component<
 
   unlink() {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const [col, row] = this.env.model.getters.getPosition();
-    const [mainCol, mainRow] = this.env.model.getters.getMainCell(sheetId, col, row);
+    const { col, row } = this.env.model.getters.getPosition();
+    const { col: mainCol, row: mainRow } = this.env.model.getters.getMainCellPosition(
+      sheetId,
+      col,
+      row
+    );
     const style = this.cell.style;
     const textColor = style?.textColor === LINK_COLOR ? undefined : style?.textColor;
     this.env.model.dispatch("UPDATE_CELL", {

@@ -22,12 +22,12 @@ export function toZoneWithoutBoundaryChanges(xc: string): Zone {
   let top: number, bottom: number, left: number, right: number;
 
   let c = toCartesian(ranges[0].trim());
-  left = right = c[0];
-  top = bottom = c[1];
+  left = right = c.col;
+  top = bottom = c.row;
   if (ranges.length === 2) {
     let d = toCartesian(ranges[1].trim());
-    right = d[0];
-    bottom = d[1];
+    right = d.col;
+    bottom = d.row;
   }
   return { top, bottom, left, right };
 }
@@ -411,13 +411,13 @@ export function isOneDimensional(zone: Zone): boolean {
 /**
  * Array of all positions in the zone.
  */
-export function positions(zone: Zone): [number, number][] {
-  const positions: [number, number][] = [];
+export function positions(zone: Zone): Position[] {
+  const positions: Position[] = [];
   const [left, right] = [zone.right, zone.left].sort((a, b) => a - b);
   const [top, bottom] = [zone.top, zone.bottom].sort((a, b) => a - b);
   for (const col of range(left, right + 1)) {
     for (const row of range(top, bottom + 1)) {
-      positions.push([col, row]);
+      positions.push({ col, row });
     }
   }
   return positions;
@@ -484,11 +484,7 @@ export function mergeOverlappingZones(zones: Zone[]) {
  * This function will compare the modifications of selection to determine
  * a cell that is part of the new zone and not the previous one.
  */
-export function findCellInNewZone(
-  oldZone: Zone,
-  currentZone: Zone,
-  viewport: Viewport
-): [number, number] {
+export function findCellInNewZone(oldZone: Zone, currentZone: Zone, viewport: Viewport): Position {
   let col: number, row: number;
   const { left: oldLeft, right: oldRight, top: oldTop, bottom: oldBottom } = oldZone!;
   const { left, right, top, bottom } = currentZone;
@@ -506,7 +502,7 @@ export function findCellInNewZone(
   } else {
     row = viewport.top;
   }
-  return [col, row];
+  return { col, row };
 }
 
 export function organizeZone(zone: Zone): Zone {

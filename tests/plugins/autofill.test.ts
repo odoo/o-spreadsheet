@@ -14,7 +14,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText, getMerges } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
-import { getMergeCellMap, getPlugin, toPosition, XCToMergeCellMap } from "../test_helpers/helpers";
+import { getMergeCellMap, getPlugin, XCToMergeCellMap } from "../test_helpers/helpers";
 
 let autoFill: AutofillPlugin;
 let model: Model;
@@ -24,15 +24,13 @@ let model: Model;
  */
 function autofill(from: string, to: string) {
   setSelection(model, [from]);
-  const [col, row] = toCartesian(to);
-  model.dispatch("AUTOFILL_SELECT", { col, row });
+  model.dispatch("AUTOFILL_SELECT", toCartesian(to));
   model.dispatch("AUTOFILL");
 }
 
 function autofillTooltip(from: string, to: string): string | undefined {
   setSelection(model, [from]);
-  const [col, row] = toCartesian(to);
-  model.dispatch("AUTOFILL_SELECT", { col, row });
+  model.dispatch("AUTOFILL_SELECT", toCartesian(to));
   return model.getters.getAutofillTooltip()?.props.content;
 }
 
@@ -41,7 +39,7 @@ function autofillTooltip(from: string, to: string): string | undefined {
  */
 function getDirection(from: string, xc: string): DIRECTION {
   setSelection(model, [from]);
-  const [col, row] = toCartesian(xc);
+  const { col, row } = toCartesian(xc);
   return autoFill["getDirection"](col, row);
 }
 
@@ -50,8 +48,7 @@ function getDirection(from: string, xc: string): DIRECTION {
  */
 function select(from: string, xc: string) {
   setSelection(model, [from]);
-  const [col, row] = toCartesian(xc);
-  model.dispatch("AUTOFILL_SELECT", { col, row });
+  model.dispatch("AUTOFILL_SELECT", toCartesian(xc));
 }
 
 beforeEach(() => {
@@ -149,23 +146,32 @@ describe("Autofill", () => {
       sheetId: model.getters.getActiveSheetId(),
       target: cf.ranges.map(toZone),
     });
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+    let col: number, row: number;
+    ({ col, row } = toCartesian("A1"));
+    expect(model.getters.getConditionalStyle(col, row)).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toEqual({
+    ({ col, row } = toCartesian("A2"));
+    expect(model.getters.getConditionalStyle(col, row)).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesian("A3"))).toBeFalsy();
-    expect(model.getters.getConditionalStyle(...toCartesian("A4"))).toBeFalsy();
+    ({ col, row } = toCartesian("A3"));
+    expect(model.getters.getConditionalStyle(col, row)).toBeFalsy();
+    ({ col, row } = toCartesian("A4"));
+    expect(model.getters.getConditionalStyle(col, row)).toBeFalsy();
     autofill("A1:A4", "A8");
-    expect(model.getters.getConditionalStyle(...toCartesian("A5"))).toEqual({
+    ({ col, row } = toCartesian("A5"));
+    expect(model.getters.getConditionalStyle(col, row)).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesian("A6"))).toEqual({
+    ({ col, row } = toCartesian("A6"));
+    expect(model.getters.getConditionalStyle(col, row)).toEqual({
       fillColor: "#FF0000",
     });
-    expect(model.getters.getConditionalStyle(...toCartesian("A7"))).toBeFalsy();
-    expect(model.getters.getConditionalStyle(...toCartesian("A8"))).toBeFalsy();
+    ({ col, row } = toCartesian("A7"));
+    expect(model.getters.getConditionalStyle(col, row)).toBeFalsy();
+    ({ col, row } = toCartesian("A8"));
+    expect(model.getters.getConditionalStyle(col, row)).toBeFalsy();
   });
 
   describe("Autofill multiple values", () => {
@@ -463,9 +469,9 @@ describe("Autofill", () => {
       XCToMergeCellMap(model, ["A1", "A2", "A4", "A5", "A7", "A8"])
     );
     expect(getMerges(model)).toEqual({
-      "1": { bottom: 1, id: 1, left: 0, right: 0, top: 0, topLeft: toPosition("A1") },
-      "2": { bottom: 4, id: 2, left: 0, right: 0, top: 3, topLeft: toPosition("A4") },
-      "3": { bottom: 7, id: 3, left: 0, right: 0, top: 6, topLeft: toPosition("A7") },
+      "1": { bottom: 1, id: 1, left: 0, right: 0, top: 0, topLeft: toCartesian("A1") },
+      "2": { bottom: 4, id: 2, left: 0, right: 0, top: 3, topLeft: toCartesian("A4") },
+      "3": { bottom: 7, id: 3, left: 0, right: 0, top: 6, topLeft: toCartesian("A7") },
     });
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCellContent(model, "A4")).toBe("2");
@@ -485,8 +491,8 @@ describe("Autofill", () => {
     autofill("A1:A2", "A5");
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["A1", "A2", "A3", "A4"]));
     expect(getMerges(model)).toEqual({
-      "1": { bottom: 1, id: 1, left: 0, right: 0, top: 0, topLeft: toPosition("A1") },
-      "2": { bottom: 3, id: 2, left: 0, right: 0, top: 2, topLeft: toPosition("A3") },
+      "1": { bottom: 1, id: 1, left: 0, right: 0, top: 0, topLeft: toCartesian("A1") },
+      "2": { bottom: 3, id: 2, left: 0, right: 0, top: 2, topLeft: toCartesian("A3") },
     });
   });
 

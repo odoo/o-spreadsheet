@@ -250,7 +250,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       // cells
       for (let xc in sheet.cells) {
         const cellData = sheet.cells[xc];
-        const [col, row] = toCartesian(xc);
+        const { col, row } = toCartesian(xc);
         if (cellData?.content || cellData?.format || cellData?.style) {
           const cell = this.importCell(imported_sheet, cellData, data.styles, data.formats);
           this.history.update("cells", sheet.id, cell.id, cell);
@@ -307,7 +307,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     this.export(data);
     for (let sheet of data.sheets) {
       for (const xc in sheet.cells) {
-        const [col, row] = toCartesian(xc);
+        const { col, row } = toCartesian(xc);
         const cell = this.getters.getCell(sheet.id, col, row)!;
         const exportedCellData = sheet.cells[xc]!;
         exportedCellData.value = cell.evaluated.value;
@@ -417,9 +417,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       zone.bottom,
       fixedParts.length > 1 ? fixedParts[1] : fixedParts[0]
     );
-    const cellTopLeft = this.getters.getMainCell(sheetId, zone.left, zone.top);
-    const cellBotRight = this.getters.getMainCell(sheetId, zone.right, zone.bottom);
-    const sameCell = cellTopLeft[0] == cellBotRight[0] && cellTopLeft[1] == cellBotRight[1];
+    const cellTopLeft = this.getters.getMainCellPosition(sheetId, zone.left, zone.top);
+    const cellBotRight = this.getters.getMainCellPosition(sheetId, zone.right, zone.bottom);
+    const sameCell = cellTopLeft.col === cellBotRight.col && cellTopLeft.row === cellBotRight.row;
     if (topLeft != botRight && !sameCell) {
       return topLeft + ":" + botRight;
     }
@@ -475,8 +475,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * gets the currently used style/border of a cell based on it's coordinates
    */
   private getFormat(sheetId: UID, col: number, row: number): { style?: Style; format?: Format } {
-    const format: { style?: Style; format?: Format } = {};
-    const [mainCol, mainRow] = this.getters.getMainCell(sheetId, col, row);
+    const format: { style?: Style; format?: string } = {};
+    const { col: mainCol, row: mainRow } = this.getters.getMainCellPosition(sheetId, col, row);
     const cell = this.getters.getCell(sheetId, mainCol, mainRow);
     if (cell) {
       if (cell.style) {

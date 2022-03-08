@@ -1,4 +1,11 @@
-import { isZoneValid, overlap, positions, recomputeZones, toZone } from "../../src/helpers/index";
+import {
+  isZoneValid,
+  overlap,
+  positions,
+  recomputeZones,
+  toCartesian,
+  toZone,
+} from "../../src/helpers/index";
 import { Zone } from "../../src/types";
 
 describe("overlap", () => {
@@ -119,25 +126,25 @@ describe("toZone", () => {
 
 describe("positions", () => {
   test("single cell zone", () => {
-    expect(positions(toZone("A1"))).toContainEqual([0, 0]);
+    expect(positions(toZone("A1"))).toContainEqual(toCartesian("A1"));
     expect(positions(toZone("A1"))).toHaveLength(1);
   });
 
   test("simple zone", () => {
     const zone = toZone("A1:B2");
     expect(positions(zone)).toHaveLength(4);
-    expect(positions(zone)).toContainEqual([0, 0]);
-    expect(positions(zone)).toContainEqual([0, 1]);
-    expect(positions(zone)).toContainEqual([1, 0]);
-    expect(positions(zone)).toContainEqual([1, 1]);
+    expect(positions(zone)).toContainEqual(toCartesian("A1"));
+    expect(positions(zone)).toContainEqual(toCartesian("A2"));
+    expect(positions(zone)).toContainEqual(toCartesian("B1"));
+    expect(positions(zone)).toContainEqual(toCartesian("B2"));
   });
 
   test("zone with inverted boundaries", () => {
     const zone = { top: 1, bottom: 0, left: 1, right: 0 };
     expect(positions(zone)).toHaveLength(4);
-    expect(positions(zone)).toContainEqual([0, 0]);
-    expect(positions(zone)).toContainEqual([0, 1]);
-    expect(positions(zone)).toContainEqual([1, 0]);
-    expect(positions(zone)).toContainEqual([1, 1]);
+    expect(positions(zone)).toContainEqual(toCartesian("A1"));
+    expect(positions(zone)).toContainEqual(toCartesian("A2"));
+    expect(positions(zone)).toContainEqual(toCartesian("B1"));
+    expect(positions(zone)).toContainEqual(toCartesian("B2"));
   });
 });

@@ -502,7 +502,7 @@ describe("edition", () => {
     const model = new Model();
     setCellContent(model, "A1", "Hello sir");
     expect(model.getters.getCurrentContent()).toBe("Hello sir");
-    const [col, row] = toCartesian("A2");
+    const { col, row } = toCartesian("A2");
     expect(model.getters.getCell(model.getters.getActiveSheetId(), col, row)).toBeUndefined();
     selectCell(model, "A2");
     expect(model.getters.getCurrentContent()).toBe("");
@@ -547,7 +547,7 @@ describe("edition", () => {
 
   test("select an empty cell, start selecting mode at the composer position", () => {
     const model = new Model();
-    const [col, row] = toCartesian("A2");
+    const { col, row } = toCartesian("A2");
     expect(model.getters.getCell(model.getters.getActiveSheetId(), col, row)).toBeUndefined();
     selectCell(model, "A2");
     model.dispatch("START_EDITION", { text: "=" });

@@ -478,7 +478,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
         for (let [xc, cell] of Object.entries(sheet.cells)) {
           if (cell?.border) {
             const border = data.borders[cell.border];
-            const [col, row] = toCartesian(xc);
+            const { col, row } = toCartesian(xc);
             this.setBorder(sheet.id, col, row, border);
           }
         }

@@ -1,5 +1,5 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { toZone } from "../../src/helpers";
+import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import { SelectionDirection } from "../../src/types/selection";
@@ -28,7 +28,6 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getActiveXc } from "../test_helpers/getters_helpers";
-import { target } from "../test_helpers/helpers";
 
 let model: Model;
 const hiddenContent = { content: "hidden content to be skipped" };
@@ -144,11 +143,13 @@ describe("simple selection", () => {
     selectCell(model, "D4");
     const A1Zone = toZone("A1");
     expect(model.getters.getSelection()).toEqual({
-      anchorZone: A1Zone,
+      anchor: {
+        zone: A1Zone,
+        cell: { col: A1Zone.left, row: A1Zone.top },
+      },
       zones: [A1Zone],
-      anchor: [A1Zone.left, A1Zone.top],
     });
-    expect(model.getters.getPosition()).toEqual([A1Zone.left, A1Zone.top]);
+    expect(model.getters.getPosition()).toEqual({ col: A1Zone.left, row: A1Zone.top });
   });
   test("update selection in some different directions", () => {
     const model = new Model({
@@ -307,10 +308,10 @@ describe("simple selection", () => {
       sheets: [{ colNumber: 3, rowNumber: 3 }],
     });
     setSelection(model, ["A1:Z20"]);
+    const zone = toZone("A1:C3");
     expect(model.getters.getSelection()).toEqual({
-      anchor: [0, 0],
-      anchorZone: toZone("A1:C3"),
-      zones: target("A1:C3"),
+      anchor: { cell: { col: 0, row: 0 }, zone },
+      zones: [zone],
     });
   });
 
@@ -408,8 +409,8 @@ describe("simple selection", () => {
     addColumns(model, "after", "A", 1);
     selectCell(model, "D1");
     undo(model);
-    expect(model.getters.getPosition()).toEqual([2, 0]);
-    expect(model.getters.getSheetPosition("42")).toEqual([2, 0]);
+    expect(model.getters.getPosition()).toEqual(toCartesian("C1"));
+    expect(model.getters.getSheetPosition("42")).toEqual(toCartesian("C1"));
   });
 
   test("invalid selection is updated after redo", () => {
@@ -426,8 +427,8 @@ describe("simple selection", () => {
     undo(model);
     selectCell(model, "C1");
     redo(model);
-    expect(model.getters.getPosition()).toEqual([1, 0]);
-    expect(model.getters.getSheetPosition("42")).toEqual([1, 0]);
+    expect(model.getters.getPosition()).toEqual(toCartesian("B1"));
+    expect(model.getters.getSheetPosition("42")).toEqual(toCartesian("B1"));
   });
 
   test("Select a merge when its topLeft column is hidden", () => {
@@ -466,17 +467,17 @@ describe("multiple selections", () => {
     selectCell(model, "C3");
     let selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
-    expect(selection.anchor).toEqual([2, 2]);
+    expect(selection.anchor.cell).toEqual(toCartesian("C3"));
     setAnchorCorner(model, "C4");
     selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
-    expect(selection.anchor).toEqual([2, 2]);
+    expect(selection.anchor.cell).toEqual(toCartesian("C3"));
 
     // create new range
     addCellToSelection(model, "F3");
     selection = model.getters.getSelection();
     expect(selection.zones).toHaveLength(2);
-    expect(selection.anchor).toEqual([5, 2]);
+    expect(selection.anchor.cell).toEqual(toCartesian("F3"));
   });
 });
 
