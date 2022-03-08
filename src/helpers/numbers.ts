@@ -6,8 +6,9 @@
  *   only needs to find the number at the start of a string
  * - it does not accept "," as thousand separator, because when we tokenize a
  *   formula, commas are used to separate arguments
+ * - it does not support % symbol, in formulas % is an operator
  */
-export const formulaNumberRegexp = /^-?\d+(\.?\d*(e\d+)?)?(\s*%)?|^-?\.\d+(\s*%)?/;
+export const formulaNumberRegexp = /^-?\d+(\.?\d*(e\d+)?)?|^-?\.\d+/;
 
 const pIntegerAndDecimals = "(\\d+(,\\d{3,})*(\\.\\d*)?)"; // pattern that match integer number with or without decimal digits
 const pOnlyDecimals = "(\\.\\d+)"; // pattern that match only expression with decimal digits

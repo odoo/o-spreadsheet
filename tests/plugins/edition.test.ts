@@ -177,6 +177,22 @@ describe("edition", () => {
     expect(result).toBeCancelledBecause(CommandResult.WrongComposerSelection);
   });
 
+  test("dont show selection indicator after percent operator", () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", { text: "=5%" });
+    expect(model.getters.showSelectionIndicator()).toBe(false);
+  });
+
+  test("typing percent operator dont show selection indicator", () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", { text: "=5" });
+    model.dispatch("SET_CURRENT_CONTENT", {
+      content: "5%",
+      selection: { start: 2, end: 2 },
+    });
+    expect(model.getters.showSelectionIndicator()).toBe(false);
+  });
+
   test("change selection", () => {
     const model = new Model();
     expect(model.getters.getComposerSelection()).toEqual({

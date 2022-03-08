@@ -26,6 +26,7 @@ const OPERATOR_MAP = {
 const UNARY_OPERATOR_MAP = {
   "-": "UMINUS",
   "+": "UPLUS",
+  "%": "UNARY.PERCENT",
 };
 
 /**
@@ -299,12 +300,12 @@ export function compile(formula: string): CompiledFormula {
         case "UNARY_OPERATION": {
           id = nextId++;
           fnName = UNARY_OPERATOR_MAP[ast.value];
-          const right = compileAST(ast.right, false, false, false, {
+          const operand = compileAST(ast.operand, false, false, false, {
             functionName: fnName,
           });
-          codeBlocks.push(right.code);
+          codeBlocks.push(operand.code);
           codeBlocks.push(`ctx.__lastFnCalled = '${fnName}';`);
-          statement = `ctx['${fnName}']( ${right.id})`;
+          statement = `ctx['${fnName}']( ${operand.id})`;
           break;
         }
         case "BIN_OPERATION": {
@@ -374,7 +375,7 @@ export function compile(formula: string): CompiledFormula {
           }
           break;
         case "UNARY_OPERATION":
-          return formatAST(ast.right);
+          return formatAST(ast.operand);
         case "BIN_OPERATION":
           // the BIN_OPERATION ast is the only function case where we will look
           // at the following argument when the current argument has't format.

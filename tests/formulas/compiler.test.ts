@@ -43,6 +43,11 @@ describe("expression compiler", () => {
     }
   );
 
+  test.each(["=1%", "=(2+5)%", "=A1%"])("some arithmetic expressions", (formula) => {
+    const compiledFormula = compiledBaseFunction(formula);
+    expect(compiledFormula.execute.toString()).toMatchSnapshot();
+  });
+
   test("read some values and functions", () => {
     const compiledFormula = compiledBaseFunction("=A1 + sum(A2:C3)");
     expect(compiledFormula.execute.toString()).toMatchSnapshot();
@@ -160,6 +165,8 @@ describe("compile dependencies format", () => {
     ["=+RETURNFORMAT()", [format.specificFormat]],
     ["=+RETURNARGSFORMAT(B1)", [0]],
     ["=-1", []],
+    ["=1%", []],
+    ["=B1%", [0]],
     ["=-TRUE", []],
     ["=-B1", [0]],
     ["=-ANYFUNCTION(21)", []],

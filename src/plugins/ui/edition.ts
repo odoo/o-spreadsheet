@@ -1,4 +1,5 @@
 import { composerTokenize, EnrichedToken } from "../../formulas/index";
+import { POSTFIX_UNARY_OPERATORS } from "../../formulas/tokenizer";
 import {
   colors,
   concat,
@@ -569,7 +570,7 @@ export class EditionPlugin extends UIPlugin {
   /**
    * Function used to determine when composer selection can start.
    * Three conditions are necessary:
-   * - the previous token is among ["COMMA", "LEFT_PAREN", "OPERATOR"]
+   * - the previous token is among ["COMMA", "LEFT_PAREN", "OPERATOR"], and is not a postfix unary operator
    * - the next token is missing or is among ["COMMA", "RIGHT_PAREN", "OPERATOR"]
    * - Previous and next tokens can be separated by spaces
    */
@@ -585,7 +586,10 @@ export class EditionPlugin extends UIPlugin {
       let count = tokenIdex;
       let currentToken = tokenAtCursor;
       // check previous token
-      while (!["COMMA", "LEFT_PAREN", "OPERATOR"].includes(currentToken.type)) {
+      while (
+        !["COMMA", "LEFT_PAREN", "OPERATOR"].includes(currentToken.type) ||
+        POSTFIX_UNARY_OPERATORS.includes(currentToken.value)
+      ) {
         if (currentToken.type !== "SPACE" || count < 1) {
           return false;
         }
