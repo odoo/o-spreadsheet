@@ -94,6 +94,11 @@ describe("evaluateCells", () => {
     expect(evaluateCell("C1", grid)).toBe(0);
   });
 
+  test("Percent operator", () => {
+    const grid = { A1: "1", B1: "=(5+A1)%" };
+    expect(evaluateCell("B1", grid)).toBe(0.06);
+  });
+
   test("handling some errors", () => {
     const grid = { A1: "=A1", A2: "=A1", A3: "=+", A4: "=1 + A3", A5: "=sum('asdf')" };
     const result = evaluateGrid(grid);

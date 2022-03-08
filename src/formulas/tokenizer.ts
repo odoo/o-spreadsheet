@@ -21,7 +21,8 @@ import { _lt } from "../translation";
  */
 
 const functions = functionRegistry.content;
-const OPERATORS = "+,-,*,/,:,=,<>,>=,>,<=,<,%,^,&".split(",");
+export const POSTFIX_UNARY_OPERATORS = ["%"];
+const OPERATORS = "+,-,*,/,:,=,<>,>=,>,<=,<,^,&".split(",").concat(POSTFIX_UNARY_OPERATORS);
 
 export type TokenType =
   | "OPERATOR"

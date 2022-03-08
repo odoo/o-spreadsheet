@@ -42,9 +42,21 @@ describe("tokenizer", () => {
     ]);
   });
 
+  test("percent operator", () => {
+    expect(tokenize("=1%")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "NUMBER", value: "1" },
+      { type: "OPERATOR", value: "%" },
+    ]);
+    expect(tokenize("=50 %")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "NUMBER", value: "50" },
+      { type: "SPACE", value: " " },
+      { type: "OPERATOR", value: "%" },
+    ]);
+  });
+
   test("can tokenize various number expressions", () => {
-    expect(tokenize("1%")).toEqual([{ type: "NUMBER", value: "1%" }]);
-    expect(tokenize("1 %")).toEqual([{ type: "NUMBER", value: "1 %" }]);
     expect(tokenize("1.1")).toEqual([{ type: "NUMBER", value: "1.1" }]);
     expect(tokenize("1e3")).toEqual([{ type: "NUMBER", value: "1e3" }]);
   });

@@ -81,25 +81,35 @@ describe("parser", () => {
     expect(parse("-1")).toEqual({
       type: "UNARY_OPERATION",
       value: "-",
-      right: { type: "NUMBER", value: 1 },
+      operand: { type: "NUMBER", value: 1 },
     });
     expect(parse("+1")).toEqual({
       type: "UNARY_OPERATION",
       value: "+",
-      right: { type: "NUMBER", value: 1 },
+      operand: { type: "NUMBER", value: 1 },
     });
   });
+
+  test("can parse % operator", () => {
+    expect(parse("1%")).toEqual({
+      type: "UNARY_OPERATION",
+      value: "%",
+      operand: { type: "NUMBER", value: 1 },
+      postfix: true,
+    });
+    expect(parse("100 %")).toEqual({
+      type: "UNARY_OPERATION",
+      value: "%",
+      operand: { type: "NUMBER", value: 100 },
+      postfix: true,
+    });
+  });
+
   test("can parse numeric values", () => {
     expect(parse("1")).toEqual({ type: "NUMBER", value: 1 });
     expect(parse("1.5")).toEqual({ type: "NUMBER", value: 1.5 });
     expect(parse("1.")).toEqual({ type: "NUMBER", value: 1 });
     expect(parse(".5")).toEqual({ type: "NUMBER", value: 0.5 });
-  });
-
-  test("can parse number expressed as percent", () => {
-    expect(parse("1%")).toEqual({ type: "NUMBER", value: 0.01 });
-    expect(parse("100%")).toEqual({ type: "NUMBER", value: 1 });
-    expect(parse("50.0%")).toEqual({ type: "NUMBER", value: 0.5 });
   });
 
   test("can parse binary operations", () => {
@@ -168,6 +178,8 @@ describe("Converting AST to string", () => {
     expect(astToFormula(parse("-SUM(1)"))).toBe("-SUM(1)");
     expect(astToFormula(parse("-(1+2)/5"))).toBe("-(1+2)/5");
     expect(astToFormula(parse("1*-(1+2)"))).toBe("1*-(1+2)");
+    expect(astToFormula(parse("1%"))).toBe("1%");
+    expect(astToFormula(parse("(1+2)%"))).toBe("(1+2)%");
   });
   test("Convert binary operator", () => {
     expect(astToFormula(parse("89-45"))).toBe("89-45");

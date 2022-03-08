@@ -4,7 +4,8 @@ import { _lt } from "../translation";
 import { InvalidReferenceError } from "../types/errors";
 import { Token, tokenize } from "./tokenizer";
 
-const UNARY_OPERATORS = ["-", "+"];
+const UNARY_OPERATORS_PREFIX = ["-", "+"];
+const UNARY_OPERATORS_POSTFIX = ["%"];
 
 const ASSOCIATIVE_OPERATORS = ["*", "+", "&"];
 
@@ -38,7 +39,8 @@ interface ASTBoolean extends ASTBase {
 interface ASTUnaryOperation extends ASTBase {
   type: "UNARY_OPERATION";
   value: any;
-  right: AST;
+  operand: AST;
+  postfix?: boolean; // needed to rebuild string from ast
 }
 
 interface ASTOperation extends ASTBase {
@@ -71,6 +73,7 @@ export type AST =
 
 const OP_PRIORITY = {
   "^": 30,
+  "%": 30,
   "*": 20,
   "/": 20,
   "+": 15,
@@ -175,11 +178,11 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
       tokens.shift();
       return result;
     default:
-      if (current.type === "OPERATOR" && UNARY_OPERATORS.includes(current.value)) {
+      if (current.type === "OPERATOR" && UNARY_OPERATORS_PREFIX.includes(current.value)) {
         return {
           type: "UNARY_OPERATION",
           value: current.value,
-          right: parseExpression(tokens, OP_PRIORITY[current.value]),
+          operand: parseExpression(tokens, OP_PRIORITY[current.value]),
         };
       }
       throw new Error(_lt("Unexpected token: %s", current.value));
@@ -189,14 +192,22 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
 function parseInfix(left: AST, current: Token, tokens: Token[]): AST {
   if (current.type === "OPERATOR") {
     const bp = bindingPower(current);
-    const right = parseExpression(tokens, bp);
-
-    return {
-      type: "BIN_OPERATION",
-      value: current.value,
-      left,
-      right,
-    };
+    if (UNARY_OPERATORS_POSTFIX.includes(current.value)) {
+      return {
+        type: "UNARY_OPERATION",
+        value: current.value,
+        operand: left,
+        postfix: true,
+      };
+    } else {
+      const right = parseExpression(tokens, bp);
+      return {
+        type: "BIN_OPERATION",
+        value: current.value,
+        left,
+        right,
+      };
+    }
   }
   throw new Error(DEFAULT_ERROR_MESSAGE);
 }
@@ -264,7 +275,7 @@ export function convertAstNodes<T extends AST["type"]>(
     case "UNARY_OPERATION":
       return {
         ...ast,
-        right: convertAstNodes(ast.right, type, fn),
+        operand: convertAstNodes(ast.operand, type, fn),
       };
     case "BIN_OPERATION":
       return {
@@ -294,7 +305,9 @@ export function astToFormula(ast: AST): string {
     case "BOOLEAN":
       return ast.value ? "TRUE" : "FALSE";
     case "UNARY_OPERATION":
-      return ast.value + rightOperandToFormula(ast);
+      return ast.postfix
+        ? leftOperandToFormula(ast) + ast.value
+        : ast.value + rightOperandToFormula(ast);
     case "BIN_OPERATION":
       return leftOperandToFormula(ast) + ast.value + rightOperandToFormula(ast);
     default:
@@ -306,9 +319,9 @@ export function astToFormula(ast: AST): string {
  * Convert the left operand of a binary operation to the corresponding string
  * and enclose the result inside parenthesis if necessary.
  */
-function leftOperandToFormula(binaryOperationAST: ASTOperation): string {
-  const mainOperator = binaryOperationAST.value;
-  const leftOperation = binaryOperationAST.left;
+function leftOperandToFormula(operationAST: ASTOperation | ASTUnaryOperation): string {
+  const mainOperator = operationAST.value;
+  const leftOperation = "left" in operationAST ? operationAST.left : operationAST.operand;
   const leftOperator = leftOperation.value;
   const needParenthesis =
     leftOperation.type === "BIN_OPERATION" && OP_PRIORITY[leftOperator] < OP_PRIORITY[mainOperator];
@@ -319,9 +332,9 @@ function leftOperandToFormula(binaryOperationAST: ASTOperation): string {
  * Convert the right operand of a binary or unary operation to the corresponding string
  * and enclose the result inside parenthesis if necessary.
  */
-function rightOperandToFormula(binaryOperationAST: ASTOperation | ASTUnaryOperation): string {
-  const mainOperator = binaryOperationAST.value;
-  const rightOperation = binaryOperationAST.right;
+function rightOperandToFormula(operationAST: ASTOperation | ASTUnaryOperation): string {
+  const mainOperator = operationAST.value;
+  const rightOperation = "right" in operationAST ? operationAST.right : operationAST.operand;
   const rightPriority = OP_PRIORITY[rightOperation.value];
   const mainPriority = OP_PRIORITY[mainOperator];
   let needParenthesis = false;

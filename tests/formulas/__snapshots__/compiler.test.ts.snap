@@ -289,6 +289,42 @@ return _1;
 }"
 `;
 
+exports[`expression compiler some arithmetic expressions 13`] = `
+"function anonymous(deps,sheetId,ref,range,ctx
+) {
+// =|N0|%
+let _2 = this.constantValues.numbers[0];
+ctx.__lastFnCalled = 'UNARY.PERCENT';
+let _1 = ctx['UNARY.PERCENT']( _2);
+return _1;
+}"
+`;
+
+exports[`expression compiler some arithmetic expressions 14`] = `
+"function anonymous(deps,sheetId,ref,range,ctx
+) {
+// =(|N0|+|N1|)%
+let _3 = this.constantValues.numbers[0];
+let _4 = this.constantValues.numbers[1];
+ctx.__lastFnCalled = 'ADD';
+let _2 = ctx['ADD'](_3, _4);
+ctx.__lastFnCalled = 'UNARY.PERCENT';
+let _1 = ctx['UNARY.PERCENT']( _2);
+return _1;
+}"
+`;
+
+exports[`expression compiler some arithmetic expressions 15`] = `
+"function anonymous(deps,sheetId,ref,range,ctx
+) {
+// =|0|%
+let _2 = ref(0, deps, sheetId, false, \\"UNARY.PERCENT\\",  undefined);
+ctx.__lastFnCalled = 'UNARY.PERCENT';
+let _1 = ctx['UNARY.PERCENT']( _2);
+return _1;
+}"
+`;
+
 exports[`expression compiler with the same reference multiple times 1`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
