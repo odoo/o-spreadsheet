@@ -12,7 +12,6 @@ import {
   Zone,
 } from "./index";
 import { Border, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
-import { SelectionDirection, SelectionStep } from "./selection";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -448,31 +447,6 @@ export interface StopSelectionCommand {
 export interface SetColorCommand {
   type: "SET_HIGHLIGHT_COLOR";
   color: string;
-}
-
-export interface SelectColumnCommand {
-  type: "SELECT_COLUMN";
-  index: number;
-  createRange?: boolean;
-  updateRange?: boolean;
-}
-
-export interface SelectRowCommand {
-  type: "SELECT_ROW";
-  index: number;
-  createRange?: boolean;
-  updateRange?: boolean;
-}
-
-export interface SelectAllCommand {
-  type: "SELECT_ALL";
-}
-
-export interface AlterSelectionCommand {
-  type: "ALTER_SELECTION";
-  direction?: SelectionDirection;
-  step?: SelectionStep;
-  cell?: [number, number];
 }
 
 export interface EvaluateCellsCommand {
