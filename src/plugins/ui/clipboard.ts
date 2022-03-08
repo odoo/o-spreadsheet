@@ -219,7 +219,7 @@ export class ClipboardPlugin extends UIPlugin {
    */
   private removeMergeIfTopLeft(position: CellPosition) {
     const { sheetId, col, row } = position;
-    const [left, top] = this.getters.getMainCell(sheetId, col, row);
+    const { col: left, row: top } = this.getters.getMainCellPosition(sheetId, col, row);
     if (top === row && left === col) {
       const merge = this.getters.getMerge(sheetId, col, row);
       if (merge) {
@@ -235,7 +235,11 @@ export class ClipboardPlugin extends UIPlugin {
   private pasteMergeIfExist(origin: CellPosition, target: CellPosition) {
     let { sheetId, col, row } = origin;
 
-    const [mainCellColOrigin, mainCellRowOrigin] = this.getters.getMainCell(sheetId, col, row);
+    const { col: mainCellColOrigin, row: mainCellRowOrigin } = this.getters.getMainCellPosition(
+      sheetId,
+      col,
+      row
+    );
     if (mainCellColOrigin === col && mainCellRowOrigin === row) {
       const merge = this.getters.getMerge(sheetId, col, row);
       if (!merge) {
@@ -306,8 +310,8 @@ export class ClipboardPlugin extends UIPlugin {
       : [zones[zones.length - 1]];
 
     const cellsPosition = clippedZones.map((zone) => positions(zone)).flat();
-    const columnsIndex = [...new Set(cellsPosition.map((p) => p[0]))].sort((a, b) => a - b);
-    const rowsIndex = [...new Set(cellsPosition.map((p) => p[1]))].sort((a, b) => a - b);
+    const columnsIndex = [...new Set(cellsPosition.map((p) => p.col))].sort((a, b) => a - b);
+    const rowsIndex = [...new Set(cellsPosition.map((p) => p.row))].sort((a, b) => a - b);
 
     const cellsInClipboard: ClipboardCell[][] = [];
     const merges: Zone[] = [];

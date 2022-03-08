@@ -682,8 +682,7 @@ describe("Menu Item actions", () => {
     const { anchor, zones } = env.model.getters.getSelection();
     expect(dispatch).toHaveBeenCalledWith("SORT_CELLS", {
       sheetId: env.model.getters.getActiveSheetId(),
-      col: anchor[0],
-      row: anchor[1],
+      ...anchor.cell,
       zone: zones[0],
       sortDirection: "ascending",
     });
@@ -694,8 +693,7 @@ describe("Menu Item actions", () => {
     const { anchor, zones } = env.model.getters.getSelection();
     expect(dispatch).toHaveBeenCalledWith("SORT_CELLS", {
       sheetId: env.model.getters.getActiveSheetId(),
-      col: anchor[0],
-      row: anchor[1],
+      ...anchor.cell,
       zone: zones[0],
       sortDirection: "descending",
     });

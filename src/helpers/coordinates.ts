@@ -2,7 +2,7 @@
 // Coordinate
 //------------------------------------------------------------------------------
 
-import { RangePart } from "../types";
+import { Position, RangePart } from "../types";
 import { cellReference } from "./references";
 
 /**
@@ -52,7 +52,7 @@ export function lettersToNumber(letters: string): number {
  *
  * Note: it also accepts lowercase coordinates, but not fixed references
  */
-export function toCartesian(xc: string): [number, number] {
+export function toCartesian(xc: string): Position {
   xc = xc.toUpperCase().trim();
   const match = xc.match(cellReference);
   if (match !== null) {
@@ -60,7 +60,7 @@ export function toCartesian(xc: string): [number, number] {
     if (m === xc) {
       const col = lettersToNumber(letters);
       const row = parseInt(numbers, 10) - 1;
-      return [col, row];
+      return { col, row };
     }
   }
   throw new Error(`Invalid cell description: ${xc}`);

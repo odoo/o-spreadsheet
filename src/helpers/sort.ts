@@ -4,6 +4,7 @@ import {
   CellValueType,
   CommandResult,
   DispatchResult,
+  Position,
   SortDirection,
   SpreadsheetChildEnv,
   UID,
@@ -56,7 +57,7 @@ export function sortCells(
 export function interactiveSortSelection(
   env: SpreadsheetChildEnv,
   sheetId: UID,
-  anchor: [number, number],
+  anchor: Position,
   zone: Zone,
   sortDirection: SortDirection
 ) {
@@ -82,7 +83,7 @@ export function interactiveSortSelection(
     }
   }
 
-  const [col, row] = anchor;
+  const { col, row } = anchor;
   if (multiColumns) {
     result = env.model.dispatch("SORT_CELLS", { sheetId, col, row, zone, sortDirection });
   } else {
@@ -125,7 +126,7 @@ export function interactiveSortSelection(
     }
   }
   if (result.isCancelledBecause(CommandResult.InvalidSortZone)) {
-    const [col, row] = anchor;
+    const { col, row } = anchor;
     env.model.selection.selectZone({ cell: { col, row }, zone });
     env.notifyUser(
       _lt("Cannot sort. To sort, select only cells or only merges that have the same size.")

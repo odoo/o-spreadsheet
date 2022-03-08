@@ -19,7 +19,6 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getMerges } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers";
-import { toPosition } from "../test_helpers/helpers";
 
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 describe("data", () => {
@@ -441,7 +440,7 @@ describe("Import", () => {
     expect(Object.keys(getMerges(model))).toHaveLength(0);
     activateSheet(model, sheet1);
     expect(Object.keys(getMerges(model))).toHaveLength(1);
-    expect(Object.values(getMerges(model))[0].topLeft).toEqual(toPosition("A2"));
+    expect(Object.values(getMerges(model))[0].topLeft).toEqual(toCartesian("A2"));
   });
 });
 
@@ -596,7 +595,9 @@ test("can import cells outside sheet size", () => {
   const model = new Model(modelData);
   expect(model.getters.getNumberRows(sheetId)).toBe(100);
   expect(model.getters.getNumberCols(sheetId)).toBe(26);
-  expect(model.getters.getCell(sheetId, ...toCartesian("Z100"))?.content).toBe("hello");
+  const { col, row } = toCartesian("Z100");
+
+  expect(model.getters.getCell(sheetId, col, row)?.content).toBe("hello");
 });
 
 test("Data of a duplicate sheet are correctly duplicated", () => {

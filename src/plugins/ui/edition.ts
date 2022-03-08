@@ -364,7 +364,7 @@ export class EditionPlugin extends UIPlugin {
     }
     this.initialContent = cell?.composerContent || "";
     this.mode = "editing";
-    const [col, row] = this.getters.getPosition();
+    const { col, row } = this.getters.getPosition();
     this.col = col;
     this.row = row;
     this.sheetId = this.getters.getActiveSheetId();
@@ -385,7 +385,7 @@ export class EditionPlugin extends UIPlugin {
     if (this.mode !== "inactive") {
       const activeSheetId = this.getters.getActiveSheetId();
       this.cancelEdition();
-      const [col, row] = this.getters.getMainCell(this.sheetId, this.col, this.row);
+      const { col, row } = this.getters.getMainCellPosition(this.sheetId, this.col, this.row);
       let content = this.currentContent;
       const didChange = this.initialContent !== content;
       if (!didChange) {

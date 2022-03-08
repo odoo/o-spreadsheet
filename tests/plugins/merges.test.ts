@@ -31,7 +31,6 @@ import {
   getMergeCellMap,
   makeTestFixture,
   target,
-  toPosition,
   XCToMergeCellMap,
 } from "../test_helpers/helpers";
 
@@ -57,7 +56,7 @@ describe("merges", () => {
     expect(getCellContent(model, "B2", sheet1)).toBe("b2");
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["B2", "B3"]));
     expect(getMerges(model)).toEqual({
-      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: toPosition("B2") },
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: toCartesian("B2") },
     });
   });
 
@@ -74,7 +73,7 @@ describe("merges", () => {
     });
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["B2", "B3"]));
     expect(getMerges(model)).toEqual({
-      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: toPosition("B2") },
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: toCartesian("B2") },
     });
 
     selectCell(model, "B2");
@@ -95,8 +94,8 @@ describe("merges", () => {
     });
     merge(model, "B2:B3", secondSheetId);
     expect(model.getters.getMerges(secondSheetId)).toEqual([
-      { ...toZone("C2:C3"), id: 2, topLeft: toPosition("C2") },
-      { ...toZone("B2:B3"), id: 3, topLeft: toPosition("B2") },
+      { ...toZone("C2:C3"), id: 2, topLeft: toCartesian("C2") },
+      { ...toZone("B2:B3"), id: 3, topLeft: toCartesian("B2") },
     ]);
     expect(model.getters.getMerge(secondSheetId, 2, 1)?.id).toBe(2);
     expect(model.getters.getMerge(secondSheetId, 1, 1)?.id).toBe(3);
@@ -138,7 +137,9 @@ describe("merges", () => {
     });
     const sheetId = model.getters.getActiveSheetId();
     expect(merge(model, "A1:C3")).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
-    expect(model.getters.getMerge(sheetId, ...toCartesian("A1"))).toBeUndefined();
+    const { col, row } = toCartesian("A1");
+
+    expect(model.getters.getMerge(sheetId, col, row)).toBeUndefined();
   });
 
   test("editing a merge cell actually edits the top left", () => {
@@ -545,7 +546,7 @@ describe("merges", () => {
 
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["B2", "B3"]));
     expect(getMerges(model)).toEqual({
-      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: toPosition("B2") },
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: toCartesian("B2") },
     });
 
     // undo
@@ -557,7 +558,7 @@ describe("merges", () => {
     redo(model);
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["B2", "B3"]));
     expect(getMerges(model)).toEqual({
-      "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: toPosition("B2") },
+      "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: toCartesian("B2") },
     });
   });
 
@@ -609,8 +610,11 @@ describe("merges", () => {
       borders: { 1: { top: ["thin", "#000"] } },
     });
     const sheetId = model.getters.getActiveSheetId();
-    expect(model.getters.getMerge(sheetId, ...toCartesian("B4"))).toBeTruthy();
-    expect(model.getters.getMerge(sheetId, ...toCartesian("C4"))).toBeTruthy();
+    let col: number, row: number;
+    ({ col, row } = toCartesian("B4"));
+    expect(model.getters.getMerge(sheetId, col, row)).toBeTruthy();
+    ({ col, row } = toCartesian("C4"));
+    expect(model.getters.getMerge(sheetId, col, row)).toBeTruthy();
     expect(getCell(model, "B4")!.style).toEqual({ textColor: "#fe0000" });
     expect(getBorder(model, "B4")).toEqual({ top: ["thin", "#000"] });
     unMerge(model, "B4:C5");
@@ -639,10 +643,10 @@ describe("merges", () => {
     });
     addColumns(model, "before", "A", 1, "42");
     expect(model.getters.getMerges(firstSheetId)).toEqual([
-      { ...toZone("C1:C2"), id: 1, topLeft: toPosition("C1") },
+      { ...toZone("C1:C2"), id: 1, topLeft: toCartesian("C1") },
     ]);
     expect(model.getters.getMerges(secondSheetId)).toEqual([
-      { ...toZone("D1:D2"), id: 2, topLeft: toPosition("D1") },
+      { ...toZone("D1:D2"), id: 2, topLeft: toCartesian("D1") },
     ]);
   });
 

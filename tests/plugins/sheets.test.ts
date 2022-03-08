@@ -541,7 +541,8 @@ describe("sheets", () => {
     expect(getCellContent(model, "A1")).toBe("42");
     expect(model.getters.getActiveSheet().cols.length).toBe(5);
     expect(model.getters.getActiveSheet().rows.length).toBe(5);
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+    const { col, row } = toCartesian("A1");
+    expect(model.getters.getConditionalStyle(col, row)).toEqual({
       fillColor: "orange",
     });
   });
@@ -574,7 +575,8 @@ describe("sheets", () => {
     const newSheetId = model.getters.getSheets()[1].id;
     activateSheet(model, newSheetId);
     expect(getCellContent(model, "A1")).toBe("42");
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+    const { col, row } = toCartesian("A1");
+    expect(model.getters.getConditionalStyle(col, row)).toEqual({
       fillColor: "orange",
     });
     expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);
@@ -583,10 +585,10 @@ describe("sheets", () => {
       target: [toZone("A1:A2")],
       sheetId: model.getters.getActiveSheetId(),
     });
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({ fillColor: "blue" });
+    expect(model.getters.getConditionalStyle(col, row)).toEqual({ fillColor: "blue" });
     expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);
     activateSheet(model, sheet);
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
+    expect(model.getters.getConditionalStyle(col, row)).toEqual({
       fillColor: "orange",
     });
     expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);

@@ -11,7 +11,6 @@ import {
   ColorScaleThreshold,
   CommandTypes,
   ConditionalFormat,
-  Position,
   SpreadsheetChildEnv,
   Style,
   Zone,
@@ -219,17 +218,12 @@ export function XCToMergeCellMap(
   const mergeCellMap = {};
   const sheetId = model.getters.getActiveSheetId();
   for (const mergeXC of mergeXCList) {
-    const [col, row] = toCartesian(mergeXC);
+    const { col, row } = toCartesian(mergeXC);
     const merge = model.getters.getMerge(sheetId, col, row);
     if (!mergeCellMap[col]) mergeCellMap[col] = [];
     mergeCellMap[col][row] = merge ? merge.id : undefined;
   }
   return mergeCellMap;
-}
-
-export function toPosition(xc: string): Position {
-  const [col, row] = toCartesian(xc);
-  return { col: col, row: row };
 }
 
 export function zone(str: string): Zone {
@@ -402,3 +396,8 @@ export const mockChart = () => {
   window.Chart = ChartMock;
   return mockChartData;
 };
+
+export function toCartesianArray(xc: string): [number, number] {
+  const { col, row } = toCartesian(xc);
+  return [col, row];
+}

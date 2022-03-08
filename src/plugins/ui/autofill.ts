@@ -333,7 +333,7 @@ export class AutofillPlugin extends UIPlugin {
     const cellsData: AutofillData[] = [];
     const sheetId = this.getters.getActiveSheetId();
     for (let xc of source) {
-      const [col, row] = toCartesian(xc);
+      const { col, row } = toCartesian(xc);
       const cell = this.getters.getCell(sheetId, col, row);
       cellsData.push({
         col,

@@ -22,6 +22,8 @@ import {
 import { SelectionEvent } from "../types/event_stream";
 import { EventStream, StreamCallbacks } from "./event_stream";
 
+type Delta = [number, number];
+
 type StatefulStream<Event, State> = {
   capture(owner: unknown, state: State, callbacks: StreamCallbacks<Event>): void;
   registerAsDefault: (owner: unknown, state: State, callbacks: StreamCallbacks<Event>) => void;
@@ -170,7 +172,7 @@ export class SelectionStreamProcessor
    */
   addCellToSelection(col: number, row: number): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
-    [col, row] = this.getters.getMainCell(sheetId, col, row);
+    ({ col, row } = this.getters.getMainCellPosition(sheetId, col, row));
     const zone = positionToZone({ col, row });
     return this.processEvent({
       type: "ZonesSelected",
@@ -450,7 +452,7 @@ export class SelectionStreamProcessor
     position: Position,
     direction: SelectionDirection,
     step: SelectionStep
-  ): [number, number] {
+  ): Delta {
     switch (direction) {
       case "up":
         return step === "one"
@@ -473,7 +475,7 @@ export class SelectionStreamProcessor
 
   // TODO rename this
   private getStartingPosition(direction: SelectionDirection): Position {
-    let [col, row] = this.getPosition();
+    let { col, row } = this.getPosition();
     const zone = this.anchor.zone;
     switch (direction) {
       case "down":
@@ -534,7 +536,8 @@ export class SelectionStreamProcessor
    * check if the merge containing the cell is empty.
    */
   private isCellEmpty({ col, row }: Position, sheetId: UID): boolean {
-    const cell = this.getters.getCell(sheetId, ...this.getters.getMainCell(sheetId, col, row));
+    const mainCellPosition = this.getters.getMainCellPosition(sheetId, col, row);
+    const cell = this.getters.getCell(sheetId, mainCellPosition.col, mainCellPosition.row);
     return !cell || cell.isEmpty();
   }
 
@@ -561,7 +564,7 @@ export class SelectionStreamProcessor
     return { col: startingPosition.col, row: startingPosition.row };
   }
 
-  private getPosition(): [number, number] {
-    return [this.anchor.cell.col, this.anchor.cell.row];
+  private getPosition(): Position {
+    return { ...this.anchor.cell };
   }
 }

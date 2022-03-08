@@ -48,7 +48,8 @@ jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(()
 jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
 
 function getActiveXc(model: Model): string {
-  return toXC(...model.getters.getPosition());
+  const { col, row } = model.getters.getPosition();
+  return toXC(col, row);
 }
 
 function getPosition(element: string | Element): { top: number; left: number } {

@@ -357,7 +357,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.cannotMerge = zones.length > 1 || (top === bottom && left === right);
     this.inMerge = false;
     if (!this.cannotMerge) {
-      const [col, row] = this.env.model.getters.getPosition();
+      const { col, row } = this.env.model.getters.getPosition();
       const zone = this.env.model.getters.expandZone(this.env.model.getters.getActiveSheetId(), {
         left: col,
         right: col,

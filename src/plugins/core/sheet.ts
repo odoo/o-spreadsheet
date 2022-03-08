@@ -284,7 +284,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   getCellsInZone(sheetId: UID, zone: Zone): (Cell | undefined)[] {
-    return positions(zone).map(([col, row]) => this.getCell(sheetId, col, row));
+    return positions(zone).map(({ col, row }) => this.getCell(sheetId, col, row));
   }
 
   /**
@@ -977,10 +977,14 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private getImportedSheetSize(data: SheetData): { rowNumber: number; colNumber: number } {
     const positions = Object.keys(data.cells).map(toCartesian);
-    return {
-      rowNumber: Math.max(data.rowNumber, ...new Set(positions.map(([col, row]) => row + 1))),
-      colNumber: Math.max(data.colNumber, ...new Set(positions.map(([col, row]) => col + 1))),
-    };
+
+    let rowNumber = data.rowNumber;
+    let colNumber = data.colNumber;
+    for (let { col, row } of positions) {
+      rowNumber = Math.max(rowNumber, row + 1);
+      colNumber = Math.max(colNumber, col + 1);
+    }
+    return { rowNumber, colNumber };
   }
 
   // ----------------------------------------------------
