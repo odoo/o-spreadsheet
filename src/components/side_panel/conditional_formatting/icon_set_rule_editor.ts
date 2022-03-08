@@ -1,11 +1,11 @@
 import { xml } from "@odoo/owl";
 import { REFRESH } from "../../icons";
-import { conditionalFormattingTerms, iconSetRule } from "../translations_terms";
+import { CfTerms, GenericTerms, IconSetRule } from "../../translations_terms";
 
 const ICON_SETS_TEMPLATE = xml/* xml */ `
   <div>
   <div class="o-cf-title-text">
-    <t t-esc="env._t('${iconSetRule.Icons}')"/>
+    <t t-esc="env._t('${IconSetRule.Icons}')"/>
   </div>
     <div class="o-cf-iconsets">
       <div class="o-cf-iconset" t-foreach="['arrows', 'smiley', 'dots']" t-as="iconSet" t-key="iconSet" t-on-click="(ev) => this.setIconSet(iconSet, ev)">
@@ -34,7 +34,7 @@ const INFLECTION_POINTS_TEMPLATE_ROW = xml/* xml */ `
       <IconPicker t-if="state.openedMenu === 'iconSet-'+icon+'Icon'" onIconPicked="(i) => this.setIcon(icon, i)"/>
     </td>
     <td>
-      <t t-esc="env._t('${iconSetRule.WhenValueIs}')"/>
+      <t t-esc="env._t('${IconSetRule.WhenValueIs}')"/>
     </td>
     <td>
       <select class="o-input" name="valueType" t-model="inflectionPointValue.operator">
@@ -55,16 +55,16 @@ const INFLECTION_POINTS_TEMPLATE_ROW = xml/* xml */ `
     <td>
       <select class="o-input" name="valueType" t-model="inflectionPointValue.type">
       <option value="number">
-        <t t-esc="env._t('${conditionalFormattingTerms.FixedNumber}')"/>
+        <t t-esc="env._t('${CfTerms.FixedNumber}')"/>
       </option>
       <option value="percentage">
-        <t t-esc="env._t('${conditionalFormattingTerms.Percentage}')"/>
+        <t t-esc="env._t('${CfTerms.Percentage}')"/>
       </option>
       <option value="percentile">
-        <t t-esc="env._t('${conditionalFormattingTerms.Percentile}')"/>
+        <t t-esc="env._t('${CfTerms.Percentile}')"/>
       </option>
       <option value="formula">
-        <t t-esc="env._t('${conditionalFormattingTerms.Formula}')"/>
+        <t t-esc="env._t('${CfTerms.Formula}')"/>
       </option>
       </select>
     </td>
@@ -79,10 +79,10 @@ const INFLECTION_POINTS_TEMPLATE = xml/* xml */ `
       <th class="o-cf-iconset-text"></th>
       <th class="o-cf-iconset-operator"></th>
       <th class="o-cf-iconset-value">
-      <t t-esc="env._t('${iconSetRule.Value}')"/>
+      <t t-esc="env._t('${GenericTerms.Value}')"/>
       </th>
       <th class="o-cf-iconset-type">
-      <t t-esc="env._t('${iconSetRule.Type}')"/>
+      <t t-esc="env._t('${IconSetRule.Type}')"/>
       </th>
     </tr>
     <t t-call="${INFLECTION_POINTS_TEMPLATE_ROW}">
@@ -106,7 +106,7 @@ const INFLECTION_POINTS_TEMPLATE = xml/* xml */ `
         </div>
         <IconPicker t-if="state.openedMenu === 'iconSet-lowerIcon'" onIconPicked="(icon) => setIcon('lower', icon)"/>
       </td>
-      <td><t t-esc="env._t('${iconSetRule.Else}')"/></td>
+      <td><t t-esc="env._t('${IconSetRule.Else}')"/></td>
       <td></td>
       <td></td>
       <td></td>
@@ -122,6 +122,6 @@ export const TEMPLATE_ICON_SET_EDITOR = xml/* xml */ `
         <div class="mr-1 d-inline-block">
           ${REFRESH}
         </div>
-        <t t-esc="env._t('${iconSetRule.ReverseIcons}')"/>
+        <t t-esc="env._t('${IconSetRule.ReverseIcons}')"/>
       </div>
   </div>`;

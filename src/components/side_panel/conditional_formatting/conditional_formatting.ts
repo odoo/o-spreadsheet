@@ -22,7 +22,7 @@ import { getTextDecoration } from "../../helpers/dom_helpers";
 import { CARET_DOWN, CARET_UP, ICONS, ICON_SETS, TRASH } from "../../icons";
 import { IconPicker } from "../../icon_picker";
 import { SelectionInput } from "../../selection_input";
-import { cellIsOperators, conditionalFormattingTerms, GenericWords } from "../translations_terms";
+import { CellIsOperators, CfTerms, GenericTerms, GenericWords } from "../../translations_terms";
 import { TEMPLATE_CELL_IS_RULE_EDITOR } from "./cell_is_rule_editor";
 import { TEMPLATE_COLOR_SCALE_EDITOR } from "./color_scale_rule_editor";
 import { TEMPLATE_ICON_SET_EDITOR } from "./icon_set_rule_editor";
@@ -90,22 +90,22 @@ const TEMPLATE = xml/* xml */ `
       </div>
       <t t-if="state.mode === 'list'">
         <div class="btn btn-link o-cf-btn-link o-cf-add" t-on-click.prevent.stop="addConditionalFormat">
-          <t t-esc="'+ ' + env._t('${conditionalFormattingTerms.newRule}')"/>
+          <t t-esc="'+ ' + env._t('${CfTerms.NewRule}')"/>
         </div>
         <div class="btn btn-link o-cf-btn-link o-cf-reorder" t-on-click="reorderConditionalFormats">
-          <t t-esc="env._t('${conditionalFormattingTerms.reorderRules}')"/>
+          <t t-esc="env._t('${CfTerms.ReorderRules}')"/>
         </div>
       </t>
       <t t-if="state.mode === 'reorder'">
         <div class="btn btn-link o-cf-btn-link o-cf-exit-reorder" t-on-click="switchToList">
-            <t t-esc="env._t('${conditionalFormattingTerms.exitReorderMode}')"/>
+            <t t-esc="env._t('${CfTerms.ExitReorderMode}')"/>
         </div>
       </t>
     </t>
     <t t-if="state.mode === 'edit' || state.mode === 'add'" t-key="state.currentCF.id">
         <div class="o-cf-ruleEditor">
             <div class="o-section o-cf-range">
-              <div class="o-section-title">Apply to range</div>
+              <div class="o-section-title" t-esc="env._t('${CfTerms.ApplyToRange}')"></div>
               <div class="o-selection-cf">
                 <SelectionInput
                   ranges="state.currentCF.ranges"
@@ -114,25 +114,25 @@ const TEMPLATE = xml/* xml */ `
                   onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
                   required="true"/>
               </div>
-              <div class="o-section-title" t-esc="env._t('${conditionalFormattingTerms.CF_TITLE}')"></div>
+              <div class="o-section-title" t-esc="env._t('${CfTerms.CfTitle}')"></div>
               <div class="o_field_radio o_horizontal o_field_widget o-cf-type-selector">
                 <div class="custom-control custom-radio o_cf_radio_item" t-on-click="() => this.changeRuleType('CellIsRule')">
                   <input class="custom-control-input o_radio_input" t-attf-checked="{{state.currentCFType === 'CellIsRule'}}" type="radio" id="cellIsRule" name="ruleType" value="CellIsRule"/>
                   <label for="cellIsRule" class="custom-control-label o_form_label">
-                    <t t-esc="env._t('${conditionalFormattingTerms.SingleColor}')"/>
+                    <t t-esc="env._t('${CfTerms.SingleColor}')"/>
                   </label>
                 </div>
                 <div class="custom-control custom-radio o_cf_radio_item" t-on-click="() => this.changeRuleType('ColorScaleRule')">
                   <input class="custom-control-input o_radio_input" t-attf-checked="{{state.currentCFType === 'ColorScaleRule'}}" type="radio" id="colorScaleRule" name="ruleType" value="ColorScaleRule"/>
                   <label for="colorScaleRule" class="custom-control-label o_form_label">
-                  <t t-esc="env._t('${conditionalFormattingTerms.ColorScale}')"/>
+                  <t t-esc="env._t('${CfTerms.ColorScale}')"/>
                   </label>
                 </div>
 
                 <div class="custom-control custom-radio o_cf_radio_item" t-on-click="() => this.changeRuleType('IconSetRule')">
                   <input class="custom-control-input o_radio_input" t-attf-checked="{{state.currentCFType === 'IconSetRule'}}" type="radio" id="iconSetRule" name="ruleType" value="IconSetRule"/>
                   <label for="iconSetRule" class="custom-control-label o_form_label">
-                  <t t-esc="env._t('${conditionalFormattingTerms.IconSet}')"/>
+                  <t t-esc="env._t('${CfTerms.IconSet}')"/>
                   </label>
                 </div>
               </div>
@@ -151,8 +151,14 @@ const TEMPLATE = xml/* xml */ `
                 <t t-set="rule" t-value="state.rules.iconSet"/>
               </t>
               <div class="o-sidePanelButtons">
-                <button t-on-click="switchToList" class="o-sidePanelButton o-cf-cancel" t-esc="env._t('${conditionalFormattingTerms.CANCEL}')"></button>
-                <button t-on-click="saveConditionalFormat" class="o-sidePanelButton o-cf-save" t-esc="env._t('${conditionalFormattingTerms.SAVE}')"></button>
+                <button
+                  t-on-click="switchToList"
+                  class="o-sidePanelButton o-cf-cancel"
+                  t-esc="env._t('${GenericTerms.Cancel}')"></button>
+                <button
+                  t-on-click="saveConditionalFormat"
+                  class="o-sidePanelButton o-cf-save"
+                  t-esc="env._t('${GenericTerms.Save}')"></button>
               </div>
             </div>
             <div class="o-section">
@@ -542,8 +548,8 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
   static components = { SelectionInput, IconPicker, ColorPicker };
 
   icons = ICONS;
+  cellIsOperators = CellIsOperators;
   iconSets = ICON_SETS;
-  cellIsOperators = cellIsOperators;
   getTextDecoration = getTextDecoration;
   colorNumberString = colorNumberString;
 
@@ -595,9 +601,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
   }
 
   errorMessage(error: CancelledReason): string {
-    return this.env._t(
-      conditionalFormattingTerms.Errors[error] || conditionalFormattingTerms.Errors.unexpected
-    );
+    return CfTerms.Errors[error] || CfTerms.Errors.Unexpected;
   }
 
   /**
@@ -637,11 +641,11 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
   getDescription(cf: ConditionalFormat): string {
     switch (cf.rule.type) {
       case "CellIsRule":
-        return cellIsOperators[cf.rule.operator];
+        return CellIsOperators[cf.rule.operator];
       case "ColorScaleRule":
-        return this.env._t("Color scale");
+        return CfTerms.ColorScale;
       case "IconSetRule":
-        return this.env._t("Icon Set");
+        return CfTerms.IconSet;
       default:
         return "";
     }

@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { chartTerms } from "../../src/components/side_panel/translations_terms";
+import { ChartTerms } from "../../src/components/translations_terms";
 import { toZone } from "../../src/helpers/zones";
 import { ChartUIDefinition, CommandResult } from "../../src/types";
 import {
@@ -1386,10 +1386,10 @@ describe("Chart without labels", () => {
 
     createChart(model, { ...defaultChart, dataSets: ["A1:A2", "A3:A4"] }, "43");
     expect(model.getters.getChartRuntime("43")?.data?.datasets![0].label).toEqual(
-      `${chartTerms.Series.toString()} 1`
+      `${ChartTerms.Series.toString()} 1`
     );
     expect(model.getters.getChartRuntime("43")?.data?.datasets![1].label).toEqual(
-      `${chartTerms.Series.toString()} 2`
+      `${ChartTerms.Series.toString()} 2`
     );
 
     setCellContent(model, "B1", "B1");

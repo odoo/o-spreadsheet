@@ -12,36 +12,36 @@ import { ColorPicker } from "../color_picker";
 import { css } from "../helpers/css";
 import * as icons from "../icons";
 import { SelectionInput } from "../selection_input";
-import { chartTerms } from "./translations_terms";
+import { ChartTerms } from "../translations_terms";
 
 const CONFIGURATION_TEMPLATE = xml/* xml */ `
 <div>
   <div class="o-section">
-    <div class="o-section-title" t-esc="env._t('${chartTerms.ChartType}')"/>
+    <div class="o-section-title" t-esc="env._t('${ChartTerms.ChartType}')"/>
     <select t-model="state.chart.type" class="o-input o-type-selector" t-on-change="(ev) => this.updateSelect('type', ev)">
-      <option value="bar" t-esc="env._t('${chartTerms.Bar}')"/>
-      <option value="line" t-esc="env._t('${chartTerms.Line}')"/>
-      <option value="pie" t-esc="env._t('${chartTerms.Pie}')"/>
+      <option value="bar" t-esc="env._t('${ChartTerms.Bar}')"/>
+      <option value="line" t-esc="env._t('${ChartTerms.Line}')"/>
+      <option value="pie" t-esc="env._t('${ChartTerms.Pie}')"/>
     </select>
     <t t-if="state.chart.type === 'bar'">
       <div class="o_checkbox">
         <input type="checkbox" name="stackedBar" t-model="state.chart.stackedBar" t-on-change="updateStacked"/>
-        <t t-esc="env._t('${chartTerms.StackedBar}')"/>
+        <t t-esc="env._t('${ChartTerms.StackedBar}')"/>
       </div>
     </t>
   </div>
   <div class="o-section o-data-series">
-    <div class="o-section-title" t-esc="env._t('${chartTerms.DataSeries}')"/>
+    <div class="o-section-title" t-esc="env._t('${ChartTerms.DataSeries}')"/>
     <SelectionInput t-key="getKey('dataSets')"
                     ranges="state.chart.dataSets"
                     isInvalid="isDatasetInvalid"
                     required="true"
                     onSelectionChanged="(ranges) => this.onSeriesChanged(ranges)"
                     onSelectionConfirmed="() => this.updateDataSet()" />
-    <input type="checkbox" t-model="state.chart.dataSetsHaveTitle" t-on-change="() => this.updateDataSet()"/><t t-esc="env._t('${chartTerms.MyDataHasTitle}')"/>
+    <input type="checkbox" t-model="state.chart.dataSetsHaveTitle" t-on-change="() => this.updateDataSet()"/><t t-esc="env._t('${ChartTerms.MyDataHasTitle}')"/>
   </div>
   <div class="o-section o-data-labels">
-    <div class="o-section-title" t-esc="env._t('${chartTerms.DataCategories}')"/>
+    <div class="o-section-title" t-esc="env._t('${ChartTerms.DataCategories}')"/>
     <SelectionInput t-key="getKey('label')"
                     ranges="[state.chart.labelRange || '']"
                     isInvalid="isLabelInvalid"
@@ -60,32 +60,32 @@ const CONFIGURATION_TEMPLATE = xml/* xml */ `
 const DESIGN_TEMPLATE = xml/* xml */ `
 <div>
   <div class="o-section o-chart-title">
-    <div class="o-section-title" t-esc="env._t('${chartTerms.BackgroundColor}')"/>
+    <div class="o-section-title" t-esc="env._t('${ChartTerms.BackgroundColor}')"/>
     <div class="o-with-color-picker">
-      <t t-esc="env._t('${chartTerms.SelectColor}')"/>
+      <t t-esc="env._t('${ChartTerms.SelectColor}')"/>
       <span t-attf-style="border-color:{{state.chart.background}}"
             t-on-click.stop="toggleColorPicker">${icons.FILL_COLOR_ICON}</span>
       <ColorPicker t-if="state.fillColorTool" onColorPicked="(color) => this.setColor(color)" t-key="backgroundColor"/>
     </div>
   </div>
   <div class="o-section o-chart-title">
-    <div class="o-section-title" t-esc="env._t('${chartTerms.Title}')"/>
-    <input type="text" t-model="state.chart.title" t-on-change="updateTitle" class="o-input" t-att-placeholder="env._t('${chartTerms.TitlePlaceholder}')"/>
+    <div class="o-section-title" t-esc="env._t('${ChartTerms.Title}')"/>
+    <input type="text" t-model="state.chart.title" t-on-change="updateTitle" class="o-input" placeholder="${ChartTerms.TitlePlaceholder}"/>
   </div>
   <div class="o-section">
-    <div class="o-section-title"><t t-esc="env._t('${chartTerms.VerticalAxisPosition}')"/></div>
+    <div class="o-section-title"><t t-esc="env._t('${ChartTerms.VerticalAxisPosition}')"/></div>
     <select t-model="state.chart.verticalAxisPosition" class="o-input o-type-selector" t-on-change="(ev) => this.updateSelect('verticalAxisPosition', ev)">
-      <option value="left" t-esc="env._t('${chartTerms.Left}')"/>
-      <option value="right" t-esc="env._t('${chartTerms.Right}')"/>
+      <option value="left" t-esc="env._t('${ChartTerms.Left}')"/>
+      <option value="right" t-esc="env._t('${ChartTerms.Right}')"/>
     </select>
   </div>
   <div class="o-section">
-    <div class="o-section-title"><t t-esc="env._t('${chartTerms.LegendPosition}')"/></div>
+    <div class="o-section-title"><t t-esc="env._t('${ChartTerms.LegendPosition}')"/></div>
     <select t-model="state.chart.legendPosition" class="o-input o-type-selector" t-on-change="(ev) => this.updateSelect('legendPosition', ev)">
-      <option value="top" t-esc="env._t('${chartTerms.Top}')"/>
-      <option value="bottom" t-esc="env._t('${chartTerms.Bottom}')"/>
-      <option value="left" t-esc="env._t('${chartTerms.Left}')"/>
-      <option value="right" t-esc="env._t('${chartTerms.Right}')"/>
+      <option value="top" t-esc="env._t('${ChartTerms.Top}')"/>
+      <option value="bottom" t-esc="env._t('${ChartTerms.Bottom}')"/>
+      <option value="left" t-esc="env._t('${ChartTerms.Left}')"/>
+      <option value="right" t-esc="env._t('${ChartTerms.Right}')"/>
     </select>
   </div>
 </div>
@@ -190,8 +190,8 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
       ...(this.state.datasetDispatchResult?.reasons || []),
       ...(this.state.labelsDispatchResult?.reasons || []),
     ];
-    return cancelledReasons.map((error) =>
-      this.env._t(chartTerms.Errors[error] || chartTerms.Errors.unexpected)
+    return cancelledReasons.map(
+      (error) => ChartTerms.Errors[error] || ChartTerms.Errors.Unexpected
     );
   }
 

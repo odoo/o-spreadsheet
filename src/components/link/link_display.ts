@@ -5,7 +5,7 @@ import { LinkCell, Position, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { EDIT, UNLINK } from "../icons";
 import { Menu } from "../menu";
-import { LinkEditorTerms } from "../side_panel/translations_terms";
+import { LinkEditorTerms } from "../translations_terms";
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-link-tool">
