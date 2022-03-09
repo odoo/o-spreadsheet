@@ -2,7 +2,6 @@ import { markRaw } from "@odoo/owl";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
-import { DataSourceRegistry } from "./data_source";
 import { EventBus } from "./helpers/event_bus";
 import { UuidGenerator } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
@@ -73,7 +72,6 @@ export interface ModelConfig {
   mode: Mode;
   evalContext: EvalContext;
   moveClient: (position: ClientPosition) => void;
-  dataSources: DataSourceRegistry<any, any>;
   transportService: TransportService;
   client: Client;
   isHeadless: boolean;
@@ -97,8 +95,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private history: LocalHistory;
 
   private range: RangeAdapter;
-
-  private dataSources: DataSourceRegistry<unknown, unknown> = new DataSourceRegistry();
 
   private session: Session;
 
@@ -319,7 +315,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       isHeadless: config.mode === "headless" || false,
       isReadonly: config.isReadonly || false,
       snapshotRequested: false,
-      dataSources: this.dataSources,
       notifyUI: (payload: NotifyUIEvent) => this.trigger("notify-ui", payload),
     };
   }
@@ -488,13 +483,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   /**
-   * Wait until all cells that depends on dataSources in spreadsheet are computed
-   */
-  waitForIdle(): Promise<unknown[]> {
-    return this.dataSources.waitForReady();
-  }
-
-  /**
    * Exports the current model data into a list of serialized XML files
    * to be zipped together as an *.xlsx file.
    *
@@ -503,8 +491,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * This prove to be necessary if the client did not trigger that evaluation in the first place
    * (e.g. open a document with several sheet and click on download before visiting each sheet)
    */
-  async exportXLSX(): Promise<XLSXExport> {
-    await this.waitForIdle();
+  exportXLSX(): XLSXExport {
     this.dispatch("EVALUATE_ALL_SHEETS");
     let data = createEmptyExcelWorkbookData();
     for (let handler of this.handlers) {
