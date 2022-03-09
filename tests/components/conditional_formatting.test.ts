@@ -88,6 +88,7 @@ describe("UI of conditional formats", () => {
     cfTabSelector: ".o-cf-type-selector .o_form_label",
     buttonSave: ".o-sidePanelButtons .o-cf-save",
     buttonDelete: ".o-cf-delete-button",
+    buttonCancel: ".o-sidePanelButtons .o-cf-cancel",
     buttonAdd: ".o-cf-add",
     error: ".o-cf-error",
     closePanel: ".o-sidePanelClose",
@@ -1360,5 +1361,24 @@ describe("UI of conditional formats", () => {
         ) as HTMLInputElement
       ).value
     ).toBe("BeginsWith");
+  });
+
+  test("switching to list resets the rules to their default value", async () => {
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B5:C7", "change");
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B5:C7", "input");
+    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith", "change");
+    await nextTick();
+    triggerMouseEvent(selectors.buttonCancel, "click");
+    await nextTick();
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+    expect((document.querySelector(selectors.ruleEditor.range) as HTMLInputElement).value).toBe(
+      "A1"
+    );
+    expect(
+      (document.querySelector(selectors.ruleEditor.editor.operatorInput) as HTMLSelectElement).value
+    ).toBe("IsNotEmpty");
   });
 });
