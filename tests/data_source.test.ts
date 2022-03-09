@@ -112,6 +112,7 @@ describe("DataSource", () => {
     await stringDs.get();
     jest.advanceTimersByTime(2);
     expect(getCellContent(model, "A1")).toBe("data");
+    jest.useRealTimers();
   });
 
   test("evaluate all sheets forces evaluation", async () => {
