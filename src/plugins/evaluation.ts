@@ -188,7 +188,16 @@ export class EvaluationPlugin extends BasePlugin {
     const params = this.getFormulaParameters(computeValue);
     const visited: { [sheetId: string]: { [xc: string]: boolean | null } } = {};
 
-    for (let cell of cells) {
+    const _cells = [...cells];
+
+    for (let cell of _cells) {
+      // Do not reset error when it's during the compilation
+      if (cell.value !== "#BAD_EXPR") {
+        cell.error = undefined;
+      }
+    }
+
+    for (let cell of _cells) {
       computeValue(cell, sheetId);
     }
 

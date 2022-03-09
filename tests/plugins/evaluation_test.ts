@@ -1,6 +1,7 @@
+import { args, functionRegistry } from "../../src/functions";
 import { Model } from "../../src/model";
 import "../canvas.mock";
-import { evaluateCell, evaluateGrid, getCell } from "../helpers";
+import { evaluateCell, evaluateGrid, getCell, waitForRecompute } from "../helpers";
 
 describe("evaluateCells", () => {
   test("Simple Evaluation", () => {
@@ -868,6 +869,31 @@ describe("evaluateCells", () => {
     expect(getCell(model, "D10")!.value).toBe(1);
     expect(getCell(model, "D11")!.value).toBe(1);
     expect(getCell(model, "D12")!.value).toBe(1);
+  });
+
+  test("cells in error are correctly reset", async () => {
+    const model = new Model();
+    let value: string | number = "LOADING...";
+    functionRegistry.add("GETVALUE", {
+      description: "Get value",
+      compute: async () => value,
+      async: true,
+      args: args(``),
+      returns: ["ANY"],
+    });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=SUM(A2)" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "=SUM(A3)" });
+    model.dispatch("SET_VALUE", { xc: "A3", text: "=-GETVALUE()" });
+    await waitForRecompute();
+    expect(getCell(model, "A1")!.error).toBeDefined();
+    expect(getCell(model, "A2")!.error).toBeDefined();
+    expect(getCell(model, "A3")!.error).toBeDefined();
+    value = 2;
+    model.dispatch("EVALUATE_CELLS", {});
+    await waitForRecompute();
+    expect(getCell(model, "A1")!.value).toBe(-2);
+    expect(getCell(model, "A2")!.value).toBe(-2);
+    expect(getCell(model, "A3")!.value).toBe(-2);
   });
 
   // TO DO: add tests for exp format (ex: 4E10)
