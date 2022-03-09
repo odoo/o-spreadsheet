@@ -564,6 +564,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     this.state.currentCF = undefined;
     this.state.currentCFType = undefined;
     this.state.errors = [];
+    this.state.rules = this.getDefaultRules();
   }
 
   getStyle(rule: SingleColorRules | ColorScaleRule): string {
