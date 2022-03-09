@@ -45,9 +45,6 @@ export class EvaluationPlugin extends UIPlugin {
   ) {
     super(getters, state, dispatch, config, selection);
     this.evalContext = config.evalContext;
-    config.dataSources.on("data-loaded", this, () => {
-      this.dispatch("EVALUATE_CELLS", { sheetId: this.getters.getActiveSheetId() });
-    });
   }
 
   // ---------------------------------------------------------------------------
