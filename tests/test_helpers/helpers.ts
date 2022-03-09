@@ -99,13 +99,17 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
   expect(model).toExport(after);
 }
 
+let templates: any = {};
+
 // Requires to be called wit jest realTimers
 export async function mountSpreadsheet(
   fixture: HTMLElement,
   props: SpreadsheetProps = { model: new Model() }
 ): Promise<{ app: App; parent: Spreadsheet }> {
   const app = new App(Spreadsheet, { props, test: true });
+  app.templates = templates;
   const parent = (await app.mount(fixture)) as Spreadsheet;
+  templates = app.templates;
   return { app, parent };
 }
 
