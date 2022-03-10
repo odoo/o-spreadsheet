@@ -369,9 +369,10 @@ export const AVERAGEIFS: AddFunctionDescription = {
       average_range (range) ${_lt("The range to average.")}
       criteria_range1 (range) ${_lt("The range to check against criterion1.")}
       criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
-      additional_values (any, range, optional, repeating) ${_lt(
+      criteria_range2 (any, range, optional, repeating) ${_lt(
         "Additional criteria_range and criterion to check."
       )}
+      criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
     `),
   returns: ["NUMBER"],
   compute: function (averageRange: ArgRange, ...values: Argument[]): number {
@@ -591,7 +592,7 @@ export const MAXIFS: AddFunctionDescription = {
       criterion1 (string) ${_lt(
         "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
       )}
-      additional_values (any, range, optional, repeating) ${_lt(
+      criteria_range2 (any, range, optional, repeating) ${_lt(
         "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
       )}
       criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
@@ -696,7 +697,7 @@ export const MINIFS: AddFunctionDescription = {
       criterion1 (string) ${_lt(
         "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
       )}
-      additional_values (any, range, optional, repeating) ${_lt(
+      criteria_range2 (any, range, optional, repeating) ${_lt(
         "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
       )}
       criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
