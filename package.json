@@ -10,7 +10,7 @@
     "build:all": "tsc --module es6 --outDir dist/js",
     "build:bundle": "rollup -c -m",
     "build": "npm run build:js && npm run build:bundle",
-    "test": "jest",
+    "test": "jest --maxWorkers=50%",
     "test:watch": "jest --watch",
     "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md,demo/*.js} --write",
     "check-formatting": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md,demo/*.js} --check",
