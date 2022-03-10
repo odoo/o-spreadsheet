@@ -2,7 +2,7 @@ import { INCORRECT_RANGE_STRING } from "../../constants";
 import { compile } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { intersection, isZoneValid, toXC } from "../../helpers/index";
-import { Mode, ModelConfig } from "../../model";
+import { ModelConfig } from "../../model";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
@@ -31,7 +31,6 @@ type FormulaParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 
 export class EvaluationPlugin extends UIPlugin {
   static getters = ["evaluateFormula", "getRangeFormattedValues", "getRangeValues"] as const;
-  static modes: Mode[] = ["normal"];
 
   private isUpToDate: Set<UID> = new Set(); // Set<sheetIds>
   private readonly evalContext: EvalContext;

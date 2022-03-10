@@ -5,7 +5,7 @@ import {
   UuidGenerator,
   zoneToXc,
 } from "../../helpers/index";
-import { Mode, ModelConfig } from "../../model";
+import { ModelConfig } from "../../model";
 import { StreamCallbacks } from "../../selection_stream/event_stream";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import { StateObserver } from "../../state_observer";
@@ -37,7 +37,6 @@ export interface RangeInputValue {
  * This plugin handles this internal state.
  */
 export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<SelectionEvent> {
-  static modes: Mode[] = ["normal"];
   static layers = [LAYERS.Highlights];
   static getters = [];
 

@@ -9,7 +9,6 @@ import {
   findLastVisibleColRow,
   getNextVisibleCellPosition,
 } from "../../helpers";
-import { Mode } from "../../model";
 import { SelectionEvent } from "../../types/event_stream";
 import {
   Command,
@@ -47,7 +46,6 @@ export class ViewportPlugin extends UIPlugin {
     "getMaxViewportSize",
     "getMaximumViewportOffset",
   ] as const;
-  static modes: Mode[] = ["normal"];
 
   readonly viewports: ViewportPluginState["viewports"] = {};
   readonly snappedViewports: ViewportPluginState["viewports"] = {};

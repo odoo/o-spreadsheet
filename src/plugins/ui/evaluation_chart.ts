@@ -4,7 +4,6 @@ import { MAX_CHAR_LABEL } from "../../constants";
 import { ChartColors } from "../../helpers/chart";
 import { isDefined, isInside, overlap, recomputeZones, zoneToXc } from "../../helpers/index";
 import { range } from "../../helpers/misc";
-import { Mode } from "../../model";
 import { Cell } from "../../types";
 import { ChartData, ChartDataSet, ChartDefinition, DataSet } from "../../types/chart";
 import { Command } from "../../types/commands";
@@ -13,7 +12,6 @@ import { UIPlugin } from "../ui_plugin";
 
 export class EvaluationChartPlugin extends UIPlugin {
   static getters = ["getChartRuntime"] as const;
-  static modes: Mode[] = ["normal"];
   // contains the configuration of the chart with it's values like they should be displayed,
   // as well as all the options needed for the chart library to work correctly
   readonly chartRuntime: { [figureId: string]: ChartConfiguration } = {};

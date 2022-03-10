@@ -1,5 +1,5 @@
 import { UuidGenerator } from "../helpers";
-import { Mode, ModelConfig } from "../model";
+import { ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
 import {
   ApplyRangeChange,
@@ -24,7 +24,6 @@ export interface CorePluginConstructor {
     uuidGenerator: UuidGenerator
   ): CorePlugin;
   getters: readonly string[];
-  modes: Mode[];
 }
 
 /**
