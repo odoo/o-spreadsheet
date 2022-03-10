@@ -1,5 +1,4 @@
 import { isEqual } from "../../helpers/index";
-import { Mode } from "../../model";
 import { GridRenderingContext, Highlight, LAYERS } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
@@ -7,7 +6,6 @@ import { UIPlugin } from "../ui_plugin";
  * HighlightPlugin
  */
 export class HighlightPlugin extends UIPlugin {
-  static modes: Mode[] = ["normal"];
   static layers = [LAYERS.Highlights];
   static getters = ["getHighlights"] as const;
 

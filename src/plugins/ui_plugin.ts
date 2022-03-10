@@ -1,4 +1,4 @@
-import { Mode, ModelConfig } from "../model";
+import { ModelConfig } from "../model";
 import { SelectionStreamProcessor } from "../selection_stream/selection_stream_processor";
 import { StateObserver } from "../state_observer";
 import { Command, CommandDispatcher, Getters, GridRenderingContext, LAYERS } from "../types/index";
@@ -15,7 +15,6 @@ export interface UIPluginConstructor {
   ): UIPlugin;
   layers: LAYERS[];
   getters: readonly string[];
-  modes: Mode[];
 }
 
 /**

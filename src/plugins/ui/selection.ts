@@ -12,7 +12,7 @@ import {
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
-import { Mode, ModelConfig } from "../../model";
+import { ModelConfig } from "../../model";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
@@ -92,7 +92,6 @@ const selectionStatisticFunctions: SelectionStatisticFunction[] = [
  */
 export class GridSelectionPlugin extends UIPlugin {
   static layers = [LAYERS.Selection];
-  static modes: Mode[] = ["normal"];
   static getters = [
     "getActiveSheet",
     "getActiveSheetId",

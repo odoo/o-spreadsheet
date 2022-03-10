@@ -8,7 +8,6 @@ import {
   union,
   zoneToDimension,
 } from "../../helpers";
-import { Mode } from "../../model";
 import { Cell, CellValueType, Command, Dimension, Position, Sheet, UID, Zone } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
@@ -19,7 +18,6 @@ interface AutomaticSum {
 
 export class AutomaticSumPlugin extends UIPlugin {
   static getters = ["getAutomaticSums"] as const;
-  static modes: Mode[] = ["normal", "headless"];
 
   handle(cmd: Command) {
     switch (cmd.type) {
