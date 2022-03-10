@@ -428,27 +428,30 @@ describe("AVERAGEIFS formula", () => {
   test("functional tests on range", () => {
     // prettier-ignore
     const grid = {
-      B1:  "4" , C1:  "14", D1:  "Yes",
-      B2:  "28", C2:  "30", D2:  "Yes",
-      B3:  "31", C3:  "47", D3:  "Yes",
-      B4:  "12", C4:  "0" , D4:  "Yes",
-      B5:  "31", C5:  "47", D5:  "Yes",
-      B6:  "13", C6:  "5" , D6:  "No" ,
-      B7:  "18", C7:  "43", D7:  "No" ,
-      B8:  "24", C8:  "7" , D8:  "Yes",
-      B9:  "44", C9:  "28", D9:  "No" ,
-      B10: "22", C10: "23", D10: "No" ,
-      B11: "9" , C11: "13", D11: "No" ,
+      B1:  "4"  , C1:  "14" , D1:  "Yes",
+      B2:  "28" , C2:  "30" , D2:  "Yes",
+      B3:  "31" , C3:  "47" , D3:  "Yes",
+      B4:  "12" , C4:  "0"  , D4:  "Yes",
+      B5:  "31" , C5:  "47" , D5:  "Yes",
+      B6:  "13" , C6:  "5"  , D6:  "No" ,
+      B7:  "18" , C7:  "43" , D7:  "No" ,
+      B8:  "24" , C8:  "7"  , D8:  "Yes",
+      B9:  "44" , C9:  "28" , D9:  "No" ,
+      B10: "22" , C10: "23" , D10: "No" ,
+      B11: "9"  , C11: "13" , D11: "No" ,
+      B12: ">20", C12: "<30",
 
       A12: '=AVERAGEIFS(B1:B11, B1:B11, ">20")',
       A13: '=AVERAGEIFS(B1:B11, B1:B11, ">20", C1:C11, "<30")',
       A14: '=AVERAGEIFS(B1:B11, D1:D11, "No")',
+      A15: '=AVERAGEIFS(B1:B11, B1:B11, B12, C1:C11, C12)',
     };
 
     const gridResult = evaluateGrid(grid);
     expect(gridResult.A12).toBe(30);
     expect(gridResult.A13).toBe(30);
     expect(gridResult.A14).toBe(21.2);
+    expect(gridResult.A15).toBe(30);
   });
 });
 
@@ -1002,27 +1005,29 @@ describe("MAXIFS formula", () => {
   test("functional tests on range", () => {
     // prettier-ignore
     const grid = {
-      B1:  "4" , C1:  "14", D1:  "Yes",
-      B2:  "28", C2:  "30", D2:  "Yes",
-      B3:  "31", C3:  "47", D3:  "Yes",
-      B4:  "12", C4:  "0" , D4:  "Yes",
-      B5:  "31", C5:  "47", D5:  "Yes",
-      B6:  "13", C6:  "5" , D6:  "No" ,
-      B7:  "18", C7:  "43", D7:  "No" ,
-      B8:  "24", C8:  "7" , D8:  "Yes",
-      B9:  "44", C9:  "28", D9:  "No" ,
-      B10: "22", C10: "23", D10: "No" ,
-      B11: "9" , C11: "13", D11: "No" ,
-
+      B1:  "4"  , C1:  "14" , D1:  "Yes",
+      B2:  "28" , C2:  "30" , D2:  "Yes",
+      B3:  "31" , C3:  "47" , D3:  "Yes",
+      B4:  "12" , C4:  "0"  , D4:  "Yes",
+      B5:  "31" , C5:  "47" , D5:  "Yes",
+      B6:  "13" , C6:  "5"  , D6:  "No" ,
+      B7:  "18" , C7:  "43" , D7:  "No" ,
+      B8:  "24" , C8:  "7"  , D8:  "Yes",
+      B9:  "44" , C9:  "28" , D9:  "No" ,
+      B10: "22" , C10: "23" , D10: "No" ,
+      B11: "9"  , C11: "13" , D11: "No" ,
+      B12: ">20", C12: "<28",
       A12: '=MAXIFS(B1:B11, B1:B11, "<20")',
       A13: '=MAXIFS(B1:B11, B1:B11, ">20", C1:C11, "<28")',
       A14: '=MAXIFS(B1:B11, D1:D11, "yes")',
+      A15: '=MAXIFS(B1:B11, B1:B11, B12, C1:C11, C12)',
     };
 
     const gridResult = evaluateGrid(grid);
     expect(gridResult.A12).toBe(18);
     expect(gridResult.A13).toBe(24);
     expect(gridResult.A14).toBe(31);
+    expect(gridResult.A15).toBe(24);
   });
 });
 
@@ -1343,27 +1348,30 @@ describe("MINIFS formula", () => {
   test("functional tests on range", () => {
     // prettier-ignore
     const grid = {
-      B1:  "4" , C1:  "14", D1:  "Yes",
-      B2:  "28", C2:  "30", D2:  "Yes",
-      B3:  "31", C3:  "47", D3:  "Yes",
-      B4:  "12", C4:  "0" , D4:  "Yes",
-      B5:  "31", C5:  "47", D5:  "Yes",
-      B6:  "13", C6:  "5" , D6:  "No" ,
-      B7:  "18", C7:  "43", D7:  "No" ,
-      B8:  "24", C8:  "7" , D8:  "Yes",
-      B9:  "44", C9:  "28", D9:  "No" ,
-      B10: "22", C10: "23", D10: "No" ,
-      B11: "9" , C11: "13", D11: "No" ,
+      B1:  "4"  , C1:  "14" , D1:  "Yes",
+      B2:  "28" , C2:  "30" , D2:  "Yes",
+      B3:  "31" , C3:  "47" , D3:  "Yes",
+      B4:  "12" , C4:  "0"  , D4:  "Yes",
+      B5:  "31" , C5:  "47" , D5:  "Yes",
+      B6:  "13" , C6:  "5"  , D6:  "No" ,
+      B7:  "18" , C7:  "43" , D7:  "No" ,
+      B8:  "24" , C8:  "7"  , D8:  "Yes",
+      B9:  "44" , C9:  "28" , D9:  "No" ,
+      B10: "22" , C10: "23" , D10: "No" ,
+      B11: "9"  , C11: "13" , D11: "No" ,
+      B12: ">20", C12: "<23", 
 
       A12: '=MINIFS(B1:B11, B1:B11, ">20")',
       A13: '=MINIFS(B1:B11, B1:B11, ">20", C1:C11, "<23")',
       A14: '=MINIFS(B1:B11, D1:D11, "no")',
+      A15: '=MINIFS(B1:B11, B1:B11, B12, C1:C11, C12)',
     };
 
     const gridResult = evaluateGrid(grid);
     expect(gridResult.A12).toBe(22);
     expect(gridResult.A13).toBe(24);
     expect(gridResult.A14).toBe(9);
+    expect(gridResult.A15).toBe(24);
   });
 });
 
