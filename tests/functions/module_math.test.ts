@@ -802,6 +802,7 @@ describe("COUNTIFS formula", () => {
       A6: "Joan" , B6: "WA", C6: "150",
       A7: "Jane" , B7: "GA", C7: "200",
       A8: "Jim"  , B8: "WY", C8: "50" ,
+      A9: "*a*"  , B9: ">0",
 
       D1: '=COUNTIFS(A1:A8, "JIM", B1:B8, "??" , C1:C8, ">=100")',
       D2: '=COUNTIFS(A1:A8, "JIM", B1:B8, "??" , C1:C8, ">=50")',
@@ -811,6 +812,7 @@ describe("COUNTIFS formula", () => {
       D6: '=COUNTIFS(A1:A8, "J*" , B1:B8, "?A" , C1:C8, "<>200")',
       D7: '=COUNTIFS(A1:A8, "J*" , B1:B8, "*"  , C1:C8, "50")',
       D8: '=COUNTIFS(A1:A8, "*a*", B1:B8, "*a*", C1:C8, ">0")',
+      D9: '=COUNTIFS(A1:A8, A9, B1:B8, "*a*", C1:C8, B9)',
     };
 
     const gridResult = evaluateGrid(grid);
@@ -822,6 +824,7 @@ describe("COUNTIFS formula", () => {
     expect(gridResult.D6).toBe(1);
     expect(gridResult.D7).toBe(1);
     expect(gridResult.D8).toBe(4);
+    expect(gridResult.D9).toBe(4);
   });
 });
 
@@ -962,16 +965,19 @@ describe("COUNTUNIQUEIFS formula", () => {
       A9:  "car"   , B9:  "44", C9:  "28", D9:  "No" ,
       A10: '=""'   , B10: "22", C10: "23", D10: "No" ,
                      B11: "9" , C11: "13", D11: "No" ,
+      A12: ">20"   , B12: "<30",
 
-      A12: '=COUNTUNIQUEIFS(A1:A11, B1:B11, ">20")',
-      A13: '=COUNTUNIQUEIFS(A1:A11, B1:B11, ">20", C1:C11, "<30")',
-      A14: '=COUNTUNIQUEIFS(A1:A11, D1:D11, "No")',
+      A13: '=COUNTUNIQUEIFS(A1:A11, B1:B11, ">20")',
+      A14: '=COUNTUNIQUEIFS(A1:A11, B1:B11, ">20", C1:C11, "<30")',
+      A15: '=COUNTUNIQUEIFS(A1:A11, D1:D11, "No")',
+      A16: '=COUNTUNIQUEIFS(A1:A11, B1:B11, A12, C1:C11, B12)',
     };
 
     const gridResult = evaluateGrid(grid);
-    expect(gridResult.A12).toBe(3);
-    expect(gridResult.A13).toBe(2);
-    expect(gridResult.A14).toBe(3);
+    expect(gridResult.A13).toBe(3);
+    expect(gridResult.A14).toBe(2);
+    expect(gridResult.A15).toBe(3);
+    expect(gridResult.A16).toBe(2);
   });
 });
 
@@ -2293,27 +2299,30 @@ describe("SUMIFS formula", () => {
   test("functional tests on range", () => {
     // prettier-ignore
     const grid = {
-      B1:  "4" , C1:  "14", D1:  "Yes",
-      B2:  "28", C2:  "30", D2:  "Yes",
-      B3:  "31", C3:  "47", D3:  "Yes",
-      B4:  "12", C4:  "0" , D4:  "Yes",
-      B5:  "31", C5:  "47", D5:  "Yes",
-      B6:  "13", C6:  "5" , D6:  "No" ,
-      B7:  "18", C7:  "43", D7:  "No" ,
-      B8:  "24", C8:  "7" , D8:  "Yes",
-      B9:  "44", C9:  "28", D9:  "No" ,
-      B10: "22", C10: "23", D10: "No" ,
-      B11: "9" , C11: "13", D11: "No" ,
+      B1:  "4"  , C1:  "14" , D1:  "Yes",
+      B2:  "28" , C2:  "30" , D2:  "Yes",
+      B3:  "31" , C3:  "47" , D3:  "Yes",
+      B4:  "12" , C4:  "0"  , D4:  "Yes",
+      B5:  "31" , C5:  "47" , D5:  "Yes",
+      B6:  "13" , C6:  "5"  , D6:  "No" ,
+      B7:  "18" , C7:  "43" , D7:  "No" ,
+      B8:  "24" , C8:  "7"  , D8:  "Yes",
+      B9:  "44" , C9:  "28" , D9:  "No" ,
+      B10: "22" , C10: "23" , D10: "No" ,
+      B11: "9"  , C11: "13" , D11: "No" ,
+      B12: ">20", C12: "<30",
 
       A12: '=SUMIFS(B1:B11, B1:B11, ">20")',
       A13: '=SUMIFS(B1:B11, B1:B11, ">20", C1:C11, "<30")',
       A14: '=SUMIFS(B1:B11, D1:D11, "No")',
+      A15: '=SUMIFS(B1:B11, B1:B11, B12, C1:C11, C12)',
     };
 
     const gridResult = evaluateGrid(grid);
     expect(gridResult.A12).toBe(180);
     expect(gridResult.A13).toBe(90);
     expect(gridResult.A14).toBe(106);
+    expect(gridResult.A15).toBe(90);
   });
 });
 
