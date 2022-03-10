@@ -1,6 +1,5 @@
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { formatValue, mergeOverlappingZones, overlap, positions } from "../../helpers/index";
-import { Mode } from "../../model";
 import {
   CellPosition,
   ClipboardCell,
@@ -43,7 +42,6 @@ interface ClipboardState {
 export class ClipboardPlugin extends UIPlugin {
   static layers = [LAYERS.Clipboard];
   static getters = ["getClipboardContent", "isPaintingFormat"] as const;
-  static modes: Mode[] = ["normal"];
 
   private status: "visible" | "invisible" = "invisible";
   private state?: ClipboardState;

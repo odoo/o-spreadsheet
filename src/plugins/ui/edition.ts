@@ -13,7 +13,6 @@ import {
   updateSelectionOnInsertion,
 } from "../../helpers/index";
 import { loopThroughReferenceType } from "../../helpers/reference_type";
-import { Mode } from "../../model";
 import { _lt } from "../../translation";
 import { SelectionEvent } from "../../types/event_stream";
 import {
@@ -51,7 +50,6 @@ export class EditionPlugin extends UIPlugin {
     "getTokenAtCursor",
     "getComposerHighlights",
   ] as const;
-  static modes: Mode[] = ["normal"];
 
   private col: number = 0;
   private row: number = 0;

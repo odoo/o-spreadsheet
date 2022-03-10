@@ -1,9 +1,7 @@
-import { Mode } from "../../model";
 import { Command } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 export class UIOptionsPlugin extends UIPlugin {
-  static modes: Mode[] = ["normal"];
   static getters = ["shouldShowFormulas"] as const;
   private showFormulas: boolean = false;
 

@@ -17,7 +17,6 @@ import {
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { overlap, scrollDelay } from "../../helpers/index";
-import { Mode } from "../../model";
 import {
   Align,
   Box,
@@ -69,7 +68,6 @@ export class RendererPlugin extends UIPlugin {
     "getEdgeScrollCol",
     "getEdgeScrollRow",
   ] as const;
-  static modes: Mode[] = ["normal"];
 
   private boxes: Box[] = [];
 

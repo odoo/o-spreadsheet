@@ -63,15 +63,12 @@ import { getXLSX } from "./xlsx/xlsx_writer";
  * programmatically a spreadsheet.
  */
 
-export type Mode = "normal" | "headless";
 export interface ModelConfig {
-  mode: Mode;
   evalContext: EvalContext;
   moveClient: (position: ClientPosition) => void;
   dataSources: DataSourceRegistry<any, any>;
   transportService: TransportService;
   client: Client;
-  isHeadless: boolean;
   isReadonly: boolean;
   snapshotRequested: boolean;
   notifyUI: (payload: NotifyUIEvent) => void;
@@ -215,25 +212,17 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private setupUiPlugin(Plugin: UIPluginConstructor) {
-    if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(
-        this.getters,
-        this.state,
-        this.dispatch,
-        this.config,
-        this.selection
-      );
-      for (let name of Plugin.getters) {
-        if (!(name in plugin)) {
-          throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
-        }
-        this.getters[name] = plugin[name].bind(plugin);
+    const plugin = new Plugin(this.getters, this.state, this.dispatch, this.config, this.selection);
+    for (let name of Plugin.getters) {
+      if (!(name in plugin)) {
+        throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
       }
-      this.uiPlugins.push(plugin);
-      const layers = Plugin.layers.map((l) => [plugin, l] as [UIPlugin, LAYERS]);
-      this.renderers.push(...layers);
-      this.renderers.sort((p1, p2) => p1[1] - p2[1]);
+      this.getters[name] = plugin[name].bind(plugin);
     }
+    this.uiPlugins.push(plugin);
+    const layers = Plugin.layers.map((l) => [plugin, l] as [UIPlugin, LAYERS]);
+    this.renderers.push(...layers);
+    this.renderers.sort((p1, p2) => p1[1] - p2[1]);
   }
 
   /**
@@ -243,24 +232,22 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * reason why the model could not add dynamically a plugin while it is running.
    */
   private setupCorePlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
-    if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(
-        this.getters,
-        this.state,
-        this.range,
-        this.dispatchFromCorePlugin,
-        this.config,
-        this.uuidGenerator
-      );
-      for (let name of Plugin.getters) {
-        if (!(name in plugin)) {
-          throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
-        }
-        this.getters[name] = plugin[name].bind(plugin);
+    const plugin = new Plugin(
+      this.getters,
+      this.state,
+      this.range,
+      this.dispatchFromCorePlugin,
+      this.config,
+      this.uuidGenerator
+    );
+    for (let name of Plugin.getters) {
+      if (!(name in plugin)) {
+        throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
       }
-      plugin.import(data);
-      this.corePlugins.push(plugin);
+      this.getters[name] = plugin[name].bind(plugin);
     }
+    plugin.import(data);
+    this.corePlugins.push(plugin);
   }
 
   private onRemoteRevisionReceived({ commands }: { commands: CoreCommand[] }) {
@@ -304,12 +291,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     const transportService = config.transportService || new LocalTransportService();
     return {
       ...config,
-      mode: config.mode || "normal",
       evalContext: config.evalContext || {},
       transportService,
       client,
       moveClient: () => {},
-      isHeadless: config.mode === "headless" || false,
       isReadonly: config.isReadonly || false,
       snapshotRequested: false,
       dataSources: this.dataSources,
@@ -373,9 +358,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         });
         this.session.save(commands, changes);
         this.status = Status.Ready;
-        if (this.config.mode !== "headless") {
-          this.trigger("update");
-        }
+        this.trigger("update");
         break;
       case Status.Running:
         if (isCoreCommand(command)) {
