@@ -121,7 +121,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       case "UPDATE_CELL":
         this.updateCell(this.getters.getSheet(cmd.sheetId), cmd.col, cmd.row, cmd);
         break;
-
+      case "REMOVE_COLUMNS_ROWS":
+        for (const cellId in this.cells[cmd.sheetId] || {}) {
+          if (!this.getters.tryGetCellPosition(cellId)) {
+            this.history.update("cells", cmd.sheetId, cellId, undefined);
+          }
+        }
+        break;
       case "CLEAR_CELL":
         this.dispatch("UPDATE_CELL", {
           sheetId: cmd.sheetId,

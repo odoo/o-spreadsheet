@@ -13,6 +13,7 @@ import {
 import { CoreGetters } from "../types/getters";
 import { BasePlugin } from "./base_plugin";
 import { RangeAdapter } from "./core/range";
+import { PositionMap, PositionMapManager } from "./position_map";
 
 export interface CorePluginConstructor {
   new (
@@ -54,6 +55,10 @@ export class CorePlugin<State = any, C = CoreCommand>
     range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;
     this.uuidGenerator = uuidGenerator;
+  }
+
+  protected newPositionMap(): PositionMap {
+    return new PositionMapManager(this.stateObserver, this.range);
   }
 
   // ---------------------------------------------------------------------------

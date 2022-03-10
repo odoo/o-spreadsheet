@@ -143,10 +143,7 @@ export interface Header {
   isHidden?: boolean;
 }
 
-export interface Row extends Header {
-  cells: Record<number, UID | undefined>;
-}
-
+export type Row = Header;
 export type Col = Header;
 
 export interface Position {
