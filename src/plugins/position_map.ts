@@ -15,7 +15,7 @@ import {
 } from "../types";
 import { RangeAdapter } from "./core/range";
 
-export interface PositionMap extends Iterable<string> {
+export interface PositionMap extends Iterable<[CellPosition, string]> {
   set(sheetId: UID, position: Position, id: Id): void;
   get(sheetId: UID, position: Position): Id | undefined;
   delete(sheetId: UID, position: Position): void;
@@ -48,10 +48,11 @@ export class PositionMapManager implements RangeProvider, PositionMap, PositionM
     return `${sheetId}COL${position.col}ROW${position.row}`;
   }
 
-  *[Symbol.iterator](): Iterator<string, void> {
-    // for (const { id: value } of Object.values(positions).filter(isDefined)) {
-    //   yield value;
-    // }
+  *[Symbol.iterator](): Iterator<[CellPosition, string], void> {
+    for (const { id, range } of Object.values(this.values).filter(isDefined)) {
+      const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
+      yield [position, id];
+    }
   }
 
   positions(): CellPosition[] {
