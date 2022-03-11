@@ -1404,8 +1404,8 @@ export class CorePlugin extends BasePlugin {
 function getSheetSize(data: SheetData): { rowNumber: number; colNumber: number } {
   const positions = Object.keys(data.cells).map(toCartesian);
   return {
-    rowNumber: Math.max(data.rowNumber, ...positions.map(([col, row]) => row + 1)),
-    colNumber: Math.max(data.colNumber, ...positions.map(([col, row]) => col + 1)),
+    rowNumber: Math.max(data.rowNumber, ...new Set(positions.map(([col, row]) => row + 1))),
+    colNumber: Math.max(data.colNumber, ...new Set(positions.map(([col, row]) => col + 1))),
   };
 }
 
