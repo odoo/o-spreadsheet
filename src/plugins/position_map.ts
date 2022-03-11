@@ -23,18 +23,18 @@ export interface PositionMap extends Iterable<[CellPosition, string]> {
   positions(): CellPosition[];
 }
 
-type RangeId = string;
 type Id = string;
+type SheetId = UID;
 
 interface PositionMapManagerState {
-  values: Record<RangeId, { id: Id; range: Range } | undefined>;
+  values: Record<SheetId, (Id | undefined)[][] | undefined>;
   inverseMap: Record<Id, Range | undefined>;
 }
 
 export class PositionMapManager implements RangeProvider, PositionMap, PositionMapManagerState {
   static nextHistoryId = 0;
   private history: WorkbookHistory<PositionMapManagerState>;
-  readonly values: Record<RangeId, { id: Id; range: Range } | undefined> = {};
+  readonly values: Record<SheetId, (Id | undefined)[][] | undefined> = {};
   readonly inverseMap: Record<Id, Range | undefined> = {};
 
   constructor(stateObserver: StateObserver, private range: RangeAdapter) {
@@ -44,20 +44,19 @@ export class PositionMapManager implements RangeProvider, PositionMap, PositionM
     });
   }
 
-  private getRangeId(sheetId: UID, position: Position): RangeId {
-    return `${sheetId}COL${position.col}ROW${position.row}`;
-  }
-
   *[Symbol.iterator](): Iterator<[CellPosition, string], void> {
-    for (const { id, range } of Object.values(this.values).filter(isDefined)) {
-      const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
-      yield [position, id];
+    for (const range of Object.values(this.inverseMap).filter(isDefined)) {
+      const sheetId = range.sheetId;
+      const col = range.zone.left;
+      const row = range.zone.top;
+      const position = { sheetId, col, row };
+      yield [position, this.get(sheetId, position)!];
     }
   }
 
   positions(): CellPosition[] {
     const result: CellPosition[] = [];
-    for (const { range } of Object.values(this.values).filter(isDefined)) {
+    for (const range of Object.values(this.inverseMap).filter(isDefined)) {
       result.push({ sheetId: range.sheetId, col: range.zone.left, row: range.zone.top });
     }
     return result;
@@ -65,18 +64,20 @@ export class PositionMapManager implements RangeProvider, PositionMap, PositionM
 
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
     // aggregate updates while iterating and apply them later
-    const toModify: { key: RangeId; range: Range; id: Id }[] = [];
-    for (const key of Object.keys(this.values)) {
-      const currentRange = this.values[key]?.range;
-      const id = this.values[key]?.id;
-      if (!currentRange || !id || (sheetId && currentRange.sheetId !== sheetId)) {
+    const toModify: { range: Range; id: Id }[] = [];
+    for (const currentRange of Object.values(this.inverseMap).filter(isDefined)) {
+      const sheetId = currentRange.sheetId;
+      const col = currentRange.zone.left;
+      const row = currentRange.zone.top;
+      const id = this.values[sheetId]?.[col]?.[row];
+      if (!id || (sheetId && currentRange.sheetId !== sheetId)) {
         continue;
       }
       const change = applyChange(currentRange);
       // console.log(`${key.replace(/.*COL(.*)ROW(.*)/, "($1, $2)")} change ${change.changeType}`)
       switch (change.changeType) {
         case "REMOVE":
-          this.history.update("values", key, undefined);
+          this.history.update("values", sheetId, col, row, undefined);
           this.history.update("inverseMap", id, undefined);
           break;
         case "RESIZE":
@@ -84,37 +85,36 @@ export class PositionMapManager implements RangeProvider, PositionMap, PositionM
         case "MOVE":
         case "CHANGE":
           const range = change.range;
-          const newKey = this.getRangeId(range.sheetId, {
-            col: range.zone.left,
-            row: range.zone.top,
-          });
-          toModify.push({ key: newKey, range: range, id });
+          toModify.push({ range, id });
           this.history.update("inverseMap", id, range);
-          this.history.update("values", key, undefined); // delete previous entry
+          this.history.update("values", sheetId, col, row, undefined); // delete previous entry
           break;
       }
     }
-    for (const { key, range, id } of toModify) {
-      this.history.update("values", key, { range, id });
+    for (const { range, id } of toModify) {
+      const sheetId = range.sheetId;
+      const col = range.zone.left;
+      const row = range.zone.top;
+      this.history.update("values", sheetId, col, row, id);
       // this.history.update("values", sheetId, key, "id", "position", position);
     }
   }
 
   set(sheetId: UID, position: Position, id: Id) {
-    const key = this.getRangeId(sheetId, position);
-    const value = this.values[key];
-    const range = this.range.getRangeFromSheetXC(sheetId, toXC(position.col, position.row));
+    const { col, row } = position;
+    const value = this.get(sheetId, position);
+    const range = this.range.getRangeFromSheetXC(sheetId, toXC(col, row));
     if (value) {
-      this.history.update("values", key, "id", id);
+      this.history.update("values", sheetId, col, row, id);
       this.history.update("inverseMap", id, range);
     }
-    this.history.update("values", key, { id, range });
+    this.history.update("values", sheetId, col, row, id);
     this.history.update("inverseMap", id, range);
   }
 
-  get(sheetId: UID, position: Position): Id | undefined {
+  get(sheetId: UID, { col, row }: Position): Id | undefined {
     // default value?
-    return this.values?.[this.getRangeId(sheetId, position)]?.id;
+    return this.values[sheetId]?.[col]?.[row];
   }
 
   getPosition(id: string): CellPosition | undefined {
@@ -125,12 +125,11 @@ export class PositionMapManager implements RangeProvider, PositionMap, PositionM
     return { col: range.zone.left, row: range.zone.top, sheetId: range.sheetId };
   }
 
-  delete(sheetId: UID, position: Position) {
-    const key = this.getRangeId(sheetId, position);
-    const id = this.values[key]?.id;
+  delete(sheetId: UID, { col, row }: Position) {
+    const id = this.get(sheetId, { col, row });
     if (id) {
       this.history.update("inverseMap", id, undefined);
-      this.history.update("values", key, undefined); // remove previous entry
+      this.history.update("values", sheetId, col, row, undefined); // remove previous entry
     }
   }
 }

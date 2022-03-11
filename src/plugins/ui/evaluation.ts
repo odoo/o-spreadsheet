@@ -121,6 +121,7 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   private evaluate(sheetId: UID) {
+    console.time("evaluate");
     const cells = this.getters.getCells(sheetId);
     const params = this.getFormulaParameters(computeValue);
     const visited: { [sheetId: string]: { [xc: string]: boolean | null } } = {};
@@ -172,6 +173,7 @@ export class EvaluationPlugin extends UIPlugin {
       }
       visited[sheetId][xc] = true;
     }
+    console.timeEnd("evaluate");
   }
 
   /**
