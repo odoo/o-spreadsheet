@@ -51,6 +51,6 @@ export interface FunctionDescription extends AddFunctionDescription {
 
 export type EvalContext = {
   __lastFnCalled?: string;
-  __originCellXC?: string;
+  __originCellXC?: () => string;
   [key: string]: any;
 };
