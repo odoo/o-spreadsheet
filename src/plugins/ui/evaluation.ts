@@ -123,7 +123,7 @@ export class EvaluationPlugin extends UIPlugin {
   private evaluate(sheetId: UID) {
     const cells = this.getters.getCells(sheetId);
     const params = this.getFormulaParameters(computeValue);
-    const visited: { [sheetId: string]: { [xc: string]: boolean | null } } = {};
+    const visited: { [cellId: string]: boolean | null } = {};
     for (let cell of Object.values(cells)) {
       if (cell.isFormula()) {
         cell.startEvaluation();
@@ -150,18 +150,20 @@ export class EvaluationPlugin extends UIPlugin {
       if (!cell.isFormula()) {
         return;
       }
-      const position = params[2].getters.getCellPosition(cell.id);
-      const xc = toXC(position.col, position.row);
-      visited[sheetId] = visited[sheetId] || {};
-      if (xc in visited[sheetId]) {
-        if (visited[sheetId][xc] === null) {
+      const cellId = cell.id;
+      if (cellId in visited) {
+        if (visited[cellId] === null) {
           cell.assignError("#CYCLE", _lt("Circular reference"));
         }
         return;
       }
-      visited[sheetId][xc] = null;
+      visited[cellId] = null;
       try {
-        params[2].__originCellXC = xc;
+        params[2].__originCellXC = () => {
+          // compute the value lazily for performance reasons
+          const position = params[2].getters.getCellPosition(cellId);
+          return toXC(position.col, position.row);
+        };
         cell.assignValue(cell.compiledFormula.execute(cell.dependencies, sheetId, ...params));
         if (Array.isArray(cell.evaluated.value)) {
           // if a value returns an array (like =A1:A3)
@@ -170,7 +172,7 @@ export class EvaluationPlugin extends UIPlugin {
       } catch (e) {
         handleError(e, cell);
       }
-      visited[sheetId][xc] = true;
+      visited[cellId] = true;
     }
   }
 
