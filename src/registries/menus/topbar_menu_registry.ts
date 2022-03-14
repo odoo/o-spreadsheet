@@ -1,3 +1,4 @@
+import { NumberFormatTerms } from "../../components/translations_terms";
 import { fontSizes } from "../../fonts";
 import { _lt } from "../../translation";
 import { SpreadsheetChildEnv } from "../../types/env";
@@ -205,55 +206,55 @@ topbarMenuRegistry
     separator: true,
   })
   .addChild("format_number_general", ["format", "format_number"], {
-    name: _lt("General"),
+    name: `${NumberFormatTerms.General} (${NumberFormatTerms.NoSpecificFormat})`,
     sequence: 10,
     separator: true,
     action: ACTIONS.FORMAT_GENERAL_ACTION,
   })
   .addChild("format_number_number", ["format", "format_number"], {
-    name: _lt("Number (1,000.12)"),
+    name: `${NumberFormatTerms.Number} (1,000.12)`,
     sequence: 20,
     action: ACTIONS.FORMAT_NUMBER_ACTION,
   })
   .addChild("format_number_percent", ["format", "format_number"], {
-    name: _lt("Percent (10.12%)"),
+    name: `${NumberFormatTerms.Percent} (10.12%)`,
     sequence: 30,
     separator: true,
     action: ACTIONS.FORMAT_PERCENT_ACTION,
   })
   .addChild("format_number_currency", ["format", "format_number"], {
-    name: _lt("Currency ($1,000.12)"),
+    name: `${NumberFormatTerms.Currency} ($1,000.12)`,
     sequence: 37,
     action: ACTIONS.FORMAT_CURRENCY_ACTION,
   })
   .addChild("format_number_currency_rounded", ["format", "format_number"], {
-    name: _lt("Currency rounded ($1,000)"),
+    name: `${NumberFormatTerms.CurrencyRounded} ($1,000)`,
     sequence: 38,
     action: ACTIONS.FORMAT_CURRENCY_ROUNDED_ACTION,
   })
   .addChild("format_custom_currency", ["format", "format_number"], {
-    name: _lt("Custom currency"),
+    name: NumberFormatTerms.CustomCurrency,
     sequence: 39,
     separator: true,
     action: ACTIONS.OPEN_CUSTOM_CURRENCY_SIDEPANEL_ACTION,
   })
   .addChild("format_number_date", ["format", "format_number"], {
-    name: _lt("Date (9/26/2008)"),
+    name: `${NumberFormatTerms.Date} (9/26/2008)`,
     sequence: 40,
     action: ACTIONS.FORMAT_DATE_ACTION,
   })
   .addChild("format_number_time", ["format", "format_number"], {
-    name: _lt("Time (10:43:00 PM)"),
+    name: `${NumberFormatTerms.Time} (10:43:00 PM)`,
     sequence: 50,
     action: ACTIONS.FORMAT_TIME_ACTION,
   })
   .addChild("format_number_date_time", ["format", "format_number"], {
-    name: _lt("Date time (9/26/2008 22:43:00)"),
+    name: `${NumberFormatTerms.DateTime} (9/26/2008 22:43:00)`,
     sequence: 60,
     action: ACTIONS.FORMAT_DATE_TIME_ACTION,
   })
   .addChild("format_number_duration", ["format", "format_number"], {
-    name: _lt("Duration (27:51:38)"),
+    name: `${NumberFormatTerms.Duration} (27:51:38)`,
     sequence: 70,
     separator: true,
     action: ACTIONS.FORMAT_DURATION_ACTION,

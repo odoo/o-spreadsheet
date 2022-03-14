@@ -21,7 +21,7 @@ import { isChildEvent } from "./helpers/dom_helpers";
 import * as icons from "./icons";
 import { Menu, MenuState } from "./menu";
 import { ComposerFocusType } from "./spreadsheet";
-import { GenericTerms, TopBarTerms } from "./translations_terms";
+import { GenericTerms, NumberFormatTerms, TopBarTerms } from "./translations_terms";
 
 type Tool =
   | ""
@@ -38,19 +38,27 @@ interface State {
 }
 
 const FORMATS = [
-  { name: "general", text: "General (no specific format)" },
-  { name: "number", text: "Number (1,000.12)", value: "#,##0.00" },
-  { name: "percent", text: "Percent (10.12%)", value: "0.00%" },
-  { name: "currency", text: "Currency ($1,000.12)", value: "[$$]#,##0.00" },
-  { name: "currency_rounded", text: "Currency rounded ($1,000)", value: "[$$]#,##0" },
-  { name: "date", text: "Date (9/26/2008)", value: "m/d/yyyy" },
-  { name: "time", text: "Time (10:43:00 PM)", value: "hh:mm:ss a" },
-  { name: "datetime", text: "Date time (9/26/2008 22:43:00)", value: "m/d/yyyy hh:mm:ss" },
-  { name: "duration", text: "Duration (27:51:38)", value: "hhhh:mm:ss" },
+  { name: "general", text: `${NumberFormatTerms.General} (${NumberFormatTerms.NoSpecificFormat})` },
+  { name: "number", text: `${NumberFormatTerms.Number} (1,000.12)`, value: "#,##0.00" },
+  { name: "percent", text: `${NumberFormatTerms.Percent} (10.12%)`, value: "0.00%" },
+  { name: "currency", text: `${NumberFormatTerms.Currency} ($1,000.12)`, value: "[$$]#,##0.00" },
+  {
+    name: "currency_rounded",
+    text: `${NumberFormatTerms.CurrencyRounded} ($1,000)`,
+    value: "[$$]#,##0",
+  },
+  { name: "date", text: `${NumberFormatTerms.Date} (9/26/2008)`, value: "m/d/yyyy" },
+  { name: "time", text: `${NumberFormatTerms.Time} (10:43:00 PM)`, value: "hh:mm:ss a" },
+  {
+    name: "datetime",
+    text: `${NumberFormatTerms.DateTime} (9/26/2008 22:43:00)`,
+    value: "m/d/yyyy hh:mm:ss",
+  },
+  { name: "duration", text: `${NumberFormatTerms.Duration} (27:51:38)`, value: "hhhh:mm:ss" },
 ];
 
 const CUSTOM_FORMATS = [
-  { name: "custom_currency", text: "Custom currency", sidePanel: "CustomCurrency" },
+  { name: "custom_currency", text: NumberFormatTerms.CustomCurrency, sidePanel: "CustomCurrency" },
 ];
 
 interface Props {

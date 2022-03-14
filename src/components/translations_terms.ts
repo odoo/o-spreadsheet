@@ -143,6 +143,20 @@ export const TopBarTerms = {
   HorizontalAlign: _lt("Horizontal align"),
 };
 
+export const NumberFormatTerms = {
+  General: _lt("General"),
+  NoSpecificFormat: _lt("no specific format"),
+  Number: _lt("Number"),
+  Percent: _lt("Percent"),
+  Currency: _lt("Currency"),
+  CurrencyRounded: _lt("Currency rounded"),
+  Date: _lt("Date"),
+  Time: _lt("Time"),
+  DateTime: _lt("Date time"),
+  Duration: _lt("Duration"),
+  CustomCurrency: _lt("Custom currency"),
+};
+
 export const GenericTerms = {
   Undo: _lt("Undo"),
   Redo: _lt("Redo"),
