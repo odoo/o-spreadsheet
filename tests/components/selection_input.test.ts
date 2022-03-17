@@ -61,8 +61,8 @@ class Parent extends Component<any> {
     this.model = model;
     this.onChanged = this.props.config.onChanged || jest.fn();
     onMounted(() => {
-      this.model.on("update", this, this.render);
-      this.render();
+      this.model.on("update", this, () => this.render(true));
+      this.render(true);
     });
     onWillUnmount(() => this.model.off("update", this));
   }
@@ -86,8 +86,8 @@ class MultiParent extends Component<any> {
       model: this.props.model,
     });
     onMounted(() => {
-      this.props.model.on("update", this, this.render);
-      this.__owl__.render();
+      this.props.model.on("update", this, () => this.render(true));
+      this.render(true);
     });
     onWillUnmount(() => this.props.model.off("update", this));
   }

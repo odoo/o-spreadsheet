@@ -148,7 +148,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       clipboard: navigator.clipboard,
     });
 
-    useExternalListener(window as any, "resize", this.render);
+    useExternalListener(window as any, "resize", () => this.render(true));
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
     useExternalListener(window, "beforeunload", this.unbindModelEvents.bind(this));
     onMounted(() => this.bindModelEvents());
@@ -168,7 +168,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   }
 
   private bindModelEvents() {
-    this.model.on("update", this, this.render);
+    this.model.on("update", this, () => this.render(true));
     this.model.on("notify-ui", this, this.onNotifyUI);
   }
 
