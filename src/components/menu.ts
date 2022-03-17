@@ -6,6 +6,7 @@ import {
   MENU_SEPARATOR_BORDER_WIDTH,
   MENU_SEPARATOR_HEIGHT,
   MENU_SEPARATOR_PADDING,
+  MENU_VERTICAL_PADDING,
   MENU_WIDTH,
   TOPBAR_HEIGHT,
 } from "../constants";
@@ -26,11 +27,12 @@ const { useExternalListener, useRef } = hooks;
 
 const TEMPLATE = xml/* xml */ `
     <Popover
-      position="props.position"
-      childWidth="${MENU_WIDTH}"
-      childHeight="menuHeight"
-      flipHorizontalOffset="popover.flipHorizontalOffset"
-      flipVerticalOffset="popover.flipVerticalOffset"
+      anchorRect="popover.anchorRect"
+      positioning="popover.positioning"
+      dynamicHeight="true"
+      verticalOffset="popover.verticalOffset"
+      childMaxWidth="${MENU_WIDTH}"
+      childMaxHeight="menuHeight"
       marginTop="popover.marginTop"
       >
       <div t-ref="menu" class="o-menu" t-on-scroll="onScroll" t-on-wheel.stop="" t-on-click.stop="">
@@ -70,7 +72,7 @@ const TEMPLATE = xml/* xml */ `
 const CSS = css/* scss */ `
   .o-menu {
     background-color: white;
-    padding: 8px 0px;
+    padding: ${MENU_VERTICAL_PADDING}px 0px;
     .o-menu-item {
       display: flex;
       justify-content: space-between;
@@ -162,17 +164,19 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     return this.menuComponentHeight(this.props.menuItems);
   }
 
-  get subMenuHeight(): number {
-    return this.menuComponentHeight(this.subMenu.menuItems);
-  }
-
   get popover() {
     const isRoot = this.props.depth === 1;
     return {
       // some margin between the header and the component
       marginTop: HEADER_HEIGHT + 6 + TOPBAR_HEIGHT,
-      flipHorizontalOffset: MENU_WIDTH * (this.props.depth - 1),
-      flipVerticalOffset: isRoot ? 0 : MENU_ITEM_HEIGHT,
+      anchorRect: {
+        x: this.props.position.x - MENU_WIDTH * (this.props.depth - 1),
+        y: this.props.position.y,
+        width: isRoot ? 0 : MENU_WIDTH,
+        height: isRoot ? 0 : MENU_ITEM_HEIGHT,
+      },
+      positioning: isRoot ? "bottom" : "right",
+      verticalOffset: isRoot ? 0 : MENU_VERTICAL_PADDING,
     };
   }
 
@@ -193,7 +197,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
    */
   private subMenuVerticalPosition(position: number): number {
     const menusAbove = this.props.menuItems.slice(0, position);
-    return this.menuComponentHeight(menusAbove) + this.position.y;
+    return this.menuComponentHeight(menusAbove, false) + this.position.y;
   }
 
   private onClick(ev: MouseEvent) {
@@ -213,13 +217,24 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   }
 
   /**
-   * Return the total height (in pixels) needed for some
-   * menu items
+   * Return the total height (in pixels) needed for some menu items
+   *
+   * @param isEntireMenu : indicates if the given menuItems represent an entire menu or just part of one. The difference
+   * between the two is that a entire menu won't display separators at the bottom, and a slice of a menu won't have bottom padding.
    */
-  private menuComponentHeight(menuItems: MenuItem[]): number {
-    const separators = menuItems.filter((m) => m.separator);
+  private menuComponentHeight(menuItems: MenuItem[], isEntireMenu = true): number {
+    const separators = menuItems.filter(
+      (m, index) => m.separator && !(isEntireMenu && index === menuItems.length - 1) // Separators at the bottom aren't displayed
+    );
     const others = menuItems;
-    return MENU_ITEM_HEIGHT * others.length + separators.length * MENU_SEPARATOR_HEIGHT;
+    let height =
+      MENU_VERTICAL_PADDING +
+      MENU_ITEM_HEIGHT * others.length +
+      separators.length * MENU_SEPARATOR_HEIGHT;
+    if (isEntireMenu) {
+      height += MENU_VERTICAL_PADDING;
+    }
+    return height;
   }
 
   getName(menu: FullMenuItem) {

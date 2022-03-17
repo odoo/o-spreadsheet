@@ -22,7 +22,7 @@ import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
-import { CellValueType, Client, Position, SpreadsheetEnv, Viewport } from "../types/index";
+import { BoxDims, CellValueType, Client, Position, SpreadsheetEnv, Viewport } from "../types/index";
 import { Autofill } from "./autofill";
 import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
@@ -59,7 +59,7 @@ const registries = {
 };
 
 const LINK_EDITOR_WIDTH = 340;
-const LINK_EDITOR_HEIGHT = 180;
+const LINK_EDITOR_HEIGHT = 197;
 
 const ERROR_TOOLTIP_HEIGHT = 80;
 const ERROR_TOOLTIP_WIDTH = 180;
@@ -199,27 +199,27 @@ const TEMPLATE = xml/* xml */ `
     </t>
     <Popover
       t-if="errorTooltip.isOpen"
-      position="errorTooltip.position"
-      childWidth="${ERROR_TOOLTIP_WIDTH}"
-      childHeight="${ERROR_TOOLTIP_HEIGHT}">
+      anchorRect="errorTooltip.anchorRect"
+      positioning="'right'"
+      dynamicHeight="true"
+      childMaxWidth="${ERROR_TOOLTIP_WIDTH}"
+      childMaxHeight="${ERROR_TOOLTIP_HEIGHT}">
       <ErrorToolTip text="errorTooltip.text"/>
     </Popover>
     <Popover
       t-if="shouldDisplayLink"
-      position="popoverPosition.position"
-      flipHorizontalOffset="-popoverPosition.cellWidth"
-      flipVerticalOffset="-popoverPosition.cellHeight"
-      childWidth="${LINK_TOOLTIP_WIDTH}"
-      childHeight="${LINK_TOOLTIP_HEIGHT}">
+      anchorRect="popoverAnchorRect"
+      positioning="'bottom'"
+      childMaxWidth="${LINK_TOOLTIP_WIDTH}"
+      childMaxHeight="${LINK_TOOLTIP_HEIGHT}">
       <LinkDisplay cellPosition="activeCellPosition"/>
     </Popover>
     <Popover
       t-if="props.linkEditorIsOpen"
-      position="popoverPosition.position"
-      flipHorizontalOffset="-popoverPosition.cellWidth"
-      flipVerticalOffset="-popoverPosition.cellHeight"
-      childWidth="${LINK_EDITOR_WIDTH}"
-      childHeight="${LINK_EDITOR_HEIGHT}">
+      anchorRect="popoverAnchorRect"
+      positioning="'bottom'"
+      childMaxWidth="${LINK_EDITOR_WIDTH}"
+      childMaxHeight="${LINK_EDITOR_HEIGHT}">
       <LinkEditor cellPosition="activeCellPosition"/>
     </Popover>
     <t t-if="getters.getEditionMode() === 'inactive'">
@@ -343,13 +343,13 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
 
     if (cell && cell.evaluated.type === CellValueType.error) {
       const viewport = this.getters.getActiveSnappedViewport();
-      const [x, y, width] = this.getters.getRect(
+      const [x, y, width, height] = this.getters.getRect(
         { left: col, top: row, right: col, bottom: row },
         viewport
       );
       return {
         isOpen: true,
-        position: { x: x + width, y: y + TOPBAR_HEIGHT },
+        anchorRect: { x: x, y: y + TOPBAR_HEIGHT, height, width },
         text: cell.evaluated.error,
       };
     }
@@ -383,7 +383,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
    * Get a reasonable position to display the popover, under the active cell.
    * Used by link popover components.
    */
-  get popoverPosition() {
+  get popoverAnchorRect(): BoxDims {
     const [col, row] = this.getters.getBottomLeftCell(
       this.getters.getActiveSheetId(),
       ...this.getters.getPosition()
@@ -393,11 +393,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
       { left: col, top: row, right: col, bottom: row },
       viewport
     );
-    return {
-      position: { x, y: y + height + TOPBAR_HEIGHT },
-      cellWidth: width,
-      cellHeight: height,
-    };
+    return { x, y: y + TOPBAR_HEIGHT, height, width };
   }
 
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key

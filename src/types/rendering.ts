@@ -10,11 +10,17 @@ export interface DOMCoordinates {
   y: number;
 }
 
-export interface Box {
+/**
+ * Coordinate and sizes in pixels
+ */
+export interface BoxDims {
   x: number;
   y: number;
   width: number;
   height: number;
+}
+
+export interface Box extends BoxDims {
   text: string;
   textWidth: number;
   style: Style | null;

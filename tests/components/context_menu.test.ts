@@ -1,6 +1,6 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Menu } from "../../src/components/menu";
-import { MENU_ITEM_HEIGHT, TOPBAR_HEIGHT } from "../../src/constants";
+import { MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, TOPBAR_HEIGHT } from "../../src/constants";
 import { toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
@@ -50,13 +50,54 @@ function getActiveXc(model: Model): string {
   return toXC(...model.getters.getPosition());
 }
 
-function getPosition(element: string | Element): { top: number; left: number } {
+function getPosition(element: string | Element): {
+  top: number;
+  left: number;
+  right: number;
+  bottom: number;
+  width: number;
+  height: number;
+} {
   const menu = typeof element === "string" ? fixture.querySelector(element)! : element;
-  const { top, left } = window.getComputedStyle(menu.parentElement!);
-  return {
+  const {
+    top,
+    left,
+    right,
+    bottom,
+    width,
+    //@ts-ignore
+    "max-width": maxWidth,
+    height,
+    //@ts-ignore
+    "max-height": maxHeight,
+  } = window.getComputedStyle(menu.parentElement!);
+
+  const rect = {
     top: parseInt(top.replace("px", "")),
     left: parseInt(left.replace("px", "")),
+    // In CSS, bottom/right are the distance until the end of the page, not the coordinates
+    right: window.innerWidth - parseInt(right.replace("px", "")),
+    bottom: window.innerHeight - parseInt(bottom.replace("px", "")),
+    // max-width(height) is obviously not the real size of the component, but its the size that was used to compute
+    // its position since we didn't know what was the real height before rendering
+    width: parseInt(width.replace("px", "")) || parseInt(maxWidth.replace("px", "")),
+    height: parseInt(height.replace("px", "")) || parseInt(maxHeight.replace("px", "")),
   };
+
+  if (isNaN(rect.left)) {
+    rect.left = rect.right - rect.width;
+  }
+  if (isNaN(rect.right)) {
+    rect.right = rect.left + rect.width;
+  }
+  if (isNaN(rect.top)) {
+    rect.top = rect.bottom - rect.height;
+  }
+  if (isNaN(rect.bottom)) {
+    rect.bottom = rect.top + rect.height;
+  }
+
+  return rect;
 }
 
 function getMenuPosition() {
@@ -76,7 +117,7 @@ function getItemSize() {
 function getSize(menuItemsCount: number): { width: number; height: number } {
   return {
     width: 200,
-    height: getItemSize() * menuItemsCount,
+    height: getItemSize() * menuItemsCount + 2 * MENU_VERTICAL_PADDING,
   };
 }
 
@@ -107,6 +148,10 @@ async function renderContextMenu(
   // x, y are relative to the upper left grid corner, but the menu
   // props must take the top bar into account.
   parent = new ContextMenuParent(x, y + TOPBAR_HEIGHT, width, height, new Model(), testConfig);
+  //@ts-ignore
+  window.innerHeight = height + TOPBAR_HEIGHT;
+  //@ts-ignore
+  window.innerWidth = width;
   await parent.mount(fixture);
   await nextTick();
   return [x, y];
@@ -649,66 +694,11 @@ describe("Context Menu position on large screen 1000px/1000px", () => {
     await simulateClick("div[data-name='root']");
     const { left, top } = getSubMenuPosition();
     const { top: rootTop } = getMenuPosition();
-    const { height } = getSubMenuSize();
+    const { height, width } = getSubMenuSize();
     const { height: rootHeight } = getMenuSize();
-    const { width } = getSubMenuSize();
     expect(rootTop).toBe(clickY - rootHeight);
     expect(top).toBe(clickY - height);
     expect(left).toBe(clickX + width);
-  });
-});
-
-describe("Context Menu position on small screen 1000px/300px", () => {
-  // prettier-ignore
-  const longMenuItems: FullMenuItem[] = [ // menu height 6*32 => 192
-    createFullMenuItem("root_1", {name: "root_1", sequence: 1, action() {},}),
-    createFullMenuItem("root_2", {name: "root_2", sequence: 2, action() {},}),
-    createFullMenuItem("root_3", {name: "root_3", sequence: 3, action() {},}),
-    createFullMenuItem("root_4", {name: "root_4", sequence: 4,
-    children: () => [ // sub menu height 6*32 => 192
-      createFullMenuItem("subMenu_1", {name: "subMenu_1", sequence: 1, action() {},}),
-      createFullMenuItem("subMenu_2", {name: "subMenu_2", sequence: 2, action() {},}),
-      createFullMenuItem("subMenu_3", {name: "subMenu_3", sequence: 3, action() {},}),
-      createFullMenuItem("subMenu_4", {name: "subMenu_4", sequence: 4, action() {},}),
-      createFullMenuItem("subMenu_5", {name: "subMenu_5", sequence: 5, action() {},}),
-      createFullMenuItem("subMenu_6", {name: "subMenu_6", sequence: 6, action() {},}),
-    ],
-  }),
-    createFullMenuItem("root_5", {name: "root_5", sequence: 5, action() {},}),
-    createFullMenuItem("root_6", {name: "root_6", sequence: 6, action() {},}),
-  ];
-
-  test("it renders menu at the top of the screen on the right, if not enough space above and below", async () => {
-    const [clickX] = await renderContextMenu(300, 150, { menuItems: longMenuItems }, 1000, 300);
-    const { left, top } = getMenuPosition();
-    expect(left).toBe(clickX);
-    expect(top).toBe(150);
-  });
-
-  test("it renders menu at the top of the screen on the left, if not enough space above, below and on the right", async () => {
-    const [clickX] = await renderContextMenu(990, 150, { menuItems: longMenuItems }, 1000, 300);
-    const { left, top } = getMenuPosition();
-    const { width } = getMenuSize();
-    expect(left).toBe(clickX - width);
-    expect(top).toBe(150);
-  });
-
-  test("it renders submenu at the top of the screen on the right, if not enough space above and below", async () => {
-    const [clickX] = await renderContextMenu(300, 150, { menuItems: longMenuItems }, 1000, 300);
-    await simulateClick("div[data-name='root_4']");
-    const { left, top } = getSubMenuPosition();
-    const { width } = getMenuSize();
-    expect(left).toBe(clickX + width);
-    expect(top).toBe(102);
-  });
-
-  test("it renders submenu at the top of the screen on the left, if not enough space above, below and on the right", async () => {
-    const [clickX] = await renderContextMenu(780, 150, { menuItems: longMenuItems }, 1000, 300);
-    await simulateClick("div[data-name='root_4']");
-    const { left, top } = getSubMenuPosition();
-    const { width } = getMenuSize();
-    expect(left).toBe(clickX - width);
-    expect(top).toBe(102);
   });
 });
 

@@ -34,11 +34,12 @@ export const MIN_CF_ICON_MARGIN = 4;
 export const MIN_CELL_TEXT_MARGIN = 4;
 export const CF_ICON_EDGE_LENGTH = 15;
 
-export const LINK_TOOLTIP_HEIGHT = 43;
+export const LINK_TOOLTIP_HEIGHT = 43.5;
 export const LINK_TOOLTIP_WIDTH = 220;
 
 // Menus
 export const MENU_WIDTH = 200;
+export const MENU_VERTICAL_PADDING = 8;
 export const MENU_ITEM_HEIGHT = 24;
 export const MENU_SEPARATOR_BORDER_WIDTH = 1;
 export const MENU_SEPARATOR_PADDING = 5;

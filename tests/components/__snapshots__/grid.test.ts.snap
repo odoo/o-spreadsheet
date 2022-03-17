@@ -52,12 +52,13 @@ exports[`Grid component simple rendering snapshot 1`] = `
 
 exports[`error tooltip can display error tooltip 1`] = `
 <div
+  class="o-spreadsheet-popover"
   style="
       position: absolute;
       z-index: 5;
       top:250px;
       left:336px;
-      max-height:934px;
+      max-height:80px;
       width:180px;
       overflow-y: auto;
       overflow-x: hidden;
