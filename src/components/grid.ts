@@ -61,7 +61,7 @@ const registries = {
 const LINK_EDITOR_WIDTH = 340;
 const LINK_EDITOR_HEIGHT = 180;
 
-const ERROR_TOOLTIP_HEIGHT = 80;
+const ERROR_TOOLTIP_HEIGHT = 40;
 const ERROR_TOOLTIP_WIDTH = 180;
 // copy and paste are specific events that should not be managed by the keydown event,
 // but they shouldn't be preventDefault and stopped (else copy and paste events will not trigger)
@@ -200,6 +200,7 @@ const TEMPLATE = xml/* xml */ `
     <Popover
       t-if="errorTooltip.isOpen"
       position="errorTooltip.position"
+      flipHorizontalOffset="errorTooltip.cellWidth"
       childWidth="${ERROR_TOOLTIP_WIDTH}"
       childHeight="${ERROR_TOOLTIP_HEIGHT}">
       <ErrorToolTip text="errorTooltip.text"/>
@@ -351,6 +352,7 @@ export class Grid extends Component<Props, SpreadsheetEnv> {
         isOpen: true,
         position: { x: x + width, y: y + TOPBAR_HEIGHT },
         text: cell.evaluated.error,
+        cellWidth: width,
       };
     }
     return { isOpen: false };
