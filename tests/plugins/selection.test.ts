@@ -8,6 +8,8 @@ import {
   deleteColumns,
   hideColumns,
   hideRows,
+  moveColumns,
+  moveRows,
   redo,
   selectCell,
   setSelection,
@@ -627,39 +629,19 @@ describe("move elements(s)", () => {
     ],
   });
   test("can't move columns whose merges overflow from the selection", () => {
-    const result = model.dispatch("MOVE_COLUMNS_ROWS", {
-      sheetId: "1",
-      dimension: "COL",
-      base: 5,
-      elements: [1, 2],
-    });
+    const result = moveColumns(model, "F", ["B", "C"]);
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
   test("can't move columns between columns containing common merged ", () => {
-    const result = model.dispatch("MOVE_COLUMNS_ROWS", {
-      sheetId: "1",
-      dimension: "COL",
-      base: 7,
-      elements: [1, 2],
-    });
+    const result = moveColumns(model, "H", ["B", "C"]);
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
   test("can't move rows whose merges overflow from the selection", () => {
-    const result = model.dispatch("MOVE_COLUMNS_ROWS", {
-      sheetId: "1",
-      dimension: "ROW",
-      base: 5,
-      elements: [1, 2],
-    });
+    const result = moveRows(model, 5, [1, 2]);
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
   test("can't move rows between rows containing common merged ", () => {
-    const result = model.dispatch("MOVE_COLUMNS_ROWS", {
-      sheetId: "1",
-      dimension: "ROW",
-      base: 7,
-      elements: [1, 2],
-    });
+    const result = moveRows(model, 7, [1, 2]);
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
 });

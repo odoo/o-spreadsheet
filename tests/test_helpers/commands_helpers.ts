@@ -426,3 +426,31 @@ export function unMerge(
 export function snapshot(model: Model) {
   model["session"].snapshot(model.exportData());
 }
+
+export function moveColumns(
+  model: Model,
+  target: string,
+  columns: string[],
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("MOVE_COLUMNS_ROWS", {
+    sheetId,
+    base: lettersToNumber(target),
+    dimension: "COL",
+    elements: columns.map(lettersToNumber),
+  });
+}
+
+export function moveRows(
+  model: Model,
+  target: number,
+  rows: number[],
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("MOVE_COLUMNS_ROWS", {
+    sheetId,
+    base: target,
+    dimension: "ROW",
+    elements: rows,
+  });
+}
