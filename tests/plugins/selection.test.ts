@@ -1,3 +1,4 @@
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
@@ -16,6 +17,8 @@ import {
   moveRows,
   redo,
   resizeAnchorZone,
+  resizeColumns,
+  resizeRows,
   selectAll,
   selectCell,
   selectColumn,
@@ -920,5 +923,27 @@ describe("move elements(s)", () => {
   test("can't move rows between rows containing common merged ", () => {
     const result = moveRows(model, 7, [1, 2]);
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
+  });
+
+  test("Move a resized column preserve the size", () => {
+    const model = new Model();
+    resizeColumns(model, ["A"], 10);
+    resizeColumns(model, ["C"], 20);
+    moveColumns(model, "D", ["A"]);
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getCol(sheetId, 0)?.size).toEqual(DEFAULT_CELL_WIDTH);
+    expect(model.getters.getCol(sheetId, 1)?.size).toEqual(20);
+    expect(model.getters.getCol(sheetId, 2)?.size).toEqual(10);
+  });
+
+  test("Move a resized row preserve the size", () => {
+    const model = new Model();
+    resizeRows(model, [0], 10);
+    resizeRows(model, [2], 20);
+    moveRows(model, 3, [0]);
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getRow(sheetId, 0)?.size).toEqual(DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getRow(sheetId, 1)?.size).toEqual(20);
+    expect(model.getters.getRow(sheetId, 2)?.size).toEqual(10);
   });
 });

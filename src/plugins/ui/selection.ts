@@ -600,9 +600,9 @@ export class GridSelectionPlugin extends UIPlugin {
     const isCol = cmd.dimension === "COL";
     const start = cmd.elements[0];
     const end = cmd.elements[thickness - 1];
-    const isBasedbefore = cmd.base < start;
-    const deltaCol = isBasedbefore && isCol ? thickness : 0;
-    const deltaRow = isBasedbefore && !isCol ? thickness : 0;
+    const isBasedBefore = cmd.base < start;
+    const deltaCol = isBasedBefore && isCol ? thickness : 0;
+    const deltaRow = isBasedBefore && !isCol ? thickness : 0;
     const sheet = this.getters.getSheet(cmd.sheetId);
 
     this.dispatch("CUT", {
@@ -627,10 +627,26 @@ export class GridSelectionPlugin extends UIPlugin {
       ],
     });
 
+    const toRemove = isBasedBefore ? cmd.elements.map((el) => el + thickness) : cmd.elements;
+    let currentIndex = cmd.base;
+    for (const element of toRemove) {
+      const size =
+        cmd.dimension === "COL"
+          ? this.getters.getCol(cmd.sheetId, element)!.size
+          : this.getters.getRow(cmd.sheetId, element)!.size;
+      this.dispatch("RESIZE_COLUMNS_ROWS", {
+        dimension: cmd.dimension,
+        sheetId: cmd.sheetId,
+        size,
+        elements: [currentIndex],
+      });
+      currentIndex += 1;
+    }
+
     this.dispatch("REMOVE_COLUMNS_ROWS", {
       dimension: cmd.dimension,
       sheetId: cmd.sheetId,
-      elements: isBasedbefore ? cmd.elements.map((el) => el + thickness) : cmd.elements,
+      elements: toRemove,
     });
   }
 
