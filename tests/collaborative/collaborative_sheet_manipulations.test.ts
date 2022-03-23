@@ -59,10 +59,34 @@ describe("Collaborative Sheet manipulation", () => {
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getVisibleSheets(),
-      [sheet1, "3", "2"]
+      [sheet1, "2", "3"]
     );
     expect(alice.getters.getSheetName("2")).not.toEqual(alice.getters.getSheetName("3"));
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("concurrently create three numbered sheets with the same name", () => {
+    network.concurrent(() => {
+      createSheet(alice, { sheetId: "alice42", name: "Sheet2" });
+      createSheet(bob, { sheetId: "bob42", name: "Sheet2" });
+      createSheet(charlie, { sheetId: "charlie42", name: "Sheet2" });
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getSheets().map(({ name }) => name),
+      ["Sheet1", "Sheet2", "Sheet3", "Sheet4"]
+    );
+  });
+
+  test("concurrently create three sheets with the same name", () => {
+    network.concurrent(() => {
+      createSheet(alice, { sheetId: "alice42", name: "Sheet" });
+      createSheet(bob, { sheetId: "bob42", name: "Sheet" });
+      createSheet(charlie, { sheetId: "charlie42", name: "Sheet" });
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getSheets().map(({ name }) => name),
+      ["Sheet1", "Sheet", "Sheet~", "Sheet~~"]
+    );
   });
 
   test("create sheet and move sheet concurrently", () => {

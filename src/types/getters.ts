@@ -55,6 +55,7 @@ export interface CoreGetters {
   getGridLinesVisibility: SheetPlugin["getGridLinesVisibility"];
   getNumberRows: SheetPlugin["getNumberRows"];
   getNumberCols: SheetPlugin["getNumberCols"];
+  getNextSheetName: SheetPlugin["getNextSheetName"];
   isEmpty: SheetPlugin["isEmpty"];
 
   zoneToXC: CellPlugin["zoneToXC"];

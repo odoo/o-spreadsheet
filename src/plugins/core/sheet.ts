@@ -24,6 +24,7 @@ import {
   CommandResult,
   ConsecutiveIndexes,
   CoreCommand,
+  CreateSheetCommand,
   ExcelWorkbookData,
   RenameSheetCommand,
   Row,
@@ -65,6 +66,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getHiddenColsGroups",
     "getHiddenRowsGroups",
     "getGridLinesVisibility",
+    "getNextSheetName",
     "isEmpty",
   ];
 
@@ -84,11 +86,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
     switch (cmd.type) {
       case "CREATE_SHEET": {
-        const { visibleSheets } = this;
-        if (cmd.position > visibleSheets.length || cmd.position < 0) {
-          return CommandResult.WrongSheetPosition;
-        }
-        return CommandResult.Success;
+        return this.checkValidations(cmd, this.checkSheetName, this.checkSheetPosition);
       }
       case "MOVE_SHEET":
         const currentIndex = this.visibleSheets.findIndex((id) => id === cmd.sheetId);
@@ -133,7 +131,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       case "CREATE_SHEET":
         const sheet = this.createSheet(
           cmd.sheetId,
-          this.generateSheetName(),
+          cmd.name || this.getNextSheetName(),
           cmd.cols || 26,
           cmd.rows || 100,
           cmd.position
@@ -380,6 +378,17 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return this.getSheet(sheetId).rows.length;
   }
 
+  getNextSheetName(baseName = "Sheet"): string {
+    let i = 1;
+    const names = this.getSheets().map((s) => s.name);
+    let name = `${baseName}${i}`;
+    while (names.includes(name)) {
+      name = `${baseName}${i}`;
+      i++;
+    }
+    return name;
+  }
+
   // ---------------------------------------------------------------------------
   // Row/Col manipulation
   // ---------------------------------------------------------------------------
@@ -461,18 +470,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
-  private generateSheetName(): string {
-    let i = 1;
-    const names = this.getSheets().map((s) => s.name);
-    const baseName = _lt("Sheet");
-    let name = `${baseName}${i}`;
-    while (names.includes(name)) {
-      name = `${baseName}${i}`;
-      i++;
-    }
-    return name;
-  }
-
   private createSheet(
     id: UID,
     name: string,
@@ -505,7 +502,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     this.history.update("visibleSheets", visibleSheets);
   }
 
-  private checkSheetName(cmd: RenameSheetCommand): CommandResult {
+  private checkSheetName(cmd: RenameSheetCommand | CreateSheetCommand): CommandResult {
     const { visibleSheets, sheets } = this;
     const name = cmd.name && cmd.name.trim().toLowerCase();
 
@@ -514,6 +511,14 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
     if (FORBIDDEN_IN_EXCEL_REGEX.test(name!)) {
       return CommandResult.ForbiddenCharactersInSheetName;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkSheetPosition(cmd: CreateSheetCommand) {
+    const { visibleSheets } = this;
+    if (cmd.position > visibleSheets.length || cmd.position < 0) {
+      return CommandResult.WrongSheetPosition;
     }
     return CommandResult.Success;
   }

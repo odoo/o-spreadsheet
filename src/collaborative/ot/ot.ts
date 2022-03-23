@@ -114,8 +114,9 @@ function transformSheetId(
   const deleteSheet = executed.type === "DELETE_SHEET" && executed.sheetId;
   if (cmd.sheetId === deleteSheet) {
     return "IGNORE_COMMAND";
-  }
-  if ("sheetId" in executed && cmd.sheetId !== executed.sheetId) {
+  } else if (cmd.type === "CREATE_SHEET" || executed.type === "CREATE_SHEET") {
+    return cmd;
+  } else if ("sheetId" in executed && cmd.sheetId !== executed.sheetId) {
     return "TRANSFORMATION_NOT_NEEDED";
   }
   return cmd;
