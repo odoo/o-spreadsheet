@@ -1,4 +1,4 @@
-import { ChartFigure } from "./components/figures/chart/chart";
+import { ChartFigure } from "./components/figures/figure_chart/figure_chart";
 import { ChartPanel } from "./components/side_panel/chart_panel/chart_panel";
 import {
   BOTTOMBAR_HEIGHT,

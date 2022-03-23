@@ -1,5 +1,4 @@
-import { Component, onMounted, onPatched, useRef, useState } from "@odoo/owl";
-import Chart, { ChartConfiguration } from "chart.js";
+import { Component, useRef, useState } from "@odoo/owl";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../../constants";
 import { MenuItemRegistry } from "../../../registries/index";
 import { _lt } from "../../../translation";
@@ -7,6 +6,7 @@ import { DOMCoordinates, Figure, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 import { useAbsolutePosition } from "../../helpers/position_hook";
 import { Menu, MenuState } from "../../menu/menu";
+import { BasicChart } from "../chart/basic_chart";
 
 // -----------------------------------------------------------------------------
 // STYLE
@@ -46,62 +46,17 @@ interface Props {
 
 export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartFigure";
-  static components = { Menu };
+  static components = { Menu, BasicChart };
   private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
-  canvas = useRef("graphContainer");
   private chartContainerRef = useRef("chartContainer");
   private menuButtonRef = useRef("menuButton");
   private menuButtonPosition = useAbsolutePosition(this.menuButtonRef);
-  private chart?: Chart;
   private position = useAbsolutePosition(this.chartContainerRef);
 
   get canvasStyle() {
     const chart = this.env.model.getters.getChartDefinition(this.props.figure.id);
     return `background-color: ${chart ? chart.background : BACKGROUND_CHART_COLOR}`;
-  }
-
-  setup() {
-    onMounted(() => {
-      const figure = this.props.figure;
-      const chartData = this.env.model.getters.getChartRuntime(figure.id);
-      if (chartData) {
-        this.createChart(chartData);
-      }
-    });
-
-    onPatched(() => {
-      const figure = this.props.figure;
-      const chartData = this.env.model.getters.getChartRuntime(figure.id);
-      if (chartData) {
-        if (chartData.type !== this.chart!.config.type) {
-          // Updating a chart type requires to update its options accordingly, if feasible at all.
-          // Since we trust Chart.js to generate most of its options, it is safer to just start from scratch.
-          // See https://www.chartjs.org/docs/latest/developers/updates.html
-          // and https://stackoverflow.com/questions/36949343/chart-js-dynamic-changing-of-chart-type-line-to-bar-as-example
-          this.chart && this.chart.destroy();
-          this.createChart(chartData);
-        } else if (chartData.data && chartData.data.datasets) {
-          this.chart!.data = chartData.data;
-          if (chartData.options?.title) {
-            this.chart!.config.options!.title = chartData.options.title;
-          }
-        } else {
-          this.chart!.data.datasets = undefined;
-        }
-        this.chart!.config.options!.legend = chartData.options?.legend;
-        this.chart!.config.options!.scales = chartData.options?.scales;
-        this.chart!.update({ duration: 0 });
-      } else {
-        this.chart && this.chart.destroy();
-      }
-    });
-  }
-
-  private createChart(chartData: ChartConfiguration) {
-    const canvas = this.canvas.el as HTMLCanvasElement;
-    const ctx = canvas.getContext("2d")!;
-    this.chart = new window.Chart(ctx, chartData);
   }
 
   private getMenuItemRegistry(): MenuItemRegistry {
