@@ -7,7 +7,12 @@ import { EventBus } from "./helpers/event_bus";
 import { UuidGenerator } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
 import { LocalHistory } from "./history/local_history";
-import { createEmptyExcelWorkbookData, createEmptyWorkbookData, load } from "./migrations/data";
+import {
+  createEmptyExcelWorkbookData,
+  createEmptyWorkbookData,
+  load,
+  repairInitialMessages,
+} from "./migrations/data";
 import { RangeAdapter } from "./plugins/core/range";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
@@ -136,6 +141,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     uuidGenerator: UuidGenerator = new UuidGenerator()
   ) {
     super();
+
+    stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
 
     const workbookData = load(data);
 

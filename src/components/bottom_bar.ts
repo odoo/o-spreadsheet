@@ -165,7 +165,8 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.getters.getVisibleSheets().findIndex((sheetId) => sheetId === activeSheetId) +
       1;
     const sheetId = this.env.model.uuidGenerator.uuidv4();
-    this.env.model.dispatch("CREATE_SHEET", { sheetId, position });
+    const name = this.env.model.getters.getNextSheetName(this.env._t("Sheet"));
+    this.env.model.dispatch("CREATE_SHEET", { sheetId, position, name });
     this.env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
   }
 

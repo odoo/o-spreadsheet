@@ -152,7 +152,7 @@ describe("Collaborative local history", () => {
     );
   });
 
-  test("Load model with initial messages", () => {
+  test("Load model with a simple initial messages", () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
@@ -176,6 +176,74 @@ describe("Collaborative local history", () => {
     );
     expect(getCellContent(model, "B1")).toBe("hello");
     expect(model.exportData().revisionId).toBe("1");
+  });
+
+  test("Load empty model with initial messages, with wrong sheetId", () => {
+    const initialMessages: StateUpdateMessage[] = [
+      {
+        type: "REMOTE_REVISION",
+        nextRevisionId: "1",
+        version: MESSAGE_VERSION,
+        clientId: "bob",
+        commands: [
+          { type: "UPDATE_CELL", col: 0, row: 0, sheetId: "ARandomSheetId", content: "Hello" },
+        ],
+        serverRevisionId: DEFAULT_REVISION_ID,
+      },
+    ];
+    const model = new Model({}, {}, initialMessages);
+    expect(getCellContent(model, "A1")).toBe("Hello");
+  });
+
+  test("Load empty model with initial messages, with multiple sheets and wrong sheetIds", () => {
+    const initialMessages: StateUpdateMessage[] = [
+      {
+        type: "REMOTE_REVISION",
+        serverRevisionId: DEFAULT_REVISION_ID,
+        nextRevisionId: "1",
+        version: MESSAGE_VERSION,
+        clientId: "bob",
+        commands: [
+          { type: "UPDATE_CELL", col: 0, row: 0, sheetId: "ARandomSheetId", content: "Hello" },
+        ],
+      },
+      {
+        type: "REMOTE_REVISION",
+        serverRevisionId: "1",
+        nextRevisionId: "2",
+        version: MESSAGE_VERSION,
+        clientId: "bob",
+        commands: [{ type: "CREATE_SHEET", sheetId: "newSheetId", position: 1 }],
+      },
+      {
+        type: "REMOTE_REVISION",
+        serverRevisionId: "2",
+        nextRevisionId: "3",
+        version: MESSAGE_VERSION,
+        clientId: "bob",
+        commands: [{ type: "UPDATE_CELL", col: 0, row: 0, sheetId: "newSheetId", content: "Hi" }],
+      },
+      {
+        type: "REMOTE_REVISION",
+        serverRevisionId: "3",
+        nextRevisionId: "4",
+        version: MESSAGE_VERSION,
+        clientId: "bob",
+        commands: [
+          {
+            type: "UPDATE_CELL",
+            col: 1,
+            row: 0,
+            sheetId: "ARandomSheetId",
+            content: "Good morning",
+          },
+        ],
+      },
+    ];
+    const model = new Model({}, {}, initialMessages);
+    expect(getCellContent(model, "A1")).toBe("Hello");
+    expect(getCellContent(model, "B1")).toBe("Good morning");
+    expect(getCellContent(model, "A1", "newSheetId")).toBe("Hi");
   });
 
   test("Load model with initial messages, with undo", () => {
