@@ -266,6 +266,7 @@ export interface RemoveMergeCommand extends SheetDependentCommand, TargetDepende
 export interface CreateSheetCommand extends SheetDependentCommand {
   type: "CREATE_SHEET";
   position: number;
+  name?: string; // should be required in master
   cols?: number;
   rows?: number;
 }

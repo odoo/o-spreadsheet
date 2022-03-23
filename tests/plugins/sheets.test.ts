@@ -132,6 +132,13 @@ describe("sheets", () => {
     ).toBeCancelledBecause(CommandResult.ForbiddenCharactersInSheetName);
   });
 
+  test("Cannot create a sheet with a duplicate name", () => {
+    const model = new Model({ sheets: [{ name: "My first sheet" }] });
+    expect(createSheet(model, { sheetId: "42", name: "My first sheet" })).toBeCancelledBecause(
+      CommandResult.DuplicatedSheetName
+    );
+  });
+
   test("Cannot create a sheet with a position > length of sheets", () => {
     const model = new Model();
     expect(model.dispatch("CREATE_SHEET", { sheetId: "42", position: 54 })).toBeCancelledBecause(

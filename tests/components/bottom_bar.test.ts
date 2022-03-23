@@ -69,12 +69,27 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-add-sheet", "click");
     const activeSheetId = parent.env.getters.getActiveSheetId();
     expect(parent.env.dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
+      name: "Sheet2",
       sheetId: "42",
       position: 1,
     });
     expect(parent.env.dispatch).toHaveBeenNthCalledWith(2, "ACTIVATE_SHEET", {
       sheetIdTo: "42",
       sheetIdFrom: activeSheetId,
+    });
+    parent.destroy();
+  });
+
+  test("create a second sheet while the first one is called Sheet2", async () => {
+    const model = new Model({ sheets: [{ name: "Sheet2" }] });
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    expect(model.getters.getSheets().map((sheet) => sheet.name)).toEqual(["Sheet2"]);
+    triggerMouseEvent(".o-add-sheet", "click");
+    expect(parent.env.dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
+      sheetId: expect.any(String),
+      name: "Sheet1",
+      position: 1,
     });
     parent.destroy();
   });

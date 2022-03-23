@@ -6,7 +6,12 @@ import { DataSourceRegistry } from "./data_source";
 import { DEBUG, UuidGenerator } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
 import { LocalHistory } from "./history/local_history";
-import { createEmptyExcelWorkbookData, createEmptyWorkbookData, load } from "./migrations/data";
+import {
+  createEmptyExcelWorkbookData,
+  createEmptyWorkbookData,
+  load,
+  repairInitialMessages,
+} from "./migrations/data";
 import { RangeAdapter } from "./plugins/core/range";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
@@ -132,6 +137,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   ) {
     super();
     DEBUG.model = this;
+
+    stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
 
     const workbookData = load(data);
 
