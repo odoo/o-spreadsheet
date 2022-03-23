@@ -1,0 +1,22 @@
+<templates>
+  <t t-name="o-spreadsheet.GaugeChartConfigPanel" owl="1">
+    <div>
+      <div class="o-section o-data-series">
+        <div class="o-section-title">Data range</div>
+        <SelectionInput
+          ranges="[props.definition.dataRange]"
+          isInvalid="isDataRangeInvalid"
+          hasSingleRange="true"
+          required="true"
+          onSelectionChanged="(ranges) => this.onDataRangeChanged(ranges)"
+          onSelectionConfirmed="() => this.updateDataRange()"
+        />
+      </div>
+      <div class="o-section o-sidepanel-error" t-if="configurationErrorMessages">
+        <div t-foreach="configurationErrorMessages" t-as="error" t-key="error">
+          <t t-esc="error"/>
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>

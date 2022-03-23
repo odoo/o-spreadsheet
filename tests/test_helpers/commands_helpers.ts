@@ -4,8 +4,7 @@ import { Model } from "../../src/model";
 import {
   AnchorZone,
   BorderCommand,
-  ChartUIDefinition,
-  ChartUIDefinitionUpdate,
+  ChartDefinition,
   ClipboardOptions,
   CreateSheetCommand,
   DispatchResult,
@@ -13,6 +12,11 @@ import {
   UID,
   UpDown,
 } from "../../src/types";
+import { BarChartDefinition } from "../../src/types/chart/bar_chart";
+import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
+import { LineChartDefinition } from "../../src/types/chart/line_chart";
+import { PieChartDefinition } from "../../src/types/chart/pie_chart";
+import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
 import { SelectionDirection, SelectionStep } from "../../src/types/selection";
 import { target } from "./helpers";
 
@@ -87,7 +91,7 @@ export function deleteSheet(model: Model, sheetId: UID): DispatchResult {
  */
 export function createChart(
   model: Model,
-  data: Partial<ChartUIDefinition>,
+  data: Partial<LineChartDefinition | BarChartDefinition | PieChartDefinition>,
   chartId?: UID,
   sheetId?: UID
 ) {
@@ -104,10 +108,74 @@ export function createChart(
       labelRange: data.labelRange,
       type: data.type || "bar",
       background: data.background || BACKGROUND_CHART_COLOR,
-      verticalAxisPosition: data.verticalAxisPosition || "left",
+      verticalAxisPosition: ("verticalAxisPosition" in data && data.verticalAxisPosition) || "left",
       legendPosition: data.legendPosition || "top",
-      stackedBar: data.stackedBar || false,
-      labelsAsText: data.labelsAsText || false,
+      stackedBar: ("stackedBar" in data && data.stackedBar) || false,
+      labelsAsText: ("labelsAsText" in data && data.labelsAsText) || false,
+    },
+  });
+}
+
+export function createScorecardChart(
+  model: Model,
+  data: Partial<ScorecardChartDefinition>,
+  chartId?: UID,
+  sheetId?: UID
+) {
+  const id = chartId || model.uuidGenerator.uuidv4();
+  sheetId = sheetId || model.getters.getActiveSheetId();
+
+  return model.dispatch("CREATE_CHART", {
+    id,
+    sheetId,
+    definition: {
+      type: "scorecard",
+      title: data.title || "",
+      baseline: data.baseline || "",
+      keyValue: data.keyValue || "",
+      baselineDescr: data.baselineDescr || "",
+      baselineMode: data.baselineMode || "absolute",
+      baselineColorDown: "#DC6965",
+      baselineColorUp: "#00A04A",
+      background: data.background,
+    },
+  });
+}
+
+export function createGaugeChart(
+  model: Model,
+  data: Partial<GaugeChartDefinition>,
+  chartId?: UID,
+  sheetId?: UID
+) {
+  const id = chartId || model.uuidGenerator.uuidv4();
+  sheetId = sheetId || model.getters.getActiveSheetId();
+
+  return model.dispatch("CREATE_CHART", {
+    id,
+    sheetId,
+    definition: {
+      type: "gauge",
+      background: data.background || BACKGROUND_CHART_COLOR,
+      title: data.title || "",
+      dataRange: data.dataRange || "",
+      sectionRule: data.sectionRule || {
+        rangeMin: "0",
+        rangeMax: "100",
+        colors: {
+          lowerColor: "#6aa84f",
+          middleColor: "#f1c232",
+          upperColor: "#cc0000",
+        },
+        lowerInflectionPoint: {
+          type: "number",
+          value: "33",
+        },
+        upperInflectionPoint: {
+          type: "number",
+          value: "66",
+        },
+      },
     },
   });
 }
@@ -118,13 +186,17 @@ export function createChart(
 export function updateChart(
   model: Model,
   chartId: UID,
-  definition: ChartUIDefinitionUpdate,
+  definition: Partial<ChartDefinition>,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
+  const def: ChartDefinition = {
+    ...model.getters.getChartDefinition(chartId),
+    ...definition,
+  } as ChartDefinition;
   return model.dispatch("UPDATE_CHART", {
     id: chartId,
     sheetId,
-    definition,
+    definition: def,
   });
 }
 

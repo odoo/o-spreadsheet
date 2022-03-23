@@ -1,0 +1,32 @@
+<templates>
+  <t t-name="o-spreadsheet.ScorecardChartConfigPanel" owl="1">
+    <div>
+      <div class="o-section o-data-series">
+        <div class="o-section-title">Key value</div>
+        <SelectionInput
+          ranges="[props.definition.keyValue]"
+          isInvalid="isKeyValueInvalid"
+          hasSingleRange="true"
+          required="true"
+          onSelectionChanged="(ranges) => this.onKeyValueRangeChanged(ranges)"
+          onSelectionConfirmed="() => this.updateKeyValueRange()"
+        />
+      </div>
+      <div class="o-section o-data-labels">
+        <div class="o-section-title">Baseline value</div>
+        <SelectionInput
+          ranges="[props.definition.baseline || '']"
+          isInvalid="isBaselineInvalid"
+          hasSingleRange="true"
+          onSelectionChanged="(ranges) => this.onBaselineRangeChanged(ranges)"
+          onSelectionConfirmed="() => this.updateBaselineRange()"
+        />
+      </div>
+      <div class="o-section o-sidepanel-error" t-if="errorMessages">
+        <div t-foreach="errorMessages" t-as="error" t-key="error">
+          <t t-esc="error"/>
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>

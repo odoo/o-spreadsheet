@@ -1,6 +1,7 @@
 import { range, toZone, zoneToDimension } from "../../helpers";
-import { ChartColors } from "../../helpers/chart";
-import { ExcelChartDefinition, FigureData } from "../../types";
+import { ChartColors } from "../../helpers/charts";
+import { FigureData } from "../../types";
+import { ExcelChartDefinition } from "../../types/chart/chart";
 import { XlsxHexColor, XMLAttributes, XMLString } from "../../types/xlsx";
 import { DRAWING_NS_A, DRAWING_NS_C, RELATIONSHIP_NSR } from "../constants";
 import { toXlsxHexColor } from "../helpers/colors";

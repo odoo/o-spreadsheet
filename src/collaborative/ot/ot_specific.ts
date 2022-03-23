@@ -1,9 +1,9 @@
-import { isDefined, overlap, toZone, zoneToXc } from "../../helpers";
+import { overlap } from "../../helpers";
+import { transformDefinition } from "../../helpers/charts";
 import { otRegistry } from "../../registries";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
-  ChartUIDefinition,
   CreateChartCommand,
   CreateSheetCommand,
   DeleteFigureCommand,
@@ -15,7 +15,6 @@ import {
   UpdateFigureCommand,
   Zone,
 } from "../../types";
-import { transformZone } from "./ot_helpers";
 
 /*
  * This file contains the specifics transformations
@@ -61,26 +60,9 @@ function updateChartRangesTransformation(
   toTransform: UpdateChartCommand | CreateChartCommand,
   executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
 ): UpdateChartCommand | CreateChartCommand {
-  const definition = toTransform.definition;
-  let labelZone: Zone | undefined;
-  let dataSets: string[] | undefined;
-  if (definition.labelRange) {
-    labelZone = transformZone(toZone(definition.labelRange), executed);
-  }
-  if (definition.dataSets) {
-    dataSets = definition.dataSets
-      .map(toZone)
-      .map((zone) => transformZone(zone, executed))
-      .filter(isDefined)
-      .map(zoneToXc);
-  }
   return {
     ...toTransform,
-    definition: {
-      ...definition,
-      dataSets,
-      labelRange: labelZone ? zoneToXc(labelZone) : undefined,
-    } as ChartUIDefinition,
+    definition: transformDefinition(toTransform.definition, executed),
   };
 }
 

@@ -4,7 +4,7 @@ import { figureRegistry } from "../../../registries/index";
 import { Figure, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
 import { startDnd } from "../../helpers/drag_and_drop";
-import { ChartFigure } from "../chart/chart";
+import { ChartFigure } from "../figure_chart/figure_chart";
 
 interface FigureInfo {
   id: string;
@@ -115,11 +115,24 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
 
   getVisibleFigures(): FigureInfo[] {
     const selectedId = this.env.model.getters.getSelectedFigureId();
-    return this.env.model.getters.getVisibleFigures().map((f) => ({
-      id: f.id,
-      isSelected: f.id === selectedId,
-      figure: f,
-    }));
+    return this.env.model.getters.getVisibleFigures().map((f) => {
+      let figure = f;
+      // Returns current state of drag&drop figure instead of its stored state
+      if (this.dnd.figureId === f.id) {
+        figure = {
+          ...f,
+          x: this.dnd.x,
+          y: this.dnd.y,
+          width: this.dnd.width,
+          height: this.dnd.height,
+        };
+      }
+      return {
+        id: f.id,
+        isSelected: f.id === selectedId,
+        figure: figure,
+      };
+    });
   }
 
   getDims(info: FigureInfo) {
@@ -213,7 +226,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
     if (this.props.sidePanelIsOpen) {
-      this.env.openSidePanel("ChartPanel", { figure });
+      this.env.openSidePanel("ChartPanel", { figureId: figure.id });
     }
     const initialX = ev.clientX;
     const initialY = ev.clientY;

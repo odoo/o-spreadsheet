@@ -176,7 +176,6 @@ describe("Migrations", () => {
       background: BACKGROUND_CHART_COLOR,
       verticalAxisPosition: "left",
       legendPosition: "top",
-      stackedBar: false,
     });
     expect(data.sheets[0].figures[1].data).toEqual({
       type: "bar",

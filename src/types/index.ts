@@ -10,7 +10,7 @@
 
 export * from "./autofill";
 export * from "./cells";
-export * from "./chart";
+export * from "./chart/chart";
 export * from "./collaborative/revisions";
 export * from "./collaborative/session";
 export * from "./commands";

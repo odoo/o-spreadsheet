@@ -1,9 +1,9 @@
-import { Component, onMounted, onPatched, useRef, useState } from "@odoo/owl";
-import Chart, { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../../constants";
+import { Component, useRef, useState } from "@odoo/owl";
+import { MENU_WIDTH } from "../../../constants";
+import { chartComponentRegistry } from "../../../registries/chart_types";
 import { MenuItemRegistry } from "../../../registries/index";
 import { _lt } from "../../../translation";
-import { DOMCoordinates, Figure, SpreadsheetChildEnv } from "../../../types";
+import { ChartType, DOMCoordinates, SpreadsheetChildEnv, UID } from "../../../types";
 import { css } from "../../helpers/css";
 import { useAbsolutePosition } from "../../helpers/position_hook";
 import { Menu, MenuState } from "../../menu/menu";
@@ -39,7 +39,7 @@ css/* scss */ `
 `;
 
 interface Props {
-  figure: Figure;
+  figureId: UID;
   sidePanelIsOpen: boolean;
   onFigureDeleted: () => void;
 }
@@ -49,67 +49,17 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static components = { Menu };
   private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
-  canvas = useRef("graphContainer");
   private chartContainerRef = useRef("chartContainer");
   private menuButtonRef = useRef("menuButton");
   private menuButtonPosition = useAbsolutePosition(this.menuButtonRef);
-  private chart?: Chart;
   private position = useAbsolutePosition(this.chartContainerRef);
-
-  get canvasStyle() {
-    const chart = this.env.model.getters.getChartDefinition(this.props.figure.id);
-    return `background-color: ${chart ? chart.background : BACKGROUND_CHART_COLOR}`;
-  }
-
-  setup() {
-    onMounted(() => {
-      const figure = this.props.figure;
-      const chartData = this.env.model.getters.getChartRuntime(figure.id);
-      if (chartData) {
-        this.createChart(chartData);
-      }
-    });
-
-    onPatched(() => {
-      const figure = this.props.figure;
-      const chartData = this.env.model.getters.getChartRuntime(figure.id);
-      if (chartData) {
-        if (chartData.type !== this.chart!.config.type) {
-          // Updating a chart type requires to update its options accordingly, if feasible at all.
-          // Since we trust Chart.js to generate most of its options, it is safer to just start from scratch.
-          // See https://www.chartjs.org/docs/latest/developers/updates.html
-          // and https://stackoverflow.com/questions/36949343/chart-js-dynamic-changing-of-chart-type-line-to-bar-as-example
-          this.chart && this.chart.destroy();
-          this.createChart(chartData);
-        } else if (chartData.data && chartData.data.datasets) {
-          this.chart!.data = chartData.data;
-          if (chartData.options?.title) {
-            this.chart!.config.options!.title = chartData.options.title;
-          }
-        } else {
-          this.chart!.data.datasets = undefined;
-        }
-        this.chart!.config.options!.legend = chartData.options?.legend;
-        this.chart!.config.options!.scales = chartData.options?.scales;
-        this.chart!.update({ duration: 0 });
-      } else {
-        this.chart && this.chart.destroy();
-      }
-    });
-  }
-
-  private createChart(chartData: ChartConfiguration) {
-    const canvas = this.canvas.el as HTMLCanvasElement;
-    const ctx = canvas.getContext("2d")!;
-    this.chart = new window.Chart(ctx, chartData);
-  }
 
   private getMenuItemRegistry(): MenuItemRegistry {
     const registry = new MenuItemRegistry();
     registry.add("edit", {
       name: _lt("Edit"),
       sequence: 1,
-      action: () => this.env.openSidePanel("ChartPanel", { figure: this.props.figure }),
+      action: () => this.env.openSidePanel("ChartPanel", { figureId: this.props.figureId }),
     });
     registry.add("delete", {
       name: _lt("Delete"),
@@ -117,10 +67,10 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
       action: () => {
         this.env.model.dispatch("DELETE_FIGURE", {
           sheetId: this.env.model.getters.getActiveSheetId(),
-          id: this.props.figure.id,
+          id: this.props.figureId,
         });
         if (this.props.sidePanelIsOpen) {
-          this.env.toggleSidePanel("ChartPanel", { figure: this.props.figure });
+          this.env.toggleSidePanel("ChartPanel", { figureId: this.props.figureId });
         }
         this.props.onFigureDeleted();
       },
@@ -130,11 +80,15 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
       sequence: 11,
       action: () => {
         this.env.model.dispatch("REFRESH_CHART", {
-          id: this.props.figure.id,
+          id: this.props.figureId,
         });
       },
     });
     return registry;
+  }
+
+  get chartType(): ChartType {
+    return this.env.model.getters.getChartType(this.props.figureId);
   }
 
   onContextMenu(ev: MouseEvent) {
@@ -158,5 +112,14 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.isOpen = true;
     this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
     this.menuState.position = position;
+  }
+
+  get chartComponent(): new (...args: any) => Component {
+    const type = this.chartType;
+    const component = chartComponentRegistry.get(type);
+    if (!component) {
+      throw new Error(`Component is not defined for type ${type}`);
+    }
+    return component;
   }
 }

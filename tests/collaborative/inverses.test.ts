@@ -3,7 +3,6 @@ import { inverseCommand } from "../../src/helpers/inverse_commands";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
-  ChartUIDefinition,
   ClearCellCommand,
   ClearFormattingCommand,
   CoreCommand,
@@ -21,6 +20,7 @@ import {
   UpdateChartCommand,
   UpdateFigureCommand,
 } from "../../src/types";
+import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { target } from "../test_helpers/helpers";
 
 describe("Inverses commands", () => {
@@ -294,7 +294,7 @@ describe("Inverses commands", () => {
     const updateChart: UpdateChartCommand = {
       type: "UPDATE_CHART",
       sheetId: "42",
-      definition: {} as ChartUIDefinition,
+      definition: {} as LineChartDefinition,
       id: "1",
     };
     test.each([

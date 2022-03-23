@@ -1,7 +1,10 @@
-import { Model } from "../../src";
-import { ChartTerms } from "../../src/components/translations_terms";
-import { toZone } from "../../src/helpers/zones";
-import { BorderCommand, ChartUIDefinition, CommandResult } from "../../src/types";
+import { Model } from "../../../src";
+import { ChartTerms } from "../../../src/components/translations_terms";
+import { toZone } from "../../../src/helpers/zones";
+import { BorderCommand, CommandResult } from "../../../src/types";
+import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
+import { LineChartDefinition, LineChartRuntime } from "../../../src/types/chart/line_chart";
+import { PieChartRuntime } from "../../../src/types/chart/pie_chart";
 import {
   activateSheet,
   addColumns,
@@ -17,9 +20,9 @@ import {
   setCellContent,
   undo,
   updateChart,
-} from "../test_helpers/commands_helpers";
-import { target } from "../test_helpers/helpers";
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
+} from "../../test_helpers/commands_helpers";
+import { target } from "../../test_helpers/helpers";
+jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
 let model: Model;
 
@@ -66,7 +69,6 @@ beforeEach(() => {
 
 describe("datasource tests", function () {
   test("create chart with column datasets", () => {
-    const sheetId = model.getters.getActiveSheetId();
     createChart(
       model,
       {
@@ -77,39 +79,8 @@ describe("datasource tests", function () {
       "1"
     );
     expect(model.getters.getChartDefinition("1")).toMatchObject({
-      dataSets: [
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("B1:B4"),
-          },
-          labelCell: {
-            invalidSheetName: undefined,
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("B1"),
-          },
-        },
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("C1:C4"),
-          },
-          labelCell: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("C1"),
-          },
-        },
-      ],
-      labelRange: {
-        prefixSheet: true,
-        sheetId,
-        zone: toZone("A2:A4"),
-      },
-      sheetId,
+      dataSets: ["B1:B4", "C1:C4"],
+      labelRange: "Sheet1!A2:A4",
       title: "test",
       type: "line",
     });
@@ -117,7 +88,6 @@ describe("datasource tests", function () {
   });
 
   test("create chart with rectangle dataset", () => {
-    const sheetId = model.getters.getActiveSheetId();
     createChart(
       model,
       {
@@ -128,39 +98,8 @@ describe("datasource tests", function () {
       "1"
     );
     expect(model.getters.getChartDefinition("1")).toMatchObject({
-      dataSets: [
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("B1:B4"),
-          },
-          labelCell: {
-            invalidSheetName: undefined,
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("B1"),
-          },
-        },
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("C1:C4"),
-          },
-          labelCell: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("C1"),
-          },
-        },
-      ],
-      labelRange: {
-        prefixSheet: true,
-        sheetId,
-        zone: toZone("A2:A4"),
-      },
-      sheetId,
+      dataSets: ["B1:B4", "C1:C4"],
+      labelRange: "Sheet1!A2:A4",
       title: "test",
       type: "line",
     });
@@ -168,7 +107,6 @@ describe("datasource tests", function () {
   });
 
   test("create chart with column datasets without series title", () => {
-    const sheetId = model.getters.getActiveSheetId();
     createChart(
       model,
       {
@@ -180,30 +118,9 @@ describe("datasource tests", function () {
       "1"
     );
     expect(model.getters.getChartDefinition("1")).toMatchObject({
-      dataSets: [
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("B2:B4"),
-          },
-          labelCell: undefined,
-        },
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("C2:C4"),
-          },
-          labelCell: undefined,
-        },
-      ],
-      labelRange: {
-        prefixSheet: false,
-        sheetId,
-        zone: toZone("A2:A4"),
-      },
-      sheetId,
+      dataSets: ["B2:B4", "C2:C4"],
+      labelRange: "A2:A4",
+      dataSetsHaveTitle: false,
       title: "test",
       type: "line",
     });
@@ -211,7 +128,6 @@ describe("datasource tests", function () {
   });
 
   test("create chart with row datasets", () => {
-    const sheetId = model.getters.getActiveSheetId();
     createChart(
       model,
       {
@@ -222,38 +138,8 @@ describe("datasource tests", function () {
       "1"
     );
     expect(model.getters.getChartDefinition("1")).toMatchObject({
-      dataSets: [
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("A8:D8"),
-          },
-          labelCell: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("A8"),
-          },
-        },
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("A9:D9"),
-          },
-          labelCell: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("A9"),
-          },
-        },
-      ],
-      labelRange: {
-        prefixSheet: false,
-        sheetId,
-        zone: toZone("B7:D7"),
-      },
-      sheetId,
+      dataSets: ["A8:D8", "A9:D9"],
+      labelRange: "B7:D7",
       title: "test",
       type: "line",
     });
@@ -261,7 +147,6 @@ describe("datasource tests", function () {
   });
 
   test("create chart with row datasets without series title", () => {
-    const sheetId = model.getters.getActiveSheetId();
     createChart(
       model,
       {
@@ -273,30 +158,8 @@ describe("datasource tests", function () {
       "1"
     );
     expect(model.getters.getChartDefinition("1")).toMatchObject({
-      dataSets: [
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("B8:D8"),
-          },
-          labelCell: undefined,
-        },
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("B9:D9"),
-          },
-          labelCell: undefined,
-        },
-      ],
-      labelRange: {
-        prefixSheet: false,
-        sheetId,
-        zone: toZone("B7:D7"),
-      },
-      sheetId,
+      dataSets: ["B8:D8", "B9:D9"],
+      labelRange: "B7:D7",
       title: "test",
       type: "line",
     });
@@ -304,7 +167,6 @@ describe("datasource tests", function () {
   });
 
   test("create chart with only the dataset title (no data)", () => {
-    const sheetId = model.getters.getActiveSheetId();
     createChart(
       model,
       {
@@ -316,12 +178,7 @@ describe("datasource tests", function () {
     );
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [],
-      labelRange: {
-        prefixSheet: true,
-        sheetId,
-        zone: toZone("B7:D7"),
-      },
-      sheetId,
+      labelRange: "Sheet1!B7:D7",
       title: "test",
       type: "line",
     });
@@ -329,7 +186,6 @@ describe("datasource tests", function () {
   });
 
   test("create chart with a dataset of one cell (no title)", () => {
-    const sheetId = model.getters.getActiveSheetId();
     createChart(
       model,
       {
@@ -341,22 +197,9 @@ describe("datasource tests", function () {
       "1"
     );
     expect(model.getters.getChartDefinition("1")).toMatchObject({
-      dataSets: [
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("B8"),
-          },
-          labelCell: undefined,
-        },
-      ],
-      labelRange: {
-        prefixSheet: false,
-        sheetId,
-        zone: toZone("B7"),
-      },
-      sheetId,
+      dataSets: ["B8"],
+      dataSetsHaveTitle: false,
+      labelRange: "B7",
       title: "test",
       type: "line",
     });
@@ -388,12 +231,10 @@ describe("datasource tests", function () {
       "1"
     );
     addColumns(model, "before", "A", 2);
-    const chart = model.getters.getChartDefinition("1")!;
-    expect(chart.dataSets[0].dataRange.zone).toStrictEqual(toZone("D1:D4"));
-    expect(chart.dataSets[0].labelCell!.zone).toStrictEqual(toZone("D1:D1"));
-    expect(chart.dataSets[1].dataRange.zone).toStrictEqual(toZone("E1:E4"));
-    expect(chart.dataSets[1].labelCell!.zone).toStrictEqual(toZone("E1:E1"));
-    expect(chart.labelRange!.zone).toStrictEqual(toZone("C2:C4"));
+    const chart = model.getters.getChartDefinition("1") as LineChartDefinition;
+    expect(chart.dataSets[0]).toStrictEqual("D1:D4");
+    expect(chart.dataSets[1]).toStrictEqual("E1:E4");
+    expect(chart.labelRange).toStrictEqual("Sheet1!C2:C4");
   });
 
   test("pie chart tooltip title display the correct dataset", () => {
@@ -402,7 +243,8 @@ describe("datasource tests", function () {
       { dataSets: ["B7:B8"], dataSetsHaveTitle: true, labelRange: "B7", type: "pie" },
       "1"
     );
-    const title = model.getters.getChartRuntime("1")!.options!.tooltips!.callbacks!.title!;
+    const title = (model.getters.getChartRuntime("1") as PieChartRuntime)!.options!.tooltips!
+      .callbacks!.title!;
     const chartData = { datasets: [{ label: "dataset 1" }, { label: "dataset 2" }] };
     expect(title([{ datasetIndex: 0 }], chartData)).toBe("dataset 1");
     expect(title([{ datasetIndex: 1 }], chartData)).toBe("dataset 2");
@@ -414,7 +256,8 @@ describe("datasource tests", function () {
       { dataSets: ["B7:B8"], dataSetsHaveTitle: true, labelRange: "B7", type: chartType },
       "1"
     );
-    const title = model.getters.getChartRuntime("1")?.options?.tooltips?.callbacks?.title;
+    const title = (model.getters.getChartRuntime("1") as BarChartRuntime | LineChartRuntime)
+      ?.options?.tooltips?.callbacks?.title;
     expect(title).toBeUndefined();
   });
 
@@ -434,7 +277,7 @@ describe("datasource tests", function () {
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
     newModel.dispatch("DELETE_FIGURE", { sheetId: model.getters.getActiveSheetId(), id: "1" });
     expect(newModel.getters.getVisibleFigures()).toHaveLength(0);
-    expect(newModel.getters.getChartRuntime("1")).toBeUndefined();
+    expect(() => newModel.getters.getChartRuntime("1")).toThrow();
   });
 
   test("update dataset of imported chart", () => {
@@ -448,15 +291,14 @@ describe("datasource tests", function () {
       "1"
     );
     const newModel = new Model(model.exportData());
-    let chart = newModel.getters.getChartRuntime("1")!;
+    let chart = newModel.getters.getChartRuntime("1") as LineChartRuntime;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     setCellContent(newModel, "B2", "99");
-    chart = newModel.getters.getChartRuntime("1")!;
+    chart = newModel.getters.getChartRuntime("1") as LineChartRuntime;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
   });
 
   test("update existing chart", () => {
-    const sheetId = model.getters.getActiveSheetId();
     createChart(
       model,
       {
@@ -466,50 +308,20 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    let chart = model.getters.getChartRuntime("1")!;
+    let chart = model.getters.getChartRuntime("1") as LineChartRuntime;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.type).toEqual("line");
     updateChart(model, "1", {
+      type: "bar",
       dataSets: ["Sheet1!A8:D8", "Sheet1!A9:D9"],
       labelRange: "Sheet1!C7:D7",
       dataSetsHaveTitle: true,
-      type: "bar",
       title: "hello1",
     });
-    chart = model.getters.getChartRuntime("1")!;
+    chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(model.getters.getChartDefinition("1")).toMatchObject({
-      dataSets: [
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("A8:D8"),
-          },
-          labelCell: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("A8"),
-          },
-        },
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("A9:D9"),
-          },
-          labelCell: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("A9"),
-          },
-        },
-      ],
-      labelRange: {
-        prefixSheet: true,
-        sheetId,
-        zone: toZone("C7:D7"),
-      },
-      sheetId,
+      dataSets: ["A8:D8", "A9:D9"],
+      labelRange: "Sheet1!C7:D7",
       title: "hello1",
       type: "bar",
     });
@@ -528,12 +340,13 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    updateChart(model, "1", { labelRange: null });
-    expect(model.getters.getChartDefinition("1")?.labelRange).toBeUndefined();
+    updateChart(model, "1", { labelRange: undefined });
+    expect(
+      (model.getters.getChartDefinition("1") as LineChartDefinition).labelRange
+    ).toBeUndefined();
   });
 
   test("deleting a random sheet does not affect a chart", () => {
-    const sheetId = model.getters.getActiveSheetId();
     createChart(
       model,
       {
@@ -543,15 +356,14 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    const chartDefinitionBefore = model.getters.getChartDefinitionUI(sheetId, "1");
+    const chartDefinitionBefore = model.getters.getChartDefinition("1");
     createSheet(model, { sheetId: "42" });
     deleteSheet(model, "42");
-    const chartDefinitionAfter = model.getters.getChartDefinitionUI(sheetId, "1");
+    const chartDefinitionAfter = model.getters.getChartDefinition("1");
     expect(chartDefinitionBefore).toEqual(chartDefinitionAfter);
   });
 
   test("deleting a col on another sheet does not affect a chart", () => {
-    const sheetId = model.getters.getActiveSheetId();
     createChart(
       model,
       {
@@ -561,10 +373,10 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    const chartDefinitionBefore = model.getters.getChartDefinitionUI(sheetId, "1");
+    const chartDefinitionBefore = model.getters.getChartDefinition("1");
     createSheet(model, { sheetId: "42" });
     deleteColumns(model, ["A"], "42");
-    const chartDefinitionAfter = model.getters.getChartDefinitionUI(sheetId, "1");
+    const chartDefinitionAfter = model.getters.getChartDefinition("1");
     expect(chartDefinitionBefore).toEqual(chartDefinitionAfter);
   });
 
@@ -579,7 +391,7 @@ describe("datasource tests", function () {
       "1"
     );
     deleteColumns(model, ["B"]);
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as LineChartRuntime;
     expect(chart.data!.datasets![0].data).toEqual([20, 19, 18]);
     expect(chart.data!.datasets![1]).toBe(undefined);
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
@@ -597,8 +409,8 @@ describe("datasource tests", function () {
     );
     deleteColumns(model, ["A"]);
     // dataset in col B becomes labels in col A
-    expect(model.getters.getChartRuntime("1")!.data!.labels).toEqual(["0", "1", "2"]);
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as LineChartRuntime;
+    expect(chart.data!.labels).toEqual(["0", "1", "2"]);
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
     expect(chart.data!.labels).toEqual(["0", "1", "2"]);
@@ -616,7 +428,7 @@ describe("datasource tests", function () {
       "1"
     );
     deleteRows(model, [4]);
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as LineChartRuntime;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
@@ -634,7 +446,7 @@ describe("datasource tests", function () {
       "1"
     );
     deleteColumns(model, ["C"]);
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as LineChartRuntime;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13]);
     expect(chart.data!.datasets![1]).toBeUndefined();
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
@@ -652,14 +464,13 @@ describe("datasource tests", function () {
       "1"
     );
     addRows(model, "before", 2, 1);
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as LineChartRuntime;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18, 17]);
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
 
   test("Add a row on another sheet does not affect a chart", () => {
-    const sheetId = model.getters.getActiveSheetId();
     createChart(
       model,
       {
@@ -669,10 +480,10 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    const chartDefinitionBefore = model.getters.getChartDefinitionUI(sheetId, "1");
+    const chartDefinitionBefore = model.getters.getChartDefinition("1");
     createSheet(model, { sheetId: "42" });
     addRows(model, "before", 0, 1, "42");
-    const chartDefinitionAfter = model.getters.getChartDefinitionUI(sheetId, "1");
+    const chartDefinitionAfter = model.getters.getChartDefinition("1");
     expect(chartDefinitionBefore).toEqual(chartDefinitionAfter);
   });
 
@@ -688,9 +499,8 @@ describe("datasource tests", function () {
       "1"
     );
     deleteRows(model, [1, 2, 3, 4]);
-    const chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual([]);
-    expect(chart.data!.datasets![1].data).toEqual([]);
+    const chart = model.getters.getChartRuntime("1") as LineChartRuntime;
+    expect(chart.data!.datasets).toHaveLength(0);
     expect(chart.data!.labels).toEqual([]);
   });
 
@@ -704,12 +514,12 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    let chart = model.getters.getChartRuntime("1")!;
+    let chart = model.getters.getChartRuntime("1") as LineChartRuntime;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![0].label).toEqual("first column dataset");
     setCellContent(model, "B2", "99");
     setCellContent(model, "B1", "new dataset label");
-    chart = model.getters.getChartRuntime("1")!;
+    chart = model.getters.getChartRuntime("1") as LineChartRuntime;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
     expect(chart.data!.datasets![0].label).toEqual("new dataset label");
   });
@@ -764,7 +574,6 @@ describe("datasource tests", function () {
   });
 
   test("create chart with invalid SheetName in dataset will ignore invalid data", () => {
-    const sheetId = model.getters.getActiveSheetId();
     createChart(
       model,
       {
@@ -773,28 +582,10 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(model.getters.getChartDefinition("1")).toMatchObject({
-      dataSets: [
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("B1:B4"),
-          },
-          labelCell: {
-            prefixSheet: false,
-            sheetId,
-            zone: toZone("B1"),
-          },
-        },
-      ],
-      labelRange: {
-        prefixSheet: true,
-        sheetId,
-        zone: toZone("A2:A4"),
-      },
-      sheetId,
+      dataSets: ["B1:B4"],
+      labelRange: "Sheet1!A2:A4",
       title: "test",
       type: "bar",
     });
@@ -827,6 +618,14 @@ describe("datasource tests", function () {
     expect(result).toBeSuccessfullyDispatched();
   });
   test("update chart with invalid dataset", () => {
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B4", "Sheet1!B1:B4"],
+        labelRange: "",
+      },
+      "1"
+    );
     expect(
       updateChart(model, "1", {
         dataSets: ["Sheet1!B1:B4", "This is invalid"],
@@ -903,7 +702,7 @@ describe("datasource tests", function () {
       labelRange: "Sheet1!A2:A5",
       dataSetsHaveTitle: true,
     });
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18, 17]);
   });
@@ -922,7 +721,7 @@ describe("datasource tests", function () {
       labelRange: "Sheet1!A2:A5",
       dataSetsHaveTitle: true,
     });
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
 
@@ -940,7 +739,7 @@ describe("datasource tests", function () {
     );
     expect(model.getters.getChartRuntime("1")).not.toBeUndefined();
     model.dispatch("DELETE_SHEET", { sheetId: "2" });
-    expect(model.getters.getChartRuntime("1")).toBeUndefined();
+    expect(() => model.getters.getChartRuntime("1")).toThrow();
   });
 
   test("Chart is copied on sheet duplication", () => {
@@ -959,23 +758,14 @@ describe("datasource tests", function () {
       sheetIdTo: secondSheetId,
       sheetId: firstSheetId,
     });
+    const sheetName = model.getters.getSheet(secondSheetId).name;
 
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
     const duplicatedChartDefinition = model.getters.getChartDefinition(duplicatedFigure.id);
     const expectedDuplicatedChartDefinition = {
-      dataSets: [
-        {
-          dataRange: model.getters.getRangeFromSheetXC(secondSheetId, "B1:B4"),
-          labelCell: model.getters.getRangeFromSheetXC(secondSheetId, "B1"),
-        },
-        {
-          dataRange: model.getters.getRangeFromSheetXC(secondSheetId, "C1:C4"),
-          labelCell: model.getters.getRangeFromSheetXC(secondSheetId, "C1"),
-        },
-      ],
-      labelRange: model.getters.getRangeFromSheetXC(secondSheetId, "A2:A4"),
-      sheetId: secondSheetId,
+      dataSets: [`B1:B4`, `C1:C4`],
+      labelRange: `'${sheetName}'!A2:A4`,
       title: "test",
     };
     expect(duplicatedFigure).toMatchObject({ ...figure, id: expect.any(String) });
@@ -1011,14 +801,8 @@ describe("datasource tests", function () {
     const duplicatedFigure = model.getters.getFigures(thirdSheetId)[0];
     const duplicatedChartDefinition = model.getters.getChartDefinition(duplicatedFigure.id);
     expect(duplicatedChartDefinition).toMatchObject({
-      dataSets: [
-        {
-          dataRange: model.getters.getRangeFromSheetXC(secondSheetId, `C1:C4`),
-          labelCell: model.getters.getRangeFromSheetXC(secondSheetId, `C1`),
-        },
-      ],
-      labelRange: model.getters.getRangeFromSheetXC(secondSheetId, `${secondSheetName}!A2:A4`),
-      sheetId: thirdSheetId,
+      dataSets: [`${secondSheetName}!C1:C4`],
+      labelRange: `${secondSheetName}!A2:A4`,
       title: "test",
     });
   });
@@ -1034,8 +818,7 @@ describe("datasource tests", function () {
       "1"
     );
     deleteColumns(model, ["A", "B"]);
-    const sheetId = model.getters.getActiveSheetId();
-    const def = model.getters.getChartDefinitionUI(sheetId, "1");
+    const def = model.getters.getChartDefinition("1") as LineChartDefinition;
     expect(def.dataSets).toHaveLength(1);
     expect(def.dataSets[0]).toEqual("A1:A4");
     expect(def.labelRange).toBeUndefined();
@@ -1053,11 +836,11 @@ describe("title", function () {
       },
       "1"
     );
-    let chart = model.getters.getChartRuntime("1")!;
+    let chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(chart.options!.title!.text).toEqual("title");
 
     updateChart(model, "1", { title: "newTitle" });
-    chart = model.getters.getChartRuntime("1")!;
+    chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(chart.options!.title!.text).toEqual("newTitle");
   });
 
@@ -1071,9 +854,13 @@ describe("title", function () {
       },
       "1"
     );
-    expect(model.getters.getChartRuntime("1")?.options?.title?.display).toBe(true);
+    expect((model.getters.getChartRuntime("1") as BarChartRuntime).options?.title?.display).toBe(
+      true
+    );
     updateChart(model, "1", { title: "" });
-    expect(model.getters.getChartRuntime("1")?.options?.title?.display).toBe(false);
+    expect((model.getters.getChartRuntime("1") as BarChartRuntime).options?.title?.display).toBe(
+      false
+    );
   });
 });
 
@@ -1088,39 +875,12 @@ describe("multiple sheets", function () {
       },
       "1"
     );
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     const chartDefinition = model.getters.getChartDefinition("1");
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
     expect(chartDefinition).toMatchObject({
-      dataSets: [
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId: "Sheet1",
-            zone: toZone("B1:B4"),
-          },
-          labelCell: {
-            invalidSheetName: undefined,
-            prefixSheet: false,
-            sheetId: "Sheet1",
-            zone: toZone("B1"),
-          },
-        },
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId: "Sheet1",
-            zone: toZone("C1:C4"),
-          },
-          labelCell: {
-            prefixSheet: false,
-            sheetId: "Sheet1",
-            zone: toZone("C1"),
-          },
-        },
-      ],
-      sheetId: "42",
+      dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
     });
   });
   test("create a chart with dataset label from another sheet", () => {
@@ -1133,16 +893,11 @@ describe("multiple sheets", function () {
       },
       "1"
     );
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     const chartDefinition = model.getters.getChartDefinition("1");
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
     expect(chartDefinition).toMatchObject({
-      labelRange: {
-        prefixSheet: true,
-        sheetId: "Sheet1",
-        zone: toZone("A2:A4"),
-      },
-      sheetId: "42",
+      labelRange: "Sheet1!A2:A4",
     });
   });
   test("change source data then activate the chart sheet (it should be up-to-date)", () => {
@@ -1163,7 +918,7 @@ describe("multiple sheets", function () {
       content: "99",
     });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
-    const chart = model.getters.getChartRuntime("28")!;
+    const chart = model.getters.getChartRuntime("28") as BarChartRuntime;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
   });
   test("change dataset label then activate the chart sheet (it should be up-to-date)", () => {
@@ -1184,7 +939,7 @@ describe("multiple sheets", function () {
       content: "miam",
     });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
-    const chart = model.getters.getChartRuntime("28")!;
+    const chart = model.getters.getChartRuntime("28") as BarChartRuntime;
     expect(chart.data!.labels).toEqual(["P1", "miam", "P3"]);
   });
   test("create a chart with data from another sheet", () => {
@@ -1197,39 +952,12 @@ describe("multiple sheets", function () {
       },
       "28"
     );
-    const chart = model.getters.getChartRuntime("28")!;
+    const chart = model.getters.getChartRuntime("28") as BarChartRuntime;
     const chartDefinition = model.getters.getChartDefinition("28");
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
     expect(chartDefinition).toMatchObject({
-      dataSets: [
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId: "Sheet1",
-            zone: toZone("B1:B4"),
-          },
-          labelCell: {
-            invalidSheetName: undefined,
-            prefixSheet: false,
-            sheetId: "Sheet1",
-            zone: toZone("B1"),
-          },
-        },
-        {
-          dataRange: {
-            prefixSheet: false,
-            sheetId: "Sheet1",
-            zone: toZone("C1:C4"),
-          },
-          labelCell: {
-            prefixSheet: false,
-            sheetId: "Sheet1",
-            zone: toZone("C1"),
-          },
-        },
-      ],
-      sheetId: "42",
+      dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
     });
   });
   describe("multiple sheets with formulas", function () {
@@ -1274,7 +1002,7 @@ describe("multiple sheets", function () {
       });
     });
     test("new model with chart with formulas from another sheet (not evaluated yet)", () => {
-      const chart = model.getters.getChartRuntime("1")!;
+      const chart = model.getters.getChartRuntime("1") as LineChartRuntime;
       expect(chart.data!.datasets![0].data).toEqual([2, 4]);
     });
     test("refresh chart to update it with new data", () => {
@@ -1284,11 +1012,11 @@ describe("multiple sheets", function () {
         row: 0,
         content: "=Sheet1!B1*3",
       });
-      let chart = model.getters.getChartRuntime("1")!;
+      let chart = model.getters.getChartRuntime("1") as LineChartRuntime;
       expect(chart.data!.datasets![0].data).toEqual(["Loading...", 4]); // data has not been updated :(
 
       model.dispatch("REFRESH_CHART", { id: "1" });
-      chart = model.getters.getChartRuntime("1")!;
+      chart = model.getters.getChartRuntime("1") as LineChartRuntime;
       expect(chart.data!.datasets![0].data).toEqual([3, 4]);
 
       model.dispatch("UPDATE_CELL", {
@@ -1297,11 +1025,11 @@ describe("multiple sheets", function () {
         row: 1,
         content: "5",
       });
-      chart = model.getters.getChartRuntime("1")!;
+      chart = model.getters.getChartRuntime("1") as LineChartRuntime;
       expect(chart.data!.datasets![0].data).toEqual([3, 4]); // data has not been updated :(
 
       model.dispatch("REFRESH_CHART", { id: "1" });
-      chart = model.getters.getChartRuntime("1")!;
+      chart = model.getters.getChartRuntime("1") as LineChartRuntime;
       expect(chart.data!.datasets![0].data).toEqual([3, 10]);
     });
   });
@@ -1345,22 +1073,22 @@ describe("undo/redo", () => {
       },
       "27"
     );
-    let chart = model.getters.getChartRuntime("27")!;
+    let chart = model.getters.getChartRuntime("27") as LineChartRuntime;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     setCellContent(model, "B2", "99");
-    chart = model.getters.getChartRuntime("27")!;
+    chart = model.getters.getChartRuntime("27") as LineChartRuntime;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
     undo(model);
-    chart = model.getters.getChartRuntime("27")!;
+    chart = model.getters.getChartRuntime("27") as LineChartRuntime;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     redo(model);
-    chart = model.getters.getChartRuntime("27")!;
+    chart = model.getters.getChartRuntime("27") as LineChartRuntime;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
   });
 });
 
 describe("Chart without labels", () => {
-  const defaultChart: ChartUIDefinition = {
+  const defaultChart: BarChartDefinition = {
     background: "#FFFFFF",
     dataSets: ["A1:A2"],
     dataSetsHaveTitle: false,
@@ -1369,43 +1097,54 @@ describe("Chart without labels", () => {
     type: "bar",
     verticalAxisPosition: "left",
     stackedBar: false,
-    labelsAsText: false,
   };
 
   test("The legend is not displayed when there is only one dataSet and no label", () => {
     createChart(model, defaultChart, "42");
-    expect(model.getters.getChartRuntime("42")?.options?.legend?.display).toBe(false);
+    expect((model.getters.getChartRuntime("42") as BarChartRuntime)?.options?.legend?.display).toBe(
+      false
+    );
 
     createChart(model, { ...defaultChart, dataSets: ["A1:A2", "A3:A4"] }, "43");
-    expect(model.getters.getChartRuntime("43")?.options?.legend?.display).toBeUndefined();
+    expect(
+      (model.getters.getChartRuntime("43") as BarChartRuntime)?.options?.legend?.display
+    ).toBeUndefined();
 
     createChart(model, { ...defaultChart, labelRange: "B1:B2" }, "44");
-    expect(model.getters.getChartRuntime("44")?.options?.legend?.display).toBeUndefined();
+    expect(
+      (model.getters.getChartRuntime("44") as BarChartRuntime)?.options?.legend?.display
+    ).toBeUndefined();
   });
 
   test("Labels are empty if there is only one dataSet and no label", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     createChart(model, defaultChart, "42");
-    expect(model.getters.getChartRuntime("42")?.data?.labels).toEqual(["", ""]);
+    expect((model.getters.getChartRuntime("42") as BarChartRuntime)?.data?.labels).toEqual([
+      "",
+      "",
+    ]);
 
     createChart(model, { ...defaultChart, dataSets: ["A1:A2", "A3:A4"] }, "43");
-    expect(model.getters.getChartRuntime("43")?.data?.datasets![0].label).toEqual(
-      `${ChartTerms.Series.toString()} 1`
-    );
-    expect(model.getters.getChartRuntime("43")?.data?.datasets![1].label).toEqual(
-      `${ChartTerms.Series.toString()} 2`
-    );
+    expect(
+      (model.getters.getChartRuntime("43") as BarChartRuntime)?.data?.datasets![0].label
+    ).toEqual(`${ChartTerms.Series.toString()} 1`);
+    expect(
+      (model.getters.getChartRuntime("43") as BarChartRuntime)?.data?.datasets![1].label
+    ).toEqual(`${ChartTerms.Series.toString()} 2`);
 
     setCellContent(model, "B1", "B1");
     setCellContent(model, "B2", "B2");
     createChart(model, { ...defaultChart, labelRange: "B1:B2" }, "44");
-    expect(model.getters.getChartRuntime("44")?.data?.labels).toEqual(["B1", "B2"]);
+    expect((model.getters.getChartRuntime("44") as BarChartRuntime).data?.labels).toEqual([
+      "B1",
+      "B2",
+    ]);
   });
 });
 
 describe("Chart design configuration", () => {
-  const defaultChart: ChartUIDefinition = {
+  const defaultChart: BarChartDefinition = {
     background: "#FFFFFF",
     dataSets: ["A1:A2"],
     dataSetsHaveTitle: true,
@@ -1415,63 +1154,74 @@ describe("Chart design configuration", () => {
     verticalAxisPosition: "left",
     labelRange: "A1",
     stackedBar: false,
-    labelsAsText: false,
   };
 
   test("Legend position", () => {
     createChart(model, defaultChart, "42");
-    expect(model.getters.getChartRuntime("42")?.options?.legend?.position).toBe("top");
+    expect((model.getters.getChartRuntime("42") as BarChartRuntime).options?.legend?.position).toBe(
+      "top"
+    );
 
     updateChart(model, "42", { legendPosition: "left" });
-    expect(model.getters.getChartRuntime("42")?.options?.legend?.position).toBe("left");
+    expect((model.getters.getChartRuntime("42") as BarChartRuntime).options?.legend?.position).toBe(
+      "left"
+    );
 
     updateChart(model, "42", { legendPosition: "right" });
-    expect(model.getters.getChartRuntime("42")?.options?.legend?.position).toBe("right");
+    expect((model.getters.getChartRuntime("42") as BarChartRuntime).options?.legend?.position).toBe(
+      "right"
+    );
 
     updateChart(model, "42", { legendPosition: "bottom" });
-    expect(model.getters.getChartRuntime("42")?.options?.legend?.position).toBe("bottom");
+    expect((model.getters.getChartRuntime("42") as BarChartRuntime).options?.legend?.position).toBe(
+      "bottom"
+    );
   });
 
   test("Background is correctly updated", () => {
     createChart(model, defaultChart, "42");
-    expect(
-      model.getters.getChartDefinitionUI(model.getters.getActiveSheetId(), "42").background
-    ).toBe("#FFFFFF");
+    expect(model.getters.getChartDefinition("42")!.background).toBe("#FFFFFF");
 
     updateChart(model, "42", { background: "#000000" });
-    expect(
-      model.getters.getChartDefinitionUI(model.getters.getActiveSheetId(), "42").background
-    ).toBe("#000000");
+    expect(model.getters.getChartDefinition("42")!.background).toBe("#000000");
   });
 
   test("Stacked bar", () => {
     createChart(model, defaultChart, "42");
-    expect(model.getters.getChartRuntime("42")?.options?.scales?.xAxes![0].stacked).toBeUndefined();
-    expect(model.getters.getChartRuntime("42")?.options?.scales?.yAxes![0].stacked).toBeUndefined();
+    expect(
+      (model.getters.getChartRuntime("42") as BarChartRuntime).options?.scales?.xAxes![0].stacked
+    ).toBeUndefined();
+    expect(
+      (model.getters.getChartRuntime("42") as BarChartRuntime).options?.scales?.yAxes![0].stacked
+    ).toBeUndefined();
 
     updateChart(model, "42", { stackedBar: true });
-    expect(model.getters.getChartRuntime("42")?.options?.scales?.xAxes![0].stacked).toBe(true);
-    expect(model.getters.getChartRuntime("42")?.options?.scales?.yAxes![0].stacked).toBe(true);
+    expect(
+      (model.getters.getChartRuntime("42") as BarChartRuntime).options?.scales?.xAxes![0].stacked
+    ).toBe(true);
+    expect(
+      (model.getters.getChartRuntime("42") as BarChartRuntime).options?.scales?.yAxes![0].stacked
+    ).toBe(true);
 
     updateChart(model, "42", { type: "line" });
-    expect(model.getters.getChartRuntime("42")?.options?.scales?.xAxes![0].stacked).toBeUndefined();
-    expect(model.getters.getChartRuntime("42")?.options?.scales?.yAxes![0].stacked).toBeUndefined();
-
-    updateChart(model, "42", { type: "bar" });
-    expect(model.getters.getChartRuntime("42")?.options?.scales?.xAxes![0].stacked).toBe(true);
-    expect(model.getters.getChartRuntime("42")?.options?.scales?.yAxes![0].stacked).toBe(true);
-
-    updateChart(model, "42", { stackedBar: false });
-    expect(model.getters.getChartRuntime("42")?.options?.scales?.xAxes![0].stacked).toBeUndefined();
-    expect(model.getters.getChartRuntime("42")?.options?.scales?.yAxes![0].stacked).toBeUndefined();
+    expect(
+      (model.getters.getChartRuntime("42") as BarChartRuntime).options?.scales?.xAxes![0].stacked
+    ).toBeUndefined();
+    expect(
+      (model.getters.getChartRuntime("42") as BarChartRuntime).options?.scales?.yAxes![0].stacked
+    ).toBeUndefined();
   });
 
   test("Vertical axis position", () => {
     createChart(model, defaultChart, "42");
-    expect(model.getters.getChartRuntime("42")?.options?.scales?.yAxes![0].position).toBe("left");
+    expect(
+      (model.getters.getChartRuntime("42") as BarChartRuntime).options?.scales?.yAxes![0].position
+    ).toBe("left");
 
     updateChart(model, "42", { verticalAxisPosition: "right" });
-    expect(model.getters.getChartRuntime("42")?.options?.scales?.yAxes![0].position).toBe("right");
+    expect(
+      (model.getters.getChartRuntime("42") as BarChartRuntime).options?.scales?.yAxes![0].position
+    ).toBe("right");
   });
 
   test("empty data points are not displayed in the chart", () => {
@@ -1498,7 +1248,7 @@ describe("Chart design configuration", () => {
     });
 
     createChart(model, { labelRange: "A2:A6", dataSets: ["B1:B15", "C1:C15"] }, "1");
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(chart.data!.labels).toEqual(["P1", "", ""]);
     expect(chart.data!.datasets![0].data).toEqual([undefined, 10, undefined]);
     expect(chart.data!.datasets![1].data).toEqual([undefined, undefined, 20]);
@@ -1509,7 +1259,7 @@ describe("Chart design configuration", () => {
     // corresponding label would be A8, but it's not part of the label range
     setCellContent(model, "B8", "30");
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B15"] }, "1");
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(chart.data!.labels).toEqual([""]);
     expect(chart.data!.datasets![0].data).toEqual([30]);
   });
@@ -1519,7 +1269,7 @@ describe("Chart design configuration", () => {
     // corresponding value would be B8, but it's not part of the data range
     setCellContent(model, "A8", "P1");
     createChart(model, { labelRange: "A2:A15", dataSets: ["B1:B3"] }, "1");
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(chart.data!.labels).toEqual(["P1"]);
     expect(chart.data!.datasets![0].data).toEqual([undefined]);
   });
@@ -1527,7 +1277,7 @@ describe("Chart design configuration", () => {
   test("no data points at all", () => {
     const model = new Model();
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(chart.data!.labels).toEqual([]);
     expect(chart.data!.datasets![0].data).toEqual([]);
   });
@@ -1544,7 +1294,7 @@ describe("Chart design configuration", () => {
       ...formatting,
     });
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(chart.data!.labels).toEqual([]);
     expect(chart.data!.datasets![0].data).toEqual([]);
   });
@@ -1561,7 +1311,7 @@ describe("Chart design configuration", () => {
       ...formatting,
     });
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(chart.data!.labels).toEqual([]);
     expect(chart.data!.datasets![0].data).toEqual([]);
   });
@@ -1570,7 +1320,7 @@ describe("Chart design configuration", () => {
     const model = new Model();
     setCellContent(model, "B2", "0");
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(chart.data!.labels).toEqual([""]);
     expect(chart.data!.datasets![0].data).toEqual([0]);
   });
@@ -1579,7 +1329,7 @@ describe("Chart design configuration", () => {
     const model = new Model();
     setCellContent(model, "A2", "0");
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-    const chart = model.getters.getChartRuntime("1")!;
+    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
     expect(chart.data!.labels).toEqual(["0"]);
     expect(chart.data!.datasets![0].data).toEqual([undefined]);
   });
@@ -1599,7 +1349,7 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    const chart = model.getters.getChartRuntime(chartId)!;
+    const chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
     expect(chart.options!.scales!.xAxes![0].type).toEqual("linear");
   });
 
@@ -1619,7 +1369,7 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    let chart = model.getters.getChartRuntime(chartId)!;
+    let chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
     expect(chart.options!.scales!.xAxes![0].type).toEqual("time");
 
     updateChart(model, chartId, { type: "bar" });
@@ -1645,7 +1395,7 @@ describe("Linear/Time charts", () => {
       chartId
     );
     setCellContent(model, "C3", "");
-    const chart = model.getters.getChartRuntime(chartId)!;
+    const chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
     expect(chart.data!.labels![1]).toEqual("1/17/1900");
     expect(chart.data!.datasets![0].data![1]).toEqual({ y: undefined, x: "1/17/1900" });
   });
@@ -1663,7 +1413,7 @@ describe("Linear/Time charts", () => {
       chartId
     );
     setCellContent(model, "C3", "");
-    const chart = model.getters.getChartRuntime(chartId)!;
+    const chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
     expect(chart.data!.labels![1]).toEqual("");
     expect(chart.data!.datasets![0].data![1]).toEqual({ y: 11, x: undefined });
   });
@@ -1735,10 +1485,16 @@ describe("Chart evaluation", () => {
       },
       "1"
     );
-    expect(model.getters.getChartRuntime("1")!.data!.datasets![0]!.data![0]).toBeNull();
+    expect(
+      (model.getters.getChartRuntime("1") as BarChartRuntime).data!.datasets![0]!.data![0]
+    ).toBeNull();
     setCellContent(model, "C3", "1");
-    expect(model.getters.getChartRuntime("1")!.data!.datasets![0]!.data![0]).toBe(1);
+    expect(
+      (model.getters.getChartRuntime("1") as BarChartRuntime).data!.datasets![0]!.data![0]
+    ).toBe(1);
     deleteColumns(model, ["C"]);
-    expect(model.getters.getChartRuntime("1")!.data!.datasets![0]!.data![0]).toBe("#REF");
+    expect(
+      (model.getters.getChartRuntime("1") as BarChartRuntime).data!.datasets![0]!.data![0]
+    ).toBe("#REF");
   });
 });

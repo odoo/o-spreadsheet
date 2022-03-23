@@ -87,6 +87,10 @@ export const DEFAULT_ERROR_MESSAGE = _lt("Invalid expression");
 export const FORBIDDEN_SHEET_CHARS = ["'", "*", "?", "/", "\\", "[", "]"] as const;
 export const FORBIDDEN_IN_EXCEL_REGEX = /'|\*|\?|\/|\\|\[|\]/;
 
+export const DEFAULT_GAUGE_LOWER_COLOR = "#cc0000";
+export const DEFAULT_GAUGE_MIDDLE_COLOR = "#f1c232";
+export const DEFAULT_GAUGE_UPPER_COLOR = "#6aa84f";
+
 // Cells
 export const NULL_FORMAT = undefined;
 

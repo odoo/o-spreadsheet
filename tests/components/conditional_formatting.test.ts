@@ -1401,7 +1401,7 @@ describe("UI of conditional formats", () => {
     expect(inputInflectionLower.classList).toContain("o-invalid");
     expect(inputInflectionUpper.classList).toContain("o-invalid");
     expect(errorMessages()).toEqual([
-      "Lower inflection point must be smaller then upper inflection point",
+      "Lower inflection point must be smaller than upper inflection point",
     ]);
   });
 
