@@ -5,6 +5,7 @@ import {
   AddMergeCommand,
   ChartUIDefinition,
   CreateChartCommand,
+  CreateSheetCommand,
   DeleteFigureCommand,
   RemoveColumnsRowsCommand,
   RemoveMergeCommand,
@@ -30,6 +31,7 @@ otRegistry.addTransformation(
   updateChartRangesTransformation
 );
 otRegistry.addTransformation("DELETE_FIGURE", ["UPDATE_FIGURE", "UPDATE_CHART"], updateChartFigure);
+otRegistry.addTransformation("CREATE_SHEET", ["CREATE_SHEET"], createSheetTransformation);
 otRegistry.addTransformation("ADD_MERGE", ["ADD_MERGE", "REMOVE_MERGE"], mergeTransformation);
 otRegistry.addTransformation("ADD_MERGE", ["SORT_CELLS"], sortMergedTransformation);
 otRegistry.addTransformation("REMOVE_MERGE", ["SORT_CELLS"], sortUnMergedTransformation);
@@ -69,6 +71,22 @@ function updateChartRangesTransformation(
       labelRange: labelZone ? zoneToXc(labelZone) : undefined,
     } as ChartUIDefinition,
   };
+}
+
+function createSheetTransformation(
+  cmd: CreateSheetCommand,
+  executed: CreateSheetCommand
+): CreateSheetCommand {
+  if (cmd.name === executed.name) {
+    return {
+      ...cmd,
+      name: cmd.name?.match(/\d+/)
+        ? cmd.name.replace(/\d+/, (n) => (parseInt(n) + 1).toString())
+        : `${cmd.name}~`,
+      position: cmd.position + 1,
+    };
+  }
+  return cmd;
 }
 
 function mergeTransformation(

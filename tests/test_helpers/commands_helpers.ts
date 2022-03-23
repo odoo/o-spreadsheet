@@ -48,6 +48,7 @@ export function createSheet(
     sheetId,
     cols: data.cols,
     rows: data.rows,
+    name: data.name,
   });
   if (data.activate) {
     activateSheet(model, sheetId);
