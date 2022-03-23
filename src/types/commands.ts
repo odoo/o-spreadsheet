@@ -299,6 +299,7 @@ export interface RemoveMergeCommand
 export interface CreateSheetCommand extends BaseCommand, SheetDependentCommand {
   type: "CREATE_SHEET";
   position: number;
+  name?: string; // should be required in master
   cols?: number;
   rows?: number;
 }
