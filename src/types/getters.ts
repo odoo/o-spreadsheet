@@ -8,7 +8,6 @@ import { FigurePlugin } from "../plugins/core/figures";
 import { MergePlugin } from "../plugins/core/merge";
 import { RangeAdapter } from "../plugins/core/range";
 import { SheetPlugin } from "../plugins/core/sheet";
-import { SortPlugin } from "../plugins/core/sort";
 import { AutofillPlugin } from "../plugins/ui/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui/automatic_sum";
 import { ClipboardPlugin } from "../plugins/ui/clipboard";
@@ -22,6 +21,7 @@ import { RendererPlugin } from "../plugins/ui/renderer";
 import { SelectionPlugin } from "../plugins/ui/selection";
 import { SelectionInputPlugin } from "../plugins/ui/selection_inputs";
 import { SelectionMultiUserPlugin } from "../plugins/ui/selection_multiuser";
+import { SortPlugin } from "../plugins/ui/sort";
 import { UIOptionsPlugin } from "../plugins/ui/ui_options";
 import { SheetUIPlugin } from "../plugins/ui/ui_sheet";
 import { ViewportPlugin } from "../plugins/ui/viewport";
@@ -97,8 +97,6 @@ export interface CoreGetters {
   getRangeString: RangeAdapter["getRangeString"];
   getRangeFromSheetXC: RangeAdapter["getRangeFromSheetXC"];
   createAdaptedRanges: RangeAdapter["createAdaptedRanges"];
-
-  getContiguousZone: SortPlugin["getContiguousZone"];
 }
 
 export type Getters = CoreGetters & {
@@ -166,6 +164,8 @@ export type Getters = CoreGetters & {
 
   getSearchMatches: FindAndReplacePlugin["getSearchMatches"];
   getCurrentSelectedMatchIndex: FindAndReplacePlugin["getCurrentSelectedMatchIndex"];
+
+  getContiguousZone: SortPlugin["getContiguousZone"];
 
   getClientsToDisplay: SelectionMultiUserPlugin["getClientsToDisplay"];
 

@@ -113,10 +113,12 @@ export function createChart(
 export function updateChart(
   model: Model,
   chartId: UID,
-  definition: ChartUIDefinitionUpdate
+  definition: ChartUIDefinitionUpdate,
+  sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   return model.dispatch("UPDATE_CHART", {
     id: chartId,
+    sheetId,
     definition,
   });
 }
@@ -378,12 +380,10 @@ export function sort(
     interactive?: boolean;
   }
 ) {
-  const [col, row] = toCartesian(anchor);
   return model.dispatch("SORT_CELLS", {
     sheetId: sheetId || model.getters.getActiveSheetId(),
     zone: toZone(zone),
-    col,
-    row,
+    anchor: toCartesian(anchor),
     sortDirection: direction,
     interactive,
   });
