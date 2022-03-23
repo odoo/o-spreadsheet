@@ -5,8 +5,15 @@ import {
   FORMULA_REF_IDENTIFIER,
 } from "../constants";
 import { toXC, toZone } from "../helpers/index";
-import { _t } from "../translation";
-import { ExcelSheetData, ExcelWorkbookData, SheetData, WorkbookData } from "../types/index";
+import { StateUpdateMessage } from "../types/collaborative/transport_service";
+import {
+  CoreCommand,
+  ExcelSheetData,
+  ExcelWorkbookData,
+  SheetData,
+  UID,
+  WorkbookData,
+} from "../types/index";
 import { normalizeV9 } from "./legacy_tools";
 
 /**
@@ -15,6 +22,7 @@ import { normalizeV9 } from "./legacy_tools";
  * function should be defined
  */
 export const CURRENT_VERSION = 10;
+const INITIAL_SHEET_ID = "Sheet1";
 
 /**
  * This function tries to load anything that could look like a valid
@@ -39,10 +47,12 @@ export function load(data?: any): WorkbookData {
   // sanity check: try to fix missing fields/corrupted state by providing
   // sensible default values
   data = Object.assign(createEmptyWorkbookData(), data, { version: CURRENT_VERSION });
-  data.sheets = data.sheets.map((s, i) => Object.assign(createEmptySheet(`Sheet${i + 1}`), s));
+  data.sheets = data.sheets.map((s, i) =>
+    Object.assign(createEmptySheet(`Sheet${i + 1}`, `Sheet${i + 1}`), s)
+  );
 
   if (data.sheets.length === 0) {
-    data.sheets.push(createEmptySheet());
+    data.sheets.push(createEmptySheet(INITIAL_SHEET_ID, "Sheet1"));
   }
   return data;
 }
@@ -266,12 +276,62 @@ const MIGRATIONS: Migration[] = [
   },
 ];
 
+/**
+ * The goal of this function is to repair corrupted/wrong initial messages caused by
+ * a bug.
+ * The bug should obviously be fixed, but it's too late for existing spreadsheet.
+ */
+export function repairInitialMessages(
+  data: Partial<WorkbookData>,
+  initialMessages: StateUpdateMessage[]
+): StateUpdateMessage[] {
+  initialMessages = fixTranslatedSheetIds(data, initialMessages);
+  return initialMessages;
+}
+
+/**
+ * When the workbook data is originally empty, a new one is generated on-the-fly.
+ * A bug caused the sheet id to be non-deterministic. The sheet id was propagated in
+ * commands.
+ * This function repairs initial commands with a wrong sheetId.
+ */
+function fixTranslatedSheetIds(
+  data: Partial<WorkbookData>,
+  initialMessages: StateUpdateMessage[]
+): StateUpdateMessage[] {
+  // the fix is only needed when the workbook is generated on-the-fly
+  if (Object.keys(data).length !== 0) {
+    return initialMessages;
+  }
+  const sheetIds: UID[] = [];
+  const messages: StateUpdateMessage[] = [];
+  const fixSheetId = (cmd: CoreCommand) => {
+    if (cmd.type === "CREATE_SHEET") {
+      sheetIds.push(cmd.sheetId);
+    } else if ("sheetId" in cmd && !sheetIds.includes(cmd.sheetId)) {
+      return { ...cmd, sheetId: INITIAL_SHEET_ID };
+    }
+    return cmd;
+  };
+  for (const message of initialMessages) {
+    if (message.type === "REMOTE_REVISION") {
+      messages.push({
+        ...message,
+        commands: message.commands.map(fixSheetId),
+      });
+    } else {
+      messages.push(message);
+    }
+  }
+  return messages;
+}
+
 // -----------------------------------------------------------------------------
 // Helpers
 // -----------------------------------------------------------------------------
-function createEmptySheet(name: string = _t("Sheet") + 1): SheetData {
+function createEmptySheet(sheetId: UID, name: string): SheetData {
   return {
-    id: name,
+    id: sheetId,
     name,
     colNumber: 26,
     rowNumber: 100,
@@ -284,10 +344,10 @@ function createEmptySheet(name: string = _t("Sheet") + 1): SheetData {
   };
 }
 
-export function createEmptyWorkbookData(): WorkbookData {
+export function createEmptyWorkbookData(sheetName = "Sheet1"): WorkbookData {
   const data = {
     version: CURRENT_VERSION,
-    sheets: [createEmptySheet(_t("Sheet") + 1)],
+    sheets: [createEmptySheet(INITIAL_SHEET_ID, sheetName)],
     entities: {},
     styles: {},
     borders: {},
@@ -296,9 +356,9 @@ export function createEmptyWorkbookData(): WorkbookData {
   return data;
 }
 
-function createEmptyExcelSheet(name: string = _t("Sheet") + 1): ExcelSheetData {
+function createEmptyExcelSheet(sheetId: UID, name: string): ExcelSheetData {
   return {
-    ...(createEmptySheet(name) as Omit<ExcelSheetData, "charts">),
+    ...(createEmptySheet(sheetId, name) as Omit<ExcelSheetData, "charts">),
     charts: [],
   };
 }
@@ -306,6 +366,6 @@ function createEmptyExcelSheet(name: string = _t("Sheet") + 1): ExcelSheetData {
 export function createEmptyExcelWorkbookData(): ExcelWorkbookData {
   return {
     ...createEmptyWorkbookData(),
-    sheets: [createEmptyExcelSheet(_t("Sheet") + 1)],
+    sheets: [createEmptyExcelSheet(INITIAL_SHEET_ID, "Sheet1")],
   };
 }

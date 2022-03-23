@@ -24,6 +24,7 @@ import {
   toZone,
   UuidGenerator,
 } from "./helpers/index";
+import { createEmptyWorkbookData } from "./migrations/data";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import {
   autofillModifiersRegistry,
@@ -125,4 +126,5 @@ export const helpers = {
   isMarkdownLink,
   parseMarkdownLink,
   markdownLink,
+  createEmptyWorkbookData,
 };
