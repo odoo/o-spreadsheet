@@ -1,5 +1,6 @@
 import { FIGURE_BORDER_SIZE } from "../../constants";
-import { ExcelChartDefinition, FigureData, HeaderData, SheetData } from "../../types";
+import { FigureData, HeaderData, SheetData } from "../../types";
+import { ExcelChartDefinition } from "../../types/chart/chart";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { DRAWING_NS_A, DRAWING_NS_C, NAMESPACE, RELATIONSHIP_NSR } from "../constants";
 import { convertChartId, convertDotValueToEMU } from "../helpers/content_helpers";

@@ -383,7 +383,7 @@ describe("Resizer component", () => {
   test("Double click: Modify the size of a column", async () => {
     setCellContent(model, "B2", "b2");
     await dblClickColumn("B");
-    expect(model.getters.getCol(model.getters.getActiveSheetId(), 1)!.size).toBe(1006);
+    expect(model.getters.getCol(model.getters.getActiveSheetId(), 1)!.size).toBe(32); // 32 = 2 letters fontSize 13 + 2*3px padding
   });
 
   test("Double click on column then undo, then redo", async () => {
@@ -395,10 +395,10 @@ describe("Resizer component", () => {
     const sheet = model.getters.getActiveSheetId();
     const initialSize = model.getters.getCol(sheet, 0)!.size;
     expect(model.getters.getCol(sheet, 1)!.size).toBe(initialSize);
-    expect(model.getters.getCol(sheet, 2)!.size).toBe(1006);
-    expect(model.getters.getCol(sheet, 3)!.size).toBe(1006);
+    expect(model.getters.getCol(sheet, 2)!.size).toBe(32); // 32 = 2 letters fontSize 13 + 2*3px padding
+    expect(model.getters.getCol(sheet, 3)!.size).toBe(32);
     expect(model.getters.getCol(sheet, 4)!.size).toBe(initialSize);
-    expect(model.getters.getColDimensions(sheet, 4)!.start).toBe(initialSize * 2 + 2012);
+    expect(model.getters.getColDimensions(sheet, 4)!.start).toBe(initialSize * 2 + 64);
     undo(model);
     expect(model.getters.getCol(sheet, 1)!.size).toBe(initialSize);
     expect(model.getters.getCol(sheet, 2)!.size).toBe(initialSize);
@@ -407,10 +407,10 @@ describe("Resizer component", () => {
     expect(model.getters.getColDimensions(sheet, 4)!.start).toBe(initialSize * 4);
     redo(model);
     expect(model.getters.getCol(sheet, 1)!.size).toBe(initialSize);
-    expect(model.getters.getCol(sheet, 2)!.size).toBe(1006);
-    expect(model.getters.getCol(sheet, 3)!.size).toBe(1006);
+    expect(model.getters.getCol(sheet, 2)!.size).toBe(32);
+    expect(model.getters.getCol(sheet, 3)!.size).toBe(32);
     expect(model.getters.getCol(sheet, 4)!.size).toBe(initialSize);
-    expect(model.getters.getColDimensions(sheet, 4)!.start).toBe(initialSize * 2 + 2012);
+    expect(model.getters.getColDimensions(sheet, 4)!.start).toBe(initialSize * 2 + 64);
   });
 
   test("Double click: Modify the size of a row", async () => {
@@ -548,13 +548,13 @@ describe("Resizer component", () => {
     await selectColumn("C", { shiftKey: true });
     await selectColumn("E", { ctrlKey: true });
     await dblClickColumn("E");
-    expect(model.getters.getCol(model.getters.getActiveSheetId(), 0)!.size).toBe(1006);
-    expect(model.getters.getCol(model.getters.getActiveSheetId(), 1)!.size).toBe(1006);
-    expect(model.getters.getCol(model.getters.getActiveSheetId(), 2)!.size).toBe(1006);
+    expect(model.getters.getCol(model.getters.getActiveSheetId(), 0)!.size).toBe(19); // 19 = 1 letter fontSize 13 + 2*3px padding
+    expect(model.getters.getCol(model.getters.getActiveSheetId(), 1)!.size).toBe(19);
+    expect(model.getters.getCol(model.getters.getActiveSheetId(), 2)!.size).toBe(19);
     expect(model.getters.getCol(model.getters.getActiveSheetId(), 3)!.size).toBe(
       DEFAULT_CELL_WIDTH
     );
-    expect(model.getters.getCol(model.getters.getActiveSheetId(), 4)!.size).toBe(1006);
+    expect(model.getters.getCol(model.getters.getActiveSheetId(), 4)!.size).toBe(19);
   });
 
   test("Select ABC E, dblclick F then resize only F", async () => {
@@ -578,7 +578,7 @@ describe("Resizer component", () => {
     expect(model.getters.getCol(model.getters.getActiveSheetId(), 4)!.size).toBe(
       DEFAULT_CELL_WIDTH
     );
-    expect(model.getters.getCol(model.getters.getActiveSheetId(), 5)!.size).toBe(1006);
+    expect(model.getters.getCol(model.getters.getActiveSheetId(), 5)!.size).toBe(19); // 19 = 1 letter fontSize 13 + 2*3px padding
   });
 
   test("Select 123 5, dblclick 5 then resize all", async () => {

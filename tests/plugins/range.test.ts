@@ -1,5 +1,6 @@
 import { CorePlugin, Model } from "../../src";
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
+import { copyRangeWithNewSheetId } from "../../src/helpers/range";
 import { corePluginRegistry } from "../../src/plugins";
 import { ApplyRangeChange, Command, Range, UID } from "../../src/types";
 import {
@@ -398,5 +399,26 @@ describe("range plugin", () => {
         expect(m.getters.getRangeString(range, "tao")).toBe(`'${name}'!A1`);
       }
     );
+  });
+});
+
+describe("Helpers", () => {
+  test.each([
+    ["A1:B1", "s1", "s2", "s2"],
+    ["Sheet1!A1:B1", "s1", "s2", "s2"],
+    ["Sheet2!A1:B1", "s1", "s2", "s2"],
+  ])("copyRangeWithNewSheetId", (xc, sheetIdFrom, sheetIdTo, result) => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "s1",
+          name: "Sheet1",
+        },
+        { id: "s2", name: "Sheet2" },
+      ],
+    });
+    const range = model.getters.getRangeFromSheetXC(sheetIdFrom, xc);
+    const updated = copyRangeWithNewSheetId(sheetIdFrom, sheetIdTo, range);
+    expect(updated.sheetId).toBe(result);
   });
 });

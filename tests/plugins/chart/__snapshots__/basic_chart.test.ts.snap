@@ -71,7 +71,6 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
-          "offset": true,
           "ticks": Object {
             "callback": [Function],
             "fontColor": "#FFFFFF",
@@ -176,7 +175,6 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
-          "offset": true,
           "ticks": Object {
             "fontColor": "#000000",
             "labelOffset": 2,
@@ -288,7 +286,6 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
-          "offset": true,
           "ticks": Object {
             "callback": [Function],
             "fontColor": "#000000",
@@ -333,7 +330,6 @@ Object {
           30,
         ],
         "label": "P4",
-        "lineTension": 0,
       },
     ],
     "labels": Array [
@@ -375,7 +371,6 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
-          "offset": true,
           "stacked": true,
           "ticks": Object {
             "fontColor": "#000000",
@@ -462,7 +457,6 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
-          "offset": true,
           "ticks": Object {
             "fontColor": "#000000",
             "labelOffset": 2,
@@ -562,7 +556,6 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
-          "offset": true,
           "ticks": Object {
             "fontColor": "#000000",
             "labelOffset": 2,
@@ -662,7 +655,6 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
-          "offset": true,
           "ticks": Object {
             "fontColor": "#000000",
             "labelOffset": 2,
@@ -739,7 +731,6 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
-          "offset": true,
           "ticks": Object {
             "fontColor": "#000000",
             "labelOffset": 2,
@@ -839,7 +830,6 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
-          "offset": true,
           "ticks": Object {
             "fontColor": "#000000",
             "labelOffset": 2,
@@ -939,7 +929,6 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
-          "offset": true,
           "ticks": Object {
             "fontColor": "#000000",
             "labelOffset": 2,
@@ -1039,7 +1028,6 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
-          "offset": true,
           "ticks": Object {
             "fontColor": "#000000",
             "labelOffset": 2,

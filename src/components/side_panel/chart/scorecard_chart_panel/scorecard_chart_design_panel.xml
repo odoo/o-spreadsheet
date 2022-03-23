@@ -1,0 +1,85 @@
+<templates>
+  <t t-name="o-spreadsheet.ScorecardChartDesignPanel" owl="1">
+    <div>
+      <div class="o-section">
+        <div class="o-section-title">Background color</div>
+        <div class="o-with-color-picker">
+          Select a color...
+          <span
+            title="Background Color"
+            t-attf-style="border-color:{{props.definition.background}}"
+            t-on-click.stop="() => this.openColorPicker('backgroundColor')">
+            <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+          </span>
+          <ColorPicker
+            t-if="state.openedColorPicker === 'backgroundColor'"
+            onColorPicked="(color) => this.setColor(color, 'backgroundColor')"
+            t-key="backgroundColor"
+          />
+        </div>
+      </div>
+
+      <div class="o-section o-chart-title">
+        <div class="o-section-title">Title</div>
+        <input
+          type="text"
+          t-att-value="props.definition.title"
+          t-on-change="updateTitle"
+          class="o-input"
+          placeholder="New Chart"
+        />
+      </div>
+      <div class="o-section">
+        <div class="o-section-title">Baseline comparison to key value</div>
+        <select
+          t-att-value="props.definition.baselineMode"
+          class="o-input o-type-selector"
+          t-on-change="(ev) => this.updateBaselineMode(ev)">
+          <option value="absolute">Absolute change</option>
+          <option value="percentage">Percentage change</option>
+        </select>
+      </div>
+      <div class="o-section">
+        <div class="o-section-title">Baseline description</div>
+        <input
+          type="text"
+          t-att-value="props.definition.baselineDescr"
+          t-on-change="updateBaselineDescr"
+          class="o-input"
+        />
+      </div>
+    </div>
+    <div class="o-section">
+      <div class="o-section-title">Baseline color</div>
+      <div class="o-with-color-picker">
+        Color on value increase
+        <span
+          title="Color Up"
+          t-attf-style="border-color:{{props.definition.baselineColorUp}}"
+          t-on-click.stop="() => this.openColorPicker('baselineColorUp')">
+          <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+        </span>
+        <ColorPicker
+          t-if="state.openedColorPicker === 'baselineColorUp'"
+          onColorPicked="(color) => this.setColor(color, 'baselineColorUp')"
+          t-key="baselineColorUp"
+        />
+      </div>
+      <br/>
+      <div class="o-with-color-picker">
+        Color on value decrease
+        <span
+          title="Background Color"
+          t-attf-style="border-color:{{props.definition.baselineColorDown}}"
+          t-on-click.stop="() => this.openColorPicker('baselineColorDown')">
+          <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+        </span>
+        <ColorPicker
+          t-if="state.openedColorPicker === 'baselineColorDown'"
+          onColorPicked="(color) => this.setColor(color, 'baselineColorDown')"
+          t-key="baselineColorDown"
+        />
+      </div>
+    </div>
+  </t>
+</templates>

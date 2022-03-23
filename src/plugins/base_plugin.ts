@@ -7,6 +7,7 @@ import {
   Validation,
   WorkbookHistory,
 } from "../types/index";
+import { Validator } from "../types/validator";
 
 /**
  * BasePlugin
@@ -20,7 +21,7 @@ import {
  * and UI plugins handling transient data.
  */
 
-export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
+export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Validator {
   static getters: readonly string[] = [];
 
   protected history: WorkbookHistory<State>;

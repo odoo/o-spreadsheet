@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { toZone } from "../../src/helpers";
+import { LineChartDefinition } from "../../src/types/chart/";
 import {
   addColumns,
   copy,
@@ -119,8 +119,8 @@ describe("Collaborative range manipulation", () => {
     cut(alice, "A2");
     paste(alice, "D4");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getChartDefinition("1")?.dataSets[0].dataRange.zone,
-      toZone("D4")
+      (user) => (user.getters.getChartDefinition("1") as LineChartDefinition).dataSets[0],
+      "D4"
     );
   });
 });

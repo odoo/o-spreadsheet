@@ -1,16 +1,8 @@
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
+import { ChartDefinition } from "./chart/chart";
 import { UpDown } from "./conditional_formatting";
-import {
-  BorderCommand,
-  ChartUIDefinition,
-  ChartUIDefinitionUpdate,
-  ConditionalFormat,
-  Figure,
-  Format,
-  Style,
-  Zone,
-} from "./index";
+import { BorderCommand, ConditionalFormat, Figure, Format, Style, Zone } from "./index";
 import { Border, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
 
 // -----------------------------------------------------------------------------
@@ -350,13 +342,13 @@ export interface CreateChartCommand extends SheetDependentCommand {
   type: "CREATE_CHART";
   id: UID;
   position?: { x: number; y: number };
-  definition: ChartUIDefinition;
+  definition: ChartDefinition;
 }
 
 export interface UpdateChartCommand extends SheetDependentCommand {
   type: "UPDATE_CHART";
   id: UID;
-  definition: ChartUIDefinitionUpdate;
+  definition: ChartDefinition;
 }
 
 export interface RefreshChartCommand {
@@ -966,7 +958,20 @@ export const enum CommandResult {
   InvalidChartDefinition,
   EmptyDataSet,
   InvalidDataSet,
+  EmptyScorecardKeyValue,
   InvalidLabelRange,
+  InvalidScorecardKeyValue,
+  InvalidScorecardBaseline,
+  EmptyGaugeDataRange,
+  InvalidGaugeDataRange,
+  EmptyGaugeRangeMin,
+  GaugeRangeMinNaN,
+  EmptyGaugeRangeMax,
+  GaugeRangeMaxNaN,
+  GaugeRangeMinBiggerThanRangeMax,
+  GaugeLowerInflectionPointNaN,
+  GaugeUpperInflectionPointNaN,
+  GaugeLowerBiggerThanUpper,
   InvalidAutofillSelection,
   WrongComposerSelection,
   MinBiggerThanMax,

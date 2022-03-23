@@ -1,9 +1,5 @@
-let size = 1000;
-export function setMockSize(s) {
-  size = s;
-}
-
 export class MockCanvasRenderingContext2D {
+  font: string = "";
   translate() {}
   scale() {}
   clearRect() {}
@@ -21,7 +17,8 @@ export class MockCanvasRenderingContext2D {
   restore() {}
   setLineDash() {}
   measureText(text: string) {
-    return { width: size };
+    const fontSize = Number(this.font.match(/([0-9\.]*)px/)?.[1]);
+    return { width: fontSize * text.length || 0 };
   }
   drawImage() {}
 }
