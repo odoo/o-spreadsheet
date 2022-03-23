@@ -9,7 +9,6 @@ import {
   SetBorderCommand,
   SetDecimalCommand,
   SetFormattingCommand,
-  SortCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
 } from "../../../src/types";
@@ -102,84 +101,6 @@ describe("OT with ADD_MERGE", () => {
       });
     }
   );
-
-  test("sort a merged zone", () => {
-    const sortCommand: SortCommand = {
-      type: "SORT_CELLS",
-      col: 0,
-      row: 0,
-      sheetId,
-      sortDirection: "ascending",
-      zone: toZone("A1:C3"),
-    };
-    const result = transform(sortCommand, { ...addMerge, target: target("B2:C3, F1:F3") });
-    expect(result).toEqual([
-      {
-        type: "REMOVE_MERGE",
-        sheetId,
-        target: target("B2:C3"),
-      },
-      sortCommand,
-    ]);
-  });
-
-  test("sort a merged zone in an other sheet", () => {
-    const sortCommand: SortCommand = {
-      type: "SORT_CELLS",
-      col: 0,
-      row: 0,
-      sheetId,
-      sortDirection: "ascending",
-      zone: toZone("A1:C3"),
-    };
-    const result = transform(sortCommand, {
-      ...addMerge,
-      sheetId: "another sheet",
-      target: target("B2:C3, F1:F3"),
-    });
-    expect(result).toEqual(sortCommand);
-  });
-
-  test("sort zone which is unmerged", () => {
-    const sortCommand: SortCommand = {
-      type: "SORT_CELLS",
-      col: 0,
-      row: 0,
-      sheetId,
-      sortDirection: "ascending",
-      zone: toZone("A1:C3"),
-    };
-    const result = transform(sortCommand, {
-      type: "REMOVE_MERGE",
-      sheetId,
-      target: target("B2:C3, F1:F3"),
-    });
-    expect(result).toEqual([
-      {
-        type: "ADD_MERGE",
-        sheetId,
-        target: target("B2:C3"),
-      },
-      sortCommand,
-    ]);
-  });
-
-  test("sort zone which is unmerged in another sheet", () => {
-    const sortCommand: SortCommand = {
-      type: "SORT_CELLS",
-      col: 0,
-      row: 0,
-      sheetId,
-      sortDirection: "ascending",
-      zone: toZone("A1:C3"),
-    };
-    const result = transform(sortCommand, {
-      type: "REMOVE_MERGE",
-      sheetId: "another sheet",
-      target: target("B2:C3, F1:F3"),
-    });
-    expect(result).toEqual(sortCommand);
-  });
 
   const removeMerge: Omit<RemoveMergeCommand, "target"> = {
     type: "REMOVE_MERGE",
