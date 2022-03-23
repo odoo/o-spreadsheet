@@ -106,6 +106,41 @@ export function computeTextWidth(context: CanvasRenderingContext2D, text: string
   return context.measureText(text).width;
 }
 
+/**
+ * Return the font size that makes the width of a text match the given line width.
+ * Minimum font size is 1.
+ *
+ * @param getTextWidth function that takes a fontSize as argument, and return the width of the text with this font size.
+ */
+export function getFontSizeMatchingWidth(
+  lineWidth: number,
+  maxFontSize: number,
+  getTextWidth: (fontSize: number) => number,
+  precision = 0.25
+) {
+  let minFontSize = 1;
+  if (getTextWidth(minFontSize) > lineWidth) return minFontSize;
+  if (getTextWidth(maxFontSize) < lineWidth) return maxFontSize;
+
+  // Dichotomic search
+  let fontSize = (minFontSize + maxFontSize) / 2;
+  let currentTextWidth = getTextWidth(fontSize);
+
+  // Use a maximum number of iterations to be safe, because measuring text isn't 100% precise
+  let iterations = 0;
+  while (Math.abs(currentTextWidth - lineWidth) > precision && iterations < 20) {
+    if (currentTextWidth >= lineWidth) {
+      maxFontSize = (minFontSize + maxFontSize) / 2;
+    } else {
+      minFontSize = (minFontSize + maxFontSize) / 2;
+    }
+    fontSize = (minFontSize + maxFontSize) / 2;
+    currentTextWidth = getTextWidth(fontSize);
+    iterations++;
+  }
+  return fontSize;
+}
+
 export function computeIconWidth(context: CanvasRenderingContext2D, style: Style) {
   const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
   const size = fontSizeMap[sizeInPt];

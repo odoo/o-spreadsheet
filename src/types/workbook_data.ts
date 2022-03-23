@@ -1,4 +1,5 @@
-import { CellValue, ExcelChartDefinition, Format } from ".";
+import { CellValue, Format } from ".";
+import { ExcelChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Border, Style, UID } from "./misc";
 

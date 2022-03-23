@@ -13,7 +13,12 @@
           <t t-call="o-spreadsheet.Icon.LIST"/>
         </div>
       </div>
-      <canvas t-att-style="canvasStyle" t-ref="graphContainer"/>
+      <t
+        t-component="chartComponent"
+        figureId="props.figureId"
+        t-key="props.figureId + '-' + chartType"
+      />
+
       <Menu
         t-if="menuState.isOpen"
         position="menuState.position"

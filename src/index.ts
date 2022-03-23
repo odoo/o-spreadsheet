@@ -1,5 +1,17 @@
-import { ChartFigure } from "./components/figures/chart/chart";
-import { ChartPanel } from "./components/side_panel/chart_panel/chart_panel";
+import { ChartJsComponent } from "./components/figures/chart/chartJs/chartjs";
+import { ScorecardChart } from "./components/figures/chart/scorecard/chart_scorecard";
+import { ChartFigure } from "./components/figures/figure_chart/figure_chart";
+import {
+  BarConfigPanel,
+  chartSidePanelComponentRegistry,
+  GaugeChartConfigPanel,
+  GaugeChartDesignPanel,
+  LineBarPieConfigPanel,
+  LineBarPieDesignPanel,
+  LineConfigPanel,
+  ScorecardChartConfigPanel,
+  ScorecardChartDesignPanel,
+} from "./components/side_panel/chart";
 import {
   BOTTOMBAR_HEIGHT,
   DEFAULT_CELL_HEIGHT,
@@ -33,6 +45,8 @@ import {
   autofillRulesRegistry,
   cellMenuRegistry,
   cellRegistry,
+  chartComponentRegistry,
+  chartRegistry,
   colMenuRegistry,
   createFullMenuItem,
   dashboardMenuRegistry,
@@ -59,6 +73,7 @@ export { Spreadsheet } from "./components/index";
 export { DATETIME_FORMAT } from "./constants";
 export { compile, functionCache } from "./formulas/compiler";
 export { astToFormula, convertAstNodes, parse } from "./formulas/parser";
+export { AbstractChart } from "./helpers/charts";
 export { Model } from "./model";
 export { CorePlugin } from "./plugins/core_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";
@@ -102,6 +117,9 @@ export const registries = {
   rowMenuRegistry,
   sidePanelRegistry,
   sheetMenuRegistry,
+  chartSidePanelComponentRegistry,
+  chartComponentRegistry,
+  chartRegistry,
   topbarMenuRegistry,
   topbarComponentRegistry,
   otRegistry,
@@ -132,5 +150,14 @@ export const helpers = {
 };
 export const components = {
   ChartFigure,
-  ChartPanel,
+  ChartJsComponent,
+  ScorecardChart,
+  LineConfigPanel,
+  LineBarPieDesignPanel,
+  BarConfigPanel,
+  LineBarPieConfigPanel,
+  GaugeChartConfigPanel,
+  GaugeChartDesignPanel,
+  ScorecardChartConfigPanel,
+  ScorecardChartDesignPanel,
 };

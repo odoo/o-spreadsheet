@@ -1,0 +1,48 @@
+<templates>
+  <t t-name="o-spreadsheet.BarConfigPanel" owl="1">
+    <div>
+      <div class="o-section">
+        <div class="o_checkbox">
+          <input
+            type="checkbox"
+            name="stackedBar"
+            t-att-checked="props.definition.stackedBar"
+            t-on-change="onUpdateStacked"
+          />
+          Stacked barchart
+        </div>
+      </div>
+      <div class="o-section o-data-series">
+        <div class="o-section-title">Data Series</div>
+        <SelectionInput
+          ranges="dataSeriesRanges"
+          isInvalid="isDatasetInvalid"
+          required="true"
+          onSelectionChanged="(ranges) => this.onDataSeriesRangesChanged(ranges)"
+          onSelectionConfirmed="() => this.onDataSeriesConfirmed()"
+        />
+        <input
+          type="checkbox"
+          t-att-checked="props.definition.dataSetsHaveTitle"
+          t-on-change="onUpdateDataSetsHaveTitle"
+        />
+        Data series include title
+      </div>
+      <div class="o-section o-data-labels">
+        <div class="o-section-title">Categories / Labels</div>
+        <SelectionInput
+          ranges="[props.definition.labelRange || '']"
+          isInvalid="isLabelInvalid"
+          hasSingleRange="true"
+          onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
+          onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
+        />
+      </div>
+      <div class="o-section o-sidepanel-error" t-if="errorMessages">
+        <div t-foreach="errorMessages" t-as="error" t-key="error">
+          <t t-esc="error"/>
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>

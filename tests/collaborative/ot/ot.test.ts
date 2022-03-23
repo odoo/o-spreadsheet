@@ -1,10 +1,6 @@
 import { transform } from "../../../src/collaborative/ot/ot";
-import {
-  ChartUIDefinition,
-  DeleteFigureCommand,
-  UpdateChartCommand,
-  UpdateFigureCommand,
-} from "../../../src/types";
+import { DeleteFigureCommand, UpdateChartCommand, UpdateFigureCommand } from "../../../src/types";
+import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 
 describe("OT with DELETE_FIGURE", () => {
   const deleteFigure: DeleteFigureCommand = {
@@ -15,7 +11,7 @@ describe("OT with DELETE_FIGURE", () => {
   const updateChart: Omit<UpdateChartCommand, "id"> = {
     type: "UPDATE_CHART",
     sheetId: "42",
-    definition: {} as ChartUIDefinition,
+    definition: {} as LineChartDefinition,
   };
   const updateFigure: Omit<UpdateFigureCommand, "id"> = {
     type: "UPDATE_FIGURE",
