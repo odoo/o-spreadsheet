@@ -736,6 +736,70 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(astToFormula(parse("5+4")), "5+4")
         self.assertEqual(astToFormula(parse("+5")), "+5")
 
+# Migrations -------------------------------------------------------------------
+
+
+MIGRATIONS = {}
+
+
+def migrate(data):
+    for i in range(data["version"], 11):
+        method = MIGRATIONS.get(str(i))
+        if method:
+            data = method(data)
+    data["version"] = 11
+    return data
+
+
+def migrate_v1(data):
+    if "sheets" in data and data["sheets"] and data["sheets"][0]:
+        data["activeSheet"] = data["sheets"][0]["name"]
+    return data
+
+
+def migrate_v2(data):
+    if "sheets" in data and data["sheets"]:
+        for sheet in data["sheets"]:
+            sheet["id"] = sheet["id"] if "id" in sheet else sheet["name"]
+    return data
+
+
+def migrate_v3(data):
+    if "sheets" in data and data["sheets"] and "activeSheet" in data:
+        for sheet in data["sheets"]:
+            if data["activeSheet"] == sheet["name"]:
+                data["activeSheet"] = sheet["id"]
+                break
+    return data
+
+
+MIGRATIONS["1"] = migrate_v1
+MIGRATIONS["2"] = migrate_v2
+MIGRATIONS["3"] = migrate_v3
+
+
+class MigrationTest(unittest.TestCase):
+
+    def test_v1(self):
+        data = migrate({"version": 1, "sheets": [{"name": "s1"}]})
+        self.assertEqual(data["activeSheet"], "s1")
+        data = migrate({"version": 1})
+        self.assertFalse("activeSheet" in data)
+
+    def test_v2(self):
+        data = migrate({"version": 2, "sheets": [{"name": "s1"}]})
+        self.assertEqual(data["sheets"][0]["id"], "s1")
+
+    def test_v3(self):
+        data = migrate({"version": 3, "activeSheet": "s1",
+                       "sheets": [{"name": "s1", "id": "id1"}]})
+        self.assertEqual(data["activeSheet"], "id1")
+
 
 if __name__ == "__main__":
+    data = {
+        "version": 1,
+        "sheets": [{"name": "Sheet1"}]
+    }
+    print(migrate(data))
     unittest.main()
