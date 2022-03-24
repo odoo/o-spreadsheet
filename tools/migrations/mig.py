@@ -1,5 +1,4 @@
 import re
-import time
 import unittest
 
 # TOKENIZER --------------------------------------------------------------------
@@ -653,9 +652,6 @@ class ParserTests(unittest.TestCase):
             "right": {"type": "REFERENCE", "value": "A2"},
         })
 
-#   def test_can_parse_invalid_references(self):
-#     self.assertEqual(() => parse("#REF")).toThrowError(new InvalidReferenceError().message);
-
     def test_AND(self):
         self.assertEqual(parse("=AND(true, false)"), {
             "type": "FUNCALL",
@@ -743,13 +739,3 @@ class ParserTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-    exit(0)
-    sentence = '=PIVOT("1","self.assertEqualed_revenue","create_date:month","january")'
-    # sentence = "=(),"
-    start_time = time.time()
-    # print([token for token in tokenize(sentence)
-    #       if token["type"] != "unknown"])
-    for i in range(100000):
-        r = tokenize(sentence)
-    print(r)
-    print("--- %s seconds ---" % (time.time() - start_time))
