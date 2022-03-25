@@ -119,7 +119,7 @@ describe("Collaborative range manipulation", () => {
     cut(alice, "A2");
     paste(alice, "D4");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getChartDefinition("1")?.dataSets[0].dataRange.zone,
+      (user) => user.getters.getBasicChartDefinition("1")?.dataSets[0].dataRange.zone,
       toZone("D4")
     );
   });

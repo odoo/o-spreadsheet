@@ -12,7 +12,7 @@ export interface ExcelChartDataset {
   label?: string;
   range: string;
 }
-export interface ChartDefinition {
+export interface BasicChartDefinition {
   dataSets: DataSet[];
   labelRange?: Range;
   sheetId: UID;
@@ -25,8 +25,8 @@ export interface ChartDefinition {
   labelsAsText: boolean;
 }
 
-export interface ChartUIDefinition
-  extends Omit<ChartDefinition, "dataSets" | "labelRange" | "sheetId"> {
+export interface BasicChartUIDefinition
+  extends Omit<BasicChartDefinition, "dataSets" | "labelRange" | "sheetId"> {
   dataSets: string[];
   dataSetsHaveTitle: boolean;
   labelRange?: string;
@@ -51,7 +51,8 @@ export interface ChartData {
 /**
  * Data to be updated on a chart definition.
  */
-export interface ChartUIDefinitionUpdate extends Omit<Partial<ChartUIDefinition>, "labelRange"> {
+export interface BasicChartUIDefinitionUpdate
+  extends Omit<Partial<BasicChartUIDefinition>, "labelRange"> {
   labelRange?: string | null;
 }
 

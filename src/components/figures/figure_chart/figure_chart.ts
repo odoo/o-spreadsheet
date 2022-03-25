@@ -55,7 +55,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   private position = useAbsolutePosition(this.chartContainerRef);
 
   get canvasStyle() {
-    const chart = this.env.model.getters.getChartDefinition(this.props.figure.id);
+    const chart = this.env.model.getters.getBasicChartDefinition(this.props.figure.id);
     return `background-color: ${chart ? chart.background : BACKGROUND_CHART_COLOR}`;
   }
 

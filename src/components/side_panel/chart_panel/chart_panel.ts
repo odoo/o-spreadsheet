@@ -1,8 +1,8 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR } from "../../../constants";
 import {
-  ChartUIDefinition,
-  ChartUIDefinitionUpdate,
+  BasicChartUIDefinition,
+  BasicChartUIDefinitionUpdate,
   CommandResult,
   DispatchResult,
   Figure,
@@ -51,7 +51,7 @@ interface Props {
 }
 
 interface ChartPanelState {
-  chart: ChartUIDefinition;
+  chart: BasicChartUIDefinition;
   datasetDispatchResult?: DispatchResult;
   labelsDispatchResult?: DispatchResult;
   panel: "configuration" | "design";
@@ -66,7 +66,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     onWillUpdateProps((nextProps: Props) => {
-      if (!this.env.model.getters.getChartDefinition(nextProps.figure.id)) {
+      if (!this.env.model.getters.getBasicChartDefinition(nextProps.figure.id)) {
         this.props.onCloseSidePanel();
         return;
       }
@@ -75,7 +75,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
         this.state.fillColorTool = false;
         this.state.datasetDispatchResult = undefined;
         this.state.labelsDispatchResult = undefined;
-        this.state.chart = this.env.model.getters.getChartDefinitionUI(
+        this.state.chart = this.env.model.getters.getBasicChartDefinitionUI(
           this.env.model.getters.getActiveSheetId(),
           nextProps.figure.id
         );
@@ -138,7 +138,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  private updateChart(definition: ChartUIDefinitionUpdate): DispatchResult {
+  private updateChart(definition: BasicChartUIDefinitionUpdate): DispatchResult {
     return this.env.model.dispatch("UPDATE_CHART", {
       id: this.props.figure.id,
       sheetId: this.env.model.getters.getActiveSheetId(),
@@ -174,7 +174,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
 
   private initialState(figure: Figure): ChartPanelState {
     return {
-      chart: this.env.model.getters.getChartDefinitionUI(
+      chart: this.env.model.getters.getBasicChartDefinitionUI(
         this.env.model.getters.getActiveSheetId(),
         figure.id
       ),

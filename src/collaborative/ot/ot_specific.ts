@@ -3,7 +3,7 @@ import { otRegistry } from "../../registries";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
-  ChartUIDefinition,
+  BasicChartUIDefinition,
   CreateChartCommand,
   CreateSheetCommand,
   DeleteFigureCommand,
@@ -80,7 +80,7 @@ function updateChartRangesTransformation(
       ...definition,
       dataSets,
       labelRange: labelZone ? zoneToXc(labelZone) : undefined,
-    } as ChartUIDefinition,
+    } as BasicChartUIDefinition,
   };
 }
 

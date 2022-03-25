@@ -1,6 +1,6 @@
 import { transform } from "../../../src/collaborative/ot/ot";
 import {
-  ChartUIDefinition,
+  BasicChartUIDefinition,
   DeleteFigureCommand,
   UpdateChartCommand,
   UpdateFigureCommand,
@@ -15,7 +15,7 @@ describe("OT with DELETE_FIGURE", () => {
   const updateChart: Omit<UpdateChartCommand, "id"> = {
     type: "UPDATE_CHART",
     sheetId: "42",
-    definition: {} as ChartUIDefinition,
+    definition: {} as BasicChartUIDefinition,
   };
   const updateFigure: Omit<UpdateFigureCommand, "id"> = {
     type: "UPDATE_FIGURE",

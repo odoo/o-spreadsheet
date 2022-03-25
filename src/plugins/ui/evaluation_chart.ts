@@ -1,20 +1,20 @@
 import {
-  ChartConfiguration,
-  ChartData,
-  ChartDataSets,
-  ChartLegendOptions,
-  ChartTooltipItem,
+ChartConfiguration,
+ChartData,
+ChartDataSets,
+ChartLegendOptions,
+ChartTooltipItem
 } from "chart.js";
 import { ChartTerms } from "../../components/translations_terms";
 import { MAX_CHAR_LABEL } from "../../constants";
-import { ChartColors, chartFontColor } from "../../helpers/chart";
-import { getChartTimeOptions, timeFormatMomentCompatible } from "../../helpers/chart_date";
-import { formatValue, recomputeZones, zoneToXc } from "../../helpers/index";
-import { deepCopy, findNextDefinedValue, range } from "../../helpers/misc";
-import { Cell, Format } from "../../types";
-import { ChartDefinition, DataSet } from "../../types/chart";
-import { Command, invalidateEvaluationCommands } from "../../types/commands";
-import { Color, UID } from "../../types/misc";
+import { ChartColors,chartFontColor } from "../../helpers/chart";
+import { getChartTimeOptions,timeFormatMomentCompatible } from "../../helpers/chart_date";
+import { formatValue,recomputeZones,zoneToXc } from "../../helpers/index";
+import { deepCopy,findNextDefinedValue,range } from "../../helpers/misc";
+import { Cell,Format } from "../../types";
+import { BasicChartDefinition,DataSet } from "../../types/chart";
+import { Command,invalidateEvaluationCommands } from "../../types/commands";
+import { Color,UID } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 interface LabelValues {
@@ -30,7 +30,7 @@ interface DatasetValues {
 type AxisType = "category" | "linear" | "time";
 
 export class EvaluationChartPlugin extends UIPlugin {
-  static getters = ["getChartRuntime", "canChartParseLabels"] as const;
+  static getters = ["getBasicChartRuntime", "canChartParseLabels"] as const;
 
   // contains the configuration of the chart with it's values like they should be displayed,
   // as well as all the options needed for the chart library to work correctly
@@ -50,8 +50,10 @@ export class EvaluationChartPlugin extends UIPlugin {
     switch (cmd.type) {
       case "UPDATE_CHART":
       case "CREATE_CHART":
-        const chartDefinition = this.getters.getChartDefinition(cmd.id)!;
-        this.chartRuntime[cmd.id] = this.mapDefinitionToRuntime(chartDefinition);
+        const chartDefinition = this.getters.getBasicChartDefinition(cmd.id);
+        if (chartDefinition) {
+          this.chartRuntime[cmd.id] = this.mapDefinitionToRuntime(chartDefinition);
+        }
         break;
       case "DELETE_FIGURE":
         delete this.chartRuntime[cmd.id];
@@ -66,7 +68,7 @@ export class EvaluationChartPlugin extends UIPlugin {
         break;
       case "DELETE_SHEET":
         for (let chartId of Object.keys(this.chartRuntime)) {
-          if (!this.getters.getChartDefinition(chartId)) {
+          if (!this.getters.getBasicChartDefinition(chartId)) {
             delete this.chartRuntime[chartId];
           }
         }
@@ -78,9 +80,9 @@ export class EvaluationChartPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getChartRuntime(figureId: string): ChartConfiguration | undefined {
+  getBasicChartRuntime(figureId: string): ChartConfiguration | undefined {
     if (this.outOfDate.has(figureId) || !(figureId in this.chartRuntime)) {
-      const chartDefinition = this.getters.getChartDefinition(figureId);
+      const chartDefinition = this.getters.getBasicChartDefinition(figureId);
       if (chartDefinition === undefined) return;
       this.chartRuntime[figureId] = this.mapDefinitionToRuntime(chartDefinition);
       this.outOfDate.delete(figureId);
@@ -93,7 +95,7 @@ export class EvaluationChartPlugin extends UIPlugin {
    * can be a date chart or a linear chart
    */
   canChartParseLabels(figureId: string): boolean {
-    const definition = this.getters.getChartDefinition(figureId);
+    const definition = this.getters.getBasicChartDefinition(figureId);
     if (definition === undefined) return false;
 
     return this.canBeLinearChart(definition) || this.canBeDateChart(definition);
@@ -110,7 +112,7 @@ export class EvaluationChartPlugin extends UIPlugin {
   }
 
   private getDefaultConfiguration(
-    definition: ChartDefinition,
+    definition: BasicChartDefinition,
     labels: string[],
     fontColor: Color
   ): ChartConfiguration {
@@ -203,7 +205,7 @@ export class EvaluationChartPlugin extends UIPlugin {
     return config;
   }
 
-  private getSheetIdsUsedInChart(chartDefinition: ChartDefinition): Set<UID> {
+  private getSheetIdsUsedInChart(chartDefinition: BasicChartDefinition): Set<UID> {
     const sheetIds: Set<UID> = new Set();
     for (let ds of chartDefinition.dataSets) {
       sheetIds.add(ds.dataRange.sheetId);
@@ -217,7 +219,7 @@ export class EvaluationChartPlugin extends UIPlugin {
   private evaluateUsedSheets(chartsIds: UID[]) {
     const usedSheetsId: Set<UID> = new Set();
     for (let chartId of chartsIds) {
-      const chartDefinition = this.getters.getChartDefinition(chartId);
+      const chartDefinition = this.getters.getBasicChartDefinition(chartId);
       const sheetsIds =
         chartDefinition !== undefined ? this.getSheetIdsUsedInChart(chartDefinition) : [];
       sheetsIds.forEach((sheetId) => {
@@ -232,7 +234,7 @@ export class EvaluationChartPlugin extends UIPlugin {
   }
 
   /** Get the format of the first cell in the label range of the chart, if any */
-  private getLabelFormat(definition: ChartDefinition): Format | undefined {
+  private getLabelFormat(definition: BasicChartDefinition): Format | undefined {
     if (!definition.labelRange) return undefined;
     const firstLabelCell = this.getters.getCell(
       definition.labelRange.sheetId,
@@ -242,7 +244,7 @@ export class EvaluationChartPlugin extends UIPlugin {
     return firstLabelCell?.format;
   }
 
-  private getChartAxisType(definition: ChartDefinition): AxisType {
+  private getChartAxisType(definition: BasicChartDefinition): AxisType {
     if (this.isDateChart(definition)) {
       return "time";
     }
@@ -252,7 +254,7 @@ export class EvaluationChartPlugin extends UIPlugin {
     return "category";
   }
 
-  private mapDefinitionToRuntime(definition: ChartDefinition): ChartConfiguration {
+  private mapDefinitionToRuntime(definition: BasicChartDefinition): ChartConfiguration {
     const axisType = this.getChartAxisType(definition);
     const labelValues = this.getChartLabelValues(definition);
     let labels = axisType === "linear" ? labelValues.values : labelValues.formattedValues;
@@ -300,7 +302,7 @@ export class EvaluationChartPlugin extends UIPlugin {
   }
 
   /** Return the current cell values of the labels */
-  private getChartLabelValues(definition: ChartDefinition): LabelValues {
+  private getChartLabelValues(definition: BasicChartDefinition): LabelValues {
     const labels: LabelValues = { values: [], formattedValues: [] };
     if (definition.labelRange) {
       if (!definition.labelRange.invalidXc && !definition.labelRange.invalidSheetName) {
@@ -325,7 +327,7 @@ export class EvaluationChartPlugin extends UIPlugin {
   }
 
   /** Return the current cell values of the datasets */
-  private getChartDatasetValues(definition: ChartDefinition): DatasetValues[] {
+  private getChartDatasetValues(definition: BasicChartDefinition): DatasetValues[] {
     const datasetValues: DatasetValues[] = [];
     for (const [dsIndex, ds] of Object.entries(definition.dataSets)) {
       let label: string;
@@ -422,7 +424,7 @@ export class EvaluationChartPlugin extends UIPlugin {
     return [];
   }
 
-  private canBeDateChart(definition: ChartDefinition): boolean {
+  private canBeDateChart(definition: BasicChartDefinition): boolean {
     if (!definition.labelRange || !definition.dataSets || definition.type !== "line") {
       return false;
     }
@@ -435,11 +437,11 @@ export class EvaluationChartPlugin extends UIPlugin {
     return Boolean(labelFormat && timeFormatMomentCompatible.test(labelFormat));
   }
 
-  private isDateChart(definition: ChartDefinition): boolean {
+  private isDateChart(definition: BasicChartDefinition): boolean {
     return !definition.labelsAsText && this.canBeDateChart(definition);
   }
 
-  private canBeLinearChart(definition: ChartDefinition): boolean {
+  private canBeLinearChart(definition: BasicChartDefinition): boolean {
     if (!definition.labelRange || !definition.dataSets || definition.type !== "line") {
       return false;
     }
@@ -455,7 +457,7 @@ export class EvaluationChartPlugin extends UIPlugin {
     return true;
   }
 
-  private isLinearChart(definition: ChartDefinition): boolean {
+  private isLinearChart(definition: BasicChartDefinition): boolean {
     return !definition.labelsAsText && this.canBeLinearChart(definition);
   }
 }

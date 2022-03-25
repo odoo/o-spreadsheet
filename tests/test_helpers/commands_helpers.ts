@@ -3,9 +3,9 @@ import { isInside, lettersToNumber, toCartesian, toZone } from "../../src/helper
 import { Model } from "../../src/model";
 import {
   AnchorZone,
+  BasicChartUIDefinition,
+  BasicChartUIDefinitionUpdate,
   BorderCommand,
-  ChartUIDefinition,
-  ChartUIDefinitionUpdate,
   ClipboardOptions,
   CreateSheetCommand,
   DispatchResult,
@@ -87,7 +87,7 @@ export function deleteSheet(model: Model, sheetId: UID): DispatchResult {
  */
 export function createChart(
   model: Model,
-  data: Partial<ChartUIDefinition>,
+  data: Partial<BasicChartUIDefinition>,
   chartId?: UID,
   sheetId?: UID
 ) {
@@ -118,7 +118,7 @@ export function createChart(
 export function updateChart(
   model: Model,
   chartId: UID,
-  definition: ChartUIDefinitionUpdate,
+  definition: BasicChartUIDefinitionUpdate,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   return model.dispatch("UPDATE_CHART", {

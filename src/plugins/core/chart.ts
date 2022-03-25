@@ -3,9 +3,9 @@ import { chartFontColor } from "../../helpers/chart";
 import { deepCopy, rangeReference, zoneToDimension, zoneToXc } from "../../helpers/index";
 import {
   ApplyRangeChange,
-  ChartDefinition,
-  ChartUIDefinition,
-  ChartUIDefinitionUpdate,
+  BasicChartDefinition,
+  BasicChartUIDefinition,
+  BasicChartUIDefinitionUpdate,
   Command,
   CommandResult,
   CoreCommand,
@@ -31,13 +31,17 @@ import { CorePlugin } from "../core_plugin";
  * */
 
 interface ChartState {
-  readonly chartFigures: Record<UID, ChartDefinition | undefined>;
+  readonly chartFigures: Record<UID, BasicChartDefinition | undefined>;
   readonly nextId: number;
 }
 
 export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
-  static getters = ["getChartDefinition", "getChartDefinitionUI", "getChartsIdBySheet"] as const;
-  readonly chartFigures: Record<UID, ChartDefinition> = {};
+  static getters = [
+    "getBasicChartDefinition",
+    "getBasicChartDefinitionUI",
+    "getChartsIdBySheet",
+  ] as const;
+  readonly chartFigures: Record<UID, BasicChartDefinition> = {};
   readonly nextId = 1;
 
   adaptRanges(applyChange: ApplyRangeChange) {
@@ -49,7 +53,11 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     }
   }
 
-  private adaptDataSetRanges(chart: ChartDefinition, chartId: UID, applyChange: ApplyRangeChange) {
+  private adaptDataSetRanges(
+    chart: BasicChartDefinition,
+    chartId: UID,
+    applyChange: ApplyRangeChange
+  ) {
     for (let ds of chart.dataSets) {
       if (ds.labelCell) {
         const labelCellChange = applyChange(ds.labelCell);
@@ -107,7 +115,11 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       }
     }
   }
-  private adaptLabelRanges(chart: ChartDefinition, chartId: UID, applyChange: ApplyRangeChange) {
+  private adaptLabelRanges(
+    chart: BasicChartDefinition,
+    chartId: UID,
+    applyChange: ApplyRangeChange
+  ) {
     if (chart.labelRange) {
       const labelRangeChange = applyChange(chart.labelRange);
       switch (labelRangeChange.changeType) {
@@ -210,7 +222,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getChartDefinition(figureId: UID): ChartDefinition | undefined {
+  getBasicChartDefinition(figureId: UID): BasicChartDefinition | undefined {
     return this.chartFigures[figureId];
   }
 
@@ -222,8 +234,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       .map((chart) => chart[0]);
   }
 
-  getChartDefinitionUI(sheetId: UID, figureId: UID): ChartUIDefinition {
-    const data: ChartDefinition = this.chartFigures[figureId];
+  getBasicChartDefinitionUI(sheetId: UID, figureId: UID): BasicChartUIDefinition {
+    const data: BasicChartDefinition = this.chartFigures[figureId];
     const dataSets: string[] = data.dataSets
       .map((ds: DataSet) => (ds ? this.getters.getRangeString(ds.dataRange, sheetId) : ""))
       .filter((ds) => {
@@ -246,13 +258,13 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     };
   }
 
-  private getChartDefinitionExcel(sheetId: UID, figureId: UID): ExcelChartDefinition {
-    const data: ChartDefinition = this.chartFigures[figureId];
+  private getBasicChartDefinitionExcel(sheetId: UID, figureId: UID): ExcelChartDefinition {
+    const data: BasicChartDefinition = this.chartFigures[figureId];
     const dataSets: ExcelChartDataset[] = data.dataSets
       .map((ds: DataSet) => this.toExcelDataset(ds))
       .filter((ds) => ds.range !== ""); // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
     return {
-      ...this.getChartDefinitionUI("forceSheetReference", figureId),
+      ...this.getBasicChartDefinitionUI("forceSheetReference", figureId),
       backgroundColor: toXlsxHexColor(data.background),
       fontColor: toXlsxHexColor(chartFontColor(data.background)),
       dataSets,
@@ -293,7 +305,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       if (sheet.figures) {
         for (let figure of sheet.figures) {
           if (figure.tag === "chart") {
-            const figureData: ChartUIDefinition = {
+            const figureData: BasicChartUIDefinition = {
               ...figure.data,
             };
             this.chartFigures[figure.id] = this.createChartDefinition(figureData, sheet.id);
@@ -311,7 +323,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         const figures = sheetFigures as FigureData<any>[];
         for (let figure of figures) {
           if (figure && figure.tag === "chart") {
-            figure.data = this.getChartDefinitionUI(sheet.id, figure.id);
+            figure.data = this.getBasicChartDefinitionUI(sheet.id, figure.id);
           }
         }
         sheet.figures = figures;
@@ -325,7 +337,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       const figures = sheetFigures as FigureData<ExcelChartDefinition>[];
       for (let figure of figures) {
         if (figure && figure.tag === "chart") {
-          figure.data = this.getChartDefinitionExcel(sheet.id, figure.id);
+          figure.data = this.getBasicChartDefinitionExcel(sheet.id, figure.id);
         }
       }
       sheet.charts = figures;
@@ -339,7 +351,10 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   /**
    * Create a new chart definition based on the given UI definition
    */
-  private createChartDefinition(definition: ChartUIDefinition, sheetId: UID): ChartDefinition {
+  private createChartDefinition(
+    definition: BasicChartUIDefinition,
+    sheetId: UID
+  ): BasicChartDefinition {
     return {
       ...definition,
       dataSets: this.createDataSets(definition.dataSets, sheetId, definition.dataSetsHaveTitle),
@@ -354,7 +369,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
    * Update the chart definition linked to the given id with the attributes
    * given in the partial UI definition
    */
-  private updateChartDefinition(id: UID, definition: ChartUIDefinitionUpdate) {
+  private updateChartDefinition(id: UID, definition: BasicChartUIDefinitionUpdate) {
     const chart = this.chartFigures[id];
     if (!chart) {
       throw new Error(`There is no chart with the given id: ${id}`);
@@ -460,7 +475,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     return dataSets;
   }
 
-  private addChartFigure(sheetId: string, data: ChartDefinition, figure: Figure) {
+  private addChartFigure(sheetId: string, data: BasicChartDefinition, figure: Figure) {
     this.dispatch("CREATE_FIGURE", {
       sheetId,
       figure,
