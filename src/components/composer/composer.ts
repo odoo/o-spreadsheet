@@ -17,10 +17,10 @@ const ASSISTANT_WIDTH = 300;
 
 export const FunctionColor = "#4a4e4d";
 export const OperatorColor = "#3da4ab";
-export const StringColor = "#f6cd61";
+export const StringColor = "#00a82d";
 export const SelectionIndicatorColor = "darkgrey";
 export const NumberColor = "#02c39a";
-export const MatchingParenColor = "pink";
+export const MatchingParenColor = "black";
 
 export const SelectionIndicatorClass = "selector-flag";
 
