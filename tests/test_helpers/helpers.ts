@@ -1,4 +1,5 @@
 import { Component } from "@odoo/owl";
+import { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { Spreadsheet } from "../../src/components/spreadsheet";
 import { functionRegistry } from "../../src/functions/index";
@@ -345,3 +346,31 @@ export function mockUuidV4To(model: Model, value: number | string) {
   //@ts-ignore
   return model.uuidGenerator.setNextId(value);
 }
+
+export const mockChart = () => {
+  const mockChartData: ChartConfiguration = {
+    data: undefined,
+    options: {
+      title: undefined,
+    },
+    type: undefined,
+  };
+  class ChartMock {
+    constructor(ctx: unknown, chartData: ChartConfiguration) {
+      Object.assign(mockChartData, chartData);
+    }
+    set data(value) {
+      mockChartData.data = value;
+    }
+    get data() {
+      return mockChartData.data;
+    }
+    destroy = () => {};
+    update = () => {};
+    options = mockChartData.options;
+    config = mockChartData;
+  }
+  //@ts-ignore
+  window.Chart = ChartMock;
+  return mockChartData;
+};
