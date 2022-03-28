@@ -516,7 +516,6 @@ export const CREATE_CHART = (env: SpreadsheetEnv) => {
   const id = env.uuidGenerator.uuidv4();
   let labelRange: string | undefined;
   if (zone.left !== zone.right) {
-    labelRange = zoneToXc({ ...zone, right: zone.left, top: zone.top + 1 });
     dataSetZone = { ...zone, left: zone.left + 1 };
   }
   const dataSets = [zoneToXc(dataSetZone)];
@@ -530,7 +529,15 @@ export const CREATE_CHART = (env: SpreadsheetEnv) => {
     const cell = env.getters.getCell(sheetId, x, zone.top);
     if (cell && cell.evaluated.type !== CellValueType.number) {
       dataSetsHaveTitle = true;
+      break;
     }
+  }
+  if (zone.left !== zone.right) {
+    labelRange = zoneToXc({
+      ...zone,
+      right: zone.left,
+      top: dataSetsHaveTitle ? zone.top + 1 : zone.top,
+    });
   }
   env.dispatch("CREATE_CHART", {
     sheetId,
