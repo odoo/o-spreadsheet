@@ -13,6 +13,7 @@ import { hideColumns, hideRows, selectCell, setSelection } from "./test_helpers/
 import { getCellContent } from "./test_helpers/getters_helpers";
 import {
   makeTestFixture,
+  mockChart,
   MockClipboard,
   mockUuidV4To,
   mountSpreadsheet,
@@ -823,6 +824,98 @@ describe("Menu Item actions", () => {
     expect(env.dispatch).toHaveBeenCalledWith("SET_GRID_LINES_VISIBILITY", {
       sheetId,
       areGridLinesVisible: false,
+    });
+  });
+
+  describe("Insert > Chart", () => {
+    const data = {
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          rows: {},
+          cells: {
+            A2: { content: "P1" },
+            A3: { content: "P2" },
+            A4: { content: "P3" },
+            A5: { content: "P4" },
+
+            B1: { content: "first column dataset" },
+            B2: { content: "10" },
+            B3: { content: "11" },
+            B4: { content: "12" },
+            B5: { content: "13" },
+          },
+        },
+      ],
+    };
+    let dispatchSpy: jest.SpyInstance;
+    let defaultPayload: any;
+
+    beforeEach(async () => {
+      fixture = makeTestFixture();
+      parent = await mountSpreadsheet(fixture, { data });
+      model = parent.model;
+      env = parent.env;
+      mockChart();
+      dispatchSpy = jest.spyOn(env, "dispatch");
+      defaultPayload = {
+        position: expect.any(Object),
+        id: expect.any(String),
+        sheetId: model.getters.getActiveSheetId(),
+        definition: {
+          background: "#FFFFFF",
+          dataSets: ["A1"],
+          dataSetsHaveTitle: false,
+          labelRange: undefined,
+          legendPosition: "top",
+          stackedBar: false,
+          title: "",
+          type: "bar",
+          verticalAxisPosition: "left",
+        },
+      };
+    });
+
+    test("Chart of single column without title", () => {
+      setSelection(model, ["B2:B5"]);
+      doAction(["insert", "insert_chart"], env);
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["B2:B5"];
+      payload.definition.labelRange = undefined;
+      payload.definition.dataSetsHaveTitle = false;
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    });
+
+    test("Chart of single column with title", () => {
+      setSelection(model, ["B1:B5"]);
+      doAction(["insert", "insert_chart"], env);
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["B1:B5"];
+      payload.definition.labelRange = undefined;
+      payload.definition.dataSetsHaveTitle = true;
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    });
+
+    test("Chart of several columns (ie labels) without title", () => {
+      setSelection(model, ["A2:B5"]);
+      doAction(["insert", "insert_chart"], env);
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["B2:B5"];
+      payload.definition.labelRange = "A2:A5";
+      payload.definition.dataSetsHaveTitle = false;
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    });
+
+    test("Chart of several columns (ie labels) with title", () => {
+      setSelection(model, ["A1:B5"]);
+      doAction(["insert", "insert_chart"], env);
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["B1:B5"];
+      payload.definition.labelRange = "A2:A5";
+      payload.definition.dataSetsHaveTitle = true;
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
   });
 });
