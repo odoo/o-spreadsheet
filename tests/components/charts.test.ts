@@ -1,4 +1,3 @@
-import { ChartConfiguration } from "chart.js";
 import { Model, Spreadsheet } from "../../src";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../src/constants";
 import { DispatchResult } from "../../src/types";
@@ -10,38 +9,11 @@ import {
 } from "../test_helpers/dom_helper";
 import {
   makeTestFixture,
+  mockChart,
   mountSpreadsheet,
   nextTick,
   textContentAll,
 } from "../test_helpers/helpers";
-
-const mockChart = () => {
-  const mockChartData: ChartConfiguration = {
-    data: undefined,
-    options: {
-      title: undefined,
-    },
-    type: undefined,
-  };
-  class ChartMock {
-    constructor(ctx: unknown, chartData: ChartConfiguration) {
-      Object.assign(mockChartData, chartData);
-    }
-    set data(value) {
-      mockChartData.data = value;
-    }
-    get data() {
-      return mockChartData.data;
-    }
-    destroy = () => {};
-    update = () => {};
-    options = mockChartData.options;
-    config = mockChartData;
-  }
-  //@ts-ignore
-  window.Chart = ChartMock;
-  return mockChartData;
-};
 
 function errorMessages(): string[] {
   return textContentAll(".o-sidepanel-error div");
