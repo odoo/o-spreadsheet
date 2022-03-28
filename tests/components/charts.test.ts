@@ -9,12 +9,12 @@ import {
 } from "../test_helpers/dom_helper";
 import {
   makeTestFixture,
+  mockChart,
   mountSpreadsheet,
   nextTick,
   spyDispatch,
   textContentAll,
 } from "../test_helpers/helpers";
-import { mockChart } from "./__mocks__/chart";
 
 function errorMessages(): string[] {
   return textContentAll(".o-sidepanel-error div");
