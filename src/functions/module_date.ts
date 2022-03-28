@@ -20,9 +20,9 @@ function isLeapYear(year: number): boolean {
 export const DATE: AddFunctionDescription = {
   description: _lt("Converts year/month/day into a date."),
   args: args(`
-    year (number) ${_lt("The year component of the date.")}")}
-    month (number) ${_lt("The month component of the date.")}")}
-    day (number) ${_lt("The day component of the date.")}")}
+    year (number) ${_lt("The year component of the date.")}
+    month (number) ${_lt("The month component of the date.")}
+    day (number) ${_lt("The day component of the date.")}
     `),
   returns: ["DATE"],
   returnFormat: { specificFormat: "m/d/yyyy" },
