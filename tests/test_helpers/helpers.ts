@@ -1,4 +1,5 @@
 import { App, Component, xml } from "@odoo/owl";
+import { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet";
 import { functionRegistry } from "../../src/functions/index";
@@ -375,3 +376,31 @@ export function makeInteractiveTestEnv(
     ...env,
   } as unknown as SpreadsheetChildEnv;
 }
+
+export const mockChart = () => {
+  const mockChartData: ChartConfiguration = {
+    data: undefined,
+    options: {
+      title: undefined,
+    },
+    type: undefined,
+  };
+  class ChartMock {
+    constructor(ctx: unknown, chartData: ChartConfiguration) {
+      Object.assign(mockChartData, chartData);
+    }
+    set data(value) {
+      mockChartData.data = value;
+    }
+    get data() {
+      return mockChartData.data;
+    }
+    destroy = () => {};
+    update = () => {};
+    options = mockChartData.options;
+    config = mockChartData;
+  }
+  //@ts-ignore
+  window.Chart = ChartMock;
+  return mockChartData;
+};
