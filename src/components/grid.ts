@@ -199,12 +199,7 @@ const TEMPLATE = xml/* xml */ `
         focus="props.focusComposer"
         />
     </t>
-    <canvas t-ref="canvas"
-      t-on-mousedown="onMouseDown"
-      t-on-dblclick="onDoubleClick"
-      tabindex="-1"
-      t-on-contextmenu="onCanvasContextMenu"
-       />
+    <canvas t-ref="realCanvas" />
     <t t-foreach="env.model.getters.getClientsToDisplay()" t-as="client" t-key="getClientPositionKey(client)">
       <ClientTag name="client.name"
                  color="client.color"
@@ -249,6 +244,13 @@ const TEMPLATE = xml/* xml */ `
         </t>
       </t>
     </t>
+    <div
+      t-ref="canvas"
+      tabindex="-1"
+      class="o-grid-overlay"
+      t-on-mousedown="onMouseDown"
+      t-on-dblclick="onDoubleClick"
+      t-on-contextmenu="onCanvasContextMenu"/>
     <Overlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)" />
     <Menu t-if="menuState.isOpen"
       menuItems="menuState.menuItems"
@@ -300,6 +302,17 @@ css/* scss */ `
         overflow-y: hidden;
       }
     }
+
+    .o-grid-overlay {
+      position: absolute;
+      top: ${HEADER_HEIGHT}px;
+      left: ${HEADER_WIDTH}px;
+      height: calc(100% - ${HEADER_HEIGHT}px);
+      width: calc(100% - ${HEADER_WIDTH}px);
+      outline: none;
+      &:focus {
+      }
+    }
   }
 `;
 
@@ -339,6 +352,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private vScrollbar!: ScrollBar;
   private hScrollbar!: ScrollBar;
   private canvas!: Ref<HTMLElement>;
+  private realCanvas!: Ref<HTMLElement>;
   private currentSheet!: UID;
   private clickedCol!: number;
   private clickedRow!: number;
@@ -359,6 +373,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.hScrollbarRef = useRef("hscrollbar");
     this.gridRef = useRef("grid");
     this.canvas = useRef("canvas");
+    this.realCanvas = useRef("realCanvas");
     this.vScrollbar = new ScrollBar(this.vScrollbarRef.el, "vertical");
     this.hScrollbar = new ScrollBar(this.hScrollbarRef.el, "horizontal");
     this.currentSheet = this.env.model.getters.getActiveSheetId();
@@ -639,7 +654,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     // check for position changes
     this.checkSheetChanges();
     // drawing grid on canvas
-    const canvas = this.canvas.el as HTMLCanvasElement;
+    const canvas = this.realCanvas.el as HTMLCanvasElement;
     const dpr = window.devicePixelRatio || 1;
     const ctx = canvas.getContext("2d", { alpha: false })!;
     const thinLineWidth = 0.4 * dpr;
@@ -933,7 +948,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         type = "ROW";
       }
     }
-    this.toggleContextMenu(type, ev.offsetX, ev.offsetY);
+    this.toggleContextMenu(type, ev.offsetX + HEADER_WIDTH, ev.offsetY + HEADER_HEIGHT);
   }
 
   toggleContextMenu(type: ContextMenuType, x: number, y: number) {

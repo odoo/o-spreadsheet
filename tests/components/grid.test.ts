@@ -78,13 +78,13 @@ describe("Grid component", () => {
   test("can render a sheet with a merge", async () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
     merge(model, "B2:B3", sheet1);
-    expect(fixture.querySelector("canvas")).toBeDefined();
+    expect(fixture.querySelector(".o-grid-overlay")).toBeDefined();
   });
 
   test("can click on a cell to select it", async () => {
     setCellContent(model, "B2", "b2");
     setCellContent(model, "B3", "b3");
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    triggerMouseEvent(".o-grid-overlay", "mousedown", 300, 200);
     expect(getActiveXc(model)).toBe("C8");
   });
 
@@ -101,7 +101,7 @@ describe("Grid component", () => {
   test("can shift-click on a cell to update selection", async () => {
     setCellContent(model, "B2", "b2");
     setCellContent(model, "B3", "b3");
-    triggerMouseEvent("canvas", "mousedown", 300, 200, { shiftKey: true });
+    triggerMouseEvent(".o-grid-overlay", "mousedown", 300, 200, { shiftKey: true });
     expect(model.getters.getSelectedZones()[0]).toEqual({
       top: 0,
       left: 0,
@@ -117,43 +117,43 @@ describe("Grid component", () => {
   });
 
   test("Can touch the canvas to move it", async () => {
-    const canvas = fixture.querySelector("canvas")!;
+    const grid = fixture.querySelector(".o-grid-overlay")!;
     expect(getHorizontalScroll()).toBe(0);
     expect(getVerticalScroll()).toBe(0);
-    canvas.dispatchEvent(
+    grid.dispatchEvent(
       new TouchEvent("touchstart", {
         touches: [
           new Touch({
             clientX: 150,
             clientY: 150,
             identifier: 1,
-            target: canvas,
+            target: grid,
           }),
         ],
       })
     );
-    canvas.dispatchEvent(
+    grid.dispatchEvent(
       new TouchEvent("touchmove", {
         touches: [
           new Touch({
             clientX: 100,
             clientY: 120,
             identifier: 2,
-            target: canvas,
+            target: grid,
           }),
         ],
       })
     );
     expect(getHorizontalScroll()).toBe(50);
     expect(getVerticalScroll()).toBe(30);
-    canvas.dispatchEvent(
+    grid.dispatchEvent(
       new TouchEvent("touchmove", {
         touches: [
           new Touch({
             clientX: 80,
             clientY: 100,
             identifier: 2,
-            target: canvas,
+            target: grid,
           }),
         ],
       })
@@ -162,27 +162,27 @@ describe("Grid component", () => {
     expect(getVerticalScroll()).toBe(50);
   });
   test("Event is stopped if not at the top", async () => {
-    const canvas = fixture.querySelector("canvas")!;
+    const grid = fixture.querySelector(".o-grid-overlay")!;
     expect(getHorizontalScroll()).toBe(0);
     expect(getVerticalScroll()).toBe(0);
 
     const mockCallback = jest.fn(() => {});
     fixture.addEventListener("touchmove", mockCallback);
 
-    canvas.dispatchEvent(
+    grid.dispatchEvent(
       new TouchEvent("touchstart", {
         touches: [
           new Touch({
             clientX: 0,
             clientY: 150,
             identifier: 1,
-            target: canvas,
+            target: grid,
           }),
         ],
       })
     );
     // move down; we are at the top: ev not prevented
-    canvas.dispatchEvent(
+    grid.dispatchEvent(
       new TouchEvent("touchmove", {
         cancelable: true,
         bubbles: true,
@@ -191,14 +191,14 @@ describe("Grid component", () => {
             clientX: 0,
             clientY: 120,
             identifier: 2,
-            target: canvas,
+            target: grid,
           }),
         ],
       })
     );
     expect(mockCallback).toBeCalledTimes(1);
     // move up:; we are not at the top: ev prevented
-    canvas.dispatchEvent(
+    grid.dispatchEvent(
       new TouchEvent("touchmove", {
         cancelable: true,
         bubbles: true,
@@ -207,14 +207,14 @@ describe("Grid component", () => {
             clientX: 0,
             clientY: 150,
             identifier: 3,
-            target: canvas,
+            target: grid,
           }),
         ],
       })
     );
     expect(mockCallback).toBeCalledTimes(1);
     // move up again but we are at the stop: ev not prevented
-    canvas.dispatchEvent(
+    grid.dispatchEvent(
       new TouchEvent("touchmove", {
         cancelable: true,
         bubbles: true,
@@ -223,7 +223,7 @@ describe("Grid component", () => {
             clientX: 0,
             clientY: 150,
             identifier: 4,
-            target: canvas,
+            target: grid,
           }),
         ],
       })
@@ -585,7 +585,7 @@ describe("Grid component", () => {
       });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
       model.dispatch("ACTIVATE_PAINT_FORMAT", { target });
-      triggerMouseEvent("canvas", "mousedown", 300, 200);
+      triggerMouseEvent(".o-grid-overlay", "mousedown", 300, 200);
       expect(getCell(model, "C8")).toBeUndefined();
       triggerMouseEvent("body", "mouseup", 300, 200);
       expect(getCell(model, "C8")!.style).toEqual({ bold: true });
@@ -620,7 +620,7 @@ describe("Grid component", () => {
       await rightClickCell(model, "B2");
       await simulateClick(".o-menu div[data-name='add_row_before']");
       expect(fixture.querySelector(".o-menu div[data-name='add_row_before']")).toBeFalsy();
-      expect(document.activeElement).toBe(fixture.querySelector("canvas"));
+      expect(document.activeElement).toBe(fixture.querySelector(".o-grid-overlay"));
     });
   });
 });
@@ -696,7 +696,7 @@ describe("error tooltip", () => {
     Date.now = jest.fn(() => 0);
     setCellContent(model, "A1", "=1/0");
     await nextTick();
-    triggerMouseEvent("canvas", "mousemove", 80, 30); // A1
+    triggerMouseEvent(".o-grid-overlay", "mousemove", 80, 30); // A1
     Date.now = jest.fn(() => 500);
     jest.advanceTimersByTime(300);
     await nextTick();
@@ -707,7 +707,7 @@ describe("error tooltip", () => {
     Date.now = jest.fn(() => 0);
     setCellContent(model, "C8", "=1/0");
     await nextTick();
-    triggerMouseEvent("canvas", "mousemove", 300, 200);
+    triggerMouseEvent(".o-grid-overlay", "mousemove", 300, 200);
     Date.now = jest.fn(() => 250);
     jest.advanceTimersByTime(300);
 
@@ -721,7 +721,7 @@ describe("error tooltip", () => {
     expect(document.querySelector(".o-error-tooltip")?.parentElement).toMatchSnapshot();
 
     // moving mouse await
-    triggerMouseEvent("canvas", "mousemove", 100, 200);
+    triggerMouseEvent(".o-grid-overlay", "mousemove", 100, 200);
     Date.now = jest.fn(() => 1050);
     jest.advanceTimersByTime(300);
     await nextTick();
@@ -733,7 +733,7 @@ describe("error tooltip", () => {
     merge(model, "C1:C8");
     setCellContent(model, "C1", "=1/0");
     await nextTick();
-    triggerMouseEvent("canvas", "mousemove", 300, 200); // C8
+    triggerMouseEvent(".o-grid-overlay", "mousemove", 300, 200); // C8
 
     Date.now = jest.fn(() => 500);
     jest.advanceTimersByTime(300);
@@ -745,7 +745,7 @@ describe("error tooltip", () => {
     merge(model, "C1:C8");
     setCellContent(model, "C1", "Hello");
     await nextTick();
-    await simulateClick("canvas", 300, 200); // C8
+    await simulateClick(".o-grid-overlay", 300, 200); // C8
     expect(model.getters.getCurrentContent()).toBe("Hello");
   });
 });
@@ -803,7 +803,7 @@ describe("Events on Grid update viewport correctly", () => {
     });
   });
   test("Move selection with keyboard", async () => {
-    await simulateClick("canvas", 750, 40); // H1
+    await simulateClick(".o-grid-overlay", 750, 40); // H1
     expect(getActiveXc(model)).toBe("H1");
     const viewport = model.getters.getActiveViewport();
     document.activeElement!.dispatchEvent(
@@ -824,7 +824,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Alter selection with keyboard", async () => {
-    await simulateClick("canvas", 750, 40); // H1
+    await simulateClick(".o-grid-overlay", 750, 40); // H1
     expect(getActiveXc(model)).toBe("H1");
     const viewport = model.getters.getActiveViewport();
     document.activeElement!.dispatchEvent(
@@ -845,7 +845,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Scroll viewport then alter selection with keyboard from before last cell to last cell does not shift viewport", async () => {
-    await simulateClick("canvas"); // gain focus on grid element
+    await simulateClick(".o-grid-overlay"); // gain focus on grid element
     const { width } = model.getters.getMaxViewportSize(model.getters.getActiveSheet());
     const { width: viewportWidth } = model.getters.getViewportDimensionWithHeaders();
     document.activeElement!.dispatchEvent(
@@ -888,7 +888,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Scroll viewport then alter selection with mouse from before last cell to last cell does not shift viewport", async () => {
-    await simulateClick("canvas"); // gain focus on grid element
+    await simulateClick(".o-grid-overlay"); // gain focus on grid element
     const { width } = model.getters.getMaxViewportSize(model.getters.getActiveSheet());
     const { width: viewportWidth } = model.getters.getViewportDimensionWithHeaders();
     document.activeElement!.dispatchEvent(
@@ -914,11 +914,11 @@ describe("Events on Grid update viewport correctly", () => {
     test("Can edge-scroll horizontally", async () => {
       const { width, height } = model.getters.getViewportDimensionWithHeaders();
       const y = height / 2;
-      triggerMouseEvent("canvas", "mousedown", width / 2, y);
-      triggerMouseEvent("canvas", "mousemove", 1.5 * width, y);
+      triggerMouseEvent(".o-grid-overlay", "mousedown", width / 2, y);
+      triggerMouseEvent(".o-grid-overlay", "mousemove", 1.5 * width, y);
       const advanceTimer = scrollDelay(0.5 * width) * 6 - 1;
       jest.advanceTimersByTime(advanceTimer);
-      triggerMouseEvent("canvas", "mouseup", 1.5 * width, y);
+      triggerMouseEvent(".o-grid-overlay", "mouseup", 1.5 * width, y);
 
       expect(model.getters.getActiveSnappedViewport()).toMatchObject({
         left: 6,
@@ -927,11 +927,11 @@ describe("Events on Grid update viewport correctly", () => {
         bottom: 41,
       });
 
-      triggerMouseEvent("canvas", "mousedown", width / 2, y);
-      triggerMouseEvent("canvas", "mousemove", -0.5 * width, y);
+      triggerMouseEvent(".o-grid-overlay", "mousedown", width / 2, y);
+      triggerMouseEvent(".o-grid-overlay", "mousemove", -0.5 * width, y);
       const advanceTimer2 = scrollDelay(0.5 * width) * 3 - 1;
       jest.advanceTimersByTime(advanceTimer2);
-      triggerMouseEvent("canvas", "mouseup", -0.5 * width, y);
+      triggerMouseEvent(".o-grid-overlay", "mouseup", -0.5 * width, y);
 
       expect(model.getters.getActiveSnappedViewport()).toMatchObject({
         left: 3,
@@ -944,11 +944,11 @@ describe("Events on Grid update viewport correctly", () => {
     test("Can edge-scroll vertically", () => {
       const { width, height } = model.getters.getViewportDimensionWithHeaders();
       const x = width / 2;
-      triggerMouseEvent("canvas", "mousedown", x, height / 2);
-      triggerMouseEvent("canvas", "mousemove", x, 1.5 * height);
+      triggerMouseEvent(".o-grid-overlay", "mousedown", x, height / 2);
+      triggerMouseEvent(".o-grid-overlay", "mousemove", x, 1.5 * height);
       const advanceTimer = scrollDelay(0.5 * height) * 6 - 1;
       jest.advanceTimersByTime(advanceTimer);
-      triggerMouseEvent("canvas", "mouseup", x, 1.5 * height);
+      triggerMouseEvent(".o-grid-overlay", "mouseup", x, 1.5 * height);
 
       expect(model.getters.getActiveSnappedViewport()).toMatchObject({
         left: 0,
@@ -957,11 +957,11 @@ describe("Events on Grid update viewport correctly", () => {
         bottom: 47,
       });
 
-      triggerMouseEvent("canvas", "mousedown", x, height / 2);
-      triggerMouseEvent("canvas", "mousemove", x, -0.5 * height);
+      triggerMouseEvent(".o-grid-overlay", "mousedown", x, height / 2);
+      triggerMouseEvent(".o-grid-overlay", "mousemove", x, -0.5 * height);
       const advanceTimer2 = scrollDelay(0.5 * height) * 3 - 1;
       jest.advanceTimersByTime(advanceTimer2);
-      triggerMouseEvent("canvas", "mouseup", x, -0.5 * height);
+      triggerMouseEvent(".o-grid-overlay", "mouseup", x, -0.5 * height);
 
       expect(model.getters.getActiveSnappedViewport()).toMatchObject({
         left: 0,

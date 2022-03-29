@@ -44,7 +44,7 @@ describe("Context Menu add/remove row/col", () => {
     expect(getActiveXc(model)).toBe("D1");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
-    await simulateClick("canvas", OUTSIDE_CM.x, OUTSIDE_CM.y);
+    await simulateClick(".o-grid-overlay", OUTSIDE_CM.x, OUTSIDE_CM.y);
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
   });
 
@@ -54,7 +54,7 @@ describe("Context Menu add/remove row/col", () => {
     expect(getActiveXc(model)).toBe("A5");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
-    await simulateClick("canvas", OUTSIDE_CM.x, OUTSIDE_CM.y);
+    await simulateClick(".o-grid-overlay", OUTSIDE_CM.x, OUTSIDE_CM.y);
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
   });
 

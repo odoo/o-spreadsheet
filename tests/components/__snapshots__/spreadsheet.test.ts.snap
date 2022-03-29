@@ -377,7 +377,6 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     <canvas
       height="985"
       style="width:985px;height:985px;"
-      tabindex="-1"
       width="985"
     />
     
@@ -398,6 +397,10 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     
     
     
+    <div
+      class="o-grid-overlay"
+      tabindex="-1"
+    />
     <div
       class="o-overlay"
     >

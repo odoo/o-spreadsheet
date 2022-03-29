@@ -97,8 +97,8 @@ describe("ranges and highlights", () => {
 
   test("=+Click range, the range ref should be colored", async () => {
     composerEl = await typeInComposerGrid("=");
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
-    triggerMouseEvent("canvas", "mousemove", 200, 200);
+    triggerMouseEvent(".o-grid-overlay", "mousedown", 300, 200);
+    triggerMouseEvent(".o-grid-overlay", "mousemove", 200, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 200, clientY: 200 }));
     await nextTick();
     expect(composerEl.textContent).toBe("=B8:C8");
@@ -421,7 +421,7 @@ describe("composer", () => {
     cehMock.removeAll();
     composerEl.dispatchEvent(new Event("input"));
     composerEl.dispatchEvent(new Event("keyup"));
-    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    triggerMouseEvent(".o-grid-overlay", "mousedown", 300, 200);
     await nextTick();
     expect(getActiveXc(model)).toBe("C8");
     expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
@@ -539,7 +539,7 @@ describe("composer", () => {
     expect(topbarComposerElement.textContent).toBe("I am Tabouret");
     await simulateClick(topbarComposerElement); // gain focus on topbar composer
     await keyDown("ArrowLeft");
-    await simulateClick("canvas", 300, 200); // focus another Cell (i.e. C8)
+    await simulateClick(".o-grid-overlay", 300, 200); // focus another Cell (i.e. C8)
     expect(topbarComposerElement.textContent).toBe("");
   });
 
@@ -1042,7 +1042,7 @@ describe("composer", () => {
 
   test("The composer should be closed before opening the context menu", async () => {
     await typeInComposerGrid("=");
-    triggerMouseEvent("canvas", "contextmenu", 300, 200);
+    triggerMouseEvent(".o-grid-overlay", "contextmenu", 300, 200);
     await nextTick();
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);

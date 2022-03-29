@@ -139,6 +139,6 @@ describe("Side Panel", () => {
     await nextTick();
     simulateClick(".o-sidePanelClose");
     await nextTick();
-    expect(document.activeElement).toBe(fixture.querySelector("canvas"));
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid-overlay"));
   });
 });

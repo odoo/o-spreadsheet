@@ -36,7 +36,7 @@ export async function clickCell(
   const viewport = model.getters.getActiveViewport();
   const [x, y, ,] = model.getters.getRect(zone, viewport);
 
-  await simulateClick("canvas", x, y, extra);
+  await simulateClick(".o-grid-overlay", x, y, extra);
 }
 
 export async function rightClickCell(
@@ -47,7 +47,7 @@ export async function rightClickCell(
   const zone = toZone(xc);
   const viewport = model.getters.getActiveViewport();
   const [x, y, ,] = model.getters.getRect(zone, viewport);
-  triggerMouseEvent("canvas", "contextmenu", x, y, extra);
+  triggerMouseEvent(".o-grid-overlay", "contextmenu", x, y, extra);
   await nextTick();
 }
 
