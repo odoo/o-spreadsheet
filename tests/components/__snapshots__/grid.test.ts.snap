@@ -4,31 +4,10 @@ exports[`Grid component simple rendering snapshot 1`] = `
 <div
   class="o-grid o-two-columns"
 >
-  
-  <canvas
-    height="985"
-    style="width:985px;height:985px;"
-    tabindex="-1"
-    width="985"
-  />
-  
-  
-  
-  
-  
   <div
-    class="o-autofill"
-    style="top:45px;left:140px"
-  >
-    <div
-      class="o-autofill-handler"
-      style="top:0px;left:0px;"
-    />
-    
-  </div>
-  
-  
-  
+    class="o-grid-overlay"
+    tabindex="-1"
+  />
   <div
     class="o-overlay"
   >
@@ -56,6 +35,30 @@ exports[`Grid component simple rendering snapshot 1`] = `
       class="all"
     />
   </div>
+  
+  
+  <canvas
+    height="985"
+    style="width:985px;height:985px;"
+    width="985"
+  />
+  
+  
+  
+  
+  
+  <div
+    class="o-autofill"
+    style="top:45px;left:140px"
+  >
+    <div
+      class="o-autofill-handler"
+      style="top:0px;left:0px;"
+    />
+    
+  </div>
+  
+  
   
   
   <div>

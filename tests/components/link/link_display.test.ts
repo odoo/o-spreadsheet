@@ -72,7 +72,7 @@ describe("link display component", () => {
     await clickCell(model, "A1");
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
     fixture
-      .querySelector("canvas")
+      .querySelector(".o-grid-overlay")
       ?.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
     await nextTick();
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();

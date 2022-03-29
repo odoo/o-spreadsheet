@@ -88,7 +88,7 @@ interface HoveredPosition {
 export function useCellHovered(env: SpreadsheetChildEnv, getViewPort: () => Viewport) {
   const hoveredPosition: HoveredPosition = useState({} as HoveredPosition);
   const { Date, setInterval, clearInterval } = window;
-  const canvasRef = useRef("canvas");
+  const gridRef = useRef("gridOverlay");
   let x = 0;
   let y = 0;
   let lastMoved = 0;
@@ -123,12 +123,12 @@ export function useCellHovered(env: SpreadsheetChildEnv, getViewPort: () => View
   }
 
   onMounted(() => {
-    canvasRef.el!.addEventListener("mousemove", updateMousePosition);
+    gridRef.el!.addEventListener("mousemove", updateMousePosition);
     interval = setInterval(checkTiming, 200);
   });
 
   onWillUnmount(() => {
-    canvasRef.el!.removeEventListener("mousemove", updateMousePosition);
+    gridRef.el!.removeEventListener("mousemove", updateMousePosition);
     clearInterval(interval);
   });
   return hoveredPosition;
@@ -219,6 +219,15 @@ css/* scss */ `
         overflow-y: hidden;
       }
     }
+
+    .o-grid-overlay {
+      position: absolute;
+      top: ${HEADER_HEIGHT}px;
+      left: ${HEADER_WIDTH}px;
+      height: calc(100% - ${HEADER_HEIGHT}px);
+      width: calc(100% - ${HEADER_WIDTH}px);
+      outline: none;
+    }
   }
 `;
 
@@ -264,6 +273,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private gridRef!: Ref<HTMLElement>;
   private vScrollbar!: ScrollBar;
   private hScrollbar!: ScrollBar;
+  private gridOverlay!: Ref<HTMLElement>;
   private canvas!: Ref<HTMLElement>;
   private currentSheet!: UID;
   private clickedCol!: number;
@@ -284,6 +294,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.vScrollbarRef = useRef("vscrollbar");
     this.hScrollbarRef = useRef("hscrollbar");
     this.gridRef = useRef("grid");
+    this.gridOverlay = useRef("gridOverlay");
     this.canvas = useRef("canvas");
     this.vScrollbar = new ScrollBar(this.vScrollbarRef.el, "vertical");
     this.hScrollbar = new ScrollBar(this.hScrollbarRef.el, "horizontal");
@@ -498,7 +509,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   focus() {
     if (!this.env.model.getters.getSelectedFigureId()) {
-      this.canvas.el!.focus();
+      this.gridOverlay.el!.focus();
     }
   }
 
@@ -735,7 +746,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch(
         ev.ctrlKey ? "PREPARE_SELECTION_INPUT_EXPANSION" : "STOP_SELECTION_INPUT"
       );
-      this.canvas.el!.removeEventListener("mousemove", onMouseMove);
+      this.gridOverlay.el!.removeEventListener("mousemove", onMouseMove);
       if (this.env.model.getters.isPaintingFormat()) {
         this.env.model.dispatch("PASTE", {
           target: this.env.model.getters.getSelectedZones(),
@@ -859,7 +870,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         type = "ROW";
       }
     }
-    this.toggleContextMenu(type, ev.offsetX, ev.offsetY);
+    this.toggleContextMenu(type, ev.offsetX + HEADER_WIDTH, ev.offsetY + HEADER_HEIGHT);
   }
 
   toggleContextMenu(type: ContextMenuType, x: number, y: number) {
