@@ -1,5 +1,5 @@
 import { Component, useState, xml } from "@odoo/owl";
-import { AUTOFILL_EDGE_LENGTH } from "../constants";
+import { AUTOFILL_EDGE_LENGTH, HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
 import { clip } from "../helpers/misc";
 import { SpreadsheetChildEnv } from "../types";
 import { css } from "./helpers/css";
@@ -123,8 +123,14 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
         left: ev.clientX - start.left + offsetX,
         top: ev.clientY - start.top + offsetY,
       };
-      const col = this.env.model.getters.getColIndex(ev.clientX - position.left, viewportLeft);
-      const row = this.env.model.getters.getRowIndex(ev.clientY - position.top, viewportTop);
+      const col = this.env.model.getters.getColIndex(
+        ev.clientX - position.left - HEADER_WIDTH,
+        viewportLeft
+      );
+      const row = this.env.model.getters.getRowIndex(
+        ev.clientY - position.top - HEADER_HEIGHT,
+        viewportTop
+      );
       if (lastCol !== col || lastRow !== row) {
         const activeSheet = this.env.model.getters.getActiveSheet();
         lastCol = col === -1 ? lastCol : clip(col, 0, activeSheet.cols.length);

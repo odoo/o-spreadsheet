@@ -96,7 +96,7 @@ interface HoveredPosition {
 export function useCellHovered(env: SpreadsheetChildEnv, getViewPort: () => Viewport) {
   const hoveredPosition: HoveredPosition = useState({} as HoveredPosition);
   const { Date, setInterval, clearInterval } = window;
-  const canvasRef = useRef("canvas");
+  const gridOverlay = useRef("gridOverlay");
   let x = 0;
   let y = 0;
   let lastMoved = 0;
@@ -131,19 +131,19 @@ export function useCellHovered(env: SpreadsheetChildEnv, getViewPort: () => View
   }
 
   onMounted(() => {
-    canvasRef.el!.addEventListener("mousemove", updateMousePosition);
+    gridOverlay.el!.addEventListener("mousemove", updateMousePosition);
     interval = setInterval(checkTiming, 200);
   });
 
   onWillUnmount(() => {
-    canvasRef.el!.removeEventListener("mousemove", updateMousePosition);
+    gridOverlay.el!.removeEventListener("mousemove", updateMousePosition);
     clearInterval(interval);
   });
   return hoveredPosition;
 }
 
 function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMoveUp: () => boolean) {
-  const canvasRef = useRef("canvas");
+  const canvasRef = useRef("gridOverlay");
   let x = null as number | null;
   let y = null as number | null;
 
@@ -199,7 +199,7 @@ const TEMPLATE = xml/* xml */ `
         focus="props.focusComposer"
         />
     </t>
-    <canvas t-ref="realCanvas" />
+    <canvas t-ref="canvas" />
     <t t-foreach="env.model.getters.getClientsToDisplay()" t-as="client" t-key="getClientPositionKey(client)">
       <ClientTag name="client.name"
                  color="client.color"
@@ -245,7 +245,7 @@ const TEMPLATE = xml/* xml */ `
       </t>
     </t>
     <div
-      t-ref="canvas"
+      t-ref="gridOverlay"
       tabindex="-1"
       class="o-grid-overlay"
       t-on-mousedown="onMouseDown"
@@ -351,8 +351,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private gridRef!: Ref<HTMLElement>;
   private vScrollbar!: ScrollBar;
   private hScrollbar!: ScrollBar;
+  private gridOverlay!: Ref<HTMLElement>;
   private canvas!: Ref<HTMLElement>;
-  private realCanvas!: Ref<HTMLElement>;
   private currentSheet!: UID;
   private clickedCol!: number;
   private clickedRow!: number;
@@ -372,8 +372,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.vScrollbarRef = useRef("vscrollbar");
     this.hScrollbarRef = useRef("hscrollbar");
     this.gridRef = useRef("grid");
+    this.gridOverlay = useRef("gridOverlay");
     this.canvas = useRef("canvas");
-    this.realCanvas = useRef("realCanvas");
     this.vScrollbar = new ScrollBar(this.vScrollbarRef.el, "vertical");
     this.hScrollbar = new ScrollBar(this.hScrollbarRef.el, "horizontal");
     this.currentSheet = this.env.model.getters.getActiveSheetId();
@@ -587,7 +587,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   focus() {
     if (!this.env.model.getters.getSelectedFigureId()) {
-      this.canvas.el!.focus();
+      this.gridOverlay.el!.focus();
     }
   }
 
@@ -654,7 +654,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     // check for position changes
     this.checkSheetChanges();
     // drawing grid on canvas
-    const canvas = this.realCanvas.el as HTMLCanvasElement;
+    const canvas = this.canvas.el as HTMLCanvasElement;
     const dpr = window.devicePixelRatio || 1;
     const ctx = canvas.getContext("2d", { alpha: false })!;
     const thinLineWidth = 0.4 * dpr;
@@ -713,7 +713,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
    * Get the coordinates in pixels, with 0,0 being the top left of the grid itself
    */
   getCoordinates(ev: MouseEvent): [number, number] {
-    const rect = this.gridEl.getBoundingClientRect();
+    const rect = this.gridOverlay.el!.getBoundingClientRect();
     const x = ev.pageX - rect.left;
     const y = ev.pageY - rect.top;
     return [x, y];
@@ -778,8 +778,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       isEdgeScrolling = false;
       timeoutDelay = 0;
 
-      const colEdgeScroll = this.env.model.getters.getEdgeScrollCol(x);
-      const rowEdgeScroll = this.env.model.getters.getEdgeScrollRow(y);
+      const colEdgeScroll = this.env.model.getters.getEdgeScrollCol(x + HEADER_WIDTH);
+      const rowEdgeScroll = this.env.model.getters.getEdgeScrollRow(y + HEADER_HEIGHT);
 
       const { left, right, top, bottom } = this.env.model.getters.getActiveSnappedViewport();
       let col: number, row: number;
@@ -824,7 +824,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch(
         ev.ctrlKey ? "PREPARE_SELECTION_INPUT_EXPANSION" : "STOP_SELECTION_INPUT"
       );
-      this.canvas.el!.removeEventListener("mousemove", onMouseMove);
+      this.gridOverlay.el!.removeEventListener("mousemove", onMouseMove);
       if (this.env.model.getters.isPaintingFormat()) {
         this.env.model.dispatch("PASTE", {
           target: this.env.model.getters.getSelectedZones(),

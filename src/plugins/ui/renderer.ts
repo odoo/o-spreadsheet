@@ -82,20 +82,28 @@ export class RendererPlugin extends UIPlugin {
    * It returns -1 if no column is found.
    */
   getColIndex(x: number, left: number, sheet?: Sheet): number {
-    if (x < HEADER_WIDTH) {
+    if (x < 0) {
       return -1;
     }
+    // if (x < HEADER_WIDTH) {
+    //   return -1;
+    // }
     const cols = (sheet || this.getters.getActiveSheet()).cols;
-    const adjustedX = x - HEADER_WIDTH + cols[left].start + 1;
+    const adjustedX = x + cols[left].start + 1;
+    // const adjustedX = x - HEADER_WIDTH + cols[left].start + 1;
     return searchIndex(cols, adjustedX);
   }
 
   getRowIndex(y: number, top: number, sheet?: Sheet): number {
-    if (y < HEADER_HEIGHT) {
+    if (y < 0) {
       return -1;
     }
+    // if (y < HEADER_HEIGHT) {
+    //   return -1;
+    // }
     const rows = (sheet || this.getters.getActiveSheet()).rows;
-    const adjustedY = y - HEADER_HEIGHT + rows[top].start + 1;
+    const adjustedY = y + rows[top].start + 1;
+    // const adjustedY = y - HEADER_HEIGHT + rows[top].start + 1;
     return searchIndex(rows, adjustedY);
   }
 

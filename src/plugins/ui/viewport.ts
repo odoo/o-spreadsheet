@@ -342,7 +342,7 @@ export class ViewportPlugin extends UIPlugin {
   private adjustViewportZoneX(sheetId: UID, viewport: Viewport) {
     const sheet = this.getters.getSheet(sheetId);
     const cols = sheet.cols;
-    viewport.left = this.getters.getColIndex(viewport.offsetX + HEADER_WIDTH, 0, sheet);
+    viewport.left = this.getters.getColIndex(viewport.offsetX, 0, sheet);
     const x = this.viewportWidth + viewport.offsetX;
     viewport.right = cols.length - 1;
     for (let i = viewport.left; i < cols.length; i++) {
@@ -358,7 +358,7 @@ export class ViewportPlugin extends UIPlugin {
   private adjustViewportZoneY(sheetId: UID, viewport: Viewport) {
     const sheet = this.getters.getSheet(sheetId);
     const rows = sheet.rows;
-    viewport.top = this.getters.getRowIndex(viewport.offsetY + HEADER_HEIGHT, 0, sheet);
+    viewport.top = this.getters.getRowIndex(viewport.offsetY, 0, sheet);
     const y = this.viewportHeight + viewport.offsetY;
     viewport.bottom = rows.length - 1;
     for (let i = viewport.top; i < rows.length; i++) {

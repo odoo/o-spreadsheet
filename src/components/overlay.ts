@@ -433,7 +433,7 @@ export class ColResizer extends AbstractResizer {
 
   _getElementIndex(index: number): number {
     return this.env.model.getters.getColIndex(
-      index,
+      index - HEADER_WIDTH,
       this.env.model.getters.getActiveSnappedViewport().left
     );
   }
@@ -681,7 +681,7 @@ export class RowResizer extends AbstractResizer {
 
   _getElementIndex(index: number): number {
     return this.env.model.getters.getRowIndex(
-      index,
+      index - HEADER_HEIGHT,
       this.env.model.getters.getActiveSnappedViewport().top
     );
   }
