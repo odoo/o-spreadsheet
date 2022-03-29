@@ -1,72 +1,27 @@
 <templates>
   <t t-name="o-spreadsheet.Grid" owl="1">
-    <div
-      class="o-grid"
-      t-att-class="{'o-two-columns': !props.sidePanelIsOpen}"
-      t-on-click="focus"
-      t-on-keydown="onKeydown"
-      t-on-wheel="onMouseWheel"
-      t-ref="grid">
+    <div class="o-grid" t-att-class="{'o-two-columns': !props.sidePanelIsOpen}" t-on-click="focus" t-on-keydown="onKeydown" t-on-wheel="onMouseWheel" t-ref="grid">
+      <div t-ref="gridOverlay" tabindex="-1" class="o-grid-overlay" t-on-mousedown="onMouseDown" t-on-dblclick="onDoubleClick" t-on-contextmenu="onCanvasContextMenu"/>
+      <Overlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)" />
+
       <t t-if="env.model.getters.getEditionMode() !== 'inactive'">
-        <GridComposer
-          onComposerUnmounted="() => this.focus()"
-          onComposerContentFocused="props.onComposerContentFocused"
-          focus="props.focusComposer"
-        />
+        <GridComposer onComposerUnmounted="() => this.focus()" onComposerContentFocused="props.onComposerContentFocused" focus="props.focusComposer" />
       </t>
-      <canvas
-        t-ref="canvas"
-        t-on-mousedown="onMouseDown"
-        t-on-dblclick="onDoubleClick"
-        tabindex="-1"
-        t-on-contextmenu="onCanvasContextMenu"
-      />
-      <t
-        t-foreach="env.model.getters.getClientsToDisplay()"
-        t-as="client"
-        t-key="getClientPositionKey(client)">
-        <ClientTag
-          name="client.name"
-          color="client.color"
-          col="client.position.col"
-          row="client.position.row"
-          active="isCellHovered(client.position.col, client.position.row)"
-        />
+      <canvas t-ref="canvas" />
+      <t t-foreach="env.model.getters.getClientsToDisplay()" t-as="client" t-key="getClientPositionKey(client)">
+        <ClientTag name="client.name" color="client.color" col="client.position.col" row="client.position.row" active="isCellHovered(client.position.col, client.position.row)" />
       </t>
-      <Popover
-        t-if="errorTooltip.isOpen"
-        position="errorTooltip.position"
-        flipHorizontalOffset="errorTooltip.cellWidth"
-        childWidth="ERROR_TOOLTIP_WIDTH"
-        childHeight="ERROR_TOOLTIP_HEIGHT">
+      <Popover t-if="errorTooltip.isOpen" position="errorTooltip.position" flipHorizontalOffset="errorTooltip.cellWidth" childWidth="ERROR_TOOLTIP_WIDTH" childHeight="ERROR_TOOLTIP_HEIGHT">
         <ErrorToolTip text="errorTooltip.text"/>
       </Popover>
-      <Popover
-        t-if="shouldDisplayLink"
-        position="popoverPosition.position"
-        flipHorizontalOffset="-popoverPosition.cellWidth"
-        flipVerticalOffset="-popoverPosition.cellHeight"
-        childWidth="LINK_TOOLTIP_WIDTH"
-        childHeight="LINK_TOOLTIP_HEIGHT">
+      <Popover t-if="shouldDisplayLink" position="popoverPosition.position" flipHorizontalOffset="-popoverPosition.cellWidth" flipVerticalOffset="-popoverPosition.cellHeight" childWidth="LINK_TOOLTIP_WIDTH" childHeight="LINK_TOOLTIP_HEIGHT">
         <LinkDisplay cellPosition="activeCellPosition"/>
       </Popover>
-      <Popover
-        t-if="props.linkEditorIsOpen"
-        position="popoverPosition.position"
-        flipHorizontalOffset="-popoverPosition.cellWidth"
-        flipVerticalOffset="-popoverPosition.cellHeight"
-        childWidth="LINK_EDITOR_WIDTH"
-        childHeight="LINK_EDITOR_HEIGHT">
-        <LinkEditor
-          cellPosition="activeCellPosition"
-          onLinkEditorClosed="props.onLinkEditorClosed"
-        />
+      <Popover t-if="props.linkEditorIsOpen" position="popoverPosition.position" flipHorizontalOffset="-popoverPosition.cellWidth" flipVerticalOffset="-popoverPosition.cellHeight" childWidth="LINK_EDITOR_WIDTH" childHeight="LINK_EDITOR_HEIGHT">
+        <LinkEditor cellPosition="activeCellPosition" onLinkEditorClosed="props.onLinkEditorClosed" />
       </Popover>
       <t t-if="env.model.getters.getEditionMode() === 'inactive'">
-        <Autofill
-          position="getAutofillPosition()"
-          getGridBoundingClientRect="() => this.getGridBoundingClientRect()"
-        />
+        <Autofill position="getAutofillPosition()" getGridBoundingClientRect="() => this.getGridBoundingClientRect()" />
       </t>
       <t t-if="env.model.getters.getEditionMode() !== 'inactive'">
         <t t-foreach="env.model.getters.getHighlights()" t-as="highlight" t-key="highlight_index">
@@ -75,22 +30,9 @@
           </t>
         </t>
       </t>
-      <Overlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
-      <Menu
-        t-if="menuState.isOpen"
-        menuItems="menuState.menuItems"
-        position="menuState.position"
-        onClose="() => this.closeMenu()"
-      />
-      <t
-        t-set="gridSize"
-        t-value="env.model.getters.getMaxViewportSize(env.model.getters.getActiveSheet())"
-      />
-      <FiguresContainer
-        model="props.model"
-        sidePanelIsOpen="props.sidePanelIsOpen"
-        onFigureDeleted="() => this.focus()"
-      />
+      <Menu t-if="menuState.isOpen" menuItems="menuState.menuItems" position="menuState.position" onClose="() => this.closeMenu()" />
+      <t t-set="gridSize" t-value="env.model.getters.getMaxViewportSize(env.model.getters.getActiveSheet())" />
+      <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" onFigureDeleted="() => this.focus()" />
       <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
         <div t-attf-style="width:1px;height:{{gridSize.height}}px"/>
       </div>

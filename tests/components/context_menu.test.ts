@@ -201,9 +201,9 @@ class ContextMenuParent extends Component {
 }
 
 function simulateContextMenu(x, y) {
-  triggerMouseEvent("canvas", "mousedown", x, y, { button: 1, bubbles: true });
-  triggerMouseEvent("canvas", "mouseup", x, y, { button: 1, bubbles: true });
-  triggerMouseEvent("canvas", "contextmenu", x, y, { button: 1, bubbles: true });
+  triggerMouseEvent(".o-grid-overlay", "mousedown", x, y, { button: 1, bubbles: true });
+  triggerMouseEvent(".o-grid-overlay", "mouseup", x, y, { button: 1, bubbles: true });
+  triggerMouseEvent(".o-grid-overlay", "contextmenu", x, y, { button: 1, bubbles: true });
 }
 
 describe("Context Menu", () => {
@@ -228,7 +228,7 @@ describe("Context Menu", () => {
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
 
-    await simulateClick("canvas", 50, 50);
+    await simulateClick(".o-grid-overlay", 50, 50);
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
   });
 
