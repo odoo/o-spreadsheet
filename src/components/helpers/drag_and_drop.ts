@@ -1,3 +1,4 @@
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { SpreadsheetChildEnv } from "../../types/env";
 type EventFn = (ev: MouseEvent) => void;
 
@@ -45,22 +46,22 @@ export function dragAndDropBeyondTheViewport(
     }
     const offsetX = currentEv.clientX - position.left;
     const offsetY = currentEv.clientY - position.top;
-    const edgeScrollInfoX = env.model.getters.getEdgeScrollCol(offsetX);
-    const edgeScrollInfoY = env.model.getters.getEdgeScrollRow(offsetY);
+    const edgeScrollInfoX = env.model.getters.getEdgeScrollCol(offsetX - HEADER_WIDTH);
+    const edgeScrollInfoY = env.model.getters.getEdgeScrollRow(offsetY - HEADER_HEIGHT);
     const { top, left, bottom, right } = env.model.getters.getActiveSnappedViewport();
 
     let colIndex: number;
     if (edgeScrollInfoX.canEdgeScroll) {
       colIndex = edgeScrollInfoX.direction > 0 ? right : left - 1;
     } else {
-      colIndex = env.model.getters.getColIndex(offsetX, left);
+      colIndex = env.model.getters.getColIndex(offsetX - HEADER_WIDTH, left);
     }
 
     let rowIndex: number;
     if (edgeScrollInfoY.canEdgeScroll) {
       rowIndex = edgeScrollInfoY.direction > 0 ? bottom : top - 1;
     } else {
-      rowIndex = env.model.getters.getRowIndex(offsetY, top);
+      rowIndex = env.model.getters.getRowIndex(offsetY - HEADER_HEIGHT, top);
     }
 
     cbMouseMove(colIndex, rowIndex);

@@ -85,8 +85,6 @@ abstract class AbstractResizer extends Component<any, SpreadsheetChildEnv> {
 
   abstract _getActiveElements(): Set<number>;
 
-  abstract _getXY(ev: MouseEvent): { x: number; y: number };
-
   abstract _getPreviousVisibleElement(index: number): number;
 
   _computeHandleDisplay(ev: MouseEvent) {
@@ -272,11 +270,13 @@ abstract class AbstractResizer extends Component<any, SpreadsheetChildEnv> {
     const initialOffset = this._getEvOffset(ev);
 
     const onMouseMove = (ev: MouseEvent) => {
+      // currentEv.target can be any DOM element
       currentEv = ev;
       if (timeOutId) {
         return;
       }
-      const position = this._getClientPosition(currentEv) - initialPosition + initialOffset;
+      const delta = this._getClientPosition(currentEv) - initialPosition;
+      const position = initialOffset + delta;
       const EdgeScrollInfo = this._getEdgeScroll(position);
       const { first, last } = this._getBoundaries();
       let elementIndex;
@@ -318,9 +318,8 @@ abstract class AbstractResizer extends Component<any, SpreadsheetChildEnv> {
       this._selectElement(index, false);
     }
     const type = this._getType();
-    const { x, y } = this._getXY(ev);
     // todo: define props
-    this.props.onOpenContextMenu(type, x, y);
+    this.props.onOpenContextMenu(type, ev.clientX, ev.clientY);
   }
 }
 
@@ -399,7 +398,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getEvOffset(ev: MouseEvent): number {
-    return ev.offsetX + HEADER_WIDTH;
+    return ev.offsetX;
   }
 
   _getStateOffset(): number {
@@ -517,12 +516,6 @@ export class ColResizer extends AbstractResizer {
     return this.env.model.getters.getActiveCols();
   }
 
-  _getXY(ev: MouseEvent): { x: number; y: number } {
-    return {
-      x: ev.offsetX + HEADER_WIDTH,
-      y: ev.offsetY,
-    };
-  }
   _getPreviousVisibleElement(index: number): number {
     const cols = this.env.model.getters.getActiveSheet().cols.slice(0, index);
     const step = cols.reverse().findIndex((col) => !col.isHidden);
@@ -624,7 +617,7 @@ export class RowResizer extends AbstractResizer {
   private rowResizerRef!: Ref<HTMLElement>;
 
   _getEvOffset(ev: MouseEvent): number {
-    return ev.offsetY + HEADER_HEIGHT;
+    return ev.offsetY;
   }
 
   _getStateOffset(): number {
@@ -738,12 +731,6 @@ export class RowResizer extends AbstractResizer {
     return this.env.model.getters.getActiveRows();
   }
 
-  _getXY(ev: MouseEvent): { x: number; y: number } {
-    return {
-      x: ev.offsetX,
-      y: ev.offsetY + HEADER_HEIGHT,
-    };
-  }
   _getPreviousVisibleElement(index: number): number {
     const rows = this.env.model.getters.getActiveSheet().rows.slice(0, index);
     const step = rows.reverse().findIndex((row) => !row.isHidden);

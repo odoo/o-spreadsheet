@@ -10,7 +10,7 @@ import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry"
 import { ConditionalFormat } from "../../src/types";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
-import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import { rightClickCell, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import {
   getChildFromComponent,
@@ -200,30 +200,22 @@ class ContextMenuParent extends Component {
   }
 }
 
-function simulateContextMenu(x, y) {
-  triggerMouseEvent(".o-grid-overlay", "mousedown", x, y, { button: 1, bubbles: true });
-  triggerMouseEvent(".o-grid-overlay", "mouseup", x, y, { button: 1, bubbles: true });
-  triggerMouseEvent(".o-grid-overlay", "contextmenu", x, y, { button: 1, bubbles: true });
-}
-
 describe("Context Menu", () => {
   test("context menu simple rendering", async () => {
-    simulateContextMenu(300, 200);
-    await nextTick();
+    await rightClickCell(model, "C8");
     expect(fixture.querySelector(".o-menu")).toMatchSnapshot();
   });
 
   test("right click on a cell opens a context menu", async () => {
     expect(getActiveXc(model)).toBe("A1");
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
-    simulateContextMenu(300, 200);
+    await rightClickCell(model, "C8");
     expect(getActiveXc(model)).toBe("C8");
-    await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
   });
 
   test("right click on a cell, then left click elsewhere closes a context menu", async () => {
-    simulateContextMenu(300, 200);
+    await rightClickCell(model, "C8");
     expect(getActiveXc(model)).toBe("C8");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
@@ -235,18 +227,13 @@ describe("Context Menu", () => {
   test("can copy/paste with context menu", async () => {
     setCellContent(model, "B1", "b1");
 
-    // right click on B1
-    simulateContextMenu(230, 30);
+    await rightClickCell(model, "B1");
     expect(getActiveXc(model)).toBe("B1");
-    await nextTick();
 
     // click on 'copy' menu item
     await simulateClick(".o-menu div[data-name='copy']");
 
-    // right click on B2
-    simulateContextMenu(230, 50);
-    await nextTick();
-    expect(getActiveXc(model)).toBe("B2");
+    await rightClickCell(model, "B2");
 
     // click on 'paste' menu item
     await simulateClick(".o-menu div[data-name='paste']");
@@ -257,16 +244,13 @@ describe("Context Menu", () => {
   test("can cut/paste with context menu", async () => {
     setCellContent(model, "B1", "b1");
 
-    // right click on B1
-    simulateContextMenu(230, 30);
-    expect(getActiveXc(model)).toBe("B1");
-    await nextTick();
+    await rightClickCell(model, "B1");
 
     // click on 'cut' menu item
     await simulateClick(".o-menu div[data-name='cut']");
 
     // right click on B2
-    simulateContextMenu(230, 50);
+    await rightClickCell(model, "B2");
     await nextTick();
     expect(getActiveXc(model)).toBe("B2");
 
@@ -278,17 +262,14 @@ describe("Context Menu", () => {
   });
 
   test("menu does not close when right click elsewhere", async () => {
-    simulateContextMenu(100, 100);
-    await nextTick();
+    await rightClickCell(model, "B1");
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
-    simulateContextMenu(300, 300);
-    await nextTick();
+    await rightClickCell(model, "D5");
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
   });
 
   test("close contextmenu when clicking on menubar", async () => {
-    simulateContextMenu(100, 100);
-    await nextTick();
+    await rightClickCell(model, "B1");
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
     triggerMouseEvent(".o-topbar-topleft", "click");
     await nextTick();
@@ -296,16 +277,14 @@ describe("Context Menu", () => {
   });
 
   test("close contextmenu when clicking on menubar item", async () => {
-    simulateContextMenu(100, 100);
-    await nextTick();
+    await rightClickCell(model, "B1");
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
     triggerMouseEvent(".o-topbar-menu[data-id='insert']", "click");
     await nextTick();
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeFalsy();
   });
   test("close contextmenu when clicking on tools bar", async () => {
-    simulateContextMenu(100, 100);
-    await nextTick();
+    await rightClickCell(model, "B1");
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
     const fontSizeTool = fixture.querySelector('.o-tool[title="Font Size"]')!;
     triggerMouseEvent(fontSizeTool, "click");
@@ -333,8 +312,7 @@ describe("Context Menu", () => {
         action() {},
       });
     setCellContent(model, "B1", "b1");
-    simulateContextMenu(230, 30);
-    await nextTick();
+    await rightClickCell(model, "B1");
     expect(fixture.querySelector(".o-menu div[data-name='visible_action']")).toBeTruthy();
     expect(fixture.querySelector(".o-menu div[data-name='hidden_action']")).toBeFalsy();
     cellMenuRegistry.content = menuDefinitions;
@@ -522,8 +500,7 @@ describe("Context Menu", () => {
     expect(verticalScrollBar.scroll).toBe(0);
     expect(horizontalScrollBar.scroll).toBe(0);
 
-    simulateContextMenu(300, 200);
-    await nextTick();
+    await rightClickCell(model, "C8");
 
     const menu = fixture.querySelector(".o-menu")!;
     // scroll
@@ -545,8 +522,7 @@ describe("Context Menu", () => {
     expect(verticalScrollBar.scroll).toBe(0);
     expect(horizontalScrollBar.scroll).toBe(0);
 
-    simulateContextMenu(300, 200);
-    await nextTick();
+    await rightClickCell(model, "C8");
 
     const menu = fixture.querySelector(".o-menu")!;
 
@@ -731,8 +707,7 @@ describe("Context Menu position on small screen 1000px/300px", () => {
 
 describe("Context Menu - CF", () => {
   test("open sidepanel with no CF in selected zone", async () => {
-    simulateContextMenu(240, 110);
-    await nextTick();
+    await rightClickCell(model, "B1");
     await simulateClick(".o-menu div[data-name='conditional_formatting']");
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
@@ -759,8 +734,7 @@ describe("Context Menu - CF", () => {
       target: cfRule.ranges.map(toZone),
     });
     setSelection(model, ["A1:K11"]);
-    simulateContextMenu(240, 110); //click on C5
-    await nextTick();
+    await rightClickCell(model, "C5");
     await simulateClick(".o-menu div[data-name='conditional_formatting']");
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
@@ -802,7 +776,7 @@ describe("Context Menu - CF", () => {
       target: cfRule2.ranges.map(toZone),
     });
     setSelection(model, ["A1:K11"]);
-    simulateContextMenu(240, 110); //click on C5
+    await rightClickCell(model, "C5");
     await nextTick();
     await simulateClick(".o-menu div[data-name='conditional_formatting']");
     expect(
@@ -829,8 +803,7 @@ describe("Context Menu - CF", () => {
       target: cfRule1.ranges.map(toZone),
     });
     setSelection(model, ["A1:A11"]);
-    simulateContextMenu(80, 90);
-    await nextTick();
+    await rightClickCell(model, "A2");
     await simulateClick(".o-menu div[data-name='conditional_formatting']");
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
@@ -840,7 +813,7 @@ describe("Context Menu - CF", () => {
     ).toBeTruthy();
 
     setSelection(model, ["F6"]);
-    simulateContextMenu(530, 125);
+    await rightClickCell(model, "F6");
     await nextTick();
     await simulateClick(".o-menu div[data-name='conditional_formatting']");
     expect(

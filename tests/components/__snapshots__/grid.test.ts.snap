@@ -87,7 +87,7 @@ exports[`error tooltip can display error tooltip 1`] = `
   style="
       position: absolute;
       z-index: 5;
-      top:250px;
+      top:187px;
       left:336px;
       max-height:934px;
       width:180px;

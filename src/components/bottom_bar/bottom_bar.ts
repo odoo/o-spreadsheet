@@ -155,7 +155,8 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
       i++;
     }
     const target = ev.currentTarget as HTMLElement;
-    this.openContextMenu(target.offsetLeft, target.offsetTop, registry);
+    const { top, left } = target.getBoundingClientRect();
+    this.openContextMenu(left, top, registry);
   }
 
   activateSheet(name: string) {
@@ -183,7 +184,8 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
       this.menuState.isOpen = false;
     } else {
       const target = (ev.currentTarget as HTMLElement).parentElement as HTMLElement;
-      this.openContextMenu(target.offsetLeft, target.offsetTop, sheetMenuRegistry);
+      const { top, left } = target.getBoundingClientRect();
+      this.openContextMenu(left, top, sheetMenuRegistry);
     }
   }
 
@@ -192,7 +194,8 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
       this.activateSheet(sheet);
     }
     const target = ev.currentTarget as HTMLElement;
-    this.openContextMenu(target.offsetLeft, target.offsetTop, sheetMenuRegistry);
+    const { top, left } = target.getBoundingClientRect();
+    this.openContextMenu(left, top, sheetMenuRegistry);
   }
 
   getSelectedStatistic() {
@@ -225,7 +228,8 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
       i++;
     }
     const target = ev.currentTarget as HTMLElement;
-    this.openContextMenu(target.offsetLeft + target.offsetWidth, target.offsetTop, registry);
+    const { top, left, width } = target.getBoundingClientRect();
+    this.openContextMenu(left + width, top, registry);
   }
 
   private getComposedFnName(fnName: string, fnValue: number | undefined): string {

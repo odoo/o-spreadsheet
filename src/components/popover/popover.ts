@@ -1,10 +1,11 @@
 import { Component } from "@odoo/owl";
 import { BOTTOMBAR_HEIGHT, SCROLLBAR_WIDTH, TOPBAR_HEIGHT } from "../../constants";
 import { DOMCoordinates, GridDimension, SpreadsheetChildEnv } from "../../types";
+import { useSpreadsheetPosition } from "../helpers/position_hook";
 
 interface Props {
   /**
-   * Coordinates are expressed relative to the ".o-spreadsheet" element.
+   * Coordinates are expressed relative to the "body" element.
    */
   position: DOMCoordinates;
   marginTop: number;
@@ -31,9 +32,14 @@ export class Popover extends Component<Props, SpreadsheetChildEnv> {
     marginTop: 0,
   };
 
+  private spreadsheetPosition = useSpreadsheetPosition();
+
   get style() {
-    const horizontalPosition = `left:${this.horizontalPosition()}`;
-    const verticalPosition = `top:${this.verticalPosition()}`;
+    // the props's position is expressed relative to the "body" element
+    // but we teleport the element in ".o-spreadsheet" to keep everything
+    // within our control and to avoid leaking into external DOM
+    const horizontalPosition = `left:${this.horizontalPosition() - this.spreadsheetPosition.x}`;
+    const verticalPosition = `top:${this.verticalPosition() - this.spreadsheetPosition.y}`;
     const height = `max-height:${
       this.viewportDimension.height - BOTTOMBAR_HEIGHT - SCROLLBAR_WIDTH
     }`;

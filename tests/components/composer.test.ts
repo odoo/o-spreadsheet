@@ -5,6 +5,7 @@ import {
   NumberColor,
   tokenColor,
 } from "../../src/components/composer/composer/composer";
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { fontSizes } from "../../src/fonts";
 import { colors, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
@@ -22,6 +23,7 @@ import {
   clickCell,
   keyDown,
   keyUp,
+  rightClickCell,
   simulateClick,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
@@ -97,8 +99,8 @@ describe("ranges and highlights", () => {
 
   test("=+Click range, the range ref should be colored", async () => {
     composerEl = await typeInComposerGrid("=");
-    triggerMouseEvent(".o-grid-overlay", "mousedown", 300, 200);
-    triggerMouseEvent(".o-grid-overlay", "mousemove", 200, 200);
+    triggerMouseEvent(".o-grid-overlay", "mousedown", 300 - HEADER_WIDTH, 200 - HEADER_HEIGHT);
+    triggerMouseEvent(".o-grid-overlay", "mousemove", 200 - HEADER_WIDTH, 200 - HEADER_HEIGHT);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 200, clientY: 200 }));
     await nextTick();
     expect(composerEl.textContent).toBe("=B8:C8");
@@ -421,8 +423,7 @@ describe("composer", () => {
     cehMock.removeAll();
     composerEl.dispatchEvent(new Event("input"));
     composerEl.dispatchEvent(new Event("keyup"));
-    triggerMouseEvent(".o-grid-overlay", "mousedown", 300, 200);
-    await nextTick();
+    await rightClickCell(model, "C8");
     expect(getActiveXc(model)).toBe("C8");
     expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
   });
@@ -1042,8 +1043,7 @@ describe("composer", () => {
 
   test("The composer should be closed before opening the context menu", async () => {
     await typeInComposerGrid("=");
-    triggerMouseEvent(".o-grid-overlay", "contextmenu", 300, 200);
-    await nextTick();
+    await rightClickCell(model, "C8");
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
   });

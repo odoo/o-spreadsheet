@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { nextTick } from "./helpers";
 
@@ -36,7 +37,7 @@ export async function clickCell(
   const viewport = model.getters.getActiveViewport();
   const [x, y, ,] = model.getters.getRect(zone, viewport);
 
-  await simulateClick(".o-grid-overlay", x, y, extra);
+  await simulateClick(".o-grid-overlay", x - HEADER_WIDTH, y - HEADER_HEIGHT, extra);
 }
 
 export async function rightClickCell(
@@ -47,7 +48,7 @@ export async function rightClickCell(
   const zone = toZone(xc);
   const viewport = model.getters.getActiveViewport();
   const [x, y, ,] = model.getters.getRect(zone, viewport);
-  triggerMouseEvent(".o-grid-overlay", "contextmenu", x, y, extra);
+  triggerMouseEvent(".o-grid-overlay", "contextmenu", x - HEADER_WIDTH, y - HEADER_HEIGHT, extra);
   await nextTick();
 }
 
