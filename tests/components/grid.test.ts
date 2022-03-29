@@ -1,7 +1,7 @@
 import { App } from "@odoo/owl";
 import { Spreadsheet, TransportService } from "../../src";
 import { Grid } from "../../src/components/grid/grid";
-import { HEADER_WIDTH, MESSAGE_VERSION, SCROLLBAR_WIDTH } from "../../src/constants";
+import { HEADER_HEIGHT, HEADER_WIDTH, MESSAGE_VERSION, SCROLLBAR_WIDTH } from "../../src/constants";
 import { scrollDelay, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
@@ -84,7 +84,7 @@ describe("Grid component", () => {
   test("can click on a cell to select it", async () => {
     setCellContent(model, "B2", "b2");
     setCellContent(model, "B3", "b3");
-    triggerMouseEvent(".o-grid-overlay", "mousedown", 300, 200);
+    await clickCell(model, "C8");
     expect(getActiveXc(model)).toBe("C8");
   });
 
@@ -101,7 +101,7 @@ describe("Grid component", () => {
   test("can shift-click on a cell to update selection", async () => {
     setCellContent(model, "B2", "b2");
     setCellContent(model, "B3", "b3");
-    triggerMouseEvent(".o-grid-overlay", "mousedown", 300, 200, { shiftKey: true });
+    await clickCell(model, "C8", { shiftKey: true });
     expect(model.getters.getSelectedZones()[0]).toEqual({
       top: 0,
       left: 0,
@@ -585,7 +585,7 @@ describe("Grid component", () => {
       });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
       model.dispatch("ACTIVATE_PAINT_FORMAT", { target });
-      triggerMouseEvent(".o-grid-overlay", "mousedown", 300, 200);
+      triggerMouseEvent(".o-grid-overlay", "mousedown", 300 - HEADER_WIDTH, 200 - HEADER_HEIGHT);
       expect(getCell(model, "C8")).toBeUndefined();
       triggerMouseEvent("body", "mouseup", 300, 200);
       expect(getCell(model, "C8")!.style).toEqual({ bold: true });
@@ -696,7 +696,7 @@ describe("error tooltip", () => {
     Date.now = jest.fn(() => 0);
     setCellContent(model, "A1", "=1/0");
     await nextTick();
-    triggerMouseEvent(".o-grid-overlay", "mousemove", 80, 30); // A1
+    triggerMouseEvent(".o-grid-overlay", "mousemove", 80 - HEADER_WIDTH, 30 - HEADER_HEIGHT); // A1
     Date.now = jest.fn(() => 500);
     jest.advanceTimersByTime(300);
     await nextTick();
@@ -707,7 +707,7 @@ describe("error tooltip", () => {
     Date.now = jest.fn(() => 0);
     setCellContent(model, "C8", "=1/0");
     await nextTick();
-    triggerMouseEvent(".o-grid-overlay", "mousemove", 300, 200);
+    triggerMouseEvent(".o-grid-overlay", "mousemove", 300 - HEADER_WIDTH, 200 - HEADER_HEIGHT);
     Date.now = jest.fn(() => 250);
     jest.advanceTimersByTime(300);
 
@@ -721,7 +721,7 @@ describe("error tooltip", () => {
     expect(document.querySelector(".o-error-tooltip")?.parentElement).toMatchSnapshot();
 
     // moving mouse await
-    triggerMouseEvent(".o-grid-overlay", "mousemove", 100, 200);
+    triggerMouseEvent(".o-grid-overlay", "mousemove", 100 - HEADER_WIDTH, 200 - HEADER_HEIGHT);
     Date.now = jest.fn(() => 1050);
     jest.advanceTimersByTime(300);
     await nextTick();
@@ -733,7 +733,7 @@ describe("error tooltip", () => {
     merge(model, "C1:C8");
     setCellContent(model, "C1", "=1/0");
     await nextTick();
-    triggerMouseEvent(".o-grid-overlay", "mousemove", 300, 200); // C8
+    triggerMouseEvent(".o-grid-overlay", "mousemove", 300 - HEADER_WIDTH, 200 - HEADER_HEIGHT); // C8
 
     Date.now = jest.fn(() => 500);
     jest.advanceTimersByTime(300);
@@ -745,7 +745,7 @@ describe("error tooltip", () => {
     merge(model, "C1:C8");
     setCellContent(model, "C1", "Hello");
     await nextTick();
-    await simulateClick(".o-grid-overlay", 300, 200); // C8
+    await clickCell(model, "C8");
     expect(model.getters.getCurrentContent()).toBe("Hello");
   });
 });
@@ -803,7 +803,7 @@ describe("Events on Grid update viewport correctly", () => {
     });
   });
   test("Move selection with keyboard", async () => {
-    await simulateClick(".o-grid-overlay", 750, 40); // H1
+    await clickCell(model, "H1");
     expect(getActiveXc(model)).toBe("H1");
     const viewport = model.getters.getActiveViewport();
     document.activeElement!.dispatchEvent(
@@ -824,7 +824,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Alter selection with keyboard", async () => {
-    await simulateClick(".o-grid-overlay", 750, 40); // H1
+    await clickCell(model, "H1");
     expect(getActiveXc(model)).toBe("H1");
     const viewport = model.getters.getActiveViewport();
     document.activeElement!.dispatchEvent(

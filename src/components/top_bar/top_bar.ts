@@ -334,10 +334,9 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   toggleContextMenu(menu: FullMenuItem, ev: MouseEvent) {
     this.closeMenus();
-    const x = (ev.target as HTMLElement).offsetLeft;
-    const y = (ev.target as HTMLElement).clientHeight + (ev.target as HTMLElement).offsetTop;
+    const { left, top, height } = (ev.target as HTMLElement).getBoundingClientRect();
     this.state.menuState.isOpen = true;
-    this.state.menuState.position = { x, y };
+    this.state.menuState.position = { x: left, y: top + height };
     this.state.menuState.menuItems = topbarMenuRegistry
       .getChildren(menu, this.env)
       .filter((item) => !item.isVisible || item.isVisible(this.env));

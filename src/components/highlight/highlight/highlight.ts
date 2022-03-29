@@ -1,4 +1,5 @@
 import { Component, useRef, useState } from "@odoo/owl";
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../../../constants";
 import { clip, isEqual } from "../../../helpers";
 import { SpreadsheetChildEnv, Zone } from "../../../types";
 import { dragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop";
@@ -86,8 +87,14 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
     const { top: viewportTop, left: viewportLeft } =
       this.env.model.getters.getActiveSnappedViewport();
 
-    const initCol = this.env.model.getters.getColIndex(clientX - position.left, viewportLeft);
-    const initRow = this.env.model.getters.getRowIndex(clientY - position.top, viewportTop);
+    const initCol = this.env.model.getters.getColIndex(
+      clientX - position.left - HEADER_WIDTH,
+      viewportLeft
+    );
+    const initRow = this.env.model.getters.getRowIndex(
+      clientY - position.top - HEADER_HEIGHT,
+      viewportTop
+    );
 
     const deltaColMin = -z.left;
     const deltaColMax = activeSheet.cols.length - z.right - 1;

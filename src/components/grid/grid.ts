@@ -14,7 +14,6 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
   SCROLLBAR_WIDTH,
-  TOPBAR_HEIGHT,
 } from "../../constants";
 import {
   findCellInNewZone,
@@ -32,6 +31,7 @@ import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import {
   CellValueType,
   Client,
+  DOMCoordinates,
   Position,
   Ref,
   SpreadsheetChildEnv,
@@ -45,6 +45,7 @@ import { ErrorToolTip } from "../error_tooltip/error_tooltip";
 import { FiguresContainer } from "../figures/container/container";
 import { css } from "../helpers/css";
 import { startDnd } from "../helpers/drag_and_drop";
+import { useAbsolutePosition } from "../helpers/position_hook";
 import { Highlight } from "../highlight/highlight/highlight";
 import { LinkDisplay } from "../link/link_display/link_display";
 import { LinkEditor } from "../link/link_editor/link_editor";
@@ -283,6 +284,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // difference between a paste coming from the sheet itself, or from the
   // os clipboard
   private clipBoardString!: string;
+  private canvasPosition!: DOMCoordinates;
   hoveredCell!: HoveredPosition;
 
   setup() {
@@ -296,6 +298,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.gridRef = useRef("grid");
     this.gridOverlay = useRef("gridOverlay");
     this.canvas = useRef("canvas");
+    this.canvasPosition = useAbsolutePosition(this.canvas);
     this.vScrollbar = new ScrollBar(this.vScrollbarRef.el, "vertical");
     this.hScrollbar = new ScrollBar(this.hScrollbarRef.el, "horizontal");
     this.currentSheet = this.env.model.getters.getActiveSheetId();
@@ -343,7 +346,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       );
       return {
         isOpen: true,
-        position: { x: x + width, y: y + TOPBAR_HEIGHT },
+        position: {
+          x: x + width + this.canvasPosition.x,
+          y: y + this.canvasPosition.y,
+        },
         text: cell.evaluated.error,
         cellWidth: width,
       };
@@ -389,7 +395,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       viewport
     );
     return {
-      position: { x, y: y + height + TOPBAR_HEIGHT },
+      position: {
+        x: x + this.canvasPosition.x,
+        y: y + height + this.canvasPosition.y,
+      },
       cellWidth: width,
       cellHeight: height,
     };
@@ -635,7 +644,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
    * Get the coordinates in pixels, with 0,0 being the top left of the grid itself
    */
   getCoordinates(ev: MouseEvent): [number, number] {
-    const rect = this.gridEl.getBoundingClientRect();
+    const rect = this.gridOverlay.el!.getBoundingClientRect();
     const x = ev.pageX - rect.left;
     const y = ev.pageY - rect.top;
     return [x, y];
@@ -870,13 +879,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         type = "ROW";
       }
     }
-    this.toggleContextMenu(type, ev.offsetX + HEADER_WIDTH, ev.offsetY + HEADER_HEIGHT);
+    this.toggleContextMenu(type, ev.clientX, ev.clientY);
   }
 
   toggleContextMenu(type: ContextMenuType, x: number, y: number) {
     this.closeLinkEditor();
     this.menuState.isOpen = true;
-    this.menuState.position = { x, y: y + TOPBAR_HEIGHT };
+    this.menuState.position = { x, y };
     this.menuState.menuItems = registries[type]
       .getAll()
       .filter((item) => !item.isVisible || item.isVisible(this.env));

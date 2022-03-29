@@ -82,20 +82,20 @@ export class RendererPlugin extends UIPlugin {
    * It returns -1 if no column is found.
    */
   getColIndex(x: number, left: number, sheet?: Sheet): number {
-    if (x < HEADER_WIDTH) {
+    if (x < 0) {
       return -1;
     }
     const cols = (sheet || this.getters.getActiveSheet()).cols;
-    const adjustedX = x - HEADER_WIDTH + cols[left].start + 1;
+    const adjustedX = x + cols[left].start + 1;
     return searchIndex(cols, adjustedX);
   }
 
   getRowIndex(y: number, top: number, sheet?: Sheet): number {
-    if (y < HEADER_HEIGHT) {
+    if (y < 0) {
       return -1;
     }
     const rows = (sheet || this.getters.getActiveSheet()).rows;
-    const adjustedY = y - HEADER_HEIGHT + rows[top].start + 1;
+    const adjustedY = y + rows[top].start + 1;
     return searchIndex(rows, adjustedY);
   }
 
@@ -122,13 +122,13 @@ export class RendererPlugin extends UIPlugin {
     let canEdgeScroll = false;
     let direction: ScrollDirection = 0;
     let delay = 0;
-    const { width } = this.getters.getViewportDimensionWithHeaders();
+    const { width } = this.getters.getViewportDimension();
     const { width: gridWidth } = this.getters.getMaxViewportSize(this.getters.getActiveSheet());
     const { left, offsetX } = this.getters.getActiveSnappedViewport();
-    if (x < HEADER_WIDTH && left > 0) {
+    if (x < 0 && left > 0) {
       canEdgeScroll = true;
       direction = -1;
-      delay = scrollDelay(HEADER_WIDTH - x);
+      delay = scrollDelay(-x);
     } else if (x > width && offsetX < gridWidth - width) {
       canEdgeScroll = true;
       direction = +1;
@@ -142,13 +142,13 @@ export class RendererPlugin extends UIPlugin {
     let canEdgeScroll = false;
     let direction: ScrollDirection = 0;
     let delay = 0;
-    const { height } = this.getters.getViewportDimensionWithHeaders();
+    const { height } = this.getters.getViewportDimension();
     const { height: gridHeight } = this.getters.getMaxViewportSize(this.getters.getActiveSheet());
     const { top, offsetY } = this.getters.getActiveSnappedViewport();
-    if (y < HEADER_HEIGHT && top > 0) {
+    if (y < 0 && top > 0) {
       canEdgeScroll = true;
       direction = -1;
-      delay = scrollDelay(HEADER_HEIGHT - y);
+      delay = scrollDelay(-y);
     } else if (y > height && offsetY < gridHeight - height) {
       canEdgeScroll = true;
       direction = +1;
