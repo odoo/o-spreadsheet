@@ -7,8 +7,18 @@ exports[`Grid component simple rendering snapshot 1`] = `
   <!-- tabindex="-1" is necessary to keep the focus on composer while selecting a cell -->
   <div
     class="o-grid-overlay"
+    style="
+      top: 26px;
+      left: 48px;
+      height: calc(100% - 26px);
+      width: calc(100% - 48px);
+    "
     tabindex="-1"
-  />
+  >
+    <div>
+      
+    </div>
+  </div>
   <div
     class="o-overlay"
   >
@@ -62,12 +72,10 @@ exports[`Grid component simple rendering snapshot 1`] = `
   
   
   
-  <div>
-    
-  </div>
-  
   <div
     class="o-scrollbar vertical"
+    style="
+      top: 26px;"
   >
     <div
       style="width:1px;height:2328px"
@@ -75,6 +83,8 @@ exports[`Grid component simple rendering snapshot 1`] = `
   </div>
   <div
     class="o-scrollbar horizontal"
+    style="
+      left: 48px;"
   >
     <div
       style="height:1px;width:2592px"

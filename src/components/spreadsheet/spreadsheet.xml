@@ -1,7 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet.Spreadsheet" owl="1">
-    <div class="o-spreadsheet" t-on-keydown="onKeydown">
+    <div class="o-spreadsheet" t-on-keydown="onKeydown" t-att-style="getStyle()">
       <TopBar
+        t-if="!env.isDashboard()"
         onClick="() => this.focusGrid()"
         onComposerContentFocused="(selection) => this.onTopBarComposerFocused(selection)"
         focusComposer="focusTopBarComposer"
@@ -22,7 +23,7 @@
         component="sidePanel.component"
         panelProps="sidePanel.panelProps"
       />
-      <BottomBar onClick="() => this.focusGrid()"/>
+      <BottomBar onClick="() => this.focusGrid()" t-if="!env.isDashboard()"/>
     </div>
   </t>
 </templates>

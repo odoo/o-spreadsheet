@@ -175,6 +175,7 @@ class ContextMenuParent extends Component {
   setup() {
     useSubEnv({
       model: this.props.model,
+      isDashboard: () => this.props.model.getters.isDashboard(),
     });
   }
 

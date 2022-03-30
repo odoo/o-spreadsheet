@@ -75,7 +75,10 @@ type LocalHistoryGetters = {
   canRedo: LocalHistory["canRedo"];
 };
 
-export type CoreGetters = { isReadonly: () => boolean } & LocalHistoryGetters &
+export type CoreGetters = {
+  isReadonly: () => boolean;
+  isDashboard: () => boolean;
+} & LocalHistoryGetters &
   SheetGetters &
   CellGetters &
   MergeGetters &

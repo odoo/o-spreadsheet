@@ -191,7 +191,7 @@ describe("figures", () => {
   test("Cannot select/move figure in readonly mode", async () => {
     const figureId = "someuuid";
     createFigure(model, { id: figureId, y: 200 });
-    model.updateReadOnly(true);
+    model.updateMode("readonly");
     await nextTick();
     const figure = fixture.querySelector(".o-figure")!;
     await simulateClick(".o-figure");

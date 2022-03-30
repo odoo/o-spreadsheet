@@ -94,17 +94,17 @@ describe("Model", () => {
   });
 
   test("Can open a model in readonly mode", () => {
-    const model = new Model({}, { isReadonly: true });
+    const model = new Model({}, { mode: "readonly" });
     expect(model.getters.isReadonly()).toBe(true);
   });
 
   test("Some commands are not dispatched in readonly mode", () => {
-    const model = new Model({}, { isReadonly: true });
+    const model = new Model({}, { mode: "readonly" });
     expect(setCellContent(model, "A1", "hello")).toBeCancelledBecause(CommandResult.Readonly);
   });
 
   test("Moving the selection is allowed in readonly mode", () => {
-    const model = new Model({}, { isReadonly: true });
+    const model = new Model({}, { mode: "readonly" });
     expect(selectCell(model, "A15")).toBeSuccessfullyDispatched();
   });
 

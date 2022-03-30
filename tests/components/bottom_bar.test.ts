@@ -30,6 +30,7 @@ class Parent extends Component<any, any> {
       model: this.props.model,
       _t: (s: string) => s,
       askConfirmation: jest.fn(),
+      isDashboard: () => this.props.model.getters.isDashboard(),
     });
     onMounted(() => this.props.model.on("update", this, this.render));
     onWillUnmount(() => this.props.model.off("update", this));
@@ -201,6 +202,7 @@ describe("BottomBar component", () => {
           _t: (s: string) => s,
           askConfirmation: jest.fn(),
           editText: jest.fn((title, callback, options) => callback("new_name")),
+          isDashboard: () => this.props.model.getters.isDashboard(),
         });
         onMounted(() => this.props.model.on("update", this, this.render));
         onWillUnmount(() => this.props.model.off("update", this));
@@ -239,6 +241,7 @@ describe("BottomBar component", () => {
           _t: (s: string) => s,
           askConfirmation: jest.fn(),
           editText: jest.fn((title, callback, options) => callback("new_name")),
+          isDashboard: () => this.props.model.getters.isDashboard(),
         });
         onMounted(() => this.props.model.on("update", this, this.render));
         onWillUnmount(() => this.props.model.off("update", this));
@@ -293,6 +296,7 @@ describe("BottomBar component", () => {
           model: this.props.model,
           _t: (s: string) => s,
           askConfirmation: jest.fn((title, callback) => callback()),
+          isDashboard: () => this.props.model.getters.isDashboard(),
         });
         onMounted(() => this.props.model.on("update", this, this.render));
         onWillUnmount(() => this.props.model.off("update", this));

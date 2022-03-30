@@ -67,7 +67,10 @@ export class Popover extends Component<Props, SpreadsheetChildEnv> {
 
   private get shouldRenderBottom(): boolean {
     const { y } = this.props.position;
-    return y + this.props.childHeight < this.viewportDimension.height + TOPBAR_HEIGHT;
+    return (
+      y + this.props.childHeight <
+      this.viewportDimension.height + (this.env.isDashboard() ? 0 : TOPBAR_HEIGHT)
+    );
   }
 
   private horizontalPosition(): number {

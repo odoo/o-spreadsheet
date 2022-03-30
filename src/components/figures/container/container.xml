@@ -5,7 +5,7 @@
         <div
           class="o-figure-wrapper"
           t-att-style="getStyle(info)"
-          t-on-mousedown="(ev) => this.onMouseDown(info.figure, ev)">
+          t-on-mousedown.stop="(ev) => this.onMouseDown(info.figure, ev)">
           <div
             class="o-figure"
             t-att-class="{active: info.isSelected, 'o-dragging': info.id === dnd.figureId}"

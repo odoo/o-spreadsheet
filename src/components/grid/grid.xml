@@ -12,13 +12,22 @@
         t-ref="gridOverlay"
         tabindex="-1"
         class="o-grid-overlay"
+        t-att-style="gridOverlayStyle"
         t-on-mousedown="onMouseDown"
         t-on-dblclick="onDoubleClick"
-        t-on-contextmenu="onCanvasContextMenu"
+        t-on-contextmenu="onCanvasContextMenu">
+        <FiguresContainer
+          model="props.model"
+          sidePanelIsOpen="props.sidePanelIsOpen"
+          onFigureDeleted="() => this.focus()"
+        />
+      </div>
+      <HeadersOverlay
+        t-if="!env.isDashboard()"
+        onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"
       />
-      <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
 
-      <t t-if="env.model.getters.getEditionMode() !== 'inactive'">
+      <t t-if="env.model.getters.getEditionMode() !== 'inactive' and !env.isDashboard()">
         <GridComposer
           onComposerUnmounted="() => this.focus()"
           onComposerContentFocused="props.onComposerContentFocused"
@@ -27,6 +36,7 @@
       </t>
       <canvas t-ref="canvas"/>
       <t
+        t-if="!env.isDashboard()"
         t-foreach="env.model.getters.getClientsToDisplay()"
         t-as="client"
         t-key="getClientPositionKey(client)">
@@ -56,7 +66,7 @@
         <LinkDisplay cellPosition="activeCellPosition"/>
       </Popover>
       <Popover
-        t-if="props.linkEditorIsOpen"
+        t-if="props.linkEditorIsOpen and !env.isDashboard()"
         position="popoverPosition.position"
         flipHorizontalOffset="-popoverPosition.cellWidth"
         flipVerticalOffset="-popoverPosition.cellHeight"
@@ -67,13 +77,13 @@
           onLinkEditorClosed="props.onLinkEditorClosed"
         />
       </Popover>
-      <t t-if="env.model.getters.getEditionMode() === 'inactive'">
+      <t t-if="env.model.getters.getEditionMode() === 'inactive' and !env.isDashboard()">
         <Autofill
           position="getAutofillPosition()"
           getGridBoundingClientRect="() => this.getGridBoundingClientRect()"
         />
       </t>
-      <t t-if="env.model.getters.getEditionMode() !== 'inactive'">
+      <t t-if="env.model.getters.getEditionMode() !== 'inactive' and !env.isDashboard()">
         <t t-foreach="env.model.getters.getHighlights()" t-as="highlight" t-key="highlight_index">
           <t t-if="highlight.sheetId === env.model.getters.getActiveSheetId()">
             <Highlight zone="highlight.zone" color="highlight.color"/>
@@ -90,15 +100,18 @@
         t-set="gridSize"
         t-value="env.model.getters.getMaxViewportSize(env.model.getters.getActiveSheet())"
       />
-      <FiguresContainer
-        model="props.model"
-        sidePanelIsOpen="props.sidePanelIsOpen"
-        onFigureDeleted="() => this.focus()"
-      />
-      <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
+      <div
+        class="o-scrollbar vertical"
+        t-on-scroll="onScroll"
+        t-ref="vscrollbar"
+        t-att-style="vScrollbarStyle">
         <div t-attf-style="width:1px;height:{{gridSize.height}}px"/>
       </div>
-      <div class="o-scrollbar horizontal" t-on-scroll="onScroll" t-ref="hscrollbar">
+      <div
+        class="o-scrollbar horizontal"
+        t-on-scroll="onScroll"
+        t-ref="hscrollbar"
+        t-att-style="hScrollbarStyle">
         <div t-attf-style="height:1px;width:{{gridSize.width}}px"/>
       </div>
     </div>

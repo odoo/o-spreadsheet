@@ -14,7 +14,7 @@ const {
 } = owl;
 
 const { Spreadsheet, Model } = o_spreadsheet;
-const { topbarMenuRegistry, currenciesRegistry } = o_spreadsheet.registries;
+const { topbarMenuRegistry, dashboardMenuRegistry } = o_spreadsheet.registries;
 
 const uuidGenerator = new o_spreadsheet.helpers.UuidGenerator();
 
@@ -55,18 +55,28 @@ class Demo extends Component {
     topbarMenuRegistry.addChild("readonly", ["file"], {
       name: "Open in read-only",
       sequence: 11,
-      action: async (env) => {
-        this.model.updateReadOnly(true);
-      },
+      action: () => this.model.updateMode("readonly"),
+    });
+
+    topbarMenuRegistry.addChild("dashboard", ["file"], {
+      name: "Open in dashboard",
+      sequence: 12,
+      isReadonlyAllowed: true,
+      action: () => this.model.updateMode("dashboard"),
     });
 
     topbarMenuRegistry.addChild("read_write", ["file"], {
       name: "Open with write access",
-      sequence: 12,
+      sequence: 13,
       isReadonlyAllowed: true,
-      action: async (env) => {
-        this.model.updateReadOnly(false);
-      },
+      action: () => this.model.updateMode("normal"),
+    });
+
+    dashboardMenuRegistry.add("open normal", {
+      name: "Normal mode",
+      sequence: 10,
+      isReadonlyAllowed: true,
+      action: () => this.model.updateMode("normal"),
     });
 
     useSubEnv({
@@ -108,7 +118,7 @@ class Demo extends Component {
         evalContext: { env: this.env },
         transportService: this.transportService,
         client: this.client,
-        isReadonly: false,
+        mode: "normal",
       },
       this.stateUpdateMessages
     );

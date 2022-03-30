@@ -27,6 +27,7 @@ import { interactivePaste } from "../../helpers/ui/paste";
 import { ComposerSelection } from "../../plugins/ui/edition";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
+import { dashboardMenuRegistry } from "../../registries/menus/dashboard_menu_registry";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import {
   CellValueType,
@@ -64,12 +65,13 @@ import { ScrollBar } from "../scrollbar";
  * - a vertical resizer (same, for rows)
  */
 
-export type ContextMenuType = "ROW" | "COL" | "CELL";
+export type ContextMenuType = "ROW" | "COL" | "CELL" | "DASHBOARD";
 
 const registries = {
   ROW: rowMenuRegistry,
   COL: colMenuRegistry,
   CELL: cellMenuRegistry,
+  DASHBOARD: dashboardMenuRegistry,
 };
 
 // copy and paste are specific events that should not be managed by the keydown event,
@@ -207,7 +209,6 @@ css/* scss */ `
       z-index: 2;
       &.vertical {
         right: 0;
-        top: ${HEADER_HEIGHT}px;
         bottom: ${SCROLLBAR_WIDTH}px;
         width: ${SCROLLBAR_WIDTH}px;
         overflow-x: hidden;
@@ -216,17 +217,12 @@ css/* scss */ `
         bottom: 0;
         height: ${SCROLLBAR_WIDTH}px;
         right: ${SCROLLBAR_WIDTH + 1}px;
-        left: ${HEADER_WIDTH}px;
         overflow-y: hidden;
       }
     }
 
     .o-grid-overlay {
       position: absolute;
-      top: ${HEADER_HEIGHT}px;
-      left: ${HEADER_WIDTH}px;
-      height: calc(100% - ${HEADER_HEIGHT}px);
-      width: calc(100% - ${HEADER_WIDTH}px);
       outline: none;
     }
   }
@@ -327,6 +323,25 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.focus();
     this.resizeGrid();
     this.drawGrid();
+  }
+
+  get gridOverlayStyle() {
+    return `
+      top: ${this.env.isDashboard() ? 0 : HEADER_HEIGHT}px;
+      left: ${this.env.isDashboard() ? 0 : HEADER_WIDTH}px;
+      height: calc(100% - ${this.env.isDashboard() ? 0 : HEADER_HEIGHT}px);
+      width: calc(100% - ${this.env.isDashboard() ? 0 : HEADER_WIDTH}px);
+    `;
+  }
+
+  get vScrollbarStyle() {
+    return `
+      top: ${this.env.isDashboard() ? 0 : HEADER_HEIGHT}px;`;
+  }
+
+  get hScrollbarStyle() {
+    return `
+      left: ${this.env.isDashboard() ? 0 : HEADER_WIDTH}px;`;
   }
 
   get errorTooltip() {
@@ -544,8 +559,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.getters.getViewportDimensionWithHeaders();
     if (currentHeight != viewportHeight || currentWidth !== viewportWidth) {
       this.env.model.dispatch("RESIZE_VIEWPORT", {
-        height: currentHeight - HEADER_HEIGHT,
-        width: currentWidth - HEADER_WIDTH,
+        height: currentHeight - (this.env.isDashboard() ? 0 : HEADER_HEIGHT),
+        width: currentWidth - (this.env.isDashboard() ? 0 : HEADER_WIDTH),
       });
     }
   }
@@ -663,7 +678,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onMouseDown(ev: MouseEvent) {
-    if (ev.button > 0) {
+    if (ev.button > 0 || this.env.isDashboard()) {
       // not main button, probably a context menu
       return;
     }
@@ -832,6 +847,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onKeydown(ev: KeyboardEvent) {
+    if (this.env.isDashboard()) {
+      return;
+    }
     if (ev.key.startsWith("Arrow")) {
       this.processArrows(ev);
       return;
@@ -892,6 +910,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   toggleContextMenu(type: ContextMenuType, x: number, y: number) {
     this.closeLinkEditor();
+    if (this.env.model.getters.isDashboard()) {
+      type = "DASHBOARD";
+    }
     this.menuState.isOpen = true;
     this.menuState.position = { x, y };
     this.menuState.menuItems = registries[type]
