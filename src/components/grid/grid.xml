@@ -49,32 +49,15 @@
         />
       </t>
       <Popover
-        t-if="errorTooltip.isOpen"
-        position="errorTooltip.position"
-        flipHorizontalOffset="errorTooltip.cellWidth"
-        childWidth="ERROR_TOOLTIP_WIDTH"
-        childHeight="ERROR_TOOLTIP_HEIGHT">
-        <ErrorToolTip text="errorTooltip.text"/>
-      </Popover>
-      <Popover
-        t-if="shouldDisplayLink"
-        position="popoverPosition.position"
-        flipHorizontalOffset="-popoverPosition.cellWidth"
-        flipVerticalOffset="-popoverPosition.cellHeight"
-        childWidth="LINK_TOOLTIP_WIDTH"
-        childHeight="LINK_TOOLTIP_HEIGHT">
-        <LinkDisplay cellPosition="activeCellPosition"/>
-      </Popover>
-      <Popover
-        t-if="props.linkEditorIsOpen and !env.isDashboard()"
-        position="popoverPosition.position"
-        flipHorizontalOffset="-popoverPosition.cellWidth"
-        flipVerticalOffset="-popoverPosition.cellHeight"
-        childWidth="LINK_EDITOR_WIDTH"
-        childHeight="LINK_EDITOR_HEIGHT">
-        <LinkEditor
-          cellPosition="activeCellPosition"
-          onLinkEditorClosed="props.onLinkEditorClosed"
+        t-if="cellPopover.isOpen"
+        position="cellPopover.coordinates"
+        childWidth="cellPopover.Component.size.width"
+        childHeight="cellPopover.Component.size.height"
+        flipHorizontalOffset="cellPopover.cellWidth"
+        flipVerticalOffset="cellPopover.cellHeight">
+        <t
+          t-component="cellPopover.Component"
+          t-props="{...cellPopover.props, onClosed : () => onClosePopover()}"
         />
       </Popover>
       <t

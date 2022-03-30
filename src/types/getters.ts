@@ -12,6 +12,7 @@ import { RangeAdapter } from "../plugins/core/range";
 import { SheetPlugin } from "../plugins/core/sheet";
 import { AutofillPlugin } from "../plugins/ui/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui/automatic_sum";
+import { CellPopoverPlugin } from "../plugins/ui/cell_popovers";
 import { ClipboardPlugin } from "../plugins/ui/clipboard";
 import { EditionPlugin } from "../plugins/ui/edition";
 import { EvaluationPlugin } from "../plugins/ui/evaluation";
@@ -131,6 +132,7 @@ type SessionGetters = {
   getConnectedClients: Session["getConnectedClients"];
   isFullySynchronized: Session["isFullySynchronized"];
 };
+type CellPopoverPluginGetters = Pick<CellPopoverPlugin, GetterNames<typeof CellPopoverPlugin>>;
 
 export type Getters = CoreGetters &
   SessionGetters &
@@ -150,4 +152,5 @@ export type Getters = CoreGetters &
   SortGetters &
   UIOptionsGetters &
   SheetUIGetters &
-  ViewportGetters;
+  ViewportGetters &
+  CellPopoverPluginGetters;

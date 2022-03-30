@@ -657,7 +657,8 @@ export const OPEN_CUSTOM_CURRENCY_SIDEPANEL_ACTION = (env: SpreadsheetChildEnv) 
 };
 
 export const INSERT_LINK = (env: SpreadsheetChildEnv) => {
-  env.openLinkEditor();
+  let { col, row } = env.model.getters.getPosition();
+  env.model.dispatch("OPEN_CELL_POPOVER", { col, row, popoverType: "LinkEditor" });
 };
 
 //------------------------------------------------------------------------------

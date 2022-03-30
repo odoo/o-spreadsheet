@@ -1,6 +1,7 @@
 // -----------------------------------------------------------------------------
 // MISC
 // -----------------------------------------------------------------------------
+import { ComponentConstructor } from "@odoo/owl/dist/types/component/component";
 import { Token } from "../formulas";
 import { Cell, CellValue } from "./cells";
 import { CommandResult } from "./commands";
@@ -230,6 +231,11 @@ export type Increment = 1 | -1 | 0;
 export interface Ref<T> {
   el: T | null;
 }
+
+/**
+ * Return the prop's type of a component
+ */
+export type PropsOf<C> = C extends ComponentConstructor<infer Props> ? Props : never;
 
 /**
  * Container for a lazy computed value

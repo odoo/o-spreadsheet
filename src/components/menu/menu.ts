@@ -10,7 +10,7 @@ import {
   TOPBAR_HEIGHT,
 } from "../../constants";
 import { FullMenuItem, MenuItem } from "../../registries";
-import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
+import { getMenuChildren, getMenuDescription, getMenuName } from "../../registries/menus/helpers";
 import { DOMCoordinates, Pixel, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { isChildEvent } from "../helpers/dom_helpers";
@@ -196,10 +196,10 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getName(menu: FullMenuItem) {
-    return cellMenuRegistry.getName(menu, this.env);
+    return getMenuName(menu, this.env);
   }
   getDescription(menu: FullMenuItem) {
-    return cellMenuRegistry.getDescription(menu);
+    return getMenuDescription(menu);
   }
 
   isRoot(menu: FullMenuItem) {
@@ -227,7 +227,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
       x: this.position.x + MENU_WIDTH,
       y: y - (this.subMenu.scrollOffset || 0),
     };
-    this.subMenu.menuItems = cellMenuRegistry.getChildren(menu, this.env);
+    this.subMenu.menuItems = getMenuChildren(menu, this.env);
     this.subMenu.isOpen = true;
   }
 

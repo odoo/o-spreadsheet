@@ -19,7 +19,6 @@ import { NotifyUIEvent } from "../../types/ui";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { Grid } from "../grid/grid";
 import { css } from "../helpers/css";
-import { LinkEditor } from "../link/link_editor/link_editor";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
 import { TopBar } from "../top_bar/top_bar";
 
@@ -78,10 +77,6 @@ interface SidePanelState {
   panelProps: any;
 }
 
-interface LinkEditorState {
-  isOpen: boolean;
-}
-
 interface ComposerState {
   topBarFocus: "inactive" | "contentFocus";
   gridFocusMode: "inactive" | "cellFocus" | "contentFocus";
@@ -89,13 +84,12 @@ interface ComposerState {
 
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Spreadsheet";
-  static components = { TopBar, Grid, BottomBar, SidePanel, LinkEditor };
+  static components = { TopBar, Grid, BottomBar, SidePanel };
   static _t = t;
 
   model!: Model;
 
   sidePanel!: SidePanelState;
-  linkEditor!: LinkEditorState;
   composer!: ComposerState;
 
   private _focusGrid?: () => void;
@@ -113,7 +107,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     this.props.exposeSpreadsheet?.(this);
     this.model = this.props.model;
     this.sidePanel = useState({ isOpen: false, panelProps: {} });
-    this.linkEditor = useState({ isOpen: false });
     this.composer = useState({
       topBarFocus: "inactive",
       gridFocusMode: "inactive",
@@ -127,7 +120,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       isDashboard: () => this.model.getters.isDashboard(),
       openSidePanel: this.openSidePanel.bind(this),
       toggleSidePanel: this.toggleSidePanel.bind(this),
-      openLinkEditor: this.openLinkEditor.bind(this),
       _t: Spreadsheet._t,
       clipboard: navigator.clipboard,
     });
@@ -177,15 +169,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   closeSidePanel() {
     this.sidePanel.isOpen = false;
-    this.focusGrid();
-  }
-
-  openLinkEditor() {
-    this.linkEditor.isOpen = true;
-  }
-
-  closeLinkEditor() {
-    this.linkEditor.isOpen = false;
     this.focusGrid();
   }
 

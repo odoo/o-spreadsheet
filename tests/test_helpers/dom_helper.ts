@@ -28,6 +28,24 @@ export async function simulateClick(
   await nextTick();
 }
 
+/**
+ * Simulate hovering a cell for a given amount of time.
+ * Don't forget to use `jest.useFakeTimers();` when using
+ * this helper.
+ */
+export async function hoverCell(model: Model, xc: string, delay: number) {
+  const zone = toZone(xc);
+  const viewport = model.getters.getActiveViewport();
+  let { x, y } = model.getters.getRect(zone, viewport);
+  if (!model.getters.isDashboard()) {
+    x -= HEADER_WIDTH;
+    y -= HEADER_HEIGHT;
+  }
+  triggerMouseEvent(".o-grid-overlay", "mousemove", x, y);
+  jest.advanceTimersByTime(delay);
+  await nextTick();
+}
+
 export async function clickCell(
   model: Model,
   xc: string,

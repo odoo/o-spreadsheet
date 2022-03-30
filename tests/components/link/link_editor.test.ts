@@ -2,8 +2,14 @@ import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../../src";
 import { buildSheetLink } from "../../../src/helpers";
 import { LinkCell } from "../../../src/types";
-import { createSheet, setCellContent } from "../../test_helpers/commands_helpers";
 import {
+  activateSheet,
+  createSheet,
+  merge,
+  setCellContent,
+} from "../../test_helpers/commands_helpers";
+import {
+  clickCell,
   rightClickCell,
   setInputValueAndTrigger,
   simulateClick,
@@ -86,6 +92,14 @@ describe("link editor component", () => {
     }
   );
 
+  test("open link editor in a merged cell", async () => {
+    merge(model, "A1:A2");
+    setCellContent(model, "A1", "hello");
+    await openLinkEditor(model, "A2");
+    expect(labelInput().value).toBe("hello");
+    expect(urlInput().value).toBe("");
+  });
+
   test("open link editor in a web link cell", async () => {
     setCellContent(model, "A1", "[label](url.com)");
     await openLinkEditor(model, "A1");
@@ -163,6 +177,38 @@ describe("link editor component", () => {
     setInputValueAndTrigger(urlInput(), "https://url.com", "input");
     await nextTick();
     expect(saveButton.hasAttribute("disabled")).toBe(false);
+  });
+
+  test("clicking another cell closes the editor", async () => {
+    await openLinkEditor(model, "A1");
+    expect(fixture.querySelector(".o-link-editor")).toBeTruthy();
+    await clickCell(model, "B2");
+    expect(fixture.querySelector(".o-link-editor")).toBeNull();
+  });
+
+  test("switching sheet closes the editor", async () => {
+    const sheetId = "42";
+    createSheet(model, { sheetId });
+    await openLinkEditor(model, "A1");
+    expect(fixture.querySelector(".o-link-editor")).toBeTruthy();
+    activateSheet(model, sheetId);
+    await nextTick();
+    expect(fixture.querySelector(".o-link-editor")).toBeNull();
+  });
+
+  test("clicking another link cell closes the editor", async () => {
+    setCellContent(model, "B2", "[label](url.com)");
+    await openLinkEditor(model, "A1");
+    expect(fixture.querySelector(".o-link-editor")).toBeTruthy();
+    await clickCell(model, "B2");
+    expect(fixture.querySelector(".o-link-editor")).toBeNull();
+  });
+
+  test("clicking the same cell closes the editor", async () => {
+    await openLinkEditor(model, "A1");
+    expect(fixture.querySelector(".o-link-editor")).toBeTruthy();
+    await clickCell(model, "A1");
+    expect(fixture.querySelector(".o-link-editor")).toBeNull();
   });
 
   test.each([urlInput, labelInput])(
