@@ -1,48 +1,14 @@
-import { Component, onMounted, useRef, useState, xml } from "@odoo/owl";
+import { Component, onMounted, useRef, useState } from "@odoo/owl";
 import { markdownLink } from "../../helpers/index";
 import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
 import { DOMCoordinates, Link, Position, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { useAbsolutePosition } from "../helpers/position_hook";
-import { GenericTerms, LinkEditorTerms } from "../translations_terms";
-import { LIST } from "./../icons";
-import { Menu } from "./../menu";
+import { Menu } from "../menu";
 
 const MENU_OFFSET_X = 320;
 const MENU_OFFSET_Y = 100;
 const PADDING = 12;
-
-const TEMPLATE = xml/* xml */ `
-    <div class="o-link-editor" t-on-click.stop="() => this.menu.isOpen=false" t-on-keydown.stop="onKeyDown" t-ref="linkEditor">
-      <div class="o-section">
-        <div t-esc="env._t('${LinkEditorTerms.Text}')" class="o-section-title"/>
-        <div class="d-flex">
-          <input type="text" class="o-input flex-grow-1" t-model="state.link.label"></input>
-        </div>
-
-        <div t-esc="env._t('${LinkEditorTerms.Link}')" class="o-section-title mt-3"/>
-        <div class="o-link-url">
-          <t t-if="state.isUrlEditable">
-            <input type="text" t-ref="urlInput" t-model="state.link.url"></input>
-          </t>
-          <t t-else="">
-            <input type="text" t-att-value="state.urlRepresentation" disabled="1"></input>
-          </t>
-          <button t-if="state.link.url" t-on-click="removeLink" class="o-remove-url">✖</button>
-          <button t-if="!state.link.url" t-on-click.stop="openMenu" class="o-special-link">${LIST}</button>
-        </div>
-      </div>
-      <Menu
-        t-if="menu.isOpen"
-        position="menuPosition"
-        menuItems="menuItems"
-        onMenuClicked="(ev) => this.onSpecialLink(ev)"
-        onClose="() => this.menu.isOpen=false"/>
-      <div class="o-buttons">
-        <button t-on-click="cancel" class="o-button o-cancel" t-esc="env._t('${GenericTerms.Cancel}')"></button>
-        <button t-on-click="save" class="o-button o-save" t-esc="env._t('${GenericTerms.Confirm}')" t-att-disabled="!state.link.url" ></button>
-      </div>
-    </div>`;
 
 css/* scss */ `
   .o-link-editor {
@@ -128,7 +94,7 @@ interface State {
 }
 
 export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
+  static template = "o-spreadsheet.LinkEditor";
   static components = { Menu };
   menuItems = linkMenuRegistry.getAll();
   private state: State = useState(this.defaultState);

@@ -1,4 +1,4 @@
-import { Component, onMounted, onPatched, useRef, useState, xml } from "@odoo/owl";
+import { Component, onMounted, onPatched, useRef, useState } from "@odoo/owl";
 import Chart, { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../constants";
 import { MenuItemRegistry } from "../../registries/index";
@@ -6,18 +6,7 @@ import { _lt } from "../../translation";
 import { Figure, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { useAbsolutePosition } from "../helpers/position_hook";
-import { LIST } from "../icons";
 import { Menu, MenuState } from "../menu";
-
-const TEMPLATE = xml/* xml */ `
-<div class="o-chart-container" t-ref="chartContainer">
-  <div class="o-chart-menu" t-on-click="showMenu">${LIST}</div>
-  <canvas t-att-style="canvasStyle" t-ref="graphContainer"/>
-  <Menu t-if="menuState.isOpen"
-    position="menuState.position"
-    menuItems="menuState.menuItems"
-    onClose="() => this.menuState.isOpen=false"/>
-</div>`;
 
 // -----------------------------------------------------------------------------
 // STYLE
@@ -56,7 +45,7 @@ interface State {
 }
 
 export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
+  static template = "o-spreadsheet.ChartFigure";
   static components = { Menu };
   private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 

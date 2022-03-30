@@ -2,6 +2,7 @@ import { App, Component, onMounted, onWillUnmount, useSubEnv, xml } from "@odoo/
 import { BottomBar } from "../../src/components/bottom_bar";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
+import { OWL_TEMPLATES } from "../setup/jest.setup";
 import {
   activateSheet,
   createSheet,
@@ -40,6 +41,7 @@ class Parent extends Component<any, any> {
 
 async function mountTopBar(model: Model = new Model()): Promise<{ parent: Parent; app: App }> {
   const app = new App(Parent, { props: { model } });
+  app.addTemplates(OWL_TEMPLATES);
   const parent = await app.mount(fixture);
   return { app, parent };
 }
@@ -209,6 +211,7 @@ describe("BottomBar component", () => {
     }
 
     const app = new App(Parent, { props: { model } });
+    app.addTemplates(OWL_TEMPLATES);
     await app.mount(fixture);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
@@ -246,6 +249,7 @@ describe("BottomBar component", () => {
     }
 
     const app = new App(Parent, { props: { model } });
+    app.addTemplates(OWL_TEMPLATES);
     await app.mount(fixture);
 
     triggerMouseEvent(".o-sheet-name", "dblclick");
@@ -299,6 +303,7 @@ describe("BottomBar component", () => {
     }
 
     const app = new App(Parent, { props: { model } });
+    app.addTemplates(OWL_TEMPLATES);
     await app.mount(fixture);
 
     triggerMouseEvent(".o-sheet", "contextmenu");

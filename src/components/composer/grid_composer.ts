@@ -1,4 +1,4 @@
-import { Component, onMounted, useRef, useState, xml } from "@odoo/owl";
+import { Component, onMounted, useRef, useState } from "@odoo/owl";
 import { DEFAULT_CELL_HEIGHT, SELECTION_BORDER_COLOR } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { Rect, Ref, SpreadsheetChildEnv, Zone } from "../../types/index";
@@ -9,18 +9,6 @@ import { Composer } from "./composer";
 const SCROLLBAR_WIDTH = 14;
 const SCROLLBAR_HIGHT = 15;
 
-const TEMPLATE = xml/* xml */ `
-  <div class="o-grid-composer" t-att-style="containerStyle" t-ref="gridComposer">
-    <Composer
-      focus = "props.focus"
-      inputStyle = "composerStyle"
-      rect = "composerState.rect"
-      delimitation = "composerState.delimitation"
-      onComposerUnmounted="props.onComposerUnmounted"
-      onComposerContentFocused="props.onComposerContentFocused"
-    />
-  </div>
-`;
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
 css/* scss */ `
   div.o-grid-composer {
@@ -52,7 +40,7 @@ interface Props {
  * It also applies the style of the cell to the composer input.
  */
 export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
+  static template = "o-spreadsheet.GridComposer";
   static components = { Composer };
 
   private gridComposerRef!: Ref<HTMLElement>;

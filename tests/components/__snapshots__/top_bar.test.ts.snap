@@ -128,19 +128,19 @@ exports[`TopBar component can set cell format 1`] = `
             class="o-tool"
             title="Format as percent"
           >
-            %
+             % 
           </div>
           <div
             class="o-tool"
             title="Decrease decimal places"
           >
-            .0
+             .0 
           </div>
           <div
             class="o-tool"
             title="Increase decimal places"
           >
-            .00
+             .00 
           </div>
           <div
             class="o-tool o-dropdown"
@@ -149,7 +149,7 @@ exports[`TopBar component can set cell format 1`] = `
             <div
               class="o-text-icon"
             >
-              123
+               123 
               <svg
                 class="o-icon"
               >
@@ -225,7 +225,6 @@ exports[`TopBar component can set cell format 1`] = `
           <div
             class="o-divider"
           />
-          <!-- &lt;div class="o-tool" title="Font"&gt;&lt;span&gt;Roboto&lt;/span&gt; &lt;svg class="o-icon"&gt;&lt;polygon fill="#000000" points="0 0 4 4 8 0" transform="translate(5 7)"/&gt;&lt;/svg&gt;&lt;/div&gt; -->
           <div
             class="o-tool o-dropdown"
             title="Font Size"
@@ -234,7 +233,6 @@ exports[`TopBar component can set cell format 1`] = `
               class="o-text-icon"
             >
               10
-               
               <svg
                 class="o-icon"
               >
@@ -379,11 +377,8 @@ exports[`TopBar component can set cell format 1`] = `
             <span>
               
               
-              
-              
-              
               <svg
-                class="o-icon"
+                class="o-icon align-left"
               >
                 <path
                   d="M0,14 L10,14 L10,12 L0,12 L0,14 Z M10,4 L0,4 L0,6 L10,6 L10,4 Z M0,0 L0,2 L14,2 L14,0 L0,0 Z M0,10 L14,10 L14,8 L0,8 L0,10 Z"
@@ -405,8 +400,6 @@ exports[`TopBar component can set cell format 1`] = `
             </span>
             
           </div>
-          <!-- &lt;div class="o-tool" title="Vertical align"&gt;&lt;span&gt;&lt;svg class="o-icon"&gt;&lt;path fill="#000000" d="M9.5,3 L7,3 L7,0 L5,0 L5,3 L2.5,3 L6,6.5 L9.5,3 L9.5,3 Z M0,8 L0,10 L12,10 L12,8 L0,8 L0,8 Z M2.5,15 L5,15 L5,18 L7,18 L7,15 L9.5,15 L6,11.5 L2.5,15 L2.5,15 Z" transform="translate(3)"/&gt;&lt;/svg&gt;&lt;/span&gt; &lt;svg class="o-icon"&gt;&lt;polygon fill="#000000" points="0 0 4 4 8 0" transform="translate(5 7)"/&gt;&lt;/svg&gt;&lt;/div&gt; -->
-          <!-- &lt;div class="o-tool" title="Text Wrapping"&gt;&lt;svg class="o-icon"&gt;&lt;path fill="#000000" d="M14,0 L0,0 L0,2 L14,2 L14,0 Z M0,12 L4,12 L4,10 L0,10 L0,12 Z M11.5,5 L0,5 L0,7 L11.75,7 C12.58,7 13.25,7.67 13.25,8.5 C13.25,9.33 12.58,10 11.75,10 L9,10 L9,8 L6,11 L9,14 L9,12 L11.5,12 C13.43,12 15,10.43 15,8.5 C15,6.57 13.43,5 11.5,5 Z" transform="translate(2 3)"/&gt;&lt;/svg&gt;&lt;/div&gt; -->
         </div>
         
         <div
@@ -557,19 +550,19 @@ exports[`TopBar component simple rendering 1`] = `
         class="o-tool"
         title="Format as percent"
       >
-        %
+         % 
       </div>
       <div
         class="o-tool"
         title="Decrease decimal places"
       >
-        .0
+         .0 
       </div>
       <div
         class="o-tool"
         title="Increase decimal places"
       >
-        .00
+         .00 
       </div>
       <div
         class="o-tool o-dropdown"
@@ -578,7 +571,7 @@ exports[`TopBar component simple rendering 1`] = `
         <div
           class="o-text-icon"
         >
-          123
+           123 
           <svg
             class="o-icon"
           >
@@ -595,7 +588,6 @@ exports[`TopBar component simple rendering 1`] = `
       <div
         class="o-divider"
       />
-      <!-- &lt;div class="o-tool" title="Font"&gt;&lt;span&gt;Roboto&lt;/span&gt; &lt;svg class="o-icon"&gt;&lt;polygon fill="#000000" points="0 0 4 4 8 0" transform="translate(5 7)"/&gt;&lt;/svg&gt;&lt;/div&gt; -->
       <div
         class="o-tool o-dropdown"
         title="Font Size"
@@ -604,7 +596,6 @@ exports[`TopBar component simple rendering 1`] = `
           class="o-text-icon"
         >
           10
-           
           <svg
             class="o-icon"
           >
@@ -749,11 +740,8 @@ exports[`TopBar component simple rendering 1`] = `
         <span>
           
           
-          
-          
-          
           <svg
-            class="o-icon"
+            class="o-icon align-left"
           >
             <path
               d="M0,14 L10,14 L10,12 L0,12 L0,14 Z M10,4 L0,4 L0,6 L10,6 L10,4 Z M0,0 L0,2 L14,2 L14,0 L0,0 Z M0,10 L14,10 L14,8 L0,8 L0,10 Z"
@@ -775,8 +763,6 @@ exports[`TopBar component simple rendering 1`] = `
         </span>
         
       </div>
-      <!-- &lt;div class="o-tool" title="Vertical align"&gt;&lt;span&gt;&lt;svg class="o-icon"&gt;&lt;path fill="#000000" d="M9.5,3 L7,3 L7,0 L5,0 L5,3 L2.5,3 L6,6.5 L9.5,3 L9.5,3 Z M0,8 L0,10 L12,10 L12,8 L0,8 L0,8 Z M2.5,15 L5,15 L5,18 L7,18 L7,15 L9.5,15 L6,11.5 L2.5,15 L2.5,15 Z" transform="translate(3)"/&gt;&lt;/svg&gt;&lt;/span&gt; &lt;svg class="o-icon"&gt;&lt;polygon fill="#000000" points="0 0 4 4 8 0" transform="translate(5 7)"/&gt;&lt;/svg&gt;&lt;/div&gt; -->
-      <!-- &lt;div class="o-tool" title="Text Wrapping"&gt;&lt;svg class="o-icon"&gt;&lt;path fill="#000000" d="M14,0 L0,0 L0,2 L14,2 L14,0 Z M0,12 L4,12 L4,10 L0,10 L0,12 Z M11.5,5 L0,5 L0,7 L11.75,7 C12.58,7 13.25,7.67 13.25,8.5 C13.25,9.33 12.58,10 11.75,10 L9,10 L9,8 L6,11 L9,14 L9,12 L11.5,12 C13.43,12 15,10.43 15,8.5 C15,6.57 13.43,5 11.5,5 Z" transform="translate(2 3)"/&gt;&lt;/svg&gt;&lt;/div&gt; -->
     </div>
     
     <div

@@ -4,6 +4,7 @@ import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { DispatchResult } from "../../src/types/commands";
+import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { merge } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, nextTick } from "../test_helpers/helpers";
@@ -104,6 +105,7 @@ class Parent extends Component {
 
 async function mountHighlight(zone: string, color: string): Promise<Parent> {
   app = new App(Parent, { props: { zone: toZone(zone), color, model } });
+  app.addTemplates(OWL_TEMPLATES);
   return await app.mount(fixture);
 }
 

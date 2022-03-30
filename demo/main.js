@@ -9,7 +9,6 @@ const {
   useSubEnv,
   onWillStart,
   onMounted,
-  mount,
   onWillUnmount,
   useExternalListener,
 } = owl;
@@ -172,8 +171,12 @@ Demo.template = xml/* xml */ `
 Demo.components = { Spreadsheet };
 
 // Setup code
-function setup() {
+async function setup() {
+  const templates = await (await fetch("../dist/o_spreadsheet.xml")).text();
   start = Date.now();
-  mount(Demo, document.body, { dev: true });
+
+  const rootApp = new owl.App(Demo);
+  rootApp.addTemplates(templates);
+  rootApp.mount(document.body, { dev: true });
 }
 whenReady(setup);

@@ -5,7 +5,6 @@ import {
   useExternalListener,
   useState,
   useSubEnv,
-  xml,
 } from "@odoo/owl";
 import {
   BOTTOMBAR_HEIGHT,
@@ -29,28 +28,6 @@ import { TopBar } from "./top_bar";
 // -----------------------------------------------------------------------------
 
 export type ComposerFocusType = "inactive" | "cellFocus" | "contentFocus";
-
-const TEMPLATE = xml/* xml */ `
-  <div class="o-spreadsheet"  t-on-keydown="onKeydown">
-    <TopBar
-      onClick="() => this.focusGrid()"
-      onComposerContentFocused="(selection) => this.onTopBarComposerFocused(selection)"
-      focusComposer="focusTopBarComposer"/>
-    <Grid
-      sidePanelIsOpen="sidePanel.isOpen"
-      linkEditorIsOpen="linkEditor.isOpen"
-      onLinkEditorClosed="() => this.closeLinkEditor()"
-      onSaveRequested="() => this.save()"
-      focusComposer="focusGridComposer"
-      exposeFocus="(focus) => this._focusGrid = focus"
-      onComposerContentFocused="() => this.onGridComposerContentFocused()"
-      onGridComposerCellFocused="(content, selection) => this.onGridComposerCellFocused(content, selection)"/>
-    <SidePanel t-if="sidePanel.isOpen"
-      onCloseSidePanel="() => this.closeSidePanel()"
-      component="sidePanel.component"
-      panelProps="sidePanel.panelProps"/>
-    <BottomBar onClick="() => this.focusGrid()"/>
-  </div>`;
 
 css/* scss */ `
   .o-spreadsheet {
@@ -112,7 +89,7 @@ interface ComposerState {
 }
 
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
+  static template = "o-spreadsheet.Spreadsheet";
   static components = { TopBar, Grid, BottomBar, SidePanel, LinkEditor };
   static _t = t;
 

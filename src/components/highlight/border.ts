@@ -1,22 +1,8 @@
-import { Component, xml } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { SpreadsheetChildEnv, Zone } from "../../types";
 import { css } from "../helpers/css";
 
-const TEMPLATE = xml/* xml */ `
-    <div class="o-border"
-        t-on-mousedown="onMouseDown"
-        t-att-style="style"
-        t-att-class="{
-          'o-moving': props.isMoving,
-          'o-border-n': props.orientation === 'n',
-          'o-border-s': props.orientation === 's',
-          'o-border-w': props.orientation === 'w',
-          'o-border-e': props.orientation === 'e',
-        }"
-        >
-    </div>
-`;
 css/* scss */ `
   .o-border {
     position: absolute;
@@ -39,8 +25,7 @@ interface Props {
 }
 
 export class Border extends Component<Props, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
-
+  static template = "o-spreadsheet.Border";
   get style() {
     const isTop = ["n", "w", "e"].includes(this.props.orientation);
     const isLeft = ["n", "w", "s"].includes(this.props.orientation);

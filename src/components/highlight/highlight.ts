@@ -1,31 +1,9 @@
-import { Component, useRef, useState, xml } from "@odoo/owl";
+import { Component, useRef, useState } from "@odoo/owl";
 import { clip, isEqual } from "../../helpers";
 import { SpreadsheetChildEnv, Zone } from "../../types";
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 import { Border } from "./border";
 import { Corner } from "./corner";
-
-const TEMPLATE = xml/* xml */ `
-  <div class="o-highlight" t-ref="highlight">
-    <t t-foreach="['nw', 'ne', 'sw', 'se']" t-as="orientation" t-key="orientation">
-      <Corner
-        onResizeHighlight="(isLeft, isTop) => this.onResizeHighlight(isLeft, isTop)"
-        isResizing='highlightState.shiftingMode === "isResizing"'
-        orientation="orientation"
-        zone="props.zone"
-        color="props.color"
-      />
-    </t>
-    <t t-foreach="['n', 's', 'w', 'e']" t-as="orientation" t-key="orientation">
-      <Border
-        onMoveHighlight="(x, y) => this.onMoveHighlight(x,y)"
-        isMoving='highlightState.shiftingMode === "isMoving"'
-        orientation="orientation"
-        zone="props.zone"
-      />
-    </t>
-  </div>
-`;
 
 interface Props {
   zone: Zone;
@@ -36,7 +14,7 @@ interface HighlightState {
   shiftingMode: "isMoving" | "isResizing" | "none";
 }
 export class Highlight extends Component<Props, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
+  static template = "o-spreadsheet.Highlight";
   static components = {
     Corner,
     Border,

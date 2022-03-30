@@ -6,11 +6,7 @@ Realtime collaboration edition can be enabled to synchronize a spreadsheet acros
 It is enabled by providing a way to communicate with other connected clients to the `<Spreadsheet/>` component. We call it the _transport service_. Its interface and how it should be implemented is described in a [dedicated section](#transport-service). An optional [client](tsdoc/interfaces/client.md) can also be provided to display the names of connected clients.
 
 ```xml
-<Spreadsheet
-    data="data"
-    transportService="transportService"
-    client="client"
-/>
+<Spreadsheet data="data" transportService="transportService" client="client"/>
 ```
 
 1. [Transport](#transport)

@@ -1,8 +1,9 @@
-import { Component, mount, useSubEnv, xml } from "@odoo/owl";
+import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CommandResult, Style } from "../../src/types/index";
+import { OWL_TEMPLATES } from "../setup/jest.setup";
 import {
   addColumns,
   deleteRows,
@@ -316,7 +317,9 @@ describe("merges", () => {
       }
     }
     const fixture = makeTestFixture();
-    const parent = await mount(Parent, fixture);
+    const app = new App(Parent);
+    app.addTemplates(OWL_TEMPLATES);
+    const parent = await app.mount(fixture);
     const model = parent.model;
     setCellContent(model, "B2", "b2");
 

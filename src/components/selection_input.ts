@@ -1,4 +1,4 @@
-import { Component, onMounted, onPatched, onWillUnmount, useState, xml } from "@odoo/owl";
+import { Component, onMounted, onPatched, onWillUnmount, useState } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../constants";
 import { UuidGenerator } from "../helpers/index";
 import { RangeInputValue } from "../plugins/ui/selection_input";
@@ -6,41 +6,6 @@ import { SpreadsheetChildEnv } from "../types";
 import { css } from "./helpers/css";
 
 const uuidGenerator = new UuidGenerator();
-
-const TEMPLATE = xml/* xml */ `
-  <div class="o-selection">
-    <div t-foreach="ranges" t-as="range" t-key="range.id" class="o-selection-input" t-att-class="props.class">
-      <input
-        type="text"
-        spellcheck="false"
-        t-on-change="(ev) => this.onInputChanged(range.id, ev)"
-        t-on-focus="() => this.focus(range.id)"
-        t-att-value="range.xc"
-        t-att-style="getColor(range)"
-        t-att-class="{
-          'o-focused' : range.isFocused,
-          'o-required': props.required,
-          'o-invalid': isInvalid || !range.isValidRange,
-        }"
-      />
-      <button
-        class="o-btn o-remove-selection"
-        t-if="ranges.length > 1"
-        t-on-click="() => this.removeInput(range.id)">✖</button>
-    </div>
-
-    <div class="o-selection-input">
-      <button
-        class="o-btn-action o-add-selection"
-        t-if="canAddRange"
-        t-on-click="addEmptyInput">Add range</button>
-      <button
-          class="o-btn-action o-selection-ok"
-          t-if="hasFocus"
-          t-on-click="disable">Confirm</button>
-    </div>
-
-  </div>`;
 
 css/* scss */ `
   .o-selection {
@@ -112,7 +77,7 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
  * changes.
  */
 export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
+  static template = "o-spreadsheet.SelectionInput";
   private id = uuidGenerator.uuidv4();
   private previousRanges: string[] = this.props.ranges || [];
   private originSheet = this.env.model.getters.getActiveSheetId();

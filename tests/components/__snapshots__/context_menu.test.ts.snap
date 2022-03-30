@@ -17,7 +17,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </span>
     
     
-    
   </div>
   
   <div
@@ -31,7 +30,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       Ctrl+C
     </span>
-    
     
     
   </div>
@@ -49,7 +47,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </span>
     
     
-    
   </div>
   
   <div
@@ -63,7 +60,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
-    
     <svg
       class="o-icon"
     >
@@ -90,7 +86,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
-    
     <svg
       class="o-icon"
     >
@@ -119,7 +114,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </span>
     
     
-    
   </div>
   
   <div
@@ -135,7 +129,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </span>
     
     
-    
   </div>
   
   <div
@@ -149,7 +142,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
-    
     <svg
       class="o-icon"
     >
@@ -178,7 +170,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </span>
     
     
-    
   </div>
   
   <div
@@ -194,7 +185,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </span>
     
     
-    
   </div>
   
   <div
@@ -208,7 +198,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
-    
     <svg
       class="o-icon"
     >
@@ -235,7 +224,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </span>
     
     
-    
   </div>
   <div
     class="o-separator"
@@ -253,7 +241,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </span>
     
     
-    
   </div>
   <div
     class="o-separator"
@@ -269,7 +256,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
     >
       
     </span>
-    
     
     
   </div>

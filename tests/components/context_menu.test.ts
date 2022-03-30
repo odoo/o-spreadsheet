@@ -1,4 +1,4 @@
-import { App, Component, mount, useSubEnv, xml } from "@odoo/owl";
+import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { Grid } from "../../src/components/grid";
 import { Menu } from "../../src/components/menu";
@@ -8,6 +8,7 @@ import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { ConditionalFormat } from "../../src/types";
+import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
@@ -106,7 +107,8 @@ async function renderContextMenu(
 ): Promise<[number, number]> {
   // x, y are relative to the upper left grid corner, but the menu
   // props must take the top bar into account.
-  parent = await mount(ContextMenuParent, fixture, {
+
+  app = new App(ContextMenuParent, {
     props: {
       x,
       y: y + TOPBAR_HEIGHT,
@@ -116,6 +118,9 @@ async function renderContextMenu(
       config: testConfig,
     },
   });
+  app.addTemplates(OWL_TEMPLATES);
+  parent = await app.mount(fixture);
+
   await nextTick();
   return [x, y];
 }

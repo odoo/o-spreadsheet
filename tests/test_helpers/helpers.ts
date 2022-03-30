@@ -17,6 +17,7 @@ import {
   Zone,
 } from "../../src/types";
 import { XLSXExport } from "../../src/types/xlsx";
+import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { redo, setCellContent, undo } from "./commands_helpers";
 import { getCell, getCellContent } from "./getters_helpers";
 
@@ -100,8 +101,6 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
   expect(model).toExport(after);
 }
 
-let templates: any = {};
-
 // Requires to be called wit jest realTimers
 export async function mountSpreadsheet(
   fixture: HTMLElement,
@@ -109,9 +108,8 @@ export async function mountSpreadsheet(
   env: Partial<SpreadsheetChildEnv> = {}
 ): Promise<{ app: App; parent: Spreadsheet }> {
   const app = new App(Spreadsheet, { props, env, test: true });
-  app.templates = templates;
+  app.addTemplates(OWL_TEMPLATES);
   const parent = (await app.mount(fixture)) as Spreadsheet;
-  templates = app.templates;
   return { app, parent };
 }
 

@@ -9,16 +9,6 @@ import { startDnd } from "./helpers/drag_and_drop";
 // Autofill
 // -----------------------------------------------------------------------------
 
-const TEMPLATE = xml/* xml */ `
-  <div class="o-autofill" t-on-mousedown="onMouseDown" t-att-style="style" t-on-dblclick="onDblClick">
-    <div class="o-autofill-handler" t-att-style="styleHandler"/>
-    <t t-set="tooltip" t-value="getTooltip()"/>
-    <div t-if="tooltip" class="o-autofill-nextvalue" t-att-style="styleNextvalue">
-      <t t-component="tooltip.component" t-props="tooltip.props"/>
-    </div>
-  </div>
-`;
-
 css/* scss */ `
   .o-autofill {
     height: 6px;
@@ -65,8 +55,7 @@ interface State {
 }
 
 export class Autofill extends Component<Props, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
-
+  static template = "o-spreadsheet.Autofill";
   state: State = useState({
     position: { left: 0, top: 0 },
     handler: false,

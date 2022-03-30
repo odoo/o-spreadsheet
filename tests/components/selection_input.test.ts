@@ -2,6 +2,7 @@ import { App, Component, onMounted, onWillUnmount, useSubEnv, xml } from "@odoo/
 import { Model } from "../../src";
 import { SelectionInput } from "../../src/components/selection_input";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
+import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { activateSheet, createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
 import { clickCell, keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
 import {
@@ -96,6 +97,7 @@ class MultiParent extends Component<any> {
 async function createSelectionInput(config: SelectionInputTestConfig = {}) {
   model = new Model();
   const app = new App(Parent, { props: { model, config } });
+  app.addTemplates(OWL_TEMPLATES);
   const parent = await app.mount(fixture);
   await nextTick();
   const id = parent.id;
@@ -284,6 +286,7 @@ describe("Selection Input", () => {
   test("focus is transferred from one input to another", async () => {
     model = new Model();
     const app = new App(MultiParent, { props: { model } });
+    app.addTemplates(OWL_TEMPLATES);
     await app.mount(fixture);
     await nextTick();
     expect(fixture.querySelector(".input-1 .o-focused")).toBeTruthy();

@@ -1,4 +1,4 @@
-import { Component, onWillUpdateProps, useExternalListener, useState, xml } from "@odoo/owl";
+import { Component, onWillUpdateProps, useExternalListener, useState } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../constants";
 import { colorNumberString, rangeReference, toZone } from "../../../helpers/index";
 import {
@@ -19,157 +19,13 @@ import {
 import { ColorPicker } from "../../color_picker";
 import { css } from "../../helpers/css";
 import { getTextDecoration } from "../../helpers/dom_helpers";
-import { CARET_DOWN, CARET_UP, ICONS, ICON_SETS, TRASH } from "../../icons";
+import { ICONS, ICON_SETS } from "../../icons";
 import { IconPicker } from "../../icon_picker";
 import { SelectionInput } from "../../selection_input";
-import { CellIsOperators, CfTerms, GenericTerms, GenericWords } from "../../translations_terms";
-import { TEMPLATE_CELL_IS_RULE_EDITOR } from "./cell_is_rule_editor";
-import { TEMPLATE_COLOR_SCALE_EDITOR } from "./color_scale_rule_editor";
-import { TEMPLATE_ICON_SET_EDITOR } from "./icon_set_rule_editor";
+import { CellIsOperators } from "../../translations_terms";
+import { CfTerms } from "./../../translations_terms";
 
 // TODO vsc: add ordering of rules
-const PREVIEW_TEMPLATE = xml/* xml */ `
-<div class="o-cf-preview" t-att-class="{ 'o-cf-cursor-ptr': state.mode !== 'reorder' }">
-  <t t-if="cf.rule.type==='IconSetRule'">
-    <div class="o-cf-preview-icon">
-      <t t-out="icons[cf.rule.icons.upper].svg"/>
-      <t t-out="icons[cf.rule.icons.middle].svg"/>
-      <t t-out="icons[cf.rule.icons.lower].svg"/>
-    </div>
-  </t>
-  <t t-else="">
-    <div t-att-style="getStyle(cf.rule)" class="o-cf-preview-image">
-      123
-    </div>
-  </t>
-  <div class="o-cf-preview-description">
-    <div class="o-cf-preview-ruletype">
-      <div class="o-cf-preview-description-rule">
-        <t t-esc="getDescription(cf)" />
-        <t t-if="cf.rule.values">
-          <t t-esc="' ' + cf.rule.values[0]" />
-          <t t-if="cf.rule.values[1]">
-            <t t-esc="' ' + env._t('${GenericWords.And}')"/> <t t-esc="cf.rule.values[1]"/>
-          </t>
-        </t>
-      </div>
-    </div>
-    <div class="o-cf-preview-range" t-esc="cf.ranges"/>
-  </div>
-  <t t-if="state.mode === 'reorder'">
-    <div class="o-cf-reorder">
-      <t t-if="!cf_first">
-        <div class="o-cf-reorder-button-up o-cf-reorder-button" t-on-click="(ev) => this.reorderRule(cf, 'up', ev)">
-          ${CARET_UP}
-        </div>
-      </t>
-      <t t-if="!cf_last">
-        <div class="o-cf-reorder-button-down o-cf-reorder-button" t-on-click="(ev) => this.reorderRule(cf, 'down', ev)">
-          ${CARET_DOWN}
-        </div>
-      </t>
-    </div>
-  </t>
-  <t t-else="">
-    <div class="o-cf-delete">
-      <div class="o-cf-delete-button" t-on-click.stop="(ev) => this.deleteConditionalFormat(cf, ev)" aria-label="Remove rule">
-        ${TRASH}
-      </div>
-    </div>
-  </t>
-</div>
-`;
-
-const TEMPLATE = xml/* xml */ `
-  <div class="o-cf">
-    <t t-if="state.mode === 'list' || state.mode === 'reorder'">
-      <div class="o-cf-preview-list" >
-        <div t-on-click="(ev) => this.editConditionalFormat(cf, ev)" t-foreach="conditionalFormats" t-as="cf" t-key="cf.id">
-            <t t-call="${PREVIEW_TEMPLATE}"/>
-        </div>
-      </div>
-      <t t-if="state.mode === 'list'">
-        <div class="btn btn-link o-cf-btn-link o-cf-add" t-on-click.prevent.stop="addConditionalFormat">
-          <t t-esc="'+ ' + env._t('${CfTerms.NewRule}')"/>
-        </div>
-        <div class="btn btn-link o-cf-btn-link o-cf-reorder" t-on-click="reorderConditionalFormats">
-          <t t-esc="env._t('${CfTerms.ReorderRules}')"/>
-        </div>
-      </t>
-      <t t-if="state.mode === 'reorder'">
-        <div class="btn btn-link o-cf-btn-link o-cf-exit-reorder" t-on-click="switchToList">
-            <t t-esc="env._t('${CfTerms.ExitReorderMode}')"/>
-        </div>
-      </t>
-    </t>
-    <t t-if="state.mode === 'edit' || state.mode === 'add'" t-key="state.currentCF.id">
-        <div class="o-cf-ruleEditor">
-            <div class="o-section o-cf-range">
-              <div class="o-section-title" t-esc="env._t('${CfTerms.ApplyToRange}')"></div>
-              <div class="o-selection-cf">
-                <SelectionInput
-                  ranges="state.currentCF.ranges"
-                  class="'o-range'"
-                  isInvalid="isRangeValid"
-                  onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
-                  required="true"/>
-              </div>
-              <div class="o-section-title" t-esc="env._t('${CfTerms.CfTitle}')"></div>
-              <div class="o_field_radio o_horizontal o_field_widget o-cf-type-selector">
-                <div class="custom-control custom-radio o_cf_radio_item" t-on-click="() => this.changeRuleType('CellIsRule')">
-                  <input class="custom-control-input o_radio_input" t-attf-checked="{{state.currentCFType === 'CellIsRule'}}" type="radio" id="cellIsRule" name="ruleType" value="CellIsRule"/>
-                  <label for="cellIsRule" class="custom-control-label o_form_label">
-                    <t t-esc="env._t('${CfTerms.SingleColor}')"/>
-                  </label>
-                </div>
-                <div class="custom-control custom-radio o_cf_radio_item" t-on-click="() => this.changeRuleType('ColorScaleRule')">
-                  <input class="custom-control-input o_radio_input" t-attf-checked="{{state.currentCFType === 'ColorScaleRule'}}" type="radio" id="colorScaleRule" name="ruleType" value="ColorScaleRule"/>
-                  <label for="colorScaleRule" class="custom-control-label o_form_label">
-                  <t t-esc="env._t('${CfTerms.ColorScale}')"/>
-                  </label>
-                </div>
-
-                <div class="custom-control custom-radio o_cf_radio_item" t-on-click="() => this.changeRuleType('IconSetRule')">
-                  <input class="custom-control-input o_radio_input" t-attf-checked="{{state.currentCFType === 'IconSetRule'}}" type="radio" id="iconSetRule" name="ruleType" value="IconSetRule"/>
-                  <label for="iconSetRule" class="custom-control-label o_form_label">
-                  <t t-esc="env._t('${CfTerms.IconSet}')"/>
-                  </label>
-                </div>
-              </div>
-            </div>
-            <div class="o-section o-cf-editor">
-              <t t-if="state.currentCFType === 'CellIsRule'"
-                 t-call="${TEMPLATE_CELL_IS_RULE_EDITOR}">
-                <t t-set="rule" t-value="state.rules.cellIs"/>
-              </t>
-              <t t-if="state.currentCFType === 'ColorScaleRule'"
-                 t-call="${TEMPLATE_COLOR_SCALE_EDITOR}">
-                <t t-set="rule" t-value="state.rules.colorScale"/>
-              </t>
-              <t t-if="state.currentCFType === 'IconSetRule'"
-                 t-call="${TEMPLATE_ICON_SET_EDITOR}">
-                <t t-set="rule" t-value="state.rules.iconSet"/>
-              </t>
-              <div class="o-sidePanelButtons">
-                <button
-                  t-on-click="switchToList"
-                  class="o-sidePanelButton o-cf-cancel"
-                  t-esc="env._t('${GenericTerms.Cancel}')"></button>
-                <button
-                  t-on-click="saveConditionalFormat"
-                  class="o-sidePanelButton o-cf-save"
-                  t-esc="env._t('${GenericTerms.Save}')"></button>
-              </div>
-            </div>
-            <div class="o-section">
-              <div class="o-cf-error" t-foreach="state.errors || []" t-as="error" t-key="error_index">
-                <t t-esc="errorMessage(error)"/>
-              </div>
-            </div>
-        </div>
-    </t>
-  </div>`;
-
 css/* scss */ `
   label {
     vertical-align: middle;
@@ -538,7 +394,7 @@ interface State {
 }
 
 export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
+  static template = "o-spreadsheet.ConditionalFormattingPanel";
   static components = { SelectionInput, IconPicker, ColorPicker };
 
   icons = ICONS;

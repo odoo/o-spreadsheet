@@ -1,0 +1,18 @@
+<templates>
+  <t t-name="o-spreadsheet.ColorPicker" owl="1">
+    <div
+      class="o-color-picker"
+      t-att-class="props.dropdownDirection || 'right'"
+      t-on-click="onColorClick">
+      <div class="o-color-picker-line" t-foreach="COLORS" t-as="colors" t-key="colors">
+        <t t-foreach="colors" t-as="color" t-key="color">
+          <div
+            class="o-color-picker-line-item"
+            t-att-data-color="color"
+            t-attf-style="background-color:{{color}};"
+          />
+        </t>
+      </div>
+    </div>
+  </t>
+</templates>

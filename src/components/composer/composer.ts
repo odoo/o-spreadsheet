@@ -1,4 +1,4 @@
-import { Component, onMounted, onPatched, onWillUnmount, useRef, useState, xml } from "@odoo/owl";
+import { Component, onMounted, onPatched, onWillUnmount, useRef, useState } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { EnrichedToken } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
@@ -48,44 +48,6 @@ export const tokenColor = {
   COMMA: FunctionColor,
 };
 
-const TEMPLATE = xml/* xml */ `
-<div class="o-composer-container">
-  <div
-    t-att-class="{ 'o-composer': true, 'text-muted': env.model.getters.isReadonly(), 'unfocusable': env.model.getters.isReadonly() }"
-    t-att-style="props.inputStyle"
-    t-ref="o_composer"
-    tabindex="1"
-    t-att-contenteditable="env.model.getters.isReadonly() ? 'false' : 'true'"
-    spellcheck="false"
-
-    t-on-keydown="onKeydown"
-    t-on-mousedown="onMousedown"
-    t-on-input="onInput"
-    t-on-keyup="onKeyup"
-    t-on-click.stop="onClick"
-    t-on-blur="onBlur"
-  />
-
-  <div t-if="props.focus !== 'inactive' and (autoCompleteState.showProvider or functionDescriptionState.showDescription)"
-    class="o-composer-assistant" t-att-style="assistantStyle">
-    <TextValueProvider
-        t-if="autoCompleteState.showProvider"
-        exposeAPI="(api) => this.autocompleteAPI = api"
-        search="autoCompleteState.search"
-        provider="autoCompleteState.provider"
-        onCompleted="(text) => this.onCompleted(text)"
-        borderStyle="borderStyle"
-    />
-    <FunctionDescriptionProvider
-        t-if="functionDescriptionState.showDescription"
-        functionName = "functionDescriptionState.functionName"
-        functionDescription = "functionDescriptionState.functionDescription"
-        argToFocus = "functionDescriptionState.argToFocus"
-        borderStyle="borderStyle"
-    />
-  </div>
-</div>
-  `;
 css/* scss */ `
   .o-composer-container {
     padding: 0;
@@ -154,7 +116,7 @@ interface FunctionDescriptionState {
 }
 
 export class Composer extends Component<Props, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
+  static template = "o-spreadsheet.Composer";
   static components = { TextValueProvider, FunctionDescriptionProvider };
   static defaultProps = {
     inputStyle: "",
