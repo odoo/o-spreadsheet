@@ -40,7 +40,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
                color:none;
                background-color:#FF0000;"
             >
-               123 
+              123
             </div>
             
             <div
@@ -76,13 +76,10 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
                   class="o-cf-icon trash"
                   viewBox="0 0 448 512"
                 >
-                   
                   <path
                     d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
                     fill="currentColor"
-                  >
-                     
-                  </path>
+                  />
                 </svg>
               </div>
             </div>
@@ -98,7 +95,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
               class="o-cf-preview-image"
               style="background-image: linear-gradient(to right, #ff00ff, #123456)"
             >
-               123 
+              123
             </div>
             
             <div
@@ -132,13 +129,10 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
                   class="o-cf-icon trash"
                   viewBox="0 0 448 512"
                 >
-                   
                   <path
                     d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
                     fill="currentColor"
-                  >
-                     
-                  </path>
+                  />
                 </svg>
               </div>
             </div>
@@ -150,12 +144,12 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
       <div
         class="btn btn-link o-cf-btn-link o-cf-add"
       >
-        + Add another rule
+         + Add another rule 
       </div>
       <div
         class="btn btn-link o-cf-btn-link o-cf-reorder"
       >
-        Reorder rules
+         Reorder rules 
       </div>
       
       

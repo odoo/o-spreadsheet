@@ -1,4 +1,4 @@
-import { Component, xml } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../types/env";
 import { css } from "./helpers/css";
 import { ICONS, ICON_SETS } from "./icons";
@@ -29,23 +29,7 @@ css/* scss */ `
 `;
 
 export class IconPicker extends Component<Props, SpreadsheetChildEnv> {
-  static template = xml/* xml */ `
-  <div class="o-icon-picker" >
-    <t t-foreach="iconSets" t-as="iconSet" t-key="iconSet">
-      <div class="o-cf-icon-line">
-        <div class="o-icon-picker-item" t-on-click="() => this.onIconClick(iconSets[iconSet].good)">
-          <t t-out="icons[iconSets[iconSet].good].svg"/>
-        </div>
-        <div class="o-icon-picker-item" t-on-click="() => this.onIconClick(iconSets[iconSet].neutral)">
-          <t t-out="icons[iconSets[iconSet].neutral].svg"/>
-        </div>
-        <div class="o-icon-picker-item" t-on-click="() => this.onIconClick(iconSets[iconSet].bad)">
-          <t t-out="icons[iconSets[iconSet].bad].svg"/>
-        </div>
-      </div>
-    </t>
-  </div>`;
-
+  static template = "o-spreadsheet.IconPicker";
   icons = ICONS;
   iconSets = ICON_SETS;
 

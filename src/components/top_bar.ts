@@ -4,7 +4,6 @@ import {
   onWillUpdateProps,
   useExternalListener,
   useState,
-  xml,
 } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR, DEFAULT_FONT_SIZE } from "../constants";
 import { fontSizes } from "../fonts";
@@ -18,10 +17,9 @@ import { ColorPicker } from "./color_picker";
 import { Composer } from "./composer/composer";
 import { css } from "./helpers/css";
 import { isChildEvent } from "./helpers/dom_helpers";
-import * as icons from "./icons";
 import { Menu, MenuState } from "./menu";
 import { ComposerFocusType } from "./spreadsheet";
-import { GenericTerms, NumberFormatTerms, TopBarTerms } from "./translations_terms";
+import { NumberFormatTerms } from "./translations_terms";
 
 type Tool =
   | ""
@@ -257,123 +255,8 @@ css/* scss */ `
   }
 `;
 export class TopBar extends Component<Props, SpreadsheetChildEnv> {
-  static template = xml/* xml */ `
-    <div class="o-spreadsheet-topbar o-two-columns" t-on-click="props.onClick">
-      <div class="o-topbar-top">
-        <!-- Menus -->
-        <div class="o-topbar-topleft">
-          <t t-foreach="menus" t-as="menu" t-key="menu_index">
-            <div t-if="menu.children.length !== 0"
-              class="o-topbar-menu"
-              t-on-click="(ev) => this.toggleContextMenu(menu, ev)"
-              t-on-mouseover="(ev) => this.onMenuMouseOver(menu, ev)"
-              t-att-data-id="menu.id">
-            <t t-esc="getMenuName(menu)"/>
-          </div>
-          </t>
-          <Menu t-if="state.menuState.isOpen"
-                position="state.menuState.position"
-                menuItems="state.menuState.menuItems"
-                onClose="() => this.state.menuState.isOpen=false"/>
-        </div>
-        <div class="o-topbar-topright">
-          <div t-foreach="topbarComponents" t-as="comp" t-key="comp.id">
-            <t t-component="comp.component"/>
-          </div>
-        </div>
-      </div>
-      <!-- Toolbar and Cell Content -->
-      <div class="o-topbar-toolbar">
-        <!-- Toolbar -->
-        <div t-if="env.model.getters.isReadonly()" class="o-readonly-toolbar text-muted">
-          <span>
-            <i class="fa fa-eye" /> <t t-esc="env._t('${TopBarTerms.ReadonlyAccess}')" />
-          </span>
-        </div>
-        <div t-else="" class="o-toolbar-tools">
-          <div class="o-tool" title="${GenericTerms.Undo}" t-att-class="{'o-disabled': !undoTool}" t-on-click="undo" >${icons.UNDO_ICON}</div>
-          <div class="o-tool" t-att-class="{'o-disabled': !redoTool}" title="${GenericTerms.Redo}"  t-on-click="redo">${icons.REDO_ICON}</div>
-          <div class="o-tool" title="${TopBarTerms.PaintFormat}" t-att-class="{active:paintFormatTool}" t-on-click="paintFormat">${icons.PAINT_FORMAT_ICON}</div>
-          <div class="o-tool" title="${TopBarTerms.ClearFormat}" t-on-click="clearFormatting">${icons.CLEAR_FORMAT_ICON}</div>
-          <div class="o-divider"/>
-          <div class="o-tool" title="${TopBarTerms.FormatPercent}" t-on-click="(ev) => this.toogleFormat('percent', ev)">%</div>
-          <div class="o-tool" title="${TopBarTerms.DecreaseDecimal}" t-on-click="(ev) => this.setDecimal(-1, ev)">.0</div>
-          <div class="o-tool" title="${TopBarTerms.IncreaseDecimal}" t-on-click="(ev) => this.setDecimal(+1, ev)">.00</div>
-          <div class="o-tool o-dropdown" title="${TopBarTerms.MoreFormat}" t-on-click="(ev) => this.toggleDropdownTool('formatTool', ev)">
-            <div class="o-text-icon">123${icons.TRIANGLE_DOWN_ICON}</div>
-            <div class="o-dropdown-content o-text-options  o-format-tool "  t-if="state.activeTool === 'formatTool'" t-on-click="setFormat">
-              <t t-foreach="formats" t-as="format" t-key="format.name">
-                <div t-att-data-format="format.name" t-att-class="{active: currentFormat === format.name}"><t t-esc="format.text"/></div>
-              </t>
-              <t t-foreach="customFormats" t-as="customFormat" t-key="customFormat.name">
-                <div t-att-data-custom="customFormat.name"><t t-esc="customFormat.text"/></div>
-              </t>
-            </div>
-          </div>
-          <div class="o-divider"/>
-          <!-- <div class="o-tool" title="Font"><span>Roboto</span> ${icons.TRIANGLE_DOWN_ICON}</div> -->
-          <div class="o-tool o-dropdown" title="${TopBarTerms.FontSize}" t-on-click="(ev) => this.toggleDropdownTool('fontSizeTool', ev)">
-            <div class="o-text-icon"><t t-esc="style.fontSize || ${DEFAULT_FONT_SIZE}"/> ${icons.TRIANGLE_DOWN_ICON}</div>
-            <div class="o-dropdown-content o-text-options "  t-if="state.activeTool === 'fontSizeTool'" t-on-click="setSize">
-              <t t-foreach="fontSizes" t-as="font" t-key="font_index">
-                <div t-esc="font.pt" t-att-data-size="font.pt"/>
-              </t>
-            </div>
-          </div>
-          <div class="o-divider"/>
-          <div class="o-tool" title="${GenericTerms.Bold}" t-att-class="{active:style.bold}" t-on-click="(ev) => this.toogleStyle('bold', ev)">${icons.BOLD_ICON}</div>
-          <div class="o-tool" title="${GenericTerms.Italic}" t-att-class="{active:style.italic}" t-on-click="(ev) => this.toogleStyle('italic', ev)">${icons.ITALIC_ICON}</div>
-          <div class="o-tool" title="${GenericTerms.Strikethrough}"  t-att-class="{active:style.strikethrough}" t-on-click="(ev) => this.toogleStyle('strikethrough', ev)">${icons.STRIKE_ICON}</div>
-          <div class="o-tool o-dropdown o-with-color">
-            <span t-attf-style="border-color:{{textColor}}" title="${GenericTerms.TextColor}" t-on-click="(ev) => this.toggleDropdownTool('textColorTool', ev)">${icons.TEXT_COLOR_ICON}</span>
-            <ColorPicker t-if="state.activeTool === 'textColorTool'" onColorPicked="(color) => this.setColor('textColor', color)" t-key="textColor"/>
-          </div>
-          <div class="o-divider"/>
-          <div class="o-tool  o-dropdown o-with-color">
-            <span t-attf-style="border-color:{{fillColor}}" title="${GenericTerms.FillColor}" t-on-click="(ev) => this.toggleDropdownTool('fillColorTool', ev)">${icons.FILL_COLOR_ICON}</span>
-            <ColorPicker t-if="state.activeTool === 'fillColorTool'" onColorPicked="(color) => this.setColor('fillColor', color)" t-key="fillColor"/>
-          </div>
-          <div class="o-tool o-dropdown">
-            <span title="${TopBarTerms.Borders}" t-on-click="(ev) => this.toggleDropdownTool('borderTool', ev)">${icons.BORDERS_ICON}</span>
-            <div class="o-dropdown-content o-border" t-if="state.activeTool === 'borderTool'">
-              <div class="o-dropdown-line">
-                <span class="o-line-item" t-on-click="(ev) => this.setBorder('all', ev)">${icons.BORDERS_ICON}</span>
-                <span class="o-line-item" t-on-click="(ev) => this.setBorder('hv', ev)">${icons.BORDER_HV}</span>
-                <span class="o-line-item" t-on-click="(ev) => this.setBorder('h', ev)">${icons.BORDER_H}</span>
-                <span class="o-line-item" t-on-click="(ev) => this.setBorder('v', ev)">${icons.BORDER_V}</span>
-                <span class="o-line-item" t-on-click="(ev) => this.setBorder('external', ev)">${icons.BORDER_EXTERNAL}</span>
-              </div>
-              <div class="o-dropdown-line">
-                <span class="o-line-item" t-on-click="(ev) => this.setBorder('left', ev)">${icons.BORDER_LEFT}</span>
-                <span class="o-line-item" t-on-click="(ev) => this.setBorder('top', ev)">${icons.BORDER_TOP}</span>
-                <span class="o-line-item" t-on-click="(ev) => this.setBorder('right', ev)">${icons.BORDER_RIGHT}</span>
-                <span class="o-line-item" t-on-click="(ev) => this.setBorder('bottom', ev)">${icons.BORDER_BOTTOM}</span>
-                <span class="o-line-item" t-on-click="(ev) => this.setBorder('clear', ev)">${icons.BORDER_CLEAR}</span>
-              </div>
-            </div>
-          </div>
-          <div class="o-tool o-merge-tool" title="${TopBarTerms.MergeCells}"  t-att-class="{active:inMerge, 'o-disabled': cannotMerge}" t-on-click="toggleMerge">${icons.MERGE_CELL_ICON}</div>
-          <div class="o-divider"/>
-          <div class="o-tool o-dropdown" title="${TopBarTerms.HorizontalAlign}" t-on-click="(ev) => this.toggleDropdownTool('alignTool', ev)">
-            <span>
-              <t t-if="style.align === 'right'">${icons.ALIGN_RIGHT_ICON}</t>
-              <t t-elif="style.align === 'center'">${icons.ALIGN_CENTER_ICON}</t>
-              <t t-else="">${icons.ALIGN_LEFT_ICON}</t>
-              ${icons.TRIANGLE_DOWN_ICON}
-            </span>
-            <div t-if="state.activeTool === 'alignTool'" class="o-dropdown-content">
-              <div class="o-dropdown-item" t-on-click="(ev) => this.toggleAlign('left', ev)">${icons.ALIGN_LEFT_ICON}</div>
-              <div class="o-dropdown-item" t-on-click="(ev) => this.toggleAlign('center', ev)">${icons.ALIGN_CENTER_ICON}</div>
-              <div class="o-dropdown-item" t-on-click="(ev) => this.toggleAlign('right', ev)">${icons.ALIGN_RIGHT_ICON}</div>
-            </div>
-          </div>
-          <!-- <div class="o-tool" title="Vertical align"><span>${icons.ALIGN_MIDDLE_ICON}</span> ${icons.TRIANGLE_DOWN_ICON}</div> -->
-          <!-- <div class="o-tool" title="Text Wrapping">${icons.TEXT_WRAPPING_ICON}</div> -->
-        </div>
-        <Composer inputStyle="composerStyle" focus="props.focusComposer" onComposerContentFocused="props.onComposerContentFocused"/>
-
-      </div>
-    </div>`;
+  static template = "o-spreadsheet.TopBar";
+  DEFAULT_FONT_SIZE = DEFAULT_FONT_SIZE;
 
   static components = { ColorPicker, Menu, Composer };
   formats = FORMATS;

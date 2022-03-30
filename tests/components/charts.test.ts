@@ -374,7 +374,7 @@ describe("figures", () => {
     expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe("A2:A4");
     await simulateClick(".o-panel .inactive");
     expect((fixture.querySelector(".o-panel .inactive") as HTMLElement).textContent).toBe(
-      "Configuration "
+      " Configuration "
     );
   });
 

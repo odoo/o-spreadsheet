@@ -1,5 +1,6 @@
-import { mount } from "@odoo/owl";
+import { App } from "@odoo/owl";
 import { ColorPicker } from "../../src/components/color_picker";
+import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { makeTestFixture } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
@@ -13,8 +14,9 @@ afterEach(() => {
 });
 
 async function mountColorPicker(props): Promise<ColorPicker> {
-  // @ts-ignore
-  return await mount(ColorPicker, fixture, { props });
+  const app = new App(ColorPicker, { props });
+  app.addTemplates(OWL_TEMPLATES);
+  return await app.mount(fixture);
 }
 
 describe("Color Picker tests", () => {

@@ -1,0 +1,181 @@
+<templates>
+  <t t-name="o-spreadsheet.ConditionalFormattingPanel" owl="1">
+    <div class="o-cf">
+      <t t-if="state.mode === 'list' || state.mode === 'reorder'">
+        <div class="o-cf-preview-list">
+          <div
+            t-on-click="(ev) => this.editConditionalFormat(cf, ev)"
+            t-foreach="conditionalFormats"
+            t-as="cf"
+            t-key="cf.id">
+            <t t-call="o-spreadsheet.ConditionalFormattingPanelPreview"/>
+          </div>
+        </div>
+        <t t-if="state.mode === 'list'">
+          <div
+            class="btn btn-link o-cf-btn-link o-cf-add"
+            t-on-click.prevent.stop="addConditionalFormat">
+            + Add another rule
+          </div>
+          <div
+            class="btn btn-link o-cf-btn-link o-cf-reorder"
+            t-on-click="reorderConditionalFormats">
+            Reorder rules
+          </div>
+        </t>
+        <t t-if="state.mode === 'reorder'">
+          <div class="btn btn-link o-cf-btn-link o-cf-exit-reorder" t-on-click="switchToList">
+            Stop reordering rules
+          </div>
+        </t>
+      </t>
+      <t t-if="state.mode === 'edit' || state.mode === 'add'" t-key="state.currentCF.id">
+        <div class="o-cf-ruleEditor">
+          <div class="o-section o-cf-range">
+            <div class="o-section-title">Apply to range</div>
+            <div class="o-selection-cf">
+              <SelectionInput
+                ranges="state.currentCF.ranges"
+                class="'o-range'"
+                isInvalid="isRangeValid"
+                onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
+                required="true"
+              />
+            </div>
+            <div class="o-section-title">Format rules</div>
+            <div class="o_field_radio o_horizontal o_field_widget o-cf-type-selector">
+              <div
+                class="custom-control custom-radio o_cf_radio_item"
+                t-on-click="() => this.changeRuleType('CellIsRule')">
+                <input
+                  class="custom-control-input o_radio_input"
+                  t-attf-checked="{{state.currentCFType === 'CellIsRule'}}"
+                  type="radio"
+                  id="cellIsRule"
+                  name="ruleType"
+                  value="CellIsRule"
+                />
+                <label for="cellIsRule" class="custom-control-label o_form_label">
+                  Single color
+                </label>
+              </div>
+              <div
+                class="custom-control custom-radio o_cf_radio_item"
+                t-on-click="() => this.changeRuleType('ColorScaleRule')">
+                <input
+                  class="custom-control-input o_radio_input"
+                  t-attf-checked="{{state.currentCFType === 'ColorScaleRule'}}"
+                  type="radio"
+                  id="colorScaleRule"
+                  name="ruleType"
+                  value="ColorScaleRule"
+                />
+                <label for="colorScaleRule" class="custom-control-label o_form_label">
+                  Color scale
+                </label>
+              </div>
+
+              <div
+                class="custom-control custom-radio o_cf_radio_item"
+                t-on-click="() => this.changeRuleType('IconSetRule')">
+                <input
+                  class="custom-control-input o_radio_input"
+                  t-attf-checked="{{state.currentCFType === 'IconSetRule'}}"
+                  type="radio"
+                  id="iconSetRule"
+                  name="ruleType"
+                  value="IconSetRule"
+                />
+                <label for="iconSetRule" class="custom-control-label o_form_label">Icon set</label>
+              </div>
+            </div>
+          </div>
+          <div class="o-section o-cf-editor">
+            <t t-if="state.currentCFType === 'CellIsRule'" t-call="o-spreadsheet.CellIsRuleEditor">
+              <t t-set="rule" t-value="state.rules.cellIs"/>
+            </t>
+            <t
+              t-if="state.currentCFType === 'ColorScaleRule'"
+              t-call="o-spreadsheet.ColorScaleRuleEditor">
+              <t t-set="rule" t-value="state.rules.colorScale"/>
+            </t>
+            <t t-if="state.currentCFType === 'IconSetRule'" t-call="o-spreadsheet.IconSetEditor">
+              <t t-set="rule" t-value="state.rules.iconSet"/>
+            </t>
+            <div class="o-sidePanelButtons">
+              <button t-on-click="switchToList" class="o-sidePanelButton o-cf-cancel">
+                Cancel
+              </button>
+              <button t-on-click="saveConditionalFormat" class="o-sidePanelButton o-cf-save">
+                Save
+              </button>
+            </div>
+          </div>
+          <div class="o-section">
+            <div class="o-cf-error" t-foreach="state.errors || []" t-as="error" t-key="error_index">
+              <t t-esc="errorMessage(error)"/>
+            </div>
+          </div>
+        </div>
+      </t>
+    </div>
+  </t>
+
+  <t t-name="o-spreadsheet.ConditionalFormattingPanelPreview" owl="1">
+    <div class="o-cf-preview" t-att-class="{ 'o-cf-cursor-ptr': state.mode !== 'reorder' }">
+      <t t-if="cf.rule.type==='IconSetRule'">
+        <div class="o-cf-preview-icon">
+          <t t-call="o-spreadsheet.Icon.{{icons[cf.rule.icons.upper].template}}"/>
+          <t t-call="o-spreadsheet.Icon.{{icons[cf.rule.icons.middle].template}}"/>
+          <t t-call="o-spreadsheet.Icon.{{icons[cf.rule.icons.lower].template}}"/>
+        </div>
+      </t>
+      <t t-else="">
+        <div t-att-style="getStyle(cf.rule)" class="o-cf-preview-image">123</div>
+      </t>
+      <div class="o-cf-preview-description">
+        <div class="o-cf-preview-ruletype">
+          <div class="o-cf-preview-description-rule">
+            <t t-esc="getDescription(cf)"/>
+            <t t-if="cf.rule.values">
+              <t t-esc="' ' + cf.rule.values[0]"/>
+              <t t-if="cf.rule.values[1]">
+                <span style="white-space: pre;">and</span>
+                <t t-esc="cf.rule.values[1]"/>
+              </t>
+            </t>
+          </div>
+        </div>
+        <div class="o-cf-preview-range" t-esc="cf.ranges"/>
+      </div>
+      <t t-if="state.mode === 'reorder'">
+        <div class="o-cf-reorder">
+          <t t-if="!cf_first">
+            <div
+              class="o-cf-reorder-button-up o-cf-reorder-button"
+              t-on-click="(ev) => this.reorderRule(cf, 'up', ev)">
+              <t t-call="o-spreadsheet.Icon.CARET_UP"/>
+            </div>
+          </t>
+          <t t-if="!cf_last">
+            <div
+              class="o-cf-reorder-button-down o-cf-reorder-button"
+              t-on-click="(ev) => this.reorderRule(cf, 'down', ev)">
+              <t t-call="o-spreadsheet.Icon.CARET_DOWN"/>
+            </div>
+          </t>
+        </div>
+      </t>
+      <t t-else="">
+        <div class="o-cf-delete">
+          <div
+            class="o-cf-delete-button"
+            t-on-click.stop="(ev) => this.deleteConditionalFormat(cf, ev)"
+            aria-label="Remove rule">
+            <t t-call="o-spreadsheet.Icon.TRASH"/>
+          </div>
+        </div>
+      </t>
+    </div>
+  </t>
+</templates>

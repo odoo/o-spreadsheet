@@ -1,4 +1,4 @@
-import { Component, onWillUpdateProps, useState, xml } from "@odoo/owl";
+import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR } from "../../constants";
 import {
   ChartUIDefinition,
@@ -10,110 +10,8 @@ import {
 } from "../../types/index";
 import { ColorPicker } from "../color_picker";
 import { css } from "../helpers/css";
-import * as icons from "../icons";
 import { SelectionInput } from "../selection_input";
 import { ChartTerms } from "../translations_terms";
-
-const CONFIGURATION_TEMPLATE = xml/* xml */ `
-<div>
-  <div class="o-section">
-    <div class="o-section-title" t-esc="env._t('${ChartTerms.ChartType}')"/>
-    <select t-model="state.chart.type" class="o-input o-type-selector" t-on-change="(ev) => this.updateSelect('type', ev)">
-      <option value="bar" t-esc="env._t('${ChartTerms.Bar}')"/>
-      <option value="line" t-esc="env._t('${ChartTerms.Line}')"/>
-      <option value="pie" t-esc="env._t('${ChartTerms.Pie}')"/>
-    </select>
-    <t t-if="state.chart.type === 'bar'">
-      <div class="o_checkbox">
-        <input type="checkbox" name="stackedBar" t-model="state.chart.stackedBar" t-on-change="updateStacked"/>
-        <t t-esc="env._t('${ChartTerms.StackedBar}')"/>
-      </div>
-    </t>
-  </div>
-  <div class="o-section o-data-series">
-    <div class="o-section-title" t-esc="env._t('${ChartTerms.DataSeries}')"/>
-    <SelectionInput t-key="getKey('dataSets')"
-                    ranges="state.chart.dataSets"
-                    isInvalid="isDatasetInvalid"
-                    required="true"
-                    onSelectionChanged="(ranges) => this.onSeriesChanged(ranges)"
-                    onSelectionConfirmed="() => this.updateDataSet()" />
-    <input type="checkbox" t-model="state.chart.dataSetsHaveTitle" t-on-change="() => this.updateDataSet()"/><t t-esc="env._t('${ChartTerms.MyDataHasTitle}')"/>
-  </div>
-  <div class="o-section o-data-labels">
-    <div class="o-section-title" t-esc="env._t('${ChartTerms.DataCategories}')"/>
-    <SelectionInput t-key="getKey('label')"
-                    ranges="[state.chart.labelRange || '']"
-                    isInvalid="isLabelInvalid"
-                    hasSingleRange="true"
-                    onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
-                    onSelectionConfirmed="() => this.updateLabelRange()" />
-  </div>
-  <div class="o-section o-sidepanel-error" t-if="errorMessages">
-    <div t-foreach="errorMessages" t-as="error" t-key="error">
-      <t t-esc="error"/>
-    </div>
-  </div>
-</div>
-`;
-
-const DESIGN_TEMPLATE = xml/* xml */ `
-<div>
-  <div class="o-section o-chart-title">
-    <div class="o-section-title" t-esc="env._t('${ChartTerms.BackgroundColor}')"/>
-    <div class="o-with-color-picker">
-      <t t-esc="env._t('${ChartTerms.SelectColor}')"/>
-      <span t-attf-style="border-color:{{state.chart.background}}"
-            t-on-click.stop="toggleColorPicker">${icons.FILL_COLOR_ICON}</span>
-      <ColorPicker t-if="state.fillColorTool" onColorPicked="(color) => this.setColor(color)" t-key="backgroundColor"/>
-    </div>
-  </div>
-  <div class="o-section o-chart-title">
-    <div class="o-section-title" t-esc="env._t('${ChartTerms.Title}')"/>
-    <input type="text" t-model="state.chart.title" t-on-change="updateTitle" class="o-input" placeholder="${ChartTerms.TitlePlaceholder}"/>
-  </div>
-  <div class="o-section">
-    <div class="o-section-title"><t t-esc="env._t('${ChartTerms.VerticalAxisPosition}')"/></div>
-    <select t-model="state.chart.verticalAxisPosition" class="o-input o-type-selector" t-on-change="(ev) => this.updateSelect('verticalAxisPosition', ev)">
-      <option value="left" t-esc="env._t('${ChartTerms.Left}')"/>
-      <option value="right" t-esc="env._t('${ChartTerms.Right}')"/>
-    </select>
-  </div>
-  <div class="o-section">
-    <div class="o-section-title"><t t-esc="env._t('${ChartTerms.LegendPosition}')"/></div>
-    <select t-model="state.chart.legendPosition" class="o-input o-type-selector" t-on-change="(ev) => this.updateSelect('legendPosition', ev)">
-      <option value="top" t-esc="env._t('${ChartTerms.Top}')"/>
-      <option value="bottom" t-esc="env._t('${ChartTerms.Bottom}')"/>
-      <option value="left" t-esc="env._t('${ChartTerms.Left}')"/>
-      <option value="right" t-esc="env._t('${ChartTerms.Right}')"/>
-    </select>
-  </div>
-</div>
-`;
-
-const TEMPLATE = xml/* xml */ `
-  <div class="o-chart">
-    <div class="o-panel">
-      <div class="o-panel-element"
-          t-att-class="state.panel !== 'configuration' ? 'inactive' : ''"
-          t-on-click="() => this.activate('configuration')">
-        <i class="fa fa-sliders"/>Configuration
-      </div>
-      <div class="o-panel-element"
-          t-att-class="state.panel !== 'design' ? 'inactive' : ''"
-          t-on-click="() => this.activate('design')">
-        <i class="fa fa-paint-brush"/>Design
-      </div>
-    </div>
-
-    <t t-if="state.panel === 'configuration'">
-      <t t-call="${CONFIGURATION_TEMPLATE}"/>
-    </t>
-    <t t-else="">
-      <t t-call="${DESIGN_TEMPLATE}"/>
-    </t>
-  </div>
-`;
 
 css/* scss */ `
   .o-chart {
@@ -161,7 +59,7 @@ interface ChartPanelState {
 }
 
 export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
+  static template = "o-spreadsheet.ChartPanel";
   static components = { SelectionInput, ColorPicker };
 
   private state: ChartPanelState = useState(this.initialState(this.props.figure));

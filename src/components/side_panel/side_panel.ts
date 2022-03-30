@@ -1,22 +1,8 @@
-import { Component, onWillUpdateProps, useState, xml } from "@odoo/owl";
+import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR } from "../../constants";
 import { SidePanelContent, sidePanelRegistry } from "../../registries/side_panel_registry";
 import { SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
-
-const TEMPLATE = xml/* xml */ `
-  <div class="o-sidePanel" >
-    <div class="o-sidePanelHeader">
-        <div class="o-sidePanelTitle" t-esc="getTitle()"/>
-        <div class="o-sidePanelClose" t-on-click="() => this.props.onCloseSidePanel()">×</div>
-    </div>
-    <div class="o-sidePanelBody">
-      <t t-component="state.panel.Body" t-props="props.panelProps" onCloseSidePanel="props.onCloseSidePanel" t-key="'Body_' + props.component"/>
-    </div>
-    <div class="o-sidePanelFooter" t-if="state.panel.Footer">
-      <t t-component="state.panel.Footer" t-props="props.panelProps" t-key="'Footer_' + props.component"/>
-    </div>
-  </div>`;
 
 css/* scss */ `
   .o-sidePanel {
@@ -151,8 +137,7 @@ interface State {
 }
 
 export class SidePanel extends Component<Props, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
-
+  static template = "o-spreadsheet.SidePanel";
   state!: State;
 
   setup() {

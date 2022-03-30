@@ -1,14 +1,6 @@
-import { Component, xml } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { BOTTOMBAR_HEIGHT, SCROLLBAR_WIDTH, TOPBAR_HEIGHT } from "../constants";
 import { DOMCoordinates, GridDimension, SpreadsheetChildEnv } from "../types";
-
-const TEMPLATE = xml/* xml */ `
-  <t t-portal="'.o-spreadsheet'">
-    <div t-att-style="style">
-      <t t-slot="default"/>
-    </div>
-  </t>
-`;
 
 interface Props {
   /**
@@ -31,7 +23,7 @@ interface Props {
 }
 
 export class Popover extends Component<Props, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
+  static template = "o-spreadsheet.Popover";
   static defaultProps = {
     flipHorizontalOffset: 0,
     flipVerticalOffset: 0,

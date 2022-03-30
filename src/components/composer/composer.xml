@@ -1,0 +1,41 @@
+<templates>
+  <t t-name="o-spreadsheet.Composer" owl="1">
+    <div class="o-composer-container">
+      <div
+        t-att-class="{ 'o-composer': true, 'text-muted': env.model.getters.isReadonly(), 'unfocusable': env.model.getters.isReadonly() }"
+        t-att-style="props.inputStyle"
+        t-ref="o_composer"
+        tabindex="1"
+        t-att-contenteditable="env.model.getters.isReadonly() ? 'false' : 'true'"
+        spellcheck="false"
+        t-on-keydown="onKeydown"
+        t-on-mousedown="onMousedown"
+        t-on-input="onInput"
+        t-on-keyup="onKeyup"
+        t-on-click.stop="onClick"
+        t-on-blur="onBlur"
+      />
+
+      <div
+        t-if="props.focus !== 'inactive' and (autoCompleteState.showProvider or functionDescriptionState.showDescription)"
+        class="o-composer-assistant"
+        t-att-style="assistantStyle">
+        <TextValueProvider
+          t-if="autoCompleteState.showProvider"
+          exposeAPI="(api) => this.autocompleteAPI = api"
+          search="autoCompleteState.search"
+          provider="autoCompleteState.provider"
+          onCompleted="(text) => this.onCompleted(text)"
+          borderStyle="borderStyle"
+        />
+        <FunctionDescriptionProvider
+          t-if="functionDescriptionState.showDescription"
+          functionName="functionDescriptionState.functionName"
+          functionDescription="functionDescriptionState.functionDescription"
+          argToFocus="functionDescriptionState.argToFocus"
+          borderStyle="borderStyle"
+        />
+      </div>
+    </div>
+  </t>
+</templates>

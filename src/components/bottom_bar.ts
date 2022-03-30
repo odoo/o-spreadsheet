@@ -1,45 +1,15 @@
-import { Component, onMounted, onPatched, useRef, useState, xml } from "@odoo/owl";
+import { Component, onMounted, onPatched, useRef, useState } from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../constants";
 import { formatValue } from "../helpers/format";
 import { interactiveRenameSheet } from "../helpers/ui/sheet";
 import { MenuItemRegistry, sheetMenuRegistry } from "../registries/index";
 import { SpreadsheetChildEnv, UID } from "../types";
 import { css } from "./helpers/css";
-import { LIST, PLUS, TRIANGLE_DOWN_ICON } from "./icons";
 import { Menu, MenuState } from "./menu";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
 // -----------------------------------------------------------------------------
-
-const TEMPLATE = xml/* xml */ `
-  <div class="o-spreadsheet-bottom-bar o-two-columns" t-on-click="props.onClick" t-ref="bottomBar">
-    <div class="o-sheet-item o-add-sheet" t-att-class="{'disabled': env.model.getters.isReadonly()}" t-on-click="addSheet">${PLUS}</div>
-    <div class="o-sheet-item o-list-sheets" t-on-click="listSheets">${LIST}</div>
-    <div class="o-all-sheets">
-      <t t-foreach="env.model.getters.getSheets()" t-as="sheet" t-key="sheet.id">
-        <div class="o-sheet-item o-sheet" t-on-click="(ev) => this.activateSheet(sheet.id, ev)"
-             t-on-contextmenu.prevent="(ev) => this.onContextMenu(sheet.id, ev)"
-             t-att-title="sheet.name"
-             t-att-data-id="sheet.id"
-             t-att-class="{active: sheet.id === env.model.getters.getActiveSheetId()}">
-          <span class="o-sheet-name" t-esc="sheet.name" t-on-dblclick="(ev) => this.onDblClick(sheet.id, ev)"/>
-          <span class="o-sheet-icon" t-on-click.stop="(ev) => this.onIconClick(sheet.id, ev)">${TRIANGLE_DOWN_ICON}</span>
-        </div>
-      </t>
-    </div>
-
-    <t t-set="selectedStatistic" t-value="getSelectedStatistic()"/>
-    <div t-if="selectedStatistic !== undefined" class="o-selection-statistic" t-on-click="listSelectionStatistics">
-      <t t-esc="selectedStatistic"/>
-      <span>${TRIANGLE_DOWN_ICON}</span>
-    </div>
-
-    <Menu t-if="menuState.isOpen"
-          position="menuState.position"
-          menuItems="menuState.menuItems"
-          onClose="() => this.menuState.isOpen=false"/>
-  </div>`;
 
 css/* scss */ `
   .o-spreadsheet-bottom-bar {
@@ -137,7 +107,7 @@ interface Props {
 }
 
 export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
+  static template = "o-spreadsheet.BottomBar";
   static components = { Menu };
 
   private bottomBarRef = useRef("bottomBar");

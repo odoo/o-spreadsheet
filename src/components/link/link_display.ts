@@ -1,33 +1,9 @@
-import { Component, xml } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { LINK_COLOR } from "../../constants";
 import { toXC } from "../../helpers";
 import { LinkCell, Position, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
-import { EDIT, UNLINK } from "../icons";
 import { Menu } from "../menu";
-import { LinkEditorTerms } from "../translations_terms";
-
-const TEMPLATE = xml/* xml */ `
-  <div class="o-link-tool">
-    <t t-set="link" t-value="cell.link"/>
-    <a t-if="link.isExternal"
-      class="o-link"
-      t-att-href="link.url"
-      target="_blank"
-      t-on-click.prevent="openLink"
-      t-att-title="link.url">
-      <t t-esc="cell.urlRepresentation"/>
-    </a>
-    <a t-else=""
-      class="o-link"
-      t-on-click.prevent="openLink"
-      t-att-title="cell.urlRepresentation">
-      <t t-esc="cell.urlRepresentation"/>
-    </a>
-    <span class="o-link-icon o-unlink" t-on-click="unlink" title="${LinkEditorTerms.Remove}">${UNLINK}</span>
-    <span class="o-link-icon o-edit-link" t-on-click="edit" title="${LinkEditorTerms.Edit}">${EDIT}</span>
-  </div>
-`;
 
 css/* scss */ `
   .o-link-tool {
@@ -68,9 +44,14 @@ css/* scss */ `
   }
 `;
 
-export class LinkDisplay extends Component<{ cellPosition: Position }, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
+export class LinkDisplay extends Component<
+  {
+    cellPosition: Position;
+  },
+  SpreadsheetChildEnv
+> {
   static components = { Menu };
+  static template = "o-spreadsheet.LinkDisplay";
 
   get cell(): LinkCell {
     const { col, row } = this.props.cellPosition;

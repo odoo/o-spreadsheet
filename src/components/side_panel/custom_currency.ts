@@ -1,69 +1,8 @@
-import { Component, onWillStart, useState, xml } from "@odoo/owl";
+import { Component, onWillStart, useState } from "@odoo/owl";
 import { currenciesRegistry } from "../../registries/currencies_registry";
 import { Currency, Format, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { CustomCurrencyTerms } from "../translations_terms";
-
-const TEMPLATE = xml/* xml */ `
-<div class="o-custom-currency">
-    <div class="o-section" t-if="availableCurrencies.length > 1">
-        <div class="o-section-title" t-esc="env._t('${CustomCurrencyTerms.Currency}')"/>
-        <select class="o-input o-available-currencies" t-on-change="(ev) => this.updateSelectCurrency(ev)">
-            <t t-foreach="availableCurrencies" t-as="currency" t-key="currency_index">
-                <option
-                  t-att-value="currency_index"
-                  t-esc="currencyDisplayName(currency)"
-                  t-att-selected="currency_index === state.selectedCurrencyIndex"
-                />
-            </t>
-        </select>
-    </div>
-    <div class="o-section">
-        <div class="o-subsection-left">
-            <div class="o-section-title" t-esc="env._t('${CustomCurrencyTerms.Code}')"/>
-            <input
-              type="text"
-              class="o-input"
-              t-model="state.currencyCode"
-              t-on-input="(ev) => this.updateCode(ev)"
-            />
-        </div>
-        <div class="o-subsection-right">
-            <div class="o-section-title" t-esc="env._t('${CustomCurrencyTerms.Symbol}')"/>
-            <input
-              type="text"
-              class="o-input"
-              t-model="state.currencySymbol"
-              t-on-input="(ev) => this.updateSymbol(ev)"
-            />
-        </div>
-    </div>
-    <div class="o-section">
-        <div class="o-section-title" t-esc="env._t('${CustomCurrencyTerms.Format}')"/>
-        <select
-          class="o-input o-format-proposals"
-          t-on-change="(ev) => this.updateSelectFormat(ev)"
-          t-att-disabled="!formatProposals.length"
-        >
-            <t t-foreach="formatProposals" t-as="proposal" t-key="proposal_index">
-                <option
-                  t-att-value="proposal_index"
-                  t-esc="proposal.example"
-                  t-att-selected="proposal_index === state.selectedFormatIndex"
-                />
-            </t>
-        </select>
-    </div>
-    <div class="o-sidePanelButtons">
-        <button
-          class="o-sidePanelButton"
-          t-on-click="() => this.apply()"
-          t-esc="env._t('${CustomCurrencyTerms.Apply}')"
-          t-att-disabled="!formatProposals.length || isSameFormat"
-        />
-    </div>
-</div>
-`;
 
 css/* scss */ `
   .o-custom-currency {
@@ -86,8 +25,7 @@ interface State {
 }
 
 export class CustomCurrencyPanel extends Component<any, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
-
+  static template = "o-spreadsheet.CustomCurrencyPanel";
   private availableCurrencies!: Currency[];
   private state!: State;
 

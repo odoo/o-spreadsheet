@@ -1,4 +1,4 @@
-import { Component, xml } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { DEFAULT_FONT_SIZE } from "../constants";
 import { SpreadsheetChildEnv, Viewport } from "../types";
 import { css } from "./helpers/css";
@@ -12,16 +12,6 @@ interface ClientTagProps {
   viewport: Viewport;
 }
 
-const TEMPLATE = xml/* xml */ `
-  <div>
-    <div
-      class="o-client-tag"
-      t-att-style="tagStyle"
-      t-esc="props.name"
-    />
-  </div>
-`;
-
 css/* scss */ `
   .o-client-tag {
     position: absolute;
@@ -34,8 +24,7 @@ css/* scss */ `
   }
 `;
 export class ClientTag extends Component<ClientTagProps, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
-
+  static template = "o-spreadsheet.ClientTag";
   get tagStyle(): string {
     const { col, row, color } = this.props;
     const viewport = this.env.model.getters.getActiveSnappedViewport();

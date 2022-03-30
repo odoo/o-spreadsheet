@@ -1,75 +1,6 @@
-import { Component, onMounted, onWillUnmount, useRef, useState, xml } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useRef, useState } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../types/index";
 import { css } from "../helpers/css";
-import { FindAndReplaceTerms } from "../translations_terms";
-
-const TEMPLATE = xml/* xml */ `
-<div class="o-find-and-replace" tabindex="0" t-on-focusin="onFocusSidePanel" t-ref="findAndReplace">
-  <div class="o-section">
-    <div class="o-section-title" t-esc="env._t('${FindAndReplaceTerms.Search}')"/>
-    <div class="o-input-search-container">
-      <input type="text" class="o-input o-input-with-count" t-on-input="onInput" t-on-keydown="onKeydownSearch"/>
-      <div class="o-input-count" t-if="hasSearchResult">
-        <t t-esc="env.model.getters.getCurrentSelectedMatchIndex()+1"/>
-        /
-        <t t-esc="env.model.getters.getSearchMatches().length"/>
-      </div>
-    </div>
-    <div>
-      <div class="o-far-item">
-        <label class="o-far-checkbox">
-          <input t-model="state.searchOptions.matchCase" t-on-change="updateSearch" class="o-far-input" type="checkbox"/>
-          <span class="o-far-label"><t t-esc="env._t('${FindAndReplaceTerms.MatchCase}')"/></span>
-        </label>
-      </div>
-      <div class="o-far-item">
-        <label class="o-far-checkbox">
-          <input t-model="state.searchOptions.exactMatch" t-on-change="updateSearch" class="o-far-input" type="checkbox"/>
-          <span class="o-far-label"><t t-esc="env._t('${FindAndReplaceTerms.ExactMatch}')"/></span>
-        </label>
-      </div>
-      <div class="o-far-item">
-        <label class="o-far-checkbox">
-          <input t-model="state.searchOptions.searchFormulas" t-on-change="searchFormulas" class="o-far-input" type="checkbox" />
-          <span class="o-far-label"><t t-esc="env._t('${FindAndReplaceTerms.SearchFormulas}')"/></span>
-        </label>
-      </div>
-    </div>
-  </div>
-  <div class="o-sidePanelButtons">
-    <button t-att-disabled="!hasSearchResult"
-            t-on-click="onSelectPreviousCell"
-            class="o-sidePanelButton"
-            t-esc="env._t('${FindAndReplaceTerms.Previous}')"/>
-    <button t-att-disabled="!hasSearchResult"
-            t-on-click="onSelectNextCell"
-            class="o-sidePanelButton"
-            t-esc="env._t('${FindAndReplaceTerms.Next}')"/>
-  </div>
-  <div class="o-section" t-if="!env.model.getters.isReadonly()">
-    <div t-esc="env._t('${FindAndReplaceTerms.Replace}')" class="o-section-title"/>
-    <div class="o-input-search-container">
-      <input type="text" class="o-input o-input-without-count" t-model="state.replaceWith" t-on-keydown="onKeydownReplace"/>
-    </div>
-
-    <div class="o-far-item">
-      <label class="o-far-checkbox">
-        <input class="o-far-input" t-att-disabled="state.searchOptions.searchFormulas" type="checkbox"
-        t-model="state.replaceOptions.modifyFormulas"/>
-        <span class="o-far-label"><t t-esc="env._t('${FindAndReplaceTerms.ReplaceFormulas}')"/></span>
-      </label>
-    </div>
-  </div>
-
-  <div class="o-sidePanelButtons" t-if="!env.model.getters.isReadonly()">
-    <button t-att-disabled="env.model.getters.getCurrentSelectedMatchIndex() === null" t-on-click="replace"
-            class="o-sidePanelButton" t-esc="env._t('${FindAndReplaceTerms.Replace}')"/>
-    <button t-att-disabled="env.model.getters.getCurrentSelectedMatchIndex() === null" t-on-click="replaceAll"
-            class="o-sidePanelButton" t-esc="env._t('${FindAndReplaceTerms.ReplaceAll}')"/>
-  </div>
-
-</div>
-`;
 
 css/* scss */ `
   .o-find-and-replace {
@@ -122,7 +53,7 @@ interface FindAndReplaceState {
 }
 
 export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
+  static template = "o-spreadsheet.FindAndReplacePanel";
   private state: FindAndReplaceState = useState(this.initialState());
   private inDebounce;
 

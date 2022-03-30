@@ -1,22 +1,8 @@
-import { Component, xml } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { SpreadsheetChildEnv, Zone } from "../../types";
 import { css } from "../helpers/css";
 
-const TEMPLATE = xml/* xml */ `
-    <div class="o-corner"
-        t-on-mousedown="onMouseDown"
-        t-att-style="style"
-        t-att-class="{
-          'o-resizing': props.isResizing,
-          'o-corner-nw': props.orientation === 'nw',
-          'o-corner-ne': props.orientation === 'ne',
-          'o-corner-sw': props.orientation === 'sw',
-          'o-corner-se': props.orientation === 'se',
-        }"
-        >
-    </div>
-`;
 css/* scss */ `
   .o-corner {
     position: absolute;
@@ -52,8 +38,7 @@ interface Props {
 }
 
 export class Corner extends Component<Props, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
-
+  static template = "o-spreadsheet.Corner";
   private isTop = this.props.orientation[0] === "n";
   private isLeft = this.props.orientation[1] === "w";
 

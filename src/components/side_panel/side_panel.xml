@@ -1,0 +1,25 @@
+<templates>
+  <t t-name="o-spreadsheet.SidePanel" owl="1">
+    <div class="o-sidePanel">
+      <div class="o-sidePanelHeader">
+        <div class="o-sidePanelTitle" t-esc="getTitle()"/>
+        <div class="o-sidePanelClose" t-on-click="() => this.props.onCloseSidePanel()">×</div>
+      </div>
+      <div class="o-sidePanelBody">
+        <t
+          t-component="state.panel.Body"
+          t-props="props.panelProps"
+          onCloseSidePanel="props.onCloseSidePanel"
+          t-key="'Body_' + props.component"
+        />
+      </div>
+      <div class="o-sidePanelFooter" t-if="state.panel.Footer">
+        <t
+          t-component="state.panel.Footer"
+          t-props="props.panelProps"
+          t-key="'Footer_' + props.component"
+        />
+      </div>
+    </div>
+  </t>
+</templates>

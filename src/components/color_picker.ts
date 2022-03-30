@@ -1,4 +1,4 @@
-import { Component, xml } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../types/env";
 import { css } from "./helpers/css";
 
@@ -159,17 +159,7 @@ interface Props {
 }
 
 export class ColorPicker extends Component<Props, SpreadsheetChildEnv> {
-  static template = xml/* xml */ `
-  <div class="o-color-picker"
-    t-att-class="props.dropdownDirection || 'right'"
-    t-on-click="onColorClick">
-    <div class="o-color-picker-line" t-foreach="COLORS" t-as="colors" t-key="colors">
-      <t t-foreach="colors" t-as="color" t-key="color">
-        <div class="o-color-picker-line-item" t-att-data-color="color" t-attf-style="background-color:{{color}};"></div>
-      </t>
-    </div>
-  </div>`;
-
+  static template = "o-spreadsheet.ColorPicker";
   COLORS = COLORS;
 
   onColorClick(ev: MouseEvent) {

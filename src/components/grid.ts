@@ -6,7 +6,6 @@ import {
   useExternalListener,
   useRef,
   useState,
-  xml,
 } from "@odoo/owl";
 import {
   AUTOFILL_EDGE_LENGTH,
@@ -14,8 +13,6 @@ import {
   DEFAULT_CELL_HEIGHT,
   HEADER_HEIGHT,
   HEADER_WIDTH,
-  LINK_TOOLTIP_HEIGHT,
-  LINK_TOOLTIP_WIDTH,
   SCROLLBAR_WIDTH,
   TOPBAR_HEIGHT,
 } from "../constants";
@@ -74,11 +71,6 @@ const registries = {
   CELL: cellMenuRegistry,
 };
 
-const LINK_EDITOR_WIDTH = 340;
-const LINK_EDITOR_HEIGHT = 180;
-
-const ERROR_TOOLTIP_HEIGHT = 40;
-const ERROR_TOOLTIP_WIDTH = 180;
 // copy and paste are specific events that should not be managed by the keydown event,
 // but they shouldn't be preventDefault and stopped (else copy and paste events will not trigger)
 // and also should not result in typing the character C or V in the composer
@@ -190,79 +182,6 @@ function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMove
 // -----------------------------------------------------------------------------
 // TEMPLATE
 // -----------------------------------------------------------------------------
-const TEMPLATE = xml/* xml */ `
-  <div class="o-grid" t-att-class="{'o-two-columns': !props.sidePanelIsOpen}" t-on-click="focus" t-on-keydown="onKeydown" t-on-wheel="onMouseWheel" t-ref="grid">
-    <t t-if="env.model.getters.getEditionMode() !== 'inactive'">
-      <GridComposer
-        onComposerUnmounted="() => this.focus()"
-        onComposerContentFocused="props.onComposerContentFocused"
-        focus="props.focusComposer"
-        />
-    </t>
-    <canvas t-ref="canvas"
-      t-on-mousedown="onMouseDown"
-      t-on-dblclick="onDoubleClick"
-      tabindex="-1"
-      t-on-contextmenu="onCanvasContextMenu"
-       />
-    <t t-foreach="env.model.getters.getClientsToDisplay()" t-as="client" t-key="getClientPositionKey(client)">
-      <ClientTag name="client.name"
-                 color="client.color"
-                 col="client.position.col"
-                 row="client.position.row"
-                 active="isCellHovered(client.position.col, client.position.row)"
-                 />
-    </t>
-    <Popover
-      t-if="errorTooltip.isOpen"
-      position="errorTooltip.position"
-      flipHorizontalOffset="errorTooltip.cellWidth"
-      childWidth="${ERROR_TOOLTIP_WIDTH}"
-      childHeight="${ERROR_TOOLTIP_HEIGHT}">
-      <ErrorToolTip text="errorTooltip.text"/>
-    </Popover>
-    <Popover
-      t-if="shouldDisplayLink"
-      position="popoverPosition.position"
-      flipHorizontalOffset="-popoverPosition.cellWidth"
-      flipVerticalOffset="-popoverPosition.cellHeight"
-      childWidth="${LINK_TOOLTIP_WIDTH}"
-      childHeight="${LINK_TOOLTIP_HEIGHT}">
-      <LinkDisplay cellPosition="activeCellPosition"/>
-    </Popover>
-    <Popover
-      t-if="props.linkEditorIsOpen"
-      position="popoverPosition.position"
-      flipHorizontalOffset="-popoverPosition.cellWidth"
-      flipVerticalOffset="-popoverPosition.cellHeight"
-      childWidth="${LINK_EDITOR_WIDTH}"
-      childHeight="${LINK_EDITOR_HEIGHT}">
-      <LinkEditor cellPosition="activeCellPosition" onLinkEditorClosed="props.onLinkEditorClosed"/>
-    </Popover>
-    <t t-if="env.model.getters.getEditionMode() === 'inactive'">
-      <Autofill position="getAutofillPosition()" getGridBoundingClientRect="() => this.getGridBoundingClientRect()"/>
-    </t>
-    <t t-if="env.model.getters.getEditionMode() !== 'inactive'">
-      <t t-foreach="env.model.getters.getHighlights()" t-as="highlight" t-key="highlight_index">
-        <t t-if="highlight.sheet === env.model.getters.getActiveSheetId()">
-          <Highlight zone="highlight.zone" color="highlight.color"/>
-        </t>
-      </t>
-    </t>
-    <Overlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)" />
-    <Menu t-if="menuState.isOpen"
-      menuItems="menuState.menuItems"
-      position="menuState.position"
-      onClose="() => this.closeMenu()"/>
-    <t t-set="gridSize" t-value="env.model.getters.getMaxViewportSize(env.model.getters.getActiveSheet())"/>
-    <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" onFigureDeleted="() => this.focus()" />
-    <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
-      <div t-attf-style="width:1px;height:{{gridSize.height}}px"/>
-    </div>
-    <div class="o-scrollbar horizontal" t-on-scroll="onScroll" t-ref="hscrollbar">
-      <div t-attf-style="height:1px;width:{{gridSize.width}}px"/>
-    </div>
-  </div>`;
 
 // -----------------------------------------------------------------------------
 // STYLE
@@ -317,7 +236,7 @@ interface Props {
 // JS
 // -----------------------------------------------------------------------------
 export class Grid extends Component<Props, SpreadsheetChildEnv> {
-  static template = TEMPLATE;
+  static template = "o-spreadsheet.Grid";
   static components = {
     GridComposer,
     Overlay,
@@ -331,6 +250,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     LinkEditor,
     Popover,
   };
+
+  LINK_EDITOR_WIDTH = 340;
+  LINK_EDITOR_HEIGHT = 180;
+  ERROR_TOOLTIP_HEIGHT = 40;
+  ERROR_TOOLTIP_WIDTH = 180;
+  LINK_TOOLTIP_HEIGHT = 43;
+  LINK_TOOLTIP_WIDTH = 220;
 
   private menuState!: MenuState;
   private vScrollbarRef!: Ref<HTMLElement>;
