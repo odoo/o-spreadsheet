@@ -56,8 +56,6 @@ exports[`Grid component simple rendering snapshot 1`] = `
   
   
   
-  
-  
   <div
     class="o-autofill"
     style="top:45px;left:140px"
@@ -95,6 +93,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
 
 exports[`error tooltip can display error tooltip 1`] = `
 <div
+  class="o-popover"
   style="
       position: absolute;
       z-index: 30;

@@ -9,8 +9,6 @@
       />
       <Grid
         sidePanelIsOpen="sidePanel.isOpen"
-        linkEditorIsOpen="linkEditor.isOpen"
-        onLinkEditorClosed="() => this.closeLinkEditor()"
         onSaveRequested="() => this.save()"
         focusComposer="focusGridComposer"
         exposeFocus="(focus) => this._focusGrid = focus"

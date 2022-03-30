@@ -1,5 +1,6 @@
 export * from "./autofill_modifiers";
 export * from "./autofill_rules";
+export * from "./cell_popovers_registry";
 export * from "./cell_types";
 export * from "./chart_types";
 export * from "./currencies_registry";

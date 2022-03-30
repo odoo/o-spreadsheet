@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-Popover" owl="1">
     <t t-portal="'.o-spreadsheet'">
-      <div t-att-style="style">
+      <div t-att-style="style" class="o-popover">
         <t t-slot="default"/>
       </div>
     </t>

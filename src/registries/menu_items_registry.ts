@@ -95,23 +95,6 @@ export class MenuItemRegistry extends Registry<FullMenuItem> {
     return this;
   }
 
-  getChildren(node: FullMenuItem, env: SpreadsheetChildEnv): FullMenuItem[] {
-    if (typeof node.children === "function") {
-      return node.children(env).sort((a, b) => a.sequence - b.sequence);
-    }
-    return node.children.sort((a, b) => a.sequence - b.sequence);
-  }
-
-  getName(node: FullMenuItem, env: SpreadsheetChildEnv): string {
-    if (typeof node.name === "function") {
-      return node.name(env);
-    }
-    return node.name;
-  }
-  getDescription(node: FullMenuItem): string {
-    return node.description ? node.description : "";
-  }
-
   /**
    * Get a list of all elements in the registry, ordered by sequence
    * @override

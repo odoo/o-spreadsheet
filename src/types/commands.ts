@@ -1,5 +1,6 @@
 import { ComposerSelection } from "../plugins/ui/edition";
 import { SearchOptions } from "../plugins/ui/find_and_replace";
+import { CellPopoverType } from "./cell_popovers";
 import { ChartDefinition } from "./chart/chart";
 import { UpDown } from "./conditional_formatting";
 import { BorderCommand, ConditionalFormat, Figure, Format, Style, Zone } from "./index";
@@ -776,6 +777,17 @@ export interface ActivatePreviousSheetCommand {
   type: "ACTIVATE_PREVIOUS_SHEET";
 }
 
+export interface OpenCellPopoverCommand {
+  type: "OPEN_CELL_POPOVER";
+  col: number;
+  row: number;
+  popoverType: CellPopoverType;
+}
+
+export interface CloseCellPopoverCommand {
+  type: "CLOSE_CELL_POPOVER";
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -890,6 +902,8 @@ export type LocalCommand =
   | MoveViewportDownCommand
   | MoveViewportUpCommand
   | EvaluateAllSheetsCommand
+  | OpenCellPopoverCommand
+  | CloseCellPopoverCommand
   | ActivateNextSheetCommand
   | ActivatePreviousSheetCommand;
 
@@ -1004,6 +1018,7 @@ export const enum CommandResult {
   InvalidViewportSize,
   FigureDoesNotExist,
   InvalidConditionalFormatId,
+  InvalidCellPopover,
 }
 
 export interface CommandHandler<T> {

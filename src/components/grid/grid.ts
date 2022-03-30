@@ -24,9 +24,8 @@ import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import { dashboardMenuRegistry } from "../../registries/menus/dashboard_menu_registry";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
-import { CellErrorLevel } from "../../types/errors";
+import { ClosedCellPopover, PositionedCellPopover } from "../../types/cell_popovers";
 import {
-  CellValueType,
   Client,
   DOMCoordinates,
   HeaderIndex,
@@ -39,15 +38,13 @@ import {
 import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
-import { ErrorToolTip } from "../error_tooltip/error_tooltip";
 import { FiguresContainer } from "../figures/container/container";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { css } from "../helpers/css";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useAbsolutePosition } from "../helpers/position_hook";
+import { useInterval } from "../helpers/time_hooks";
 import { Highlight } from "../highlight/highlight/highlight";
-import { LinkDisplay } from "../link/link_display/link_display";
-import { LinkEditor } from "../link/link_editor/link_editor";
 import { Menu, MenuState } from "../menu/menu";
 import { Popover } from "../popover/popover";
 import { ScrollBar } from "../scrollbar";
@@ -80,19 +77,13 @@ const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
 // Error Tooltip Hook
 // -----------------------------------------------------------------------------
 
-interface HoveredPosition {
-  col?: HeaderIndex;
-  row?: HeaderIndex;
-}
-
-export function useCellHovered(env: SpreadsheetChildEnv) {
-  const hoveredPosition: HoveredPosition = useState({} as HoveredPosition);
-  const { Date, setInterval, clearInterval } = window;
+export function useCellHovered(env: SpreadsheetChildEnv): Partial<Position> {
+  const hoveredPosition: Partial<Position> = useState({} as Partial<Position>);
+  const { Date } = window;
   const gridRef = useRef("gridOverlay");
   let x = 0;
   let y = 0;
   let lastMoved = 0;
-  let interval;
 
   function getPosition(): Position {
     const col = env.model.getters.getColIndex(x);
@@ -100,14 +91,16 @@ export function useCellHovered(env: SpreadsheetChildEnv) {
     return { col, row };
   }
 
+  const { pause, resume } = useInterval(checkTiming, 200);
+
   function checkTiming() {
     const { col, row } = getPosition();
     const delta = Date.now() - lastMoved;
-    if (col !== hoveredPosition.col || row !== hoveredPosition.row) {
+    if (delta > 300 && (col !== hoveredPosition.col || row !== hoveredPosition.row)) {
       hoveredPosition.col = undefined;
       hoveredPosition.row = undefined;
     }
-    if (400 < delta && delta < 600) {
+    if (delta > 300) {
       if (col < 0 || row < 0) {
         return;
       }
@@ -121,14 +114,28 @@ export function useCellHovered(env: SpreadsheetChildEnv) {
     lastMoved = Date.now();
   }
 
+  function reset() {
+    const { col, row } = getPosition();
+    if (col !== hoveredPosition.col || row !== hoveredPosition.row) {
+      hoveredPosition.col = undefined;
+      hoveredPosition.row = undefined;
+    }
+  }
+
   onMounted(() => {
-    gridRef.el!.addEventListener("mousemove", updateMousePosition);
-    interval = setInterval(checkTiming, 200);
+    const grid = gridRef.el!;
+    grid.addEventListener("mousemove", updateMousePosition);
+    grid.addEventListener("mouseleave", pause);
+    grid.addEventListener("mouseenter", resume);
+    grid.addEventListener("mousedown", reset);
   });
 
   onWillUnmount(() => {
-    gridRef.el!.removeEventListener("mousemove", updateMousePosition);
-    clearInterval(interval);
+    const grid = gridRef.el!;
+    grid.removeEventListener("mousemove", updateMousePosition);
+    grid.removeEventListener("mouseleave", pause);
+    grid.removeEventListener("mouseenter", resume);
+    grid.removeEventListener("mousedown", reset);
   });
   return hoveredPosition;
 }
@@ -226,11 +233,9 @@ css/* scss */ `
 
 interface Props {
   sidePanelIsOpen: boolean;
-  linkEditorIsOpen: boolean;
   exposeFocus: (focus: () => void) => void;
   onComposerContentFocused: () => void;
   onGridComposerCellFocused: (content?: string, selection?: ComposerSelection) => void;
-  onLinkEditorClosed: () => void;
   onSaveRequested?: () => void;
 }
 
@@ -247,18 +252,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     FiguresContainer,
     ClientTag,
     Highlight,
-    ErrorToolTip,
-    LinkDisplay,
-    LinkEditor,
     Popover,
   };
-
-  LINK_EDITOR_WIDTH = 340;
-  LINK_EDITOR_HEIGHT = 180;
-  ERROR_TOOLTIP_HEIGHT = 40;
-  ERROR_TOOLTIP_WIDTH = 180;
-  LINK_TOOLTIP_HEIGHT = 43;
-  LINK_TOOLTIP_WIDTH = 220;
 
   private menuState!: MenuState;
   private vScrollbarRef!: Ref<HTMLElement>;
@@ -277,7 +272,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // os clipboard
   private clipBoardString!: string;
   private canvasPosition!: DOMCoordinates;
-  hoveredCell!: HoveredPosition;
+  hoveredCell!: Partial<Position>;
 
   setup() {
     this.menuState = useState({
@@ -338,40 +333,23 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       left: ${this.env.isDashboard() ? 0 : HEADER_WIDTH}px;`;
   }
 
-  get errorTooltip() {
-    const { col, row } = this.hoveredCell;
-    if (col === undefined || row === undefined) {
+  get cellPopover(): PositionedCellPopover | ClosedCellPopover {
+    if (this.menuState.isOpen) {
       return { isOpen: false };
     }
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const { col: mainCol, row: mainRow } = this.env.model.getters.getMainCellPosition(
-      sheetId,
-      col,
-      row
-    );
-    const cell = this.env.model.getters.getCell(sheetId, mainCol, mainRow);
-
-    if (
-      cell &&
-      cell.evaluated.type === CellValueType.error &&
-      cell.evaluated.error.logLevel > CellErrorLevel.silent
-    ) {
-      const viewport = this.env.model.getters.getActiveViewport();
-      const { x, y, width } = this.env.model.getters.getRect(
-        { left: col, top: row, right: col, bottom: row },
-        viewport
-      );
-      return {
-        isOpen: true,
-        position: {
-          x: x + width + this.canvasPosition.x,
-          y: y + this.canvasPosition.y,
-        },
-        text: cell.evaluated.error.message,
-        cellWidth: width,
-      };
+    const popover = this.env.model.getters.getCellPopover(this.hoveredCell);
+    if (!popover.isOpen) {
+      return { isOpen: false };
     }
-    return { isOpen: false };
+    const coordinates = popover.coordinates;
+    return {
+      ...popover,
+      // transform from the "canvas coordinate system" to the "body coordinate system"
+      coordinates: {
+        x: coordinates.x + this.canvasPosition.x,
+        y: coordinates.y + this.canvasPosition.y,
+      },
+    };
   }
 
   get activeCellPosition(): Position {
@@ -383,45 +361,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     );
   }
 
-  get shouldDisplayLink(): boolean {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const { col, row } = this.activeCellPosition;
-    const viewport = this.env.model.getters.getActiveViewport();
-    const cell = this.env.model.getters.getCell(sheetId, col, row);
-    return (
-      this.env.model.getters.isVisibleInViewport(col, row, viewport) &&
-      !!cell &&
-      cell.isLink() &&
-      !this.menuState.isOpen &&
-      !this.props.linkEditorIsOpen &&
-      !this.props.sidePanelIsOpen
-    );
-  }
-
-  /**
-   * Get a reasonable position to display the popover, under the active cell.
-   * Used by link popover components.
-   */
-  get popoverPosition() {
-    const position = this.env.model.getters.getPosition();
-    const { col, row } = this.env.model.getters.getBottomLeftCell(
-      this.env.model.getters.getActiveSheetId(),
-      position.col,
-      position.row
-    );
-    const viewport = this.env.model.getters.getActiveViewport();
-    const { x, y, width, height } = this.env.model.getters.getRect(
-      { left: col, top: row, right: col, bottom: row },
-      viewport
-    );
-    return {
-      position: {
-        x: x + this.canvasPosition.x,
-        y: y + height + this.canvasPosition.y,
-      },
-      cellWidth: width,
-      cellHeight: height,
-    };
+  onClosePopover() {
+    this.closeOpenedPopover();
+    this.focus();
   }
 
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
@@ -714,15 +656,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.clickedRow = row;
 
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const { col: mainCol, row: mainRow } = this.env.model.getters.getMainCellPosition(
-      sheetId,
-      col,
-      row
-    );
-    const cell = this.env.model.getters.getCell(sheetId, mainCol, mainRow);
-    if (!cell?.isLink()) {
-      this.closeLinkEditor();
-    }
+    this.closeOpenedPopover();
     if (this.env.model.getters.getEditionMode() === "editing") {
       this.env.model.dispatch("STOP_EDITION");
     }
@@ -827,8 +761,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  closeLinkEditor() {
-    this.props.onLinkEditorClosed();
+  closeOpenedPopover() {
+    this.env.model.dispatch("CLOSE_CELL_POPOVER");
   }
   // ---------------------------------------------------------------------------
   // Keyboard interactions
@@ -837,7 +771,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   processArrows(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
-    this.closeLinkEditor();
+    this.closeOpenedPopover();
     const arrowMap = {
       ArrowDown: { direction: "down", delta: [0, 1] },
       ArrowLeft: { direction: "left", delta: [-1, 0] },
@@ -943,7 +877,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   toggleContextMenu(type: ContextMenuType, x: Pixel, y: Pixel) {
-    this.closeLinkEditor();
+    this.closeOpenedPopover();
     if (this.env.model.getters.isDashboard()) {
       type = "DASHBOARD";
     }

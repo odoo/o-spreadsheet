@@ -1,6 +1,7 @@
 import { ChartJsComponent } from "./components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "./components/figures/chart/scorecard/chart_scorecard";
 import { ChartFigure } from "./components/figures/figure_chart/figure_chart";
+import { Grid } from "./components/grid/grid";
 import {
   BarConfigPanel,
   chartSidePanelComponentRegistry,
@@ -46,6 +47,7 @@ import {
   autofillModifiersRegistry,
   autofillRulesRegistry,
   cellMenuRegistry,
+  cellPopoverRegistry,
   cellRegistry,
   chartComponentRegistry,
   chartRegistry,
@@ -61,6 +63,7 @@ import {
   topbarComponentRegistry,
   topbarMenuRegistry,
 } from "./registries/index";
+import { getMenuChildren } from "./registries/menus/helpers";
 import { CellErrorLevel, EvaluationError } from "./types/errors";
 
 /**
@@ -131,6 +134,7 @@ export const registries = {
   otRegistry,
   inverseCommandRegistry,
   cellRegistry,
+  cellPopoverRegistry,
 };
 export const cellTypes = {
   LinkCell,
@@ -155,6 +159,7 @@ export const helpers = {
   createEmptyWorkbookData,
   getDefaultChartJsRuntime,
   chartFontColor,
+  getMenuChildren,
   ChartColors,
   EvaluationError,
   CellErrorLevel,
@@ -163,6 +168,7 @@ export const components = {
   ChartPanel,
   ChartFigure,
   ChartJsComponent,
+  Grid,
   ScorecardChart,
   LineConfigPanel,
   LineBarPieDesignPanel,
