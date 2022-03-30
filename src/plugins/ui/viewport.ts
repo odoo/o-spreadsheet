@@ -164,8 +164,8 @@ export class ViewportPlugin extends UIPlugin {
 
   getViewportDimensionWithHeaders(): ZoneDimension {
     return {
-      width: this.viewportWidth + HEADER_WIDTH,
-      height: this.viewportHeight + HEADER_HEIGHT,
+      width: this.viewportWidth + (this.getters.isDashboard() ? 0 : HEADER_WIDTH),
+      height: this.viewportHeight + (this.getters.isDashboard() ? 0 : HEADER_HEIGHT),
     };
   }
 

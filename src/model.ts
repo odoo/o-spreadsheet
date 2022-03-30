@@ -67,12 +67,14 @@ import { getXLSX } from "./xlsx/xlsx_writer";
  * programmatically a spreadsheet.
  */
 
+export type Mode = "normal" | "readonly" | "dashboard";
+
 export interface ModelConfig {
+  mode: Mode;
   evalContext: EvalContext;
   moveClient: (position: ClientPosition) => void;
   transportService: TransportService;
   client: Client;
-  isReadonly: boolean;
   snapshotRequested: boolean;
   notifyUI: (payload: NotifyUIEvent) => void;
 }
@@ -152,7 +154,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.history = new LocalHistory(this.dispatchFromCorePlugin, this.session);
 
     this.getters = {
-      isReadonly: () => this.config.isReadonly,
+      isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
+      isDashboard: () => this.config.mode === "dashboard",
       canUndo: this.history.canUndo.bind(this.history),
       canRedo: this.history.canRedo.bind(this.history),
       getClient: this.session.getClient.bind(this.session),
@@ -294,11 +297,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     const transportService = config.transportService || new LocalTransportService();
     return {
       ...config,
+      mode: config.mode || "normal",
       evalContext: config.evalContext || {},
       transportService,
       client,
       moveClient: () => {},
-      isReadonly: config.isReadonly || false,
       snapshotRequested: false,
       notifyUI: (payload: NotifyUIEvent) => this.trigger("notify-ui", payload),
     };
@@ -341,7 +344,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
     const command: Command = { type, ...payload };
     let status: Status = this.status;
-    if (this.config.isReadonly && !canExecuteInReadonly(command)) {
+    if (this.getters.isReadonly() && !canExecuteInReadonly(command)) {
       return new DispatchResult(CommandResult.Readonly);
     }
     switch (status) {
@@ -453,15 +456,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return data;
   }
 
-  /**
-   * Change the configuration of the model to put it in readonly or read-write mode
-   * @param isReadonly
-   */
-  updateReadOnly(isReadonly: undefined | boolean) {
-    if (isReadonly) {
+  updateMode(mode: Mode) {
+    if (mode !== "normal") {
       this.dispatch("STOP_EDITION", { cancel: true });
     }
-    this.config.isReadonly = isReadonly || false;
+    this.config.mode = mode;
     this.trigger("update");
   }
 

@@ -33,7 +33,6 @@ css/* scss */ `
   .o-spreadsheet {
     position: relative;
     display: grid;
-    grid-template-rows: ${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT + 1}px;
     grid-template-columns: auto 350px;
     * {
       font-family: "Roboto", "RobotoDraft", Helvetica, Arial, sans-serif;
@@ -103,6 +102,13 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   private keyDownMapping!: { [key: string]: Function };
 
+  getStyle() {
+    if (this.env.isDashboard()) {
+      return `grid-template-rows: auto;`;
+    }
+    return `grid-template-rows: ${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT + 1}px`;
+  }
+
   setup() {
     this.props.exposeSpreadsheet?.(this);
     this.model = this.props.model;
@@ -118,6 +124,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     };
     useSubEnv({
       model: this.model,
+      isDashboard: () => this.model.getters.isDashboard(),
       openSidePanel: this.openSidePanel.bind(this),
       toggleSidePanel: this.toggleSidePanel.bind(this),
       openLinkEditor: this.openLinkEditor.bind(this),

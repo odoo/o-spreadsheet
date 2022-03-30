@@ -170,6 +170,9 @@ export class RendererPlugin extends UIPlugin {
         this.drawIcon(renderingContext);
         break;
       case LAYERS.Headers:
+        if (this.getters.isDashboard()) {
+          return;
+        }
         this.drawHeaders(renderingContext);
         break;
     }
@@ -186,7 +189,7 @@ export class RendererPlugin extends UIPlugin {
     // background grid
     const { right, left, top, bottom, offsetX, offsetY } = this.getShiftedViewport(viewport);
 
-    if (!this.getters.getGridLinesVisibility(sheetId)) {
+    if (!this.getters.getGridLinesVisibility(sheetId) || this.getters.isDashboard()) {
       return;
     }
     ctx.lineWidth = 2 * thinLineWidth;
@@ -444,10 +447,12 @@ export class RendererPlugin extends UIPlugin {
    * Adapt the current viewport with the headers sizes
    */
   private getShiftedViewport(viewport: Viewport): Viewport {
+    const shiftX = this.getters.isDashboard() ? 0 : HEADER_WIDTH;
+    const shiftY = this.getters.isDashboard() ? 0 : HEADER_HEIGHT;
     return {
       ...viewport,
-      offsetX: viewport.offsetX - HEADER_WIDTH,
-      offsetY: viewport.offsetY - HEADER_HEIGHT,
+      offsetX: viewport.offsetX - shiftX,
+      offsetY: viewport.offsetY - shiftY,
     };
   }
 

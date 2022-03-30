@@ -47,6 +47,7 @@ class Parent extends Component {
       model: this.props.model,
       askConfirmation: jest.fn(),
       _t: Parent._t,
+      isDashboard: () => this.props.model.getters.isDashboard(),
     });
     this.state.focusComposer = this.props.focusComposer || false;
     onMounted(() => this.props.model.on("update", this, this.render));
@@ -414,7 +415,7 @@ describe("TopBar component", () => {
     const { app } = await mountParent(model);
 
     expect(fixture.querySelectorAll(".o-readonly-toolbar")).toHaveLength(0);
-    model.updateReadOnly(true);
+    model.updateMode("readonly");
     await nextTick();
     expect(fixture.querySelectorAll(".o-readonly-toolbar")).toHaveLength(1);
     triggerMouseEvent(".o-topbar-menu[data-id='insert']", "click");
@@ -425,7 +426,7 @@ describe("TopBar component", () => {
   });
 
   test("Cannot edit cell in a readonly spreadsheet", async () => {
-    const model = new Model({}, { isReadonly: true });
+    const model = new Model({}, { mode: "readonly" });
     const { app, parent } = await mountParent(model);
 
     let composerEl = fixture.querySelector(".o-spreadsheet-topbar div.o-composer")!;

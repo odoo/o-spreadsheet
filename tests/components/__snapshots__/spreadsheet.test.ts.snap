@@ -3,6 +3,7 @@
 exports[`Spreadsheet simple rendering snapshot 1`] = `
 <div
   class="o-spreadsheet"
+  style="grid-template-rows: 63px auto 37px"
 >
   <div
     class="o-spreadsheet-topbar o-two-columns"
@@ -369,8 +370,18 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     <!-- tabindex="-1" is necessary to keep the focus on composer while selecting a cell -->
     <div
       class="o-grid-overlay"
+      style="
+      top: 26px;
+      left: 48px;
+      height: calc(100% - 26px);
+      width: calc(100% - 48px);
+    "
       tabindex="-1"
-    />
+    >
+      <div>
+        
+      </div>
+    </div>
     <div
       class="o-overlay"
     >
@@ -424,12 +435,10 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     
     
     
-    <div>
-      
-    </div>
-    
     <div
       class="o-scrollbar vertical"
+      style="
+      top: 26px;"
     >
       <div
         style="width:1px;height:2328px"
@@ -437,6 +446,8 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     </div>
     <div
       class="o-scrollbar horizontal"
+      style="
+      left: 48px;"
     >
       <div
         style="height:1px;width:2592px"

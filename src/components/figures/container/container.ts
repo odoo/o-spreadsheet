@@ -1,5 +1,5 @@
 import { Component, onMounted, useState } from "@odoo/owl";
-import { HEADER_HEIGHT, HEADER_WIDTH, SELECTION_BORDER_COLOR } from "../../../constants";
+import { SELECTION_BORDER_COLOR } from "../../../constants";
 import { figureRegistry } from "../../../registries/index";
 import { Figure, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
@@ -134,23 +134,17 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     const { offsetX, offsetY } = this.env.model.getters.getActiveSnappedViewport();
     const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
     const { width, height } = target;
-    let x = target.x - offsetX + HEADER_WIDTH - 1;
-    let y = target.y - offsetY + HEADER_HEIGHT - 1;
-    // width and height of wrapper need to be adjusted so we do not overlap
-    // with headers
-    const correctionX = Math.max(0, HEADER_WIDTH - x);
-    x += correctionX;
-    const correctionY = Math.max(0, HEADER_HEIGHT - y);
-    y += correctionY;
+    let x = target.x - offsetX - 1;
+    let y = target.y - offsetY - 1;
 
     if (width < 0 || height < 0) {
       return `position:absolute;display:none;`;
     }
     const offset =
       ANCHOR_SIZE + ACTIVE_BORDER_WIDTH + (isSelected ? ACTIVE_BORDER_WIDTH : BORDER_WIDTH);
-    return `position:absolute; top:${y + 1}px; left:${x + 1}px; width:${
-      width - correctionX + offset
-    }px; height:${height - correctionY + offset}px`;
+    return `position:absolute; top:${y + 1}px; left:${x + 1}px; width:${width + offset}px; height:${
+      height + offset
+    }px`;
   }
 
   setup() {
@@ -210,7 +204,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onMouseDown(figure: Figure, ev: MouseEvent) {
-    if (ev.button > 0) {
+    if (ev.button > 0 || this.env.model.getters.isReadonly()) {
       // not main button, probably a context menu
       return;
     }

@@ -1,6 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet.Menu" owl="1">
     <Popover
+      t-if="props.menuItems.length"
       position="props.position"
       childWidth="MENU_WIDTH"
       childHeight="menuHeight"
