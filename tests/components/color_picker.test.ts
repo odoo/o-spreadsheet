@@ -1,5 +1,5 @@
 import { App } from "@odoo/owl";
-import { ColorPicker } from "../../src/components/color_picker";
+import { ColorPicker } from "../../src/components/color_picker/color_picker";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { makeTestFixture } from "../test_helpers/helpers";
 

@@ -1,7 +1,7 @@
 import { App, Component, xml } from "@odoo/owl";
 import { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
-import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet";
+import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/index";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";

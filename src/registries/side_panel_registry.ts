@@ -1,7 +1,7 @@
-import { ChartPanel } from "../components/side_panel/chart_panel";
+import { ChartPanel } from "../components/side_panel/chart_panel/chart_panel";
 import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting/conditional_formatting";
-import { CustomCurrencyPanel } from "../components/side_panel/custom_currency";
-import { FindAndReplacePanel } from "../components/side_panel/find_and_replace";
+import { CustomCurrencyPanel } from "../components/side_panel/custom_currency/custom_currency";
+import { FindAndReplacePanel } from "../components/side_panel/find_and_replace/find_and_replace";
 import { Registry } from "../registry";
 import { _lt } from "../translation";
 import { SpreadsheetChildEnv } from "../types";

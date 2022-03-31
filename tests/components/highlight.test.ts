@@ -1,5 +1,5 @@
 import { App, Component, useSubEnv, xml } from "@odoo/owl";
-import { Highlight } from "../../src/components/highlight/highlight";
+import { Highlight } from "../../src/components/highlight/highlight/highlight";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";

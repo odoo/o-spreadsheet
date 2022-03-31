@@ -1,5 +1,5 @@
 import { App, Component, onMounted, onWillUnmount, useSubEnv, xml } from "@odoo/owl";
-import { BottomBar } from "../../src/components/bottom_bar";
+import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import { OWL_TEMPLATES } from "../setup/jest.setup";

@@ -1,4 +1,4 @@
-import { ICONS } from "../../components/icons";
+import { ICONS } from "../../components/icons/icons";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_COLOR,

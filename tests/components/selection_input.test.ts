@@ -1,6 +1,6 @@
 import { App, Component, onMounted, onWillUnmount, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
-import { SelectionInput } from "../../src/components/selection_input";
+import { SelectionInput } from "../../src/components/selection_input/selection_input";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
 import { activateSheet, createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
