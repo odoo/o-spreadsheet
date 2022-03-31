@@ -2,6 +2,7 @@ import { INCORRECT_RANGE_STRING } from "../../constants";
 import {
   chartFontColor,
   getDefaultBasicChartDefinition,
+  getDefaultGaugeChartDefinition,
   getDefaultScorecardChartDefinition,
   getRangesInChartDefinition,
 } from "../../helpers/chart";
@@ -19,17 +20,17 @@ import {
   Command,
   CommandResult,
   CoreCommand,
-  CreateChartCommand,
   DataSet,
   ExcelChartDataset,
   ExcelChartDefinition,
   ExcelWorkbookData,
   Figure,
   FigureData,
+  GaugeChartDefinition,
   Range,
   ScorecardChartDefinition,
   UID,
-  UpdateChartCommand,
+  Validation,
   WorkbookData,
   Zone,
 } from "../../types/index";
@@ -37,15 +38,26 @@ import { toXlsxHexColor } from "../../xlsx/helpers/colors";
 import { CorePlugin } from "../core_plugin";
 import {
   BasicChartType,
+  BasicChartUIDefinitionUpdate,
   ChartDefinition,
   ChartType,
+  ChartUIDefinition,
   ChartUIDefinitionUpdate,
-  isBasicChartDefinition,
-  isBasicChartUIDefinition,
+  GaugeChartUIDefinition,
+  GaugeChartUIDefinitionUpdate,
   isBasicChartUpdate,
+  isGaugeChartUpdate,
   isScorecardChartUpdate,
   ScorecardChartUIDefinition,
+  ScorecardChartUIDefinitionUpdate,
 } from "./../../types/chart";
+
+type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;
+
+type InflectionPointValueValidation = (
+  inflectionPointValue: string,
+  inflectionPointName: string
+) => CommandResult;
 
 /**
  * Chart plugin
@@ -56,6 +68,7 @@ import {
 interface ChartState {
   readonly chartFigures: Record<UID, BasicChartDefinition | undefined>;
   readonly scorecardFigures: Record<UID, ScorecardChartDefinition | undefined>;
+  readonly gaugeFigures: Record<UID, GaugeChartDefinition | undefined>;
   readonly nextId: number;
 }
 
@@ -68,11 +81,14 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     "getBasicChartDefinition",
     "getScorecardChartDefinition",
     "getScorecardChartDefinitionUI",
+    "getGaugeChartDefinition",
+    "getGaugeChartDefinitionUI",
     "getChartsIdBySheet",
     "getChartRanges",
   ] as const;
   readonly chartFigures: Record<UID, BasicChartDefinition> = {};
   readonly scorecardFigures: Record<UID, ScorecardChartDefinition> = {};
+  readonly gaugeFigures: Record<UID, GaugeChartDefinition> = {};
 
   readonly nextId = 1;
 
@@ -96,6 +112,15 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         this.adaptChartRange(chart.keyValue, applyChange, {
           onRemove: () => this.history.update("scorecardFigures", chartId, "keyValue", undefined),
           onChange: (range) => this.history.update("scorecardFigures", chartId, "keyValue", range),
+        });
+      }
+    }
+
+    for (let [chartId, chart] of Object.entries(this.gaugeFigures)) {
+      if (chart) {
+        this.adaptChartRange(chart.dataRange, applyChange, {
+          onRemove: () => this.history.update("gaugeFigures", chartId, "dataRange", undefined),
+          onChange: (range) => this.history.update("gaugeFigures", chartId, "dataRange", range),
         });
       }
     }
@@ -181,11 +206,34 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     switch (cmd.type) {
       case "UPDATE_CHART":
       case "CREATE_CHART":
-        return this.checkValidations(
-          cmd,
-          this.chainValidations(this.checkEmptyChartMainData, this.checkValidChartMainData),
-          this.checkChartAuxiliaryRanges
-        );
+        const definition = cmd.definition;
+        if (isBasicChartUpdate(definition)) {
+          return this.checkValidations(
+            definition,
+            this.chainValidations(this.checkEmptyDataset, this.checkDataset),
+            this.checkLabelRange
+          );
+        }
+        if (isScorecardChartUpdate(definition)) {
+          return this.checkValidations(
+            definition,
+            this.chainValidations(this.checkEmptyKeyValue, this.checkKeyValue),
+            this.checkBaseline
+          );
+        }
+        if (isGaugeChartUpdate(definition)) {
+          return this.checkValidations(
+            definition,
+            this.chainValidations(this.checkEmptyDataRange, this.checkDataRange),
+            this.chainValidations(
+              this.checkRangeLimits(this.checkEmpty),
+              this.checkRangeLimits(this.checkNaN),
+              this.checkRangeMinBiggerThanRangeMax
+            ),
+            this.chainValidations(this.checkInflectionPointsValue(this.checkNaN))
+          );
+        }
+        return success;
       default:
         return success;
     }
@@ -196,9 +244,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       case "CREATE_CHART":
         const x = cmd.position ? cmd.position.x : 0;
         const y = cmd.position ? cmd.position.y : 0;
-        const chartDefinition = isBasicChartUIDefinition(cmd.definition)
-          ? this.createBasicChartDefinition(cmd.definition, cmd.sheetId)
-          : this.createScorecardChartDefinition(cmd.definition, cmd.sheetId);
+        const chartDefinition = this.createChartDefinition(cmd.definition, cmd.sheetId);
         this.addChartFigure(cmd.sheetId, chartDefinition, {
           id: cmd.id,
           x,
@@ -218,9 +264,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           if (fig.tag === "chart") {
             const id = this.nextId.toString();
             this.history.update("nextId", this.nextId + 1);
-            const chartDefinitionToCopy: ChartDefinition =
-              this.chartFigures[fig.id] || this.scorecardFigures[fig.id];
-
+            const chartDefinitionToCopy: ChartDefinition = this.getChartDefinition(fig.id);
             const chartDefinition = deepCopy(chartDefinitionToCopy);
             chartDefinition.sheetId = cmd.sheetIdTo;
             const rangesInChart = getRangesInChartDefinition(chartDefinition);
@@ -237,23 +281,15 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         break;
       }
       case "DELETE_FIGURE":
-        if (this.chartFigures[cmd.id]) {
-          this.history.update("chartFigures", cmd.id, undefined);
-        }
-        if (this.scorecardFigures[cmd.id]) {
-          this.history.update("scorecardFigures", cmd.id, undefined);
+        const chartToDelete = this.getChartDefinition(cmd.id);
+        if (chartToDelete) {
+          this.history.update(this.getFigureType(chartToDelete), cmd.id, undefined);
         }
         break;
       case "DELETE_SHEET":
-        for (let id of Object.keys(this.chartFigures)) {
-          if (this.chartFigures[id]?.sheetId === cmd.sheetId) {
-            this.history.update("chartFigures", id, undefined);
-          }
-        }
-        for (let id of Object.keys(this.scorecardFigures)) {
-          if (this.scorecardFigures[id]?.sheetId === cmd.sheetId) {
-            this.history.update("scorecardFigures", id, undefined);
-          }
+        for (let id of this.getChartsIdBySheet(cmd.sheetId)) {
+          const chartToDelete = this.getChartDefinition(id);
+          this.history.update(this.getFigureType(chartToDelete), id, undefined);
         }
         break;
     }
@@ -271,23 +307,28 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     return this.scorecardFigures[figureId];
   }
 
+  getGaugeChartDefinition(figureId: UID): GaugeChartDefinition | undefined {
+    return this.gaugeFigures[figureId];
+  }
+
   getChartType(figureId: UID): ChartType | undefined {
-    const def = this.chartFigures[figureId] || this.scorecardFigures[figureId];
-    return def?.type;
+    return this.getChartDefinition(figureId)?.type;
   }
 
   isChartDefined(figureId: UID): boolean {
-    const def = this.chartFigures[figureId] || this.scorecardFigures[figureId];
-    return def !== undefined;
+    return this.getChartDefinition(figureId) !== undefined;
   }
 
   getChartSheetId(figureId: UID): UID | undefined {
-    const def = this.chartFigures[figureId] || this.scorecardFigures[figureId];
-    return def?.sheetId;
+    return this.getChartDefinition(figureId)?.sheetId;
   }
 
   getChartsIdBySheet(sheetId: UID) {
-    return [...Object.entries(this.chartFigures), ...Object.entries(this.scorecardFigures)]
+    return [
+      ...Object.entries(this.chartFigures),
+      ...Object.entries(this.scorecardFigures),
+      ...Object.entries(this.gaugeFigures),
+    ]
       .filter((chart) => {
         return chart[1].sheetId === sheetId;
       })
@@ -333,10 +374,26 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     };
   }
 
+  getGaugeChartDefinitionUI(sheetId: UID, figureId: UID): GaugeChartUIDefinition | undefined {
+    const data = this.gaugeFigures[figureId];
+    if (!data) return undefined;
+    return {
+      ...data,
+      title: data && data.title ? data.title : "",
+      dataRange: data.dataRange ? this.getters.getRangeString(data.dataRange, sheetId) : undefined,
+    };
+  }
+
   /** Returns all the ranges contained in the chart corresponding to the given figure ID */
   getChartRanges(figureId: UID): Range[] {
-    const chartDefinition = this.chartFigures[figureId] || this.scorecardFigures[figureId];
+    const chartDefinition = this.getChartDefinition(figureId);
     return getRangesInChartDefinition(chartDefinition);
+  }
+
+  private getChartDefinition(figureId: UID): ChartDefinition {
+    return (
+      this.chartFigures[figureId] || this.scorecardFigures[figureId] || this.gaugeFigures[figureId]
+    );
   }
 
   private getChartDefinitionExcel(sheetId: UID, figureId: UID): ExcelChartDefinition | undefined {
@@ -345,7 +402,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       .map((ds: DataSet) => this.toExcelDataset(ds))
       .filter((ds) => ds.range !== ""); // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
     const chartDefUI = this.getBasicChartDefinitionUI("forceSheetReference", figureId);
-    // chartDefUI is undefined for scorecard charts, that are not supported in Excel
+    // chartDefUI is undefined for scorecard and gauge charts, that are not supported in Excel
     if (!chartDefUI) {
       return undefined;
     }
@@ -391,17 +448,22 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       if (sheet.figures) {
         for (let figure of sheet.figures) {
           if (figure.tag === "chart") {
-            const figureData: BasicChartUIDefinition = {
+            const figureData: ChartUIDefinition = {
               ...figure.data,
             };
-            const chartDefinition = isBasicChartUIDefinition(figureData)
-              ? this.createBasicChartDefinition(figureData, sheet.id)
-              : this.createScorecardChartDefinition(figureData, sheet.id);
-
-            if (isBasicChartDefinition(chartDefinition)) {
-              this.chartFigures[figure.id] = chartDefinition;
-            } else if (chartDefinition.type === "scorecard") {
-              this.scorecardFigures[figure.id] = chartDefinition;
+            const chartDefinition = this.createChartDefinition(figureData, sheet.id);
+            switch (chartDefinition.type) {
+              case "line":
+              case "bar":
+              case "pie":
+                this.chartFigures[figure.id] = chartDefinition;
+                break;
+              case "scorecard":
+                this.scorecardFigures[figure.id] = chartDefinition;
+                break;
+              case "gauge":
+                this.gaugeFigures[figure.id] = chartDefinition;
+                break;
             }
             delete figure.data;
           }
@@ -419,7 +481,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           if (figure && figure.tag === "chart") {
             figure.data =
               this.getBasicChartDefinitionUI(sheet.id, figure.id) ||
-              this.getScorecardChartDefinitionUI(sheet.id, figure.id);
+              this.getScorecardChartDefinitionUI(sheet.id, figure.id) ||
+              this.getGaugeChartDefinitionUI(sheet.id, figure.id);
           }
         }
         sheet.figures = figures;
@@ -453,6 +516,19 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   /**
    * Create a new chart definition based on the given UI definition
    */
+  private createChartDefinition(definition: ChartUIDefinition, sheetId: UID): ChartDefinition {
+    switch (definition.type) {
+      case "bar":
+      case "line":
+      case "pie":
+        return this.createBasicChartDefinition(definition, sheetId);
+      case "scorecard":
+        return this.createScorecardChartDefinition(definition, sheetId);
+      case "gauge":
+        return this.createGaugeChartDefinition(definition, sheetId);
+    }
+  }
+
   private createBasicChartDefinition(
     definition: BasicChartUIDefinition,
     sheetId: UID
@@ -483,19 +559,47 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     };
   }
 
+  private createGaugeChartDefinition(
+    definition: GaugeChartUIDefinition,
+    sheetId: UID
+  ): GaugeChartDefinition {
+    return {
+      ...definition,
+      dataRange: definition.dataRange
+        ? this.getters.getRangeFromSheetXC(sheetId, definition.dataRange)
+        : undefined,
+      sheetId,
+    };
+  }
+
+  private getFigureType(
+    chartDefinition: ChartDefinition
+  ): "chartFigures" | "scorecardFigures" | "gaugeFigures" {
+    switch (chartDefinition.type) {
+      case "line":
+      case "bar":
+      case "pie":
+        return "chartFigures";
+      case "scorecard":
+        return "scorecardFigures";
+      case "gauge":
+        return "gaugeFigures";
+    }
+  }
+
   /**
    * Update the chart definition linked to the given id with the attributes
    * given in the partial UI definition
    */
   private updateChartDefinition(id: UID, definition: ChartUIDefinitionUpdate) {
-    let chart: ChartDefinition = this.chartFigures[id] || this.scorecardFigures[id];
+    const chart = this.getChartDefinition(id);
     if (!chart) {
       throw new Error(`There is no chart with the given id: ${id}`);
     }
     if (definition.type !== undefined) {
       this.updateChartType(id, definition.type);
     }
-    const figureType = this.chartFigures[id] ? "chartFigures" : "scorecardFigures";
+    const figureType = this.getFigureType(chart);
     if (definition.title !== undefined) {
       this.history.update(figureType, id, "title", definition.title);
     }
@@ -562,6 +666,16 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           definition.baselineColorDown
         );
       }
+    } else if (isGaugeChartUpdate(definition)) {
+      if (definition.dataRange !== undefined) {
+        const dataRange = definition.dataRange
+          ? this.getters.getRangeFromSheetXC(chart.sheetId, definition.dataRange)
+          : undefined;
+        this.history.update("gaugeFigures", id, "dataRange", dataRange);
+      }
+      if (definition.sectionRule !== undefined) {
+        this.history.update("gaugeFigures", id, "sectionRule", definition.sectionRule);
+      }
     }
   }
 
@@ -569,36 +683,87 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
    * Update the type of a chart. We may need to convert the data of the chart, losing some in the process.
    */
   private updateChartType(id: UID, newType: ChartType) {
-    let chart: ChartDefinition;
-    if ((chart = this.chartFigures[id])) {
-      if (["pie", "line", "bar"].includes(newType)) {
-        this.history.update("chartFigures", id, "type", newType as BasicChartType);
-      }
-      if (newType === "scorecard") {
-        const dataset = chart.dataSets[0];
-        this.history.update("scorecardFigures", id, {
-          ...getDefaultScorecardChartDefinition(chart.sheetId),
-          keyValue: dataset ? this.getDatasetData(dataset) : undefined,
-          title: chart.title,
-        });
-        this.history.update("chartFigures", id, undefined);
-      }
-    } else if ((chart = this.scorecardFigures[id])) {
-      if (["pie", "line", "bar"].includes(newType)) {
-        this.history.update("chartFigures", id, {
-          ...getDefaultBasicChartDefinition(chart.sheetId),
-          type: newType as BasicChartType,
-          dataSets: chart.keyValue
-            ? this.createDataSets(
-                [this.getters.getRangeString(chart.keyValue, chart.sheetId)],
-                chart.sheetId,
-                false
-              )
-            : [],
-          title: chart.title,
-        });
+    const chart = this.getChartDefinition(id);
+    switch (chart.type) {
+      case "line":
+      case "bar":
+      case "pie":
+        if (["pie", "line", "bar"].includes(newType)) {
+          this.history.update("chartFigures", id, "type", newType as BasicChartType);
+        } else {
+          if (newType === "scorecard") {
+            const dataset = chart.dataSets[0];
+            this.history.update("scorecardFigures", id, {
+              ...getDefaultScorecardChartDefinition(chart.sheetId),
+              keyValue: dataset ? this.getDatasetData(dataset) : undefined,
+              title: chart.title,
+            });
+          }
+
+          if (newType === "gauge") {
+            const dataset = chart.dataSets[0];
+            this.history.update("gaugeFigures", id, {
+              ...getDefaultGaugeChartDefinition(chart.sheetId),
+              dataRange: dataset ? this.getDatasetData(dataset) : undefined,
+              title: chart.title,
+            });
+          }
+
+          this.history.update("chartFigures", id, undefined);
+        }
+        break;
+      case "scorecard":
+        if (["pie", "line", "bar"].includes(newType)) {
+          this.history.update("chartFigures", id, {
+            ...getDefaultBasicChartDefinition(chart.sheetId),
+            type: newType as BasicChartType,
+            dataSets: chart.keyValue
+              ? this.createDataSets(
+                  [this.getters.getRangeString(chart.keyValue, chart.sheetId)],
+                  chart.sheetId,
+                  false
+                )
+              : [],
+            title: chart.title,
+          });
+        }
+
+        if (newType === "gauge") {
+          this.history.update("gaugeFigures", id, {
+            ...getDefaultGaugeChartDefinition(chart.sheetId),
+            dataRange: chart.keyValue,
+            title: chart.title,
+          });
+        }
+
         this.history.update("scorecardFigures", id, undefined);
-      }
+        break;
+      case "gauge":
+        if (["pie", "line", "bar"].includes(newType)) {
+          this.history.update("chartFigures", id, {
+            ...getDefaultBasicChartDefinition(chart.sheetId),
+            type: newType as BasicChartType,
+            dataSets: chart.dataRange
+              ? this.createDataSets(
+                  [this.getters.getRangeString(chart.dataRange, chart.sheetId)],
+                  chart.sheetId,
+                  false
+                )
+              : [],
+            title: chart.title,
+          });
+        }
+
+        if (newType === "scorecard") {
+          this.history.update("scorecardFigures", id, {
+            ...getDefaultScorecardChartDefinition(chart.sheetId),
+            keyValue: chart.dataRange,
+            title: chart.title,
+          });
+        }
+
+        this.history.update("gaugeFigures", id, undefined);
+        break;
     }
   }
 
@@ -682,11 +847,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       sheetId,
       figure,
     });
-    if (isBasicChartDefinition(data)) {
-      this.history.update("chartFigures", figure.id, data);
-    } else if (data.type === "scorecard") {
-      this.history.update("scorecardFigures", figure.id, data);
-    }
+    this.history.update(this.getFigureType(data), figure.id, data);
   }
 
   private createDataSet(sheetId: UID, fullZone: Zone, titleZone: Zone | undefined): DataSet {
@@ -708,45 +869,177 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     }
   }
 
-  private checkEmptyChartMainData(cmd: CreateChartCommand | UpdateChartCommand): CommandResult {
-    if ("keyValue" in cmd.definition) {
-      return cmd.definition.keyValue ? CommandResult.Success : CommandResult.EmptyScorecardKeyValue;
-    }
+  // ---------------------------------------------------------------------------
+  // BASIC CHART CHECK (LINE | BAR | PIE)
+  // ---------------------------------------------------------------------------
 
-    if ("dataSets" in cmd.definition) {
-      return cmd.definition.dataSets && cmd.definition.dataSets.length === 0
-        ? CommandResult.EmptyDataSet
-        : CommandResult.Success;
-    }
-
-    return CommandResult.Success;
+  private checkEmptyDataset(
+    definition: BasicChartUIDefinition | BasicChartUIDefinitionUpdate
+  ): CommandResult {
+    return "dataSets" in definition && definition.dataSets && definition.dataSets.length === 0
+      ? CommandResult.EmptyDataSet
+      : CommandResult.Success;
   }
 
-  private checkValidChartMainData(cmd: CreateChartCommand | UpdateChartCommand): CommandResult {
-    if ("keyValue" in cmd.definition && cmd.definition.keyValue) {
-      const invalidRanges = !rangeReference.test(cmd.definition.keyValue);
-      return invalidRanges ? CommandResult.InvalidScorecardKeyValue : CommandResult.Success;
-    }
-    if ("dataSets" in cmd.definition && cmd.definition.dataSets) {
+  private checkDataset(
+    definition: BasicChartUIDefinition | BasicChartUIDefinitionUpdate
+  ): CommandResult {
+    if ("dataSets" in definition && definition.dataSets) {
       const invalidRanges =
-        cmd.definition.dataSets.find((range) => !rangeReference.test(range)) !== undefined;
-      return invalidRanges ? CommandResult.InvalidDataSet : CommandResult.Success;
+        definition.dataSets.find((range) => !rangeReference.test(range)) !== undefined;
+      if (invalidRanges) {
+        return CommandResult.InvalidDataSet;
+      }
     }
     return CommandResult.Success;
   }
 
-  private checkChartAuxiliaryRanges(cmd: CreateChartCommand | UpdateChartCommand): CommandResult {
-    if ("labelRange" in cmd.definition && cmd.definition.labelRange) {
-      return rangeReference.test(cmd.definition.labelRange)
-        ? CommandResult.Success
-        : CommandResult.InvalidLabelRange;
+  private checkLabelRange(
+    definition: BasicChartUIDefinition | BasicChartUIDefinitionUpdate
+  ): CommandResult {
+    if ("labelRange" in definition && definition.labelRange) {
+      const invalidLabels = !rangeReference.test(definition.labelRange || "");
+      if (invalidLabels) {
+        return CommandResult.InvalidLabelRange;
+      }
     }
-    if ("baseline" in cmd.definition && cmd.definition.baseline) {
-      return rangeReference.test(cmd.definition.baseline)
-        ? CommandResult.Success
-        : CommandResult.InvalidScorecardBaseline;
-    }
+    return CommandResult.Success;
+  }
 
+  // ---------------------------------------------------------------------------
+  // Scorecard CHART CHECK
+  // ---------------------------------------------------------------------------
+
+  private checkEmptyKeyValue(
+    definition: ScorecardChartUIDefinition | ScorecardChartUIDefinitionUpdate
+  ): CommandResult {
+    return "keyValue" in definition && !definition.keyValue
+      ? CommandResult.EmptyScorecardKeyValue
+      : CommandResult.Success;
+  }
+
+  private checkKeyValue(
+    definition: ScorecardChartUIDefinition | ScorecardChartUIDefinitionUpdate
+  ): CommandResult {
+    return "keyValue" in definition &&
+      definition.keyValue &&
+      !rangeReference.test(definition.keyValue)
+      ? CommandResult.InvalidScorecardKeyValue
+      : CommandResult.Success;
+  }
+
+  private checkBaseline(
+    definition: ScorecardChartUIDefinition | ScorecardChartUIDefinitionUpdate
+  ): CommandResult {
+    return "baseline" in definition &&
+      definition.baseline &&
+      !rangeReference.test(definition.baseline)
+      ? CommandResult.InvalidScorecardBaseline
+      : CommandResult.Success;
+  }
+
+  // ---------------------------------------------------------------------------
+  // GAUGE CHART CHECK
+  // ---------------------------------------------------------------------------
+
+  private checkEmptyDataRange(
+    definition: GaugeChartUIDefinition | GaugeChartUIDefinitionUpdate
+  ): CommandResult {
+    return "dataRange" in definition && !definition.dataRange
+      ? CommandResult.EmptyGaugeDataRange
+      : CommandResult.Success;
+  }
+
+  private checkDataRange(
+    definition: GaugeChartUIDefinition | GaugeChartUIDefinitionUpdate
+  ): CommandResult {
+    return "dataRange" in definition &&
+      definition.dataRange &&
+      !rangeReference.test(definition.dataRange)
+      ? CommandResult.InvalidGaugeDataRange
+      : CommandResult.Success;
+  }
+
+  private checkRangeLimits(
+    check: RangeLimitsValidation
+  ): Validation<GaugeChartUIDefinition | GaugeChartUIDefinitionUpdate> {
+    return this.batchValidations(
+      (definition) => {
+        if ("sectionRule" in definition && definition.sectionRule) {
+          return check(definition.sectionRule.rangeMin, "rangeMin");
+        }
+        return CommandResult.Success;
+      },
+      (definition) => {
+        if ("sectionRule" in definition && definition.sectionRule) {
+          return check(definition.sectionRule.rangeMax, "rangeMax");
+        }
+        return CommandResult.Success;
+      }
+    );
+  }
+
+  private checkInflectionPointsValue(
+    check: InflectionPointValueValidation
+  ): Validation<GaugeChartUIDefinition | GaugeChartUIDefinitionUpdate> {
+    return this.batchValidations(
+      (definition) => {
+        if ("sectionRule" in definition && definition.sectionRule) {
+          return check(
+            definition.sectionRule.lowerInflectionPoint.value,
+            "lowerInflectionPointValue"
+          );
+        }
+        return CommandResult.Success;
+      },
+      (definition) => {
+        if ("sectionRule" in definition && definition.sectionRule) {
+          return check(
+            definition.sectionRule.upperInflectionPoint.value,
+            "upperInflectionPointValue"
+          );
+        }
+        return CommandResult.Success;
+      }
+    );
+  }
+
+  private checkRangeMinBiggerThanRangeMax(
+    definition: GaugeChartUIDefinition | GaugeChartUIDefinitionUpdate
+  ): CommandResult {
+    if ("sectionRule" in definition && definition.sectionRule) {
+      if (Number(definition.sectionRule.rangeMin) >= Number(definition.sectionRule.rangeMax)) {
+        return CommandResult.GaugeRangeMinBiggerThanRangeMax;
+      }
+    }
+    return CommandResult.Success;
+  }
+
+  private checkEmpty(value: string, valueName: string) {
+    if (value === "") {
+      switch (valueName) {
+        case "rangeMin":
+          return CommandResult.EmptyGaugeRangeMin;
+        case "rangeMax":
+          return CommandResult.EmptyGaugeRangeMax;
+      }
+    }
+    return CommandResult.Success;
+  }
+
+  private checkNaN(value: string, valueName: string) {
+    if (isNaN(value as any)) {
+      switch (valueName) {
+        case "rangeMin":
+          return CommandResult.GaugeRangeMinNaN;
+        case "rangeMax":
+          return CommandResult.GaugeRangeMaxNaN;
+        case "lowerInflectionPointValue":
+          return CommandResult.GaugeLowerInflectionPointNaN;
+        case "upperInflectionPointValue":
+          return CommandResult.GaugeUpperInflectionPointNaN;
+      }
+    }
     return CommandResult.Success;
   }
 }

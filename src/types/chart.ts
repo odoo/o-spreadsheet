@@ -1,3 +1,4 @@
+import { ChartOptions } from "chart.js";
 import { Range, UID } from ".";
 import { XlsxHexColor } from "./xlsx";
 
@@ -6,7 +7,7 @@ export interface DataSet {
   dataRange: Range; // range of the data
 }
 
-export type ChartType = BasicChartType | "scorecard";
+export type ChartType = BasicChartType | "scorecard" | "gauge";
 
 export type BasicChartType = "line" | "bar" | "pie";
 
@@ -19,7 +20,10 @@ export interface ExcelChartDataset {
 // ChartDefinition : internal representation of charts
 // ---------------------------------------------------------------------------
 
-export type ChartDefinition = ScorecardChartDefinition | BasicChartDefinition;
+export type ChartDefinition =
+  | ScorecardChartDefinition
+  | GaugeChartDefinition
+  | BasicChartDefinition;
 
 export interface BasicChartDefinition {
   dataSets: DataSet[];
@@ -48,11 +52,42 @@ export interface ScorecardChartDefinition {
   fontColor?: string;
 }
 
+interface ColorSet {
+  lowerColor: string;
+  middleColor: string;
+  upperColor: string;
+}
+
+interface SectionThreshold {
+  type: "number" | "percentage";
+  value: string;
+}
+
+export interface SectionRule {
+  colors: ColorSet;
+  rangeMin: string;
+  rangeMax: string;
+  lowerInflectionPoint: SectionThreshold;
+  upperInflectionPoint: SectionThreshold;
+}
+
+export interface GaugeChartDefinition {
+  type: "gauge";
+  sheetId: UID;
+  title: string;
+  dataRange: Range | undefined;
+  sectionRule: SectionRule;
+  background: string;
+}
+
 // ---------------------------------------------------------------------------
 // ChartUIDefinition : representation of charts for UI components/for export
 // ---------------------------------------------------------------------------
 
-export type ChartUIDefinition = ScorecardChartUIDefinition | BasicChartUIDefinition;
+export type ChartUIDefinition =
+  | BasicChartUIDefinition
+  | ScorecardChartUIDefinition
+  | GaugeChartUIDefinition;
 
 export interface BasicChartUIDefinition
   extends Omit<BasicChartDefinition, "dataSets" | "labelRange" | "sheetId"> {
@@ -65,27 +100,22 @@ export interface ScorecardChartUIDefinition
   keyValue: string | undefined;
   baseline?: string;
 }
-
-export interface ChartDataSet {
-  label;
-  data: (number | undefined | null)[];
-  lineTension: 0; // 0 -> render straight lines, which is much faster
-  borderColor: string;
-  /**
-   * color or list of color for pie charts
-   */
-  backgroundColor: string | string[];
-}
-
-export interface ChartData {
-  labels: Array<string | string[]>;
-  datasets: ChartDataSet[];
+export interface GaugeChartUIDefinition
+  extends Omit<GaugeChartDefinition, "dataRange" | "sheetId"> {
+  dataRange: string | undefined;
 }
 
 /** ChartUIDefinitionUpdate : Partial ChartUIDefinition for commands */
 export type ChartUIDefinitionUpdate =
+  | BasicChartUIDefinitionUpdate
   | ScorecardChartUIDefinitionUpdate
-  | BasicChartUIDefinitionUpdate;
+  | GaugeChartUIDefinitionUpdate;
+
+export interface BasicChartUIDefinitionUpdate
+  extends Omit<Partial<BasicChartUIDefinition>, "labelRange" | "type"> {
+  labelRange?: string | null;
+}
+
 export interface ScorecardChartUIDefinitionUpdate
   extends Omit<Partial<ScorecardChartUIDefinition>, "keyValue" | "baseline"> {
   keyValue?: string | null;
@@ -96,6 +126,8 @@ export interface BasicChartUIDefinitionUpdate
   extends Omit<Partial<BasicChartUIDefinition>, "labelRange"> {
   labelRange?: string | null;
 }
+
+export type GaugeChartUIDefinitionUpdate = Partial<GaugeChartUIDefinition>;
 
 // ---------------------------------------------------------------------------
 // ChartRuntime : representation or charts for drawing (chartJS/custom chart)
@@ -113,6 +145,10 @@ export interface ScorecardChartRuntime
   baselineArrow: BaselineArrowDirection;
 }
 
+export interface GaugeChartRuntime extends Omit<GaugeChartDefinition, "dataRange" | "sheetId"> {
+  dataRange: string;
+}
+
 export interface ExcelChartDefinition {
   title: string;
   type: BasicChartType;
@@ -123,18 +159,6 @@ export interface ExcelChartDefinition {
   verticalAxisPosition: "left" | "right";
   legendPosition: "top" | "bottom" | "left" | "right";
   stackedBar: boolean;
-}
-
-export function isBasicChartDefinition(
-  chartDef: ChartDefinition
-): chartDef is BasicChartDefinition {
-  return chartDef.type === "bar" || chartDef.type === "line" || chartDef.type === "pie";
-}
-
-export function isBasicChartUIDefinition(
-  chartDef: ChartUIDefinition
-): chartDef is BasicChartUIDefinition {
-  return chartDef.type === "bar" || chartDef.type === "line" || chartDef.type === "pie";
 }
 
 export function isBasicChartUpdate(
@@ -162,4 +186,90 @@ export function isScorecardChartUpdate(
     "baselineColorUp" in chartUpdate ||
     "baselineColorDown" in chartUpdate
   );
+}
+
+export function isGaugeChartUpdate(
+  chartUpdate: ChartUIDefinitionUpdate
+): chartUpdate is GaugeChartUIDefinitionUpdate {
+  return (
+    "dataRange" in chartUpdate ||
+    "rangeMin" in chartUpdate ||
+    "rangeMax" in chartUpdate ||
+    "sectionRule" in chartUpdate
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Chart configuration
+// ---------------------------------------------------------------------------
+export interface ChartConfiguration {
+  type: string;
+  data: ChartData;
+  options: ChartOptions;
+}
+interface ChartData {
+  labels: Array<string | string[]>;
+  datasets: ChartDataSets[];
+}
+
+interface ChartDataSets {
+  data: (number | undefined | null)[];
+}
+
+export interface BasicChartConfiguration extends Omit<ChartConfiguration, "data"> {
+  data?: BasicChartData;
+}
+
+export interface BasicChartData extends Omit<ChartData, "datasets"> {
+  datasets: BasicChartDataSet[];
+}
+
+export interface BasicChartDataSet extends ChartDataSets {
+  label?;
+  lineTension?: 0; // 0 -> render straight lines, which is much faster
+  borderColor?: string;
+  /**
+   * color or list of color for pie charts
+   */
+  backgroundColor?: string | string[];
+}
+
+// respect the gauge chart implementation : https://www.npmjs.com/package/chartjs-gauge
+export interface GaugeChartConfiguration extends Omit<ChartConfiguration, "data" | "options"> {
+  data?: GaugeChartData;
+  options?: GaugeChartOptions;
+}
+
+interface GaugeChartData extends Omit<ChartData, "datasets"> {
+  datasets: GaugeChartDataSets[];
+}
+
+interface GaugeChartDataSets extends ChartDataSets {
+  minValue?: number;
+  value?: number | undefined;
+  backgroundColor?: string[];
+}
+
+interface GaugeChartOptions extends ChartOptions {
+  needle?: {
+    radiusPercentage: number; // Needle circle radius as the percentage of the chart area width
+    widthPercentage: number; // Needle width as the percentage of the chart area width
+    lengthPercentage: number; // Needle length as the percentage of the interval between inner radius (0%) and outer radius (100%) of the arc
+    color: string; // The color of the needle
+  };
+  valueLabel?: {
+    formatter: (() => string) | null;
+    display: boolean;
+    color: string;
+    backgroundColor: string;
+    borderRadius: number;
+    fontSize: number;
+    padding: {
+      top: number;
+      right: number;
+      bottom: number;
+      left: number;
+    };
+    bottomMarginPercentage: number;
+  };
 }

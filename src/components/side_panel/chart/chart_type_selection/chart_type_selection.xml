@@ -8,6 +8,7 @@
       <option value="line">Line</option>
       <option value="pie">Pie</option>
       <option value="scorecard">Scorecard</option>
+      <option value="gauge">Gauge</option>
     </select>
   </t>
 </templates>

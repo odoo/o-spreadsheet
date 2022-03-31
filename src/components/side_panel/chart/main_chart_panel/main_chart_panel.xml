@@ -6,5 +6,8 @@
     <t t-if="chartType === 'scorecard'">
       <ScorecardChartPanel figure="props.figure" onCloseSidePanel="props.onCloseSidePanel"/>
     </t>
+    <t t-if="chartType === 'gauge'">
+      <GaugeChartPanel figure="props.figure" onCloseSidePanel="props.onCloseSidePanel"/>
+    </t>
   </t>
 </templates>

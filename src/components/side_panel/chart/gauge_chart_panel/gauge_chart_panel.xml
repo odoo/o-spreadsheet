@@ -1,0 +1,219 @@
+<templates>
+  <t t-name="o-spreadsheet.GaugeChartPanel" owl="1">
+    <div class="o-chart">
+      <div class="o-panel">
+        <div
+          class="o-panel-element o-panel-configuration"
+          t-att-class="state.panel !== 'configuration' ? 'inactive' : ''"
+          t-on-click="() => this.activate('configuration')">
+          <i class="fa fa-sliders"/>
+          Configuration
+        </div>
+        <div
+          class="o-panel-element o-panel-design"
+          t-att-class="state.panel !== 'design' ? 'inactive' : ''"
+          t-on-click="() => this.activate('design')">
+          <i class="fa fa-paint-brush"/>
+          Design
+        </div>
+      </div>
+
+      <t t-if="state.panel === 'configuration'">
+        <t t-call="o-spreadsheet.GaugeChartConfigurationPanel"/>
+      </t>
+      <t t-else="">
+        <t t-call="o-spreadsheet.GaugeChartDesignPanel"/>
+      </t>
+    </div>
+  </t>
+
+  <t t-name="o-spreadsheet.GaugeChartConfigurationPanel" owl="1">
+    <div>
+      <div class="o-section">
+        <div class="o-section-title">Chart type</div>
+        <ChartTypeSelect figureId="this.props.figure.id" onTypeChange.bind="updateChartType"/>
+      </div>
+      <div class="o-section o-data-series">
+        <div class="o-section-title">Data range</div>
+        <SelectionInput
+          t-key="getKey('dataRange')"
+          ranges="[state.chart.dataRange]"
+          isInvalid="isDataRangeInvalid"
+          hasSingleRange="true"
+          required="true"
+          onSelectionChanged="(ranges) => this.onDataRangeChanged(ranges)"
+          onSelectionConfirmed="() => this.updateDataRange()"
+        />
+      </div>
+      <div class="o-section o-sidepanel-error" t-if="configurationErrorMessages">
+        <div t-foreach="configurationErrorMessages" t-as="error" t-key="error">
+          <t t-esc="error"/>
+        </div>
+      </div>
+    </div>
+  </t>
+
+  <t t-name="o-spreadsheet.GaugeChartDesignPanel" owl="1">
+    <div>
+      <div class="o-section">
+        <div class="o-section-title">Background color</div>
+        <div class="o-with-color-picker">
+          Select a color...
+          <span
+            title="Background Color"
+            t-attf-style="border-color:{{state.chart.background}}"
+            t-on-click.stop="() => this.toggleMenu('backgroundColor', ev)">
+            <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+          </span>
+          <ColorPicker
+            t-if="state.openedMenu === 'backgroundColor'"
+            onColorPicked="(color) => this.updateBackgroundColor(color)"
+            t-key="backgroundColor"
+          />
+        </div>
+      </div>
+
+      <div class="o-section o-chart-title">
+        <div class="o-section-title">Title</div>
+        <input
+          type="text"
+          t-model="state.chart.title"
+          t-on-change="updateTitle"
+          class="o-input"
+          placeholder="New Chart"
+        />
+      </div>
+
+      <div class="o-section">
+        <div class="o-section-title">Range</div>
+        <div class="o-subsection-left">
+          <input
+            type="text"
+            t-model="state.chart.sectionRule.rangeMin"
+            t-on-change="updateSectionRule"
+            class="o-input o-data-range-min"
+            t-att-class="{ 'o-invalid': isRangeMinInvalid() }"
+          />
+        </div>
+        <div class="o-subsection-right">
+          <input
+            type="text"
+            t-model="state.chart.sectionRule.rangeMax"
+            t-on-change="updateSectionRule"
+            class="o-input o-data-range-max"
+            t-att-class="{ 'o-invalid': isRangeMaxInvalid() }"
+          />
+        </div>
+      </div>
+
+      <div class="o-section">
+        <div class="o-section-title">Thresholds</div>
+        <t t-call="o-spreadsheet.GaugeChartColorSectionTemplate">
+          <t t-set="sectionRule" t-value="state.chart.sectionRule"/>
+        </t>
+      </div>
+
+      <div class="o-section o-sidepanel-error" t-if="designErrorMessages.length">
+        <div t-foreach="designErrorMessages" t-as="error" t-key="error">
+          <t t-esc="error"/>
+        </div>
+      </div>
+    </div>
+  </t>
+
+  <t t-name="o-spreadsheet.GaugeChartColorSectionTemplate" owl="1">
+    <div class="o-gauge-color-set">
+      <table>
+        <tr>
+          <th class="o-gauge-color-set-colorPicker"/>
+          <th class="o-gauge-color-set-text"/>
+          <th class="o-gauge-color-set-value">Value</th>
+          <th class="o-gauge-color-set-type">Type</th>
+        </tr>
+
+        <t t-call="o-spreadsheet.GaugeChartColorSectionTemplateRow">
+          <t t-set="sectionColor" t-value="sectionRule.colors.lowerColor"/>
+          <t t-set="sectionType" t-value="'lowerColor'"/>
+          <t t-set="inflectionPoint" t-value="sectionRule.lowerInflectionPoint"/>
+          <t t-set="isInvalid" t-value="isLowerInflectionPointInvalid"/>
+          <t t-set="inflectionPointName" t-value="'lowerInflectionPoint'"/>
+        </t>
+
+        <t t-call="o-spreadsheet.GaugeChartColorSectionTemplateRow">
+          <t t-set="sectionColor" t-value="sectionRule.colors.middleColor"/>
+          <t t-set="sectionType" t-value="'middleColor'"/>
+          <t t-set="inflectionPoint" t-value="sectionRule.upperInflectionPoint"/>
+          <t t-set="isInvalid" t-value="isUpperInflectionPointInvalid"/>
+          <t t-set="inflectionPointName" t-value="'upperInflectionPoint'"/>
+        </t>
+
+        <tr>
+          <td>
+            <div class="o-tools">
+              <div class="o-tool o-dropdown o-with-color">
+                <span
+                  title="Fill Color"
+                  t-attf-style="border-color:{{sectionRule.colors.upperColor}}"
+                  t-on-click.stop="(ev) => this.toggleMenu('sectionColor-upperColor', ev)">
+                  <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+                </span>
+                <ColorPicker
+                  t-if="state.openedMenu === 'sectionColor-upperColor'"
+                  onColorPicked="(color) => this.updateSectionColor('upperColor', color)"
+                  dropdownDirection="'right'"
+                />
+              </div>
+            </div>
+          </td>
+          <td>Else</td>
+          <td/>
+          <td/>
+          <td/>
+        </tr>
+      </table>
+    </div>
+  </t>
+
+  <t t-name="o-spreadsheet.GaugeChartColorSectionTemplateRow" owl="1">
+    <tr>
+      <td>
+        <div class="o-tools">
+          <div class="o-tool o-dropdown o-with-color">
+            <span
+              title="Fill Color"
+              t-attf-style="border-color:{{sectionColor}}"
+              t-on-click.stop="(ev) => this.toggleMenu('sectionColor-'+sectionType, ev)">
+              <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+            </span>
+            <ColorPicker
+              t-if="state.openedMenu === 'sectionColor-'+sectionType"
+              onColorPicked="(color) => this.updateSectionColor(sectionType, color)"
+              dropdownDirection="'right'"
+            />
+          </div>
+        </div>
+      </td>
+      <td>When value is below</td>
+      <td>
+        <input
+          type="text"
+          class="o-input"
+          t-on-change="(ev) => this.updateInflectionPointValue(inflectionPointName, ev)"
+          t-attf-class="o-input-{{inflectionPointName}}"
+          t-att-class="{ 'o-invalid': isInvalid }"
+          t-model="inflectionPoint.value"
+        />
+      </td>
+      <td>
+        <select
+          class="o-input"
+          name="valueType"
+          t-model="inflectionPoint.type"
+          t-on-change="(ev) => this.updateInflectionPointType(inflectionPointName, ev)">
+          <option value="number">Number</option>
+          <option value="percentage">Percentage</option>
+        </select>
+      </td>
+    </tr>
+  </t>
+</templates>

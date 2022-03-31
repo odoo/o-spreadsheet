@@ -3,6 +3,7 @@ import { BACKGROUND_HEADER_COLOR } from "../../../../constants";
 import { Figure, SpreadsheetChildEnv } from "../../../../types/index";
 import { css } from "../../../helpers/css";
 import { BasicChartPanel } from "../basic_chart_panel/basic_chart_panel";
+import { GaugeChartPanel } from "../gauge_chart_panel/gauge_chart_panel";
 import { ScorecardChartPanel } from "../scorecard_chart_panel/scorecard_chart_panel";
 
 css/* scss */ `
@@ -44,7 +45,7 @@ interface Props {
 
 export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartPanel";
-  static components = { BasicChartPanel, ScorecardChartPanel };
+  static components = { BasicChartPanel, ScorecardChartPanel, GaugeChartPanel };
 
   get chartType() {
     return this.env.model.getters.getChartType(this.props.figure.id);

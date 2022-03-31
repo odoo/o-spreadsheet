@@ -15,6 +15,8 @@
       </div>
       <ScorecardChart t-if="figureChartType === 'scorecard'" figure="props.figure"/>
       <BasicChart t-if="figureChartType === 'basicChart'" figure="props.figure"/>
+      <GaugeChart t-if="figureChartType === 'gauge'" figure="props.figure"/>
+
       <Menu
         t-if="menuState.isOpen"
         position="menuState.position"

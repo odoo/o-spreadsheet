@@ -1,10 +1,4 @@
-import {
-  ChartConfiguration,
-  ChartData,
-  ChartDataSets,
-  ChartLegendOptions,
-  ChartTooltipItem,
-} from "chart.js";
+import { ChartConfiguration, ChartLegendOptions, ChartTooltipItem } from "chart.js";
 import { ChartTerms } from "../../components/translations_terms";
 import { MAX_CHAR_LABEL } from "../../constants";
 import {
@@ -17,11 +11,16 @@ import {
 import { getChartTimeOptions, timeFormatMomentCompatible } from "../../helpers/chart_date";
 import { formatValue, recomputeZones, zoneToXc } from "../../helpers/index";
 import { deepCopy, findNextDefinedValue, range } from "../../helpers/misc";
-import { Cell, Format } from "../../types";
+import { Cell, CellValue, Format } from "../../types";
 import {
+  BasicChartConfiguration,
+  BasicChartData,
+  BasicChartDataSet,
   BasicChartDefinition,
   ChartDefinition,
   DataSet,
+  GaugeChartConfiguration,
+  GaugeChartDefinition,
   ScorecardChartDefinition,
   ScorecardChartRuntime,
 } from "../../types/chart";
@@ -46,12 +45,13 @@ export class EvaluationChartPlugin extends UIPlugin {
     "getBasicChartRuntime",
     "getScorecardChartRuntime",
     "canChartParseLabels",
+    "getGaugeChartRuntime",
   ] as const;
-
   // contains the configuration of the chart with it's values like they should be displayed,
   // as well as all the options needed for the chart library to work correctly
-  readonly chartRuntime: { [figureId: string]: ChartConfiguration } = {};
+  readonly chartRuntime: { [figureId: string]: BasicChartConfiguration } = {};
   readonly scorecardChartRuntime: { [figureId: string]: ScorecardChartRuntime } = {};
+  readonly gaugeChartRuntime: { [figureId: string]: GaugeChartConfiguration } = {};
 
   private outOfDate: Set<UID> = new Set<UID>();
 
@@ -67,6 +67,9 @@ export class EvaluationChartPlugin extends UIPlugin {
       for (let chartId of Object.keys(this.scorecardChartRuntime)) {
         this.outOfDate.add(chartId);
       }
+      for (let chartId of Object.keys(this.gaugeChartRuntime)) {
+        this.outOfDate.add(chartId);
+      }
     }
     switch (cmd.type) {
       case "UPDATE_CHART":
@@ -74,11 +77,14 @@ export class EvaluationChartPlugin extends UIPlugin {
         this.removeChartEvaluation(cmd.id);
         let chartDefinition: ChartDefinition | undefined;
         if ((chartDefinition = this.getters.getBasicChartDefinition(cmd.id))) {
-          this.chartRuntime[cmd.id] = this.mapDefinitionToRuntime(chartDefinition);
+          this.chartRuntime[cmd.id] = this.mapBasicDefinitionToRuntime(chartDefinition);
         }
         if ((chartDefinition = this.getters.getScorecardChartDefinition(cmd.id))) {
           this.scorecardChartRuntime[cmd.id] =
             this.mapScorecardDefinitionToRuntime(chartDefinition);
+        }
+        if ((chartDefinition = this.getters.getGaugeChartDefinition(cmd.id))) {
+          this.gaugeChartRuntime[cmd.id] = this.mapGaugeDefinitionToRuntime(chartDefinition);
         }
         break;
       case "DELETE_FIGURE":
@@ -101,6 +107,9 @@ export class EvaluationChartPlugin extends UIPlugin {
             if (this.scorecardChartRuntime[chartId]) {
               delete this.scorecardChartRuntime[chartId];
             }
+            if (this.gaugeChartRuntime[chartId]) {
+              delete this.gaugeChartRuntime[chartId];
+            }
           }
         }
         break;
@@ -111,11 +120,11 @@ export class EvaluationChartPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getBasicChartRuntime(figureId: string): ChartConfiguration | undefined {
+  getBasicChartRuntime(figureId: string): BasicChartConfiguration | undefined {
     if (this.outOfDate.has(figureId) || !(figureId in this.chartRuntime)) {
       const chartDefinition = this.getters.getBasicChartDefinition(figureId);
       if (chartDefinition === undefined) return;
-      this.chartRuntime[figureId] = this.mapDefinitionToRuntime(chartDefinition);
+      this.chartRuntime[figureId] = this.mapBasicDefinitionToRuntime(chartDefinition);
       this.outOfDate.delete(figureId);
     }
     return this.chartRuntime[figureId];
@@ -143,12 +152,26 @@ export class EvaluationChartPlugin extends UIPlugin {
     return this.scorecardChartRuntime[figureId];
   }
 
+  getGaugeChartRuntime(figureId: string): GaugeChartConfiguration | undefined {
+    if (this.outOfDate.has(figureId) || !(figureId in this.gaugeChartRuntime)) {
+      const chartDefinition = this.getters.getGaugeChartDefinition(figureId);
+      if (!chartDefinition) return;
+
+      this.gaugeChartRuntime[figureId] = this.mapGaugeDefinitionToRuntime(chartDefinition);
+      this.outOfDate.delete(figureId);
+    }
+    return this.gaugeChartRuntime[figureId];
+  }
+
   private removeChartEvaluation(chartId: string) {
     if (this.chartRuntime[chartId]) {
       delete this.chartRuntime[chartId];
     }
     if (this.scorecardChartRuntime[chartId]) {
       delete this.scorecardChartRuntime[chartId];
+    }
+    if (this.gaugeChartRuntime[chartId]) {
+      delete this.gaugeChartRuntime[chartId];
     }
   }
 
@@ -163,22 +186,13 @@ export class EvaluationChartPlugin extends UIPlugin {
   }
 
   private getDefaultConfiguration(
-    definition: BasicChartDefinition,
+    definition: BasicChartDefinition | GaugeChartDefinition,
     labels: string[],
     fontColor: Color
   ): ChartConfiguration {
-    const legend: ChartLegendOptions = {
-      labels: { fontColor },
-    };
-    if (!definition.labelRange && definition.dataSets.length === 1) {
-      legend.display = false;
-    } else {
-      legend.position = definition.legendPosition;
-    }
-    const config: ChartConfiguration = {
+    const config = {
       type: definition.type,
       options: {
-        legend,
         // https://www.chartjs.org/docs/latest/general/responsive.html
         responsive: true, // will resize when its container is resized
         maintainAspectRatio: false, // doesn't maintain the aspect ration (width/height =2 by default) so the user has the choice of the exact layout
@@ -212,6 +226,31 @@ export class EvaluationChartPlugin extends UIPlugin {
         labels: labels.map(this.truncateLabel),
         datasets: [],
       },
+    };
+    return config;
+  }
+
+  private getBasicConfiguration(
+    definition: BasicChartDefinition,
+    labels: string[],
+    fontColor: Color
+  ): BasicChartConfiguration {
+    const config: BasicChartConfiguration = this.getDefaultConfiguration(
+      definition,
+      labels,
+      fontColor
+    ) as BasicChartConfiguration;
+    const legend: ChartLegendOptions = {
+      labels: { fontColor },
+    };
+    if (!definition.labelRange && definition.dataSets.length === 1) {
+      legend.display = false;
+    } else {
+      legend.position = definition.legendPosition;
+    }
+    config.options!.legend = legend;
+    config.options!.layout = {
+      padding: { left: 20, right: 20, top: definition.title ? 10 : 25, bottom: 10 },
     };
 
     if (definition.type !== "pie") {
@@ -247,7 +286,7 @@ export class EvaluationChartPlugin extends UIPlugin {
     } else {
       config.options!.tooltips = {
         callbacks: {
-          title: function (tooltipItems: ChartTooltipItem[], data: ChartData) {
+          title: function (tooltipItems: ChartTooltipItem[], data: BasicChartData) {
             return data.datasets![tooltipItems[0]!.datasetIndex!].label!;
           },
         },
@@ -256,9 +295,49 @@ export class EvaluationChartPlugin extends UIPlugin {
     return config;
   }
 
-  /** Get the ids of all the charts defined in this plugin (basicCharts + scorecards) */
+  private getGaugeConfiguration(definition: GaugeChartDefinition): GaugeChartConfiguration {
+    const fontColor = chartFontColor(definition.background);
+    const config: GaugeChartConfiguration = this.getDefaultConfiguration(
+      definition,
+      [],
+      fontColor
+    ) as GaugeChartConfiguration;
+    config.options!.hover = undefined;
+    config.options!.events = [];
+    config.options!.layout = {
+      padding: { left: 30, right: 30, top: definition.title ? 10 : 25, bottom: 25 },
+    };
+    config.options!.needle = {
+      radiusPercentage: 2,
+      widthPercentage: 3.2,
+      lengthPercentage: 80,
+      color: "rgba(0, 0, 0, 1)",
+    };
+    config.options!.valueLabel = {
+      display: false,
+      formatter: null,
+      color: "rgba(255, 255, 255, 1)",
+      backgroundColor: "rgba(0, 0, 0, 1)",
+      fontSize: 30,
+      borderRadius: 5,
+      padding: {
+        top: 5,
+        right: 5,
+        bottom: 5,
+        left: 5,
+      },
+      bottomMarginPercentage: 5,
+    };
+    return config;
+  }
+
+  /** Get the ids of all the charts defined in this plugin (basicCharts + scorecards + gauges) */
   private getAllChartIds() {
-    return [...Object.keys(this.chartRuntime), ...Object.keys(this.scorecardChartRuntime)];
+    return [
+      ...Object.keys(this.chartRuntime),
+      ...Object.keys(this.scorecardChartRuntime),
+      ...Object.keys(this.gaugeChartRuntime),
+    ];
   }
 
   private getSheetIdsUsedInChart(chartId: UID): Set<UID> {
@@ -308,6 +387,94 @@ export class EvaluationChartPlugin extends UIPlugin {
     return "category";
   }
 
+  private mapGaugeDefinitionToRuntime(definition: GaugeChartDefinition) {
+    const runtime = this.getGaugeConfiguration(definition);
+    const colors = definition.sectionRule.colors;
+
+    const lowerPoint = definition.sectionRule.lowerInflectionPoint;
+    const upperPoint = definition.sectionRule.upperInflectionPoint;
+    const lowerPointValue = Number(lowerPoint.value);
+    const upperPointValue = Number(upperPoint.value);
+    const minNeedleValue = Number(definition.sectionRule.rangeMin);
+    const maxNeedleValue = Number(definition.sectionRule.rangeMax);
+    const needleCoverage = maxNeedleValue - minNeedleValue;
+
+    let needleInflectionPoint: { value: number; color: string }[] = [];
+
+    if (lowerPoint.value !== "") {
+      const lowerPointNeedleValue =
+        lowerPoint.type === "number"
+          ? lowerPointValue
+          : minNeedleValue + (needleCoverage * lowerPointValue) / 100;
+      needleInflectionPoint.push({
+        value: this.scale(lowerPointNeedleValue, minNeedleValue, maxNeedleValue),
+        color: colors.lowerColor,
+      });
+    }
+
+    if (upperPoint.value !== "") {
+      const upperPointNeedleValue =
+        upperPoint.type === "number"
+          ? upperPointValue
+          : minNeedleValue + (needleCoverage * upperPointValue) / 100;
+      needleInflectionPoint.push({
+        value: this.scale(upperPointNeedleValue, minNeedleValue, maxNeedleValue),
+        color: colors.middleColor,
+      });
+    }
+
+    let data: number[] = [];
+    let backgroundColor: string[] = [];
+    needleInflectionPoint
+      .sort((a, b) => a.value - b.value)
+      .map((point) => {
+        data.push(point.value);
+        backgroundColor.push(point.color);
+      });
+    data.push(maxNeedleValue);
+    backgroundColor.push(colors.upperColor);
+
+    const dataRange = definition.dataRange;
+    const deltaBeyondRangeLimit = needleCoverage / 30;
+    let needleValue = minNeedleValue - deltaBeyondRangeLimit; // make needle value always at the minimum by default
+    let cellValue: CellValue | undefined = undefined;
+    let cellFormatter: (() => string) | null = null;
+    let displayValue = false;
+
+    if (dataRange !== undefined) {
+      cellValue = this.getters.getRangeValues(dataRange)[0];
+      if (typeof cellValue === "number") {
+        // in gauge graph "datasets.value" is used to calculate the angle of the
+        // needle in the graph. To prevent the needle from making 360° turns, we
+        // scale the value between a min and a max. This min and this max are slightly
+        // smaller and slightly larger than minRange and maxRange to mark the fact
+        // that the needle is out of the range limits
+        needleValue = this.scale(
+          cellValue,
+          minNeedleValue - deltaBeyondRangeLimit,
+          maxNeedleValue + deltaBeyondRangeLimit
+        );
+        cellFormatter = () => this.getters.getRangeFormattedValues(dataRange)[0];
+        displayValue = true;
+      }
+    }
+
+    runtime.options!.valueLabel!.display = displayValue;
+    runtime.options!.valueLabel!.formatter = cellFormatter;
+    runtime.data!.datasets!.push({
+      data,
+      minValue: Number(definition.sectionRule.rangeMin),
+      value: needleValue,
+      backgroundColor,
+    });
+
+    return runtime;
+  }
+
+  private scale(value: number, min: number, max: number) {
+    return Math.min(max, Math.max(min, value));
+  }
+
   private mapScorecardDefinitionToRuntime(
     definition: ScorecardChartDefinition
   ): ScorecardChartRuntime {
@@ -343,7 +510,7 @@ export class EvaluationChartPlugin extends UIPlugin {
     };
   }
 
-  private mapDefinitionToRuntime(definition: BasicChartDefinition): ChartConfiguration {
+  private mapBasicDefinitionToRuntime(definition: BasicChartDefinition): BasicChartConfiguration {
     const axisType = this.getChartAxisType(definition);
     const labelValues = this.getChartLabelValues(definition);
     let labels = axisType === "linear" ? labelValues.values : labelValues.formattedValues;
@@ -354,7 +521,7 @@ export class EvaluationChartPlugin extends UIPlugin {
       ({ labels, dataSetsValues } = this.fixEmptyLabelsForDateCharts(labels, dataSetsValues));
     }
     const fontColor = chartFontColor(definition.background);
-    const runtime = this.getDefaultConfiguration(definition, labels, fontColor);
+    const runtime = this.getBasicConfiguration(definition, labels, fontColor);
     const labelFormat = this.getLabelFormat(definition)!;
     if (axisType === "time") {
       runtime.options!.scales!.xAxes![0].type = "time";
@@ -377,7 +544,7 @@ export class EvaluationChartPlugin extends UIPlugin {
       const color = definition.type !== "pie" ? colors.next() : "#FFFFFF"; // white border for pie chart
       const backgroundColor =
         definition.type === "pie" ? this.getPieColors(colors, dataSetsValues) : color;
-      const dataset: ChartDataSets = {
+      const dataset: BasicChartDataSet = {
         label,
         data,
         lineTension: 0, // 0 -> render straight lines, which is much faster

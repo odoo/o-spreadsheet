@@ -65,6 +65,7 @@ function updateChartRangesTransformation(
   let labelZone: Zone | undefined;
   let baselineZone: Zone | undefined;
   let keyValueZone: Zone | undefined;
+  let dataRangeZone: Zone | undefined;
   let dataSets: string[] | undefined;
   if ("labelRange" in definition && definition.labelRange) {
     labelZone = transformZone(toZone(definition.labelRange), executed);
@@ -82,6 +83,9 @@ function updateChartRangesTransformation(
   if ("keyValue" in definition && definition.keyValue) {
     keyValueZone = transformZone(toZone(definition.keyValue), executed);
   }
+  if ("dataRange" in definition && definition.dataRange) {
+    dataRangeZone = transformZone(toZone(definition.dataRange), executed);
+  }
 
   const def = {
     ...definition,
@@ -89,6 +93,7 @@ function updateChartRangesTransformation(
     labelRange: labelZone ? zoneToXc(labelZone) : undefined,
     baseline: baselineZone ? zoneToXc(baselineZone) : undefined,
     keyValue: keyValueZone ? zoneToXc(keyValueZone) : undefined,
+    dataRange: dataRangeZone ? zoneToXc(dataRangeZone) : undefined,
   };
   return {
     ...toTransform,

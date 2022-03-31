@@ -235,6 +235,37 @@ export const demoData = {
             baselineDescr: "Descr",
           },
         },
+        {
+          id: "5",
+          x: 1015,
+          y: 420,
+          height: 400,
+          width: 465,
+          tag: "chart",
+          data: {
+            background: "#FFFFFF",
+            sectionRule: {
+              colors: {
+                lowerColor: "#cc0000",
+                middleColor: "#f1c232",
+                upperColor: "#6aa84f",
+              },
+              rangeMin: "0",
+              rangeMax: "100",
+              lowerInflectionPoint: {
+                type: "percentage",
+                value: "15",
+              },
+              upperInflectionPoint: {
+                type: "percentage",
+                value: "40",
+              },
+            },
+            title: "Gauge",
+            type: "gauge",
+            dataRange: "Sheet1!B29",
+          },
+        },
       ],
     },
     {

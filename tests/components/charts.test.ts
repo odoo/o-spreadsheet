@@ -3,7 +3,13 @@ import { CommandResult, Model, Spreadsheet } from "../../src";
 import { ChartTerms } from "../../src/components/translations_terms";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../src/constants";
 import { toHex, toZone } from "../../src/helpers";
-import { createChart, createScorecardChart, updateChart } from "../test_helpers/commands_helpers";
+import { Figure } from "../../src/types/figure";
+import {
+  createChart,
+  createGaugeChart,
+  createScorecardChart,
+  updateChart,
+} from "../test_helpers/commands_helpers";
 import {
   setInputValueAndTrigger,
   simulateClick,
@@ -39,30 +45,64 @@ const TEST_CHART_DATA = {
     baselineDescr: "description",
     baselineMode: "absolute" as const,
   },
+  gauge: {
+    type: "gauge" as const,
+    dataRange: "B1:B4",
+    title: "hello",
+    sectionRule: {
+      rangeMin: "0",
+      rangeMax: "100",
+      colors: {
+        lowerColor: "#6aa84f",
+        middleColor: "#f1c232",
+        upperColor: "#cc0000",
+      },
+      lowerInflectionPoint: {
+        type: "number" as const,
+        value: "33",
+      },
+      upperInflectionPoint: {
+        type: "number" as const,
+        value: "66",
+      },
+    },
+  },
 };
 
 function createTestChart(type: string) {
-  if (type === "basicChart") {
-    createChart(model, TEST_CHART_DATA.basicChart, chartId);
-  } else if (type === "scorecard") {
-    createScorecardChart(model, TEST_CHART_DATA.scorecard, chartId);
+  switch (type) {
+    case "basicChart":
+      createChart(model, TEST_CHART_DATA.basicChart, chartId);
+      break;
+    case "scorecard":
+      createScorecardChart(model, TEST_CHART_DATA.scorecard, chartId);
+      break;
+    case "gauge":
+      createGaugeChart(model, TEST_CHART_DATA.gauge, chartId);
+      break;
   }
 }
 
 function getChartUIDefinition(chartType: string) {
-  if (chartType === "basicChart") {
-    return model.getters.getBasicChartDefinitionUI(sheetId, chartId);
-  } else if (chartType === "scorecard") {
-    return model.getters.getScorecardChartDefinitionUI(sheetId, chartId);
+  switch (chartType) {
+    case "basicChart":
+      return model.getters.getBasicChartDefinitionUI(sheetId, chartId);
+    case "scorecard":
+      return model.getters.getScorecardChartDefinitionUI(sheetId, chartId);
+    case "gauge":
+      return model.getters.getGaugeChartDefinitionUI(sheetId, chartId);
   }
   return;
 }
 
 function getChartRuntime(chartType: string) {
-  if (chartType === "basicChart") {
-    return model.getters.getBasicChartRuntime(chartId);
-  } else if (chartType === "scorecard") {
-    return model.getters.getScorecardChartRuntime(chartId);
+  switch (chartType) {
+    case "basicChart":
+      return model.getters.getBasicChartRuntime(chartId);
+    case "scorecard":
+      return model.getters.getScorecardChartRuntime(chartId);
+    case "gauge":
+      return model.getters.getGaugeChartRuntime(chartId);
   }
   return;
 }
@@ -136,7 +176,7 @@ describe("figures", () => {
     app.destroy();
     fixture.remove();
   });
-  test.each(["basicChart", "scorecard"])("can export a chart %s", (chartType: string) => {
+  test.each(["basicChart", "scorecard", "gauge"])("can export a chart %s", (chartType: string) => {
     createTestChart(chartType);
     const data = model.exportData();
     const activeSheetId = model.getters.getActiveSheetId();
@@ -155,14 +195,17 @@ describe("figures", () => {
       },
     ]);
   });
-  test.each(["basicChart", "scorecard"])("charts have a menu button", async (chartType: string) => {
-    createTestChart(chartType);
-    await nextTick();
-    expect(fixture.querySelector(".o-figure")).not.toBeNull();
-    expect(fixture.querySelector(".o-chart-menu-item")).not.toBeNull();
-  });
+  test.each(["basicChart", "scorecard", "gauge"])(
+    "charts have a menu button",
+    async (chartType: string) => {
+      createTestChart(chartType);
+      await nextTick();
+      expect(fixture.querySelector(".o-figure")).not.toBeNull();
+      expect(fixture.querySelector(".o-chart-menu-item")).not.toBeNull();
+    }
+  );
 
-  test.each(["basicChart", "scorecard"])(
+  test.each(["basicChart", "scorecard", "gauge"])(
     "Click on Menu button open context menu in %s",
     async (chartType: string) => {
       createTestChart(chartType);
@@ -177,7 +220,7 @@ describe("figures", () => {
     }
   );
 
-  test.each(["scorecard", "basicChart"])(
+  test.each(["scorecard", "basicChart", "gauge"])(
     "Context menu is positioned according to the spreadsheet position in %s",
     async (chartType: string) => {
       createTestChart(chartType);
@@ -191,7 +234,7 @@ describe("figures", () => {
     }
   );
 
-  test.each(["basicChart", "scorecard"])(
+  test.each(["basicChart", "scorecard", "gauge"])(
     "Click on Delete button will delete the chart %s",
     async (chartType: string) => {
       createTestChart(chartType);
@@ -211,7 +254,7 @@ describe("figures", () => {
     }
   );
 
-  test.each(["scorecard", "basicChart"])(
+  test.each(["scorecard", "basicChart", "gauge"])(
     "Click on Edit button will prefill sidepanel",
     async (chartType: string) => {
       createTestChart(chartType);
@@ -260,55 +303,58 @@ describe("figures", () => {
     }
   );
 
-  test.each(["basicChart", "scorecard"])("can edit charts %s", async (chartType: string) => {
-    createTestChart(chartType);
-    await nextTick();
+  test.each(["basicChart", "scorecard", "gauge"])(
+    "can edit charts %s",
+    async (chartType: string) => {
+      createTestChart(chartType);
+      await nextTick();
 
-    await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu-item");
-    const editButton = fixture.querySelectorAll(".o-menu-item")[0];
-    expect(editButton.textContent).toBe("Edit");
-    await simulateClick(".o-menu div[data-name='edit']");
-    await nextTick();
-    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
-    const dataSeries = fixture.querySelectorAll(
-      ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
-    )[0] as HTMLInputElement;
-    const dataSeriesValues = dataSeries.querySelector("input");
-    const dispatch = spyDispatch(parent);
-    switch (chartType) {
-      case "basicChart":
-        setInputValueAndTrigger(dataSeriesValues, "B2:B4", "change");
-        const hasTitle = dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement;
-        triggerMouseEvent(hasTitle, "click");
-        expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-          id: chartId,
-          sheetId,
-          definition: {
-            dataSets: ["B2:B4"],
-            dataSetsHaveTitle: false,
-          },
-        });
-        break;
-      case "scorecard":
-        setInputValueAndTrigger(dataSeriesValues, "B2:B4", "change");
-        expect(dispatch).toHaveBeenLastCalledWith("CHANGE_RANGE", {
-          value: "B2:B4",
-          id: expect.anything(),
-          rangeId: expect.anything(),
-        });
-        break;
+      await simulateClick(".o-figure");
+      await simulateClick(".o-chart-menu-item");
+      const editButton = fixture.querySelectorAll(".o-menu-item")[0];
+      expect(editButton.textContent).toBe("Edit");
+      await simulateClick(".o-menu div[data-name='edit']");
+      await nextTick();
+      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+      const dataSeries = fixture.querySelectorAll(
+        ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
+      )[0] as HTMLInputElement;
+      const dataSeriesValues = dataSeries.querySelector("input");
+      const dispatch = spyDispatch(parent);
+      switch (chartType) {
+        case "basicChart":
+          setInputValueAndTrigger(dataSeriesValues, "B2:B4", "change");
+          const hasTitle = dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement;
+          triggerMouseEvent(hasTitle, "click");
+          expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
+            id: chartId,
+            sheetId,
+            definition: {
+              dataSets: ["B2:B4"],
+              dataSetsHaveTitle: false,
+            },
+          });
+          break;
+        case "scorecard":
+          setInputValueAndTrigger(dataSeriesValues, "B2:B4", "change");
+          expect(dispatch).toHaveBeenLastCalledWith("CHANGE_RANGE", {
+            value: "B2:B4",
+            id: expect.anything(),
+            rangeId: expect.anything(),
+          });
+          break;
+      }
+      await simulateClick(".o-panel .inactive");
+      setInputValueAndTrigger(".o-chart-title input", "hello", "change");
+      expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
+        id: chartId,
+        sheetId,
+        definition: {
+          title: "hello",
+        },
+      });
     }
-    await simulateClick(".o-panel .inactive");
-    setInputValueAndTrigger(".o-chart-title input", "hello", "change");
-    expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-      id: chartId,
-      sheetId,
-      definition: {
-        title: "hello",
-      },
-    });
-  });
+  );
 
   test.each(["basicChart", "scorecard"])(
     "can edit charts %s background",
@@ -352,6 +398,7 @@ describe("figures", () => {
   test.each([
     ["basicChart", [".o-data-labels"], ["labelRange"]],
     ["scorecard", [".o-data-labels", ".o-data-series"], ["baseline", "keyValue"]],
+    ["gauge", [".o-data-series"], ["dataRange"]],
   ])("remove ranges in chart %s", async (chartType: string, rangesDomClasses, nameInChartDef) => {
     createTestChart(chartType);
     await nextTick();
@@ -397,7 +444,7 @@ describe("figures", () => {
     expect((mockChartData.options!.title as any).text).toBe("hello");
   });
 
-  test.each(["basicChart", "scorecard"])(
+  test.each(["basicChart", "scorecard", "gauge"])(
     "deleting chart %s will close sidePanel",
     async (chartType: string) => {
       createTestChart(chartType);
@@ -418,26 +465,29 @@ describe("figures", () => {
     }
   );
 
-  test.each(["basicChart", "scorecard"])("can refresh a chart", async (chartType: string) => {
-    createTestChart(chartType);
-    await nextTick();
+  test.each(["basicChart", "scorecard", "gauge"])(
+    "can refresh a chart",
+    async (chartType: string) => {
+      createTestChart(chartType);
+      await nextTick();
 
-    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
-    await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu-item");
-    await simulateClick(".o-menu div[data-name='edit']");
-    await nextTick();
-    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
-    await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu-item");
-    const dispatch = spyDispatch(parent);
-    await simulateClick(".o-menu div[data-name='refresh']");
-    expect(dispatch).toHaveBeenCalledWith("REFRESH_CHART", {
-      id: "someuuid",
-    });
-  });
+      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
+      await simulateClick(".o-figure");
+      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-menu div[data-name='edit']");
+      await nextTick();
+      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+      await simulateClick(".o-figure");
+      await simulateClick(".o-chart-menu-item");
+      const dispatch = spyDispatch(parent);
+      await simulateClick(".o-menu div[data-name='refresh']");
+      expect(dispatch).toHaveBeenCalledWith("REFRESH_CHART", {
+        id: "someuuid",
+      });
+    }
+  );
 
-  test.each(["basicChart", "scorecard"])(
+  test.each(["basicChart", "scorecard", "gauge"])(
     "selecting other chart will adapt sidepanel",
     async (chartType: string) => {
       createTestChart(chartType);
@@ -478,7 +528,7 @@ describe("figures", () => {
     }
   );
 
-  test.each(["basicChart", "scorecard"])(
+  test.each(["basicChart", "scorecard", "gauge"])(
     "Selecting a figure and hitting Ctrl does not unselect it",
     async (chartType: string) => {
       createTestChart(chartType);
@@ -536,8 +586,9 @@ describe("figures", () => {
     test.each([
       ["basicChart", [CommandResult.EmptyDataSet]],
       ["scorecard", [CommandResult.EmptyScorecardKeyValue]],
+      ["gauge", [CommandResult.EmptyGaugeDataRange]],
     ])(
-      "update basic chart with empty dataset/keyValue and empty labels/baseline",
+      "update chart with empty dataset/keyValue/dataRange",
       async (chartType: string, expectedResults: CommandResult[]) => {
         createTestChart(chartType);
         await nextTick();
@@ -556,11 +607,30 @@ describe("figures", () => {
         );
 
         expect(errorMessages()).toEqual(expectedErrors);
+      }
+    );
+
+    test.each([
+      ["basicChart", []],
+      ["scorecard", []],
+    ])(
+      "update basic chart with empty labels/baseline",
+      async (chartType: string, expectedResults: CommandResult[]) => {
+        createTestChart(chartType);
+        await nextTick();
+
+        await simulateClick(".o-figure");
+        await simulateClick(".o-chart-menu-item");
+        await simulateClick(".o-menu div[data-name='edit']");
 
         await simulateClick(".o-data-labels input");
         setInputValueAndTrigger(".o-data-labels input", "", "change");
         await nextTick();
         await simulateClick(".o-data-labels .o-selection-ok");
+
+        const expectedErrors = expectedResults.map((result) =>
+          ChartTerms.Errors[result].toString()
+        );
 
         expect(errorMessages()).toEqual(expectedErrors);
       }
@@ -569,8 +639,9 @@ describe("figures", () => {
     test.each([
       ["basicChart", [CommandResult.InvalidDataSet]],
       ["scorecard", [CommandResult.InvalidScorecardKeyValue]],
+      ["gauge", [CommandResult.InvalidGaugeDataRange]],
     ])(
-      "update basic chart with invalid dataset/key value and empty labels/baseline",
+      "update chart with invalid dataset/keyValue/dataRange",
       async (chartType: string, expectedResults: CommandResult[]) => {
         createTestChart(chartType);
         await nextTick();
@@ -610,6 +681,91 @@ describe("figures", () => {
       }
     );
 
+    describe("update chart with invalid section rule", () => {
+      beforeEach(async () => {
+        createTestChart("gauge");
+        await nextTick();
+        await simulateClick(".o-figure");
+        await simulateClick(".o-chart-menu-item");
+        await simulateClick(".o-menu div[data-name='edit']");
+        // change configuration panel to design panel
+        await simulateClick(".o-panel-design");
+      });
+
+      test("empty rangeMin", async () => {
+        await simulateClick(".o-data-range-min");
+        setInputValueAndTrigger(".o-data-range-min", "", "input");
+        setInputValueAndTrigger(".o-data-range-min", "", "change");
+        await nextTick();
+        expect(errorMessages()[0]).toEqual(
+          ChartTerms.Errors[CommandResult.EmptyGaugeRangeMin].toString()
+        );
+      });
+
+      test("NaN rangeMin", async () => {
+        await simulateClick(".o-data-range-min");
+        setInputValueAndTrigger(".o-data-range-min", "I'm not a number", "input");
+        setInputValueAndTrigger(".o-data-range-min", "I'm not a number", "change");
+        await nextTick();
+        expect(errorMessages()[0]).toEqual(
+          ChartTerms.Errors[CommandResult.GaugeRangeMinNaN].toString()
+        );
+      });
+
+      test("empty rangeMax", async () => {
+        await simulateClick(".o-data-range-max");
+        setInputValueAndTrigger(".o-data-range-max", "", "input");
+        setInputValueAndTrigger(".o-data-range-max", "", "change");
+        await nextTick();
+        expect(errorMessages()[0]).toEqual(
+          ChartTerms.Errors[CommandResult.EmptyGaugeRangeMax].toString()
+        );
+      });
+
+      test("NaN rangeMax", async () => {
+        await simulateClick(".o-data-range-max");
+        setInputValueAndTrigger(".o-data-range-max", "I'm not a number", "input");
+        setInputValueAndTrigger(".o-data-range-max", "I'm not a number", "change");
+        await nextTick();
+        expect(errorMessages()[0]).toEqual(
+          ChartTerms.Errors[CommandResult.GaugeRangeMaxNaN].toString()
+        );
+      });
+
+      test("rangeMin > rangeMax", async () => {
+        await simulateClick(".o-data-range-min");
+        setInputValueAndTrigger(".o-data-range-min", "100", "input");
+        setInputValueAndTrigger(".o-data-range-min", "100", "change");
+        await simulateClick(".o-data-range-max");
+        setInputValueAndTrigger(".o-data-range-max", "0", "input");
+        setInputValueAndTrigger(".o-data-range-max", "0", "change");
+        await nextTick();
+        expect(errorMessages()[0]).toEqual(
+          ChartTerms.Errors[CommandResult.GaugeRangeMinBiggerThanRangeMax].toString()
+        );
+      });
+
+      test("NaN LowerInflectionPoint", async () => {
+        await simulateClick(".o-input-lowerInflectionPoint");
+        setInputValueAndTrigger(".o-input-lowerInflectionPoint", "I'm not a number", "input");
+        setInputValueAndTrigger(".o-input-lowerInflectionPoint", "I'm not a number", "change");
+        await nextTick();
+        expect(errorMessages()[0]).toEqual(
+          ChartTerms.Errors[CommandResult.GaugeLowerInflectionPointNaN].toString()
+        );
+      });
+
+      test("NaN UpperInflectionPoint", async () => {
+        await simulateClick(".o-input-upperInflectionPoint");
+        setInputValueAndTrigger(".o-input-upperInflectionPoint", "I'm not a number", "input");
+        setInputValueAndTrigger(".o-input-upperInflectionPoint", "I'm not a number", "change");
+        await nextTick();
+        expect(errorMessages()[0]).toEqual(
+          ChartTerms.Errors[CommandResult.GaugeUpperInflectionPointNaN].toString()
+        );
+      });
+    });
+
     test.each(["scorecard"])("error displayed on input fields", async (chartType: string) => {
       createTestChart(chartType);
       await nextTick();
@@ -634,6 +790,101 @@ describe("figures", () => {
       await simulateClick(".o-data-labels .o-selection-ok");
       expect(document.querySelector(".o-data-series input")?.classList).toContain("o-invalid");
       expect(document.querySelector(".o-data-labels input")?.classList).toContain("o-invalid");
+    });
+
+    describe("gauge > error displayed on input fields", () => {
+      let model: Model;
+      let sheetId: string;
+      let figure: Figure | undefined;
+
+      beforeEach(async () => {
+        createTestChart("gauge");
+        await nextTick();
+        model = parent.model;
+        sheetId = model.getters.getActiveSheetId();
+        figure = model.getters.getFigure(sheetId, chartId);
+        parent.env.openSidePanel("ChartPanel", { figure });
+        await nextTick();
+      });
+
+      test("empty dataRange", async () => {
+        await simulateClick(".o-data-series input");
+        setInputValueAndTrigger(".o-data-series input", "", "input");
+        setInputValueAndTrigger(".o-data-series input", "", "change");
+        await simulateClick(".o-data-series .o-selection-ok");
+        expect(document.querySelector(".o-data-series input")?.classList).toContain("o-invalid");
+      });
+
+      test("empty rangeMin", async () => {
+        await simulateClick(".o-panel-design");
+        await simulateClick(".o-data-range-min");
+        setInputValueAndTrigger(".o-data-range-min", "", "input");
+        setInputValueAndTrigger(".o-data-range-min", "", "change");
+        await nextTick();
+        expect(document.querySelector(".o-data-range-min")?.classList).toContain("o-invalid");
+      });
+
+      test("NaN rangeMin", async () => {
+        await simulateClick(".o-panel-design");
+        await simulateClick(".o-data-range-min");
+        setInputValueAndTrigger(".o-data-range-min", "bla bla bla", "input");
+        setInputValueAndTrigger(".o-data-range-min", "bla bla bla", "change");
+        await nextTick();
+        expect(document.querySelector(".o-data-range-min")?.classList).toContain("o-invalid");
+      });
+
+      test("empty rangeMax", async () => {
+        await simulateClick(".o-panel-design");
+        await simulateClick(".o-data-range-max");
+        setInputValueAndTrigger(".o-data-range-max", "", "input");
+        setInputValueAndTrigger(".o-data-range-max", "", "change");
+        await nextTick();
+        expect(document.querySelector(".o-data-range-max")?.classList).toContain("o-invalid");
+      });
+
+      test("NaN rangeMax", async () => {
+        await simulateClick(".o-panel-design");
+        await simulateClick(".o-data-range-max");
+        setInputValueAndTrigger(".o-data-range-max", "bla bla bla", "input");
+        setInputValueAndTrigger(".o-data-range-max", "bla bla bla", "change");
+        await nextTick();
+        expect(document.querySelector(".o-data-range-max")?.classList).toContain("o-invalid");
+      });
+
+      test("rangeMin > rangeMax", async () => {
+        await simulateClick(".o-panel-design");
+        await simulateClick(".o-data-range-min");
+        setInputValueAndTrigger(".o-data-range-min", "100", "input");
+        setInputValueAndTrigger(".o-data-range-min", "100", "change");
+        await simulateClick(".o-data-range-max");
+        setInputValueAndTrigger(".o-data-range-max", "0", "input");
+        setInputValueAndTrigger(".o-data-range-max", "0", "change");
+        await nextTick();
+        expect(document.querySelector(".o-data-range-min")?.classList).toContain("o-invalid");
+        expect(document.querySelector(".o-data-range-max")?.classList).toContain("o-invalid");
+      });
+
+      test("NaN LowerInflectionPoint", async () => {
+        await simulateClick(".o-panel-design");
+        await simulateClick(".o-input-lowerInflectionPoint");
+        setInputValueAndTrigger(".o-input-lowerInflectionPoint", "bla bla bla", "input");
+        setInputValueAndTrigger(".o-input-lowerInflectionPoint", "bla bla bla", "change");
+        await nextTick();
+        expect(document.querySelector(".o-input-lowerInflectionPoint")?.classList).toContain(
+          "o-invalid"
+        );
+      });
+
+      test("NaN UpperInflectionPoint", async () => {
+        await simulateClick(".o-panel-design");
+        await simulateClick(".o-input-upperInflectionPoint");
+        setInputValueAndTrigger(".o-input-upperInflectionPoint", "bla bla bla", "input");
+        setInputValueAndTrigger(".o-input-upperInflectionPoint", "bla bla bla", "change");
+        await nextTick();
+        expect(document.querySelector(".o-input-upperInflectionPoint")?.classList).toContain(
+          "o-invalid"
+        );
+      });
     });
   });
 

@@ -1,5 +1,6 @@
 import { ChartFigure } from "./components/figures/figure_chart/figure_chart";
 import { BasicChartPanel } from "./components/side_panel/chart/basic_chart_panel/basic_chart_panel";
+import { GaugeChartPanel } from "./components/side_panel/chart/gauge_chart_panel/gauge_chart_panel";
 import { ScorecardChartPanel } from "./components/side_panel/chart/scorecard_chart_panel/scorecard_chart_panel";
 import {
   BOTTOMBAR_HEIGHT,
@@ -135,4 +136,5 @@ export const components = {
   ChartFigure,
   BasicChartPanel,
   ScorecardChartPanel,
+  GaugeChartPanel,
 };

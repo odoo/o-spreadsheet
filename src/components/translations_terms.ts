@@ -15,7 +15,7 @@ export const CfTerms = {
     [CommandResult.MinBiggerThanMid]: _lt("Minimum must be smaller then Midpoint"),
     [CommandResult.MidBiggerThanMax]: _lt("Midpoint must be smaller then Maximum"),
     [CommandResult.LowerBiggerThanUpper]: _lt(
-      "Lower inflection point must be smaller then upper inflection point"
+      "Lower inflection point must be smaller than upper inflection point"
     ),
     [CommandResult.MinInvalidFormula]: _lt("Invalid Minpoint formula"),
     [CommandResult.MaxInvalidFormula]: _lt("Invalid Maxpoint formula"),
@@ -49,14 +49,31 @@ export const CellIsOperators = {
 export const ChartTerms = {
   Series: _lt("Series"),
   Errors: {
+    Unexpected: _lt("The chart definition is invalid for an unknown reason"),
+    // BASIC CHART ERRORS (LINE | BAR | PIE)
     [CommandResult.EmptyDataSet]: _lt("A dataset needs to be defined"),
     [CommandResult.InvalidDataSet]: _lt("The dataset is invalid"),
     [CommandResult.InvalidLabelRange]: _lt("Labels are invalid"),
+    // SCORECARD CHART ERRORS
     [CommandResult.EmptyScorecardKeyValue]: _lt("A key value must be defined"),
     [CommandResult.InvalidScorecardKeyValue]: _lt("The key value is invalid"),
     [CommandResult.InvalidScorecardBaseline]: _lt("The baseline value is invalid"),
-    [CommandResult.InvalidDataSet]: _lt("The key value is invalid"),
-    Unexpected: _lt("The chart definition is invalid for an unknown reason"),
+    // GAUGE CHART ERRORS
+    [CommandResult.EmptyGaugeDataRange]: _lt("A data range must be defined"),
+    [CommandResult.InvalidGaugeDataRange]: _lt("The data range is invalid"),
+    [CommandResult.EmptyGaugeRangeMin]: _lt("A minimum range limit value is needed"),
+    [CommandResult.GaugeRangeMinNaN]: _lt("The minimum range limit value must be a number"),
+    [CommandResult.EmptyGaugeRangeMax]: _lt("A maximum range limit value is needed"),
+    [CommandResult.GaugeRangeMaxNaN]: _lt("The maximum range limit value must be a number"),
+    [CommandResult.GaugeRangeMinBiggerThanRangeMax]: _lt(
+      "Minimum range limit must be smaller than maximum range limit"
+    ),
+    [CommandResult.GaugeLowerInflectionPointNaN]: _lt(
+      "The lower inflection point value must be a number"
+    ),
+    [CommandResult.GaugeUpperInflectionPointNaN]: _lt(
+      "The upper inflection point value must be a number"
+    ),
   },
 };
 

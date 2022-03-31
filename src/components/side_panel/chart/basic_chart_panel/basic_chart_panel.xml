@@ -91,7 +91,7 @@
 
   <t t-name="o-spreadsheet.BasicChartDesignPanel" owl="1">
     <div>
-      <div class="o-section o-chart-title">
+      <div class="o-section">
         <div class="o-section-title">Background color</div>
         <div class="o-with-color-picker">
           Select a color...
