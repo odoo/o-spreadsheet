@@ -1,7 +1,7 @@
 import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
-import { Grid } from "../../src/components/grid";
-import { Menu } from "../../src/components/menu";
+import { Grid } from "../../src/components/grid/grid";
+import { Menu } from "../../src/components/menu/menu";
 import { HEADER_HEIGHT, HEADER_WIDTH, MENU_ITEM_HEIGHT, TOPBAR_HEIGHT } from "../../src/constants";
 import { toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";

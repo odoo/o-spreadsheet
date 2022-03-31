@@ -1,1 +1,1 @@
-export { Spreadsheet } from "./spreadsheet";
+export { Spreadsheet } from "./spreadsheet/spreadsheet";

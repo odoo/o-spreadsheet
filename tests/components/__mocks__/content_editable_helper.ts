@@ -1,4 +1,7 @@
-import { HtmlContent, SelectionIndicatorClass } from "../../../src/components/composer/composer";
+import {
+  HtmlContent,
+  SelectionIndicatorClass,
+} from "../../../src/components/composer/composer/composer";
 
 const initialSelectionState = {
   isSelectingRange: false,

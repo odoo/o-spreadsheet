@@ -16,12 +16,12 @@ import {
   UpDown,
   Zone,
 } from "../../../types";
-import { ColorPicker } from "../../color_picker";
+import { ColorPicker } from "../../color_picker/color_picker";
 import { css } from "../../helpers/css";
 import { getTextDecoration } from "../../helpers/dom_helpers";
-import { ICONS, ICON_SETS } from "../../icons";
-import { IconPicker } from "../../icon_picker";
-import { SelectionInput } from "../../selection_input";
+import { ICONS, ICON_SETS } from "../../icons/icons";
+import { IconPicker } from "../../icon_picker/icon_picker";
+import { SelectionInput } from "../../selection_input/selection_input";
 import { CellIsOperators } from "../../translations_terms";
 import { CfTerms } from "./../../translations_terms";
 

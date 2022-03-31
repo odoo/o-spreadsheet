@@ -1,6 +1,6 @@
 import { App } from "@odoo/owl";
 import { Spreadsheet, TransportService } from "../../src";
-import { Grid } from "../../src/components/grid";
+import { Grid } from "../../src/components/grid/grid";
 import { HEADER_WIDTH, MESSAGE_VERSION, SCROLLBAR_WIDTH } from "../../src/constants";
 import { scrollDelay, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";

@@ -1,6 +1,6 @@
 import { App } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
-import { ColResizer, RowResizer } from "../../src/components/overlay";
+import { ColResizer, RowResizer } from "../../src/components/overlay/overlay";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,

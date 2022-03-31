@@ -1,5 +1,5 @@
 import { App, Component, onMounted, onWillUnmount, useState, useSubEnv, xml } from "@odoo/owl";
-import { TopBar } from "../../src/components/top_bar";
+import { TopBar } from "../../src/components/top_bar/top_bar";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";

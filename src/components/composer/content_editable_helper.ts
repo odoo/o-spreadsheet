@@ -1,4 +1,4 @@
-import { HtmlContent } from "./composer";
+import { HtmlContent } from "./composer/composer";
 
 export class ContentEditableHelper {
   el: HTMLElement;

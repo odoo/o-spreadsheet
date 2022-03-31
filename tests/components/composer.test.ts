@@ -4,7 +4,7 @@ import {
   MatchingParenColor,
   NumberColor,
   tokenColor,
-} from "../../src/components/composer/composer";
+} from "../../src/components/composer/composer/composer";
 import { fontSizes } from "../../src/fonts";
 import { colors, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
