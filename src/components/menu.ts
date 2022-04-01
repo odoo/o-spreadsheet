@@ -1,11 +1,4 @@
-import {
-  Component,
-  onWillUpdateProps,
-  useExternalListener,
-  useRef,
-  useState,
-  xml,
-} from "@odoo/owl";
+import { onWillUpdateProps, useExternalListener, useRef, useState, xml } from "@odoo/owl";
 import {
   HEADER_HEIGHT,
   MENU_ITEM_DISABLED_COLOR,
@@ -16,8 +9,8 @@ import {
   MENU_WIDTH,
   TOPBAR_HEIGHT,
 } from "../constants";
-import { ContextMenu, menuProvider } from "../controllers/menu_controller";
-import { useSharedUI } from "../controllers/providers";
+import { menuProvider } from "../controllers/menu_controller";
+import { ConsumerComponent } from "../controllers/providers";
 import { FullMenuItem, MenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { DOMCoordinates, SpreadsheetChildEnv } from "../types";
@@ -138,7 +131,7 @@ export interface MenuState {
   scrollOffset?: number;
   menuItems: FullMenuItem[];
 }
-export class Menu extends Component<Props, SpreadsheetChildEnv> {
+export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static components = { Menu, Popover };
   static defaultProps = {
@@ -153,9 +146,9 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   });
   private menuRef = useRef("menu");
   private position = useAbsolutePosition(this.menuRef);
-  private contextMenu!: ContextMenu;
 
   setup() {
+    super.setup();
     useExternalListener(window, "click", this.onClick);
     useExternalListener(window, "contextmenu", this.onContextMenu);
     onWillUpdateProps((nextProps: Props) => {
@@ -163,7 +156,12 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
         this.subMenu.isOpen = false;
       }
     });
-    this.contextMenu = useSharedUI(menuProvider);
+    // this.contextMenu = useSharedUI(menuProvider);
+    // this.contextMenuStyle = useSharedUI(menuStyleProvider);
+  }
+
+  get contextMenu() {
+    return this.providers.watch(menuProvider);
   }
 
   get subMenuPosition(): DOMCoordinates {

@@ -1,7 +1,7 @@
-import { Component, onMounted, onPatched, useRef, xml } from "@odoo/owl";
+import { onMounted, onPatched, useRef, xml } from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../constants";
-import { ContextMenu, menuProvider } from "../controllers/menu_controller";
-import { useSharedUI } from "../controllers/providers";
+import { menuProvider } from "../controllers/menu_controller";
+import { ConsumerComponent } from "../controllers/providers";
 import { formatValue } from "../helpers/format";
 import { interactiveRenameSheet } from "../helpers/ui/sheet";
 import { MenuItemRegistry, sheetMenuRegistry } from "../registries/index";
@@ -134,18 +134,21 @@ interface Props {
   onClick: () => void;
 }
 
-export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
+export class BottomBar extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static components = { Menu };
 
   private bottomBarRef = useRef("bottomBar");
-  private contextMenu!: ContextMenu;
   selectedStatisticFn: string = "";
 
   setup() {
+    super.setup();
     onMounted(() => this.focusSheet());
     onPatched(() => this.focusSheet());
-    this.contextMenu = useSharedUI(menuProvider);
+  }
+
+  get contextMenu() {
+    return this.providers.watch(menuProvider);
   }
 
   focusSheet() {

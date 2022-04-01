@@ -1,8 +1,8 @@
-import { Component, onMounted, onPatched, useRef, xml } from "@odoo/owl";
+import { onMounted, onPatched, useRef, xml } from "@odoo/owl";
 import Chart, { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../constants";
-import { ContextMenu, menuProvider } from "../../controllers/menu_controller";
-import { useSharedUI } from "../../controllers/providers";
+import { menuProvider } from "../../controllers/menu_controller";
+import { ConsumerComponent } from "../../controllers/providers";
 import { MenuItemRegistry } from "../../registries/index";
 import { _lt } from "../../translation";
 import { Figure, SpreadsheetChildEnv } from "../../types";
@@ -53,7 +53,7 @@ interface State {
   background: string;
 }
 
-export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
+export class ChartFigure extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static components = { Menu };
 
@@ -62,14 +62,13 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   private chart?: Chart;
   private state: State = { background: BACKGROUND_CHART_COLOR };
   private position = useAbsolutePosition(this.chartContainerRef);
-  private contextMenu!: ContextMenu;
 
   get canvasStyle() {
     return `background-color: ${this.state.background}`;
   }
 
   setup() {
-    this.contextMenu = useSharedUI(menuProvider);
+    super.setup();
     onMounted(() => {
       const figure = this.props.figure;
       const chartData = this.env.model.getters.getChartRuntime(figure.id);
@@ -108,6 +107,10 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
         this.state.background = def.background;
       }
     });
+  }
+
+  get contextMenu() {
+    return this.providers.watch(menuProvider);
   }
 
   private createChart(chartData: ChartConfiguration) {

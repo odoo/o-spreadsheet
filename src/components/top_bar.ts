@@ -1,7 +1,7 @@
-import { Component, onWillStart, onWillUpdateProps, useState, xml } from "@odoo/owl";
+import { onWillStart, onWillUpdateProps, useState, xml } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR, DEFAULT_FONT_SIZE } from "../constants";
-import { ContextMenu, menuProvider } from "../controllers/menu_controller";
-import { useSharedUI } from "../controllers/providers";
+import { menuProvider } from "../controllers/menu_controller";
+import { ConsumerComponent } from "../controllers/providers";
 import { fontSizes } from "../fonts";
 import { isEqual } from "../helpers/index";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../registries/index";
@@ -249,7 +249,7 @@ css/* scss */ `
     }
   }
 `;
-export class TopBar extends Component<Props, SpreadsheetChildEnv> {
+export class TopBar extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet-topbar o-two-columns" t-on-click="props.onClick">
       <div class="o-topbar-top">
@@ -390,11 +390,14 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     height: 34px;
     background-color: white;
   `;
-  private contextMenu!: ContextMenu;
   setup() {
+    super.setup();
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
-    this.contextMenu = useSharedUI(menuProvider);
+  }
+
+  get contextMenu() {
+    return this.providers.watch(menuProvider);
   }
 
   get topbarComponents() {

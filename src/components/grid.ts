@@ -1,5 +1,4 @@
 import {
-  Component,
   onMounted,
   onPatched,
   onWillUnmount,
@@ -19,8 +18,9 @@ import {
   SCROLLBAR_WIDTH,
   TOPBAR_HEIGHT,
 } from "../constants";
-import { ContextMenu, menuProvider } from "../controllers/menu_controller";
-import { useSharedUI } from "../controllers/providers";
+import { menuProvider } from "../controllers/menu_controller";
+import { menuStyleProvider } from "../controllers/menu_style";
+import { ConsumerComponent } from "../controllers/providers";
 import {
   findCellInNewZone,
   findVisibleHeader,
@@ -201,7 +201,7 @@ const TEMPLATE = xml/* xml */ `
         focus="props.focusComposer"
         />
     </t>
-    <t t-esc="contextMenu.isOpen"/>
+    <t t-esc="contextMenuStyle.state.isOpen"/>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
       t-on-dblclick="onDoubleClick"
@@ -315,7 +315,7 @@ interface Props {
 // -----------------------------------------------------------------------------
 // JS
 // -----------------------------------------------------------------------------
-export class Grid extends Component<Props, SpreadsheetChildEnv> {
+export class Grid extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static components = {
     GridComposer,
@@ -330,8 +330,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     LinkEditor,
     Popover,
   };
-
-  private contextMenu!: ContextMenu;
   private vScrollbarRef!: Ref<HTMLElement>;
   private hScrollbarRef!: Ref<HTMLElement>;
   private gridRef!: Ref<HTMLElement>;
@@ -349,7 +347,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   hoveredCell!: HoveredPosition;
 
   setup() {
-    this.contextMenu = useSharedUI(menuProvider);
+    super.setup();
     this.vScrollbarRef = useRef("vscrollbar");
     this.hScrollbarRef = useRef("hscrollbar");
     this.gridRef = useRef("grid");
@@ -374,6 +372,15 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.resizeGrid();
     });
     this.props.exposeFocus(() => this.focus());
+  }
+
+  get contextMenu() {
+    return this.providers.watch(menuProvider);
+  }
+
+  get contextMenuStyle() {
+    console.log("watch(menuStyleProvider)");
+    return this.providers.watch(menuStyleProvider);
   }
 
   private initGrid() {

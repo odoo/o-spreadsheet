@@ -1,20 +1,12 @@
-import {
-  Component,
-  onMounted,
-  onWillUnmount,
-  useExternalListener,
-  useState,
-  useSubEnv,
-  xml,
-} from "@odoo/owl";
+import { onMounted, onWillUnmount, useExternalListener, useState, useSubEnv, xml } from "@odoo/owl";
 import {
   BOTTOMBAR_HEIGHT,
   CF_ICON_EDGE_LENGTH,
   ICON_EDGE_LENGTH,
   TOPBAR_HEIGHT,
 } from "../constants";
-import { ContextMenu, menuProvider } from "../controllers/menu_controller";
-import { useSharedUI } from "../controllers/providers";
+import { menuProvider } from "../controllers/menu_controller";
+import { ConsumerComponent } from "../controllers/providers";
 import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { SpreadsheetChildEnv, WorkbookData } from "../types";
@@ -117,7 +109,7 @@ interface ComposerState {
   gridFocusMode: "inactive" | "cellFocus" | "contentFocus";
 }
 
-export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
+export class Spreadsheet extends ConsumerComponent<SpreadsheetProps, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static components = { TopBar, Grid, BottomBar, SidePanel, LinkEditor, Menu };
   static _t = t;
@@ -127,12 +119,12 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   sidePanel!: SidePanelState;
   linkEditor!: LinkEditorState;
   composer!: ComposerState;
-  contextMenu!: ContextMenu;
 
   private _focusGrid?: () => void;
   private keyDownMapping!: { [key: string]: Function };
 
   setup() {
+    super.setup();
     this.props.exposeSpreadsheet?.(this);
     this.model = this.props.model;
     this.sidePanel = useState({ isOpen: false, panelProps: {} });
@@ -153,12 +145,15 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       _t: Spreadsheet._t,
       clipboard: navigator.clipboard,
     });
-    this.contextMenu = useSharedUI(menuProvider);
     useExternalListener(window as any, "resize", () => this.render(true));
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
     useExternalListener(window, "beforeunload", this.unbindModelEvents.bind(this));
     onMounted(() => this.bindModelEvents());
     onWillUnmount(() => this.unbindModelEvents());
+  }
+
+  get contextMenu() {
+    return this.providers.watch(menuProvider);
   }
 
   get focusTopBarComposer(): Omit<ComposerFocusType, "cellFocus"> {

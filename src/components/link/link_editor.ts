@@ -1,6 +1,6 @@
-import { Component, onMounted, useRef, useState, xml } from "@odoo/owl";
-import { ContextMenu, menuProvider } from "../../controllers/menu_controller";
-import { useSharedUI } from "../../controllers/providers";
+import { onMounted, useRef, useState, xml } from "@odoo/owl";
+import { menuProvider } from "../../controllers/menu_controller";
+import { ConsumerComponent } from "../../controllers/providers";
 import { markdownLink } from "../../helpers/index";
 import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
 import { Link, Position, SpreadsheetChildEnv } from "../../types";
@@ -123,19 +123,22 @@ interface State {
   isUrlEditable: boolean;
 }
 
-export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> {
+export class LinkEditor extends ConsumerComponent<LinkEditorProps, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static components = { Menu };
   menuItems = linkMenuRegistry.getAll();
-  private contextMenu!: ContextMenu;
   private state: State = useState(this.defaultState);
   private linkEditorRef = useRef("linkEditor");
   private position = useAbsolutePosition(this.linkEditorRef);
   urlInput = useRef("urlInput");
 
   setup() {
-    this.contextMenu = useSharedUI(menuProvider);
+    super.setup();
     onMounted(() => this.urlInput.el?.focus());
+  }
+
+  get contextMenu() {
+    return this.providers.watch(menuProvider);
   }
 
   get defaultState(): State {
