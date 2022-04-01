@@ -1,12 +1,14 @@
-import { Component, onMounted, onPatched, useRef, useState, xml } from "@odoo/owl";
+import { Component, onMounted, onPatched, useRef, xml } from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../constants";
+import { ContextMenu, menuProvider } from "../controllers/menu_controller";
+import { useSharedUI } from "../controllers/providers";
 import { formatValue } from "../helpers/format";
 import { interactiveRenameSheet } from "../helpers/ui/sheet";
 import { MenuItemRegistry, sheetMenuRegistry } from "../registries/index";
 import { SpreadsheetChildEnv, UID } from "../types";
 import { css } from "./helpers/css";
 import { LIST, PLUS, TRIANGLE_DOWN_ICON } from "./icons";
-import { Menu, MenuState } from "./menu";
+import { Menu } from "./menu";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -35,10 +37,6 @@ const TEMPLATE = xml/* xml */ `
       <span>${TRIANGLE_DOWN_ICON}</span>
     </div>
 
-    <Menu t-if="menuState.isOpen"
-          position="menuState.position"
-          menuItems="menuState.menuItems"
-          onClose="() => this.menuState.isOpen=false"/>
   </div>`;
 
 css/* scss */ `
@@ -141,13 +139,13 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   static components = { Menu };
 
   private bottomBarRef = useRef("bottomBar");
-
-  menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
+  private contextMenu!: ContextMenu;
   selectedStatisticFn: string = "";
 
   setup() {
     onMounted(() => this.focusSheet());
     onPatched(() => this.focusSheet());
+    this.contextMenu = useSharedUI(menuProvider);
   }
 
   focusSheet() {
@@ -200,17 +198,15 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   openContextMenu(x: number, y: number, registry: MenuItemRegistry) {
-    this.menuState.isOpen = true;
-    this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
-    this.menuState.position = { x, y };
+    const menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
+    this.contextMenu.open(menuItems, { x, y });
   }
 
   onIconClick(sheet: string, ev: MouseEvent) {
     if (this.env.model.getters.getActiveSheetId() !== sheet) {
       this.activateSheet(sheet);
-    }
-    if (this.menuState.isOpen) {
-      this.menuState.isOpen = false;
+      // this is a behavior change
+      this.contextMenu.close();
     } else {
       const target = (ev.currentTarget as HTMLElement).parentElement as HTMLElement;
       this.openContextMenu(target.offsetLeft, target.offsetTop, sheetMenuRegistry);

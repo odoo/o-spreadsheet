@@ -13,6 +13,8 @@ import {
   ICON_EDGE_LENGTH,
   TOPBAR_HEIGHT,
 } from "../constants";
+import { ContextMenu, menuProvider } from "../controllers/menu_controller";
+import { useSharedUI } from "../controllers/providers";
 import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { SpreadsheetChildEnv, WorkbookData } from "../types";
@@ -21,6 +23,7 @@ import { BottomBar } from "./bottom_bar";
 import { Grid } from "./grid";
 import { css } from "./helpers/css";
 import { LinkEditor } from "./link/link_editor";
+import { Menu } from "./menu";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
 
@@ -50,6 +53,9 @@ const TEMPLATE = xml/* xml */ `
       component="sidePanel.component"
       panelProps="sidePanel.panelProps"/>
     <BottomBar onClick="() => this.focusGrid()"/>
+    <Menu t-if="contextMenu.state.isOpen"
+      menuItems="contextMenu.state.menuItems"
+      position="contextMenu.state.position"/>
   </div>`;
 
 css/* scss */ `
@@ -113,7 +119,7 @@ interface ComposerState {
 
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static components = { TopBar, Grid, BottomBar, SidePanel, LinkEditor };
+  static components = { TopBar, Grid, BottomBar, SidePanel, LinkEditor, Menu };
   static _t = t;
 
   model!: Model;
@@ -121,9 +127,9 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   sidePanel!: SidePanelState;
   linkEditor!: LinkEditorState;
   composer!: ComposerState;
+  contextMenu!: ContextMenu;
 
   private _focusGrid?: () => void;
-
   private keyDownMapping!: { [key: string]: Function };
 
   setup() {
@@ -147,7 +153,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       _t: Spreadsheet._t,
       clipboard: navigator.clipboard,
     });
-
+    this.contextMenu = useSharedUI(menuProvider);
     useExternalListener(window as any, "resize", () => this.render(true));
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
     useExternalListener(window, "beforeunload", this.unbindModelEvents.bind(this));

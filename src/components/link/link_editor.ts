@@ -1,7 +1,9 @@
 import { Component, onMounted, useRef, useState, xml } from "@odoo/owl";
+import { ContextMenu, menuProvider } from "../../controllers/menu_controller";
+import { useSharedUI } from "../../controllers/providers";
 import { markdownLink } from "../../helpers/index";
 import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
-import { DOMCoordinates, Link, Position, SpreadsheetChildEnv } from "../../types";
+import { Link, Position, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { useAbsolutePosition } from "../helpers/position_hook";
 import { GenericTerms, LinkEditorTerms } from "../translations_terms";
@@ -13,7 +15,7 @@ const MENU_OFFSET_Y = 100;
 const PADDING = 12;
 
 const TEMPLATE = xml/* xml */ `
-    <div class="o-link-editor" t-on-click.stop="() => this.menu.isOpen=false" t-on-keydown.stop="onKeyDown" t-ref="linkEditor">
+    <div class="o-link-editor" t-on-click.stop="() => this.contextMenu.close()" t-on-keydown.stop="onKeyDown" t-ref="linkEditor">
       <div class="o-section">
         <div t-esc="env._t('${LinkEditorTerms.Text}')" class="o-section-title"/>
         <div class="d-flex">
@@ -32,12 +34,6 @@ const TEMPLATE = xml/* xml */ `
           <button t-if="!state.link.url" t-on-click.stop="openMenu" class="o-special-link">${LIST}</button>
         </div>
       </div>
-      <Menu
-        t-if="menu.isOpen"
-        position="menuPosition"
-        menuItems="menuItems"
-        onMenuClicked="(ev) => this.onSpecialLink(ev)"
-        onClose="() => this.menu.isOpen=false"/>
       <div class="o-buttons">
         <button t-on-click="cancel" class="o-button o-cancel" t-esc="env._t('${GenericTerms.Cancel}')"></button>
         <button t-on-click="save" class="o-button o-save" t-esc="env._t('${GenericTerms.Confirm}')" t-att-disabled="!state.link.url" ></button>
@@ -131,15 +127,14 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   static template = TEMPLATE;
   static components = { Menu };
   menuItems = linkMenuRegistry.getAll();
+  private contextMenu!: ContextMenu;
   private state: State = useState(this.defaultState);
-  private menu = useState({
-    isOpen: false,
-  });
   private linkEditorRef = useRef("linkEditor");
   private position = useAbsolutePosition(this.linkEditorRef);
   urlInput = useRef("urlInput");
 
   setup() {
+    this.contextMenu = useSharedUI(menuProvider);
     onMounted(() => this.urlInput.el?.focus());
   }
 
@@ -161,13 +156,6 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
     };
   }
 
-  get menuPosition(): DOMCoordinates {
-    return {
-      x: this.position.x + MENU_OFFSET_X - PADDING - 2,
-      y: this.position.y + MENU_OFFSET_Y,
-    };
-  }
-
   onSpecialLink(ev: CustomEvent<State>) {
     const { detail } = ev;
     this.state.link.url = detail.link.url;
@@ -177,7 +165,12 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   }
 
   openMenu() {
-    this.menu.isOpen = true;
+    const position = {
+      x: this.position.x + MENU_OFFSET_X - PADDING - 2,
+      y: this.position.y + MENU_OFFSET_Y,
+    };
+    // onMenuItemClicked
+    this.contextMenu.open(this.menuItems, position);
   }
 
   removeLink() {

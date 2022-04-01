@@ -16,6 +16,8 @@ import {
   MENU_WIDTH,
   TOPBAR_HEIGHT,
 } from "../constants";
+import { ContextMenu, menuProvider } from "../controllers/menu_controller";
+import { useSharedUI } from "../controllers/providers";
 import { FullMenuItem, MenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { DOMCoordinates, SpreadsheetChildEnv } from "../types";
@@ -141,6 +143,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   static components = { Menu, Popover };
   static defaultProps = {
     depth: 1,
+    onClose: () => {},
   };
   private subMenu: MenuState = useState({
     isOpen: false,
@@ -150,6 +153,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   });
   private menuRef = useRef("menu");
   private position = useAbsolutePosition(this.menuRef);
+  private contextMenu!: ContextMenu;
 
   setup() {
     useExternalListener(window, "click", this.onClick);
@@ -159,6 +163,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
         this.subMenu.isOpen = false;
       }
     });
+    this.contextMenu = useSharedUI(menuProvider);
   }
 
   get subMenuPosition(): DOMCoordinates {
@@ -194,6 +199,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   private close() {
     this.subMenu.isOpen = false;
     this.props.onClose();
+    this.contextMenu.close();
   }
 
   /**

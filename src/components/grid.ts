@@ -19,6 +19,8 @@ import {
   SCROLLBAR_WIDTH,
   TOPBAR_HEIGHT,
 } from "../constants";
+import { ContextMenu, menuProvider } from "../controllers/menu_controller";
+import { useSharedUI } from "../controllers/providers";
 import {
   findCellInNewZone,
   findVisibleHeader,
@@ -51,7 +53,7 @@ import { startDnd } from "./helpers/drag_and_drop";
 import { Highlight } from "./highlight/highlight";
 import { LinkDisplay } from "./link/link_display";
 import { LinkEditor } from "./link/link_editor";
-import { Menu, MenuState } from "./menu";
+import { Menu } from "./menu";
 import { Overlay } from "./overlay";
 import { Popover } from "./popover";
 import { ScrollBar } from "./scrollbar";
@@ -199,6 +201,7 @@ const TEMPLATE = xml/* xml */ `
         focus="props.focusComposer"
         />
     </t>
+    <t t-esc="contextMenu.isOpen"/>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
       t-on-dblclick="onDoubleClick"
@@ -250,10 +253,6 @@ const TEMPLATE = xml/* xml */ `
       </t>
     </t>
     <Overlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)" />
-    <Menu t-if="menuState.isOpen"
-      menuItems="menuState.menuItems"
-      position="menuState.position"
-      onClose="() => this.closeMenu()"/>
     <t t-set="gridSize" t-value="env.model.getters.getMaxViewportSize(env.model.getters.getActiveSheet())"/>
     <FiguresContainer model="props.model" sidePanelIsOpen="props.sidePanelIsOpen" onFigureDeleted="() => this.focus()" />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
@@ -332,7 +331,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     Popover,
   };
 
-  private menuState!: MenuState;
+  private contextMenu!: ContextMenu;
   private vScrollbarRef!: Ref<HTMLElement>;
   private hScrollbarRef!: Ref<HTMLElement>;
   private gridRef!: Ref<HTMLElement>;
@@ -350,11 +349,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   hoveredCell!: HoveredPosition;
 
   setup() {
-    this.menuState = useState({
-      isOpen: false,
-      position: null,
-      menuItems: [],
-    });
+    this.contextMenu = useSharedUI(menuProvider);
     this.vScrollbarRef = useRef("vscrollbar");
     this.hScrollbarRef = useRef("hscrollbar");
     this.gridRef = useRef("grid");
@@ -431,7 +426,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.getters.isVisibleInViewport(col, row, viewport) &&
       !!cell &&
       cell.isLink() &&
-      !this.menuState.isOpen &&
+      !this.contextMenu.state.isOpen &&
       !this.props.linkEditorIsOpen &&
       !this.props.sidePanelIsOpen
     );
@@ -938,11 +933,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   toggleContextMenu(type: ContextMenuType, x: number, y: number) {
     this.closeLinkEditor();
-    this.menuState.isOpen = true;
-    this.menuState.position = { x, y: y + TOPBAR_HEIGHT };
-    this.menuState.menuItems = registries[type]
+    const position = { x, y: y + TOPBAR_HEIGHT };
+    const menuItems = registries[type]
       .getAll()
       .filter((item) => !item.isVisible || item.isVisible(this.env));
+    // this focus management is meh...we could do better. But that's for another day
+    this.contextMenu.open(menuItems, position, { onClose: () => this.focus() });
   }
 
   copy(cut: boolean, ev: ClipboardEvent) {
@@ -980,10 +976,5 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         });
       }
     }
-  }
-
-  closeMenu() {
-    this.menuState.isOpen = false;
-    this.focus();
   }
 }

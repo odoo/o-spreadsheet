@@ -1,22 +1,20 @@
-import { Component, onMounted, onPatched, useRef, useState, xml } from "@odoo/owl";
+import { Component, onMounted, onPatched, useRef, xml } from "@odoo/owl";
 import Chart, { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../constants";
+import { ContextMenu, menuProvider } from "../../controllers/menu_controller";
+import { useSharedUI } from "../../controllers/providers";
 import { MenuItemRegistry } from "../../registries/index";
 import { _lt } from "../../translation";
 import { Figure, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { useAbsolutePosition } from "../helpers/position_hook";
 import { LIST } from "../icons";
-import { Menu, MenuState } from "../menu";
+import { Menu } from "../menu";
 
 const TEMPLATE = xml/* xml */ `
 <div class="o-chart-container" t-ref="chartContainer">
   <div class="o-chart-menu" t-on-click="showMenu">${LIST}</div>
   <canvas t-att-style="canvasStyle" t-ref="graphContainer"/>
-  <Menu t-if="menuState.isOpen"
-    position="menuState.position"
-    menuItems="menuState.menuItems"
-    onClose="() => this.menuState.isOpen=false"/>
 </div>`;
 
 // -----------------------------------------------------------------------------
@@ -58,19 +56,20 @@ interface State {
 export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static components = { Menu };
-  private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
   canvas = useRef("graphContainer");
   private chartContainerRef = useRef("chartContainer");
   private chart?: Chart;
   private state: State = { background: BACKGROUND_CHART_COLOR };
   private position = useAbsolutePosition(this.chartContainerRef);
+  private contextMenu!: ContextMenu;
 
   get canvasStyle() {
     return `background-color: ${this.state.background}`;
   }
 
   setup() {
+    this.contextMenu = useSharedUI(menuProvider);
     onMounted(() => {
       const figure = this.props.figure;
       const chartData = this.env.model.getters.getChartRuntime(figure.id);
@@ -157,11 +156,11 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   private openContextMenu(target: HTMLElement, registry: MenuItemRegistry) {
     const x = target.offsetLeft;
     const y = target.offsetTop;
-    this.menuState.isOpen = true;
-    this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
-    this.menuState.position = {
+    const menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
+    const position = {
       x: this.position.x + x - MENU_WIDTH,
       y: this.position.y + y,
     };
+    this.contextMenu.open(menuItems, position);
   }
 }

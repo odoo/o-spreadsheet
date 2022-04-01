@@ -1,12 +1,7 @@
-import {
-  Component,
-  onWillStart,
-  onWillUpdateProps,
-  useExternalListener,
-  useState,
-  xml,
-} from "@odoo/owl";
+import { Component, onWillStart, onWillUpdateProps, useState, xml } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR, DEFAULT_FONT_SIZE } from "../constants";
+import { ContextMenu, menuProvider } from "../controllers/menu_controller";
+import { useSharedUI } from "../controllers/providers";
 import { fontSizes } from "../fonts";
 import { isEqual } from "../helpers/index";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../registries/index";
@@ -17,9 +12,8 @@ import { Align, BorderCommand, CommandResult, SpreadsheetChildEnv, Style } from 
 import { ColorPicker } from "./color_picker";
 import { Composer } from "./composer/composer";
 import { css } from "./helpers/css";
-import { isChildEvent } from "./helpers/dom_helpers";
 import * as icons from "./icons";
-import { Menu, MenuState } from "./menu";
+import { Menu } from "./menu";
 import { ComposerFocusType } from "./spreadsheet";
 import { GenericTerms, NumberFormatTerms, TopBarTerms } from "./translations_terms";
 
@@ -33,7 +27,6 @@ type Tool =
   | "fontSizeTool";
 
 interface State {
-  menuState: MenuState;
   activeTool: Tool;
 }
 
@@ -271,10 +264,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
             <t t-esc="getMenuName(menu)"/>
           </div>
           </t>
-          <Menu t-if="state.menuState.isOpen"
-                position="state.menuState.position"
-                menuItems="state.menuState.menuItems"
-                onClose="() => this.state.menuState.isOpen=false"/>
         </div>
         <div class="o-topbar-topright">
           <div t-foreach="topbarComponents" t-as="comp" t-key="comp.id">
@@ -383,7 +372,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   style: Style = {};
   state: State = useState({
-    menuState: { isOpen: false, position: null, menuItems: [] },
     activeTool: "",
   });
   isSelectingMenu = false;
@@ -402,24 +390,17 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     height: 34px;
     background-color: white;
   `;
-
+  private contextMenu!: ContextMenu;
   setup() {
-    useExternalListener(window as any, "click", this.onClick);
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
+    this.contextMenu = useSharedUI(menuProvider);
   }
 
   get topbarComponents() {
     return topbarComponentRegistry
       .getAll()
       .filter((item) => !item.isVisible || item.isVisible(this.env));
-  }
-
-  onClick(ev: MouseEvent) {
-    if (this.openedEl && isChildEvent(this.openedEl, ev)) {
-      return;
-    }
-    this.closeMenus();
   }
 
   toogleStyle(style: string) {
@@ -453,20 +434,17 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.closeMenus();
     const x = (ev.target as HTMLElement).offsetLeft;
     const y = (ev.target as HTMLElement).clientHeight + (ev.target as HTMLElement).offsetTop;
-    this.state.menuState.isOpen = true;
-    this.state.menuState.position = { x, y };
-    this.state.menuState.menuItems = topbarMenuRegistry
+    const menuItems = topbarMenuRegistry
       .getChildren(menu, this.env)
       .filter((item) => !item.isVisible || item.isVisible(this.env));
+    this.contextMenu.open(menuItems, { x, y });
     this.isSelectingMenu = true;
     this.openedEl = ev.target as HTMLElement;
   }
 
   closeMenus() {
     this.state.activeTool = "";
-    this.state.menuState.isOpen = false;
-    this.isSelectingMenu = false;
-    this.openedEl = null;
+    this.contextMenu.close();
   }
 
   updateCellState() {
