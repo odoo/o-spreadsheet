@@ -9,10 +9,10 @@ import {
   MENU_WIDTH,
   TOPBAR_HEIGHT,
 } from "../constants";
-import { menuProvider } from "../controllers/menu_controller";
-import { ConsumerComponent } from "../controllers/providers";
 import { FullMenuItem, MenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
+import { menuProvider } from "../stores/menu_controller";
+import { ConsumerComponent } from "../stores/providers";
 import { DOMCoordinates, SpreadsheetChildEnv } from "../types";
 import { css } from "./helpers/css";
 import { isChildEvent } from "./helpers/dom_helpers";
@@ -156,8 +156,6 @@ export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
         this.subMenu.isOpen = false;
       }
     });
-    // this.contextMenu = useSharedUI(menuProvider);
-    // this.contextMenuStyle = useSharedUI(menuStyleProvider);
   }
 
   get contextMenu() {

@@ -5,10 +5,11 @@ import {
   ICON_EDGE_LENGTH,
   TOPBAR_HEIGHT,
 } from "../constants";
-import { menuProvider } from "../controllers/menu_controller";
-import { ConsumerComponent } from "../controllers/providers";
 import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
+import { menuProvider } from "../stores/menu_controller";
+import { ConsumerComponent } from "../stores/providers";
+import { sidePanelProvider } from "../stores/side_panel_store";
 import { SpreadsheetChildEnv, WorkbookData } from "../types";
 import { NotifyUIEvent } from "../types/ui";
 import { BottomBar } from "./bottom_bar";
@@ -32,7 +33,7 @@ const TEMPLATE = xml/* xml */ `
       onComposerContentFocused="(selection) => this.onTopBarComposerFocused(selection)"
       focusComposer="focusTopBarComposer"/>
     <Grid
-      sidePanelIsOpen="sidePanel.isOpen"
+      sidePanelIsOpen="sidePanel.state.isOpen"
       linkEditorIsOpen="linkEditor.isOpen"
       onLinkEditorClosed="() => this.closeLinkEditor()"
       onSaveRequested="() => this.save()"
@@ -40,10 +41,7 @@ const TEMPLATE = xml/* xml */ `
       exposeFocus="(focus) => this._focusGrid = focus"
       onComposerContentFocused="() => this.onGridComposerContentFocused()"
       onGridComposerCellFocused="(content, selection) => this.onGridComposerCellFocused(content, selection)"/>
-    <SidePanel t-if="sidePanel.isOpen"
-      onCloseSidePanel="() => this.closeSidePanel()"
-      component="sidePanel.component"
-      panelProps="sidePanel.panelProps"/>
+    <SidePanel/>
     <BottomBar onClick="() => this.focusGrid()"/>
     <Menu t-if="contextMenu.state.isOpen"
       menuItems="contextMenu.state.menuItems"
@@ -94,12 +92,6 @@ export interface SpreadsheetProps {
 
 const t = (s: string): string => s;
 
-interface SidePanelState {
-  isOpen: boolean;
-  component?: string;
-  panelProps: any;
-}
-
 interface LinkEditorState {
   isOpen: boolean;
 }
@@ -116,7 +108,6 @@ export class Spreadsheet extends ConsumerComponent<SpreadsheetProps, Spreadsheet
 
   model!: Model;
 
-  sidePanel!: SidePanelState;
   linkEditor!: LinkEditorState;
   composer!: ComposerState;
 
@@ -127,20 +118,19 @@ export class Spreadsheet extends ConsumerComponent<SpreadsheetProps, Spreadsheet
     super.setup();
     this.props.exposeSpreadsheet?.(this);
     this.model = this.props.model;
-    this.sidePanel = useState({ isOpen: false, panelProps: {} });
     this.linkEditor = useState({ isOpen: false });
     this.composer = useState({
       topBarFocus: "inactive",
       gridFocusMode: "inactive",
     });
     this.keyDownMapping = {
-      "CTRL+H": () => this.toggleSidePanel("FindAndReplace", {}),
-      "CTRL+F": () => this.toggleSidePanel("FindAndReplace", {}),
+      "CTRL+H": () => this.sidePanel.toggle("FindAndReplace", {}),
+      "CTRL+F": () => this.sidePanel.toggle("FindAndReplace", {}),
     };
     useSubEnv({
       model: this.model,
-      openSidePanel: this.openSidePanel.bind(this),
-      toggleSidePanel: this.toggleSidePanel.bind(this),
+      openSidePanel: this.sidePanel.open.bind(this.sidePanel),
+      toggleSidePanel: this.sidePanel.toggle.bind(this.sidePanel),
       openLinkEditor: this.openLinkEditor.bind(this),
       _t: Spreadsheet._t,
       clipboard: navigator.clipboard,
@@ -154,6 +144,10 @@ export class Spreadsheet extends ConsumerComponent<SpreadsheetProps, Spreadsheet
 
   get contextMenu() {
     return this.providers.watch(menuProvider);
+  }
+
+  get sidePanel() {
+    return this.providers.watch(sidePanelProvider);
   }
 
   get focusTopBarComposer(): Omit<ComposerFocusType, "cellFocus"> {
@@ -186,17 +180,6 @@ export class Spreadsheet extends ConsumerComponent<SpreadsheetProps, Spreadsheet
     }
   }
 
-  openSidePanel(panel: string, panelProps: any) {
-    this.sidePanel.component = panel;
-    this.sidePanel.panelProps = panelProps;
-    this.sidePanel.isOpen = true;
-  }
-
-  closeSidePanel() {
-    this.sidePanel.isOpen = false;
-    this.focusGrid();
-  }
-
   openLinkEditor() {
     this.linkEditor.isOpen = true;
   }
@@ -206,14 +189,6 @@ export class Spreadsheet extends ConsumerComponent<SpreadsheetProps, Spreadsheet
     this.focusGrid();
   }
 
-  toggleSidePanel(panel: string, panelProps: any) {
-    if (this.sidePanel.isOpen && panel === this.sidePanel.component) {
-      this.sidePanel.isOpen = false;
-      this.focusGrid();
-    } else {
-      this.openSidePanel(panel, panelProps);
-    }
-  }
   focusGrid() {
     if (!this._focusGrid) {
       throw new Error("_focusGrid should be exposed by the grid component");

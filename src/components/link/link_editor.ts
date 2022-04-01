@@ -1,8 +1,8 @@
 import { onMounted, useRef, useState, xml } from "@odoo/owl";
-import { menuProvider } from "../../controllers/menu_controller";
-import { ConsumerComponent } from "../../controllers/providers";
 import { markdownLink } from "../../helpers/index";
 import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
+import { menuProvider } from "../../stores/menu_controller";
+import { ConsumerComponent } from "../../stores/providers";
 import { Link, Position, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { useAbsolutePosition } from "../helpers/position_hook";

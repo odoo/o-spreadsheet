@@ -2,10 +2,13 @@ import { Component, onWillRender, reactive, useComponent } from "@odoo/owl";
 import { EventBus } from "../helpers/event_bus";
 
 export interface Providers {
-  watch<T extends StateNotifier>(provider: Provider<T>): T;
+  watch<T>(provider: Provider<T>): T;
 }
 
-type Provider<T extends StateNotifier = any> = (providers: Providers) => T;
+type StateProvider<T = any> = (providers: Providers) => T;
+type StateNotifierProvider<T extends StateNotifier = any> = (providers: Providers) => T;
+
+type Provider<T = any> = T extends StateNotifier ? StateNotifierProvider<T> : StateProvider<T>;
 
 // remove those global things with a ProviderContainer
 // const providers: Map<Provider, StateNotifier> = new Map();
@@ -70,10 +73,10 @@ export class StateNotifier<State extends Object = any> extends EventBus<any> {
 // }
 
 class ProviderContainer {
-  private providers: Map<Provider, StateNotifier> = new Map();
+  private providers: Map<Provider, any> = new Map();
   private providerDependencies: Map<Provider, Set<Provider>> = new Map();
 
-  getOrCreateController<T extends StateNotifier>(provider: Provider<T>): StateNotifier {
+  getOrCreateController<T>(provider: Provider<T>): T {
     if (!this.providers.has(provider)) {
       const store = this.createStore(provider);
       this.providers.set(provider, store);
@@ -83,20 +86,22 @@ class ProviderContainer {
     }
   }
 
-  private createStore<T extends StateNotifier>(provider: Provider<T>): StateNotifier {
+  private createStore<T>(provider: Provider<T>): T {
     const watch = (watchedProvider: Provider) => {
       const watchedStore = this.getOrCreateController(watchedProvider);
       this.addDependency(watchedProvider, provider);
       return watchedStore;
     };
     const store = provider({ watch } as Providers);
-    store.on("state-updated", this, () => {
-      // invalidate dependencies
-      this.providerDependencies.get(provider)?.forEach((childProvider) => {
-        this.providers.delete(childProvider);
+    if (store instanceof StateNotifier) {
+      store.on("state-updated", this, () => {
+        // invalidate dependencies
+        this.providerDependencies.get(provider)?.forEach((childProvider) => {
+          this.providers.delete(childProvider);
+        });
+        this.providerDependencies.set(provider, new Set());
       });
-      this.providerDependencies.set(provider, new Set());
-    });
+    }
     return store;
   }
 
@@ -107,18 +112,6 @@ class ProviderContainer {
     }
     this.providerDependencies.get(parent)?.add(child);
   }
-
-  // watch(observer: any, provider: Provider, callback: () => void) {
-  //   if (this.observers.has(observer)) {
-  //     return;
-  //   }
-  //   this.observers.set(observer, provider);
-  //   this.getOrCreateController(provider).watch(callback);
-  // }
-
-  // clearSubscriptions(observer: any) {
-  //   this.observers.delete(observer);
-  // }
 }
 
 const providerContainer = new ProviderContainer();
@@ -135,13 +128,16 @@ export function useProviders() {
     if (subscriptions.has(controller)) {
       return controller;
     }
-    controller.on("state-updated", component, () => component.render());
-    subscriptions.add(controller);
+    if (controller instanceof StateNotifier) {
+      controller.on("state-updated", component, () => component.render());
+      subscriptions.add(controller);
+    }
     return controller;
   };
   return { watch } as Providers;
 }
 
+// use a root scope instead to inject it in the `env`
 export class ConsumerComponent<Props, Env> extends Component<Props, Env> {
   protected providers!: Providers;
   setup() {

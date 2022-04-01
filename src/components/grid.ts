@@ -2,6 +2,7 @@ import {
   onMounted,
   onPatched,
   onWillUnmount,
+  useEffect,
   useExternalListener,
   useRef,
   useState,
@@ -18,9 +19,6 @@ import {
   SCROLLBAR_WIDTH,
   TOPBAR_HEIGHT,
 } from "../constants";
-import { menuProvider } from "../controllers/menu_controller";
-import { menuStyleProvider } from "../controllers/menu_style";
-import { ConsumerComponent } from "../controllers/providers";
 import {
   findCellInNewZone,
   findVisibleHeader,
@@ -34,6 +32,9 @@ import { ComposerSelection } from "../plugins/ui/edition";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
+import { menuProvider } from "../stores/menu_controller";
+import { ConsumerComponent } from "../stores/providers";
+import { sidePanelProvider } from "../stores/side_panel_store";
 import {
   CellValueType,
   Client,
@@ -201,7 +202,6 @@ const TEMPLATE = xml/* xml */ `
         focus="props.focusComposer"
         />
     </t>
-    <t t-esc="contextMenuStyle.state.isOpen"/>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
       t-on-dblclick="onDoubleClick"
@@ -372,15 +372,22 @@ export class Grid extends ConsumerComponent<Props, SpreadsheetChildEnv> {
       this.resizeGrid();
     });
     this.props.exposeFocus(() => this.focus());
+    useEffect(
+      () => {
+        if (!this.sidePanel.state.isOpen) {
+          this.focus();
+        }
+      },
+      () => [this.sidePanel.state.isOpen]
+    );
+  }
+
+  get sidePanel() {
+    return this.providers.watch(sidePanelProvider);
   }
 
   get contextMenu() {
     return this.providers.watch(menuProvider);
-  }
-
-  get contextMenuStyle() {
-    console.log("watch(menuStyleProvider)");
-    return this.providers.watch(menuStyleProvider);
   }
 
   private initGrid() {

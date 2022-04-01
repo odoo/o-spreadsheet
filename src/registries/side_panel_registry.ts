@@ -4,13 +4,12 @@ import { CustomCurrencyPanel } from "../components/side_panel/custom_currency";
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace";
 import { Registry } from "../registry";
 import { _lt } from "../translation";
-import { SpreadsheetChildEnv } from "../types";
 
 //------------------------------------------------------------------------------
 // Side Panel Registry
 //------------------------------------------------------------------------------
 export interface SidePanelContent {
-  title: string | ((env: SpreadsheetChildEnv) => string);
+  title: string;
   Body: any;
   Footer?: any;
 }

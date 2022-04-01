@@ -16,7 +16,7 @@ class ContextMenuState {
   }
 }
 
-export class ContextMenu extends StateNotifier<ContextMenuState> {
+class ContextMenu extends StateNotifier<ContextMenuState> {
   constructor() {
     super(new ContextMenuState());
   }

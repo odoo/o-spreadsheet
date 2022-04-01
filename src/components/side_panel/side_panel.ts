@@ -1,20 +1,21 @@
-import { Component, onWillUpdateProps, useState, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR } from "../../constants";
-import { SidePanelContent, sidePanelRegistry } from "../../registries/side_panel_registry";
+import { ConsumerComponent } from "../../stores/providers";
+import { sidePanelContentProvider, sidePanelProvider } from "../../stores/side_panel_store";
 import { SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 
 const TEMPLATE = xml/* xml */ `
-  <div class="o-sidePanel" >
+  <div class="o-sidePanel" t-if="sidePanel.state.isOpen">
     <div class="o-sidePanelHeader">
-        <div class="o-sidePanelTitle" t-esc="getTitle()"/>
-        <div class="o-sidePanelClose" t-on-click="() => this.props.onCloseSidePanel()">×</div>
+        <div class="o-sidePanelTitle" t-esc="sidePanelContent.title"/>
+        <div class="o-sidePanelClose" t-on-click="() => sidePanel.close()">×</div>
     </div>
     <div class="o-sidePanelBody">
-      <t t-component="state.panel.Body" t-props="props.panelProps" onCloseSidePanel="props.onCloseSidePanel" t-key="'Body_' + props.component"/>
+      <t t-component="sidePanelContent.Body" t-props="sidePanelContent.panelProps" onCloseSidePanel="() => sidePanel.close()"/>
     </div>
-    <div class="o-sidePanelFooter" t-if="state.panel.Footer">
-      <t t-component="state.panel.Footer" t-props="props.panelProps" t-key="'Footer_' + props.component"/>
+    <div class="o-sidePanelFooter" t-if="sidePanelContent.Footer">
+      <t t-component="sidePanelContent.Footer" t-props="sidePanelContent.panelProps"/>
     </div>
   </div>`;
 
@@ -143,30 +144,16 @@ css/* scss */ `
 interface Props {
   component: string;
   panelProps: any;
-  onCloseSidePanel: () => void;
 }
 
-interface State {
-  panel: SidePanelContent;
-}
-
-export class SidePanel extends Component<Props, SpreadsheetChildEnv> {
+export class SidePanel extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
 
-  state!: State;
-
-  setup() {
-    this.state = useState({
-      panel: sidePanelRegistry.get(this.props.component),
-    });
-    onWillUpdateProps(
-      (nextProps: Props) => (this.state.panel = sidePanelRegistry.get(nextProps.component))
-    );
+  get sidePanel() {
+    return this.providers.watch(sidePanelProvider);
   }
 
-  getTitle() {
-    return typeof this.state.panel.title === "function"
-      ? this.state.panel.title(this.env)
-      : this.state.panel.title;
+  get sidePanelContent() {
+    return this.providers.watch(sidePanelContentProvider);
   }
 }

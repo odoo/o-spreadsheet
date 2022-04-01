@@ -1,9 +1,9 @@
 import { onMounted, onPatched, useRef, xml } from "@odoo/owl";
 import Chart, { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../constants";
-import { menuProvider } from "../../controllers/menu_controller";
-import { ConsumerComponent } from "../../controllers/providers";
 import { MenuItemRegistry } from "../../registries/index";
+import { menuProvider } from "../../stores/menu_controller";
+import { ConsumerComponent } from "../../stores/providers";
 import { _lt } from "../../translation";
 import { Figure, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";

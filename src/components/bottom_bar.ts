@@ -1,10 +1,10 @@
 import { onMounted, onPatched, useRef, xml } from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../constants";
-import { menuProvider } from "../controllers/menu_controller";
-import { ConsumerComponent } from "../controllers/providers";
 import { formatValue } from "../helpers/format";
 import { interactiveRenameSheet } from "../helpers/ui/sheet";
 import { MenuItemRegistry, sheetMenuRegistry } from "../registries/index";
+import { menuProvider } from "../stores/menu_controller";
+import { ConsumerComponent } from "../stores/providers";
 import { SpreadsheetChildEnv, UID } from "../types";
 import { css } from "./helpers/css";
 import { LIST, PLUS, TRIANGLE_DOWN_ICON } from "./icons";

@@ -1,12 +1,12 @@
 import { onWillStart, onWillUpdateProps, useState, xml } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR, DEFAULT_FONT_SIZE } from "../constants";
-import { menuProvider } from "../controllers/menu_controller";
-import { ConsumerComponent } from "../controllers/providers";
 import { fontSizes } from "../fonts";
 import { isEqual } from "../helpers/index";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../registries/index";
 import { topbarMenuRegistry } from "../registries/menus/topbar_menu_registry";
 import { FullMenuItem } from "../registries/menu_items_registry";
+import { menuProvider } from "../stores/menu_controller";
+import { ConsumerComponent } from "../stores/providers";
 import { _lt } from "../translation";
 import { Align, BorderCommand, CommandResult, SpreadsheetChildEnv, Style } from "../types/index";
 import { ColorPicker } from "./color_picker";
