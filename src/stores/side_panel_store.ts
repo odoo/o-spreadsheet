@@ -1,3 +1,4 @@
+import { Component } from "@odoo/owl";
 import { sidePanelRegistry } from "../registries";
 import { Providers, StateNotifier } from "./providers";
 
@@ -11,7 +12,20 @@ class SidePanelState {
   }
 }
 
-class SidePanel extends StateNotifier<SidePanelState> {
+interface OpenedSidePanel {
+  isOpen: true;
+  title: string;
+  Body: Component;
+  Footer?: Component;
+}
+
+interface ClosedSidePanel {
+  isOpen: false;
+}
+
+type SidePanel = OpenedSidePanel | ClosedSidePanel;
+
+class SidePanelStore extends StateNotifier<SidePanelState> {
   constructor() {
     super(new SidePanelState());
   }
@@ -36,7 +50,7 @@ class SidePanel extends StateNotifier<SidePanelState> {
   }
 }
 
-export const sidePanelProvider = () => new SidePanel();
+export const sidePanelProvider = () => new SidePanelStore();
 
 export const sidePanelContentProvider = (providers: Providers) => {
   const sidePanel = providers.watch(sidePanelProvider);
