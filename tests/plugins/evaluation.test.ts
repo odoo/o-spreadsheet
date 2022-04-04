@@ -1,6 +1,6 @@
 import { args, functionRegistry } from "../../src/functions";
 import { Model } from "../../src/model";
-import { CellValueType } from "../../src/types";
+import { CellValueType, InvalidEvaluation } from "../../src/types";
 import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellError } from "../test_helpers/getters_helpers";
 import { evaluateCell, evaluateGrid, target } from "../test_helpers/helpers";
@@ -184,6 +184,26 @@ describe("evaluateCells", () => {
     setCellContent(model, "A1", "=VLOOKUP(D12, A2:A200, 2, false)");
 
     expect(getCellError(model, "A1")).toBe("VLOOKUP evaluates to an out of bounds range.");
+  });
+
+  test.each([
+    "=1/0", // bad evaluation
+    "=", // bad expression
+  ])("setting a format on an error cell keeps the error", (formula) => {
+    const model = new Model();
+    setCellContent(model, "A1", formula);
+    let evaluation = getCell(model, "A1")?.evaluated as InvalidEvaluation;
+    const error = evaluation.error;
+    const value = evaluation.value;
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+      format: "#,##0",
+    });
+    evaluation = getCell(model, "A1")?.evaluated as InvalidEvaluation;
+    expect(evaluation.type).toBe(CellValueType.error);
+    expect(evaluation.error).toBe(error);
+    expect(evaluation.value).toBe(value);
   });
 
   test("range", () => {
