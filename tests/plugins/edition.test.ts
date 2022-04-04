@@ -693,4 +693,17 @@ describe("edition", () => {
     expect(model.getters.getCurrentContent()).toBe("");
     expect(model.getters.getComposerSelection()).toEqual({ start: 0, end: 0 });
   });
+
+  test("set a number format on a date displays the raw number", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "2020/10/20");
+    expect(getCell(model, "A1")?.composerContent).toBe("2020/10/20");
+    model.dispatch("UPDATE_CELL", {
+      sheetId: model.getters.getActiveSheetId(),
+      col: 0,
+      row: 0,
+      format: "#,##0.00",
+    });
+    expect(getCell(model, "A1")?.composerContent).toBe("44124");
+  });
 });
