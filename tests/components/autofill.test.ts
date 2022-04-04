@@ -184,7 +184,7 @@ describe("Autofill component", () => {
         10
     );
     await nextTick();
-    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeDefined();
+    expect(fixture.querySelector(".o-autofill-nextvalue")).not.toBeNull();
     expect(fixture.querySelector(".o-autofill-nextvalue")!.textContent).toBe("test");
   });
 
@@ -206,7 +206,7 @@ describe("Autofill component", () => {
         10
     );
     await nextTick();
-    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeDefined();
+    expect(fixture.querySelector(".o-autofill-nextvalue")).not.toBeNull();
     triggerMouseEvent(
       autofill,
       "mousemove",
@@ -252,8 +252,8 @@ describe("Autofill component", () => {
         10
     );
     await nextTick();
-    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeDefined();
-    expect(fixture.querySelector(".custom_tooltip")).toBeDefined();
+    expect(fixture.querySelector(".o-autofill-nextvalue")).not.toBeNull();
+    expect(fixture.querySelector(".custom_tooltip")).not.toBeNull();
     expect(fixture.querySelector(".custom_tooltip")!.textContent).toBe("blabla");
   });
 

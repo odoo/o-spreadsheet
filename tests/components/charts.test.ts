@@ -105,17 +105,17 @@ describe("figures", () => {
     ]);
   });
   test("charts have a menu button", () => {
-    expect(fixture.querySelector(".o-figure")).toBeDefined();
-    expect(fixture.querySelector(".o-chart-menu")).toBeDefined();
+    expect(fixture.querySelector(".o-figure")).not.toBeNull();
+    expect(fixture.querySelector(".o-chart-menu")).not.toBeNull();
   });
 
   test("Click on Menu button open context menu", async () => {
-    expect(fixture.querySelector(".o-figure")).toBeDefined();
+    expect(fixture.querySelector(".o-figure")).not.toBeNull();
     await simulateClick(".o-figure");
     expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
-    expect(fixture.querySelector(".o-chart-menu")).toBeDefined();
+    expect(fixture.querySelector(".o-chart-menu")).not.toBeNull();
     await simulateClick(".o-chart-menu");
-    expect(fixture.querySelector(".o-menu")).toBeDefined();
+    expect(fixture.querySelector(".o-menu")).not.toBeNull();
   });
 
   test("Context menu is positioned according to the spreadsheet position", async () => {
@@ -175,12 +175,12 @@ describe("figures", () => {
       title: "hello",
       type: "bar",
     });
-    expect(fixture.querySelector(".o-figure")).toBeDefined();
+    expect(fixture.querySelector(".o-figure")).not.toBeNull();
     await simulateClick(".o-figure");
     expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
-    expect(fixture.querySelector(".o-chart-menu")).toBeDefined();
+    expect(fixture.querySelector(".o-chart-menu")).not.toBeNull();
     await simulateClick(".o-chart-menu");
-    expect(fixture.querySelector(".o-menu")).toBeDefined();
+    expect(fixture.querySelector(".o-menu")).not.toBeNull();
     const deleteButton = fixture.querySelectorAll(".o-menu-item")[1];
     expect(deleteButton.textContent).toBe("Delete");
     await simulateClick(".o-menu div[data-name='delete']");
@@ -507,6 +507,6 @@ describe("charts with multiple sheets", () => {
     const runtimeChart = model.getters.getChartRuntime("1");
     expect(runtimeChart).toBeDefined();
     await nextTick();
-    expect(fixture.querySelector(".o-chart-container")).toBeDefined();
+    expect(fixture.querySelector(".o-chart-container")).not.toBeNull();
   });
 });
