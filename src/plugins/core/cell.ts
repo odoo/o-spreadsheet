@@ -584,7 +584,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const hasContent = "content" in after || "formula" in after;
 
     // Compute the new cell properties
-    const afterContent = after.content ? after.content.replace(nbspRegexp, "") : "";
+    const afterContent = hasContent
+      ? after.content?.replace(nbspRegexp, "") || ""
+      : before?.content || "";
     let style: Style | undefined;
     if (after.style !== undefined) {
       style = after.style || undefined;
@@ -620,12 +622,17 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
     const cellId = before?.id || this.uuidGenerator.uuidv4();
     const didContentChange = hasContent;
-    let cell: Cell;
     const properties = { format, style };
-    if (before && !didContentChange) {
-      cell = before.withDisplayProperties(properties);
-    } else {
-      cell = this.createCell(cellId, afterContent, properties, sheet.id);
+    const cell = this.createCell(cellId, afterContent, properties, sheet.id);
+    if (before && !didContentChange && cell.isFormula()) {
+      // content is not re-evaluated if the content did not change => reassign the value manually
+      // TODO this plugin should not care about evaluation
+      // and evaluation should not depend on implementation details here.
+      // Task 2813749
+      cell.assignValue(before.evaluated.value);
+      if (before.evaluated.type === CellValueType.error) {
+        cell.assignError(before.evaluated.value, before.evaluated.error);
+      }
     }
     this.history.update("cells", sheet.id, cell.id, cell);
     this.dispatch("UPDATE_CELL_POSITION", { cellId: cell.id, col, row, sheetId: sheet.id });

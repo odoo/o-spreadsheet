@@ -37,10 +37,6 @@ export interface ICell {
    * Can the cell appear in an automatic sum zone.
    */
   readonly isAutoSummable: boolean;
-  /**
-   * Return a copy of the cell with new display properties.
-   */
-  withDisplayProperties: (properties: CellDisplayProperties) => this;
   isFormula(): this is FormulaCell;
   isLink(): this is LinkCell;
   isEmpty(): boolean;
