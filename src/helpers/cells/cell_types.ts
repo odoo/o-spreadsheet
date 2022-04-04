@@ -86,17 +86,6 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
         return false;
     }
   }
-
-  withDisplayProperties(properties: CellDisplayProperties): this {
-    return Object.create(this, {
-      style: {
-        value: properties.style,
-      },
-      format: {
-        value: properties.format,
-      },
-    });
-  }
 }
 
 export class EmptyCell extends AbstractCell<EmptyEvaluation> {
