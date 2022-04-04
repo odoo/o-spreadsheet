@@ -319,6 +319,17 @@ describe("conditional format", () => {
     });
   });
 
+  test("delete cf when range is deleted with previous rows", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
+      target: target("A4"),
+      sheetId,
+    });
+    deleteRows(model, [2, 3]);
+    expect(model.getters.getConditionalFormats(sheetId)).toEqual([]);
+  });
+
   test("is saved/restored", () => {
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
