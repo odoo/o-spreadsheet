@@ -3,7 +3,7 @@ import Chart, { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../../constants";
 import { MenuItemRegistry } from "../../../registries/index";
 import { _lt } from "../../../translation";
-import { Figure, SpreadsheetChildEnv } from "../../../types";
+import { DOMCoordinates, Figure, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 import { useAbsolutePosition } from "../../helpers/position_hook";
 import { Menu, MenuState } from "../../menu/menu";
@@ -110,7 +110,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  showMenu(ev: MouseEvent) {
+  private getMenuItemRegistry(): MenuItemRegistry {
     const registry = new MenuItemRegistry();
     registry.add("edit", {
       name: _lt("Edit"),
@@ -140,17 +140,30 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
         });
       },
     });
-    this.openContextMenu(ev.currentTarget as HTMLElement, registry);
+    return registry;
   }
 
-  private openContextMenu(target: HTMLElement, registry: MenuItemRegistry) {
+  onContextMenu(ev: MouseEvent) {
+    ev.preventDefault();
+    const position = {
+      x: this.position.x + ev.offsetX,
+      y: this.position.y + ev.offsetY,
+    };
+    this.openContextMenu(position);
+  }
+
+  showMenu(ev: MouseEvent) {
+    const target = ev.currentTarget as HTMLElement;
     const x = target.offsetLeft;
     const y = target.offsetTop;
+    const position = { x: this.position.x + x - MENU_WIDTH, y: this.position.y + y };
+    this.openContextMenu(position);
+  }
+
+  private openContextMenu(position: DOMCoordinates) {
+    const registry = this.getMenuItemRegistry();
     this.menuState.isOpen = true;
     this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
-    this.menuState.position = {
-      x: this.position.x + x - MENU_WIDTH,
-      y: this.position.y + y,
-    };
+    this.menuState.position = position;
   }
 }

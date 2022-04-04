@@ -452,6 +452,12 @@ describe("figures", () => {
     await simulateClick(remove);
     expect(model.getters.getChartDefinitionUI(sheetId, chartId).dataSets).toEqual(["B1:B4"]);
   });
+
+  test("Can open context menu on right click", async () => {
+    triggerMouseEvent(".o-chart-container", "contextmenu");
+    await nextTick();
+    expect(document.querySelector(".o-menu")).not.toBeNull();
+  });
 });
 describe("charts with multiple sheets", () => {
   beforeEach(async () => {
