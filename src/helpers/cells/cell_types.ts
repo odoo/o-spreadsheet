@@ -20,7 +20,6 @@ import {
   TextEvaluation,
   UID,
 } from "../../types";
-import { formatDateTime } from "../dates";
 import { markdownLink, parseMarkdownLink, parseSheetLink } from "../misc";
 import { formatStandardNumber } from "../numbers";
 import { formatValue } from "./cell_helpers";
@@ -87,17 +86,6 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
         return false;
     }
   }
-
-  withDisplayProperties(properties: CellDisplayProperties): this {
-    return Object.create(this, {
-      style: {
-        value: properties.style,
-      },
-      format: {
-        value: properties.format,
-      },
-    });
-  }
 }
 
 export class EmptyCell extends AbstractCell<EmptyEvaluation> {
@@ -144,7 +132,7 @@ export class DateTimeCell extends NumberCell {
   }
 
   get composerContent() {
-    return formatDateTime({ value: this.evaluated.value, format: this.format });
+    return formatValue(this.evaluated.value, this.format);
   }
 }
 
