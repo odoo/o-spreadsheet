@@ -190,9 +190,9 @@ describe("Composer interactions", () => {
     await nextTick();
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
     const gridComposer = document.querySelector(".o-grid .o-composer");
-    expect(topBarComposer).toBeDefined();
+    expect(topBarComposer).not.toBeNull();
     expect(document.activeElement).toBe(topBarComposer);
-    expect(gridComposer).toBeDefined();
+    expect(gridComposer).not.toBeNull();
     await typeInComposerTopBar("text");
     await nextTick();
     expect(topBarComposer!.textContent).toBe("text");
@@ -237,14 +237,15 @@ describe("Composer interactions", () => {
     expect(topBarComposer!.textContent).toBe("10/10/2021");
   });
 
-  test("autocomplete disapear when grid composer is blured", async () => {
+  test("autocomplete disappear when grid composer is blurred", async () => {
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
     );
     await nextTick();
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
     await typeInComposerGrid("=SU");
-    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeDefined();
+    await nextTick();
+    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).not.toBeNull();
     topBarComposer.dispatchEvent(new Event("click"));
     await nextTick();
     expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();

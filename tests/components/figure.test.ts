@@ -76,7 +76,7 @@ describe("figures", () => {
   test("focus a figure", async () => {
     createFigure(model);
     await nextTick();
-    expect(fixture.querySelector(".o-figure")).toBeDefined();
+    expect(fixture.querySelector(".o-figure")).not.toBeNull();
     await simulateClick(".o-figure");
     expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
   });

@@ -105,7 +105,7 @@ describe("Side Panel", () => {
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Computed Title");
     expect(document.querySelector(".main_body")!.textContent).toBe("test");
-    expect(document.querySelector(".props_body")).toBeDefined();
+    expect(document.querySelector(".props_body")).not.toBeNull();
     expect(document.querySelector(".props_body")!.textContent).toBe("context");
   });
 
@@ -124,9 +124,9 @@ describe("Side Panel", () => {
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("PANEL_2");
-    expect(document.querySelector(".main_body_2")).toBeDefined();
+    expect(document.querySelector(".main_body_2")).not.toBeNull();
     expect(document.querySelector(".main_body_2")!.textContent).toBe("Hello");
-    expect(document.querySelector(".props_body_2")).toBeDefined();
+    expect(document.querySelector(".props_body_2")).not.toBeNull();
     expect(document.querySelector(".props_body_2")!.textContent).toBe("field");
   });
 
