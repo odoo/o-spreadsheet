@@ -9,7 +9,7 @@ import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { menuProvider } from "../stores/menu_controller";
 import { ConsumerComponent } from "../stores/providers";
-import { sidePanelProvider } from "../stores/side_panel_store";
+import { sidePanelProvider, sidePanelStateProvider } from "../stores/side_panel_store";
 import { SpreadsheetChildEnv, WorkbookData } from "../types";
 import { NotifyUIEvent } from "../types/ui";
 import { BottomBar } from "./bottom_bar";
@@ -33,7 +33,7 @@ const TEMPLATE = xml/* xml */ `
       onComposerContentFocused="(selection) => this.onTopBarComposerFocused(selection)"
       focusComposer="focusTopBarComposer"/>
     <Grid
-      sidePanelIsOpen="sidePanel.state.isOpen"
+      sidePanelIsOpen="sidePanelState.isOpen"
       linkEditorIsOpen="linkEditor.isOpen"
       onLinkEditorClosed="() => this.closeLinkEditor()"
       onSaveRequested="() => this.save()"
@@ -147,7 +147,12 @@ export class Spreadsheet extends ConsumerComponent<SpreadsheetProps, Spreadsheet
   }
 
   get sidePanel() {
-    return this.providers.watch(sidePanelProvider);
+    return this.providers.notify(sidePanelProvider);
+  }
+
+  get sidePanelState() {
+    debugger;
+    return this.providers.watch(sidePanelStateProvider);
   }
 
   get focusTopBarComposer(): Omit<ComposerFocusType, "cellFocus"> {

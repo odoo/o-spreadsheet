@@ -1,21 +1,21 @@
 import { xml } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR } from "../../constants";
 import { ConsumerComponent } from "../../stores/providers";
-import { sidePanelContentProvider, sidePanelProvider } from "../../stores/side_panel_store";
+import { sidePanelProvider, sidePanelStateProvider } from "../../stores/side_panel_store";
 import { SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 
 const TEMPLATE = xml/* xml */ `
-  <div class="o-sidePanel" t-if="sidePanel.state.isOpen">
+  <div class="o-sidePanel" t-if="sidePanelState.isOpen">
     <div class="o-sidePanelHeader">
-        <div class="o-sidePanelTitle" t-esc="sidePanelContent.title"/>
+        <div class="o-sidePanelTitle" t-esc="sidePanelState.title"/>
         <div class="o-sidePanelClose" t-on-click="() => sidePanel.close()">×</div>
     </div>
     <div class="o-sidePanelBody">
-      <t t-component="sidePanelContent.Body" t-props="sidePanelContent.panelProps" onCloseSidePanel="() => sidePanel.close()"/>
+      <t t-component="sidePanelState.Body" t-props="sidePanelState.panelProps" onCloseSidePanel="() => sidePanel.close()"/>
     </div>
-    <div class="o-sidePanelFooter" t-if="sidePanelContent.Footer">
-      <t t-component="sidePanelContent.Footer" t-props="sidePanelContent.panelProps"/>
+    <div class="o-sidePanelFooter" t-if="sidePanelState.Footer">
+      <t t-component="sidePanelState.Footer" t-props="sidePanelState.panelProps"/>
     </div>
   </div>`;
 
@@ -153,7 +153,8 @@ export class SidePanel extends ConsumerComponent<Props, SpreadsheetChildEnv> {
     return this.providers.watch(sidePanelProvider);
   }
 
-  get sidePanelContent() {
-    return this.providers.watch(sidePanelContentProvider);
+  get sidePanelState() {
+    console.log(this.providers.watch(sidePanelStateProvider));
+    return this.providers.watch(sidePanelStateProvider);
   }
 }

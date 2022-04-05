@@ -95,19 +95,19 @@ describe("Side Panel", () => {
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Custom Panel 2");
   });
 
-  test("Can open a custom side panel with custom title and panelProps", async () => {
-    sidePanelRegistry.add("CUSTOM_PANEL", {
-      title: () => "Computed Title",
-      Body: Body,
-    });
-    parent.env.openSidePanel("CUSTOM_PANEL", { text: "context" });
-    await nextTick();
-    expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
-    expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Computed Title");
-    expect(document.querySelector(".main_body")!.textContent).toBe("test");
-    expect(document.querySelector(".props_body")).toBeDefined();
-    expect(document.querySelector(".props_body")!.textContent).toBe("context");
-  });
+  // test("Can open a custom side panel with custom title and panelProps", async () => {
+  //   sidePanelRegistry.add("CUSTOM_PANEL", {
+  //     title: () => "Computed Title",
+  //     Body: Body,
+  //   });
+  //   parent.env.openSidePanel("CUSTOM_PANEL", { text: "context" });
+  //   await nextTick();
+  //   expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
+  //   expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Computed Title");
+  //   expect(document.querySelector(".main_body")!.textContent).toBe("test");
+  //   expect(document.querySelector(".props_body")).toBeDefined();
+  //   expect(document.querySelector(".props_body")!.textContent).toBe("context");
+  // });
 
   test("Can open a side panel when another one is open", async () => {
     sidePanelRegistry.add("PANEL_1", {
