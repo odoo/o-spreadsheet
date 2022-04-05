@@ -1,6 +1,6 @@
 import { buildSheetLink } from "../src/helpers";
 import { Model } from "../src/model";
-import { ChartTypes } from "../src/types";
+import { BasicChartType } from "../src/types";
 import { adaptFormulaToExcel } from "../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../src/xlsx/helpers/xml_helpers";
 import { createChart, createSheet, merge, setCellContent } from "./test_helpers/commands_helpers";
@@ -702,7 +702,7 @@ describe("Test XLSX export", () => {
       ["line", ["Sheet1!B1:B4"]],
       ["bar", ["Sheet1!B1:B4"]],
       ["pie", ["Sheet1!B1:B4"]],
-    ])("simple %s chart with dataset %s", async (chartType: ChartTypes, dataSets: string[]) => {
+    ])("simple %s chart with dataset %s", async (chartType: BasicChartType, dataSets: string[]) => {
       const model = new Model(chartData);
       createChart(
         model,

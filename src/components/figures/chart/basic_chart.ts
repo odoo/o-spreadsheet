@@ -14,7 +14,7 @@ interface State {
 export class BasicChart extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.BasicChart";
 
-  canvas = useRef("graphContainer");
+  private canvas = useRef("graphContainer");
   private chart?: Chart;
   private state: State = { background: BACKGROUND_CHART_COLOR };
 

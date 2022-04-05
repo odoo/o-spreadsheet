@@ -2,9 +2,9 @@ import { ComposerSelection } from "../plugins/ui/edition";
 import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
 import { UpDown } from "./conditional_formatting";
 import {
-  BasicChartUIDefinition,
-  BasicChartUIDefinitionUpdate,
   BorderCommand,
+  ChartUIDefinition,
+  ChartUIDefinitionUpdate,
   ConditionalFormat,
   Figure,
   Format,
@@ -350,13 +350,13 @@ export interface CreateChartCommand extends SheetDependentCommand {
   type: "CREATE_CHART";
   id: UID;
   position?: { x: number; y: number };
-  definition: BasicChartUIDefinition;
+  definition: ChartUIDefinition;
 }
 
 export interface UpdateChartCommand extends SheetDependentCommand {
   type: "UPDATE_CHART";
   id: UID;
-  definition: BasicChartUIDefinitionUpdate;
+  definition: ChartUIDefinitionUpdate;
 }
 
 export interface RefreshChartCommand {
@@ -966,7 +966,10 @@ export const enum CommandResult {
   InvalidChartDefinition,
   EmptyDataSet,
   InvalidDataSet,
+  EmptyScorecardKeyValue,
   InvalidLabelRange,
+  InvalidScorecardKeyValue,
+  InvalidScorecardBaseline,
   InvalidAutofillSelection,
   WrongComposerSelection,
   MinBiggerThanMax,

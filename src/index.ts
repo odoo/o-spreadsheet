@@ -1,5 +1,6 @@
 import { ChartFigure } from "./components/figures/figure_chart/figure_chart";
-import { ChartPanel } from "./components/side_panel/chart_panel/chart_panel";
+import { BasicChartPanel } from "./components/side_panel/chart/basic_chart_panel/basic_chart_panel";
+import { ScorecardChartPanel } from "./components/side_panel/chart/scorecard_chart_panel/scorecard_chart_panel";
 import {
   BOTTOMBAR_HEIGHT,
   DEFAULT_CELL_HEIGHT,
@@ -132,5 +133,6 @@ export const helpers = {
 };
 export const components = {
   ChartFigure,
-  ChartPanel,
+  BasicChartPanel,
+  ScorecardChartPanel,
 };

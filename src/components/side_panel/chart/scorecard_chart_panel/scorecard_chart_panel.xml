@@ -1,0 +1,150 @@
+<templates>
+  <t t-name="o-spreadsheet.ScorecardChartPanel" owl="1">
+    <div class="o-chart">
+      <div class="o-panel">
+        <div
+          class="o-panel-element"
+          t-att-class="state.panel !== 'configuration' ? 'inactive' : ''"
+          t-on-click="() => this.activate('configuration')">
+          <i class="fa fa-sliders"/>
+          Configuration
+        </div>
+        <div
+          class="o-panel-element"
+          t-att-class="state.panel !== 'design' ? 'inactive' : ''"
+          t-on-click="() => this.activate('design')">
+          <i class="fa fa-paint-brush"/>
+          Design
+        </div>
+      </div>
+
+      <t t-if="state.panel === 'configuration'">
+        <t t-call="o-spreadsheet.ScorecardChartConfigurationPanel"/>
+      </t>
+      <t t-else="">
+        <t t-call="o-spreadsheet.ScorecardChartDesignPanel"/>
+      </t>
+    </div>
+  </t>
+
+  <t t-name="o-spreadsheet.ScorecardChartConfigurationPanel" owl="1">
+    <div>
+      <div class="o-section">
+        <div class="o-section-title">Chart type</div>
+        <ChartTypeSelect figureId="this.props.figure.id" onTypeChange.bind="updateChartType"/>
+      </div>
+      <div class="o-section o-data-series">
+        <div class="o-section-title">Key value</div>
+        <SelectionInput
+          t-key="getKey('keyValue')"
+          ranges="[state.chart.keyValue]"
+          isInvalid="isKeyValueInvalid"
+          hasSingleRange="true"
+          required="true"
+          onSelectionChanged="(ranges) => this.onKeyValueRangeChanged(ranges)"
+          onSelectionConfirmed="() => this.updateKeyValueRange()"
+        />
+      </div>
+      <div class="o-section o-data-labels">
+        <div class="o-section-title">Baseline value</div>
+        <SelectionInput
+          t-key="getKey('baseline')"
+          ranges="[state.chart.baseline || '']"
+          isInvalid="isBaselineInvalid"
+          hasSingleRange="true"
+          onSelectionChanged="(ranges) => this.onBaselineRangeChanged(ranges)"
+          onSelectionConfirmed="() => this.updateBaselineRange()"
+        />
+      </div>
+      <div class="o-section o-sidepanel-error" t-if="errorMessages">
+        <div t-foreach="errorMessages" t-as="error" t-key="error">
+          <t t-esc="error"/>
+        </div>
+      </div>
+    </div>
+  </t>
+
+  <t t-name="o-spreadsheet.ScorecardChartDesignPanel" owl="1">
+    <div>
+      <div class="o-section o-chart-title">
+        <div class="o-section-title">Background color</div>
+        <div class="o-with-color-picker">
+          Select a color...
+          <span
+            title="Background Color"
+            t-attf-style="border-color:{{state.chart.background}}"
+            t-on-click.stop="() => this.openColorPicker('backgroundColor')">
+            <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+          </span>
+          <ColorPicker
+            t-if="state.openedColorPicker === 'backgroundColor'"
+            onColorPicked="(color) => this.setColor(color, 'backgroundColor')"
+            t-key="backgroundColor"
+          />
+        </div>
+      </div>
+
+      <div class="o-section o-chart-title">
+        <div class="o-section-title">Title</div>
+        <input
+          type="text"
+          t-model="state.chart.title"
+          t-on-change="updateTitle"
+          class="o-input"
+          placeholder="New Chart"
+        />
+      </div>
+      <div class="o-section">
+        <div class="o-section-title">Baseline comparison to key value</div>
+        <select
+          t-model="state.chart.baselineMode"
+          class="o-input o-type-selector"
+          t-on-change="(ev) => this.updateBaselineMode(ev)">
+          <option value="absolute">Absolute change</option>
+          <option value="percentage">Percentage change</option>
+        </select>
+      </div>
+      <div class="o-section">
+        <div class="o-section-title">Baseline description</div>
+        <input
+          type="text"
+          t-model="state.chart.baselineDescr"
+          t-on-change="updateBaselineDescr"
+          class="o-input"
+        />
+      </div>
+    </div>
+    <div class="o-section">
+      <div class="o-section-title">Baseline color</div>
+      <div class="o-with-color-picker">
+        Color on value increase
+        <span
+          title="Color Up"
+          t-attf-style="border-color:{{state.chart.baselineColorUp}}"
+          t-on-click.stop="() => this.openColorPicker('baselineColorUp')">
+          <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+        </span>
+        <ColorPicker
+          t-if="state.openedColorPicker === 'baselineColorUp'"
+          onColorPicked="(color) => this.setColor(color, 'baselineColorUp')"
+          t-key="baselineColorUp"
+        />
+      </div>
+      <br/>
+      <div class="o-with-color-picker">
+        Color on value decrease
+        <span
+          title="Background Color"
+          t-attf-style="border-color:{{state.chart.baselineColorDown}}"
+          t-on-click.stop="() => this.openColorPicker('baselineColorDown')">
+          <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+        </span>
+        <ColorPicker
+          t-if="state.openedColorPicker === 'baselineColorDown'"
+          onColorPicked="(color) => this.setColor(color, 'baselineColorDown')"
+          t-key="baselineColorDown"
+        />
+      </div>
+    </div>
+  </t>
+</templates>

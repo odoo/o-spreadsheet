@@ -1,7 +1,7 @@
-import { Model } from "../../src";
-import { ChartTerms } from "../../src/components/translations_terms";
-import { toZone } from "../../src/helpers/zones";
-import { BasicChartUIDefinition, BorderCommand, CommandResult } from "../../src/types";
+import { Model } from "../../../src";
+import { ChartTerms } from "../../../src/components/translations_terms";
+import { toZone } from "../../../src/helpers/zones";
+import { BasicChartUIDefinition, BorderCommand, CommandResult } from "../../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -17,9 +17,9 @@ import {
   setCellContent,
   undo,
   updateChart,
-} from "../test_helpers/commands_helpers";
-import { target } from "../test_helpers/helpers";
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
+} from "../../test_helpers/commands_helpers";
+import { target } from "../../test_helpers/helpers";
+jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
 let model: Model;
 
@@ -470,10 +470,10 @@ describe("datasource tests", function () {
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.type).toEqual("line");
     updateChart(model, "1", {
+      type: "bar",
       dataSets: ["Sheet1!A8:D8", "Sheet1!A9:D9"],
       labelRange: "Sheet1!C7:D7",
       dataSetsHaveTitle: true,
-      type: "bar",
       title: "hello1",
     });
     chart = model.getters.getBasicChartRuntime("1")!;
@@ -1035,7 +1035,7 @@ describe("datasource tests", function () {
     );
     deleteColumns(model, ["A", "B"]);
     const sheetId = model.getters.getActiveSheetId();
-    const def = model.getters.getBasicChartDefinitionUI(sheetId, "1");
+    const def = model.getters.getBasicChartDefinitionUI(sheetId, "1")!;
     expect(def.dataSets).toHaveLength(1);
     expect(def.dataSets[0]).toEqual("A1:A4");
     expect(def.labelRange).toBeUndefined();
@@ -1435,12 +1435,12 @@ describe("Chart design configuration", () => {
   test("Background is correctly updated", () => {
     createChart(model, defaultChart, "42");
     expect(
-      model.getters.getBasicChartDefinitionUI(model.getters.getActiveSheetId(), "42").background
+      model.getters.getBasicChartDefinitionUI(model.getters.getActiveSheetId(), "42")!.background
     ).toBe("#FFFFFF");
 
     updateChart(model, "42", { background: "#000000" });
     expect(
-      model.getters.getBasicChartDefinitionUI(model.getters.getActiveSheetId(), "42").background
+      model.getters.getBasicChartDefinitionUI(model.getters.getActiveSheetId(), "42")!.background
     ).toBe("#000000");
   });
 

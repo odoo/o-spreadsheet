@@ -1,6 +1,9 @@
 <templates>
   <t t-name="o-spreadsheet.ChartFigure" owl="1">
-    <div class="o-chart-container" t-ref="chartContainer" t-on-contextmenu.prevent.stop="onContextMenu">
+    <div
+      class="o-chart-container"
+      t-ref="chartContainer"
+      t-on-contextmenu.prevent.stop="onContextMenu">
       <div class="o-chart-menu">
         <div
           class="o-chart-menu-item"
@@ -10,7 +13,8 @@
           <t t-call="o-spreadsheet.Icon.LIST"/>
         </div>
       </div>
-      <canvas t-att-style="canvasStyle" t-ref="graphContainer"/>
+      <ScorecardChart t-if="figureChartType === 'scorecard'" figure="props.figure"/>
+      <BasicChart t-if="figureChartType === 'basicChart'" figure="props.figure"/>
       <Menu
         t-if="menuState.isOpen"
         position="menuState.position"

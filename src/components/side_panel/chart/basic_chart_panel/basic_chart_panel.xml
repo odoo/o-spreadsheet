@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.ChartPanel" owl="1">
+  <t t-name="o-spreadsheet.BasicChartPanel" owl="1">
     <div class="o-chart">
       <div class="o-panel">
         <div
@@ -17,28 +17,22 @@
           Design
         </div>
       </div>
+
       <t t-if="state.panel === 'configuration'">
-        <t t-call="o-spreadsheet.ChartConfigurationPanel"/>
+        <t t-call="o-spreadsheet.BasicChartConfigurationPanel"/>
       </t>
       <t t-else="">
-        <t t-call="o-spreadsheet.ChartDesignPanel"/>
+        <t t-call="o-spreadsheet.BasicChartDesignPanel"/>
       </t>
     </div>
   </t>
 
-  <t t-name="o-spreadsheet.ChartConfigurationPanel" owl="1">
+  <t t-name="o-spreadsheet.BasicChartConfigurationPanel" owl="1">
     <div>
       <div class="o-section">
         <div class="o-section-title">Chart type</div>
-        <select
-          t-model="state.chart.type"
-          class="o-input o-type-selector"
-          t-on-change="(ev) => this.updateSelect('type', ev)">
-          <option value="bar">Bar</option>
-          <option value="line">Line</option>
-          <option value="pie">Pie</option>
-        </select>
-        <t t-if="state.chart.type === 'bar'">
+        <ChartTypeSelect figureId="this.props.figure.id" onTypeChange.bind="updateChartType"/>
+        <t t-if="chartType === 'bar'">
           <div class="o_checkbox">
             <input
               type="checkbox"
@@ -95,7 +89,7 @@
     </div>
   </t>
 
-  <t t-name="o-spreadsheet.ChartDesignPanel" owl="1">
+  <t t-name="o-spreadsheet.BasicChartDesignPanel" owl="1">
     <div>
       <div class="o-section o-chart-title">
         <div class="o-section-title">Background color</div>

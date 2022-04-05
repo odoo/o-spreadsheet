@@ -1,11 +1,21 @@
 import { INCORRECT_RANGE_STRING } from "../../constants";
-import { chartFontColor } from "../../helpers/chart";
-import { deepCopy, rangeReference, zoneToDimension, zoneToXc } from "../../helpers/index";
+import {
+  chartFontColor,
+  getDefaultBasicChartDefinition,
+  getDefaultScorecardChartDefinition,
+  getRangesInChartDefinition,
+} from "../../helpers/chart";
+import {
+  deepCopy,
+  rangeReference,
+  recomputeZones,
+  zoneToDimension,
+  zoneToXc,
+} from "../../helpers/index";
 import {
   ApplyRangeChange,
   BasicChartDefinition,
   BasicChartUIDefinition,
-  BasicChartUIDefinitionUpdate,
   Command,
   CommandResult,
   CoreCommand,
@@ -16,6 +26,8 @@ import {
   ExcelWorkbookData,
   Figure,
   FigureData,
+  Range,
+  ScorecardChartDefinition,
   UID,
   UpdateChartCommand,
   WorkbookData,
@@ -23,6 +35,17 @@ import {
 } from "../../types/index";
 import { toXlsxHexColor } from "../../xlsx/helpers/colors";
 import { CorePlugin } from "../core_plugin";
+import {
+  BasicChartType,
+  ChartDefinition,
+  ChartType,
+  ChartUIDefinitionUpdate,
+  isBasicChartDefinition,
+  isBasicChartUIDefinition,
+  isBasicChartUpdate,
+  isScorecardChartUpdate,
+  ScorecardChartUIDefinition,
+} from "./../../types/chart";
 
 /**
  * Chart plugin
@@ -32,23 +55,48 @@ import { CorePlugin } from "../core_plugin";
 
 interface ChartState {
   readonly chartFigures: Record<UID, BasicChartDefinition | undefined>;
+  readonly scorecardFigures: Record<UID, ScorecardChartDefinition | undefined>;
   readonly nextId: number;
 }
 
 export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   static getters = [
-    "getBasicChartDefinition",
+    "isChartDefined",
+    "getChartSheetId",
+    "getChartType",
     "getBasicChartDefinitionUI",
+    "getBasicChartDefinition",
+    "getScorecardChartDefinition",
+    "getScorecardChartDefinitionUI",
     "getChartsIdBySheet",
+    "getChartRanges",
   ] as const;
   readonly chartFigures: Record<UID, BasicChartDefinition> = {};
+  readonly scorecardFigures: Record<UID, ScorecardChartDefinition> = {};
+
   readonly nextId = 1;
 
   adaptRanges(applyChange: ApplyRangeChange) {
     for (let [chartId, chart] of Object.entries(this.chartFigures)) {
       if (chart) {
         this.adaptDataSetRanges(chart, chartId, applyChange);
-        this.adaptLabelRanges(chart, chartId, applyChange);
+        this.adaptChartRange(chart.labelRange, applyChange, {
+          onRemove: () => this.history.update("chartFigures", chartId, "labelRange", undefined),
+          onChange: (range) => this.history.update("chartFigures", chartId, "labelRange", range),
+        });
+      }
+    }
+
+    for (let [chartId, chart] of Object.entries(this.scorecardFigures)) {
+      if (chart) {
+        this.adaptChartRange(chart.baseline, applyChange, {
+          onRemove: () => this.history.update("scorecardFigures", chartId, "baseline", undefined),
+          onChange: (range) => this.history.update("scorecardFigures", chartId, "baseline", range),
+        });
+        this.adaptChartRange(chart.keyValue, applyChange, {
+          onRemove: () => this.history.update("scorecardFigures", chartId, "keyValue", undefined),
+          onChange: (range) => this.history.update("scorecardFigures", chartId, "keyValue", range),
+        });
       }
     }
   }
@@ -60,9 +108,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   ) {
     for (let ds of chart.dataSets) {
       if (ds.labelCell) {
-        const labelCellChange = applyChange(ds.labelCell);
-        switch (labelCellChange.changeType) {
-          case "REMOVE":
+        this.adaptChartRange(ds.labelCell, applyChange, {
+          onRemove: () =>
             this.history.update(
               "chartFigures",
               chartId,
@@ -70,68 +117,58 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
               chart.dataSets.indexOf(ds),
               "labelCell",
               undefined
-            );
-            break;
-          case "RESIZE":
-          case "MOVE":
-          case "CHANGE":
+            ),
+          onChange: (range) =>
             this.history.update(
               "chartFigures",
               chartId,
               "dataSets",
               chart.dataSets.indexOf(ds),
               "labelCell",
-              labelCellChange.range
-            );
-        }
+              range
+            ),
+        });
       }
-      const dataRangeChange = applyChange(ds.dataRange);
-      switch (dataRangeChange.changeType) {
-        case "REMOVE":
+      this.adaptChartRange(ds.dataRange, applyChange, {
+        onRemove: () => {
           const newDataSets = chart.dataSets.filter((dataset) => dataset !== ds);
           this.history.update("chartFigures", chartId, "dataSets", newDataSets);
-          break;
-        case "RESIZE":
-        case "MOVE":
-        case "CHANGE":
-          // We have to remove the ranges that are #REF
-          if (
-            this.getters.getRangeString(dataRangeChange.range, dataRangeChange.range.sheetId) !==
-            INCORRECT_RANGE_STRING
-          ) {
+        },
+        onChange: (range) => {
+          if (this.getters.getRangeString(range, range.sheetId) !== INCORRECT_RANGE_STRING) {
             this.history.update(
               "chartFigures",
               chartId,
               "dataSets",
               chart.dataSets.indexOf(ds),
               "dataRange",
-              dataRangeChange.range
+              range
             );
           } else {
             const newDataSets = chart.dataSets.filter((dataset) => dataset !== ds);
             this.history.update("chartFigures", chartId, "dataSets", newDataSets);
           }
-          break;
-      }
+        },
+      });
     }
   }
-  private adaptLabelRanges(
-    chart: BasicChartDefinition,
-    chartId: UID,
-    applyChange: ApplyRangeChange
+
+  private adaptChartRange(
+    range: Range | undefined,
+    applyChange: ApplyRangeChange,
+    callbacks: { onRemove: (range: Range) => void; onChange: (range: Range) => void }
   ) {
-    if (chart.labelRange) {
-      const labelRangeChange = applyChange(chart.labelRange);
-      switch (labelRangeChange.changeType) {
-        case "REMOVE":
-          this.history.update("chartFigures", chartId, "labelRange", undefined);
-          break;
-        case "RESIZE":
-        case "MOVE":
-        case "CHANGE":
-          this.history.update("chartFigures", chartId, "labelRange", labelRangeChange.range);
-          break;
-      }
+    if (!range) return;
+    const labelRangeChange = applyChange(range);
+    switch (labelRangeChange.changeType) {
+      case "REMOVE":
+        callbacks.onRemove(labelRangeChange.range);
+        break;
+      case "RESIZE":
+      case "MOVE":
+      case "CHANGE":
+        callbacks.onChange(labelRangeChange.range);
+        break;
     }
   }
 
@@ -146,8 +183,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       case "CREATE_CHART":
         return this.checkValidations(
           cmd,
-          this.chainValidations(this.checkEmptyDataset, this.checkDataset),
-          this.checkLabelRange
+          this.chainValidations(this.checkEmptyChartMainData, this.checkValidChartMainData),
+          this.checkChartAuxiliaryRanges
         );
       default:
         return success;
@@ -159,7 +196,10 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       case "CREATE_CHART":
         const x = cmd.position ? cmd.position.x : 0;
         const y = cmd.position ? cmd.position.y : 0;
-        this.addChartFigure(cmd.sheetId, this.createChartDefinition(cmd.definition, cmd.sheetId), {
+        const chartDefinition = isBasicChartUIDefinition(cmd.definition)
+          ? this.createBasicChartDefinition(cmd.definition, cmd.sheetId)
+          : this.createScorecardChartDefinition(cmd.definition, cmd.sheetId);
+        this.addChartFigure(cmd.sheetId, chartDefinition, {
           id: cmd.id,
           x,
           y,
@@ -178,40 +218,41 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           if (fig.tag === "chart") {
             const id = this.nextId.toString();
             this.history.update("nextId", this.nextId + 1);
-            const chartDefinition = { ...deepCopy(this.chartFigures[fig.id]), id };
+            const chartDefinitionToCopy: ChartDefinition =
+              this.chartFigures[fig.id] || this.scorecardFigures[fig.id];
+
+            const chartDefinition = deepCopy(chartDefinitionToCopy);
             chartDefinition.sheetId = cmd.sheetIdTo;
-            chartDefinition.dataSets.forEach((dataset) => {
-              if (dataset.dataRange.sheetId === cmd.sheetId) {
-                dataset.dataRange.sheetId = cmd.sheetIdTo;
-              }
-              if (dataset.labelCell?.sheetId === cmd.sheetId) {
-                dataset.labelCell.sheetId = cmd.sheetIdTo;
+            const rangesInChart = getRangesInChartDefinition(chartDefinition);
+            rangesInChart.forEach((range) => {
+              if (range.sheetId === cmd.sheetId) {
+                range.sheetId = cmd.sheetIdTo;
               }
             });
-            if (chartDefinition.labelRange?.sheetId === cmd.sheetId) {
-              chartDefinition.labelRange.sheetId = cmd.sheetIdTo;
-            }
 
-            const figure: Figure = {
-              id: id,
-              x: fig.x,
-              y: fig.y,
-              height: fig.height,
-              width: fig.width,
-              tag: "chart",
-            };
+            const figure: Figure = { ...fig, id };
             this.addChartFigure(cmd.sheetIdTo, chartDefinition, figure);
           }
         }
         break;
       }
       case "DELETE_FIGURE":
-        this.history.update("chartFigures", cmd.id, undefined);
+        if (this.chartFigures[cmd.id]) {
+          this.history.update("chartFigures", cmd.id, undefined);
+        }
+        if (this.scorecardFigures[cmd.id]) {
+          this.history.update("scorecardFigures", cmd.id, undefined);
+        }
         break;
       case "DELETE_SHEET":
         for (let id of Object.keys(this.chartFigures)) {
           if (this.chartFigures[id]?.sheetId === cmd.sheetId) {
             this.history.update("chartFigures", id, undefined);
+          }
+        }
+        for (let id of Object.keys(this.scorecardFigures)) {
+          if (this.scorecardFigures[id]?.sheetId === cmd.sheetId) {
+            this.history.update("scorecardFigures", id, undefined);
           }
         }
         break;
@@ -226,23 +267,43 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     return this.chartFigures[figureId];
   }
 
+  getScorecardChartDefinition(figureId: UID): ScorecardChartDefinition | undefined {
+    return this.scorecardFigures[figureId];
+  }
+
+  getChartType(figureId: UID): ChartType | undefined {
+    const def = this.chartFigures[figureId] || this.scorecardFigures[figureId];
+    return def?.type;
+  }
+
+  isChartDefined(figureId: UID): boolean {
+    const def = this.chartFigures[figureId] || this.scorecardFigures[figureId];
+    return def !== undefined;
+  }
+
+  getChartSheetId(figureId: UID): UID | undefined {
+    const def = this.chartFigures[figureId] || this.scorecardFigures[figureId];
+    return def?.sheetId;
+  }
+
   getChartsIdBySheet(sheetId: UID) {
-    return Object.entries(this.chartFigures)
+    return [...Object.entries(this.chartFigures), ...Object.entries(this.scorecardFigures)]
       .filter((chart) => {
         return chart[1].sheetId === sheetId;
       })
       .map((chart) => chart[0]);
   }
 
-  getBasicChartDefinitionUI(sheetId: UID, figureId: UID): BasicChartUIDefinition {
-    const data: BasicChartDefinition = this.chartFigures[figureId];
+  getBasicChartDefinitionUI(sheetId: UID, figureId: UID): BasicChartUIDefinition | undefined {
+    const data = this.chartFigures[figureId];
+    if (!data) return undefined;
     const dataSets: string[] = data.dataSets
       .map((ds: DataSet) => (ds ? this.getters.getRangeString(ds.dataRange, sheetId) : ""))
       .filter((ds) => {
         return ds !== ""; // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
       });
     return {
-      title: data && data.title ? data.title : "",
+      title: data.title ? data.title : "",
       dataSets,
       labelRange: data.labelRange
         ? this.getters.getRangeString(data.labelRange, sheetId)
@@ -258,13 +319,38 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     };
   }
 
-  private getBasicChartDefinitionExcel(sheetId: UID, figureId: UID): ExcelChartDefinition {
-    const data: BasicChartDefinition = this.chartFigures[figureId];
+  getScorecardChartDefinitionUI(
+    sheetId: UID,
+    figureId: UID
+  ): ScorecardChartUIDefinition | undefined {
+    const data = this.scorecardFigures[figureId];
+    if (!data) return undefined;
+    return {
+      ...data,
+      title: data && data.title ? data.title : "",
+      keyValue: data.keyValue ? this.getters.getRangeString(data.keyValue, sheetId) : undefined,
+      baseline: data.baseline ? this.getters.getRangeString(data.baseline, sheetId) : undefined,
+    };
+  }
+
+  /** Returns all the ranges contained in the chart corresponding to the given figure ID */
+  getChartRanges(figureId: UID): Range[] {
+    const chartDefinition = this.chartFigures[figureId] || this.scorecardFigures[figureId];
+    return getRangesInChartDefinition(chartDefinition);
+  }
+
+  private getChartDefinitionExcel(sheetId: UID, figureId: UID): ExcelChartDefinition | undefined {
+    const data: ChartDefinition = this.chartFigures[figureId];
     const dataSets: ExcelChartDataset[] = data.dataSets
       .map((ds: DataSet) => this.toExcelDataset(ds))
       .filter((ds) => ds.range !== ""); // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
+    const chartDefUI = this.getBasicChartDefinitionUI("forceSheetReference", figureId);
+    // chartDefUI is undefined for scorecard charts, that are not supported in Excel
+    if (!chartDefUI) {
+      return undefined;
+    }
     return {
-      ...this.getBasicChartDefinitionUI("forceSheetReference", figureId),
+      ...chartDefUI,
       backgroundColor: toXlsxHexColor(data.background),
       fontColor: toXlsxHexColor(chartFontColor(data.background)),
       dataSets,
@@ -308,7 +394,15 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             const figureData: BasicChartUIDefinition = {
               ...figure.data,
             };
-            this.chartFigures[figure.id] = this.createChartDefinition(figureData, sheet.id);
+            const chartDefinition = isBasicChartUIDefinition(figureData)
+              ? this.createBasicChartDefinition(figureData, sheet.id)
+              : this.createScorecardChartDefinition(figureData, sheet.id);
+
+            if (isBasicChartDefinition(chartDefinition)) {
+              this.chartFigures[figure.id] = chartDefinition;
+            } else if (chartDefinition.type === "scorecard") {
+              this.scorecardFigures[figure.id] = chartDefinition;
+            }
             delete figure.data;
           }
         }
@@ -323,7 +417,9 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         const figures = sheetFigures as FigureData<any>[];
         for (let figure of figures) {
           if (figure && figure.tag === "chart") {
-            figure.data = this.getBasicChartDefinitionUI(sheet.id, figure.id);
+            figure.data =
+              this.getBasicChartDefinitionUI(sheet.id, figure.id) ||
+              this.getScorecardChartDefinitionUI(sheet.id, figure.id);
           }
         }
         sheet.figures = figures;
@@ -334,10 +430,16 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   exportForExcel(data: ExcelWorkbookData) {
     for (let sheet of data.sheets) {
       const sheetFigures = this.getters.getFigures(sheet.id);
-      const figures = sheetFigures as FigureData<ExcelChartDefinition>[];
-      for (let figure of figures) {
+      const figures: FigureData<ExcelChartDefinition>[] = [];
+      for (let figure of sheetFigures) {
         if (figure && figure.tag === "chart") {
-          figure.data = this.getBasicChartDefinitionExcel(sheet.id, figure.id);
+          const figureData = this.getChartDefinitionExcel(sheet.id, figure.id);
+          if (figureData) {
+            figures.push({
+              ...figure,
+              data: figureData,
+            });
+          }
         }
       }
       sheet.charts = figures;
@@ -351,7 +453,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   /**
    * Create a new chart definition based on the given UI definition
    */
-  private createChartDefinition(
+  private createBasicChartDefinition(
     definition: BasicChartUIDefinition,
     sheetId: UID
   ): BasicChartDefinition {
@@ -365,52 +467,152 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     };
   }
 
+  private createScorecardChartDefinition(
+    definition: ScorecardChartUIDefinition,
+    sheetId: UID
+  ): ScorecardChartDefinition {
+    return {
+      ...definition,
+      keyValue: definition.keyValue
+        ? this.getters.getRangeFromSheetXC(sheetId, definition.keyValue)
+        : undefined,
+      baseline: definition.baseline
+        ? this.getters.getRangeFromSheetXC(sheetId, definition.baseline)
+        : undefined,
+      sheetId,
+    };
+  }
+
   /**
    * Update the chart definition linked to the given id with the attributes
    * given in the partial UI definition
    */
-  private updateChartDefinition(id: UID, definition: BasicChartUIDefinitionUpdate) {
-    const chart = this.chartFigures[id];
+  private updateChartDefinition(id: UID, definition: ChartUIDefinitionUpdate) {
+    let chart: ChartDefinition = this.chartFigures[id] || this.scorecardFigures[id];
     if (!chart) {
       throw new Error(`There is no chart with the given id: ${id}`);
     }
+    if (definition.type !== undefined) {
+      this.updateChartType(id, definition.type);
+    }
+    const figureType = this.chartFigures[id] ? "chartFigures" : "scorecardFigures";
     if (definition.title !== undefined) {
-      this.history.update("chartFigures", id, "title", definition.title);
+      this.history.update(figureType, id, "title", definition.title);
     }
-    if (definition.type) {
-      this.history.update("chartFigures", id, "type", definition.type);
+    if (definition.background !== undefined) {
+      this.history.update(figureType, id, "background", definition.background);
     }
-    if (definition.dataSets) {
-      const dataSetsHaveTitle = !!definition.dataSetsHaveTitle;
-      const dataSets = this.createDataSets(definition.dataSets, chart.sheetId, dataSetsHaveTitle);
-      this.history.update("chartFigures", id, "dataSets", dataSets);
+
+    if (isBasicChartUpdate(definition)) {
+      if (definition.dataSets) {
+        const dataSetsHaveTitle = !!definition.dataSetsHaveTitle;
+        const dataSets = this.createDataSets(definition.dataSets, chart.sheetId, dataSetsHaveTitle);
+        this.history.update("chartFigures", id, "dataSets", dataSets);
+      }
+      if (definition.labelRange !== undefined) {
+        const labelRange = definition.labelRange
+          ? this.getters.getRangeFromSheetXC(chart.sheetId, definition.labelRange)
+          : undefined;
+        this.history.update("chartFigures", id, "labelRange", labelRange);
+      }
+      if (definition.verticalAxisPosition) {
+        this.history.update(
+          "chartFigures",
+          id,
+          "verticalAxisPosition",
+          definition.verticalAxisPosition
+        );
+      }
+      if (definition.legendPosition) {
+        this.history.update("chartFigures", id, "legendPosition", definition.legendPosition);
+      }
+      if (definition.stackedBar !== undefined) {
+        this.history.update("chartFigures", id, "stackedBar", definition.stackedBar);
+      }
+      if (definition.labelsAsText !== undefined) {
+        this.history.update("chartFigures", id, "labelsAsText", definition.labelsAsText);
+      }
+    } else if (isScorecardChartUpdate(definition)) {
+      if (definition.keyValue !== undefined) {
+        const keyValueRange = definition.keyValue
+          ? this.getters.getRangeFromSheetXC(chart.sheetId, definition.keyValue)
+          : undefined;
+        this.history.update("scorecardFigures", id, "keyValue", keyValueRange);
+      }
+      if (definition.baseline !== undefined) {
+        const baselineRange = definition.baseline
+          ? this.getters.getRangeFromSheetXC(chart.sheetId, definition.baseline)
+          : undefined;
+        this.history.update("scorecardFigures", id, "baseline", baselineRange);
+      }
+      if (definition.baselineDescr !== undefined) {
+        this.history.update("scorecardFigures", id, "baselineDescr", definition.baselineDescr);
+      }
+      if (definition.baselineMode) {
+        this.history.update("scorecardFigures", id, "baselineMode", definition.baselineMode);
+      }
+      if (definition.baselineColorUp) {
+        this.history.update("scorecardFigures", id, "baselineColorUp", definition.baselineColorUp);
+      }
+      if (definition.baselineColorDown) {
+        this.history.update(
+          "scorecardFigures",
+          id,
+          "baselineColorDown",
+          definition.baselineColorDown
+        );
+      }
     }
-    if (definition.labelRange !== undefined) {
-      const labelRange = definition.labelRange
-        ? this.getters.getRangeFromSheetXC(chart.sheetId, definition.labelRange)
-        : undefined;
-      this.history.update("chartFigures", id, "labelRange", labelRange);
+  }
+
+  /**
+   * Update the type of a chart. We may need to convert the data of the chart, losing some in the process.
+   */
+  private updateChartType(id: UID, newType: ChartType) {
+    let chart: ChartDefinition;
+    if ((chart = this.chartFigures[id])) {
+      if (["pie", "line", "bar"].includes(newType)) {
+        this.history.update("chartFigures", id, "type", newType as BasicChartType);
+      }
+      if (newType === "scorecard") {
+        const dataset = chart.dataSets[0];
+        this.history.update("scorecardFigures", id, {
+          ...getDefaultScorecardChartDefinition(chart.sheetId),
+          keyValue: dataset ? this.getDatasetData(dataset) : undefined,
+          title: chart.title,
+        });
+        this.history.update("chartFigures", id, undefined);
+      }
+    } else if ((chart = this.scorecardFigures[id])) {
+      if (["pie", "line", "bar"].includes(newType)) {
+        this.history.update("chartFigures", id, {
+          ...getDefaultBasicChartDefinition(chart.sheetId),
+          type: newType as BasicChartType,
+          dataSets: chart.keyValue
+            ? this.createDataSets(
+                [this.getters.getRangeString(chart.keyValue, chart.sheetId)],
+                chart.sheetId,
+                false
+              )
+            : [],
+          title: chart.title,
+        });
+        this.history.update("scorecardFigures", id, undefined);
+      }
     }
-    if (definition.background) {
-      this.history.update("chartFigures", id, "background", definition.background);
+  }
+
+  /** Get the data of a dataset (range without the labels) */
+  private getDatasetData(ds: DataSet): Range {
+    if (!ds.labelCell) {
+      return ds.dataRange;
     }
-    if (definition.verticalAxisPosition) {
-      this.history.update(
-        "chartFigures",
-        id,
-        "verticalAxisPosition",
-        definition.verticalAxisPosition
-      );
-    }
-    if (definition.legendPosition) {
-      this.history.update("chartFigures", id, "legendPosition", definition.legendPosition);
-    }
-    if (definition.stackedBar !== undefined) {
-      this.history.update("chartFigures", id, "stackedBar", definition.stackedBar);
-    }
-    if (definition.labelsAsText !== undefined) {
-      this.history.update("chartFigures", id, "labelsAsText", definition.labelsAsText);
-    }
+    // TODO : this is ugly but it's the same thing we do in evaluation_chart.ts getData(). Maybe improve this
+    // in a future task.
+    const labelCellZone = ds.labelCell ? [zoneToXc(ds.labelCell.zone)] : [];
+    const dataXC = recomputeZones([zoneToXc(ds.dataRange.zone)], labelCellZone)[0];
+
+    return this.getters.getRangeFromSheetXC(ds.dataRange.sheetId, dataXC);
   }
 
   private createDataSets(
@@ -475,12 +677,16 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     return dataSets;
   }
 
-  private addChartFigure(sheetId: string, data: BasicChartDefinition, figure: Figure) {
+  private addChartFigure(sheetId: string, data: ChartDefinition, figure: Figure) {
     this.dispatch("CREATE_FIGURE", {
       sheetId,
       figure,
     });
-    this.history.update("chartFigures", figure.id, data);
+    if (isBasicChartDefinition(data)) {
+      this.history.update("chartFigures", figure.id, data);
+    } else if (data.type === "scorecard") {
+      this.history.update("scorecardFigures", figure.id, data);
+    }
   }
 
   private createDataSet(sheetId: UID, fullZone: Zone, titleZone: Zone | undefined): DataSet {
@@ -502,26 +708,45 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     }
   }
 
-  private checkEmptyDataset(cmd: CreateChartCommand | UpdateChartCommand): CommandResult {
-    return cmd.definition.dataSets && cmd.definition.dataSets.length === 0
-      ? CommandResult.EmptyDataSet
-      : CommandResult.Success;
+  private checkEmptyChartMainData(cmd: CreateChartCommand | UpdateChartCommand): CommandResult {
+    if ("keyValue" in cmd.definition) {
+      return cmd.definition.keyValue ? CommandResult.Success : CommandResult.EmptyScorecardKeyValue;
+    }
+
+    if ("dataSets" in cmd.definition) {
+      return cmd.definition.dataSets && cmd.definition.dataSets.length === 0
+        ? CommandResult.EmptyDataSet
+        : CommandResult.Success;
+    }
+
+    return CommandResult.Success;
   }
 
-  private checkDataset(cmd: CreateChartCommand | UpdateChartCommand): CommandResult {
-    if (!cmd.definition.dataSets) {
-      return CommandResult.Success;
+  private checkValidChartMainData(cmd: CreateChartCommand | UpdateChartCommand): CommandResult {
+    if ("keyValue" in cmd.definition && cmd.definition.keyValue) {
+      const invalidRanges = !rangeReference.test(cmd.definition.keyValue);
+      return invalidRanges ? CommandResult.InvalidScorecardKeyValue : CommandResult.Success;
     }
-    const invalidRanges =
-      cmd.definition.dataSets.find((range) => !rangeReference.test(range)) !== undefined;
-    return invalidRanges ? CommandResult.InvalidDataSet : CommandResult.Success;
+    if ("dataSets" in cmd.definition && cmd.definition.dataSets) {
+      const invalidRanges =
+        cmd.definition.dataSets.find((range) => !rangeReference.test(range)) !== undefined;
+      return invalidRanges ? CommandResult.InvalidDataSet : CommandResult.Success;
+    }
+    return CommandResult.Success;
   }
 
-  private checkLabelRange(cmd: CreateChartCommand | UpdateChartCommand): CommandResult {
-    if (!cmd.definition.labelRange) {
-      return CommandResult.Success;
+  private checkChartAuxiliaryRanges(cmd: CreateChartCommand | UpdateChartCommand): CommandResult {
+    if ("labelRange" in cmd.definition && cmd.definition.labelRange) {
+      return rangeReference.test(cmd.definition.labelRange)
+        ? CommandResult.Success
+        : CommandResult.InvalidLabelRange;
     }
-    const invalidLabels = !rangeReference.test(cmd.definition.labelRange || "");
-    return invalidLabels ? CommandResult.InvalidLabelRange : CommandResult.Success;
+    if ("baseline" in cmd.definition && cmd.definition.baseline) {
+      return rangeReference.test(cmd.definition.baseline)
+        ? CommandResult.Success
+        : CommandResult.InvalidScorecardBaseline;
+    }
+
+    return CommandResult.Success;
   }
 }

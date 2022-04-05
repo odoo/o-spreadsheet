@@ -1,5 +1,5 @@
 import { Component, useRef, useState } from "@odoo/owl";
-import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../../constants";
+import { MENU_WIDTH } from "../../../constants";
 import { MenuItemRegistry } from "../../../registries/index";
 import { _lt } from "../../../translation";
 import { DOMCoordinates, Figure, SpreadsheetChildEnv } from "../../../types";
@@ -7,6 +7,7 @@ import { css } from "../../helpers/css";
 import { useAbsolutePosition } from "../../helpers/position_hook";
 import { Menu, MenuState } from "../../menu/menu";
 import { BasicChart } from "../chart/basic_chart";
+import { ScorecardChart } from "../chart_scorecard/chart_scorecard";
 
 // -----------------------------------------------------------------------------
 // STYLE
@@ -38,6 +39,8 @@ css/* scss */ `
   }
 `;
 
+type FigureChartType = "scorecard" | "basicChart" | undefined;
+
 interface Props {
   figure: Figure;
   sidePanelIsOpen: boolean;
@@ -46,18 +49,13 @@ interface Props {
 
 export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartFigure";
-  static components = { Menu, BasicChart };
+  static components = { Menu, BasicChart, ScorecardChart };
   private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
   private chartContainerRef = useRef("chartContainer");
   private menuButtonRef = useRef("menuButton");
   private menuButtonPosition = useAbsolutePosition(this.menuButtonRef);
   private position = useAbsolutePosition(this.chartContainerRef);
-
-  get canvasStyle() {
-    const chart = this.env.model.getters.getBasicChartDefinition(this.props.figure.id);
-    return `background-color: ${chart ? chart.background : BACKGROUND_CHART_COLOR}`;
-  }
 
   private getMenuItemRegistry(): MenuItemRegistry {
     const registry = new MenuItemRegistry();
@@ -113,5 +111,17 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.isOpen = true;
     this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
     this.menuState.position = position;
+  }
+
+  get figureChartType(): FigureChartType {
+    switch (this.env.model.getters.getChartType(this.props.figure.id)) {
+      case "bar":
+      case "line":
+      case "pie":
+        return "basicChart";
+      case "scorecard":
+        return "scorecard";
+    }
+    return undefined;
   }
 }

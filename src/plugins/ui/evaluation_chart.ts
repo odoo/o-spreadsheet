@@ -1,20 +1,32 @@
 import {
-ChartConfiguration,
-ChartData,
-ChartDataSets,
-ChartLegendOptions,
-ChartTooltipItem
+  ChartConfiguration,
+  ChartData,
+  ChartDataSets,
+  ChartLegendOptions,
+  ChartTooltipItem,
 } from "chart.js";
 import { ChartTerms } from "../../components/translations_terms";
 import { MAX_CHAR_LABEL } from "../../constants";
-import { ChartColors,chartFontColor } from "../../helpers/chart";
-import { getChartTimeOptions,timeFormatMomentCompatible } from "../../helpers/chart_date";
-import { formatValue,recomputeZones,zoneToXc } from "../../helpers/index";
-import { deepCopy,findNextDefinedValue,range } from "../../helpers/misc";
-import { Cell,Format } from "../../types";
-import { BasicChartDefinition,DataSet } from "../../types/chart";
-import { Command,invalidateEvaluationCommands } from "../../types/commands";
-import { Color,UID } from "../../types/misc";
+import {
+  ChartColors,
+  chartFontColor,
+  getBaselineArrowDirection,
+  getBaselineColor,
+  getBaselineText,
+} from "../../helpers/chart";
+import { getChartTimeOptions, timeFormatMomentCompatible } from "../../helpers/chart_date";
+import { formatValue, recomputeZones, zoneToXc } from "../../helpers/index";
+import { deepCopy, findNextDefinedValue, range } from "../../helpers/misc";
+import { Cell, Format } from "../../types";
+import {
+  BasicChartDefinition,
+  ChartDefinition,
+  DataSet,
+  ScorecardChartDefinition,
+  ScorecardChartRuntime,
+} from "../../types/chart";
+import { Command, invalidateEvaluationCommands } from "../../types/commands";
+import { Color, UID } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 interface LabelValues {
@@ -30,11 +42,17 @@ interface DatasetValues {
 type AxisType = "category" | "linear" | "time";
 
 export class EvaluationChartPlugin extends UIPlugin {
-  static getters = ["getBasicChartRuntime", "canChartParseLabels"] as const;
+  static getters = [
+    "getBasicChartRuntime",
+    "getScorecardChartRuntime",
+    "canChartParseLabels",
+  ] as const;
 
   // contains the configuration of the chart with it's values like they should be displayed,
   // as well as all the options needed for the chart library to work correctly
   readonly chartRuntime: { [figureId: string]: ChartConfiguration } = {};
+  readonly scorecardChartRuntime: { [figureId: string]: ScorecardChartRuntime } = {};
+
   private outOfDate: Set<UID> = new Set<UID>();
 
   handle(cmd: Command) {
@@ -46,17 +64,25 @@ export class EvaluationChartPlugin extends UIPlugin {
       for (let chartId of Object.keys(this.chartRuntime)) {
         this.outOfDate.add(chartId);
       }
+      for (let chartId of Object.keys(this.scorecardChartRuntime)) {
+        this.outOfDate.add(chartId);
+      }
     }
     switch (cmd.type) {
       case "UPDATE_CHART":
       case "CREATE_CHART":
-        const chartDefinition = this.getters.getBasicChartDefinition(cmd.id);
-        if (chartDefinition) {
+        this.removeChartEvaluation(cmd.id);
+        let chartDefinition: ChartDefinition | undefined;
+        if ((chartDefinition = this.getters.getBasicChartDefinition(cmd.id))) {
           this.chartRuntime[cmd.id] = this.mapDefinitionToRuntime(chartDefinition);
+        }
+        if ((chartDefinition = this.getters.getScorecardChartDefinition(cmd.id))) {
+          this.scorecardChartRuntime[cmd.id] =
+            this.mapScorecardDefinitionToRuntime(chartDefinition);
         }
         break;
       case "DELETE_FIGURE":
-        delete this.chartRuntime[cmd.id];
+        this.removeChartEvaluation(cmd.id);
         break;
       case "REFRESH_CHART":
         this.evaluateUsedSheets([cmd.id]);
@@ -67,9 +93,14 @@ export class EvaluationChartPlugin extends UIPlugin {
         this.evaluateUsedSheets(chartsIds);
         break;
       case "DELETE_SHEET":
-        for (let chartId of Object.keys(this.chartRuntime)) {
-          if (!this.getters.getBasicChartDefinition(chartId)) {
-            delete this.chartRuntime[chartId];
+        for (let chartId of this.getAllChartIds()) {
+          if (!this.getters.isChartDefined(chartId)) {
+            if (this.chartRuntime[chartId]) {
+              delete this.chartRuntime[chartId];
+            }
+            if (this.scorecardChartRuntime[chartId]) {
+              delete this.scorecardChartRuntime[chartId];
+            }
           }
         }
         break;
@@ -99,6 +130,26 @@ export class EvaluationChartPlugin extends UIPlugin {
     if (definition === undefined) return false;
 
     return this.canBeLinearChart(definition) || this.canBeDateChart(definition);
+  }
+
+  getScorecardChartRuntime(figureId: string): ScorecardChartRuntime | undefined {
+    if (this.outOfDate.has(figureId) || !(figureId in this.scorecardChartRuntime)) {
+      const chartDefinition = this.getters.getScorecardChartDefinition(figureId);
+      if (!chartDefinition) return;
+
+      this.scorecardChartRuntime[figureId] = this.mapScorecardDefinitionToRuntime(chartDefinition);
+      this.outOfDate.delete(figureId);
+    }
+    return this.scorecardChartRuntime[figureId];
+  }
+
+  private removeChartEvaluation(chartId: string) {
+    if (this.chartRuntime[chartId]) {
+      delete this.chartRuntime[chartId];
+    }
+    if (this.scorecardChartRuntime[chartId]) {
+      delete this.scorecardChartRuntime[chartId];
+    }
   }
 
   private truncateLabel(label: string | undefined): string {
@@ -205,13 +256,16 @@ export class EvaluationChartPlugin extends UIPlugin {
     return config;
   }
 
-  private getSheetIdsUsedInChart(chartDefinition: BasicChartDefinition): Set<UID> {
+  /** Get the ids of all the charts defined in this plugin (basicCharts + scorecards) */
+  private getAllChartIds() {
+    return [...Object.keys(this.chartRuntime), ...Object.keys(this.scorecardChartRuntime)];
+  }
+
+  private getSheetIdsUsedInChart(chartId: UID): Set<UID> {
     const sheetIds: Set<UID> = new Set();
-    for (let ds of chartDefinition.dataSets) {
-      sheetIds.add(ds.dataRange.sheetId);
-    }
-    if (chartDefinition.labelRange) {
-      sheetIds.add(chartDefinition.labelRange.sheetId);
+    const chartRanges = this.getters.getChartRanges(chartId);
+    for (let range of chartRanges) {
+      sheetIds.add(range.sheetId);
     }
     return sheetIds;
   }
@@ -219,9 +273,9 @@ export class EvaluationChartPlugin extends UIPlugin {
   private evaluateUsedSheets(chartsIds: UID[]) {
     const usedSheetsId: Set<UID> = new Set();
     for (let chartId of chartsIds) {
-      const chartDefinition = this.getters.getBasicChartDefinition(chartId);
-      const sheetsIds =
-        chartDefinition !== undefined ? this.getSheetIdsUsedInChart(chartDefinition) : [];
+      const sheetsIds = this.getters.isChartDefined(chartId)
+        ? this.getSheetIdsUsedInChart(chartId)
+        : [];
       sheetsIds.forEach((sheetId) => {
         if (sheetId !== this.getters.getActiveSheetId()) {
           usedSheetsId.add(sheetId);
@@ -252,6 +306,41 @@ export class EvaluationChartPlugin extends UIPlugin {
       return "linear";
     }
     return "category";
+  }
+
+  private mapScorecardDefinitionToRuntime(
+    definition: ScorecardChartDefinition
+  ): ScorecardChartRuntime {
+    let keyValue = "";
+    let formattedKeyValue = "";
+    if (definition.keyValue) {
+      const keyValueCell = this.getters.getCellsInZone(
+        definition.keyValue.sheetId,
+        definition.keyValue.zone
+      )[0];
+      keyValue = keyValueCell?.evaluated.value ? String(keyValueCell?.evaluated.value) : "";
+      formattedKeyValue = keyValueCell?.formattedValue || "";
+    }
+    let baseline = definition.baseline
+      ? this.getters.getRangeValues(definition.baseline)[0]
+      : undefined;
+    baseline = baseline !== undefined ? String(baseline) : "";
+    return {
+      type: definition.type,
+      title: definition.title,
+      keyValue: formattedKeyValue || keyValue,
+      baseline: getBaselineText(baseline, keyValue, definition.baselineMode),
+      baselineArrow: getBaselineArrowDirection(baseline, keyValue),
+      baselineColor: getBaselineColor(
+        baseline,
+        keyValue,
+        definition.baselineColorUp,
+        definition.baselineColorDown
+      ),
+      baselineDescr: definition.baselineDescr,
+      background: definition.background,
+      fontColor: chartFontColor(definition.background),
+    };
   }
 
   private mapDefinitionToRuntime(definition: BasicChartDefinition): ChartConfiguration {

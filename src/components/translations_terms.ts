@@ -52,6 +52,10 @@ export const ChartTerms = {
     [CommandResult.EmptyDataSet]: _lt("A dataset needs to be defined"),
     [CommandResult.InvalidDataSet]: _lt("The dataset is invalid"),
     [CommandResult.InvalidLabelRange]: _lt("Labels are invalid"),
+    [CommandResult.EmptyScorecardKeyValue]: _lt("A key value must be defined"),
+    [CommandResult.InvalidScorecardKeyValue]: _lt("The key value is invalid"),
+    [CommandResult.InvalidScorecardBaseline]: _lt("The baseline value is invalid"),
+    [CommandResult.InvalidDataSet]: _lt("The key value is invalid"),
     Unexpected: _lt("The chart definition is invalid for an unknown reason"),
   },
 };

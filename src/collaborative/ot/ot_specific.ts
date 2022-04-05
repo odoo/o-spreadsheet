@@ -3,7 +3,7 @@ import { otRegistry } from "../../registries";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
-  BasicChartUIDefinition,
+  ChartUIDefinition,
   CreateChartCommand,
   CreateSheetCommand,
   DeleteFigureCommand,
@@ -63,24 +63,36 @@ function updateChartRangesTransformation(
 ): UpdateChartCommand | CreateChartCommand {
   const definition = toTransform.definition;
   let labelZone: Zone | undefined;
+  let baselineZone: Zone | undefined;
+  let keyValueZone: Zone | undefined;
   let dataSets: string[] | undefined;
-  if (definition.labelRange) {
+  if ("labelRange" in definition && definition.labelRange) {
     labelZone = transformZone(toZone(definition.labelRange), executed);
   }
-  if (definition.dataSets) {
+  if ("dataSets" in definition && definition.dataSets) {
     dataSets = definition.dataSets
       .map(toZone)
       .map((zone) => transformZone(zone, executed))
       .filter(isDefined)
       .map(zoneToXc);
   }
+  if ("baseline" in definition && definition.baseline) {
+    baselineZone = transformZone(toZone(definition.baseline), executed);
+  }
+  if ("keyValue" in definition && definition.keyValue) {
+    keyValueZone = transformZone(toZone(definition.keyValue), executed);
+  }
+
+  const def = {
+    ...definition,
+    dataSets,
+    labelRange: labelZone ? zoneToXc(labelZone) : undefined,
+    baseline: baselineZone ? zoneToXc(baselineZone) : undefined,
+    keyValue: keyValueZone ? zoneToXc(keyValueZone) : undefined,
+  };
   return {
     ...toTransform,
-    definition: {
-      ...definition,
-      dataSets,
-      labelRange: labelZone ? zoneToXc(labelZone) : undefined,
-    } as BasicChartUIDefinition,
+    definition: def as ChartUIDefinition,
   };
 }
 

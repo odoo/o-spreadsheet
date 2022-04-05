@@ -32,7 +32,8 @@ const numberRegexp = new RegExp(pNumberExp, "i");
  *
  * Note that "" (empty string) does not count as a number string
  */
-export function isNumber(value: string): boolean {
+export function isNumber(value: string | undefined): boolean {
+  if (!value) return false;
   // TO DO: add regexp for DATE string format (ex match: "28 02 2020")
   return numberRegexp.test(value.trim());
 }
