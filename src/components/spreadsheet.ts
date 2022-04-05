@@ -150,8 +150,12 @@ export class Spreadsheet extends ConsumerComponent<SpreadsheetProps, Spreadsheet
     return this.providers.notify(sidePanelProvider);
   }
 
+  // remove me
+  get sidePanelWatch() {
+    return this.providers.watch(sidePanelProvider);
+  }
+
   get sidePanelState() {
-    debugger;
     return this.providers.watch(sidePanelStateProvider);
   }
 

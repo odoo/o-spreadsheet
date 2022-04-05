@@ -4,11 +4,19 @@ import { EventBus } from "../helpers/event_bus";
 // https://stackoverflow.com/questions/49397567/how-to-remove-properties-via-mapped-type-in-typescript
 // We take the keys of P and if T[P] is a Function we type P as P (the string literal type for the key), otherwise we type it as never.
 // Then we index by keyof T, never will be removed from the union of types, leaving just the property keys that were not typed as never
-type JustMethodKeys<T> = { [P in keyof T]: T[P] extends Function ? P : never }[keyof T];
-type JustMethods<T> = Pick<T, JustMethodKeys<T>>;
+type MethodKeys<T> = { [P in keyof T]: T[P] extends Function ? P : never }[keyof T];
+type Methods<T> = Pick<T, MethodKeys<T>>;
+
+type AttributeKeys<T> = { [P in keyof T]: T[P] extends Function ? never : P }[keyof T];
+type Attributes<T> = Pick<T, AttributeKeys<T>>;
+
 export interface Providers {
-  watch<T>(provider: Provider<T>): Readonly<T>;
-  notify<T>(provider: Provider<T>): Readonly<JustMethods<T>>;
+  watch<T>(provider: Provider<T>): Readonly<Attributes<T>>;
+  notify<T>(provider: Provider<T>): Readonly<Methods<T>>;
+  use<T>(provider: Provider<T>): {
+    notify: Readonly<Methods<T>>;
+    state: Readonly<Attributes<T>>;
+  };
 }
 
 type StateProvider<T = any> = (providers: Providers) => Readonly<T>;
@@ -81,6 +89,7 @@ export class StateNotifier<State extends Object = any> extends EventBus<any> {
 export class ProviderContainer {
   private providers: Map<Provider, any> = new Map();
   private providerDependencies: Map<Provider, Set<Provider>> = new Map();
+  // private observers: Map<Provider, Set<() => void>> = new Map();
 
   get<T>(provider: Provider<T>): T {
     if (!this.providers.has(provider)) {
@@ -96,19 +105,30 @@ export class ProviderContainer {
     const watch = (watchedProvider: Provider) => {
       const watchedStore = this.get(watchedProvider);
       this.addDependency(watchedProvider, provider);
-      return watchedStore;
+      // return watchedStore;
+      // @ts-ignore
+      return reactive(watchedStore as T, () => {
+        // invalidate dependencies
+        // it should not invalidate *all* dependencies
+        console.log("invalidate dependencies");
+        this.providerDependencies.get(provider)?.forEach((childProvider) => {
+          this.providers.delete(childProvider);
+        });
+        this.providerDependencies.set(provider, new Set());
+      });
     };
-    const store = provider({ watch } as Providers);
+    // @ts-ignore
+    return provider({ watch } as Providers);
     // TODO fix type
     // @ts-ignore
-    return reactive(store as T, () => {
-      // invalidate dependencies
-      console.log("invalidate dependencies");
-      this.providerDependencies.get(provider)?.forEach((childProvider) => {
-        this.providers.delete(childProvider);
-      });
-      this.providerDependencies.set(provider, new Set());
-    });
+    // return reactive(store as T, () => {
+    //   // invalidate dependencies
+    //   console.log("invalidate dependencies");
+    //   this.providerDependencies.get(provider)?.forEach((childProvider) => {
+    //     this.providers.delete(childProvider);
+    //   });
+    //   this.providerDependencies.set(provider, new Set());
+    // });
     // if (store instanceof StateNotifier) {
     //   store.on("state-updated", this, () => {
     //   });
@@ -127,7 +147,7 @@ export class ProviderContainer {
 
 const providerContainer = new ProviderContainer();
 
-export function useProviders() {
+export function useProviders(): Providers {
   const component = useComponent();
   const subscriptions = new Set<StateNotifier>();
   onWillRender(() => {
@@ -136,20 +156,27 @@ export function useProviders() {
   });
   const watch = (provider: Provider) => {
     // lol it's immutable by design
-    const controller = providerContainer.get(provider);
-    if (subscriptions.has(controller)) {
-      return controller;
+    const store = providerContainer.get(provider);
+    if (subscriptions.has(store)) {
+      return store;
     }
     // if (controller instanceof StateNotifier) {
     //   controller.on("state-updated", component, () => component.render());
     // }
-    subscriptions.add(controller);
-    return reactive(controller, () => component.render());
+    // subscriptions.add(store);
+    // return reactive(store, () => component.render());
   };
   const notify = (provider: Provider) => {
     return providerContainer.get(provider);
   };
-  return { watch, notify } as Providers;
+  const use = (provider: Provider) => {
+    const store = providerContainer.get(provider);
+    return {
+      notify: store,
+      state: store,
+    };
+  };
+  return { watch, notify, use };
 }
 
 // use a root scope instead to inject it in the `env`

@@ -63,9 +63,6 @@ export const sidePanelProvider = () => new SidePanelStore();
 
 export const sidePanelStateProvider = (providers: Providers): Readonly<SidePanel> => {
   const sidePanel = providers.watch(sidePanelProvider);
-  // if (sidePanel.sidePanelKey === undefined) {
-  //   throw new Error("The side panel is closed! There's no content to show");
-  // }
   console.log("new sidePanelStateProvider");
   if (sidePanel.sidePanelKey === undefined) {
     return { isOpen: false };

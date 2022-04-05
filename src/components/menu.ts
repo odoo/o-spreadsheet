@@ -159,7 +159,7 @@ export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   }
 
   get contextMenu() {
-    return this.providers.watch(menuProvider);
+    return this.providers.use(menuProvider);
   }
 
   get subMenuPosition(): DOMCoordinates {
@@ -195,7 +195,7 @@ export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   private close() {
     this.subMenu.isOpen = false;
     this.props.onClose();
-    this.contextMenu.close();
+    this.contextMenu.notify.close();
   }
 
   /**

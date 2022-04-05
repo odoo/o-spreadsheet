@@ -391,7 +391,7 @@ export class Grid extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   }
 
   get contextMenu() {
-    return this.providers.watch(menuProvider);
+    return this.providers.use(menuProvider);
   }
 
   private initGrid() {
@@ -444,7 +444,8 @@ export class Grid extends ConsumerComponent<Props, SpreadsheetChildEnv> {
       this.env.model.getters.isVisibleInViewport(col, row, viewport) &&
       !!cell &&
       cell.isLink() &&
-      !this.contextMenu.state.isOpen &&
+      // TODO remove stateNotifier
+      !this.contextMenu.state.state.isOpen &&
       !this.props.linkEditorIsOpen &&
       !this.props.sidePanelIsOpen
     );
@@ -956,7 +957,7 @@ export class Grid extends ConsumerComponent<Props, SpreadsheetChildEnv> {
       .getAll()
       .filter((item) => !item.isVisible || item.isVisible(this.env));
     // this focus management is meh...we could do better. But that's for another day
-    this.contextMenu.open(menuItems, position, { onClose: () => this.focus() });
+    this.contextMenu.notify.open(menuItems, position, { onClose: () => this.focus() });
   }
 
   copy(cut: boolean, ev: ClipboardEvent) {
