@@ -1,16 +1,6 @@
 import { Component } from "@odoo/owl";
 import { sidePanelRegistry } from "../registries";
-import { Providers } from "./providers";
-
-// class SidePanelState {
-//   panelProps = {};
-//   // undefined values are annoying here
-//   sidePanelKey?: string;
-
-//   get isOpen() {
-//     return this.sidePanelKey !== undefined;
-//   }
-// }
+import { StoreConfig } from "./providers";
 
 interface OpenedSidePanel {
   isOpen: true;
@@ -26,17 +16,22 @@ interface ClosedSidePanel {
 
 type SidePanel = OpenedSidePanel | ClosedSidePanel;
 
-class SidePanelStore {
-  panelProps: object = {};
+interface InternalState {
+  panelProps: object;
   sidePanelKey?: string;
+}
 
-  open(sidePanelKey: string, props: any) {
-    this.panelProps = props;
-    this.sidePanelKey = sidePanelKey;
+class SidePanelActions {
+  constructor(private state: InternalState) {}
+
+  open(sidePanelKey: string, props: object) {
+    debugger;
+    this.state.panelProps = props;
+    this.state.sidePanelKey = sidePanelKey;
   }
 
-  toggle(sidePanelKey: string, props: any) {
-    if (sidePanelKey === this.sidePanelKey) {
+  toggle(sidePanelKey: string, props: object) {
+    if (sidePanelKey === this.state.sidePanelKey) {
       this.close();
     } else {
       this.open(sidePanelKey, props);
@@ -44,29 +39,28 @@ class SidePanelStore {
   }
 
   close() {
-    this.sidePanelKey = undefined;
-    this.panelProps = {};
+    this.state.sidePanelKey = undefined;
+    this.state.panelProps = {};
   }
 }
 
-// const sidePanelStateProvider = (providers: Providers) => {
-//   const sidePanel = providers.watch(sidePanelProvider)
-// }
-
-export const sidePanelProvider = () => new SidePanelStore();
-
-export const sidePanelComponentProvider = (providers: Providers): Readonly<SidePanel> => {
-  const sidePanel = providers.watch(sidePanelProvider);
-  console.log("new sidePanelStateProvider");
-  if (sidePanel.sidePanelKey === undefined) {
-    return { isOpen: false };
-  }
-  const content = sidePanelRegistry.get(sidePanel.sidePanelKey);
-  return {
-    isOpen: true,
-    Body: content.Body,
-    Footer: content.Footer,
-    title: content.title,
-    panelProps: sidePanel.panelProps,
-  };
-};
+export const sidePanelProvider: () => StoreConfig<InternalState, SidePanel, SidePanelActions> =
+  () => ({
+    actions: SidePanelActions,
+    state: {
+      panelProps: {},
+    },
+    computePublicState: (state) => {
+      if (state.sidePanelKey === undefined) {
+        return { isOpen: false };
+      }
+      const content = sidePanelRegistry.get(state.sidePanelKey);
+      return {
+        isOpen: true,
+        Body: content.Body,
+        Footer: content.Footer,
+        title: content.title,
+        panelProps: state.panelProps,
+      };
+    },
+  });

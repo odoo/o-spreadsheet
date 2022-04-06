@@ -34,7 +34,7 @@ import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
 import { menuProvider } from "../stores/context_menu_store";
 import { ConsumerComponent } from "../stores/providers";
-import { sidePanelComponentProvider, sidePanelProvider } from "../stores/side_panel_store";
+import { sidePanelProvider } from "../stores/side_panel_store";
 import {
   CellValueType,
   Client,
@@ -374,20 +374,16 @@ export class Grid extends ConsumerComponent<Props, SpreadsheetChildEnv> {
     this.props.exposeFocus(() => this.focus());
     useEffect(
       () => {
-        if (!this.sidePanelState.isOpen) {
+        if (!this.sidePanel.isOpen) {
           this.focus();
         }
       },
-      () => [this.sidePanelState.isOpen]
+      () => [this.sidePanel.isOpen]
     );
   }
 
   get sidePanel() {
     return this.providers.watch(sidePanelProvider);
-  }
-
-  get sidePanelState() {
-    return this.providers.watch(sidePanelComponentProvider);
   }
 
   get contextMenu() {

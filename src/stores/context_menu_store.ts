@@ -1,6 +1,6 @@
-import { reactive } from "@odoo/owl";
 import { FullMenuItem } from "../registries";
 import { DOMCoordinates } from "../types";
+import { store, Store, StoreConfig } from "./providers";
 
 interface MenuActionHandlers {
   onClose?: () => void;
@@ -23,7 +23,7 @@ class MenuActions {
 
   openSubMenu(menuItems: FullMenuItem[], position: DOMCoordinates) {
     if (this.state.subMenu === undefined) {
-      this.state.subMenu = MenuStore();
+      this.state.subMenu = store(menuProvider());
     }
     this.state.subMenu.notify.open(menuItems, position);
   }
@@ -33,6 +33,7 @@ interface OpenedMenu {
   isOpen: true;
   menuItems: FullMenuItem[];
   subMenu: Menu;
+  position: DOMCoordinates;
 }
 
 interface ClosedMenu {
@@ -45,43 +46,6 @@ interface MenuInternalState {
   menuItems: any[];
   position?: DOMCoordinates;
   subMenu?: Store<Menu, MenuActions>;
-}
-
-type Store<State, Actions> = {
-  state: State;
-  notify: Actions;
-};
-
-const MenuStore: () => Store<Menu, MenuActions> = () =>
-  store<MenuInternalState, Menu>(
-    {
-      menuItems: [],
-    },
-    MenuActions,
-    (state) => {
-      if (state.menuItems.length === 0) {
-        return { isOpen: false };
-      }
-      return {
-        isOpen: true,
-        menuItems: [],
-        subMenu: state.subMenu ? state.subMenu.state : { isOpen: false },
-      };
-    }
-  );
-
-function store<S, C>(state: S, actionsConstructor, computePublicState: (state: S) => C) {
-  let computedState = computePublicState(state);
-  const reactiveState = reactive(state as Object, () => {
-    computedState = computePublicState(state);
-  });
-  const actions = new actionsConstructor(reactiveState);
-  return {
-    get state() {
-      return computedState;
-    },
-    notify: actions,
-  };
 }
 
 export class ContextMenu {
@@ -110,4 +74,20 @@ export class ContextMenu {
   }
 }
 
-export const menuProvider = () => new ContextMenu();
+export const menuProvider: () => StoreConfig<MenuInternalState, Menu, MenuActions> = () => ({
+  actions: MenuActions,
+  state: {
+    menuItems: [],
+  },
+  computePublicState: (state) => {
+    if (state.menuItems.length === 0 || state.position === undefined) {
+      return { isOpen: false };
+    }
+    return {
+      isOpen: true,
+      menuItems: [],
+      position: state.position,
+      subMenu: state.subMenu ? state.subMenu.state : { isOpen: false },
+    };
+  },
+});

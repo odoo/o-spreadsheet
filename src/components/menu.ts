@@ -119,9 +119,9 @@ css/* scss */ `
 
 interface Props {
   menu: ContextMenu;
-  // position: DOMCoordinates;
-  // menuItems: FullMenuItem[];
-  // subMenu: ContextMenu;
+  position: DOMCoordinates;
+  menuItems: FullMenuItem[];
+  subMenu: ContextMenu;
   depth: number;
   onClose: () => void;
   onMenuClicked?: (ev: CustomEvent) => void;
@@ -197,7 +197,7 @@ export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   private close() {
     this.subMenu.isOpen = false;
     this.props.onClose();
-    this.contextMenu.close();
+    this.contextMenu.notify.close();
   }
 
   /**

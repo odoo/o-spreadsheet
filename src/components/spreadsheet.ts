@@ -9,7 +9,7 @@ import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { menuProvider } from "../stores/context_menu_store";
 import { ConsumerComponent } from "../stores/providers";
-import { sidePanelComponentProvider, sidePanelProvider } from "../stores/side_panel_store";
+import { sidePanelProvider } from "../stores/side_panel_store";
 import { SpreadsheetChildEnv, WorkbookData } from "../types";
 import { NotifyUIEvent } from "../types/ui";
 import { BottomBar } from "./bottom_bar";
@@ -33,7 +33,7 @@ const TEMPLATE = xml/* xml */ `
       onComposerContentFocused="(selection) => this.onTopBarComposerFocused(selection)"
       focusComposer="focusTopBarComposer"/>
     <Grid
-      sidePanelIsOpen="sidePanelState.isOpen"
+      sidePanelIsOpen="sidePanel.state.isOpen"
       linkEditorIsOpen="linkEditor.isOpen"
       onLinkEditorClosed="() => this.closeLinkEditor()"
       onSaveRequested="() => this.save()"
@@ -124,13 +124,14 @@ export class Spreadsheet extends ConsumerComponent<SpreadsheetProps, Spreadsheet
       gridFocusMode: "inactive",
     });
     this.keyDownMapping = {
-      "CTRL+H": () => this.sidePanel.toggle("FindAndReplace", {}),
-      "CTRL+F": () => this.sidePanel.toggle("FindAndReplace", {}),
+      "CTRL+H": () => this.sidePanel.notify.toggle("FindAndReplace", {}),
+      "CTRL+F": () => this.sidePanel.notify.toggle("FindAndReplace", {}),
     };
     useSubEnv({
       model: this.model,
-      openSidePanel: this.sidePanel.open.bind(this.sidePanel),
-      toggleSidePanel: this.sidePanel.toggle.bind(this.sidePanel),
+      // TODO move this
+      openSidePanel: this.sidePanel.notify.open.bind(this.sidePanel.notify),
+      toggleSidePanel: this.sidePanel.notify.toggle.bind(this.sidePanel.notify),
       openLinkEditor: this.openLinkEditor.bind(this),
       _t: Spreadsheet._t,
       clipboard: navigator.clipboard,
@@ -147,16 +148,12 @@ export class Spreadsheet extends ConsumerComponent<SpreadsheetProps, Spreadsheet
   }
 
   get sidePanel() {
-    return this.providers.notify(sidePanelProvider);
+    return this.providers.use(sidePanelProvider);
   }
 
   // remove me
   get sidePanelWatch() {
     return this.providers.watch(sidePanelProvider);
-  }
-
-  get sidePanelState() {
-    return this.providers.watch(sidePanelComponentProvider);
   }
 
   get focusTopBarComposer(): Omit<ComposerFocusType, "cellFocus"> {

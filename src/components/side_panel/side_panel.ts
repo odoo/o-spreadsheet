@@ -1,21 +1,22 @@
-import { xml } from "@odoo/owl";
+import { onWillRender, xml } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR } from "../../constants";
 import { ConsumerComponent } from "../../stores/providers";
-import { sidePanelComponentProvider, sidePanelProvider } from "../../stores/side_panel_store";
+import { sidePanelProvider } from "../../stores/side_panel_store";
 import { SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 
 const TEMPLATE = xml/* xml */ `
-  <div class="o-sidePanel" t-if="sidePanelState.isOpen">
+  <t t-esc="sidePanel.state.isOpen"/>
+  <div class="o-sidePanel" t-if="sidePanel.state.isOpen">
     <div class="o-sidePanelHeader">
-        <div class="o-sidePanelTitle" t-esc="sidePanelState.title"/>
-        <div class="o-sidePanelClose" t-on-click="() => sidePanel.close()">×</div>
+        <div class="o-sidePanelTitle" t-esc="sidePanel.state.title"/>
+        <div class="o-sidePanelClose" t-on-click="close">×</div>
     </div>
     <div class="o-sidePanelBody">
-      <t t-component="sidePanelState.Body" t-props="sidePanelState.panelProps" onCloseSidePanel="() => sidePanel.close()"/>
+      <t t-component="sidePanel.state.Body" t-props="sidePanel.state.panelProps" onCloseSidePanel="() => close()"/>
     </div>
-    <div class="o-sidePanelFooter" t-if="sidePanelState.Footer">
-      <t t-component="sidePanelState.Footer" t-props="sidePanelState.panelProps"/>
+    <div class="o-sidePanelFooter" t-if="sidePanel.state.Footer">
+      <t t-component="sidePanel.state.Footer" t-props="sidePanel.state.panelProps"/>
     </div>
   </div>`;
 
@@ -149,12 +150,18 @@ interface Props {
 export class SidePanel extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
 
-  get sidePanel() {
-    return this.providers.watch(sidePanelProvider);
+  setup() {
+    super.setup();
+    onWillRender(() => console.log("will render"));
   }
 
-  get sidePanelState() {
-    console.log(this.providers.watch(sidePanelComponentProvider));
-    return this.providers.watch(sidePanelComponentProvider);
+  get sidePanel() {
+    console.log("su");
+    return this.providers.use(sidePanelProvider);
+  }
+
+  close() {
+    debugger;
+    this.sidePanel.notify.close();
   }
 }
