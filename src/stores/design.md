@@ -1,0 +1,3 @@
+- Testable without owl rendering
+- split "writes" from "reads"
+- When computing state from another state, mutating the original state should not be possible

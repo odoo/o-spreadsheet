@@ -32,9 +32,9 @@ import { ComposerSelection } from "../plugins/ui/edition";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
-import { menuProvider } from "../stores/menu_controller";
+import { menuProvider } from "../stores/context_menu_store";
 import { ConsumerComponent } from "../stores/providers";
-import { sidePanelProvider, sidePanelStateProvider } from "../stores/side_panel_store";
+import { sidePanelComponentProvider, sidePanelProvider } from "../stores/side_panel_store";
 import {
   CellValueType,
   Client,
@@ -387,7 +387,7 @@ export class Grid extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   }
 
   get sidePanelState() {
-    return this.providers.watch(sidePanelStateProvider);
+    return this.providers.watch(sidePanelComponentProvider);
   }
 
   get contextMenu() {
@@ -445,7 +445,7 @@ export class Grid extends ConsumerComponent<Props, SpreadsheetChildEnv> {
       !!cell &&
       cell.isLink() &&
       // TODO remove stateNotifier
-      !this.contextMenu.state.state.isOpen &&
+      !this.contextMenu.state.isOpen &&
       !this.props.linkEditorIsOpen &&
       !this.props.sidePanelIsOpen
     );

@@ -2,7 +2,7 @@ import { onMounted, onPatched, useRef, xml } from "@odoo/owl";
 import Chart, { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../constants";
 import { MenuItemRegistry } from "../../registries/index";
-import { menuProvider } from "../../stores/menu_controller";
+import { menuProvider } from "../../stores/context_menu_store";
 import { ConsumerComponent } from "../../stores/providers";
 import { _lt } from "../../translation";
 import { Figure, SpreadsheetChildEnv } from "../../types";
@@ -110,7 +110,7 @@ export class ChartFigure extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   }
 
   get contextMenu() {
-    return this.providers.watch(menuProvider);
+    return this.providers.notify(menuProvider);
   }
 
   private createChart(chartData: ChartConfiguration) {

@@ -24,19 +24,13 @@ interface ClosedSidePanel {
   isOpen: false;
 }
 
-// @ts-ignore
 type SidePanel = OpenedSidePanel | ClosedSidePanel;
 
 class SidePanelStore {
   panelProps: object = {};
   sidePanelKey?: string;
 
-  // constructor() {
-  //   super(new SidePanelState());
-  // }
-
   open(sidePanelKey: string, props: any) {
-    // private state ?
     this.panelProps = props;
     this.sidePanelKey = sidePanelKey;
   }
@@ -61,7 +55,7 @@ class SidePanelStore {
 
 export const sidePanelProvider = () => new SidePanelStore();
 
-export const sidePanelStateProvider = (providers: Providers): Readonly<SidePanel> => {
+export const sidePanelComponentProvider = (providers: Providers): Readonly<SidePanel> => {
   const sidePanel = providers.watch(sidePanelProvider);
   console.log("new sidePanelStateProvider");
   if (sidePanel.sidePanelKey === undefined) {

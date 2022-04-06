@@ -5,7 +5,7 @@ import { isEqual } from "../helpers/index";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../registries/index";
 import { topbarMenuRegistry } from "../registries/menus/topbar_menu_registry";
 import { FullMenuItem } from "../registries/menu_items_registry";
-import { menuProvider } from "../stores/menu_controller";
+import { menuProvider } from "../stores/context_menu_store";
 import { ConsumerComponent } from "../stores/providers";
 import { _lt } from "../translation";
 import { Align, BorderCommand, CommandResult, SpreadsheetChildEnv, Style } from "../types/index";
@@ -397,7 +397,7 @@ export class TopBar extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   }
 
   get contextMenu() {
-    return this.providers.watch(menuProvider);
+    return this.providers.notify(menuProvider);
   }
 
   get topbarComponents() {

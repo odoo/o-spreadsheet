@@ -7,9 +7,9 @@ import {
 } from "../constants";
 import { Model } from "../model";
 import { ComposerSelection } from "../plugins/ui/edition";
-import { menuProvider } from "../stores/menu_controller";
+import { menuProvider } from "../stores/context_menu_store";
 import { ConsumerComponent } from "../stores/providers";
-import { sidePanelProvider, sidePanelStateProvider } from "../stores/side_panel_store";
+import { sidePanelComponentProvider, sidePanelProvider } from "../stores/side_panel_store";
 import { SpreadsheetChildEnv, WorkbookData } from "../types";
 import { NotifyUIEvent } from "../types/ui";
 import { BottomBar } from "./bottom_bar";
@@ -43,9 +43,9 @@ const TEMPLATE = xml/* xml */ `
       onGridComposerCellFocused="(content, selection) => this.onGridComposerCellFocused(content, selection)"/>
     <SidePanel/>
     <BottomBar onClick="() => this.focusGrid()"/>
-    <Menu t-if="contextMenu.state.isOpen"
-      menuItems="contextMenu.state.menuItems"
-      position="contextMenu.state.position"/>
+    <Menu t-if="contextMenu.isOpen"
+      menuItems="contextMenu.menuItems"
+      position="contextMenu.position"/>
   </div>`;
 
 css/* scss */ `
@@ -156,7 +156,7 @@ export class Spreadsheet extends ConsumerComponent<SpreadsheetProps, Spreadsheet
   }
 
   get sidePanelState() {
-    return this.providers.watch(sidePanelStateProvider);
+    return this.providers.watch(sidePanelComponentProvider);
   }
 
   get focusTopBarComposer(): Omit<ComposerFocusType, "cellFocus"> {

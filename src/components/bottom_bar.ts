@@ -3,7 +3,7 @@ import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../consta
 import { formatValue } from "../helpers/format";
 import { interactiveRenameSheet } from "../helpers/ui/sheet";
 import { MenuItemRegistry, sheetMenuRegistry } from "../registries/index";
-import { menuProvider } from "../stores/menu_controller";
+import { menuProvider } from "../stores/context_menu_store";
 import { ConsumerComponent } from "../stores/providers";
 import { SpreadsheetChildEnv, UID } from "../types";
 import { css } from "./helpers/css";
@@ -148,7 +148,7 @@ export class BottomBar extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   }
 
   get contextMenu() {
-    return this.providers.watch(menuProvider);
+    return this.providers.notify(menuProvider);
   }
 
   focusSheet() {

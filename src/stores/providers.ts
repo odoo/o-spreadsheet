@@ -163,8 +163,8 @@ export function useProviders(): Providers {
     // if (controller instanceof StateNotifier) {
     //   controller.on("state-updated", component, () => component.render());
     // }
-    // subscriptions.add(store);
-    // return reactive(store, () => component.render());
+    subscriptions.add(store);
+    return reactive(store, () => component.render());
   };
   const notify = (provider: Provider) => {
     return providerContainer.get(provider);

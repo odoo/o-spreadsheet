@@ -11,7 +11,7 @@ import {
 } from "../constants";
 import { FullMenuItem, MenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
-import { menuProvider } from "../stores/menu_controller";
+import { ContextMenu, menuProvider } from "../stores/context_menu_store";
 import { ConsumerComponent } from "../stores/providers";
 import { DOMCoordinates, SpreadsheetChildEnv } from "../types";
 import { css } from "./helpers/css";
@@ -118,8 +118,10 @@ css/* scss */ `
 `;
 
 interface Props {
-  position: DOMCoordinates;
-  menuItems: FullMenuItem[];
+  menu: ContextMenu;
+  // position: DOMCoordinates;
+  // menuItems: FullMenuItem[];
+  // subMenu: ContextMenu;
   depth: number;
   onClose: () => void;
   onMenuClicked?: (ev: CustomEvent) => void;
@@ -195,7 +197,7 @@ export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   private close() {
     this.subMenu.isOpen = false;
     this.props.onClose();
-    this.contextMenu.notify.close();
+    this.contextMenu.close();
   }
 
   /**

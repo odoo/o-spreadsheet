@@ -1,7 +1,7 @@
 import { onMounted, useRef, useState, xml } from "@odoo/owl";
 import { markdownLink } from "../../helpers/index";
 import { linkMenuRegistry } from "../../registries/menus/link_menu_registry";
-import { menuProvider } from "../../stores/menu_controller";
+import { menuProvider } from "../../stores/context_menu_store";
 import { ConsumerComponent } from "../../stores/providers";
 import { Link, Position, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
@@ -138,7 +138,7 @@ export class LinkEditor extends ConsumerComponent<LinkEditorProps, SpreadsheetCh
   }
 
   get contextMenu() {
-    return this.providers.watch(menuProvider);
+    return this.providers.notify(menuProvider);
   }
 
   get defaultState(): State {

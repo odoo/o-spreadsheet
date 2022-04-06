@@ -1,5 +1,5 @@
 import { ProviderContainer } from "../../src/stores/providers";
-import { sidePanelProvider, sidePanelStateProvider } from "../../src/stores/side_panel_store";
+import { sidePanelComponentProvider, sidePanelProvider } from "../../src/stores/side_panel_store";
 
 describe("side panel store", () => {
   let providers: ProviderContainer;
@@ -9,10 +9,10 @@ describe("side panel store", () => {
 
   test("open side panel", () => {
     const sidePanel = providers.get(sidePanelProvider);
-    let state = providers.get(sidePanelStateProvider);
+    let state = providers.get(sidePanelComponentProvider);
     expect(state.isOpen).toBe(false);
     sidePanel.open("ConditionalFormatting", {});
-    state = providers.get(sidePanelStateProvider);
+    state = providers.get(sidePanelComponentProvider);
     expect(state.isOpen).toBe(true);
   });
 });

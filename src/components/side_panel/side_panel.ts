@@ -1,7 +1,7 @@
 import { xml } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR } from "../../constants";
 import { ConsumerComponent } from "../../stores/providers";
-import { sidePanelProvider, sidePanelStateProvider } from "../../stores/side_panel_store";
+import { sidePanelComponentProvider, sidePanelProvider } from "../../stores/side_panel_store";
 import { SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 
@@ -154,7 +154,7 @@ export class SidePanel extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   }
 
   get sidePanelState() {
-    console.log(this.providers.watch(sidePanelStateProvider));
-    return this.providers.watch(sidePanelStateProvider);
+    console.log(this.providers.watch(sidePanelComponentProvider));
+    return this.providers.watch(sidePanelComponentProvider);
   }
 }
