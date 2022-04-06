@@ -1,4 +1,5 @@
 import {
+  createAdaptedZone,
   isZoneValid,
   overlap,
   positions,
@@ -146,5 +147,57 @@ describe("positions", () => {
     expect(positions(zone)).toContainEqual(toCartesian("A2"));
     expect(positions(zone)).toContainEqual(toCartesian("B1"));
     expect(positions(zone)).toContainEqual(toCartesian("B2"));
+  });
+});
+
+describe("createAdaptedZone", () => {
+  const zone = toZone("B2:C3");
+
+  test("positive move on columns", () => {
+    expect(createAdaptedZone(zone, "columns", "MOVE", 2)).toEqual(toZone("D2:E3"));
+  });
+
+  test("positive move on rows", () => {
+    expect(createAdaptedZone(zone, "rows", "MOVE", 2)).toEqual(toZone("B4:C5"));
+  });
+
+  test("positive move on columns and rows", () => {
+    expect(createAdaptedZone(zone, "both", "MOVE", [3, 4])).toEqual(toZone("E6:F7"));
+  });
+
+  test("negative move on columns", () => {
+    expect(createAdaptedZone(zone, "columns", "MOVE", -1)).toEqual(toZone("A2:B3"));
+  });
+
+  test("negative move on rows", () => {
+    expect(createAdaptedZone(zone, "rows", "MOVE", -1)).toEqual(toZone("B1:C2"));
+  });
+
+  test("negative move on columns and rows", () => {
+    expect(createAdaptedZone(zone, "both", "MOVE", [-1, -1])).toEqual(toZone("A1:B2"));
+  });
+
+  test("positive resize on columns", () => {
+    expect(createAdaptedZone(zone, "columns", "RESIZE", 2)).toEqual(toZone("B2:E3"));
+  });
+
+  test("positive resize on rows", () => {
+    expect(createAdaptedZone(zone, "rows", "RESIZE", 2)).toEqual(toZone("B2:C5"));
+  });
+
+  test("positive resize on columns and rows", () => {
+    expect(createAdaptedZone(zone, "both", "RESIZE", [3, 4])).toEqual(toZone("B2:F7"));
+  });
+
+  test("negative resize on columns", () => {
+    expect(createAdaptedZone(zone, "columns", "RESIZE", -1)).toEqual(toZone("B2:B3"));
+  });
+
+  test("negative resize on rows", () => {
+    expect(createAdaptedZone(zone, "rows", "RESIZE", -1)).toEqual(toZone("B2:C2"));
+  });
+
+  test("negative resize on columns and rows", () => {
+    expect(createAdaptedZone(zone, "both", "RESIZE", [-1, -1])).toEqual(toZone("B2"));
   });
 });

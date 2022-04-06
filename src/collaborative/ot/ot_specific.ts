@@ -7,6 +7,8 @@ import {
   CreateChartCommand,
   CreateSheetCommand,
   DeleteFigureCommand,
+  DeleteSheetCommand,
+  MoveRangeCommand,
   RemoveColumnsRowsCommand,
   RemoveMergeCommand,
   UpdateChartCommand,
@@ -29,9 +31,21 @@ otRegistry.addTransformation(
   ["CREATE_CHART", "UPDATE_CHART"],
   updateChartRangesTransformation
 );
+otRegistry.addTransformation("DELETE_SHEET", ["MOVE_RANGES"], transformTargetSheetId);
 otRegistry.addTransformation("DELETE_FIGURE", ["UPDATE_FIGURE", "UPDATE_CHART"], updateChartFigure);
 otRegistry.addTransformation("CREATE_SHEET", ["CREATE_SHEET"], createSheetTransformation);
 otRegistry.addTransformation("ADD_MERGE", ["ADD_MERGE", "REMOVE_MERGE"], mergeTransformation);
+
+function transformTargetSheetId(
+  cmd: MoveRangeCommand,
+  executed: DeleteSheetCommand
+): MoveRangeCommand | undefined {
+  const deletedSheetId = executed.sheetId;
+  if (cmd.targetSheetId === deletedSheetId || cmd.sheetId === deletedSheetId) {
+    return undefined;
+  }
+  return cmd;
+}
 
 function updateChartFigure(
   toTransform: UpdateFigureCommand | UpdateChartCommand,

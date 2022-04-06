@@ -134,6 +134,9 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "MOVE_SHEET",
   "RENAME_SHEET",
 
+  /** RANGES MANIPULATION */
+  "MOVE_RANGES",
+
   /** CONDITIONAL FORMAT */
   "ADD_CONDITIONAL_FORMAT",
   "REMOVE_CONDITIONAL_FORMAT",
@@ -270,6 +273,23 @@ export interface RenameSheetCommand extends SheetDependentCommand {
 }
 
 //------------------------------------------------------------------------------
+// Ranges Manipulation
+//------------------------------------------------------------------------------
+
+/**
+ * Command created in order to apply a translational movement for all references
+ * to cells/ranges within a specific zone.
+ * Command particularly useful during CUT / PATE.
+ */
+export interface MoveRangeCommand
+  extends SheetDependentCommand,
+    PositionDependentCommand,
+    TargetDependentCommand {
+  type: "MOVE_RANGES";
+  targetSheetId: string;
+}
+
+//------------------------------------------------------------------------------
 // Conditional Format
 //------------------------------------------------------------------------------
 
@@ -373,12 +393,6 @@ export interface PasteCommand {
   target: Zone[];
   pasteOption?: ClipboardOptions;
   force?: boolean;
-}
-
-export interface CutAndPasteCommand {
-  type: "CUT_AND_PASTE";
-  source: Zone;
-  target: Zone;
 }
 
 export interface AutoFillCellCommand {
@@ -783,6 +797,9 @@ export type CoreCommand =
   | MoveSheetCommand
   | RenameSheetCommand
 
+  /** RANGES MANIPULATION */
+  | MoveRangeCommand
+
   /** CONDITIONAL FORMAT */
   | AddConditionalFormatCommand
   | RemoveConditionalFormatCommand
@@ -817,7 +834,6 @@ export type LocalCommand =
   | CopyCommand
   | CutCommand
   | PasteCommand
-  | CutAndPasteCommand
   | AutoFillCellCommand
   | PasteFromOSClipboardCommand
   | ActivatePaintFormatCommand
@@ -925,10 +941,13 @@ export const enum CommandResult {
   InvalidAnchorZone,
   SelectionOutOfBound,
   TargetOutOfSheet,
+  WrongCutSelection,
   WrongPasteSelection,
+  WrongPasteOption,
   EmptyClipboard,
   EmptyRange,
   InvalidRange,
+  InvalidZones,
   InvalidSheetId,
   InputAlreadyFocused,
   MaximumRangesReached,

@@ -23,6 +23,7 @@ import {
   MAX_DELAY,
   range,
 } from "../../helpers/index";
+import { interactiveCut } from "../../helpers/ui/cut";
 import { interactivePaste } from "../../helpers/ui/paste";
 import { ComposerSelection } from "../../plugins/ui/edition";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
@@ -928,9 +929,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (this.env.model.getters.getEditionMode() !== "inactive") {
       return;
     }
-    const type = cut ? "CUT" : "COPY";
     const target = this.env.model.getters.getSelectedZones();
-    this.env.model.dispatch(type, { target });
+    if (cut) {
+      interactiveCut(this.env, target);
+    } else {
+      this.env.model.dispatch("COPY", { target });
+    }
     const content = this.env.model.getters.getClipboardContent();
     this.clipBoardString = content;
     ev.clipboardData!.setData("text/plain", content);

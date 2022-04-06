@@ -28,13 +28,12 @@ cellMenuRegistry
     shortCut: "Ctrl+V",
     sequence: 30,
     action: ACTIONS.PASTE_ACTION,
-    isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
   })
   .add("paste_special", {
     name: _lt("Paste special"),
     sequence: 40,
     separator: true,
-    isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
+    isVisible: ACTIONS.IS_NOT_CUT_OPERATION,
   })
   .addChild("paste_value_only", ["paste_special"], {
     name: _lt("Paste values only"),
