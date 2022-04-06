@@ -44,12 +44,16 @@ export class ContextMenu {
 export const menuProvider = () => new ContextMenu();
 
 class InternalState {
-  constructor(state: any, computePublicState: (any) => any) {}
+  constructor(state, computePublicState) {
+    return state;
+  }
 
-  publicState() {}
+  publicState() {
+    return 5;
+  }
 }
-
-new State(
+function computeState(state, compute) {}
+new InternalState(
   {
     menuItems: [],
   },
