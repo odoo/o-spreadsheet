@@ -12,6 +12,7 @@ import {
   DeleteSheetCommand,
   DuplicateSheetCommand,
   Figure,
+  MoveRangeCommand,
   MoveSheetCommand,
   RemoveColumnsRowsCommand,
   RemoveConditionalFormatCommand,
@@ -127,6 +128,14 @@ describe("OT with DELETE_SHEET", () => {
     type: "DELETE_SHEET",
   };
 
+  const moveRanges: Omit<MoveRangeCommand, "sheetId"> = {
+    type: "MOVE_RANGES",
+    targetSheetId: sheetId,
+    col: 0,
+    row: 0,
+    target: [toZone("A1")],
+  };
+
   describe.each([
     updateCell,
     updateCellPosition,
@@ -151,6 +160,7 @@ describe("OT with DELETE_SHEET", () => {
     resizeRows,
     removeConditionalFormatting,
     otherDeleteSheet,
+    moveRanges,
   ])("Delete sheet", (cmd) => {
     test("Delete the sheet on which the command is triggered", () => {
       const result = transform({ ...cmd, sheetId: deletedSheetId }, deleteSheet);
@@ -179,6 +189,35 @@ describe("OT with DELETE_SHEET", () => {
       const command = { ...cmd, sheetId: sheetId };
       const result = transform(command, deleteSheet);
       expect(result).toEqual(command);
+    });
+  });
+
+  describe("Delete sheet with move ranges", () => {
+    const cmd: Omit<MoveRangeCommand, "targetSheetId"> = {
+      type: "MOVE_RANGES",
+      sheetId,
+      col: 0,
+      row: 0,
+      target: [toZone("A1")],
+    };
+
+    test("Delete the sheet on which the command is triggered", () => {
+      const result = transform({ ...cmd, targetSheetId: deletedSheetId }, deleteSheet);
+      expect(result).toBeUndefined();
+    });
+
+    test("Delete another sheet", () => {
+      const command = { ...cmd, targetSheetId: sheetId };
+      const result = transform(command, deleteSheet);
+      expect(result).toEqual(command);
+    });
+
+    test("Delete the sheet source and target sheet", () => {
+      const result = transform(
+        { ...cmd, sheetId: deletedSheetId, targetSheetId: deletedSheetId },
+        deleteSheet
+      );
+      expect(result).toBeUndefined();
     });
   });
 });

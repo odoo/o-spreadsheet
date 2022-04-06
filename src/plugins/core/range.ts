@@ -4,6 +4,7 @@ import {
   createAdaptedZone,
   getComposerSheetName,
   groupConsecutive,
+  isZoneInside,
   isZoneValid,
   numberToLetters,
   rangeReference,
@@ -37,7 +38,10 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-  allowDispatch(command: Command): CommandResult {
+  allowDispatch(cmd: Command): CommandResult {
+    if (cmd.type === "MOVE_RANGES") {
+      return cmd.target.length === 1 ? CommandResult.Success : CommandResult.InvalidZones;
+    }
     return CommandResult.Success;
   }
   beforeHandle(command: Command) {}
@@ -162,6 +166,24 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         });
         break;
       }
+      case "MOVE_RANGES": {
+        const originZone = cmd.target[0];
+        this.executeOnAllRanges((range: Range) => {
+          if (range.sheetId !== cmd.sheetId || !isZoneInside(range.zone, originZone)) {
+            return { changeType: "NONE" };
+          }
+          const targetSheetId = cmd.targetSheetId;
+          const offsetX = cmd.col - originZone.left;
+          const offsetY = cmd.row - originZone.top;
+          const adaptedRange = this.createAdaptedRange(range, "both", "MOVE", [offsetX, offsetY]);
+          const prefixSheet = cmd.sheetId === targetSheetId ? adaptedRange.prefixSheet : true;
+          return {
+            changeType: "MOVE",
+            range: { ...adaptedRange, sheetId: targetSheetId, prefixSheet },
+          };
+        });
+        break;
+      }
     }
   }
 
@@ -183,11 +205,11 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     };
   }
 
-  private createAdaptedRange(
+  private createAdaptedRange<Dimension extends "columns" | "rows" | "both">(
     range: Range,
-    dimension: "columns" | "rows",
+    dimension: Dimension,
     operation: "MOVE" | "RESIZE",
-    by: number
+    by: Dimension extends "both" ? [number, number] : number
   ) {
     return {
       ...range,

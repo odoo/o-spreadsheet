@@ -1,6 +1,7 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { numberToLetters, zoneToXc } from "../../helpers/index";
 import { interactiveSortSelection } from "../../helpers/sort";
+import { interactiveCut } from "../../helpers/ui/cut";
 import { handlePasteResult, interactivePaste } from "../../helpers/ui/paste";
 import { _lt } from "../../translation";
 import { CellValueType, Format, SpreadsheetChildEnv, Style } from "../../types/index";
@@ -59,7 +60,7 @@ export const COPY_ACTION = async (env: SpreadsheetChildEnv) => {
 };
 
 export const CUT_ACTION = async (env: SpreadsheetChildEnv) => {
-  env.model.dispatch("CUT", { target: env.model.getters.getSelectedZones() });
+  interactiveCut(env, env.model.getters.getSelectedZones());
   await env.clipboard.writeText(env.model.getters.getClipboardContent());
 };
 
@@ -111,6 +112,10 @@ export const SET_GRID_LINES_VISIBILITY_ACTION = (env: SpreadsheetChildEnv) => {
     sheetId,
     areGridLinesVisible: !env.model.getters.getGridLinesVisibility(sheetId),
   });
+};
+
+export const IS_NOT_CUT_OPERATION = (env: SpreadsheetChildEnv): boolean => {
+  return !env.model.getters.isCutOperation();
 };
 
 //------------------------------------------------------------------------------

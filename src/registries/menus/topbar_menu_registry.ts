@@ -56,6 +56,7 @@ topbarMenuRegistry
     name: _lt("Paste special"),
     sequence: 60,
     separator: true,
+    isVisible: ACTIONS.IS_NOT_CUT_OPERATION,
   })
   .addChild("paste_special_value", ["edit", "paste_special"], {
     name: _lt("Paste value only"),

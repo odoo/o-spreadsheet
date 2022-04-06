@@ -174,15 +174,14 @@ export function reduceZoneOnDeletion(
 }
 
 /**
- * Compute the union of two zones. It is the smallest zone which contains the
- * two arguments.
+ * Compute the union of multiple zones.
  */
-export function union(z1: Zone, z2: Zone): Zone {
+export function union(...zones: Zone[]): Zone {
   return {
-    top: Math.min(z1.top, z2.top),
-    left: Math.min(z1.left, z2.left),
-    bottom: Math.max(z1.bottom, z2.bottom),
-    right: Math.max(z1.right, z2.right),
+    top: Math.min(...zones.map((zone) => zone.top)),
+    left: Math.min(...zones.map((zone) => zone.left)),
+    bottom: Math.max(...zones.map((zone) => zone.bottom)),
+    right: Math.max(...zones.map((zone) => zone.right)),
   };
 }
 
@@ -423,20 +422,34 @@ export function positions(zone: Zone): Position[] {
   return positions;
 }
 
-export function createAdaptedZone(
+/**
+ * This function returns a zone with coordinates modified according to the change
+ * applied to the zone. It may be possible to change the zone by resizing or moving
+ * it according to different dimensions.
+ *
+ * @param zone the zone to modify
+ * @param dimension the direction to change the zone among "columns", "rows" and
+ * "both"
+ * @param operation how to change the zone, modify its size "RESIZE" or modify
+ * its location "MOVE"
+ * @param by a number of how many units the change should be made. This parameter
+ * takes the form of a two-number array when the dimension is "both"
+ */
+export function createAdaptedZone<Dimension extends "columns" | "rows" | "both">(
   zone: Zone,
-  dimension: "columns" | "rows",
+  dimension: Dimension,
   operation: "MOVE" | "RESIZE",
-  by: number
+  by: Dimension extends "both" ? [number, number] : number
 ): Zone {
-  const start: "left" | "top" = dimension === "columns" ? "left" : "top";
-  const end: "right" | "bottom" = dimension === "columns" ? "right" : "bottom";
-
+  const offsetX = dimension === "both" ? by[0] : dimension === "columns" ? by : 0;
+  const offsetY = dimension === "both" ? by[1] : dimension === "rows" ? by : 0;
   const newZone = { ...zone };
   if (operation === "MOVE") {
-    newZone[start] += by;
+    newZone["left"] += offsetX;
+    newZone["top"] += offsetY;
   }
-  newZone[end] += by;
+  newZone["right"] += offsetX;
+  newZone["bottom"] += offsetY;
   return newZone;
 }
 

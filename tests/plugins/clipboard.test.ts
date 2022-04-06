@@ -1,4 +1,5 @@
 import { toZone } from "../../src/helpers";
+import { interactiveCut } from "../../src/helpers/ui/cut";
 import { interactivePaste } from "../../src/helpers/ui/paste";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
@@ -662,84 +663,245 @@ describe("clipboard", () => {
     expect(getCell(model, "C3")?.evaluated.value).toBe(3);
   });
 
-  test("pasting a value in a larger selection", () => {
+  test("incompatible multiple selections: only last one is actually copied", () => {
     const model = new Model();
-    setCellContent(model, "A1", "1");
-    model.dispatch("COPY", { target: [toZone("A1:A1")] });
+    setCellContent(model, "A1", "a1");
+    setCellContent(model, "A2", "a2");
+    setCellContent(model, "C1", "c1");
+    model.dispatch("COPY", { target: [toZone("A1:A2"), toZone("C1")] });
 
-    model.dispatch("PASTE", { target: [toZone("C2:E3")] });
-    expect(getCellContent(model, "C2")).toBe("1");
-    expect(getCellContent(model, "C3")).toBe("1");
-    expect(getCellContent(model, "D2")).toBe("1");
-    expect(getCellContent(model, "D3")).toBe("1");
-    expect(getCellContent(model, "E2")).toBe("1");
-    expect(getCellContent(model, "E3")).toBe("1");
+    expect(getClipboardVisibleZones(model).length).toBe(1);
+
+    selectCell(model, "E1");
+    model.dispatch("PASTE", { target: [toZone("E1")] });
+    expect(getCellContent(model, "E1")).toBe("c1");
+    expect(getCell(model, "E2")).toBeUndefined();
   });
 
-  test("selection is updated to contain exactly the new pasted zone", () => {
+  test("compatible multiple selections: each column is copied", () => {
     const model = new Model();
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    model.dispatch("COPY", { target: [toZone("A1:A2")] });
+    setCellContent(model, "A1", "a1");
+    setCellContent(model, "A2", "a2");
+    setCellContent(model, "C1", "c1");
+    setCellContent(model, "C2", "c2");
+    model.dispatch("COPY", { target: [toZone("A1:A2"), toZone("C1:C2")] });
 
-    // select C1:C3
-    selectCell(model, "C1");
-    setAnchorCorner(model, "C3");
+    expect(getClipboardVisibleZones(model).length).toBe(2);
 
-    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 2, right: 2 });
-    model.dispatch("PASTE", { target: [toZone("C1:C3")] });
-    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 1, right: 2 });
-    expect(getCellContent(model, "C1")).toBe("1");
-    expect(getCellContent(model, "C2")).toBe("2");
-    expect(getCell(model, "C3")).toBeUndefined();
+    model.dispatch("PASTE", { target: [toZone("E1")] });
+    expect(getCellContent(model, "E1")).toBe("a1");
+    expect(getCellContent(model, "E2")).toBe("a2");
+    expect(getCellContent(model, "F1")).toBe("c1");
+    expect(getCellContent(model, "F2")).toBe("c2");
   });
 
-  test("selection is not changed if pasting a single value into two zones", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "1");
-    model.dispatch("COPY", { target: [toZone("A1:A1")] });
+  describe("copy/paste a zone in a larger selection will duplicate the zone on the selection as long as it does not exceed it", () => {
+    test("paste a value (zone with hight=1 and width=1)", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "1");
+      model.dispatch("COPY", { target: [toZone("A1")] });
+      model.dispatch("PASTE", { target: [toZone("C2:D3")] });
+      expect(getCellContent(model, "C2")).toBe("1");
+      expect(getCellContent(model, "C3")).toBe("1");
+      expect(getCellContent(model, "D2")).toBe("1");
+      expect(getCellContent(model, "D3")).toBe("1");
+    });
 
-    selectCell(model, "C1");
-    addCellToSelection(model, "E1");
+    test("paste a zone with hight zone > 1", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "a1");
+      setCellContent(model, "A2", "a2");
+      model.dispatch("COPY", { target: [toZone("A1:A2")] });
+      model.dispatch("PASTE", { target: [toZone("A3:A7")] });
+      expect(getCellContent(model, "A3")).toBe("a1");
+      expect(getCellContent(model, "A4")).toBe("a2");
+      expect(getCellContent(model, "A5")).toBe("a1");
+      expect(getCellContent(model, "A6")).toBe("a2");
+      expect(getCellContent(model, "A7")).toBe("");
+    });
 
-    model.dispatch("PASTE", { target: [toZone("C1"), toZone("E1")] });
-    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 0, right: 2 });
-    expect(model.getters.getSelectedZones()[1]).toEqual({ top: 0, left: 4, bottom: 0, right: 4 });
+    test("paste a zone with width zone > 1", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "a1");
+      setCellContent(model, "B1", "b1");
+      model.dispatch("COPY", { target: [toZone("A1:B1")] });
+      model.dispatch("PASTE", { target: [toZone("C1:G1")] });
+      expect(getCellContent(model, "C1")).toBe("a1");
+      expect(getCellContent(model, "D1")).toBe("b1");
+      expect(getCellContent(model, "E1")).toBe("a1");
+      expect(getCellContent(model, "F1")).toBe("b1");
+      expect(getCellContent(model, "G1")).toBe("");
+    });
+
+    test("selection is updated to contain exactly the new pasted zone", () => {
+      const model = new Model();
+      model.dispatch("COPY", { target: [toZone("A1:B2")] });
+
+      // select C3:G7
+      selectCell(model, "C3");
+      setAnchorCorner(model, "G7");
+      expect(model.getters.getSelectedZones()[0]).toEqual({ top: 2, left: 2, bottom: 6, right: 6 });
+
+      model.dispatch("PASTE", { target: [toZone("C3:G7")] });
+      expect(model.getters.getSelectedZones()[0]).toEqual({ top: 2, left: 2, bottom: 5, right: 5 });
+    });
   });
 
-  test("pasting a value in multiple zones", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "33");
-    model.dispatch("COPY", { target: [toZone("A1:A1")] });
+  describe("cut/paste a zone in a larger selection will paste the zone only once", () => {
+    test("paste a value (zone with hight=1 and width=1)", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "1");
+      model.dispatch("CUT", { target: [toZone("A1")] });
+      model.dispatch("PASTE", { target: [toZone("C2:D3")] });
+      expect(getCellContent(model, "C2")).toBe("1");
+      expect(getCellContent(model, "C3")).toBe("");
+      expect(getCellContent(model, "D2")).toBe("");
+      expect(getCellContent(model, "D3")).toBe("");
+    });
 
-    model.dispatch("PASTE", { target: [toZone("C1"), toZone("E1")] });
+    test("with hight zone > 1", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "a1");
+      setCellContent(model, "A2", "a2");
+      model.dispatch("CUT", { target: [toZone("A1:A2")] });
+      model.dispatch("PASTE", { target: [toZone("A3:A7")] });
+      expect(getCellContent(model, "A3")).toBe("a1");
+      expect(getCellContent(model, "A4")).toBe("a2");
+      expect(getCellContent(model, "A5")).toBe("");
+      expect(getCellContent(model, "A6")).toBe("");
+      expect(getCellContent(model, "A7")).toBe("");
+    });
 
-    expect(getCellContent(model, "C1")).toBe("33");
-    expect(getCellContent(model, "E1")).toBe("33");
+    test("with width zone > 1", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "a1");
+      setCellContent(model, "B1", "b1");
+      model.dispatch("CUT", { target: [toZone("A1:B1")] });
+      model.dispatch("PASTE", { target: [toZone("C1:G1")] });
+      expect(getCellContent(model, "C1")).toBe("a1");
+      expect(getCellContent(model, "D1")).toBe("b1");
+      expect(getCellContent(model, "E1")).toBe("");
+      expect(getCellContent(model, "F1")).toBe("");
+      expect(getCellContent(model, "G1")).toBe("");
+    });
+
+    test("selection is updated to contain exactly the cut and pasted zone", () => {
+      const model = new Model();
+      model.dispatch("CUT", { target: [toZone("A1:B2")] });
+
+      // select C3:G7
+      selectCell(model, "C3");
+      setAnchorCorner(model, "G7");
+
+      expect(model.getters.getSelectedZones()[0]).toEqual({ top: 2, left: 2, bottom: 6, right: 6 });
+
+      model.dispatch("PASTE", { target: [toZone("C3:G7")] });
+      expect(model.getters.getSelectedZones()[0]).toEqual({ top: 2, left: 2, bottom: 3, right: 3 });
+    });
   });
 
-  test("pasting is not allowed if multiple selection and more than one value", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    model.dispatch("COPY", { target: [toZone("A1:A2")] });
-    const result = model.dispatch("PASTE", { target: [toZone("C1"), toZone("E1")] });
+  describe("copy/paste a zone in several selection will duplicate the zone on each selection", () => {
+    test("paste a value (zone with hight=1 and width=1)", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "33");
+      model.dispatch("COPY", { target: [toZone("A1")] });
+      model.dispatch("PASTE", { target: [toZone("C1"), toZone("E1")] });
+      expect(getCellContent(model, "C1")).toBe("33");
+      expect(getCellContent(model, "E1")).toBe("33");
+    });
 
-    expect(result).toBeCancelledBecause(CommandResult.WrongPasteSelection);
+    test("selection is updated to contain exactly the new pasted zones", () => {
+      const model = new Model();
+      model.dispatch("COPY", { target: [toZone("A1")] });
+
+      // select C1 and E1
+      selectCell(model, "C1");
+      addCellToSelection(model, "E1");
+
+      model.dispatch("PASTE", { target: [toZone("C1"), toZone("E1")] });
+      expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 0, right: 2 });
+      expect(model.getters.getSelectedZones()[1]).toEqual({ top: 0, left: 4, bottom: 0, right: 4 });
+    });
+
+    test("paste a zone with more than one value is not allowed", () => {
+      const model = new Model();
+      model.dispatch("COPY", { target: [toZone("A1:B2")] });
+      const result = model.dispatch("PASTE", { target: [toZone("C1"), toZone("E1")] });
+      expect(result).toBeCancelledBecause(CommandResult.WrongPasteSelection);
+    });
+
+    test("paste a zone with more than one value will warn user", async () => {
+      const notifyUser = jest.fn();
+      const model = new Model();
+      model.dispatch("COPY", { target: [toZone("A1:A2")] });
+
+      // select C4 and F6
+      selectCell(model, "C4");
+      addCellToSelection(model, "F6");
+
+      const env = makeInteractiveTestEnv(model, { notifyUser });
+      interactivePaste(env, model.getters.getSelectedZones());
+      expect(notifyUser).toHaveBeenCalled();
+    });
   });
 
-  test("pasting with multiple selection and more than one value will warn user", async () => {
-    const notifyUser = jest.fn();
-    const model = new Model();
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    model.dispatch("COPY", { target: [toZone("A1:A2")] });
+  describe("cut/paste a zone in several selection will paste the zone only once", () => {
+    test("paste a value (zone with hight=1 and width=1)", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "33");
+      model.dispatch("CUT", { target: [toZone("A1")] });
+      model.dispatch("PASTE", { target: [toZone("E1"), toZone("C1")] });
+      expect(getCellContent(model, "E1")).toBe("33");
+      expect(getCellContent(model, "C1")).toBe("");
+    });
 
-    selectCell(model, "C4");
-    addCellToSelection(model, "F6");
-    const env = makeInteractiveTestEnv(model, { notifyUser });
-    interactivePaste(env, model.getters.getSelectedZones());
-    expect(notifyUser).toHaveBeenCalled();
+    test("selection is updated to contain exactly the new pasted zones", () => {
+      const model = new Model();
+      model.dispatch("CUT", { target: [toZone("A1")] });
+
+      // select C1 and E1
+      selectCell(model, "C1");
+      addCellToSelection(model, "E1");
+
+      model.dispatch("PASTE", { target: [toZone("C1"), toZone("E1")] });
+      expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 0, right: 2 });
+      expect(model.getters.getSelectedZones().length).toBe(1);
+    });
+
+    test("paste a zone with more than one value is not allowed", () => {
+      const model = new Model();
+      model.dispatch("CUT", { target: [toZone("A1:B2")] });
+      const result = model.dispatch("PASTE", { target: [toZone("C1"), toZone("E1")] });
+      expect(result).toBeCancelledBecause(CommandResult.WrongPasteSelection);
+    });
+
+    test("paste a zone with more than one value will warn user", async () => {
+      const notifyUser = jest.fn();
+      const model = new Model();
+      model.dispatch("CUT", { target: [toZone("A1:A2")] });
+
+      selectCell(model, "C4");
+      addCellToSelection(model, "F6");
+      const env = makeInteractiveTestEnv(model, { notifyUser });
+      interactivePaste(env, model.getters.getSelectedZones());
+      expect(notifyUser).toHaveBeenCalled();
+    });
+  });
+
+  describe("cut/paste several zones", () => {
+    test("cutting is not allowed if multiple selection", () => {
+      const model = new Model();
+      const result = model.dispatch("CUT", { target: [toZone("A1"), toZone("A2")] });
+      expect(result).toBeCancelledBecause(CommandResult.WrongCutSelection);
+    });
+
+    test("cutting with multiple selection will warn user", async () => {
+      const notifyUser = jest.fn();
+      const model = new Model();
+      const env = makeInteractiveTestEnv(model, { notifyUser });
+      interactiveCut(env, [toZone("A1"), toZone("A2")]);
+      expect(notifyUser).toHaveBeenCalled();
+    });
   });
 
   describe("copy/paste several zones", () => {
@@ -1180,36 +1342,181 @@ describe("clipboard", () => {
     expect(getCell(model, "C2")).toBeUndefined();
   });
 
-  test("can copy and paste a formula and update the refs", () => {
+  test("cut and paste value only is not allowed", () => {
     const model = new Model();
-    setCellContent(model, "A1", "=SUM(C1:C2)");
-    model.dispatch("COPY", { target: [toZone("A1")] });
-    model.dispatch("PASTE", { target: [toZone("B2")] });
-    expect(getCellText(model, "B2")).toBe("=SUM(D2:D3)");
+    setCellContent(model, "B2", "b2");
+    model.dispatch("CUT", { target: [toZone("B2")] });
+    const result = model.dispatch("PASTE", { target: [toZone("C3")], pasteOption: "onlyValue" });
+    expect(result).toBeCancelledBecause(CommandResult.WrongPasteOption);
   });
 
-  /*
-   *
-   *    a    b           c         d         e
-   * --------------------------------------------
-   * 1      |         |          |         |   x
-   *        |         |          |         |
-   * ----------------------------|---------
-   * 2      |         |     x    |         |
-   *
-   *
-   * */
-
-  test.each([
-    ["=SUM(C1:C2)", "=SUM(D2:D3)"],
-    ["=$C1", "=$C2"],
-    ["=SUM($C1:D$1)", "=SUM($C$1:E2)"], //excel and g-sheet compatibility
-  ])("can copy and paste formula with $refs", (value, expected) => {
+  test("cut and paste format only is not allowed", () => {
     const model = new Model();
-    setCellContent(model, "A1", value);
-    model.dispatch("COPY", { target: [toZone("A1")] });
+    setCellContent(model, "B2", "b2");
+    model.dispatch("CUT", { target: [toZone("B2")] });
+    const result = model.dispatch("PASTE", { target: [toZone("C3")], pasteOption: "onlyFormat" });
+    expect(result).toBeCancelledBecause(CommandResult.WrongPasteOption);
+  });
+
+  describe("copy/paste a formula with references", () => {
+    test("update the references", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "=SUM(C1:C2)");
+      model.dispatch("COPY", { target: [toZone("A1")] });
+      model.dispatch("PASTE", { target: [toZone("B2")] });
+      expect(getCellText(model, "B2")).toBe("=SUM(D2:D3)");
+    });
+
+    /* $C2:E$1 <=> $C$1:E2
+     *
+     *    a    b           c         d         e
+     * --------------------------------------------
+     * 1      |         |          |         |   x
+     *        |         |          |         |
+     * ----------------------------|---------
+     * 2      |         |     x    |         |
+     *
+     *
+     * */
+
+    test.each([
+      ["=SUM(C1:C2)", "=SUM(D2:D3)"],
+      ["=$C1", "=$C2"],
+      ["=SUM($C1:D$1)", "=SUM($C$1:E2)"], //excel and g-sheet compatibility ($C2:E$1 <=> $C$1:E2)
+    ])("does not update fixed references", (value, expected) => {
+      const model = new Model();
+      setCellContent(model, "A1", value);
+      model.dispatch("COPY", { target: [toZone("A1")] });
+      model.dispatch("PASTE", { target: [toZone("B2")] });
+      expect(getCellText(model, "B2")).toBe(expected);
+    });
+
+    test("update cross-sheet reference", () => {
+      const model = new Model();
+      createSheet(model, { sheetId: "42" });
+      setCellContent(model, "B2", "=Sheet2!B2");
+      model.dispatch("COPY", { target: [toZone("B2")] });
+      model.dispatch("PASTE", { target: [toZone("B3")] });
+      expect(getCellText(model, "B3")).toBe("=Sheet2!B3");
+    });
+
+    test("update cross-sheet reference with a space in the name", () => {
+      const model = new Model();
+      createSheetWithName(model, { sheetId: "42" }, "Sheet 2");
+      setCellContent(model, "B2", "='Sheet 2'!B2");
+      model.dispatch("COPY", { target: target("B2") });
+      model.dispatch("PASTE", { target: target("B3") });
+      expect(getCellText(model, "B3")).toBe("='Sheet 2'!B3");
+    });
+
+    test("update cross-sheet reference in a smaller sheet", () => {
+      const model = new Model();
+      createSheet(model, { sheetId: "42", rows: 2, cols: 2 });
+      setCellContent(model, "A1", "=Sheet2!A1:A2");
+      model.dispatch("COPY", { target: [toZone("A1")] });
+      model.dispatch("PASTE", { target: [toZone("A2")] });
+      expect(getCellText(model, "A2")).toBe("=Sheet2!A2:A3");
+    });
+
+    test("update cross-sheet reference to a range", () => {
+      const model = new Model();
+      createSheet(model, { sheetId: "42" });
+      setCellContent(model, "A1", "=SUM(Sheet2!A2:A5)");
+      model.dispatch("COPY", { target: [toZone("A1")] });
+      model.dispatch("PASTE", { target: [toZone("B1")] });
+      expect(getCellText(model, "B1")).toBe("=SUM(Sheet2!B2:B5)");
+    });
+  });
+
+  test("cut/paste a formula with references does not update references in the formula", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=SUM(C1:C2)");
+    model.dispatch("CUT", { target: [toZone("A1")] });
     model.dispatch("PASTE", { target: [toZone("B2")] });
-    expect(getCellText(model, "B2")).toBe(expected);
+    expect(getCellText(model, "B2")).toBe("=SUM(C1:C2)");
+  });
+
+  test("copy/paste a zone present in formulas references does not update references", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=B2");
+    model.dispatch("COPY", { target: [toZone("B2")] });
+    model.dispatch("PASTE", { target: [toZone("C3")] });
+    expect(getCellText(model, "A1")).toBe("=B2");
+  });
+
+  describe("cut/paste a zone present in formulas references", () => {
+    test("update references", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "=B2");
+      model.dispatch("CUT", { target: [toZone("B2")] });
+      model.dispatch("PASTE", { target: [toZone("C3")] });
+      expect(getCellText(model, "A1")).toBe("=C3");
+    });
+
+    test("update references to a range", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "=SUM(B2:C3)");
+      model.dispatch("CUT", { target: [toZone("B2:C3")] });
+      model.dispatch("PASTE", { target: [toZone("D4")] });
+      expect(getCellText(model, "A1")).toBe("=SUM(D4:E5)");
+    });
+
+    test("update fixed references", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "=$B$2");
+      model.dispatch("CUT", { target: [toZone("B2")] });
+      model.dispatch("PASTE", { target: [toZone("C3")] });
+      expect(getCellText(model, "A1")).toBe("=$C$3");
+    });
+
+    test("update cross-sheet reference", () => {
+      const model = new Model();
+      createSheet(model, { sheetId: "Sheet2" });
+      setCellContent(model, "A1", "=Sheet2!$B$2");
+
+      activateSheet(model, "Sheet2");
+      model.dispatch("CUT", { target: [toZone("B2")] });
+
+      createSheet(model, { activate: true, sheetId: "Sheet3" });
+      model.dispatch("PASTE", { target: [toZone("C3")] });
+
+      activateSheet(model, "Sheet1");
+      expect(getCellText(model, "A1")).toBe("=Sheet3!$C$3");
+    });
+
+    test("update references even if the the formula is present in the cutting zone", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "=B1");
+      setCellContent(model, "B1", "b1");
+      model.dispatch("CUT", { target: [toZone("A1:B1")] });
+      model.dispatch("PASTE", { target: [toZone("A2")] });
+
+      expect(getCellText(model, "A1")).toBe("");
+      expect(getCellText(model, "B1")).toBe("");
+      expect(getCellText(model, "A2")).toBe("=B2");
+      expect(getCellText(model, "B2")).toBe("b1");
+    });
+
+    test("does not update reference if it isn't fully included in the zone", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "=SUM(B1:C1)+B1");
+      model.dispatch("CUT", { target: [toZone("B1")] });
+      model.dispatch("PASTE", { target: [toZone("B2")] });
+      expect(getCellText(model, "A1")).toBe("=SUM(B1:C1)+B2");
+    });
+
+    test("does not update reference if it isn't fully included in the zone even if the the formula is present in the cutting zone", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "=SUM(B1:C1)+B1");
+      setCellContent(model, "B1", "b1");
+      model.dispatch("CUT", { target: [toZone("A1:B1")] });
+      model.dispatch("PASTE", { target: [toZone("A2")] });
+
+      expect(getCellText(model, "A1")).toBe("");
+      expect(getCellText(model, "B1")).toBe("");
+      expect(getCellText(model, "A2")).toBe("=SUM(B1:C1)+B2");
+      expect(getCellText(model, "B2")).toBe("b1");
+    });
   });
 
   test("can copy format from empty cell to another cell to clear format", () => {
