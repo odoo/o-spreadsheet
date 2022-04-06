@@ -1,5 +1,5 @@
 import { reactive } from "@odoo/owl";
-import { FullMenuItem, MenuItem } from "../registries";
+import { FullMenuItem } from "../registries";
 import { DOMCoordinates } from "../types";
 
 interface MenuActionHandlers {
@@ -10,21 +10,28 @@ interface MenuActionHandlers {
 class MenuActions {
   constructor(private state: MenuInternalState) {}
 
-  open(menuItems) {
+  open(menuItems: FullMenuItem[], position: DOMCoordinates, handlers: MenuActionHandlers = {}) {
     this.state.menuItems = menuItems;
+    this.state.position = position;
   }
 
-  openSubMenu(menuItems) {
+  close() {
+    this.state.subMenu?.notify.close();
+    this.state.menuItems = [];
+    this.state.position = { x: 0, y: 0 };
+  }
+
+  openSubMenu(menuItems: FullMenuItem[], position: DOMCoordinates) {
     if (this.state.subMenu === undefined) {
       this.state.subMenu = MenuStore();
     }
-    this.state.subMenu.notify.open(menuItems);
+    this.state.subMenu.notify.open(menuItems, position);
   }
 }
 
 interface OpenedMenu {
   isOpen: true;
-  menuItems: MenuItem[];
+  menuItems: FullMenuItem[];
   subMenu: Menu;
 }
 
@@ -36,6 +43,7 @@ type Menu = OpenedMenu | ClosedMenu;
 
 interface MenuInternalState {
   menuItems: any[];
+  position?: DOMCoordinates;
   subMenu?: Store<Menu, MenuActions>;
 }
 
@@ -103,24 +111,3 @@ export class ContextMenu {
 }
 
 export const menuProvider = () => new ContextMenu();
-
-class InternalState {
-  constructor(state, computePublicState) {
-    return state;
-  }
-
-  publicState() {
-    return 5;
-  }
-}
-function computeState(state, compute) {}
-new InternalState(
-  {
-    menuItems: [],
-  },
-  (state) => {
-    return {
-      isOpen: state.menuItems.length === 0,
-    };
-  }
-);
