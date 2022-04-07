@@ -1,3 +1,5 @@
+import { ChartFigure } from "./components/figures/chart/chart";
+import { ChartPanel } from "./components/side_panel/chart_panel/chart_panel";
 import {
   BOTTOMBAR_HEIGHT,
   DEFAULT_CELL_HEIGHT,
@@ -124,4 +126,8 @@ export const helpers = {
   parseMarkdownLink,
   markdownLink,
   createEmptyWorkbookData,
+};
+export const components = {
+  ChartFigure,
+  ChartPanel,
 };

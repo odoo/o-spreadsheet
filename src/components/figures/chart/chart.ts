@@ -22,10 +22,14 @@ css/* scss */ `
       display: none;
       position: absolute;
       padding: 5px;
+    }
+
+    .o-chart-menu-item {
       cursor: pointer;
     }
   }
-  .o-figure.active:focus {
+  .o-figure.active:focus,
+  .o-figure:hover {
     .o-chart-container {
       .o-chart-menu {
         display: flex;
@@ -51,6 +55,8 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
 
   canvas = useRef("graphContainer");
   private chartContainerRef = useRef("chartContainer");
+  private menuButtonRef = useRef("menuButton");
+  private menuButtonPosition = useAbsolutePosition(this.menuButtonRef);
   private chart?: Chart;
   private state: State = { background: BACKGROUND_CHART_COLOR };
   private position = useAbsolutePosition(this.chartContainerRef);
@@ -152,11 +158,11 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
     this.openContextMenu(position);
   }
 
-  showMenu(ev: MouseEvent) {
-    const target = ev.currentTarget as HTMLElement;
-    const x = target.offsetLeft;
-    const y = target.offsetTop;
-    const position = { x: this.position.x + x - MENU_WIDTH, y: this.position.y + y };
+  showMenu() {
+    const position = {
+      x: this.menuButtonPosition.x - MENU_WIDTH,
+      y: this.menuButtonPosition.y,
+    };
     this.openContextMenu(position);
   }
 
