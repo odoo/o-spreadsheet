@@ -63,14 +63,6 @@ export function isTargetDependent(cmd: CoreCommand): boolean {
   return "target" in cmd;
 }
 
-export interface ZoneDependentCommand {
-  zone: Zone;
-}
-
-export function isZoneDependent(cmd: CoreCommand): boolean {
-  return "zone" in cmd;
-}
-
 export interface PositionDependentCommand {
   col: number;
   row: number;
@@ -162,9 +154,6 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** CHART */
   "CREATE_CHART",
   "UPDATE_CHART",
-
-  /** SORT */
-  "SORT_CELLS",
 ]);
 
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
@@ -335,7 +324,7 @@ export interface CreateChartCommand extends SheetDependentCommand {
   definition: ChartUIDefinition;
 }
 
-export interface UpdateChartCommand {
+export interface UpdateChartCommand extends SheetDependentCommand {
   type: "UPDATE_CHART";
   id: UID;
   definition: ChartUIDefinitionUpdate;
@@ -366,15 +355,6 @@ export interface SetDecimalCommand extends SheetDependentCommand, TargetDependen
   type: "SET_DECIMAL";
   step: number;
 }
-
-export interface SortCommand
-  extends ZoneDependentCommand,
-    PositionDependentCommand,
-    SheetDependentCommand {
-  type: "SORT_CELLS";
-  sortDirection: SortDirection;
-}
-
 //#endregion
 
 //#region Local Commands
@@ -721,6 +701,15 @@ export interface ReplaceAllSearchCommand {
   replaceOptions: ReplaceOptions;
 }
 
+export interface SortCommand {
+  type: "SORT_CELLS";
+  sheetId: UID;
+  col: number;
+  row: number;
+  zone: Zone;
+  sortDirection: SortDirection;
+}
+
 export type SortDirection = "ascending" | "descending";
 
 export interface ResizeViewportCommand {
@@ -835,9 +824,6 @@ export type CoreCommand =
   | ClearFormattingCommand
   | SetBorderCommand
 
-  /** SORT */
-  | SortCommand
-
   /** CHART */
   | CreateChartCommand
   | UpdateChartCommand;
@@ -892,6 +878,7 @@ export type LocalCommand =
   | SelectSearchNextCommand
   | ReplaceSearchCommand
   | ReplaceAllSearchCommand
+  | SortCommand
   | ResizeViewportCommand
   | RefreshChartCommand
   | SumSelectionCommand

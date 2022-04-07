@@ -9,7 +9,6 @@ import {
   DeleteFigureCommand,
   RemoveColumnsRowsCommand,
   RemoveMergeCommand,
-  SortCommand,
   UpdateChartCommand,
   UpdateFigureCommand,
   Zone,
@@ -33,8 +32,6 @@ otRegistry.addTransformation(
 otRegistry.addTransformation("DELETE_FIGURE", ["UPDATE_FIGURE", "UPDATE_CHART"], updateChartFigure);
 otRegistry.addTransformation("CREATE_SHEET", ["CREATE_SHEET"], createSheetTransformation);
 otRegistry.addTransformation("ADD_MERGE", ["ADD_MERGE", "REMOVE_MERGE"], mergeTransformation);
-otRegistry.addTransformation("ADD_MERGE", ["SORT_CELLS"], sortMergedTransformation);
-otRegistry.addTransformation("REMOVE_MERGE", ["SORT_CELLS"], sortUnMergedTransformation);
 
 function updateChartFigure(
   toTransform: UpdateFigureCommand | UpdateChartCommand,
@@ -93,6 +90,9 @@ function mergeTransformation(
   cmd: AddMergeCommand | RemoveMergeCommand,
   executed: AddMergeCommand
 ): AddMergeCommand | RemoveMergeCommand | undefined {
+  if (cmd.sheetId !== executed.sheetId) {
+    return cmd;
+  }
   const target: Zone[] = [];
   for (const zone1 of cmd.target) {
     for (const zone2 of executed.target) {
@@ -105,51 +105,4 @@ function mergeTransformation(
     return { ...cmd, target };
   }
   return undefined;
-}
-
-/**
- * Transforming a sort command with respect to an executed merge command
- * makes no sense. The sorting cannot work! (See the conditions to apply
- * a sort command in the sort plugin)
- * The "canonical" transformation would be to drop the sort command.
- * However, from a functional point of view, we consider the sorting
- * to have more importance than the merge. The transformation is therefore
- * to drop (inverse) the conflicting merged zones.
- */
-function sortMergedTransformation(cmd: SortCommand, executed: AddMergeCommand) {
-  const overlappingZones: Zone[] = executed.target.filter((mergedZone) =>
-    overlap(mergedZone, cmd.zone)
-  );
-  if (overlappingZones.length) {
-    const removeMergeCommand: RemoveMergeCommand = {
-      type: "REMOVE_MERGE",
-      target: overlappingZones,
-      sheetId: cmd.sheetId,
-    };
-    return [removeMergeCommand, cmd];
-  }
-  return cmd;
-}
-/**
- * Transforming a sort command with respect to an executed merge removed command
- * makes no sense. The sorting cannot work! (See the conditions to apply
- * a sort command in the sort plugin)
- * The "canonical" transformation would be to drop the sort command.
- * However, from a functional point of view, we consider the sorting
- * to have more importance than the merge. The transformation is therefore
- * to drop (inverse) the removed merged zones.
- */
-function sortUnMergedTransformation(cmd: SortCommand, executed: RemoveMergeCommand) {
-  const overlappingZones: Zone[] = executed.target.filter((mergedZone) =>
-    overlap(mergedZone, cmd.zone)
-  );
-  if (overlappingZones.length) {
-    const addMergeCommand: AddMergeCommand = {
-      type: "ADD_MERGE",
-      target: overlappingZones,
-      sheetId: cmd.sheetId,
-    };
-    return [addMergeCommand, cmd];
-  }
-  return cmd;
 }

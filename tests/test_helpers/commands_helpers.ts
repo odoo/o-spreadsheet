@@ -116,10 +116,12 @@ export function createChart(
 export function updateChart(
   model: Model,
   chartId: UID,
-  definition: ChartUIDefinitionUpdate
+  definition: ChartUIDefinitionUpdate,
+  sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   return model.dispatch("UPDATE_CHART", {
     id: chartId,
+    sheetId,
     definition,
   });
 }
