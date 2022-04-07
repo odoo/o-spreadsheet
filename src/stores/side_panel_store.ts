@@ -25,7 +25,6 @@ class SidePanelActions {
   constructor(private state: InternalState) {}
 
   open(sidePanelKey: string, props: object) {
-    debugger;
     this.state.panelProps = props;
     this.state.sidePanelKey = sidePanelKey;
   }

@@ -161,7 +161,6 @@ export class SidePanel extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   }
 
   close() {
-    debugger;
     this.sidePanel.notify.close();
   }
 }

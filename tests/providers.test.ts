@@ -35,3 +35,17 @@ test("with class", () => {
   expect(rea.a).toBe(6);
   expect(state.a).toBe(6);
 });
+
+test("with getter", () => {
+  const base = { b: 5 };
+  const state = reactive(
+    {
+      get a() {
+        return base;
+      },
+    },
+    () => console.log("coucou")
+  );
+  expect(state.a.b).toBe(5);
+  base.b = 6;
+});

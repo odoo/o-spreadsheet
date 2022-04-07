@@ -52,7 +52,6 @@ export class ProviderContainer {
   }
 
   private createStore<T>(provider: Provider<T>): Store<any, any> {
-    console.log("creating", provider);
     return store(provider());
   }
 }
@@ -112,18 +111,15 @@ export function store<InternalState, State, Actions>({
   state,
   actions: ActionsConstructor,
   computePublicState,
-}: StoreConfig<InternalState, State, Actions>) {
+}: StoreConfig<InternalState, State, Actions>): Store<State, Actions> {
   // @ts-ignore
   const reactiveState: InternalState = reactive(state, () => {
-    computedState = computePublicState(reactiveState);
-    console.log("recompute", computedState);
+    store.state = computePublicState(reactiveState);
   });
-  let computedState = computePublicState(reactiveState);
   const actions = new ActionsConstructor(reactiveState);
-  return {
-    get state() {
-      return computedState;
-    },
+  const store = reactive({
+    state: computePublicState(reactiveState),
     notify: actions,
-  };
+  });
+  return store;
 }

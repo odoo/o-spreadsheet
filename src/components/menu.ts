@@ -1,17 +1,15 @@
 import { onWillUpdateProps, useExternalListener, useRef, useState, xml } from "@odoo/owl";
 import {
-  HEADER_HEIGHT,
   MENU_ITEM_DISABLED_COLOR,
   MENU_ITEM_HEIGHT,
   MENU_SEPARATOR_BORDER_WIDTH,
   MENU_SEPARATOR_HEIGHT,
   MENU_SEPARATOR_PADDING,
   MENU_WIDTH,
-  TOPBAR_HEIGHT,
 } from "../constants";
 import { FullMenuItem, MenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
-import { ContextMenu, menuProvider } from "../stores/context_menu_store";
+import { menuProvider, MenuStore } from "../stores/context_menu_store";
 import { ConsumerComponent } from "../stores/providers";
 import { DOMCoordinates, SpreadsheetChildEnv } from "../types";
 import { css } from "./helpers/css";
@@ -118,11 +116,12 @@ css/* scss */ `
 `;
 
 interface Props {
-  menu: ContextMenu;
-  position: DOMCoordinates;
-  menuItems: FullMenuItem[];
-  subMenu: ContextMenu;
-  depth: number;
+  store: MenuStore;
+  // menu: ContextMenu;
+  // position: DOMCoordinates;
+  // menuItems: FullMenuItem[];
+  // subMenu: ContextMenu;
+  // depth: number;
   onClose: () => void;
   onMenuClicked?: (ev: CustomEvent) => void;
 }
@@ -154,10 +153,14 @@ export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
     useExternalListener(window, "click", this.onClick);
     useExternalListener(window, "contextmenu", this.onContextMenu);
     onWillUpdateProps((nextProps: Props) => {
-      if (nextProps.menuItems !== this.props.menuItems) {
-        this.subMenu.isOpen = false;
-      }
+      // if (nextProps.menuItems !== this.props.menuItems) {
+      //   this.subMenu.isOpen = false;
+      // }
     });
+  }
+
+  get state() {
+    return this.props.store.state;
   }
 
   get contextMenu() {
@@ -170,23 +173,29 @@ export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
     return position;
   }
 
-  get menuHeight(): number {
-    return this.menuComponentHeight(this.props.menuItems);
-  }
+  // get menuHeight(): number {
+  //   if (this.state.isOpen ===false) {
+  //     return 0
+  //   }
+  //   return this.menuComponentHeight(this.state.menuItems);
+  // }
 
   get subMenuHeight(): number {
-    return this.menuComponentHeight(this.subMenu.menuItems);
+    if (!this.state.isOpen || !this.state.subMenu.isOpen) {
+      return 0;
+    }
+    return this.menuComponentHeight(this.state.subMenu.menuItems);
   }
 
-  get popover() {
-    const isRoot = this.props.depth === 1;
-    return {
-      // some margin between the header and the component
-      marginTop: HEADER_HEIGHT + 6 + TOPBAR_HEIGHT,
-      flipHorizontalOffset: MENU_WIDTH * (this.props.depth - 1),
-      flipVerticalOffset: isRoot ? 0 : MENU_ITEM_HEIGHT,
-    };
-  }
+  // get popover() {
+  //   const isRoot = this.state.depth === 1;
+  //   return {
+  //     // some margin between the header and the component
+  //     marginTop: HEADER_HEIGHT + 6 + TOPBAR_HEIGHT,
+  //     flipHorizontalOffset: MENU_WIDTH * (this.props.depth - 1),
+  //     flipVerticalOffset: isRoot ? 0 : MENU_ITEM_HEIGHT,
+  //   };
+  // }
 
   async activateMenu(menu: FullMenuItem) {
     const result = await menu.action(this.env);
@@ -269,6 +278,7 @@ export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
       x: this.position.x + MENU_WIDTH,
       y: y - (this.subMenu.scrollOffset || 0),
     };
+    // WTF !?
     this.subMenu.menuItems = cellMenuRegistry.getChildren(menu, this.env);
     this.subMenu.isOpen = true;
   }
