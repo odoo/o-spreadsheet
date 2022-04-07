@@ -13,9 +13,9 @@ import {
   UID,
   Zone,
 } from "../../types/index";
-import { CorePlugin } from "../core_plugin";
+import { UIPlugin } from "../ui_plugin";
 
-export class SortPlugin extends CorePlugin {
+export class SortPlugin extends UIPlugin {
   static getters = ["getContiguousZone"] as const;
 
   allowDispatch(cmd: Command) {
