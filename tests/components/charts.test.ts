@@ -106,15 +106,15 @@ describe("figures", () => {
   });
   test("charts have a menu button", () => {
     expect(fixture.querySelector(".o-figure")).not.toBeNull();
-    expect(fixture.querySelector(".o-chart-menu")).not.toBeNull();
+    expect(fixture.querySelector(".o-chart-menu-item")).not.toBeNull();
   });
 
   test("Click on Menu button open context menu", async () => {
     expect(fixture.querySelector(".o-figure")).not.toBeNull();
     await simulateClick(".o-figure");
     expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
-    expect(fixture.querySelector(".o-chart-menu")).not.toBeNull();
-    await simulateClick(".o-chart-menu");
+    expect(fixture.querySelector(".o-chart-menu-item")).not.toBeNull();
+    await simulateClick(".o-chart-menu-item");
     expect(fixture.querySelector(".o-menu")).not.toBeNull();
   });
 
@@ -126,14 +126,14 @@ describe("figures", () => {
       .mockImplementation(function (this: HTMLDivElement) {
         if (this.className.includes("o-spreadsheet")) {
           return { top: 100, left: 200 };
-        } else if (this.className.includes("o-chart-container")) {
+        } else if (this.className.includes("o-chart-menu-item")) {
           return { top: 500, left: 500 };
         }
         return originalGetBoundingClientRect.call(this);
       });
 
     await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-chart-menu-item");
     const menuPopover = fixture.querySelector(".o-menu")?.parentElement;
     expect(menuPopover?.style.top).toBe(`${500 - 100}px`);
     expect(menuPopover?.style.left).toBe(`${500 - 200 - MENU_WIDTH}px`);
@@ -178,8 +178,8 @@ describe("figures", () => {
     expect(fixture.querySelector(".o-figure")).not.toBeNull();
     await simulateClick(".o-figure");
     expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
-    expect(fixture.querySelector(".o-chart-menu")).not.toBeNull();
-    await simulateClick(".o-chart-menu");
+    expect(fixture.querySelector(".o-chart-menu-item")).not.toBeNull();
+    await simulateClick(".o-chart-menu-item");
     expect(fixture.querySelector(".o-menu")).not.toBeNull();
     const deleteButton = fixture.querySelectorAll(".o-menu-item")[1];
     expect(deleteButton.textContent).toBe("Delete");
@@ -189,7 +189,7 @@ describe("figures", () => {
 
   test("Click on Edit button will prefill sidepanel", async () => {
     await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-chart-menu-item");
     const editButton = fixture.querySelectorAll(".o-menu-item")[0];
     expect(editButton.textContent).toBe("Edit");
     await simulateClick(".o-menu div[data-name='edit']");
@@ -212,7 +212,7 @@ describe("figures", () => {
     const chartId = "someuuid";
     const sheetId = model.getters.getActiveSheetId();
     await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-chart-menu-item");
     const editButton = fixture.querySelectorAll(".o-menu-item")[0];
     expect(editButton.textContent).toBe("Edit");
     await simulateClick(".o-menu div[data-name='edit']");
@@ -296,7 +296,7 @@ describe("figures", () => {
 
   test("drawing of chart will receive new data after update", async () => {
     await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-chart-menu-item");
     const editButton = fixture.querySelectorAll(".o-menu-item")[0];
     expect(editButton.textContent).toBe("Edit");
     await simulateClick(".o-menu div[data-name='edit']");
@@ -321,12 +321,12 @@ describe("figures", () => {
   test("deleting chart will close sidePanel", async () => {
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
     await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-chart-menu-item");
     await simulateClick(".o-menu div[data-name='edit']");
     await nextTick();
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
     await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-chart-menu-item");
     await simulateClick(".o-menu div[data-name='delete']");
     expect(model.getters.getChartRuntime("someuuid")).toBeUndefined();
     await nextTick();
@@ -336,12 +336,12 @@ describe("figures", () => {
   test("can refresh a chart", async () => {
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
     await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-chart-menu-item");
     await simulateClick(".o-menu div[data-name='edit']");
     await nextTick();
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
     await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-chart-menu-item");
     const dispatch = spyDispatch(parent);
     await simulateClick(".o-menu div[data-name='refresh']");
     expect(dispatch).toHaveBeenCalledWith("REFRESH_CHART", {
@@ -354,7 +354,7 @@ describe("figures", () => {
     await nextTick();
     const figures = fixture.querySelectorAll(".o-figure");
     await simulateClick(figures[0] as HTMLElement);
-    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-chart-menu-item");
     await simulateClick(".o-menu div[data-name='edit']");
     await nextTick();
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
@@ -394,7 +394,7 @@ describe("figures", () => {
 
   test("update chart with empty dataset and empty labels", async () => {
     await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-chart-menu-item");
     await simulateClick(".o-menu div[data-name='edit']");
 
     await simulateClick(".o-data-series input");
@@ -414,7 +414,7 @@ describe("figures", () => {
 
   test("update chart with invalid dataset and empty labels", async () => {
     await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-chart-menu-item");
     await simulateClick(".o-menu div[data-name='edit']");
     await simulateClick(".o-data-series input");
     setInputValueAndTrigger(".o-data-series input", "This is not valid", "change");
@@ -425,7 +425,7 @@ describe("figures", () => {
 
   test("update chart with invalid labels", async () => {
     await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-chart-menu-item");
     await simulateClick(".o-menu div[data-name='edit']");
     await simulateClick(".o-data-labels input");
     setInputValueAndTrigger(".o-data-labels input", "this is not valid", "change");
@@ -436,7 +436,7 @@ describe("figures", () => {
 
   test("Can remove the last data series", async () => {
     await simulateClick(".o-figure");
-    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-chart-menu-item");
     await simulateClick(".o-menu div[data-name='edit']");
     await simulateClick(".o-data-series .o-add-selection");
     const element = document.querySelectorAll(".o-data-series input")[1];
