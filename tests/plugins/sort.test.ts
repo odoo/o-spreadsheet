@@ -601,8 +601,8 @@ describe("Sort adjacent columns with headers", () => {
 
 describe("Sort Merges", () => {
   const notifyUser = jest.fn();
-  const sheetId: UID = "sheet5";
   let anchor: [number, number];
+  const sheetId: UID = "sheet5";
   const modelData = {
     sheets: [
       {

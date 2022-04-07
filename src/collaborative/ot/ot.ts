@@ -9,18 +9,16 @@ import {
   isPositionDependent,
   isSheetDependent,
   isTargetDependent,
-  isZoneDependent,
   PositionDependentCommand,
   RemoveColumnsRowsCommand,
   SheetDependentCommand,
   TargetDependentCommand,
   Zone,
-  ZoneDependentCommand,
 } from "../../types";
 import { transformZone } from "./ot_helpers";
 import "./ot_specific";
 
-type TransformResult = "TRANSFORMATION_NOT_NEEDED" | "IGNORE_COMMAND";
+type TransformResult = "SKIP_TRANSFORMATION" | "IGNORE_COMMAND";
 
 const transformations: {
   match: (t: CoreCommand) => boolean;
@@ -28,7 +26,6 @@ const transformations: {
 }[] = [
   { match: isSheetDependent, fn: transformSheetId },
   { match: isTargetDependent, fn: transformTarget },
-  { match: isZoneDependent, fn: transformZoneDependentCommand },
   { match: isPositionDependent, fn: transformPosition },
   { match: isGridDependent, fn: transformDimension },
 ];
@@ -50,20 +47,11 @@ const transformations: {
 export function transform(
   toTransform: CoreCommand,
   executed: CoreCommand
-): CoreCommand | CoreCommand[] | undefined {
+): CoreCommand | undefined {
   const specificTransform = otRegistry.getTransformation(toTransform.type, executed.type);
-  const result = genericTransform(toTransform, executed);
-  switch (result) {
-    case "IGNORE_COMMAND":
-      return undefined;
-    case "TRANSFORMATION_NOT_NEEDED":
-      return toTransform;
-    default:
-      if (result && specificTransform) {
-        return specificTransform(result, executed);
-      }
-      return result;
-  }
+  return specificTransform
+    ? specificTransform(toTransform, executed)
+    : genericTransform(toTransform, executed);
 }
 
 /**
@@ -78,30 +66,25 @@ export function transformAll(
   for (const executedCommand of executed) {
     transformedCommands = transformedCommands
       .map((cmd) => transform(cmd, executedCommand))
-      .filter(isDefined)
-      .flat();
+      .filter(isDefined);
   }
   return transformedCommands;
 }
 
 /**
- * Apply all generic transformations based on the characteristic of the given commands.
+ * Apply a generic transformation based on the characteristic of the given commands.
  */
-function genericTransform(
-  cmd: CoreCommand,
-  executed: CoreCommand
-): CoreCommand | "IGNORE_COMMAND" | "TRANSFORMATION_NOT_NEEDED" {
+function genericTransform(cmd: CoreCommand, executed: CoreCommand): CoreCommand | undefined {
   for (const { match, fn } of transformations) {
     if (match(cmd)) {
       const result = fn(cmd, executed);
-      switch (result) {
-        case "IGNORE_COMMAND":
-        case "TRANSFORMATION_NOT_NEEDED":
-          return result;
-        default:
-          cmd = result;
-          break;
+      if (result === "SKIP_TRANSFORMATION") {
+        continue;
       }
+      if (result === "IGNORE_COMMAND") {
+        return undefined;
+      }
+      return result;
     }
   }
   return cmd;
@@ -114,12 +97,14 @@ function transformSheetId(
   const deleteSheet = executed.type === "DELETE_SHEET" && executed.sheetId;
   if (cmd.sheetId === deleteSheet) {
     return "IGNORE_COMMAND";
-  } else if (cmd.type === "CREATE_SHEET" || executed.type === "CREATE_SHEET") {
+  } else if (
+    cmd.type === "CREATE_SHEET" ||
+    executed.type === "CREATE_SHEET" ||
+    cmd.sheetId !== executed.sheetId
+  ) {
     return cmd;
-  } else if ("sheetId" in executed && cmd.sheetId !== executed.sheetId) {
-    return "TRANSFORMATION_NOT_NEEDED";
   }
-  return cmd;
+  return "SKIP_TRANSFORMATION";
 }
 
 function transformTarget(
@@ -137,17 +122,6 @@ function transformTarget(
     return "IGNORE_COMMAND";
   }
   return { ...cmd, target };
-}
-
-function transformZoneDependentCommand(
-  cmd: Extract<CoreCommand, ZoneDependentCommand>,
-  executed: CoreCommand
-) {
-  const newZone = transformZone(cmd.zone, executed);
-  if (newZone) {
-    return { ...cmd, zone: newZone };
-  }
-  return "IGNORE_COMMAND";
 }
 
 function transformDimension(
@@ -186,7 +160,7 @@ function transformDimension(
     }
     return "IGNORE_COMMAND";
   }
-  return cmd;
+  return "SKIP_TRANSFORMATION";
 }
 
 /**
@@ -203,7 +177,7 @@ function transformPosition(
   if (executed.type === "ADD_MERGE") {
     return transformPositionWithMerge(cmd, executed);
   }
-  return cmd;
+  return "SKIP_TRANSFORMATION";
 }
 
 /**
