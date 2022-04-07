@@ -208,6 +208,7 @@ describe("figures", () => {
 
   test("can edit charts", async () => {
     const chartId = "someuuid";
+    const sheetId = model.getters.getActiveSheetId();
     await simulateClick(".o-figure");
     await simulateClick(".o-chart-menu");
     const editButton = fixture.querySelectorAll(".o-menu-item")[0];
@@ -224,6 +225,7 @@ describe("figures", () => {
     setInputValueAndTrigger(chartType, "pie", "change");
     expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_CHART", {
       id: chartId,
+      sheetId,
       definition: {
         type: "pie",
       },
@@ -234,6 +236,7 @@ describe("figures", () => {
     triggerMouseEvent(hasTitle, "click");
     expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_CHART", {
       id: chartId,
+      sheetId,
       definition: {
         dataSets: ["B2:B4"],
         dataSetsHaveTitle: false,
@@ -245,6 +248,7 @@ describe("figures", () => {
     setInputValueAndTrigger(".o-chart-title input", "hello", "change");
     expect(parent.env.dispatch).toHaveBeenCalledWith("UPDATE_CHART", {
       id: chartId,
+      sheetId,
       definition: {
         title: "hello",
       },

@@ -50,10 +50,8 @@ export class EvaluationChartPlugin extends UIPlugin {
     switch (cmd.type) {
       case "UPDATE_CHART":
       case "CREATE_CHART":
-        const chartDefinition = this.getters.getChartDefinition(cmd.id);
-        if (chartDefinition) {
-          this.chartRuntime[cmd.id] = this.mapDefinitionToRuntime(chartDefinition);
-        }
+        const chartDefinition = this.getters.getChartDefinition(cmd.id)!;
+        this.chartRuntime[cmd.id] = this.mapDefinitionToRuntime(chartDefinition);
         break;
       case "DELETE_FIGURE":
         delete this.chartRuntime[cmd.id];

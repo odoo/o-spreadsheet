@@ -615,8 +615,7 @@ export const SORT_CELLS_ASCENDING = (env: SpreadsheetEnv) => {
   env.dispatch("SORT_CELLS", {
     interactive: true,
     sheetId: env.getters.getActiveSheetId(),
-    col: anchor[0],
-    row: anchor[1],
+    anchor: anchor,
     zone: zones[0],
     sortDirection: "ascending",
   });
@@ -627,8 +626,7 @@ export const SORT_CELLS_DESCENDING = (env: SpreadsheetEnv) => {
   env.dispatch("SORT_CELLS", {
     interactive: true,
     sheetId: env.getters.getActiveSheetId(),
-    col: anchor[0],
-    row: anchor[1],
+    anchor: anchor,
     zone: zones[0],
     sortDirection: "descending",
   });
