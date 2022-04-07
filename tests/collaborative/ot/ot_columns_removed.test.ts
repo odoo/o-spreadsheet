@@ -13,7 +13,6 @@ import {
   SetBorderCommand,
   SetDecimalCommand,
   SetFormattingCommand,
-  SortCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
 } from "../../../src/types";
@@ -26,15 +25,6 @@ describe("OT with REMOVE_COLUMN", () => {
     dimension: "COL",
     elements: [2, 5, 3],
     sheetId,
-  };
-
-  const sortCommand: SortCommand = {
-    type: "SORT_CELLS",
-    sheetId,
-    col: 0,
-    row: 0,
-    zone: toZone("A1"),
-    sortDirection: "ascending",
   };
 
   const updateCell: Omit<UpdateCellCommand, "col"> = {
@@ -61,7 +51,7 @@ describe("OT with REMOVE_COLUMN", () => {
     border: { left: ["thin", "#000"] },
   };
 
-  describe.each([updateCell, updateCellPosition, clearCell, setBorder, sortCommand])(
+  describe.each([updateCell, updateCellPosition, clearCell, setBorder])(
     "single cell commands",
     (cmd) => {
       test(`remove columns before ${cmd.type}`, () => {
@@ -165,39 +155,6 @@ describe("OT with REMOVE_COLUMN", () => {
       });
     }
   );
-
-  describe.each([sortCommand])("zone commands", (cmd) => {
-    test(`remove columns before ${cmd.type}`, () => {
-      const command = { ...cmd, zone: toZone("A1:A3") };
-      const result = transform(command, removeColumns);
-      expect(result).toEqual(command);
-    });
-    test(`remove columns after ${cmd.type}`, () => {
-      const command = { ...cmd, zone: toZone("M1:O2") };
-      const result = transform(command, removeColumns);
-      expect(result).toEqual({ ...command, zone: toZone("J1:L2") });
-    });
-    test(`remove columns before and after ${cmd.type}`, () => {
-      const command = { ...cmd, zone: toZone("E1:E2") };
-      const result = transform(command, removeColumns);
-      expect(result).toEqual({ ...command, zone: toZone("C1:C2") });
-    });
-    test(`${cmd.type} in removed columns`, () => {
-      const command = { ...cmd, zone: toZone("F1:G2") };
-      const result = transform(command, removeColumns);
-      expect(result).toEqual({ ...command, zone: toZone("D1:D2") });
-    });
-    test(`${cmd.type} and columns removed in different sheets`, () => {
-      const command = { ...cmd, zone: toZone("A1:F3"), sheetId: "42" };
-      const result = transform(command, removeColumns);
-      expect(result).toEqual(command);
-    });
-    test(`${cmd.type} with a removed zone`, () => {
-      const command = { ...cmd, zone: toZone("C1:D2") };
-      const result = transform(command, removeColumns);
-      expect(result).toBeUndefined();
-    });
-  });
 
   describe("OT with RemoveColumns - AddColumns", () => {
     const toTransform: Omit<AddColumnsRowsCommand, "base"> = {
