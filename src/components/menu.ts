@@ -13,6 +13,7 @@ import { ConsumerComponent } from "../stores/providers";
 import { DOMCoordinates, SpreadsheetChildEnv } from "../types";
 import { css } from "./helpers/css";
 import { isChildEvent } from "./helpers/dom_helpers";
+import { useAbsolutePosition } from "./helpers/position_hook";
 import * as icons from "./icons";
 import { Popover } from "./popover";
 
@@ -56,6 +57,8 @@ const TEMPLATE = xml/* xml */ `
           <div t-if="menuItem.separator and !menuItem_last" class="o-separator"/>
         </t>
       </div>
+      <!-- create new store here ? :thinking: -->
+      <!-- => yes! -->
       <Menu t-if="state.subMenu.state.isOpen"
         store="state.subMenu"
         onMenuClicked="props.onMenuClicked"
@@ -131,6 +134,7 @@ export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
     onClose: () => {},
   };
   private menuRef = useRef("menu");
+  private position = useAbsolutePosition(this.menuRef);
 
   setup() {
     super.setup();
