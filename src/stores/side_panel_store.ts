@@ -2,7 +2,7 @@ import { Component } from "@odoo/owl";
 import { sidePanelRegistry } from "../registries";
 import { StoreConfig } from "./providers";
 
-interface OpenedSidePanel {
+interface OpenSidePanel {
   isOpen: true;
   title: string;
   Body: Component;
@@ -14,7 +14,7 @@ interface ClosedSidePanel {
   isOpen: false;
 }
 
-type SidePanel = OpenedSidePanel | ClosedSidePanel;
+type SidePanel = OpenSidePanel | ClosedSidePanel;
 
 interface InternalState {
   panelProps: object;

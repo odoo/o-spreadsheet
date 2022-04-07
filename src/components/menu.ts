@@ -1,20 +1,18 @@
-import { onWillUpdateProps, useExternalListener, useRef, useState, xml } from "@odoo/owl";
+import { useExternalListener, useRef, xml } from "@odoo/owl";
 import {
   MENU_ITEM_DISABLED_COLOR,
   MENU_ITEM_HEIGHT,
   MENU_SEPARATOR_BORDER_WIDTH,
-  MENU_SEPARATOR_HEIGHT,
   MENU_SEPARATOR_PADDING,
   MENU_WIDTH,
 } from "../constants";
-import { FullMenuItem, MenuItem } from "../registries";
+import { FullMenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
-import { menuProvider, MenuStore } from "../stores/context_menu_store";
+import { MenuStore } from "../stores/context_menu_store";
 import { ConsumerComponent } from "../stores/providers";
 import { DOMCoordinates, SpreadsheetChildEnv } from "../types";
 import { css } from "./helpers/css";
 import { isChildEvent } from "./helpers/dom_helpers";
-import { useAbsolutePosition } from "./helpers/position_hook";
 import * as icons from "./icons";
 import { Popover } from "./popover";
 
@@ -24,15 +22,16 @@ import { Popover } from "./popover";
 
 const TEMPLATE = xml/* xml */ `
     <Popover
-      position="props.position"
+      t-if="state.isOpen"
+      position="state.position"
       childWidth="${MENU_WIDTH}"
-      childHeight="menuHeight"
-      flipHorizontalOffset="popover.flipHorizontalOffset"
-      flipVerticalOffset="popover.flipVerticalOffset"
-      marginTop="popover.marginTop"
+      childHeight="state.menuHeight"
+      flipHorizontalOffset="state.popoverProps.flipHorizontalOffset"
+      flipVerticalOffset="state.popoverProps.flipVerticalOffset"
+      marginTop="state.popoverProps.marginTop"
       >
       <div t-ref="menu" class="o-menu" t-on-scroll="onScroll" t-on-wheel.stop="" t-on-click.stop="">
-        <t t-foreach="props.menuItems" t-as="menuItem" t-key="menuItem.id">
+        <t t-foreach="state.menuItems" t-as="menuItem" t-key="menuItem.id">
           <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
           <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>
           <div
@@ -57,10 +56,8 @@ const TEMPLATE = xml/* xml */ `
           <div t-if="menuItem.separator and !menuItem_last" class="o-separator"/>
         </t>
       </div>
-      <Menu t-if="subMenu.isOpen"
-        position="subMenuPosition"
-        menuItems="subMenu.menuItems"
-        depth="props.depth + 1"
+      <Menu t-if="state.subMenu.state.isOpen"
+        store="state.subMenu"
         onMenuClicked="props.onMenuClicked"
         onClose="() => this.close()"/>
     </Popover>`;
@@ -117,11 +114,6 @@ css/* scss */ `
 
 interface Props {
   store: MenuStore;
-  // menu: ContextMenu;
-  // position: DOMCoordinates;
-  // menuItems: FullMenuItem[];
-  // subMenu: ContextMenu;
-  // depth: number;
   onClose: () => void;
   onMenuClicked?: (ev: CustomEvent) => void;
 }
@@ -136,66 +128,22 @@ export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static components = { Menu, Popover };
   static defaultProps = {
-    depth: 1,
     onClose: () => {},
   };
-  private subMenu: MenuState = useState({
-    isOpen: false,
-    position: null,
-    scrollOffset: 0,
-    menuItems: [],
-  });
   private menuRef = useRef("menu");
-  private position = useAbsolutePosition(this.menuRef);
 
   setup() {
     super.setup();
     useExternalListener(window, "click", this.onClick);
-    useExternalListener(window, "contextmenu", this.onContextMenu);
-    onWillUpdateProps((nextProps: Props) => {
-      // if (nextProps.menuItems !== this.props.menuItems) {
-      //   this.subMenu.isOpen = false;
-      // }
-    });
   }
 
   get state() {
     return this.props.store.state;
   }
 
-  get contextMenu() {
-    return this.providers.use(menuProvider);
+  get notify() {
+    return this.props.store.notify;
   }
-
-  get subMenuPosition(): DOMCoordinates {
-    const position = Object.assign({}, this.subMenu.position);
-    position.y -= this.subMenu.scrollOffset || 0;
-    return position;
-  }
-
-  // get menuHeight(): number {
-  //   if (this.state.isOpen ===false) {
-  //     return 0
-  //   }
-  //   return this.menuComponentHeight(this.state.menuItems);
-  // }
-
-  get subMenuHeight(): number {
-    if (!this.state.isOpen || !this.state.subMenu.isOpen) {
-      return 0;
-    }
-    return this.menuComponentHeight(this.state.subMenu.menuItems);
-  }
-
-  // get popover() {
-  //   const isRoot = this.state.depth === 1;
-  //   return {
-  //     // some margin between the header and the component
-  //     marginTop: HEADER_HEIGHT + 6 + TOPBAR_HEIGHT,
-  //     flipHorizontalOffset: MENU_WIDTH * (this.props.depth - 1),
-  //     flipVerticalOffset: isRoot ? 0 : MENU_ITEM_HEIGHT,
-  //   };
-  // }
 
   async activateMenu(menu: FullMenuItem) {
     const result = await menu.action(this.env);
@@ -204,18 +152,8 @@ export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   }
 
   private close() {
-    this.subMenu.isOpen = false;
     this.props.onClose();
-    this.contextMenu.notify.close();
-  }
-
-  /**
-   * Return the number of pixels between the top of the menu
-   * and the menu item at a given index.
-   */
-  private subMenuVerticalPosition(position: number): number {
-    const menusAbove = this.props.menuItems.slice(0, position);
-    return this.menuComponentHeight(menusAbove) + this.position.y;
+    this.notify.close();
   }
 
   private onClick(ev: MouseEvent) {
@@ -225,25 +163,6 @@ export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
       return;
     }
     this.close();
-  }
-
-  private onContextMenu(ev: MouseEvent) {
-    // Don't close a root menu when clicked to open the submenus.
-    const el = this.menuRef.el;
-    if (el && isChildEvent(el, ev)) {
-      return;
-    }
-    this.subMenu.isOpen = false;
-  }
-
-  /**
-   * Return the total height (in pixels) needed for some
-   * menu items
-   */
-  private menuComponentHeight(menuItems: MenuItem[]): number {
-    const separators = menuItems.filter((m) => m.separator);
-    const others = menuItems;
-    return MENU_ITEM_HEIGHT * others.length + separators.length * MENU_SEPARATOR_HEIGHT;
   }
 
   getName(menu: FullMenuItem) {
@@ -265,7 +184,7 @@ export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   }
 
   onScroll(ev) {
-    this.subMenu.scrollOffset = ev.target.scrollTop;
+    this.notify.scroll(ev.target.scrollTop);
   }
 
   /**
@@ -273,14 +192,8 @@ export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
    * correct position according to available surrounding space.
    */
   openSubMenu(menu: FullMenuItem, position: number) {
-    const y = this.subMenuVerticalPosition(position);
-    this.subMenu.position = {
-      x: this.position.x + MENU_WIDTH,
-      y: y - (this.subMenu.scrollOffset || 0),
-    };
-    // WTF !?
-    this.subMenu.menuItems = cellMenuRegistry.getChildren(menu, this.env);
-    this.subMenu.isOpen = true;
+    const subMenuItems = cellMenuRegistry.getChildren(menu, this.env);
+    this.notify.openSubMenu(position, subMenuItems);
   }
 
   onClickMenu(menu: FullMenuItem, position: number) {
@@ -298,7 +211,7 @@ export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
       if (this.isRoot(menu)) {
         this.openSubMenu(menu, position);
       } else {
-        this.subMenu.isOpen = false;
+        this.notify.closeSubMenu();
       }
     }
   }

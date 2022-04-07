@@ -6,7 +6,6 @@ import { SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 
 const TEMPLATE = xml/* xml */ `
-  <t t-esc="sidePanel.state.isOpen"/>
   <div class="o-sidePanel" t-if="sidePanel.state.isOpen">
     <div class="o-sidePanelHeader">
         <div class="o-sidePanelTitle" t-esc="sidePanel.state.title"/>

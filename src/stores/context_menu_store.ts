@@ -30,18 +30,34 @@ class MenuActions {
     this.state.position = { x: 0, y: 0 };
   }
 
-  openSubMenu(menuItems: FullMenuItem[], position: DOMCoordinates) {
+  openSubMenu(menuIndex: number, subMenuItems: FullMenuItem[]) {
+    // same as computed state
+    if (this.state.menuItems.length === 0 || this.state.position === undefined) {
+      return;
+    }
     if (this.state.subMenu === undefined) {
       this.state.subMenu = store(menuProvider(this.state.depth + 1));
     }
-    this.state.subMenu.notify.open(menuItems, position);
+    const menusAbove = this.state.menuItems.slice(0, menuIndex);
+    const y =
+      menuComponentHeight(menusAbove) + this.state.position.y - (this.state.scrollOffset || 0);
+    const x = this.state.position.x + MENU_WIDTH;
+    this.state.subMenu.notify.open(subMenuItems, { y, x });
+  }
+
+  closeSubMenu() {
+    this.state.subMenu?.notify.close();
+  }
+
+  scroll(scrollOffset: number) {
+    this.state.scrollOffset = scrollOffset;
   }
 }
 
-interface OpenedMenu {
+interface OpenMenu {
   isOpen: true;
   menuItems: FullMenuItem[];
-  subMenu: Menu;
+  subMenu: Store<Menu, MenuActions>;
   position: DOMCoordinates;
   menuHeight: number;
   popoverProps: {
@@ -55,13 +71,14 @@ interface ClosedMenu {
   isOpen: false;
 }
 
-type Menu = OpenedMenu | ClosedMenu;
+type Menu = OpenMenu | ClosedMenu;
 
 interface MenuInternalState {
   menuItems: any[];
   depth: number;
   position?: DOMCoordinates;
   subMenu?: Store<Menu, MenuActions>;
+  scrollOffset: number;
 }
 
 export type MenuStore = Store<Menu, MenuActions>;
@@ -98,6 +115,7 @@ export const menuProvider: (depth?: number) => StoreConfig<MenuInternalState, Me
   state: {
     depth,
     menuItems: [],
+    scrollOffset: 0,
   },
   computePublicState: (state) => {
     if (state.menuItems.length === 0 || state.position === undefined) {
@@ -105,9 +123,9 @@ export const menuProvider: (depth?: number) => StoreConfig<MenuInternalState, Me
     }
     return {
       isOpen: true,
-      menuItems: [],
+      menuItems: state.menuItems,
       position: state.position,
-      subMenu: state.subMenu?.state || { isOpen: false },
+      subMenu: state.subMenu || store(menuProvider(state.depth + 1)),
       menuHeight: menuComponentHeight(state.menuItems),
       popoverProps: computePopoverProps(state.depth),
     };

@@ -43,9 +43,7 @@ const TEMPLATE = xml/* xml */ `
       onGridComposerCellFocused="(content, selection) => this.onGridComposerCellFocused(content, selection)"/>
     <SidePanel/>
     <BottomBar onClick="() => this.focusGrid()"/>
-    <Menu t-if="contextMenu.isOpen"
-      menuItems="contextMenu.menuItems"
-      position="contextMenu.position"/>
+    <Menu store="contextMenu"/>
   </div>`;
 
 css/* scss */ `
@@ -144,7 +142,7 @@ export class Spreadsheet extends ConsumerComponent<SpreadsheetProps, Spreadsheet
   }
 
   get contextMenu() {
-    return this.providers.watch(menuProvider);
+    return this.providers.use(menuProvider);
   }
 
   get sidePanel() {
