@@ -243,6 +243,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   private updateChart(definition: ChartUIDefinitionUpdate): DispatchResult {
     return this.env.dispatch("UPDATE_CHART", {
       id: this.props.figure.id,
+      sheetId: this.getters.getActiveSheetId(),
       definition,
     });
   }

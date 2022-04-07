@@ -1,6 +1,6 @@
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
 import { parseDateTime } from "../../src/helpers/dates";
-import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
+import { toXC, toZone, zoneToXc } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CellValueType, CommandResult, UID } from "../../src/types";
 import { merge, redo, setCellContent, sort, undo } from "../test_helpers/commands_helpers";
@@ -611,6 +611,7 @@ describe("Sort adjacent columns with headers", () => {
 
 describe("Sort Merges", () => {
   const notifyUser = jest.fn();
+  let anchor: [number, number];
   const sheetId: UID = "sheet5";
   const modelData = {
     sheets: [
@@ -674,7 +675,7 @@ describe("Sort Merges", () => {
     // sort
     const zone = toZone("B2:B8");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-    const anchor = { col: 1, row: 1 };
+    anchor = [1, 1];
     // interactive
     sort(model, {
       zone: zoneToXc(contiguousZone),
@@ -684,7 +685,7 @@ describe("Sort Merges", () => {
     });
     expect(notifyUser).toHaveBeenCalled();
     expect(model.getters.getSelection()).toEqual({
-      anchor: [anchor.col, anchor.row],
+      anchor: anchor,
       anchorZone: contiguousZone,
       zones: [contiguousZone],
     });
@@ -706,6 +707,7 @@ describe("Sort Merges", () => {
     // sort
     const zone = toZone("B2:B8");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
+    const anchor = [1, 1];
     sort(model, {
       zone: zoneToXc(contiguousZone),
       anchor: "B2",
@@ -714,7 +716,7 @@ describe("Sort Merges", () => {
     });
     expect(notifyUser).toHaveBeenCalled();
     expect(model.getters.getSelection()).toEqual({
-      anchor: toCartesian("B2"),
+      anchor: anchor,
       anchorZone: contiguousZone,
       zones: [contiguousZone],
     });

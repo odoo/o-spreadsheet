@@ -13,7 +13,6 @@ import {
   SetBorderCommand,
   SetDecimalCommand,
   SetFormattingCommand,
-  SortCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
 } from "../../../src/types";
@@ -37,16 +36,6 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
     quantity: 2,
     sheetId,
   };
-
-  const sortCommand: SortCommand = {
-    type: "SORT_CELLS",
-    sheetId,
-    col: 0,
-    row: 0,
-    zone: toZone("A1"),
-    sortDirection: "ascending",
-  };
-
   const updateCell: Omit<UpdateCellCommand, "col"> = {
     type: "UPDATE_CELL",
     sheetId,
@@ -71,7 +60,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
     border: { left: ["thin", "#000"] },
   };
 
-  describe.each([updateCell, updateCellPosition, clearCell, setBorder, sortCommand])(
+  describe.each([updateCell, updateCellPosition, clearCell, setBorder])(
     "OT with ADD_COLUMNS_ROWS with dimension COL",
     (cmd) => {
       test(`${cmd.type} before added columns`, () => {
@@ -165,29 +154,6 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
       });
     }
   );
-
-  describe.each([sortCommand])("zone commands", (cmd) => {
-    test(`add columns  before ${cmd.type}`, () => {
-      const command = { ...cmd, zone: toZone("A1:A3") };
-      const result = transform(command, addColumnsAfter);
-      expect(result).toEqual(command);
-    });
-    test(`add columns after ${cmd.type}`, () => {
-      const command = { ...cmd, zone: toZone("M1:O2") };
-      const result = transform(command, addColumnsAfter);
-      expect(result).toEqual({ ...command, zone: toZone("O1:Q2") });
-    });
-    test(`add columns in ${cmd.type}`, () => {
-      const command = { ...cmd, zone: toZone("F1:G2") };
-      const result = transform(command, addColumnsAfter);
-      expect(result).toEqual({ ...command, zone: toZone("F1:I2") });
-    });
-    test(`${cmd.type} and columns added in different sheets`, () => {
-      const command = { ...cmd, zone: toZone("A1:F3"), sheetId: "42" };
-      const result = transform(command, addColumnsAfter);
-      expect(result).toEqual(command);
-    });
-  });
   const addMerge: Omit<AddMergeCommand, "target"> = {
     type: "ADD_MERGE",
     sheetId,
