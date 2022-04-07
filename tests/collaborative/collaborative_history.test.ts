@@ -319,6 +319,42 @@ describe("Collaborative local history", () => {
     expect(model.exportData().revisionId).toBe("3");
   });
 
+  test("Initial sort command is dropped", () => {
+    const initialMessages: StateUpdateMessage[] = [
+      {
+        type: "REMOTE_REVISION",
+        version: MESSAGE_VERSION,
+        nextRevisionId: "1",
+        clientId: "bob",
+        commands: [
+          {
+            // @ts-ignore SORT_CELLS was a core command (see commit message)
+            type: "SORT_CELLS",
+            col: 1,
+            row: 0,
+            sheetId: "sheet1",
+            zone: toZone("A1:A3"),
+            sortDirection: "ascending",
+          },
+        ],
+        serverRevisionId: "initial_revision",
+      },
+    ];
+    const data = {
+      revisionId: "initial_revision",
+      sheets: [
+        {
+          id: "sheet1",
+          cells: { A1: { content: "1" }, A2: { content: "2" }, A3: { content: "3" } },
+        },
+      ],
+    };
+    const model = new Model(data, {}, initialMessages);
+    expect(getCellContent(model, "A1")).toBe("1");
+    expect(getCellContent(model, "A2")).toBe("2");
+    expect(getCellContent(model, "A3")).toBe("3");
+  });
+
   test("Undo/redo your own change only", () => {
     setCellContent(alice, "A1", "hello in A1");
     setCellContent(bob, "B2", "hello in B2");
