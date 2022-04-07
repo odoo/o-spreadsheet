@@ -305,6 +305,7 @@ export function repairInitialMessages(
   initialMessages: StateUpdateMessage[]
 ): StateUpdateMessage[] {
   initialMessages = fixTranslatedSheetIds(data, initialMessages);
+  initialMessages = dropSortCommands(data, initialMessages);
   return initialMessages;
 }
 
@@ -337,6 +338,25 @@ function fixTranslatedSheetIds(
       messages.push({
         ...message,
         commands: message.commands.map(fixSheetId),
+      });
+    } else {
+      messages.push(message);
+    }
+  }
+  return messages;
+}
+
+function dropSortCommands(
+  data: Partial<WorkbookData>,
+  initialMessages: StateUpdateMessage[]
+): StateUpdateMessage[] {
+  const messages: StateUpdateMessage[] = [];
+  for (const message of initialMessages) {
+    if (message.type === "REMOTE_REVISION") {
+      messages.push({
+        ...message,
+        // @ts-ignore
+        commands: message.commands.filter((command) => command.type !== "SORT_CELLS"),
       });
     } else {
       messages.push(message);
