@@ -9,51 +9,6 @@ import { FullMenuItem, MenuItem } from "../registries";
 import { DOMCoordinates } from "../types";
 import { store, Store, StoreConfig } from "./providers";
 
-interface MenuActionHandlers {
-  onClose?: () => void;
-  onMenuClicked?: (menuActionResult: any) => void;
-}
-
-class MenuActions {
-  constructor(private state: MenuInternalState) {}
-
-  open(menuItems: FullMenuItem[], position: DOMCoordinates, handlers: MenuActionHandlers = {}) {
-    this.state.menuItems = menuItems;
-    this.state.position = position;
-    // check if menuItems are different?
-    this.state.subMenu?.notify.close();
-  }
-
-  close() {
-    this.state.subMenu?.notify.close();
-    this.state.menuItems = [];
-    this.state.position = { x: 0, y: 0 };
-  }
-
-  openSubMenu(menuIndex: number, subMenuItems: FullMenuItem[]) {
-    // same as computed state
-    if (this.state.menuItems.length === 0 || this.state.position === undefined) {
-      return;
-    }
-    if (this.state.subMenu === undefined) {
-      this.state.subMenu = store(menuProvider(this.state.depth + 1));
-    }
-    const menusAbove = this.state.menuItems.slice(0, menuIndex);
-    const y =
-      menuComponentHeight(menusAbove) + this.state.position.y - (this.state.scrollOffset || 0);
-    const x = this.state.position.x + MENU_WIDTH;
-    this.state.subMenu.notify.open(subMenuItems, { y, x });
-  }
-
-  closeSubMenu() {
-    this.state.subMenu?.notify.close();
-  }
-
-  scroll(scrollOffset: number) {
-    this.state.scrollOffset = scrollOffset;
-  }
-}
-
 interface OpenMenu {
   isOpen: true;
   menuItems: FullMenuItem[];
@@ -79,6 +34,50 @@ interface MenuInternalState {
   position?: DOMCoordinates;
   subMenu?: Store<Menu, MenuActions>;
   scrollOffset: number;
+}
+
+interface MenuActionHandlers {
+  onClose?: () => void;
+  onMenuClicked?: (menuActionResult: any) => void;
+}
+
+class MenuActions {
+  constructor(private state: MenuInternalState) {}
+
+  open(menuItems: FullMenuItem[], position: DOMCoordinates, handlers: MenuActionHandlers = {}) {
+    this.state.menuItems = menuItems;
+    this.state.position = position;
+    // check if menuItems are different?
+    this.state.subMenu?.notify.close();
+  }
+
+  close() {
+    this.state.subMenu?.notify.close();
+    this.state.menuItems = [];
+    this.state.position = { x: 0, y: 0 };
+  }
+
+  openSubMenu(menuIndex: number, subMenuItems: FullMenuItem[], position: DOMCoordinates) {
+    // same as computed state
+    if (this.state.menuItems.length === 0 || this.state.position === undefined) {
+      return;
+    }
+    if (this.state.subMenu === undefined) {
+      this.state.subMenu = store(menuProvider(this.state.depth + 1));
+    }
+    const menusAbove = this.state.menuItems.slice(0, menuIndex);
+    const y = menuComponentHeight(menusAbove) + position.y - (this.state.scrollOffset || 0);
+    const x = position.x + MENU_WIDTH;
+    this.state.subMenu.notify.open(subMenuItems, { y, x });
+  }
+
+  closeSubMenu() {
+    this.state.subMenu?.notify.close();
+  }
+
+  scroll(scrollOffset: number) {
+    this.state.scrollOffset = scrollOffset;
+  }
 }
 
 export type MenuStore = Store<Menu, MenuActions>;

@@ -38,7 +38,10 @@ export function useAbsolutePosition(ref: Ref): DOMCoordinates {
   const spreadsheet = useSpreadsheetPosition();
   function updateElPosition() {
     const el = ref.el;
-    const { top, left } = el!.getBoundingClientRect();
+    if (el === null) {
+      return;
+    }
+    const { top, left } = el.getBoundingClientRect();
     const x = left - spreadsheet.x;
     const y = top - spreadsheet.y;
     if (x !== position.x || y !== position.y) {

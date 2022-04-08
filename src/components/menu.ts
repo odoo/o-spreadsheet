@@ -57,9 +57,7 @@ const TEMPLATE = xml/* xml */ `
           <div t-if="menuItem.separator and !menuItem_last" class="o-separator"/>
         </t>
       </div>
-      <!-- create new store here ? :thinking: -->
-      <!-- => yes! -->
-      <Menu t-if="state.subMenu.state.isOpen"
+      <Menu
         store="state.subMenu"
         onMenuClicked="props.onMenuClicked"
         onClose="() => this.close()"/>
@@ -195,9 +193,9 @@ export class Menu extends ConsumerComponent<Props, SpreadsheetChildEnv> {
    * If the given menu is not disabled, open it's submenu at the
    * correct position according to available surrounding space.
    */
-  openSubMenu(menu: FullMenuItem, position: number) {
+  openSubMenu(menu: FullMenuItem, menuIndex: number) {
     const subMenuItems = cellMenuRegistry.getChildren(menu, this.env);
-    this.notify.openSubMenu(position, subMenuItems);
+    this.notify.openSubMenu(menuIndex, subMenuItems, this.position);
   }
 
   onClickMenu(menu: FullMenuItem, position: number) {
