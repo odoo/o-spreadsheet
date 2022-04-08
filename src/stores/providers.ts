@@ -99,26 +99,26 @@ export type Store<State, Actions> = {
 
 // const MenuStore: () => Store<Menu, MenuActions> = () => store<MenuInternalState, Menu>();
 
-export interface StoreConfig<InternalState, State, Actions> {
-  state: InternalState;
+export interface StoreConfig<State, View, Actions> {
+  state: State;
   actions: {
-    new (state: InternalState): Actions;
+    new (state: State): Actions;
   };
-  computePublicState: (state: InternalState) => State;
+  computeView: (state: State) => View;
 }
 
-export function store<InternalState, State, Actions>({
+export function store<State, View, Actions>({
   state,
   actions: ActionsConstructor,
-  computePublicState,
-}: StoreConfig<InternalState, State, Actions>): Store<State, Actions> {
+  computeView,
+}: StoreConfig<State, View, Actions>): Store<View, Actions> {
   // @ts-ignore
-  const reactiveState: InternalState = reactive(state, () => {
-    store.state = computePublicState(reactiveState);
+  const reactiveState: State = reactive(state, () => {
+    store.state = computeView(reactiveState);
   });
   const actions = new ActionsConstructor(reactiveState);
   const store = reactive({
-    state: computePublicState(reactiveState),
+    state: computeView(reactiveState),
     notify: actions,
   });
   return store;

@@ -81,31 +81,6 @@ class MenuActions {
 }
 
 export type MenuStore = Store<Menu, MenuActions>;
-// export class ContextMenu {
-//   menuItems: FullMenuItem[] = [];
-//   position: DOMCoordinates = { x: 0, y: 0 };
-//   subMenu: ContextMenu = new ContextMenu(); // no, it breaks all good design properties => should be intrinsic to the store
-//   scrollOffset: number = 0;
-
-//   get isOpen(): boolean {
-//     return this.menuItems.length !== 0;
-//   }
-
-//   open(menuItems: FullMenuItem[], position: DOMCoordinates, handlers: MenuActionHandlers = {}) {
-//     this.menuItems = menuItems;
-//     this.position = position;
-//   }
-
-//   close() {
-//     this.subMenu.close();
-//     this.menuItems = [];
-//     this.position = { x: 0, y: 0 };
-//   }
-
-//   openSubMenu(menuItems: FullMenuItem[], position: DOMCoordinates) {
-//     this.subMenu.open(menuItems, position);
-//   }
-// }
 
 export const menuProvider: (depth?: number) => StoreConfig<MenuInternalState, Menu, MenuActions> = (
   depth: number = 1
@@ -116,7 +91,7 @@ export const menuProvider: (depth?: number) => StoreConfig<MenuInternalState, Me
     menuItems: [],
     scrollOffset: 0,
   },
-  computePublicState: (state) => {
+  computeView: (state) => {
     if (state.menuItems.length === 0 || state.position === undefined) {
       return { isOpen: false };
     }

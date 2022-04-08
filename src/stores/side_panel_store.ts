@@ -16,13 +16,13 @@ interface ClosedSidePanel {
 
 type SidePanel = OpenSidePanel | ClosedSidePanel;
 
-interface InternalState {
+interface State {
   panelProps: object;
   sidePanelKey?: string;
 }
 
 class SidePanelActions {
-  constructor(private state: InternalState) {}
+  constructor(private state: State) {}
 
   open(sidePanelKey: string, props: object) {
     this.state.panelProps = props;
@@ -43,23 +43,22 @@ class SidePanelActions {
   }
 }
 
-export const sidePanelProvider: () => StoreConfig<InternalState, SidePanel, SidePanelActions> =
-  () => ({
-    actions: SidePanelActions,
-    state: {
-      panelProps: {},
-    },
-    computePublicState: (state) => {
-      if (state.sidePanelKey === undefined) {
-        return { isOpen: false };
-      }
-      const content = sidePanelRegistry.get(state.sidePanelKey);
-      return {
-        isOpen: true,
-        Body: content.Body,
-        Footer: content.Footer,
-        title: content.title,
-        panelProps: state.panelProps,
-      };
-    },
-  });
+export const sidePanelProvider: () => StoreConfig<State, SidePanel, SidePanelActions> = () => ({
+  actions: SidePanelActions,
+  state: {
+    panelProps: {},
+  },
+  computeView: (state) => {
+    if (state.sidePanelKey === undefined) {
+      return { isOpen: false };
+    }
+    const content = sidePanelRegistry.get(state.sidePanelKey);
+    return {
+      isOpen: true,
+      Body: content.Body,
+      Footer: content.Footer,
+      title: content.title,
+      panelProps: state.panelProps,
+    };
+  },
+});
