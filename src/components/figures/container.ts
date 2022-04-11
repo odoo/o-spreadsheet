@@ -246,7 +246,10 @@ export class FiguresContainer extends Component<{ sidePanelIsOpen: Boolean }, Sp
       // not main button, probably a context menu
       return;
     }
-    this.dispatch("SELECT_FIGURE", { id: figure.id });
+    const selectResult = this.dispatch("SELECT_FIGURE", { id: figure.id });
+    if (!selectResult.isSuccessful) {
+      return;
+    }
     if (this.props.sidePanelIsOpen) {
       this.env.openSidePanel("ChartPanel", { figure });
     }
