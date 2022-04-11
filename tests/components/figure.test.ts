@@ -5,7 +5,7 @@ import { CorePlugin } from "../../src/plugins/core_plugin";
 import { figureRegistry } from "../../src/registries/figure_registry";
 import { Command, Figure, SpreadsheetEnv, UID } from "../../src/types";
 import { activateSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
-import { simulateClick } from "../test_helpers/dom_helper";
+import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
@@ -218,5 +218,23 @@ describe("figures", () => {
     await nextTick();
     const anchors = fixture.querySelectorAll(".o-anchor");
     expect(anchors).toHaveLength(8);
+  });
+
+  test("Cannot select/move figure in readonly mode", async () => {
+    model.dispatch("CREATE_TEXT_FIGURE", {
+      sheetId: model.getters.getActiveSheetId(),
+      id: "someuuid",
+      text: "Hello",
+    });
+    model.updateReadOnly(true);
+    await nextTick();
+    const figure = fixture.querySelector(".o-figure")!;
+    await simulateClick(".o-figure");
+    expect(document.activeElement).not.toBe(figure);
+    expect(fixture.querySelector(".o-anchor")).toBeNull();
+
+    triggerMouseEvent(figure, "mousedown", 300, 200);
+    await nextTick();
+    expect(figure.classList).not.toContain("o-dragging");
   });
 });

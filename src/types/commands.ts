@@ -102,7 +102,6 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "SELECT_CELL",
   "SELECT_COLUMN",
   "SELECT_ROW",
-  "SELECT_FIGURE",
 
   "MOVE_POSITION",
 
