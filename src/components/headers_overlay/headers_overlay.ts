@@ -768,8 +768,8 @@ css/* scss */ `
   }
 `;
 
-export class Overlay extends Component<any, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.Overlay";
+export class HeadersOverlay extends Component<any, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet.HeadersOverlay";
   static components = { ColResizer, RowResizer };
 
   selectAll() {
