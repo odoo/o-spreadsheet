@@ -103,8 +103,8 @@ class Demo extends Component {
       this.stateUpdateMessages = [];
     }
     this.model = new Model(
-      demoData,
-      // makeLargeDataset(26, 10_000, ["numbers"]);
+      // demoData,
+      makeLargeDataset(26, 10_000, ["formulas"]),
       {
         evalContext: { env: this.env },
         transportService: this.transportService,

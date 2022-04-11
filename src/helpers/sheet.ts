@@ -71,7 +71,6 @@ export function createRows(savedRows: { [key: number]: HeaderData }, rowNumber: 
       end: end,
       size: size,
       name: String(i + 1),
-      cells: {},
     };
     if (hidden) {
       row.isHidden = hidden;

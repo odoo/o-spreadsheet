@@ -98,7 +98,7 @@ Object {
     "style": undefined,
   },
   "A6": Object {
-    "content": "=SUM(A1:B1)",
+    "content": "=SUM(B1)",
     "format": undefined,
     "style": undefined,
   },
@@ -268,7 +268,7 @@ Object {
     "style": undefined,
   },
   "F1": Object {
-    "content": "=SUM(A1:A2)",
+    "content": "=SUM(A2)",
     "format": undefined,
     "style": undefined,
   },

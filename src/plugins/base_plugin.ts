@@ -29,7 +29,7 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
   protected currentMode: Mode;
 
   constructor(
-    stateObserver: StateObserver,
+    protected readonly stateObserver: StateObserver,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {

@@ -62,12 +62,24 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
           for (let group of groups) {
             const min = Math.min(...group);
             const max = Math.max(...group);
+            // start à cheval sur la zone deletée
             if (range.zone[start] <= min && min <= range.zone[end]) {
               const toRemove = Math.min(range.zone[end], max) - min + 1;
               changeType = "RESIZE";
               newRange = this.createAdaptedRange(newRange, dimension, changeType, -toRemove);
-            }
-            if (min < range.zone[start]) {
+            } else if (range.zone[start] >= min && range.zone[end] <= max) {
+              changeType = "REMOVE";
+            } else if (range.zone[start] <= max && range.zone[end] >= max) {
+              const toRemove = max - range.zone[start] + 1;
+              changeType = "RESIZE";
+              newRange = this.createAdaptedRange(newRange, dimension, changeType, -toRemove);
+              newRange = this.createAdaptedRange(
+                newRange,
+                dimension,
+                "MOVE",
+                -(range.zone[start] - min)
+              );
+            } else if (min < range.zone[start]) {
               changeType = "MOVE";
               newRange = this.createAdaptedRange(newRange, dimension, changeType, -(max - min + 1));
             }
@@ -165,12 +177,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   private verifyRangeRemoved(adaptRange: ApplyRangeChange): ApplyRangeChange {
     return (range: Range) => {
       const result: ApplyRangeChangeResult = adaptRange(range);
-      if (
-        result.changeType !== "NONE" &&
-        result.range &&
-        (result.range.zone.right - result.range.zone.left < 0 ||
-          result.range.zone.bottom - result.range.zone.top < 0)
-      ) {
+      if (result.changeType !== "NONE" && result.range && !isZoneValid(result.range.zone)) {
         return { range: result.range, changeType: "REMOVE" };
       }
       return result;
