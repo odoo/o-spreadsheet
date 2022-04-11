@@ -247,7 +247,10 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       // not main button, probably a context menu
       return;
     }
-    this.env.model.dispatch("SELECT_FIGURE", { id: figure.id });
+    const selectResult = this.env.model.dispatch("SELECT_FIGURE", { id: figure.id });
+    if (!selectResult.isSuccessful) {
+      return;
+    }
     if (this.props.sidePanelIsOpen) {
       this.env.openSidePanel("ChartPanel", { figure });
     }
