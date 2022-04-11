@@ -187,4 +187,19 @@ describe("figures", () => {
     await nextTick();
     expect(model.getters.getFigure(model.getters.getActiveSheetId(), figureId)!.height).toBe(150);
   });
+
+  test("Cannot select/move figure in readonly mode", async () => {
+    const figureId = "someuuid";
+    createFigure(model, { id: figureId, y: 200 });
+    model.updateReadOnly(true);
+    await nextTick();
+    const figure = fixture.querySelector(".o-figure")!;
+    await simulateClick(".o-figure");
+    expect(document.activeElement).not.toBe(figure);
+    expect(fixture.querySelector(".o-anchor")).toBeNull();
+
+    triggerMouseEvent(figure, "mousedown", 300, 200);
+    await nextTick();
+    expect(figure.classList).not.toContain("o-dragging");
+  });
 });
