@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.Overlay" owl="1">
+  <t t-name="o-spreadsheet.HeadersOverlay" owl="1">
     <div class="o-overlay">
       <ColResizer onOpenContextMenu="props.onOpenContextMenu"/>
       <RowResizer onOpenContextMenu="props.onOpenContextMenu"/>

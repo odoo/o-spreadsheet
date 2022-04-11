@@ -43,6 +43,7 @@ import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag"
 import { GridComposer } from "../composer/grid_composer/grid_composer";
 import { ErrorToolTip } from "../error_tooltip/error_tooltip";
 import { FiguresContainer } from "../figures/container/container";
+import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { css } from "../helpers/css";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useAbsolutePosition } from "../helpers/position_hook";
@@ -50,7 +51,6 @@ import { Highlight } from "../highlight/highlight/highlight";
 import { LinkDisplay } from "../link/link_display/link_display";
 import { LinkEditor } from "../link/link_editor/link_editor";
 import { Menu, MenuState } from "../menu/menu";
-import { Overlay } from "../overlay/overlay";
 import { Popover } from "../popover/popover";
 import { ScrollBar } from "../scrollbar";
 /**
@@ -249,7 +249,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.Grid";
   static components = {
     GridComposer,
-    Overlay,
+    HeadersOverlay,
     Menu,
     Autofill,
     FiguresContainer,
