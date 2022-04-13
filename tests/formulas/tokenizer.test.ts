@@ -196,6 +196,10 @@ describe("tokenizer", () => {
       { type: "OPERATOR", value: "=" },
       { type: "SYMBOL", value: "''!A1" },
     ]);
+    expect(tokenize("=A1A")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "A1A" },
+    ]);
   });
 
   test("Unknown characters", () => {
