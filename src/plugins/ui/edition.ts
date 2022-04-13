@@ -8,7 +8,6 @@ import {
   isNumber,
   markdownLink,
   positionToZone,
-  rangeReference,
   toZone,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
@@ -23,7 +22,7 @@ import {
   CommandResult,
   RemoveColumnsRowsCommand,
 } from "../../types/index";
-import { Range, RangePart, UID, Zone } from "../../types/misc";
+import { Highlight, Range, RangePart, UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export type EditionMode =
@@ -122,6 +121,7 @@ export class EditionPlugin extends UIPlugin {
         break;
       case "START_EDITION":
         this.startEdition(cmd.text, cmd.selection);
+        this.updateRangeColor();
         break;
       case "STOP_EDITION":
         if (cmd.cancel) {
@@ -130,9 +130,11 @@ export class EditionPlugin extends UIPlugin {
         } else {
           this.stopEdition();
         }
+        this.colorIndexByRange = {};
         break;
       case "SET_CURRENT_CONTENT":
         this.setContent(cmd.content, cmd.selection);
+        this.updateRangeColor();
         break;
       case "REPLACE_COMPOSER_CURSOR_SELECTION":
         this.replaceSelection(cmd.text);
@@ -276,9 +278,12 @@ export class EditionPlugin extends UIPlugin {
     const newContent = content.slice(0, start) + updatedReferences + content.slice(end);
 
     const lengthDiff = newContent.length - content.length;
-    this.setContent(newContent, {
-      start: refTokens[0].start,
-      end: refTokens[refTokens.length - 1].end + lengthDiff,
+    this.dispatch("SET_CURRENT_CONTENT", {
+      content: newContent,
+      selection: {
+        start: refTokens[0].start,
+        end: refTokens[refTokens.length - 1].end + lengthDiff,
+      },
     });
   }
 
@@ -526,45 +531,64 @@ export class EditionPlugin extends UIPlugin {
     });
   }
 
+  private updateRangeColor() {
+    if (!this.currentContent.startsWith("=") || this.mode === "inactive") {
+      return;
+    }
+    const editionSheetId = this.getters.getEditionSheet();
+    const XCs = this.getReferencedRanges().map((range) =>
+      this.getters.getRangeString(range, editionSheetId)
+    );
+    const colorsToKeep = {};
+    for (const xc of XCs) {
+      if (this.colorIndexByRange[xc] !== undefined) {
+        colorsToKeep[xc] = this.colorIndexByRange[xc];
+      }
+    }
+    const usedIndexes = new Set(Object.values(colorsToKeep));
+    let currentIndex = 0;
+    const nextIndex = () => {
+      while (usedIndexes.has(currentIndex)) currentIndex++;
+      usedIndexes.add(currentIndex);
+      return currentIndex;
+    };
+    for (const xc of XCs) {
+      const colorIndex = xc in colorsToKeep ? colorsToKeep[xc] : nextIndex();
+      colorsToKeep[xc] = colorIndex;
+    }
+    this.colorIndexByRange = colorsToKeep;
+  }
+
   /**
    * Highlight all ranges that can be found in the composer content.
    */
-  getComposerHighlights(): [string, string][] {
+  getComposerHighlights(): Highlight[] {
     if (!this.currentContent.startsWith("=") || this.mode === "inactive") {
       return [];
     }
-    const ranges: string[] = [];
-    const colorIndexByRange: { [xc: string]: number } = {};
-
-    for (let token of this.currentTokens.filter((token) => token.type === "REFERENCE")) {
-      let value = token.value;
-      const [xc, sheet] = value.split("!").reverse();
-      if (rangeReference.test(xc)) {
-        const refSanitized =
-          (sheet ? `${sheet}!` : `${this.getters.getSheetName(this.getters.getEditionSheet())}!`) +
-          xc.replace(/\$/g, "");
-
-        ranges.push(refSanitized);
-        const colorIndex = this.colorIndexByRange[refSanitized];
-        if (colorIndex !== undefined) {
-          colorIndexByRange[refSanitized] = colorIndex;
-        }
-      }
-    }
-
-    this.colorIndexByRange = colorIndexByRange;
-    let colorIndexes = Object.values(colorIndexByRange);
-    let nextColorIndex = 0;
-    return ranges.map((r): [string, string] => {
-      if (this.colorIndexByRange[r] === undefined) {
-        while (colorIndexes.includes(nextColorIndex)) {
-          nextColorIndex++;
-        }
-        colorIndexes.push(nextColorIndex);
-        this.colorIndexByRange[r] = nextColorIndex;
-      }
-      return [r, colors[this.colorIndexByRange[r] % colors.length]];
+    const editionSheetId = this.getters.getEditionSheet();
+    const rangeColor = (rangeString: string) => {
+      const colorIndex = this.colorIndexByRange[rangeString];
+      return colors[colorIndex % colors.length];
+    };
+    return this.getReferencedRanges().map((range) => {
+      const rangeString = this.getters.getRangeString(range, editionSheetId);
+      return {
+        zone: range.zone,
+        color: rangeColor(rangeString),
+        sheet: range.sheetId,
+      };
     });
+  }
+
+  /**
+   * Return ranges currently referenced in the composer
+   */
+  getReferencedRanges(): Range[] {
+    const editionSheetId = this.getters.getEditionSheet();
+    return this.currentTokens
+      .filter((token) => token.type === "REFERENCE")
+      .map((token) => this.getters.getRangeFromSheetXC(editionSheetId, token.value));
   }
 
   /**
