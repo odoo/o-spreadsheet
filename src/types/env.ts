@@ -21,6 +21,7 @@ export interface SpreadsheetEnv {
 export interface SpreadsheetChildEnv extends SpreadsheetEnv {
   model: Model;
   openSidePanel: (panel: string, panelProps?: any) => void;
+  closeSidePanel: () => void;
   openLinkEditor: () => void;
   toggleSidePanel: (panel: string, panelProps?: any) => void;
   clipboard: Clipboard;

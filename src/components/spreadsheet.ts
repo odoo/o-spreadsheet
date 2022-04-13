@@ -142,6 +142,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     useSubEnv({
       model: this.model,
       openSidePanel: this.openSidePanel.bind(this),
+      closeSidePanel: this.closeSidePanel.bind(this),
       toggleSidePanel: this.toggleSidePanel.bind(this),
       openLinkEditor: this.openLinkEditor.bind(this),
       _t: Spreadsheet._t,
