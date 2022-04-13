@@ -1,10 +1,24 @@
-import { getComposerSheetName, getNextColor, UuidGenerator, zoneToXc } from "../../helpers/index";
+import {
+  getComposerSheetName,
+  getNextColor,
+  toZone,
+  UuidGenerator,
+  zoneToXc,
+} from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { StreamCallbacks } from "../../selection_stream/event_stream";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import { StateObserver } from "../../state_observer";
 import { SelectionEvent } from "../../types/event_stream";
-import { Command, CommandDispatcher, CommandResult, Getters, LAYERS, UID } from "../../types/index";
+import {
+  Command,
+  CommandDispatcher,
+  CommandResult,
+  Getters,
+  Highlight,
+  LAYERS,
+  UID,
+} from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 const uuidGenerator = new UuidGenerator();
@@ -131,7 +145,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
     );
   }
 
-  getSelectionInputHighlights(): [string, string][] {
+  getSelectionInputHighlights(): Highlight[] {
     return this.ranges.map((input) => this.inputToHighlights(input)).flat();
   }
 
@@ -217,20 +231,15 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
    * Invalid ranges and ranges from other sheets than the active sheets
    * are ignored.
    */
-  private inputToHighlights({
-    xc,
-    color,
-  }: Pick<RangeInputValue, "xc" | "color">): [string, string][] {
-    const ranges = this.cleanInputs([xc])
+  private inputToHighlights({ xc, color }: Pick<RangeInputValue, "xc" | "color">): Highlight[] {
+    const XCs = this.cleanInputs([xc])
       .filter((range) => this.getters.isRangeValid(range))
       .filter((reference) => this.shouldBeHighlighted(this.activeSheet, reference));
-    if (ranges.length === 0) return [];
-    const [fromInput, ...otherRanges] = ranges;
-    const highlights: [string, string][] = [[fromInput, color || getNextColor()]];
-    for (const range of otherRanges) {
-      highlights.push([range, getNextColor()]);
-    }
-    return highlights;
+    return XCs.map((xc) => ({
+      zone: toZone(xc),
+      sheet: this.activeSheet,
+      color,
+    }));
   }
 
   private cleanInputs(ranges: string[]): string[] {

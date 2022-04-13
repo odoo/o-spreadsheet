@@ -2,7 +2,15 @@ import { positionToZone, rangeReference } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import { StateObserver } from "../../state_observer";
-import { Command, CommandDispatcher, CommandResult, Getters, LAYERS, UID } from "../../types/index";
+import {
+  Command,
+  CommandDispatcher,
+  CommandResult,
+  Getters,
+  Highlight,
+  LAYERS,
+  UID,
+} from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 import { SelectionInputPlugin } from "./selection_input";
 
@@ -140,7 +148,7 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
     return this.inputs[id].getSelectionInputValue();
   }
 
-  getSelectionInputHighlights(): [string, string][] {
+  getSelectionInputHighlights(): Highlight[] {
     if (!this.focusedInputId) {
       return [];
     }

@@ -1,6 +1,6 @@
-import { isEqual, toZone } from "../../helpers/index";
+import { isEqual } from "../../helpers/index";
 import { Mode } from "../../model";
-import { GridRenderingContext, Highlight, LAYERS, Zone } from "../../types/index";
+import { GridRenderingContext, Highlight, LAYERS } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 /**
@@ -25,27 +25,19 @@ export class HighlightPlugin extends UIPlugin {
   // Other
   // ---------------------------------------------------------------------------
 
-  private prepareHighlights(ranges: [string, string][]): Highlight[] {
-    if (ranges.length === 0) {
-      return [];
-    }
-    const activeSheetId = this.getters.getActiveSheetId();
-    const preparedHighlights: Highlight[] = [];
-    for (let [r1c1, color] of ranges) {
-      const [xc, sheet] = r1c1.split("!").reverse();
-      const sheetId = sheet ? this.getters.getSheetIdByName(sheet) : activeSheetId;
-      if (sheetId) {
-        const zone: Zone = this.getters.expandZone(activeSheetId, toZone(xc));
-        preparedHighlights.push({ zone, color, sheet: sheetId });
-      }
-    }
-    return preparedHighlights.filter(
-      (x) =>
-        x.zone.top >= 0 &&
-        x.zone.left >= 0 &&
-        x.zone.bottom < this.getters.getSheet(x.sheet).rows.length &&
-        x.zone.right < this.getters.getSheet(x.sheet).cols.length
-    );
+  private prepareHighlights(highlights: Highlight[]): Highlight[] {
+    return highlights
+      .filter(
+        (x) =>
+          x.zone.top >= 0 &&
+          x.zone.left >= 0 &&
+          x.zone.bottom < this.getters.getSheet(x.sheet).rows.length &&
+          x.zone.right < this.getters.getSheet(x.sheet).cols.length
+      )
+      .map((highlight) => ({
+        ...highlight,
+        zone: this.getters.expandZone(highlight.sheet, highlight.zone),
+      }));
   }
 
   // ---------------------------------------------------------------------------
