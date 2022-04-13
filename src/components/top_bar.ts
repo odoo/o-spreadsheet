@@ -226,10 +226,10 @@ css/* scss */ `
             }
 
             &.o-format-tool {
-              width: 180px;
               padding: 7px 0;
               > div {
                 padding-left: 25px;
+                white-space: nowrap;
 
                 &.active:before {
                   content: "✓";
