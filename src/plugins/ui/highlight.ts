@@ -31,12 +31,12 @@ export class HighlightPlugin extends UIPlugin {
         (x) =>
           x.zone.top >= 0 &&
           x.zone.left >= 0 &&
-          x.zone.bottom < this.getters.getSheet(x.sheet).rows.length &&
-          x.zone.right < this.getters.getSheet(x.sheet).cols.length
+          x.zone.bottom < this.getters.getSheet(x.sheetId).rows.length &&
+          x.zone.right < this.getters.getSheet(x.sheetId).cols.length
       )
       .map((highlight) => ({
         ...highlight,
-        zone: this.getters.expandZone(highlight.sheet, highlight.zone),
+        zone: this.getters.expandZone(highlight.sheetId, highlight.zone),
       }));
   }
 
@@ -62,7 +62,7 @@ export class HighlightPlugin extends UIPlugin {
       (highlight, index) =>
         // For every highlight in the sheet, deduplicated by zone
         this.getHighlights().findIndex(
-          (h) => isEqual(h.zone, highlight.zone) && h.sheet === sheetId
+          (h) => isEqual(h.zone, highlight.zone) && h.sheetId === sheetId
         ) === index
     )) {
       const [x, y, width, height] = this.getters.getRect(h.zone, viewport);

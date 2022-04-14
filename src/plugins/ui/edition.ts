@@ -576,7 +576,7 @@ export class EditionPlugin extends UIPlugin {
       return {
         zone: range.zone,
         color: rangeColor(rangeString),
-        sheet: range.sheetId,
+        sheetId: range.sheetId,
       };
     });
   }
