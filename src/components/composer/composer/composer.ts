@@ -489,7 +489,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       : this.env.model.getters.getEditionSheet();
     const highlight = highlights.find(
       (highlight) =>
-        highlight.sheet === refSheet &&
+        highlight.sheetId === refSheet &&
         isEqual(this.env.model.getters.expandZone(refSheet, toZone(xc)), highlight.zone)
     );
     return highlight && highlight.color ? highlight.color : undefined;

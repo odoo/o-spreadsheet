@@ -237,7 +237,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
       .filter((reference) => this.shouldBeHighlighted(this.activeSheet, reference));
     return XCs.map((xc) => ({
       zone: toZone(xc),
-      sheet: this.activeSheet,
+      sheetId: this.activeSheet,
       color,
     }));
   }

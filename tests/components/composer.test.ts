@@ -9,7 +9,7 @@ import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { fontSizes } from "../../src/fonts";
 import { colors, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { LinkCell } from "../../src/types";
+import { Highlight, LinkCell } from "../../src/types";
 import {
   activateSheet,
   createSheet,
@@ -48,7 +48,7 @@ let parent: Spreadsheet;
 let app: App;
 let cehMock: ContentEditableHelper;
 
-function getHighlights(model: Model): any[] {
+function getHighlights(model: Model): Highlight[] {
   return model.getters.getHighlights();
 }
 
@@ -1330,9 +1330,9 @@ describe("composer highlights color", () => {
     await startComposition();
     const highlights = getHighlights(model);
     expect(highlights).toHaveLength(2);
-    expect(highlights[0].sheet).toBe(model.getters.getActiveSheetId());
+    expect(highlights[0].sheetId).toBe(model.getters.getActiveSheetId());
     expect(highlights[0].zone).toEqual({ left: 1, right: 1, top: 0, bottom: 0 });
-    expect(highlights[1].sheet).toBe("42");
+    expect(highlights[1].sheetId).toBe("42");
     expect(highlights[1].zone).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });
   });
   test("grid composer is resized when top bar composer grows", async () => {});

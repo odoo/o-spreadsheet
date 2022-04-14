@@ -161,7 +161,7 @@ export interface Merge extends Zone {
 
 export interface Highlight {
   zone: Zone;
-  sheet: string;
+  sheetId: UID;
   color: string | null;
 }
 
