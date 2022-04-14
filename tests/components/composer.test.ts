@@ -392,6 +392,15 @@ describe("composer", () => {
     expect(getCellText(model, "A1")).toBe("c");
   });
 
+  test("Arrow keys will not move to neighbor cell when a formula", async () => {
+    composerEl = await startComposition("=");
+    await typeInComposerGrid(`"`);
+    await typeInComposerGrid(`"`);
+    expect(composerEl.textContent).toBe(`=""`);
+    await keyDown("ArrowLeft");
+    expect(model.getters.getEditionMode()).not.toBe("inactive");
+  });
+
   test("ArrowKeys will move to neighbour cell, if not in contentFocus mode (up/down)", async () => {
     composerEl = await startComposition("a");
     expect(composerEl.textContent).toBe("a");

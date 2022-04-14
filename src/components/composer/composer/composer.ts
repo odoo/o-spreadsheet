@@ -221,12 +221,17 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
       ev.preventDefault();
       return;
     }
-    // only for arrow up and down
-    if (this.props.focus === "cellFocus" && !this.autoCompleteState.showProvider) {
+    const content = this.env.model.getters.getCurrentContent();
+    if (
+      this.props.focus === "cellFocus" &&
+      !this.autoCompleteState.showProvider &&
+      !content.startsWith("=")
+    ) {
       this.env.model.dispatch("STOP_EDITION");
       return;
     }
     ev.stopPropagation();
+    // only for arrow up and down
     if (
       ["ArrowUp", "ArrowDown"].includes(ev.key) &&
       this.autoCompleteState.showProvider &&
