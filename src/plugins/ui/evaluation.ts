@@ -1,6 +1,6 @@
 import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { isZoneValid, range as rangeSequence, toXC } from "../../helpers/index";
+import { intersection, isZoneValid, toXC } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
@@ -224,12 +224,34 @@ export class EvaluationPlugin extends UIPlugin {
         throw new Error(_lt("Invalid reference"));
       }
 
-      const zone = range.zone;
-      return rangeSequence(zone.left, zone.right + 1).map((col) =>
-        getters
-          .getCellsInZone(sheetId, { ...zone, left: col, right: col })
-          .map((cell) => (cell ? getCellValue(cell, range.sheetId) : undefined))
-      );
+      // Performance issue: Avoid fetching data on positions that are out of the spreadsheet
+      // e.g. A1:ZZZ9999 in a sheet with 10 cols and 10 rows should ignore everything past J10 and return a 10x10 array
+      const sheet = getters.getSheet(sheetId);
+      const sheetZone = {
+        top: 0,
+        bottom: sheet.rows.length - 1,
+        left: 0,
+        right: sheet.cols.length - 1,
+      };
+      const result: (CellValue | undefined)[][] = [];
+
+      const zone = intersection(range.zone, sheetZone);
+      if (!zone) {
+        result.push([]);
+        return result;
+      }
+
+      // Performance issue: Previous implementation was doing multi-nested mappings by using unadapted tools
+      // This nested loop grants a drastic improvement (see commit message)
+      for (let col = zone.left; col <= zone.right; col++) {
+        const rowValues: (CellValue | undefined)[] = [];
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          const cell = getters.getCell(sheetId, col, row);
+          rowValues.push(cell ? getCellValue(cell, range.sheetId) : undefined);
+        }
+        result.push(rowValues);
+      }
+      return result;
     }
 
     /**
