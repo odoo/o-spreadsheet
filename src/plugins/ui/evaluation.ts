@@ -1,6 +1,6 @@
 import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { isZoneValid, mapCellsInZone, overlap, toXC } from "../../helpers/index";
+import { intersection, isZoneValid, mapCellsInZone, toXC } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
@@ -200,6 +200,8 @@ export class EvaluationPlugin extends UIPlugin {
       }
       if (!cell || cell.isEmpty()) {
         // magic "empty" value
+        // Returning null instead of undefined will ensure that we don't
+        // fall back on the default value of the argument provided to the formula's compute function
         return null;
       }
       return getCellValue(cell, range.sheetId);
@@ -229,18 +231,32 @@ export class EvaluationPlugin extends UIPlugin {
         throw new Error(_lt("Invalid reference"));
       }
 
-      // Return an array with undefined if the range is totally outside of the sheet rather than trying
-      // to call mapCellsInZone() with an invalid zone and throw an error
+      // Performance issue: Avoid fetching data on positions that are out of the spreadsheet
+      // e.g. A1:ZZZ9999 in a sheet with 10 cols and 10 rows should ignore everything past J10 and return a 10x10 array
       const sheetZone = {
         top: 0,
         bottom: sheet.rows.length - 1,
         left: 0,
         right: sheet.cols.length - 1,
       };
-      if (!overlap(range.zone, sheetZone)) {
-        return [[]];
+      const result: (CellValue | undefined)[][] = [];
+
+      const zone = intersection(range.zone, sheetZone);
+      if (!zone) {
+        result.push([]);
+        return result;
       }
-      return mapCellsInZone(range.zone, sheet, (cell) => getCellValue(cell, range.sheetId));
+
+      // Performance issue: nested loop is faster than a map here
+      for (let col = zone.left; col <= zone.right; col++) {
+        const rowValues: (CellValue | undefined)[] = [];
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          const cell = evalContext.getters.getCell(range.sheetId, col, row);
+          rowValues.push(cell ? getCellValue(cell, range.sheetId) : undefined);
+        }
+        result.push(rowValues);
+      }
+      return result;
     }
 
     /**
