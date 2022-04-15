@@ -1,8 +1,9 @@
 import { args, functionRegistry } from "../../src/functions";
 import { Model } from "../../src/model";
-import { CellValueType, InvalidEvaluation } from "../../src/types";
+import { ArgRange, CellValueType, InvalidEvaluation } from "../../src/types";
 import {
   activateSheet,
+  addColumns,
   createSheet,
   deleteColumns,
   setCellContent,
@@ -224,12 +225,22 @@ describe("evaluateCells", () => {
     expect(getCell(model, "A1")!.evaluated.value).toBe(42);
   });
 
-  test("range partially outside of sheet", () => {
+  test("Evaluate only existing cells from a range partially outside of sheet", () => {
+    functionRegistry.add("RANGE.COUNT.FUNCTION", {
+      description: "any function",
+      compute: (range: ArgRange) => range.flat().length,
+      args: [{ name: "arg", description: "", type: ["RANGE"] }],
+      returns: ["NUMBER"],
+    });
     const model = new Model();
     setCellContent(model, "D4", "42");
-    setCellContent(model, "A1", "=sum(B2:AZ999)");
+    setCellContent(model, "A1", "=RANGE.COUNT.FUNCTION(A2:AZ999)");
+    setCellContent(model, "A2", "=RANGE.COUNT.FUNCTION(B2:AZ2)");
 
-    expect(getCell(model, "A1")!.evaluated.value).toBe(42);
+    expect(getCell(model, "A1")!.evaluated.value).toBe(2574);
+    expect(getCell(model, "A2")!.evaluated.value).toBe(25);
+    addColumns(model, "after", "Z", 1);
+    expect(getCell(model, "A2")!.evaluated.value).toBe(26);
   });
 
   test("range totally outside of sheet", () => {
