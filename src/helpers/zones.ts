@@ -187,6 +187,21 @@ export function union(z1: Zone, z2: Zone): Zone {
 }
 
 /**
+ * Compute the intersection of two zones. Returns nothing if the two zones don't overlap
+ */
+export function intersection(z1: Zone, z2: Zone): Zone | undefined {
+  if (!overlap(z1, z2)) {
+    return undefined;
+  }
+  return {
+    top: Math.max(z1.top, z2.top),
+    left: Math.max(z1.left, z2.left),
+    bottom: Math.min(z1.bottom, z2.bottom),
+    right: Math.min(z1.right, z2.right),
+  };
+}
+
+/**
  * Two zones are equal if they represent the same area, so we clearly cannot use
  * reference equality.
  */
