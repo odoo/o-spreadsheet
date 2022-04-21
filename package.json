@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "serve-static": "live-server --open=demo --watch=dist/o_spreadsheet.js,dist/o_spreadsheet.xml,demo",
-    "dev": "npm-run-all --parallel server serve-static watch:*",
+    "dev": "npm-run-all build --parallel server serve-static watch:*",
     "server": "node tools/server/main.js",
     "build:js": "tsc --module es6 --outDir dist/js --incremental",
     "bundle:js": "rollup -c -m",
