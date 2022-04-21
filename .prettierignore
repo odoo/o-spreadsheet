@@ -1,0 +1,12 @@
+.eslintrc.json
+.prettierignore
+
+.github/
+.idea/
+.vscode/
+dist/
+.npmrc
+coverage/
+logs/
+doc/tsdoc
+tests/**/__snapshots__
