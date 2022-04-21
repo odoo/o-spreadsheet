@@ -1,7 +1,7 @@
 import { App } from "@odoo/owl";
 import { Spreadsheet, TransportService } from "../../src";
 import { Grid } from "../../src/components/grid/grid";
-import { HEADER_HEIGHT, HEADER_WIDTH, MESSAGE_VERSION, SCROLLBAR_WIDTH } from "../../src/constants";
+import { HEADER_WIDTH, MESSAGE_VERSION, SCROLLBAR_WIDTH } from "../../src/constants";
 import { scrollDelay, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
@@ -15,6 +15,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import {
   clickCell,
+  gridMouseEvent,
   rightClickCell,
   simulateClick,
   triggerMouseEvent,
@@ -585,9 +586,9 @@ describe("Grid component", () => {
       });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
       model.dispatch("ACTIVATE_PAINT_FORMAT", { target });
-      triggerMouseEvent(".o-grid-overlay", "mousedown", 300 - HEADER_WIDTH, 200 - HEADER_HEIGHT);
+      gridMouseEvent(model, "mousedown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
-      triggerMouseEvent("body", "mouseup", 300, 200);
+      gridMouseEvent(model, "mouseup", "C8");
       expect(getCell(model, "C8")!.style).toEqual({ bold: true });
     });
 
@@ -696,7 +697,7 @@ describe("error tooltip", () => {
     Date.now = jest.fn(() => 0);
     setCellContent(model, "A1", "=1/0");
     await nextTick();
-    triggerMouseEvent(".o-grid-overlay", "mousemove", 80 - HEADER_WIDTH, 30 - HEADER_HEIGHT); // A1
+    gridMouseEvent(model, "mousemove", "A1");
     Date.now = jest.fn(() => 500);
     jest.advanceTimersByTime(300);
     await nextTick();
@@ -707,7 +708,7 @@ describe("error tooltip", () => {
     Date.now = jest.fn(() => 0);
     setCellContent(model, "C8", "=1/0");
     await nextTick();
-    triggerMouseEvent(".o-grid-overlay", "mousemove", 300 - HEADER_WIDTH, 200 - HEADER_HEIGHT);
+    gridMouseEvent(model, "mousemove", "C8");
     Date.now = jest.fn(() => 250);
     jest.advanceTimersByTime(300);
 
@@ -721,7 +722,7 @@ describe("error tooltip", () => {
     expect(document.querySelector(".o-error-tooltip")?.parentElement).toMatchSnapshot();
 
     // moving mouse await
-    triggerMouseEvent(".o-grid-overlay", "mousemove", 100 - HEADER_WIDTH, 200 - HEADER_HEIGHT);
+    gridMouseEvent(model, "mousemove", "A7");
     Date.now = jest.fn(() => 1050);
     jest.advanceTimersByTime(300);
     await nextTick();
@@ -733,7 +734,7 @@ describe("error tooltip", () => {
     merge(model, "C1:C8");
     setCellContent(model, "C1", "=1/0");
     await nextTick();
-    triggerMouseEvent(".o-grid-overlay", "mousemove", 300 - HEADER_WIDTH, 200 - HEADER_HEIGHT); // C8
+    gridMouseEvent(model, "mousemove", "C8");
 
     Date.now = jest.fn(() => 500);
     jest.advanceTimersByTime(300);

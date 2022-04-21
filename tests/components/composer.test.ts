@@ -5,7 +5,6 @@ import {
   NumberColor,
   tokenColor,
 } from "../../src/components/composer/composer/composer";
-import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { fontSizes } from "../../src/fonts";
 import { colors, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
@@ -21,11 +20,11 @@ import {
 } from "../test_helpers/commands_helpers";
 import {
   clickCell,
+  gridMouseEvent,
   keyDown,
   keyUp,
   rightClickCell,
   simulateClick,
-  triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
@@ -99,9 +98,9 @@ describe("ranges and highlights", () => {
 
   test("=+Click range, the range ref should be colored", async () => {
     composerEl = await typeInComposerGrid("=");
-    triggerMouseEvent(".o-grid-overlay", "mousedown", 300 - HEADER_WIDTH, 200 - HEADER_HEIGHT);
-    triggerMouseEvent(".o-grid-overlay", "mousemove", 200 - HEADER_WIDTH, 200 - HEADER_HEIGHT);
-    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 200, clientY: 200 }));
+    gridMouseEvent(model, "mousedown", "C8");
+    gridMouseEvent(model, "mousemove", "B8");
+    gridMouseEvent(model, "mouseup", "B8");
     await nextTick();
     expect(composerEl.textContent).toBe("=B8:C8");
     expect(
