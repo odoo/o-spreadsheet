@@ -555,3 +555,14 @@ export function moveRows(
     elements: rows,
   });
 }
+
+export function moveSheet(
+  model: Model,
+  direction: "left" | "right",
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("MOVE_SHEET", {
+    sheetId,
+    direction,
+  });
+}

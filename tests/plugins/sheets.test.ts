@@ -10,6 +10,7 @@ import {
   deleteRows,
   hideRows,
   merge,
+  moveSheet,
   redo,
   renameSheet,
   resizeColumns,
@@ -377,7 +378,7 @@ describe("sheets", () => {
     const sheet1 = model.getters.getSheetIds()[0];
     const sheet2 = model.getters.getSheetIds()[1];
     const beforeMoveSheet = model.exportData();
-    model.dispatch("MOVE_SHEET", { sheetId: sheet1, direction: "right" });
+    moveSheet(model, "right", sheet1);
     expect(model.getters.getActiveSheetId()).toEqual(sheet1);
     expect(model.getters.getSheetIds()[0]).toEqual(sheet2);
     expect(model.getters.getSheetIds()[1]).toEqual(sheet1);
@@ -392,12 +393,8 @@ describe("sheets", () => {
     createSheet(model, { sheetId: "42" });
     const sheet1 = model.getters.getSheetIds()[0];
     const sheet2 = model.getters.getSheetIds()[1];
-    expect(
-      model.dispatch("MOVE_SHEET", { sheetId: sheet1, direction: "left" })
-    ).toBeCancelledBecause(CommandResult.WrongSheetMove);
-    expect(
-      model.dispatch("MOVE_SHEET", { sheetId: sheet2, direction: "right" })
-    ).toBeCancelledBecause(CommandResult.WrongSheetMove);
+    expect(moveSheet(model, "left", sheet1)).toBeCancelledBecause(CommandResult.WrongSheetMove);
+    expect(moveSheet(model, "right", sheet2)).toBeCancelledBecause(CommandResult.WrongSheetMove);
   });
 
   test("Can rename a sheet", () => {

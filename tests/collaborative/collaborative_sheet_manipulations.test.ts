@@ -13,6 +13,7 @@ import {
   deleteRows,
   hideColumns,
   hideRows,
+  moveSheet,
   renameSheet,
   selectCell,
   setCellContent,
@@ -95,7 +96,7 @@ describe("Collaborative Sheet manipulation", () => {
     createSheet(bob, { sheetId: "42", activate: true });
     network.concurrent(() => {
       createSheet(alice, { sheetId: "2", position: 1 });
-      bob.dispatch("MOVE_SHEET", { sheetId: sheet1, direction: "right" });
+      moveSheet(bob, "right", sheet1);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds(),
@@ -109,8 +110,8 @@ describe("Collaborative Sheet manipulation", () => {
     createSheet(bob, { sheetId: "1", activate: true, position: 1 });
     createSheet(bob, { sheetId: "2", activate: true, position: 2 });
     network.concurrent(() => {
-      alice.dispatch("MOVE_SHEET", { sheetId: sheet1, direction: "right" });
-      bob.dispatch("MOVE_SHEET", { sheetId: "2", direction: "left" });
+      moveSheet(alice, "right", sheet1);
+      moveSheet(bob, "left", "2");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds(),
