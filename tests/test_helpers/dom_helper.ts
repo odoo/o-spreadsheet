@@ -40,16 +40,25 @@ export async function clickCell(
   await simulateClick(".o-grid-overlay", x - HEADER_WIDTH, y - HEADER_HEIGHT, extra);
 }
 
-export async function rightClickCell(
+export async function gridMouseEvent(
   model: Model,
+  type: string,
   xc: string,
   extra: MouseEventInit = { bubbles: true }
 ) {
   const zone = toZone(xc);
   const viewport = model.getters.getActiveViewport();
   const [x, y, ,] = model.getters.getRect(zone, viewport);
-  triggerMouseEvent(".o-grid-overlay", "contextmenu", x - HEADER_WIDTH, y - HEADER_HEIGHT, extra);
+  triggerMouseEvent(".o-grid-overlay", type, x - HEADER_WIDTH, y - HEADER_HEIGHT, extra);
   await nextTick();
+}
+
+export async function rightClickCell(
+  model: Model,
+  xc: string,
+  extra: MouseEventInit = { bubbles: true }
+) {
+  await gridMouseEvent(model, "contextmenu", xc, extra);
 }
 
 export function triggerMouseEvent(
