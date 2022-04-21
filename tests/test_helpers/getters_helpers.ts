@@ -87,7 +87,7 @@ export function getRangeValues(
  * Get the sheet at the given index
  */
 export function getSheet(model: Model, index: number = 0): Sheet {
-  return model.getters.getSheets()[index];
+  return model.getters.getSheet(model.getters.getSheetIds()[index]);
 }
 
 /**

@@ -87,10 +87,10 @@ describe("Model resizer", () => {
   test("Can resize row of inactive sheet", async () => {
     const model = new Model();
     createSheet(model, { sheetId: "42" });
-    const [, sheet2] = model.getters.getSheets();
-    resizeRows(model, [0], 42, sheet2.id);
-    expect(model.getters.getActiveSheetId()).not.toBe(sheet2.id);
-    expect(model.getters.getRow(sheet2.id, 0)).toEqual({
+    const [, sheet2Id] = model.getters.getSheetIds();
+    resizeRows(model, [0], 42, sheet2Id);
+    expect(model.getters.getActiveSheetId()).not.toBe(sheet2Id);
+    expect(model.getters.getRow(sheet2Id, 0)).toEqual({
       cells: {},
       end: 42,
       size: 42,
@@ -102,17 +102,17 @@ describe("Model resizer", () => {
   test("Can resize column of inactive sheet", async () => {
     const model = new Model();
     createSheet(model, { sheetId: "42" });
-    const [, sheet2] = model.getters.getSheets();
-    resizeColumns(model, ["A"], 42, sheet2.id);
-    expect(model.getters.getActiveSheetId()).not.toBe(sheet2.id);
-    expect(model.getters.getCol(sheet2.id, 0)).toEqual({ end: 42, size: 42, name: "A", start: 0 });
+    const [, sheet2Id] = model.getters.getSheetIds();
+    resizeColumns(model, ["A"], 42, sheet2Id);
+    expect(model.getters.getActiveSheetId()).not.toBe(sheet2Id);
+    expect(model.getters.getCol(sheet2Id, 0)).toEqual({ end: 42, size: 42, name: "A", start: 0 });
   });
 
   test("changing sheets update the sizes", async () => {
     const model = new Model();
     createSheet(model, { activate: true, sheetId: "42" });
-    const sheet1 = model.getters.getVisibleSheets()[0];
-    const sheet2 = model.getters.getVisibleSheets()[1];
+    const sheet1 = model.getters.getSheetIds()[0];
+    const sheet2 = model.getters.getSheetIds()[1];
 
     expect(model.getters.getActiveSheetId()).toBe(sheet2);
     resizeColumns(model, ["B"], model.getters.getCol(sheet2, 1)!.size + 100, sheet2);

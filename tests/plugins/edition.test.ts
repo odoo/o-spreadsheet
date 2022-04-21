@@ -71,7 +71,7 @@ describe("edition", () => {
 
   test("editing a cell, start a composer selection, then activating a new sheet: mode should still be 'waitingForRangeSelection'", () => {
     const model = new Model();
-    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheet1 = model.getters.getSheetIds()[0];
     model.dispatch("START_EDITION", { text: "=" });
     expect(model.getters.getEditionMode()).toBe("selecting");
     expect(model.getters.getEditionSheet()).toBe(sheet1);

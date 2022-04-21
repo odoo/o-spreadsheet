@@ -46,7 +46,7 @@ describe("Collaborative Sheet manipulation", () => {
       bob.dispatch("DELETE_SHEET", { sheetId: "42" });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getVisibleSheets(),
+      (user) => user.getters.getSheetIds(),
       [sheet1, "2"]
     );
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
@@ -59,7 +59,7 @@ describe("Collaborative Sheet manipulation", () => {
       createSheet(bob, { sheetId: "3" });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getVisibleSheets(),
+      (user) => user.getters.getSheetIds(),
       [sheet1, "2", "3"]
     );
     expect(alice.getters.getSheetName("2")).not.toEqual(alice.getters.getSheetName("3"));
@@ -73,7 +73,7 @@ describe("Collaborative Sheet manipulation", () => {
       createSheet(charlie, { sheetId: "charlie42", name: "Sheet2" });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getSheets().map(({ name }) => name),
+      (user) => user.getters.getSheetIds().map(user.getters.getSheetName),
       ["Sheet1", "Sheet2", "Sheet3", "Sheet4"]
     );
   });
@@ -85,7 +85,7 @@ describe("Collaborative Sheet manipulation", () => {
       createSheet(charlie, { sheetId: "charlie42", name: "Sheet" });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getSheets().map(({ name }) => name),
+      (user) => user.getters.getSheetIds().map(user.getters.getSheetName),
       ["Sheet1", "Sheet", "Sheet~", "Sheet~~"]
     );
   });
@@ -98,7 +98,7 @@ describe("Collaborative Sheet manipulation", () => {
       bob.dispatch("MOVE_SHEET", { sheetId: sheet1, direction: "right" });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getVisibleSheets(),
+      (user) => user.getters.getSheetIds(),
       ["2", sheet1, "42"]
     );
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
@@ -113,7 +113,7 @@ describe("Collaborative Sheet manipulation", () => {
       bob.dispatch("MOVE_SHEET", { sheetId: "2", direction: "left" });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getVisibleSheets(),
+      (user) => user.getters.getSheetIds(),
       ["1", "2", sheet1]
     );
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();

@@ -128,9 +128,9 @@ class Demo extends Component {
 
   activateFirstSheet() {
     const sheetId = this.model.getters.getActiveSheetId();
-    const [firstSheet] = this.model.getters.getSheets();
-    if (firstSheet.id !== sheetId) {
-      this.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: firstSheet.id });
+    const firstSheetId = this.model.getters.getSheetIds()[0];
+    if (firstSheetId !== sheetId) {
+      this.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: firstSheetId });
     }
   }
 

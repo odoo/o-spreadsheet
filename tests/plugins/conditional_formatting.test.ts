@@ -78,12 +78,12 @@ describe("conditional format", () => {
   test("Add conditional formatting on inactive sheet", () => {
     model = new Model();
     createSheet(model, { sheetId: "42" });
-    const [, sheet] = model.getters.getSheets();
-    expect(sheet.id).not.toBe(model.getters.getActiveSheetId());
+    const [, sheetId] = model.getters.getSheetIds();
+    expect(sheetId).not.toBe(model.getters.getActiveSheetId());
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("4", { fillColor: "#0000FF" }, "2"),
       target: [toZone("A1:A4")],
-      sheetId: sheet.id,
+      sheetId: sheetId,
     });
     activateSheet(model, "42");
     expect(model.getters.getConditionalFormats("42")).toEqual([

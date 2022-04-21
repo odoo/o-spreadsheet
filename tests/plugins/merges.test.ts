@@ -49,7 +49,7 @@ describe("merges", () => {
     expect(getCellsXC(model)).toEqual(["B2"]);
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
     expect(Object.keys(getMerges(model))).toEqual([]);
-    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheet1 = model.getters.getSheetIds()[0];
     merge(model, "B2:B3");
 
     expect(getCellsXC(model)).toEqual(["B2"]);
@@ -179,7 +179,7 @@ describe("merges", () => {
     expect(getActiveXc(model)).toBe("C3");
     expect(getCellsXC(model)).toEqual(["B2"]);
     expect(getCell(model, "B2")!.style).not.toBeDefined();
-    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheet1 = model.getters.getSheetIds()[0];
 
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
@@ -243,10 +243,10 @@ describe("merges", () => {
         2: { fillColor: "#a2a2a2" },
       },
     });
-    const [, sheet2] = model.getters.getSheets();
-    expect(sheet2).not.toBe(model.getters.getActiveSheetId());
-    deleteRows(model, [2], sheet2.id);
-    const cell = getCell(model, "A1", sheet2.id);
+    const [, sheet2Id] = model.getters.getSheetIds();
+    expect(sheet2Id).not.toBe(model.getters.getActiveSheetId());
+    deleteRows(model, [2], sheet2Id);
+    const cell = getCell(model, "A1", sheet2Id);
     expect(model.getters.getCellStyle(cell!)).toEqual({
       fillColor: "#a2a2a2",
     });
@@ -369,7 +369,7 @@ describe("merges", () => {
         },
       ],
     });
-    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheet1 = model.getters.getSheetIds()[0];
     expect(getCell(model, "A4")!.evaluated.value).toBe(6);
     model.dispatch("ADD_MERGE", { sheetId: sheet1, target: target("A1:A3"), force: true });
 
@@ -381,7 +381,7 @@ describe("merges", () => {
 
   test("merging => setting background color => unmerging", () => {
     const model = new Model();
-    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheet1 = model.getters.getSheetIds()[0];
 
     setAnchorCorner(model, "B1");
 
@@ -404,7 +404,7 @@ describe("merges", () => {
 
   test("setting background color => merging => unmerging", () => {
     const model = new Model();
-    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheet1 = model.getters.getSheetIds()[0];
     setAnchorCorner(model, "B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
@@ -426,7 +426,7 @@ describe("merges", () => {
 
   test("setting background color to topleft => merging => unmerging", () => {
     const model = new Model();
-    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheet1 = model.getters.getSheetIds()[0];
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
       target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
@@ -465,7 +465,7 @@ describe("merges", () => {
 
   test("setting border => merging => unmerging", () => {
     const model = new Model();
-    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheet1 = model.getters.getSheetIds()[0];
     setAnchorCorner(model, "B1");
 
     model.dispatch("SET_FORMATTING", {
@@ -501,7 +501,7 @@ describe("merges", () => {
 
   test("setting border to topleft => setting style => merging => unmerging", () => {
     const model = new Model();
-    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheet1 = model.getters.getSheetIds()[0];
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
       target: [toZone("A1")],

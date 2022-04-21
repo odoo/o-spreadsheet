@@ -132,25 +132,31 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   addSheet() {
     const activeSheetId = this.env.model.getters.getActiveSheetId();
     const position =
-      this.env.model.getters.getVisibleSheets().findIndex((sheetId) => sheetId === activeSheetId) +
-      1;
+      this.env.model.getters.getSheetIds().findIndex((sheetId) => sheetId === activeSheetId) + 1;
     const sheetId = this.env.model.uuidGenerator.uuidv4();
     const name = this.env.model.getters.getNextSheetName(this.env._t("Sheet"));
     this.env.model.dispatch("CREATE_SHEET", { sheetId, position, name });
     this.env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
   }
 
+  getOrderedSheets() {
+    return this.env.model.getters
+      .getSheetIds()
+      .map((sheetId) => this.env.model.getters.getSheet(sheetId));
+  }
+
   listSheets(ev: MouseEvent) {
     const registry = new MenuItemRegistry();
     const from = this.env.model.getters.getActiveSheetId();
     let i = 0;
-    for (let sheet of this.env.model.getters.getSheets()) {
-      registry.add(sheet.id, {
+    for (const sheetID of this.env.model.getters.getSheetIds()) {
+      const sheet = this.env.model.getters.getSheet(sheetID);
+      registry.add(sheetID, {
         name: sheet.name,
         sequence: i,
         isReadonlyAllowed: true,
         action: (env) =>
-          env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheet.id }),
+          env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheetID }),
       });
       i++;
     }

@@ -248,7 +248,7 @@ export class ViewportPlugin extends UIPlugin {
 
   /** gets rid of deprecated sheetIds */
   private cleanViewports() {
-    const sheets = this.getters.getVisibleSheets();
+    const sheets = this.getters.getSheetIds();
     for (let sheetId of Object.keys(this.viewports)) {
       if (!sheets.includes(sheetId)) {
         delete this.viewports[sheetId];

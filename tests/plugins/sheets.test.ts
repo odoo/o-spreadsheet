@@ -27,19 +27,19 @@ jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 describe("sheets", () => {
   test("can create a new sheet, then undo, then redo", () => {
     const model = new Model();
-    expect(model.getters.getVisibleSheets().length).toBe(1);
+    expect(model.getters.getSheetIds().length).toBe(1);
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
 
     createSheet(model, { activate: true, sheetId: "42" });
-    expect(model.getters.getVisibleSheets().length).toBe(2);
+    expect(model.getters.getSheetIds().length).toBe(2);
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet2");
 
     undo(model);
-    expect(model.getters.getVisibleSheets().length).toBe(1);
+    expect(model.getters.getSheetIds().length).toBe(1);
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
 
     redo(model);
-    expect(model.getters.getVisibleSheets().length).toBe(2);
+    expect(model.getters.getSheetIds().length).toBe(2);
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
   });
 
@@ -47,20 +47,20 @@ describe("sheets", () => {
     const model = new Model();
     createSheet(model, { sheetId: "42", position: 1 });
     createSheet(model, { sheetId: "43", position: 1 });
-    expect(model.getters.getSheets()[1].id).toBe("43");
-    expect(model.getters.getSheets()[2].id).toBe("42");
+    expect(model.getters.getSheetIds()[1]).toBe("43");
+    expect(model.getters.getSheetIds()[2]).toBe("42");
   });
 
   test("Creating a new sheet does not activate it by default", () => {
     const model = new Model();
-    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheet1 = model.getters.getSheetIds()[0];
 
     expect(model.getters.getActiveSheetId()).toBe(sheet1);
-    expect(model.getters.getSheets().map((s) => s.id)).toEqual([sheet1]);
+    expect(model.getters.getSheetIds()).toEqual([sheet1]);
     createSheet(model, { sheetId: "42" });
-    const sheet2 = model.getters.getVisibleSheets()[1];
+    const sheet2 = model.getters.getSheetIds()[1];
     expect(model.getters.getActiveSheetId()).toBe(sheet1);
-    expect(model.getters.getSheets().map((s) => s.id)).toEqual([sheet1, sheet2]);
+    expect(model.getters.getSheetIds()).toEqual([sheet1, sheet2]);
   });
 
   test("Can create a new sheet with given size and name", () => {
@@ -162,8 +162,8 @@ describe("sheets", () => {
     createSheet(model, { sheetId: "43", activate: true });
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet3");
     model.dispatch("DELETE_SHEET", { sheetId: "42" });
-    expect(model.getters.getSheets()[0].name).toBe("Sheet1");
-    expect(model.getters.getSheets()[1].name).toBe("Sheet3");
+    expect(model.getters.getSheetIds().map(model.getters.getSheetName)[0]).toBe("Sheet1");
+    expect(model.getters.getSheetIds().map(model.getters.getSheetName)[1]).toBe("Sheet3");
     createSheet(model, { sheetId: "44", activate: true });
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet2");
   });
@@ -356,8 +356,8 @@ describe("sheets", () => {
   test("cells are updated when dependency in other sheet is updated", () => {
     const model = new Model();
     createSheet(model, { sheetId: "42", activate: true });
-    const sheet1 = model.getters.getVisibleSheets()[0];
-    const sheet2 = model.getters.getVisibleSheets()[1];
+    const sheet1 = model.getters.getSheetIds()[0];
+    const sheet2 = model.getters.getSheetIds()[1];
 
     expect(model.getters.getActiveSheetId()).toEqual(sheet2);
     activateSheet(model, sheet1);
@@ -374,24 +374,24 @@ describe("sheets", () => {
   test("can move a sheet", () => {
     const model = new Model();
     createSheet(model, { sheetId: "42" });
-    const sheet1 = model.getters.getVisibleSheets()[0];
-    const sheet2 = model.getters.getVisibleSheets()[1];
+    const sheet1 = model.getters.getSheetIds()[0];
+    const sheet2 = model.getters.getSheetIds()[1];
     const beforeMoveSheet = model.exportData();
     model.dispatch("MOVE_SHEET", { sheetId: sheet1, direction: "right" });
     expect(model.getters.getActiveSheetId()).toEqual(sheet1);
-    expect(model.getters.getVisibleSheets()[0]).toEqual(sheet2);
-    expect(model.getters.getVisibleSheets()[1]).toEqual(sheet1);
+    expect(model.getters.getSheetIds()[0]).toEqual(sheet2);
+    expect(model.getters.getSheetIds()[1]).toEqual(sheet1);
     undo(model);
-    expect(model.getters.getVisibleSheets()[0]).toEqual(sheet1);
-    expect(model.getters.getVisibleSheets()[1]).toEqual(sheet2);
+    expect(model.getters.getSheetIds()[0]).toEqual(sheet1);
+    expect(model.getters.getSheetIds()[1]).toEqual(sheet2);
     expect(model).toExport(beforeMoveSheet);
   });
 
   test("cannot move the first sheet to left and the last to right", () => {
     const model = new Model();
     createSheet(model, { sheetId: "42" });
-    const sheet1 = model.getters.getVisibleSheets()[0];
-    const sheet2 = model.getters.getVisibleSheets()[1];
+    const sheet1 = model.getters.getSheetIds()[0];
+    const sheet2 = model.getters.getSheetIds()[1];
     expect(
       model.dispatch("MOVE_SHEET", { sheetId: sheet1, direction: "left" })
     ).toBeCancelledBecause(CommandResult.WrongSheetMove);
@@ -405,7 +405,9 @@ describe("sheets", () => {
     const sheet = model.getters.getActiveSheetId();
     const name = "NEW_NAME";
     renameSheet(model, sheet, name);
-    expect(model.getters.getSheets().find((s) => s.id === sheet)!.name).toBe(name);
+    expect(model.getters.getSheetName(model.getters.getSheetIds().find((s) => s === sheet)!)).toBe(
+      name
+    );
   });
 
   test("Cannot rename an invalid sheet", async () => {
@@ -420,7 +422,9 @@ describe("sheets", () => {
     const sheet = model.getters.getActiveSheetId();
     const name = " NEW_NAME   ";
     renameSheet(model, sheet, name);
-    expect(model.getters.getSheets().find((s) => s.id === sheet)!.name).toBe("NEW_NAME");
+    expect(model.getters.getSheetName(model.getters.getSheetIds().find((s) => s === sheet)!)).toBe(
+      "NEW_NAME"
+    );
   });
 
   test("Cannot rename a sheet with existing name", () => {
@@ -492,15 +496,15 @@ describe("sheets", () => {
   test("Can duplicate a sheet", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
-    const name = `Copy of ${model.getters.getSheets()[0].name}`;
+    const name = `Copy of ${model.getters.getSheetIds().map(model.getters.getSheetName)}`;
     model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: model.uuidGenerator.uuidv4() });
-    const sheets = model.getters.getSheets();
-    expect(sheets).toHaveLength(2);
-    expect(sheets[sheets.length - 1].name).toBe(name);
+    const sheetIds = model.getters.getSheetIds();
+    expect(sheetIds).toHaveLength(2);
+    expect(model.getters.getSheetName(sheetIds[sheetIds.length - 1])).toBe(name);
     undo(model);
-    expect(model.getters.getSheets()).toHaveLength(1);
+    expect(model.getters.getSheetIds()).toHaveLength(1);
     redo(model);
-    expect(model.getters.getSheets()).toHaveLength(2);
+    expect(model.getters.getSheetIds()).toHaveLength(2);
   });
 
   test("Duplicate a sheet does not make the newly created active", () => {
@@ -535,8 +539,8 @@ describe("sheets", () => {
     const sheet = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
     model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: model.uuidGenerator.uuidv4() });
-    expect(model.getters.getSheets()).toHaveLength(2);
-    const newSheet = model.getters.getSheets()[1].id;
+    expect(model.getters.getSheetIds()).toHaveLength(2);
+    const newSheet = model.getters.getSheetIds()[1];
     activateSheet(model, newSheet);
     expect(getCellContent(model, "A1")).toBe("42");
     expect(model.getters.getActiveSheet().cols.length).toBe(5);
@@ -571,8 +575,8 @@ describe("sheets", () => {
     const sheet = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
     model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: model.uuidGenerator.uuidv4() });
-    expect(model.getters.getSheets()).toHaveLength(2);
-    const newSheetId = model.getters.getSheets()[1].id;
+    expect(model.getters.getSheetIds()).toHaveLength(2);
+    const newSheetId = model.getters.getSheetIds()[1];
     activateSheet(model, newSheetId);
     expect(getCellContent(model, "A1")).toBe("42");
     const { col, row } = toCartesian("A1");
@@ -608,8 +612,8 @@ describe("sheets", () => {
     });
     const sheet = model.getters.getActiveSheetId();
     model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: model.uuidGenerator.uuidv4() });
-    expect(model.getters.getSheets()).toHaveLength(2);
-    const newSheet = model.getters.getSheets()[1].id;
+    expect(model.getters.getSheetIds()).toHaveLength(2);
+    const newSheet = model.getters.getSheetIds()[1];
     activateSheet(model, newSheet);
     expect(getCellContent(model, "A1")).toBe("42");
     setCellContent(model, "A1", "24");
@@ -640,10 +644,10 @@ describe("sheets", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
     model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: model.uuidGenerator.uuidv4() });
-    expect(model.getters.getSheets()).toHaveLength(2);
+    expect(model.getters.getSheetIds()).toHaveLength(2);
     resizeColumns(model, ["A"], 1);
     resizeRows(model, [0], 1);
-    const newSheet = model.getters.getSheets()[1].id;
+    const newSheet = model.getters.getSheetIds()[1];
     activateSheet(model, newSheet);
     expect(model.getters.getCol(model.getters.getActiveSheetId(), 0)!.size).not.toBe(1);
     expect(model.getters.getRow(model.getters.getActiveSheetId(), 0)!.size).not.toBe(1);
@@ -661,9 +665,9 @@ describe("sheets", () => {
     });
     const sheet = model.getters.getActiveSheetId();
     model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: model.uuidGenerator.uuidv4() });
-    expect(model.getters.getSheets()).toHaveLength(2);
+    expect(model.getters.getSheetIds()).toHaveLength(2);
     unMerge(model, "A1:A2");
-    const newSheet = model.getters.getSheets()[1].id;
+    const newSheet = model.getters.getSheetIds()[1];
     activateSheet(model, newSheet);
     expect(model.exportData().sheets[0].merges).toHaveLength(0);
     expect(model.exportData().sheets[1].merges).toHaveLength(1);
@@ -675,14 +679,14 @@ describe("sheets", () => {
     createSheet(model, { sheetId: "42", activate: true });
     const sheet2 = model.getters.getActiveSheetId();
     model.dispatch("DELETE_SHEET", { sheetId: sheet2 });
-    expect(model.getters.getSheets()).toHaveLength(1);
-    expect(model.getters.getSheets()[0].id).toEqual(sheet1);
+    expect(model.getters.getSheetIds()).toHaveLength(1);
+    expect(model.getters.getSheetIds()[0]).toEqual(sheet1);
     expect(model.getters.getActiveSheetId()).toEqual(sheet1);
     undo(model);
-    expect(model.getters.getSheets()).toHaveLength(2);
+    expect(model.getters.getSheetIds()).toHaveLength(2);
     expect(model.getters.getActiveSheetId()).toEqual(sheet1);
     redo(model);
-    expect(model.getters.getSheets()).toHaveLength(1);
+    expect(model.getters.getSheetIds()).toHaveLength(1);
     expect(model.getters.getActiveSheetId()).toEqual(sheet1);
   });
 
@@ -701,10 +705,10 @@ describe("sheets", () => {
     const model = new Model();
     const sheet1 = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
-    const sheet2 = model.getters.getSheets()[1].id;
+    const sheet2 = model.getters.getSheetIds()[1];
     model.dispatch("DELETE_SHEET", { sheetId: sheet1 });
-    expect(model.getters.getSheets()).toHaveLength(1);
-    expect(model.getters.getSheets()[0].id).toEqual(sheet2);
+    expect(model.getters.getSheetIds()).toHaveLength(1);
+    expect(model.getters.getSheetIds()[0]).toEqual(sheet2);
     expect(model.getters.getActiveSheetId()).toEqual(sheet2);
   });
 

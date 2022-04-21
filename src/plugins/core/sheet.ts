@@ -39,8 +39,8 @@ import { CorePlugin } from "../core_plugin";
 
 export interface SheetState {
   readonly sheets: Record<UID, Sheet | undefined>;
-  readonly visibleSheets: UID[];
-  readonly sheetIds: Record<string, UID | undefined>;
+  readonly orderedSheetIds: UID[];
+  readonly sheetIdsMapName: Record<string, UID | undefined>;
   readonly cellPosition: Record<UID, CellPosition | undefined>;
 }
 
@@ -51,8 +51,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getSheet",
     "tryGetSheet",
     "getSheetIdByName",
-    "getSheets",
-    "getVisibleSheets",
+    "getSheetIds",
     "getEvaluationSheets",
     "tryGetCol",
     "getCol",
@@ -73,8 +72,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "isEmpty",
   ] as const;
 
-  readonly sheetIds: Record<string, UID | undefined> = {};
-  readonly visibleSheets: UID[] = []; // ids of visible sheets
+  readonly sheetIdsMapName: Record<string, UID | undefined> = {};
+  readonly orderedSheetIds: UID[] = [];
   readonly sheets: Record<UID, Sheet | undefined> = {};
   readonly cellPosition: Record<UID, CellPosition | undefined> = {};
 
@@ -92,15 +91,15 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         return this.checkValidations(cmd, this.checkSheetName, this.checkSheetPosition);
       }
       case "MOVE_SHEET":
-        const currentIndex = this.visibleSheets.findIndex((id) => id === cmd.sheetId);
+        const currentIndex = this.orderedSheetIds.indexOf(cmd.sheetId);
         return (cmd.direction === "left" && currentIndex === 0) ||
-          (cmd.direction === "right" && currentIndex === this.visibleSheets.length - 1)
+          (cmd.direction === "right" && currentIndex === this.orderedSheetIds.length - 1)
           ? CommandResult.WrongSheetMove
           : CommandResult.Success;
       case "RENAME_SHEET":
         return this.isRenameAllowed(cmd);
       case "DELETE_SHEET":
-        return this.visibleSheets.length > 1
+        return this.orderedSheetIds.length > 1
           ? CommandResult.Success
           : CommandResult.NotEnoughSheets;
       case "REMOVE_COLUMNS_ROWS":
@@ -139,7 +138,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           cmd.rows || 100,
           cmd.position
         );
-        this.history.update("sheetIds", sheet.name, sheet.id);
+        this.history.update("sheetIdsMapName", sheet.name, sheet.id);
         break;
       case "RESIZE_COLUMNS_ROWS":
         const dimension = cmd.dimension === "COL" ? "cols" : "rows";
@@ -205,7 +204,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     // that depends on a sheet not already imported will not be able to be
     // compiled
     for (let sheet of data.sheets) {
-      this.sheetIds[sheet.name] = sheet.id;
+      this.sheetIdsMapName[sheet.name] = sheet.id;
     }
 
     for (let sheetData of data.sheets) {
@@ -221,7 +220,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         areGridLinesVisible:
           sheetData.areGridLinesVisible === undefined ? true : sheetData.areGridLinesVisible,
       };
-      this.visibleSheets.push(sheet.id);
+      this.orderedSheetIds.push(sheet.id);
       this.sheets[sheet.id] = sheet;
       this.updateHiddenElementsGroups(sheet.id, "cols");
       this.updateHiddenElementsGroups(sheet.id, "rows");
@@ -229,7 +228,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   private exportSheets(data: WorkbookData, exportDefaultSizes: boolean = false) {
-    data.sheets = this.visibleSheets.filter(isDefined).map((id) => {
+    data.sheets = this.orderedSheetIds.filter(isDefined).map((id) => {
       const sheet = this.sheets[id]!;
       return {
         id: sheet.id,
@@ -297,22 +296,17 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   getSheetIdByName(name: string | undefined): UID | undefined {
     if (name) {
       const unquotedName = getUnquotedSheetName(name);
-      for (const key in this.sheetIds) {
+      for (const key in this.sheetIdsMapName) {
         if (key.toUpperCase() === unquotedName.toUpperCase()) {
-          return this.sheetIds[key];
+          return this.sheetIdsMapName[key];
         }
       }
     }
     return undefined;
   }
 
-  getSheets(): Sheet[] {
-    const { visibleSheets, sheets } = this;
-    return visibleSheets.map((id) => sheets[id]).filter(isDefined);
-  }
-
-  getVisibleSheets(): UID[] {
-    return this.visibleSheets;
+  getSheetIds(): UID[] {
+    return this.orderedSheetIds;
   }
 
   getEvaluationSheets(): Record<UID, Sheet | undefined> {
@@ -406,7 +400,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   getNextSheetName(baseName = "Sheet"): string {
     let i = 1;
-    const names = this.getSheets().map((s) => s.name);
+    const names = this.orderedSheetIds.map(this.getSheetName.bind(this));
     let name = `${baseName}${i}`;
     while (names.includes(name)) {
       name = `${baseName}${i}`;
@@ -520,27 +514,27 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       hiddenRowsGroups: [],
       areGridLinesVisible: true,
     };
-    const visibleSheets = this.visibleSheets.slice();
-    visibleSheets.splice(position, 0, sheet.id);
+    const orderedSheetIds = this.orderedSheetIds.slice();
+    orderedSheetIds.splice(position, 0, sheet.id);
     const sheets = this.sheets;
-    this.history.update("visibleSheets", visibleSheets);
+    this.history.update("orderedSheetIds", orderedSheetIds);
     this.history.update("sheets", Object.assign({}, sheets, { [sheet.id]: sheet }));
     return sheet;
   }
 
   private moveSheet(sheetId: UID, direction: "left" | "right") {
-    const visibleSheets = this.visibleSheets.slice();
-    const currentIndex = visibleSheets.findIndex((id) => id === sheetId);
-    const sheet = visibleSheets.splice(currentIndex, 1);
-    visibleSheets.splice(currentIndex + (direction === "left" ? -1 : 1), 0, sheet[0]);
-    this.history.update("visibleSheets", visibleSheets);
+    const orderedSheetIds = this.orderedSheetIds.slice();
+    const currentIndex = orderedSheetIds.findIndex((id) => id === sheetId);
+    const sheet = orderedSheetIds.splice(currentIndex, 1);
+    orderedSheetIds.splice(currentIndex + (direction === "left" ? -1 : 1), 0, sheet[0]);
+    this.history.update("orderedSheetIds", orderedSheetIds);
   }
 
   private checkSheetName(cmd: RenameSheetCommand | CreateSheetCommand): CommandResult {
-    const { visibleSheets, sheets } = this;
+    const { orderedSheetIds, sheets } = this;
     const name = cmd.name && cmd.name.trim().toLowerCase();
 
-    if (visibleSheets.find((id) => sheets[id]?.name.toLowerCase() === name)) {
+    if (orderedSheetIds.find((id) => sheets[id]?.name.toLowerCase() === name)) {
       return CommandResult.DuplicatedSheetName;
     }
     if (FORBIDDEN_IN_EXCEL_REGEX.test(name!)) {
@@ -550,8 +544,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   private checkSheetPosition(cmd: CreateSheetCommand) {
-    const { visibleSheets } = this;
-    if (cmd.position > visibleSheets.length || cmd.position < 0) {
+    const { orderedSheetIds } = this;
+    if (cmd.position > orderedSheetIds.length || cmd.position < 0) {
       return CommandResult.WrongSheetPosition;
     }
     return CommandResult.Success;
@@ -568,10 +562,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   private renameSheet(sheet: Sheet, name: string) {
     const oldName = sheet.name;
     this.history.update("sheets", sheet.id, "name", name.trim());
-    const sheetIds = Object.assign({}, this.sheetIds);
-    sheetIds[name] = sheet.id;
-    delete sheetIds[oldName];
-    this.history.update("sheetIds", sheetIds);
+    const sheetIdsMapName = Object.assign({}, this.sheetIdsMapName);
+    sheetIdsMapName[name] = sheet.id;
+    delete sheetIdsMapName[oldName];
+    this.history.update("sheetIdsMapName", sheetIdsMapName);
   }
 
   private duplicateSheet(fromId: UID, toId: UID) {
@@ -587,10 +581,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         }
       }
     }
-    const visibleSheets = this.visibleSheets.slice();
-    const currentIndex = visibleSheets.findIndex((id) => id === fromId);
-    visibleSheets.splice(currentIndex + 1, 0, newSheet.id);
-    this.history.update("visibleSheets", visibleSheets);
+    const orderedSheetIds = this.orderedSheetIds.slice();
+    const currentIndex = orderedSheetIds.indexOf(fromId);
+    orderedSheetIds.splice(currentIndex + 1, 0, newSheet.id);
+    this.history.update("orderedSheetIds", orderedSheetIds);
     this.history.update("sheets", Object.assign({}, this.sheets, { [newSheet.id]: newSheet }));
 
     for (const cell of Object.values(this.getters.getCells(fromId))) {
@@ -605,14 +599,14 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       });
     }
 
-    const sheetIds = Object.assign({}, this.sheetIds);
-    sheetIds[newSheet.name] = newSheet.id;
-    this.history.update("sheetIds", sheetIds);
+    const sheetIdsMapName = Object.assign({}, this.sheetIdsMapName);
+    sheetIdsMapName[newSheet.name] = newSheet.id;
+    this.history.update("sheetIdsMapName", sheetIdsMapName);
   }
 
   private getDuplicateSheetName(sheetName: string) {
     let i = 1;
-    const names = this.getters.getSheets().map((s) => s.name);
+    const names = this.orderedSheetIds.map(this.getSheetName.bind(this));
     const baseName = _lt("Copy of %s", sheetName);
     let name = baseName.toString();
     while (names.includes(name)) {
@@ -628,14 +622,14 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     delete sheets[sheet.id];
     this.history.update("sheets", sheets);
 
-    const visibleSheets = this.visibleSheets.slice();
-    const currentIndex = visibleSheets.findIndex((id) => id === sheet.id);
-    visibleSheets.splice(currentIndex, 1);
+    const orderedSheetIds = this.orderedSheetIds.slice();
+    const currentIndex = orderedSheetIds.indexOf(sheet.id);
+    orderedSheetIds.splice(currentIndex, 1);
 
-    this.history.update("visibleSheets", visibleSheets);
-    const sheetIds = Object.assign({}, this.sheetIds);
-    delete sheetIds[name];
-    this.history.update("sheetIds", sheetIds);
+    this.history.update("orderedSheetIds", orderedSheetIds);
+    const sheetIdsMapName = Object.assign({}, this.sheetIdsMapName);
+    delete sheetIdsMapName[name];
+    this.history.update("sheetIdsMapName", sheetIdsMapName);
   }
 
   /**

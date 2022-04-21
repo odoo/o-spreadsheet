@@ -76,7 +76,7 @@ describe("Grid component", () => {
   });
 
   test("can render a sheet with a merge", async () => {
-    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheet1 = model.getters.getSheetIds()[0];
     merge(model, "B2:B3", sheet1);
     expect(fixture.querySelector(".o-grid-overlay")).not.toBeNull();
   });

@@ -212,17 +212,18 @@ export class GridSelectionPlugin extends UIPlugin {
     }
     switch (cmd.type) {
       case "START":
-        const firstSheet = this.getters.getSheets()[0];
+        const firstSheetId = this.getters.getSheetIds()[0];
         this.selection.registerAsDefault(this, this.gridSelection.anchor, {
           handleEvent: this.handleEvent.bind(this),
         });
         this.dispatch("ACTIVATE_SHEET", {
-          sheetIdTo: firstSheet.id,
-          sheetIdFrom: firstSheet.id,
+          sheetIdTo: firstSheetId,
+          sheetIdFrom: firstSheetId,
         });
+        const firstSheet = this.getters.getSheet(firstSheetId);
         const { col, row } = getNextVisibleCellPosition(firstSheet, 0, 0);
         this.selectCell(col, row);
-        this.moveClient({ sheetId: firstSheet.id, col: 0, row: 0 });
+        this.moveClient({ sheetId: firstSheetId, col: 0, row: 0 });
         break;
       case "ACTIVATE_SHEET": {
         this.setActiveSheet(cmd.sheetIdTo);
@@ -236,7 +237,9 @@ export class GridSelectionPlugin extends UIPlugin {
           Object.assign(this, this.sheetsData[cmd.sheetIdTo]);
           this.selection.resetDefaultAnchor(this, this.gridSelection.anchor);
         } else {
-          const { col, row } = getNextVisibleCellPosition(this.getters.getSheets()[0], 0, 0);
+          const firstSheetId = this.getters.getSheetIds()[0];
+          const firstSheet = this.getters.getSheet(firstSheetId);
+          const { col, row } = getNextVisibleCellPosition(firstSheet, 0, 0);
           this.selectCell(col, row);
         }
         break;
@@ -282,7 +285,7 @@ export class GridSelectionPlugin extends UIPlugin {
       case "REDO":
       case "DELETE_SHEET":
         if (!this.getters.tryGetSheet(this.getters.getActiveSheetId())) {
-          const currentSheets = this.getters.getVisibleSheets();
+          const currentSheets = this.getters.getSheetIds();
           this.activeSheet = this.getters.getSheet(currentSheets[0]);
           this.selectCell(0, 0);
           this.moveClient({
@@ -530,7 +533,7 @@ export class GridSelectionPlugin extends UIPlugin {
   }
 
   private activateNextSheet(direction: "left" | "right") {
-    const sheetIds = this.getters.getSheets().map((sheet) => sheet.id);
+    const sheetIds = this.getters.getSheetIds();
     const oldSheetPosition = sheetIds.findIndex((id) => id === this.activeSheet.id);
     const delta = direction === "left" ? sheetIds.length - 1 : 1;
     const newPosition = (oldSheetPosition + delta) % sheetIds.length;

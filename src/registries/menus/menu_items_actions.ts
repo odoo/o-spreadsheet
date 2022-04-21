@@ -523,8 +523,7 @@ export const UNHIDE_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
 
 export const CREATE_SHEET_ACTION = (env: SpreadsheetChildEnv) => {
   const activeSheetId = env.model.getters.getActiveSheetId();
-  const position =
-    env.model.getters.getVisibleSheets().findIndex((sheetId) => sheetId === activeSheetId) + 1;
+  const position = env.model.getters.getSheetIds().indexOf(activeSheetId) + 1;
   const sheetId = env.model.uuidGenerator.uuidv4();
   env.model.dispatch("CREATE_SHEET", { sheetId, position });
   env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });

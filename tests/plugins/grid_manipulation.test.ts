@@ -306,11 +306,11 @@ describe("Columns", () => {
           },
         ],
       });
-      const [sheet1, sheet2] = model.getters.getSheets();
-      expect(sheet2).not.toBe(model.getters.getActiveSheetId());
-      deleteColumns(model, ["A"], sheet2.id);
-      expect(getCellContent(model, "B2", sheet1.id)).toBe("B2 in sheet1");
-      expect(getCellContent(model, "A2", sheet2.id)).toBe("B2 in sheet2");
+      const [sheet1Id, sheet2Id] = model.getters.getSheetIds();
+      expect(sheet2Id).not.toBe(model.getters.getActiveSheetId());
+      deleteColumns(model, ["A"], sheet2Id);
+      expect(getCellContent(model, "B2", sheet1Id)).toBe("B2 in sheet1");
+      expect(getCellContent(model, "A2", sheet2Id)).toBe("B2 in sheet2");
     });
     test("On addition before first", () => {
       addColumns(model, "before", "A", 1);
@@ -715,14 +715,14 @@ describe("Columns", () => {
           },
         ],
       });
-      const [sheet1, sheet2] = model.getters.getSheets();
-      expect(sheet2.id).not.toBe(model.getters.getActiveSheetId());
-      deleteColumns(model, ["A"], sheet2.id);
-      expect(getCellsObject(model, sheet1.id)).toMatchObject({
+      const [sheet1Id, sheet2Id] = model.getters.getSheetIds();
+      expect(sheet2Id).not.toBe(model.getters.getActiveSheetId());
+      deleteColumns(model, ["A"], sheet2Id);
+      expect(getCellsObject(model, sheet1Id)).toMatchObject({
         B2: { content: "=Sheet1!B3" },
         C1: { content: "=Sheet2!A3" },
       });
-      expect(getCellsObject(model, sheet2.id)).toMatchObject({
+      expect(getCellsObject(model, sheet2Id)).toMatchObject({
         A2: { content: "=Sheet1!B2" },
         B2: { content: "=Sheet2!A2" },
       });
@@ -1063,11 +1063,11 @@ describe("Rows", () => {
           },
         ],
       });
-      const [sheet1, sheet2] = model.getters.getSheets();
-      expect(sheet2).not.toBe(model.getters.getActiveSheetId());
-      deleteRows(model, [0], sheet2.id);
-      expect(getCellContent(model, "B2", sheet1.id)).toBe("B2 in sheet1");
-      expect(getCellContent(model, "B1", sheet2.id)).toBe("B2 in sheet2");
+      const [sheet1Id, sheet2Id] = model.getters.getSheetIds();
+      expect(sheet2Id).not.toBe(model.getters.getActiveSheetId());
+      deleteRows(model, [0], sheet2Id);
+      expect(getCellContent(model, "B2", sheet1Id)).toBe("B2 in sheet1");
+      expect(getCellContent(model, "B1", sheet2Id)).toBe("B2 in sheet2");
     });
     test("On deletion batch", () => {
       model = new Model({

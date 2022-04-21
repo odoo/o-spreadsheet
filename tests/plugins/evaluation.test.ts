@@ -1007,7 +1007,7 @@ describe("evaluate formula getter", () => {
 
   test("in another sheet", () => {
     createSheet(model, { sheetId: "42" });
-    const sheet2 = model.getters.getVisibleSheets()[1];
+    const sheet2 = model.getters.getSheetIds()[1];
     setCellContent(model, "A1", "11", sheet2);
     expect(model.getters.evaluateFormula("=Sheet2!A1")).toBe(11);
   });
@@ -1044,12 +1044,12 @@ describe("evaluate formula getter", () => {
 
   test("using cells in other sheets", () => {
     createSheet(model, { sheetId: "42" });
-    const s = model.getters.getSheets();
-    activateSheet(model, s[0].id);
-    setCellContent(model, "A1", "12", s[1].id);
-    setCellContent(model, "A2", "=A1", s[1].id);
-    setCellContent(model, "A2", "=Sheet2!A1", s[0].id);
-    expect(getCell(model, "A2", s[0].id)!.evaluated.value).toBe(12);
+    const s = model.getters.getSheetIds();
+    activateSheet(model, s[0]);
+    setCellContent(model, "A1", "12", s[1]);
+    setCellContent(model, "A2", "=A1", s[1]);
+    setCellContent(model, "A2", "=Sheet2!A1", s[0]);
+    expect(getCell(model, "A2", s[0])!.evaluated.value).toBe(12);
   });
 
   test.skip("EVALUATE_CELLS with no argument re-evaluates do not reevaluate the cells if they are not modified", () => {

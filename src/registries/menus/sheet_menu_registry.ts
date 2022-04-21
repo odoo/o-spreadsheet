@@ -9,7 +9,7 @@ sheetMenuRegistry
     name: _lt("Delete"),
     sequence: 10,
     isVisible: (env) => {
-      return env.model.getters.getSheets().length > 1;
+      return env.model.getters.getSheetIds().length > 1;
     },
     action: (env) =>
       env.askConfirmation(_lt("Are you sure you want to delete this sheet ?"), () => {
@@ -38,9 +38,9 @@ sheetMenuRegistry
     name: _lt("Move right"),
     sequence: 40,
     isVisible: (env) => {
-      const sheet = env.model.getters.getActiveSheetId();
-      const sheets = env.model.getters.getSheets();
-      return sheets.findIndex((s) => s.id === sheet) !== sheets.length - 1;
+      const sheetId = env.model.getters.getActiveSheetId();
+      const sheetIds = env.model.getters.getSheetIds();
+      return sheetIds.indexOf(sheetId) !== sheetIds.length - 1;
     },
     action: (env) =>
       env.model.dispatch("MOVE_SHEET", {
@@ -52,8 +52,8 @@ sheetMenuRegistry
     name: _lt("Move left"),
     sequence: 50,
     isVisible: (env) => {
-      const sheet = env.model.getters.getActiveSheetId();
-      return env.model.getters.getSheets().findIndex((s) => s.id === sheet) !== 0;
+      const sheetId = env.model.getters.getActiveSheetId();
+      return env.model.getters.getSheetIds()[0] !== sheetId;
     },
     action: (env) =>
       env.model.dispatch("MOVE_SHEET", {
