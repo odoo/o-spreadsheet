@@ -912,7 +912,7 @@ describe("Events on Grid update viewport correctly", () => {
       jest.useFakeTimers();
     });
     test("Can edge-scroll horizontally", async () => {
-      const { width, height } = model.getters.getViewportDimensionWithHeaders();
+      const { width, height } = model.getters.getViewportDimension();
       const y = height / 2;
       triggerMouseEvent(".o-grid-overlay", "mousedown", width / 2, y);
       triggerMouseEvent(".o-grid-overlay", "mousemove", 1.5 * width, y);
@@ -942,7 +942,7 @@ describe("Events on Grid update viewport correctly", () => {
     });
 
     test("Can edge-scroll vertically", () => {
-      const { width, height } = model.getters.getViewportDimensionWithHeaders();
+      const { width, height } = model.getters.getViewportDimension();
       const x = width / 2;
       triggerMouseEvent(".o-grid-overlay", "mousedown", x, height / 2);
       triggerMouseEvent(".o-grid-overlay", "mousemove", x, 1.5 * height);
