@@ -15,8 +15,8 @@
     "precommit": "npm run prettier && npm run doc",
     "test": "jest",
     "test:watch": "jest --watch",
-    "prettier": "prettier {src/*.ts,src/**/*.ts,src/**/*.xml,tests/*.ts,tests/**/*.ts,doc/*.md,demo/*.js,tools/**/*.js} --write",
-    "check-formatting": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md,demo/*.js} --check",
+    "prettier": "prettier . --write",
+    "check-formatting": "prettier . --check",
     "dist": "tsc --module es6 --outDir dist/js && npm run bundle:js && npm run bundle:xml",
     "prepare": "husky install",
     "watch:bundle": "npm run bundle:js -- --watch",
@@ -102,6 +102,6 @@
     ]
   },
   "lint-staged": {
-    "{src/*.ts,src/**/*.ts,src/**/*.xml,tests/*.ts,tests/**/*.ts,doc/*.md,demo/*.js,tools/**/*.js}": "prettier --write"
+    "*": "prettier --write"
   }
 }
