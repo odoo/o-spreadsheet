@@ -42,6 +42,7 @@ export interface SheetData {
   rows: { [key: number]: HeaderData };
   conditionalFormats: ConditionalFormat[];
   areGridLinesVisible?: boolean;
+  isVisible: boolean;
 }
 
 export interface WorkbookData {

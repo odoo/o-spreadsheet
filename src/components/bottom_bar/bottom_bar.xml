@@ -14,7 +14,7 @@
         <t t-call="o-spreadsheet.Icon.LIST"/>
       </div>
       <div class="o-all-sheets">
-        <t t-foreach="getOrderedSheets()" t-as="sheet" t-key="sheet.id">
+        <t t-foreach="getVisibleSheets()" t-as="sheet" t-key="sheet.id">
           <div
             class="o-sheet-item o-sheet"
             t-on-click="(ev) => this.activateSheet(sheet.id, ev)"

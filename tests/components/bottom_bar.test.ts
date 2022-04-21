@@ -6,6 +6,7 @@ import { OWL_TEMPLATES } from "../setup/jest.setup";
 import {
   activateSheet,
   createSheet,
+  hideSheet,
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
@@ -171,6 +172,35 @@ describe("BottomBar component", () => {
       sheetId,
       direction: "left",
     });
+    app.destroy();
+  });
+
+  test("Can hide a sheet", async () => {
+    const model = new Model();
+    createSheet(model, { sheetId: "42" });
+    activateSheet(model, "42");
+    const { app } = await mountTopBar(model);
+
+    triggerMouseEvent(".o-sheet", "contextmenu");
+    await nextTick();
+    const sheetId = model.getters.getActiveSheetId();
+    triggerMouseEvent(".o-menu-item[data-name='hide_sheet'", "click");
+    expect(model.dispatch).toHaveBeenCalledWith("HIDE_SHEET", {
+      sheetId,
+    });
+    app.destroy();
+  });
+
+  test("Hide sheet menu is not visible if there's only one visible sheet", async () => {
+    const model = new Model();
+    createSheet(model, { sheetId: "42" });
+    hideSheet(model, "42");
+    const { app } = await mountTopBar(model);
+
+    triggerMouseEvent(".o-sheet", "contextmenu");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu")).not.toBeNull();
+    expect(fixture.querySelector(".o-menu-item[data-name='hide_sheet'")).toBeNull();
     app.destroy();
   });
 

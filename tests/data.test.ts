@@ -23,6 +23,7 @@ describe("load data", () => {
           merges: [],
           conditionalFormats: [],
           figures: [],
+          isVisible: true,
         },
       ],
     });
@@ -46,6 +47,7 @@ describe("load data", () => {
           merges: [],
           conditionalFormats: [],
           figures: [],
+          isVisible: true,
         },
       ],
     });
@@ -75,6 +77,7 @@ describe("load data", () => {
           merges: ["A1:B2"],
           conditionalFormats: [],
           figures: [],
+          isVisible: true,
         },
       ],
     });
@@ -104,6 +107,7 @@ describe("load data", () => {
           merges: ["A1:B2"],
           conditionalFormats: [],
           figures: [],
+          isVisible: true,
         },
       ],
     });
@@ -129,6 +133,7 @@ describe("load data", () => {
         merges: ["A1:B2"],
         conditionalFormats: [],
         figures: [],
+        isVisible: true,
       },
       {
         id: "asdf",
@@ -141,6 +146,7 @@ describe("load data", () => {
         merges: ["C3:D4"],
         conditionalFormats: [],
         figures: [],
+        isVisible: true,
       },
     ]);
   });
@@ -170,6 +176,7 @@ describe("load data", () => {
           merges: ["A1:B2"],
           conditionalFormats: [],
           figures: [],
+          isVisible: true,
         },
       ],
     });

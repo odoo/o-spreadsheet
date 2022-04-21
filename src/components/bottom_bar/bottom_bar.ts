@@ -139,9 +139,9 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     this.env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
   }
 
-  getOrderedSheets() {
+  getVisibleSheets() {
     return this.env.model.getters
-      .getSheetIds()
+      .getVisibleSheetIds()
       .map((sheetId) => this.env.model.getters.getSheet(sheetId));
   }
 
@@ -149,14 +149,16 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     const registry = new MenuItemRegistry();
     const from = this.env.model.getters.getActiveSheetId();
     let i = 0;
-    for (const sheetID of this.env.model.getters.getSheetIds()) {
-      const sheet = this.env.model.getters.getSheet(sheetID);
-      registry.add(sheetID, {
+    for (const sheetId of this.env.model.getters.getSheetIds()) {
+      const sheet = this.env.model.getters.getSheet(sheetId);
+      registry.add(sheetId, {
         name: sheet.name,
         sequence: i,
         isReadonlyAllowed: true,
-        action: (env) =>
-          env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheetID }),
+        textColor: sheet.isVisible ? undefined : "grey",
+        action: (env) => {
+          env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheetId });
+        },
       });
       i++;
     }

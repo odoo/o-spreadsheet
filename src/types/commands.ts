@@ -133,6 +133,8 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "DUPLICATE_SHEET",
   "MOVE_SHEET",
   "RENAME_SHEET",
+  "HIDE_SHEET",
+  "SHOW_SHEET",
 
   /** RANGES MANIPULATION */
   "MOVE_RANGES",
@@ -270,6 +272,14 @@ export interface MoveSheetCommand extends SheetDependentCommand {
 export interface RenameSheetCommand extends SheetDependentCommand {
   type: "RENAME_SHEET";
   name?: string;
+}
+
+export interface HideSheetCommand extends SheetDependentCommand {
+  type: "HIDE_SHEET";
+}
+
+export interface ShowSheetCommand extends SheetDependentCommand {
+  type: "SHOW_SHEET";
 }
 
 //------------------------------------------------------------------------------
@@ -796,6 +806,8 @@ export type CoreCommand =
   | DuplicateSheetCommand
   | MoveSheetCommand
   | RenameSheetCommand
+  | HideSheetCommand
+  | ShowSheetCommand
 
   /** RANGES MANIPULATION */
   | MoveRangeCommand

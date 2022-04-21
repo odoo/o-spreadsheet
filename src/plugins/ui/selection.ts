@@ -211,7 +211,7 @@ export class GridSelectionPlugin extends UIPlugin {
     }
     switch (cmd.type) {
       case "START":
-        const firstSheetId = this.getters.getSheetIds()[0];
+        const firstSheetId = this.getters.getVisibleSheetIds()[0];
         this.selection.registerAsDefault(this, this.gridSelection.anchor, {
           handleEvent: this.handleEvent.bind(this),
         });
@@ -225,6 +225,9 @@ export class GridSelectionPlugin extends UIPlugin {
         this.moveClient({ sheetId: firstSheetId, col: 0, row: 0 });
         break;
       case "ACTIVATE_SHEET": {
+        if (!this.getters.isSheetVisible(cmd.sheetIdTo)) {
+          this.dispatch("SHOW_SHEET", { sheetId: cmd.sheetIdTo });
+        }
         this.setActiveSheet(cmd.sheetIdTo);
         const { col, row } = this.gridSelection.anchor.cell;
         this.sheetsData[cmd.sheetIdFrom] = {
@@ -280,11 +283,19 @@ export class GridSelectionPlugin extends UIPlugin {
       case "ACTIVATE_PREVIOUS_SHEET":
         this.activateNextSheet("left");
         break;
+      case "HIDE_SHEET":
+        if (cmd.sheetId === this.getActiveSheetId()) {
+          this.dispatch("ACTIVATE_SHEET", {
+            sheetIdFrom: cmd.sheetId,
+            sheetIdTo: this.getters.getVisibleSheetIds()[0],
+          });
+        }
+        break;
       case "UNDO":
       case "REDO":
       case "DELETE_SHEET":
         if (!this.getters.tryGetSheet(this.getters.getActiveSheetId())) {
-          const currentSheets = this.getters.getSheetIds();
+          const currentSheets = this.getters.getVisibleSheetIds();
           this.activeSheet = this.getters.getSheet(currentSheets[0]);
           this.selectCell(0, 0);
           this.moveClient({

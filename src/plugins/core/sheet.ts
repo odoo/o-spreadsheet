@@ -52,6 +52,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "tryGetSheet",
     "getSheetIdByName",
     "getSheetIds",
+    "getVisibleSheetIds",
+    "isSheetVisible",
     "getEvaluationSheets",
     "tryGetCol",
     "getCol",
@@ -87,15 +89,32 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       return genericChecks;
     }
     switch (cmd.type) {
+      case "HIDE_SHEET": {
+        if (this.getVisibleSheetIds().length === 1) {
+          return CommandResult.NotEnoughSheets;
+        }
+        return CommandResult.Success;
+      }
       case "CREATE_SHEET": {
         return this.checkValidations(cmd, this.checkSheetName, this.checkSheetPosition);
       }
       case "MOVE_SHEET":
         const currentIndex = this.orderedSheetIds.indexOf(cmd.sheetId);
-        return (cmd.direction === "left" && currentIndex === 0) ||
-          (cmd.direction === "right" && currentIndex === this.orderedSheetIds.length - 1)
-          ? CommandResult.WrongSheetMove
-          : CommandResult.Success;
+        if (cmd.direction === "left") {
+          const leftSheets = this.orderedSheetIds
+            .slice(0, currentIndex)
+            .map((id) => !this.isSheetVisible(id));
+          return leftSheets.every((isHidden) => isHidden)
+            ? CommandResult.WrongSheetMove
+            : CommandResult.Success;
+        } else {
+          const rightSheets = this.orderedSheetIds
+            .slice(currentIndex + 1)
+            .map((id) => !this.isSheetVisible(id));
+          return rightSheets.every((isHidden) => isHidden)
+            ? CommandResult.WrongSheetMove
+            : CommandResult.Success;
+        }
       case "RENAME_SHEET":
         return this.isRenameAllowed(cmd);
       case "DELETE_SHEET":
@@ -151,6 +170,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         break;
       case "RENAME_SHEET":
         this.renameSheet(this.sheets[cmd.sheetId]!, cmd.name!);
+        break;
+      case "HIDE_SHEET":
+        this.hideSheet(cmd.sheetId);
+        break;
+      case "SHOW_SHEET":
+        this.showSheet(cmd.sheetId);
         break;
       case "DUPLICATE_SHEET":
         this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo);
@@ -219,6 +244,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         hiddenRowsGroups: [],
         areGridLinesVisible:
           sheetData.areGridLinesVisible === undefined ? true : sheetData.areGridLinesVisible,
+        isVisible: sheetData.isVisible,
       };
       this.orderedSheetIds.push(sheet.id);
       this.sheets[sheet.id] = sheet;
@@ -243,6 +269,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         figures: [],
         areGridLinesVisible:
           sheet.areGridLinesVisible === undefined ? true : sheet.areGridLinesVisible,
+        isVisible: sheet.isVisible,
       };
     });
   }
@@ -273,6 +300,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       throw new Error(`Sheet ${sheetId} not found.`);
     }
     return sheet;
+  }
+
+  isSheetVisible(sheetId: UID): boolean {
+    return this.getSheet(sheetId).isVisible;
   }
 
   /**
@@ -307,6 +338,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   getSheetIds(): UID[] {
     return this.orderedSheetIds;
+  }
+
+  getVisibleSheetIds(): UID[] {
+    return this.orderedSheetIds.filter(this.isSheetVisible.bind(this));
   }
 
   getEvaluationSheets(): Record<UID, Sheet | undefined> {
@@ -513,6 +548,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       hiddenColsGroups: [],
       hiddenRowsGroups: [],
       areGridLinesVisible: true,
+      isVisible: true,
     };
     const orderedSheetIds = this.orderedSheetIds.slice();
     orderedSheetIds.splice(position, 0, sheet.id);
@@ -526,8 +562,38 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const orderedSheetIds = this.orderedSheetIds.slice();
     const currentIndex = orderedSheetIds.findIndex((id) => id === sheetId);
     const sheet = orderedSheetIds.splice(currentIndex, 1);
-    orderedSheetIds.splice(currentIndex + (direction === "left" ? -1 : 1), 0, sheet[0]);
+    let index =
+      direction === "left"
+        ? this.findIndexOfPreviousVisibleSheet(currentIndex - 1, orderedSheetIds)
+        : this.findIndexOfNextVisibleSheet(currentIndex + 1, orderedSheetIds);
+    if (index === undefined) {
+      index = orderedSheetIds.length;
+    }
+    orderedSheetIds.splice(index, 0, sheet[0]);
     this.history.update("orderedSheetIds", orderedSheetIds);
+  }
+
+  private findIndexOfPreviousVisibleSheet(current: number, orderedSheetIds: UID[]) {
+    while (current >= 0 && !this.isSheetVisible(orderedSheetIds[current])) {
+      current--;
+    }
+    if (current === -1) {
+      throw new Error("There is no previous visible sheet");
+    }
+    return current;
+  }
+
+  private findIndexOfNextVisibleSheet(current: number, orderedSheetIds: UID[]) {
+    while (current < orderedSheetIds.length && !this.isSheetVisible(orderedSheetIds[current])) {
+      current++;
+    }
+    if (
+      current === orderedSheetIds.length - 1 &&
+      !this.isSheetVisible(orderedSheetIds[current - 1])
+    ) {
+      return undefined;
+    }
+    return current;
   }
 
   private checkSheetName(cmd: RenameSheetCommand | CreateSheetCommand): CommandResult {
@@ -566,6 +632,14 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     sheetIdsMapName[name] = sheet.id;
     delete sheetIdsMapName[oldName];
     this.history.update("sheetIdsMapName", sheetIdsMapName);
+  }
+
+  private hideSheet(sheetId: UID) {
+    this.history.update("sheets", sheetId, "isVisible", false);
+  }
+
+  private showSheet(sheetId: UID) {
+    this.history.update("sheets", sheetId, "isVisible", true);
   }
 
   private duplicateSheet(fromId: UID, toId: UID) {

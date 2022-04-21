@@ -67,6 +67,7 @@ function createWorkbook(data: ExcelWorkbookData, construct: XLSXStructure): XLSX
   const sheetNodes: XMLString[] = [];
   for (const [index, sheet] of Object.entries(data.sheets)) {
     const attributes: XMLAttributes = [
+      ["state", sheet.isVisible ? "visible" : "hidden"],
       ["name", sheet.name],
       ["sheetId", parseInt(index) + 1],
       ["r:id", `rId${parseInt(index) + 1}`],

@@ -12,6 +12,7 @@ import {
   DeleteSheetCommand,
   DuplicateSheetCommand,
   Figure,
+  HideSheetCommand,
   MoveRangeCommand,
   MoveSheetCommand,
   RemoveColumnsRowsCommand,
@@ -22,6 +23,7 @@ import {
   SetBorderCommand,
   SetDecimalCommand,
   SetFormattingCommand,
+  ShowSheetCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
 } from "../../../src/types";
@@ -75,6 +77,8 @@ describe("OT with DELETE_SHEET", () => {
   };
   const moveSheet: Omit<MoveSheetCommand, "sheetId"> = { type: "MOVE_SHEET", direction: "left" };
   const renameSheet: Omit<RenameSheetCommand, "sheetId"> = { type: "RENAME_SHEET", name: "test" };
+  const hideSheet: Omit<HideSheetCommand, "sheetId"> = { type: "HIDE_SHEET" };
+  const showSheet: Omit<ShowSheetCommand, "sheetId"> = { type: "SHOW_SHEET" };
   const addCF: Omit<AddConditionalFormatCommand, "sheetId"> = {
     type: "ADD_CONDITIONAL_FORMAT",
     cf: createEqualCF("test", { fillColor: "orange" }, "id"),
@@ -148,6 +152,8 @@ describe("OT with DELETE_SHEET", () => {
     addMerge,
     removeMerge,
     moveSheet,
+    hideSheet,
+    showSheet,
     renameSheet,
     addCF,
     createFigure,
