@@ -37,7 +37,7 @@ describe("styles", () => {
 
   test("can clear formatting (style)", () => {
     const model = new Model();
-    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheet1 = model.getters.getSheetIds()[0];
     setCellContent(model, "B1", "b1");
     selectCell(model, "B1");
     model.dispatch("SET_FORMATTING", {

@@ -983,7 +983,7 @@ describe("datasource tests", function () {
     expect(duplicatedChartDefinition).toMatchObject(expectedDuplicatedChartDefinition);
     // duplicated chart is not deleted if original sheet is deleted
     deleteSheet(model, firstSheetId);
-    expect(model.getters.getSheets()).toHaveLength(1);
+    expect(model.getters.getSheetIds()).toHaveLength(1);
     expect(model.getters.getFigures(secondSheetId)).toEqual([duplicatedFigure]);
     expect(model.getters.getChartDefinition(duplicatedFigure.id)).toMatchObject(
       expectedDuplicatedChartDefinition

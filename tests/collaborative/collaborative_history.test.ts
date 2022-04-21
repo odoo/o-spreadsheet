@@ -497,7 +497,7 @@ describe("Collaborative local history", () => {
       "Hello in A1"
     );
     undo(alice);
-    expect(all).toHaveSynchronizedValue((user) => user.getters.getVisibleSheets(), [sheet1Id]);
+    expect(all).toHaveSynchronizedValue((user) => user.getters.getSheetIds(), [sheet1Id]);
   });
 
   test("Add column, update cell, undo/redo", () => {

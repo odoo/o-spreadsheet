@@ -72,8 +72,8 @@ export function createSheetWithName(
   if (!createResult.isSuccessful) {
     return createResult;
   }
-  const sheets = model.getters.getSheets();
-  return renameSheet(model, sheets[sheets.length - 1].id, name);
+  const sheets = model.getters.getSheetIds();
+  return renameSheet(model, sheets[sheets.length - 1], name);
 }
 
 export function deleteSheet(model: Model, sheetId: UID): DispatchResult {

@@ -1417,8 +1417,8 @@ describe("clipboard", () => {
         },
       ],
     });
-    const sheet1 = model.getters.getVisibleSheets()[0];
-    const sheet2 = model.getters.getVisibleSheets()[1];
+    const sheet1 = model.getters.getSheetIds()[0];
+    const sheet2 = model.getters.getSheetIds()[1];
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {

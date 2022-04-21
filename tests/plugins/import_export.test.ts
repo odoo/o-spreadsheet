@@ -434,8 +434,8 @@ describe("Import", () => {
         },
       ],
     });
-    const sheet1 = model.getters.getVisibleSheets()[0];
-    const sheet2 = model.getters.getVisibleSheets()[1];
+    const sheet1 = model.getters.getSheetIds()[0];
+    const sheet2 = model.getters.getSheetIds()[1];
     activateSheet(model, sheet2);
     expect(Object.keys(getMerges(model))).toHaveLength(0);
     activateSheet(model, sheet1);

@@ -398,18 +398,18 @@ describe("core", () => {
   test("can get row/col of inactive sheet", () => {
     const model = new Model();
     createSheet(model, { sheetId: "42" });
-    const [, sheet2] = model.getters.getSheets();
-    resizeRows(model, [0], 24, sheet2.id);
-    resizeColumns(model, ["A"], 42, sheet2.id);
-    expect(sheet2.id).not.toBe(model.getters.getActiveSheetId());
-    expect(model.getters.getRow(sheet2.id, 0)).toEqual({
+    const [, sheet2Id] = model.getters.getSheetIds();
+    resizeRows(model, [0], 24, sheet2Id);
+    resizeColumns(model, ["A"], 42, sheet2Id);
+    expect(sheet2Id).not.toBe(model.getters.getActiveSheetId());
+    expect(model.getters.getRow(sheet2Id, 0)).toEqual({
       cells: {},
       end: 24,
       name: "1",
       size: 24,
       start: 0,
     });
-    expect(model.getters.getCol(sheet2.id, 0)).toEqual({ end: 42, name: "A", size: 42, start: 0 });
+    expect(model.getters.getCol(sheet2Id, 0)).toEqual({ end: 42, name: "A", size: 42, start: 0 });
   });
 
   test("can get row/col number of inactive sheet", () => {

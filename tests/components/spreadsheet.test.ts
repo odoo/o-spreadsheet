@@ -288,7 +288,7 @@ describe("Composer interactions", () => {
     createSheet(parent.model, {});
     await nextTick();
     const sheets = document.querySelectorAll(".o-all-sheets .o-sheet");
-    expect(sheets).toHaveLength(parent.model.getters.getVisibleSheets().length - 1);
+    expect(sheets).toHaveLength(parent.model.getters.getSheetIds().length - 1);
   });
 
   test("Notify ui correctly with type notification correctly use notifyUser in the env", async () => {

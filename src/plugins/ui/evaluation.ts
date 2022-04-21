@@ -322,7 +322,7 @@ export class EvaluationPlugin extends UIPlugin {
    * Triggers an evaluation of all cells on all sheets.
    */
   private evaluateAllSheets() {
-    for (const sheetId of this.getters.getVisibleSheets()) {
+    for (const sheetId of this.getters.getSheetIds()) {
       this.evaluate(sheetId);
       this.isUpToDate.add(sheetId);
     }

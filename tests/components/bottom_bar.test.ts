@@ -84,7 +84,7 @@ describe("BottomBar component", () => {
   test("create a second sheet while the first one is called Sheet2", async () => {
     const model = new Model({ sheets: [{ name: "Sheet2" }] });
     const { app } = await mountTopBar(model);
-    expect(model.getters.getSheets().map((sheet) => sheet.name)).toEqual(["Sheet2"]);
+    expect(model.getters.getSheetIds().map(model.getters.getSheetName)).toEqual(["Sheet2"]);
     triggerMouseEvent(".o-add-sheet", "click");
     expect(model.dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
       sheetId: expect.any(String),
