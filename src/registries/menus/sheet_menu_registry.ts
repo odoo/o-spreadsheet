@@ -39,7 +39,7 @@ sheetMenuRegistry
     sequence: 40,
     isVisible: (env) => {
       const sheetId = env.model.getters.getActiveSheetId();
-      const sheetIds = env.model.getters.getSheetIds();
+      const sheetIds = env.model.getters.getVisibleSheetIds();
       return sheetIds.indexOf(sheetId) !== sheetIds.length - 1;
     },
     action: (env) =>
@@ -53,11 +53,18 @@ sheetMenuRegistry
     sequence: 50,
     isVisible: (env) => {
       const sheetId = env.model.getters.getActiveSheetId();
-      return env.model.getters.getSheetIds()[0] !== sheetId;
+      return env.model.getters.getVisibleSheetIds()[0] !== sheetId;
     },
     action: (env) =>
       env.model.dispatch("MOVE_SHEET", {
         sheetId: env.model.getters.getActiveSheetId(),
         direction: "left",
       }),
+  })
+  .add("hide_sheet", {
+    name: _lt("Hide sheet"),
+    sequence: 60,
+    isVisible: (env) => env.model.getters.getVisibleSheetIds().length !== 1,
+    action: (env) =>
+      env.model.dispatch("HIDE_SHEET", { sheetId: env.model.getters.getActiveSheetId() }),
   });

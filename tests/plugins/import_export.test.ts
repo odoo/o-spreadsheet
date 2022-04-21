@@ -32,7 +32,7 @@ describe("data", () => {
 });
 
 describe("Migrations", () => {
-  test("Can upgrade from 1 to 11", () => {
+  test("Can upgrade from 1 to 12", () => {
     const model = new Model({
       version: 1,
       sheets: [
@@ -52,10 +52,11 @@ describe("Migrations", () => {
       ],
     });
     const data = model.exportData();
-    expect(data.version).toBe(11);
+    expect(data.version).toBe(12);
     expect(data.sheets[0].id).toBeDefined();
     expect(data.sheets[0].figures).toBeDefined();
     expect(data.sheets[0].cells.A1!.content).toBe("=A1");
+    expect(data.sheets[0].isVisible).toBe(true);
   });
   test("migrate version 5: normalize formulas", () => {
     const model = new Model({
@@ -74,7 +75,7 @@ describe("Migrations", () => {
     });
     const data = model.exportData();
     const cells = data.sheets[0].cells;
-    expect(data.version).toBe(11);
+    expect(data.version).toBe(12);
     // formulas are de-normalized with version 9
     expect(cells.A1?.content).toBe("=A1");
     expect(cells.A2?.content).toBe("=1");
@@ -538,6 +539,7 @@ test("complete import, then export", () => {
         conditionalFormats: [],
         figures: [],
         areGridLinesVisible: true,
+        isVisible: true,
       },
       {
         id: "someuuid_2",
@@ -553,6 +555,7 @@ test("complete import, then export", () => {
         conditionalFormats: [],
         figures: [],
         areGridLinesVisible: false,
+        isVisible: true,
       },
     ],
     entities: {},
@@ -629,6 +632,7 @@ test("import then export (figures)", () => {
         conditionalFormats: [],
         figures: [{ id: "otheruuid", x: 100, y: 100, width: 100, height: 100 }],
         areGridLinesVisible: true,
+        isVisible: true,
       },
     ],
     entities: {},

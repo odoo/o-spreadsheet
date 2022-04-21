@@ -860,6 +860,11 @@ describe("Test XLSX export", () => {
     );
     expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
   });
+
+  test("Workbook with hidden sheet", async () => {
+    const model = new Model({ sheets: [{ id: "sheet0" }, { id: "sheet1", isVisible: false }] });
+    expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+  });
 });
 
 describe("XML parser", () => {

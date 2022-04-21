@@ -22,7 +22,7 @@ import { normalizeV9 } from "./legacy_tools";
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 11;
+export const CURRENT_VERSION = 12;
 const INITIAL_SHEET_ID = "Sheet1";
 
 /**
@@ -293,6 +293,17 @@ const MIGRATIONS: Migration[] = [
       return data;
     },
   },
+  {
+    description: "Add isVisible to sheets",
+    from: 11,
+    to: 12,
+    applyMigration(data: any): any {
+      for (let sheet of data.sheets || []) {
+        sheet.isVisible = true;
+      }
+      return data;
+    },
+  },
 ];
 
 /**
@@ -380,6 +391,7 @@ function createEmptySheet(sheetId: UID, name: string): SheetData {
     merges: [],
     conditionalFormats: [],
     figures: [],
+    isVisible: true,
   };
 }
 

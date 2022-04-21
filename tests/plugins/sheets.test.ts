@@ -9,6 +9,7 @@ import {
   createSheetWithName,
   deleteRows,
   hideRows,
+  hideSheet,
   merge,
   moveSheet,
   redo,
@@ -16,6 +17,7 @@ import {
   resizeColumns,
   resizeRows,
   setCellContent,
+  showSheet,
   undo,
   unMerge,
 } from "../test_helpers/commands_helpers";
@@ -395,6 +397,85 @@ describe("sheets", () => {
     const sheet2 = model.getters.getSheetIds()[1];
     expect(moveSheet(model, "left", sheet1)).toBeCancelledBecause(CommandResult.WrongSheetMove);
     expect(moveSheet(model, "right", sheet2)).toBeCancelledBecause(CommandResult.WrongSheetMove);
+  });
+
+  test("Cannot hide a sheet with only one sheet", () => {
+    const model = new Model({ sheets: [{ id: "sheet0" }] });
+    expect(model.getters.getSheetIds()).toEqual(["sheet0"]);
+    expect(hideSheet(model, "sheet0")).toBeCancelledBecause(CommandResult.NotEnoughSheets);
+  });
+
+  test("Cannot hide a sheet with only one visible sheet", () => {
+    const model = new Model({ sheets: [{ id: "sheet0" }, { id: "sheet1", isVisible: false }] });
+    expect(model.getters.getSheetIds()).toEqual(["sheet0", "sheet1"]);
+    expect(model.getters.getVisibleSheetIds()).toEqual(["sheet0"]);
+    expect(hideSheet(model, "sheet0")).toBeCancelledBecause(CommandResult.NotEnoughSheets);
+  });
+
+  test("Can hide a sheet", () => {
+    const model = new Model({ sheets: [{ id: "sheet0" }] });
+    createSheet(model, { sheetId: "sheet1" });
+    expect(model.getters.getVisibleSheetIds()).toEqual(["sheet0", "sheet1"]);
+    expect(model.getters.getActiveSheetId()).toBe("sheet0");
+    hideSheet(model, "sheet0");
+    expect(model.getters.getVisibleSheetIds()).toEqual(["sheet1"]);
+    expect(model.getters.getActiveSheetId()).toBe("sheet1");
+    expect(model.getters.getSheet("sheet0").isVisible).toBeFalsy();
+    undo(model);
+    expect(model.getters.getVisibleSheetIds()).toEqual(["sheet0", "sheet1"]);
+    redo(model);
+    expect(model.getters.getVisibleSheetIds()).toEqual(["sheet1"]);
+  });
+
+  test("Can show a sheet", () => {
+    const model = new Model({
+      sheets: [
+        { id: "sheet0", isVisible: false },
+        { id: "sheet1", isVisible: true },
+      ],
+    });
+    expect(model.getters.getVisibleSheetIds()).toEqual(["sheet1"]);
+    showSheet(model, "sheet0");
+    expect(model.getters.getVisibleSheetIds()).toEqual(["sheet0", "sheet1"]);
+    undo(model);
+    expect(model.getters.getVisibleSheetIds()).toEqual(["sheet1"]);
+    redo(model);
+    expect(model.getters.getVisibleSheetIds()).toEqual(["sheet0", "sheet1"]);
+  });
+
+  test("Can move left a sheet with invisible sheet in between", () => {
+    const model = new Model({ sheets: [{ id: "sheet0" }] });
+    createSheet(model, { sheetId: "sheet2" });
+    createSheet(model, { sheetId: "sheet1" });
+    hideSheet(model, "sheet1");
+    moveSheet(model, "left", "sheet2");
+    expect(model.getters.getVisibleSheetIds()).toEqual(["sheet2", "sheet0"]);
+  });
+
+  test("Can move right a sheet with invisible sheet in between", () => {
+    const model = new Model({ sheets: [{ id: "sheet0" }] });
+    createSheet(model, { sheetId: "sheet2" });
+    createSheet(model, { sheetId: "sheet1" });
+    hideSheet(model, "sheet1");
+    expect(model.getters.getVisibleSheetIds()).toEqual(["sheet0", "sheet2"]);
+    moveSheet(model, "right", "sheet0");
+    expect(model.getters.getVisibleSheetIds()).toEqual(["sheet2", "sheet0"]);
+  });
+
+  test("Cannot move left a sheet with invisible sheet to the left", () => {
+    const model = new Model({ sheets: [{ id: "sheet0" }] });
+    createSheet(model, { sheetId: "sheet2" });
+    createSheet(model, { sheetId: "sheet1" });
+    hideSheet(model, "sheet0");
+    expect(moveSheet(model, "left", "sheet1")).toBeCancelledBecause(CommandResult.WrongSheetMove);
+  });
+
+  test("Cannot move right a sheet with invisible sheet to the right", () => {
+    const model = new Model({ sheets: [{ id: "sheet0" }] });
+    createSheet(model, { sheetId: "sheet2" });
+    createSheet(model, { sheetId: "sheet1" });
+    hideSheet(model, "sheet2");
+    expect(moveSheet(model, "right", "sheet1")).toBeCancelledBecause(CommandResult.WrongSheetMove);
   });
 
   test("Can rename a sheet", () => {

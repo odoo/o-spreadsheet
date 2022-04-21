@@ -600,3 +600,11 @@ export function moveSheet(
     direction,
   });
 }
+
+export function hideSheet(model: Model, sheetId: UID) {
+  return model.dispatch("HIDE_SHEET", { sheetId });
+}
+
+export function showSheet(model: Model, sheetId: UID) {
+  return model.dispatch("SHOW_SHEET", { sheetId });
+}

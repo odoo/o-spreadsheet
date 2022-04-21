@@ -53,7 +53,6 @@ const DEFAULT_MENU_ITEM = (key: string) => ({
   separator: false,
   icon: false,
   id: key,
-  textColor: "",
 });
 
 export function createFullMenuItem(key: string, value: MenuItem): FullMenuItem {
