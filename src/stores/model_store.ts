@@ -1,7 +1,29 @@
 import { Model } from "../model";
+import { Getters } from "../types";
+import { StoreConfig } from "./providers";
 
-export const ModelProvider = (model: Model) => ({
-  state: model,
-  actions: class {},
-  computeView: (model: Model) => model.getters,
+interface State {
+  model: Model;
+  updateId: number;
+}
+class ModelUpdates {
+  constructor(state: State) {
+    state.model.on("update", this, () => {
+      // trick the reactivity system
+      state.updateId++;
+    });
+  }
+}
+
+type ModelStore = StoreConfig<State, Getters, ModelUpdates>;
+
+export const ModelProvider = (model: Model): ModelStore => ({
+  state: {
+    model,
+    updateId: 0,
+  },
+  actions: ModelUpdates,
+  computeView: (state) => {
+    return state.model.getters;
+  },
 });
