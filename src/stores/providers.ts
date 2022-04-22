@@ -38,17 +38,39 @@ type Provider<State = any, Actions = any> = () => StoreConfig<any, State, Action
 //   }
 // }
 
-export class ProviderContainer {
-  private providers: Map<Provider, any> = new Map();
+type ExternalParam = any;
 
-  get<State, Actions>(provider: Provider<State, Actions>): Store<State, Actions> {
-    if (!this.providers.has(provider)) {
+export class ProviderContainer {
+  private providers: Map<Provider, Map<ExternalParam, any>> = new Map();
+
+  get<State, Actions>(
+    provider: Provider<State, Actions>,
+    param?: ExternalParam
+  ): Store<State, Actions> {
+    if (!this._get(provider, param)) {
       const store = this.createStore(provider);
-      this.providers.set(provider, store);
+      this.addStore(provider, param, store);
       return store;
-    } else {
-      return this.providers.get(provider)!;
     }
+    return this._get(provider, param)!;
+  }
+
+  private _get<State, Actions>(
+    provider: Provider<State, Actions>,
+    param?: ExternalParam
+  ): Store<State, Actions> | undefined {
+    return this.providers.get(provider)?.get(param);
+  }
+
+  private addStore<State, Actions>(
+    provider: Provider<State, Actions>,
+    param: ExternalParam,
+    store: Store<State, Actions>
+  ) {
+    if (!this.providers.has(provider)) {
+      this.providers.set(provider, new Map());
+    }
+    this.providers.get(provider)?.set(param, store);
   }
 
   private createStore<T>(provider: Provider<T>): Store<any, any> {
@@ -62,17 +84,17 @@ export function useProviders(): Providers {
   const component = useComponent();
 
   // TODO don't call reactive again if already subscribe in the same render
-  const watch = (provider: Provider) => {
-    const store = providerContainer.get(provider);
+  const watch = (provider: Provider, param?: ExternalParam) => {
+    const store = providerContainer.get(provider, param);
     return reactive(store, () => component.render()).state;
   };
 
-  const notify = (provider: Provider) => {
-    return providerContainer.get(provider).notify;
+  const notify = (provider: Provider, param?: ExternalParam) => {
+    return providerContainer.get(provider, param).notify;
   };
 
-  const use = (provider: Provider) => {
-    const store = providerContainer.get(provider);
+  const use = (provider: Provider, param?: ExternalParam) => {
+    const store = providerContainer.get(provider, param);
     // state is computed, probably cannot work with reactive
     return reactive(store, () => {
       console.log("render");
