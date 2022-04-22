@@ -1,6 +1,8 @@
 import { Component, useState, xml } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../constants";
 import { clip } from "../helpers/misc";
+import { ModelProvider } from "../stores/model_store";
+import { ConsumerComponent } from "../stores/providers";
 import { SpreadsheetChildEnv } from "../types";
 import { css } from "./helpers/css";
 import { startDnd } from "./helpers/drag_and_drop";
@@ -64,13 +66,17 @@ interface State {
   handler: boolean;
 }
 
-export class Autofill extends Component<Props, SpreadsheetChildEnv> {
+export class Autofill extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
 
   state: State = useState({
     position: { left: 0, top: 0 },
     handler: false,
   });
+
+  get getters() {
+    return this.providers.watch(ModelProvider, this.env.model);
+  }
 
   get style() {
     const { left, top } = this.props.position;
@@ -88,7 +94,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getTooltip() {
-    const tooltip = this.env.model.getters.getAutofillTooltip();
+    const tooltip = this.getters.getAutofillTooltip();
     if (tooltip && !tooltip.component) {
       tooltip.component = TooltipComponent;
     }
@@ -98,7 +104,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
   onMouseDown(ev: MouseEvent) {
     this.state.handler = true;
     this.state.position = { left: 0, top: 0 };
-    const { offsetY, offsetX } = this.env.model.getters.getActiveSnappedViewport();
+    const { offsetY, offsetX } = this.getters.getActiveSnappedViewport();
     const start = {
       left: ev.clientX + offsetX,
       top: ev.clientY + offsetY,
@@ -118,15 +124,15 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
         left: viewportLeft,
         offsetY,
         offsetX,
-      } = this.env.model.getters.getActiveSnappedViewport();
+      } = this.getters.getActiveSnappedViewport();
       this.state.position = {
         left: ev.clientX - start.left + offsetX,
         top: ev.clientY - start.top + offsetY,
       };
-      const col = this.env.model.getters.getColIndex(ev.clientX - position.left, viewportLeft);
-      const row = this.env.model.getters.getRowIndex(ev.clientY - position.top, viewportTop);
+      const col = this.getters.getColIndex(ev.clientX - position.left, viewportLeft);
+      const row = this.getters.getRowIndex(ev.clientY - position.top, viewportTop);
       if (lastCol !== col || lastRow !== row) {
-        const activeSheet = this.env.model.getters.getActiveSheet();
+        const activeSheet = this.getters.getActiveSheet();
         lastCol = col === -1 ? lastCol : clip(col, 0, activeSheet.cols.length);
         lastRow = row === -1 ? lastRow : clip(row, 0, activeSheet.rows.length);
         if (lastCol !== undefined && lastRow !== undefined) {

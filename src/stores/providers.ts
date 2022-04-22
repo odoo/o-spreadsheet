@@ -11,15 +11,18 @@ import { Component, reactive, useComponent } from "@odoo/owl";
 // type Attributes<T> = Pick<T, AttributeKeys<T>>;
 
 export interface Providers {
-  watch<State>(provider: Provider<State, any>): Readonly<State>;
-  notify<Actions>(provider: Provider<any, Actions>): Readonly<Actions>;
-  use<State, Actions>(provider: Provider<State, Actions>): Store<State, Actions>;
+  // TODO type param
+  watch<State>(provider: Provider<State, any>, param?: any): Readonly<State>;
+  notify<Actions>(provider: Provider<any, Actions>, param?: any): Readonly<Actions>;
+  use<State, Actions>(provider: Provider<State, Actions>, param?: any): Store<State, Actions>;
 }
 
 // type StateProvider<T = any> = (providers: Providers) => Readonly<T>;
 // type StateNotifierProvider<T extends StateNotifier = any> = (providers: Providers) => T;
 
-type Provider<State = any, Actions = any> = () => StoreConfig<any, State, Actions>;
+type Provider<State = any, Actions = any> = (
+  param: ExternalParam
+) => StoreConfig<any, State, Actions>;
 
 // remove those global things with a ProviderContainer
 // const providers: Map<Provider, StateNotifier> = new Map();
@@ -48,7 +51,7 @@ export class ProviderContainer {
     param?: ExternalParam
   ): Store<State, Actions> {
     if (!this._get(provider, param)) {
-      const store = this.createStore(provider);
+      const store = this.createStore(provider, param);
       this.addStore(provider, param, store);
       return store;
     }
@@ -73,12 +76,15 @@ export class ProviderContainer {
     this.providers.get(provider)?.set(param, store);
   }
 
-  private createStore<T>(provider: Provider<T>): Store<any, any> {
-    return store(provider());
+  private createStore<T>(provider: Provider<T>, param: ExternalParam): Store<any, any> {
+    return store(provider(param));
   }
 }
 
 const providerContainer = new ProviderContainer();
+
+// @ts-ignore
+window.providerContainer = providerContainer;
 
 export function useProviders(): Providers {
   const component = useComponent();
