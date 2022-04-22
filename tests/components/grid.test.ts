@@ -907,73 +907,81 @@ describe("Events on Grid update viewport correctly", () => {
     expect(model.getters.getActiveSnappedViewport()).toMatchObject(viewport);
   });
 
-  describe("Edge-Scrolling on mouseMove in selection", () => {
-    beforeEach(() => {
-      jest.useFakeTimers();
-    });
-    test("Can edge-scroll horizontally", async () => {
-      const { width, height } = model.getters.getViewportDimensionWithHeaders();
-      const y = height / 2;
-      triggerMouseEvent(".o-grid-overlay", "mousedown", width / 2, y);
-      triggerMouseEvent(".o-grid-overlay", "mousemove", 1.5 * width, y);
-      const advanceTimer = scrollDelay(0.5 * width) * 6 - 1;
-      jest.advanceTimersByTime(advanceTimer);
-      triggerMouseEvent(".o-grid-overlay", "mouseup", 1.5 * width, y);
-
-      expect(model.getters.getActiveSnappedViewport()).toMatchObject({
-        left: 6,
-        right: 15,
-        top: 0,
-        bottom: 41,
-      });
-
-      triggerMouseEvent(".o-grid-overlay", "mousedown", width / 2, y);
-      triggerMouseEvent(".o-grid-overlay", "mousemove", -0.5 * width, y);
-      const advanceTimer2 = scrollDelay(0.5 * width) * 3 - 1;
-      jest.advanceTimersByTime(advanceTimer2);
-      triggerMouseEvent(".o-grid-overlay", "mouseup", -0.5 * width, y);
-
-      expect(model.getters.getActiveSnappedViewport()).toMatchObject({
-        left: 3,
-        right: 12,
-        top: 0,
-        bottom: 41,
-      });
-    });
-
-    test("Can edge-scroll vertically", () => {
-      const { width, height } = model.getters.getViewportDimensionWithHeaders();
-      const x = width / 2;
-      triggerMouseEvent(".o-grid-overlay", "mousedown", x, height / 2);
-      triggerMouseEvent(".o-grid-overlay", "mousemove", x, 1.5 * height);
-      const advanceTimer = scrollDelay(0.5 * height) * 6 - 1;
-      jest.advanceTimersByTime(advanceTimer);
-      triggerMouseEvent(".o-grid-overlay", "mouseup", x, 1.5 * height);
-
-      expect(model.getters.getActiveSnappedViewport()).toMatchObject({
-        left: 0,
-        right: 9,
-        top: 6,
-        bottom: 47,
-      });
-
-      triggerMouseEvent(".o-grid-overlay", "mousedown", x, height / 2);
-      triggerMouseEvent(".o-grid-overlay", "mousemove", x, -0.5 * height);
-      const advanceTimer2 = scrollDelay(0.5 * height) * 3 - 1;
-      jest.advanceTimersByTime(advanceTimer2);
-      triggerMouseEvent(".o-grid-overlay", "mouseup", x, -0.5 * height);
-
-      expect(model.getters.getActiveSnappedViewport()).toMatchObject({
-        left: 0,
-        right: 9,
-        top: 3,
-        bottom: 44,
-      });
-    });
-  });
-
   test("resize event handler is removed", () => {
     app.destroy();
     window.dispatchEvent(new Event("resize"));
+  });
+});
+
+describe("Edge-Scrolling on mouseMove in selection", () => {
+  beforeEach(async () => {
+    jest.useFakeTimers();
+    fixture = makeTestFixture();
+    ({ app, parent } = await mountSpreadsheet(fixture));
+    model = parent.model;
+  });
+
+  afterEach(() => {
+    app.destroy();
+    fixture.remove();
+  });
+  test("Can edge-scroll horizontally", async () => {
+    const { width, height } = model.getters.getViewportDimensionWithHeaders();
+    const y = height / 2;
+    triggerMouseEvent(".o-grid-overlay", "mousedown", width / 2, y);
+    triggerMouseEvent(".o-grid-overlay", "mousemove", 1.5 * width, y);
+    const advanceTimer = scrollDelay(0.5 * width) * 6 - 1;
+    jest.advanceTimersByTime(advanceTimer);
+    triggerMouseEvent(".o-grid-overlay", "mouseup", 1.5 * width, y);
+
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+      left: 6,
+      right: 15,
+      top: 0,
+      bottom: 41,
+    });
+
+    triggerMouseEvent(".o-grid-overlay", "mousedown", width / 2, y);
+    triggerMouseEvent(".o-grid-overlay", "mousemove", -0.5 * width, y);
+    const advanceTimer2 = scrollDelay(0.5 * width) * 3 - 1;
+    jest.advanceTimersByTime(advanceTimer2);
+    triggerMouseEvent(".o-grid-overlay", "mouseup", -0.5 * width, y);
+
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+      left: 3,
+      right: 12,
+      top: 0,
+      bottom: 41,
+    });
+  });
+
+  test("Can edge-scroll vertically", () => {
+    const { width, height } = model.getters.getViewportDimensionWithHeaders();
+    const x = width / 2;
+    triggerMouseEvent(".o-grid-overlay", "mousedown", x, height / 2);
+    triggerMouseEvent(".o-grid-overlay", "mousemove", x, 1.5 * height);
+    const advanceTimer = scrollDelay(0.5 * height) * 6 - 1;
+    jest.advanceTimersByTime(advanceTimer);
+    triggerMouseEvent(".o-grid-overlay", "mouseup", x, 1.5 * height);
+
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+      left: 0,
+      right: 9,
+      top: 6,
+      bottom: 47,
+    });
+
+    triggerMouseEvent(".o-grid-overlay", "mousedown", x, height / 2);
+    triggerMouseEvent(".o-grid-overlay", "mousemove", x, -0.5 * height);
+    const advanceTimer2 = scrollDelay(0.5 * height) * 3 - 1;
+    jest.advanceTimersByTime(advanceTimer2);
+    triggerMouseEvent(".o-grid-overlay", "mouseup", x, -0.5 * height);
+
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+      left: 0,
+      right: 9,
+      top: 3,
+      bottom: 44,
+    });
   });
 });
