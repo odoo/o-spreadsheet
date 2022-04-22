@@ -1,9 +1,11 @@
-import { Component, onMounted, onPatched, onWillUnmount, useRef, useState, xml } from "@odoo/owl";
+import { onMounted, onPatched, onWillUnmount, useRef, useState, xml } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { EnrichedToken } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { isEqual, rangeReference, toZone } from "../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
+import { formulaAssistantProvider } from "../../stores/composer_store";
+import { ConsumerComponent } from "../../stores/providers";
 import { FunctionDescription, Rect, SpreadsheetChildEnv } from "../../types/index";
 import { css } from "../helpers/css";
 import { TextValueProvider, TextValueProviderApi } from "./autocomplete_dropdown";
@@ -50,6 +52,7 @@ export const tokenColor = {
 
 const TEMPLATE = xml/* xml */ `
 <div class="o-composer-container">
+  <t t-esc="formulaAssistant.content"/>
   <div
     t-att-class="{ 'o-composer': true, 'text-muted': env.model.getters.isReadonly(), 'unfocusable': env.model.getters.isReadonly() }"
     t-att-style="props.inputStyle"
@@ -153,7 +156,7 @@ interface FunctionDescriptionState {
   argToFocus: number;
 }
 
-export class Composer extends Component<Props, SpreadsheetChildEnv> {
+export class Composer extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
   static components = { TextValueProvider, FunctionDescriptionProvider };
   static defaultProps = {
@@ -184,6 +187,10 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     argToFocus: 0,
   });
   private isKeyStillDown: boolean = false;
+
+  get formulaAssistant() {
+    return this.providers.watch(formulaAssistantProvider, this.env.model);
+  }
 
   get assistantStyle(): string {
     if (this.props.delimitation && this.props.rect) {
@@ -225,6 +232,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
   };
 
   setup() {
+    super.setup();
     onMounted(() => {
       const el = this.composerRef.el!;
 

@@ -1,4 +1,4 @@
-import { onWillRender, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR } from "../../constants";
 import { ConsumerComponent } from "../../stores/providers";
 import { sidePanelProvider } from "../../stores/side_panel_store";
@@ -149,13 +149,7 @@ interface Props {
 export class SidePanel extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
 
-  setup() {
-    super.setup();
-    onWillRender(() => console.log("will render"));
-  }
-
   get sidePanel() {
-    console.log("su");
     return this.providers.use(sidePanelProvider);
   }
 

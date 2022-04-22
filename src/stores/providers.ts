@@ -17,10 +17,13 @@ export interface Providers {
   use<State, Actions>(provider: Provider<State, Actions>, param?: any): Store<State, Actions>;
 }
 
+export type StoresWatch = Pick<Providers, "watch">;
+
 // type StateProvider<T = any> = (providers: Providers) => Readonly<T>;
 // type StateNotifierProvider<T extends StateNotifier = any> = (providers: Providers) => T;
 
 type Provider<State = any, Actions = any> = (
+  stores: StoresWatch,
   param: ExternalParam
 ) => StoreConfig<any, State, Actions>;
 
@@ -44,7 +47,7 @@ type Provider<State = any, Actions = any> = (
 type ExternalParam = any;
 
 export class ProviderContainer {
-  private providers: Map<Provider, Map<ExternalParam, any>> = new Map();
+  private stores: Map<Provider, Map<ExternalParam, any>> = new Map();
 
   get<State, Actions>(
     provider: Provider<State, Actions>,
@@ -62,7 +65,7 @@ export class ProviderContainer {
     provider: Provider<State, Actions>,
     param?: ExternalParam
   ): Store<State, Actions> | undefined {
-    return this.providers.get(provider)?.get(param);
+    return this.stores.get(provider)?.get(param);
   }
 
   private addStore<State, Actions>(
@@ -70,14 +73,25 @@ export class ProviderContainer {
     param: ExternalParam,
     store: Store<State, Actions>
   ) {
-    if (!this.providers.has(provider)) {
-      this.providers.set(provider, new Map());
+    if (!this.stores.has(provider)) {
+      this.stores.set(provider, new Map());
     }
-    this.providers.get(provider)?.set(param, store);
+    this.stores.get(provider)?.set(param, store);
   }
 
   private createStore<T>(provider: Provider<T>, param: ExternalParam): Store<any, any> {
-    return store(provider(param));
+    const watch: StoresWatch["watch"] = (parentProvider, param) => {
+      const parentStore = this.get(parentProvider, param);
+      // computed state is immutable. It can't work
+      const reactiveStore = reactive(parentStore, () => {
+        // if parent state changes, invalidate child which
+        // is equivalent to deleting it and rebuild it next time
+        // someone needs it.
+        this.stores.get(provider)?.delete(param);
+      });
+      return reactiveStore.state;
+    };
+    return store(provider({ watch }, param));
   }
 }
 
@@ -112,6 +126,7 @@ export function useProviders(): Providers {
 }
 
 // use a root scope instead to inject it in the `env`
+// otherwise you need to think of super.setup, and I won't
 export class ConsumerComponent<Props, Env> extends Component<Props, Env> {
   protected providers!: Providers;
   setup() {

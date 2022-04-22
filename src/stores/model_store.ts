@@ -1,29 +1,33 @@
 import { Model } from "../model";
 import { Getters } from "../types";
-import { StoreConfig } from "./providers";
+import { StoreConfig, StoresWatch } from "./providers";
 
 interface State {
   model: Model;
-  updateId: number;
+  subscribe: number;
 }
 class ModelUpdates {
-  constructor(state: State) {
+  constructor(private state: State) {
     state.model.on("update", this, () => {
       // trick the reactivity system
-      state.updateId++;
+      console.log("model update");
+      this.state.subscribe++;
     });
   }
 }
 
-type ModelStore = StoreConfig<State, Getters, ModelUpdates>;
+type ModelStore = StoreConfig<State, Getters & { subscribe: unknown }, ModelUpdates>;
 
-export const ModelProvider = (model: Model): ModelStore => ({
+export const ModelProvider = (stores: StoresWatch, model: Model): ModelStore => ({
   state: {
     model,
-    updateId: 0,
+    subscribe: 0,
   },
   actions: ModelUpdates,
   computeView: (state) => {
-    return state.model.getters;
+    return {
+      subscribe: state.subscribe,
+      ...state.model.getters,
+    };
   },
 });

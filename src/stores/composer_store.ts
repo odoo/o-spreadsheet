@@ -1,30 +1,49 @@
-import { StoreConfig } from "./providers";
+import { Model } from "..";
+import { ModelProvider } from "./model_store";
+import { StoreConfig, StoresWatch } from "./providers";
 
-interface State {
-  content: string;
-  selectionStart: number;
-  selectionEnd: number;
-}
+// interface State {
+//   content: string;
+//   selectionStart: number;
+//   selectionEnd: number;
+// }
 
-interface Composer {
-  content: string;
-  selectionStart: number;
-  selectionEnd: number;
-}
+// interface Composer {
+//   content: string;
+//   selectionStart: number;
+//   selectionEnd: number;
+// }
 
 class ComposerActions {
   constructor() {}
 }
 
-export const ComposerProvider: (depth?: number) => StoreConfig<State, Composer, ComposerActions> =
-  () => ({
+function composerContentProvider(
+  stores: StoresWatch,
+  model: Model
+): StoreConfig<{ content: string }, { content: string }, any> {
+  const getters = stores.watch(ModelProvider, model);
+  getters.subscribe;
+  console.log("composerContentProvider created");
+  return {
+    state: { content: getters.getCurrentContent() },
+    actions: class {},
+    computeView: (state) => state,
+  };
+}
+
+export function formulaAssistantProvider(stores: StoresWatch, model: Model) {
+  const composer = stores.watch(composerContentProvider, model);
+  return {
     actions: ComposerActions,
     state: {
-      content: "",
+      content: composer.content,
       selectionStart: 0,
       selectionEnd: 0,
     },
     computeView: (state) => {
+      console.log("awesome formula assistant is reset!");
       return state;
     },
-  });
+  };
+}
