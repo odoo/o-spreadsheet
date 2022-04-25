@@ -1,5 +1,4 @@
 import { transform } from "../../../src/collaborative/ot/ot";
-import { toZone } from "../../../src/helpers";
 import {
   AddColumnsRowsCommand,
   AddConditionalFormatCommand,
@@ -41,7 +40,7 @@ describe("OT with DELETE_SHEET", () => {
   const clearCell: Omit<ClearCellCommand, "sheetId"> = { type: "CLEAR_CELL", col: 0, row: 0 };
   const deleteContent: Omit<DeleteContentCommand, "sheetId"> = {
     type: "DELETE_CONTENT",
-    target: [toZone("A1")],
+    target: ["A1"],
   };
   const addColumns: Omit<AddColumnsRowsCommand, "sheetId"> = {
     type: "ADD_COLUMNS_ROWS",
@@ -77,7 +76,7 @@ describe("OT with DELETE_SHEET", () => {
   const addCF: Omit<AddConditionalFormatCommand, "sheetId"> = {
     type: "ADD_CONDITIONAL_FORMAT",
     cf: createEqualCF("test", { fillColor: "orange" }, "id"),
-    target: [toZone("A1:B1")],
+    target: ["A1:B1"],
   };
   const createFigure: Omit<CreateFigureCommand, "sheetId"> = {
     type: "CREATE_FIGURE",
@@ -85,11 +84,11 @@ describe("OT with DELETE_SHEET", () => {
   };
   const setFormatting: Omit<SetFormattingCommand, "sheetId"> = {
     type: "SET_FORMATTING",
-    target: [toZone("A1")],
+    target: ["A1"],
   };
   const clearFormatting: Omit<ClearFormattingCommand, "sheetId"> = {
     type: "CLEAR_FORMATTING",
-    target: [toZone("A1")],
+    target: ["A1"],
   };
   const setBorder: Omit<SetBorderCommand, "sheetId"> = {
     type: "SET_BORDER",
@@ -99,7 +98,7 @@ describe("OT with DELETE_SHEET", () => {
   };
   const setDecimal: Omit<SetDecimalCommand, "sheetId"> = {
     type: "SET_DECIMAL",
-    target: [toZone("A1")],
+    target: ["A1"],
     step: 3,
   };
   const createChart: Omit<CreateChartCommand, "sheetId"> = {

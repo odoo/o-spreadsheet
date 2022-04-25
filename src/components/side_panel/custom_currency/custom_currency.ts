@@ -1,4 +1,5 @@
 import { Component, onWillStart, useState } from "@odoo/owl";
+import { zoneToXc } from "../../../helpers";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
 import { Currency, Format, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
@@ -105,7 +106,7 @@ export class CustomCurrencyPanel extends Component<any, SpreadsheetChildEnv> {
     const selectedFormat = this.formatProposals[this.state.selectedFormatIndex];
     this.env.model.dispatch("SET_FORMATTING", {
       sheetId: this.env.model.getters.getActiveSheetId(),
-      target: this.env.model.getters.getSelectedZones(),
+      target: this.env.model.getters.getSelectedZones().map(zoneToXc),
       format: selectedFormat.format,
     });
   }

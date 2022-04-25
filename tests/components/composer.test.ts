@@ -6,7 +6,7 @@ import {
   tokenColor,
 } from "../../src/components/composer/composer/composer";
 import { fontSizes } from "../../src/fonts";
-import { colors, toCartesian, toZone } from "../../src/helpers/index";
+import { colors, toCartesian } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { LinkCell } from "../../src/types";
 import {
@@ -238,33 +238,33 @@ describe("ranges and highlights", () => {
   describe("change highlight position in the grid", () => {
     test("change the associated range in the composer ", async () => {
       composerEl = await typeInComposerGrid("=SUM(B2)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B2") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C3") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: "B2" });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: "C3" });
       await nextTick();
       expect(composerEl.textContent).toBe("=SUM(C3)");
     });
 
     test("change the first associated range in the composer when ranges are the same", async () => {
       composerEl = await typeInComposerGrid("=SUM(B2, B2)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B2") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C3") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: "B2" });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: "C3" });
       await nextTick();
       expect(composerEl.textContent).toBe("=SUM(C3, B2)");
     });
 
     test("the first range doesn't change if other highlight transit by the first range state ", async () => {
       composerEl = await typeInComposerGrid("=SUM(B2, B1)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B2") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B3") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: "B1" });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: "B2" });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: "B3" });
       await nextTick();
       expect(composerEl.textContent).toBe("=SUM(B2, B3)");
     });
 
     test("can change references of different length", async () => {
       composerEl = await typeInComposerGrid("=SUM(B1)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: "B1" });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: "B1:B2" });
       await nextTick();
       expect(composerEl.textContent).toBe("=SUM(B1:B2)");
     });
@@ -272,8 +272,8 @@ describe("ranges and highlights", () => {
     test("can change references with sheetname", async () => {
       composerEl = await typeInComposerGrid("=Sheet42!B1");
       createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B2") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: "B1" });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: "B2" });
       await nextTick();
       expect(composerEl.textContent).toBe("=Sheet42!B2");
     });
@@ -281,8 +281,8 @@ describe("ranges and highlights", () => {
     test("change references of the current sheet", async () => {
       composerEl = await typeInComposerGrid("=SUM(B1,Sheet42!B1)");
       createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B2") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: "B1" });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: "B2" });
       await nextTick();
       expect(composerEl.textContent).toBe("=SUM(B1,Sheet42!B2)");
     });
@@ -292,8 +292,8 @@ describe("ranges and highlights", () => {
       ["=$b1", "=$C1"],
     ])("can change cells reference with index fixed", async (ref, resultRef) => {
       composerEl = await typeInComposerGrid(ref);
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C1") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: "B1" });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: "C1" });
       await nextTick();
       expect(composerEl.textContent).toBe(resultRef);
     });
@@ -310,8 +310,8 @@ describe("ranges and highlights", () => {
       ["=$B$1:$B$2", "=$C$1:$C$2"],
     ])("can change ranges reference with index fixed", async (ref, resultRef) => {
       composerEl = await typeInComposerGrid(ref);
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C1:C2") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: "B1:B2" });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: "C1:C2" });
       await nextTick();
       expect(composerEl.textContent).toBe(resultRef);
     });
@@ -319,14 +319,14 @@ describe("ranges and highlights", () => {
     test("can change cells merged reference", async () => {
       merge(model, "B1:B2");
       composerEl = await typeInComposerGrid("=B1");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C1") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: "B1:B2" });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: "C1" });
       await nextTick();
       expect(composerEl.textContent).toBe("=C1");
 
       composerEl = await typeInComposerGrid("+B2");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C2") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: "B1:B2" });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: "C2" });
       await nextTick();
       expect(composerEl.textContent).toBe("=C1+C2");
     });
@@ -334,16 +334,16 @@ describe("ranges and highlights", () => {
     test("can change cells merged reference with index fixed", async () => {
       merge(model, "B1:B2");
       composerEl = await typeInComposerGrid("=B$2");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C1:C2") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: "B1:B2" });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: "C1:C2" });
       await nextTick();
       expect(composerEl.textContent).toBe("=C$1:C$2");
     });
 
     test("can change references of different length with index fixed", async () => {
       composerEl = await typeInComposerGrid("=SUM($B$1)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: "B1" });
+      model.dispatch("CHANGE_HIGHLIGHT", { zone: "B1:B2" });
       await nextTick();
       expect(composerEl.textContent).toBe("=SUM($B$1:$B$2)");
     });
@@ -850,7 +850,7 @@ describe("composer", () => {
     test("with text color", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: { textColor: "#123456" },
       });
       await typeInComposerGrid("Hello");
@@ -865,7 +865,7 @@ describe("composer", () => {
     test("with background color", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: { fillColor: "#123456" },
       });
       await typeInComposerGrid("Hello");
@@ -877,7 +877,7 @@ describe("composer", () => {
       const fontSize = fontSizes[0];
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: { fontSize: fontSize.pt },
       });
       await typeInComposerGrid("Hello");
@@ -888,7 +888,7 @@ describe("composer", () => {
     test("with font weight", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: { bold: true },
       });
       await typeInComposerGrid("Hello");
@@ -899,7 +899,7 @@ describe("composer", () => {
     test("with font style", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: { italic: true },
       });
       await typeInComposerGrid("Hello");
@@ -910,7 +910,7 @@ describe("composer", () => {
     test("with text decoration strikethrough", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: { strikethrough: true },
       });
       await typeInComposerGrid("Hello");
@@ -921,7 +921,7 @@ describe("composer", () => {
     test("with text decoration underline", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: { underline: true },
       });
       await typeInComposerGrid("Hello");
@@ -932,7 +932,7 @@ describe("composer", () => {
     test("with text decoration strikethrough and underline", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: { strikethrough: true, underline: true },
       });
       await typeInComposerGrid("Hello");
@@ -943,7 +943,7 @@ describe("composer", () => {
     test("with text align", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: { align: "right" },
       });
       await typeInComposerGrid("Hello");
@@ -956,7 +956,7 @@ describe("composer", () => {
     test("with text color", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: { textColor: "#123456" },
       });
       await typeInComposerGrid("=");
@@ -967,7 +967,7 @@ describe("composer", () => {
     test("with background color", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: { textColor: "#123456" },
       });
       await typeInComposerGrid("=");
@@ -979,7 +979,7 @@ describe("composer", () => {
       const fontSize = fontSizes[0];
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: { fontSize: fontSize.pt },
       });
       await typeInComposerGrid("=");
@@ -990,7 +990,7 @@ describe("composer", () => {
     test("with font weight", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: { bold: true },
       });
       await typeInComposerGrid("=");
@@ -1001,7 +1001,7 @@ describe("composer", () => {
     test("with font style", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: { italic: true },
       });
       await typeInComposerGrid("=");
@@ -1012,7 +1012,7 @@ describe("composer", () => {
     test("with text decoration", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: { strikethrough: true },
       });
       await typeInComposerGrid("=");
@@ -1023,7 +1023,7 @@ describe("composer", () => {
     test("with text align", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: { align: "right" },
       });
       await typeInComposerGrid("=");

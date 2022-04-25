@@ -161,7 +161,7 @@ export class EditionPlugin extends UIPlugin {
             const sheetName = sheet || this.getters.getSheetName(this.sheetId);
             const activeSheetId = this.getters.getActiveSheetId();
             return (
-              isEqual(this.getters.expandZone(activeSheetId, toZone(xc)), cmd.zone) &&
+              isEqual(this.getters.expandZone(activeSheetId, toZone(xc)), toZone(cmd.zone)) &&
               this.getters.getSheetName(activeSheetId) === sheetName
             );
           });
@@ -173,7 +173,7 @@ export class EditionPlugin extends UIPlugin {
         this.selectionInitialStart = previousRefToken!.start;
         break;
       case "CHANGE_HIGHLIGHT":
-        const newRef = this.getZoneReference(cmd.zone, this.previousRange!.parts);
+        const newRef = this.getZoneReference(toZone(cmd.zone), this.previousRange!.parts);
         this.selectionStart = this.selectionInitialStart;
         this.selectionEnd = this.selectionInitialStart + this.previousRef.length;
         this.replaceSelection(newRef);

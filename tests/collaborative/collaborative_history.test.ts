@@ -138,7 +138,7 @@ describe("Collaborative local history", () => {
     undo(alice);
     bob.dispatch("SET_FORMATTING", {
       sheetId: bob.getters.getActiveSheetId(),
-      target: [toZone("H2:J6")],
+      target: ["H2:J6"],
       style: { fillColor: "#121212" },
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();

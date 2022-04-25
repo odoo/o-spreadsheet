@@ -35,8 +35,8 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ADD_MERGE":
-        for (const zone of cmd.target) {
-          this.addBordersToMerge(cmd.sheetId, zone);
+        for (const xc of cmd.target) {
+          this.addBordersToMerge(cmd.sheetId, toZone(xc));
         }
         break;
       case "DUPLICATE_SHEET":
@@ -61,12 +61,14 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       case "SET_FORMATTING":
         if (cmd.border) {
           const sheet = this.getters.getSheet(cmd.sheetId);
-          const target = cmd.target.map((zone) => this.getters.expandZone(cmd.sheetId, zone));
+          const target = cmd.target.map((zone) =>
+            this.getters.expandZone(cmd.sheetId, toZone(zone))
+          );
           this.setBorders(sheet, target, cmd.border);
         }
         break;
       case "CLEAR_FORMATTING":
-        this.clearBorders(cmd.sheetId, cmd.target);
+        this.clearBorders(cmd.sheetId, cmd.target.map(toZone));
         break;
       case "REMOVE_COLUMNS_ROWS":
         for (let el of cmd.elements) {

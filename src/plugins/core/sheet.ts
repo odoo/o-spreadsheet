@@ -14,6 +14,7 @@ import {
   numberToLetters,
   positions,
   toCartesian,
+  toZone,
 } from "../../helpers/index";
 import { _lt, _t } from "../../translation";
 import {
@@ -128,7 +129,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         this.setGridLinesVisibility(cmd.sheetId, cmd.areGridLinesVisible);
         break;
       case "DELETE_CONTENT":
-        this.clearZones(cmd.sheetId, cmd.target);
+        this.clearZones(cmd.sheetId, cmd.target.map(toZone));
         break;
       case "CREATE_SHEET":
         const sheet = this.createSheet(
@@ -1040,10 +1041,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   private checkZones(cmd: Command): CommandResult {
     const zones: Zone[] = [];
     if ("zone" in cmd) {
-      zones.push(cmd.zone);
+      zones.push(toZone(cmd.zone));
     }
     if ("target" in cmd && Array.isArray(cmd.target)) {
-      zones.push(...cmd.target);
+      zones.push(...cmd.target.map(toZone));
     }
     if (!zones.every(isZoneValid)) {
       return CommandResult.InvalidRange;

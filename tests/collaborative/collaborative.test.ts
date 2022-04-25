@@ -218,8 +218,8 @@ describe("Multi users synchronisation", () => {
       row: 0,
       style: { fillColor: "#fefefe" },
     });
-    alice.dispatch("COPY", { target: [toZone("A1")] });
-    alice.dispatch("PASTE", { target: [toZone("A2")] });
+    alice.dispatch("COPY", { target: ["A1"] });
+    alice.dispatch("PASTE", { target: ["A2"] });
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A1")!.style, {
       fillColor: "#fefefe",
     });
@@ -236,8 +236,8 @@ describe("Multi users synchronisation", () => {
       row: 1,
       style: { fillColor: "#fefefe" },
     });
-    alice.dispatch("COPY", { target: [toZone("A1")] });
-    alice.dispatch("PASTE", { target: [toZone("B2")] });
+    alice.dispatch("COPY", { target: ["A1"] });
+    alice.dispatch("PASTE", { target: ["B2"] });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCell(user, "B2")!.style,
       undefined
@@ -300,7 +300,7 @@ describe("Multi users synchronisation", () => {
       });
       bob.dispatch("DELETE_CONTENT", {
         sheetId,
-        target: [toZone("A1:B2")],
+        target: ["A1:B2"],
       });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellContent(user, "B2"), "");
@@ -316,7 +316,7 @@ describe("Multi users synchronisation", () => {
       });
       bob.dispatch("SET_FORMATTING", {
         sheetId,
-        target: [toZone("B2:C3")],
+        target: ["B2:C3"],
         border: "external",
       });
     });
@@ -747,17 +747,17 @@ describe("Multi users synchronisation", () => {
     setCellContent(alice, "A1", "1");
     alice.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
-      target: [toZone("A1")],
+      target: ["A1"],
       sheetId,
     });
     alice.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#0000FF" }, "2"),
-      target: [toZone("A1")],
+      target: ["A1"],
       sheetId,
     });
     alice.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#00FF00" }, "3"),
-      target: [toZone("A1")],
+      target: ["A1"],
       sheetId,
     });
     network.concurrent(() => {
@@ -788,12 +788,12 @@ describe("Multi users synchronisation", () => {
     setCellContent(alice, "A1", "1");
     alice.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
-      target: [toZone("A1")],
+      target: ["A1"],
       sheetId,
     });
     alice.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#0000FF" }, "2"),
-      target: [toZone("A1")],
+      target: ["A1"],
       sheetId,
     });
     network.concurrent(() => {

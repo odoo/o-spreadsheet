@@ -1,7 +1,7 @@
 import { App, Component, onMounted, onWillUnmount, useState, useSubEnv, xml } from "@odoo/owl";
 import { TopBar } from "../../src/components/top_bar/top_bar";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
-import { toZone } from "../../src/helpers";
+import { zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { topbarComponentRegistry } from "../../src/registries";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
@@ -159,7 +159,7 @@ describe("TopBar component", () => {
 
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
+      target: [zoneToXc({ left: 0, right: 0, top: 0, bottom: 0 })],
       style: { bold: true },
     });
     await nextTick();
@@ -197,7 +197,7 @@ describe("TopBar component", () => {
     selectCell(model, "B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
       border: "all",
     });
     expect(getBorder(model, "B1")).toBeDefined();
@@ -278,7 +278,7 @@ describe("TopBar component", () => {
       setCellContent(model, "A1", content);
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
+        target: ["A1"],
         style: style as Style,
       });
       const { app } = await mountParent(model);
@@ -512,7 +512,7 @@ describe("TopBar - CF", () => {
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule,
       sheetId: model.getters.getActiveSheetId(),
-      target: cfRule.ranges.map(toZone),
+      target: cfRule.ranges,
     });
     setSelection(model, ["A1:K11"]);
 
@@ -556,12 +556,12 @@ describe("TopBar - CF", () => {
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule1,
       sheetId: model.getters.getActiveSheetId(),
-      target: cfRule1.ranges.map(toZone),
+      target: cfRule1.ranges,
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule2,
       sheetId: model.getters.getActiveSheetId(),
-      target: cfRule2.ranges.map(toZone),
+      target: cfRule2.ranges,
     });
     setSelection(model, ["A1:K11"]);
 

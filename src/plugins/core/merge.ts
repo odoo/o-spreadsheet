@@ -96,13 +96,13 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         }
         break;
       case "ADD_MERGE":
-        for (const zone of cmd.target) {
-          this.addMerge(this.getters.getSheet(cmd.sheetId)!, zone);
+        for (const xc of cmd.target) {
+          this.addMerge(this.getters.getSheet(cmd.sheetId)!, toZone(xc));
         }
         break;
       case "REMOVE_MERGE":
-        for (const zone of cmd.target) {
-          this.removeMerge(cmd.sheetId, zone);
+        for (const xc of cmd.target) {
+          this.removeMerge(cmd.sheetId, toZone(xc));
         }
         break;
     }
@@ -278,14 +278,16 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     return range !== undefined ? rangeToMerge(mergeId, range) : undefined;
   }
 
-  private checkDestructiveMerge({ sheetId, target }: AddMergeCommand): CommandResult {
+  private checkDestructiveMerge({ sheetId, target: targetXc }: AddMergeCommand): CommandResult {
+    const target = targetXc.map(toZone);
     const sheet = this.getters.tryGetSheet(sheetId);
     if (!sheet) return CommandResult.Success;
     const isDestructive = target.some((zone) => this.isMergeDestructive(sheet, zone));
     return isDestructive ? CommandResult.MergeIsDestructive : CommandResult.Success;
   }
 
-  private checkOverlap({ target }: AddMergeCommand): CommandResult {
+  private checkOverlap({ target: targetXc }: AddMergeCommand): CommandResult {
+    const target = targetXc.map(toZone);
     for (const zone of target) {
       for (const zone2 of target) {
         if (zone !== zone2 && overlap(zone, zone2)) {

@@ -94,15 +94,17 @@ function mergeTransformation(
     return cmd;
   }
   const target: Zone[] = [];
-  for (const zone1 of cmd.target) {
-    for (const zone2 of executed.target) {
+  for (const zone1Xc of cmd.target) {
+    const zone1 = toZone(zone1Xc);
+    for (const zone2Xc of executed.target) {
+      const zone2 = toZone(zone2Xc);
       if (!overlap(zone1, zone2)) {
         target.push({ ...zone1 });
       }
     }
   }
   if (target.length) {
-    return { ...cmd, target };
+    return { ...cmd, target: target.map(zoneToXc) };
   }
   return undefined;
 }

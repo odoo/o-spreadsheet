@@ -7,7 +7,7 @@ import {
 } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR, DEFAULT_FONT_SIZE } from "../../constants";
 import { fontSizes } from "../../fonts";
-import { isEqual } from "../../helpers/index";
+import { isEqual, zoneToXc } from "../../helpers/index";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../../registries/index";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { FullMenuItem } from "../../registries/menu_items_registry";
@@ -392,7 +392,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   toggleMerge() {
     const zones = this.env.model.getters.getSelectedZones();
-    const target = [zones[zones.length - 1]];
+    const target = [zones[zones.length - 1]].map(zoneToXc);
     const sheetId = this.env.model.getters.getActiveSheetId();
     if (this.inMerge) {
       this.env.model.dispatch("REMOVE_MERGE", { sheetId, target });
@@ -418,7 +418,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   setBorder(command: BorderCommand) {
     this.env.model.dispatch("SET_FORMATTING", {
       sheetId: this.env.model.getters.getActiveSheetId(),
-      target: this.env.model.getters.getSelectedZones(),
+      target: this.env.model.getters.getSelectedZones().map(zoneToXc),
       border: command,
     });
   }
@@ -444,21 +444,21 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   setDecimal(step: number) {
     this.env.model.dispatch("SET_DECIMAL", {
       sheetId: this.env.model.getters.getActiveSheetId(),
-      target: this.env.model.getters.getSelectedZones(),
+      target: this.env.model.getters.getSelectedZones().map(zoneToXc),
       step: step,
     });
   }
 
   paintFormat() {
     this.env.model.dispatch("ACTIVATE_PAINT_FORMAT", {
-      target: this.env.model.getters.getSelectedZones(),
+      target: this.env.model.getters.getSelectedZones().map(zoneToXc),
     });
   }
 
   clearFormatting() {
     this.env.model.dispatch("CLEAR_FORMATTING", {
       sheetId: this.env.model.getters.getActiveSheetId(),
-      target: this.env.model.getters.getSelectedZones(),
+      target: this.env.model.getters.getSelectedZones().map(zoneToXc),
     });
   }
 

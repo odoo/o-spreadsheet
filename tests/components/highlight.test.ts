@@ -132,12 +132,12 @@ describe("Corner component", () => {
       // select B2 nw corner
       selectNWCellCorner(cornerEl, "B2");
       expect(model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
+        zone: "B2",
       });
       // move to A1
       moveToCell(cornerEl, "A1");
       expect(model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        zone: toZone("A1:B2"),
+        zone: "A1:B2",
       });
     });
 
@@ -148,13 +148,13 @@ describe("Corner component", () => {
       // select B2 ne corner
       selectNECellCorner(cornerEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
+        zone: "B2",
       });
 
       // move to C1
       moveToCell(cornerEl, "C1");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        zone: toZone("B1:C2"),
+        zone: "B1:C2",
       });
     });
 
@@ -165,13 +165,13 @@ describe("Corner component", () => {
       // select B2 sw corner
       selectSWCellCorner(cornerEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
+        zone: "B2",
       });
 
       // move to A3
       moveToCell(cornerEl, "A3");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        zone: toZone("A2:B3"),
+        zone: "A2:B3",
       });
     });
 
@@ -182,13 +182,13 @@ describe("Corner component", () => {
       // select B2 se corner
       selectSECellCorner(cornerEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
+        zone: "B2",
       });
 
       // move to C3
       moveToCell(cornerEl, "C3");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        zone: toZone("B2:C3"),
+        zone: "B2:C3",
       });
     });
   });
@@ -200,7 +200,7 @@ describe("Corner component", () => {
     // select A1 nw corner
     selectNWCellCorner(cornerEl, "A1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("A1"),
+      zone: "A1",
     });
 
     // move outside the grid
@@ -222,13 +222,13 @@ describe("Corner component", () => {
     // select B2 se corner
     selectNWCellCorner(cornerEl, "B2");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("B2"),
+      zone: "B2",
     });
 
     // move to B1
     moveToCell(cornerEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      zone: toZone("B1:C2"),
+      zone: "B1:C2",
     });
   });
 
@@ -246,7 +246,7 @@ describe("Corner component", () => {
     // select B1 nw corner
     selectNWCellCorner(cornerEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("B1"),
+      zone: "B1",
     });
 
     // move to C1
@@ -271,7 +271,7 @@ describe("Corner component", () => {
     // select A2 nw corner
     selectTopCellBorder(cornerEl, "A2");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("A2"),
+      zone: "A2",
     });
 
     // move to A3
@@ -292,13 +292,13 @@ describe("Border component", () => {
       // select B2 top border
       selectTopCellBorder(borderEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
+        zone: "B2",
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        zone: toZone("C2"),
+        zone: "C2",
       });
     });
 
@@ -309,13 +309,13 @@ describe("Border component", () => {
       // select B2 left border
       selectLeftCellBorder(borderEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
+        zone: "B2",
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        zone: toZone("C2"),
+        zone: "C2",
       });
     });
 
@@ -326,13 +326,13 @@ describe("Border component", () => {
       // select B2 right border
       selectRightCellBorder(borderEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
+        zone: "B2",
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        zone: toZone("C2"),
+        zone: "C2",
       });
     });
 
@@ -343,13 +343,13 @@ describe("Border component", () => {
       // select B2 bottom border
       selectBottomCellBorder(borderEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
+        zone: "B2",
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        zone: toZone("C2"),
+        zone: "C2",
       });
     });
   });
@@ -361,19 +361,19 @@ describe("Border component", () => {
     // select A1 top border
     selectTopCellBorder(borderEl, "A1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("A1:B2"),
+      zone: "A1:B2",
     });
 
     // move to B1
     moveToCell(borderEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      zone: toZone("B1:C2"),
+      zone: "B1:C2",
     });
 
     // move to C1
     moveToCell(borderEl, "C1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      zone: toZone("C1:D2"),
+      zone: "C1:D2",
     });
   });
 
@@ -384,13 +384,13 @@ describe("Border component", () => {
     // select B1 top border
     selectTopCellBorder(borderEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("A1:B2"),
+      zone: "A1:B2",
     });
 
     // move to C1
     moveToCell(borderEl, "C1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      zone: toZone("B1:C2"),
+      zone: "B1:C2",
     });
   });
 
@@ -401,7 +401,7 @@ describe("Border component", () => {
     // select B2 bottom border
     selectBottomCellBorder(borderEl, "B2");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("A1:B2"),
+      zone: "A1:B2",
     });
 
     // move to A2
@@ -417,13 +417,13 @@ describe("Border component", () => {
     // select A1 top border
     selectTopCellBorder(borderEl, "A1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("A1"),
+      zone: "A1",
     });
 
     // move to B1
     moveToCell(borderEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      zone: toZone("B1:C1"),
+      zone: "B1:C1",
     });
   });
 
@@ -435,13 +435,13 @@ describe("Border component", () => {
     // select A1 top border
     selectTopCellBorder(borderEl, "A1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("A1"),
+      zone: "A1",
     });
 
     // move to B1
     moveToCell(borderEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      zone: toZone("B1:C1"),
+      zone: "B1:C1",
     });
   });
 
@@ -459,7 +459,7 @@ describe("Border component", () => {
     // select B1 top border
     selectTopCellBorder(borderEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("B1"),
+      zone: "B1",
     });
 
     // move to C1
@@ -484,7 +484,7 @@ describe("Border component", () => {
     // select A2 top border
     selectTopCellBorder(borderEl, "A2");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("A2"),
+      zone: "A2",
     });
 
     // move to A3

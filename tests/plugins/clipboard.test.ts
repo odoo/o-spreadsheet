@@ -1,4 +1,4 @@
-import { toZone } from "../../src/helpers";
+import { toZone, zoneToXc } from "../../src/helpers";
 import { interactivePaste } from "../../src/helpers/ui/paste";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
@@ -51,8 +51,8 @@ describe("clipboard", () => {
       },
     });
 
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("D2")] });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["D2"] });
     expect(getCell(model, "B2")).toMatchObject({
       content: "b2",
       evaluated: {
@@ -81,7 +81,7 @@ describe("clipboard", () => {
       },
     });
 
-    model.dispatch("CUT", { target: [toZone("B2")] });
+    model.dispatch("CUT", { target: ["B2"] });
     expect(getCell(model, "B2")).toMatchObject({
       content: "b2",
       evaluated: {
@@ -89,7 +89,7 @@ describe("clipboard", () => {
         value: "b2",
       },
     });
-    model.dispatch("PASTE", { target: [toZone("D2")] });
+    model.dispatch("PASTE", { target: ["D2"] });
 
     expect(getCell(model, "B2")).toBeUndefined();
     expect(getCell(model, "D2")).toMatchObject({
@@ -103,14 +103,14 @@ describe("clipboard", () => {
     expect(getClipboardVisibleZones(model).length).toBe(0);
 
     // select D3 and paste. it should do nothing
-    model.dispatch("PASTE", { target: [toZone("D3:D3")] });
+    model.dispatch("PASTE", { target: ["D3:D3"] });
 
     expect(getCell(model, "D3")).toBeUndefined();
   });
 
   test("paste without copied value", () => {
     const model = new Model();
-    const result = model.dispatch("PASTE", { target: [toZone("D2")] });
+    const result = model.dispatch("PASTE", { target: ["D2"] });
     expect(result).toBeCancelledBecause(CommandResult.EmptyClipboard);
   });
 
@@ -132,11 +132,11 @@ describe("clipboard", () => {
   test("can cut and paste a cell in different sheets", () => {
     const model = new Model();
     setCellContent(model, "A1", "a1");
-    model.dispatch("CUT", { target: [toZone("A1")] });
+    model.dispatch("CUT", { target: ["A1"] });
     const to = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
     setCellContent(model, "A1", "a1Sheet2");
-    model.dispatch("PASTE", { target: [toZone("B2")] });
+    model.dispatch("PASTE", { target: ["B2"] });
     expect(getCell(model, "A1")).toMatchObject({
       content: "a1Sheet2",
       evaluated: {
@@ -157,7 +157,7 @@ describe("clipboard", () => {
     expect(getClipboardVisibleZones(model).length).toBe(0);
 
     // select D3 and paste. it should do nothing
-    model.dispatch("PASTE", { target: [toZone("D3:D3")] });
+    model.dispatch("PASTE", { target: ["D3:D3"] });
 
     expect(getCell(model, "D3")).toBeUndefined();
   });
@@ -167,10 +167,10 @@ describe("clipboard", () => {
     setCellContent(model, "A1", "a1");
     setCellContent(model, "A2", "a2");
 
-    model.dispatch("CUT", { target: [toZone("A1:A2")] });
+    model.dispatch("CUT", { target: ["A1:A2"] });
     expect(getGrid(model)).toEqual({ A1: "a1", A2: "a2" });
 
-    model.dispatch("PASTE", { target: [toZone("A2")] });
+    model.dispatch("PASTE", { target: ["A2"] });
     expect(getGrid(model)).toEqual({ A2: "a1", A3: "a2" });
   });
 
@@ -181,13 +181,13 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: [zoneToXc({ left: 1, right: 1, top: 1, bottom: 1 })],
       style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")] });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["C2"] });
 
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
@@ -200,7 +200,7 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: [zoneToXc({ left: 1, right: 1, top: 1, bottom: 1 })],
       style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
@@ -208,10 +208,10 @@ describe("clipboard", () => {
     // set value in A1, select and copy it
     setCellContent(model, "A1", "a1");
     selectCell(model, "A1");
-    model.dispatch("COPY", { target: [toZone("A1")] });
+    model.dispatch("COPY", { target: ["A1"] });
 
     // select B2 again and paste
-    model.dispatch("PASTE", { target: [toZone("B2")] });
+    model.dispatch("PASTE", { target: ["B2"] });
 
     expect(getCell(model, "B2")!.evaluated.value).toBe("a1");
     expect(getCell(model, "B2")!.style).not.toBeDefined();
@@ -225,16 +225,16 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: [zoneToXc({ left: 1, right: 1, top: 1, bottom: 1 })],
       style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     // set value in A1, select and copy it
     selectCell(model, "A1");
-    model.dispatch("COPY", { target: [toZone("A1")] });
+    model.dispatch("COPY", { target: ["A1"] });
 
-    model.dispatch("PASTE", { target: [toZone("B2")] });
+    model.dispatch("PASTE", { target: ["B2"] });
 
     expect(getCell(model, "B2")).toBeUndefined();
   });
@@ -244,13 +244,13 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
       border: "bottom",
     });
     expect(getBorder(model, "B2")).toEqual({ bottom: ["thin", "#000"] });
 
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")] });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["C2"] });
 
     expect(getBorder(model, "B2")).toEqual({ bottom: ["thin", "#000"] });
     expect(getBorder(model, "C2")).toEqual({ bottom: ["thin", "#000"] });
@@ -281,13 +281,13 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
       format: "0.00%",
     });
     expect(getCellContent(model, "B2")).toBe("45.10%");
 
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")] });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["C2"] });
 
     expect(getCellContent(model, "C2")).toBe("45.10%");
   });
@@ -426,7 +426,7 @@ describe("clipboard", () => {
       ],
     });
     const sheet2 = "s2";
-    model.dispatch("COPY", { target: [toZone("B2")] });
+    model.dispatch("COPY", { target: ["B2"] });
     activateSheet(model, sheet2);
     model.dispatch("PASTE", { target: target("A1") });
     expect(model.getters.isInMerge(sheet2, ...toCartesianArray("A1"))).toBe(true);
@@ -454,9 +454,9 @@ describe("clipboard", () => {
 
     expect(getCellText(model, "A1", "s1")).toBe("=A2");
 
-    model.dispatch("COPY", { target: [toZone("A1")] });
+    model.dispatch("COPY", { target: ["A1"] });
     activateSheet(model, "s2");
-    model.dispatch("PASTE", { target: [toZone("A1")] });
+    model.dispatch("PASTE", { target: ["A1"] });
 
     expect(getCellText(model, "A1", "s1")).toBe("=A2");
     expect(getCellText(model, "A1", "s2")).toBe("=A2");
@@ -480,11 +480,11 @@ describe("clipboard", () => {
 
     selectCell(model, "B2");
     const selection = model.getters.getSelection().zones;
-    model.dispatch("COPY", { target: selection });
+    model.dispatch("COPY", { target: selection.map(zoneToXc) });
 
     selectCell(model, "A1");
     const env = makeInteractiveTestEnv(model, { notifyUser });
-    interactivePaste(env, model.getters.getSelectedZones());
+    interactivePaste(env, model.getters.getSelectedZones().map(zoneToXc));
     expect(notifyUser).toHaveBeenCalled();
   });
 
@@ -530,8 +530,8 @@ describe("clipboard", () => {
 
     selectCell(model, "B2");
     const selection = model.getters.getSelection().zones;
-    model.dispatch("COPY", { target: selection });
-    const result = model.dispatch("PASTE", { target: [toZone("A1")] });
+    model.dispatch("COPY", { target: selection.map(zoneToXc) });
+    const result = model.dispatch("PASTE", { target: ["A1"] });
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
     expect(model.getters.isInMerge("s1", ...toCartesianArray("A1"))).toBe(false);
     expect(model.getters.isInMerge("s1", ...toCartesianArray("A2"))).toBe(false);
@@ -555,7 +555,7 @@ describe("clipboard", () => {
     });
     selectCell(model, "B2");
     const selection = model.getters.getSelection().zones;
-    model.dispatch("COPY", { target: selection });
+    model.dispatch("COPY", { target: selection.map(zoneToXc) });
     model.dispatch("PASTE", { target: target("A1"), force: true });
     expect(model.getters.isInMerge("s1", ...toCartesianArray("A1"))).toBe(true);
     expect(model.getters.isInMerge("s1", ...toCartesianArray("A2"))).toBe(true);
@@ -572,12 +572,12 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: [zoneToXc({ left: 1, right: 1, top: 1, bottom: 1 })],
       style: { bold: true },
     });
 
-    model.dispatch("CUT", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")] });
+    model.dispatch("CUT", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["C2"] });
 
     expect(getCell(model, "C2")).toMatchObject({
       style: { bold: true },
@@ -594,12 +594,12 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "B2", "abc");
     selectCell(model, "B2");
-    model.dispatch("COPY", { target: [toZone("B2")] });
+    model.dispatch("COPY", { target: ["B2"] });
     expect(model.getters.getClipboardContent()).toBe("abc");
 
     setCellContent(model, "B2", "= 1 + 2");
     selectCell(model, "B2");
-    model.dispatch("COPY", { target: [toZone("B2")] });
+    model.dispatch("COPY", { target: ["B2"] });
     expect(model.getters.getClipboardContent()).toBe("3");
   });
 
@@ -610,14 +610,14 @@ describe("clipboard", () => {
     setCellContent(model, "C2", "c2");
     setCellContent(model, "C3", "c3");
 
-    model.dispatch("COPY", { target: [toZone("B2:C3")] });
+    model.dispatch("COPY", { target: ["B2:C3"] });
 
     expect(getCell(model, "D1")).toBeUndefined();
     expect(getCell(model, "D2")).toBeUndefined();
     expect(getCell(model, "E1")).toBeUndefined();
     expect(getCell(model, "E2")).toBeUndefined();
 
-    model.dispatch("PASTE", { target: [toZone("D1:D1")] });
+    model.dispatch("PASTE", { target: ["D1:D1"] });
 
     expect(getCellContent(model, "D1")).toBe("b2");
     expect(getCellContent(model, "D2")).toBe("b3");
@@ -636,13 +636,13 @@ describe("clipboard", () => {
     setCellContent(model, "B3", "b3");
     setCellContent(model, "C2", "c2");
     setCellContent(model, "C3", "c3");
-    model.dispatch("COPY", { target: [toZone("B2:C3")] });
+    model.dispatch("COPY", { target: ["B2:C3"] });
     expect(model.getters.getClipboardContent()).toBe("b2\tc2\nb3\tc3");
   });
 
   test("can paste multiple cells from os clipboard", () => {
     const model = new Model();
-    model.dispatch("PASTE_FROM_OS_CLIPBOARD", { text: "a\t1\nb\t2", target: [toZone("C1")] });
+    model.dispatch("PASTE_FROM_OS_CLIPBOARD", { text: "a\t1\nb\t2", target: ["C1"] });
 
     expect(getCellContent(model, "C1")).toBe("a");
     expect(getCellContent(model, "C2")).toBe("b");
@@ -652,7 +652,7 @@ describe("clipboard", () => {
 
   test("pasting numbers from windows clipboard => interpreted as number", () => {
     const model = new Model();
-    model.dispatch("PASTE_FROM_OS_CLIPBOARD", { text: "1\r\n2\r\n3", target: [toZone("C1")] });
+    model.dispatch("PASTE_FROM_OS_CLIPBOARD", { text: "1\r\n2\r\n3", target: ["C1"] });
 
     expect(getCellContent(model, "C1")).toBe("1");
     expect(getCell(model, "C1")?.evaluated.value).toBe(1);
@@ -665,9 +665,9 @@ describe("clipboard", () => {
   test("pasting a value in a larger selection", () => {
     const model = new Model();
     setCellContent(model, "A1", "1");
-    model.dispatch("COPY", { target: [toZone("A1:A1")] });
+    model.dispatch("COPY", { target: ["A1:A1"] });
 
-    model.dispatch("PASTE", { target: [toZone("C2:E3")] });
+    model.dispatch("PASTE", { target: ["C2:E3"] });
     expect(getCellContent(model, "C2")).toBe("1");
     expect(getCellContent(model, "C3")).toBe("1");
     expect(getCellContent(model, "D2")).toBe("1");
@@ -680,14 +680,14 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
-    model.dispatch("COPY", { target: [toZone("A1:A2")] });
+    model.dispatch("COPY", { target: ["A1:A2"] });
 
     // select C1:C3
     selectCell(model, "C1");
     setAnchorCorner(model, "C3");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 2, right: 2 });
-    model.dispatch("PASTE", { target: [toZone("C1:C3")] });
+    model.dispatch("PASTE", { target: ["C1:C3"] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 1, right: 2 });
     expect(getCellContent(model, "C1")).toBe("1");
     expect(getCellContent(model, "C2")).toBe("2");
@@ -697,12 +697,12 @@ describe("clipboard", () => {
   test("selection is not changed if pasting a single value into two zones", () => {
     const model = new Model();
     setCellContent(model, "A1", "1");
-    model.dispatch("COPY", { target: [toZone("A1:A1")] });
+    model.dispatch("COPY", { target: ["A1:A1"] });
 
     selectCell(model, "C1");
     addCellToSelection(model, "E1");
 
-    model.dispatch("PASTE", { target: [toZone("C1"), toZone("E1")] });
+    model.dispatch("PASTE", { target: ["C1", "E1"] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 0, right: 2 });
     expect(model.getters.getSelectedZones()[1]).toEqual({ top: 0, left: 4, bottom: 0, right: 4 });
   });
@@ -710,9 +710,9 @@ describe("clipboard", () => {
   test("pasting a value in multiple zones", () => {
     const model = new Model();
     setCellContent(model, "A1", "33");
-    model.dispatch("COPY", { target: [toZone("A1:A1")] });
+    model.dispatch("COPY", { target: ["A1:A1"] });
 
-    model.dispatch("PASTE", { target: [toZone("C1"), toZone("E1")] });
+    model.dispatch("PASTE", { target: ["C1", "E1"] });
 
     expect(getCellContent(model, "C1")).toBe("33");
     expect(getCellContent(model, "E1")).toBe("33");
@@ -722,8 +722,8 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
-    model.dispatch("COPY", { target: [toZone("A1:A2")] });
-    const result = model.dispatch("PASTE", { target: [toZone("C1"), toZone("E1")] });
+    model.dispatch("COPY", { target: ["A1:A2"] });
+    const result = model.dispatch("PASTE", { target: ["C1", "E1"] });
 
     expect(result).toBeCancelledBecause(CommandResult.WrongPasteSelection);
   });
@@ -733,12 +733,12 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
-    model.dispatch("COPY", { target: [toZone("A1:A2")] });
+    model.dispatch("COPY", { target: ["A1:A2"] });
 
     selectCell(model, "C4");
     addCellToSelection(model, "F6");
     const env = makeInteractiveTestEnv(model, { notifyUser });
-    interactivePaste(env, model.getters.getSelectedZones());
+    interactivePaste(env, model.getters.getSelectedZones().map(zoneToXc));
     expect(notifyUser).toHaveBeenCalled();
   });
 
@@ -906,8 +906,8 @@ describe("clipboard", () => {
     expect(getCellText(model, "B2")).toEqual('="test"');
     expect(getCell(model, "B2")!.evaluated.value).toEqual("test");
 
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("D2")] });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["D2"] });
     expect(getCellText(model, "B2")).toEqual('="test"');
     expect(getCell(model, "B2")!.evaluated.value).toEqual("test");
     expect(getCellText(model, "D2")).toEqual('="test"');
@@ -919,8 +919,8 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
 
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("D2")] });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["D2"] });
     expect(getCell(model, "D2")).toBeDefined();
     undo(model);
     expect(getCell(model, "D2")).toBeUndefined();
@@ -932,13 +932,13 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: [zoneToXc({ left: 1, right: 1, top: 1, bottom: 1 })],
       style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyFormat" });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["C2"], pasteOption: "onlyFormat" });
     expect(getCellContent(model, "C2")).toBe("");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
   });
@@ -949,13 +949,13 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: [zoneToXc({ left: 1, right: 1, top: 1, bottom: 1 })],
       style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyFormat" });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["C2"], pasteOption: "onlyFormat" });
     expect(getCellContent(model, "C2")).toBe("");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
   });
@@ -967,13 +967,13 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: [zoneToXc({ left: 1, right: 1, top: 1, bottom: 1 })],
       style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyFormat" });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["C2"], pasteOption: "onlyFormat" });
 
     expect(getCellContent(model, "C2")).toBe("c2");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
@@ -985,11 +985,11 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: [zoneToXc({ left: 1, right: 1, top: 1, bottom: 1 })],
       style: { bold: true },
     });
-    model.dispatch("COPY", { target: [toZone("B2:B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyFormat" });
+    model.dispatch("COPY", { target: ["B2:B2"] });
+    model.dispatch("PASTE", { target: ["C2"], pasteOption: "onlyFormat" });
 
     expect(getCellContent(model, "C2")).toBe("");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
@@ -1002,8 +1002,8 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyValue" });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["C2"], pasteOption: "onlyValue" });
     expect(getCellContent(model, "C2")).toBe("b2");
   });
 
@@ -1013,13 +1013,13 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: [zoneToXc({ left: 1, right: 1, top: 1, bottom: 1 })],
       style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyValue" });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["C2"], pasteOption: "onlyValue" });
 
     expect(getCell(model, "C2")!.evaluated.value).toBe("b2");
     expect(getCell(model, "C2")!.style).not.toBeDefined();
@@ -1031,13 +1031,13 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
       border: "bottom",
     });
     expect(getBorder(model, "B2")).toEqual({ bottom: ["thin", "#000"] });
 
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyValue" });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["C2"], pasteOption: "onlyValue" });
 
     expect(getCell(model, "C2")!.evaluated.value).toBe("b2");
     expect(getBorder(model, "C2")).toBeNull();
@@ -1049,13 +1049,13 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
       format: "0.00%",
     });
     expect(getCellContent(model, "B2")).toBe("45.10%");
 
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyValue" });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["C2"], pasteOption: "onlyValue" });
 
     expect(getCellContent(model, "C2")).toBe("0.451");
   });
@@ -1075,7 +1075,7 @@ describe("clipboard", () => {
     setCellContent(model, "C2", "2");
     let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
-      target: [toZone("A1"), toZone("A2")],
+      target: ["A1", "A2"],
       sheetId: model.getters.getActiveSheetId(),
     });
 
@@ -1099,13 +1099,13 @@ describe("clipboard", () => {
     selectCell(model, "C3");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 2, right: 2, top: 2, bottom: 2 }],
+      target: [zoneToXc({ left: 2, right: 2, top: 2, bottom: 2 })],
       style: { bold: true },
     });
     expect(getCell(model, "C3")!.style).toEqual({ bold: true });
 
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C3")], pasteOption: "onlyValue" });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["C3"], pasteOption: "onlyValue" });
 
     expect(getCellContent(model, "C3")).toBe("b2");
     expect(getCell(model, "C3")!.style).toEqual({ bold: true });
@@ -1118,14 +1118,14 @@ describe("clipboard", () => {
     selectCell(model, "C3");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
       border: "bottom",
     });
     expect(getBorder(model, "C3")).toEqual({ bottom: ["thin", "#000"] });
     expect(getBorder(model, "C4")).toEqual({ top: ["thin", "#000"] });
 
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C3")], pasteOption: "onlyValue" });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["C3"], pasteOption: "onlyValue" });
 
     expect(getCellContent(model, "C3")).toBe("b2");
     expect(getBorder(model, "C3")).toEqual({ bottom: ["thin", "#000"] });
@@ -1138,13 +1138,13 @@ describe("clipboard", () => {
     selectCell(model, "C3");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
       format: "0.00%",
     });
     expect(getCellContent(model, "C3")).toBe("45.10%");
 
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C3")], pasteOption: "onlyValue" });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["C3"], pasteOption: "onlyValue" });
 
     expect(getCellContent(model, "C3")).toBe("4200.00%");
   });
@@ -1154,8 +1154,8 @@ describe("clipboard", () => {
     setCellContent(model, "A1", "=SUM(1+2)");
     setCellContent(model, "A2", "=EQ(42,42)");
     setCellContent(model, "A3", '=CONCAT("Ki","kou")');
-    model.dispatch("COPY", { target: [toZone("A1:A3")] });
-    model.dispatch("PASTE", { target: [toZone("B1")], pasteOption: "onlyValue" });
+    model.dispatch("COPY", { target: ["A1:A3"] });
+    model.dispatch("PASTE", { target: ["B1"], pasteOption: "onlyValue" });
     expect(getCellContent(model, "B1")).toBe("3");
     expect(getCellContent(model, "B2")).toBe("TRUE");
     expect(getCellContent(model, "B3")).toBe("Kikou");
@@ -1167,11 +1167,11 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: [zoneToXc({ left: 1, right: 1, top: 1, bottom: 1 })],
       style: { bold: true },
     });
-    model.dispatch("COPY", { target: [toZone("B2:B2")] });
-    model.dispatch("PASTE", { target: [toZone("C2")], pasteOption: "onlyValue" });
+    model.dispatch("COPY", { target: ["B2:B2"] });
+    model.dispatch("PASTE", { target: ["C2"], pasteOption: "onlyValue" });
 
     expect(getCellContent(model, "C2")).toBe("b2");
     expect(getCell(model, "C2")!.style).not.toBeDefined();
@@ -1183,8 +1183,8 @@ describe("clipboard", () => {
   test("can copy and paste a formula and update the refs", () => {
     const model = new Model();
     setCellContent(model, "A1", "=SUM(C1:C2)");
-    model.dispatch("COPY", { target: [toZone("A1")] });
-    model.dispatch("PASTE", { target: [toZone("B2")] });
+    model.dispatch("COPY", { target: ["A1"] });
+    model.dispatch("PASTE", { target: ["B2"] });
     expect(getCellText(model, "B2")).toBe("=SUM(D2:D3)");
   });
 
@@ -1207,8 +1207,8 @@ describe("clipboard", () => {
   ])("can copy and paste formula with $refs", (value, expected) => {
     const model = new Model();
     setCellContent(model, "A1", value);
-    model.dispatch("COPY", { target: [toZone("A1")] });
-    model.dispatch("PASTE", { target: [toZone("B2")] });
+    model.dispatch("COPY", { target: ["A1"] });
+    model.dispatch("PASTE", { target: ["B2"] });
     expect(getCellText(model, "B2")).toBe(expected);
   });
 
@@ -1220,16 +1220,16 @@ describe("clipboard", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      target: [zoneToXc({ left: 1, right: 1, top: 1, bottom: 1 })],
       style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     // select A1 and copy format
-    model.dispatch("COPY", { target: [toZone("A1")] });
+    model.dispatch("COPY", { target: ["A1"] });
 
     // select B2 and paste format
-    model.dispatch("PASTE", { target: [toZone("B2")], pasteOption: "onlyFormat" });
+    model.dispatch("PASTE", { target: ["B2"], pasteOption: "onlyFormat" });
 
     expect(getCellContent(model, "B2")).toBe("b2");
     expect(getCell(model, "B2")!.style).not.toBeDefined();
@@ -1251,7 +1251,7 @@ describe("clipboard", () => {
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("A1"), toZone("A2")],
+      target: ["A1", "A2"],
     });
     model.dispatch("COPY", { target: target("A1") });
     model.dispatch("PASTE", { target: target("C1") });
@@ -1281,7 +1281,7 @@ describe("clipboard", () => {
     setCellContent(model, "C2", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
-      target: [toZone("A1"), toZone("A2")],
+      target: ["A1", "A2"],
       sheetId: model.getters.getActiveSheetId(),
     });
     model.dispatch("CUT", { target: target("A1") });
@@ -1309,7 +1309,7 @@ describe("clipboard", () => {
     setCellContent(model, "A2", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
-      target: [toZone("A1"), toZone("A2")],
+      target: ["A1", "A2"],
       sheetId: model.getters.getActiveSheetId(),
     });
     model.dispatch("COPY", { target: target("A1:A2") });
@@ -1348,7 +1348,7 @@ describe("clipboard", () => {
     setCellContent(model, "A2", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
-      target: [toZone("A1"), toZone("A2")],
+      target: ["A1", "A2"],
       sheetId: model.getters.getActiveSheetId(),
     });
     model.dispatch("CUT", { target: target("A1:A2") });
@@ -1386,10 +1386,10 @@ describe("clipboard", () => {
     setCellContent(model, "A2", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
-      target: [toZone("A1"), toZone("A2")],
+      target: ["A1", "A2"],
       sheetId: model.getters.getActiveSheetId(),
     });
-    model.dispatch("COPY", { target: [toZone("A1:A2")] });
+    model.dispatch("COPY", { target: ["A1:A2"] });
     activateSheet(model, "s2");
     model.dispatch("PASTE", { target: target("A1") });
     expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
@@ -1423,10 +1423,10 @@ describe("clipboard", () => {
     setCellContent(model, "A2", "2");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
-      target: [toZone("A1"), toZone("A2")],
+      target: ["A1", "A2"],
       sheetId: model.getters.getActiveSheetId(),
     });
-    model.dispatch("CUT", { target: [toZone("A1:A2")] });
+    model.dispatch("CUT", { target: ["A1:A2"] });
     activateSheet(model, sheet2);
     model.dispatch("PASTE", { target: target("A1") });
     expect(model.getters.getConditionalStyle(...toCartesianArray("A1"))).toEqual({
@@ -1449,8 +1449,8 @@ describe("clipboard", () => {
     createSheet(model, { sheetId: "42" });
     setCellContent(model, "B2", "=Sheet2!B2");
 
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("B3")] });
+    model.dispatch("COPY", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["B3"] });
     expect(getCellText(model, "B3")).toBe("=Sheet2!B3");
   });
 
@@ -1469,8 +1469,8 @@ describe("clipboard", () => {
     createSheet(model, { sheetId: "42", rows: 2, cols: 2 });
     setCellContent(model, "A1", "=Sheet2!A1:A2");
 
-    model.dispatch("COPY", { target: [toZone("A1")] });
-    model.dispatch("PASTE", { target: [toZone("A2")] });
+    model.dispatch("COPY", { target: ["A1"] });
+    model.dispatch("PASTE", { target: ["A2"] });
     expect(getCellText(model, "A2")).toBe("=Sheet2!A2:A3");
   });
 
@@ -1479,8 +1479,8 @@ describe("clipboard", () => {
     createSheet(model, { sheetId: "42" });
     setCellContent(model, "A1", "=SUM(Sheet2!A2:A5)");
 
-    model.dispatch("COPY", { target: [toZone("A1")] });
-    model.dispatch("PASTE", { target: [toZone("B1")] });
+    model.dispatch("COPY", { target: ["A1"] });
+    model.dispatch("PASTE", { target: ["B1"] });
     expect(getCellText(model, "B1")).toBe("=SUM(Sheet2!B2:B5)");
   });
 
@@ -1493,8 +1493,8 @@ describe("clipboard", () => {
     deleteRows(model, [0]);
     expect(getCell(model, "A2")!.content).toBe(expectedInvalidFormula);
 
-    model.dispatch("COPY", { target: [toZone("A2")] });
-    model.dispatch("PASTE", { target: [toZone("C5")] });
+    model.dispatch("COPY", { target: ["A2"] });
+    model.dispatch("PASTE", { target: ["C5"] });
     expect(getCell(model, "C5")!.content).toBe(expectedInvalidFormula);
   });
 
@@ -1507,8 +1507,8 @@ describe("clipboard", () => {
     deleteColumns(model, ["A"]);
     expect(getCell(model, "B1")!.content).toBe(expectedInvalidFormula);
 
-    model.dispatch("COPY", { target: [toZone("B1")] });
-    model.dispatch("PASTE", { target: [toZone("C3")] });
+    model.dispatch("COPY", { target: ["B1"] });
+    model.dispatch("PASTE", { target: ["C3"] });
     expect(getCell(model, "C3")!.content).toBe(expectedInvalidFormula);
   });
 
@@ -1521,8 +1521,8 @@ describe("clipboard", () => {
     deleteRows(model, [0]);
     expect(getCell(model, "A2")!.content).toBe(expectedInvalidFormula);
 
-    model.dispatch("CUT", { target: [toZone("A2")] });
-    model.dispatch("PASTE", { target: [toZone("C5")] });
+    model.dispatch("CUT", { target: ["A2"] });
+    model.dispatch("PASTE", { target: ["C5"] });
     expect(getCell(model, "C5")!.content).toBe(expectedInvalidFormula);
   });
 
@@ -1535,8 +1535,8 @@ describe("clipboard", () => {
     deleteColumns(model, ["A"]);
     expect(getCell(model, "B1")!.content).toBe(expectedInvalidFormula);
 
-    model.dispatch("CUT", { target: [toZone("B1")] });
-    model.dispatch("PASTE", { target: [toZone("C3")] });
+    model.dispatch("CUT", { target: ["B1"] });
+    model.dispatch("PASTE", { target: ["C3"] });
     expect(getCell(model, "C3")!.content).toBe(expectedInvalidFormula);
   });
 });
@@ -1548,8 +1548,10 @@ describe("clipboard: pasting outside of sheet", () => {
     const activeSheet = model.getters.getActiveSheet();
     const currentRowNumber = activeSheet.rows.length;
 
-    model.dispatch("COPY", { target: [model.getters.getColsZone(activeSheet.id, 0, 0)] });
-    model.dispatch("PASTE", { target: [toZone("B2")] });
+    model.dispatch("COPY", {
+      target: [model.getters.getColsZone(activeSheet.id, 0, 0)].map(zoneToXc),
+    });
+    model.dispatch("PASTE", { target: ["B2"] });
     expect(activeSheet.rows.length).toBe(currentRowNumber + 1);
     expect(getCellContent(model, "B2")).toBe("txt");
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2:B101")]);
@@ -1562,8 +1564,10 @@ describe("clipboard: pasting outside of sheet", () => {
     const activeSheet = model.getters.getActiveSheet();
     const currentColNumber = activeSheet.cols.length;
 
-    model.dispatch("COPY", { target: [model.getters.getRowsZone(activeSheet.id, 0, 0)] });
-    model.dispatch("PASTE", { target: [toZone("B2")] });
+    model.dispatch("COPY", {
+      target: [model.getters.getRowsZone(activeSheet.id, 0, 0)].map(zoneToXc),
+    });
+    model.dispatch("PASTE", { target: ["B2"] });
     expect(activeSheet.cols.length).toBe(currentColNumber + 1);
     expect(getCellContent(model, "B2")).toBe("txt");
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2:AA2")]);
@@ -1603,7 +1607,7 @@ describe("clipboard: pasting outside of sheet", () => {
     createSheet(model, { activate: true, sheetId: "2", rows: 2, cols: 2 });
     model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
       text: "A\nque\tcoucou\nBOB",
-      target: [toZone("B2")],
+      target: ["B2"],
     });
     expect(getCellContent(model, "B2")).toBe("A");
     expect(getCellContent(model, "B3")).toBe("que");
@@ -1618,7 +1622,7 @@ describe("clipboard: pasting outside of sheet", () => {
     });
     model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
       text: "A\nque\tcoucou\tPatrick",
-      target: [toZone("B2")],
+      target: ["B2"],
     });
     expect(getCellContent(model, "B2")).toBe("A");
     expect(getCellContent(model, "B3")).toBe("que");
@@ -1633,7 +1637,7 @@ describe("clipboard: pasting outside of sheet", () => {
 
     model.dispatch("CUT", { target: target("A1:B1") });
     addColumns(model, "after", "A", 1);
-    model.dispatch("PASTE", { target: [toZone("A2")] });
+    model.dispatch("PASTE", { target: ["A2"] });
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCellContent(model, "C1")).toBe("2");
     expect(getCellContent(model, "A2")).toBe("");
@@ -1647,7 +1651,7 @@ describe("clipboard: pasting outside of sheet", () => {
 
     model.dispatch("CUT", { target: target("A1:B1") });
     addColumns(model, "after", "A", 5);
-    model.dispatch("PASTE", { target: [toZone("A2")] });
+    model.dispatch("PASTE", { target: ["A2"] });
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCellContent(model, "G1")).toBe("2");
     expect(getCellContent(model, "A2")).toBe("");
@@ -1661,7 +1665,7 @@ describe("clipboard: pasting outside of sheet", () => {
 
     model.dispatch("CUT", { target: target("A1:A2") });
     addRows(model, "after", 0, 1);
-    model.dispatch("PASTE", { target: [toZone("C1")] });
+    model.dispatch("PASTE", { target: ["C1"] });
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCellContent(model, "A3")).toBe("2");
     expect(getCellContent(model, "C1")).toBe("");
@@ -1675,7 +1679,7 @@ describe("clipboard: pasting outside of sheet", () => {
 
     model.dispatch("CUT", { target: target("A1:A2") });
     addRows(model, "after", 0, 5);
-    model.dispatch("PASTE", { target: [toZone("C1")] });
+    model.dispatch("PASTE", { target: ["C1"] });
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCellContent(model, "A7")).toBe("2");
     expect(getCellContent(model, "C1")).toBe("");

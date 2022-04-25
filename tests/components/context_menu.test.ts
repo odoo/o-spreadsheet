@@ -3,7 +3,7 @@ import { Spreadsheet } from "../../src";
 import { Grid } from "../../src/components/grid/grid";
 import { Menu } from "../../src/components/menu/menu";
 import { HEADER_HEIGHT, HEADER_WIDTH, MENU_ITEM_HEIGHT, TOPBAR_HEIGHT } from "../../src/constants";
-import { toXC, toZone } from "../../src/helpers";
+import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
@@ -732,7 +732,7 @@ describe("Context Menu - CF", () => {
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule,
       sheetId: model.getters.getActiveSheetId(),
-      target: cfRule.ranges.map(toZone),
+      target: cfRule.ranges,
     });
     setSelection(model, ["A1:K11"]);
     await rightClickCell(model, "C5");
@@ -769,12 +769,12 @@ describe("Context Menu - CF", () => {
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule1,
       sheetId: model.getters.getActiveSheetId(),
-      target: cfRule1.ranges.map(toZone),
+      target: cfRule1.ranges,
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule2,
       sheetId: model.getters.getActiveSheetId(),
-      target: cfRule2.ranges.map(toZone),
+      target: cfRule2.ranges,
     });
     setSelection(model, ["A1:K11"]);
     await rightClickCell(model, "C5");
@@ -801,7 +801,7 @@ describe("Context Menu - CF", () => {
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule1,
       sheetId: model.getters.getActiveSheetId(),
-      target: cfRule1.ranges.map(toZone),
+      target: cfRule1.ranges,
     });
     setSelection(model, ["A1:A11"]);
     await rightClickCell(model, "A2");

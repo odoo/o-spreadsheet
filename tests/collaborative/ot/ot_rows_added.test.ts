@@ -1,5 +1,4 @@
 import { transform } from "../../../src/collaborative/ot/ot";
-import { toZone } from "../../../src/helpers";
 import {
   AddColumnsRowsCommand,
   AddConditionalFormatCommand,
@@ -123,34 +122,34 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
     "target commands",
     (cmd) => {
       test(`add rows before ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("A1:C1")] };
+        const command = { ...cmd, target: ["A1:C1"] };
         const result = transform(command, addRowsAfter);
         expect(result).toEqual(command);
       });
       test(`add rows after ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("A10:B11")] };
+        const command = { ...cmd, target: ["A10:B11"] };
         const result = transform(command, addRowsAfter);
-        expect(result).toEqual({ ...command, target: [toZone("A12:B13")] });
+        expect(result).toEqual({ ...command, target: ["A12:B13"] });
       });
       test(`add rows after in ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("A5:B6")] };
+        const command = { ...cmd, target: ["A5:B6"] };
         const result = transform(command, addRowsAfter);
-        expect(result).toEqual({ ...command, target: [toZone("A5:B8")] });
+        expect(result).toEqual({ ...command, target: ["A5:B8"] });
       });
       test(`add rows before in ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("A5:B6")] };
+        const command = { ...cmd, target: ["A5:B6"] };
         const result = transform(command, addRowsBefore);
-        expect(result).toEqual({ ...command, target: [toZone("A5:B6")] });
+        expect(result).toEqual({ ...command, target: ["A5:B6"] });
       });
       test(`${cmd.type} and rows added in different sheets`, () => {
-        const command = { ...cmd, target: [toZone("A1:F3")], sheetId: "42" };
+        const command = { ...cmd, target: ["A1:F3"], sheetId: "42" };
         const result = transform(command, addRowsAfter);
         expect(result).toEqual(command);
       });
       test(`${cmd.type} with two targets, one before and one after`, () => {
-        const command = { ...cmd, target: [toZone("A1:C1"), toZone("A10:B11")] };
+        const command = { ...cmd, target: ["A1:C1", "A10:B11"] };
         const result = transform(command, addRowsAfter);
-        expect(result).toEqual({ ...command, target: [toZone("A1:C1"), toZone("A12:B13")] });
+        expect(result).toEqual({ ...command, target: ["A1:C1", "A12:B13"] });
       });
     }
   );

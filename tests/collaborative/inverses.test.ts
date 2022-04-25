@@ -1,4 +1,3 @@
-import { toZone } from "../../src/helpers";
 import { inverseCommand } from "../../src/helpers/inverse_commands";
 import {
   AddColumnsRowsCommand,
@@ -253,7 +252,7 @@ describe("Inverses commands", () => {
     const deleteContent: DeleteContentCommand = {
       type: "DELETE_CONTENT",
       sheetId: "1",
-      target: [toZone("A1")],
+      target: ["A1"],
     };
     const resizeColumns: ResizeColumnsRowsCommand = {
       type: "RESIZE_COLUMNS_ROWS",
@@ -278,12 +277,12 @@ describe("Inverses commands", () => {
       type: "SET_FORMATTING",
       sheetId: "1",
       border: "all",
-      target: [toZone("A1")],
+      target: ["A1"],
     };
     const clearFormatting: ClearFormattingCommand = {
       type: "CLEAR_FORMATTING",
       sheetId: "1",
-      target: [toZone("A1")],
+      target: ["A1"],
     };
     const setBorder: SetBorderCommand = {
       type: "SET_BORDER",
@@ -295,7 +294,7 @@ describe("Inverses commands", () => {
     const setDecimal: SetDecimalCommand = {
       type: "SET_DECIMAL",
       sheetId: "1",
-      target: [toZone("A1")],
+      target: ["A1"],
       step: 2,
     };
     const updateChart: UpdateChartCommand = {

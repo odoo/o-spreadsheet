@@ -1,4 +1,4 @@
-import { toCartesian, toXC } from "../../src/helpers";
+import { toCartesian, toXC, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult, Viewport } from "../../src/types";
 import { SelectionDirection } from "../../src/types/selection";
@@ -75,7 +75,7 @@ describe("navigation", () => {
     const rowNumber = activeSheet.rows.length;
     model.dispatch("ADD_MERGE", {
       sheetId: activeSheet.id,
-      target: [{ top: rowNumber - 2, bottom: rowNumber - 1, left: 0, right: 0 }],
+      target: [zoneToXc({ top: rowNumber - 2, bottom: rowNumber - 1, left: 0, right: 0 })],
     });
     const xc = toXC(0, rowNumber - 2);
     selectCell(model, xc);
@@ -90,7 +90,7 @@ describe("navigation", () => {
     const rowNumber = activeSheet.rows.length;
     model.dispatch("ADD_MERGE", {
       sheetId: activeSheet.id,
-      target: [{ top: rowNumber - 3, bottom: rowNumber - 2, left: 0, right: 0 }],
+      target: [zoneToXc({ top: rowNumber - 3, bottom: rowNumber - 2, left: 0, right: 0 })],
     });
     model.dispatch("HIDE_COLUMNS_ROWS", {
       sheetId: activeSheet.id,
@@ -110,7 +110,7 @@ describe("navigation", () => {
     const colNumber = activeSheet.cols.length;
     model.dispatch("ADD_MERGE", {
       sheetId: activeSheet.id,
-      target: [{ top: 0, bottom: 0, left: colNumber - 2, right: colNumber - 1 }],
+      target: [zoneToXc({ top: 0, bottom: 0, left: colNumber - 2, right: colNumber - 1 })],
     });
     const xc = toXC(colNumber - 2, 0);
     selectCell(model, xc);

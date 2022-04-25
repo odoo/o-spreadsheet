@@ -9,7 +9,6 @@ import {
   Figure,
   Format,
   Style,
-  Zone,
 } from "./index";
 import { Border, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
 
@@ -55,7 +54,7 @@ export function isGridDependent(cmd: CoreCommand): boolean {
 }
 
 export interface TargetDependentCommand {
-  target: Zone[];
+  target: string[];
 }
 
 export function isTargetDependent(cmd: CoreCommand): boolean {
@@ -360,25 +359,25 @@ export interface SetDecimalCommand extends SheetDependentCommand, TargetDependen
 // ------------------------------------------------
 export interface CopyCommand {
   type: "COPY";
-  target: Zone[];
+  target: string[];
 }
 
 export interface CutCommand {
   type: "CUT";
-  target: Zone[];
+  target: string[];
 }
 
 export interface PasteCommand {
   type: "PASTE";
-  target: Zone[];
+  target: string[];
   pasteOption?: ClipboardOptions;
   force?: boolean;
 }
 
 export interface CutAndPasteCommand {
   type: "CUT_AND_PASTE";
-  source: Zone;
-  target: Zone;
+  source: string;
+  target: string;
 }
 
 export interface AutoFillCellCommand {
@@ -395,12 +394,12 @@ export interface AutoFillCellCommand {
 
 export interface ActivatePaintFormatCommand {
   type: "ACTIVATE_PAINT_FORMAT";
-  target: Zone[];
+  target: string[];
 }
 
 export interface PasteFromOSClipboardCommand {
   type: "PASTE_FROM_OS_CLIPBOARD";
-  target: Zone[];
+  target: string[];
   text: string;
 }
 
@@ -457,12 +456,12 @@ export interface EvaluateCellsCommand {
 
 export interface StartChangeHighlightCommand {
   type: "START_CHANGE_HIGHLIGHT";
-  zone: Zone;
+  zone: string;
 }
 
 export interface ChangeHighlightCommand {
   type: "CHANGE_HIGHLIGHT";
-  zone: Zone;
+  zone: string;
 }
 
 export interface StopComposerSelectionCommand {
@@ -509,7 +508,7 @@ export interface ShowFormulaCommand {
 export interface DeleteContentCommand {
   type: "DELETE_CONTENT";
   sheetId: UID;
-  target: Zone[];
+  target: string[];
 }
 
 export interface ClearCellCommand {
@@ -680,7 +679,7 @@ export interface SortCommand {
   sheetId: UID;
   col: number;
   row: number;
-  zone: Zone;
+  zone: string;
   sortDirection: SortDirection;
 }
 
@@ -723,13 +722,13 @@ export interface SumSelectionCommand {
 export interface DeleteCellCommand {
   type: "DELETE_CELL";
   shiftDimension: Dimension;
-  zone: Zone;
+  zone: string;
 }
 
 export interface InsertCellCommand {
   type: "INSERT_CELL";
   shiftDimension: Dimension;
-  zone: Zone;
+  zone: string;
 }
 
 export interface PasteCFCommand {

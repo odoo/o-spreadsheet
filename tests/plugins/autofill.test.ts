@@ -144,7 +144,7 @@ describe("Autofill", () => {
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf,
       sheetId: model.getters.getActiveSheetId(),
-      target: cf.ranges.map(toZone),
+      target: cf.ranges,
     });
     let col: number, row: number;
     ({ col, row } = toCartesian("A1"));

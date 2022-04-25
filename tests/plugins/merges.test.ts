@@ -1,6 +1,6 @@
 import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
-import { toCartesian, toXC, toZone } from "../../src/helpers/index";
+import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CommandResult, Style } from "../../src/types/index";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
@@ -183,7 +183,7 @@ describe("merges", () => {
 
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
       style: { fillColor: "#333" },
     });
 
@@ -256,7 +256,7 @@ describe("merges", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     expect(
-      model.dispatch("ADD_MERGE", { sheetId, target: [toZone("A1:B2"), toZone("A2:B3")] })
+      model.dispatch("ADD_MERGE", { sheetId, target: ["A1:B2", "A2:B3"] })
     ).toBeCancelledBecause(CommandResult.MergeOverlap);
   });
 
@@ -390,7 +390,7 @@ describe("merges", () => {
     merge(model, "A1:B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
-      target: [{ left: 0, right: 1, top: 0, bottom: 0 }],
+      target: [zoneToXc({ left: 0, right: 1, top: 0, bottom: 0 })],
       style: { fillColor: "red" },
     });
 
@@ -408,7 +408,7 @@ describe("merges", () => {
     setAnchorCorner(model, "B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
-      target: [{ left: 0, right: 1, top: 0, bottom: 0 }],
+      target: [zoneToXc({ left: 0, right: 1, top: 0, bottom: 0 })],
       style: { fillColor: "red" },
     });
 
@@ -429,7 +429,7 @@ describe("merges", () => {
     const sheet1 = model.getters.getSheetIds()[0];
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
-      target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
+      target: [zoneToXc({ left: 0, right: 0, top: 0, bottom: 0 })],
       style: { fillColor: "red" },
     });
     setAnchorCorner(model, "B1");
@@ -451,7 +451,7 @@ describe("merges", () => {
     merge(model, "A1:B1");
     model.dispatch("SET_FORMATTING", {
       sheetId,
-      target: [toZone("A1")],
+      target: ["A1"],
       border: "external",
     });
     const line = ["thin", "#000"];
@@ -470,7 +470,7 @@ describe("merges", () => {
 
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
       border: "external",
     });
     const line = ["thin", "#000"];
@@ -487,7 +487,7 @@ describe("merges", () => {
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("SET_FORMATTING", {
       sheetId,
-      target: [toZone("A1")],
+      target: ["A1"],
       border: "external",
     });
     const line = ["thin", "#000"];
@@ -504,7 +504,7 @@ describe("merges", () => {
     const sheet1 = model.getters.getSheetIds()[0];
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
-      target: [toZone("A1")],
+      target: ["A1"],
       border: "external",
       style: { fillColor: "red" },
     });

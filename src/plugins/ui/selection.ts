@@ -11,6 +11,7 @@ import {
   uniqueZones,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
+  zoneToXc,
 } from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
@@ -610,23 +611,23 @@ export class GridSelectionPlugin extends UIPlugin {
 
     this.dispatch("CUT", {
       target: [
-        {
+        zoneToXc({
           left: isCol ? start + deltaCol : 0,
           right: isCol ? end + deltaCol : sheet.cols.length - 1,
           top: !isCol ? start + deltaRow : 0,
           bottom: !isCol ? end + deltaRow : sheet.rows.length - 1,
-        },
+        }),
       ],
     });
 
     this.dispatch("PASTE", {
       target: [
-        {
+        zoneToXc({
           left: isCol ? cmd.base : 0,
           right: isCol ? cmd.base + thickness - 1 : sheet.cols.length - 1,
           top: !isCol ? cmd.base : 0,
           bottom: !isCol ? cmd.base + thickness - 1 : sheet.rows.length - 1,
-        },
+        }),
       ],
     });
 

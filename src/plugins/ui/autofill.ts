@@ -1,4 +1,4 @@
-import { clip, isInside, toCartesian, toXC, union } from "../../helpers/index";
+import { clip, isInside, toCartesian, toXC, union, zoneToXc } from "../../helpers/index";
 import { Mode } from "../../model";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
 import {
@@ -400,7 +400,7 @@ export class AutofillPlugin extends UIPlugin {
       if (zone) {
         this.dispatch("REMOVE_MERGE", {
           sheetId: activeSheet.id,
-          target: [zone],
+          target: [zoneToXc(zone)],
         });
       }
     }
@@ -409,12 +409,12 @@ export class AutofillPlugin extends UIPlugin {
       this.dispatch("ADD_MERGE", {
         sheetId: activeSheet.id,
         target: [
-          {
+          zoneToXc({
             top: row,
             bottom: row + originMerge.bottom - originMerge.top,
             left: col,
             right: col + originMerge.right - originMerge.left,
-          },
+          }),
         ],
       });
     }

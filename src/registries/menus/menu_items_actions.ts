@@ -32,7 +32,7 @@ function getRowsNumber(env: SpreadsheetChildEnv): number {
 export function setFormatter(env: SpreadsheetChildEnv, format: Format) {
   env.model.dispatch("SET_FORMATTING", {
     sheetId: env.model.getters.getActiveSheetId(),
-    target: env.model.getters.getSelectedZones(),
+    target: env.model.getters.getSelectedZones().map(zoneToXc),
     format,
   });
 }
@@ -40,7 +40,7 @@ export function setFormatter(env: SpreadsheetChildEnv, format: Format) {
 export function setStyle(env: SpreadsheetChildEnv, style: Style) {
   env.model.dispatch("SET_FORMATTING", {
     sheetId: env.model.getters.getActiveSheetId(),
-    target: env.model.getters.getSelectedZones(),
+    target: env.model.getters.getSelectedZones().map(zoneToXc),
     style,
   });
 }
@@ -54,12 +54,12 @@ export const UNDO_ACTION = (env: SpreadsheetChildEnv) => env.model.dispatch("REQ
 export const REDO_ACTION = (env: SpreadsheetChildEnv) => env.model.dispatch("REQUEST_REDO");
 
 export const COPY_ACTION = async (env: SpreadsheetChildEnv) => {
-  env.model.dispatch("COPY", { target: env.model.getters.getSelectedZones() });
+  env.model.dispatch("COPY", { target: env.model.getters.getSelectedZones().map(zoneToXc) });
   await env.clipboard.writeText(env.model.getters.getClipboardContent());
 };
 
 export const CUT_ACTION = async (env: SpreadsheetChildEnv) => {
-  env.model.dispatch("CUT", { target: env.model.getters.getSelectedZones() });
+  env.model.dispatch("CUT", { target: env.model.getters.getSelectedZones().map(zoneToXc) });
   await env.clipboard.writeText(env.model.getters.getClipboardContent());
 };
 
@@ -73,7 +73,7 @@ export const PASTE_ACTION = async (env: SpreadsheetChildEnv) => {
     console.warn("The OS clipboard could not be read.");
     console.error(e);
   }
-  const target = env.model.getters.getSelectedZones();
+  const target = env.model.getters.getSelectedZones().map(zoneToXc);
   if (osClipboard && osClipboard !== spreadsheetClipboard) {
     env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
       target,
@@ -86,20 +86,20 @@ export const PASTE_ACTION = async (env: SpreadsheetChildEnv) => {
 
 export const PASTE_VALUE_ACTION = (env: SpreadsheetChildEnv) =>
   env.model.dispatch("PASTE", {
-    target: env.model.getters.getSelectedZones(),
+    target: env.model.getters.getSelectedZones().map(zoneToXc),
     pasteOption: "onlyValue",
   });
 
 export const PASTE_FORMAT_ACTION = (env: SpreadsheetChildEnv) =>
   env.model.dispatch("PASTE", {
-    target: env.model.getters.getSelectedZones(),
+    target: env.model.getters.getSelectedZones().map(zoneToXc),
     pasteOption: "onlyFormat",
   });
 
 export const DELETE_CONTENT_ACTION = (env: SpreadsheetChildEnv) =>
   env.model.dispatch("DELETE_CONTENT", {
     sheetId: env.model.getters.getActiveSheetId(),
-    target: env.model.getters.getSelectedZones(),
+    target: env.model.getters.getSelectedZones().map(zoneToXc),
   });
 
 export const SET_FORMULA_VISIBILITY_ACTION = (env: SpreadsheetChildEnv) =>
@@ -140,9 +140,9 @@ export const DELETE_CONTENT_ROWS_NAME = (env: SpreadsheetChildEnv) => {
 
 export const DELETE_CONTENT_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
   const sheetId = env.model.getters.getActiveSheetId();
-  const target = [...env.model.getters.getActiveRows()].map((index) =>
-    env.model.getters.getRowsZone(sheetId, index, index)
-  );
+  const target = [...env.model.getters.getActiveRows()]
+    .map((index) => env.model.getters.getRowsZone(sheetId, index, index))
+    .map(zoneToXc);
   env.model.dispatch("DELETE_CONTENT", {
     target,
     sheetId: env.model.getters.getActiveSheetId(),
@@ -172,9 +172,9 @@ export const DELETE_CONTENT_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
 
 export const DELETE_CONTENT_COLUMNS_ACTION = (env: SpreadsheetChildEnv) => {
   const sheetId = env.model.getters.getActiveSheetId();
-  const target = [...env.model.getters.getActiveCols()].map((index) =>
-    env.model.getters.getColsZone(sheetId, index, index)
-  );
+  const target = [...env.model.getters.getActiveCols()]
+    .map((index) => env.model.getters.getColsZone(sheetId, index, index))
+    .map(zoneToXc);
   env.model.dispatch("DELETE_CONTENT", {
     target,
     sheetId: env.model.getters.getActiveSheetId(),
@@ -255,25 +255,25 @@ export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetChildEnv) => {
 
 export const INSERT_CELL_SHIFT_DOWN = (env: SpreadsheetChildEnv) => {
   const zone = env.model.getters.getSelectedZone();
-  const result = env.model.dispatch("INSERT_CELL", { zone, shiftDimension: "ROW" });
+  const result = env.model.dispatch("INSERT_CELL", { zone: zoneToXc(zone), shiftDimension: "ROW" });
   handlePasteResult(env, result);
 };
 
 export const INSERT_CELL_SHIFT_RIGHT = (env: SpreadsheetChildEnv) => {
   const zone = env.model.getters.getSelectedZone();
-  const result = env.model.dispatch("INSERT_CELL", { zone, shiftDimension: "COL" });
+  const result = env.model.dispatch("INSERT_CELL", { zone: zoneToXc(zone), shiftDimension: "COL" });
   handlePasteResult(env, result);
 };
 
 export const DELETE_CELL_SHIFT_UP = (env: SpreadsheetChildEnv) => {
   const zone = env.model.getters.getSelectedZone();
-  const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "ROW" });
+  const result = env.model.dispatch("DELETE_CELL", { zone: zoneToXc(zone), shiftDimension: "ROW" });
   handlePasteResult(env, result);
 };
 
 export const DELETE_CELL_SHIFT_LEFT = (env: SpreadsheetChildEnv) => {
   const zone = env.model.getters.getSelectedZone();
-  const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "COL" });
+  const result = env.model.dispatch("DELETE_CELL", { zone: zoneToXc(zone), shiftDimension: "COL" });
   handlePasteResult(env, result);
 };
 

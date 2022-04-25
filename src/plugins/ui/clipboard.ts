@@ -1,5 +1,12 @@
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import { formatValue, mergeOverlappingZones, overlap, positions } from "../../helpers/index";
+import {
+  formatValue,
+  mergeOverlappingZones,
+  overlap,
+  positions,
+  toZone,
+  zoneToXc,
+} from "../../helpers/index";
 import { Mode } from "../../model";
 import {
   CellPosition,
@@ -56,14 +63,14 @@ export class ClipboardPlugin extends UIPlugin {
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "PASTE":
-        return this.isPasteAllowed(this.state, cmd.target, !!cmd.force);
+        return this.isPasteAllowed(this.state, cmd.target.map(toZone), !!cmd.force);
       case "INSERT_CELL": {
-        const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
+        const { cut, paste } = this.getInsertCellsTargets(toZone(cmd.zone), cmd.shiftDimension);
         const state = this.getClipboardState(cut, "CUT");
         return this.isPasteAllowed(state, paste, false);
       }
       case "DELETE_CELL": {
-        const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
+        const { cut, paste } = this.getDeleteCellsTargets(toZone(cmd.zone), cmd.shiftDimension);
         const state = this.getClipboardState(cut, "CUT");
         return this.isPasteAllowed(state, paste, false);
       }
@@ -75,7 +82,7 @@ export class ClipboardPlugin extends UIPlugin {
     switch (cmd.type) {
       case "COPY":
       case "CUT":
-        this.state = this.getClipboardState(cmd.target, cmd.type);
+        this.state = this.getClipboardState(cmd.target.map(toZone), cmd.type);
         this.status = "visible";
         break;
       case "PASTE":
@@ -87,18 +94,18 @@ export class ClipboardPlugin extends UIPlugin {
         this._isPaintingFormat = false;
         const height = this.state.cells.length;
         const width = this.state.cells[0].length;
-        this.paste(this.state, cmd.target, pasteOption);
-        this.selectPastedZone(width, height, cmd.target);
+        this.paste(this.state, cmd.target.map(toZone), pasteOption);
+        this.selectPastedZone(width, height, cmd.target.map(toZone));
         this.status = "invisible";
         break;
       case "DELETE_CELL": {
-        const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
+        const { cut, paste } = this.getDeleteCellsTargets(toZone(cmd.zone), cmd.shiftDimension);
         const state = this.getClipboardState(cut, "CUT");
         this.paste(state, paste);
         break;
       }
       case "INSERT_CELL": {
-        const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
+        const { cut, paste } = this.getInsertCellsTargets(toZone(cmd.zone), cmd.shiftDimension);
         const state = this.getClipboardState(cut, "CUT");
         this.paste(state, paste);
         break;
@@ -117,10 +124,10 @@ export class ClipboardPlugin extends UIPlugin {
         break;
       }
       case "PASTE_FROM_OS_CLIPBOARD":
-        this.pasteFromClipboard(cmd.target, cmd.text);
+        this.pasteFromClipboard(cmd.target.map(toZone), cmd.text);
         break;
       case "ACTIVATE_PAINT_FORMAT":
-        this.state = this.getClipboardState(cmd.target, "COPY");
+        this.state = this.getClipboardState(cmd.target.map(toZone), "COPY");
         this._isPaintingFormat = true;
         this.status = "visible";
         break;
@@ -223,7 +230,7 @@ export class ClipboardPlugin extends UIPlugin {
     if (top === row && left === col) {
       const merge = this.getters.getMerge(sheetId, col, row);
       if (merge) {
-        this.dispatch("REMOVE_MERGE", { sheetId, target: [merge] });
+        this.dispatch("REMOVE_MERGE", { sheetId, target: [zoneToXc(merge)] });
       }
     }
   }
@@ -250,12 +257,12 @@ export class ClipboardPlugin extends UIPlugin {
         sheetId,
         force: true,
         target: [
-          {
+          zoneToXc({
             left: col,
             top: row,
             right: col + merge.right - merge.left,
             bottom: row + merge.bottom - merge.top,
-          },
+          }),
         ],
       });
     }
@@ -430,7 +437,7 @@ export class ClipboardPlugin extends UIPlugin {
     }
 
     if (state.operation === "CUT") {
-      this.dispatch("REMOVE_MERGE", { sheetId: state.sheetId, target: state.merges });
+      this.dispatch("REMOVE_MERGE", { sheetId: state.sheetId, target: state.merges.map(zoneToXc) });
       this.state = undefined;
     }
   }
@@ -468,7 +475,7 @@ export class ClipboardPlugin extends UIPlugin {
     }
     this.dispatch("CLEAR_FORMATTING", {
       sheetId: state.sheetId,
-      target: state.zones,
+      target: state.zones.map(zoneToXc),
     });
   }
 

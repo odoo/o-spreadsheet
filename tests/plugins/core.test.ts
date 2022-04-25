@@ -1,4 +1,5 @@
 import { functionRegistry } from "../../src/functions";
+import { zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
@@ -184,7 +185,7 @@ describe("core", () => {
       selectCell(model, "B2");
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: model.getters.getSelectedZones(),
+        target: model.getters.getSelectedZones().map(zoneToXc),
         border: "bottom",
       });
       expect(getCellContent(model, "B2")).toBe("");
@@ -196,7 +197,7 @@ describe("core", () => {
       selectCell(model, "A1");
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: model.getters.getSelectedZones(),
+        target: model.getters.getSelectedZones().map(zoneToXc),
         format: "0.00000",
       });
       expect(getCellContent(model, "A1")).toBe("0.00000");
@@ -204,7 +205,7 @@ describe("core", () => {
       selectCell(model, "A2");
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: model.getters.getSelectedZones(),
+        target: model.getters.getSelectedZones().map(zoneToXc),
         format: "0.00%",
       });
       expect(getCellContent(model, "A2")).toBe("0.00%");
@@ -215,7 +216,7 @@ describe("core", () => {
       setCellContent(model, "A1", "=sum(A2) + 1");
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+        target: [zoneToXc({ left: 0, top: 0, right: 0, bottom: 0 })],
         style: { bold: true },
       });
       expect(getCellContent(model, "A1")).toEqual("1");
@@ -521,7 +522,7 @@ describe("history", () => {
     selectCell(model, "A2");
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
     });
     expect(getCell(model, "A2")).toBeUndefined();
 
@@ -537,7 +538,7 @@ describe("history", () => {
     setCellContent(model, "A1", "3");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+      target: [zoneToXc({ left: 0, top: 0, right: 0, bottom: 0 })],
       style: { bold: true },
     });
 
@@ -545,7 +546,7 @@ describe("history", () => {
 
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+      target: [zoneToXc({ left: 0, top: 0, right: 0, bottom: 0 })],
     });
     expect(getCellContent(model, "A1")).toBe("");
   });
@@ -555,7 +556,7 @@ describe("history", () => {
     setCellContent(model, "A1", "3");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+      target: [zoneToXc({ left: 0, top: 0, right: 0, bottom: 0 })],
       border: "bottom",
     });
 
@@ -563,7 +564,7 @@ describe("history", () => {
 
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+      target: [zoneToXc({ left: 0, top: 0, right: 0, bottom: 0 })],
     });
     expect(getCellContent(model, "A1")).toBe("");
   });
@@ -573,7 +574,7 @@ describe("history", () => {
     setCellContent(model, "A1", "3");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+      target: [zoneToXc({ left: 0, top: 0, right: 0, bottom: 0 })],
       format: "#,##0.00",
     });
 
@@ -581,7 +582,7 @@ describe("history", () => {
 
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+      target: [zoneToXc({ left: 0, top: 0, right: 0, bottom: 0 })],
     });
     expect(getCellContent(model, "A1")).toBe("");
   });

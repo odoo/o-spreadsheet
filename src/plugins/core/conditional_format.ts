@@ -1,5 +1,5 @@
 import { compile } from "../../formulas/index";
-import { isInside, zoneToXc } from "../../helpers/index";
+import { isInside } from "../../helpers/index";
 import {
   AddConditionalFormatCommand,
   ApplyRangeChange,
@@ -133,7 +133,7 @@ export class ConditionalFormatPlugin
       case "ADD_CONDITIONAL_FORMAT":
         const cf = {
           ...cmd.cf,
-          ranges: cmd.target.map(zoneToXc),
+          ranges: cmd.target,
         };
         this.addConditionalFormatting(cf, cmd.sheetId);
         break;

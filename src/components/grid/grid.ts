@@ -22,6 +22,7 @@ import {
   isInside,
   MAX_DELAY,
   range,
+  zoneToXc,
 } from "../../helpers/index";
 import { interactivePaste } from "../../helpers/ui/paste";
 import { ComposerSelection } from "../../plugins/ui/edition";
@@ -431,7 +432,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     DELETE: () => {
       this.env.model.dispatch("DELETE_CONTENT", {
         sheetId: this.env.model.getters.getActiveSheetId(),
-        target: this.env.model.getters.getSelectedZones(),
+        target: this.env.model.getters.getSelectedZones().map(zoneToXc),
       });
     },
     "CTRL+A": () => this.env.model.selection.selectAll(),
@@ -443,19 +444,19 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     "CTRL+B": () =>
       this.env.model.dispatch("SET_FORMATTING", {
         sheetId: this.env.model.getters.getActiveSheetId(),
-        target: this.env.model.getters.getSelectedZones(),
+        target: this.env.model.getters.getSelectedZones().map(zoneToXc),
         style: { bold: !this.env.model.getters.getCurrentStyle().bold },
       }),
     "CTRL+I": () =>
       this.env.model.dispatch("SET_FORMATTING", {
         sheetId: this.env.model.getters.getActiveSheetId(),
-        target: this.env.model.getters.getSelectedZones(),
+        target: this.env.model.getters.getSelectedZones().map(zoneToXc),
         style: { italic: !this.env.model.getters.getCurrentStyle().italic },
       }),
     "CTRL+U": () =>
       this.env.model.dispatch("SET_FORMATTING", {
         sheetId: this.env.model.getters.getActiveSheetId(),
-        target: this.env.model.getters.getSelectedZones(),
+        target: this.env.model.getters.getSelectedZones().map(zoneToXc),
         style: { underline: !this.env.model.getters.getCurrentStyle().underline },
       }),
     "ALT+=": () => {
@@ -766,7 +767,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.gridOverlay.el!.removeEventListener("mousemove", onMouseMove);
       if (this.env.model.getters.isPaintingFormat()) {
         this.env.model.dispatch("PASTE", {
-          target: this.env.model.getters.getSelectedZones(),
+          target: this.env.model.getters.getSelectedZones().map(zoneToXc),
         });
       }
     };
@@ -826,7 +827,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
     if (this.env.model.getters.isPaintingFormat()) {
       this.env.model.dispatch("PASTE", {
-        target: this.env.model.getters.getSelectedZones(),
+        target: this.env.model.getters.getSelectedZones().map(zoneToXc),
       });
     }
   }
@@ -908,7 +909,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
     const type = cut ? "CUT" : "COPY";
-    const target = this.env.model.getters.getSelectedZones();
+    const target = this.env.model.getters.getSelectedZones().map(zoneToXc);
     this.env.model.dispatch(type, { target });
     const content = this.env.model.getters.getClipboardContent();
     this.clipBoardString = content;
@@ -923,7 +924,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const clipboardData = ev.clipboardData!;
     if (clipboardData.types.indexOf("text/plain") > -1) {
       const content = clipboardData.getData("text/plain");
-      const target = this.env.model.getters.getSelectedZones();
+      const target = this.env.model.getters.getSelectedZones().map(zoneToXc);
       if (this.clipBoardString === content) {
         // the paste actually comes from o-spreadsheet itself
         interactivePaste(this.env, target);

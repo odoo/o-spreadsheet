@@ -2,7 +2,7 @@ import { App } from "@odoo/owl";
 import { Spreadsheet, TransportService } from "../../src";
 import { Grid } from "../../src/components/grid/grid";
 import { HEADER_WIDTH, MESSAGE_VERSION, SCROLLBAR_WIDTH } from "../../src/constants";
-import { scrollDelay, toZone } from "../../src/helpers";
+import { scrollDelay, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
   createSheet,
@@ -297,7 +297,7 @@ describe("Grid component", () => {
     test("can undo/redo with keyboard", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
+        target: [zoneToXc({ left: 0, right: 0, top: 0, bottom: 0 })],
         style: { fillColor: "red" },
       });
       expect(getCell(model, "A1")!.style).toBeDefined();
@@ -315,7 +315,7 @@ describe("Grid component", () => {
     test("can undo/redo with keyboard (uppercase version)", async () => {
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
+        target: [zoneToXc({ left: 0, right: 0, top: 0, bottom: 0 })],
         style: { fillColor: "red" },
       });
       expect(getCell(model, "A1")!.style).toBeDefined();
@@ -581,10 +581,10 @@ describe("Grid component", () => {
       selectCell(model, "B2");
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+        target: [zoneToXc({ left: 1, right: 1, top: 1, bottom: 1 })],
         style: { bold: true },
       });
-      const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
+      const target = [zoneToXc({ left: 1, top: 1, bottom: 1, right: 1 })];
       model.dispatch("ACTIVATE_PAINT_FORMAT", { target });
       gridMouseEvent(model, "mousedown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
@@ -597,10 +597,10 @@ describe("Grid component", () => {
       selectCell(model, "B2");
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
-        target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+        target: [zoneToXc({ left: 1, right: 1, top: 1, bottom: 1 })],
         style: { bold: true },
       });
-      const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
+      const target = [zoneToXc({ left: 1, top: 1, bottom: 1, right: 1 })];
       model.dispatch("ACTIVATE_PAINT_FORMAT", { target });
       expect(getCell(model, "C2")).toBeUndefined();
       document.activeElement!.dispatchEvent(

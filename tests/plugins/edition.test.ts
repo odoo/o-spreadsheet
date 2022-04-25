@@ -1,4 +1,4 @@
-import { toCartesian, toZone } from "../../src/helpers";
+import { toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
@@ -55,7 +55,7 @@ describe("edition", () => {
     selectCell(model, "A2");
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
     });
     expect(getCell(model, "A2")).toBeTruthy();
     expect(getCellContent(model, "A2")).toBe("");

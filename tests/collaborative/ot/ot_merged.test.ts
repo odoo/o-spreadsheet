@@ -1,5 +1,4 @@
 import { transform } from "../../../src/collaborative/ot/ot";
-import { toZone } from "../../../src/helpers";
 import {
   AddMergeCommand,
   ClearCellCommand,
@@ -95,7 +94,7 @@ describe("OT with ADD_MERGE", () => {
     "target commands",
     (cmd) => {
       test(`${cmd.type} outside merge`, () => {
-        const command = { ...cmd, target: [toZone("E1:F2")] };
+        const command = { ...cmd, target: ["E1:F2"] };
         const result = transform(command, addMerge);
         expect(result).toEqual(command);
       });

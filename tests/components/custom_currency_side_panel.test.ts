@@ -1,5 +1,6 @@
 import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
+import { zoneToXc } from "../../src/helpers";
 import { currenciesRegistry } from "../../src/registries/currencies_registry";
 import { Currency } from "../../src/types/currency";
 import { setSelection } from "../test_helpers/commands_helpers";
@@ -361,7 +362,7 @@ describe("custom currency sidePanel component", () => {
       await nextTick();
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: parent.env.model.getters.getActiveSheetId(),
-        target: parent.env.model.getters.getSelectedZones(),
+        target: parent.env.model.getters.getSelectedZones().map(zoneToXc),
         format: formatResult,
       });
     });
@@ -394,7 +395,7 @@ describe("custom currency sidePanel component", () => {
           await nextTick();
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
             sheetId: parent.env.model.getters.getActiveSheetId(),
-            target: parent.env.model.getters.getSelectedZones(),
+            target: parent.env.model.getters.getSelectedZones().map(zoneToXc),
             format: expect.stringMatching(decimalPlacesRegexp),
           });
         }
@@ -429,7 +430,7 @@ describe("custom currency sidePanel component", () => {
           await nextTick();
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
             sheetId: parent.env.model.getters.getActiveSheetId(),
-            target: parent.env.model.getters.getSelectedZones(),
+            target: parent.env.model.getters.getSelectedZones().map(zoneToXc),
             format: expect.stringMatching(positionExpressionRegexp),
           });
         }
@@ -452,7 +453,7 @@ describe("custom currency sidePanel component", () => {
           await nextTick();
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
             sheetId: parent.env.model.getters.getActiveSheetId(),
-            target: parent.env.model.getters.getSelectedZones(),
+            target: parent.env.model.getters.getSelectedZones().map(zoneToXc),
             format: expect.stringMatching(twoDecimalPlacesRegex),
           });
         }
@@ -482,7 +483,7 @@ describe("custom currency sidePanel component", () => {
           await nextTick();
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
             sheetId: parent.env.model.getters.getActiveSheetId(),
-            target: parent.env.model.getters.getSelectedZones(),
+            target: parent.env.model.getters.getSelectedZones().map(zoneToXc),
             format: expect.stringMatching(positionExpressionRegexp),
           });
         }

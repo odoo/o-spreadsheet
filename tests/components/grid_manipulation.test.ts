@@ -1,6 +1,7 @@
 import { App } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { selectColumn, selectRow } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
@@ -65,12 +66,12 @@ describe("Context Menu add/remove row/col", () => {
     simulateClick(".o-menu div[data-name='clear_column']");
     expect(dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
       target: [
-        {
+        zoneToXc({
           top: 0,
           bottom: model.getters.getActiveSheet().rows.length - 1,
           left: 3,
           right: 3,
-        },
+        }),
       ],
       sheetId: model.getters.getActiveSheetId(),
     });
@@ -83,12 +84,12 @@ describe("Context Menu add/remove row/col", () => {
     simulateClick(".o-menu div[data-name='clear_row']");
     expect(dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
       target: [
-        {
+        zoneToXc({
           top: 4,
           bottom: 4,
           left: 0,
           right: model.getters.getActiveSheet().cols.length - 1,
-        },
+        }),
       ],
       sheetId: model.getters.getActiveSheetId(),
     });

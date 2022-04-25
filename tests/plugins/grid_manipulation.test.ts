@@ -3,7 +3,7 @@ import {
   DEFAULT_CELL_WIDTH,
   INCORRECT_RANGE_STRING,
 } from "../../src/constants";
-import { lettersToNumber, toCartesian, toXC, toZone } from "../../src/helpers";
+import { lettersToNumber, toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { Border, CommandResult, UID } from "../../src/types";
 import {
@@ -51,7 +51,7 @@ function clearColumns(indexes: string[]) {
       return model.getters.getColsZone(sheetId, index, index);
     });
   model.dispatch("DELETE_CONTENT", {
-    target,
+    target: target.map(zoneToXc),
     sheetId: model.getters.getActiveSheetId(),
   });
 }
@@ -62,7 +62,7 @@ function clearRows(indexes: number[]) {
     return model.getters.getRowsZone(sheetId, index, index);
   });
   model.dispatch("DELETE_CONTENT", {
-    target,
+    target: target.map(zoneToXc),
     sheetId: model.getters.getActiveSheetId(),
   });
 }
@@ -510,7 +510,7 @@ describe("Columns", () => {
       const s = ["thin", "#000"];
       model.dispatch("SET_FORMATTING", {
         sheetId,
-        target: [toZone("B2")],
+        target: ["B2"],
         border: "external",
       });
       addColumns(model, "after", "B", 1);
@@ -524,7 +524,7 @@ describe("Columns", () => {
       const s = ["thin", "#000"];
       model.dispatch("SET_FORMATTING", {
         sheetId,
-        target: [toZone("B2")],
+        target: ["B2"],
         border: "external",
       });
       addColumns(model, "before", "B", 1);
@@ -538,7 +538,7 @@ describe("Columns", () => {
       const s = ["thin", "#000"];
       model.dispatch("SET_FORMATTING", {
         sheetId,
-        target: [toZone("B2")],
+        target: ["B2"],
         border: "external",
       });
       deleteColumns(model, ["C"]);
@@ -1383,7 +1383,7 @@ describe("Rows", () => {
       const s = ["thin", "#000"];
       model.dispatch("SET_FORMATTING", {
         sheetId,
-        target: [toZone("B2")],
+        target: ["B2"],
         border: "external",
       });
       addRows(model, "after", 1, 1);
@@ -1397,7 +1397,7 @@ describe("Rows", () => {
       const s = ["thin", "#000"];
       model.dispatch("SET_FORMATTING", {
         sheetId,
-        target: [toZone("B2")],
+        target: ["B2"],
         border: "external",
       });
       addRows(model, "before", 1, 1);
@@ -1411,7 +1411,7 @@ describe("Rows", () => {
       const s = ["thin", "#000"];
       model.dispatch("SET_FORMATTING", {
         sheetId,
-        target: [toZone("B2")],
+        target: ["B2"],
         border: "external",
       });
       deleteRows(model, [2]);
@@ -1925,7 +1925,7 @@ describe("Delete cell", () => {
       target: target("A3"),
       style: { fillColor: "orange" },
     });
-    testUndoRedo(model, expect, "DELETE_CELL", { zone: toZone("A1"), dimension: "ROW" });
+    testUndoRedo(model, expect, "DELETE_CELL", { zone: "A1", dimension: "ROW" });
   });
 });
 
@@ -2012,7 +2012,7 @@ describe("Insert cell", () => {
       target: target("A3"),
       style: { fillColor: "orange" },
     });
-    testUndoRedo(model, expect, "INSERT_CELL", { zone: toZone("A1"), dimension: "ROW" });
+    testUndoRedo(model, expect, "INSERT_CELL", { zone: "A1", dimension: "ROW" });
   });
 });
 

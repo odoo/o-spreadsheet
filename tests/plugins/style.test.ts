@@ -1,4 +1,4 @@
-import { toZone } from "../../src/helpers";
+import { zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createSheet, selectCell, setCellContent, undo } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
@@ -9,7 +9,7 @@ describe("styles", () => {
     selectCell(model, "B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
       style: { fillColor: "red" },
     });
 
@@ -25,7 +25,7 @@ describe("styles", () => {
     selectCell(model, "B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
       style: { fillColor: "red" },
     });
     expect(getCellContent(model, "B1")).toBe("some content");
@@ -42,13 +42,13 @@ describe("styles", () => {
     selectCell(model, "B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
       style: { fillColor: "red" },
     });
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
     });
     expect(getCellContent(model, "B1")).toBe("b1");
     expect(getCell(model, "B1")!.style).not.toBeDefined();
@@ -59,13 +59,13 @@ describe("styles", () => {
     selectCell(model, "B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
       style: { fillColor: "red" },
     });
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
     });
     expect(getCell(model, "B1")).toBeUndefined();
   });
@@ -76,13 +76,13 @@ describe("styles", () => {
     selectCell(model, "B1");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
       style: { fillColor: "red" },
     });
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
     });
     expect(getCell(model, "B1")!.style).not.toBeDefined();
     undo(model);
@@ -94,7 +94,7 @@ describe("styles", () => {
     createSheet(model, { sheetId: "42" });
     model.dispatch("SET_FORMATTING", {
       sheetId: "42",
-      target: [toZone("A1")],
+      target: ["A1"],
       style: { fillColor: "red" },
     });
     expect(getCell(model, "A1")).toBeUndefined();

@@ -1,4 +1,4 @@
-import { isDefined, isInside } from "../../helpers/index";
+import { isDefined, isInside, toZone, zoneToXc } from "../../helpers/index";
 import { otRegistry } from "../../registries/ot_registry";
 import {
   AddColumnsRowsCommand,
@@ -112,8 +112,8 @@ function transformTarget(
   executed: CoreCommand
 ): Extract<CoreCommand, TargetDependentCommand> | TransformResult {
   const target: Zone[] = [];
-  for (const zone of cmd.target) {
-    const newZone = transformZone(zone, executed);
+  for (const xc of cmd.target) {
+    const newZone = transformZone(toZone(xc), executed);
     if (newZone) {
       target.push(newZone);
     }
@@ -121,7 +121,7 @@ function transformTarget(
   if (!target.length) {
     return "IGNORE_COMMAND";
   }
-  return { ...cmd, target };
+  return { ...cmd, target: target.map(zoneToXc) };
 }
 
 function transformDimension(
@@ -217,7 +217,8 @@ function transformPositionWithMerge(
   cmd: Extract<CoreCommand, PositionDependentCommand>,
   executed: AddMergeCommand
 ): Extract<CoreCommand, PositionDependentCommand> | TransformResult {
-  for (const zone of executed.target) {
+  for (const zoneXc of executed.target) {
+    const zone = toZone(zoneXc);
     const sameTopLeft = cmd.col === zone.left && cmd.row === zone.top;
     if (!sameTopLeft && isInside(cmd.col, cmd.row, zone)) {
       return "IGNORE_COMMAND";

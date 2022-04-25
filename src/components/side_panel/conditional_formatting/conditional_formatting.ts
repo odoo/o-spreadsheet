@@ -1,6 +1,6 @@
 import { Component, onWillUpdateProps, useExternalListener, useState } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../constants";
-import { colorNumberString, rangeReference, toZone } from "../../../helpers/index";
+import { colorNumberString, rangeReference } from "../../../helpers/index";
 import {
   CancelledReason,
   CellIsRule,
@@ -517,7 +517,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
               ? this.state.currentCF.id
               : this.env.model.uuidGenerator.uuidv4(),
         },
-        target: this.state.currentCF.ranges.map(toZone),
+        target: this.state.currentCF.ranges,
         sheetId: this.env.model.getters.getActiveSheetId(),
       });
       if (!result.isSuccessful) {

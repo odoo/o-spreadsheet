@@ -230,8 +230,8 @@ export function zone(str: string): Zone {
   return toZone(str);
 }
 
-export function target(str: string): Zone[] {
-  return str.split(",").map(zone);
+export function target(str: string): string[] {
+  return str.split(",");
 }
 
 export function createEqualCF(

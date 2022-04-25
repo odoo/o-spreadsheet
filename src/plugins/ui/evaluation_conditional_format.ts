@@ -466,7 +466,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         rule: cf.rule,
         stopIfTrue: cf.stopIfTrue,
       },
-      target: newRange.map(toZone),
+      target: newRange,
       sheetId,
     });
   }

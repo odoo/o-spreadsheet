@@ -1,5 +1,4 @@
 import { transform } from "../../../src/collaborative/ot/ot";
-import { toZone } from "../../../src/helpers/zones";
 import {
   AddColumnsRowsCommand,
   AddConditionalFormatCommand,
@@ -128,29 +127,29 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
     "target commands",
     (cmd) => {
       test(`add columns  before ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("A1:A3")] };
+        const command = { ...cmd, target: ["A1:A3"] };
         const result = transform(command, addColumnsAfter);
         expect(result).toEqual(command);
       });
       test(`add columns after ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("M1:O2")] };
+        const command = { ...cmd, target: ["M1:O2"] };
         const result = transform(command, addColumnsAfter);
-        expect(result).toEqual({ ...command, target: [toZone("O1:Q2")] });
+        expect(result).toEqual({ ...command, target: ["O1:Q2"] });
       });
       test(`add columns in ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("F1:G2")] };
+        const command = { ...cmd, target: ["F1:G2"] };
         const result = transform(command, addColumnsAfter);
-        expect(result).toEqual({ ...command, target: [toZone("F1:I2")] });
+        expect(result).toEqual({ ...command, target: ["F1:I2"] });
       });
       test(`${cmd.type} and columns added in different sheets`, () => {
-        const command = { ...cmd, target: [toZone("A1:F3")], sheetId: "42" };
+        const command = { ...cmd, target: ["A1:F3"], sheetId: "42" };
         const result = transform(command, addColumnsAfter);
         expect(result).toEqual(command);
       });
       test(`${cmd.type} with two targets, one before and one after`, () => {
-        const command = { ...cmd, target: [toZone("A1:A3"), toZone("M1:O2")] };
+        const command = { ...cmd, target: ["A1:A3", "M1:O2"] };
         const result = transform(command, addColumnsAfter);
-        expect(result).toEqual({ ...command, target: [toZone("A1:A3"), toZone("O1:Q2")] });
+        expect(result).toEqual({ ...command, target: ["A1:A3", "O1:Q2"] });
       });
     }
   );

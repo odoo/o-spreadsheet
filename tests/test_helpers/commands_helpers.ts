@@ -1,5 +1,5 @@
 import { BACKGROUND_CHART_COLOR } from "../../src/constants";
-import { isInside, lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
+import { isInside, lettersToNumber, toCartesian, toZone, zoneToXc } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import {
   AnchorZone,
@@ -290,14 +290,14 @@ export function unhideRows(
 
 export function deleteCells(model: Model, range: string, shift: "left" | "up"): DispatchResult {
   return model.dispatch("DELETE_CELL", {
-    zone: toZone(range),
+    zone: range,
     shiftDimension: shift === "left" ? "COL" : "ROW",
   });
 }
 
 export function insertCells(model: Model, range: string, shift: "right" | "down"): DispatchResult {
   return model.dispatch("INSERT_CELL", {
-    zone: toZone(range),
+    zone: range,
     shiftDimension: shift === "right" ? "COL" : "ROW",
   });
 }
@@ -309,7 +309,7 @@ export function setBorder(model: Model, border: BorderCommand, xc?: string) {
   const target = xc ? [toZone(xc)] : model.getters.getSelectedZones();
   model.dispatch("SET_FORMATTING", {
     sheetId: model.getters.getActiveSheetId(),
-    target,
+    target: target.map(zoneToXc),
     border,
   });
 }
@@ -482,7 +482,7 @@ export function sort(
   const { col, row } = toCartesian(anchor);
   return model.dispatch("SORT_CELLS", {
     sheetId: sheetId || model.getters.getActiveSheetId(),
-    zone: toZone(zone),
+    zone: zone,
     col,
     row,
     sortDirection: direction,

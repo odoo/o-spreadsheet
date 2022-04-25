@@ -1,5 +1,4 @@
 import { transform } from "../../../src/collaborative/ot/ot";
-import { toZone } from "../../../src/helpers";
 import {
   AddColumnsRowsCommand,
   AddConditionalFormatCommand,
@@ -119,39 +118,39 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
     "target commands",
     (cmd) => {
       test(`remove rows before ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("A1:C1")] };
+        const command = { ...cmd, target: ["A1:C1"] };
         const result = transform(command, removeRows);
         expect(result).toEqual(command);
       });
       test(`remove rows after ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("A12:B14")] };
+        const command = { ...cmd, target: ["A12:B14"] };
         const result = transform(command, removeRows);
-        expect(result).toEqual({ ...command, target: [toZone("A9:B11")] });
+        expect(result).toEqual({ ...command, target: ["A9:B11"] });
       });
       test(`remove rows before and after ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("A5:B5")] };
+        const command = { ...cmd, target: ["A5:B5"] };
         const result = transform(command, removeRows);
-        expect(result).toEqual({ ...command, target: [toZone("A3:B3")] });
+        expect(result).toEqual({ ...command, target: ["A3:B3"] });
       });
       test(`${cmd.type} in removed rows`, () => {
-        const command = { ...cmd, target: [toZone("A6:B7")] };
+        const command = { ...cmd, target: ["A6:B7"] };
         const result = transform(command, removeRows);
-        expect(result).toEqual({ ...command, target: [toZone("A4:B4")] });
+        expect(result).toEqual({ ...command, target: ["A4:B4"] });
       });
       test(`${cmd.type} and rows removed in different sheets`, () => {
-        const command = { ...cmd, target: [toZone("A1:C6")], sheetId: "42" };
+        const command = { ...cmd, target: ["A1:C6"], sheetId: "42" };
         const result = transform(command, removeRows);
         expect(result).toEqual(command);
       });
       test(`${cmd.type} with a target removed`, () => {
-        const command = { ...cmd, target: [toZone("A3:B4")] };
+        const command = { ...cmd, target: ["A3:B4"] };
         const result = transform(command, removeRows);
         expect(result).toBeUndefined();
       });
       test(`${cmd.type} with a target removed, but another valid`, () => {
-        const command = { ...cmd, target: [toZone("A3:B4"), toZone("A1")] };
+        const command = { ...cmd, target: ["A3:B4", "A1"] };
         const result = transform(command, removeRows);
-        expect(result).toEqual({ ...command, target: [toZone("A1")] });
+        expect(result).toEqual({ ...command, target: ["A1"] });
       });
     }
   );

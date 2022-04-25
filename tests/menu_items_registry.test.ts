@@ -1,6 +1,7 @@
 import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../src";
 import { fontSizes } from "../src/fonts";
+import { zoneToXc } from "../src/helpers";
 import { interactivePaste } from "../src/helpers/ui/paste";
 import {
   colMenuRegistry,
@@ -150,7 +151,7 @@ describe("Menu Item actions", () => {
     env.clipboard.writeText = jest.fn(() => Promise.resolve());
     doAction(["edit", "copy"], env);
     expect(dispatch).toHaveBeenCalledWith("COPY", {
-      target: env.model.getters.getSelectedZones(),
+      target: env.model.getters.getSelectedZones().map(zoneToXc),
     });
     expect(env.clipboard.writeText).toHaveBeenCalledWith(env.model.getters.getClipboardContent());
   });
@@ -159,7 +160,7 @@ describe("Menu Item actions", () => {
     env.clipboard.writeText = jest.fn(() => Promise.resolve());
     doAction(["edit", "cut"], env);
     expect(dispatch).toHaveBeenCalledWith("CUT", {
-      target: env.model.getters.getSelectedZones(),
+      target: env.model.getters.getSelectedZones().map(zoneToXc),
     });
     expect(env.clipboard.writeText).toHaveBeenCalledWith(env.model.getters.getClipboardContent());
   });
@@ -171,7 +172,7 @@ describe("Menu Item actions", () => {
     await nextTick();
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       text: await env.clipboard.readText(),
-      target: [{ bottom: 0, left: 0, right: 0, top: 0 }],
+      target: [zoneToXc({ bottom: 0, left: 0, right: 0, top: 0 })],
     });
   });
 
@@ -187,7 +188,7 @@ describe("Menu Item actions", () => {
   test("Edit -> paste_special -> paste_special_value", () => {
     doAction(["edit", "paste_special", "paste_special_value"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE", {
-      target: env.model.getters.getSelectedZones(),
+      target: env.model.getters.getSelectedZones().map(zoneToXc),
       pasteOption: "onlyValue",
     });
   });
@@ -195,7 +196,7 @@ describe("Menu Item actions", () => {
   test("Edit -> paste_special -> paste_special_format", () => {
     doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE", {
-      target: env.model.getters.getSelectedZones(),
+      target: env.model.getters.getSelectedZones().map(zoneToXc),
       pasteOption: "onlyFormat",
     });
   });
@@ -204,7 +205,7 @@ describe("Menu Item actions", () => {
     doAction(["edit", "edit_delete_cell_values"], env);
     expect(dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
       sheetId: env.model.getters.getActiveSheetId(),
-      target: env.model.getters.getSelectedZones(),
+      target: env.model.getters.getSelectedZones().map(zoneToXc),
     });
   });
 
@@ -544,7 +545,7 @@ describe("Menu Item actions", () => {
       doAction(["format", "format_number", "format_number_general"], env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.model.getters.getActiveSheetId(),
-        target: env.model.getters.getSelectedZones(),
+        target: env.model.getters.getSelectedZones().map(zoneToXc),
         format: "",
       });
     });
@@ -553,7 +554,7 @@ describe("Menu Item actions", () => {
       doAction(["format", "format_number", "format_number_number"], env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.model.getters.getActiveSheetId(),
-        target: env.model.getters.getSelectedZones(),
+        target: env.model.getters.getSelectedZones().map(zoneToXc),
         format: "#,##0.00",
       });
     });
@@ -562,7 +563,7 @@ describe("Menu Item actions", () => {
       doAction(["format", "format_number", "format_number_percent"], env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.model.getters.getActiveSheetId(),
-        target: env.model.getters.getSelectedZones(),
+        target: env.model.getters.getSelectedZones().map(zoneToXc),
         format: "0.00%",
       });
     });
@@ -571,7 +572,7 @@ describe("Menu Item actions", () => {
       doAction(["format", "format_number", "format_number_currency"], env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.model.getters.getActiveSheetId(),
-        target: env.model.getters.getSelectedZones(),
+        target: env.model.getters.getSelectedZones().map(zoneToXc),
         format: "[$$]#,##0.00",
       });
     });
@@ -580,7 +581,7 @@ describe("Menu Item actions", () => {
       doAction(["format", "format_number", "format_number_currency_rounded"], env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.model.getters.getActiveSheetId(),
-        target: env.model.getters.getSelectedZones(),
+        target: env.model.getters.getSelectedZones().map(zoneToXc),
         format: "[$$]#,##0",
       });
     });
@@ -589,7 +590,7 @@ describe("Menu Item actions", () => {
       doAction(["format", "format_number", "format_number_date"], env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.model.getters.getActiveSheetId(),
-        target: env.model.getters.getSelectedZones(),
+        target: env.model.getters.getSelectedZones().map(zoneToXc),
         format: "m/d/yyyy",
       });
     });
@@ -598,7 +599,7 @@ describe("Menu Item actions", () => {
       doAction(["format", "format_number", "format_number_time"], env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.model.getters.getActiveSheetId(),
-        target: env.model.getters.getSelectedZones(),
+        target: env.model.getters.getSelectedZones().map(zoneToXc),
         format: "hh:mm:ss a",
       });
     });
@@ -607,7 +608,7 @@ describe("Menu Item actions", () => {
       doAction(["format", "format_number", "format_number_date_time"], env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.model.getters.getActiveSheetId(),
-        target: env.model.getters.getSelectedZones(),
+        target: env.model.getters.getSelectedZones().map(zoneToXc),
         format: "m/d/yyyy hh:mm:ss",
       });
     });
@@ -616,7 +617,7 @@ describe("Menu Item actions", () => {
       doAction(["format", "format_number", "format_number_duration"], env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: env.model.getters.getActiveSheetId(),
-        target: env.model.getters.getSelectedZones(),
+        target: env.model.getters.getSelectedZones().map(zoneToXc),
         format: "hhhh:mm:ss",
       });
     });
@@ -635,7 +636,7 @@ describe("Menu Item actions", () => {
     doAction(["format", "format_bold"], env);
     expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
       sheetId: env.model.getters.getActiveSheetId(),
-      target: env.model.getters.getSelectedZones(),
+      target: env.model.getters.getSelectedZones().map(zoneToXc),
       style: { bold: true },
     });
   });
@@ -644,7 +645,7 @@ describe("Menu Item actions", () => {
     doAction(["format", "format_italic"], env);
     expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
       sheetId: env.model.getters.getActiveSheetId(),
-      target: env.model.getters.getSelectedZones(),
+      target: env.model.getters.getSelectedZones().map(zoneToXc),
       style: { italic: true },
     });
   });
@@ -653,7 +654,7 @@ describe("Menu Item actions", () => {
     doAction(["format", "format_underline"], env);
     expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
       sheetId: env.model.getters.getActiveSheetId(),
-      target: env.model.getters.getSelectedZones(),
+      target: env.model.getters.getSelectedZones().map(zoneToXc),
       style: { underline: true },
     });
   });
@@ -662,7 +663,7 @@ describe("Menu Item actions", () => {
     doAction(["format", "format_strikethrough"], env);
     expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
       sheetId: env.model.getters.getActiveSheetId(),
-      target: env.model.getters.getSelectedZones(),
+      target: env.model.getters.getSelectedZones().map(zoneToXc),
       style: { strikethrough: true },
     });
   });
@@ -672,7 +673,7 @@ describe("Menu Item actions", () => {
     doAction(["format", "format_font_size", `format_font_size_${fontSize.pt}`], env);
     expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
       sheetId: env.model.getters.getActiveSheetId(),
-      target: env.model.getters.getSelectedZones(),
+      target: env.model.getters.getSelectedZones().map(zoneToXc),
       style: { fontSize: fontSize.pt },
     });
   });
@@ -683,7 +684,7 @@ describe("Menu Item actions", () => {
     expect(dispatch).toHaveBeenCalledWith("SORT_CELLS", {
       sheetId: env.model.getters.getActiveSheetId(),
       ...anchor.cell,
-      zone: zones[0],
+      zone: zoneToXc(zones[0]),
       sortDirection: "ascending",
     });
   });
@@ -694,7 +695,7 @@ describe("Menu Item actions", () => {
     expect(dispatch).toHaveBeenCalledWith("SORT_CELLS", {
       sheetId: env.model.getters.getActiveSheetId(),
       ...anchor.cell,
-      zone: zones[0],
+      zone: zoneToXc(zones[0]),
       sortDirection: "descending",
     });
   });

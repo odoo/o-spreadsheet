@@ -1,5 +1,6 @@
 import { UIPlugin } from "../../src";
 import { MAX_HISTORY_STEPS } from "../../src/constants";
+import { zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { uiPluginRegistry } from "../../src/plugins";
 import { StateObserver } from "../../src/state_observer";
@@ -211,12 +212,12 @@ describe("Model history", () => {
     selectCell(model, "B2");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
       border: "all",
     });
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
       border: "all",
     });
 

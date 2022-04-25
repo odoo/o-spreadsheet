@@ -1,6 +1,6 @@
 import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
-import { toZone } from "../../src/helpers";
+import { zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { SheetUIPlugin } from "../../src/plugins/ui/ui_sheet";
 import { Cell, CommandResult, UID } from "../../src/types";
@@ -16,7 +16,7 @@ import { getPlugin } from "../test_helpers/helpers";
 function setFormat(model: Model, format: string) {
   model.dispatch("SET_FORMATTING", {
     sheetId: model.getters.getActiveSheetId(),
-    target: model.getters.getSelectedZones(),
+    target: model.getters.getSelectedZones().map(zoneToXc),
     format,
   });
 }
@@ -24,7 +24,7 @@ function setFormat(model: Model, format: string) {
 function setDecimal(model: Model, step: number) {
   model.dispatch("SET_DECIMAL", {
     sheetId: model.getters.getActiveSheetId(),
-    target: model.getters.getSelectedZones(),
+    target: model.getters.getSelectedZones().map(zoneToXc),
     step: step,
   });
 }
@@ -148,7 +148,7 @@ describe("formatting values (with formatters)", () => {
     expect(
       model.dispatch("SET_FORMATTING", {
         sheetId: "invalid sheet Id",
-        target: [toZone("A1")],
+        target: ["A1"],
       })
     ).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
@@ -171,7 +171,7 @@ describe("formatting values (when change decimal)", () => {
     selectCell(model, "A1");
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
     });
     expect(getCell(model, "A1")!.format).toBe("0%");
     setDecimal(model, 1);
@@ -405,7 +405,7 @@ describe("Autoresize", () => {
   test("Can autoresize two rows", () => {
     setCellContent(model, "A1", "test");
     setCellContent(model, "A3", "test");
-    model.dispatch("SET_FORMATTING", { sheetId, target: [toZone("A3")], style: { fontSize: 24 } });
+    model.dispatch("SET_FORMATTING", { sheetId, target: ["A3"], style: { fontSize: 24 } });
     model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0, 2] });
     expect(model.getters.getRow(sheetId, 0)?.size).toBe(rowSize + padding);
     expect(model.getters.getRow(sheetId, 2)?.size).toBe(fontSizeMap[24] + padding);

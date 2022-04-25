@@ -1,5 +1,4 @@
 import { CommandResult, CorePlugin } from "../src";
-import { toZone } from "../src/helpers";
 import { LocalHistory } from "../src/history/local_history";
 import { Mode, Model, ModelConfig } from "../src/model";
 import { BordersPlugin } from "../src/plugins/core/borders";
@@ -116,7 +115,7 @@ describe("Model", () => {
     uiPluginRegistry.add("myUIPlugin", MyUIPlugin);
     corePluginRegistry.add("myCorePlugin", MyCorePlugin);
     const model = new Model();
-    model.dispatch("COPY", { target: [toZone("A1")] });
+    model.dispatch("COPY", { target: ["A1"] });
     expect(result).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
     uiPluginRegistry.remove("myUIPlugin");
     corePluginRegistry.remove("myCorePlugin");
@@ -162,7 +161,7 @@ describe("Model", () => {
       handle(cmd: Command) {
         if (cmd.type === "COPY") {
           result = this.dispatch("PASTE", {
-            target: [toZone("A2")],
+            target: ["A2"],
           });
         }
       }
@@ -170,7 +169,7 @@ describe("Model", () => {
     uiPluginRegistry.add("myUIPlugin", MyUIPlugin);
     const model = new Model();
     setCellContent(model, "A1", "copy&paste me");
-    model.dispatch("COPY", { target: [toZone("A1")] });
+    model.dispatch("COPY", { target: ["A1"] });
     expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A2")).toBe("copy&paste me");
     corePluginRegistry.remove("myUIPlugin");

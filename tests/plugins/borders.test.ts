@@ -1,5 +1,5 @@
 import { DEFAULT_BORDER_DESC as b, DEFAULT_BORDER_DESC } from "../../src/constants";
-import { toZone } from "../../src/helpers";
+import { zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { BorderDescr } from "../../src/types/index";
 import {
@@ -240,7 +240,7 @@ describe("borders", () => {
     expect(getBorder(model, "B2")).toBeDefined();
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
     });
     expect(getBorder(model, "B2")).toBeDefined();
   });
@@ -267,7 +267,7 @@ describe("borders", () => {
     expect(getBorder(model, "B1")).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: model.getters.getSelectedZones().map(zoneToXc),
     });
     expect(getBorder(model, "B1")).toBeNull();
   });
@@ -307,8 +307,8 @@ describe("borders", () => {
     setBorder(model, "external", "B2");
     const s = DEFAULT_BORDER_DESC;
     expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s, right: s, left: s });
-    model.dispatch("CUT", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C4")] });
+    model.dispatch("CUT", { target: ["B2"] });
+    model.dispatch("PASTE", { target: ["C4"] });
     expect(getBorder(model, "C4")).toEqual({ top: s, bottom: s, right: s, left: s });
     expect(getBorder(model, "B2")).toBeNull();
   });

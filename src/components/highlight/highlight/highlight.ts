@@ -1,6 +1,6 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../../constants";
-import { clip, isEqual } from "../../../helpers";
+import { clip, isEqual, zoneToXc } from "../../../helpers";
 import { SpreadsheetChildEnv, Zone } from "../../../types";
 import { dragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop";
 import { Border } from "../border/border";
@@ -37,7 +37,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
     let lastRow = isTop ? z.top : z.bottom;
     let currentZone = z;
 
-    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
+    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: zoneToXc(currentZone) });
 
     const mouseMove = (col, row) => {
       if (lastCol !== col || lastRow !== row) {
@@ -55,7 +55,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
         newZone = this.env.model.getters.expandZone(activeSheet.id, newZone);
 
         if (!isEqual(newZone, currentZone)) {
-          this.env.model.dispatch("CHANGE_HIGHLIGHT", { zone: newZone });
+          this.env.model.dispatch("CHANGE_HIGHLIGHT", { zone: zoneToXc(newZone) });
           currentZone = newZone;
         }
       }
@@ -103,7 +103,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
     const deltaRowMax = activeSheet.rows.length - z.bottom - 1;
 
     let currentZone = z;
-    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
+    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: zoneToXc(currentZone) });
 
     let lastCol = initCol;
     let lastRow = initRow;
@@ -125,7 +125,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
         newZone = this.env.model.getters.expandZone(activeSheet.id, newZone);
 
         if (!isEqual(newZone, currentZone)) {
-          this.env.model.dispatch("CHANGE_HIGHLIGHT", { zone: newZone });
+          this.env.model.dispatch("CHANGE_HIGHLIGHT", { zone: zoneToXc(newZone) });
           currentZone = newZone;
         }
       }

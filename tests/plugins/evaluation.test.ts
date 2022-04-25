@@ -1,4 +1,5 @@
 import { args, functionRegistry } from "../../src/functions";
+import { zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { ArgRange, CellValueType, InvalidEvaluation } from "../../src/types";
 import {
@@ -208,7 +209,7 @@ describe("evaluateCells", () => {
     const value = evaluation.value;
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+      target: [zoneToXc({ left: 0, top: 0, right: 0, bottom: 0 })],
       format: "#,##0",
     });
     evaluation = getCell(model, "A1")?.evaluated as InvalidEvaluation;

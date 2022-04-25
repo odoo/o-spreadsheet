@@ -9,6 +9,7 @@ import {
   range,
   toCartesian,
   toXC,
+  toZone,
 } from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
@@ -101,17 +102,17 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     switch (cmd.type) {
       case "SET_FORMATTING":
         if ("style" in cmd) {
-          this.setStyle(cmd.sheetId, cmd.target, cmd.style);
+          this.setStyle(cmd.sheetId, cmd.target.map(toZone), cmd.style);
         }
         if ("format" in cmd && cmd.format !== undefined) {
-          this.setFormatter(cmd.sheetId, cmd.target, cmd.format);
+          this.setFormatter(cmd.sheetId, cmd.target.map(toZone), cmd.format);
         }
         break;
       case "SET_DECIMAL":
-        this.setDecimal(cmd.sheetId, cmd.target, cmd.step);
+        this.setDecimal(cmd.sheetId, cmd.target.map(toZone), cmd.step);
         break;
       case "CLEAR_FORMATTING":
-        this.clearStyles(cmd.sheetId, cmd.target);
+        this.clearStyles(cmd.sheetId, cmd.target.map(toZone));
         break;
       case "ADD_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {

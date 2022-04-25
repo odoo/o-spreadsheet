@@ -1,4 +1,4 @@
-import { isInside, overlap, range, zoneToDimension } from "../../helpers/index";
+import { isInside, overlap, range, toZone, zoneToDimension } from "../../helpers/index";
 import { sortCells } from "../../helpers/sort";
 import { _lt } from "../../translation";
 import {
@@ -21,7 +21,7 @@ export class SortPlugin extends UIPlugin {
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
       case "SORT_CELLS":
-        if (!isInside(cmd.col, cmd.row, cmd.zone)) {
+        if (!isInside(cmd.col, cmd.row, toZone(cmd.zone))) {
           throw new Error(_lt("The anchor must be part of the provided zone"));
         }
         return this.checkValidations(cmd, this.checkMerge, this.checkMergeSizes);
@@ -32,12 +32,13 @@ export class SortPlugin extends UIPlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "SORT_CELLS":
-        this.sortZone(cmd.sheetId, cmd, cmd.zone, cmd.sortDirection);
+        this.sortZone(cmd.sheetId, cmd, toZone(cmd.zone), cmd.sortDirection);
         break;
     }
   }
 
-  private checkMerge({ sheetId, zone }: SortCommand): CommandResult {
+  private checkMerge({ sheetId, zone: zoneXC }: SortCommand): CommandResult {
+    const zone = toZone(zoneXC);
     if (!this.getters.doesIntersectMerge(sheetId, zone)) {
       return CommandResult.Success;
     }
@@ -52,7 +53,8 @@ export class SortPlugin extends UIPlugin {
     return CommandResult.Success;
   }
 
-  private checkMergeSizes({ sheetId, zone }: SortCommand): CommandResult {
+  private checkMergeSizes({ sheetId, zone: zoneXC }: SortCommand): CommandResult {
+    const zone = toZone(zoneXC);
     if (!this.getters.doesIntersectMerge(sheetId, zone)) {
       return CommandResult.Success;
     }

@@ -10,7 +10,7 @@ import {
   UID,
   Zone,
 } from "../types";
-import { isEqual } from "./zones";
+import { isEqual, zoneToXc } from "./zones";
 
 type CellWithIndex = { index: number; type: CellValueType; value: any };
 
@@ -85,7 +85,13 @@ export function interactiveSortSelection(
 
   const { col, row } = anchor;
   if (multiColumns) {
-    result = env.model.dispatch("SORT_CELLS", { sheetId, col, row, zone, sortDirection });
+    result = env.model.dispatch("SORT_CELLS", {
+      sheetId,
+      col,
+      row,
+      zone: zoneToXc(zone),
+      sortDirection,
+    });
   } else {
     // check contiguity
     const contiguousZone = env.model.getters.getContiguousZone(sheetId, zone);
@@ -95,7 +101,7 @@ export function interactiveSortSelection(
         sheetId,
         col,
         row,
-        zone,
+        zone: zoneToXc(zone),
         sortDirection,
       });
     } else {
@@ -109,7 +115,7 @@ export function interactiveSortSelection(
             sheetId,
             col,
             row,
-            zone,
+            zone: zoneToXc(zone),
             sortDirection,
           });
         },
@@ -118,7 +124,7 @@ export function interactiveSortSelection(
             sheetId,
             col,
             row,
-            zone,
+            zone: zoneToXc(zone),
             sortDirection,
           });
         }
