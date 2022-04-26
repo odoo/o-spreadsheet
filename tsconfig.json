@@ -18,7 +18,7 @@
     "allowJs": true,
     "sourceMap": true
   },
-  "include": ["src", "tests"],
+  "include": ["src"],
   "typedocOptions": {
     "entryPoints": ["src/index.ts"],
     "out": "doc/tsdoc",
