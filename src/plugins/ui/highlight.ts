@@ -1,4 +1,4 @@
-import { isEqual } from "../../helpers/index";
+import { isEqual, zoneToDimension } from "../../helpers/index";
 import { GridRenderingContext, Highlight, LAYERS } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
@@ -32,10 +32,17 @@ export class HighlightPlugin extends UIPlugin {
           x.zone.bottom < this.getters.getSheet(x.sheetId).rows.length &&
           x.zone.right < this.getters.getSheet(x.sheetId).cols.length
       )
-      .map((highlight) => ({
-        ...highlight,
-        zone: this.getters.expandZone(highlight.sheetId, highlight.zone),
-      }));
+      .map((highlight) => {
+        const { height, width } = zoneToDimension(highlight.zone);
+        const zone =
+          height * width === 1
+            ? this.getters.expandZone(highlight.sheetId, highlight.zone)
+            : highlight.zone;
+        return {
+          ...highlight,
+          zone,
+        };
+      });
   }
 
   // ---------------------------------------------------------------------------
