@@ -236,14 +236,25 @@ describe("ranges and highlights", () => {
     await keydown("ArrowDown");
     expect(composerEl.textContent).toBe("=B2");
     expect(getHighlights(model)).toHaveLength(1);
-    expect(getHighlights(model)[0].zone).toMatchObject({
-      top: 1,
-      bottom: 2,
-      left: 1,
-      right: 2,
-    });
+    expect(getHighlights(model)[0].zone).toMatchObject(toZone("B2:C3"));
     await keydown("ArrowDown");
     expect(composerEl.textContent).toBe("=C4");
+  });
+
+  test("Create a ref overlapping merges by typing -> the merge is ignored if the range covers several cells", async () => {
+    selectCell(model, "B2");
+    model.dispatch("ALTER_SELECTION", { delta: [1, 1] });
+    merge(model, "B2:C3");
+    selectCell(model, "C1");
+    await typeInComposer("=B2:B10");
+    expect(composerEl.textContent).toBe("=B2:B10");
+    expect(getHighlights(model)).toHaveLength(1);
+    expect(getHighlights(model)[0].zone).toMatchObject(toZone("B2:B10"));
+    model.dispatch("STOP_EDITION", { cancel: true });
+    await typeInComposer("=B2:B3");
+    expect(composerEl.textContent).toBe("=B2:B3");
+    expect(getHighlights(model)).toHaveLength(1);
+    expect(getHighlights(model)[0].zone).toMatchObject(toZone("B2:B3"));
   });
 
   describe("change highlight position in the grid", () => {
