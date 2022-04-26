@@ -81,10 +81,12 @@ class MenuActions {
 }
 
 export type MenuStore = Store<Menu, MenuActions>;
+type MenuStoreProvider = (
+  stores,
+  depth?: number
+) => StoreConfig<MenuInternalState, Menu, MenuActions>;
 
-export const menuProvider: (depth?: number) => StoreConfig<MenuInternalState, Menu, MenuActions> = (
-  depth: number = 1
-) => ({
+export const menuProvider: MenuStoreProvider = (stores, depth: number = 1) => ({
   actions: MenuActions,
   state: {
     depth,

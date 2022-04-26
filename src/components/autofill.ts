@@ -75,7 +75,7 @@ export class Autofill extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   });
 
   get getters() {
-    return this.providers.watch(ModelProvider, this.env.model);
+    return this.providers.withParam(this.env.model).watch(ModelProvider);
   }
 
   get style() {

@@ -22,7 +22,7 @@ function composerContentProvider(
   stores: StoresWatch,
   model: Model
 ): StoreConfig<{ content: string }, { content: string }, any> {
-  const getters = stores.watch(ModelProvider, model);
+  const getters = stores.withParam(model).watch(ModelProvider);
   getters.subscribe;
   console.log("composerContentProvider created");
   return {
@@ -33,7 +33,7 @@ function composerContentProvider(
 }
 
 export function formulaAssistantProvider(stores: StoresWatch, model: Model) {
-  const composer = stores.watch(composerContentProvider, model);
+  const composer = stores.withParam(model).watch(composerContentProvider);
   return {
     actions: ComposerActions,
     state: {

@@ -12,12 +12,16 @@ import { Component, reactive, useComponent } from "@odoo/owl";
 
 export interface Providers {
   // TODO type param
-  watch<State>(provider: Provider<State, any>, param?: any): Readonly<State>;
-  notify<Actions>(provider: Provider<any, Actions>, param?: any): Readonly<Actions>;
-  use<State, Actions>(provider: Provider<State, Actions>, param?: any): Store<State, Actions>;
+  watch<State>(provider: Provider<State, any>): Readonly<State>;
+  notify<Actions>(provider: Provider<any, Actions>): Readonly<Actions>;
+  use<State, Actions>(provider: Provider<State, Actions>): Store<State, Actions>;
+  withParam<ExternalParam>(param: ExternalParam): Omit<Providers, "withParam">;
 }
 
-export type StoresWatch = Pick<Providers, "watch">;
+export type StoresWatch = {
+  watch: Providers["watch"];
+  withParam: (param: ExternalParam) => { watch: Providers["watch"] }; // TODO type this
+};
 
 // type StateProvider<T = any> = (providers: Providers) => Readonly<T>;
 // type StateNotifierProvider<T extends StateNotifier = any> = (providers: Providers) => T;
@@ -80,7 +84,7 @@ export class ProviderContainer {
   }
 
   private createStore<T>(provider: Provider<T>, param: ExternalParam): Store<any, any> {
-    const watch: StoresWatch["watch"] = (parentProvider, param) => {
+    const coucou = <T>(parentProvider: Provider<T>, param: ExternalParam) => {
       const parentStore = this.get(parentProvider, param);
       // computed state is immutable. It can't work
       const reactiveStore = reactive(parentStore, () => {
@@ -91,7 +95,12 @@ export class ProviderContainer {
       });
       return reactiveStore.state;
     };
-    return store(provider({ watch }, param));
+    const watch: StoresWatch["watch"] = (provider) => coucou(provider, undefined);
+    const withParam = <ExternalParam>(param: ExternalParam) => ({
+      watch: <T>(provider: Provider<T>) => coucou(provider, param),
+    });
+    // TODO select
+    return store(provider({ watch, withParam }, param));
   }
 }
 
@@ -104,16 +113,16 @@ export function useProviders(): Providers {
   const component = useComponent();
 
   // TODO don't call reactive again if already subscribe in the same render
-  const watch = (provider: Provider, param?: ExternalParam) => {
+  const watch = (param: ExternalParam, provider: Provider) => {
     const store = providerContainer.get(provider, param);
     return reactive(store, () => component.render()).state;
   };
 
-  const notify = (provider: Provider, param?: ExternalParam) => {
+  const notify = (param: ExternalParam, provider: Provider) => {
     return providerContainer.get(provider, param).notify;
   };
 
-  const use = (provider: Provider, param?: ExternalParam) => {
+  const use = (param: ExternalParam, provider: Provider) => {
     const store = providerContainer.get(provider, param);
     // state is computed, probably cannot work with reactive
     return reactive(store, () => {
@@ -122,7 +131,17 @@ export function useProviders(): Providers {
     });
   };
 
-  return { watch, notify, use };
+  // TODO type this
+  return {
+    watch: watch.bind(null, undefined),
+    notify: notify.bind(null, undefined),
+    use: use.bind(null, undefined),
+    withParam: (param) => ({
+      watch: watch.bind(null, param),
+      notify: notify.bind(null, param),
+      use: use.bind(null, param),
+    }),
+  };
 }
 
 // use a root scope instead to inject it in the `env`

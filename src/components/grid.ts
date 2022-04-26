@@ -390,7 +390,7 @@ export class Grid extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   }
 
   get getters() {
-    return this.providers.watch(ModelProvider, this.env.model);
+    return this.providers.withParam(this.env.model).watch(ModelProvider);
   }
 
   private initGrid() {

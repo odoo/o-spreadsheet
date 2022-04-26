@@ -189,7 +189,7 @@ export class Composer extends ConsumerComponent<Props, SpreadsheetChildEnv> {
   private isKeyStillDown: boolean = false;
 
   get formulaAssistant() {
-    return this.providers.watch(formulaAssistantProvider, this.env.model);
+    return this.providers.withParam(this.env.model).watch(formulaAssistantProvider);
   }
 
   get assistantStyle(): string {
