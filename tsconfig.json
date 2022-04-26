@@ -18,5 +18,5 @@
     "allowJs": true,
     "sourceMap": true
   },
-  "include": ["src", "tests"]
+  "include": ["src"]
 }
