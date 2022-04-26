@@ -2,7 +2,7 @@ import { Component, onMounted, onPatched, onWillUnmount, useRef, useState, xml }
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { EnrichedToken } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { isEqual, rangeReference, toZone } from "../../helpers/index";
+import { isEqual, rangeReference, toZone, zoneToDimension } from "../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
 import { FunctionDescription, Rect, SpreadsheetChildEnv } from "../../types/index";
 import { css } from "../helpers/css";
@@ -522,11 +522,13 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
     const refSheet = sheetName
       ? this.env.model.getters.getSheetIdByName(sheetName)
       : this.env.model.getters.getEditionSheet();
-    const highlight = highlights.find(
-      (highlight) =>
-        highlight.sheet === refSheet &&
-        isEqual(this.env.model.getters.expandZone(refSheet, toZone(xc)), highlight.zone)
-    );
+    const highlight = highlights.find((highlight) => {
+      if (highlight.sheet !== refSheet) return false;
+      let zone = toZone(xc);
+      const { height, width } = zoneToDimension(zone);
+      zone = height * width === 1 ? this.env.model.getters.expandZone(refSheet, toZone(xc)) : zone;
+      return highlight.sheet === refSheet && isEqual(zone, highlight.zone);
+    });
     return highlight && highlight.color ? highlight.color : undefined;
   }
 
