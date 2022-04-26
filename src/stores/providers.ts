@@ -84,20 +84,22 @@ export class ProviderContainer {
   }
 
   private createStore<T>(provider: Provider<T>, param: ExternalParam): Store<any, any> {
-    const coucou = <T>(parentProvider: Provider<T>, param: ExternalParam) => {
+    const coucou = <T>(param: ExternalParam, parentProvider: Provider<T>) => {
       const parentStore = this.get(parentProvider, param);
-      // computed state is immutable. It can't work
+      // god
       const reactiveStore = reactive(parentStore, () => {
+        console.log("invalidate store");
         // if parent state changes, invalidate child which
         // is equivalent to deleting it and rebuild it next time
         // someone needs it.
         this.stores.get(provider)?.delete(param);
       });
+      console.log("coucou", parentProvider.name);
       return reactiveStore.state;
     };
-    const watch: StoresWatch["watch"] = (provider) => coucou(provider, undefined);
+    const watch: StoresWatch["watch"] = coucou.bind(null, undefined);
     const withParam = <ExternalParam>(param: ExternalParam) => ({
-      watch: <T>(provider: Provider<T>) => coucou(provider, param),
+      watch: coucou.bind(null, param) as StoresWatch["watch"],
     });
     // TODO select
     return store(provider({ watch, withParam }, param));
@@ -176,12 +178,16 @@ export function store<State, View, Actions>({
 }: StoreConfig<State, View, Actions>): Store<View, Actions> {
   // @ts-ignore
   const reactiveState: State = reactive(state, () => {
+    console.log("recompute, state will be assigned", ActionsConstructor);
     store.state = computeView(reactiveState);
   });
   const actions = new ActionsConstructor(reactiveState);
-  const store = reactive({
-    state: computeView(reactiveState),
-    notify: actions,
-  });
+  const store = reactive(
+    {
+      state: computeView(reactiveState),
+      notify: actions,
+    },
+    () => console.log("ploup")
+  );
   return store;
 }

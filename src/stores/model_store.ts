@@ -10,13 +10,12 @@ class ModelUpdates {
   constructor(private state: State) {
     state.model.on("update", this, () => {
       // trick the reactivity system
-      console.log("model update");
       this.state.subscribe++;
     });
   }
 }
 
-type ModelStore = StoreConfig<State, Getters & { subscribe: unknown }, ModelUpdates>;
+type ModelStore = StoreConfig<State, Getters, ModelUpdates>;
 
 export const ModelProvider = (stores: StoresWatch, model: Model): ModelStore => ({
   state: {
@@ -25,9 +24,8 @@ export const ModelProvider = (stores: StoresWatch, model: Model): ModelStore => 
   },
   actions: ModelUpdates,
   computeView: (state) => {
-    return {
-      subscribe: state.subscribe,
-      ...state.model.getters,
-    };
+    console.log("model update");
+    state.subscribe; // read the reactive state
+    return model.getters;
   },
 });

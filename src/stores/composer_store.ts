@@ -23,7 +23,6 @@ function composerContentProvider(
   model: Model
 ): StoreConfig<{ content: string }, { content: string }, any> {
   const getters = stores.withParam(model).watch(ModelProvider);
-  getters.subscribe;
   console.log("composerContentProvider created");
   return {
     state: { content: getters.getCurrentContent() },

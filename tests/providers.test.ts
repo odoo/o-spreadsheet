@@ -1,4 +1,5 @@
 import { reactive } from "@odoo/owl";
+import { store } from "../src/stores/providers";
 
 test("blou", () => {
   const originState = reactive({
@@ -48,4 +49,16 @@ test("with getter", () => {
   );
   expect(state.a.b).toBe(5);
   base.b = 6;
+});
+
+test("store qsdf ", () => {
+  const state = { content: 5 };
+  const myStore = store({
+    state,
+    actions: class {},
+    computeView: (state) => state.content,
+  });
+  expect(myStore.state).toEqual(5);
+  state.content = 6;
+  expect(myStore.state).toEqual(6);
 });
