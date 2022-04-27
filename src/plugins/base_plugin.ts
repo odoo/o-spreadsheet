@@ -28,6 +28,8 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
   protected dispatch: CommandDispatcher["dispatch"];
   protected currentMode: Mode;
 
+  private __transientData: unknown;
+
   constructor(
     stateObserver: StateObserver,
     dispatch: CommandDispatcher["dispatch"],
@@ -44,6 +46,18 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
   // ---------------------------------------------------------------------------
   // Command handling
   // ---------------------------------------------------------------------------
+
+  protected setTransientData<T>(data: T) {
+    this.__transientData = data;
+  }
+
+  protected getTransientData<T>(): T {
+    return this.__transientData as T;
+  }
+
+  private clearTransientData() {
+    this.__transientData = undefined;
+  }
 
   /**
    * Before a command is accepted, the model will ask each plugin if the command
@@ -74,7 +88,9 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
    * subcommands) has been completely handled.  For example, when we paste
    * multiple cells, we only want to reevaluate the cell values once at the end.
    */
-  finalize(): void {}
+  finalize(): void {
+    this.clearTransientData();
+  }
 
   /**
    * Combine multiple validation functions into a single function

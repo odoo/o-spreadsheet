@@ -76,6 +76,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   }
 
   finalize() {
+    super.finalize();
     if (this.isStale) {
       this.computeStyles();
       this.isStale = false;

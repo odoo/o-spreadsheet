@@ -72,6 +72,7 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   finalize() {
+    super.finalize();
     const sheetId = this.getters.getActiveSheetId();
     if (!this.isUpToDate.has(sheetId)) {
       this.evaluate(sheetId);

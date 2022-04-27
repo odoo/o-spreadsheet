@@ -154,6 +154,7 @@ export class ViewportPlugin extends UIPlugin {
   }
 
   finalize() {
+    super.finalize();
     if (this.updateSnap) {
       this.snapViewportToCell(this.getters.getActiveSheetId());
       this.updateSnap = false;
