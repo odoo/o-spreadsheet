@@ -446,6 +446,29 @@ describe("Context Menu", () => {
     expect(fixture.querySelector("div[data-name='root2'] > i")?.classList).toContain("my-class");
   });
 
+  test("Can color menu items", async () => {
+    const menuItems: FullMenuItem[] = [
+      createFullMenuItem("black", {
+        name: "black",
+        sequence: 1,
+        action() {},
+      }),
+      createFullMenuItem("orange", {
+        name: "orange",
+        sequence: 2,
+        action() {},
+        textColor: "orange",
+      }),
+    ];
+    await renderContextMenu(0, 0, { menuItems });
+    expect((fixture.querySelector("div[data-name='black']") as HTMLElement).style.color).toEqual(
+      ""
+    );
+    expect((fixture.querySelector("div[data-name='orange']") as HTMLElement).style.color).toEqual(
+      "orange"
+    );
+  });
+
   test("Submenus are correctly hidden", async () => {
     const menuItems: FullMenuItem[] = [
       createFullMenuItem("root_1", {

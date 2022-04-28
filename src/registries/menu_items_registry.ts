@@ -36,6 +36,7 @@ export interface MenuItem {
   children?: menuChildren;
   separator?: boolean;
   icon?: string;
+  textColor?: string;
 }
 
 export type FullMenuItem = Required<MenuItem>;
@@ -52,6 +53,7 @@ const DEFAULT_MENU_ITEM = (key: string) => ({
   separator: false,
   icon: false,
   id: key,
+  textColor: "",
 });
 
 export function createFullMenuItem(key: string, value: MenuItem): FullMenuItem {

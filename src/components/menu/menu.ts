@@ -140,6 +140,10 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 
+  getColor(menu: FullMenuItem) {
+    return menu.textColor ? `color: ${menu.textColor}` : undefined;
+  }
+
   async activateMenu(menu: FullMenuItem) {
     const result = await menu.action(this.env);
     this.close();
