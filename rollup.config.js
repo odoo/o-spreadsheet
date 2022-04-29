@@ -3,7 +3,7 @@ import git from "git-rev-sync";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 
 export default {
-  input: "dist/js/src/index.js",
+  input: "dist/js/index.js",
   external: ["@odoo/owl"],
   plugins: [nodeResolve()],
   output: {
