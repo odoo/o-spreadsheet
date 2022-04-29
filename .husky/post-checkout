@@ -3,6 +3,7 @@
 
 if [ "$HUSKY_POST_CHECKOUT" != 0 ]; then
     if [ "$1" != "$2" ]; then
+        rm -rf dist >/dev/null 2>&1
         npm install >/dev/null 2>&1
     fi
 fi
