@@ -99,7 +99,12 @@
     ],
     "setupFilesAfterEnv": [
       "<rootDir>/tests/setup/jest.setup.ts"
-    ]
+    ],
+    "globals": {
+      "ts-jest": {
+        "tsconfig": "tsconfig.jest.json"
+      }
+    }
   },
   "lint-staged": {
     "*": "prettier --write"
