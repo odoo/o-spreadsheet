@@ -1,5 +1,5 @@
 import { Registry } from "../registry";
-import { Cell, CellDisplayProperties, CoreGetters, UID } from "../types";
+import { Cell, CellDisplayProperties, CoreGetters, Format, UID } from "../types";
 
 //------------------------------------------------------------------------------
 // Cell Registry
@@ -13,7 +13,7 @@ interface CellBuilder {
   /**
    * Check if this factory should be used
    */
-  match: (content: string) => boolean;
+  match: (content: string, format: Format | undefined) => boolean;
   createCell: (
     id: UID,
     content: string,

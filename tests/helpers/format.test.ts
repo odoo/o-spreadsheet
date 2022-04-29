@@ -1,5 +1,5 @@
 import { parseDateTime } from "../../src/helpers";
-import { formatValue } from "../../src/helpers/format";
+import { formatValue, isDateTimeFormat } from "../../src/helpers/format";
 
 describe("formatValue on number", () => {
   test("apply default format ", () => {
@@ -221,6 +221,42 @@ describe("formatValue on number", () => {
 });
 
 describe("formatValue on date and time", () => {
+  test.each([
+    "hh:mm",
+    "hh:mm:ss",
+    "hh:mm a",
+    "hh:mm:ss a",
+    "hhhh:mm:ss",
+    "m/d/yyyy hh:mm:ss",
+    "m/d/yyyy hh:mm:ss a",
+    "yyyy mm dd",
+    "yyyy-mm-dd",
+    "yyyy/mm/dd",
+    "yyyy m d",
+    "yyyy-m-d",
+    "yyyy/m/d",
+    "m d yyyy",
+    "m-d-yyyy",
+    "m/d/yyyy",
+    "mm dd yyyy",
+    "mm-dd-yyyy",
+    "mm/dd/yyyy",
+    "mm dd",
+    "mm-dd",
+    "mm/dd",
+    "m d",
+    "m-d",
+    "m/d",
+  ])("detect date time format %s", (format) => {
+    expect(isDateTimeFormat(format)).toBe(true);
+  });
+
+  test.each(["", "a", "[$€]#,##0.0", "[$m-d-yyyy]#,##0.0", "#,##0.0"])(
+    "dont detect wrong date time format %s",
+    (format) => {
+      expect(isDateTimeFormat(format)).toBe(false);
+    }
+  );
   describe("apply default format", () => {
     test.each([
       ["0:0", "00:00"],

@@ -1,3 +1,4 @@
+import { isDateTimeFormat } from "..";
 import { DEFAULT_ERROR_MESSAGE } from "../../constants";
 import { compile } from "../../formulas";
 import { cellRegistry } from "../../registries/cell_types";
@@ -51,6 +52,14 @@ cellRegistry
     sequence: 20,
     match: (content) => content === "",
     createCell: (id, content, properties) => new EmptyCell(id, properties),
+  })
+  .add("NumberWithDateTimeFormat", {
+    sequence: 25,
+    match: (content, format) => !!format && isNumber(content) && isDateTimeFormat(format),
+    createCell: (id, content, properties) => {
+      const format = properties.format!;
+      return new DateTimeCell(id, parseNumber(content), { ...properties, format });
+    },
   })
   .add("Number", {
     sequence: 30,
@@ -120,7 +129,7 @@ export function cellFactory(getters: CoreGetters) {
     properties: CellDisplayProperties,
     sheetId: UID
   ): Cell {
-    const builder = builders.find((factory) => factory.match(content));
+    const builder = builders.find((factory) => factory.match(content, properties.format));
     if (!builder) {
       return new TextCell(id, content, properties);
     }

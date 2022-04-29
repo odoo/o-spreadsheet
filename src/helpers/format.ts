@@ -208,6 +208,18 @@ function splitNumber(
   return { integerDigits, decimalDigits };
 }
 
+/**
+ * Check if the given format is a time, date or date time format.
+ */
+export function isDateTimeFormat(format: Format) {
+  try {
+    applyDateTimeFormat(1, format);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 export function applyDateTimeFormat(value: number, format: string): FormattedValue {
   // TODO: unify the format functions for date and datetime
   // This requires some code to 'parse' or 'tokenize' the format, keep it in a
