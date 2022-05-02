@@ -115,7 +115,7 @@ describe("figures", () => {
     expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
     expect(fixture.querySelector(".o-chart-menu-item")).not.toBeNull();
     await simulateClick(".o-chart-menu-item");
-    expect(fixture.querySelector(".o-menu")).not.toBeNull();
+    expect(fixture.querySelectorAll(".o-menu").length).toBe(1);
   });
 
   test("Context menu is positioned according to the spreadsheet position", async () => {
@@ -456,7 +456,7 @@ describe("figures", () => {
   test("Can open context menu on right click", async () => {
     triggerMouseEvent(".o-chart-container", "contextmenu");
     await nextTick();
-    expect(document.querySelector(".o-menu")).not.toBeNull();
+    expect(document.querySelectorAll(".o-menu").length).toBe(1);
   });
 });
 describe("charts with multiple sheets", () => {

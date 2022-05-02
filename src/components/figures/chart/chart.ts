@@ -150,7 +150,6 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onContextMenu(ev: MouseEvent) {
-    ev.preventDefault();
     const position = {
       x: this.position.x + ev.offsetX,
       y: this.position.y + ev.offsetY,
