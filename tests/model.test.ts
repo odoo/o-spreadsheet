@@ -4,7 +4,7 @@ import { Model, ModelConfig } from "../src/model";
 import { corePluginRegistry, uiPluginRegistry } from "../src/plugins/index";
 import { UIPlugin } from "../src/plugins/ui_plugin";
 import { Command, CoreCommand, DispatchResult } from "../src/types";
-import { selectCell, setCellContent } from "./test_helpers/commands_helpers";
+import { copy, selectCell, setCellContent } from "./test_helpers/commands_helpers";
 import { getCellText } from "./test_helpers/getters_helpers";
 
 describe("Model", () => {
@@ -33,7 +33,7 @@ describe("Model", () => {
     uiPluginRegistry.add("myUIPlugin", MyUIPlugin);
     corePluginRegistry.add("myCorePlugin", MyCorePlugin);
     const model = new Model();
-    model.dispatch("COPY", { target: [toZone("A1")] });
+    copy(model, "A1");
     expect(result).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
     uiPluginRegistry.remove("myUIPlugin");
     corePluginRegistry.remove("myCorePlugin");
@@ -87,7 +87,7 @@ describe("Model", () => {
     uiPluginRegistry.add("myUIPlugin", MyUIPlugin);
     const model = new Model();
     setCellContent(model, "A1", "copy&paste me");
-    model.dispatch("COPY", { target: [toZone("A1")] });
+    copy(model, "A1");
     expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A2")).toBe("copy&paste me");
     corePluginRegistry.remove("myUIPlugin");

@@ -13,8 +13,10 @@ import { Box, GridRenderingContext, Viewport } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   addColumns,
+  copy,
   deleteColumns,
   merge,
+  paste,
   resizeColumns,
   resizeRows,
   setCellContent,
@@ -965,12 +967,12 @@ describe("renderer", () => {
     "compatible copied zones %s are all outlined with dots",
     (targetXc) => {
       const model = new Model();
-      const copiedTarget = target(targetXc);
-      model.dispatch("COPY", { target: copiedTarget });
+      copy(model, targetXc);
       const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
       model.drawGrid(ctx);
+      const copiedTarget = target(targetXc);
       expect(isDotOutlined(copiedTarget)).toBeTruthy();
-      model.dispatch("PASTE", { target: target("A10") });
+      paste(model, "A10");
       reset();
       model.drawGrid(ctx);
       expect(isDotOutlined(copiedTarget)).toBeFalsy();
@@ -981,13 +983,13 @@ describe("renderer", () => {
     "only last copied non-compatible zones %s is outlined with dots",
     (targetXc) => {
       const model = new Model();
-      const copiedTarget = target(targetXc);
-      model.dispatch("COPY", { target: copiedTarget });
+      copy(model, targetXc);
       const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
       model.drawGrid(ctx);
+      const copiedTarget = target(targetXc);
       const expectedOutlinedZone = copiedTarget.slice(-1);
       expect(isDotOutlined(expectedOutlinedZone)).toBeTruthy();
-      model.dispatch("PASTE", { target: target("A10") });
+      paste(model, "A10");
       reset();
       model.drawGrid(ctx);
       expect(isDotOutlined(expectedOutlinedZone)).toBeFalsy();
@@ -1000,10 +1002,10 @@ describe("renderer", () => {
     (model) => deleteColumns(model, ["K"]),
   ])("copied zone outline is removed at first change to the grid", (coreOperation) => {
     const model = new Model();
-    const copiedTarget = target("A1:A2");
-    model.dispatch("COPY", { target: copiedTarget });
+    copy(model, "A1:A2");
     const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
     model.drawGrid(ctx);
+    const copiedTarget = target("A1:A2");
     expect(isDotOutlined(copiedTarget)).toBeTruthy();
     coreOperation(model);
     reset();

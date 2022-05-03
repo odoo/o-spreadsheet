@@ -8,12 +8,14 @@ import {
   addColumns,
   addRows,
   clearCell,
+  copy,
   createChart,
   createSheet,
   deleteColumns,
   deleteRows,
   merge,
   moveConditionalFormat,
+  paste,
   redo,
   selectCell,
   setCellContent,
@@ -218,8 +220,8 @@ describe("Multi users synchronisation", () => {
       row: 0,
       style: { fillColor: "#fefefe" },
     });
-    alice.dispatch("COPY", { target: [toZone("A1")] });
-    alice.dispatch("PASTE", { target: [toZone("A2")] });
+    copy(alice, "A1");
+    paste(alice, "A2");
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A1")!.style, {
       fillColor: "#fefefe",
     });
@@ -236,8 +238,8 @@ describe("Multi users synchronisation", () => {
       row: 1,
       style: { fillColor: "#fefefe" },
     });
-    alice.dispatch("COPY", { target: [toZone("A1")] });
-    alice.dispatch("PASTE", { target: [toZone("B2")] });
+    copy(alice, "A1");
+    paste(alice, "B2");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCell(user, "B2")!.style,
       undefined
