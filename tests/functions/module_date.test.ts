@@ -1278,3 +1278,188 @@ describe("YEARFRAC formula", () => {
     });
   });
 });
+
+describe("MONTH.START formula", () => {
+  test("functional tests on simple arguments", () => {
+    const grid = {
+      A1: '=MONTH.START("7/20/2020")',
+      A2: '=MONTH.START("7/31/2020")',
+    };
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A1).toBe("7/1/2020");
+    expect(gridResult.A2).toBe("7/1/2020");
+  });
+
+  test("casting tests on cell arguments", () => {
+    const grid = {
+      A3: "7/10/1920",
+      A4: "=MONTH.START(A3)",
+    };
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A4).toBe("7/1/1920");
+  });
+});
+
+describe("MONTH.END formula", () => {
+  test("functional tests on simple arguments", () => {
+    const grid = {
+      A1: '=MONTH.END("7/20/2020")',
+      A2: '=MONTH.END("2/2/2020")',
+    };
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A1).toBe("7/31/2020");
+    expect(gridResult.A2).toBe("2/29/2020");
+  });
+
+  test("casting tests on cell arguments", () => {
+    const grid = {
+      A3: "7/10/1920",
+      A4: "=MONTH.END(A3)",
+      A5: "2/10/1920",
+      A6: "=MONTH.END(A5)",
+    };
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A4).toBe("7/31/1920");
+    expect(gridResult.A6).toBe("2/29/1920");
+  });
+});
+
+describe("QUARTER formula", () => {
+  test("functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "1/2/1954" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "5/13/1954" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "7/13/1954" })).toBe(3);
+    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "43964" })).toBe(2); // 43964 corespond to 5/13/195
+    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "0" })).toBe(4); // 0 corespond to 12/30/1899
+    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "1" })).toBe(4); // 1 corespond to 12/31/1899
+    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "2" })).toBe(1); // 2 corespond to 1/1/1900
+    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: '="43964"' })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "TRUE" })).toBe(4);
+  });
+});
+
+describe("QUARTER.START formula", () => {
+  test("functional tests on simple arguments", () => {
+    const grid = {
+      A1: '=QUARTER.START("7/20/2020")',
+      A2: '=QUARTER.START("5/15/2020")',
+      A3: '=QUARTER.START("1/15/2020")',
+      A4: '=QUARTER.START("10/15/2020")',
+    };
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A1).toBe("7/1/2020");
+    expect(gridResult.A2).toBe("4/1/2020");
+    expect(gridResult.A3).toBe("1/1/2020");
+    expect(gridResult.A4).toBe("10/1/2020");
+  });
+
+  test("casting tests on cell arguments", () => {
+    const grid = {
+      A1: "7/10/1920",
+      A2: "=QUARTER.START(A1)",
+    };
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A2).toBe("7/1/1920");
+  });
+});
+
+describe("QUARTER.END formula", () => {
+  test("functional tests on simple arguments", () => {
+    const grid = {
+      A1: '=QUARTER.END("7/20/2020")',
+      A2: '=QUARTER.END("2/2/2020")',
+      A3: '=QUARTER.END("1/15/2020")',
+      A4: '=QUARTER.END("10/15/2020")',
+      A5: '=QUARTER.END("7/20/2020")',
+      A6: '=QUARTER.END("5/15/2020")',
+    };
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A1).toBe("9/30/2020");
+    expect(gridResult.A2).toBe("3/31/2020");
+    expect(gridResult.A3).toBe("3/31/2020");
+    expect(gridResult.A4).toBe("12/31/2020");
+    expect(gridResult.A5).toBe("9/30/2020");
+    expect(gridResult.A6).toBe("6/30/2020");
+  });
+
+  test("casting tests on cell arguments", () => {
+    const grid = {
+      A1: "7/10/1920",
+      A2: "=QUARTER.END(A1)",
+      A3: "2/10/1920",
+      A4: "=QUARTER.END(A3)",
+      A5: "5/10/1920",
+      A6: "=QUARTER.END(A5)",
+      A7: "10/10/1920",
+      A8: "=QUARTER.END(A7)",
+    };
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A2).toBe("9/30/1920");
+    expect(gridResult.A4).toBe("3/31/1920");
+    expect(gridResult.A6).toBe("6/30/1920");
+    expect(gridResult.A8).toBe("12/31/1920");
+  });
+});
+
+describe("YEAR.START formula", () => {
+  test("functional tests on simple arguments", () => {
+    const grid = {
+      A1: '=YEAR.START("7/20/2020")',
+      A2: '=YEAR.START("5/15/2020")',
+      A3: '=YEAR.START("1/15/2020")',
+      A4: '=YEAR.START("12/31/2020")',
+    };
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A1).toBe("1/1/2020");
+    expect(gridResult.A2).toBe("1/1/2020");
+    expect(gridResult.A3).toBe("1/1/2020");
+    expect(gridResult.A4).toBe("1/1/2020");
+  });
+
+  test("casting tests on cell arguments", () => {
+    const grid = {
+      A1: "7/10/1920",
+      A2: "=YEAR.START(A1)",
+    };
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A2).toBe("1/1/1920");
+  });
+});
+
+describe("YEAR.END formula", () => {
+  test("functional tests on simple arguments", () => {
+    const grid = {
+      A1: '=YEAR.END("7/20/2020")',
+      A2: '=YEAR.END("2/2/2020")',
+      A3: '=YEAR.END("1/15/2020")',
+      A4: '=YEAR.END("10/15/2020")',
+      A5: '=YEAR.END("7/20/2020")',
+      A6: '=YEAR.END("5/15/2020")',
+    };
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A1).toBe("12/31/2020");
+    expect(gridResult.A2).toBe("12/31/2020");
+    expect(gridResult.A3).toBe("12/31/2020");
+    expect(gridResult.A4).toBe("12/31/2020");
+    expect(gridResult.A5).toBe("12/31/2020");
+    expect(gridResult.A6).toBe("12/31/2020");
+  });
+
+  test("casting tests on cell arguments", () => {
+    const grid = {
+      A1: "1/1/1920",
+      A2: "=YEAR.END(A1)",
+      A3: "2/10/1920",
+      A4: "=YEAR.END(A3)",
+      A5: "5/10/1920",
+      A6: "=YEAR.END(A5)",
+      A7: "10/10/1920",
+      A8: "=YEAR.END(A7)",
+    };
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A2).toBe("12/31/1920");
+    expect(gridResult.A4).toBe("12/31/1920");
+    expect(gridResult.A6).toBe("12/31/1920");
+    expect(gridResult.A8).toBe("12/31/1920");
+  });
+});

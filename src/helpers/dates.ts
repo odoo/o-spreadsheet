@@ -20,6 +20,7 @@ export interface InternalDate {
 // -----------------------------------------------------------------------------
 
 export const INITIAL_1900_DAY = new Date(1899, 11, 30) as any;
+export const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const CURRENT_MILLENIAL = 2000; // note: don't forget to update this in 2999
 const CURRENT_YEAR = new Date().getFullYear();
 const INITIAL_JS_DAY = new Date(0) as any;
@@ -108,7 +109,7 @@ function parseDate(str: string, dateFormat: Format): InternalDate | null {
       format = isMDY ? format + sep + "yyyy" : "yyyy" + sep + format;
     }
     return {
-      value: Math.round(delta / 86400000),
+      value: Math.round(delta / MS_PER_DAY),
       format: format,
       jsDate,
     };
@@ -184,7 +185,7 @@ function parseTime(str: string): InternalDate | null {
 
 export function numberToJsDate(value: number): Date {
   const truncValue = Math.trunc(value);
-  let date = new Date(truncValue * 86400 * 1000 - DATE_JS_1900_OFFSET);
+  let date = new Date(truncValue * MS_PER_DAY - DATE_JS_1900_OFFSET);
 
   let time = value - truncValue;
   time = time < 0 ? 1 + time : time;
@@ -198,4 +199,9 @@ export function numberToJsDate(value: number): Date {
   date.setSeconds(seconds);
 
   return date;
+}
+
+export function jsDateToRoundNumber(date: Date): number {
+  const delta = date.getTime() - INITIAL_1900_DAY.getTime();
+  return Math.round(delta / MS_PER_DAY);
 }
