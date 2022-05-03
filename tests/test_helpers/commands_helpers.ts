@@ -6,6 +6,7 @@ import {
   BorderCommand,
   ChartUIDefinition,
   ChartUIDefinitionUpdate,
+  ClipboardOptions,
   CreateSheetCommand,
   DispatchResult,
   SortDirection,
@@ -124,6 +125,39 @@ export function updateChart(
     sheetId,
     definition,
   });
+}
+
+/**
+ * Copy a zone
+ */
+export function copy(model: Model, range: string): DispatchResult {
+  return model.dispatch("COPY", { target: target(range) });
+}
+
+/**
+ * Cut a zone
+ */
+export function cut(model: Model, range: string): DispatchResult {
+  return model.dispatch("CUT", { target: target(range) });
+}
+
+/**
+ * Paste on a zone
+ */
+export function paste(
+  model: Model,
+  range: string,
+  force?: boolean,
+  pasteOption?: ClipboardOptions
+): DispatchResult {
+  return model.dispatch("PASTE", { target: target(range), force, pasteOption });
+}
+
+/**
+ * Paste from OS clipboard on a zone
+ */
+export function pasteFromOSClipboard(model: Model, range: string, content: string): DispatchResult {
+  return model.dispatch("PASTE_FROM_OS_CLIPBOARD", { text: content, target: target(range) });
 }
 
 /**

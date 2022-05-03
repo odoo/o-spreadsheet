@@ -4,10 +4,12 @@ import { CommandResult } from "../../src/types";
 import {
   activateSheet,
   addCellToSelection,
+  copy,
   createSheet,
   createSheetWithName,
   merge,
   moveAnchorCell,
+  paste,
   renameSheet,
   resizeAnchorZone,
   selectCell,
@@ -578,13 +580,9 @@ describe("edition", () => {
   test("Paste a cell updates the topbar composer", () => {
     const model = new Model();
     setCellContent(model, "A1", "Hello");
-    model.dispatch("COPY", {
-      target: target("A1"),
-    });
+    copy(model, "A1");
     selectCell(model, "B1");
-    model.dispatch("PASTE", {
-      target: target("B1"),
-    });
+    paste(model, "B1");
     expect(model.getters.getCurrentContent()).toBe("Hello");
   });
 

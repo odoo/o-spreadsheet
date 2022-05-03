@@ -1,9 +1,11 @@
 import { Model } from "../../src";
-import { buildSheetLink, toZone } from "../../src/helpers";
+import { buildSheetLink } from "../../src/helpers";
 import { CellValueType, CommandResult, LinkCell } from "../../src/types";
 import {
+  copy,
   createSheet,
   deleteSheet,
+  paste,
   renameSheet,
   setCellContent,
   undo,
@@ -213,8 +215,8 @@ describe("link cell", () => {
     const model = new Model();
     setCellContent(model, "B2", `[my label](odoo.com)`);
     const B2 = getCell(model, "B2") as LinkCell;
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("D2")] });
+    copy(model, "B2");
+    paste(model, "D2");
     const B2After = getCell(model, "B2") as LinkCell;
     const D2 = getCell(model, "D2") as LinkCell;
     expect(B2After.link).toEqual(B2.link);
@@ -228,8 +230,8 @@ describe("link cell", () => {
     const sheetLink = buildSheetLink(sheetId);
     setCellContent(model, "B2", `[my label](${sheetLink})`);
     const B2 = getCell(model, "B2") as LinkCell;
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("D2")] });
+    copy(model, "B2");
+    paste(model, "D2");
     const B2After = getCell(model, "B2") as LinkCell;
     const D2 = getCell(model, "D2") as LinkCell;
     expect(B2After.link).toEqual(B2.link);
@@ -247,8 +249,8 @@ describe("link cell", () => {
       content: "[my label](odoo.com)",
       style: { fillColor: "#555", bold: true, textColor: "#111" },
     });
-    model.dispatch("COPY", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("D2")] });
+    copy(model, "B2");
+    paste(model, "D2");
     expect(getCell(model, "D2")?.style).toEqual({
       fillColor: "#555",
       bold: true,

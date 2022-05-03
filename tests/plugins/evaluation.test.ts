@@ -4,8 +4,10 @@ import { ArgRange, CellValueType, InvalidEvaluation } from "../../src/types";
 import {
   activateSheet,
   addColumns,
+  copy,
   createSheet,
   deleteColumns,
+  paste,
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellError } from "../test_helpers/getters_helpers";
@@ -983,8 +985,8 @@ describe("evaluateCells", () => {
     expect(getCell(model, "A1")!.evaluated.value).toBe("#REF");
     expect(getCellError(model, "A1")).toBe("Invalid reference");
 
-    model.dispatch("COPY", { target: target("A1") });
-    model.dispatch("PASTE", { target: target("A2") });
+    copy(model, "A1");
+    paste(model, "A2");
     expect(getCell(model, "A2")!.evaluated.value).toBe("#REF");
     expect(getCellError(model, "A1")).toBe("Invalid reference");
   });

@@ -1,11 +1,12 @@
 import { DEFAULT_BORDER_DESC as b, DEFAULT_BORDER_DESC } from "../../src/constants";
-import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { BorderDescr } from "../../src/types/index";
 import {
   addColumns,
   addRows,
+  cut,
   deleteCells,
+  paste,
   selectCell,
   setAnchorCorner,
   setBorder,
@@ -307,8 +308,8 @@ describe("borders", () => {
     setBorder(model, "external", "B2");
     const s = DEFAULT_BORDER_DESC;
     expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s, right: s, left: s });
-    model.dispatch("CUT", { target: [toZone("B2")] });
-    model.dispatch("PASTE", { target: [toZone("C4")] });
+    cut(model, "B2");
+    paste(model, "C4");
     expect(getBorder(model, "C4")).toEqual({ top: s, bottom: s, right: s, left: s });
     expect(getBorder(model, "B2")).toBeNull();
   });
