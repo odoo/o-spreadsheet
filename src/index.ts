@@ -136,10 +136,10 @@ export const cellTypes = {
 export const helpers = {
   args,
   toBoolean,
+  toJsDate,
   toNumber,
   toString,
   toXC,
-  toJsDate,
   toZone,
   toCartesian,
   numberToLetters,

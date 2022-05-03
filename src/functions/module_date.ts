@@ -1,10 +1,8 @@
-import { parseDateTime } from "../helpers/dates";
+import { INITIAL_1900_DAY, jsDateToRoundNumber, MS_PER_DAY, parseDateTime } from "../helpers/dates";
 import { _lt } from "../translation";
 import { AddFunctionDescription, Argument, ArgValue, CellValue } from "../types";
 import { args } from "./arguments";
 import { assert, toJsDate, toNumber, toString, visitAny } from "./helpers";
-
-const INITIAL_1900_DAY = new Date(1899, 11, 30);
 
 const DEFAULT_TYPE = 1;
 const DEFAULT_WEEKEND = 1;
@@ -43,14 +41,14 @@ export const DATE: AddFunctionDescription = {
     }
 
     const jsDate = new Date(_year, _month - 1, _day);
-    const delta = jsDate.getTime() - INITIAL_1900_DAY.getTime();
+    const result = jsDateToRoundNumber(jsDate);
 
     assert(
-      () => delta >= 0,
+      () => result >= 0,
       _lt(`The function [[FUNCTION_NAME]] result must be greater than or equal 01/01/1900.`)
     );
 
-    return Math.round(delta / 86400000);
+    return result;
   },
   isExported: true,
 };
@@ -107,7 +105,7 @@ export const DAYS: AddFunctionDescription = {
     const _endDate = toJsDate(endDate);
     const _startDate = toJsDate(startDate);
     const dateDif = _endDate.getTime() - _startDate.getTime();
-    return Math.round(dateDif / 86400000);
+    return Math.round(dateDif / MS_PER_DAY);
   },
   isExported: true,
 };
@@ -133,9 +131,7 @@ export const EDATE: AddFunctionDescription = {
     const mStart = _startDate.getMonth();
     const dStart = _startDate.getDate();
     const jsDate = new Date(yStart, mStart + _months, dStart);
-    const delta = jsDate.getTime() - INITIAL_1900_DAY.getTime();
-
-    return Math.round(delta / 86400000);
+    return jsDateToRoundNumber(jsDate);
   },
   isExported: true,
 };
@@ -160,9 +156,7 @@ export const EOMONTH: AddFunctionDescription = {
     const yStart = _startDate.getFullYear();
     const mStart = _startDate.getMonth();
     const jsDate = new Date(yStart, mStart + _months + 1, 0);
-    const delta = jsDate.getTime() - INITIAL_1900_DAY.getTime();
-
-    return Math.round(delta / 86400000);
+    return jsDateToRoundNumber(jsDate);
   },
   isExported: true,
 };
@@ -225,7 +219,7 @@ export const ISOWEEKNUM: AddFunctionDescription = {
     // B - If our date > lastDayOfLastWeek then it's in the weeks of the year after
     // If our date < firstDayOfFirstWeek then it's in the weeks of the year before
 
-    let offsetYear;
+    let offsetYear: number;
     if (firstDayOfFirstWeek.getTime() <= _date.getTime()) {
       if (_date.getTime() <= lastDayOfLastWeek.getTime()) {
         offsetYear = 0;
@@ -240,7 +234,7 @@ export const ISOWEEKNUM: AddFunctionDescription = {
     // the first day of this year and the date. The difference in days divided by
     // 7 gives us the week number
 
-    let firstDay;
+    let firstDay: Date;
     switch (offsetYear) {
       case 0:
         firstDay = firstDayOfFirstWeek;
@@ -262,8 +256,8 @@ export const ISOWEEKNUM: AddFunctionDescription = {
         break;
     }
 
-    const dif = (_date.getTime() - firstDay.getTime()) / 86400000;
-    return Math.floor(dif / 7) + 1;
+    const diff = (_date.getTime() - firstDay!.getTime()) / MS_PER_DAY;
+    return Math.floor(diff / 7) + 1;
   },
   isExported: true,
 };
@@ -474,7 +468,7 @@ export const NOW: AddFunctionDescription = {
     today.setMilliseconds(0);
     const delta = today.getTime() - INITIAL_1900_DAY.getTime();
     const time = today.getHours() / 24 + today.getMinutes() / 1440 + today.getSeconds() / 86400;
-    return Math.floor(delta / 86400000) + time;
+    return Math.floor(delta / MS_PER_DAY) + time;
   },
   isExported: true,
 };
@@ -561,8 +555,7 @@ export const TODAY: AddFunctionDescription = {
   compute: function (): number {
     const today = new Date();
     const jsDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const delta = jsDate.getTime() - INITIAL_1900_DAY.getTime();
-    return Math.round(delta / 86400000);
+    return jsDateToRoundNumber(jsDate);
   },
   isExported: true,
 };
@@ -641,7 +634,7 @@ export const WEEKNUM: AddFunctionDescription = {
       startDayOfFirstWeek = new Date(y, 0, dayStart);
     }
 
-    const dif = (_date.getTime() - startDayOfFirstWeek.getTime()) / 86400000;
+    const dif = (_date.getTime() - startDayOfFirstWeek.getTime()) / MS_PER_DAY;
 
     if (dif < 0) {
       return 1;
@@ -737,7 +730,7 @@ export const WORKDAY_INTL: AddFunctionDescription = {
     }
 
     const delta = timeStepDate - INITIAL_1900_DAY.getTime();
-    return Math.round(delta / 86400000);
+    return Math.round(delta / MS_PER_DAY);
   },
   isExported: true,
 };
@@ -920,5 +913,123 @@ export const YEARFRAC: AddFunctionDescription = {
     }
 
     return yearsEnd - yearsStart;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// MONTH.START
+// -----------------------------------------------------------------------------
+export const MONTH_START: AddFunctionDescription = {
+  description: _lt("First day of the month preceding a date."),
+  args: args(`
+    date (date) ${_lt("The date from which to calculate the result.")}
+    `),
+  returns: ["DATE"],
+  returnFormat: { specificFormat: "m/d/yyyy" },
+  compute: function (date: ArgValue): number {
+    const _startDate = toJsDate(date);
+    const yStart = _startDate.getFullYear();
+    const mStart = _startDate.getMonth();
+    const jsDate = new Date(yStart, mStart, 1);
+    return jsDateToRoundNumber(jsDate);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// MONTH.END
+// -----------------------------------------------------------------------------
+export const MONTH_END: AddFunctionDescription = {
+  description: _lt("Last day of the month following a date."),
+  args: args(`
+    date (date) ${_lt("The date from which to calculate the result.")}
+    `),
+  returns: ["DATE"],
+  returnFormat: { specificFormat: "m/d/yyyy" },
+  compute: function (date: ArgValue): number {
+    return EOMONTH.compute(date, 0);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// QUARTER
+// -----------------------------------------------------------------------------
+export const QUARTER: AddFunctionDescription = {
+  description: _lt("Quarter of the year a specific date falls in"),
+  args: args(`
+    date (date) ${_lt("The date from which to extract the quarter.")}
+    `),
+  returns: ["NUMBER"],
+  compute: function (date: ArgValue): number {
+    return Math.ceil((toJsDate(date).getMonth() + 1) / 3);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// QUARTER.START
+// -----------------------------------------------------------------------------
+export const QUARTER_START: AddFunctionDescription = {
+  description: _lt("First day of the quarter of the year a specific date falls in."),
+  args: args(`
+    date (date) ${_lt("The date from which to calculate the start of quarter.")}
+    `),
+  returns: ["DATE"],
+  returnFormat: { specificFormat: "m/d/yyyy" },
+  compute: function (date: ArgValue): number {
+    const quarter = QUARTER.compute(date);
+    const year = YEAR.compute(date);
+    const jsDate = new Date(year, (quarter - 1) * 3, 1);
+    return jsDateToRoundNumber(jsDate);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// QUARTER.END
+// -----------------------------------------------------------------------------
+export const QUARTER_END: AddFunctionDescription = {
+  description: _lt("Last day of the quarter of the year a specific date falls in."),
+  args: args(`
+    date (date) ${_lt("The date from which to calculate the end of quarter.")}
+    `),
+  returns: ["DATE"],
+  returnFormat: { specificFormat: "m/d/yyyy" },
+  compute: function (date: ArgValue): number {
+    const quarter = QUARTER.compute(date);
+    const year = YEAR.compute(date);
+    const jsDate = new Date(year, quarter * 3, 0);
+    return jsDateToRoundNumber(jsDate);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// YEAR.START
+// -----------------------------------------------------------------------------
+export const YEAR_START: AddFunctionDescription = {
+  description: _lt("First day of the year a specific date falls in."),
+  args: args(`
+    date (date) ${_lt("The date from which to calculate the start of the year.")}
+    `),
+  returns: ["DATE"],
+  returnFormat: { specificFormat: "m/d/yyyy" },
+  compute: function (date: ArgValue): number {
+    const year = YEAR.compute(date);
+    const jsDate = new Date(year, 0, 1);
+    return jsDateToRoundNumber(jsDate);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// YEAR.END
+// -----------------------------------------------------------------------------
+export const YEAR_END: AddFunctionDescription = {
+  description: _lt("Last day of the year a specific date falls in."),
+  args: args(`
+    date (date) ${_lt("The date from which to calculate the end of the year.")}
+    `),
+  returns: ["DATE"],
+  returnFormat: { specificFormat: "m/d/yyyy" },
+  compute: function (date: ArgValue): number {
+    const year = YEAR.compute(date);
+    const jsDate = new Date(year + 1, 0, 0);
+    return jsDateToRoundNumber(jsDate);
   },
 };
