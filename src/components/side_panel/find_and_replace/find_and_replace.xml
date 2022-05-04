@@ -105,7 +105,7 @@
           t-att-disabled="env.model.getters.getCurrentSelectedMatchIndex() === null"
           t-on-click="replaceAll"
           class="o-sidePanelButton">
-          Replace all"
+          Replace all
         </button>
       </div>
     </div>
