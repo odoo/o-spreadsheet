@@ -488,9 +488,9 @@ export class RendererPlugin extends UIPlugin {
 
   private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport): Box {
     const { right, left } = viewport;
-    const colNumber = zone.left;
-    const rowNumber = zone.top;
-    const cell = this.getters.getCell(sheetId, colNumber, rowNumber);
+    const col = zone.left;
+    const row = zone.top;
+    const cell = this.getters.getCell(sheetId, col, row);
     const showFormula = this.getters.shouldShowFormulas();
     const [x, y, width, height] = this.getRect(zone, viewport);
 
@@ -499,10 +499,10 @@ export class RendererPlugin extends UIPlugin {
       y,
       width,
       height,
-      border: this.getters.getCellBorder(sheetId, colNumber, rowNumber) || undefined,
+      border: this.getters.getCellBorder(sheetId, col, row) || undefined,
       style: {
         ...this.getters.getCellStyle(cell),
-        ...this.getters.getConditionalStyle(colNumber, rowNumber),
+        ...this.getters.getConditionalStyle(col, row),
       },
     };
 
@@ -510,7 +510,7 @@ export class RendererPlugin extends UIPlugin {
       return box;
     }
     /** Icon CF */
-    const cfIcon = this.getters.getConditionalIcon(colNumber, rowNumber);
+    const cfIcon = this.getters.getConditionalIcon(col, row);
     const fontSize = box.style.fontSize || DEFAULT_FONT_SIZE;
     const fontSizePX = fontSizeMap[fontSize];
     const iconBoxWidth = cfIcon ? 2 * MIN_CF_ICON_MARGIN + fontSizePX : 0;
@@ -546,19 +546,19 @@ export class RendererPlugin extends UIPlugin {
     } else if (isOverflowing) {
       let nextColIndex: number, previousColIndex: number;
 
-      const isCellInMerge = this.getters.isInMerge(sheetId, colNumber, rowNumber);
+      const isCellInMerge = this.getters.isInMerge(sheetId, col, row);
       if (isCellInMerge) {
         // Always clip merges
-        nextColIndex = this.getters.getMerge(sheetId, colNumber, rowNumber)!.right;
-        previousColIndex = colNumber;
+        nextColIndex = this.getters.getMerge(sheetId, col, row)!.right;
+        previousColIndex = col;
       } else {
-        nextColIndex = this.findNextEmptyCol(colNumber, right, rowNumber);
-        previousColIndex = this.findPreviousEmptyCol(colNumber, left, rowNumber);
+        nextColIndex = this.findNextEmptyCol(col, right, row);
+        previousColIndex = this.findPreviousEmptyCol(col, left, row);
       }
 
       switch (align) {
         case "left": {
-          const emptyZoneOnTheLeft = positionToZone({ col: nextColIndex, row: rowNumber });
+          const emptyZoneOnTheLeft = positionToZone({ col: nextColIndex, row });
           const [x, y, width, height] = this.getRect(union(zone, emptyZoneOnTheLeft), viewport);
           if (width < textWidth || fontSizePX > height) {
             box.clipRect = [x, y, width, height];
@@ -566,7 +566,7 @@ export class RendererPlugin extends UIPlugin {
           break;
         }
         case "right": {
-          const emptyZoneOnTheRight = positionToZone({ col: previousColIndex, row: rowNumber });
+          const emptyZoneOnTheRight = positionToZone({ col: previousColIndex, row });
           const [x, y, width, height] = this.getRect(union(zone, emptyZoneOnTheRight), viewport);
           if (width < textWidth || fontSizePX > height) {
             box.clipRect = [x, y, width, height];
@@ -582,8 +582,8 @@ export class RendererPlugin extends UIPlugin {
           const [x, y, width, height] = this.getRect(emptyZone, viewport);
           if (
             width < textWidth ||
-            previousColIndex === colNumber ||
-            nextColIndex === colNumber ||
+            previousColIndex === col ||
+            nextColIndex === col ||
             fontSizePX > height
           ) {
             box.clipRect = [x, y, width, height];
