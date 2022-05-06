@@ -16,7 +16,7 @@ import {
   TEXT_HEADER_COLOR,
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { overlap, scrollDelay } from "../../helpers/index";
+import { overlap, positionToZone, scrollDelay } from "../../helpers/index";
 import {
   Align,
   Box,
@@ -486,22 +486,19 @@ export class RendererPlugin extends UIPlugin {
     return align || cell.defaultAlign;
   }
 
-  private createBoxFromPosition(
-    sheetId: UID,
-    colNumber: number,
-    rowNumber: number,
-    viewport: Viewport,
-    width: number,
-    height: number
-  ): Box {
-    const { right, left, offsetX, offsetY } = this.getShiftedViewport(viewport);
+  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport): Box {
+    const { right, left, offsetX } = this.getShiftedViewport(viewport);
+    const colNumber = zone.left;
+    const rowNumber = zone.top;
     const col = this.getters.getCol(sheetId, colNumber);
     const row = this.getters.getRow(sheetId, rowNumber);
     const cell = this.getters.getCell(sheetId, colNumber, rowNumber);
     const showFormula = this.getters.shouldShowFormulas();
+    const [x, y, width, height] = this.getRect(zone, viewport);
+
     const box: Box = {
-      x: col.start - offsetX,
-      y: row.start - offsetY,
+      x,
+      y,
       width,
       height,
       border: this.getters.getCellBorder(sheetId, colNumber, rowNumber) || undefined,
@@ -566,7 +563,7 @@ export class RendererPlugin extends UIPlugin {
           const nextCol = this.getters.getCol(sheetId, nextColIndex);
           const clipWidth = nextCol.end - col.start;
           if (clipWidth < textWidth || fontSizePX > row.size) {
-            box.clipRect = [col.start - offsetX, row.start - offsetY, clipWidth, height];
+            box.clipRect = [x, y, clipWidth, height];
           }
           break;
         }
@@ -574,7 +571,7 @@ export class RendererPlugin extends UIPlugin {
           const previousCol = this.getters.getCol(sheetId, previousColIndex);
           const clipWidth = col.end + width - col.size - previousCol.start;
           if (clipWidth < textWidth || fontSizePX > row.size) {
-            box.clipRect = [previousCol.start - offsetX, row.start - offsetY, clipWidth, height];
+            box.clipRect = [previousCol.start - offsetX, y, clipWidth, height];
           }
           break;
         }
@@ -588,7 +585,7 @@ export class RendererPlugin extends UIPlugin {
             nextColIndex === colNumber ||
             fontSizePX > row.size
           ) {
-            box.clipRect = [previousCol.start - offsetX, row.start - offsetY, clipWidth, height];
+            box.clipRect = [previousCol.start - offsetX, y, clipWidth, height];
           }
           break;
         }
@@ -618,7 +615,7 @@ export class RendererPlugin extends UIPlugin {
           continue;
         }
         boxes.push(
-          this.createBoxFromPosition(sheetId, colNumber, rowNumber, viewport, col.size, row.size)
+          this.createZoneBox(sheetId, positionToZone({ col: colNumber, row: rowNumber }), viewport)
         );
       }
     }
@@ -627,20 +624,7 @@ export class RendererPlugin extends UIPlugin {
         continue;
       }
       if (overlap(merge, viewport)) {
-        const width =
-          this.getters.getCol(sheetId, merge.right).end -
-          this.getters.getCol(sheetId, merge.left).start;
-        const height =
-          this.getters.getRow(sheetId, merge.bottom).end -
-          this.getters.getRow(sheetId, merge.top).start;
-        const box = this.createBoxFromPosition(
-          sheetId,
-          merge.left,
-          merge.top,
-          viewport,
-          width,
-          height
-        );
+        const box = this.createZoneBox(sheetId, merge, viewport);
         const borderBottomRight = this.getters.getCellBorder(sheetId, merge.right, merge.bottom);
         box.border = {
           ...box.border,
