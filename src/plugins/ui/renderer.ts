@@ -16,7 +16,7 @@ import {
   TEXT_HEADER_COLOR,
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { overlap, positionToZone, scrollDelay } from "../../helpers/index";
+import { overlap, positionToZone, scrollDelay, union } from "../../helpers/index";
 import {
   Align,
   Box,
@@ -487,11 +487,9 @@ export class RendererPlugin extends UIPlugin {
   }
 
   private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport): Box {
-    const { right, left, offsetX } = this.getShiftedViewport(viewport);
+    const { right, left } = viewport;
     const colNumber = zone.left;
     const rowNumber = zone.top;
-    const col = this.getters.getCol(sheetId, colNumber);
-    const row = this.getters.getRow(sheetId, rowNumber);
     const cell = this.getters.getCell(sheetId, colNumber, rowNumber);
     const showFormula = this.getters.shouldShowFormulas();
     const [x, y, width, height] = this.getRect(zone, viewport);
@@ -560,32 +558,35 @@ export class RendererPlugin extends UIPlugin {
 
       switch (align) {
         case "left": {
-          const nextCol = this.getters.getCol(sheetId, nextColIndex);
-          const clipWidth = nextCol.end - col.start;
-          if (clipWidth < textWidth || fontSizePX > row.size) {
-            box.clipRect = [x, y, clipWidth, height];
+          const emptyZoneOnTheLeft = positionToZone({ col: nextColIndex, row: rowNumber });
+          const [x, y, width, height] = this.getRect(union(zone, emptyZoneOnTheLeft), viewport);
+          if (width < textWidth || fontSizePX > height) {
+            box.clipRect = [x, y, width, height];
           }
           break;
         }
         case "right": {
-          const previousCol = this.getters.getCol(sheetId, previousColIndex);
-          const clipWidth = col.end + width - col.size - previousCol.start;
-          if (clipWidth < textWidth || fontSizePX > row.size) {
-            box.clipRect = [previousCol.start - offsetX, y, clipWidth, height];
+          const emptyZoneOnTheRight = positionToZone({ col: previousColIndex, row: rowNumber });
+          const [x, y, width, height] = this.getRect(union(zone, emptyZoneOnTheRight), viewport);
+          if (width < textWidth || fontSizePX > height) {
+            box.clipRect = [x, y, width, height];
           }
           break;
         }
         case "center": {
-          const previousCol = this.getters.getCol(sheetId, previousColIndex);
-          const nextCol = this.getters.getCol(sheetId, nextColIndex);
-          const clipWidth = nextCol.end - previousCol.start;
+          const emptyZone = {
+            ...zone,
+            right: nextColIndex,
+            left: previousColIndex,
+          };
+          const [x, y, width, height] = this.getRect(emptyZone, viewport);
           if (
-            clipWidth < textWidth ||
+            width < textWidth ||
             previousColIndex === colNumber ||
             nextColIndex === colNumber ||
-            fontSizePX > row.size
+            fontSizePX > height
           ) {
-            box.clipRect = [previousCol.start - offsetX, y, clipWidth, height];
+            box.clipRect = [x, y, width, height];
           }
           break;
         }
