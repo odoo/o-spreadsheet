@@ -7,7 +7,7 @@ import {
 } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";
-import { Model } from "../../src/model";
+import { Mode, Model } from "../../src/model";
 import { RendererPlugin } from "../../src/plugins/ui/renderer";
 import { Box, GridRenderingContext, Viewport } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
@@ -1011,5 +1011,15 @@ describe("renderer", () => {
     reset();
     model.drawGrid(ctx);
     expect(isDotOutlined(copiedTarget)).toBeFalsy();
+  });
+
+  test.each([
+    ["dashboard" as Mode, [0, 0, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT]],
+    ["normal" as Mode, [HEADER_WIDTH, HEADER_HEIGHT, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT]],
+  ])("A1 starts at the upper left corner with mode %s", (mode, expectedRect) => {
+    const model = new Model({}, { mode });
+    const viewport = model.getters.getActiveSnappedViewport();
+    const rect = model.getters.getRect(toZone("A1"), viewport);
+    expect(rect).toEqual(expectedRect);
   });
 });

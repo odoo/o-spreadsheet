@@ -48,8 +48,12 @@ export async function gridMouseEvent(
 ) {
   const zone = toZone(xc);
   const viewport = model.getters.getActiveViewport();
-  const [x, y, ,] = model.getters.getRect(zone, viewport);
-  triggerMouseEvent(".o-grid-overlay", type, x - HEADER_WIDTH, y - HEADER_HEIGHT, extra);
+  let [x, y, ,] = model.getters.getRect(zone, viewport);
+  if (!model.getters.isDashboard()) {
+    x -= HEADER_WIDTH;
+    y -= HEADER_HEIGHT;
+  }
+  triggerMouseEvent(".o-grid-overlay", type, x, y, extra);
   await nextTick();
 }
 

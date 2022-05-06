@@ -97,13 +97,16 @@ export class RendererPlugin extends UIPlugin {
     return searchIndex(rows, adjustedY);
   }
 
+  /**
+   * Computes the coordinates and size to draw the zone on the canvas
+   */
   getRect(zone: Zone, viewport: Viewport): Rect {
     const { left, top, right, bottom } = zone;
     const { offsetX, offsetY } = this.getShiftedViewport(viewport);
     const { cols, rows } = this.getters.getActiveSheet();
-    const x = Math.max(cols[left].start - offsetX, HEADER_WIDTH);
+    const x = cols[left].start - offsetX;
     const width = cols[right].end - offsetX - x;
-    const y = Math.max(rows[top].start - offsetY, HEADER_HEIGHT);
+    const y = rows[top].start - offsetY;
     const height = rows[bottom].end - offsetY - y;
     return [x, y, width, height];
   }
