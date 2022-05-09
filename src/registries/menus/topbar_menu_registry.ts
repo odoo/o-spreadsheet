@@ -294,6 +294,12 @@ topbarMenuRegistry
     sequence: 70,
     action: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
     separator: true,
+  })
+  .addChild("format_clearFormat", ["format"], {
+    name: _lt("Clear formatting"),
+    sequence: 80,
+    action: ACTIONS.FORMAT_CLEARFORMAT_ACTION,
+    separator: true,
   });
 
 // Font-sizes
