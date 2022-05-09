@@ -2,6 +2,7 @@ import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createSheet, selectCell, setCellContent, undo } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { target } from "../test_helpers/helpers";
 
 describe("styles", () => {
   test("can undo and redo a setStyle operation on an empty cell", () => {
@@ -87,6 +88,21 @@ describe("styles", () => {
     expect(getCell(model, "B1")!.style).not.toBeDefined();
     undo(model);
     expect(getCell(model, "B1")!.style).toBeDefined();
+  });
+
+  test("clear formatting does not remove format", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("SET_FORMATTING", {
+      sheetId: sheetId,
+      target: target("A1"),
+      format: "#,##0.0",
+    });
+    model.dispatch("CLEAR_FORMATTING", {
+      sheetId,
+      target: target("A1"),
+    });
+    expect(getCell(model, "A1")?.format).toBe("#,##0.0");
   });
 
   test("Can set a format in another than the active one", () => {

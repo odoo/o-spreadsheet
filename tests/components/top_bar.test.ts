@@ -8,6 +8,7 @@ import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_regis
 import { ConditionalFormat, Style } from "../../src/types";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
 import {
+  addCellToSelection,
   selectCell,
   setAnchorCorner,
   setCellContent,
@@ -19,6 +20,7 @@ import {
   makeTestFixture,
   mountSpreadsheet,
   nextTick,
+  target,
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
 
@@ -476,6 +478,33 @@ describe("TopBar - Custom currency", () => {
     triggerMouseEvent(".o-format-tool div[data-custom='custom_currency']", "click");
     await nextTick();
     expect(fixture.querySelector(".o-custom-currency")).toBeTruthy();
+    app.destroy();
+  });
+});
+
+describe("Format", () => {
+  test("can clear format", async () => {
+    const { app, parent } = await mountSpreadsheet(fixture);
+    const model = parent.model;
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: target("A1, B2:B3"),
+      style: { fillColor: "#000000" },
+    });
+    selectCell(model, "A1");
+    addCellToSelection(model, "B2");
+    setAnchorCorner(model, "B3");
+    expect(getCell(model, "A1")?.style).toEqual({ fillColor: "#000000" });
+    expect(getCell(model, "B2")?.style).toEqual({ fillColor: "#000000" });
+    expect(getCell(model, "B3")?.style).toEqual({ fillColor: "#000000" });
+    triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
+    await nextTick();
+    triggerMouseEvent(".o-menu-item[data-name='format_clearFormat']", "click");
+    await nextTick();
+    expect(getCell(model, "A1")?.style).toBeUndefined();
+    expect(getCell(model, "B2")?.style).toBeUndefined();
+    expect(getCell(model, "B3")?.style).toBeUndefined();
     app.destroy();
   });
 });

@@ -624,6 +624,13 @@ export const FORMAT_STRIKETHROUGH_ACTION = (env: SpreadsheetChildEnv) =>
 export const FORMAT_UNDERLINE_ACTION = (env: SpreadsheetChildEnv) =>
   setStyle(env, { underline: !env.model.getters.getCurrentStyle().underline });
 
+export const FORMAT_CLEARFORMAT_ACTION = (env: SpreadsheetChildEnv) => {
+  env.model.dispatch("CLEAR_FORMATTING", {
+    sheetId: env.model.getters.getActiveSheetId(),
+    target: env.model.getters.getSelectedZones(),
+  });
+};
+
 //------------------------------------------------------------------------------
 // Side panel
 //------------------------------------------------------------------------------
