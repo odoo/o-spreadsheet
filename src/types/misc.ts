@@ -26,6 +26,7 @@ export interface HSLA {
   s: number;
   l: number;
 }
+export type SheetId = UID;
 
 export interface Link {
   label: string;
@@ -165,7 +166,10 @@ export interface HeaderDimensions {
 
 export interface Header {
   name: string;
-  size: number;
+}
+
+export interface Header {
+  name: string;
   isHidden?: boolean;
 }
 

@@ -26,8 +26,8 @@ describe("data", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
     // 96 is default cell width
-    expect(model.getters.getCol(sheet, 0)!.size).toEqual(DEFAULT_CELL_WIDTH);
-    expect(model.getters.getCol(sheet, 1)!.size).toEqual(DEFAULT_CELL_WIDTH);
+    expect(model.getters.getColSize(sheet, 0)).toEqual(DEFAULT_CELL_WIDTH);
+    expect(model.getters.getColSize(sheet, 1)).toEqual(DEFAULT_CELL_WIDTH);
   });
 });
 
@@ -415,10 +415,10 @@ describe("Import", () => {
       ],
     });
     const sheet = model.getters.getActiveSheetId();
-    expect(model.getters.getCol(sheet, 0)!.size).toBe(42);
-    expect(model.getters.getCol(sheet, 1)!.size).toBe(DEFAULT_CELL_WIDTH);
-    expect(model.getters.getRow(sheet, 0)!.size).toBe(DEFAULT_CELL_HEIGHT);
-    expect(model.getters.getRow(sheet, 1)!.size).toBe(13);
+    expect(model.getters.getColSize(sheet, 0)).toBe(42);
+    expect(model.getters.getColSize(sheet, 1)).toBe(DEFAULT_CELL_WIDTH);
+    expect(model.getters.getRowSize(sheet, 0)).toBe(DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getRowSize(sheet, 1)).toBe(13);
   });
 
   test("Import 2 sheets with merges", () => {

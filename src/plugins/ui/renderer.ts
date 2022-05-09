@@ -1,45 +1,37 @@
 import { ICONS } from "../../components/icons/icons";
 import {
-  BACKGROUND_HEADER_ACTIVE_COLOR,
-  BACKGROUND_HEADER_COLOR,
-  BACKGROUND_HEADER_SELECTED_COLOR,
-  CELL_BORDER_COLOR,
-  DEFAULT_FONT,
-  DEFAULT_FONT_SIZE,
-  DEFAULT_FONT_WEIGHT,
-  HEADER_BORDER_COLOR,
-  HEADER_FONT_SIZE,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-  MIN_CELL_TEXT_MARGIN,
-  MIN_CF_ICON_MARGIN,
-  TEXT_HEADER_COLOR,
+BACKGROUND_HEADER_ACTIVE_COLOR,
+BACKGROUND_HEADER_COLOR,
+BACKGROUND_HEADER_SELECTED_COLOR,
+CELL_BORDER_COLOR,
+DEFAULT_FONT,
+DEFAULT_FONT_SIZE,
+DEFAULT_FONT_WEIGHT,
+HEADER_BORDER_COLOR,
+HEADER_FONT_SIZE,
+HEADER_HEIGHT,
+HEADER_WIDTH,
+MIN_CELL_TEXT_MARGIN,
+MIN_CF_ICON_MARGIN,
+TEXT_HEADER_COLOR
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
+import { intersection,overlap,positionToZone,scrollDelay,union } from "../../helpers/index";
 import {
-  intersection,
-  overlap,
-  positionToZone,
-  scrollDelay,
-  searchHeaderIndex,
-  union,
-} from "../../helpers/index";
-import {
-  Align,
-  Box,
-  Cell,
-  CellValueType,
-  Dimension,
-  EdgeScrollInfo,
-  GridRenderingContext,
-  Header,
-  HeaderDimensions,
-  LAYERS,
-  Rect,
-  ScrollDirection,
-  UID,
-  Viewport,
-  Zone,
+Align,
+Box,
+Cell,
+CellValueType,
+Dimension,
+EdgeScrollInfo,
+GridRenderingContext,
+HeaderDimensions,
+LAYERS,
+Rect,
+ScrollDirection,
+UID,
+Viewport,
+Zone
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
@@ -50,8 +42,6 @@ import { UIPlugin } from "../ui_plugin";
 export class RendererPlugin extends UIPlugin {
   static layers = [LAYERS.Background, LAYERS.Headers];
   static getters = [
-    "getColIndex",
-    "getRowIndex",
     "getColDimensions",
     "getColDimensionsInViewport",
     "getRowDimensions",
@@ -69,43 +59,16 @@ export class RendererPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   /**
-   * Return the index of a column given an offset x, based on the viewport left
-   * visible cell.
-   * It returns -1 if no column is found.
-   */
-  getColIndex(x: number): number {
-    if (x < 0) {
-      return -1;
-    }
-    const cols = this.getters.getActiveSheet().cols;
-    const viewport = this.getters.getActiveSnappedViewport();
-    return searchHeaderIndex(cols, x, viewport.left);
-  }
-
-  /**
-   * Return the index of a row given an offset y, based on the viewport top
-   * visible cell.
-   * It returns -1 if no row is found.
-   */
-  getRowIndex(y: number): number {
-    if (y < 0) {
-      return -1;
-    }
-    const rows = this.getters.getActiveSheet().rows;
-    const viewport = this.getters.getActiveSnappedViewport();
-    return searchHeaderIndex(rows, y, viewport.top);
-  }
-
-  /**
    * Returns the size, start and end coordinates of a column
    */
   getColDimensions(sheetId: UID, col: number): HeaderDimensions {
     const start = this.getColRowOffset("COL", 0, col, sheetId);
     const c = this.getters.getCol(sheetId, col);
+    const size = this.getters.getColSize(sheetId, col);
     return {
       start,
-      size: c.size,
-      end: start + (c.isHidden ? 0 : c.size),
+      size,
+      end: start + (c.isHidden ? 0 : size),
     };
   }
 
@@ -117,10 +80,11 @@ export class RendererPlugin extends UIPlugin {
     const { left } = this.getters.getActiveSnappedViewport();
     const start = this.getColRowOffset("COL", left, col, sheetId);
     const c = this.getters.getCol(sheetId, col);
+    const size = this.getters.getColSize(sheetId, col);
     return {
       start,
-      size: c.size,
-      end: start + (c.isHidden ? 0 : c.size),
+      size: size,
+      end: start + (c.isHidden ? 0 : size),
     };
   }
 
@@ -130,10 +94,11 @@ export class RendererPlugin extends UIPlugin {
   getRowDimensions(sheetId: UID, row: number): HeaderDimensions {
     const start = this.getColRowOffset("ROW", 0, row, sheetId);
     const r = this.getters.getRow(sheetId, row);
+    const size = this.getters.getRowSize(sheetId, row);
     return {
       start,
-      size: r.size,
-      end: start + (r.isHidden ? 0 : r.size),
+      size: size,
+      end: start + (r.isHidden ? 0 : size),
     };
   }
 
@@ -145,10 +110,11 @@ export class RendererPlugin extends UIPlugin {
     const { top } = this.getters.getActiveSnappedViewport();
     const start = this.getColRowOffset("ROW", top, row, sheetId);
     const r = this.getters.getRow(sheetId, row);
+    const size = this.getters.getRowSize(sheetId, row);
     return {
       start,
-      size: r.size,
-      end: start + (r.isHidden ? 0 : r.size),
+      size: size,
+      end: start + (r.isHidden ? 0 : size),
     };
   }
 
@@ -173,7 +139,10 @@ export class RendererPlugin extends UIPlugin {
       if (headers[i].isHidden) {
         continue;
       }
-      offset += headers[i].size;
+      offset +=
+        dimension === "COL"
+          ? this.getters.getColSize(sheetId, i)
+          : this.getters.getRowSize(sheetId, i);
     }
     return offset;
   }
@@ -194,13 +163,18 @@ export class RendererPlugin extends UIPlugin {
    * Get the actual size between two headers.
    * The size from A to B is the distance between A.start and B.end
    */
-  private getSizeBetweenHeaders(headers: Header[], from: number, to: number): number {
+  private getSizeBetweenHeaders(dimension: Dimension, from: number, to: number): number {
+    const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
+    const headers = dimension === "COL" ? cols : rows;
     let size = 0;
     for (let i = from; i <= to; i++) {
       if (headers[i].isHidden) {
         continue;
       }
-      size += headers[i].size;
+      size +=
+        dimension === "COL"
+          ? this.getters.getColSize(sheetId, i)
+          : this.getters.getRowSize(sheetId, i);
     }
     return size;
   }
@@ -210,11 +184,10 @@ export class RendererPlugin extends UIPlugin {
    */
   getRect(zone: Zone, viewport: Viewport): Rect {
     const { left, top } = viewport;
-    const { cols, rows } = this.getters.getActiveSheet();
     const x = this.getHeaderOffset("COL", left, zone.left);
-    const width = this.getSizeBetweenHeaders(cols, zone.left, zone.right);
+    const width = this.getSizeBetweenHeaders("COL", zone.left, zone.right);
     const y = this.getHeaderOffset("ROW", top, zone.top);
-    const height = this.getSizeBetweenHeaders(rows, zone.top, zone.bottom);
+    const height = this.getSizeBetweenHeaders("ROW", zone.top, zone.bottom);
     return [x, y, width, height];
   }
 
@@ -291,7 +264,8 @@ export class RendererPlugin extends UIPlugin {
   private drawBackground(renderingContext: GridRenderingContext) {
     const { ctx, thinLineWidth, viewport } = renderingContext;
     const { width, height } = this.getters.getViewportDimensionWithHeaders();
-    const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
+    const sheetId = this.getters.getActiveSheetId();
+
     // white background
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, width, height);
@@ -308,7 +282,7 @@ export class RendererPlugin extends UIPlugin {
 
     // vertical lines
     for (let i = left; i <= right; i++) {
-      if (cols[i].isHidden) {
+      if (this.getters.isColHidden(sheetId, i)) {
         continue;
       }
       const zone = { top, bottom, left: i, right: i };
@@ -322,7 +296,7 @@ export class RendererPlugin extends UIPlugin {
 
     // horizontal lines
     for (let i = top; i <= bottom; i++) {
-      if (rows[i].isHidden) {
+      if (this.getters.isRowHidden(sheetId, i)) {
         continue;
       }
       const zone = { left, right, top: i, bottom: i };
@@ -484,7 +458,8 @@ export class RendererPlugin extends UIPlugin {
     const { right, left, top, bottom } = viewport;
     const { width, height } = this.getters.getViewportDimensionWithHeaders();
     const selection = this.getters.getSelectedZones();
-    const { cols, rows } = this.getters.getActiveSheet();
+    const sheetId = this.getters.getActiveSheetId();
+    const { cols, rows } = this.getters.getSheet(sheetId);
     const activeCols = this.getters.getActiveCols();
     const activeRows = this.getters.getActiveRows();
 
@@ -532,28 +507,30 @@ export class RendererPlugin extends UIPlugin {
 
     // column text + separator
     for (let i = left; i <= right; i++) {
-      const col = cols[i];
+      const col = this.getters.getCol(sheetId, i);
+      const colSize = this.getters.getColSize(sheetId, i);
       if (col.isHidden) {
         continue;
       }
       ctx.fillStyle = activeCols.has(i) ? "#fff" : TEXT_HEADER_COLOR;
       let colStart = this.getHeaderOffset("COL", viewport.left, i);
-      ctx.fillText(col.name, colStart + col.size / 2, HEADER_HEIGHT / 2);
-      ctx.moveTo(colStart + col.size, 0);
-      ctx.lineTo(colStart + col.size, HEADER_HEIGHT);
+      ctx.fillText(col.name, colStart + colSize / 2, HEADER_HEIGHT / 2);
+      ctx.moveTo(colStart + colSize, 0);
+      ctx.lineTo(colStart + colSize, HEADER_HEIGHT);
     }
     // row text + separator
     for (let i = top; i <= bottom; i++) {
-      const row = rows[i];
+      const row = this.getters.getRow(sheetId, i);
+      const rowSize = this.getters.getRowSize(sheetId, i);
       if (row.isHidden) {
         continue;
       }
       ctx.fillStyle = activeRows.has(i) ? "#fff" : TEXT_HEADER_COLOR;
 
       let rowStart = this.getHeaderOffset("ROW", viewport.top, i);
-      ctx.fillText(row.name, HEADER_WIDTH / 2, rowStart + row.size / 2);
-      ctx.moveTo(0, rowStart + row.size);
-      ctx.lineTo(HEADER_WIDTH, rowStart + row.size);
+      ctx.fillText(row.name, HEADER_WIDTH / 2, rowStart + rowSize / 2);
+      ctx.moveTo(0, rowStart + rowSize);
+      ctx.lineTo(HEADER_WIDTH, rowStart + rowSize);
     }
 
     ctx.stroke();
@@ -710,13 +687,11 @@ export class RendererPlugin extends UIPlugin {
     const { id: sheetId } = sheet;
 
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
-      const row = this.getters.getRow(sheetId, rowNumber);
-      if (row.isHidden) {
+      if (this.getters.isRowHidden(sheetId, rowNumber)) {
         continue;
       }
       for (let colNumber = left; colNumber <= right; colNumber++) {
-        const col = this.getters.getCol(sheetId, colNumber);
-        if (col.isHidden) {
+        if (this.getters.isColHidden(sheetId, colNumber)) {
           continue;
         }
         if (this.getters.isInMerge(sheetId, colNumber, rowNumber)) {

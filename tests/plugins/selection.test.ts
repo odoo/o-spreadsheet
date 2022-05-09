@@ -953,9 +953,9 @@ describe("move elements(s)", () => {
     resizeColumns(model, ["C"], 20);
     moveColumns(model, "D", ["A"]);
     const sheetId = model.getters.getActiveSheetId();
-    expect(model.getters.getCol(sheetId, 0)?.size).toEqual(DEFAULT_CELL_WIDTH);
-    expect(model.getters.getCol(sheetId, 1)?.size).toEqual(20);
-    expect(model.getters.getCol(sheetId, 2)?.size).toEqual(10);
+    expect(model.getters.getColSize(sheetId, 0)).toEqual(DEFAULT_CELL_WIDTH);
+    expect(model.getters.getColSize(sheetId, 1)).toEqual(20);
+    expect(model.getters.getColSize(sheetId, 2)).toEqual(10);
   });
 
   test("Move a resized row preserve the size", () => {
@@ -964,8 +964,8 @@ describe("move elements(s)", () => {
     resizeRows(model, [2], 20);
     moveRows(model, 3, [0]);
     const sheetId = model.getters.getActiveSheetId();
-    expect(model.getters.getRow(sheetId, 0)?.size).toEqual(DEFAULT_CELL_HEIGHT);
-    expect(model.getters.getRow(sheetId, 1)?.size).toEqual(20);
-    expect(model.getters.getRow(sheetId, 2)?.size).toEqual(10);
+    expect(model.getters.getRowSize(sheetId, 0)).toEqual(DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getRowSize(sheetId, 1)).toEqual(20);
+    expect(model.getters.getRowSize(sheetId, 2)).toEqual(10);
   });
 });

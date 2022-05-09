@@ -72,6 +72,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getGridLinesVisibility",
     "getNextSheetName",
     "isEmpty",
+    "isRowHidden",
+    "isColHidden",
   ] as const;
 
   readonly sheetIdsMapName: Record<string, UID | undefined> = {};
@@ -158,12 +160,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           cmd.position
         );
         this.history.update("sheetIdsMapName", sheet.name, sheet.id);
-        break;
-      case "RESIZE_COLUMNS_ROWS":
-        const dimension = cmd.dimension === "COL" ? "cols" : "rows";
-        for (let elt of cmd.elements) {
-          this.setHeaderSize(this.getSheet(cmd.sheetId), dimension, elt, cmd.size);
-        }
         break;
       case "MOVE_SHEET":
         this.moveSheet(cmd.sheetId, cmd.direction);
@@ -253,7 +249,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
-  private exportSheets(data: WorkbookData, exportDefaultSizes: boolean = false) {
+  private exportSheets(data: WorkbookData) {
     data.sheets = this.orderedSheetIds.filter(isDefined).map((id) => {
       const sheet = this.sheets[id]!;
       return {
@@ -261,8 +257,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         name: sheet.name,
         colNumber: sheet.cols.length,
         rowNumber: sheet.rows.length,
-        rows: exportRows(sheet.rows, exportDefaultSizes),
-        cols: exportCols(sheet.cols, exportDefaultSizes),
+        rows: exportRows(sheet.rows),
+        cols: exportCols(sheet.cols),
         merges: [],
         cells: {},
         conditionalFormats: [],
@@ -279,7 +275,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    this.exportSheets(data, true);
+    this.exportSheets(data);
   }
 
   // ---------------------------------------------------------------------------
@@ -425,6 +421,15 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   getHiddenRowsGroups(sheetId: UID): ConsecutiveIndexes[] {
     return this.sheets[sheetId]?.hiddenRowsGroups || [];
   }
+
+  isRowHidden(sheetId: UID, index: number) {
+    return this.sheets[sheetId]?.rows[index]?.isHidden;
+  }
+
+  isColHidden(sheetId: UID, index: number) {
+    return this.sheets[sheetId]?.cols[index]?.isHidden;
+  }
+
   getNumberCols(sheetId: UID) {
     return this.getSheet(sheetId).cols.length;
   }
@@ -455,10 +460,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return this.getCellsInZone(sheetId, zone)
       .flat()
       .every((cell) => !cell || cell.isEmpty());
-  }
-
-  private setHeaderSize(sheet: Sheet, dimension: "cols" | "rows", index: number, size: number) {
-    this.history.update("sheets", sheet.id, dimension, index, "size", size);
   }
 
   private updateCellPosition(cmd: UpdateCellPositionCommand) {
@@ -880,10 +881,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       if (deletedColumns.includes(parseInt(index, 10))) {
         continue;
       }
-      const { size, isHidden } = sheet.cols[index];
+      const { isHidden } = sheet.cols[index];
       cols.push({
         name: numberToLetters(colSizeIndex),
-        size,
         isHidden,
       });
       colSizeIndex++;
@@ -909,19 +909,16 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     let colIndex = 0;
     for (let i in sheet.cols) {
       if (parseInt(i, 10) === addedColumn) {
-        const { size } = sheet.cols[colIndex];
         for (let a = 0; a < columnsToAdd; a++) {
           cols.push({
             name: numberToLetters(colIndex),
-            size,
           });
           colIndex++;
         }
       }
-      const { size, isHidden } = sheet.cols[i];
+      const { isHidden } = sheet.cols[i];
       cols.push({
         name: numberToLetters(colIndex),
-        size,
         isHidden,
       });
       colIndex++;
@@ -936,13 +933,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const cellsQueue = sheet.rows.map((row) => row.cells);
     for (let i in sheet.rows) {
       const row = sheet.rows[i];
-      const { size, isHidden } = row;
+      const { isHidden } = row;
       if (parseInt(i, 10) === index) {
         continue;
       }
       rowIndex++;
       rows.push({
-        size,
         cells: cellsQueue.shift()!,
         name: String(rowIndex),
         isHidden,
@@ -966,13 +962,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     let sizeIndex = 0;
     const cellsQueue = sheet.rows.map((row) => row.cells);
     for (let i in sheet.rows) {
-      const { size, isHidden } = sheet.rows[sizeIndex];
+      const { isHidden } = sheet.rows[sizeIndex];
       if (parseInt(i, 10) < addedRow || parseInt(i, 10) >= addedRow + rowsToAdd) {
         sizeIndex++;
       }
       rowIndex++;
       rows.push({
-        size,
         cells: cellsQueue.shift()!,
         name: String(rowIndex),
         isHidden,
@@ -992,7 +987,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const rows: Row[] = sheet.rows.slice();
     for (let i = 0; i < quantity; i++) {
       rows.push({
-        size: 0,
         name: (rows.length + 1).toString(),
         cells: {},
       });

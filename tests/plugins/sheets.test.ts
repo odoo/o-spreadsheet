@@ -727,8 +727,8 @@ describe("sheets", () => {
     resizeRows(model, [0], 1);
     const newSheet = model.getters.getSheetIds()[1];
     activateSheet(model, newSheet);
-    expect(model.getters.getCol(model.getters.getActiveSheetId(), 0)!.size).not.toBe(1);
-    expect(model.getters.getRow(model.getters.getActiveSheetId(), 0)!.size).not.toBe(1);
+    expect(model.getters.getColSize(model.getters.getActiveSheetId(), 0)).not.toBe(1);
+    expect(model.getters.getRowSize(model.getters.getActiveSheetId(), 0)).not.toBe(1);
   });
 
   test("Merges are correctly duplicated", () => {
