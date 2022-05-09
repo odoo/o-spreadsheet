@@ -447,7 +447,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getElementSize(index: number): number {
-    return this.env.model.getters.getCol(this.env.model.getters.getActiveSheetId(), index).size;
+    return this.env.model.getters.getColSize(this.env.model.getters.getActiveSheetId(), index);
   }
 
   _getMaxSize(): number {
@@ -653,7 +653,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getElementSize(index: number): number {
-    return this.env.model.getters.getRow(this.env.model.getters.getActiveSheetId(), index).size;
+    return this.env.model.getters.getRowSize(this.env.model.getters.getActiveSheetId(), index);
   }
 
   _getMaxSize(): number {

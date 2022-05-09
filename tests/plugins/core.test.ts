@@ -405,9 +405,8 @@ describe("core", () => {
     expect(model.getters.getRow(sheet2Id, 0)).toEqual({
       cells: {},
       name: "1",
-      size: 24,
     });
-    expect(model.getters.getCol(sheet2Id, 0)).toEqual({ name: "A", size: 42 });
+    expect(model.getters.getCol(sheet2Id, 0)).toEqual({ name: "A" });
   });
 
   test("can get row/col number of inactive sheet", () => {

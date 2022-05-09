@@ -6,14 +6,14 @@ import {
 } from "../../constants";
 import {
   findCellInNewZone,
-  findLastVisibleColRow,
+  findLastVisibleColRowIndex,
   getNextVisibleCellPosition,
-  searchHeaderIndex,
 } from "../../helpers";
 import { SelectionEvent } from "../../types/event_stream";
 import {
   Command,
   CommandResult,
+  Dimension,
   Position,
   Sheet,
   SnappedViewport,
@@ -41,6 +41,8 @@ interface ViewportPluginState {
  */
 export class ViewportPlugin extends UIPlugin {
   static getters = [
+    "getColIndex",
+    "getRowIndex",
     "getActiveSnappedViewport",
     "getViewportDimension",
     "getViewportDimensionWithHeaders",
@@ -164,6 +166,32 @@ export class ViewportPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
+  /**
+   * Return the index of a column given an offset x, based on the viewport left
+   * visible cell.
+   * It returns -1 if no column is found.
+   */
+  getColIndex(x: number): number {
+    if (x < 0) {
+      return -1;
+    }
+    const viewport = this.getActiveSnappedViewport();
+    return this.searchHeaderIndex("COL", this.getters.getActiveSheetId(), x, viewport.left);
+  }
+
+  /**
+   * Return the index of a row given an offset y, based on the viewport top
+   * visible cell.
+   * It returns -1 if no row is found.
+   */
+  getRowIndex(y: number): number {
+    if (y < 0) {
+      return -1;
+    }
+    const viewport = this.getActiveSnappedViewport();
+    return this.searchHeaderIndex("ROW", this.getters.getActiveSheetId(), y, viewport.top);
+  }
+
   getViewportDimensionWithHeaders(): ZoneDimension {
     return {
       width: this.viewportWidth + (this.getters.isDashboard() ? 0 : HEADER_WIDTH),
@@ -189,21 +217,26 @@ export class ViewportPlugin extends UIPlugin {
    */
   getMaxViewportSize(sheet: Sheet): ZoneDimension {
     const sheetId = sheet.id;
-    const lastCol = findLastVisibleColRow(sheet, "cols");
-    const lastRow = findLastVisibleColRow(sheet, "rows");
+    const lastCol = findLastVisibleColRowIndex(sheet, "cols");
+    const lastRow = findLastVisibleColRowIndex(sheet, "rows");
     const { end: lastColEnd, size: lastColSize } = this.getters.getColDimensions(sheetId, lastCol);
     const { end: lastRowEnd, size: lastRowSize } = this.getters.getRowDimensions(sheetId, lastRow);
-    const leftColIndex = searchHeaderIndex(sheet.cols, lastColEnd - this.viewportWidth, 0);
-    const leftCol = sheet.cols[leftColIndex];
-    const leftRowIndex = searchHeaderIndex(sheet.rows, lastRowEnd - this.viewportHeight, 0);
-    const topRow = sheet.rows[leftRowIndex];
+    const leftColIndex = this.searchHeaderIndex("COL", sheetId, lastColEnd - this.viewportWidth, 0);
+    const leftCol = this.getters.getColSize(sheetId, leftColIndex);
+    const leftRowIndex = this.searchHeaderIndex(
+      "ROW",
+      sheetId,
+      lastRowEnd - this.viewportHeight,
+      0
+    );
+    const topRow = this.getters.getRowSize(sheetId, leftRowIndex);
 
     const width =
       lastColEnd +
-      Math.max(DEFAULT_CELL_WIDTH, Math.min(leftCol.size, this.viewportWidth - lastColSize));
+      Math.max(DEFAULT_CELL_WIDTH, Math.min(leftCol, this.viewportWidth - lastColSize));
     const height =
       lastRowEnd +
-      Math.max(DEFAULT_CELL_HEIGHT + 5, Math.min(topRow.size, this.viewportHeight - lastRowSize));
+      Math.max(DEFAULT_CELL_HEIGHT + 5, Math.min(topRow, this.viewportHeight - lastRowSize));
 
     return { width, height };
   }
@@ -219,6 +252,30 @@ export class ViewportPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
+
+  private searchHeaderIndex(
+    dimension: Dimension,
+    sheetId: UID,
+    position: number,
+    startIndex: number = 0
+  ): number {
+    let size = 0;
+    const { cols, rows } = this.getters.getSheet(sheetId);
+    const headers = dimension === "COL" ? cols : rows;
+    for (let i = startIndex; i <= headers.length - 1; i++) {
+      if (headers[i].isHidden) {
+        continue;
+      }
+      size +=
+        dimension === "COL"
+          ? this.getters.getColSize(sheetId, i)
+          : this.getters.getRowSize(sheetId, i);
+      if (size > position) {
+        return i;
+      }
+    }
+    return -1;
+  }
 
   private checkOffsetValidity(offsetX: number, offsetY: number): CommandResult {
     const sheet = this.getters.getActiveSheet();
@@ -349,8 +406,8 @@ export class ViewportPlugin extends UIPlugin {
   private adjustViewportZoneX(sheetId: UID, viewport: Viewport) {
     const sheet = this.getters.getSheet(sheetId);
     const cols = sheet.cols;
-    viewport.left = searchHeaderIndex(cols, viewport.offsetX);
-    viewport.right = searchHeaderIndex(cols, this.viewportWidth, viewport.left);
+    viewport.left = this.searchHeaderIndex("COL", sheetId, viewport.offsetX);
+    viewport.right = this.searchHeaderIndex("COL", sheetId, this.viewportWidth, viewport.left);
     if (viewport.right === -1) {
       viewport.right = cols.length - 1;
     }
@@ -361,8 +418,8 @@ export class ViewportPlugin extends UIPlugin {
   private adjustViewportZoneY(sheetId: UID, viewport: Viewport) {
     const sheet = this.getters.getSheet(sheetId);
     const rows = sheet.rows;
-    viewport.top = searchHeaderIndex(rows, viewport.offsetY);
-    viewport.bottom = searchHeaderIndex(rows, this.viewportHeight, viewport.top);
+    viewport.top = this.searchHeaderIndex("ROW", sheetId, viewport.offsetY);
+    viewport.bottom = this.searchHeaderIndex("ROW", sheetId, this.viewportHeight, viewport.top);
     if (viewport.bottom === -1) {
       viewport.bottom = rows.length - 1;
     }
@@ -379,6 +436,7 @@ export class ViewportPlugin extends UIPlugin {
   private adjustViewportsPosition(sheetId: UID, position?: Position) {
     const sheet = this.getters.getSheet(sheetId);
     const { cols, rows } = sheet;
+
     const adjustedViewport = this.getSnappedViewport(sheetId);
     if (!position) {
       position = this.getters.getSheetPosition(sheetId);
