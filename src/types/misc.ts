@@ -162,7 +162,10 @@ export interface HeaderDimensions {
 
 export interface Header {
   name: string;
-  size: number;
+}
+
+export interface Header {
+  name: string;
   isHidden?: boolean;
 }
 

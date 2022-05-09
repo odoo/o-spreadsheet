@@ -32,14 +32,15 @@ export class Border extends Component<Props, SpreadsheetChildEnv> {
     const isHorizontal = ["n", "s"].includes(this.props.orientation);
     const isVertical = ["w", "e"].includes(this.props.orientation);
 
-    const s = this.env.model.getters.getActiveSheet();
+    const sheetId = this.env.model.getters.getActiveSheetId();
+
     const z = this.props.zone;
     const margin = 2;
 
-    const left = this.env.model.getters.getColDimensions(s.id, z.left).start + margin;
-    const right = this.env.model.getters.getColDimensions(s.id, z.right).end - 2 * margin;
-    const top = this.env.model.getters.getRowDimensions(s.id, z.top).start + margin;
-    const bottom = this.env.model.getters.getRowDimensions(s.id, z.bottom).end - 2 * margin;
+    const left = this.env.model.getters.getColDimensions(sheetId, z.left).start + margin;
+    const right = this.env.model.getters.getColDimensions(sheetId, z.right).end - 2 * margin;
+    const top = this.env.model.getters.getRowDimensions(sheetId, z.top).start + margin;
+    const bottom = this.env.model.getters.getRowDimensions(sheetId, z.bottom).end - 2 * margin;
 
     const lineWidth = 4;
     const leftValue = isLeft ? left : right;

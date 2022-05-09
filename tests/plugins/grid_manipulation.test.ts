@@ -279,10 +279,10 @@ describe("Columns", () => {
     });
     test("On deletion", () => {
       deleteColumns(model, ["A", "C"]);
-      expect(model.getters.getActiveSheet().cols).toEqual([
-        { size: 10, name: "A" },
-        { size: DEFAULT_CELL_WIDTH, name: "B" },
-      ]);
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.getActiveSheet().cols).toEqual([{ name: "A" }, { name: "B" }]);
+      expect(model.getters.getColSize(sheetId, 0)).toBe(10);
+      expect(model.getters.getColSize(sheetId, 1)).toBe(DEFAULT_CELL_WIDTH);
       expect(model.getters.getActiveSheet().cols.length).toBe(2);
     });
     test("On delete cols in inactive sheet", () => {
@@ -320,27 +320,26 @@ describe("Columns", () => {
     test("On addition before", () => {
       addColumns(model, "before", "B", 2);
       const size = DEFAULT_CELL_WIDTH;
-      expect(model.getters.getActiveSheet().cols).toEqual([
-        { size, name: "A" },
-        { size: 10, name: "B" },
-        { size: 10, name: "C" },
-        { size: 10, name: "D" },
-        { size: 20, name: "E" },
-        { size, name: "F" },
-      ]);
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.getColSize(sheetId, 0)).toBe(size);
+      expect(model.getters.getColSize(sheetId, 1)).toBe(10);
+      expect(model.getters.getColSize(sheetId, 2)).toBe(10);
+      expect(model.getters.getColSize(sheetId, 3)).toBe(10);
+      expect(model.getters.getColSize(sheetId, 4)).toBe(20);
+      expect(model.getters.getColSize(sheetId, 5)).toBe(size);
       expect(model.getters.getActiveSheet().cols.length).toBe(6);
     });
     test("On addition after", () => {
       addColumns(model, "after", "C", 2);
       const size = DEFAULT_CELL_WIDTH;
-      expect(model.getters.getActiveSheet().cols).toEqual([
-        { size, name: "A" },
-        { size: 10, name: "B" },
-        { size: 20, name: "C" },
-        { size: 20, name: "D" },
-        { size: 20, name: "E" },
-        { size, name: "F" },
-      ]);
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.getColSize(sheetId, 0)).toBe(size);
+      expect(model.getters.getColSize(sheetId, 1)).toBe(10);
+      expect(model.getters.getColSize(sheetId, 2)).toBe(20);
+      expect(model.getters.getColSize(sheetId, 3)).toBe(20);
+      expect(model.getters.getColSize(sheetId, 4)).toBe(20);
+      expect(model.getters.getColSize(sheetId, 5)).toBe(size);
+
       expect(model.getters.getActiveSheet().cols.length).toBe(6);
     });
 
@@ -1038,10 +1037,9 @@ describe("Rows", () => {
     test("On deletion", () => {
       deleteRows(model, [0, 2]);
       const size = DEFAULT_CELL_HEIGHT;
-      expect(model.getters.getActiveSheet().rows).toEqual([
-        { size: 10, name: "1", cells: {} },
-        { size, name: "2", cells: {} },
-      ]);
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.getRowSize(sheetId, 0)).toBe(10);
+      expect(model.getters.getRowSize(sheetId, 1)).toBe(size);
       expect(model.getters.getActiveSheet().rows.length).toBe(2);
     });
     test("On delete row in inactive sheet", () => {
@@ -1154,14 +1152,13 @@ describe("Rows", () => {
     test("On addition before", () => {
       addRows(model, "before", 1, 2);
       const size = DEFAULT_CELL_HEIGHT;
-      expect(model.getters.getActiveSheet().rows).toEqual([
-        { size, name: "1", cells: {} },
-        { size: 10, name: "2", cells: {} },
-        { size: 10, name: "3", cells: {} },
-        { size: 10, name: "4", cells: {} },
-        { size: 20, name: "5", cells: {} },
-        { size, name: "6", cells: {} },
-      ]);
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.getRowSize(sheetId, 0)).toBe(size);
+      expect(model.getters.getRowSize(sheetId, 1)).toBe(10);
+      expect(model.getters.getRowSize(sheetId, 2)).toBe(10);
+      expect(model.getters.getRowSize(sheetId, 3)).toBe(10);
+      expect(model.getters.getRowSize(sheetId, 4)).toBe(20);
+      expect(model.getters.getRowSize(sheetId, 5)).toBe(size);
       const dimensions = model.getters.getMaxViewportSize(model.getters.getActiveSheet());
       expect(dimensions).toMatchObject({ width: 192, height: 124 });
       expect(model.getters.getActiveSheet().rows.length).toBe(6);
@@ -1169,14 +1166,13 @@ describe("Rows", () => {
     test("On addition after", () => {
       addRows(model, "after", 2, 2);
       const size = DEFAULT_CELL_HEIGHT;
-      expect(model.getters.getActiveSheet().rows).toEqual([
-        { size, name: "1", cells: {} },
-        { size: 10, name: "2", cells: {} },
-        { size: 20, name: "3", cells: {} },
-        { size: 20, name: "4", cells: {} },
-        { size: 20, name: "5", cells: {} },
-        { size, name: "6", cells: {} },
-      ]);
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.getRowSize(sheetId, 0)).toBe(size);
+      expect(model.getters.getRowSize(sheetId, 1)).toBe(10);
+      expect(model.getters.getRowSize(sheetId, 2)).toBe(20);
+      expect(model.getters.getRowSize(sheetId, 3)).toBe(20);
+      expect(model.getters.getRowSize(sheetId, 4)).toBe(20);
+      expect(model.getters.getRowSize(sheetId, 5)).toBe(size);
       const dimensions = model.getters.getMaxViewportSize(model.getters.getActiveSheet());
       expect(dimensions).toMatchObject({ width: 192, height: 144 });
       expect(model.getters.getActiveSheet().rows.length).toBe(6);
@@ -1835,7 +1831,6 @@ describe("Rows", () => {
       expect(sheet2.rows.length).toBe(5);
       expect(sheet2.rows[4]).toEqual({
         cells: {},
-        size: DEFAULT_CELL_HEIGHT,
         name: "5",
       });
     });

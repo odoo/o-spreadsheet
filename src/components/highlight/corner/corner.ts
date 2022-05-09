@@ -44,14 +44,14 @@ export class Corner extends Component<Props, SpreadsheetChildEnv> {
 
   get style() {
     const { offsetX, offsetY } = this.env.model.getters.getActiveSnappedViewport();
-    const s = this.env.model.getters.getActiveSheet();
+    const sheetId = this.env.model.getters.getActiveSheetId();
     const z = this.props.zone;
     const leftValue = this.isLeft
-      ? this.env.model.getters.getColDimensions(s.id, z.left).start
-      : this.env.model.getters.getColDimensions(s.id, z.right).end;
+      ? this.env.model.getters.getColDimensions(sheetId, z.left).start
+      : this.env.model.getters.getColDimensions(sheetId, z.right).end;
     const topValue = this.isTop
-      ? this.env.model.getters.getRowDimensions(s.id, z.top).start
-      : this.env.model.getters.getRowDimensions(s.id, z.bottom).end;
+      ? this.env.model.getters.getRowDimensions(sheetId, z.top).start
+      : this.env.model.getters.getRowDimensions(sheetId, z.bottom).end;
     return `
       left:${leftValue + HEADER_WIDTH - offsetX - AUTOFILL_EDGE_LENGTH / 2}px;
       top:${topValue + HEADER_HEIGHT - offsetY - AUTOFILL_EDGE_LENGTH / 2}px;
