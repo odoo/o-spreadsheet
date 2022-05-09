@@ -11,10 +11,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
   >
     Cut
     <span
-      class="o-menu-item-shortcut"
+      class="o-menu-item-description"
     >
       Ctrl+X
     </span>
+    
     
     
   </div>
@@ -26,10 +27,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
   >
     Copy
     <span
-      class="o-menu-item-shortcut"
+      class="o-menu-item-description"
     >
       Ctrl+C
     </span>
+    
     
     
   </div>
@@ -41,10 +43,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
   >
     Paste
     <span
-      class="o-menu-item-shortcut"
+      class="o-menu-item-description"
     >
       Ctrl+V
     </span>
+    
     
     
   </div>
@@ -55,11 +58,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Paste special"
   >
     Paste special
-    <span
-      class="o-menu-item-shortcut"
-    >
-      
-    </span>
+    
     <svg
       class="o-icon"
     >
@@ -81,11 +80,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Sort range"
   >
     Sort range
-    <span
-      class="o-menu-item-shortcut"
-    >
-      
-    </span>
+    
     <svg
       class="o-icon"
     >
@@ -107,11 +102,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Insert row"
   >
     Insert row
-    <span
-      class="o-menu-item-shortcut"
-    >
-      
-    </span>
+    
     
     
   </div>
@@ -122,11 +113,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Insert column"
   >
     Insert column
-    <span
-      class="o-menu-item-shortcut"
-    >
-      
-    </span>
+    
     
     
   </div>
@@ -137,11 +124,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Insert cells"
   >
     Insert cells
-    <span
-      class="o-menu-item-shortcut"
-    >
-      
-    </span>
+    
     <svg
       class="o-icon"
     >
@@ -163,11 +146,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Delete row 8"
   >
     Delete row 8
-    <span
-      class="o-menu-item-shortcut"
-    >
-      
-    </span>
+    
     
     
   </div>
@@ -178,11 +157,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Delete column C"
   >
     Delete column C
-    <span
-      class="o-menu-item-shortcut"
-    >
-      
-    </span>
+    
     
     
   </div>
@@ -193,11 +168,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Delete cells"
   >
     Delete cells
-    <span
-      class="o-menu-item-shortcut"
-    >
-      
-    </span>
+    
     <svg
       class="o-icon"
     >
@@ -217,11 +188,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Clear cells"
   >
     Clear cells
-    <span
-      class="o-menu-item-shortcut"
-    >
-      
-    </span>
+    
     
     
   </div>
@@ -234,11 +201,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Insert link"
   >
     Insert link
-    <span
-      class="o-menu-item-shortcut"
-    >
-      
-    </span>
+    
     
     
   </div>
@@ -251,11 +214,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Conditional formatting"
   >
     Conditional formatting
-    <span
-      class="o-menu-item-shortcut"
-    >
-      
-    </span>
+    
     
     
   </div>

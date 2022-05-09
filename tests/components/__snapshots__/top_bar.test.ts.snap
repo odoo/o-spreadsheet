@@ -168,47 +168,92 @@ exports[`TopBar component can set cell format 1`] = `
                 class="active"
                 data-format="general"
               >
-                General (no specific format)
+                General
+                <span
+                  class="float-right text-muted"
+                >
+                  
+                </span>
               </div>
               <div
                 data-format="number"
               >
-                Number (1,000.12)
+                Number
+                <span
+                  class="float-right text-muted"
+                >
+                  (1,000.12)
+                </span>
               </div>
               <div
                 data-format="percent"
               >
-                Percent (10.12%)
+                Percent
+                <span
+                  class="float-right text-muted"
+                >
+                  (10.12%)
+                </span>
               </div>
               <div
                 data-format="currency"
               >
-                Currency ($1,000.12)
+                Currency
+                <span
+                  class="float-right text-muted"
+                >
+                  ($1,000.12)
+                </span>
               </div>
               <div
                 data-format="currency_rounded"
               >
-                Currency rounded ($1,000)
+                Currency rounded
+                <span
+                  class="float-right text-muted"
+                >
+                  ($1,000)
+                </span>
               </div>
               <div
                 data-format="date"
               >
-                Date (9/26/2008)
+                Date
+                <span
+                  class="float-right text-muted"
+                >
+                  (9/26/2008)
+                </span>
               </div>
               <div
                 data-format="time"
               >
-                Time (10:43:00 PM)
+                Time
+                <span
+                  class="float-right text-muted"
+                >
+                  (10:43:00 PM)
+                </span>
               </div>
               <div
                 data-format="datetime"
               >
-                Date time (9/26/2008 22:43:00)
+                Date time
+                <span
+                  class="float-right text-muted"
+                >
+                  (9/26/2008 22:43:00)
+                </span>
               </div>
               <div
                 data-format="duration"
               >
-                Duration (27:51:38)
+                Duration
+                <span
+                  class="float-right text-muted"
+                >
+                  (27:51:38)
+                </span>
               </div>
               
               

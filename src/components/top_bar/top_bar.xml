@@ -97,6 +97,7 @@
                   t-att-data-format="format.name"
                   t-att-class="{active: currentFormat === format.name}">
                   <t t-esc="format.text"/>
+                  <span class="float-right text-muted" t-esc="format.description"/>
                 </div>
               </t>
               <t t-foreach="customFormats" t-as="customFormat" t-key="customFormat.name">

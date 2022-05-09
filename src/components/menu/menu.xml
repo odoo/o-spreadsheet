@@ -21,7 +21,11 @@
             t-att-class="{ 'o-menu-root': isMenuRoot, 'disabled': !isMenuEnabled}"
             t-att-style="getColor(menuItem)">
             <t t-esc="getName(menuItem)"/>
-            <span class="o-menu-item-shortcut" t-esc="getShortCut(menuItem)"/>
+            <span
+              t-if="getDescription(menuItem)"
+              class="o-menu-item-description"
+              t-esc="getDescription(menuItem)"
+            />
             <t t-if="isMenuRoot">
               <t t-call="o-spreadsheet.Icon.TRIANGLE_RIGHT"/>
             </t>

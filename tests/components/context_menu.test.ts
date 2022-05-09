@@ -2,7 +2,13 @@ import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { Grid } from "../../src/components/grid/grid";
 import { Menu } from "../../src/components/menu/menu";
-import { HEADER_HEIGHT, HEADER_WIDTH, MENU_ITEM_HEIGHT, TOPBAR_HEIGHT } from "../../src/constants";
+import {
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+  MENU_ITEM_HEIGHT,
+  MENU_WIDTH,
+  TOPBAR_HEIGHT,
+} from "../../src/constants";
 import { toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
@@ -77,7 +83,7 @@ function getItemSize() {
 
 function getSize(menuItemsCount: number): { width: number; height: number } {
   return {
-    width: 200,
+    width: MENU_WIDTH,
     height: getItemSize() * menuItemsCount,
   };
 }
@@ -631,7 +637,7 @@ describe("Context Menu position on large screen 1000px/1000px", () => {
   });
 
   test("it renders submenu on the bottom left if not enough space", async () => {
-    const [clickX, clickY] = await renderContextMenu(780, 300, { menuItems: subMenu });
+    const [clickX, clickY] = await renderContextMenu(770, 300, { menuItems: subMenu });
     await simulateClick("div[data-name='root']");
     const { left, top } = getSubMenuPosition();
     const { width } = getMenuSize();
@@ -721,7 +727,7 @@ describe("Context Menu position on small screen 1000px/300px", () => {
   });
 
   test("it renders submenu at the top of the screen on the left, if not enough space above, below and on the right", async () => {
-    const [clickX] = await renderContextMenu(780, 150, { menuItems: longMenuItems }, 1000, 300);
+    const [clickX] = await renderContextMenu(770, 150, { menuItems: longMenuItems }, 1000, 300);
     await simulateClick("div[data-name='root_4']");
     const { left, top } = getSubMenuPosition();
     const { width } = getMenuSize();
