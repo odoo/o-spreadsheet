@@ -7,6 +7,8 @@ import { CommandResult } from "./commands";
 import { Format } from "./format";
 
 export type UID = string;
+export type SheetId = UID;
+
 export interface Link {
   label: string;
   url: string;
@@ -136,11 +138,14 @@ export interface ClipboardCell {
   position: CellPosition;
 }
 
-export interface Header {
+export interface HeaderDisplayInfo {
   start: number;
   end: number;
-  name: string;
   size: number;
+}
+
+export interface Header {
+  name: string;
   isHidden?: boolean;
 }
 

@@ -17,12 +17,12 @@ export function findVisibleHeader(
   return indexes.find((index) => headers[index] && !headers[index].isHidden);
 }
 
-export function findLastVisibleColRow(sheet: Sheet, dimension: "cols" | "rows") {
+export function findLastVisibleColRowIndex(sheet: Sheet, dimension: "cols" | "rows"): number {
   let lastIndex = sheet[dimension].length - 1;
   while (lastIndex >= 0 && sheet[dimension][lastIndex].isHidden === true) {
     lastIndex--;
   }
-  return sheet[dimension][lastIndex];
+  return lastIndex;
 }
 
 export function findFirstVisibleColRow(sheet: Sheet, dimension: "cols" | "rows") {

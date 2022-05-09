@@ -1,7 +1,14 @@
 import { Mode, ModelConfig } from "../model";
 import { SelectionStreamProcessor } from "../selection_stream/selection_stream_processor";
 import { StateObserver } from "../state_observer";
-import { Command, CommandDispatcher, Getters, GridRenderingContext, LAYERS } from "../types/index";
+import {
+  Command,
+  CommandDispatcher,
+  ExcelWorkbookData,
+  Getters,
+  GridRenderingContext,
+  LAYERS,
+} from "../types/index";
 import { BasePlugin } from "./base_plugin";
 
 type UIActions = Pick<ModelConfig, "notifyUI">;
@@ -40,6 +47,8 @@ export class UIPlugin<State = any, C = Command> extends BasePlugin<State, C> {
     this.ui = config;
     this.selection = selection;
   }
+
+  exportForExcel(data: ExcelWorkbookData) {}
 
   // ---------------------------------------------------------------------------
   // Grid rendering

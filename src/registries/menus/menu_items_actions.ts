@@ -544,8 +544,8 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   const dataSets = [zoneToXc(dataSetZone)];
   const sheetId = env.model.getters.getActiveSheetId();
   const position = {
-    x: env.model.getters.tryGetCol(sheetId, zone.right + 1)?.start || 0,
-    y: env.model.getters.tryGetRow(sheetId, zone.top)?.start || 0,
+    x: env.model.getters.getColInfo(sheetId, zone.right + 1)?.start || 0,
+    y: env.model.getters.getRowInfo(sheetId, zone.top)?.start || 0,
   };
   let dataSetsHaveTitle = false;
   for (let x = dataSetZone.left; x <= dataSetZone.right; x++) {

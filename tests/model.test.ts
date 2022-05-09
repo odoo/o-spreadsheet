@@ -10,6 +10,7 @@ import { FigurePlugin } from "../src/plugins/core/figures";
 import { MergePlugin } from "../src/plugins/core/merge";
 import { RangeAdapter } from "../src/plugins/core/range";
 import { SheetPlugin } from "../src/plugins/core/sheet";
+import { UserHeaderSizePlugin } from "../src/plugins/core/user_header_size";
 import { corePluginRegistry, uiPluginRegistry } from "../src/plugins/index";
 import { AutomaticSumPlugin } from "../src/plugins/ui/automatic_sum";
 import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
@@ -34,20 +35,26 @@ function getNbrPlugin(mode: Mode): number {
 describe("Model", () => {
   test("can create model in headless mode", () => {
     const model = new Model({}, { mode: "headless" });
-    expect(model["handlers"]).toHaveLength(13);
-    expect(model["handlers"][0]).toBeInstanceOf(RangeAdapter);
-    expect(model["handlers"][1]).toBeInstanceOf(SheetPlugin);
-    expect(model["handlers"][2]).toBeInstanceOf(CellPlugin);
-    expect(model["handlers"][3]).toBeInstanceOf(MergePlugin);
-    expect(model["handlers"][4]).toBeInstanceOf(BordersPlugin);
-    expect(model["handlers"][5]).toBeInstanceOf(ConditionalFormatPlugin);
-    expect(model["handlers"][6]).toBeInstanceOf(FigurePlugin);
-    expect(model["handlers"][7]).toBeInstanceOf(ChartPlugin);
-    expect(model["handlers"][8]).toBeInstanceOf(SheetUIPlugin);
-    expect(model["handlers"][9]).toBeInstanceOf(FindAndReplacePlugin);
-    expect(model["handlers"][10]).toBeInstanceOf(SortPlugin);
-    expect(model["handlers"][11]).toBeInstanceOf(AutomaticSumPlugin);
-    expect(model["handlers"][12]).toBeInstanceOf(LocalHistory);
+    const expectedPlugins = [
+      RangeAdapter,
+      SheetPlugin,
+      UserHeaderSizePlugin,
+      CellPlugin,
+      MergePlugin,
+      BordersPlugin,
+      ConditionalFormatPlugin,
+      FigurePlugin,
+      ChartPlugin,
+      SheetUIPlugin,
+      FindAndReplacePlugin,
+      SortPlugin,
+      AutomaticSumPlugin,
+      LocalHistory,
+    ];
+    expect(model["handlers"]).toHaveLength(expectedPlugins.length);
+    for (let i of model["handlers"].keys()) {
+      expect(model["handlers"][i]).toBeInstanceOf(expectedPlugins[i]);
+    }
   });
 
   test("All plugin compatible with normal mode are loaded on normal mode", () => {

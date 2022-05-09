@@ -6,6 +6,7 @@ import { ConditionalFormatPlugin } from "./core/conditional_format";
 import { FigurePlugin } from "./core/figures";
 import { MergePlugin } from "./core/merge";
 import { SheetPlugin } from "./core/sheet";
+import { UserHeaderSizePlugin } from "./core/user_header_size";
 import { CorePluginConstructor } from "./core_plugin";
 import { AutofillPlugin } from "./ui/autofill";
 import { AutomaticSumPlugin } from "./ui/automatic_sum";
@@ -15,6 +16,7 @@ import { EvaluationPlugin } from "./ui/evaluation";
 import { EvaluationChartPlugin } from "./ui/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "./ui/evaluation_conditional_format";
 import { FindAndReplacePlugin } from "./ui/find_and_replace";
+import { HeaderSizePlugin } from "./ui/header_size";
 import { HighlightPlugin } from "./ui/highlight";
 import { RendererPlugin } from "./ui/renderer";
 import { GridSelectionPlugin } from "./ui/selection";
@@ -28,6 +30,7 @@ import { UIPluginConstructor } from "./ui_plugin";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("sheet", SheetPlugin)
+  .add("userHeaderSize", UserHeaderSizePlugin)
   .add("cell", CellPlugin)
   .add("merge", MergePlugin)
   .add("borders", BordersPlugin)
@@ -36,6 +39,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("chart", ChartPlugin);
 
 export const uiPluginRegistry = new Registry<UIPluginConstructor>()
+  .add("header_size", HeaderSizePlugin)
   .add("selection", GridSelectionPlugin)
   .add("ui_sheet", SheetUIPlugin)
   .add("ui_options", UIOptionsPlugin)

@@ -8,6 +8,7 @@ import { FigurePlugin } from "../plugins/core/figures";
 import { MergePlugin } from "../plugins/core/merge";
 import { RangeAdapter } from "../plugins/core/range";
 import { SheetPlugin } from "../plugins/core/sheet";
+import { UserHeaderSizePlugin } from "../plugins/core/user_header_size";
 import { AutofillPlugin } from "../plugins/ui/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui/automatic_sum";
 import { ClipboardPlugin } from "../plugins/ui/clipboard";
@@ -16,6 +17,7 @@ import { EvaluationPlugin } from "../plugins/ui/evaluation";
 import { EvaluationChartPlugin } from "../plugins/ui/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "../plugins/ui/evaluation_conditional_format";
 import { FindAndReplacePlugin } from "../plugins/ui/find_and_replace";
+import { HeaderSizePlugin } from "../plugins/ui/header_size";
 import { HighlightPlugin } from "../plugins/ui/highlight";
 import { RendererPlugin } from "../plugins/ui/renderer";
 import { GridSelectionPlugin } from "../plugins/ui/selection";
@@ -60,6 +62,7 @@ import { ViewportPlugin } from "../plugins/ui/viewport";
 type GetterNames<Plugin extends { getters: readonly string[] }> = Plugin["getters"][number];
 
 type SheetGetters = Pick<SheetPlugin, GetterNames<typeof SheetPlugin>>;
+type UserHeaderSizeGetters = Pick<UserHeaderSizePlugin, GetterNames<typeof UserHeaderSizePlugin>>;
 type CellGetters = Pick<CellPlugin, GetterNames<typeof CellPlugin>>;
 type MergeGetters = Pick<MergePlugin, GetterNames<typeof MergePlugin>>;
 type BordersGetters = Pick<BordersPlugin, GetterNames<typeof BordersPlugin>>;
@@ -77,6 +80,7 @@ type LocalHistoryGetters = {
 
 export type CoreGetters = { isReadonly: () => boolean } & LocalHistoryGetters &
   SheetGetters &
+  UserHeaderSizeGetters &
   CellGetters &
   MergeGetters &
   BordersGetters &
@@ -99,6 +103,7 @@ type EvaluationConditionalFormatGetters = Pick<
   GetterNames<typeof EvaluationConditionalFormatPlugin>
 >;
 type FindAndReplaceGetters = Pick<FindAndReplacePlugin, GetterNames<typeof FindAndReplacePlugin>>;
+type HeaderSizeGetters = Pick<HeaderSizePlugin, GetterNames<typeof HeaderSizePlugin>>;
 type HighlightGetters = Pick<HighlightPlugin, GetterNames<typeof HighlightPlugin>>;
 type RendererGetters = Pick<RendererPlugin, GetterNames<typeof RendererPlugin>>;
 type SelectionGetters = Pick<GridSelectionPlugin, GetterNames<typeof GridSelectionPlugin>>;
@@ -130,6 +135,7 @@ export type Getters = CoreGetters &
   EvaluationChartGetters &
   EvaluationConditionalFormatGetters &
   FindAndReplaceGetters &
+  HeaderSizeGetters &
   HighlightGetters &
   RendererGetters &
   SelectionGetters &

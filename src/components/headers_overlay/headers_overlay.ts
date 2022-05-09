@@ -10,11 +10,10 @@ import {
 } from "../../constants";
 import { _lt } from "../../translation";
 import {
-  Col,
   CommandResult,
   EdgeScrollInfo,
+  HeaderDisplayInfo,
   Ref,
-  Row,
   SpreadsheetChildEnv,
 } from "../../types/index";
 import { ContextMenuType } from "../grid/grid";
@@ -63,7 +62,7 @@ abstract class AbstractResizer extends Component<any, SpreadsheetChildEnv> {
 
   abstract _getBoundaries(): { first: number; last: number };
 
-  abstract _getElement(index: number): Col | Row;
+  abstract _getElement(index: number): HeaderDisplayInfo;
 
   abstract _getHeaderSize(): number;
 
@@ -437,11 +436,11 @@ export class ColResizer extends AbstractResizer {
     return { first: left, last: right };
   }
 
-  _getElement(index: number): Col {
-    return this.env.model.getters.getCol(this.env.model.getters.getActiveSheetId(), index);
+  _getElement(index: number): HeaderDisplayInfo {
+    return this.env.model.getters.getColInfo(this.env.model.getters.getActiveSheetId(), index);
   }
 
-  _getBottomRightValue(element: Col): number {
+  _getBottomRightValue(element: HeaderDisplayInfo): number {
     return element.end;
   }
 
@@ -495,7 +494,8 @@ export class ColResizer extends AbstractResizer {
 
   _adjustViewport(direction: number): void {
     const { left, offsetY } = this.env.model.getters.getActiveSnappedViewport();
-    const { cols } = this.env.model.getters.getActiveSheet();
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const cols = this.env.model.getters.getColsInfo(sheetId);
     const offsetX = cols[left + direction].start;
     this.env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
   }
@@ -531,7 +531,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   unhideStyleValue(hiddenIndex: number): number {
-    const col = this.env.model.getters.getCol(
+    const col = this.env.model.getters.getColInfo(
       this.env.model.getters.getActiveSheetId(),
       hiddenIndex
     );
@@ -656,8 +656,8 @@ export class RowResizer extends AbstractResizer {
     return { first: top, last: bottom };
   }
 
-  _getElement(index: number): Row {
-    return this.env.model.getters.getRow(this.env.model.getters.getActiveSheetId(), index);
+  _getElement(index: number): HeaderDisplayInfo {
+    return this.env.model.getters.getRowInfo(this.env.model.getters.getActiveSheetId(), index);
   }
 
   _getHeaderSize(): number {
@@ -710,7 +710,8 @@ export class RowResizer extends AbstractResizer {
 
   _adjustViewport(direction: number): void {
     const { top, offsetX } = this.env.model.getters.getActiveSnappedViewport();
-    const { rows } = this.env.model.getters.getActiveSheet();
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const rows = this.env.model.getters.getRowsInfo(sheetId);
     const offsetY = rows[top + direction].start;
     this.env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
   }
@@ -746,7 +747,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   unhideStyleValue(hiddenIndex: number): number {
-    const row = this.env.model.getters.getRow(
+    const row = this.env.model.getters.getRowInfo(
       this.env.model.getters.getActiveSheetId(),
       hiddenIndex
     );

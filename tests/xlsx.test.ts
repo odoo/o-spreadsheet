@@ -803,7 +803,8 @@ describe("Test XLSX export", () => {
         },
         "1"
       );
-      const { cols } = model.getters.getActiveSheet();
+      // const sheetEnd = model.getters.getMaxViewportSize(model.getters.getActiveSheet()).width;
+      const cols = model.getters.getColsInfo(model.getters.getActiveSheetId());
       model.dispatch("UPDATE_FIGURE", {
         sheetId: "Sheet1",
         id: "1",

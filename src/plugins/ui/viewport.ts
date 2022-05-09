@@ -6,7 +6,7 @@ import {
 } from "../../constants";
 import {
   findCellInNewZone,
-  findLastVisibleColRow,
+  findLastVisibleColRowIndex,
   getNextVisibleCellPosition,
 } from "../../helpers";
 import { Mode } from "../../model";
@@ -14,8 +14,8 @@ import { SelectionEvent } from "../../types/event_stream";
 import {
   Command,
   CommandResult,
+  HeaderDisplayInfo,
   Position,
-  Row,
   Sheet,
   UID,
   Viewport,
@@ -193,15 +193,18 @@ export class ViewportPlugin extends UIPlugin {
    * with some bottom and right padding.
    */
   getMaxViewportSize(sheet: Sheet): ZoneDimension {
-    const lastCol = findLastVisibleColRow(sheet, "cols");
-    const lastRow = findLastVisibleColRow(sheet, "rows");
+    const lastCol = this.getters.getColInfo(sheet.id, findLastVisibleColRowIndex(sheet, "cols"));
+    const lastRow = this.getters.getRowInfo(sheet.id, findLastVisibleColRowIndex(sheet, "rows"));
+
+    const cols = this.getters.getColsInfo(sheet.id);
+    const rows = this.getters.getRowsInfo(sheet.id);
 
     const leftCol =
-      sheet.cols.find((col) => col.end > lastCol!.end - this.viewportWidth) ||
-      sheet.cols[sheet.cols.length - 1];
+      cols.find((col) => col.end > lastCol!.end - this.viewportWidth) ||
+      cols[sheet.cols.length - 1];
     const topRow =
-      sheet.rows.find((row) => row.end > lastRow!.end - this.viewportHeight) ||
-      sheet.rows[sheet.rows.length - 1];
+      rows.find((row) => row.end > lastRow!.end - this.viewportHeight) ||
+      rows[sheet.rows.length - 1];
 
     const width =
       lastCol!.end +
@@ -353,7 +356,7 @@ export class ViewportPlugin extends UIPlugin {
   /** Updates the viewport zone based on its horizontal offset (will find Left) and its width (will find Right) */
   private adjustViewportZoneX(sheetId: UID, viewport: Viewport) {
     const sheet = this.getters.getSheet(sheetId);
-    const cols = sheet.cols;
+    const cols = this.getters.getColsInfo(sheet.id);
     viewport.left = this.getters.getColIndex(viewport.offsetX, 0, sheet);
     const x = this.viewportWidth + viewport.offsetX;
     viewport.right = cols.length - 1;
@@ -369,7 +372,7 @@ export class ViewportPlugin extends UIPlugin {
   /** Updates the viewport zone based on its vertical offset (will find Top) and its width (will find Bottom) */
   private adjustViewportZoneY(sheetId: UID, viewport: Viewport) {
     const sheet = this.getters.getSheet(sheetId);
-    const rows = sheet.rows;
+    const rows = this.getters.getRowsInfo(sheet.id);
     viewport.top = this.getters.getRowIndex(viewport.offsetY, 0, sheet);
     const y = this.viewportHeight + viewport.offsetY;
     viewport.bottom = rows.length - 1;
@@ -392,6 +395,9 @@ export class ViewportPlugin extends UIPlugin {
   private adjustViewportsPosition(sheetId: UID, position?: Position) {
     const sheet = this.getters.getSheet(sheetId);
     const { cols, rows } = sheet;
+    const colsDisplayInfo = this.getters.getColsInfo(sheet.id);
+    const rowsDisplayInfo = this.getters.getRowsInfo(sheet.id);
+
     const adjustedViewport = this.getSnappedViewport(sheetId);
     if (!position) {
       position = this.getters.getSheetPosition(sheetId);
@@ -403,10 +409,10 @@ export class ViewportPlugin extends UIPlugin {
       mainCellPosition.row
     );
     while (
-      cols[col].end > adjustedViewport.offsetX + this.viewportWidth &&
-      adjustedViewport.offsetX < cols[col].start
+      colsDisplayInfo[col].end > adjustedViewport.offsetX + this.viewportWidth &&
+      adjustedViewport.offsetX < colsDisplayInfo[col].start
     ) {
-      adjustedViewport.offsetX = cols[adjustedViewport.left].end;
+      adjustedViewport.offsetX = colsDisplayInfo[adjustedViewport.left].end;
       this.adjustViewportZoneX(sheetId, adjustedViewport);
     }
     while (col < adjustedViewport.left) {
@@ -414,14 +420,14 @@ export class ViewportPlugin extends UIPlugin {
         .slice(0, adjustedViewport.left)
         .reverse()
         .findIndex((col) => !col.isHidden);
-      adjustedViewport.offsetX = cols[adjustedViewport.left - 1 - step].start;
+      adjustedViewport.offsetX = colsDisplayInfo[adjustedViewport.left - 1 - step].start;
       this.adjustViewportZoneX(sheetId, adjustedViewport);
     }
     while (
-      rows[row].end > adjustedViewport.offsetY + this.viewportHeight &&
-      adjustedViewport.offsetY < rows[row].start
+      rowsDisplayInfo[row].end > adjustedViewport.offsetY + this.viewportHeight &&
+      adjustedViewport.offsetY < rowsDisplayInfo[row].start
     ) {
-      adjustedViewport.offsetY = rows[adjustedViewport.top].end;
+      adjustedViewport.offsetY = rowsDisplayInfo[adjustedViewport.top].end;
       this.adjustViewportZoneY(sheetId, adjustedViewport);
     }
     while (row < adjustedViewport.top) {
@@ -429,7 +435,7 @@ export class ViewportPlugin extends UIPlugin {
         .slice(0, adjustedViewport.top)
         .reverse()
         .findIndex((row) => !row.isHidden);
-      adjustedViewport.offsetY = rows[adjustedViewport.top - 1 - step].start;
+      adjustedViewport.offsetY = rowsDisplayInfo[adjustedViewport.top - 1 - step].start;
       this.adjustViewportZoneY(sheetId, adjustedViewport);
     }
     // cast the new snappedViewport in the standard viewport
@@ -442,7 +448,8 @@ export class ViewportPlugin extends UIPlugin {
   /** Will update the snapped viewport based on the "standard" viewport to ensure its
    * offsets match the start of the viewport left (resp. top) column (resp. row). */
   private snapViewportToCell(sheetId: UID) {
-    const { cols, rows } = this.getters.getSheet(sheetId);
+    const cols = this.getters.getColsInfo(sheetId);
+    const rows = this.getters.getRowsInfo(sheetId);
     const viewport = this.getViewport(sheetId);
     const adjustedViewport = Object.assign({}, viewport);
     this.adjustViewportOffsetX(sheetId, adjustedViewport);
@@ -469,9 +476,9 @@ export class ViewportPlugin extends UIPlugin {
   /**
    * Return the row at the viewport's top
    */
-  private getActiveTopRow(): Row {
+  private getActiveTopRow(): HeaderDisplayInfo {
     const { top } = this.getActiveSnappedViewport();
     const sheet = this.getters.getActiveSheet();
-    return this.getters.getRow(sheet.id, top)!;
+    return this.getters.getRowInfo(sheet.id, top)!;
   }
 }

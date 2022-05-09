@@ -385,21 +385,21 @@ describe("Autoresize", () => {
   test("Can autoresize a column", () => {
     setCellContent(model, "A1", "size0");
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
-    expect(model.getters.getCol(sheetId, 0)?.size).toBe(sizes[0] + padding);
+    expect(model.getters.getColInfo(sheetId, 0)?.size).toBe(sizes[0] + padding);
   });
 
   test("Can autoresize two columns", () => {
     setCellContent(model, "A1", "size0");
     setCellContent(model, "C1", "size1");
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0, 2] });
-    expect(model.getters.getCol(sheetId, 0)?.size).toBe(sizes[0] + padding);
-    expect(model.getters.getCol(sheetId, 2)?.size).toBe(sizes[1] + padding);
+    expect(model.getters.getColInfo(sheetId, 0)?.size).toBe(sizes[0] + padding);
+    expect(model.getters.getColInfo(sheetId, 2)?.size).toBe(sizes[1] + padding);
   });
 
   test("Can autoresize a row", () => {
     setCellContent(model, "A1", "test");
     model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
-    expect(model.getters.getRow(sheetId, 0)?.size).toBe(rowSize + padding);
+    expect(model.getters.getRowInfo(sheetId, 0)?.size).toBe(rowSize + padding);
   });
 
   test("Can autoresize two rows", () => {
@@ -407,27 +407,27 @@ describe("Autoresize", () => {
     setCellContent(model, "A3", "test");
     model.dispatch("SET_FORMATTING", { sheetId, target: [toZone("A3")], style: { fontSize: 24 } });
     model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0, 2] });
-    expect(model.getters.getRow(sheetId, 0)?.size).toBe(rowSize + padding);
-    expect(model.getters.getRow(sheetId, 2)?.size).toBe(fontSizeMap[24] + padding);
+    expect(model.getters.getRowInfo(sheetId, 0)?.size).toBe(rowSize + padding);
+    expect(model.getters.getRowInfo(sheetId, 2)?.size).toBe(fontSizeMap[24] + padding);
   });
 
   test("Can autoresize a column in another sheet", () => {
-    const initialSize = model.getters.getCol(sheetId, 0)?.size;
+    const initialSize = model.getters.getColInfo(sheetId, 0)?.size;
     const newSheetId = "42";
     createSheet(model, { sheetId: newSheetId });
     setCellContent(model, "A1", "size0", newSheetId);
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId: newSheetId, cols: [0] });
-    expect(model.getters.getCol(sheetId, 0)?.size).toBe(initialSize);
-    expect(model.getters.getCol(newSheetId, 0)?.size).toBe(sizes[0] + padding);
+    expect(model.getters.getColInfo(sheetId, 0)?.size).toBe(initialSize);
+    expect(model.getters.getColInfo(newSheetId, 0)?.size).toBe(sizes[0] + padding);
   });
 
   test("Can autoresize a row in another sheet", () => {
-    const initialSize = model.getters.getRow(sheetId, 0)?.size;
+    const initialSize = model.getters.getRowInfo(sheetId, 0)?.size;
     const newSheetId = "42";
     createSheet(model, { sheetId: newSheetId });
     setCellContent(model, "A1", "test", newSheetId);
     model.dispatch("AUTORESIZE_ROWS", { sheetId: newSheetId, rows: [0] });
-    expect(model.getters.getRow(sheetId, 0)?.size).toBe(initialSize);
-    expect(model.getters.getRow(newSheetId, 0)?.size).toBe(rowSize + padding);
+    expect(model.getters.getRowInfo(sheetId, 0)?.size).toBe(initialSize);
+    expect(model.getters.getRowInfo(newSheetId, 0)?.size).toBe(rowSize + padding);
   });
 });

@@ -68,7 +68,9 @@ export function dragAndDropBeyondTheViewport(
 
     if (edgeScrollInfoX.canEdgeScroll) {
       const { left, offsetY } = env.model.getters.getActiveSnappedViewport();
-      const { cols } = env.model.getters.getActiveSheet();
+      const sheetId = env.model.getters.getActiveSheetId();
+      const cols = env.model.getters.getColsInfo(sheetId);
+
       const offsetX = cols[left + edgeScrollInfoX.direction].start;
       env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
       timeOutId = setTimeout(() => {
@@ -79,7 +81,9 @@ export function dragAndDropBeyondTheViewport(
 
     if (edgeScrollInfoY.canEdgeScroll) {
       const { top, offsetX } = env.model.getters.getActiveSnappedViewport();
-      const { rows } = env.model.getters.getActiveSheet();
+      const sheetId = env.model.getters.getActiveSheetId();
+      const rows = env.model.getters.getRowsInfo(sheetId);
+
       const offsetY = rows[top + edgeScrollInfoY.direction].start;
       env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
       timeOutId = setTimeout(() => {

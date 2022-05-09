@@ -635,8 +635,8 @@ export class GridSelectionPlugin extends UIPlugin {
     for (const element of toRemove) {
       const size =
         cmd.dimension === "COL"
-          ? this.getters.getCol(cmd.sheetId, element)!.size
-          : this.getters.getRow(cmd.sheetId, element)!.size;
+          ? this.getters.getColInfo(cmd.sheetId, element)!.size
+          : this.getters.getRowInfo(cmd.sheetId, element)!.size;
       this.dispatch("RESIZE_COLUMNS_ROWS", {
         dimension: cmd.dimension,
         sheetId: cmd.sheetId,

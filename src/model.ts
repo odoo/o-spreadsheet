@@ -495,7 +495,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.dispatch("EVALUATE_ALL_SHEETS");
     let data = createEmptyExcelWorkbookData();
     for (let handler of this.handlers) {
-      if (handler instanceof CorePlugin) {
+      if (handler instanceof CorePlugin || handler instanceof UIPlugin) {
         handler.exportForExcel(data);
       }
     }
