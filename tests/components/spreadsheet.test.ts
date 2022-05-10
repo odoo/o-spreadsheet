@@ -1,6 +1,7 @@
 import { App } from "@odoo/owl";
 import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
+import { DEFAULT_CELL_HEIGHT } from "../../src/constants";
 import { args, functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
@@ -388,5 +389,26 @@ describe("Composer / selectionInput interactions", () => {
     await simulateClick(".o-figure");
     await clickCell(model, "D1");
     expect(model.getters.getSelectedZones()).toEqual([toZone("D1")]);
+  });
+
+  test("Selecting a range should not scroll the viewport to the current Grid selection", async () => {
+    const model = parent.model;
+    const startViewport = model.getters.getActiveSnappedViewport();
+    await typeInComposerTopBar("=");
+    // scroll
+    fixture
+      .querySelector(".o-grid")!
+      .dispatchEvent(new WheelEvent("wheel", { deltaY: 3 * DEFAULT_CELL_HEIGHT }));
+    await nextTick();
+    const scrolledViewport = model.getters.getActiveSnappedViewport();
+    expect(scrolledViewport).toMatchObject({
+      ...startViewport,
+      top: startViewport.top + 3,
+      bottom: startViewport.bottom + 3,
+      offsetY: 3 * DEFAULT_CELL_HEIGHT,
+    });
+    await clickCell(model, "E5");
+    expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject(scrolledViewport);
   });
 });
