@@ -854,8 +854,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const newZone = this.env.model.getters.getSelectedZone();
       const viewport = this.env.model.getters.getActiveSnappedViewport();
       const sheet = this.env.model.getters.getActiveSheet();
-      const [col, row] = findCellInNewZone(oldZone, newZone, viewport);
-
+      let [col, row] = findCellInNewZone(oldZone, newZone);
+      col = Math.min(col, sheet.cols.length - 1);
+      row = Math.min(row, sheet.rows.length - 1);
       const { left, right, top, bottom, offsetX, offsetY } = viewport;
       const newOffsetX =
         col < left || col > right - 1 ? sheet.cols[left + delta[0]].start : offsetX;
