@@ -9,6 +9,7 @@ import {
   CreateSheetCommand,
   DispatchResult,
   SortDirection,
+  Style,
   UID,
   UpDown,
 } from "../../src/types";
@@ -564,5 +565,18 @@ export function moveSheet(
   return model.dispatch("MOVE_SHEET", {
     sheetId,
     direction,
+  });
+}
+
+export function setStyle(
+  model: Model,
+  targetXc: string,
+  style: Style,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("SET_FORMATTING", {
+    sheetId: sheetId,
+    target: target(targetXc),
+    style: style,
   });
 }

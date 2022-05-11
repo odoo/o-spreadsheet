@@ -39,11 +39,11 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("chart", ChartPlugin);
 
 export const uiPluginRegistry = new Registry<UIPluginConstructor>()
+  .add("evaluation", EvaluationPlugin)
   .add("header_size", HeaderSizePlugin)
   .add("selection", GridSelectionPlugin)
   .add("ui_sheet", SheetUIPlugin)
   .add("ui_options", UIOptionsPlugin)
-  .add("evaluation", EvaluationPlugin)
   .add("evaluation_cf", EvaluationConditionalFormatPlugin)
   .add("evaluation_chart", EvaluationChartPlugin)
   .add("clipboard", ClipboardPlugin)

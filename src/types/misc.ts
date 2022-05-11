@@ -9,6 +9,7 @@ import { Format } from "./format";
 export type UID = string;
 export type SheetId = UID;
 
+export type XC = string;
 export interface Link {
   label: string;
   url: string;

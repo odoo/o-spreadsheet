@@ -328,10 +328,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * starting an async evaluation even if it has been moved or re-allocated
    */
   getCellById(cellId: UID): Cell | undefined {
-    for (const sheet of Object.values(this.cells)) {
-      if (sheet[cellId]) {
-        return sheet[cellId];
-      }
+    const { sheetId } = this.getters.getCellPosition(cellId);
+    if (this.cells[sheetId][cellId]) {
+      return this.cells[sheetId][cellId];
     }
     return undefined;
   }

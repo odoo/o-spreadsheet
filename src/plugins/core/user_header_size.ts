@@ -53,7 +53,7 @@ export class UserHeaderSizePlugin extends CorePlugin {
     dimension: Dimension,
     index: number
   ): number | undefined {
-    return this.headerSizes[sheetId][dimension][index];
+    return this.headerSizes[sheetId]?.[dimension]?.[index];
   }
 
   /** Get index of first header added by an ADD_COLUMNS_ROWS command */

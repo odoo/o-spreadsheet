@@ -1,4 +1,4 @@
-import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../src/constants";
+import { DEFAULT_CELL_HEIGHT, PADDING_AUTORESIZE } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
@@ -6,6 +6,7 @@ import { SheetUIPlugin } from "../../src/plugins/ui/ui_sheet";
 import { Cell, CommandResult, UID } from "../../src/types";
 import {
   createSheet,
+  resizeRows,
   selectCell,
   setAnchorCorner,
   setCellContent,
@@ -370,7 +371,6 @@ describe("Autoresize", () => {
   let sheetId: UID;
   const sizes = [10, 20];
   const padding = 2 * PADDING_AUTORESIZE;
-  const rowSize = fontSizeMap[DEFAULT_FONT_SIZE];
 
   beforeEach(() => {
     model = new Model();
@@ -397,17 +397,19 @@ describe("Autoresize", () => {
   });
 
   test("Can autoresize a row", () => {
+    resizeRows(model, [0], 30);
     setCellContent(model, "A1", "test");
     model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
-    expect(model.getters.getRowInfo(sheetId, 0)?.size).toBe(rowSize + padding);
+    expect(model.getters.getRowInfo(sheetId, 0)?.size).toBe(DEFAULT_CELL_HEIGHT);
   });
 
   test("Can autoresize two rows", () => {
+    resizeRows(model, [0, 2], 30);
     setCellContent(model, "A1", "test");
     setCellContent(model, "A3", "test");
     model.dispatch("SET_FORMATTING", { sheetId, target: [toZone("A3")], style: { fontSize: 24 } });
     model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0, 2] });
-    expect(model.getters.getRowInfo(sheetId, 0)?.size).toBe(rowSize + padding);
+    expect(model.getters.getRowInfo(sheetId, 0)?.size).toBe(DEFAULT_CELL_HEIGHT);
     expect(model.getters.getRowInfo(sheetId, 2)?.size).toBe(fontSizeMap[24] + padding);
   });
 
@@ -425,9 +427,10 @@ describe("Autoresize", () => {
     const initialSize = model.getters.getRowInfo(sheetId, 0)?.size;
     const newSheetId = "42";
     createSheet(model, { sheetId: newSheetId });
+    resizeRows(model, [0], 30, "42");
     setCellContent(model, "A1", "test", newSheetId);
     model.dispatch("AUTORESIZE_ROWS", { sheetId: newSheetId, rows: [0] });
     expect(model.getters.getRowInfo(sheetId, 0)?.size).toBe(initialSize);
-    expect(model.getters.getRowInfo(newSheetId, 0)?.size).toBe(rowSize + padding);
+    expect(model.getters.getRowInfo(newSheetId, 0)?.size).toBe(DEFAULT_CELL_HEIGHT);
   });
 });

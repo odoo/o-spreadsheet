@@ -4,19 +4,17 @@ import { ColResizer, RowResizer } from "../../src/components/headers_overlay/hea
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
-  DEFAULT_FONT_SIZE,
   HEADER_WIDTH,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
-  PADDING_AUTORESIZE,
 } from "../../src/constants";
-import { fontSizeMap } from "../../src/fonts";
 import { lettersToNumber, scrollDelay, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import {
   hideColumns,
   hideRows,
   redo,
+  resizeRows,
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
@@ -416,22 +414,26 @@ describe("Resizer component", () => {
   });
 
   test("Double click: Modify the size of a row", async () => {
+    resizeRows(model, [1], 30);
+    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 1)!.size).toBe(30);
     setCellContent(model, "B2", "b2");
     await dblClickRow(1);
-    const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2 * PADDING_AUTORESIZE;
-    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 1)!.size).toBe(size);
+    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 1)!.size).toBe(
+      DEFAULT_CELL_HEIGHT
+    );
   });
 
   test("Double click on rows then undo, then redo", async () => {
     fillData();
+    resizeRows(model, [0, 1, 2, 3, 4], 30);
     setCellContent(model, "C3", "C3");
     setCellContent(model, "C4", "C4");
     await selectRow(2);
     await selectRow(3, { ctrlKey: true });
     await dblClickRow(2);
     const sheet = model.getters.getActiveSheetId();
-    const initialSize = model.getters.getRowInfo(sheet, 0)!.size;
-    const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2 * PADDING_AUTORESIZE;
+    const initialSize = 30;
+    const size = DEFAULT_CELL_HEIGHT;
     expect(model.getters.getRowInfo(sheet, 1)!.size).toBe(initialSize);
     expect(model.getters.getRowInfo(sheet, 2)!.size).toBe(size);
     expect(model.getters.getRowInfo(sheet, 3)!.size).toBe(size);
@@ -585,26 +587,11 @@ describe("Resizer component", () => {
 
   test("Select 123 5, dblclick 5 then resize all", async () => {
     fillData();
+    resizeRows(model, [0, 1, 2, 3, 4, 5, 6], 30);
     await selectRow(0);
     await selectRow(2, { shiftKey: true });
     await selectRow(4, { ctrlKey: true });
     await dblClickRow(4);
-    const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2 * PADDING_AUTORESIZE;
-    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 0)!.size).toBe(size);
-    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 1)!.size).toBe(size);
-    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 2)!.size).toBe(size);
-    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 3)!.size).toBe(
-      DEFAULT_CELL_HEIGHT
-    );
-    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 4)!.size).toBe(size);
-  });
-
-  test("Select 123 5, dblclick 6 then resize only 6", async () => {
-    fillData();
-    await selectRow(0);
-    await selectRow(2, { shiftKey: true });
-    await selectRow(4, { ctrlKey: true });
-    await dblClickRow(5);
     expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 0)!.size).toBe(
       DEFAULT_CELL_HEIGHT
     );
@@ -614,14 +601,27 @@ describe("Resizer component", () => {
     expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 2)!.size).toBe(
       DEFAULT_CELL_HEIGHT
     );
-    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 3)!.size).toBe(
-      DEFAULT_CELL_HEIGHT
-    );
+    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 3)!.size).toBe(30);
     expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 4)!.size).toBe(
       DEFAULT_CELL_HEIGHT
     );
-    const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2 * PADDING_AUTORESIZE;
-    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 5)!.size).toBe(size);
+  });
+
+  test("Select 123 5, dblclick 6 then resize only 6", async () => {
+    fillData();
+    resizeRows(model, [0, 1, 2, 3, 4, 5, 6], 30);
+    await selectRow(0);
+    await selectRow(2, { shiftKey: true });
+    await selectRow(4, { ctrlKey: true });
+    await dblClickRow(5);
+    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 0)!.size).toBe(30);
+    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 1)!.size).toBe(30);
+    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 2)!.size).toBe(30);
+    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 3)!.size).toBe(30);
+    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 4)!.size).toBe(30);
+    expect(model.getters.getRowInfo(model.getters.getActiveSheetId(), 5)!.size).toBe(
+      DEFAULT_CELL_HEIGHT
+    );
   });
 
   test("Select A, drag to C then ABC selected", async () => {

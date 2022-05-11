@@ -21,20 +21,30 @@ import {
   invalidateEvaluationCommands,
   Range,
   ReferenceDenormalizer,
+  SheetId,
   UID,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
+import { XC } from "./../../types/misc";
 
 const functionMap = functionRegistry.mapping;
 
 type FormulaParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 
 export class EvaluationPlugin extends UIPlugin {
-  static getters = ["evaluateFormula", "getRangeFormattedValues", "getRangeValues"] as const;
+  static getters = [
+    "evaluateFormula",
+    "getRangeFormattedValues",
+    "getRangeValues",
+    "getModifiedCells",
+  ] as const;
   static modes: Mode[] = ["normal"];
 
-  private isUpToDate: Set<UID> = new Set(); // Set<sheetIds>
+  private isUpToDate: Set<SheetId> = new Set(); // Set<sheetIds>
   private readonly evalContext: EvalContext;
+
+  private previousEvaluation: Record<SheetId, Record<XC, string | number | boolean>> = {};
+  private modifiedCells: Record<SheetId, Set<UID>> = {};
 
   constructor(
     getters: Getters,
@@ -72,8 +82,10 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   finalize() {
+    this.modifiedCells = {};
     const sheetId = this.getters.getActiveSheetId();
     if (!this.isUpToDate.has(sheetId)) {
+      this.modifiedCells[sheetId] = new Set();
       this.evaluate(sheetId);
       this.isUpToDate.add(sheetId);
     }
@@ -114,6 +126,10 @@ export class EvaluationPlugin extends UIPlugin {
     return this.getters.getCellsInZone(sheet.id, range.zone).map((cell) => cell?.evaluated.value);
   }
 
+  getModifiedCells(sheetId: SheetId): Set<XC> {
+    return this.modifiedCells[sheetId] || new Set();
+  }
+
   // ---------------------------------------------------------------------------
   // Evaluator
   // ---------------------------------------------------------------------------
@@ -128,9 +144,18 @@ export class EvaluationPlugin extends UIPlugin {
       }
     }
 
+    const evaluationValues: Record<UID, string | number | boolean> = {};
+    if (!this.modifiedCells[sheetId]) {
+      this.modifiedCells[sheetId] = new Set();
+    }
     for (let cell of Object.values(cells)) {
       computeValue(cell, sheetId);
+      evaluationValues[cell.id] = cell.evaluated.value;
+      if (cell.evaluated.value !== this.previousEvaluation[sheetId]?.[cell.id]) {
+        this.modifiedCells[sheetId].add(cell.id);
+      }
     }
+    this.previousEvaluation[sheetId] = evaluationValues;
 
     function handleError(e: Error | any, cell: FormulaCell) {
       if (!(e instanceof Error)) {

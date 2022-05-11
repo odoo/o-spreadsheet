@@ -1,16 +1,38 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
+import { DEFAULT_CELL_WIDTH } from "../../constants";
+import { getDefaultCellHeight } from "../../helpers";
 import { Mode } from "../../model";
 import {
+  Cell,
   Command,
   Dimension,
   ExcelWorkbookData,
   HeaderDisplayInfo,
   RemoveColumnsRowsCommand,
+  Sheet,
   SheetId,
+  UID,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
+import { DEFAULT_CELL_HEIGHT } from "./../../constants";
 import { AddColumnsRowsCommand, ResizeColumnsRowsCommand } from "./../../types/commands";
 
+/**
+ * Notes :
+ * - undo/redo : j'aimerais avoir l'history, sinon c'est plus lent. Exemple : ctrl+a, delete. Undo, je dois
+ *    recalculer la taille de toutes les rows.
+ * - evaluation : vu que je sais pas quelles cellules ont été modifiées, dans le doute dès que j'ai eu un seul update cell,
+ *    je dois recalcuelr la taille d'absolument tout.
+ *
+ * Si je sais quelles cellules ont été updates, j'ai pas besoind e savoir la oldHeight je pense. Je peux :
+ *  - quand je calcule la taille d'une row, je mémorize la tallestCellInRow dans une array.
+ *  - quand on a une update cell, je mémorize quelles cellules ont été updates
+ *  - dans le finalize, j'ai juste à calucler la nouvelle taille de toutes les cellules qui ont été updates
+ *      - si la taille est > tallestInRow j'upadate la taille
+ *      - si la taille de tallestInRow est changée, c'est le seul cas où je dois calculer sur totue la row la nouvelle taille
+ *          - je pourrais maintenir un tableau avec la taille de toutes les cellules, ou bien mettre l'info dans les cellules direct maybe
+ *
+ *
+ */
 export class HeaderSizePlugin extends UIPlugin {
   static modes: Mode[] = ["normal"];
   static getters = [
@@ -20,9 +42,12 @@ export class HeaderSizePlugin extends UIPlugin {
     "getRowInfo",
     "getColsInfo",
     "getRowsInfo",
+    "getRowMaxHeight",
   ] as const;
 
   private readonly headerSizes: Record<SheetId, Record<Dimension, Array<HeaderDisplayInfo>>> = {};
+  private dirtyRows: Record<SheetId, Set<number>> = {};
+  private tallestCellInRow: Record<SheetId, Array<UID | undefined>> = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -46,14 +71,36 @@ export class HeaderSizePlugin extends UIPlugin {
         break;
       case "DELETE_SHEET":
         delete this.headerSizes[cmd.sheetId];
+        delete this.tallestCellInRow[cmd.sheetId];
         break;
       case "RESIZE_COLUMNS_ROWS":
         this.updateHeadersOnResize(cmd);
         break;
       case "REMOVE_COLUMNS_ROWS":
+        if (cmd.dimension === "ROW") {
+          for (let el of [...cmd.elements].sort().reverse()) {
+            delete this.tallestCellInRow[cmd.sheetId][el];
+          }
+        }
+        // Check if tallest cells in rows were removed
+        if (cmd.dimension === "COL") {
+          for (let row = 0; row < this.tallestCellInRow[cmd.sheetId].length; row++) {
+            const tallestCellId = this.tallestCellInRow[cmd.sheetId][row];
+            if (tallestCellId) {
+              const cell = this.getters.tryGetCellPosition(tallestCellId);
+              if (!cell) {
+                this.dirtyRows[cmd.sheetId].add(row);
+              }
+            }
+          }
+        }
+
         this.updateHeadersOnDeletion(cmd);
         break;
       case "ADD_COLUMNS_ROWS":
+        for (let i = cmd.base; i < cmd.quantity; i++) {
+          this.tallestCellInRow[cmd.sheetId].splice(i, 0, undefined);
+        }
         this.updateHeadersOnAddition(cmd);
         break;
       case "UNHIDE_COLUMNS_ROWS":
@@ -62,6 +109,80 @@ export class HeaderSizePlugin extends UIPlugin {
         this.headerSizes[cmd.sheetId][cmd.dimension] = headers;
         break;
       }
+      case "UPDATE_CELL":
+        if (!cmd.content || cmd.style?.fontSize) {
+          if (!this.dirtyRows[cmd.sheetId]) {
+            this.dirtyRows[cmd.sheetId] = new Set();
+          }
+          const cellId = this.getters.getCell(cmd.sheetId, cmd.col, cmd.row)?.id;
+          if (
+            cellId &&
+            cmd.content === "" &&
+            cellId === this.tallestCellInRow[cmd.sheetId][cmd.row]
+          ) {
+            this.dirtyRows[cmd.sheetId].add(cmd.row);
+          } else if (cmd.content || cmd.style?.fontSize) {
+            this.dirtyRows[cmd.sheetId].add(cmd.row);
+          }
+        }
+        break;
+      case "DELETE_CONTENT":
+        if (!this.dirtyRows[cmd.sheetId]) {
+          this.dirtyRows[cmd.sheetId] = new Set();
+        }
+
+        for (let target of cmd.target) {
+          for (let row = target.top; row <= target.bottom; row++) {
+            const tallestCellInRow = this.tallestCellInRow[cmd.sheetId][row];
+            if (tallestCellInRow) {
+              const tallestCellPosition = this.getters.getCellPosition(tallestCellInRow);
+              if (
+                tallestCellPosition.col >= target.left &&
+                tallestCellPosition.col < target.right
+              ) {
+                this.dirtyRows[cmd.sheetId].add(row);
+              }
+            } else {
+              this.dirtyRows[cmd.sheetId].add(row);
+            }
+          }
+        }
+        break;
+      case "ADD_MERGE":
+      case "REMOVE_MERGE":
+        if (!this.dirtyRows[cmd.sheetId]) {
+          this.dirtyRows[cmd.sheetId] = new Set();
+        }
+        for (let target of cmd.target) {
+          for (let row = target.top; row <= target.bottom; row++) {
+            this.dirtyRows[cmd.sheetId].add(row);
+          }
+        }
+        break;
+    }
+  }
+
+  finalize() {
+    for (let sheetId of this.getters.getSheetIds()) {
+      const modifiedRows: Set<number> = new Set(this.dirtyRows[sheetId]);
+      const modifiedCells = new Set([...this.getters.getModifiedCells(sheetId).values()]);
+      for (let id of modifiedCells) {
+        const { row } = this.getters.getCellPosition(id);
+        modifiedRows.add(row);
+      }
+
+      const newRowsDims = [...this.headerSizes[sheetId]["ROW"]];
+      for (let row of modifiedRows) {
+        if (!newRowsDims[row]) {
+          newRowsDims[row] = { size: 0, start: 0, end: 0 };
+        }
+        newRowsDims[row].size =
+          this.getters.getUserDefinedHeaderSize(sheetId, "ROW", row) ||
+          this.getRowMaxHeight(row, sheetId);
+      }
+      this.headerSizes[sheetId]["ROW"] = this.computeStartEnd(sheetId, "ROW", newRowsDims);
+
+      this.dirtyRows[sheetId] = new Set();
     }
   }
 
@@ -96,6 +217,34 @@ export class HeaderSizePlugin extends UIPlugin {
     return this.headerSizes[sheetId]["ROW"];
   }
 
+  /**
+   * Get the max height of a row based on its cells.
+   *
+   * The max height of the row correspond to the cell with the biggest font size that has a content,
+   * and that is not part of a multi-line merge.
+   */
+  getRowMaxHeight(row: number, sheetId: SheetId) {
+    const cells = this.getters.getRowCells(sheetId, row);
+    let maxHeight = 0,
+      tallestCell: Cell | undefined = undefined;
+    for (let i = 0; i < cells.length; i++) {
+      const { col, row } = this.getters.getCellPosition(cells[i].id);
+      const cellHeight = this.getCellHeight(sheetId, col, row);
+      if (cellHeight > maxHeight && cellHeight > DEFAULT_CELL_HEIGHT) {
+        maxHeight = cellHeight;
+        tallestCell = cells[i];
+      }
+    }
+
+    const rowMaxHeight = maxHeight > DEFAULT_CELL_HEIGHT ? maxHeight : DEFAULT_CELL_HEIGHT;
+    if (!this.tallestCellInRow[sheetId]) {
+      this.tallestCellInRow[sheetId] = [];
+    }
+    this.tallestCellInRow[sheetId][row] = tallestCell?.id;
+
+    return rowMaxHeight;
+  }
+
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
@@ -119,14 +268,25 @@ export class HeaderSizePlugin extends UIPlugin {
     }
     sizes.COL = this.computeStartEnd(sheetId, "COL", sizes.COL);
 
+    const rowHeights: number[] = [];
+    for (let i = 0; i < this.getters.getNumberRows(sheetId); i++) {
+      rowHeights[i] = this.getRowMaxHeight(i, sheetId);
+    }
+
     for (let i = 0; i < this.getters.getNumberRows(sheetId); i++) {
       sizes.ROW.push({
-        size: this.getHeaderSize(sheetId, "ROW", i),
+        size:
+          this.getters.getUserDefinedHeaderSize(sheetId, "ROW", i) ||
+          rowHeights[i] ||
+          // this.getRowMaxHeight(i, sheetId) ||
+          DEFAULT_CELL_HEIGHT,
         start: 0,
         end: 0,
       });
     }
+
     sizes.ROW = this.computeStartEnd(sheetId, "ROW", sizes.ROW);
+
     this.headerSizes[sheetId] = sizes;
   }
 
@@ -218,6 +378,65 @@ export class HeaderSizePlugin extends UIPlugin {
   private getAddHeaderStartIndex(position: "before" | "after", base: number): number {
     return position === "after" ? base + 1 : base;
   }
+
+  /**
+   * Change the size of a row to match the non-empty cell with the biggest font size.
+   *
+   * First compare the old cell height with the row size, to avoid fetching all the cells in the row, and then recompute
+   * the row height if it's needed.
+   *
+   * @param oldCellHeight cell height before the changes that caused adjustRowSizeWithCellFont to be called.
+   */
+  //@ts-ignore
+  private adjustRowSizeWithCellFont(
+    sheet: Sheet,
+    col: number,
+    row: number,
+    oldCellHeight: number = -1
+  ) {
+    const currentRowSize = this.getRowInfo(sheet.id, row).size;
+    const newCellHeight = this.getCellHeight(sheet.id, col, row);
+    if (newCellHeight === oldCellHeight) return;
+
+    // const wasTallestInRow = oldCellHeight > DEFAULT_CELL_HEIGHT && oldCellHeight === currentRowSize;
+    const wasTallestInRow = true;
+
+    let newRowHeight: number | undefined = undefined;
+    // The updated cell was the tallest in the row. Recompute the tallest cell in the row.
+    if (wasTallestInRow) {
+      newRowHeight = this.getRowMaxHeight(row, sheet.id);
+    }
+    // The updated cell wasn't the tallest in the row. Check if its new size is taller than the current row size.
+    else if (newCellHeight > currentRowSize) {
+      newRowHeight = newCellHeight;
+    }
+
+    if (newRowHeight !== undefined && newRowHeight !== currentRowSize) {
+      this.headerSizes[sheet.id]["ROW"][row].size = newRowHeight;
+      this.headerSizes[sheet.id]["ROW"] = this.computeStartEnd(
+        sheet.id,
+        "ROW",
+        this.headerSizes[sheet.id]["ROW"]
+      );
+    }
+  }
+
+  /**
+   * Return the height the cell should have in the sheet, which is either DEFAULT_CELL_HEIGHT if the cell is in a multi-row
+   * merge, or the height of the cell computed based on its content and font size.
+   */
+  private getCellHeight(sheetId: SheetId, col: number, row: number) {
+    const merge = this.getters.getMerge(sheetId, col, row);
+    if (merge && merge.bottom !== merge.top) {
+      return DEFAULT_CELL_HEIGHT;
+    }
+    const cell = this.getters.getCell(sheetId, col, row);
+    return getDefaultCellHeight(cell);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Excel export
+  // ---------------------------------------------------------------------------
 
   exportForExcel(data: ExcelWorkbookData) {
     for (let sheet of data.sheets) {
