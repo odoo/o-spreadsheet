@@ -11,7 +11,7 @@ import {
   SCROLLBAR_WIDTH,
   TOPBAR_HEIGHT,
 } from "./constants";
-import { toBoolean, toNumber, toString } from "./functions/helpers";
+import { toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
 import { LinkCell } from "./helpers/cells/index";
 import {
@@ -117,6 +117,7 @@ export const helpers = {
   toNumber,
   toString,
   toXC,
+  toJsDate,
   toZone,
   toCartesian,
   numberToLetters,
