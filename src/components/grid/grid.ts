@@ -350,7 +350,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       left: ${this.env.isDashboard() ? 0 : HEADER_WIDTH}px;`;
   }
 
-  get scrollbarsLength() {
+  get scrollbarLengths() {
     const sheetId = this.env.model.getters.getActiveSheet();
     const { height, width } = this.env.model.getters.getMaxViewportSize(sheetId);
     const zoom = this.env.model.getters.getAutoZoomFactor();
@@ -583,14 +583,16 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   onScroll() {
     const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
+    console.log(this.hScrollbar.scroll);
     if (offsetX !== this.hScrollbar.scroll || offsetY !== this.vScrollbar.scroll) {
       const { maxOffsetX, maxOffsetY } = this.env.model.getters.getMaximumViewportOffset(
         this.env.model.getters.getActiveSheet()
       );
-      this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
+      const res = this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
         offsetX: Math.min(this.hScrollbar.scroll, maxOffsetX),
         offsetY: Math.min(this.vScrollbar.scroll, maxOffsetY),
       });
+      console.log(res);
     }
   }
 
@@ -615,6 +617,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   drawGrid() {
     //reposition scrollbar
     const zoom = this.env.model.getters.getAutoZoomFactor();
+    console.log("zoom", zoom);
     const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
     this.hScrollbar.scroll = offsetX;
     this.vScrollbar.scroll = offsetY;

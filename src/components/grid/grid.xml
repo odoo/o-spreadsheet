@@ -101,14 +101,14 @@
         t-on-scroll="onScroll"
         t-ref="vscrollbar"
         t-att-style="vScrollbarStyle">
-        <div t-attf-style="width:1px;height:{{scrollbarsLength.vertical}}px"/>
+        <div t-attf-style="width:1px;height:{{scrollbarLengths.vertical}}px"/>
       </div>
       <div
         class="o-scrollbar horizontal"
         t-on-scroll="onScroll"
         t-ref="hscrollbar"
         t-att-style="hScrollbarStyle">
-        <div t-attf-style="height:1px;width:{{scrollbarsLength.horizontal}}px"/>
+        <div t-attf-style="height:1px;width:{{scrollbarLengths.horizontal}}px"/>
       </div>
     </div>
   </t>
