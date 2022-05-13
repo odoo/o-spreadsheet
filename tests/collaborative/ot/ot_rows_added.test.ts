@@ -11,7 +11,6 @@ import {
   RemoveMergeCommand,
   ResizeColumnsRowsCommand,
   SetBorderCommand,
-  SetDecimalCommand,
   SetFormattingCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
@@ -107,19 +106,13 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
     sheetId,
   };
 
-  const setDecimal: Omit<SetDecimalCommand, "target"> = {
-    type: "SET_DECIMAL",
-    sheetId,
-    step: 1,
-  };
-
   const addConditionalFormat: Omit<AddConditionalFormatCommand, "target"> = {
     type: "ADD_CONDITIONAL_FORMAT",
     sheetId,
     cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
   };
 
-  describe.each([deleteContent, setFormatting, clearFormatting, setDecimal, addConditionalFormat])(
+  describe.each([deleteContent, setFormatting, clearFormatting, addConditionalFormat])(
     "target commands",
     (cmd) => {
       test(`add rows before ${cmd.type}`, () => {
