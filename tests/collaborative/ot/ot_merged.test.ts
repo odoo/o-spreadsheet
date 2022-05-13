@@ -7,7 +7,6 @@ import {
   DeleteContentCommand,
   RemoveMergeCommand,
   SetBorderCommand,
-  SetDecimalCommand,
   SetFormattingCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
@@ -85,22 +84,13 @@ describe("OT with ADD_MERGE", () => {
     sheetId,
   };
 
-  const setDecimal: Omit<SetDecimalCommand, "target"> = {
-    type: "SET_DECIMAL",
-    sheetId,
-    step: 1,
-  };
-
-  describe.each([deleteContent, setFormatting, clearFormatting, setDecimal])(
-    "target commands",
-    (cmd) => {
-      test(`${cmd.type} outside merge`, () => {
-        const command = { ...cmd, target: [toZone("E1:F2")] };
-        const result = transform(command, addMerge);
-        expect(result).toEqual(command);
-      });
-    }
-  );
+  describe.each([deleteContent, setFormatting, clearFormatting])("target commands", (cmd) => {
+    test(`${cmd.type} outside merge`, () => {
+      const command = { ...cmd, target: [toZone("E1:F2")] };
+      const result = transform(command, addMerge);
+      expect(result).toEqual(command);
+    });
+  });
 
   const removeMerge: Omit<RemoveMergeCommand, "target"> = {
     type: "REMOVE_MERGE",

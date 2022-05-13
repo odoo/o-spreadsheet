@@ -15,7 +15,6 @@ import {
   RemoveMergeCommand,
   ResizeColumnsRowsCommand,
   SetBorderCommand,
-  SetDecimalCommand,
   SetFormattingCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
@@ -292,12 +291,6 @@ describe("Inverses commands", () => {
       col: 1,
       row: 1,
     };
-    const setDecimal: SetDecimalCommand = {
-      type: "SET_DECIMAL",
-      sheetId: "1",
-      target: [toZone("A1")],
-      step: 2,
-    };
     const updateChart: UpdateChartCommand = {
       type: "UPDATE_CHART",
       sheetId: "42",
@@ -315,7 +308,6 @@ describe("Inverses commands", () => {
       setFormatting,
       clearFormatting,
       setBorder,
-      setDecimal,
       updateChart,
     ])("The inverse is the identity", (cmd: CoreCommand) => {
       expect(inverseCommand(cmd)).toEqual([cmd]);
