@@ -1,15 +1,6 @@
-import { DATETIME_FORMAT, NULL_FORMAT } from "../../constants";
+import { NULL_FORMAT } from "../../constants";
 import { cellFactory } from "../../helpers/cells/cell_factory";
-import {
-  changeDecimalPlaces,
-  concat,
-  createDefaultFormat,
-  getItemId,
-  isInside,
-  range,
-  toCartesian,
-  toXC,
-} from "../../helpers/index";
+import { concat, getItemId, isInside, range, toCartesian, toXC } from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -107,9 +98,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           this.setFormatter(cmd.sheetId, cmd.target, cmd.format);
         }
         break;
-      case "SET_DECIMAL":
-        this.setDecimal(cmd.sheetId, cmd.target, cmd.step);
-        break;
       case "CLEAR_FORMATTING":
         this.clearStyles(cmd.sheetId, cmd.target);
         break;
@@ -153,51 +141,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
       }
     }
-  }
-
-  /**
-   * This function allows to adjust the quantity of decimal places after a decimal
-   * point on cells containing number value. It does this by changing the cells
-   * format. Values aren't modified.
-   *
-   * The change of the decimal quantity is done one by one, the sign of the step
-   * variable indicates whether we are increasing or decreasing.
-   *
-   * If several cells are in the zone, the format resulting from the change of the
-   * first cell (with number type) will be applied to the whole zone.
-   */
-  private setDecimal(sheetId: UID, zones: Zone[], step: number) {
-    // Find the first cell with a number value and get the format
-    const numberFormat = this.searchNumberFormat(sheetId, zones);
-    if (numberFormat !== undefined) {
-      // Depending on the step sign, increase or decrease the decimal representation
-      // of the format
-      const newFormat = changeDecimalPlaces(numberFormat, step);
-      // Apply the new format on the whole zone
-      this.setFormatter(sheetId, zones, newFormat!);
-    }
-  }
-
-  /**
-   * Take a range of cells and return the format of the first cell containing a
-   * number value. Returns a default format if the cell hasn't format. Returns
-   * undefined if no number value in the range.
-   */
-  private searchNumberFormat(sheetId: UID, zones: Zone[]): Format | undefined {
-    for (let zone of zones) {
-      for (let row = zone.top; row <= zone.bottom; row++) {
-        for (let col = zone.left; col <= zone.right; col++) {
-          const cell = this.getters.getCell(sheetId, col, row);
-          if (
-            cell?.evaluated.type === CellValueType.number &&
-            !cell.format?.match(DATETIME_FORMAT) // reject dates
-          ) {
-            return cell.format || createDefaultFormat(cell.evaluated.value);
-          }
-        }
-      }
-    }
-    return undefined;
   }
 
   /**

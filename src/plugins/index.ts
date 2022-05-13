@@ -15,6 +15,7 @@ import { EvaluationPlugin } from "./ui/evaluation";
 import { EvaluationChartPlugin } from "./ui/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "./ui/evaluation_conditional_format";
 import { FindAndReplacePlugin } from "./ui/find_and_replace";
+import { FormatPlugin } from "./ui/format";
 import { HighlightPlugin } from "./ui/highlight";
 import { RendererPlugin } from "./ui/renderer";
 import { GridSelectionPlugin } from "./ui/selection";
@@ -52,4 +53,5 @@ export const uiPluginRegistry = new Registry<UIPluginConstructor>()
   .add("find_and_replace", FindAndReplacePlugin)
   .add("sort", SortPlugin)
   .add("automatic_sum", AutomaticSumPlugin)
+  .add("format", FormatPlugin)
   .add("selection_multiuser", SelectionMultiUserPlugin);
