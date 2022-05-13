@@ -307,6 +307,7 @@ export class ViewportPlugin extends UIPlugin {
     this.getActiveViewport();
     this.viewports[sheetId].offsetX = offsetX;
     this.viewports[sheetId].offsetY = offsetY;
+    console.log("coucou", this.viewports[sheetId].offsetX);
     this.adjustViewportZone(sheetId, this.viewports[sheetId]);
   }
 

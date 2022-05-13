@@ -125,7 +125,10 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   getDims(info: FigureInfo) {
     const { figure, isSelected } = info;
     const borders = 2 * (isSelected ? ACTIVE_BORDER_WIDTH : BORDER_WIDTH);
-    const { width, height } = isSelected && this.dnd.figureId ? this.dnd : figure;
+    let { width, height } = isSelected && this.dnd.figureId ? this.dnd : figure;
+    const zoom = this.env.model.getters.getAutoZoomFactor();
+    width *= zoom;
+    height *= zoom;
     return `width:${width + borders}px;height:${height + borders}px`;
   }
 
@@ -133,10 +136,14 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     const { figure, isSelected } = info;
     const { offsetX, offsetY } = this.env.model.getters.getActiveSnappedViewport();
     const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
-    const { width, height } = target;
+    let { width, height } = target;
     let x = target.x - offsetX - 1;
     let y = target.y - offsetY - 1;
-
+    const zoom = this.env.model.getters.getAutoZoomFactor();
+    width *= zoom;
+    height *= zoom;
+    x *= zoom;
+    y *= zoom;
     if (width < 0 || height < 0) {
       return `position:absolute;display:none;`;
     }

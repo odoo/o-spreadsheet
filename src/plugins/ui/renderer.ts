@@ -16,7 +16,7 @@ import {
   TEXT_HEADER_COLOR,
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { overlap, scrollDelay } from "../../helpers/index";
+import { overlap, range, scrollDelay } from "../../helpers/index";
 import {
   Align,
   Box,
@@ -38,6 +38,8 @@ import { UIPlugin } from "../ui_plugin";
 // -----------------------------------------------------------------------------
 // Constants, types, helpers, ...
 // -----------------------------------------------------------------------------
+
+const MAX_VIEWPORT_ZOOM = 1.2;
 
 function searchIndex(headers: Header[], offset: number): number {
   let left = 0;
@@ -67,6 +69,7 @@ export class RendererPlugin extends UIPlugin {
     "isVisibleInViewport",
     "getEdgeScrollCol",
     "getEdgeScrollRow",
+    "getAutoZoomFactor",
   ] as const;
 
   private boxes: Box[] = [];
@@ -153,6 +156,23 @@ export class RendererPlugin extends UIPlugin {
       delay = scrollDelay(y - height);
     }
     return { canEdgeScroll, direction, delay };
+  }
+
+  getAutoZoomFactor(): number {
+    if (!this.getters.isDashboard()) return 1;
+    const sheetId = this.getters.getActiveSheetId();
+    const numberOfCols = this.getters.getNumberCols(sheetId);
+    const colIndices = range(numberOfCols - 1, 0, -1);
+    const mostRightCol = colIndices.find((colIndex) => {
+      const cells = this.getters.getColCells(sheetId, colIndex);
+      return cells.some((cell) => !cell.isEmpty());
+    });
+    if (mostRightCol === undefined) return 1;
+    const { width } = this.getters.getViewportDimension();
+    const colEnd = this.getters.getCol(sheetId, mostRightCol).end;
+    const figures = this.getters.getFigures(sheetId).map((figure) => figure.x + figure.width);
+    const lastContentPosition = Math.max(colEnd, ...figures);
+    return Math.max(1, Math.min(width / lastContentPosition, MAX_VIEWPORT_ZOOM));
   }
 
   // ---------------------------------------------------------------------------

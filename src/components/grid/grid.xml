@@ -96,23 +96,19 @@
         position="menuState.position"
         onClose="() => this.closeMenu()"
       />
-      <t
-        t-set="gridSize"
-        t-value="env.model.getters.getMaxViewportSize(env.model.getters.getActiveSheet())"
-      />
       <div
         class="o-scrollbar vertical"
         t-on-scroll="onScroll"
         t-ref="vscrollbar"
         t-att-style="vScrollbarStyle">
-        <div t-attf-style="width:1px;height:{{gridSize.height}}px"/>
+        <div t-attf-style="width:1px;height:{{scrollbarsLength.vertical}}px"/>
       </div>
       <div
         class="o-scrollbar horizontal"
         t-on-scroll="onScroll"
         t-ref="hscrollbar"
         t-att-style="hScrollbarStyle">
-        <div t-attf-style="height:1px;width:{{gridSize.width}}px"/>
+        <div t-attf-style="height:1px;width:{{scrollbarsLength.horizontal}}px"/>
       </div>
     </div>
   </t>

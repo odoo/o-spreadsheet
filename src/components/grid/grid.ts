@@ -296,8 +296,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.gridOverlay = useRef("gridOverlay");
     this.canvas = useRef("canvas");
     this.canvasPosition = useAbsolutePosition(this.canvas);
-    this.vScrollbar = new ScrollBar(this.vScrollbarRef.el, "vertical");
-    this.hScrollbar = new ScrollBar(this.hScrollbarRef.el, "horizontal");
+    // TODO do it better
+    this.vScrollbar = new ScrollBar(this.vScrollbarRef.el, "vertical", () =>
+      this.env.model.getters.getAutoZoomFactor()
+    );
+    this.hScrollbar = new ScrollBar(this.hScrollbarRef.el, "horizontal", () =>
+      this.env.model.getters.getAutoZoomFactor()
+    );
     this.currentSheet = this.env.model.getters.getActiveSheetId();
     this.clickedCol = 0;
     this.clickedRow = 0;
@@ -343,6 +348,16 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   get hScrollbarStyle() {
     return `
       left: ${this.env.isDashboard() ? 0 : HEADER_WIDTH}px;`;
+  }
+
+  get scrollbarsLength() {
+    const sheetId = this.env.model.getters.getActiveSheet();
+    const { height, width } = this.env.model.getters.getMaxViewportSize(sheetId);
+    const zoom = this.env.model.getters.getAutoZoomFactor();
+    return {
+      vertical: height * zoom,
+      horizontal: width * zoom,
+    };
   }
 
   get errorTooltip() {
@@ -599,6 +614,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   drawGrid() {
     //reposition scrollbar
+    const zoom = this.env.model.getters.getAutoZoomFactor();
     const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
     this.hScrollbar.scroll = offsetX;
     this.vScrollbar.scroll = offsetY;
@@ -622,7 +638,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     canvas.height = height * dpr;
     canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
     ctx.translate(-0.5, -0.5);
-    ctx.scale(dpr, dpr);
+    ctx.scale(dpr * zoom, dpr * zoom);
     this.env.model.drawGrid(renderingContext);
   }
 
