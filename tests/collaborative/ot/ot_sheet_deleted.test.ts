@@ -19,7 +19,6 @@ import {
   RenameSheetCommand,
   ResizeColumnsRowsCommand,
   SetBorderCommand,
-  SetDecimalCommand,
   SetFormattingCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
@@ -97,11 +96,6 @@ describe("OT with DELETE_SHEET", () => {
     row: 0,
     border: undefined,
   };
-  const setDecimal: Omit<SetDecimalCommand, "sheetId"> = {
-    type: "SET_DECIMAL",
-    target: [toZone("A1")],
-    step: 3,
-  };
   const createChart: Omit<CreateChartCommand, "sheetId"> = {
     type: "CREATE_CHART",
     id: "1",
@@ -145,7 +139,6 @@ describe("OT with DELETE_SHEET", () => {
     setFormatting,
     clearFormatting,
     setBorder,
-    setDecimal,
     createChart,
     resizeColumns,
     resizeRows,
