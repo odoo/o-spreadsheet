@@ -8,7 +8,13 @@
       flipHorizontalOffset="popover.flipHorizontalOffset"
       flipVerticalOffset="popover.flipVerticalOffset"
       marginTop="popover.marginTop">
-      <div t-ref="menu" class="o-menu" t-on-scroll="onScroll" t-on-wheel.stop="" t-on-click.stop="">
+      <div
+        t-ref="menu"
+        class="o-menu"
+        t-on-scroll="onScroll"
+        t-on-wheel.stop=""
+        t-on-click.stop=""
+        t-on-contextmenu.prevent="">
         <t t-foreach="props.menuItems" t-as="menuItem" t-key="menuItem.id">
           <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
           <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>
