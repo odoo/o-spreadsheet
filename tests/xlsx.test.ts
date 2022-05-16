@@ -828,6 +828,21 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
+    test("Chart legend is set to none position", async () => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          dataSets: ["Sheet1!B2:B5", "Sheet1!C2:C5"],
+          labelRange: "Sheet1!A2:A5",
+          type: "bar",
+          legendPosition: "none",
+        },
+        "1"
+      );
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
     test("Export chart overflowing outside the sheet", async () => {
       const model = new Model(chartData);
       createChart(

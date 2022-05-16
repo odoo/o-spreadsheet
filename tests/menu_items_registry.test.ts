@@ -954,7 +954,7 @@ describe("Menu Item actions", () => {
           dataSets: ["A1"],
           dataSetsHaveTitle: false,
           labelRange: undefined,
-          legendPosition: "top",
+          legendPosition: "none",
           stackedBar: false,
           title: "",
           type: "bar",
@@ -1052,6 +1052,25 @@ describe("Menu Item actions", () => {
       payload.definition.dataSets = ["B1:B5"];
       payload.definition.labelRange = "A2:A5";
       payload.definition.dataSetsHaveTitle = true;
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    });
+    test("[Case 1] Chart is inserted with proper legend position", () => {
+      setSelection(model, ["A1:B5"]);
+      doAction(["insert", "insert_chart"], env);
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["B1:B5"];
+      payload.definition.labelRange = "A2:A5";
+      payload.definition.dataSetsHaveTitle = true;
+      payload.definition.legendPosition = "none";
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    });
+    test("[Case 2] Chart is inserted with proper legend position", () => {
+      setSelection(model, ["F1:I5"]);
+      doAction(["insert", "insert_chart"], env);
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["G1:I5"];
+      payload.definition.labelRange = "F1:F5";
+      payload.definition.legendPosition = "top";
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
   });

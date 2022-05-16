@@ -204,7 +204,7 @@ function getPieConfiguration(chart: PieChart, labels: string[]): ChartConfigurat
   const legend: ChartLegendOptions = {
     labels: { fontColor },
   };
-  if (!chart.labelRange && chart.dataSets.length === 1) {
+  if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
     legend.display = false;
   } else {
     legend.position = chart.legendPosition;

@@ -21,7 +21,7 @@ import {
   undo,
   updateChart,
 } from "../../test_helpers/commands_helpers";
-import { target } from "../../test_helpers/helpers";
+import { nextTick, target } from "../../test_helpers/helpers";
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
 let model: Model;
@@ -1527,4 +1527,23 @@ describe("Chart evaluation", () => {
       (model.getters.getChartRuntime("1") as BarChartRuntime).data!.datasets![0]!.data![0]
     ).toBe("#REF");
   });
+});
+test("creating chart with single dataset should have legend position set as none, followed by changing it to top", async () => {
+  createChart(
+    model,
+    {
+      dataSets: ["D5:D10", "E5:E10"],
+      type: "bar",
+    },
+    "24"
+  );
+  await nextTick();
+  expect(
+    (model.getters.getChartRuntime("24") as BarChartRuntime).options?.legend?.display
+  ).toBeFalsy();
+  updateChart(model, "24", { legendPosition: "top" });
+  await nextTick();
+  expect((model.getters.getChartRuntime("24") as BarChartRuntime).options?.legend?.position).toBe(
+    "top"
+  );
 });
