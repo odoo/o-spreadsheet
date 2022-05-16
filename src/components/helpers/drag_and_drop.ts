@@ -54,22 +54,25 @@ export function dragAndDropBeyondTheViewport(
     if (edgeScrollInfoX.canEdgeScroll) {
       colIndex = edgeScrollInfoX.direction > 0 ? right : left - 1;
     } else {
-      colIndex = env.model.getters.getColIndex(offsetX - HEADER_WIDTH, left);
+      colIndex = env.model.getters.getColIndex(offsetX - HEADER_WIDTH);
     }
 
     let rowIndex: number;
     if (edgeScrollInfoY.canEdgeScroll) {
       rowIndex = edgeScrollInfoY.direction > 0 ? bottom : top - 1;
     } else {
-      rowIndex = env.model.getters.getRowIndex(offsetY - HEADER_HEIGHT, top);
+      rowIndex = env.model.getters.getRowIndex(offsetY - HEADER_HEIGHT);
     }
 
     cbMouseMove(colIndex, rowIndex);
 
+    const sheetId = env.model.getters.getActiveSheetId();
     if (edgeScrollInfoX.canEdgeScroll) {
       const { left, offsetY } = env.model.getters.getActiveSnappedViewport();
-      const { cols } = env.model.getters.getActiveSheet();
-      const offsetX = cols[left + edgeScrollInfoX.direction].start;
+      const offsetX = env.model.getters.getColDimensions(
+        sheetId,
+        left + edgeScrollInfoX.direction
+      ).start;
       env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
       timeOutId = setTimeout(() => {
         timeOutId = null;
@@ -79,8 +82,10 @@ export function dragAndDropBeyondTheViewport(
 
     if (edgeScrollInfoY.canEdgeScroll) {
       const { top, offsetX } = env.model.getters.getActiveSnappedViewport();
-      const { rows } = env.model.getters.getActiveSheet();
-      const offsetY = rows[top + edgeScrollInfoY.direction].start;
+      const offsetY = env.model.getters.getRowDimensions(
+        sheetId,
+        top + edgeScrollInfoY.direction
+      ).start;
       env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
       timeOutId = setTimeout(() => {
         timeOutId = null;

@@ -458,21 +458,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   private setHeaderSize(sheet: Sheet, dimension: "cols" | "rows", index: number, size: number) {
-    let start: number, end: number;
-    const elements = sheet[dimension];
-    const base = elements[index];
-    const delta = size - base.size;
     this.history.update("sheets", sheet.id, dimension, index, "size", size);
-    if (!base.isHidden)
-      this.history.update("sheets", sheet.id, dimension, index, "end", base.end + delta);
-    start = base.end;
-    for (let i = index + 1; i < elements.length; i++) {
-      const element = elements[i];
-      end = element.isHidden ? start : start + element.size;
-      this.history.update("sheets", sheet.id, dimension, i, "start", start);
-      this.history.update("sheets", sheet.id, dimension, i, "end", end);
-      start = end;
-    }
   }
 
   private updateCellPosition(cmd: UpdateCellPositionCommand) {
@@ -883,29 +869,23 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   /**
    * Update the cols of the sheet after a deletion:
    * - Rename the cols
-   * - Update start-end
    *
    * @param sheet Sheet on which the deletion occurs
    * @param deletedColumns Indexes of the deleted columns
    */
   private updateColumnsStructureOnDeletion(sheet: Sheet, deletedColumns: number[]) {
     const cols: Col[] = [];
-    let start = 0;
     let colSizeIndex = 0;
     for (let index in sheet.cols) {
       if (deletedColumns.includes(parseInt(index, 10))) {
         continue;
       }
       const { size, isHidden } = sheet.cols[index];
-      const end = isHidden ? start : start + size;
       cols.push({
         name: numberToLetters(colSizeIndex),
         size,
-        start,
-        end,
         isHidden,
       });
-      start = end;
       colSizeIndex++;
     }
     this.history.update("sheets", sheet.id, "cols", cols);
@@ -915,7 +895,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   /**
    * Update the cols of the sheet after an addition:
    * - Rename the cols
-   * - Update start-end
    *
    * @param sheet Sheet on which the deletion occurs
    * @param addedColumn Index of the added columns
@@ -927,7 +906,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     columnsToAdd: number
   ) {
     const cols: Col[] = [];
-    let start = 0;
     let colIndex = 0;
     for (let i in sheet.cols) {
       if (parseInt(i, 10) === addedColumn) {
@@ -936,23 +914,16 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           cols.push({
             name: numberToLetters(colIndex),
             size,
-            start,
-            end: start + size,
           });
-          start += size;
           colIndex++;
         }
       }
       const { size, isHidden } = sheet.cols[i];
-      const end = isHidden ? start : start + size;
       cols.push({
         name: numberToLetters(colIndex),
         size,
-        start,
-        end,
         isHidden,
       });
-      start = end;
       colIndex++;
     }
     this.history.update("sheets", sheet.id, "cols", cols);
@@ -961,26 +932,21 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private updateRowsStructureOnDeletion(index: number, sheet: Sheet) {
     const rows: Row[] = [];
-    let start = 0;
     let rowIndex = 0;
     const cellsQueue = sheet.rows.map((row) => row.cells);
     for (let i in sheet.rows) {
       const row = sheet.rows[i];
       const { size, isHidden } = row;
-      const end = isHidden ? start : start + size;
       if (parseInt(i, 10) === index) {
         continue;
       }
       rowIndex++;
       rows.push({
-        start,
-        end,
         size,
         cells: cellsQueue.shift()!,
         name: String(rowIndex),
         isHidden,
       });
-      start = end;
     }
     this.history.update("sheets", sheet.id, "rows", rows);
     this.updateHiddenElementsGroups(sheet.id, "rows");
@@ -989,7 +955,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   /**
    * Update the rows of the sheet after an addition:
    * - Rename the rows
-   * - Update start-end
    *
    * @param sheet Sheet on which the deletion occurs
    * @param addedRow Index of the added row
@@ -997,26 +962,21 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    */
   private updateRowsStructureOnAddition(sheet: Sheet, addedRow: number, rowsToAdd: number) {
     const rows: Row[] = [];
-    let start = 0;
     let rowIndex = 0;
     let sizeIndex = 0;
     const cellsQueue = sheet.rows.map((row) => row.cells);
     for (let i in sheet.rows) {
       const { size, isHidden } = sheet.rows[sizeIndex];
-      const end = isHidden ? start : start + size;
       if (parseInt(i, 10) < addedRow || parseInt(i, 10) >= addedRow + rowsToAdd) {
         sizeIndex++;
       }
       rowIndex++;
       rows.push({
-        start,
-        end,
         size,
         cells: cellsQueue.shift()!,
         name: String(rowIndex),
         isHidden,
       });
-      start = end;
     }
     this.history.update("sheets", sheet.id, "rows", rows);
     this.updateHiddenElementsGroups(sheet.id, "rows");
@@ -1029,12 +989,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * @param quantity Number of rows to add
    */
   private addEmptyRows(sheet: Sheet, quantity: number) {
-    const lastEnd = sheet.rows[sheet.rows.length - 1].end;
     const rows: Row[] = sheet.rows.slice();
     for (let i = 0; i < quantity; i++) {
       rows.push({
-        start: lastEnd,
-        end: lastEnd,
         size: 0,
         name: (rows.length + 1).toString(),
         cells: {},
@@ -1065,16 +1022,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     direction: "cols" | "rows",
     visibility: "hide" | "show"
   ) {
-    let start = 0;
     const hide = visibility === "hide";
     for (let index = 0; index < sheet[direction].length; index++) {
-      const { size, isHidden } = sheet[direction][index];
+      const { isHidden } = sheet[direction][index];
       const newIsHidden: boolean = elements.includes(index) ? hide : isHidden || false;
-      const end = newIsHidden ? start : start + size;
-      this.history.update("sheets", sheet.id, direction, index, "start", start);
-      this.history.update("sheets", sheet.id, direction, index, "end", end);
       this.history.update("sheets", sheet.id, direction, index, "isHidden", newIsHidden);
-      start = end;
     }
     this.updateHiddenElementsGroups(sheet.id, direction);
   }

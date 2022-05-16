@@ -137,9 +137,13 @@ export interface ClipboardCell {
   position: CellPosition;
 }
 
-export interface Header {
+export interface HeaderDimensions {
   start: number;
+  size: number;
   end: number;
+}
+
+export interface Header {
   name: string;
   size: number;
   isHidden?: boolean;

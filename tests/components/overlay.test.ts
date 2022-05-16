@@ -47,7 +47,7 @@ function fillData() {
  */
 async function selectColumn(letter: string, extra: any = {}) {
   const index = lettersToNumber(letter);
-  const x = model.getters.getCol(model.getters.getActiveSheetId(), index)!.start + 1;
+  const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
   await nextTick();
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10, extra);
@@ -60,7 +60,7 @@ async function selectColumn(letter: string, extra: any = {}) {
  */
 async function resizeColumn(letter: string, delta: number) {
   const index = lettersToNumber(letter);
-  const x = model.getters.getCol(model.getters.getActiveSheetId(), index)!.start + 1;
+  const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
   await nextTick();
   triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "mousedown", x, 10);
@@ -75,10 +75,10 @@ async function resizeColumn(letter: string, delta: number) {
  */
 async function dragColumn(startLetter: string, endLetter: string) {
   let index = lettersToNumber(startLetter);
-  let x = model.getters.getCol(model.getters.getActiveSheetId(), index)!.start + 1;
+  let x = model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10);
   index = lettersToNumber(endLetter);
-  x = model.getters.getCol(model.getters.getActiveSheetId(), index)!.start + 1;
+  x = model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
   triggerMouseEvent(window, "mousemove", x, 10, { buttons: 1 });
   await nextTick();
   triggerMouseEvent(window, "mouseup", x, 10);
@@ -89,7 +89,7 @@ async function dragColumn(startLetter: string, endLetter: string) {
  */
 async function dblClickColumn(letter: string) {
   const index = lettersToNumber(letter);
-  const x = model.getters.getCol(model.getters.getActiveSheetId(), index)!.end;
+  const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.end;
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
   await nextTick();
   triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "dblclick", x, 10);
@@ -100,7 +100,7 @@ async function dblClickColumn(letter: string) {
  * @param extra shiftKey, ctrlKey
  */
 async function selectRow(index: number, extra: any = {}) {
-  const y = model.getters.getRow(model.getters.getActiveSheetId(), index)!.start + 1;
+  const y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
   triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
   await nextTick();
   triggerMouseEvent(".o-overlay .o-row-resizer", "mousedown", 10, y, extra);
@@ -112,7 +112,7 @@ async function selectRow(index: number, extra: any = {}) {
  * @param delta Size to add (or remove if delta < 0)
  */
 async function resizeRow(index: number, delta: number) {
-  const y = model.getters.getRow(model.getters.getActiveSheetId(), index)!.start + 1;
+  const y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
   triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
   await nextTick();
   triggerMouseEvent(".o-overlay .o-row-resizer .o-handle", "mousedown", 10, y);
@@ -126,9 +126,9 @@ async function resizeRow(index: number, delta: number) {
  * @param endIndex Name of the column where the movement will end
  */
 async function dragRow(startIndex: number, endIndex: number) {
-  let y = model.getters.getRow(model.getters.getActiveSheetId(), startIndex)!.start + 1;
+  let y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), startIndex)!.start + 1;
   triggerMouseEvent(".o-overlay .o-row-resizer", "mousedown", 10, y);
-  y = model.getters.getRow(model.getters.getActiveSheetId(), endIndex)!.start + 1;
+  y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), endIndex)!.start + 1;
   triggerMouseEvent(window, "mousemove", 10, y, { buttons: 1 });
   await nextTick();
   triggerMouseEvent(window, "mouseup", 10, y);
@@ -138,7 +138,7 @@ async function dragRow(startIndex: number, endIndex: number) {
  * @param letter Number of the row to double click on (Starts at 0)
  */
 async function dblClickRow(index: number) {
-  const y = model.getters.getRow(model.getters.getActiveSheetId(), index)!.end;
+  const y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), index)!.end;
   triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
   await nextTick();
 
@@ -174,7 +174,7 @@ describe("Resizer component", () => {
 
   test("resizing a column does not change the selection", async () => {
     const index = lettersToNumber("C");
-    const x = model.getters.getCol(model.getters.getActiveSheetId(), index)!.start + 1;
+    const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
     expect(getActiveXc(model)).toBe("A1");
     triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
     await nextTick();
@@ -250,7 +250,7 @@ describe("Resizer component", () => {
     expect(model.getters.getCol(model.getters.getActiveSheetId(), 4)!.size).toBe(
       model.getters.getCol(model.getters.getActiveSheetId(), 0)!.size
     );
-    expect(model.getters.getCol(model.getters.getActiveSheetId(), 4)!.start).toBe(
+    expect(model.getters.getColDimensions(model.getters.getActiveSheetId(), 4)!.start).toBe(
       model.getters.getCol(model.getters.getActiveSheetId(), 0)!.size * 4 + 100
     );
   });
@@ -275,7 +275,7 @@ describe("Resizer component", () => {
     expect(model.getters.getRow(model.getters.getActiveSheetId(), 4)!.size).toBe(
       model.getters.getRow(model.getters.getActiveSheetId(), 0)!.size
     );
-    expect(model.getters.getRow(model.getters.getActiveSheetId(), 4)!.start).toBe(
+    expect(model.getters.getRowDimensions(model.getters.getActiveSheetId(), 4)!.start).toBe(
       model.getters.getRow(model.getters.getActiveSheetId(), 0)!.size * 4 + 100
     );
   });
@@ -290,15 +290,25 @@ describe("Resizer component", () => {
     expect(model.getters.getCol(sheetId, 2)!.size).toBe(col_A.size + 50);
 
     expect(model.getters.getCol(sheetId, 3)!.size).toBe(col_A.size + 50);
-    expect(model.getters.getCol(sheetId, 3)!.start).toBe(model.getters.getCol(sheetId, 3)!.end);
-    expect(model.getters.getCol(sheetId, 3)!.start).toBe(model.getters.getCol(sheetId, 2)!.end);
+    expect(model.getters.getColDimensions(sheetId, 3)!.start).toBe(
+      model.getters.getColDimensions(sheetId, 3)!.end
+    );
+    expect(model.getters.getColDimensions(sheetId, 3)!.start).toBe(
+      model.getters.getColDimensions(sheetId, 2)!.end
+    );
 
     expect(model.getters.getCol(sheetId, 4)!.size).toBe(col_A.size + 50);
-    expect(model.getters.getCol(sheetId, 4)!.start).toBe(model.getters.getCol(sheetId, 4)!.end);
-    expect(model.getters.getCol(sheetId, 4)!.start).toBe(model.getters.getCol(sheetId, 2)!.end);
+    expect(model.getters.getColDimensions(sheetId, 4)!.start).toBe(
+      model.getters.getColDimensions(sheetId, 4)!.end
+    );
+    expect(model.getters.getColDimensions(sheetId, 4)!.start).toBe(
+      model.getters.getColDimensions(sheetId, 2)!.end
+    );
 
-    expect(model.getters.getCol(sheetId, 5)!.size).toBe(col_A.size + 50);
-    expect(model.getters.getCol(sheetId, 5)!.start).toBe(model.getters.getCol(sheetId, 2)!.end);
+    expect(model.getters.getColDimensions(sheetId, 5)!.size).toBe(col_A.size + 50);
+    expect(model.getters.getColDimensions(sheetId, 5)!.start).toBe(
+      model.getters.getColDimensions(sheetId, 2)!.end
+    );
   });
   test("Can resize rows with some hidden", async () => {
     const sheetId = model.getters.getActiveSheetId();
@@ -307,18 +317,28 @@ describe("Resizer component", () => {
     await selectRow(2);
     await selectRow(5, { shiftKey: true });
     await resizeRow(3, 50);
-    expect(model.getters.getRow(sheetId, 2)!.size).toBe(row_1.size + 50);
+    expect(model.getters.getRowDimensions(sheetId, 2)!.size).toBe(row_1.size + 50);
 
-    expect(model.getters.getRow(sheetId, 3)!.size).toBe(row_1.size + 50);
-    expect(model.getters.getRow(sheetId, 3)!.start).toBe(model.getters.getRow(sheetId, 3)!.end);
-    expect(model.getters.getRow(sheetId, 3)!.start).toBe(model.getters.getRow(sheetId, 2)!.end);
+    expect(model.getters.getRowDimensions(sheetId, 3)!.size).toBe(row_1.size + 50);
+    expect(model.getters.getRowDimensions(sheetId, 3)!.start).toBe(
+      model.getters.getRowDimensions(sheetId, 3)!.end
+    );
+    expect(model.getters.getRowDimensions(sheetId, 3)!.start).toBe(
+      model.getters.getRowDimensions(sheetId, 2)!.end
+    );
 
-    expect(model.getters.getRow(sheetId, 4)!.size).toBe(row_1.size + 50);
-    expect(model.getters.getRow(sheetId, 4)!.start).toBe(model.getters.getRow(sheetId, 4)!.end);
-    expect(model.getters.getRow(sheetId, 4)!.start).toBe(model.getters.getRow(sheetId, 2)!.end);
+    expect(model.getters.getRowDimensions(sheetId, 4)!.size).toBe(row_1.size + 50);
+    expect(model.getters.getRowDimensions(sheetId, 4)!.start).toBe(
+      model.getters.getRowDimensions(sheetId, 4)!.end
+    );
+    expect(model.getters.getRowDimensions(sheetId, 4)!.start).toBe(
+      model.getters.getRowDimensions(sheetId, 2)!.end
+    );
 
-    expect(model.getters.getRow(sheetId, 5)!.size).toBe(row_1.size + 50);
-    expect(model.getters.getRow(sheetId, 5)!.start).toBe(model.getters.getRow(sheetId, 2)!.end);
+    expect(model.getters.getRowDimensions(sheetId, 5)!.size).toBe(row_1.size + 50);
+    expect(model.getters.getRowDimensions(sheetId, 5)!.start).toBe(
+      model.getters.getRowDimensions(sheetId, 2)!.end
+    );
   });
   test("can select the entire sheet", async () => {
     triggerMouseEvent(".o-overlay .all", "mousedown", 5, 5);
@@ -378,19 +398,19 @@ describe("Resizer component", () => {
     expect(model.getters.getCol(sheet, 2)!.size).toBe(1006);
     expect(model.getters.getCol(sheet, 3)!.size).toBe(1006);
     expect(model.getters.getCol(sheet, 4)!.size).toBe(initialSize);
-    expect(model.getters.getCol(sheet, 4)!.start).toBe(initialSize * 2 + 2012);
+    expect(model.getters.getColDimensions(sheet, 4)!.start).toBe(initialSize * 2 + 2012);
     undo(model);
     expect(model.getters.getCol(sheet, 1)!.size).toBe(initialSize);
     expect(model.getters.getCol(sheet, 2)!.size).toBe(initialSize);
     expect(model.getters.getCol(sheet, 3)!.size).toBe(initialSize);
     expect(model.getters.getCol(sheet, 4)!.size).toBe(initialSize);
-    expect(model.getters.getCol(sheet, 4)!.start).toBe(initialSize * 4);
+    expect(model.getters.getColDimensions(sheet, 4)!.start).toBe(initialSize * 4);
     redo(model);
     expect(model.getters.getCol(sheet, 1)!.size).toBe(initialSize);
     expect(model.getters.getCol(sheet, 2)!.size).toBe(1006);
     expect(model.getters.getCol(sheet, 3)!.size).toBe(1006);
     expect(model.getters.getCol(sheet, 4)!.size).toBe(initialSize);
-    expect(model.getters.getCol(sheet, 4)!.start).toBe(initialSize * 2 + 2012);
+    expect(model.getters.getColDimensions(sheet, 4)!.start).toBe(initialSize * 2 + 2012);
   });
 
   test("Double click: Modify the size of a row", async () => {
@@ -414,19 +434,19 @@ describe("Resizer component", () => {
     expect(model.getters.getRow(sheet, 2)!.size).toBe(size);
     expect(model.getters.getRow(sheet, 3)!.size).toBe(size);
     expect(model.getters.getRow(sheet, 4)!.size).toBe(initialSize);
-    expect(model.getters.getRow(sheet, 4)!.start).toBe(initialSize * 2 + size * 2);
+    expect(model.getters.getRowDimensions(sheet, 4)!.start).toBe(initialSize * 2 + size * 2);
     undo(model);
     expect(model.getters.getRow(sheet, 1)!.size).toBe(initialSize);
     expect(model.getters.getRow(sheet, 2)!.size).toBe(initialSize);
     expect(model.getters.getRow(sheet, 3)!.size).toBe(initialSize);
     expect(model.getters.getRow(sheet, 4)!.size).toBe(initialSize);
-    expect(model.getters.getRow(sheet, 4)!.start).toBe(initialSize * 4);
+    expect(model.getters.getRowDimensions(sheet, 4)!.start).toBe(initialSize * 4);
     redo(model);
     expect(model.getters.getRow(sheet, 1)!.size).toBe(initialSize);
     expect(model.getters.getRow(sheet, 2)!.size).toBe(size);
     expect(model.getters.getRow(sheet, 3)!.size).toBe(size);
     expect(model.getters.getRow(sheet, 4)!.size).toBe(initialSize);
-    expect(model.getters.getRow(sheet, 4)!.start).toBe(initialSize * 2 + size * 2);
+    expect(model.getters.getRowDimensions(sheet, 4)!.start).toBe(initialSize * 2 + size * 2);
   });
 
   test("Select B, shift D then BCD selected", async () => {
@@ -615,7 +635,7 @@ describe("Resizer component", () => {
   test("right click after last column does not open context menu", async () => {
     const nCols = model.getters.getActiveSheet().cols.length;
     const activeSheetId = model.getters.getActiveSheetId();
-    const x = model.getters.getCol(activeSheetId, nCols - 1)!.end + 1;
+    const x = model.getters.getColDimensions(activeSheetId, nCols - 1)!.end + 1;
     triggerMouseEvent(".o-overlay .o-col-resizer", "contextmenu", x, 10);
     await nextTick();
     expect(fixture.querySelector(".o-context-menu")).toBeFalsy();
@@ -624,7 +644,7 @@ describe("Resizer component", () => {
   test("right click after last row does not open context menu", async () => {
     const nRows = model.getters.getActiveSheet().rows.length;
     const activeSheetId = model.getters.getActiveSheetId();
-    const y = model.getters.getRow(activeSheetId, nRows - 1)!.end + 1;
+    const y = model.getters.getRowDimensions(activeSheetId, nRows - 1)!.end + 1;
     triggerMouseEvent(".o-overlay .o-row-resizer", "contextmenu", 10, y);
     await nextTick();
     expect(fixture.querySelector(".o-context-menu")).toBeFalsy();
@@ -633,7 +653,7 @@ describe("Resizer component", () => {
   test("Hide A unhide it", async () => {
     hideColumns(model, ["A"]);
     await nextTick();
-    const x = model.getters.getCol(model.getters.getActiveSheetId(), 0)!.end + 10;
+    const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), 0)!.end + 10;
     triggerMouseEvent(".o-overlay .o-col-resizer .o-unhide[data-index='0']", "click", x, 10);
     expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([]);
   });
@@ -642,7 +662,7 @@ describe("Resizer component", () => {
     hideColumns(model, ["B", "C", "D"]);
     // from the left
     await nextTick();
-    let x = model.getters.getCol(model.getters.getActiveSheetId(), 1)!.start - 10;
+    let x = model.getters.getColDimensions(model.getters.getActiveSheetId(), 1)!.start - 10;
     triggerMouseEvent(
       ".o-overlay .o-col-resizer .o-unhide[data-index='0']:nth-child(1)",
       "click",
@@ -656,7 +676,7 @@ describe("Resizer component", () => {
       [1, 2, 3],
     ]);
     await nextTick();
-    x = model.getters.getCol(model.getters.getActiveSheetId(), 1)!.end + 10;
+    x = model.getters.getColDimensions(model.getters.getActiveSheetId(), 1)!.end + 10;
     triggerMouseEvent(
       ".o-overlay .o-col-resizer .o-unhide[data-index='0']:nth-child(2)",
       "click",
@@ -668,14 +688,14 @@ describe("Resizer component", () => {
   test("hide  A, B, D:E and unhide A-B", async () => {
     hideColumns(model, ["A", "B", "D", "E"]);
     await nextTick();
-    let x = model.getters.getCol(model.getters.getActiveSheetId(), 1)!.end + 10;
+    let x = model.getters.getColDimensions(model.getters.getActiveSheetId(), 1)!.end + 10;
     triggerMouseEvent(".o-overlay .o-col-resizer .o-unhide[data-index='0']", "click", x, 10);
     expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([[3, 4]]);
   });
   test("hide A, C, E:F and unhide C", async () => {
     hideColumns(model, ["A", "C", "E", "F"]);
     await nextTick();
-    let x = model.getters.getCol(model.getters.getActiveSheetId(), 2)!.end + 10;
+    let x = model.getters.getColDimensions(model.getters.getActiveSheetId(), 2)!.end + 10;
     triggerMouseEvent(".o-overlay .o-col-resizer .o-unhide[data-index='1']", "click", x, 10);
     expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([
       [0],
@@ -686,7 +706,7 @@ describe("Resizer component", () => {
   test("hide 1, unhide it", async () => {
     hideRows(model, [0]);
     await nextTick();
-    const y = model.getters.getRow(model.getters.getActiveSheetId(), 0)!.end + 10;
+    const y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), 0)!.end + 10;
     triggerMouseEvent(
       ".o-overlay .o-row-resizer .o-unhide[data-index='0']",
       "click",
@@ -699,7 +719,7 @@ describe("Resizer component", () => {
     hideRows(model, [1, 2, 3]);
     // from the left
     await nextTick();
-    let y = model.getters.getRow(model.getters.getActiveSheetId(), 1)!.start - 10;
+    let y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.start - 10;
     triggerMouseEvent(
       ".o-overlay .o-row-resizer .o-unhide[data-index='0']:nth-child(1)",
       "click",
@@ -713,7 +733,7 @@ describe("Resizer component", () => {
       [1, 2, 3],
     ]);
     await nextTick();
-    y = model.getters.getRow(model.getters.getActiveSheetId(), 1)!.end + 10;
+    y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.end + 10;
     triggerMouseEvent(
       ".o-overlay .o-row-resizer .o-unhide[data-index='0']:nth-child(2)",
       "click",
@@ -725,7 +745,7 @@ describe("Resizer component", () => {
   test("hide  0,1,3,4  and unhide 0", async () => {
     hideRows(model, [0, 1, 3, 4]);
     await nextTick();
-    let y = model.getters.getRow(model.getters.getActiveSheetId(), 1)!.end + 10;
+    let y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.end + 10;
     triggerMouseEvent(
       ".o-overlay .o-row-resizer .o-unhide[data-index='0']",
       "click",
@@ -737,7 +757,7 @@ describe("Resizer component", () => {
   test("hide 0, 2, 4,5 and unhide 2", async () => {
     hideRows(model, [0, 2, 4, 5]);
     await nextTick();
-    let y = model.getters.getRow(model.getters.getActiveSheetId(), 2)!.end + 10;
+    let y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), 2)!.end + 10;
     triggerMouseEvent(
       ".o-overlay .o-row-resizer .o-unhide[data-index='1']",
       "click",

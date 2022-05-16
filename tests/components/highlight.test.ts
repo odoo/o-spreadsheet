@@ -25,19 +25,21 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 );
 
 function getColStartPosition(col: number) {
-  return HEADER_WIDTH + model.getters.getCol(model.getters.getActiveSheetId(), col)!.start;
+  return HEADER_WIDTH + model.getters.getColDimensions(model.getters.getActiveSheetId(), col).start;
 }
 
 function getColEndPosition(col: number) {
-  return HEADER_WIDTH + model.getters.getCol(model.getters.getActiveSheetId(), col)!.end;
+  return HEADER_WIDTH + model.getters.getColDimensions(model.getters.getActiveSheetId(), col).end;
 }
 
 function getRowStartPosition(row: number) {
-  return HEADER_HEIGHT + model.getters.getRow(model.getters.getActiveSheetId(), row)!.start;
+  return (
+    HEADER_HEIGHT + model.getters.getRowDimensions(model.getters.getActiveSheetId(), row).start
+  );
 }
 
 function getRowEndPosition(row: number) {
-  return HEADER_HEIGHT + model.getters.getRow(model.getters.getActiveSheetId(), row)!.end;
+  return HEADER_HEIGHT + model.getters.getRowDimensions(model.getters.getActiveSheetId(), row).end;
 }
 
 async function selectNWCellCorner(el: Element, xc: string) {

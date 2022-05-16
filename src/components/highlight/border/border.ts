@@ -36,10 +36,10 @@ export class Border extends Component<Props, SpreadsheetChildEnv> {
     const z = this.props.zone;
     const margin = 2;
 
-    const left = s.cols[z.left].start + margin;
-    const right = s.cols[z.right].end - 2 * margin;
-    const top = s.rows[z.top].start + margin;
-    const bottom = s.rows[z.bottom].end - 2 * margin;
+    const left = this.env.model.getters.getColDimensions(s.id, z.left).start + margin;
+    const right = this.env.model.getters.getColDimensions(s.id, z.right).end - 2 * margin;
+    const top = this.env.model.getters.getRowDimensions(s.id, z.top).start + margin;
+    const bottom = this.env.model.getters.getRowDimensions(s.id, z.bottom).end - 2 * margin;
 
     const lineWidth = 4;
     const leftValue = isLeft ? left : right;

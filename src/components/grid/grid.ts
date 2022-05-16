@@ -38,7 +38,6 @@ import {
   Ref,
   SpreadsheetChildEnv,
   UID,
-  Viewport,
 } from "../../types/index";
 import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
@@ -89,7 +88,7 @@ interface HoveredPosition {
   row?: number;
 }
 
-export function useCellHovered(env: SpreadsheetChildEnv, getViewPort: () => Viewport) {
+export function useCellHovered(env: SpreadsheetChildEnv) {
   const hoveredPosition: HoveredPosition = useState({} as HoveredPosition);
   const { Date, setInterval, clearInterval } = window;
   const gridRef = useRef("gridOverlay");
@@ -99,9 +98,8 @@ export function useCellHovered(env: SpreadsheetChildEnv, getViewPort: () => View
   let interval;
 
   function getPosition(): Position {
-    const viewport = getViewPort();
-    const col = env.model.getters.getColIndex(x, viewport.left);
-    const row = env.model.getters.getRowIndex(y, viewport.top);
+    const col = env.model.getters.getColIndex(x);
+    const row = env.model.getters.getRowIndex(y);
     return { col, row };
   }
 
@@ -302,9 +300,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.clickedCol = 0;
     this.clickedRow = 0;
     this.clipBoardString = "";
-    this.hoveredCell = useCellHovered(this.env, () =>
-      this.env.model.getters.getActiveSnappedViewport()
-    );
+    this.hoveredCell = useCellHovered(this.env);
 
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
@@ -567,8 +563,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onScroll() {
-    const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
-    if (offsetX !== this.hScrollbar.scroll || offsetY !== this.vScrollbar.scroll) {
+    const { offsetScrollbarX, offsetScrollbarY } =
+      this.env.model.getters.getActiveSnappedViewport();
+    if (
+      offsetScrollbarX !== this.hScrollbar.scroll ||
+      offsetScrollbarY !== this.vScrollbar.scroll
+    ) {
       const { maxOffsetX, maxOffsetY } = this.env.model.getters.getMaximumViewportOffset(
         this.env.model.getters.getActiveSheet()
       );
@@ -591,17 +591,20 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const zone = this.env.model.getters.getSelectedZone();
     const sheet = this.env.model.getters.getActiveSheet();
     const { offsetX, offsetY } = this.env.model.getters.getActiveSnappedViewport();
+    const col = this.env.model.getters.getColDimensions(sheet.id, zone.right);
+    const row = this.env.model.getters.getRowDimensions(sheet.id, zone.bottom);
     return {
-      left: sheet.cols[zone.right].end - AUTOFILL_EDGE_LENGTH / 2 + HEADER_WIDTH - offsetX,
-      top: sheet.rows[zone.bottom].end - AUTOFILL_EDGE_LENGTH / 2 + HEADER_HEIGHT - offsetY,
+      left: col.end - AUTOFILL_EDGE_LENGTH / 2 + HEADER_WIDTH - offsetX,
+      top: row.end - AUTOFILL_EDGE_LENGTH / 2 + HEADER_HEIGHT - offsetY,
     };
   }
 
   drawGrid() {
     //reposition scrollbar
-    const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
-    this.hScrollbar.scroll = offsetX;
-    this.vScrollbar.scroll = offsetY;
+    const { offsetScrollbarX, offsetScrollbarY } =
+      this.env.model.getters.getActiveSnappedViewport();
+    this.hScrollbar.scroll = offsetScrollbarX;
+    this.vScrollbar.scroll = offsetScrollbarY;
     // check for position changes
     this.checkSheetChanges();
     // drawing grid on canvas
@@ -611,7 +614,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const thinLineWidth = 0.4 * dpr;
     const renderingContext = {
       ctx,
-      viewport: this.env.model.getters.getActiveViewport(),
+      viewport: this.env.model.getters.getActiveSnappedViewport(),
       dpr,
       thinLineWidth,
     };
@@ -672,9 +675,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   getCartesianCoordinates(ev: MouseEvent): [number, number] {
     const [x, y] = this.getCoordinates(ev);
-    const { left, top } = this.env.model.getters.getActiveSnappedViewport();
-    const colIndex = this.env.model.getters.getColIndex(x, left);
-    const rowIndex = this.env.model.getters.getRowIndex(y, top);
+    const colIndex = this.env.model.getters.getColIndex(x);
+    const rowIndex = this.env.model.getters.getRowIndex(y);
     return [colIndex, rowIndex];
   }
 
@@ -741,14 +743,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       if (colEdgeScroll.canEdgeScroll) {
         col = colEdgeScroll.direction > 0 ? right : left - 1;
       } else {
-        col = this.env.model.getters.getColIndex(x, left);
+        col = this.env.model.getters.getColIndex(x);
         col = col === -1 ? prevCol : col;
       }
 
       if (rowEdgeScroll.canEdgeScroll) {
         row = rowEdgeScroll.direction > 0 ? bottom : top - 1;
       } else {
-        row = this.env.model.getters.getRowIndex(y, top);
+        row = this.env.model.getters.getRowIndex(y);
         row = row === -1 ? prevRow : row;
       }
 
@@ -765,8 +767,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         this.env.model.selection.setAnchorCorner(col, row);
       }
       if (isEdgeScrolling) {
-        const offsetX = sheet.cols[left + colEdgeScroll.direction].start;
-        const offsetY = sheet.rows[top + rowEdgeScroll.direction].start;
+        const offsetX = this.env.model.getters.getColDimensions(
+          sheet.id,
+          left + colEdgeScroll.direction
+        ).start;
+        const offsetY = this.env.model.getters.getRowDimensions(
+          sheet.id,
+          top + rowEdgeScroll.direction
+        ).start;
         this.env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
         timeOutId = setTimeout(() => {
           timeOutId = null;
@@ -829,8 +837,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       row = Math.min(row, sheet.rows.length - 1);
       const { left, right, top, bottom, offsetX, offsetY } = viewport;
       const newOffsetX =
-        col < left || col > right - 1 ? sheet.cols[left + delta[0]].start : offsetX;
-      const newOffsetY = row < top || row > bottom - 1 ? sheet.rows[top + delta[1]].start : offsetY;
+        col < left || col > right - 1
+          ? this.env.model.getters.getColDimensions(sheet.id, left + delta[0]).start
+          : offsetX;
+      const newOffsetY =
+        row < top || row > bottom - 1
+          ? this.env.model.getters.getRowDimensions(sheet.id, top + delta[1]).start
+          : offsetY;
       if (newOffsetX !== offsetX || newOffsetY !== offsetY) {
         this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
           offsetX: newOffsetX,

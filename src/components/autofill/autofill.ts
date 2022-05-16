@@ -102,24 +102,13 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
 
     const onMouseMove = (ev: MouseEvent) => {
       const position = this.props.getGridBoundingClientRect();
-      const {
-        top: viewportTop,
-        left: viewportLeft,
-        offsetY,
-        offsetX,
-      } = this.env.model.getters.getActiveSnappedViewport();
+      const { offsetY, offsetX } = this.env.model.getters.getActiveSnappedViewport();
       this.state.position = {
         left: ev.clientX - start.left + offsetX,
         top: ev.clientY - start.top + offsetY,
       };
-      const col = this.env.model.getters.getColIndex(
-        ev.clientX - position.left - HEADER_WIDTH,
-        viewportLeft
-      );
-      const row = this.env.model.getters.getRowIndex(
-        ev.clientY - position.top - HEADER_HEIGHT,
-        viewportTop
-      );
+      const col = this.env.model.getters.getColIndex(ev.clientX - position.left - HEADER_WIDTH);
+      const row = this.env.model.getters.getRowIndex(ev.clientY - position.top - HEADER_HEIGHT);
       if (lastCol !== col || lastRow !== row) {
         const activeSheet = this.env.model.getters.getActiveSheet();
         lastCol = col === -1 ? lastCol : clip(col, 0, activeSheet.cols.length);

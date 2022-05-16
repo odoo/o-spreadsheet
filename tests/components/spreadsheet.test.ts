@@ -406,6 +406,7 @@ describe("Composer / selectionInput interactions", () => {
       top: startViewport.top + 3,
       bottom: startViewport.bottom + 3,
       offsetY: 3 * DEFAULT_CELL_HEIGHT,
+      offsetScrollbarY: 3 * DEFAULT_CELL_HEIGHT,
     });
     await clickCell(model, "E5");
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);

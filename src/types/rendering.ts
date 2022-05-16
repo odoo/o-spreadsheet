@@ -58,6 +58,11 @@ export interface Viewport extends Zone {
   offsetY: number;
 }
 
+export interface SnappedViewport extends Viewport {
+  offsetScrollbarX: number;
+  offsetScrollbarY: number;
+}
+
 export interface GridRenderingContext {
   ctx: CanvasRenderingContext2D;
   viewport: Viewport;

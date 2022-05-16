@@ -404,12 +404,10 @@ describe("core", () => {
     expect(sheet2Id).not.toBe(model.getters.getActiveSheetId());
     expect(model.getters.getRow(sheet2Id, 0)).toEqual({
       cells: {},
-      end: 24,
       name: "1",
       size: 24,
-      start: 0,
     });
-    expect(model.getters.getCol(sheet2Id, 0)).toEqual({ end: 42, name: "A", size: 42, start: 0 });
+    expect(model.getters.getCol(sheet2Id, 0)).toEqual({ name: "A", size: 42 });
   });
 
   test("can get row/col number of inactive sheet", () => {

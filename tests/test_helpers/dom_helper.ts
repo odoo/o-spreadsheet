@@ -34,9 +34,12 @@ export async function clickCell(
   extra: MouseEventInit = { bubbles: true }
 ) {
   const zone = toZone(xc);
-  const viewport = model.getters.getActiveViewport();
-  const [x, y, ,] = model.getters.getRect(zone, viewport);
-
+  const viewport = model.getters.getActiveSnappedViewport();
+  let [x, y, ,] = model.getters.getRect(zone, viewport);
+  if (model.getters.isDashboard()) {
+    x += HEADER_WIDTH;
+    y += HEADER_HEIGHT;
+  }
   await simulateClick(".o-grid-overlay", x - HEADER_WIDTH, y - HEADER_HEIGHT, extra);
 }
 
@@ -47,7 +50,7 @@ export async function gridMouseEvent(
   extra: MouseEventInit = { bubbles: true }
 ) {
   const zone = toZone(xc);
-  const viewport = model.getters.getActiveViewport();
+  const viewport = model.getters.getActiveSnappedViewport();
   let [x, y, ,] = model.getters.getRect(zone, viewport);
   if (!model.getters.isDashboard()) {
     x -= HEADER_WIDTH;
