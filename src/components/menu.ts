@@ -18,7 +18,7 @@ const SEPARATOR_HEIGHT = 1;
 
 const TEMPLATE = xml/* xml */ `
     <div>
-      <div class="o-menu" t-att-style="style" t-on-scroll="onScroll" t-on-wheel.stop="">
+      <div class="o-menu" t-att-style="style" t-on-scroll="onScroll" t-on-wheel.stop="" t-on-contextmenu.prevent="">
         <t t-foreach="props.menuItems" t-as="menuItem" t-key="menuItem.id">
           <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
           <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>
