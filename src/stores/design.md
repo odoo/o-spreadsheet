@@ -27,3 +27,12 @@ e.g. a command dispatch triggers an action, including notifying another store to
 
 Multiple sources of "change"? e.g. store, command dispatch
 Or explicit dependencies and check changes? like useEffect
+
+
+## Why not plugins?
+
+If we want to get state/logic outside plugins it means more getters and more commands.
+All getters are mixed together. That's not scalable and not dev friendly to have a million
+getters and a million commands.
+
+Most UI command is only handled by a single plugin.
