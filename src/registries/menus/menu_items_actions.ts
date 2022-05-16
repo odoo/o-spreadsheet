@@ -591,6 +591,8 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
       top: dataSetsHaveTitle ? zone.top + 1 : zone.top,
     });
   }
+  const newLegendPos = dataSetZone.right === dataSetZone.left ? "none" : "top"; //Using the same variable as above to identify number of columns involved.
+
   env.model.dispatch("CREATE_CHART", {
     sheetId,
     id,
@@ -605,7 +607,7 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
       dataSetsHaveTitle,
       background: BACKGROUND_CHART_COLOR,
       verticalAxisPosition: "left",
-      legendPosition: "top",
+      legendPosition: newLegendPos,
     },
   });
   env.openSidePanel("ChartPanel", { figureId: id });

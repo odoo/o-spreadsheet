@@ -52,7 +52,7 @@ export interface ExcelChartDefinition {
   readonly backgroundColor: XlsxHexColor;
   readonly fontColor: XlsxHexColor;
   readonly verticalAxisPosition: "left" | "right";
-  readonly legendPosition: "top" | "bottom" | "left" | "right";
+  readonly legendPosition: "top" | "bottom" | "left" | "right" | "none";
   readonly stackedBar?: boolean;
 }
 
