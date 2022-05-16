@@ -5,7 +5,7 @@ import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { SpreadsheetEnv } from "../../src/types";
 import { DispatchResult } from "../../src/types/commands";
-import { merge } from "../test_helpers/commands_helpers";
+import { merge, resizeColumns, resizeRows } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, nextTick } from "../test_helpers/helpers";
 
@@ -201,7 +201,7 @@ describe("Corner component", () => {
     });
   });
 
-  test("do nothing if drag outside the grid", async () => {
+  test("do nothing if drag outside the grid in a direction where we cannot scroll", async () => {
     await mountHighlight("A1", "#666");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
@@ -242,12 +242,7 @@ describe("Corner component", () => {
 
   test("can edge-scroll horizontally", async () => {
     const { width } = model.getters.getViewportDimension();
-    model.dispatch("RESIZE_COLUMNS_ROWS", {
-      dimension: "COL",
-      sheetId: model.getters.getActiveSheetId(),
-      elements: [0, 1],
-      size: width / 2,
-    });
+    resizeColumns(model, ["A", "B"], width / 2);
     await mountHighlight("B1", "#666");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
@@ -267,12 +262,7 @@ describe("Corner component", () => {
 
   test("can edge-scroll vertically", async () => {
     const { height } = model.getters.getViewportDimension();
-    model.dispatch("RESIZE_COLUMNS_ROWS", {
-      dimension: "ROW",
-      sheetId: model.getters.getActiveSheetId(),
-      elements: [0, 1],
-      size: height / 2,
-    });
+    resizeRows(model, [0, 1], height / 2);
     await mountHighlight("A2", "#666");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
@@ -437,12 +427,7 @@ describe("Border component", () => {
 
   test("can edge-scroll horizontally", async () => {
     const { width } = model.getters.getViewportDimension();
-    model.dispatch("RESIZE_COLUMNS_ROWS", {
-      dimension: "COL",
-      sheetId: model.getters.getActiveSheetId(),
-      elements: [0, 1],
-      size: width / 2,
-    });
+    resizeColumns(model, ["A", "B"], width / 2);
     await mountHighlight("B1", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
@@ -462,12 +447,7 @@ describe("Border component", () => {
 
   test("can edge-scroll vertically", async () => {
     const { height } = model.getters.getViewportDimension();
-    model.dispatch("RESIZE_COLUMNS_ROWS", {
-      dimension: "ROW",
-      sheetId: model.getters.getActiveSheetId(),
-      elements: [0, 1],
-      size: height / 2,
-    });
+    resizeRows(model, [0, 1], height / 2);
     await mountHighlight("A2", "#666");
     borderEl = fixture.querySelector(".o-border-n")!;
 
