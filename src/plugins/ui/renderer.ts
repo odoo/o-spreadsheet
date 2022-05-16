@@ -16,19 +16,27 @@ import {
   TEXT_HEADER_COLOR,
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { overlap, positionToZone, scrollDelay, union } from "../../helpers/index";
+import {
+  intersection,
+  overlap,
+  positionToZone,
+  scrollDelay,
+  searchHeaderIndex,
+  union,
+} from "../../helpers/index";
 import {
   Align,
   Box,
   Cell,
   CellValueType,
+  Dimension,
   EdgeScrollInfo,
   GridRenderingContext,
   Header,
+  HeaderDimensions,
   LAYERS,
   Rect,
   ScrollDirection,
-  Sheet,
   UID,
   Viewport,
   Zone,
@@ -39,30 +47,13 @@ import { UIPlugin } from "../ui_plugin";
 // Constants, types, helpers, ...
 // -----------------------------------------------------------------------------
 
-function searchIndex(headers: Header[], offset: number): number {
-  let left = 0;
-  let right = headers.length - 1;
-  while (left <= right) {
-    const index = Math.floor((left + right) / 2);
-    const header = headers[index];
-    if (offset < header.start) {
-      right = index - 1;
-    } else if (offset > header.end) {
-      left = index + 1;
-    } else if (header.isHidden) {
-      left += 1;
-    } else {
-      return index;
-    }
-  }
-  return -1;
-}
-
 export class RendererPlugin extends UIPlugin {
   static layers = [LAYERS.Background, LAYERS.Headers];
   static getters = [
     "getColIndex",
     "getRowIndex",
+    "getColDimensions",
+    "getRowDimensions",
     "getRect",
     "isVisibleInViewport",
     "getEdgeScrollCol",
@@ -76,38 +67,122 @@ export class RendererPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   /**
-   * Return the index of a column given an offset x and a visible left col index.
+   * Return the index of a column given an offset x, based on the viewport left
+   * visible cell.
    * It returns -1 if no column is found.
    */
-  getColIndex(x: number, left: number, sheet?: Sheet): number {
+  getColIndex(x: number): number {
     if (x < 0) {
       return -1;
     }
-    const cols = (sheet || this.getters.getActiveSheet()).cols;
-    const adjustedX = x + cols[left].start + 1;
-    return searchIndex(cols, adjustedX);
+    const cols = this.getters.getActiveSheet().cols;
+    const viewport = this.getters.getActiveSnappedViewport();
+    return searchHeaderIndex(cols, x, viewport.left);
   }
 
-  getRowIndex(y: number, top: number, sheet?: Sheet): number {
+  /**
+   * Return the index of a row given an offset y, based on the viewport top
+   * visible cell.
+   * It returns -1 if no row is found.
+   */
+  getRowIndex(y: number): number {
     if (y < 0) {
       return -1;
     }
-    const rows = (sheet || this.getters.getActiveSheet()).rows;
-    const adjustedY = y + rows[top].start + 1;
-    return searchIndex(rows, adjustedY);
+    const rows = this.getters.getActiveSheet().rows;
+    const viewport = this.getters.getActiveSnappedViewport();
+    return searchHeaderIndex(rows, y, viewport.top);
+  }
+
+  /**
+   * Returns the size, start and end coordinates of a column
+   */
+  getColDimensions(sheetId: UID, col: number): HeaderDimensions {
+    const start = this.getColRowOffset("COL", 0, col, sheetId);
+    const c = this.getters.getCol(sheetId, col);
+    return {
+      start,
+      size: c.size,
+      end: start + (c.isHidden ? 0 : c.size),
+    };
+  }
+
+  /**
+   * Returns the size, start and end coordinates of a row
+   */
+  getRowDimensions(sheetId: UID, row: number): HeaderDimensions {
+    const start = this.getColRowOffset("ROW", 0, row, sheetId);
+    const r = this.getters.getRow(sheetId, row);
+    return {
+      start,
+      size: r.size,
+      end: start + (r.isHidden ? 0 : r.size),
+    };
+  }
+
+  /**
+   * Returns the offset of a header (determinate by the dimension) at the given index
+   * based on the referenceIndex given. If start === 0, this method will return
+   * the start attribute of the header.
+   */
+  private getColRowOffset(
+    dimension: Dimension,
+    referenceIndex: number,
+    index: number,
+    sheetId: UID = this.getters.getActiveSheetId()
+  ): number {
+    const sheet = this.getters.getSheet(sheetId);
+    const headers = dimension === "ROW" ? sheet.rows : sheet.cols;
+    if (index < referenceIndex) {
+      return -this.getColRowOffset(dimension, index, referenceIndex);
+    }
+    let offset = 0;
+    for (let i = referenceIndex; i < index; i++) {
+      if (headers[i].isHidden) {
+        continue;
+      }
+      offset += headers[i].size;
+    }
+    return offset;
+  }
+
+  /**
+   * Get the offset of a header (see getColRowOffset), adjusted with the header
+   * size (HEADER_HEIGHT and HEADER_WIDTH)
+   */
+  private getHeaderOffset(dimension: Dimension, start: number, index: number): number {
+    let size = this.getColRowOffset(dimension, start, index);
+    if (!this.getters.isDashboard()) {
+      size += dimension === "ROW" ? HEADER_HEIGHT : HEADER_WIDTH;
+    }
+    return size;
+  }
+
+  /**
+   * Get the actual size between two headers.
+   * The size from A to B is the distance between A.start and B.end
+   */
+  private getSizeBetweenHeaders(headers: Header[], from: number, to: number): number {
+    let size = 0;
+    for (let i = from; i <= to; i++) {
+      if (headers[i].isHidden) {
+        continue;
+      }
+      size += headers[i].size;
+    }
+    return size;
   }
 
   /**
    * Computes the coordinates and size to draw the zone on the canvas
    */
   getRect(zone: Zone, viewport: Viewport): Rect {
-    const { left, top, right, bottom } = zone;
-    const { offsetX, offsetY } = this.getShiftedViewport(viewport);
+    const { left, top } = viewport;
     const { cols, rows } = this.getters.getActiveSheet();
-    const x = cols[left].start - offsetX;
-    const width = cols[right].end - offsetX - x;
-    const y = rows[top].start - offsetY;
-    const height = rows[bottom].end - offsetY - y;
+    const x = this.getHeaderOffset("COL", left, zone.left);
+    const width = this.getSizeBetweenHeaders(cols, zone.left, zone.right);
+    const y = this.getHeaderOffset("ROW", top, zone.top);
+    const height = this.getSizeBetweenHeaders(rows, zone.top, zone.bottom);
     return [x, y, width, height];
   }
 
@@ -190,7 +265,7 @@ export class RendererPlugin extends UIPlugin {
     ctx.fillRect(0, 0, width, height);
 
     // background grid
-    const { right, left, top, bottom, offsetX, offsetY } = this.getShiftedViewport(viewport);
+    const { right, left, top, bottom } = viewport;
 
     if (!this.getters.getGridLinesVisibility(sheetId) || this.getters.isDashboard()) {
       return;
@@ -200,25 +275,31 @@ export class RendererPlugin extends UIPlugin {
     ctx.beginPath();
 
     // vertical lines
-    const lineHeight = Math.min(height, rows[bottom].end - offsetY);
     for (let i = left; i <= right; i++) {
       if (cols[i].isHidden) {
         continue;
       }
-      const x = cols[i].end - offsetX;
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, lineHeight);
+      const zone = { top, bottom, left: i, right: i };
+      const [x, , colWidth, colHeight] = this.getRect(zone, viewport);
+      ctx.moveTo(x + colWidth, 0);
+      ctx.lineTo(
+        x + colWidth,
+        Math.min(height, colHeight + (this.getters.isDashboard() ? 0 : HEADER_HEIGHT))
+      );
     }
 
     // horizontal lines
-    const lineWidth = Math.min(width, cols[right].end - offsetX);
     for (let i = top; i <= bottom; i++) {
       if (rows[i].isHidden) {
         continue;
       }
-      const y = rows[i].end - offsetY;
-      ctx.moveTo(0, y);
-      ctx.lineTo(lineWidth, y);
+      const zone = { left, right, top: i, bottom: i };
+      const [, y, rowWidth, rowHeight] = this.getRect(zone, viewport);
+      ctx.moveTo(0, y + rowHeight);
+      ctx.lineTo(
+        Math.min(width, rowWidth + (this.getters.isDashboard() ? 0 : HEADER_WIDTH)),
+        y + rowHeight
+      );
     }
     ctx.stroke();
   }
@@ -368,7 +449,7 @@ export class RendererPlugin extends UIPlugin {
 
   private drawHeaders(renderingContext: GridRenderingContext) {
     const { ctx, thinLineWidth, viewport } = renderingContext;
-    const { right, left, top, bottom, offsetX, offsetY } = this.getShiftedViewport(viewport);
+    const { right, left, top, bottom } = viewport;
     const { width, height } = this.getters.getViewportDimensionWithHeaders();
     const selection = this.getters.getSelectedZones();
     const { cols, rows } = this.getters.getActiveSheet();
@@ -388,18 +469,22 @@ export class RendererPlugin extends UIPlugin {
     // selection background
     ctx.fillStyle = BACKGROUND_HEADER_SELECTED_COLOR;
     for (let zone of selection) {
-      const x1 = Math.max(HEADER_WIDTH, cols[zone.left].start - offsetX);
-      const x2 = Math.max(HEADER_WIDTH, cols[zone.right].end - offsetX);
-      const y1 = Math.max(HEADER_HEIGHT, rows[zone.top].start - offsetY);
-      const y2 = Math.max(HEADER_HEIGHT, rows[zone.bottom].end - offsetY);
-      ctx.fillStyle = activeCols.has(zone.left)
-        ? BACKGROUND_HEADER_ACTIVE_COLOR
-        : BACKGROUND_HEADER_SELECTED_COLOR;
-      ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
-      ctx.fillStyle = activeRows.has(zone.top)
-        ? BACKGROUND_HEADER_ACTIVE_COLOR
-        : BACKGROUND_HEADER_SELECTED_COLOR;
-      ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
+      const colZone = intersection(zone, { ...viewport, top: 0, bottom: rows.length - 1 });
+      if (colZone) {
+        const [x, , width] = this.getRect(colZone, viewport);
+        ctx.fillStyle = activeCols.has(zone.left)
+          ? BACKGROUND_HEADER_ACTIVE_COLOR
+          : BACKGROUND_HEADER_SELECTED_COLOR;
+        ctx.fillRect(x, 0, width, HEADER_HEIGHT);
+      }
+      const rowZone = intersection(zone, { ...viewport, left: 0, right: cols.length - 1 });
+      if (rowZone) {
+        const [, y, , height] = this.getRect(rowZone, viewport);
+        ctx.fillStyle = activeRows.has(zone.top)
+          ? BACKGROUND_HEADER_ACTIVE_COLOR
+          : BACKGROUND_HEADER_SELECTED_COLOR;
+        ctx.fillRect(0, y, HEADER_WIDTH, height);
+      }
     }
 
     // 2 main lines
@@ -420,9 +505,10 @@ export class RendererPlugin extends UIPlugin {
         continue;
       }
       ctx.fillStyle = activeCols.has(i) ? "#fff" : TEXT_HEADER_COLOR;
-      ctx.fillText(col.name, (col.start + col.end) / 2 - offsetX, HEADER_HEIGHT / 2);
-      ctx.moveTo(col.end - offsetX, 0);
-      ctx.lineTo(col.end - offsetX, HEADER_HEIGHT);
+      let colStart = this.getHeaderOffset("COL", viewport.left, i);
+      ctx.fillText(col.name, colStart + col.size / 2, HEADER_HEIGHT / 2);
+      ctx.moveTo(colStart + col.size, 0);
+      ctx.lineTo(colStart + col.size, HEADER_HEIGHT);
     }
     // row text + separator
     for (let i = top; i <= bottom; i++) {
@@ -432,9 +518,10 @@ export class RendererPlugin extends UIPlugin {
       }
       ctx.fillStyle = activeRows.has(i) ? "#fff" : TEXT_HEADER_COLOR;
 
-      ctx.fillText(row.name, HEADER_WIDTH / 2, (row.start + row.end) / 2 - offsetY);
-      ctx.moveTo(0, row.end - offsetY);
-      ctx.lineTo(HEADER_WIDTH, row.end - offsetY);
+      let rowStart = this.getHeaderOffset("ROW", viewport.top, i);
+      ctx.fillText(row.name, HEADER_WIDTH / 2, rowStart + row.size / 2);
+      ctx.moveTo(0, rowStart + row.size);
+      ctx.lineTo(HEADER_WIDTH, rowStart + row.size);
     }
 
     ctx.stroke();
@@ -444,19 +531,6 @@ export class RendererPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const cell = this.getters.getCell(sheetId, col, row);
     return (cell && !cell.isEmpty()) || this.getters.isInMerge(sheetId, col, row);
-  }
-
-  /**
-   * Adapt the current viewport with the headers sizes
-   */
-  private getShiftedViewport(viewport: Viewport): Viewport {
-    const shiftX = this.getters.isDashboard() ? 0 : HEADER_WIDTH;
-    const shiftY = this.getters.isDashboard() ? 0 : HEADER_HEIGHT;
-    return {
-      ...viewport,
-      offsetX: viewport.offsetX - shiftX,
-      offsetY: viewport.offsetY - shiftY,
-    };
   }
 
   private findNextEmptyCol(base: number, max: number, row: number): number {
@@ -599,8 +673,9 @@ export class RendererPlugin extends UIPlugin {
     const boxes: Box[] = [];
 
     const { viewport } = renderingContext;
-    const { right, left, top, bottom } = this.getShiftedViewport(viewport);
-    const sheetId = this.getters.getActiveSheetId();
+    const { right, left, top, bottom } = viewport;
+    const sheet = this.getters.getActiveSheet();
+    const { id: sheetId } = sheet;
 
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
       const row = this.getters.getRow(sheetId, rowNumber);

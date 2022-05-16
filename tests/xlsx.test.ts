@@ -803,11 +803,12 @@ describe("Test XLSX export", () => {
         },
         "1"
       );
-      const { cols } = model.getters.getActiveSheet();
+      const { cols, id: sheetId } = model.getters.getActiveSheet();
+      const end = model.getters.getColDimensions(sheetId, cols.length - 1).end;
       model.dispatch("UPDATE_FIGURE", {
         sheetId: "Sheet1",
         id: "1",
-        x: cols[cols.length - 1].end + 5,
+        x: end + 5,
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });

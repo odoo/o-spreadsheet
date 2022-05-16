@@ -21,7 +21,7 @@ export class MockGridRenderingContext implements GridRenderingContext {
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
     model.dispatch("RESIZE_VIEWPORT", { width, height });
-    this.viewport = model.getters.getActiveViewport();
+    this.viewport = model.getters.getActiveSnappedViewport();
 
     const handler = {
       get: (target, val) => {

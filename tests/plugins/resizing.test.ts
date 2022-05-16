@@ -15,22 +15,18 @@ describe("Model resizer", () => {
     const sheet = model.getters.getActiveSheet();
     const sheetId = sheet.id;
     const initialSize = model.getters.getCol(sheetId, 1)!.size;
-    const initialTop = model.getters.getCol(sheetId, 2)!.start;
     const initialWidth = model.getters.getMaxViewportSize(sheet).width;
 
     resizeColumns(model, ["B"], model.getters.getCol(sheetId, 1)!.size + 100);
     expect(model.getters.getCol(sheetId, 1)!.size).toBe(196);
-    expect(model.getters.getCol(sheetId, 2)!.start).toBe(initialTop + 100);
     expect(model.getters.getMaxViewportSize(sheet).width).toBe(initialWidth + 100);
 
     undo(model);
     expect(model.getters.getCol(sheetId, 1)!.size).toBe(initialSize);
-    expect(model.getters.getCol(sheetId, 2)!.start).toBe(initialTop);
     expect(model.getters.getMaxViewportSize(sheet).width).toBe(initialWidth);
 
     redo(model);
     expect(model.getters.getCol(sheetId, 1)!.size).toBe(initialSize + 100);
-    expect(model.getters.getCol(sheetId, 2)!.start).toBe(initialTop + 100);
     expect(model.getters.getMaxViewportSize(sheet).width).toBe(initialWidth + 100);
   });
 
@@ -70,17 +66,14 @@ describe("Model resizer", () => {
     const sheet = model.getters.getActiveSheet();
     const sheetId = sheet.id;
     const initialSize = model.getters.getRow(sheetId, 1)!.size;
-    const initialTop = model.getters.getRow(sheetId, 2)!.start;
     const initialHeight = model.getters.getMaxViewportSize(sheet).height;
 
     resizeRows(model, [1], initialSize + 100);
     expect(model.getters.getRow(sheetId, 1)!.size).toBe(initialSize + 100);
-    expect(model.getters.getRow(sheetId, 2)!.start).toBe(initialTop + 100);
     expect(model.getters.getMaxViewportSize(sheet).height).toBe(initialHeight + 100);
 
     undo(model);
     expect(model.getters.getRow(sheetId, 1)!.size).toBe(initialSize);
-    expect(model.getters.getRow(sheetId, 2)!.start).toBe(initialTop);
     expect(model.getters.getMaxViewportSize(sheet).height).toBe(initialHeight);
   });
 
@@ -92,10 +85,8 @@ describe("Model resizer", () => {
     expect(model.getters.getActiveSheetId()).not.toBe(sheet2Id);
     expect(model.getters.getRow(sheet2Id, 0)).toEqual({
       cells: {},
-      end: 42,
       size: 42,
       name: "1",
-      start: 0,
     });
   });
 
@@ -105,7 +96,7 @@ describe("Model resizer", () => {
     const [, sheet2Id] = model.getters.getSheetIds();
     resizeColumns(model, ["A"], 42, sheet2Id);
     expect(model.getters.getActiveSheetId()).not.toBe(sheet2Id);
-    expect(model.getters.getCol(sheet2Id, 0)).toEqual({ end: 42, size: 42, name: "A", start: 0 });
+    expect(model.getters.getCol(sheet2Id, 0)).toEqual({ size: 42, name: "A" });
   });
 
   test("changing sheets update the sizes", async () => {
@@ -135,7 +126,6 @@ describe("Model resizer", () => {
     expect(model.getters.getCol(sheet, 2)!.size).toBe(size);
     expect(model.getters.getCol(sheet, 3)!.size).toBe(100);
     expect(model.getters.getCol(sheet, 4)!.size).toBe(100);
-    expect(model.getters.getCol(sheet, 5)!.start).toBe(size * 2 + 100 * 3);
   });
 
   test("Can resize multiple rows", async () => {
@@ -149,7 +139,6 @@ describe("Model resizer", () => {
     expect(model.getters.getRow(sheet, 2)!.size).toBe(size);
     expect(model.getters.getRow(sheet, 3)!.size).toBe(100);
     expect(model.getters.getRow(sheet, 4)!.size).toBe(100);
-    expect(model.getters.getRow(sheet, 5)!.start).toBe(2 * size + 100 * 3);
   });
 
   test("resizing cols/rows update the total width/height", async () => {

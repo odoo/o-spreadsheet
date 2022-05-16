@@ -633,6 +633,7 @@ describe("Grid component", () => {
         action: () => {},
       });
       model.updateMode("dashboard");
+      await nextTick();
       await rightClickCell(model, "B2");
       expect(fixture.querySelectorAll(".o-menu div")).toHaveLength(1);
       expect(fixture.querySelector(".o-menu div[data-name='A']")).not.toBeNull();
@@ -794,21 +795,15 @@ describe("Events on Grid update viewport correctly", () => {
   test("Vertical scroll", async () => {
     fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaY: 1200 }));
     await nextTick();
-    expect(model.getters.getActiveViewport()).toMatchObject({
-      top: 52,
-      bottom: 93,
-      left: 0,
-      right: 9,
-      offsetX: 0,
-      offsetY: 1200,
-    });
     expect(model.getters.getActiveSnappedViewport()).toMatchObject({
       top: 52,
       bottom: 93,
       left: 0,
       right: 9,
       offsetX: 0,
+      offsetScrollbarX: 0,
       offsetY: 1196,
+      offsetScrollbarY: 1200,
     });
   });
   test("Horizontal scroll", async () => {
@@ -816,39 +811,34 @@ describe("Events on Grid update viewport correctly", () => {
       .querySelector(".o-grid")!
       .dispatchEvent(new WheelEvent("wheel", { deltaY: 200, shiftKey: true }));
     await nextTick();
-    expect(model.getters.getActiveViewport()).toMatchObject({
-      top: 0,
-      bottom: 41,
-      left: 2,
-      right: 11,
-      offsetX: 200,
-      offsetY: 0,
-    });
     expect(model.getters.getActiveSnappedViewport()).toMatchObject({
       top: 0,
       bottom: 41,
       left: 2,
       right: 11,
       offsetX: 192,
+      offsetScrollbarX: 200,
       offsetY: 0,
+      offsetScrollbarY: 0,
     });
   });
   test("Move selection with keyboard", async () => {
     await clickCell(model, "H1");
     expect(getActiveXc(model)).toBe("H1");
-    const viewport = model.getters.getActiveViewport();
+    const viewport = model.getters.getActiveSnappedViewport();
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
     );
     expect(getActiveXc(model)).toBe("I1");
-    expect(model.getters.getActiveViewport()).toMatchObject(viewport);
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject(viewport);
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
     );
     expect(getActiveXc(model)).toBe("J1");
-    expect(model.getters.getActiveViewport()).toMatchObject({
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
       ...viewport,
       offsetX: 96,
+      offsetScrollbarX: 96,
       left: 1,
       right: 10,
     });
@@ -857,19 +847,20 @@ describe("Events on Grid update viewport correctly", () => {
   test("Alter selection with keyboard", async () => {
     await clickCell(model, "H1");
     expect(getActiveXc(model)).toBe("H1");
-    const viewport = model.getters.getActiveViewport();
+    const viewport = model.getters.getActiveSnappedViewport();
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowRight", shiftKey: true, bubbles: true })
     );
     expect(model.getters.getSelectedZone()).toEqual(toZone("H1:I1"));
-    expect(model.getters.getActiveViewport()).toMatchObject(viewport);
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject(viewport);
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowRight", shiftKey: true, bubbles: true })
     );
     expect(model.getters.getSelectedZone()).toEqual(toZone("H1:J1"));
-    expect(model.getters.getActiveViewport()).toMatchObject({
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
       ...viewport,
       offsetX: 96,
+      offsetScrollbarX: 96,
       left: 1,
       right: 10,
     });

@@ -53,7 +53,7 @@ class MockGridRenderingContext implements GridRenderingContext {
       width: width - HEADER_WIDTH,
       height: height - HEADER_HEIGHT,
     });
-    this.viewport = model.getters.getActiveViewport();
+    this.viewport = model.getters.getActiveSnappedViewport();
 
     const handler = {
       get: (target, val) => {

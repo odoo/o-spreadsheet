@@ -1,52 +1,58 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { Col, HeaderData, Row } from "../types";
+import { Col, Header, HeaderData, Row } from "../types";
 import { numberToLetters } from "./coordinates";
+
+export function searchHeaderIndex(
+  headers: Header[],
+  position: number,
+  startIndex: number = 0
+): number {
+  let size = 0;
+  for (let i = startIndex; i <= headers.length - 1; i++) {
+    if (headers[i].isHidden) {
+      continue;
+    }
+    size += headers[i].size;
+    if (size > position) {
+      return i;
+    }
+  }
+  return -1;
+}
 
 export function createDefaultCols(colNumber: number): Col[] {
   const cols: Col[] = [];
-  let current = 0;
   for (let i = 0; i < colNumber; i++) {
     const size = DEFAULT_CELL_WIDTH;
-    const col = {
-      start: current,
-      end: current + size,
+    const col: Col = {
       size: size,
       name: numberToLetters(i),
     };
     cols.push(col);
-    current = col.end;
   }
   return cols;
 }
 
 export function createDefaultRows(rowNumber: number): Row[] {
   const rows: Row[] = [];
-  let current = 0;
   for (let i = 0; i < rowNumber; i++) {
     const size = DEFAULT_CELL_HEIGHT;
-    const row = {
-      start: current,
-      end: current + size,
+    const row: Row = {
       size: size,
       name: String(i + 1),
       cells: {},
     };
     rows.push(row);
-    current = row.end;
   }
   return rows;
 }
 
 export function createCols(savedCols: { [key: number]: HeaderData }, colNumber: number): Col[] {
   const cols: Col[] = [];
-  let current = 0;
   for (let i = 0; i < colNumber; i++) {
     const size = savedCols[i] ? savedCols[i].size || DEFAULT_CELL_WIDTH : DEFAULT_CELL_WIDTH;
     const hidden = savedCols[i]?.isHidden || false;
-    const end = hidden ? current : current + size;
     const col: Col = {
-      start: current,
-      end: end,
       size: size,
       name: numberToLetters(i),
     };
@@ -54,21 +60,16 @@ export function createCols(savedCols: { [key: number]: HeaderData }, colNumber: 
       col.isHidden = hidden;
     }
     cols.push(col);
-    current = col.end;
   }
   return cols;
 }
 
 export function createRows(savedRows: { [key: number]: HeaderData }, rowNumber: number): Row[] {
   const rows: Row[] = [];
-  let current = 0;
   for (let i = 0; i < rowNumber; i++) {
     const size = savedRows[i] ? savedRows[i].size || DEFAULT_CELL_HEIGHT : DEFAULT_CELL_HEIGHT;
     const hidden = savedRows[i]?.isHidden || false;
-    const end = hidden ? current : current + size;
     const row: Row = {
-      start: current,
-      end: end,
       size: size,
       name: String(i + 1),
       cells: {},
@@ -77,7 +78,6 @@ export function createRows(savedRows: { [key: number]: HeaderData }, rowNumber: 
       row.isHidden = hidden;
     }
     rows.push(row);
-    current = row.end;
   }
   return rows;
 }
