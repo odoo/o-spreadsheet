@@ -190,7 +190,7 @@ export class RendererPlugin extends UIPlugin {
     ctx.fillRect(0, 0, width, height);
 
     // background grid
-    const { right, left, top, bottom, offsetX, offsetY } = this.getShiftedViewport(viewport);
+    const { right, left, top, bottom } = viewport;
 
     if (!this.getters.getGridLinesVisibility(sheetId) || this.getters.isDashboard()) {
       return;
@@ -200,25 +200,23 @@ export class RendererPlugin extends UIPlugin {
     ctx.beginPath();
 
     // vertical lines
-    const lineHeight = Math.min(height, rows[bottom].end - offsetY);
     for (let i = left; i <= right; i++) {
       if (cols[i].isHidden) {
         continue;
       }
-      const x = cols[i].end - offsetX;
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, lineHeight);
+      const [x, , colWidth, colHeight] = this.getRect({ top, bottom, left: i, right: i }, viewport);
+      ctx.moveTo(x + colWidth, 0);
+      ctx.lineTo(x + colWidth, Math.min(height, colHeight));
     }
 
     // horizontal lines
-    const lineWidth = Math.min(width, cols[right].end - offsetX);
     for (let i = top; i <= bottom; i++) {
       if (rows[i].isHidden) {
         continue;
       }
-      const y = rows[i].end - offsetY;
-      ctx.moveTo(0, y);
-      ctx.lineTo(lineWidth, y);
+      const [, y, rowWidth, rowHeight] = this.getRect({ top: i, bottom: i, left, right }, viewport);
+      ctx.moveTo(0, y + rowHeight);
+      ctx.lineTo(Math.min(width, rowWidth), y + rowHeight);
     }
     ctx.stroke();
   }
