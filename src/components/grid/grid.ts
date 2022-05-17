@@ -191,9 +191,6 @@ function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMove
 // STYLE
 // -----------------------------------------------------------------------------
 css/* scss */ `
-  @viewport {
-    width: 150%;
-  }
   .o-grid {
     position: relative;
     overflow: hidden;
@@ -357,9 +354,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const sheetId = this.env.model.getters.getActiveSheet();
     const { height, width } = this.env.model.getters.getMaxViewportSize(sheetId);
     // const zoom = this.env.model.getters.getAutoZoomFactor();
+    const zoom = 2;
     return {
-      vertical: height * 1,
-      horizontal: width * 1,
+      vertical: height * zoom,
+      horizontal: width * zoom,
     };
   }
 
@@ -589,15 +587,17 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   onScroll() {
     const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
-    console.log(this.hScrollbar.scroll);
-    if (offsetX !== this.hScrollbar.scroll || offsetY !== this.vScrollbar.scroll) {
+    // console.log(this.vScrollbar.scroll);
+    const scrollX = this.hScrollbar.scroll * 1;
+    const scrollY = this.vScrollbar.scroll * 1;
+    if (offsetX !== scrollX || offsetY !== scrollY) {
       const { maxOffsetX, maxOffsetY } = this.env.model.getters.getMaximumViewportOffset(
         this.env.model.getters.getActiveSheet()
       );
-      console.log("coucou", this.hScrollbar.scroll, maxOffsetX);
+      console.log("coucou", scrollX, maxOffsetX);
       const res = this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
-        offsetX: Math.min(this.hScrollbar.scroll, maxOffsetX),
-        offsetY: Math.min(this.vScrollbar.scroll, maxOffsetY),
+        offsetX: Math.min(scrollX, maxOffsetX),
+        offsetY: Math.min(scrollY, maxOffsetY),
       });
       console.log(res);
     }
@@ -635,13 +635,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const dpr = window.devicePixelRatio || 1;
     const ctx = canvas.getContext("2d", { alpha: false })!;
     const thinLineWidth = 0.4 * dpr * zoom;
-    console.log(this.env.model.getters.getActiveViewport());
     const renderingContext = {
       ctx,
       viewport: this.env.model.getters.getActiveViewport(),
       dpr,
       thinLineWidth,
     };
+    console.log("scollbaroffset in viewport", this.env.model.getters.getActiveViewport().offsetX);
+    console.log("offsetX snapped", this.env.model.getters.getActiveSnappedViewport().offsetX);
     const { width, height } = this.env.model.getters.getViewportDimensionWithHeaders();
     canvas.style.width = `${width * zoom}px`;
     canvas.style.height = `${height * zoom}px`;

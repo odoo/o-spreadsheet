@@ -205,10 +205,14 @@ export class ViewportPlugin extends UIPlugin {
 
     const width =
       lastCol!.end +
-      Math.max(DEFAULT_CELL_WIDTH, Math.min(leftCol.size, this.viewportWidth - lastCol!.size));
+      1 * Math.max(DEFAULT_CELL_WIDTH, Math.min(leftCol.size, this.viewportWidth - lastCol!.size));
     const height =
       lastRow!.end +
-      Math.max(DEFAULT_CELL_HEIGHT + 5, Math.min(topRow.size, this.viewportHeight - lastRow!.size));
+      1 *
+        Math.max(
+          DEFAULT_CELL_HEIGHT + 5,
+          Math.min(topRow.size, this.viewportHeight - lastRow!.size)
+        );
 
     return { width, height };
   }
