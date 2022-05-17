@@ -356,7 +356,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   get scrollbarLengths() {
     const sheetId = this.env.model.getters.getActiveSheet();
     const { height, width } = this.env.model.getters.getMaxViewportSize(sheetId);
-    const zoom = this.env.model.getters.getAutoZoomFactor();
+    // const zoom = this.env.model.getters.getAutoZoomFactor();
     return {
       vertical: height * 1,
       horizontal: width * 1,
@@ -572,14 +572,17 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   resizeGrid() {
-    const currentHeight = (this.gridEl.clientHeight - SCROLLBAR_WIDTH) / 1;
-    const currentWidth = (this.gridEl.clientWidth - SCROLLBAR_WIDTH) / 1;
+    const zoom = this.env.model.getters.getAutoZoomFactor();
+    const currentHeight = (this.gridEl.clientHeight - SCROLLBAR_WIDTH) / zoom;
+    const currentWidth = (this.gridEl.clientWidth - SCROLLBAR_WIDTH) / zoom;
     const { height: viewportHeight, width: viewportWidth } =
       this.env.model.getters.getViewportDimensionWithHeaders();
     if (currentHeight != viewportHeight || currentWidth !== viewportWidth) {
+      const height = currentHeight - (this.env.isDashboard() ? 0 : HEADER_HEIGHT);
+      const width = currentWidth - (this.env.isDashboard() ? 0 : HEADER_WIDTH);
       this.env.model.dispatch("RESIZE_VIEWPORT", {
-        height: currentHeight - (this.env.isDashboard() ? 0 : HEADER_HEIGHT),
-        width: currentWidth - (this.env.isDashboard() ? 0 : HEADER_WIDTH),
+        height,
+        width,
       });
     }
   }
@@ -591,6 +594,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const { maxOffsetX, maxOffsetY } = this.env.model.getters.getMaximumViewportOffset(
         this.env.model.getters.getActiveSheet()
       );
+      console.log("coucou", this.hScrollbar.scroll, maxOffsetX);
       const res = this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
         offsetX: Math.min(this.hScrollbar.scroll, maxOffsetX),
         offsetY: Math.min(this.vScrollbar.scroll, maxOffsetY),
@@ -630,7 +634,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const canvas = this.canvas.el as HTMLCanvasElement;
     const dpr = window.devicePixelRatio || 1;
     const ctx = canvas.getContext("2d", { alpha: false })!;
-    const thinLineWidth = 0.4 * dpr;
+    const thinLineWidth = 0.4 * dpr * zoom;
+    console.log(this.env.model.getters.getActiveViewport());
     const renderingContext = {
       ctx,
       viewport: this.env.model.getters.getActiveViewport(),
@@ -638,11 +643,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       thinLineWidth,
     };
     const { width, height } = this.env.model.getters.getViewportDimensionWithHeaders();
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
+    canvas.style.width = `${width * zoom}px`;
+    canvas.style.height = `${height * zoom}px`;
+    canvas.width = width * dpr * zoom;
+    canvas.height = height * dpr * zoom;
+    canvas.setAttribute("style", `width:${width * zoom}px;height:${height * zoom}px;`);
     ctx.translate(-0.5, -0.5);
     ctx.scale(dpr * zoom, dpr * zoom);
     this.env.model.drawGrid(renderingContext);
