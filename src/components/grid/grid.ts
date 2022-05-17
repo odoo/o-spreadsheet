@@ -191,6 +191,9 @@ function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMove
 // STYLE
 // -----------------------------------------------------------------------------
 css/* scss */ `
+  @viewport {
+    width: 150%;
+  }
   .o-grid {
     position: relative;
     overflow: hidden;
@@ -355,8 +358,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const { height, width } = this.env.model.getters.getMaxViewportSize(sheetId);
     const zoom = this.env.model.getters.getAutoZoomFactor();
     return {
-      vertical: height * zoom,
-      horizontal: width * zoom,
+      vertical: height * 1,
+      horizontal: width * 1,
     };
   }
 
@@ -569,8 +572,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   resizeGrid() {
-    const currentHeight = this.gridEl.clientHeight - SCROLLBAR_WIDTH;
-    const currentWidth = this.gridEl.clientWidth - SCROLLBAR_WIDTH;
+    const currentHeight = (this.gridEl.clientHeight - SCROLLBAR_WIDTH) / 1;
+    const currentWidth = (this.gridEl.clientWidth - SCROLLBAR_WIDTH) / 1;
     const { height: viewportHeight, width: viewportWidth } =
       this.env.model.getters.getViewportDimensionWithHeaders();
     if (currentHeight != viewportHeight || currentWidth !== viewportWidth) {
