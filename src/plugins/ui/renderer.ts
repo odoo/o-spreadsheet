@@ -368,7 +368,7 @@ export class RendererPlugin extends UIPlugin {
 
   private drawHeaders(renderingContext: GridRenderingContext) {
     const { ctx, thinLineWidth, viewport } = renderingContext;
-    const { right, left, top, bottom, offsetX, offsetY } = this.getShiftedViewport(viewport);
+    const { right, left, top, bottom } = viewport;
     const { width, height } = this.getters.getViewportDimensionWithHeaders();
     const selection = this.getters.getSelectedZones();
     const { cols, rows } = this.getters.getActiveSheet();
@@ -388,18 +388,15 @@ export class RendererPlugin extends UIPlugin {
     // selection background
     ctx.fillStyle = BACKGROUND_HEADER_SELECTED_COLOR;
     for (let zone of selection) {
-      const x1 = Math.max(HEADER_WIDTH, cols[zone.left].start - offsetX);
-      const x2 = Math.max(HEADER_WIDTH, cols[zone.right].end - offsetX);
-      const y1 = Math.max(HEADER_HEIGHT, rows[zone.top].start - offsetY);
-      const y2 = Math.max(HEADER_HEIGHT, rows[zone.bottom].end - offsetY);
+      const [x, y, width, height] = this.getRect(zone, viewport);
       ctx.fillStyle = activeCols.has(zone.left)
         ? BACKGROUND_HEADER_ACTIVE_COLOR
         : BACKGROUND_HEADER_SELECTED_COLOR;
-      ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
+      ctx.fillRect(x, 0, width, HEADER_HEIGHT);
       ctx.fillStyle = activeRows.has(zone.top)
         ? BACKGROUND_HEADER_ACTIVE_COLOR
         : BACKGROUND_HEADER_SELECTED_COLOR;
-      ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
+      ctx.fillRect(0, y, HEADER_WIDTH, height);
     }
 
     // 2 main lines
@@ -420,9 +417,10 @@ export class RendererPlugin extends UIPlugin {
         continue;
       }
       ctx.fillStyle = activeCols.has(i) ? "#fff" : TEXT_HEADER_COLOR;
-      ctx.fillText(col.name, (col.start + col.end) / 2 - offsetX, HEADER_HEIGHT / 2);
-      ctx.moveTo(col.end - offsetX, 0);
-      ctx.lineTo(col.end - offsetX, HEADER_HEIGHT);
+      const [x, , width] = this.getRect(positionToZone({ col: i, row: 0 }), viewport);
+      ctx.fillText(col.name, x + width / 2, HEADER_HEIGHT / 2);
+      ctx.moveTo(x + width, 0);
+      ctx.lineTo(x + width, HEADER_HEIGHT);
     }
     // row text + separator
     for (let i = top; i <= bottom; i++) {
@@ -431,10 +429,10 @@ export class RendererPlugin extends UIPlugin {
         continue;
       }
       ctx.fillStyle = activeRows.has(i) ? "#fff" : TEXT_HEADER_COLOR;
-
-      ctx.fillText(row.name, HEADER_WIDTH / 2, (row.start + row.end) / 2 - offsetY);
-      ctx.moveTo(0, row.end - offsetY);
-      ctx.lineTo(HEADER_WIDTH, row.end - offsetY);
+      const [, y, , height] = this.getRect(positionToZone({ col: 0, row: i }), viewport);
+      ctx.fillText(row.name, HEADER_WIDTH / 2, y + height / 2);
+      ctx.moveTo(0, y + height);
+      ctx.lineTo(HEADER_WIDTH, y + height);
     }
 
     ctx.stroke();
