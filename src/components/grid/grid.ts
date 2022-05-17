@@ -353,11 +353,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   get scrollbarLengths() {
     const sheetId = this.env.model.getters.getActiveSheet();
     const { height, width } = this.env.model.getters.getMaxViewportSize(sheetId);
-    // const zoom = this.env.model.getters.getAutoZoomFactor();
-    const zoom = 2;
+    const zoom = this.env.model.getters.getAutoZoomFactor();
+    // const zoom = 2;
     return {
-      vertical: height * zoom,
-      horizontal: width * zoom,
+      vertical: Math.round(height * zoom),
+      horizontal: Math.round(width * zoom),
     };
   }
 
@@ -571,8 +571,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   resizeGrid() {
     const zoom = this.env.model.getters.getAutoZoomFactor();
-    const currentHeight = (this.gridEl.clientHeight - SCROLLBAR_WIDTH) / zoom;
-    const currentWidth = (this.gridEl.clientWidth - SCROLLBAR_WIDTH) / zoom;
+    const currentHeight = Math.round((this.gridEl.clientHeight - SCROLLBAR_WIDTH) / zoom);
+    const currentWidth = Math.round((this.gridEl.clientWidth - SCROLLBAR_WIDTH) / zoom);
     const { height: viewportHeight, width: viewportWidth } =
       this.env.model.getters.getViewportDimensionWithHeaders();
     if (currentHeight != viewportHeight || currentWidth !== viewportWidth) {

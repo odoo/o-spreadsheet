@@ -160,7 +160,6 @@ export class RendererPlugin extends UIPlugin {
 
   getAutoZoomFactor(): number {
     if (!this.getters.isDashboard()) return 1;
-    return 2;
     const sheetId = this.getters.getActiveSheetId();
     const numberOfCols = this.getters.getNumberCols(sheetId);
     const colIndices = range(numberOfCols - 1, 0, -1);

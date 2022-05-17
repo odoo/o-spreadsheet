@@ -116,7 +116,6 @@ export class ViewportPlugin extends UIPlugin {
         break;
       case "SET_VIEWPORT_OFFSET":
         console.log("SET_VIEWPORT_OFFSET", cmd.offsetX);
-        if (cmd.offsetX === 1554) debugger;
         this.setViewportOffset(cmd.offsetX, cmd.offsetY);
         break;
       case "SHIFT_VIEWPORT_DOWN":
