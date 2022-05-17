@@ -8,20 +8,20 @@ export const colMenuRegistry = new MenuItemRegistry();
 colMenuRegistry
   .add("cut", {
     name: _lt("Cut"),
-    shortCut: "Ctrl+X",
+    description: "Ctrl+X",
     sequence: 10,
     action: ACTIONS.CUT_ACTION,
   })
   .add("copy", {
     name: _lt("Copy"),
-    shortCut: "Ctrl+C",
+    description: "Ctrl+C",
     sequence: 20,
     isReadonlyAllowed: true,
     action: ACTIONS.COPY_ACTION,
   })
   .add("paste", {
     name: _lt("Paste"),
-    shortCut: "Ctrl+V",
+    description: "Ctrl+V",
     sequence: 30,
     action: ACTIONS.PASTE_ACTION,
   })

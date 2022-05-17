@@ -24,7 +24,7 @@ import { Popover } from "../popover/popover";
 css/* scss */ `
   .o-menu {
     background-color: white;
-    padding: 8px 0px;
+    padding: 5px 0px;
     .o-menu-item {
       display: flex;
       justify-content: space-between;
@@ -56,7 +56,7 @@ css/* scss */ `
         &:hover {
           background-color: #ebebeb;
         }
-        .o-menu-item-shortcut {
+        .o-menu-item-description {
           color: grey;
         }
       }
@@ -198,8 +198,8 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   getName(menu: FullMenuItem) {
     return cellMenuRegistry.getName(menu, this.env);
   }
-  getShortCut(menu: FullMenuItem) {
-    return cellMenuRegistry.getShortCut(menu);
+  getDescription(menu: FullMenuItem) {
+    return cellMenuRegistry.getDescription(menu);
   }
 
   isRoot(menu: FullMenuItem) {

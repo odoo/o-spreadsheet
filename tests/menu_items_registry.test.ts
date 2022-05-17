@@ -81,7 +81,7 @@ describe("Menu Item Registry", () => {
     topbarMenuRegistry.addChild("child2", ["root", "child1"], {
       name: "Child2",
       sequence: 1,
-      shortCut: "coucou",
+      description: "coucou",
     });
     const item = topbarMenuRegistry.get("root");
     expect(item.children).toHaveLength(1);
@@ -89,7 +89,7 @@ describe("Menu Item Registry", () => {
     expect(item.children[0].id).toBe("child1");
     expect(item.children[0].children).toHaveLength(1);
     expect(item.children[0].children[0].name).toBe("Child2");
-    expect(item.children[0].children[0].shortCut).toBe("coucou");
+    expect(item.children[0].children[0].description).toBe("coucou");
     expect(item.children[0].children[0].id).toBe("child2");
   });
 
