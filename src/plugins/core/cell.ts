@@ -46,6 +46,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "getCellStyle",
     "buildFormulaContent",
     "getCellById",
+    "tryGetCellById",
   ] as const;
 
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
@@ -271,10 +272,18 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * starting an async evaluation even if it has been moved or re-allocated
    */
   getCellById(cellId: UID): Cell | undefined {
-    for (const sheet of Object.values(this.cells)) {
-      if (sheet[cellId]) {
-        return sheet[cellId];
-      }
+    const { sheetId } = this.getters.getCellPosition(cellId);
+    if (this.cells[sheetId][cellId]) {
+      return this.cells[sheetId][cellId];
+    }
+    return undefined;
+  }
+
+  tryGetCellById(cellId: UID): Cell | undefined {
+    const cellPosition = this.getters.tryGetCellPosition(cellId);
+    if (!cellPosition) return undefined;
+    if (this.cells[cellPosition.sheetId][cellId]) {
+      return this.cells[cellPosition.sheetId][cellId];
     }
     return undefined;
   }

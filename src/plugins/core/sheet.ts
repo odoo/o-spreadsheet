@@ -62,7 +62,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getCell",
     "getCellsInZone",
     "getCellPosition",
+    "tryGetCellPosition",
     "getColCells",
+    "getRowCells",
     "getColsZone",
     "getRowsZone",
     "getNumberCols",
@@ -388,6 +390,24 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       .filter(isDefined);
   }
 
+  /**
+   * Returns all the cells of a row
+   */
+  getRowCells(sheetId: UID, row: number): Cell[] {
+    const cells: Cell[] = [];
+    const cellIds = Object.values(this.getSheet(sheetId).rows[row]?.cells || {});
+    for (let i = 0, l = cellIds.length; i < l; i++) {
+      const cellId = cellIds[i];
+      if (cellId) {
+        const cell = this.getters.getCellById(cellId);
+        if (cell) {
+          cells.push(cell);
+        }
+      }
+    }
+    return cells;
+  }
+
   getColsZone(sheetId: UID, start: number, end: number): Zone {
     return {
       top: 0,
@@ -412,6 +432,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       throw new Error(`asking for a cell position that doesn't exist, cell id: ${cellId}`);
     }
     return cell;
+  }
+
+  tryGetCellPosition(cellId: UID): CellPosition | undefined {
+    return this.cellPosition[cellId];
   }
 
   getHiddenColsGroups(sheetId: UID): ConsecutiveIndexes[] {

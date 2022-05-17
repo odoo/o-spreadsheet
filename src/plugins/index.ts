@@ -30,9 +30,9 @@ import { UIPluginConstructor } from "./ui_plugin";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("sheet", SheetPlugin)
-  .add("headerSize", HeaderSizePlugin)
   .add("cell", CellPlugin)
   .add("merge", MergePlugin)
+  .add("headerSize", HeaderSizePlugin)
   .add("borders", BordersPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
   .add("figures", FigurePlugin)

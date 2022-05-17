@@ -3,13 +3,15 @@
 //------------------------------------------------------------------------------
 
 import {
+  DEFAULT_CELL_HEIGHT,
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
   DEFAULT_FONT_WEIGHT,
   MIN_CF_ICON_MARGIN,
+  PADDING_AUTORESIZE,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
-import { ConsecutiveIndexes, Lazy, Link, Style, UID } from "../types";
+import { Cell, ConsecutiveIndexes, Lazy, Link, Style, UID } from "../types";
 import { parseDateTime } from "./dates";
 /**
  * Stringify an object, like JSON.stringify, except that the first level of keys
@@ -95,6 +97,22 @@ export function getComposerSheetName(sheetName: string): string {
 
 export function clip(val: number, min: number, max: number): number {
   return val < min ? min : val > max ? max : val;
+}
+
+/** Get the default height of the cell. The height depends on the font size */
+export function getDefaultCellHeight(cell: Cell | undefined): number {
+  if (!cell?.style?.fontSize) {
+    return DEFAULT_CELL_HEIGHT;
+  }
+  return fontSizeInPixels(cell.style) + 2 * PADDING_AUTORESIZE;
+}
+
+export function fontSizeInPixels(style: Style) {
+  const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
+  if (!fontSizeMap[sizeInPt]) {
+    throw new Error("Size of the font is not supported");
+  }
+  return fontSizeMap[sizeInPt];
 }
 
 export function computeTextWidth(context: CanvasRenderingContext2D, text: string, style: Style) {

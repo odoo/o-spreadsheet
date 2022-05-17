@@ -1,37 +1,37 @@
 import { ICONS } from "../../components/icons/icons";
 import {
-BACKGROUND_HEADER_ACTIVE_COLOR,
-BACKGROUND_HEADER_COLOR,
-BACKGROUND_HEADER_SELECTED_COLOR,
-CELL_BORDER_COLOR,
-DEFAULT_FONT,
-DEFAULT_FONT_SIZE,
-DEFAULT_FONT_WEIGHT,
-HEADER_BORDER_COLOR,
-HEADER_FONT_SIZE,
-HEADER_HEIGHT,
-HEADER_WIDTH,
-MIN_CELL_TEXT_MARGIN,
-MIN_CF_ICON_MARGIN,
-TEXT_HEADER_COLOR
+  BACKGROUND_HEADER_ACTIVE_COLOR,
+  BACKGROUND_HEADER_COLOR,
+  BACKGROUND_HEADER_SELECTED_COLOR,
+  CELL_BORDER_COLOR,
+  DEFAULT_FONT,
+  DEFAULT_FONT_SIZE,
+  DEFAULT_FONT_WEIGHT,
+  HEADER_BORDER_COLOR,
+  HEADER_FONT_SIZE,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+  MIN_CELL_TEXT_MARGIN,
+  MIN_CF_ICON_MARGIN,
+  TEXT_HEADER_COLOR,
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { intersection,overlap,positionToZone,scrollDelay,union } from "../../helpers/index";
+import { intersection, overlap, positionToZone, scrollDelay, union } from "../../helpers/index";
 import {
-Align,
-Box,
-Cell,
-CellValueType,
-Dimension,
-EdgeScrollInfo,
-GridRenderingContext,
-HeaderDimensions,
-LAYERS,
-Rect,
-ScrollDirection,
-UID,
-Viewport,
-Zone
+  Align,
+  Box,
+  Cell,
+  CellValueType,
+  Dimension,
+  EdgeScrollInfo,
+  GridRenderingContext,
+  HeaderDimensions,
+  LAYERS,
+  Rect,
+  ScrollDirection,
+  UID,
+  Viewport,
+  Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 

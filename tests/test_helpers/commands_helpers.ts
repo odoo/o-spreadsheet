@@ -10,6 +10,7 @@ import {
   CreateSheetCommand,
   DispatchResult,
   SortDirection,
+  Style,
   UID,
   UpDown,
 } from "../../src/types";
@@ -608,4 +609,17 @@ export function hideSheet(model: Model, sheetId: UID) {
 
 export function showSheet(model: Model, sheetId: UID) {
   return model.dispatch("SHOW_SHEET", { sheetId });
+}
+
+export function setStyle(
+  model: Model,
+  targetXc: string,
+  style: Style,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("SET_FORMATTING", {
+    sheetId: sheetId,
+    target: target(targetXc),
+    style: style,
+  });
 }

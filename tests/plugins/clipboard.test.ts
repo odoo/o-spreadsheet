@@ -495,7 +495,7 @@ describe("clipboard", () => {
 
   test("Dispatch a PASTE command with interactive=true correctly takes pasteOption into account", async () => {
     const model = new Model();
-    const style = { fontSize: 42 };
+    const style = { fontSize: 36 };
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "=42");
     model.dispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, style });

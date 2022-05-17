@@ -1,11 +1,10 @@
-import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../constants";
-import { fontSizeMap } from "../../fonts";
-import { computeIconWidth, computeTextWidth, isDefined } from "../../helpers/index";
+import { PADDING_AUTORESIZE } from "../../constants";
+import { computeIconWidth, computeTextWidth } from "../../helpers/index";
 import { Cell, CellValueType, Command, CommandResult, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
-  static getters = ["getCellWidth", "getCellHeight", "getTextWidth", "getCellText"] as const;
+  static getters = ["getCellWidth", "getTextWidth", "getCellText"] as const;
 
   private ctx = document.createElement("canvas").getContext("2d")!;
 
@@ -44,15 +43,12 @@ export class SheetUIPlugin extends UIPlugin {
         break;
       case "AUTORESIZE_ROWS":
         for (let row of cmd.rows) {
-          const size = this.getRowMaxHeight(cmd.sheetId, row);
-          if (size !== 0) {
-            this.dispatch("RESIZE_COLUMNS_ROWS", {
-              elements: [row],
-              dimension: "ROW",
-              size: size + 2 * PADDING_AUTORESIZE,
-              sheetId: cmd.sheetId,
-            });
-          }
+          this.dispatch("RESIZE_COLUMNS_ROWS", {
+            elements: [row],
+            dimension: "ROW",
+            size: undefined,
+            sheetId: cmd.sheetId,
+          });
         }
         break;
     }
@@ -77,12 +73,6 @@ export class SheetUIPlugin extends UIPlugin {
     return computeTextWidth(this.ctx, text, this.getters.getCellStyle(cell));
   }
 
-  getCellHeight(cell: Cell): number {
-    const style = this.getters.getCellStyle(cell);
-    const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
-    return fontSizeMap[sizeInPt];
-  }
-
   getCellText(cell: Cell, showFormula: boolean = false): string {
     if (showFormula && (cell.isFormula() || cell.evaluated.type === CellValueType.error)) {
       return cell.content;
@@ -98,15 +88,6 @@ export class SheetUIPlugin extends UIPlugin {
   private getColMaxWidth(sheetId: UID, index: number): number {
     const cells = this.getters.getColCells(sheetId, index);
     const sizes = cells.map((cell: Cell) => this.getCellWidth(cell));
-    return Math.max(0, ...sizes);
-  }
-
-  private getRowMaxHeight(sheetId: UID, index: number): number {
-    const sheet = this.getters.getSheet(sheetId);
-    const cells = Object.values(sheet.rows[index].cells)
-      .filter(isDefined)
-      .map((cellId) => this.getters.getCellById(cellId));
-    const sizes = cells.map((cell: Cell) => this.getCellHeight(cell));
     return Math.max(0, ...sizes);
   }
 }

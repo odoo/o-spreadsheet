@@ -214,7 +214,7 @@ export interface MoveColumnsRowsCommand extends SheetDependentCommand, GridDepen
 export interface ResizeColumnsRowsCommand extends SheetDependentCommand, GridDependentCommand {
   type: "RESIZE_COLUMNS_ROWS";
   elements: number[];
-  size: number;
+  size: number | undefined;
 }
 
 export interface HideColumnsRowsCommand extends SheetDependentCommand, GridDependentCommand {
