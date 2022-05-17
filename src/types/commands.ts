@@ -218,7 +218,7 @@ export interface MoveColumnsRowsCommand extends GridDependentCommand {
 export interface ResizeColumnsRowsCommand extends GridDependentCommand {
   type: "RESIZE_COLUMNS_ROWS";
   elements: number[];
-  size: number;
+  size: number | null;
 }
 
 export interface HideColumnsRowsCommand extends GridDependentCommand {

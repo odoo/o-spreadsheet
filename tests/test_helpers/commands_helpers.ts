@@ -9,6 +9,7 @@ import {
   CreateSheetCommand,
   DispatchResult,
   SortDirection,
+  Style,
   UID,
   UpDown,
 } from "../../src/types";
@@ -686,5 +687,18 @@ export function setViewportOffset(model: Model, offsetX: number, offsetY: number
   return model.dispatch("SET_VIEWPORT_OFFSET", {
     offsetX,
     offsetY,
+  });
+}
+
+export function setStyle(
+  model: Model,
+  targetXc: string,
+  style: Style,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("SET_FORMATTING", {
+    sheetId: sheetId,
+    target: target(targetXc),
+    style: style,
   });
 }

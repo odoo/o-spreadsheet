@@ -1,17 +1,23 @@
 import { DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { getDefaultCellHeight } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult } from "../../src/types";
+import { Cell, CommandResult, Sheet } from "../../src/types";
 import {
   activateSheet,
   addColumns,
   addRows,
   createSheet,
+  deleteCells,
   deleteColumns,
   deleteRows,
+  merge,
   redo,
   resizeColumns,
   resizeRows,
+  setCellContent,
+  setStyle,
   undo,
+  unMerge,
 } from "../test_helpers/commands_helpers";
 import { DEFAULT_CELL_HEIGHT } from "./../../src/constants";
 
@@ -235,6 +241,209 @@ describe("Model resizer", () => {
       expect(model.getters.getRowSize(sheetId, 3)).toEqual(20);
       expect(model.getters.getRowSize(sheetId, 4)).toEqual(DEFAULT_CELL_HEIGHT);
       expect(model.getters.getRowSize(sheetId, 5)).toEqual(DEFAULT_CELL_HEIGHT);
+    });
+  });
+
+  describe("resize rows when changing font", () => {
+    let model: Model;
+    let sheet: Sheet;
+    beforeEach(() => {
+      model = new Model({
+        sheets: [
+          {
+            id: "1",
+            colNumber: 10,
+            rowNumber: 10,
+            rows: { 6: { size: 40 } },
+            cells: {
+              A1: { content: "A1", evaluated: { value: "A1" } },
+              B1: { content: "B1", evaluated: { value: "B1" } },
+              A4: { content: "A4", evaluated: { value: "A4" }, style: 1 },
+            },
+          },
+        ],
+        styles: { 1: { fontSize: 36 } },
+      });
+      sheet = model.getters.getActiveSheet();
+    });
+
+    test("After import, the rows are resized based on the font size", () => {
+      expect(model.getters.getRowSize(sheet.id, 6)).toBe(40);
+
+      expect(model.getters.getRowSize(sheet.id, 3)).toBe(
+        getDefaultCellHeight({
+          content: "A4",
+          evaluated: { value: "A4" },
+          style: { fontSize: 36 },
+        } as Cell)
+      );
+    });
+
+    test("Row sizes that were automatically computed based on font size are not exported", () => {
+      setStyle(model, "A1", { fontSize: 36 });
+      const exportedData = model.exportData();
+      expect(exportedData.sheets[0].rows["0"]).toBeUndefined();
+    });
+
+    test("changing the font size change the row height", () => {
+      setStyle(model, "A1", { fontSize: 22 });
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(
+        getDefaultCellHeight({
+          content: "A1",
+          evaluated: { value: "A1" },
+          style: { fontSize: 22 },
+        } as Cell)
+      );
+
+      setStyle(model, "A1", { fontSize: 11 });
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
+    });
+
+    test("changing the font size don't modify row height if there is a bigger cell", () => {
+      setStyle(model, "A1", { fontSize: 36 });
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(
+        getDefaultCellHeight({
+          content: "A1",
+          evaluated: { value: "A1" },
+          style: { fontSize: 36 },
+        } as Cell)
+      );
+
+      setStyle(model, "B1", { fontSize: 26 });
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(
+        getDefaultCellHeight({
+          content: "A1",
+          evaluated: { value: "A1" },
+          style: { fontSize: 36 },
+        } as Cell)
+      );
+    });
+
+    test("changing the font size cannot set row height below default", () => {
+      const style = { fontSize: 7.5 };
+      setStyle(model, "A1", style);
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
+    });
+
+    test.each([10, 50])(
+      "changing the font size don't modify row height if the height was set manually",
+      (rowSize) => {
+        resizeRows(model, [0], rowSize);
+
+        setStyle(model, "A1", { fontSize: 36 });
+        expect(model.getters.getRowSize(sheet.id, 0)).toBe(rowSize);
+      }
+    );
+
+    test("adding content to an empty cell update the row size", () => {
+      setStyle(model, "C1", { fontSize: 36 });
+      setCellContent(model, "C1", "B1");
+
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(
+        getDefaultCellHeight({
+          content: "C1",
+          evaluated: { value: "C1" },
+          style: { fontSize: 36 },
+        } as Cell)
+      );
+    });
+
+    test("deleting tallest cell in the row update row height", () => {
+      setStyle(model, "A1", { fontSize: 36 });
+      deleteCells(model, "A1", "left");
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
+    });
+
+    test("deleting col with tallest cell in the row update row height", () => {
+      setStyle(model, "A1", { fontSize: 36 });
+      deleteColumns(model, ["A"], sheet.id);
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
+    });
+
+    test("deleting col with tallest cell in the row update row height", () => {
+      setStyle(model, "A1", { fontSize: 36 });
+      deleteColumns(model, ["A"], sheet.id);
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
+    });
+
+    test("adding a merge overwriting the the tallest cell in a row update row height", () => {
+      setStyle(model, "A2", { fontSize: 36 });
+      merge(model, "A1:A2");
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
+    });
+
+    test("adding a merge with top left being the the tallest cell in a row update row height", () => {
+      setStyle(model, "A1", { fontSize: 36 });
+      merge(model, "A1:A2");
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
+    });
+
+    test("adding style to merge with more than one row don't auto-resize the row", () => {
+      merge(model, "A1:A2");
+      setStyle(model, "A1", { fontSize: 36 });
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
+    });
+
+    test("adding style to a single-row merge merge auto-resize the row", () => {
+      merge(model, "A1:B1");
+      setStyle(model, "A1", { fontSize: 36 });
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(
+        getDefaultCellHeight({
+          content: "A1",
+          evaluated: { value: "A1" },
+          style: { fontSize: 36 },
+        } as Cell)
+      );
+    });
+
+    test("auto-resize the row take the size of the highest single-row cell when the tallest cell is removed ", () => {
+      setStyle(model, "A1", { fontSize: 36 });
+      merge(model, "B1:C1");
+      setStyle(model, "B1", { fontSize: 26 });
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(
+        getDefaultCellHeight({
+          content: "A1",
+          evaluated: { value: "A1" },
+          style: { fontSize: 36 },
+        } as Cell)
+      );
+      deleteColumns(model, ["A"]);
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(
+        getDefaultCellHeight({
+          content: "B1",
+          evaluated: { value: "B1" },
+          style: { fontSize: 26 },
+        } as Cell)
+      );
+    });
+
+    test("removing a merge with a font height will update the row height", () => {
+      merge(model, "A1:A2");
+      setStyle(model, "A1", { fontSize: 36 });
+      unMerge(model, "A1:A2");
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(
+        getDefaultCellHeight({
+          content: "B1",
+          evaluated: { value: "B1" },
+          style: { fontSize: 36 },
+        } as Cell)
+      );
+    });
+
+    test("merge style don't influence auto-resizing of rows", () => {
+      merge(model, "A1:A2");
+      setStyle(model, "A1", { fontSize: 36 });
+
+      setCellContent(model, "B1", "B1");
+      setStyle(model, "B1", { fontSize: 18 });
+
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(
+        getDefaultCellHeight({
+          content: "B1",
+          evaluated: { value: "B1" },
+          style: { fontSize: 18 },
+        } as Cell)
+      );
     });
   });
 });

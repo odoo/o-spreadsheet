@@ -113,7 +113,7 @@ class Demo extends Component {
     }
     this.model = new Model(
       demoData,
-      // makeLargeDataset(26, 10_000, ["numbers"]);
+      // makeLargeDataset(26, 10_000, ["numbers"]),
       {
         evalContext: { env: this.env },
         transportService: this.transportService,
