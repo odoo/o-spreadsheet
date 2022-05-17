@@ -102,7 +102,8 @@ export class RendererPlugin extends UIPlugin {
    */
   getRect(zone: Zone, viewport: Viewport): Rect {
     const { left, top, right, bottom } = zone;
-    const { offsetX, offsetY } = this.getShiftedViewport(viewport);
+    const offsetX = viewport.offsetX - (this.getters.isDashboard() ? 0 : HEADER_WIDTH);
+    const offsetY = viewport.offsetY - (this.getters.isDashboard() ? 0 : HEADER_HEIGHT);
     const { cols, rows } = this.getters.getActiveSheet();
     const x = cols[left].start - offsetX;
     const width = cols[right].end - offsetX - x;
@@ -442,19 +443,6 @@ export class RendererPlugin extends UIPlugin {
     return (cell && !cell.isEmpty()) || this.getters.isInMerge(sheetId, col, row);
   }
 
-  /**
-   * Adapt the current viewport with the headers sizes
-   */
-  private getShiftedViewport(viewport: Viewport): Viewport {
-    const shiftX = this.getters.isDashboard() ? 0 : HEADER_WIDTH;
-    const shiftY = this.getters.isDashboard() ? 0 : HEADER_HEIGHT;
-    return {
-      ...viewport,
-      offsetX: viewport.offsetX - shiftX,
-      offsetY: viewport.offsetY - shiftY,
-    };
-  }
-
   private findNextEmptyCol(base: number, max: number, row: number): number {
     let col = base;
     while (col < max && !this.hasContent(col + 1, row)) {
@@ -595,7 +583,7 @@ export class RendererPlugin extends UIPlugin {
     const boxes: Box[] = [];
 
     const { viewport } = renderingContext;
-    const { right, left, top, bottom } = this.getShiftedViewport(viewport);
+    const { right, left, top, bottom } = viewport;
     const sheetId = this.getters.getActiveSheetId();
 
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
