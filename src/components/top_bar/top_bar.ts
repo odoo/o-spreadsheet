@@ -36,23 +36,35 @@ interface State {
 }
 
 const FORMATS = [
-  { name: "general", text: `${NumberFormatTerms.General} (${NumberFormatTerms.NoSpecificFormat})` },
-  { name: "number", text: `${NumberFormatTerms.Number} (1,000.12)`, value: "#,##0.00" },
-  { name: "percent", text: `${NumberFormatTerms.Percent} (10.12%)`, value: "0.00%" },
-  { name: "currency", text: `${NumberFormatTerms.Currency} ($1,000.12)`, value: "[$$]#,##0.00" },
+  { name: "general", text: NumberFormatTerms.General },
+  { name: "number", text: NumberFormatTerms.Number, description: "(1,000.12)", value: "#,##0.00" },
+  { name: "percent", text: NumberFormatTerms.Percent, description: "(10.12%)", value: "0.00%" },
+  {
+    name: "currency",
+    text: NumberFormatTerms.Currency,
+    description: "($1,000.12)",
+    value: "[$$]#,##0.00",
+  },
   {
     name: "currency_rounded",
-    text: `${NumberFormatTerms.CurrencyRounded} ($1,000)`,
+    text: NumberFormatTerms.CurrencyRounded,
+    description: "($1,000)",
     value: "[$$]#,##0",
   },
-  { name: "date", text: `${NumberFormatTerms.Date} (9/26/2008)`, value: "m/d/yyyy" },
-  { name: "time", text: `${NumberFormatTerms.Time} (10:43:00 PM)`, value: "hh:mm:ss a" },
+  { name: "date", text: NumberFormatTerms.Date, description: "(9/26/2008)", value: "m/d/yyyy" },
+  { name: "time", text: NumberFormatTerms.Time, description: "(10:43:00 PM)", value: "hh:mm:ss a" },
   {
     name: "datetime",
-    text: `${NumberFormatTerms.DateTime} (9/26/2008 22:43:00)`,
+    text: NumberFormatTerms.DateTime,
+    description: "(9/26/2008 22:43:00)",
     value: "m/d/yyyy hh:mm:ss",
   },
-  { name: "duration", text: `${NumberFormatTerms.Duration} (27:51:38)`, value: "hhhh:mm:ss" },
+  {
+    name: "duration",
+    text: NumberFormatTerms.Duration,
+    description: "(27:51:38)",
+    value: "hhhh:mm:ss",
+  },
 ];
 
 const CUSTOM_FORMATS = [
@@ -224,16 +236,18 @@ css/* scss */ `
             }
 
             &.o-format-tool {
-              padding: 7px 0;
+              padding: 5px 0;
+              width: 250px;
+              font-size: 12px;
               > div {
-                padding-left: 25px;
+                padding: 0 20px;
                 white-space: nowrap;
 
                 &.active:before {
                   content: "✓";
                   font-weight: bold;
                   position: absolute;
-                  left: 10px;
+                  left: 5px;
                 }
               }
             }

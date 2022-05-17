@@ -79,7 +79,6 @@ export const ChartTerms = {
 
 export const NumberFormatTerms = {
   General: _lt("General"),
-  NoSpecificFormat: _lt("no specific format"),
   Number: _lt("Number"),
   Percent: _lt("Percent"),
   Currency: _lt("Currency"),

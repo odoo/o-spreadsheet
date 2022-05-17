@@ -16,39 +16,39 @@ topbarMenuRegistry
   .add("data", { name: _lt("Data"), sequence: 60 })
   .addChild("save", ["file"], {
     name: _lt("Save"),
-    shortCut: "Ctrl+S",
+    description: "Ctrl+S",
     sequence: 10,
     action: () => console.log("Not implemented"),
   })
   .addChild("undo", ["edit"], {
     name: _lt("Undo"),
-    shortCut: "Ctrl+Z",
+    description: "Ctrl+Z",
     sequence: 10,
     action: ACTIONS.UNDO_ACTION,
   })
   .addChild("redo", ["edit"], {
     name: _lt("Redo"),
-    shortCut: "Ctrl+Y",
+    description: "Ctrl+Y",
     sequence: 20,
     action: ACTIONS.REDO_ACTION,
     separator: true,
   })
   .addChild("copy", ["edit"], {
     name: _lt("Copy"),
-    shortCut: "Ctrl+C",
+    description: "Ctrl+C",
     sequence: 30,
     isReadonlyAllowed: true,
     action: ACTIONS.COPY_ACTION,
   })
   .addChild("cut", ["edit"], {
     name: _lt("Cut"),
-    shortCut: "Ctrl+X",
+    description: "Ctrl+X",
     sequence: 40,
     action: ACTIONS.CUT_ACTION,
   })
   .addChild("paste", ["edit"], {
     name: _lt("Paste"),
-    shortCut: "Ctrl+V",
+    description: "Ctrl+V",
     sequence: 50,
     action: ACTIONS.PASTE_ACTION,
   })
@@ -86,7 +86,7 @@ topbarMenuRegistry
   })
   .addChild("find_and_replace", ["edit"], {
     name: _lt("Find and replace"),
-    shortCut: "Ctrl+H",
+    description: "Ctrl+H",
     sequence: 65,
     isReadonlyAllowed: true,
     action: ACTIONS.OPEN_FAR_SIDEPANEL_ACTION,
@@ -207,29 +207,33 @@ topbarMenuRegistry
     separator: true,
   })
   .addChild("format_number_general", ["format", "format_number"], {
-    name: `${NumberFormatTerms.General} (${NumberFormatTerms.NoSpecificFormat})`,
+    name: NumberFormatTerms.General,
     sequence: 10,
     separator: true,
     action: ACTIONS.FORMAT_GENERAL_ACTION,
   })
   .addChild("format_number_number", ["format", "format_number"], {
-    name: `${NumberFormatTerms.Number} (1,000.12)`,
+    name: NumberFormatTerms.Number,
+    description: "(1,000.12)",
     sequence: 20,
     action: ACTIONS.FORMAT_NUMBER_ACTION,
   })
   .addChild("format_number_percent", ["format", "format_number"], {
-    name: `${NumberFormatTerms.Percent} (10.12%)`,
+    name: NumberFormatTerms.Percent,
+    description: "(10.12%)",
     sequence: 30,
     separator: true,
     action: ACTIONS.FORMAT_PERCENT_ACTION,
   })
   .addChild("format_number_currency", ["format", "format_number"], {
-    name: `${NumberFormatTerms.Currency} ($1,000.12)`,
+    name: NumberFormatTerms.Currency,
+    description: "($1,000.12)",
     sequence: 37,
     action: ACTIONS.FORMAT_CURRENCY_ACTION,
   })
   .addChild("format_number_currency_rounded", ["format", "format_number"], {
-    name: `${NumberFormatTerms.CurrencyRounded} ($1,000)`,
+    name: NumberFormatTerms.CurrencyRounded,
+    description: "($1,000)",
     sequence: 38,
     action: ACTIONS.FORMAT_CURRENCY_ROUNDED_ACTION,
   })
@@ -240,22 +244,26 @@ topbarMenuRegistry
     action: ACTIONS.OPEN_CUSTOM_CURRENCY_SIDEPANEL_ACTION,
   })
   .addChild("format_number_date", ["format", "format_number"], {
-    name: `${NumberFormatTerms.Date} (9/26/2008)`,
+    name: NumberFormatTerms.Date,
+    description: "(9/26/2008)",
     sequence: 40,
     action: ACTIONS.FORMAT_DATE_ACTION,
   })
   .addChild("format_number_time", ["format", "format_number"], {
-    name: `${NumberFormatTerms.Time} (10:43:00 PM)`,
+    name: NumberFormatTerms.Time,
+    description: "(10:43:00 PM)",
     sequence: 50,
     action: ACTIONS.FORMAT_TIME_ACTION,
   })
   .addChild("format_number_date_time", ["format", "format_number"], {
-    name: `${NumberFormatTerms.DateTime} (9/26/2008 22:43:00)`,
+    name: NumberFormatTerms.DateTime,
+    description: "(9/26/2008 22:43:00)",
     sequence: 60,
     action: ACTIONS.FORMAT_DATE_TIME_ACTION,
   })
   .addChild("format_number_duration", ["format", "format_number"], {
-    name: `${NumberFormatTerms.Duration} (27:51:38)`,
+    name: NumberFormatTerms.Duration,
+    description: "(27:51:38)",
     sequence: 70,
     separator: true,
     action: ACTIONS.FORMAT_DURATION_ACTION,
@@ -263,18 +271,18 @@ topbarMenuRegistry
   .addChild("format_bold", ["format"], {
     name: _lt("Bold"),
     sequence: 20,
-    shortCut: "Ctrl+B",
+    description: "Ctrl+B",
     action: ACTIONS.FORMAT_BOLD_ACTION,
   })
   .addChild("format_italic", ["format"], {
     name: _lt("Italic"),
     sequence: 30,
-    shortCut: "Ctrl+I",
+    description: "Ctrl+I",
     action: ACTIONS.FORMAT_ITALIC_ACTION,
   })
   .addChild("format_underline", ["format"], {
     name: _lt("Underline"),
-    shortCut: "Ctrl+U",
+    description: "Ctrl+U",
     sequence: 40,
     action: ACTIONS.FORMAT_UNDERLINE_ACTION,
   })
