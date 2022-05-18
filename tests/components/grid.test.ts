@@ -987,8 +987,8 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     });
   });
 
-  test("Can edge-scroll vertically", () => {
-    const { width, height } = model.getters.getViewportDimension();
+  test("Can edge-scroll vertically", async () => {
+    const { width, height } = model.getters.getViewportDimensionWithHeaders();
     const x = width / 2;
     triggerMouseEvent(".o-grid-overlay", "mousedown", x, height / 2);
     triggerMouseEvent(".o-grid-overlay", "mousemove", x, 1.5 * height);
