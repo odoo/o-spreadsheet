@@ -48,7 +48,6 @@ export function dragAndDropBeyondTheViewport(
     const edgeScrollInfoX = env.getters.getEdgeScrollCol(offsetX);
     const edgeScrollInfoY = env.getters.getEdgeScrollRow(offsetY);
     const { top, left, bottom, right } = env.getters.getActiveSnappedViewport();
-
     let colIndex: number;
     if (edgeScrollInfoX.canEdgeScroll) {
       colIndex = edgeScrollInfoX.direction > 0 ? right : left - 1;
@@ -84,7 +83,7 @@ export function dragAndDropBeyondTheViewport(
       timeOutId = setTimeout(() => {
         timeOutId = null;
         onMouseMove(currentEv);
-      }, Math.round(edgeScrollInfoX.delay));
+      }, Math.round(edgeScrollInfoY.delay));
     }
   };
 
