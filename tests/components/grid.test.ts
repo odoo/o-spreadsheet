@@ -907,7 +907,7 @@ describe("Events on Grid update viewport correctly", () => {
       });
     });
 
-    test("Can edge-scroll vertically", () => {
+    test("Can edge-scroll vertically", async () => {
       const { width, height } = model.getters.getViewportDimension();
       const x = width / 2;
       triggerMouseEvent("canvas", "mousedown", x, height / 2);
