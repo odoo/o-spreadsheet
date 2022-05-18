@@ -1,7 +1,8 @@
 import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../src/constants";
-import { createChart } from "../test_helpers/commands_helpers";
+import { toZone } from "../../src/helpers";
+import { createChart, updateChart } from "../test_helpers/commands_helpers";
 import {
   setInputValueAndTrigger,
   simulateClick,
@@ -93,6 +94,7 @@ describe("figures", () => {
           background: BACKGROUND_CHART_COLOR,
           verticalAxisPosition: "left",
           stackedBar: false,
+          labelsAsText: false,
           legendPosition: "top",
         },
         id: "someuuid",
@@ -458,7 +460,67 @@ describe("figures", () => {
     await nextTick();
     expect(document.querySelectorAll(".o-menu").length).toBe(1);
   });
+
+  describe("labelAsText", () => {
+    test("labelAsText checkbox displayed for line charts with number dataset and labels", async () => {
+      updateChart(model, chartId, { type: "line", labelRange: "C2:C4", dataSets: ["B2:B4"] });
+      await simulateClick(".o-figure");
+      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-menu div[data-name='edit']");
+      await nextTick();
+      expect(document.querySelector("input[name='labelsAsText']")).toBeTruthy();
+    });
+
+    test("labelAsText checkbox not displayed for pie charts", async () => {
+      updateChart(model, chartId, { type: "pie" });
+      await simulateClick(".o-figure");
+      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-menu div[data-name='edit']");
+      expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
+    });
+
+    test("labelAsText checkbox not displayed for bar charts", async () => {
+      updateChart(model, chartId, { type: "bar" });
+      await simulateClick(".o-figure");
+      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-menu div[data-name='edit']");
+      expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
+    });
+
+    test("labelAsText checkbox not displayed for text labels", async () => {
+      updateChart(model, chartId, { type: "line", labelRange: "A2:A4", dataSets: ["B2:B4"] });
+      await simulateClick(".o-figure");
+      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-menu div[data-name='edit']");
+      expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
+    });
+
+    test("labelAsText checkbox displayed for date labels", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("C2:C4")],
+        format: "m/d/yyyy",
+      });
+      updateChart(model, chartId, { type: "line", labelRange: "C2:C4", dataSets: ["B2:B4"] });
+      await simulateClick(".o-figure");
+      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-menu div[data-name='edit']");
+      expect(document.querySelector("input[name='labelsAsText']")).toBeTruthy();
+    });
+
+    test("labelAsText checkbox updates the chart", async () => {
+      const sheetId = model.getters.getActiveSheetId();
+      updateChart(model, chartId, { type: "line", labelRange: "C2:C4", dataSets: ["B2:B4"] });
+      expect(model.getters.getChartDefinitionUI(sheetId, chartId).labelsAsText).toBeFalsy();
+      await simulateClick(".o-figure");
+      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-menu div[data-name='edit']");
+      await simulateClick("input[name='labelsAsText']");
+      expect(model.getters.getChartDefinitionUI(sheetId, chartId).labelsAsText).toBeTruthy();
+    });
+  });
 });
+
 describe("charts with multiple sheets", () => {
   beforeEach(async () => {
     fixture = makeTestFixture();

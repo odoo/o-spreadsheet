@@ -77,6 +77,15 @@
           onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
           onSelectionConfirmed="() => this.updateLabelRange()"
         />
+        <div t-if="canTreatLabelsAsText()">
+          <input
+            type="checkbox"
+            name="labelsAsText"
+            t-model="state.chart.labelsAsText"
+            t-on-change="updateLabelsAsText"
+          />
+          Treat labels as text
+        </div>
       </div>
       <div class="o-section o-sidepanel-error" t-if="errorMessages">
         <div t-foreach="errorMessages" t-as="error" t-key="error">

@@ -581,6 +581,7 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
       background: BACKGROUND_CHART_COLOR,
       verticalAxisPosition: "left",
       legendPosition: "top",
+      labelsAsText: false,
     },
   });
   const figure = env.model.getters.getFigure(sheetId, id);
