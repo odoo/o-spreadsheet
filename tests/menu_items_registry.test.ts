@@ -947,6 +947,7 @@ describe("Menu Item actions", () => {
           labelRange: undefined,
           legendPosition: "top",
           stackedBar: false,
+          labelsAsText: false,
           title: "",
           type: "bar",
           verticalAxisPosition: "left",

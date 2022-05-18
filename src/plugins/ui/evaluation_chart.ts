@@ -1,17 +1,39 @@
-import { ChartConfiguration, ChartLegendOptions, ChartTooltipItem } from "chart.js";
+import { ChartConfiguration, ChartDataSets, ChartLegendOptions, ChartTooltipItem } from "chart.js";
 import { ChartTerms } from "../../components/translations_terms";
 import { MAX_CHAR_LABEL } from "../../constants";
 import { ChartColors } from "../../helpers/chart";
-import { isDefined, isInside, overlap, recomputeZones, zoneToXc } from "../../helpers/index";
-import { range } from "../../helpers/misc";
-import { Cell } from "../../types";
-import { ChartData, ChartDataSet, ChartDefinition, DataSet } from "../../types/chart";
+import { getChartTimeOptions, timeFormatMomentCompatible } from "../../helpers/chart_date";
+import {
+  formatValue,
+  isDefined,
+  isInside,
+  overlap,
+  recomputeZones,
+  zoneToXc,
+} from "../../helpers/index";
+import { deepCopy, findNextDefinedValue, range } from "../../helpers/misc";
+import { Cell, Format } from "../../types";
+import { ChartDefinition, DataSet } from "../../types/chart";
 import { Command } from "../../types/commands";
 import { UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
+import { ChartData } from "./../../types/chart";
+
+interface LabelValues {
+  values: string[];
+  formattedValues: string[];
+}
+
+interface DatasetValues {
+  label?: string;
+  data: any[];
+}
+
+type AxisType = "category" | "linear" | "time";
 
 export class EvaluationChartPlugin extends UIPlugin {
-  static getters = ["getChartRuntime"] as const;
+  static getters = ["getChartRuntime", "canChartParseLabels"] as const;
+
   // contains the configuration of the chart with it's values like they should be displayed,
   // as well as all the options needed for the chart library to work correctly
   readonly chartRuntime: { [figureId: string]: ChartConfiguration } = {};
@@ -115,6 +137,17 @@ export class EvaluationChartPlugin extends UIPlugin {
     return this.chartRuntime[figureId];
   }
 
+  /**
+   * Check if the labels of the chart can be parsed to not be interpreted as text, ie. if the chart
+   * can be a date chart or a linear chart
+   */
+  canChartParseLabels(figureId: string): boolean {
+    const definition = this.getters.getChartDefinition(figureId);
+    if (definition === undefined) return false;
+
+    return this.canBeLinearChart(definition) || this.canBeDateChart(definition);
+  }
+
   private truncateLabel(label: string | undefined): string {
     if (!label) {
       return "";
@@ -177,6 +210,7 @@ export class EvaluationChartPlugin extends UIPlugin {
       config.options!.scales = {
         xAxes: [
           {
+            offset: true, // prevent bars at the edges from being cut when using linear/time axis
             ticks: {
               // x axis configuration
               maxRotation: 60,
@@ -277,34 +311,102 @@ export class EvaluationChartPlugin extends UIPlugin {
     }
   }
 
+  /** Get the format of the first cell in the label range of the chart, if any */
+  private getLabelFormat(definition: ChartDefinition): Format | undefined {
+    if (!definition.labelRange) return undefined;
+    const firstLabelCell = this.getters.getCell(
+      definition.labelRange.sheetId,
+      definition.labelRange.zone.left,
+      definition.labelRange.zone.top
+    );
+    return firstLabelCell?.format;
+  }
+
+  private getChartAxisType(definition: ChartDefinition): AxisType {
+    if (this.isDateChart(definition)) {
+      return "time";
+    }
+    if (this.isLinearChart(definition)) {
+      return "linear";
+    }
+    return "category";
+  }
+
   private mapDefinitionToRuntime(definition: ChartDefinition): ChartConfiguration {
-    let labels: string[] = [];
+    const axisType = this.getChartAxisType(definition);
+    const labelValues = this.getChartLabelValues(definition);
+    let labels = axisType === "linear" ? labelValues.values : labelValues.formattedValues;
+    let dataSetsValues = this.getChartDatasetValues(definition);
+
+    ({ labels, dataSetsValues } = this.filterEmptyDataPoints(labels, dataSetsValues));
+    if (axisType === "time") {
+      ({ labels, dataSetsValues } = this.fixEmptyLabelsForDateCharts(labels, dataSetsValues));
+    }
+
+    const runtime = this.getDefaultConfiguration(definition, labels);
+    const labelFormat = this.getLabelFormat(definition)!;
+    if (axisType === "time") {
+      runtime.options!.scales!.xAxes![0].type = "time";
+      runtime.options!.scales!.xAxes![0].time = getChartTimeOptions(labels, labelFormat);
+      runtime.options!.scales!.xAxes![0].ticks!.maxTicksLimit = 15;
+    } else if (axisType === "linear") {
+      runtime.options!.scales!.xAxes![0].type = "linear";
+      runtime.options!.scales!.xAxes![0].ticks!.callback = (value) =>
+        formatValue(value, labelFormat);
+    }
+
+    const colors = new ChartColors();
+
+    for (let { label, data } of dataSetsValues) {
+      if (["linear", "time"].includes(axisType)) {
+        // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
+        data = data.map((y, index) => ({ x: labels[index] || undefined, y }));
+      }
+
+      const color = definition.type !== "pie" ? colors.next() : "#FFFFFF"; // white border for pie chart
+      const backgroundColor =
+        definition.type === "pie" ? this.getPieColors(colors, dataSetsValues) : color;
+      const dataset: ChartDataSets = {
+        label,
+        data,
+        lineTension: 0, // 0 -> render straight lines, which is much faster
+        borderColor: color,
+        backgroundColor,
+      };
+      runtime.data!.datasets!.push(dataset);
+    }
+
+    return runtime;
+  }
+
+  /** Return the current cell values of the labels */
+  private getChartLabelValues(definition: ChartDefinition): LabelValues {
+    const labels: LabelValues = { values: [], formattedValues: [] };
     if (definition.labelRange) {
       if (!definition.labelRange.invalidXc && !definition.labelRange.invalidSheetName) {
-        labels = this.getters.getRangeFormattedValues(definition.labelRange);
+        labels.formattedValues = this.getters.getRangeFormattedValues(definition.labelRange);
+        labels.values = this.getters
+          .getRangeValues(definition.labelRange)
+          .map((val) => (val ? String(val) : ""));
       }
     } else if (definition.dataSets.length === 1) {
       for (let i = 0; i < this.getData(definition.dataSets[0], definition.sheetId).length; i++) {
-        labels.push("");
+        labels.formattedValues.push("");
+        labels.values.push("");
       }
     } else {
       if (definition.dataSets[0]) {
         const ranges = this.getData(definition.dataSets[0], definition.sheetId);
-        labels = range(0, ranges.length).map((r) => r.toString());
+        labels.formattedValues = range(0, ranges.length).map((r) => r.toString());
+        labels.values = labels.formattedValues;
       }
     }
-    const runtime = this.getDefaultConfiguration(definition, labels);
+    return labels;
+  }
 
-    const colors = new ChartColors();
-    const pieColors: string[] = [];
-    if (definition.type === "pie") {
-      const maxLength = Math.max(
-        ...definition.dataSets.map((ds) => this.getData(ds, definition.sheetId).length)
-      );
-      for (let i = 0; i <= maxLength; i++) {
-        pieColors.push(colors.next());
-      }
-    }
+  /** Return the current cell values of the datasets */
+  private getChartDatasetValues(definition: ChartDefinition): DatasetValues[] {
+    const datasetValues: DatasetValues[] = [];
     for (const [dsIndex, ds] of Object.entries(definition.dataSets)) {
       let label: string;
       if (ds.labelCell) {
@@ -319,26 +421,55 @@ export class EvaluationChartPlugin extends UIPlugin {
       } else {
         label = label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
       }
-      const color = definition.type !== "pie" ? colors.next() : "#FFFFFF"; // white border for pie chart
-      const dataset: ChartDataSet = {
-        label,
-        data: ds.dataRange ? this.getData(ds, definition.sheetId) : [],
-        lineTension: 0, // 0 -> render straight lines, which is much faster
-        borderColor: color,
-        backgroundColor: color,
-      };
-      if (definition.type === "pie") {
-        // In case of pie graph, dataset.backgroundColor is an array of string
-        dataset.backgroundColor = pieColors;
-      }
-      runtime.data!.datasets!.push(dataset);
+      let data = ds.dataRange ? this.getData(ds, definition.sheetId) : [];
+      datasetValues.push({ data, label });
     }
-    return { ...runtime, data: this.filterEmptyDataPoints(runtime.data as ChartData) };
+    return datasetValues;
   }
 
-  private filterEmptyDataPoints(chartData: ChartData): ChartData {
-    const labels = chartData.labels;
-    const datasets = chartData.datasets;
+  /** Get array of colors of a pie chart */
+  private getPieColors(colors: ChartColors, dataSetsValues: DatasetValues[]): string[] {
+    const pieColors: string[] = [];
+    const maxLength = Math.max(...dataSetsValues.map((ds) => ds.data.length));
+    for (let i = 0; i <= maxLength; i++) {
+      pieColors.push(colors.next());
+    }
+
+    return pieColors;
+  }
+
+  /**
+   * Replace the empty labels by the closest label, and set the values corresponding to this label in
+   * the dataset to undefined.
+   *
+   * Replacing labels with empty value is needed for date charts, because otherwise chartJS will consider them
+   * to have a value of 01/01/1970, messing up the scale. Setting their corresponding value to undefined
+   * will have the effect of breaking the line of the chart at this point.
+   */
+  private fixEmptyLabelsForDateCharts(
+    labels: string[],
+    dataSetsValues: DatasetValues[]
+  ): { labels: string[]; dataSetsValues: DatasetValues[] } {
+    if (labels.length === 0 || labels.every((label) => !label)) {
+      return { labels, dataSetsValues };
+    }
+    const newLabels = [...labels];
+    const newDatasets = deepCopy(dataSetsValues);
+    for (let i = 0; i < newLabels.length; i++) {
+      if (!newLabels[i]) {
+        newLabels[i] = findNextDefinedValue(newLabels, i);
+        for (let ds of newDatasets) {
+          ds.data[i] = undefined;
+        }
+      }
+    }
+    return { labels: newLabels, dataSetsValues: newDatasets };
+  }
+
+  private filterEmptyDataPoints(
+    labels: string[],
+    datasets: DatasetValues[]
+  ): { labels: string[]; dataSetsValues: DatasetValues[] } {
     const numberOfDataPoints = Math.max(
       labels.length,
       ...datasets.map((dataset) => dataset.data?.length || 0)
@@ -349,9 +480,8 @@ export class EvaluationChartPlugin extends UIPlugin {
       return label || values.some((value) => value === 0 || Boolean(value));
     });
     return {
-      ...chartData,
       labels: dataPointsIndexes.map((i) => labels[i] || ""),
-      datasets: datasets.map((dataset) => ({
+      dataSetsValues: datasets.map((dataset) => ({
         ...dataset,
         data: dataPointsIndexes.map((i) => dataset.data[i]),
       })),
@@ -370,5 +500,34 @@ export class EvaluationChartPlugin extends UIPlugin {
       return this.getters.getRangeValues(dataRange);
     }
     return [];
+  }
+
+  private canBeDateChart(definition: ChartDefinition): boolean {
+    if (!definition.labelRange || !definition.dataSets || definition.type !== "line") {
+      return false;
+    }
+    const labelFormat = this.getLabelFormat(definition);
+    return Boolean(labelFormat && timeFormatMomentCompatible.test(labelFormat));
+  }
+
+  private isDateChart(definition: ChartDefinition): boolean {
+    return !definition.labelsAsText && this.canBeDateChart(definition);
+  }
+
+  private canBeLinearChart(definition: ChartDefinition): boolean {
+    if (!definition.labelRange || !definition.dataSets || definition.type !== "line") {
+      return false;
+    }
+
+    const labels = this.getters.getRangeValues(definition.labelRange);
+    if (labels.some((label) => isNaN(Number(label)) && label)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private isLinearChart(definition: ChartDefinition): boolean {
+    return !definition.labelsAsText && this.canBeLinearChart(definition);
   }
 }

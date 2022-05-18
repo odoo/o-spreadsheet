@@ -107,6 +107,7 @@ export function createChart(
       verticalAxisPosition: data.verticalAxisPosition || "left",
       legendPosition: data.legendPosition || "top",
       stackedBar: data.stackedBar || false,
+      labelsAsText: data.labelsAsText || false,
     },
   });
 }

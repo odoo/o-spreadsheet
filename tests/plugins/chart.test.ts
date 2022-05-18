@@ -1368,6 +1368,7 @@ describe("Chart without labels", () => {
     type: "bar",
     verticalAxisPosition: "left",
     stackedBar: false,
+    labelsAsText: false,
   };
 
   test("The legend is not displayed when there is only one dataSet and no label", () => {
@@ -1413,6 +1414,7 @@ describe("Chart design configuration", () => {
     verticalAxisPosition: "left",
     labelRange: "A1",
     stackedBar: false,
+    labelsAsText: false,
   };
 
   test("Legend position", () => {
@@ -1579,5 +1581,126 @@ describe("Chart design configuration", () => {
     const chart = model.getters.getChartRuntime("1")!;
     expect(chart.data!.labels).toEqual(["0"]);
     expect(chart.data!.datasets![0].data).toEqual([undefined]);
+  });
+});
+
+describe("Linear/Time charts", () => {
+  const chartId = "1";
+
+  test("linear axis for line chart with numbers labels/dataset", () => {
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: ["B2:B5"],
+        labelRange: "C2:C5",
+        labelsAsText: false,
+      },
+      chartId
+    );
+    const chart = model.getters.getChartRuntime(chartId)!;
+    expect(chart.options!.scales!.xAxes![0].type).toEqual("linear");
+  });
+
+  test("time axis for line/bar chart with date labels", () => {
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("C2:C5")],
+      format: "m/d/yyyy",
+    });
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: ["B2:B5"],
+        labelRange: "C2:C5",
+        labelsAsText: false,
+      },
+      chartId
+    );
+    let chart = model.getters.getChartRuntime(chartId)!;
+    expect(chart.options!.scales!.xAxes![0].type).toEqual("time");
+
+    updateChart(model, chartId, { type: "bar" });
+    model.getters.getChartRuntime(chartId)!;
+    expect(chart.options!.scales!.xAxes![0].type).toEqual("time");
+  });
+
+  test("date chart: empty label with a value is replaced by arbitrary label with no value", () => {
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("C2:C5")],
+      format: "m/d/yyyy",
+    });
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: ["B2:B5"],
+        labelRange: "C2:C5",
+        labelsAsText: false,
+        dataSetsHaveTitle: false,
+      },
+      chartId
+    );
+    setCellContent(model, "C3", "");
+    const chart = model.getters.getChartRuntime(chartId)!;
+    expect(chart.data!.labels![1]).toEqual("1/17/1900");
+    expect(chart.data!.datasets![0].data![1]).toEqual({ y: undefined, x: "1/17/1900" });
+  });
+
+  test("linear chart: empty label with a value is set to undefined instead of empty string", () => {
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: ["B2:B5"],
+        labelRange: "C2:C5",
+        labelsAsText: false,
+        dataSetsHaveTitle: false,
+      },
+      chartId
+    );
+    setCellContent(model, "C3", "");
+    const chart = model.getters.getChartRuntime(chartId)!;
+    expect(chart.data!.labels![1]).toEqual("");
+    expect(chart.data!.datasets![0].data![1]).toEqual({ y: 11, x: undefined });
+  });
+
+  test("snapshot test of chartJS configuration for linear chart", () => {
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: ["B2:B5"],
+        labelRange: "C2:C5",
+        labelsAsText: false,
+        dataSetsHaveTitle: false,
+      },
+      chartId
+    );
+    const chart = model.getters.getChartRuntime(chartId)!;
+    expect(chart).toMatchSnapshot();
+  });
+
+  test("snapshot test of chartJS configuration for date chart", () => {
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("C2:C5")],
+      format: "m/d/yyyy",
+    });
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: ["B2:B5"],
+        labelRange: "C2:C5",
+        labelsAsText: false,
+        dataSetsHaveTitle: false,
+      },
+      chartId
+    );
+    const chart = model.getters.getChartRuntime(chartId)!;
+    expect(chart).toMatchSnapshot();
   });
 });

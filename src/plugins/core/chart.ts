@@ -240,6 +240,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       verticalAxisPosition: data.verticalAxisPosition,
       legendPosition: data.legendPosition,
       stackedBar: data.stackedBar,
+      labelsAsText: data.labelsAsText,
     };
   }
 
@@ -388,6 +389,9 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     }
     if (definition.stackedBar !== undefined) {
       this.history.update("chartFigures", id, "stackedBar", definition.stackedBar);
+    }
+    if (definition.labelsAsText !== undefined) {
+      this.history.update("chartFigures", id, "labelsAsText", definition.labelsAsText);
     }
   }
 

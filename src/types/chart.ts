@@ -21,6 +21,7 @@ export interface ChartDefinition {
   verticalAxisPosition: "left" | "right";
   legendPosition: "top" | "bottom" | "left" | "right";
   stackedBar: boolean;
+  labelsAsText: boolean;
 }
 
 export interface ChartUIDefinition

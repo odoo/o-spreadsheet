@@ -1,5 +1,210 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Linear/Time charts snapshot test of chartJS configuration for date chart 1`] = `
+Object {
+  "data": Object {
+    "datasets": Array [
+      Object {
+        "backgroundColor": "rgb(31,119,180)",
+        "borderColor": "rgb(31,119,180)",
+        "data": Array [
+          Object {
+            "x": "1/19/1900",
+            "y": 10,
+          },
+          Object {
+            "x": "1/18/1900",
+            "y": 11,
+          },
+          Object {
+            "x": "1/17/1900",
+            "y": 12,
+          },
+          Object {
+            "x": "1/16/1900",
+            "y": 13,
+          },
+        ],
+        "label": "Series 1",
+        "lineTension": 0,
+      },
+    ],
+    "labels": Array [
+      "1/19/1900",
+      "1/18/1900",
+      "1/17/1900",
+      "1/16/1900",
+    ],
+  },
+  "options": Object {
+    "animation": Object {
+      "duration": 0,
+    },
+    "elements": Object {
+      "line": Object {
+        "fill": false,
+      },
+      "point": Object {
+        "hitRadius": 15,
+      },
+    },
+    "hover": Object {
+      "animationDuration": 10,
+    },
+    "layout": Object {
+      "padding": Object {
+        "bottom": 10,
+        "left": 20,
+        "right": 20,
+        "top": 10,
+      },
+    },
+    "legend": Object {
+      "position": "top",
+    },
+    "maintainAspectRatio": false,
+    "responsive": true,
+    "responsiveAnimationDuration": 0,
+    "scales": Object {
+      "xAxes": Array [
+        Object {
+          "offset": true,
+          "ticks": Object {
+            "labelOffset": 2,
+            "maxRotation": 60,
+            "maxTicksLimit": 15,
+            "minRotation": 15,
+            "padding": 5,
+          },
+          "time": Object {
+            "displayFormats": Object {
+              "day": "M/D/YYYY",
+            },
+            "parser": "M/D/YYYY",
+            "unit": "day",
+          },
+          "type": "time",
+        },
+      ],
+      "yAxes": Array [
+        Object {
+          "position": "left",
+          "ticks": Object {
+            "beginAtZero": true,
+          },
+        },
+      ],
+    },
+    "title": Object {
+      "display": true,
+      "fontSize": 22,
+      "fontStyle": "normal",
+      "text": "test",
+    },
+  },
+  "type": "line",
+}
+`;
+
+exports[`Linear/Time charts snapshot test of chartJS configuration for linear chart 1`] = `
+Object {
+  "data": Object {
+    "datasets": Array [
+      Object {
+        "backgroundColor": "rgb(31,119,180)",
+        "borderColor": "rgb(31,119,180)",
+        "data": Array [
+          Object {
+            "x": "20",
+            "y": 10,
+          },
+          Object {
+            "x": "19",
+            "y": 11,
+          },
+          Object {
+            "x": "18",
+            "y": 12,
+          },
+          Object {
+            "x": "17",
+            "y": 13,
+          },
+        ],
+        "label": "Series 1",
+        "lineTension": 0,
+      },
+    ],
+    "labels": Array [
+      "20",
+      "19",
+      "18",
+      "17",
+    ],
+  },
+  "options": Object {
+    "animation": Object {
+      "duration": 0,
+    },
+    "elements": Object {
+      "line": Object {
+        "fill": false,
+      },
+      "point": Object {
+        "hitRadius": 15,
+      },
+    },
+    "hover": Object {
+      "animationDuration": 10,
+    },
+    "layout": Object {
+      "padding": Object {
+        "bottom": 10,
+        "left": 20,
+        "right": 20,
+        "top": 10,
+      },
+    },
+    "legend": Object {
+      "position": "top",
+    },
+    "maintainAspectRatio": false,
+    "responsive": true,
+    "responsiveAnimationDuration": 0,
+    "scales": Object {
+      "xAxes": Array [
+        Object {
+          "offset": true,
+          "ticks": Object {
+            "callback": [Function],
+            "labelOffset": 2,
+            "maxRotation": 60,
+            "minRotation": 15,
+            "padding": 5,
+          },
+          "type": "linear",
+        },
+      ],
+      "yAxes": Array [
+        Object {
+          "position": "left",
+          "ticks": Object {
+            "beginAtZero": true,
+          },
+        },
+      ],
+    },
+    "title": Object {
+      "display": true,
+      "fontSize": 22,
+      "fontStyle": "normal",
+      "text": "test",
+    },
+  },
+  "type": "line",
+}
+`;
+
 exports[`datasource tests create a chart with stacked bar 1`] = `
 Object {
   "data": Object {
@@ -50,6 +255,7 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
+          "offset": true,
           "stacked": true,
           "ticks": Object {
             "labelOffset": 2,
@@ -130,6 +336,7 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
+          "offset": true,
           "ticks": Object {
             "labelOffset": 2,
             "maxRotation": 60,
@@ -223,6 +430,7 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
+          "offset": true,
           "ticks": Object {
             "labelOffset": 2,
             "maxRotation": 60,
@@ -316,6 +524,7 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
+          "offset": true,
           "ticks": Object {
             "labelOffset": 2,
             "maxRotation": 60,
@@ -386,6 +595,7 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
+          "offset": true,
           "ticks": Object {
             "labelOffset": 2,
             "maxRotation": 60,
@@ -479,6 +689,7 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
+          "offset": true,
           "ticks": Object {
             "labelOffset": 2,
             "maxRotation": 60,
@@ -572,6 +783,7 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
+          "offset": true,
           "ticks": Object {
             "labelOffset": 2,
             "maxRotation": 60,
@@ -665,6 +877,7 @@ Object {
     "scales": Object {
       "xAxes": Array [
         Object {
+          "offset": true,
           "ticks": Object {
             "labelOffset": 2,
             "maxRotation": 60,

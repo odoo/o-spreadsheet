@@ -330,3 +330,20 @@ export function lazy<T>(fn: () => T): Lazy<T> {
   lazyValue.map = (callback) => lazy(() => callback(lazyValue()));
   return lazyValue as Lazy<T>;
 }
+
+/**
+ * Find the next defined value after the given index in an array of strings. If there is no defined value
+ * after the index, return the closest defined value before the index. Return an empty string if no
+ * defined value was found.
+ *
+ */
+export function findNextDefinedValue(arr: string[], index: number): string {
+  let value = arr.slice(index).find((val) => val);
+  if (!value) {
+    value = arr
+      .slice(0, index)
+      .reverse()
+      .find((val) => val);
+  }
+  return value || "";
+}

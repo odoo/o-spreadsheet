@@ -119,6 +119,10 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     this.updateChart({ stackedBar: this.state.chart.stackedBar });
   }
 
+  updateLabelsAsText() {
+    this.updateChart({ labelsAsText: this.state.chart.labelsAsText });
+  }
+
   updateTitle() {
     this.updateChart({ title: this.state.chart.title });
   }
@@ -162,6 +166,10 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
 
   activate(panel: "configuration" | "design") {
     this.state.panel = panel;
+  }
+
+  canTreatLabelsAsText() {
+    return this.env.model.getters.canChartParseLabels(this.props.figure.id);
   }
 
   private initialState(figure: Figure): ChartPanelState {
