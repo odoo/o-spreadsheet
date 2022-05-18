@@ -797,7 +797,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     });
   });
 
-  test("Can edge-scroll vertically", () => {
+  test("Can edge-scroll vertically", async () => {
     const { height } = model.getters.getViewportDimensionWithHeaders();
     const x = DEFAULT_CELL_WIDTH / 2;
     triggerMouseEvent(".o-row-resizer", "mousedown", x, height / 2);
