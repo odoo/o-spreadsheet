@@ -84,7 +84,7 @@ export function dragAndDropBeyondTheViewport(
       timeOutId = setTimeout(() => {
         timeOutId = null;
         onMouseMove(currentEv);
-      }, Math.round(edgeScrollInfoX.delay));
+      }, Math.round(edgeScrollInfoY.delay));
     }
   };
 

@@ -956,7 +956,7 @@ describe("Edge-Scrolling Grid on mouseMove in selection", () => {
     });
   });
 
-  test("Can edge-scroll vertically", () => {
+  test("Can edge-scroll vertically", async () => {
     const { width, height } = model.getters.getViewportDimensionWithHeaders();
     const x = width / 2;
     triggerMouseEvent("canvas", "mousedown", x, height / 2);
