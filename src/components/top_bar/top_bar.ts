@@ -158,7 +158,7 @@ css/* scss */ `
           }
         }
 
-        .o-border {
+        .o-border-dropdown {
           .o-line-item {
             padding: 4px;
             margin: 1px;

@@ -177,7 +177,9 @@
             <span title="Borders" t-on-click="(ev) => this.toggleDropdownTool('borderTool', ev)">
               <t t-call="o-spreadsheet.Icon.BORDERS"/>
             </span>
-            <div class="o-dropdown-content o-border" t-if="state.activeTool === 'borderTool'">
+            <div
+              class="o-dropdown-content o-border-dropdown"
+              t-if="state.activeTool === 'borderTool'">
               <div class="o-dropdown-line">
                 <span class="o-line-item" t-on-click="(ev) => this.setBorder('all', ev)">
                   <t t-call="o-spreadsheet.Icon.BORDERS"/>
