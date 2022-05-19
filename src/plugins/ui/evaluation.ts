@@ -1,6 +1,6 @@
 import { compile } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
-import { intersection, isZoneValid, toXC } from "../../helpers/index";
+import { intersection, isZoneValid, toXC, zoneToXc } from "../../helpers/index";
 import { ModelConfig } from "../../model";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import { StateObserver } from "../../state_observer";
@@ -288,7 +288,8 @@ export class EvaluationPlugin extends UIPlugin {
       paramNumber?: number
     ): any | any[][] {
       if (isMeta) {
-        return evalContext.getters.getRangeString(range, range.sheetId);
+        // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
+        return zoneToXc(range.zone);
       }
 
       if (!isZoneValid(range.zone)) {

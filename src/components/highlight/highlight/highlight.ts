@@ -35,6 +35,8 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
   });
 
   onResizeHighlight(isLeft: boolean, isTop: boolean) {
+    const activeSheet = this.env.model.getters.getActiveSheet();
+
     this.highlightState.shiftingMode = "isResizing";
     const z = this.props.zone;
 
@@ -44,7 +46,9 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
     let lastRow = isTop ? z.top : z.bottom;
     let currentZone = z;
 
-    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
+    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", {
+      range: this.env.model.getters.getRangeDataFromZone(activeSheet.id, currentZone),
+    });
 
     const mouseMove = (col, row) => {
       if (lastCol !== col || lastRow !== row) {
@@ -70,7 +74,9 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
         newZone = this.env.model.getters.expandZone(activeSheetId, newZone);
 
         if (!isEqual(newZone, currentZone)) {
-          this.env.model.dispatch("CHANGE_HIGHLIGHT", { zone: newZone });
+          this.env.model.dispatch("CHANGE_HIGHLIGHT", {
+            range: this.env.model.getters.getRangeDataFromZone(activeSheet.id, newZone),
+          });
           currentZone = newZone;
         }
       }
@@ -110,7 +116,9 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
     const deltaRowMax = this.env.model.getters.getNumberRows(activeSheetId) - z.bottom - 1;
 
     let currentZone = z;
-    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
+    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", {
+      range: this.env.model.getters.getRangeDataFromZone(activeSheetId, currentZone),
+    });
 
     let lastCol = initCol;
     let lastRow = initRow;
@@ -132,7 +140,9 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
         newZone = this.env.model.getters.expandZone(activeSheetId, newZone);
 
         if (!isEqual(newZone, currentZone)) {
-          this.env.model.dispatch("CHANGE_HIGHLIGHT", { zone: newZone });
+          this.env.model.dispatch("CHANGE_HIGHLIGHT", {
+            range: this.env.model.getters.getRangeDataFromZone(activeSheetId, newZone),
+          });
           currentZone = newZone;
         }
       }

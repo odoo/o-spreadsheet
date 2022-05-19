@@ -27,6 +27,7 @@ import {
   UpdateCellPositionCommand,
   WorkbookData,
   Zone,
+  ZoneDimension,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
@@ -62,6 +63,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getGridLinesVisibility",
     "getNextSheetName",
     "isEmpty",
+    "getSheetSize",
   ] as const;
 
   readonly sheetIdsMapName: Record<string, UID | undefined> = {};
@@ -390,6 +392,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       i++;
     }
     return name;
+  }
+
+  getSheetSize(sheetId: UID): ZoneDimension {
+    return {
+      height: this.getNumberRows(sheetId),
+      width: this.getNumberCols(sheetId),
+    };
   }
 
   // ---------------------------------------------------------------------------
@@ -895,6 +904,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
     if ("target" in cmd && Array.isArray(cmd.target)) {
       zones.push(...cmd.target);
+    }
+    if ("ranges" in cmd && Array.isArray(cmd.ranges)) {
+      zones.push(
+        ...cmd.ranges.map((rangeData) => this.getters.getRangeFromRangeData(rangeData).zone)
+      );
     }
     if (!zones.every(isZoneValid)) {
       return CommandResult.InvalidRange;

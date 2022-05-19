@@ -287,6 +287,22 @@ describe("selection input plugin", () => {
     expect(highlightedZones(model)).toStrictEqual(["C5"]);
   });
 
+  test("selection input updates handle full column ranges", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+    model.dispatch("ADD_EMPTY_RANGE", { id });
+    model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "A3:A" });
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("A3:A");
+    expect(highlightedZones(model)).toEqual(["A3:A100"]);
+  });
+
+  test("selection input updates handle full row ranges", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+    model.dispatch("ADD_EMPTY_RANGE", { id });
+    model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "F3:3" });
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("F3:3");
+    expect(highlightedZones(model)).toEqual(["F3:Z3"]);
+  });
+
   test("manually changing the input with existing range", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["A8"] });
     model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "A8, C5" });

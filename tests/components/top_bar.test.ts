@@ -21,6 +21,7 @@ import {
   mountSpreadsheet,
   nextTick,
   target,
+  toRangesData,
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
 
@@ -539,10 +540,11 @@ describe("TopBar - CF", () => {
         style: { fillColor: "#FF0000" },
       },
     };
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule,
-      sheetId: model.getters.getActiveSheetId(),
-      target: cfRule.ranges.map(toZone),
+      sheetId,
+      ranges: toRangesData(sheetId, cfRule.ranges.join(",")),
     });
     setSelection(model, ["A1:K11"]);
 
@@ -583,15 +585,16 @@ describe("TopBar - CF", () => {
         style: { fillColor: "#FE0001" },
       },
     };
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule1,
-      sheetId: model.getters.getActiveSheetId(),
-      target: cfRule1.ranges.map(toZone),
+      sheetId,
+      ranges: toRangesData(sheetId, cfRule1.ranges.join(",")),
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule2,
-      sheetId: model.getters.getActiveSheetId(),
-      target: cfRule2.ranges.map(toZone),
+      sheetId,
+      ranges: toRangesData(sheetId, cfRule2.ranges.join(",")),
     });
     setSelection(model, ["A1:K11"]);
 

@@ -2,7 +2,7 @@ import { Component, onMounted, onPatched, onWillUnmount, useRef, useState } from
 import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
-import { isEqual, rangeReference, toZone, zoneToDimension } from "../../../helpers/index";
+import { isEqual, rangeReference, zoneToDimension } from "../../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../../plugins/ui/edition";
 import { FunctionDescription, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
@@ -495,7 +495,9 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
 
     const highlight = highlights.find((highlight) => {
       if (highlight.sheetId !== refSheet) return false;
-      let zone = toZone(xc);
+
+      const range = this.env.model.getters.getRangeFromSheetXC(refSheet, xc);
+      let zone = range.zone;
       const { height, width } = zoneToDimension(zone);
       zone = height * width === 1 ? this.env.model.getters.expandZone(refSheet, zone) : zone;
       return isEqual(zone, highlight.zone);

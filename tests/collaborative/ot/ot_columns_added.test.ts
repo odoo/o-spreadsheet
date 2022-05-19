@@ -15,7 +15,7 @@ import {
   UpdateCellCommand,
   UpdateCellPositionCommand,
 } from "../../../src/types";
-import { createEqualCF, target } from "../../test_helpers/helpers";
+import { createEqualCF, target, toRangesData } from "../../test_helpers/helpers";
 
 describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
   const sheetId = "Sheet1";
@@ -111,42 +111,101 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
     sheetId,
   };
 
-  const addConditionalFormat: Omit<AddConditionalFormatCommand, "target"> = {
+  describe.each([deleteContent, setFormatting, clearFormatting])("target commands", (cmd) => {
+    test(`add columns after ${cmd.type}`, () => {
+      const command = { ...cmd, target: [toZone("A1:A3")] };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual(command);
+    });
+    test(`add columns before ${cmd.type}`, () => {
+      const command = { ...cmd, target: [toZone("M1:O2")] };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual({ ...command, target: [toZone("O1:Q2")] });
+    });
+    test(`add columns in ${cmd.type}`, () => {
+      const command = { ...cmd, target: [toZone("F1:G2")] };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual({ ...command, target: [toZone("F1:I2")] });
+    });
+    test(`${cmd.type} and columns added in different sheets`, () => {
+      const command = { ...cmd, target: [toZone("A1:F3")], sheetId: "42" };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual(command);
+    });
+    test(`${cmd.type} with two targets, one before and one after`, () => {
+      const command = { ...cmd, target: [toZone("A1:A3"), toZone("M1:O2")] };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual({ ...command, target: [toZone("A1:A3"), toZone("O1:Q2")] });
+    });
+  });
+
+  const addConditionalFormat: Omit<AddConditionalFormatCommand, "ranges"> = {
     type: "ADD_CONDITIONAL_FORMAT",
     sheetId,
     cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
   };
 
-  describe.each([deleteContent, setFormatting, clearFormatting, addConditionalFormat])(
-    "target commands",
-    (cmd) => {
-      test(`add columns  before ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("A1:A3")] };
+  describe.each([addConditionalFormat])("ranges dependant commands", (cmd) => {
+    test(`add columns after ${cmd.type}`, () => {
+      const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "A1:A3") };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual(command);
+    });
+    test(`add columns before ${cmd.type}`, () => {
+      const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "M1:O2") };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual({ ...command, ranges: toRangesData(cmd.sheetId, "O1:Q2") });
+    });
+    test(`add columns in the sheet of the range before ${cmd.type}`, () => {
+      const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "M1:O2"), sheetId: "42" };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual({ ...command, ranges: toRangesData(cmd.sheetId, "O1:Q2") });
+    });
+    test(`add columns in ${cmd.type}`, () => {
+      const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "F1:G2") };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual({ ...command, ranges: toRangesData(cmd.sheetId, "F1:I2") });
+    });
+    test(`${cmd.type} and columns added in different sheets`, () => {
+      const command = { ...cmd, ranges: toRangesData("42", "A1:F3"), sheetId: "42" };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual(command);
+    });
+    test(`${cmd.type} with two targets, one before and one after`, () => {
+      const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "A1:A3,M1:O2") };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual({ ...command, ranges: toRangesData(cmd.sheetId, "A1:A3,O1:Q2") });
+    });
+
+    describe("With unbounded ranges", () => {
+      test(`add columns after ${cmd.type}`, () => {
+        const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "A:A") };
         const result = transform(command, addColumnsAfter);
         expect(result).toEqual(command);
       });
-      test(`add columns after ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("M1:O2")] };
+      test(`add columns before ${cmd.type}`, () => {
+        const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "M:O") };
         const result = transform(command, addColumnsAfter);
-        expect(result).toEqual({ ...command, target: [toZone("O1:Q2")] });
+        expect(result).toEqual({ ...command, ranges: toRangesData(cmd.sheetId, "O:Q") });
       });
       test(`add columns in ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("F1:G2")] };
+        const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "F:G") };
         const result = transform(command, addColumnsAfter);
-        expect(result).toEqual({ ...command, target: [toZone("F1:I2")] });
+        expect(result).toEqual({ ...command, ranges: toRangesData(cmd.sheetId, "F:I") });
       });
       test(`${cmd.type} and columns added in different sheets`, () => {
-        const command = { ...cmd, target: [toZone("A1:F3")], sheetId: "42" };
+        const command = { ...cmd, ranges: toRangesData("42", "A:F"), sheetId: "42" };
         const result = transform(command, addColumnsAfter);
         expect(result).toEqual(command);
       });
       test(`${cmd.type} with two targets, one before and one after`, () => {
-        const command = { ...cmd, target: [toZone("A1:A3"), toZone("M1:O2")] };
+        const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "A:A,M:O") };
         const result = transform(command, addColumnsAfter);
-        expect(result).toEqual({ ...command, target: [toZone("A1:A3"), toZone("O1:Q2")] });
+        expect(result).toEqual({ ...command, ranges: toRangesData(cmd.sheetId, "A:A,O:Q") });
       });
-    }
-  );
+    });
+  });
+
   const addMerge: Omit<AddMergeCommand, "target"> = {
     type: "ADD_MERGE",
     sheetId,

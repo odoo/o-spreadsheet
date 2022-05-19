@@ -26,7 +26,7 @@ import {
   UpdateCellCommand,
   UpdateCellPositionCommand,
 } from "../../../src/types";
-import { createEqualCF, target } from "../../test_helpers/helpers";
+import { createEqualCF, target, toRangesData } from "../../test_helpers/helpers";
 
 describe("OT with DELETE_SHEET", () => {
   const deletedSheetId = "deletedSheet";
@@ -81,7 +81,7 @@ describe("OT with DELETE_SHEET", () => {
   const addCF: Omit<AddConditionalFormatCommand, "sheetId"> = {
     type: "ADD_CONDITIONAL_FORMAT",
     cf: createEqualCF("test", { fillColor: "orange" }, "id"),
-    target: [toZone("A1:B1")],
+    ranges: toRangesData(sheetId, "A1:B1"),
   };
   const createFigure: Omit<CreateFigureCommand, "sheetId"> = {
     type: "CREATE_FIGURE",
@@ -217,6 +217,35 @@ describe("OT with DELETE_SHEET", () => {
         deleteSheet
       );
       expect(result).toBeUndefined();
+    });
+  });
+
+  describe("Delete sheet with range dependant command", () => {
+    const addCF: Omit<AddConditionalFormatCommand, "sheetId" | "ranges"> = {
+      type: "ADD_CONDITIONAL_FORMAT",
+      cf: createEqualCF("test", { fillColor: "orange" }, "id"),
+    };
+
+    test("Delete the sheet of the command", () => {
+      const cmd = { ...addCF, sheetId: deletedSheetId, ranges: toRangesData(sheetId, "A1:B1") };
+      const result = transform(cmd, deleteSheet);
+      expect(result).toBeUndefined();
+    });
+
+    test("Delete the sheet of the ranges", () => {
+      const cmd = { ...addCF, sheetId: sheetId, ranges: toRangesData(deletedSheetId, "A1:B1") };
+      const result = transform(cmd, deleteSheet);
+      expect(result).toBeUndefined();
+    });
+
+    test("Delete the sheet of some of the ranges", () => {
+      const cmd = {
+        ...addCF,
+        sheetId: sheetId,
+        ranges: [...toRangesData(deletedSheetId, "A1:B1"), ...toRangesData(sheetId, "A1:B1")],
+      };
+      const result = transform(cmd, deleteSheet);
+      expect(result).toEqual({ ...cmd, ranges: toRangesData(cmd.sheetId, "A1:B1") });
     });
   });
 });

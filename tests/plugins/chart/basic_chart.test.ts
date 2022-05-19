@@ -146,6 +146,22 @@ describe("datasource tests", function () {
     expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
+  test("create chart with full rows/columns datasets", () => {
+    createChart(
+      model,
+      {
+        dataSets: ["8:8", "A:B"],
+        type: "line",
+      },
+      "1"
+    );
+    expect((model.getters.getChartDefinition("1") as LineChartDefinition)?.dataSets).toMatchObject([
+      "8:8",
+      "A:A",
+      "B:B",
+    ]);
+  });
+
   test("create chart with row datasets without series title", () => {
     createChart(
       model,
@@ -604,21 +620,24 @@ describe("datasource tests", function () {
     );
     expect(result).toBeSuccessfullyDispatched();
   });
-  test("update chart with invalid dataset", () => {
-    createChart(
-      model,
-      {
-        dataSets: ["Sheet1!B1:B4", "Sheet1!B1:B4"],
-        labelRange: "",
-      },
-      "1"
-    );
-    expect(
-      updateChart(model, "1", {
-        dataSets: ["Sheet1!B1:B4", "This is invalid"],
-      })
-    ).toBeCancelledBecause(CommandResult.InvalidDataSet);
-  });
+  test.each([[["Sheet1!B1:B4", "This is invalid"]], [["1:4"]]])(
+    "update chart with invalid dataset",
+    (invalidDataset: string[]) => {
+      createChart(
+        model,
+        {
+          dataSets: ["Sheet1!B1:B4", "Sheet1!B1:B4"],
+          labelRange: "",
+        },
+        "1"
+      );
+      expect(
+        updateChart(model, "1", {
+          dataSets: invalidDataset,
+        })
+      ).toBeCancelledBecause(CommandResult.InvalidDataSet);
+    }
+  );
 
   test("update chart with invalid labels", () => {
     createChart(

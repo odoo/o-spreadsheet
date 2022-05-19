@@ -9,7 +9,7 @@ import {
   MENU_WIDTH,
   TOPBAR_HEIGHT,
 } from "../../src/constants";
-import { toXC, toZone } from "../../src/helpers";
+import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
@@ -24,6 +24,7 @@ import {
   MockClipboard,
   mountSpreadsheet,
   nextTick,
+  toRangesData,
   Touch,
 } from "../test_helpers/helpers";
 
@@ -767,10 +768,11 @@ describe("Context Menu - CF", () => {
         style: { fillColor: "#FF0000" },
       },
     };
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule,
-      sheetId: model.getters.getActiveSheetId(),
-      target: cfRule.ranges.map(toZone),
+      sheetId,
+      ranges: toRangesData(sheetId, cfRule.ranges.join(",")),
     });
     setSelection(model, ["A1:K11"]);
     await rightClickCell(model, "C5");
@@ -804,15 +806,16 @@ describe("Context Menu - CF", () => {
         style: { fillColor: "#FE0001" },
       },
     };
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule1,
-      sheetId: model.getters.getActiveSheetId(),
-      target: cfRule1.ranges.map(toZone),
+      sheetId,
+      ranges: toRangesData(sheetId, cfRule1.ranges.join(",")),
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule2,
-      sheetId: model.getters.getActiveSheetId(),
-      target: cfRule2.ranges.map(toZone),
+      sheetId,
+      ranges: toRangesData(sheetId, cfRule2.ranges.join(",")),
     });
     setSelection(model, ["A1:K11"]);
     await rightClickCell(model, "C5");
@@ -836,10 +839,11 @@ describe("Context Menu - CF", () => {
         style: { fillColor: "#FF1200" },
       },
     };
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule1,
-      sheetId: model.getters.getActiveSheetId(),
-      target: cfRule1.ranges.map(toZone),
+      sheetId,
+      ranges: toRangesData(sheetId, cfRule1.ranges.join(",")),
     });
     setSelection(model, ["A1:A11"]);
     await rightClickCell(model, "A2");

@@ -17,8 +17,8 @@ import {
   Range,
   RemoveColumnsRowsCommand,
   UID,
+  UnboundedZone,
   Validation,
-  Zone,
 } from "../../types";
 import { ChartCreationContext } from "../../types/chart/chart";
 import {
@@ -30,7 +30,7 @@ import { Validator } from "../../types/validator";
 import { clip } from "../index";
 import { createRange } from "../range";
 import { rangeReference } from "../references";
-import { toZone, zoneToXc } from "../zones";
+import { toUnboundedZone, zoneToXc } from "../zones";
 import { AbstractChart } from "./abstract_chart";
 import { adaptChartRange, chartFontColor, copyLabelRangeWithNewSheetId } from "./chart_common";
 import { getDefaultChartJsRuntime } from "./chart_ui_common";
@@ -179,9 +179,9 @@ export class GaugeChart extends AbstractChart {
     definition: GaugeChartDefinition,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
   ): GaugeChartDefinition {
-    let dataRangeZone: Zone | undefined;
+    let dataRangeZone: UnboundedZone | undefined;
     if (definition.dataRange) {
-      dataRangeZone = transformZone(toZone(definition.dataRange), executed);
+      dataRangeZone = transformZone(toUnboundedZone(definition.dataRange), executed);
     }
 
     return {

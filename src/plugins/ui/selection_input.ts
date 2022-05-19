@@ -2,7 +2,6 @@ import {
   getComposerSheetName,
   getNextColor,
   positionToZone,
-  toZone,
   UuidGenerator,
   zoneToXc,
 } from "../../helpers/index";
@@ -243,7 +242,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
       .filter((range) => this.getters.isRangeValid(range))
       .filter((reference) => this.shouldBeHighlighted(this.activeSheet, reference));
     return XCs.map((xc) => ({
-      zone: toZone(xc),
+      zone: this.getters.getRangeFromSheetXC(this.activeSheet, xc).zone,
       sheetId: this.activeSheet,
       color,
     }));

@@ -23,6 +23,7 @@ export * from "./functions";
 export * from "./getters";
 export * from "./history";
 export * from "./misc";
+export * from "./range";
 export * from "./rendering";
 export * from "./selection";
 export * from "./workbook_data";

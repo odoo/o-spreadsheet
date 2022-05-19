@@ -49,7 +49,6 @@ import {
   getChartLabelValues,
   getDefaultChartJsRuntime,
 } from "./chart_ui_common";
-
 chartRegistry.add("pie", {
   match: (type) => type === "pie",
   createChart: (definition, sheetId, getters) =>

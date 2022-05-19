@@ -23,7 +23,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers";
-import { createEqualCF, testUndoRedo } from "../test_helpers/helpers";
+import { createEqualCF, testUndoRedo, toRangesData } from "../test_helpers/helpers";
 
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -662,10 +662,11 @@ describe("sheets", () => {
       fillColor: "orange",
     });
     expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("42", { fillColor: "blue" }, "1"),
-      target: [toZone("A1:A2")],
-      sheetId: model.getters.getActiveSheetId(),
+      ranges: toRangesData(sheetId, "A1:A2"),
+      sheetId,
     });
     expect(model.getters.getConditionalStyle(col, row)).toEqual({ fillColor: "blue" });
     expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);

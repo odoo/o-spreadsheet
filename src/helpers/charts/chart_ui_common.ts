@@ -6,7 +6,6 @@ import { DataSet, DatasetValues, LabelValues } from "../../types/chart/chart";
 import { range } from "../misc";
 import { recomputeZones, zoneToXc } from "../zones";
 import { AbstractChart } from "./abstract_chart";
-
 /**
  * This file contains helpers that are common to different runtime charts (mainly
  * line, bar and pie charts)

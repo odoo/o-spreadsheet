@@ -249,11 +249,12 @@ describe("edition", () => {
     ]);
 
     model.dispatch("SET_CURRENT_CONTENT", {
-      content: "=SUM(B2:B3, C5)",
+      content: "=SUM(B2:B3, C5, B2:B)",
     });
     expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([
       toZone("B2:B3"),
       toZone("C5"),
+      model.getters.getRangeFromSheetXC(model.getters.getActiveSheetId(), "B2:B").zone,
     ]);
   });
 

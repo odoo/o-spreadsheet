@@ -151,12 +151,12 @@ describe("Corner component", () => {
       // select B2 nw corner
       selectNWCellCorner(cornerEl, "B2");
       expect(model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
+        range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
       });
       // move to A1
       moveToCell(cornerEl, "A1");
       expect(model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        zone: toZone("A1:B2"),
+        range: { _zone: toZone("A1:B2"), _sheetId: model.getters.getActiveSheetId() },
       });
     });
 
@@ -167,13 +167,13 @@ describe("Corner component", () => {
       // select B2 ne corner
       selectNECellCorner(cornerEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
+        range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
       });
 
       // move to C1
       moveToCell(cornerEl, "C1");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        zone: toZone("B1:C2"),
+        range: { _zone: toZone("B1:C2"), _sheetId: model.getters.getActiveSheetId() },
       });
     });
 
@@ -184,13 +184,13 @@ describe("Corner component", () => {
       // select B2 sw corner
       selectSWCellCorner(cornerEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
+        range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
       });
 
       // move to A3
       moveToCell(cornerEl, "A3");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        zone: toZone("A2:B3"),
+        range: { _zone: toZone("A2:B3"), _sheetId: model.getters.getActiveSheetId() },
       });
     });
 
@@ -201,13 +201,13 @@ describe("Corner component", () => {
       // select B2 se corner
       selectSECellCorner(cornerEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
+        range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
       });
 
       // move to C3
       moveToCell(cornerEl, "C3");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        zone: toZone("B2:C3"),
+        range: { _zone: toZone("B2:C3"), _sheetId: model.getters.getActiveSheetId() },
       });
     });
   });
@@ -219,7 +219,7 @@ describe("Corner component", () => {
     // select A1 nw corner
     selectNWCellCorner(cornerEl, "A1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("A1"),
+      range: { _zone: toZone("A1"), _sheetId: model.getters.getActiveSheetId() },
     });
 
     // move outside the grid
@@ -241,13 +241,13 @@ describe("Corner component", () => {
     // select B2 se corner
     selectNWCellCorner(cornerEl, "B2");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("B2"),
+      range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
     });
 
     // move to B1
     moveToCell(cornerEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      zone: toZone("B1:C2"),
+      range: { _zone: toZone("B1:C2"), _sheetId: model.getters.getActiveSheetId() },
     });
   });
 
@@ -265,7 +265,7 @@ describe("Corner component", () => {
     // select B1 nw corner
     selectNWCellCorner(cornerEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("B1"),
+      range: { _zone: toZone("B1"), _sheetId: model.getters.getActiveSheetId() },
     });
 
     // move to C1
@@ -290,7 +290,7 @@ describe("Corner component", () => {
     // select A2 nw corner
     selectTopCellBorder(cornerEl, "A2");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("A2"),
+      range: { _zone: toZone("A2"), _sheetId: model.getters.getActiveSheetId() },
     });
 
     // move to A3
@@ -313,13 +313,13 @@ describe("Border component", () => {
       // select B2 top border
       selectTopCellBorder(borderEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
+        range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        zone: toZone("C2"),
+        range: { _zone: toZone("C2"), _sheetId: model.getters.getActiveSheetId() },
       });
     });
 
@@ -330,13 +330,13 @@ describe("Border component", () => {
       // select B2 left border
       selectLeftCellBorder(borderEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
+        range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        zone: toZone("C2"),
+        range: { _zone: toZone("C2"), _sheetId: model.getters.getActiveSheetId() },
       });
     });
 
@@ -347,13 +347,13 @@ describe("Border component", () => {
       // select B2 right border
       selectRightCellBorder(borderEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
+        range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        zone: toZone("C2"),
+        range: { _zone: toZone("C2"), _sheetId: model.getters.getActiveSheetId() },
       });
     });
 
@@ -364,13 +364,13 @@ describe("Border component", () => {
       // select B2 bottom border
       selectBottomCellBorder(borderEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
+        range: { _zone: toZone("B2"), _sheetId: model.getters.getActiveSheetId() },
       });
 
       // move to C2
       moveToCell(borderEl, "C2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-        zone: toZone("C2"),
+        range: { _zone: toZone("C2"), _sheetId: model.getters.getActiveSheetId() },
       });
     });
   });
@@ -382,19 +382,19 @@ describe("Border component", () => {
     // select A1 top border
     selectTopCellBorder(borderEl, "A1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("A1:B2"),
+      range: { _zone: toZone("A1:B2"), _sheetId: model.getters.getActiveSheetId() },
     });
 
     // move to B1
     moveToCell(borderEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      zone: toZone("B1:C2"),
+      range: { _zone: toZone("B1:C2"), _sheetId: model.getters.getActiveSheetId() },
     });
 
     // move to C1
     moveToCell(borderEl, "C1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      zone: toZone("C1:D2"),
+      range: { _zone: toZone("C1:D2"), _sheetId: model.getters.getActiveSheetId() },
     });
   });
 
@@ -405,13 +405,13 @@ describe("Border component", () => {
     // select B1 top border
     selectTopCellBorder(borderEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("A1:B2"),
+      range: { _zone: toZone("A1:B2"), _sheetId: model.getters.getActiveSheetId() },
     });
 
     // move to C1
     moveToCell(borderEl, "C1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      zone: toZone("B1:C2"),
+      range: { _zone: toZone("B1:C2"), _sheetId: model.getters.getActiveSheetId() },
     });
   });
 
@@ -422,7 +422,7 @@ describe("Border component", () => {
     // select B2 bottom border
     selectBottomCellBorder(borderEl, "B2");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("A1:B2"),
+      range: { _zone: toZone("A1:B2"), _sheetId: model.getters.getActiveSheetId() },
     });
 
     // move to A2
@@ -438,13 +438,13 @@ describe("Border component", () => {
     // select A1 top border
     selectTopCellBorder(borderEl, "A1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("A1"),
+      range: { _zone: toZone("A1"), _sheetId: model.getters.getActiveSheetId() },
     });
 
     // move to B1
     moveToCell(borderEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      zone: toZone("B1:C1"),
+      range: { _zone: toZone("B1:C1"), _sheetId: model.getters.getActiveSheetId() },
     });
   });
 
@@ -456,13 +456,13 @@ describe("Border component", () => {
     // select A1 top border
     selectTopCellBorder(borderEl, "A1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("A1"),
+      range: { _zone: toZone("A1"), _sheetId: model.getters.getActiveSheetId() },
     });
 
     // move to B1
     moveToCell(borderEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("CHANGE_HIGHLIGHT", {
-      zone: toZone("B1:C1"),
+      range: { _zone: toZone("B1:C1"), _sheetId: model.getters.getActiveSheetId() },
     });
   });
 
@@ -480,7 +480,7 @@ describe("Border component", () => {
     // select B1 top border
     selectTopCellBorder(borderEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("B1"),
+      range: { _zone: toZone("B1"), _sheetId: model.getters.getActiveSheetId() },
     });
 
     // move to C1
@@ -505,7 +505,7 @@ describe("Border component", () => {
     // select A2 top border
     selectTopCellBorder(borderEl, "A2");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
-      zone: toZone("A2"),
+      range: { _zone: toZone("A2"), _sheetId: model.getters.getActiveSheetId() },
     });
 
     // move to A3

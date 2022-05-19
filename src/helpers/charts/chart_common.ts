@@ -10,6 +10,7 @@ import {
   Range,
   RemoveColumnsRowsCommand,
   UID,
+  UnboundedZone,
   Zone,
 } from "../../types";
 import { BarChartDefinition } from "../../types/chart/bar_chart";
@@ -22,7 +23,7 @@ import { isDefined } from "../misc";
 import { isNumber } from "../numbers";
 import { copyRangeWithNewSheetId } from "../range";
 import { rangeReference } from "../references";
-import { toZone, zoneToDimension, zoneToXc } from "../zones";
+import { isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../zones";
 
 /**
  * This file contains helpers that are common to different charts (mainly
@@ -146,18 +147,22 @@ export function createDataSets(
   const dataSets: DataSet[] = [];
   for (const sheetXC of dataSetsString) {
     const dataRange = getters.getRangeFromSheetXC(sheetId, sheetXC);
-    const { zone, sheetId: dataSetSheetId, invalidSheetName } = dataRange;
+    const { unboundedZone: zone, sheetId: dataSetSheetId, invalidSheetName } = dataRange;
     if (invalidSheetName) {
       continue;
     }
+    // It's a rectangle. We treat all columns (arbitrary) as different data series.
     if (zone.left !== zone.right && zone.top !== zone.bottom) {
-      // It's a rectangle. We treat all columns (arbitrary) as different data series.
+      if (zone.right === undefined) {
+        // Should never happens because of the allowDispatch of charts, but just making sure
+        continue;
+      }
+
       for (let column = zone.left; column <= zone.right; column++) {
         const columnZone = {
+          ...zone,
           left: column,
           right: column,
-          top: zone.top,
-          bottom: zone.bottom,
         };
         dataSets.push(
           createDataSet(
@@ -205,8 +210,8 @@ export function createDataSets(
 function createDataSet(
   getters: CoreGetters,
   sheetId: UID,
-  fullZone: Zone,
-  titleZone: Zone | undefined
+  fullZone: Zone | UnboundedZone,
+  titleZone: Zone | UnboundedZone | undefined
 ): DataSet {
   if (fullZone.left !== fullZone.right && fullZone.top !== fullZone.bottom) {
     throw new Error(`Zone should be a single column or row: ${zoneToXc(fullZone)}`);
@@ -241,10 +246,7 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
     }
   }
 
-  const dataRange = {
-    ...ds.dataRange,
-    zone: dataZone,
-  };
+  const dataRange = ds.dataRange.clone({ zone: dataZone });
 
   return {
     label: ds.labelCell ? getters.getRangeString(ds.labelCell, "forceSheetReference") : undefined,
@@ -259,18 +261,19 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
 export function transformChartDefinitionWithDataSetsWithZone<
   T extends LineChartDefinition | BarChartDefinition | PieChartDefinition
 >(definition: T, executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand): T {
-  let labelZone: Zone | undefined;
+  let labelRange: string | undefined;
   if (definition.labelRange) {
-    labelZone = transformZone(toZone(definition.labelRange), executed);
+    const labelZone = transformZone(toUnboundedZone(definition.labelRange), executed);
+    labelRange = labelZone ? zoneToXc(labelZone) : undefined;
   }
   const dataSets = definition.dataSets
-    .map(toZone)
+    .map(toUnboundedZone)
     .map((zone) => transformZone(zone, executed))
     .filter(isDefined)
     .map(zoneToXc);
   return {
     ...definition,
-    labelRange: labelZone ? zoneToXc(labelZone) : undefined,
+    labelRange,
     dataSets,
   };
 }
@@ -325,6 +328,10 @@ export function checkDataset(
     const invalidRanges =
       definition.dataSets.find((range) => !rangeReference.test(range)) !== undefined;
     if (invalidRanges) {
+      return CommandResult.InvalidDataSet;
+    }
+    const zones = definition.dataSets.map(toUnboundedZone);
+    if (zones.some((zone) => zone.top !== zone.bottom && isFullRow(zone))) {
       return CommandResult.InvalidDataSet;
     }
   }

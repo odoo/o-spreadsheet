@@ -21,6 +21,7 @@ import {
   nextTick,
   spyDispatch,
   textContentAll,
+  toRangesData,
 } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -113,10 +114,11 @@ describe("UI of conditional formats", () => {
 
   describe("Conditional format list", () => {
     beforeEach(async () => {
+      const sheetId = model.getters.getActiveSheetId();
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
         sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1:A2")],
+        ranges: toRangesData(sheetId, "A1:A2"),
       });
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
@@ -124,8 +126,8 @@ describe("UI of conditional formats", () => {
           { type: "value", color: 0xff00ff, value: "" },
           { type: "value", color: 0x123456, value: "" }
         ),
-        target: [toZone("B1:B5")],
-        sheetId: model.getters.getActiveSheetId(),
+        ranges: toRangesData(sheetId, "B1:B5"),
+        sheetId,
       });
       await nextTick();
     });
@@ -190,16 +192,17 @@ describe("UI of conditional formats", () => {
             values: ["3"],
           },
         },
-        target: [toZone("A1:A3")],
+        ranges: toRangesData(model.getters.getActiveSheetId(), "A1:A3"),
         sheetId: model.getters.getActiveSheetId(),
       });
     });
 
     test("the preview should be bold when the rule is bold", async () => {
+      const sheetId = model.getters.getActiveSheetId();
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
-        target: [toZone("C1:C5")],
-        sheetId: model.getters.getActiveSheetId(),
+        ranges: toRangesData(sheetId, "C1:C5"),
+        sheetId,
       });
 
       await nextTick();
@@ -245,7 +248,7 @@ describe("UI of conditional formats", () => {
             type: "ColorScaleRule",
           },
         },
-        target: [toZone("B2:B5")],
+        ranges: toRangesData(model.getters.getActiveSheetId(), "B2:B5"),
         sheetId: model.getters.getActiveSheetId(),
       });
     });
@@ -315,7 +318,7 @@ describe("UI of conditional formats", () => {
             values: ["3"],
           },
         },
-        target: [toZone("A1:A3")],
+        ranges: toRangesData(model.getters.getActiveSheetId(), "A1:A3"),
         sheetId: model.getters.getActiveSheetId(),
       });
     });
@@ -438,7 +441,7 @@ describe("UI of conditional formats", () => {
           type: "ColorScaleRule",
         },
       },
-      target: [toZone("B2:B5")],
+      ranges: toRangesData(model.getters.getActiveSheetId(), "B2:B5"),
       sheetId: model.getters.getActiveSheetId(),
     });
   });
@@ -489,7 +492,7 @@ describe("UI of conditional formats", () => {
           type: "ColorScaleRule",
         },
       },
-      target: [toZone("B2:B5")],
+      ranges: toRangesData(model.getters.getActiveSheetId(), "B2:B5"),
       sheetId: model.getters.getActiveSheetId(),
     });
   });
@@ -540,7 +543,7 @@ describe("UI of conditional formats", () => {
           type: "ColorScaleRule",
         },
       },
-      target: [toZone("B2:B5")],
+      ranges: toRangesData(model.getters.getActiveSheetId(), "B2:B5"),
       sheetId: model.getters.getActiveSheetId(),
     });
   });
@@ -591,7 +594,7 @@ describe("UI of conditional formats", () => {
           type: "ColorScaleRule",
         },
       },
-      target: [toZone("B2:B5")],
+      ranges: toRangesData(model.getters.getActiveSheetId(), "B2:B5"),
       sheetId: model.getters.getActiveSheetId(),
     });
   });
@@ -655,7 +658,7 @@ describe("UI of conditional formats", () => {
           type: "ColorScaleRule",
         },
       },
-      target: [toZone("B2:B5")],
+      ranges: toRangesData(model.getters.getActiveSheetId(), "B2:B5"),
       sheetId: model.getters.getActiveSheetId(),
     });
   });
@@ -686,11 +689,12 @@ describe("UI of conditional formats", () => {
   });
 
   test("switching sheet resets CF Editor to list", async () => {
+    const sheetId = model.getters.getActiveSheetId();
     triggerMouseEvent(selectors.closePanel, "click");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
-      target: [toZone("A1:A2")],
-      sheetId: model.getters.getActiveSheetId(),
+      ranges: toRangesData(sheetId, "A1:A2"),
+      sheetId,
     });
     createSheet(model, { sheetId: "42" });
     await nextTick();
@@ -1191,7 +1195,7 @@ describe("UI of conditional formats", () => {
             },
           },
         },
-        target: [toZone("B2:B5")],
+        ranges: toRangesData(model.getters.getActiveSheetId(), "B2:B5"),
         sheetId: model.getters.getActiveSheetId(),
       });
     });
@@ -1252,7 +1256,7 @@ describe("UI of conditional formats", () => {
             },
           },
         },
-        target: [toZone("A1")],
+        ranges: toRangesData(model.getters.getActiveSheetId(), "A1"),
         sheetId: model.getters.getActiveSheetId(),
       });
     });
@@ -1302,7 +1306,7 @@ describe("UI of conditional formats", () => {
           },
         },
       },
-      target: [toZone("A1")],
+      ranges: toRangesData(model.getters.getActiveSheetId(), "A1"),
       sheetId: model.getters.getActiveSheetId(),
     });
   });

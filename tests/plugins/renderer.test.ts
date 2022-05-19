@@ -21,7 +21,7 @@ import {
   resizeRows,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { createEqualCF, getPlugin, target } from "../test_helpers/helpers";
+import { createEqualCF, getPlugin, target, toRangesData } from "../test_helpers/helpers";
 import { watchClipboardOutline } from "../test_helpers/renderer_helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
@@ -344,10 +344,11 @@ describe("renderer", () => {
         },
       ],
     });
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#DC6CDF" }, "1"),
-      sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("A1")],
+      sheetId,
+      ranges: toRangesData(sheetId, "A1"),
     });
 
     let fillStyle: any[] = [];
@@ -387,7 +388,7 @@ describe("renderer", () => {
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#DC6CDF" }, "1"),
-      target: [toZone("A1")],
+      ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
     merge(model, "A1:A3");
@@ -665,10 +666,11 @@ describe("renderer", () => {
     model.drawGrid(ctx);
     expect(fillStyle).toEqual([]);
     fillStyle = [];
+    const sheetId = model.getters.getActiveSheetId();
     let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("", { fillColor: "#DC6CDF" }, "1"),
-      target: [toZone("A1")],
-      sheetId: model.getters.getActiveSheetId(),
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
     });
     expect(result).toBeSuccessfullyDispatched();
     model.drawGrid(ctx);

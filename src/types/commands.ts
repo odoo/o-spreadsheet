@@ -4,6 +4,7 @@ import { ChartDefinition } from "./chart/chart";
 import { UpDown } from "./conditional_formatting";
 import { BorderCommand, ConditionalFormat, Figure, Format, Style, Zone } from "./index";
 import { Border, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
+import { RangeData } from "./range";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -39,28 +40,39 @@ export function isSheetDependent(cmd: CoreCommand): boolean {
 }
 
 export interface GridDependentCommand {
+  sheetId: UID;
   dimension: Dimension;
 }
 
 export function isGridDependent(cmd: CoreCommand): boolean {
-  return "dimension" in cmd;
+  return "dimension" in cmd && "sheetId" in cmd;
 }
 
 export interface TargetDependentCommand {
+  sheetId: UID;
   target: Zone[];
 }
 
 export function isTargetDependent(cmd: CoreCommand): boolean {
-  return "target" in cmd;
+  return "target" in cmd && "sheetId" in cmd;
+}
+
+export interface RangesDependentCommand {
+  ranges: RangeData[];
+}
+
+export function isRangeDependant(cmd: CoreCommand): boolean {
+  return "ranges" in cmd;
 }
 
 export interface PositionDependentCommand {
+  sheetId: UID;
   col: number;
   row: number;
 }
 
 export function isPositionDependent(cmd: CoreCommand): boolean {
-  return "col" in cmd && "row" in cmd;
+  return "col" in cmd && "row" in cmd && "sheetId" in cmd;
 }
 
 export const invalidateEvaluationCommands = new Set<CommandTypes>([
@@ -166,7 +178,7 @@ export function canExecuteInReadonly(cmd: Command): boolean {
 //------------------------------------------------------------------------------
 // Cells
 //------------------------------------------------------------------------------
-export interface UpdateCellCommand extends SheetDependentCommand, PositionDependentCommand {
+export interface UpdateCellCommand extends PositionDependentCommand {
   type: "UPDATE_CELL";
   content?: string;
   style?: Style | null;
@@ -176,7 +188,7 @@ export interface UpdateCellCommand extends SheetDependentCommand, PositionDepend
 /**
  * Move a cell to a given position or clear the position.
  */
-export interface UpdateCellPositionCommand extends SheetDependentCommand, PositionDependentCommand {
+export interface UpdateCellPositionCommand extends PositionDependentCommand {
   type: "UPDATE_CELL_POSITION";
   cellId?: UID;
 }
@@ -185,35 +197,35 @@ export interface UpdateCellPositionCommand extends SheetDependentCommand, Positi
 // Grid Shape
 //------------------------------------------------------------------------------
 
-export interface AddColumnsRowsCommand extends SheetDependentCommand, GridDependentCommand {
+export interface AddColumnsRowsCommand extends GridDependentCommand {
   type: "ADD_COLUMNS_ROWS";
   base: number;
   quantity: number;
   position: "before" | "after";
 }
 
-export interface RemoveColumnsRowsCommand extends SheetDependentCommand, GridDependentCommand {
+export interface RemoveColumnsRowsCommand extends GridDependentCommand {
   type: "REMOVE_COLUMNS_ROWS";
   elements: number[];
 }
 
-export interface MoveColumnsRowsCommand extends SheetDependentCommand, GridDependentCommand {
+export interface MoveColumnsRowsCommand extends GridDependentCommand {
   type: "MOVE_COLUMNS_ROWS";
   base: number;
   elements: number[];
 }
 
-export interface ResizeColumnsRowsCommand extends SheetDependentCommand, GridDependentCommand {
+export interface ResizeColumnsRowsCommand extends GridDependentCommand {
   type: "RESIZE_COLUMNS_ROWS";
   elements: number[];
   size: number;
 }
 
-export interface HideColumnsRowsCommand extends SheetDependentCommand, GridDependentCommand {
+export interface HideColumnsRowsCommand extends GridDependentCommand {
   type: "HIDE_COLUMNS_ROWS";
   elements: number[];
 }
-export interface UnhideColumnsRowsCommand extends SheetDependentCommand, GridDependentCommand {
+export interface UnhideColumnsRowsCommand extends GridDependentCommand {
   type: "UNHIDE_COLUMNS_ROWS";
   elements: number[];
 }
@@ -226,12 +238,12 @@ export interface SetGridLinesVisibilityCommand extends SheetDependentCommand {
 // Merge
 //------------------------------------------------------------------------------
 
-export interface AddMergeCommand extends SheetDependentCommand, TargetDependentCommand {
+export interface AddMergeCommand extends TargetDependentCommand {
   type: "ADD_MERGE";
   force?: boolean;
 }
 
-export interface RemoveMergeCommand extends SheetDependentCommand, TargetDependentCommand {
+export interface RemoveMergeCommand extends TargetDependentCommand {
   type: "REMOVE_MERGE";
 }
 
@@ -283,10 +295,7 @@ export interface ShowSheetCommand extends SheetDependentCommand {
  * to cells/ranges within a specific zone.
  * Command particularly useful during CUT / PATE.
  */
-export interface MoveRangeCommand
-  extends SheetDependentCommand,
-    PositionDependentCommand,
-    TargetDependentCommand {
+export interface MoveRangeCommand extends PositionDependentCommand, TargetDependentCommand {
   type: "MOVE_RANGES";
   targetSheetId: string;
 }
@@ -299,7 +308,7 @@ export interface MoveRangeCommand
  * todo: use id instead of a list. this is not safe to serialize and send to
  * another user
  */
-export interface AddConditionalFormatCommand extends SheetDependentCommand, TargetDependentCommand {
+export interface AddConditionalFormatCommand extends SheetDependentCommand, RangesDependentCommand {
   type: "ADD_CONDITIONAL_FORMAT";
   cf: Omit<ConditionalFormat, "ranges">;
 }
@@ -357,23 +366,23 @@ export interface RefreshChartCommand {
   id: UID;
 }
 
-export interface SetFormattingCommand extends SheetDependentCommand, TargetDependentCommand {
+export interface SetFormattingCommand extends TargetDependentCommand {
   type: "SET_FORMATTING";
   style?: Style;
   border?: BorderCommand;
   format?: Format;
 }
 
-export interface SetBorderCommand extends SheetDependentCommand, PositionDependentCommand {
+export interface SetBorderCommand extends PositionDependentCommand {
   type: "SET_BORDER";
   border: Border | undefined;
 }
 
-export interface ClearFormattingCommand extends SheetDependentCommand, TargetDependentCommand {
+export interface ClearFormattingCommand extends TargetDependentCommand {
   type: "CLEAR_FORMATTING";
 }
 
-export interface SetDecimalCommand extends SheetDependentCommand, TargetDependentCommand {
+export interface SetDecimalCommand extends TargetDependentCommand {
   type: "SET_DECIMAL";
   step: number;
 }
@@ -474,12 +483,12 @@ export interface EvaluateCellsCommand {
 
 export interface StartChangeHighlightCommand {
   type: "START_CHANGE_HIGHLIGHT";
-  zone: Zone;
+  range: RangeData;
 }
 
 export interface ChangeHighlightCommand {
   type: "CHANGE_HIGHLIGHT";
-  zone: Zone;
+  range: RangeData;
 }
 
 export interface StopComposerSelectionCommand {

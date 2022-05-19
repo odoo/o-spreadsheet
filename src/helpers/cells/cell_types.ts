@@ -24,7 +24,6 @@ import {
 import { CellErrorType, EvaluationError } from "../../types/errors";
 import { formatValue } from "../format";
 import { markdownLink, parseMarkdownLink, parseSheetLink } from "../misc";
-
 /**
  * Abstract base implementation of a cell.
  * Concrete cell classes are responsible to build the raw cell `content` based on
