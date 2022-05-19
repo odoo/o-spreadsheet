@@ -326,10 +326,12 @@ export class EditionPlugin extends UIPlugin {
    */
   private startComposerRangeSelection() {
     this.mode = "resettingPosition";
-    this.dispatch("SELECT_CELL", {
-      col: this.col,
-      row: this.row,
-    });
+    if (this.sheet === this.getters.getActiveSheetId()) {
+      this.dispatch("SELECT_CELL", {
+        col: this.col,
+        row: this.row,
+      });
+    }
     this.mode = "waitingForRangeSelection";
     // We set this variable to store the start of the multiple range
     // selection. This is useful for example when we select multiple
