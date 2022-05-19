@@ -1258,6 +1258,7 @@ describe("multiple sheets", function () {
                   labelRange: "Sheet1!A1:A2",
                   dataSets: ["Sheet2!A1:A2"],
                   dataSetsHaveTitle: false,
+                  background: "#124578",
                 },
               },
             ],
@@ -1702,5 +1703,19 @@ describe("Linear/Time charts", () => {
     );
     const chart = model.getters.getChartRuntime(chartId)!;
     expect(chart).toMatchSnapshot();
+  });
+
+  test("font color is white with a dark background color", () => {
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: ["B2:B5"],
+        labelRange: "C2:C5",
+        background: "#010101",
+      },
+      chartId
+    );
+    expect(model.getters.getChartRuntime(chartId)).toMatchSnapshot();
   });
 });

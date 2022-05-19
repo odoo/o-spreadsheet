@@ -1,7 +1,7 @@
 import { ChartConfiguration, ChartDataSets, ChartLegendOptions, ChartTooltipItem } from "chart.js";
 import { ChartTerms } from "../../components/translations_terms";
 import { MAX_CHAR_LABEL } from "../../constants";
-import { ChartColors } from "../../helpers/chart";
+import { ChartColors, chartFontColor } from "../../helpers/chart";
 import { getChartTimeOptions, timeFormatMomentCompatible } from "../../helpers/chart_date";
 import {
   formatValue,
@@ -15,7 +15,7 @@ import { deepCopy, findNextDefinedValue, range } from "../../helpers/misc";
 import { Cell, Format } from "../../types";
 import { ChartDefinition, DataSet } from "../../types/chart";
 import { Command } from "../../types/commands";
-import { UID, Zone } from "../../types/misc";
+import { Color, UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 import { ChartData } from "./../../types/chart";
 
@@ -160,9 +160,12 @@ export class EvaluationChartPlugin extends UIPlugin {
 
   private getDefaultConfiguration(
     definition: ChartDefinition,
-    labels: string[]
+    labels: string[],
+    fontColor: Color
   ): ChartConfiguration {
-    const legend: ChartLegendOptions = {};
+    const legend: ChartLegendOptions = {
+      labels: { fontColor },
+    };
     if (!definition.labelRange && definition.dataSets.length === 1) {
       legend.display = false;
     } else {
@@ -198,6 +201,7 @@ export class EvaluationChartPlugin extends UIPlugin {
           fontSize: 22,
           fontStyle: "normal",
           text: definition.title,
+          fontColor,
         },
       },
       data: {
@@ -217,6 +221,7 @@ export class EvaluationChartPlugin extends UIPlugin {
               minRotation: 15,
               padding: 5,
               labelOffset: 2,
+              fontColor,
             },
           },
         ],
@@ -224,6 +229,7 @@ export class EvaluationChartPlugin extends UIPlugin {
           {
             position: definition.verticalAxisPosition,
             ticks: {
+              fontColor,
               // y axis configuration
               beginAtZero: true, // the origin of the y axis is always zero
             },
@@ -342,8 +348,8 @@ export class EvaluationChartPlugin extends UIPlugin {
     if (axisType === "time") {
       ({ labels, dataSetsValues } = this.fixEmptyLabelsForDateCharts(labels, dataSetsValues));
     }
-
-    const runtime = this.getDefaultConfiguration(definition, labels);
+    const fontColor = chartFontColor(definition.background);
+    const runtime = this.getDefaultConfiguration(definition, labels, fontColor);
     const labelFormat = this.getLabelFormat(definition)!;
     if (axisType === "time") {
       runtime.options!.scales!.xAxes![0].type = "time";

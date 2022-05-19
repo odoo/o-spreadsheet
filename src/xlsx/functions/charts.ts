@@ -1,7 +1,7 @@
 import { range, toZone, zoneToDimension } from "../../helpers";
 import { ChartColors } from "../../helpers/chart";
 import { ExcelChartDefinition, FigureData } from "../../types";
-import { XMLAttributes, XMLString } from "../../types/xlsx";
+import { XlsxHexColor, XMLAttributes, XMLString } from "../../types/xlsx";
 import { DRAWING_NS_A, DRAWING_NS_C, RELATIONSHIP_NSR } from "../constants";
 import { toXlsxHexColor } from "../helpers/colors";
 import { convertDotValueToEMU } from "../helpers/content_helpers";
@@ -43,7 +43,7 @@ export function createChart(chart: FigureData<ExcelChartDefinition>): XMLDocumen
   ];
 
   const chartShapeProperty = shapeProperty({
-    backgroundColor: toXlsxHexColor(chart.data.backgroundColor),
+    backgroundColor: chart.data.backgroundColor,
     line: { color: "000000" },
   });
   // <manualLayout/> to manually position the chart in the figure container
@@ -51,7 +51,7 @@ export function createChart(chart: FigureData<ExcelChartDefinition>): XMLDocumen
   if (chart.data.title) {
     title = escapeXml/*xml*/ `
       <c:title>
-        ${insertText(chart.data.title)}
+        ${insertText(chart.data.title, chart.data.fontColor)}
         <c:overlay val="0" />
       </c:title>
     `;
@@ -85,7 +85,7 @@ export function createChart(chart: FigureData<ExcelChartDefinition>): XMLDocumen
       position = "t";
       break;
   }
-
+  const fontColor = chart.data.fontColor;
   const xml = escapeXml/*xml*/ `
     <c:chartSpace ${formatAttributes(namespaces)}>
       <c:roundedCorners val="0" />
@@ -98,9 +98,9 @@ export function createChart(chart: FigureData<ExcelChartDefinition>): XMLDocumen
           <!-- how the chart element is placed on the chart -->
           <c:layout />
           ${plot}
-          ${shapeProperty({ backgroundColor: toXlsxHexColor(chart.data.backgroundColor) })}
+          ${shapeProperty({ backgroundColor: chart.data.backgroundColor })}
         </c:plotArea>
-        ${addLegend(position)}
+        ${addLegend(position, fontColor)}
       </c:chart>
     </c:chartSpace>
   `;
@@ -116,7 +116,7 @@ function shapeProperty(params: { backgroundColor?: string; line?: LineAttributes
   `;
 }
 
-function solidFill(color: string): XMLString {
+function solidFill(color: XlsxHexColor): XMLString {
   return escapeXml/*xml*/ `
     <a:solidFill>
       <a:srgbClr val="${color}"/>
@@ -138,7 +138,11 @@ function lineAttributes(params: LineAttributes): XMLString {
   `;
 }
 
-function insertText(text: string, fontsize: number = 22): XMLString {
+function insertText(
+  text: string,
+  fontColor: XlsxHexColor = "000000",
+  fontsize: number = 22
+): XMLString {
   return escapeXml/*xml*/ `
     <c:tx>
       <c:rich>
@@ -147,7 +151,7 @@ function insertText(text: string, fontsize: number = 22): XMLString {
         <a:p>
           <a:pPr lvl="0">
             <a:defRPr b="0">
-              ${solidFill("000000")}
+              ${solidFill(fontColor)}
               <a:latin typeface="+mn-lt"/>
             </a:defRPr>
           </a:pPr>
@@ -161,7 +165,12 @@ function insertText(text: string, fontsize: number = 22): XMLString {
   `;
 }
 
-function insertTextProperties(fontsize: number = 12, bold = false, italic = false): XMLString {
+function insertTextProperties(
+  fontsize: number = 12,
+  fontColor: XlsxHexColor = "000000",
+  bold = false,
+  italic = false
+): XMLString {
   const defPropertiesAttributes: XMLAttributes = [
     ["b", bold ? "1" : "0"],
     ["i", italic ? "1" : "0"],
@@ -174,7 +183,7 @@ function insertTextProperties(fontsize: number = 12, bold = false, italic = fals
       <a:p>
         <a:pPr lvl="0">
           <a:defRPr ${formatAttributes(defPropertiesAttributes)}>
-            ${solidFill("000000")}
+            ${solidFill(fontColor)}
             <a:latin typeface="+mn-lt"/>
           </a:defRPr>
         </a:pPr>
@@ -232,8 +241,8 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
       <c:axId val="${catAxId}" />
       <c:axId val="${valAxId}" />
     </c:barChart>
-    ${addAx("b", "c:catAx", catAxId, valAxId)}
-    ${addAx(axisPos, "c:valAx", valAxId, catAxId)}
+    ${addAx("b", "c:catAx", catAxId, valAxId, { fontColor: chart.fontColor })}
+    ${addAx(axisPos, "c:valAx", valAxId, catAxId, { fontColor: chart.fontColor })}
   `;
 }
 
@@ -281,8 +290,8 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
       <c:axId val="${catAxId}" />
       <c:axId val="${valAxId}" />
     </c:lineChart>
-    ${addAx("b", "c:catAx", catAxId, valAxId)}
-    ${addAx(axisPos, "c:valAx", valAxId, catAxId)}
+    ${addAx("b", "c:catAx", catAxId, valAxId, { fontColor: chart.fontColor })}
+    ${addAx(axisPos, "c:valAx", valAxId, catAxId, { fontColor: chart.fontColor })}
   `;
 }
 
@@ -359,7 +368,8 @@ function addAx(
   position: ElementPosition,
   axisName: "c:catAx" | "c:valAx",
   axId: number,
-  crossAxId: number
+  crossAxId: number,
+  { fontColor }: { fontColor: XlsxHexColor }
 ): XMLString {
   // Each Axis present inside a graph needs to be identified by an unsigned integer in order to be referenced by its crossAxis.
   // I.e. x-axis, will reference y-axis and vice-versa.
@@ -379,18 +389,18 @@ function addAx(
       <c:title>
         ${insertText("")}
       </c:title>
-      ${insertTextProperties(10)}
+      ${insertTextProperties(10, fontColor)}
     </${axisName}>
     <!-- <tickLblPos/> omitted -->
   `;
 }
 
-function addLegend(position: ElementPosition): XMLString {
+function addLegend(position: ElementPosition, fontColor: XlsxHexColor): XMLString {
   return escapeXml/*xml*/ `
     <c:legend>
       <c:legendPos val="${position}"/>
       <c:overlay val="0"/>
-      ${insertTextProperties(10)}
+      ${insertTextProperties(10, fontColor)}
     </c:legend>
   `;
 }

@@ -791,6 +791,41 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
+    test("chart font color is white with a dark background color", async () => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          dataSets: ["Sheet1!B2:B4", "Sheet1!C12:C4"],
+          labelRange: "Sheet1!A2:A4",
+          type: "bar",
+          background: "#EFEFEF",
+        },
+        "1"
+      );
+      createChart(
+        model,
+        {
+          dataSets: ["Sheet1!B2:B4", "Sheet1!C12:C4"],
+          labelRange: "Sheet1!A2:A4",
+          type: "pie",
+          background: "#EEEEEE",
+        },
+        "2"
+      );
+      createChart(
+        model,
+        {
+          dataSets: ["Sheet1!B2:B4", "Sheet1!C12:C4"],
+          labelRange: "Sheet1!A2:A4",
+          type: "line",
+          background: "#DDDDDD",
+        },
+        "3"
+      );
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
     test("Export chart overflowing outside the sheet", async () => {
       const model = new Model(chartData);
       createChart(

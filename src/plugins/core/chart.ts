@@ -1,4 +1,5 @@
 import { INCORRECT_RANGE_STRING } from "../../constants";
+import { chartFontColor } from "../../helpers/chart";
 import { deepCopy, rangeReference, zoneToDimension, zoneToXc } from "../../helpers/index";
 import {
   ApplyRangeChange,
@@ -20,6 +21,7 @@ import {
   WorkbookData,
   Zone,
 } from "../../types/index";
+import { toXlsxHexColor } from "../../xlsx/helpers/colors";
 import { CorePlugin } from "../core_plugin";
 
 /**
@@ -251,7 +253,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       .filter((ds) => ds.range !== ""); // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
     return {
       ...this.getChartDefinitionUI("forceSheetReference", figureId),
-      backgroundColor: data.background,
+      backgroundColor: toXlsxHexColor(data.background),
+      fontColor: toXlsxHexColor(chartFontColor(data.background)),
       dataSets,
     };
   }

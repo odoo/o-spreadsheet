@@ -1,4 +1,5 @@
 import { Range, UID } from ".";
+import { XlsxHexColor } from "./xlsx";
 
 export interface DataSet {
   labelCell?: Range; // range of the label
@@ -59,7 +60,8 @@ export interface ExcelChartDefinition {
   type: ChartTypes;
   dataSets: ExcelChartDataset[];
   labelRange?: string;
-  backgroundColor: string;
+  backgroundColor: XlsxHexColor;
+  fontColor: XlsxHexColor;
   verticalAxisPosition: "left" | "right";
   legendPosition: "top" | "bottom" | "left" | "right";
   stackedBar: boolean;
