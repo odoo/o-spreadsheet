@@ -212,12 +212,12 @@ export class GridSelectionPlugin extends UIPlugin {
     switch (cmd.type) {
       case "START":
         const firstSheetId = this.getters.getVisibleSheetIds()[0];
-        this.selection.registerAsDefault(this, this.gridSelection.anchor, {
-          handleEvent: this.handleEvent.bind(this),
-        });
         this.dispatch("ACTIVATE_SHEET", {
           sheetIdTo: firstSheetId,
           sheetIdFrom: firstSheetId,
+        });
+        this.selection.registerAsDefault(this, this.gridSelection.anchor, {
+          handleEvent: this.handleEvent.bind(this),
         });
         const firstSheet = this.getters.getSheet(firstSheetId);
         const { col, row } = getNextVisibleCellPosition(firstSheet, 0, 0);

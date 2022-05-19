@@ -4,6 +4,7 @@ import {
   colors,
   concat,
   getComposerSheetName,
+  getNextVisibleCellPosition,
   isEqual,
   isNumber,
   markdownLink,
@@ -181,6 +182,11 @@ export class EditionPlugin extends UIPlugin {
         this.selectionStart = this.currentContent.length;
         this.selectionEnd = this.currentContent.length;
         break;
+      case "ACTIVATE_SHEET":
+        const { col, row } = getNextVisibleCellPosition(this.getters.getSheet(cmd.sheetIdTo), 0, 0);
+        const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
+        this.selection.resetAnchor(this, { cell: { col, row }, zone });
+        break;
       case "DELETE_SHEET":
       case "UNDO":
       case "REDO":
@@ -347,8 +353,10 @@ export class EditionPlugin extends UIPlugin {
    * Enable the selecting mode
    */
   private startComposerRangeSelection() {
-    const zone = positionToZone({ col: this.col, row: this.row });
-    this.selection.resetAnchor(this, { cell: { col: this.col, row: this.row }, zone });
+    if (this.sheetId === this.getters.getActiveSheetId()) {
+      const zone = positionToZone({ col: this.col, row: this.row });
+      this.selection.resetAnchor(this, { cell: { col: this.col, row: this.row }, zone });
+    }
     this.mode = "selecting";
     this.selectionInitialStart = this.selectionStart;
   }
