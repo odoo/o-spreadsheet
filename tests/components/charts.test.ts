@@ -518,6 +518,27 @@ describe("figures", () => {
       await simulateClick("input[name='labelsAsText']");
       expect(model.getters.getChartDefinitionUI(sheetId, chartId).labelsAsText).toBeTruthy();
     });
+
+    test("labelAsText checkbox not displayed for text labels with date format", async () => {
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A2:A4")],
+        format: "m/d/yyyy",
+      });
+      updateChart(model, chartId, { type: "line", labelRange: "A2:A4", dataSets: ["B2:B4"] });
+      await simulateClick(".o-figure");
+      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-menu div[data-name='edit']");
+      expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
+    });
+
+    test("labelAsText checkbox not displayed for charts with empty labels", async () => {
+      updateChart(model, chartId, { type: "line", labelRange: "F2:F4", dataSets: ["B2:B4"] });
+      await simulateClick(".o-figure");
+      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-menu div[data-name='edit']");
+      expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
+    });
   });
 });
 

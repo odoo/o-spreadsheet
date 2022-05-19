@@ -506,6 +506,11 @@ export class EvaluationChartPlugin extends UIPlugin {
     if (!definition.labelRange || !definition.dataSets || definition.type !== "line") {
       return false;
     }
+
+    if (!this.canBeLinearChart(definition)) {
+      return false;
+    }
+
     const labelFormat = this.getLabelFormat(definition);
     return Boolean(labelFormat && timeFormatMomentCompatible.test(labelFormat));
   }
@@ -521,6 +526,9 @@ export class EvaluationChartPlugin extends UIPlugin {
 
     const labels = this.getters.getRangeValues(definition.labelRange);
     if (labels.some((label) => isNaN(Number(label)) && label)) {
+      return false;
+    }
+    if (labels.every((label) => !label)) {
       return false;
     }
 
