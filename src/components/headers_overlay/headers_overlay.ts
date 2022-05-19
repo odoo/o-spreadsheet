@@ -24,29 +24,45 @@ import { startDnd } from "../helpers/drag_and_drop";
 // Resizer component
 // -----------------------------------------------------------------------------
 
-abstract class AbstractResizer extends Component<any, SpreadsheetChildEnv> {
+interface ResizerState {
+  resizerIsActive: boolean;
+  isResizing: boolean;
+  isMoving: boolean;
+  isSelecting: boolean;
+  waitingForMove: boolean;
+  activeElement: number;
+  draggerLinePosition: number;
+  draggerShadowPosition: number;
+  draggerShadowThickness: number;
+  delta: number;
+  base: number;
+}
+
+interface ResizerProps {
+  onOpenContextMenu: (type: ContextMenuType, x: number, y: number) => void;
+}
+
+abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildEnv> {
   PADDING: number = 0;
   MAX_SIZE_MARGIN: number = 0;
   MIN_ELEMENT_SIZE: number = 0;
   lastSelectedElementIndex: number | null = null;
 
-  state = useState({
-    resizerIsActive: <boolean>false,
-    isResizing: <boolean>false,
-    isMoving: <boolean>false,
-    isSelecting: <boolean>false,
-    waitingForMove: <boolean>false,
-    activeElement: <number>0,
-    draggerLinePosition: <number>0,
-    draggerShadowPosition: <number>0,
-    draggerShadowThickness: <number>0,
-    delta: <number>0,
-    base: <number>0,
+  state: ResizerState = useState({
+    resizerIsActive: false,
+    isResizing: false,
+    isMoving: false,
+    isSelecting: false,
+    waitingForMove: false,
+    activeElement: 0,
+    draggerLinePosition: 0,
+    draggerShadowPosition: 0,
+    draggerShadowThickness: 0,
+    delta: 0,
+    base: 0,
   });
 
   abstract _getEvOffset(ev: MouseEvent): number;
-
-  abstract _getStateOffset(): number;
 
   abstract _getViewportOffset(): number;
 
@@ -62,9 +78,9 @@ abstract class AbstractResizer extends Component<any, SpreadsheetChildEnv> {
 
   abstract _getBoundaries(): { first: number; last: number };
 
-  abstract _getElementDimensions(index: number): HeaderDimensions;
+  abstract _getDimensionsInViewport(index: number): HeaderDimensions;
 
-  abstract _getHeaderSize(): number;
+  abstract _getElementSize(index: number): number;
 
   abstract _getMaxSize(): number;
 
@@ -93,19 +109,15 @@ abstract class AbstractResizer extends Component<any, SpreadsheetChildEnv> {
     if (elementIndex < 0) {
       return;
     }
-    const element = this._getElementDimensions(elementIndex);
-    const offset = this._getStateOffset();
+    const dimensions = this._getDimensionsInViewport(elementIndex);
 
-    if (
-      position - (element.start - offset) < this.PADDING &&
-      elementIndex !== this._getViewportOffset()
-    ) {
+    if (position - dimensions.start < this.PADDING && elementIndex !== this._getViewportOffset()) {
       this.state.resizerIsActive = true;
-      this.state.draggerLinePosition = element.start - offset - this._getHeaderSize();
+      this.state.draggerLinePosition = dimensions.start;
       this.state.activeElement = this._getPreviousVisibleElement(elementIndex);
-    } else if (element.end - offset - position < this.PADDING) {
+    } else if (dimensions.end - position < this.PADDING) {
       this.state.resizerIsActive = true;
-      this.state.draggerLinePosition = element.end - offset - this._getHeaderSize();
+      this.state.draggerLinePosition = dimensions.end;
       this.state.activeElement = elementIndex;
     } else {
       this.state.resizerIsActive = false;
@@ -150,7 +162,7 @@ abstract class AbstractResizer extends Component<any, SpreadsheetChildEnv> {
 
     const initialPosition = this._getClientPosition(ev);
     const styleValue = this.state.draggerLinePosition;
-    const size = this._getElementDimensions(this.state.activeElement).size;
+    const size = this._getElementSize(this.state.activeElement);
     const minSize = styleValue - size + this.MIN_ELEMENT_SIZE;
     const maxSize = this._getMaxSize();
     const onMouseUp = (ev: MouseEvent) => {
@@ -193,27 +205,26 @@ abstract class AbstractResizer extends Component<any, SpreadsheetChildEnv> {
   private startMovement(ev: MouseEvent) {
     this.state.waitingForMove = false;
     this.state.isMoving = true;
-    const startElement = this._getElementDimensions(this._getSelectedZoneStart());
-    const endElement = this._getElementDimensions(this._getSelectedZoneEnd());
+    const startDimensions = this._getDimensionsInViewport(this._getSelectedZoneStart());
+    const endDimensions = this._getDimensionsInViewport(this._getSelectedZoneEnd());
     const initialPosition = this._getClientPosition(ev);
-    const defaultPosition = startElement.start - this._getStateOffset() - this._getHeaderSize();
+    const defaultPosition = startDimensions.start;
     this.state.draggerLinePosition = defaultPosition;
     this.state.base = this._getSelectedZoneStart();
     this.state.draggerShadowPosition = defaultPosition;
-    this.state.draggerShadowThickness = endElement.end - startElement.start;
+    this.state.draggerShadowThickness = endDimensions.end - startDimensions.start;
     const mouseMoveMovement = (elementIndex: number, currentEv: MouseEvent) => {
       if (elementIndex >= 0) {
         // define draggerLinePosition
-        const element = this._getElementDimensions(elementIndex);
-        const offset = this._getStateOffset() + this._getHeaderSize();
+        const dimensions = this._getDimensionsInViewport(elementIndex);
         if (elementIndex <= this._getSelectedZoneStart()) {
-          this.state.draggerLinePosition = element.start - offset;
+          this.state.draggerLinePosition = dimensions.start;
           this.state.base = elementIndex;
         } else if (this._getSelectedZoneEnd() < elementIndex) {
-          this.state.draggerLinePosition = element.end - offset;
+          this.state.draggerLinePosition = dimensions.end;
           this.state.base = elementIndex + 1;
         } else {
-          this.state.draggerLinePosition = startElement.start - offset;
+          this.state.draggerLinePosition = startDimensions.start;
           this.state.base = this._getSelectedZoneStart();
         }
         // define draggerShadowPosition
@@ -317,7 +328,6 @@ abstract class AbstractResizer extends Component<any, SpreadsheetChildEnv> {
       this._selectElement(index, false);
     }
     const type = this._getType();
-    // todo: define props
     this.props.onOpenContextMenu(type, ev.clientX, ev.clientY);
   }
 }
@@ -400,10 +410,6 @@ export class ColResizer extends AbstractResizer {
     return ev.offsetX;
   }
 
-  _getStateOffset(): number {
-    return this.env.model.getters.getActiveSnappedViewport().offsetX - HEADER_WIDTH;
-  }
-
   _getViewportOffset(): number {
     return this.env.model.getters.getActiveSnappedViewport().left;
   }
@@ -433,15 +439,15 @@ export class ColResizer extends AbstractResizer {
     return { first: left, last: right };
   }
 
-  _getElementDimensions(index: number): HeaderDimensions {
-    return this.env.model.getters.getColDimensions(
+  _getDimensionsInViewport(index: number): HeaderDimensions {
+    return this.env.model.getters.getColDimensionsInViewport(
       this.env.model.getters.getActiveSheetId(),
       index
     );
   }
 
-  _getHeaderSize(): number {
-    return HEADER_WIDTH;
+  _getElementSize(index: number): number {
+    return this.env.model.getters.getCol(this.env.model.getters.getActiveSheetId(), index).size;
   }
 
   _getMaxSize(): number {
@@ -450,7 +456,7 @@ export class ColResizer extends AbstractResizer {
 
   _updateSize(): void {
     const index = this.state.activeElement;
-    const size = this.state.delta + this._getElementDimensions(index).size;
+    const size = this.state.delta + this._getElementSize(index);
     const cols = this.env.model.getters.getActiveCols();
     this.env.model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "COL",
@@ -526,12 +532,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   unhideStyleValue(hiddenIndex: number): number {
-    const offset = this._getStateOffset();
-    const col = this.env.model.getters.getColDimensions(
-      this.env.model.getters.getActiveSheetId(),
-      hiddenIndex
-    );
-    return col.start - offset - this._getHeaderSize();
+    return this._getDimensionsInViewport(hiddenIndex).start;
   }
 }
 
@@ -615,10 +616,6 @@ export class RowResizer extends AbstractResizer {
     return ev.offsetY;
   }
 
-  _getStateOffset(): number {
-    return this.env.model.getters.getActiveSnappedViewport().offsetY - HEADER_HEIGHT;
-  }
-
   _getViewportOffset(): number {
     return this.env.model.getters.getActiveSnappedViewport().top;
   }
@@ -648,15 +645,15 @@ export class RowResizer extends AbstractResizer {
     return { first: top, last: bottom };
   }
 
-  _getElementDimensions(index: number): HeaderDimensions {
-    return this.env.model.getters.getRowDimensions(
+  _getDimensionsInViewport(index: number): HeaderDimensions {
+    return this.env.model.getters.getRowDimensionsInViewport(
       this.env.model.getters.getActiveSheetId(),
       index
     );
   }
 
-  _getHeaderSize(): number {
-    return HEADER_HEIGHT;
+  _getElementSize(index: number): number {
+    return this.env.model.getters.getRow(this.env.model.getters.getActiveSheetId(), index).size;
   }
 
   _getMaxSize(): number {
@@ -665,7 +662,7 @@ export class RowResizer extends AbstractResizer {
 
   _updateSize(): void {
     const index = this.state.activeElement;
-    const size = this.state.delta + this._getElementDimensions(index).size;
+    const size = this.state.delta + this._getElementSize(index);
     const rows = this.env.model.getters.getActiveRows();
     this.env.model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "ROW",
@@ -741,12 +738,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   unhideStyleValue(hiddenIndex: number): number {
-    const row = this.env.model.getters.getRowDimensions(
-      this.env.model.getters.getActiveSheetId(),
-      hiddenIndex
-    );
-    const offset = this._getStateOffset();
-    return row.start - offset - this._getHeaderSize();
+    return this._getDimensionsInViewport(hiddenIndex).start;
   }
 }
 

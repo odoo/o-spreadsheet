@@ -53,7 +53,9 @@ export class RendererPlugin extends UIPlugin {
     "getColIndex",
     "getRowIndex",
     "getColDimensions",
+    "getColDimensionsInViewport",
     "getRowDimensions",
+    "getRowDimensionsInViewport",
     "getRect",
     "isVisibleInViewport",
     "getEdgeScrollCol",
@@ -108,6 +110,21 @@ export class RendererPlugin extends UIPlugin {
   }
 
   /**
+   * Returns the size, start and end coordinates of a column relative to the left
+   * column of the current viewport
+   */
+  getColDimensionsInViewport(sheetId: UID, col: number): HeaderDimensions {
+    const { left } = this.getters.getActiveSnappedViewport();
+    const start = this.getColRowOffset("COL", left, col, sheetId);
+    const c = this.getters.getCol(sheetId, col);
+    return {
+      start,
+      size: c.size,
+      end: start + (c.isHidden ? 0 : c.size),
+    };
+  }
+
+  /**
    * Returns the size, start and end coordinates of a row
    */
   getRowDimensions(sheetId: UID, row: number): HeaderDimensions {
@@ -121,7 +138,22 @@ export class RendererPlugin extends UIPlugin {
   }
 
   /**
-   * Returns the offset of a header (determinate by the dimension) at the given index
+   * Returns the size, start and end coordinates of a row relative to the top row
+   * of the current viewport
+   */
+  getRowDimensionsInViewport(sheetId: UID, row: number): HeaderDimensions {
+    const { top } = this.getters.getActiveSnappedViewport();
+    const start = this.getColRowOffset("ROW", top, row, sheetId);
+    const r = this.getters.getRow(sheetId, row);
+    return {
+      start,
+      size: r.size,
+      end: start + (r.isHidden ? 0 : r.size),
+    };
+  }
+
+  /**
+   * Returns the offset of a header (determined by the dimension) at the given index
    * based on the referenceIndex given. If start === 0, this method will return
    * the start attribute of the header.
    */
