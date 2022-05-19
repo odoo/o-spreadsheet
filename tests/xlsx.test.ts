@@ -3,7 +3,7 @@ import { Model } from "../src/model";
 import { adaptFormulaToExcel } from "../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../src/xlsx/helpers/xml_helpers";
 import { createChart, createSheet, merge, setCellContent } from "./test_helpers/commands_helpers";
-import { exportPrettifiedXlsx, target } from "./test_helpers/helpers";
+import { exportPrettifiedXlsx, toRangesData } from "./test_helpers/helpers";
 
 const simpleData = {
   sheets: [
@@ -870,7 +870,7 @@ describe("Test XLSX export", () => {
     );
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       sheetId: model.getters.getActiveSheetId(),
-      target: target("A1"),
+      ranges: toRangesData(model.getters.getActiveSheetId(), "A1"),
       cf: {
         id: "42",
         rule: {

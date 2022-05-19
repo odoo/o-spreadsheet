@@ -119,7 +119,13 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
           }
         );
         chartRelIds.push(chartRelId);
-        files.push(createXMLFile(createChart(chart), `xl/charts/chart${xlsxChartId}.xml`, "chart"));
+        files.push(
+          createXMLFile(
+            createChart(chart, sheetIndex, data),
+            `xl/charts/chart${xlsxChartId}.xml`,
+            "chart"
+          )
+        );
       }
 
       const drawingRelId = addRelsToFile(

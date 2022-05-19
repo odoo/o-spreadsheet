@@ -22,7 +22,7 @@ import {
   updateChart,
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellError } from "../test_helpers/getters_helpers";
-import { createEqualCF } from "../test_helpers/helpers";
+import { createEqualCF, toRangesData } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -465,7 +465,7 @@ describe("Collaborative Sheet manipulation", () => {
         bob.dispatch("ADD_CONDITIONAL_FORMAT", {
           sheetId,
           cf,
-          target: [toZone("A1:A3"), toZone("C1:D3"), toZone("F1:F3")],
+          ranges: toRangesData(sheetId, "A1:A3,C1:D3,F1:F3"),
         });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -488,7 +488,7 @@ describe("Collaborative Sheet manipulation", () => {
         bob.dispatch("ADD_CONDITIONAL_FORMAT", {
           sheetId,
           cf,
-          target: [toZone("A1:A3"), toZone("C1:D3"), toZone("F1:G3")],
+          ranges: toRangesData(sheetId, "A1:A3,C1:D3,F1:G3"),
         });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -511,7 +511,7 @@ describe("Collaborative Sheet manipulation", () => {
         bob.dispatch("ADD_CONDITIONAL_FORMAT", {
           sheetId,
           cf,
-          target: [toZone("A1:A3"), toZone("A4:A10"), toZone("A11:A12")],
+          ranges: toRangesData(sheetId, "A1:A3,A4:A10,A11:A12"),
         });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -534,7 +534,7 @@ describe("Collaborative Sheet manipulation", () => {
         bob.dispatch("ADD_CONDITIONAL_FORMAT", {
           sheetId,
           cf,
-          target: [toZone("A1:A3"), toZone("A4:A5"), toZone("A11:A12")],
+          ranges: toRangesData(sheetId, "A1:A3,A4:A5,A11:A12"),
         });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -594,7 +594,7 @@ describe("Collaborative Sheet manipulation", () => {
           bob,
           {
             ...chartDef,
-            dataSets: ["A1:A3", "C1:C3", "F1:G3"],
+            dataSets: ["A1:A3", "C1:C3", "F:G"],
           },
           chartId
         );
@@ -603,7 +603,7 @@ describe("Collaborative Sheet manipulation", () => {
         (user) => user.getters.getChartDefinition(chartId),
         {
           ...chartDef,
-          dataSets: ["A1:A3", "E1:E3"],
+          dataSets: ["A1:A3", "E:E"],
           labelRange: undefined,
         }
       );
@@ -690,14 +690,14 @@ describe("Collaborative Sheet manipulation", () => {
       );
       network.concurrent(() => {
         deleteRows(alice, [3, 4, 10]);
-        updateChart(bob, chartId, { dataSets: ["A1:A3", "A4:A5", "A11:A12"], labelRange: "F10" });
+        updateChart(bob, chartId, { dataSets: ["A1:A3", "A4:A5", "A11:A12"], labelRange: "10:10" });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getChartDefinition(chartId),
         {
           ...chartDef,
           dataSets: ["A1:A3", "A9"],
-          labelRange: "F8",
+          labelRange: "8:8",
         }
       );
     });

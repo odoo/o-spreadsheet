@@ -247,33 +247,63 @@ describe("ranges and highlights", () => {
   describe("change highlight position in the grid", () => {
     test("change the associated range in the composer ", async () => {
       composerEl = await typeInComposerGrid("=SUM(B2)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B2") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C3") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B2"),
+      });
+      model.dispatch("CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "C3"),
+      });
       await nextTick();
       expect(composerEl.textContent).toBe("=SUM(C3)");
     });
 
+    test("highlights change handle unbounded ranges ", async () => {
+      composerEl = await typeInComposerGrid("=SUM(B:B)");
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B:B"),
+      });
+      model.dispatch("CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "C:C"),
+      });
+      await nextTick();
+      expect(composerEl.textContent).toBe("=SUM(C:C)");
+    });
+
     test("change the first associated range in the composer when ranges are the same", async () => {
       composerEl = await typeInComposerGrid("=SUM(B2, B2)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B2") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C3") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B2"),
+      });
+      model.dispatch("CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "C3"),
+      });
       await nextTick();
       expect(composerEl.textContent).toBe("=SUM(C3, B2)");
     });
 
     test("the first range doesn't change if other highlight transit by the first range state ", async () => {
       composerEl = await typeInComposerGrid("=SUM(B2, B1)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B2") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B3") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B1"),
+      });
+      model.dispatch("CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B2"),
+      });
+      model.dispatch("CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B3"),
+      });
       await nextTick();
       expect(composerEl.textContent).toBe("=SUM(B2, B3)");
     });
 
     test("can change references of different length", async () => {
       composerEl = await typeInComposerGrid("=SUM(B1)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B1"),
+      });
+      model.dispatch("CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B1:B2"),
+      });
       await nextTick();
       expect(composerEl.textContent).toBe("=SUM(B1:B2)");
     });
@@ -281,8 +311,12 @@ describe("ranges and highlights", () => {
     test("can change references with sheetname", async () => {
       composerEl = await typeInComposerGrid("=Sheet42!B1");
       createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B2") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B1"),
+      });
+      model.dispatch("CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B2"),
+      });
       await nextTick();
       expect(composerEl.textContent).toBe("=Sheet42!B2");
     });
@@ -290,8 +324,12 @@ describe("ranges and highlights", () => {
     test("change references of the current sheet", async () => {
       composerEl = await typeInComposerGrid("=SUM(B1,Sheet42!B1)");
       createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B2") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B1"),
+      });
+      model.dispatch("CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B2"),
+      });
       await nextTick();
       expect(composerEl.textContent).toBe("=SUM(B1,Sheet42!B2)");
     });
@@ -301,8 +339,12 @@ describe("ranges and highlights", () => {
       ["=$b1", "=$C1"],
     ])("can change cells reference with index fixed", async (ref, resultRef) => {
       composerEl = await typeInComposerGrid(ref);
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C1") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B1"),
+      });
+      model.dispatch("CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "C1"),
+      });
       await nextTick();
       expect(composerEl.textContent).toBe(resultRef);
     });
@@ -319,8 +361,12 @@ describe("ranges and highlights", () => {
       ["=$B$1:$B$2", "=$C$1:$C$2"],
     ])("can change ranges reference with index fixed", async (ref, resultRef) => {
       composerEl = await typeInComposerGrid(ref);
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C1:C2") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B1:B2"),
+      });
+      model.dispatch("CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "C1:C2"),
+      });
       await nextTick();
       expect(composerEl.textContent).toBe(resultRef);
     });
@@ -328,14 +374,22 @@ describe("ranges and highlights", () => {
     test("can change cells merged reference", async () => {
       merge(model, "B1:B2");
       composerEl = await typeInComposerGrid("=B1");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C1") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B1:B2"),
+      });
+      model.dispatch("CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "C1"),
+      });
       await nextTick();
       expect(composerEl.textContent).toBe("=C1");
 
       composerEl = await typeInComposerGrid("+B2");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C2") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B1:B2"),
+      });
+      model.dispatch("CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "C2"),
+      });
       await nextTick();
       expect(composerEl.textContent).toBe("=C1+C2");
     });
@@ -343,16 +397,37 @@ describe("ranges and highlights", () => {
     test("can change cells merged reference with index fixed", async () => {
       merge(model, "B1:B2");
       composerEl = await typeInComposerGrid("=B$2");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("C1:C2") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B1:B2"),
+      });
+      model.dispatch("CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "C1:C2"),
+      });
       await nextTick();
       expect(composerEl.textContent).toBe("=C$1:C$2");
     });
 
+    test("references are expanded to include merges", async () => {
+      merge(model, "C1:D1");
+      composerEl = await typeInComposerGrid("=A1:B1");
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "A1:B1"),
+      });
+      model.dispatch("CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B1:C1"),
+      });
+      await nextTick();
+      expect(composerEl.textContent).toBe("=B1:D1");
+    });
+
     test("can change references of different length with index fixed", async () => {
       composerEl = await typeInComposerGrid("=SUM($B$1)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", { zone: toZone("B1") });
-      model.dispatch("CHANGE_HIGHLIGHT", { zone: toZone("B1:B2") });
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B1"),
+      });
+      model.dispatch("CHANGE_HIGHLIGHT", {
+        range: model.getters.getRangeDataFromXc(model.getters.getActiveSheetId(), "B1:B2"),
+      });
       await nextTick();
       expect(composerEl.textContent).toBe("=SUM($B$1:$B$2)");
     });
@@ -469,6 +544,12 @@ describe("composer", () => {
     await keyDown("Enter");
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(getCellText(model, "A1")).toBe("=C8");
+  });
+
+  test("full rows/cols ranges are correctly displayed", async () => {
+    composerEl = await typeInComposerGrid("=SUM(A:A)");
+    await keyDown("Enter");
+    expect(getCellText(model, "A1")).toBe("=SUM(A:A)");
   });
 
   test("clicking on the composer while typing text (not formula) does not duplicates text", async () => {

@@ -318,6 +318,19 @@ describe("range plugin", () => {
       expect(m.getters.getRangeString(r, "s1")).toBe("'s 2'!A1");
     });
 
+    test.each([["A:B"], ["1:2"], ["A2:B"], ["B2:3"]])("test full column/row", (range) => {
+      let r = m.getters.getRangeFromSheetXC("s1", range);
+      expect(m.getters.getRangeString(r, "s1")).toBe(range);
+    });
+
+    test("test full column/row (2)", () => {
+      let r = m.getters.getRangeFromSheetXC("s1", "A:B2");
+      expect(m.getters.getRangeString(r, "s1")).toBe("A2:B");
+
+      r = m.getters.getRangeFromSheetXC("s1", "1:B2");
+      expect(m.getters.getRangeString(r, "s1")).toBe("B1:2");
+    });
+
     test.each([
       ["$A1"],
       ["$A$1"],
@@ -343,6 +356,14 @@ describe("range plugin", () => {
       ["s1!$A1:$B1"],
       ["s1!A$1:B$1"],
       ["s1!$A$1:$B$1"],
+      ["A:$B"],
+      ["$A:B"],
+      ["$A:$B"],
+      ["s1!A:B"],
+      ["s1!A:$B"],
+      ["s1!A2:$B"],
+      ["s1!$A:B"],
+      ["s1!$A:$B"],
       ["#REF"],
       ["invalid xc"],
     ])("test withing a fixed row", (range) => {
@@ -375,6 +396,15 @@ describe("range plugin", () => {
       ["s1!$A1:$B1", "s1!$A1:$B1"],
       ["s1!A$1:B$1", "s1!A$1:B$1"],
       ["s1!$A$1:$B$1", "s1!$A$1:$B$1"],
+      ["A:$B", "s1!A:$B"],
+      ["A:$B2", "s1!A2:$B"],
+      ["$A:B", "s1!$A:B"],
+      ["$A:$B", "s1!$A:$B"],
+      ["s1!A:B", "s1!A:B"],
+      ["s1!A:$B", "s1!A:$B"],
+      ["s1!$A:B", "s1!$A:B"],
+      ["s1!$A2:B", "s1!$A2:B"],
+      ["s1!$A:$B", "s1!$A:$B"],
       ["#REF", "#REF"],
       ["invalid xc", "invalid xc"],
     ])("test withing a fixed row, displayed for another sheet", (range, expectedString) => {
@@ -421,4 +451,133 @@ describe("Helpers", () => {
     const updated = copyRangeWithNewSheetId(sheetIdFrom, sheetIdTo, range);
     expect(updated.sheetId).toBe(result);
   });
+});
+describe("full column range", () => {
+  beforeEach(() => {
+    m = new Model({
+      sheets: [{ id: "s1", name: "s1", rows: 10, cols: 10 }],
+    });
+    m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["B:C"] });
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+  test("delete col before range", () => {
+    deleteColumns(m, ["A"]);
+    expect(m.getters.getUsedRanges()).toEqual(["A:B"]);
+  });
+  test("delete col inside range", () => {
+    deleteColumns(m, ["C"]);
+    expect(m.getters.getUsedRanges()).toEqual(["B:B"]);
+  });
+  test("delete col after range", () => {
+    deleteColumns(m, ["D"]);
+    expect(m.getters.getUsedRanges()).toEqual(["B:C"]);
+  });
+  test("delete row", () => {
+    deleteRows(m, [3, 4, 5, 6]);
+    expect(m.getters.getUsedRanges()).toEqual(["B:C"]);
+  });
+  test("insert col before range", () => {
+    addColumns(m, "before", "B", 1);
+    expect(m.getters.getUsedRanges()).toEqual(["C:D"]);
+  });
+  test("insert col inside range", () => {
+    addColumns(m, "before", "C", 1);
+    expect(m.getters.getUsedRanges()).toEqual(["B:D"]);
+  });
+  test("insert col after range", () => {
+    addColumns(m, "after", "C", 1);
+    expect(m.getters.getUsedRanges()).toEqual(["B:C"]);
+  });
+  test("insert row inside", () => {
+    addRows(m, "after", 1, 5);
+    expect(m.getters.getUsedRanges()).toEqual(["B:C"]);
+  });
+  test("insert row before'", () => {
+    addRows(m, "before", 0, 1);
+    expect(m.getters.getUsedRanges()).toEqual(["B:C"]);
+  });
+  test("insert row before (2)", () => {
+    m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["B1:C"] });
+    addRows(m, "before", 0, 1);
+    expect(m.getters.getUsedRanges()[1]).toEqual("B2:C");
+  });
+});
+
+describe("full row range", () => {
+  beforeEach(() => {
+    m = new Model({
+      sheets: [{ id: "s1", name: "s1", rows: 10, cols: 10 }],
+    });
+    m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["2:3"] });
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+  test("delete row before range", () => {
+    deleteRows(m, [0]);
+    expect(m.getters.getUsedRanges()).toEqual(["1:2"]);
+  });
+  test("delete row inside range", () => {
+    deleteRows(m, [1]);
+    expect(m.getters.getUsedRanges()).toEqual(["2:2"]);
+  });
+  test("delete row after range", () => {
+    deleteRows(m, [4]);
+    expect(m.getters.getUsedRanges()).toEqual(["2:3"]);
+  });
+  test("delete col", () => {
+    deleteColumns(m, ["A", "B", "C"]);
+    expect(m.getters.getUsedRanges()).toEqual(["2:3"]);
+  });
+  test("insert row before range", () => {
+    addRows(m, "before", 0, 1);
+    expect(m.getters.getUsedRanges()).toEqual(["3:4"]);
+  });
+  test("insert row inside range", () => {
+    addRows(m, "after", 1, 1);
+    expect(m.getters.getUsedRanges()).toEqual(["2:4"]);
+  });
+  test("insert row after range", () => {
+    addRows(m, "after", 5, 1);
+    expect(m.getters.getUsedRanges()).toEqual(["2:3"]);
+  });
+  test("insert col in range", () => {
+    addColumns(m, "after", "C", 5);
+    expect(m.getters.getUsedRanges()).toEqual(["2:3"]);
+  });
+  test("insert col before range", () => {
+    addColumns(m, "before", "A", 1);
+    expect(m.getters.getUsedRanges()).toEqual(["2:3"]);
+  });
+  test("insert col before range (1)", () => {
+    m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["A2:3"] });
+    addColumns(m, "before", "A", 1);
+    expect(m.getters.getUsedRanges()[1]).toEqual("B2:3");
+  });
+});
+
+test.each([
+  ["A1:B2", "B2:C3"],
+  ["A$1:$B2", "B$1:$B3"],
+  ["$A1:B2", "$A2:C3"],
+  ["$A$1:$B$2", "$A$1:$B$2"],
+  ["1:1", "2:2"],
+  ["$1:1", "$1:$1"],
+  ["A1:2", "B2:3"],
+  ["$A1:1", "$A2:2"],
+  ["1:A$2", "B2:$2"],
+  ["1:1", "2:2"],
+  ["A:A", "B:B"],
+  ["$A:A", "$A:$A"],
+  ["A1:B", "B2:C"],
+  ["$A1:B", "$A2:C"],
+  ["A:A$1", "B$1:B"],
+])("adapt ranges", (value, expected) => {
+  const model = new Model();
+  const sheetId = model.getters.getActiveSheetId();
+  const range = model.getters.getRangeFromSheetXC(sheetId, value);
+  const adaptedRange = model.getters.createAdaptedRanges([range], 1, 1, sheetId);
+  expect(model.getters.getRangeString(adaptedRange[0], sheetId)).toBe(expected);
 });

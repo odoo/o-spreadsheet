@@ -52,6 +52,23 @@ describe("rangeTokenizer", () => {
       { type: "RIGHT_PAREN", value: ")" },
     ]);
   });
+
+  test("=A:A", () => {
+    expect(rangeTokenize("=A:A")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "REFERENCE", value: "A:A" },
+    ]);
+  });
+
+  test("=SUM(A:A)", () => {
+    expect(rangeTokenize("=SUM(A:A)")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "FUNCTION", value: "SUM" },
+      { type: "LEFT_PAREN", value: "(" },
+      { type: "REFERENCE", value: "A:A" },
+      { type: "RIGHT_PAREN", value: ")" },
+    ]);
+  });
 });
 
 describe("knows what's a reference and what's not", () => {
@@ -142,6 +159,13 @@ describe("knows what's a reference and what's not", () => {
       { type: "REFERENCE", value: "'S ''h i t'!a1" },
     ]);
   });
+
+  test.each(["Sheet3!A:A", "Sheet3!1:1", "Sheet3!A1:A"])("sheet, full column/row range", (xc) => {
+    expect(rangeTokenize("=" + xc)).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "REFERENCE", value: xc },
+    ]);
+  });
 });
 
 describe("tokenize ranges", () => {
@@ -157,34 +181,5 @@ describe("tokenize ranges", () => {
       { type: "OPERATOR", value: "=" },
       { type: "REFERENCE", value: "B1:A2" },
     ]);
-  });
-
-  test.skip("column", () => {
-    expect(rangeTokenize("=A:A")).toEqual({
-      type: "BIN_OPERATION",
-      value: ":",
-      left: {
-        type: "REFERENCE",
-        value: "A",
-      },
-      right: {
-        type: "REFERENCE",
-        value: "A",
-      },
-    });
-  });
-  test.skip("row", () => {
-    expect(rangeTokenize("=1:1")).toEqual({
-      type: "BIN_OPERATION",
-      value: ":",
-      left: {
-        type: "REFERENCE",
-        value: "1",
-      },
-      right: {
-        type: "REFERENCE",
-        value: "1",
-      },
-    });
   });
 });

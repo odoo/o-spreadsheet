@@ -15,6 +15,8 @@ import {
   TargetDependentCommand,
   Zone,
 } from "../../types";
+import { isRangeDependant, RangesDependentCommand } from "./../../types/commands";
+import { RangeData } from "./../../types/range";
 import { transformZone } from "./ot_helpers";
 import "./ot_specific";
 
@@ -28,6 +30,7 @@ const transformations: {
   { match: isTargetDependent, fn: transformTarget },
   { match: isPositionDependent, fn: transformPosition },
   { match: isGridDependent, fn: transformDimension },
+  { match: isRangeDependant, fn: transformRangeData },
 ];
 
 /**
@@ -72,7 +75,7 @@ export function transformAll(
 }
 
 /**
- * Apply a generic transformation based on the characteristic of the given commands.
+ * Apply all generic transformation based on the characteristic of the given commands.
  */
 function genericTransform(cmd: CoreCommand, executed: CoreCommand): CoreCommand | undefined {
   for (const { match, fn } of transformations) {
@@ -84,7 +87,7 @@ function genericTransform(cmd: CoreCommand, executed: CoreCommand): CoreCommand 
       if (result === "IGNORE_COMMAND") {
         return undefined;
       }
-      return result;
+      cmd = result;
     }
   }
   return cmd;
@@ -111,6 +114,10 @@ function transformTarget(
   cmd: Extract<CoreCommand, TargetDependentCommand>,
   executed: CoreCommand
 ): Extract<CoreCommand, TargetDependentCommand> | TransformResult {
+  const transformSheetResult = transformSheetId(cmd, executed);
+  if (transformSheetResult !== "SKIP_TRANSFORMATION") {
+    return transformSheetResult === "IGNORE_COMMAND" ? "IGNORE_COMMAND" : cmd;
+  }
   const target: Zone[] = [];
   for (const zone of cmd.target) {
     const newZone = transformZone(zone, executed);
@@ -124,10 +131,36 @@ function transformTarget(
   return { ...cmd, target };
 }
 
+function transformRangeData(
+  cmd: Extract<CoreCommand, RangesDependentCommand>,
+  executed: CoreCommand
+): Extract<CoreCommand, RangesDependentCommand> | TransformResult {
+  const ranges: RangeData[] = [];
+  const deletedSheet = executed.type === "DELETE_SHEET" && executed.sheetId;
+  for (const range of cmd.ranges) {
+    if (range._sheetId !== executed.sheetId) {
+      ranges.push({ ...range, _zone: range._zone });
+    } else {
+      const newZone = transformZone(range._zone, executed);
+      if (newZone && deletedSheet !== range._sheetId) {
+        ranges.push({ ...range, _zone: newZone });
+      }
+    }
+  }
+  if (!ranges.length) {
+    return "IGNORE_COMMAND";
+  }
+  return { ...cmd, ranges };
+}
+
 function transformDimension(
   cmd: Extract<CoreCommand, GridDependentCommand>,
   executed: CoreCommand
 ): CoreCommand | TransformResult {
+  const transformSheetResult = transformSheetId(cmd, executed);
+  if (transformSheetResult !== "SKIP_TRANSFORMATION") {
+    return transformSheetResult === "IGNORE_COMMAND" ? "IGNORE_COMMAND" : cmd;
+  }
   if (executed.type === "ADD_COLUMNS_ROWS" || executed.type === "REMOVE_COLUMNS_ROWS") {
     const isUnique = cmd.type === "ADD_COLUMNS_ROWS";
     const field = isUnique ? "base" : "elements";
@@ -171,6 +204,10 @@ function transformPosition(
   cmd: Extract<CoreCommand, PositionDependentCommand>,
   executed: CoreCommand
 ): Extract<CoreCommand, PositionDependentCommand> | TransformResult {
+  const transformSheetResult = transformSheetId(cmd, executed);
+  if (transformSheetResult !== "SKIP_TRANSFORMATION") {
+    return transformSheetResult === "IGNORE_COMMAND" ? "IGNORE_COMMAND" : cmd;
+  }
   if (executed.type === "ADD_COLUMNS_ROWS" || executed.type === "REMOVE_COLUMNS_ROWS") {
     return transformPositionWithGrid(cmd, executed);
   }

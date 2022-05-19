@@ -1,6 +1,8 @@
-import { Position, Zone, ZoneDimension } from "../types";
-import { toCartesian, toXC } from "./coordinates";
+import { _lt } from "../translation";
+import { Position, UnboundedZone, Zone, ZoneDimension } from "../types";
+import { lettersToNumber, numberToLetters, toCartesian, toXC } from "./coordinates";
 import { range } from "./misc";
+import { isColReference, isRowReference } from "./references";
 
 /**
  * Convert from a cartesian reference to a Zone
@@ -11,29 +13,111 @@ import { range } from "./misc";
  *    "B1:B3" ==> Top 0, Bottom 3, Left: 1, Right: 1
  *    "Sheet1!A1" ==> Top 0, Bottom 0, Left: 0, Right: 0
  *    "Sheet1!B1:B3" ==> Top 0, Bottom 3, Left: 1, Right: 1
- *    "C3:A1" ==> Top 2, Bottom 0, Left 2, Right 0}
+ *    "C3:A1" ==> Top 2, Bottom 0, Left 2, Right 0
+ *    "A:A" ==> Top 0, Bottom undefined, Left 0, Right 0
+ *    "A:B3" or "B3:A" ==> Top 2, Bottom undefined, Left 0, Right 1
  *
  * @param xc the string reference to convert
  *
  */
-export function toZoneWithoutBoundaryChanges(xc: string): Zone {
+export function toZoneWithoutBoundaryChanges(xc: string): UnboundedZone {
   xc = xc.split("!").pop()!;
-  const ranges = xc.replace(/\$/g, "").split(":");
-  let top: number, bottom: number, left: number, right: number;
+  const ranges = xc
+    .replace(/\$/g, "")
+    .split(":")
+    .map((x) => x.trim());
 
-  let c = toCartesian(ranges[0].trim());
-  left = right = c.col;
-  top = bottom = c.row;
-  if (ranges.length === 2) {
-    let d = toCartesian(ranges[1].trim());
-    right = d.col;
-    bottom = d.row;
+  let top: number, bottom: number, left: number, right: number;
+  let fullCol = false;
+  let fullRow = false;
+  let hasHeader = false;
+  const firstRangePart = ranges[0];
+  const secondRangePart = ranges[1] && ranges[1];
+
+  if (isColReference(firstRangePart)) {
+    left = right = lettersToNumber(firstRangePart);
+    top = bottom = 0;
+    fullCol = true;
+  } else if (isRowReference(firstRangePart)) {
+    top = bottom = parseInt(firstRangePart, 10) - 1;
+    left = right = 0;
+    fullRow = true;
+  } else {
+    const c = toCartesian(firstRangePart);
+    left = right = c.col;
+    top = bottom = c.row;
+    hasHeader = true;
   }
-  return { top, bottom, left, right };
+  if (ranges.length === 2) {
+    if (isColReference(secondRangePart)) {
+      right = lettersToNumber(secondRangePart);
+      fullCol = true;
+    } else if (isRowReference(secondRangePart)) {
+      bottom = parseInt(secondRangePart, 10) - 1;
+      fullRow = true;
+    } else {
+      const c = toCartesian(secondRangePart);
+      right = c.col;
+      bottom = c.row;
+      top = fullCol ? bottom : top;
+      left = fullRow ? right : left;
+      hasHeader = true;
+    }
+  }
+
+  if (fullCol && fullRow) {
+    throw new Error(
+      "Wrong zone xc. The zone cannot be at the same time a full column and a full row"
+    );
+  }
+
+  const zone: UnboundedZone = {
+    top,
+    left,
+    bottom: fullCol ? undefined : bottom,
+    right: fullRow ? undefined : right,
+  };
+
+  hasHeader = hasHeader && (fullRow || fullCol);
+  if (hasHeader) {
+    zone.hasHeader = hasHeader;
+  }
+
+  return zone;
 }
 
 /**
- * Convert from a cartesian reference to a Zone
+ * Convert from a cartesian reference to a (possibly unbounded) Zone
+ *
+ * Examples:
+ *    "A1" ==> Top 0, Bottom 0, Left: 0, Right: 0
+ *    "B1:B3" ==> Top 0, Bottom 3, Left: 1, Right: 1
+ *    "B:B" ==> Top 0, Bottom undefined, Left: 1, Right: 1
+ *    "B2:B" ==> Top 1, Bottom undefined, Left: 1, Right: 1, hasHeader: 1
+ *    "Sheet1!A1" ==> Top 0, Bottom 0, Left: 0, Right: 0
+ *    "Sheet1!B1:B3" ==> Top 0, Bottom 3, Left: 1, Right: 1
+ *
+ * @param xc the string reference to convert
+ *
+ */
+export function toUnboundedZone(xc: string): UnboundedZone {
+  const zone = toZoneWithoutBoundaryChanges(xc);
+  if (zone.right !== undefined && zone.right < zone.left) {
+    const tmp = zone.left;
+    zone.left = zone.right;
+    zone.right = tmp;
+  }
+  if (zone.bottom !== undefined && zone.bottom < zone.top) {
+    const tmp = zone.top;
+    zone.top = zone.bottom;
+    zone.bottom = tmp;
+  }
+  return zone;
+}
+
+/**
+ * Convert from a cartesian reference to a Zone.
+ * Will return throw an error if given a unbounded zone (eg : A:A).
  *
  * Examples:
  *    "A1" ==> Top 0, Bottom 0, Left: 0, Right: 0
@@ -45,55 +129,83 @@ export function toZoneWithoutBoundaryChanges(xc: string): Zone {
  *
  */
 export function toZone(xc: string): Zone {
-  let { top, bottom, left, right } = toZoneWithoutBoundaryChanges(xc);
-  if (right < left) {
-    [right, left] = [left, right];
+  const zone = toUnboundedZone(xc);
+  if (zone.bottom === undefined || zone.right === undefined) {
+    throw new Error("This does not support unbounded ranges");
   }
-  if (bottom < top) {
-    [bottom, top] = [top, bottom];
-  }
-  return { top, bottom, left, right };
+  return zone as Zone;
+}
+
+export function isXcValid(xc: string): boolean {
+  const zone = toUnboundedZone(xc);
+  return isZoneValid(zone);
 }
 
 /**
  * Check that the zone has valid coordinates and in
  * the correct order.
  */
-export function isZoneValid(zone: Zone): boolean {
-  const { bottom, top, left, right } = zone;
+export function isZoneValid(zone: Zone | UnboundedZone): boolean {
   // Typescript *should* prevent this kind of errors but
   // it's better to be on the safe side at runtime as well.
-  if (isNaN(bottom) || isNaN(top) || isNaN(left) || isNaN(right)) {
+  const { bottom, top, left, right } = zone;
+  if (
+    (bottom !== undefined && isNaN(bottom)) ||
+    isNaN(top) ||
+    isNaN(left) ||
+    (right !== undefined && isNaN(right))
+  ) {
     return false;
   }
-  return bottom >= top && right >= left && bottom >= 0 && top >= 0 && right >= 0 && left >= 0;
+  return (
+    (zone.bottom === undefined || (zone.bottom >= zone.top && zone.bottom >= 0)) &&
+    (zone.right === undefined || (zone.right >= zone.left && zone.right >= 0)) &&
+    zone.top >= 0 &&
+    zone.left >= 0
+  );
 }
 
 /**
  * Convert from zone to a cartesian reference
  *
  */
-export function zoneToXc(zone: Zone): string {
+export function zoneToXc(zone: Zone | UnboundedZone): string {
   const { top, bottom, left, right } = zone;
+  const hasHeader = "hasHeader" in zone ? zone.hasHeader : false;
   const isOneCell = top === bottom && left === right;
-  return isOneCell ? toXC(left, top) : `${toXC(left, top)}:${toXC(right, bottom)}`;
+  if (bottom === undefined && right !== undefined) {
+    return top === 0 && !hasHeader
+      ? `${numberToLetters(left)}:${numberToLetters(right)}`
+      : `${toXC(left, top)}:${numberToLetters(right)}`;
+  } else if (right === undefined && bottom !== undefined) {
+    return left === 0 && !hasHeader
+      ? `${top + 1}:${bottom + 1}`
+      : `${toXC(left, top)}:${bottom + 1}`;
+  } else if (bottom !== undefined && right !== undefined) {
+    return isOneCell ? toXC(left, top) : `${toXC(left, top)}:${toXC(right, bottom)}`;
+  }
+
+  throw new Error(_lt("Bad zone format"));
 }
 
 /**
  * Expand a zone after inserting columns or rows.
  */
-export function expandZoneOnInsertion(
-  zone: Zone,
+export function expandZoneOnInsertion<Z extends UnboundedZone | Zone>(
+  zone: Z,
   start: "left" | "top",
   base: number,
   position: "after" | "before",
   quantity: number
-): Zone {
+): Z {
   const dimension = start === "left" ? "columns" : "rows";
   const baseElement = position === "before" ? base - 1 : base;
   const end = start === "left" ? "right" : "bottom";
-  const shouldIncludeEnd =
-    position === "before" ? zone[end] > baseElement : zone[end] >= baseElement;
+  const zoneEnd = zone[end];
+  let shouldIncludeEnd = false;
+  if (zoneEnd) {
+    shouldIncludeEnd = position === "before" ? zoneEnd > baseElement : zoneEnd >= baseElement;
+  }
   if (zone[start] <= baseElement && shouldIncludeEnd) {
     return createAdaptedZone(zone, dimension, "RESIZE", quantity);
   }
@@ -116,6 +228,7 @@ export function updateSelectionOnInsertion(
   const dimension = start === "left" ? "columns" : "rows";
   const baseElement = position === "before" ? base - 1 : base;
   const end = start === "left" ? "right" : "bottom";
+
   if (selection[start] <= baseElement && selection[end] > baseElement) {
     return createAdaptedZone(selection, dimension, "RESIZE", quantity);
   }
@@ -124,6 +237,7 @@ export function updateSelectionOnInsertion(
   }
   return { ...selection };
 }
+
 /**
  * Update the selection after column/row deletion
  */
@@ -150,24 +264,30 @@ export function updateSelectionOnDeletion(
 /**
  * Reduce a zone after deletion of elements
  */
-export function reduceZoneOnDeletion(
-  zone: Zone,
+export function reduceZoneOnDeletion<Z extends UnboundedZone | Zone>(
+  zone: Z,
   start: "left" | "top",
   elements: number[]
-): Zone | undefined {
+): Z | undefined {
   const end = start === "left" ? "right" : "bottom";
   let newStart = zone[start];
   let newEnd = zone[end];
+  const zoneEnd = zone[end];
   for (let removedElement of elements.sort((a, b) => b - a)) {
     if (zone[start] > removedElement) {
       newStart--;
-      newEnd--;
+      if (newEnd !== undefined) newEnd--;
     }
-    if (zone[start] <= removedElement && zone[end] >= removedElement) {
+    if (
+      zoneEnd !== undefined &&
+      newEnd !== undefined &&
+      zone[start] <= removedElement &&
+      zoneEnd >= removedElement
+    ) {
       newEnd--;
     }
   }
-  if (newStart > newEnd) {
+  if (newEnd !== undefined && newStart > newEnd) {
     return undefined;
   }
   return { ...zone, [start]: newStart, [end]: newEnd };
@@ -231,7 +351,7 @@ export function isInside(col: number, row: number, zone: Zone): boolean {
 /**
  * Check if a zone is inside another
  */
-export function isZoneInside(smallZone, biggerZone): boolean {
+export function isZoneInside(smallZone: Zone, biggerZone: Zone): boolean {
   return isEqual(union(biggerZone, smallZone), biggerZone);
 }
 
@@ -242,21 +362,36 @@ export function isZoneInside(smallZone, biggerZone): boolean {
  * To do so, the cells are separated and remerged in zones by columns, and then
  * if possible zones in adjacent columns are merged together.
  */
-export function recomputeZones(zones: string[], toRemoveZones: string[]): string[] {
+export function recomputeZones(zonesXc: string[], toRemoveZonesXc: string[]): string[] {
   const zonesPerColumn: {
     [col: string]: { top: number; bottom: number; remove: boolean }[];
   } = {};
+  const zones = zonesXc.map(toUnboundedZone);
+  const toRemoveZones = toRemoveZonesXc.map(toUnboundedZone);
+
+  // Compute the max to replace the bottom of full columns and right of full rows by something
+  // bigger than any other col/row to be able to apply the algorithm while keeping tracks of what
+  // zones are full cols/rows
+  const maxBottom = Math.max(
+    ...zones.concat(toRemoveZones).map((zone) => (zone.bottom ? zone.bottom : 0))
+  );
+  const maxRight = Math.max(
+    ...zones.concat(toRemoveZones).map((zone) => (zone.right ? zone.right : 0))
+  );
+
   //separate the existing zones per column
-  for (let z of zones) {
-    if (z) {
-      const zone = toZone(z);
+  for (let zone of zones) {
+    if (zone) {
+      if (zone.right === undefined) {
+        zone.right = maxRight + 1;
+      }
       for (let col = zone.left; col <= zone.right; col++) {
         if (zonesPerColumn[col] === undefined) {
           zonesPerColumn[col] = [];
         }
         zonesPerColumn[col].push({
           top: zone.top,
-          bottom: zone.bottom,
+          bottom: zone.bottom === undefined ? maxBottom + 1 : zone.bottom,
           remove: false,
         });
       }
@@ -264,15 +399,17 @@ export function recomputeZones(zones: string[], toRemoveZones: string[]): string
   }
 
   //separate the to deleted zones per column
-  for (let z of toRemoveZones) {
-    const zone = toZone(z);
+  for (let zone of toRemoveZones) {
+    if (zone.right === undefined) {
+      zone.right = maxRight + 1;
+    }
     for (let col = zone.left; col <= zone.right; col++) {
       if (zonesPerColumn[col] === undefined) {
         zonesPerColumn[col] = [];
       }
       zonesPerColumn[col].push({
         top: zone.top,
-        bottom: zone.bottom,
+        bottom: zone.bottom === undefined ? maxBottom + 1 : zone.bottom,
         remove: true,
       });
     }
@@ -291,7 +428,18 @@ export function recomputeZones(zones: string[], toRemoveZones: string[]): string
   }
   //merge zones that spread over multiple columns that can be merged
   const result = mergeColumns(OptimizedZonePerColumn);
-  return result.map(zoneToXc);
+
+  // Convert back the full columns/full rows
+  const resultZones = result.map((zone) => {
+    if (zone.bottom > maxBottom) {
+      return { ...zone, bottom: undefined } as UnboundedZone;
+    }
+    if (zone.right > maxRight) {
+      return { ...zone, right: undefined } as UnboundedZone;
+    }
+    return zone as Zone;
+  });
+  return resultZones.map(zoneToXc);
 }
 
 /**
@@ -435,21 +583,43 @@ export function positions(zone: Zone): Position[] {
  * @param by a number of how many units the change should be made. This parameter
  * takes the form of a two-number array when the dimension is "both"
  */
-export function createAdaptedZone<Dimension extends "columns" | "rows" | "both">(
-  zone: Zone,
+export function createAdaptedZone<
+  Dimension extends "columns" | "rows" | "both",
+  Z extends UnboundedZone | Zone
+>(
+  zone: Z,
   dimension: Dimension,
   operation: "MOVE" | "RESIZE",
   by: Dimension extends "both" ? [number, number] : number
-): Zone {
+): Z {
   const offsetX = dimension === "both" ? by[0] : dimension === "columns" ? by : 0;
   const offsetY = dimension === "both" ? by[1] : dimension === "rows" ? by : 0;
+
+  // For full columns/rows, we have to make the distinction between the one that have a header and
+  // whose start should be moved (eg. A2:A), and those who don't (eg. A:A)
+  // The only time we don't want to move the start of the zone is if the zone is a full column (or a full row)
+  // without header and that we are adding/removing a row (or a column)
+  const hasHeader = "hasHeader" in zone ? zone.hasHeader : false;
+  let shouldStartBeMoved: boolean;
+  if (isFullCol(zone) && !hasHeader) {
+    shouldStartBeMoved = dimension !== "rows";
+  } else if (isFullRow(zone) && !hasHeader) {
+    shouldStartBeMoved = dimension !== "columns";
+  } else {
+    shouldStartBeMoved = true;
+  }
+
   const newZone = { ...zone };
-  if (operation === "MOVE") {
+  if (shouldStartBeMoved && operation === "MOVE") {
     newZone["left"] += offsetX;
     newZone["top"] += offsetY;
   }
-  newZone["right"] += offsetX;
-  newZone["bottom"] += offsetY;
+  if (newZone["right"] !== undefined) {
+    newZone["right"] += offsetX;
+  }
+  if (newZone["bottom"] !== undefined) {
+    newZone["bottom"] += offsetY;
+  }
   return newZone;
 }
 
@@ -529,4 +699,16 @@ export function organizeZone(zone: Zone): Zone {
 
 export function positionToZone(position: Position) {
   return { left: position.col, right: position.col, top: position.row, bottom: position.row };
+}
+
+export function isFullRow(zone: UnboundedZone): boolean {
+  return zone.right === undefined;
+}
+
+function isFullCol(zone: UnboundedZone): boolean {
+  return zone.bottom === undefined;
+}
+
+export function getZoneArea(zone: Zone) {
+  return (zone.bottom - zone.top + 1) * (zone.right - zone.left + 1);
 }

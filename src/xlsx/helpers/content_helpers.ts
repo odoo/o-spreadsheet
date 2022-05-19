@@ -1,9 +1,11 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
+import { toUnboundedZone } from "../../helpers";
 import {
   Align,
   Border,
   CellData,
   ConditionalFormattingOperatorValues,
+  ExcelWorkbookData,
   Format,
   Style,
   UID,
@@ -198,4 +200,29 @@ export function convertChartId(chartId: UID) {
 export function convertDotValueToEMU(value: number) {
   const DPI = 96;
   return Math.round((value * 914400) / DPI);
+}
+
+export function getRangeSize(xc: string, defaultSheetIndex: string, data: ExcelWorkbookData) {
+  const xcSplit = xc.split("!");
+  let rangeSheetIndex: number;
+  if (xcSplit.length > 1) {
+    const index = data.sheets.findIndex((sheet) => sheet.name === xcSplit[0]);
+    if (index < 0) {
+      throw new Error("Unable to find a sheet with the name " + xcSplit[0]);
+    }
+    rangeSheetIndex = index;
+    xc = xcSplit[1];
+  } else {
+    rangeSheetIndex = Number(defaultSheetIndex);
+  }
+
+  const zone = toUnboundedZone(xc);
+  if (zone.right === undefined) {
+    zone.right = data.sheets[rangeSheetIndex].colNumber;
+  }
+  if (zone.bottom === undefined) {
+    zone.bottom = data.sheets[rangeSheetIndex].rowNumber;
+  }
+
+  return (zone.right - zone.left + 1) * (zone.bottom - zone.top + 1);
 }

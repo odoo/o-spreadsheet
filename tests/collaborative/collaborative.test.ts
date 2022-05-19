@@ -22,7 +22,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getBorder, getCell, getCellContent } from "../test_helpers/getters_helpers";
-import { createEqualCF, target } from "../test_helpers/helpers";
+import { createEqualCF, target, toRangesData } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -749,17 +749,17 @@ describe("Multi users synchronisation", () => {
     setCellContent(alice, "A1", "1");
     alice.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
-      target: [toZone("A1")],
+      ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
     alice.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#0000FF" }, "2"),
-      target: [toZone("A1")],
+      ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
     alice.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#00FF00" }, "3"),
-      target: [toZone("A1")],
+      ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
     network.concurrent(() => {
@@ -790,12 +790,12 @@ describe("Multi users synchronisation", () => {
     setCellContent(alice, "A1", "1");
     alice.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
-      target: [toZone("A1")],
+      ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
     alice.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#0000FF" }, "2"),
-      target: [toZone("A1")],
+      ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
     network.concurrent(() => {

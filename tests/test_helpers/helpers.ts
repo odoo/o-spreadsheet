@@ -3,7 +3,7 @@ import { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/index";
-import { toCartesian, toXC, toZone } from "../../src/helpers/index";
+import { toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import {
@@ -11,8 +11,10 @@ import {
   ColorScaleThreshold,
   CommandTypes,
   ConditionalFormat,
+  RangeData,
   SpreadsheetChildEnv,
   Style,
+  UID,
   Zone,
 } from "../../src/types";
 import { XLSXExport } from "../../src/types/xlsx";
@@ -232,6 +234,10 @@ export function zone(str: string): Zone {
 
 export function target(str: string): Zone[] {
   return str.split(",").map(zone);
+}
+
+export function toRangesData(sheetId: UID, str: string): RangeData[] {
+  return str.split(",").map((xc) => ({ _zone: toUnboundedZone(xc), _sheetId: sheetId }));
 }
 
 export function createEqualCF(

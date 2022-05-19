@@ -1,4 +1,4 @@
-import { Range } from "../misc";
+import { Range } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";

@@ -14,7 +14,12 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText, getMerges } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
-import { getMergeCellMap, getPlugin, XCToMergeCellMap } from "../test_helpers/helpers";
+import {
+  getMergeCellMap,
+  getPlugin,
+  toRangesData,
+  XCToMergeCellMap,
+} from "../test_helpers/helpers";
 
 let autoFill: AutofillPlugin;
 let model: Model;
@@ -147,10 +152,11 @@ describe("Autofill", () => {
         },
       },
     };
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf,
-      sheetId: model.getters.getActiveSheetId(),
-      target: cf.ranges.map(toZone),
+      sheetId,
+      ranges: toRangesData(sheetId, cf.ranges.join(",")),
     });
     let col: number, row: number;
     ({ col, row } = toCartesian("A1"));

@@ -18,7 +18,7 @@ import {
   mountSpreadsheet,
   nextTick,
   startGridComposition,
-  target,
+  toRangesData,
   typeInComposerGrid,
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
@@ -307,9 +307,10 @@ describe("Composer interactions", () => {
 
 describe("Composer / selectionInput interactions", () => {
   beforeEach(async () => {
+    const sheetId = parent.model.getters.getActiveSheetId();
     parent.model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      sheetId: parent.model.getters.getActiveSheetId(),
-      target: target("B2:C4"),
+      sheetId,
+      ranges: toRangesData(sheetId, "B2:C4"),
       cf: {
         id: "42",
         rule: {

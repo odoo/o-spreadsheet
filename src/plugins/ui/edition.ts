@@ -4,16 +4,17 @@ import {
   colors,
   concat,
   getComposerSheetName,
+  getZoneArea,
   isEqual,
   isNumber,
   markdownLink,
   positionToZone,
-  toZone,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
 import { loopThroughReferenceType } from "../../helpers/reference_type";
 import { _lt } from "../../translation";
+import { Highlight, Range, RangePart, UID, Zone } from "../../types";
 import { SelectionEvent } from "../../types/event_stream";
 import {
   AddColumnsRowsCommand,
@@ -21,7 +22,6 @@ import {
   CommandResult,
   RemoveColumnsRowsCommand,
 } from "../../types/index";
-import { Highlight, Range, RangePart, UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export type EditionMode =
@@ -153,6 +153,7 @@ export class EditionPlugin extends UIPlugin {
         break;
       case "START_CHANGE_HIGHLIGHT":
         this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+        const range = this.getters.getRangeFromRangeData(cmd.range);
         const previousRefToken = this.currentTokens
           .filter((token) => token.type === "REFERENCE")
           .find((token) => {
@@ -160,10 +161,11 @@ export class EditionPlugin extends UIPlugin {
             const [xc, sheet] = value.split("!").reverse();
             const sheetName = sheet || this.getters.getSheetName(this.sheetId);
             const activeSheetId = this.getters.getActiveSheetId();
-            return (
-              isEqual(this.getters.expandZone(activeSheetId, toZone(xc)), cmd.zone) &&
-              this.getters.getSheetName(activeSheetId) === sheetName
-            );
+            if (this.getters.getSheetName(activeSheetId) !== sheetName) {
+              return false;
+            }
+            const refRange = this.getters.getRangeFromSheetXC(activeSheetId, xc);
+            return isEqual(this.getters.expandZone(activeSheetId, refRange.zone), range.zone);
           });
         this.previousRef = previousRefToken!.value;
         this.previousRange = this.getters.getRangeFromSheetXC(
@@ -173,7 +175,8 @@ export class EditionPlugin extends UIPlugin {
         this.selectionInitialStart = previousRefToken!.start;
         break;
       case "CHANGE_HIGHLIGHT":
-        const newRef = this.getZoneReference(cmd.zone, this.previousRange!.parts);
+        const cmdRange = this.getters.getRangeFromRangeData(cmd.range);
+        const newRef = this.getRangeReference(cmdRange, this.previousRange!.parts);
         this.selectionStart = this.selectionInitialStart;
         this.selectionEnd = this.selectionInitialStart + this.previousRef.length;
         this.replaceSelection(newRef);
@@ -506,6 +509,19 @@ export class EditionPlugin extends UIPlugin {
       selectedXc = `${sheetName}!${selectedXc}`;
     }
     return selectedXc;
+  }
+
+  private getRangeReference(
+    range: Range,
+    fixedParts: RangePart[] = [{ colFixed: false, rowFixed: false }]
+  ) {
+    if (fixedParts.length === 1 && getZoneArea(range.zone) > 1) {
+      fixedParts.push({ ...fixedParts[0] });
+    } else if (fixedParts.length === 2 && getZoneArea(range.zone) === 1) {
+      fixedParts.pop();
+    }
+    const newRange = range.clone({ parts: this.previousRange!.parts });
+    return this.getters.getSelectionRangeString(newRange, this.getters.getEditionSheet());
   }
 
   /**

@@ -15,7 +15,7 @@ import {
   UpdateCellCommand,
   UpdateCellPositionCommand,
 } from "../../../src/types";
-import { createEqualCF, target } from "../../test_helpers/helpers";
+import { createEqualCF, target, toRangesData } from "../../test_helpers/helpers";
 
 describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
   const sheetId = "Sheet1";
@@ -106,47 +106,100 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
     sheetId,
   };
 
-  const addConditionalFormat: Omit<AddConditionalFormatCommand, "target"> = {
+  const addConditionalFormat: Omit<AddConditionalFormatCommand, "ranges"> = {
     type: "ADD_CONDITIONAL_FORMAT",
     sheetId,
     cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
   };
 
-  describe.each([deleteContent, setFormatting, clearFormatting, addConditionalFormat])(
-    "target commands",
-    (cmd) => {
-      test(`add rows before ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("A1:C1")] };
-        const result = transform(command, addRowsAfter);
-        expect(result).toEqual(command);
-      });
+  describe.each([deleteContent, setFormatting, clearFormatting])("target commands", (cmd) => {
+    test(`add rows after ${cmd.type}`, () => {
+      const command = { ...cmd, target: [toZone("A1:C1")] };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual(command);
+    });
+    test(`add rows before ${cmd.type}`, () => {
+      const command = { ...cmd, target: [toZone("A10:B11")] };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual({ ...command, target: [toZone("A12:B13")] });
+    });
+    test(`add rows after in ${cmd.type}`, () => {
+      const command = { ...cmd, target: [toZone("A5:B6")] };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual({ ...command, target: [toZone("A5:B8")] });
+    });
+    test(`add rows before in ${cmd.type}`, () => {
+      const command = { ...cmd, target: [toZone("A5:B6")] };
+      const result = transform(command, addRowsBefore);
+      expect(result).toEqual({ ...command, target: [toZone("A5:B6")] });
+    });
+    test(`${cmd.type} and rows added in different sheets`, () => {
+      const command = { ...cmd, target: [toZone("A1:F3")], sheetId: "42" };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual(command);
+    });
+    test(`${cmd.type} with two targets, one before and one after`, () => {
+      const command = { ...cmd, target: [toZone("A1:C1"), toZone("A10:B11")] };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual({ ...command, target: [toZone("A1:C1"), toZone("A12:B13")] });
+    });
+  });
+
+  describe.each([addConditionalFormat])("Range dependant commands", (cmd) => {
+    test(`add rows after ${cmd.type}`, () => {
+      const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "A1:C1") };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual(command);
+    });
+    test(`add rows before ${cmd.type}`, () => {
+      const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "A10:B11") };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual({ ...command, ranges: toRangesData(cmd.sheetId, "A12:B13") });
+    });
+    test(`add rows before in the sheet of the range ${cmd.type}`, () => {
+      const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "A10:B11"), sheetId: "42" };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual({ ...command, ranges: toRangesData(cmd.sheetId, "A12:B13") });
+    });
+    test(`add rows after in ${cmd.type}`, () => {
+      const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "A5:B6") };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual({ ...command, ranges: toRangesData(cmd.sheetId, "A5:B8") });
+    });
+    test(`add rows before in ${cmd.type}`, () => {
+      const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "A5:B6") };
+      const result = transform(command, addRowsBefore);
+      expect(result).toEqual({ ...command, ranges: toRangesData(cmd.sheetId, "A5:B6") });
+    });
+    test(`${cmd.type} and rows added in different sheets`, () => {
+      const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "A1:F3"), sheetId: "42" };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual(command);
+    });
+    test(`${cmd.type} with two targets, one before and one after`, () => {
+      const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "A1:C1,A10:B11") };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual({ ...command, ranges: toRangesData(cmd.sheetId, "A1:C1,A12:B13") });
+    });
+
+    describe("With unbounded zones", () => {
       test(`add rows after ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("A10:B11")] };
-        const result = transform(command, addRowsAfter);
-        expect(result).toEqual({ ...command, target: [toZone("A12:B13")] });
-      });
-      test(`add rows after in ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("A5:B6")] };
-        const result = transform(command, addRowsAfter);
-        expect(result).toEqual({ ...command, target: [toZone("A5:B8")] });
-      });
-      test(`add rows before in ${cmd.type}`, () => {
-        const command = { ...cmd, target: [toZone("A5:B6")] };
-        const result = transform(command, addRowsBefore);
-        expect(result).toEqual({ ...command, target: [toZone("A5:B6")] });
-      });
-      test(`${cmd.type} and rows added in different sheets`, () => {
-        const command = { ...cmd, target: [toZone("A1:F3")], sheetId: "42" };
+        const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "1:1") };
         const result = transform(command, addRowsAfter);
         expect(result).toEqual(command);
       });
-      test(`${cmd.type} with two targets, one before and one after`, () => {
-        const command = { ...cmd, target: [toZone("A1:C1"), toZone("A10:B11")] };
+      test(`add rows before ${cmd.type}`, () => {
+        const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "A10:11") };
         const result = transform(command, addRowsAfter);
-        expect(result).toEqual({ ...command, target: [toZone("A1:C1"), toZone("A12:B13")] });
+        expect(result).toEqual({ ...command, ranges: toRangesData(cmd.sheetId, "A12:13") });
       });
-    }
-  );
+      test(`add rows in ${cmd.type}`, () => {
+        const command = { ...cmd, ranges: toRangesData(cmd.sheetId, "5:6") };
+        const result = transform(command, addRowsAfter);
+        expect(result).toEqual({ ...command, ranges: toRangesData(cmd.sheetId, "5:8") });
+      });
+    });
+  });
 
   const resizeRowsCommand: Omit<ResizeColumnsRowsCommand, "elements"> = {
     type: "RESIZE_COLUMNS_ROWS",

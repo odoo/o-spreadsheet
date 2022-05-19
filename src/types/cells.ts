@@ -1,7 +1,8 @@
 import { SpreadsheetChildEnv } from "./env";
 import { EvaluationError } from "./errors";
 import { Format, FormattedValue } from "./format";
-import { CompiledFormula, Link, Range, Style, UID } from "./misc";
+import { CompiledFormula, Link, Style, UID } from "./misc";
+import { Range } from "./range";
 
 export enum CellValueType {
   boolean = "boolean",

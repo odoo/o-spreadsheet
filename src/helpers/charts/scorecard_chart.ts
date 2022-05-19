@@ -10,14 +10,14 @@ import {
   Range,
   RemoveColumnsRowsCommand,
   UID,
-  Zone,
+  UnboundedZone,
 } from "../../types";
 import { ChartCreationContext } from "../../types/chart/chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "../../types/chart/scorecard_chart";
 import { Validator } from "../../types/validator";
 import { createRange } from "../range";
 import { rangeReference } from "../references";
-import { toZone, zoneToXc } from "../zones";
+import { toUnboundedZone, zoneToXc } from "../zones";
 import { AbstractChart } from "./abstract_chart";
 import {
   adaptChartRange,
@@ -102,14 +102,14 @@ export class ScorecardChart extends AbstractChart {
     definition: ScorecardChartDefinition,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
   ): ScorecardChartDefinition {
-    let baselineZone: Zone | undefined;
-    let keyValueZone: Zone | undefined;
+    let baselineZone: UnboundedZone | undefined;
+    let keyValueZone: UnboundedZone | undefined;
 
     if (definition.baseline) {
-      baselineZone = transformZone(toZone(definition.baseline), executed);
+      baselineZone = transformZone(toUnboundedZone(definition.baseline), executed);
     }
     if (definition.keyValue) {
-      keyValueZone = transformZone(toZone(definition.keyValue), executed);
+      keyValueZone = transformZone(toUnboundedZone(definition.keyValue), executed);
     }
     return {
       ...definition,
