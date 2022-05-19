@@ -1,3 +1,6 @@
+import { relativeLuminance } from ".";
+import { Color } from "../types";
+
 const GraphColors = [
   // the same colors as those used in odoo reporting
   "rgb(31,119,180)",
@@ -28,4 +31,12 @@ export class ChartColors {
   next(): string {
     return GraphColors[this.graphColorIndex++ % GraphColors.length];
   }
+}
+
+/**
+ * Choose a font color based on a background color.
+ * The font is white with a dark background.
+ */
+export function chartFontColor(backgroundColor: Color): Color {
+  return relativeLuminance(backgroundColor) < 0.3 ? "#FFFFFF" : "#000000";
 }

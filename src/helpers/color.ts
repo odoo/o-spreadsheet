@@ -61,6 +61,23 @@ export function toHex(color: Color): string {
 }
 
 /**
+ * The relative brightness of a point in the colorspace, normalized to 0 for
+ * darkest black and 1 for lightest white.
+ * https://www.w3.org/TR/WCAG20/#relativeluminancedef
+ */
+export function relativeLuminance(color: Color): number {
+  let { r, g, b } = colorToRGBA(color);
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const toLinearValue = (c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const R = toLinearValue(r);
+  const G = toLinearValue(g);
+  const B = toLinearValue(b);
+  return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+}
+
+/**
  * Convert a CSS rgb color string to a standardized hex6 color value.
  *
  * rgbToHex6("rgb(30, 80, 16)")
