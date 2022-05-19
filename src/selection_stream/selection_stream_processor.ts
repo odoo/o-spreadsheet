@@ -7,6 +7,7 @@ import {
   range,
   union,
 } from "../helpers";
+import { _t } from "../translation";
 import {
   AnchorZone,
   CommandResult,
@@ -84,12 +85,14 @@ export class SelectionStreamProcessor
     anchor: AnchorZone,
     callbacks: StreamCallbacks<SelectionEvent>
   ) {
+    this.checkAnchorZoneOrThrow(anchor);
     this.stream.registerAsDefault(owner, callbacks);
     this.defaultAnchor = anchor;
     this.capture(owner, anchor, callbacks);
   }
 
   resetDefaultAnchor(owner: unknown, anchor: AnchorZone) {
+    this.checkAnchorZoneOrThrow(anchor);
     if (this.stream.isListening(owner)) {
       this.anchor = anchor;
     }
@@ -97,6 +100,7 @@ export class SelectionStreamProcessor
   }
 
   resetAnchor(owner: unknown, anchor: AnchorZone) {
+    this.checkAnchorZoneOrThrow(anchor);
     if (this.stream.isListening(owner)) {
       this.anchor = anchor;
     }
@@ -329,7 +333,7 @@ export class SelectionStreamProcessor
    */
   private processEvent(newAnchorEvent: Omit<SelectionEvent, "previousAnchor">): DispatchResult {
     const event = { ...newAnchorEvent, previousAnchor: this.anchor };
-    const commandResult = this.checkAnchorZone(event);
+    const commandResult = this.checkEventAnchorZone(event);
     if (commandResult !== CommandResult.Success) {
       return new DispatchResult(commandResult);
     }
@@ -338,8 +342,12 @@ export class SelectionStreamProcessor
     return DispatchResult.Success;
   }
 
-  private checkAnchorZone(event: SelectionEvent): CommandResult {
-    const { cell, zone } = event.anchor;
+  private checkEventAnchorZone(event: SelectionEvent): CommandResult {
+    return this.checkAnchorZone(event.anchor);
+  }
+
+  private checkAnchorZone(anchor: AnchorZone): CommandResult {
+    const { cell, zone } = anchor;
     if (!isInside(cell.col, cell.row, zone)) {
       return CommandResult.InvalidAnchorZone;
     }
@@ -351,6 +359,13 @@ export class SelectionStreamProcessor
       return CommandResult.SelectionOutOfBound;
     }
     return CommandResult.Success;
+  }
+
+  private checkAnchorZoneOrThrow(anchor: AnchorZone) {
+    const result = this.checkAnchorZone(anchor);
+    if (result === CommandResult.InvalidAnchorZone) {
+      throw new Error(_t("The provided anchor is invalid. The cell must be part of the zone."));
+    }
   }
 
   /**
