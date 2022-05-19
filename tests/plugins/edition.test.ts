@@ -519,7 +519,7 @@ describe("edition", () => {
     expect(model.getters.getCurrentContent()).toBe("=D4");
   });
 
-  test("enable selection mode reset to initial position", () => {
+  test("enable selection mode reset to initial position only wehn selecting on the edition sheet", () => {
     const model = new Model();
     selectCell(model, "D3");
     model.dispatch("START_EDITION", { text: "=" });
@@ -529,6 +529,18 @@ describe("edition", () => {
     model.dispatch("SET_CURRENT_CONTENT", { content: "=D4+" });
     model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
     expect(model.getters.getCurrentContent()).toBe("=D4+D4");
+    model.dispatch("STOP_EDITION");
+    selectCell(model, "D3");
+    createSheet(model, { sheetId: "sheet2" });
+    model.dispatch("START_EDITION", { text: "=" });
+    activateSheet(model, "sheet2");
+    expect(model.getters.getSelectedZone()).toStrictEqual(toZone("A1"));
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    expect(model.getters.getCurrentContent()).toBe("=Sheet2!A2");
+    model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+    model.dispatch("SET_CURRENT_CONTENT", { content: "=Sheet2!A2+" });
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    expect(model.getters.getCurrentContent()).toBe("=Sheet2!A2+Sheet2!A3");
   });
 
   test("select an empty cell, start selecting mode at the composer position", () => {
