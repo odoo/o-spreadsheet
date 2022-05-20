@@ -44,10 +44,6 @@ interface Props {
   onFigureDeleted: () => void;
 }
 
-interface State {
-  background: string;
-}
-
 export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartFigure";
   static components = { Menu };
@@ -58,11 +54,11 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   private menuButtonRef = useRef("menuButton");
   private menuButtonPosition = useAbsolutePosition(this.menuButtonRef);
   private chart?: Chart;
-  private state: State = { background: BACKGROUND_CHART_COLOR };
   private position = useAbsolutePosition(this.chartContainerRef);
 
   get canvasStyle() {
-    return `background-color: ${this.state.background}`;
+    const chart = this.env.model.getters.getChartDefinition(this.props.figure.id);
+    return `background-color: ${chart ? chart.background : BACKGROUND_CHART_COLOR}`;
   }
 
   setup() {
@@ -99,10 +95,6 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
       } else {
         this.chart && this.chart.destroy();
       }
-      const def = this.env.model.getters.getChartDefinition(figure.id);
-      if (def) {
-        this.state.background = def.background;
-      }
     });
   }
 
@@ -110,10 +102,6 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
     this.chart = new window.Chart(ctx, chartData);
-    const def = this.env.model.getters.getChartDefinition(this.props.figure.id);
-    if (def) {
-      this.state.background = def.background;
-    }
   }
 
   private getMenuItemRegistry(): MenuItemRegistry {
