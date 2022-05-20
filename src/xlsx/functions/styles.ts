@@ -1,7 +1,8 @@
-import { isDefined, toHex6 } from "../../helpers";
+import { isDefined } from "../../helpers";
 import { Border, BorderDescr, Format } from "../../types";
 import { XLSXDxf, XLSXFill, XLSXFont, XLSXStyle, XMLAttributes, XMLString } from "../../types/xlsx";
 import { FIRST_NUMFMT_ID } from "../constants";
+import { toXlsxHexColor } from "../helpers/colors";
 import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";
 
 export function addNumberFormats(numFmts: Format[]): XMLString {
@@ -33,7 +34,7 @@ function addFont(font: Partial<XLSXFont>): XMLString {
       ${font.underline ? escapeXml/*xml*/ `<u />` : ""}
       ${font.strike ? escapeXml/*xml*/ `<strike />` : ""}
       ${font.size ? escapeXml/*xml*/ `<sz val="${font.size}" />` : ""}
-      ${font.color ? escapeXml/*xml*/ `<color rgb="${toHex6(font.color)}" />` : ""}
+      ${font.color ? escapeXml/*xml*/ `<color rgb="${toXlsxHexColor(font.color)}" />` : ""}
       ${font.name ? escapeXml/*xml*/ `<name val="${font.name}" />` : ""}
     </font>
   `;
@@ -60,7 +61,7 @@ export function addFills(fills: XLSXFill[]): XMLString {
       fillNodes.push(escapeXml/*xml*/ `
         <fill>
           <patternFill patternType="solid">
-            <fgColor rgb="${toHex6(fill.fgColor!)}" />
+            <fgColor rgb="${toXlsxHexColor(fill.fgColor!)}" />
             <bgColor indexed="64" />
           </patternFill>
         </fill>
@@ -100,7 +101,7 @@ export function formatBorderAttribute(description: BorderDescr | undefined): XML
   }
   return formatAttributes([
     ["style", description[0]],
-    ["color", toHex6(description[1])],
+    ["color", toXlsxHexColor(description[1])],
   ]);
 }
 
@@ -152,7 +153,7 @@ export function addCellWiseConditionalFormatting(
       fillNode = escapeXml/*xml*/ `
         <fill>
           <patternFill>
-            <bgColor rgb="${toHex6(dxf.fill.fgColor!)}" />
+            <bgColor rgb="${toXlsxHexColor(dxf.fill.fgColor!)}" />
           </patternFill>
         </fill>
       `;

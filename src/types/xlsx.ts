@@ -119,3 +119,10 @@ export type ExcelIconSet =
   | "3Flags"
   | "3TrafficLights1"
   | "3TrafficLights2";
+
+/**
+ * Standardized XLSX hexadecimal color (with or without alpha channel).
+ * Note that the alpha channel goes first! AARRGGBB
+ * e.g. "1E5010" or "331E5010"
+ */
+export type XlsxHexColor = string;
