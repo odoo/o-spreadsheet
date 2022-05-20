@@ -274,7 +274,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
         if (cmd.sheetIdTo in this.sheetsData) {
           Object.assign(this, this.sheetsData[cmd.sheetIdTo]);
         } else {
-          this.selectCell(...getNextVisibleCellCoords(this.getters.getSheets()[0], 0, 0));
+          this.selectCell(...getNextVisibleCellCoords(this.getters.getSheet(cmd.sheetIdTo), 0, 0));
         }
         break;
       case "SET_SELECTION":
