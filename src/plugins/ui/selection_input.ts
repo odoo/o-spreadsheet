@@ -1,6 +1,8 @@
 import {
   getComposerSheetName,
   getNextColor,
+  getNextVisibleCellPosition,
+  positionToZone,
   toZone,
   UuidGenerator,
   zoneToXc,
@@ -124,6 +126,17 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
           this.willAddNewRange = this.ranges[index].xc.trim() !== "";
         }
         break;
+      }
+      case "ACTIVATE_SHEET": {
+        if (cmd.sheetIdFrom !== cmd.sheetIdTo) {
+          const { col, row } = getNextVisibleCellPosition(
+            this.getters.getSheet(cmd.sheetIdTo),
+            0,
+            0
+          );
+          const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
+          this.selection.resetAnchor(this, { cell: { col, row }, zone });
+        }
       }
     }
   }

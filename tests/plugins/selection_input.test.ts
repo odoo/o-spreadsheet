@@ -7,6 +7,7 @@ import {
   createSheet,
   createSheetWithName,
   merge,
+  moveAnchorCell,
   resizeAnchorZone,
   selectCell,
   setAnchorCorner,
@@ -587,5 +588,18 @@ describe("selection input plugin", () => {
     expect(model.getters.getSelectionInput(id)[0].isFocused).toBe(false);
     activateSheet(model, "42");
     expect(model.getters.getSelectionInput(id)[0].isFocused).toBe(false);
+  });
+
+  test("input selection is reset only when changing sheet", () => {
+    createSheet(model, { sheetId: "42" });
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+    model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+    selectCell(model, "B7");
+    activateSheet(model, "42");
+    moveAnchorCell(model, "down");
+    expect(highlightedZones(model)).toEqual(["A2"]);
+    activateSheet(model, "42");
+    moveAnchorCell(model, "down");
+    expect(highlightedZones(model)).toEqual(["A3"]);
   });
 });
