@@ -183,9 +183,11 @@ export class EditionPlugin extends UIPlugin {
         this.selectionEnd = this.currentContent.length;
         break;
       case "ACTIVATE_SHEET":
-        const [col, row] = getNextVisibleCellCoords(this.getters.getSheet(cmd.sheetIdTo), 0, 0);
-        const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
-        this.selection.resetAnchor(this, { cell: { col, row }, zone });
+        if (cmd.sheetIdFrom !== cmd.sheetIdTo) {
+          const [col, row] = getNextVisibleCellCoords(this.getters.getSheet(cmd.sheetIdTo), 0, 0);
+          const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
+          this.selection.resetAnchor(this, { cell: { col, row }, zone });
+        }
         break;
       case "DELETE_SHEET":
       case "UNDO":
