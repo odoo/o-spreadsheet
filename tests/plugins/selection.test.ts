@@ -518,6 +518,27 @@ describe("multiple sheets", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
     expect(model.getters.getActiveSheetId()).toBe("42");
   });
+
+  test("Activating an unvisited sheet selects its first visible cell", () => {
+    const model = new Model({
+      sheets: [
+        {
+          sheetId: "Sheet1",
+        },
+        {
+          sheetId: "Sheet2",
+          colNumber: 5,
+          rowNumber: 5,
+          cols: { 0: { isHidden: true }, 1: { isHidden: true } },
+          rows: { 0: { isHidden: true } },
+          merges: ["C2:C3"],
+        },
+      ],
+    });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
+    activateSheet(model, "Sheet2");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("C2:C3"));
+  });
 });
 
 describe("Alter selection starting from hidden cells", () => {

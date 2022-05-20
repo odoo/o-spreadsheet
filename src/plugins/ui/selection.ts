@@ -239,9 +239,8 @@ export class GridSelectionPlugin extends UIPlugin {
           Object.assign(this, this.sheetsData[cmd.sheetIdTo]);
           this.selection.resetDefaultAnchor(this, this.gridSelection.anchor);
         } else {
-          const firstSheetId = this.getters.getSheetIds()[0];
-          const firstSheet = this.getters.getSheet(firstSheetId);
-          const { col, row } = getNextVisibleCellPosition(firstSheet, 0, 0);
+          const newSheet = this.getters.getSheet(cmd.sheetIdTo);
+          const { col, row } = getNextVisibleCellPosition(newSheet, 0, 0);
           this.selectCell(col, row);
         }
         break;
