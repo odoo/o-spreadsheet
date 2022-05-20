@@ -1,4 +1,11 @@
-import { getComposerSheetName, getNextColor, UuidGenerator, zoneToXc } from "../../helpers/index";
+import {
+  getComposerSheetName,
+  getNextColor,
+  getNextVisibleCellCoords,
+  positionToZone,
+  UuidGenerator,
+  zoneToXc,
+} from "../../helpers/index";
 import { Mode, ModelConfig } from "../../model";
 import { StreamCallbacks } from "../../selection_stream/event_stream";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
@@ -111,6 +118,13 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
           this.willAddNewRange = this.ranges[index].xc.trim() !== "";
         }
         break;
+      }
+      case "ACTIVATE_SHEET": {
+        if (cmd.sheetIdFrom !== cmd.sheetIdTo) {
+          const [col, row] = getNextVisibleCellCoords(this.getters.getSheet(cmd.sheetIdTo), 0, 0);
+          const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
+          this.selection.resetAnchor(this, { cell: { col, row }, zone });
+        }
       }
     }
   }

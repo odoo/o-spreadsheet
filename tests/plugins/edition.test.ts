@@ -557,6 +557,21 @@ describe("edition", () => {
     expect(model.getters.getCurrentContent()).toBe("=Sheet2!A2+Sheet2!A3");
   });
 
+  test("composer selection is reset only when changing sheet", () => {
+    const model = new Model();
+    createSheet(model, { sheetId: "42", name: "Sheet2" });
+    selectCell(model, "D3");
+    model.dispatch("START_EDITION", { text: "=" });
+    moveAnchorCell(model, "down");
+    expect(model.getters.getCurrentContent()).toBe("=D4");
+    activateSheet(model, "42");
+    moveAnchorCell(model, "down");
+    expect(model.getters.getCurrentContent()).toEqual("=Sheet2!A2");
+    activateSheet(model, "42");
+    moveAnchorCell(model, "down");
+    expect(model.getters.getCurrentContent()).toEqual("=Sheet2!A3");
+  });
+
   test("select an empty cell, start selecting mode at the composer position", () => {
     const model = new Model();
     const [col, row] = toCartesian("A2");
