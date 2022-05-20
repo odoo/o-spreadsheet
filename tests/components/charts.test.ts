@@ -318,6 +318,21 @@ describe("figures", () => {
     expect((mockChartData.options!.title as any).text).toBe("hello");
   });
 
+  test("can change a chart background color from the side panel", async () => {
+    await simulateClick(".o-figure");
+    await simulateClick(".o-chart-menu");
+    await simulateClick(".o-menu div[data-name='edit']");
+    await nextTick();
+    const designPanel = fixture.querySelectorAll(".o-panel-element")[1];
+    triggerMouseEvent(designPanel, "click");
+    const canvas = fixture.querySelector(".o-chart-container canvas") as HTMLElement;
+    await nextTick();
+    expect(canvas.style.backgroundColor).toBe("rgb(255, 255, 255)");
+    await simulateClick(".o-with-color-picker span");
+    await simulateClick(".o-color-picker-line-item");
+    expect(canvas.style.backgroundColor).toBe("rgb(0, 0, 0)");
+  });
+
   test("deleting chart will close sidePanel", async () => {
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
     await simulateClick(".o-figure");
