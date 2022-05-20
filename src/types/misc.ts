@@ -7,6 +7,26 @@ import { CommandResult } from "./commands";
 import { Format } from "./format";
 
 export type UID = string;
+/**
+ * CSS style color string
+ * e.g. "#ABC", "#AAAFFF", "rgb(30, 80, 16)"
+ */
+export type Color = string;
+
+export interface RGBA {
+  a: number;
+  r: number;
+  g: number;
+  b: number;
+}
+
+export interface HSLA {
+  a: number;
+  h: number;
+  s: number;
+  l: number;
+}
+
 export interface Link {
   label: string;
   url: string;

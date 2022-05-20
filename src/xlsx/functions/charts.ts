@@ -1,8 +1,9 @@
-import { range, toHex6, toZone, zoneToDimension } from "../../helpers";
+import { range, toZone, zoneToDimension } from "../../helpers";
 import { ChartColors } from "../../helpers/chart";
 import { ExcelChartDefinition, FigureData } from "../../types";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { DRAWING_NS_A, DRAWING_NS_C, RELATIONSHIP_NSR } from "../constants";
+import { toXlsxHexColor } from "../helpers/colors";
 import { convertDotValueToEMU } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
 
@@ -42,7 +43,7 @@ export function createChart(chart: FigureData<ExcelChartDefinition>): XMLDocumen
   ];
 
   const chartShapeProperty = shapeProperty({
-    backgroundColor: toHex6(chart.data.backgroundColor),
+    backgroundColor: toXlsxHexColor(chart.data.backgroundColor),
     line: { color: "000000" },
   });
   // <manualLayout/> to manually position the chart in the figure container
@@ -97,7 +98,7 @@ export function createChart(chart: FigureData<ExcelChartDefinition>): XMLDocumen
           <!-- how the chart element is placed on the chart -->
           <c:layout />
           ${plot}
-          ${shapeProperty({ backgroundColor: toHex6(chart.data.backgroundColor) })}
+          ${shapeProperty({ backgroundColor: toXlsxHexColor(chart.data.backgroundColor) })}
         </c:plotArea>
         ${addLegend(position)}
       </c:chart>
@@ -192,7 +193,7 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
   const colors = new ChartColors();
   const dataSetsNodes: XMLString[] = [];
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
-    const color = toHex6(colors.next());
+    const color = toXlsxHexColor(colors.next());
     const dataShapeProperty = shapeProperty({
       backgroundColor: color,
       line: { color },
@@ -244,7 +245,7 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
       line: {
         width: 2.5,
         style: "solid",
-        color: toHex6(colors.next()),
+        color: toXlsxHexColor(colors.next()),
       },
     });
 
@@ -295,7 +296,7 @@ function addDoughnutChart(chart: ExcelChartDefinition, { holeSize } = { holeSize
       return height * width;
     })
   );
-  const doughnutColors: string[] = range(0, maxLength).map(() => toHex6(colors.next()));
+  const doughnutColors: string[] = range(0, maxLength).map(() => toXlsxHexColor(colors.next()));
 
   const dataSetsNodes: XMLString[] = [];
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets).reverse()) {
