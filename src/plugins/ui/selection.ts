@@ -235,7 +235,7 @@ export class GridSelectionPlugin extends UIPlugin {
           Object.assign(this, this.sheetsData[cmd.sheetIdTo]);
           this.selection.resetDefaultAnchor(this, this.gridSelection.anchor);
         } else {
-          this.selectCell(...getNextVisibleCellCoords(this.getters.getSheets()[0], 0, 0));
+          this.selectCell(...getNextVisibleCellCoords(this.getters.getSheet(cmd.sheetIdTo), 0, 0));
         }
         break;
       }
