@@ -10,6 +10,7 @@ import {
   topbarMenuRegistry,
 } from "../src/registries/index";
 import { SpreadsheetChildEnv } from "../src/types";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "./../src/constants";
 import {
   hideColumns,
   hideRows,
@@ -958,6 +959,19 @@ describe("Menu Item actions", () => {
     afterEach(() => {
       app.destroy();
     });
+
+    test("Chart is inserted at correct position", () => {
+      setSelection(model, ["B2"]);
+      doAction(["insert", "insert_chart"], env);
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["B2"];
+      payload.position = {
+        x: 2 * DEFAULT_CELL_WIDTH, // x is position of dataset cell + 1
+        y: DEFAULT_CELL_HEIGHT,
+      };
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    });
+
     test("Chart of single column without title", () => {
       setSelection(model, ["B2:B5"]);
       doAction(["insert", "insert_chart"], env);
