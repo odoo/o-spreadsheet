@@ -118,14 +118,34 @@ export class ClipboardPlugin extends UIPlugin {
         break;
       }
       case "ADD_COLUMNS_ROWS": {
-        // If we add a col/row inside a cut clipped area, we invalidate the clipboard
-        const isClipboardDirty = this.isAddRowColDirtyingClipboard(
-          cmd.base,
-          cmd.position,
+        this.status = "invisible";
+
+        // If we add a col/row inside or before the cut area, we invalidate the clipboard
+        if (this.state?.operation !== "CUT") {
+          return;
+        }
+        const isClipboardDirty = this.isColRowDirtyingClipboard(
+          cmd.position === "before" ? cmd.base : cmd.base + 1,
           cmd.dimension
         );
-        if (this.state && this.state.operation == "CUT" && isClipboardDirty) {
+        if (isClipboardDirty) {
           this.state = undefined;
+        }
+        break;
+      }
+      case "REMOVE_COLUMNS_ROWS": {
+        this.status = "invisible";
+
+        // If we remove a col/row inside or before the cut area, we invalidate the clipboard
+        if (this.state?.operation !== "CUT") {
+          return;
+        }
+        for (let el of cmd.elements) {
+          const isClipboardDirty = this.isColRowDirtyingClipboard(el, cmd.dimension);
+          if (isClipboardDirty) {
+            this.state = undefined;
+            break;
+          }
         }
         this.status = "invisible";
         break;
@@ -664,31 +684,19 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   /**
-   * Check if a ADD_COLUMNS_ROWS command is affecting an area inside the clipboard
+   * Check if a col/row added/removed at the given position is dirtying the clipboard
    */
-  private isAddRowColDirtyingClipboard(
-    base: number,
-    position: "before" | "after",
-    dimension: Dimension
-  ) {
+  private isColRowDirtyingClipboard(position: number, dimension: Dimension) {
     if (!this.state || !this.state.zones) return false;
-    const sheet = this.getters.getActiveSheet();
-    const affectedZone: Zone = {
-      top: 0,
-      bottom: sheet.rows.length - 1,
-      left: 0,
-      right: sheet.cols.length - 1,
-    };
-    if (dimension === "COL") {
-      const affectedCol = position === "before" ? base - 1 : base + 1;
-      affectedZone.left = affectedCol;
-      affectedZone.right = affectedCol;
-    } else {
-      const affectedRow = position === "before" ? base - 1 : base + 1;
-      affectedZone.top = affectedRow;
-      affectedZone.bottom = affectedRow;
+    for (let zone of this.state.zones) {
+      if (dimension === "COL" && position <= zone.right) {
+        return true;
+      }
+      if (dimension === "ROW" && position <= zone.bottom) {
+        return true;
+      }
     }
-    return this.isZoneOverlapClippedZone(this.state.zones, affectedZone);
+    return false;
   }
 
   // ---------------------------------------------------------------------------
