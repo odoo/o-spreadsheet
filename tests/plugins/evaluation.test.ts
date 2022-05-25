@@ -106,9 +106,9 @@ describe("evaluateCells", () => {
     const grid = { A1: "=A1", A2: "=A1", A3: "=+", A4: "=1 + A3", A5: "=sum('asdf')" };
     const result = evaluateGrid(grid);
     expect(result.A1).toBe("#CYCLE");
-    expect(result.A2).toBe("#ERROR");
+    expect(result.A2).toBe("#CYCLE");
     expect(result.A3).toBe("#BAD_EXPR");
-    expect(result.A4).toBe("#ERROR");
+    expect(result.A4).toBe("#BAD_EXPR");
     expect(result.A5).toBe("#BAD_EXPR");
   });
 

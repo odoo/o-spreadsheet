@@ -10852,6 +10852,27 @@ Object {
                 </f>
             </c>
         </row>
+        <row r=\\"162\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A162\\" s=\\"1\\">
+                <f>
+                    NA()
+                </f>
+            </c>
+        </row>
+        <row r=\\"163\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A163\\" s=\\"1\\">
+                <f>
+                    ISNA(A162)
+                </f>
+            </c>
+        </row>
+        <row r=\\"164\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A164\\" s=\\"1\\">
+                <f>
+                    ISERR(A162)
+                </f>
+            </c>
+        </row>
     </sheetData>
 </worksheet>",
       "contentType": "sheet",
@@ -13202,6 +13223,27 @@ Object {
             <c r=\\"A161\\" s=\\"1\\">
                 <f>
                     DELTA(1,1)
+                </f>
+            </c>
+        </row>
+        <row r=\\"162\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A162\\" s=\\"1\\">
+                <f>
+                    NA()
+                </f>
+            </c>
+        </row>
+        <row r=\\"163\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A163\\" s=\\"1\\">
+                <f>
+                    ISNA(A162)
+                </f>
+            </c>
+        </row>
+        <row r=\\"164\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
+            <c r=\\"A164\\" s=\\"1\\">
+                <f>
+                    ISERR(A162)
                 </f>
             </c>
         </row>

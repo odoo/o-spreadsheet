@@ -261,6 +261,9 @@ const allExportableFormulasData = {
         A159: { content: "=XOR(false, true, false, false)" },
         A160: { content: '=YEAR("3/12/2012")' },
         A161: { content: "=DELTA(1, 1)" },
+        A162: { content: "=NA()" },
+        A163: { content: "=ISNA(A162)" },
+        A164: { content: "=ISERR(A162)" },
 
         // DATA
         G1: { content: "Name", style: 8 },
