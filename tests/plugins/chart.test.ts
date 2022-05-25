@@ -1719,3 +1719,26 @@ describe("Linear/Time charts", () => {
     expect(model.getters.getChartRuntime(chartId)).toMatchSnapshot();
   });
 });
+
+describe("Chart evaluation", () => {
+  test("Chart runtime is correctly updated when a value is changed", () => {
+    const model = new Model();
+    setCellContent(model, "A2", "group");
+    setCellContent(model, "B1", "title");
+    setCellContent(model, "B2", "=C3");
+    createChart(
+      model,
+      {
+        dataSets: ["B1:B2"],
+        dataSetsHaveTitle: true,
+        labelRange: "A2",
+      },
+      "1"
+    );
+    expect(model.getters.getChartRuntime("1")!.data!.datasets![0]!.data![0]).toBeNull();
+    setCellContent(model, "C3", "1");
+    expect(model.getters.getChartRuntime("1")!.data!.datasets![0]!.data![0]).toBe(1);
+    deleteColumns(model, ["C"]);
+    expect(model.getters.getChartRuntime("1")!.data!.datasets![0]!.data![0]).toBe("#REF");
+  });
+});
