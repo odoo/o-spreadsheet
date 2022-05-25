@@ -1,5 +1,48 @@
 import { evaluateCell } from "../test_helpers/helpers";
 
+describe("ISERR formula", () => {
+  test("functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=ISERR()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)", A2: "TEST" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)", A2: "=IF()" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)", A2: "=NA()" })).toBe(false);
+  });
+});
+
+describe("ISERR formula", () => {
+  test("functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=ISERR()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=ISERR("")' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=ISERR("test")' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(TRUE)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(FALSE)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(1)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(3%)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(NA())" })).toBe(false);
+
+    expect(evaluateCell("A1", { A1: "=ISERR(1/0)" })).toBe(true); // corresponds to #ERROR error
+  });
+
+  test("functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)", A2: "TEST" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)", A2: "TRUE" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)", A2: "1" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)", A2: '"test"' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)", A2: '"123"' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)", A2: '="TRUE"' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)", A2: "=true" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)", A2: "=false" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)", A2: "=123" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)", A2: "=NA()" })).toBe(false);
+
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)", A2: "=A2" })).toBe(true); // corresponds to #CYCLE error
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)", A2: "=(+" })).toBe(true); // corresponds to #BAD_EXPR error
+    expect(evaluateCell("A1", { A1: "=ISERR(A2)", A2: "=SQRT(-1)" })).toBe(true); // corresponds to #ERROR error
+  });
+});
+
 describe("ISERROR formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=ISERROR()" })).toBe("#BAD_EXPR");
@@ -10,7 +53,8 @@ describe("ISERROR formula", () => {
     expect(evaluateCell("A1", { A1: "=ISERROR(1)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISERROR(3%)" })).toBe(false);
 
-    expect(evaluateCell("A1", { A1: "=ISERROR(1/0)" })).toBe(true); // corespond to #ERROR error
+    expect(evaluateCell("A1", { A1: "=ISERROR(1/0)" })).toBe(true); // corresponds to #ERROR error
+    expect(evaluateCell("A1", { A1: "=ISERROR(NA())" })).toBe(true); // corresponds to #N/A error
   });
 
   test("functional tests on cell arguments", () => {
@@ -25,9 +69,10 @@ describe("ISERROR formula", () => {
     expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "=false" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "=123" })).toBe(false);
 
-    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "=A2" })).toBe(true); // corespond to #CYCLE error
-    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "=(+" })).toBe(true); // corespond to #BAD_EXPR error
-    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "=SQRT(-1)" })).toBe(true); // corespond to #ERROR error
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "=A2" })).toBe(true); // corresponds to #CYCLE error
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "=(+" })).toBe(true); // corresponds to #BAD_EXPR error
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "=SQRT(-1)" })).toBe(true); // corresponds to #ERROR error
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "=NA()" })).toBe(true); // corresponds to #N/A error
   });
 });
 
@@ -57,6 +102,39 @@ describe("ISLOGICAL formula", () => {
     expect(evaluateCell("A1", { A1: "=ISLOGICAL(A2)", A2: "=true" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISLOGICAL(A2)", A2: "=false" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISLOGICAL(A2)", A2: "=123" })).toBe(false);
+  });
+});
+
+describe("ISNA formula", () => {
+  test("functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=ISNA()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=ISNA("")' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=ISNA("test")' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNA(TRUE)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNA(FALSE)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNA(1)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNA(3%)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNA(1/0)" })).toBe(false); // corresponds to #ERROR error
+
+    expect(evaluateCell("A1", { A1: "=ISNA(NA())" })).toBe(true);
+  });
+
+  test("functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=ISNA(A2)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNA(A2)", A2: "TEST" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNA(A2)", A2: "TRUE" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNA(A2)", A2: "1" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNA(A2)", A2: '"test"' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNA(A2)", A2: '"123"' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNA(A2)", A2: '="TRUE"' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNA(A2)", A2: "=true" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNA(A2)", A2: "=false" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNA(A2)", A2: "=123" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISNA(A2)", A2: "=A2" })).toBe(false); // corresponds to #CYCLE error
+    expect(evaluateCell("A1", { A1: "=ISNA(A2)", A2: "=(+" })).toBe(false); // corresponds to #BAD_EXPR error
+    expect(evaluateCell("A1", { A1: "=ISNA(A2)", A2: "=SQRT(-1)" })).toBe(false); // corresponds to #ERROR error
+
+    expect(evaluateCell("A1", { A1: "=ISNA(A2)", A2: "=NA()" })).toBe(true);
   });
 });
 
@@ -133,5 +211,12 @@ describe("ISTEXT formula", () => {
     expect(evaluateCell("A1", { A1: "=ISTEXT(A2)", A2: '="TRUE"' })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISTEXT(A2)", A2: "=true" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISTEXT(A2)", A2: "=123" })).toBe(false);
+  });
+});
+
+describe("NA formula", () => {
+  test("functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=NA(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=NA()" })).toBe("#N/A");
   });
 });

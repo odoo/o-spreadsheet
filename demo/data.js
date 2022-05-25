@@ -890,6 +890,18 @@ export const demoData = {
         B161: { content: "=DELTA(1,1)" },
         C161: { content: "1" },
         D161: { content: "=IF(B161=C161,1, 0)" },
+        A162: { content: "NA" },
+        B162: { content: "=NA()" },
+        C162: { content: "#N/A" },
+        D162: { content: "=IF(ISNA(B162),1, 0)" },
+        A163: { content: "ISNA" },
+        B163: { content: "=ISNA(NA())" },
+        C163: { content: "TRUE" },
+        D163: { content: "=IF(B163=C163,1, 0)" },
+        A164: { content: "ISERR" },
+        B164: { content: "=ISERR(NA())" },
+        C164: { content: "FALSE" },
+        D164: { content: "=IF(B164=C164,1, 0)" },
 
         // DATA
         G1: { content: "Name", style: 8 },

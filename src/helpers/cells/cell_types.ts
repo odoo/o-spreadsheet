@@ -21,6 +21,7 @@ import {
   TextEvaluation,
   UID,
 } from "../../types";
+import { CellErrorType } from "../../types/errors";
 import { formatValue } from "../format";
 import { markdownLink, parseMarkdownLink, parseSheetLink } from "../misc";
 
@@ -320,6 +321,6 @@ export class BadExpressionCell extends AbstractCell<InvalidEvaluation> {
    * @param properties
    */
   constructor(id: UID, readonly content: string, error: string, properties: CellDisplayProperties) {
-    super(id, { value: "#BAD_EXPR", type: CellValueType.error, error }, properties);
+    super(id, { value: CellErrorType.BadExpression, type: CellValueType.error, error }, properties);
   }
 }

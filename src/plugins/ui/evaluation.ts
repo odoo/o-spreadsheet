@@ -1,4 +1,3 @@
-import { INCORRECT_RANGE_STRING } from "../../constants";
 import { compile } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { intersection, isZoneValid, toXC } from "../../helpers/index";
@@ -6,7 +5,7 @@ import { ModelConfig } from "../../model";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
-import { InvalidReferenceError } from "../../types/errors";
+import { CellErrorType, EvaluationError, InvalidReferenceError } from "../../types/errors";
 import {
   Cell,
   CellValue,
@@ -136,7 +135,7 @@ export class EvaluationPlugin extends UIPlugin {
         e = new Error(e);
       }
       if (cell.evaluated.type !== CellValueType.error) {
-        const msg = e instanceof InvalidReferenceError ? INCORRECT_RANGE_STRING : "#ERROR";
+        const msg = e?.errorType || CellErrorType.GenericError;
         // apply function name
         const __lastFnCalled = params[2].__lastFnCalled || "";
         cell.assignError(msg, e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled));
@@ -150,7 +149,7 @@ export class EvaluationPlugin extends UIPlugin {
       const cellId = cell.id;
       if (cellId in visited) {
         if (visited[cellId] === null) {
-          cell.assignError("#CYCLE", _lt("Circular reference"));
+          cell.assignError(CellErrorType.CircularDependency, _lt("Circular reference"));
         }
         return;
       }
@@ -201,11 +200,17 @@ export class EvaluationPlugin extends UIPlugin {
 
     function getCellValue(cell: Cell, sheetId: UID): CellValue {
       if (cell.isFormula() && cell.evaluated.type === CellValueType.error) {
-        throw new Error(_lt("This formula depends on invalid values"));
+        throw new EvaluationError(
+          cell.evaluated.value,
+          _lt("This formula depends on invalid values: %s", cell.evaluated.error)
+        );
       }
       computeValue(cell, sheetId);
       if (cell.evaluated.type === CellValueType.error) {
-        throw new Error(_lt("This formula depends on invalid values"));
+        throw new EvaluationError(
+          cell.evaluated.value,
+          _lt("This formula depends on invalid values: %s", cell.evaluated.error)
+        );
       }
       return cell.evaluated.value;
     }

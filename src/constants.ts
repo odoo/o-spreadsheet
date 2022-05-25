@@ -1,5 +1,6 @@
 import { _lt } from "./translation";
 import { BorderDescr, Style } from "./types";
+import { CellErrorType } from "./types/errors";
 
 // Scheduler
 export const MAXIMUM_EVALUATION_CHECK_DELAY_MS = 15;
@@ -64,7 +65,7 @@ export const LINK_COLOR = "#00f";
 export const DATETIME_FORMAT = /[ymd:]/;
 
 // Ranges
-export const INCORRECT_RANGE_STRING = "#REF";
+export const INCORRECT_RANGE_STRING = CellErrorType.InvalidReference;
 
 // Max Number of history steps kept in memory
 export const MAX_HISTORY_STEPS = 99;

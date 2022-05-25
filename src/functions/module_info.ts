@@ -1,6 +1,25 @@
 import { _lt } from "../translation";
 import { AddFunctionDescription, ArgValue } from "../types";
+import { CellErrorType, NotAvailableError } from "../types/errors";
 import { args } from "./arguments";
+
+// -----------------------------------------------------------------------------
+// ISERR
+// -----------------------------------------------------------------------------
+export const ISERR: AddFunctionDescription = {
+  description: _lt("Whether a value is an error other than #N/A."),
+  args: args(`value (any, lazy) ${_lt("The value to be verified as an error type.")}`),
+  returns: ["BOOLEAN"],
+  compute: function (value: () => ArgValue): boolean {
+    try {
+      value();
+      return false;
+    } catch (e) {
+      return e?.errorType != CellErrorType.NotAvailable;
+    }
+  },
+  isExported: true,
+};
 
 // -----------------------------------------------------------------------------
 // ISERROR
@@ -29,6 +48,24 @@ export const ISLOGICAL: AddFunctionDescription = {
   returns: ["BOOLEAN"],
   compute: function (value: ArgValue): boolean {
     return typeof value === "boolean";
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// ISNA
+// -----------------------------------------------------------------------------
+export const ISNA: AddFunctionDescription = {
+  description: _lt("Whether a value is the error #N/A."),
+  args: args(`value (any, lazy) ${_lt("The value to be verified as an error type.")}`),
+  returns: ["BOOLEAN"],
+  compute: function (value: () => ArgValue): boolean {
+    try {
+      value();
+      return false;
+    } catch (e) {
+      return e?.errorType == CellErrorType.NotAvailable;
+    }
   },
   isExported: true,
 };
@@ -69,6 +106,19 @@ export const ISTEXT: AddFunctionDescription = {
   returns: ["BOOLEAN"],
   compute: function (value: ArgValue): boolean {
     return typeof value === "string";
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// NA
+// -----------------------------------------------------------------------------
+export const NA: AddFunctionDescription = {
+  description: _lt("Returns the error value #N/A."),
+  args: args(``),
+  returns: ["BOOLEAN"],
+  compute: function (value: ArgValue): boolean {
+    throw new NotAvailableError();
   },
   isExported: true,
 };

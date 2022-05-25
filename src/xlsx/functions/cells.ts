@@ -11,6 +11,7 @@ import { functionRegistry } from "../../functions";
 import { formatValue, isNumber } from "../../helpers";
 import { mdyDateRegexp, parseDateTime, timeRegexp, ymdDateRegexp } from "../../helpers/dates";
 import { ExcelCellData, Format } from "../../types";
+import { CellErrorType } from "../../types/errors";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../constants";
 import { getCellType, pushElement } from "../helpers/content_helpers";
@@ -36,7 +37,7 @@ export function addFormula(cell: ExcelCellData): {
     const XlsxFormula = adaptFormulaToExcel(formula);
     // hack for cycles : if we don't set a value (be it 0 or #VALUE!), it will appear as invisible on excel,
     // Making it very hard for the client to find where the recursion is.
-    if (cell.value === "#CYCLE") {
+    if (cell.value === CellErrorType.CircularDependency) {
       attrs.push(["t", "str"]);
       cycle = escapeXml/*xml*/ `<v>${cell.value}</v>`;
     }
