@@ -1931,59 +1931,201 @@ describe("clipboard: pasting outside of sheet", () => {
     expect(getCellContent(model, "D3")).toBe("Patrick");
   });
 
-  test("adding a column inside a cut zone is invalidating the clipboard", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "B1", "2");
+  describe("add col/row can invalidate the clipboard of cut", () => {
+    test("adding a column before a cut zone is invalidating the clipboard", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "B1", "2");
 
-    cut(model, "A1:B1");
-    addColumns(model, "after", "A", 1);
-    paste(model, "A2");
-    expect(getCellContent(model, "A1")).toBe("1");
-    expect(getCellContent(model, "C1")).toBe("2");
-    expect(getCellContent(model, "A2")).toBe("");
-    expect(getCellContent(model, "C2")).toBe("");
+      model.dispatch("CUT", { target: target("A1:B1") });
+      addColumns(model, "before", "A", 1);
+      model.dispatch("PASTE", { target: [toZone("A2")] });
+      expect(getCellContent(model, "B1")).toBe("1");
+      expect(getCellContent(model, "C1")).toBe("2");
+      expect(getCellContent(model, "A2")).toBe("");
+      expect(getCellContent(model, "B2")).toBe("");
+      expect(getCellContent(model, "C2")).toBe("");
+    });
+
+    test("adding a column after a cut zone is not invalidating the clipboard", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "B1", "2");
+
+      model.dispatch("CUT", { target: target("A1:B1") });
+      addColumns(model, "after", "B", 1);
+      model.dispatch("PASTE", { target: [toZone("A2")] });
+      expect(getCellContent(model, "A1")).toBe("");
+      expect(getCellContent(model, "B1")).toBe("");
+      expect(getCellContent(model, "A2")).toBe("1");
+      expect(getCellContent(model, "B2")).toBe("2");
+    });
+
+    test("adding a column inside a cut zone is invalidating the clipboard", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "B1", "2");
+
+      model.dispatch("CUT", { target: target("A1:B1") });
+      addColumns(model, "after", "A", 1);
+      model.dispatch("PASTE", { target: [toZone("A2")] });
+      expect(getCellContent(model, "A1")).toBe("1");
+      expect(getCellContent(model, "C1")).toBe("2");
+      expect(getCellContent(model, "A2")).toBe("");
+      expect(getCellContent(model, "C2")).toBe("");
+    });
+
+    test("adding multipe columns inside a cut zone is invalidating the clipboard", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "B1", "2");
+
+      model.dispatch("CUT", { target: target("A1:B1") });
+      addColumns(model, "after", "A", 5);
+      model.dispatch("PASTE", { target: [toZone("A2")] });
+      expect(getCellContent(model, "A1")).toBe("1");
+      expect(getCellContent(model, "G1")).toBe("2");
+      expect(getCellContent(model, "A2")).toBe("");
+      expect(getCellContent(model, "C2")).toBe("");
+    });
+
+    test("adding a row before a cut zone is invalidating the clipboard", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "2");
+
+      model.dispatch("CUT", { target: target("A1:A2") });
+      addRows(model, "before", 0, 1);
+      model.dispatch("PASTE", { target: [toZone("C1")] });
+      expect(getCellContent(model, "A2")).toBe("1");
+      expect(getCellContent(model, "A3")).toBe("2");
+      expect(getCellContent(model, "C1")).toBe("");
+      expect(getCellContent(model, "C2")).toBe("");
+      expect(getCellContent(model, "C3")).toBe("");
+    });
+
+    test("adding a row after a cut zone is not invalidating the clipboard", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "2");
+
+      model.dispatch("CUT", { target: target("A1:A2") });
+      addRows(model, "after", 2, 1);
+      model.dispatch("PASTE", { target: [toZone("C1")] });
+      expect(getCellContent(model, "A1")).toBe("");
+      expect(getCellContent(model, "A2")).toBe("");
+      expect(getCellContent(model, "C1")).toBe("1");
+      expect(getCellContent(model, "C2")).toBe("2");
+    });
+
+    test("adding a row inside a cut zone is invalidating the clipboard", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "2");
+
+      model.dispatch("CUT", { target: target("A1:A2") });
+      addRows(model, "after", 0, 1);
+      model.dispatch("PASTE", { target: [toZone("C1")] });
+      expect(getCellContent(model, "A1")).toBe("1");
+      expect(getCellContent(model, "A3")).toBe("2");
+      expect(getCellContent(model, "C1")).toBe("");
+      expect(getCellContent(model, "C3")).toBe("");
+    });
+
+    test("adding multiple rows inside a cut zone is invalidating the clipboard", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "2");
+
+      model.dispatch("CUT", { target: target("A1:A2") });
+      addRows(model, "after", 0, 5);
+      model.dispatch("PASTE", { target: [toZone("C1")] });
+      expect(getCellContent(model, "A1")).toBe("1");
+      expect(getCellContent(model, "A7")).toBe("2");
+      expect(getCellContent(model, "C1")).toBe("");
+      expect(getCellContent(model, "C3")).toBe("");
+    });
   });
 
-  test("adding multipe columns inside a cut zone is invalidating the clipboard", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "B1", "2");
+  describe("remove col/row can invalidate the clipboard of cut", () => {
+    test("removing a column before a cut zone is invalidating the clipboard", () => {
+      const model = new Model();
+      setCellContent(model, "B2", "1");
+      setCellContent(model, "C2", "2");
 
-    cut(model, "A1:B1");
-    addColumns(model, "after", "A", 5);
-    paste(model, "A2");
-    expect(getCellContent(model, "A1")).toBe("1");
-    expect(getCellContent(model, "G1")).toBe("2");
-    expect(getCellContent(model, "A2")).toBe("");
-    expect(getCellContent(model, "C2")).toBe("");
-  });
+      model.dispatch("CUT", { target: target("B2:C2") });
+      deleteColumns(model, ["A"]);
+      model.dispatch("PASTE", { target: [toZone("D1")] });
+      expect(getCellContent(model, "A2")).toBe("1");
+      expect(getCellContent(model, "B2")).toBe("2");
+      expect(getCellContent(model, "D1")).toBe("");
+      expect(getCellContent(model, "E1")).toBe("");
+    });
 
-  test("adding a row inside a cut zone is invalidating the clipboard", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
+    test("removing a column after a cut zone is not invalidating the clipboard", () => {
+      const model = new Model();
+      setCellContent(model, "B2", "1");
+      setCellContent(model, "C2", "2");
 
-    cut(model, "A1:A2");
-    addRows(model, "after", 0, 1);
-    paste(model, "C1");
-    expect(getCellContent(model, "A1")).toBe("1");
-    expect(getCellContent(model, "A3")).toBe("2");
-    expect(getCellContent(model, "C1")).toBe("");
-    expect(getCellContent(model, "C3")).toBe("");
-  });
+      model.dispatch("CUT", { target: target("B2:C2") });
+      deleteColumns(model, ["D"]);
+      model.dispatch("PASTE", { target: [toZone("D1")] });
+      expect(getCellContent(model, "B2")).toBe("");
+      expect(getCellContent(model, "C2")).toBe("");
+      expect(getCellContent(model, "D1")).toBe("1");
+      expect(getCellContent(model, "E1")).toBe("2");
+    });
 
-  test("adding multiple rows inside a cut zone is invalidating the clipboard", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
+    test("removing a column inside a cut zone is invalidating the clipboard", () => {
+      const model = new Model();
+      setCellContent(model, "B2", "1");
+      setCellContent(model, "C2", "2");
 
-    cut(model, "A1:A2");
-    addRows(model, "after", 0, 5);
-    paste(model, "C1");
-    expect(getCellContent(model, "A1")).toBe("1");
-    expect(getCellContent(model, "A7")).toBe("2");
-    expect(getCellContent(model, "C1")).toBe("");
-    expect(getCellContent(model, "C3")).toBe("");
+      model.dispatch("CUT", { target: target("B2:C2") });
+      deleteColumns(model, ["C"]);
+      model.dispatch("PASTE", { target: [toZone("D1")] });
+      expect(getCellContent(model, "B2")).toBe("1");
+      expect(getCellContent(model, "D1")).toBe("");
+    });
+
+    test("removing a row before a cut zone is invalidating the clipboard", () => {
+      const model = new Model();
+      setCellContent(model, "B2", "1");
+      setCellContent(model, "C2", "2");
+
+      model.dispatch("CUT", { target: target("B2:C2") });
+      deleteRows(model, [0]);
+      model.dispatch("PASTE", { target: [toZone("D1")] });
+      expect(getCellContent(model, "B1")).toBe("1");
+      expect(getCellContent(model, "C1")).toBe("2");
+      expect(getCellContent(model, "D1")).toBe("");
+      expect(getCellContent(model, "E1")).toBe("");
+    });
+
+    test("removing a row after a cut zone is not invalidating the clipboard", () => {
+      const model = new Model();
+      setCellContent(model, "B2", "1");
+      setCellContent(model, "C2", "2");
+
+      model.dispatch("CUT", { target: target("B2:C2") });
+      deleteRows(model, [3]);
+      model.dispatch("PASTE", { target: [toZone("D1")] });
+      expect(getCellContent(model, "B2")).toBe("");
+      expect(getCellContent(model, "C2")).toBe("");
+      expect(getCellContent(model, "D1")).toBe("1");
+      expect(getCellContent(model, "E1")).toBe("2");
+    });
+
+    test("removing a row inside a cut zone is invalidating the clipboard", () => {
+      const model = new Model();
+      setCellContent(model, "B2", "1");
+      setCellContent(model, "B3", "2");
+
+      model.dispatch("CUT", { target: target("B2:B3") });
+      deleteRows(model, [2]);
+      model.dispatch("PASTE", { target: [toZone("D1")] });
+      expect(getCellContent(model, "B2")).toBe("1");
+      expect(getCellContent(model, "D1")).toBe("");
+    });
   });
 });
