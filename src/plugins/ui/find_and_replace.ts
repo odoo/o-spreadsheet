@@ -10,10 +10,6 @@ export interface SearchOptions {
   searchFormulas: boolean;
 }
 
-export interface ReplaceOptions {
-  modifyFormulas: boolean;
-}
-
 export enum Direction {
   previous = -1,
   current = 0,
@@ -47,9 +43,6 @@ export class FindAndReplacePlugin extends UIPlugin {
     exactMatch: false,
     searchFormulas: false,
   };
-  private replaceOptions: ReplaceOptions = {
-    modifyFormulas: false,
-  };
   private toSearch: string = "";
 
   // ---------------------------------------------------------------------------
@@ -71,10 +64,10 @@ export class FindAndReplacePlugin extends UIPlugin {
         this.selectNextCell(Direction.next);
         break;
       case "REPLACE_SEARCH":
-        this.replace(cmd.replaceWith, cmd.replaceOptions);
+        this.replace(cmd.replaceWith);
         break;
       case "REPLACE_ALL_SEARCH":
-        this.replaceAll(cmd.replaceWith, cmd.replaceOptions);
+        this.replaceAll(cmd.replaceWith);
         break;
       case "UNDO":
       case "REDO":
@@ -214,20 +207,15 @@ export class FindAndReplacePlugin extends UIPlugin {
       exactMatch: false,
       searchFormulas: false,
     };
-    this.replaceOptions = {
-      modifyFormulas: false,
-    };
   }
 
   // ---------------------------------------------------------------------------
   // Replace
   // ---------------------------------------------------------------------------
   /**
-   * Replace the value of the currently selected match if the replaceOptions
-   * allow it
+   * Replace the value of the currently selected match
    */
-  private replace(replaceWith: string, replaceOptions: ReplaceOptions) {
-    this.replaceOptions = replaceOptions;
+  private replace(replaceWith: string) {
     if (this.selectedMatchIndex === null || !this.currentSearchRegex) {
       return;
     }
@@ -257,10 +245,10 @@ export class FindAndReplacePlugin extends UIPlugin {
   /**
    * Apply the replace function to all the matches one time.
    */
-  private replaceAll(replaceWith: string, replaceOptions: ReplaceOptions) {
+  private replaceAll(replaceWith: string) {
     const matchCount = this.searchMatches.length;
     for (let i = 0; i < matchCount; i++) {
-      this.replace(replaceWith, replaceOptions);
+      this.replace(replaceWith);
     }
   }
 
@@ -272,7 +260,7 @@ export class FindAndReplacePlugin extends UIPlugin {
     if (cell) {
       if (this.searchOptions.searchFormulas && cell.isFormula()) {
         return cell.content;
-      } else if (this.replaceOptions.modifyFormulas || !cell.isFormula()) {
+      } else if (this.searchOptions.searchFormulas || !cell.isFormula()) {
         return (cell.evaluated.value as any).toString();
       }
     }

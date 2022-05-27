@@ -1,11 +1,10 @@
 import { Model } from "../../src";
-import { ReplaceOptions, SearchOptions } from "../../src/plugins/ui/find_and_replace";
+import { SearchOptions } from "../../src/plugins/ui/find_and_replace";
 import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
 
 let model: Model;
 let searchOptions: SearchOptions;
-let replaceOptions: ReplaceOptions;
 
 describe("basic search", () => {
   beforeEach(() => {
@@ -399,12 +398,11 @@ describe("replace", () => {
       exactMatch: false,
       searchFormulas: false,
     };
-    replaceOptions = { modifyFormulas: false };
   });
 
   test("Can replace a simple text value", () => {
     model.dispatch("UPDATE_SEARCH", { toSearch: "hello", searchOptions });
-    model.dispatch("REPLACE_SEARCH", { replaceWith: "kikou", replaceOptions });
+    model.dispatch("REPLACE_SEARCH", { replaceWith: "kikou" });
     const matches = model.getters.getSearchMatches();
     const matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(0);
@@ -415,8 +413,7 @@ describe("replace", () => {
   test("Can replace a value in a formula", () => {
     searchOptions.searchFormulas = true;
     model.dispatch("UPDATE_SEARCH", { toSearch: "2", searchOptions });
-    replaceOptions.modifyFormulas = true;
-    model.dispatch("REPLACE_SEARCH", { replaceWith: "4", replaceOptions });
+    model.dispatch("REPLACE_SEARCH", { replaceWith: "4" });
     const matches = model.getters.getSearchMatches();
     const matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(0);
@@ -424,20 +421,9 @@ describe("replace", () => {
     expect(getCellText(model, "A2")).toBe("=SUM(4,4)");
   });
 
-  test("formulas will be overwritten if modify formula is checked", () => {
-    model.dispatch("UPDATE_SEARCH", { toSearch: "4", searchOptions });
-    replaceOptions.modifyFormulas = true;
-    model.dispatch("REPLACE_SEARCH", { replaceWith: "2", replaceOptions });
-    const matches = model.getters.getSearchMatches();
-    const matchIndex = model.getters.getCurrentSelectedMatchIndex();
-    expect(matches).toHaveLength(0);
-    expect(matchIndex).toStrictEqual(null);
-    expect(getCellContent(model, "A2")).toBe("2");
-  });
-
   test("formulas wont be modified if not looking in formulas or not modifying formulas", () => {
     model.dispatch("UPDATE_SEARCH", { toSearch: "4", searchOptions });
-    model.dispatch("REPLACE_SEARCH", { replaceWith: "2", replaceOptions });
+    model.dispatch("REPLACE_SEARCH", { replaceWith: "2" });
     const matches = model.getters.getSearchMatches();
     const matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(1);
@@ -447,7 +433,7 @@ describe("replace", () => {
 
   test("can replace all", () => {
     model.dispatch("UPDATE_SEARCH", { toSearch: "hell", searchOptions });
-    model.dispatch("REPLACE_ALL_SEARCH", { replaceWith: "kikou", replaceOptions });
+    model.dispatch("REPLACE_ALL_SEARCH", { replaceWith: "kikou" });
     const matches = model.getters.getSearchMatches();
     const matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(0);

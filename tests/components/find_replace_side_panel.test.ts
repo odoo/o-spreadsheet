@@ -192,10 +192,7 @@ describe("find and replace sidePanel component", () => {
       const dispatch = spyDispatch(parent);
       triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
       await nextTick();
-      expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
-        replaceOptions: { modifyFormulas: false },
-        replaceWith: "kikou",
-      });
+      expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", { replaceWith: "kikou" });
     });
 
     test("Can replace a value in a formula", async () => {
@@ -205,23 +202,7 @@ describe("find and replace sidePanel component", () => {
       const dispatch = spyDispatch(parent);
       triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
       await nextTick();
-      expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
-        replaceOptions: { modifyFormulas: true },
-        replaceWith: "4",
-      });
-    });
-
-    test("formulas will be overwritten if modify formula is checked", async () => {
-      setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "4", "input");
-      setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "2", "input");
-      triggerMouseEvent(document.querySelector(selectors.checkBoxReplaceFormulas), "click");
-      const dispatch = spyDispatch(parent);
-      triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
-      await nextTick();
-      expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
-        replaceOptions: { modifyFormulas: true },
-        replaceWith: "2",
-      });
+      expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", { replaceWith: "4" });
     });
 
     test("formulas wont be modified if not looking in formulas or not modifying formulas", async () => {
@@ -230,10 +211,7 @@ describe("find and replace sidePanel component", () => {
       const dispatch = spyDispatch(parent);
       triggerMouseEvent(document.querySelector(selectors.replaceButton), "click");
       await nextTick();
-      expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
-        replaceOptions: { modifyFormulas: false },
-        replaceWith: "2",
-      });
+      expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", { replaceWith: "2" });
     });
 
     test("can replace all", async () => {
@@ -242,10 +220,7 @@ describe("find and replace sidePanel component", () => {
       const dispatch = spyDispatch(parent);
       triggerMouseEvent(document.querySelector(selectors.replaceAllButton), "click");
       await nextTick();
-      expect(dispatch).toHaveBeenCalledWith("REPLACE_ALL_SEARCH", {
-        replaceOptions: { modifyFormulas: false },
-        replaceWith: "kikou",
-      });
+      expect(dispatch).toHaveBeenCalledWith("REPLACE_ALL_SEARCH", { replaceWith: "kikou" });
     });
 
     test("Can replace with Enter key", async () => {
@@ -256,10 +231,7 @@ describe("find and replace sidePanel component", () => {
         .querySelector(selectors.inputReplace)!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       await nextTick();
-      expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
-        replaceOptions: { modifyFormulas: false },
-        replaceWith: "kikou",
-      });
+      expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", { replaceWith: "kikou" });
     });
   });
 });

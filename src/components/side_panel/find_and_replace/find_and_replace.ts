@@ -47,9 +47,6 @@ interface FindAndReplaceState {
     exactMatch: boolean;
     searchFormulas: boolean;
   };
-  replaceOptions: {
-    modifyFormulas: boolean;
-  };
 }
 
 export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
@@ -90,9 +87,6 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
 
   onFocusSidePanel() {
     this.state.searchOptions.searchFormulas = this.env.model.getters.shouldShowFormulas();
-    this.state.replaceOptions.modifyFormulas = this.state.searchOptions.searchFormulas
-      ? this.state.searchOptions.searchFormulas
-      : this.state.replaceOptions.modifyFormulas;
     this.env.model.dispatch("REFRESH_SEARCH");
   }
 
@@ -100,7 +94,6 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     this.env.model.dispatch("SET_FORMULA_VISIBILITY", {
       show: this.state.searchOptions.searchFormulas,
     });
-    this.state.replaceOptions.modifyFormulas = this.state.searchOptions.searchFormulas;
     this.updateSearch();
   }
 
@@ -126,14 +119,12 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   replace() {
     this.env.model.dispatch("REPLACE_SEARCH", {
       replaceWith: this.state.replaceWith,
-      replaceOptions: this.state.replaceOptions,
     });
   }
 
   replaceAll() {
     this.env.model.dispatch("REPLACE_ALL_SEARCH", {
       replaceWith: this.state.replaceWith,
-      replaceOptions: this.state.replaceOptions,
     });
   }
 
@@ -156,9 +147,6 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
         matchCase: false,
         exactMatch: false,
         searchFormulas: false,
-      },
-      replaceOptions: {
-        modifyFormulas: false,
       },
     };
   }
