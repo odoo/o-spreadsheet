@@ -1,5 +1,5 @@
 import { ComposerSelection } from "../plugins/ui/edition";
-import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
+import { SearchOptions } from "../plugins/ui/find_and_replace";
 import { ChartDefinition } from "./chart/chart";
 import { UpDown } from "./conditional_formatting";
 import { BorderCommand, ConditionalFormat, Figure, Format, Style, Zone } from "./index";
@@ -683,12 +683,10 @@ export interface SelectSearchNextCommand {
 export interface ReplaceSearchCommand {
   type: "REPLACE_SEARCH";
   replaceWith: string;
-  replaceOptions: ReplaceOptions;
 }
 export interface ReplaceAllSearchCommand {
   type: "REPLACE_ALL_SEARCH";
   replaceWith: string;
-  replaceOptions: ReplaceOptions;
 }
 
 export interface SortCommand {

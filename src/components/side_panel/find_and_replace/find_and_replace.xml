@@ -80,18 +80,6 @@
             t-on-keydown="onKeydownReplace"
           />
         </div>
-
-        <div class="o-far-item">
-          <label class="o-far-checkbox">
-            <input
-              class="o-far-input"
-              t-att-disabled="state.searchOptions.searchFormulas"
-              type="checkbox"
-              t-model="state.replaceOptions.modifyFormulas"
-            />
-            <span class="o-far-label">Also modify formulas</span>
-          </label>
-        </div>
       </div>
 
       <div class="o-sidePanelButtons" t-if="!env.model.getters.isReadonly()">
