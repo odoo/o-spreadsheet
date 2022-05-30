@@ -61,12 +61,12 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
   get defaultAlign() {
     switch (this.evaluated.type) {
       case CellValueType.number:
+      case CellValueType.empty:
         return "right";
       case CellValueType.boolean:
       case CellValueType.error:
         return "center";
       case CellValueType.text:
-      case CellValueType.empty:
         return "left";
     }
   }

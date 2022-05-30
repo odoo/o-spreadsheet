@@ -128,6 +128,24 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["left", "left", "center"]); // center for headers
   });
 
+  test("formulas referencing an empty cell are properly aligned", () => {
+    const model = new Model();
+
+    setCellContent(model, "A1", "=A2");
+
+    let textAligns: string[] = [];
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "textAlign") {
+          textAligns.push(value);
+        }
+      },
+    });
+
+    model.drawGrid(ctx);
+    expect(textAligns).toEqual(["right", "center"]); // center for headers
+  });
+
   test("numbers are aligned right when overflowing vertically", () => {
     const model = new Model();
 
