@@ -393,7 +393,7 @@ export class EvaluationChartPlugin extends UIPlugin {
         labels.formattedValues = this.getters.getRangeFormattedValues(definition.labelRange);
         labels.values = this.getters
           .getRangeValues(definition.labelRange)
-          .map((val) => (val ? String(val) : ""));
+          .map((val) => (val !== undefined && val !== null ? String(val) : ""));
       }
     } else if (definition.dataSets.length === 1) {
       for (let i = 0; i < this.getData(definition.dataSets[0], definition.sheetId).length; i++) {

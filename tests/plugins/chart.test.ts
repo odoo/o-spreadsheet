@@ -1650,6 +1650,30 @@ describe("Linear/Time charts", () => {
     expect(chart.data!.datasets![0].data![1]).toEqual({ y: undefined, x: "1/17/1900" });
   });
 
+  test("linear chart: label 0 isn't set to undefined", () => {
+    setCellContent(model, "B2", "0");
+    setCellContent(model, "B3", "1");
+    setCellContent(model, "C2", "0");
+    setCellContent(model, "C3", "1");
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: ["B2:B3"],
+        labelRange: "C2:C3",
+        labelsAsText: false,
+        dataSetsHaveTitle: false,
+      },
+      chartId
+    );
+    const chart = model.getters.getChartRuntime(chartId)!;
+    expect(chart.data!.labels).toEqual(["0", "1"]);
+    expect(chart.data!.datasets![0].data).toEqual([
+      { y: 0, x: "0" },
+      { y: 1, x: "1" },
+    ]);
+  });
+
   test("linear chart: empty label with a value is set to undefined instead of empty string", () => {
     createChart(
       model,
