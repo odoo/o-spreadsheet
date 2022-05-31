@@ -1,4 +1,5 @@
 import { SpreadsheetChildEnv } from "./env";
+import { EvaluationError } from "./errors";
 import { Format, FormattedValue } from "./format";
 import { CompiledFormula, Link, Range, Style, UID } from "./misc";
 
@@ -45,7 +46,7 @@ export interface ICell {
 
 export interface FormulaCell extends ICell {
   assignValue: (value: CellValue) => void;
-  assignError: (value: string, errorMessage: string) => void;
+  assignError: (value: string, error: EvaluationError) => void;
   startEvaluation: () => void;
   readonly normalizedText: string;
   readonly compiledFormula: CompiledFormula;
@@ -102,7 +103,7 @@ export type EmptyEvaluation = {
 export type InvalidEvaluation = {
   readonly type: CellValueType.error;
   readonly value: string;
-  readonly error: string;
+  readonly error: EvaluationError;
 };
 
 export type CellEvaluation =

@@ -24,6 +24,7 @@ import {
   searchHeaderIndex,
   union,
 } from "../../helpers/index";
+import { CellErrorLevel } from "../../types/errors";
 import {
   Align,
   Box,
@@ -641,8 +642,11 @@ export class RendererPlugin extends UIPlugin {
     };
 
     /** Error */
-    if (cell.evaluated.type === CellValueType.error) {
-      box.error = cell.evaluated.error;
+    if (
+      cell.evaluated.type === CellValueType.error &&
+      cell.evaluated.error.logLevel > CellErrorLevel.silent
+    ) {
+      box.error = cell.evaluated.error.message;
     }
 
     /** ClipRect */

@@ -30,6 +30,7 @@ import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import { dashboardMenuRegistry } from "../../registries/menus/dashboard_menu_registry";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
+import { CellErrorLevel } from "../../types/errors";
 import {
   CellValueType,
   Client,
@@ -354,7 +355,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     );
     const cell = this.env.model.getters.getCell(sheetId, mainCol, mainRow);
 
-    if (cell && cell.evaluated.type === CellValueType.error) {
+    if (
+      cell &&
+      cell.evaluated.type === CellValueType.error &&
+      cell.evaluated.error.logLevel > CellErrorLevel.silent
+    ) {
       const viewport = this.env.model.getters.getActiveSnappedViewport();
       const [x, y, width] = this.env.model.getters.getRect(
         { left: col, top: row, right: col, bottom: row },
@@ -366,7 +371,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
           x: x + width + this.canvasPosition.x,
           y: y + this.canvasPosition.y,
         },
-        text: cell.evaluated.error,
+        text: cell.evaluated.error.message,
         cellWidth: width,
       };
     }
