@@ -3,6 +3,7 @@ import { DEFAULT_ERROR_MESSAGE } from "../../constants";
 import { compile } from "../../formulas";
 import { cellRegistry } from "../../registries/cell_types";
 import { Cell, CellDisplayProperties, CoreGetters, UID } from "../../types";
+import { BadExpressionError } from "../../types/errors";
 import { parseDateTime } from "../dates";
 import {
   isBoolean,
@@ -136,7 +137,12 @@ export function cellFactory(getters: CoreGetters) {
     try {
       return builder.createCell(id, content, properties, sheetId, getters);
     } catch (error) {
-      return new BadExpressionCell(id, content, error.message || DEFAULT_ERROR_MESSAGE, properties);
+      return new BadExpressionCell(
+        id,
+        content,
+        new BadExpressionError(error.message || DEFAULT_ERROR_MESSAGE),
+        properties
+      );
     }
   };
 }

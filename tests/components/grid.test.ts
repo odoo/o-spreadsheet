@@ -735,6 +735,17 @@ describe("error tooltip", () => {
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
   });
 
+  test("don't display error on #N/A", async () => {
+    Date.now = jest.fn(() => 0);
+    setCellContent(model, "A1", "=NA()");
+    await nextTick();
+    gridMouseEvent(model, "mousemove", "A1");
+    Date.now = jest.fn(() => 500);
+    jest.advanceTimersByTime(300);
+    await nextTick();
+    expect(document.querySelector(".o-error-tooltip")).toBeNull();
+  });
+
   test("can display error tooltip", async () => {
     Date.now = jest.fn(() => 0);
     setCellContent(model, "C8", "=1/0");

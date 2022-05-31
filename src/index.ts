@@ -93,6 +93,7 @@ export {
   TransportService,
 } from "./types/collaborative/transport_service";
 export { coreTypes, invalidateEvaluationCommands, readonlyAllowedCommands } from "./types/commands";
+export { EvaluationError } from "./types/errors";
 export const SPREADSHEET_DIMENSIONS = {
   MIN_ROW_HEIGHT,
   MIN_COL_WIDTH,

@@ -206,7 +206,7 @@ describe("evaluateCells", () => {
     const model = new Model();
     setCellContent(model, "A1", formula);
     let evaluation = getCell(model, "A1")?.evaluated as InvalidEvaluation;
-    const error = evaluation.error;
+    const error = evaluation.error.message;
     const value = evaluation.value;
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
@@ -215,7 +215,7 @@ describe("evaluateCells", () => {
     });
     evaluation = getCell(model, "A1")?.evaluated as InvalidEvaluation;
     expect(evaluation.type).toBe(CellValueType.error);
-    expect(evaluation.error).toBe(error);
+    expect(evaluation.error.message).toBe(error);
     expect(evaluation.value).toBe(value);
   });
 

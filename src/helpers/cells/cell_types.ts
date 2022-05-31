@@ -21,7 +21,7 @@ import {
   TextEvaluation,
   UID,
 } from "../../types";
-import { CellErrorType } from "../../types/errors";
+import { CellErrorType, EvaluationError } from "../../types/errors";
 import { formatValue } from "../format";
 import { markdownLink, parseMarkdownLink, parseSheetLink } from "../misc";
 
@@ -300,10 +300,10 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
     }
   }
 
-  assignError(value: string, errorMessage: string) {
+  assignError(value: string, error: EvaluationError) {
     this.evaluated = {
       value,
-      error: errorMessage,
+      error,
       type: CellValueType.error,
     };
   }
@@ -320,7 +320,20 @@ export class BadExpressionCell extends AbstractCell<InvalidEvaluation> {
    * @param error Compilation or parsing error
    * @param properties
    */
-  constructor(id: UID, readonly content: string, error: string, properties: CellDisplayProperties) {
-    super(id, { value: CellErrorType.BadExpression, type: CellValueType.error, error }, properties);
+  constructor(
+    id: UID,
+    readonly content: string,
+    error: EvaluationError,
+    properties: CellDisplayProperties
+  ) {
+    super(
+      id,
+      {
+        value: CellErrorType.BadExpression,
+        type: CellValueType.error,
+        error,
+      },
+      properties
+    );
   }
 }

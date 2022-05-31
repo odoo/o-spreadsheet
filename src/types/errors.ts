@@ -8,12 +8,30 @@ export enum CellErrorType {
   GenericError = "#ERROR",
 }
 
-export class EvaluationError extends Error {
-  errorType: string;
+export enum CellErrorLevel {
+  silent = 0,
+  error = 1,
+}
 
-  constructor(cellErrorType: string, message: string) {
+export class EvaluationError extends Error {
+  constructor(
+    readonly errorType: string,
+    message: string,
+    readonly logLevel: number = CellErrorLevel.error
+  ) {
     super(message);
-    this.errorType = cellErrorType;
+  }
+}
+
+export class BadExpressionError extends EvaluationError {
+  constructor(errorMessage: string) {
+    super(CellErrorType.BadExpression, errorMessage);
+  }
+}
+
+export class CircularDependencyError extends EvaluationError {
+  constructor() {
+    super(CellErrorType.CircularDependency, _lt("Circular reference"));
   }
 }
 
@@ -25,6 +43,6 @@ export class InvalidReferenceError extends EvaluationError {
 
 export class NotAvailableError extends EvaluationError {
   constructor() {
-    super(CellErrorType.NotAvailable, _lt("Data not available"));
+    super(CellErrorType.NotAvailable, _lt("Data not available"), CellErrorLevel.silent);
   }
 }

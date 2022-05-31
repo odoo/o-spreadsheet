@@ -1040,4 +1040,59 @@ describe("renderer", () => {
     const rect = model.getters.getRect(toZone("A1"), viewport);
     expect(rect).toEqual(expectedRect);
   });
+
+  test("Error red triangle is correctly displayed/hidden", () => {
+    /* Test if the error upper-right red triangle is correctly displayed
+     * according to the kind of error
+     */
+    const model = new Model({
+      sheets: [
+        {
+          id: "sheet1",
+          colNumber: 10,
+          rowNumber: 1,
+          cells: {
+            A1: { content: "=NA()" },
+            B1: { content: "=B1" },
+            C1: { content: "=A0" },
+            D1: { content: "=(+" },
+            E1: { content: "=5/0" },
+          },
+          conditionalFormats: [],
+        },
+      ],
+    });
+
+    let filled: number[][] = [];
+    let current: number[] = [0, 0];
+
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onFunctionCall: (val, args) => {
+        if (val == "moveTo") {
+          current = [args[0], args[1]];
+        } else if (val == "fill") {
+          filled.push([current[0], current[1]]);
+        }
+      },
+    });
+    model.drawGrid(ctx);
+    const boxA1 = getBoxFromText(model, "#N/A"); //NotAvailableError => Shouldn't display
+    expect(boxA1.error).toBeUndefined();
+    const boxB1 = getBoxFromText(model, "#CYCLE"); //CycleError => Should display
+    expect(boxB1.error).toBe("Circular reference");
+    expect(filled[0][0]).toBe(boxB1.x + boxB1.width - 5);
+    expect(filled[0][1]).toBe(boxB1.y);
+    const boxC1 = getBoxFromText(model, "#REF"); //BadReferenceError => Should display
+    expect(boxC1.error).toBe("Invalid reference");
+    expect(filled[1][0]).toBe(boxC1.x + boxC1.width - 5);
+    expect(filled[1][1]).toBe(boxC1.y);
+    const boxD1 = getBoxFromText(model, "#BAD_EXPR"); //BadExpressionError => Should display
+    expect(boxD1.error).toBeTruthy();
+    expect(filled[2][0]).toBe(boxD1.x + boxD1.width - 5);
+    expect(filled[2][1]).toBe(boxD1.y);
+    const boxE1 = getBoxFromText(model, "#ERROR"); // GeneralError => Should display
+    expect(boxE1.error).toBeTruthy();
+    expect(filled[3][0]).toBe(boxE1.x + boxE1.width - 5);
+    expect(filled[3][1]).toBe(boxE1.y);
+  });
 });

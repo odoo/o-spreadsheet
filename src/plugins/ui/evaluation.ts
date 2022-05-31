@@ -5,7 +5,13 @@ import { ModelConfig } from "../../model";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
-import { CellErrorType, EvaluationError, InvalidReferenceError } from "../../types/errors";
+import {
+  CellErrorLevel,
+  CellErrorType,
+  CircularDependencyError,
+  EvaluationError,
+  InvalidReferenceError,
+} from "../../types/errors";
 import {
   Cell,
   CellValue,
@@ -138,7 +144,14 @@ export class EvaluationPlugin extends UIPlugin {
         const msg = e?.errorType || CellErrorType.GenericError;
         // apply function name
         const __lastFnCalled = params[2].__lastFnCalled || "";
-        cell.assignError(msg, e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled));
+        cell.assignError(
+          msg,
+          new EvaluationError(
+            msg,
+            e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled),
+            e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
+          )
+        );
       }
     }
 
@@ -149,7 +162,7 @@ export class EvaluationPlugin extends UIPlugin {
       const cellId = cell.id;
       if (cellId in visited) {
         if (visited[cellId] === null) {
-          cell.assignError(CellErrorType.CircularDependency, _lt("Circular reference"));
+          cell.assignError(CellErrorType.CircularDependency, new CircularDependencyError());
         }
         return;
       }
@@ -200,11 +213,19 @@ export class EvaluationPlugin extends UIPlugin {
 
     function getCellValue(cell: Cell): CellValue {
       if (cell.isFormula() && cell.evaluated.type === CellValueType.error) {
-        throw new EvaluationError(cell.evaluated.value, cell.evaluated.error);
+        throw new EvaluationError(
+          cell.evaluated.value,
+          cell.evaluated.error.message,
+          cell.evaluated.error.logLevel
+        );
       }
       computeValue(cell);
       if (cell.evaluated.type === CellValueType.error) {
-        throw new EvaluationError(cell.evaluated.value, cell.evaluated.error);
+        throw new EvaluationError(
+          cell.evaluated.value,
+          cell.evaluated.error.message,
+          cell.evaluated.error.logLevel
+        );
       }
       return cell.evaluated.value;
     }
