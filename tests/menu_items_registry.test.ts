@@ -202,11 +202,24 @@ describe("Menu Item actions", () => {
     expect(getNode(["edit", "paste_special"]).isVisible(env)).toBeTruthy();
   });
 
-  test("Edit -> paste_special -> paste_special_value", () => {
+  test("Edit -> paste_special -> paste_special_value", async () => {
+    doAction(["edit", "copy"], env);
     doAction(["edit", "paste_special", "paste_special_value"], env);
+    await nextTick();
     expect(dispatch).toHaveBeenCalledWith("PASTE", {
       target: env.model.getters.getSelectedZones(),
       pasteOption: "onlyValue",
+    });
+  });
+
+  test("Edit -> paste_special -> paste_special_value from OS clipboard", async () => {
+    const text = "in OS clipboard";
+    await env.clipboard.writeText(text);
+    doAction(["edit", "paste_special", "paste_special_value"], env);
+    await nextTick();
+    expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
+      target: target("A1"),
+      text,
     });
   });
 
