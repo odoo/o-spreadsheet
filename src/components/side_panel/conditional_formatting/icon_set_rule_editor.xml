@@ -97,7 +97,7 @@
             </div>
             <IconPicker
               t-if="state.openedMenu === 'iconSet-lowerIcon'"
-              onIconPicked="(icon) => setIcon('lower', icon)"
+              onIconPicked="(icon) => this.setIcon('lower', icon)"
             />
           </td>
           <td>Else</td>
