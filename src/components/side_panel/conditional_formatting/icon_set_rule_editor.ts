@@ -104,7 +104,7 @@ const INFLECTION_POINTS_TEMPLATE = xml/* xml */ `
             <t t-out="icons[rule.icons.lower].svg"/>
           </div>
         </div>
-        <IconPicker t-if="state.openedMenu === 'iconSet-lowerIcon'" onIconPicked="(icon) => setIcon('lower', icon)"/>
+        <IconPicker t-if="state.openedMenu === 'iconSet-lowerIcon'" onIconPicked="(icon) => this.setIcon('lower', icon)"/>
       </td>
       <td><t t-esc="env._t('${IconSetRule.Else}')"/></td>
       <td></td>
