@@ -50,6 +50,17 @@ export function setStyle(env: SpreadsheetChildEnv, style: Style) {
   });
 }
 
+async function readOsClipboard(env: SpreadsheetChildEnv): Promise<string | undefined> {
+  try {
+    return await env.clipboard.readText();
+  } catch (e) {
+    // Permission is required to read the clipboard.
+    console.warn("The OS clipboard could not be read.");
+    console.error(e);
+    return undefined;
+  }
+}
+
 //------------------------------------------------------------------------------
 // Simple actions
 //------------------------------------------------------------------------------
@@ -70,14 +81,7 @@ export const CUT_ACTION = async (env: SpreadsheetChildEnv) => {
 
 export const PASTE_ACTION = async (env: SpreadsheetChildEnv) => {
   const spreadsheetClipboard = env.model.getters.getClipboardContent();
-  let osClipboard;
-  try {
-    osClipboard = await env.clipboard.readText();
-  } catch (e) {
-    // Permission is required to read the clipboard.
-    console.warn("The OS clipboard could not be read.");
-    console.error(e);
-  }
+  const osClipboard = await readOsClipboard(env);
   const target = env.model.getters.getSelectedZones();
   if (osClipboard && osClipboard !== spreadsheetClipboard) {
     env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
@@ -89,11 +93,22 @@ export const PASTE_ACTION = async (env: SpreadsheetChildEnv) => {
   }
 };
 
-export const PASTE_VALUE_ACTION = (env: SpreadsheetChildEnv) =>
-  env.model.dispatch("PASTE", {
-    target: env.model.getters.getSelectedZones(),
-    pasteOption: "onlyValue",
-  });
+export const PASTE_VALUE_ACTION = async (env: SpreadsheetChildEnv) => {
+  const spreadsheetClipboard = env.model.getters.getClipboardContent();
+  const osClipboard = await readOsClipboard(env);
+  const target = env.model.getters.getSelectedZones();
+  if (osClipboard && osClipboard !== spreadsheetClipboard) {
+    env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+      target,
+      text: osClipboard,
+    });
+  } else {
+    env.model.dispatch("PASTE", {
+      target: env.model.getters.getSelectedZones(),
+      pasteOption: "onlyValue",
+    });
+  }
+};
 
 export const PASTE_FORMAT_ACTION = (env: SpreadsheetChildEnv) =>
   env.model.dispatch("PASTE", {
