@@ -1252,7 +1252,11 @@ describe("UI of conditional formats", () => {
     });
   });
 
-  test("can change one icon", async () => {
+  test.each([
+    [0, { lower: "arrowBad", middle: "arrowNeutral", upper: "dotNeutral" }],
+    [1, { lower: "arrowBad", middle: "dotNeutral", upper: "arrowGood" }],
+    [2, { lower: "dotNeutral", middle: "arrowNeutral", upper: "arrowGood" }],
+  ])("can change each icon individually", async (iconIndex, expectedIcons) => {
     mockUuidV4To(model, "44");
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();
@@ -1260,9 +1264,9 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[2], "click");
     await nextTick();
 
-    const middleRow = document.querySelectorAll(".o-inflection tr")[2];
-    const middleIcon = middleRow.querySelectorAll("div")[0];
-    triggerMouseEvent(middleIcon, "click");
+    const row = document.querySelectorAll(".o-inflection tr")[1 + iconIndex]; // +1 for the <table> headers
+    const iconElement = row.querySelectorAll("div")[0];
+    triggerMouseEvent(iconElement, "click");
     await nextTick();
 
     const newIcon = document.querySelectorAll(".o-icon-picker-item")[7];
@@ -1279,11 +1283,7 @@ describe("UI of conditional formats", () => {
         id: "45",
         rule: {
           type: "IconSetRule",
-          icons: {
-            lower: "arrowBad",
-            middle: "dotNeutral",
-            upper: "arrowGood",
-          },
+          icons: expectedIcons,
           lowerInflectionPoint: {
             operator: "gt",
             type: "percentage",
