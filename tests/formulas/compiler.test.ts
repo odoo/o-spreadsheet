@@ -460,23 +460,23 @@ describe("compile functions", () => {
       const rangeA1 = [{ zone: toZone("A1"), sheetId: "ABC" }] as Range[];
       const rangeA1ToB2 = [{ zone: toZone("A1:B2"), sheetId: "ABC" }] as Range[];
 
-      compiledFormula1.execute(rangeA1, "ABC", refFn, ensureRange, ctx);
-      expect(refFn).toHaveBeenCalledWith(0, rangeA1, "ABC", true, "USEMETAARG", 1);
+      compiledFormula1.execute(rangeA1, refFn, ensureRange, ctx);
+      expect(refFn).toHaveBeenCalledWith(rangeA1[0], true, "USEMETAARG", 1);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
 
-      compiledFormula2.execute(rangeA1ToB2, "ABC", refFn, ensureRange, ctx);
-      expect(refFn).toHaveBeenCalledWith(0, rangeA1ToB2, "ABC", true, "USEMETAARG", 1);
+      compiledFormula2.execute(rangeA1ToB2, refFn, ensureRange, ctx);
+      expect(refFn).toHaveBeenCalledWith(rangeA1ToB2[0], true, "USEMETAARG", 1);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
 
-      compiledFormula3.execute(rangeA1, "ABC", refFn, ensureRange, ctx);
-      expect(refFn).toHaveBeenCalledWith(0, rangeA1, "ABC", false, "NOTUSEMETAARG", 1);
+      compiledFormula3.execute(rangeA1, refFn, ensureRange, ctx);
+      expect(refFn).toHaveBeenCalledWith(rangeA1[0], false, "NOTUSEMETAARG", 1);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
 
-      compiledFormula4.execute(rangeA1ToB2, "ABC", refFn, ensureRange, ctx);
-      expect(refFn).toHaveBeenCalledWith(0, rangeA1ToB2, "ABC", false, "NOTUSEMETAARG", 1);
+      compiledFormula4.execute(rangeA1ToB2, refFn, ensureRange, ctx);
+      expect(refFn).toHaveBeenCalledWith(rangeA1ToB2[0], false, "NOTUSEMETAARG", 1);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
     });

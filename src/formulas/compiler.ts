@@ -43,8 +43,8 @@ function splitCodeLines(codeBlocks: string[]): string[] {
  * Used as intermediate compilation.
  * Formula `=SUM(|0|, |1|)` gives the following code.
  * ```js
- * let _2 = range(0, deps, sheetId)
- * let _3 = range(1, deps, sheetId)
+ * let _2 = range(deps[0])
+ * let _3 = range(deps[1])
  * ctx.__lastFnCalled = 'SUM'
  * let _1 = ctx['SUM'](_2,_3)
  * ```
@@ -104,7 +104,6 @@ export function compile(formula: string): CompiledFormula {
     ]).join("\n");
     let baseFunction = new Function(
       "deps", // the dependencies in the current formula
-      "sheetId", // the sheet the formula is currently evaluating
       "ref", // a function to access a certain dependency at a given index
       "range", // same as above, but guarantee that the result is in the form of a range
       "ctx",
@@ -282,9 +281,9 @@ export function compile(formula: string): CompiledFormula {
           const referenceIndex = dependencies.indexOf(ast.value);
           id = nextId++;
           if (hasRange) {
-            statement = `range(${referenceIndex}, deps, sheetId)`;
+            statement = `range(deps[${referenceIndex}])`;
           } else {
-            statement = `ref(${referenceIndex}, deps, sheetId, ${isMeta ? "true" : "false"}, "${
+            statement = `ref(deps[${referenceIndex}], ${isMeta ? "true" : "false"}, "${
               referenceVerification.functionName || OPERATOR_MAP["="]
             }",  ${referenceVerification.paramIndex})`;
           }

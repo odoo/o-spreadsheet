@@ -120,21 +120,18 @@ export type Range = {
   prefixSheet: boolean; // true if the user provided the range with the sheet name, so it has to be recomputed with the sheet name too
 };
 export type ReferenceDenormalizer = (
-  position: number,
-  references: Range[],
-  sheetId: UID,
+  range: Range,
   isMeta: boolean,
   functionName: string,
   paramNumber: number
 ) => any | any[][];
 
-export type EnsureRange = (position: number, references: Range[], sheetId: UID) => any[][];
+export type EnsureRange = (range: Range) => any[][];
 
 export type NumberParser = (str: string) => number;
 
 export type _CompiledFormula = (
   deps: Range[],
-  sheetId: UID,
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
   ctx: {}
