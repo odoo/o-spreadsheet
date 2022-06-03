@@ -89,7 +89,7 @@ export class EvaluationPlugin extends UIPlugin {
     for (let xc of compiledFormula.dependencies) {
       ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
     }
-    return compiledFormula.execute(ranges, sheetId, ...params);
+    return compiledFormula.execute(ranges, ...params);
   }
 
   /**
@@ -127,7 +127,7 @@ export class EvaluationPlugin extends UIPlugin {
     }
 
     for (let cell of Object.values(cells)) {
-      computeValue(cell, sheetId);
+      computeValue(cell);
     }
 
     function handleError(e: Error | any, cell: FormulaCell) {
@@ -142,7 +142,7 @@ export class EvaluationPlugin extends UIPlugin {
       }
     }
 
-    function computeValue(cell: Cell, sheetId: string) {
+    function computeValue(cell: Cell) {
       if (!cell.isFormula()) {
         return;
       }
@@ -160,7 +160,7 @@ export class EvaluationPlugin extends UIPlugin {
           const position = params[2].getters.getCellPosition(cellId);
           return toXC(position.col, position.row);
         };
-        cell.assignValue(cell.compiledFormula.execute(cell.dependencies, sheetId, ...params));
+        cell.assignValue(cell.compiledFormula.execute(cell.dependencies, ...params));
         if (Array.isArray(cell.evaluated.value)) {
           // if a value returns an array (like =A1:A3)
           throw new Error(_lt("This formula depends on invalid values"));
@@ -178,7 +178,7 @@ export class EvaluationPlugin extends UIPlugin {
    * - a range function to convert any reference to a proper value array
    * - an evaluation context
    */
-  private getFormulaParameters(computeValue: Function): FormulaParameters {
+  private getFormulaParameters(computeValue: (cell: Cell) => void): FormulaParameters {
     const evalContext = Object.assign(Object.create(functionMap), this.evalContext, {
       getters: this.getters,
     });
@@ -195,17 +195,17 @@ export class EvaluationPlugin extends UIPlugin {
         // fall back on the default value of the argument provided to the formula's compute function
         return null;
       }
-      return getCellValue(cell, range.sheetId);
+      return getCellValue(cell);
     }
 
-    function getCellValue(cell: Cell, sheetId: UID): CellValue {
+    function getCellValue(cell: Cell): CellValue {
       if (cell.isFormula() && cell.evaluated.type === CellValueType.error) {
         throw new EvaluationError(
           cell.evaluated.value,
           _lt("This formula depends on invalid values: %s", cell.evaluated.error)
         );
       }
-      computeValue(cell, sheetId);
+      computeValue(cell);
       if (cell.evaluated.type === CellValueType.error) {
         throw new EvaluationError(
           cell.evaluated.value,
@@ -216,12 +216,14 @@ export class EvaluationPlugin extends UIPlugin {
     }
 
     /**
-     * Return a range of values. It is a list of col values.
+     * Return the values of the cell(s) used in reference, but always in the format of a range even
+     * if a single cell is referenced. It is a list of col values. This is useful for the formulas that describe parameters as
+     * range<number> etc.
      *
      * Note that each col is possibly sparse: it only contain the values of cells
      * that are actually present in the grid.
      */
-    function _range(range: Range): (CellValue | undefined)[][] {
+    function range(range: Range): (CellValue | undefined)[][] {
       const sheetId = range.sheetId;
 
       if (!isZoneValid(range.zone)) {
@@ -249,7 +251,7 @@ export class EvaluationPlugin extends UIPlugin {
         const rowValues: (CellValue | undefined)[] = [];
         for (let row = zone.top; row <= zone.bottom; row++) {
           const cell = evalContext.getters.getCell(range.sheetId, col, row);
-          rowValues.push(cell ? getCellValue(cell, range.sheetId) : undefined);
+          rowValues.push(cell ? getCellValue(cell) : undefined);
         }
         result.push(rowValues);
       }
@@ -259,26 +261,19 @@ export class EvaluationPlugin extends UIPlugin {
     /**
      * Returns the value of the cell(s) used in reference
      *
-     * @param position the index in the references array
-     * @param references all the references used in the current formula
-     * @param sheetId the sheet that is currently being evaluated, if a reference does not
-     *        include a sheet, it is the id of the sheet of the reference to be used
+     * @param range the references used
      * @param isMeta if a reference is supposed to be used in a `meta` parameter as described in the
      *        function for which this parameter is used, we just return the string of the parameter.
      *        The `compute` of the formula's function must process it completely
      */
     function refFn(
-      position: number,
-      references: Range[],
-      sheetId: UID,
+      range: Range,
       isMeta: boolean,
       functionName: string,
       paramNumber?: number
     ): any | any[][] {
-      const range: Range = references[position];
-
       if (isMeta) {
-        return evalContext.getters.getRangeString(range, sheetId);
+        return evalContext.getters.getRangeString(range, range.sheetId);
       }
 
       if (!isZoneValid(range.zone)) {
@@ -307,18 +302,6 @@ export class EvaluationPlugin extends UIPlugin {
 
       return readCell(range);
     }
-
-    /**
-     * Return the values of the cell(s) used in reference, but always in the format of a range even
-     * if a single cell is referenced. This is useful for the formulas that describe parameters as
-     * range<number> etc.
-     *
-     * the parameters are the same as refFn, except that these parameters cannot be Meta
-     */
-    function range(position: number, references: Range[], sheetId: UID): any[][] {
-      return _range(references[position]);
-    }
-
     return [refFn, range, evalContext];
   }
 

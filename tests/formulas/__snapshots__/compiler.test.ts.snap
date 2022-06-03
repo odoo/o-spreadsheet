@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`compile functions with lazy arguments functions call requesting lazy parameters 1`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =USELAZYARG(|N0|)
 const _2 = () => {
@@ -14,7 +14,7 @@ return _1;
 `;
 
 exports[`compile functions with lazy arguments functions call requesting lazy parameters 2`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =USELAZYARG(|N0|/|N1|)
 const _2 = () => {
@@ -30,7 +30,7 @@ return _1;
 `;
 
 exports[`compile functions with lazy arguments functions call requesting lazy parameters 3`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =USELAZYARG(|N0|/|N0|/|N1|)
 const _2 = () => {
@@ -49,7 +49,7 @@ return _1;
 `;
 
 exports[`compile functions with lazy arguments functions call requesting lazy parameters 4`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =USELAZYARG(USELAZYARG(|N0|))
 const _2 = () => {
@@ -66,10 +66,10 @@ return _1;
 `;
 
 exports[`compile functions with meta arguments function call requesting meta parameter 1`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =USEMETAARG(|0|)
-let _2 = ref(0, deps, sheetId, true, \\"USEMETAARG\\",  1);
+let _2 = ref(deps[0], true, \\"USEMETAARG\\",  1);
 ctx.__lastFnCalled = 'USEMETAARG';
 let _1 = ctx['USEMETAARG'](_2);
 return _1;
@@ -77,10 +77,10 @@ return _1;
 `;
 
 exports[`compile functions with meta arguments function call requesting meta parameter 2`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =USEMETAARG(|0|)
-let _2 = ref(0, deps, sheetId, true, \\"USEMETAARG\\",  1);
+let _2 = ref(deps[0], true, \\"USEMETAARG\\",  1);
 ctx.__lastFnCalled = 'USEMETAARG';
 let _1 = ctx['USEMETAARG'](_2);
 return _1;
@@ -88,10 +88,10 @@ return _1;
 `;
 
 exports[`expression compiler cells are converted to ranges if function require a range 1`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =sum(|0|)
-let _2 = range(0, deps, sheetId);
+let _2 = range(deps[0]);
 ctx.__lastFnCalled = 'SUM';
 let _1 = ctx['SUM'](_2);
 return _1;
@@ -99,14 +99,14 @@ return _1;
 `;
 
 exports[`expression compiler expression with $ref 1`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =|0|+|1|+|2|
-let _3 = ref(0, deps, sheetId, false, \\"ADD\\",  undefined);
-let _4 = ref(1, deps, sheetId, false, \\"ADD\\",  undefined);
+let _3 = ref(deps[0], false, \\"ADD\\",  undefined);
+let _4 = ref(deps[1], false, \\"ADD\\",  undefined);
 ctx.__lastFnCalled = 'ADD';
 let _2 = ctx['ADD'](_3, _4);
-let _5 = ref(2, deps, sheetId, false, \\"ADD\\",  undefined);
+let _5 = ref(deps[2], false, \\"ADD\\",  undefined);
 ctx.__lastFnCalled = 'ADD';
 let _1 = ctx['ADD'](_2, _5);
 return _1;
@@ -114,20 +114,20 @@ return _1;
 `;
 
 exports[`expression compiler expression with references with a sheet 1`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =|0|
-let _1 = ref(0, deps, sheetId, false, \\"EQ\\",  undefined);
+let _1 = ref(deps[0], false, \\"EQ\\",  undefined);
 return _1;
 }"
 `;
 
 exports[`expression compiler expressions with a debugger 1`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =? |0| / |N0|
 debugger;
-let _2 = ref(0, deps, sheetId, false, \\"DIVIDE\\",  undefined);
+let _2 = ref(deps[0], false, \\"DIVIDE\\",  undefined);
 let _3 = this.constantValues.numbers[0];
 ctx.__lastFnCalled = 'DIVIDE';
 let _1 = ctx['DIVIDE'](_2, _3);
@@ -136,11 +136,11 @@ return _1;
 `;
 
 exports[`expression compiler read some values and functions 1`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =|0| + sum(|1|)
-let _2 = ref(0, deps, sheetId, false, \\"ADD\\",  undefined);
-let _4 = range(1, deps, sheetId);
+let _2 = ref(deps[0], false, \\"ADD\\",  undefined);
+let _4 = range(deps[1]);
 ctx.__lastFnCalled = 'SUM';
 let _3 = ctx['SUM'](_4);
 ctx.__lastFnCalled = 'ADD';
@@ -150,7 +150,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 1`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =|N0|
 let _1 = this.constantValues.numbers[0];
@@ -159,7 +159,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 2`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =true
 return true;
@@ -167,7 +167,7 @@ return true;
 `;
 
 exports[`expression compiler some arithmetic expressions 3`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =|S0|
 let _1 = this.constantValues.strings[0];
@@ -176,7 +176,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 4`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =|N0| + |N1|
 let _2 = this.constantValues.numbers[0];
@@ -188,7 +188,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 5`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =|N0| * |N1|
 let _2 = this.constantValues.numbers[0];
@@ -200,7 +200,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 6`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =|N0| - |N1|
 let _2 = this.constantValues.numbers[0];
@@ -212,7 +212,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 7`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =|N0| / |N1|
 let _2 = this.constantValues.numbers[0];
@@ -224,7 +224,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 8`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =-|N0|
 let _2 = this.constantValues.numbers[0];
@@ -235,7 +235,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 9`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =(|N0| + |N1|) * (-|N1| + |N2|)
 let _3 = this.constantValues.numbers[0];
@@ -255,7 +255,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 10`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =sum(|N0|,|N1|)
 let _2 = this.constantValues.numbers[0];
@@ -267,7 +267,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 11`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =sum(true, |S0|)
 let _2 = this.constantValues.strings[0];
@@ -278,7 +278,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 12`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =sum(|N0|,,|N1|)
 let _2 = this.constantValues.numbers[0];
@@ -290,7 +290,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 13`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =|N0|%
 let _2 = this.constantValues.numbers[0];
@@ -301,7 +301,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 14`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =(|N0|+|N1|)%
 let _3 = this.constantValues.numbers[0];
@@ -315,10 +315,10 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 15`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =|0|%
-let _2 = ref(0, deps, sheetId, false, \\"UNARY.PERCENT\\",  undefined);
+let _2 = ref(deps[0], false, \\"UNARY.PERCENT\\",  undefined);
 ctx.__lastFnCalled = 'UNARY.PERCENT';
 let _1 = ctx['UNARY.PERCENT']( _2);
 return _1;
@@ -326,12 +326,12 @@ return _1;
 `;
 
 exports[`expression compiler with the same reference multiple times 1`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
+"function anonymous(deps,ref,range,ctx
 ) {
 // =SUM(|0|, |0|, |2|)
-let _2 = range(0, deps, sheetId);
-let _3 = range(0, deps, sheetId);
-let _4 = range(2, deps, sheetId);
+let _2 = range(deps[0]);
+let _3 = range(deps[0]);
+let _4 = range(deps[2]);
 ctx.__lastFnCalled = 'SUM';
 let _1 = ctx['SUM'](_2,_3,_4);
 return _1;
