@@ -670,7 +670,7 @@ describe("Multi users synchronisation", () => {
 
   test("Do not handle duplicated message", () => {
     const serverRevisionId = alice["session"]["serverRevisionId"];
-    const length = alice.getters.getActiveSheet().cols.length;
+    const length = alice.getters.getNumberCols(alice.getters.getActiveSheetId());
     const data = alice.exportData();
     const commands: CoreCommand[] = [
       {
@@ -693,7 +693,7 @@ describe("Multi users synchronisation", () => {
     // The message is received once as initial message and once from the network
     const david = new Model(data, { transportService: network }, [message]);
     network.sendMessage(message);
-    expect(david.getters.getActiveSheet().cols.length).toBe(length + 50);
+    expect(david.getters.getNumberCols(david.getters.getActiveSheetId())).toBe(length + 50);
   });
 
   test("Selected figure Id is not modified if the create sheet comes from someone else", () => {

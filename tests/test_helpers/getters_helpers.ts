@@ -7,7 +7,6 @@ import {
   CellValueType,
   FormattedValue,
   Merge,
-  Sheet,
   UID,
 } from "../../src/types";
 import { setSelection } from "./commands_helpers";
@@ -83,13 +82,6 @@ export function getRangeValues(
   sheetId: UID = model.getters.getActiveSheetId()
 ): (CellValue | undefined)[] {
   return model.getters.getRangeValues(model.getters.getRangeFromSheetXC(sheetId, xc));
-}
-
-/**
- * Get the sheet at the given index
- */
-export function getSheet(model: Model, index: number = 0): Sheet {
-  return model.getters.getSheet(model.getters.getSheetIds()[index]);
 }
 
 /**

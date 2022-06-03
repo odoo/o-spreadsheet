@@ -8,5 +8,4 @@ export * from "./numbers";
 export * from "./references";
 export * from "./sheet";
 export * from "./uuid";
-export * from "./visibility";
 export * from "./zones";

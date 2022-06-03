@@ -83,10 +83,10 @@ colMenuRegistry
     sequence: 85,
     action: ACTIONS.HIDE_COLUMNS_ACTION,
     isVisible: (env: SpreadsheetChildEnv) => {
-      const sheet = env.model.getters.getActiveSheet();
-      const hiddenCols = env.model.getters.getHiddenColsGroups(sheet.id).flat();
+      const sheetId = env.model.getters.getActiveSheetId();
+      const hiddenCols = env.model.getters.getHiddenColsGroups(sheetId).flat();
       return (
-        sheet.cols.length >
+        env.model.getters.getNumberCols(sheetId) >
         hiddenCols.length + env.model.getters.getElementsFromSelection("COL").length
       );
     },

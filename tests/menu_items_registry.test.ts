@@ -787,11 +787,11 @@ describe("Menu Item actions", () => {
       hideColumns(model, ["C"]);
       expect(getNode(["edit", "edit_unhide_columns"]).isVisible(env)).toBeTruthy();
       doAction(["edit", "edit_unhide_columns"], env);
-      const sheet = env.model.getters.getActiveSheet();
+      const sheetId = env.model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
-        sheetId: sheet.id,
+        sheetId,
         dimension: "COL",
-        elements: Array.from(Array(sheet.cols.length).keys()),
+        elements: Array.from(Array(model.getters.getNumberCols(sheetId)).keys()),
       });
     });
   });
@@ -859,10 +859,10 @@ describe("Menu Item actions", () => {
       hideRows(model, [2]);
       expect(getNode(["edit", "edit_unhide_rows"]).isVisible(env)).toBeTruthy();
       doAction(["edit", "edit_unhide_rows"], env);
-      const sheet = env.model.getters.getActiveSheet();
+      const sheetId = env.model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
-        sheetId: sheet.id,
-        elements: Array.from(Array(sheet.rows.length).keys()),
+        sheetId,
+        elements: Array.from(Array(model.getters.getNumberRows(sheetId)).keys()),
         dimension: "ROW",
       });
     });

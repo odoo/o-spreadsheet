@@ -57,13 +57,14 @@ describe("addFunction", () => {
     functionRegistry.add("GETNUMBERCOLS", {
       description: "Get the number of columns",
       compute: function () {
-        return (this as any).getters.getActiveSheet().cols.length;
+        const sheetId = (this as any).getters.getActiveSheetId();
+        return (this as any).getters.getNumberCols(sheetId);
       },
       args: args(``),
       returns: ["STRING"],
     });
     expect(evaluateCell("A1", { A1: "=GETNUMBERCOLS()" })).toBe(
-      model.getters.getActiveSheet().cols.length
+      model.getters.getNumberCols(model.getters.getActiveSheetId())
     );
   });
 });

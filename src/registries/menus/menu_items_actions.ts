@@ -465,11 +465,11 @@ export const HIDE_COLUMNS_ACTION = (env: SpreadsheetChildEnv) => {
 };
 
 export const UNHIDE_ALL_COLUMNS_ACTION = (env: SpreadsheetChildEnv) => {
-  const sheet = env.model.getters.getActiveSheet();
+  const sheetId = env.model.getters.getActiveSheetId();
   env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
-    sheetId: sheet.id,
+    sheetId,
     dimension: "COL",
-    elements: Array.from(Array(sheet.cols.length).keys()),
+    elements: Array.from(Array(env.model.getters.getNumberCols(sheetId)).keys()),
   });
 };
 
@@ -505,11 +505,11 @@ export const HIDE_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
 };
 
 export const UNHIDE_ALL_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
-  const sheet = env.model.getters.getActiveSheet();
+  const sheetId = env.model.getters.getActiveSheetId();
   env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
-    sheetId: sheet.id,
+    sheetId,
     dimension: "ROW",
-    elements: Array.from(Array(sheet.rows.length).keys()),
+    elements: Array.from(Array(env.model.getters.getNumberRows(sheetId)).keys()),
   });
 };
 

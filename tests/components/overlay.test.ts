@@ -609,8 +609,8 @@ describe("Resizer component", () => {
   });
 
   test("right click after last column does not open context menu", async () => {
-    const nCols = model.getters.getActiveSheet().cols.length;
     const activeSheetId = model.getters.getActiveSheetId();
+    const nCols = model.getters.getNumberCols(activeSheetId);
     const x = model.getters.getColDimensions(activeSheetId, nCols - 1)!.end + 1;
     triggerMouseEvent(".o-overlay .o-col-resizer", "contextmenu", x, 10);
     await nextTick();
@@ -618,8 +618,8 @@ describe("Resizer component", () => {
   });
 
   test("right click after last row does not open context menu", async () => {
-    const nRows = model.getters.getActiveSheet().rows.length;
     const activeSheetId = model.getters.getActiveSheetId();
+    const nRows = model.getters.getNumberRows(activeSheetId);
     const y = model.getters.getRowDimensions(activeSheetId, nRows - 1)!.end + 1;
     triggerMouseEvent(".o-overlay .o-row-resizer", "contextmenu", 10, y);
     await nextTick();

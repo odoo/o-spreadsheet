@@ -840,8 +840,11 @@ describe("Test XLSX export", () => {
         },
         "1"
       );
-      const { cols, id: sheetId } = model.getters.getActiveSheet();
-      const end = model.getters.getColDimensions(sheetId, cols.length - 1).end;
+      const sheetId = model.getters.getActiveSheetId();
+      const end = model.getters.getColDimensions(
+        sheetId,
+        model.getters.getNumberCols(sheetId) - 1
+      ).end;
       model.dispatch("UPDATE_FIGURE", {
         sheetId: "Sheet1",
         id: "1",

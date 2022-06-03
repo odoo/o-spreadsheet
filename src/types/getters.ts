@@ -6,6 +6,7 @@ import { ChartPlugin } from "../plugins/core/chart";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { FigurePlugin } from "../plugins/core/figures";
 import { HeaderSizePlugin } from "../plugins/core/header_size";
+import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
 import { MergePlugin } from "../plugins/core/merge";
 import { RangeAdapter } from "../plugins/core/range";
 import { SheetPlugin } from "../plugins/core/sheet";
@@ -62,6 +63,10 @@ type GetterNames<Plugin extends { getters: readonly string[] }> = Plugin["getter
 
 type SheetGetters = Pick<SheetPlugin, GetterNames<typeof SheetPlugin>>;
 type HeaderSizeGetters = Pick<HeaderSizePlugin, GetterNames<typeof HeaderSizePlugin>>;
+type HeaderVisibilityGetters = Pick<
+  HeaderVisibilityPlugin,
+  GetterNames<typeof HeaderVisibilityPlugin>
+>;
 type CellGetters = Pick<CellPlugin, GetterNames<typeof CellPlugin>>;
 type MergeGetters = Pick<MergePlugin, GetterNames<typeof MergePlugin>>;
 type BordersGetters = Pick<BordersPlugin, GetterNames<typeof BordersPlugin>>;
@@ -83,6 +88,7 @@ export type CoreGetters = {
 } & LocalHistoryGetters &
   SheetGetters &
   HeaderSizeGetters &
+  HeaderVisibilityGetters &
   CellGetters &
   MergeGetters &
   BordersGetters &

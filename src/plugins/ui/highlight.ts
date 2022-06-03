@@ -29,8 +29,8 @@ export class HighlightPlugin extends UIPlugin {
         (x) =>
           x.zone.top >= 0 &&
           x.zone.left >= 0 &&
-          x.zone.bottom < this.getters.getSheet(x.sheetId).rows.length &&
-          x.zone.right < this.getters.getSheet(x.sheetId).cols.length
+          x.zone.bottom < this.getters.getNumberRows(x.sheetId) &&
+          x.zone.right < this.getters.getNumberCols(x.sheetId)
       )
       .map((highlight) => {
         const { height, width } = zoneToDimension(highlight.zone);

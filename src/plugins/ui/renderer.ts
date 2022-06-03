@@ -16,7 +16,14 @@ import {
   TEXT_HEADER_COLOR,
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { intersection, overlap, positionToZone, scrollDelay, union } from "../../helpers/index";
+import {
+  intersection,
+  numberToLetters,
+  overlap,
+  positionToZone,
+  scrollDelay,
+  union,
+} from "../../helpers/index";
 import { CellErrorLevel } from "../../types/errors";
 import {
   Align,
@@ -64,12 +71,12 @@ export class RendererPlugin extends UIPlugin {
    */
   getColDimensions(sheetId: UID, col: number): HeaderDimensions {
     const start = this.getColRowOffset("COL", 0, col, sheetId);
-    const c = this.getters.getCol(sheetId, col);
     const size = this.getters.getColSize(sheetId, col);
+    const isColHidden = this.getters.isColHidden(sheetId, col);
     return {
       start,
       size,
-      end: start + (c.isHidden ? 0 : size),
+      end: start + (isColHidden ? 0 : size),
     };
   }
 
@@ -80,12 +87,12 @@ export class RendererPlugin extends UIPlugin {
   getColDimensionsInViewport(sheetId: UID, col: number): HeaderDimensions {
     const { left } = this.getters.getActiveSnappedViewport();
     const start = this.getColRowOffset("COL", left, col, sheetId);
-    const c = this.getters.getCol(sheetId, col);
     const size = this.getters.getColSize(sheetId, col);
+    const isColHidden = this.getters.isColHidden(sheetId, col);
     return {
       start,
       size: size,
-      end: start + (c.isHidden ? 0 : size),
+      end: start + (isColHidden ? 0 : size),
     };
   }
 
@@ -94,12 +101,12 @@ export class RendererPlugin extends UIPlugin {
    */
   getRowDimensions(sheetId: UID, row: number): HeaderDimensions {
     const start = this.getColRowOffset("ROW", 0, row, sheetId);
-    const r = this.getters.getRow(sheetId, row);
     const size = this.getters.getRowSize(sheetId, row);
+    const isRowHidden = this.getters.isRowHidden(sheetId, row);
     return {
       start,
       size: size,
-      end: start + (r.isHidden ? 0 : size),
+      end: start + (isRowHidden ? 0 : size),
     };
   }
 
@@ -110,12 +117,12 @@ export class RendererPlugin extends UIPlugin {
   getRowDimensionsInViewport(sheetId: UID, row: number): HeaderDimensions {
     const { top } = this.getters.getActiveSnappedViewport();
     const start = this.getColRowOffset("ROW", top, row, sheetId);
-    const r = this.getters.getRow(sheetId, row);
     const size = this.getters.getRowSize(sheetId, row);
+    const isRowHidden = this.getters.isRowHidden(sheetId, row);
     return {
       start,
       size: size,
-      end: start + (r.isHidden ? 0 : size),
+      end: start + (isRowHidden ? 0 : size),
     };
   }
 
@@ -130,14 +137,12 @@ export class RendererPlugin extends UIPlugin {
     index: number,
     sheetId: UID = this.getters.getActiveSheetId()
   ): number {
-    const sheet = this.getters.getSheet(sheetId);
-    const headers = dimension === "ROW" ? sheet.rows : sheet.cols;
     if (index < referenceIndex) {
       return -this.getColRowOffset(dimension, index, referenceIndex);
     }
     let offset = 0;
     for (let i = referenceIndex; i < index; i++) {
-      if (headers[i].isHidden) {
+      if (this.getters.isHeaderHidden(sheetId, dimension, i)) {
         continue;
       }
       offset +=
@@ -165,11 +170,10 @@ export class RendererPlugin extends UIPlugin {
    * The size from A to B is the distance between A.start and B.end
    */
   private getSizeBetweenHeaders(dimension: Dimension, from: number, to: number): number {
-    const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
-    const headers = dimension === "COL" ? cols : rows;
+    const sheetId = this.getters.getActiveSheetId();
     let size = 0;
     for (let i = from; i <= to; i++) {
-      if (headers[i].isHidden) {
+      if (this.getters.isHeaderHidden(sheetId, dimension, i)) {
         continue;
       }
       size +=
@@ -460,7 +464,8 @@ export class RendererPlugin extends UIPlugin {
     const { width, height } = this.getters.getViewportDimensionWithHeaders();
     const selection = this.getters.getSelectedZones();
     const sheetId = this.getters.getActiveSheetId();
-    const { cols, rows } = this.getters.getSheet(sheetId);
+    const numberOfCols = this.getters.getNumberCols(sheetId);
+    const numberOfRows = this.getters.getNumberRows(sheetId);
     const activeCols = this.getters.getActiveCols();
     const activeRows = this.getters.getActiveRows();
 
@@ -477,7 +482,7 @@ export class RendererPlugin extends UIPlugin {
     // selection background
     ctx.fillStyle = BACKGROUND_HEADER_SELECTED_COLOR;
     for (let zone of selection) {
-      const colZone = intersection(zone, { ...viewport, top: 0, bottom: rows.length - 1 });
+      const colZone = intersection(zone, { ...viewport, top: 0, bottom: numberOfRows - 1 });
       if (colZone) {
         const [x, , width] = this.getRect(colZone, viewport);
         ctx.fillStyle = activeCols.has(zone.left)
@@ -485,7 +490,7 @@ export class RendererPlugin extends UIPlugin {
           : BACKGROUND_HEADER_SELECTED_COLOR;
         ctx.fillRect(x, 0, width, HEADER_HEIGHT);
       }
-      const rowZone = intersection(zone, { ...viewport, left: 0, right: cols.length - 1 });
+      const rowZone = intersection(zone, { ...viewport, left: 0, right: numberOfCols - 1 });
       if (rowZone) {
         const [, y, , height] = this.getRect(rowZone, viewport);
         ctx.fillStyle = activeRows.has(zone.top)
@@ -508,28 +513,29 @@ export class RendererPlugin extends UIPlugin {
 
     // column text + separator
     for (let i = left; i <= right; i++) {
-      const col = this.getters.getCol(sheetId, i);
       const colSize = this.getters.getColSize(sheetId, i);
-      if (col.isHidden) {
+      const isColHidden = this.getters.isColHidden(sheetId, i);
+      if (isColHidden) {
         continue;
       }
+      const colName = numberToLetters(i);
       ctx.fillStyle = activeCols.has(i) ? "#fff" : TEXT_HEADER_COLOR;
       let colStart = this.getHeaderOffset("COL", viewport.left, i);
-      ctx.fillText(col.name, colStart + colSize / 2, HEADER_HEIGHT / 2);
+      ctx.fillText(colName, colStart + colSize / 2, HEADER_HEIGHT / 2);
       ctx.moveTo(colStart + colSize, 0);
       ctx.lineTo(colStart + colSize, HEADER_HEIGHT);
     }
     // row text + separator
     for (let i = top; i <= bottom; i++) {
-      const row = this.getters.getRow(sheetId, i);
       const rowSize = this.getters.getRowSize(sheetId, i);
-      if (row.isHidden) {
+      const isRowHidden = this.getters.isRowHidden(sheetId, i);
+      if (isRowHidden) {
         continue;
       }
       ctx.fillStyle = activeRows.has(i) ? "#fff" : TEXT_HEADER_COLOR;
 
       let rowStart = this.getHeaderOffset("ROW", viewport.top, i);
-      ctx.fillText(row.name, HEADER_WIDTH / 2, rowStart + rowSize / 2);
+      ctx.fillText(String(i + 1), HEADER_WIDTH / 2, rowStart + rowSize / 2);
       ctx.moveTo(0, rowStart + rowSize);
       ctx.lineTo(HEADER_WIDTH, rowStart + rowSize);
     }

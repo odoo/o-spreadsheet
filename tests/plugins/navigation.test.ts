@@ -48,8 +48,8 @@ describe("navigation", () => {
 
   test("move right from right row", () => {
     const model = new Model();
-    const activeSheet = model.getters.getActiveSheet();
-    const colNumber = activeSheet.cols.length;
+    const activeSheetId = model.getters.getActiveSheetId();
+    const colNumber = model.getters.getNumberCols(activeSheetId);
     const xc = toXC(colNumber - 1, 0);
     selectCell(model, xc);
 
@@ -60,8 +60,8 @@ describe("navigation", () => {
 
   test("move bottom from bottom row", () => {
     const model = new Model();
-    const activeSheet = model.getters.getActiveSheet();
-    const rowNumber = activeSheet.rows.length;
+    const activeSheetId = model.getters.getActiveSheetId();
+    const rowNumber = model.getters.getNumberRows(activeSheetId);
     const xc = toXC(0, rowNumber - 1);
     selectCell(model, xc);
     expect(model.getters.getPosition()).toEqual(toCartesian(xc));
@@ -71,10 +71,10 @@ describe("navigation", () => {
 
   test("move bottom from merge in last position", () => {
     const model = new Model();
-    const activeSheet = model.getters.getActiveSheet();
-    const rowNumber = activeSheet.rows.length;
+    const activeSheetId = model.getters.getActiveSheetId();
+    const rowNumber = model.getters.getNumberRows(activeSheetId);
     model.dispatch("ADD_MERGE", {
-      sheetId: activeSheet.id,
+      sheetId: activeSheetId,
       target: [{ top: rowNumber - 2, bottom: rowNumber - 1, left: 0, right: 0 }],
     });
     const xc = toXC(0, rowNumber - 2);
@@ -86,14 +86,14 @@ describe("navigation", () => {
 
   test("Cannot move bottom from merge in last position if last row is hidden", () => {
     const model = new Model();
-    const activeSheet = model.getters.getActiveSheet();
-    const rowNumber = activeSheet.rows.length;
+    const activeSheetId = model.getters.getActiveSheetId();
+    const rowNumber = model.getters.getNumberRows(activeSheetId);
     model.dispatch("ADD_MERGE", {
-      sheetId: activeSheet.id,
+      sheetId: activeSheetId,
       target: [{ top: rowNumber - 3, bottom: rowNumber - 2, left: 0, right: 0 }],
     });
     model.dispatch("HIDE_COLUMNS_ROWS", {
-      sheetId: activeSheet.id,
+      sheetId: activeSheetId,
       dimension: "ROW",
       elements: [rowNumber - 1],
     });
@@ -106,10 +106,10 @@ describe("navigation", () => {
 
   test("move right from merge in last position", () => {
     const model = new Model();
-    const activeSheet = model.getters.getActiveSheet();
-    const colNumber = activeSheet.cols.length;
+    const activeSheetId = model.getters.getActiveSheetId();
+    const colNumber = model.getters.getNumberCols(activeSheetId);
     model.dispatch("ADD_MERGE", {
-      sheetId: activeSheet.id,
+      sheetId: activeSheetId,
       target: [{ top: 0, bottom: 0, left: colNumber - 2, right: colNumber - 1 }],
     });
     const xc = toXC(colNumber - 2, 0);

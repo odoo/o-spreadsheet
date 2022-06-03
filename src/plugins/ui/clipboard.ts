@@ -11,7 +11,6 @@ import {
   GridRenderingContext,
   isCoreCommand,
   LAYERS,
-  Sheet,
   UID,
   Zone,
 } from "../../types/index";
@@ -196,32 +195,32 @@ export class ClipboardPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   private getDeleteCellsTargets(zone: Zone, dimension: Dimension): InsertDeleteCellsTargets {
-    const sheet = this.getters.getActiveSheet();
+    const sheetId = this.getters.getActiveSheetId();
     let cut: Zone;
     if (dimension === "COL") {
       cut = {
         ...zone,
         left: zone.right + 1,
-        right: sheet.cols.length - 1,
+        right: this.getters.getNumberCols(sheetId) - 1,
       };
     } else {
       cut = {
         ...zone,
         top: zone.bottom + 1,
-        bottom: sheet.rows.length - 1,
+        bottom: this.getters.getNumberRows(sheetId) - 1,
       };
     }
     return { cut: [cut], paste: [zone] };
   }
 
   private getInsertCellsTargets(zone: Zone, dimension: Dimension): InsertDeleteCellsTargets {
-    const sheet = this.getters.getActiveSheet();
+    const sheetId = this.getters.getActiveSheetId();
     let cut: Zone;
     let paste: Zone;
     if (dimension === "COL") {
       cut = {
         ...zone,
-        right: sheet.cols.length - 1,
+        right: this.getters.getNumberCols(sheetId) - 1,
       };
       paste = {
         ...zone,
@@ -231,9 +230,9 @@ export class ClipboardPlugin extends UIPlugin {
     } else {
       cut = {
         ...zone,
-        bottom: sheet.rows.length - 1,
+        bottom: this.getters.getNumberRows(sheetId) - 1,
       };
-      paste = { ...zone, top: zone.bottom + 1, bottom: sheet.rows.length - 1 };
+      paste = { ...zone, top: zone.bottom + 1, bottom: this.getters.getNumberRows(sheetId) - 1 };
     }
     return { cut: [cut], paste: [paste] };
   }
@@ -378,15 +377,15 @@ export class ClipboardPlugin extends UIPlugin {
       values.map((a) => a.length)
     );
     const height = values.length;
-    const sheet = this.getters.getActiveSheet();
-    this.addMissingDimensions(sheet, width, height, activeCol, activeRow);
+    const sheetId = this.getters.getActiveSheetId();
+    this.addMissingDimensions(sheetId, width, height, activeCol, activeRow);
     for (let i = 0; i < values.length; i++) {
       for (let j = 0; j < values[i].length; j++) {
         this.dispatch("UPDATE_CELL", {
           row: activeRow + i,
           col: activeCol + j,
           content: values[i][j],
-          sheetId: sheet.id,
+          sheetId,
         });
       }
     }
@@ -560,15 +559,15 @@ export class ClipboardPlugin extends UIPlugin {
     // We have to do it when the command handled is "PASTE", not "INSERT_CELL"
     // or "DELETE_CELL". So, the state should be the local state
     const shouldPasteCF = pasteOption !== "onlyValue" && this.state && this.state === state;
-    const sheet = this.getters.getActiveSheet();
+    const sheetId = this.getters.getActiveSheetId();
     // first, add missing cols/rows if needed
-    this.addMissingDimensions(sheet, width, height, col, row);
+    this.addMissingDimensions(sheetId, width, height, col, row);
     // then, perform the actual paste operation
     for (let r = 0; r < height; r++) {
       const rowCells = state.cells[r];
       for (let c = 0; c < width; c++) {
         const origin = rowCells[c];
-        const position = { col: col + c, row: row + r, sheetId: sheet.id };
+        const position = { col: col + c, row: row + r, sheetId: sheetId };
         this.removeMergeIfTopLeft(position);
         this.pasteMergeIfExist(origin.position, position);
         this.pasteCell(origin, position, state.operation, pasteOption);
@@ -588,28 +587,27 @@ export class ClipboardPlugin extends UIPlugin {
    * in the sheet
    */
   private addMissingDimensions(
-    sheet: Sheet,
+    sheetId: UID,
     width: number,
     height: number,
     col: number,
     row: number
   ) {
-    const { cols, rows, id: sheetId } = sheet;
-    const missingRows = height + row - rows.length;
+    const missingRows = height + row - this.getters.getNumberRows(sheetId);
     if (missingRows > 0) {
       this.dispatch("ADD_COLUMNS_ROWS", {
         dimension: "ROW",
-        base: rows.length - 1,
+        base: this.getters.getNumberRows(sheetId) - 1,
         sheetId,
         quantity: missingRows,
         position: "after",
       });
     }
-    const missingCols = width + col - cols.length;
+    const missingCols = width + col - this.getters.getNumberCols(sheetId);
     if (missingCols > 0) {
       this.dispatch("ADD_COLUMNS_ROWS", {
         dimension: "COL",
-        base: cols.length - 1,
+        base: this.getters.getNumberCols(sheetId) - 1,
         sheetId,
         quantity: missingCols,
         position: "after",

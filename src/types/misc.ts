@@ -81,7 +81,7 @@ export interface UpdateCellData {
 export interface Sheet {
   id: UID;
   name: string;
-  cols: Col[];
+  numberOfCols: number;
   rows: Row[];
   hiddenColsGroups: ConsecutiveIndexes[];
   hiddenRowsGroups: ConsecutiveIndexes[];
@@ -160,20 +160,9 @@ export interface HeaderDimensions {
   end: number;
 }
 
-export interface Header {
-  name: string;
-}
-
-export interface Header {
-  name: string;
-  isHidden?: boolean;
-}
-
-export interface Row extends Header {
+export interface Row {
   cells: Record<number, UID | undefined>;
 }
-
-export type Col = Header;
 
 export interface Position {
   col: number;

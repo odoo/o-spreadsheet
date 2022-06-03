@@ -7,7 +7,6 @@ import {
   BorderDescription,
   Command,
   ExcelWorkbookData,
-  Sheet,
   UID,
   WorkbookData,
   Zone,
@@ -60,9 +59,8 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
         break;
       case "SET_FORMATTING":
         if (cmd.border) {
-          const sheet = this.getters.getSheet(cmd.sheetId);
           const target = cmd.target.map((zone) => this.getters.expandZone(cmd.sheetId, zone));
-          this.setBorders(sheet, target, cmd.border);
+          this.setBorders(cmd.sheetId, target, cmd.border);
         }
         break;
       case "CLEAR_FORMATTING":
@@ -93,7 +91,6 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    */
   private handleAddColumns(cmd: AddColumnsRowsCommand) {
     // The new columns have already been inserted in the sheet at this point.
-    const sheet = this.getters.getSheet(cmd.sheetId);
     let colLeftOfInsertion: number;
     let colRightOfInsertion: number;
     if (cmd.position === "before") {
@@ -109,7 +106,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       colLeftOfInsertion = cmd.base;
       colRightOfInsertion = cmd.base + cmd.quantity + 1;
     }
-    this.ensureColumnBorderContinuity(sheet, colLeftOfInsertion, colRightOfInsertion);
+    this.ensureColumnBorderContinuity(cmd.sheetId, colLeftOfInsertion, colRightOfInsertion);
   }
 
   /**
@@ -118,21 +115,22 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    */
   private handleAddRows(cmd: AddColumnsRowsCommand) {
     // The new rows have already been inserted at this point.
-    const sheet = this.getters.getSheet(cmd.sheetId);
     let rowAboveInsertion: number;
     let rowBelowInsertion: number;
     if (cmd.position === "before") {
-      this.shiftBordersVertically(sheet.id, cmd.base, cmd.quantity, { moveFirstTopBorder: true });
+      this.shiftBordersVertically(cmd.sheetId, cmd.base, cmd.quantity, {
+        moveFirstTopBorder: true,
+      });
       rowAboveInsertion = cmd.base - 1;
       rowBelowInsertion = cmd.base + cmd.quantity;
     } else {
-      this.shiftBordersVertically(sheet.id, cmd.base + 1, cmd.quantity, {
+      this.shiftBordersVertically(cmd.sheetId, cmd.base + 1, cmd.quantity, {
         moveFirstTopBorder: false,
       });
       rowAboveInsertion = cmd.base;
       rowBelowInsertion = cmd.base + cmd.quantity + 1;
     }
-    this.ensureRowBorderContinuity(sheet, rowAboveInsertion, rowBelowInsertion);
+    this.ensureRowBorderContinuity(cmd.sheetId, rowAboveInsertion, rowBelowInsertion);
   }
 
   // ---------------------------------------------------------------------------
@@ -161,15 +159,15 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    * If the two columns have the same borders (at each row respectively),
    * the same borders are applied to each cell in between.
    */
-  private ensureColumnBorderContinuity(sheet: Sheet, leftColumn: number, rightColumn: number) {
+  private ensureColumnBorderContinuity(sheetId: UID, leftColumn: number, rightColumn: number) {
     const targetCols = range(leftColumn + 1, rightColumn);
-    for (let row = 0; row < sheet.rows.length; row++) {
-      const leftBorder = this.getCellBorder(sheet.id, leftColumn, row);
-      const rightBorder = this.getCellBorder(sheet.id, rightColumn, row);
+    for (let row = 0; row < this.getters.getNumberRows(sheetId); row++) {
+      const leftBorder = this.getCellBorder(sheetId, leftColumn, row);
+      const rightBorder = this.getCellBorder(sheetId, rightColumn, row);
       if (leftBorder && rightBorder) {
         const commonSides = this.getCommonSides(leftBorder, rightBorder);
         for (let col of targetCols) {
-          this.addBorder(sheet.id, col, row, commonSides);
+          this.addBorder(sheetId, col, row, commonSides);
         }
       }
     }
@@ -180,15 +178,15 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    * If the two rows have the same borders (at each column respectively),
    * the same borders are applied to each cell in between.
    */
-  private ensureRowBorderContinuity(sheet: Sheet, topRow: number, bottomRow: number) {
+  private ensureRowBorderContinuity(sheetId: UID, topRow: number, bottomRow: number) {
     const targetRows = range(topRow + 1, bottomRow);
-    for (let col = 0; col < sheet.cols.length; col++) {
-      const aboveBorder = this.getCellBorder(sheet.id, col, topRow);
-      const belowBorder = this.getCellBorder(sheet.id, col, bottomRow);
+    for (let col = 0; col < this.getters.getNumberCols(sheetId); col++) {
+      const aboveBorder = this.getCellBorder(sheetId, col, topRow);
+      const belowBorder = this.getCellBorder(sheetId, col, bottomRow);
       if (aboveBorder && belowBorder) {
         const commonSides = this.getCommonSides(aboveBorder, belowBorder);
         for (let row of targetRows) {
-          this.addBorder(sheet.id, col, row, commonSides);
+          this.addBorder(sheetId, col, row, commonSides);
         }
       }
     }
@@ -223,8 +221,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   private getRowsRange(sheetId: UID): number[] {
     const sheetBorders = this.borders[sheetId];
     if (!sheetBorders) return [];
-    const sheet = this.getters.getSheet(sheetId);
-    return range(0, sheet.rows.length + 1);
+    return range(0, this.getters.getNumberRows(sheetId) + 1);
   }
 
   /**
@@ -401,8 +398,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    * Set the borders of a zone by computing the borders to add from the given
    * command
    */
-  private setBorders(sheet: Sheet, zones: Zone[], command: BorderCommand) {
-    const sheetId = sheet.id;
+  private setBorders(sheetId: UID, zones: Zone[], command: BorderCommand) {
     if (command === "clear") {
       return this.clearBorders(sheetId, zones);
     }
@@ -448,22 +444,21 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    * Compute the borders to add to the given zone merged.
    */
   private addBordersToMerge(sheetId: UID, zone: Zone) {
-    const sheet = this.getters.getSheet(sheetId);
     const { left, right, top, bottom } = zone;
-    const bordersTopLeft = this.getCellBorder(sheet.id, left, top);
-    const bordersBottomRight = this.getCellBorder(sheet.id, right, bottom);
+    const bordersTopLeft = this.getCellBorder(sheetId, left, top);
+    const bordersBottomRight = this.getCellBorder(sheetId, right, bottom);
     this.clearBorders(sheetId, [zone]);
     if (bordersTopLeft?.top) {
-      this.setBorders(sheet, [{ ...zone, bottom: top }], "top");
+      this.setBorders(sheetId, [{ ...zone, bottom: top }], "top");
     }
     if (bordersTopLeft?.left) {
-      this.setBorders(sheet, [{ ...zone, right: left }], "left");
+      this.setBorders(sheetId, [{ ...zone, right: left }], "left");
     }
     if (bordersBottomRight?.bottom || bordersTopLeft?.bottom) {
-      this.setBorders(sheet, [{ ...zone, top: bottom }], "bottom");
+      this.setBorders(sheetId, [{ ...zone, top: bottom }], "bottom");
     }
     if (bordersBottomRight?.right || bordersTopLeft?.right) {
-      this.setBorders(sheet, [{ ...zone, left: right }], "right");
+      this.setBorders(sheetId, [{ ...zone, left: right }], "right");
     }
   }
 

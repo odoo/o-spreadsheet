@@ -1,7 +1,6 @@
 import {
   getComposerSheetName,
   getNextColor,
-  getNextVisibleCellPosition,
   positionToZone,
   toZone,
   UuidGenerator,
@@ -129,11 +128,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
       }
       case "ACTIVATE_SHEET": {
         if (cmd.sheetIdFrom !== cmd.sheetIdTo) {
-          const { col, row } = getNextVisibleCellPosition(
-            this.getters.getSheet(cmd.sheetIdTo),
-            0,
-            0
-          );
+          const { col, row } = this.getters.getNextVisibleCellPosition(cmd.sheetIdTo, 0, 0);
           const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
           this.selection.resetAnchor(this, { cell: { col, row }, zone });
         }

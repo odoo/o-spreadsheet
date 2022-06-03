@@ -1,17 +1,11 @@
 import { FORBIDDEN_IN_EXCEL_REGEX } from "../../constants";
 import {
-  createCols,
-  createDefaultCols,
   createDefaultRows,
-  createRows,
-  exportCols,
-  exportRows,
   getUnquotedSheetName,
   groupConsecutive,
   isDefined,
   isZoneInside,
   isZoneValid,
-  numberToLetters,
   positions,
   toCartesian,
 } from "../../helpers/index";
@@ -19,12 +13,11 @@ import { _lt, _t } from "../../translation";
 import {
   Cell,
   CellPosition,
-  Col,
   Command,
   CommandResult,
-  ConsecutiveIndexes,
   CoreCommand,
   CreateSheetCommand,
+  Dimension,
   ExcelWorkbookData,
   RenameSheetCommand,
   Row,
@@ -55,10 +48,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getVisibleSheetIds",
     "isSheetVisible",
     "getEvaluationSheets",
-    "tryGetCol",
-    "getCol",
-    "tryGetRow",
-    "getRow",
+    "doesHeaderExist",
     "getCell",
     "getCellsInZone",
     "getCellPosition",
@@ -67,13 +57,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getRowsZone",
     "getNumberCols",
     "getNumberRows",
-    "getHiddenColsGroups",
-    "getHiddenRowsGroups",
+    "getNumberHeaders",
     "getGridLinesVisibility",
     "getNextSheetName",
     "isEmpty",
-    "isRowHidden",
-    "isColHidden",
   ] as const;
 
   readonly sheetIdsMapName: Record<string, UID | undefined> = {};
@@ -124,20 +111,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           ? CommandResult.Success
           : CommandResult.NotEnoughSheets;
       case "REMOVE_COLUMNS_ROWS":
-        const sheet = this.getSheet(cmd.sheetId);
-        const length = cmd.dimension === "COL" ? sheet.cols.length : sheet.rows.length;
+        const length =
+          cmd.dimension === "COL"
+            ? this.getNumberCols(cmd.sheetId)
+            : this.getNumberRows(cmd.sheetId);
         return length > cmd.elements.length
           ? CommandResult.Success
           : CommandResult.NotEnoughElements;
-      case "HIDE_COLUMNS_ROWS": {
-        const sheet = this.sheets[cmd.sheetId]!;
-        const hiddenGroup =
-          cmd.dimension === "COL" ? sheet.hiddenColsGroups : sheet.hiddenRowsGroups;
-        const elements = cmd.dimension === "COL" ? sheet.cols : sheet.rows;
-        return (hiddenGroup || []).flat().concat(cmd.elements).length < elements.length
-          ? CommandResult.Success
-          : CommandResult.TooManyHiddenElements;
-      }
       default:
         return CommandResult.Success;
     }
@@ -194,22 +174,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           this.addRows(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
         }
         break;
-      case "HIDE_COLUMNS_ROWS": {
-        if (cmd.dimension === "COL") {
-          this.setElementsVisibility(this.sheets[cmd.sheetId]!, cmd.elements, "cols", "hide");
-        } else {
-          this.setElementsVisibility(this.sheets[cmd.sheetId]!, cmd.elements, "rows", "hide");
-        }
-        break;
-      }
-      case "UNHIDE_COLUMNS_ROWS": {
-        if (cmd.dimension === "COL") {
-          this.setElementsVisibility(this.sheets[cmd.sheetId]!, cmd.elements, "cols", "show");
-        } else {
-          this.setElementsVisibility(this.sheets[cmd.sheetId]!, cmd.elements, "rows", "show");
-        }
-        break;
-      }
       case "UPDATE_CELL_POSITION":
         this.updateCellPosition(cmd);
         break;
@@ -234,8 +198,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       const sheet: Sheet = {
         id: sheetData.id,
         name: name,
-        cols: createCols(sheetData.cols || {}, colNumber),
-        rows: createRows(sheetData.rows || {}, rowNumber),
+        numberOfCols: colNumber,
+        rows: createDefaultRows(rowNumber),
         hiddenColsGroups: [],
         hiddenRowsGroups: [],
         areGridLinesVisible:
@@ -244,8 +208,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       };
       this.orderedSheetIds.push(sheet.id);
       this.sheets[sheet.id] = sheet;
-      this.updateHiddenElementsGroups(sheet.id, "cols");
-      this.updateHiddenElementsGroups(sheet.id, "rows");
     }
   }
 
@@ -255,10 +217,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       return {
         id: sheet.id,
         name: sheet.name,
-        colNumber: sheet.cols.length,
-        rowNumber: sheet.rows.length,
-        rows: exportRows(sheet.rows),
-        cols: exportCols(sheet.cols),
+        colNumber: sheet.numberOfCols,
+        rowNumber: this.getters.getNumberRows(sheet.id),
+        rows: {},
+        cols: {},
         merges: [],
         cells: {},
         conditionalFormats: [],
@@ -344,20 +306,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return this.sheets;
   }
 
-  tryGetCol(sheetId: UID, index: number): Col | undefined {
-    return this.sheets[sheetId]?.cols[index];
-  }
-
-  getCol(sheetId: UID, index: number): Col {
-    const col = this.getSheet(sheetId).cols[index];
-    if (!col) {
-      throw new Error(`Col ${col} not found.`);
-    }
-    return col;
-  }
-
-  tryGetRow(sheetId: UID, index: number): Row | undefined {
-    return this.sheets[sheetId]?.rows[index];
+  doesHeaderExist(sheetId: UID, dimension: Dimension, index: number) {
+    return dimension === "COL"
+      ? index >= 0 && index < this.getNumberCols(sheetId)
+      : index >= 0 && index < this.getNumberRows(sheetId);
   }
 
   getRow(sheetId: UID, index: number): Row {
@@ -391,7 +343,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   getColsZone(sheetId: UID, start: number, end: number): Zone {
     return {
       top: 0,
-      bottom: this.getSheet(sheetId).rows.length - 1,
+      bottom: this.getNumberRows(sheetId) - 1,
       left: start,
       right: end,
     };
@@ -402,7 +354,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       top: start,
       bottom: end,
       left: 0,
-      right: this.getSheet(sheetId).cols.length - 1,
+      right: this.getSheet(sheetId).numberOfCols - 1,
     };
   }
 
@@ -414,28 +366,16 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return cell;
   }
 
-  getHiddenColsGroups(sheetId: UID): ConsecutiveIndexes[] {
-    return this.sheets[sheetId]?.hiddenColsGroups || [];
-  }
-
-  getHiddenRowsGroups(sheetId: UID): ConsecutiveIndexes[] {
-    return this.sheets[sheetId]?.hiddenRowsGroups || [];
-  }
-
-  isRowHidden(sheetId: UID, index: number) {
-    return this.sheets[sheetId]?.rows[index]?.isHidden;
-  }
-
-  isColHidden(sheetId: UID, index: number) {
-    return this.sheets[sheetId]?.cols[index]?.isHidden;
-  }
-
   getNumberCols(sheetId: UID) {
-    return this.getSheet(sheetId).cols.length;
+    return this.getSheet(sheetId).numberOfCols;
   }
 
   getNumberRows(sheetId: UID) {
     return this.getSheet(sheetId).rows.length;
+  }
+
+  getNumberHeaders(sheetId: UID, dimension: Dimension) {
+    return dimension === "COL" ? this.getNumberCols(sheetId) : this.getNumberRows(sheetId);
   }
 
   getNextSheetName(baseName = "Sheet"): string {
@@ -530,7 +470,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const sheet: Sheet = {
       id,
       name,
-      cols: createDefaultCols(colNumber),
+      numberOfCols: colNumber,
       rows: createDefaultRows(rowNumber),
       hiddenColsGroups: [],
       hiddenRowsGroups: [],
@@ -635,7 +575,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const newSheet: Sheet = JSON.parse(JSON.stringify(sheet));
     newSheet.id = toId;
     newSheet.name = toName;
-    for (let col = 0; col <= newSheet.cols.length; col++) {
+    for (let col = 0; col <= newSheet.numberOfCols; col++) {
       for (let row = 0; row <= newSheet.rows.length; row++) {
         if (newSheet.rows[row]) {
           newSheet.rows[row].cells[col] = undefined;
@@ -711,8 +651,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       // Move the cells.
       this.moveCellOnColumnsDeletion(sheet, column);
     }
-    // Effectively delete the element and recompute the left-right.
-    this.updateColumnsStructureOnDeletion(sheet, columns);
+    const numberOfCols = this.sheets[sheet.id]!.numberOfCols;
+    this.history.update("sheets", sheet.id, "numberOfCols", numberOfCols - columns.length);
   }
 
   /**
@@ -749,8 +689,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       "columns"
     );
 
-    // Recompute the left-right/top-bottom.
-    this.updateColumnsStructureOnAddition(sheet, column, quantity);
+    const numberOfCols = this.sheets[sheet.id]!.numberOfCols;
+    this.history.update("sheets", sheet.id, "numberOfCols", numberOfCols + quantity);
   }
 
   private addRows(sheet: Sheet, row: number, position: "before" | "after", quantity: number) {
@@ -867,85 +807,18 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
-  /**
-   * Update the cols of the sheet after a deletion:
-   * - Rename the cols
-   *
-   * @param sheet Sheet on which the deletion occurs
-   * @param deletedColumns Indexes of the deleted columns
-   */
-  private updateColumnsStructureOnDeletion(sheet: Sheet, deletedColumns: number[]) {
-    const cols: Col[] = [];
-    let colSizeIndex = 0;
-    for (let index in sheet.cols) {
-      if (deletedColumns.includes(parseInt(index, 10))) {
-        continue;
-      }
-      const { isHidden } = sheet.cols[index];
-      cols.push({
-        name: numberToLetters(colSizeIndex),
-        isHidden,
-      });
-      colSizeIndex++;
-    }
-    this.history.update("sheets", sheet.id, "cols", cols);
-    this.updateHiddenElementsGroups(sheet.id, "cols");
-  }
-
-  /**
-   * Update the cols of the sheet after an addition:
-   * - Rename the cols
-   *
-   * @param sheet Sheet on which the deletion occurs
-   * @param addedColumn Index of the added columns
-   * @param columnsToAdd Number of the columns to add
-   */
-  private updateColumnsStructureOnAddition(
-    sheet: Sheet,
-    addedColumn: number,
-    columnsToAdd: number
-  ) {
-    const cols: Col[] = [];
-    let colIndex = 0;
-    for (let i in sheet.cols) {
-      if (parseInt(i, 10) === addedColumn) {
-        for (let a = 0; a < columnsToAdd; a++) {
-          cols.push({
-            name: numberToLetters(colIndex),
-          });
-          colIndex++;
-        }
-      }
-      const { isHidden } = sheet.cols[i];
-      cols.push({
-        name: numberToLetters(colIndex),
-        isHidden,
-      });
-      colIndex++;
-    }
-    this.history.update("sheets", sheet.id, "cols", cols);
-    this.updateHiddenElementsGroups(sheet.id, "cols");
-  }
-
   private updateRowsStructureOnDeletion(index: number, sheet: Sheet) {
     const rows: Row[] = [];
-    let rowIndex = 0;
     const cellsQueue = sheet.rows.map((row) => row.cells);
     for (let i in sheet.rows) {
-      const row = sheet.rows[i];
-      const { isHidden } = row;
       if (parseInt(i, 10) === index) {
         continue;
       }
-      rowIndex++;
       rows.push({
         cells: cellsQueue.shift()!,
-        name: String(rowIndex),
-        isHidden,
       });
     }
     this.history.update("sheets", sheet.id, "rows", rows);
-    this.updateHiddenElementsGroups(sheet.id, "rows");
   }
 
   /**
@@ -958,23 +831,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    */
   private updateRowsStructureOnAddition(sheet: Sheet, addedRow: number, rowsToAdd: number) {
     const rows: Row[] = [];
-    let rowIndex = 0;
-    let sizeIndex = 0;
     const cellsQueue = sheet.rows.map((row) => row.cells);
-    for (let i in sheet.rows) {
-      const { isHidden } = sheet.rows[sizeIndex];
-      if (parseInt(i, 10) < addedRow || parseInt(i, 10) >= addedRow + rowsToAdd) {
-        sizeIndex++;
-      }
-      rowIndex++;
+    sheet.rows.forEach(() =>
       rows.push({
         cells: cellsQueue.shift()!,
-        name: String(rowIndex),
-        isHidden,
-      });
-    }
+      })
+    );
     this.history.update("sheets", sheet.id, "rows", rows);
-    this.updateHiddenElementsGroups(sheet.id, "rows");
   }
 
   /**
@@ -987,7 +850,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const rows: Row[] = sheet.rows.slice();
     for (let i = 0; i < quantity; i++) {
       rows.push({
-        name: (rows.length + 1).toString(),
         cells: {},
       });
     }
@@ -1009,38 +871,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   // ----------------------------------------------------
   //  HIDE / SHOW
   // ----------------------------------------------------
-
-  private setElementsVisibility(
-    sheet: Sheet,
-    elements: number[],
-    direction: "cols" | "rows",
-    visibility: "hide" | "show"
-  ) {
-    const hide = visibility === "hide";
-    for (let index = 0; index < sheet[direction].length; index++) {
-      const { isHidden } = sheet[direction][index];
-      const newIsHidden: boolean = elements.includes(index) ? hide : isHidden || false;
-      this.history.update("sheets", sheet.id, direction, index, "isHidden", newIsHidden);
-    }
-    this.updateHiddenElementsGroups(sheet.id, direction);
-  }
-
-  private updateHiddenElementsGroups(sheetId: UID, dimension: "cols" | "rows") {
-    const elements = this.sheets[sheetId]?.[dimension] || [];
-    const elementsRef = dimension === "cols" ? "hiddenColsGroups" : "hiddenRowsGroups";
-    const hiddenEltsGroups = elements.reduce((acc, currentElt, index) => {
-      if (!currentElt.isHidden) {
-        return acc;
-      }
-      const currentGroup = acc[acc.length - 1];
-      if (!currentGroup || currentGroup[currentGroup.length - 1] != index - 1) {
-        acc.push([]);
-      }
-      acc[acc.length - 1].push(index);
-      return acc;
-    }, [] as ConsecutiveIndexes[]);
-    this.history.update("sheets", sheetId, elementsRef, hiddenEltsGroups);
-  }
 
   /**
    * Check that any "sheetId" in the command matches an existing
@@ -1068,12 +898,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     if (!zones.every(isZoneValid)) {
       return CommandResult.InvalidRange;
     } else if (zones.length && "sheetId" in cmd) {
-      const sheet = this.getSheet(cmd.sheetId);
       const sheetZone = {
         top: 0,
         left: 0,
-        bottom: sheet.rows.length - 1,
-        right: sheet.cols.length - 1,
+        bottom: this.getNumberRows(cmd.sheetId) - 1,
+        right: this.getNumberRows(cmd.sheetId) - 1,
       };
       return zones.every((zone) => isZoneInside(zone, sheetZone))
         ? CommandResult.Success
