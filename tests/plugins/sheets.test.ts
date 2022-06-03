@@ -79,8 +79,8 @@ describe("sheets", () => {
       "SheetTest"
     );
     const activeSheet = model.getters.getActiveSheet();
-    expect(activeSheet.cols.length).toBe(4);
-    expect(activeSheet.rows.length).toBe(2);
+    expect(model.getters.getNumberCols(activeSheet.id)).toBe(4);
+    expect(model.getters.getNumberRows(activeSheet.id)).toBe(2);
     expect(activeSheet.name).toBe("SheetTest");
   });
 
@@ -621,8 +621,8 @@ describe("sheets", () => {
     const newSheet = model.getters.getSheetIds()[1];
     activateSheet(model, newSheet);
     expect(getCellContent(model, "A1")).toBe("42");
-    expect(model.getters.getActiveSheet().cols.length).toBe(5);
-    expect(model.getters.getActiveSheet().rows.length).toBe(5);
+    expect(model.getters.getNumberCols(model.getters.getActiveSheetId())).toBe(5);
+    expect(model.getters.getNumberRows(model.getters.getActiveSheetId())).toBe(5);
     const { col, row } = toCartesian("A1");
     expect(model.getters.getConditionalStyle(col, row)).toEqual({
       fillColor: "orange",

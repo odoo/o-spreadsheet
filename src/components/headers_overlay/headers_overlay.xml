@@ -50,7 +50,8 @@
             <t t-call="o-spreadsheet-Icon.TRIANGLE_UP"/>
           </div>
         </t>
-        <t t-if="!hiddenItem.includes(env.model.getters.getActiveSheet().rows.length-1)">
+        <t
+          t-if="!hiddenItem.includes(env.model.getters.getNumberRows(env.model.getters.getActiveSheetId())-1)">
           <div
             class="o-unhide"
             t-att-data-index="hiddenItem_index"
@@ -106,7 +107,8 @@
             <t t-call="o-spreadsheet-Icon.TRIANGLE_LEFT"/>
           </div>
         </t>
-        <t t-if="!hiddenItem.includes(env.model.getters.getActiveSheet().cols.length-1)">
+        <t
+          t-if="!hiddenItem.includes(env.model.getters.getNumberCols(env.model.getters.getActiveSheetId())-1)">
           <div
             class="o-unhide"
             t-att-data-index="hiddenItem_index"

@@ -110,9 +110,11 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
       const col = this.env.model.getters.getColIndex(ev.clientX - position.left - HEADER_WIDTH);
       const row = this.env.model.getters.getRowIndex(ev.clientY - position.top - HEADER_HEIGHT);
       if (lastCol !== col || lastRow !== row) {
-        const activeSheet = this.env.model.getters.getActiveSheet();
-        lastCol = col === -1 ? lastCol : clip(col, 0, activeSheet.cols.length);
-        lastRow = row === -1 ? lastRow : clip(row, 0, activeSheet.rows.length);
+        const activeSheetId = this.env.model.getters.getActiveSheetId();
+        const numberOfCols = this.env.model.getters.getNumberCols(activeSheetId);
+        const numberOfRows = this.env.model.getters.getNumberRows(activeSheetId);
+        lastCol = col === -1 ? lastCol : clip(col, 0, numberOfCols);
+        lastRow = row === -1 ? lastRow : clip(row, 0, numberOfRows);
         if (lastCol !== undefined && lastRow !== undefined) {
           this.env.model.dispatch("AUTOFILL_SELECT", { col: lastCol, row: lastRow });
         }

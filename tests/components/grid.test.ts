@@ -682,14 +682,14 @@ describe("Multi User selection", () => {
   });
 
   test("Do not render multi user selection with invalid col", async () => {
-    const sheet = model.getters.getActiveSheet();
+    const sheetId = model.getters.getActiveSheetId();
     transportService.sendMessage({
       type: "CLIENT_JOINED",
       version: MESSAGE_VERSION,
       client: {
         id: "david",
         name: "David",
-        position: { sheetId: sheet.id, col: sheet.cols.length, row: 1 },
+        position: { sheetId: sheetId, col: model.getters.getNumberCols(sheetId), row: 1 },
       },
     });
     await nextTick();
@@ -697,14 +697,14 @@ describe("Multi User selection", () => {
   });
 
   test("Do not render multi user selection with invalid row", async () => {
-    const sheet = model.getters.getActiveSheet();
+    const sheetId = model.getters.getActiveSheetId();
     transportService.sendMessage({
       type: "CLIENT_JOINED",
       version: MESSAGE_VERSION,
       client: {
         id: "david",
         name: "David",
-        position: { sheetId: sheet.id, col: 1, row: sheet.rows.length },
+        position: { sheetId: sheetId, col: 1, row: model.getters.getNumberRows(sheetId) },
       },
     });
     await nextTick();

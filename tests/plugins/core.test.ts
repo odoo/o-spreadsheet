@@ -402,11 +402,8 @@ describe("core", () => {
     resizeRows(model, [0], 24, sheet2Id);
     resizeColumns(model, ["A"], 42, sheet2Id);
     expect(sheet2Id).not.toBe(model.getters.getActiveSheetId());
-    expect(model.getters.getRow(sheet2Id, 0)).toEqual({
-      cells: {},
-      name: "1",
-    });
-    expect(model.getters.getCol(sheet2Id, 0)).toEqual({ name: "A" });
+    expect(model.getters.getRowSize(sheet2Id, 0)).toEqual(24);
+    expect(model.getters.getColSize(sheet2Id, 0)).toEqual(42);
   });
 
   test("can get row/col number of inactive sheet", () => {
@@ -417,8 +414,8 @@ describe("core", () => {
       ],
     });
     expect(model.getters.getActiveSheetId()).not.toBe("2");
-    expect(model.getters.getSheet("2").rows.length).toEqual(29);
-    expect(model.getters.getSheet("2").cols.length).toEqual(19);
+    expect(model.getters.getNumberRows("2")).toEqual(29);
+    expect(model.getters.getNumberCols("2")).toEqual(19);
   });
 
   test("Range with absolute references are correctly updated on rows manipulation", () => {

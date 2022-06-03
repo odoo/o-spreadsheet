@@ -20,7 +20,6 @@ import {
   Merge,
   Position,
   Range,
-  Sheet,
   UID,
   UpdateCellCommand,
   WorkbookData,
@@ -90,14 +89,13 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
       case "DUPLICATE_SHEET":
         const merges = this.merges[cmd.sheetId];
         if (!merges) break;
-        const sheet = this.getters.getSheet(cmd.sheetIdTo);
         for (const range of Object.values(merges).filter(isDefined)) {
-          this.addMerge(sheet, range.zone);
+          this.addMerge(cmd.sheetIdTo, range.zone);
         }
         break;
       case "ADD_MERGE":
         for (const zone of cmd.target) {
-          this.addMerge(this.getters.getSheet(cmd.sheetId)!, zone);
+          this.addMerge(cmd.sheetId, zone);
         }
         break;
       case "REMOVE_MERGE":
@@ -152,7 +150,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
    */
   doesColumnsHaveCommonMerges(sheetId: string, colA: number, colB: number) {
     const sheet = this.getters.getSheet(sheetId);
-    for (let row = 0; row < sheet.rows.length; row++) {
+    for (let row = 0; row < this.getters.getNumberRows(sheetId); row++) {
       if (this.isInSameMerge(sheet.id, colA, row, colB, row)) {
         return true;
       }
@@ -165,7 +163,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
    */
   doesRowsHaveCommonMerges(sheetId: string, rowA: number, rowB: number) {
     const sheet = this.getters.getSheet(sheetId);
-    for (let col = 0; col <= sheet.cols.length; col++) {
+    for (let col = 0; col <= this.getters.getNumberCols(sheetId); col++) {
       if (this.isInSameMerge(sheet.id, col, rowA, col, rowB)) {
         return true;
       }
@@ -256,14 +254,14 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
    * This happens when there is some textual content in other cells than the
    * top left.
    */
-  private isMergeDestructive(sheet: Sheet, zone: Zone): boolean {
+  private isMergeDestructive(sheetId: UID, zone: Zone): boolean {
     let { left, right, top, bottom } = zone;
-    right = clip(right, 0, sheet.cols.length - 1);
-    bottom = clip(bottom, 0, sheet.rows.length - 1);
+    right = clip(right, 0, this.getters.getNumberCols(sheetId) - 1);
+    bottom = clip(bottom, 0, this.getters.getNumberRows(sheetId) - 1);
     for (let row = top; row <= bottom; row++) {
       for (let col = left; col <= right; col++) {
         if (col !== left || row !== top) {
-          const cell = this.getters.getCell(sheet.id, col, row);
+          const cell = this.getters.getCell(sheetId, col, row);
           if (cell && !cell.isEmpty()) {
             return true;
           }
@@ -281,7 +279,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   private checkDestructiveMerge({ sheetId, target }: AddMergeCommand): CommandResult {
     const sheet = this.getters.tryGetSheet(sheetId);
     if (!sheet) return CommandResult.Success;
-    const isDestructive = target.some((zone) => this.isMergeDestructive(sheet, zone));
+    const isDestructive = target.some((zone) => this.isMergeDestructive(sheetId, zone));
     return isDestructive ? CommandResult.MergeIsDestructive : CommandResult.Success;
   }
 
@@ -318,60 +316,60 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
    *   merges)
    * - it does nothing if the merge is trivial: A1:A1
    */
-  private addMerge(sheet: Sheet, zone: Zone) {
+  private addMerge(sheetId: UID, zone: Zone) {
     let { left, right, top, bottom } = zone;
-    right = clip(right, 0, sheet.cols.length - 1);
-    bottom = clip(bottom, 0, sheet.rows.length - 1);
+    right = clip(right, 0, this.getters.getNumberCols(sheetId) - 1);
+    bottom = clip(bottom, 0, this.getters.getNumberRows(sheetId) - 1);
     const tl = toXC(left, top);
     const br = toXC(right, bottom);
     if (tl === br) {
       return;
     }
-    const topLeft = this.getters.getCell(sheet.id, left, top);
+    const topLeft = this.getters.getCell(sheetId, left, top);
 
     let id = this.nextId++;
     this.history.update(
       "merges",
-      sheet.id,
+      sheetId,
       id,
-      this.getters.getRangeFromSheetXC(sheet.id, zoneToXc({ left, top, right, bottom }))
+      this.getters.getRangeFromSheetXC(sheetId, zoneToXc({ left, top, right, bottom }))
     );
     let previousMerges: Set<number> = new Set();
     for (let row = top; row <= bottom; row++) {
       for (let col = left; col <= right; col++) {
         if (col !== left || row !== top) {
           this.dispatch("UPDATE_CELL", {
-            sheetId: sheet.id,
+            sheetId,
             col,
             row,
             style: topLeft ? topLeft.style : undefined,
             content: "",
           });
         }
-        const merge = this.getMerge(sheet.id, col, row);
+        const merge = this.getMerge(sheetId, col, row);
         if (merge) {
           previousMerges.add(merge.id);
         }
-        this.history.update("mergeCellMap", sheet.id, col, row, id);
+        this.history.update("mergeCellMap", sheetId, col, row, id);
       }
     }
 
     for (let mergeId of previousMerges) {
-      const { top, bottom, left, right } = this.getMergeById(sheet.id, mergeId)!;
+      const { top, bottom, left, right } = this.getMergeById(sheetId, mergeId)!;
       for (let r = top; r <= bottom; r++) {
         for (let c = left; c <= right; c++) {
-          const merge = this.getMerge(sheet.id, c, r);
+          const merge = this.getMerge(sheetId, c, r);
           if (!merge || merge.id !== id) {
-            this.history.update("mergeCellMap", sheet.id, c, r, undefined);
+            this.history.update("mergeCellMap", sheetId, c, r, undefined);
             this.dispatch("CLEAR_CELL", {
-              sheetId: sheet.id,
+              sheetId,
               col: c,
               row: r,
             });
           }
         }
       }
-      this.history.update("merges", sheet.id, mergeId, undefined);
+      this.history.update("merges", sheetId, mergeId, undefined);
     }
   }
 
@@ -439,9 +437,8 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   }
 
   private importMerges(sheetId: string, merges: string[]) {
-    const sheet = this.getters.getSheet(sheetId)!;
     for (let merge of merges) {
-      this.addMerge(sheet, toZone(merge));
+      this.addMerge(sheetId, toZone(merge));
     }
   }
   export(data: WorkbookData) {

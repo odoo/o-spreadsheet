@@ -273,13 +273,17 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Resize (increase) columns correctly affects viewport without changing the offset", () => {
-    const { cols } = model.getters.getActiveSheet();
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: DEFAULT_CELL_WIDTH * 2,
       offsetY: 0,
     });
     const { offsetX } = model.getters.getActiveSnappedViewport();
-    resizeColumns(model, range(0, cols.length).map(numberToLetters), DEFAULT_CELL_WIDTH * 2);
+    resizeColumns(
+      model,
+      range(0, model.getters.getNumberCols(sheetId)).map(numberToLetters),
+      DEFAULT_CELL_WIDTH * 2
+    );
     expect(model.getters.getActiveSnappedViewport()).toMatchObject({
       top: 0,
       bottom: 43,
@@ -291,14 +295,14 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Resize (reduce) columns correctly changes offset", () => {
-    const { cols } = model.getters.getActiveSheet();
+    const sheetId = model.getters.getActiveSheetId();
     //scroll max
     selectCell(model, "Z1");
     selectAll(model);
 
     resizeColumns(
       model,
-      [...Array(cols.length).keys()].map(numberToLetters),
+      [...Array(model.getters.getNumberCols(sheetId)).keys()].map(numberToLetters),
       DEFAULT_CELL_WIDTH / 2
     );
     expect(model.getters.getActiveSnappedViewport()).toMatchObject({
@@ -318,13 +322,13 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Resize rows correctly affects viewport without changing the offset", () => {
-    const { rows } = model.getters.getActiveSheet();
+    const numberRows = model.getters.getNumberRows(model.getters.getActiveSheetId());
     model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
       offsetY: DEFAULT_CELL_HEIGHT * 2,
     });
     const { offsetY } = model.getters.getActiveSnappedViewport();
-    resizeRows(model, [...Array(rows.length).keys()], DEFAULT_CELL_HEIGHT * 2);
+    resizeRows(model, [...Array(numberRows).keys()], DEFAULT_CELL_HEIGHT * 2);
     expect(model.getters.getActiveSnappedViewport()).toMatchObject({
       top: 1,
       bottom: 22,
@@ -336,7 +340,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Resize (reduce) rows correctly changes offset", () => {
-    const { rows } = model.getters.getActiveSheet();
+    const numberRows = model.getters.getNumberRows(model.getters.getActiveSheetId());
     //scroll max
     selectCell(model, "A100");
     model.selection.selectAll();
@@ -346,7 +350,7 @@ describe("Viewport of Simple sheet", () => {
       left: 0,
       right: 10,
     });
-    resizeRows(model, [...Array(rows.length).keys()], DEFAULT_CELL_HEIGHT / 2);
+    resizeRows(model, [...Array(numberRows).keys()], DEFAULT_CELL_HEIGHT / 2);
     expect(model.getters.getActiveSnappedViewport()).toMatchObject({
       top: 15,
       bottom: 99,

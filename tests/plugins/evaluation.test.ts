@@ -193,7 +193,7 @@ describe("evaluateCells", () => {
 
   test("error in range vlookup", () => {
     const model = new Model();
-    expect(model.getters.getActiveSheet().rows.length).toBeLessThan(200);
+    expect(model.getters.getNumberRows(model.getters.getActiveSheetId())).toBeLessThan(200);
     setCellContent(model, "A1", "=VLOOKUP(D12, A2:A200, 2, false)");
 
     expect(getCellError(model, "A1")).toBe("VLOOKUP evaluates to an out of bounds range.");

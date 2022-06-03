@@ -66,10 +66,10 @@ rowMenuRegistry
     sequence: 85,
     action: ACTIONS.HIDE_ROWS_ACTION,
     isVisible: (env: SpreadsheetChildEnv) => {
-      const sheet = env.model.getters.getActiveSheet();
-      const hiddenRows = env.model.getters.getHiddenRowsGroups(sheet.id).flat();
+      const sheetId = env.model.getters.getActiveSheetId();
+      const hiddenRows = env.model.getters.getHiddenRowsGroups(sheetId).flat();
       return (
-        sheet.rows.length >
+        env.model.getters.getNumberRows(sheetId) >
         hiddenRows.length + env.model.getters.getElementsFromSelection("ROW").length
       );
     },

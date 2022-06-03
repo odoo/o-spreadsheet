@@ -278,12 +278,12 @@ describe("borders", () => {
     selectCell(model, "A1");
 
     setAnchorCorner(model, "Z100");
-    const activeSheet = model.getters.getActiveSheet();
+    const activeSheetId = model.getters.getActiveSheetId();
     expect(model.getters.getSelectedZones()[0]).toEqual({
       left: 0,
       top: 0,
-      right: activeSheet.cols.length - 1,
-      bottom: activeSheet.rows.length - 1,
+      right: model.getters.getNumberCols(activeSheetId) - 1,
+      bottom: model.getters.getNumberRows(activeSheetId) - 1,
     });
     setBorder(model, "all");
     expect(getBorder(model, "B1")).toBeDefined();

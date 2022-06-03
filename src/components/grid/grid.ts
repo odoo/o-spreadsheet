@@ -15,14 +15,7 @@ import {
   HEADER_WIDTH,
   SCROLLBAR_WIDTH,
 } from "../../constants";
-import {
-  findCellInNewZone,
-  findVisibleHeader,
-  getNextVisibleCellPosition,
-  isInside,
-  MAX_DELAY,
-  range,
-} from "../../helpers/index";
+import { findCellInNewZone, isInside, MAX_DELAY, range } from "../../helpers/index";
 import { interactiveCut } from "../../helpers/ui/cut";
 import { interactivePaste } from "../../helpers/ui/paste";
 import { ComposerSelection } from "../../plugins/ui/edition";
@@ -494,32 +487,40 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       }
     },
     "CTRL+HOME": () => {
-      const sheet = this.env.model.getters.getActiveSheet();
-      const { col, row } = getNextVisibleCellPosition(sheet, 0, 0);
+      const sheetId = this.env.model.getters.getActiveSheetId();
+      const { col, row } = this.env.model.getters.getNextVisibleCellPosition(sheetId, 0, 0);
       this.env.model.selection.selectCell(col, row);
     },
     "CTRL+END": () => {
-      const sheet = this.env.model.getters.getActiveSheet();
-      const col = findVisibleHeader(sheet, "cols", range(0, sheet.cols.length).reverse())!;
-      const row = findVisibleHeader(sheet, "rows", range(0, sheet.rows.length).reverse())!;
+      const sheetId = this.env.model.getters.getActiveSheetId();
+      const col = this.env.model.getters.findVisibleHeader(
+        sheetId,
+        "COL",
+        range(0, this.env.model.getters.getNumberCols(sheetId)).reverse()
+      )!;
+      const row = this.env.model.getters.findVisibleHeader(
+        sheetId,
+        "ROW",
+        range(0, this.env.model.getters.getNumberRows(sheetId)).reverse()
+      )!;
       this.env.model.selection.selectCell(col, row);
     },
     "SHIFT+ ": () => {
-      const { cols } = this.env.model.getters.getActiveSheet();
+      const sheetId = this.env.model.getters.getActiveSheetId();
       const newZone = {
         ...this.env.model.getters.getSelectedZone(),
         left: 0,
-        right: cols.length - 1,
+        right: this.env.model.getters.getNumberCols(sheetId) - 1,
       };
       const position = this.env.model.getters.getPosition();
       this.env.model.selection.selectZone({ cell: position, zone: newZone });
     },
     "CTRL+ ": () => {
-      const { rows } = this.env.model.getters.getActiveSheet();
+      const sheetId = this.env.model.getters.getActiveSheetId();
       const newZone = {
         ...this.env.model.getters.getSelectedZone(),
         top: 0,
-        bottom: rows.length - 1,
+        bottom: this.env.model.getters.getNumberRows(sheetId) - 1,
       };
       const position = this.env.model.getters.getPosition();
       this.env.model.selection.selectZone({ cell: position, zone: newZone });
@@ -834,10 +835,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.selection.resizeAnchorZone(direction, ev.ctrlKey ? "end" : "one");
       const newZone = this.env.model.getters.getSelectedZone();
       const viewport = this.env.model.getters.getActiveSnappedViewport();
-      const { cols, rows, id: sheetId } = this.env.model.getters.getActiveSheet();
+      const sheetId = this.env.model.getters.getActiveSheetId();
       let { col, row } = findCellInNewZone(oldZone, newZone);
-      col = Math.min(col, cols.length - 1);
-      row = Math.min(row, rows.length - 1);
+      col = Math.min(col, this.env.model.getters.getNumberCols(sheetId) - 1);
+      row = Math.min(row, this.env.model.getters.getNumberRows(sheetId) - 1);
       const { left, right, top, bottom, offsetX, offsetY } = viewport;
       const newOffsetX =
         col < left || col > right - 1

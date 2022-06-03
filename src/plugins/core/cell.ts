@@ -15,7 +15,6 @@ import {
   FormulaCell,
   Range,
   RangePart,
-  Sheet,
   Style,
   UID,
   UpdateCellData,
@@ -109,7 +108,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
         break;
       case "UPDATE_CELL":
-        this.updateCell(this.getters.getSheet(cmd.sheetId), cmd.col, cmd.row, cmd);
+        this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
         break;
 
       case "CLEAR_CELL":
@@ -167,9 +166,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   private handleAddColumnsRows(
     cmd: AddColumnsRowsCommand,
-    fn: (sheet: Sheet, styleRef: number, elements: number[]) => void
+    fn: (sheetId: UID, styleRef: number, elements: number[]) => void
   ) {
-    const sheet = this.getters.getSheet(cmd.sheetId);
     // The new elements have already been inserted in the sheet at this point.
     let insertedElements: number[];
     let styleReference: number;
@@ -180,7 +178,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       insertedElements = range(cmd.base + 1, cmd.base + cmd.quantity + 1);
       styleReference = cmd.base;
     }
-    fn(sheet, styleReference, insertedElements);
+    fn(cmd.sheetId, styleReference, insertedElements);
   }
 
   // ---------------------------------------------------------------------------
@@ -189,13 +187,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   import(data: WorkbookData) {
     for (let sheet of data.sheets) {
-      const imported_sheet = this.getters.getSheet(sheet.id);
       // cells
       for (let xc in sheet.cells) {
         const cellData = sheet.cells[xc];
         const { col, row } = toCartesian(xc);
         if (cellData?.content || cellData?.format || cellData?.style) {
-          const cell = this.importCell(imported_sheet, cellData, data.styles, data.formats);
+          const cell = this.importCell(sheet.id, cellData, data.styles, data.formats);
           this.history.update("cells", sheet.id, cell.id, cell);
           this.dispatch("UPDATE_CELL_POSITION", {
             cellId: cell.id,
@@ -234,7 +231,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   importCell(
-    sheet: Sheet,
+    sheetId: UID,
     cellData: CellData,
     normalizedStyles: { [key: number]: Style },
     normalizedFormats: { [key: number]: Format }
@@ -243,7 +240,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const format = (cellData.format && normalizedFormats[cellData.format]) || undefined;
     const cellId = this.uuidGenerator.uuidv4();
     const properties = { format, style };
-    return this.createCell(cellId, cellData?.content || "", properties, sheet.id);
+    return this.createCell(cellId, cellData?.content || "", properties, sheetId);
   }
 
   exportForExcel(data: ExcelWorkbookData) {
@@ -389,12 +386,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * Copy the style of one column to other columns.
    */
-  private copyColumnStyle(sheet: Sheet, refColumn: number, targetCols: number[]) {
-    for (let row = 0; row < sheet.rows.length; row++) {
-      const format = this.getFormat(sheet.id, refColumn, row);
+  private copyColumnStyle(sheetId: UID, refColumn: number, targetCols: number[]) {
+    for (let row = 0; row < this.getters.getNumberRows(sheetId); row++) {
+      const format = this.getFormat(sheetId, refColumn, row);
       if (format.style || format.format) {
         for (let col of targetCols) {
-          this.dispatch("UPDATE_CELL", { sheetId: sheet.id, col, row, ...format });
+          this.dispatch("UPDATE_CELL", { sheetId, col, row, ...format });
         }
       }
     }
@@ -403,12 +400,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * Copy the style of one row to other rows.
    */
-  private copyRowStyle(sheet: Sheet, refRow: number, targetRows: number[]) {
-    for (let col = 0; col < sheet.cols.length; col++) {
-      const format = this.getFormat(sheet.id, col, refRow);
+  private copyRowStyle(sheetId: UID, refRow: number, targetRows: number[]) {
+    for (let col = 0; col < this.getters.getNumberCols(sheetId); col++) {
+      const format = this.getFormat(sheetId, col, refRow);
       if (format.style || format.format) {
         for (let row of targetRows) {
-          this.dispatch("UPDATE_CELL", { sheetId: sheet.id, col, row, ...format });
+          this.dispatch("UPDATE_CELL", { sheetId, col, row, ...format });
         }
       }
     }
@@ -432,8 +429,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return format;
   }
 
-  private updateCell(sheet: Sheet, col: number, row: number, after: UpdateCellData) {
-    const before = this.getters.getCell(sheet.id, col, row);
+  private updateCell(sheetId: UID, col: number, row: number, after: UpdateCellData) {
+    const before = this.getters.getCell(sheetId, col, row);
     const hasContent = "content" in after || "formula" in after;
 
     // Compute the new cell properties
@@ -462,12 +459,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       !format
     ) {
       if (before) {
-        this.history.update("cells", sheet.id, before.id, undefined);
+        this.history.update("cells", sheetId, before.id, undefined);
         this.dispatch("UPDATE_CELL_POSITION", {
           cellId: undefined,
           col,
           row,
-          sheetId: sheet.id,
+          sheetId,
         });
       }
       return;
@@ -476,7 +473,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const cellId = before?.id || this.uuidGenerator.uuidv4();
     const didContentChange = hasContent;
     const properties = { format, style };
-    const cell = this.createCell(cellId, afterContent, properties, sheet.id);
+    const cell = this.createCell(cellId, afterContent, properties, sheetId);
     if (before && !didContentChange && cell.isFormula()) {
       // content is not re-evaluated if the content did not change => reassign the value manually
       // TODO this plugin should not care about evaluation
@@ -487,8 +484,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         cell.assignError(before.evaluated.value, before.evaluated.error);
       }
     }
-    this.history.update("cells", sheet.id, cell.id, cell);
-    this.dispatch("UPDATE_CELL_POSITION", { cellId: cell.id, col, row, sheetId: sheet.id });
+    this.history.update("cells", sheetId, cell.id, cell);
+    this.dispatch("UPDATE_CELL_POSITION", { cellId: cell.id, col, row, sheetId });
   }
 
   private checkCellOutOfSheet(sheetId: UID, col: number, row: number): CommandResult {
@@ -497,8 +494,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const sheetZone = {
       top: 0,
       left: 0,
-      bottom: sheet.rows.length - 1,
-      right: sheet.cols.length - 1,
+      bottom: this.getters.getNumberRows(sheetId) - 1,
+      right: this.getters.getNumberCols(sheetId) - 1,
     };
     return isInside(col, row, sheetZone) ? CommandResult.Success : CommandResult.TargetOutOfSheet;
   }

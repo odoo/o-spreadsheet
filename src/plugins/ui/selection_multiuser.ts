@@ -33,8 +33,10 @@ export class SelectionMultiUserPlugin extends UIPlugin {
   private colors: Record<UID, string> = {};
 
   private isPositionValid(position: ClientPosition): boolean {
-    const sheet = this.getters.getSheet(position.sheetId);
-    return position.row < sheet.rows.length && position.col < sheet.cols.length;
+    return (
+      position.row < this.getters.getNumberRows(position.sheetId) &&
+      position.col < this.getters.getNumberCols(position.sheetId)
+    );
   }
 
   private chooseNewColor(): string {

@@ -5,7 +5,6 @@ import {
   clip,
   deepCopy,
   formatValue,
-  getNextVisibleCellPosition,
   isEqual,
   positions,
   uniqueZones,
@@ -219,8 +218,7 @@ export class GridSelectionPlugin extends UIPlugin {
         this.selection.registerAsDefault(this, this.gridSelection.anchor, {
           handleEvent: this.handleEvent.bind(this),
         });
-        const firstSheet = this.getters.getSheet(firstSheetId);
-        const { col, row } = getNextVisibleCellPosition(firstSheet, 0, 0);
+        const { col, row } = this.getters.getNextVisibleCellPosition(firstSheetId, 0, 0);
         this.selectCell(col, row);
         this.moveClient({ sheetId: firstSheetId, col: 0, row: 0 });
         break;
@@ -239,8 +237,7 @@ export class GridSelectionPlugin extends UIPlugin {
           Object.assign(this, this.sheetsData[cmd.sheetIdTo]);
           this.selection.resetDefaultAnchor(this, this.gridSelection.anchor);
         } else {
-          const newSheet = this.getters.getSheet(cmd.sheetIdTo);
-          const { col, row } = getNextVisibleCellPosition(newSheet, 0, 0);
+          const { col, row } = this.getters.getNextVisibleCellPosition(cmd.sheetIdTo, 0, 0);
           this.selectCell(col, row);
         }
         break;
@@ -350,7 +347,10 @@ export class GridSelectionPlugin extends UIPlugin {
   getActiveCols(): Set<number> {
     const activeCols = new Set<number>();
     for (let zone of this.gridSelection.zones) {
-      if (zone.top === 0 && zone.bottom === this.getters.getActiveSheet().rows.length - 1) {
+      if (
+        zone.top === 0 &&
+        zone.bottom === this.getters.getNumberRows(this.getters.getActiveSheetId()) - 1
+      ) {
         for (let i = zone.left; i <= zone.right; i++) {
           activeCols.add(i);
         }
@@ -361,8 +361,9 @@ export class GridSelectionPlugin extends UIPlugin {
 
   getActiveRows(): Set<number> {
     const activeRows = new Set<number>();
+    const sheetId = this.getters.getActiveSheetId();
     for (let zone of this.gridSelection.zones) {
-      if (zone.left === 0 && zone.right === this.getters.getActiveSheet().cols.length - 1) {
+      if (zone.left === 0 && zone.right === this.getters.getNumberCols(sheetId) - 1) {
         for (let i = zone.top; i <= zone.bottom; i++) {
           activeRows.add(i);
         }
@@ -406,7 +407,7 @@ export class GridSelectionPlugin extends UIPlugin {
             col: sheetData.gridSelection.anchor.cell.col,
             row: sheetData.gridSelection.anchor.cell.row,
           }
-        : getNextVisibleCellPosition(this.getters.getSheet(sheetId), 0, 0);
+        : this.getters.getNextVisibleCellPosition(sheetId, 0, 0);
     }
   }
 
@@ -615,15 +616,14 @@ export class GridSelectionPlugin extends UIPlugin {
     const isBasedBefore = cmd.base < start;
     const deltaCol = isBasedBefore && isCol ? thickness : 0;
     const deltaRow = isBasedBefore && !isCol ? thickness : 0;
-    const sheet = this.getters.getSheet(cmd.sheetId);
 
     this.dispatch("CUT", {
       target: [
         {
           left: isCol ? start + deltaCol : 0,
-          right: isCol ? end + deltaCol : sheet.cols.length - 1,
+          right: isCol ? end + deltaCol : this.getters.getNumberCols(cmd.sheetId) - 1,
           top: !isCol ? start + deltaRow : 0,
-          bottom: !isCol ? end + deltaRow : sheet.rows.length - 1,
+          bottom: !isCol ? end + deltaRow : this.getters.getNumberRows(cmd.sheetId) - 1,
         },
       ],
     });
@@ -632,9 +632,9 @@ export class GridSelectionPlugin extends UIPlugin {
       target: [
         {
           left: isCol ? cmd.base : 0,
-          right: isCol ? cmd.base + thickness - 1 : sheet.cols.length - 1,
+          right: isCol ? cmd.base + thickness - 1 : this.getters.getNumberCols(cmd.sheetId) - 1,
           top: !isCol ? cmd.base : 0,
-          bottom: !isCol ? cmd.base + thickness - 1 : sheet.rows.length - 1,
+          bottom: !isCol ? cmd.base + thickness - 1 : this.getters.getNumberRows(cmd.sheetId) - 1,
         },
       ],
     });
@@ -699,9 +699,8 @@ export class GridSelectionPlugin extends UIPlugin {
    * Clip the selection if it spans outside the sheet
    */
   private clipSelection(sheetId: UID, selection: Selection): Selection {
-    const sheet = this.getters.getSheet(sheetId);
-    const cols = sheet.cols.length - 1;
-    const rows = sheet.rows.length - 1;
+    const cols = this.getters.getNumberCols(sheetId) - 1;
+    const rows = this.getters.getNumberRows(sheetId) - 1;
     const zones = selection.zones.map((z) => {
       return {
         left: clip(z.left, 0, cols),

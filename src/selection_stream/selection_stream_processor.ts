@@ -1,19 +1,10 @@
-import {
-  findVisibleHeader,
-  isEqual,
-  isInside,
-  organizeZone,
-  positionToZone,
-  range,
-  union,
-} from "../helpers";
+import { isEqual, isInside, organizeZone, positionToZone, range, union } from "../helpers";
 import { _t } from "../translation";
 import {
   AnchorZone,
   CommandResult,
   DispatchResult,
   Getters,
-  Header,
   Position,
   SelectionDirection,
   SelectionStep,
@@ -21,6 +12,7 @@ import {
   Zone,
 } from "../types";
 import { SelectionEvent } from "../types/event_stream";
+import { Dimension } from "./../types/misc";
 import { EventStream, StreamCallbacks } from "./event_stream";
 
 type Delta = [number, number];
@@ -191,7 +183,7 @@ export class SelectionStreamProcessor
    * of the anchor zone which moves.
    */
   resizeAnchorZone(direction: SelectionDirection, step: SelectionStep = "one"): DispatchResult {
-    const sheet = this.getters.getActiveSheet();
+    const sheetId = this.getters.getActiveSheetId();
     const anchor = this.anchor;
     const { col: anchorCol, row: anchorRow } = anchor.cell;
     const { left, right, top, bottom } = anchor.zone;
@@ -203,12 +195,12 @@ export class SelectionStreamProcessor
     let result: Zone | null = anchor.zone;
     const expand = (z: Zone) => {
       z = organizeZone(z);
-      const { left, right, top, bottom } = this.getters.expandZone(sheet.id, z);
+      const { left, right, top, bottom } = this.getters.expandZone(sheetId, z);
       return {
         left: Math.max(0, left),
-        right: Math.min(sheet.cols.length - 1, right),
+        right: Math.min(this.getters.getNumberCols(sheetId) - 1, right),
         top: Math.max(0, top),
-        bottom: Math.min(sheet.rows.length - 1, bottom),
+        bottom: Math.min(this.getters.getNumberRows(sheetId) - 1, bottom),
       };
     };
 
@@ -264,10 +256,10 @@ export class SelectionStreamProcessor
   }
 
   selectColumn(index: number, mode: SelectionEvent["mode"]): DispatchResult {
-    const sheet = this.getters.getActiveSheet();
-    const bottom = sheet.rows.length - 1;
+    const sheetId = this.getters.getActiveSheetId();
+    const bottom = this.getters.getNumberRows(sheetId) - 1;
     let zone = { left: index, right: index, top: 0, bottom };
-    const top = sheet.rows.findIndex((row) => !row.isHidden);
+    const top = this.getters.findFirstVisibleColRowIndex(sheetId, "ROW")!;
     let col: number, row: number;
     switch (mode) {
       case "overrideSelection":
@@ -291,9 +283,10 @@ export class SelectionStreamProcessor
     index: number,
     mode: "overrideSelection" | "updateAnchor" | "newAnchor"
   ): DispatchResult {
-    const right = this.getters.getActiveSheet().cols.length - 1;
+    const sheetId = this.getters.getActiveSheetId();
+    const right = this.getters.getNumberCols(sheetId) - 1;
     let zone = { top: index, bottom: index, left: 0, right };
-    const left = this.getters.getActiveSheet().cols.findIndex((col) => !col.isHidden);
+    const left = this.getters.findFirstVisibleColRowIndex(sheetId, "COL")!;
     let col: number, row: number;
     switch (mode) {
       case "overrideSelection":
@@ -317,9 +310,9 @@ export class SelectionStreamProcessor
    * Select the entire sheet
    */
   selectAll(): DispatchResult {
-    const sheet = this.getters.getActiveSheet();
-    const bottom = sheet.rows.length - 1;
-    const right = sheet.cols.length - 1;
+    const sheetId = this.getters.getActiveSheetId();
+    const bottom = this.getters.getNumberRows(sheetId) - 1;
+    const right = this.getters.getNumberCols(sheetId) - 1;
     const zone = { left: 0, top: 0, bottom, right };
     return this.processEvent({
       type: "HeadersSelected",
@@ -354,9 +347,9 @@ export class SelectionStreamProcessor
       return CommandResult.InvalidAnchorZone;
     }
     const { left, right, top, bottom } = zone;
-    const sheet = this.getters.getActiveSheet();
-    const refCol = findVisibleHeader(sheet, "cols", range(left, right + 1));
-    const refRow = findVisibleHeader(sheet, "rows", range(top, bottom + 1));
+    const sheetId = this.getters.getActiveSheetId();
+    const refCol = this.getters.findVisibleHeader(sheetId, "COL", range(left, right + 1));
+    const refRow = this.getters.findVisibleHeader(sheetId, "ROW", range(top, bottom + 1));
     if (refRow === undefined || refCol === undefined) {
       return CommandResult.SelectionOutOfBound;
     }
@@ -391,28 +384,29 @@ export class SelectionStreamProcessor
   }
 
   private getNextAvailableCol(delta: number, colIndex: number, rowIndex: number): number {
-    const { cols, id: sheetId } = this.getters.getActiveSheet();
+    const sheetId = this.getters.getActiveSheetId();
     const position = { col: colIndex, row: rowIndex };
     const isInPositionMerge = (nextCol: number) =>
       this.getters.isInSameMerge(sheetId, colIndex, rowIndex, nextCol, rowIndex);
-    return this.getNextAvailableHeader(delta, cols, colIndex, position, isInPositionMerge);
+    return this.getNextAvailableHeader(delta, "COL", colIndex, position, isInPositionMerge);
   }
 
   private getNextAvailableRow(delta: number, colIndex: number, rowIndex: number): number {
-    const { rows, id: sheetId } = this.getters.getActiveSheet();
+    const sheetId = this.getters.getActiveSheetId();
     const position = { col: colIndex, row: rowIndex };
     const isInPositionMerge = (nextRow: number) =>
       this.getters.isInSameMerge(sheetId, colIndex, rowIndex, colIndex, nextRow);
-    return this.getNextAvailableHeader(delta, rows, rowIndex, position, isInPositionMerge);
+    return this.getNextAvailableHeader(delta, "ROW", rowIndex, position, isInPositionMerge);
   }
 
   private getNextAvailableHeader(
     delta: number,
-    headers: Header[],
+    dimension: Dimension,
     startingHeaderIndex: number,
     position: Position,
     isInPositionMerge: (nextHeader: number) => boolean
   ): number {
+    const sheetId = this.getters.getActiveSheetId();
     if (delta === 0) {
       return startingHeaderIndex;
     }
@@ -422,15 +416,15 @@ export class SelectionStreamProcessor
     while (isInPositionMerge(header)) {
       header += step;
     }
-    while (headers[header]?.isHidden) {
+    while (this.getters.isHeaderHidden(sheetId, dimension, header)) {
       header += step;
     }
-    const outOfBound = header < 0 || header > headers.length - 1;
+    const outOfBound = header < 0 || header > this.getters.getNumberHeaders(sheetId, dimension) - 1;
     if (outOfBound) {
-      if (headers[startingHeaderIndex].isHidden) {
+      if (this.getters.isHeaderHidden(sheetId, dimension, startingHeaderIndex)) {
         return this.getNextAvailableHeader(
           -step,
-          headers,
+          dimension,
           startingHeaderIndex,
           position,
           isInPositionMerge
@@ -448,17 +442,17 @@ export class SelectionStreamProcessor
    * find a visible cell.
    */
   private getReferencePosition(): Position {
-    const sheet = this.getters.getActiveSheet();
+    const sheetId = this.getters.getActiveSheetId();
     const anchor = this.anchor;
     const { left, right, top, bottom } = anchor.zone;
     const { col: anchorCol, row: anchorRow } = anchor.cell;
 
     return {
-      col: sheet.cols[anchorCol].isHidden
-        ? findVisibleHeader(sheet, "cols", range(left, right + 1)) || anchorCol
+      col: this.getters.isColHidden(sheetId, anchorCol)
+        ? this.getters.findVisibleHeader(sheetId, "COL", range(left, right + 1)) || anchorCol
         : anchorCol,
-      row: sheet.rows[anchorRow].isHidden
-        ? findVisibleHeader(sheet, "rows", range(top, bottom + 1)) || anchorRow
+      row: this.getters.isRowHidden(sheetId, anchorRow)
+        ? this.getters.findVisibleHeader(sheetId, "ROW", range(top, bottom + 1)) || anchorRow
         : anchorRow,
     };
   }

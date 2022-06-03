@@ -243,7 +243,7 @@ describe("Collaborative Sheet manipulation", () => {
   test("remove the selected row and all following rows", () => {
     const sheetId = alice.getters.getActiveSheetId();
     selectCell(bob, "A10");
-    const nRows = bob.getters.getSheet(sheetId).rows.length;
+    const nRows = bob.getters.getNumberRows(sheetId);
     deleteRows(alice, range(2, nRows));
     expect(bob.getters.getSelectedZones()).toEqual([toZone("A2")]);
   });
@@ -251,7 +251,7 @@ describe("Collaborative Sheet manipulation", () => {
   test("remove the selected col when it is the last col", () => {
     const sheetId = alice.getters.getActiveSheetId();
     selectCell(bob, "F1");
-    const nCols = bob.getters.getSheet(sheetId).cols.length;
+    const nCols = bob.getters.getNumberCols(sheetId);
     deleteColumns(alice, range(2, nCols).map(numberToLetters));
     expect(bob.getters.getSelectedZones()).toEqual([toZone("B1")]);
   });

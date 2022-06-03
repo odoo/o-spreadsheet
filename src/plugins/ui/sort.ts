@@ -7,7 +7,6 @@ import {
   Command,
   CommandResult,
   Position,
-  Sheet,
   SortCommand,
   SortDirection,
   UID,
@@ -79,22 +78,21 @@ export class SortPlugin extends UIPlugin {
   /**
    * safe-version of expandZone to make sure we don't get out of the grid
    */
-  private expand(sheet: Sheet, z: Zone) {
-    const { left, right, top, bottom } = this.getters.expandZone(sheet.id, z);
+  private expand(sheetId: UID, z: Zone) {
+    const { left, right, top, bottom } = this.getters.expandZone(sheetId, z);
     return {
       left: Math.max(0, left),
-      right: Math.min(sheet.cols.length - 1, right),
+      right: Math.min(this.getters.getNumberCols(sheetId) - 1, right),
       top: Math.max(0, top),
-      bottom: Math.min(sheet.rows.length - 1, bottom),
+      bottom: Math.min(this.getters.getNumberRows(sheetId) - 1, bottom),
     };
   }
 
   /**
    * verifies the presence of at least one non-empty cell in the given zone
    */
-  private checkExpandedValues(sheet: Sheet, z: Zone): boolean {
-    const expandedZone = this.expand(sheet, z);
-    const sheetId = sheet.id;
+  private checkExpandedValues(sheetId: UID, z: Zone): boolean {
+    const expandedZone = this.expand(sheetId, z);
     let cell: Cell | undefined;
     if (this.getters.doesIntersectMerge(sheetId, expandedZone)) {
       const { left, right, top, bottom } = expandedZone;
@@ -160,14 +158,13 @@ export class SortPlugin extends UIPlugin {
   getContiguousZone(sheetId: UID, zone: Zone): Zone {
     let { top, bottom, left, right } = zone;
     let canExpand: boolean;
-    const sheet = this.getters.getSheet(sheetId);
 
     let stop: boolean = false;
     while (!stop) {
       stop = true;
       /** top row external boundary */
       if (top > 0) {
-        canExpand = this.checkExpandedValues(sheet, {
+        canExpand = this.checkExpandedValues(sheetId, {
           left: left - 1,
           right: right + 1,
           top: top - 1,
@@ -180,7 +177,7 @@ export class SortPlugin extends UIPlugin {
       }
       /** left column external boundary */
       if (left > 0) {
-        canExpand = this.checkExpandedValues(sheet, {
+        canExpand = this.checkExpandedValues(sheetId, {
           left: left - 1,
           right: left - 1,
           top: top - 1,
@@ -192,8 +189,8 @@ export class SortPlugin extends UIPlugin {
         }
       }
       /** right column external boundary */
-      if (right < sheet.cols.length - 1) {
-        canExpand = this.checkExpandedValues(sheet, {
+      if (right < this.getters.getNumberCols(sheetId) - 1) {
+        canExpand = this.checkExpandedValues(sheetId, {
           left: right + 1,
           right: right + 1,
           top: top - 1,
@@ -205,8 +202,8 @@ export class SortPlugin extends UIPlugin {
         }
       }
       /** bottom row external boundary */
-      if (bottom < sheet.rows.length - 1) {
-        canExpand = this.checkExpandedValues(sheet, {
+      if (bottom < this.getters.getNumberRows(sheetId) - 1) {
+        canExpand = this.checkExpandedValues(sheetId, {
           left: left - 1,
           right: right + 1,
           top: bottom + 1,

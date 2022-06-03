@@ -518,9 +518,14 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getPreviousVisibleElement(index: number): number {
-    const cols = this.env.model.getters.getActiveSheet().cols.slice(0, index);
-    const step = cols.reverse().findIndex((col) => !col.isHidden);
-    return index - 1 - step;
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    let row: number;
+    for (row = index - 1; row >= 0; row--) {
+      if (!this.env.model.getters.isColHidden(sheetId, row)) {
+        break;
+      }
+    }
+    return row;
   }
 
   unhide(hiddenElements: number[]) {
@@ -724,9 +729,14 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getPreviousVisibleElement(index: number): number {
-    const rows = this.env.model.getters.getActiveSheet().rows.slice(0, index);
-    const step = rows.reverse().findIndex((row) => !row.isHidden);
-    return index - 1 - step;
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    let row: number;
+    for (row = index - 1; row >= 0; row--) {
+      if (!this.env.model.getters.isRowHidden(sheetId, row)) {
+        break;
+      }
+    }
+    return row;
   }
 
   unhide(hiddenElements: number[]) {

@@ -41,9 +41,17 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
 
     const mouseMove = (col, row) => {
       if (lastCol !== col || lastRow !== row) {
-        const activeSheet = this.env.model.getters.getActiveSheet();
-        lastCol = clip(col === -1 ? lastCol : col, 0, activeSheet.cols.length - 1);
-        lastRow = clip(row === -1 ? lastRow : row, 0, activeSheet.rows.length - 1);
+        const activeSheetId = this.env.model.getters.getActiveSheetId();
+        lastCol = clip(
+          col === -1 ? lastCol : col,
+          0,
+          this.env.model.getters.getNumberCols(activeSheetId) - 1
+        );
+        lastRow = clip(
+          row === -1 ? lastRow : row,
+          0,
+          this.env.model.getters.getNumberRows(activeSheetId) - 1
+        );
 
         let newZone: Zone = {
           left: Math.min(pivotCol, lastCol),
@@ -52,7 +60,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
           bottom: Math.max(pivotRow, lastRow),
         };
 
-        newZone = this.env.model.getters.expandZone(activeSheet.id, newZone);
+        newZone = this.env.model.getters.expandZone(activeSheetId, newZone);
 
         if (!isEqual(newZone, currentZone)) {
           this.env.model.dispatch("CHANGE_HIGHLIGHT", { zone: newZone });
@@ -83,16 +91,16 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
 
     const parent = this.highlightRef.el!.parentElement!;
     const position = parent.getBoundingClientRect();
-    const activeSheet = this.env.model.getters.getActiveSheet();
+    const activeSheetId = this.env.model.getters.getActiveSheetId();
 
     const initCol = this.env.model.getters.getColIndex(clientX - position.left - HEADER_WIDTH);
     const initRow = this.env.model.getters.getRowIndex(clientY - position.top - HEADER_HEIGHT);
 
     const deltaColMin = -z.left;
-    const deltaColMax = activeSheet.cols.length - z.right - 1;
+    const deltaColMax = this.env.model.getters.getNumberCols(activeSheetId) - z.right - 1;
 
     const deltaRowMin = -z.top;
-    const deltaRowMax = activeSheet.rows.length - z.bottom - 1;
+    const deltaRowMax = this.env.model.getters.getNumberRows(activeSheetId) - z.bottom - 1;
 
     let currentZone = z;
     this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
@@ -114,7 +122,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
           bottom: z.bottom + deltaRow,
         };
 
-        newZone = this.env.model.getters.expandZone(activeSheet.id, newZone);
+        newZone = this.env.model.getters.expandZone(activeSheetId, newZone);
 
         if (!isEqual(newZone, currentZone)) {
           this.env.model.dispatch("CHANGE_HIGHLIGHT", { zone: newZone });

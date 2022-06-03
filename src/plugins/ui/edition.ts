@@ -4,7 +4,6 @@ import {
   colors,
   concat,
   getComposerSheetName,
-  getNextVisibleCellPosition,
   isEqual,
   isNumber,
   markdownLink,
@@ -184,11 +183,7 @@ export class EditionPlugin extends UIPlugin {
         break;
       case "ACTIVATE_SHEET":
         if (cmd.sheetIdFrom !== cmd.sheetIdTo) {
-          const { col, row } = getNextVisibleCellPosition(
-            this.getters.getSheet(cmd.sheetIdTo),
-            0,
-            0
-          );
+          const { col, row } = this.getters.getNextVisibleCellPosition(cmd.sheetIdTo, 0, 0);
           const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
           this.selection.resetAnchor(this, { cell: { col, row }, zone });
         }
