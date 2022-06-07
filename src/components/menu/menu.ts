@@ -31,11 +31,14 @@ css/* scss */ `
       box-sizing: border-box;
       height: ${MENU_ITEM_HEIGHT}px;
       padding: 4px 16px;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
       cursor: pointer;
       user-select: none;
+
+      .o-menu-item-name {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
 
       &.o-menu-root {
         display: flex;

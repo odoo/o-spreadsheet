@@ -9,7 +9,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     data-name="cut"
     title="Cut"
   >
-    Cut
+    <span
+      class="o-menu-item-name"
+    >
+      Cut
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
@@ -24,7 +28,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     data-name="copy"
     title="Copy"
   >
-    Copy
+    <span
+      class="o-menu-item-name"
+    >
+      Copy
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
@@ -39,7 +47,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     data-name="paste"
     title="Paste"
   >
-    Paste
+    <span
+      class="o-menu-item-name"
+    >
+      Paste
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
@@ -54,21 +66,27 @@ exports[`Context Menu context menu simple rendering 1`] = `
     data-name="paste_special"
     title="Paste special"
   >
-    Paste special
+    <span
+      class="o-menu-item-name"
+    >
+      Paste special
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
       
     </span>
-    <svg
-      class="o-icon"
-    >
-      <polygon
-        fill="#000000"
-        points="0 0 4 4 0 8"
-        transform="translate(5 5)"
-      />
-    </svg>
+    <span>
+      <svg
+        class="o-icon"
+      >
+        <polygon
+          fill="#000000"
+          points="0 0 4 4 0 8"
+          transform="translate(5 5)"
+        />
+      </svg>
+    </span>
     
     
   </div>
@@ -80,21 +98,27 @@ exports[`Context Menu context menu simple rendering 1`] = `
     data-name="sort_range"
     title="Sort range"
   >
-    Sort range
+    <span
+      class="o-menu-item-name"
+    >
+      Sort range
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
       
     </span>
-    <svg
-      class="o-icon"
-    >
-      <polygon
-        fill="#000000"
-        points="0 0 4 4 0 8"
-        transform="translate(5 5)"
-      />
-    </svg>
+    <span>
+      <svg
+        class="o-icon"
+      >
+        <polygon
+          fill="#000000"
+          points="0 0 4 4 0 8"
+          transform="translate(5 5)"
+        />
+      </svg>
+    </span>
     
     
   </div>
@@ -106,7 +130,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     data-name="add_row_before"
     title="Insert row"
   >
-    Insert row
+    <span
+      class="o-menu-item-name"
+    >
+      Insert row
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
@@ -121,7 +149,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     data-name="add_column_before"
     title="Insert column"
   >
-    Insert column
+    <span
+      class="o-menu-item-name"
+    >
+      Insert column
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
@@ -136,21 +168,27 @@ exports[`Context Menu context menu simple rendering 1`] = `
     data-name="insert_cell"
     title="Insert cells"
   >
-    Insert cells
+    <span
+      class="o-menu-item-name"
+    >
+      Insert cells
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
       
     </span>
-    <svg
-      class="o-icon"
-    >
-      <polygon
-        fill="#000000"
-        points="0 0 4 4 0 8"
-        transform="translate(5 5)"
-      />
-    </svg>
+    <span>
+      <svg
+        class="o-icon"
+      >
+        <polygon
+          fill="#000000"
+          points="0 0 4 4 0 8"
+          transform="translate(5 5)"
+        />
+      </svg>
+    </span>
     
     
   </div>
@@ -162,7 +200,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     data-name="delete_row"
     title="Delete row 8"
   >
-    Delete row 8
+    <span
+      class="o-menu-item-name"
+    >
+      Delete row 8
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
@@ -177,7 +219,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     data-name="delete_column"
     title="Delete column C"
   >
-    Delete column C
+    <span
+      class="o-menu-item-name"
+    >
+      Delete column C
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
@@ -192,21 +238,27 @@ exports[`Context Menu context menu simple rendering 1`] = `
     data-name="delete_cell"
     title="Delete cells"
   >
-    Delete cells
+    <span
+      class="o-menu-item-name"
+    >
+      Delete cells
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
       
     </span>
-    <svg
-      class="o-icon"
-    >
-      <polygon
-        fill="#000000"
-        points="0 0 4 4 0 8"
-        transform="translate(5 5)"
-      />
-    </svg>
+    <span>
+      <svg
+        class="o-icon"
+      >
+        <polygon
+          fill="#000000"
+          points="0 0 4 4 0 8"
+          transform="translate(5 5)"
+        />
+      </svg>
+    </span>
     
     
   </div>
@@ -216,7 +268,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     data-name="clear_cell"
     title="Clear cells"
   >
-    Clear cells
+    <span
+      class="o-menu-item-name"
+    >
+      Clear cells
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
@@ -233,7 +289,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     data-name="insert_link"
     title="Insert link"
   >
-    Insert link
+    <span
+      class="o-menu-item-name"
+    >
+      Insert link
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
@@ -250,7 +310,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     data-name="conditional_formatting"
     title="Conditional formatting"
   >
-    Conditional formatting
+    <span
+      class="o-menu-item-name"
+    >
+      Conditional formatting
+    </span>
     <span
       class="o-menu-item-shortcut"
     >

@@ -9,7 +9,11 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Sum"
     title="Sum: 24"
   >
-    Sum: 24
+    <span
+      class="o-menu-item-name"
+    >
+      Sum: 24
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
@@ -24,7 +28,11 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Avg"
     title="Avg: 24"
   >
-    Avg: 24
+    <span
+      class="o-menu-item-name"
+    >
+      Avg: 24
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
@@ -39,7 +47,11 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Min"
     title="Min: 24"
   >
-    Min: 24
+    <span
+      class="o-menu-item-name"
+    >
+      Min: 24
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
@@ -54,7 +66,11 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Max"
     title="Max: 24"
   >
-    Max: 24
+    <span
+      class="o-menu-item-name"
+    >
+      Max: 24
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
@@ -69,7 +85,11 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Count"
     title="Count: 1"
   >
-    Count: 1
+    <span
+      class="o-menu-item-name"
+    >
+      Count: 1
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
@@ -84,7 +104,11 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     data-name="Count Numbers"
     title="Count Numbers: 1"
   >
-    Count Numbers: 1
+    <span
+      class="o-menu-item-name"
+    >
+      Count Numbers: 1
+    </span>
     <span
       class="o-menu-item-shortcut"
     >
