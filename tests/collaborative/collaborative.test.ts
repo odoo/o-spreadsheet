@@ -11,6 +11,7 @@ import {
   clearCell,
   copy,
   createChart,
+  createFilter,
   createSheet,
   deleteColumns,
   deleteRows,
@@ -863,6 +864,55 @@ describe("Multi users synchronisation", () => {
     expect([alice, bob]).toHaveSynchronizedValue(
       (user) => user.getters.getCellComputedStyle(sheetId, col, row),
       { fillColor: "#FF0000" }
+    );
+  });
+
+  test("Create overlapping data filter concurrently", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    network.concurrent(() => {
+      createFilter(alice, "A1:B4");
+      createFilter(bob, "B1:C4");
+    });
+
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getFilterTables(sheetId).length,
+      1
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getFilterTables(sheetId).map((table) => table.zone),
+      alice.getters.getFilterTables(sheetId).map((table) => table.zone)
+    );
+  });
+
+  test("Create overlapping data filter then merges concurrently", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    network.concurrent(() => {
+      createFilter(alice, "A1:B4");
+      merge(bob, "B1:C4");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getFilterTables(sheetId).length,
+      1
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getMerges(sheetId),
+      []
+    );
+  });
+
+  test("Create overlapping merges then data filter concurrently", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    network.concurrent(() => {
+      merge(bob, "B1:C4");
+      createFilter(alice, "A1:B4");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getMerges(sheetId),
+      bob.getters.getMerges(sheetId)
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getFilterTables(sheetId).length,
+      0
     );
   });
 });

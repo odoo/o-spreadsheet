@@ -1,28 +1,14 @@
 import { INCORRECT_RANGE_STRING } from "../../src/constants";
 import { parseDateTime } from "../../src/helpers/dates";
-import { toXC, toZone, zoneToXc } from "../../src/helpers/index";
+import { toZone, zoneToXc } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CellValueType, UID } from "../../src/types";
 import { redo, setCellContent, sort, undo } from "../test_helpers/commands_helpers";
+import { getCellsObject } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
 const dateFormat = "mm/dd/yyyy";
-
-function getCellsObject(model: Model, sheetId: UID) {
-  const cells = {};
-  for (let cell of Object.values(model.getters.getCells(sheetId))) {
-    const { col, row } = model.getters.getCellPosition(cell.id);
-    cell = model.getters.getCell(sheetId, col, row)!;
-    cells[toXC(col, row)] = {
-      ...cell,
-      evaluated: cell.evaluated,
-      value: cell.evaluated.value,
-      content: cell.content,
-    };
-  }
-  return cells;
-}
 
 describe("Basic Sorting", () => {
   const sheetId: UID = "sheetId";
@@ -274,6 +260,83 @@ describe("Basic Sorting", () => {
       A3: { content: "33" },
     });
   });
+
+  test("Sort with empty cells", () => {
+    model = new Model({
+      sheets: [
+        {
+          id: sheetId,
+          colNumber: 1,
+          rowNumber: 8,
+          cells: {
+            A2: { content: "-33" },
+            A3: { content: "11" },
+            A4: { content: "22" },
+            A5: { content: "ab" },
+            A6: { content: "ba" },
+          },
+        },
+      ],
+    });
+    sort(model, {
+      zone: "A1:A7",
+      anchor: "A2",
+      direction: "ascending",
+    });
+    expect(getCellsObject(model, sheetId)).toMatchObject({
+      A1: { content: "-33" },
+      A2: { content: "11" },
+      A3: { content: "22" },
+      A4: { content: "ab" },
+      A5: { content: "ba" },
+    });
+  });
+
+  test("Sort with emptyCellAsZero option", () => {
+    model = new Model({
+      sheets: [
+        {
+          id: sheetId,
+          colNumber: 1,
+          rowNumber: 8,
+          cells: {
+            A2: { content: "-33" },
+            A3: { content: "11" },
+            A4: { content: "22" },
+            A5: { content: "ab" },
+            A6: { content: "ba" },
+          },
+        },
+      ],
+    });
+    sort(model, {
+      zone: "A1:A7",
+      anchor: "A2",
+      direction: "ascending",
+      sortOptions: { emptyCellAsZero: true },
+    });
+    expect(getCellsObject(model, sheetId)).toMatchObject({
+      A1: { content: "-33" },
+      A4: { content: "11" },
+      A5: { content: "22" },
+      A6: { content: "ab" },
+      A7: { content: "ba" },
+    });
+
+    sort(model, {
+      zone: "A1:A7",
+      anchor: "A2",
+      direction: "descending",
+      sortOptions: { emptyCellAsZero: true },
+    });
+    expect(getCellsObject(model, sheetId)).toMatchObject({
+      A1: { content: "ba" },
+      A2: { content: "ab" },
+      A3: { content: "22" },
+      A4: { content: "11" },
+      A7: { content: "-33" },
+    });
+  });
 });
 
 describe("Trigger sort generic errors", () => {
@@ -322,6 +385,7 @@ describe("Sort multi adjacent columns", () => {
       },
     ],
   };
+
   /**
    * Interactive tests for same are moved to helpers/ui.test.ts
    * Manually calling the getContiguousZone function.
@@ -464,6 +528,26 @@ describe("Sort adjacent columns with headers", () => {
       C4: { value: parseDateTime("09/13/2020")!.value },
     });
   });
+
+  test("No header with option sortHeaders set to true", () => {
+    sort(model, {
+      zone: "B1:C4",
+      anchor: "B1",
+      direction: "ascending",
+      sortOptions: { sortHeaders: true },
+    });
+    expect(getCellsObject(model, sheetId)).toMatchObject({
+      B1: { content: "49" },
+      B2: { content: "192" },
+      B3: { content: "2500" },
+      B4: { content: "Col1" },
+      C1: { value: parseDateTime("09/13/2020")!.value },
+      C2: { value: parseDateTime("09/15/2020")!.value },
+      C3: { value: parseDateTime("09/14/2020")!.value },
+      C4: { content: "Col2" },
+    });
+  });
+
   test("Empty TopLeft cell does not alter the presence of header", () => {
     setCellContent(model, "A1", "", sheetId);
     sort(model, {

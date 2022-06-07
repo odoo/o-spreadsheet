@@ -91,6 +91,8 @@ export const demoData = {
         K6: { border: 4 },
         K7: { border: 4 },
         K8: { border: 6 },
+
+        H22: { content: "Col 1" },
         H23: { content: "0" },
         H24: { content: "1" },
         H25: { content: "2" },
@@ -102,6 +104,7 @@ export const demoData = {
         H31: { content: "8" },
         H32: { content: "9" },
         H33: { content: "10" },
+        I22: { content: "Col 2" },
         I23: { content: "0" },
         I24: { content: "1" },
         I25: { content: "2" },
@@ -115,6 +118,7 @@ export const demoData = {
         I33: { content: "0" },
       },
       merges: ["H2:I5", "K3:K8"],
+      filterTables: [{ range: "H22:I33" }],
       conditionalFormats: [
         {
           id: "1",

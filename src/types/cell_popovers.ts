@@ -3,7 +3,7 @@ import { Getters, Position } from "./index";
 import { PropsOf } from "./misc";
 import { DOMCoordinates } from "./rendering";
 
-export type CellPopoverType = string;
+export type CellPopoverType = "ErrorToolTip" | "LinkDisplay" | "FilterMenu" | "LinkEditor";
 
 type SizedComponentConstructor = ComponentConstructor & {
   size: { width: number; height: number };

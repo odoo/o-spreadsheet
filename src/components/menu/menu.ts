@@ -3,9 +3,7 @@ import {
   HEADER_HEIGHT,
   MENU_ITEM_DISABLED_COLOR,
   MENU_ITEM_HEIGHT,
-  MENU_SEPARATOR_BORDER_WIDTH,
   MENU_SEPARATOR_HEIGHT,
-  MENU_SEPARATOR_PADDING,
   MENU_WIDTH,
   TOPBAR_HEIGHT,
 } from "../../constants";
@@ -66,12 +64,6 @@ css/* scss */ `
         color: ${MENU_ITEM_DISABLED_COLOR};
         cursor: not-allowed;
       }
-    }
-
-    .o-separator {
-      border-bottom: ${MENU_SEPARATOR_BORDER_WIDTH}px solid #e0e2e4;
-      margin-top: ${MENU_SEPARATOR_PADDING}px;
-      margin-bottom: ${MENU_SEPARATOR_PADDING}px;
     }
   }
 `;

@@ -10,6 +10,7 @@ import {
   Position,
   SortCommand,
   SortDirection,
+  SortOptions,
   UID,
   Zone,
 } from "../../types/index";
@@ -32,7 +33,7 @@ export class SortPlugin extends UIPlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "SORT_CELLS":
-        this.sortZone(cmd.sheetId, cmd, cmd.zone, cmd.sortDirection);
+        this.sortZone(cmd.sheetId, cmd, cmd.zone, cmd.sortDirection, cmd.sortOptions || {});
         break;
     }
   }
@@ -248,7 +249,13 @@ export class SortPlugin extends UIPlugin {
     }
   }
 
-  private sortZone(sheetId: UID, anchor: Position, zone: Zone, sortDirection: SortDirection) {
+  private sortZone(
+    sheetId: UID,
+    anchor: Position,
+    zone: Zone,
+    sortDirection: SortDirection,
+    options: SortOptions
+  ) {
     const [stepX, stepY] = this.mainCellsSteps(sheetId, zone);
     let sortingCol: HeaderIndex = this.getters.getMainCellPosition(
       sheetId,
@@ -259,13 +266,17 @@ export class SortPlugin extends UIPlugin {
     // Update in case of merges in the zone
     let cells = this.mainCells(sheetId, zone);
 
-    if (this.hasHeader(cells)) {
+    if (!options.sortHeaders && this.hasHeader(cells)) {
       sortZone.top += stepY;
     }
     cells = this.mainCells(sheetId, sortZone);
 
     const sortingCells = cells[sortingCol - sortZone.left];
-    const sortedIndexOfSortTypeCells = sortCells(sortingCells, sortDirection);
+    const sortedIndexOfSortTypeCells = sortCells(
+      sortingCells,
+      sortDirection,
+      Boolean(options.emptyCellAsZero)
+    );
     const sortedIndex: number[] = sortedIndexOfSortTypeCells.map((x) => x.index);
 
     const [width, height]: [number, number] = [cells.length, cells[0].length];

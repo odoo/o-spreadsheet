@@ -13,6 +13,8 @@ import {
   CF_ICON_EDGE_LENGTH,
   ICON_EDGE_LENGTH,
   MAXIMAL_FREEZABLE_RATIO,
+  MENU_SEPARATOR_BORDER_WIDTH,
+  MENU_SEPARATOR_PADDING,
   SCROLLBAR_WIDTH,
   TOPBAR_HEIGHT,
 } from "../../constants";
@@ -47,6 +49,11 @@ css/* scss */ `
     *:before,
     *:after {
       box-sizing: content-box;
+    }
+    .o-separator {
+      border-bottom: ${MENU_SEPARATOR_BORDER_WIDTH}px solid #e0e2e4;
+      margin-top: ${MENU_SEPARATOR_PADDING}px;
+      margin-bottom: ${MENU_SEPARATOR_PADDING}px;
     }
   }
 

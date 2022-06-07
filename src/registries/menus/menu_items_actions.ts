@@ -3,9 +3,10 @@ import {
   DEFAULT_FIGURE_HEIGHT,
   DEFAULT_FIGURE_WIDTH,
 } from "../../constants";
-import { numberToLetters, zoneToXc } from "../../helpers/index";
+import { areZonesContinuous, numberToLetters, zoneToXc } from "../../helpers/index";
 import { interactiveSortSelection } from "../../helpers/sort";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
+import { interactiveAddFilter } from "../../helpers/ui/filter_interactive";
 import {
   handlePasteResult,
   interactivePaste,
@@ -706,6 +707,35 @@ export const OPEN_CUSTOM_CURRENCY_SIDEPANEL_ACTION = (env: SpreadsheetChildEnv) 
 export const INSERT_LINK = (env: SpreadsheetChildEnv) => {
   let { col, row } = env.model.getters.getPosition();
   env.model.dispatch("OPEN_CELL_POPOVER", { col, row, popoverType: "LinkEditor" });
+};
+
+//------------------------------------------------------------------------------
+// Filters action
+//------------------------------------------------------------------------------
+
+export const FILTERS_CREATE_FILTER_TABLE = (env: SpreadsheetChildEnv) => {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const selection = env.model.getters.getSelection().zones;
+  interactiveAddFilter(env, sheetId, selection);
+};
+
+export const FILTERS_REMOVE_FILTER_TABLE = (env: SpreadsheetChildEnv) => {
+  const sheetId = env.model.getters.getActiveSheetId();
+  env.model.dispatch("REMOVE_FILTER_TABLE", {
+    sheetId,
+    target: env.model.getters.getSelectedZones(),
+  });
+};
+
+export const SELECTION_CONTAINS_FILTER = (env: SpreadsheetChildEnv): boolean => {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const selectedZones = env.model.getters.getSelectedZones();
+  return env.model.getters.doesZonesContainFilter(sheetId, selectedZones);
+};
+
+export const SELECTION_IS_CONTINUOUS = (env: SpreadsheetChildEnv): boolean => {
+  const selectedZones = env.model.getters.getSelectedZones();
+  return areZonesContinuous(...selectedZones);
 };
 
 //------------------------------------------------------------------------------

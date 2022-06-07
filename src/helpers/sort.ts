@@ -31,13 +31,18 @@ function convertCell(cell: Cell | undefined, index: number): CellWithIndex {
 
 export function sortCells(
   cells: (Cell | undefined)[],
-  sortDirection: SortDirection
+  sortDirection: SortDirection,
+  emptyCellAsZero: boolean
 ): CellWithIndex[] {
   const cellsWithIndex: CellWithIndex[] = cells.map(convertCell);
-  const emptyCells: CellWithIndex[] = cellsWithIndex.filter((x) => x.type === CellValueType.empty);
-  const nonEmptyCells: CellWithIndex[] = cellsWithIndex.filter(
-    (x) => x.type !== CellValueType.empty
-  );
+  let emptyCells: CellWithIndex[] = cellsWithIndex.filter((x) => x.type === CellValueType.empty);
+  let nonEmptyCells: CellWithIndex[] = cellsWithIndex.filter((x) => x.type !== CellValueType.empty);
+  if (emptyCellAsZero) {
+    nonEmptyCells.push(
+      ...emptyCells.map((emptyCell) => ({ ...emptyCell, type: CellValueType.number, value: 0 }))
+    );
+    emptyCells = [];
+  }
 
   const inverse = sortDirection === "descending" ? -1 : 1;
 

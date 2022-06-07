@@ -10,6 +10,7 @@ import { ConditionalFormat, Style } from "../../src/types";
 import { OWL_TEMPLATES } from "../setup/jest.setup";
 import {
   addCellToSelection,
+  createFilter,
   selectCell,
   setAnchorCorner,
   setCellContent,
@@ -195,6 +196,55 @@ describe("TopBar component", () => {
 
     expect(paintFormatTool.classList.contains("active")).toBeTruthy();
     app.destroy();
+  });
+
+  describe("Filter Tool", () => {
+    let model: Model;
+    let app: App;
+
+    beforeEach(async () => {
+      model = new Model();
+      ({ app } = await mountParent(model));
+    });
+
+    afterEach(() => {
+      app.destroy();
+    });
+
+    test("Filter tool is enabled with single selection", async () => {
+      setSelection(model, ["A2:B3"]);
+      await nextTick();
+      const filterTool = fixture.querySelector(".o-filter-tool")!;
+      expect(filterTool.classList.contains("o-disabled")).toBeFalsy();
+    });
+
+    test("Filter tool is enabled with selection of multiple continuous zones", async () => {
+      setSelection(model, ["A1", "A2"]);
+      await nextTick();
+      const filterTool = fixture.querySelector(".o-filter-tool")!;
+      expect(filterTool.classList.contains("o-disabled")).toBeFalsy();
+    });
+
+    test("Filter tool is disabled with selection of multiple non-continuous zones", async () => {
+      setSelection(model, ["A1", "B5"]);
+      await nextTick();
+      const filterTool = fixture.querySelector(".o-filter-tool")!;
+      expect(filterTool.classList.contains("o-disabled")).toBeTruthy();
+    });
+
+    test("Filter tool change from create filter to remove filter when a filter is selected", async () => {
+      createFilter(model, "A2:B3");
+      await nextTick();
+      let filterTool = fixture.querySelector(".o-filter-tool")!;
+      expect(filterTool.querySelectorAll(".filter-icon-active").length).toEqual(0);
+      expect(filterTool.querySelectorAll(".filter-icon-inactive").length).toEqual(1);
+
+      setSelection(model, ["A1", "B2"]);
+      await nextTick();
+      filterTool = fixture.querySelector(".o-filter-tool")!;
+      expect(filterTool.querySelectorAll(".filter-icon-active").length).toEqual(1);
+      expect(filterTool.querySelectorAll(".filter-icon-inactive").length).toEqual(0);
+    });
   });
 
   test("can clear formatting", async () => {
