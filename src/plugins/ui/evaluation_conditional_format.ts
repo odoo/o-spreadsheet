@@ -82,10 +82,14 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     const cell = this.getters.getCell(sheetId, col, row);
     const styles = this.computedStyles[sheetId];
     const cfStyle = styles && styles[col]?.[row];
-    return {
+    const computedStyle = {
       ...cell?.style,
       ...cfStyle,
     };
+    if (this.getters.isFilterHeader(sheetId, col, row)) {
+      computedStyle.bold = true;
+    }
+    return computedStyle;
   }
 
   getConditionalIcon(col: HeaderIndex, row: HeaderIndex): string | undefined {

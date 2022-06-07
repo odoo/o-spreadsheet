@@ -12,6 +12,7 @@ import {
   activateSheet,
   addColumns,
   addRows,
+  createFilter,
   deleteColumns,
   deleteRows,
   freezeColumns,
@@ -27,13 +28,16 @@ import {
   selectCell,
   selectColumn,
   selectRow,
+  setCellContent,
+  setFormat,
   setSelection,
   setViewportOffset,
   undo,
   unfreezeColumns,
   unfreezeRows,
+  updateFilter,
 } from "../test_helpers/commands_helpers";
-import { getPlugin } from "../test_helpers/helpers";
+import { getPlugin, target } from "../test_helpers/helpers";
 
 let model: Model;
 
@@ -809,6 +813,36 @@ describe("Viewport of Simple sheet", () => {
         gridOffsetY: 0,
       })
     ).toBeCancelledBecause(CommandResult.InvalidViewportSize);
+  });
+
+  test("Viewport is updated when updating a data filter", () => {
+    model = new Model();
+    createFilter(model, "A1:A10");
+    setCellContent(model, "A2", "5");
+    setCellContent(model, "A2", "5");
+    setCellContent(model, "A3", "5");
+    setCellContent(model, "A4", "5");
+    setCellContent(model, "A5", "5");
+    const oldViewport = { ...model.getters.getActiveMainViewport() };
+    updateFilter(model, "A1", ["5"]);
+    expect(model.getters.getActiveMainViewport()).not.toEqual(oldViewport);
+  });
+
+  test("Viewport is updated when updating a cell that change the evaluation of filtered rows", () => {
+    model = new Model();
+    createFilter(model, "A1:A10");
+    setCellContent(model, "A2", "=B1");
+    setCellContent(model, "A2", "=B1");
+    setCellContent(model, "A3", "=B1");
+    setCellContent(model, "A4", "=B1");
+    setCellContent(model, "A5", "=5");
+    updateFilter(model, "A1", ["5"]);
+    let oldViewport = { ...model.getters.getActiveMainViewport() };
+    setCellContent(model, "B1", "5");
+    expect(model.getters.getActiveMainViewport()).not.toEqual(oldViewport);
+    oldViewport = { ...model.getters.getActiveMainViewport() };
+    setFormat(model, "0.00%", target("A5"));
+    expect(model.getters.getActiveMainViewport()).not.toEqual(oldViewport);
   });
 });
 

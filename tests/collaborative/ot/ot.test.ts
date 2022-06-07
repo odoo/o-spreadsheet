@@ -1,6 +1,13 @@
 import { transform } from "../../../src/collaborative/ot/ot";
-import { DeleteFigureCommand, UpdateChartCommand, UpdateFigureCommand } from "../../../src/types";
+import {
+  AddMergeCommand,
+  CreateFilterTableCommand,
+  DeleteFigureCommand,
+  UpdateChartCommand,
+  UpdateFigureCommand,
+} from "../../../src/types";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
+import { target } from "../../test_helpers/helpers";
 
 describe("OT with DELETE_FIGURE", () => {
   const deleteFigure: DeleteFigureCommand = {
@@ -27,4 +34,33 @@ describe("OT with DELETE_FIGURE", () => {
       expect(transform({ ...cmd, id: "otherId" }, deleteFigure)).toEqual({ ...cmd, id: "otherId" });
     });
   });
+});
+
+describe("OT with CREATE_FILTER_TABLE", () => {
+  const createTable: Omit<CreateFilterTableCommand, "target"> = {
+    type: "CREATE_FILTER_TABLE",
+    sheetId: "42",
+  };
+  const addMerge: Omit<AddMergeCommand, "target"> = {
+    type: "ADD_MERGE",
+    sheetId: "42",
+  };
+
+  describe.each([createTable, addMerge])(
+    "CREATE_FILTER_TABLE with CREATE_FILTER_TABLE & ADD_MERGE",
+    (cmd) => {
+      test("Overlapping target", () => {
+        const zones = target("A1");
+        const createTableCmd = { ...createTable, target: zones };
+        const executed = { ...cmd, target: zones };
+        expect(transform(createTableCmd, executed)).toBeUndefined();
+      });
+
+      test("distinct targets", () => {
+        const createTableCommand = { ...createTable, target: target("A1") };
+        const executed = { ...cmd, target: target("B2") };
+        expect(transform(createTableCommand, executed)).toEqual(createTableCommand);
+      });
+    }
+  );
 });

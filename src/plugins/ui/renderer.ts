@@ -2,14 +2,19 @@ import { ICONS } from "../../components/icons/icons";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_COLOR,
+  BACKGROUND_HEADER_FILTER_COLOR,
   BACKGROUND_HEADER_SELECTED_COLOR,
+  BACKGROUND_HEADER_SELECTED_FILTER_COLOR,
   CANVAS_SHIFT,
   CELL_BORDER_COLOR,
   DEFAULT_FONT,
+  FILTERS_COLOR,
+  FILTER_ICON_MARGIN,
   HEADER_BORDER_COLOR,
   HEADER_FONT_SIZE,
   HEADER_HEIGHT,
   HEADER_WIDTH,
+  ICON_EDGE_LENGTH,
   MIN_CELL_TEXT_MARGIN,
   MIN_CF_ICON_MARGIN,
   TEXT_HEADER_COLOR,
@@ -18,7 +23,8 @@ import {
   computeTextFont,
   computeTextFontSizeInPixels,
   computeTextWidth,
-  intersection,
+  getZonesCols,
+  getZonesRows,
   numberToLetters,
   overlap,
   positionToZone,
@@ -217,8 +223,7 @@ export class RendererPlugin extends UIPlugin {
   private drawBorders(renderingContext: GridRenderingContext) {
     const { ctx, thinLineWidth } = renderingContext;
     for (let box of this.boxes) {
-      // fill color
-      let border = box.border;
+      const border = box.border;
       if (border) {
         const { x, y, width, height } = box;
         if (border.left) {
@@ -265,7 +270,11 @@ export class RendererPlugin extends UIPlugin {
         if (align === "left") {
           x = box.x + (box.image ? box.image.size + 2 * MIN_CF_ICON_MARGIN : MIN_CELL_TEXT_MARGIN);
         } else if (align === "right") {
-          x = box.x + box.width - MIN_CELL_TEXT_MARGIN;
+          x =
+            box.x +
+            box.width -
+            MIN_CELL_TEXT_MARGIN -
+            (box.isFilterHeader ? ICON_EDGE_LENGTH + FILTER_ICON_MARGIN : 0);
         } else {
           x = box.x + box.width / 2;
         }
@@ -342,41 +351,57 @@ export class RendererPlugin extends UIPlugin {
     const bottom = visibleRows[visibleRows.length - 1];
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
     const selection = this.getters.getSelectedZones();
+    const selectedCols = getZonesCols(selection);
+    const selectedRows = getZonesRows(selection);
     const sheetId = this.getters.getActiveSheetId();
     const numberOfCols = this.getters.getNumberCols(sheetId);
     const numberOfRows = this.getters.getNumberRows(sheetId);
     const activeCols = this.getters.getActiveCols();
     const activeRows = this.getters.getActiveRows();
 
-    ctx.fillStyle = BACKGROUND_HEADER_COLOR;
     ctx.font = `400 ${HEADER_FONT_SIZE}px ${DEFAULT_FONT}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.lineWidth = thinLineWidth;
     ctx.strokeStyle = "#333";
 
-    // background
-    ctx.fillRect(0, 0, width, HEADER_HEIGHT);
-    ctx.fillRect(0, 0, HEADER_WIDTH, height);
-    // selection background
-    ctx.fillStyle = BACKGROUND_HEADER_SELECTED_COLOR;
-    for (let zone of selection) {
-      const colZone = intersection(zone, { left, right, top: 0, bottom: numberOfRows - 1 });
-      if (colZone) {
-        const { x, width } = this.getters.getVisibleRect(colZone);
-        ctx.fillStyle = activeCols.has(zone.left)
-          ? BACKGROUND_HEADER_ACTIVE_COLOR
+    // Columns headers background
+    for (let col = left; col <= right; col++) {
+      const colZone = { left: col, right: col, top: 0, bottom: numberOfRows - 1 };
+      const { x, width } = this.getters.getVisibleRect(colZone);
+      const colHasFilter = this.getters.doesZonesContainFilter(sheetId, [colZone]);
+      const isColActive = activeCols.has(col);
+      const isColSelected = selectedCols.has(col);
+      if (isColActive) {
+        ctx.fillStyle = colHasFilter ? FILTERS_COLOR : BACKGROUND_HEADER_ACTIVE_COLOR;
+      } else if (isColSelected) {
+        ctx.fillStyle = colHasFilter
+          ? BACKGROUND_HEADER_SELECTED_FILTER_COLOR
           : BACKGROUND_HEADER_SELECTED_COLOR;
-        ctx.fillRect(x, 0, width, HEADER_HEIGHT);
+      } else {
+        ctx.fillStyle = colHasFilter ? BACKGROUND_HEADER_FILTER_COLOR : BACKGROUND_HEADER_COLOR;
       }
-      const rowZone = intersection(zone, { top, bottom, left: 0, right: numberOfCols - 1 });
-      if (rowZone) {
-        const { y, height } = this.getters.getVisibleRect(rowZone);
-        ctx.fillStyle = activeRows.has(zone.top)
-          ? BACKGROUND_HEADER_ACTIVE_COLOR
+      ctx.fillRect(x, 0, width, HEADER_HEIGHT);
+    }
+
+    // Rows headers background
+    for (let row = top; row <= bottom; row++) {
+      const rowZone = { top: row, bottom: row, left: 0, right: numberOfCols - 1 };
+      const { y, height } = this.getters.getVisibleRect(rowZone);
+
+      const rowHasFilter = this.getters.doesZonesContainFilter(sheetId, [rowZone]);
+      const isRowActive = activeRows.has(row);
+      const isRowSelected = selectedRows.has(row);
+      if (isRowActive) {
+        ctx.fillStyle = rowHasFilter ? FILTERS_COLOR : BACKGROUND_HEADER_ACTIVE_COLOR;
+      } else if (isRowSelected) {
+        ctx.fillStyle = rowHasFilter
+          ? BACKGROUND_HEADER_SELECTED_FILTER_COLOR
           : BACKGROUND_HEADER_SELECTED_COLOR;
-        ctx.fillRect(0, y, HEADER_WIDTH, height);
+      } else {
+        ctx.fillStyle = rowHasFilter ? BACKGROUND_HEADER_FILTER_COLOR : BACKGROUND_HEADER_COLOR;
       }
+      ctx.fillRect(0, y, HEADER_WIDTH, height);
     }
 
     // 2 main lines
@@ -514,7 +539,7 @@ export class RendererPlugin extends UIPlugin {
       y,
       width,
       height,
-      border: this.getters.getCellBorder(sheetId, col, row) || undefined,
+      border: this.getters.getCellBorderWithFilterBorder(sheetId, col, row) || undefined,
       style: this.getters.getCellComputedStyle(sheetId, col, row),
     };
 
@@ -534,6 +559,10 @@ export class RendererPlugin extends UIPlugin {
       };
     }
 
+    /** Filter Header */
+    box.isFilterHeader = this.getters.isFilterHeader(sheetId, col, row);
+    const headerIconWidth = box.isFilterHeader ? ICON_EDGE_LENGTH + FILTER_ICON_MARGIN : 0;
+
     /** Content */
     const text = this.getters.getCellText(cell, showFormula);
     const textWidth = this.getters.getTextWidth(cell);
@@ -542,7 +571,7 @@ export class RendererPlugin extends UIPlugin {
       wrapping === "wrap"
         ? this.getters.getCellMultiLineText(cell, width - 2 * MIN_CELL_TEXT_MARGIN)
         : [text];
-    const contentWidth = iconBoxWidth + textWidth;
+    const contentWidth = iconBoxWidth + textWidth + headerIconWidth;
     const align = this.computeCellAlignment(cell, contentWidth > width);
     box.content = {
       multiLineText,
@@ -560,11 +589,11 @@ export class RendererPlugin extends UIPlugin {
 
     /** ClipRect */
     const isOverflowing = contentWidth > width || fontSizePX > height;
-    if (cfIcon) {
+    if (cfIcon || box.isFilterHeader) {
       box.clipRect = {
         x: box.x + iconBoxWidth,
         y: box.y,
-        width: Math.max(0, width - iconBoxWidth),
+        width: Math.max(0, width - iconBoxWidth - headerIconWidth),
         height,
       };
     } else if (isOverflowing && wrapping === "overflow") {

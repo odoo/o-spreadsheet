@@ -1,6 +1,10 @@
 import {
+  BACKGROUND_HEADER_ACTIVE_COLOR,
+  BACKGROUND_HEADER_FILTER_COLOR,
+  BACKGROUND_HEADER_SELECTED_COLOR,
+  BACKGROUND_HEADER_SELECTED_FILTER_COLOR,
   DEFAULT_CELL_HEIGHT,
-  DEFAULT_CELL_WIDTH,
+  FILTERS_COLOR,
   HEADER_HEIGHT,
   HEADER_WIDTH,
   MIN_CF_ICON_MARGIN,
@@ -18,15 +22,18 @@ import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   addColumns,
   copy,
+  createFilter,
   deleteColumns,
   merge,
   paste,
   resizeColumns,
   resizeRows,
   setCellContent,
+  setSelection,
 } from "../test_helpers/commands_helpers";
 import { createEqualCF, getPlugin, target, toRangesData } from "../test_helpers/helpers";
 import { watchClipboardOutline } from "../test_helpers/renderer_helpers";
+import { DEFAULT_CELL_WIDTH } from "./../../src/constants";
 
 MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
   return { width: text.length };
@@ -110,6 +117,114 @@ describe("renderer", () => {
 
     model.drawGrid(ctx);
     expect(instructions).toMatchSnapshot();
+  });
+
+  describe("Headers background color", () => {
+    function getFirstRowHeaderFillColor() {
+      const index = instructions.findIndex(
+        (instr) =>
+          instr === `ctx.fillRect(${0}, ${HEADER_HEIGHT}, ${HEADER_WIDTH}, ${DEFAULT_CELL_HEIGHT})`
+      );
+      let instruction = instructions[index - 1];
+      instruction = instruction.replace('ctx.fillStyle="', "");
+      instruction = instruction.replace('";', "");
+      return instruction;
+    }
+
+    function getFirstColHeaderFillColor() {
+      const index = instructions.findIndex(
+        (instr) =>
+          instr === `ctx.fillRect(${HEADER_WIDTH}, ${0}, ${DEFAULT_CELL_WIDTH}, ${HEADER_HEIGHT})`
+      );
+      let instruction = instructions[index - 1];
+      instruction = instruction.replace('ctx.fillStyle="', "");
+      instruction = instruction.replace('";', "");
+      return instruction;
+    }
+
+    let model: Model;
+    let instructions: string[];
+    let ctx: MockGridRenderingContext;
+    beforeEach(() => {
+      model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
+      const { width, height } = model.getters.getSheetViewDimension();
+      instructions = [];
+      ctx = new MockGridRenderingContext(model, 1000, 1000, {
+        onSet: (key, value) => {
+          instructions.push(`ctx.${key}=${JSON.stringify(value)};`);
+        },
+        onGet: (key) => {
+          instructions.push(`GET:${key}`);
+        },
+        onFunctionCall: (key, args) => {
+          instructions.push(`ctx.${key}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
+        },
+      });
+      model.dispatch("RESIZE_SHEETVIEW", {
+        width,
+        height,
+        gridOffsetX: HEADER_WIDTH,
+        gridOffsetY: HEADER_HEIGHT,
+      });
+    });
+
+    test("Color of headers containing the selection", () => {
+      setSelection(model, ["A1"]);
+      model.drawGrid(ctx);
+      const fillColHeaderInstr = getFirstColHeaderFillColor();
+      expect(fillColHeaderInstr).toEqual(BACKGROUND_HEADER_SELECTED_COLOR);
+      const fillRowHeaderInstr = getFirstRowHeaderFillColor();
+      expect(fillRowHeaderInstr).toEqual(BACKGROUND_HEADER_SELECTED_COLOR);
+    });
+
+    test("Color of active headers", () => {
+      setSelection(model, ["A1:B2"]);
+      model.drawGrid(ctx);
+      const fillColHeaderInstr = getFirstColHeaderFillColor();
+      expect(fillColHeaderInstr).toEqual(BACKGROUND_HEADER_ACTIVE_COLOR);
+      const fillRowHeaderInstr = getFirstRowHeaderFillColor();
+      expect(fillRowHeaderInstr).toEqual(BACKGROUND_HEADER_ACTIVE_COLOR);
+    });
+
+    test("Color of headers that contains a filter", () => {
+      createFilter(model, "A1:B2");
+      setSelection(model, ["B2"]); // by default the cell A1 was selected
+      model.drawGrid(ctx);
+      const fillColHeaderInstr = getFirstColHeaderFillColor();
+      expect(fillColHeaderInstr).toEqual(BACKGROUND_HEADER_FILTER_COLOR);
+      const fillRowHeaderInstr = getFirstRowHeaderFillColor();
+      expect(fillRowHeaderInstr).toEqual(BACKGROUND_HEADER_FILTER_COLOR);
+    });
+
+    test("Color of headers that contain a filter + are selected", () => {
+      createFilter(model, "A1:B2");
+      setSelection(model, ["A1"]);
+      model.drawGrid(ctx);
+      const fillColHeaderInstr = getFirstColHeaderFillColor();
+      expect(fillColHeaderInstr).toEqual(BACKGROUND_HEADER_SELECTED_FILTER_COLOR);
+      const fillRowHeaderInstr = getFirstRowHeaderFillColor();
+      expect(fillRowHeaderInstr).toEqual(BACKGROUND_HEADER_SELECTED_FILTER_COLOR);
+    });
+
+    test("Headers that contain a filter + are selected", () => {
+      createFilter(model, "A1:B2");
+      setSelection(model, ["A1"]);
+      model.drawGrid(ctx);
+      const fillColHeaderInstr = getFirstColHeaderFillColor();
+      expect(fillColHeaderInstr).toEqual(BACKGROUND_HEADER_SELECTED_FILTER_COLOR);
+      const fillRowHeaderInstr = getFirstRowHeaderFillColor();
+      expect(fillRowHeaderInstr).toEqual(BACKGROUND_HEADER_SELECTED_FILTER_COLOR);
+    });
+
+    test("Headers that contain a filter + are active", () => {
+      createFilter(model, "A1:B2");
+      setSelection(model, ["A1:B2"]);
+      model.drawGrid(ctx);
+      const fillColHeaderInstr = getFirstColHeaderFillColor();
+      expect(fillColHeaderInstr).toEqual(FILTERS_COLOR);
+      const fillRowHeaderInstr = getFirstRowHeaderFillColor();
+      expect(fillRowHeaderInstr).toEqual(FILTERS_COLOR);
+    });
   });
 
   test("formulas evaluating to a string are properly aligned", () => {

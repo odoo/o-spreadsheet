@@ -15,12 +15,19 @@ import {
 } from "../../types";
 import { ClipboardOperation, ClipboardOptions } from "../../types/clipboard";
 import { formatValue } from "../format";
-import { mergeOverlappingZones, positions, union } from "../zones";
+import { range } from "../misc";
+import { createAdaptedZone, mergeOverlappingZones, positions, union } from "../zones";
 import { ClipboardCellsAbstractState } from "./clipboard_abstract_cell_state";
+
+interface CopiedTable {
+  zone: Zone;
+  filtersValues: Array<string[]>;
+}
 
 /** State of the clipboard when copying/cutting cells */
 export class ClipboardCellsState extends ClipboardCellsAbstractState {
   private readonly cells: ClipboardCell[][];
+  private readonly copiedTables: CopiedTable[];
   private readonly zones: Zone[];
 
   constructor(
@@ -34,6 +41,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     if (!zones.length) {
       this.cells = [[]];
       this.zones = [];
+      this.copiedTables = [];
       return;
     }
     const lefts = new Set(zones.map((z) => z.left));
@@ -69,8 +77,20 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       cellsInClipboard.push(cellsInRow);
     }
 
+    const tables: CopiedTable[] = [];
+    for (const zone of zones) {
+      for (const table of this.getters.getFilterTablesInZone(sheetId, zone)) {
+        const values: Array<string[]> = [];
+        for (const col of range(table.zone.left, table.zone.right + 1)) {
+          values.push(this.getters.getFilterValues(sheetId, col, table.zone.top));
+        }
+        tables.push({ filtersValues: values, zone: table.zone });
+      }
+    }
+
     this.cells = cellsInClipboard;
     this.zones = clippedZones;
+    this.copiedTables = tables;
   }
 
   isCutAllowed(target: Zone[]): CommandResult {
@@ -159,6 +179,9 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
         }
       }
     }
+    if (options?.pasteOption === undefined) {
+      this.pasteCopiedTables(target);
+    }
   }
 
   private pasteFromCut(target: Zone[], options?: ClipboardOptions) {
@@ -172,6 +195,14 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       col: selection.left,
       row: selection.top,
     });
+
+    for (const filterTable of this.copiedTables) {
+      this.dispatch("REMOVE_FILTER_TABLE", {
+        sheetId: this.getters.getActiveSheetId(),
+        target: [filterTable.zone],
+      });
+    }
+    this.pasteCopiedTables(target);
   }
 
   /**
@@ -409,6 +440,29 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
           },
         ],
       });
+    }
+  }
+
+  /** Paste the filter tables that are in the state */
+  private pasteCopiedTables(target: Zone[]) {
+    const sheetId = this.getters.getActiveSheetId();
+    const selection = target[0];
+    const cutZone = this.zones[0];
+    const cutOffset: [number, number] = [
+      selection.left - cutZone.left,
+      selection.top - cutZone.top,
+    ];
+    for (const table of this.copiedTables) {
+      const newTableZone = createAdaptedZone(table.zone, "both", "MOVE", cutOffset);
+      this.dispatch("CREATE_FILTER_TABLE", { sheetId, target: [newTableZone] });
+      for (const i of range(0, table.filtersValues.length)) {
+        this.dispatch("UPDATE_FILTER", {
+          sheetId,
+          col: newTableZone.left + i,
+          row: newTableZone.top,
+          values: table.filtersValues[i],
+        });
+      }
     }
   }
 

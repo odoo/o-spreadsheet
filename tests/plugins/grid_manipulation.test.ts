@@ -3,9 +3,9 @@ import {
   DEFAULT_CELL_WIDTH,
   INCORRECT_RANGE_STRING,
 } from "../../src/constants";
-import { lettersToNumber, toCartesian, toXC, toZone } from "../../src/helpers";
+import { lettersToNumber, toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { Border, CommandResult, UID } from "../../src/types";
+import { Border, CommandResult } from "../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -34,6 +34,7 @@ import {
   getMerges,
 } from "../test_helpers/getters_helpers";
 import {
+  getCellsObject,
   getMergeCellMap,
   makeTestFixture,
   target,
@@ -65,16 +66,6 @@ function clearRows(indexes: number[]) {
     target,
     sheetId: model.getters.getActiveSheetId(),
   });
-}
-
-function getCellsObject(model: Model, sheetId: UID) {
-  const cells = {};
-  for (let cell of Object.values(model.getters.getCells(sheetId))) {
-    const { col, row } = model.getters.getCellPosition(cell.id);
-    cell = model.getters.getCell(sheetId, col, row)!;
-    cells[toXC(col, row)] = { content: cell.content, style: cell.style, format: cell.format };
-  }
-  return cells;
 }
 
 const fullData = {

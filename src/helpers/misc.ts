@@ -467,3 +467,13 @@ export function removeFalsyAttributes(obj: Object): Object {
   Object.keys(cleanObject).forEach((key) => !cleanObject[key] && delete cleanObject[key]);
   return cleanObject;
 }
+
+/** Transform a string to lower case. If the string is undefined, return an empty string */
+export function toLowerCase(str: string | undefined): string {
+  return str ? str.toLowerCase() : "";
+}
+
+/** Returns the sum of an array of number */
+export function sumOfArray(arr: number[]): number {
+  return arr.reduce((partialSum, a) => partialSum + a, 0);
+}
