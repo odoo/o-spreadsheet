@@ -73,7 +73,7 @@ topbarMenuRegistry
   .addChild("sort_range", ["data"], {
     name: _lt("Sort range"),
     sequence: 62,
-    isEnabled: ACTIONS.IS_ONLY_ONE_RANGE,
+    isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
     separator: true,
   })
   .addChild("sort_ascending", ["data", "sort_range"], {
@@ -412,6 +412,19 @@ topbarMenuRegistry
     sequence: 90,
     action: ACTIONS.FORMAT_CLEARFORMAT_ACTION,
     separator: true,
+  })
+  .addChild("add_data_filter", ["data"], {
+    name: _lt("Add Filter"),
+    sequence: 20,
+    action: ACTIONS.FILTERS_CREATE_FILTER_TABLE,
+    isVisible: (env) => !ACTIONS.SELECTION_CONTAINS_FILTER(env),
+    isEnabled: (env) => ACTIONS.SELECTION_IS_CONTINUOUS(env),
+  })
+  .addChild("remove_data_filter", ["data"], {
+    name: _lt("Remove Filter"),
+    sequence: 20,
+    action: ACTIONS.FILTERS_REMOVE_FILTER_TABLE,
+    isVisible: ACTIONS.SELECTION_CONTAINS_FILTER,
   });
 
 // Font-sizes

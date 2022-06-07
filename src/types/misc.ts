@@ -25,6 +25,8 @@ export type Pixel = number & Alias;
 export type UID = string & Alias;
 
 export type SetDecimalStep = 1 | -1;
+export type FilterId = UID & Alias;
+export type FilterTableId = UID & Alias;
 
 /**
  * CSS style color string
@@ -289,3 +291,10 @@ export interface Cloneable<T> {
 }
 
 export type CSSProperties<P extends string = string> = Record<P, string>;
+
+export interface SortOptions {
+  /** If true sort the headers of the range along with the rest */
+  sortHeaders?: boolean;
+  /** If true treat empty cells as "0" instead of undefined */
+  emptyCellAsZero?: boolean;
+}

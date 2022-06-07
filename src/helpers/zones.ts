@@ -190,6 +190,8 @@ export function zoneToXc(zone: Zone | UnboundedZone): string {
 
 /**
  * Expand a zone after inserting columns or rows.
+ *
+ * Don't resize the zone if a col/row was added right before/after the row but only move the zone.
  */
 export function expandZoneOnInsertion<Z extends UnboundedZone | Zone>(
   zone: Z,
@@ -202,11 +204,8 @@ export function expandZoneOnInsertion<Z extends UnboundedZone | Zone>(
   const baseElement = position === "before" ? base - 1 : base;
   const end = start === "left" ? "right" : "bottom";
   const zoneEnd = zone[end];
-  let shouldIncludeEnd = false;
-  if (zoneEnd) {
-    shouldIncludeEnd = position === "before" ? zoneEnd > baseElement : zoneEnd >= baseElement;
-  }
-  if (zone[start] <= baseElement && shouldIncludeEnd) {
+
+  if (zone[start] <= baseElement && zoneEnd && zoneEnd > baseElement) {
     return createAdaptedZone(zone, dimension, "RESIZE", quantity);
   }
   if (baseElement < zone[start]) {
@@ -642,6 +641,38 @@ function isFullCol(zone: UnboundedZone): boolean {
   return zone.bottom === undefined;
 }
 
-export function getZoneArea(zone: Zone) {
+/** Returns the area of a zone */
+export function getZoneArea(zone: Zone): number {
   return (zone.bottom - zone.top + 1) * (zone.right - zone.left + 1);
+}
+
+/**
+ * Check if the zones are continuous, ie. if they can be merged into a single zone without
+ * including cells outside the zones
+ * */
+export function areZonesContinuous(...zones: Zone[]): boolean {
+  if (zones.length < 2) return true;
+  return recomputeZones(zones.map(zoneToXc), []).length === 1;
+}
+
+/** Return all the columns in the given list of zones */
+export function getZonesCols(zones: Zone[]): Set<number> {
+  const set = new Set<number>();
+  for (let zone of zones) {
+    for (let col of range(zone.left, zone.right + 1)) {
+      set.add(col);
+    }
+  }
+  return set;
+}
+
+/** Return all the rows in the given list of zones */
+export function getZonesRows(zones: Zone[]): Set<number> {
+  const set = new Set<number>();
+  for (let zone of zones) {
+    for (let row of range(zone.top, zone.bottom + 1)) {
+      set.add(row);
+    }
+  }
+  return set;
 }

@@ -5,6 +5,7 @@ import { CellPlugin } from "../plugins/core/cell";
 import { ChartPlugin } from "../plugins/core/chart";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { FigurePlugin } from "../plugins/core/figures";
+import { FiltersPlugin } from "../plugins/core/filters";
 import { HeaderSizePlugin } from "../plugins/core/header_size";
 import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
 import { MergePlugin } from "../plugins/core/merge";
@@ -19,7 +20,9 @@ import { EditionPlugin } from "../plugins/ui/edition";
 import { EvaluationPlugin } from "../plugins/ui/evaluation";
 import { EvaluationChartPlugin } from "../plugins/ui/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "../plugins/ui/evaluation_conditional_format";
+import { FilterEvaluationPlugin } from "../plugins/ui/filter_evaluation";
 import { FindAndReplacePlugin } from "../plugins/ui/find_and_replace";
+import { HeaderVisibilityUIPlugin } from "../plugins/ui/header_visibility_ui";
 import { HighlightPlugin } from "../plugins/ui/highlight";
 import { RendererPlugin } from "../plugins/ui/renderer";
 import { GridSelectionPlugin } from "../plugins/ui/selection";
@@ -83,6 +86,7 @@ type LocalHistoryGetters = {
   canUndo: LocalHistory["canUndo"];
   canRedo: LocalHistory["canRedo"];
 };
+type FiltersGetters = Pick<FiltersPlugin, GetterNames<typeof FiltersPlugin>>;
 
 export type CoreGetters = SheetGetters &
   HeaderSizeGetters &
@@ -93,7 +97,8 @@ export type CoreGetters = SheetGetters &
   ChartGetters &
   ConditionalFormatGetters &
   FigureGetters &
-  RangeAdapterGetters;
+  RangeAdapterGetters &
+  FiltersGetters;
 
 type AutofillGetters = Pick<AutofillPlugin, GetterNames<typeof AutofillPlugin>>;
 type AutomaticSumGetters = Pick<AutomaticSumPlugin, GetterNames<typeof AutomaticSumPlugin>>;
@@ -109,6 +114,10 @@ type EvaluationConditionalFormatGetters = Pick<
   GetterNames<typeof EvaluationConditionalFormatPlugin>
 >;
 type FindAndReplaceGetters = Pick<FindAndReplacePlugin, GetterNames<typeof FindAndReplacePlugin>>;
+type HeaderVisibilityIUIGetters = Pick<
+  HeaderVisibilityUIPlugin,
+  GetterNames<typeof HeaderVisibilityUIPlugin>
+>;
 type HighlightGetters = Pick<HighlightPlugin, GetterNames<typeof HighlightPlugin>>;
 type CustomColorsGetters = Pick<CustomColorsPlugin, GetterNames<typeof CustomColorsPlugin>>;
 type RendererGetters = Pick<RendererPlugin, GetterNames<typeof RendererPlugin>>;
@@ -131,6 +140,10 @@ type SessionGetters = {
   isFullySynchronized: Session["isFullySynchronized"];
 };
 type CellPopoverPluginGetters = Pick<CellPopoverPlugin, GetterNames<typeof CellPopoverPlugin>>;
+type FilterEvaluationGetters = Pick<
+  FilterEvaluationPlugin,
+  GetterNames<typeof FilterEvaluationPlugin>
+>;
 
 export type Getters = {
   isReadonly: () => boolean;
@@ -156,4 +169,6 @@ export type Getters = {
   UIOptionsGetters &
   SheetUIGetters &
   ViewportGetters &
-  CellPopoverPluginGetters;
+  CellPopoverPluginGetters &
+  FilterEvaluationGetters &
+  HeaderVisibilityIUIGetters;

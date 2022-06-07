@@ -435,4 +435,51 @@
       />
     </svg>
   </t>
+  <t t-name="o-spreadsheet-Icon.FILTER_ICON" owl="1">
+    <svg
+      class="o-cf-icon filter-icon"
+      width="10"
+      height="10"
+      focusable="false"
+      viewBox="0 0 850 850">
+      <path
+        fill="#000"
+        d="M 339.667 681 L 510.333 681 L 510.333 595.667 L 339.667 595.667 L 339.667 681 Z M 41 169 L 41 254.333 L 809 254.333 L 809 169 L 41 169 Z M 169 467.667 L 681 467.667 L 681 382.333 L 169 382.333 L 169 467.667 Z"
+      />
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.FILTER_ICON_ACTIVE" owl="1">
+    <svg
+      class="o-cf-icon filter-icon-active"
+      width="10"
+      height="10"
+      focusable="false"
+      viewBox="0 0 512 512">
+      <path
+        fill="#188038"
+        d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+      />
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.FILTER_ICON_INACTIVE" owl="1">
+    <svg
+      class="o-cf-icon filter-icon-inactive"
+      width="10"
+      height="10"
+      focusable="false"
+      viewBox="0 0 512 512">
+      <path
+        fill="#606162"
+        d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+      />
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.SEARCH" owl="1">
+    <svg class="search-icon" width="10" height="10" focusable="false" viewBox="0 0 512 512">
+      <path
+        fill="#949494"
+        d="M500.3 443.7l-119.7-119.7c27.22-40.41 40.65-90.9 33.46-144.7C401.8 87.79 326.8 13.32 235.2 1.723C99.01-15.51-15.51 99.01 1.724 235.2c11.6 91.64 86.08 166.7 177.6 178.9c53.8 7.189 104.3-6.236 144.7-33.46l119.7 119.7c15.62 15.62 40.95 15.62 56.57 0C515.9 484.7 515.9 459.3 500.3 443.7zM79.1 208c0-70.58 57.42-128 128-128s128 57.42 128 128c0 70.58-57.42 128-128 128S79.1 278.6 79.1 208z"
+      />
+    </svg>
+  </t>
 </templates>

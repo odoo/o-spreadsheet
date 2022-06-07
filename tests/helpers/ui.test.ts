@@ -1,6 +1,10 @@
 import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
 import { interactiveSortSelection } from "../../src/helpers/sort";
 import { interactiveCut } from "../../src/helpers/ui/cut_interactive";
+import {
+  AddFilterInteractiveContent,
+  interactiveAddFilter,
+} from "../../src/helpers/ui/filter_interactive";
 import { interactiveFreezeColumnsRows } from "../../src/helpers/ui/freeze_interactive";
 import {
   AddMergeInteractiveContent,
@@ -25,6 +29,7 @@ import {
   addCellToSelection,
   copy,
   createChart,
+  createFilter,
   createSheetWithName,
   cut,
   freezeColumns,
@@ -149,6 +154,36 @@ describe("UI Helpers", () => {
       askConfirmationTextSpy(content.toString());
     };
     env = makeInteractiveTestEnv(model, { raiseError, askConfirmation });
+  });
+
+  describe("Interactive Create Filter", () => {
+    test("Successfully create a filter", () => {
+      interactiveAddFilter(env, sheetId, target("A1:B5"));
+      expect(notifyUserTextSpy).toHaveBeenCalledTimes(0);
+    });
+
+    test("Create a filter across a merge", () => {
+      merge(model, "A1:A2");
+      interactiveAddFilter(env, sheetId, target("A1:B1"));
+      expect(notifyUserTextSpy).toHaveBeenCalledWith(
+        AddFilterInteractiveContent.mergeInFilter.toString()
+      );
+    });
+
+    test("Create a filter across another filter", () => {
+      createFilter(model, "A1:A2");
+      interactiveAddFilter(env, sheetId, target("A1:B5"));
+      expect(notifyUserTextSpy).toHaveBeenCalledWith(
+        AddFilterInteractiveContent.filterOverlap.toString()
+      );
+    });
+
+    test("Create filters with non-continuous zones", () => {
+      interactiveAddFilter(env, sheetId, target("A1:A2,C3"));
+      expect(notifyUserTextSpy).toHaveBeenCalledWith(
+        AddFilterInteractiveContent.nonContinuousTargets.toString()
+      );
+    });
   });
 
   describe("Interactive paste", () => {
@@ -298,6 +333,14 @@ describe("UI Helpers", () => {
       interactiveAddMerge(env, sheetId, target("A1:B5"));
       expect(askConfirmationTextSpy).toHaveBeenCalledWith(
         AddMergeInteractiveContent.MergeIsDestructive.toString()
+      );
+    });
+
+    test("Create a merge inside a filter", () => {
+      createFilter(model, "A1:A2");
+      interactiveAddMerge(env, sheetId, target("A1:B5"));
+      expect(notifyUserTextSpy).toHaveBeenCalledWith(
+        AddMergeInteractiveContent.MergeInFilter.toString()
       );
     });
   });

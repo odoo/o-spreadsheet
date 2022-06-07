@@ -56,6 +56,7 @@ describe("cell popover plugin", () => {
     const result = model.dispatch("OPEN_CELL_POPOVER", {
       col: 0,
       row: 0,
+      //@ts-ignore
       popoverType: "This doesn't exist",
     });
     expect(result).toBeCancelledBecause(CommandResult.InvalidCellPopover);

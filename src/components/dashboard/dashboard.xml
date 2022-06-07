@@ -25,6 +25,7 @@
           t-att-style="getCellClickableStyle(clickableCell.coordinates)"
         />
       </div>
+      <FilterIconsOverlay/>
       <VerticalScrollBar/>
       <HorizontalScrollBar/>
       <div class="o-scrollbar corner"/>

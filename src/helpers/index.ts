@@ -7,6 +7,7 @@ export * from "./misc";
 export * from "./numbers";
 export * from "./range";
 export * from "./references";
+export * from "./search";
 export * from "./sheet";
 export * from "./uuid";
 export * from "./zones";

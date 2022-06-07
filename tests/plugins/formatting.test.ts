@@ -1,5 +1,9 @@
 import {
   DEFAULT_CELL_HEIGHT,
+  DEFAULT_FONT,
+  DEFAULT_FONT_SIZE,
+  FILTER_ICON_MARGIN,
+  ICON_EDGE_LENGTH,
   PADDING_AUTORESIZE_HORIZONTAL,
   PADDING_AUTORESIZE_VERTICAL,
 } from "../../src/constants";
@@ -8,11 +12,9 @@ import { args, functionRegistry } from "../../src/functions";
 import { toString } from "../../src/functions/helpers";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { SheetUIPlugin } from "../../src/plugins/ui/ui_sheet";
 import {
   Arg,
   ArgValue,
-  Cell,
   CommandResult,
   ComputeFunction,
   Format,
@@ -23,24 +25,17 @@ import {
   UID,
 } from "../../src/types";
 import {
+  createFilter,
   createSheet,
   resizeColumns,
   resizeRows,
   selectCell,
   setAnchorCorner,
   setCellContent,
+  setFormat,
   setStyle,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
-import { getPlugin } from "../test_helpers/helpers";
-
-function setFormat(model: Model, format: string) {
-  model.dispatch("SET_FORMATTING", {
-    sheetId: model.getters.getActiveSheetId(),
-    target: model.getters.getSelectedZones(),
-    format,
-  });
-}
 
 function setDecimal(model: Model, step: SetDecimalStep) {
   model.dispatch("SET_DECIMAL", {
@@ -412,22 +407,29 @@ describe("formatting values (when change decimal)", () => {
 describe("Autoresize", () => {
   let model: Model;
   let sheetId: UID;
-  const sizes = [10, 20];
+  const TEXT = "text";
+  const LONG_TEXT = "longText";
+  let sizes: number[];
   const hPadding = 2 * PADDING_AUTORESIZE_HORIZONTAL;
   const vPadding = 2 * PADDING_AUTORESIZE_VERTICAL;
 
   beforeEach(() => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
-    const sheetUIPlugin = getPlugin(model, SheetUIPlugin);
-    sheetUIPlugin.getTextWidth = jest.fn((cell: Cell) => {
-      if (cell["content"] === "size0") return sizes[0];
-      return sizes[1];
-    });
+    const ctx = document.createElement("canvas").getContext("2d")!;
+    ctx.font = `${fontSizeMap[DEFAULT_FONT_SIZE]}px ${DEFAULT_FONT}`;
+    sizes = [TEXT, LONG_TEXT].map((text) => ctx.measureText(text).width);
+  });
+
+  test("Can autoresize a column", () => {
+    setCellContent(model, "A1", TEXT);
+    const initCellWidth = sizes[0] + hPadding;
+    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    expect(model.getters.getColSize(sheetId, 0)).toBe(initCellWidth);
   });
 
   test("Can autoresize a column with text width smaller than cell width", () => {
-    setCellContent(model, "A1", "size0");
+    setCellContent(model, "A1", TEXT);
     const initCellWidth = sizes[0] + hPadding;
     const newCellWidth = initCellWidth * 2;
     resizeColumns(model, ["A"], newCellWidth);
@@ -437,7 +439,7 @@ describe("Autoresize", () => {
   });
 
   test("Can autoresize a column with text width smaller than cell width, and cell in wrap mode", () => {
-    setCellContent(model, "A1", "size0");
+    setCellContent(model, "A1", TEXT);
     const initCellWidth = sizes[0] + hPadding;
     const newCellWidth = initCellWidth * 2;
     resizeColumns(model, ["A"], newCellWidth);
@@ -448,8 +450,8 @@ describe("Autoresize", () => {
   });
 
   test("Can autoresize a column with text width greater than cell width", () => {
-    setCellContent(model, "A1", "size0");
-    const initCellWidth = sizes[0] + hPadding;
+    setCellContent(model, "A1", LONG_TEXT);
+    const initCellWidth = sizes[1] + hPadding;
     const newCellWidth = initCellWidth / 2;
     resizeColumns(model, ["A"], newCellWidth);
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
@@ -469,14 +471,28 @@ describe("Autoresize", () => {
   });
 
   test("Can autoresize two columns", () => {
-    setCellContent(model, "A1", "size0");
-    setCellContent(model, "C1", "size1");
-    resizeColumns(model, ["A", "C"], 42);
-    expect(model.getters.getColSize(sheetId, 0)).toBe(42);
-    expect(model.getters.getColSize(sheetId, 2)).toBe(42);
+    setCellContent(model, "A1", TEXT);
+    setCellContent(model, "C1", LONG_TEXT);
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0, 2] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(sizes[0] + hPadding);
     expect(model.getters.getColSize(sheetId, 2)).toBe(sizes[1] + hPadding);
+  });
+
+  test("Autoresize includes filter icon to compute the size", () => {
+    setCellContent(model, "A1", TEXT);
+    createFilter(model, "A1");
+    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    expect(model.getters.getColSize(sheetId, 0)).toBe(
+      sizes[0] + hPadding + ICON_EDGE_LENGTH + FILTER_ICON_MARGIN
+    );
+  });
+
+  test("Autoresize includes cells with only a filter icon", () => {
+    createFilter(model, "A1");
+    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    expect(model.getters.getColSize(sheetId, 0)).toBe(
+      hPadding + ICON_EDGE_LENGTH + FILTER_ICON_MARGIN
+    );
   });
 
   test("Can autoresize a row", () => {
@@ -500,10 +516,7 @@ describe("Autoresize", () => {
     const initialSize = model.getters.getColSize(sheetId, 0);
     const newSheetId = "42";
     createSheet(model, { sheetId: newSheetId });
-    setCellContent(model, "A1", "size0", newSheetId);
-    resizeColumns(model, ["A"], sizes[0] + 24, newSheetId);
-    expect(model.getters.getColSize(sheetId, 0)).toBe(initialSize);
-    expect(model.getters.getColSize(newSheetId, 0)).toBe(sizes[0] + 24);
+    setCellContent(model, "A1", TEXT, newSheetId);
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId: newSheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initialSize);
     expect(model.getters.getColSize(newSheetId, 0)).toBe(sizes[0] + hPadding);

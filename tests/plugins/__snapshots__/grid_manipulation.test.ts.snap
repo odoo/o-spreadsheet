@@ -4,53 +4,113 @@ exports[`Columns Correctly update references On addition 1`] = `
 Object {
   "A1": Object {
     "content": "=D1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "A2": Object {
     "content": "=Sheet1!D1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "A3": Object {
     "content": "=Sheet2!B1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "A5": Object {
     "content": "=SUM(A1:F1)",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "A6": Object {
     "content": "=SUM(E1:F1)",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "A7": Object {
     "content": "=SUM(D1:D2)",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "F1": Object {
     "content": "=A1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "F2": Object {
     "content": "=D1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "F3": Object {
     "content": "=$G1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "F4": Object {
     "content": "=F3",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
 }
 `;
@@ -59,18 +119,36 @@ exports[`Columns Correctly update references On addition 2`] = `
 Object {
   "A1": Object {
     "content": "=B1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "A2": Object {
     "content": "=Sheet1!D1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "A3": Object {
     "content": "=Sheet2!B1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
 }
 `;
@@ -79,53 +157,113 @@ exports[`Columns Correctly update references On deletion 1`] = `
 Object {
   "A1": Object {
     "content": "=#REF",
+    "evaluated": Object {
+      "error": [Error: Invalid reference],
+      "type": "error",
+      "value": "#REF",
+    },
     "format": undefined,
     "style": undefined,
+    "value": "#REF",
   },
   "A2": Object {
     "content": "=#REF",
+    "evaluated": Object {
+      "error": [Error: Invalid reference],
+      "type": "error",
+      "value": "#REF",
+    },
     "format": undefined,
     "style": undefined,
+    "value": "#REF",
   },
   "A3": Object {
     "content": "=Sheet2!B1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "A5": Object {
     "content": "=SUM(A1:B1)",
+    "evaluated": Object {
+      "error": [Error: Invalid reference],
+      "type": "error",
+      "value": "#REF",
+    },
     "format": undefined,
     "style": undefined,
+    "value": "#REF",
   },
   "A6": Object {
     "content": "=SUM(B1)",
+    "evaluated": Object {
+      "error": [Error: Invalid reference],
+      "type": "error",
+      "value": "#REF",
+    },
     "format": undefined,
     "style": undefined,
+    "value": "#REF",
   },
   "A7": Object {
     "content": "=SUM(#REF)",
+    "evaluated": Object {
+      "error": [Error: Invalid reference],
+      "type": "error",
+      "value": "#REF",
+    },
     "format": undefined,
     "style": undefined,
+    "value": "#REF",
   },
   "B1": Object {
     "content": "=A1",
+    "evaluated": Object {
+      "error": [Error: Invalid reference],
+      "type": "error",
+      "value": "#REF",
+    },
     "format": undefined,
     "style": undefined,
+    "value": "#REF",
   },
   "B2": Object {
     "content": "=#REF",
+    "evaluated": Object {
+      "error": [Error: Invalid reference],
+      "type": "error",
+      "value": "#REF",
+    },
     "format": undefined,
     "style": undefined,
+    "value": "#REF",
   },
   "B3": Object {
     "content": "=$C1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "B4": Object {
     "content": "=B3",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
 }
 `;
@@ -134,18 +272,36 @@ exports[`Columns Correctly update references On deletion 2`] = `
 Object {
   "A1": Object {
     "content": "=B1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "A2": Object {
     "content": "=#REF",
+    "evaluated": Object {
+      "error": [Error: Invalid reference],
+      "type": "error",
+      "value": "#REF",
+    },
     "format": undefined,
     "style": undefined,
+    "value": "#REF",
   },
   "A3": Object {
     "content": "=Sheet2!B1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
 }
 `;
@@ -154,53 +310,113 @@ exports[`Rows Correctly update references On addition 1`] = `
 Object {
   "A1": Object {
     "content": "=A4",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "A6": Object {
     "content": "=A1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "B1": Object {
     "content": "=Sheet1!A4",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "B6": Object {
     "content": "=B1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "C1": Object {
     "content": "=Sheet2!A2",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "C6": Object {
     "content": "=A$7",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "D6": Object {
     "content": "=C6",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "E1": Object {
     "content": "=SUM(A1:A6)",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "F1": Object {
     "content": "=SUM(A5:A6)",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "G1": Object {
     "content": "=SUM(B4:C4)",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
 }
 `;
@@ -209,18 +425,36 @@ exports[`Rows Correctly update references On addition 2`] = `
 Object {
   "A1": Object {
     "content": "=A2",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "B1": Object {
     "content": "=Sheet1!A4",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "C1": Object {
     "content": "=Sheet2!A2",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
 }
 `;
@@ -229,53 +463,113 @@ exports[`Rows Correctly update references On deletion 1`] = `
 Object {
   "A1": Object {
     "content": "=#REF",
+    "evaluated": Object {
+      "error": [Error: Invalid reference],
+      "type": "error",
+      "value": "#REF",
+    },
     "format": undefined,
     "style": undefined,
+    "value": "#REF",
   },
   "A2": Object {
     "content": "=A1",
+    "evaluated": Object {
+      "error": [Error: Invalid reference],
+      "type": "error",
+      "value": "#REF",
+    },
     "format": undefined,
     "style": undefined,
+    "value": "#REF",
   },
   "B1": Object {
     "content": "=#REF",
+    "evaluated": Object {
+      "error": [Error: Invalid reference],
+      "type": "error",
+      "value": "#REF",
+    },
     "format": undefined,
     "style": undefined,
+    "value": "#REF",
   },
   "B2": Object {
     "content": "=B1",
+    "evaluated": Object {
+      "error": [Error: Invalid reference],
+      "type": "error",
+      "value": "#REF",
+    },
     "format": undefined,
     "style": undefined,
+    "value": "#REF",
   },
   "C1": Object {
     "content": "=Sheet2!A2",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "C2": Object {
     "content": "=A$3",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "D2": Object {
     "content": "=C2",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "E1": Object {
     "content": "=SUM(A1:A2)",
+    "evaluated": Object {
+      "error": [Error: Invalid reference],
+      "type": "error",
+      "value": "#REF",
+    },
     "format": undefined,
     "style": undefined,
+    "value": "#REF",
   },
   "F1": Object {
     "content": "=SUM(A2)",
+    "evaluated": Object {
+      "error": [Error: Invalid reference],
+      "type": "error",
+      "value": "#REF",
+    },
     "format": undefined,
     "style": undefined,
+    "value": "#REF",
   },
   "G1": Object {
     "content": "=SUM(#REF)",
+    "evaluated": Object {
+      "error": [Error: Invalid reference],
+      "type": "error",
+      "value": "#REF",
+    },
     "format": undefined,
     "style": undefined,
+    "value": "#REF",
   },
 }
 `;
@@ -284,18 +578,36 @@ exports[`Rows Correctly update references On deletion 2`] = `
 Object {
   "A1": Object {
     "content": "=A2",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "B1": Object {
     "content": "=#REF",
+    "evaluated": Object {
+      "error": [Error: Invalid reference],
+      "type": "error",
+      "value": "#REF",
+    },
     "format": undefined,
     "style": undefined,
+    "value": "#REF",
   },
   "C1": Object {
     "content": "=Sheet2!A2",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
 }
 `;
@@ -304,13 +616,25 @@ exports[`Rows Correctly update references delete row on inactive sheet 1`] = `
 Object {
   "B2": Object {
     "content": "=Sheet1!A2",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "C1": Object {
     "content": "=Sheet2!A1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
 }
 `;
@@ -319,18 +643,36 @@ exports[`Rows Correctly update references delete row on inactive sheet 2`] = `
 Object {
   "A1": Object {
     "content": "=B1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "B1": Object {
     "content": "=Sheet1!A2",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
   "C1": Object {
     "content": "=Sheet2!A1",
+    "evaluated": Object {
+      "format": undefined,
+      "type": "number",
+      "value": 0,
+    },
     "format": undefined,
     "style": undefined,
+    "value": 0,
   },
 }
 `;

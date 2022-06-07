@@ -6,10 +6,12 @@ import {
   AddMergeCommand,
   ClearCellCommand,
   ClearFormattingCommand,
+  CreateFilterTableCommand,
   DeleteContentCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
   RemoveColumnsRowsCommand,
+  RemoveFilterTableCommand,
   RemoveMergeCommand,
   ResizeColumnsRowsCommand,
   SetBorderCommand,
@@ -112,34 +114,46 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
     type: "CLEAR_FORMATTING",
     sheetId,
   };
+  const createFilters: Omit<CreateFilterTableCommand, "target"> = {
+    type: "CREATE_FILTER_TABLE",
+    sheetId,
+  };
 
-  describe.each([deleteContent, setFormatting, clearFormatting])("target commands", (cmd) => {
-    test(`add columns after ${cmd.type}`, () => {
-      const command = { ...cmd, target: [toZone("A1:A3")] };
-      const result = transform(command, addColumnsAfter);
-      expect(result).toEqual(command);
-    });
-    test(`add columns before ${cmd.type}`, () => {
-      const command = { ...cmd, target: [toZone("M1:O2")] };
-      const result = transform(command, addColumnsAfter);
-      expect(result).toEqual({ ...command, target: [toZone("O1:Q2")] });
-    });
-    test(`add columns in ${cmd.type}`, () => {
-      const command = { ...cmd, target: [toZone("F1:G2")] };
-      const result = transform(command, addColumnsAfter);
-      expect(result).toEqual({ ...command, target: [toZone("F1:I2")] });
-    });
-    test(`${cmd.type} and columns added in different sheets`, () => {
-      const command = { ...cmd, target: [toZone("A1:F3")], sheetId: "42" };
-      const result = transform(command, addColumnsAfter);
-      expect(result).toEqual(command);
-    });
-    test(`${cmd.type} with two targets, one before and one after`, () => {
-      const command = { ...cmd, target: [toZone("A1:A3"), toZone("M1:O2")] };
-      const result = transform(command, addColumnsAfter);
-      expect(result).toEqual({ ...command, target: [toZone("A1:A3"), toZone("O1:Q2")] });
-    });
-  });
+  const removeFilters: Omit<RemoveFilterTableCommand, "target"> = {
+    type: "REMOVE_FILTER_TABLE",
+    sheetId,
+  };
+
+  describe.each([deleteContent, setFormatting, clearFormatting, createFilters, removeFilters])(
+    "target commands",
+    (cmd) => {
+      test(`add columns after ${cmd.type}`, () => {
+        const command = { ...cmd, target: [toZone("A1:A3")] };
+        const result = transform(command, addColumnsAfter);
+        expect(result).toEqual(command);
+      });
+      test(`add columns before ${cmd.type}`, () => {
+        const command = { ...cmd, target: [toZone("M1:O2")] };
+        const result = transform(command, addColumnsAfter);
+        expect(result).toEqual({ ...command, target: [toZone("O1:Q2")] });
+      });
+      test(`add columns in ${cmd.type}`, () => {
+        const command = { ...cmd, target: [toZone("F1:G2")] };
+        const result = transform(command, addColumnsAfter);
+        expect(result).toEqual({ ...command, target: [toZone("F1:I2")] });
+      });
+      test(`${cmd.type} and columns added in different sheets`, () => {
+        const command = { ...cmd, target: [toZone("A1:F3")], sheetId: "42" };
+        const result = transform(command, addColumnsAfter);
+        expect(result).toEqual(command);
+      });
+      test(`${cmd.type} with two targets, one before and one after`, () => {
+        const command = { ...cmd, target: [toZone("A1:A3"), toZone("M1:O2")] };
+        const result = transform(command, addColumnsAfter);
+        expect(result).toEqual({ ...command, target: [toZone("A1:A3"), toZone("O1:Q2")] });
+      });
+    }
+  );
 
   const addConditionalFormat: Omit<AddConditionalFormatCommand, "ranges"> = {
     type: "ADD_CONDITIONAL_FORMAT",
