@@ -200,17 +200,11 @@ export class EvaluationPlugin extends UIPlugin {
 
     function getCellValue(cell: Cell, sheetId: UID): CellValue {
       if (cell.isFormula() && cell.evaluated.type === CellValueType.error) {
-        throw new EvaluationError(
-          cell.evaluated.value,
-          _lt("This formula depends on invalid values: %s", cell.evaluated.error)
-        );
+        throw new EvaluationError(cell.evaluated.value, cell.evaluated.error);
       }
       computeValue(cell, sheetId);
       if (cell.evaluated.type === CellValueType.error) {
-        throw new EvaluationError(
-          cell.evaluated.value,
-          _lt("This formula depends on invalid values: %s", cell.evaluated.error)
-        );
+        throw new EvaluationError(cell.evaluated.value, cell.evaluated.error);
       }
       return cell.evaluated.value;
     }
