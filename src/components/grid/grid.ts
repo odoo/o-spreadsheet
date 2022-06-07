@@ -25,6 +25,7 @@ import {
 import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
+import { FilterIconsOverlay } from "../filters/filter_icons_overlay/fitler_icons_overlay";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
@@ -36,6 +37,7 @@ import { Highlight } from "../highlight/highlight/highlight";
 import { Menu, MenuState } from "../menu/menu";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
+
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
  * for displaying the actual grid, rendering it, managing events, ...
@@ -47,7 +49,7 @@ import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
  * - a vertical resizer (same, for rows)
  */
 
-export type ContextMenuType = "ROW" | "COL" | "CELL";
+export type ContextMenuType = "ROW" | "COL" | "CELL" | "FILTER";
 
 const registries = {
   ROW: rowMenuRegistry,
@@ -85,6 +87,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     Popover,
     VerticalScrollBar,
     HorizontalScrollBar,
+    FilterIconsOverlay,
   };
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;

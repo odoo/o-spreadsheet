@@ -5,7 +5,16 @@ import { ChartDefinition } from "./chart/chart";
 import { ClipboardPasteOptions } from "./clipboard";
 import { UpDown } from "./conditional_formatting";
 import { BorderCommand, ConditionalFormat, Figure, Format, Style, Zone } from "./index";
-import { Border, CellPosition, Dimension, HeaderIndex, Pixel, SetDecimalStep, UID } from "./misc";
+import {
+  Border,
+  CellPosition,
+  Dimension,
+  HeaderIndex,
+  Pixel,
+  SetDecimalStep,
+  SortOptions,
+  UID,
+} from "./misc";
 import { RangeData } from "./range";
 
 // -----------------------------------------------------------------------------
@@ -121,6 +130,9 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "SET_CURRENT_CONTENT",
 
   "SET_FORMULA_VISIBILITY",
+
+  "OPEN_CELL_POPOVER",
+  "CLOSE_CELL_POPOVER",
 ]);
 
 export const coreTypes = new Set<CoreCommandTypes>([
@@ -178,6 +190,10 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** CHART */
   "CREATE_CHART",
   "UPDATE_CHART",
+
+  /** FILTERS */
+  "CREATE_FILTER_TABLE",
+  "REMOVE_FILTER_TABLE",
 ]);
 
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
@@ -408,6 +424,23 @@ export interface UpdateChartCommand extends SheetDependentCommand {
   type: "UPDATE_CHART";
   id: UID;
   definition: ChartDefinition;
+}
+
+//------------------------------------------------------------------------------
+// Filters
+//------------------------------------------------------------------------------
+
+export interface CreateFilterTableCommand extends TargetDependentCommand {
+  type: "CREATE_FILTER_TABLE";
+}
+
+export interface RemoveFilterTableCommand extends TargetDependentCommand {
+  type: "REMOVE_FILTER_TABLE";
+}
+
+export interface UpdateFilterCommand extends PositionDependentCommand {
+  type: "UPDATE_FILTER";
+  values: string[];
 }
 
 export interface SetFormattingCommand extends TargetDependentCommand {
@@ -746,6 +779,7 @@ export interface SortCommand {
   row: number;
   zone: Zone;
   sortDirection: SortDirection;
+  sortOptions?: SortOptions;
 }
 
 export type SortDirection = "ascending" | "descending";
@@ -884,7 +918,11 @@ export type CoreCommand =
 
   /** CHART */
   | CreateChartCommand
-  | UpdateChartCommand;
+  | UpdateChartCommand
+
+  /** FILTERS */
+  | CreateFilterTableCommand
+  | RemoveFilterTableCommand;
 
 export type LocalCommand =
   | RequestUndoCommand
@@ -946,7 +984,8 @@ export type LocalCommand =
   | OpenCellPopoverCommand
   | CloseCellPopoverCommand
   | ActivateNextSheetCommand
-  | ActivatePreviousSheetCommand;
+  | ActivatePreviousSheetCommand
+  | UpdateFilterCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
@@ -1065,6 +1104,11 @@ export const enum CommandResult {
   InvalidFreezeQuantity,
   FrozenPaneOverlap,
   ValuesNotChanged,
+  InvalidFilterZone,
+  FilterOverlap,
+  FilterNotFound,
+  MergeInFilter,
+  NonContinuousTargets,
 }
 
 export interface CommandHandler<T> {

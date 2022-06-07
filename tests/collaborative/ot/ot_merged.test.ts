@@ -4,6 +4,7 @@ import {
   AddMergeCommand,
   ClearCellCommand,
   ClearFormattingCommand,
+  CreateFilterTableCommand,
   DeleteContentCommand,
   RemoveMergeCommand,
   SetBorderCommand,
@@ -112,6 +113,26 @@ describe("OT with ADD_MERGE", () => {
       const command = { ...cmd, target: target("C3:D5"), sheetId: "another sheet" };
       const result = transform(command, addMerge);
       expect(result).toEqual(command);
+    });
+  });
+
+  const createTable: Omit<CreateFilterTableCommand, "target"> = {
+    type: "CREATE_FILTER_TABLE",
+    sheetId,
+  };
+
+  describe("ADD_MERGE with CREATE_FILTER_TABLE", () => {
+    test("Merge overlapping filter table", () => {
+      const zones = target("A1");
+      const addMergeCmd = { ...addMerge, target: zones };
+      const createTableCmd = { ...createTable, target: zones };
+      expect(transform(addMergeCmd, createTableCmd)).toBeUndefined();
+    });
+
+    test("Merge not overlapping filter table", () => {
+      const addMergeCmd = { ...addMerge, target: target("A1") };
+      const createTableCmd = { ...createTable, target: target("B2") };
+      expect(transform(addMergeCmd, createTableCmd)).toEqual(addMergeCmd);
     });
   });
 });

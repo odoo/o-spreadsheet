@@ -18,6 +18,9 @@ export const BACKGROUND_CHART_COLOR = "#FFFFFF";
 export const MENU_ITEM_DISABLED_COLOR = "#CACACA";
 export const DEFAULT_COLOR_SCALE_MIDPOINT_COLOR = 0xb6d7a8;
 export const LINK_COLOR = "#01666b";
+export const FILTERS_COLOR = "#188038";
+export const BACKGROUND_HEADER_FILTER_COLOR = "#E6F4EA";
+export const BACKGROUND_HEADER_SELECTED_FILTER_COLOR = "#CEEAD6";
 
 // Color picker
 export const COLOR_PICKER_DEFAULTS = [
@@ -121,6 +124,7 @@ export const MIN_CELL_TEXT_MARGIN = 4;
 export const CF_ICON_EDGE_LENGTH = 15;
 export const PADDING_AUTORESIZE_VERTICAL = 3;
 export const PADDING_AUTORESIZE_HORIZONTAL = MIN_CELL_TEXT_MARGIN;
+export const FILTER_ICON_MARGIN = 2;
 
 // Menus
 export const MENU_WIDTH = 250;
@@ -139,6 +143,7 @@ export const DEFAULT_FONT = "'Roboto', arial";
 
 // Borders
 export const DEFAULT_BORDER_DESC: BorderDescr = ["thin", "#000"];
+export const DEFAULT_FILTER_BORDER_DESC: BorderDescr = ["thin", FILTERS_COLOR];
 
 // DateTimeRegex
 export const DATETIME_FORMAT = /[ymd:]/;

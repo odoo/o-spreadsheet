@@ -1,7 +1,11 @@
-import { PADDING_AUTORESIZE_HORIZONTAL } from "../../constants";
-import { computeIconWidth, computeTextWidth, positionToZone } from "../../helpers/index";
+import {
+  FILTER_ICON_MARGIN,
+  ICON_EDGE_LENGTH,
+  PADDING_AUTORESIZE_HORIZONTAL,
+} from "../../constants";
+import { computeIconWidth, computeTextWidth, positions, positionToZone } from "../../helpers/index";
 import { Cell, CellValueType, Command, CommandResult, UID } from "../../types";
-import { Dimension, HeaderDimensions, HeaderIndex, Pixel, Style } from "../../types/misc";
+import { Dimension, HeaderDimensions, HeaderIndex, Pixel, Position, Style } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
@@ -67,17 +71,25 @@ export class SheetUIPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getCellWidth(cell: Cell): number {
-    let contentWidth = this.getTextWidth(cell);
-    const cellPosition = this.getters.getCellPosition(cell.id);
-    const icon = this.getters.getConditionalIcon(cellPosition.col, cellPosition.row);
+  getCellWidth(sheetId: UID, { col, row }: Position): number {
+    const cell = this.getters.getCell(sheetId, col, row);
+    let contentWidth = 0;
+    if (cell) {
+      contentWidth += this.getTextWidth(cell);
+    }
+    const icon = this.getters.getConditionalIcon(col, row);
     if (icon) {
       contentWidth += computeIconWidth(this.getters.getCellStyle(cell));
     }
+    const isFilterHeader = this.getters.isFilterHeader(sheetId, col, row);
+    if (isFilterHeader) {
+      contentWidth += ICON_EDGE_LENGTH + FILTER_ICON_MARGIN;
+    }
+
     contentWidth += 2 * PADDING_AUTORESIZE_HORIZONTAL;
 
     if (this.getters.getCellStyle(cell).wrapping === "wrap") {
-      const zone = positionToZone(this.getters.getCellPosition(cell.id));
+      const zone = positionToZone({ col, row });
       const colWidth = this.getters.getColSize(this.getters.getActiveSheetId(), zone.left);
       return Math.min(colWidth, contentWidth);
     }
@@ -212,9 +224,9 @@ export class SheetUIPlugin extends UIPlugin {
   // Grid manipulation
   // ---------------------------------------------------------------------------
 
-  private getColMaxWidth(sheetId: UID, index: HeaderIndex): Pixel {
-    const cells = this.getters.getColCells(sheetId, index);
-    const sizes = cells.map((cell: Cell) => this.getCellWidth(cell));
+  private getColMaxWidth(sheetId: UID, index: HeaderIndex): number {
+    const cellsPositions = positions(this.getters.getColsZone(sheetId, index, index));
+    const sizes = cellsPositions.map((position) => this.getCellWidth(sheetId, position));
     return Math.max(0, ...sizes);
   }
 

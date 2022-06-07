@@ -42,6 +42,7 @@ export interface SheetData {
   cols: { [key: number]: HeaderData };
   rows: { [key: number]: HeaderData };
   conditionalFormats: ConditionalFormat[];
+  filterTables: FilterTableData[];
   areGridLinesVisible?: boolean;
   isVisible: boolean;
   panes?: PaneDivision;
@@ -68,4 +69,8 @@ export interface ExcelCellData extends CellData {
 export interface ExcelSheetData extends SheetData {
   cells: { [key: string]: ExcelCellData | undefined };
   charts: FigureData<ExcelChartDefinition>[];
+}
+
+export interface FilterTableData {
+  range: string;
 }

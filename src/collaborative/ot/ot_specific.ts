@@ -5,6 +5,7 @@ import {
   AddColumnsRowsCommand,
   AddMergeCommand,
   CreateChartCommand,
+  CreateFilterTableCommand,
   CreateSheetCommand,
   DeleteFigureCommand,
   DeleteSheetCommand,
@@ -35,7 +36,11 @@ otRegistry.addTransformation(
 otRegistry.addTransformation("DELETE_SHEET", ["MOVE_RANGES"], transformTargetSheetId);
 otRegistry.addTransformation("DELETE_FIGURE", ["UPDATE_FIGURE", "UPDATE_CHART"], updateChartFigure);
 otRegistry.addTransformation("CREATE_SHEET", ["CREATE_SHEET"], createSheetTransformation);
-otRegistry.addTransformation("ADD_MERGE", ["ADD_MERGE", "REMOVE_MERGE"], mergeTransformation);
+otRegistry.addTransformation(
+  "ADD_MERGE",
+  ["ADD_MERGE", "REMOVE_MERGE", "CREATE_FILTER_TABLE"],
+  mergeTransformation
+);
 otRegistry.addTransformation(
   "ADD_COLUMNS_ROWS",
   ["FREEZE_COLUMNS", "FREEZE_ROWS"],
@@ -45,6 +50,11 @@ otRegistry.addTransformation(
   "REMOVE_COLUMNS_ROWS",
   ["FREEZE_COLUMNS", "FREEZE_ROWS"],
   freezeTransformation
+);
+otRegistry.addTransformation(
+  "CREATE_FILTER_TABLE",
+  ["CREATE_FILTER_TABLE", "ADD_MERGE"],
+  createTableTransformation
 );
 
 function transformTargetSheetId(
@@ -95,9 +105,9 @@ function createSheetTransformation(
 }
 
 function mergeTransformation(
-  cmd: AddMergeCommand | RemoveMergeCommand,
+  cmd: AddMergeCommand | RemoveMergeCommand | CreateFilterTableCommand,
   executed: AddMergeCommand
-): AddMergeCommand | RemoveMergeCommand | undefined {
+): AddMergeCommand | RemoveMergeCommand | CreateFilterTableCommand | undefined {
   if (cmd.sheetId !== executed.sheetId) {
     return cmd;
   }
@@ -140,4 +150,25 @@ function freezeTransformation(
     quantity = quantity > executedBase ? quantity + executed.quantity : quantity;
   }
   return quantity > 0 ? { ...cmd, quantity } : undefined;
+}
+
+/**
+ * Cancel CREATE_FILTER_TABLE and ADD_MERGE commands if they overlap a filter
+ */
+function createTableTransformation(
+  cmd: CreateFilterTableCommand | AddMergeCommand,
+  executed: CreateFilterTableCommand
+): CreateFilterTableCommand | AddMergeCommand | undefined {
+  if (cmd.sheetId !== executed.sheetId) {
+    return cmd;
+  }
+
+  for (const cmdTarget of cmd.target) {
+    for (const executedCmdTarget of executed.target) {
+      if (overlap(executedCmdTarget, cmdTarget)) {
+        return undefined;
+      }
+    }
+  }
+  return cmd;
 }

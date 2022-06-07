@@ -401,6 +401,7 @@ function createEmptySheet(sheetId: UID, name: string): SheetData {
     merges: [],
     conditionalFormats: [],
     figures: [],
+    filterTables: [],
     isVisible: true,
   };
 }

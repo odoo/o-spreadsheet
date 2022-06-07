@@ -5,7 +5,10 @@ import {
   BACKGROUND_GRAY_COLOR,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
+  FILTER_ICON_MARGIN,
+  HEADER_HEIGHT,
   HEADER_WIDTH,
+  ICON_EDGE_LENGTH,
   MESSAGE_VERSION,
   SCROLLBAR_WIDTH,
 } from "../../src/constants";
@@ -14,6 +17,7 @@ import { Model } from "../../src/model";
 import { chartComponentRegistry } from "../../src/registries";
 import {
   createChart,
+  createFilter,
   createSheet,
   freezeColumns,
   freezeRows,
@@ -23,6 +27,7 @@ import {
   selectCell,
   setCellContent,
   setSelection,
+  updateFilter,
 } from "../test_helpers/commands_helpers";
 import {
   clickCell,
@@ -43,7 +48,6 @@ import {
   Touch,
 } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
-
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
@@ -601,6 +605,47 @@ describe("Grid component", () => {
         new KeyboardEvent("keydown", { key: "PageUp", shiftKey: true, bubbles: true })
       );
       expect(model.getters.getActiveSheetId()).toBe("third");
+    });
+
+    test("Filter icon is correctly rendered", async () => {
+      createFilter(model, "B2:C3");
+      await nextTick();
+
+      const icons = fixture.querySelectorAll(".o-filter-icon");
+      expect(icons).toHaveLength(2);
+      const centerIngOffset = (DEFAULT_CELL_HEIGHT - ICON_EDGE_LENGTH) / 2;
+      const top = `${
+        DEFAULT_CELL_HEIGHT * 2 - ICON_EDGE_LENGTH + HEADER_HEIGHT - centerIngOffset
+      }px`;
+      const leftA = `${
+        DEFAULT_CELL_WIDTH * 2 - ICON_EDGE_LENGTH + HEADER_WIDTH - FILTER_ICON_MARGIN
+      }px`;
+      const leftB = `${
+        DEFAULT_CELL_WIDTH * 3 - ICON_EDGE_LENGTH + HEADER_WIDTH - FILTER_ICON_MARGIN
+      }px`;
+      expect((icons[0] as HTMLElement).style["_values"]).toEqual({ top, left: leftA });
+      expect((icons[1] as HTMLElement).style["_values"]).toEqual({ top, left: leftB });
+    });
+
+    test("Filter icon change when filter is active", async () => {
+      createFilter(model, "A1:A2");
+      await nextTick();
+      const grid = fixture.querySelector(".o-grid")!;
+      expect(grid.querySelectorAll(".filter-icon")).toHaveLength(1);
+      expect(grid.querySelectorAll(".filter-icon-active")).toHaveLength(0);
+
+      updateFilter(model, "A1", ["5"]);
+      await nextTick();
+      expect(model.getters.isFilterActive(model.getters.getActiveSheetId(), 0, 0)).toBeTruthy();
+      expect(grid.querySelectorAll(".filter-icon")).toHaveLength(0);
+      expect(grid.querySelectorAll(".filter-icon-active")).toHaveLength(1);
+    });
+
+    test("Clicking on a filter icon correctly open context menu", async () => {
+      createFilter(model, "A1:A2");
+      await nextTick();
+      await simulateClick(".o-filter-icon");
+      expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
     });
   });
 
