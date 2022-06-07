@@ -991,6 +991,19 @@ describe("evaluateCells", () => {
     expect(getCellError(model, "A1")).toBe("Invalid reference");
   });
 
+  test("Coherent handling of error when referencing errored cell", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=+(");
+    setCellContent(model, "B1", "=A1");
+    setCellContent(model, "C1", "=B1");
+    expect(getCell(model, "A1")!.evaluated.value).toBe("#BAD_EXPR");
+    expect(getCell(model, "B1")!.evaluated.value).toBe("#BAD_EXPR");
+    expect(getCell(model, "C1")!.evaluated.value).toBe("#BAD_EXPR");
+    expect(getCellError(model, "A1")).toBe("Invalid expression");
+    expect(getCellError(model, "B1")).toBe("Invalid expression");
+    expect(getCellError(model, "C1")).toBe("Invalid expression");
+  });
+
   // TO DO: add tests for exp format (ex: 4E10)
   // RO DO: add tests for DATE string format (ex match: "28 02 2020")
 });
