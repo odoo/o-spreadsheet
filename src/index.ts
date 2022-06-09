@@ -59,6 +59,7 @@ import {
   topbarComponentRegistry,
   topbarMenuRegistry,
 } from "./registries/index";
+import { EvaluationError } from "./types/errors";
 
 /**
  * We export here all entities that needs to be accessed publicly by Odoo.
@@ -147,6 +148,7 @@ export const helpers = {
   parseMarkdownLink,
   markdownLink,
   createEmptyWorkbookData,
+  EvaluationError,
 };
 export const components = {
   ChartFigure,
