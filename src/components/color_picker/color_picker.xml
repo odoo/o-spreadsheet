@@ -1,17 +1,75 @@
 <templates>
   <t t-name="o-spreadsheet-ColorPicker" owl="1">
-    <div
-      class="o-color-picker"
-      t-att-class="props.dropdownDirection || 'right'"
-      t-on-click="onColorClick">
-      <div class="o-color-picker-line" t-foreach="COLORS" t-as="colors" t-key="colors">
-        <t t-foreach="colors" t-as="color" t-key="color">
+    <div class="o-color-picker" t-att-class="props.dropdownDirection || 'right'">
+      <div class="o-color-picker-section-name">Standard</div>
+      <div class="colors-grid">
+        <div
+          t-foreach="COLORS"
+          t-as="color"
+          t-key="color"
+          class="o-color-picker-line-item"
+          t-att-data-color="color"
+          t-on-click="() => this.onColorClick(color)"
+          t-attf-style="background-color:{{color}};">
           <div
-            class="o-color-picker-line-item"
-            t-att-data-color="color"
-            t-attf-style="background-color:{{color}};"
+            t-if="props.currentColor === color"
+            align="center"
+            t-attf-style="color:{{getCheckMarkColor()}}">
+            &#10004;
+          </div>
+        </div>
+      </div>
+      <div class="o-separator"/>
+      <div class="o-color-picker-section-name">
+        <span>Custom</span>
+      </div>
+      <div class="colors-grid">
+        <div
+          class="o-color-picker-toggler o-color-picker-line-item"
+          t-on-click.stop="toggleColorPicker">
+          <div align="center">+</div>
+        </div>
+        <div
+          t-foreach="env.model.getters.getCustomColors()"
+          t-as="color"
+          t-key="color"
+          class="o-color-picker-line-item"
+          t-att-data-color="color"
+          t-attf-style="background-color:{{color}};"
+          t-on-click="() => this.onColorClick(color)">
+          <div
+            t-if="props.currentColor === color"
+            align="center"
+            t-attf-style="color:{{getCheckMarkColor()}}">
+            &#10004;
+          </div>
+        </div>
+      </div>
+      <div t-if="state.showGradient" class="o-custom-selector">
+        <div class="o-magnifier-glass" t-att-style="magnifyingGlassStyle"/>
+        <div
+          class="o-gradient"
+          t-on-click.stop="computeCustomColor"
+          t-on-mouseout="hideMagnifier"
+          t-on-mousemove="moveMagnifier"
+          t-on-mouseover="showMagnifier"
+        />
+        <div class="o-custom-input-preview">
+          <input
+            type="text"
+            t-att-class="{'o-wrong-color': state.isCurrentColorInvalid }"
+            t-on-click.stop=""
+            t-model="state.currentColor"
           />
-        </t>
+          <div class="o-color-preview" t-attf-style="background-color:{{state.currentColor}}"/>
+        </div>
+        <div class="o-custom-input-buttons">
+          <button class="o-add-button" t-on-click="setCustomColor">Add</button>
+        </div>
+      </div>
+      <div class="o-separator"/>
+      <div class="o-buttons">
+        <button t-on-click="resetColor" class="o-cancel">Reset</button>
       </div>
     </div>
   </t>

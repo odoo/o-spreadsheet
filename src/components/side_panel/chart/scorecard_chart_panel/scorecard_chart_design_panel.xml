@@ -14,6 +14,7 @@
           <ColorPicker
             t-if="state.openedColorPicker === 'backgroundColor'"
             onColorPicked="(color) => this.setColor(color, 'backgroundColor')"
+            currentColor="props.definition.brackground"
             t-key="backgroundColor"
           />
         </div>
@@ -52,6 +53,7 @@
         <ColorPicker
           t-if="state.openedColorPicker === 'baselineColorUp'"
           onColorPicked="(color) => this.setColor(color, 'baselineColorUp')"
+          currentColor="props.definition.baselineColorUp"
           t-key="baselineColorUp"
         />
       </div>
@@ -67,6 +69,7 @@
         <ColorPicker
           t-if="state.openedColorPicker === 'baselineColorDown'"
           onColorPicked="(color) => this.setColor(color, 'baselineColorDown')"
+          currentColor="props.definition.baselineColorDown"
           t-key="baselineColorDown"
         />
       </div>

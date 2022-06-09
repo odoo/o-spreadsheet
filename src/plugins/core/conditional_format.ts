@@ -180,7 +180,7 @@ export class ConditionalFormatPlugin
    * Returns all the conditional format rules defined for the current sheet to display the user
    */
   getConditionalFormats(sheetId: UID): ConditionalFormat[] {
-    return this.cfRules[sheetId].map((cf) => this.mapToConditionalFormat(sheetId, cf)) || [];
+    return this.cfRules[sheetId]?.map((cf) => this.mapToConditionalFormat(sheetId, cf)) || [];
   }
 
   getRulesSelection(sheetId: UID, selection: Zone[]): UID[] {

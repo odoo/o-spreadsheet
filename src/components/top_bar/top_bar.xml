@@ -158,6 +158,7 @@
             <ColorPicker
               t-if="state.activeTool === 'textColorTool'"
               onColorPicked="(color) => this.setColor('textColor', color)"
+              currentColor="textColor"
               t-key="textColor"
             />
           </div>
@@ -172,6 +173,7 @@
             <ColorPicker
               t-if="state.activeTool === 'fillColorTool'"
               onColorPicked="(color) => this.setColor('fillColor', color)"
+              currentColor="fillColor"
               t-key="fillColor"
             />
           </div>

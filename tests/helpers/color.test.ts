@@ -1,4 +1,12 @@
-import { colorToRGBA, hslaToRGBA, rgbaToHex, rgbaToHSLA, toHex } from "../../src/helpers/color";
+import {
+  colorToRGBA,
+  hslaToRGBA,
+  isColorValid,
+  rgba,
+  rgbaToHex,
+  rgbaToHSLA,
+  toHex,
+} from "../../src/helpers/color";
 import { Color, HSLA, RGBA } from "../../src/types";
 
 const testColors: { input: Color; hex: Color; rgba: RGBA; hsla: HSLA }[] = [
@@ -85,5 +93,42 @@ describe("hslaToRGBA", () => {
     expect(rgba.g).toBeCloseTo(expectedRGBA.g, 0);
     expect(rgba.b).toBeCloseTo(expectedRGBA.b, 0);
     expect(rgba.a).toBeCloseTo(expectedRGBA.a, 0);
+  });
+});
+
+describe("isColorValid", () => {
+  test("valid colors", () => {
+    expect(isColorValid("rgb(255, 255, 255)")).toBe(true);
+    expect(isColorValid("#000")).toBe(true);
+    expect(isColorValid("#000000")).toBe(true);
+  });
+
+  test("invalid colors", () => {
+    expect(isColorValid("")).toBe(false);
+    expect(isColorValid("#")).toBe(false);
+    expect(isColorValid("rgb(256, 255, 255)")).toBe(false);
+    expect(isColorValid("#azazaz")).toBe(false);
+  });
+});
+
+describe("rgba", () => {
+  test("invalid values", () => {
+    expect(() => rgba(256, 12, 12)).toThrow("Invalid RGBA values 256,12,12,1");
+    expect(() => rgba(12, 256, 12)).toThrow("Invalid RGBA values 12,256,12,1");
+    expect(() => rgba(12, 12, 256)).toThrow("Invalid RGBA values 12,12,256,1");
+    expect(() => rgba(12, 12, 12, 1.1)).toThrow("Invalid RGBA values 12,12,12,1.1");
+    expect(() => rgba(-1, 12, 12)).toThrow("Invalid RGBA values -1,12,12,1");
+    expect(() => rgba(12, -1, 12)).toThrow("Invalid RGBA values 12,-1,12,1");
+    expect(() => rgba(12, 12, -1)).toThrow("Invalid RGBA values 12,12,-1,1");
+    expect(() => rgba(12, 12, 12, -0.1)).toThrow("Invalid RGBA values 12,12,12,-0.1");
+  });
+
+  test("extreme values", () => {
+    expect(rgba(0, 0, 0, 0)).toEqual({ r: 0, g: 0, b: 0, a: 0 });
+    expect(rgba(255, 255, 255, 1)).toEqual({ r: 255, g: 255, b: 255, a: 1 });
+  });
+
+  test("default alpha value", () => {
+    expect(rgba(1, 2, 3)).toEqual({ r: 1, g: 2, b: 3, a: 1 });
   });
 });

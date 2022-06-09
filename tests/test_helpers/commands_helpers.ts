@@ -136,8 +136,8 @@ export function createScorecardChart(
       keyValue: data.keyValue || "",
       baselineDescr: data.baselineDescr || "",
       baselineMode: data.baselineMode || "difference",
-      baselineColorDown: "#DC6965",
-      baselineColorUp: "#00A04A",
+      baselineColorDown: data.baselineColorDown || "#DC6965",
+      baselineColorUp: data.baselineColorUp || "#00A04A",
       background: data.background,
     },
   });

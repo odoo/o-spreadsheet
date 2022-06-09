@@ -63,7 +63,7 @@ css/* scss */ `
 
       &.active {
         color: #484;
-        background-color: white;
+        background-color: #ffffff;
         box-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
       }
 
@@ -77,7 +77,7 @@ css/* scss */ `
     }
 
     .o-selection-statistic {
-      background-color: white;
+      background-color: #ffffff;
       margin-left: auto;
       font-size: 14px;
       margin-right: 20px;
