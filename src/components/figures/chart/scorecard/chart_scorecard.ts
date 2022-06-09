@@ -112,7 +112,7 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get backgroundColor() {
-    return this.runtime?.background || "white";
+    return this.runtime?.background || "#ffffff";
   }
 
   get primaryFontColor() {

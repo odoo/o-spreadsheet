@@ -29,7 +29,7 @@ css/* scss */ `
 
     .o-autofill-nextvalue {
       position: absolute;
-      background-color: white;
+      background-color: #ffffff;
       border: 1px solid black;
       padding: 5px;
       font-size: 12px;

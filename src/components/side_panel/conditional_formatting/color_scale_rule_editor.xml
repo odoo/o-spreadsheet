@@ -48,6 +48,7 @@
             t-if="state.openedMenu === 'colorScale-'+thresholdType+'Color'"
             dropdownDirection="'left'"
             onColorPicked="(color) => this.setColorScaleColor(thresholdType, color)"
+            currentColor="getThresholdColor(threshold)"
           />
         </div>
       </div>

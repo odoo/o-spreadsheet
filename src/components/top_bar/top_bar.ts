@@ -295,8 +295,8 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   undoTool = false;
   redoTool = false;
   paintFormatTool = false;
-  fillColor: string = "white";
-  textColor: string = "black";
+  fillColor: string = "#ffffff";
+  textColor: string = "#000000";
   menus: FullMenuItem[] = [];
   composerStyle = `
     line-height: 34px;
@@ -399,8 +399,8 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     }
     this.style = { ...this.env.model.getters.getCurrentStyle() };
     this.style.align = this.style.align || cell?.defaultAlign;
-    this.fillColor = this.style.fillColor || "white";
-    this.textColor = this.style.textColor || "black";
+    this.fillColor = this.style.fillColor || "#ffffff";
+    this.textColor = this.style.textColor || "#000000";
 
     this.menus = topbarMenuRegistry
       .getAll()

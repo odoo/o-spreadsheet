@@ -13,6 +13,7 @@
           <ColorPicker
             t-if="state.fillColorTool"
             onColorPicked="(color) => this.updateBackgroundColor(color)"
+            currentColor="props.definition.background"
             t-key="backgroundColor"
           />
         </div>

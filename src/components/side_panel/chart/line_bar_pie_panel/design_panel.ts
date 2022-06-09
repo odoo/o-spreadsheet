@@ -1,4 +1,4 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, useExternalListener, useState } from "@odoo/owl";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
@@ -25,12 +25,19 @@ export class LineBarPieDesignPanel extends Component<Props, SpreadsheetChildEnv>
     fillColorTool: false,
   });
 
+  onClick(ev: MouseEvent) {
+    this.state.fillColorTool = false;
+  }
+
+  setup() {
+    useExternalListener(window as any, "click", this.onClick);
+  }
+
   toggleColorPicker() {
     this.state.fillColorTool = !this.state.fillColorTool;
   }
 
   updateBackgroundColor(color: string) {
-    this.state.fillColorTool = false;
     this.props.updateChart({
       background: color,
     });

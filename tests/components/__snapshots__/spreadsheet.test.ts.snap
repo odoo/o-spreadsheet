@@ -245,7 +245,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           title="Text Color"
         >
           <span
-            style="border-color:black"
+            style="border-color:#000000"
           >
             <svg
               class="o-icon"
@@ -268,7 +268,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           title="Fill Color"
         >
           <span
-            style="border-color:white"
+            style="border-color:#ffffff"
           >
             <svg
               class="o-icon"

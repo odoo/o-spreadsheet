@@ -14,6 +14,7 @@ import { AutofillPlugin } from "../plugins/ui/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui/automatic_sum";
 import { CellPopoverPlugin } from "../plugins/ui/cell_popovers";
 import { ClipboardPlugin } from "../plugins/ui/clipboard";
+import { CustomColorsPlugin } from "../plugins/ui/custom_colors";
 import { EditionPlugin } from "../plugins/ui/edition";
 import { EvaluationPlugin } from "../plugins/ui/evaluation";
 import { EvaluationChartPlugin } from "../plugins/ui/evaluation_chart";
@@ -113,6 +114,7 @@ type EvaluationConditionalFormatGetters = Pick<
 >;
 type FindAndReplaceGetters = Pick<FindAndReplacePlugin, GetterNames<typeof FindAndReplacePlugin>>;
 type HighlightGetters = Pick<HighlightPlugin, GetterNames<typeof HighlightPlugin>>;
+type CustomColorsGetters = Pick<CustomColorsPlugin, GetterNames<typeof CustomColorsPlugin>>;
 type RendererGetters = Pick<RendererPlugin, GetterNames<typeof RendererPlugin>>;
 type SelectionGetters = Pick<GridSelectionPlugin, GetterNames<typeof GridSelectionPlugin>>;
 type SelectionInputGetters = Pick<
@@ -145,6 +147,7 @@ export type Getters = CoreGetters &
   EvaluationConditionalFormatGetters &
   FindAndReplaceGetters &
   HighlightGetters &
+  CustomColorsGetters &
   RendererGetters &
   SelectionGetters &
   SelectionInputGetters &

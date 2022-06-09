@@ -13,6 +13,7 @@ import { AutofillPlugin } from "./ui/autofill";
 import { AutomaticSumPlugin } from "./ui/automatic_sum";
 import { CellPopoverPlugin } from "./ui/cell_popovers";
 import { ClipboardPlugin } from "./ui/clipboard";
+import { CustomColorsPlugin } from "./ui/custom_colors";
 import { EditionPlugin } from "./ui/edition";
 import { EvaluationPlugin } from "./ui/evaluation";
 import { EvaluationChartPlugin } from "./ui/evaluation_chart";
@@ -60,4 +61,5 @@ export const uiPluginRegistry = new Registry<UIPluginConstructor>()
   .add("automatic_sum", AutomaticSumPlugin)
   .add("format", FormatPlugin)
   .add("cell_popovers", CellPopoverPlugin)
-  .add("selection_multiuser", SelectionMultiUserPlugin);
+  .add("selection_multiuser", SelectionMultiUserPlugin)
+  .add("custom_colors", CustomColorsPlugin);

@@ -3,7 +3,7 @@
 exports[`renderer snapshot for a simple grid rendering 1`] = `
 Array [
   "context.save()",
-  "context.fillStyle=\\"white\\";",
+  "context.fillStyle=\\"#ffffff\\";",
   "context.fillRect(0, 0, 1000, 1000)",
   "context.lineWidth=0.8;",
   "context.strokeStyle=\\"#E2E3E3\\";",

@@ -57,7 +57,32 @@ export function toHex(color: Color): Color {
   if (color.length === 3 || color.length === 4) {
     color = color.split("").reduce((acc, h) => acc + h + h, "");
   }
+  if (color.replace(/[a-f0-9]/gi, "") !== "") {
+    throw new Error("invalid color");
+  }
   return "#" + color;
+}
+
+export function isColorValid(color: Color): boolean {
+  try {
+    const { r, g, b, a } = colorToRGBA(color);
+    return (
+      isColorValueValid(r) && isColorValueValid(g) && isColorValueValid(b) && isColorValueValid(a)
+    );
+  } catch (error) {
+    return false;
+  }
+}
+
+const isColorValueValid = (v) => v >= 0 && v <= 255;
+
+export function rgba(r: number, g: number, b: number, a: number = 1): RGBA {
+  const isInvalid =
+    !isColorValueValid(r) || !isColorValueValid(g) || !isColorValueValid(b) || a < 0 || a > 1;
+  if (isInvalid) {
+    throw new Error(`Invalid RGBA values ${[r, g, b, a]}`);
+  }
+  return { a, b, g, r };
 }
 
 /**
@@ -130,11 +155,13 @@ export function colorToRGBA(color: Color): RGBA {
     g = parseInt(color[3] + color[4], 16);
     b = parseInt(color[5] + color[6], 16);
     a = 255;
-  } else {
+  } else if (color.length === 9) {
     r = parseInt(color[1] + color[2], 16);
     g = parseInt(color[3] + color[4], 16);
     b = parseInt(color[5] + color[6], 16);
     a = parseInt(color[7] + color[8], 16);
+  } else {
+    throw new Error("Invalid color");
   }
   a = +(a / 255).toFixed(3);
 

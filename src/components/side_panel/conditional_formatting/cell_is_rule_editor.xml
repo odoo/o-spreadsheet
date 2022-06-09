@@ -84,6 +84,7 @@
             t-if="state.openedMenu === 'cellIsRule-textColor'"
             dropdownDirection="'center'"
             onColorPicked="(color) => this.setColor('textColor', color)"
+            currentColor="rule.style.textColor"
             t-key="textColor"
           />
         </div>
@@ -99,6 +100,7 @@
             t-if="state.openedMenu === 'cellIsRule-fillColor'"
             dropdownDirection="'center'"
             onColorPicked="(color) => this.setColor('fillColor', color)"
+            currentColor="rule.style.fillColor"
             t-key="fillColor"
           />
         </div>
