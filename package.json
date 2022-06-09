@@ -61,8 +61,7 @@
     "xml-formatter": "^2.4.0"
   },
   "prettier": {
-    "printWidth": 100,
-    "endOfLine": "auto"
+    "printWidth": 100
   },
   "dependencies": {
     "@odoo/owl": "^1.4.10",
