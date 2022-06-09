@@ -70,7 +70,6 @@
   },
   "prettier": {
     "printWidth": 100,
-    "endOfLine": "auto",
     "xmlWhitespaceSensitivity": "ignore",
     "bracketSameLine": true,
     "xmlSelfClosingSpace": false
