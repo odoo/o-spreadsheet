@@ -159,7 +159,7 @@ interface Props {
 }
 
 export class ColorPicker extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.ColorPicker";
+  static template = "o-spreadsheet-ColorPicker";
   COLORS = COLORS;
 
   onColorClick(ev: MouseEvent) {

@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.ChartFigure" owl="1">
+  <t t-name="o-spreadsheet-ChartFigure" owl="1">
     <div
       class="o-chart-container"
       t-ref="chartContainer"
@@ -10,7 +10,7 @@
           t-on-click="showMenu"
           t-ref="menuButton"
           t-on-contextmenu.prevent.stop="showMenu">
-          <t t-call="o-spreadsheet.Icon.LIST"/>
+          <t t-call="o-spreadsheet-Icon.LIST"/>
         </div>
       </div>
       <t

@@ -40,7 +40,7 @@ interface Props {
  * It also applies the style of the cell to the composer input.
  */
 export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.GridComposer";
+  static template = "o-spreadsheet-GridComposer";
   static components = { Composer };
 
   private gridComposerRef!: Ref<HTMLElement>;

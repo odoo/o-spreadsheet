@@ -88,7 +88,7 @@ interface ComposerState {
 }
 
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.Spreadsheet";
+  static template = "o-spreadsheet-Spreadsheet";
   static components = { TopBar, Grid, BottomBar, SidePanel, LinkEditor };
   static _t = t;
 

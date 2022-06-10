@@ -248,7 +248,7 @@ interface State {
 }
 
 export class SidePanel extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.SidePanel";
+  static template = "o-spreadsheet-SidePanel";
   state!: State;
 
   setup() {

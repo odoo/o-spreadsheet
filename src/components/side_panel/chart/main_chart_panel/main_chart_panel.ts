@@ -48,7 +48,7 @@ interface State {
 }
 
 export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.ChartPanel";
+  static template = "o-spreadsheet-ChartPanel";
 
   private state!: State;
 

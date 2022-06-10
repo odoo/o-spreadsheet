@@ -55,7 +55,7 @@ interface State {
 }
 
 export class Autofill extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.Autofill";
+  static template = "o-spreadsheet-Autofill";
   state: State = useState({
     position: { left: 0, top: 0 },
     handler: false,

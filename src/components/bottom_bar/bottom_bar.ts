@@ -107,7 +107,7 @@ interface Props {
 }
 
 export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.BottomBar";
+  static template = "o-spreadsheet-BottomBar";
   static components = { Menu };
 
   private bottomBarRef = useRef("bottomBar");

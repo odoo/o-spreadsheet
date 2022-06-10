@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.GaugeChartDesignPanel" owl="1">
+  <t t-name="o-spreadsheet-GaugeChartDesignPanel" owl="1">
     <div>
       <div class="o-section">
         <div class="o-section-title">Background color</div>
@@ -9,7 +9,7 @@
             title="Background Color"
             t-attf-style="border-color:{{props.definition.background}}"
             t-on-click.stop="() => this.toggleMenu('backgroundColor', ev)">
-            <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+            <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
           </span>
           <ColorPicker
             t-if="state.openedMenu === 'backgroundColor'"
@@ -54,7 +54,7 @@
 
       <div class="o-section">
         <div class="o-section-title">Thresholds</div>
-        <t t-call="o-spreadsheet.GaugeChartColorSectionTemplate">
+        <t t-call="o-spreadsheet-GaugeChartColorSectionTemplate">
           <t t-set="sectionRule" t-value="props.definition.sectionRule"/>
         </t>
       </div>
@@ -67,7 +67,7 @@
     </div>
   </t>
 
-  <t t-name="o-spreadsheet.GaugeChartColorSectionTemplate" owl="1">
+  <t t-name="o-spreadsheet-GaugeChartColorSectionTemplate" owl="1">
     <div class="o-gauge-color-set">
       <table>
         <tr>
@@ -77,7 +77,7 @@
           <th class="o-gauge-color-set-type">Type</th>
         </tr>
 
-        <t t-call="o-spreadsheet.GaugeChartColorSectionTemplateRow">
+        <t t-call="o-spreadsheet-GaugeChartColorSectionTemplateRow">
           <t t-set="sectionColor" t-value="sectionRule.colors.lowerColor"/>
           <t t-set="sectionType" t-value="'lowerColor'"/>
           <t t-set="inflectionPoint" t-value="sectionRule.lowerInflectionPoint"/>
@@ -85,7 +85,7 @@
           <t t-set="inflectionPointName" t-value="'lowerInflectionPoint'"/>
         </t>
 
-        <t t-call="o-spreadsheet.GaugeChartColorSectionTemplateRow">
+        <t t-call="o-spreadsheet-GaugeChartColorSectionTemplateRow">
           <t t-set="sectionColor" t-value="sectionRule.colors.middleColor"/>
           <t t-set="sectionType" t-value="'middleColor'"/>
           <t t-set="inflectionPoint" t-value="sectionRule.upperInflectionPoint"/>
@@ -101,7 +101,7 @@
                   title="Fill Color"
                   t-attf-style="border-color:{{sectionRule.colors.upperColor}}"
                   t-on-click.stop="(ev) => this.toggleMenu('sectionColor-upperColor', ev)">
-                  <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+                  <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
                 </span>
                 <ColorPicker
                   t-if="state.openedMenu === 'sectionColor-upperColor'"
@@ -120,7 +120,7 @@
     </div>
   </t>
 
-  <t t-name="o-spreadsheet.GaugeChartColorSectionTemplateRow" owl="1">
+  <t t-name="o-spreadsheet-GaugeChartColorSectionTemplateRow" owl="1">
     <tr>
       <td>
         <div class="o-tools">
@@ -129,7 +129,7 @@
               title="Fill Color"
               t-attf-style="border-color:{{sectionColor}}"
               t-on-click.stop="(ev) => this.toggleMenu('sectionColor-'+sectionType, ev)">
-              <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+              <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
             </span>
             <ColorPicker
               t-if="state.openedMenu === 'sectionColor-'+sectionType"

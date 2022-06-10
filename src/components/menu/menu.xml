@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.Menu" owl="1">
+  <t t-name="o-spreadsheet-Menu" owl="1">
     <Popover
       t-if="props.menuItems.length"
       position="props.position"
@@ -29,7 +29,7 @@
             <span class="o-menu-item-name" t-esc="getName(menuItem)"/>
             <span class="o-menu-item-shortcut" t-esc="getShortCut(menuItem)"/>
             <t t-if="isMenuRoot">
-              <span t-call="o-spreadsheet.Icon.TRIANGLE_RIGHT"/>
+              <span t-call="o-spreadsheet-Icon.TRIANGLE_RIGHT"/>
             </t>
             <t t-elif="menuItem.icon">
               <i t-att-class="menuItem.icon" class="o-menu-item-icon"/>

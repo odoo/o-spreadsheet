@@ -94,7 +94,7 @@ interface State {
 }
 
 export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.LinkEditor";
+  static template = "o-spreadsheet-LinkEditor";
   static components = { Menu };
   menuItems = linkMenuRegistry.getAll();
   private state: State = useState(this.defaultState);

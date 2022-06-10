@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.LinkDisplay" owl="1">
+  <t t-name="o-spreadsheet-LinkDisplay" owl="1">
     <div class="o-link-tool">
       <t t-set="link" t-value="cell.link"/>
       <a
@@ -19,10 +19,10 @@
         <t t-esc="cell.urlRepresentation"/>
       </a>
       <span class="o-link-icon o-unlink" t-on-click="unlink" title="Remove link">
-        <t t-call="o-spreadsheet.Icon.UNLINK"/>
+        <t t-call="o-spreadsheet-Icon.UNLINK"/>
       </span>
       <span class="o-link-icon o-edit-link" t-on-click="edit" title="Edit link">
-        <t t-call="o-spreadsheet.Icon.EDIT"/>
+        <t t-call="o-spreadsheet-Icon.EDIT"/>
       </span>
     </div>
   </t>

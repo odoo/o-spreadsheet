@@ -53,7 +53,7 @@ interface FindAndReplaceState {
 }
 
 export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.FindAndReplacePanel";
+  static template = "o-spreadsheet-FindAndReplacePanel";
   private state: FindAndReplaceState = useState(this.initialState());
   private inDebounce;
 
