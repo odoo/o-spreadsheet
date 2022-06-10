@@ -15,7 +15,7 @@ interface PanelState {
 }
 
 export class GaugeChartConfigPanel extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.GaugeChartConfigPanel";
+  static template = "o-spreadsheet-GaugeChartConfigPanel";
   static components = { SelectionInput };
 
   private state: PanelState = useState({

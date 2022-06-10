@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.SelectionInput" owl="1">
+  <t t-name="o-spreadsheet-SelectionInput" owl="1">
     <div class="o-selection">
       <div
         t-foreach="ranges"

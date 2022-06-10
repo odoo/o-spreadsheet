@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.ScorecardChartDesignPanel" owl="1">
+  <t t-name="o-spreadsheet-ScorecardChartDesignPanel" owl="1">
     <div>
       <div class="o-section">
         <div class="o-section-title">Background color</div>
@@ -9,7 +9,7 @@
             title="Background Color"
             t-attf-style="border-color:{{props.definition.background}}"
             t-on-click.stop="() => this.openColorPicker('backgroundColor')">
-            <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+            <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
           </span>
           <ColorPicker
             t-if="state.openedColorPicker === 'backgroundColor'"
@@ -57,7 +57,7 @@
           title="Color Up"
           t-attf-style="border-color:{{props.definition.baselineColorUp}}"
           t-on-click.stop="() => this.openColorPicker('baselineColorUp')">
-          <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+          <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
         </span>
         <ColorPicker
           t-if="state.openedColorPicker === 'baselineColorUp'"
@@ -72,7 +72,7 @@
           title="Background Color"
           t-attf-style="border-color:{{props.definition.baselineColorDown}}"
           t-on-click.stop="() => this.openColorPicker('baselineColorDown')">
-          <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+          <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
         </span>
         <ColorPicker
           t-if="state.openedColorPicker === 'baselineColorDown'"

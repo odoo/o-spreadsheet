@@ -67,7 +67,7 @@ interface AssistantState {
 }
 
 export class FunctionDescriptionProvider extends Component<Props> {
-  static template = "o-spreadsheet.FunctionDescriptionProvider";
+  static template = "o-spreadsheet-FunctionDescriptionProvider";
   assistantState: AssistantState = useState({
     allowCellSelectionBehind: false,
   });

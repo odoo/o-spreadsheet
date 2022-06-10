@@ -11,7 +11,7 @@ interface Props {
 }
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.ChartJsComponent";
+  static template = "o-spreadsheet-ChartJsComponent";
 
   private canvas = useRef("graphContainer");
   private chart?: Chart;

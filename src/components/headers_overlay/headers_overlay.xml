@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.HeadersOverlay" owl="1">
+  <t t-name="o-spreadsheet-HeadersOverlay" owl="1">
     <div class="o-overlay">
       <ColResizer onOpenContextMenu="props.onOpenContextMenu"/>
       <RowResizer onOpenContextMenu="props.onOpenContextMenu"/>
@@ -7,7 +7,7 @@
     </div>
   </t>
 
-  <t t-name="o-spreadsheet.RowResizer" owl="1">
+  <t t-name="o-spreadsheet-RowResizer" owl="1">
     <div
       class="o-row-resizer"
       t-on-mousemove.self="onMouseMove"
@@ -47,7 +47,7 @@
             t-att-data-index="hiddenItem_index"
             t-attf-style="top:{{unhideStyleValue(hiddenItem[0]) - 17}}px;"
             t-on-click="() => this.unhide(hiddenItem)">
-            <t t-call="o-spreadsheet.Icon.TRIANGLE_UP"/>
+            <t t-call="o-spreadsheet-Icon.TRIANGLE_UP"/>
           </div>
         </t>
         <t t-if="!hiddenItem.includes(env.model.getters.getActiveSheet().rows.length-1)">
@@ -56,14 +56,14 @@
             t-att-data-index="hiddenItem_index"
             t-attf-style="top:{{unhideStyleValue(hiddenItem[0]) + 3}}px;"
             t-on-click="() => this.unhide(hiddenItem)">
-            <t t-call="o-spreadsheet.Icon.TRIANGLE_DOWN"/>
+            <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
           </div>
         </t>
       </t>
     </div>
   </t>
 
-  <t t-name="o-spreadsheet.ColResizer" owl="1">
+  <t t-name="o-spreadsheet-ColResizer" owl="1">
     <div
       class="o-col-resizer"
       t-on-mousemove.self="onMouseMove"
@@ -103,7 +103,7 @@
             t-att-data-index="hiddenItem_index"
             t-attf-style="left:{{unhideStyleValue(hiddenItem[0]) - 17}}px; margin-right:6px;"
             t-on-click="() => this.unhide(hiddenItem)">
-            <t t-call="o-spreadsheet.Icon.TRIANGLE_LEFT"/>
+            <t t-call="o-spreadsheet-Icon.TRIANGLE_LEFT"/>
           </div>
         </t>
         <t t-if="!hiddenItem.includes(env.model.getters.getActiveSheet().cols.length-1)">
@@ -112,7 +112,7 @@
             t-att-data-index="hiddenItem_index"
             t-attf-style="left:{{unhideStyleValue(hiddenItem[0]) + 3}}px;"
             t-on-click="() => this.unhide(hiddenItem)">
-            <t t-call="o-spreadsheet.Icon.TRIANGLE_RIGHT"/>
+            <t t-call="o-spreadsheet-Icon.TRIANGLE_RIGHT"/>
           </div>
         </t>
       </t>

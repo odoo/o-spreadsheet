@@ -101,7 +101,7 @@ interface Props {
 }
 
 export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.FiguresContainer";
+  static template = "o-spreadsheet-FiguresContainer";
   static components = {};
   figureRegistry = figureRegistry;
 

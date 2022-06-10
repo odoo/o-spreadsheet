@@ -66,7 +66,7 @@ interface PanelState {
 }
 
 export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.GaugeChartDesignPanel";
+  static template = "o-spreadsheet-GaugeChartDesignPanel";
   static components = { ColorPicker };
 
   private state: PanelState = useState({

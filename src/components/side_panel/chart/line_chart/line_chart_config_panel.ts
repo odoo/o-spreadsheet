@@ -2,7 +2,7 @@ import { canChartParseLabels, LineChart } from "../../../../helpers/charts";
 import { LineBarPieConfigPanel } from "../line_bar_pie_panel/config_panel";
 
 export class LineConfigPanel extends LineBarPieConfigPanel {
-  static template = "o-spreadsheet.LineConfigPanel";
+  static template = "o-spreadsheet-LineConfigPanel";
 
   get canTreatLabelsAsText() {
     const chart = this.env.model.getters.getChart(this.props.figureId);

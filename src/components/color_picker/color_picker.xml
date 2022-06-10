@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.ColorPicker" owl="1">
+  <t t-name="o-spreadsheet-ColorPicker" owl="1">
     <div
       class="o-color-picker"
       t-att-class="props.dropdownDirection || 'right'"

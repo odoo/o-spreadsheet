@@ -20,7 +20,7 @@ interface ChartPanelState {
 }
 
 export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.LineBarPieConfigPanel";
+  static template = "o-spreadsheet-LineBarPieConfigPanel";
   static components = { SelectionInput };
 
   private state: ChartPanelState = useState({

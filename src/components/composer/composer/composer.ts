@@ -119,7 +119,7 @@ interface FunctionDescriptionState {
 }
 
 export class Composer extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.Composer";
+  static template = "o-spreadsheet-Composer";
   static components = { TextValueProvider, FunctionDescriptionProvider };
   static defaultProps = {
     inputStyle: "",

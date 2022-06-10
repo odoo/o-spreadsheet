@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.LineBarPieDesignPanel" owl="1">
+  <t t-name="o-spreadsheet-LineBarPieDesignPanel" owl="1">
     <div>
       <div class="o-section">
         <div class="o-section-title">Background color</div>
@@ -8,7 +8,7 @@
           <span
             t-attf-style="border-color:{{props.definition.background}}"
             t-on-click.stop="toggleColorPicker">
-            <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+            <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
           </span>
           <ColorPicker
             t-if="state.fillColorTool"

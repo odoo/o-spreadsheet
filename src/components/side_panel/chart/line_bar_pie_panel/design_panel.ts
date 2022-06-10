@@ -18,7 +18,7 @@ interface State {
 }
 
 export class LineBarPieDesignPanel extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.LineBarPieDesignPanel";
+  static template = "o-spreadsheet-LineBarPieDesignPanel";
   static components = { ColorPicker };
 
   private state: State = useState({

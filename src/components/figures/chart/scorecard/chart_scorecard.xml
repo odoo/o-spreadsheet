@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.ScorecardChart" owl="1">
+  <t t-name="o-spreadsheet-ScorecardChart" owl="1">
     <div class="o-scorecard" t-att-style="chartStyle">
       <t t-set="textStyles" t-value="getTextStyles()"/>
       <div t-if="title" class="o-title-text" t-esc="title" t-att-style="textStyles.titleStyle"/>
@@ -8,12 +8,12 @@
         <div class="o-baseline-text" t-att-style="textStyles.baselineStyle">
           <t t-if="baseline">
             <t t-if="baselineArrowDirection === 'up'">
-              <t t-call="o-spreadsheet.Icon.ARROW_UP">
+              <t t-call="o-spreadsheet-Icon.ARROW_UP">
                 <t t-set="color" t-value="'fill : ' + runtime.baselineColor"/>
               </t>
             </t>
             <t t-if="baselineArrowDirection === 'down'">
-              <t t-call="o-spreadsheet.Icon.ARROW_DOWN">
+              <t t-call="o-spreadsheet-Icon.ARROW_DOWN">
                 <t t-set="color" t-value="'fill : ' + runtime.baselineColor"/>
               </t>
             </t>

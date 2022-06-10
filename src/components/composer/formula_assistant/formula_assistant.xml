@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.FunctionDescriptionProvider" owl="1">
+  <t t-name="o-spreadsheet-FunctionDescriptionProvider" owl="1">
     <div
       class="o-formula-assistant-container"
       t-att-style="props.borderStyle"

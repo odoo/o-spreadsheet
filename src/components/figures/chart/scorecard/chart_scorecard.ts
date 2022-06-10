@@ -65,7 +65,7 @@ interface Props {
 }
 
 export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.ScorecardChart";
+  static template = "o-spreadsheet-ScorecardChart";
   private ctx = document.createElement("canvas").getContext("2d")!;
 
   get runtime(): ScorecardChartRuntime | undefined {

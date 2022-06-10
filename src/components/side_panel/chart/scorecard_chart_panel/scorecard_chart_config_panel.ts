@@ -16,7 +16,7 @@ interface PanelState {
 }
 
 export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.ScorecardChartConfigPanel";
+  static template = "o-spreadsheet-ScorecardChartConfigPanel";
   static components = { SelectionInput };
 
   private state: PanelState = useState({

@@ -394,7 +394,7 @@ css/* scss */ `
 `;
 
 export class ColResizer extends AbstractResizer {
-  static template = "o-spreadsheet.ColResizer";
+  static template = "o-spreadsheet-ColResizer";
 
   private colResizerRef!: Ref<HTMLElement>;
 
@@ -600,7 +600,7 @@ css/* scss */ `
 `;
 
 export class RowResizer extends AbstractResizer {
-  static template = "o-spreadsheet.RowResizer";
+  static template = "o-spreadsheet-RowResizer";
 
   setup() {
     super.setup();
@@ -756,7 +756,7 @@ css/* scss */ `
 `;
 
 export class HeadersOverlay extends Component<any, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.HeadersOverlay";
+  static template = "o-spreadsheet-HeadersOverlay";
   static components = { ColResizer, RowResizer };
 
   selectAll() {

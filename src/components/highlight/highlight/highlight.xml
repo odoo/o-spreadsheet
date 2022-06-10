@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.Highlight" owl="1">
+  <t t-name="o-spreadsheet-Highlight" owl="1">
     <div class="o-highlight" t-ref="highlight">
       <t t-foreach="['nw', 'ne', 'sw', 'se']" t-as="orientation" t-key="orientation">
         <Corner
