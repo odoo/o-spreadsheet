@@ -45,7 +45,7 @@ interface Props {
 }
 
 export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.ChartFigure";
+  static template = "o-spreadsheet-ChartFigure";
   static components = { Menu };
   private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 

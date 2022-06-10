@@ -89,7 +89,7 @@ export interface MenuState {
   menuItems: FullMenuItem[];
 }
 export class Menu extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.Menu";
+  static template = "o-spreadsheet-Menu";
   MENU_WIDTH = MENU_WIDTH;
 
   static components = { Menu, Popover };

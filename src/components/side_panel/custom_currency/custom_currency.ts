@@ -25,7 +25,7 @@ interface State {
 }
 
 export class CustomCurrencyPanel extends Component<any, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.CustomCurrencyPanel";
+  static template = "o-spreadsheet-CustomCurrencyPanel";
   private availableCurrencies!: Currency[];
   private state!: State;
 

@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.LinkEditor" owl="1">
+  <t t-name="o-spreadsheet-LinkEditor" owl="1">
     <div
       class="o-link-editor"
       t-on-click.stop="() => this.menu.isOpen=false"
@@ -21,7 +21,7 @@
           </t>
           <button t-if="state.link.url" t-on-click="removeLink" class="o-remove-url">✖</button>
           <button t-if="!state.link.url" t-on-click.stop="openMenu" class="o-special-link">
-            <t t-call="o-spreadsheet.Icon.LIST"/>
+            <t t-call="o-spreadsheet-Icon.LIST"/>
           </button>
         </div>
       </div>

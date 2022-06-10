@@ -241,7 +241,7 @@ interface Props {
 // JS
 // -----------------------------------------------------------------------------
 export class Grid extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.Grid";
+  static template = "o-spreadsheet-Grid";
   static components = {
     GridComposer,
     HeadersOverlay,

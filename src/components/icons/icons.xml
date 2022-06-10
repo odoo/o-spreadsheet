@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.Icon.UNDO" owl="1">
+  <t t-name="o-spreadsheet-Icon.UNDO" owl="1">
     <svg class="o-icon">
       <path
         fill="#000000"
@@ -8,7 +8,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.REDO" owl="1">
+  <t t-name="o-spreadsheet-Icon.REDO" owl="1">
     <svg class="o-icon">
       <path
         fill="#000000"
@@ -17,7 +17,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.PAINT_FORMAT" owl="1">
+  <t t-name="o-spreadsheet-Icon.PAINT_FORMAT" owl="1">
     <svg class="o-icon">
       <path
         fill="#000000"
@@ -26,7 +26,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.CLEAR_FORMAT" owl="1">
+  <t t-name="o-spreadsheet-Icon.CLEAR_FORMAT" owl="1">
     <svg class="o-icon">
       <path
         fill="#000000"
@@ -35,27 +35,27 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.TRIANGLE_DOWN" owl="1">
+  <t t-name="o-spreadsheet-Icon.TRIANGLE_DOWN" owl="1">
     <svg class="o-icon">
       <polygon fill="#000000" points="0 0 4 4 8 0" transform="translate(5 7)"/>
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.TRIANGLE_UP" owl="1">
+  <t t-name="o-spreadsheet-Icon.TRIANGLE_UP" owl="1">
     <svg class="o-icon">
       <polygon fill="#000000" points="4 0 0 4 8 4" transform="translate(5 7)"/>
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.TRIANGLE_RIGHT" owl="1">
+  <t t-name="o-spreadsheet-Icon.TRIANGLE_RIGHT" owl="1">
     <svg class="o-icon">
       <polygon fill="#000000" points="0 0 4 4 0 8" transform="translate(5 5)"/>
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.TRIANGLE_LEFT" owl="1">
+  <t t-name="o-spreadsheet-Icon.TRIANGLE_LEFT" owl="1">
     <svg class="o-icon">
       <polygon fill="#000000" points="4 0 0 4 4 8" transform="translate(5 5)"/>
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.BOLD" owl="1">
+  <t t-name="o-spreadsheet-Icon.BOLD" owl="1">
     <svg class="o-icon">
       <path
         fill="#000000"
@@ -65,7 +65,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.ITALIC" owl="1">
+  <t t-name="o-spreadsheet-Icon.ITALIC" owl="1">
     <svg class="o-icon">
       <polygon
         fill="#000000"
@@ -75,7 +75,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.UNDERLINE" owl="1">
+  <t t-name="o-spreadsheet-Icon.UNDERLINE" owl="1">
     <svg class="o-icon">
       <path
         fill="#000000"
@@ -84,7 +84,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.STRIKE" owl="1">
+  <t t-name="o-spreadsheet-Icon.STRIKE" owl="1">
     <svg class="o-icon">
       <path
         fill="#010101"
@@ -95,7 +95,7 @@
     </svg>
   </t>
 
-  <t t-name="o-spreadsheet.Icon.TEXT_COLOR" owl="1">
+  <t t-name="o-spreadsheet-Icon.TEXT_COLOR" owl="1">
     <svg class="o-icon">
       <path
         fill="#000000"
@@ -104,7 +104,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.FILL_COLOR" owl="1">
+  <t t-name="o-spreadsheet-Icon.FILL_COLOR" owl="1">
     <svg class="o-icon">
       <path
         fill="#000000"
@@ -112,7 +112,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.MERGE_CELL" owl="1">
+  <t t-name="o-spreadsheet-Icon.MERGE_CELL" owl="1">
     <svg class="o-icon">
       <path
         fill="#000000"
@@ -120,7 +120,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.ALIGN_LEFT" owl="1">
+  <t t-name="o-spreadsheet-Icon.ALIGN_LEFT" owl="1">
     <svg class="o-icon align-left">
       <path
         fill="#000000"
@@ -129,7 +129,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.ALIGN_CENTER" owl="1">
+  <t t-name="o-spreadsheet-Icon.ALIGN_CENTER" owl="1">
     <svg class="o-icon align-center">
       <path
         fill="#000000"
@@ -138,7 +138,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.ALIGN_RIGHT" owl="1">
+  <t t-name="o-spreadsheet-Icon.ALIGN_RIGHT" owl="1">
     <svg class="o-icon align-right">
       <path
         fill="#000000"
@@ -147,7 +147,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.ALIGN_MIDDLE" owl="1">
+  <t t-name="o-spreadsheet-Icon.ALIGN_MIDDLE" owl="1">
     <svg class="o-icon">
       <path
         fill="#000000"
@@ -156,7 +156,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.TEXT_WRAPPING" owl="1">
+  <t t-name="o-spreadsheet-Icon.TEXT_WRAPPING" owl="1">
     <svg class="o-icon">
       <path
         fill="#000000"
@@ -165,7 +165,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.BORDERS" owl="1">
+  <t t-name="o-spreadsheet-Icon.BORDERS" owl="1">
     <svg class="o-icon">
       <path
         fill="#000000"
@@ -174,7 +174,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.BORDER_HV" owl="1">
+  <t t-name="o-spreadsheet-Icon.BORDER_HV" owl="1">
     <svg class="o-icon">
       <g fill="#000000">
         <path
@@ -185,7 +185,7 @@
       </g>
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.BORDER_H" owl="1">
+  <t t-name="o-spreadsheet-Icon.BORDER_H" owl="1">
     <svg class="o-icon">
       <g fill="#000000">
         <path
@@ -196,7 +196,7 @@
       </g>
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.BORDER_V" owl="1">
+  <t t-name="o-spreadsheet-Icon.BORDER_V" owl="1">
     <svg class="o-icon">
       <g fill="#000000">
         <path
@@ -207,7 +207,7 @@
       </g>
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.BORDER_EXTERNAL" owl="1">
+  <t t-name="o-spreadsheet-Icon.BORDER_EXTERNAL" owl="1">
     <svg class="o-icon">
       <g fill="#000000">
         <path
@@ -218,7 +218,7 @@
       </g>
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.BORDER_LEFT" owl="1">
+  <t t-name="o-spreadsheet-Icon.BORDER_LEFT" owl="1">
     <svg class="o-icon">
       <g fill="#000000">
         <path
@@ -229,7 +229,7 @@
       </g>
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.BORDER_TOP" owl="1">
+  <t t-name="o-spreadsheet-Icon.BORDER_TOP" owl="1">
     <svg class="o-icon">
       <g fill="#000000">
         <path
@@ -240,7 +240,7 @@
       </g>
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.BORDER_RIGHT" owl="1">
+  <t t-name="o-spreadsheet-Icon.BORDER_RIGHT" owl="1">
     <svg class="o-icon">
       <g fill="#000000">
         <path
@@ -251,7 +251,7 @@
       </g>
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.BORDER_BOTTOM" owl="1">
+  <t t-name="o-spreadsheet-Icon.BORDER_BOTTOM" owl="1">
     <svg class="o-icon">
       <g fill="#000000">
         <path
@@ -262,7 +262,7 @@
       </g>
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.BORDER_CLEAR" owl="1">
+  <t t-name="o-spreadsheet-Icon.BORDER_CLEAR" owl="1">
     <svg class="o-icon">
       <path
         fill="#000000"
@@ -274,7 +274,7 @@
     </svg>
   </t>
 
-  <t t-name="o-spreadsheet.Icon.PLUS" owl="1">
+  <t t-name="o-spreadsheet-Icon.PLUS" owl="1">
     <svg class="o-icon">
       <path
         fill="#000000"
@@ -282,7 +282,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.LIST" owl="1">
+  <t t-name="o-spreadsheet-Icon.LIST" owl="1">
     <svg class="o-icon" viewBox="0 0 384 384">
       <rect x="0" y="277.333" width="384" height="42.667"/>
       <rect x="0" y="170.667" width="384" height="42.667"/>
@@ -290,7 +290,7 @@
     </svg>
   </t>
 
-  <t t-name="o-spreadsheet.Icon.EDIT" owl="1">
+  <t t-name="o-spreadsheet-Icon.EDIT" owl="1">
     <svg class="o-icon" viewBox="0 0 576 512">
       <path
         fill="currentColor"
@@ -298,7 +298,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.UNLINK" owl="1">
+  <t t-name="o-spreadsheet-Icon.UNLINK" owl="1">
     <svg class="o-icon" viewBox="0 0 512 512">
       <path
         fill="currentColor"
@@ -310,7 +310,7 @@
  *  http://fontawesome.io/
  *  https://fontawesome.com/license
  */
-  <t t-name="o-spreadsheet.Icon.CARET_UP" owl="1">
+  <t t-name="o-spreadsheet-Icon.CARET_UP" owl="1">
     <svg class="caret-up" viewBox="0 0 320 512">
       <path
         fill="currentColor"
@@ -318,7 +318,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.CARET_DOWN" owl="1">
+  <t t-name="o-spreadsheet-Icon.CARET_DOWN" owl="1">
     <svg class="caret-down" viewBox="0 0 320 512">
       <path
         fill="currentColor"
@@ -327,7 +327,7 @@
     </svg>
   </t>
 
-  <t t-name="o-spreadsheet.Icon.TRASH" owl="1">
+  <t t-name="o-spreadsheet-Icon.TRASH" owl="1">
     <svg class="o-cf-icon trash" viewBox="0 0 448 512">
       <path
         fill="currentColor"
@@ -335,7 +335,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.REFRESH" owl="1">
+  <t t-name="o-spreadsheet-Icon.REFRESH" owl="1">
     <svg class="o-cf-icon refresh" viewBox="0 0 512 512">
       <path
         fill="currentColor"
@@ -344,7 +344,7 @@
     </svg>
   </t>
 
-  <t t-name="o-spreadsheet.Icon.ARROW_DOWN" owl="1">
+  <t t-name="o-spreadsheet-Icon.ARROW_DOWN" owl="1">
     <svg
       class="o-cf-icon arrow-down"
       width="10"
@@ -357,7 +357,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.ARROW_UP" owl="1">
+  <t t-name="o-spreadsheet-Icon.ARROW_UP" owl="1">
     <svg class="o-cf-icon arrow-up" width="10" height="10" focusable="false" viewBox="0 0 448 512">
       <path
         fill="#00A04A"
@@ -365,7 +365,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.ARROW_RIGHT" owl="1">
+  <t t-name="o-spreadsheet-Icon.ARROW_RIGHT" owl="1">
     <svg
       class="o-cf-icon arrow-right"
       width="10"
@@ -379,7 +379,7 @@
     </svg>
   </t>
 
-  <t t-name="o-spreadsheet.Icon.SMILE" owl="1">
+  <t t-name="o-spreadsheet-Icon.SMILE" owl="1">
     <svg class="o-cf-icon smile" width="10" height="10" focusable="false" viewBox="0 0 496 512">
       <path
         fill="#00A04A"
@@ -387,7 +387,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.MEH" owl="1">
+  <t t-name="o-spreadsheet-Icon.MEH" owl="1">
     <svg class="o-cf-icon meh" width="10" height="10" focusable="false" viewBox="0 0 496 512">
       <path
         fill="#F0AD4E"
@@ -395,7 +395,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.FROWN" owl="1">
+  <t t-name="o-spreadsheet-Icon.FROWN" owl="1">
     <svg class="o-cf-icon frown" width="10" height="10" focusable="false" viewBox="0 0 496 512">
       <path
         fill="#DC6965"
@@ -404,7 +404,7 @@
     </svg>
   </t>
 
-  <t t-name="o-spreadsheet.Icon.GREEN_DOT" owl="1">
+  <t t-name="o-spreadsheet-Icon.GREEN_DOT" owl="1">
     <svg class="o-cf-icon green-dot" width="10" height="10" focusable="false" viewBox="0 0 512 512">
       <path
         fill="#00A04A"
@@ -412,7 +412,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.YELLOW_DOT" owl="1">
+  <t t-name="o-spreadsheet-Icon.YELLOW_DOT" owl="1">
     <svg
       class="o-cf-icon yellow-dot"
       width="10"
@@ -425,7 +425,7 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet.Icon.RED_DOT" owl="1">
+  <t t-name="o-spreadsheet-Icon.RED_DOT" owl="1">
     <svg class="o-cf-icon red-dot" width="10" height="10" focusable="false" viewBox="0 0 512 512">
       <path
         fill="#DC6965"

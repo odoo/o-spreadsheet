@@ -25,7 +25,7 @@ interface Props {
 }
 
 export class Border extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.Border";
+  static template = "o-spreadsheet-Border";
   get style() {
     const isTop = ["n", "w", "e"].includes(this.props.orientation);
     const isLeft = ["n", "w", "s"].includes(this.props.orientation);

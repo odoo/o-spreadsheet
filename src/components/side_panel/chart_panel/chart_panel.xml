@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.ChartPanel" owl="1">
+  <t t-name="o-spreadsheet-ChartPanel" owl="1">
     <div class="o-chart">
       <div class="o-panel">
         <div
@@ -18,15 +18,15 @@
         </div>
       </div>
       <t t-if="state.panel === 'configuration'">
-        <t t-call="o-spreadsheet.ChartConfigurationPanel"/>
+        <t t-call="o-spreadsheet-ChartConfigurationPanel"/>
       </t>
       <t t-else="">
-        <t t-call="o-spreadsheet.ChartDesignPanel"/>
+        <t t-call="o-spreadsheet-ChartDesignPanel"/>
       </t>
     </div>
   </t>
 
-  <t t-name="o-spreadsheet.ChartConfigurationPanel" owl="1">
+  <t t-name="o-spreadsheet-ChartConfigurationPanel" owl="1">
     <div>
       <div class="o-section">
         <div class="o-section-title">Chart type</div>
@@ -95,7 +95,7 @@
     </div>
   </t>
 
-  <t t-name="o-spreadsheet.ChartDesignPanel" owl="1">
+  <t t-name="o-spreadsheet-ChartDesignPanel" owl="1">
     <div>
       <div class="o-section o-chart-title">
         <div class="o-section-title">Background color</div>
@@ -104,7 +104,7 @@
           <span
             t-attf-style="border-color:{{state.chart.background}}"
             t-on-click.stop="toggleColorPicker">
-            <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+            <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
           </span>
           <ColorPicker
             t-if="state.fillColorTool"

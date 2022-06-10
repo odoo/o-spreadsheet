@@ -38,7 +38,7 @@ interface Props {
 }
 
 export class Corner extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.Corner";
+  static template = "o-spreadsheet-Corner";
   private isTop = this.props.orientation[0] === "n";
   private isLeft = this.props.orientation[1] === "w";
 

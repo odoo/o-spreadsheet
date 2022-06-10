@@ -24,7 +24,7 @@ interface Props {
 }
 
 export class Popover extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.Popover";
+  static template = "o-spreadsheet-Popover";
   static defaultProps = {
     flipHorizontalOffset: 0,
     flipVerticalOffset: 0,

@@ -29,7 +29,7 @@ css/* scss */ `
 `;
 
 export class IconPicker extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.IconPicker";
+  static template = "o-spreadsheet-IconPicker";
   icons = ICONS;
   iconSets = ICON_SETS;
 

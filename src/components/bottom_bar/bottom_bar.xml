@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.BottomBar" owl="1">
+  <t t-name="o-spreadsheet-BottomBar" owl="1">
     <div
       class="o-spreadsheet-bottom-bar o-two-columns"
       t-on-click="props.onClick"
@@ -8,10 +8,10 @@
         class="o-sheet-item o-add-sheet"
         t-att-class="{'disabled': env.model.getters.isReadonly()}"
         t-on-click="addSheet">
-        <t t-call="o-spreadsheet.Icon.PLUS"/>
+        <t t-call="o-spreadsheet-Icon.PLUS"/>
       </div>
       <div class="o-sheet-item o-list-sheets" t-on-click="listSheets">
-        <t t-call="o-spreadsheet.Icon.LIST"/>
+        <t t-call="o-spreadsheet-Icon.LIST"/>
       </div>
       <div class="o-all-sheets">
         <t t-foreach="getVisibleSheets()" t-as="sheet" t-key="sheet.id">
@@ -28,7 +28,7 @@
               t-on-dblclick="(ev) => this.onDblClick(sheet.id, ev)"
             />
             <span class="o-sheet-icon" t-on-click.stop="(ev) => this.onIconClick(sheet.id, ev)">
-              <t t-call="o-spreadsheet.Icon.TRIANGLE_DOWN"/>
+              <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
             </span>
           </div>
         </t>
@@ -41,7 +41,7 @@
         t-on-click="listSelectionStatistics">
         <t t-esc="selectedStatistic"/>
         <span>
-          <t t-call="o-spreadsheet.Icon.TRIANGLE_DOWN"/>
+          <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
         </span>
       </div>
 
