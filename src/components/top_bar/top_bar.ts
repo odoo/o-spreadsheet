@@ -255,7 +255,7 @@ css/* scss */ `
   }
 `;
 export class TopBar extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.TopBar";
+  static template = "o-spreadsheet-TopBar";
   DEFAULT_FONT_SIZE = DEFAULT_FONT_SIZE;
 
   static components = { ColorPicker, Menu, Composer };

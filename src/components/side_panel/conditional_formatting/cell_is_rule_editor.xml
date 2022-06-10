@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.CellIsRuleEditorPreview" owl="1">
+  <t t-name="o-spreadsheet-CellIsRuleEditorPreview" owl="1">
     <div
       class="o-cf-preview-line"
       t-attf-style="font-weight:{{currentStyle.bold ?'bold':'normal'}};
@@ -13,7 +13,7 @@
     <t t-else="">Preview text</t>
   </t>
 
-  <t t-name="o-spreadsheet.CellIsRuleEditor" owl="1">
+  <t t-name="o-spreadsheet-CellIsRuleEditor" owl="1">
     <div class="o-cf-cell-is-rule">
       <div class="o-section-subtitle">Format cells if...</div>
       <select t-model="rule.operator" class="o-input o-cell-is-operator">
@@ -41,7 +41,7 @@
       </t>
       <div class="o-section-subtitle">Formatting style</div>
 
-      <t t-call="o-spreadsheet.CellIsRuleEditorPreview">
+      <t t-call="o-spreadsheet-CellIsRuleEditorPreview">
         <t t-set="currentStyle" t-value="rule.style"/>
       </t>
       <div class="o-tools">
@@ -50,35 +50,35 @@
           title="Bold"
           t-att-class="{active:rule.style.bold}"
           t-on-click="() => this.toggleStyle('bold')">
-          <t t-call="o-spreadsheet.Icon.BOLD"/>
+          <t t-call="o-spreadsheet-Icon.BOLD"/>
         </div>
         <div
           class="o-tool"
           title="Italic"
           t-att-class="{active:rule.style.italic}"
           t-on-click="() => this.toggleStyle('italic')">
-          <t t-call="o-spreadsheet.Icon.ITALIC"/>
+          <t t-call="o-spreadsheet-Icon.ITALIC"/>
         </div>
         <div
           class="o-tool"
           title="Underline"
           t-att-class="{active:rule.style.underline}"
           t-on-click="(ev) => this.toggleStyle('underline', ev)">
-          <t t-call="o-spreadsheet.Icon.UNDERLINE"/>
+          <t t-call="o-spreadsheet-Icon.UNDERLINE"/>
         </div>
         <div
           class="o-tool"
           title="Strikethrough"
           t-att-class="{active:rule.style.strikethrough}"
           t-on-click="(ev) => this.toggleStyle('strikethrough', ev)">
-          <t t-call="o-spreadsheet.Icon.STRIKE"/>
+          <t t-call="o-spreadsheet-Icon.STRIKE"/>
         </div>
         <div class="o-tool o-dropdown o-with-color">
           <span
             title="TextColor"
             t-attf-style="border-color:{{rule.style.textColor}}"
             t-on-click.stop="(ev) => this.toggleMenu('cellIsRule-textColor', ev)">
-            <t t-call="o-spreadsheet.Icon.TEXT_COLOR"/>
+            <t t-call="o-spreadsheet-Icon.TEXT_COLOR"/>
           </span>
           <ColorPicker
             t-if="state.openedMenu === 'cellIsRule-textColor'"
@@ -93,7 +93,7 @@
             title="FillColor"
             t-attf-style="border-color:{{rule.style.fillColor}}"
             t-on-click.stop="(ev) => this.toggleMenu('cellIsRule-fillColor', ev)">
-            <t t-call="o-spreadsheet.Icon.FILL_COLOR"/>
+            <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
           </span>
           <ColorPicker
             t-if="state.openedMenu === 'cellIsRule-fillColor'"

@@ -51,7 +51,7 @@ export class LinkDisplay extends Component<
   SpreadsheetChildEnv
 > {
   static components = { Menu };
-  static template = "o-spreadsheet.LinkDisplay";
+  static template = "o-spreadsheet-LinkDisplay";
 
   get cell(): LinkCell {
     const { col, row } = this.props.cellPosition;

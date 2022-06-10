@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.IconSets" owl="1">
+  <t t-name="o-spreadsheet-IconSets" owl="1">
     <div>
       <div class="o-section-subtitle">Icons</div>
       <div class="o-cf-iconsets">
@@ -10,25 +10,25 @@
           t-key="iconSet"
           t-on-click="(ev) => this.setIconSet(iconSet, ev)">
           <div class="o-cf-icon">
-            <t t-call="o-spreadsheet.Icon.{{icons[iconSets[iconSet].good].template}}"/>
+            <t t-call="o-spreadsheet-Icon.{{icons[iconSets[iconSet].good].template}}"/>
           </div>
           <div class="o-cf-icon">
-            <t t-call="o-spreadsheet.Icon.{{icons[iconSets[iconSet].neutral].template}}"/>
+            <t t-call="o-spreadsheet-Icon.{{icons[iconSets[iconSet].neutral].template}}"/>
           </div>
           <div class="o-cf-icon">
-            <t t-call="o-spreadsheet.Icon.{{icons[iconSets[iconSet].bad].template}}"/>
+            <t t-call="o-spreadsheet-Icon.{{icons[iconSets[iconSet].bad].template}}"/>
           </div>
         </div>
       </div>
     </div>
   </t>
 
-  <t t-name="o-spreadsheet.IconSetInflexionPointRow" owl="1">
+  <t t-name="o-spreadsheet-IconSetInflexionPointRow" owl="1">
     <tr>
       <td>
         <div t-on-click.stop="(ev) => this.toggleMenu('iconSet-'+icon+'Icon', ev)">
           <div class="o-cf-icon-button">
-            <t t-call="o-spreadsheet.Icon.{{icons[iconValue].template}}"/>
+            <t t-call="o-spreadsheet-Icon.{{icons[iconValue].template}}"/>
           </div>
         </div>
         <IconPicker
@@ -66,7 +66,7 @@
     </tr>
   </t>
 
-  <t t-name="o-spreadsheet.IconSetInflexionPoints" owl="1">
+  <t t-name="o-spreadsheet-IconSetInflexionPoints" owl="1">
     <div class="o-inflection">
       <table>
         <tr>
@@ -76,13 +76,13 @@
           <th class="o-cf-iconset-value">Value</th>
           <th class="o-cf-iconset-type">Type</th>
         </tr>
-        <t t-call="o-spreadsheet.IconSetInflexionPointRow">
+        <t t-call="o-spreadsheet-IconSetInflexionPointRow">
           <t t-set="iconValue" t-value="rule.icons.upper"/>
           <t t-set="icon" t-value="'upper'"/>
           <t t-set="inflectionPointValue" t-value="rule.upperInflectionPoint"/>
           <t t-set="inflectionPoint" t-value="'upperInflectionPoint'"/>
         </t>
-        <t t-call="o-spreadsheet.IconSetInflexionPointRow">
+        <t t-call="o-spreadsheet-IconSetInflexionPointRow">
           <t t-set="iconValue" t-value="rule.icons.middle"/>
           <t t-set="icon" t-value="'middle'"/>
           <t t-set="inflectionPointValue" t-value="rule.lowerInflectionPoint"/>
@@ -92,7 +92,7 @@
           <td>
             <div t-on-click.stop="(ev) => this.toggleMenu('iconSet-lowerIcon', ev)">
               <div class="o-cf-icon-button">
-                <t t-call="o-spreadsheet.Icon.{{icons[rule.icons.lower].template}}"/>
+                <t t-call="o-spreadsheet-Icon.{{icons[rule.icons.lower].template}}"/>
               </div>
             </div>
             <IconPicker
@@ -108,13 +108,13 @@
       </table>
     </div>
   </t>
-  <t t-name="o-spreadsheet.IconSetEditor" owl="1">
+  <t t-name="o-spreadsheet-IconSetEditor" owl="1">
     <div class="o-cf-iconset-rule">
-      <t t-call="o-spreadsheet.IconSets"/>
-      <t t-call="o-spreadsheet.IconSetInflexionPoints"/>
+      <t t-call="o-spreadsheet-IconSets"/>
+      <t t-call="o-spreadsheet-IconSetInflexionPoints"/>
       <div class="btn btn-link o_refresh_measures o-cf-iconset-reverse" t-on-click="reverseIcons">
         <div class="mr-1 d-inline-block">
-          <t t-call="o-spreadsheet.Icon.REFRESH"/>
+          <t t-call="o-spreadsheet-Icon.REFRESH"/>
         </div>
         Reverse icons
       </div>

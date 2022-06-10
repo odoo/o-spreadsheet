@@ -16,5 +16,5 @@ export interface ErrorToolTipProps {
 }
 
 export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.ErrorToolTip";
+  static template = "o-spreadsheet-ErrorToolTip";
 }

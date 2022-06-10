@@ -394,7 +394,7 @@ interface State {
 }
 
 export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.ConditionalFormattingPanel";
+  static template = "o-spreadsheet-ConditionalFormattingPanel";
   static components = { SelectionInput, IconPicker, ColorPicker };
 
   icons = ICONS;

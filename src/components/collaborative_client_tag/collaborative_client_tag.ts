@@ -24,7 +24,7 @@ css/* scss */ `
   }
 `;
 export class ClientTag extends Component<ClientTagProps, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.ClientTag";
+  static template = "o-spreadsheet-ClientTag";
   get tagStyle(): string {
     const { col, row, color } = this.props;
     const viewport = this.env.model.getters.getActiveSnappedViewport();
