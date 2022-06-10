@@ -1,6 +1,25 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+# ativate user inputs
+exec < /dev/tty
+
 if [ "$HUSKY_PRE_COMMIT" != 0 ]; then
     npx lint-staged
+
+    consoleregexp='console\.|debugger'
+
+    # CHECK
+    if test $(git diff --cached | grep -nE $consoleregexp | wc -l) != 0
+    then 
+        exec git diff --cached --color | grep -nE $consoleregexp -A 2 -B 2
+        read -p "There are some occurrences of forbidden patterns at your modification. Are you sure want to continue? (y/n)" yn
+        echo $yn | grep ^[Yy]$
+        if [ $? -eq 0 ] 
+        then
+            exit 0; #THE USER WANTS TO CONTINUE
+        else
+            exit 1; # THE USER DONT WANT TO CONTINUE SO ROLLBACK
+        fi
+    fi
 fi
