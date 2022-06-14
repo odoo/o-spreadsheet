@@ -1,4 +1,4 @@
-import { Alias, Align, Border, ExcelChartDefinition, Format } from ".";
+import { Alias, ExcelChartDefinition, Format } from ".";
 
 /**
  * Most of the times we tried to create Objects that matched quite closely with the data in the XLSX files.
@@ -83,10 +83,15 @@ export interface XLSXStructure {
   sharedStrings: string[];
   fonts: XLSXFont[];
   fills: XLSXFill[];
-  borders: Border[];
-  numFmts: string[];
+  borders: XLSXBorder[];
+  numFmts: XLSXNumFormat[];
   styles: XLSXStyle[];
   dxfs: XLSXDxf[];
+}
+
+export interface XLSXImportData extends Omit<XLSXStructure, "relsFiles"> {
+  sheets: XLSXWorksheet[];
+  externalBooks: XLSXExternalBook[];
 }
 
 export interface XLSXFileStructure {
@@ -99,18 +104,6 @@ export interface XLSXFileStructure {
   figures: XLSXImportFile[];
   tables: XLSXImportFile[];
   externalLinks: XLSXImportFile[];
-}
-
-export interface XLSXImportData {
-  sharedStrings: string[];
-  fonts: XLSXFont[];
-  fills: XLSXFill[];
-  borders: XLSXBorder[];
-  dxfs: XLSXDxf[];
-  numFmts: XLSXNumFormat[];
-  styles: XLSXStyle[];
-  sheets: XLSXWorksheet[];
-  externalBooks: XLSXExternalBook[];
 }
 
 export type XMLAttributeValue = string | number | boolean;
@@ -132,7 +125,7 @@ export class XMLString {
 }
 
 export interface XLSXDxf {
-  font?: Partial<XLSXFont>; // TODO : check if partial really needed for export
+  font?: XLSXFont;
   fill?: XLSXFill;
   numFmt?: XLSXNumFormat;
   alignment?: XLSXCellAlignment;
@@ -196,18 +189,15 @@ export interface XLSXStyle {
   fillId: number;
   borderId: number;
   numFmtId: number;
-  verticalAlignment?: string; //TODO replace this by alignment in export
-  horizontalAlignment?: string; //TODO replace this by alignment in export
   alignment?: XLSXCellAlignment;
 }
 
 export interface ExtractedStyle {
   font: XLSXFont;
   fill: XLSXFill;
-  border: Border;
-  numFmt: Format | undefined;
-  verticalAlignment: Align;
-  horizontalAlignment: Align;
+  border: XLSXBorder;
+  numFmt: XLSXNumFormat | undefined;
+  alignment: XLSXCellAlignment;
 }
 
 export interface XLSXWorksheet {

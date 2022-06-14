@@ -1,16 +1,25 @@
 import { isObjectEmptyRecursive } from "../../helpers";
-import { Border, BorderDescr, Format } from "../../types";
-import { XLSXDxf, XLSXFill, XLSXFont, XLSXStyle, XMLAttributes, XMLString } from "../../types/xlsx";
+import {
+  XLSXBorder,
+  XLSXBorderDescr,
+  XLSXDxf,
+  XLSXFill,
+  XLSXFont,
+  XLSXNumFormat,
+  XLSXStyle,
+  XMLAttributes,
+  XMLString,
+} from "../../types/xlsx";
 import { FIRST_NUMFMT_ID } from "../constants";
 import { toXlsxHexColor } from "../helpers/colors";
 import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";
 
-export function addNumberFormats(numFmts: Format[]): XMLString {
+export function addNumberFormats(numFmts: XLSXNumFormat[]): XMLString {
   const numFmtNodes: XMLString[] = [];
   for (let [index, numFmt] of Object.entries(numFmts)) {
     const numFmtAttrs: XMLAttributes = [
       ["numFmtId", parseInt(index) + FIRST_NUMFMT_ID],
-      ["formatCode", numFmt],
+      ["formatCode", numFmt.format],
     ];
     numFmtNodes.push(escapeXml/*xml*/ `
       <numFmt ${formatAttributes(numFmtAttrs)}/>
@@ -79,7 +88,7 @@ export function addFills(fills: XLSXFill[]): XMLString {
   `;
 }
 
-export function addBorders(borders: Border[]): XMLString {
+export function addBorders(borders: XLSXBorder[]): XMLString {
   const borderNodes: XMLString[] = [];
   for (let border of Object.values(borders)) {
     borderNodes.push(escapeXml/*xml*/ `
@@ -99,13 +108,13 @@ export function addBorders(borders: Border[]): XMLString {
   `;
 }
 
-export function formatBorderAttribute(description: BorderDescr | undefined): XMLString {
+export function formatBorderAttribute(description: XLSXBorderDescr | undefined): XMLString {
   if (!description) {
     return escapeXml``;
   }
   return formatAttributes([
-    ["style", description[0]],
-    ["color", toXlsxHexColor(description[1])],
+    ["style", description.style],
+    ["color", toXlsxHexColor(description.color.rgb!)],
   ]);
 }
 
@@ -120,11 +129,11 @@ export function addStyles(styles: XLSXStyle[]): XMLString {
     ];
     // Note: the apply${substyleName} does not seem to be required
     const alignAttrs: XMLAttributes = [];
-    if (style.verticalAlignment) {
-      alignAttrs.push(["vertical", style.verticalAlignment]);
+    if (style.alignment && style.alignment.vertical) {
+      alignAttrs.push(["vertical", style.alignment.vertical]);
     }
-    if (style.horizontalAlignment) {
-      alignAttrs.push(["horizontal", style.horizontalAlignment]);
+    if (style.alignment && style.alignment.horizontal) {
+      alignAttrs.push(["horizontal", style.alignment.horizontal]);
     }
 
     styleNodes.push(escapeXml/*xml*/ `
