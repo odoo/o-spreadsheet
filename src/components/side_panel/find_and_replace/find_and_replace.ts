@@ -53,6 +53,7 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FindAndReplacePanel";
   private state: FindAndReplaceState = useState(this.initialState());
   private inDebounce;
+  private showFormulaState: boolean = false;
 
   private findAndReplaceRef = useRef("findAndReplace");
 
@@ -61,9 +62,14 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setup() {
+    this.showFormulaState = this.env.model.getters.shouldShowFormulas();
+
     onMounted(() => this.focusInput());
 
-    onWillUnmount(() => this.env.model.dispatch("CLEAR_SEARCH"));
+    onWillUnmount(() => {
+      this.env.model.dispatch("CLEAR_SEARCH");
+      this.env.model.dispatch("SET_FORMULA_VISIBILITY", { show: this.showFormulaState });
+    });
   }
 
   onInput(ev) {
