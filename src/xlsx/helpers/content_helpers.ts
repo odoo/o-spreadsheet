@@ -1,21 +1,25 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
 import { toUnboundedZone } from "../../helpers";
 import {
-  Align,
-  Border,
+  BorderDescr,
   CellData,
   ConditionalFormattingOperatorValues,
   ExcelWorkbookData,
-  Format,
   Style,
   UID,
+  WorkbookData,
 } from "../../types";
 import {
   ExtractedStyle,
+  XLSXBorder,
+  XLSXBorderDescr,
+  XLSXHorizontalAlignment,
+  XLSXNumFormat,
   XLSXRel,
   XLSXRelFile,
   XLSXStructure,
   XLSXStyle,
+  XLSXVerticalAlignment,
   XLSXWorksheet,
 } from "../../types/xlsx";
 import {
@@ -90,15 +94,29 @@ export function convertWidthFromExcel(width: number | undefined): number | undef
   return Math.round((width / WIDTH_FACTOR) * 100) / 100;
 }
 
-export function extractStyle(cell: CellData, data: ExcelWorkbookData): ExtractedStyle {
+function convertBorderDescr(descr: BorderDescr | undefined): XLSXBorderDescr | undefined {
+  if (!descr) {
+    return undefined;
+  }
+  return {
+    style: descr[0],
+    color: { rgb: descr[1] },
+  };
+}
+
+export function extractStyle(cell: CellData, data: WorkbookData): ExtractedStyle {
   let style: Style = {};
   if (cell.style) {
     style = data.styles[cell.style];
   }
   const format = cell.format ? data.formats[cell.format] : undefined;
-  let border: Border = {};
+  const exportedBorder: XLSXBorder = {};
   if (cell.border) {
-    border = data.borders[cell.border];
+    const border = data.borders[cell.border];
+    exportedBorder.left = convertBorderDescr(border.left);
+    exportedBorder.right = convertBorderDescr(border.right);
+    exportedBorder.bottom = convertBorderDescr(border.bottom);
+    exportedBorder.top = convertBorderDescr(border.top);
   }
   const styles = {
     font: {
@@ -112,10 +130,12 @@ export function extractStyle(cell: CellData, data: ExcelWorkbookData): Extracted
           fgColor: { rgb: style!.fillColor },
         }
       : { reservedAttribute: "none" },
-    numFmt: format,
-    border: border || {},
-    verticalAlignment: "center" as Align, // we always center vertically for now
-    horizontalAlignment: style?.align,
+    numFmt: format ? { format: format, id: 0 /* id not used for export */ } : undefined,
+    border: exportedBorder || {},
+    alignment: {
+      vertical: "center" as XLSXVerticalAlignment, // we always center vertically for now
+      horizontal: style.align as XLSXHorizontalAlignment,
+    },
   };
 
   styles.font["strike"] = !!style?.strikethrough || undefined;
@@ -136,19 +156,25 @@ export function normalizeStyle(construct: XLSXStructure, styles: ExtractedStyle)
     fillId,
     borderId,
     numFmtId,
-    verticalAlignment: styles["verticalAlignment"] as string,
-    horizontalAlignment: styles["horizontalAlignment"] as string,
+    alignment: {
+      vertical: styles.alignment.vertical,
+      horizontal: styles.alignment.horizontal,
+    },
   } as XLSXStyle;
+
   const { id } = pushElement(style, construct.styles);
 
   return id;
 }
 
-export function convertFormat(format: Format | undefined, numFmtStructure: string[]): number {
+export function convertFormat(
+  format: XLSXNumFormat | undefined,
+  numFmtStructure: XLSXNumFormat[]
+): number {
   if (!format) {
     return 0;
   }
-  let formatId: number | undefined = XLSX_FORMAT_MAP[format];
+  let formatId: number | undefined = XLSX_FORMAT_MAP[format.format];
   if (!formatId) {
     const { id } = pushElement(format, numFmtStructure);
     formatId = id + FIRST_NUMFMT_ID;

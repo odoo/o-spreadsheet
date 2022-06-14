@@ -50,8 +50,6 @@ These are the features that we don't fully support in o_spreadsheet. At conversi
 
 NW = no warning generated for these conversions.
 
-- Sheets:
-  - We don't support hidden sheets, we import them as normal sheets (NW)
 - Style :
   - col/row style. We apply the style on each cell of the row/col. (NW)
 - Borders :
