@@ -1,6 +1,7 @@
 .eslintrc.json
 .prettierignore
 
+.husky/
 .github/
 .idea/
 .vscode/
