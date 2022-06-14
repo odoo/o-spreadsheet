@@ -4,11 +4,15 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
   MIN_CF_ICON_MARGIN,
+  SELECTION_BORDER_COLOR,
 } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";
 import { Mode, Model } from "../../src/model";
-import { RendererPlugin } from "../../src/plugins/ui/renderer";
+import {
+  CELL_BACKGROUND_GRIDLINE_STROKE_STYLE,
+  RendererPlugin,
+} from "../../src/plugins/ui/renderer";
 import { Box, GridRenderingContext, Viewport } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
@@ -38,7 +42,7 @@ function getBoxFromText(model: Model, text: string): Box {
 interface ContextObserver {
   onSet?(key, val): void;
   onGet?(key): void;
-  onFunctionCall?(fn: string, args: any[]): void;
+  onFunctionCall?(fn: string, args: any[], renderingContext: MockGridRenderingContext): void;
 }
 
 class MockGridRenderingContext implements GridRenderingContext {
@@ -60,7 +64,7 @@ class MockGridRenderingContext implements GridRenderingContext {
         if (val in (this._context as any).__proto__) {
           return (...args) => {
             if (observer.onFunctionCall) {
-              observer.onFunctionCall(val, args);
+              observer.onFunctionCall(val, args, this);
             }
           };
         } else {
@@ -1094,5 +1098,86 @@ describe("renderer", () => {
     expect(boxE1.error).toBeTruthy();
     expect(filled[3][0]).toBe(boxE1.x + boxE1.width - 5);
     expect(filled[3][1]).toBe(boxE1.y);
+  });
+
+  test("Do not draw gridLines over colored cells in dashboard mode", () => {
+    const CellFillColor = "#fe0000";
+    const model = new Model({
+      sheets: [
+        {
+          id: "Sheet1",
+          name: "Sheet1",
+          cells: { A1: { style: 1 }, A2: { style: 1 } },
+        },
+      ],
+      styles: { 1: { fillColor: CellFillColor } },
+    });
+
+    let strokeColors: string[];
+    const ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onFunctionCall: (val, _, renderingContext) => {
+        if (val === "strokeRect") {
+          strokeColors.push(renderingContext.ctx.strokeStyle as string);
+        }
+      },
+    });
+
+    // Default Model displaying grid lines
+    strokeColors = [];
+    model.drawGrid(ctx);
+    expect(strokeColors).toEqual([
+      CELL_BACKGROUND_GRIDLINE_STROKE_STYLE,
+      CELL_BACKGROUND_GRIDLINE_STROKE_STYLE,
+      SELECTION_BORDER_COLOR, // selection drawGrid
+      SELECTION_BORDER_COLOR, // selection drawGrid
+    ]);
+
+    // dashboard mode
+    model.updateMode("dashboard");
+    strokeColors = [];
+    model.drawGrid(ctx);
+    expect(strokeColors).toEqual([]);
+  });
+
+  test("Do not draw gridLines over colored cells while hiding grid lines", () => {
+    const CellFillColor = "#fe0000";
+    const model = new Model({
+      sheets: [
+        {
+          id: "Sheet1",
+          name: "Sheet1",
+          cells: { A1: { style: 1 }, A2: { style: 1 } },
+        },
+      ],
+      styles: { 1: { fillColor: CellFillColor } },
+    });
+
+    let strokeColors: string[];
+    const ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onFunctionCall: (val, _, renderingContext) => {
+        if (val === "strokeRect") {
+          strokeColors.push(renderingContext.ctx.strokeStyle as string);
+        }
+      },
+    });
+
+    // Default Model displaying grid lines
+    strokeColors = [];
+    model.drawGrid(ctx);
+    expect(strokeColors).toEqual([
+      CELL_BACKGROUND_GRIDLINE_STROKE_STYLE,
+      CELL_BACKGROUND_GRIDLINE_STROKE_STYLE,
+      SELECTION_BORDER_COLOR, // selection drawGrid
+      SELECTION_BORDER_COLOR, // selection drawGrid
+    ]);
+
+    // model without grid lines
+    model.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "Sheet1", areGridLinesVisible: false });
+    strokeColors = [];
+    model.drawGrid(ctx);
+    expect(strokeColors).toEqual([
+      SELECTION_BORDER_COLOR, // selection drawGrid
+      SELECTION_BORDER_COLOR, // selection drawGrid
+    ]);
   });
 });

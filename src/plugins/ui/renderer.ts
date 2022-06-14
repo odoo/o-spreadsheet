@@ -47,6 +47,8 @@ import { UIPlugin } from "../ui_plugin";
 // Constants, types, helpers, ...
 // -----------------------------------------------------------------------------
 
+export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
+
 export class RendererPlugin extends UIPlugin {
   static layers = [LAYERS.Background, LAYERS.Headers];
   static getters = [
@@ -317,24 +319,31 @@ export class RendererPlugin extends UIPlugin {
 
   private drawCellBackground(renderingContext: GridRenderingContext) {
     const { ctx, thinLineWidth } = renderingContext;
-    ctx.lineWidth = 0.3 * thinLineWidth;
-    const inset = 0.1 * thinLineWidth;
+    const areGridLinesVisible =
+      !this.getters.isDashboard() &&
+      this.getters.getGridLinesVisibility(this.getters.getActiveSheetId());
+    ctx.lineWidth = areGridLinesVisible ? 0.3 * thinLineWidth : thinLineWidth;
+    const inset = areGridLinesVisible ? 0.1 * thinLineWidth : 0;
     ctx.strokeStyle = "#111";
-    const areGridLinesVisible = this.getters.getGridLinesVisibility(
-      this.getters.getActiveSheetId()
-    );
     for (let box of this.boxes) {
       // fill color
       let style = box.style;
       if ((style.fillColor && style.fillColor !== "#ffffff") || box.isMerge) {
         ctx.fillStyle = style.fillColor || "#ffffff";
-        ctx.fillRect(box.x, box.y, box.width, box.height);
         if (areGridLinesVisible) {
+          ctx.fillRect(box.x, box.y, box.width, box.height);
           ctx.strokeRect(
             box.x + inset,
             box.y + inset,
             box.width - 2 * inset,
             box.height - 2 * inset
+          );
+        } else {
+          ctx.fillRect(
+            box.x - thinLineWidth,
+            box.y - thinLineWidth,
+            box.width + 2 * thinLineWidth,
+            box.height + 2 * thinLineWidth
           );
         }
       }
