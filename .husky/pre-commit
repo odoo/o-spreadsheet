@@ -1,11 +1,11 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-# ativate user inputs
-exec < /dev/tty
 
 if [ "$HUSKY_PRE_COMMIT" != 0 ]; then
     npx lint-staged
+    # ativate user inputs
+    exec < /dev/tty
 
     consoleregexp='console\.|debugger'
 
