@@ -611,3 +611,33 @@ describe("TopBar - CF", () => {
     app.destroy();
   });
 });
+describe("Topbar - View", () => {
+  test("Setting show formula from topbar should retain its state even it's changed via f&r side panel upon closing", async () => {
+    const { app, parent } = await mountSpreadsheet(fixture);
+    const model = parent.model;
+    triggerMouseEvent(".o-topbar-menu[data-id='view']", "click");
+    await nextTick();
+    triggerMouseEvent(".o-menu-item[data-name='view_formulas']", "click");
+    await nextTick();
+    expect(model.getters.shouldShowFormulas()).toBe(true);
+    parent.env.openSidePanel("FindAndReplace");
+    await nextTick();
+    expect(model.getters.shouldShowFormulas()).toBe(true);
+    await nextTick();
+    triggerMouseEvent(
+      document.querySelector(
+        ".o-sidePanel .o-sidePanelBody .o-find-and-replace .o-section:nth-child(1) .o-far-item:nth-child(3) input"
+      ),
+      "click"
+    );
+    await nextTick();
+    expect(model.getters.shouldShowFormulas()).toBe(false);
+    triggerMouseEvent(
+      document.querySelector(".o-sidePanel .o-sidePanelHeader .o-sidePanelClose"),
+      "click"
+    );
+    await nextTick();
+    expect(model.getters.shouldShowFormulas()).toBe(true);
+    app.destroy();
+  });
+});

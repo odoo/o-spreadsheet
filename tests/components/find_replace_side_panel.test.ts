@@ -184,6 +184,14 @@ describe("find and replace sidePanel component", () => {
       await nextTick();
       expect(model.getters.shouldShowFormulas()).toBe(true);
     });
+
+    test("search in formulas should not show formula after closing the sidepanel", async () => {
+      triggerMouseEvent(document.querySelector(selectors.checkBoxSearchFormulas), "click");
+      await nextTick();
+      triggerMouseEvent(document.querySelector(selectors.closeSidepanel), "click");
+      await nextTick();
+      expect(model.getters.shouldShowFormulas()).toBe(false);
+    });
   });
   describe("replace options", () => {
     test("Can replace a simple text value", async () => {
