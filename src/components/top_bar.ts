@@ -5,6 +5,7 @@ import { isEqual } from "../helpers/index";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../registries/index";
 import { topbarMenuRegistry } from "../registries/menus/topbar_menu_registry";
 import { FullMenuItem } from "../registries/menu_items_registry";
+import { _lt } from "../translation";
 import { Align, BorderCommand, SpreadsheetEnv, Style } from "../types/index";
 import { ColorPicker } from "./color_picker";
 import { Composer } from "./composer/composer";
@@ -30,14 +31,34 @@ interface State {
   activeTool: Tool;
 }
 
+const Terms = {
+  Undo: _lt("Undo"),
+  Redo: _lt("Redo"),
+  PaintFormat: _lt("Paint Format"),
+  ClearFormat: _lt("Clear Format"),
+  FormatAsPercent: _lt("Format as percent"),
+  DecreaseDecimalPlaces: _lt("Decrease decimal places"),
+  IncreaseDecimalPlaces: _lt("Increase decimal places"),
+  MoreFormats: _lt("More formats"),
+  FontSize: _lt("Font Size"),
+  Bold: _lt("Bold"),
+  Italic: _lt("Italic"),
+  Strikethrough: _lt("Strikethrough"),
+  TextColor: _lt("Text Color"),
+  FillColor: _lt("Fill Color"),
+  Borders: _lt("Borders"),
+  MergeCells: _lt("Merge Cells"),
+  HorizontalAlign: _lt("Horizontal align"),
+};
+
 const FORMATS = [
-  { name: "general", text: "General (no specific format)" },
-  { name: "number", text: "Number (1,000.12)", value: "#,##0.00" },
-  { name: "percent", text: "Percent (10.12%)", value: "0.00%" },
-  { name: "date", text: "Date (9/26/2008)", value: "m/d/yyyy" },
-  { name: "time", text: "Time (10:43:00 PM)", value: "hh:mm:ss a" },
-  { name: "datetime", text: "Date time (9/26/2008 22:43:00)", value: "m/d/yyyy hh:mm:ss" },
-  { name: "duration", text: "Duration (27:51:38)", value: "hhhh:mm:ss" },
+  { name: "general", text: _lt("General (no specific format)") },
+  { name: "number", text: _lt("Number (1,000.12)"), value: "#,##0.00" },
+  { name: "percent", text: _lt("Percent (10.12%)"), value: "0.00%" },
+  { name: "date", text: _lt("Date (9/26/2008)"), value: "m/d/yyyy" },
+  { name: "time", text: _lt("Time (10:43:00 PM)"), value: "hh:mm:ss a" },
+  { name: "datetime", text: _lt("Date time (9/26/2008 22:43:00)"), value: "m/d/yyyy hh:mm:ss" },
+  { name: "duration", text: _lt("Duration (27:51:38)"), value: "hhhh:mm:ss" },
 ];
 
 // -----------------------------------------------------------------------------
@@ -78,15 +99,15 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           </span>
         </div>
         <div t-else="" class="o-toolbar-tools">
-          <div class="o-tool" title="Undo" t-att-class="{'o-disabled': !undoTool}" t-on-click="undo" >${icons.UNDO_ICON}</div>
-          <div class="o-tool" t-att-class="{'o-disabled': !redoTool}" title="Redo"  t-on-click="redo">${icons.REDO_ICON}</div>
-          <div class="o-tool" title="Paint Format" t-att-class="{active:paintFormatTool}" t-on-click="paintFormat">${icons.PAINT_FORMAT_ICON}</div>
-          <div class="o-tool" title="Clear Format" t-on-click="clearFormatting()">${icons.CLEAR_FORMAT_ICON}</div>
+          <div class="o-tool" title="${Terms.Undo}" t-att-class="{'o-disabled': !undoTool}" t-on-click="undo" >${icons.UNDO_ICON}</div>
+          <div class="o-tool" title="${Terms.Redo}" t-att-class="{'o-disabled': !redoTool}" t-on-click="redo">${icons.REDO_ICON}</div>
+          <div class="o-tool" title="${Terms.PaintFormat}" t-att-class="{active:paintFormatTool}" t-on-click="paintFormat">${icons.PAINT_FORMAT_ICON}</div>
+          <div class="o-tool" title="${Terms.ClearFormat}" t-on-click="clearFormatting()">${icons.CLEAR_FORMAT_ICON}</div>
           <div class="o-divider"/>
-          <div class="o-tool" title="Format as percent" t-on-click="toogleFormat('percent')">%</div>
-          <div class="o-tool" title="Decrease decimal places" t-on-click="setDecimal(-1)">.0</div>
-          <div class="o-tool" title="Increase decimal places" t-on-click="setDecimal(+1)">.00</div>
-          <div class="o-tool o-dropdown" title="More formats" t-on-click="toggleDropdownTool('formatTool')">
+          <div class="o-tool" title="${Terms.FormatAsPercent}" t-on-click="toogleFormat('percent')">%</div>
+          <div class="o-tool" title="${Terms.DecreaseDecimalPlaces}" t-on-click="setDecimal(-1)">.0</div>
+          <div class="o-tool" title="${Terms.IncreaseDecimalPlaces}" t-on-click="setDecimal(+1)">.00</div>
+          <div class="o-tool o-dropdown" title="${Terms.MoreFormats}" t-on-click="toggleDropdownTool('formatTool')">
             <div class="o-text-icon">123${icons.TRIANGLE_DOWN_ICON}</div>
             <div class="o-dropdown-content o-text-options  o-format-tool "  t-if="state.activeTool === 'formatTool'" t-on-click="setFormat">
               <t t-foreach="formats" t-as="format" t-key="format.name">
@@ -96,7 +117,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           </div>
           <div class="o-divider"/>
           <!-- <div class="o-tool" title="Font"><span>Roboto</span> ${icons.TRIANGLE_DOWN_ICON}</div> -->
-          <div class="o-tool o-dropdown" title="Font Size" t-on-click="toggleDropdownTool('fontSizeTool')">
+          <div class="o-tool o-dropdown" title="${Terms.FontSize}" t-on-click="toggleDropdownTool('fontSizeTool')">
             <div class="o-text-icon"><t t-esc="style.fontSize || ${DEFAULT_FONT_SIZE}"/> ${icons.TRIANGLE_DOWN_ICON}</div>
             <div class="o-dropdown-content o-text-options "  t-if="state.activeTool === 'fontSizeTool'" t-on-click="setSize">
               <t t-foreach="fontSizes" t-as="font" t-key="font_index">
@@ -105,20 +126,20 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             </div>
           </div>
           <div class="o-divider"/>
-          <div class="o-tool" title="Bold" t-att-class="{active:style.bold}" t-on-click="toogleStyle('bold')">${icons.BOLD_ICON}</div>
-          <div class="o-tool" title="Italic" t-att-class="{active:style.italic}" t-on-click="toogleStyle('italic')">${icons.ITALIC_ICON}</div>
-          <div class="o-tool" title="Strikethrough"  t-att-class="{active:style.strikethrough}" t-on-click="toogleStyle('strikethrough')">${icons.STRIKE_ICON}</div>
+          <div class="o-tool" title="${Terms.Bold}" t-att-class="{active:style.bold}" t-on-click="toogleStyle('bold')">${icons.BOLD_ICON}</div>
+          <div class="o-tool" title="${Terms.Italic}" t-att-class="{active:style.italic}" t-on-click="toogleStyle('italic')">${icons.ITALIC_ICON}</div>
+          <div class="o-tool" title="${Terms.Strikethrough}"  t-att-class="{active:style.strikethrough}" t-on-click="toogleStyle('strikethrough')">${icons.STRIKE_ICON}</div>
           <div class="o-tool o-dropdown o-with-color">
-            <span t-attf-style="border-color:{{textColor}}" title="Text Color" t-on-click="toggleDropdownTool('textColorTool')">${icons.TEXT_COLOR_ICON}</span>
+            <span t-attf-style="border-color:{{textColor}}" title="${Terms.TextColor}" t-on-click="toggleDropdownTool('textColorTool')">${icons.TEXT_COLOR_ICON}</span>
             <ColorPicker t-if="state.activeTool === 'textColorTool'" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
           </div>
           <div class="o-divider"/>
           <div class="o-tool  o-dropdown o-with-color">
-            <span t-attf-style="border-color:{{fillColor}}" title="Fill Color" t-on-click="toggleDropdownTool('fillColorTool')">${icons.FILL_COLOR_ICON}</span>
+            <span t-attf-style="border-color:{{fillColor}}" title="${Terms.FillColor}" t-on-click="toggleDropdownTool('fillColorTool')">${icons.FILL_COLOR_ICON}</span>
             <ColorPicker t-if="state.activeTool === 'fillColorTool'" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
           </div>
           <div class="o-tool o-dropdown">
-            <span title="Borders" t-on-click="toggleDropdownTool('borderTool')">${icons.BORDERS_ICON}</span>
+            <span title="${Terms.Borders}" t-on-click="toggleDropdownTool('borderTool')">${icons.BORDERS_ICON}</span>
             <div class="o-dropdown-content o-border" t-if="state.activeTool === 'borderTool'">
               <div class="o-dropdown-line">
                 <span class="o-line-item" t-on-click="setBorder('all')">${icons.BORDERS_ICON}</span>
@@ -136,9 +157,9 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
               </div>
             </div>
           </div>
-          <div class="o-tool" title="Merge Cells"  t-att-class="{active:inMerge, 'o-disabled': cannotMerge}" t-on-click="toggleMerge">${icons.MERGE_CELL_ICON}</div>
+          <div class="o-tool" title="${Terms.MergeCells}"  t-att-class="{active:inMerge, 'o-disabled': cannotMerge}" t-on-click="toggleMerge">${icons.MERGE_CELL_ICON}</div>
           <div class="o-divider"/>
-          <div class="o-tool o-dropdown" title="Horizontal align" t-on-click="toggleDropdownTool('alignTool')">
+          <div class="o-tool o-dropdown" title="${Terms.HorizontalAlign}" t-on-click="toggleDropdownTool('alignTool')">
             <span>
               <t t-if="style.align === 'right'">${icons.ALIGN_RIGHT_ICON}</t>
               <t t-elif="style.align === 'center'">${icons.ALIGN_CENTER_ICON}</t>
