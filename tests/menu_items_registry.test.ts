@@ -10,8 +10,15 @@ import {
   topbarMenuRegistry,
 } from "../src/registries/index";
 import { SpreadsheetChildEnv } from "../src/types";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "./../src/constants";
 import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  DEFAULT_FIGURE_HEIGHT,
+  DEFAULT_FIGURE_WIDTH,
+} from "./../src/constants";
+import {
+  addColumns,
+  addRows,
   hideColumns,
   hideRows,
   selectCell,
@@ -939,6 +946,7 @@ describe("Menu Item actions", () => {
       dispatchSpy = spyDispatch(parent);
       defaultPayload = {
         position: expect.any(Object),
+        size: expect.any(Object),
         id: expect.any(String),
         sheetId: model.getters.getActiveSheetId(),
         definition: {
@@ -962,13 +970,49 @@ describe("Menu Item actions", () => {
     test("Chart is inserted at correct position", () => {
       setSelection(model, ["B2"]);
       doAction(["insert", "insert_chart"], env);
+      const { width, height } = model.getters.getViewportDimension();
       const payload = { ...defaultPayload };
       payload.definition.dataSets = ["B2"];
       payload.position = {
-        x: 2 * DEFAULT_CELL_WIDTH, // x is position of dataset cell + 1
-        y: DEFAULT_CELL_HEIGHT,
-      };
+        x: (width - DEFAULT_FIGURE_WIDTH) / 2,
+        y: (height - DEFAULT_FIGURE_HEIGHT) / 2,
+      }; // Position at the center of the viewport
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    });
+
+    test("Chart is inserted at the top left of the viewport when too small", () => {
+      setSelection(model, ["B2"]);
+      model.dispatch("RESIZE_VIEWPORT", {
+        width: DEFAULT_FIGURE_WIDTH / 2,
+        height: DEFAULT_FIGURE_HEIGHT / 2,
+      });
+      doAction(["insert", "insert_chart"], env);
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["B2"];
+      payload.position = {
+        x: 0,
+        y: 0,
+      }; // Position at the center of the viewport
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    });
+
+    test("Chart is inserted at correct position on a scrolled viewport", () => {
+      setSelection(model, ["B2"]);
+      const { width, height } = env.model.getters.getViewportDimension();
+      addColumns(model, "after", "D", 100);
+      addRows(model, "after", 4, 100);
+      env.model.dispatch("SET_VIEWPORT_OFFSET", {
+        offsetX: 2 * DEFAULT_CELL_WIDTH,
+        offsetY: 4 * DEFAULT_CELL_HEIGHT,
+      });
+      doAction(["insert", "insert_chart"], env);
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["B2"];
+      payload.position = {
+        x: 2 * DEFAULT_CELL_WIDTH + (width - DEFAULT_FIGURE_WIDTH) / 2,
+        y: 4 * DEFAULT_CELL_HEIGHT + (height - DEFAULT_FIGURE_HEIGHT) / 2,
+      }; // Position at the center of the viewport
+      expect(dispatchSpy).toHaveBeenLastCalledWith("CREATE_CHART", payload);
     });
 
     test("Chart of single column without title", () => {

@@ -73,6 +73,10 @@ export const MAX_HISTORY_STEPS = 99;
 // Id of the first revision
 export const DEFAULT_REVISION_ID = "START_REVISION";
 
+// Figure
+export const DEFAULT_FIGURE_HEIGHT = 335;
+export const DEFAULT_FIGURE_WIDTH = 536;
+
 // Chart
 export const MAX_CHAR_LABEL = 20;
 

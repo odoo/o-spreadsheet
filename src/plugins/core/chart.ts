@@ -1,3 +1,4 @@
+import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../../constants";
 import { AbstractChart } from "../../helpers/charts/abstract_chart";
 import { chartFactory, validateChartDefinition } from "../../helpers/charts/chart_factory";
 import {
@@ -71,7 +72,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_CHART":
-        this.addFigure(cmd.id, cmd.sheetId, cmd.position);
+        this.addFigure(cmd.id, cmd.sheetId, cmd.position, cmd.size);
         this.addChart(cmd.id, cmd.sheetId, cmd.definition);
         break;
       case "UPDATE_CHART": {
@@ -208,13 +209,24 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   /**
    * Add a figure with tag chart with the given id at the given position
    */
-  private addFigure(id: UID, sheetId: UID, position: { x: number; y: number } = { x: 0, y: 0 }) {
+  private addFigure(
+    id: UID,
+    sheetId: UID,
+    position: { x: number; y: number } = { x: 0, y: 0 },
+    size: { width: number; height: number } = {
+      width: DEFAULT_FIGURE_WIDTH,
+      height: DEFAULT_FIGURE_HEIGHT,
+    }
+  ) {
+    if (this.getters.getFigure(sheetId, id)) {
+      return;
+    }
     const figure: Figure = {
       id,
       x: position.x,
       y: position.y,
-      height: 335,
-      width: 536,
+      width: size.width,
+      height: size.height,
       tag: "chart",
     };
     this.dispatch("CREATE_FIGURE", { sheetId, figure });
