@@ -1,4 +1,8 @@
-import { BACKGROUND_CHART_COLOR } from "../../constants";
+import {
+  BACKGROUND_CHART_COLOR,
+  DEFAULT_FIGURE_HEIGHT,
+  DEFAULT_FIGURE_WIDTH,
+} from "../../constants";
 import { numberToLetters, zoneToXc } from "../../helpers/index";
 import { interactiveSortSelection } from "../../helpers/sort";
 import { interactiveCut } from "../../helpers/ui/cut";
@@ -548,10 +552,15 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   }
   const dataSets = [zoneToXc(dataSetZone)];
   const sheetId = env.model.getters.getActiveSheetId();
+  const viewport = env.model.getters.getActiveViewport();
+  const left = env.model.getters.getColDimensions(sheetId, viewport.left).start;
+  const top = env.model.getters.getRowDimensions(sheetId, viewport.top).start;
+  const { width, height } = env.model.getters.getViewportDimension();
+  const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
   const position = {
-    x: env.model.getters.getColDimensions(sheetId, zone.right + 1).start,
-    y: env.model.getters.getRowDimensions(sheetId, zone.top).start,
-  };
+    x: left + Math.max(0, (width - DEFAULT_FIGURE_WIDTH) / 2),
+    y: top + Math.max(0, (height - DEFAULT_FIGURE_HEIGHT) / 2),
+  }; // Position at the center of the viewport
   let dataSetsHaveTitle = false;
   for (let x = dataSetZone.left; x <= dataSetZone.right; x++) {
     const cell = env.model.getters.getCell(sheetId, x, zone.top);
@@ -571,6 +580,7 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
     sheetId,
     id,
     position,
+    size,
     definition: {
       title: "",
       dataSets,
