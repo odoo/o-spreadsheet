@@ -25,11 +25,11 @@ export function createXMLFile(
 
 function xmlEscape(str: XMLAttributeValue): string {
   return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
+    .replace(/\&/g, "&amp;")
+    .replace(/\</g, "&lt;")
+    .replace(/\>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/\'/g, "&apos;");
 }
 
 export function formatAttributes(attrs: XMLAttributes): XMLString {
