@@ -95,6 +95,7 @@ export class ScorecardChart extends AbstractChart {
       baselineMode: "absolute",
       baselineColorUp: "#00A04A",
       baselineColorDown: "#DC6965",
+      baseline: context.auxiliaryRange || "",
     };
   }
 
@@ -134,6 +135,9 @@ export class ScorecardChart extends AbstractChart {
       background: this.background,
       title: this.title,
       range: this.keyValue ? this.getters.getRangeString(this.keyValue, this.sheetId) : undefined,
+      auxiliaryRange: this.baseline
+        ? this.getters.getRangeString(this.baseline, this.sheetId)
+        : undefined,
     };
   }
 

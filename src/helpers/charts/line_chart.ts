@@ -112,7 +112,7 @@ export class LineChart extends AbstractChart {
       title: context.title || "",
       type: "line",
       verticalAxisPosition: "left",
-      labelRange: undefined,
+      labelRange: context.auxiliaryRange || undefined,
     };
   }
 
@@ -147,6 +147,9 @@ export class LineChart extends AbstractChart {
         this.dataSets.length > 0
           ? this.getters.getRangeString(this.dataSets[0].dataRange, this.sheetId)
           : undefined,
+      auxiliaryRange: this.labelRange
+        ? this.getters.getRangeString(this.labelRange, this.sheetId)
+        : undefined,
     };
   }
 

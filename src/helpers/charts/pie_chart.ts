@@ -107,7 +107,7 @@ export class PieChart extends AbstractChart {
       legendPosition: "top",
       title: context.title || "",
       type: "pie",
-      labelRange: undefined,
+      labelRange: context.auxiliaryRange || undefined,
     };
   }
 
@@ -123,6 +123,9 @@ export class PieChart extends AbstractChart {
         this.dataSets.length > 0
           ? this.getters.getRangeString(this.dataSets[0].dataRange, this.sheetId)
           : undefined,
+      auxiliaryRange: this.labelRange
+        ? this.getters.getRangeString(this.labelRange, this.sheetId)
+        : undefined,
     };
   }
 

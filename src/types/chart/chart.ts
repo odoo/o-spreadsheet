@@ -60,4 +60,5 @@ export interface ChartCreationContext {
   readonly range?: string;
   readonly title?: string;
   readonly background?: string;
+  readonly auxiliaryRange?: string;
 }
