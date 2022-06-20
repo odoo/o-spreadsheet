@@ -195,7 +195,7 @@ export class GaugeChart extends AbstractChart {
       background: context.background || BACKGROUND_CHART_COLOR,
       title: context.title || "",
       type: "gauge",
-      dataRange: context.range,
+      dataRange: context.range ? context.range[0] : undefined,
       sectionRule: {
         colors: {
           lowerColor: DEFAULT_GAUGE_LOWER_COLOR,
@@ -249,7 +249,9 @@ export class GaugeChart extends AbstractChart {
     return {
       background: this.background,
       title: this.title,
-      range: this.dataRange ? this.getters.getRangeString(this.dataRange, this.sheetId) : undefined,
+      range: this.dataRange
+        ? [this.getters.getRangeString(this.dataRange, this.sheetId)]
+        : undefined,
     };
   }
 

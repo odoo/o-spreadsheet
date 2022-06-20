@@ -105,7 +105,7 @@ export class LineChart extends AbstractChart {
   static getDefinitionFromContextCreation(context: ChartCreationContext): LineChartDefinition {
     return {
       background: context.background || BACKGROUND_CHART_COLOR,
-      dataSets: context.range ? [context.range] : [],
+      dataSets: context.range ? context.range : [],
       dataSetsHaveTitle: false,
       labelsAsText: false,
       legendPosition: "top",
@@ -143,10 +143,9 @@ export class LineChart extends AbstractChart {
     return {
       background: this.background,
       title: this.title,
-      range:
-        this.dataSets.length > 0
-          ? this.getters.getRangeString(this.dataSets[0].dataRange, this.sheetId)
-          : undefined,
+      range: this.dataSets.map((ds: DataSet) =>
+        this.getters.getRangeString(ds.dataRange, this.sheetId)
+      ),
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,

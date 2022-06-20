@@ -90,7 +90,7 @@ export class ScorecardChart extends AbstractChart {
     return {
       background: context.background || BACKGROUND_CHART_COLOR,
       type: "scorecard",
-      keyValue: context.range,
+      keyValue: context.range ? context.range[0] : undefined,
       title: context.title || "",
       baselineMode: "absolute",
       baselineColorUp: "#00A04A",
@@ -134,7 +134,7 @@ export class ScorecardChart extends AbstractChart {
     return {
       background: this.background,
       title: this.title,
-      range: this.keyValue ? this.getters.getRangeString(this.keyValue, this.sheetId) : undefined,
+      range: this.keyValue ? [this.getters.getRangeString(this.keyValue, this.sheetId)] : undefined,
       auxiliaryRange: this.baseline
         ? this.getters.getRangeString(this.baseline, this.sheetId)
         : undefined,
