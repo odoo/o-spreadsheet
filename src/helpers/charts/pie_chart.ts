@@ -102,7 +102,7 @@ export class PieChart extends AbstractChart {
   static getDefinitionFromContextCreation(context: ChartCreationContext): PieChartDefinition {
     return {
       background: context.background || BACKGROUND_CHART_COLOR,
-      dataSets: context.range ? [context.range] : [],
+      dataSets: context.range ? context.range : [],
       dataSetsHaveTitle: false,
       legendPosition: "top",
       title: context.title || "",
@@ -119,10 +119,9 @@ export class PieChart extends AbstractChart {
     return {
       background: this.background,
       title: this.title,
-      range:
-        this.dataSets.length > 0
-          ? this.getters.getRangeString(this.dataSets[0].dataRange, this.sheetId)
-          : undefined,
+      range: this.dataSets.map((ds: DataSet) =>
+        this.getters.getRangeString(ds.dataRange, this.sheetId)
+      ),
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
