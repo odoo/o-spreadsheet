@@ -1,4 +1,4 @@
-import { deepCopy, getAddHeaderStartIndex, range } from "../../helpers";
+import { range } from "../../helpers";
 import { Command, CommandResult, ExcelWorkbookData, WorkbookData } from "../../types";
 import { ConsecutiveIndexes, Dimension, Position, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
@@ -16,12 +16,12 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     "isHeaderHidden",
   ] as const;
 
-  private readonly hiddenHeaders: Record<UID, Record<Dimension, Array<boolean>>> = {};
+  private headerMap = this.newHeaderMap<boolean>();
 
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
       case "HIDE_COLUMNS_ROWS": {
-        if (!this.hiddenHeaders[cmd.sheetId]) {
+        if (!this.getters.tryGetSheet(cmd.sheetId)) {
           return CommandResult.InvalidSheetId;
         }
         const hiddenGroup =
@@ -42,48 +42,20 @@ export class HeaderVisibilityPlugin extends CorePlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "CREATE_SHEET":
-        const hiddenHeaders = {
-          COL: Array(this.getters.getNumberCols(cmd.sheetId)).fill(false),
-          ROW: Array(this.getters.getNumberRows(cmd.sheetId)).fill(false),
-        };
-        this.history.update("hiddenHeaders", cmd.sheetId, hiddenHeaders);
-        break;
       case "DUPLICATE_SHEET":
-        this.history.update(
-          "hiddenHeaders",
-          cmd.sheetIdTo,
-          deepCopy(this.hiddenHeaders[cmd.sheetId])
-        );
+        this.headerMap.duplicateSheet(cmd.sheetId, cmd.sheetIdTo);
         break;
       case "DELETE_SHEET":
-        this.history.update("hiddenHeaders", cmd.sheetId, undefined);
+        this.headerMap.deleteSheet(cmd.sheetId);
         break;
-      case "REMOVE_COLUMNS_ROWS": {
-        const hiddenHeaders = [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]];
-        for (let el of [...cmd.elements].sort().reverse()) {
-          hiddenHeaders.splice(el, 1);
-        }
-        this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
-        break;
-      }
-      case "ADD_COLUMNS_ROWS": {
-        const hiddenHeaders = [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]];
-        const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
-        for (let i = 0; i < cmd.quantity; i++) {
-          hiddenHeaders.splice(addIndex, 0, false);
-        }
-        this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
-        break;
-      }
       case "HIDE_COLUMNS_ROWS":
         for (let el of cmd.elements) {
-          this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, el, true);
+          this.headerMap.set(cmd.sheetId, cmd.dimension, el, true);
         }
         break;
       case "UNHIDE_COLUMNS_ROWS":
         for (let el of cmd.elements) {
-          this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, el, false);
+          this.headerMap.set(cmd.sheetId, cmd.dimension, el, false);
         }
         break;
     }
@@ -91,11 +63,11 @@ export class HeaderVisibilityPlugin extends CorePlugin {
   }
 
   isRowHidden(sheetId: UID, index: number): boolean {
-    return this.hiddenHeaders[sheetId].ROW[index];
+    return this.headerMap.get(sheetId, "ROW", index) || false;
   }
 
   isColHidden(sheetId: UID, index: number): boolean {
-    return this.hiddenHeaders[sheetId].COL[index];
+    return this.headerMap.get(sheetId, "COL", index) || false;
   }
 
   isHeaderHidden(sheetId: UID, dimension: Dimension, index: number) {
@@ -106,9 +78,8 @@ export class HeaderVisibilityPlugin extends CorePlugin {
 
   getHiddenColsGroups(sheetId: UID): ConsecutiveIndexes[] {
     const consecutiveIndexes: ConsecutiveIndexes[] = [[]];
-    const hiddenCols = this.hiddenHeaders[sheetId].COL;
-    for (let col = 0; col < hiddenCols.length; col++) {
-      const isColHidden = hiddenCols[col];
+    for (let col = 0; col < this.getters.getNumberCols(sheetId); col++) {
+      const isColHidden = this.headerMap.get(sheetId, "COL", col);
       if (isColHidden) {
         consecutiveIndexes[consecutiveIndexes.length - 1].push(col);
       } else {
@@ -126,9 +97,8 @@ export class HeaderVisibilityPlugin extends CorePlugin {
 
   getHiddenRowsGroups(sheetId: UID): ConsecutiveIndexes[] {
     const consecutiveIndexes: ConsecutiveIndexes[] = [[]];
-    const hiddenCols = this.hiddenHeaders[sheetId].ROW;
-    for (let row = 0; row < hiddenCols.length; row++) {
-      const isRowHidden = hiddenCols[row];
+    for (let row = 0; row < this.getters.getNumberRows(sheetId); row++) {
+      const isRowHidden = this.headerMap.get(sheetId, "ROW", row);
       if (isRowHidden) {
         consecutiveIndexes[consecutiveIndexes.length - 1].push(row);
       } else {
@@ -189,12 +159,15 @@ export class HeaderVisibilityPlugin extends CorePlugin {
 
   import(data: WorkbookData) {
     for (let sheet of data.sheets) {
-      this.hiddenHeaders[sheet.id] = { COL: [], ROW: [] };
       for (let row = 0; row < sheet.rowNumber; row++) {
-        this.hiddenHeaders[sheet.id].ROW[row] = Boolean(sheet.rows[row]?.isHidden);
+        if (sheet.rows[row]?.isHidden) {
+          this.headerMap.set(sheet.id, "ROW", row, Boolean(sheet.rows[row]?.isHidden));
+        }
       }
       for (let col = 0; col < sheet.colNumber; col++) {
-        this.hiddenHeaders[sheet.id].COL[col] = Boolean(sheet.cols[col]?.isHidden);
+        if (sheet.cols[col]?.isHidden) {
+          this.headerMap.set(sheet.id, "COL", col, Boolean(sheet.cols[col]?.isHidden));
+        }
       }
     }
     return;
@@ -214,11 +187,11 @@ export class HeaderVisibilityPlugin extends CorePlugin {
         sheet.rows = {};
       }
       for (let row = 0; row < this.getters.getNumberRows(sheet.id); row++) {
-        if (exportDefaults || this.hiddenHeaders[sheet.id]["ROW"][row]) {
+        if (exportDefaults || this.headerMap.get(sheet.id, "ROW", row)) {
           if (sheet.rows[row] === undefined) {
             sheet.rows[row] = {};
           }
-          sheet.rows[row].isHidden = this.hiddenHeaders[sheet.id]["ROW"][row];
+          sheet.rows[row].isHidden = this.headerMap.get(sheet.id, "ROW", row);
         }
       }
 
@@ -226,11 +199,11 @@ export class HeaderVisibilityPlugin extends CorePlugin {
         sheet.cols = {};
       }
       for (let col = 0; col < this.getters.getNumberCols(sheet.id); col++) {
-        if (exportDefaults || this.hiddenHeaders[sheet.id]["COL"][col]) {
+        if (exportDefaults || this.headerMap.get(sheet.id, "COL", col)) {
           if (sheet.cols[col] === undefined) {
             sheet.cols[col] = {};
           }
-          sheet.cols[col].isHidden = this.hiddenHeaders[sheet.id]["COL"][col];
+          sheet.cols[col].isHidden = this.headerMap.get(sheet.id, "COL", col);
         }
       }
     }

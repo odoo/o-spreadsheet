@@ -28,7 +28,7 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Vali
   protected dispatch: CommandDispatcher["dispatch"];
 
   constructor(
-    stateObserver: StateObserver,
+    protected readonly stateObserver: StateObserver,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {

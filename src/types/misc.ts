@@ -202,7 +202,12 @@ export const enum DIRECTION {
 
 export type ChangeType = "REMOVE" | "RESIZE" | "MOVE" | "CHANGE" | "NONE";
 export type ApplyRangeChangeResult =
-  | { changeType: Exclude<ChangeType, "NONE">; range: Range }
+  | {
+      changeType: Exclude<ChangeType, "NONE">;
+      range: Range;
+      /** True if the change is applied globally on the grid, false if its a local change */
+      isGlobalGridChange: boolean;
+    }
   | { changeType: "NONE" };
 export type ApplyRangeChange = (range: Range) => ApplyRangeChangeResult;
 
