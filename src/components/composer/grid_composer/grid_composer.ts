@@ -63,10 +63,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       top: row,
       bottom: row,
     });
-    this.rect = this.env.model.getters.getRect(
-      this.zone,
-      this.env.model.getters.getActiveViewport()
-    );
+    this.rect = this.env.model.getters.getVisibleRect(this.zone);
     onMounted(() => {
       const el = this.gridComposerRef.el!;
 

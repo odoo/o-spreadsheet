@@ -11,12 +11,16 @@ import {
   deleteCells,
   deleteColumns,
   deleteRows,
+  freezeColumns,
+  freezeRows,
   hideColumns,
   hideRows,
   moveSheet,
   renameSheet,
   selectCell,
   setCellContent,
+  unfreezeColumns,
+  unfreezeRows,
   unhideColumns,
   unhideRows,
   updateChart,
@@ -701,5 +705,161 @@ describe("Collaborative Sheet manipulation", () => {
         }
       );
     });
+  });
+
+  test(`Concurrently Add a pane split and remove columns`, () => {
+    network.concurrent(() => {
+      deleteColumns(alice, ["G"]);
+      freezeColumns(bob, 4);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      {
+        xSplit: 4,
+        ySplit: 0,
+      }
+    );
+    network.concurrent(() => {
+      unfreezeColumns(bob);
+    });
+    network.concurrent(() => {
+      deleteColumns(alice, ["C", "F"]);
+      freezeColumns(bob, 4);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      {
+        xSplit: 3,
+        ySplit: 0,
+      }
+    );
+    network.concurrent(() => {
+      deleteColumns(alice, ["A"]);
+      unfreezeColumns(bob);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      {
+        xSplit: 0,
+        ySplit: 0,
+      }
+    );
+  });
+
+  test(`Concurrently Add a pane split and add columns`, () => {
+    network.concurrent(() => {
+      addColumns(alice, "after", "G", 5);
+      freezeColumns(bob, 4);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      {
+        xSplit: 4,
+        ySplit: 0,
+      }
+    );
+    network.concurrent(() => {
+      unfreezeColumns(bob);
+    });
+    network.concurrent(() => {
+      addColumns(alice, "after", "C", 1);
+      freezeColumns(bob, 4);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      {
+        xSplit: 5,
+        ySplit: 0,
+      }
+    );
+    network.concurrent(() => {
+      addColumns(alice, "before", "A", 1);
+      unfreezeColumns(bob);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      {
+        xSplit: 0,
+        ySplit: 0,
+      }
+    );
+  });
+
+  test(`Concurrently Add a pane split and remove rows`, () => {
+    network.concurrent(() => {
+      deleteRows(alice, [6]);
+      freezeRows(bob, 4);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      {
+        xSplit: 0,
+        ySplit: 4,
+      }
+    );
+    network.concurrent(() => {
+      unfreezeRows(bob);
+    });
+    network.concurrent(() => {
+      deleteRows(alice, [2, 5]);
+      freezeRows(bob, 4);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      {
+        xSplit: 0,
+        ySplit: 3,
+      }
+    );
+    network.concurrent(() => {
+      deleteRows(alice, [0]);
+      unfreezeRows(bob);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      {
+        xSplit: 0,
+        ySplit: 0,
+      }
+    );
+  });
+
+  test(`Concurrently Add a pane split and add rows`, () => {
+    network.concurrent(() => {
+      addRows(alice, "after", 6, 5);
+      freezeRows(bob, 4);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      {
+        xSplit: 0,
+        ySplit: 4,
+      }
+    );
+    network.concurrent(() => {
+      unfreezeRows(bob);
+    });
+    network.concurrent(() => {
+      addRows(alice, "after", 2, 1);
+      freezeRows(bob, 4);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      {
+        xSplit: 0,
+        ySplit: 5,
+      }
+    );
+    network.concurrent(() => {
+      addRows(alice, "before", 0, 1);
+      unfreezeRows(bob);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      {
+        xSplit: 0,
+        ySplit: 0,
+      }
+    );
   });
 });

@@ -1,6 +1,6 @@
 import { Model } from "../../src";
-import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
-import { toZone } from "../../src/helpers";
+import { MIN_DELAY, scrollDelay, toZone } from "../../src/helpers";
+import { Pixel } from "../../src/types";
 import { nextTick } from "./helpers";
 
 export async function simulateClick(
@@ -35,12 +35,7 @@ export async function simulateClick(
  */
 export async function hoverCell(model: Model, xc: string, delay: number) {
   const zone = toZone(xc);
-  const viewport = model.getters.getActiveViewport();
-  let { x, y } = model.getters.getRect(zone, viewport);
-  if (!model.getters.isDashboard()) {
-    x -= HEADER_WIDTH;
-    y -= HEADER_HEIGHT;
-  }
+  let { x, y } = model.getters.getVisibleRect(zone);
   triggerMouseEvent(".o-grid-overlay", "mousemove", x, y);
   jest.advanceTimersByTime(delay);
   await nextTick();
@@ -52,13 +47,8 @@ export async function clickCell(
   extra: MouseEventInit = { bubbles: true }
 ) {
   const zone = toZone(xc);
-  const viewport = model.getters.getActiveViewport();
-  let { x, y } = model.getters.getRect(zone, viewport);
-  if (model.getters.isDashboard()) {
-    x += HEADER_WIDTH;
-    y += HEADER_HEIGHT;
-  }
-  await simulateClick(".o-grid-overlay", x - HEADER_WIDTH, y - HEADER_HEIGHT, extra);
+  let { x, y } = model.getters.getVisibleRect(zone);
+  await simulateClick(".o-grid-overlay", x, y, extra);
 }
 
 export async function gridMouseEvent(
@@ -68,12 +58,7 @@ export async function gridMouseEvent(
   extra: MouseEventInit = { bubbles: true }
 ) {
   const zone = toZone(xc);
-  const viewport = model.getters.getActiveViewport();
-  let { x, y } = model.getters.getRect(zone, viewport);
-  if (!model.getters.isDashboard()) {
-    x -= HEADER_WIDTH;
-    y -= HEADER_HEIGHT;
-  }
+  let { x, y } = model.getters.getVisibleRect(zone);
   triggerMouseEvent(".o-grid-overlay", type, x, y, extra);
   await nextTick();
 }
@@ -150,4 +135,14 @@ export function getElComputedStyle(selector: string, style: string): string {
   const element = document.querySelector(selector);
   if (!element) throw new Error(`No element matching selector "${selector}"`);
   return window.getComputedStyle(element)[style];
+}
+
+/**
+ *
+ * @param scrollDistance distance of cursor from the edge
+ * @param iterations number of time to trigger the "mouseMove" callback
+ * @returns number
+ */
+export function edgeScrollDelay(scrollDistance: Pixel, iterations: number) {
+  return scrollDelay(Math.abs(Math.round(scrollDistance))) * (iterations + 1) - MIN_DELAY / 2;
 }

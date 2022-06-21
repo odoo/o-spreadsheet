@@ -161,13 +161,13 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     );
   }
 
-  findLastVisibleColRowIndex(sheetId: UID, dimension: Dimension): HeaderIndex {
+  findLastVisibleColRowIndex(
+    sheetId: UID,
+    dimension: Dimension,
+    indexes: { first: number; last: number }
+  ): HeaderIndex {
     let lastIndex: HeaderIndex;
-    for (
-      lastIndex = this.getters.getNumberHeaders(sheetId, dimension) - 1;
-      lastIndex >= 0;
-      lastIndex--
-    ) {
+    for (lastIndex = indexes.last; lastIndex >= indexes.first; lastIndex--) {
       if (!this.isHeaderHidden(sheetId, dimension, lastIndex)) {
         return lastIndex;
       }

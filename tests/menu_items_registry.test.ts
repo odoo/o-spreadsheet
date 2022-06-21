@@ -24,6 +24,8 @@ import {
   addColumns,
   addRows,
   copy,
+  freezeColumns,
+  freezeRows,
   hideColumns,
   hideRows,
   selectCell,
@@ -978,8 +980,6 @@ describe("Menu Item actions", () => {
       sheets: [
         {
           name: "Sheet1",
-          colNumber: 10,
-          rowNumber: 10,
           rows: {},
           cells: {
             A2: { content: "P1" },
@@ -1062,7 +1062,7 @@ describe("Menu Item actions", () => {
     test("Chart is inserted at correct position", () => {
       setSelection(model, ["B2"]);
       doAction(["insert", "insert_chart"], env);
-      const { width, height } = model.getters.getViewportDimension();
+      const { width, height } = model.getters.getSheetViewDimension();
       const payload = { ...defaultPayload };
       payload.definition.dataSets = ["B2"];
       payload.position = {
@@ -1072,11 +1072,63 @@ describe("Menu Item actions", () => {
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
+    test("Chart is inserted at correct position inside bottomRight pane for rows freeze", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      freezeRows(model, 5, sheetId);
+      setSelection(model, ["B2"]);
+      doAction(["insert", "insert_chart"], env);
+      const { width, height } = model.getters.getSheetViewDimension();
+      const { y: offsetCorrectionY } = model.getters.getMainViewportCoordinates();
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["B2"];
+      payload.position = {
+        x: (width - DEFAULT_FIGURE_WIDTH) / 2,
+        y: (height - DEFAULT_FIGURE_HEIGHT + offsetCorrectionY) / 2,
+      }; // Position at the center of the viewport
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    });
+
+    test("Chart is inserted at correct position inside bottomRight pane for columns freeze", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      freezeColumns(model, 4, sheetId);
+      setSelection(model, ["B2"]);
+      doAction(["insert", "insert_chart"], env);
+      const { width, height } = model.getters.getSheetViewDimension();
+      const { x: offsetCorrectionX } = model.getters.getMainViewportCoordinates();
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["B2"];
+      payload.position = {
+        x: (width - DEFAULT_FIGURE_WIDTH + offsetCorrectionX) / 2,
+        y: (height - DEFAULT_FIGURE_HEIGHT) / 2,
+      }; // Position at the center of the viewport
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    });
+
+    test("Chart is inserted at correct position inside bottomRight pane for both freeze", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      freezeColumns(model, 4, sheetId);
+      freezeRows(model, 5, sheetId);
+      setSelection(model, ["B2"]);
+      doAction(["insert", "insert_chart"], env);
+      const { width, height } = model.getters.getSheetViewDimension();
+      const { x: offsetCorrectionX, y: offsetCorrectionY } =
+        model.getters.getMainViewportCoordinates();
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["B2"];
+      payload.position = {
+        x: (width - DEFAULT_FIGURE_WIDTH + offsetCorrectionX) / 2,
+        y: (height - DEFAULT_FIGURE_HEIGHT + offsetCorrectionY) / 2,
+      }; // Position at the center of the viewport
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    });
+
     test("Chart is inserted at the top left of the viewport when too small", () => {
       setSelection(model, ["B2"]);
-      model.dispatch("RESIZE_VIEWPORT", {
+      model.dispatch("RESIZE_SHEETVIEW", {
         width: DEFAULT_FIGURE_WIDTH / 2,
         height: DEFAULT_FIGURE_HEIGHT / 2,
+        gridOffsetX: 0,
+        gridOffsetY: 0,
       });
       doAction(["insert", "insert_chart"], env);
       const payload = { ...defaultPayload };
@@ -1088,9 +1140,34 @@ describe("Menu Item actions", () => {
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
+    test("Chart is inserted at the top left of the viewport when too small in a frozen pane", () => {
+      addRows(model, "before", 0, 100);
+      setSelection(model, ["B2"]);
+      model.dispatch("RESIZE_SHEETVIEW", {
+        width: DEFAULT_FIGURE_WIDTH * 1.5,
+        height: DEFAULT_FIGURE_HEIGHT * 1.5,
+        gridOffsetX: 0,
+        gridOffsetY: 0,
+      });
+      const { bottom, right } = model.getters.getActiveMainViewport();
+      freezeColumns(model, Math.floor(right / 2));
+      freezeRows(model, Math.floor(bottom / 2));
+      const { x: offsetCorrectionX, y: offsetCorrectionY } =
+        model.getters.getMainViewportCoordinates();
+      doAction(["insert", "insert_chart"], env);
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["B2"];
+
+      payload.position = {
+        x: offsetCorrectionX,
+        y: offsetCorrectionY,
+      }; // Position at the top of the bottom pane of the viewport
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    });
+
     test("Chart is inserted at correct position on a scrolled viewport", () => {
       setSelection(model, ["B2"]);
-      const { width, height } = env.model.getters.getViewportDimension();
+      const { width, height } = env.model.getters.getSheetViewDimension();
       addColumns(model, "after", "D", 100);
       addRows(model, "after", 4, 100);
       env.model.dispatch("SET_VIEWPORT_OFFSET", {
@@ -1103,6 +1180,74 @@ describe("Menu Item actions", () => {
       payload.position = {
         x: 2 * DEFAULT_CELL_WIDTH + (width - DEFAULT_FIGURE_WIDTH) / 2,
         y: 4 * DEFAULT_CELL_HEIGHT + (height - DEFAULT_FIGURE_HEIGHT) / 2,
+      }; // Position at the center of the viewport
+      expect(dispatchSpy).toHaveBeenLastCalledWith("CREATE_CHART", payload);
+    });
+
+    test("Chart is inserted at correct position on a scrolled viewport with frozen rows", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      freezeRows(model, 5, sheetId);
+      setSelection(model, ["B2"]);
+      const { width, height } = model.getters.getSheetViewDimension();
+      const { y: offsetCorrectionY } = model.getters.getMainViewportCoordinates();
+      addColumns(model, "after", "D", 100);
+      addRows(model, "after", 4, 100);
+      env.model.dispatch("SET_VIEWPORT_OFFSET", {
+        offsetX: 2 * DEFAULT_CELL_WIDTH,
+        offsetY: 4 * DEFAULT_CELL_HEIGHT,
+      });
+      doAction(["insert", "insert_chart"], env);
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["B2"];
+      payload.position = {
+        x: 2 * DEFAULT_CELL_WIDTH + (width - DEFAULT_FIGURE_WIDTH) / 2,
+        y: 4 * DEFAULT_CELL_HEIGHT + (height - DEFAULT_FIGURE_HEIGHT + offsetCorrectionY) / 2,
+      }; // Position at the center of the viewport
+      expect(dispatchSpy).toHaveBeenLastCalledWith("CREATE_CHART", payload);
+    });
+
+    test("Chart is inserted at correct position on a scrolled viewport with columns frozen", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      freezeColumns(model, 4, sheetId);
+      setSelection(model, ["B2"]);
+      const { width, height } = model.getters.getSheetViewDimension();
+      const { x: offsetCorrectionX } = model.getters.getMainViewportCoordinates();
+      addColumns(model, "after", "D", 100);
+      addRows(model, "after", 4, 100);
+      env.model.dispatch("SET_VIEWPORT_OFFSET", {
+        offsetX: 2 * DEFAULT_CELL_WIDTH,
+        offsetY: 4 * DEFAULT_CELL_HEIGHT,
+      });
+      doAction(["insert", "insert_chart"], env);
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["B2"];
+      payload.position = {
+        x: 2 * DEFAULT_CELL_WIDTH + (width - DEFAULT_FIGURE_WIDTH + offsetCorrectionX) / 2,
+        y: 4 * DEFAULT_CELL_HEIGHT + (height - DEFAULT_FIGURE_HEIGHT) / 2,
+      }; // Position at the center of the viewport
+      expect(dispatchSpy).toHaveBeenLastCalledWith("CREATE_CHART", payload);
+    });
+
+    test("Chart is inserted at correct position on a scrolled viewport with both directions frozen", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      freezeColumns(model, 4, sheetId);
+      freezeRows(model, 5, sheetId);
+      setSelection(model, ["B2"]);
+      const { width, height } = model.getters.getSheetViewDimension();
+      const { x: offsetCorrectionX, y: offsetCorrectionY } =
+        model.getters.getMainViewportCoordinates();
+      addColumns(model, "after", "D", 100);
+      addRows(model, "after", 4, 100);
+      env.model.dispatch("SET_VIEWPORT_OFFSET", {
+        offsetX: 2 * DEFAULT_CELL_WIDTH,
+        offsetY: 4 * DEFAULT_CELL_HEIGHT,
+      });
+      doAction(["insert", "insert_chart"], env);
+      const payload = { ...defaultPayload };
+      payload.definition.dataSets = ["B2"];
+      payload.position = {
+        x: 2 * DEFAULT_CELL_WIDTH + (width - DEFAULT_FIGURE_WIDTH + offsetCorrectionX) / 2,
+        y: 4 * DEFAULT_CELL_HEIGHT + (height - DEFAULT_FIGURE_HEIGHT + offsetCorrectionY) / 2,
       }; // Position at the center of the viewport
       expect(dispatchSpy).toHaveBeenLastCalledWith("CREATE_CHART", payload);
     });
@@ -1198,6 +1343,73 @@ describe("Menu Item actions", () => {
       payload.definition.labelRange = "F2:F5";
       payload.definition.legendPosition = "top";
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    });
+  });
+
+  describe("Freeze rows and columns", () => {
+    test("Columns", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      doAction(["view", "freeze_panes", "freeze_first_col"], env);
+      expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 1, ySplit: 0 });
+      doAction(["view", "freeze_panes", "freeze_second_col"], env);
+      expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 2, ySplit: 0 });
+      setSelection(model, ["G5"]);
+      doAction(["view", "freeze_panes", "freeze_current_col"], env);
+      expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 7, ySplit: 0 });
+      doAction(["view", "freeze_panes", "unfreeze_columns"], env);
+      expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 0 });
+    });
+
+    test("Rows", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      doAction(["view", "freeze_panes", "freeze_first_row"], env);
+      expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 1 });
+      doAction(["view", "freeze_panes", "freeze_second_row"], env);
+      expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 2 });
+      setSelection(model, ["G5"]);
+      doAction(["view", "freeze_panes", "freeze_current_row"], env);
+      expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 5 });
+      doAction(["view", "freeze_panes", "unfreeze_rows"], env);
+      expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 0 });
+    });
+
+    test("Unfreeze columns and rows", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      const view = topbarMenuRegistry.getAll().find((item) => item.id === "view")!;
+      const unfreeze_panes = (view.children as FullMenuItem[]).find(
+        (item) => item.id === "unfreeze_panes"
+      )!;
+      expect(unfreeze_panes.isVisible(env)).toBe(false);
+      freezeColumns(model, 1);
+      expect(unfreeze_panes.isVisible(env)).toBe(true);
+      unfreeze_panes.action(env);
+      expect(model.getters.getPaneDivisions(sheetId));
+      expect(unfreeze_panes.isVisible(env)).toBe(false);
+      freezeRows(model, 3);
+      expect(unfreeze_panes.isVisible(env)).toBe(true);
+      unfreeze_panes.action(env);
+      expect(model.getters.getPaneDivisions(sheetId));
+      expect(unfreeze_panes.isVisible(env)).toBe(false);
+    });
+
+    test("unfreeze actions visibility", () => {
+      const unfreezeColAction = getNode(["view", "freeze_panes", "unfreeze_columns"]);
+      const unfreezeRowAction = getNode(["view", "freeze_panes", "unfreeze_rows"]);
+      const unfreezeAllAction = getNode(["view", "unfreeze_panes"]);
+
+      expect(unfreezeColAction.isVisible(env)).toBe(false);
+      expect(unfreezeRowAction.isVisible(env)).toBe(false);
+      expect(unfreezeAllAction.isVisible(env)).toBe(false);
+
+      freezeColumns(model, 1);
+      expect(unfreezeColAction.isVisible(env)).toBe(true);
+      expect(unfreezeRowAction.isVisible(env)).toBe(false);
+      expect(unfreezeAllAction.isVisible(env)).toBe(true);
+
+      freezeRows(model, 3);
+      expect(unfreezeColAction.isVisible(env)).toBe(true);
+      expect(unfreezeRowAction.isVisible(env)).toBe(true);
+      expect(unfreezeAllAction.isVisible(env)).toBe(true);
     });
   });
 });

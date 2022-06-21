@@ -565,6 +565,7 @@ test("complete import, then export", () => {
         figures: [],
         areGridLinesVisible: true,
         isVisible: true,
+        panes: { ySplit: 1, xSplit: 5 },
       },
       {
         id: "someuuid_2",

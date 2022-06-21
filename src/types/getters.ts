@@ -25,10 +25,10 @@ import { RendererPlugin } from "../plugins/ui/renderer";
 import { GridSelectionPlugin } from "../plugins/ui/selection";
 import { SelectionInputsManagerPlugin } from "../plugins/ui/selection_inputs_manager";
 import { SelectionMultiUserPlugin } from "../plugins/ui/selection_multiuser";
+import { SheetViewPlugin } from "../plugins/ui/sheetview";
 import { SortPlugin } from "../plugins/ui/sort";
 import { UIOptionsPlugin } from "../plugins/ui/ui_options";
 import { SheetUIPlugin } from "../plugins/ui/ui_sheet";
-import { ViewportPlugin } from "../plugins/ui/viewport";
 // -----------------------------------------------------------------------------
 // Getters
 // -----------------------------------------------------------------------------
@@ -124,7 +124,7 @@ type SelectionMultiUserGetters = Pick<
 type SortGetters = Pick<SortPlugin, GetterNames<typeof SortPlugin>>;
 type UIOptionsGetters = Pick<UIOptionsPlugin, GetterNames<typeof UIOptionsPlugin>>;
 type SheetUIGetters = Pick<SheetUIPlugin, GetterNames<typeof SheetUIPlugin>>;
-type ViewportGetters = Pick<ViewportPlugin, GetterNames<typeof ViewportPlugin>>;
+type ViewportGetters = Pick<SheetViewPlugin, GetterNames<typeof SheetViewPlugin>>;
 type SessionGetters = {
   getClient: Session["getClient"];
   getConnectedClients: Session["getConnectedClients"];

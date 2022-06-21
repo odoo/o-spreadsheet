@@ -5,8 +5,9 @@ import {
   SELECTION_BORDER_COLOR,
 } from "../../../constants";
 import { figureRegistry } from "../../../registries/index";
-import { Figure, SpreadsheetChildEnv, UID } from "../../../types/index";
+import { Figure, Pixel, SpreadsheetChildEnv, UID } from "../../../types/index";
 import { css } from "../../helpers/css";
+import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
 import { ChartFigure } from "../figure_chart/figure_chart";
 
@@ -164,72 +165,104 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     return `width:${width}px;height:${height}px;border-width: ${this.getBorderWidth(info)}px;`;
   }
 
-  /** Get the overflow of the figure in the headers of the grid  */
-  private getOverflow(info: FigureInfo) {
-    const { figure, isSelected } = info;
-    const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
-    const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
-    let x = target.x - offsetX;
-    let y = target.y - offsetY;
-    const overflowX = this.env.isDashboard() ? 0 : Math.max(0, -x);
-    const overflowY = this.env.isDashboard() ? 0 : Math.max(0, -y);
-    return { overflowX, overflowY };
-  }
-
   getContainerStyle(info: FigureInfo) {
     const { figure, isSelected } = info;
-    const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
     const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
-    const x = target.x - offsetX;
-    const y = target.y - offsetY;
+    const { x: offsetCorrectionX, y: offsetCorrectionY } =
+      this.env.model.getters.getMainViewportCoordinates();
 
-    const { width, height } = this.getFigureSizeWithBorders(info);
-    const { overflowX, overflowY } = this.getOverflow(info);
+    const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
+    let { width, height } = this.getFigureSizeWithBorders(info);
+    let x: Pixel, y: Pixel;
+
+    // Visually, the content of the container is slightly shifted as it includes borders and/or corners.
+    // If we want to make assertions on the position of the content, we need to take this shift into account
+    const borderShift = ANCHOR_SIZE / 2;
+
+    if (target.x + borderShift < offsetCorrectionX) {
+      x = target.x;
+    } else if (target.x + borderShift < offsetCorrectionX + offsetX) {
+      x = offsetCorrectionX;
+      width += target.x - offsetCorrectionX - offsetX;
+    } else {
+      x = target.x - offsetX;
+    }
+
+    if (target.y + borderShift < offsetCorrectionY) {
+      y = target.y;
+    } else if (target.y + borderShift < offsetCorrectionY + offsetY) {
+      y = offsetCorrectionY;
+      height += target.y - offsetCorrectionY - offsetY;
+    } else {
+      y = target.y - offsetY;
+    }
+
     if (width < 0 || height < 0) {
       return `display:none;`;
     }
     const borderOffset = BORDER_WIDTH - this.getBorderWidth(info);
     // TODO : remove the +1 once 2951210 is fixed
     return (
-      `top:${y + borderOffset + overflowY + 1}px;` +
-      `left:${x + borderOffset + overflowX}px;` +
-      `width:${width - overflowX}px;` +
-      `height:${height - overflowY}px;` +
+      `top:${y + borderOffset + 1}px;` +
+      `left:${x + borderOffset}px;` +
+      `width:${width}px;` +
+      `height:${height}px;` +
       `z-index: ${ComponentsImportance.Figure + (info.isSelected ? 1 : 0)}`
     );
   }
 
   getAnchorPosition(anchor: Anchor, info: FigureInfo) {
-    const { width, height } = this.getFigureSizeWithBorders(info);
-    const { overflowX, overflowY } = this.getOverflow(info);
+    let { width, height } = this.getFigureSizeWithBorders(info);
 
     const anchorCenteringOffset = (ANCHOR_SIZE - ACTIVE_BORDER_WIDTH) / 2;
+    const { figure, isSelected } = info;
+    const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
 
     let x = 0;
     let y = 0;
-    if (anchor.includes("top")) {
-      y = -anchorCenteringOffset;
-    } else if (anchor.includes("bottom")) {
-      y = height - ACTIVE_BORDER_WIDTH - anchorCenteringOffset;
+
+    const { x: offsetCorrectionX, y: offsetCorrectionY } =
+      this.env.model.getters.getMainViewportCoordinates();
+    const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
+    const borderShift = ANCHOR_SIZE / 2;
+
+    if (target.x + borderShift < offsetCorrectionX) {
+      x = 0;
+    } else if (target.x + borderShift < offsetCorrectionX + offsetX) {
+      x = target.x - offsetCorrectionX - offsetX;
     } else {
-      y = (height - ACTIVE_BORDER_WIDTH) / 2 - anchorCenteringOffset;
+      x = 0;
+    }
+
+    if (target.y + borderShift < offsetCorrectionY) {
+      y = 0;
+    } else if (target.y + borderShift < offsetCorrectionY + offsetY) {
+      y = target.y - offsetCorrectionY - offsetY;
+    } else {
+      y = 0;
+    }
+
+    if (anchor.includes("top")) {
+      y -= anchorCenteringOffset;
+    } else if (anchor.includes("bottom")) {
+      y += height - ACTIVE_BORDER_WIDTH - anchorCenteringOffset;
+    } else {
+      y += (height - ACTIVE_BORDER_WIDTH) / 2 - anchorCenteringOffset;
     }
 
     if (anchor.includes("left")) {
-      x = -anchorCenteringOffset;
+      x += -anchorCenteringOffset;
     } else if (anchor.includes("right")) {
-      x = width - ACTIVE_BORDER_WIDTH - anchorCenteringOffset;
+      x += width - ACTIVE_BORDER_WIDTH - anchorCenteringOffset;
     } else {
-      x = (width - ACTIVE_BORDER_WIDTH) / 2 - anchorCenteringOffset;
+      x += (width - ACTIVE_BORDER_WIDTH) / 2 - anchorCenteringOffset;
     }
 
     let visibility = "visible";
-    if (overflowX && x < overflowX) {
-      visibility = "hidden";
-    } else if (overflowY && y < overflowY) {
+    if (x < -anchorCenteringOffset || y < -anchorCenteringOffset) {
       visibility = "hidden";
     }
-    return `visibility : ${visibility};top:${y - overflowY}px; left:${x - overflowX}px;`;
+    return `visibility:${visibility};top:${y}px; left:${x}px;`;
   }
 
   setup() {
@@ -300,8 +333,14 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     if (this.props.sidePanelIsOpen) {
       this.env.openSidePanel("ChartPanel", { figureId: figure.id });
     }
-    const initialX = ev.clientX;
-    const initialY = ev.clientY;
+
+    const position = gridOverlayPosition();
+    const { x: offsetCorrectionX, y: offsetCorrectionY } =
+      this.env.model.getters.getMainViewportCoordinates();
+    const { offsetX, offsetY } = this.env.model.getters.getActiveSheetScrollInfo();
+
+    const initialX = ev.clientX - position.left;
+    const initialY = ev.clientY - position.top;
     this.dnd.figureId = figure.id;
     this.dnd.x = figure.x;
     this.dnd.y = figure.y;
@@ -309,8 +348,24 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     this.dnd.height = figure.height;
 
     const onMouseMove = (ev: MouseEvent) => {
-      this.dnd.x = Math.max(figure.x - initialX + ev.clientX, 0);
-      this.dnd.y = Math.max(figure.y - initialY + ev.clientY, 0);
+      const newX = ev.clientX - position.left;
+      let deltaX = newX - initialX;
+      if (newX > offsetCorrectionX && initialX < offsetCorrectionX) {
+        deltaX += offsetX;
+      } else if (newX < offsetCorrectionX && initialX > offsetCorrectionX) {
+        deltaX -= offsetX;
+      }
+      this.dnd.x = Math.max(figure.x + deltaX, 0);
+
+      const newY = ev.clientY - position.top;
+      let deltaY = newY - initialY;
+
+      if (newY > offsetCorrectionY && initialY < offsetCorrectionY) {
+        deltaY += offsetY;
+      } else if (newY < offsetCorrectionY && initialY > offsetCorrectionY) {
+        deltaY -= offsetY;
+      }
+      this.dnd.y = Math.max(figure.y + deltaY, 0);
     };
     const onMouseUp = (ev: MouseEvent) => {
       this.dnd.figureId = "";

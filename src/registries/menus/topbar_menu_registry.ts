@@ -1,5 +1,6 @@
 import { NumberFormatTerms } from "../../components/translations_terms";
 import { fontSizes } from "../../fonts";
+import { interactiveFreezeColumnsRows } from "../../helpers/ui/freeze_interactive";
 import { _lt } from "../../translation";
 import { SpreadsheetChildEnv } from "../../types/env";
 import { MenuItemRegistry } from "../menu_items_registry";
@@ -186,21 +187,104 @@ topbarMenuRegistry
     action: ACTIONS.CREATE_SHEET_ACTION,
     separator: true,
   })
+  .addChild("unfreeze_panes", ["view"], {
+    name: _lt("Unfreeze"),
+    sequence: 4,
+    isVisible: (env) => {
+      const { xSplit, ySplit } = env.model.getters.getPaneDivisions(
+        env.model.getters.getActiveSheetId()
+      );
+      return xSplit + ySplit > 0;
+    },
+    action: (env) =>
+      env.model.dispatch("UNFREEZE_COLUMNS_ROWS", {
+        sheetId: env.model.getters.getActiveSheetId(),
+      }),
+  })
+  .addChild("freeze_panes", ["view"], {
+    name: _lt("Freeze"),
+    sequence: 5,
+    separator: true,
+  })
+  .addChild("unfreeze_rows", ["view", "freeze_panes"], {
+    name: _lt("No rows"),
+    action: (env) =>
+      env.model.dispatch("UNFREEZE_ROWS", {
+        sheetId: env.model.getters.getActiveSheetId(),
+      }),
+    isReadonlyAllowed: true,
+    sequence: 5,
+    isVisible: (env) =>
+      !!env.model.getters.getPaneDivisions(env.model.getters.getActiveSheetId()).ySplit,
+  })
+  .addChild("freeze_first_row", ["view", "freeze_panes"], {
+    name: _lt("1 row"),
+    action: (env) => interactiveFreezeColumnsRows(env, "ROW", 1),
+    isReadonlyAllowed: true,
+    sequence: 10,
+  })
+  .addChild("freeze_second_row", ["view", "freeze_panes"], {
+    name: _lt("2 rows"),
+    action: (env) => interactiveFreezeColumnsRows(env, "ROW", 2),
+    isReadonlyAllowed: true,
+    sequence: 15,
+  })
+  .addChild("freeze_current_row", ["view", "freeze_panes"], {
+    name: _lt("Up to current row"),
+    action: (env) => {
+      const { bottom } = env.model.getters.getSelectedZone();
+      interactiveFreezeColumnsRows(env, "ROW", bottom + 1);
+    },
+    isReadonlyAllowed: true,
+    sequence: 20,
+    separator: true,
+  })
+  .addChild("unfreeze_columns", ["view", "freeze_panes"], {
+    name: _lt("No columns"),
+    action: (env) =>
+      env.model.dispatch("UNFREEZE_COLUMNS", {
+        sheetId: env.model.getters.getActiveSheetId(),
+      }),
+    isReadonlyAllowed: true,
+    sequence: 25,
+    isVisible: (env) =>
+      !!env.model.getters.getPaneDivisions(env.model.getters.getActiveSheetId()).xSplit,
+  })
+  .addChild("freeze_first_col", ["view", "freeze_panes"], {
+    name: _lt("1 column"),
+    action: (env) => interactiveFreezeColumnsRows(env, "COL", 1),
+    isReadonlyAllowed: true,
+    sequence: 30,
+  })
+  .addChild("freeze_second_col", ["view", "freeze_panes"], {
+    name: _lt("2 columns"),
+    action: (env) => interactiveFreezeColumnsRows(env, "COL", 2),
+    isReadonlyAllowed: true,
+    sequence: 35,
+  })
+  .addChild("freeze_current_col", ["view", "freeze_panes"], {
+    name: _lt("Up to current column"),
+    action: (env) => {
+      const { right } = env.model.getters.getSelectedZone();
+      interactiveFreezeColumnsRows(env, "COL", right + 1);
+    },
+    isReadonlyAllowed: true,
+    sequence: 40,
+  })
   .addChild("view_gridlines", ["view"], {
     name: (env: SpreadsheetChildEnv) =>
       env.model.getters.getGridLinesVisibility(env.model.getters.getActiveSheetId())
         ? _lt("Hide gridlines")
         : _lt("Show gridlines"),
     action: ACTIONS.SET_GRID_LINES_VISIBILITY_ACTION,
-    sequence: 5,
-    separator: true,
+    sequence: 10,
   })
   .addChild("view_formulas", ["view"], {
     name: (env: SpreadsheetChildEnv) =>
       env.model.getters.shouldShowFormulas() ? _lt("Hide formulas") : _lt("Show formulas"),
     action: ACTIONS.SET_FORMULA_VISIBILITY_ACTION,
     isReadonlyAllowed: true,
-    sequence: 10,
+    sequence: 15,
   })
   .addChild("format_number", ["format"], {
     name: _lt("Numbers"),

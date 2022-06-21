@@ -6,8 +6,10 @@ import { args, functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
 import {
+  addRows,
   createChart,
   createSheet,
+  freezeRows,
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
@@ -53,7 +55,7 @@ jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation((
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  const model = new Model({ sheets: [{ id: 1 }] });
+  const model = new Model({ sheets: [{ id: "sh1" }] });
   ({ app, parent } = await mountSpreadsheet(fixture, { model }));
 });
 
@@ -176,6 +178,38 @@ describe("Spreadsheet", () => {
     const client = { id: "alice", name: "Alice" };
     ({ app, parent } = await mountSpreadsheet(fixture, { model: new Model({}, { client }) }));
     expect(parent.model.getters.getClient()).toEqual(client);
+    app.destroy();
+  });
+
+  test("Spreadsheet detects frozen panes that exceed the limit size at start", async () => {
+    const notifyUser = jest.fn();
+    const model = new Model({ sheets: [{ panes: { xSplit: 12, ySplit: 50 } }] });
+    ({ app, parent } = await mountSpreadsheet(fixture, { model }, { notifyUser }));
+    expect(notifyUser).toHaveBeenCalled();
+    app.destroy();
+  });
+
+  test("Warn user only once when the viewport is too small for its frozen panes", async () => {
+    const notifyUser = jest.fn();
+    ({ app, parent } = await mountSpreadsheet(fixture, undefined, { notifyUser }));
+    expect(notifyUser).not.toHaveBeenCalled();
+    freezeRows(parent.model, 51);
+    await nextTick();
+    expect(notifyUser).toHaveBeenCalledTimes(1);
+    //dispatching commands that do not alter the viewport/pane status and rerendering won't notify
+    addRows(parent.model, "after", 0, 1);
+    await nextTick();
+    expect(notifyUser).toHaveBeenCalledTimes(1);
+
+    // resetting the status - the panes no longer exceed limit size
+    freezeRows(parent.model, 3);
+    await nextTick();
+    expect(notifyUser).toHaveBeenCalledTimes(1);
+
+    // dispatching that makes the panes exceed the limit size in viewport notifies again
+    freezeRows(parent.model, 51);
+    await nextTick();
+    expect(notifyUser).toHaveBeenCalledTimes(2);
     app.destroy();
   });
 });
@@ -402,25 +436,27 @@ describe("Composer / selectionInput interactions", () => {
 
   test("Selecting a range should not scroll the viewport to the current Grid selection", async () => {
     const model = parent.model;
-    const { top, bottom, left, right } = model.getters.getActiveViewport();
+    const { top, bottom, left, right } = model.getters.getActiveMainViewport();
     await typeInComposerTopBar("=");
     // scroll
     fixture
       .querySelector(".o-grid")!
       .dispatchEvent(new WheelEvent("wheel", { deltaY: 3 * DEFAULT_CELL_HEIGHT }));
     await nextTick();
-    const scrolledViewport = model.getters.getActiveViewport();
+    const scrolledViewport = model.getters.getActiveMainViewport();
     expect(scrolledViewport).toMatchObject({
       left,
       right,
       top: top + 3,
       bottom: bottom + 3,
+    });
+    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
       offsetY: 3 * DEFAULT_CELL_HEIGHT,
       offsetScrollbarY: 3 * DEFAULT_CELL_HEIGHT,
     });
     await clickCell(model, "E5");
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
-    expect(model.getters.getActiveViewport()).toMatchObject(scrolledViewport);
+    expect(model.getters.getActiveMainViewport()).toMatchObject(scrolledViewport);
   });
 
   test("Z-indexes of the various spreadsheet components", async () => {

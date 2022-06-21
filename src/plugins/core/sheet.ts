@@ -20,6 +20,7 @@ import {
   Dimension,
   ExcelWorkbookData,
   HeaderIndex,
+  PaneDivision,
   RenameSheetCommand,
   Row,
   Sheet,
@@ -66,6 +67,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "isEmpty",
     "getSheetSize",
     "getSheetZone",
+    "getPaneDivisions",
   ] as const;
 
   readonly sheetIdsMapName: Record<string, UID | undefined> = {};
@@ -115,7 +117,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         return this.orderedSheetIds.length > 1
           ? CommandResult.Success
           : CommandResult.NotEnoughSheets;
-      case "REMOVE_COLUMNS_ROWS":
+      case "REMOVE_COLUMNS_ROWS": {
         const length =
           cmd.dimension === "COL"
             ? this.getNumberCols(cmd.sheetId)
@@ -123,6 +125,17 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         return length > cmd.elements.length
           ? CommandResult.Success
           : CommandResult.NotEnoughElements;
+      }
+      case "FREEZE_ROWS": {
+        return cmd.quantity >= 1 && cmd.quantity < this.getNumberRows(cmd.sheetId)
+          ? CommandResult.Success
+          : CommandResult.InvalidFreezeQuantity;
+      }
+      case "FREEZE_COLUMNS": {
+        return cmd.quantity >= 1 && cmd.quantity < this.getNumberCols(cmd.sheetId)
+          ? CommandResult.Success
+          : CommandResult.InvalidFreezeQuantity;
+      }
       default:
         return CommandResult.Success;
     }
@@ -182,6 +195,21 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       case "UPDATE_CELL_POSITION":
         this.updateCellPosition(cmd);
         break;
+      case "FREEZE_COLUMNS":
+        this.setPaneDivisions(cmd.sheetId, cmd.quantity, "COL");
+        break;
+      case "FREEZE_ROWS":
+        this.setPaneDivisions(cmd.sheetId, cmd.quantity, "ROW");
+        break;
+      case "UNFREEZE_ROWS":
+        this.setPaneDivisions(cmd.sheetId, 0, "ROW");
+        break;
+      case "UNFREEZE_COLUMNS":
+        this.setPaneDivisions(cmd.sheetId, 0, "COL");
+        break;
+      case "UNFREEZE_COLUMNS_ROWS":
+        this.setPaneDivisions(cmd.sheetId, 0, "COL");
+        this.setPaneDivisions(cmd.sheetId, 0, "ROW");
     }
   }
 
@@ -208,6 +236,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         areGridLinesVisible:
           sheetData.areGridLinesVisible === undefined ? true : sheetData.areGridLinesVisible,
         isVisible: sheetData.isVisible,
+        panes: {
+          xSplit: sheetData.panes?.xSplit || 0,
+          ySplit: sheetData.panes?.ySplit || 0,
+        },
       };
       this.orderedSheetIds.push(sheet.id);
       this.sheets[sheet.id] = sheet;
@@ -217,7 +249,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   private exportSheets(data: WorkbookData) {
     data.sheets = this.orderedSheetIds.filter(isDefined).map((id) => {
       const sheet = this.sheets[id]!;
-      return {
+      const sheetData: SheetData = {
         id: sheet.id,
         name: sheet.name,
         colNumber: sheet.numberOfCols,
@@ -232,6 +264,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           sheet.areGridLinesVisible === undefined ? true : sheet.areGridLinesVisible,
         isVisible: sheet.isVisible,
       };
+      if (sheet.panes.xSplit || sheet.panes.ySplit) {
+        sheetData.panes = sheet.panes;
+      }
+      return sheetData;
     });
   }
 
@@ -412,6 +448,20 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     };
   }
 
+  getPaneDivisions(sheetId: UID): Readonly<PaneDivision> {
+    return this.getSheet(sheetId).panes;
+  }
+
+  private setPaneDivisions(sheetId: UID, base: HeaderIndex, dimension: Dimension) {
+    const panes = { ...this.getPaneDivisions(sheetId) };
+    if (dimension === "COL") {
+      panes.xSplit = base;
+    } else if (dimension === "ROW") {
+      panes.ySplit = base;
+    }
+    this.history.update("sheets", sheetId, "panes", panes);
+  }
+
   // ---------------------------------------------------------------------------
   // Row/Col manipulation
   // ---------------------------------------------------------------------------
@@ -497,6 +547,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       rows: createDefaultRows(rowNumber),
       areGridLinesVisible: true,
       isVisible: true,
+      panes: {
+        xSplit: 0,
+        ySplit: 0,
+      },
     };
     const orderedSheetIds = this.orderedSheetIds.slice();
     orderedSheetIds.splice(position, 0, sheet.id);
@@ -674,6 +728,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
     const numberOfCols = this.sheets[sheet.id]!.numberOfCols;
     this.history.update("sheets", sheet.id, "numberOfCols", numberOfCols - columns.length);
+    const count = columns.filter((col) => col < sheet.panes.xSplit).length;
+    if (count) {
+      this.setPaneDivisions(sheet.id, sheet.panes.xSplit - count, "COL");
+    }
   }
 
   /**
@@ -699,6 +757,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       // Effectively delete the element and recompute the left-right/top-bottom.
       group.map((row) => this.updateRowsStructureOnDeletion(row, sheet));
     }
+    const count = rows.filter((row) => row < sheet.panes.ySplit).length;
+    if (count) {
+      this.setPaneDivisions(sheet.id, sheet.panes.ySplit - count, "ROW");
+    }
   }
 
   private addColumns(
@@ -707,26 +769,29 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     position: "before" | "after",
     quantity: number
   ) {
+    const index = position === "before" ? column : column + 1;
     // Move the cells.
-    this.moveCellsOnAddition(
-      sheet,
-      position === "before" ? column : column + 1,
-      quantity,
-      "columns"
-    );
+    this.moveCellsOnAddition(sheet, index, quantity, "columns");
 
     const numberOfCols = this.sheets[sheet.id]!.numberOfCols;
     this.history.update("sheets", sheet.id, "numberOfCols", numberOfCols + quantity);
+    if (index < sheet.panes.xSplit) {
+      this.setPaneDivisions(sheet.id, sheet.panes.xSplit + quantity, "COL");
+    }
   }
 
   private addRows(sheet: Sheet, row: HeaderIndex, position: "before" | "after", quantity: number) {
+    const index = position === "before" ? row : row + 1;
     this.addEmptyRows(sheet, quantity);
 
     // Move the cells.
-    this.moveCellsOnAddition(sheet, position === "before" ? row : row + 1, quantity, "rows");
+    this.moveCellsOnAddition(sheet, index, quantity, "rows");
 
     // Recompute the left-right/top-bottom.
     this.updateRowsStructureOnAddition(sheet, row, quantity);
+    if (index < sheet.panes.ySplit) {
+      this.setPaneDivisions(sheet.id, sheet.panes.ySplit + quantity, "ROW");
+    }
   }
 
   private moveCellOnColumnsDeletion(sheet: Sheet, deletedColumn: number) {
