@@ -5,7 +5,7 @@ import {
   useExternalListener,
   useState,
 } from "@odoo/owl";
-import { BACKGROUND_HEADER_COLOR, DEFAULT_FONT_SIZE } from "../../constants";
+import { BACKGROUND_HEADER_COLOR, ComponentsImportance, DEFAULT_FONT_SIZE } from "../../constants";
 import { fontSizes } from "../../fonts";
 import { isEqual } from "../../helpers/index";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../../registries/index";
@@ -208,7 +208,7 @@ css/* scss */ `
             position: absolute;
             top: calc(100% + 5px);
             left: 0;
-            z-index: 10;
+            z-index: ${ComponentsImportance.Dropdown};
             box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
             background-color: white;
 

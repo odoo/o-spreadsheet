@@ -1,4 +1,5 @@
 import { Component } from "@odoo/owl";
+import { ComponentsImportance } from "../../constants";
 import { SpreadsheetChildEnv } from "../../types/env";
 import { css } from "../helpers/css";
 import { ICONS, ICON_SETS } from "../icons/icons";
@@ -10,7 +11,7 @@ interface Props {
 css/* scss */ `
   .o-icon-picker {
     position: absolute;
-    z-index: 10;
+    z-index: ${ComponentsImportance.IconPicker};
     box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
     background-color: white;
     padding: 2px 1px;

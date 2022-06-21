@@ -10,6 +10,7 @@ import {
 import {
   AUTOFILL_EDGE_LENGTH,
   BACKGROUND_GRAY_COLOR,
+  ComponentsImportance,
   DEFAULT_CELL_HEIGHT,
   HEADER_HEIGHT,
   HEADER_WIDTH,
@@ -199,7 +200,7 @@ css/* scss */ `
     .o-scrollbar {
       position: absolute;
       overflow: auto;
-      z-index: 2;
+      z-index: ${ComponentsImportance.ScrollBar};
       &.vertical {
         right: 0;
         bottom: ${SCROLLBAR_WIDTH}px;

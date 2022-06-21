@@ -1,5 +1,5 @@
 import { Component, onMounted, onPatched, onWillUnmount, useRef, useState } from "@odoo/owl";
-import { SELECTION_BORDER_COLOR } from "../../../constants";
+import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
 import { isEqual, rangeReference, toZone, zoneToDimension } from "../../../helpers/index";
@@ -56,7 +56,7 @@ css/* scss */ `
     padding: 0;
     margin: 0;
     border: 0;
-    z-index: 5;
+    z-index: ${ComponentsImportance.Composer};
     flex-grow: 1;
     max-height: inherit;
     .o-composer {

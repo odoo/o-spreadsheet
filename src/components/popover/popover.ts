@@ -1,5 +1,10 @@
 import { Component } from "@odoo/owl";
-import { BOTTOMBAR_HEIGHT, SCROLLBAR_WIDTH, TOPBAR_HEIGHT } from "../../constants";
+import {
+  BOTTOMBAR_HEIGHT,
+  ComponentsImportance,
+  SCROLLBAR_WIDTH,
+  TOPBAR_HEIGHT,
+} from "../../constants";
 import { DOMCoordinates, GridDimension, SpreadsheetChildEnv } from "../../types";
 import { useSpreadsheetPosition } from "../helpers/position_hook";
 
@@ -45,7 +50,7 @@ export class Popover extends Component<Props, SpreadsheetChildEnv> {
     }`;
     return `
       position: absolute;
-      z-index: 5;
+      z-index: ${ComponentsImportance.Popover};
       ${verticalPosition}px;
       ${horizontalPosition}px;
       ${height}px;

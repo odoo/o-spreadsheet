@@ -1,4 +1,5 @@
 import { Component } from "@odoo/owl";
+import { ComponentsImportance } from "../../constants";
 import { SpreadsheetChildEnv } from "../../types/env";
 import { css } from "../helpers/css";
 
@@ -119,7 +120,7 @@ css/* scss */ `
   .o-color-picker {
     position: absolute;
     top: calc(100% + 5px);
-    z-index: 10;
+    z-index: ${ComponentsImportance.ColorPicker};
     box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
     background-color: white;
     padding: ${PICKER_VERTICAL_PADDING}px 0px;
