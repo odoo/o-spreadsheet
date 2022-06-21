@@ -466,7 +466,7 @@ export class GridSelectionPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const result: Figure[] = [];
     const figures = this.getters.getFigures(sheetId);
-    const { offsetX, offsetY } = this.getters.getActiveSnappedViewport();
+    const { offsetX, offsetY } = this.getters.getActiveViewport();
     const { width, height } = this.getters.getViewportDimensionWithHeaders();
     for (let figure of figures) {
       if (figure.x >= offsetX + width || figure.x + figure.width <= offsetX) {

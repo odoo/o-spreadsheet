@@ -52,14 +52,19 @@ export interface Viewport extends Zone {
    */
   offsetX: number;
   /**
+   * The scrollBar offset in the X coordinate, which can differ from offsetX as
+   * the former is "smooth" and the latter will "snap" from one cell coordinate to the other
+   */
+  offsetScrollbarX: number;
+  /**
    * The offset in the Y coordinate between the viewport top side and
    * the grid top side (top of row "1").
    */
   offsetY: number;
-}
-
-export interface SnappedViewport extends Viewport {
-  offsetScrollbarX: number;
+  /**
+   * The scrollBar offset in the Y coordinate, which can differ from offsetX as
+   * the former is "smooth" and the latter will "snap" from one cell coordinate to the other
+   */
   offsetScrollbarY: number;
 }
 

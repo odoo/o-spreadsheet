@@ -27,7 +27,7 @@ export class ClientTag extends Component<ClientTagProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ClientTag";
   get tagStyle(): string {
     const { col, row, color } = this.props;
-    const viewport = this.env.model.getters.getActiveSnappedViewport();
+    const viewport = this.env.model.getters.getActiveViewport();
     const { height } = this.env.model.getters.getViewportDimensionWithHeaders();
     const [x, y, ,] = this.env.model.getters.getRect(
       { left: col, top: row, right: col, bottom: row },

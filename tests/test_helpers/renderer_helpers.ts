@@ -21,7 +21,7 @@ export class MockGridRenderingContext implements GridRenderingContext {
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
     model.dispatch("RESIZE_VIEWPORT", { width, height });
-    this.viewport = model.getters.getActiveSnappedViewport();
+    this.viewport = model.getters.getActiveViewport();
 
     const handler = {
       get: (target, val) => {
@@ -59,10 +59,12 @@ export function watchClipboardOutline(model: Model) {
   const viewport: Viewport = {
     bottom: viewportSize,
     left: 0,
-    offsetX: 0,
-    offsetY: 0,
     right: viewportSize,
     top: 0,
+    offsetX: 0,
+    offsetY: 0,
+    offsetScrollbarX: 0,
+    offsetScrollbarY: 0,
   };
   let lineDash = false;
   let outlinedRects: any[][] = [];

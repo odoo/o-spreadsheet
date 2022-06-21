@@ -144,7 +144,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
 
   getStyle(info: FigureInfo) {
     const { figure, isSelected } = info;
-    const { offsetX, offsetY } = this.env.model.getters.getActiveSnappedViewport();
+    const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
     const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
     const { width, height } = target;
     let x = target.x - offsetX - 1;
