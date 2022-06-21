@@ -1,10 +1,17 @@
 import { Component, useRef, useState } from "@odoo/owl";
-import { HEADER_HEIGHT, HEADER_WIDTH } from "../../../constants";
+import { ComponentsImportance, HEADER_HEIGHT, HEADER_WIDTH } from "../../../constants";
 import { clip, isEqual } from "../../../helpers";
 import { SpreadsheetChildEnv, Zone } from "../../../types";
+import { css } from "../../helpers/css";
 import { dragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop";
 import { Border } from "../border/border";
 import { Corner } from "../corner/corner";
+
+css/*SCSS*/ `
+  .o-highlight {
+    z-index: ${ComponentsImportance.Highlight};
+  }
+`;
 
 interface Props {
   zone: Zone;

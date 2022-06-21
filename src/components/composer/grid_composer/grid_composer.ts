@@ -1,5 +1,9 @@
 import { Component, onMounted, useRef, useState } from "@odoo/owl";
-import { DEFAULT_CELL_HEIGHT, SELECTION_BORDER_COLOR } from "../../../constants";
+import {
+  ComponentsImportance,
+  DEFAULT_CELL_HEIGHT,
+  SELECTION_BORDER_COLOR,
+} from "../../../constants";
 import { fontSizeMap } from "../../../fonts";
 import { Rect, Ref, SpreadsheetChildEnv, Zone } from "../../../types/index";
 import { css } from "../../helpers/css";
@@ -12,7 +16,7 @@ const SCROLLBAR_HIGHT = 15;
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
 css/* scss */ `
   div.o-grid-composer {
-    z-index: 5;
+    z-index: ${ComponentsImportance.Composer};
     box-sizing: border-box;
     position: absolute;
     border: ${COMPOSER_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};

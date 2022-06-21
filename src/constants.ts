@@ -99,3 +99,16 @@ export const DEFAULT_GAUGE_UPPER_COLOR = "#6aa84f";
 export const NULL_FORMAT = undefined;
 
 export const FORMULA_REF_IDENTIFIER = "|";
+
+export enum ComponentsImportance {
+  Grid = 0,
+  Highlight = 5,
+  Figure = 10,
+  ScrollBar = 15,
+  Composer = 20,
+  Dropdown = 12,
+  ColorPicker = 25,
+  IconPicker = 25,
+  Popover = 30,
+  ChartAnchor = 1000,
+}

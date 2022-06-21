@@ -1,5 +1,6 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import {
+  ComponentsImportance,
   HEADER_HEIGHT,
   HEADER_WIDTH,
   ICON_EDGE_LENGTH,
@@ -383,7 +384,7 @@ css/* scss */ `
       top: calc(${HEADER_HEIGHT}px / 2 - ${UNHIDE_ICON_EDGE_LENGTH}px / 2);
     }
     .o-unhide:hover {
-      z-index: 1;
+      z-index: ${ComponentsImportance.Grid + 1};
       background-color: lightgrey;
     }
     .o-unhide > svg {
@@ -598,7 +599,7 @@ css/* scss */ `
       top: calc(${UNHIDE_ICON_EDGE_LENGTH}px / 2 - ${ICON_EDGE_LENGTH}px / 2);
     }
     .o-unhide:hover {
-      z-index: 1;
+      z-index: ${ComponentsImportance.Grid + 1};
       background-color: lightgrey;
     }
   }

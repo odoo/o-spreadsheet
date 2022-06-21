@@ -1,5 +1,5 @@
 import { Component, onMounted, useState } from "@odoo/owl";
-import { SELECTION_BORDER_COLOR } from "../../../constants";
+import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants";
 import { figureRegistry } from "../../../registries/index";
 import { Figure, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
@@ -31,12 +31,13 @@ css/*SCSS*/ `
     position: absolute;
     bottom: 3px;
     right: 3px;
+    z-index: ${ComponentsImportance.Figure};
     &:focus {
       outline: none;
     }
     &.active {
       border: ${ACTIVE_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};
-      z-index: 1;
+      z-index: ${ComponentsImportance.Figure + 1};
     }
 
     &.o-dragging {
@@ -45,7 +46,7 @@ css/*SCSS*/ `
     }
 
     .o-anchor {
-      z-index: 1000;
+      z-index: ${ComponentsImportance.ChartAnchor};
       position: absolute;
       outline: ${BORDER_WIDTH}px solid white;
       width: ${ANCHOR_SIZE}px;

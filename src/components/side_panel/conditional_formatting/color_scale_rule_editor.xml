@@ -37,7 +37,7 @@
       />
       <input type="text" class="o-input o-threshold-value" t-else="" disabled="1"/>
       <div class="o-tools">
-        <div class="o-tool  o-dropdown o-with-color" t-att-disabled="threshold === undefined">
+        <div class="o-tool o-dropdown o-with-color" t-att-disabled="threshold === undefined">
           <span
             title="Fill Color"
             t-attf-style="border-color:#{{getThresholdColor(threshold)}}"
