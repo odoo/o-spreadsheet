@@ -8,6 +8,7 @@ import {
   merge,
   moveAnchorCell,
   selectCell,
+  setViewportOffset,
 } from "../test_helpers/commands_helpers";
 import { getActiveXc } from "../test_helpers/getters_helpers";
 
@@ -19,7 +20,7 @@ function getViewport(
   offsetY: number
 ): Viewport {
   model.dispatch("RESIZE_VIEWPORT", { width, height });
-  model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
+  setViewportOffset(model, offsetX, offsetY);
   return model.getters.getActiveViewport();
 }
 

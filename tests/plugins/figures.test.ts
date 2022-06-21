@@ -1,6 +1,12 @@
 import { CommandResult } from "../../src";
 import { Model } from "../../src/model";
-import { activateSheet, createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
+import {
+  activateSheet,
+  createSheet,
+  selectCell,
+  setViewportOffset,
+  undo,
+} from "../test_helpers/commands_helpers";
 
 describe("figure plugin", () => {
   test("can create a simple figure", () => {
@@ -93,10 +99,10 @@ describe("figure plugin", () => {
     });
     expect(model.getters.getVisibleFigures().length).toBe(1);
 
-    model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 200, offsetY: 200 });
+    setViewportOffset(model, 200, 200);
     expect(model.getters.getVisibleFigures().length).toBe(0);
 
-    model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 10, offsetY: 10 });
+    setViewportOffset(model, 10, 10);
     expect(model.getters.getVisibleFigures().length).toBe(1);
   });
 
