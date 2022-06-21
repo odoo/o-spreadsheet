@@ -1,9 +1,14 @@
 import { App, Component, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
-import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
+import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+} from "../../src/constants";
 import { Model } from "../../src/model";
 import { setCellContent } from "../test_helpers/commands_helpers";
-import { triggerMouseEvent } from "../test_helpers/dom_helper";
+import { clickCell, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { makeTestFixture, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 
 jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
@@ -143,8 +148,10 @@ describe("Autofill component", () => {
       offsetX: 500,
       offsetY: 500,
     });
-    setCellContent(model, "A1", "test");
+    setCellContent(model, "F22", "test");
+    await clickCell(model, "F22");
     await nextTick();
+    expect(fixture.querySelector(".o-autofill")).not.toBeNull();
     triggerMouseEvent(autofill, "mousedown", 40, 40);
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
@@ -274,5 +281,21 @@ describe("Autofill component", () => {
     );
     await nextTick();
     expect(dispatch).not.toHaveBeenCalled();
+  });
+  test("Autofill component is hidden when the bottom right selection is out of the viewport", async () => {
+    await clickCell(model, "A1");
+    expect(fixture.querySelector(".o-autofill")).not.toBeNull();
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: DEFAULT_CELL_WIDTH,
+      offsetY: 0,
+    });
+    await nextTick();
+    expect(fixture.querySelector(".o-autofill")).toBeNull();
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: 0,
+      offsetY: DEFAULT_CELL_HEIGHT,
+    });
+    await nextTick();
+    expect(fixture.querySelector(".o-autofill")).toBeNull();
   });
 });

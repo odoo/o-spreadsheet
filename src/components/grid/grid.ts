@@ -604,6 +604,21 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 
+  isAutoFillActive(): boolean {
+    const zone = this.env.model.getters.getSelectedZone();
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const { width, height } = this.env.model.getters.getViewportDimension();
+    const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
+    const rightCol = this.env.model.getters.getColDimensions(sheetId, zone.right);
+    const bottomRow = this.env.model.getters.getRowDimensions(sheetId, zone.bottom);
+    return (
+      rightCol.end <= offsetX + width &&
+      rightCol.end > offsetX &&
+      bottomRow.end <= offsetY + height &&
+      bottomRow.end > offsetY
+    );
+  }
+
   drawGrid() {
     //reposition scrollbar
     const { offsetScrollbarX, offsetScrollbarY } = this.env.model.getters.getActiveViewport();

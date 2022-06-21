@@ -77,7 +77,8 @@
           onLinkEditorClosed="props.onLinkEditorClosed"
         />
       </Popover>
-      <t t-if="env.model.getters.getEditionMode() === 'inactive' and !env.isDashboard()">
+      <t
+        t-if="env.model.getters.getEditionMode() === 'inactive' and isAutoFillActive() and !env.isDashboard()">
         <Autofill
           position="getAutofillPosition()"
           getGridBoundingClientRect="() => this.getGridBoundingClientRect()"
