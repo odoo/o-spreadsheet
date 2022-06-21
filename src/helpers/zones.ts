@@ -358,189 +358,122 @@ export function isZoneInside(smallZone: Zone, biggerZone: Zone): boolean {
 /**
  * Recompute the ranges of the zone to contain all the cells in zones, without the cells in toRemoveZones
  * Also regroup zones together to shorten the string
- * (A1, A2, B1, B2, [C1:C2], C3 => [A1:B2],[C1:C3])
- * To do so, the cells are separated and remerged in zones by columns, and then
- * if possible zones in adjacent columns are merged together.
  */
 export function recomputeZones(zonesXc: string[], toRemoveZonesXc: string[]): string[] {
-  const zonesPerColumn: {
-    [col: string]: { top: number; bottom: number; remove: boolean }[];
-  } = {};
   const zones = zonesXc.map(toUnboundedZone);
-  const toRemoveZones = toRemoveZonesXc.map(toUnboundedZone);
-
+  const zonesToRemove = toRemoveZonesXc.map(toZone);
   // Compute the max to replace the bottom of full columns and right of full rows by something
   // bigger than any other col/row to be able to apply the algorithm while keeping tracks of what
   // zones are full cols/rows
-  const maxBottom = Math.max(
-    ...zones.concat(toRemoveZones).map((zone) => (zone.bottom ? zone.bottom : 0))
-  );
-  const maxRight = Math.max(
-    ...zones.concat(toRemoveZones).map((zone) => (zone.right ? zone.right : 0))
-  );
+  const maxBottom = Math.max(...zones.concat(zonesToRemove).map((zone) => zone.bottom || 0));
+  const maxRight = Math.max(...zones.concat(zonesToRemove).map((zone) => zone.right || 0));
+  const expandedZones = zones.map((zone) => ({
+    ...zone,
+    bottom: zone.bottom === undefined ? maxBottom + 1 : zone.bottom,
+    right: zone.right === undefined ? maxRight + 1 : zone.right,
+  }));
+  const expandedZonesToRemove = zonesToRemove.map((zone) => ({
+    ...zone,
+    bottom: zone.bottom === undefined ? maxBottom + 1 : zone.bottom,
+    right: zone.right === undefined ? maxRight + 1 : zone.right,
+  }));
 
-  //separate the existing zones per column
-  for (let zone of zones) {
-    if (zone) {
-      if (zone.right === undefined) {
-        zone.right = maxRight + 1;
-      }
-      for (let col = zone.left; col <= zone.right; col++) {
-        if (zonesPerColumn[col] === undefined) {
-          zonesPerColumn[col] = [];
-        }
-        zonesPerColumn[col].push({
-          top: zone.top,
-          bottom: zone.bottom === undefined ? maxBottom + 1 : zone.bottom,
-          remove: false,
-        });
-      }
-    }
-  }
+  const zonePositions = expandedZones.map(positions).flat();
+  const positionsToRemove = expandedZonesToRemove.map(positions).flat();
+  const positionToKeep = positionsDifference(zonePositions, positionsToRemove);
+  const columns = mergePositionsIntoColumns(positionToKeep);
 
-  //separate the to deleted zones per column
-  for (let zone of toRemoveZones) {
-    if (zone.right === undefined) {
-      zone.right = maxRight + 1;
-    }
-    for (let col = zone.left; col <= zone.right; col++) {
-      if (zonesPerColumn[col] === undefined) {
-        zonesPerColumn[col] = [];
-      }
-      zonesPerColumn[col].push({
-        top: zone.top,
-        bottom: zone.bottom === undefined ? maxBottom + 1 : zone.bottom,
-        remove: true,
-      });
-    }
-  }
-  const OptimizedZonePerColumn: {
-    col: number;
-    ranges: { top: number; bottom: number }[];
-  }[] = [];
-
-  //regroup zones per column
-  for (let [col, zones] of Object.entries(zonesPerColumn)) {
-    OptimizedZonePerColumn.push({
-      col: parseInt(col),
-      ranges: optimiseColumn(zones),
-    });
-  }
-  //merge zones that spread over multiple columns that can be merged
-  const result = mergeColumns(OptimizedZonePerColumn);
-
-  // Convert back the full columns/full rows
-  const resultZones = result.map((zone) => {
-    if (zone.bottom > maxBottom) {
-      return { ...zone, bottom: undefined } as UnboundedZone;
-    }
-    if (zone.right > maxRight) {
-      return { ...zone, right: undefined } as UnboundedZone;
-    }
-    return zone as Zone;
-  });
-  return resultZones.map(zoneToXc);
+  return mergeAlignedColumns(columns)
+    .map((zone) => ({
+      ...zone,
+      bottom: zone.bottom === maxBottom + 1 ? undefined : zone.bottom,
+      right: zone.right === maxRight + 1 ? undefined : zone.right,
+    }))
+    .map(zoneToXc);
 }
 
 /**
- * Recompute the ranges of a column, without the remove cells.
- * takes as input a array of {top, bottom, remove} where top and bottom
- * are the start and end of ranges in the column and remove expresses if the
- * cell should be kept or not.
+ * Merge aligned adjacent columns into single zones
+ * e.g. A1:A5 and B1:B5 are merged into A1:B5
  */
-function optimiseColumn(
-  zones: { top: number; bottom: number; remove: boolean }[]
-): { top: number; bottom: number }[] {
-  const toKeep: Set<number> = new Set();
-  const toRemove: Set<number> = new Set();
+export function mergeAlignedColumns(columns: readonly Zone[]): Zone[] {
+  if (columns.length === 0) {
+    return [];
+  }
+  if (columns.some((zone) => zone.left !== zone.right)) {
+    throw new Error("only columns can be merged");
+  }
+  const done: Zone[] = [];
+  const cols = removeRedundantZones(columns);
 
-  for (let zone of zones) {
-    for (let x = zone.top; x <= zone.bottom; x++) {
-      zone.remove ? toRemove.add(x) : toKeep.add(x);
-    }
+  const isAdjacentAndAligned = (zone, nextZone) =>
+    zone.top === nextZone.top &&
+    zone.bottom === nextZone.bottom &&
+    zone.right + 1 === nextZone.left;
+  while (cols.length) {
+    const merged = cols.reduce(
+      (zone, nextZone) => (isAdjacentAndAligned(zone, nextZone) ? union(zone, nextZone) : zone),
+      cols.shift()!
+    );
+    done.push(merged);
   }
-  const finalElements: number[] = [...toKeep]
-    .filter((x) => !toRemove.has(x))
-    .sort((a, b) => {
-      return a - b;
-    });
-  const newZones: { top: number; bottom: number }[] = [];
-  let currentZone: { top: number; bottom: number } | undefined;
-  for (let x of finalElements) {
-    if (!currentZone) {
-      currentZone = { top: x, bottom: x };
-    } else if (x === currentZone.bottom + 1) {
-      currentZone.bottom = x;
-    } else {
-      newZones.push({ top: currentZone.top, bottom: currentZone.bottom });
-      currentZone = { top: x, bottom: x };
-    }
-  }
-  if (currentZone) {
-    newZones.push({ top: currentZone.top, bottom: currentZone.bottom });
-  }
-  return newZones;
+  return removeRedundantZones(done);
 }
 
 /**
- * Verify if ranges in two adjacent columns can be merged in one in one range,
- * and if they can, merge them in the same range.
+ * Remove redundant zones in the list.
+ * i.e. zones included in another zone.
  */
-function mergeColumns(
-  zonePerCol: {
-    col: number;
-    ranges: { top: number; bottom: number }[];
-  }[]
-) {
-  const orderedZones = zonePerCol.sort((a, b) => {
-    return a.col - b.col;
-  });
-  const finalZones: { top: number; left: number; right: number; bottom: number }[] = [];
-  let inProgressZones: { top: number; bottom: number; startCol: number }[] = [];
-  let currentCol = 0;
-  for (let index = 0; index <= orderedZones.length - 1; index++) {
-    let newInProgress: { top: number; bottom: number; startCol: number }[] = [];
-    if (currentCol + 1 === orderedZones[index].col) {
-      for (let z1 of orderedZones[index].ranges) {
-        let merged = false;
-        for (let z2 of inProgressZones) {
-          //extend existing zone with the adjacent col
-          if (z1.top == z2.top && z1.bottom == z2.bottom) {
-            newInProgress.push(z2);
-            merged = true;
-          }
-        }
-        // create new zone as it could not be merged with a previous one
-        if (!merged) {
-          newInProgress.push({ top: z1.top, bottom: z1.bottom, startCol: orderedZones[index].col });
-        }
-      }
+function removeRedundantZones(zones: readonly Zone[]): Zone[] {
+  const sortedZones = [...zones]
+    .sort((a, b) => b.right - a.right)
+    .sort((a, b) => b.bottom - a.bottom)
+    .sort((a, b) => a.top - b.top)
+    .sort((a, b) => a.left - b.left)
+    .reverse();
+  const checked: Zone[] = [];
+  while (sortedZones.length !== 0) {
+    const zone = sortedZones.shift()!;
+    const isIncludedInOther = sortedZones.some((otherZone) => isZoneInside(zone, otherZone));
+    if (!isIncludedInOther) {
+      checked.push(zone);
+    }
+  }
+  return checked.reverse();
+}
+
+/**
+ * Merge adjacent positions into vertical zones (columns)
+ */
+export function mergePositionsIntoColumns(positions: readonly Position[]): Zone[] {
+  if (positions.length === 0) {
+    return [];
+  }
+  const [startingPosition, ...sortedPositions] = [...positions]
+    .sort((a, b) => a.row - b.row)
+    .sort((a, b) => a.col - b.col);
+  const done: Zone[] = [];
+  let active = positionToZone(startingPosition);
+  for (const { col, row } of sortedPositions) {
+    if (isInside(col, row, active)) {
+      continue;
+    } else if (col === active.left && row === active.bottom + 1) {
+      const bottom = active.bottom + 1;
+      active = { ...active, bottom };
     } else {
-      // create new zone as it was not adjacent to the previous zones
-      newInProgress = orderedZones[index].ranges.map((zone) => {
-        return {
-          top: zone.top,
-          bottom: zone.bottom,
-          startCol: orderedZones[index].col,
-        };
-      });
+      done.push(active);
+      active = positionToZone({ col, row });
     }
-
-    //All the zones from inProgressZones that are not transferred in newInProgress
-    //are zones that were not extended and are therefore final.
-    const difference = inProgressZones.filter((x) => !newInProgress.includes(x));
-    for (let x of difference) {
-      finalZones.push({ top: x.top, bottom: x.bottom, left: x.startCol, right: currentCol });
-    }
-    currentCol = orderedZones[index].col;
-    inProgressZones = newInProgress;
   }
-  //after the last iteration, the unfinished zones need to be finalized to.
-  for (let x of inProgressZones) {
-    finalZones.push({ top: x.top, bottom: x.bottom, left: x.startCol, right: currentCol });
-  }
+  return [...done, active];
+}
 
-  return finalZones;
+/**
+ * Returns positions in the first array which are not in the second array.
+ */
+function positionsDifference(positions: readonly Position[], toRemove: readonly Position[]) {
+  const forbidden = new Set(toRemove.map(({ col, row }) => `${col}-${row}`));
+  return positions.filter(({ col, row }) => !forbidden.has(`${col}-${row}`));
 }
 
 export function zoneToDimension(zone: Zone): ZoneDimension {
