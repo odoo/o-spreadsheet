@@ -1,5 +1,6 @@
 import { App, Component, xml } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Figure, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
@@ -201,5 +202,21 @@ describe("figures", () => {
     triggerMouseEvent(figure, "mousedown", 300, 200);
     await nextTick();
     expect(figure.classList).not.toContain("o-dragging");
+  });
+
+  test("Figures are cropped to avoid overlap with headers", async () => {
+    const figureId = "someuuid";
+    createFigure(model, { id: figureId, x: 100, y: 20, height: 200, width: 100 });
+    await nextTick();
+    const figure = fixture.querySelector(".o-figure-wrapper")!;
+    expect(window.getComputedStyle(figure).width).toBe("111px"); // width + borders
+    expect(window.getComputedStyle(figure).height).toBe("211px"); // height + borders
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: 2 * DEFAULT_CELL_WIDTH,
+      offsetY: 3 * DEFAULT_CELL_HEIGHT,
+    });
+    await nextTick();
+    expect(window.getComputedStyle(figure).width).toBe("18px"); // width + borders - 2 * DEFAULT_CELL_WIDTH
+    expect(window.getComputedStyle(figure).height).toBe("161px"); // height + offset - 2 * DEFAULT_CELL_WIDTH
   });
 });
