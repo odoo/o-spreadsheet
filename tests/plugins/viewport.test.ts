@@ -25,6 +25,7 @@ import {
   selectColumn,
   selectRow,
   setSelection,
+  setViewportOffset,
   undo,
 } from "../test_helpers/commands_helpers";
 
@@ -132,10 +133,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Horizontal scroll correctly affects offset", () => {
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: DEFAULT_CELL_WIDTH * 2,
-      offsetY: 0,
-    });
+    setViewportOffset(model, DEFAULT_CELL_WIDTH * 2, 0);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 43,
@@ -144,11 +142,7 @@ describe("Viewport of Simple sheet", () => {
       offsetX: DEFAULT_CELL_WIDTH * 2,
       offsetY: 0,
     });
-
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: DEFAULT_CELL_WIDTH * 16,
-      offsetY: 0,
-    });
+    setViewportOffset(model, DEFAULT_CELL_WIDTH * 16, 0);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 43,
@@ -158,10 +152,7 @@ describe("Viewport of Simple sheet", () => {
       offsetY: 0,
     });
 
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: DEFAULT_CELL_WIDTH * 12.6,
-      offsetY: 0,
-    });
+    setViewportOffset(model, DEFAULT_CELL_WIDTH * 12.6, 0);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 43,
@@ -178,10 +169,7 @@ describe("Viewport of Simple sheet", () => {
     model = new Model({
       sheets: [{ rowNumber: 2 }],
     });
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: DEFAULT_CELL_WIDTH * 2,
-      offsetY: 0,
-    });
+    setViewportOffset(model, DEFAULT_CELL_WIDTH * 2, 0);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 0,
       bottom: 1,
@@ -193,10 +181,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Vertical scroll correctly affects offset", () => {
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 2,
-    });
+    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 2);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 2,
       bottom: 45,
@@ -206,10 +191,7 @@ describe("Viewport of Simple sheet", () => {
       offsetY: DEFAULT_CELL_HEIGHT * 2,
     });
 
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 57,
-    });
+    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 57);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 57,
       bottom: 99,
@@ -219,10 +201,7 @@ describe("Viewport of Simple sheet", () => {
       offsetY: DEFAULT_CELL_HEIGHT * 57,
     });
 
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 12.6,
-    });
+    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 12.6);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 12,
       bottom: 55,
@@ -239,10 +218,7 @@ describe("Viewport of Simple sheet", () => {
     model = new Model({
       sheets: [{ colNumber: 2 }],
     });
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 2,
-    });
+    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 2);
     expect(model.getters.getActiveViewport()).toMatchObject({
       top: 2,
       bottom: 45,
@@ -255,29 +231,20 @@ describe("Viewport of Simple sheet", () => {
 
   test("cannot set offset outside of the grid", () => {
     // negative
-    const negativeOffsetResult = model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: -1,
-      offsetY: 0,
-    });
+    const negativeOffsetResult = setViewportOffset(model, -1, 0);
     expect(negativeOffsetResult).toBeCancelledBecause(CommandResult.InvalidOffset);
 
     // too large
     model.dispatch("RESIZE_VIEWPORT", { height: 1000, width: 1000 });
     const { maxOffsetY } = model.getters.getMaximumViewportOffset(model.getters.getActiveSheet());
+    const tooLargeOffsetResult = setViewportOffset(model, 0, maxOffsetY + 1);
 
-    const tooLargeOffsetResult = model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: 0,
-      offsetY: maxOffsetY + 1,
-    });
     expect(tooLargeOffsetResult).toBeCancelledBecause(CommandResult.InvalidOffset);
   });
 
   test("Resize (increase) columns correctly affects viewport without changing the offset", () => {
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: DEFAULT_CELL_WIDTH * 2,
-      offsetY: 0,
-    });
+    setViewportOffset(model, DEFAULT_CELL_WIDTH * 2, 0);
     const { offsetX } = model.getters.getActiveViewport();
     resizeColumns(
       model,
@@ -323,10 +290,7 @@ describe("Viewport of Simple sheet", () => {
 
   test("Resize rows correctly affects viewport without changing the offset", () => {
     const numberRows = model.getters.getNumberRows(model.getters.getActiveSheetId());
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 2,
-    });
+    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 2);
     const { offsetY } = model.getters.getActiveViewport();
     resizeRows(model, [...Array(numberRows).keys()], DEFAULT_CELL_HEIGHT * 2);
     expect(model.getters.getActiveViewport()).toMatchObject({
@@ -551,7 +515,7 @@ describe("Viewport of Simple sheet", () => {
   });
   test("Resize Viewport is correctly computed and does not adjust position", () => {
     selectCell(model, "K71");
-    model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 100, offsetY: 112 });
+    setViewportOffset(model, 100, 112);
     const viewport = model.getters.getActiveViewport();
     model.dispatch("RESIZE_VIEWPORT", {
       width: 500,
@@ -574,10 +538,7 @@ describe("Viewport of Simple sheet", () => {
       model.getters.getActiveSheet()
     );
     let { width, height } = model.getters.getViewportDimensionWithHeaders();
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: gridWidth - width,
-      offsetY: gridHeight - height,
-    });
+    setViewportOffset(model, gridWidth - width, gridHeight - height);
     // de-zoom
     model.dispatch("RESIZE_VIEWPORT", {
       width: 1250,
@@ -721,10 +682,7 @@ describe("shift viewport up/down", () => {
   test("RENAME move viewport not starting from the top", () => {
     selectCell(model, "A4");
     const { bottom } = model.getters.getActiveViewport();
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 3,
-    });
+    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 3);
     model.dispatch("SHIFT_VIEWPORT_DOWN");
     expect(model.getters.getActiveViewport().top).toBe(bottom + 3);
     model.dispatch("SHIFT_VIEWPORT_UP");
@@ -734,10 +692,7 @@ describe("shift viewport up/down", () => {
   test("RENAME move viewport not starting from the top", () => {
     selectCell(model, "A4");
     const { bottom } = model.getters.getActiveViewport();
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 3 + 1,
-    });
+    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 3 + 1);
     model.dispatch("SHIFT_VIEWPORT_DOWN");
     expect(model.getters.getActiveViewport().top).toBe(bottom + 3);
     model.dispatch("SHIFT_VIEWPORT_UP");
@@ -747,10 +702,7 @@ describe("shift viewport up/down", () => {
   test("RENAME move viewport not starting from the top", () => {
     selectCell(model, "A4");
     const { bottom } = model.getters.getActiveViewport();
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 3 - 1,
-    });
+    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 3 - 1);
     model.dispatch("SHIFT_VIEWPORT_DOWN");
     expect(model.getters.getActiveViewport().top).toBe(bottom + 2);
     model.dispatch("SHIFT_VIEWPORT_UP");
@@ -787,10 +739,7 @@ describe("shift viewport up/down", () => {
 
   test("X offset does not change", () => {
     selectCell(model, "D1");
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: DEFAULT_CELL_WIDTH * 3,
-      offsetY: 0,
-    });
+    setViewportOffset(model, DEFAULT_CELL_WIDTH * 3, 0);
     model.dispatch("SHIFT_VIEWPORT_DOWN");
     expect(model.getters.getActiveViewport().offsetX).toBe(DEFAULT_CELL_WIDTH * 3);
     model.dispatch("SHIFT_VIEWPORT_UP");

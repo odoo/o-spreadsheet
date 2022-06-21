@@ -681,3 +681,10 @@ export function hideSheet(model: Model, sheetId: UID) {
 export function showSheet(model: Model, sheetId: UID) {
   return model.dispatch("SHOW_SHEET", { sheetId });
 }
+
+export function setViewportOffset(model: Model, offsetX: number, offsetY: number) {
+  return model.dispatch("SET_VIEWPORT_OFFSET", {
+    offsetX,
+    offsetY,
+  });
+}
