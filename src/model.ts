@@ -429,7 +429,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   drawGrid(context: GridRenderingContext) {
     // we make sure here that the viewport is properly positioned: the offsets
     // correspond exactly to a cell
-    context.viewport = this.getters.getActiveSnappedViewport(); //snaped one
+    context.viewport = this.getters.getActiveViewport(); //snaped one
     for (let [renderer, layer] of this.renderers) {
       context.ctx.save();
       renderer.drawGrid(context, layer);

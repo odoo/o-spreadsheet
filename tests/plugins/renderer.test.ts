@@ -53,7 +53,7 @@ class MockGridRenderingContext implements GridRenderingContext {
       width: width - HEADER_WIDTH,
       height: height - HEADER_HEIGHT,
     });
-    this.viewport = model.getters.getActiveSnappedViewport();
+    this.viewport = model.getters.getActiveViewport();
 
     const handler = {
       get: (target, val) => {
@@ -1036,7 +1036,7 @@ describe("renderer", () => {
     ["normal" as Mode, [HEADER_WIDTH, HEADER_HEIGHT, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT]],
   ])("A1 starts at the upper left corner with mode %s", (mode, expectedRect) => {
     const model = new Model({}, { mode });
-    const viewport = model.getters.getActiveSnappedViewport();
+    const viewport = model.getters.getActiveViewport();
     const rect = model.getters.getRect(toZone("A1"), viewport);
     expect(rect).toEqual(expectedRect);
   });

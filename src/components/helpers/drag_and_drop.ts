@@ -48,7 +48,7 @@ export function dragAndDropBeyondTheViewport(
     const offsetY = currentEv.clientY - position.top;
     const edgeScrollInfoX = env.model.getters.getEdgeScrollCol(offsetX - HEADER_WIDTH);
     const edgeScrollInfoY = env.model.getters.getEdgeScrollRow(offsetY - HEADER_HEIGHT);
-    const { top, left, bottom, right } = env.model.getters.getActiveSnappedViewport();
+    const { top, left, bottom, right } = env.model.getters.getActiveViewport();
 
     let colIndex: number;
     if (edgeScrollInfoX.canEdgeScroll) {
@@ -68,7 +68,7 @@ export function dragAndDropBeyondTheViewport(
 
     const sheetId = env.model.getters.getActiveSheetId();
     if (edgeScrollInfoX.canEdgeScroll) {
-      const { left, offsetY } = env.model.getters.getActiveSnappedViewport();
+      const { left, offsetY } = env.model.getters.getActiveViewport();
       const offsetX = env.model.getters.getColDimensions(
         sheetId,
         left + edgeScrollInfoX.direction
@@ -81,7 +81,7 @@ export function dragAndDropBeyondTheViewport(
     }
 
     if (edgeScrollInfoY.canEdgeScroll) {
-      const { top, offsetX } = env.model.getters.getActiveSnappedViewport();
+      const { top, offsetX } = env.model.getters.getActiveViewport();
       const offsetY = env.model.getters.getRowDimensions(
         sheetId,
         top + edgeScrollInfoY.direction

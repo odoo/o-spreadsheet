@@ -411,7 +411,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getViewportOffset(): number {
-    return this.env.model.getters.getActiveSnappedViewport().left;
+    return this.env.model.getters.getActiveViewport().left;
   }
 
   _getClientPosition(ev: MouseEvent): number {
@@ -435,7 +435,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getBoundaries(): { first: number; last: number } {
-    const { left, right } = this.env.model.getters.getActiveSnappedViewport();
+    const { left, right } = this.env.model.getters.getActiveViewport();
     return { first: left, last: right };
   }
 
@@ -495,7 +495,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _adjustViewport(direction: number): void {
-    const { left, offsetY } = this.env.model.getters.getActiveSnappedViewport();
+    const { left, offsetY } = this.env.model.getters.getActiveViewport();
     const sheetId = this.env.model.getters.getActiveSheetId();
     const offsetX = this.env.model.getters.getColDimensions(sheetId, left + direction).start;
     this.env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
@@ -622,7 +622,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getViewportOffset(): number {
-    return this.env.model.getters.getActiveSnappedViewport().top;
+    return this.env.model.getters.getActiveViewport().top;
   }
 
   _getClientPosition(ev: MouseEvent): number {
@@ -646,7 +646,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getBoundaries(): { first: number; last: number } {
-    const { top, bottom } = this.env.model.getters.getActiveSnappedViewport();
+    const { top, bottom } = this.env.model.getters.getActiveViewport();
     return { first: top, last: bottom };
   }
 
@@ -706,7 +706,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _adjustViewport(direction: number): void {
-    const { top, offsetX } = this.env.model.getters.getActiveSnappedViewport();
+    const { top, offsetX } = this.env.model.getters.getActiveViewport();
     const sheetId = this.env.model.getters.getActiveSheetId();
     const offsetY = this.env.model.getters.getRowDimensions(sheetId, top + direction).start;
     this.env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });

@@ -544,7 +544,7 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     const advanceTimer = scrollDelay(0.5 * width) * 6 - 1;
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-border-n", "mouseup", 1.5 * width, y);
-    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+    expect(model.getters.getActiveViewport()).toMatchObject({
       left: 6,
       right: 15,
       top: 0,
@@ -560,7 +560,7 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-border-n", "mouseup", -0.5 * width, y);
 
-    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+    expect(model.getters.getActiveViewport()).toMatchObject({
       left: 3,
       right: 12,
       top: 0,
@@ -577,7 +577,7 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-border-n", "mouseup", x, 1.5 * height);
 
-    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+    expect(model.getters.getActiveViewport()).toMatchObject({
       left: 0,
       right: 9,
       top: 6,
@@ -593,7 +593,7 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-border-n", "mouseup", x, -0.5 * height);
 
-    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+    expect(model.getters.getActiveViewport()).toMatchObject({
       left: 0,
       right: 9,
       top: 3,
@@ -610,7 +610,7 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     const advanceTimer = scrollDelay(0.5 * width) * 6 - 1;
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-corner-nw", "mouseup", 1.5 * width, y);
-    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+    expect(model.getters.getActiveViewport()).toMatchObject({
       left: 6,
       right: 15,
       top: 0,
@@ -626,7 +626,7 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-corner-nw", "mouseup", -0.5 * width, y);
 
-    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+    expect(model.getters.getActiveViewport()).toMatchObject({
       left: 3,
       right: 12,
       top: 0,
@@ -643,7 +643,7 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-corner-nw", "mouseup", x, 1.5 * height);
 
-    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+    expect(model.getters.getActiveViewport()).toMatchObject({
       left: 0,
       right: 9,
       top: 6,
@@ -659,7 +659,7 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-corner-nw", "mouseup", x, -0.5 * height);
 
-    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+    expect(model.getters.getActiveViewport()).toMatchObject({
       left: 0,
       right: 9,
       top: 3,

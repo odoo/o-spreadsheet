@@ -85,7 +85,7 @@ export class RendererPlugin extends UIPlugin {
    * column of the current viewport
    */
   getColDimensionsInViewport(sheetId: UID, col: number): HeaderDimensions {
-    const { left } = this.getters.getActiveSnappedViewport();
+    const { left } = this.getters.getActiveViewport();
     const start = this.getColRowOffset("COL", left, col, sheetId);
     const size = this.getters.getColSize(sheetId, col);
     const isColHidden = this.getters.isColHidden(sheetId, col);
@@ -115,7 +115,7 @@ export class RendererPlugin extends UIPlugin {
    * of the current viewport
    */
   getRowDimensionsInViewport(sheetId: UID, row: number): HeaderDimensions {
-    const { top } = this.getters.getActiveSnappedViewport();
+    const { top } = this.getters.getActiveViewport();
     const start = this.getColRowOffset("ROW", top, row, sheetId);
     const size = this.getters.getRowSize(sheetId, row);
     const isRowHidden = this.getters.isRowHidden(sheetId, row);
@@ -210,7 +210,7 @@ export class RendererPlugin extends UIPlugin {
     let delay = 0;
     const { width } = this.getters.getViewportDimension();
     const { width: gridWidth } = this.getters.getMaxViewportSize(this.getters.getActiveSheet());
-    const { left, offsetX } = this.getters.getActiveSnappedViewport();
+    const { left, offsetX } = this.getters.getActiveViewport();
     if (x < 0 && left > 0) {
       canEdgeScroll = true;
       direction = -1;
@@ -230,7 +230,7 @@ export class RendererPlugin extends UIPlugin {
     let delay = 0;
     const { height } = this.getters.getViewportDimension();
     const { height: gridHeight } = this.getters.getMaxViewportSize(this.getters.getActiveSheet());
-    const { top, offsetY } = this.getters.getActiveSnappedViewport();
+    const { top, offsetY } = this.getters.getActiveViewport();
     if (y < 0 && top > 0) {
       canEdgeScroll = true;
       direction = -1;

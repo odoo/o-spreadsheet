@@ -209,7 +209,7 @@ css/* scss */ `
       &.horizontal {
         bottom: 0;
         height: ${SCROLLBAR_WIDTH}px;
-        right: ${SCROLLBAR_WIDTH + 1}px;
+        right: ${SCROLLBAR_WIDTH}px;
         overflow-y: hidden;
       }
     }
@@ -353,7 +353,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       cell.evaluated.type === CellValueType.error &&
       cell.evaluated.error.logLevel > CellErrorLevel.silent
     ) {
-      const viewport = this.env.model.getters.getActiveSnappedViewport();
+      const viewport = this.env.model.getters.getActiveViewport();
       const [x, y, width] = this.env.model.getters.getRect(
         { left: col, top: row, right: col, bottom: row },
         viewport
@@ -383,7 +383,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   get shouldDisplayLink(): boolean {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const { col, row } = this.activeCellPosition;
-    const viewport = this.env.model.getters.getActiveSnappedViewport();
+    const viewport = this.env.model.getters.getActiveViewport();
     const cell = this.env.model.getters.getCell(sheetId, col, row);
     return (
       this.env.model.getters.isVisibleInViewport(col, row, viewport) &&
@@ -406,7 +406,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       position.col,
       position.row
     );
-    const viewport = this.env.model.getters.getActiveSnappedViewport();
+    const viewport = this.env.model.getters.getActiveViewport();
     const [x, y, width, height] = this.env.model.getters.getRect(
       { left: col, top: row, right: col, bottom: row },
       viewport
@@ -569,8 +569,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onScroll() {
-    const { offsetScrollbarX, offsetScrollbarY } =
-      this.env.model.getters.getActiveSnappedViewport();
+    const { offsetScrollbarX, offsetScrollbarY } = this.env.model.getters.getActiveViewport();
     if (
       offsetScrollbarX !== this.hScrollbar.scroll ||
       offsetScrollbarY !== this.vScrollbar.scroll
@@ -596,7 +595,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   getAutofillPosition() {
     const zone = this.env.model.getters.getSelectedZone();
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const { offsetX, offsetY } = this.env.model.getters.getActiveSnappedViewport();
+    const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
     const col = this.env.model.getters.getColDimensions(sheetId, zone.right);
     const row = this.env.model.getters.getRowDimensions(sheetId, zone.bottom);
     return {
@@ -607,8 +606,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   drawGrid() {
     //reposition scrollbar
-    const { offsetScrollbarX, offsetScrollbarY } =
-      this.env.model.getters.getActiveSnappedViewport();
+    const { offsetScrollbarX, offsetScrollbarY } = this.env.model.getters.getActiveViewport();
     this.hScrollbar.scroll = offsetScrollbarX;
     this.vScrollbar.scroll = offsetScrollbarY;
     // check for position changes
@@ -620,7 +618,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const thinLineWidth = 0.4 * dpr;
     const renderingContext = {
       ctx,
-      viewport: this.env.model.getters.getActiveSnappedViewport(),
+      viewport: this.env.model.getters.getActiveViewport(),
       dpr,
       thinLineWidth,
     };
@@ -742,7 +740,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const colEdgeScroll = this.env.model.getters.getEdgeScrollCol(x);
       const rowEdgeScroll = this.env.model.getters.getEdgeScrollRow(y);
 
-      const { left, right, top, bottom } = this.env.model.getters.getActiveSnappedViewport();
+      const { left, right, top, bottom } = this.env.model.getters.getActiveViewport();
       let col: number, row: number;
       if (colEdgeScroll.canEdgeScroll) {
         col = colEdgeScroll.direction > 0 ? right : left - 1;
@@ -834,7 +832,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const oldZone = this.env.model.getters.getSelectedZone();
       this.env.model.selection.resizeAnchorZone(direction, ev.ctrlKey ? "end" : "one");
       const newZone = this.env.model.getters.getSelectedZone();
-      const viewport = this.env.model.getters.getActiveSnappedViewport();
+      const viewport = this.env.model.getters.getActiveViewport();
       const sheetId = this.env.model.getters.getActiveSheetId();
       let { col, row } = findCellInNewZone(oldZone, newZone);
       col = Math.min(col, this.env.model.getters.getNumberCols(sheetId) - 1);
