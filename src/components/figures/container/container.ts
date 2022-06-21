@@ -150,14 +150,20 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     let x = target.x - offsetX - 1;
     let y = target.y - offsetY - 1;
 
+    // width and height of wrapper need to be adjusted so we do not overlap
+    // with headers
+    const correctionX = this.env.isDashboard() ? 0 : Math.max(0, -x);
+    x += correctionX;
+    const correctionY = this.env.isDashboard() ? 0 : Math.max(0, -y);
+    y += correctionY;
     if (width < 0 || height < 0) {
       return `position:absolute;display:none;`;
     }
     const offset =
       ANCHOR_SIZE + ACTIVE_BORDER_WIDTH + (isSelected ? ACTIVE_BORDER_WIDTH : BORDER_WIDTH);
-    return `position:absolute; top:${y + 1}px; left:${x + 1}px; width:${width + offset}px; height:${
-      height + offset
-    }px`;
+    return `position:absolute; top:${y + 1}px; left:${x + 1}px; width:${
+      width - correctionX + offset
+    }px; height:${height - correctionY + offset}px`;
   }
 
   setup() {
