@@ -1,5 +1,5 @@
 export const MAX_DELAY = 140;
-const MIN_DELAY = 20;
+export const MIN_DELAY = 20;
 const ACCELERATION = 0.035;
 
 /**

@@ -373,12 +373,18 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   updateCellState() {
     const zones = this.env.model.getters.getSelectedZones();
-    const { top, left, right, bottom } = zones[0];
-    this.cannotMerge = zones.length > 1 || (top === bottom && left === right);
+    const sheetId = this.env.model.getters.getActiveSheetId();
     this.inMerge = false;
+    const { top, left, right, bottom } = this.env.model.getters.getSelectedZone();
+    const { xSplit, ySplit } = this.env.model.getters.getPaneDivisions(sheetId);
+    this.cannotMerge =
+      zones.length > 1 ||
+      (top === bottom && left === right) ||
+      (left < xSplit && xSplit <= right) ||
+      (top < ySplit && ySplit <= bottom);
     if (!this.cannotMerge) {
       const { col, row } = this.env.model.getters.getPosition();
-      const zone = this.env.model.getters.expandZone(this.env.model.getters.getActiveSheetId(), {
+      const zone = this.env.model.getters.expandZone(sheetId, {
         left: col,
         right: col,
         top: row,
@@ -411,6 +417,9 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   toggleMerge() {
+    if (this.cannotMerge) {
+      return;
+    }
     const zones = this.env.model.getters.getSelectedZones();
     const target = [zones[zones.length - 1]];
     const sheetId = this.env.model.getters.getActiveSheetId();

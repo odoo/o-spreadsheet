@@ -161,3 +161,39 @@ export function addMerges(merges: string[]): XMLString {
     `;
   } else return escapeXml``;
 }
+
+export function addSheetViews(sheet: ExcelSheetData) {
+  const panes = sheet.panes;
+  let splitPanes: XMLString = escapeXml/*xml*/ ``;
+  if (panes && (panes.xSplit || panes.ySplit)) {
+    const xc = toXC(panes.xSplit, panes.ySplit);
+    //workbookViewId should be defined in the workbook file but it seems like Excel has a default behaviour.
+    const xSplit = panes.xSplit ? escapeXml`xSplit="${panes.xSplit}"` : "";
+    const ySplit = panes.ySplit ? escapeXml`ySplit="${panes.ySplit}"` : "";
+    const topRight = panes.xSplit ? escapeXml`<selection pane="topRight"/>` : "";
+    const bottomLeft = panes.ySplit ? escapeXml`<selection pane="bottomLeft"/>` : "";
+    const bottomRight =
+      panes.xSplit && panes.ySplit ? escapeXml`<selection pane="bottomRight"/>` : "";
+
+    splitPanes = escapeXml/*xml*/ `
+    <pane
+      ${xSplit}
+      ${ySplit}
+      topLeftCell="${xc}"
+      activePane="${panes.xSplit ? (panes.ySplit ? "bottomRight" : "topRight") : "bottomLeft"}"
+      state="frozen"/>
+      ${topRight}
+      ${bottomLeft}
+      ${bottomRight}
+    `;
+  }
+
+  let sheetView = escapeXml/*xml*/ `
+      <sheetViews>
+        <sheetView showGridLines="${sheet.areGridLinesVisible ? 1 : 0}" workbookViewId="0">
+          ${splitPanes}
+        </sheetView>
+      </sheetViews>
+    `;
+  return sheetView;
+}

@@ -5,7 +5,7 @@ import { ChartDefinition } from "./chart/chart";
 import { ClipboardPasteOptions } from "./clipboard";
 import { UpDown } from "./conditional_formatting";
 import { BorderCommand, ConditionalFormat, Figure, Format, Style, Zone } from "./index";
-import { Border, CellPosition, Dimension, HeaderIndex, SetDecimalStep, UID } from "./misc";
+import { Border, CellPosition, Dimension, HeaderIndex, Pixel, SetDecimalStep, UID } from "./misc";
 import { RangeData } from "./range";
 
 // -----------------------------------------------------------------------------
@@ -107,7 +107,7 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "PREPARE_SELECTION_INPUT_EXPANSION",
   "STOP_SELECTION_INPUT",
 
-  "RESIZE_VIEWPORT",
+  "RESIZE_SHEETVIEW",
   "SET_VIEWPORT_OFFSET",
 
   "SELECT_SEARCH_NEXT_MATCH",
@@ -137,6 +137,11 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "HIDE_COLUMNS_ROWS",
   "UNHIDE_COLUMNS_ROWS",
   "SET_GRID_LINES_VISIBILITY",
+  "UNFREEZE_COLUMNS",
+  "UNFREEZE_ROWS",
+  "FREEZE_COLUMNS",
+  "FREEZE_ROWS",
+  "UNFREEZE_COLUMNS_ROWS",
 
   /** MERGE */
   "ADD_MERGE",
@@ -236,9 +241,42 @@ export interface HideColumnsRowsCommand extends GridDependentCommand {
   type: "HIDE_COLUMNS_ROWS";
   elements: HeaderIndex[];
 }
+
 export interface UnhideColumnsRowsCommand extends GridDependentCommand {
   type: "UNHIDE_COLUMNS_ROWS";
   elements: HeaderIndex[];
+}
+
+/**
+ * Freeze a given number of columns on top of the sheet
+ */
+export interface FreezeColumnsCommand extends SheetDependentCommand {
+  type: "FREEZE_COLUMNS";
+  /** number of columns frozen */
+  quantity: number;
+}
+
+/**
+ * Freeze a given number of rows on top of the sheet
+ */
+export interface FreezeRowsCommand extends SheetDependentCommand {
+  type: "FREEZE_ROWS";
+  /** number of frozen rows */
+  quantity: number;
+}
+export interface UnfreezeColumnsRowsCommand {
+  type: "UNFREEZE_COLUMNS_ROWS";
+  sheetId: UID;
+}
+
+export interface UnfreezeColumnsCommand {
+  type: "UNFREEZE_COLUMNS";
+  sheetId: UID;
+}
+
+export interface UnfreezeRowsCommand {
+  type: "UNFREEZE_ROWS";
+  sheetId: UID;
 }
 export interface SetGridLinesVisibilityCommand extends SheetDependentCommand {
   type: "SET_GRID_LINES_VISIBILITY";
@@ -713,15 +751,17 @@ export interface SortCommand {
 export type SortDirection = "ascending" | "descending";
 
 export interface ResizeViewportCommand {
-  type: "RESIZE_VIEWPORT";
-  width: number;
-  height: number;
+  type: "RESIZE_SHEETVIEW";
+  width: Pixel;
+  height: Pixel;
+  gridOffsetX?: Pixel;
+  gridOffsetY?: Pixel;
 }
 
 export interface SetViewportOffsetCommand {
   type: "SET_VIEWPORT_OFFSET";
-  offsetX: number;
-  offsetY: number;
+  offsetX: Pixel;
+  offsetY: Pixel;
 }
 
 /**
@@ -805,6 +845,11 @@ export type CoreCommand =
   | HideColumnsRowsCommand
   | UnhideColumnsRowsCommand
   | SetGridLinesVisibilityCommand
+  | FreezeColumnsCommand
+  | FreezeRowsCommand
+  | UnfreezeColumnsRowsCommand
+  | UnfreezeColumnsCommand
+  | UnfreezeRowsCommand
 
   /** MERGE */
   | AddMergeCommand
@@ -1013,10 +1058,13 @@ export const enum CommandResult {
   Readonly,
   InvalidOffset,
   InvalidViewportSize,
+  InvalidScrollingDirection,
   FigureDoesNotExist,
   InvalidConditionalFormatId,
   InvalidCellPopover,
   EmptyTarget,
+  InvalidFreezeQuantity,
+  FrozenPaneOverlap,
 }
 
 export interface CommandHandler<T> {

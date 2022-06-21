@@ -1,6 +1,7 @@
 import {
   Component,
   onMounted,
+  onPatched,
   onWillUnmount,
   useExternalListener,
   useState,
@@ -10,10 +11,12 @@ import {
   BOTTOMBAR_HEIGHT,
   CF_ICON_EDGE_LENGTH,
   ICON_EDGE_LENGTH,
+  MAXIMAL_FREEZABLE_RATIO,
   TOPBAR_HEIGHT,
 } from "../../constants";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui/edition";
+import { _lt } from "../../translation";
 import { SpreadsheetChildEnv, WorkbookData } from "../../types";
 import { NotifyUIEvent } from "../../types/ui";
 import { BottomBar } from "../bottom_bar/bottom_bar";
@@ -96,6 +99,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   private keyDownMapping!: { [key: string]: Function };
 
+  private isViewportTooSmall: boolean = false;
+
   getStyle() {
     if (this.env.isDashboard()) {
       return `grid-template-rows: auto;`;
@@ -126,8 +131,14 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     useExternalListener(window as any, "resize", () => this.render(true));
     useExternalListener(window, "beforeunload", this.unbindModelEvents.bind(this));
-    onMounted(() => this.bindModelEvents());
+    onMounted(() => {
+      this.bindModelEvents();
+      this.checkViewportSize();
+    });
     onWillUnmount(() => this.unbindModelEvents());
+    onPatched(() => {
+      this.checkViewportSize();
+    });
   }
 
   get focusTopBarComposer(): Omit<ComposerFocusType, "cellFocus"> {
@@ -150,6 +161,26 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   private unbindModelEvents() {
     this.model.off("update", this);
     this.model.off("notify-ui", this);
+  }
+
+  private checkViewportSize() {
+    const { xRatio, yRatio } = this.env.model.getters.getFrozenSheetViewRatio(
+      this.env.model.getters.getActiveSheetId()
+    );
+    if (yRatio > MAXIMAL_FREEZABLE_RATIO || xRatio > MAXIMAL_FREEZABLE_RATIO) {
+      if (this.isViewportTooSmall) {
+        return;
+      }
+      this.env.notifyUser({
+        text: _lt(
+          "The current window is too small to display this sheet properly. Consider resizing your browser window or adjusting frozen rows and columns."
+        ),
+        tag: "viewportTooSmall",
+      });
+      this.isViewportTooSmall = true;
+    } else {
+      this.isViewportTooSmall = false;
+    }
   }
 
   private onNotifyUI(payload: NotifyUIEvent) {

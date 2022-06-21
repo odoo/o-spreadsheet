@@ -53,3 +53,12 @@ export function cssPropertiesToCss(attributes: CSSProperties): string {
 
   return "\n" + str + "\n";
 }
+
+export function gridOverlayPosition() {
+  const spreadsheetElement = document.querySelector(".o-grid-overlay");
+  if (spreadsheetElement) {
+    const { top, left } = spreadsheetElement?.getBoundingClientRect();
+    return { top, left };
+  }
+  throw new Error("Can't find spreadsheet position");
+}

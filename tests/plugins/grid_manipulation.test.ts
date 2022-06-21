@@ -14,6 +14,8 @@ import {
   deleteCells,
   deleteColumns,
   deleteRows,
+  freezeColumns,
+  freezeRows,
   insertCells,
   merge,
   redo,
@@ -21,6 +23,8 @@ import {
   setCellContent,
   setSelection,
   undo,
+  unfreezeColumns,
+  unfreezeRows,
 } from "../test_helpers/commands_helpers";
 import {
   getBorder,
@@ -1026,7 +1030,7 @@ describe("Rows", () => {
       expect(model.getters.getRowSize(sheetId, 3)).toBe(10);
       expect(model.getters.getRowSize(sheetId, 4)).toBe(20);
       expect(model.getters.getRowSize(sheetId, 5)).toBe(size);
-      const dimensions = model.getters.getMaxViewportSize(model.getters.getActiveSheet());
+      const dimensions = model.getters.getMainViewportRect();
       expect(dimensions).toMatchObject({ width: 192, height: 124 });
       expect(model.getters.getNumberRows(sheetId)).toBe(6);
     });
@@ -1040,7 +1044,7 @@ describe("Rows", () => {
       expect(model.getters.getRowSize(sheetId, 3)).toBe(20);
       expect(model.getters.getRowSize(sheetId, 4)).toBe(20);
       expect(model.getters.getRowSize(sheetId, 5)).toBe(size);
-      const dimensions = model.getters.getMaxViewportSize(model.getters.getActiveSheet());
+      const dimensions = model.getters.getMainViewportRect();
       expect(dimensions).toMatchObject({ width: 192, height: 144 });
       expect(model.getters.getNumberRows(sheetId)).toBe(6);
     });
@@ -1053,12 +1057,12 @@ describe("Rows", () => {
 
     test("activate Sheet: same size", () => {
       addRows(model, "after", 2, 1);
-      let dimensions = model.getters.getMaxViewportSize(model.getters.getActiveSheet());
+      let dimensions = model.getters.getMainViewportRect();
       expect(dimensions).toMatchObject({ width: 192, height: 124 });
       const to = model.getters.getActiveSheetId();
       createSheet(model, { activate: true, sheetId: "42" });
       activateSheet(model, to);
-      dimensions = model.getters.getMaxViewportSize(model.getters.getActiveSheet());
+      dimensions = model.getters.getMainViewportRect();
       expect(dimensions).toMatchObject({ width: 192, height: 124 });
     });
   });
@@ -1827,5 +1831,113 @@ describe("Insert/Delete cells with merge", () => {
     expect(insertCells(model, "A1", "down")).toBeCancelledBecause(
       CommandResult.WillRemoveExistingMerge
     );
+  });
+});
+
+describe("Freeze columns", () => {
+  test(`Removing columns impacts frozen columns`, () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    freezeColumns(model, 4);
+    deleteColumns(model, ["G"]);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 0 });
+
+    deleteColumns(model, ["C", "F"]);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 3, ySplit: 0 });
+
+    unfreezeColumns(model);
+    deleteColumns(model, ["A"]);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 0 });
+  });
+
+  test(`Adding columns impacts frozen columns`, () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    freezeColumns(model, 4);
+    addColumns(model, "after", "G", 5);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 0 });
+
+    // A col added adjacently to a frozen pane will be injected after it
+    addColumns(model, "after", "C", 2);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 6, ySplit: 0 });
+
+    addColumns(model, "after", "B", 2);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 8, ySplit: 0 });
+
+    unfreezeColumns(model);
+    addColumns(model, "before", "A", 1);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 0 });
+  });
+
+  test("Can undo/redo", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    freezeColumns(model, 4);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 0 });
+    freezeColumns(model, 5);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 5, ySplit: 0 });
+    undo(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 0 });
+    unfreezeColumns(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 0 });
+    undo(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 0 });
+    redo(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 0 });
+  });
+});
+
+describe("Freeze rows", () => {
+  test(`Removing rows impacts frozen rows`, () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    freezeRows(model, 4);
+    deleteRows(model, [6]);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 4 });
+
+    deleteRows(model, [2, 5]);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 3 });
+
+    unfreezeRows(model);
+    deleteRows(model, [0]);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 0 });
+  });
+
+  test(`Adding rows impact frozen rows`, () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    freezeRows(model, 4);
+    addRows(model, "after", 6, 5);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 4 });
+
+    // A row added adjacently to a frozen pane will be injected after it
+    addRows(model, "after", 2, 1);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 5 });
+
+    addRows(model, "after", 1, 1);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 6 });
+
+    unfreezeRows(model);
+    addRows(model, "before", 0, 1);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 0 });
+  });
+
+  test("Can undo/redo", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    freezeRows(model, 4);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 4 });
+    freezeRows(model, 5);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 5 });
+    undo(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 4 });
+    unfreezeRows(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 0 });
+    undo(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 4 });
+    undo(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 0 });
+    redo(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 4 });
   });
 });

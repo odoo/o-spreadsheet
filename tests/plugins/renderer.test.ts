@@ -55,11 +55,13 @@ class MockGridRenderingContext implements GridRenderingContext {
   thinLineWidth = 0.4;
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    model.dispatch("RESIZE_VIEWPORT", {
+    model.dispatch("RESIZE_SHEETVIEW", {
       width: width - HEADER_WIDTH,
       height: height - HEADER_HEIGHT,
+      gridOffsetX: 0,
+      gridOffsetY: 0,
     });
-    this.viewport = model.getters.getActiveViewport();
+    this.viewport = model.getters.getActiveMainViewport();
 
     const handler = {
       get: (target, val) => {
@@ -271,7 +273,7 @@ describe("renderer", () => {
     });
 
     model.drawGrid(ctx);
-    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 48, y: 26 }]);
+    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
 
     fillStyle = [];
     model.dispatch("SET_FORMATTING", {
@@ -280,7 +282,7 @@ describe("renderer", () => {
       style: { fillColor: "#DC6CDE" },
     });
     model.drawGrid(ctx);
-    expect(fillStyle).toEqual([{ color: "#DC6CDE", h: 23, w: 96, x: 48, y: 26 }]);
+    expect(fillStyle).toEqual([{ color: "#DC6CDE", h: 23, w: 96, x: 0, y: 0 }]);
   });
 
   test("fillstyle of merge will be rendered for all cells in merge", () => {
@@ -329,7 +331,7 @@ describe("renderer", () => {
     });
 
     model.drawGrid(ctx);
-    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 3 * 23, w: 96, x: 48, y: 26 }]);
+    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 3 * 23, w: 96, x: 0, y: 0 }]);
 
     fillStyle = [];
     model.dispatch("SET_FORMATTING", {
@@ -338,7 +340,7 @@ describe("renderer", () => {
       style: { fillColor: "#DC6CDE" },
     });
     model.drawGrid(ctx);
-    expect(fillStyle).toEqual([{ color: "#DC6CDE", h: 3 * 23, w: 96, x: 48, y: 26 }]);
+    expect(fillStyle).toEqual([{ color: "#DC6CDE", h: 3 * 23, w: 96, x: 0, y: 0 }]);
   });
 
   test("fillstyle of cell works with CF", () => {
@@ -379,7 +381,7 @@ describe("renderer", () => {
     fillStyle = [];
     setCellContent(model, "A1", "1");
     model.drawGrid(ctx);
-    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 48, y: 26 }]);
+    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
   });
 
   test("fillstyle of merge works with CF", () => {
@@ -420,7 +422,7 @@ describe("renderer", () => {
     fillStyle = [];
     setCellContent(model, "A1", "1");
     model.drawGrid(ctx);
-    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23 * 3, w: 96, x: 48, y: 26 }]);
+    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23 * 3, w: 96, x: 0, y: 0 }]);
   });
 
   test("formulas in a merge, evaluating to a string are properly aligned", () => {
@@ -680,7 +682,7 @@ describe("renderer", () => {
     });
     expect(result).toBeSuccessfullyDispatched();
     model.drawGrid(ctx);
-    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 48, y: 26 }]);
+    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
   });
 
   test.each(["I am a very long text", "100000000000000"])(
@@ -718,8 +720,8 @@ describe("renderer", () => {
       model.drawGrid(ctx);
       box = getBoxFromText(model, overflowingContent);
       expect(box.clipRect).toEqual({
-        x: HEADER_WIDTH + DEFAULT_CELL_WIDTH,
-        y: HEADER_HEIGHT,
+        x: DEFAULT_CELL_WIDTH,
+        y: 0,
         width: 5,
         height: DEFAULT_CELL_HEIGHT,
       });
@@ -762,8 +764,8 @@ describe("renderer", () => {
       model.drawGrid(ctx);
       box = getBoxFromText(model, overflowingNumber);
       expect(box.clipRect).toEqual({
-        x: HEADER_WIDTH + DEFAULT_CELL_WIDTH,
-        y: HEADER_HEIGHT,
+        x: DEFAULT_CELL_WIDTH,
+        y: 0,
         width: 5,
         height: DEFAULT_CELL_HEIGHT,
       });
@@ -804,8 +806,8 @@ describe("renderer", () => {
     model.drawGrid(ctx);
     box = getBoxFromText(model, overflowingText);
     expect(box.clipRect).toEqual({
-      x: HEADER_WIDTH + DEFAULT_CELL_WIDTH,
-      y: HEADER_HEIGHT,
+      x: DEFAULT_CELL_WIDTH,
+      y: 0,
       width: 5,
       height: DEFAULT_CELL_HEIGHT,
     });
@@ -840,8 +842,8 @@ describe("renderer", () => {
 
       centeredBox = getBoxFromText(model, overflowingContent);
       expect(centeredBox.clipRect).toEqual({
-        x: HEADER_WIDTH + DEFAULT_CELL_WIDTH, // clipped to the left
-        y: HEADER_HEIGHT,
+        x: DEFAULT_CELL_WIDTH, // clipped to the left
+        y: 0,
         width: 5 + DEFAULT_CELL_WIDTH,
         height: DEFAULT_CELL_HEIGHT,
       });
@@ -851,8 +853,8 @@ describe("renderer", () => {
 
       centeredBox = getBoxFromText(model, overflowingContent);
       expect(centeredBox.clipRect).toEqual({
-        x: HEADER_WIDTH + DEFAULT_CELL_WIDTH, //clipped to the left
-        y: HEADER_HEIGHT,
+        x: DEFAULT_CELL_WIDTH, //clipped to the left
+        y: 0,
         width: 5, // clipped to the right
         height: DEFAULT_CELL_HEIGHT,
       });
@@ -883,8 +885,8 @@ describe("renderer", () => {
 
       box = getBoxFromText(model, overflowingText);
       expect(box.clipRect).toEqual({
-        x: HEADER_WIDTH + DEFAULT_CELL_WIDTH,
-        y: HEADER_HEIGHT,
+        x: DEFAULT_CELL_WIDTH,
+        y: 0,
         width: 10,
         height: DEFAULT_CELL_HEIGHT * 2,
       });
@@ -914,8 +916,8 @@ describe("renderer", () => {
 
       box = getBoxFromText(model, overflowingText);
       expect(box.clipRect).toEqual({
-        x: HEADER_WIDTH + DEFAULT_CELL_WIDTH, // clipped to the left
-        y: HEADER_HEIGHT,
+        x: DEFAULT_CELL_WIDTH, // clipped to the left
+        y: 0,
         width: 20, // clipped to the right
         height: DEFAULT_CELL_HEIGHT,
       });
@@ -945,8 +947,8 @@ describe("renderer", () => {
 
       box = getBoxFromText(model, overflowingText);
       expect(box.clipRect).toEqual({
-        x: HEADER_WIDTH + DEFAULT_CELL_WIDTH, // clipped to the left
-        y: HEADER_HEIGHT,
+        x: DEFAULT_CELL_WIDTH, // clipped to the left
+        y: 0,
         width: 20, // clipped to the right
         height: DEFAULT_CELL_HEIGHT,
       });
@@ -980,8 +982,8 @@ describe("renderer", () => {
     model.drawGrid(ctx);
     box = getBoxFromText(model, overflowingText);
     expect(box.clipRect).toEqual({
-      x: HEADER_WIDTH,
-      y: HEADER_HEIGHT,
+      x: 0,
+      y: 0,
       width: DEFAULT_CELL_WIDTH,
       height: Math.floor(fontSizeMap[fontSize] / 2),
     });
@@ -1022,14 +1024,14 @@ describe("renderer", () => {
     box = getBoxFromText(model, cellContent);
     const maxIconBoxWidth = box.image!.size + 2 * MIN_CF_ICON_MARGIN;
     expect(box.image!.clipIcon).toEqual({
-      x: HEADER_WIDTH,
-      y: HEADER_HEIGHT,
+      x: 0,
+      y: 0,
       width: maxIconBoxWidth,
       height: DEFAULT_CELL_HEIGHT,
     });
     expect(box.clipRect).toEqual({
-      x: HEADER_WIDTH + maxIconBoxWidth,
-      y: HEADER_HEIGHT,
+      x: maxIconBoxWidth,
+      y: 0,
       width: DEFAULT_CELL_WIDTH - maxIconBoxWidth,
       height: DEFAULT_CELL_HEIGHT,
     });
@@ -1038,14 +1040,14 @@ describe("renderer", () => {
     model.drawGrid(ctx);
     box = getBoxFromText(model, cellContent);
     expect(box.image!.clipIcon).toEqual({
-      x: HEADER_WIDTH,
-      y: HEADER_HEIGHT,
+      x: 0,
+      y: 0,
       width: maxIconBoxWidth - 3,
       height: DEFAULT_CELL_HEIGHT,
     });
     expect(box.clipRect).toEqual({
-      x: HEADER_WIDTH + maxIconBoxWidth,
-      y: HEADER_HEIGHT,
+      x: maxIconBoxWidth,
+      y: 0,
       width: 0,
       height: DEFAULT_CELL_HEIGHT,
     });
@@ -1103,14 +1105,10 @@ describe("renderer", () => {
 
   test.each([
     ["dashboard" as Mode, { x: 0, y: 0, width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT }],
-    [
-      "normal" as Mode,
-      { x: HEADER_WIDTH, y: HEADER_HEIGHT, width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT },
-    ],
+    ["normal" as Mode, { x: 0, y: 0, width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT }],
   ])("A1 starts at the upper left corner with mode %s", (mode, expectedRect) => {
     const model = new Model({}, { mode });
-    const viewport = model.getters.getActiveViewport();
-    const rect = model.getters.getRect(toZone("A1"), viewport);
+    const rect = model.getters.getVisibleRect(toZone("A1"));
     expect(rect).toEqual(expectedRect);
   });
 

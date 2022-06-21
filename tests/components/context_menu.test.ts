@@ -2,13 +2,7 @@ import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { Grid } from "../../src/components/grid/grid";
 import { Menu } from "../../src/components/menu/menu";
-import {
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-  MENU_ITEM_HEIGHT,
-  MENU_WIDTH,
-  TOPBAR_HEIGHT,
-} from "../../src/constants";
+import { MENU_ITEM_HEIGHT, MENU_WIDTH, TOPBAR_HEIGHT } from "../../src/constants";
 import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
@@ -202,9 +196,11 @@ class ContextMenuParent extends Component {
         action() {},
       }),
     ];
-    this.props.model.dispatch("RESIZE_VIEWPORT", {
-      height: this.props.height - HEADER_HEIGHT,
-      width: this.props.width - HEADER_WIDTH,
+    this.props.model.dispatch("RESIZE_SHEETVIEW", {
+      height: this.props.height,
+      width: this.props.width,
+      gridOffsetX: 0,
+      gridOffsetY: 0,
     });
   }
 }
