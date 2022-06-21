@@ -1,5 +1,5 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
-import { deepCopy, getAddHeaderStartIndex } from "../../helpers";
+import { deepCopy, getAddHeaderStartIndex, range } from "../../helpers";
 import { Command, ExcelWorkbookData, WorkbookData } from "../../types";
 import { Dimension, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
@@ -10,19 +10,19 @@ interface HeaderSize {
 }
 
 interface HeaderSizeState {
-  headerSizes: Record<UID, Record<Dimension, Array<HeaderSize>>>;
+  sizes: Record<UID, Record<Dimension, Array<HeaderSize>>>;
 }
 
 export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements HeaderSizeState {
   static getters = ["getRowSize", "getColSize"] as const;
 
-  readonly headerSizes: Record<UID, Record<Dimension, Array<HeaderSize>>> = {};
+  readonly sizes: Record<UID, Record<Dimension, Array<HeaderSize>>> = {};
 
   handle(cmd: Command) {
     switch (cmd.type) {
       case "CREATE_SHEET": {
         const computedSizes = this.computeSheetSizes(cmd.sheetId);
-        const headerSizes = {
+        const sizes = {
           COL: computedSizes.COL.map((size) => ({
             manuallySetSize: undefined,
             computedSize: size,
@@ -32,38 +32,38 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
             computedSize: size,
           })),
         };
-        this.history.update("headerSizes", cmd.sheetId, headerSizes);
+        this.history.update("sizes", cmd.sheetId, sizes);
         break;
       }
       case "DUPLICATE_SHEET":
-        this.history.update("headerSizes", cmd.sheetIdTo, deepCopy(this.headerSizes[cmd.sheetId]));
+        this.history.update("sizes", cmd.sheetIdTo, deepCopy(this.sizes[cmd.sheetId]));
         break;
       case "DELETE_SHEET":
-        const headerSizes = { ...this.headerSizes };
-        delete headerSizes[cmd.sheetId];
-        this.history.update("headerSizes", headerSizes);
+        const sizes = { ...this.sizes };
+        delete sizes[cmd.sheetId];
+        this.history.update("sizes", sizes);
         break;
       case "REMOVE_COLUMNS_ROWS": {
-        const headerSizes = [...this.headerSizes[cmd.sheetId][cmd.dimension]];
-        for (let el of [...cmd.elements].sort().reverse()) {
-          headerSizes.splice(el, 1);
+        const sizes = [...this.sizes[cmd.sheetId][cmd.dimension]];
+        for (let headerIndex of [...cmd.elements].sort().reverse()) {
+          sizes.splice(headerIndex, 1);
         }
-        this.history.update("headerSizes", cmd.sheetId, cmd.dimension, headerSizes);
+        this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);
         break;
       }
       case "ADD_COLUMNS_ROWS": {
-        const headerSizes = [...this.headerSizes[cmd.sheetId][cmd.dimension]];
+        const sizes = [...this.sizes[cmd.sheetId][cmd.dimension]];
         const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
-        const baseSize = headerSizes[cmd.base];
+        const baseSize = sizes[cmd.base];
         for (let i = 0; i < cmd.quantity; i++) {
-          headerSizes.splice(addIndex, 0, baseSize);
+          sizes.splice(addIndex, 0, baseSize);
         }
-        this.history.update("headerSizes", cmd.sheetId, cmd.dimension, headerSizes);
+        this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);
         break;
       }
       case "RESIZE_COLUMNS_ROWS":
         for (let el of cmd.elements) {
-          this.history.update("headerSizes", cmd.sheetId, cmd.dimension, el, {
+          this.history.update("sizes", cmd.sheetId, cmd.dimension, el, {
             computedSize: cmd.size,
             manuallySetSize: cmd.size,
           });
@@ -83,19 +83,19 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
 
   private getHeaderSize(sheetId: UID, dimension: Dimension, index: number): number {
     return (
-      this.headerSizes[sheetId]?.[dimension][index]?.manuallySetSize ||
-      this.headerSizes[sheetId]?.[dimension][index]?.computedSize ||
+      this.sizes[sheetId]?.[dimension][index]?.manuallySetSize ||
+      this.sizes[sheetId]?.[dimension][index]?.computedSize ||
       this.getDefaultHeaderSize(dimension)
     );
   }
 
   private computeSheetSizes(sheetId: UID): Record<Dimension, Array<number>> {
     const sizes: Record<Dimension, Array<number>> = { COL: [], ROW: [] };
-    for (let i = 0; i < this.getters.getNumberCols(sheetId); i++) {
-      sizes.COL.push(this.getHeaderSize(sheetId, "COL", i));
+    for (const col of range(0, this.getters.getNumberCols(sheetId))) {
+      sizes.COL.push(this.getHeaderSize(sheetId, "COL", col));
     }
-    for (let i = 0; i < this.getters.getNumberRows(sheetId); i++) {
-      sizes.ROW.push(this.getHeaderSize(sheetId, "ROW", i));
+    for (const row of range(0, this.getters.getNumberRows(sheetId))) {
+      sizes.ROW.push(this.getHeaderSize(sheetId, "ROW", row));
     }
     return sizes;
   }
@@ -119,7 +119,7 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         }
       }
       const computedSizes = this.computeSheetSizes(sheet.id);
-      this.headerSizes[sheet.id] = {
+      this.sizes[sheet.id] = {
         COL: manuallySetSizes.COL.map((size, i) => ({
           manuallySetSize: size,
           computedSize: computedSizes.COL[i],
@@ -152,8 +152,8 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
       if (sheet.rows === undefined) {
         sheet.rows = {};
       }
-      for (let row = 0; row < this.getters.getNumberRows(sheet.id); row++) {
-        if (exportDefaults || this.headerSizes[sheet.id]["ROW"][row]?.manuallySetSize) {
+      for (let row of range(0, this.getters.getNumberRows(sheet.id))) {
+        if (exportDefaults || this.sizes[sheet.id]["ROW"][row]?.manuallySetSize) {
           sheet.rows[row] = { ...sheet.rows[row], size: this.getRowSize(sheet.id, row) };
         }
       }
@@ -162,8 +162,8 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
       if (sheet.cols === undefined) {
         sheet.cols = {};
       }
-      for (let col = 0; col < this.getters.getNumberCols(sheet.id); col++) {
-        if (exportDefaults || this.headerSizes[sheet.id]["COL"][col]?.manuallySetSize) {
+      for (let col of range(0, this.getters.getNumberCols(sheet.id))) {
+        if (exportDefaults || this.sizes[sheet.id]["COL"][col]?.manuallySetSize) {
           sheet.cols[col] = { ...sheet.cols[col], size: this.getColSize(sheet.id, col) };
         }
       }
