@@ -425,7 +425,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     
     <div
       class="o-autofill"
-      style="top:45px;left:140px"
+      style="top:19px;left:92px"
     >
       <div
         class="o-autofill-handler"
@@ -510,7 +510,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     >
       <div
         class="o-sheet-item o-sheet active"
-        data-id="1"
+        data-id="sh1"
         title="Sheet1"
       >
         <span

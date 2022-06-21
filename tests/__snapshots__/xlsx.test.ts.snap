@@ -348,6 +348,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -929,6 +933,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -1510,6 +1518,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -2768,6 +2780,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -3368,6 +3384,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -3819,6 +3839,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -4353,6 +4377,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -4910,6 +4938,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -5505,6 +5537,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -6061,6 +6097,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -6658,6 +6698,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -7132,6 +7176,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -7680,6 +7728,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -8275,6 +8327,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -8536,6 +8592,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -8892,6 +8952,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -8995,6 +9059,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -9128,6 +9196,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -9418,6 +9490,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -9784,14 +9860,14 @@ Object {
 }
 `;
 
-exports[`Test XLSX export Workbook with hidden sheet 1`] = `
+exports[`Test XLSX export Sheet with frozen panes 1`] = `
 Object {
   "files": Array [
     Object {
       "content": "<workbook xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
     <sheets>
         <sheet state=\\"visible\\" name=\\"Sheet1\\" sheetId=\\"1\\" r:id=\\"rId1\\"/>
-        <sheet state=\\"hidden\\" name=\\"Sheet2\\" sheetId=\\"2\\" r:id=\\"rId2\\"/>
+        <sheet state=\\"visible\\" name=\\"Sheet2\\" sheetId=\\"2\\" r:id=\\"rId2\\"/>
     </sheets>
 </workbook>",
       "contentType": "workbook",
@@ -9799,6 +9875,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -9836,6 +9916,364 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+            <pane xSplit=\\"1\\" ySplit=\\"2\\" topLeftCell=\\"B3\\" activePane=\\"bottomRight\\" state=\\"frozen\\"/>
+            <selection pane=\\"topRight\\"/>
+            <selection pane=\\"bottomLeft\\"/>
+            <selection pane=\\"bottomRight\\"/>
+        </sheetView>
+    </sheetViews>
+    <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
+    <cols>
+        <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"2\\" max=\\"2\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"3\\" max=\\"3\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"4\\" max=\\"4\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"5\\" max=\\"5\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"6\\" max=\\"6\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"7\\" max=\\"7\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"8\\" max=\\"8\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"9\\" max=\\"9\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"10\\" max=\\"10\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"11\\" max=\\"11\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"12\\" max=\\"12\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"13\\" max=\\"13\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"14\\" max=\\"14\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"15\\" max=\\"15\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"16\\" max=\\"16\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"17\\" max=\\"17\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"18\\" max=\\"18\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"19\\" max=\\"19\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"20\\" max=\\"20\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"21\\" max=\\"21\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"22\\" max=\\"22\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"23\\" max=\\"23\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"24\\" max=\\"24\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"25\\" max=\\"25\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"26\\" max=\\"26\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+    </cols>
+    <sheetData>
+    </sheetData>
+</worksheet>",
+      "contentType": "sheet",
+      "path": "xl/worksheets/sheet1.xml",
+    },
+    Object {
+      "content": "<styleSheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <numFmts count=\\"0\\">
+    </numFmts>
+    <fonts count=\\"1\\">
+        <font>
+            <sz val=\\"10\\"/>
+            <color rgb=\\"000000\\"/>
+            <name val=\\"Calibri\\"/>
+        </font>
+    </fonts>
+    <fills count=\\"2\\">
+        <fill>
+            <patternFill patternType=\\"none\\"/>
+        </fill>
+        <fill>
+            <patternFill patternType=\\"gray125\\"/>
+        </fill>
+    </fills>
+    <borders count=\\"1\\">
+        <border>
+            <left/>
+            <right/>
+            <top/>
+            <bottom/>
+            <diagonal/>
+        </border>
+    </borders>
+    <cellXfs count=\\"1\\">
+        <xf numFmtId=\\"0\\" fillId=\\"0\\" fontId=\\"0\\" borderId=\\"0\\">
+            <alignment vertical=\\"center\\"/>
+        </xf>
+    </cellXfs>
+    <dxfs count=\\"0\\">
+    </dxfs>
+</styleSheet>",
+      "contentType": "styles",
+      "path": "xl/styles.xml",
+    },
+    Object {
+      "content": "<sst xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" count=\\"0\\" uniqueCount=\\"0\\">
+</sst>",
+      "contentType": "sharedStrings",
+      "path": "xl/sharedStrings.xml",
+    },
+    Object {
+      "content": "<Relationships xmlns=\\"http://schemas.openxmlformats.org/package/2006/relationships\\">
+    <Relationship Id=\\"rId1\\" Target=\\"worksheets/sheet0.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\\"/>
+    <Relationship Id=\\"rId2\\" Target=\\"worksheets/sheet1.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\\"/>
+    <Relationship Id=\\"rId3\\" Target=\\"sharedStrings.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings\\"/>
+    <Relationship Id=\\"rId4\\" Target=\\"styles.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\\"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "xl/_rels/workbook.xml.rels",
+    },
+    Object {
+      "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
+    <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\\" PartName=\\"/xl/worksheets/sheet0.xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\\" PartName=\\"/xl/worksheets/sheet1.xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\\" PartName=\\"/xl/styles.xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml\\" PartName=\\"/xl/sharedStrings.xml\\"/>
+</Types>",
+      "contentType": undefined,
+      "path": "[Content_Types].xml",
+    },
+    Object {
+      "content": "<Relationships xmlns=\\"http://schemas.openxmlformats.org/package/2006/relationships\\">
+    <Relationship Id=\\"rId1\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\\" Target=\\"xl/workbook.xml\\"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "_rels/.rels",
+    },
+  ],
+  "name": "my_spreadsheet.xlsx",
+}
+`;
+
+exports[`Test XLSX export Sheet with hide gridlines 1`] = `
+Object {
+  "files": Array [
+    Object {
+      "content": "<workbook xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheets>
+        <sheet state=\\"visible\\" name=\\"Sheet1\\" sheetId=\\"1\\" r:id=\\"rId1\\"/>
+        <sheet state=\\"visible\\" name=\\"Sheet2\\" sheetId=\\"2\\" r:id=\\"rId2\\"/>
+    </sheets>
+</workbook>",
+      "contentType": "workbook",
+      "path": "xl/workbook.xml",
+    },
+    Object {
+      "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
+    <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
+    <cols>
+        <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"2\\" max=\\"2\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"3\\" max=\\"3\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"4\\" max=\\"4\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"5\\" max=\\"5\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"6\\" max=\\"6\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"7\\" max=\\"7\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"8\\" max=\\"8\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"9\\" max=\\"9\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"10\\" max=\\"10\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"11\\" max=\\"11\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"12\\" max=\\"12\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"13\\" max=\\"13\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"14\\" max=\\"14\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"15\\" max=\\"15\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"16\\" max=\\"16\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"17\\" max=\\"17\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"18\\" max=\\"18\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"19\\" max=\\"19\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"20\\" max=\\"20\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"21\\" max=\\"21\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"22\\" max=\\"22\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"23\\" max=\\"23\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"24\\" max=\\"24\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"25\\" max=\\"25\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"26\\" max=\\"26\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+    </cols>
+    <sheetData>
+    </sheetData>
+</worksheet>",
+      "contentType": "sheet",
+      "path": "xl/worksheets/sheet0.xml",
+    },
+    Object {
+      "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
+    <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
+    <cols>
+        <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"2\\" max=\\"2\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"3\\" max=\\"3\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"4\\" max=\\"4\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"5\\" max=\\"5\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"6\\" max=\\"6\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"7\\" max=\\"7\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"8\\" max=\\"8\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"9\\" max=\\"9\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"10\\" max=\\"10\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"11\\" max=\\"11\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"12\\" max=\\"12\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"13\\" max=\\"13\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"14\\" max=\\"14\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"15\\" max=\\"15\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"16\\" max=\\"16\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"17\\" max=\\"17\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"18\\" max=\\"18\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"19\\" max=\\"19\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"20\\" max=\\"20\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"21\\" max=\\"21\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"22\\" max=\\"22\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"23\\" max=\\"23\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"24\\" max=\\"24\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"25\\" max=\\"25\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"26\\" max=\\"26\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+    </cols>
+    <sheetData>
+    </sheetData>
+</worksheet>",
+      "contentType": "sheet",
+      "path": "xl/worksheets/sheet1.xml",
+    },
+    Object {
+      "content": "<styleSheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <numFmts count=\\"0\\">
+    </numFmts>
+    <fonts count=\\"1\\">
+        <font>
+            <sz val=\\"10\\"/>
+            <color rgb=\\"000000\\"/>
+            <name val=\\"Calibri\\"/>
+        </font>
+    </fonts>
+    <fills count=\\"2\\">
+        <fill>
+            <patternFill patternType=\\"none\\"/>
+        </fill>
+        <fill>
+            <patternFill patternType=\\"gray125\\"/>
+        </fill>
+    </fills>
+    <borders count=\\"1\\">
+        <border>
+            <left/>
+            <right/>
+            <top/>
+            <bottom/>
+            <diagonal/>
+        </border>
+    </borders>
+    <cellXfs count=\\"1\\">
+        <xf numFmtId=\\"0\\" fillId=\\"0\\" fontId=\\"0\\" borderId=\\"0\\">
+            <alignment vertical=\\"center\\"/>
+        </xf>
+    </cellXfs>
+    <dxfs count=\\"0\\">
+    </dxfs>
+</styleSheet>",
+      "contentType": "styles",
+      "path": "xl/styles.xml",
+    },
+    Object {
+      "content": "<sst xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" count=\\"0\\" uniqueCount=\\"0\\">
+</sst>",
+      "contentType": "sharedStrings",
+      "path": "xl/sharedStrings.xml",
+    },
+    Object {
+      "content": "<Relationships xmlns=\\"http://schemas.openxmlformats.org/package/2006/relationships\\">
+    <Relationship Id=\\"rId1\\" Target=\\"worksheets/sheet0.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\\"/>
+    <Relationship Id=\\"rId2\\" Target=\\"worksheets/sheet1.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\\"/>
+    <Relationship Id=\\"rId3\\" Target=\\"sharedStrings.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings\\"/>
+    <Relationship Id=\\"rId4\\" Target=\\"styles.xml\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\\"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "xl/_rels/workbook.xml.rels",
+    },
+    Object {
+      "content": "<Types xmlns=\\"http://schemas.openxmlformats.org/package/2006/content-types\\">
+    <Default Extension=\\"rels\\" ContentType=\\"application/vnd.openxmlformats-package.relationships+xml\\"/>
+    <Default Extension=\\"xml\\" ContentType=\\"application/xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\\" PartName=\\"/xl/workbook.xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\\" PartName=\\"/xl/worksheets/sheet0.xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\\" PartName=\\"/xl/worksheets/sheet1.xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\\" PartName=\\"/xl/styles.xml\\"/>
+    <Override ContentType=\\"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml\\" PartName=\\"/xl/sharedStrings.xml\\"/>
+</Types>",
+      "contentType": undefined,
+      "path": "[Content_Types].xml",
+    },
+    Object {
+      "content": "<Relationships xmlns=\\"http://schemas.openxmlformats.org/package/2006/relationships\\">
+    <Relationship Id=\\"rId1\\" Type=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\\" Target=\\"xl/workbook.xml\\"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "_rels/.rels",
+    },
+  ],
+  "name": "my_spreadsheet.xlsx",
+}
+`;
+
+exports[`Test XLSX export Workbook with hidden sheet 1`] = `
+Object {
+  "files": Array [
+    Object {
+      "content": "<workbook xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheets>
+        <sheet state=\\"visible\\" name=\\"Sheet1\\" sheetId=\\"1\\" r:id=\\"rId1\\"/>
+        <sheet state=\\"hidden\\" name=\\"Sheet2\\" sheetId=\\"2\\" r:id=\\"rId2\\"/>
+    </sheets>
+</workbook>",
+      "contentType": "workbook",
+      "path": "xl/workbook.xml",
+    },
+    Object {
+      "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
+    <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
+    <cols>
+        <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"2\\" max=\\"2\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"3\\" max=\\"3\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"4\\" max=\\"4\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"5\\" max=\\"5\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"6\\" max=\\"6\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"7\\" max=\\"7\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"8\\" max=\\"8\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"9\\" max=\\"9\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"10\\" max=\\"10\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"11\\" max=\\"11\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"12\\" max=\\"12\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"13\\" max=\\"13\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"14\\" max=\\"14\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"15\\" max=\\"15\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"16\\" max=\\"16\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"17\\" max=\\"17\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"18\\" max=\\"18\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"19\\" max=\\"19\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"20\\" max=\\"20\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"21\\" max=\\"21\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"22\\" max=\\"22\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"23\\" max=\\"23\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"24\\" max=\\"24\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"25\\" max=\\"25\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+        <col min=\\"26\\" max=\\"26\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
+    </cols>
+    <sheetData>
+    </sheetData>
+</worksheet>",
+      "contentType": "sheet",
+      "path": "xl/worksheets/sheet0.xml",
+    },
+    Object {
+      "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -9965,6 +10403,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -11673,6 +12115,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -11957,6 +12403,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -11994,6 +12444,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -12139,6 +12593,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -12183,6 +12641,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -12328,6 +12790,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -13838,6 +14304,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -14087,6 +14557,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>
@@ -14607,6 +15081,10 @@ Object {
     },
     Object {
       "content": "<worksheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
+    <sheetViews>
+        <sheetView showGridLines=\\"1\\" workbookViewId=\\"0\\">
+        </sheetView>
+    </sheetViews>
     <sheetFormatPr defaultRowHeight=\\"17.25\\" defaultColWidth=\\"12.64\\"/>
     <cols>
         <col min=\\"1\\" max=\\"1\\" width=\\"12.64\\" customWidth=\\"1\\" hidden=\\"0\\"/>

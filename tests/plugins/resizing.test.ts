@@ -10,6 +10,8 @@ import {
   deleteCells,
   deleteColumns,
   deleteRows,
+  freezeColumns,
+  freezeRows,
   merge,
   redo,
   resizeColumns,
@@ -27,19 +29,19 @@ describe("Model resizer", () => {
     const sheet = model.getters.getActiveSheet();
     const sheetId = sheet.id;
     const initialSize = model.getters.getColSize(sheetId, 1);
-    const initialWidth = model.getters.getMaxViewportSize(sheet).width;
+    const initialWidth = model.getters.getMainViewportRect().width;
 
     resizeColumns(model, ["B"], model.getters.getColSize(sheetId, 1) + 100);
     expect(model.getters.getColSize(sheetId, 1)).toBe(196);
-    expect(model.getters.getMaxViewportSize(sheet).width).toBe(initialWidth + 100);
+    expect(model.getters.getMainViewportRect().width).toBe(initialWidth + 100);
 
     undo(model);
     expect(model.getters.getColSize(sheetId, 1)).toBe(initialSize);
-    expect(model.getters.getMaxViewportSize(sheet).width).toBe(initialWidth);
+    expect(model.getters.getMainViewportRect().width).toBe(initialWidth);
 
     redo(model);
     expect(model.getters.getColSize(sheetId, 1)).toBe(initialSize + 100);
-    expect(model.getters.getMaxViewportSize(sheet).width).toBe(initialWidth + 100);
+    expect(model.getters.getMainViewportRect().width).toBe(initialWidth + 100);
   });
 
   test("Cannot resize column in invalid sheet", async () => {
@@ -78,15 +80,15 @@ describe("Model resizer", () => {
     const sheet = model.getters.getActiveSheet();
     const sheetId = sheet.id;
     const initialSize = model.getters.getRowSize(sheetId, 1);
-    const initialHeight = model.getters.getMaxViewportSize(sheet).height;
+    const initialHeight = model.getters.getMainViewportRect().height;
 
     resizeRows(model, [1], initialSize + 100);
     expect(model.getters.getRowSize(sheetId, 1)).toBe(initialSize + 100);
-    expect(model.getters.getMaxViewportSize(sheet).height).toBe(initialHeight + 100);
+    expect(model.getters.getMainViewportRect().height).toBe(initialHeight + 100);
 
     undo(model);
     expect(model.getters.getRowSize(sheetId, 1)).toBe(initialSize);
-    expect(model.getters.getMaxViewportSize(sheet).height).toBe(initialHeight);
+    expect(model.getters.getMainViewportRect().height).toBe(initialHeight);
   });
 
   test("Can resize row of inactive sheet", async () => {
@@ -116,12 +118,10 @@ describe("Model resizer", () => {
     expect(model.getters.getActiveSheetId()).toBe(sheet2);
     resizeColumns(model, ["B"], model.getters.getColSize(sheet2, 1) + 100, sheet2);
 
-    const initialWidth = model.getters.getMaxViewportSize(model.getters.getActiveSheet()).width;
+    const initialWidth = model.getters.getMainViewportRect().width;
 
     activateSheet(model, sheet1);
-    expect(model.getters.getMaxViewportSize(model.getters.getActiveSheet()).width).toBe(
-      initialWidth - 100
-    );
+    expect(model.getters.getMainViewportRect().width).toBe(initialWidth - 100);
   });
 
   test("Can resize multiple columns", async () => {
@@ -153,12 +153,38 @@ describe("Model resizer", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheet();
     const sheetId = sheet.id;
-    const { width: initialWidth, height: initialHeight } = model.getters.getMaxViewportSize(sheet);
+    const { width: initialWidth, height: initialHeight } = model.getters.getMainViewportRect();
     resizeColumns(model, ["B"], model.getters.getColSize(sheetId, 1) + 100);
-    expect(model.getters.getMaxViewportSize(sheet).width).toBe(initialWidth + 100);
+    expect(model.getters.getMainViewportRect().width).toBe(initialWidth + 100);
 
     resizeRows(model, [1], model.getters.getRowSize(sheetId, 1) + 42);
-    expect(model.getters.getMaxViewportSize(sheet).height).toBe(initialHeight + 42);
+    expect(model.getters.getMainViewportRect().height).toBe(initialHeight + 42);
+  });
+
+  test("resizing cols/rows update the pane structure and offsets", async () => {
+    const model = new Model();
+    freezeRows(model, 6);
+    freezeColumns(model, 6);
+    const sheet = model.getters.getActiveSheet();
+    const sheetId = sheet.id;
+    const { x: initialCorrectionX, y: initialCorrectionY } =
+      model.getters.getMainViewportCoordinates();
+
+    // resizing before split should change offsetCorections
+    resizeColumns(model, ["B"], model.getters.getColSize(sheetId, 1) + 100);
+    resizeRows(model, [1], model.getters.getRowSize(sheetId, 1) + 42);
+
+    const { x: newCorrectionX, y: newCorrectionY } = model.getters.getMainViewportCoordinates();
+    expect(newCorrectionX).toBe(initialCorrectionX + 100);
+    expect(newCorrectionY).toBe(initialCorrectionY + 42);
+
+    // resizing after the pane split has no effect
+    resizeColumns(model, ["G"], model.getters.getColSize(sheetId, 1) + 100);
+    resizeRows(model, [7], model.getters.getRowSize(sheetId, 1) + 42);
+
+    const { x: lastCorrectionX, y: lastCorrectionY } = model.getters.getMainViewportCoordinates();
+    expect(lastCorrectionX).toBe(newCorrectionX);
+    expect(lastCorrectionY).toBe(newCorrectionY);
   });
 
   describe("Sheet manipulation keep resized rows/cols", () => {

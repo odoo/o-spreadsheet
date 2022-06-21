@@ -1,4 +1,4 @@
-import { Align, Border, Pixel, Style, Zone } from "./misc";
+import { Alias, Align, Border, Pixel, Style, Zone } from "./misc";
 
 export type Rect = {
   x: Pixel;
@@ -46,7 +46,9 @@ export interface DOMDimension {
  * The viewport is the visible area of a sheet.
  * Column and row headers are not included in the viewport.
  */
-export interface Viewport extends Zone {
+
+export type Viewport = Zone & Alias;
+export interface SheetScrollInfo {
   /**
    * The offset in the X coordinate between the viewport left side and
    * the grid left side (left of column "A").
@@ -88,8 +90,8 @@ export const enum LAYERS {
 
 export interface EdgeScrollInfo {
   canEdgeScroll: boolean;
-  direction: number;
+  direction: ScrollDirection;
   delay: number;
 }
 
-export type ScrollDirection = 1 | 0 | -1;
+export type ScrollDirection = 1 | 0 | -1 | "reset";

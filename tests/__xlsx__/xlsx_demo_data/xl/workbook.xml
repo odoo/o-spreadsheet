@@ -22,13 +22,14 @@
     <sheet name="jestCharts" sheetId="2" r:id="rId8"/>
     <sheet name="jestMiscTest" sheetId="12" r:id="rId9"/>
     <sheet name="jestHiddenSheet" sheetId="13" state="hidden" r:id="rId10"/>
+    <sheet name="jestFreezePane" sheetId="14" r:id="rId11"/>
   </sheets>
   <externalReferences>
-    <externalReference r:id="rId11"/>
+    <externalReference r:id="rId12"/>
   </externalReferences>
   <calcPr calcId="191029"/>
   <pivotCaches>
-    <pivotCache cacheId="2" r:id="rId12"/>
+    <pivotCache cacheId="2" r:id="rId13"/>
   </pivotCaches>
   <extLst>
     <ext xmlns:xcalcf="http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures" uri="{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}">

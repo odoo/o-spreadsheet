@@ -1,11 +1,6 @@
 import { App, Component, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
-import {
-  DEFAULT_CELL_HEIGHT,
-  DEFAULT_CELL_WIDTH,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-} from "../../src/constants";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { setCellContent, setViewportOffset } from "../test_helpers/commands_helpers";
 import { clickCell, triggerMouseEvent } from "../test_helpers/dom_helper";
@@ -39,12 +34,8 @@ describe("Autofill component", () => {
     triggerMouseEvent(
       autofill,
       "mousemove",
-      HEADER_WIDTH +
-        parent.model.getters.getColDimensions(parent.model.getters.getActiveSheetId(), 0)!.start +
-        10,
-      HEADER_HEIGHT +
-        parent.model.getters.getRowDimensions(parent.model.getters.getActiveSheetId(), 1)!.end +
-        10
+      parent.model.getters.getColDimensions(parent.model.getters.getActiveSheetId(), 0)!.start + 10,
+      parent.model.getters.getRowDimensions(parent.model.getters.getActiveSheetId(), 1)!.end + 10
     );
     await nextTick();
     expect(dispatch).toHaveBeenCalledWith("AUTOFILL_SELECT", { col: 0, row: 2 });
@@ -61,12 +52,8 @@ describe("Autofill component", () => {
     triggerMouseEvent(
       autofill,
       "mousemove",
-      HEADER_WIDTH +
-        parent.model.getters.getColDimensions(parent.model.getters.getActiveSheetId(), 1)!.end +
-        10,
-      HEADER_HEIGHT +
-        parent.model.getters.getRowDimensions(parent.model.getters.getActiveSheetId(), 0)!.start +
-        10
+      parent.model.getters.getColDimensions(parent.model.getters.getActiveSheetId(), 1)!.end + 10,
+      parent.model.getters.getRowDimensions(parent.model.getters.getActiveSheetId(), 0)!.start + 10
     );
     await nextTick();
     expect(dispatch).toHaveBeenCalledWith("AUTOFILL_SELECT", { col: 2, row: 0 });
@@ -93,14 +80,14 @@ describe("Autofill component", () => {
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
     const sheetId = parent.model.getters.getActiveSheetId();
     const x = HEADER_WIDTH + parent.model.getters.getColDimensions(sheetId, 1)!.end + 20;
-    const y = HEADER_HEIGHT + parent.model.getters.getRowDimensions(sheetId, 0)!.start + 20;
+    const y = parent.model.getters.getRowDimensions(sheetId, 0)!.start + 20;
     triggerMouseEvent(autofill, "mousemove", x, y);
     await nextTick();
     expect(fixture.querySelector(".o-autofill")).not.toBeNull();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
       <div
         class="o-autofill-nextvalue"
-        style="top:11px;left:235px;"
+        style="top:-15px;left:235px;"
       >
         <div>
           test
@@ -119,7 +106,7 @@ describe("Autofill component", () => {
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
     const sheetId = parent.model.getters.getActiveSheetId();
     const x = HEADER_WIDTH + parent.model.getters.getColDimensions(sheetId, 1)!.end + 20;
-    const y = HEADER_HEIGHT + parent.model.getters.getRowDimensions(sheetId, 0)!.start + 20;
+    const y = parent.model.getters.getRowDimensions(sheetId, 0)!.start + 20;
     fixture.querySelector(".o-grid")!.dispatchEvent(
       new WheelEvent("wheel", {
         clientX: x,
@@ -132,7 +119,7 @@ describe("Autofill component", () => {
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
       <div
         class="o-autofill-nextvalue"
-        style="top:11px;left:235px;"
+        style="top:-15px;left:235px;"
       >
         <div>
           test
@@ -154,14 +141,14 @@ describe("Autofill component", () => {
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
     const sheetId = parent.model.getters.getActiveSheetId();
     const x = HEADER_WIDTH + parent.model.getters.getColDimensions(sheetId, 1)!.end + 20;
-    const y = HEADER_HEIGHT + parent.model.getters.getRowDimensions(sheetId, 0)!.start + 20;
+    const y = parent.model.getters.getRowDimensions(sheetId, 0)!.start + 20;
     triggerMouseEvent(autofill, "mousemove", x, y);
     await nextTick();
     expect(fixture.querySelector(".o-autofill")).not.toBeNull();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
       <div
         class="o-autofill-nextvalue"
-        style="top:11px;left:235px;"
+        style="top:-15px;left:235px;"
       >
         <div>
           test
@@ -183,9 +170,8 @@ describe("Autofill component", () => {
       HEADER_WIDTH +
         parent.model.getters.getColDimensions(parent.model.getters.getActiveSheetId(), 0)!.start +
         10,
-      HEADER_HEIGHT +
-        parent.model.getters.getRowDimensions(parent.model.getters.getActiveSheetId(), 1)!.end +
-        10
+
+      parent.model.getters.getRowDimensions(parent.model.getters.getActiveSheetId(), 1)!.end + 10
     );
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).not.toBeNull();
@@ -205,9 +191,8 @@ describe("Autofill component", () => {
       HEADER_WIDTH +
         parent.model.getters.getColDimensions(parent.model.getters.getActiveSheetId(), 0)!.start +
         10,
-      HEADER_HEIGHT +
-        parent.model.getters.getRowDimensions(parent.model.getters.getActiveSheetId(), 1)!.end +
-        10
+
+      parent.model.getters.getRowDimensions(parent.model.getters.getActiveSheetId(), 1)!.end + 10
     );
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).not.toBeNull();
@@ -217,9 +202,8 @@ describe("Autofill component", () => {
       HEADER_WIDTH +
         parent.model.getters.getColDimensions(parent.model.getters.getActiveSheetId(), 0)!.start +
         10,
-      HEADER_HEIGHT +
-        parent.model.getters.getRowDimensions(parent.model.getters.getActiveSheetId(), 0)!.start +
-        10
+
+      parent.model.getters.getRowDimensions(parent.model.getters.getActiveSheetId(), 0)!.start + 10
     );
     await nextTick();
     triggerMouseEvent(autofill, "mouseup");
@@ -251,9 +235,8 @@ describe("Autofill component", () => {
       HEADER_WIDTH +
         parent.model.getters.getColDimensions(parent.model.getters.getActiveSheetId(), 0)!.start +
         10,
-      HEADER_HEIGHT +
-        parent.model.getters.getRowDimensions(parent.model.getters.getActiveSheetId(), 1)!.end +
-        10
+
+      parent.model.getters.getRowDimensions(parent.model.getters.getActiveSheetId(), 1)!.end + 10
     );
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).not.toBeNull();
@@ -272,8 +255,8 @@ describe("Autofill component", () => {
       HEADER_WIDTH +
         parent.model.getters.getColDimensions(parent.model.getters.getActiveSheetId(), 0)!.start +
         10000,
-      HEADER_HEIGHT +
-        parent.model.getters.getRowDimensions(parent.model.getters.getActiveSheetId(), 1)!.start +
+
+      parent.model.getters.getRowDimensions(parent.model.getters.getActiveSheetId(), 1)!.start +
         10000
     );
     await nextTick();

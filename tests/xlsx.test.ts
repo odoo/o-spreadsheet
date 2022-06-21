@@ -921,6 +921,20 @@ describe("Test XLSX export", () => {
     const model = new Model({ sheets: [{ id: "sheet0" }, { id: "sheet1", isVisible: false }] });
     expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
   });
+
+  test("Sheet with frozen panes", async () => {
+    const model = new Model({
+      sheets: [{ id: "sheet0" }, { id: "sheet1", panes: { xSplit: 1, ySplit: 2 } }],
+    });
+    expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+  });
+
+  test("Sheet with hide gridlines", async () => {
+    const model = new Model({
+      sheets: [{ id: "sheet0" }, { id: "sheet1", areGridLinesVisible: true }],
+    });
+    expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+  });
 });
 
 describe("XML parser", () => {

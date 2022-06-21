@@ -24,7 +24,6 @@ export function convertSheets(
     convertFormulasContent(sheet, data);
     const sheetDims = getSheetDims(sheet);
     const sheetOptions = sheet.sheetViews[0];
-
     return {
       id: sheet.sheetName,
       areGridLinesVisible: sheetOptions ? sheetOptions.showGridLines : true,
@@ -38,6 +37,9 @@ export function convertSheets(
       conditionalFormats: convertConditionalFormats(sheet.cfs, data.dxfs, warningManager),
       figures: convertFigures(sheet),
       isVisible: sheet.isVisible,
+      panes: sheetOptions
+        ? { xSplit: sheetOptions.pane.xSplit, ySplit: sheetOptions.pane.ySplit }
+        : { xSplit: 0, ySplit: 0 },
     };
   });
 }

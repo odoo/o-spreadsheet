@@ -20,7 +20,7 @@ import {
 } from "../../types/index";
 import { ContextMenuType } from "../grid/grid";
 import { css } from "../helpers/css";
-import { startDnd } from "../helpers/drag_and_drop";
+import { dragAndDropBeyondTheViewport, startDnd } from "../helpers/drag_and_drop";
 import { MergeErrorMessage } from "../translations_terms";
 
 // -----------------------------------------------------------------------------
@@ -79,8 +79,6 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
 
   abstract _getEdgeScroll(position: Pixel): EdgeScrollInfo;
 
-  abstract _getBoundaries(): { first: HeaderIndex; last: HeaderIndex };
-
   abstract _getDimensionsInViewport(index: HeaderIndex): HeaderDimensions;
 
   abstract _getElementSize(index: HeaderIndex): Pixel;
@@ -94,8 +92,6 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   abstract _selectElement(index: HeaderIndex, ctrlKey: boolean): void;
 
   abstract _increaseSelection(index: HeaderIndex): void;
-
-  abstract _adjustViewport(direction: number): void;
 
   abstract _fitElementSize(index: HeaderIndex): void;
 
@@ -212,39 +208,39 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     this.state.isMoving = true;
     const startDimensions = this._getDimensionsInViewport(this._getSelectedZoneStart());
     const endDimensions = this._getDimensionsInViewport(this._getSelectedZoneEnd());
-    const initialPosition = this._getClientPosition(ev);
     const defaultPosition = startDimensions.start;
     this.state.draggerLinePosition = defaultPosition;
     this.state.base = this._getSelectedZoneStart();
     this.state.draggerShadowPosition = defaultPosition;
     this.state.draggerShadowThickness = endDimensions.end - startDimensions.start;
-    const mouseMoveMovement = (elementIndex: HeaderIndex, currentEv: MouseEvent) => {
+    const mouseMoveMovement = (col: HeaderIndex, row: HeaderIndex) => {
+      let elementIndex = this._getType() === "COL" ? col : row;
       if (elementIndex >= 0) {
         // define draggerLinePosition
         const dimensions = this._getDimensionsInViewport(elementIndex);
         if (elementIndex <= this._getSelectedZoneStart()) {
           this.state.draggerLinePosition = dimensions.start;
+          this.state.draggerShadowPosition = dimensions.start;
           this.state.base = elementIndex;
         } else if (this._getSelectedZoneEnd() < elementIndex) {
           this.state.draggerLinePosition = dimensions.end;
+          this.state.draggerShadowPosition = dimensions.end - this.state.draggerShadowThickness;
           this.state.base = elementIndex + 1;
         } else {
           this.state.draggerLinePosition = startDimensions.start;
+          this.state.draggerShadowPosition = startDimensions.start;
           this.state.base = this._getSelectedZoneStart();
         }
-        // define draggerShadowPosition
-        const delta = this._getClientPosition(currentEv) - initialPosition;
-        this.state.draggerShadowPosition = Math.max(defaultPosition + delta, 0);
       }
     };
-    const mouseUpMovement = (finalEv: MouseEvent) => {
+    const mouseUpMovement = () => {
       this.state.isMoving = false;
       if (this.state.base !== this._getSelectedZoneStart()) {
         this._moveElements();
       }
-      this._computeGrabDisplay(finalEv);
+      this._computeGrabDisplay(ev);
     };
-    this.dragOverlayBeyondTheViewport(ev, mouseMoveMovement, mouseUpMovement);
+    dragAndDropBeyondTheViewport(this.env, mouseMoveMovement, mouseUpMovement);
   }
 
   private startSelection(ev: MouseEvent, index: HeaderIndex) {
@@ -256,10 +252,11 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     }
     this.lastSelectedElementIndex = index;
 
-    const mouseMoveSelect = (elementIndex: HeaderIndex) => {
-      if (elementIndex !== this.lastSelectedElementIndex && elementIndex !== -1) {
-        this._increaseSelection(elementIndex);
-        this.lastSelectedElementIndex = elementIndex;
+    const mouseMoveSelect = (col: HeaderIndex, row: HeaderIndex) => {
+      let newIndex = this._getType() === "COL" ? col : row;
+      if (newIndex !== this.lastSelectedElementIndex && newIndex !== -1) {
+        this._increaseSelection(newIndex);
+        this.lastSelectedElementIndex = newIndex;
       }
     };
     const mouseUpSelect = () => {
@@ -270,55 +267,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       );
       this._computeGrabDisplay(ev);
     };
-
-    this.dragOverlayBeyondTheViewport(ev, mouseMoveSelect, mouseUpSelect);
-  }
-
-  private dragOverlayBeyondTheViewport(
-    ev: MouseEvent,
-    cbMouseMove: (elementIndex: HeaderIndex, currentEv: MouseEvent) => void,
-    cbMouseUp: (finalEv: MouseEvent) => void
-  ) {
-    let timeOutId: any = null;
-    let currentEv: MouseEvent;
-    const initialPosition = this._getClientPosition(ev);
-    const initialOffset = this._getEvOffset(ev);
-
-    const onMouseMove = (ev: MouseEvent) => {
-      // currentEv.target can be any DOM element
-      currentEv = ev;
-      if (timeOutId) {
-        return;
-      }
-      const delta = this._getClientPosition(currentEv) - initialPosition;
-      const position = initialOffset + delta;
-      const EdgeScrollInfo = this._getEdgeScroll(position);
-      const { first, last } = this._getBoundaries();
-      let elementIndex;
-      if (EdgeScrollInfo.canEdgeScroll) {
-        elementIndex = EdgeScrollInfo.direction > 0 ? last : first - 1;
-      } else {
-        elementIndex = this._getElementIndex(position);
-      }
-
-      cbMouseMove(elementIndex, currentEv);
-
-      // adjust viewport if necessary
-      if (EdgeScrollInfo.canEdgeScroll) {
-        this._adjustViewport(EdgeScrollInfo.direction);
-        timeOutId = setTimeout(() => {
-          timeOutId = null;
-          onMouseMove(currentEv);
-        }, Math.round(EdgeScrollInfo.delay));
-      }
-    };
-
-    const onMouseUp = (finalEv: MouseEvent) => {
-      clearTimeout(timeOutId);
-      cbMouseUp(finalEv);
-    };
-
-    startDnd(onMouseMove, onMouseUp);
+    dragAndDropBeyondTheViewport(this.env, mouseMoveSelect, mouseUpSelect);
   }
 
   onMouseUp(ev: MouseEvent) {
@@ -416,7 +365,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getViewportOffset(): Pixel {
-    return this.env.model.getters.getActiveViewport().left;
+    return this.env.model.getters.getActiveMainViewport().left;
   }
 
   _getClientPosition(ev: MouseEvent): Pixel {
@@ -436,12 +385,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getEdgeScroll(position: Pixel): EdgeScrollInfo {
-    return this.env.model.getters.getEdgeScrollCol(position);
-  }
-
-  _getBoundaries(): { first: HeaderIndex; last: HeaderIndex } {
-    const { left, right } = this.env.model.getters.getActiveViewport();
-    return { first: left, last: right };
+    return this.env.model.getters.getEdgeScrollCol(position, position, position);
   }
 
   _getDimensionsInViewport(index: HeaderIndex): HeaderDimensions {
@@ -495,13 +439,6 @@ export class ColResizer extends AbstractResizer {
 
   _increaseSelection(index: HeaderIndex): void {
     this.env.model.selection.selectColumn(index, "updateAnchor");
-  }
-
-  _adjustViewport(direction: number): void {
-    const { left, offsetY } = this.env.model.getters.getActiveViewport();
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const offsetX = this.env.model.getters.getColDimensions(sheetId, left + direction).start;
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
   }
 
   _fitElementSize(index: HeaderIndex): void {
@@ -625,7 +562,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getViewportOffset(): Pixel {
-    return this.env.model.getters.getActiveViewport().top;
+    return this.env.model.getters.getActiveMainViewport().top;
   }
 
   _getClientPosition(ev: MouseEvent): Pixel {
@@ -645,12 +582,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getEdgeScroll(position: Pixel): EdgeScrollInfo {
-    return this.env.model.getters.getEdgeScrollRow(position);
-  }
-
-  _getBoundaries(): { first: HeaderIndex; last: HeaderIndex } {
-    const { top, bottom } = this.env.model.getters.getActiveViewport();
-    return { first: top, last: bottom };
+    return this.env.model.getters.getEdgeScrollRow(position, position, position);
   }
 
   _getDimensionsInViewport(index: HeaderIndex): HeaderDimensions {
@@ -704,13 +636,6 @@ export class RowResizer extends AbstractResizer {
 
   _increaseSelection(index: HeaderIndex): void {
     this.env.model.selection.selectRow(index, "updateAnchor");
-  }
-
-  _adjustViewport(direction: number): void {
-    const { top, offsetX } = this.env.model.getters.getActiveViewport();
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const offsetY = this.env.model.getters.getRowDimensions(sheetId, top + direction).start;
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
   }
 
   _fitElementSize(index: HeaderIndex): void {

@@ -20,7 +20,13 @@ import {
   addNumberFormats,
   addStyles,
 } from "./functions/styles";
-import { addColumns, addHyperlinks, addMerges, addRows } from "./functions/worksheet";
+import {
+  addColumns,
+  addHyperlinks,
+  addMerges,
+  addRows,
+  addSheetViews,
+} from "./functions/worksheet";
 import {
   addRelsToFile,
   convertChartId,
@@ -147,6 +153,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
     }
     const sheetXml = escapeXml/*xml*/ `
       <worksheet ${formatAttributes(namespaces)}>
+        ${addSheetViews(sheet)}
         <sheetFormatPr ${formatAttributes(sheetFormatAttributes)} />
         ${addColumns(sheet.cols)}
         ${addRows(construct, data, sheet)}

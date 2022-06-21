@@ -27,12 +27,13 @@ export class ClientTag extends Component<ClientTagProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ClientTag";
   get tagStyle(): string {
     const { col, row, color } = this.props;
-    const viewport = this.env.model.getters.getActiveViewport();
-    const { height } = this.env.model.getters.getViewportDimensionWithHeaders();
-    const { x, y } = this.env.model.getters.getRect(
-      { left: col, top: row, right: col, bottom: row },
-      viewport
-    );
+    const { height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
+    const { x, y } = this.env.model.getters.getVisibleRect({
+      left: col,
+      top: row,
+      right: col,
+      bottom: row,
+    });
     return `bottom: ${height - y + 15}px;left: ${
       x - 1
     }px;border: 1px solid ${color};background-color: ${color};${

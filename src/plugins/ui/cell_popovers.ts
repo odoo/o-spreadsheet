@@ -52,14 +52,13 @@ export class CellPopoverPlugin extends UIPlugin {
 
   getCellPopover({ col, row }: Partial<Position>): ClosedCellPopover | PositionedCellPopover {
     const sheetId = this.getters.getActiveSheetId();
-    const viewport = this.getters.getActiveViewport();
 
     if (
       this.persistentPopover &&
       this.getters.isVisibleInViewport(
+        sheetId,
         this.persistentPopover.col,
-        this.persistentPopover.row,
-        viewport
+        this.persistentPopover.row
       )
     ) {
       const mainPosition = this.getters.getMainCellPosition(
@@ -80,7 +79,7 @@ export class CellPopoverPlugin extends UIPlugin {
     if (
       col === undefined ||
       row === undefined ||
-      !this.getters.isVisibleInViewport(col, row, viewport)
+      !this.getters.isVisibleInViewport(sheetId, col, row)
     ) {
       return { isOpen: false };
     }
@@ -98,8 +97,7 @@ export class CellPopoverPlugin extends UIPlugin {
   }
 
   private computePopoverProps({ col, row }: Position, corner: "TopRight" | "BottomLeft") {
-    const viewport = this.getters.getActiveViewport();
-    const { width, height } = this.getters.getRect(positionToZone({ col, row }), viewport);
+    const { width, height } = this.getters.getVisibleRect(positionToZone({ col, row }));
     return {
       coordinates: this.computePopoverPosition({ col, row }, corner),
       cellWidth: -width,
@@ -112,14 +110,13 @@ export class CellPopoverPlugin extends UIPlugin {
     corner: "TopRight" | "BottomLeft"
   ): DOMCoordinates {
     const sheetId = this.getters.getActiveSheetId();
-    const viewport = this.getters.getActiveViewport();
     const merge = this.getters.getMerge(sheetId, col, row);
     if (merge) {
       col = corner === "TopRight" ? merge.right : merge.left;
       row = corner === "TopRight" ? merge.top : merge.bottom;
     }
     // x, y are relative to the canvas
-    const { x, y, width, height } = this.getters.getRect(positionToZone({ col, row }), viewport);
+    const { x, y, width, height } = this.getters.getVisibleRect(positionToZone({ col, row }));
     switch (corner) {
       case "BottomLeft":
         return { x, y: y + height };

@@ -81,10 +81,7 @@
         position="menuState.position"
         onClose="() => this.closeMenu()"
       />
-      <t
-        t-set="gridSize"
-        t-value="env.model.getters.getMaxViewportSize(env.model.getters.getActiveSheet())"
-      />
+      <t t-set="gridSize" t-value="env.model.getters.getMainViewportRect()"/>
       <div
         class="o-scrollbar vertical"
         t-on-scroll="onScroll"

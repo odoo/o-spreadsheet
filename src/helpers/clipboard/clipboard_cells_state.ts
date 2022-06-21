@@ -107,6 +107,15 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
         }
       }
     }
+    const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
+    for (const zone of this.getPasteZones(target)) {
+      if (
+        (zone.left < xSplit && zone.right >= xSplit) ||
+        (zone.top < ySplit && zone.bottom >= ySplit)
+      ) {
+        return CommandResult.FrozenPaneOverlap;
+      }
+    }
     return CommandResult.Success;
   }
 
@@ -432,7 +441,6 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
 
   drawClipboard(renderingContext: GridRenderingContext) {
     const { ctx, thinLineWidth } = renderingContext;
-    const viewport = this.getters.getActiveViewport();
     if (this.sheetId !== this.getters.getActiveSheetId() || !this.zones || !this.zones.length) {
       return;
     }
@@ -440,7 +448,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 3.3 * thinLineWidth;
     for (const zone of this.zones) {
-      const { x, y, width, height } = this.getters.getRect(zone, viewport);
+      const { x, y, width, height } = this.getters.getVisibleRect(zone);
       if (width > 0 && height > 0) {
         ctx.strokeRect(x, y, width, height);
       }

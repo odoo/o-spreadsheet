@@ -1,8 +1,9 @@
 import { Component, useState, xml } from "@odoo/owl";
-import { AUTOFILL_EDGE_LENGTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
-import { clip } from "../../helpers/misc";
+import { AUTOFILL_EDGE_LENGTH } from "../../constants";
+import { clip } from "../../helpers";
 import { HeaderIndex, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
+import { gridOverlayPosition } from "../helpers/dom_helpers";
 import { startDnd } from "../helpers/drag_and_drop";
 
 // -----------------------------------------------------------------------------
@@ -87,7 +88,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
   onMouseDown(ev: MouseEvent) {
     this.state.handler = true;
     this.state.position = { left: 0, top: 0 };
-    const { offsetY, offsetX } = this.env.model.getters.getActiveViewport();
+    const { offsetY, offsetX } = this.env.model.getters.getActiveSheetScrollInfo();
     const start = {
       left: ev.clientX + offsetX,
       top: ev.clientY + offsetY,
@@ -101,14 +102,14 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
     };
 
     const onMouseMove = (ev: MouseEvent) => {
-      const position = this.props.getGridBoundingClientRect();
-      const { offsetY, offsetX } = this.env.model.getters.getActiveViewport();
+      const position = gridOverlayPosition();
+      const { offsetY, offsetX } = this.env.model.getters.getActiveSheetScrollInfo();
       this.state.position = {
         left: ev.clientX - start.left + offsetX,
         top: ev.clientY - start.top + offsetY,
       };
-      const col = this.env.model.getters.getColIndex(ev.clientX - position.left - HEADER_WIDTH);
-      const row = this.env.model.getters.getRowIndex(ev.clientY - position.top - HEADER_HEIGHT);
+      const col = this.env.model.getters.getColIndex(ev.clientX - position.left);
+      const row = this.env.model.getters.getRowIndex(ev.clientY - position.top);
       if (lastCol !== col || lastRow !== row) {
         const activeSheetId = this.env.model.getters.getActiveSheetId();
         const numberOfCols = this.env.model.getters.getNumberCols(activeSheetId);

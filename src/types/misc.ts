@@ -116,6 +116,7 @@ export interface Sheet {
   rows: Row[];
   areGridLinesVisible: boolean;
   isVisible: boolean;
+  panes: PaneDivision;
 }
 
 export interface CellPosition {
@@ -203,6 +204,13 @@ export interface Highlight {
   zone: Zone;
   sheetId: UID;
   color: string | null;
+}
+
+export interface PaneDivision {
+  /** Represents the number of frozen columns */
+  xSplit: number;
+  /** Represents the number of frozen rows */
+  ySplit: number;
 }
 
 export type BorderCommand =

@@ -49,16 +49,16 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
   
   
   <canvas
-    height="1026"
-    style="width:1048px;height:1026px;"
-    width="1048"
+    height="1000"
+    style="width:1000px;height:1000px;"
+    width="1000"
   />
   
   
   
   <div
     class="o-autofill"
-    style="top:45px;left:140px"
+    style="top:19px;left:92px"
   >
     <div
       class="o-autofill-handler"

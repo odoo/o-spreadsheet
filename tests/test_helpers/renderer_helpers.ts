@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { DEFAULT_SHEETVIEW_SIZE } from "../../src/constants";
 import { GridRenderingContext, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 
@@ -20,8 +21,8 @@ export class MockGridRenderingContext implements GridRenderingContext {
   thinLineWidth = 0.4;
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    model.dispatch("RESIZE_VIEWPORT", { width, height });
-    this.viewport = model.getters.getActiveViewport();
+    model.dispatch("RESIZE_SHEETVIEW", { width, height, gridOffsetX: 0, gridOffsetY: 0 });
+    this.viewport = model.getters.getActiveMainViewport();
 
     const handler = {
       get: (target, val) => {
@@ -55,20 +56,10 @@ export class MockGridRenderingContext implements GridRenderingContext {
  * outline around copied zones
  */
 export function watchClipboardOutline(model: Model) {
-  const viewportSize = 1000;
-  const viewport: Viewport = {
-    bottom: viewportSize,
-    left: 0,
-    right: viewportSize,
-    top: 0,
-    offsetX: 0,
-    offsetY: 0,
-    offsetScrollbarX: 0,
-    offsetScrollbarY: 0,
-  };
+  const sheetViewSize = DEFAULT_SHEETVIEW_SIZE;
   let lineDash = false;
   let outlinedRects: any[][] = [];
-  const ctx = new MockGridRenderingContext(model, viewportSize, viewportSize, {
+  const ctx = new MockGridRenderingContext(model, sheetViewSize, sheetViewSize, {
     onFunctionCall: (val, args) => {
       if (val === "setLineDash") {
         lineDash = true;
@@ -81,7 +72,7 @@ export function watchClipboardOutline(model: Model) {
   });
   const isDotOutlined = (zones: Zone[]): boolean => {
     return zones.every((zone) => {
-      const { x, y, width, height } = model.getters.getRect(zone, viewport);
+      const { x, y, width, height } = model.getters.getVisibleRect(zone);
       return outlinedRects.some(
         (rect) => rect[0] === x && rect[1] === y && rect[2] === width && rect[3] === height
       );
