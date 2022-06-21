@@ -1,4 +1,4 @@
-import { Alias, ExcelChartDefinition, Format } from ".";
+import { Alias, ExcelChartDefinition, Format, PaneDivision } from ".";
 
 /**
  * Most of the times we tried to create Objects that matched quite closely with the data in the XLSX files.
@@ -218,10 +218,10 @@ export interface XLSXWorksheet {
 export interface XLSXSheetView {
   /** True if this is the sheet currently selected */
   tabSelected: boolean;
-
   showFormulas: boolean;
   showGridLines: boolean;
   showRowColHeaders: boolean;
+  pane: PaneDivision;
 }
 
 export interface XLSXSheetFormat {

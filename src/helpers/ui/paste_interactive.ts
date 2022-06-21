@@ -8,6 +8,7 @@ export const PasteInteractiveContent = {
     "This operation is not possible due to a merge. Please remove the merges first than try again."
   ),
   wrongFigurePasteOption: _lt("Cannot do a special paste of a figure."),
+  frozenPaneOverlap: _lt("Cannot paste merged cells over a frozen pane."),
 };
 
 export function handlePasteResult(env: SpreadsheetChildEnv, result: DispatchResult) {
@@ -18,6 +19,8 @@ export function handlePasteResult(env: SpreadsheetChildEnv, result: DispatchResu
       env.raiseError(PasteInteractiveContent.willRemoveExistingMerge);
     } else if (result.reasons.includes(CommandResult.WrongFigurePasteOption)) {
       env.raiseError(PasteInteractiveContent.wrongFigurePasteOption);
+    } else if (result.reasons.includes(CommandResult.FrozenPaneOverlap)) {
+      env.raiseError(PasteInteractiveContent.frozenPaneOverlap);
     }
   }
 }

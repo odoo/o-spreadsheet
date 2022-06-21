@@ -9,7 +9,7 @@ import {
   MIN_ROW_HEIGHT,
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../src/constants";
-import { lettersToNumber, scrollDelay, toXC, toZone } from "../../src/helpers/index";
+import { lettersToNumber, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import {
   hideColumns,
@@ -20,7 +20,7 @@ import {
   setCellContent,
   undo,
 } from "../test_helpers/commands_helpers";
-import { triggerMouseEvent } from "../test_helpers/dom_helper";
+import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc, getCell } from "../test_helpers/getters_helpers";
 import { makeTestFixture, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
@@ -771,65 +771,69 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     fixture.remove();
   });
   test("Can edge-scroll horizontally", async () => {
-    const { width } = model.getters.getViewportDimension();
+    const { width } = model.getters.getSheetViewDimension();
     const y = DEFAULT_CELL_HEIGHT;
 
     triggerMouseEvent(".o-col-resizer", "mousedown", width / 2, y);
     triggerMouseEvent(".o-col-resizer", "mousemove", 1.5 * width, y);
     // we want 5 ticks of setTimeout
-    const advanceTimer = scrollDelay(0.5 * width) * 6 - 1;
+    const advanceTimer = edgeScrollDelay(0.5 * width, 5);
+
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-col-resizer", "mouseup", 1.5 * width, y);
 
-    expect(model.getters.getActiveViewport()).toMatchObject({
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 6,
-      right: 15,
+      right: 16,
       top: 0,
-      bottom: 41,
+      bottom: 42,
     });
 
     triggerMouseEvent(".o-col-resizer", "mousedown", width / 2, y);
     triggerMouseEvent(".o-col-resizer", "mousemove", -0.5 * width, y);
     // we want 2 ticks of setTimeout
-    const advanceTimer2 = scrollDelay(0.5 * width) * 3 - 1;
+    const advanceTimer2 = edgeScrollDelay(0.5 * width, 2);
+
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-col-resizer", "mouseup", -0.5 * width, y);
 
-    expect(model.getters.getActiveViewport()).toMatchObject({
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 3,
-      right: 12,
+      right: 13,
       top: 0,
-      bottom: 41,
+      bottom: 42,
     });
   });
 
   test("Can edge-scroll vertically", async () => {
-    const { height } = model.getters.getViewportDimensionWithHeaders();
+    const { height } = model.getters.getSheetViewDimensionWithHeaders();
     const x = DEFAULT_CELL_WIDTH / 2;
     triggerMouseEvent(".o-row-resizer", "mousedown", x, height / 2);
     triggerMouseEvent(".o-row-resizer", "mousemove", x, 1.5 * height);
-    const advanceTimer = scrollDelay(0.5 * height) * 6 - 1;
+    const advanceTimer = edgeScrollDelay(0.5 * height, 5);
+
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-row-resizer", "mouseup", x, 1.5 * height);
 
-    expect(model.getters.getActiveViewport()).toMatchObject({
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 0,
-      right: 9,
+      right: 10,
       top: 6,
-      bottom: 47,
+      bottom: 48,
     });
 
     triggerMouseEvent(".o-row-resizer", "mousedown", x, height / 2);
     triggerMouseEvent(".o-row-resizer", "mousemove", x, -0.5 * height);
-    const advanceTimer2 = scrollDelay(0.5 * height) * 3 - 1;
+    const advanceTimer2 = edgeScrollDelay(0.5 * height, 2);
+
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-row-resizer", "mouseup", x, -0.5 * height);
 
-    expect(model.getters.getActiveViewport()).toMatchObject({
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 0,
-      right: 9,
+      right: 10,
       top: 3,
-      bottom: 44,
+      bottom: 45,
     });
   });
 });

@@ -1,11 +1,19 @@
 import { PADDING_AUTORESIZE_HORIZONTAL } from "../../constants";
 import { computeIconWidth, computeTextWidth, positionToZone } from "../../helpers/index";
 import { Cell, CellValueType, Command, CommandResult, UID } from "../../types";
-import { HeaderIndex, Pixel, Style } from "../../types/misc";
+import { Dimension, HeaderDimensions, HeaderIndex, Pixel, Style } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
-  static getters = ["getCellWidth", "getTextWidth", "getCellText", "getCellMultiLineText"] as const;
+  static getters = [
+    "getCellWidth",
+    "getTextWidth",
+    "getCellText",
+    "getCellMultiLineText",
+    "getColDimensions",
+    "getRowDimensions",
+    "getColRowOffset",
+  ] as const;
 
   private ctx = document.createElement("canvas").getContext("2d")!;
 
@@ -76,7 +84,7 @@ export class SheetUIPlugin extends UIPlugin {
     return contentWidth;
   }
 
-  getTextWidth(cell: Cell): number {
+  getTextWidth(cell: Cell): Pixel {
     const text = this.getters.getCellText(cell, this.getters.shouldShowFormulas());
     const { sheetId, col, row } = this.getters.getCellPosition(cell.id);
     return computeTextWidth(this.ctx, text, this.getters.getCellComputedStyle(sheetId, col, row));
@@ -141,6 +149,63 @@ export class SheetUIPlugin extends UIPlugin {
       brokenText.push(textLine);
     }
     return brokenText;
+  }
+
+  /**
+   * Returns the size, start and end coordinates of a column on an unfolded sheet
+   */
+  getColDimensions(sheetId: UID, col: HeaderIndex): HeaderDimensions {
+    const start = this.getColRowOffset("COL", 0, col, sheetId);
+    const size = this.getters.getColSize(sheetId, col);
+    const isColHidden = this.getters.isColHidden(sheetId, col);
+    return {
+      start,
+      size,
+      end: start + (isColHidden ? 0 : size),
+    };
+  }
+
+  /**
+   * Returns the size, start and end coordinates of a row an unfolded sheet
+   */
+  getRowDimensions(sheetId: UID, row: HeaderIndex): HeaderDimensions {
+    const start = this.getColRowOffset("ROW", 0, row, sheetId);
+    const size = this.getters.getRowSize(sheetId, row);
+    const isRowHidden = this.getters.isRowHidden(sheetId, row);
+    return {
+      start,
+      size: size,
+      end: start + (isRowHidden ? 0 : size),
+    };
+  }
+
+  /**
+   * Returns the offset of a header (determined by the dimension) at the given index
+   * based on the referenceIndex given. If start === 0, this method will return
+   * the start attribute of the header.
+   *
+   * i.e. The size from A to B is the distance between A.start and B.end
+   */
+  getColRowOffset(
+    dimension: Dimension,
+    referenceIndex: HeaderIndex,
+    index: HeaderIndex,
+    sheetId: UID = this.getters.getActiveSheetId()
+  ): Pixel {
+    if (index < referenceIndex) {
+      return -this.getColRowOffset(dimension, index, referenceIndex);
+    }
+    let offset = 0;
+    for (let i = referenceIndex; i < index; i++) {
+      if (this.getters.isHeaderHidden(sheetId, dimension, i)) {
+        continue;
+      }
+      offset +=
+        dimension === "COL"
+          ? this.getters.getColSize(sheetId, i)
+          : this.getters.getRowSize(sheetId, i);
+    }
+    return offset;
   }
 
   // ---------------------------------------------------------------------------

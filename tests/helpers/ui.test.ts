@@ -1,6 +1,7 @@
 import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
 import { interactiveSortSelection } from "../../src/helpers/sort";
 import { interactiveCut } from "../../src/helpers/ui/cut_interactive";
+import { interactiveFreezeColumnsRows } from "../../src/helpers/ui/freeze_interactive";
 import {
   AddMergeInteractiveContent,
   interactiveAddMerge,
@@ -14,6 +15,7 @@ import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import { Model } from "../../src/model";
 import {
   CommandResult,
+  Dimension,
   EditTextOptions,
   Position,
   SpreadsheetChildEnv,
@@ -25,6 +27,8 @@ import {
   createChart,
   createSheetWithName,
   cut,
+  freezeColumns,
+  freezeRows,
   merge,
   selectCell,
   setCellContent,
@@ -65,7 +69,7 @@ describe("Interactive rename sheet", () => {
       const editText = (
         title: string,
         callback: (text: string | null) => any,
-        options: EditTextOptions | undefined
+        options?: EditTextOptions
       ) => {
         titleTextSpy(title.toString());
         errorTextSpy(options?.error?.toString());
@@ -91,7 +95,7 @@ describe("Interactive rename sheet", () => {
     const editText = (
       title: string,
       callback: (text: string | null) => any,
-      options: EditTextOptions | undefined
+      options?: EditTextOptions
     ) => {
       titleTextSpy(title.toString());
       errorTextSpy(options?.error?.toString());
@@ -109,6 +113,20 @@ describe("Interactive rename sheet", () => {
       2,
       `A sheet with the name ${sheetName} already exists. Please select another name.`
     );
+  });
+
+  describe("Interactive Freeze columns/rows", () => {
+    const model = new Model();
+    test.each([
+      ["column", "COL"],
+      ["row", "ROW"],
+    ])("freeze %s through a merge", (name, dimension) => {
+      merge(model, "A1:D4");
+      const raiseError = jest.fn();
+      const env = makeInteractiveTestEnv(model, { raiseError });
+      interactiveFreezeColumnsRows(env, dimension as Dimension, 2);
+      expect(raiseError).toBeCalled();
+    });
   });
 });
 
@@ -232,6 +250,30 @@ describe("UI Helpers", () => {
         );
       });
     });
+
+    test("cannot paste merge through frozen panes horizontally", async () => {
+      freezeColumns(model, 2);
+      merge(model, "F4:G5");
+      copy(model, "F4:G5");
+
+      selectCell(model, "B4");
+      interactivePaste(env, model.getters.getSelectedZones());
+      expect(notifyUserTextSpy).toHaveBeenCalledWith(
+        PasteInteractiveContent.frozenPaneOverlap.toString()
+      );
+    });
+
+    test("cannot paste merge through frozen panes vertically", async () => {
+      freezeRows(model, 2);
+      merge(model, "F4:G5");
+      copy(model, "F4:G5");
+
+      selectCell(model, "B2");
+      interactivePaste(env, model.getters.getSelectedZones());
+      expect(notifyUserTextSpy).toHaveBeenCalledWith(
+        PasteInteractiveContent.frozenPaneOverlap.toString()
+      );
+    });
   });
 
   describe("Interactive cut", () => {
@@ -255,7 +297,7 @@ describe("UI Helpers", () => {
       setCellContent(model, "A2", ":)");
       interactiveAddMerge(env, sheetId, target("A1:B5"));
       expect(askConfirmationTextSpy).toHaveBeenCalledWith(
-        AddMergeInteractiveContent.mergeIsDestructive.toString()
+        AddMergeInteractiveContent.MergeIsDestructive.toString()
       );
     });
   });

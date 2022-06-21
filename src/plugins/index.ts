@@ -25,10 +25,10 @@ import { RendererPlugin } from "./ui/renderer";
 import { GridSelectionPlugin } from "./ui/selection";
 import { SelectionInputsManagerPlugin } from "./ui/selection_inputs_manager";
 import { SelectionMultiUserPlugin } from "./ui/selection_multiuser";
+import { SheetViewPlugin } from "./ui/sheetview";
 import { SortPlugin } from "./ui/sort";
 import { UIOptionsPlugin } from "./ui/ui_options";
 import { SheetUIPlugin } from "./ui/ui_sheet";
-import { ViewportPlugin } from "./ui/viewport";
 import { UIPluginConstructor } from "./ui_plugin";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
@@ -53,7 +53,7 @@ export const uiPluginRegistry = new Registry<UIPluginConstructor>()
   .add("edition", EditionPlugin)
   .add("selectionInputManager", SelectionInputsManagerPlugin)
   .add("highlight", HighlightPlugin)
-  .add("viewport", ViewportPlugin)
+  .add("viewport", SheetViewPlugin)
   .add("grid renderer", RendererPlugin)
   .add("autofill", AutofillPlugin)
   .add("find_and_replace", FindAndReplacePlugin)

@@ -66,6 +66,7 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
     return this.mapOnElements(
       { parent: worksheet, query: "sheetView" },
       (sheetViewElement): XLSXSheetView => {
+        const paneElement = this.querySelector(sheetViewElement, "pane");
         return {
           tabSelected: this.extractAttr(sheetViewElement, "tabSelected", {
             default: false,
@@ -79,6 +80,14 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
           showRowColHeaders: this.extractAttr(sheetViewElement, "showRowColHeaders", {
             default: true,
           }).asBool(),
+          pane: {
+            xSplit: paneElement
+              ? this.extractAttr(paneElement, "xSplit", { default: 0 }).asNum()
+              : 0,
+            ySplit: paneElement
+              ? this.extractAttr(paneElement, "ySplit", { default: 0 }).asNum()
+              : 0,
+          },
         };
       }
     );

@@ -1,8 +1,9 @@
-import { Component, useRef, useState } from "@odoo/owl";
-import { ComponentsImportance, HEADER_HEIGHT, HEADER_WIDTH } from "../../../constants";
+import { Component, useState } from "@odoo/owl";
+import { ComponentsImportance } from "../../../constants";
 import { clip, isEqual } from "../../../helpers";
 import { Pixel, SpreadsheetChildEnv, Zone } from "../../../types";
 import { css } from "../../helpers/css";
+import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import { dragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop";
 import { Border } from "../border/border";
 import { Corner } from "../corner/corner";
@@ -27,8 +28,6 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
     Corner,
     Border,
   };
-
-  private highlightRef = useRef("highlight");
 
   highlightState: HighlightState = useState({
     shiftingMode: "none",
@@ -90,24 +89,18 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     };
 
-    dragAndDropBeyondTheViewport(
-      this.highlightRef.el!.parentElement!,
-      this.env,
-      mouseMove,
-      mouseUp
-    );
+    dragAndDropBeyondTheViewport(this.env, mouseMove, mouseUp);
   }
 
   onMoveHighlight(clientX: Pixel, clientY: Pixel) {
     this.highlightState.shiftingMode = "isMoving";
     const z = this.props.zone;
 
-    const parent = this.highlightRef.el!.parentElement!;
-    const position = parent.getBoundingClientRect();
+    const position = gridOverlayPosition();
     const activeSheetId = this.env.model.getters.getActiveSheetId();
 
-    const initCol = this.env.model.getters.getColIndex(clientX - position.left - HEADER_WIDTH);
-    const initRow = this.env.model.getters.getRowIndex(clientY - position.top - HEADER_HEIGHT);
+    const initCol = this.env.model.getters.getColIndex(clientX - position.left);
+    const initRow = this.env.model.getters.getRowIndex(clientY - position.top);
 
     const deltaColMin = -z.left;
     const deltaColMax = this.env.model.getters.getNumberCols(activeSheetId) - z.right - 1;
@@ -156,6 +149,6 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     };
 
-    dragAndDropBeyondTheViewport(parent, this.env, mouseMove, mouseUp);
+    dragAndDropBeyondTheViewport(this.env, mouseMove, mouseUp);
   }
 }

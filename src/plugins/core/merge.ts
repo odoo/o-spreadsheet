@@ -68,9 +68,14 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     switch (cmd.type) {
       case "ADD_MERGE":
         if (force) {
-          return CommandResult.Success;
+          return this.checkValidations(cmd, this.checkFrozenPanes);
         }
-        return this.checkValidations(cmd, this.checkDestructiveMerge, this.checkOverlap);
+        return this.checkValidations(
+          cmd,
+          this.checkDestructiveMerge,
+          this.checkOverlap,
+          this.checkFrozenPanes
+        );
       case "UPDATE_CELL":
         return this.checkMergedContentUpdate(cmd);
       default:
@@ -316,6 +321,22 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         }
       }
     }
+    return CommandResult.Success;
+  }
+
+  private checkFrozenPanes({ sheetId, target }: AddMergeCommand): CommandResult {
+    const sheet = this.getters.tryGetSheet(sheetId);
+    if (!sheet) return CommandResult.Success;
+    const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
+    for (const zone of target) {
+      if (
+        (zone.left < xSplit && zone.right >= xSplit) ||
+        (zone.top < ySplit && zone.bottom >= ySplit)
+      ) {
+        return CommandResult.FrozenPaneOverlap;
+      }
+    }
+
     return CommandResult.Success;
   }
 

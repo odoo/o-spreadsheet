@@ -7,6 +7,8 @@ import {
   ClearCellCommand,
   ClearFormattingCommand,
   DeleteContentCommand,
+  FreezeColumnsCommand,
+  FreezeRowsCommand,
   RemoveColumnsRowsCommand,
   RemoveMergeCommand,
   ResizeColumnsRowsCommand,
@@ -363,6 +365,87 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
       const command = { ...addColumnsBefore, dimension: "ROW" } as AddColumnsRowsCommand;
       const result = transform(command, addColumnsBefore);
       expect(result).toEqual(command);
+    });
+  });
+
+  describe("OT with AddColumns before - FREEZE_COLUMNS", () => {
+    const toTransform: Omit<FreezeColumnsCommand, "quantity"> = {
+      type: "FREEZE_COLUMNS",
+      sheetId,
+    };
+
+    test("freeze a column before the left-most added column", () => {
+      const command = { ...toTransform, quantity: 8 };
+      const result = transform(command, addColumnsBefore);
+      expect(result).toEqual({ ...command });
+    });
+
+    test("Freeze column after the added ones", () => {
+      const command = { ...toTransform, quantity: 12 };
+      const result = transform(command, addColumnsBefore);
+      expect(result).toEqual({ ...command, quantity: 14 });
+    });
+
+    test("Freeze a column before the added ones", () => {
+      const command = { ...toTransform, quantity: 1 };
+      const result = transform(command, addColumnsBefore);
+      expect(result).toEqual(command);
+    });
+
+    test("Freeze column on another sheet", () => {
+      const command = { ...toTransform, quantity: 11, sheetId: "42" };
+      const result = transform(command, addColumnsBefore);
+      expect(result).toEqual(command);
+    });
+  });
+
+  describe("OT with AddColumns after - FREEZE_COLUMNS", () => {
+    const toTransform: Omit<FreezeColumnsCommand, "quantity"> = {
+      type: "FREEZE_COLUMNS",
+      sheetId,
+    };
+
+    test("freeze a column before the left-most added column", () => {
+      const command = { ...toTransform, quantity: 5 };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual({ ...command });
+    });
+
+    test("Freeze column after the added ones", () => {
+      const command = { ...toTransform, quantity: 12 };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual({ ...command, quantity: 14 });
+    });
+
+    test("Freeze a column before the added ones", () => {
+      const command = { ...toTransform, quantity: 1 };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual(command);
+    });
+
+    test("Freeze column on another sheet", () => {
+      const command = { ...toTransform, quantity: 11, sheetId: "42" };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual(command);
+    });
+  });
+
+  describe("OT with addColumns after/ before FREEZE_ROWS has no effect", () => {
+    const toTransform: Omit<FreezeRowsCommand, "quantity"> = {
+      type: "FREEZE_ROWS",
+      sheetId,
+    };
+
+    test("freeze a row after added after column", () => {
+      const command = { ...toTransform, quantity: 6 };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual({ ...command });
+    });
+
+    test("freeze a row after added before column", () => {
+      const command = { ...toTransform, quantity: 2 };
+      const result = transform(command, addColumnsBefore);
+      expect(result).toEqual({ ...command });
     });
   });
 });

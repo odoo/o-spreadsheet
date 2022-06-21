@@ -14,7 +14,7 @@
     </vt:vector>
   </HeadingPairs>
   <TitlesOfParts>
-    <vt:vector size="10" baseType="lpstr">
+    <vt:vector size="11" baseType="lpstr">
       <vt:lpstr>Sheet1</vt:lpstr>
       <vt:lpstr>Formulas</vt:lpstr>
       <vt:lpstr>jestSheet</vt:lpstr>
@@ -25,6 +25,7 @@
       <vt:lpstr>jestCharts</vt:lpstr>
       <vt:lpstr>jestMiscTest</vt:lpstr>
       <vt:lpstr>jestHiddenSheet</vt:lpstr>
+      <vt:lpstr>jestFreezePane</vt:lpstr>
     </vt:vector>
   </TitlesOfParts>
   <LinksUpToDate>false</LinksUpToDate>

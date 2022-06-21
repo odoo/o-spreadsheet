@@ -711,3 +711,43 @@ export function setStyle(
     style: style,
   });
 }
+
+/**
+ * Freeze a given number of rows on top of the sheet
+ */
+export function freezeRows(
+  model: Model,
+  quantity: number,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("FREEZE_ROWS", {
+    sheetId,
+    quantity,
+  });
+}
+
+export function unfreezeRows(model: Model, sheetId: UID = model.getters.getActiveSheetId()) {
+  return model.dispatch("UNFREEZE_ROWS", {
+    sheetId,
+  });
+}
+
+/**
+ * Freeze a given number of columns on top of the sheet
+ */
+export function freezeColumns(
+  model: Model,
+  quantity: number,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("FREEZE_COLUMNS", {
+    sheetId,
+    quantity,
+  });
+}
+
+export function unfreezeColumns(model: Model, sheetId: UID = model.getters.getActiveSheetId()) {
+  return model.dispatch("UNFREEZE_COLUMNS", {
+    sheetId,
+  });
+}

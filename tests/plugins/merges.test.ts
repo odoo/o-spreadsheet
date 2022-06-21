@@ -8,6 +8,8 @@ import {
   addColumns,
   deleteRows,
   deleteSheet,
+  freezeColumns,
+  freezeRows,
   merge,
   moveAnchorCell,
   redo,
@@ -29,6 +31,7 @@ import {
   getChildFromComponent,
   getMergeCellMap,
   makeTestFixture,
+  nextTick,
   target,
   XCToMergeCellMap,
 } from "../test_helpers/helpers";
@@ -259,6 +262,14 @@ describe("merges", () => {
     ).toBeCancelledBecause(CommandResult.MergeOverlap);
   });
 
+  test("Cannot merge through frozen panes, even if forced", () => {
+    const model = new Model();
+    freezeRows(model, 3);
+    expect(merge(model, "F3:G4")).toBeCancelledBecause(CommandResult.FrozenPaneOverlap);
+    freezeColumns(model, 2);
+    expect(merge(model, "B3:C4")).toBeCancelledBecause(CommandResult.FrozenPaneOverlap);
+  });
+
   test("properly compute if a merge is destructive or not", () => {
     const sheetId = "42";
     const model = new Model({
@@ -326,6 +337,7 @@ describe("merges", () => {
     setCellContent(model, "B2", "b2");
 
     setAnchorCorner(model, "F6");
+    await nextTick();
     await simulateClick(".o-merge-tool");
     expect(askConfirmation).toHaveBeenCalled();
   });

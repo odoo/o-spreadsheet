@@ -1,29 +1,24 @@
 import { CommandResult, Model } from "../../src";
-import {
-  DEFAULT_CELL_HEIGHT,
-  DEFAULT_CELL_WIDTH,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-} from "../../src/constants";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { merge, setCellContent } from "../test_helpers";
 
 describe("cell popover plugin", () => {
   test("position is snapped when the viewport is scrolled", () => {
     const model = new Model();
-    const startColOne = HEADER_WIDTH;
+    const startColOne = 0;
     const startColTwo = startColOne + DEFAULT_CELL_WIDTH;
     setCellContent(model, "A1", "=0/0");
     expect(model.getters.getCellPopover({ col: 0, row: 0 })).toMatchObject({
       coordinates: {
         x: startColTwo,
-        y: HEADER_HEIGHT,
+        y: 0,
       },
     });
     model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 2, offsetY: 0 });
     expect(model.getters.getCellPopover({ col: 0, row: 0 })).toMatchObject({
       coordinates: {
         x: startColTwo,
-        y: HEADER_HEIGHT,
+        y: 0,
       },
     });
   });
@@ -38,8 +33,8 @@ describe("cell popover plugin", () => {
     });
     expect(model.getters.getCellPopover({ col: 1, row: 1 })).toMatchObject({
       coordinates: {
-        x: HEADER_WIDTH,
-        y: HEADER_HEIGHT + 2 * DEFAULT_CELL_HEIGHT,
+        x: 0,
+        y: 2 * DEFAULT_CELL_HEIGHT,
       },
     });
   });
@@ -50,8 +45,8 @@ describe("cell popover plugin", () => {
     setCellContent(model, "A1", "=0/0");
     expect(model.getters.getCellPopover({ col: 1, row: 1 })).toMatchObject({
       coordinates: {
-        x: HEADER_WIDTH + 2 * DEFAULT_CELL_WIDTH,
-        y: HEADER_HEIGHT,
+        x: 2 * DEFAULT_CELL_WIDTH,
+        y: 0,
       },
     });
   });

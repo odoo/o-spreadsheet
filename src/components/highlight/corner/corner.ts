@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { AUTOFILL_EDGE_LENGTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../../constants";
+import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
 import { SpreadsheetChildEnv, Zone } from "../../../types";
 import { css } from "../../helpers/css";
 
@@ -43,18 +43,28 @@ export class Corner extends Component<Props, SpreadsheetChildEnv> {
   private isLeft = this.props.orientation[1] === "w";
 
   get style() {
-    const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
-    const sheetId = this.env.model.getters.getActiveSheetId();
     const z = this.props.zone;
-    const leftValue = this.isLeft
-      ? this.env.model.getters.getColDimensions(sheetId, z.left).start
-      : this.env.model.getters.getColDimensions(sheetId, z.right).end;
-    const topValue = this.isTop
-      ? this.env.model.getters.getRowDimensions(sheetId, z.top).start
-      : this.env.model.getters.getRowDimensions(sheetId, z.bottom).end;
+    const col = this.isLeft ? z.left : z.right;
+    const row = this.isTop ? z.top : z.bottom;
+
+    const rect = this.env.model.getters.getVisibleRect({
+      left: col,
+      right: col,
+      top: row,
+      bottom: row,
+    });
+
+    // Don't show if not visible in the viewport
+    if (rect.width * rect.height === 0) {
+      return `display:none`;
+    }
+
+    const leftValue = this.isLeft ? rect.x : rect.x + rect.width;
+    const topValue = this.isTop ? rect.y : rect.y + rect.height;
+
     return `
-      left:${leftValue + HEADER_WIDTH - offsetX - AUTOFILL_EDGE_LENGTH / 2}px;
-      top:${topValue + HEADER_HEIGHT - offsetY - AUTOFILL_EDGE_LENGTH / 2}px;
+      left:${leftValue - AUTOFILL_EDGE_LENGTH / 2}px;
+      top:${topValue - AUTOFILL_EDGE_LENGTH / 2}px;
       background-color:${this.props.color};
     `;
   }

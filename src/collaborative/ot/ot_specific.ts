@@ -8,6 +8,8 @@ import {
   CreateSheetCommand,
   DeleteFigureCommand,
   DeleteSheetCommand,
+  FreezeColumnsCommand,
+  FreezeRowsCommand,
   MoveRangeCommand,
   RemoveColumnsRowsCommand,
   RemoveMergeCommand,
@@ -34,6 +36,16 @@ otRegistry.addTransformation("DELETE_SHEET", ["MOVE_RANGES"], transformTargetShe
 otRegistry.addTransformation("DELETE_FIGURE", ["UPDATE_FIGURE", "UPDATE_CHART"], updateChartFigure);
 otRegistry.addTransformation("CREATE_SHEET", ["CREATE_SHEET"], createSheetTransformation);
 otRegistry.addTransformation("ADD_MERGE", ["ADD_MERGE", "REMOVE_MERGE"], mergeTransformation);
+otRegistry.addTransformation(
+  "ADD_COLUMNS_ROWS",
+  ["FREEZE_COLUMNS", "FREEZE_ROWS"],
+  freezeTransformation
+);
+otRegistry.addTransformation(
+  "REMOVE_COLUMNS_ROWS",
+  ["FREEZE_COLUMNS", "FREEZE_ROWS"],
+  freezeTransformation
+);
 
 function transformTargetSheetId(
   cmd: MoveRangeCommand,
@@ -101,4 +113,31 @@ function mergeTransformation(
     return { ...cmd, target };
   }
   return undefined;
+}
+
+function freezeTransformation(
+  cmd: FreezeColumnsCommand | FreezeRowsCommand,
+  executed: RemoveColumnsRowsCommand | AddColumnsRowsCommand
+): FreezeColumnsCommand | FreezeRowsCommand | undefined {
+  if (cmd.sheetId !== executed.sheetId) {
+    return cmd;
+  }
+  const dimension = cmd.type === "FREEZE_COLUMNS" ? "COL" : "ROW";
+  if (dimension !== executed.dimension) {
+    return cmd;
+  }
+  let quantity = cmd["quantity"];
+  if (executed.type === "REMOVE_COLUMNS_ROWS") {
+    const executedElements = [...executed.elements].sort((a, b) => b - a);
+    for (let removedElement of executedElements) {
+      if (quantity > removedElement) {
+        quantity--;
+      }
+    }
+  }
+  if (executed.type === "ADD_COLUMNS_ROWS") {
+    const executedBase = executed.position === "before" ? executed.base - 1 : executed.base;
+    quantity = quantity > executedBase ? quantity + executed.quantity : quantity;
+  }
+  return quantity > 0 ? { ...cmd, quantity } : undefined;
 }

@@ -556,7 +556,8 @@ export const CREATE_SHEET_ACTION = (env: SpreadsheetChildEnv) => {
 //------------------------------------------------------------------------------
 
 export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
-  const zone = env.model.getters.getSelectedZone();
+  const getters = env.model.getters;
+  const zone = getters.getSelectedZone();
   let dataSetZone = zone;
   const id = env.model.uuidGenerator.uuidv4();
   let labelRange: string | undefined;
@@ -564,16 +565,27 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
     dataSetZone = { ...zone, left: zone.left + 1 };
   }
   const dataSets = [zoneToXc(dataSetZone)];
-  const sheetId = env.model.getters.getActiveSheetId();
-  const viewport = env.model.getters.getActiveViewport();
-  const left = env.model.getters.getColDimensions(sheetId, viewport.left).start;
-  const top = env.model.getters.getRowDimensions(sheetId, viewport.top).start;
-  const { width, height } = env.model.getters.getViewportDimension();
+  const sheetId = getters.getActiveSheetId();
+
+  const { x: offsetCorrectionX, y: offsetCorrectionY } = getters.getMainViewportCoordinates();
+  const { offsetX, offsetY } = getters.getActiveSheetScrollInfo();
+  const { width, height } = getters.getSheetViewDimension();
   const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
+  const rect = getters.getVisibleRect(getters.getActiveMainViewport());
+
+  const scrollableViewportWidth = Math.min(rect.width, width - offsetCorrectionX);
+  const scrollableViewportHeight = Math.min(rect.height, height - offsetCorrectionY);
+
   const position = {
-    x: left + Math.max(0, (width - DEFAULT_FIGURE_WIDTH) / 2),
-    y: top + Math.max(0, (height - DEFAULT_FIGURE_HEIGHT) / 2),
-  }; // Position at the center of the viewport
+    x:
+      offsetCorrectionX +
+      offsetX +
+      Math.max(0, (scrollableViewportWidth - DEFAULT_FIGURE_WIDTH) / 2),
+    y:
+      offsetCorrectionY +
+      offsetY +
+      Math.max(0, (scrollableViewportHeight - DEFAULT_FIGURE_HEIGHT) / 2),
+  }; // Position at the center of the scrollable viewport
 
   let title = "";
   const cells = env.model.getters.getCellsInZone(sheetId, {
@@ -593,10 +605,14 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
       }
       return acc;
     }, [] as string[]);
+
     const lastElement = texts.splice(-1)[0];
     title = texts.join(", ");
-    if (lastElement) title += (title ? " " + env._t("and") + " " : "") + lastElement;
+    if (lastElement) {
+      title += (title ? " " + env._t("and") + " " : "") + lastElement;
+    }
   }
+
   if (zone.left !== zone.right) {
     labelRange = zoneToXc({
       ...zone,

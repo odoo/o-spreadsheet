@@ -1,5 +1,4 @@
 import { Component } from "@odoo/owl";
-import { HEADER_HEIGHT, HEADER_WIDTH } from "../../../constants";
 import { Pixel, SpreadsheetChildEnv, Zone } from "../../../types";
 import { css } from "../../helpers/css";
 
@@ -32,15 +31,15 @@ export class Border extends Component<Props, SpreadsheetChildEnv> {
     const isHorizontal = ["n", "s"].includes(this.props.orientation);
     const isVertical = ["w", "e"].includes(this.props.orientation);
 
-    const sheetId = this.env.model.getters.getActiveSheetId();
-
     const z = this.props.zone;
     const margin = 2;
 
-    const left = this.env.model.getters.getColDimensions(sheetId, z.left).start + margin;
-    const right = this.env.model.getters.getColDimensions(sheetId, z.right).end - 2 * margin;
-    const top = this.env.model.getters.getRowDimensions(sheetId, z.top).start + margin;
-    const bottom = this.env.model.getters.getRowDimensions(sheetId, z.bottom).end - 2 * margin;
+    const rect = this.env.model.getters.getVisibleRect(z);
+
+    const left = rect.x;
+    const right = rect.x + rect.width - 2 * margin;
+    const top = rect.y;
+    const bottom = rect.y + rect.height - 2 * margin;
 
     const lineWidth = 4;
     const leftValue = isLeft ? left : right;
@@ -48,10 +47,9 @@ export class Border extends Component<Props, SpreadsheetChildEnv> {
     const widthValue = isHorizontal ? right - left : lineWidth;
     const heightValue = isVertical ? bottom - top : lineWidth;
 
-    const { offsetX, offsetY } = this.env.model.getters.getActiveViewport();
     return `
-        left:${leftValue + HEADER_WIDTH - offsetX}px;
-        top:${topValue + HEADER_HEIGHT - offsetY}px;
+        left:${leftValue}px;
+        top:${topValue}px;
         width:${widthValue}px;
         height:${heightValue}px;
     `;

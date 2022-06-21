@@ -1,8 +1,11 @@
 import { CommandResult } from "../../src";
+import { DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import {
   activateSheet,
   createSheet,
+  freezeColumns,
+  freezeRows,
   selectCell,
   setViewportOffset,
   undo,
@@ -104,6 +107,44 @@ describe("figure plugin", () => {
 
     setViewportOffset(model, 10, 10);
     expect(model.getters.getVisibleFigures().length).toBe(1);
+  });
+
+  test("getVisibleFigures only returns visible figures on sheet with frozen panes", () => {
+    const model = new Model();
+    model.dispatch("CREATE_FIGURE", {
+      sheetId: model.getters.getActiveSheetId(),
+      figure: {
+        id: "someuuid",
+        x: 10,
+        y: 10,
+        tag: "hey",
+        width: 100,
+        height: 100,
+      },
+    });
+    expect(model.getters.getVisibleFigures().length).toBe(1);
+    freezeColumns(model, 3);
+    freezeRows(model, 3);
+
+    model.dispatch("CREATE_FIGURE", {
+      sheetId: model.getters.getActiveSheetId(),
+      figure: {
+        id: "someuuid2",
+        x: 2.5 * DEFAULT_CELL_WIDTH,
+        y: 2.5 * DEFAULT_CELL_WIDTH,
+        tag: "hey",
+        width: 10,
+        height: 10,
+      },
+    });
+
+    expect(model.getters.getVisibleFigures().length).toBe(2);
+
+    setViewportOffset(model, 200, 200);
+    expect(model.getters.getVisibleFigures().length).toBe(1);
+
+    setViewportOffset(model, 10, 10);
+    expect(model.getters.getVisibleFigures().length).toBe(2);
   });
 
   test("selecting a figure, then clicking on a cell unselect figure", () => {

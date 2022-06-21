@@ -8,6 +8,8 @@ import {
   createSheet,
   createSheetWithName,
   deleteRows,
+  freezeColumns,
+  freezeRows,
   hideRows,
   hideSheet,
   merge,
@@ -944,5 +946,43 @@ describe("sheets", () => {
     const sheetId = model.getters.getActiveSheetId();
     renameSheet(model, sheetId, "Sheet1");
     expect(model.getters.getSheetIdByName("shEeT1")).toBeDefined();
+  });
+
+  test("Can freeze second to last column", () => {
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const sheetId = model.getters.getActiveSheetId();
+    freezeColumns(model, 9);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({
+      xSplit: 9,
+      ySplit: 0,
+    });
+  });
+
+  test("Can freeze second to last row", () => {
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const sheetId = model.getters.getActiveSheetId();
+    freezeRows(model, 9);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({
+      xSplit: 0,
+      ySplit: 9,
+    });
+  });
+
+  test("Cannot freeze the last column or row", () => {
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    expect(freezeColumns(model, 10)).toBeCancelledBecause(CommandResult.InvalidFreezeQuantity);
+    expect(freezeRows(model, 10)).toBeCancelledBecause(CommandResult.InvalidFreezeQuantity);
+  });
+
+  test("Cannot freeze 0 column or row", () => {
+    const model = new Model();
+    expect(freezeColumns(model, 0)).toBeCancelledBecause(CommandResult.InvalidFreezeQuantity);
+    expect(freezeRows(model, 0)).toBeCancelledBecause(CommandResult.InvalidFreezeQuantity);
+  });
+
+  test("Cannot freeze column/row outside of the sheet", () => {
+    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    expect(freezeColumns(model, 11)).toBeCancelledBecause(CommandResult.InvalidFreezeQuantity);
+    expect(freezeRows(model, 12)).toBeCancelledBecause(CommandResult.InvalidFreezeQuantity);
   });
 });

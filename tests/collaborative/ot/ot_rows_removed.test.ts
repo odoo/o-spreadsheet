@@ -7,6 +7,8 @@ import {
   ClearCellCommand,
   ClearFormattingCommand,
   DeleteContentCommand,
+  FreezeColumnsCommand,
+  FreezeRowsCommand,
   RemoveColumnsRowsCommand,
   RemoveMergeCommand,
   ResizeColumnsRowsCommand,
@@ -400,6 +402,56 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
     test("Add rows (before) after delete columns", () => {
       const result = transform(addColumnsBefore, removeRows);
       expect(result).toEqual(addColumnsBefore);
+    });
+  });
+
+  describe("OT with RemoveRows - FREEZE_COLUMNS_ROWS with dimension ROW", () => {
+    const toTransform: Omit<FreezeRowsCommand, "quantity"> = {
+      type: "FREEZE_ROWS",
+      sheetId,
+    };
+
+    test("freeze a row before the left-most deleted row", () => {
+      const command = { ...toTransform, quantity: 2 };
+      const result = transform(command, removeRows);
+      expect(result).toEqual(command);
+    });
+
+    test("Freeze a removed row", () => {
+      const command = { ...toTransform, quantity: 3 };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command, quantity: 2 });
+    });
+
+    test("Freeze row after the removed ones", () => {
+      const command = { ...toTransform, quantity: 10 };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command, quantity: 7 });
+    });
+
+    test("Freeze a row before the removed ones", () => {
+      const command = { ...toTransform, quantity: 1 };
+      const result = transform(command, removeRows);
+      expect(result).toEqual(command);
+    });
+
+    test("Freeze row on another sheet", () => {
+      const command = { ...toTransform, quantity: 2, sheetId: "42" };
+      const result = transform(command, removeRows);
+      expect(result).toEqual(command);
+    });
+  });
+
+  describe("OT with removeRows after/ before FREEZE_COLUMNS has no effect", () => {
+    const toTransform: Omit<FreezeColumnsCommand, "quantity"> = {
+      type: "FREEZE_COLUMNS",
+      sheetId,
+    };
+
+    test("freeze a row after added after column", () => {
+      const command = { ...toTransform, quantity: 3 };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command });
     });
   });
 });

@@ -327,7 +327,7 @@ export class GridSelectionPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getActiveSheet(): Sheet {
+  getActiveSheet(): Readonly<Sheet> {
     return this.activeSheet;
   }
 
@@ -714,7 +714,6 @@ export class GridSelectionPlugin extends UIPlugin {
       return;
     }
     const { ctx, thinLineWidth } = renderingContext;
-    const viewport = this.getters.getActiveViewport();
     // selection
     const zones = this.getSelectedZones();
     ctx.fillStyle = "#f3f7fe";
@@ -725,7 +724,7 @@ export class GridSelectionPlugin extends UIPlugin {
     ctx.lineWidth = 1.5 * thinLineWidth;
     ctx.globalCompositeOperation = "multiply";
     for (const zone of zones) {
-      const { x, y, width, height } = this.getters.getRect(zone, viewport);
+      const { x, y, width, height } = this.getters.getVisibleRect(zone);
       ctx.fillRect(x, y, width, height);
       ctx.strokeRect(x, y, width, height);
     }
@@ -748,7 +747,7 @@ export class GridSelectionPlugin extends UIPlugin {
         right: col,
       };
     }
-    const { x, y, width, height } = this.getters.getRect(zone, viewport);
+    const { x, y, width, height } = this.getters.getVisibleRect(zone);
     if (width > 0 && height > 0) {
       ctx.strokeRect(x, y, width, height);
     }
