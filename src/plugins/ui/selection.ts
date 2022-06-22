@@ -652,6 +652,14 @@ export class GridSelectionPlugin extends UIPlugin {
         size,
         elements: [currentIndex],
       });
+      const isHidden = this.getters.isHeaderHidden(cmd.sheetId, cmd.dimension, element);
+      if (isHidden) {
+        this.dispatch("HIDE_COLUMNS_ROWS", {
+          dimension: cmd.dimension,
+          sheetId: cmd.sheetId,
+          elements: [currentIndex],
+        });
+      }
       currentIndex += 1;
     }
 

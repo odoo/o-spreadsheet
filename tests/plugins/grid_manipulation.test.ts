@@ -3,7 +3,7 @@ import {
   DEFAULT_CELL_WIDTH,
   INCORRECT_RANGE_STRING,
 } from "../../src/constants";
-import { lettersToNumber, toCartesian, toXC, toZone } from "../../src/helpers";
+import { lettersToNumber, toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { Border, CommandResult, UID } from "../../src/types";
 import {
@@ -19,6 +19,8 @@ import {
   insertCells,
   merge,
   redo,
+  resizeColumns,
+  resizeRows,
   selectCell,
   setCellContent,
   setSelection,
@@ -1903,6 +1905,27 @@ describe("Delete cell", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("B1"));
   });
 
+  test("Headers aren't affected by cell deletion", () => {
+    selectCell(model, "A1");
+    resizeRows(model, [3], 50);
+    hideRows(model, [4]);
+    resizeColumns(model, ["C"], 50);
+    hideColumns(model, ["D"]);
+    const sheetId = model.getters.getActiveSheetId();
+    const sheetZone = {
+      left: 0,
+      top: 0,
+      right: model.getters.getNumberCols(sheetId) - 1,
+      bottom: model.getters.getNumberRows(sheetId) - 1,
+    };
+    deleteCells(model, zoneToXc({ ...sheetZone, right: 0 }), "left");
+    deleteCells(model, zoneToXc({ ...sheetZone, bottom: 0 }), "up");
+    expect(model.getters.getRowSize(sheetId, 3)).toEqual(50);
+    expect(model.getters.getColSize(sheetId, 2)).toEqual(50);
+    expect(model.getters.isRowHidden(sheetId, 4)).toBeTruthy();
+    expect(model.getters.isColHidden(sheetId, 3)).toBeTruthy();
+  });
+
   test("Undo/redo is correctly supported", () => {
     setCellContent(model, "A2", "=A3");
     const sheetId = model.getters.getActiveSheetId();
@@ -1988,6 +2011,27 @@ describe("Insert cell", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("B1"));
     insertCells(model, "B1", "down");
     expect(model.getters.getSelectedZone()).toEqual(toZone("B1"));
+  });
+
+  test("Headers aren't affected by cell insertion", () => {
+    selectCell(model, "A1");
+    resizeRows(model, [3], 50);
+    hideRows(model, [4]);
+    resizeColumns(model, ["C"], 50);
+    hideColumns(model, ["D"]);
+    const sheetId = model.getters.getActiveSheetId();
+    const sheetZone = {
+      left: 0,
+      top: 0,
+      right: model.getters.getNumberCols(sheetId) - 1,
+      bottom: model.getters.getNumberRows(sheetId) - 1,
+    };
+    insertCells(model, zoneToXc({ ...sheetZone, right: 0 }), "right");
+    insertCells(model, zoneToXc({ ...sheetZone, bottom: 0 }), "down");
+    expect(model.getters.getRowSize(sheetId, 3)).toEqual(50);
+    expect(model.getters.getColSize(sheetId, 2)).toEqual(50);
+    expect(model.getters.isRowHidden(sheetId, 4)).toBeTruthy();
+    expect(model.getters.isColHidden(sheetId, 3)).toBeTruthy();
   });
 
   test("Undo/redo is correctly supported", () => {

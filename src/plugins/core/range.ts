@@ -47,6 +47,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   beforeHandle(command: Command) {}
 
   handle(cmd: Command) {
+    const isGlobalGridChange = cmd.type !== "MOVE_RANGES";
     switch (cmd.type) {
       case "REMOVE_COLUMNS_ROWS": {
         let start: "left" | "top" = cmd.dimension === "COL" ? "left" : "top";
@@ -57,41 +58,51 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         elements.sort((a, b) => b - a);
 
         const groups = groupConsecutive(elements);
-        this.executeOnAllRanges((range: Range) => {
-          if (range.sheetId !== cmd.sheetId) {
-            return { changeType: "NONE" };
-          }
-          let newRange = range;
-          let changeType: ChangeType = "NONE";
-          for (let group of groups) {
-            const min = Math.min(...group);
-            const max = Math.max(...group);
-            if (range.zone[start] <= min && min <= range.zone[end]) {
-              const toRemove = Math.min(range.zone[end], max) - min + 1;
-              changeType = "RESIZE";
-              newRange = this.createAdaptedRange(newRange, dimension, changeType, -toRemove);
-            } else if (range.zone[start] >= min && range.zone[end] <= max) {
-              changeType = "REMOVE";
-            } else if (range.zone[start] <= max && range.zone[end] >= max) {
-              const toRemove = max - range.zone[start] + 1;
-              changeType = "RESIZE";
-              newRange = this.createAdaptedRange(newRange, dimension, changeType, -toRemove);
-              newRange = this.createAdaptedRange(
-                newRange,
-                dimension,
-                "MOVE",
-                -(range.zone[start] - min)
-              );
-            } else if (min < range.zone[start]) {
-              changeType = "MOVE";
-              newRange = this.createAdaptedRange(newRange, dimension, changeType, -(max - min + 1));
+        this.executeOnAllRanges(
+          isGlobalGridChange,
+          (range: Range) => {
+            if (range.sheetId !== cmd.sheetId) {
+              return { changeType: "NONE" };
             }
-          }
-          if (changeType !== "NONE") {
-            return { changeType, range: newRange };
-          }
-          return { changeType: "NONE" };
-        }, cmd.sheetId);
+            let newRange = range;
+            let changeType: ChangeType = "NONE";
+            for (let group of groups) {
+              const min = Math.min(...group);
+              const max = Math.max(...group);
+              // start à cheval sur la zone deletée
+              if (range.zone[start] <= min && min <= range.zone[end]) {
+                const toRemove = Math.min(range.zone[end], max) - min + 1;
+                changeType = "RESIZE";
+                newRange = this.createAdaptedRange(newRange, dimension, changeType, -toRemove);
+              } else if (range.zone[start] >= min && range.zone[end] <= max) {
+                changeType = "REMOVE";
+              } else if (range.zone[start] <= max && range.zone[end] >= max) {
+                const toRemove = max - range.zone[start] + 1;
+                changeType = "RESIZE";
+                newRange = this.createAdaptedRange(newRange, dimension, changeType, -toRemove);
+                newRange = this.createAdaptedRange(
+                  newRange,
+                  dimension,
+                  "MOVE",
+                  -(range.zone[start] - min)
+                );
+              } else if (min < range.zone[start]) {
+                changeType = "MOVE";
+                newRange = this.createAdaptedRange(
+                  newRange,
+                  dimension,
+                  changeType,
+                  -(max - min + 1)
+                );
+              }
+            }
+            if (changeType !== "NONE") {
+              return { changeType, range: newRange, isGlobalGridChange };
+            }
+            return { changeType: "NONE" };
+          },
+          cmd.sheetId
+        );
         break;
       }
       case "ADD_COLUMNS_ROWS": {
@@ -99,68 +110,80 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         let end: "right" | "bottom" = cmd.dimension === "COL" ? "right" : "bottom";
         let dimension: "columns" | "rows" = cmd.dimension === "COL" ? "columns" : "rows";
 
-        this.executeOnAllRanges((range: Range) => {
-          if (range.sheetId !== cmd.sheetId) {
+        this.executeOnAllRanges(
+          isGlobalGridChange,
+          (range: Range) => {
+            if (range.sheetId !== cmd.sheetId) {
+              return { changeType: "NONE" };
+            }
+            if (cmd.position === "after") {
+              if (range.zone[start] <= cmd.base && cmd.base < range.zone[end]) {
+                return {
+                  changeType: "RESIZE",
+                  range: this.createAdaptedRange(range, dimension, "RESIZE", cmd.quantity),
+                  isGlobalGridChange,
+                };
+              }
+              if (cmd.base < range.zone[start]) {
+                return {
+                  changeType: "MOVE",
+                  range: this.createAdaptedRange(range, dimension, "MOVE", cmd.quantity),
+                  isGlobalGridChange,
+                };
+              }
+            } else {
+              if (range.zone[start] < cmd.base && cmd.base <= range.zone[end]) {
+                return {
+                  changeType: "RESIZE",
+                  range: this.createAdaptedRange(range, dimension, "RESIZE", cmd.quantity),
+                  isGlobalGridChange,
+                };
+              }
+              if (cmd.base <= range.zone[start]) {
+                return {
+                  changeType: "MOVE",
+                  range: this.createAdaptedRange(range, dimension, "MOVE", cmd.quantity),
+                  isGlobalGridChange,
+                };
+              }
+            }
             return { changeType: "NONE" };
-          }
-          if (cmd.position === "after") {
-            if (range.zone[start] <= cmd.base && cmd.base < range.zone[end]) {
-              return {
-                changeType: "RESIZE",
-                range: this.createAdaptedRange(range, dimension, "RESIZE", cmd.quantity),
-              };
-            }
-            if (cmd.base < range.zone[start]) {
-              return {
-                changeType: "MOVE",
-                range: this.createAdaptedRange(range, dimension, "MOVE", cmd.quantity),
-              };
-            }
-          } else {
-            if (range.zone[start] < cmd.base && cmd.base <= range.zone[end]) {
-              return {
-                changeType: "RESIZE",
-                range: this.createAdaptedRange(range, dimension, "RESIZE", cmd.quantity),
-              };
-            }
-            if (cmd.base <= range.zone[start]) {
-              return {
-                changeType: "MOVE",
-                range: this.createAdaptedRange(range, dimension, "MOVE", cmd.quantity),
-              };
-            }
-          }
-          return { changeType: "NONE" };
-        }, cmd.sheetId);
+          },
+          cmd.sheetId
+        );
 
         break;
       }
       case "DELETE_SHEET": {
-        this.executeOnAllRanges((range: Range) => {
-          if (range.sheetId !== cmd.sheetId) {
-            return { changeType: "NONE" };
-          }
-          range = {
-            ...range,
-            zone: { ...range.zone },
-            invalidSheetName: this.getters.getSheetName(cmd.sheetId),
-            sheetId: "",
-          };
-          return { changeType: "REMOVE", range };
-        }, cmd.sheetId);
+        this.executeOnAllRanges(
+          isGlobalGridChange,
+          (range: Range) => {
+            if (range.sheetId !== cmd.sheetId) {
+              return { changeType: "NONE" };
+            }
+            range = {
+              ...range,
+              zone: { ...range.zone },
+              invalidSheetName: this.getters.getSheetName(cmd.sheetId),
+              sheetId: "",
+            };
+            return { changeType: "REMOVE", range, isGlobalGridChange };
+          },
+          cmd.sheetId
+        );
 
         break;
       }
       case "RENAME_SHEET": {
-        this.executeOnAllRanges((range: Range) => {
+        this.executeOnAllRanges(isGlobalGridChange, (range: Range) => {
           if (range.sheetId === cmd.sheetId) {
-            return { changeType: "CHANGE", range };
+            return { changeType: "CHANGE", range, isGlobalGridChange };
           }
           if (cmd.name && range.invalidSheetName === cmd.name) {
             const newRange = { ...range, zone: { ...range.zone } };
             newRange.invalidSheetName = undefined;
             newRange.sheetId = cmd.sheetId;
-            return { changeType: "CHANGE", range: newRange };
+            return { changeType: "CHANGE", range: newRange, isGlobalGridChange };
           }
           return { changeType: "NONE" };
         });
@@ -168,7 +191,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       }
       case "MOVE_RANGES": {
         const originZone = cmd.target[0];
-        this.executeOnAllRanges((range: Range) => {
+        this.executeOnAllRanges(isGlobalGridChange, (range: Range) => {
           if (range.sheetId !== cmd.sheetId || !isZoneInside(range.zone, originZone)) {
             return { changeType: "NONE" };
           }
@@ -180,6 +203,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
           return {
             changeType: "MOVE",
             range: { ...adaptedRange, sheetId: targetSheetId, prefixSheet },
+            isGlobalGridChange,
           };
         });
         break;
@@ -195,11 +219,14 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    * without caring if the start and end of the range in both row and column
    * direction can be incorrect. This function ensure that an incorrect range gets removed.
    */
-  private verifyRangeRemoved(adaptRange: ApplyRangeChange): ApplyRangeChange {
+  private verifyRangeRemoved(
+    adaptRange: ApplyRangeChange,
+    isGlobalGridChange: boolean
+  ): ApplyRangeChange {
     return (range: Range) => {
       const result: ApplyRangeChangeResult = adaptRange(range);
       if (result.changeType !== "NONE" && !isZoneValid(result.range.zone)) {
-        return { range: result.range, changeType: "REMOVE" };
+        return { range: result.range, changeType: "REMOVE", isGlobalGridChange };
       }
       return result;
     };
@@ -217,8 +244,12 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     };
   }
 
-  private executeOnAllRanges(adaptRange: ApplyRangeChange, sheetId?: UID) {
-    const func = this.verifyRangeRemoved(adaptRange);
+  private executeOnAllRanges(
+    isGlobalGridChange: boolean,
+    adaptRange: ApplyRangeChange,
+    sheetId?: UID
+  ) {
+    const func = this.verifyRangeRemoved(adaptRange, isGlobalGridChange);
     for (const provider of this.providers) {
       provider(func, sheetId);
     }

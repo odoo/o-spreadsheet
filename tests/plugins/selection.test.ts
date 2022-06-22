@@ -958,6 +958,14 @@ describe("move elements(s)", () => {
     expect(model.getters.getColSize(sheetId, 2)).toEqual(10);
   });
 
+  test("Move a hidden col keep it hidden", () => {
+    const model = new Model();
+    hideColumns(model, ["A"]);
+    moveColumns(model, "D", ["A"]);
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.isColHidden(sheetId, 2)).toBeTruthy();
+  });
+
   test("Move a resized row preserve the size", () => {
     const model = new Model();
     resizeRows(model, [0], 10);
@@ -967,5 +975,13 @@ describe("move elements(s)", () => {
     expect(model.getters.getRowSize(sheetId, 0)).toEqual(DEFAULT_CELL_HEIGHT);
     expect(model.getters.getRowSize(sheetId, 1)).toEqual(20);
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(10);
+  });
+
+  test("Move a hidden row keep it hidden", () => {
+    const model = new Model();
+    hideRows(model, [0]);
+    moveRows(model, 3, [0]);
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.isRowHidden(sheetId, 2)).toBeTruthy();
   });
 });

@@ -13,6 +13,7 @@ import {
 import { CoreGetters } from "../types/getters";
 import { BasePlugin } from "./base_plugin";
 import { RangeAdapter } from "./core/range";
+import { HeaderMap, HeaderMapManager } from "./header_map";
 
 export interface CorePluginConstructor {
   new (
@@ -50,9 +51,14 @@ export class CorePlugin<State = any, C = CoreCommand>
   ) {
     super(stateObserver, dispatch, config);
     this.range = range;
+
     range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;
     this.uuidGenerator = uuidGenerator;
+  }
+
+  protected newHeaderMap<T>(): HeaderMap<T> {
+    return new HeaderMapManager<T>(this.stateObserver, this.range);
   }
 
   // ---------------------------------------------------------------------------
