@@ -83,8 +83,6 @@ export interface Sheet {
   name: string;
   numberOfCols: number;
   rows: Row[];
-  hiddenColsGroups: ConsecutiveIndexes[];
-  hiddenRowsGroups: ConsecutiveIndexes[];
   areGridLinesVisible: boolean;
   isVisible: boolean;
 }
@@ -161,7 +159,7 @@ export interface HeaderDimensions {
 }
 
 export interface Row {
-  cells: Record<number, UID | undefined>;
+  cells: Record<number, UID | undefined>; // number is a column index
 }
 
 export interface Position {
