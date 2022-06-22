@@ -200,8 +200,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         name: name,
         numberOfCols: colNumber,
         rows: createDefaultRows(rowNumber),
-        hiddenColsGroups: [],
-        hiddenRowsGroups: [],
         areGridLinesVisible:
           sheetData.areGridLinesVisible === undefined ? true : sheetData.areGridLinesVisible,
         isVisible: sheetData.isVisible,
@@ -472,8 +470,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       name,
       numberOfCols: colNumber,
       rows: createDefaultRows(rowNumber),
-      hiddenColsGroups: [],
-      hiddenRowsGroups: [],
       areGridLinesVisible: true,
       isVisible: true,
     };
