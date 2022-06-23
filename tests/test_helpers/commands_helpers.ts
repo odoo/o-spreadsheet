@@ -448,6 +448,19 @@ export function setCellContent(
 }
 
 /**
+ * Set the content of a cell
+ */
+export function setCellFormat(
+  model: Model,
+  xc: string,
+  format: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  const { col, row } = toCartesian(xc);
+  return model.dispatch("UPDATE_CELL", { col, row, sheetId, format });
+}
+
+/**
  * Select a cell
  */
 export function selectCell(model: Model, xc: string): DispatchResult {

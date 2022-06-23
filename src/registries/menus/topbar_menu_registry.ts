@@ -206,11 +206,11 @@ topbarMenuRegistry
     sequence: 10,
     separator: true,
   })
-  .addChild("format_number_general", ["format", "format_number"], {
-    name: NumberFormatTerms.General,
+  .addChild("format_number_automatic", ["format", "format_number"], {
+    name: NumberFormatTerms.Automatic,
     sequence: 10,
     separator: true,
-    action: ACTIONS.FORMAT_GENERAL_ACTION,
+    action: ACTIONS.FORMAT_AUTOMATIC_ACTION,
   })
   .addChild("format_number_number", ["format", "format_number"], {
     name: NumberFormatTerms.Number,

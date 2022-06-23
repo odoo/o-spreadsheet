@@ -484,7 +484,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       // TODO this plugin should not care about evaluation
       // and evaluation should not depend on implementation details here.
       // Task 2813749
-      cell.assignValue(before.evaluated.value);
+      cell.assignEvaluation(before.evaluated.value, before.evaluated.format);
       if (before.evaluated.type === CellValueType.error) {
         cell.assignError(before.evaluated.value, before.evaluated.error);
       }

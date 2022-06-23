@@ -9999,7 +9999,7 @@ Object {
             </c>
         </row>
         <row r=\\"40\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A40\\" s=\\"2\\">
+            <c r=\\"A40\\" s=\\"1\\">
                 <f>
                     DATE(2020,5,25)
                 </f>
@@ -10125,14 +10125,14 @@ Object {
             </c>
         </row>
         <row r=\\"58\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A58\\" s=\\"2\\">
+            <c r=\\"A58\\" s=\\"1\\">
                 <f>
                     EDATE(\\"1969-07-22\\",-2)
                 </f>
             </c>
         </row>
         <row r=\\"59\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A59\\" s=\\"2\\">
+            <c r=\\"A59\\" s=\\"1\\">
                 <f>
                     EOMONTH(\\"2020-07-21\\",1)
                 </f>
@@ -10419,7 +10419,7 @@ Object {
             </c>
         </row>
         <row r=\\"100\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A100\\" s=\\"3\\">
+            <c r=\\"A100\\" s=\\"1\\">
                 <f>
                     NOW()
                 </f>
@@ -10713,7 +10713,7 @@ Object {
             </c>
         </row>
         <row r=\\"142\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A142\\" s=\\"4\\">
+            <c r=\\"A142\\" s=\\"1\\">
                 <f>
                     TIME(9,11,31)
                 </f>
@@ -10727,7 +10727,7 @@ Object {
             </c>
         </row>
         <row r=\\"144\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A144\\" s=\\"2\\">
+            <c r=\\"A144\\" s=\\"1\\">
                 <f>
                     TODAY()
                 </f>
@@ -10818,14 +10818,14 @@ Object {
             </c>
         </row>
         <row r=\\"157\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A157\\" s=\\"2\\">
+            <c r=\\"A157\\" s=\\"1\\">
                 <f>
                     WORKDAY(\\"2021-03-15\\",6)
                 </f>
             </c>
         </row>
         <row r=\\"158\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A158\\" s=\\"2\\">
+            <c r=\\"A158\\" s=\\"1\\">
                 <f>
                     WORKDAY.INTL(\\"2021-03-15\\",6,\\"0111111\\")
                 </f>
@@ -10880,9 +10880,7 @@ Object {
     },
     Object {
       "content": "<styleSheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
-    <numFmts count=\\"2\\">
-        <numFmt numFmtId=\\"164\\" formatCode=\\"m/d/yyyy\\"/>
-        <numFmt numFmtId=\\"165\\" formatCode=\\"m/d/yyyy hh:mm:ss\\"/>
+    <numFmts count=\\"0\\">
     </numFmts>
     <fonts count=\\"2\\">
         <font>
@@ -10913,20 +10911,11 @@ Object {
             <diagonal/>
         </border>
     </borders>
-    <cellXfs count=\\"5\\">
+    <cellXfs count=\\"2\\">
         <xf numFmtId=\\"0\\" fillId=\\"0\\" fontId=\\"0\\" borderId=\\"0\\">
             <alignment vertical=\\"center\\"/>
         </xf>
         <xf numFmtId=\\"0\\" fillId=\\"0\\" fontId=\\"1\\" borderId=\\"0\\">
-            <alignment vertical=\\"center\\"/>
-        </xf>
-        <xf numFmtId=\\"164\\" fillId=\\"0\\" fontId=\\"1\\" borderId=\\"0\\">
-            <alignment vertical=\\"center\\"/>
-        </xf>
-        <xf numFmtId=\\"165\\" fillId=\\"0\\" fontId=\\"1\\" borderId=\\"0\\">
-            <alignment vertical=\\"center\\"/>
-        </xf>
-        <xf numFmtId=\\"19\\" fillId=\\"0\\" fontId=\\"1\\" borderId=\\"0\\">
             <alignment vertical=\\"center\\"/>
         </xf>
     </cellXfs>
@@ -12373,7 +12362,7 @@ Object {
             </c>
         </row>
         <row r=\\"40\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A40\\" s=\\"2\\">
+            <c r=\\"A40\\" s=\\"1\\">
                 <f>
                     DATE(2020,5,25)
                 </f>
@@ -12499,14 +12488,14 @@ Object {
             </c>
         </row>
         <row r=\\"58\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A58\\" s=\\"2\\">
+            <c r=\\"A58\\" s=\\"1\\">
                 <f>
                     EDATE(\\"1969-07-22\\",-2)
                 </f>
             </c>
         </row>
         <row r=\\"59\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A59\\" s=\\"2\\">
+            <c r=\\"A59\\" s=\\"1\\">
                 <f>
                     EOMONTH(\\"2020-07-21\\",1)
                 </f>
@@ -12793,7 +12782,7 @@ Object {
             </c>
         </row>
         <row r=\\"100\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A100\\" s=\\"3\\">
+            <c r=\\"A100\\" s=\\"1\\">
                 <f>
                     NOW()
                 </f>
@@ -13087,7 +13076,7 @@ Object {
             </c>
         </row>
         <row r=\\"142\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A142\\" s=\\"4\\">
+            <c r=\\"A142\\" s=\\"1\\">
                 <f>
                     TIME(9,11,31)
                 </f>
@@ -13101,7 +13090,7 @@ Object {
             </c>
         </row>
         <row r=\\"144\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A144\\" s=\\"2\\">
+            <c r=\\"A144\\" s=\\"1\\">
                 <f>
                     TODAY()
                 </f>
@@ -13192,14 +13181,14 @@ Object {
             </c>
         </row>
         <row r=\\"157\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A157\\" s=\\"2\\">
+            <c r=\\"A157\\" s=\\"1\\">
                 <f>
                     WORKDAY(\\"2021-03-15\\",6)
                 </f>
             </c>
         </row>
         <row r=\\"158\\" ht=\\"17.25\\" customHeight=\\"1\\" hidden=\\"0\\">
-            <c r=\\"A158\\" s=\\"2\\">
+            <c r=\\"A158\\" s=\\"1\\">
                 <f>
                     WORKDAY.INTL(\\"2021-03-15\\",6,\\"0111111\\")
                 </f>
@@ -13298,9 +13287,7 @@ Object {
     },
     Object {
       "content": "<styleSheet xmlns=\\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\\" xmlns:r=\\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\\">
-    <numFmts count=\\"2\\">
-        <numFmt numFmtId=\\"164\\" formatCode=\\"m/d/yyyy\\"/>
-        <numFmt numFmtId=\\"165\\" formatCode=\\"m/d/yyyy hh:mm:ss\\"/>
+    <numFmts count=\\"0\\">
     </numFmts>
     <fonts count=\\"2\\">
         <font>
@@ -13331,20 +13318,11 @@ Object {
             <diagonal/>
         </border>
     </borders>
-    <cellXfs count=\\"5\\">
+    <cellXfs count=\\"2\\">
         <xf numFmtId=\\"0\\" fillId=\\"0\\" fontId=\\"0\\" borderId=\\"0\\">
             <alignment vertical=\\"center\\"/>
         </xf>
         <xf numFmtId=\\"0\\" fillId=\\"0\\" fontId=\\"1\\" borderId=\\"0\\">
-            <alignment vertical=\\"center\\"/>
-        </xf>
-        <xf numFmtId=\\"164\\" fillId=\\"0\\" fontId=\\"1\\" borderId=\\"0\\">
-            <alignment vertical=\\"center\\"/>
-        </xf>
-        <xf numFmtId=\\"165\\" fillId=\\"0\\" fontId=\\"1\\" borderId=\\"0\\">
-            <alignment vertical=\\"center\\"/>
-        </xf>
-        <xf numFmtId=\\"19\\" fillId=\\"0\\" fontId=\\"1\\" borderId=\\"0\\">
             <alignment vertical=\\"center\\"/>
         </xf>
     </cellXfs>

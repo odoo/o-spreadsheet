@@ -38,7 +38,7 @@ interface State {
 }
 
 const FORMATS = [
-  { name: "general", text: NumberFormatTerms.General },
+  { name: "automatic", text: NumberFormatTerms.Automatic },
   { name: "number", text: NumberFormatTerms.Number, description: "1,000.12", value: "#,##0.00" },
   { name: "percent", text: NumberFormatTerms.Percent, description: "10.12%", value: "0.00%" },
   {
@@ -275,9 +275,9 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   DEFAULT_FONT_SIZE = DEFAULT_FONT_SIZE;
 
   static components = { ColorPicker, Menu, Composer };
-  formats = FORMATS;
+  commonFormats = FORMATS;
   customFormats = CUSTOM_FORMATS;
-  currentFormat = "general";
+  currentFormatName = "automatic";
   fontSizes = fontSizes;
 
   style: Style = {};
@@ -387,10 +387,10 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.paintFormatTool = this.env.model.getters.isPaintingFormat();
     const cell = this.env.model.getters.getActiveCell();
     if (cell && cell.format) {
-      const format = this.formats.find((f) => f.value === cell.format);
-      this.currentFormat = format ? format.name : "";
+      const currentFormat = this.commonFormats.find((f) => f.value === cell.format);
+      this.currentFormatName = currentFormat ? currentFormat.name : "";
     } else {
-      this.currentFormat = "general";
+      this.currentFormatName = "automatic";
     }
     this.style = { ...this.env.model.getters.getCurrentStyle() };
     this.style.align = this.style.align || cell?.defaultAlign;

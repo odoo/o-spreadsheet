@@ -92,12 +92,12 @@
               class="o-dropdown-content o-text-options  o-format-tool "
               t-if="state.activeTool === 'formatTool'"
               t-on-click="setFormat">
-              <t t-foreach="formats" t-as="format" t-key="format.name">
+              <t t-foreach="commonFormats" t-as="commonFormat" t-key="commonFormat.name">
                 <div
-                  t-att-data-format="format.name"
-                  t-att-class="{active: currentFormat === format.name}">
-                  <t t-esc="format.text"/>
-                  <span class="float-end text-muted" t-esc="format.description"/>
+                  t-att-data-format="commonFormat.name"
+                  t-att-class="{active: currentFormatName === commonFormat.name}">
+                  <t t-esc="commonFormat.text"/>
+                  <span class="float-end text-muted" t-esc="commonFormat.description"/>
                 </div>
               </t>
               <t t-foreach="customFormats" t-as="customFormat" t-key="customFormat.name">

@@ -648,7 +648,7 @@ export class ClipboardPlugin extends UIPlugin {
         this.dispatch("UPDATE_CELL", {
           ...target,
           style: origin.cell.style,
-          format: origin.cell.format,
+          format: origin.cell.evaluated.format || origin.cell.format,
         });
         return;
       }

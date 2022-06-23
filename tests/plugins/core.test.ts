@@ -13,6 +13,7 @@ import {
   selectCell,
   setAnchorCorner,
   setCellContent,
+  setCellFormat,
   setSelection,
   undo,
 } from "../test_helpers/commands_helpers";
@@ -244,22 +245,22 @@ describe("core", () => {
         setCellContent(model, "A8", "€-3.123");
 
         expect(getCellContent(model, "A1")).toBe("3$");
-        expect(getCell(model, "A1")!.format).toBe("#,##0[$$]");
+        expect(getCell(model, "A1")!.evaluated.format).toBe("#,##0[$$]");
         expect(getCellContent(model, "A2")).toBe("-$3");
-        expect(getCell(model, "A2")!.format).toBe("[$$]#,##0");
+        expect(getCell(model, "A2")!.evaluated.format).toBe("[$$]#,##0");
         expect(getCellContent(model, "A3")).toBe("-$3");
-        expect(getCell(model, "A3")!.format).toBe("[$$]#,##0");
+        expect(getCell(model, "A3")!.evaluated.format).toBe("[$$]#,##0");
         expect(getCellContent(model, "A4")).toBe("-$3.12");
-        expect(getCell(model, "A4")!.format).toBe("[$$]#,##0.00");
+        expect(getCell(model, "A4")!.evaluated.format).toBe("[$$]#,##0.00");
 
         expect(getCellContent(model, "A5")).toBe("3€");
-        expect(getCell(model, "A5")!.format).toBe("#,##0[$€]");
+        expect(getCell(model, "A5")!.evaluated.format).toBe("#,##0[$€]");
         expect(getCellContent(model, "A6")).toBe("-€3");
-        expect(getCell(model, "A6")!.format).toBe("[$€]#,##0");
+        expect(getCell(model, "A6")!.evaluated.format).toBe("[$€]#,##0");
         expect(getCellContent(model, "A7")).toBe("-€3");
-        expect(getCell(model, "A7")!.format).toBe("[$€]#,##0");
+        expect(getCell(model, "A7")!.evaluated.format).toBe("[$€]#,##0");
         expect(getCellContent(model, "A8")).toBe("-€3.12");
-        expect(getCell(model, "A8")!.format).toBe("[$€]#,##0.00");
+        expect(getCell(model, "A8")!.evaluated.format).toBe("[$€]#,##0.00");
       });
 
       test("if contain percent", () => {
@@ -267,55 +268,112 @@ describe("core", () => {
         setCellContent(model, "A1", "3%");
         setCellContent(model, "A2", "3.4%");
         expect(getCellContent(model, "A1")).toBe("3%");
-        expect(getCell(model, "A1")!.format).toBe("0%");
+        expect(getCell(model, "A1")!.evaluated.format).toBe("0%");
         expect(getCellContent(model, "A2")).toBe("3.40%");
-        expect(getCell(model, "A2")!.format).toBe("0.00%");
+        expect(getCell(model, "A2")!.evaluated.format).toBe("0.00%");
       });
 
       test("currency format most important than percent format", () => {
         const model = new Model();
         setCellContent(model, "A1", "12300%$");
         expect(getCellContent(model, "A1")).toBe("123$");
-        expect(getCell(model, "A1")!.format).toBe("#,##0[$$]");
+        expect(getCell(model, "A1")!.evaluated.format).toBe("#,##0[$$]");
 
         setCellContent(model, "A2", "€12300%");
         expect(getCellContent(model, "A2")).toBe("€123");
-        expect(getCell(model, "A2")!.format).toBe("[$€]#,##0");
+        expect(getCell(model, "A2")!.evaluated.format).toBe("[$€]#,##0");
       });
     });
     describe("detect format formula automatically", () => {
       test("from formula without return format", () => {
         const model = new Model();
         setCellContent(model, "A1", "=CONCAT(4,2)");
-        setCellContent(model, "A2", "=COS(42)");
+        expect(getCell(model, "A1")!.evaluated.format).toBe(undefined);
+      });
 
-        expect(getCell(model, "A1")!.format).toBeUndefined();
-        expect(getCell(model, "A2")!.format).toBeUndefined();
+      test("from formula without return format and format seted on the formula", () => {
+        const model = new Model();
+        setCellContent(model, "A1", "=CONCAT(4,2)");
+        setCellFormat(model, "A1", "#,##0[$$]");
+        expect(getCell(model, "A1")!.evaluated.format).toBe("#,##0[$$]");
       });
 
       test("from formula with return format", () => {
         const model = new Model();
         setCellContent(model, "A1", "=TIME(42,42,42)");
-        expect(getCell(model, "A1")!.format).toBe("hh:mm:ss a");
+        expect(getCell(model, "A1")!.evaluated.format).toBe("hh:mm:ss a");
+      });
+
+      test("from formula with return format and format seted on the formula", () => {
+        const model = new Model();
+        setCellContent(model, "A1", "=TIME(42,42,42)");
+        setCellFormat(model, "A1", "#,##0[$$]");
+        expect(getCell(model, "A1")!.evaluated.format).toBe("#,##0[$$]");
       });
 
       describe("from formula depending on the reference", () => {
         test("with the reference declared before the formula", () => {
           const model = new Model();
           setCellContent(model, "A1", "3%");
-          setCellContent(model, "A2", "=1+A1");
+          expect(getCell(model, "A1")!.evaluated.format).toBe("0%");
 
-          expect(getCell(model, "A1")!.format).toBe("0%");
-          expect(getCell(model, "A2")!.format).toBe("0%");
+          setCellContent(model, "A2", "=1+A1");
+          expect(getCell(model, "A1")!.evaluated.format).toBe("0%");
+          expect(getCell(model, "A2")!.evaluated.format).toBe("0%");
+        });
+
+        test("with the reference declared before the formula and format applied on the formula", () => {
+          const model = new Model();
+          setCellContent(model, "A1", "3%");
+          expect(getCell(model, "A1")!.evaluated.format).toBe("0%");
+
+          setCellContent(model, "A2", "=1+A1");
+          setCellFormat(model, "A2", "#,##0[$$]");
+          expect(getCell(model, "A1")!.evaluated.format).toBe("0%");
+          expect(getCell(model, "A2")!.evaluated.format).toBe("#,##0[$$]");
+        });
+
+        test("with the reference declared before the formula and format applied on the reference", () => {
+          const model = new Model();
+          setCellContent(model, "A1", "3%");
+          expect(getCell(model, "A1")!.evaluated.format).toBe("0%");
+
+          setCellContent(model, "A2", "=1+A1");
+          setCellFormat(model, "A1", "#,##0[$$]");
+          expect(getCell(model, "A1")!.evaluated.format).toBe("#,##0[$$]");
+          expect(getCell(model, "A2")!.evaluated.format).toBe("#,##0[$$]");
         });
 
         test("with the formula declared before the reference ", () => {
           const model = new Model();
           setCellContent(model, "A1", "=1+A2");
-          setCellContent(model, "A2", "3%");
+          expect(getCell(model, "A1")!.evaluated.format).toBe(undefined);
 
-          expect(getCell(model, "A1")!.format).toBeUndefined();
-          expect(getCell(model, "A2")!.format).toBe("0%");
+          setCellContent(model, "A2", "3%");
+          expect(getCell(model, "A1")!.evaluated.format).toBe("0%");
+          expect(getCell(model, "A2")!.evaluated.format).toBe("0%");
+        });
+
+        test("with the formula declared before the reference and format seted on the formula", () => {
+          const model = new Model();
+          setCellContent(model, "A1", "=1+A2");
+          expect(getCell(model, "A1")!.evaluated.format).toBe(undefined);
+
+          setCellFormat(model, "A1", "#,##0[$$]");
+          setCellContent(model, "A2", "3%");
+          expect(getCell(model, "A1")!.evaluated.format).toBe("#,##0[$$]");
+          expect(getCell(model, "A2")!.evaluated.format).toBe("0%");
+        });
+
+        test("with the formula declared before the reference and format seted on the reference", () => {
+          const model = new Model();
+          setCellContent(model, "A1", "=1+A2");
+          expect(getCell(model, "A1")!.evaluated.format).toBe(undefined);
+
+          setCellContent(model, "A2", "3%");
+          setCellFormat(model, "A2", "#,##0[$$]");
+          expect(getCell(model, "A1")!.evaluated.format).toBe("#,##0[$$]");
+          expect(getCell(model, "A2")!.evaluated.format).toBe("#,##0[$$]");
         });
       });
     });
