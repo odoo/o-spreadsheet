@@ -634,7 +634,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const thinLineWidth = 0.4 * dpr;
     const renderingContext = {
       ctx,
-      viewport: this.env.model.getters.getActiveViewport(),
       dpr,
       thinLineWidth,
     };

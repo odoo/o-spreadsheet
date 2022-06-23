@@ -86,7 +86,9 @@ export class SelectionMultiUserPlugin extends UIPlugin {
     if (this.getters.isDashboard()) {
       return;
     }
-    const { viewport, ctx, thinLineWidth } = renderingContext;
+    const { ctx, thinLineWidth } = renderingContext;
+    const viewport = this.getters.getActiveViewport();
+
     const activeSheetId = this.getters.getActiveSheetId();
     for (const client of this.getClientsToDisplay()) {
       const { row, col } = client.position!;

@@ -712,7 +712,8 @@ export class ClipboardPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   drawGrid(renderingContext: GridRenderingContext) {
-    const { viewport, ctx, thinLineWidth } = renderingContext;
+    const { ctx, thinLineWidth } = renderingContext;
+    const viewport = this.getters.getActiveViewport();
     if (
       this.status !== "visible" ||
       !this.state ||
