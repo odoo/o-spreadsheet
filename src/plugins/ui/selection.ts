@@ -26,7 +26,6 @@ import {
   CommandDispatcher,
   CommandResult,
   Dimension,
-  Figure,
   Getters,
   GridRenderingContext,
   LAYERS,
@@ -103,7 +102,6 @@ export class GridSelectionPlugin extends UIPlugin {
     "getStatisticFnResults",
     "getAggregate",
     "getSelectedFigureId",
-    "getVisibleFigures",
     "getSelection",
     "getPosition",
     "getSheetPosition",
@@ -460,24 +458,6 @@ export class GridSelectionPlugin extends UIPlugin {
 
   isSelected(zone: Zone): boolean {
     return !!this.getters.getSelectedZones().find((z) => isEqual(z, zone));
-  }
-
-  getVisibleFigures(): Figure[] {
-    const sheetId = this.getters.getActiveSheetId();
-    const result: Figure[] = [];
-    const figures = this.getters.getFigures(sheetId);
-    const { offsetX, offsetY } = this.getters.getActiveViewport();
-    const { width, height } = this.getters.getViewportDimensionWithHeaders();
-    for (let figure of figures) {
-      if (figure.x >= offsetX + width || figure.x + figure.width <= offsetX) {
-        continue;
-      }
-      if (figure.y >= offsetY + height || figure.y + figure.height <= offsetY) {
-        continue;
-      }
-      result.push(figure);
-    }
-    return result;
   }
 
   /**

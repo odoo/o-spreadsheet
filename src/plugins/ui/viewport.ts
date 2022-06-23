@@ -10,6 +10,7 @@ import {
   Command,
   CommandResult,
   Dimension,
+  Figure,
   Position,
   Sheet,
   UID,
@@ -37,6 +38,7 @@ export class ViewportPlugin extends UIPlugin {
     "getViewportDimensionWithHeaders",
     "getMaxViewportSize",
     "getMaximumViewportOffset",
+    "getVisibleFigures",
   ] as const;
 
   readonly viewports: ViewportPluginState["viewports"] = {};
@@ -470,5 +472,23 @@ export class ViewportPlugin extends UIPlugin {
     const { anchor } = this.getters.getSelection();
     const deltaRow = this.getActiveViewport().top - top;
     this.selection.selectCell(anchor.cell.col, anchor.cell.row + deltaRow);
+  }
+
+  getVisibleFigures(): Figure[] {
+    const sheetId = this.getters.getActiveSheetId();
+    const result: Figure[] = [];
+    const figures = this.getters.getFigures(sheetId);
+    const { offsetX, offsetY } = this.getters.getActiveViewport();
+    const { width, height } = this.getters.getViewportDimensionWithHeaders();
+    for (let figure of figures) {
+      if (figure.x >= offsetX + width || figure.x + figure.width <= offsetX) {
+        continue;
+      }
+      if (figure.y >= offsetY + height || figure.y + figure.height <= offsetY) {
+        continue;
+      }
+      result.push(figure);
+    }
+    return result;
   }
 }
