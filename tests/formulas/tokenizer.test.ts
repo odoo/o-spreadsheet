@@ -91,6 +91,10 @@ describe("tokenizer", () => {
     ]);
   });
 
+  test.each([`"hello'`, `"hello`, `"hello\\"`])("string without closing double quotes", (chars) => {
+    expect(tokenize(chars)).toEqual([{ type: "STRING", value: chars }]);
+  });
+
   test("Function token", () => {
     expect(tokenize("SUM")).toEqual([{ type: "FUNCTION", value: "SUM" }]);
     expect(tokenize("RAND")).toEqual([{ type: "FUNCTION", value: "RAND" }]);

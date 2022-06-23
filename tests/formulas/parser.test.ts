@@ -134,6 +134,11 @@ describe("parser", () => {
     expect(() => parse("#REF")).toThrowError(new InvalidReferenceError().message);
   });
 
+  test("can parse string without closing double quotes", () => {
+    expect(parse('"hello')).toEqual({ type: "STRING", value: "hello" });
+    expect(parse('"hello\\"')).toEqual({ type: "STRING", value: 'hello\\"' });
+  });
+
   test("AND", () => {
     expect(parse("=AND(true, false)")).toEqual({
       type: "FUNCALL",
@@ -163,7 +168,7 @@ describe("Converting AST to string", () => {
   test("Convert number", () => {
     expect(astToFormula(parse("1"))).toBe("1");
   });
-  test("Convert string", () => {
+  test("Convert stringqsf", () => {
     expect(astToFormula(parse(`"hello"`))).toBe(`"hello"`);
   });
   test("Convert boolean", () => {
