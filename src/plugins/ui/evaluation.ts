@@ -61,7 +61,7 @@ export class EvaluationPlugin extends UIPlugin {
     }
     switch (cmd.type) {
       case "UPDATE_CELL":
-        if ("content" in cmd) {
+        if ("content" in cmd || "format" in cmd) {
           this.isUpToDate.clear();
         }
         break;
@@ -124,7 +124,7 @@ export class EvaluationPlugin extends UIPlugin {
 
   private evaluate(sheetId: UID) {
     const cells = this.getters.getCells(sheetId);
-    const params = this.getFormulaParameters(computeValue);
+    const params = this.getFormulaParameters(computeCell);
     const visited: { [cellId: string]: boolean | null } = {};
     for (let cell of Object.values(cells)) {
       if (cell.isFormula()) {
@@ -133,7 +133,7 @@ export class EvaluationPlugin extends UIPlugin {
     }
 
     for (let cell of Object.values(cells)) {
-      computeValue(cell);
+      computeCell(cell);
     }
 
     function handleError(e: Error | any, cell: FormulaCell) {
@@ -155,7 +155,7 @@ export class EvaluationPlugin extends UIPlugin {
       }
     }
 
-    function computeValue(cell: Cell) {
+    function computeCell(cell: Cell) {
       if (!cell.isFormula()) {
         return;
       }
@@ -173,7 +173,11 @@ export class EvaluationPlugin extends UIPlugin {
           const position = params[2].getters.getCellPosition(cellId);
           return toXC(position.col, position.row);
         };
-        cell.assignValue(cell.compiledFormula.execute(cell.dependencies, ...params));
+        cell.assignEvaluation(
+          cell.compiledFormula.execute(cell.dependencies, ...params),
+          cell.format ||
+            params[2].getters.inferFormulaFormat(cell.compiledFormula, cell.dependencies)
+        );
         if (Array.isArray(cell.evaluated.value)) {
           // if a value returns an array (like =A1:A3)
           throw new Error(_lt("This formula depends on invalid values"));
@@ -191,7 +195,7 @@ export class EvaluationPlugin extends UIPlugin {
    * - a range function to convert any reference to a proper value array
    * - an evaluation context
    */
-  private getFormulaParameters(computeValue: (cell: Cell) => void): FormulaParameters {
+  private getFormulaParameters(computeCell: (cell: Cell) => void): FormulaParameters {
     const evalContext = Object.assign(Object.create(functionMap), this.evalContext, {
       getters: this.getters,
     });
@@ -219,7 +223,7 @@ export class EvaluationPlugin extends UIPlugin {
           cell.evaluated.error.logLevel
         );
       }
-      computeValue(cell);
+      computeCell(cell);
       if (cell.evaluated.type === CellValueType.error) {
         throw new EvaluationError(
           cell.evaluated.value,

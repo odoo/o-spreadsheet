@@ -35,17 +35,13 @@ cellRegistry
       const dependencies = compiledFormula.dependencies.map((xc) =>
         getters.getRangeFromSheetXC(sheetId, xc)
       );
-      const format = properties.format || getters.inferFormulaFormat(compiledFormula, dependencies);
       return new FormulaCell(
         (cell: FormulaCell) => getters.buildFormulaContent(sheetId, cell),
         id,
         content,
         compiledFormula,
         dependencies,
-        {
-          ...properties,
-          format,
-        }
+        properties
       );
     },
   })

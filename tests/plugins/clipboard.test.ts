@@ -20,6 +20,7 @@ import {
   selectCell,
   setAnchorCorner,
   setCellContent,
+  setCellFormat,
   undo,
 } from "../test_helpers/commands_helpers";
 import {
@@ -1327,6 +1328,94 @@ describe("clipboard", () => {
     expect(getCellContent(model, "B1")).toBe("3");
     expect(getCellContent(model, "B2")).toBe("TRUE");
     expect(getCellContent(model, "B3")).toBe("Kikou");
+  });
+
+  test("can copy a formula and paste -> apply the format defined by user, if not apply the automatic evaluated format ", () => {
+    const model = new Model();
+
+    // formula without format
+    setCellContent(model, "A1", "=SUM(1+2)");
+
+    // formula with format seted on it
+    setCellContent(model, "A2", "=SUM(1+2)");
+    setCellFormat(model, "A2", "0%");
+
+    // formula that return value with format
+    setCellContent(model, "A3", "=DATE(2042,1,1)");
+
+    // formula that return value with format and other format seted on it
+    setCellContent(model, "A4", "=DATE(2042,1,1)");
+    setCellFormat(model, "A4", "0%");
+
+    // formula that return value with format infered from reference
+    setCellContent(model, "A5", "3");
+    setCellFormat(model, "A5", "0%");
+    setCellContent(model, "A6", "=SUM(1+A5)");
+
+    // formula that return value with format infered from reference and other format seted on it
+    setCellContent(model, "A7", "3");
+    setCellFormat(model, "A7", "0%");
+    setCellContent(model, "A8", "=SUM(1+A7)");
+    setCellFormat(model, "A8", "#,##0[$$]");
+
+    copy(model, "A1:A8");
+    paste(model, "B1", false);
+
+    setCellFormat(model, "B5", "#,##0[$$]");
+    setCellFormat(model, "B7", "0%");
+
+    expect(getCellContent(model, "B1")).toBe("3");
+    expect(getCellContent(model, "B2")).toBe("300%");
+    expect(getCellContent(model, "B3")).toBe("1/1/2042");
+    expect(getCellContent(model, "B4")).toBe("5186700%");
+    expect(getCellContent(model, "B6")).toBe("4$");
+    expect(getCellContent(model, "B8")).toBe("4$");
+  });
+
+  test("can copy a formula and paste format only --> apply the automatic evaluated format", () => {
+    const model = new Model();
+
+    // formula without format
+    setCellContent(model, "A1", "=SUM(1+2)");
+
+    // formula with format seted on it
+    setCellContent(model, "A2", "=SUM(1+2)");
+    setCellFormat(model, "A2", "0%");
+
+    // formula that return value with format
+    setCellContent(model, "A3", "=DATE(2042,1,1)");
+
+    // formula that return value with format and other format seted on it
+    setCellContent(model, "A4", "=DATE(2042,1,1)");
+    setCellFormat(model, "A4", "0%");
+
+    // formula that return value with format infered from reference
+    setCellContent(model, "A5", "3");
+    setCellFormat(model, "A5", "0%");
+    setCellContent(model, "A6", "=SUM(1+A5)");
+
+    // formula that return value with format infered from reference and other format seted on it
+    setCellContent(model, "A7", "3");
+    setCellFormat(model, "A7", "0%");
+    setCellContent(model, "A8", "=SUM(1+A7)");
+    setCellFormat(model, "A8", "#,##0[$$]");
+
+    setCellContent(model, "B1", "42");
+    setCellContent(model, "B2", "42");
+    setCellContent(model, "B3", "42");
+    setCellContent(model, "B4", "42");
+    setCellContent(model, "B6", "42");
+    setCellContent(model, "B8", "42");
+
+    copy(model, "A1:A8");
+    paste(model, "B1", false, "onlyFormat");
+
+    expect(getCellContent(model, "B1")).toBe("42");
+    expect(getCellContent(model, "B2")).toBe("4200%");
+    expect(getCellContent(model, "B3")).toBe("2/10/1900");
+    expect(getCellContent(model, "B4")).toBe("4200%");
+    expect(getCellContent(model, "B6")).toBe("4200%");
+    expect(getCellContent(model, "B8")).toBe("42$");
   });
 
   test("can undo a paste value only", () => {

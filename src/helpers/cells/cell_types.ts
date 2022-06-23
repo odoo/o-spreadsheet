@@ -33,10 +33,12 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
   readonly style?: Style;
   readonly format?: Format;
   abstract content: string;
+  public evaluated: T;
 
-  constructor(readonly id: UID, public evaluated: T, properties: CellDisplayProperties) {
+  constructor(readonly id: UID, evaluated: T, properties: CellDisplayProperties) {
     this.style = properties.style;
     this.format = properties.format;
+    this.evaluated = { ...evaluated, format: evaluated.format || properties.format };
   }
   isFormula(): this is IFormulaCell {
     return false;
@@ -51,7 +53,7 @@ abstract class AbstractCell<T extends CellEvaluation = CellEvaluation> implement
   }
 
   get formattedValue() {
-    return formatValue(this.evaluated.value, this.format);
+    return formatValue(this.evaluated.value, this.evaluated.format);
   }
 
   get composerContent() {
@@ -261,23 +263,26 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
     this.evaluated = { value: LOADING, type: CellValueType.text };
   }
 
-  assignValue(value: CellValue) {
+  assignEvaluation(value: CellValue, format: Format) {
     switch (typeof value) {
       case "number":
         this.evaluated = {
           value,
+          format,
           type: CellValueType.number,
         };
         break;
       case "boolean":
         this.evaluated = {
           value,
+          format,
           type: CellValueType.boolean,
         };
         break;
       case "string":
         this.evaluated = {
           value,
+          format,
           type: CellValueType.text,
         };
         break;
@@ -287,12 +292,14 @@ export class FormulaCell extends AbstractCell implements IFormulaCell {
       case "object": // null
         this.evaluated = {
           value,
+          format,
           type: CellValueType.empty,
         };
         break;
       case "undefined":
         this.evaluated = {
           value,
+          format,
           type: CellValueType.empty,
         };
         break;
