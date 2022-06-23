@@ -714,7 +714,8 @@ export class GridSelectionPlugin extends UIPlugin {
     if (this.getters.isDashboard()) {
       return;
     }
-    const { viewport, ctx, thinLineWidth } = renderingContext;
+    const { ctx, thinLineWidth } = renderingContext;
+    const viewport = this.getters.getActiveViewport();
     // selection
     const zones = this.getSelectedZones();
     ctx.fillStyle = "#f3f7fe";

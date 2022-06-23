@@ -272,8 +272,10 @@ export class FindAndReplacePlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   drawGrid(renderingContext: GridRenderingContext) {
-    const { ctx, viewport } = renderingContext;
+    const { ctx } = renderingContext;
     const sheetId = this.getters.getActiveSheetId();
+    const viewport = this.getters.getActiveViewport();
+
     for (const match of this.searchMatches) {
       const merge = this.getters.getMerge(sheetId, match.col, match.row);
       const left = merge ? merge.left : match.col;

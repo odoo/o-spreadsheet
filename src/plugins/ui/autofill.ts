@@ -426,7 +426,8 @@ export class AutofillPlugin extends UIPlugin {
     if (!this.autofillZone) {
       return;
     }
-    const { viewport, ctx, thinLineWidth } = renderingContext;
+    const { ctx, thinLineWidth } = renderingContext;
+    const viewport = this.getters.getActiveViewport();
     const [x, y, width, height] = this.getters.getRect(this.autofillZone, viewport);
     if (width > 0 && height > 0) {
       ctx.strokeStyle = "black";

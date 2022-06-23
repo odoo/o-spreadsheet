@@ -70,7 +70,6 @@ export interface Viewport extends Zone {
 
 export interface GridRenderingContext {
   ctx: CanvasRenderingContext2D;
-  viewport: Viewport;
   dpr: number;
   thinLineWidth: number;
 }

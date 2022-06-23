@@ -51,7 +51,9 @@ export class HighlightPlugin extends UIPlugin {
 
   drawGrid(renderingContext: GridRenderingContext) {
     // rendering selection highlights
-    const { ctx, viewport, thinLineWidth } = renderingContext;
+    const { ctx, thinLineWidth } = renderingContext;
+    const viewport = this.getters.getActiveViewport();
+
     const sheetId = this.getters.getActiveSheetId();
     const lineWidth = 3 * thinLineWidth;
     ctx.lineWidth = lineWidth;
