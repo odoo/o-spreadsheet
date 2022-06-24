@@ -30,8 +30,8 @@ import {
 
 chartRegistry.add("scorecard", {
   match: (type) => type === "scorecard",
-  createChart: (id, definition, sheetId, getters) =>
-    new ScorecardChart(id, definition as ScorecardChartDefinition, sheetId, getters),
+  createChart: (definition, sheetId, getters) =>
+    new ScorecardChart(definition as ScorecardChartDefinition, sheetId, getters),
   getChartRuntime: createScorecardChartRuntime,
   validateChartDefinition: (validator, definition) =>
     ScorecardChart.validateChartDefinition(validator, definition as ScorecardChartDefinition),
@@ -71,8 +71,8 @@ export class ScorecardChart extends AbstractChart {
   readonly fontColor?: string;
   readonly type = "scorecard";
 
-  constructor(id: UID, definition: ScorecardChartDefinition, sheetId: UID, getters: CoreGetters) {
-    super(id, definition, sheetId, getters);
+  constructor(definition: ScorecardChartDefinition, sheetId: UID, getters: CoreGetters) {
+    super(definition, sheetId, getters);
     this.keyValue = createRange(getters, sheetId, definition.keyValue);
     this.baseline = createRange(getters, sheetId, definition.baseline);
     this.baselineMode = definition.baselineMode;
@@ -130,7 +130,7 @@ export class ScorecardChart extends AbstractChart {
     const baseline = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.baseline);
     const keyValue = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.keyValue);
     const definition = this.getDefinitionWithSpecificRanges(baseline, keyValue);
-    return new ScorecardChart(this.id, definition, sheetId, this.getters);
+    return new ScorecardChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): ScorecardChartDefinition {
@@ -186,7 +186,7 @@ export class ScorecardChart extends AbstractChart {
       return this;
     }
     const definition = this.getDefinitionWithSpecificRanges(baseline, keyValue);
-    return new ScorecardChart(this.id, definition, this.sheetId, this.getters);
+    return new ScorecardChart(definition, this.sheetId, this.getters);
   }
 }
 

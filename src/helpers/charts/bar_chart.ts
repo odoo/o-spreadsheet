@@ -46,8 +46,8 @@ import {
 
 chartRegistry.add("bar", {
   match: (type) => type === "bar",
-  createChart: (id, definition, sheetId, getters) =>
-    new BarChart(id, definition as BarChartDefinition, sheetId, getters),
+  createChart: (definition, sheetId, getters) =>
+    new BarChart(definition as BarChartDefinition, sheetId, getters),
   getChartRuntime: createBarChartRuntime,
   validateChartDefinition: (validator, definition: BarChartDefinition) =>
     BarChart.validateChartDefinition(validator, definition),
@@ -69,8 +69,8 @@ export class BarChart extends AbstractChart {
   readonly stackedBar: boolean;
   readonly type = "bar";
 
-  constructor(id: UID, definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
-    super(id, definition, sheetId, getters);
+  constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
+    super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
       definition.dataSets,
@@ -131,7 +131,7 @@ export class BarChart extends AbstractChart {
     const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
     const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
-    return new BarChart(this.id, definition, sheetId, this.getters);
+    return new BarChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): BarChartDefinition {
@@ -198,7 +198,7 @@ export class BarChart extends AbstractChart {
       return this;
     }
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
-    return new BarChart(this.id, definition, this.sheetId, this.getters);
+    return new BarChart(definition, this.sheetId, this.getters);
   }
 }
 

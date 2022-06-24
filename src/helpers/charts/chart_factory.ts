@@ -20,7 +20,7 @@ export function chartFactory(getters: CoreGetters) {
     if (!builder) {
       throw new Error(`No builder for this chart: ${definition.type}`);
     }
-    return builder.createChart(id, definition, sheetId, getters);
+    return builder.createChart(definition, sheetId, getters);
   }
 
   return createChart;

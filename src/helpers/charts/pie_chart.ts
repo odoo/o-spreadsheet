@@ -53,8 +53,8 @@ import {
 
 chartRegistry.add("pie", {
   match: (type) => type === "pie",
-  createChart: (id, definition, sheetId, getters) =>
-    new PieChart(id, definition as PieChartDefinition, sheetId, getters),
+  createChart: (definition, sheetId, getters) =>
+    new PieChart(definition as PieChartDefinition, sheetId, getters),
   getChartRuntime: createPieChartRuntime,
   validateChartDefinition: (validator, definition: PieChartDefinition) =>
     PieChart.validateChartDefinition(validator, definition),
@@ -74,8 +74,8 @@ export class PieChart extends AbstractChart {
   readonly legendPosition: LegendPosition;
   readonly type = "pie";
 
-  constructor(id: UID, definition: PieChartDefinition, sheetId: UID, getters: CoreGetters) {
-    super(id, definition, sheetId, getters);
+  constructor(definition: PieChartDefinition, sheetId: UID, getters: CoreGetters) {
+    super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
       definition.dataSets,
@@ -153,7 +153,7 @@ export class PieChart extends AbstractChart {
     const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
     const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
-    return new PieChart(this.id, definition, sheetId, this.getters);
+    return new PieChart(definition, sheetId, this.getters);
   }
 
   getDefinitionForExcel(): ExcelChartDefinition {
@@ -197,7 +197,7 @@ export class PieChart extends AbstractChart {
       return this;
     }
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
-    return new PieChart(this.id, definition, this.sheetId, this.getters);
+    return new PieChart(definition, this.sheetId, this.getters);
   }
 }
 

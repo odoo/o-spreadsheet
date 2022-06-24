@@ -19,14 +19,12 @@ import { Validator } from "../../types/validator";
  * The role of this class is to maintain the state of each chart.
  */
 export abstract class AbstractChart {
-  readonly id: UID;
   readonly sheetId: UID;
   readonly title: string;
   abstract readonly type: ChartType;
   protected readonly getters: CoreGetters;
 
-  constructor(id: UID, definition: ChartDefinition, sheetId: UID, getters: CoreGetters) {
-    this.id = id;
+  constructor(definition: ChartDefinition, sheetId: UID, getters: CoreGetters) {
     this.title = definition.title;
     this.sheetId = sheetId;
     this.getters = getters;

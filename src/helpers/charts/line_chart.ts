@@ -51,8 +51,8 @@ import {
 
 chartRegistry.add("line", {
   match: (type) => type === "line",
-  createChart: (id, definition, sheetId, getters) =>
-    new LineChart(id, definition as LineChartDefinition, sheetId, getters),
+  createChart: (definition, sheetId, getters) =>
+    new LineChart(definition as LineChartDefinition, sheetId, getters),
   getChartRuntime: createLineChartRuntime,
   validateChartDefinition: (validator, definition) =>
     LineChart.validateChartDefinition(validator, definition as LineChartDefinition),
@@ -74,8 +74,8 @@ export class LineChart extends AbstractChart {
   readonly labelsAsText: boolean;
   readonly type = "line";
 
-  constructor(id: UID, definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
-    super(id, definition, sheetId, getters);
+  constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
+    super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       this.getters,
       definition.dataSets,
@@ -166,7 +166,7 @@ export class LineChart extends AbstractChart {
       return this;
     }
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
-    return new LineChart(this.id, definition, this.sheetId, this.getters);
+    return new LineChart(definition, this.sheetId, this.getters);
   }
 
   getDefinitionForExcel(): ExcelChartDefinition {
@@ -185,7 +185,7 @@ export class LineChart extends AbstractChart {
     const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
     const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
-    return new LineChart(this.id, definition, sheetId, this.getters);
+    return new LineChart(definition, sheetId, this.getters);
   }
 
   getSheetIdsUsedInChartRanges(): UID[] {
