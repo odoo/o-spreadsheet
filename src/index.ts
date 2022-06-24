@@ -3,7 +3,6 @@ import { ScorecardChart } from "./components/figures/chart/scorecard/chart_score
 import { ChartFigure } from "./components/figures/figure_chart/figure_chart";
 import {
   BarConfigPanel,
-  ChartPanel,
   chartSidePanelComponentRegistry,
   GaugeChartConfigPanel,
   GaugeChartDesignPanel,
@@ -13,6 +12,7 @@ import {
   ScorecardChartConfigPanel,
   ScorecardChartDesignPanel,
 } from "./components/side_panel/chart";
+import { ChartPanel } from "./components/side_panel/chart/main_chart_panel/main_chart_panel";
 import {
   BOTTOMBAR_HEIGHT,
   DEFAULT_CELL_HEIGHT,
