@@ -37,8 +37,8 @@ import { getDefaultChartJsRuntime } from "./chart_ui_common";
 
 chartRegistry.add("gauge", {
   match: (type) => type === "gauge",
-  createChart: (id, definition, sheetId, getters) =>
-    new GaugeChart(id, definition as GaugeChartDefinition, sheetId, getters),
+  createChart: (definition, sheetId, getters) =>
+    new GaugeChart(definition as GaugeChartDefinition, sheetId, getters),
   getChartRuntime: createGaugeChartRuntime,
   validateChartDefinition: (validator, definition) =>
     GaugeChart.validateChartDefinition(validator, definition as GaugeChartDefinition),
@@ -156,8 +156,8 @@ export class GaugeChart extends AbstractChart {
   readonly background: string;
   readonly type = "gauge";
 
-  constructor(id: UID, definition: GaugeChartDefinition, sheetId: UID, getters: CoreGetters) {
-    super(id, definition, sheetId, getters);
+  constructor(definition: GaugeChartDefinition, sheetId: UID, getters: CoreGetters) {
+    super(definition, sheetId, getters);
     this.dataRange = createRange(this.getters, this.sheetId, definition.dataRange);
     this.sectionRule = definition.sectionRule;
     this.background = definition.background;
@@ -223,7 +223,7 @@ export class GaugeChart extends AbstractChart {
   copyForSheetId(sheetId: string): GaugeChart {
     const dataRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.dataRange);
     const definition = this.getDefinitionWithSpecificRanges(dataRange);
-    return new GaugeChart(this.id, definition, sheetId, this.getters);
+    return new GaugeChart(definition, sheetId, this.getters);
   }
 
   getSheetIdsUsedInChartRanges(): UID[] {
@@ -263,7 +263,7 @@ export class GaugeChart extends AbstractChart {
       return this;
     }
     const definition = this.getDefinitionWithSpecificRanges(range);
-    return new GaugeChart(this.id, definition, this.sheetId, this.getters);
+    return new GaugeChart(definition, this.sheetId, this.getters);
   }
 }
 

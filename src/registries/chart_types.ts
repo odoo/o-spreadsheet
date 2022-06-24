@@ -29,12 +29,7 @@ interface ChartBuilder {
    * Check if this factory should be used
    */
   match: (type: ChartType) => boolean;
-  createChart: (
-    id: UID,
-    definition: ChartDefinition,
-    sheetId: UID,
-    getters: CoreGetters
-  ) => AbstractChart;
+  createChart: (definition: ChartDefinition, sheetId: UID, getters: CoreGetters) => AbstractChart;
   getChartRuntime: (chart: AbstractChart, getters: Getters) => ChartRuntime;
   validateChartDefinition(
     validator: Validator,
