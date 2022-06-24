@@ -19,6 +19,7 @@ export { LineBarPieConfigPanel } from "./line_bar_pie_panel/config_panel";
 export { LineBarPieDesignPanel } from "./line_bar_pie_panel/design_panel";
 export { LineConfigPanel } from "./line_chart/line_chart_config_panel";
 export { LineChartDesignPanel } from "./line_chart/line_chart_design_panel";
+export { ChartPanel } from "./main_chart_panel/main_chart_panel";
 export { ScorecardChartConfigPanel } from "./scorecard_chart_panel/scorecard_chart_config_panel";
 export { ScorecardChartDesignPanel } from "./scorecard_chart_panel/scorecard_chart_design_panel";
 

@@ -3,6 +3,7 @@ import { ScorecardChart } from "./components/figures/chart/scorecard/chart_score
 import { ChartFigure } from "./components/figures/figure_chart/figure_chart";
 import {
   BarConfigPanel,
+  ChartPanel,
   chartSidePanelComponentRegistry,
   GaugeChartConfigPanel,
   GaugeChartDesignPanel,
@@ -26,6 +27,7 @@ import {
 import { toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
 import { LinkCell } from "./helpers/cells/index";
+import { ChartColors, chartFontColor, getDefaultChartJsRuntime } from "./helpers/charts";
 import {
   computeTextWidth,
   formatValue,
@@ -59,7 +61,7 @@ import {
   topbarComponentRegistry,
   topbarMenuRegistry,
 } from "./registries/index";
-import { EvaluationError } from "./types/errors";
+import { CellErrorLevel, EvaluationError } from "./types/errors";
 
 /**
  * We export here all entities that needs to be accessed publicly by Odoo.
@@ -151,9 +153,14 @@ export const helpers = {
   parseMarkdownLink,
   markdownLink,
   createEmptyWorkbookData,
+  getDefaultChartJsRuntime,
+  chartFontColor,
+  ChartColors,
   EvaluationError,
+  CellErrorLevel,
 };
 export const components = {
+  ChartPanel,
   ChartFigure,
   ChartJsComponent,
   ScorecardChart,
