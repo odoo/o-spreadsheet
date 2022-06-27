@@ -62,13 +62,12 @@ export class HighlightPlugin extends UIPlugin {
      * In order to avoid superposing the same color layer and modifying the final
      * opacity, we filter highlights to remove duplicates.
      */
-
-    for (let h of this.getHighlights().filter(
+    const highlights = this.getHighlights();
+    for (let h of highlights.filter(
       (highlight, index) =>
         // For every highlight in the sheet, deduplicated by zone
-        this.getHighlights().findIndex(
-          (h) => isEqual(h.zone, highlight.zone) && h.sheetId === sheetId
-        ) === index
+        highlights.findIndex((h) => isEqual(h.zone, highlight.zone) && h.sheetId === sheetId) ===
+        index
     )) {
       const [x, y, width, height] = this.getters.getRect(h.zone, viewport);
       if (width > 0 && height > 0) {
