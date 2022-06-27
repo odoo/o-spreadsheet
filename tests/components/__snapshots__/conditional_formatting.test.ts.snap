@@ -52,10 +52,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
                 <div
                   class="o-cf-preview-description-rule"
                 >
-                  Is equal to
-                   2
-                  
-                  
+                  Is equal to 2
                 </div>
               </div>
               <div
@@ -108,7 +105,6 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
                   class="o-cf-preview-description-rule"
                 >
                   Color scale
-                  
                 </div>
               </div>
               <div

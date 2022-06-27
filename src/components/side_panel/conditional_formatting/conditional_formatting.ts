@@ -425,7 +425,14 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
   getDescription(cf: ConditionalFormat): string {
     switch (cf.rule.type) {
       case "CellIsRule":
-        return CellIsOperators[cf.rule.operator];
+        const description = CellIsOperators[cf.rule.operator];
+        if (cf.rule.values.length === 1) {
+          return this.env._t(`${description} ${cf.rule.values[0]}`);
+        }
+        if (cf.rule.values.length === 2) {
+          return this.env._t(`${description} ${cf.rule.values[0]} and ${cf.rule.values[1]}`);
+        }
+        return description;
       case "ColorScaleRule":
         return CfTerms.ColorScale;
       case "IconSetRule":
