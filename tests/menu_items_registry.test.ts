@@ -1,6 +1,7 @@
 import { App } from "@odoo/owl";
 import { Model, Spreadsheet } from "../src";
 import { fontSizes } from "../src/fonts";
+import { zoneToXc } from "../src/helpers";
 import { interactivePaste } from "../src/helpers/ui/paste";
 import {
   colMenuRegistry,
@@ -22,6 +23,7 @@ import {
 import {
   addColumns,
   addRows,
+  copy,
   hideColumns,
   hideRows,
   selectCell,
@@ -179,18 +181,14 @@ describe("Menu Item actions", () => {
     jest.spyOn(navigator, "clipboard", "get").mockImplementation(() => clipboard);
     env.clipboard.writeText = jest.fn(() => Promise.resolve());
     doAction(["edit", "copy"], env);
-    expect(dispatch).toHaveBeenCalledWith("COPY", {
-      target: env.model.getters.getSelectedZones(),
-    });
+    expect(dispatch).toHaveBeenCalledWith("COPY");
     expect(env.clipboard.writeText).toHaveBeenCalledWith(env.model.getters.getClipboardContent());
   });
 
   test("Edit -> cut", () => {
     env.clipboard.writeText = jest.fn(() => Promise.resolve());
     doAction(["edit", "cut"], env);
-    expect(dispatch).toHaveBeenCalledWith("CUT", {
-      target: env.model.getters.getSelectedZones(),
-    });
+    expect(dispatch).toHaveBeenCalledWith("CUT");
     expect(env.clipboard.writeText).toHaveBeenCalledWith(env.model.getters.getClipboardContent());
   });
 
@@ -220,7 +218,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> paste_special should not be hidden after a COPY ", () => {
-    model.dispatch("COPY", { target: env.model.getters.getSelectedZones() });
+    copy(model, env.model.getters.getSelectedZones().map(zoneToXc).join(","));
     expect(getNode(["edit", "paste_special"]).isVisible(env)).toBeTruthy();
   });
 

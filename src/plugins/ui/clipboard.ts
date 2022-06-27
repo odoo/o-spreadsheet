@@ -53,7 +53,8 @@ export class ClipboardPlugin extends UIPlugin {
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "CUT":
-        return this.isCutAllowed(cmd.target);
+        const zones = cmd.target || this.getters.getSelectedZones();
+        return this.isCutAllowed(zones);
       case "PASTE":
         const pasteOption = cmd.pasteOption || (this._isPaintingFormat ? "onlyFormat" : undefined);
         return this.isPasteAllowed(this.state, cmd.target, pasteOption, !!cmd.force);
@@ -75,7 +76,8 @@ export class ClipboardPlugin extends UIPlugin {
     switch (cmd.type) {
       case "COPY":
       case "CUT":
-        this.state = this.getClipboardState(cmd.target, cmd.type);
+        const zones = ("target" in cmd && cmd.target) || this.getters.getSelectedZones();
+        this.state = this.getClipboardState(zones, cmd.type);
         this.status = "visible";
         break;
       case "PASTE":
@@ -139,11 +141,13 @@ export class ClipboardPlugin extends UIPlugin {
       case "PASTE_FROM_OS_CLIPBOARD":
         this.pasteFromClipboard(cmd.target, cmd.text);
         break;
-      case "ACTIVATE_PAINT_FORMAT":
-        this.state = this.getClipboardState(cmd.target, "COPY");
+      case "ACTIVATE_PAINT_FORMAT": {
+        const zones = this.getters.getSelectedZones();
+        this.state = this.getClipboardState(zones, "COPY");
         this._isPaintingFormat = true;
         this.status = "visible";
         break;
+      }
       default:
         if (isCoreCommand(cmd)) {
           this.status = "invisible";

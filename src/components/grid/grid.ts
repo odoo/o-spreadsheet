@@ -911,11 +911,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (this.env.model.getters.getEditionMode() !== "inactive") {
       return;
     }
-    const target = this.env.model.getters.getSelectedZones();
     if (cut) {
-      interactiveCut(this.env, target);
+      interactiveCut(this.env);
     } else {
-      this.env.model.dispatch("COPY", { target });
+      this.env.model.dispatch("COPY");
     }
     const content = this.env.model.getters.getClipboardContent();
     this.clipBoardString = content;

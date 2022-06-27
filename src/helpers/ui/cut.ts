@@ -1,9 +1,9 @@
 import { CommandResult } from "../..";
 import { _lt } from "../../translation";
-import { SpreadsheetChildEnv, Zone } from "../../types";
+import { SpreadsheetChildEnv } from "../../types";
 
-export function interactiveCut(env: SpreadsheetChildEnv, target: Zone[]) {
-  const result = env.model.dispatch("CUT", { target });
+export function interactiveCut(env: SpreadsheetChildEnv) {
+  const result = env.model.dispatch("CUT");
 
   if (!result.isSuccessful) {
     if (result.isCancelledBecause(CommandResult.WrongCutSelection)) {

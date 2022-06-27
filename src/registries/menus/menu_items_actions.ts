@@ -70,12 +70,12 @@ export const UNDO_ACTION = (env: SpreadsheetChildEnv) => env.model.dispatch("REQ
 export const REDO_ACTION = (env: SpreadsheetChildEnv) => env.model.dispatch("REQUEST_REDO");
 
 export const COPY_ACTION = async (env: SpreadsheetChildEnv) => {
-  env.model.dispatch("COPY", { target: env.model.getters.getSelectedZones() });
+  env.model.dispatch("COPY");
   await env.clipboard.writeText(env.model.getters.getClipboardContent());
 };
 
 export const CUT_ACTION = async (env: SpreadsheetChildEnv) => {
-  interactiveCut(env, env.model.getters.getSelectedZones());
+  interactiveCut(env);
   await env.clipboard.writeText(env.model.getters.getClipboardContent());
 };
 
