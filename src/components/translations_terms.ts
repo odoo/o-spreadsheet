@@ -51,15 +51,12 @@ export const ChartTerms = {
   Errors: {
     Unexpected: _lt("The chart definition is invalid for an unknown reason"),
     // BASIC CHART ERRORS (LINE | BAR | PIE)
-    [CommandResult.EmptyDataSet]: _lt("A dataset needs to be defined"),
     [CommandResult.InvalidDataSet]: _lt("The dataset is invalid"),
     [CommandResult.InvalidLabelRange]: _lt("Labels are invalid"),
     // SCORECARD CHART ERRORS
-    [CommandResult.EmptyScorecardKeyValue]: _lt("A key value must be defined"),
     [CommandResult.InvalidScorecardKeyValue]: _lt("The key value is invalid"),
     [CommandResult.InvalidScorecardBaseline]: _lt("The baseline value is invalid"),
     // GAUGE CHART ERRORS
-    [CommandResult.EmptyGaugeDataRange]: _lt("A data range must be defined"),
     [CommandResult.InvalidGaugeDataRange]: _lt("The data range is invalid"),
     [CommandResult.EmptyGaugeRangeMin]: _lt("A minimum range limit value is needed"),
     [CommandResult.GaugeRangeMinNaN]: _lt("The minimum range limit value must be a number"),

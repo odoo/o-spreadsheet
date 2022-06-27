@@ -57,10 +57,6 @@ type InflectionPointValueValidation = (
   inflectionPointName: string
 ) => CommandResult;
 
-function checkEmptyDataRange(definition: GaugeChartDefinition): CommandResult {
-  return !definition.dataRange ? CommandResult.EmptyGaugeDataRange : CommandResult.Success;
-}
-
 function isDataRangeValid(definition: GaugeChartDefinition): CommandResult {
   return definition.dataRange && !rangeReference.test(definition.dataRange)
     ? CommandResult.InvalidGaugeDataRange
@@ -169,7 +165,7 @@ export class GaugeChart extends AbstractChart {
   ): CommandResult | CommandResult[] {
     return validator.checkValidations(
       definition,
-      validator.chainValidations(checkEmptyDataRange, isDataRangeValid),
+      isDataRangeValid,
       validator.chainValidations(
         checkRangeLimits(checkEmpty, validator.batchValidations),
         checkRangeLimits(checkNaN, validator.batchValidations),

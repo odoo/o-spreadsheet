@@ -318,14 +318,6 @@ export function chartFontColor(backgroundColor: Color | undefined): Color {
   return relativeLuminance(backgroundColor) < 0.3 ? "#FFFFFF" : "#000000";
 }
 
-export function checkDatasetNotEmpty(
-  definition: LineChartDefinition | BarChartDefinition | PieChartDefinition
-): CommandResult {
-  return definition.dataSets && definition.dataSets.length === 0
-    ? CommandResult.EmptyDataSet
-    : CommandResult.Success;
-}
-
 export function checkDataset(
   definition: LineChartDefinition | BarChartDefinition | PieChartDefinition
 ): CommandResult {

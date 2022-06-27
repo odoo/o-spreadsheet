@@ -160,17 +160,6 @@ describe("datasource tests", function () {
     });
   });
 
-  test("create gauge chart empty data range", () => {
-    let result = createGaugeChart(
-      model,
-      {
-        dataRange: "",
-      },
-      "1"
-    );
-    expect(result).toBeCancelledBecause(CommandResult.EmptyGaugeDataRange);
-  });
-
   test("create gauge chart with invalid ranges", () => {
     let result = createGaugeChart(
       model,

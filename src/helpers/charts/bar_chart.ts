@@ -28,7 +28,6 @@ import {
   ChartColors,
   chartFontColor,
   checkDataset,
-  checkDatasetNotEmpty,
   checkLabelRange,
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
@@ -95,11 +94,7 @@ export class BarChart extends AbstractChart {
     validator: Validator,
     definition: BarChartDefinition
   ): CommandResult | CommandResult[] {
-    return validator.checkValidations(
-      definition,
-      validator.chainValidations(checkDatasetNotEmpty, checkDataset),
-      checkLabelRange
-    );
+    return validator.checkValidations(definition, checkDataset, checkLabelRange);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): BarChartDefinition {

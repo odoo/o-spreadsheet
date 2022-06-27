@@ -396,32 +396,6 @@ describe("figures", () => {
     }
   });
 
-  test.each([
-    ["scorecard", [".o-data-labels"], ["keyValue"]],
-    ["gauge", [".o-data-series"], ["dataRange"]],
-  ])(
-    "remove ranges in chart %s should not be committed",
-    async (chartType: string, rangesDomClasses, nameInChartDef) => {
-      createTestChart(chartType);
-      await nextTick();
-
-      for (let i = 0; i < rangesDomClasses.length; i++) {
-        const domClass = rangesDomClasses[i];
-        const attrName = nameInChartDef[i];
-        expect(model.getters.getChartDefinition(chartId)?.[attrName]).not.toBeUndefined();
-        parent.env.openSidePanel("ChartPanel", { figureId: chartId });
-        await nextTick();
-        await simulateClick(domClass + " input");
-        setInputValueAndTrigger(domClass + " input", "", "change");
-        await nextTick();
-        await simulateClick(domClass + " .o-selection-ok");
-        expect(
-          (parent.model.getters.getChartDefinition(chartId) as ChartDefinition)[attrName]
-        ).not.toBeUndefined(); //The update should have trigger a allowDispatch
-      }
-    }
-  );
-
   test("drawing of chart will receive new data after update", async () => {
     createTestChart("basicChart");
     await nextTick();
@@ -593,33 +567,6 @@ describe("figures", () => {
   );
 
   describe("Chart error messages", () => {
-    test.each([
-      ["basicChart", [CommandResult.EmptyDataSet]],
-      ["scorecard", [CommandResult.EmptyScorecardKeyValue]],
-      ["gauge", [CommandResult.EmptyGaugeDataRange]],
-    ])(
-      "update chart with empty dataset/keyValue/dataRange",
-      async (chartType: string, expectedResults: CommandResult[]) => {
-        createTestChart(chartType);
-        await nextTick();
-
-        await simulateClick(".o-figure");
-        await simulateClick(".o-chart-menu-item");
-        await simulateClick(".o-menu div[data-name='edit']");
-
-        await simulateClick(".o-data-series input");
-        setInputValueAndTrigger(".o-data-series input", "", "change");
-        await nextTick();
-        await simulateClick(".o-data-series .o-selection-ok");
-
-        const expectedErrors = expectedResults.map((result) =>
-          ChartTerms.Errors[result].toString()
-        );
-
-        expect(errorMessages()).toEqual(expectedErrors);
-      }
-    );
-
     test.each([
       ["basicChart", []],
       ["scorecard", []],
