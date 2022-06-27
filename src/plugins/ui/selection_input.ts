@@ -241,11 +241,14 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
     const XCs = this.cleanInputs([xc])
       .filter((range) => this.getters.isRangeValid(range))
       .filter((reference) => this.shouldBeHighlighted(this.activeSheet, reference));
-    return XCs.map((xc) => ({
-      zone: this.getters.getRangeFromSheetXC(this.activeSheet, xc).zone,
-      sheetId: this.activeSheet,
-      color,
-    }));
+    return XCs.map((xc) => {
+      const [, sheetName] = xc.split("!").reverse();
+      return {
+        zone: this.getters.getRangeFromSheetXC(this.activeSheet, xc).zone,
+        sheetId: (sheetName && this.getters.getSheetIdByName(sheetName)) || this.activeSheet,
+        color,
+      };
+    });
   }
 
   private cleanInputs(ranges: string[]): string[] {

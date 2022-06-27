@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { zoneToXc } from "../../src/helpers";
+import { toZone, zoneToXc } from "../../src/helpers";
 import { CommandResult } from "../../src/types";
 import {
   activateSheet,
@@ -19,9 +19,12 @@ function select(model: Model, xc: string) {
   model.dispatch("STOP_SELECTION_INPUT");
 }
 
+/** returns the highlighted zone in the current sheet */
 function highlightedZones(model: Model) {
+  const sheetId = model.getters.getActiveSheetId();
   return model.getters
     .getHighlights()
+    .filter((h) => h.sheetId === sheetId)
     .map((h) => h.zone)
     .map(zoneToXc);
 }
@@ -495,6 +498,21 @@ describe("selection input plugin", () => {
     expect(model.getters.getSelectionInput(id)[0].color).toBe(null);
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
     expect(model.getters.getSelectionInput(id)[0].color).toBe(color);
+  });
+
+  test("Pre-existing ranges from other sheets are selected", () => {
+    createSheet(model, { sheetId: "42", name: "Sheet2", activate: false });
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["Sheet2!A2"] });
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("Sheet2!A2");
+    model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+    expect(highlightedZones(model)).toEqual([]);
+    const firstSheetId = model.getters.getActiveSheetId();
+    activateSheet(model, "42", firstSheetId);
+    expect(highlightedZones(model)).toEqual(["A2"]);
+    expect(model.getters.getHighlights()[0]).toMatchObject({
+      sheetId: "42",
+      zone: toZone("A2"),
+    });
   });
 
   test("can select multiple ranges in another sheet", () => {
