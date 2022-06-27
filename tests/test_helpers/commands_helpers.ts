@@ -204,15 +204,19 @@ export function updateChart(
 /**
  * Copy a zone
  */
-export function copy(model: Model, range: string): DispatchResult {
-  return model.dispatch("COPY", { target: target(range) });
+export function copy(model: Model, range?: string): DispatchResult {
+  if (range) {
+    setSelection(model, range.split(","));
+  }
+  const result = model.dispatch("COPY");
+  return result;
 }
 
 /**
  * Cut a zone
  */
-export function cut(model: Model, range: string): DispatchResult {
-  return model.dispatch("CUT", { target: target(range) });
+export function cut(model: Model, range?: string): DispatchResult {
+  return range ? model.dispatch("CUT", { target: target(range) }) : model.dispatch("CUT");
 }
 
 /**

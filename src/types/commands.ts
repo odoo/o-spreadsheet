@@ -410,12 +410,12 @@ export interface SetDecimalCommand extends TargetDependentCommand {
 // ------------------------------------------------
 export interface CopyCommand {
   type: "COPY";
-  target: Zone[];
 }
 
 export interface CutCommand {
   type: "CUT";
-  target: Zone[];
+  /** Zones to cut. If none were given, will copy the zones in the selection*/
+  target?: Zone[];
 }
 
 export interface PasteCommand {
@@ -439,7 +439,6 @@ export interface AutoFillCellCommand {
 
 export interface ActivatePaintFormatCommand {
   type: "ACTIVATE_PAINT_FORMAT";
-  target: Zone[];
 }
 
 export interface PasteFromOSClipboardCommand {

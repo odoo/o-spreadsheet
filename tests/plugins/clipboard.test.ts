@@ -1,4 +1,4 @@
-import { toZone } from "../../src/helpers";
+import { toZone, zoneToXc } from "../../src/helpers";
 import { interactiveCut } from "../../src/helpers/ui/cut";
 import { interactivePaste } from "../../src/helpers/ui/paste";
 import { Model } from "../../src/model";
@@ -21,6 +21,7 @@ import {
   setAnchorCorner,
   setCellContent,
   setCellFormat,
+  setSelection,
   undo,
 } from "../test_helpers/commands_helpers";
 import {
@@ -113,6 +114,15 @@ describe("clipboard", () => {
     paste(model, "D3");
 
     expect(getCell(model, "D3")).toBeUndefined();
+  });
+
+  test("cut command will cut the selection if no target were given", () => {
+    const model = new Model();
+    setCellContent(model, "B2", "b2");
+    setSelection(model, ["B2"]);
+    model.dispatch("CUT");
+    paste(model, "D2");
+    expect(getCell(model, "D2")?.content).toBe("b2");
   });
 
   test("paste without copied value", () => {
@@ -361,7 +371,7 @@ describe("clipboard", () => {
       ],
     });
     copy(model, "B2");
-    paste(model, "A1");
+    paste(model, "A1", true);
     expect(model.getters.isInMerge("s3", ...toCartesianArray("B2"))).toBe(true);
     expect(model.getters.isInMerge("s3", ...toCartesianArray("B3"))).toBe(true);
     expect(model.getters.isInMerge("s3", ...toCartesianArray("B4"))).toBe(false);
@@ -485,9 +495,7 @@ describe("clipboard", () => {
       ],
     });
 
-    selectCell(model, "B2");
-    const selection = model.getters.getSelection().zones;
-    model.dispatch("COPY", { target: selection });
+    copy(model, "B2");
 
     selectCell(model, "A1");
     const env = makeInteractiveTestEnv(model, { notifyUser });
@@ -535,9 +543,7 @@ describe("clipboard", () => {
       ],
     });
 
-    selectCell(model, "B2");
-    const selection = model.getters.getSelection().zones;
-    model.dispatch("COPY", { target: selection });
+    copy(model, "B2");
     const result = paste(model, "A1");
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
     expect(model.getters.isInMerge("s1", ...toCartesianArray("A1"))).toBe(false);
@@ -560,9 +566,7 @@ describe("clipboard", () => {
         },
       ],
     });
-    selectCell(model, "B2");
-    const selection = model.getters.getSelection().zones;
-    model.dispatch("COPY", { target: selection });
+    copy(model, "B2");
     paste(model, "A1", true);
     expect(model.getters.isInMerge("s1", ...toCartesianArray("A1"))).toBe(true);
     expect(model.getters.isInMerge("s1", ...toCartesianArray("A2"))).toBe(true);
@@ -905,7 +909,8 @@ describe("clipboard", () => {
       const notifyUser = jest.fn();
       const model = new Model();
       const env = makeInteractiveTestEnv(model, { notifyUser });
-      interactiveCut(env, [toZone("A1"), toZone("A2")]);
+      setSelection(model, ["A1", "A2"]);
+      interactiveCut(env);
       expect(notifyUser).toHaveBeenCalled();
     });
   });
@@ -1621,7 +1626,7 @@ describe("clipboard", () => {
   ])("can copy and paste formula with full cols/rows", (value, expected) => {
     const model = new Model();
     setCellContent(model, "A1", value);
-    model.dispatch("COPY", { target: target("A1") });
+    copy(model, "A1");
     model.dispatch("PASTE", { target: target("B2") });
     expect(getCellText(model, "B2")).toBe(expected);
   });
@@ -1968,7 +1973,7 @@ describe("clipboard: pasting outside of sheet", () => {
     const activeSheetId = model.getters.getActiveSheetId();
     const currentRowNumber = model.getters.getNumberRows(activeSheetId);
 
-    model.dispatch("COPY", { target: [model.getters.getColsZone(activeSheetId, 0, 0)] });
+    copy(model, zoneToXc(model.getters.getColsZone(activeSheetId, 0, 0)));
     paste(model, "B2");
     expect(model.getters.getNumberRows(activeSheetId)).toBe(currentRowNumber + 1);
     expect(getCellContent(model, "B2")).toBe("txt");
@@ -1982,7 +1987,7 @@ describe("clipboard: pasting outside of sheet", () => {
     const activeSheetId = model.getters.getActiveSheetId();
     const currentColNumber = model.getters.getNumberCols(activeSheetId);
 
-    model.dispatch("COPY", { target: [model.getters.getRowsZone(activeSheetId, 0, 0)] });
+    copy(model, zoneToXc(model.getters.getRowsZone(activeSheetId, 0, 0)));
     paste(model, "B2");
     expect(model.getters.getNumberCols(activeSheetId)).toBe(currentColNumber + 1);
     expect(getCellContent(model, "B2")).toBe("txt");

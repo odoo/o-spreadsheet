@@ -602,8 +602,7 @@ describe("Grid component", () => {
         target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
         style: { bold: true },
       });
-      const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
-      model.dispatch("ACTIVATE_PAINT_FORMAT", { target });
+      model.dispatch("ACTIVATE_PAINT_FORMAT");
       gridMouseEvent(model, "mousedown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
       gridMouseEvent(model, "mouseup", "C8");
@@ -618,8 +617,7 @@ describe("Grid component", () => {
         target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
         style: { bold: true },
       });
-      const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
-      model.dispatch("ACTIVATE_PAINT_FORMAT", { target });
+      model.dispatch("ACTIVATE_PAINT_FORMAT");
       expect(getCell(model, "C2")).toBeUndefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
