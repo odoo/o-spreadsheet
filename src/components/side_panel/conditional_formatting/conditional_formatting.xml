@@ -137,13 +137,6 @@
         <div class="o-cf-preview-ruletype">
           <div class="o-cf-preview-description-rule">
             <t t-esc="getDescription(cf)"/>
-            <t t-if="cf.rule.values">
-              <t t-esc="' ' + cf.rule.values[0]"/>
-              <t t-if="cf.rule.values[1]">
-                <span style="white-space: pre;">and</span>
-                <t t-esc="cf.rule.values[1]"/>
-              </t>
-            </t>
           </div>
         </div>
         <div class="o-cf-preview-range" t-esc="cf.ranges"/>
