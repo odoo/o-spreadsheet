@@ -54,6 +54,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getCellPosition",
     "getColCells",
     "getColsZone",
+    "getRowCells",
     "getRowsZone",
     "getNumberCols",
     "getNumberRows",
@@ -345,6 +346,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       left: start,
       right: end,
     };
+  }
+
+  getRowCells(sheetId: UID, row: number): UID[] {
+    return Object.values(this.getSheet(sheetId).rows[row]?.cells).filter(isDefined);
   }
 
   getRowsZone(sheetId: UID, start: number, end: number): Zone {
