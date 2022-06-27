@@ -131,17 +131,6 @@ describe("datasource tests", function () {
     });
   });
 
-  test("create scorecard chart empty key value", () => {
-    let result = createScorecardChart(
-      model,
-      {
-        keyValue: "",
-      },
-      "1"
-    );
-    expect(result).toBeCancelledBecause(CommandResult.EmptyScorecardKeyValue);
-  });
-
   test("create scorecard chart with invalid ranges", () => {
     let result = createScorecardChart(
       model,

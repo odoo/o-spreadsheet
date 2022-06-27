@@ -35,7 +35,6 @@ import {
   ChartColors,
   chartFontColor,
   checkDataset,
-  checkDatasetNotEmpty,
   checkLabelRange,
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
@@ -98,11 +97,7 @@ export class PieChart extends AbstractChart {
     validator: Validator,
     definition: PieChartDefinition
   ): CommandResult | CommandResult[] {
-    return validator.checkValidations(
-      definition,
-      validator.chainValidations(checkDatasetNotEmpty, checkDataset),
-      checkLabelRange
-    );
+    return validator.checkValidations(definition, checkDataset, checkLabelRange);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): PieChartDefinition {

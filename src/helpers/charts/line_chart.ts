@@ -32,7 +32,6 @@ import {
   ChartColors,
   chartFontColor,
   checkDataset,
-  checkDatasetNotEmpty,
   checkLabelRange,
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
@@ -93,11 +92,7 @@ export class LineChart extends AbstractChart {
     validator: Validator,
     definition: LineChartDefinition
   ): CommandResult | CommandResult[] {
-    return validator.checkValidations(
-      definition,
-      validator.chainValidations(checkDatasetNotEmpty, checkDataset),
-      checkLabelRange
-    );
+    return validator.checkValidations(definition, checkDataset, checkLabelRange);
   }
 
   static transformDefinition(

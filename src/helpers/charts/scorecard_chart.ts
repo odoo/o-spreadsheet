@@ -44,10 +44,6 @@ chartRegistry.add("scorecard", {
   name: "Scorecard",
 });
 
-function checkEmptyKeyValue(definition: ScorecardChartDefinition): CommandResult {
-  return !definition.keyValue ? CommandResult.EmptyScorecardKeyValue : CommandResult.Success;
-}
-
 function checkKeyValue(definition: ScorecardChartDefinition): CommandResult {
   return definition.keyValue && !rangeReference.test(definition.keyValue)
     ? CommandResult.InvalidScorecardKeyValue
@@ -87,11 +83,7 @@ export class ScorecardChart extends AbstractChart {
     validator: Validator,
     definition: ScorecardChartDefinition
   ): CommandResult | CommandResult[] {
-    return validator.checkValidations(
-      definition,
-      validator.chainValidations(checkEmptyKeyValue, checkKeyValue),
-      checkBaseline
-    );
+    return validator.checkValidations(definition, checkKeyValue, checkBaseline);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): ScorecardChartDefinition {

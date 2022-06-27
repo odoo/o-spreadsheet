@@ -593,19 +593,6 @@ describe("datasource tests", function () {
     expect(chart.type).toEqual("bar");
   });
 
-  test("create chart with empty dataset", () => {
-    const result = createChart(
-      model,
-      {
-        dataSets: [],
-        labelRange: "Sheet1!A2:A4",
-      },
-      "1"
-    );
-    expect(result).toBeCancelledBecause(CommandResult.EmptyDataSet);
-    expect(result).not.toBeCancelledBecause(CommandResult.InvalidDataSet);
-  });
-
   test("create chart with empty labels", () => {
     const result = createChart(
       model,

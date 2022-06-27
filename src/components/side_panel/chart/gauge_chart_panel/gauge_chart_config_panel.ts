@@ -32,9 +32,8 @@ export class GaugeChartConfigPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   get isDataRangeInvalid(): boolean {
-    return !!(
-      this.state.dataRangeDispatchResult?.isCancelledBecause(CommandResult.EmptyGaugeDataRange) ||
-      this.state.dataRangeDispatchResult?.isCancelledBecause(CommandResult.InvalidGaugeDataRange)
+    return !!this.state.dataRangeDispatchResult?.isCancelledBecause(
+      CommandResult.InvalidGaugeDataRange
     );
   }
 

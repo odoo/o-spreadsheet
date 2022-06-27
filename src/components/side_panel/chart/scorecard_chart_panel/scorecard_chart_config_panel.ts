@@ -38,9 +38,8 @@ export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChild
   }
 
   get isKeyValueInvalid(): boolean {
-    return !!(
-      this.state.keyValueDispatchResult?.isCancelledBecause(CommandResult.EmptyScorecardKeyValue) ||
-      this.state.keyValueDispatchResult?.isCancelledBecause(CommandResult.InvalidScorecardKeyValue)
+    return !!this.state.keyValueDispatchResult?.isCancelledBecause(
+      CommandResult.InvalidScorecardKeyValue
     );
   }
 
