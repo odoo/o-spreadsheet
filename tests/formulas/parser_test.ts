@@ -31,6 +31,22 @@ describe("parser", () => {
     });
   });
 
+  test("function without a opening parenthesis", () => {
+    expect(() => parse(`SUM 5`)).toThrow("wrong function call");
+  });
+
+  test("function without a closing parenthesis", () => {
+    expect(() => parse(`SUM(5`)).toThrow("wrong function call");
+  });
+
+  test("function without argument nor a closing parenthesis", () => {
+    expect(() => parse(`SUM(`)).toThrow("wrong function call");
+  });
+
+  test("function with empty first argument nor a closing parenthesis", () => {
+    expect(() => parse(`SUM(,`)).toThrow("invalid expression");
+  });
+
   test("add a unknown token for empty arguments", () => {
     expect(parse("SUM(1,)")).toEqual({
       type: "FUNCALL",

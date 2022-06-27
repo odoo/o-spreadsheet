@@ -146,26 +146,27 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
         throw new Error(_lt("wrong function call"));
       } else {
         const args: AST[] = [];
-        if (tokens[0].type !== "RIGHT_PAREN") {
+        if (tokens[0] && tokens[0].type !== "RIGHT_PAREN") {
           if (tokens[0].type === "COMMA") {
             args.push({ type: "UNKNOWN", value: "" });
           } else {
             args.push(parseExpression(tokens, FUNCTION_BP));
           }
-          while (tokens[0].type === "COMMA") {
+          while (tokens[0]?.type === "COMMA") {
             tokens.shift();
-            if ((tokens as any)[0].type === "RIGHT_PAREN") {
+            const token = tokens[0] as Token | undefined;
+            if (token?.type === "RIGHT_PAREN") {
               args.push({ type: "UNKNOWN", value: "" });
               break;
-            }
-            if ((tokens as any)[0].type === "COMMA") {
+            } else if (token?.type === "COMMA") {
               args.push({ type: "UNKNOWN", value: "" });
             } else {
               args.push(parseExpression(tokens, FUNCTION_BP));
             }
           }
         }
-        if (tokens.shift()!.type !== "RIGHT_PAREN") {
+        const closingToken = tokens.shift();
+        if (!closingToken || closingToken.type !== "RIGHT_PAREN") {
           throw new Error(_lt("wrong function call"));
         }
         const isAsync = functions[current.value.toUpperCase()].async;
@@ -221,7 +222,10 @@ function parseInfix(left: AST, current: Token, tokens: Token[]): AST {
 }
 
 function parseExpression(tokens: Token[], bp: number): AST {
-  const token = tokens.shift()!;
+  const token = tokens.shift();
+  if (!token) {
+    throw new Error(_lt("invalid expression"));
+  }
   let expr = parsePrefix(token, tokens);
   while (tokens[0] && bindingPower(tokens[0]) > bp) {
     expr = parseInfix(expr, tokens.shift()!, tokens);
