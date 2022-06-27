@@ -118,26 +118,27 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
         throw new Error(_lt("Wrong function call"));
       } else {
         const args: AST[] = [];
-        if (tokens[0].type !== "RIGHT_PAREN") {
+        if (tokens[0] && tokens[0].type !== "RIGHT_PAREN") {
           if (tokens[0].type === "COMMA") {
             args.push({ type: "UNKNOWN", value: "" });
           } else {
             args.push(parseExpression(tokens, FUNCTION_BP));
           }
-          while (tokens[0].type === "COMMA") {
+          while (tokens[0]?.type === "COMMA") {
             tokens.shift();
-            if ((tokens as any)[0].type === "RIGHT_PAREN") {
+            const token = tokens[0] as Token | undefined;
+            if (token?.type === "RIGHT_PAREN") {
               args.push({ type: "UNKNOWN", value: "" });
               break;
-            }
-            if ((tokens as any)[0].type === "COMMA") {
+            } else if (token?.type === "COMMA") {
               args.push({ type: "UNKNOWN", value: "" });
             } else {
               args.push(parseExpression(tokens, FUNCTION_BP));
             }
           }
         }
-        if (tokens.shift()!.type !== "RIGHT_PAREN") {
+        const closingToken = tokens.shift();
+        if (!closingToken || closingToken.type !== "RIGHT_PAREN") {
           throw new Error(_lt("Wrong function call"));
         }
         return { type: "FUNCALL", value: current.value, args };
