@@ -27,8 +27,11 @@ export function stringify(obj: any): string {
  * ```
  */
 export function removeStringQuotes(str: string): string {
-  if (str[0] === '"' && str[str.length - 1] === '"') {
-    return str.slice(1).slice(0, str.length - 2);
+  if (str[0] === '"') {
+    str = str.slice(1);
+  }
+  if (str[str.length - 1] === '"' && str[str.length - 2] !== "\\") {
+    return str.slice(0, str.length - 1);
   }
   return str;
 }

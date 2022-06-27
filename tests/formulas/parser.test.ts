@@ -128,6 +128,10 @@ describe("parser", () => {
     expect(parse(".5")).toEqual({ type: "NUMBER", value: 0.5 });
   });
 
+  test("can parse string without ending double quotes", () => {
+    expect(parse('"hello')).toEqual({ type: "STRING", value: "hello" });
+  });
+
   test("can parse binary operations", () => {
     expect(parse("2-3")).toEqual({
       type: "BIN_OPERATION",
@@ -233,6 +237,8 @@ describe("Converting AST to string", () => {
   });
   test("Convert strings", () => {
     expect(astToFormula(parse('"R"'))).toBe('"R"');
+    expect(astToFormula(parse('"R'))).toBe('"R"');
+    expect(astToFormula(parse('"R\\"'))).toBe('"R\\""');
     expect(astToFormula(parse('CONCAT("R", "EM")'))).toBe('CONCAT("R","EM")');
   });
   test("Convert numbers", () => {
