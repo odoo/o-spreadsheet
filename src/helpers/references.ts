@@ -1,6 +1,12 @@
 /** Reference of a cell (eg. A1, $B$5) */
 export const cellReference = new RegExp(/\$?([A-Z]{1,3})\$?([0-9]{1,7})/, "i");
 
+// Same as above, but matches the exact string (nothing before or after)
+const singleCellReference = new RegExp(/^\$?([A-Z]{1,3})\$?([0-9]{1,7})$/, "i");
+
+/** Reference of a column header (eg. A, AB) */
+const colHeader = new RegExp(/^([A-Z]{1,3})+$/, "i");
+
 /** Reference of a column (eg. A, $CA, Sheet1!B) */
 const colReference = new RegExp(/^\s*('.+'!|[^']+!)?\$?([A-Z]{1,3})$/, "i");
 
@@ -23,12 +29,28 @@ export const rangeReference = new RegExp(
   "i"
 );
 
-// Return true if the given xc is the reference of a column (eg. A or AC or Sheet1!A)
-export function isColReference(xc: string) {
+/**
+ * Return true if the given xc is the reference of a column (e.g. A or AC or Sheet1!A)
+ */
+export function isColReference(xc: string): boolean {
   return colReference.test(xc);
 }
 
-// Return true if the given xc is the reference of a column (eg. 1 or Sheet1!1)
-export function isRowReference(xc: string) {
+/**
+ * Return true if the given xc is the reference of a column (e.g. 1 or Sheet1!1)
+ */
+export function isRowReference(xc: string): boolean {
   return rowReference.test(xc);
+}
+
+export function isColHeader(str: string): boolean {
+  return colHeader.test(str);
+}
+
+/**
+ * Return true if the given xc is the reference of a single cell,
+ * without any specified sheet (e.g. A1)
+ */
+export function isSingleCellReference(xc: string): boolean {
+  return singleCellReference.test(xc);
 }

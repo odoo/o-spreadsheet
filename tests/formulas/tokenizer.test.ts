@@ -176,6 +176,18 @@ describe("tokenizer", () => {
       { type: "OPERATOR", value: "=" },
       { type: "REFERENCE", value: "Sheet1!A1" },
     ]);
+    expect(tokenize("=Sheet1!A1:A2")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "REFERENCE", value: "Sheet1!A1" },
+      { type: "OPERATOR", value: ":" },
+      { type: "REFERENCE", value: "A2" },
+    ]);
+    expect(tokenize("=Sheet1!A:A")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "Sheet1!A" },
+      { type: "OPERATOR", value: ":" },
+      { type: "SYMBOL", value: "A" },
+    ]);
     expect(tokenize("='Sheet1'!A1")).toEqual([
       { type: "OPERATOR", value: "=" },
       { type: "REFERENCE", value: "'Sheet1'!A1" },

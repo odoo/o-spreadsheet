@@ -1,6 +1,4 @@
-import { Token } from ".";
-import { mergeSymbolsIntoRanges } from "./range_tokenizer";
-import { tokenize } from "./tokenizer";
+import { rangeTokenize, Token } from "./index";
 
 interface FunctionContext {
   parent: string;
@@ -119,7 +117,7 @@ function mapParentFunction(tokens: EnrichedToken[]): EnrichedToken[] {
  * @param formula
  */
 export function composerTokenize(formula: string): EnrichedToken[] {
-  const tokens = tokenize(formula);
+  const tokens = rangeTokenize(formula);
 
-  return mapParentFunction(mapParenthesis(enrichTokens(mergeSymbolsIntoRanges(tokens))));
+  return mapParentFunction(mapParenthesis(enrichTokens(tokens)));
 }

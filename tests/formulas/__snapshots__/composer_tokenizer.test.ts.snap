@@ -43,15 +43,37 @@ Array [
     "value": "(",
   },
   Object {
+    "end": 8,
+    "functionContext": Object {
+      "argPosition": 0,
+      "parent": "SUM",
+    },
+    "length": 1,
+    "start": 7,
+    "type": "SPACE",
+    "value": " ",
+  },
+  Object {
+    "end": 15,
+    "functionContext": Object {
+      "argPosition": 0,
+      "parent": "SUM",
+    },
+    "length": 7,
+    "start": 8,
+    "type": "REFERENCE",
+    "value": "C4 : C5",
+  },
+  Object {
     "end": 16,
     "functionContext": Object {
       "argPosition": 0,
       "parent": "SUM",
     },
-    "length": 9,
-    "start": 7,
-    "type": "REFERENCE",
-    "value": " C4 : C5 ",
+    "length": 1,
+    "start": 15,
+    "type": "SPACE",
+    "value": " ",
   },
   Object {
     "end": 17,
