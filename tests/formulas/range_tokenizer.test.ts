@@ -1,10 +1,10 @@
 import { rangeTokenize } from "../../src/formulas";
 
 describe("rangeTokenizer", () => {
-  test("only range", () => {
-    expect(rangeTokenize("=A1:A2")).toEqual([
+  test.each(["A1:A2", "a1:a2", "A1:a2", "a1:A2"])("only range", (xc) => {
+    expect(rangeTokenize(`=${xc}`)).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "REFERENCE", value: "A1:A2" },
+      { type: "REFERENCE", value: xc },
     ]);
   });
   test("operation and no range", () => {
@@ -53,20 +53,50 @@ describe("rangeTokenizer", () => {
     ]);
   });
 
-  test("=A:A", () => {
-    expect(rangeTokenize("=A:A")).toEqual([
+  test.each(["A:A", "A1:A", "A:A1"])("full column", (xc) => {
+    expect(rangeTokenize(`=${xc}`)).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "REFERENCE", value: "A:A" },
+      { type: "REFERENCE", value: xc },
     ]);
   });
 
-  test("=SUM(A:A)", () => {
-    expect(rangeTokenize("=SUM(A:A)")).toEqual([
+  test.each(["A:A", "A1:A"])("formula with full column", (xc) => {
+    expect(rangeTokenize(`=SUM(${xc})`)).toEqual([
       { type: "OPERATOR", value: "=" },
       { type: "FUNCTION", value: "SUM" },
       { type: "LEFT_PAREN", value: "(" },
-      { type: "REFERENCE", value: "A:A" },
+      { type: "REFERENCE", value: xc },
       { type: "RIGHT_PAREN", value: ")" },
+    ]);
+  });
+
+  test.each(["1:1", "A1:1", "1:A1"])("full row", (xc) => {
+    expect(rangeTokenize(`=${xc}`)).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "REFERENCE", value: xc },
+    ]);
+  });
+
+  test.each(["1:1", "A1:1"])("formula with full row", (xc) => {
+    expect(rangeTokenize(`=SUM(${xc})`)).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "FUNCTION", value: "SUM" },
+      { type: "LEFT_PAREN", value: "(" },
+      { type: "REFERENCE", value: xc },
+      { type: "RIGHT_PAREN", value: ")" },
+    ]);
+  });
+
+  test("wrong full column/row", () => {
+    expect(rangeTokenize("1:A")).toEqual([
+      { type: "NUMBER", value: "1" },
+      { type: "OPERATOR", value: ":" },
+      { type: "SYMBOL", value: "A" },
+    ]);
+    expect(rangeTokenize("A:1")).toEqual([
+      { type: "SYMBOL", value: "A" },
+      { type: "OPERATOR", value: ":" },
+      { type: "NUMBER", value: "1" },
     ]);
   });
 });
@@ -135,6 +165,13 @@ describe("knows what's a reference and what's not", () => {
     ]);
   });
 
+  test("sheet, range", () => {
+    expect(rangeTokenize("=Sheet3!A1:A2")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "REFERENCE", value: "Sheet3!A1:A2" },
+    ]);
+  });
+
   test("sheet, fixed column", () => {
     expect(rangeTokenize("=Sheet3!$a1")).toEqual([
       { type: "OPERATOR", value: "=" },
@@ -160,10 +197,55 @@ describe("knows what's a reference and what's not", () => {
     ]);
   });
 
-  test.each(["Sheet3!A:A", "Sheet3!1:1", "Sheet3!A1:A"])("sheet, full column/row range", (xc) => {
+  test.each([
+    "Sheet3!A:A",
+    "Sheet3!1:1",
+    "Sheet3!A1:1",
+    "Sheet3!A1:A",
+    "Sheet3!A:A1",
+    "Sheet3!1:A1",
+  ])("sheet, full column/row range", (xc) => {
     expect(rangeTokenize("=" + xc)).toEqual([
       { type: "OPERATOR", value: "=" },
       { type: "REFERENCE", value: xc },
+    ]);
+  });
+
+  test("sheet, wrong full column/row range", () => {
+    expect(rangeTokenize("Sheet3!A:1")).toEqual([
+      { type: "SYMBOL", value: "Sheet3!A" },
+      { type: "OPERATOR", value: ":" },
+      { type: "NUMBER", value: "1" },
+    ]);
+    expect(rangeTokenize("Sheet3!1:A")).toEqual([
+      { type: "SYMBOL", value: "Sheet3!1" },
+      { type: "OPERATOR", value: ":" },
+      { type: "SYMBOL", value: "A" },
+    ]);
+    expect(rangeTokenize("Sheet3!1:Sheet3!A")).toEqual([
+      { type: "SYMBOL", value: "Sheet3!1" },
+      { type: "OPERATOR", value: ":" },
+      { type: "SYMBOL", value: "Sheet3!A" },
+    ]);
+    expect(rangeTokenize("Sheet3!1:Sheet3!A1")).toEqual([
+      { type: "SYMBOL", value: "Sheet3!1" },
+      { type: "OPERATOR", value: ":" },
+      { type: "REFERENCE", value: "Sheet3!A1" },
+    ]);
+    expect(rangeTokenize("Sheet3!A:Sheet3!A")).toEqual([
+      { type: "SYMBOL", value: "Sheet3!A" },
+      { type: "OPERATOR", value: ":" },
+      { type: "SYMBOL", value: "Sheet3!A" },
+    ]);
+    expect(rangeTokenize("Sheet3!A:Sheet3!A1")).toEqual([
+      { type: "SYMBOL", value: "Sheet3!A" },
+      { type: "OPERATOR", value: ":" },
+      { type: "REFERENCE", value: "Sheet3!A1" },
+    ]);
+    expect(rangeTokenize("Sheet3!A1:Sheet3!A")).toEqual([
+      { type: "REFERENCE", value: "Sheet3!A1" },
+      { type: "OPERATOR", value: ":" },
+      { type: "SYMBOL", value: "Sheet3!A" },
     ]);
   });
 });
