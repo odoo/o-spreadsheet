@@ -29,7 +29,9 @@ describe("composerTokenizer", () => {
   test("unbound range with spaces", () => {
     expect(composerTokenize("= A : A ")).toEqual([
       { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
-      { start: 1, end: 8, length: 7, type: "REFERENCE", value: " A : A " },
+      { start: 1, end: 2, length: 1, type: "SPACE", value: " " },
+      { start: 2, end: 7, length: 5, type: "REFERENCE", value: "A : A" },
+      { start: 7, end: 8, length: 1, type: "SPACE", value: " " },
     ]);
   });
 
@@ -38,14 +40,18 @@ describe("composerTokenizer", () => {
       { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
       { start: 1, end: 3, length: 2, type: "REFERENCE", value: "A3" },
       { start: 3, end: 4, length: 1, type: "OPERATOR", value: "+" },
-      { start: 4, end: 16, length: 12, type: "REFERENCE", value: "  A1 : A2   " },
+      { start: 4, end: 6, length: 2, type: "SPACE", value: "  " },
+      { start: 6, end: 13, length: 7, type: "REFERENCE", value: "A1 : A2" },
+      { start: 13, end: 16, length: 3, type: "SPACE", value: "   " },
     ]);
   });
 
   test("range with spaces then operation", () => {
     expect(composerTokenize("=  A1 : A2   +a3")).toEqual([
       { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
-      { start: 1, end: 13, length: 12, type: "REFERENCE", value: "  A1 : A2   " },
+      { start: 1, end: 3, length: 2, type: "SPACE", value: "  " },
+      { start: 3, end: 10, length: 7, type: "REFERENCE", value: "A1 : A2" },
+      { start: 10, end: 13, length: 3, type: "SPACE", value: "   " },
       { start: 13, end: 14, length: 1, type: "OPERATOR", value: "+" },
       { start: 14, end: 16, length: 2, type: "REFERENCE", value: "a3" },
     ]);

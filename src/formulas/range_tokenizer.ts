@@ -1,133 +1,147 @@
-import { concat, isColReference, isRowReference } from "../helpers";
+import {
+  concat,
+  isColHeader,
+  isColReference,
+  isRowReference,
+  isSingleCellReference,
+} from "../helpers";
 import { Token, tokenize } from "./tokenizer";
 
+enum State {
+  /**
+   * Initial state.
+   * Expecting any reference for the left part of a range
+   * e.g. "A1", "1", "A", "Sheet1!A1", "Sheet1!A"
+   */
+  LeftRef,
+  /**
+   * Expecting any reference for the right part of a range
+   * e.g. "A1", "1", "A", "Sheet1!A1", "Sheet1!A"
+   */
+  RightRef,
+  /**
+   * Expecting the separator without any constraint on the right part
+   */
+  Separator,
+  /**
+   * Expecting the separator for a full column range
+   */
+  FullColumnSeparator,
+  /**
+   * Expecting the separator for a full row range
+   */
+  FullRowSeparator,
+  /**
+   * Expecting the right part of a full column range
+   * e.g. "1", "A1"
+   */
+  RightColumnRef,
+  /**
+   * Expecting the right part of a full row range
+   * e.g. "A", "A1"
+   */
+  RightRowRef,
+  /**
+   * Final state. A range has been matched
+   */
+  Found,
+}
+
+const goTo = (state: State, guard: (token: Token) => boolean = () => true) => [
+  {
+    goTo: state,
+    guard,
+  },
+];
+
+const goToMulti = (state: State, guard: (token: Token) => boolean = () => true) => ({
+  goTo: state,
+  guard,
+});
+
+interface Transition {
+  goTo: State;
+  guard: (token: Token) => boolean;
+}
+
+type Machine = {
+  [s in State]: Record<string, Transition[] | undefined>;
+};
+
+const machine: Machine = {
+  [State.LeftRef]: {
+    REFERENCE: goTo(State.Separator),
+    NUMBER: goTo(State.FullRowSeparator),
+    SYMBOL: [
+      goToMulti(State.FullColumnSeparator, (token) => isColReference(token.value)),
+      goToMulti(State.FullRowSeparator, (token) => isRowReference(token.value)),
+    ],
+  },
+  [State.FullColumnSeparator]: {
+    SPACE: goTo(State.FullColumnSeparator),
+    OPERATOR: goTo(State.RightColumnRef, (token) => token.value === ":"),
+  },
+  [State.FullRowSeparator]: {
+    SPACE: goTo(State.FullRowSeparator),
+    OPERATOR: goTo(State.RightRowRef, (token) => token.value === ":"),
+  },
+  [State.Separator]: {
+    SPACE: goTo(State.Separator),
+    OPERATOR: goTo(State.RightRef, (token) => token.value === ":"),
+  },
+  [State.RightRef]: {
+    SPACE: goTo(State.RightRef),
+    NUMBER: goTo(State.Found),
+    REFERENCE: goTo(State.Found, (token) => isSingleCellReference(token.value)),
+    SYMBOL: goTo(State.Found, (token) => isColHeader(token.value)),
+  },
+  [State.RightColumnRef]: {
+    SPACE: goTo(State.RightColumnRef),
+    SYMBOL: goTo(State.Found, (token) => isColHeader(token.value)),
+    REFERENCE: goTo(State.Found, (token) => isSingleCellReference(token.value)),
+  },
+  [State.RightRowRef]: {
+    SPACE: goTo(State.RightRowRef),
+    NUMBER: goTo(State.Found),
+    REFERENCE: goTo(State.Found, (token) => isSingleCellReference(token.value)),
+  },
+  [State.Found]: {},
+};
+
 /**
- * finds a sequence of token that represent a range and replace them with a single token
- * The range can be
- *  ?spaces symbol ?spaces operator: ?spaces symbol ?spaces
+ * Check if the list of tokens starts with a sequence of tokens representing
+ * a range.
+ * If a range is found, the sequence is removed from the list and is returned
+ * as a single token.
  */
-export function mergeSymbolsIntoRanges(result: Token[], removeSpace = false): Token[] {
-  let operator: number | void = undefined; // Index of operator ":" in range
-  let refStart: number | void = undefined; // Index of start of range
-  let refEnd: number | void = undefined; // Index of end of range
-  let startIncludingSpaces: number | void = undefined; // Index of start of range, including spaces before range
-  let isRefOfFullRow: boolean = false; // If we work on a range of a full row (eg. 1:1)
-  let isRefOfFullCol: boolean = false; // If we work on a range of a full column (eg. A2:A)
-
-  const reset = () => {
-    startIncludingSpaces = undefined;
-    refStart = undefined;
-    operator = undefined;
-    refEnd = undefined;
-    isRefOfFullRow = false;
-    isRefOfFullCol = false;
-  };
-
-  for (let i = 0; i < result.length; i++) {
-    const token = result[i];
-
-    // If we already have a token that could be the start of a range, or a SPACE token
-    if (startIncludingSpaces) {
-      // If we already have a token that could be the start of a range
-      if (refStart) {
-        // Skip spaces
-        if (token.type === "SPACE") {
-          continue;
-        }
-        // Find the ":" operator of a range
-        else if (token.type === "OPERATOR" && token.value === ":") {
-          operator = i;
-        }
-        // Find the second symbol of a range
-        // Be careful not to build a range A:1 or A:1. A2:3 and A:A2 are both valid ranges.
-        else if (
-          operator &&
-          (token.type === "REFERENCE" ||
-            (token.type === "SYMBOL" && !isRefOfFullRow && isColReference(token.value)) ||
-            (token.type === "NUMBER" && !isRefOfFullCol))
-        ) {
-          refEnd = i;
-        }
-        // Cannot add the current token to the range we're currently building
-        else {
-          // We have all the token needed to build a new range
-          if (startIncludingSpaces && refStart && operator && refEnd) {
-            const newToken: Token = {
-              type: "REFERENCE",
-              value: concat(
-                result
-                  .slice(startIncludingSpaces, i)
-                  .filter((x) => !removeSpace || x.type !== "SPACE")
-                  .map((x) => x.value)
-              ),
-            };
-            result.splice(startIncludingSpaces, i - startIncludingSpaces, newToken);
-            i = startIncludingSpaces + 1;
-            reset();
-          }
-          // Cannot build a range with the current tokens
-          else {
-            // Start building a new range beginning with the current token if possible, else reset
-            if (["REFERENCE", "NUMBER", "SYMBOL"].includes(token.type)) {
-              startIncludingSpaces = i;
-              operator = undefined;
-              isRefOfFullRow = isRowReference(token.value);
-              isRefOfFullCol = isColReference(token.value);
-              if (token.type === "REFERENCE" || isRefOfFullRow || isRefOfFullCol) {
-                refStart = i;
-              } else reset();
-            } else {
-              reset();
-            }
-          }
-        }
-      }
-      // If we only have found a SPACE token
-      else {
-        // Start building a new range beginning with the current token if possible, else reset
-        if (["REFERENCE", "NUMBER", "SYMBOL"].includes(token.type)) {
-          operator = refEnd = undefined;
-          isRefOfFullRow = isRowReference(token.value);
-          isRefOfFullCol = isColReference(token.value);
-          if (token.type === "REFERENCE" || isRefOfFullRow || isRefOfFullCol) {
-            refStart = i;
-          } else reset();
-        } else {
-          reset();
-        }
-      }
+function matchReference(tokens: Token[]): Token | null {
+  let head = 0;
+  let transitions = machine[State.LeftRef];
+  const matchedTokens: Token[] = [];
+  while (transitions !== undefined) {
+    const token = tokens[head++];
+    if (!token) {
+      return null;
     }
-    // We found nothing yet, try to find a token that could be the beginning of a range
-    else {
-      if (["SPACE", "REFERENCE", "NUMBER", "SYMBOL"].includes(token.type)) {
-        operator = refEnd = undefined;
-        startIncludingSpaces = i;
-        isRefOfFullRow = isRowReference(token.value);
-        isRefOfFullCol = isColReference(token.value);
-        if (token.type === "REFERENCE" || isRefOfFullRow || isRefOfFullCol) {
-          refStart = i;
-        }
-      } else {
-        reset();
-      }
+    const transition = transitions[token.type]?.find((transition) => transition.guard(token));
+    const nextState = transition ? transition.goTo : undefined;
+    switch (nextState) {
+      case undefined:
+        return null;
+      case State.Found:
+        matchedTokens.push(token);
+        tokens.splice(0, head);
+        return {
+          type: "REFERENCE",
+          value: concat(matchedTokens.map((token) => token.value)),
+        };
+      default:
+        transitions = machine[nextState];
+        matchedTokens.push(token);
+        break;
     }
   }
-
-  // Try to build a range with the last tokens we used
-  const i = result.length - 1;
-  if (startIncludingSpaces && refStart && operator && refEnd) {
-    const newToken: Token = {
-      type: "REFERENCE",
-      value: concat(
-        result
-          .slice(startIncludingSpaces, i + 1)
-          .filter((x) => !removeSpace || x.type !== "SPACE")
-          .map((x) => x.value)
-      ),
-    };
-    result.splice(startIncludingSpaces, i - startIncludingSpaces + 1, newToken);
-  }
-  return result;
+  return null;
 }
 
 /**
@@ -138,5 +152,9 @@ export function mergeSymbolsIntoRanges(result: Token[], removeSpace = false): To
  */
 export function rangeTokenize(formula: string): Token[] {
   const tokens = tokenize(formula);
-  return mergeSymbolsIntoRanges(tokens, true);
+  const result: Token[] = [];
+  while (tokens.length) {
+    result.push(matchReference(tokens) || tokens.shift()!);
+  }
+  return result;
 }

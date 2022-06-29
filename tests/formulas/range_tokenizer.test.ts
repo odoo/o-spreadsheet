@@ -15,7 +15,7 @@ describe("rangeTokenizer", () => {
       { type: "REFERENCE", value: "A1" },
     ]);
   });
-  test("operation and range", () => {
+  test("operation and range without spaces", () => {
     expect(rangeTokenize("=A3+A1:A2")).toEqual([
       { type: "OPERATOR", value: "=" },
       { type: "REFERENCE", value: "A3" },
@@ -28,14 +28,18 @@ describe("rangeTokenizer", () => {
       { type: "OPERATOR", value: "=" },
       { type: "REFERENCE", value: "A3" },
       { type: "OPERATOR", value: "+" },
-      { type: "REFERENCE", value: "A1:A2" },
+      { type: "SPACE", value: "  " },
+      { type: "REFERENCE", value: "A1 : A2" },
+      { type: "SPACE", value: "   " },
     ]);
   });
 
   test("range with spaces then operation", () => {
     expect(rangeTokenize("=  A1 : A2   +a3")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "REFERENCE", value: "A1:A2" },
+      { type: "SPACE", value: "  " },
+      { type: "REFERENCE", value: "A1 : A2" },
+      { type: "SPACE", value: "   " },
       { type: "OPERATOR", value: "+" },
       { type: "REFERENCE", value: "a3" },
     ]);
@@ -48,7 +52,9 @@ describe("rangeTokenizer", () => {
       { type: "FUNCTION", value: "SUM" },
       { type: "SPACE", value: " " },
       { type: "LEFT_PAREN", value: "(" },
-      { type: "REFERENCE", value: "C4:C5" },
+      { type: "SPACE", value: " " },
+      { type: "REFERENCE", value: "C4 : C5" },
+      { type: "SPACE", value: " " },
       { type: "RIGHT_PAREN", value: ")" },
     ]);
   });
@@ -101,7 +107,7 @@ describe("rangeTokenizer", () => {
   });
 });
 
-describe("knows what's a reference and what's not", () => {
+describe("knows what is a reference and what is not", () => {
   test("lowercase cell reference", () => {
     expect(rangeTokenize("=a1")).toEqual([
       { type: "OPERATOR", value: "=" },
@@ -169,6 +175,15 @@ describe("knows what's a reference and what's not", () => {
     expect(rangeTokenize("=Sheet3!A1:A2")).toEqual([
       { type: "OPERATOR", value: "=" },
       { type: "REFERENCE", value: "Sheet3!A1:A2" },
+    ]);
+  });
+
+  test("double sheet range", () => {
+    expect(rangeTokenize("=Sheet3!A1:Sheet3!A2")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "REFERENCE", value: "Sheet3!A1" },
+      { type: "OPERATOR", value: ":" },
+      { type: "REFERENCE", value: "Sheet3!A2" },
     ]);
   });
 
