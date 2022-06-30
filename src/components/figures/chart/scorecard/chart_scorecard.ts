@@ -42,6 +42,8 @@ css/* scss */ `
 
     .o-key-text {
       line-height: 1em;
+      overflow: hidden;
+      white-space: nowrap;
     }
 
     .o-cf-icon {
@@ -56,6 +58,8 @@ css/* scss */ `
     .o-baseline-text {
       color: #757575;
       line-height: 1em;
+      overflow: hidden;
+      white-space: nowrap;
     }
   }
 `;
@@ -224,8 +228,9 @@ class BaselineElement implements ScorecardScalableElement {
   ): Pixel {
     if (!runtime) return 0;
     const baselineStr = runtime.baselineDisplay;
-    // Put mock text to simulate the width of the up/down arrow
-    const largeText = runtime.baselineArrow !== "neutral" ? "A " + baselineStr : baselineStr;
+    // Put mock text to simulate the width of the up/down arrow + 2 spaces to overshoot a bit the size
+    // to make sure that the text doesn't overflow
+    const largeText = runtime.baselineArrow !== "neutral" ? "A  " + baselineStr : baselineStr;
     ctx.font = `${fontSize}px ${DEFAULT_FONT}`;
     let textWidth = ctx.measureText(largeText).width;
     // Baseline descr font size should be smaller than baseline font size
