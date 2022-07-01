@@ -2,7 +2,7 @@ import { Token } from ".";
 import { functionRegistry } from "../functions/index";
 import { concat, parseNumber, removeStringQuotes } from "../helpers";
 import { _lt } from "../translation";
-import { CompiledFormula, Format, FunctionDescription } from "../types/index";
+import { CompiledFormula } from "../types";
 import { AST, ASTFuncall, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
 
@@ -113,7 +113,6 @@ export function compile(formula: string): CompiledFormula {
     functionCache[cacheKey] = {
       // @ts-ignore
       execute: baseFunction,
-      dependenciesFormat: formatAST(ast),
     };
     /**
      * This function compile the function arguments. It is mostly straightforward,
@@ -264,18 +263,22 @@ export function compile(formula: string): CompiledFormula {
       switch (ast.type) {
         case "BOOLEAN":
           if (!isLazy) {
-            return { id: `${ast.value}`, code: "" };
+            return { id: `{ value: ${ast.value} }`, code: "" };
           }
           id = nextId++;
-          statement = `${ast.value}`;
+          statement = `{ value: ${ast.value} }`;
           break;
         case "NUMBER":
           id = nextId++;
-          statement = `this.constantValues.numbers[${constantValues.numbers.indexOf(ast.value)}]`;
+          statement = `{ value: this.constantValues.numbers[${constantValues.numbers.indexOf(
+            ast.value
+          )}] }`;
           break;
         case "STRING":
           id = nextId++;
-          statement = `this.constantValues.strings[${constantValues.strings.indexOf(ast.value)}]`;
+          statement = `{ value: this.constantValues.strings[${constantValues.strings.indexOf(
+            ast.value
+          )}] }`;
           break;
         case "REFERENCE":
           const referenceIndex = dependencies.indexOf(ast.value);
@@ -304,7 +307,7 @@ export function compile(formula: string): CompiledFormula {
           });
           codeBlocks.push(operand.code);
           codeBlocks.push(`ctx.__lastFnCalled = '${fnName}';`);
-          statement = `ctx['${fnName}']( ${operand.id})`;
+          statement = `ctx['${fnName}'](${operand.id})`;
           break;
         }
         case "BIN_OPERATION": {
@@ -342,65 +345,8 @@ export function compile(formula: string): CompiledFormula {
         return { id: `_${id}`, code: codeBlocks.join("\n") };
       }
     }
-
-    /** Return a stack of formats corresponding to the priorities in which
-     * formats should be tested.
-     *
-     * If the value of the stack is a number it corresponds to a dependency from
-     * which the format can be inferred.
-     *
-     * If the value is a string it corresponds to a literal format which can be
-     * applied directly.
-     * */
-    function formatAST(ast: AST): (Format | number)[] {
-      let fnDef: FunctionDescription;
-      switch (ast.type) {
-        case "REFERENCE":
-          return [dependencies.indexOf(ast.value)];
-        case "FUNCALL":
-          fnDef = functions[ast.value.toUpperCase()];
-          if (fnDef.returnFormat) {
-            if (fnDef.returnFormat === "FormatFromArgument") {
-              if (ast.args.length > 0) {
-                const argPosition = 0;
-                const argType = fnDef.args[argPosition].type;
-                if (!argType.includes("META")) {
-                  return formatAST(ast.args[argPosition]);
-                }
-              }
-            } else {
-              return [fnDef.returnFormat.specificFormat];
-            }
-          }
-          break;
-        case "UNARY_OPERATION":
-          return formatAST(ast.operand);
-        case "BIN_OPERATION":
-          // the BIN_OPERATION ast is the only function case where we will look
-          // at the following argument when the current argument has't format.
-          // So this is the only place where the stack can grow.
-          fnDef = functions[OPERATOR_MAP[ast.value]];
-          if (fnDef.returnFormat) {
-            if (fnDef.returnFormat === "FormatFromArgument") {
-              const left = formatAST(ast.left);
-              // as a string represents a safe format, we don't need to know the
-              // format of the following arguments.
-              if (typeof left[left.length - 1] === "string") {
-                return left;
-              }
-              const right = formatAST(ast.right);
-              return left.concat(right);
-            } else {
-              return [fnDef.returnFormat.specificFormat];
-            }
-          }
-          break;
-      }
-      return [];
-    }
   }
   const compiledFormula: InternalCompiledFormula = {
-    dependenciesFormat: functionCache[cacheKey].dependenciesFormat,
     execute: functionCache[cacheKey].execute,
     dependencies,
     constantValues,

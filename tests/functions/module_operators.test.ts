@@ -1,4 +1,4 @@
-import { evaluateCell, evaluateCellText } from "../test_helpers/helpers";
+import { evaluateCell, evaluateCellFormat } from "../test_helpers/helpers";
 
 describe("ADD formula", () => {
   test("functional tests on simple arguments", () => {
@@ -39,10 +39,10 @@ describe("ADD formula", () => {
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '="42"' })).toBe(84);
   });
 
-  test("format tests on linked operator", () => {
-    expect(evaluateCellText("A3", { A1: "0.42", A2: "1", A3: "=A1+A2" })).toBe("1.42");
-    expect(evaluateCellText("A3", { A1: "42%", A2: "1", A3: "=A1+A2" })).toBe("142%");
-    expect(evaluateCellText("A3", { A1: "1", A2: "42%", A3: "=A1+A2" })).toBe("142%");
+  test("result format depends on 1st argument and 2nd argument", () => {
+    expect(evaluateCellFormat("A3", { A1: "0.42", A2: "1", A3: "=A1+A2" })).toBe("");
+    expect(evaluateCellFormat("A3", { A1: "42%", A2: "1", A3: "=A1+A2" })).toBe("0%");
+    expect(evaluateCellFormat("A3", { A1: "1", A2: "42%", A3: "=A1+A2" })).toBe("0%");
   });
 });
 
@@ -120,10 +120,10 @@ describe("DIVIDE formula", () => {
     expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)", A2: "42", A3: '="42"' })).toBe(1);
   });
 
-  test("format tests on linked operator", () => {
-    expect(evaluateCellText("A3", { A1: "1", A2: "0.25", A3: "=A1/A2" })).toBe("4");
-    expect(evaluateCellText("A3", { A1: "1", A2: "25%", A3: "=A1/A2" })).toBe("400%");
-    expect(evaluateCellText("A3", { A1: "25%", A2: "1", A3: "=A1/A2" })).toBe("25%");
+  test("result format depends on 1st argument and 2nd argument", () => {
+    expect(evaluateCellFormat("A3", { A1: "0.42", A2: "1", A3: "=A1/A2" })).toBe("");
+    expect(evaluateCellFormat("A3", { A1: "42%", A2: "1", A3: "=A1/A2" })).toBe("0%");
+    expect(evaluateCellFormat("A3", { A1: "1", A2: "42%", A3: "=A1/A2" })).toBe("0%");
   });
 });
 
@@ -543,10 +543,10 @@ describe("MINUS formula", () => {
     expect(evaluateCell("A1", { A1: "=MINUS(A2, A3)", A2: "42", A3: '="42"' })).toBe(0);
   });
 
-  test("format tests on linked operator", () => {
-    expect(evaluateCellText("A3", { A1: "1", A2: "0.25", A3: "=A1-A2" })).toBe("0.75");
-    expect(evaluateCellText("A3", { A1: "1", A2: "25%", A3: "=A1-A2" })).toBe("75%");
-    expect(evaluateCellText("A3", { A1: "25%", A2: "1", A3: "=A1-A2" })).toBe("-75%");
+  test("result format depends on 1st argument and 2nd argument", () => {
+    expect(evaluateCellFormat("A3", { A1: "0.42", A2: "1", A3: "=A1-A2" })).toBe("");
+    expect(evaluateCellFormat("A3", { A1: "42%", A2: "1", A3: "=A1-A2" })).toBe("0%");
+    expect(evaluateCellFormat("A3", { A1: "1", A2: "42%", A3: "=A1-A2" })).toBe("0%");
   });
 });
 
@@ -588,10 +588,10 @@ describe("MULTIPLY formula", () => {
     expect(evaluateCell("A1", { A1: "=MULTIPLY(A2, A3)", A2: "42", A3: '="42"' })).toBe(1764);
   });
 
-  test("format tests on linked operator", () => {
-    expect(evaluateCellText("A3", { A1: "1", A2: "0.25", A3: "=A1*A2" })).toBe("0.25");
-    expect(evaluateCellText("A3", { A1: "1", A2: "25%", A3: "=A1*A2" })).toBe("25%");
-    expect(evaluateCellText("A3", { A1: "25%", A2: "1", A3: "=A1*A2" })).toBe("25%");
+  test("result format depends on 1st argument and 2nd argument", () => {
+    expect(evaluateCellFormat("A3", { A1: "0.42", A2: "1", A3: "=A1*A2" })).toBe("");
+    expect(evaluateCellFormat("A3", { A1: "42%", A2: "1", A3: "=A1*A2" })).toBe("0%");
+    expect(evaluateCellFormat("A3", { A1: "1", A2: "42%", A3: "=A1*A2" })).toBe("0%");
   });
 });
 
@@ -728,8 +728,8 @@ describe("UMINUS formula", () => {
   });
 
   test("format tests on linked operator", () => {
-    expect(evaluateCellText("A3", { A1: "0.25", A3: "=-A1" })).toBe("-0.25");
-    expect(evaluateCellText("A3", { A1: "25%", A3: "=-A1" })).toBe("-25%");
+    expect(evaluateCellFormat("A3", { A1: "0.25", A3: "=-A1" })).toBe("");
+    expect(evaluateCellFormat("A3", { A1: "25%", A3: "=-A1" })).toBe("0%");
   });
 });
 
@@ -787,7 +787,7 @@ describe("UPLUS formula", () => {
   });
 
   test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=UPLUS(A2)" })).toBe(null);
+    expect(evaluateCell("A1", { A1: "=UPLUS(A2)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=UPLUS(A2)", A2: "0" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=UPLUS(A2)", A2: "-2" })).toBe(-2);
     expect(evaluateCell("A1", { A1: "=UPLUS(A2)", A2: "3" })).toBe(3);
@@ -801,7 +801,7 @@ describe("UPLUS formula", () => {
   });
 
   test("format tests on linked operator", () => {
-    expect(evaluateCellText("A3", { A1: "0.25", A3: "=+A1" })).toBe("0.25");
-    expect(evaluateCellText("A3", { A1: "25%", A3: "=+A1" })).toBe("25%");
+    expect(evaluateCellFormat("A3", { A1: "0.25", A3: "=+A1" })).toBe("");
+    expect(evaluateCellFormat("A3", { A1: "25%", A3: "=+A1" })).toBe("0%");
   });
 });

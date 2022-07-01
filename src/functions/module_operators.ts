@@ -1,5 +1,5 @@
 import { _lt } from "../translation";
-import { AddFunctionDescription, ArgValue, ReturnFormatType } from "../types";
+import { AddFunctionDescription, ArgValue, PrimitiveArg, ReturnValue } from "../types";
 import { args } from "./arguments";
 import { assert, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
@@ -14,7 +14,7 @@ export const ADD: AddFunctionDescription = {
       value2 (number) ${_lt("The second addend.")}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value1: PrimitiveArg, value2: PrimitiveArg) => value1?.format || value2?.format,
   compute: function (value1: ArgValue, value2: ArgValue): number {
     return toNumber(value1) + toNumber(value2);
   },
@@ -46,7 +46,8 @@ export const DIVIDE: AddFunctionDescription = {
       divisor (number) ${_lt("The number to divide by.")}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (dividend: PrimitiveArg, divisor: PrimitiveArg) =>
+    dividend?.format || divisor?.format,
   compute: function (dividend: ArgValue, divisor: ArgValue): number {
     const _divisor = toNumber(divisor);
     assert(() => _divisor !== 0, _lt("The divisor must be different from zero."));
@@ -181,7 +182,7 @@ export const MINUS: AddFunctionDescription = {
       value2 (number) ${_lt("The subtrahend, or number to subtract from value1.")}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value1: PrimitiveArg, value2: PrimitiveArg) => value1?.format || value2?.format,
   compute: function (value1: ArgValue, value2: ArgValue): number {
     return toNumber(value1) - toNumber(value2);
   },
@@ -197,7 +198,8 @@ export const MULTIPLY: AddFunctionDescription = {
       factor2 (number) ${_lt("The second multiplicand.")}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (factor1: PrimitiveArg, factor2: PrimitiveArg) =>
+    factor1?.format || factor2?.format,
   compute: function (factor1: ArgValue, factor2: ArgValue): number {
     return toNumber(factor1) * toNumber(factor2);
   },
@@ -229,7 +231,7 @@ export const POW: AddFunctionDescription = {
     `),
   returns: ["BOOLEAN"],
   compute: function (base: ArgValue, exponent: ArgValue): number {
-    return POWER.compute(base, exponent);
+    return POWER.compute(base, exponent) as number;
   },
 };
 
@@ -243,7 +245,7 @@ export const UMINUS: AddFunctionDescription = {
         "The number to have its sign reversed. Equivalently, the number to multiply by -1."
       )}
     `),
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value: PrimitiveArg) => value?.format,
   returns: ["NUMBER"],
   compute: function (value: ArgValue): number {
     return -toNumber(value);
@@ -272,9 +274,9 @@ export const UPLUS: AddFunctionDescription = {
   args: args(`
       value (any) ${_lt("The number to return.")}
     `),
-  returnFormat: ReturnFormatType.FormatFromArgument,
   returns: ["ANY"],
-  compute: function (value: ArgValue): ArgValue {
-    return value;
+  computeFormat: (value: PrimitiveArg) => value?.format,
+  compute: function (value: ArgValue): ReturnValue {
+    return value === null ? "" : value;
   },
 };

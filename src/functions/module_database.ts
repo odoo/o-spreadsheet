@@ -1,5 +1,12 @@
 import { _lt } from "../translation";
-import { AddFunctionDescription, ArgRange, ArgValue, CellValue } from "../types";
+import {
+  AddFunctionDescription,
+  ArgRange,
+  Argument,
+  ArgValue,
+  CellValue,
+  ReturnValue,
+} from "../types";
 import { args } from "./arguments";
 import { assert, toString, visitMatchingRanges } from "./helpers";
 import { PRODUCT, SUM } from "./module_math";
@@ -80,7 +87,7 @@ function getMatchingCells(database: ArgRange, field: ArgValue, criteria: ArgRang
   let matchingRows: Set<number> = new Set();
   const dimColDB = database[0].length;
   for (let indexRow = 1; indexRow < dimColCriteria; indexRow++) {
-    let args: (ArgRange | CellValue)[] = [];
+    let args: Argument[] = [];
     let existColNameDB = true;
     for (let indexCol = 0; indexCol < criteria.length; indexCol++) {
       const currentName = toString(criteria[indexCol][0]).toUpperCase();
@@ -120,7 +127,7 @@ function getMatchingCells(database: ArgRange, field: ArgValue, criteria: ArgRang
 
   // 4 - return for each database row corresponding, the cells corresponding to the field parameter
 
-  const fieldCol: ArgValue[] = database[index];
+  const fieldCol: (CellValue | undefined)[] = database[index];
   // Example continuation:: fieldCol = ["C", "j", "k", 7]
   const matchingCells = [...matchingRows].map((x) => fieldCol[x + 1]);
   // Example continuation:: matchingCells = ["j", 7]
@@ -149,7 +156,7 @@ export const DAVERAGE: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
-    return AVERAGE.compute([cells]);
+    return AVERAGE.compute([cells]) as number;
   },
   isExported: true,
 };
@@ -163,7 +170,7 @@ export const DCOUNT: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
-    return COUNT.compute([cells]);
+    return COUNT.compute([cells]) as number;
   },
   isExported: true,
 };
@@ -177,7 +184,7 @@ export const DCOUNTA: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
-    return COUNTA.compute([cells]);
+    return COUNTA.compute([cells]) as number;
   },
   isExported: true,
 };
@@ -189,7 +196,7 @@ export const DGET: AddFunctionDescription = {
   description: _lt("Single value from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
-  compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): ArgValue {
+  compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): ReturnValue {
     const cells = getMatchingCells(database, field, criteria);
     assert(() => cells.length === 1, _lt("More than one match found in DGET evaluation."));
     return cells[0];
@@ -206,7 +213,7 @@ export const DMAX: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
-    return MAX.compute([cells]);
+    return MAX.compute([cells]) as number;
   },
   isExported: true,
 };
@@ -220,7 +227,7 @@ export const DMIN: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
-    return MIN.compute([cells]);
+    return MIN.compute([cells]) as number;
   },
   isExported: true,
 };
@@ -234,7 +241,7 @@ export const DPRODUCT: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
-    return PRODUCT.compute([cells]);
+    return PRODUCT.compute([cells]) as number;
   },
   isExported: true,
 };
@@ -248,7 +255,7 @@ export const DSTDEV: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
-    return STDEV.compute([cells]);
+    return STDEV.compute([cells]) as number;
   },
   isExported: true,
 };
@@ -262,7 +269,7 @@ export const DSTDEVP: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
-    return STDEVP.compute([cells]);
+    return STDEVP.compute([cells]) as number;
   },
   isExported: true,
 };
@@ -276,7 +283,7 @@ export const DSUM: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
-    return SUM.compute([cells]);
+    return SUM.compute([cells]) as number;
   },
   isExported: true,
 };
@@ -290,7 +297,7 @@ export const DVAR: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
-    return VAR.compute([cells]);
+    return VAR.compute([cells]) as number;
   },
   isExported: true,
 };
@@ -304,7 +311,7 @@ export const DVARP: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (database: ArgRange, field: ArgValue, criteria: ArgRange): number {
     const cells = getMatchingCells(database, field, criteria);
-    return VARP.compute([cells]);
+    return VARP.compute([cells]) as number;
   },
   isExported: true,
 };

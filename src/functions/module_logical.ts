@@ -1,5 +1,5 @@
 import { _lt } from "../translation";
-import { AddFunctionDescription, Argument, ArgValue } from "../types";
+import { AddFunctionDescription, Argument, ArgValue, ReturnValue } from "../types";
 import { args } from "./arguments";
 import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
 
@@ -52,7 +52,7 @@ export const IF: AddFunctionDescription = {
     logicalExpression: ArgValue,
     valueIfTrue: () => ArgValue,
     valueIfFalse: () => ArgValue = () => false
-  ): ArgValue {
+  ): ReturnValue {
     const result = toBoolean(logicalExpression) ? valueIfTrue() : valueIfFalse();
     return result === null || result === undefined ? "" : result;
   },
@@ -71,7 +71,7 @@ export const IFERROR: AddFunctionDescription = {
   )}
   `),
   returns: ["ANY"],
-  compute: function (value: () => ArgValue, valueIfError: () => ArgValue = () => ""): ArgValue {
+  compute: function (value: () => ArgValue, valueIfError: () => ArgValue = () => ""): ReturnValue {
     let result;
     try {
       result = value();
@@ -101,14 +101,15 @@ export const IFS: AddFunctionDescription = {
       )}
   `),
   returns: ["ANY"],
-  compute: function (...values: (() => ArgValue)[]): ArgValue {
+  compute: function (...values: (() => ArgValue)[]): ReturnValue {
     assert(
       () => values.length % 2 === 0,
       _lt(`Wrong number of arguments. Expected an even number of arguments.`)
     );
     for (let n = 0; n < values.length - 1; n += 2) {
       if (toBoolean(values[n]())) {
-        return values[n + 1]();
+        const returnValue = values[n + 1]();
+        return returnValue !== null ? returnValue : "";
       }
     }
     throw new Error(_lt(`No match.`));

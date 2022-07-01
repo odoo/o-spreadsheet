@@ -1,4 +1,4 @@
-import { evaluateCell, evaluateGrid } from "../test_helpers/helpers";
+import { evaluateCell, evaluateCellFormat, evaluateGrid } from "../test_helpers/helpers";
 
 describe("AVEDEV formula", () => {
   test("functional tests on simple arguments", () => {
@@ -114,6 +114,12 @@ describe("AVERAGE formula", () => {
     };
     expect(evaluateCell("A1", grid)).toEqual(8);
     expect(evaluateCell("A2", grid)).toEqual(8);
+  });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=AVERAGE(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=AVERAGE(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=AVERAGE(A2:A3)", A2: "1", A3: "42%" })).toBe("");
   });
 });
 
@@ -328,6 +334,16 @@ describe("AVERAGE.WEIGHTED formula", () => {
     expect(evaluateCell("A9", grid)).toBe(16);
     expect(evaluateCell("A10", grid)).toBe(16);
   });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=AVERAGE.WEIGHTED(A2, 2)", A2: "42" })).toBe("");
+    expect(
+      evaluateCellFormat("A1", { A1: "=AVERAGE.WEIGHTED(A2:A3, A2:A3)", A2: "42%", A3: "1" })
+    ).toBe("0%");
+    expect(
+      evaluateCellFormat("A1", { A1: "=AVERAGE.WEIGHTED(A2:A3, A2:A3)", A2: "1", A3: "42%" })
+    ).toBe("");
+  });
 });
 
 describe("AVERAGEA formula", () => {
@@ -393,6 +409,12 @@ describe("AVERAGEA formula", () => {
     };
     expect(evaluateCell("A1", grid)).toBe(2);
     expect(evaluateCell("A2", grid)).toBe(2);
+  });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=AVERAGEA(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=AVERAGEA(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=AVERAGEA(A2:A3)", A2: "1", A3: "42%" })).toBe("");
   });
 });
 
@@ -755,6 +777,11 @@ describe("LARGE formula", () => {
       evaluateCell("A1", { A1: "=LARGE(A2:A4, A5)", A2: "TRUE", A3: "0", A4: "0", A5: "1" })
     ).toBe(0);
   });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=LARGE(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=LARGE(A2, A3)", A2: "42%", A3: "1" })).toBe("0%");
+  });
 });
 
 describe("MAX formula", () => {
@@ -872,6 +899,12 @@ describe("MAX formula", () => {
     expect(gridResult.C1).toEqual(3);
     expect(gridResult.D1).toEqual(0);
     expect(gridResult.E1).toEqual(0);
+  });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=MAX(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=MAX(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=MAX(A2:A3)", A2: "1", A3: "42%" })).toBe("");
   });
 });
 
@@ -999,6 +1032,12 @@ describe("MAXA formula", () => {
     expect(gridResult.E1).toEqual(0);
     expect(gridResult.F1).toEqual(1);
   });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=MAXA(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=MAXA(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=MAXA(A2:A3)", A2: "1", A3: "42%" })).toBe("");
+  });
 });
 
 describe("MAXIFS formula", () => {
@@ -1096,6 +1135,12 @@ describe("MEDIAN formula", () => {
       expect(evaluateCell("A1", { A1: "=MEDIAN(A2, 2, 3, 6)", A2: "coucou" })).toBe(3);
       expect(evaluateCell("A1", { A1: "=MEDIAN(A2, 2, 3, 6)", A2: '"42"' })).toBe(3);
     });
+  });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=MEDIAN(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=MEDIAN(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=MEDIAN(A2:A3)", A2: "1", A3: "42%" })).toBe("");
   });
 });
 
@@ -1214,6 +1259,12 @@ describe("MIN formula", () => {
     expect(gridResult.C1).toEqual(3);
     expect(gridResult.D1).toEqual(0);
     expect(gridResult.E1).toEqual(0);
+  });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=MIN(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=MIN(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=MIN(A2:A3)", A2: "1", A3: "42%" })).toBe("");
   });
 });
 
@@ -1341,6 +1392,12 @@ describe("MINA formula", () => {
     expect(gridResult.D1).toEqual(0);
     expect(gridResult.E1).toEqual(0);
     expect(gridResult.F1).toEqual(1);
+  });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=MINA(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=MINA(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=MINA(A2:A3)", A2: "1", A3: "42%" })).toBe("");
   });
 });
 
@@ -1568,6 +1625,16 @@ describe.each([["PERCENTILE"], ["PERCENTILE.INC"], ["PERCENTILE.EXC"]])(
         });
       });
     });
+
+    test("result format depends on 1st argument", () => {
+      expect(evaluateCellFormat("A1", { A1: percentile + "(A2, 0.5)", A2: "42" })).toBe("");
+      expect(
+        evaluateCellFormat("A1", { A1: percentile + "(A2:A3, 0.5)", A2: "600%", A3: "7" })
+      ).toBe("0%");
+      expect(
+        evaluateCellFormat("A1", { A1: percentile + "(A2:A3, 0.5)", A2: "1", A3: "42%" })
+      ).toBe("");
+    });
   }
 );
 
@@ -1761,6 +1828,14 @@ describe.each([["QUARTILE"], ["QUARTILE.INC"], ["QUARTILE.EXC"]])("%s formula", 
       });
     });
   });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: quartile + "(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: quartile + "(A2:A3, 2)", A2: "600%", A3: "7" })).toBe(
+      "0%"
+    );
+    expect(evaluateCellFormat("A1", { A1: quartile + "(A2:A3, 2)", A2: "1", A3: "42%" })).toBe("");
+  });
 });
 
 describe("SMALL formula", () => {
@@ -1834,6 +1909,12 @@ describe("SMALL formula", () => {
     expect(
       evaluateCell("A1", { A1: "=SMALL(A2:A4, A5)", A2: "TRUE", A3: "0", A4: "0", A5: "1" })
     ).toBe(0);
+  });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=SMALL(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=SMALL(A2:A3, 2)", A2: "600%", A3: "7" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=SMALL(A2:A3, 2)", A2: "1", A3: "42%" })).toBe("");
   });
 });
 

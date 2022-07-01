@@ -1,6 +1,15 @@
 import { Registry } from "../registry";
 import { _lt } from "../translation";
-import { AddFunctionDescription, FunctionDescription } from "../types";
+import {
+  AddFunctionDescription,
+  Arg,
+  Argument,
+  ComputeFunction,
+  ComputeFunctionArg,
+  EvalContext,
+  FunctionDescription,
+  FunctionReturn,
+} from "../types";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
 import * as database from "./module_database";
 import * as date from "./module_date";
@@ -36,7 +45,9 @@ const functionNameRegex = /^[A-Z0-9\.]+$/;
 // Function registry
 //------------------------------------------------------------------------------
 class FunctionRegistry extends Registry<FunctionDescription> {
-  mapping: { [key: string]: Function } = {};
+  mapping: {
+    [key: string]: ComputeFunction<Arg, FunctionReturn>;
+  } = {};
 
   add(name: string, addDescr: AddFunctionDescription) {
     name = name.toUpperCase();
@@ -50,10 +61,44 @@ class FunctionRegistry extends Registry<FunctionDescription> {
     }
     const descr = addMetaInfoFromArg(addDescr);
     validateArguments(descr.args);
-    this.mapping[name] = descr.compute;
+
+    function computeValueAndFormat(
+      this: EvalContext,
+      ...args: ComputeFunctionArg<Arg>[]
+    ): FunctionReturn {
+      const computeValue = descr.compute.bind(this);
+      const computeFormat = descr.computeFormat ? descr.computeFormat.bind(this) : () => undefined;
+
+      return {
+        value: computeValue(...extractArgValuesFromArgs(args)),
+        format: computeFormat(...args),
+      };
+    }
+
+    this.mapping[name] = computeValueAndFormat;
+
     super.add(name, descr);
     return this;
   }
+}
+
+function extractArgValuesFromArgs(args: ComputeFunctionArg<Arg>[]): ComputeFunctionArg<Argument>[] {
+  return args.map((arg) => {
+    if (arg === undefined) {
+      return undefined;
+    }
+    if (typeof arg === "function") {
+      return () => _extractArgValuesFromArgs(arg());
+    }
+    return _extractArgValuesFromArgs(arg);
+  });
+}
+
+function _extractArgValuesFromArgs(arg: Arg): Argument {
+  if (Array.isArray(arg)) {
+    return arg.map((col) => col.map((simpleArg) => simpleArg?.value));
+  }
+  return arg?.value;
 }
 
 export const functionRegistry = new FunctionRegistry();

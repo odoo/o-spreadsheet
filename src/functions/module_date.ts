@@ -1,6 +1,6 @@
 import { INITIAL_1900_DAY, jsDateToRoundNumber, MS_PER_DAY, parseDateTime } from "../helpers/dates";
 import { _lt } from "../translation";
-import { AddFunctionDescription, Argument, ArgValue, CellValue } from "../types";
+import { AddFunctionDescription, Argument, ArgValue } from "../types";
 import { args } from "./arguments";
 import { assert, toJsDate, toNumber, toString, visitAny } from "./helpers";
 
@@ -23,7 +23,7 @@ export const DATE: AddFunctionDescription = {
     day (number) ${_lt("The day component of the date.")}
     `),
   returns: ["DATE"],
-  returnFormat: { specificFormat: "m/d/yyyy" },
+  computeFormat: () => "m/d/yyyy",
   compute: function (year: ArgValue, month: ArgValue, day: ArgValue): number {
     let _year = Math.trunc(toNumber(year));
     const _month = Math.trunc(toNumber(month));
@@ -122,7 +122,7 @@ export const EDATE: AddFunctionDescription = {
     )}
     `),
   returns: ["DATE"],
-  returnFormat: { specificFormat: "m/d/yyyy" },
+  computeFormat: () => "m/d/yyyy",
   compute: function (startDate: ArgValue, months: ArgValue): number {
     const _startDate = toJsDate(startDate);
     const _months = Math.trunc(toNumber(months));
@@ -148,7 +148,7 @@ export const EOMONTH: AddFunctionDescription = {
     )}
     `),
   returns: ["DATE"],
-  returnFormat: { specificFormat: "m/d/yyyy" },
+  computeFormat: () => "m/d/yyyy",
   compute: function (startDate: ArgValue, months: ArgValue): number {
     const _startDate = toJsDate(startDate);
     const _months = Math.trunc(toNumber(months));
@@ -309,12 +309,8 @@ export const NETWORKDAYS: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (
-    startDate: ArgValue,
-    endDate: ArgValue,
-    holidays: Argument | undefined = undefined
-  ): number {
-    return NETWORKDAYS_INTL.compute(startDate, endDate, 1, holidays);
+  compute: function (startDate: ArgValue, endDate: ArgValue, holidays: Argument): number {
+    return NETWORKDAYS_INTL.compute(startDate, endDate, 1, holidays) as number;
   },
   isExported: true,
 };
@@ -344,7 +340,7 @@ export const NETWORKDAYS: AddFunctionDescription = {
  * - 3 return [1,2] (correspond to Monday and Tuesday)
  * - "0101010" return [2,4,6] (correspond to Tuesday, Thursday and Saturday)
  */
-function weekendToDayNumber(weekend: CellValue): number[] {
+function weekendToDayNumber(weekend: ArgValue): number[] {
   // case "string"
   if (typeof weekend === "string") {
     assert(() => {
@@ -396,7 +392,7 @@ function weekendToDayNumber(weekend: CellValue): number[] {
     return [weekend - 11];
   }
 
-  throw Error(_lt("The weekend (%s) must be a number or a string.", weekend.toString()));
+  throw Error(_lt("The weekend must be a number or a string."));
 }
 
 export const NETWORKDAYS_INTL: AddFunctionDescription = {
@@ -420,7 +416,7 @@ export const NETWORKDAYS_INTL: AddFunctionDescription = {
     startDate: ArgValue,
     endDate: ArgValue,
     weekend: ArgValue = DEFAULT_WEEKEND,
-    holidays: Argument = undefined
+    holidays: Argument
   ): number {
     const _startDate = toJsDate(startDate);
     const _endDate = toJsDate(endDate);
@@ -462,7 +458,7 @@ export const NOW: AddFunctionDescription = {
   description: _lt("Current date and time as a date value."),
   args: [],
   returns: ["DATE"],
-  returnFormat: { specificFormat: "m/d/yyyy hh:mm:ss" },
+  computeFormat: () => "m/d/yyyy hh:mm:ss",
   compute: function (): number {
     let today = new Date();
     today.setMilliseconds(0);
@@ -499,7 +495,7 @@ export const TIME: AddFunctionDescription = {
     second (number) ${_lt("The second component of the time.")}
     `),
   returns: ["DATE"],
-  returnFormat: { specificFormat: "hh:mm:ss a" },
+  computeFormat: () => "hh:mm:ss a",
   compute: function (hour: ArgValue, minute: ArgValue, second: ArgValue): number {
     let _hour = Math.trunc(toNumber(hour));
     let _minute = Math.trunc(toNumber(minute));
@@ -551,7 +547,7 @@ export const TODAY: AddFunctionDescription = {
   description: _lt("Current date as a date value."),
   args: [],
   returns: ["DATE"],
-  returnFormat: { specificFormat: "m/d/yyyy" },
+  computeFormat: () => "m/d/yyyy",
   compute: function (): number {
     const today = new Date();
     const jsDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -613,7 +609,7 @@ export const WEEKNUM: AddFunctionDescription = {
     );
 
     if (_type === 21) {
-      return ISOWEEKNUM.compute(date);
+      return ISOWEEKNUM.compute(date) as number;
     }
 
     let startDayOfWeek: number;
@@ -648,7 +644,7 @@ export const WEEKNUM: AddFunctionDescription = {
 // WORKDAY
 // -----------------------------------------------------------------------------
 export const WORKDAY: AddFunctionDescription = {
-  description: _lt("Number of working days from start date."),
+  description: _lt("Date after a number of workdays."),
   args: args(`
       start_date (date) ${_lt("The date from which to begin counting.")}
       num_days (number) ${_lt(
@@ -659,13 +655,13 @@ export const WORKDAY: AddFunctionDescription = {
       )}
       `),
   returns: ["NUMBER"],
-  returnFormat: { specificFormat: "m/d/yyyy" },
+  computeFormat: () => "m/d/yyyy",
   compute: function (
     startDate: ArgValue,
     numDays: ArgValue,
     holidays: Argument | undefined = undefined
   ): number {
-    return WORKDAY_INTL.compute(startDate, numDays, 1, holidays);
+    return WORKDAY_INTL.compute(startDate, numDays, 1, holidays) as number;
   },
   isExported: true,
 };
@@ -674,7 +670,7 @@ export const WORKDAY: AddFunctionDescription = {
 // WORKDAY.INTL
 // -----------------------------------------------------------------------------
 export const WORKDAY_INTL: AddFunctionDescription = {
-  description: _lt("Net working days between two dates (specifying weekends)."),
+  description: _lt("Date after a number of workdays (specifying weekends)."),
   args: args(`
       start_date (date) ${_lt("The date from which to begin counting.")}
       num_days (number) ${_lt(
@@ -688,12 +684,12 @@ export const WORKDAY_INTL: AddFunctionDescription = {
       )}
     `),
   returns: ["DATE"],
-  returnFormat: { specificFormat: "m/d/yyyy" },
+  computeFormat: () => "m/d/yyyy",
   compute: function (
     startDate: ArgValue,
     numDays: ArgValue,
     weekend: ArgValue = DEFAULT_WEEKEND,
-    holidays: Argument = undefined
+    holidays: Argument
   ): number {
     let _startDate = toJsDate(startDate);
     let _numDays = Math.trunc(toNumber(numDays));
@@ -925,7 +921,7 @@ export const MONTH_START: AddFunctionDescription = {
     date (date) ${_lt("The date from which to calculate the result.")}
     `),
   returns: ["DATE"],
-  returnFormat: { specificFormat: "m/d/yyyy" },
+  computeFormat: () => "m/d/yyyy",
   compute: function (date: ArgValue): number {
     const _startDate = toJsDate(date);
     const yStart = _startDate.getFullYear();
@@ -944,9 +940,9 @@ export const MONTH_END: AddFunctionDescription = {
     date (date) ${_lt("The date from which to calculate the result.")}
     `),
   returns: ["DATE"],
-  returnFormat: { specificFormat: "m/d/yyyy" },
+  computeFormat: () => "m/d/yyyy",
   compute: function (date: ArgValue): number {
-    return EOMONTH.compute(date, 0);
+    return EOMONTH.compute(date, 0) as number;
   },
 };
 
@@ -973,10 +969,10 @@ export const QUARTER_START: AddFunctionDescription = {
     date (date) ${_lt("The date from which to calculate the start of quarter.")}
     `),
   returns: ["DATE"],
-  returnFormat: { specificFormat: "m/d/yyyy" },
+  computeFormat: () => "m/d/yyyy",
   compute: function (date: ArgValue): number {
-    const quarter = QUARTER.compute(date);
-    const year = YEAR.compute(date);
+    const quarter = QUARTER.compute(date) as number;
+    const year = YEAR.compute(date) as number;
     const jsDate = new Date(year, (quarter - 1) * 3, 1);
     return jsDateToRoundNumber(jsDate);
   },
@@ -991,10 +987,10 @@ export const QUARTER_END: AddFunctionDescription = {
     date (date) ${_lt("The date from which to calculate the end of quarter.")}
     `),
   returns: ["DATE"],
-  returnFormat: { specificFormat: "m/d/yyyy" },
+  computeFormat: () => "m/d/yyyy",
   compute: function (date: ArgValue): number {
-    const quarter = QUARTER.compute(date);
-    const year = YEAR.compute(date);
+    const quarter = QUARTER.compute(date) as number;
+    const year = YEAR.compute(date) as number;
     const jsDate = new Date(year, quarter * 3, 0);
     return jsDateToRoundNumber(jsDate);
   },
@@ -1009,9 +1005,9 @@ export const YEAR_START: AddFunctionDescription = {
     date (date) ${_lt("The date from which to calculate the start of the year.")}
     `),
   returns: ["DATE"],
-  returnFormat: { specificFormat: "m/d/yyyy" },
+  computeFormat: () => "m/d/yyyy",
   compute: function (date: ArgValue): number {
-    const year = YEAR.compute(date);
+    const year = YEAR.compute(date) as number;
     const jsDate = new Date(year, 0, 1);
     return jsDateToRoundNumber(jsDate);
   },
@@ -1026,9 +1022,9 @@ export const YEAR_END: AddFunctionDescription = {
     date (date) ${_lt("The date from which to calculate the end of the year.")}
     `),
   returns: ["DATE"],
-  returnFormat: { specificFormat: "m/d/yyyy" },
+  computeFormat: () => "m/d/yyyy",
   compute: function (date: ArgValue): number {
-    const year = YEAR.compute(date);
+    const year = YEAR.compute(date) as number;
     const jsDate = new Date(year + 1, 0, 0);
     return jsDateToRoundNumber(jsDate);
   },

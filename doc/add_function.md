@@ -15,7 +15,8 @@ implement the `FunctionDescription` interface from the code `/functions/index.ts
 The properties of a function are:
 
 - `description` (string) : the description of the function that will be shown as help for the user when he types the formula (don't forget the translations)
-- `compute` (function) : the function that will be called to evaluate the formula.
+- `compute` (function) : the function that will be called to evaluate the formula value.
+- `computeFormat` (function) : the function that will be called to evaluate the formula format.
 - `category` (string) : Not used
 - `args` (object): the arguments the user has to provide, in order, with the following properties
   - `name`\* (string) used in the help of the user (should NOT be translated)
@@ -68,10 +69,6 @@ The properties of a function are:
   - `"NUMBER"`
   - `"STRING"`
   - `"DATE"`
-- `returnFormat`(string | object): when you want your formula return a result with a format. This is especially useful when the formula returns a number.
-  - `"FormatFromArgument"` --> if the first argument of the formula is a reference to a cell or range, the format of the reference will be returned. Ex: in `=SUM(A2, A3, A4)` where the parameter `returnFormat` is defined as `"FormatFromArgument"`, the final formula format will be the format of the `A2` reference.
-  - `specificFormat` (string): a string that can be interpreted by spreadsheet. Ex: in `=TIME(A2, A3, A4)`
-    where the parameter `returnFormat` is defined as `{specificFormat: "hh:mm:ss"}`, the final formula format will be `"hh:mm:ss"`.
 - `isExported` (boolean, default=false): This will mark the function as exportable in Microsoft Excel. If set to _false_, cells with formula containing the function will be exported with its result as a static value.
 
   > ⚠ warning: If you are using `isExported`: _true_, make sure that both the function name and behaviour you defined match those in Microsoft Excel.

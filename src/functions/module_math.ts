@@ -1,5 +1,5 @@
 import { _lt } from "../translation";
-import { AddFunctionDescription, ArgRange, Argument, ArgValue, ReturnFormatType } from "../types";
+import { AddFunctionDescription, Arg, ArgRange, Argument, ArgValue, PrimitiveArg } from "../types";
 import { args } from "./arguments";
 import {
   assert,
@@ -229,7 +229,7 @@ export const CEILING: AddFunctionDescription = {
   )}
   `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value: PrimitiveArg) => value?.format,
   compute: function (value: ArgValue, factor: ArgValue = DEFAULT_FACTOR): number {
     const _value = toNumber(value);
     const _factor = toNumber(factor);
@@ -261,7 +261,7 @@ export const CEILING_MATH: AddFunctionDescription = {
   )}
   `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (number: PrimitiveArg) => number?.format,
   compute: function (
     number: ArgValue,
     significance: ArgValue = DEFAULT_SIGNIFICANCE,
@@ -300,9 +300,9 @@ export const CEILING_PRECISE: AddFunctionDescription = {
   )}
   `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (number: PrimitiveArg) => number?.format,
   compute: function (number: ArgValue, significance: ArgValue): number {
-    return CEILING_MATH.compute(number, significance, 0);
+    return CEILING_MATH.compute(number, significance, 0) as number;
   },
   isExported: true,
 };
@@ -630,7 +630,7 @@ export const FLOOR: AddFunctionDescription = {
   )}
   `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value: PrimitiveArg) => value?.format,
   compute: function (value: ArgValue, factor: ArgValue = DEFAULT_FACTOR): number {
     const _value = toNumber(value);
     const _factor = toNumber(factor);
@@ -664,7 +664,7 @@ export const FLOOR_MATH: AddFunctionDescription = {
   )}
   `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (number: PrimitiveArg) => number?.format,
   compute: function (
     number: ArgValue,
     significance: ArgValue = DEFAULT_SIGNIFICANCE,
@@ -704,9 +704,9 @@ export const FLOOR_PRECISE: AddFunctionDescription = {
   )}
   `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (number: PrimitiveArg) => number?.format,
   compute: function (number: ArgValue, significance: ArgValue = DEFAULT_SIGNIFICANCE): number {
-    return FLOOR_MATH.compute(number, significance, 0);
+    return FLOOR_MATH.compute(number, significance, 0) as number;
   },
   isExported: true,
 };
@@ -742,9 +742,9 @@ export const ISO_CEILING: AddFunctionDescription = {
   )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (number: PrimitiveArg) => number?.format,
   compute: function (number: ArgValue, significance: ArgValue = DEFAULT_SIGNIFICANCE): number {
-    return CEILING_MATH.compute(number, significance, 0);
+    return CEILING_MATH.compute(number, significance, 0) as number;
   },
   isExported: true,
 };
@@ -793,7 +793,7 @@ export const MOD: AddFunctionDescription = {
       divisor (number) ${_lt("The number to divide by.")}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (dividend: PrimitiveArg) => dividend?.format,
   compute: function (dividend: ArgValue, divisor: ArgValue): number {
     const _divisor = toNumber(divisor);
 
@@ -819,7 +819,7 @@ export const ODD: AddFunctionDescription = {
       value (number) ${_lt("The value to round to the next greatest odd number.")}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (number: PrimitiveArg) => number?.format,
   compute: function (value: ArgValue): number {
     const _value = toNumber(value);
 
@@ -853,7 +853,7 @@ export const POWER: AddFunctionDescription = {
       exponent (number) ${_lt("The exponent to raise base to.")}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (base: PrimitiveArg) => base?.format,
   compute: function (base: ArgValue, exponent: ArgValue): number {
     const _base = toNumber(base);
     const _exponent = toNumber(exponent);
@@ -880,7 +880,9 @@ export const PRODUCT: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (factor1: Arg) => {
+    return Array.isArray(factor1) ? factor1[0][0]?.format : factor1?.format;
+  },
   compute: function (...factors: Argument[]): number {
     let count = 0;
     let acc = 1;
@@ -930,7 +932,7 @@ export const RANDBETWEEN: AddFunctionDescription = {
       high (number) ${_lt("The high end of the random range.")}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (low: PrimitiveArg) => low?.format,
   compute: function (low: ArgValue, high: ArgValue): number {
     let _low = toNumber(low);
     if (!Number.isInteger(_low)) {
@@ -967,7 +969,7 @@ export const ROUND: AddFunctionDescription = {
   )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value: PrimitiveArg) => value?.format,
   compute: function (value: ArgValue, places: ArgValue = DEFAULT_PLACES): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
@@ -999,7 +1001,7 @@ export const ROUNDDOWN: AddFunctionDescription = {
   )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value: PrimitiveArg) => value?.format,
   compute: function (value: ArgValue, places: ArgValue = DEFAULT_PLACES): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
@@ -1031,7 +1033,7 @@ export const ROUNDUP: AddFunctionDescription = {
   )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value: PrimitiveArg) => value?.format,
   compute: function (value: ArgValue, places: ArgValue = DEFAULT_PLACES): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
@@ -1120,7 +1122,7 @@ export const SQRT: AddFunctionDescription = {
       value (number) ${_lt("The number for which to calculate the positive square root.")}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value: PrimitiveArg) => value?.format,
   compute: function (value: ArgValue): number {
     const _value = toNumber(value);
     assert(() => _value >= 0, _lt("The value (%s) must be positive or null.", _value.toString()));
@@ -1141,7 +1143,9 @@ export const SUM: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value1: Arg) => {
+    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+  },
   compute: function (...values: Argument[]): number {
     return reduceNumbers(values, (acc, a) => acc + a, 0);
   },
@@ -1250,7 +1254,7 @@ export const TRUNC: AddFunctionDescription = {
   )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value: PrimitiveArg) => value?.format,
   compute: function (value: ArgValue, places: ArgValue = DEFAULT_PLACES): number {
     const _value = toNumber(value);
     let _places = toNumber(places);

@@ -5,7 +5,7 @@ exports[`compile functions with lazy arguments functions call requesting lazy pa
 ) {
 // =USELAZYARG(|N0|)
 const _2 = () => {
-	return this.constantValues.numbers[0];
+	return { value: this.constantValues.numbers[0] };
 }
 ctx.__lastFnCalled = 'USELAZYARG';
 let _1 = ctx['USELAZYARG'](_2);
@@ -18,8 +18,8 @@ exports[`compile functions with lazy arguments functions call requesting lazy pa
 ) {
 // =USELAZYARG(|N0|/|N1|)
 const _2 = () => {
-	let _3 = this.constantValues.numbers[0];
-	let _4 = this.constantValues.numbers[1];
+	let _3 = { value: this.constantValues.numbers[0] };
+	let _4 = { value: this.constantValues.numbers[1] };
 	ctx.__lastFnCalled = 'DIVIDE';
 	return ctx['DIVIDE'](_3, _4);
 }
@@ -34,11 +34,11 @@ exports[`compile functions with lazy arguments functions call requesting lazy pa
 ) {
 // =USELAZYARG(|N0|/|N0|/|N1|)
 const _2 = () => {
-	let _4 = this.constantValues.numbers[0];
-	let _5 = this.constantValues.numbers[0];
+	let _4 = { value: this.constantValues.numbers[0] };
+	let _5 = { value: this.constantValues.numbers[0] };
 	ctx.__lastFnCalled = 'DIVIDE';
 	let _3 = ctx['DIVIDE'](_4, _5);
-	let _6 = this.constantValues.numbers[1];
+	let _6 = { value: this.constantValues.numbers[1] };
 	ctx.__lastFnCalled = 'DIVIDE';
 	return ctx['DIVIDE'](_3, _6);
 }
@@ -54,7 +54,7 @@ exports[`compile functions with lazy arguments functions call requesting lazy pa
 // =USELAZYARG(USELAZYARG(|N0|))
 const _2 = () => {
 	const _3 = () => {
-		return this.constantValues.numbers[0];
+		return { value: this.constantValues.numbers[0] };
 	}
 	ctx.__lastFnCalled = 'USELAZYARG';
 	return ctx['USELAZYARG'](_3);
@@ -128,7 +128,7 @@ exports[`expression compiler expressions with a debugger 1`] = `
 // =? |0| / |N0|
 debugger;
 let _2 = ref(deps[0], false, \\"DIVIDE\\",  undefined);
-let _3 = this.constantValues.numbers[0];
+let _3 = { value: this.constantValues.numbers[0] };
 ctx.__lastFnCalled = 'DIVIDE';
 let _1 = ctx['DIVIDE'](_2, _3);
 return _1;
@@ -153,7 +153,7 @@ exports[`expression compiler some arithmetic expressions 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|N0|
-let _1 = this.constantValues.numbers[0];
+let _1 = { value: this.constantValues.numbers[0] };
 return _1;
 }"
 `;
@@ -162,7 +162,7 @@ exports[`expression compiler some arithmetic expressions 2`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =true
-return true;
+return { value: true };
 }"
 `;
 
@@ -170,7 +170,7 @@ exports[`expression compiler some arithmetic expressions 3`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|S0|
-let _1 = this.constantValues.strings[0];
+let _1 = { value: this.constantValues.strings[0] };
 return _1;
 }"
 `;
@@ -179,8 +179,8 @@ exports[`expression compiler some arithmetic expressions 4`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|N0| + |N1|
-let _2 = this.constantValues.numbers[0];
-let _3 = this.constantValues.numbers[1];
+let _2 = { value: this.constantValues.numbers[0] };
+let _3 = { value: this.constantValues.numbers[1] };
 ctx.__lastFnCalled = 'ADD';
 let _1 = ctx['ADD'](_2, _3);
 return _1;
@@ -191,8 +191,8 @@ exports[`expression compiler some arithmetic expressions 5`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|N0| * |N1|
-let _2 = this.constantValues.numbers[0];
-let _3 = this.constantValues.numbers[1];
+let _2 = { value: this.constantValues.numbers[0] };
+let _3 = { value: this.constantValues.numbers[1] };
 ctx.__lastFnCalled = 'MULTIPLY';
 let _1 = ctx['MULTIPLY'](_2, _3);
 return _1;
@@ -203,8 +203,8 @@ exports[`expression compiler some arithmetic expressions 6`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|N0| - |N1|
-let _2 = this.constantValues.numbers[0];
-let _3 = this.constantValues.numbers[1];
+let _2 = { value: this.constantValues.numbers[0] };
+let _3 = { value: this.constantValues.numbers[1] };
 ctx.__lastFnCalled = 'MINUS';
 let _1 = ctx['MINUS'](_2, _3);
 return _1;
@@ -215,8 +215,8 @@ exports[`expression compiler some arithmetic expressions 7`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|N0| / |N1|
-let _2 = this.constantValues.numbers[0];
-let _3 = this.constantValues.numbers[1];
+let _2 = { value: this.constantValues.numbers[0] };
+let _3 = { value: this.constantValues.numbers[1] };
 ctx.__lastFnCalled = 'DIVIDE';
 let _1 = ctx['DIVIDE'](_2, _3);
 return _1;
@@ -227,9 +227,9 @@ exports[`expression compiler some arithmetic expressions 8`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =-|N0|
-let _2 = this.constantValues.numbers[0];
+let _2 = { value: this.constantValues.numbers[0] };
 ctx.__lastFnCalled = 'UMINUS';
-let _1 = ctx['UMINUS']( _2);
+let _1 = ctx['UMINUS'](_2);
 return _1;
 }"
 `;
@@ -238,14 +238,14 @@ exports[`expression compiler some arithmetic expressions 9`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =(|N0| + |N1|) * (-|N1| + |N2|)
-let _3 = this.constantValues.numbers[0];
-let _4 = this.constantValues.numbers[1];
+let _3 = { value: this.constantValues.numbers[0] };
+let _4 = { value: this.constantValues.numbers[1] };
 ctx.__lastFnCalled = 'ADD';
 let _2 = ctx['ADD'](_3, _4);
-let _7 = this.constantValues.numbers[1];
+let _7 = { value: this.constantValues.numbers[1] };
 ctx.__lastFnCalled = 'UMINUS';
-let _6 = ctx['UMINUS']( _7);
-let _8 = this.constantValues.numbers[2];
+let _6 = ctx['UMINUS'](_7);
+let _8 = { value: this.constantValues.numbers[2] };
 ctx.__lastFnCalled = 'ADD';
 let _5 = ctx['ADD'](_6, _8);
 ctx.__lastFnCalled = 'MULTIPLY';
@@ -258,8 +258,8 @@ exports[`expression compiler some arithmetic expressions 10`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =sum(|N0|,|N1|)
-let _2 = this.constantValues.numbers[0];
-let _3 = this.constantValues.numbers[1];
+let _2 = { value: this.constantValues.numbers[0] };
+let _3 = { value: this.constantValues.numbers[1] };
 ctx.__lastFnCalled = 'SUM';
 let _1 = ctx['SUM'](_2,_3);
 return _1;
@@ -270,9 +270,9 @@ exports[`expression compiler some arithmetic expressions 11`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =sum(true, |S0|)
-let _2 = this.constantValues.strings[0];
+let _2 = { value: this.constantValues.strings[0] };
 ctx.__lastFnCalled = 'SUM';
-let _1 = ctx['SUM'](true,_2);
+let _1 = ctx['SUM']({ value: true },_2);
 return _1;
 }"
 `;
@@ -281,8 +281,8 @@ exports[`expression compiler some arithmetic expressions 12`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =sum(|N0|,,|N1|)
-let _2 = this.constantValues.numbers[0];
-let _3 = this.constantValues.numbers[1];
+let _2 = { value: this.constantValues.numbers[0] };
+let _3 = { value: this.constantValues.numbers[1] };
 ctx.__lastFnCalled = 'SUM';
 let _1 = ctx['SUM'](_2,undefined,_3);
 return _1;
@@ -293,9 +293,9 @@ exports[`expression compiler some arithmetic expressions 13`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|N0|%
-let _2 = this.constantValues.numbers[0];
+let _2 = { value: this.constantValues.numbers[0] };
 ctx.__lastFnCalled = 'UNARY.PERCENT';
-let _1 = ctx['UNARY.PERCENT']( _2);
+let _1 = ctx['UNARY.PERCENT'](_2);
 return _1;
 }"
 `;
@@ -304,12 +304,12 @@ exports[`expression compiler some arithmetic expressions 14`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =(|N0|+|N1|)%
-let _3 = this.constantValues.numbers[0];
-let _4 = this.constantValues.numbers[1];
+let _3 = { value: this.constantValues.numbers[0] };
+let _4 = { value: this.constantValues.numbers[1] };
 ctx.__lastFnCalled = 'ADD';
 let _2 = ctx['ADD'](_3, _4);
 ctx.__lastFnCalled = 'UNARY.PERCENT';
-let _1 = ctx['UNARY.PERCENT']( _2);
+let _1 = ctx['UNARY.PERCENT'](_2);
 return _1;
 }"
 `;
@@ -320,7 +320,7 @@ exports[`expression compiler some arithmetic expressions 15`] = `
 // =|0|%
 let _2 = ref(deps[0], false, \\"UNARY.PERCENT\\",  undefined);
 ctx.__lastFnCalled = 'UNARY.PERCENT';
-let _1 = ctx['UNARY.PERCENT']( _2);
+let _1 = ctx['UNARY.PERCENT'](_2);
 return _1;
 }"
 `;

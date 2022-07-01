@@ -57,32 +57,32 @@ const selectionStatisticFunctions: SelectionStatisticFunction[] = [
   {
     name: _lt("Sum"),
     types: [CellValueType.number],
-    compute: (values) => SUM.compute([values]),
+    compute: (values) => SUM.compute([values]) as number,
   },
   {
     name: _lt("Avg"),
     types: [CellValueType.number],
-    compute: (values) => AVERAGE.compute([values]),
+    compute: (values) => AVERAGE.compute([values]) as number,
   },
   {
     name: _lt("Min"),
     types: [CellValueType.number],
-    compute: (values) => MIN.compute([values]),
+    compute: (values) => MIN.compute([values]) as number,
   },
   {
     name: _lt("Max"),
     types: [CellValueType.number],
-    compute: (values) => MAX.compute([values]),
+    compute: (values) => MAX.compute([values]) as number,
   },
   {
     name: _lt("Count"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
-    compute: (values) => COUNTA.compute([values]),
+    compute: (values) => COUNTA.compute([values]) as number,
   },
   {
     name: _lt("Count Numbers"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
-    compute: (values) => COUNT.compute([values]),
+    compute: (values) => COUNT.compute([values]) as number,
   },
 ];
 
