@@ -8,7 +8,6 @@ import {
   CellData,
   CellValueType,
   CommandResult,
-  CompiledFormula,
   CoreCommand,
   ExcelWorkbookData,
   Format,
@@ -42,7 +41,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "zoneToXC",
     "getCells",
     "getFormulaCellContent",
-    "inferFormulaFormat",
     "getCellStyle",
     "buildFormulaContent",
     "getCellById",
@@ -277,35 +275,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return undefined;
   }
 
-  /**
-   * Try to infer the cell format based on the formula dependencies.
-   * e.g. if the formula is `=A1` and A1 has a given format, the
-   * same format will be used.
-   */
-  inferFormulaFormat(compiledFormula: CompiledFormula, dependencies: Range[]): Format | undefined {
-    const dependenciesFormat = compiledFormula.dependenciesFormat;
-    for (let dependencyFormat of dependenciesFormat) {
-      switch (typeof dependencyFormat) {
-        case "string":
-          // dependencyFormat corresponds to a literal format which can be applied
-          // directly.
-          return dependencyFormat;
-        case "number":
-          // dependencyFormat corresponds to a dependency cell from which we must
-          // find the cell and extract the associated format
-          const ref = dependencies[dependencyFormat];
-          if (this.getters.tryGetSheet(ref.sheetId)) {
-            // if the reference is a range --> the first cell in the range
-            // determines the format
-            const cellRef = this.getters.getCell(ref.sheetId, ref.zone.left, ref.zone.top);
-            if (cellRef && cellRef.format) {
-              return cellRef.format;
-            }
-          }
-      }
-    }
-    return NULL_FORMAT;
-  }
   /*
    * Reconstructs the original formula string based on a normalized form and its dependencies
    */

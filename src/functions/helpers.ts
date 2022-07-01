@@ -19,7 +19,7 @@ const expectNumberValueError = (value: string) =>
     value
   );
 
-export function toNumber(value: ArgValue): number {
+export function toNumber(value: string | number | boolean | null | undefined): number {
   switch (typeof value) {
     case "number":
       return value;
@@ -39,14 +39,14 @@ export function toNumber(value: ArgValue): number {
   }
 }
 
-export function strictToNumber(value: ArgValue): number {
+export function strictToNumber(value: string | number | boolean | null | undefined): number {
   if (value === "") {
     throw new Error(expectNumberValueError(value));
   }
   return toNumber(value);
 }
 
-export function toString(value: ArgValue): string {
+export function toString(value: string | number | boolean | null | undefined): string {
   switch (typeof value) {
     case "string":
       return value;
@@ -65,7 +65,7 @@ const expectBooleanValueError = (value: string) =>
     value
   );
 
-export function toBoolean(value: ArgValue): boolean {
+export function toBoolean(value: string | number | boolean | null | undefined): boolean {
   switch (typeof value) {
     case "boolean":
       return value;
@@ -89,14 +89,14 @@ export function toBoolean(value: ArgValue): boolean {
   }
 }
 
-export function strictToBoolean(value: ArgValue): boolean {
+export function strictToBoolean(value: string | number | boolean | null | undefined): boolean {
   if (value === "") {
     throw new Error(expectBooleanValueError(value));
   }
   return toBoolean(value);
 }
 
-export function toJsDate(value: ArgValue): Date {
+export function toJsDate(value: string | number | boolean | null | undefined): Date {
   return numberToJsDate(toNumber(value));
 }
 
@@ -105,7 +105,7 @@ export function toJsDate(value: ArgValue): Date {
 // -----------------------------------------------------------------------------
 function visitArgs(
   args: Argument[],
-  cellCb: (a: ArgValue) => void,
+  cellCb: (a: CellValue | undefined) => void,
   dataCb: (a: ArgValue) => void
 ): void {
   for (let arg of args) {
@@ -125,7 +125,7 @@ function visitArgs(
   }
 }
 
-export function visitAny(args: Argument[], cb: (a: ArgValue) => void): void {
+export function visitAny(args: Argument[], cb: (a: ArgValue | undefined) => void): void {
   visitArgs(args, cb, cb);
 }
 
@@ -168,7 +168,7 @@ export function visitBooleans(args: Argument[], cb: (a: boolean) => void): void 
 
 function reduceArgs<T>(
   args: Argument[],
-  cellCb: (acc: T, a: ArgValue) => T,
+  cellCb: (acc: T, a: CellValue | undefined) => T,
   dataCb: (acc: T, a: ArgValue) => T,
   initialValue: T
 ): T {
@@ -191,7 +191,11 @@ function reduceArgs<T>(
   return val;
 }
 
-export function reduceAny<T>(args: Argument[], cb: (acc: T, a: ArgValue) => T, initialValue: T): T {
+export function reduceAny<T>(
+  args: Argument[],
+  cb: (acc: T, a: ArgValue | undefined) => T,
+  initialValue: T
+): T {
   return reduceArgs(args, cb, cb, initialValue);
 }
 
@@ -251,7 +255,7 @@ export function reduceNumbersTextAs0(
  */
 function conditionalVisitArgs(
   args: Argument[],
-  cellCb: (a: ArgValue) => boolean,
+  cellCb: (a: CellValue | undefined) => boolean,
   dataCb: (a: ArgValue) => boolean
 ): void {
   for (let arg of args) {
@@ -299,7 +303,7 @@ export function conditionalVisitBoolean(args: Argument[], cb: (a: boolean) => bo
 type Operator = ">" | ">=" | "<" | "<=" | "<>" | "=";
 interface Predicate {
   operator: Operator;
-  operand: ArgValue;
+  operand: number | string | boolean;
   regexp?: RegExp;
 }
 
@@ -364,7 +368,7 @@ function operandToRegExp(operand: string): RegExp {
   return new RegExp("^" + exp + "$", "i");
 }
 
-function evaluatePredicate(value: ArgValue, criterion: Predicate): boolean {
+function evaluatePredicate(value: CellValue | undefined, criterion: Predicate): boolean {
   const { operator, operand } = criterion;
 
   if (value === undefined || operand === undefined) {
@@ -500,13 +504,16 @@ export function visitMatchingRanges(
  * - [3, undefined, 6, undefined, 10], 9 => 2
  * - [3, 6, undefined, undefined, undefined, 10], 2 => -1
  */
-export function dichotomicPredecessorSearch(range: ArgValue[], target: ArgValue): number {
-  if (target === undefined) {
+export function dichotomicPredecessorSearch(
+  range: (CellValue | undefined)[],
+  target: ArgValue
+): number {
+  if (target === null) {
     return -1;
   }
   const targetType = typeof target;
 
-  let valMin: ArgValue = undefined;
+  let valMin: CellValue | undefined = undefined;
   let valMinIndex: number | undefined = undefined;
 
   let indexLeft = 0;
@@ -522,7 +529,7 @@ export function dichotomicPredecessorSearch(range: ArgValue[], target: ArgValue)
 
   let indexMedian: number;
   let currentIndex: number;
-  let currentVal: ArgValue;
+  let currentVal: CellValue | undefined;
   let currentType: string;
 
   while (indexRight - indexLeft >= 0) {

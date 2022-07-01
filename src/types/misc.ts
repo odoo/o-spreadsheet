@@ -143,18 +143,24 @@ export type _CompiledFormula = (
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
   ctx: {}
-) => any;
+) => FunctionReturn;
 
 export interface CompiledFormula {
   execute: _CompiledFormula;
   tokens: Token[];
-  dependenciesFormat: (Format | number)[];
   dependencies: string[];
 }
 
-export type ArgValue = CellValue | undefined;
-export type ArgRange = ArgValue[][];
+export type Arg = MatrixArg | PrimitiveArg;
+export type MatrixArg = ({ value: CellValue; format?: Format } | undefined)[][];
+export type PrimitiveArg = { value: ArgValue; format?: Format };
+
 export type Argument = ArgValue | ArgRange;
+export type ArgRange = (CellValue | undefined)[][];
+export type ArgValue = string | number | boolean | null;
+
+export type FunctionReturn = { value: ReturnValue; format?: Format };
+export type ReturnValue = string | number | boolean;
 
 export interface ClipboardCell {
   cell?: Cell;

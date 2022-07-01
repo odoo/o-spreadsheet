@@ -1,6 +1,6 @@
 import { toZone } from "../helpers/index";
 import { _lt } from "../translation";
-import { AddFunctionDescription, ArgRange, ArgValue } from "../types";
+import { AddFunctionDescription, ArgRange, ArgValue, CellValue, ReturnValue } from "../types";
 import { args } from "./arguments";
 import {
   assert,
@@ -23,7 +23,7 @@ const DEFAULT_IS_SORTED = true;
  * - [3, 6, 10], 9 => -1
  * - [3, 6, 10], 2 => -1
  */
-function linearSearch(range: ArgValue[], target: ArgValue): number {
+function linearSearch(range: (CellValue | undefined)[], target: ArgValue): number {
   for (let i = 0; i < range.length; i++) {
     if (range[i] === target) {
       return i;
@@ -46,13 +46,13 @@ export const COLUMN: AddFunctionDescription = {
     `
   ),
   returns: ["NUMBER"],
-  compute: function (cellReference?: string): number {
-    cellReference = cellReference || this.__originCellXC?.();
+  compute: function (cellReference: string): number {
+    const _cellReference = cellReference || this.__originCellXC?.();
     assert(
-      () => !!cellReference,
+      () => !!_cellReference,
       "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
     );
-    const zone = toZone(cellReference!);
+    const zone = toZone(_cellReference!);
     return zone.left + 1;
   },
   isExported: true,
@@ -97,7 +97,7 @@ export const HLOOKUP: AddFunctionDescription = {
     range: ArgRange,
     index: ArgValue,
     isSorted: ArgValue = DEFAULT_IS_SORTED
-  ): ArgValue {
+  ): ReturnValue {
     const _index = Math.trunc(toNumber(index));
     assert(
       () => 1 <= _index && _index <= range[0].length,
@@ -118,7 +118,7 @@ export const HLOOKUP: AddFunctionDescription = {
       _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey))
     );
 
-    return range[colIndex][_index - 1];
+    return range[colIndex][_index - 1] as ReturnValue;
   },
   isExported: true,
 };
@@ -143,7 +143,7 @@ export const LOOKUP: AddFunctionDescription = {
     searchKey: ArgValue,
     searchArray: ArgRange,
     resultRange: ArgRange | undefined
-  ): ArgValue {
+  ): ReturnValue {
     let nbCol = searchArray.length;
     let nbRow = searchArray[0].length;
 
@@ -156,7 +156,9 @@ export const LOOKUP: AddFunctionDescription = {
     );
 
     if (resultRange === undefined) {
-      return verticalSearch ? searchArray[nbCol - 1][index] : searchArray[index][nbRow - 1];
+      return (
+        verticalSearch ? searchArray[nbCol - 1][index] : searchArray[index][nbRow - 1]
+      ) as ReturnValue;
     }
 
     nbCol = resultRange.length;
@@ -171,7 +173,7 @@ export const LOOKUP: AddFunctionDescription = {
         () => index <= nbCol - 1,
         _lt("[[FUNCTION_NAME]] evaluates to an out of range row value %s.", (index + 1).toString())
       );
-      return resultRange[index][0];
+      return resultRange[index][0] as ReturnValue;
     }
 
     assert(
@@ -179,7 +181,7 @@ export const LOOKUP: AddFunctionDescription = {
       _lt("[[FUNCTION_NAME]] evaluates to an out of range column value %s.", (index + 1).toString())
     );
 
-    return resultRange[0][index];
+    return resultRange[0][index] as ReturnValue;
   },
   isExported: true,
 };
@@ -300,7 +302,7 @@ export const VLOOKUP: AddFunctionDescription = {
     range: ArgRange,
     index: ArgValue,
     isSorted: ArgValue = DEFAULT_IS_SORTED
-  ): ArgValue {
+  ): ReturnValue {
     const _index = Math.trunc(toNumber(index));
     assert(
       () => 1 <= _index && _index <= range.length,
@@ -321,7 +323,7 @@ export const VLOOKUP: AddFunctionDescription = {
       _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey))
     );
 
-    return range[_index - 1][rowIndex];
+    return range[_index - 1][rowIndex] as ReturnValue;
   },
   isExported: true,
 };

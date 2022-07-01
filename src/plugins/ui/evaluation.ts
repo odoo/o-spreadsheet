@@ -20,10 +20,13 @@ import {
   CommandDispatcher,
   EnsureRange,
   EvalContext,
+  Format,
   FormattedValue,
   FormulaCell,
   Getters,
   invalidateEvaluationCommands,
+  MatrixArg,
+  PrimitiveArg,
   Range,
   ReferenceDenormalizer,
   UID,
@@ -32,7 +35,7 @@ import { UIPlugin } from "../ui_plugin";
 
 const functionMap = functionRegistry.mapping;
 
-type FormulaParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
+type CompilationParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 
 export class EvaluationPlugin extends UIPlugin {
   static getters = ["evaluateFormula", "getRangeFormattedValues", "getRangeValues"] as const;
@@ -89,13 +92,13 @@ export class EvaluationPlugin extends UIPlugin {
 
   evaluateFormula(formulaString: string, sheetId: UID = this.getters.getActiveSheetId()): any {
     const compiledFormula = compile(formulaString);
-    const params = this.getFormulaParameters(() => {});
+    const params = this.getCompilationParameters(() => {});
 
     const ranges: Range[] = [];
     for (let xc of compiledFormula.dependencies) {
       ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
     }
-    return compiledFormula.execute(ranges, ...params);
+    return compiledFormula.execute(ranges, ...params).value;
   }
 
   /**
@@ -124,7 +127,7 @@ export class EvaluationPlugin extends UIPlugin {
 
   private evaluate(sheetId: UID) {
     const cells = this.getters.getCells(sheetId);
-    const params = this.getFormulaParameters(computeCell);
+    const compilationParameters = this.getCompilationParameters(computeCell);
     const visited: { [cellId: string]: boolean | null } = {};
     for (let cell of Object.values(cells)) {
       if (cell.isFormula()) {
@@ -143,7 +146,7 @@ export class EvaluationPlugin extends UIPlugin {
       if (cell.evaluated.type !== CellValueType.error) {
         const msg = e?.errorType || CellErrorType.GenericError;
         // apply function name
-        const __lastFnCalled = params[2].__lastFnCalled || "";
+        const __lastFnCalled = compilationParameters[2].__lastFnCalled || "";
         cell.assignError(
           msg,
           new EvaluationError(
@@ -168,16 +171,17 @@ export class EvaluationPlugin extends UIPlugin {
       }
       visited[cellId] = null;
       try {
-        params[2].__originCellXC = () => {
+        compilationParameters[2].__originCellXC = () => {
           // compute the value lazily for performance reasons
-          const position = params[2].getters.getCellPosition(cellId);
+          const position = compilationParameters[2].getters.getCellPosition(cellId);
           return toXC(position.col, position.row);
         };
-        cell.assignEvaluation(
-          cell.compiledFormula.execute(cell.dependencies, ...params),
-          cell.format ||
-            params[2].getters.inferFormulaFormat(cell.compiledFormula, cell.dependencies)
+
+        const computedCell = cell.compiledFormula.execute(
+          cell.dependencies,
+          ...compilationParameters
         );
+        cell.assignEvaluation(computedCell.value, cell.format || computedCell.format);
         if (Array.isArray(cell.evaluated.value)) {
           // if a value returns an array (like =A1:A3)
           throw new Error(_lt("This formula depends on invalid values"));
@@ -195,12 +199,13 @@ export class EvaluationPlugin extends UIPlugin {
    * - a range function to convert any reference to a proper value array
    * - an evaluation context
    */
-  private getFormulaParameters(computeCell: (cell: Cell) => void): FormulaParameters {
+  private getCompilationParameters(computeCell: (cell: Cell) => void): CompilationParameters {
     const evalContext = Object.assign(Object.create(functionMap), this.evalContext, {
       getters: this.getters,
     });
     const getters = this.getters;
-    function readCell(range: Range): any {
+
+    function readCell(range: Range): PrimitiveArg {
       let cell: Cell | undefined;
       if (!getters.tryGetSheet(range.sheetId)) {
         throw new Error(_lt("Invalid sheet name"));
@@ -208,14 +213,14 @@ export class EvaluationPlugin extends UIPlugin {
       cell = getters.getCell(range.sheetId, range.zone.left, range.zone.top);
       if (!cell || cell.isEmpty()) {
         // magic "empty" value
-        // Returning null instead of undefined will ensure that we don't
+        // Returning {value: null} instead of undefined will ensure that we don't
         // fall back on the default value of the argument provided to the formula's compute function
-        return null;
+        return { value: null };
       }
-      return getCellValue(cell);
+      return getEvaluatedCell(cell);
     }
 
-    function getCellValue(cell: Cell): CellValue {
+    function getEvaluatedCell(cell: Cell): { value: CellValue; format?: Format } {
       if (cell.isFormula() && cell.evaluated.type === CellValueType.error) {
         throw new EvaluationError(
           cell.evaluated.value,
@@ -231,7 +236,7 @@ export class EvaluationPlugin extends UIPlugin {
           cell.evaluated.error.logLevel
         );
       }
-      return cell.evaluated.value;
+      return cell.evaluated;
     }
 
     /**
@@ -242,7 +247,7 @@ export class EvaluationPlugin extends UIPlugin {
      * Note that each col is possibly sparse: it only contain the values of cells
      * that are actually present in the grid.
      */
-    function range(range: Range): (CellValue | undefined)[][] {
+    function range(range: Range): MatrixArg {
       const sheetId = range.sheetId;
 
       if (!isZoneValid(range.zone)) {
@@ -257,7 +262,7 @@ export class EvaluationPlugin extends UIPlugin {
         left: 0,
         right: getters.getNumberCols(sheetId) - 1,
       };
-      const result: (CellValue | undefined)[][] = [];
+      const result: MatrixArg = [];
 
       const zone = intersection(range.zone, sheetZone);
       if (!zone) {
@@ -267,10 +272,10 @@ export class EvaluationPlugin extends UIPlugin {
 
       // Performance issue: nested loop is faster than a map here
       for (let col = zone.left; col <= zone.right; col++) {
-        const rowValues: (CellValue | undefined)[] = [];
+        const rowValues: ({ value: CellValue; format?: Format } | undefined)[] = [];
         for (let row = zone.top; row <= zone.bottom; row++) {
           const cell = evalContext.getters.getCell(range.sheetId, col, row);
-          rowValues.push(cell ? getCellValue(cell) : undefined);
+          rowValues.push(cell ? getEvaluatedCell(cell) : undefined);
         }
         result.push(rowValues);
       }
@@ -290,10 +295,10 @@ export class EvaluationPlugin extends UIPlugin {
       isMeta: boolean,
       functionName: string,
       paramNumber?: number
-    ): any | any[][] {
+    ): PrimitiveArg {
       if (isMeta) {
         // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
-        return zoneToXc(range.zone);
+        return { value: zoneToXc(range.zone) };
       }
 
       if (!isZoneValid(range.zone)) {

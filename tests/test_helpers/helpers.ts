@@ -166,6 +166,21 @@ export function evaluateGridText(grid: GridDescr): FormattedGridDescr {
   return result;
 }
 
+export function evaluateGridFormat(grid: GridDescr): FormattedGridDescr {
+  const model = new Model();
+  for (let xc in grid) {
+    if (grid[xc] !== undefined) {
+      setCellContent(model, xc, grid[xc]!);
+    }
+  }
+  const result = {};
+  for (let xc in grid) {
+    const cell = getCell(model, xc);
+    result[xc] = cell ? cell.evaluated.format : "";
+  }
+  return result;
+}
+
 /**
  * Evaluate the final state of a cell according to the different values and
  * different functions submitted in a grid cells
@@ -181,6 +196,11 @@ export function evaluateCell(xc: string, grid: GridDescr): any {
 
 export function evaluateCellText(xc: string, grid: GridDescr): string {
   const gridResult = evaluateGridText(grid);
+  return gridResult[xc] || "";
+}
+
+export function evaluateCellFormat(xc: string, grid: GridDescr): string {
+  const gridResult = evaluateGridFormat(grid);
   return gridResult[xc] || "";
 }
 

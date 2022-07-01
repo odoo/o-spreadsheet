@@ -46,7 +46,7 @@ export const DB: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   // to do: replace by dollar format
-  returnFormat: { specificFormat: "#,##0.00" },
+  computeFormat: () => "#,##0.00",
   compute: function (
     cost: ArgValue,
     salvage: ArgValue,
@@ -165,7 +165,7 @@ export const DURATION: AddFunctionDescription = {
       )
     );
 
-    const years = YEARFRAC.compute(start, end, _dayCountConvention);
+    const years = YEARFRAC.compute(start, end, _dayCountConvention) as number;
     const timeFirstYear = years - Math.trunc(years) || 1 / _frequency;
     const nbrCoupons = Math.ceil(years * _frequency);
 
@@ -208,7 +208,7 @@ export const FV: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   // to do: replace by dollar format
-  returnFormat: { specificFormat: "#,##0.00" },
+  computeFormat: () => "#,##0.00",
   compute: function (
     rate: ArgValue,
     numberOfPeriods: ArgValue,
@@ -242,7 +242,7 @@ export const IRR: AddFunctionDescription = {
   )}
   `),
   returns: ["NUMBER"],
-  returnFormat: { specificFormat: "0%" },
+  computeFormat: () => "0%",
   compute: function (cashFlowAmounts: ArgRange, rateGuess: ArgValue = DEFAULT_RATE_GUESS): number {
     const _rateGuess = toNumber(rateGuess);
 
@@ -343,7 +343,7 @@ export const MDURATION: AddFunctionDescription = {
       securityYield,
       frequency,
       dayCountConvention
-    );
+    ) as number;
     const y = toNumber(securityYield);
     const k = Math.trunc(toNumber(frequency));
     return duration / (1 + y / k);
@@ -377,7 +377,7 @@ export const NPV: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   // to do: replace by dollar format
-  returnFormat: { specificFormat: "#,##0.00" },
+  computeFormat: () => "#,##0.00",
   compute: function (discount: ArgValue, ...values: Argument[]): number {
     const _discount = toNumber(discount);
 
@@ -439,7 +439,7 @@ export const PV: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   // to do: replace by dollar format
-  returnFormat: { specificFormat: "#,##0.00" },
+  computeFormat: () => "#,##0.00",
   compute: function (
     rate: ArgValue,
     numberOfPeriods: ArgValue,
@@ -523,7 +523,7 @@ export const PRICE: AddFunctionDescription = {
       )
     );
 
-    const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention);
+    const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
     const nbrRealCoupons = years * _frequency;
     const nbrFullCoupons = Math.ceil(nbrRealCoupons);
     const timeFirstCoupon = nbrRealCoupons - Math.floor(nbrRealCoupons) || 1;
@@ -621,7 +621,7 @@ export const YIELD: AddFunctionDescription = {
       )
     );
 
-    const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention);
+    const years = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention) as number;
     const nbrRealCoupons = years * _frequency;
     const nbrFullCoupons = Math.ceil(nbrRealCoupons);
     const timeFirstCoupon = nbrRealCoupons - Math.floor(nbrRealCoupons) || 1;
@@ -765,9 +765,13 @@ export const YIELDMAT: AddFunctionDescription = {
       )
     );
 
-    const issueToMaturity = YEARFRAC.compute(_issue, _maturity, _dayCountConvention);
-    const issueToSettlement = YEARFRAC.compute(_issue, _settlement, _dayCountConvention);
-    const settlementToMaturity = YEARFRAC.compute(_settlement, _maturity, _dayCountConvention);
+    const issueToMaturity = YEARFRAC.compute(_issue, _maturity, _dayCountConvention) as number;
+    const issueToSettlement = YEARFRAC.compute(_issue, _settlement, _dayCountConvention) as number;
+    const settlementToMaturity = YEARFRAC.compute(
+      _settlement,
+      _maturity,
+      _dayCountConvention
+    ) as number;
 
     const numerator =
       (100 * (1 + _rate * issueToMaturity)) / (_price + 100 * _rate * issueToSettlement) - 1;

@@ -1,5 +1,5 @@
 import { Format } from "./format";
-import { Argument } from "./misc";
+import { Arg, Argument, ReturnValue } from "./misc";
 
 export type ArgType =
   | "ANY"
@@ -25,21 +25,16 @@ export interface ArgDefinition {
   defaultValue?: any;
 }
 
-export enum ReturnFormatType {
-  FormatFromArgument = "FormatFromArgument",
-}
-
-export interface ReturnSpecificFormat {
-  specificFormat: Format;
-}
+export type ComputeFunctionArg<T> = T | (() => T) | undefined;
+export type ComputeFunction<T, R> = (this: EvalContext, ...args: ComputeFunctionArg<T>[]) => R;
 
 export interface AddFunctionDescription {
   description: string;
-  compute: (this: EvalContext, ...args: (Argument | (() => Argument))[]) => any;
+  compute: ComputeFunction<Argument, ReturnValue>;
+  computeFormat?: ComputeFunction<Arg, Format | undefined>;
   category?: string;
   args: ArgDefinition[];
   returns: [ArgType];
-  returnFormat?: ReturnFormatType.FormatFromArgument | ReturnSpecificFormat;
   isExported?: boolean;
 }
 

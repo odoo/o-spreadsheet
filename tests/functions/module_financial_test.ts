@@ -1,4 +1,4 @@
-import { evaluateCell, evaluateGrid } from "../test_helpers/helpers";
+import { evaluateCell, evaluateCellFormat, evaluateGrid } from "../test_helpers/helpers";
 
 describe("DB formula", () => {
   test("take at 4 or 5 arguments", () => {
@@ -200,6 +200,10 @@ describe("DB formula", () => {
         );
       });
     });
+  });
+
+  test("return value with formating", () => {
+    expect(evaluateCellFormat("A1", { A1: "=DB(100, 10, 5, 1)" })).toBe("#,##0.00");
   });
 });
 
@@ -778,6 +782,10 @@ describe("FV formula", () => {
       });
     });
   });
+
+  test("return value with formating", () => {
+    expect(evaluateCellFormat("A1", { A1: "=FV(1, 2, 3)" })).toBe("#,##0.00");
+  });
 });
 
 describe("IRR formula", () => {
@@ -905,6 +913,10 @@ describe("IRR formula", () => {
         );
       });
     });
+  });
+
+  test("return value with formating", () => {
+    expect(evaluateCellFormat("A1", { A1: "=IRR(A2:A3)", A2: "-10€", A3: "2" })).toBe("0%");
   });
 });
 
@@ -1449,6 +1461,10 @@ describe("NPV formula", () => {
       });
     });
   });
+
+  test("return value with formating", () => {
+    expect(evaluateCellFormat("A1", { A1: "=NPV(0.05, 10, 20)" })).toBe("#,##0.00");
+  });
 });
 
 describe("PDURATION formula", () => {
@@ -1790,6 +1806,10 @@ describe("PV formula", () => {
         );
       });
     });
+  });
+
+  test("return value with formating", () => {
+    expect(evaluateCellFormat("A1", { A1: "=PV(1, 2, 3)" })).toBe("#,##0.00");
   });
 });
 

@@ -296,7 +296,7 @@ export const SUBSTITUTE: AddFunctionDescription = {
     textToSearch: ArgValue,
     searchFor: ArgValue,
     replaceWith: ArgValue,
-    occurrenceNumber: ArgValue = undefined
+    occurrenceNumber: ArgValue
   ): string {
     const _occurrenceNumber = toNumber(occurrenceNumber);
 

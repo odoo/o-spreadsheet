@@ -1,5 +1,5 @@
 import { toNumber } from "../../src/functions/helpers";
-import { evaluateCell, evaluateCellText, evaluateGrid } from "../test_helpers/helpers";
+import { evaluateCell, evaluateCellFormat, evaluateGrid } from "../test_helpers/helpers";
 
 describe("ABS formula", () => {
   test("take 1 argument", () => {
@@ -364,6 +364,21 @@ describe("CEILING / CEILING.MATH / CEILING.PRECISE / ISO.CEILING formulas", () =
     "special value testing",
     (functionName) => {
       evaluateCeilingFunction(functionName);
+    }
+  );
+
+  test.each([["CEILING"], ["CEILING.MATH"], ["CEILING.PRECISE"], ["ISO.CEILING"]])(
+    "result format depends on 1st argument",
+    (functionName) => {
+      expect(
+        evaluateCellFormat("A1", { A1: "=" + functionName + "(A2, A3)", A2: "0.05", A3: "0.2" })
+      ).toBe("");
+      expect(
+        evaluateCellFormat("A1", { A1: "=" + functionName + "(A2, A3)", A2: "5%", A3: "0.2" })
+      ).toBe("0%");
+      expect(
+        evaluateCellFormat("A1", { A1: "=" + functionName + "(A2, A3)", A2: "4.8€", A3: "0.2" })
+      ).toBe("#,##0.00[$€]");
     }
   );
 });
@@ -1339,6 +1354,21 @@ describe("FLOOR / FLOOR.MATH / FLOOR.PRECISE formulas", () => {
       evaluateFloorFunction(functionName);
     }
   );
+
+  test.each([["FLOOR"], ["FLOOR.MATH"], ["FLOOR.PRECISE"]])(
+    "result format depends on 1st argument",
+    (functionName) => {
+      expect(
+        evaluateCellFormat("A1", { A1: "=" + functionName + "(A2, A3)", A2: "0.05", A3: "0.2" })
+      ).toBe("");
+      expect(
+        evaluateCellFormat("A1", { A1: "=" + functionName + "(A2, A3)", A2: "5%", A3: "0.2" })
+      ).toBe("0%");
+      expect(
+        evaluateCellFormat("A1", { A1: "=" + functionName + "(A2, A3)", A2: "4.8€", A3: "0.2" })
+      ).toBe("#,##0.00[$€]");
+    }
+  );
 });
 
 describe("ISEVEN formula", () => {
@@ -1527,6 +1557,11 @@ describe("MOD formula", () => {
     expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: '="42"', A3: '="36"' })).toBe(6);
   });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=MOD(A2, 12)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=MOD(A2, 12)", A2: "4200%" })).toBe("0%");
+  });
 });
 
 describe("ODD formula", () => {
@@ -1573,6 +1608,11 @@ describe("ODD formula", () => {
     expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '=""' })).toBe(1);
     expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '="42"' })).toBe(43);
+  });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=ODD(A2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A2: "4200%", A1: "=ODD(A2)" })).toBe("0%");
   });
 });
 
@@ -1638,6 +1678,11 @@ describe("POWER formula", () => {
 
     expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: '="42"', A3: '="2"' })).toBe(1764);
+  });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=POWER(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=POWER(A2, 2)", A2: "4200%" })).toBe("0%");
   });
 });
 
@@ -1754,6 +1799,12 @@ describe("PRODUCT formula", () => {
     expect(gridResult.D1).toBe(0);
     expect(gridResult.E1).toBe(0);
   });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=PRODUCT(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=PRODUCT(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=PRODUCT(A2:A3)", A2: "1", A3: "42%" })).toBe("");
+  });
 });
 
 describe("RAND formula", () => {
@@ -1832,6 +1883,11 @@ describe("RANDBETWEEN formula", () => {
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '=""', A3: '="0"' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '="42"', A3: '="42"' })).toBe(42);
   });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=RANDBETWEEN(A2, 2)", A2: "1" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=RANDBETWEEN(A2, 2)", A2: "100%" })).toBe("0%");
+  });
 });
 
 describe("ROUND formula", () => {
@@ -1898,6 +1954,11 @@ describe("ROUND formula", () => {
 
     expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: '="42"', A3: '="-1"' })).toBe(40);
+  });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=ROUND(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=ROUND(A2, 2)", A2: "4200%" })).toBe("0%");
   });
 });
 
@@ -1966,6 +2027,11 @@ describe("ROUNDDOWN formula", () => {
     expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: '="49"', A3: '="-1"' })).toBe(40);
   });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=ROUNDDOWN(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=ROUNDDOWN(A2, 2)", A2: "4200%" })).toBe("0%");
+  });
 });
 
 describe("ROUNDUP formula", () => {
@@ -2032,6 +2098,11 @@ describe("ROUNDUP formula", () => {
 
     expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: '="42"', A3: '="-1"' })).toBe(50);
+  });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=ROUNDUP(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=ROUNDUP(A2, 2)", A2: "4200%" })).toBe("0%");
   });
 });
 
@@ -2140,6 +2211,11 @@ describe("SQRT formula", () => {
     expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '=""' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '="49"' })).toBe(7);
+  });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=SQRT(A2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=SQRT(A2)", A2: "4200%" })).toBe("0%");
   });
 });
 
@@ -2261,9 +2337,10 @@ describe("SUM formula", () => {
     expect(gridResult.E1).toBe(0);
   });
 
-  test("formula format linked to the first ref", () => {
-    expect(evaluateCellText("A3", { A1: "42%", A2: "1", A3: "=SUM(A1:A2)" })).toBe("142%");
-    expect(evaluateCellText("A3", { A1: "1", A2: "42%", A3: "=SUM(A1:A2)" })).toBe("1.42");
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=SUM(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=SUM(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=SUM(A2:A3)", A2: "1", A3: "42%" })).toBe("");
   });
 });
 
@@ -2415,5 +2492,10 @@ describe("TRUNC formula", () => {
 
     expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: '="42"', A3: '="-1"' })).toBe(40);
+  });
+
+  test("result format depends on 1st argument", () => {
+    expect(evaluateCellFormat("A1", { A1: "=TRUNC(A2, 2)", A2: "42" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=TRUNC(A2, 2)", A2: "4200%" })).toBe("0%");
   });
 });

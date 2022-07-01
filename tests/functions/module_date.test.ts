@@ -1,7 +1,7 @@
 import {} from "../../src/helpers/dates";
 import {
   evaluateCell,
-  evaluateCellText,
+  evaluateCellFormat,
   evaluateGrid,
   evaluateGridText,
 } from "../test_helpers/helpers";
@@ -84,6 +84,12 @@ describe("DATE formula", () => {
     expect(gridResult.A34).toBe("12/1/2028");
     expect(gridResult.A35).toBe("12/1/1901");
     expect(gridResult.A36).toBe("12/1/1905");
+  });
+
+  test("return value with formatting", () => {
+    expect(
+      evaluateCellFormat("A1", { A1: "=DATE(B1, C1, D1)", B1: "2028", C1: "12", D1: "5" })
+    ).toBe("m/d/yyyy");
   });
 });
 
@@ -170,6 +176,10 @@ describe("EDATE formula", () => {
     expect(gridResult.A7).toBe("8/21/1969");
     expect(gridResult.A8).toBe("8/21/1969");
   });
+
+  test("return value with formatting", () => {
+    expect(evaluateCellFormat("A1", { A1: '=EDATE("7/21/1969", 1)' })).toBe("m/d/yyyy");
+  });
 });
 
 describe("EOMONTH formula", () => {
@@ -199,6 +209,10 @@ describe("EOMONTH formula", () => {
     const gridResult = evaluateGridText(grid);
     expect(gridResult.A7).toBe("8/31/1920");
     expect(gridResult.A8).toBe("8/31/2020");
+  });
+
+  test("return value with formatting", () => {
+    expect(evaluateCellFormat("A1", { A1: '=EOMONTH("7/20/2020", 0)' })).toBe("m/d/yyyy");
   });
 });
 
@@ -456,7 +470,12 @@ describe("NOW formula", () => {
   test("functional tests on simple arguments", async () => {
     MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
     expect(evaluateCell("A1", { A1: "=NOW()" })).toBe(51958.171875);
-    expect(evaluateCellText("A1", { A1: "=NOW()" })).toBe("4/2/2042 04:07:30");
+    MockDate.reset();
+  });
+
+  test("return value with formatting", async () => {
+    MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
+    expect(evaluateCellFormat("A1", { A1: "=NOW()" })).toBe("m/d/yyyy hh:mm:ss");
     MockDate.reset();
   });
 });
@@ -509,6 +528,10 @@ describe("TIME formula", () => {
     expect(gridResult.A10).toBe("01:54:01 PM"); // @compatibility on Google Sheet return 1:54:01 PM
     expect(gridResult.A11).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
   });
+
+  test("return value with formatting", async () => {
+    expect(evaluateCellFormat("A1", { A1: "=TIME(9, 11, 31)" })).toBe("hh:mm:ss a");
+  });
 });
 
 describe("TIMEVALUE formula", () => {
@@ -531,7 +554,12 @@ describe("TODAY formula", () => {
   test("functional tests on simple arguments", async () => {
     MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
     expect(evaluateCell("A1", { A1: "=TODAY()" })).toBe(51958);
-    expect(evaluateCellText("A1", { A1: "=TODAY()" })).toBe("4/2/2042");
+    MockDate.reset();
+  });
+
+  test("return value with formatting", async () => {
+    MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
+    expect(evaluateCellFormat("A1", { A1: "=TODAY()" })).toBe("m/d/yyyy");
     MockDate.reset();
   });
 });
@@ -728,6 +756,12 @@ describe("WORKDAY formula", () => {
     expect(gridResult.C18).toBe("12/27/2012");
     expect(gridResult.C19).toBe("12/26/2012");
   });
+
+  test("return value with formatting", async () => {
+    expect(evaluateCellFormat("A1", { A1: "=WORKDAY(B1, C1)", B1: "1/1/2013", C1: "3" })).toBe(
+      "m/d/yyyy"
+    );
+  });
 });
 
 describe("WORKDAY.INTL formula", () => {
@@ -873,6 +907,12 @@ describe("WORKDAY.INTL formula", () => {
     expect(gridResult.D70).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D71).toBe("#ERROR"); // @compatibility on Google Sheets, return  #VALUE!
     expect(gridResult.D72).toBe("5/12/2020");
+  });
+
+  test("return value with formatting", async () => {
+    expect(evaluateCellFormat("A1", { A1: "=WORKDAY.INTL(B1, C1)", B1: "1/1/2013", C1: "3" })).toBe(
+      "m/d/yyyy"
+    );
   });
 });
 
@@ -1298,6 +1338,10 @@ describe("MONTH.START formula", () => {
     const gridResult = evaluateGridText(grid);
     expect(gridResult.A4).toBe("7/1/1920");
   });
+
+  test("return value with formatting", async () => {
+    expect(evaluateCellFormat("A1", { A1: '=MONTH.START("7/20/2020")' })).toBe("m/d/yyyy");
+  });
 });
 
 describe("MONTH.END formula", () => {
@@ -1321,6 +1365,10 @@ describe("MONTH.END formula", () => {
     const gridResult = evaluateGridText(grid);
     expect(gridResult.A4).toBe("7/31/1920");
     expect(gridResult.A6).toBe("2/29/1920");
+  });
+
+  test("return value with formatting", async () => {
+    expect(evaluateCellFormat("A1", { A1: '=MONTH.END("7/20/2020")' })).toBe("m/d/yyyy");
   });
 });
 
@@ -1361,6 +1409,10 @@ describe("QUARTER.START formula", () => {
     const gridResult = evaluateGridText(grid);
     expect(gridResult.A2).toBe("7/1/1920");
   });
+
+  test("return value with formatting", async () => {
+    expect(evaluateCellFormat("A1", { A1: '=QUARTER.START("7/20/2020")' })).toBe("m/d/yyyy");
+  });
 });
 
 describe("QUARTER.END formula", () => {
@@ -1399,6 +1451,10 @@ describe("QUARTER.END formula", () => {
     expect(gridResult.A6).toBe("6/30/1920");
     expect(gridResult.A8).toBe("12/31/1920");
   });
+
+  test("return value with formatting", async () => {
+    expect(evaluateCellFormat("A1", { A1: '=QUARTER.END("7/20/2020")' })).toBe("m/d/yyyy");
+  });
 });
 
 describe("YEAR.START formula", () => {
@@ -1423,6 +1479,10 @@ describe("YEAR.START formula", () => {
     };
     const gridResult = evaluateGridText(grid);
     expect(gridResult.A2).toBe("1/1/1920");
+  });
+
+  test("return value with formatting", async () => {
+    expect(evaluateCellFormat("A1", { A1: '=YEAR.START("7/20/2020")' })).toBe("m/d/yyyy");
   });
 });
 
@@ -1461,5 +1521,9 @@ describe("YEAR.END formula", () => {
     expect(gridResult.A4).toBe("12/31/1920");
     expect(gridResult.A6).toBe("12/31/1920");
     expect(gridResult.A8).toBe("12/31/1920");
+  });
+
+  test("return value with formatting", async () => {
+    expect(evaluateCellFormat("A1", { A1: '=YEAR.END("7/20/2020")' })).toBe("m/d/yyyy");
   });
 });

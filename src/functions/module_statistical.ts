@@ -1,7 +1,7 @@
 import { parseDateTime } from "../helpers/dates";
 import { isNumber } from "../helpers/index";
 import { _lt } from "../translation";
-import { AddFunctionDescription, ArgRange, Argument, ArgValue, ReturnFormatType } from "../types";
+import { AddFunctionDescription, Arg, ArgRange, Argument, ArgValue } from "../types";
 import { args } from "./arguments";
 import {
   assert,
@@ -17,8 +17,8 @@ import {
 
 // Note: dataY and dataX may not have the same dimension
 function covariance(dataY: Argument, dataX: Argument, isSample: boolean): number {
-  let flatDataY: ArgValue[] = [];
-  let flatDataX: ArgValue[] = [];
+  let flatDataY: (ArgValue | undefined)[] = [];
+  let flatDataX: (ArgValue | undefined)[] = [];
   let lenY = 0;
   let lenX = 0;
 
@@ -184,7 +184,9 @@ export const AVERAGE: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value1: Arg) => {
+    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+  },
   compute: function (...values: Argument[]): number {
     let count = 0;
     const sum = reduceNumbers(
@@ -221,7 +223,9 @@ export const AVERAGE_WEIGHTED: AddFunctionDescription = {
       additional_weights (number, range<number>, repeating) ${_lt("Additional weights.")}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (values: Arg) => {
+    return Array.isArray(values) ? values[0][0]?.format : values?.format;
+  },
   compute: function (...values: Argument[]): number {
     let sum = 0;
     let count = 0;
@@ -297,7 +301,9 @@ export const AVERAGEA: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value1: Arg) => {
+    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+  },
   compute: function (...values: Argument[]): number {
     let count = 0;
     const sum = reduceNumbersTextAs0(
@@ -330,11 +336,7 @@ export const AVERAGEIF: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (
-    criteriaRange: ArgRange,
-    criterion: ArgValue,
-    averageRange: Argument | undefined = undefined
-  ): number {
+  compute: function (criteriaRange: ArgRange, criterion: ArgValue, averageRange: Argument): number {
     if (averageRange === undefined || averageRange === null) {
       averageRange = criteriaRange;
     }
@@ -503,7 +505,9 @@ export const LARGE: AddFunctionDescription = {
       n (number) ${_lt("The rank from largest to smallest of the element to return.")}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (data: Arg) => {
+    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+  },
   compute: function (data: Argument, n: ArgValue): number {
     const _n = Math.trunc(toNumber(n));
     let largests: number[] = [];
@@ -545,7 +549,9 @@ export const MAX: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value1: Arg) => {
+    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+  },
   compute: function (...values: Argument[]): number {
     const result = reduceNumbers(values, (acc, a) => (acc < a ? a : acc), -Infinity);
     return result === -Infinity ? 0 : result;
@@ -567,7 +573,9 @@ export const MAXA: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value1: Arg) => {
+    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+  },
   compute: function (...values: Argument[]): number {
     const maxa = reduceNumbersTextAs0(
       values,
@@ -625,7 +633,9 @@ export const MEDIAN: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value1: Arg) => {
+    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+  },
   compute: function (...values: Argument[]): number {
     let data: Argument[] = [];
     visitNumbers(values, (arg) => {
@@ -650,7 +660,9 @@ export const MIN: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value1: Arg) => {
+    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+  },
   compute: function (...values: Argument[]): number {
     const result = reduceNumbers(values, (acc, a) => (a < acc ? a : acc), Infinity);
     return result === Infinity ? 0 : result;
@@ -672,7 +684,9 @@ export const MINA: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (value1: Arg) => {
+    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+  },
   compute: function (...values: Argument[]): number {
     const mina: number = reduceNumbersTextAs0(
       values,
@@ -728,9 +742,11 @@ export const PERCENTILE: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (data: Arg) => {
+    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+  },
   compute: function (data: Argument, percentile: ArgValue): number {
-    return PERCENTILE_INC.compute(data, percentile);
+    return PERCENTILE_INC.compute(data, percentile) as number;
   },
   isExported: true,
 };
@@ -747,7 +763,9 @@ export const PERCENTILE_EXC: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (data: Arg) => {
+    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+  },
   compute: function (data: Argument, percentile: ArgValue): number {
     return centile([data], percentile, false);
   },
@@ -766,7 +784,9 @@ export const PERCENTILE_INC: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (data: Arg) => {
+    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+  },
   compute: function (data: Argument, percentile: ArgValue): number {
     return centile([data], percentile, true);
   },
@@ -783,9 +803,11 @@ export const QUARTILE: AddFunctionDescription = {
       quartile_number (number) ${_lt("Which quartile value to return.")}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (data: Arg) => {
+    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+  },
   compute: function (data: Argument, quartileNumber: ArgValue): number {
-    return QUARTILE_INC.compute(data, quartileNumber);
+    return QUARTILE_INC.compute(data, quartileNumber) as number;
   },
   isExported: true,
 };
@@ -800,7 +822,9 @@ export const QUARTILE_EXC: AddFunctionDescription = {
       quartile_number (number) ${_lt("Which quartile value, exclusive of 0 and 4, to return.")}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (data: Arg) => {
+    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+  },
   compute: function (data: Argument, quartileNumber: ArgValue): number {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber));
     return centile([data], 0.25 * _quartileNumber, false);
@@ -818,7 +842,9 @@ export const QUARTILE_INC: AddFunctionDescription = {
       quartile_number (number) ${_lt("Which quartile value to return.")}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (data: Arg) => {
+    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+  },
   compute: function (data: Argument, quartileNumber: ArgValue): number {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber));
     return centile([data], 0.25 * _quartileNumber, true);
@@ -836,7 +862,9 @@ export const SMALL: AddFunctionDescription = {
       n (number) ${_lt("The rank from smallest to largest of the element to return.")}
     `),
   returns: ["NUMBER"],
-  returnFormat: ReturnFormatType.FormatFromArgument,
+  computeFormat: (data: Arg) => {
+    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+  },
   compute: function (data: Argument, n: ArgValue): number {
     const _n = Math.trunc(toNumber(n));
     let largests: number[] = [];
@@ -877,7 +905,7 @@ export const STDEV: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (...values: Argument[]): number {
-    return Math.sqrt(VAR.compute(...values));
+    return Math.sqrt(VAR.compute(...values) as number);
   },
   isExported: true,
 };
@@ -895,7 +923,7 @@ export const STDEV_P: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (...values: Argument[]): number {
-    return Math.sqrt(VAR_P.compute(...values));
+    return Math.sqrt(VAR_P.compute(...values) as number);
   },
   isExported: true,
 };
@@ -913,7 +941,7 @@ export const STDEV_S: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (...values: Argument[]): number {
-    return Math.sqrt(VAR_S.compute(...values));
+    return Math.sqrt(VAR_S.compute(...values) as number);
   },
   isExported: true,
 };
@@ -931,7 +959,7 @@ export const STDEVA: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (...values: Argument[]): number {
-    return Math.sqrt(VARA.compute(...values));
+    return Math.sqrt(VARA.compute(...values) as number);
   },
   isExported: true,
 };
@@ -949,7 +977,7 @@ export const STDEVP: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (...values: Argument[]): number {
-    return Math.sqrt(VARP.compute(...values));
+    return Math.sqrt(VARP.compute(...values) as number);
   },
   isExported: true,
 };
@@ -967,7 +995,7 @@ export const STDEVPA: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (...values: Argument[]): number {
-    return Math.sqrt(VARPA.compute(...values));
+    return Math.sqrt(VARPA.compute(...values) as number);
   },
   isExported: true,
 };

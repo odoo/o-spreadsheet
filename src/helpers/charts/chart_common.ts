@@ -377,7 +377,7 @@ export function getBaselineText(
 }
 
 export function getBaselineColor(
-  baseline: string | undefined,
+  baseline: string,
   keyValue: string,
   colorUp: string,
   colorDown: string
