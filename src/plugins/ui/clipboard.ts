@@ -727,7 +727,7 @@ export class ClipboardPlugin extends UIPlugin {
     ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 3.3 * thinLineWidth;
     for (const zone of this.state.zones) {
-      const [x, y, width, height] = this.getters.getRect(zone, viewport);
+      const { x, y, width, height } = this.getters.getRect(zone, viewport);
       if (width > 0 && height > 0) {
         ctx.strokeRect(x, y, width, height);
       }

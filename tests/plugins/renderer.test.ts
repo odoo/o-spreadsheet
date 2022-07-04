@@ -715,12 +715,12 @@ describe("renderer", () => {
       setCellContent(model, "C1", "Content at the right");
       model.drawGrid(ctx);
       box = getBoxFromText(model, overflowingContent);
-      expect(box.clipRect).toEqual([
-        HEADER_WIDTH + DEFAULT_CELL_WIDTH,
-        HEADER_HEIGHT,
-        5,
-        DEFAULT_CELL_HEIGHT,
-      ]);
+      expect(box.clipRect).toEqual({
+        x: HEADER_WIDTH + DEFAULT_CELL_WIDTH,
+        y: HEADER_HEIGHT,
+        width: 5,
+        height: DEFAULT_CELL_HEIGHT,
+      });
     }
   );
 
@@ -759,12 +759,12 @@ describe("renderer", () => {
       setCellContent(model, "C1", "Content at the right");
       model.drawGrid(ctx);
       box = getBoxFromText(model, overflowingNumber);
-      expect(box.clipRect).toEqual([
-        HEADER_WIDTH + DEFAULT_CELL_WIDTH,
-        HEADER_HEIGHT,
-        5,
-        DEFAULT_CELL_HEIGHT,
-      ]);
+      expect(box.clipRect).toEqual({
+        x: HEADER_WIDTH + DEFAULT_CELL_WIDTH,
+        y: HEADER_HEIGHT,
+        width: 5,
+        height: DEFAULT_CELL_HEIGHT,
+      });
     }
   );
 
@@ -801,12 +801,12 @@ describe("renderer", () => {
     setCellContent(model, "A1", "Content at the right");
     model.drawGrid(ctx);
     box = getBoxFromText(model, overflowingText);
-    expect(box.clipRect).toEqual([
-      HEADER_WIDTH + DEFAULT_CELL_WIDTH,
-      HEADER_HEIGHT,
-      5,
-      DEFAULT_CELL_HEIGHT,
-    ]);
+    expect(box.clipRect).toEqual({
+      x: HEADER_WIDTH + DEFAULT_CELL_WIDTH,
+      y: HEADER_HEIGHT,
+      width: 5,
+      height: DEFAULT_CELL_HEIGHT,
+    });
   });
 
   test.each(["I am a very long text", "100000000000000"])(
@@ -837,23 +837,23 @@ describe("renderer", () => {
       model.drawGrid(ctx);
 
       centeredBox = getBoxFromText(model, overflowingContent);
-      expect(centeredBox.clipRect).toEqual([
-        HEADER_WIDTH + DEFAULT_CELL_WIDTH, // clipped to the left
-        HEADER_HEIGHT,
-        5 + DEFAULT_CELL_WIDTH,
-        DEFAULT_CELL_HEIGHT,
-      ]);
+      expect(centeredBox.clipRect).toEqual({
+        x: HEADER_WIDTH + DEFAULT_CELL_WIDTH, // clipped to the left
+        y: HEADER_HEIGHT,
+        width: 5 + DEFAULT_CELL_WIDTH,
+        height: DEFAULT_CELL_HEIGHT,
+      });
 
       setCellContent(model, "C1", "right");
       model.drawGrid(ctx);
 
       centeredBox = getBoxFromText(model, overflowingContent);
-      expect(centeredBox.clipRect).toEqual([
-        HEADER_WIDTH + DEFAULT_CELL_WIDTH, //clipped to the left
-        HEADER_HEIGHT,
-        5, // clipped to the right
-        DEFAULT_CELL_HEIGHT,
-      ]);
+      expect(centeredBox.clipRect).toEqual({
+        x: HEADER_WIDTH + DEFAULT_CELL_WIDTH, //clipped to the left
+        y: HEADER_HEIGHT,
+        width: 5, // clipped to the right
+        height: DEFAULT_CELL_HEIGHT,
+      });
     }
   );
 
@@ -880,12 +880,12 @@ describe("renderer", () => {
       model.drawGrid(ctx);
 
       box = getBoxFromText(model, overflowingText);
-      expect(box.clipRect).toEqual([
-        HEADER_WIDTH + DEFAULT_CELL_WIDTH,
-        HEADER_HEIGHT,
-        10,
-        DEFAULT_CELL_HEIGHT * 2,
-      ]);
+      expect(box.clipRect).toEqual({
+        x: HEADER_WIDTH + DEFAULT_CELL_WIDTH,
+        y: HEADER_HEIGHT,
+        width: 10,
+        height: DEFAULT_CELL_HEIGHT * 2,
+      });
     }
   );
 
@@ -915,12 +915,12 @@ describe("renderer", () => {
     resizeRows(model, [0], Math.floor(fontSizeMap[fontSize] / 2));
     model.drawGrid(ctx);
     box = getBoxFromText(model, overflowingText);
-    expect(box.clipRect).toEqual([
-      HEADER_WIDTH,
-      HEADER_HEIGHT,
-      DEFAULT_CELL_WIDTH,
-      Math.floor(fontSizeMap[fontSize] / 2),
-    ]);
+    expect(box.clipRect).toEqual({
+      x: HEADER_WIDTH,
+      y: HEADER_HEIGHT,
+      width: DEFAULT_CELL_WIDTH,
+      height: Math.floor(fontSizeMap[fontSize] / 2),
+    });
   });
 
   test("cells with icon CF are correctly clipped", () => {
@@ -957,34 +957,34 @@ describe("renderer", () => {
     model.drawGrid(ctx);
     box = getBoxFromText(model, cellContent);
     const maxIconBoxWidth = box.image!.size + 2 * MIN_CF_ICON_MARGIN;
-    expect(box.image!.clipIcon).toEqual([
-      HEADER_WIDTH,
-      HEADER_HEIGHT,
-      maxIconBoxWidth,
-      DEFAULT_CELL_HEIGHT,
-    ]);
-    expect(box.clipRect).toEqual([
-      HEADER_WIDTH + maxIconBoxWidth,
-      HEADER_HEIGHT,
-      DEFAULT_CELL_WIDTH - maxIconBoxWidth,
-      DEFAULT_CELL_HEIGHT,
-    ]);
+    expect(box.image!.clipIcon).toEqual({
+      x: HEADER_WIDTH,
+      y: HEADER_HEIGHT,
+      width: maxIconBoxWidth,
+      height: DEFAULT_CELL_HEIGHT,
+    });
+    expect(box.clipRect).toEqual({
+      x: HEADER_WIDTH + maxIconBoxWidth,
+      y: HEADER_HEIGHT,
+      width: DEFAULT_CELL_WIDTH - maxIconBoxWidth,
+      height: DEFAULT_CELL_HEIGHT,
+    });
 
     resizeColumns(model, ["A"], maxIconBoxWidth - 3);
     model.drawGrid(ctx);
     box = getBoxFromText(model, cellContent);
-    expect(box.image!.clipIcon).toEqual([
-      HEADER_WIDTH,
-      HEADER_HEIGHT,
-      maxIconBoxWidth - 3,
-      DEFAULT_CELL_HEIGHT,
-    ]);
-    expect(box.clipRect).toEqual([
-      HEADER_WIDTH + maxIconBoxWidth,
-      HEADER_HEIGHT,
-      0,
-      DEFAULT_CELL_HEIGHT,
-    ]);
+    expect(box.image!.clipIcon).toEqual({
+      x: HEADER_WIDTH,
+      y: HEADER_HEIGHT,
+      width: maxIconBoxWidth - 3,
+      height: DEFAULT_CELL_HEIGHT,
+    });
+    expect(box.clipRect).toEqual({
+      x: HEADER_WIDTH + maxIconBoxWidth,
+      y: HEADER_HEIGHT,
+      width: 0,
+      height: DEFAULT_CELL_HEIGHT,
+    });
   });
 
   test.each(["A1", "A1:A2", "A1:A2,B1:B2", "A1,C1"])(
@@ -1038,8 +1038,11 @@ describe("renderer", () => {
   });
 
   test.each([
-    ["dashboard" as Mode, [0, 0, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT]],
-    ["normal" as Mode, [HEADER_WIDTH, HEADER_HEIGHT, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT]],
+    ["dashboard" as Mode, { x: 0, y: 0, width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT }],
+    [
+      "normal" as Mode,
+      { x: HEADER_WIDTH, y: HEADER_HEIGHT, width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT },
+    ],
   ])("A1 starts at the upper left corner with mode %s", (mode, expectedRect) => {
     const model = new Model({}, { mode });
     const viewport = model.getters.getActiveViewport();

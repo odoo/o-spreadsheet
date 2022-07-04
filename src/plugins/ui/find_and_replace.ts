@@ -282,7 +282,7 @@ export class FindAndReplacePlugin extends UIPlugin {
       const right = merge ? merge.right : match.col;
       const top = merge ? merge.top : match.row;
       const bottom = merge ? merge.bottom : match.row;
-      const [x, y, width, height] = this.getters.getRect({ top, left, right, bottom }, viewport);
+      const { x, y, width, height } = this.getters.getRect({ top, left, right, bottom }, viewport);
       if (width > 0 && height > 0) {
         ctx.fillStyle = BACKGROUND_COLOR;
         ctx.fillRect(x, y, width, height);
