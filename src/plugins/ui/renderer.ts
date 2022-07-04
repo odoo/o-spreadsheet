@@ -195,7 +195,7 @@ export class RendererPlugin extends UIPlugin {
     const width = this.getSizeBetweenHeaders("COL", zone.left, zone.right);
     const y = this.getHeaderOffset("ROW", top, zone.top);
     const height = this.getSizeBetweenHeaders("ROW", zone.top, zone.bottom);
-    return [x, y, width, height];
+    return { x, y, width, height };
   }
 
   /**
@@ -294,7 +294,7 @@ export class RendererPlugin extends UIPlugin {
         continue;
       }
       const zone = { top, bottom, left: i, right: i };
-      const [x, , colWidth, colHeight] = this.getRect(zone, viewport);
+      const { x, width: colWidth, height: colHeight } = this.getRect(zone, viewport);
       ctx.moveTo(x + colWidth, 0);
       ctx.lineTo(
         x + colWidth,
@@ -308,7 +308,7 @@ export class RendererPlugin extends UIPlugin {
         continue;
       }
       const zone = { left, right, top: i, bottom: i };
-      const [, y, rowWidth, rowHeight] = this.getRect(zone, viewport);
+      const { y, width: rowWidth, height: rowHeight } = this.getRect(zone, viewport);
       ctx.moveTo(0, y + rowHeight);
       ctx.lineTo(
         Math.min(width, rowWidth + (this.getters.isDashboard() ? 0 : HEADER_WIDTH)),
@@ -422,7 +422,8 @@ export class RendererPlugin extends UIPlugin {
         if (box.clipRect) {
           ctx.save();
           ctx.beginPath();
-          ctx.rect(...box.clipRect);
+          const { x, y, width, height } = box.clipRect;
+          ctx.rect(x, y, width, height);
           ctx.clip();
         }
         ctx.fillText(box.content.text, Math.round(x), Math.round(y));
@@ -457,7 +458,8 @@ export class RendererPlugin extends UIPlugin {
         if (box.image.clipIcon) {
           ctx.save();
           ctx.beginPath();
-          ctx.rect(...box.image.clipIcon);
+          const { x, y, width, height } = box.image.clipIcon;
+          ctx.rect(x, y, width, height);
           ctx.clip();
         }
         ctx.drawImage(icon, box.x + MIN_CF_ICON_MARGIN, box.y + margin, size, size);
@@ -495,7 +497,7 @@ export class RendererPlugin extends UIPlugin {
     for (let zone of selection) {
       const colZone = intersection(zone, { ...viewport, top: 0, bottom: numberOfRows - 1 });
       if (colZone) {
-        const [x, , width] = this.getRect(colZone, viewport);
+        const { x, width } = this.getRect(colZone, viewport);
         ctx.fillStyle = activeCols.has(zone.left)
           ? BACKGROUND_HEADER_ACTIVE_COLOR
           : BACKGROUND_HEADER_SELECTED_COLOR;
@@ -503,7 +505,7 @@ export class RendererPlugin extends UIPlugin {
       }
       const rowZone = intersection(zone, { ...viewport, left: 0, right: numberOfCols - 1 });
       if (rowZone) {
-        const [, y, , height] = this.getRect(rowZone, viewport);
+        const { y, height } = this.getRect(rowZone, viewport);
         ctx.fillStyle = activeRows.has(zone.top)
           ? BACKGROUND_HEADER_ACTIVE_COLOR
           : BACKGROUND_HEADER_SELECTED_COLOR;
@@ -593,7 +595,7 @@ export class RendererPlugin extends UIPlugin {
     const row = zone.top;
     const cell = this.getters.getCell(sheetId, col, row);
     const showFormula = this.getters.shouldShowFormulas();
-    const [x, y, width, height] = this.getRect(zone, viewport);
+    const { x, y, width, height } = this.getRect(zone, viewport);
 
     const box: Box = {
       x,
@@ -619,7 +621,7 @@ export class RendererPlugin extends UIPlugin {
       box.image = {
         type: "icon",
         size: fontSizePX,
-        clipIcon: [box.x, box.y, Math.min(iconBoxWidth, width), height],
+        clipIcon: { x: box.x, y: box.y, width: Math.min(iconBoxWidth, width), height },
         image: ICONS[cfIcon].img,
       };
     }
@@ -646,7 +648,12 @@ export class RendererPlugin extends UIPlugin {
     /** ClipRect */
     const isOverflowing = contentWidth > width || fontSizeMap[fontSize] > height;
     if (cfIcon) {
-      box.clipRect = [box.x + iconBoxWidth, box.y, Math.max(0, width - iconBoxWidth), height];
+      box.clipRect = {
+        x: box.x + iconBoxWidth,
+        y: box.y,
+        width: Math.max(0, width - iconBoxWidth),
+        height,
+      };
     } else if (isOverflowing) {
       let nextColIndex: number, previousColIndex: number;
 
@@ -663,17 +670,17 @@ export class RendererPlugin extends UIPlugin {
       switch (align) {
         case "left": {
           const emptyZoneOnTheLeft = positionToZone({ col: nextColIndex, row });
-          const [x, y, width, height] = this.getRect(union(zone, emptyZoneOnTheLeft), viewport);
+          const { x, y, width, height } = this.getRect(union(zone, emptyZoneOnTheLeft), viewport);
           if (width < textWidth || fontSizePX > height) {
-            box.clipRect = [x, y, width, height];
+            box.clipRect = { x, y, width, height };
           }
           break;
         }
         case "right": {
           const emptyZoneOnTheRight = positionToZone({ col: previousColIndex, row });
-          const [x, y, width, height] = this.getRect(union(zone, emptyZoneOnTheRight), viewport);
+          const { x, y, width, height } = this.getRect(union(zone, emptyZoneOnTheRight), viewport);
           if (width < textWidth || fontSizePX > height) {
-            box.clipRect = [x, y, width, height];
+            box.clipRect = { x, y, width, height };
           }
           break;
         }
@@ -683,14 +690,14 @@ export class RendererPlugin extends UIPlugin {
             right: nextColIndex,
             left: previousColIndex,
           };
-          const [x, y, width, height] = this.getRect(emptyZone, viewport);
+          const { x, y, width, height } = this.getRect(emptyZone, viewport);
           if (
             width < textWidth ||
             previousColIndex === col ||
             nextColIndex === col ||
             fontSizePX > height
           ) {
-            box.clipRect = [x, y, width, height];
+            box.clipRect = { x, y, width, height };
           }
           break;
         }

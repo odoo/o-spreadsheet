@@ -98,7 +98,7 @@ export class SelectionMultiUserPlugin extends UIPlugin {
         left: col,
         right: col,
       });
-      const [x, y, width, height] = this.getters.getRect(zone, viewport);
+      const { x, y, width, height } = this.getters.getRect(zone, viewport);
       if (width <= 0 || height <= 0) {
         continue;
       }

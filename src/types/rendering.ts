@@ -1,6 +1,11 @@
 import { Align, Border, Style, Zone } from "./misc";
 
-export type Rect = [number, number, number, number];
+export type Rect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 /**
  * Coordinate in pixels
@@ -16,11 +21,7 @@ export interface BoxTextContent {
   align: Align;
 }
 
-export interface Box {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+export interface Box extends Rect {
   content?: BoxTextContent;
   style: Style;
   border?: Border;

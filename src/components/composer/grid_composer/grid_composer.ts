@@ -75,13 +75,18 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       const el = this.gridComposerRef.el!;
 
       //TODO Should be more correct to have a props that give the parent's clientHeight and clientWidth
-      const maxHeight = el.parentElement!.clientHeight - this.rect[1] - SCROLLBAR_HIGHT;
+      const maxHeight = el.parentElement!.clientHeight - this.rect.y - SCROLLBAR_HIGHT;
       el.style.maxHeight = (maxHeight + "px") as string;
 
-      const maxWidth = el.parentElement!.clientWidth - this.rect[0] - SCROLLBAR_WIDTH;
+      const maxWidth = el.parentElement!.clientWidth - this.rect.x - SCROLLBAR_WIDTH;
       el.style.maxWidth = (maxWidth + "px") as string;
 
-      this.composerState.rect = [this.rect[0], this.rect[1], el!.clientWidth, el!.clientHeight];
+      this.composerState.rect = {
+        x: this.rect.x,
+        y: this.rect.y,
+        width: el!.clientWidth,
+        height: el!.clientHeight,
+      };
       this.composerState.delimitation = {
         width: el!.parentElement!.clientWidth,
         height: el!.parentElement!.clientHeight,
@@ -94,7 +99,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     const style = this.env.model.getters.getCurrentStyle();
 
     // position style
-    const [left, top, width, height] = this.rect;
+    const { x: left, y: top, width, height } = this.rect;
 
     // color style
     const background = (!isFormula && style.fillColor) || "#ffffff";

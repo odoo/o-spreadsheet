@@ -355,7 +355,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       cell.evaluated.error.logLevel > CellErrorLevel.silent
     ) {
       const viewport = this.env.model.getters.getActiveViewport();
-      const [x, y, width] = this.env.model.getters.getRect(
+      const { x, y, width } = this.env.model.getters.getRect(
         { left: col, top: row, right: col, bottom: row },
         viewport
       );
@@ -408,7 +408,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       position.row
     );
     const viewport = this.env.model.getters.getActiveViewport();
-    const [x, y, width, height] = this.env.model.getters.getRect(
+    const { x, y, width, height } = this.env.model.getters.getRect(
       { left: col, top: row, right: col, bottom: row },
       viewport
     );

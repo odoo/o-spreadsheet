@@ -152,7 +152,7 @@ export class Composer extends Component<Props, SpreadsheetChildEnv> {
 
   get assistantStyle(): string {
     if (this.props.delimitation && this.props.rect) {
-      const [cellX, cellY, , cellHeight] = this.props.rect;
+      const { x: cellX, y: cellY, height: cellHeight } = this.props.rect;
       const remainingHeight = this.props.delimitation.height - (cellY + cellHeight);
       let assistantStyle = "";
       if (cellY > remainingHeight) {
