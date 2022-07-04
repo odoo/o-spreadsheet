@@ -1,5 +1,5 @@
-import { rangeTokenize, Token } from "./index";
-
+import { Token } from "./index";
+import { rangeTokenize } from "./range_tokenizer";
 interface FunctionContext {
   parent: string;
   argPosition: number;
