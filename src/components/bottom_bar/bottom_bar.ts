@@ -3,7 +3,7 @@ import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../../con
 import { formatValue } from "../../helpers/format";
 import { interactiveRenameSheet } from "../../helpers/ui/sheet";
 import { MenuItemRegistry, sheetMenuRegistry } from "../../registries/index";
-import { SpreadsheetChildEnv, UID } from "../../types";
+import { Pixel, SpreadsheetChildEnv, UID } from "../../types";
 import { css } from "../helpers/css";
 import { Menu, MenuState } from "../menu/menu";
 
@@ -178,7 +178,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     interactiveRenameSheet(this.env, sheetId);
   }
 
-  openContextMenu(x: number, y: number, registry: MenuItemRegistry) {
+  openContextMenu(x: Pixel, y: Pixel, registry: MenuItemRegistry) {
     this.menuState.isOpen = true;
     this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
     this.menuState.position = { x, y };

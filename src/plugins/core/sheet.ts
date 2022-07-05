@@ -19,6 +19,7 @@ import {
   CreateSheetCommand,
   Dimension,
   ExcelWorkbookData,
+  HeaderIndex,
   RenameSheetCommand,
   Row,
   Sheet,
@@ -313,7 +314,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       : index >= 0 && index < this.getNumberRows(sheetId);
   }
 
-  getRow(sheetId: UID, index: number): Row {
+  getRow(sheetId: UID, index: HeaderIndex): Row {
     const row = this.getSheet(sheetId).rows[index];
     if (!row) {
       throw new Error(`Row ${row} not found.`);
@@ -321,7 +322,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return row;
   }
 
-  getCell(sheetId: UID, col: number, row: number): Cell | undefined {
+  getCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex): Cell | undefined {
     const sheet = this.tryGetSheet(sheetId);
     const cellId = sheet?.rows[row]?.cells[col];
     if (cellId === undefined) {
@@ -333,7 +334,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   /**
    * Returns all the cells of a col
    */
-  getColCells(sheetId: UID, col: number): Cell[] {
+  getColCells(sheetId: UID, col: HeaderIndex): Cell[] {
     return this.getSheet(sheetId)
       .rows.map((row) => row.cells[col])
       .filter(isDefined)
@@ -341,7 +342,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       .filter(isDefined);
   }
 
-  getColsZone(sheetId: UID, start: number, end: number): Zone {
+  getColsZone(sheetId: UID, start: HeaderIndex, end: HeaderIndex): Zone {
     return {
       top: 0,
       bottom: this.getNumberRows(sheetId) - 1,
@@ -350,11 +351,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     };
   }
 
-  getRowCells(sheetId: UID, row: number): UID[] {
+  getRowCells(sheetId: UID, row: HeaderIndex): UID[] {
     return Object.values(this.getSheet(sheetId).rows[row]?.cells).filter(isDefined);
   }
 
-  getRowsZone(sheetId: UID, start: number, end: number): Zone {
+  getRowsZone(sheetId: UID, start: HeaderIndex, end: HeaderIndex): Zone {
     return {
       top: start,
       bottom: end,
@@ -426,7 +427,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   /**
    * Set the cell at a new position and clear its previous position.
    */
-  private setNewPosition(cellId: UID, sheetId: UID, col: number, row: number) {
+  private setNewPosition(cellId: UID, sheetId: UID, col: HeaderIndex, row: HeaderIndex) {
     const currentPosition = this.cellPosition[cellId];
     if (currentPosition) {
       this.clearPosition(sheetId, currentPosition.col, currentPosition.row);
@@ -442,7 +443,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   /**
    * Remove the cell at the given position (if there's one)
    */
-  private clearPosition(sheetId: UID, col: number, row: number) {
+  private clearPosition(sheetId: UID, col: HeaderIndex, row: HeaderIndex) {
     const cellId = this.sheets[sheetId]?.rows[row].cells[col];
     if (cellId) {
       this.history.update("cellPosition", cellId, undefined);
@@ -510,7 +511,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     this.history.update("orderedSheetIds", orderedSheetIds);
   }
 
-  private findIndexOfPreviousVisibleSheet(current: number, orderedSheetIds: UID[]) {
+  private findIndexOfPreviousVisibleSheet(current: HeaderIndex, orderedSheetIds: UID[]) {
     while (current >= 0 && !this.isSheetVisible(orderedSheetIds[current])) {
       current--;
     }
@@ -520,7 +521,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return current;
   }
 
-  private findIndexOfNextVisibleSheet(current: number, orderedSheetIds: UID[]) {
+  private findIndexOfNextVisibleSheet(current: HeaderIndex, orderedSheetIds: UID[]) {
     while (current < orderedSheetIds.length && !this.isSheetVisible(orderedSheetIds[current])) {
       current++;
     }
@@ -653,7 +654,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * @param sheet ID of the sheet on which deletion should be applied
    * @param columns Columns to delete
    */
-  private removeColumns(sheet: Sheet, columns: number[]) {
+  private removeColumns(sheet: Sheet, columns: HeaderIndex[]) {
     // This is necessary because we have to delete elements in correct order:
     // begin with the end.
     columns.sort((a, b) => b - a);
@@ -676,7 +677,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * @param sheet ID of the sheet on which deletion should be applied
    * @param rows Rows to delete
    */
-  private removeRows(sheet: Sheet, rows: number[]) {
+  private removeRows(sheet: Sheet, rows: HeaderIndex[]) {
     // This is necessary because we have to delete elements in correct order:
     // begin with the end.
     rows.sort((a, b) => b - a);
@@ -690,7 +691,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
-  private addColumns(sheet: Sheet, column: number, position: "before" | "after", quantity: number) {
+  private addColumns(
+    sheet: Sheet,
+    column: HeaderIndex,
+    position: "before" | "after",
+    quantity: number
+  ) {
     // Move the cells.
     this.moveCellsOnAddition(
       sheet,
@@ -703,7 +709,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     this.history.update("sheets", sheet.id, "numberOfCols", numberOfCols + quantity);
   }
 
-  private addRows(sheet: Sheet, row: number, position: "before" | "after", quantity: number) {
+  private addRows(sheet: Sheet, row: HeaderIndex, position: "before" | "after", quantity: number) {
     this.addEmptyRows(sheet, quantity);
 
     // Move the cells.
@@ -745,7 +751,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    */
   private moveCellsOnAddition(
     sheet: Sheet,
-    addedElement: number,
+    addedElement: HeaderIndex,
     quantity: number,
     dimension: "rows" | "columns"
   ) {
@@ -783,7 +789,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * then take all the row starting at index 6 and add them back at index 3
    *
    */
-  private moveCellOnRowsDeletion(sheet: Sheet, deleteFromRow: number, deleteToRow: number) {
+  private moveCellOnRowsDeletion(
+    sheet: Sheet,
+    deleteFromRow: HeaderIndex,
+    deleteToRow: HeaderIndex
+  ) {
     const numberRows = deleteToRow - deleteFromRow + 1;
     for (let [index, row] of Object.entries(sheet.rows)) {
       const rowIndex = parseInt(index, 10);
@@ -817,7 +827,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
-  private updateRowsStructureOnDeletion(index: number, sheet: Sheet) {
+  private updateRowsStructureOnDeletion(index: HeaderIndex, sheet: Sheet) {
     const rows: Row[] = [];
     const cellsQueue = sheet.rows.map((row) => row.cells);
     for (let i in sheet.rows) {
@@ -839,7 +849,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * @param addedRow Index of the added row
    * @param rowsToAdd Number of the rows to add
    */
-  private updateRowsStructureOnAddition(sheet: Sheet, addedRow: number, rowsToAdd: number) {
+  private updateRowsStructureOnAddition(sheet: Sheet, addedRow: HeaderIndex, rowsToAdd: number) {
     const rows: Row[] = [];
     const cellsQueue = sheet.rows.map((row) => row.cells);
     sheet.rows.forEach(() =>

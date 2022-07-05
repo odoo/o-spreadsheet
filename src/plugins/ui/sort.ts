@@ -6,6 +6,7 @@ import {
   CellValueType,
   Command,
   CommandResult,
+  HeaderIndex,
   Position,
   SortCommand,
   SortDirection,
@@ -249,7 +250,11 @@ export class SortPlugin extends UIPlugin {
 
   private sortZone(sheetId: UID, anchor: Position, zone: Zone, sortDirection: SortDirection) {
     const [stepX, stepY] = this.mainCellsSteps(sheetId, zone);
-    let sortingCol: number = this.getters.getMainCellPosition(sheetId, anchor.col, anchor.row).col; // fetch anchor
+    let sortingCol: HeaderIndex = this.getters.getMainCellPosition(
+      sheetId,
+      anchor.col,
+      anchor.row
+    ).col; // fetch anchor
     let sortZone = Object.assign({}, zone);
     // Update in case of merges in the zone
     let cells = this.mainCells(sheetId, zone);
@@ -265,11 +270,11 @@ export class SortPlugin extends UIPlugin {
 
     const [width, height]: [number, number] = [cells.length, cells[0].length];
 
-    for (let c = 0; c < width; c++) {
-      for (let r = 0; r < height; r++) {
+    for (let c: HeaderIndex = 0; c < width; c++) {
+      for (let r: HeaderIndex = 0; r < height; r++) {
         let cell = cells[c][sortedIndex[r]];
-        let newCol = sortZone.left + c * stepX;
-        let newRow = sortZone.top + r * stepY;
+        let newCol: HeaderIndex = sortZone.left + c * stepX;
+        let newRow: HeaderIndex = sortZone.top + r * stepY;
         let newCellValues: any = {
           sheetId: sheetId,
           col: newCol,

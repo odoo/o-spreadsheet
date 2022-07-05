@@ -12,7 +12,7 @@ import {
   Zone,
 } from "../types";
 import { SelectionEvent } from "../types/event_stream";
-import { Dimension } from "./../types/misc";
+import { Dimension, HeaderIndex } from "./../types/misc";
 import { EventStream, StreamCallbacks } from "./event_stream";
 
 type Delta = [number, number];
@@ -128,7 +128,7 @@ export class SelectionStreamProcessor
   /**
    * Select a single cell as the new anchor.
    */
-  selectCell(col: number, row: number): DispatchResult {
+  selectCell(col: HeaderIndex, row: HeaderIndex): DispatchResult {
     const zone = positionToZone({ col, row });
     return this.selectZone({ zone, cell: { col, row } });
   }
@@ -145,7 +145,7 @@ export class SelectionStreamProcessor
    * Update the current anchor such that it includes the given
    * cell position.
    */
-  setAnchorCorner(col: number, row: number): DispatchResult {
+  setAnchorCorner(col: HeaderIndex, row: HeaderIndex): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     const { col: anchorCol, row: anchorRow } = this.anchor.cell;
     const zone: Zone = {
@@ -166,7 +166,7 @@ export class SelectionStreamProcessor
   /**
    * Add a new cell to the current selection
    */
-  addCellToSelection(col: number, row: number): DispatchResult {
+  addCellToSelection(col: HeaderIndex, row: HeaderIndex): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     ({ col, row } = this.getters.getMainCellPosition(sheetId, col, row));
     const zone = positionToZone({ col, row });
@@ -255,12 +255,12 @@ export class SelectionStreamProcessor
     });
   }
 
-  selectColumn(index: number, mode: SelectionEvent["mode"]): DispatchResult {
+  selectColumn(index: HeaderIndex, mode: SelectionEvent["mode"]): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     const bottom = this.getters.getNumberRows(sheetId) - 1;
     let zone = { left: index, right: index, top: 0, bottom };
     const top = this.getters.findFirstVisibleColRowIndex(sheetId, "ROW")!;
-    let col: number, row: number;
+    let col: HeaderIndex, row: HeaderIndex;
     switch (mode) {
       case "overrideSelection":
       case "newAnchor":
@@ -280,14 +280,14 @@ export class SelectionStreamProcessor
   }
 
   selectRow(
-    index: number,
+    index: HeaderIndex,
     mode: "overrideSelection" | "updateAnchor" | "newAnchor"
   ): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     const right = this.getters.getNumberCols(sheetId) - 1;
     let zone = { top: index, bottom: index, left: 0, right };
     const left = this.getters.findFirstVisibleColRowIndex(sheetId, "COL")!;
-    let col: number, row: number;
+    let col: HeaderIndex, row: HeaderIndex;
     switch (mode) {
       case "overrideSelection":
       case "newAnchor":
@@ -383,18 +383,26 @@ export class SelectionStreamProcessor
     };
   }
 
-  private getNextAvailableCol(delta: number, colIndex: number, rowIndex: number): number {
+  private getNextAvailableCol(
+    delta: number,
+    colIndex: HeaderIndex,
+    rowIndex: HeaderIndex
+  ): HeaderIndex {
     const sheetId = this.getters.getActiveSheetId();
     const position = { col: colIndex, row: rowIndex };
-    const isInPositionMerge = (nextCol: number) =>
+    const isInPositionMerge = (nextCol: HeaderIndex) =>
       this.getters.isInSameMerge(sheetId, colIndex, rowIndex, nextCol, rowIndex);
     return this.getNextAvailableHeader(delta, "COL", colIndex, position, isInPositionMerge);
   }
 
-  private getNextAvailableRow(delta: number, colIndex: number, rowIndex: number): number {
+  private getNextAvailableRow(
+    delta: number,
+    colIndex: HeaderIndex,
+    rowIndex: HeaderIndex
+  ): HeaderIndex {
     const sheetId = this.getters.getActiveSheetId();
     const position = { col: colIndex, row: rowIndex };
-    const isInPositionMerge = (nextRow: number) =>
+    const isInPositionMerge = (nextRow: HeaderIndex) =>
       this.getters.isInSameMerge(sheetId, colIndex, rowIndex, colIndex, nextRow);
     return this.getNextAvailableHeader(delta, "ROW", rowIndex, position, isInPositionMerge);
   }
@@ -402,10 +410,10 @@ export class SelectionStreamProcessor
   private getNextAvailableHeader(
     delta: number,
     dimension: Dimension,
-    startingHeaderIndex: number,
+    startingHeaderIndex: HeaderIndex,
     position: Position,
-    isInPositionMerge: (nextHeader: number) => boolean
-  ): number {
+    isInPositionMerge: (nextHeader: HeaderIndex) => boolean
+  ): HeaderIndex {
     const sheetId = this.getters.getActiveSheetId();
     if (delta === 0) {
       return startingHeaderIndex;
@@ -507,7 +515,7 @@ export class SelectionStreamProcessor
    * We will return the end of the cluster if the given cell is inside a cluster, and the start of the
    * next cluster if the given cell is outside a cluster or at the border of a cluster in the given direction.
    */
-  private getEndOfCluster(startPosition: Position, dim: "cols" | "rows", dir: -1 | 1): number {
+  private getEndOfCluster(startPosition: Position, dim: "cols" | "rows", dir: -1 | 1): HeaderIndex {
     const sheet = this.getters.getActiveSheet();
     let currentPosition = startPosition;
 
@@ -552,7 +560,7 @@ export class SelectionStreamProcessor
 
   /** Computes the next cell position in the given direction by crossing through merges and skipping hidden cells.
    *
-   * This has the same behaviour as getNextAvailablePosition() for certains arguments, but use this method instead
+   * This has the same behaviour as getNextAvailablePosition() for certain arguments, but use this method instead
    * inside directionToDelta(), which is called in getNextAvailablePosition(), to avoid possible infinite
    * recursion.
    */

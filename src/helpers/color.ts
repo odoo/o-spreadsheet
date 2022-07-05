@@ -22,7 +22,7 @@ export const colors = [
 /*
  * transform a color number (R * 256^2 + G * 256 + B) into classic RGB
  * */
-export function colorNumberString(color: number): string {
+export function colorNumberString(color: number): Color {
   return color.toString(16).padStart(6, "0");
 }
 
@@ -46,7 +46,7 @@ export function getNextColor() {
  * >> "#1E5010"
  *
  */
-export function toHex(color: Color): string {
+export function toHex(color: Color): Color {
   if (color.includes("rgba")) {
     throw new Error(`rgba() conversion currently not supported: ${color}`);
   }
@@ -83,7 +83,7 @@ export function relativeLuminance(color: Color): number {
  * rgbToHex6("rgb(30, 80, 16)")
  * >> "#1E5010"
  */
-function rgbToHex6(color: string): string {
+function rgbToHex6(color: Color): Color {
   return (
     "#" +
     concat(

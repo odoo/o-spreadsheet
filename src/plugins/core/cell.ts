@@ -13,6 +13,7 @@ import {
   ExcelWorkbookData,
   Format,
   FormulaCell,
+  HeaderIndex,
   Range,
   RangePart,
   Style,
@@ -166,11 +167,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   private handleAddColumnsRows(
     cmd: AddColumnsRowsCommand,
-    fn: (sheetId: UID, styleRef: number, elements: number[]) => void
+    fn: (sheetId: UID, styleRef: HeaderIndex, elements: HeaderIndex[]) => void
   ) {
     // The new elements have already been inserted in the sheet at this point.
-    let insertedElements: number[];
-    let styleReference: number;
+    let insertedElements: HeaderIndex[];
+    let styleReference: HeaderIndex;
     if (cmd.position === "before") {
       insertedElements = range(cmd.base, cmd.base + cmd.quantity);
       styleReference = cmd.base + cmd.quantity;
@@ -386,7 +387,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * Copy the style of one column to other columns.
    */
-  private copyColumnStyle(sheetId: UID, refColumn: number, targetCols: number[]) {
+  private copyColumnStyle(sheetId: UID, refColumn: HeaderIndex, targetCols: HeaderIndex[]) {
     for (let row = 0; row < this.getters.getNumberRows(sheetId); row++) {
       const format = this.getFormat(sheetId, refColumn, row);
       if (format.style || format.format) {
@@ -400,7 +401,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * Copy the style of one row to other rows.
    */
-  private copyRowStyle(sheetId: UID, refRow: number, targetRows: number[]) {
+  private copyRowStyle(sheetId: UID, refRow: HeaderIndex, targetRows: HeaderIndex[]) {
     for (let col = 0; col < this.getters.getNumberCols(sheetId); col++) {
       const format = this.getFormat(sheetId, col, refRow);
       if (format.style || format.format) {
@@ -414,7 +415,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * gets the currently used style/border of a cell based on it's coordinates
    */
-  private getFormat(sheetId: UID, col: number, row: number): { style?: Style; format?: Format } {
+  private getFormat(
+    sheetId: UID,
+    col: HeaderIndex,
+    row: HeaderIndex
+  ): { style?: Style; format?: Format } {
     const format: { style?: Style; format?: string } = {};
     const { col: mainCol, row: mainRow } = this.getters.getMainCellPosition(sheetId, col, row);
     const cell = this.getters.getCell(sheetId, mainCol, mainRow);
@@ -429,7 +434,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return format;
   }
 
-  private updateCell(sheetId: UID, col: number, row: number, after: UpdateCellData) {
+  private updateCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex, after: UpdateCellData) {
     const before = this.getters.getCell(sheetId, col, row);
     const hasContent = "content" in after || "formula" in after;
 
@@ -488,7 +493,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     this.dispatch("UPDATE_CELL_POSITION", { cellId: cell.id, col, row, sheetId });
   }
 
-  private checkCellOutOfSheet(sheetId: UID, col: number, row: number): CommandResult {
+  private checkCellOutOfSheet(sheetId: UID, col: HeaderIndex, row: HeaderIndex): CommandResult {
     const sheet = this.getters.tryGetSheet(sheetId);
     if (!sheet) return CommandResult.InvalidSheetId;
     const sheetZone = {

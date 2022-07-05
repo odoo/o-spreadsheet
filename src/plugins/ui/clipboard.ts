@@ -9,6 +9,7 @@ import {
   Dimension,
   FormulaCell,
   GridRenderingContext,
+  HeaderIndex,
   isCoreCommand,
   LAYERS,
   UID,
@@ -296,8 +297,8 @@ export class ClipboardPlugin extends UIPlugin {
     const width = cells[0].length;
     const selection = target[target.length - 1];
 
-    const col = selection.left;
-    const row = selection.top;
+    const col: HeaderIndex = selection.left;
+    const row: HeaderIndex = selection.top;
     const repetitionCol = Math.max(1, Math.floor((selection.right + 1 - col) / width));
     const repetitionRow = Math.max(1, Math.floor((selection.bottom + 1 - row) / height));
 
@@ -318,10 +319,10 @@ export class ClipboardPlugin extends UIPlugin {
    * Get the clipboard state from the given zones.
    */
   private getClipboardState(zones: Zone[], operation: ClipboardOperation) {
-    const lefts = new Set(zones.map((z) => z.left));
-    const rights = new Set(zones.map((z) => z.right));
-    const tops = new Set(zones.map((z) => z.top));
-    const bottoms = new Set(zones.map((z) => z.bottom));
+    const lefts: Set<HeaderIndex> = new Set(zones.map((z) => z.left));
+    const rights: Set<HeaderIndex> = new Set(zones.map((z) => z.right));
+    const tops: Set<HeaderIndex> = new Set(zones.map((z) => z.top));
+    const bottoms: Set<HeaderIndex> = new Set(zones.map((z) => z.bottom));
 
     const areZonesCompatible =
       (tops.size === 1 && bottoms.size === 1) || (lefts.size === 1 && rights.size === 1);
@@ -333,8 +334,12 @@ export class ClipboardPlugin extends UIPlugin {
       : [zones[zones.length - 1]];
 
     const cellsPosition = clippedZones.map((zone) => positions(zone)).flat();
-    const columnsIndex = [...new Set(cellsPosition.map((p) => p.col))].sort((a, b) => a - b);
-    const rowsIndex = [...new Set(cellsPosition.map((p) => p.row))].sort((a, b) => a - b);
+    const columnsIndex: HeaderIndex[] = [...new Set(cellsPosition.map((p) => p.col))].sort(
+      (a, b) => a - b
+    );
+    const rowsIndex: HeaderIndex[] = [...new Set(cellsPosition.map((p) => p.row))].sort(
+      (a, b) => a - b
+    );
 
     const cellsInClipboard: ClipboardCell[][] = [];
     const merges: Zone[] = [];
@@ -521,8 +526,8 @@ export class ClipboardPlugin extends UIPlugin {
    */
   private selectPastedZone(width: number, height: number, isCutOperation: boolean, target: Zone[]) {
     const selection = target[0];
-    const col = selection.left;
-    const row = selection.top;
+    const col: HeaderIndex = selection.left;
+    const row: HeaderIndex = selection.top;
     if (height > 1 || width > 1 || isCutOperation) {
       const zones = this.pastedZones(target, width, height);
       const newZone = isCutOperation ? zones[0] : union(...zones);
@@ -549,8 +554,8 @@ export class ClipboardPlugin extends UIPlugin {
 
   private pasteZone(
     state: ClipboardState,
-    col: number,
-    row: number,
+    col: HeaderIndex,
+    row: HeaderIndex,
     pasteOption?: ClipboardOptions
   ) {
     const height = state.cells.length;
@@ -563,9 +568,9 @@ export class ClipboardPlugin extends UIPlugin {
     // first, add missing cols/rows if needed
     this.addMissingDimensions(sheetId, width, height, col, row);
     // then, perform the actual paste operation
-    for (let r = 0; r < height; r++) {
+    for (let r: HeaderIndex = 0; r < height; r++) {
       const rowCells = state.cells[r];
-      for (let c = 0; c < width; c++) {
+      for (let c: HeaderIndex = 0; c < width; c++) {
         const origin = rowCells[c];
         const position = { col: col + c, row: row + r, sheetId: sheetId };
         this.removeMergeIfTopLeft(position);
@@ -590,8 +595,8 @@ export class ClipboardPlugin extends UIPlugin {
     sheetId: UID,
     width: number,
     height: number,
-    col: number,
-    row: number
+    col: HeaderIndex,
+    row: HeaderIndex
   ) {
     const missingRows = height + row - this.getters.getNumberRows(sheetId);
     if (missingRows > 0) {
@@ -694,7 +699,7 @@ export class ClipboardPlugin extends UIPlugin {
   /**
    * Check if a col/row added/removed at the given position is dirtying the clipboard
    */
-  private isColRowDirtyingClipboard(position: number, dimension: Dimension) {
+  private isColRowDirtyingClipboard(position: HeaderIndex, dimension: Dimension) {
     if (!this.state || !this.state.zones) return false;
     for (let zone of this.state.zones) {
       if (dimension === "COL" && position <= zone.right) {

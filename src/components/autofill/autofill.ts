@@ -1,7 +1,7 @@
 import { Component, useState, xml } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { clip } from "../../helpers/misc";
-import { SpreadsheetChildEnv } from "../../types";
+import { HeaderIndex, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { startDnd } from "../helpers/drag_and_drop";
 
@@ -45,8 +45,8 @@ interface Props {
 }
 
 interface Position {
-  top: number;
-  left: number;
+  top: HeaderIndex;
+  left: HeaderIndex;
 }
 
 interface State {
@@ -92,8 +92,8 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
       left: ev.clientX + offsetX,
       top: ev.clientY + offsetY,
     };
-    let lastCol: number | undefined;
-    let lastRow: number | undefined;
+    let lastCol: HeaderIndex | undefined;
+    let lastRow: HeaderIndex | undefined;
 
     const onMouseUp = () => {
       this.state.handler = false;

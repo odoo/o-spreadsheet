@@ -1,23 +1,23 @@
-import { Align, Border, Style, Zone } from "./misc";
+import { Align, Border, Pixel, Style, Zone } from "./misc";
 
 export type Rect = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  x: Pixel;
+  y: Pixel;
+  width: Pixel;
+  height: Pixel;
 };
 
 /**
  * Coordinate in pixels
  */
 export interface DOMCoordinates {
-  x: number;
-  y: number;
+  x: Pixel;
+  y: Pixel;
 }
 
 export interface BoxTextContent {
   text: string;
-  width: number;
+  width: Pixel;
   align: Align;
 }
 
@@ -32,14 +32,14 @@ export interface Box extends Rect {
 }
 export interface Image {
   clipIcon: Rect | null;
-  size: number;
+  size: Pixel;
   type: "icon"; //| "Picture"
   image: HTMLImageElement;
 }
 
-export interface GridDimension {
-  width: number;
-  height: number;
+export interface DOMDimension {
+  width: Pixel;
+  height: Pixel;
 }
 
 /**
@@ -51,22 +51,22 @@ export interface Viewport extends Zone {
    * The offset in the X coordinate between the viewport left side and
    * the grid left side (left of column "A").
    */
-  offsetX: number;
+  offsetX: Pixel;
   /**
    * The scrollBar offset in the X coordinate, which can differ from offsetX as
    * the former is "smooth" and the latter will "snap" from one cell coordinate to the other
    */
-  offsetScrollbarX: number;
+  offsetScrollbarX: Pixel;
   /**
    * The offset in the Y coordinate between the viewport top side and
    * the grid top side (top of row "1").
    */
-  offsetY: number;
+  offsetY: Pixel;
   /**
    * The scrollBar offset in the Y coordinate, which can differ from offsetX as
    * the former is "smooth" and the latter will "snap" from one cell coordinate to the other
    */
-  offsetScrollbarY: number;
+  offsetScrollbarY: Pixel;
 }
 
 export interface GridRenderingContext {

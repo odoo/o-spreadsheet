@@ -1,13 +1,13 @@
 import { Component, onMounted, useState } from "@odoo/owl";
 import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants";
 import { figureRegistry } from "../../../registries/index";
-import { Figure, SpreadsheetChildEnv } from "../../../types/index";
+import { Figure, SpreadsheetChildEnv, UID } from "../../../types/index";
 import { css } from "../../helpers/css";
 import { startDnd } from "../../helpers/drag_and_drop";
 import { ChartFigure } from "../figure_chart/figure_chart";
 
 interface FigureInfo {
-  id: string;
+  id: UID;
   isSelected: boolean;
   figure: Figure;
 }

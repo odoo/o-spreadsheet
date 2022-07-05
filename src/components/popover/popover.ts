@@ -5,7 +5,7 @@ import {
   SCROLLBAR_WIDTH,
   TOPBAR_HEIGHT,
 } from "../../constants";
-import { DOMCoordinates, GridDimension, SpreadsheetChildEnv } from "../../types";
+import { DOMCoordinates, DOMDimension, Pixel, SpreadsheetChildEnv } from "../../types";
 import { useSpreadsheetPosition } from "../helpers/position_hook";
 
 interface Props {
@@ -13,19 +13,19 @@ interface Props {
    * Coordinates are expressed relative to the "body" element.
    */
   position: DOMCoordinates;
-  marginTop: number;
-  childWidth: number;
-  childHeight: number;
+  marginTop: Pixel;
+  childWidth: Pixel;
+  childHeight: Pixel;
   /**
    * The component is moved by this amount to the left when
    * it is rendered on the left.
    */
-  flipHorizontalOffset: number;
+  flipHorizontalOffset: Pixel;
   /**
    * The component is moved by this amount to the top when
    * it is rendered on the top.
    */
-  flipVerticalOffset: number;
+  flipVerticalOffset: Pixel;
 }
 
 export class Popover extends Component<Props, SpreadsheetChildEnv> {
@@ -61,7 +61,7 @@ export class Popover extends Component<Props, SpreadsheetChildEnv> {
     `;
   }
 
-  private get viewportDimension(): GridDimension {
+  private get viewportDimension(): DOMDimension {
     return this.env.model.getters.getViewportDimensionWithHeaders();
   }
 
@@ -78,7 +78,7 @@ export class Popover extends Component<Props, SpreadsheetChildEnv> {
     );
   }
 
-  private horizontalPosition(): number {
+  private horizontalPosition(): Pixel {
     const { x } = this.props.position;
     if (this.shouldRenderRight) {
       return x;
@@ -86,7 +86,7 @@ export class Popover extends Component<Props, SpreadsheetChildEnv> {
     return x - this.props.childWidth - this.props.flipHorizontalOffset;
   }
 
-  private verticalPosition(): number {
+  private verticalPosition(): Pixel {
     const { y } = this.props.position;
     if (this.shouldRenderBottom) {
       return y;

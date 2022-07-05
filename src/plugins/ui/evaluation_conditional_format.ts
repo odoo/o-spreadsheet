@@ -12,6 +12,7 @@ import {
   ColorScaleThreshold,
   Command,
   ConditionalFormat,
+  HeaderIndex,
   IconSetRule,
   IconThreshold,
   Style,
@@ -28,8 +29,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   static getters = ["getConditionalStyle", "getConditionalIcon"] as const;
   private isStale: boolean = true;
   // stores the computed styles in the format of computedStyles.sheetName[col][row] = Style
-  private computedStyles: { [sheet: string]: { [col: number]: (Style | undefined)[] } } = {};
-  private computedIcons: { [sheet: string]: { [col: number]: (string | undefined)[] } } = {};
+  private computedStyles: { [sheet: string]: { [col: HeaderIndex]: (Style | undefined)[] } } = {};
+  private computedIcons: { [sheet: string]: { [col: HeaderIndex]: (string | undefined)[] } } = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -88,13 +89,13 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
    * Returns the conditional style property for a given cell reference in the active sheet or
    * undefined if this cell doesn't have a conditional style set.
    */
-  getConditionalStyle(col: number, row: number): Style | undefined {
+  getConditionalStyle(col: HeaderIndex, row: HeaderIndex): Style | undefined {
     const activeSheet = this.getters.getActiveSheetId();
     const styles = this.computedStyles[activeSheet];
     return styles && styles[col]?.[row];
   }
 
-  getConditionalIcon(col: number, row: number): string | undefined {
+  getConditionalIcon(col: HeaderIndex, row: HeaderIndex): string | undefined {
     const activeSheet = this.getters.getActiveSheetId();
     const icon = this.computedIcons[activeSheet];
     return icon && icon[col]?.[row];

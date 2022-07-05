@@ -20,6 +20,7 @@ import {
   AddColumnsRowsCommand,
   Command,
   CommandResult,
+  HeaderIndex,
   RemoveColumnsRowsCommand,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
@@ -51,8 +52,8 @@ export class EditionPlugin extends UIPlugin {
     "getComposerHighlights",
   ] as const;
 
-  private col: number = 0;
-  private row: number = 0;
+  private col: HeaderIndex = 0;
+  private row: HeaderIndex = 0;
   private mode: EditionMode = "inactive";
   private sheetId: UID = "";
   private currentContent: string = "";

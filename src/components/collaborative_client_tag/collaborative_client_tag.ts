@@ -1,14 +1,14 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_FONT_SIZE } from "../../constants";
-import { SpreadsheetChildEnv, Viewport } from "../../types";
+import { HeaderIndex, SpreadsheetChildEnv, Viewport } from "../../types";
 import { css } from "../helpers/css";
 
 interface ClientTagProps {
   active: boolean;
   name: string;
   color: string;
-  col: number;
-  row: number;
+  col: HeaderIndex;
+  row: HeaderIndex;
   viewport: Viewport;
 }
 

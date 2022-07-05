@@ -11,7 +11,7 @@ import {
 } from "../../constants";
 import { FullMenuItem, MenuItem } from "../../registries";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
-import { DOMCoordinates, SpreadsheetChildEnv } from "../../types";
+import { DOMCoordinates, Pixel, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { isChildEvent } from "../helpers/dom_helpers";
 import { useAbsolutePosition } from "../helpers/position_hook";
@@ -85,7 +85,7 @@ interface Props {
 export interface MenuState {
   isOpen: boolean;
   position: null | DOMCoordinates;
-  scrollOffset?: number;
+  scrollOffset?: Pixel;
   menuItems: FullMenuItem[];
 }
 export class Menu extends Component<Props, SpreadsheetChildEnv> {
@@ -121,11 +121,11 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     return position;
   }
 
-  get menuHeight(): number {
+  get menuHeight(): Pixel {
     return this.menuComponentHeight(this.props.menuItems);
   }
 
-  get subMenuHeight(): number {
+  get subMenuHeight(): Pixel {
     return this.menuComponentHeight(this.subMenu.menuItems);
   }
 
@@ -162,7 +162,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
    * Return the number of pixels between the top of the menu
    * and the menu item at a given index.
    */
-  private subMenuVerticalPosition(position: number): number {
+  private subMenuVerticalPosition(position: Pixel): Pixel {
     const menusAbove = this.props.menuItems.slice(0, position);
     return this.menuComponentHeight(menusAbove) + this.position.y;
   }
@@ -189,7 +189,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
    * Return the total height (in pixels) needed for some
    * menu items
    */
-  private menuComponentHeight(menuItems: MenuItem[]): number {
+  private menuComponentHeight(menuItems: MenuItem[]): Pixel {
     const separators = menuItems.filter((m) => m.separator);
     const others = menuItems;
     return MENU_ITEM_HEIGHT * others.length + separators.length * MENU_SEPARATOR_HEIGHT;
@@ -221,7 +221,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
    * If the given menu is not disabled, open it's submenu at the
    * correct position according to available surrounding space.
    */
-  openSubMenu(menu: FullMenuItem, position: number) {
+  openSubMenu(menu: FullMenuItem, position: Pixel) {
     const y = this.subMenuVerticalPosition(position);
     this.subMenu.position = {
       x: this.position.x + MENU_WIDTH,
@@ -231,7 +231,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     this.subMenu.isOpen = true;
   }
 
-  onClickMenu(menu: FullMenuItem, position: number) {
+  onClickMenu(menu: FullMenuItem, position: Pixel) {
     if (this.isEnabled(menu)) {
       if (this.isRoot(menu)) {
         this.openSubMenu(menu, position);
@@ -241,7 +241,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  onMouseOver(menu: FullMenuItem, position: number) {
+  onMouseOver(menu: FullMenuItem, position: Pixel) {
     if (menu.isEnabled(this.env)) {
       if (this.isRoot(menu)) {
         this.openSubMenu(menu, position);

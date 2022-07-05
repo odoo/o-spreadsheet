@@ -1,10 +1,10 @@
-import { UID } from ".";
+import { Pixel, UID } from ".";
 
 export interface Figure {
   id: UID;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  x: Pixel;
+  y: Pixel;
+  width: Pixel;
+  height: Pixel;
   tag: string;
 }

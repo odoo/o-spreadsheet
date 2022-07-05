@@ -1,3 +1,5 @@
-export type Format = string;
+import { Alias } from "./misc";
 
-export type FormattedValue = string;
+export type Format = string & Alias;
+
+export type FormattedValue = string & Alias;

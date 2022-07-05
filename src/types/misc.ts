@@ -7,12 +7,25 @@ import { CommandResult } from "./commands";
 import { Format } from "./format";
 import { Range } from "./range";
 
-export type UID = string;
+/**
+ * The following type is meant to be used in union with other aliases to prevent
+ * Intellisense from resolving it.
+ * See https://github.com/microsoft/TypeScript/issues/31940#issuecomment-841712377
+ */
+export type Alias = {};
+
+// Col/row Index
+export type HeaderIndex = number & Alias;
+
+// any DOM pixel value
+export type Pixel = number & Alias;
+
+export type UID = string & Alias;
 /**
  * CSS style color string
  * e.g. "#ABC", "#AAAFFF", "rgb(30, 80, 16)"
  */
-export type Color = string;
+export type Color = string & Alias;
 
 export interface RGBA {
   a: number;
@@ -39,10 +52,10 @@ export interface Link {
 }
 
 export interface Zone {
-  left: number;
-  right: number;
-  top: number;
-  bottom: number;
+  left: HeaderIndex;
+  right: HeaderIndex;
+  top: HeaderIndex;
+  bottom: HeaderIndex;
 }
 
 export interface AnchorZone {
@@ -56,16 +69,16 @@ export interface Selection {
 }
 
 export interface UnboundedZone {
-  top: number;
-  bottom: number | undefined;
-  left: number;
-  right: number | undefined;
+  top: HeaderIndex;
+  bottom: HeaderIndex | undefined;
+  left: HeaderIndex;
+  right: HeaderIndex | undefined;
   hasHeader?: boolean;
 }
 
 export interface ZoneDimension {
-  height: number;
-  width: number;
+  height: HeaderIndex;
+  width: HeaderIndex;
 }
 
 export type Align = "left" | "right" | "center" | undefined;
@@ -97,8 +110,8 @@ export interface Sheet {
 }
 
 export interface CellPosition {
-  col: number;
-  row: number;
+  col: HeaderIndex;
+  row: HeaderIndex;
   sheetId: UID;
 }
 
@@ -149,9 +162,9 @@ export interface ClipboardCell {
 }
 
 export interface HeaderDimensions {
-  start: number;
-  size: number;
-  end: number;
+  start: Pixel;
+  size: Pixel;
+  end: Pixel;
 }
 
 export interface Row {
@@ -159,8 +172,8 @@ export interface Row {
 }
 
 export interface Position {
-  col: number;
-  row: number;
+  col: HeaderIndex;
+  row: HeaderIndex;
 }
 export interface Merge extends Zone {
   id: number;
@@ -202,7 +215,7 @@ export type ApplyRangeChange = (range: Range) => ApplyRangeChangeResult;
 
 export type Dimension = "COL" | "ROW";
 
-export type ConsecutiveIndexes = number[];
+export type ConsecutiveIndexes = HeaderIndex[];
 
 export interface RangeProvider {
   adaptRanges: (applyChange: ApplyRangeChange, sheetId?: UID) => void;

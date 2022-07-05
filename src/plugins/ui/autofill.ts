@@ -11,6 +11,7 @@ import {
   GeneratorCell,
   Getters,
   GridRenderingContext,
+  HeaderIndex,
   LAYERS,
   Tooltip,
   Zone,
@@ -236,7 +237,7 @@ export class AutofillPlugin extends UIPlugin {
   /**
    * Select a cell which becomes the last cell of the autofillZone
    */
-  private select(col: number, row: number) {
+  private select(col: HeaderIndex, row: HeaderIndex) {
     const source = this.getters.getSelectedZone();
     if (isInside(col, row, source)) {
       this.autofillZone = undefined;
@@ -267,8 +268,8 @@ export class AutofillPlugin extends UIPlugin {
   private autofillAuto() {
     const zone = this.getters.getSelectedZone();
     const sheetId = this.getters.getActiveSheetId();
-    let col = zone.left;
-    let row = zone.bottom;
+    let col: HeaderIndex = zone.left;
+    let row: HeaderIndex = zone.bottom;
     if (col > 0) {
       let left = this.getters.getCell(sheetId, col - 1, row);
       while (left && !left.isEmpty()) {
@@ -295,7 +296,12 @@ export class AutofillPlugin extends UIPlugin {
   /**
    * Generate the next cell
    */
-  private computeNewCell(generator: AutofillGenerator, col: number, row: number, apply: boolean) {
+  private computeNewCell(
+    generator: AutofillGenerator,
+    col: HeaderIndex,
+    row: HeaderIndex,
+    apply: boolean
+  ) {
     const { cellData, tooltip, origin } = generator.next();
     const { content, style, border, format } = cellData;
     this.tooltip = tooltip;
@@ -357,7 +363,7 @@ export class AutofillPlugin extends UIPlugin {
     return new AutofillGenerator(nextCells, this.getters, this.direction!);
   }
 
-  private saveZone(top: number, bottom: number, left: number, right: number) {
+  private saveZone(top: HeaderIndex, bottom: HeaderIndex, left: HeaderIndex, right: HeaderIndex) {
     this.autofillZone = { top, bottom, left, right };
   }
 
@@ -365,7 +371,7 @@ export class AutofillPlugin extends UIPlugin {
    * Compute the direction of the autofill from the last selected zone and
    * a given cell (col, row)
    */
-  private getDirection(col: number, row: number): DIRECTION {
+  private getDirection(col: HeaderIndex, row: HeaderIndex): DIRECTION {
     const source = this.getters.getSelectedZone();
     const position = {
       up: { number: source.top - row, value: DIRECTION.UP },
@@ -388,7 +394,12 @@ export class AutofillPlugin extends UIPlugin {
       : position[second].value;
   }
 
-  private autoFillMerge(originCol: number, originRow: number, col: number, row: number) {
+  private autoFillMerge(
+    originCol: HeaderIndex,
+    originRow: HeaderIndex,
+    col: HeaderIndex,
+    row: HeaderIndex
+  ) {
     const activeSheet = this.getters.getActiveSheet();
     if (
       this.getters.isInMerge(activeSheet.id, col, row) &&

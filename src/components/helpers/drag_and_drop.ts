@@ -1,4 +1,5 @@
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
+import { HeaderIndex } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/env";
 type EventFn = (ev: MouseEvent) => void;
 
@@ -32,7 +33,7 @@ export function startDnd(onMouseMove: EventFn, onMouseUp: EventFn) {
 export function dragAndDropBeyondTheViewport(
   element: HTMLElement,
   env: SpreadsheetChildEnv,
-  cbMouseMove: (col: number, row: number) => void,
+  cbMouseMove: (col: HeaderIndex, row: HeaderIndex) => void,
   cbMouseUp: () => void
 ) {
   const position = element.getBoundingClientRect();
@@ -50,14 +51,14 @@ export function dragAndDropBeyondTheViewport(
     const edgeScrollInfoY = env.model.getters.getEdgeScrollRow(offsetY - HEADER_HEIGHT);
     const { top, left, bottom, right } = env.model.getters.getActiveViewport();
 
-    let colIndex: number;
+    let colIndex: HeaderIndex;
     if (edgeScrollInfoX.canEdgeScroll) {
       colIndex = edgeScrollInfoX.direction > 0 ? right : left - 1;
     } else {
       colIndex = env.model.getters.getColIndex(offsetX - HEADER_WIDTH);
     }
 
-    let rowIndex: number;
+    let rowIndex: HeaderIndex;
     if (edgeScrollInfoY.canEdgeScroll) {
       rowIndex = edgeScrollInfoY.direction > 0 ? bottom : top - 1;
     } else {

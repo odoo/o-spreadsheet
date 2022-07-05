@@ -1,12 +1,12 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import { deepCopy, getAddHeaderStartIndex, range } from "../../helpers";
 import { Command, ExcelWorkbookData, WorkbookData } from "../../types";
-import { Dimension, UID } from "../../types/misc";
+import { Dimension, HeaderIndex, Pixel, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
 
 interface HeaderSize {
-  manualSize: number | undefined;
-  computedSize: number;
+  manualSize: Pixel | undefined;
+  computedSize: Pixel;
 }
 
 interface HeaderSizeState {
@@ -73,15 +73,15 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
     return;
   }
 
-  getColSize(sheetId: UID, index: number): number {
+  getColSize(sheetId: UID, index: HeaderIndex): Pixel {
     return this.getHeaderSize(sheetId, "COL", index);
   }
 
-  getRowSize(sheetId: UID, index: number): number {
+  getRowSize(sheetId: UID, index: HeaderIndex): Pixel {
     return this.getHeaderSize(sheetId, "ROW", index);
   }
 
-  private getHeaderSize(sheetId: UID, dimension: Dimension, index: number): number {
+  private getHeaderSize(sheetId: UID, dimension: Dimension, index: HeaderIndex): Pixel {
     return (
       this.sizes[sheetId]?.[dimension][index]?.manualSize ||
       this.sizes[sheetId]?.[dimension][index]?.computedSize ||
@@ -89,8 +89,8 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
     );
   }
 
-  private computeSheetSizes(sheetId: UID): Record<Dimension, Array<number>> {
-    const sizes: Record<Dimension, Array<number>> = { COL: [], ROW: [] };
+  private computeSheetSizes(sheetId: UID): Record<Dimension, Array<Pixel>> {
+    const sizes: Record<Dimension, Array<Pixel>> = { COL: [], ROW: [] };
     for (const col of range(0, this.getters.getNumberCols(sheetId))) {
       sizes.COL.push(this.getHeaderSize(sheetId, "COL", col));
     }
@@ -100,7 +100,7 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
     return sizes;
   }
 
-  private getDefaultHeaderSize(dimension: Dimension): number {
+  private getDefaultHeaderSize(dimension: Dimension): Pixel {
     return dimension === "COL" ? DEFAULT_CELL_WIDTH : DEFAULT_CELL_HEIGHT;
   }
 

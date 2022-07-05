@@ -7,6 +7,7 @@ import {
   BorderDescription,
   Command,
   ExcelWorkbookData,
+  HeaderIndex,
   UID,
   WorkbookData,
   Zone,
@@ -91,8 +92,8 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    */
   private handleAddColumns(cmd: AddColumnsRowsCommand) {
     // The new columns have already been inserted in the sheet at this point.
-    let colLeftOfInsertion: number;
-    let colRightOfInsertion: number;
+    let colLeftOfInsertion: HeaderIndex;
+    let colRightOfInsertion: HeaderIndex;
     if (cmd.position === "before") {
       this.shiftBordersHorizontally(cmd.sheetId, cmd.base, cmd.quantity, {
         moveFirstLeftBorder: true,
@@ -115,8 +116,8 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    */
   private handleAddRows(cmd: AddColumnsRowsCommand) {
     // The new rows have already been inserted at this point.
-    let rowAboveInsertion: number;
-    let rowBelowInsertion: number;
+    let rowAboveInsertion: HeaderIndex;
+    let rowBelowInsertion: HeaderIndex;
     if (cmd.position === "before") {
       this.shiftBordersVertically(cmd.sheetId, cmd.base, cmd.quantity, {
         moveFirstTopBorder: true,
@@ -137,7 +138,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   // Getters
   // ---------------------------------------------------------------------------
 
-  getCellBorder(sheetId: UID, col: number, row: number): Border | null {
+  getCellBorder(sheetId: UID, col: HeaderIndex, row: HeaderIndex): Border | null {
     const border = {
       top: this.borders[sheetId]?.[col]?.[row]?.horizontal,
       bottom: this.borders[sheetId]?.[col]?.[row + 1]?.horizontal,
@@ -159,9 +160,13 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    * If the two columns have the same borders (at each row respectively),
    * the same borders are applied to each cell in between.
    */
-  private ensureColumnBorderContinuity(sheetId: UID, leftColumn: number, rightColumn: number) {
+  private ensureColumnBorderContinuity(
+    sheetId: UID,
+    leftColumn: HeaderIndex,
+    rightColumn: HeaderIndex
+  ) {
     const targetCols = range(leftColumn + 1, rightColumn);
-    for (let row = 0; row < this.getters.getNumberRows(sheetId); row++) {
+    for (let row: HeaderIndex = 0; row < this.getters.getNumberRows(sheetId); row++) {
       const leftBorder = this.getCellBorder(sheetId, leftColumn, row);
       const rightBorder = this.getCellBorder(sheetId, rightColumn, row);
       if (leftBorder && rightBorder) {
@@ -178,9 +183,9 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    * If the two rows have the same borders (at each column respectively),
    * the same borders are applied to each cell in between.
    */
-  private ensureRowBorderContinuity(sheetId: UID, topRow: number, bottomRow: number) {
+  private ensureRowBorderContinuity(sheetId: UID, topRow: HeaderIndex, bottomRow: HeaderIndex) {
     const targetRows = range(topRow + 1, bottomRow);
-    for (let col = 0; col < this.getters.getNumberCols(sheetId); col++) {
+    for (let col: HeaderIndex = 0; col < this.getters.getNumberCols(sheetId); col++) {
       const aboveBorder = this.getCellBorder(sheetId, col, topRow);
       const belowBorder = this.getCellBorder(sheetId, col, bottomRow);
       if (aboveBorder && belowBorder) {
@@ -209,7 +214,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   /**
    * Get all the columns which contains at least a border
    */
-  private getColumnsWithBorders(sheetId: UID): number[] {
+  private getColumnsWithBorders(sheetId: UID): HeaderIndex[] {
     const sheetBorders = this.borders[sheetId];
     if (!sheetBorders) return [];
     return Object.keys(sheetBorders).map((index) => parseInt(index, 10));
@@ -218,7 +223,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   /**
    * Get the range of all the rows in the sheet
    */
-  private getRowsRange(sheetId: UID): number[] {
+  private getRowsRange(sheetId: UID): HeaderIndex[] {
     const sheetBorders = this.borders[sheetId];
     if (!sheetBorders) return [];
     return range(0, this.getters.getNumberRows(sheetId) + 1);
@@ -232,7 +237,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    */
   private shiftBordersHorizontally(
     sheetId: UID,
-    start: number,
+    start: HeaderIndex,
     delta: number,
     { moveFirstLeftBorder }: { moveFirstLeftBorder?: boolean } = {}
   ) {
@@ -262,7 +267,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    */
   private shiftBordersVertically(
     sheetId: UID,
-    start: number,
+    start: HeaderIndex,
     delta: number,
     { moveFirstTopBorder }: { moveFirstTopBorder?: boolean } = {}
   ) {
@@ -297,7 +302,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    */
   private moveBordersOfRow(
     sheetId: UID,
-    row: number,
+    row: HeaderIndex,
     delta: number,
     borderDirection: "vertical" | "horizontal",
     { destructive }: { destructive: boolean } = { destructive: true }
@@ -332,7 +337,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    */
   private moveBordersOfColumn(
     sheetId: UID,
-    col: number,
+    col: HeaderIndex,
     delta: number,
     borderDirection: "vertical" | "horizontal",
     { destructive }: { destructive: boolean } = { destructive: true }
@@ -358,7 +363,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    * Set the borders of a cell.
    * Note that it override the current border
    */
-  private setBorder(sheetId: UID, col: number, row: number, border?: Border) {
+  private setBorder(sheetId: UID, col: HeaderIndex, row: HeaderIndex, border?: Border) {
     this.history.update("borders", sheetId, col, row, {
       vertical: border?.left,
       horizontal: border?.top,
@@ -387,7 +392,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   /**
    * Add a border to the existing one to a cell
    */
-  private addBorder(sheetId: UID, col: number, row: number, border: Border) {
+  private addBorder(sheetId: UID, col: HeaderIndex, row: HeaderIndex, border: Border) {
     this.setBorder(sheetId, col, row, {
       ...this.getCellBorder(sheetId, col, row),
       ...border,
@@ -507,8 +512,8 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       return borderId;
     }
     for (let sheet of data.sheets) {
-      for (let col = 0; col < sheet.colNumber; col++) {
-        for (let row = 0; row < sheet.rowNumber; row++) {
+      for (let col: HeaderIndex = 0; col < sheet.colNumber; col++) {
+        for (let row: HeaderIndex = 0; row < sheet.rowNumber; row++) {
           const border = this.getCellBorder(sheet.id, col, row);
           if (border) {
             const xc = toXC(col, row);

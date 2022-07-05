@@ -29,6 +29,8 @@ import {
   CellValueType,
   Client,
   DOMCoordinates,
+  HeaderIndex,
+  Pixel,
   Position,
   Ref,
   SpreadsheetChildEnv,
@@ -79,8 +81,8 @@ const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
 // -----------------------------------------------------------------------------
 
 interface HoveredPosition {
-  col?: number;
-  row?: number;
+  col?: HeaderIndex;
+  row?: HeaderIndex;
 }
 
 export function useCellHovered(env: SpreadsheetChildEnv) {
@@ -131,7 +133,7 @@ export function useCellHovered(env: SpreadsheetChildEnv) {
   return hoveredPosition;
 }
 
-function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMoveUp: () => boolean) {
+function useTouchMove(handler: (deltaX: Pixel, deltaY: Pixel) => void, canMoveUp: () => boolean) {
   const canvasRef = useRef("canvas");
   let x = null as number | null;
   let y = null as number | null;
@@ -267,8 +269,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private gridOverlay!: Ref<HTMLElement>;
   private canvas!: Ref<HTMLElement>;
   private currentSheet!: UID;
-  private clickedCol!: number;
-  private clickedRow!: number;
+  private clickedCol!: HeaderIndex;
+  private clickedRow!: HeaderIndex;
 
   // last string that was cut or copied. It is necessary so we can make the
   // difference between a paste coming from the sheet itself, or from the
@@ -674,7 +676,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.moveCanvas(normalize(deltaX), normalize(deltaY));
   }
 
-  isCellHovered(col: number, row: number): boolean {
+  isCellHovered(col: HeaderIndex, row: HeaderIndex): boolean {
     return this.hoveredCell.col === col && this.hoveredCell.row === row;
   }
 
@@ -685,14 +687,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   /**
    * Get the coordinates in pixels, with 0,0 being the top left of the grid itself
    */
-  getCoordinates(ev: MouseEvent): [number, number] {
+  getCoordinates(ev: MouseEvent): [Pixel, Pixel] {
     const rect = this.gridOverlay.el!.getBoundingClientRect();
     const x = ev.pageX - rect.left;
     const y = ev.pageY - rect.top;
     return [x, y];
   }
 
-  getCartesianCoordinates(ev: MouseEvent): [number, number] {
+  getCartesianCoordinates(ev: MouseEvent): [HeaderIndex, HeaderIndex] {
     const [x, y] = this.getCoordinates(ev);
     const colIndex = this.env.model.getters.getColIndex(x);
     const rowIndex = this.env.model.getters.getRowIndex(y);
@@ -756,7 +758,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const rowEdgeScroll = this.env.model.getters.getEdgeScrollRow(y);
 
       const { left, right, top, bottom } = this.env.model.getters.getActiveViewport();
-      let col: number, row: number;
+      let col: HeaderIndex, row: HeaderIndex;
       if (colEdgeScroll.canEdgeScroll) {
         col = colEdgeScroll.direction > 0 ? right : left - 1;
       } else {
@@ -940,7 +942,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.toggleContextMenu(type, ev.clientX, ev.clientY);
   }
 
-  toggleContextMenu(type: ContextMenuType, x: number, y: number) {
+  toggleContextMenu(type: ContextMenuType, x: Pixel, y: Pixel) {
     this.closeLinkEditor();
     if (this.env.model.getters.isDashboard()) {
       type = "DASHBOARD";

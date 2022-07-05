@@ -17,6 +17,7 @@ import {
   CommandResult,
   CoreCommand,
   ExcelWorkbookData,
+  HeaderIndex,
   Merge,
   Position,
   Range,
@@ -123,7 +124,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
       .filter(isDefined);
   }
 
-  getMerge(sheetId: UID, col: number, row: number): Merge | undefined {
+  getMerge(sheetId: UID, col: HeaderIndex, row: HeaderIndex): Merge | undefined {
     const sheetMap = this.mergeCellMap[sheetId];
     const mergeId = sheetMap ? col in sheetMap && sheetMap[col]?.[row] : undefined;
     return mergeId ? this.getMergeById(sheetId, mergeId) : undefined;
@@ -148,7 +149,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   /**
    * Returns true if two columns have at least one merge in common
    */
-  doesColumnsHaveCommonMerges(sheetId: string, colA: number, colB: number) {
+  doesColumnsHaveCommonMerges(sheetId: string, colA: HeaderIndex, colB: HeaderIndex) {
     const sheet = this.getters.getSheet(sheetId);
     for (let row = 0; row < this.getters.getNumberRows(sheetId); row++) {
       if (this.isInSameMerge(sheet.id, colA, row, colB, row)) {
@@ -161,7 +162,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   /**
    * Returns true if two rows have at least one merge in common
    */
-  doesRowsHaveCommonMerges(sheetId: string, rowA: number, rowB: number) {
+  doesRowsHaveCommonMerges(sheetId: string, rowA: HeaderIndex, rowB: HeaderIndex) {
     const sheet = this.getters.getSheet(sheetId);
     for (let col = 0; col <= this.getters.getNumberCols(sheetId); col++) {
       if (this.isInSameMerge(sheet.id, col, rowA, col, rowB)) {
@@ -187,7 +188,13 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     return isEqual(result, zone) ? result : this.expandZone(sheetId, result);
   }
 
-  isInSameMerge(sheetId: UID, colA: number, rowA: number, colB: number, rowB: number): boolean {
+  isInSameMerge(
+    sheetId: UID,
+    colA: HeaderIndex,
+    rowA: HeaderIndex,
+    colB: HeaderIndex,
+    rowB: HeaderIndex
+  ): boolean {
     const mergeA = this.getMerge(sheetId, colA, rowA);
     const mergeB = this.getMerge(sheetId, colB, rowB);
     if (!mergeA || !mergeB) {
@@ -196,12 +203,12 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     return isEqual(mergeA, mergeB);
   }
 
-  isInMerge(sheetId: UID, col: number, row: number): boolean {
+  isInMerge(sheetId: UID, col: HeaderIndex, row: HeaderIndex): boolean {
     const sheetMap = this.mergeCellMap[sheetId];
     return sheetMap ? col in sheetMap && Boolean(sheetMap[col]?.[row]) : false;
   }
 
-  getMainCellPosition(sheetId: UID, col: number, row: number): Position {
+  getMainCellPosition(sheetId: UID, col: HeaderIndex, row: HeaderIndex): Position {
     if (!this.isInMerge(sheetId, col, row)) {
       return { col, row };
     }
@@ -209,7 +216,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     return { col: mergeTopLeftPos.col, row: mergeTopLeftPos.row };
   }
 
-  getBottomLeftCell(sheetId: UID, col: number, row: number): Position {
+  getBottomLeftCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex): Position {
     if (!this.isInMerge(sheetId, col, row)) {
       return { col, row };
     }

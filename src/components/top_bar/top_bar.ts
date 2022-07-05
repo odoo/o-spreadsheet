@@ -8,6 +8,7 @@ import {
 import { BACKGROUND_HEADER_COLOR, ComponentsImportance, DEFAULT_FONT_SIZE } from "../../constants";
 import { fontSizes } from "../../fonts";
 import { isEqual } from "../../helpers/index";
+import { ComposerSelection } from "../../plugins/ui/edition";
 import { setFormatter, setStyle, topbarComponentRegistry } from "../../registries/index";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { FullMenuItem } from "../../registries/menu_items_registry";
@@ -74,7 +75,7 @@ const CUSTOM_FORMATS = [
 interface Props {
   onClick: () => void;
   focusComposer: Omit<ComposerFocusType, "cellFocus">;
-  onComposerContentFocused: (selection: { start: number; end: number }) => void;
+  onComposerContentFocused: (selection: ComposerSelection) => void;
 }
 
 // -----------------------------------------------------------------------------
