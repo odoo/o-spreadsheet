@@ -34,7 +34,9 @@ import {
   EdgeScrollInfo,
   GridRenderingContext,
   HeaderDimensions,
+  HeaderIndex,
   LAYERS,
+  Pixel,
   Rect,
   ScrollDirection,
   UID,
@@ -71,7 +73,7 @@ export class RendererPlugin extends UIPlugin {
   /**
    * Returns the size, start and end coordinates of a column
    */
-  getColDimensions(sheetId: UID, col: number): HeaderDimensions {
+  getColDimensions(sheetId: UID, col: HeaderIndex): HeaderDimensions {
     const start = this.getColRowOffset("COL", 0, col, sheetId);
     const size = this.getters.getColSize(sheetId, col);
     const isColHidden = this.getters.isColHidden(sheetId, col);
@@ -86,7 +88,7 @@ export class RendererPlugin extends UIPlugin {
    * Returns the size, start and end coordinates of a column relative to the left
    * column of the current viewport
    */
-  getColDimensionsInViewport(sheetId: UID, col: number): HeaderDimensions {
+  getColDimensionsInViewport(sheetId: UID, col: HeaderIndex): HeaderDimensions {
     const { left } = this.getters.getActiveViewport();
     const start = this.getColRowOffset("COL", left, col, sheetId);
     const size = this.getters.getColSize(sheetId, col);
@@ -101,7 +103,7 @@ export class RendererPlugin extends UIPlugin {
   /**
    * Returns the size, start and end coordinates of a row
    */
-  getRowDimensions(sheetId: UID, row: number): HeaderDimensions {
+  getRowDimensions(sheetId: UID, row: HeaderIndex): HeaderDimensions {
     const start = this.getColRowOffset("ROW", 0, row, sheetId);
     const size = this.getters.getRowSize(sheetId, row);
     const isRowHidden = this.getters.isRowHidden(sheetId, row);
@@ -116,7 +118,7 @@ export class RendererPlugin extends UIPlugin {
    * Returns the size, start and end coordinates of a row relative to the top row
    * of the current viewport
    */
-  getRowDimensionsInViewport(sheetId: UID, row: number): HeaderDimensions {
+  getRowDimensionsInViewport(sheetId: UID, row: HeaderIndex): HeaderDimensions {
     const { top } = this.getters.getActiveViewport();
     const start = this.getColRowOffset("ROW", top, row, sheetId);
     const size = this.getters.getRowSize(sheetId, row);
@@ -135,15 +137,15 @@ export class RendererPlugin extends UIPlugin {
    */
   private getColRowOffset(
     dimension: Dimension,
-    referenceIndex: number,
-    index: number,
+    referenceIndex: HeaderIndex,
+    index: HeaderIndex,
     sheetId: UID = this.getters.getActiveSheetId()
-  ): number {
+  ): Pixel {
     if (index < referenceIndex) {
       return -this.getColRowOffset(dimension, index, referenceIndex);
     }
     let offset = 0;
-    for (let i = referenceIndex; i < index; i++) {
+    for (let i: HeaderIndex = referenceIndex; i < index; i++) {
       if (this.getters.isHeaderHidden(sheetId, dimension, i)) {
         continue;
       }
@@ -159,7 +161,7 @@ export class RendererPlugin extends UIPlugin {
    * Get the offset of a header (see getColRowOffset), adjusted with the header
    * size (HEADER_HEIGHT and HEADER_WIDTH)
    */
-  private getHeaderOffset(dimension: Dimension, start: number, index: number): number {
+  private getHeaderOffset(dimension: Dimension, start: HeaderIndex, index: HeaderIndex): Pixel {
     let size = this.getColRowOffset(dimension, start, index);
     if (!this.getters.isDashboard()) {
       size += dimension === "ROW" ? HEADER_HEIGHT : HEADER_WIDTH;
@@ -171,10 +173,10 @@ export class RendererPlugin extends UIPlugin {
    * Get the actual size between two headers.
    * The size from A to B is the distance between A.start and B.end
    */
-  private getSizeBetweenHeaders(dimension: Dimension, from: number, to: number): number {
+  private getSizeBetweenHeaders(dimension: Dimension, from: HeaderIndex, to: HeaderIndex): Pixel {
     const sheetId = this.getters.getActiveSheetId();
-    let size = 0;
-    for (let i = from; i <= to; i++) {
+    let size: Pixel = 0;
+    for (let i: HeaderIndex = from; i <= to; i++) {
       if (this.getters.isHeaderHidden(sheetId, dimension, i)) {
         continue;
       }
@@ -191,22 +193,22 @@ export class RendererPlugin extends UIPlugin {
    */
   getRect(zone: Zone, viewport: Viewport): Rect {
     const { left, top } = viewport;
-    const x = this.getHeaderOffset("COL", left, zone.left);
-    const width = this.getSizeBetweenHeaders("COL", zone.left, zone.right);
-    const y = this.getHeaderOffset("ROW", top, zone.top);
-    const height = this.getSizeBetweenHeaders("ROW", zone.top, zone.bottom);
+    const x: Pixel = this.getHeaderOffset("COL", left, zone.left);
+    const width: Pixel = this.getSizeBetweenHeaders("COL", zone.left, zone.right);
+    const y: Pixel = this.getHeaderOffset("ROW", top, zone.top);
+    const height: Pixel = this.getSizeBetweenHeaders("ROW", zone.top, zone.bottom);
     return { x, y, width, height };
   }
 
   /**
    * Check if a given position is visible in the viewport.
    */
-  isVisibleInViewport(col: number, row: number, viewport: Viewport): boolean {
+  isVisibleInViewport(col: HeaderIndex, row: HeaderIndex, viewport: Viewport): boolean {
     const { right, left, top, bottom } = viewport;
     return row <= bottom && row >= top && col >= left && col <= right;
   }
 
-  getEdgeScrollCol(x: number): EdgeScrollInfo {
+  getEdgeScrollCol(x: HeaderIndex): EdgeScrollInfo {
     let canEdgeScroll = false;
     let direction: ScrollDirection = 0;
     let delay = 0;
@@ -226,7 +228,7 @@ export class RendererPlugin extends UIPlugin {
     return { canEdgeScroll, direction, delay };
   }
 
-  getEdgeScrollRow(y: number): EdgeScrollInfo {
+  getEdgeScrollRow(y: HeaderIndex): EdgeScrollInfo {
     let canEdgeScroll = false;
     let direction: ScrollDirection = 0;
     let delay = 0;
@@ -289,7 +291,7 @@ export class RendererPlugin extends UIPlugin {
     ctx.beginPath();
 
     // vertical lines
-    for (let i = left; i <= right; i++) {
+    for (let i: HeaderIndex = left; i <= right; i++) {
       if (this.getters.isColHidden(sheetId, i)) {
         continue;
       }
@@ -303,7 +305,7 @@ export class RendererPlugin extends UIPlugin {
     }
 
     // horizontal lines
-    for (let i = top; i <= bottom; i++) {
+    for (let i: HeaderIndex = top; i <= bottom; i++) {
       if (this.getters.isRowHidden(sheetId, i)) {
         continue;
       }
@@ -525,7 +527,7 @@ export class RendererPlugin extends UIPlugin {
     ctx.beginPath();
 
     // column text + separator
-    for (let i = left; i <= right; i++) {
+    for (let i: HeaderIndex = left; i <= right; i++) {
       const colSize = this.getters.getColSize(sheetId, i);
       const isColHidden = this.getters.isColHidden(sheetId, i);
       if (isColHidden) {
@@ -539,7 +541,7 @@ export class RendererPlugin extends UIPlugin {
       ctx.lineTo(colStart + colSize, HEADER_HEIGHT);
     }
     // row text + separator
-    for (let i = top; i <= bottom; i++) {
+    for (let i: HeaderIndex = top; i <= bottom; i++) {
       const rowSize = this.getters.getRowSize(sheetId, i);
       const isRowHidden = this.getters.isRowHidden(sheetId, i);
       if (isRowHidden) {
@@ -556,22 +558,22 @@ export class RendererPlugin extends UIPlugin {
     ctx.stroke();
   }
 
-  private hasContent(col: number, row: number): boolean {
+  private hasContent(col: HeaderIndex, row: HeaderIndex): boolean {
     const sheetId = this.getters.getActiveSheetId();
     const cell = this.getters.getCell(sheetId, col, row);
     return (cell && !cell.isEmpty()) || this.getters.isInMerge(sheetId, col, row);
   }
 
-  private findNextEmptyCol(base: number, max: number, row: number): number {
-    let col = base;
+  private findNextEmptyCol(base: HeaderIndex, max: HeaderIndex, row: HeaderIndex): HeaderIndex {
+    let col: HeaderIndex = base;
     while (col < max && !this.hasContent(col + 1, row)) {
       col++;
     }
     return col;
   }
 
-  private findPreviousEmptyCol(base: number, min: number, row: number): number {
-    let col = base;
+  private findPreviousEmptyCol(base: HeaderIndex, min: HeaderIndex, row: HeaderIndex): HeaderIndex {
+    let col: HeaderIndex = base;
     while (col > min && !this.hasContent(col - 1, row)) {
       col--;
     }
@@ -591,8 +593,8 @@ export class RendererPlugin extends UIPlugin {
 
   private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport): Box {
     const { right, left } = viewport;
-    const col = zone.left;
-    const row = zone.top;
+    const col: HeaderIndex = zone.left;
+    const row: HeaderIndex = zone.top;
     const cell = this.getters.getCell(sheetId, col, row);
     const showFormula = this.getters.shouldShowFormulas();
     const { x, y, width, height } = this.getRect(zone, viewport);
@@ -714,11 +716,11 @@ export class RendererPlugin extends UIPlugin {
     const sheet = this.getters.getActiveSheet();
     const { id: sheetId } = sheet;
 
-    for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
+    for (let rowNumber: HeaderIndex = top; rowNumber <= bottom; rowNumber++) {
       if (this.getters.isRowHidden(sheetId, rowNumber)) {
         continue;
       }
-      for (let colNumber = left; colNumber <= right; colNumber++) {
+      for (let colNumber: HeaderIndex = left; colNumber <= right; colNumber++) {
         if (this.getters.isColHidden(sheetId, colNumber)) {
           continue;
         }

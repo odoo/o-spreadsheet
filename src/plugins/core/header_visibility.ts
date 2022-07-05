@@ -1,6 +1,6 @@
 import { deepCopy, getAddHeaderStartIndex, range } from "../../helpers";
 import { Command, CommandResult, ExcelWorkbookData, WorkbookData } from "../../types";
-import { ConsecutiveIndexes, Dimension, Position, UID } from "../../types/misc";
+import { ConsecutiveIndexes, Dimension, HeaderIndex, Position, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
 
 export class HeaderVisibilityPlugin extends CorePlugin {
@@ -90,15 +90,15 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     return;
   }
 
-  isRowHidden(sheetId: UID, index: number): boolean {
+  isRowHidden(sheetId: UID, index: HeaderIndex): boolean {
     return this.hiddenHeaders[sheetId].ROW[index];
   }
 
-  isColHidden(sheetId: UID, index: number): boolean {
+  isColHidden(sheetId: UID, index: HeaderIndex): boolean {
     return this.hiddenHeaders[sheetId].COL[index];
   }
 
-  isHeaderHidden(sheetId: UID, dimension: Dimension, index: number) {
+  isHeaderHidden(sheetId: UID, dimension: Dimension, index: HeaderIndex) {
     return dimension === "COL"
       ? this.isColHidden(sheetId, index)
       : this.isRowHidden(sheetId, index);
@@ -144,14 +144,18 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     return consecutiveIndexes;
   }
 
-  getNextVisibleCellPosition(sheetId: UID, col: number, row: number): Position {
+  getNextVisibleCellPosition(sheetId: UID, col: HeaderIndex, row: HeaderIndex): Position {
     return {
       col: this.findVisibleHeader(sheetId, "COL", range(col, this.getters.getNumberCols(sheetId)))!,
       row: this.findVisibleHeader(sheetId, "ROW", range(row, this.getters.getNumberRows(sheetId)))!,
     };
   }
 
-  findVisibleHeader(sheetId: UID, dimension: Dimension, indexes: number[]): number | undefined {
+  findVisibleHeader(
+    sheetId: UID,
+    dimension: Dimension,
+    indexes: HeaderIndex[]
+  ): HeaderIndex | undefined {
     return indexes.find(
       (index) =>
         this.getters.doesHeaderExist(sheetId, dimension, index) &&
@@ -159,8 +163,8 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     );
   }
 
-  findLastVisibleColRowIndex(sheetId: UID, dimension: Dimension): number {
-    let lastIndex: number;
+  findLastVisibleColRowIndex(sheetId: UID, dimension: Dimension): HeaderIndex {
+    let lastIndex: HeaderIndex;
     for (
       lastIndex = this.getters.getNumberHeaders(sheetId, dimension) - 1;
       lastIndex >= 0;

@@ -4,7 +4,7 @@ import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
 import { isEqual, rangeReference, zoneToDimension } from "../../../helpers/index";
 import { ComposerSelection, SelectionIndicator } from "../../../plugins/ui/edition";
-import { FunctionDescription, Rect, SpreadsheetChildEnv } from "../../../types/index";
+import { DOMDimension, FunctionDescription, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
 import {
   TextValueProvider,
@@ -12,7 +12,6 @@ import {
 } from "../autocomplete_dropdown/autocomplete_dropdown";
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
-import { Dimension } from "../grid_composer/grid_composer";
 
 const functions = functionRegistry.content;
 
@@ -94,10 +93,10 @@ css/* scss */ `
 interface Props {
   inputStyle: string;
   rect?: Rect;
-  delimitation?: Dimension;
+  delimitation?: DOMDimension;
   focus: "inactive" | "cellFocus" | "contentFocus";
   onComposerUnmounted?: () => void;
-  onComposerContentFocused: (selection: { start: number; end: number }) => void;
+  onComposerContentFocused: (selection: ComposerSelection) => void;
 }
 
 interface ComposerState {

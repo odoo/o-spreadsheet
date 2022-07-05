@@ -11,6 +11,8 @@ import {
   CommandResult,
   Dimension,
   Figure,
+  HeaderIndex,
+  Pixel,
   Position,
   Sheet,
   UID,
@@ -48,8 +50,8 @@ export class ViewportPlugin extends UIPlugin {
    * In the absence of a component (standalone model), is it mandatory to set reasonable default values
    * to ensure the correct operation of this plugin.
    */
-  private viewportWidth: number = 1000;
-  private viewportHeight: number = 1000;
+  private viewportWidth: Pixel = 1000;
+  private viewportHeight: Pixel = 1000;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -154,7 +156,7 @@ export class ViewportPlugin extends UIPlugin {
    * visible cell.
    * It returns -1 if no column is found.
    */
-  getColIndex(x: number): number {
+  getColIndex(x: Pixel): HeaderIndex {
     if (x < 0) {
       return -1;
     }
@@ -167,7 +169,7 @@ export class ViewportPlugin extends UIPlugin {
    * visible cell.
    * It returns -1 if no row is found.
    */
-  getRowIndex(y: number): number {
+  getRowIndex(y: Pixel): HeaderIndex {
     if (y < 0) {
       return -1;
     }
@@ -224,7 +226,7 @@ export class ViewportPlugin extends UIPlugin {
     return { width, height };
   }
 
-  getMaximumViewportOffset(sheet: Sheet): { maxOffsetX: number; maxOffsetY: number } {
+  getMaximumViewportOffset(sheet: Sheet): { maxOffsetX: Pixel; maxOffsetY: Pixel } {
     const { width, height } = this.getters.getMaxViewportSize(sheet);
     return {
       maxOffsetX: Math.max(0, width - this.viewportWidth + 1),
@@ -239,8 +241,8 @@ export class ViewportPlugin extends UIPlugin {
   private searchHeaderIndex(
     dimension: Dimension,
     sheetId: UID,
-    position: number,
-    startIndex: number = 0
+    position: Pixel,
+    startIndex: HeaderIndex = 0
   ): number {
     let size = 0;
     const headers = this.getters.getNumberHeaders(sheetId, dimension);
@@ -259,7 +261,7 @@ export class ViewportPlugin extends UIPlugin {
     return -1;
   }
 
-  private checkOffsetValidity(offsetX: number, offsetY: number): CommandResult {
+  private checkOffsetValidity(offsetX: Pixel, offsetY: Pixel): CommandResult {
     const sheet = this.getters.getActiveSheet();
     const { maxOffsetX, maxOffsetY } = this.getMaximumViewportOffset(sheet);
     if (offsetX < 0 || offsetY < 0 || offsetY > maxOffsetY || offsetX > maxOffsetX) {
@@ -320,7 +322,7 @@ export class ViewportPlugin extends UIPlugin {
     this.adjustViewportZoneY(sheetId, viewport);
   }
 
-  private resizeViewport(height: number, width: number) {
+  private resizeViewport(height: Pixel, width: Pixel) {
     this.viewportHeight = height;
     this.viewportWidth = width;
     this.recomputeViewports();
@@ -333,7 +335,7 @@ export class ViewportPlugin extends UIPlugin {
     }
   }
 
-  private setViewportOffset(offsetX: number, offsetY: number) {
+  private setViewportOffset(offsetX: Pixel, offsetY: Pixel) {
     const sheetId = this.getters.getActiveSheetId();
     this.getViewport(sheetId);
     this.viewports[sheetId].offsetScrollbarX = offsetX;
@@ -345,7 +347,7 @@ export class ViewportPlugin extends UIPlugin {
    * Clip the vertical offset within the allowed range.
    * Not above the sheet, nor below the sheet.
    */
-  private clipOffsetY(offsetY: number): number {
+  private clipOffsetY(offsetY: number): Pixel {
     const { height } = this.getters.getMaxViewportSize(this.getters.getActiveSheet());
     const maxOffset = height - this.viewportHeight;
     offsetY = Math.min(offsetY, maxOffset);

@@ -220,7 +220,7 @@ export function isDateTimeFormat(format: Format) {
   }
 }
 
-export function applyDateTimeFormat(value: number, format: string): FormattedValue {
+export function applyDateTimeFormat(value: number, format: Format): FormattedValue {
   // TODO: unify the format functions for date and datetime
   // This requires some code to 'parse' or 'tokenize' the format, keep it in a
   // cache, and use it in a single mapping, that recognizes the special list

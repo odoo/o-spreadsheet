@@ -3,7 +3,7 @@ import { SearchOptions } from "../plugins/ui/find_and_replace";
 import { ChartDefinition } from "./chart/chart";
 import { UpDown } from "./conditional_formatting";
 import { BorderCommand, ConditionalFormat, Figure, Format, Style, Zone } from "./index";
-import { Border, CellPosition, ClipboardOptions, Dimension, UID } from "./misc";
+import { Border, CellPosition, ClipboardOptions, Dimension, HeaderIndex, UID } from "./misc";
 import { RangeData } from "./range";
 
 // -----------------------------------------------------------------------------
@@ -199,20 +199,20 @@ export interface UpdateCellPositionCommand extends PositionDependentCommand {
 
 export interface AddColumnsRowsCommand extends GridDependentCommand {
   type: "ADD_COLUMNS_ROWS";
-  base: number;
+  base: HeaderIndex;
   quantity: number;
   position: "before" | "after";
 }
 
 export interface RemoveColumnsRowsCommand extends GridDependentCommand {
   type: "REMOVE_COLUMNS_ROWS";
-  elements: number[];
+  elements: HeaderIndex[];
 }
 
 export interface MoveColumnsRowsCommand extends GridDependentCommand {
   type: "MOVE_COLUMNS_ROWS";
-  base: number;
-  elements: number[];
+  base: HeaderIndex;
+  elements: HeaderIndex[];
 }
 
 export interface ResizeColumnsRowsCommand extends GridDependentCommand {
@@ -223,11 +223,11 @@ export interface ResizeColumnsRowsCommand extends GridDependentCommand {
 
 export interface HideColumnsRowsCommand extends GridDependentCommand {
   type: "HIDE_COLUMNS_ROWS";
-  elements: number[];
+  elements: HeaderIndex[];
 }
 export interface UnhideColumnsRowsCommand extends GridDependentCommand {
   type: "UNHIDE_COLUMNS_ROWS";
-  elements: number[];
+  elements: HeaderIndex[];
 }
 export interface SetGridLinesVisibilityCommand extends SheetDependentCommand {
   type: "SET_GRID_LINES_VISIBILITY";
@@ -411,8 +411,8 @@ export interface AutoFillCellCommand {
   type: "AUTOFILL_CELL";
   originCol: number;
   originRow: number;
-  col: number;
-  row: number;
+  col: HeaderIndex;
+  row: HeaderIndex;
   content?: string;
   style?: Style | null;
   border?: Border;
@@ -433,13 +433,13 @@ export interface PasteFromOSClipboardCommand {
 export interface AutoresizeColumnsCommand {
   type: "AUTORESIZE_COLUMNS";
   sheetId: UID;
-  cols: number[];
+  cols: HeaderIndex[];
 }
 
 export interface AutoresizeRowsCommand {
   type: "AUTORESIZE_ROWS";
   sheetId: UID;
-  rows: number[];
+  rows: HeaderIndex[];
 }
 
 export interface ActivateSheetCommand {
@@ -541,8 +541,8 @@ export interface DeleteContentCommand {
 export interface ClearCellCommand {
   type: "CLEAR_CELL";
   sheetId: UID;
-  col: number;
-  row: number;
+  col: HeaderIndex;
+  row: HeaderIndex;
 }
 
 export interface UndoCommand {
@@ -573,8 +573,8 @@ export interface AutofillCommand {
 
 export interface AutofillSelectCommand {
   type: "AUTOFILL_SELECT";
-  col: number;
-  row: number;
+  col: HeaderIndex;
+  row: HeaderIndex;
 }
 
 export interface AutofillAutoCommand {

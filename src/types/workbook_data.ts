@@ -1,7 +1,7 @@
 import { CellValue, Format } from ".";
 import { ExcelChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
-import { Border, Style, UID } from "./misc";
+import { Border, Pixel, Style, UID } from "./misc";
 
 export interface Dependencies {
   references: string[];
@@ -23,10 +23,10 @@ export interface HeaderData {
 
 export interface FigureData<T> {
   id: UID;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  x: Pixel;
+  y: Pixel;
+  width: Pixel;
+  height: Pixel;
   tag: string;
   data: T;
 }

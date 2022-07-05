@@ -2,6 +2,7 @@ import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { computeIconWidth, computeTextWidth, isDefined } from "../../helpers/index";
 import { Cell, CellValueType, Command, CommandResult, UID } from "../../types";
+import { HeaderIndex, Pixel } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
@@ -95,13 +96,13 @@ export class SheetUIPlugin extends UIPlugin {
   // Grid manipulation
   // ---------------------------------------------------------------------------
 
-  private getColMaxWidth(sheetId: UID, index: number): number {
+  private getColMaxWidth(sheetId: UID, index: HeaderIndex): Pixel {
     const cells = this.getters.getColCells(sheetId, index);
     const sizes = cells.map((cell: Cell) => this.getCellWidth(cell));
     return Math.max(0, ...sizes);
   }
 
-  private getRowMaxHeight(sheetId: UID, index: number): number {
+  private getRowMaxHeight(sheetId: UID, index: HeaderIndex): Pixel {
     const sheet = this.getters.getSheet(sheetId);
     const cells = Object.values(sheet.rows[index].cells)
       .filter(isDefined)

@@ -2,7 +2,7 @@ import { Component } from "@odoo/owl";
 import { DEFAULT_FONT } from "../../../../constants";
 import { getFontSizeMatchingWidth } from "../../../../helpers";
 import { chartComponentRegistry } from "../../../../registries";
-import { SpreadsheetChildEnv, UID } from "../../../../types";
+import { Pixel, SpreadsheetChildEnv, UID } from "../../../../types";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 import { css } from "../../../helpers/css";
 
@@ -206,14 +206,14 @@ interface ScorecardScalableElement {
     fontSize: number,
     ctx: CanvasRenderingContext2D,
     runtime?: ScorecardChartRuntime
-  ) => number;
+  ) => Pixel;
 
   /**
    * Get the maximal height of an element of the scorecard.
    *
    * This is computed such as all the height is taken by the elements, even if there is no title or baseline.
    */
-  getElementMaxFontSize: (availableHeight: number, runtime?: ScorecardChartRuntime) => number;
+  getElementMaxFontSize: (availableHeight: Pixel, runtime?: ScorecardChartRuntime) => number;
 }
 
 class BaselineElement implements ScorecardScalableElement {
@@ -221,7 +221,7 @@ class BaselineElement implements ScorecardScalableElement {
     fontSize: number,
     ctx: CanvasRenderingContext2D,
     runtime?: ScorecardChartRuntime
-  ): number {
+  ): Pixel {
     if (!runtime) return 0;
     const baselineStr = runtime.baselineDisplay;
     // Put mock text to simulate the width of the up/down arrow
@@ -234,7 +234,7 @@ class BaselineElement implements ScorecardScalableElement {
     return textWidth;
   }
 
-  getElementMaxFontSize(availableHeight: number, runtime?: ScorecardChartRuntime): number {
+  getElementMaxFontSize(availableHeight: Pixel, runtime?: ScorecardChartRuntime): number {
     if (!runtime) return 0;
     const haveBaseline = runtime.baselineDisplay !== "" || runtime.baselineDescr;
     return haveBaseline ? BASELINE_BOX_HEIGHT_RATIO * availableHeight : 0;
@@ -246,14 +246,14 @@ class KeyValueElement implements ScorecardScalableElement {
     fontSize: number,
     ctx: CanvasRenderingContext2D,
     runtime?: ScorecardChartRuntime
-  ): number {
+  ): Pixel {
     if (!runtime) return 0;
     const str = runtime.keyValue || "";
     ctx.font = `${fontSize}px ${DEFAULT_FONT}`;
     return ctx.measureText(str).width;
   }
 
-  getElementMaxFontSize(availableHeight: number, runtime?: ScorecardChartRuntime): number {
+  getElementMaxFontSize(availableHeight: Pixel, runtime?: ScorecardChartRuntime): number {
     if (!runtime) return 0;
     const haveBaseline = runtime.baselineDisplay !== "" || runtime.baselineDescr;
     return haveBaseline ? KEY_BOX_HEIGHT_RATIO * availableHeight : availableHeight;

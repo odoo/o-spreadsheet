@@ -9,6 +9,7 @@ import {
   zoneToDimension,
 } from "../../helpers";
 import { Cell, CellValueType, Command, Dimension, Position, Sheet, UID, Zone } from "../../types";
+import { HeaderIndex } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 interface AutomaticSum {
@@ -107,7 +108,7 @@ export class AutomaticSumPlugin extends UIPlugin {
    * |   A   | <= ignored                          |   A   | <= ignored
    *  -------                                       -------
    */
-  private findAdjacentData(sheetId: UID, col: number, row: number): Zone | undefined {
+  private findAdjacentData(sheetId: UID, col: HeaderIndex, row: HeaderIndex): Zone | undefined {
     const sheet = this.getters.getSheet(sheetId);
     const mainCellPosition = this.getters.getMainCellPosition(sheetId, col, row);
     const zone = this.findSuitableZoneToSum(sheet, mainCellPosition.col, mainCellPosition.row);
@@ -121,7 +122,11 @@ export class AutomaticSumPlugin extends UIPlugin {
    * Return the zone to sum if a valid one is found.
    * @see getAutomaticSumZone
    */
-  private findSuitableZoneToSum(sheet: Sheet, col: number, row: number): Zone | undefined {
+  private findSuitableZoneToSum(
+    sheet: Sheet,
+    col: HeaderIndex,
+    row: HeaderIndex
+  ): Zone | undefined {
     const topCell = this.getters.getCell(sheet.id, col, row - 1);
     const leftCell = this.getters.getCell(sheet.id, col - 1, row);
     if (this.isNumber(leftCell) && !this.isNumber(topCell)) {
@@ -138,7 +143,7 @@ export class AutomaticSumPlugin extends UIPlugin {
     return undefined;
   }
 
-  private findVerticalZone(sheet: Sheet, col: number, row: number): Zone {
+  private findVerticalZone(sheet: Sheet, col: HeaderIndex, row: HeaderIndex): Zone {
     const zone: Zone = {
       top: 0,
       bottom: row - 1,
@@ -149,7 +154,7 @@ export class AutomaticSumPlugin extends UIPlugin {
     return { ...zone, top };
   }
 
-  private findHorizontalZone(sheet: Sheet, col: number, row: number): Zone {
+  private findHorizontalZone(sheet: Sheet, col: HeaderIndex, row: HeaderIndex): Zone {
     const zone: Zone = {
       top: row,
       bottom: row,
@@ -169,7 +174,7 @@ export class AutomaticSumPlugin extends UIPlugin {
    * @param end end index of the zone (`bottom` or `right` depending on the dimension)
    * @returns the starting position of the valid zone or Infinity if the zone is not valid.
    */
-  private reduceZoneStart(sheet: Sheet, zone: Zone, end: number): number {
+  private reduceZoneStart(sheet: Sheet, zone: Zone, end: HeaderIndex): number {
     const cells = this.getters.getCellsInZone(sheet.id, zone);
     const cellPositions = range(end, -1, -1);
     const invalidCells = cellPositions.filter(
@@ -285,7 +290,7 @@ export class AutomaticSumPlugin extends UIPlugin {
    * Find the first row where all cells below the zone are empty.
    */
   private nextEmptyRow(sheetId: UID, zone: Zone): Zone {
-    let start = zone.bottom + 1;
+    let start: HeaderIndex = zone.bottom + 1;
     const { left, right } = zone;
     while (!this.getters.isEmpty(sheetId, { bottom: start, top: start, left, right })) {
       start++;
@@ -301,7 +306,7 @@ export class AutomaticSumPlugin extends UIPlugin {
    * Find the first column where all cells right of the zone are empty.
    */
   private nextEmptyCol(sheetId: UID, zone: Zone): Zone {
-    let start = zone.right + 1;
+    let start: HeaderIndex = zone.right + 1;
     const { top, bottom } = zone;
     while (!this.getters.isEmpty(sheetId, { left: start, right: start, top, bottom })) {
       start++;

@@ -5,6 +5,7 @@ import {
   AddMergeCommand,
   CoreCommand,
   GridDependentCommand,
+  HeaderIndex,
   isGridDependent,
   isPositionDependent,
   isSheetDependent,
@@ -164,7 +165,7 @@ function transformDimension(
   if (executed.type === "ADD_COLUMNS_ROWS" || executed.type === "REMOVE_COLUMNS_ROWS") {
     const isUnique = cmd.type === "ADD_COLUMNS_ROWS";
     const field = isUnique ? "base" : "elements";
-    let elements: number[] = isUnique ? [cmd[field]] : cmd[field];
+    let elements: HeaderIndex[] = isUnique ? [cmd[field]] : cmd[field];
     if (executed.type === "REMOVE_COLUMNS_ROWS") {
       elements = elements
         .map((element) => {
@@ -185,7 +186,7 @@ function transformDimension(
       elements = elements.map((el) => (el > base ? el + executed.quantity : el));
     }
     if (elements.length) {
-      let result: number[] | number = elements;
+      let result: HeaderIndex[] | HeaderIndex = elements;
       if (isUnique) {
         result = elements[0];
       }

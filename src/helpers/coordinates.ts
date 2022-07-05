@@ -2,7 +2,7 @@
 // Coordinate
 //------------------------------------------------------------------------------
 
-import { Position, RangePart } from "../types";
+import { HeaderIndex, Position, RangePart } from "../types";
 import { cellReference } from "./references";
 
 /**
@@ -76,8 +76,8 @@ export function toCartesian(xc: string): Position {
  *   - 1,2, {colFixed: true, rowFixed: false} => $B3
  */
 export function toXC(
-  col: number,
-  row: number,
+  col: HeaderIndex,
+  row: HeaderIndex,
   rangePart: RangePart = { colFixed: false, rowFixed: false }
 ): string {
   return (

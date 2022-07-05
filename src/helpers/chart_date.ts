@@ -1,12 +1,12 @@
 import { TimeScale } from "chart.js";
 import { parseDateTime } from ".";
-import { Format } from "../types";
+import { Alias, Format } from "../types";
 
 // -----------------------------------------------------------------------------
 // File for helpers needed to use time axis in ChartJS
 // -----------------------------------------------------------------------------
 
-type MomentJSFormat = string;
+type MomentJSFormat = string & Alias;
 type TimeUnit = "year" | "month" | "day" | "hour" | "minute" | "second";
 
 const UNIT_LENGTH: Record<TimeUnit, number> = {

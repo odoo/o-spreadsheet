@@ -15,6 +15,7 @@ import {
   ExcelWorkbookData,
   Figure,
   FigureData,
+  Pixel,
   UID,
   WorkbookData,
 } from "../../types/index";
@@ -212,8 +213,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   private addFigure(
     id: UID,
     sheetId: UID,
-    position: { x: number; y: number } = { x: 0, y: 0 },
-    size: { width: number; height: number } = {
+    position: { x: Pixel; y: Pixel } = { x: 0, y: 0 },
+    size: { width: Pixel; height: Pixel } = {
       width: DEFAULT_FIGURE_WIDTH,
       height: DEFAULT_FIGURE_HEIGHT,
     }

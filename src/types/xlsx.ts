@@ -1,6 +1,6 @@
 import { Border } from ".";
 import { Format } from "./format";
-import { Align } from "./misc";
+import { Alias, Align } from "./misc";
 
 /**
  * This structure covers all the necessary "assets" to generate an XLSX file.
@@ -125,4 +125,4 @@ export type ExcelIconSet =
  * Note that the alpha channel goes first! AARRGGBB
  * e.g. "1E5010" or "331E5010"
  */
-export type XlsxHexColor = string;
+export type XlsxHexColor = string & Alias;

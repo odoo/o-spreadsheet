@@ -1,3 +1,5 @@
+import { Pixel } from "../types";
+
 export type ScrollDirection = "horizontal" | "vertical";
 
 export class ScrollBar {
@@ -8,11 +10,11 @@ export class ScrollBar {
     this.direction = direction;
   }
 
-  get scroll(): number {
+  get scroll(): Pixel {
     return this.direction === "horizontal" ? this.el.scrollLeft : this.el.scrollTop;
   }
 
-  set scroll(value: number) {
+  set scroll(value: Pixel) {
     if (this.direction === "horizontal") {
       this.el.scrollLeft = value;
     } else {

@@ -1,5 +1,5 @@
 import { CoreCommand } from "../commands";
-import { UID } from "../misc";
+import { HeaderIndex, UID } from "../misc";
 
 export type ClientId = string;
 
@@ -11,8 +11,8 @@ export interface Client {
 
 export interface ClientPosition {
   sheetId: UID;
-  col: number;
-  row: number;
+  col: HeaderIndex;
+  row: HeaderIndex;
 }
 
 export interface RemoteRevisionReceivedEvent {

@@ -311,7 +311,7 @@ export class ConditionalFormatPlugin
               this.checkMinBiggerThanMax,
               this.checkMinBiggerThanMid,
               this.checkMidBiggerThanMax
-              // ☝️ Those three validations can be factorized further
+              // Those three validations can be factorized further
             )
           )
         );

@@ -5,7 +5,7 @@ import {
   SELECTION_BORDER_COLOR,
 } from "../../../constants";
 import { fontSizeMap } from "../../../fonts";
-import { Rect, Ref, SpreadsheetChildEnv, Zone } from "../../../types/index";
+import { DOMDimension, Rect, Ref, SpreadsheetChildEnv, Zone } from "../../../types/index";
 import { css } from "../../helpers/css";
 import { getTextDecoration } from "../../helpers/dom_helpers";
 import { Composer } from "../composer/composer";
@@ -23,14 +23,9 @@ css/* scss */ `
   }
 `;
 
-export interface Dimension {
-  width: number;
-  height: number;
-}
-
 interface ComposerState {
   rect: Rect | null;
-  delimitation: Dimension | null;
+  delimitation: DOMDimension | null;
 }
 
 interface Props {

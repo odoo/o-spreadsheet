@@ -1,4 +1,4 @@
-import { Cell, Command, GridRenderingContext, LAYERS, UID } from "../../types/index";
+import { Cell, Command, GridRenderingContext, HeaderIndex, LAYERS, UID } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 const BORDER_COLOR: string = "#8B008B";
@@ -18,8 +18,8 @@ export enum Direction {
 
 interface SearchMatch {
   selected: boolean;
-  col: number;
-  row: number;
+  col: HeaderIndex;
+  row: HeaderIndex;
 }
 
 /**

@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../../constants";
-import { SpreadsheetChildEnv, Zone } from "../../../types";
+import { Pixel, SpreadsheetChildEnv, Zone } from "../../../types";
 import { css } from "../../helpers/css";
 
 css/* scss */ `
@@ -21,7 +21,7 @@ interface Props {
   zone: Zone;
   orientation: Orientation;
   isMoving: boolean;
-  onMoveHighlight: (x: number, y: number) => void;
+  onMoveHighlight: (x: Pixel, y: Pixel) => void;
 }
 
 export class Border extends Component<Props, SpreadsheetChildEnv> {

@@ -28,6 +28,7 @@ import {
   Dimension,
   Getters,
   GridRenderingContext,
+  HeaderIndex,
   LAYERS,
   MoveColumnsRowsCommand,
   Position,
@@ -42,8 +43,8 @@ import { UIPlugin } from "../ui_plugin";
 
 interface SheetInfo {
   gridSelection: Selection;
-  activeCol: number;
-  activeRow: number;
+  activeCol: HeaderIndex;
+  activeRow: HeaderIndex;
 }
 
 interface SelectionStatisticFunction {
@@ -119,7 +120,7 @@ export class GridSelectionPlugin extends UIPlugin {
     },
     zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
   };
-  private selectedFigureId: string | null = null;
+  private selectedFigureId: UID | null = null;
   private sheetsData: { [sheet: string]: SheetInfo } = {};
   private moveClient: (position: ClientPosition) => void;
 
@@ -387,7 +388,7 @@ export class GridSelectionPlugin extends UIPlugin {
     return deepCopy(this.gridSelection);
   }
 
-  getSelectedFigureId(): string | null {
+  getSelectedFigureId(): UID | null {
     return this.selectedFigureId;
   }
 
@@ -511,7 +512,7 @@ export class GridSelectionPlugin extends UIPlugin {
    * properly the current selection.  Also, this method can optionally create a new
    * range in the selection.
    */
-  private selectCell(col: number, row: number) {
+  private selectCell(col: HeaderIndex, row: HeaderIndex) {
     const sheetId = this.getters.getActiveSheetId();
     const zone = this.getters.expandZone(sheetId, { left: col, right: col, top: row, bottom: row });
     this.setSelectionMixin({ zone, cell: { col, row } }, [zone]);
