@@ -113,7 +113,7 @@
       <t t-call="o-spreadsheet-IconSets"/>
       <t t-call="o-spreadsheet-IconSetInflexionPoints"/>
       <div class="btn btn-link o_refresh_measures o-cf-iconset-reverse" t-on-click="reverseIcons">
-        <div class="mr-1 d-inline-block">
+        <div class="me-1 d-inline-block">
           <t t-call="o-spreadsheet-Icon.REFRESH"/>
         </div>
         Reverse icons
