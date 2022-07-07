@@ -38,32 +38,32 @@ interface State {
 
 const FORMATS = [
   { name: "general", text: NumberFormatTerms.General },
-  { name: "number", text: NumberFormatTerms.Number, description: "(1,000.12)", value: "#,##0.00" },
-  { name: "percent", text: NumberFormatTerms.Percent, description: "(10.12%)", value: "0.00%" },
+  { name: "number", text: NumberFormatTerms.Number, description: "1,000.12", value: "#,##0.00" },
+  { name: "percent", text: NumberFormatTerms.Percent, description: "10.12%", value: "0.00%" },
   {
     name: "currency",
     text: NumberFormatTerms.Currency,
-    description: "($1,000.12)",
+    description: "$1,000.12",
     value: "[$$]#,##0.00",
   },
   {
     name: "currency_rounded",
     text: NumberFormatTerms.CurrencyRounded,
-    description: "($1,000)",
+    description: "$1,000",
     value: "[$$]#,##0",
   },
-  { name: "date", text: NumberFormatTerms.Date, description: "(9/26/2008)", value: "m/d/yyyy" },
-  { name: "time", text: NumberFormatTerms.Time, description: "(10:43:00 PM)", value: "hh:mm:ss a" },
+  { name: "date", text: NumberFormatTerms.Date, description: "9/26/2008", value: "m/d/yyyy" },
+  { name: "time", text: NumberFormatTerms.Time, description: "10:43:00 PM", value: "hh:mm:ss a" },
   {
     name: "datetime",
     text: NumberFormatTerms.DateTime,
-    description: "(9/26/2008 22:43:00)",
+    description: "9/26/2008 22:43:00",
     value: "m/d/yyyy hh:mm:ss",
   },
   {
     name: "duration",
     text: NumberFormatTerms.Duration,
-    description: "(27:51:38)",
+    description: "27:51:38",
     value: "hhhh:mm:ss",
   },
 ];

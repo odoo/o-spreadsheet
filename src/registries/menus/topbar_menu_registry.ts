@@ -214,26 +214,26 @@ topbarMenuRegistry
   })
   .addChild("format_number_number", ["format", "format_number"], {
     name: NumberFormatTerms.Number,
-    description: "(1,000.12)",
+    description: "1,000.12",
     sequence: 20,
     action: ACTIONS.FORMAT_NUMBER_ACTION,
   })
   .addChild("format_number_percent", ["format", "format_number"], {
     name: NumberFormatTerms.Percent,
-    description: "(10.12%)",
+    description: "10.12%",
     sequence: 30,
     separator: true,
     action: ACTIONS.FORMAT_PERCENT_ACTION,
   })
   .addChild("format_number_currency", ["format", "format_number"], {
     name: NumberFormatTerms.Currency,
-    description: "($1,000.12)",
+    description: "$1,000.12",
     sequence: 37,
     action: ACTIONS.FORMAT_CURRENCY_ACTION,
   })
   .addChild("format_number_currency_rounded", ["format", "format_number"], {
     name: NumberFormatTerms.CurrencyRounded,
-    description: "($1,000)",
+    description: "$1,000",
     sequence: 38,
     action: ACTIONS.FORMAT_CURRENCY_ROUNDED_ACTION,
   })
@@ -245,25 +245,25 @@ topbarMenuRegistry
   })
   .addChild("format_number_date", ["format", "format_number"], {
     name: NumberFormatTerms.Date,
-    description: "(9/26/2008)",
+    description: "9/26/2008",
     sequence: 40,
     action: ACTIONS.FORMAT_DATE_ACTION,
   })
   .addChild("format_number_time", ["format", "format_number"], {
     name: NumberFormatTerms.Time,
-    description: "(10:43:00 PM)",
+    description: "10:43:00 PM",
     sequence: 50,
     action: ACTIONS.FORMAT_TIME_ACTION,
   })
   .addChild("format_number_date_time", ["format", "format_number"], {
     name: NumberFormatTerms.DateTime,
-    description: "(9/26/2008 22:43:00)",
+    description: "9/26/2008 22:43:00",
     sequence: 60,
     action: ACTIONS.FORMAT_DATE_TIME_ACTION,
   })
   .addChild("format_number_duration", ["format", "format_number"], {
     name: NumberFormatTerms.Duration,
-    description: "(27:51:38)",
+    description: "27:51:38",
     sequence: 70,
     separator: true,
     action: ACTIONS.FORMAT_DURATION_ACTION,
