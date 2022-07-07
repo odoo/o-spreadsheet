@@ -182,7 +182,7 @@ exports[`TopBar component can set cell format 1`] = `
                 <span
                   class="float-end text-muted"
                 >
-                  (1,000.12)
+                  1,000.12
                 </span>
               </div>
               <div
@@ -192,7 +192,7 @@ exports[`TopBar component can set cell format 1`] = `
                 <span
                   class="float-end text-muted"
                 >
-                  (10.12%)
+                  10.12%
                 </span>
               </div>
               <div
@@ -202,7 +202,7 @@ exports[`TopBar component can set cell format 1`] = `
                 <span
                   class="float-end text-muted"
                 >
-                  ($1,000.12)
+                  $1,000.12
                 </span>
               </div>
               <div
@@ -212,7 +212,7 @@ exports[`TopBar component can set cell format 1`] = `
                 <span
                   class="float-end text-muted"
                 >
-                  ($1,000)
+                  $1,000
                 </span>
               </div>
               <div
@@ -222,7 +222,7 @@ exports[`TopBar component can set cell format 1`] = `
                 <span
                   class="float-end text-muted"
                 >
-                  (9/26/2008)
+                  9/26/2008
                 </span>
               </div>
               <div
@@ -232,7 +232,7 @@ exports[`TopBar component can set cell format 1`] = `
                 <span
                   class="float-end text-muted"
                 >
-                  (10:43:00 PM)
+                  10:43:00 PM
                 </span>
               </div>
               <div
@@ -242,7 +242,7 @@ exports[`TopBar component can set cell format 1`] = `
                 <span
                   class="float-end text-muted"
                 >
-                  (9/26/2008 22:43:00)
+                  9/26/2008 22:43:00
                 </span>
               </div>
               <div
@@ -252,7 +252,7 @@ exports[`TopBar component can set cell format 1`] = `
                 <span
                   class="float-end text-muted"
                 >
-                  (27:51:38)
+                  27:51:38
                 </span>
               </div>
               
