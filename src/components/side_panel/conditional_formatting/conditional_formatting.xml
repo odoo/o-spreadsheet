@@ -45,48 +45,46 @@
             <div class="o-section-title">Format rules</div>
             <div class="o_field_radio o_horizontal o_field_widget o-cf-type-selector">
               <div
-                class="custom-control custom-radio o_cf_radio_item"
+                class="custom-control form-check o_cf_radio_item"
                 t-on-click="() => this.changeRuleType('CellIsRule')">
                 <input
-                  class="custom-control-input o_radio_input"
+                  class="form-check-input o_radio_input"
                   t-attf-checked="{{state.currentCFType === 'CellIsRule'}}"
                   type="radio"
                   id="cellIsRule"
                   name="ruleType"
                   value="CellIsRule"
                 />
-                <label for="cellIsRule" class="custom-control-label o_form_label">
-                  Single color
-                </label>
+                <label for="cellIsRule" class="form-check-label o_form_label">Single color</label>
               </div>
               <div
-                class="custom-control custom-radio o_cf_radio_item"
+                class="custom-control form-check o_cf_radio_item"
                 t-on-click="() => this.changeRuleType('ColorScaleRule')">
                 <input
-                  class="custom-control-input o_radio_input"
+                  class="form-check-input o_radio_input"
                   t-attf-checked="{{state.currentCFType === 'ColorScaleRule'}}"
                   type="radio"
                   id="colorScaleRule"
                   name="ruleType"
                   value="ColorScaleRule"
                 />
-                <label for="colorScaleRule" class="custom-control-label o_form_label">
+                <label for="colorScaleRule" class="form-check-label o_form_label">
                   Color scale
                 </label>
               </div>
 
               <div
-                class="custom-control custom-radio o_cf_radio_item"
+                class="custom-control form-check o_cf_radio_item"
                 t-on-click="() => this.changeRuleType('IconSetRule')">
                 <input
-                  class="custom-control-input o_radio_input"
+                  class="form-check-input o_radio_input"
                   t-attf-checked="{{state.currentCFType === 'IconSetRule'}}"
                   type="radio"
                   id="iconSetRule"
                   name="ruleType"
                   value="IconSetRule"
                 />
-                <label for="iconSetRule" class="custom-control-label o_form_label">Icon set</label>
+                <label for="iconSetRule" class="form-check-label o_form_label">Icon set</label>
               </div>
             </div>
           </div>
