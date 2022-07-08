@@ -431,18 +431,18 @@ describe("undo/redo", () => {
       },
       "27"
     );
-    let chart = model.getters.getChartRuntime("27") as GaugeChartRuntime;
+    let chart = (model.getters.getChartRuntime("27") as GaugeChartRuntime)!.chartJsConfig;
     setCellContent(model, "A2", "99");
-    chart = model.getters.getChartRuntime("27") as GaugeChartRuntime;
+    chart = (model.getters.getChartRuntime("27") as GaugeChartRuntime)!.chartJsConfig;
     expect(chart.data!.datasets![0].value).toBe(99);
     setCellContent(model, "A2", "12");
-    chart = model.getters.getChartRuntime("27") as GaugeChartRuntime;
+    chart = (model.getters.getChartRuntime("27") as GaugeChartRuntime)!.chartJsConfig;
     expect(chart.data!.datasets![0].value).toBe(12);
     undo(model);
-    chart = model.getters.getChartRuntime("27") as GaugeChartRuntime;
+    chart = (model.getters.getChartRuntime("27") as GaugeChartRuntime)!.chartJsConfig;
     expect(chart.data!.datasets![0].value).toBe(99);
     redo(model);
-    chart = model.getters.getChartRuntime("27") as GaugeChartRuntime;
+    chart = (model.getters.getChartRuntime("27") as GaugeChartRuntime)!.chartJsConfig;
     expect(chart.data!.datasets![0].value).toBe(12);
   });
 });
@@ -465,7 +465,7 @@ describe("Chart design configuration", () => {
   test("dataRange with a zero value", () => {
     setCellContent(model, "A1", "0");
     createGaugeChart(model, defaultChart, "1");
-    const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!;
+    const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
     expect(chart.data!.datasets![0].value).toBe(0);
   });
 
@@ -479,7 +479,7 @@ describe("Chart design configuration", () => {
       },
     };
     createGaugeChart(model, defaultChart, "1");
-    const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!;
+    const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
     // delta = (rangeMax - rangeMin)/30
     const delta = (120 - 0) / 30;
     expect(chart.data!.datasets![0].value).toBe(0 - delta);
@@ -487,7 +487,7 @@ describe("Chart design configuration", () => {
 
   test("empty dataRange --> don't display label value", () => {
     createGaugeChart(model, defaultChart, "1");
-    const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!;
+    const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
     expect(chart.options!.valueLabel!.display).toBe(false);
   });
 
@@ -502,7 +502,7 @@ describe("Chart design configuration", () => {
     };
     setCellContent(model, "A1", "bla bla bla");
     createGaugeChart(model, defaultChart, "1");
-    const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!;
+    const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
     // delta = (rangeMax - rangeMin)/30
     const delta = (120 - 0) / 30;
     expect(chart.data!.datasets![0].value).toBe(0 - delta);
@@ -511,7 +511,7 @@ describe("Chart design configuration", () => {
   test("NaN dataRange -->  don't display label value", () => {
     setCellContent(model, "A1", "bla bla bla");
     createGaugeChart(model, defaultChart, "1");
-    const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!;
+    const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
     expect(chart.options!.valueLabel!.display).toBe(false);
   });
 
@@ -531,14 +531,14 @@ describe("Chart design configuration", () => {
     });
     test("scale the internal needle value to (rangeMin - delta)", () => {
       createGaugeChart(model, defaultChart, "1");
-      const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!;
+      const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
       // delta = (rangeMax - rangeMin)/30
       const delta = (100 - -50) / 30;
       expect(chart.data!.datasets![0].value).toBe(-50 - delta);
     });
     test("displayed value always correspond to dataRange value", () => {
       createGaugeChart(model, defaultChart, "1");
-      const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!;
+      const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
       const displayedValue = chart.options!.valueLabel!.formatter!;
       expect(displayedValue()).toBe("-60");
     });
@@ -560,14 +560,14 @@ describe("Chart design configuration", () => {
     lowerColor;
     test("scale the internal needle value to (rangeMax + delta)", () => {
       createGaugeChart(model, defaultChart, "1");
-      const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!;
+      const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
       // delta = (rangeMax - rangeMin)/30
       const delta = (150 - 0) / 30;
       expect(chart.data!.datasets![0].value).toBe(150 + delta);
     });
     test("displayed value always correspond to dataRange value", () => {
       createGaugeChart(model, defaultChart, "1");
-      const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!;
+      const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
       const displayedValue = chart.options!.valueLabel!.formatter!;
       expect(displayedValue()).toBe("160");
     });
@@ -582,7 +582,7 @@ describe("Chart design configuration", () => {
       format: "0.00%",
     });
     createGaugeChart(model, defaultChart, "1");
-    const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!;
+    const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
     const displayedValue = chart.options!.valueLabel!.formatter!;
     expect(displayedValue()).toBe("42.00%");
   });
@@ -604,7 +604,7 @@ describe("Chart design configuration", () => {
       },
     };
     createGaugeChart(model, defaultChart, "1");
-    let chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!;
+    let chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
     expect(chart.data!.datasets![0].data).toStrictEqual([22, 42, 62]);
     expect(chart.data!.datasets![0].backgroundColor).toStrictEqual([
       lowerColor,
@@ -630,7 +630,7 @@ describe("Chart design configuration", () => {
       },
     };
     createGaugeChart(model, defaultChart, "1");
-    let chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!;
+    let chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
     expect(chart.data!.datasets![0].data).toStrictEqual([66, 100]);
     expect(chart.data!.datasets![0].backgroundColor).toStrictEqual([middleColor, upperColor]);
 
@@ -650,7 +650,7 @@ describe("Chart design configuration", () => {
       },
     };
     createGaugeChart(model, defaultChart, "2");
-    chart = model.getters.getChartRuntime("2") as GaugeChartRuntime;
+    chart = (model.getters.getChartRuntime("2") as GaugeChartRuntime)!.chartJsConfig;
     expect(chart.data!.datasets![0].data).toStrictEqual([33, 100]);
     expect(chart.data!.datasets![0].backgroundColor).toStrictEqual([lowerColor, upperColor]);
   });
@@ -673,7 +673,7 @@ describe("Chart design configuration", () => {
       },
     };
     createGaugeChart(model, defaultChart, "1");
-    let chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!;
+    let chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
     expect(chart.data!.datasets![0].data).toStrictEqual([100, 200, 200]);
     expect(chart.data!.datasets![0].backgroundColor).toStrictEqual([
       lowerColor,

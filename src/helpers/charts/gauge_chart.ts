@@ -1,6 +1,5 @@
 import { transformZone } from "../../collaborative/ot/ot_helpers";
 import {
-  BACKGROUND_CHART_COLOR,
   DEFAULT_GAUGE_LOWER_COLOR,
   DEFAULT_GAUGE_MIDDLE_COLOR,
   DEFAULT_GAUGE_UPPER_COLOR,
@@ -11,6 +10,7 @@ import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
   CellValueType,
+  Color,
   CommandResult,
   CoreGetters,
   Getters,
@@ -22,6 +22,7 @@ import {
 } from "../../types";
 import { ChartCreationContext } from "../../types/chart/chart";
 import {
+  GaugeChartConfiguration,
   GaugeChartDefinition,
   GaugeChartRuntime,
   SectionRule,
@@ -149,7 +150,7 @@ function checkNaN(value: string, valueName: string) {
 export class GaugeChart extends AbstractChart {
   readonly dataRange?: Range;
   readonly sectionRule: SectionRule;
-  readonly background: string;
+  readonly background?: Color;
   readonly type = "gauge";
 
   constructor(definition: GaugeChartDefinition, sheetId: UID, getters: CoreGetters) {
@@ -192,7 +193,7 @@ export class GaugeChart extends AbstractChart {
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): GaugeChartDefinition {
     return {
-      background: context.background || BACKGROUND_CHART_COLOR,
+      background: context.background,
       title: context.title || "",
       type: "gauge",
       dataRange: context.range ? context.range[0] : undefined,
@@ -265,13 +266,13 @@ export class GaugeChart extends AbstractChart {
   }
 }
 
-function getGaugeConfiguration(chart: GaugeChart): GaugeChartRuntime {
+function getGaugeConfiguration(chart: GaugeChart): GaugeChartConfiguration {
   const fontColor = chartFontColor(chart.background);
-  const config: GaugeChartRuntime = getDefaultChartJsRuntime(
+  const config: GaugeChartConfiguration = getDefaultChartJsRuntime(
     chart,
     [],
     fontColor
-  ) as GaugeChartRuntime;
+  ) as GaugeChartConfiguration;
   config.options!.hover = undefined;
   config.options!.events = [];
   config.options!.layout = {
@@ -302,7 +303,7 @@ function getGaugeConfiguration(chart: GaugeChart): GaugeChartRuntime {
 }
 
 function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): GaugeChartRuntime {
-  const runtime = getGaugeConfiguration(chart);
+  const config = getGaugeConfiguration(chart);
   const colors = chart.sectionRule.colors;
 
   const lowerPoint = chart.sectionRule.lowerInflectionPoint;
@@ -376,14 +377,17 @@ function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): GaugeChar
     }
   }
 
-  runtime.options!.valueLabel!.display = displayValue;
-  runtime.options!.valueLabel!.formatter = cellFormatter;
-  runtime.data!.datasets!.push({
+  config.options!.valueLabel!.display = displayValue;
+  config.options!.valueLabel!.formatter = cellFormatter;
+  config.data!.datasets!.push({
     data,
     minValue: Number(chart.sectionRule.rangeMin),
     value: needleValue,
     backgroundColor,
   });
 
-  return runtime;
+  return {
+    chartJsConfig: config,
+    background: getters.getBackgroundOfSingleCellChart(chart.background, dataRange),
+  };
 }

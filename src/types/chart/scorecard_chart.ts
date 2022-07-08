@@ -1,3 +1,5 @@
+import { Color } from "../misc";
+
 export interface ScorecardChartDefinition {
   readonly type: "scorecard";
   readonly title: string;
@@ -5,10 +7,10 @@ export interface ScorecardChartDefinition {
   readonly baseline?: string;
   readonly baselineMode: BaselineMode;
   readonly baselineDescr?: string;
-  readonly background?: string;
-  readonly baselineColorUp: string;
-  readonly baselineColorDown: string;
-  readonly fontColor?: string;
+  readonly background?: Color;
+  readonly baselineColorUp: Color;
+  readonly baselineColorDown: Color;
+  readonly fontColor?: Color;
 }
 
 export type BaselineMode = "text" | "difference" | "percentage";
@@ -20,6 +22,6 @@ export interface ScorecardChartRuntime {
   readonly baselineColor?: string;
   readonly baselineArrow: BaselineArrowDirection;
   readonly baselineDescr?: string;
-  readonly background?: string;
-  readonly fontColor?: string;
+  readonly background: Color;
+  readonly fontColor?: Color;
 }

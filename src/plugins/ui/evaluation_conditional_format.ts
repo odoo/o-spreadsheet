@@ -15,6 +15,7 @@ import {
   HeaderIndex,
   IconSetRule,
   IconThreshold,
+  invalidateCFEvaluationCommands,
   Style,
   UID,
   Zone,
@@ -37,6 +38,13 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   handle(cmd: Command) {
+    if (
+      invalidateCFEvaluationCommands.has(cmd.type) ||
+      (cmd.type === "UPDATE_CELL" && "content" in cmd)
+    ) {
+      this.isStale = true;
+    }
+
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
         const activeSheet = cmd.sheetIdTo;
@@ -55,22 +63,6 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       case "PASTE_CONDITIONAL_FORMAT":
         this.pasteCf(cmd.origin, cmd.target, cmd.operation);
         break;
-      case "DUPLICATE_SHEET":
-      case "CREATE_SHEET":
-      case "DELETE_SHEET":
-      case "ADD_CONDITIONAL_FORMAT":
-      case "REMOVE_CONDITIONAL_FORMAT":
-      case "REMOVE_COLUMNS_ROWS":
-      case "ADD_COLUMNS_ROWS":
-      case "EVALUATE_CELLS":
-      case "UPDATE_CELL":
-      case "UNDO":
-      case "REDO":
-      case "DELETE_CELL":
-      case "INSERT_CELL":
-      case "MOVE_CONDITIONAL_FORMAT":
-        this.isStale = true;
-        break;
     }
   }
 
@@ -86,12 +78,17 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   /**
-   * Returns the conditional style property for a given cell reference in the active sheet or
+   * Returns the conditional style property for a given cell reference or
    * undefined if this cell doesn't have a conditional style set.
+   *
+   * @param sheetId: take the cell in the active sheet if the method is not given a sheetId
    */
-  getConditionalStyle(col: HeaderIndex, row: HeaderIndex): Style | undefined {
-    const activeSheet = this.getters.getActiveSheetId();
-    const styles = this.computedStyles[activeSheet];
+  getConditionalStyle(
+    col: HeaderIndex,
+    row: HeaderIndex,
+    sheetId = this.getters.getActiveSheetId()
+  ): Style | undefined {
+    const styles = this.computedStyles[sheetId];
     return styles && styles[col]?.[row];
   }
 

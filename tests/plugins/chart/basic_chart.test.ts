@@ -260,8 +260,8 @@ describe("datasource tests", function () {
       { dataSets: ["B7:B8"], dataSetsHaveTitle: true, labelRange: "B7", type: "pie" },
       "1"
     );
-    const title = (model.getters.getChartRuntime("1") as PieChartRuntime)!.options!.tooltips!
-      .callbacks!.title!;
+    const title = (model.getters.getChartRuntime("1") as PieChartRuntime).chartJsConfig!.options!
+      .tooltips!.callbacks!.title!;
     const chartData = { datasets: [{ label: "dataset 1" }, { label: "dataset 2" }] };
     expect(title([{ datasetIndex: 0 }], chartData)).toBe("dataset 1");
     expect(title([{ datasetIndex: 1 }], chartData)).toBe("dataset 2");
@@ -274,7 +274,7 @@ describe("datasource tests", function () {
       "1"
     );
     const title = (model.getters.getChartRuntime("1") as BarChartRuntime | LineChartRuntime)
-      ?.options?.tooltips?.callbacks?.title;
+      ?.chartJsConfig?.options?.tooltips?.callbacks?.title;
     expect(title).toBeUndefined();
   });
 
@@ -308,10 +308,10 @@ describe("datasource tests", function () {
       "1"
     );
     const newModel = new Model(model.exportData());
-    let chart = newModel.getters.getChartRuntime("1") as LineChartRuntime;
+    let chart = (newModel.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     setCellContent(newModel, "B2", "99");
-    chart = newModel.getters.getChartRuntime("1") as LineChartRuntime;
+    chart = (newModel.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
   });
 
@@ -325,7 +325,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    let chart = model.getters.getChartRuntime("1") as LineChartRuntime;
+    let chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.type).toEqual("line");
     updateChart(model, "1", {
@@ -335,7 +335,7 @@ describe("datasource tests", function () {
       dataSetsHaveTitle: true,
       title: "hello1",
     });
-    chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: ["A8:D8", "A9:D9"],
       labelRange: "Sheet1!C7:D7",
@@ -408,7 +408,7 @@ describe("datasource tests", function () {
       "1"
     );
     deleteColumns(model, ["B"]);
-    const chart = model.getters.getChartRuntime("1") as LineChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([20, 19, 18]);
     expect(chart.data!.datasets![1]).toBe(undefined);
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
@@ -426,7 +426,7 @@ describe("datasource tests", function () {
     );
     deleteColumns(model, ["A"]);
     // dataset in col B becomes labels in col A
-    const chart = model.getters.getChartRuntime("1") as LineChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual(["0", "1", "2"]);
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
@@ -445,7 +445,7 @@ describe("datasource tests", function () {
       "1"
     );
     deleteRows(model, [4]);
-    const chart = model.getters.getChartRuntime("1") as LineChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
@@ -463,7 +463,7 @@ describe("datasource tests", function () {
       "1"
     );
     deleteColumns(model, ["C"]);
-    const chart = model.getters.getChartRuntime("1") as LineChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13]);
     expect(chart.data!.datasets![1]).toBeUndefined();
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
@@ -481,7 +481,7 @@ describe("datasource tests", function () {
       "1"
     );
     addRows(model, "before", 2, 1);
-    const chart = model.getters.getChartRuntime("1") as LineChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18, 17]);
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
@@ -516,7 +516,7 @@ describe("datasource tests", function () {
       "1"
     );
     deleteRows(model, [1, 2, 3, 4]);
-    const chart = model.getters.getChartRuntime("1") as LineChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
     expect(chart.data!.datasets).toHaveLength(0);
     expect(chart.data!.labels).toEqual([]);
   });
@@ -531,12 +531,12 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    let chart = model.getters.getChartRuntime("1") as LineChartRuntime;
+    let chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![0].label).toEqual("first column dataset");
     setCellContent(model, "B2", "99");
     setCellContent(model, "B1", "new dataset label");
-    chart = model.getters.getChartRuntime("1") as LineChartRuntime;
+    chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
     expect(chart.data!.datasets![0].label).toEqual("new dataset label");
   });
@@ -599,7 +599,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: ["B1:B4"],
       labelRange: "Sheet1!A2:A4",
@@ -709,7 +709,7 @@ describe("datasource tests", function () {
       labelRange: "Sheet1!A2:A5",
       dataSetsHaveTitle: true,
     });
-    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18, 17]);
   });
@@ -728,7 +728,7 @@ describe("datasource tests", function () {
       labelRange: "Sheet1!A2:A5",
       dataSetsHaveTitle: true,
     });
-    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
 
@@ -843,11 +843,11 @@ describe("title", function () {
       },
       "1"
     );
-    let chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    let chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(chart.options!.title!.text).toEqual("title");
 
     updateChart(model, "1", { title: "newTitle" });
-    chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(chart.options!.title!.text).toEqual("newTitle");
   });
 
@@ -861,13 +861,13 @@ describe("title", function () {
       },
       "1"
     );
-    expect((model.getters.getChartRuntime("1") as BarChartRuntime).options?.title?.display).toBe(
-      true
-    );
+    expect(
+      (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.options?.title?.display
+    ).toBe(true);
     updateChart(model, "1", { title: "" });
-    expect((model.getters.getChartRuntime("1") as BarChartRuntime).options?.title?.display).toBe(
-      false
-    );
+    expect(
+      (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.options?.title?.display
+    ).toBe(false);
   });
 });
 
@@ -882,7 +882,7 @@ describe("multiple sheets", function () {
       },
       "1"
     );
-    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     const chartDefinition = model.getters.getChartDefinition("1");
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
@@ -900,7 +900,7 @@ describe("multiple sheets", function () {
       },
       "1"
     );
-    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     const chartDefinition = model.getters.getChartDefinition("1");
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
     expect(chartDefinition).toMatchObject({
@@ -925,7 +925,7 @@ describe("multiple sheets", function () {
       content: "99",
     });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
-    const chart = model.getters.getChartRuntime("28") as BarChartRuntime;
+    const chart = (model.getters.getChartRuntime("28") as BarChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
   });
   test("change dataset label then activate the chart sheet (it should be up-to-date)", () => {
@@ -946,7 +946,7 @@ describe("multiple sheets", function () {
       content: "miam",
     });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
-    const chart = model.getters.getChartRuntime("28") as BarChartRuntime;
+    const chart = (model.getters.getChartRuntime("28") as BarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual(["P1", "miam", "P3"]);
   });
   test("create a chart with data from another sheet", () => {
@@ -959,7 +959,7 @@ describe("multiple sheets", function () {
       },
       "28"
     );
-    const chart = model.getters.getChartRuntime("28") as BarChartRuntime;
+    const chart = (model.getters.getChartRuntime("28") as BarChartRuntime).chartJsConfig;
     const chartDefinition = model.getters.getChartDefinition("28");
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
@@ -1009,7 +1009,7 @@ describe("multiple sheets", function () {
       });
     });
     test("new model with chart with formulas from another sheet (not evaluated yet)", () => {
-      const chart = model.getters.getChartRuntime("1") as LineChartRuntime;
+      const chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
       expect(chart.data!.datasets![0].data).toEqual([2, 4]);
     });
     test("refresh chart to update it with new data", () => {
@@ -1019,11 +1019,11 @@ describe("multiple sheets", function () {
         row: 0,
         content: "=Sheet1!B1*3",
       });
-      let chart = model.getters.getChartRuntime("1") as LineChartRuntime;
+      let chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
       expect(chart.data!.datasets![0].data).toEqual(["Loading...", 4]); // data has not been updated :(
 
       model.dispatch("REFRESH_CHART", { id: "1" });
-      chart = model.getters.getChartRuntime("1") as LineChartRuntime;
+      chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
       expect(chart.data!.datasets![0].data).toEqual([3, 4]);
 
       model.dispatch("UPDATE_CELL", {
@@ -1032,11 +1032,11 @@ describe("multiple sheets", function () {
         row: 1,
         content: "5",
       });
-      chart = model.getters.getChartRuntime("1") as LineChartRuntime;
+      chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
       expect(chart.data!.datasets![0].data).toEqual([3, 4]); // data has not been updated :(
 
       model.dispatch("REFRESH_CHART", { id: "1" });
-      chart = model.getters.getChartRuntime("1") as LineChartRuntime;
+      chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
       expect(chart.data!.datasets![0].data).toEqual([3, 10]);
     });
   });
@@ -1080,16 +1080,16 @@ describe("undo/redo", () => {
       },
       "27"
     );
-    let chart = model.getters.getChartRuntime("27") as LineChartRuntime;
+    let chart = (model.getters.getChartRuntime("27") as LineChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     setCellContent(model, "B2", "99");
-    chart = model.getters.getChartRuntime("27") as LineChartRuntime;
+    chart = (model.getters.getChartRuntime("27") as LineChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
     undo(model);
-    chart = model.getters.getChartRuntime("27") as LineChartRuntime;
+    chart = (model.getters.getChartRuntime("27") as LineChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     redo(model);
-    chart = model.getters.getChartRuntime("27") as LineChartRuntime;
+    chart = (model.getters.getChartRuntime("27") as LineChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
   });
 });
@@ -1108,18 +1108,21 @@ describe("Chart without labels", () => {
 
   test("The legend is not displayed when there is only one dataSet and no label", () => {
     createChart(model, defaultChart, "42");
-    expect((model.getters.getChartRuntime("42") as BarChartRuntime)?.options?.legend?.display).toBe(
-      false
-    );
+    expect(
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig?.options?.legend
+        ?.display
+    ).toBe(false);
 
     createChart(model, { ...defaultChart, dataSets: ["A1:A2", "A3:A4"] }, "43");
     expect(
-      (model.getters.getChartRuntime("43") as BarChartRuntime)?.options?.legend?.display
+      (model.getters.getChartRuntime("43") as BarChartRuntime).chartJsConfig?.options?.legend
+        ?.display
     ).toBeUndefined();
 
     createChart(model, { ...defaultChart, labelRange: "B1:B2" }, "44");
     expect(
-      (model.getters.getChartRuntime("44") as BarChartRuntime)?.options?.legend?.display
+      (model.getters.getChartRuntime("44") as BarChartRuntime).chartJsConfig?.options?.legend
+        ?.display
     ).toBeUndefined();
   });
 
@@ -1127,26 +1130,26 @@ describe("Chart without labels", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     createChart(model, defaultChart, "42");
-    expect((model.getters.getChartRuntime("42") as BarChartRuntime)?.data?.labels).toEqual([
-      "",
-      "",
-    ]);
+    expect(
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig?.data?.labels
+    ).toEqual(["", ""]);
 
     createChart(model, { ...defaultChart, dataSets: ["A1:A2", "A3:A4"] }, "43");
     expect(
-      (model.getters.getChartRuntime("43") as BarChartRuntime)?.data?.datasets![0].label
+      (model.getters.getChartRuntime("43") as BarChartRuntime).chartJsConfig?.data?.datasets![0]
+        .label
     ).toEqual(`${ChartTerms.Series.toString()} 1`);
     expect(
-      (model.getters.getChartRuntime("43") as BarChartRuntime)?.data?.datasets![1].label
+      (model.getters.getChartRuntime("43") as BarChartRuntime).chartJsConfig?.data?.datasets![1]
+        .label
     ).toEqual(`${ChartTerms.Series.toString()} 2`);
 
     setCellContent(model, "B1", "B1");
     setCellContent(model, "B2", "B2");
     createChart(model, { ...defaultChart, labelRange: "B1:B2" }, "44");
-    expect((model.getters.getChartRuntime("44") as BarChartRuntime).data?.labels).toEqual([
-      "B1",
-      "B2",
-    ]);
+    expect(
+      (model.getters.getChartRuntime("44") as BarChartRuntime).chartJsConfig.data?.labels
+    ).toEqual(["B1", "B2"]);
   });
 });
 
@@ -1165,24 +1168,28 @@ describe("Chart design configuration", () => {
 
   test("Legend position", () => {
     createChart(model, defaultChart, "42");
-    expect((model.getters.getChartRuntime("42") as BarChartRuntime).options?.legend?.position).toBe(
-      "top"
-    );
+    expect(
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.legend
+        ?.position
+    ).toBe("top");
 
     updateChart(model, "42", { legendPosition: "left" });
-    expect((model.getters.getChartRuntime("42") as BarChartRuntime).options?.legend?.position).toBe(
-      "left"
-    );
+    expect(
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.legend
+        ?.position
+    ).toBe("left");
 
     updateChart(model, "42", { legendPosition: "right" });
-    expect((model.getters.getChartRuntime("42") as BarChartRuntime).options?.legend?.position).toBe(
-      "right"
-    );
+    expect(
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.legend
+        ?.position
+    ).toBe("right");
 
     updateChart(model, "42", { legendPosition: "bottom" });
-    expect((model.getters.getChartRuntime("42") as BarChartRuntime).options?.legend?.position).toBe(
-      "bottom"
-    );
+    expect(
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.legend
+        ?.position
+    ).toBe("bottom");
   });
 
   test("Background is correctly updated", () => {
@@ -1196,38 +1203,46 @@ describe("Chart design configuration", () => {
   test("Stacked bar", () => {
     createChart(model, defaultChart, "42");
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).options?.scales?.xAxes![0].stacked
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
+        ?.xAxes![0].stacked
     ).toBeUndefined();
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).options?.scales?.yAxes![0].stacked
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
+        ?.yAxes![0].stacked
     ).toBeUndefined();
 
     updateChart(model, "42", { stackedBar: true });
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).options?.scales?.xAxes![0].stacked
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
+        ?.xAxes![0].stacked
     ).toBe(true);
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).options?.scales?.yAxes![0].stacked
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
+        ?.yAxes![0].stacked
     ).toBe(true);
 
     updateChart(model, "42", { type: "line" });
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).options?.scales?.xAxes![0].stacked
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
+        ?.xAxes![0].stacked
     ).toBeUndefined();
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).options?.scales?.yAxes![0].stacked
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
+        ?.yAxes![0].stacked
     ).toBeUndefined();
   });
 
   test("Vertical axis position", () => {
     createChart(model, defaultChart, "42");
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).options?.scales?.yAxes![0].position
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
+        ?.yAxes![0].position
     ).toBe("left");
 
     updateChart(model, "42", { verticalAxisPosition: "right" });
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).options?.scales?.yAxes![0].position
+      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales
+        ?.yAxes![0].position
     ).toBe("right");
   });
 
@@ -1255,7 +1270,7 @@ describe("Chart design configuration", () => {
     });
 
     createChart(model, { labelRange: "A2:A6", dataSets: ["B1:B15", "C1:C15"] }, "1");
-    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual(["P1", "", ""]);
     expect(chart.data!.datasets![0].data).toEqual([undefined, 10, undefined]);
     expect(chart.data!.datasets![1].data).toEqual([undefined, undefined, 20]);
@@ -1266,7 +1281,7 @@ describe("Chart design configuration", () => {
     // corresponding label would be A8, but it's not part of the label range
     setCellContent(model, "B8", "30");
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B15"] }, "1");
-    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual([""]);
     expect(chart.data!.datasets![0].data).toEqual([30]);
   });
@@ -1276,7 +1291,7 @@ describe("Chart design configuration", () => {
     // corresponding value would be B8, but it's not part of the data range
     setCellContent(model, "A8", "P1");
     createChart(model, { labelRange: "A2:A15", dataSets: ["B1:B3"] }, "1");
-    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual(["P1"]);
     expect(chart.data!.datasets![0].data).toEqual([undefined]);
   });
@@ -1284,7 +1299,7 @@ describe("Chart design configuration", () => {
   test("no data points at all", () => {
     const model = new Model();
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual([]);
     expect(chart.data!.datasets![0].data).toEqual([]);
   });
@@ -1301,7 +1316,7 @@ describe("Chart design configuration", () => {
       ...formatting,
     });
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual([]);
     expect(chart.data!.datasets![0].data).toEqual([]);
   });
@@ -1318,7 +1333,7 @@ describe("Chart design configuration", () => {
       ...formatting,
     });
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual([]);
     expect(chart.data!.datasets![0].data).toEqual([]);
   });
@@ -1327,7 +1342,7 @@ describe("Chart design configuration", () => {
     const model = new Model();
     setCellContent(model, "B2", "0");
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual([""]);
     expect(chart.data!.datasets![0].data).toEqual([0]);
   });
@@ -1336,7 +1351,7 @@ describe("Chart design configuration", () => {
     const model = new Model();
     setCellContent(model, "A2", "0");
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-    const chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual(["0"]);
     expect(chart.data!.datasets![0].data).toEqual([undefined]);
   });
@@ -1348,10 +1363,10 @@ describe("Chart design configuration", () => {
     setCellContent(model, "A3", "2022/03/02");
     createChart(model, { labelRange: "A2:A3", dataSets: ["B2:B3"] }, "1");
     chart = model.getters.getChartRuntime("1") as BarChartRuntime;
-    expect(chart.data!.labels).toEqual(["2022/03/01", "2022/03/02"]);
+    expect(chart.chartJsConfig.data!.labels).toEqual(["2022/03/01", "2022/03/02"]);
     setCellFormat(model, "A2", "m/d/yyyy");
     chart = model.getters.getChartRuntime("1") as BarChartRuntime;
-    expect(chart.data!.labels).toEqual(["3/1/2022", "2022/03/02"]);
+    expect(chart.chartJsConfig.data!.labels).toEqual(["3/1/2022", "2022/03/02"]);
   });
 });
 
@@ -1369,7 +1384,7 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    const chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
+    const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
     expect(chart.options!.scales!.xAxes![0].type).toEqual("linear");
   });
 
@@ -1389,7 +1404,7 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    let chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
+    let chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
     expect(chart.options!.scales!.xAxes![0].type).toEqual("time");
 
     updateChart(model, chartId, { type: "bar" });
@@ -1413,11 +1428,11 @@ describe("Linear/Time charts", () => {
       chartId
     );
     let chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
-    expect(chart.options!.scales!.xAxes![0].type).toEqual("time");
+    expect(chart.chartJsConfig.options!.scales!.xAxes![0].type).toEqual("time");
 
     updateChart(model, chartId, { type: "bar" });
     model.getters.getChartRuntime(chartId)!;
-    expect(chart.options!.scales!.xAxes![0].type).toEqual("time");
+    expect(chart.chartJsConfig.options!.scales!.xAxes![0].type).toEqual("time");
   });
 
   test("date chart: empty label with a value is replaced by arbitrary label with no value", () => {
@@ -1438,7 +1453,7 @@ describe("Linear/Time charts", () => {
       chartId
     );
     setCellContent(model, "C3", "");
-    const chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
+    const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
     expect(chart.data!.labels![1]).toEqual("1/17/1900");
     expect(chart.data!.datasets![0].data![1]).toEqual({ y: undefined, x: "1/17/1900" });
   });
@@ -1459,7 +1474,7 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    const chart = model.getters.getChartRuntime(chartId)! as LineChartRuntime;
+    const chart = (model.getters.getChartRuntime(chartId)! as LineChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual(["0", "1"]);
     expect(chart.data!.datasets![0].data).toEqual([
       { y: 0, x: "0" },
@@ -1480,7 +1495,7 @@ describe("Linear/Time charts", () => {
       chartId
     );
     setCellContent(model, "C3", "");
-    const chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
+    const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
     expect(chart.data!.labels![1]).toEqual("");
     expect(chart.data!.datasets![0].data![1]).toEqual({ y: 11, x: undefined });
   });
@@ -1553,15 +1568,18 @@ describe("Chart evaluation", () => {
       "1"
     );
     expect(
-      (model.getters.getChartRuntime("1") as BarChartRuntime).data!.datasets![0]!.data![0]
+      (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.data!.datasets![0]!
+        .data![0]
     ).toBeNull();
     setCellContent(model, "C3", "1");
     expect(
-      (model.getters.getChartRuntime("1") as BarChartRuntime).data!.datasets![0]!.data![0]
+      (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.data!.datasets![0]!
+        .data![0]
     ).toBe(1);
     deleteColumns(model, ["C"]);
     expect(
-      (model.getters.getChartRuntime("1") as BarChartRuntime).data!.datasets![0]!.data![0]
+      (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.data!.datasets![0]!
+        .data![0]
     ).toBe("#REF");
   });
 });
@@ -1576,11 +1594,11 @@ test("creating chart with single dataset should have legend position set as none
   );
   await nextTick();
   expect(
-    (model.getters.getChartRuntime("24") as BarChartRuntime).options?.legend?.display
+    (model.getters.getChartRuntime("24") as BarChartRuntime).chartJsConfig.options?.legend?.display
   ).toBeFalsy();
   updateChart(model, "24", { legendPosition: "top" });
   await nextTick();
-  expect((model.getters.getChartRuntime("24") as BarChartRuntime).options?.legend?.position).toBe(
-    "top"
-  );
+  expect(
+    (model.getters.getChartRuntime("24") as BarChartRuntime).chartJsConfig.options?.legend?.position
+  ).toBe("top");
 });

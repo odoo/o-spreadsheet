@@ -1,4 +1,5 @@
 import { ChartConfiguration } from "chart.js";
+import { Color } from "../misc";
 import { LegendPosition, VerticalAxisPosition } from "./common_chart";
 
 export interface BarChartDefinition {
@@ -7,10 +8,13 @@ export interface BarChartDefinition {
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
   readonly title: string;
-  readonly background: string;
+  readonly background?: Color;
   readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly stackedBar: boolean;
 }
 
-export type BarChartRuntime = ChartConfiguration;
+export type BarChartRuntime = {
+  chartJsConfig: ChartConfiguration;
+  background: Color;
+};
