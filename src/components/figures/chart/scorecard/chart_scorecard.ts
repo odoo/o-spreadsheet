@@ -18,17 +18,22 @@ const BASELINE_DESCR_FONT_RATIO = 0.9;
 /* Paddings, in percentage of the element they are inside */
 const CHART_VERTICAL_PADDING_RATIO = 0.04;
 const CHART_HORIZONTAL_PADDING_RATIO = 0.05;
-const VERTICAL_PADDING_TITLE_KEY_RATIO = 0.06;
 
 css/* scss */ `
   div.o-scorecard {
     user-select: none;
     background-color: white;
-    text-align: center;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     box-sizing: border-box;
+
+    .o-scorecard-content {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      justify-content: center;
+      text-align: center;
+    }
 
     .o-title-text {
       color: #757575;
@@ -36,7 +41,6 @@ css/* scss */ `
       height: 1em;
       line-height: 1em;
       overflow: hidden;
-      text-overflow: ellipsis;
       white-space: nowrap;
     }
 
@@ -58,6 +62,7 @@ css/* scss */ `
     .o-baseline-text {
       color: #757575;
       line-height: 1em;
+      height: 1em;
       overflow: hidden;
       white-space: nowrap;
     }
@@ -128,6 +133,12 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
     `;
   }
 
+  get chartContentStyle() {
+    return `
+      height:${this.getDrawableHeight()}px;
+    `;
+  }
+
   get baselineColorStyle(): string {
     return this.runtime?.baselineColor ? `color:${this.runtime.baselineColor}` : "";
   }
@@ -158,7 +169,6 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
     return {
       titleStyle: this.getTextStyle({
         fontSize: TITLE_FONT_SIZE,
-        paddingBottom: VERTICAL_PADDING_TITLE_KEY_RATIO * this.figure.height,
       }),
       keyStyle: this.getTextStyle({
         fontSize: keyFontSize,
@@ -185,7 +195,6 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   /** Get the height of the chart minus all the vertical paddings */
   private getDrawableHeight(): number {
     let totalPaddingRatio = 2 * CHART_VERTICAL_PADDING_RATIO;
-    totalPaddingRatio += this.title ? VERTICAL_PADDING_TITLE_KEY_RATIO : 0;
 
     let availableHeight = this.figure.height * (1 - totalPaddingRatio);
     availableHeight -= this.title ? TITLE_FONT_SIZE : 0;

@@ -3,7 +3,7 @@ export interface ScorecardChartDefinition {
   readonly title: string;
   readonly keyValue?: string;
   readonly baseline?: string;
-  readonly baselineMode: "absolute" | "percentage";
+  readonly baselineMode: BaselineMode;
   readonly baselineDescr?: string;
   readonly background?: string;
   readonly baselineColorUp: string;
@@ -11,6 +11,7 @@ export interface ScorecardChartDefinition {
   readonly fontColor?: string;
 }
 
+export type BaselineMode = "text" | "difference" | "percentage";
 export type BaselineArrowDirection = "neutral" | "up" | "down";
 export interface ScorecardChartRuntime {
   readonly title: string;

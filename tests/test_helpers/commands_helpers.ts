@@ -135,7 +135,7 @@ export function createScorecardChart(
       baseline: data.baseline || "",
       keyValue: data.keyValue || "",
       baselineDescr: data.baselineDescr || "",
-      baselineMode: data.baselineMode || "absolute",
+      baselineMode: data.baselineMode || "difference",
       baselineColorDown: "#DC6965",
       baselineColorUp: "#00A04A",
       background: data.background,
