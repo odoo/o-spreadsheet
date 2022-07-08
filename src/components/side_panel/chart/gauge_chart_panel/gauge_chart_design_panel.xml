@@ -25,7 +25,7 @@
           type="text"
           t-att-value="props.definition.title"
           t-on-change="updateTitle"
-          class="o-input"
+          class="o-input o-optional"
           placeholder="New Chart"
         />
       </div>

@@ -17,7 +17,7 @@ import { BarChartDefinition } from "../../types/chart/bar_chart";
 import { DataSet, ExcelChartDataset } from "../../types/chart/chart";
 import { LineChartDefinition } from "../../types/chart/line_chart";
 import { PieChartDefinition } from "../../types/chart/pie_chart";
-import { BaselineArrowDirection } from "../../types/chart/scorecard_chart";
+import { BaselineArrowDirection, BaselineMode } from "../../types/chart/scorecard_chart";
 import { relativeLuminance } from "../color";
 import { isDefined } from "../misc";
 import { isNumber } from "../numbers";
@@ -357,11 +357,11 @@ export function checkLabelRange(
 export function getBaselineText(
   baseline: string,
   keyValue: string,
-  baselineMode: "absolute" | "percentage"
+  baselineMode: BaselineMode
 ): string {
   if (!baseline) {
     return "";
-  } else if (!isNumber(baseline) || !isNumber(keyValue)) {
+  } else if (baselineMode === "text" || !isNumber(baseline) || !isNumber(keyValue)) {
     return baseline.toString();
   } else {
     let diff = toNumber(keyValue) - toNumber(baseline);
@@ -378,11 +378,12 @@ export function getBaselineText(
 
 export function getBaselineColor(
   baseline: string,
+  baselineMode: BaselineMode,
   keyValue: string,
   colorUp: string,
   colorDown: string
 ): string | undefined {
-  if (!isNumber(baseline) || !isNumber(keyValue)) {
+  if (baselineMode === "text" || !isNumber(baseline) || !isNumber(keyValue)) {
     return undefined;
   }
   const diff = toNumber(keyValue) - toNumber(baseline);
@@ -396,9 +397,10 @@ export function getBaselineColor(
 
 export function getBaselineArrowDirection(
   baseline: string | undefined,
-  keyValue: string
+  keyValue: string,
+  baselineMode: BaselineMode
 ): BaselineArrowDirection {
-  if (!isNumber(baseline) || !isNumber(keyValue)) {
+  if (baselineMode === "text" || !isNumber(baseline) || !isNumber(keyValue)) {
     return "neutral";
   }
 

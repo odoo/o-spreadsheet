@@ -89,6 +89,16 @@ describe("Scorecard charts", () => {
     fixture.remove();
   });
 
+  test("Scorecard snapshot", async () => {
+    createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B1", title: "hello", baselineDescr: "description" },
+      chartId
+    );
+    await nextTick();
+    expect(getChartElement()).toMatchSnapshot();
+  });
+
   test("Chart display correct info", async () => {
     createScorecardChart(
       model,
@@ -124,6 +134,15 @@ describe("Scorecard charts", () => {
 
     expect(getChartElement()).toBeTruthy();
     expect(getChartBaselineTextContent()).toEqual("100%");
+  });
+
+  test("Baseline with mode 'text' is plainly displayed", async () => {
+    createScorecardChart(model, { keyValue: "A1", baseline: "B1", baselineMode: "text" }, chartId);
+    await nextTick();
+
+    expect(getChartElement()).toBeTruthy();
+    expect(getChartBaselineTextContent()).toEqual("1");
+    expect(getChartBaselineElement().querySelector("span")!.attributes["style"].value).toEqual("");
   });
 
   test("Key < baseline display in red with down arrow", async () => {

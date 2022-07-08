@@ -1,0 +1,130 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Scorecard charts Scorecard snapshot 1`] = `
+<div
+  class="o-figure"
+  style="width:538px;height:337px"
+  tabindex="0"
+>
+  <div
+    class="o-chart-container"
+  >
+    <div
+      class="o-chart-menu"
+    >
+      <div
+        class="o-chart-menu-item"
+      >
+        <svg
+          class="o-icon"
+          viewBox="0 0 384 384"
+        >
+          <rect
+            height="42.667"
+            width="384"
+            x="0"
+            y="277.333"
+          />
+          <rect
+            height="42.667"
+            width="384"
+            x="0"
+            y="170.667"
+          />
+          <rect
+            height="42.667"
+            width="384"
+            x="0"
+            y="64"
+          />
+        </svg>
+      </div>
+    </div>
+    <div
+      class="o-scorecard"
+      style="
+      height:335px;
+      width:536px;
+      padding-top:13.4px;
+      padding-bottom:13.4px;
+      padding-left:26.8px;
+      padding-right:26.8px;
+      background:white;
+      color:#000000;
+    "
+    >
+      <div
+        class="o-title-text"
+        style="
+    padding-top:0px;
+    padding-bottom:0px;
+    font-size:18px;
+  "
+      >
+        hello
+      </div>
+      
+      <div
+        class="o-scorecard-content"
+        style="
+      height:290.2px;
+    "
+      >
+        <div
+          class="o-key-text"
+          style="
+    padding-top:0px;
+    padding-bottom:0px;
+    font-size:69.43462681361606px;
+  "
+        >
+          2
+        </div>
+        <div
+          class="o-baseline-text"
+          style="
+    padding-top:0px;
+    padding-bottom:0px;
+    font-size:37.3878759765625px;
+  "
+        >
+          <svg
+            class="o-cf-icon arrow-up"
+            focusable="false"
+            height="10"
+            viewBox="0 0 448 512"
+            width="10"
+          >
+            <path
+              d="M34.9 289.5l-22.2-22.2c-9.4-9.4-9.4-24.6 0-33.9L207 39c9.4-9.4 24.6-9.4 33.9 0l194.3 194.3c9.4 9.4 9.4 24.6 0 33.9L413 289.4c-9.5 9.5-25 9.3-34.3-.4L264 168.6V456c0 13.3-10.7 24-24 24h-32c-13.3 0-24-10.7-24-24V168.6L69.2 289.1c-9.3 9.8-24.8 10-34.3.4z"
+              fill="#00A04A"
+              style="fill : #00A04A"
+            />
+          </svg>
+          
+          <span
+            style="color:#00A04A"
+          >
+            1
+          </span>
+          
+          <span
+            style="
+    padding-top:0px;
+    padding-bottom:0px;
+    font-size:33.64908837890625px;
+  "
+          >
+             description
+          </span>
+        </div>
+        
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  
+</div>
+`;

@@ -44,7 +44,7 @@ const TEST_CHART_DATA = {
     baseline: "A2:A4",
     title: "hello",
     baselineDescr: "description",
-    baselineMode: "absolute" as const,
+    baselineMode: "difference" as const,
   },
   gauge: {
     type: "gauge" as const,

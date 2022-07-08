@@ -13,7 +13,11 @@ import {
   UnboundedZone,
 } from "../../types";
 import { ChartCreationContext } from "../../types/chart/chart";
-import { ScorecardChartDefinition, ScorecardChartRuntime } from "../../types/chart/scorecard_chart";
+import {
+  BaselineMode,
+  ScorecardChartDefinition,
+  ScorecardChartRuntime,
+} from "../../types/chart/scorecard_chart";
 import { Validator } from "../../types/validator";
 import { createRange } from "../range";
 import { rangeReference } from "../references";
@@ -59,7 +63,7 @@ function checkBaseline(definition: ScorecardChartDefinition): CommandResult {
 export class ScorecardChart extends AbstractChart {
   readonly keyValue?: Range;
   readonly baseline?: Range;
-  readonly baselineMode: "absolute" | "percentage";
+  readonly baselineMode: BaselineMode;
   readonly baselineDescr?: string;
   readonly background?: string;
   readonly baselineColorUp: string;
@@ -92,7 +96,7 @@ export class ScorecardChart extends AbstractChart {
       type: "scorecard",
       keyValue: context.range ? context.range[0] : undefined,
       title: context.title || "",
-      baselineMode: "absolute",
+      baselineMode: "difference",
       baselineColorUp: "#00A04A",
       baselineColorDown: "#DC6965",
       baseline: context.auxiliaryRange || "",
@@ -203,9 +207,10 @@ function createScorecardChartRuntime(
     title: chart.title,
     keyValue: formattedKeyValue || keyValue,
     baselineDisplay: getBaselineText(baselineStr, keyValue, chart.baselineMode),
-    baselineArrow: getBaselineArrowDirection(baselineStr, keyValue),
+    baselineArrow: getBaselineArrowDirection(baselineStr, keyValue, chart.baselineMode),
     baselineColor: getBaselineColor(
       baselineStr,
+      chart.baselineMode,
       keyValue,
       chart.baselineColorUp,
       chart.baselineColorDown

@@ -116,6 +116,9 @@ css/* scss */ `
     input.o-required {
       border-color: #4c4c4c;
     }
+    input.o-optional {
+      border: 1px solid #dadce0;
+    }
     input.o-invalid {
       border-color: red;
     }

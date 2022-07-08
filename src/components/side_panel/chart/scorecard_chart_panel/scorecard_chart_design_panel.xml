@@ -25,18 +25,19 @@
           type="text"
           t-att-value="props.definition.title"
           t-on-change="updateTitle"
-          class="o-input"
+          class="o-input o-optional"
           placeholder="New Chart"
         />
       </div>
       <div class="o-section">
-        <div class="o-section-title">Baseline comparison to key value</div>
+        <div class="o-section-title">Baseline format</div>
         <select
           t-att-value="props.definition.baselineMode"
           class="o-input o-type-selector"
           t-on-change="(ev) => this.updateBaselineMode(ev)">
-          <option value="absolute">Absolute change</option>
-          <option value="percentage">Percentage change</option>
+          <option value="text">Absolute value</option>
+          <option value="difference">Value change compared to the key value</option>
+          <option value="percentage">Percentage change compared to the key value</option>
         </select>
       </div>
       <div class="o-section">
@@ -45,7 +46,7 @@
           type="text"
           t-att-value="props.definition.baselineDescr"
           t-on-change="updateBaselineDescr"
-          class="o-input"
+          class="o-input o-optional"
         />
       </div>
     </div>
