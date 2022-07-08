@@ -1,6 +1,5 @@
 import { Component, onMounted, onPatched, useRef } from "@odoo/owl";
 import Chart, { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../../../constants";
 import { chartComponentRegistry } from "../../../../registries/chart_types";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
@@ -17,8 +16,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   private chart?: Chart;
 
   get background(): string {
-    const definition = this.env.model.getters.getChartDefinition(this.props.figure.id);
-    return (definition && definition.background) || BACKGROUND_CHART_COLOR;
+    return this.chartRuntime.background;
   }
 
   get canvasStyle() {
@@ -27,7 +25,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
 
   get chartRuntime(): ChartJSRuntime {
     const runtime = this.env.model.getters.getChartRuntime(this.props.figure.id);
-    if (!("type" in runtime)) {
+    if (!("chartJsConfig" in runtime)) {
       throw new Error("Unsupported chart runtime");
     }
     return runtime;
@@ -36,11 +34,11 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     onMounted(() => {
       const runtime = this.chartRuntime;
-      this.createChart(runtime);
+      this.createChart(runtime.chartJsConfig);
     });
 
     onPatched(() => {
-      const chartData = this.chartRuntime;
+      const chartData = this.chartRuntime.chartJsConfig;
       if (chartData.data && chartData.data.datasets) {
         this.chart!.data = chartData.data;
         if (chartData.options?.title) {

@@ -1,11 +1,16 @@
+import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { chartRuntimeFactory } from "../../helpers/charts";
+import { Color, Range, UID } from "../../types";
 import { ChartRuntime } from "../../types/chart/chart";
-import { Command, invalidateEvaluationCommands } from "../../types/commands";
-import { UID } from "../../types/misc";
+import {
+  Command,
+  invalidateCFEvaluationCommands,
+  invalidateEvaluationCommands,
+} from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
 export class EvaluationChartPlugin extends UIPlugin {
-  static getters = ["getChartRuntime"] as const;
+  static getters = ["getChartRuntime", "getBackgroundOfSingleCellChart"] as const;
 
   readonly charts: Record<UID, ChartRuntime | undefined> = {};
 
@@ -14,13 +19,15 @@ export class EvaluationChartPlugin extends UIPlugin {
   handle(cmd: Command) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
+      invalidateCFEvaluationCommands.has(cmd.type) ||
       cmd.type === "EVALUATE_CELLS" ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
+      cmd.type === "UPDATE_CELL"
     ) {
       for (const chartId in this.charts) {
         this.charts[chartId] = undefined;
       }
     }
+
     switch (cmd.type) {
       case "UPDATE_CHART":
       case "CREATE_CHART":
@@ -69,5 +76,35 @@ export class EvaluationChartPlugin extends UIPlugin {
     for (let sheetId of usedSheetsId) {
       this.dispatch("EVALUATE_CELLS", { sheetId });
     }
+  }
+
+  /**
+   * Get the background color of a chart based on the color of the first cell of the main range
+   * of the chart. In order of priority, it will return :
+   *
+   *  - the chart background color if one is defined
+   *  - the fill color of the cell if one is defined
+   *  - the fill color of the cell from conditional formats if one is defined
+   *  - the default chart color if no other color is defined
+   */
+  getBackgroundOfSingleCellChart(
+    chartBackground: Color | undefined,
+    mainRange: Range | undefined
+  ): Color {
+    if (chartBackground) return chartBackground;
+    if (!mainRange) {
+      return BACKGROUND_CHART_COLOR;
+    }
+    const col = mainRange.zone.left;
+    const row = mainRange.zone.top;
+    const cfFormat = this.getters.getConditionalStyle(col, row, mainRange.sheetId);
+    if (cfFormat && cfFormat.fillColor) {
+      return cfFormat.fillColor;
+    }
+    const cell = this.getters.getCell(mainRange.sheetId, col, row);
+    if (cell && cell.style && cell.style.fillColor) {
+      return cell.style.fillColor;
+    }
+    return BACKGROUND_CHART_COLOR;
   }
 }

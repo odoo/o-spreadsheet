@@ -96,6 +96,15 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "REDO",
 ]);
 
+export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
+  ...invalidateEvaluationCommands,
+  "DUPLICATE_SHEET",
+  "EVALUATE_CELLS",
+  "ADD_CONDITIONAL_FORMAT",
+  "REMOVE_CONDITIONAL_FORMAT",
+  "MOVE_CONDITIONAL_FORMAT",
+]);
+
 export const readonlyAllowedCommands = new Set<CommandTypes>([
   "START",
   "ACTIVATE_SHEET",

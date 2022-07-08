@@ -10,6 +10,7 @@ import { chartRegistry } from "../../registries/chart_types";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
+  Color,
   CommandResult,
   CoreGetters,
   Getters,
@@ -68,7 +69,7 @@ chartRegistry.add("pie", {
 export class PieChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
-  readonly background: string;
+  readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly type = "pie";
 
@@ -101,7 +102,7 @@ export class PieChart extends AbstractChart {
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): PieChartDefinition {
     return {
-      background: context.background || BACKGROUND_CHART_COLOR,
+      background: context.background,
       dataSets: context.range ? context.range : [],
       dataSetsHaveTitle: false,
       legendPosition: "top",
@@ -158,7 +159,7 @@ export class PieChart extends AbstractChart {
       .filter((ds) => ds.range !== ""); // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
     return {
       ...this.getDefinition(),
-      backgroundColor: toXlsxHexColor(this.background),
+      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       verticalAxisPosition: "left", //TODO ExcelChartDefinition should be adapted, but can be done later
       dataSets,
@@ -238,7 +239,7 @@ function createPieChartRuntime(chart: PieChart, getters: Getters): PieChartRunti
   let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
 
   ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
-  const runtime = getPieConfiguration(chart, labels);
+  const config = getPieConfiguration(chart, labels);
   const colors = new ChartColors();
   for (let { label, data } of dataSetsValues) {
     const backgroundColor = getPieColors(colors, dataSetsValues);
@@ -248,8 +249,8 @@ function createPieChartRuntime(chart: PieChart, getters: Getters): PieChartRunti
       borderColor: "#FFFFFF",
       backgroundColor,
     };
-    runtime.data!.datasets!.push(dataset);
+    config.data!.datasets!.push(dataset);
   }
 
-  return runtime;
+  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
 }

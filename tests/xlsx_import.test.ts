@@ -715,7 +715,7 @@ describe("Import xlsx data", () => {
     const chartData = figure.data as LineChartDefinition | PieChartDefinition | BarChartDefinition;
     expect(chartData.title).toEqual(chartTitle);
     expect(chartData.type).toEqual(chartType);
-    expect(standardizeColor(chartData.background)).toEqual(standardizeColor(chartColor));
+    expect(standardizeColor(chartData.background!)).toEqual(standardizeColor(chartColor));
 
     expect(chartData.labelRange).toEqual("Sheet1!A27:A35");
     const datasets = chartDataset.split(" ");

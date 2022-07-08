@@ -1,9 +1,9 @@
 import { transformZone } from "../../collaborative/ot/ot_helpers";
-import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { chartRegistry } from "../../registries/chart_types";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
+  Color,
   CommandResult,
   CoreGetters,
   Getters,
@@ -65,10 +65,10 @@ export class ScorecardChart extends AbstractChart {
   readonly baseline?: Range;
   readonly baselineMode: BaselineMode;
   readonly baselineDescr?: string;
-  readonly background?: string;
-  readonly baselineColorUp: string;
-  readonly baselineColorDown: string;
-  readonly fontColor?: string;
+  readonly background?: Color;
+  readonly baselineColorUp: Color;
+  readonly baselineColorDown: Color;
+  readonly fontColor?: Color;
   readonly type = "scorecard";
 
   constructor(definition: ScorecardChartDefinition, sheetId: UID, getters: CoreGetters) {
@@ -92,7 +92,7 @@ export class ScorecardChart extends AbstractChart {
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): ScorecardChartDefinition {
     return {
-      background: context.background || BACKGROUND_CHART_COLOR,
+      background: context.background,
       type: "scorecard",
       keyValue: context.range ? context.range[0] : undefined,
       title: context.title || "",
@@ -203,6 +203,7 @@ function createScorecardChartRuntime(
   }
   const baseline = chart.baseline ? getters.getRangeValues(chart.baseline)[0] : undefined;
   const baselineStr = baseline !== undefined ? String(baseline) : "";
+  const background = getters.getBackgroundOfSingleCellChart(chart.background, chart.keyValue);
   return {
     title: chart.title,
     keyValue: formattedKeyValue || keyValue,
@@ -216,7 +217,7 @@ function createScorecardChartRuntime(
       chart.baselineColorDown
     ),
     baselineDescr: chart.baselineDescr,
-    background: chart.background,
-    fontColor: chartFontColor(chart.background),
+    fontColor: chartFontColor(background),
+    background,
   };
 }

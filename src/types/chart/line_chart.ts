@@ -1,4 +1,5 @@
 import { ChartConfiguration } from "chart.js";
+import { Color } from "../misc";
 import { LegendPosition, VerticalAxisPosition } from "./common_chart";
 
 export interface LineChartDefinition {
@@ -7,10 +8,13 @@ export interface LineChartDefinition {
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
   readonly title: string;
-  readonly background: string;
+  readonly background?: Color;
   readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
 }
 
-export type LineChartRuntime = ChartConfiguration;
+export type LineChartRuntime = {
+  chartJsConfig: ChartConfiguration;
+  background: Color;
+};

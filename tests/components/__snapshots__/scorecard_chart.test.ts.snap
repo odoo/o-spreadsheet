@@ -49,7 +49,7 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
       padding-bottom:13.4px;
       padding-left:26.8px;
       padding-right:26.8px;
-      background:white;
+      background:#FFFFFF;
       color:#000000;
     "
     >

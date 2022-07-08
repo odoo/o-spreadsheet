@@ -380,9 +380,9 @@ export function getBaselineColor(
   baseline: string,
   baselineMode: BaselineMode,
   keyValue: string,
-  colorUp: string,
-  colorDown: string
-): string | undefined {
+  colorUp: Color,
+  colorDown: Color
+): Color | undefined {
   if (baselineMode === "text" || !isNumber(baseline) || !isNumber(keyValue)) {
     return undefined;
   }

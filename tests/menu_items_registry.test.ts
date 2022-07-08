@@ -963,7 +963,6 @@ describe("Menu Item actions", () => {
         id: expect.any(String),
         sheetId: model.getters.getActiveSheetId(),
         definition: {
-          background: "#FFFFFF",
           dataSets: ["A1"],
           dataSetsHaveTitle: false,
           labelRange: undefined,

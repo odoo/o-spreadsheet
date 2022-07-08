@@ -4,6 +4,7 @@ import { chartRegistry } from "../../registries/chart_types";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
+  Color,
   CommandResult,
   CoreGetters,
   Getters,
@@ -62,7 +63,7 @@ chartRegistry.add("bar", {
 export class BarChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
-  readonly background: string;
+  readonly background?: Color;
   readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly stackedBar: boolean;
@@ -99,7 +100,7 @@ export class BarChart extends AbstractChart {
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): BarChartDefinition {
     return {
-      background: context.background || BACKGROUND_CHART_COLOR,
+      background: context.background,
       dataSets: context.range ? context.range : [],
       dataSetsHaveTitle: false,
       stackedBar: false,
@@ -160,7 +161,7 @@ export class BarChart extends AbstractChart {
       .filter((ds) => ds.range !== ""); // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
     return {
       ...this.getDefinition(),
-      backgroundColor: toXlsxHexColor(this.background),
+      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
       stackedBar: this.stackedBar,
@@ -199,7 +200,7 @@ export class BarChart extends AbstractChart {
   }
 }
 
-function getBarConfiguration(chart: BarChart, labels: string[]): BarChartRuntime {
+function getBarConfiguration(chart: BarChart, labels: string[]): ChartConfiguration {
   const fontColor = chartFontColor(chart.background);
   const config: ChartConfiguration = getDefaultChartJsRuntime(chart, labels, fontColor);
   const legend: ChartLegendOptions = {
@@ -252,7 +253,7 @@ function createBarChartRuntime(chart: BarChart, getters: Getters): BarChartRunti
   let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
 
   ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
-  const runtime = getBarConfiguration(chart, labels);
+  const config = getBarConfiguration(chart, labels);
   const colors = new ChartColors();
 
   for (let { label, data } of dataSetsValues) {
@@ -263,8 +264,8 @@ function createBarChartRuntime(chart: BarChart, getters: Getters): BarChartRunti
       borderColor: color,
       backgroundColor: color,
     };
-    runtime.data!.datasets!.push(dataset);
+    config.data!.datasets!.push(dataset);
   }
 
-  return runtime;
+  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
 }

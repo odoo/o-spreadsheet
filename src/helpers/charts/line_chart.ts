@@ -4,6 +4,7 @@ import { chartRegistry } from "../../registries/chart_types";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
+  Color,
   CommandResult,
   CoreGetters,
   Getters,
@@ -67,7 +68,7 @@ chartRegistry.add("line", {
 export class LineChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
-  readonly background: string;
+  readonly background?: Color;
   readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
@@ -104,7 +105,7 @@ export class LineChart extends AbstractChart {
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): LineChartDefinition {
     return {
-      background: context.background || BACKGROUND_CHART_COLOR,
+      background: context.background,
       dataSets: context.range ? context.range : [],
       dataSetsHaveTitle: false,
       labelsAsText: false,
@@ -172,7 +173,7 @@ export class LineChart extends AbstractChart {
       .filter((ds) => ds.range !== ""); // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
     return {
       ...this.getDefinition(),
-      backgroundColor: toXlsxHexColor(this.background),
+      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
     };
@@ -326,15 +327,15 @@ function createLineChartRuntime(chart: LineChart, getters: Getters): LineChartRu
   if (axisType === "time") {
     ({ labels, dataSetsValues } = fixEmptyLabelsForDateCharts(labels, dataSetsValues));
   }
-  const runtime = getLineConfiguration(chart, labels);
+  const config = getLineConfiguration(chart, labels);
   const labelFormat = getLabelFormat(getters, chart.labelRange)!;
   if (axisType === "time") {
-    runtime.options!.scales!.xAxes![0].type = "time";
-    runtime.options!.scales!.xAxes![0].time = getChartTimeOptions(labels, labelFormat);
-    runtime.options!.scales!.xAxes![0].ticks!.maxTicksLimit = 15;
+    config.options!.scales!.xAxes![0].type = "time";
+    config.options!.scales!.xAxes![0].time = getChartTimeOptions(labels, labelFormat);
+    config.options!.scales!.xAxes![0].ticks!.maxTicksLimit = 15;
   } else if (axisType === "linear") {
-    runtime.options!.scales!.xAxes![0].type = "linear";
-    runtime.options!.scales!.xAxes![0].ticks!.callback = (value) => formatValue(value, labelFormat);
+    config.options!.scales!.xAxes![0].type = "linear";
+    config.options!.scales!.xAxes![0].ticks!.callback = (value) => formatValue(value, labelFormat);
   }
 
   const colors = new ChartColors();
@@ -353,8 +354,8 @@ function createLineChartRuntime(chart: LineChart, getters: Getters): LineChartRu
       borderColor: color,
       backgroundColor: color,
     };
-    runtime.data!.datasets!.push(dataset);
+    config.data!.datasets!.push(dataset);
   }
 
-  return runtime;
+  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
 }

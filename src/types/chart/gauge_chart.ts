@@ -1,11 +1,12 @@
 import { ChartConfiguration, ChartData, ChartDataSets, ChartOptions } from "chart.js";
+import { Color } from "../misc";
 
 export interface GaugeChartDefinition {
   readonly type: "gauge";
   readonly title: string;
   readonly dataRange?: string;
   readonly sectionRule: SectionRule;
-  readonly background: string;
+  readonly background?: Color;
 }
 
 export interface SectionRule {
@@ -27,9 +28,14 @@ interface SectionThreshold {
   readonly value: string;
 }
 
-export interface GaugeChartRuntime extends Omit<ChartConfiguration, "data" | "options"> {
+export interface GaugeChartConfiguration extends Omit<ChartConfiguration, "data" | "options"> {
   data?: GaugeChartData;
   options?: GaugeChartOptions;
+}
+
+export interface GaugeChartRuntime {
+  chartJsConfig: GaugeChartConfiguration;
+  background: Color;
 }
 
 interface GaugeChartData extends Omit<ChartData, "datasets"> {

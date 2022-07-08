@@ -157,7 +157,7 @@ export function createGaugeChart(
     sheetId,
     definition: {
       type: "gauge",
-      background: data.background || BACKGROUND_CHART_COLOR,
+      background: data.background,
       title: data.title || "",
       dataRange: data.dataRange || "",
       sectionRule: data.sectionRule || {
