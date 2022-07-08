@@ -19,6 +19,12 @@ const BASELINE_DESCR_FONT_RATIO = 0.9;
 const CHART_VERTICAL_PADDING_RATIO = 0.04;
 const CHART_HORIZONTAL_PADDING_RATIO = 0.05;
 
+/**
+ * Line height (in em)
+ * Having a line heigh =1em (=font size) don't work, the font will overflow.
+ */
+const LINE_HEIGHT = 1.2;
+
 css/* scss */ `
   div.o-scorecard {
     user-select: none;
@@ -38,14 +44,15 @@ css/* scss */ `
     .o-title-text {
       color: #757575;
       text-align: left;
-      height: 1em;
-      line-height: 1em;
+      height: ${LINE_HEIGHT + "em"};
+      line-height: ${LINE_HEIGHT + "em"};
       overflow: hidden;
       white-space: nowrap;
     }
 
     .o-key-text {
-      line-height: 1em;
+      line-height: ${LINE_HEIGHT + "em"};
+      height: ${LINE_HEIGHT + "em"};
       overflow: hidden;
       white-space: nowrap;
     }
@@ -61,8 +68,8 @@ css/* scss */ `
 
     .o-baseline-text {
       color: #757575;
-      line-height: 1em;
-      height: 1em;
+      line-height: ${LINE_HEIGHT + "em"};
+      height: ${LINE_HEIGHT + "em"};
       overflow: hidden;
       white-space: nowrap;
     }
@@ -90,11 +97,12 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get baseline() {
-    return this.runtime?.baselineDisplay || "";
+    const baseline = this.runtime?.baselineDisplay || "";
+    return baseline && this.baselineDescr ? baseline + " " : baseline;
   }
 
   get baselineDescr() {
-    return this.runtime?.baselineDescr ? " " + this.runtime.baselineDescr : "";
+    return this.runtime?.baselineDescr ? this.runtime.baselineDescr : "";
   }
 
   get baselineArrowDirection() {
@@ -147,24 +155,19 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
     // If the widest text overflows horizontally, scale it down, and apply the same scaling factors to all the other fonts.
     const maxLineWidth = this.figure.width * (1 - 2 * CHART_HORIZONTAL_PADDING_RATIO);
     const widestElement = this.getWidestElement();
-    const baseFontSize = widestElement.getElementMaxFontSize(
-      this.getDrawableHeight(),
-      this.runtime
-    );
+    const baseFontSize = widestElement.getElementMaxFontSize(this.getDrawableHeight(), this);
     const fontSizeMatchingWidth = getFontSizeMatchingWidth(
       maxLineWidth,
       baseFontSize,
-      (fontSize: number) => widestElement.getElementWidth(fontSize, this.ctx, this.runtime)
+      (fontSize: number) => widestElement.getElementWidth(fontSize, this.ctx, this)
     );
     let scalingFactor = fontSizeMatchingWidth / baseFontSize;
 
     // Fonts sizes in px
     const keyFontSize =
-      new KeyValueElement().getElementMaxFontSize(this.getDrawableHeight(), this.runtime) *
-      scalingFactor;
+      new KeyValueElement().getElementMaxFontSize(this.getDrawableHeight(), this) * scalingFactor;
     const baselineFontSize =
-      new BaselineElement().getElementMaxFontSize(this.getDrawableHeight(), this.runtime) *
-      scalingFactor;
+      new BaselineElement().getElementMaxFontSize(this.getDrawableHeight(), this) * scalingFactor;
 
     return {
       titleStyle: this.getTextStyle({
@@ -189,6 +192,7 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
     padding-top:${args.paddingTop || 0}px;
     padding-bottom:${args.paddingBottom || 0}px;
     font-size:${args.fontSize}px;
+    display:inline-block;
   `;
   }
 
@@ -197,7 +201,7 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
     let totalPaddingRatio = 2 * CHART_VERTICAL_PADDING_RATIO;
 
     let availableHeight = this.figure.height * (1 - totalPaddingRatio);
-    availableHeight -= this.title ? TITLE_FONT_SIZE : 0;
+    availableHeight -= this.title ? TITLE_FONT_SIZE * LINE_HEIGHT : 0;
     return availableHeight;
   }
 
@@ -206,8 +210,8 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
     const baseline = new BaselineElement();
     const keyValue = new KeyValueElement();
 
-    return baseline.getElementWidth(BASELINE_BOX_HEIGHT_RATIO, this.ctx, this.runtime) >
-      keyValue.getElementWidth(KEY_BOX_HEIGHT_RATIO, this.ctx, this.runtime)
+    return baseline.getElementWidth(BASELINE_BOX_HEIGHT_RATIO, this.ctx, this) >
+      keyValue.getElementWidth(KEY_BOX_HEIGHT_RATIO, this.ctx, this)
       ? baseline
       : keyValue;
   }
@@ -218,7 +222,7 @@ interface ScorecardScalableElement {
   getElementWidth: (
     fontSize: number,
     ctx: CanvasRenderingContext2D,
-    runtime?: ScorecardChartRuntime
+    chart: ScorecardChart
   ) => Pixel;
 
   /**
@@ -226,51 +230,44 @@ interface ScorecardScalableElement {
    *
    * This is computed such as all the height is taken by the elements, even if there is no title or baseline.
    */
-  getElementMaxFontSize: (availableHeight: Pixel, runtime?: ScorecardChartRuntime) => number;
+  getElementMaxFontSize: (availableHeight: Pixel, chart: ScorecardChart) => number;
 }
 
 class BaselineElement implements ScorecardScalableElement {
-  getElementWidth(
-    fontSize: number,
-    ctx: CanvasRenderingContext2D,
-    runtime?: ScorecardChartRuntime
-  ): Pixel {
-    if (!runtime) return 0;
-    const baselineStr = runtime.baselineDisplay;
-    // Put mock text to simulate the width of the up/down arrow + 2 spaces to overshoot a bit the size
-    // to make sure that the text doesn't overflow
-    const largeText = runtime.baselineArrow !== "neutral" ? "A  " + baselineStr : baselineStr;
+  getElementWidth(fontSize: number, ctx: CanvasRenderingContext2D, chart: ScorecardChart): Pixel {
+    if (!chart.runtime) return 0;
+    const baselineStr = chart.baseline;
+    // Put mock text to simulate the width of the up/down arrow
+    const largeText = chart.baselineArrowDirection !== "neutral" ? "A " + baselineStr : baselineStr;
     ctx.font = `${fontSize}px ${DEFAULT_FONT}`;
     let textWidth = ctx.measureText(largeText).width;
     // Baseline descr font size should be smaller than baseline font size
     ctx.font = `${fontSize * BASELINE_DESCR_FONT_RATIO}px ${DEFAULT_FONT}`;
-    textWidth += ctx.measureText(runtime.baselineDescr || "").width;
+    textWidth += ctx.measureText(chart.baselineDescr).width;
     return textWidth;
   }
 
-  getElementMaxFontSize(availableHeight: Pixel, runtime?: ScorecardChartRuntime): number {
-    if (!runtime) return 0;
-    const haveBaseline = runtime.baselineDisplay !== "" || runtime.baselineDescr;
-    return haveBaseline ? BASELINE_BOX_HEIGHT_RATIO * availableHeight : 0;
+  getElementMaxFontSize(availableHeight: Pixel, chart: ScorecardChart): number {
+    if (!chart.runtime) return 0;
+    const haveBaseline = chart.baseline !== "" || chart.baselineDescr;
+    const maxHeight = haveBaseline ? BASELINE_BOX_HEIGHT_RATIO * availableHeight : 0;
+    return maxHeight / LINE_HEIGHT;
   }
 }
 
 class KeyValueElement implements ScorecardScalableElement {
-  getElementWidth(
-    fontSize: number,
-    ctx: CanvasRenderingContext2D,
-    runtime?: ScorecardChartRuntime
-  ): Pixel {
-    if (!runtime) return 0;
-    const str = runtime.keyValue || "";
+  getElementWidth(fontSize: number, ctx: CanvasRenderingContext2D, chart: ScorecardChart): Pixel {
+    if (!chart.runtime) return 0;
+    const str = chart.keyValue || "";
     ctx.font = `${fontSize}px ${DEFAULT_FONT}`;
     return ctx.measureText(str).width;
   }
 
-  getElementMaxFontSize(availableHeight: Pixel, runtime?: ScorecardChartRuntime): number {
-    if (!runtime) return 0;
-    const haveBaseline = runtime.baselineDisplay !== "" || runtime.baselineDescr;
-    return haveBaseline ? KEY_BOX_HEIGHT_RATIO * availableHeight : availableHeight;
+  getElementMaxFontSize(availableHeight: Pixel, chart: ScorecardChart): number {
+    if (!chart.runtime) return 0;
+    const haveBaseline = chart.baseline !== "" || chart.baselineDescr;
+    const maxHeight = haveBaseline ? KEY_BOX_HEIGHT_RATIO * availableHeight : availableHeight;
+    return maxHeight / LINE_HEIGHT;
   }
 }
 

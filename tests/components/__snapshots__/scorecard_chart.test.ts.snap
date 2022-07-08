@@ -59,6 +59,7 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
     padding-top:0px;
     padding-bottom:0px;
     font-size:18px;
+    display:inline-block;
   "
       >
         hello
@@ -67,7 +68,7 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
       <div
         class="o-scorecard-content"
         style="
-      height:290.2px;
+      height:286.59999999999997px;
     "
       >
         <div
@@ -75,17 +76,20 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
           style="
     padding-top:0px;
     padding-bottom:0px;
-    font-size:69.43462681361606px;
+    font-size:64.46918480282739px;
+    display:inline-block;
   "
         >
           2
         </div>
+        
         <div
           class="o-baseline-text"
           style="
     padding-top:0px;
     padding-bottom:0px;
-    font-size:37.3878759765625px;
+    font-size:34.714176432291666px;
+    display:inline-block;
   "
         >
           <svg
@@ -105,17 +109,18 @@ exports[`Scorecard charts Scorecard snapshot 1`] = `
           <span
             style="color:#00A04A"
           >
-            1
+            1 
           </span>
           
           <span
             style="
     padding-top:0px;
     padding-bottom:0px;
-    font-size:33.64908837890625px;
+    font-size:31.2427587890625px;
+    display:inline-block;
   "
           >
-             description
+            description
           </span>
         </div>
         

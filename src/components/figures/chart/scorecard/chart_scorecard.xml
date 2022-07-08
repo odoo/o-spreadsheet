@@ -4,7 +4,7 @@
       <t t-set="textStyles" t-value="getTextStyles()"/>
       <div t-if="title" class="o-title-text" t-esc="title" t-att-style="textStyles.titleStyle"/>
       <div class="o-scorecard-content" t-att-style="chartContentStyle">
-        <div class="o-key-text" t-esc="keyValue" t-att-style="textStyles.keyStyle"/>
+        <div class="o-key-text" t-if="keyValue" t-esc="keyValue" t-att-style="textStyles.keyStyle"/>
         <t t-if="baseline || baselineDescr">
           <div class="o-baseline-text" t-att-style="textStyles.baselineStyle">
             <t t-if="baseline">
