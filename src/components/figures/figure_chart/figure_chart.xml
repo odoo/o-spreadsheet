@@ -15,8 +15,8 @@
       </div>
       <t
         t-component="chartComponent"
-        figureId="props.figureId"
-        t-key="props.figureId + '-' + chartType"
+        figure="this.props.figure"
+        t-key="this.props.figure.id + '-' + chartType"
       />
 
       <Menu
