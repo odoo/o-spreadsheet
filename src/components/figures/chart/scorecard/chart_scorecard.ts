@@ -2,7 +2,7 @@ import { Component } from "@odoo/owl";
 import { DEFAULT_FONT } from "../../../../constants";
 import { getFontSizeMatchingWidth } from "../../../../helpers";
 import { chartComponentRegistry } from "../../../../registries";
-import { Pixel, SpreadsheetChildEnv, UID } from "../../../../types";
+import { Figure, Pixel, SpreadsheetChildEnv } from "../../../../types";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 import { css } from "../../../helpers/css";
 
@@ -77,7 +77,7 @@ css/* scss */ `
 `;
 
 interface Props {
-  figureId: UID;
+  figure: Figure;
 }
 
 export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
@@ -85,7 +85,7 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   private ctx = document.createElement("canvas").getContext("2d")!;
 
   get runtime(): ScorecardChartRuntime | undefined {
-    return this.env.model.getters.getChartRuntime(this.props.figureId) as ScorecardChartRuntime;
+    return this.env.model.getters.getChartRuntime(this.props.figure.id) as ScorecardChartRuntime;
   }
 
   get title() {
@@ -118,14 +118,7 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get figure() {
-    const figure = this.env.model.getters.getFigure(
-      this.env.model.getters.getActiveSheetId(),
-      this.props.figureId
-    );
-    if (!figure) {
-      throw new Error("No figure found");
-    }
-    return figure;
+    return this.props.figure;
   }
 
   get chartStyle() {

@@ -2,12 +2,12 @@ import { Component, onMounted, onPatched, useRef } from "@odoo/owl";
 import Chart, { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../../constants";
 import { chartComponentRegistry } from "../../../../registries/chart_types";
-import { SpreadsheetChildEnv, UID } from "../../../../types";
+import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { GaugeChartOptions } from "../../../../types/chart/gauge_chart";
 
 interface Props {
-  figureId: UID;
+  figure: Figure;
 }
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
@@ -17,7 +17,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   private chart?: Chart;
 
   get background(): string {
-    const definition = this.env.model.getters.getChartDefinition(this.props.figureId);
+    const definition = this.env.model.getters.getChartDefinition(this.props.figure.id);
     return (definition && definition.background) || BACKGROUND_CHART_COLOR;
   }
 
@@ -26,7 +26,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get chartRuntime(): ChartJSRuntime {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.figureId);
+    const runtime = this.env.model.getters.getChartRuntime(this.props.figure.id);
     if (!("type" in runtime)) {
       throw new Error("Unsupported chart runtime");
     }

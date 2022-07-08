@@ -3,7 +3,7 @@ import { MENU_WIDTH } from "../../../constants";
 import { chartComponentRegistry } from "../../../registries/chart_types";
 import { MenuItemRegistry } from "../../../registries/index";
 import { _lt } from "../../../translation";
-import { ChartType, DOMCoordinates, SpreadsheetChildEnv, UID } from "../../../types";
+import { ChartType, DOMCoordinates, Figure, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 import { useAbsolutePosition } from "../../helpers/position_hook";
 import { Menu, MenuState } from "../../menu/menu";
@@ -39,7 +39,7 @@ css/* scss */ `
 `;
 
 interface Props {
-  figureId: UID;
+  figure: Figure;
   sidePanelIsOpen: boolean;
   onFigureDeleted: () => void;
 }
@@ -59,7 +59,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
     registry.add("edit", {
       name: _lt("Edit"),
       sequence: 1,
-      action: () => this.env.openSidePanel("ChartPanel", { figureId: this.props.figureId }),
+      action: () => this.env.openSidePanel("ChartPanel", { figureId: this.props.figure.id }),
     });
     registry.add("delete", {
       name: _lt("Delete"),
@@ -67,10 +67,10 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
       action: () => {
         this.env.model.dispatch("DELETE_FIGURE", {
           sheetId: this.env.model.getters.getActiveSheetId(),
-          id: this.props.figureId,
+          id: this.props.figure.id,
         });
         if (this.props.sidePanelIsOpen) {
-          this.env.toggleSidePanel("ChartPanel", { figureId: this.props.figureId });
+          this.env.toggleSidePanel("ChartPanel", { figureId: this.props.figure.id });
         }
         this.props.onFigureDeleted();
       },
@@ -80,7 +80,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
       sequence: 11,
       action: () => {
         this.env.model.dispatch("REFRESH_CHART", {
-          id: this.props.figureId,
+          id: this.props.figure.id,
         });
       },
     });
@@ -88,7 +88,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get chartType(): ChartType {
-    return this.env.model.getters.getChartType(this.props.figureId);
+    return this.env.model.getters.getChartType(this.props.figure.id);
   }
 
   onContextMenu(ev: MouseEvent) {
