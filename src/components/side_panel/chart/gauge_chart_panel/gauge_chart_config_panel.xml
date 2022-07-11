@@ -4,7 +4,7 @@
       <div class="o-section o-data-series">
         <div class="o-section-title">Data range</div>
         <SelectionInput
-          ranges="[props.definition.dataRange]"
+          ranges="[props.definition.dataRange || '']"
           isInvalid="isDataRangeInvalid"
           hasSingleRange="true"
           required="true"
