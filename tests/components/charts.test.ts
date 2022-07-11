@@ -846,6 +846,24 @@ describe("figures", () => {
     }
   );
 
+  test.each(["basicChart", "scorecard", "gauge"])(
+    "Can edit a chart with empty main range without traceback",
+    async (chartType: string) => {
+      createTestChart(chartType);
+      updateChart(model, chartId, { keyValue: undefined, dataRange: undefined, dataSets: [] });
+      await nextTick();
+      await simulateClick(".o-figure");
+      await simulateClick(".o-chart-menu-item");
+      await simulateClick(".o-menu div[data-name='edit']");
+      await nextTick();
+
+      const input = fixture.querySelector("input.o-required");
+      await simulateClick(input);
+      await nextTick();
+      expect(fixture.querySelector(".o-figure")).toBeTruthy();
+    }
+  );
+
   describe("Scorecard specific tests", () => {
     test("can edit chart baseline colors", async () => {
       createTestChart("scorecard");
