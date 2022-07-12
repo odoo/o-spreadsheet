@@ -324,17 +324,17 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
           <div class="o-tool" title="${GenericTerms.Bold}" t-att-class="{active:style.bold}" t-on-click="(ev) => this.toogleStyle('bold', ev)">${icons.BOLD_ICON}</div>
           <div class="o-tool" title="${GenericTerms.Italic}" t-att-class="{active:style.italic}" t-on-click="(ev) => this.toogleStyle('italic', ev)">${icons.ITALIC_ICON}</div>
           <div class="o-tool" title="${GenericTerms.Strikethrough}"  t-att-class="{active:style.strikethrough}" t-on-click="(ev) => this.toogleStyle('strikethrough', ev)">${icons.STRIKE_ICON}</div>
-          <div class="o-tool o-dropdown o-with-color">
-            <span t-attf-style="border-color:{{textColor}}" title="${GenericTerms.TextColor}" t-on-click="(ev) => this.toggleDropdownTool('textColorTool', ev)">${icons.TEXT_COLOR_ICON}</span>
+          <div class="o-tool o-dropdown o-with-color" title="${GenericTerms.TextColor}" t-on-click="(ev) => this.toggleDropdownTool('textColorTool', ev)">
+            <span t-attf-style="border-color:{{textColor}}">${icons.TEXT_COLOR_ICON}</span>
             <ColorPicker t-if="state.activeTool === 'textColorTool'" onColorPicked="(color) => this.setColor('textColor', color)" t-key="textColor"/>
           </div>
           <div class="o-divider"/>
-          <div class="o-tool  o-dropdown o-with-color">
-            <span t-attf-style="border-color:{{fillColor}}" title="${GenericTerms.FillColor}" t-on-click="(ev) => this.toggleDropdownTool('fillColorTool', ev)">${icons.FILL_COLOR_ICON}</span>
+          <div class="o-tool  o-dropdown o-with-color" title="${GenericTerms.FillColor}" t-on-click="(ev) => this.toggleDropdownTool('fillColorTool', ev)">
+            <span t-attf-style="border-color:{{fillColor}}">${icons.FILL_COLOR_ICON}</span>
             <ColorPicker t-if="state.activeTool === 'fillColorTool'" onColorPicked="(color) => this.setColor('fillColor', color)" t-key="fillColor"/>
           </div>
-          <div class="o-tool o-dropdown">
-            <span title="${TopBarTerms.Borders}" t-on-click="(ev) => this.toggleDropdownTool('borderTool', ev)">${icons.BORDERS_ICON}</span>
+          <div class="o-tool o-dropdown" t-on-click="(ev) => this.toggleDropdownTool('borderTool', ev)" title="${TopBarTerms.Borders}">
+            <span>${icons.BORDERS_ICON}</span>
             <div class="o-dropdown-content o-border" t-if="state.activeTool === 'borderTool'">
               <div class="o-dropdown-line">
                 <span class="o-line-item" t-on-click="(ev) => this.setBorder('all', ev)">${icons.BORDERS_ICON}</span>
