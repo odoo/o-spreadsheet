@@ -129,17 +129,17 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           <div class="o-tool" title="${Terms.Bold}" t-att-class="{active:style.bold}" t-on-click="toogleStyle('bold')">${icons.BOLD_ICON}</div>
           <div class="o-tool" title="${Terms.Italic}" t-att-class="{active:style.italic}" t-on-click="toogleStyle('italic')">${icons.ITALIC_ICON}</div>
           <div class="o-tool" title="${Terms.Strikethrough}"  t-att-class="{active:style.strikethrough}" t-on-click="toogleStyle('strikethrough')">${icons.STRIKE_ICON}</div>
-          <div class="o-tool o-dropdown o-with-color">
-            <span t-attf-style="border-color:{{textColor}}" title="${Terms.TextColor}" t-on-click="toggleDropdownTool('textColorTool')">${icons.TEXT_COLOR_ICON}</span>
+          <div class="o-tool o-dropdown o-with-color" title="${Terms.TextColor}" t-on-click="toggleDropdownTool('textColorTool')" >
+            <span t-attf-style="border-color:{{textColor}}">${icons.TEXT_COLOR_ICON}</span>
             <ColorPicker t-if="state.activeTool === 'textColorTool'" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
           </div>
           <div class="o-divider"/>
-          <div class="o-tool  o-dropdown o-with-color">
-            <span t-attf-style="border-color:{{fillColor}}" title="${Terms.FillColor}" t-on-click="toggleDropdownTool('fillColorTool')">${icons.FILL_COLOR_ICON}</span>
+          <div class="o-tool  o-dropdown o-with-color" title="${Terms.FillColor}" t-on-click="toggleDropdownTool('fillColorTool')">
+            <span t-attf-style="border-color:{{fillColor}}">${icons.FILL_COLOR_ICON}</span>
             <ColorPicker t-if="state.activeTool === 'fillColorTool'" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
           </div>
-          <div class="o-tool o-dropdown">
-            <span title="${Terms.Borders}" t-on-click="toggleDropdownTool('borderTool')">${icons.BORDERS_ICON}</span>
+          <div class="o-tool o-dropdown" t-on-click="toggleDropdownTool('borderTool')" title="${Terms.Borders}">
+            <span>${icons.BORDERS_ICON}</span>
             <div class="o-dropdown-content o-border" t-if="state.activeTool === 'borderTool'">
               <div class="o-dropdown-line">
                 <span class="o-line-item" t-on-click="setBorder('all')">${icons.BORDERS_ICON}</span>
