@@ -87,7 +87,7 @@ describe("TopBar component", () => {
     await parent.mount(fixture);
 
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
-    fixture.querySelector('span[title="Borders"]')!.dispatchEvent(new Event("click"));
+    fixture.querySelector('.o-tool[title="Borders"]')!.dispatchEvent(new Event("click"));
     await nextTick();
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
     expect(fixture.querySelectorAll(".o-line-item").length).not.toBe(0);
@@ -247,10 +247,10 @@ describe("TopBar component", () => {
     await parent.mount(fixture);
 
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
-    fixture.querySelector('span[title="Borders"]')!.dispatchEvent(new Event("click"));
+    fixture.querySelector('.o-tool[title="Borders"]')!.dispatchEvent(new Event("click"));
     await nextTick();
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
-    fixture.querySelector('span[title="Borders"]')!.dispatchEvent(new Event("click"));
+    fixture.querySelector('.o-tool[title="Borders"]')!.dispatchEvent(new Event("click"));
     await nextTick();
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
   });
