@@ -146,11 +146,11 @@
             t-on-click="(ev) => this.toogleStyle('strikethrough', ev)">
             <t t-call="o-spreadsheet-Icon.STRIKE"/>
           </div>
-          <div class="o-tool o-dropdown o-with-color">
-            <span
-              t-attf-style="border-color:{{textColor}}"
-              title="Text Color"
-              t-on-click="(ev) => this.toggleDropdownTool('textColorTool', ev)">
+          <div
+            class="o-tool o-dropdown o-with-color"
+            title="Text Color"
+            t-on-click="(ev) => this.toggleDropdownTool('textColorTool', ev)">
+            <span t-attf-style="border-color:{{textColor}}">
               <t t-call="o-spreadsheet-Icon.TEXT_COLOR"/>
             </span>
             <ColorPicker
@@ -160,11 +160,11 @@
             />
           </div>
           <div class="o-divider"/>
-          <div class="o-tool  o-dropdown o-with-color">
-            <span
-              t-attf-style="border-color:{{fillColor}}"
-              title="Fill Color"
-              t-on-click="(ev) => this.toggleDropdownTool('fillColorTool', ev)">
+          <div
+            class="o-tool  o-dropdown o-with-color"
+            title="Fill Color"
+            t-on-click="(ev) => this.toggleDropdownTool('fillColorTool', ev)">
+            <span t-attf-style="border-color:{{fillColor}}">
               <t t-call="o-spreadsheet-Icon.FILL_COLOR"/>
             </span>
             <ColorPicker
@@ -173,8 +173,11 @@
               t-key="fillColor"
             />
           </div>
-          <div class="o-tool o-dropdown">
-            <span title="Borders" t-on-click="(ev) => this.toggleDropdownTool('borderTool', ev)">
+          <div
+            class="o-tool o-dropdown"
+            title="Borders"
+            t-on-click="(ev) => this.toggleDropdownTool('borderTool', ev)">
+            <span>
               <t t-call="o-spreadsheet-Icon.BORDERS"/>
             </span>
             <div
