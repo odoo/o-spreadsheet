@@ -341,10 +341,10 @@ exports[`TopBar component can set cell format 1`] = `
           </div>
           <div
             class="o-tool o-dropdown o-with-color"
+            title="Text Color"
           >
             <span
               style="border-color:black"
-              title="Text Color"
             >
               <svg
                 class="o-icon"
@@ -364,10 +364,10 @@ exports[`TopBar component can set cell format 1`] = `
           />
           <div
             class="o-tool  o-dropdown o-with-color"
+            title="Fill Color"
           >
             <span
               style="border-color:white"
-              title="Fill Color"
             >
               <svg
                 class="o-icon"
@@ -383,10 +383,9 @@ exports[`TopBar component can set cell format 1`] = `
           </div>
           <div
             class="o-tool o-dropdown"
+            title="Borders"
           >
-            <span
-              title="Borders"
-            >
+            <span>
               <svg
                 class="o-icon"
               >
@@ -704,10 +703,10 @@ exports[`TopBar component simple rendering 1`] = `
       </div>
       <div
         class="o-tool o-dropdown o-with-color"
+        title="Text Color"
       >
         <span
           style="border-color:black"
-          title="Text Color"
         >
           <svg
             class="o-icon"
@@ -727,10 +726,10 @@ exports[`TopBar component simple rendering 1`] = `
       />
       <div
         class="o-tool  o-dropdown o-with-color"
+        title="Fill Color"
       >
         <span
           style="border-color:white"
-          title="Fill Color"
         >
           <svg
             class="o-icon"
@@ -746,10 +745,9 @@ exports[`TopBar component simple rendering 1`] = `
       </div>
       <div
         class="o-tool o-dropdown"
+        title="Borders"
       >
-        <span
-          title="Borders"
-        >
+        <span>
           <svg
             class="o-icon"
           >
