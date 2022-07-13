@@ -14,7 +14,7 @@ export type ArgType =
   | "RANGE<STRING>"
   | "META";
 
-export interface Arg {
+export interface ArgDefinition {
   repeating?: boolean;
   optional?: boolean;
   lazy?: boolean;
@@ -37,7 +37,7 @@ export interface AddFunctionDescription {
   description: string;
   compute: (this: EvalContext, ...args: (Argument | (() => Argument))[]) => any;
   category?: string;
-  args: Arg[];
+  args: ArgDefinition[];
   returns: [ArgType];
   returnFormat?: ReturnFormatType.FormatFromArgument | ReturnSpecificFormat;
   isExported?: boolean;
