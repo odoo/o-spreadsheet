@@ -1,5 +1,5 @@
 import { _lt } from "../translation";
-import { AddFunctionDescription, Arg, ArgType, FunctionDescription } from "../types";
+import { AddFunctionDescription, ArgDefinition, ArgType, FunctionDescription } from "../types";
 
 //------------------------------------------------------------------------------
 // Arg description DSL
@@ -26,9 +26,9 @@ const ARG_TYPES: ArgType[] = [
  * Its job is to convert a textual description of the list of arguments into an
  * actual array of Arg, suitable for consumption.
  */
-export function args(strings: string): Arg[] {
+export function args(strings: string): ArgDefinition[] {
   let lines = strings.split("\n");
-  const result: Arg[] = [];
+  const result: ArgDefinition[] = [];
   for (let l of lines) {
     l = l.trim();
     if (l) {
@@ -38,7 +38,7 @@ export function args(strings: string): Arg[] {
   return result;
 }
 
-function makeArg(str: string): Arg {
+function makeArg(str: string): ArgDefinition {
   let parts = str.match(ARG_REGEXP)!;
   let name = parts[1].trim();
   let types: ArgType[] = [];
@@ -65,7 +65,7 @@ function makeArg(str: string): Arg {
     }
   }
   let description = parts[3].trim();
-  const result: Arg = {
+  const result: ArgDefinition = {
     name,
     description,
     type: types,
@@ -160,7 +160,7 @@ function argTargeting(countArg, repeatingArg): (argPosition: number) => number {
 // Argument validation
 //------------------------------------------------------------------------------
 
-export function validateArguments(args: Arg[]) {
+export function validateArguments(args: ArgDefinition[]) {
   let previousArgRepeating: boolean | undefined = false;
   let previousArgOptional: boolean | undefined = false;
   let previousArgDefault: boolean | undefined = false;
