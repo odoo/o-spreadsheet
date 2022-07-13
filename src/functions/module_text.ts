@@ -1,5 +1,5 @@
 import { _lt } from "../translation";
-import { AddFunctionDescription, Argument, ArgValue } from "../types";
+import { AddFunctionDescription, ArgValue, PrimitiveArgValue } from "../types";
 import { args } from "./arguments";
 import { assert, reduceAny, toBoolean, toNumber, toString } from "./helpers";
 
@@ -16,7 +16,7 @@ export const CHAR: AddFunctionDescription = {
       )}
   `),
   returns: ["STRING"],
-  compute: function (tableNumber: ArgValue): string {
+  compute: function (tableNumber: PrimitiveArgValue): string {
     const _tableNumber = Math.trunc(toNumber(tableNumber));
     assert(
       () => _tableNumber >= 1,
@@ -37,7 +37,7 @@ export const CONCATENATE: AddFunctionDescription = {
       string2 (string, range<string>, repeating) ${_lt("More strings to append in sequence.")}
   `),
   returns: ["STRING"],
-  compute: function (...values: Argument[]): string {
+  compute: function (...values: ArgValue[]): string {
     return reduceAny(values, (acc, a) => acc + toString(a), "");
   },
   isExported: true,
@@ -53,7 +53,7 @@ export const EXACT: AddFunctionDescription = {
       string2 (string) ${_lt("The second string to compare.")}
   `),
   returns: ["BOOLEAN"],
-  compute: function (string1: ArgValue, string2: ArgValue): boolean {
+  compute: function (string1: PrimitiveArgValue, string2: PrimitiveArgValue): boolean {
     return toString(string1) === toString(string2);
   },
   isExported: true,
@@ -73,9 +73,9 @@ export const FIND: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (
-    searchFor: ArgValue,
-    textToSearch: ArgValue,
-    startingAt: ArgValue = DEFAULT_STARTING_AT
+    searchFor: PrimitiveArgValue,
+    textToSearch: PrimitiveArgValue,
+    startingAt: PrimitiveArgValue = DEFAULT_STARTING_AT
   ): number {
     const _searchFor = toString(searchFor);
     const _textToSearch = toString(textToSearch);
@@ -118,7 +118,7 @@ export const JOIN: AddFunctionDescription = {
       )}
   `),
   returns: ["STRING"],
-  compute: function (delimiter: ArgValue, ...valuesOrArrays: Argument[]): string {
+  compute: function (delimiter: PrimitiveArgValue, ...valuesOrArrays: ArgValue[]): string {
     const _delimiter = toString(delimiter);
     return reduceAny(valuesOrArrays, (acc, a) => (acc ? acc + _delimiter : "") + toString(a), "");
   },
@@ -136,7 +136,7 @@ export const LEFT: AddFunctionDescription = {
       )}
   `),
   returns: ["STRING"],
-  compute: function (text: ArgValue, ...args: ArgValue[]): string {
+  compute: function (text: PrimitiveArgValue, ...args: PrimitiveArgValue[]): string {
     const _numberOfCharacters = args.length ? toNumber(args[0]) : 1;
     assert(
       () => _numberOfCharacters >= 0,
@@ -156,7 +156,7 @@ export const LEN: AddFunctionDescription = {
       text (string) ${_lt("The string whose length will be returned.")}
   `),
   returns: ["NUMBER"],
-  compute: function (text: ArgValue): number {
+  compute: function (text: PrimitiveArgValue): number {
     return toString(text).length;
   },
   isExported: true,
@@ -171,7 +171,7 @@ export const LOWER: AddFunctionDescription = {
       text (string) ${_lt("The string to convert to lowercase.")}
   `),
   returns: ["STRING"],
-  compute: function (text: ArgValue): string {
+  compute: function (text: PrimitiveArgValue): string {
     return toString(text).toLowerCase();
   },
   isExported: true,
@@ -190,10 +190,10 @@ export const REPLACE: AddFunctionDescription = {
   `),
   returns: ["STRING"],
   compute: function (
-    text: ArgValue,
-    position: ArgValue,
-    length: ArgValue,
-    newText: ArgValue
+    text: PrimitiveArgValue,
+    position: PrimitiveArgValue,
+    length: PrimitiveArgValue,
+    newText: PrimitiveArgValue
   ): string {
     const _position = toNumber(position);
     assert(
@@ -221,7 +221,7 @@ export const RIGHT: AddFunctionDescription = {
       )}
   `),
   returns: ["STRING"],
-  compute: function (text: ArgValue, ...args: ArgValue[]): string {
+  compute: function (text: PrimitiveArgValue, ...args: PrimitiveArgValue[]): string {
     const _numberOfCharacters = args.length ? toNumber(args[0]) : 1;
     assert(
       () => _numberOfCharacters >= 0,
@@ -248,9 +248,9 @@ export const SEARCH: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (
-    searchFor: ArgValue,
-    textToSearch: ArgValue,
-    startingAt: ArgValue = DEFAULT_STARTING_AT
+    searchFor: PrimitiveArgValue,
+    textToSearch: PrimitiveArgValue,
+    startingAt: PrimitiveArgValue = DEFAULT_STARTING_AT
   ): number {
     const _searchFor = toString(searchFor).toLowerCase();
     const _textToSearch = toString(textToSearch).toLowerCase();
@@ -293,10 +293,10 @@ export const SUBSTITUTE: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (
-    textToSearch: ArgValue,
-    searchFor: ArgValue,
-    replaceWith: ArgValue,
-    occurrenceNumber: ArgValue
+    textToSearch: PrimitiveArgValue,
+    searchFor: PrimitiveArgValue,
+    replaceWith: PrimitiveArgValue,
+    occurrenceNumber: PrimitiveArgValue
   ): string {
     const _occurrenceNumber = toNumber(occurrenceNumber);
 
@@ -342,9 +342,9 @@ export const TEXTJOIN: AddFunctionDescription = {
   `),
   returns: ["STRING"],
   compute: function (
-    delimiter: ArgValue,
-    ignoreEmpty: ArgValue,
-    ...textsOrArrays: Argument[]
+    delimiter: PrimitiveArgValue,
+    ignoreEmpty: PrimitiveArgValue,
+    ...textsOrArrays: ArgValue[]
   ): string {
     const _delimiter = toString(delimiter);
     const _ignoreEmpty = toBoolean(ignoreEmpty);
@@ -368,7 +368,7 @@ export const TRIM: AddFunctionDescription = {
       text (string) ${_lt("The text or reference to a cell containing text to be trimmed.")}
   `),
   returns: ["STRING"],
-  compute: function (text: ArgValue): string {
+  compute: function (text: PrimitiveArgValue): string {
     return toString(text).trim();
   },
   isExported: true,
@@ -383,7 +383,7 @@ export const UPPER: AddFunctionDescription = {
       text (string) ${_lt("The string to convert to uppercase.")}
   `),
   returns: ["STRING"],
-  compute: function (text: ArgValue): string {
+  compute: function (text: PrimitiveArgValue): string {
     return toString(text).toUpperCase();
   },
   isExported: true,

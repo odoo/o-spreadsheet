@@ -3,7 +3,7 @@ import { _lt } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
-  Argument,
+  ArgValue,
   ComputeFunction,
   ComputeFunctionArg,
   EvalContext,
@@ -82,7 +82,7 @@ class FunctionRegistry extends Registry<FunctionDescription> {
   }
 }
 
-function extractArgValuesFromArgs(args: ComputeFunctionArg<Arg>[]): ComputeFunctionArg<Argument>[] {
+function extractArgValuesFromArgs(args: ComputeFunctionArg<Arg>[]): ComputeFunctionArg<ArgValue>[] {
   return args.map((arg) => {
     if (arg === undefined) {
       return undefined;
@@ -94,7 +94,7 @@ function extractArgValuesFromArgs(args: ComputeFunctionArg<Arg>[]): ComputeFunct
   });
 }
 
-function _extractArgValuesFromArgs(arg: Arg): Argument {
+function _extractArgValuesFromArgs(arg: Arg): ArgValue {
   if (Array.isArray(arg)) {
     return arg.map((col) => col.map((simpleArg) => simpleArg?.value));
   }

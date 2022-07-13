@@ -2,7 +2,7 @@
 import { numberToJsDate, parseDateTime } from "../helpers/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _lt } from "../translation";
-import { ArgRange, Argument, ArgValue, CellValue } from "../types";
+import { ArgValue, CellValue, MatrixArgValue, PrimitiveArgValue } from "../types";
 
 export function assert(condition: () => boolean, message: string): void {
   if (!condition()) {
@@ -104,9 +104,9 @@ export function toJsDate(value: string | number | boolean | null | undefined): D
 // VISIT FUNCTIONS
 // -----------------------------------------------------------------------------
 function visitArgs(
-  args: Argument[],
+  args: ArgValue[],
   cellCb: (a: CellValue | undefined) => void,
-  dataCb: (a: ArgValue) => void
+  dataCb: (a: PrimitiveArgValue) => void
 ): void {
   for (let arg of args) {
     if (Array.isArray(arg)) {
@@ -125,11 +125,11 @@ function visitArgs(
   }
 }
 
-export function visitAny(args: Argument[], cb: (a: ArgValue | undefined) => void): void {
+export function visitAny(args: ArgValue[], cb: (a: PrimitiveArgValue | undefined) => void): void {
   visitArgs(args, cb, cb);
 }
 
-export function visitNumbers(args: Argument[], cb: (arg: number) => void): void {
+export function visitNumbers(args: ArgValue[], cb: (arg: number) => void): void {
   visitArgs(
     args,
     (cellValue) => {
@@ -143,7 +143,7 @@ export function visitNumbers(args: Argument[], cb: (arg: number) => void): void 
   );
 }
 
-export function visitBooleans(args: Argument[], cb: (a: boolean) => void): void {
+export function visitBooleans(args: ArgValue[], cb: (a: boolean) => void): void {
   visitArgs(
     args,
     (cellValue) => {
@@ -167,9 +167,9 @@ export function visitBooleans(args: Argument[], cb: (a: boolean) => void): void 
 // -----------------------------------------------------------------------------
 
 function reduceArgs<T>(
-  args: Argument[],
+  args: ArgValue[],
   cellCb: (acc: T, a: CellValue | undefined) => T,
-  dataCb: (acc: T, a: ArgValue) => T,
+  dataCb: (acc: T, a: PrimitiveArgValue) => T,
   initialValue: T
 ): T {
   let val = initialValue;
@@ -192,15 +192,15 @@ function reduceArgs<T>(
 }
 
 export function reduceAny<T>(
-  args: Argument[],
-  cb: (acc: T, a: ArgValue | undefined) => T,
+  args: ArgValue[],
+  cb: (acc: T, a: PrimitiveArgValue | undefined) => T,
   initialValue: T
 ): T {
   return reduceArgs(args, cb, cb, initialValue);
 }
 
 export function reduceNumbers(
-  args: Argument[],
+  args: ArgValue[],
   cb: (acc: number, a: number) => number,
   initialValue: number
 ): number {
@@ -220,7 +220,7 @@ export function reduceNumbers(
 }
 
 export function reduceNumbersTextAs0(
-  args: Argument[],
+  args: ArgValue[],
   cb: (acc: number, a: number) => number,
   initialValue: number
 ): number {
@@ -254,9 +254,9 @@ export function reduceNumbersTextAs0(
  * It is mainly used to bypass argument evaluation for functions like OR or AND.
  */
 function conditionalVisitArgs(
-  args: Argument[],
+  args: ArgValue[],
   cellCb: (a: CellValue | undefined) => boolean,
-  dataCb: (a: ArgValue) => boolean
+  dataCb: (a: PrimitiveArgValue) => boolean
 ): void {
   for (let arg of args) {
     if (Array.isArray(arg)) {
@@ -275,7 +275,7 @@ function conditionalVisitArgs(
   }
 }
 
-export function conditionalVisitBoolean(args: Argument[], cb: (a: boolean) => boolean): void {
+export function conditionalVisitBoolean(args: ArgValue[], cb: (a: boolean) => boolean): void {
   return conditionalVisitArgs(
     args,
     (ArgValue) => {
@@ -309,7 +309,7 @@ interface Predicate {
 
 function getPredicate(descr: string, isQuery: boolean): Predicate {
   let operator: Operator;
-  let operand: ArgValue;
+  let operand: PrimitiveArgValue;
 
   let subString = descr.substring(0, 2);
 
@@ -433,7 +433,7 @@ function evaluatePredicate(value: CellValue | undefined, criterion: Predicate): 
  * (Ex4 isQuery = false, predicate = "abc", element = "abc": predicate match the element).
  */
 export function visitMatchingRanges(
-  args: Argument[],
+  args: ArgValue[],
   cb: (i: number, j: number) => void,
   isQuery: boolean = false
 ): void {
@@ -445,8 +445,8 @@ export function visitMatchingRanges(
     );
   }
 
-  const dimRow = (args[0] as ArgRange).length;
-  const dimCol = (args[0] as ArgRange)[0].length;
+  const dimRow = (args[0] as MatrixArgValue).length;
+  const dimCol = (args[0] as MatrixArgValue)[0].length;
 
   let predicates: Predicate[] = [];
 
@@ -463,7 +463,7 @@ export function visitMatchingRanges(
       );
     }
 
-    const description = toString(args[i + 1] as ArgValue);
+    const description = toString(args[i + 1] as PrimitiveArgValue);
     predicates.push(getPredicate(description, isQuery));
   }
 
@@ -471,7 +471,7 @@ export function visitMatchingRanges(
     for (let j = 0; j < dimCol; j++) {
       let validatedPredicates = true;
       for (let k = 0; k < countArg - 1; k += 2) {
-        const criteriaValue = (args[k] as ArgRange)[i][j];
+        const criteriaValue = (args[k] as MatrixArgValue)[i][j];
         const criterion = predicates[k / 2];
         validatedPredicates = evaluatePredicate(criteriaValue, criterion);
         if (!validatedPredicates) {
@@ -506,7 +506,7 @@ export function visitMatchingRanges(
  */
 export function dichotomicPredecessorSearch(
   range: (CellValue | undefined)[],
-  target: ArgValue
+  target: PrimitiveArgValue
 ): number {
   if (target === null) {
     return -1;

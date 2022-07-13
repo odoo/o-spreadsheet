@@ -1,5 +1,5 @@
 import { _lt } from "../translation";
-import { AddFunctionDescription, Argument, ArgValue, ReturnValue } from "../types";
+import { AddFunctionDescription, ArgValue, PrimitiveArgValue, ReturnValue } from "../types";
 import { args } from "./arguments";
 import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
 
@@ -17,7 +17,7 @@ export const AND: AddFunctionDescription = {
       )}
     `),
   returns: ["BOOLEAN"],
-  compute: function (...logicalExpressions: Argument[]): boolean {
+  compute: function (...logicalExpressions: ArgValue[]): boolean {
     let foundBoolean = false;
     let acc = true;
     conditionalVisitBoolean(logicalExpressions, (arg) => {
@@ -49,9 +49,9 @@ export const IF: AddFunctionDescription = {
     `),
   returns: ["ANY"],
   compute: function (
-    logicalExpression: ArgValue,
-    valueIfTrue: () => ArgValue,
-    valueIfFalse: () => ArgValue = () => false
+    logicalExpression: PrimitiveArgValue,
+    valueIfTrue: () => PrimitiveArgValue,
+    valueIfFalse: () => PrimitiveArgValue = () => false
   ): ReturnValue {
     const result = toBoolean(logicalExpression) ? valueIfTrue() : valueIfFalse();
     return result === null || result === undefined ? "" : result;
@@ -71,7 +71,10 @@ export const IFERROR: AddFunctionDescription = {
   )}
   `),
   returns: ["ANY"],
-  compute: function (value: () => ArgValue, valueIfError: () => ArgValue = () => ""): ReturnValue {
+  compute: function (
+    value: () => PrimitiveArgValue,
+    valueIfError: () => PrimitiveArgValue = () => ""
+  ): ReturnValue {
     let result;
     try {
       result = value();
@@ -101,7 +104,7 @@ export const IFS: AddFunctionDescription = {
       )}
   `),
   returns: ["ANY"],
-  compute: function (...values: (() => ArgValue)[]): ReturnValue {
+  compute: function (...values: (() => PrimitiveArgValue)[]): ReturnValue {
     assert(
       () => values.length % 2 === 0,
       _lt(`Wrong number of arguments. Expected an even number of arguments.`)
@@ -129,7 +132,7 @@ export const NOT: AddFunctionDescription = {
     `
   ),
   returns: ["BOOLEAN"],
-  compute: function (logicalExpression: ArgValue): boolean {
+  compute: function (logicalExpression: PrimitiveArgValue): boolean {
     return !toBoolean(logicalExpression);
   },
   isExported: true,
@@ -149,7 +152,7 @@ export const OR: AddFunctionDescription = {
       )}
     `),
   returns: ["BOOLEAN"],
-  compute: function (...logicalExpressions: Argument[]): boolean {
+  compute: function (...logicalExpressions: ArgValue[]): boolean {
     let foundBoolean = false;
     let acc = false;
     conditionalVisitBoolean(logicalExpressions, (arg) => {
@@ -177,7 +180,7 @@ export const XOR: AddFunctionDescription = {
       )}
     `),
   returns: ["BOOLEAN"],
-  compute: function (...logicalExpressions: Argument[]): boolean {
+  compute: function (...logicalExpressions: ArgValue[]): boolean {
     let foundBoolean = false;
     let acc = false;
     conditionalVisitBoolean(logicalExpressions, (arg) => {

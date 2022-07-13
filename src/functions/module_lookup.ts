@@ -1,6 +1,12 @@
 import { toZone } from "../helpers/index";
 import { _lt } from "../translation";
-import { AddFunctionDescription, ArgRange, ArgValue, CellValue, ReturnValue } from "../types";
+import {
+  AddFunctionDescription,
+  CellValue,
+  MatrixArgValue,
+  PrimitiveArgValue,
+  ReturnValue,
+} from "../types";
 import { args } from "./arguments";
 import {
   assert,
@@ -23,7 +29,7 @@ const DEFAULT_IS_SORTED = true;
  * - [3, 6, 10], 9 => -1
  * - [3, 6, 10], 2 => -1
  */
-function linearSearch(range: (CellValue | undefined)[], target: ArgValue): number {
+function linearSearch(range: (CellValue | undefined)[], target: PrimitiveArgValue): number {
   for (let i = 0; i < range.length; i++) {
     if (range[i] === target) {
       return i;
@@ -93,10 +99,10 @@ export const HLOOKUP: AddFunctionDescription = {
   `),
   returns: ["ANY"],
   compute: function (
-    searchKey: ArgValue,
-    range: ArgRange,
-    index: ArgValue,
-    isSorted: ArgValue = DEFAULT_IS_SORTED
+    searchKey: PrimitiveArgValue,
+    range: MatrixArgValue,
+    index: PrimitiveArgValue,
+    isSorted: PrimitiveArgValue = DEFAULT_IS_SORTED
   ): ReturnValue {
     const _index = Math.trunc(toNumber(index));
     assert(
@@ -140,9 +146,9 @@ export const LOOKUP: AddFunctionDescription = {
   `),
   returns: ["ANY"],
   compute: function (
-    searchKey: ArgValue,
-    searchArray: ArgRange,
-    resultRange: ArgRange | undefined
+    searchKey: PrimitiveArgValue,
+    searchArray: MatrixArgValue,
+    resultRange: MatrixArgValue | undefined
   ): ReturnValue {
     let nbCol = searchArray.length;
     let nbRow = searchArray[0].length;
@@ -201,9 +207,9 @@ export const MATCH: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (
-    searchKey: ArgValue,
-    range: ArgRange,
-    searchType: ArgValue = DEFAULT_SEARCH_TYPE
+    searchKey: PrimitiveArgValue,
+    range: MatrixArgValue,
+    searchType: PrimitiveArgValue = DEFAULT_SEARCH_TYPE
   ): number {
     let _searchType = toNumber(searchType);
     const nbCol = range.length;
@@ -298,10 +304,10 @@ export const VLOOKUP: AddFunctionDescription = {
   `),
   returns: ["ANY"],
   compute: function (
-    searchKey: ArgValue,
-    range: ArgRange,
-    index: ArgValue,
-    isSorted: ArgValue = DEFAULT_IS_SORTED
+    searchKey: PrimitiveArgValue,
+    range: MatrixArgValue,
+    index: PrimitiveArgValue,
+    isSorted: PrimitiveArgValue = DEFAULT_IS_SORTED
   ): ReturnValue {
     const _index = Math.trunc(toNumber(index));
     assert(
